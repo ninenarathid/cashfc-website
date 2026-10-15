@@ -6,7 +6,7 @@
   "mounts": 61,
   "minions": 227,
   "rare": null,
-  "level": 100,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -25,7 +25,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-10-14"
+  "chg": "2026-10-15"
  },
  "15308846": {
   "name": "Aqua Eleison",
@@ -347,7 +347,7 @@
   "mounts": 143,
   "minions": 287,
   "rare": null,
-  "level": 100,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -368,7 +368,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-15"
+  "chg": "2026-10-15"
  },
  "57885671": {
   "name": "Aisu Kazimira",
@@ -665,11 +665,11 @@
    3736,
    3758,
    3760,
+   3761,
    3762,
    3763,
    3765,
    3766,
-   3767,
    3770,
    3771,
    3778,
@@ -2289,7 +2289,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 59,
+  "level": 46,
   "cc": [
    true,
    true,
@@ -4140,9 +4140,9 @@
   "name": "Seville Beoulve",
   "parse": 1,
   "ult": 0,
-  "mounts": 173,
-  "minions": 416,
-  "rare": 437,
+  "mounts": 176,
+  "minions": 418,
+  "rare": 440,
   "level": 100,
   "cc": [
    false,
@@ -4176,7 +4176,6 @@
    1352,
    1381,
    1382,
-   1727,
    1859,
    1860,
    1861,
@@ -4250,6 +4249,7 @@
    3714,
    3951,
    3964,
+   4035,
    4043,
    4045
   ],
@@ -4265,7 +4265,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-10-11"
+  "chg": "2026-10-15"
  },
  "43864764": {
   "name": "Shinonome Kamemaru",
@@ -4798,7 +4798,7 @@
   "mounts": 22,
   "minions": 65,
   "rare": 7,
-  "level": 100,
+  "level": 71,
   "cc": [
    true,
    true,
@@ -4825,7 +4825,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-11"
+  "chg": "2026-10-15"
  },
  "26298391": {
   "name": "Yozora Luna",
@@ -7253,7 +7253,7 @@
   "mounts": 70,
   "minions": 104,
   "rare": 57,
-  "level": 90,
+  "level": 84,
   "cc": [
    false,
    false,
@@ -7329,7 +7329,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-10-14"
+  "chg": "2026-10-15"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -8514,7 +8514,7 @@
  },
  "34874723": {
   "name": "Allen Fliegen",
-  "parse": 22,
+  "parse": 41,
   "ult": 0,
   "mounts": 73,
   "minions": 149,
@@ -8531,10 +8531,12 @@
   "tiers": {},
   "jobs": {},
   "ex": [
-   "Valigarmanda"
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-08"
+  "chg": "2026-10-15"
  },
  "47525984": {
   "name": "Dasei Mizumoto",
@@ -8716,6 +8718,7 @@
   "tiers": {},
   "jobs": {},
   "ex": [
+   "Queen Eternal",
    "Valigarmanda",
    "Zoraal Ja"
   ],
@@ -8790,7 +8793,7 @@
  },
  "44085912": {
   "name": "Mayu Ferguson",
-  "parse": 20,
+  "parse": 22,
   "ult": 0,
   "mounts": 114,
   "minions": 254,
@@ -8813,7 +8816,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-19"
+  "chg": "2026-10-15"
  },
  "60972300": {
   "name": "Mizuki Sekine",

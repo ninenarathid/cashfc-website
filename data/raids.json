@@ -68010,7 +68010,13 @@
     "best": 34,
     "kills": 2,
     "job": "Machinist",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Machinist": {
+      "kills": 2,
+      "best": 34
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -68021,7 +68027,13 @@
     "best": 43,
     "kills": 2,
     "job": "Machinist",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Machinist": {
+      "kills": 5,
+      "best": 62
+     }
+    }
    }
   ],
   "legacy": [],
@@ -82177,7 +82189,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 16,
-    "kills": 11,
+    "kills": 13,
     "job": "Reaper",
     "cleared": true,
     "job_kills": {
@@ -82193,8 +82205,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1072,
     "name": "Zoraal Ja",
-    "best": 20,
-    "kills": 44,
+    "best": 22,
+    "kills": 46,
     "job": "Reaper",
     "cleared": true,
     "job_kills": {
@@ -90740,10 +90752,21 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1078,
+    "name": "Queen Eternal",
+    "best": 5,
+    "kills": 3,
+    "job": "DarkKnight",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 48,
-    "kills": 13,
+    "kills": 15,
     "job": "Reaper",
     "cleared": true,
     "job_kills": {
@@ -90772,7 +90795,7 @@
     "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 63,
-    "kills": 9,
+    "kills": 11,
     "job": "Reaper",
     "cleared": true,
     "job_kills": {
@@ -90833,11 +90856,22 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1078,
+    "name": "Queen Eternal",
+    "best": 16,
+    "kills": 3,
+    "job": "Monk",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
     "encounter_id": 1071,
     "name": "Valigarmanda",
-    "best": 22,
-    "kills": 12,
-    "job": "Sage",
+    "best": 32,
+    "kills": 13,
+    "job": "Samurai",
     "cleared": true,
     "job_kills": {
      "Samurai": {
@@ -90853,6 +90887,17 @@
       "best": 12
      }
     }
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1072,
+    "name": "Zoraal Ja",
+    "best": 41,
+    "kills": 2,
+    "job": "Samurai",
+    "cleared": true
    }
   ],
   "legacy": [],
