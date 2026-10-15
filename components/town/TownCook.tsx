@@ -366,6 +366,8 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     if (!did.ok) { say(did.why); return; }
     // (the pot that came of it stands in a slot that had no pot before: the card's helping and its setting down are of that one, whatever other pots the bag has)
     const slot = did.made ? keeper.purse().bag.findIndex((s, i) => s?.item === "potFull" && s.of?.dish === did.made && before[i]?.item !== "potFull") : -1;
+    // (piece 2.4: the grade of what came of it: the new pot's, or the grade of which there is more of the thing made than before)
+    const after = keeper.purse().bag, grade = slot >= 0 ? after[slot]?.grade : did.made ? ([3, 2, 1] as const).find((g) => held(after, did.made!, g) > held(before, did.made!, g)) : undefined;
     // (a recipe's dish is a go won; the odd dish, and nothing, are not)
     const right = isFind(did.made);
     // (the board itself was played to its end whatever came out of the pot; the hearth sprite's pot had no board)
@@ -373,7 +375,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     setThings([]);
     setRefusal(null);
     jot({ at: keeper.now(), things: job.things, tool: job.crew[0], cooks: job.crew.length, made: did.made, n: did.n + (did.fresh ? YARD.gives : 0), ...(did.taste ? { taste: did.taste } : {}), ...(did.first ? { first: true } : {}) });
-    setResult({ made: did.made, n: did.n + (did.fresh ? YARD.gives : 0), first: did.first, ...(slot >= 0 ? { slot } : {}), ...(did.taste ? { taste: did.taste, things: job.things, crew: job.crew } : {}), ...(did.sprite ? { sprite: true } : {}), ...(did.back ? { back: true } : {}) });
+    setResult({ made: did.made, n: did.n + (did.fresh ? YARD.gives : 0), first: did.first, ...(slot >= 0 ? { slot } : {}), ...(grade ? { grade } : {}), ...(did.taste ? { taste: did.taste, things: job.things, crew: job.crew } : {}), ...(did.sprite ? { sprite: true } : {}), ...(did.back ? { back: true } : {}) });
     // what comes off the pot, and what it sounds like: a dish, something made, an odd dish, or nothing
     const odd = !right && !!did.made, cooked = right && did.made! in DISHES;
     sfx?.wake();

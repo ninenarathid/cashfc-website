@@ -6,6 +6,8 @@ import { BOWL, DISHES, ITEMS, potIconOf, type DishId, type ItemId } from "@/lib/
 import { STAMINA, bowlsToday, helpingGives, mealOf } from "@/lib/town/stamina";
 import { held, type Purse } from "@/lib/town/trade";
 import TownIcon, { type IconName } from "./TownIcon";
+import { GradeBadge } from "./TownTrade";
+import { buffFloorOf } from "@/lib/town/quality";
 
 /** An hour and its minutes by Bangkok's clock, as the town's own clock writes them. */
 export const clockOf = (ms: number) => {
@@ -74,7 +76,8 @@ export default function TownFeast({ th, phone, tabbar, me, pots, purse, now, mos
   // What a helping would give me now, with whoever is eating in the yard: said on the button before I sit down (the
   // owner, 2026-10-08: the table said nothing of the five minutes, of what a meal gives, or of what company adds).
   const each = Math.round(STAMINA.together * 100), bonus = each * Math.min(STAMINA.company, folk);
-  const gives = (dish: DishId) => { const n = Math.max(1, Math.round(helpingGives(dish, folk))); return th ? `${STAMINA.minutes} นาที · stamina +${n}` : `${STAMINA.minutes} min · stamina +${n}`; };
+  // (piece 2.4: and what the pot's grade adds to it, +20% / +40% / +60% of the dish's own)
+  const gives = (dish: DishId, grade?: number) => { const n = Math.max(1, Math.round(helpingGives(dish, folk, grade))); return th ? `${STAMINA.minutes} นาที · stamina +${n}` : `${STAMINA.minutes} min · stamina +${n}`; };
   return (
     <div className={`pop-in pointer-events-auto absolute z-20 overflow-hidden border border-line-lit bg-surface/97 shadow-xl shadow-black/40 backdrop-blur-sm ${phone
            ? "inset-x-0 h-[min(84%,42rem)] rounded-t-2xl" : "right-3 top-16 w-[25rem] rounded-2xl"}`}
@@ -117,7 +120,7 @@ export default function TownFeast({ th, phone, tabbar, me, pots, purse, now, mos
                   return (
                     <li key={slot} className="flex items-center gap-2">
                       <TownIcon name={potIconOf(dish) as IconName} size={26} />
-                      <span className="min-w-0 flex-1 truncate text-ui text-ink">{name(dish)} <span className="font-data tabular-nums text-muted">×{s!.of!.left}</span></span>
+                      <span className="min-w-0 flex-1 truncate text-ui text-ink">{name(dish)} <span className="font-data tabular-nums text-muted">×{s!.of!.left}</span><GradeBadge grade={s!.grade} th={th} inline /></span>
                       {odd ? <span className="shrink-0 text-meta text-muted" data-feast-odd>{th ? "โต๊ะไม่รับอาหารแปลกๆ" : "The table takes no odd dish"}</span> : (
                         <button type="button" disabled={busy || !room} onClick={() => onSet(slot)} data-feast-set={slot} className={`${chip} shrink-0 border border-line-lit bg-surface text-ink`}>
                           {th ? "วางบนโต๊ะ" : "Set on the table"}
@@ -143,7 +146,7 @@ export default function TownFeast({ th, phone, tabbar, me, pots, purse, now, mos
                     <div className="flex items-center gap-2.5">
                       <TownIcon name={potIconOf(pot.dish) as IconName} size={34} />
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-ui font-semibold text-ink">{name(pot.dish)} <span className="font-data font-normal tabular-nums text-muted">×{pot.left}</span></p>
+                        <p className="truncate text-ui font-semibold text-ink">{name(pot.dish)} <span className="font-data font-normal tabular-nums text-muted">×{pot.left}</span><GradeBadge grade={pot.grade} th={th} inline /></p>
                         {/* ── forging: old tools ── what this pot has from the cookware it was cooked in, for whoever eats out of it here: a state of the pot */}
                         {(!!pot.scent || !!pot.warm) && (
                           <p className="mt-0.5 flex flex-wrap gap-1 text-label text-gold" data-feast-marks>
@@ -157,7 +160,7 @@ export default function TownFeast({ th, phone, tabbar, me, pots, purse, now, mos
                         </p>
                       </div>
                       {own && (
-                        <button type="button" disabled={busy} onClick={() => onTake(pot)} data-feast-take className="pressable shrink-0 rounded-full border border-line px-3 py-1.5 text-meta font-semibold text-muted disabled:opacity-45">
+                        <button type="button" disabled={busy} onClick={() => onTake(pot)} data-feast-take className="pressable min-h-11 shrink-0 rounded-full border border-line px-3 py-1.5 text-meta font-semibold text-muted disabled:opacity-45">
                           {th ? "เก็บคืน" : "Take back"}
                         </button>
                       )}
@@ -167,7 +170,11 @@ export default function TownFeast({ th, phone, tabbar, me, pots, purse, now, mos
                         <TownIcon name="meal" size={18} />
                         <span className="flex min-w-0 flex-col items-start text-left leading-tight">
                           <span>{th ? "นั่งกินที่โต๊ะ" : "Eat at the table"}</span>
-                          <span className="font-data text-meta font-normal tabular-nums" data-feast-gives>{gives(pot.dish)}{buff ? (th ? " · ได้บัฟ" : " · a buff") : ""}</span>
+                          {/* (what the stamina and the buff promise each keep together, and wrap as a whole on a narrow phone) */}
+                          <span className="flex flex-wrap gap-x-1 font-data text-meta font-normal tabular-nums" data-feast-gives>
+                            <span className="whitespace-nowrap">{gives(pot.dish, pot.grade)}</span>
+                            {buff && <span className="whitespace-nowrap">{buffFloorOf(pot.grade) ? (th ? `· บัฟขั้น ${buffFloorOf(pot.grade)}` : `· buff Lv ${buffFloorOf(pot.grade)}`) : th ? "· ได้บัฟ" : "· a buff"}</span>}
+                          </span>
                         </span>
                       </button>
                       <button type="button" disabled={busy || !fits} onClick={() => onLadle(pot)} data-feast-ladle className={`${chip} border border-line-lit bg-surface text-ink`}>
