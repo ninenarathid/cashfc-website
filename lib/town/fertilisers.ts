@@ -46,12 +46,17 @@ export const FERTS = {
   nectarLure: top({ pollen: 1 }, 24), sulphurPowder: top({ guard: 1 }, 24), resinWash: top({ guard: 1 }, 24),
   // top: two bars by half
   sawdustMulch: top({ soil: 0.5, water: 0.5 }, 48), shellMeal: top({ soil: 0.5, guard: 0.5 }, 24), shreddedBark: top({ water: 0.5, guard: 0.5 }, 48),
+  // (of the time bands' newcomers, lib/town/band-species: a large fish, the cave's guano, an ornate fish, a soil-worker,
+  // the dawn's dew, a glowing insect; and the two three-day packets of the rare finds of 03–05 and 23–03)
+  boneMeal: base({ soil: 1 }), guanoMeal: base({ pollen: 1 }), scalePowder: base({ soil: 1 }),
+  beetleFrass: top({ soil: 0.5, pollen: 0.5 }, 24), dewPollen: top({ water: 0.5, pollen: 0.5 }, 12), glowPowder: top({ pollen: 0.5, guard: 0.5 }, 12),
+  packetMist: top({ water: 0.5, pollen: 0.5 }, 72, true), packetNight: top({ pollen: 0.5, guard: 0.5 }, 72, true),
 } as const satisfies Record<string, Fert>;
 export type FertId = keyof typeof FERTS;
 export const isFert = (id: unknown): id is FertId => typeof id === "string" && Object.hasOwn(FERTS, id);
 
-const item = (th: string, en: string, lookTh: string, lookEn: string, pays: number): Item =>
-  ({ kind: "goods", tier: 2, name: { th, en }, about: { th: lookTh, en: lookEn }, stack: 20, pays });
+const item = (th: string, en: string, lookTh: string, lookEn: string, pays: number, tier: 2 | 3 = 2): Item =>
+  ({ kind: "goods", tier, name: { th, en }, about: { th: lookTh, en: lookEn }, stack: 20, pays });
 
 /** The new fertilisers as things (the leaf mulch and mineral water are already things). */
 export const FERT_ITEMS = {
@@ -72,6 +77,15 @@ export const FERT_ITEMS = {
   sawdustMulch: item("ขี้เลื่อยคลุมดิน", "Sawdust mulch", "ขี้เลื่อยสีน้ำตาลอ่อนฟูในกระสอบเล็ก", "Fluffy pale sawdust in a small sack", 4),
   shellMeal: item("ป่นเปลือกหอย", "Shell meal", "ผงสีขาวนวลมีเกล็ดเปลือกหอย", "An off-white powder flecked with shell", 2),
   shreddedBark: item("เปลือกไม้สับ", "Shredded bark", "เปลือกสนสับเป็นชิ้นเล็กสีน้ำตาลแดง", "Red-brown pine bark in small shreds", 3),
+  boneMeal: item("ป่นกระดูกปลา", "Fish-bone meal", "ผงสีขาวนวลเนื้อหยาบในถุงผ้า", "A coarse off-white meal in a cloth bag", 11),
+  guanoMeal: item("ปุ๋ยมูลค้างคาว", "Guano fertiliser", "เม็ดเล็กสีน้ำตาลเข้มในถุงกระดาษ", "Small dark brown granules in a paper bag", 4),
+  scalePowder: item("ผงเกล็ดปลาสวย", "Ornate scale powder", "ผงวาวสีรุ้งจากเกล็ดปลาในขวดแก้ว", "An iridescent powder of fish scales in a glass jar", 32, 3),
+  beetleFrass: item("มูลด้วง", "Beetle frass", "เม็ดดินร่วนสีเข้มในถุงผ้าเล็ก", "Dark crumbly pellets in a small cloth bag", 2),
+  dewPollen: item("น้ำค้างผสมเกสร", "Dew pollen", "หยดน้ำค้างใสคนกับเกสรเหลืองในขวดเล็ก", "Clear dew stirred with yellow pollen in a little bottle", 4),
+  // (the glowers' use the design named, lib/town/band-species' GLOW_POWDER, made a fertiliser: "ผงหิ่งห้อย")
+  glowPowder: item("ผงเรือง", "Glow powder", "ผงละเอียดสีเขียวอมฟ้าเปล่งแสงจางๆ ในขวดเล็ก", "Fine blue-green powder that glows faintly, in a little jar", 10),
+  packetMist: item("ห่อสามวันหมอก", "Three-day mist packet", "ห่อใบตองผูกเชือก ไอหมอกเย็นลอยออกมา", "A leaf-wrapped packet tied with twine, a cool mist curling out", 72, 3),
+  packetNight: item("ห่อสามวันราตรี", "Three-day night packet", "ห่อผ้าสีครามผูกเชือก ประกายเรืองลอดออกมา", "An indigo cloth packet tied with twine, a faint glow showing through", 75, 3),
 } as const satisfies Partial<Record<FertId, Item>>;
 
 /** How each new one is made: by hand, no cookware, as the old fertilisers are (the last thing named is the one the recipe hides, lib/town/clues). */
@@ -93,6 +107,14 @@ export const FERT_MAKES: Partial<Record<FertId, Make>> = {
   sawdustMulch: { needs: [["knottedWood", 3]], in: [], gives: 2 },
   shellMeal: { needs: [["snail", 2]], in: [], gives: 2 },
   shreddedBark: { needs: [["pineBark", 3]], in: [], gives: 2 },
+  boneMeal: { needs: [["burbot", 1]], in: [], gives: 3 },
+  guanoMeal: { needs: [["batGuano", 1], ["compost", 1]], in: [], gives: 2 },
+  scalePowder: { needs: [["compost", 1], ["peacockGudgeon", 1]], in: [], gives: 2 },
+  beetleFrass: { needs: [["bessBeetle", 1], ["leafMould", 1]], in: [], gives: 2 },
+  dewPollen: { needs: [["morningDew", 1], ["chamomile", 1]], in: [], gives: 2 },
+  glowPowder: { needs: [["blueGhostFirefly", 1], ["resin", 1]], in: [], gives: 2 },
+  packetMist: { needs: [["mistMushroom", 1], ["dewPollen", 3]], in: [], gives: 1 },
+  packetNight: { needs: [["queenPollen", 1], ["glowPowder", 3]], in: [], gives: 1 },
 };
 
 /** A fertiliser put on a plant: which, from when, and (a top) until when. */

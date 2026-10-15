@@ -1,7 +1,7 @@
 import { KINDS, SPOT_KINDS, type SpotKind } from "./forest";
 import { CROPS, CROP_IDS, FISH, ITEMS, MAKES, growIconOf, type CropId, type Fish, type FishId, type ItemId, type ItemKind, type Tier } from "./items";
 import { HELPER_CROPS } from "./helper-items";
-import { isFert } from "./fertilisers";
+import { FERTS, isFert, type Fert } from "./fertilisers";
 import { BASIC, UNLOCKS } from "./orders";
 import type { Line } from "./talk";
 import { GEOLOGY_RAW } from "./geology-items";
@@ -225,7 +225,12 @@ export function clueOf(id: ItemId): Clue {
   const kind = ITEMS[id].kind;
   if (Object.hasOwn(PREP_MAKES,id)) return {sort:[line("วัตถุดิบที่หั่นหรือผึ่งไว้","an ingredient cut or dried"),line("วัตถุดิบที่บดและผสม","an ingredient ground and mixed"),line("วัตถุดิบที่คั่วหรือตีเข้ากัน","an ingredient toasted or whisked")][PREPARATION.methods[id as PrepId]],from:line("ทดลองที่เขียงใกล้เตาในลานอาหาร","try a preparation board beside a kitchen stove")};
   // (the farm's Quality's fertilisers, lib/town/fertilisers: told as one, so the seventeen never crowd another made thing's clue)
-  if (isFert(id) && id in MAKES) return { sort: line("ปุ๋ยบำรุงสักอย่าง", "some fertiliser"), from: line(`ผสมด้วยมือจากของ ${MAKES[id]!.needs.length} อย่าง`, `mixed by hand from ${MAKES[id]!.needs.length} things`) };
+  if (isFert(id) && id in MAKES) {
+    const f = FERTS[id] as Fert, word = { soil: ["ดิน", "soil"], water: ["น้ำ", "water"], pollen: ["เกสร", "pollen"], guard: ["ป้องกัน", "guard"] } as const;
+    const bars = Object.entries(f.bars) as Array<[keyof typeof word, number]>;
+    return { sort: f.slot === "base" ? line("ปุ๋ยรองพื้นสักอย่าง", "some base fertiliser") : line("ปุ๋ยแต่งหน้าสักอย่าง", "some top dressing"),
+      from: line(`เติมแถบ${bars.map(([r, v]) => `${word[r][0]}${v < 1 ? "ครึ่ง" : "เต็ม"}`).join(" แถบ")} ผสมด้วยมือ`, `fills ${bars.map(([r, v]) => `${v < 1 ? "half the" : "the whole"} ${word[r][1]} bar`).join(" and ")}; mixed by hand`) };
+  }
   if (isCraft(id)) return { sort: KIND_WORD[kind], from: line(`ประกอบที่โต๊ะงานจากวัสดุ ${CRAFTS[id].length} อย่าง`, `assembled at the workshop from ${CRAFTS[id].length} materials`) };
   if ((STREAM_RAW as readonly string[]).includes(id)) return {sort:line("ของที่แยกเก็บจากต้นน้ำ", "a part collected beside a mountain stream"),from:line("แถวแอ่งและร่องไหลบนภูเขา", "at mountain pools and running channels")};
   const part=Object.entries(FORAGE_PARTS.parts).flatMap(([spot,parts])=>Object.entries(parts).map(([part,item])=>({spot,part,item}))).find(p=>p.item===id);

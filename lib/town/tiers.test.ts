@@ -51,9 +51,10 @@ describe("three times the things (the owner: \"ช่วยเพิ่ม ไ�
     // (and two dishes of the forest's that take an egg, with their scrolls)
     // (and a grasshopper, which goes on a hook as a cricket does)
     // (and the farm's Quality's insect house, of the second tier, 2026-10-15; and its seventeen fertilisers, lib/town/fertilisers)
-    expect(by(2).length).toBe(72 + 13 + 1 + 2 + 3 + 1 + 23 - 2 + 2 + 2 + 1 + 1 + 17);
-    expect(by(3).length).toBe(72 + 12 + 2 + 1 - 1 + 24);
-    expect(by(2).length + by(3).length).toBe(72 * 2 + 25 + 1 + 4 + 4 + 47 - 2 + 4 + 1 + 1 + 17);
+    // (and of the time bands' newcomers, five fertilisers of the second tier and three of the third)
+    expect(by(2).length).toBe(72 + 13 + 1 + 2 + 3 + 1 + 23 - 2 + 2 + 2 + 1 + 1 + 17 + 5);
+    expect(by(3).length).toBe(72 + 12 + 2 + 1 - 1 + 24 + 3);
+    expect(by(2).length + by(3).length).toBe(72 * 2 + 25 + 1 + 4 + 4 + 47 - 2 + 4 + 1 + 1 + 17 + 8);
     // what was there before is still the early game, and still what the uncle sells
     for (const id of ["rod", "hoe", "pot", "worm", "minnow", "koi", "shabu", "scrollGrilledFish"] as const) expect(tierOf(id)).toBe(1);
     for (const id of ["rod", "hoe", "can", "pot", "pan", "grill", "worm", "dough", "rice", "salt", "riceBox", "seedKangkong", "scrollFriedMinnow"] as const) expect(GOODS[id]).toBeDefined();

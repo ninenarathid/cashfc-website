@@ -30,7 +30,8 @@ describe("the time bands' newcomers (piece 4b)", () => {
     }
     // (glow powder's picture is drawn; the item comes with its recipe in piece 3) and the mist's time icon
     expect((atlas.icons as Record<string, unknown>).glowPowder).toBeTruthy();
-    expect((ITEMS as Record<string, unknown>).glowPowder).toBeUndefined();
+    // (a fertiliser of the farm's Quality since 2026-10-15, lib/town/fertilisers: the glowers' use)
+    expect((ITEMS as Record<string, { kind?: string }>).glowPowder?.kind).toBe("goods");
     expect((atlas.icons as Record<string, unknown>).timeMist).toBeTruthy();
     expect(WINDOWS.length).toBe(24 + 24 + 4);
     for (const w of WINDOWS) {
