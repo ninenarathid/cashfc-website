@@ -278,6 +278,21 @@ const SHEETS = [
   ["icons-helper-fix-a", ["growFigA", "growFigB", "growGarlicChivesA", "growGarlicChivesB", "_fig", "_seedFig"], { range: [7.85, 8.15] }],
   ["icons-helper-fix-a", ["_growFigA", "_growFigB", "_growGarlicChivesA", "_growGarlicChivesB", "fig", "seedFig"], { range: [3.9, 4.1] }],
   // ── end: helper plants ──
+  // ── the time bands' newcomers (2026-10-15; lib/town/band-species) ── twenty-four insects (with icons-items-bm for the
+  // reference), twenty-four fish (with icons-items-av), and the four rare finds, glow powder and the mist time icon (with
+  // icons-items-bd). icons-band-insects-d came out coarse with its moths drawn half, and was drawn again (d2, with
+  // icons-band-insects-a for the reference), which is the one listed; its true pixels came out at 13.5 of the canvas,
+  // so it is cut on its half, which gives its insects the others' size (the first drawing is kept in work/out, not listed).
+  ["icons-band-insects-a", ["megaloptaBee", "ghostMantis", "railroadWorm", "indianNightBee", "snakefly", "earwig"], { range: [7.9, 8.1] }],
+  ["icons-band-insects-b", ["masonBee", "tigerBeetle", "roseChafer", "woolCarderBee", "oilBeetle", "assassinBug"], { range: [7.9, 8.1] }],
+  ["icons-band-insects-c", ["blueBandedBee", "robberFly", "superworm", "clearwingMoth", "antlion", "bessBeetle"], { range: [7.9, 8.1] }],
+  ["icons-band-insects-d2", ["yuccaMoth", "roveBeetle", "cucujoBeetle", "tobaccoHawkmoth", "blueGhostFirefly", "californiaGlowworm"], { range: [6.6, 6.85] }],
+  ["icons-band-fish-a", ["pearlDanio", "peacockGudgeon", "huchen", "forktailBlueEye", "empireGudgeon", "lenok"], { range: [5.3, 5.5] }],
+  ["icons-band-fish-b", ["zebrafish", "europeanChub", "arcticChar", "rosyBitterling", "pumpkinseed", "europeanGrayling"], { range: [5.2, 5.45] }],
+  ["icons-band-fish-c", ["leastKillifish", "australianBass", "lakeWhitefish", "tench", "goldenDorado", "europeanBullhead"], { range: [5.2, 5.45] }],
+  ["icons-band-fish-d", ["glassKnifefish", "tigerShovelnose", "burbot", "elephantnoseFish", "freshwaterSole", "dollyVarden"], { range: [4.8, 5.0] }],
+  ["icons-band-finds-a", ["mistMushroom", "queenPollen", "morningDew", "batGuano", "glowPowder", "timeMist"], { range: [6.8, 7.1] }],
+  // ── end: the time bands' newcomers ──
 ];
 
 const ONLY = process.env.ICONS_ONLY?.split(",").map((s) => s.trim()).filter(Boolean);

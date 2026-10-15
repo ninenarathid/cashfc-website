@@ -1,8 +1,8 @@
 {
-  "image": "/town/icons-03139f1d0719.png",
+  "image": "/town/icons-ef39ca6b2141.png",
   "size": [
     256,
-    11411
+    11732
   ],
   "icons": {
     "mic": [
@@ -8212,6 +8212,330 @@
       10911,
       46,
       59
+    ],
+    "megaloptaBee": [
+      178,
+      11541,
+      29,
+      33
+    ],
+    "ghostMantis": [
+      137,
+      11504,
+      30,
+      34
+    ],
+    "railroadWorm": [
+      169,
+      11504,
+      15,
+      34
+    ],
+    "indianNightBee": [
+      209,
+      11541,
+      34,
+      33
+    ],
+    "snakefly": [
+      40,
+      11577,
+      34,
+      32
+    ],
+    "earwig": [
+      52,
+      11464,
+      18,
+      37
+    ],
+    "masonBee": [
+      36,
+      11677,
+      31,
+      27
+    ],
+    "tigerBeetle": [
+      72,
+      11464,
+      25,
+      37
+    ],
+    "roseChafer": [
+      76,
+      11577,
+      24,
+      32
+    ],
+    "woolCarderBee": [
+      140,
+      11612,
+      29,
+      30
+    ],
+    "oilBeetle": [
+      69,
+      11677,
+      30,
+      27
+    ],
+    "assassinBug": [
+      114,
+      11464,
+      24,
+      36
+    ],
+    "blueBandedBee": [
+      102,
+      11577,
+      28,
+      32
+    ],
+    "robberFly": [
+      148,
+      11677,
+      34,
+      24
+    ],
+    "superworm": [
+      99,
+      11464,
+      13,
+      37
+    ],
+    "clearwingMoth": [
+      186,
+      11504,
+      38,
+      34
+    ],
+    "antlion": [
+      206,
+      11464,
+      24,
+      35
+    ],
+    "bessBeetle": [
+      226,
+      11504,
+      26,
+      34
+    ],
+    "yuccaMoth": [
+      111,
+      11413,
+      36,
+      44
+    ],
+    "roveBeetle": [
+      2,
+      11413,
+      20,
+      49
+    ],
+    "cucujoBeetle": [
+      88,
+      11413,
+      21,
+      46
+    ],
+    "tobaccoHawkmoth": [
+      24,
+      11413,
+      40,
+      48
+    ],
+    "blueGhostFirefly": [
+      2,
+      11577,
+      36,
+      33
+    ],
+    "californiaGlowworm": [
+      66,
+      11413,
+      20,
+      47
+    ],
+    "pearlDanio": [
+      139,
+      11645,
+      37,
+      28
+    ],
+    "peacockGudgeon": [
+      2,
+      11612,
+      39,
+      31
+    ],
+    "huchen": [
+      45,
+      11645,
+      47,
+      29
+    ],
+    "forktailBlueEye": [
+      132,
+      11577,
+      40,
+      32
+    ],
+    "empireGudgeon": [
+      171,
+      11612,
+      41,
+      30
+    ],
+    "lenok": [
+      43,
+      11612,
+      49,
+      31
+    ],
+    "zebrafish": [
+      100,
+      11707,
+      42,
+      22
+    ],
+    "europeanChub": [
+      2,
+      11504,
+      44,
+      35
+    ],
+    "arcticChar": [
+      48,
+      11504,
+      45,
+      35
+    ],
+    "rosyBitterling": [
+      95,
+      11504,
+      40,
+      35
+    ],
+    "pumpkinseed": [
+      210,
+      11413,
+      43,
+      38
+    ],
+    "europeanGrayling": [
+      2,
+      11464,
+      48,
+      38
+    ],
+    "leastKillifish": [
+      184,
+      11677,
+      40,
+      23
+    ],
+    "australianBass": [
+      174,
+      11577,
+      41,
+      32
+    ],
+    "lakeWhitefish": [
+      2,
+      11645,
+      41,
+      30
+    ],
+    "tench": [
+      2,
+      11541,
+      45,
+      34
+    ],
+    "goldenDorado": [
+      49,
+      11541,
+      46,
+      34
+    ],
+    "europeanBullhead": [
+      97,
+      11541,
+      49,
+      34
+    ],
+    "glassKnifefish": [
+      2,
+      11707,
+      47,
+      23
+    ],
+    "tigerShovelnose": [
+      94,
+      11645,
+      43,
+      29
+    ],
+    "burbot": [
+      51,
+      11707,
+      47,
+      23
+    ],
+    "elephantnoseFish": [
+      101,
+      11677,
+      45,
+      27
+    ],
+    "freshwaterSole": [
+      94,
+      11612,
+      44,
+      31
+    ],
+    "dollyVarden": [
+      178,
+      11645,
+      50,
+      28
+    ],
+    "mistMushroom": [
+      176,
+      11413,
+      32,
+      42
+    ],
+    "queenPollen": [
+      2,
+      11677,
+      32,
+      28
+    ],
+    "morningDew": [
+      149,
+      11413,
+      25,
+      43
+    ],
+    "batGuano": [
+      140,
+      11464,
+      33,
+      36
+    ],
+    "glowPowder": [
+      175,
+      11464,
+      29,
+      36
+    ],
+    "timeMist": [
+      148,
+      11541,
+      28,
+      34
     ]
   },
   "cursor": {
