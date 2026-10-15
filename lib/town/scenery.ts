@@ -317,6 +317,34 @@ export class SceneryKit {
     return p ? [p[4], p[5]] : [0, 0];
   }
 
+  /** Each prop's drawn pixels, read once when first asked for (opaqueAt). */
+  private readonly masks = new Map<string, { w: number; h: number; a: Uint8Array } | null>();
+  /**
+   * Whether a prop is drawn at a point of its picture (`u`, `v`: picture pixels from its top-left), or within `pad`
+   * pixels of it: a tap is the prop's only where the prop is, not on the ground seen past its post (the owner, 2026-10-15:
+   * every plot of a bed can be tapped, whatever stands beside it).
+   */
+  opaqueAt(name: string, u: number, v: number, pad = 0): boolean {
+    let m = this.masks.get(name);
+    if (m === undefined) {
+      const at = this.piece(name);
+      m = null;
+      if (at && typeof document !== "undefined") {
+        const [sx, sy, w, h] = at.p, c = document.createElement("canvas");
+        c.width = w; c.height = h;
+        const g = c.getContext("2d", { willReadFrequently: true });
+        if (g) { g.drawImage(at.img, sx, sy, w, h, 0, 0, w, h); const d = g.getImageData(0, 0, w, h).data, a = new Uint8Array(w * h); for (let i = 0; i < w * h; i++) a[i] = d[i * 4 + 3]; m = { w, h, a }; }
+      }
+      this.masks.set(name, m);
+    }
+    if (!m) return true;
+    for (let dy = -pad; dy <= pad; dy++) for (let dx = -pad; dx <= pad; dx++) {
+      const x = Math.floor(u + dx), y = Math.floor(v + dy);
+      if (x >= 0 && y >= 0 && x < m.w && y < m.h && m.a[y * m.w + x] >= 40) return true;
+    }
+    return false;
+  }
+
   /** A prop's size in picture pixels: [width, height]. */
   sizeOf(name: string): [number, number] {
     const p = this.piece(name)?.p;

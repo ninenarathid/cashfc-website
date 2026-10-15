@@ -3608,7 +3608,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // a sign held up: what it is for (its board is over a head, and over whatever is behind it)
     const board = signBoxes.current.find((b) => x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1);
     if (board) { setPopover(null); setCard(null); openSign(board.id); return; }
-    const who = personAt(x, y);
+    // (my own doll drawn over a plot behind me is no reason that plot cannot be tapped: a tap on me over another tile
+    // than the one I stand on is a step to it, the owner's ask of 2026-10-15 that every plot of a bed be reachable)
+    const whoAt = personAt(x, y), mineAt = sessionRef.current?.self, under = tileAt(x, y);
+    const who = whoAt && mineAt && whoAt.id === mineAt.info.id && walkable(under.x, under.y) && (under.x !== Math.floor(mineAt.pos.x) || under.y !== Math.floor(mineAt.pos.y)) ? null : whoAt;
     // (a thing lying at somebody's feet is drawn over them: a tap on it is for the thing, not for who stands there)
     const atFeet = !!who && gameRef.current && !!groundTap.current?.(x, y, true);
     // (and so is an insect that is over somebody, my own doll too: with a net in the hand a tap on one within reach is
@@ -3881,6 +3884,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       warp: (x: number, y: number) => sessionRef.current?.warpTo({ x: x + 0.5, y: y + 0.5 }) ?? false,
       /** Walk to a tile, as a tap on it does; and where I am now, and whether I am walking. */
       walk: (x: number, y: number) => sessionRef.current?.walkTo({ x, y }) ?? false,
+      /** Where a point of the map is on the page (client pixels), and where I am walking to (its tile): for checks that tap. */
+      tileScreen: (x: number, y: number) => { const p = toScreen(cam.current, toIso(x, y), cam.current.cw, cam.current.ch), r = canvasRef.current?.getBoundingClientRect(); return { x: p.x + (r?.left ?? 0), y: p.y + (r?.top ?? 0) }; },
+      goal: () => { const path = sessionRef.current?.self?.path ?? [], last = path[path.length - 1]; return last ? { x: Math.floor(last.x), y: Math.floor(last.y) } : null; },
       self: () => { const a = sessionRef.current?.self; return a ? { x: a.pos.x, y: a.pos.y, moving: a.path.length > 0 } : null; },
       /** Where somebody else is as this page has them, and whether they are walking. */
       at: (id: string) => { const a = sessionRef.current?.avatars.get(id); return a ? { x: a.pos.x, y: a.pos.y, moving: a.path.length > 0 } : null; },

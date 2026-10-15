@@ -12,7 +12,7 @@ import type { SceneryKit, Sprite } from "@/lib/town/scenery";
 import type { FishSfx } from "@/lib/town/sfx";
 import { isSpent } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
-import { FARM, FARM_PUMPKINS, FOREST, GREAT_TREE, TILE_W, WATERFALL, WELL, findPath, groundAt, placeOf, walkable, type Vec } from "@/lib/town/world";
+import { FARM, FARM_PUMPKINS, FOREST, GREAT_TREE, TILE_W, WATERFALL, WELL, findPath, groundAt, placeOf, plotAt, walkable, type Vec } from "@/lib/town/world";
 import type { FarmFrame } from "./TownFarm";
 import TownFoot from "./TownFoot";
 
@@ -508,16 +508,17 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
   }, [hereKey, take, light]);
 
   // ── what the map draws, and what it asks ──
-  const boxes = useRef<{ fire: Box | null; board: Box | null; posts: Array<[number, Box]> }>({ fire: null, board: null, posts: [] });
+  // (a post's box comes with what is needed to ask its picture whether a point is the post: its name, foot and scale)
+  const boxes = useRef<{ fire: Box | null; board: Box | null; posts: Array<[number, Box, Art]>; fireArt?: Art; boardArt?: Art }>({ fire: null, board: null, posts: [] });
   /** The rings of the lamps in sight this frame, for the night's dark to be lifted in: where on the screen, how wide and high, how far up its light has come. */
   const rings = useRef<Array<{ x: number; y: number; rx: number; ry: number; k: number }>>([]);
   const shade = useRef<HTMLCanvasElement | null>(null), tintWas = useRef<readonly [number, number, number] | null>(null);
   /** The map's scale and whether it stands still, as the last frame had them: what a bearer's flame is drawn by. */
-  const view = useRef({ s: 1, still: false, dark: 0 });
+  const view = useRef<{ s: number; still: boolean; dark: number; project?: (t: Vec) => Vec }>({ s: 1, still: false, dark: 0 });
   useEffect(() => {
     const draw = (frame: FarmFrame) => {
       const { ctx, things, project, s, now: t, still, self, over, dark = 0 } = frame;
-      view.current = { s, still, dark };
+      view.current = { s, still, dark, project };
       rings.current = [];
       boxes.current = { fire: null, board: null, posts: [] };
       const k = kit.current, told = lampsRef.current, map = self ? placeOf(Math.floor(self.x), Math.floor(self.y)) : null;
@@ -538,7 +539,7 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
       const [fx, fy] = LAMPS.maps[map].fire, fire = tile(fx, fy);
       if (map === "farm" && k.has("brazier") && inSight(fire, 80 * s, 120 * s)) {
         const name = isNight && k.has("brazierLit") ? "brazierLit" : "brazier", z = s * FIRE_K;
-        boxes.current.fire = boxOf(name, fire, z, 4);
+        boxes.current.fire = boxOf(name, fire, z, 4); boxes.current.fireArt = { name, x: fire.x, y: fire.y, z };
         things.push({ depth: fx + fy + 1, draw: () => k.drawProp(ctx, name, fire.x, fire.y, z, px) });
       }
       // (the brazier's own warm light on the ground, as the camp's fire has the map's: added over the dark, which it
@@ -553,7 +554,7 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
       const [bx, by] = BOARD_AT[map], board = tile(bx, by);
       if (k.has("lampBoard") && inSight(board, 60 * s, 90 * s)) {
         const z = s * BOARD_K;
-        boxes.current.board = boxOf("lampBoard", board, z, 3);
+        boxes.current.board = boxOf("lampBoard", board, z, 3); boxes.current.boardArt = { name: "lampBoard", x: board.x, y: board.y, z };
         things.push({ depth: bx + by + 1, draw: () => k.drawProp(ctx, "lampBoard", board.x, board.y, z, px) });
       }
 
@@ -568,7 +569,7 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
         const [pw] = k.sizeOf("lampPost"), dx = (pw / 2 - POST.foot) * z, lantern = { x: at.x + (POST.lantern - POST.foot) * z, y: at.y - POST.up * z };
         const name = l && rise > 0.12 && k.has("lampPostLit") ? "lampPostLit" : "lampPost";
         if (k.has(name)) {
-          boxes.current.posts.push([i, boxOf(name, at, z, 4, dx)]);
+          boxes.current.posts.push([i, boxOf(name, at, z, 4, dx), { name, x: at.x + dx, y: at.y, z, lantern, foot: at }]);
           things.push({ depth: x + y + 1, draw: () => k.drawProp(ctx, name, at.x + dx, at.y, z, px) });
         }
         // (what grows round it: shut and plain by day and by a dark post, open and glowing by a lit one)
@@ -771,6 +772,9 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
     const tap: LampTap = (x, y, peek = false) => {
       const hit = (b: Box | null) => !!b && x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1;
       const b = boxes.current, at = hereRef.current, map = placeRef.current, told = lampsRef.current;
+      // (a picture of the lamps' is tapped only where it is drawn, give or take a few of its pixels: past it is the ground)
+      const sk = kit.current, drawn = (a?: Art) => !a || !sk || sk.opaqueAt(a.name, (x - a.x) / a.z + sk.anchorOf(a.name)[0], (y - a.y) / a.z + sk.anchorOf(a.name)[1], 3);
+
       if (!map || !told) return null;
       const far = (t: Vec) => (at ? Math.hypot(t.x - at[0], t.y - at[1]) : 0);
       /** The tile near enough a place that is nearest me and can be stood on. */
@@ -783,13 +787,28 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
         return best;
       };
       const clock = keeper.now(), tonight = nightOf(clock), th_ = thRef.current, words = (w: [string, string]) => setNote(th_ ? w[0] : w[1]);
-      if (hit(b.board)) {
+      if (hit(b.board) && drawn(b.boardArt)) {
         if (peek) return { walk: null };
         if (at && byTile(at, BOARD_AT[map], READ)) { want.current = null; setPanel(true); return { walk: null }; }
         want.current = "board";
         return { walk: beside(BOARD_AT[map], 1) };
       }
-      const post = b.posts.find(([, box]) => hit(box))?.[0];
+      // (a post only where its picture is drawn, give or take a few of its pixels: past its arm the ground is the ground)
+      // (a post is its lantern and the foot of its pole: a tap on the pole between is for the plot it stands before, the
+      // owner's ask of 2026-10-15 that every plot of a bed can be tapped)
+      const post = b.posts.find(([, box, p]) => hit(box) && drawn(p) && (!p.lantern || !p.foot || Math.hypot(x - p.lantern.x, y - p.lantern.y) <= 16 * p.z || (Math.abs(x - p.foot.x) <= 7 * p.z && y >= p.foot.y - 7 * p.z)))?.[0];
+      // (with no flame in the hand a post has nothing to do but say whose hands lit it: a tap on it over a plot of the
+      // farm other than its own is for the plot, which its lantern may hang over)
+      const overPlot = (): boolean => {
+        const pr = view.current.project, sc = view.current.s, tile = post !== undefined ? LAMPS.maps[map].posts[post] : null;
+        if (!pr || !tile) return false;
+        for (let dy = -3; dy <= 2; dy++) for (let dx = -3; dx <= 2; dx++) {
+          const u = tile[0] + dx, v = tile[1] + dy, c = pr({ x: u + 0.5, y: v + 0.5 });
+          if ((dx || dy) && plotAt(u, v) && Math.abs(x - c.x) / ((TILE_W / 2) * sc) + Math.abs(y - c.y) / ((TILE_W / 4) * sc) <= 1) return true;
+        }
+        return false;
+      };
+      if (post !== undefined && !(leftOf(told.flame, clock) > 0) && overPlot()) return null;
       if (post !== undefined) {
         if (peek) return { walk: null };
         const l = tonight !== null && told.night === tonight ? told.maps[map].lit.find((q) => q.post === post) ?? null : null, tile = LAMPS.maps[map].posts[post];
@@ -806,7 +825,7 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
         want.current = { post };
         return { walk: beside(tile, LAMPS.near) };
       }
-      if (hit(b.fire)) {
+      if (hit(b.fire) && drawn(b.fireArt)) {
         if (peek) return { walk: null };
         want.current = null;
         if (tonight === null) { words(WHY.day); return { walk: null }; }
@@ -1139,3 +1158,5 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
 }
 
 interface Box { x0: number; y0: number; x1: number; y1: number }
+/** Where a picture of the lamps' was drawn: its name, its foot on the screen and its scale (for a tap on its pixels only). */
+interface Art { name: string; x: number; y: number; z: number; lantern?: Vec; foot?: Vec }

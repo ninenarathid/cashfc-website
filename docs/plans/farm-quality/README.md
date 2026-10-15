@@ -134,6 +134,29 @@ is the artifact https://claude.ai/artifact/6jR6hbg7pHtGmfa3vQHFJC. This file is 
   stardust bait, the school bell or the dragon's pools.
 - **Pre-existing:** `lib/town/preview.test.ts` "joins the town and the mountain by a gate each" fails on farm-bands too.
 
+- **The fertilisers** (piece 3, lib/town/fertilisers; v266): 25 made by hand as the old fertilisers are (MAKES, no
+  cookware), so the workshop needed no batch counts. Where the design named a thing the game lacks, or a recipe could
+  not hide (no two made things take the same things; a recipe's last thing is the one it hides and needs a clue of
+  where it is found), the nearest that is: rotted leaves and compost for the forest's humus, wet clay for the lotus
+  silt, knotted wood for the wood scraps, straight-grained wood for the logs (no log goes in a pot: the owner's rule of
+  2026-10-08), the pond snail for the stream's snail, creek dace for "small fish", silk cocoons for the silk moth,
+  chamomile for wild flowers, burbot for "a large fish", the peacock gudgeon for "an ornate fish", the bess beetle for
+  "a soil-worker", the blue ghost firefly for "a glowing insect". The base goes on one's own plant in its first round
+  (not bare ground: no new plot column, nothing at sowing), the top over no live top. The two three-day packets have
+  fixed bars (mist: water and pollen halves, from three dew pollens and a mist mushroom; night: pollen and guard
+  halves, from three glow powders and the night-queen's pollen) instead of "as the packets used". The leaf mulch is the
+  design's base leaf fertiliser and no longer a growth feed; mineral water is its top and keeps its other uses. A held
+  fertiliser shows its gain by ripeness over each plant it may go on (fertGain: settled far ahead with and without).
+- **The house's insects fly the bed** (the owner's ask): two of each lived-in room over the plants it reaches, worked
+  out from the clock alone (components/town/houseInsects); wing frames to be drawn (`fly<Insect>A/B`).
+- **Glowing insects give light** (the owner: smaller and softer than a lamp, natural): a frame `light()` laid with the
+  gems' lights after the night; the firefly, the railroad worm and the three glowers, while they show (their flash
+  rises fast and fades).
+- **Plants of more than one plot are one picture** (the owner's ask): lib/town/wide-plants names it (rows turned over
+  for the other direction, L's front/back/side, the giants); the code-drawn giants are gone. The hybrids' pictures are
+  being redrawn to fit their plots exactly (the first were two thirds of their footprint).
+- **Every plot can be tapped** (the owner's ask): a tap on one's own doll over another tile walks there.
+
 ## Checks a piece gets
 
 New rules: unit tests and TypeScript/SQL parity vectors; SQL: a PGlite dry run from the snapshot with the breaks
