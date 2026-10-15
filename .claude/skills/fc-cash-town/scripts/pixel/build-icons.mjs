@@ -290,6 +290,18 @@ const SHEETS = [
   // (the bag's house drawn again with icons-wood and the first sheet for the reference: in the bag and the hotbar the
   // first one's nine small tube ends and holes ran into speckles; this one has six bigger ones)
   ["icons-insect-house-b", ["insectHouse", "_wedge", "_stake", "_barkKnife", "_sapTap", "_grainLens"], { range: [5.45, 5.65] }],
+  // ── the farm's fertilisers of Quality (2026-10-15; lib/town/fertilisers' FERT_ITEMS), in the goods set beside growFert,
+  // guardFert, mulch and compost, with icons-items-e for the reference: what comes in a bag or a sack (a), what is a heap,
+  // a lump or a handful (b), what is wet and a pouch of powder (c, its sixth a growFert drawn only to hold the size). a and
+  // c cut at the grid that gives them the goods' own size (28 to 44 tall); b on its finer grid (36 to 50): on its coarser
+  // they came out 18 to 25, at pixels nearly twice the others' in a bag slot
+  ["icons-fert-a", ["_slatePowder", "_biochar", "_silkFrass", "_woodAsh", "sawdustMulch", "sulphurPowder"], { range: [6.9, 7.15] }],
+  ["icons-fert-b", ["mineralClay", "forestHumus", "lotusSilt", "shreddedBark", "shellMeal", "chitinPowder"], { range: [4.8, 5.0] }],
+  ["icons-fert-c", ["fishEmulsion", "kitchenFerment", "_nectarLure", "_resinWash", "herbPowder", "_growFert"], { range: [7.85, 8.15] }],
+  // (drawn again after the look in the game: the first three of sheet a read as one cream sack with a dark heap at bag
+  // size, the ash's puff fell into specks, the nectar's flower and the resin's sprig were lost; each now its own cloth and
+  // shape with what it holds spilled in front, a big brass sprinkler, a pine cone on the flask)
+  ["icons-fert-d", ["slatePowder", "biochar", "silkFrass", "woodAsh", "nectarLure", "resinWash"], { range: [6.15, 6.4] }],
 ];
 
 const ONLY = process.env.ICONS_ONLY?.split(",").map((s) => s.trim()).filter(Boolean);
