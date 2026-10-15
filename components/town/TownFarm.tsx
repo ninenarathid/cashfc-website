@@ -39,7 +39,7 @@ import { buffBy, isSpent } from "@/lib/town/stamina";
 import { handOf, heldStack } from "@/lib/town/trade";
 import { NATURE_NAMES, type Nature } from "@/lib/town/waters";
 import type { Keeper } from "@/lib/town/keeper";
-import { FARM, WELL, bedCorner, bedOf, plotAt, type Vec } from "@/lib/town/world";
+import { FARM, TILE_H, WELL, bedCorner, bedOf, plotAt, type Vec } from "@/lib/town/world";
 import TownIcon, { ICON_ATLAS, petScale, type IconName } from "./TownIcon";
 import TownFoot from "./TownFoot";
 import { useLeaving } from "./useLeaving";
@@ -65,7 +65,8 @@ import { gardenCross, gardenMods } from "@/lib/town/gardening";
 import TownGardenPlacement from "./TownGardenPlacement";
 import { QualityBed, QualityChip, QualityInspector } from "./TownQuality";
 import { HouseChip, HousePanel } from "./TownInsectHouse";
-import { houseRoleOf, type HouseDeed, type InsectHouse } from "@/lib/town/insect-house";
+import { houseRoleOf, plantsInReach, type HouseDeed, type InsectHouse } from "@/lib/town/insect-house";
+import { insectPose, type HouseFlight, type InsectPose } from "./houseInsects";
 import { FERTS, isFert } from "@/lib/town/fertilisers";
 import { qualityNow } from "@/lib/town/quality-plant";
 import { COMPANIONS } from "@/lib/town/quality";
@@ -312,6 +313,12 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   /** The insect houses standing on the farm, by their plots (lib/town/insect-house): drawn on their plots, with the insects of their lived-in rooms about them. */
   const houses = useRef(new Map<string, InsectHouse>());
   houses.current = new Map(Object.entries(plots).flatMap(([k, plot]) => (plot.house ? [[k, plot.house] as [string, InsectHouse]] : [])));
+  /** The plants each house reaches, where its insects settle: the middle of each one's plots. */
+  const houseStops = useRef(new Map<string, Vec[]>());
+  houseStops.current = new Map([...houses.current.keys()].map((k) => [k, plantsInReach(k, plots).map((root) => {
+    const cells = (plots[root]?.plant?.footprint ?? [root]).map((c) => c.split(",").map(Number));
+    return { x: cells.reduce((n, [x]) => n + x + 0.5, 0) / cells.length, y: cells.reduce((n, [, y]) => n + y + 0.5, 0) / cells.length };
+  })]));
   /** A whole tree's root: the middle of its plots on the map, and the frontmost of them (it is drawn over all their soil). */
   const wholeTrees = useRef(new Map<string, { x: number; y: number; front: number }>());
   wholeTrees.current = new Map(Object.entries(plots).flatMap(([k, plot]) => {
@@ -411,6 +418,38 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         ctx.scale(-1, 1);
         ctx.drawImage(img, x, y, w, h, -(w * k) / 2, Math.round(at.y - h * k + 5 * s - lift), w * k, h * k);
         ctx.restore();
+      };
+      /**
+       * One of an insect house's insects (the owner's ask, 2026-10-15): its own picture, in the air with its shadow under
+       * it, its wings beating while it flies (two drawn frames, `fly<Insect>A`/`B`, where they are drawn; else its picture
+       * pressed thin and wide, as the forest's insects are), settled still on a plant; a pollinator shakes a little
+       * pollen down as it settles, a crawler leaves a crumb of soil behind it.
+       */
+      const drawHouseInsect = (bug: ItemId, how: HouseFlight, pose: InsectPose, c: Vec, seed: number) => {
+        const up = pose.lift * TILE_H * s, cap = bug[0].toUpperCase() + bug.slice(1);
+        const frames = [`fly${cap}A`, `fly${cap}B`].filter((n) => n in ICON_ATLAS.icons);
+        if (pose.lift > 0.15) { ctx.fillStyle = "rgba(0,0,0,0.16)"; ctx.beginPath(); ctx.ellipse(c.x, c.y, 4 * s, 2 * s, 0, 0, Math.PI * 2); ctx.fill(); }
+        const beat = Math.floor(t / 70 + seed) % 2;
+        const name = frames.length === 2 && pose.moving ? frames[beat] : frames[0] ?? iconOf(bug), cell = ICON_ATLAS.icons[name as IconName];
+        if (!cell || !img) return;
+        const [x, y, w, h] = cell, k = (frames.length ? 0.6 : 0.5) * s;
+        // (no wing frames drawn yet: the picture pressed thin and wide as its wings beat, as the forest's insects fly)
+        const wide = frames.length === 2 || !pose.moving || how === "crawl" ? 1 : 0.55 + 0.45 * Math.abs(Math.sin(t / 55 + seed));
+        ctx.save();
+        ctx.imageSmoothingEnabled = false;
+        ctx.translate(Math.round(c.x), Math.round(c.y - up + (how === "crawl" && pose.moving ? Math.sin(t / 90 + seed) * 0.6 * s : 0)));
+        ctx.scale((pose.right ? -1 : 1) * wide, 1);
+        ctx.drawImage(img, x, y, w, h, -(w * k) / 2, -h * k + 3 * s, w * k, h * k);
+        ctx.restore();
+        const px = Math.max(1, Math.round(1.4 * s));
+        // (a pollinator settling: three grains of pollen shaken down from the flower, falling and fading)
+        if (how === "fly" && !pose.moving && pose.settled < 900) for (let g = 0; g < 3; g++) {
+          const f = pose.settled / 900, gx = Math.round(c.x + (g - 1) * 3 * s + Math.sin(seed + g) * s), gy = Math.round(c.y - up + (4 + f * 12 + g * 2) * s);
+          ctx.globalAlpha = 0.85 * (1 - f); ctx.fillStyle = g === 1 ? "#ffe680" : "#f4c542"; ctx.fillRect(gx, gy, px, px);
+        }
+        // (a crawler on its way: a crumb of soil left behind it now and then)
+        if (how === "crawl" && pose.moving && Math.floor(t / 400 + seed) % 3 === 0) { ctx.globalAlpha = 0.7; ctx.fillStyle = "#5b3b22"; ctx.fillRect(Math.round(c.x + (pose.right ? 5 : -5) * s), Math.round(c.y + s), px, px); }
+        ctx.globalAlpha = 1;
       };
       /**
        * A parched plant: the air over it shimmers (three threads of it rising, each a little out of step with the
@@ -646,6 +685,19 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         if (giantRoot === plotKey(tx, ty) && what?.crop) {
           things.push({ depth: tx + ty + 2.8, draw: () => drawGiantPlant(frame, tx, ty, what.crop!, what.stage, what.dead) });
         }
+        // An insect house's insects: two of each lived-in room's own about the plants it reaches (components/town/houseInsects)
+        const hk = plotKey(tx, ty), home = what?.soil === "house" ? houses.current.get(hk) : undefined;
+        if (home) home.rooms.forEach((room, i) => {
+          const role = room && room.until > game ? houseRoleOf(room.bug) : null;
+          if (!room || !role) return;
+          const how: HouseFlight = role === "soil" ? "crawl" : role === "guard" ? "hunt" : "fly", stops = houseStops.current.get(hk) ?? [];
+          for (let j = 0; j < 2; j++) {
+            const seed = tx * 131 + ty * 71 + i * 17 + j * 5, pose = still ? { at: { x: tx + 0.5 + (j ? 0.3 : -0.3), y: ty + 0.5 }, lift: how === "crawl" ? 0 : 0.7, right: j === 0, moving: false, settled: 9999 } : insectPose({ x: tx + 0.5, y: ty + 0.5 }, stops, seed, t, how);
+            const c = project(pose.at);
+            if (!onScreen(c)) continue;
+            things.push({ depth: pose.at.x + pose.at.y + (pose.lift > 0.2 ? 3.6 : 0.65), draw: () => drawHouseInsect(room.bug, how, pose, c, seed) });
+          }
+        });
         // A whole tree (the fig): drawn once from its root, standing in the middle of its plots and over all their soil.
         const whole = wholeTrees.current.get(plotKey(tx, ty));
         if (whole && what?.crop) {
@@ -662,19 +714,6 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           if (house) {
             const cell = ICON_ATLAS.icons["plotInsectHouse" as IconName];
             blit("plotInsectHouse", at, 0, cell ? Math.max(PLANT, 34 / cell[3]) * s : PLANT * s);
-            const px = Math.max(2, Math.round(1.6 * s)), seed = tx * 5 + ty * 7;
-            house.rooms.forEach((room, i) => {
-              const role = room && room.until > game ? houseRoleOf(room.bug) : null;
-              if (!role) return;
-              for (let j = 0; j < 2; j++) {
-                const turn = (still ? 0 : t / (1700 + 300 * j)) + i * 2.3 + j * 3.1 + seed;
-                const x = Math.round(at.x + Math.cos(turn) * (10 + 4 * j) * s), y = Math.round(at.y - (22 + 6 * i + Math.sin(turn * 2) * 4) * s);
-                ctx.fillStyle = role === "pollen" ? "#ffd34d" : role === "guard" ? "#e2553f" : "#a8743c";
-                ctx.fillRect(x, y, px, px);
-                ctx.fillStyle = "rgba(255,255,255,0.75)";
-                ctx.fillRect(x - px, y - px, px, px);
-              }
-            });
             return;
           }
           // ── forging: old tools ── (a furrow the hoe left damp: a drop on the bare soil, as on a plant that has been watered)
