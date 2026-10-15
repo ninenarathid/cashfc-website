@@ -11,6 +11,7 @@ import TownCampFlag from './TownCampFlag';
 import TownWaykeeper from './TownWaykeeper';
 import TownSkyBean from "./TownSkyBean";
 import { wideSprite } from "@/lib/town/wide-plants";
+import WIDE_ART from "@/lib/town/wide-art.json";
 import TownGardenRewards from "./TownGardenRewards";
 import TownKitchenRewards from "./TownKitchenRewards";
 import TownPicnic from "./TownPicnic";
@@ -446,6 +447,17 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         if (what.dead) return null;
         const w = wideSprite(whole.crop, whole.giant, what.stage, whole.cells);
         if (!w || !(w.name in ICON_ATLAS.icons)) return null;
+        // (a picture measured onto its plots, lib/town/wide-art.json: its scale, and the point of it that stands on the
+        // middle of its plots, each plot's mound on that plot's middle; turned over, about the same middle)
+        const fit = (WIDE_ART as unknown as Record<string, [number, number, number]>)[w.name], cell = ICON_ATLAS.icons[w.name as IconName];
+        if (fit && cell && img) {
+          const [k, fx, fy] = fit, [cx, cy, cw, chh] = cell, kk = k * s;
+          return () => {
+            ctx.imageSmoothingEnabled = false;
+            if (!w.flip) { ctx.drawImage(img, cx, cy, cw, chh, Math.round(mid.x - fx * kk), Math.round(mid.y - fy * kk), cw * kk, chh * kk); return; }
+            ctx.save(); ctx.translate(Math.round(mid.x), 0); ctx.scale(-1, 1); ctx.drawImage(img, cx, cy, cw, chh, -fx * kk, Math.round(mid.y - fy * kk), cw * kk, chh * kk); ctx.restore();
+          };
+        }
         // (a giant stands on the middle of its four plots; a row or an L on the front of its frontmost plot)
         const foot = { x: mid.x, y: w.giant ? mid.y + 7 * s : Math.max(...whole.cells.map(([x, y]) => project({ x: x + 0.5, y: y + 0.5 }).y)) + s };
         return () => blit(w.name, foot, 0, PLANT * s, w.flip);
