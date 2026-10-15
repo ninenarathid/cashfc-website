@@ -83198,9 +83198,9 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 44.76,
+    "pct": 50.55,
     "phase": 4,
-    "pulls": 60,
+    "pulls": 21,
     "last": "2026-10-07",
     "last_ts": 1791385140
    }
@@ -85635,7 +85635,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 69,
-    "kills": 2,
+    "kills": 3,
     "job": "Scholar",
     "cleared": true,
     "job_kills": {
@@ -87879,7 +87879,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 82,
-    "kills": 9,
+    "kills": 10,
     "job": "Ninja",
     "cleared": true,
     "job_kills": {
@@ -89241,9 +89241,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 50,
-    "kills": 7,
-    "job": "Pictomancer",
+    "best": 74,
+    "kills": 10,
+    "job": "Paladin",
     "cleared": true
    },
    {
