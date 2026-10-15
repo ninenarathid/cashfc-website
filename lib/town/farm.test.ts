@@ -899,11 +899,12 @@ describe("digging a plant out (the owner, 2026-10-04: \"ใช้จอบ ข�
     expect(hoe(key, digger(), dying, "hoe", late)).toEqual({ ok: false, why: "soil" });
   });
 
-  it("takes a living plant only when it is said to be meant, and leaves nothing of it", () => {
+  it("takes a living plant only when it is said to be meant, and leaves nothing of it but tilled ground", () => {
     const p = digger(), plot = sown({ crop: "cabbage" }), t = NIGHT + HOUR;
     expect(uproot("1,1", p, plot, true, false, "hoe", t)).toEqual({ ok: false, why: "sure" });
     const out = done(uproot("1,1", p, plot, true, true, "hoe", t));
-    expect(out.plot).toEqual({ soil: "cleared", plant: null });
+    // (tilled, to be sown again at once: the farm's Quality, 2026-10-15)
+    expect(out.plot).toEqual({ soil: "tilled", plant: null });
     expect(out.got).toEqual([]);
     expect(out.purse.bag).toEqual(p.bag);
     expect(staminaOf(p, t) - staminaOf(out.purse, t)).toBe(FARMING.costs.pull);
@@ -943,7 +944,7 @@ describe("digging a plant out (the owner, 2026-10-04: \"ใช้จอบ ข�
     // asked twice: gone, and the bed tended
     const out = done(tend("1,1", plot, bed, 1, 0, digger(), "me", t, [], true));
     expect(out.deed).toBe("uproot");
-    expect(out.plot).toEqual({ soil: "cleared", plant: null });
+    expect(out.plot).toEqual({ soil: "tilled", plant: null });
     expect(out.got).toEqual([]);
     expect(out.bed).toEqual({ by: "me", tended: t, empty: 0 });
     // the last plant of the bed: the day it may stand empty begins
