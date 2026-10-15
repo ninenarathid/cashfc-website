@@ -53,6 +53,7 @@ import { YARD } from "./yard";
 import { COMPANIONS, PARTNERS, QUALITY } from "./quality";
 import { HAND } from "./quality-plant";
 import { HELPER_CROSSES, POLLINATOR_SKY } from "./helper-items";
+import { FAVOURITES, HOUSE, SOIL_WORKERS } from "./insect-house";
 
 /**
  * What the database is told of the game: the numbers its functions decide by.
@@ -102,7 +103,9 @@ export function catalogOf() {
     insect_garden: INSECT_GARDEN,
     // (v259: the farm's Quality, lib/town/quality and quality-plant: the range's numbers, from when it counts, hand work's hours, the encore's part)
     quality: { ...QUALITY, hand: HAND, encore: ENCORE, companions: Object.fromEntries(Object.entries(COMPANIONS).map(([id, c]) => [id, { role: c.role, shape: c.shape }])), partners: PARTNERS,
-      crosses: HELPER_CROSSES, skies: POLLINATOR_SKY },
+      crosses: HELPER_CROSSES, skies: POLLINATOR_SKY,
+      // (v265: the insect house, lib/town/insect-house: its reach, stays, costs, each insect's favourite plant, the soil-workers)
+      house: { ...HOUSE, favourites: FAVOURITES, soilWorkers: SOIL_WORKERS } },
     forest_parts: FORAGE_PARTS,
     stream_work: STREAM_WORK,
     preparation: PREPARATION,
@@ -540,7 +543,9 @@ export type Catalog = ReturnType<typeof catalogOf>;
 // v176 ran on 2026-10-10: box_upgrade holds the character's three expansion prices, up to forty slots.
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = { v180: { keys: ["workshop"], over: [] }, v259: { keys: ["quality"], over: [] },
   // (the farm's Quality's helper plants: their crops and seeds, the fig's and the lines' plots, the uncle's four seeds)
-  v263: { keys: [], over: ["items", "crops", "gardening", "goods", "shelf"] } };
+  v263: { keys: [], over: ["items", "crops", "gardening", "goods", "shelf"] },
+  // (the insect house: its numbers in the quality row, the house itself among the things, its recipe at the workshop)
+  v265: { keys: [], over: ["quality", "items", "workshop"] } };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {
