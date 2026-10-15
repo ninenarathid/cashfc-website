@@ -1025,7 +1025,7 @@ export function holdsOf(s: Stack, th: boolean): string | null {
   if (s.grade) {
     const food = s.item === "potFull" || isDish(s.item), crop = ITEMS[s.item]?.kind === "crop";
     const words = crop ? (th ? `${GRADES[s.grade].th} · ลุงรับซื้อ ×${GRADES[s.grade].pays}` : `${GRADES[s.grade].en} · relatives pay ×${GRADES[s.grade].pays}`)
-      : food ? [gradeFood(s.grade, th), gradeBuff(s.grade, th)].filter(Boolean).join(" · ") : (th ? `${GRADES[s.grade].th} · ส่งเกรดต่อให้อาหาร` : `${GRADES[s.grade].en} · passes its grade to the dish`);
+      : food ? [gradeFood(s.grade, th), DISHES[(s.of?.dish ?? s.item) as DishId]?.buff ? gradeBuff(s.grade, th) : ""].filter(Boolean).join(" · ") : (th ? `${GRADES[s.grade].th} · ส่งเกรดต่อให้อาหาร` : `${GRADES[s.grade].en} · passes its grade to the dish`);
     return [heldIn(s, th), words].filter(Boolean).join(" · ");
   }
   const holds = heldIn(s, th);
