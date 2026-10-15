@@ -294,7 +294,7 @@ export default function TownSign({ keeper, session, th, phone, tabbar, view, onV
                           <li key={keyOf(l.item, l.grade)} data-line={l.item} data-grade={g} className="flex flex-wrap items-center gap-2 rounded-xl border border-line bg-card/60 p-2">
                             <ItemIcon id={l.item} size={30} />
                             <div className="min-w-0 flex-1">
-                              <div className="truncate text-ui font-semibold text-ink">{nameOf(l.item, th)}<GradeBadge grade={g} th={th} inline /></div>
+                              <Named id={l.item} grade={g} th={th} />
                               <Mark kind={l.kind} th={th} />
                             </div>
                             <label className="flex flex-col items-center text-label text-muted">{t("จำนวน", "How many")}
@@ -392,7 +392,7 @@ export default function TownSign({ keeper, session, th, phone, tabbar, view, onV
                         <li key={`${l.kind}:${keyOf(l.item, l.grade)}`} data-line={l.item} data-grade={gradeIn(l)} data-left={l.left} className={`flex items-center gap-2 rounded-xl border border-line bg-card/60 p-2 ${l.left ? "" : "opacity-50"}`}>
                           <ItemIcon id={l.item} size={30} />
                           <div className="min-w-0 flex-1">
-                            <div className="truncate text-ui font-semibold text-ink">{nameOf(l.item, th)}<GradeBadge grade={l.grade} th={th} inline /></div>
+                            <Named id={l.item} grade={l.grade} th={th} />
                             <Mark kind={l.kind} th={th} />
                           </div>
                           <span className="font-data text-ui tabular-nums text-ink">{l.left} / {l.n}</span>
@@ -437,6 +437,16 @@ export default function TownSign({ keeper, session, th, phone, tabbar, view, onV
         </section>
       </div>
     </>
+  );
+}
+
+/** A thing's name on a line, and its grade's stars after it: a long name is cut short, the stars never are. */
+function Named({ id, grade, th }: { id: ItemId; grade?: Grade; th: boolean }) {
+  return (
+    <div className="flex min-w-0 items-center text-ui font-semibold text-ink">
+      <span className="truncate">{nameOf(id, th)}</span>
+      {grade ? <span className="shrink-0"><GradeBadge grade={grade} th={th} inline /></span> : null}
+    </div>
   );
 }
 
@@ -502,7 +512,7 @@ function StallLines({ title, ink, lines, th, act, most, held, onDo }: {
             <li key={key(l)} data-line={l.item} data-grade={gradeIn(l)} data-can={l.can} className="flex items-center gap-2 rounded-xl border border-line bg-card/60 p-2">
               <ItemIcon id={l.item} size={32} />
               <div className="min-w-0 flex-1">
-                <div className="truncate text-ui font-semibold text-ink">{nameOf(l.item, th)}<GradeBadge grade={l.grade} th={th} inline /></div>
+                <Named id={l.item} grade={l.grade} th={th} />
                 <div className="flex items-center gap-2 text-label text-muted">
                   <Coins n={l.price} th={th} small /><span>× {l.can}</span>
                   {held && <span className="flex items-center gap-1"><TownIcon name="bag" size={11} />{held(l)}</span>}

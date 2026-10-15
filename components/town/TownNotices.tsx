@@ -46,6 +46,16 @@ function Coin({ n, small = false }: { n: number; small?: boolean }) {
   return <span className={`flex shrink-0 items-center gap-1 font-data tabular-nums text-gold ${small ? "text-meta" : "text-ui font-semibold"}`}><TownIcon name="coin" size={small ? 13 : 17} />{n}<span className="sr-only"> Popoto coin</span></span>;
 }
 const Pic = ({ id, size }: { id: ItemId; size: number }) => <TownIcon name={iconOf(id) as IconName} size={size} className="shrink-0" />;
+/** A notice's thing, its grade's stars and how many: on a narrow line how many is cut short first, then the name; the stars never are. */
+function Named({ name, grade, th, children }: { name: string; grade?: number; th: boolean; children: React.ReactNode }) {
+  return (
+    <span className="flex min-w-0 items-center gap-x-1 text-ui font-semibold text-ink">
+      <span className="min-w-0 truncate">{name}</span>
+      {grade ? <span className="-ml-1 shrink-0"><GradeBadge grade={grade} th={th} inline /></span> : null}
+      <span className="min-w-0 shrink-[4] truncate">{children}</span>
+    </span>
+  );
+}
 /** How long a notice has left, in days and hours (or hours and minutes at the end). */
 function leftOf(ms: number, th: boolean): string {
   if (ms <= 0) return th ? "หมดเวลาแล้ว" : "past its days";
@@ -145,7 +155,7 @@ export default function TownNotices({ keeper, board, purse, prices, now, th, say
               <li key={n.id} className="flex items-center gap-2.5 rounded-xl border border-line bg-card/60 px-2.5 py-2" data-notice={n.id} data-grade={gradeIn(n)}>
                 <Pic id={n.item} size={30} />
                 <div className="min-w-0 flex-1">
-                  <span className="block truncate text-ui font-semibold text-ink">{name(n.item)}<GradeBadge grade={n.grade} th={th} inline /> <span className="font-data text-muted">×{n.left}</span></span>
+                  <Named name={name(n.item)} grade={n.grade} th={th}><span className="font-data text-muted">×{n.left}</span></Named>
                   <span className="flex flex-wrap items-center gap-x-1.5 text-meta text-muted">{th ? "ชิ้นละ" : "Each"} <Coin n={n.price} small /><span className="truncate">· {n.mine ? (th ? "ของฉัน" : "mine") : n.by}</span></span>
                 </div>
                 {!n.mine && (
@@ -177,7 +187,7 @@ export default function TownNotices({ keeper, board, purse, prices, now, th, say
               <li key={n.id} className="flex items-center gap-2.5 rounded-xl border border-line bg-card/60 px-2.5 py-2" data-notice={n.id} data-grade={gradeIn(n)}>
                 <Pic id={n.item} size={30} />
                 <div className="min-w-0 flex-1">
-                  <span className="block truncate text-ui font-semibold text-ink">{name(n.item)}<GradeBadge grade={n.grade} th={th} inline /> <span className="font-data text-muted">{th ? `ต้องการ ${n.left}` : `${n.left} wanted`}</span></span>
+                  <Named name={name(n.item)} grade={n.grade} th={th}><span className="font-data text-muted">{th ? `ต้องการ ${n.left}` : `${n.left} wanted`}</span></Named>
                   <span className="flex flex-wrap items-center gap-x-1.5 text-meta text-muted">{th ? "ให้ชิ้นละ" : "Pays"} <Coin n={n.price} small /><span className="truncate">· {n.mine ? (th ? "ของฉัน" : "mine") : n.by}</span></span>
                 </div>
                 {!n.mine && (
@@ -208,7 +218,7 @@ export default function TownNotices({ keeper, board, purse, prices, now, th, say
                 <li key={n.id} className="flex items-center gap-2.5 rounded-xl border border-line bg-card/60 px-2.5 py-2" data-notice={n.id} data-notice-mine data-grade={gradeIn(n)}>
                   <Pic id={n.item} size={28} />
                   <div className="min-w-0 flex-1">
-                    <span className="block truncate text-ui font-semibold text-ink">{name(n.item)}<GradeBadge grade={n.grade} th={th} inline /> <span className="font-data text-muted">{n.kind === "sell" ? `×${n.left}` : (th ? `ต้องการอีก ${n.left}` : `${n.left} more wanted`)}</span></span>
+                    <Named name={name(n.item)} grade={n.grade} th={th}><span className="font-data text-muted">{n.kind === "sell" ? `×${n.left}` : (th ? `ต้องการอีก ${n.left}` : `${n.left} more wanted`)}</span></Named>
                     <span className="flex flex-wrap items-center gap-x-1.5 text-meta text-muted">
                       {n.kind === "sell" ? (th ? "ขายชิ้นละ" : "Each") : (th ? "ให้ชิ้นละ" : "Pays")} <Coin n={n.price} small />
                       <span className={now >= n.until ? "text-copper" : ""}>· {leftOf(n.until - now, th)}</span>
