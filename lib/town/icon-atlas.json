@@ -1,8 +1,8 @@
 {
-  "image": "/town/icons-bee9a51f408d.png",
+  "image": "/town/icons-2603f22c953c.png",
   "size": [
     256,
-    17479
+    17694
   ],
   "icons": {
     "mic": [
@@ -8902,6 +8902,354 @@
       15012,
       31,
       40
+    ],
+    "flyHoneyBeeA": [
+      191,
+      17518,
+      21,
+      28
+    ],
+    "flyHoneyBeeB": [
+      214,
+      17518,
+      21,
+      28
+    ],
+    "flyCarpenterBeeA": [
+      2,
+      17549,
+      23,
+      28
+    ],
+    "flyCarpenterBeeB": [
+      27,
+      17549,
+      23,
+      28
+    ],
+    "flyHoverflyA": [
+      139,
+      17638,
+      20,
+      25
+    ],
+    "flyHoverflyB": [
+      161,
+      17638,
+      20,
+      25
+    ],
+    "flyPollenMidgeA": [
+      58,
+      17481,
+      25,
+      34
+    ],
+    "flyPollenMidgeB": [
+      85,
+      17481,
+      25,
+      34
+    ],
+    "flyMegaloptaBeeA": [
+      112,
+      17481,
+      25,
+      34
+    ],
+    "flyMegaloptaBeeB": [
+      139,
+      17481,
+      25,
+      34
+    ],
+    "flyIndianNightBeeA": [
+      2,
+      17481,
+      26,
+      35
+    ],
+    "flyIndianNightBeeB": [
+      30,
+      17481,
+      26,
+      35
+    ],
+    "flyMasonBeeA": [
+      183,
+      17638,
+      20,
+      25
+    ],
+    "flyMasonBeeB": [
+      205,
+      17638,
+      20,
+      25
+    ],
+    "flyWoolCarderBeeA": [
+      227,
+      17638,
+      21,
+      25
+    ],
+    "flyWoolCarderBeeB": [
+      2,
+      17667,
+      21,
+      25
+    ],
+    "flyBlueBandedBeeA": [
+      27,
+      17638,
+      21,
+      26
+    ],
+    "flyBlueBandedBeeB": [
+      50,
+      17638,
+      21,
+      26
+    ],
+    "flyButterflyWhiteA": [
+      73,
+      17638,
+      31,
+      26
+    ],
+    "flyButterflyWhiteB": [
+      106,
+      17638,
+      31,
+      26
+    ],
+    "flyMonarchA": [
+      2,
+      17609,
+      24,
+      27
+    ],
+    "flyMonarchB": [
+      28,
+      17609,
+      24,
+      27
+    ],
+    "flyMorphoA": [
+      54,
+      17609,
+      22,
+      27
+    ],
+    "flyMorphoB": [
+      78,
+      17609,
+      22,
+      27
+    ],
+    "flyMothA": [
+      102,
+      17609,
+      25,
+      27
+    ],
+    "flyMothB": [
+      129,
+      17609,
+      25,
+      27
+    ],
+    "flyLunaMothA": [
+      220,
+      17481,
+      27,
+      29
+    ],
+    "flyLunaMothB": [
+      2,
+      17518,
+      27,
+      29
+    ],
+    "flyHawkMothA": [
+      156,
+      17609,
+      26,
+      27
+    ],
+    "flyHawkMothB": [
+      184,
+      17609,
+      26,
+      27
+    ],
+    "flySilkMothA": [
+      52,
+      17549,
+      26,
+      28
+    ],
+    "flySilkMothB": [
+      80,
+      17549,
+      26,
+      28
+    ],
+    "flyClearwingMothA": [
+      108,
+      17549,
+      25,
+      28
+    ],
+    "flyClearwingMothB": [
+      135,
+      17549,
+      25,
+      28
+    ],
+    "flyYuccaMothA": [
+      31,
+      17518,
+      26,
+      29
+    ],
+    "flyYuccaMothB": [
+      59,
+      17518,
+      26,
+      29
+    ],
+    "flyTobaccoHawkmothA": [
+      166,
+      17481,
+      25,
+      31
+    ],
+    "flyTobaccoHawkmothB": [
+      193,
+      17481,
+      25,
+      31
+    ],
+    "flyLacewingA": [
+      212,
+      17609,
+      23,
+      27
+    ],
+    "flyLacewingB": [
+      2,
+      17638,
+      23,
+      27
+    ],
+    "flySnakeflyA": [
+      87,
+      17518,
+      26,
+      29
+    ],
+    "flySnakeflyB": [
+      115,
+      17518,
+      26,
+      29
+    ],
+    "flyOrchardBeetleA": [
+      162,
+      17549,
+      22,
+      28
+    ],
+    "flyOrchardBeetleB": [
+      186,
+      17549,
+      22,
+      28
+    ],
+    "flyLadybirdA": [
+      143,
+      17518,
+      22,
+      29
+    ],
+    "flyLadybirdB": [
+      167,
+      17518,
+      22,
+      29
+    ],
+    "flyTigerBeetleA": [
+      210,
+      17549,
+      26,
+      28
+    ],
+    "flyTigerBeetleB": [
+      2,
+      17579,
+      26,
+      28
+    ],
+    "flyMantisA": [
+      30,
+      17579,
+      23,
+      28
+    ],
+    "flyMantisB": [
+      55,
+      17579,
+      23,
+      28
+    ],
+    "flyOrchidMantisA": [
+      25,
+      17667,
+      23,
+      25
+    ],
+    "flyOrchidMantisB": [
+      50,
+      17667,
+      23,
+      25
+    ],
+    "flyGhostMantisA": [
+      80,
+      17579,
+      23,
+      28
+    ],
+    "flyGhostMantisB": [
+      105,
+      17579,
+      23,
+      28
+    ],
+    "flyAssassinBugA": [
+      130,
+      17579,
+      24,
+      28
+    ],
+    "flyAssassinBugB": [
+      156,
+      17579,
+      24,
+      28
+    ],
+    "flyRobberFlyA": [
+      182,
+      17579,
+      25,
+      28
+    ],
+    "flyRobberFlyB": [
+      209,
+      17579,
+      25,
+      28
     ]
   },
   "cursor": {
