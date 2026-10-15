@@ -10,7 +10,7 @@ import TownGardenHelp from './TownGardenHelp';
 import TownCampFlag from './TownCampFlag';
 import TownWaykeeper from './TownWaykeeper';
 import TownSkyBean from "./TownSkyBean";
-import{drawGiantPlant}from "./drawGiantPlant";
+import { wideSprite } from "@/lib/town/wide-plants";
 import TownGardenRewards from "./TownGardenRewards";
 import TownKitchenRewards from "./TownKitchenRewards";
 import TownPicnic from "./TownPicnic";
@@ -316,7 +316,6 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const now = keeper.now(), plots = keeper.farm();
   const seen = useRef(new Map<string, Seen>());
   const gardenRoots = useRef(new Map<string, string>());
-  const giants=useRef(new Map<string,string>());giants.current=new Map(Object.entries(plots).flatMap(([k,plot])=>plot.plant?.giant&&plot.plant.root?[[k,plot.plant.root] as [string,string]]:[]));
   gardenRoots.current = new Map(Object.entries(plots).flatMap(([k, plot]) => plot.plant?.root ? [[k, plot.plant.root] as [string, string]] : []));
   /** The insect houses standing on the farm, by their plots (lib/town/insect-house): drawn on their plots, with the insects of their lived-in rooms about them. */
   const houses = useRef(new Map<string, InsectHouse>());
@@ -327,13 +326,16 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     const cells = (plots[root]?.plant?.footprint ?? [root]).map((c) => c.split(",").map(Number));
     return { x: cells.reduce((n, [x]) => n + x + 0.5, 0) / cells.length, y: cells.reduce((n, [, y]) => n + y + 0.5, 0) / cells.length };
   })]));
-  /** A whole tree's root: the middle of its plots on the map, and the frontmost of them (it is drawn over all their soil). */
-  const wholeTrees = useRef(new Map<string, { x: number; y: number; front: number }>());
+  /**
+   * A plant over several plots, by its root (the fig, a garden hybrid, a giant): the middle of its plots on the map, the
+   * frontmost of them (it is drawn over all their soil), its plots, its crop and whether it is a giant.
+   */
+  const wholeTrees = useRef(new Map<string, { x: number; y: number; front: number; cells: Array<[number, number]>; crop: string; giant: boolean }>());
   wholeTrees.current = new Map(Object.entries(plots).flatMap(([k, plot]) => {
-    const cells = plot.plant?.root === k && WHOLE_TREES.has(plot.plant.crop) ? plot.plant.footprint ?? [] : [];
-    if (!cells.length) return [];
-    const at = cells.map((c) => c.split(",").map(Number));
-    return [[k, { x: at.reduce((n, [x]) => n + x + 0.5, 0) / at.length, y: at.reduce((n, [, y]) => n + y + 0.5, 0) / at.length, front: Math.max(...at.map(([x, y]) => x + y)) }]];
+    const p = plot.plant, cells = p?.root === k ? p.footprint ?? [] : [];
+    if (!p || cells.length < 2) return [];
+    const at = cells.map((c) => c.split(",").map(Number) as [number, number]);
+    return [[k, { x: at.reduce((n, [x]) => n + x + 0.5, 0) / at.length, y: at.reduce((n, [, y]) => n + y + 0.5, 0) / at.length, front: Math.max(...at.map(([x, y]) => x + y)), cells: at, crop: p.crop, giant: !!p.giant }]];
   }));
   // (with the rain the plots have had: lib/town/weather, by way of whoever keeps the game)
   const rains = keeper.rains();
@@ -436,6 +438,17 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         ctx.scale(-1, 1);
         ctx.drawImage(img, x, y, w, h, -(w * k) / 2, Math.round(at.y - h * k + 5 * s - lift), w * k, h * k);
         ctx.restore();
+      };
+      /** How a plant over several plots is drawn once, from its root: its one picture, or null for one a plot. */
+      const wholeDraw = (whole: { x: number; y: number; cells: Array<[number, number]>; crop: string; giant: boolean }, what: Seen): (() => void) | null => {
+        const mid = project({ x: whole.x, y: whole.y });
+        if (WHOLE_TREES.has(whole.crop)) { const plant = growIconOf(what.crop!, what.stage); return () => (what.dead ? blit("plotDead", mid) : blit(plant, mid, 0, (PLANT_SCALES[plant] ?? PLANT) * s)); }
+        if (what.dead) return null;
+        const w = wideSprite(whole.crop, whole.giant, what.stage, whole.cells);
+        if (!w || !(w.name in ICON_ATLAS.icons)) return null;
+        // (a giant stands on the middle of its four plots; a row or an L on the front of its frontmost plot)
+        const foot = { x: mid.x, y: w.giant ? mid.y + 7 * s : Math.max(...whole.cells.map(([x, y]) => project({ x: x + 0.5, y: y + 0.5 }).y)) + s };
+        return () => blit(w.name, foot, 0, PLANT * s, w.flip);
       };
       /**
        * One of an insect house's insects (the owner's ask, 2026-10-15): its own picture, in the air with its shadow under
@@ -697,12 +710,6 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           ctx.fillRect(x, y - px, px, px * 3);
           ctx.globalAlpha = 1;
         });
-        // A giant belongs above every soil tile in its 2×2 footprint. Keep
-        // soil in the ordinary ground pass so the front tile cannot bury it.
-        const giantRoot = giants.current.get(plotKey(tx, ty));
-        if (giantRoot === plotKey(tx, ty) && what?.crop) {
-          things.push({ depth: tx + ty + 2.8, draw: () => drawGiantPlant(frame, tx, ty, what.crop!, what.stage, what.dead) });
-        }
         // (a fertiliser in the hand: what it would add to the ceiling of this plant of mine, over it)
         const gain = fertGains.current.get(plotKey(tx, ty));
         if (gain !== undefined) sign(gain > 0 ? `+${gain}` : "+0", at.x, at.y - 44 * s);
@@ -719,14 +726,13 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
             things.push({ depth: pose.at.x + pose.at.y + (pose.lift > 0.2 ? 3.6 : 0.65), draw: () => drawHouseInsect(room.bug, how, pose, c, seed) });
           }
         });
-        // A whole tree (the fig): drawn once from its root, standing in the middle of its plots and over all their soil.
-        const whole = wholeTrees.current.get(plotKey(tx, ty));
-        if (whole && what?.crop) {
-          const plant = growIconOf(what.crop, what.stage), mid = project({ x: whole.x, y: whole.y });
-          things.push({ depth: whole.front + 0.7, draw: () => what.dead ? blit("plotDead", mid) : blit(plant, mid, 0, (PLANT_SCALES[plant] ?? PLANT) * s) });
-        }
-        // (its plots show the bed's own soil under it: the tree's picture has its mound)
-        const wholeRoot = gardenRoots.current.get(plotKey(tx, ty)), underTree = !!wholeRoot && wholeTrees.current.has(wholeRoot);
+        // A plant over several plots (the fig, a garden hybrid, a giant): drawn once from its root, over all its plots'
+        // soil, by its one picture (lib/town/wide-plants: the owner, 2026-10-15); a young one keeps a sprout a plot
+        const rootKey = gardenRoots.current.get(plotKey(tx, ty)) ?? plotKey(tx, ty), whole = wholeTrees.current.get(rootKey);
+        const once = whole && what?.crop ? wholeDraw(whole, what) : null;
+        if (once && rootKey === plotKey(tx, ty)) things.push({ depth: whole!.front + 0.7, draw: once });
+        // (its plots show the bed's own soil under it: its picture has its own ground)
+        const underTree = !!once;
         things.push({ depth: tx + ty + .6, draw: () => {
           if (!what) { for (const w of weedsOf(tx, ty)) blit(w.name, { x: at.x + w.dx * s, y: at.y + w.dy * s }, 0, PLANT * s * w.k, w.flip); return; }
           if (what.soil === "tilled" && !(what.crop && underTree)) blit("plotSoil", at, 0, PLANT * s * 0.9);
@@ -740,7 +746,6 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           // ── forging: old tools ── (a furrow the hoe left damp: a drop on the bare soil, as on a plant that has been watered)
           if (what.damp) blit("plotDrop", { x: at.x + 13 * s, y: at.y }, 0, PLANT * s * 0.45);
           if (!what.crop) return;
-          if (giantRoot) return;
           if (what.dead) { if (!underTree) blit("plotDead", at); return; }
           const plant = growIconOf(what.crop, what.stage);
           if (!underTree) blit(plant, at, 0, (PLANT_SCALES[plant] ?? PLANT) * s);
