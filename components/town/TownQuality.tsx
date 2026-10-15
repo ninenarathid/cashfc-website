@@ -6,6 +6,7 @@ import { coveringNow, qualityNow, roundStart } from "@/lib/town/quality-plant";
 import type { FarmSky, Plant, Plot } from "@/lib/town/farm";
 import { bedCorner, bedOf } from "@/lib/town/world";
 import { ITEMS, type ItemId } from "@/lib/town/items";
+import { FERTS, type Fert } from "@/lib/town/fertilisers";
 import TownIcon, { type IconName } from "./TownIcon";
 
 /*
@@ -25,7 +26,7 @@ const SOURCE: Record<string, [th: string, en: string]> = {
   watered: ["รดน้ำ", "Watered"], damp: ["ร่องดินชื้น", "Damp furrow"], rain: ["ฝน", "Rain"], cloud: ["เมฆฝน", "Rain cloud"],
   wet: ["ดินชื้น", "Wet soil"], compost: ["ปุ๋ยหมัก", "Compost"], brush: ["พู่กันเกสร", "Pollen brush"],
   pollinator: ["แมลงผสมเกสร", "Pollinator"], guard: ["กันแมลง", "Pest guard"], helper: ["พืชช่วยข้าง ๆ", "A helper beside it"],
-  house: ["บ้านแมลง", "Insect house"],
+  house: ["บ้านแมลง", "Insect house"], base: ["ปุ๋ยรองพื้น", "Base fertiliser"], top: ["ปุ๋ยแต่งหน้า", "Top dressing"],
 };
 const TIP: Record<Role, [th: string, en: string]> = {
   soil: ["ใส่ปุ๋ยหมักครั้งเดียวได้ครึ่งแถบทั้งต้น", "Compost once for half the bar, all its life"],
@@ -62,20 +63,22 @@ export function QualityRange({ range, base, th, odds = true }: { range: Range; b
 }
 
 /** Standing on a plant: its range in a word, and the way into the inspector. */
-export function QualityChip({ plant, now, rains, th, onOpen }: { plant: Plant; now: number; rains: FarmSky; th: boolean; onOpen: () => void }) {
+export function QualityChip({ plant, now, rains, th, onOpen, gain }: { plant: Plant; now: number; rains: FarmSky; th: boolean; onOpen: () => void; gain?: number }) {
   const { range, grown } = qualityNow(plant, now, rains);
   return (
     <button type="button" onClick={onOpen} data-quality-chip
             className="pop-in pressable tk tk-slot pointer-events-auto flex min-h-11 items-center gap-2 px-3 text-ui text-ink" data-state="open">
       <TownIcon name={plant.crop as IconName} size={22} />
       <span className="font-semibold">{th ? "Quality" : "Quality"} <span className="font-data tabular-nums">{range.lo}–{range.hi}</span></span>
-      <span className="text-meta text-muted">{grown >= 1 ? (th ? "สุกแล้ว" : "ripe") : th ? "ดูรายละเอียด" : "details"}</span>
+      {/* (a fertiliser in the hand: what it would add to the ceiling by ripeness, lib/town/quality-plant's fertGain) */}
+      {gain !== undefined ? <span className="font-data text-meta font-semibold text-[#8fd17a]" data-quality-gain={gain}>{gain > 0 ? (th ? `ใส่แล้ว +${gain}` : `+${gain} if put on`) : th ? "ใส่แล้วไม่เพิ่ม" : "adds nothing"}</span>
+        : <span className="text-meta text-muted">{grown >= 1 ? (th ? "สุกแล้ว" : "ripe") : th ? "ดูรายละเอียด" : "details"}</span>}
     </button>
   );
 }
 
 /** The plant inspector: the range, the four bars and what covers them, and what has narrowed the range. */
-export function QualityInspector({ plant, now, rains, th, onClose, onBed }: { plant: Plant; now: number; rains: FarmSky; th: boolean; onClose: () => void; onBed?: () => void }) {
+export function QualityInspector({ plant, now, rains, th, onClose, onBed, onChart }: { plant: Plant; now: number; rains: FarmSky; th: boolean; onClose: () => void; onBed?: () => void; onChart?: () => void }) {
   const seen = qualityNow(plant, now, rains), cover = coveringNow(plant, now, rains), close = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     close.current?.focus();
@@ -118,6 +121,17 @@ export function QualityInspector({ plant, now, rains, th, onClose, onBed }: { pl
         })}
       </ul>
       {!ripe && <p className="tk tk-window px-3 py-2 text-meta text-[#3b2412]" data-quality-tip>▸ {TIP[weakest][th ? 0 : 1]}</p>}
+      {/* (its two fertiliser slots, lib/town/fertilisers) */}
+      <div className="flex flex-wrap items-center gap-1.5 text-label" data-quality-ferts>
+        {([["base", plant.base, th ? "รองพื้น" : "Base"], ["top", plant.top, th ? "แต่งหน้า" : "Top"]] as const).map(([slot, on, word]) => {
+          const live = !!on && (slot === "base" ? plant.picked === 0 : (on.until ?? 0) > now);
+          return <span key={slot} data-quality-fert={slot} className={`inline-flex min-h-8 items-center gap-1 rounded border-[1.5px] px-2 ${live ? "border-[#2f5a1f] bg-[#8fd17a] text-[#16300c]" : "border-[#1a0e06] bg-[#4a3522] text-ink"}`}>
+            {word}: {live && on ? <><TownIcon name={on.item as IconName} size={16} />{ITEMS[on.item as ItemId]?.name[th ? "th" : "en"]}{slot === "top" ? ` · ${th ? "อีก" : ""} ${Math.max(1, Math.ceil(((on.until ?? 0) - now) / 3_600_000))} ${th ? "ชม." : "h"}` : ""}</>
+              : slot === "base" ? (plant.picked === 0 ? (th ? "ว่าง · ใส่ได้รอบแรก" : "empty · first round") : th ? "หมดแล้ว" : "over") : th ? "ว่าง" : "empty"}
+          </span>;
+        })}
+        {onChart && <button type="button" onClick={onChart} data-quality-chart-open className="pressable tk tk-btn-wood min-h-11 px-3 font-display text-meta">{th ? "ตารางปุ๋ย" : "Fertiliser chart"}</button>}
+      </div>
       {onBed && <button type="button" onClick={onBed} data-quality-bed-open className="pressable tk tk-btn-wood min-h-11 px-4 font-display text-ui">{th ? "ภาพรวมแปลง: ใครช่วยต้นไหน" : "The bed: who helps which plant"}</button>}
       <div className="flex flex-col gap-1.5" data-quality-narrowing>
         <p className="text-meta font-semibold text-[#ffd27a]">{th ? `ช่วงแคบลง ${seen.narrowing} (ยกต่ำสุด รวมไม่เกิน ${QUALITY.narrowest})` : `Narrowed by ${seen.narrowing} (floor raised, ${QUALITY.narrowest} at most)`}</p>
@@ -126,7 +140,7 @@ export function QualityInspector({ plant, now, rains, th, onClose, onBed }: { pl
             { on: brushed, label: th ? "พู่กัน −10" : "Brush −10" },
             { on: !!plant.q?.bed?.p, label: partnerName ? (th ? `คู่หู ${partnerName} −10` : `Partner ${partnerName} −10`) : th ? "คู่หู −10" : "Partner −10" },
             { on: !!plant.q?.bed?.h?.some((e) => e.x && e.from <= now && now < e.to), label: th ? "แมลงหายาก −10" : "Rare insect −10" },
-            { on: false, label: th ? "ห่อสามวัน −10" : "3-day packet −10" },
+            { on: !!plant.top && (plant.top.until ?? 0) > now && !!(FERTS[plant.top.item] as { narrows?: true } | undefined)?.narrows, label: th ? "ห่อสามวัน −10" : "3-day packet −10" },
           ].map((n) => <span key={n.label} className={`inline-flex min-h-8 items-center gap-1 rounded border-[1.5px] px-2 ${n.on ? "border-[#2f5a1f] bg-[#8fd17a] text-[#16300c]" : "border-[#1a0e06] bg-[#4a3522] text-ink"}`}>{n.on ? "✓ " : ""}{n.label}</span>)}
         </div>
       </div>
@@ -206,6 +220,50 @@ export function QualityBed({ at, plots, now, rains, th, onClose }: { at: string;
         <b>{name(mine.crop)} · {th ? `เก็บได้ ${seenMine.range.lo}–${seenMine.range.hi}` : `Quality ${seenMine.range.lo}–${seenMine.range.hi}`}</b><br />
         {helpers.length ? helpers.map((h, i) => `${"①②③④⑤⑥⑦⑧"[i]} ${th ? ROLE[h.role].th : ROLE[h.role].en} ← ${name(h.crop)}`).join(" · ") : th ? "ยังไม่มีพืชช่วยต้นนี้ ▸ ปลูกพืชช่วยข้าง ๆ" : "No helper reaches it yet ▸ plant one beside it"}
       </div>}
+    </section>
+  );
+}
+
+/**
+ * The fertilisers at a glance (the design's 4×4 chart): a row and a column a bar; on the diagonal what fills that bar
+ * whole, above it what fills the two by half; each with its slot (base to the first picking, top for its hours).
+ */
+export function FertChart({ th, onClose }: { th: boolean; onClose: () => void }) {
+  const close = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    close.current?.focus();
+    const down = (e: KeyboardEvent) => { if (e.key === "Escape") { e.preventDefault(); onClose(); } };
+    window.addEventListener("keydown", down);
+    return () => window.removeEventListener("keydown", down);
+  }, [onClose]);
+  const fills = (a: Role, b: Role) => (Object.entries(FERTS) as Array<[string, Fert]>).filter(([, f]) => {
+    const bars = f.bars as Partial<Record<Role, number>>;
+    return a === b ? bars[a] === 1 : bars[a] === 0.5 && bars[b] === 0.5;
+  });
+  return (
+    <section data-fert-chart style={{ maxHeight: "min(46rem, calc(100dvh - 10rem))" }}
+             className="tk tk-plate pointer-events-auto flex w-[min(520px,calc(100vw-16px))] flex-col gap-2 overflow-y-auto overscroll-contain p-3 text-ui text-ink sm:p-4"
+             aria-label={th ? "ตารางปุ๋ย" : "Fertiliser chart"}>
+      <header className="flex items-center gap-2">
+        <h2 className="min-w-0 flex-1 font-display text-title font-semibold">{th ? "ตารางปุ๋ย" : "Fertiliser chart"}</h2>
+        <button ref={close} type="button" onClick={onClose} aria-label={th ? "ปิด" : "Close"} className="pressable tk tk-btn-wood grid size-11 shrink-0 place-items-center"><TownIcon name="close" size={16} /></button>
+      </header>
+      <p className="text-meta text-muted">{th ? "ช่องทแยงเติมแถบเดียวเต็ม ช่องอื่นเติมสองแถบครึ่งหนึ่ง · ร = รองพื้น (ถึงเก็บครั้งแรก) · ต = แต่งหน้า (ตามชั่วโมง)" : "The diagonal fills one bar whole, the rest two bars by half · B = base (to the first picking) · T = top (its hours)"}</p>
+      <div className="grid grid-cols-[2.5rem_repeat(4,minmax(0,1fr))] gap-1" role="table">
+        <span />
+        {ROLES.map((r) => <span key={r} role="columnheader" className="flex justify-center py-1" title={th ? ROLE[r].th : ROLE[r].en}><TownIcon name={ROLE[r].icon} size={18} /></span>)}
+        {ROLES.map((a, i) => <div key={a} role="row" className="contents">
+          <span role="rowheader" className="flex items-center justify-center" title={th ? ROLE[a].th : ROLE[a].en}><TownIcon name={ROLE[a].icon} size={18} /></span>
+          {ROLES.map((b, j) => {
+            const here = j < i ? [] : fills(a, b);
+            return <div key={b} role="cell" data-fert-cell={`${a}-${b}`} className={`flex min-h-12 min-w-0 flex-wrap content-start gap-0.5 rounded border p-1 ${j < i ? "border-transparent" : i === j ? "border-[#f0c060]/60 bg-[#4a3522]" : "border-[#1a0e06] bg-[#3a2a1a]"}`}>
+              {here.map(([id, f]) => <span key={id} className="inline-flex items-center" title={`${ITEMS[id as ItemId]?.name[th ? "th" : "en"]} · ${f.slot === "base" ? (th ? "รองพื้น" : "base") : `${th ? "แต่งหน้า" : "top"} ${f.hours} ${th ? "ชม." : "h"}`}`}>
+                <TownIcon name={id as IconName} size={20} /><sup className="font-data text-[0.6rem] text-[#ead9b4]">{f.slot === "base" ? (th ? "ร" : "B") : (th ? "ต" : "T")}</sup>
+              </span>)}
+            </div>;
+          })}
+        </div>)}
+      </div>
     </section>
   );
 }

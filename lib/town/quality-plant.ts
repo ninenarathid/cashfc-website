@@ -16,7 +16,7 @@ import { DRY, type Rain } from "./weather";
 import { COMPANIONS, NO_Q, PARTNERS, QUALITY, ROLES, accrue, barsOfQ, ceilingOf, chancesOf, coveredShare, gradeOf, narrowingOfQ, rangeOf, rollOne, type BedGift, type CompanionId, type Cover, type Grade, type NarrowCover, type Penalty, type PlantQ, type Range, type Role } from "./quality";
 import { bedOf } from "./world";
 import { HOUSE, houseCovers } from "./insect-house";
-import { FERTS } from "./fertilisers";
+import { FERTS, type Fert, type FertId } from "./fertilisers";
 
 export const HAND = {
   /** The stamina the farm's own care costs: compost put on a plant, the pollen brush. */
@@ -175,6 +175,18 @@ export function syncQuality(before: Readonly<Record<string, Plot>>, after: Recor
 export function qualityNow(p: Plant, now: number, rains: FarmSky = DRY, launch: number = QUALITY.launch) {
   const q = settled(p, now, rains, launch), bars = barsOfQ(q), narrowing = narrowingOfQ(q, typeof p.brushed === "number" && p.brushed >= roundStart(p)), range = rangeOf(ceilingOf(bars), narrowing);
   return { bars, narrowing, range, chances: chancesOf(range), grown: progressOf(p, rains)(now) };
+}
+
+/**
+ * How much a fertiliser put on now would raise a plant's ceiling by its ripeness (lib/town/fertilisers): the round
+ * settled far ahead with it and without it, everything else alike, so that what differs is the fertiliser's alone.
+ * What the page shows over each plant it could go on while one is held.
+ */
+export function fertGain(p: Plant, item: FertId, now: number, rains: FarmSky = DRY, launch: number = QUALITY.launch): number {
+  const f = FERTS[item] as Fert, far = now + 40 * 24 * HOUR, q = settled(p, now, rains, launch);
+  const on: Plant = { ...p, q, ...(f.slot === "base" ? { base: { item, at: now } } : { top: { item, at: now, until: now + (f.hours ?? 0) * HOUR } }) };
+  const ceil = (x: Plant) => ceilingOf(barsOfQ(settled(x, far, rains, launch)));
+  return ceil(on) - ceil({ ...p, q });
 }
 
 /** What covers each bar at a moment, the best of them (and, among the best, the one that lasts longest): what the inspector names. */
