@@ -18,20 +18,26 @@ const PACE: Record<HouseFlight, { leg: number; rest: number; perch: number; arc:
 };
 const hash = (a: number, b: number) => { let h = (a * 374761393 + b * 668265263) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return (h ^ (h >>> 16)) >>> 0; };
 
-/** Where one of a house's insects is at a moment `t` (ms): `home` the house, `stops` the plants it reaches. */
-export function insectPose(home: Vec, stops: readonly Vec[], seed: number, t: number, how: HouseFlight): InsectPose {
+/**
+ * Where one of a house's insects is at a moment `t` (ms): `home` the house, `stops` the plants it reaches. `slot`: which
+ * of the house's four it is (its room's two, room by room): each settles on its own side of a plant and flies at a
+ * height a little its own, so two that meet on a plant or cross in the air are still two (Codex's look, 2026-10-15:
+ * a robber fly crowded a ladybird where their ways crossed).
+ */
+export function insectPose(home: Vec, stops: readonly Vec[], seed: number, t: number, how: HouseFlight, slot = 0): InsectPose {
   const p = PACE[how], per = p.leg + p.rest, clock = t + (seed % 997) * 37;
   const route = stops.length ? [home, ...stops] : [0, 1, 2, 3].map((k) => ({ x: home.x + Math.cos(k * 1.57) * 0.9, y: home.y + Math.sin(k * 1.57) * 0.9 }));
   const stop = (n: number) => (n % 5 === 0 ? route[0] : route[1 + (hash(seed, n) % Math.max(1, route.length - 1))] ?? route[0]);
   const n = Math.floor(clock / per), u = clock - n * per, a = stop(n), b = stop(n + 1);
   // (settled on a plant's top, or by its foot for one that crawls; a little off the middle, each insect its own way)
-  const off = (k: number) => ({ x: ((hash(seed, k) % 100) / 100 - 0.5) * 0.35, y: ((hash(seed + 7, k) % 100) / 100 - 0.5) * 0.35 });
+  const off = (k: number) => { const ang = (slot % 4) * (Math.PI / 2) + ((hash(seed, k) % 100) / 100 - 0.5) * 0.9, r = 0.16 + (hash(seed + 7, k) % 100) / 100 * 0.08; return { x: Math.cos(ang) * r, y: Math.sin(ang) * r }; };
+  const band = how === "crawl" ? 0 : (slot % 4) * 0.11;
   const oa = off(n), ob = off(n + 1);
-  if (u < p.rest) return { at: { x: a.x + oa.x, y: a.y + oa.y }, lift: p.perch, right: hash(seed, n) % 2 === 0, moving: false, settled: u };
+  if (u < p.rest) return { at: { x: a.x + oa.x, y: a.y + oa.y }, lift: p.perch + band * 0.4, right: hash(seed, n) % 2 === 0, moving: false, settled: u };
   const e = (u - p.rest) / p.leg, k = e * e * (3 - 2 * e);
   const dx = b.x + ob.x - (a.x + oa.x), dy = b.y + ob.y - (a.y + oa.y), len = Math.hypot(dx, dy) || 1;
   // (a fly's way is never straight: it weaves a little across its line, a crawler's not at all)
   const weave = how === "crawl" ? 0 : Math.sin(e * Math.PI * 3 + seed) * 0.18 * Math.sin(e * Math.PI);
   const at = { x: a.x + oa.x + dx * k - (dy / len) * weave, y: a.y + oa.y + dy * k + (dx / len) * weave };
-  return { at, lift: p.perch + Math.sin(e * Math.PI) * p.arc, right: dx - dy >= 0, moving: true, settled: -1 };
+  return { at, lift: p.perch + band * 0.4 + Math.sin(e * Math.PI) * (p.arc + band), right: dx - dy >= 0, moving: true, settled: -1 };
 }

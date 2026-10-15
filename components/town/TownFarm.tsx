@@ -734,7 +734,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           if (!room || !role) return;
           const how: HouseFlight = role === "soil" ? "crawl" : role === "guard" ? "hunt" : "fly", stops = houseStops.current.get(hk) ?? [];
           for (let j = 0; j < 2; j++) {
-            const seed = tx * 131 + ty * 71 + i * 17 + j * 5, pose = still ? { at: { x: tx + 0.5 + (j ? 0.3 : -0.3), y: ty + 0.5 }, lift: how === "crawl" ? 0 : 0.7, right: j === 0, moving: false, settled: 9999 } : insectPose({ x: tx + 0.5, y: ty + 0.5 }, stops, seed, t, how);
+            const seed = tx * 131 + ty * 71 + i * 17 + j * 5, pose = still ? { at: { x: tx + 0.5 + (j ? 0.3 : -0.3), y: ty + 0.5 }, lift: how === "crawl" ? 0 : 0.7, right: j === 0, moving: false, settled: 9999 } : insectPose({ x: tx + 0.5, y: ty + 0.5 }, stops, seed, t, how, i * 2 + j);
             const c = project(pose.at);
             if (!onScreen(c)) continue;
             things.push({ depth: pose.at.x + pose.at.y + (pose.lift > 0.2 ? 3.6 : 0.65), draw: () => drawHouseInsect(room.bug, how, pose, c, seed) });
