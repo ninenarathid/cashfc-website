@@ -2,6 +2,55 @@
  "events": [
   {
    "date": "2026-10-15",
+   "type": "parse_up",
+   "id": 38488824,
+   "name": "Daffodil Amary",
+   "text": "set a new best parse: 43 on Zoraal Ja as Machinist"
+  },
+  {
+   "date": "2026-10-15",
+   "type": "ex_clear",
+   "id": 38488824,
+   "name": "Daffodil Amary",
+   "text": "cleared Valigarmanda (Extreme)"
+  },
+  {
+   "date": "2026-10-15",
+   "type": "ex_clear",
+   "id": 38488824,
+   "name": "Daffodil Amary",
+   "text": "cleared Zoraal Ja (Extreme)"
+  },
+  {
+   "date": "2026-10-15",
+   "type": "ex_clear",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "cleared Valigarmanda (Extreme)"
+  },
+  {
+   "date": "2026-10-15",
+   "type": "level_100",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
+   "date": "2026-10-15",
+   "type": "parse_up",
+   "id": 60852230,
+   "name": "Lucien Rhul",
+   "text": "set a new best parse: 15 on Valigarmanda as Dar\u0001 \u0002night"
+  },
+  {
+   "date": "2026-10-15",
+   "type": "level_100",
+   "id": 60429500,
+   "name": "Jin Theape",
+   "text": "reached level 100 on Dancer!"
+  },
+  {
+   "date": "2026-10-15",
    "type": "ex_clear",
    "id": 24228478,
    "name": "Pyrozus Helison",
@@ -1350,55 +1399,6 @@
    "id": 42021700,
    "name": "Josuke Mizumoto",
    "text": "set a new best parse: 95 on Doomtrain as Paladin"
-  },
-  {
-   "date": "2026-10-02",
-   "type": "rare_up",
-   "id": 6173187,
-   "name": "Motochita Muses",
-   "text": "earned Go Big or Go Home III"
-  },
-  {
-   "date": "2026-10-02",
-   "type": "level_100",
-   "id": 12058921,
-   "name": "Heidi Fox",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-10-02",
-   "type": "rare_up",
-   "id": 60429500,
-   "name": "Jin Theape",
-   "text": "earned Working the Bellows: Adept, and 2 more"
-  },
-  {
-   "date": "2026-10-02",
-   "type": "grade_up",
-   "id": 9444020,
-   "name": "Non Elemental",
-   "text": "is now a Expert Explorer ✨"
-  },
-  {
-   "date": "2026-10-02",
-   "type": "grade_up",
-   "id": 22425670,
-   "name": "Shizuna-pan Misurugi",
-   "text": "is now a Expert Explorer ✨"
-  },
-  {
-   "date": "2026-10-02",
-   "type": "level_100",
-   "id": 29907674,
-   "name": "Ranjoe Tp'",
-   "text": "reached level 100 on Dancer!"
-  },
-  {
-   "date": "2026-10-02",
-   "type": "grade_up",
-   "id": 36363091,
-   "name": "Snow Winsfield",
-   "text": "is now a Expert Relic grinder ✨"
   }
  ]
 }

@@ -68000,9 +68000,32 @@
    ]
   },
   "ultimates": [],
-  "extremes": [],
+  "extremes": [
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1071,
+    "name": "Valigarmanda",
+    "best": 34,
+    "kills": 2,
+    "job": "Machinist",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1072,
+    "name": "Zoraal Ja",
+    "best": 43,
+    "kills": 2,
+    "job": "Machinist",
+    "cleared": true
+   }
+  ],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "38796459": {
   "current": {
@@ -73481,7 +73504,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 89,
-    "kills": 44,
+    "kills": 46,
     "job": "Summoner",
     "cleared": true,
     "job_kills": {
@@ -73522,7 +73545,7 @@
     "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 90,
-    "kills": 39,
+    "kills": 41,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -77212,7 +77235,19 @@
     "cleared": true
    }
   ],
-  "extremes": [],
+  "extremes": [
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1071,
+    "name": "Valigarmanda",
+    "best": 10,
+    "kills": 1,
+    "job": "Gunbreaker",
+    "cleared": true
+   }
+  ],
   "legacy": [
    {
     "zone": "Anabaseios",
@@ -81814,7 +81849,7 @@
   "legacy": []
  },
  "60852230": {
-  "_status": "none",
+  "_status": "ok",
   "current": {
    "zone": "AAC Heavyweight",
    "zone_id": 73,
@@ -81868,8 +81903,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1071,
     "name": "Valigarmanda",
-    "best": 11,
-    "kills": 35,
+    "best": 15,
+    "kills": 37,
     "job": "DarkKnight",
     "cleared": true,
     "job_kills": {
@@ -81894,8 +81929,8 @@
     "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 14,
-    "kills": 9,
-    "job": "DarkKnight",
+    "kills": 11,
+    "job": "Paladin",
     "cleared": true,
     "job_kills": {
      "Dragoon": {
@@ -82147,7 +82182,7 @@
     "cleared": true,
     "job_kills": {
      "Reaper": {
-      "kills": 11,
+      "kills": 13,
       "best": 16
      }
     }
@@ -82164,8 +82199,8 @@
     "cleared": true,
     "job_kills": {
      "Reaper": {
-      "kills": 44,
-      "best": 20
+      "kills": 46,
+      "best": 22
      }
     }
    }
@@ -90713,7 +90748,7 @@
     "cleared": true,
     "job_kills": {
      "Reaper": {
-      "kills": 1,
+      "kills": 2,
       "best": 48
      },
      "Dancer": {
@@ -90723,6 +90758,10 @@
      "WhiteMage": {
       "kills": 3,
       "best": 29
+     },
+     "Sage": {
+      "kills": 1,
+      "best": 4
      }
     }
    },
@@ -90744,6 +90783,10 @@
      "Viper": {
       "kills": 4,
       "best": 41
+     },
+     "Sage": {
+      "kills": 2,
+      "best": 16
      }
     }
    }
@@ -90797,6 +90840,10 @@
     "job": "Sage",
     "cleared": true,
     "job_kills": {
+     "Samurai": {
+      "kills": 1,
+      "best": 32
+     },
      "Sage": {
       "kills": 9,
       "best": 22

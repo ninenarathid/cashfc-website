@@ -2289,7 +2289,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 42,
+  "level": 59,
   "cc": [
    true,
    true,
@@ -5926,7 +5926,7 @@
  },
  "38488824": {
   "name": "Daffodil Amary",
-  "parse": null,
+  "parse": 43,
   "ult": 0,
   "mounts": 175,
   "minions": 358,
@@ -6046,9 +6046,12 @@
    "treasure": "expert"
   },
   "jobs": {},
-  "ex": [],
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
   "ults": [],
-  "chg": "2026-09-30"
+  "chg": "2026-10-15"
  },
  "34546216": {
   "name": "Dekkapi Kung",
@@ -6809,7 +6812,7 @@
   "mounts": 55,
   "minions": 109,
   "rare": 1,
-  "level": 90,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6822,11 +6825,13 @@
   ],
   "tiers": {},
   "jobs": {},
-  "ex": [],
+  "ex": [
+   "Valigarmanda"
+  ],
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-14"
+  "chg": "2026-10-15"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -6904,7 +6909,7 @@
  },
  "60852230": {
   "name": "Lucien Rhul",
-  "parse": 14,
+  "parse": 15,
   "ult": 0,
   "mounts": 30,
   "minions": 58,
@@ -6927,7 +6932,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-13"
+  "chg": "2026-10-15"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -7499,7 +7504,7 @@
   "mounts": 146,
   "minions": 291,
   "rare": null,
-  "level": 100,
+  "level": 96,
   "cc": [
    false,
    false,
@@ -7519,7 +7524,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-29"
+  "chg": "2026-10-15"
  },
  "7283668": {
   "name": "Nowhere Man",
@@ -7818,7 +7823,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 89,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -8628,7 +8633,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 94,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8817,7 +8822,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 100,
+  "level": 55,
   "cc": [
    false,
    false,
@@ -8833,7 +8838,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-14"
+  "chg": "2026-10-15"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -8959,7 +8964,7 @@
   "mounts": 6,
   "minions": 16,
   "rare": null,
-  "level": 94,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -8972,7 +8977,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-08"
+  "chg": "2026-10-15"
  },
  "57419573": {
   "name": "A'kane Dorothy",
@@ -9567,7 +9572,7 @@
   "mounts": 2,
   "minions": 2,
   "rare": 0,
-  "level": 36,
+  "level": 40,
   "cc": [
    false,
    false,
