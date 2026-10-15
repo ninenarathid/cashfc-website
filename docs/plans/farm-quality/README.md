@@ -11,7 +11,7 @@ is the artifact https://claude.ai/artifact/6jR6hbg7pHtGmfa3vQHFJC. This file is 
 | 1a | The clock names the eight bands (`lib/town/bands.ts`, TownClock) | done, waits for his OK |
 | 1b | The trade board as a board of its own in the town centre (art: the board, the before-dawn icon) | to do |
 | 2.1 | Pure Quality rules (`lib/town/quality.ts`): bars, range, roll, grades, pay, helpers' shapes, partners | done |
-| 2.2 | Coverage on each plant and the plant inspector (bars, sources, range, chances); harvest still ungraded | next |
+| 2.2 | Coverage on each plant and the plant inspector (bars, sources, range, chances); harvest still ungraded | TS done (`quality-plant.ts`, trial hook); SQL trigger, compost act, inspector next |
 | 2.3 | The roll at the pick and grades on items through every path (bag, box, ground, deal, notices, stalls, pouches, the uncle's relatives) | |
 | 2.4 | Cooking and stamina by grade | |
 | 2.5 | The twenty helper plants (four from the uncle), their shapes, fennel; the bed overview | |
@@ -30,8 +30,19 @@ is the artifact https://claude.ai/artifact/6jR6hbg7pHtGmfa3vQHFJC. This file is 
   The bed's lock already covers it, and the TypeScript rules and the SQL stay one-to-one (db-vectors parity).
   Codex proposed side tables; the plant record was chosen for parity with how the farm is kept. The roll needs no
   stored seed: it is drawn inside the locked pick, and the plant's round moves on in the same statement.
-- **Settle before change:** any act that changes a source (a plant set or taken out in the bed, watering, a cover put
-  on) first settles every plant it touches up to now, then changes; time-limited covers are intervals and need no cron.
+- **Settle before change, in ONE place:** in the database a `BEFORE UPDATE OF plant` trigger on `public.town_plots`
+  (as v186's `town_garden_spread` is an AFTER trigger there) settles the row's round with `OLD.plant` up to now and
+  writes it into `NEW.plant.q`; a pick (picked grew) starts a new round. So every path (row watering, the gnome,
+  insects, moon water, clouds) is caught without a hook of its own. In the browser trial the same is `syncQuality` in
+  `trial.ts`'s one `write(FARM)`. Covers kept only as an end time (guard, pollenUntil, wetUntil) count from the last
+  settle, which the settle-before-every-change makes exact. A helper plant's cover of its neighbours (piece 2.5) is
+  derived from the helper's own sowing and death; taking a helper out settles its neighbours first (in the trigger,
+  by touching their rows while the helper is still there).
+- **Hand work** (agreed with Codex, 2026-10-15): half a bar; a watering 26 h (one a day keeps it), rain while it falls
+  and 12 h after, a damp furrow all its life, compost once a planting to the last bearing (a new act, 1 compost, 1
+  stamina), the brush once a round to ripeness (2 stamina, the design's), guard/cure 24 h, moon water 12 h, a released
+  pollinator its 60–90 min. Four halves make 48 at most.
+- **Launch:** `QUALITY.launch` (now the trial's 2026-10-15); set it to the moment it goes live in the release.
 - **Weighting by growing, not by the clock** (mine; Codex proposed wall time): each stretch counts by the part of the
   round the plant grew in it, so faster growth counts faster and nothing counts once it is ripe; the bars freeze by
   themselves, with no need to find the ripe moment. A boost's jump falls between two settles and is left out of the
