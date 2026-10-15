@@ -59,7 +59,8 @@ describe("everything there is", () => {
     expect(STAGE_AT).toEqual([0, 0.1, 0.3, 0.6, 1]);
     for (const id of CROP_IDS) {
       const c = CROPS[id];
-      expect(ITEMS[id].kind).toBe("crop");
+      // (three helpers grow what the forest's edge gives, the same things: lib/town/helper-items' ForestHerb)
+      expect(ITEMS[id].kind).toBe(["mint", "chamomile", "lavender"].includes(id) ? "wild" : "crop");
       expect(ITEMS[c.seed].kind).toBe("seed");
       // six hours to six or seven days in the early game; a later tier's tree takes up to twelve
       expect(c.hours).toBeGreaterThanOrEqual(6);
