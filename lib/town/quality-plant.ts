@@ -17,6 +17,8 @@ import { COMPANIONS, NO_Q, PARTNERS, QUALITY, ROLES, accrue, barsOfQ, ceilingOf,
 import { bedOf } from "./world";
 
 export const HAND = {
+  /** The stamina the farm's own care costs: compost put on a plant, the pollen brush. */
+  costs: { compost: 1, brush: 2 },
   /** How long a watering keeps the water bar's half. */
   water: 26 * HOUR,
   /** How long the ground stays wet after rain stops. */

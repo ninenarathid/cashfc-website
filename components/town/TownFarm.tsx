@@ -104,6 +104,7 @@ const VERB: Record<Work, [th: string, en: string]> = {
   ditch: ["เทน้ำรดทั้งแปลง", "Pour it over the bed"],
   clear: ["ถางหญ้า", "Clear the weeds"], till: ["พรวนดิน", "Till the soil"], pull: ["ถอนทิ้ง", "Pull it up"], uproot: ["ขุดออก", "Dig it out"], sow: ["หว่านเมล็ด", "Sow"],
   water: ["รดน้ำ", "Water"], feed: ["ใส่ปุ๋ย", "Feed"], cure: ["ไล่แมลง", "Drive the pest off"], pick: ["เก็บ", "Pick"],
+  compost: ["ใส่ปุ๋ยหมัก", "Put compost on"], brush: ["ปัดเกสรด้วยพู่กัน", "Brush the pollen"],
   draw: ["ตักน้ำ", "Draw water"], pour: ["เทน้ำลงบ่อ", "Pour it into the well"], fill: ["เติมน้ำใส่บัว", "Fill the can"],
 };
 /** An insect in the hand is let go on a plant, not spread on it: the button says so (the deed is the fertiliser's all the same: lib/town/farm's PUT_ON). */
@@ -134,6 +135,7 @@ function toolIcon(work: Work, hand: ItemId | null): IconName {
 /** What flies up at each deed, and what it sounds like (the owner, 2026-10-03: "ปลูกพืช ช่วยใช้ vfx ที่เหมาะสมด้วยนะครับ ตอนนี้เหมือน ตกปลาเลย"). */
 const DEED_FX: Record<Deed, [VfxKind, WorkSound]> = {
   clear: ["leaves", "pull"], till: ["soil", "hoe"], pull: ["soil", "pull"], uproot: ["soil", "pull"], sow: ["seeds", "sow"], water: ["water", "water"], feed: ["dust", "feed"], cure: ["mist", "spray"], pick: ["sparkle", "pick"],
+  compost: ["soil", "feed"], brush: ["sparkle", "feed"],
 };
 /** And at each chore with water. */
 const CHORE_FX: Record<Chore, [VfxKind, WorkSound]> = { draw: ["splash", "dip"], pour: ["splash", "pour"], fill: ["water", "pour"] };

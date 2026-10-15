@@ -14,7 +14,7 @@ import { buffBy, hasBuff, isSpent, spend } from "./stamina";
 // ── gifts: helpers ──
 import { HELPING, bridged, chime, diesAt, dustUntil, dustsOf, type HelpRefusal } from "./helping";
 import { DRY, rainingAt, wetMs, type Rain } from "./weather";
-import { harvestOf } from "./quality-plant";
+import { HAND, harvestOf, roundStart } from "./quality-plant";
 import { QUALITY } from "./quality";
 import { BANGKOK, DAY, HOUR, forged, handOf, handSlot, held, heldStack, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
 
@@ -577,6 +577,19 @@ export function yieldOf(key: string, p: Plant, hand: ItemId | null = null): numb
   return (lo + Math.floor(roll(key, p.sown, p.picked) * (hi - lo + 1))) * (p.giant ? 6 : 1) + (hand === (isTree(p.crop) ? BLADES.tree : BLADES.plant) ? 1 : 0);
 }
 
+/**
+ * The farm's own care for a plant's Quality (lib/town/quality-plant's hand work): compost put on it (one compost from
+ * the bag; half the soil bar for the rest of the planting) or the pollen brush (the brush is kept; half the pollen bar to
+ * ripeness, and the round's floor raised). The deed's choice (deedFor) says when each may be done.
+ */
+export function care(deed: "compost" | "brush", purse: Purse, plot: Plot, now: number): Did {
+  const p = plot.plant;
+  if (!p) return not("soil");
+  if (deed === "compost" && held(purse.bag, "compost") < 1) return no("none");
+  const spent = spend(purse, HAND.costs[deed], now), bag = deed === "compost" ? take(spent.bag, "compost", 1) : spent.bag;
+  return { ok: true, purse: { ...spent, bag }, plot: { ...plot, plant: { ...p, [deed === "compost" ? "compost" : "brushed"]: now } } };
+}
+
 /** Pick a ripe plant into the bag (which must have the room), by somebody who may. One that bears again goes back a stage; another leaves the plot cleared. */
 export function pick(key: string, purse: Purse, plot: Plot, may: boolean, hand: ItemId | null, now: number, rains: FarmSky = DRY): Did | { ok: false; why: Refusal } {
   const p = plot.plant, seen = see(key, plot, now, rains);
@@ -609,7 +622,8 @@ export function pick(key: string, purse: Purse, plot: Plot, may: boolean, hand: 
  * whatever is held, unless what is held has a deed of its own to do. With a
  * hoe in the hand a ripe plant is dug out, not picked: so it is asked twice.)
  */
-export type Deed = "clear" | "till" | "pull" | "uproot" | "sow" | "water" | "feed" | "cure" | "pick";
+// (the farm's Quality, lib/town/quality-plant: `compost` put on a plant once a planting, the pollen `brush` once a round)
+export type Deed = "clear" | "till" | "pull" | "uproot" | "sow" | "water" | "feed" | "cure" | "pick" | "compost" | "brush";
 // (`twice`: the can in the hand waters a plant twice in an hour now, lib/town/farm's mayTwice: a plant wet from one watering is offered another)
 export function deedFor(key: string, plot: Plot, hand: ItemId | null, me: string, now: number, owner: string | null = null, rains: FarmSky = DRY, twice = false): Deed | null {
   if (plot.plant?.root && plot.plant.root !== key) return null;
@@ -617,6 +631,9 @@ export function deedFor(key: string, plot: Plot, hand: ItemId | null, me: string
   if (kind === "hoe") return p ? (!mine ? null : seen.dead ? "pull" : "uproot") : plot.soil === "wild" ? "clear" : plot.soil === "cleared" ? "till" : null;
   if (kind === "seed") return mine && plot.soil === "tilled" && !p ? "sow" : null;
   if (p && !seen.dead) {
+    // (the farm's own care, on one's own plant in one's own bed: compost once a planting, the brush once a round before it is ripe)
+    if (hand === "compost" && mine && p.by === me && typeof p.compost !== "number") return "compost";
+    if (hand === "pollenBrush" && mine && p.by === me && !seen.ripe && !(typeof p.brushed === "number" && p.brushed >= roundStart(p))) return "brush";
     if (kind === "cure" && seen.pest) return "cure";
     if (kind === "can" && (!seen.wet || (twice && wetOnce(p, now, rains))) && !growing(p, now, rains).spent && !(seen.ripe && !CROPS[p.crop].again)) return "water";
     if (kind === "feed" && !p.fed) return "feed";
@@ -647,7 +664,8 @@ function tendUntrained(key: string, plot: Plot, bed: Bed | undefined, others: nu
   if (deed === "sow" && owner === null && holds >= BEDS.each) return { ok: false, why: "beds" };
   const did = deed === "clear" || deed === "till" ? hoe(key, purse, plot, hand, now, rains) : deed === "pull" || deed === "uproot" ? uproot(key, purse, plot, true, sure, hand, now, rains)
     : deed === "sow" ? sow(purse, plot, hand, me, now) : deed === "water" ? water(key, purse, plot, hand, now, rains)
-      : deed === "feed" ? feed(key, purse, plot, hand, now, rains, luck) : deed === "cure" ? cure(key, purse, plot, hand, now, rains) : pick(key, purse, plot, true, hand, now, rains);
+      : deed === "feed" ? feed(key, purse, plot, hand, now, rains, luck) : deed === "cure" ? cure(key, purse, plot, hand, now, rains)
+        : deed === "compost" || deed === "brush" ? care(deed, purse, plot, now) : pick(key, purse, plot, true, hand, now, rains);
   if (!did.ok) return did;
   // (work in somebody else's bed, or on somebody else's plant, with the gardener's gloves on: half its stamina)
   const theirs = (owner !== null && owner !== me) || (!!plot.plant && plot.plant.by !== me);

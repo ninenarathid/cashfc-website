@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { pick, type Plant, type Plot } from "./farm";
+import { deedFor, pick, tend, type Plant, type Plot } from "./farm";
 import { ITEMS } from "./items";
 import { harvestOf } from "./quality-plant";
 import { collect, held, leave, newPurse, plainStack, put, roomFor, roundOf, take, takeBack, waiting, wholeStack, type Purse } from "./trade";
@@ -105,3 +105,33 @@ describe("graded produce moves with its grade", () => {
     expect(bySlot.stacks).toEqual([{ item: "tomato", n: 3, grade: 3 }]);
   });
 });
+
+describe("the farm's own care: compost and the pollen brush", () => {
+  const young = (more: Partial<Plant> = {}): Plot => ({ soil: "tilled", plant: { by: "me", crop: "tomato", sown: T0, boost: 0, watered: 0, fed: 0, guard: T0 + 300 * H, cured: 0, picked: 0, pickedAt: 0, ...more } });
+  const now = T0 + 20 * H, purse = (hand: string) => ({ ...bagOf({ item: "compost", n: 2 }, { item: "pollenBrush", n: 1 }), hand } as Purse);
+
+  it("puts compost on one's own plant once a planting, from the bag", () => {
+    expect(deedFor("3,3", young(), "compost", "me", now)).toBe("compost");
+    expect(deedFor("3,3", young({ compost: T0 }), "compost", "me", now)).toBe(null);
+    expect(deedFor("3,3", young({ by: "them" }), "compost", "me", now)).toBe(null);
+    const did = tend("3,3", young(), undefined, 0, 1, purse("compost"), "me", now, [], false);
+    if (!did.ok) throw new Error(did.why);
+    expect(did.deed).toBe("compost");
+    expect(did.plot.plant!.compost).toBe(now);
+    expect(held(did.purse.bag, "compost")).toBe(1);
+  });
+
+  it("brushes once a round before it is ripe, and keeps the brush", () => {
+    expect(deedFor("3,3", young(), "pollenBrush", "me", now)).toBe("brush");
+    expect(deedFor("3,3", young({ brushed: T0 + H }), "pollenBrush", "me", now)).toBe(null);
+    // a ripe plant is picked, not brushed
+    expect(deedFor("3,3", young(), "pollenBrush", "me", T0 + 100 * H)).toBe("pick");
+    // brushed last round: brushed again this one
+    expect(deedFor("3,3", young({ brushed: T0 + H, picked: 1, pickedAt: T0 + 80 * H }), "pollenBrush", "me", T0 + 90 * H)).toBe("brush");
+    const did = tend("3,3", young(), undefined, 0, 1, purse("pollenBrush"), "me", now, [], false);
+    if (!did.ok) throw new Error(did.why);
+    expect(did.plot.plant!.brushed).toBe(now);
+    expect(held(did.purse.bag, "pollenBrush")).toBe(1);
+  });
+});
+
