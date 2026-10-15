@@ -53,6 +53,29 @@ export function dishGrade(ingredients: ReadonlyArray<Grade | null>): Grade {
   return graded.length ? (Math.min(...graded) as Grade) : 0;
 }
 
+/* ── food (piece 2.4: cooking and stamina by grade) ── */
+
+/**
+ * The preparations that carry a grade into the kitchen: what is made of produce (directly or through another of them)
+ * and goes into a dish. Each takes the grade of its lowest graded input; one of normal produce is normal (0) and still
+ * counts. Things made of produce that go into no dish (a cup, a pickle, the cure, a fertiliser) carry none, and
+ * compost, tools and fertilisers never do. lib/town/quality-cook.test.ts checks the list against the recipes, and the
+ * database keeps the same list (v261's town.carries_grade).
+ */
+export const FOOD_PREPS: readonly string[] = [
+  "curryPaste", "coconutMilk",
+  "dicedRoot", "brownedOnion", "driedZest", "brightSauce", "thickBroth", "sweetGlaze", "spicePaste",
+  "beanPaste", "berryJam", "blueCornFlour", "driedTea", "sunflowerOil", "lotusStarch",
+  "nectarSyrup",
+];
+/** A grade read off anything that may carry one: 1 to 3, else normal (0). */
+export const asGrade = (g: unknown): Grade => (g === 1 || g === 2 || g === 3 ? g : 0);
+/** What a helping of a grade adds to its dish's own stamina, as a part of it (+20% / +40% / +60%). */
+export const restoresOf = (g: unknown): number => GRADES[asGrade(g)].restores;
+/** The level an excellent dish's own buff is at once at the least when the helping is eaten up (none for the rest). */
+export const EXCELLENT_BUFF = 2;
+export const buffFloorOf = (g: unknown): number => (asGrade(g) === 3 ? EXCELLENT_BUFF : 0);
+
 /* ── the bars ── */
 
 /** A source covering one bar for a while: `level` 1 a whole bar, 0.5 half. Times in ms. `src` names it for the page. */

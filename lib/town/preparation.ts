@@ -2,7 +2,7 @@ import { carriedBag } from "./passive-equipment";
 import { PREP_MAKES } from "./preparation-items";
 import { byOf, type ItemId } from "./items";
 import { levelOf, spend } from "./stamina";
-import { held, put, roomFor, take, type Purse } from "./trade";
+import { carriesGrade, held, put, roomFor, take, usedGrade, type Purse } from "./trade";
 import { CAMP, KITCHEN } from "./world";
 
 export type PrepId=keyof typeof PREP_MAKES;
@@ -43,6 +43,8 @@ export function prepare(p:Purse,run:PrepRun|null,id:string,answers:PrepAnswers,a
  const recipe=PREP_MAKES[run.recipe];let bag=p.bag;
  for(const[part,n]of recipe.needs)bag=take(bag,part,n);
  const item:ItemId=mistakes===0?run.recipe:"compost",n=mistakes===0?recipe.gives:1;
- if(roomFor(bag,item)<n)return no("full");
- return {ok:true as const,made:item,n,mistakes,purse:{...spend(p,PREPARATION.cost,now),bag:put(bag,item,n),prepBook:[...new Set([...(p.prepBook??[]),...(mistakes===0?[run.recipe]:[])])],made:[...new Set([...(p.made??[]),...(mistakes===0?[run.recipe]:[])])]}};
+ // (piece 2.4: a preparation for the kitchen has the grade of the lowest graded thing that went into it; compost never has one)
+ const grade=mistakes===0&&carriesGrade(item)?usedGrade(p.bag,bag,recipe.needs.map(([part])=>part as ItemId))??0:0;
+ if(roomFor(bag,item,grade)<n)return no("full");
+ return {ok:true as const,made:item,n,mistakes,purse:{...spend(p,PREPARATION.cost,now),bag:put(bag,item,n,grade),prepBook:[...new Set([...(p.prepBook??[]),...(mistakes===0?[run.recipe]:[])])],made:[...new Set([...(p.made??[]),...(mistakes===0?[run.recipe]:[])])]}};
 }

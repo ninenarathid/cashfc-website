@@ -11,13 +11,13 @@ import { CARRIES } from "@/lib/town/gear";
 import { equipmentEffect, isPassiveEquipment } from "@/lib/town/passive-equipment";
 import { hintOf } from "@/lib/town/hints";
 import { WISH, type WishId } from "@/lib/town/fountain";
-import { BUFFS, ITEMS, SCROLLS, iconOf, isDish, potIconOf, type DishId, type ItemId, type ItemKind } from "@/lib/town/items";
+import { BUFFS, DISHES, ITEMS, SCROLLS, iconOf, isDish, potIconOf, type DishId, type ItemId, type ItemKind } from "@/lib/town/items";
 import { GEMS, OPTIONS, gemsShown, makersOf, modsOf, readToolWord, toolWord, type Element } from "@/lib/town/tools";
 import { keptMotion } from "@/lib/town/motion";
 import { levelHue } from "./held";
 import type { Order } from "@/lib/town/orders";
 import { opens } from "@/lib/town/scrolls";
-import { GRADES } from "@/lib/town/quality";
+import { GRADES, asGrade, buffFloorOf } from "@/lib/town/quality";
 import { gradePays } from "@/lib/town/trade";
 import { carried } from "@/lib/town/line";
 import type { MarketQuote, PricesTold } from "@/lib/town/market";
@@ -782,12 +782,14 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book
           <div className="mt-2 rounded-lg border border-gold/50 bg-gold/10 px-2.5 py-2">
             <p className="flex items-center gap-1.5 text-ui text-ink">
               <ItemIcon id={purse.eating.dish} size={20} />
-              <span className="min-w-0 flex-1 truncate font-semibold">{th ? `กำลังกิน ${ITEMS[purse.eating.dish].name.th}` : `Eating: ${ITEMS[purse.eating.dish].name.en}`}</span>
-              <button type="button" onClick={onGetUp} className="pressable rounded-full border border-line-strong px-3 py-1 text-meta text-ink hover:border-chili">{th ? "ลุก" : "Get up"}</button>
+              <span className="min-w-0 flex-1 truncate font-semibold">{th ? `กำลังกิน ${ITEMS[purse.eating.dish].name.th}` : `Eating: ${ITEMS[purse.eating.dish].name.en}`}<GradeBadge grade={purse.eating.grade} th={th} inline /></span>
+              <button type="button" onClick={onGetUp} className="pressable min-h-11 min-w-11 rounded-full border border-line-strong px-3 py-1 text-meta text-ink hover:border-chili">{th ? "ลุก" : "Get up"}</button>
             </p>
             <div aria-hidden className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-line">
               <div className="h-full rounded-full bg-gold" style={{ width: `${Math.round(mealProgress(purse, now) * 100)}%` }} />
             </div>
+            {/* (piece 2.4: a graded helping says what its grade adds) */}
+            {!!asGrade(purse.eating.grade) && <p className="mt-1 text-meta text-gold" data-eating-grade={purse.eating.grade}>{[gradeFood(purse.eating.grade, th, true), DISHES[purse.eating.dish].buff ? gradeBuff(purse.eating.grade, th) : ""].filter(Boolean).join(" · ")}</p>}
             {company > 0 && <p className="mt-1 text-meta text-muted">{th ? `กินด้วยกัน ${company + 1} คน · stamina +${Math.round(STAMINA.together * 100) * Math.min(STAMINA.company, company)}%` : `${company + 1} eating together · stamina +${Math.round(STAMINA.together * 100) * Math.min(STAMINA.company, company)}%`}</p>}
           </div>
         )}
@@ -994,9 +996,38 @@ export function ItemCard({ id, n, th, at, holds }: { id: ItemId; n?: number; th:
 /** What a thing in the bag holds, in words: the dish in a pot and its helpings, the water in a can or a bucket. Nothing, for a thing that holds nothing. */
 /** A grade's tint on a slot's badge (the inspector's grade zones). */
 const GRADE_TINT: Record<1 | 2 | 3, string> = { 1: "#c3ced8", 2: "#f0c060", 3: "#d2a6ff" };
+/**
+ * (piece 2.4) A grade's stars as the bag's slots show them, for food wherever it is shown: in a corner of a cell, or
+ * `inline` after a name. Nothing for normal.
+ */
+export function GradeBadge({ grade, th, inline = false }: { grade?: unknown; th: boolean; inline?: boolean }) {
+  const g = asGrade(grade);
+  if (!g) return null;
+  return (
+    <span data-grade={g} role="img" aria-label={th ? GRADES[g].th : GRADES[g].en} title={th ? GRADES[g].th : GRADES[g].en}
+          className={`${inline ? "relative -top-px ml-1 inline-block align-middle" : "pointer-events-none absolute right-0.5 top-0.5"} rounded-sm px-0.5 font-data text-[9px] font-bold leading-3 text-[#2a1a08] shadow-[0_0_0_1px_#1a0e06]`}
+          style={{ background: GRADE_TINT[g] }}>{"★".repeat(g)}</span>
+  );
+}
+/**
+ * (piece 2.4) What a grade does for a helping, in words: its name and the stamina it adds (only the name, for normal).
+ * `bare`: the name without its stars, where the badge stands beside it already.
+ */
+export const gradeFood = (grade: unknown, th: boolean, bare = false): string => {
+  const g = GRADES[asGrade(grade)], more = Math.round(g.restores * 100), name = th ? g.th : g.en;
+  return `${bare ? name.replace(/^★+\s*/, "") : name}${more ? ` · stamina +${more}%` : ""}`;
+};
+/** (piece 2.4) What an excellent helping does more, in words: its buff begins at the second level. Nothing for the rest. */
+export const gradeBuff = (grade: unknown, th: boolean): string => (buffFloorOf(grade) ? (th ? `บัฟเริ่มขั้น ${buffFloorOf(grade)}` : `buff starts at Lv ${buffFloorOf(grade)}`) : "");
 export function holdsOf(s: Stack, th: boolean): string | null {
-  // (the farm's Quality: graded produce says its grade, and what the uncle's relatives pay for it)
-  if (s.grade) return [heldIn(s, th), th ? `${GRADES[s.grade].th} · ลุงรับซื้อ ×${GRADES[s.grade].pays}` : `${GRADES[s.grade].en} · relatives pay ×${GRADES[s.grade].pays}`].filter(Boolean).join(" · ");
+  // (the farm's Quality: graded produce says its grade, and what the uncle's relatives pay for it; a graded dish or pot
+  // what it restores; a graded preparation, that the dish made of it keeps its grade)
+  if (s.grade) {
+    const food = s.item === "potFull" || isDish(s.item), crop = ITEMS[s.item]?.kind === "crop";
+    const words = crop ? (th ? `${GRADES[s.grade].th} · ลุงรับซื้อ ×${GRADES[s.grade].pays}` : `${GRADES[s.grade].en} · relatives pay ×${GRADES[s.grade].pays}`)
+      : food ? [gradeFood(s.grade, th), DISHES[(s.of?.dish ?? s.item) as DishId]?.buff ? gradeBuff(s.grade, th) : ""].filter(Boolean).join(" · ") : (th ? `${GRADES[s.grade].th} · ส่งเกรดต่อให้อาหาร` : `${GRADES[s.grade].en} · passes its grade to the dish`);
+    return [heldIn(s, th), words].filter(Boolean).join(" · ");
+  }
   const holds = heldIn(s, th);
   // ── forging ── (and what a tool carries of its own: its plus, its gem, its options by their names; what each does is the smith's card's to say)
   if (!forged(s)) return holds;

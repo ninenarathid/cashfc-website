@@ -1,6 +1,7 @@
 import { BOWL, BUFF_STEPS, BUFFS, BUFF_HOURS, BUFF_LEVELS, DISHES, SCROLLS, byOf, inBowl, isDish, type BuffId, type DishId, type ItemId, type MealBuffId } from "./items";
 import type { WishId } from "./fountain";
-import { BANGKOK, DAY, HOUR, no, put, roomFor, type Done, type Purse } from "./trade";
+import { BANGKOK, DAY, HOUR, gradeIn, no, put, roomFor, type Done, type Purse } from "./trade";
+import { buffFloorOf, restoresOf } from "./quality";
 
 /**
  * Stamina, meals and what a meal leaves behind (the owner, 2026-10-03).
@@ -173,19 +174,21 @@ export function bowlsBack(purse: Purse, more = 0): Purse {
 
 /**
  * A helping of a dish begun now, wherever it was taken from (a slot of the bag; the dimension basket,
- * lib/town/cooking): one more of this meal's hours' helpings, and the meal at hand.
+ * lib/town/cooking): one more of this meal's hours' helpings, and the meal at hand. (piece 2.4) A graded helping's
+ * grade goes with the meal: `chew` reads it.
  */
-export function begun(purse: Purse, dish: DishId, now: number): Pick<Purse, "meals" | "eating"> {
+export function begun(purse: Purse, dish: DishId, now: number, grade: 0 | 1 | 2 | 3 = 0): Pick<Purse, "meals" | "eating"> {
   const meal = mealOf(now), bowls = bowlsToday(purse, now).map((n, i) => (i === meal ? n + 1 : n));
-  return { meals: { day: dayOf(now), eaten: bowls.map((n) => n > 0), bowls }, eating: { dish, meal, from: now, till: now, got: 0 } };
+  return { meals: { day: dayOf(now), eaten: bowls.map((n) => n > 0), bowls }, eating: { dish, meal, from: now, till: now, got: 0, ...(grade ? { grade } : {}) } };
 }
 
 /**
  * The stamina a helping of a dish gives when eaten through, with so many others eating with one. What a board says
- * before one sits down; `chew` is what counts it out.
+ * before one sits down; `chew` is what counts it out. (piece 2.4) Of a graded helping, its dish's own stamina and
+ * +20% / +40% / +60% of it.
  */
-export function helpingGives(dish: DishId, company: number): number {
-  return DISHES[dish].stamina * (1 + STAMINA.together * Math.min(STAMINA.company, Math.max(0, Math.floor(company))));
+export function helpingGives(dish: DishId, company: number, grade: unknown = 0): number {
+  return DISHES[dish].stamina * (1 + restoresOf(grade)) * (1 + STAMINA.together * Math.min(STAMINA.company, Math.max(0, Math.floor(company))));
 }
 
 /** Sit down to the dish in a slot of the bag: one of this meal's hours' helpings begins, and leaves the bag. */
@@ -198,8 +201,9 @@ export function sitDown(purse: Purse, slot: number, seated: boolean, now: number
     ok: true, dish: s.item,
     purse: {
       ...purse,
-      bag: purse.bag.map((b, i) => (i !== slot ? b : s.n === 1 ? null : { item: s.item, n: s.n - 1 })),
-      ...begun(purse, s.item, now),
+      // (piece 2.4: what is left of a graded stack keeps its grade, and the helping eaten has it)
+      bag: purse.bag.map((b, i) => (i !== slot ? b : s.n === 1 ? null : { ...s, n: s.n - 1 })),
+      ...begun(purse, s.item, now, gradeIn(s)),
     },
   };
 }
@@ -259,14 +263,16 @@ export function chew(purse: Purse, company: number, now: number): { purse: Purse
   const dish = DISHES[e.dish];
   // ── forging: old tools ── (`scent`: so much more stamina in a helping out of a pot whose cookware gave it as much: lib/town/cooking's feastEat)
   const scent = typeof e.scent === "number" && e.scent > 0 ? e.scent : 0;
-  const gain = (dish.stamina + scent) * (Math.max(0, till - e.till) / whole) * (1 + STAMINA.together * Math.min(STAMINA.company, Math.max(0, Math.floor(company))));
+  // (piece 2.4: a graded helping gives its dish's own stamina and +20% / +40% / +60% of it; the scent and the company come after, as ever)
+  const gain = (dish.stamina * (1 + restoresOf(e.grade)) + scent) * (Math.max(0, till - e.till) / whole) * (1 + STAMINA.together * Math.min(STAMINA.company, Math.max(0, Math.floor(company))));
   const left = Math.min(STAMINA.max, staminaOf(purse, now) + gain);
   const done = now >= end;
   const after: Purse = {
     ...purse,
     stamina: { day: dayOf(now), left },
     eating: done ? null : { ...e, till, got: e.got + gain },
-    ...(done && dish.buff ? warmed(raised(purse, dish.buff, now, spiceOf(purse)), dish.buff, typeof e.warm === "number" ? e.warm : 0, now, purse.buff) : {}),
+    // (piece 2.4: an excellent helping's own buff is at the second level at once at the least; one more than that, as ever)
+    ...(done && dish.buff ? warmed(raised(purse, dish.buff, now, Math.max(spiceOf(purse), buffFloorOf(e.grade))), dish.buff, typeof e.warm === "number" ? e.warm : 0, now, purse.buff) : {}),
   };
   if(done){
     if(e.secondary&&e.secondary in BUFF_STEPS&&e.secondary!==dish.buff){const live=mealBuffs(after,now),had=live.find(b=>b.id===e.secondary);after.buffs=had?live.map(b=>b===had?{...b,level:Math.max(1,b.level),until:Math.max(b.until,now+1800000)}:b):[...live,{id:e.secondary,level:1,until:now+1800000}];}

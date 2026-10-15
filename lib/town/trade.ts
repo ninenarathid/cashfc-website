@@ -2,6 +2,7 @@ import { isPassiveEquipment } from "./passive-equipment";
 import { CARRIES } from "./gear";
 import type { WishId } from "./fountain";
 import { ITEMS, type BuffId, type DishId, type FishId, type ItemId, type MealBuffId } from "./items";
+import { FOOD_PREPS } from "./quality";
 
 /**
  * Cash Town's trade: what the uncle's stall and the banker's counter do, as
@@ -174,10 +175,14 @@ export interface Stack {
   scent?: number;
   /**
    * (the farm's Quality, lib/town/quality) Produce's grade: 1 silver, 2 gold, 3 excellent; left out for normal (0), as
-   * all produce from before Quality was. Stacks of one thing join only at the same grade.
+   * all produce from before Quality was. Stacks of one thing join only at the same grade. Since piece 2.4 a dish's too
+   * (a pot of food, a helping in its bowl) and a preparation's (quality's FOOD_PREPS): the lowest graded thing that
+   * went into it (usedGrade, below).
    */
   grade?: 1 | 2 | 3;
 }
+/** Helpings of a dish in the dimension basket (lib/town/cooking's basketOf): normal ones as a pair, graded ones with their grade third. */
+export type BasketEntry = [DishId, number] | [DishId, number, 1 | 2 | 3];
 /** A stack's grade: its own, or normal. */
 export const gradeIn = (s: Stack | null | undefined): 0 | 1 | 2 | 3 => s?.grade ?? 0;
 // ── forging ──
@@ -203,6 +208,26 @@ export interface Lot { item: ItemId; n: number; pays: number; round: number; f?:
  */
 export const GRADE_PAYS = [1, 1.25, 1.75, 2.5] as const;
 export const gradePays = (item: ItemId, grade: 0 | 1 | 2 | 3 = 0): number => (ITEMS[item]?.kind === "crop" ? GRADE_PAYS[grade] : 1);
+/**
+ * (piece 2.4) Whether a thing carries a grade into what is cooked of it: produce, and the preparations made of it that
+ * go into a dish (lib/town/quality's FOOD_PREPS). Everything else (what the uncle sells, fish, the wild's things) does
+ * not count towards a dish's grade.
+ */
+export const carriesGrade = (id: ItemId): boolean => ITEMS[id]?.kind === "crop" || FOOD_PREPS.includes(id);
+/**
+ * The grade of what went into something, from the units that actually left the bag (`before` and `after` it, of the
+ * things `ids`): of each thing that carries a grade, the lowest grade of which fewer are left; the lowest of those.
+ * Null when nothing that carries a grade left the bag (a dish of only such things is normal).
+ */
+export function usedGrade(before: Purse["bag"], after: Purse["bag"], ids: readonly ItemId[]): 0 | 1 | 2 | 3 | null {
+  let low: 0 | 1 | 2 | 3 | null = null;
+  for (const id of new Set(ids)) {
+    if (!carriesGrade(id)) continue;
+    const g = ([0, 1, 2, 3] as const).find((k) => held(before, id, k) > held(after, id, k));
+    if (g !== undefined && (low === null || g < low)) low = g;
+  }
+  return low;
+}
 /** What a lot fetches in all: whole coins. */
 export const lotWorth = (l: Lot) => (l.n * l.pays * (l.f ?? 100) * gradePays(l.item, l.grade ?? 0)) / 100;
 
@@ -240,7 +265,7 @@ export interface Purse {
    * (lib/town/cooking's feastEat), so no bowl comes back to the bag when it ends.
    */
   lastMeal?:{cookedBy:string;cookId:string;at:number;buffs?:string[];extended?:boolean};
-  eating: { secondary?:import("./items").MealBuffId;cookedBy?:string;cookId?:string;picnic?:boolean; dish: DishId; meal: 0 | 1 | 2 | 3; from: number; till: number; got: number; lent?: boolean; /* (forging: what the pot it came out of gave it, lib/town/cooking's feastEat) */ warm?: number; scent?: number } | null;
+  eating: { secondary?:import("./items").MealBuffId;cookedBy?:string;cookId?:string;picnic?:boolean; dish: DishId; meal: 0 | 1 | 2 | 3; from: number; till: number; got: number; lent?: boolean; /* (forging: what the pot it came out of gave it, lib/town/cooking's feastEat) */ warm?: number; scent?: number; /* (piece 2.4: the grade of the helping, lib/town/stamina's chew) */ grade?: 1 | 2 | 3 } | null;
   /** The buff of the last helping eaten, as it was kept before buffs had levels: still written, for a page that knows no better. */
   buff: { id: BuffId; until: number } | null;
   /** What meals have left, each while it lasts: held together, each at its level (lib/town/stamina's mealBuffs reads them; a purse from before has only `buff`). */
@@ -285,8 +310,12 @@ export interface Purse {
   /** How many times something has been cooked that was a recipe's own but for its last thing: by the recipe (lib/town/cooking). */
   tries?: Partial<Record<ItemId, number>>;
   // ── gifts: kitchen ──
-  /** The dimension basket (lib/town/cooking): the helpings kept in it, each dish once with how many of it, in the order they were first put in. In no slot of the bag. */
-  basket?: Array<[DishId, number]>;
+  /**
+   * The dimension basket (lib/town/cooking): the helpings kept in it, each dish once with how many of it, in the order
+   * they were first put in. In no slot of the bag. Since piece 2.4 each dish once a grade: a graded one has its grade
+   * third (1 to 3), a normal one none (as every one from before).
+   */
+  basket?: BasketEntry[];
   /** The recipes whose secret thing the whispering spoon has told (lib/town/cooking): each is read whole from then on. */
   whispers?: ItemId[];
   /** The stardust spice sprinkled on the bowl being eaten (lib/town/cooking, lib/town/stamina): the meal it was sprinkled on, by the moment that meal began, and the level its buff is at once it is eaten up. Of no meal but that one. */

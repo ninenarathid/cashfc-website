@@ -11,7 +11,8 @@ import { BLESSINGS } from "./fountain";
 import { harderFor, hasThing, numberOf, useGift, usesLeft, works, type GiftRefusal } from "./gifts";
 import { STAMINA, begun, hasBuff, mayEat, nextMealAt, sitDown, spend } from "./stamina";
 import type { TimingMods } from "./timing";
-import { held, heldStack, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
+import { carriesGrade, gradeIn, held, heldStack, no, put, roomFor, take, usedGrade, type BasketEntry, type Done, type Purse, type Refusal, type Stack } from "./trade";
+import { asGrade } from "./quality";
 
 /**
  * Cooking and serving, as rules (the owner, 2026-10-03, and the bowls of 2026-10-04).
@@ -319,15 +320,19 @@ function cookUntrained(purse: Purse, things: Array<[ItemId, number]>, crew: Arra
     if (warm?.ok) spent = warm.purse;
     const scent = made && cookFx(mine).scent > 0 ? usePower(spent, mine, "ckScent", now) : null;
     if (scent?.ok) spent = scent.purse;
-    const marks = potMarks({ warm: warm?.ok ? cookFx(mine).warm : 0, scent: scent?.ok ? cookFx(mine).scent : 0 });
+    // (piece 2.4: the pot's grade is the lowest of the graded things that went into it, the batches too; none for normal)
+    const grade = usedGrade(purse.bag, bag, all.map(([id]) => id)) ?? 0;
+    const marks = potMarks({ warm: warm?.ok ? cookFx(mine).warm : 0, scent: scent?.ok ? cookFx(mine).scent : 0, ...(grade ? { grade } : {}) });
     return { ok: true, made: dish, n: left, ...(near ? { taste: near.taste } : {}), purse: { ...spent, bag: bag.map((s, i) => (i === pot ? { item: "potFull" as ItemId, n: 1, of: { dish, left }, ...marks } : s)) } };
   }
   // put together with bare hands, things that make nothing are lost
   if (!made) return { ok: true, made: null, n: 0, taste: near!.taste, purse: { ...spent, bag: roomFor(bag, "compost") > 0 ? put(bag, "compost", 1) : bag } };
   // what is made otherwise: every miss is one fewer, never under one
   const n = Math.max(1, MAKES[made]!.gives - Math.max(0, Math.floor(misses)));
-  if (roomFor(bag, made) < n) return no("full");
-  return { ok: true, made, n, purse: { ...spent, bag: put(bag, made, n) } };
+  // (piece 2.4: a preparation for the kitchen has the grade of the lowest graded thing that went into it)
+  const grade = carriesGrade(made) ? usedGrade(purse.bag, bag, all.map(([id]) => id)) ?? 0 : 0;
+  if (roomFor(bag, made, grade) < n) return no("full");
+  return { ok: true, made, n, purse: { ...spent, bag: put(bag, made, n, grade) } };
 }
 
 /**
@@ -342,11 +347,16 @@ export interface Pot {
   id: string; by: string; dish: DishId; left: number; at: [number, number]; tok?: boolean; set?: number; feast?: boolean; name?: string;
   // ── forging: old tools ── (what the cookware it was cooked in gave it: a helping eaten out of it at the feast table has so many hours more of its buff, so much more stamina)
   warm?: number; scent?: number;
+  /** (piece 2.4) The grade of what is in it: every helping out of it has it. None for normal. */
+  grade?: 1 | 2 | 3;
 }
 // ── forging: old tools ──
-/** What a pot of food carries from its cookware, as it is kept on a pot and on a slot of the bag alike: nothing kept that says nothing. */
+/**
+ * What a pot of food carries from its cookware, as it is kept on a pot and on a slot of the bag alike: nothing kept that
+ * says nothing. (piece 2.4) And its grade, which goes wherever the pot goes and into every helping eaten out of it.
+ */
 export const potMarks = (from: import("./reward-kitchen").FoodMarks): import("./reward-kitchen").FoodMarks =>
-  ({ ...(from.secondary?{secondary:from.secondary}:{}),...(from.cookedBy?{cookedBy:from.cookedBy}:{}),...(from.cookId?{cookId:from.cookId}:{}),...(typeof from.warm === "number" && from.warm > 0 ? { warm: from.warm } : {}), ...(typeof from.scent === "number" && from.scent > 0 ? { scent: from.scent } : {}) });
+  ({ ...(from.secondary?{secondary:from.secondary}:{}),...(from.cookedBy?{cookedBy:from.cookedBy}:{}),...(from.cookId?{cookId:from.cookId}:{}),...(typeof from.warm === "number" && from.warm > 0 ? { warm: from.warm } : {}), ...(typeof from.scent === "number" && from.scent > 0 ? { scent: from.scent } : {}), ...(asGrade(from.grade) ? { grade: asGrade(from.grade) as 1 | 2 | 3 } : {}) });
 /** How near one has to stand to a pot on the ground to ladle from it. */
 export const reachOf = (pot: Pot) => (pot.tok ? COOKING.tok : COOKING.reach);
 /** Whether somebody standing on a tile reaches a pot: beside it, for one on the ground; anywhere on the yard's floor (`yard`: whether their tile is of it), for one on the feast table. */
@@ -425,9 +435,10 @@ export function feastEat(purse: Purse, pot: Pot, seated: boolean, now: number, m
 export function ladle(purse: Purse, pot: Pot): Done<{ purse: Purse; pot: Pot | null }> {
   if (pot.left < 1) return no("none");
   if (!held(purse.bag, BOWL)) return no("tool");
-  const bag = take(purse.bag, BOWL, 1);
-  if (roomFor(bag, pot.dish) < 1) return no("full");
-  return { ok: true, pot: pot.left > 1 ? { ...pot, left: pot.left - 1 } : null, purse: { ...purse, bag: put(bag, pot.dish, 1) } };
+  // (piece 2.4: the helping has the pot's grade, and nothing else of the pot's)
+  const bag = take(purse.bag, BOWL, 1), grade = asGrade(pot.grade);
+  if (roomFor(bag, pot.dish, grade) < 1) return no("full");
+  return { ok: true, pot: pot.left > 1 ? { ...pot, left: pot.left - 1 } : null, purse: { ...purse, bag: put(bag, pot.dish, 1, grade) } };
 }
 /** Whether somebody may take a pot up: only whoever set it down. */
 export const mayTake = (pot: Pot, me: string) => pot.by === me;
@@ -444,10 +455,11 @@ export function serve(purse: Purse, slot: number): Done<{ purse: Purse; dish: Di
   const s = purse.bag[slot];
   if (!s || s.item !== "potFull" || !s.of || s.of.left < 1) return no("none");
   if (!held(purse.bag, BOWL)) return no("tool");
-  const dish = s.of.dish, left = s.of.left - 1;
+  const dish = s.of.dish, left = s.of.left - 1, grade = gradeIn(s);
   const bag = take(purse.bag.map((b, i) => (i !== slot ? b : left ? { ...s, of: { dish, left } } : null)), BOWL, 1);
-  if (roomFor(bag, dish) < 1) return no("full");
-  return { ok: true, dish, purse: { ...purse, bag: put(bag, dish, 1) } };
+  // (piece 2.4: the helping has the pot's grade)
+  if (roomFor(bag, dish, grade) < 1) return no("full");
+  return { ok: true, dish, purse: { ...purse, bag: put(bag, dish, 1, grade) } };
 }
 
 /* ── The gifts of the kitchen's ranks (lib/town/gifts; the owner, 2026-10-07: each rank cuts a whole rule of its line out) ── */
@@ -470,18 +482,25 @@ const nay = <W extends Refusal | GiftRefusal | KitchenRefusal>(why: W): { ok: fa
  * uncle's rice parcel, the odd dish), and nothing else. A helping in it has its bowl with it, as one in the bag has:
  * the bowl is back when it has been eaten.
  *
- * What a purse keeps in it, made sound: dishes only, each once, a whole number of helpings of each, in the order
- * they were first put in.
+ * What a purse keeps in it, made sound: dishes only, each once a grade (a pair for normal helpings, as from before;
+ * the grade third for graded ones, 1 to 3), a whole number of helpings of each, in the order they were first put in.
+ * (piece 2.4) Helpings of one dish at two grades are two entries; they leave the basket the lowest grade first.
  */
-export function basketOf(purse: Pick<Purse, "basket">): Array<[DishId, number]> {
-  const out: Array<[DishId, number]> = [];
+export function basketOf(purse: Pick<Purse, "basket">): BasketEntry[] {
+  const out: BasketEntry[] = [];
   for (const e of Array.isArray(purse.basket) ? (purse.basket as unknown[]) : []) {
-    if (!Array.isArray(e) || e.length !== 2) continue;
-    const [id, n] = e as [unknown, unknown];
-    if (typeof id === "string" && Object.prototype.hasOwnProperty.call(DISHES, id) && typeof n === "number" && Number.isInteger(n) && n > 0 && !out.some(([d]) => d === id)) out.push([id as DishId, n]);
+    if (!Array.isArray(e) || (e.length !== 2 && e.length !== 3)) continue;
+    const [id, n, g] = e as [unknown, unknown, unknown];
+    if (e.length === 3 && !asGrade(g)) continue;
+    const grade = e.length === 3 ? asGrade(g) : 0;
+    if (typeof id === "string" && Object.prototype.hasOwnProperty.call(DISHES, id) && typeof n === "number" && Number.isInteger(n) && n > 0 && !out.some((x) => x[0] === id && entryGrade(x) === grade)) {
+      out.push(grade ? [id as DishId, n, grade] : [id as DishId, n]);
+    }
   }
   return out;
 }
+/** A basket entry's grade: its third number, or normal. */
+export const entryGrade = (e: BasketEntry): 0 | 1 | 2 | 3 => asGrade(e[2]);
 /** How many helpings are in the basket, and how many more it has room for (none, for whoever has no basket). */
 export const inBasket = (purse: Pick<Purse, "basket">): number => basketOf(purse).reduce((t, [, n]) => t + n, 0);
 export const basketRoom = (purse: Pick<Purse, "basket" | "gifts">): number => (hasThing(purse, "thingBasket") ? Math.max(0, numberOf("thingBasket") - inBasket(purse)) : 0);
@@ -492,33 +511,56 @@ export function basketPut(purse: Purse, slot: number, n: number): Gifted<{ purse
   if (!hasThing(purse, "thingBasket") || !s || !isDish(s.item)) return no("none");
   if (!Number.isInteger(n) || n < 1 || n > s.n) return no("amount");
   if (n > basketRoom(purse)) return no("full");
-  const dish = s.item, mine = basketOf(purse);
+  // (piece 2.4: a graded helping keeps its grade in the basket, beside the dish's helpings of that grade; what is left in the slot keeps it too)
+  const dish = s.item, mine = basketOf(purse), grade = gradeIn(s);
+  const same = (e: BasketEntry) => e[0] === dish && entryGrade(e) === grade;
   return {
     ok: true, dish, n,
     purse: {
       ...purse,
-      bag: purse.bag.map((b, i) => (i !== slot ? b : s.n === n ? null : { item: s.item, n: s.n - n })),
-      basket: mine.some(([d]) => d === dish) ? mine.map(([d, k]): [DishId, number] => (d === dish ? [d, k + n] : [d, k])) : [...mine, [dish, n]],
+      bag: purse.bag.map((b, i) => (i !== slot ? b : s.n === n ? null : { ...s, n: s.n - n })),
+      basket: mine.some(same) ? mine.map((e): BasketEntry => (same(e) ? (grade ? [dish, e[1] + n, grade] : [dish, e[1] + n]) : e)) : [...mine, grade ? [dish, n, grade] : [dish, n]],
     },
   };
 }
-/** A basket with so many helpings of a dish out of it (it must hold as many). */
-const less = (mine: Array<[DishId, number]>, dish: DishId, n: number) => mine.flatMap(([d, k]): Array<[DishId, number]> => (d !== dish ? [[d, k]] : k > n ? [[d, k - n]] : []));
-/** Take so many helpings of a dish back out of the basket, into the bag. */
-export function basketTake(purse: Purse, dish: string, n: number): Gifted<{ purse: Purse; dish: DishId; n: number }> {
-  const mine = basketOf(purse), had = mine.find(([d]) => d === dish);
-  if (!hasThing(purse, "thingBasket") || !had) return no("none");
-  if (!Number.isInteger(n) || n < 1 || n > had[1]) return no("amount");
-  if (roomFor(purse.bag, had[0]) < n) return no("full");
-  return { ok: true, dish: had[0], n, purse: { ...purse, bag: put(purse.bag, had[0], n), basket: less(mine, had[0], n) } };
+/** How many helpings of a dish the basket holds, of every grade. */
+export const basketHas = (mine: BasketEntry[], dish: string) => mine.reduce((t, e) => t + (e[0] === dish ? e[1] : 0), 0);
+/**
+ * A basket with so many helpings of a dish out of it (it must hold as many), the lowest grade first; and how many of
+ * each grade left it, lowest first.
+ */
+function less(mine: BasketEntry[], dish: DishId, n: number): { basket: BasketEntry[]; out: Array<[0 | 1 | 2 | 3, number]> } {
+  const out: Array<[0 | 1 | 2 | 3, number]> = [], took = new Map<0 | 1 | 2 | 3, number>();
+  for (const g of [0, 1, 2, 3] as const) {
+    const e = mine.find((x) => x[0] === dish && entryGrade(x) === g);
+    if (!e || n <= 0) continue;
+    const k = Math.min(n, e[1]);
+    n -= k; took.set(g, k); out.push([g, k]);
+  }
+  const basket = mine.flatMap((e): BasketEntry[] => {
+    const g = entryGrade(e), k = e[0] === dish ? took.get(g) ?? 0 : 0;
+    return !k ? [e] : e[1] > k ? [g ? [e[0], e[1] - k, g] : [e[0], e[1] - k]] : [];
+  });
+  return { basket, out };
 }
-/** Sit down to a helping of a dish out of the basket: as to one out of the bag (lib/town/stamina's sitDown), but that it leaves the basket. */
-export function basketEat(purse: Purse, dish: string, seated: boolean, now: number): Gifted<{ purse: Purse; dish: DishId }> {
-  const mine = basketOf(purse), had = mine.find(([d]) => d === dish);
+/** Take so many helpings of a dish back out of the basket, into the bag: the lowest grade first, each grade onto its own stacks. */
+export function basketTake(purse: Purse, dish: string, n: number): Gifted<{ purse: Purse; dish: DishId; n: number }> {
+  const mine = basketOf(purse), had = basketHas(mine, dish);
   if (!hasThing(purse, "thingBasket") || !had) return no("none");
+  if (!Number.isInteger(n) || n < 1 || n > had) return no("amount");
+  const id = dish as DishId, { basket, out } = less(mine, id, n);
+  let bag = purse.bag;
+  for (const [g, k] of out) { if (roomFor(bag, id, g) < k) return no("full"); bag = put(bag, id, k, g); }
+  return { ok: true, dish: id, n, purse: { ...purse, bag, basket } };
+}
+/** Sit down to a helping of a dish out of the basket: as to one out of the bag (lib/town/stamina's sitDown), but that it leaves the basket (the lowest grade first). */
+export function basketEat(purse: Purse, dish: string, seated: boolean, now: number): Gifted<{ purse: Purse; dish: DishId }> {
+  const mine = basketOf(purse);
+  if (!hasThing(purse, "thingBasket") || !basketHas(mine, dish)) return no("none");
   if (!seated) return no("stand");
   if (!mayEat(purse, now)) return no("meal");
-  return { ok: true, dish: had[0], purse: { ...purse, basket: less(mine, had[0], 1), ...begun(purse, had[0], now) } };
+  const id = dish as DishId, { basket, out } = less(mine, id, 1);
+  return { ok: true, dish: id, purse: { ...purse, basket, ...begun(purse, id, now, out[0][0]) } };
 }
 
 /**

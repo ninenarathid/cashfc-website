@@ -15,14 +15,14 @@ import type { Purse } from "@/lib/town/trade";
 import { BIG, GameScene, STAGE } from "./TownGame";
 import TownIcon, { type IconName } from "./TownIcon";
 import { Secret } from "./TownScroll";
-import { ItemIcon } from "./TownTrade";
+import { GradeBadge, ItemIcon, gradeBuff, gradeFood } from "./TownTrade";
 import TownCrafting from "./TownCrafting";
 import styles from "./TownAdventure.module.css";
 
 /** Where the table is laid: one of the yard's places, or the forest camp's fire. */
 export type KitchenPlace = "stove" | "table" | "fire" | "camp" | "flame";
 /** What came of the cooking, for the card that says so; with a taste, what went in and what the cooks held, to be read beside the recipe that is open; with a pot, the slot of the bag it is in (the card's helping and its setting down are of that pot, whatever others the bag has). */
-export interface KitchenResult { made: ItemId | null; n: number; first: boolean; slot?: number; taste?: Taste; things?: Array<[ItemId, number]>; crew?: Array<ItemId | null>; fresh?: boolean; sprite?: boolean; back?: boolean }
+export interface KitchenResult { made: ItemId | null; n: number; first: boolean; slot?: number; taste?: Taste; things?: Array<[ItemId, number]>; crew?: Array<ItemId | null>; fresh?: boolean; sprite?: boolean; back?: boolean; /** (piece 2.4) the grade of what came of it: the lowest graded thing that went in */ grade?: 1 | 2 | 3 }
 /** The phoenix flame at the table (lib/town/gifts): how many times more today it gives back what comes to nothing, of how many, and whether it is set to for this pot. */
 export interface FlameAt { left: number; most: number; armed: boolean }
 /**
@@ -697,7 +697,14 @@ function Came({ result, open, th, eat, why, onAgain, onEat, onPotDown, feast, on
           {pot && found && <span aria-hidden className="pointer-events-none absolute -top-1 left-1/2 -translate-x-1/2"><TownIcon name="fxSteam" size={22} className="kt-steam" /></span>}
         </div>
         <h3 id="town-kitchen-came-h" className="font-display text-title font-semibold leading-tight">{title}</h3>
-        {made && <p className="font-data text-ui tabular-nums" style={{ color: INK_SOFT }}>{pot ? (th ? `${n} ที่` : `${n} helping${n === 1 ? "" : "s"}`) : `×${n}`}</p>}
+        {made && <p className="font-data text-ui tabular-nums" style={{ color: INK_SOFT }}>{pot ? (th ? `${n} ที่` : `${n} helping${n === 1 ? "" : "s"}`) : `×${n}`}<GradeBadge grade={result.grade} th={th} inline /></p>}
+        {/* (piece 2.4: what the grade of what went in gives it: more stamina in each helping, or a preparation that passes it on) */}
+        {made && !!result.grade && (
+          <p className="text-meta font-semibold" style={{ color: INK }} data-kitchen-grade={result.grade}>
+            {pot ? [gradeFood(result.grade, th, true), DISHES[made as DishId]?.buff ? gradeBuff(result.grade, th) : ""].filter(Boolean).join(" · ")
+              : th ? "ทำจากของมีเกรด อาหารที่ใช้มันจะได้เกรดนี้" : "Made of graded produce: a dish of it keeps this grade"}
+          </p>
+        )}
         {open && missed.length > 0 && (
           <div className="mt-1.5 rounded-md px-2 py-1.5 text-left" style={{ backgroundColor: "rgba(178,58,38,0.12)" }} data-kitchen-missed={open.id}>
             <p className="flex items-center gap-1 text-meta font-semibold" style={{ color: CHILI }}><ItemIcon id={open.id} size={18} className="shrink-0" />{th ? `ไม่ตรงกับสูตรที่เปิดอยู่: ${name(open.id)}` : `Not the open recipe: ${name(open.id)}`}</p>

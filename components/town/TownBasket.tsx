@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { basketOf, basketRoom } from "@/lib/town/cooking";
+import { basketOf, basketRoom, entryGrade } from "@/lib/town/cooking";
 import { USES, hasThing, numberOf, usesLeft } from "@/lib/town/gifts";
 import { DISHES, ITEMS, isDish, type DishId, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import { mayEat, spiceOf } from "@/lib/town/stamina";
 import type { Purse } from "@/lib/town/trade";
 import TownIcon, { type IconName } from "./TownIcon";
-import { ItemIcon, WHY } from "./TownTrade";
+import { GradeBadge, ItemIcon, WHY, gradeFood } from "./TownTrade";
 
 /** Why not, in the basket's own words (the rest are the trade's). */
 const WHY_BASKET: Record<string, [string, string]> = {
@@ -56,10 +56,12 @@ export default function TownBasket({ keeper, purse, now, th, seated, helpings, s
   if (!basket && !jar && !bottle) return null;
   const flameLeft = bottle ? usesLeft(purse, "thingFlame", now) : 0;
   const mine = basketOf(purse), holds = numberOf("thingBasket"), room = basketRoom(purse), n = holds - room;
-  const cells: Array<DishId | null> = [...mine.flatMap(([d, k]) => Array<DishId>(k).fill(d)), ...Array<null>(Math.max(0, room)).fill(null)];
-  const taken = picked && mine.find(([d]) => d === picked) ? picked : null, count = taken ? mine.find(([d]) => d === taken)![1] : 0;
+  // (piece 2.4: a helping to a place, each with its grade; a dish's helpings leave the basket the lowest grade first)
+  const cells: Array<{ d: DishId; g: number } | null> = [...mine.flatMap((e) => Array.from({ length: e[1] }, () => ({ d: e[0], g: entryGrade(e) }))), ...Array<null>(Math.max(0, room)).fill(null)];
+  const taken = picked && mine.some(([d]) => d === picked) ? picked : null, ofTaken = mine.filter(([d]) => d === taken), count = ofTaken.reduce((t, [, k]) => t + k, 0);
+  const next = ofTaken.length ? Math.min(...ofTaken.map(entryGrade)) : 0, graded = ofTaken.some((e) => entryGrade(e) > 0);
   const name = (d: DishId) => (th ? ITEMS[d].name.th : ITEMS[d].name.en);
-  const fromBag = purse.bag.flatMap((s, slot) => (s && isDish(s.item) ? [{ slot, dish: s.item, n: s.n }] : []));
+  const fromBag = purse.bag.flatMap((s, slot) => (s && isDish(s.item) ? [{ slot, dish: s.item, n: s.n, grade: s.grade }] : []));
   const eats = mayEat(purse, now, helpings);
   const spiceLeft = jar ? usesLeft(purse, "thingSpice", now) : 0, onBowl = spiceOf(purse) > 0, armed = jar && spice && spiceLeft > 0 && !purse.eating;
   const why = (w: string): [string, string] => WHY_BASKET[w] ?? WHY[w as keyof typeof WHY] ?? WHY.none;
@@ -123,12 +125,13 @@ export default function TownBasket({ keeper, purse, now, th, seated, helpings, s
                 <span key={i} aria-hidden className="tb-star pointer-events-none absolute size-[2px] bg-[#e9e2ff]" style={{ left: `${x}%`, top: `${y}%`, animationDelay: `${-(i * 0.37) % 2.8}s` }} />
               ))}
               <ul className="relative grid grid-cols-6 gap-1" aria-label={th ? `อาหารในตะกร้า ${n} จาก ${holds} ที่` : `${n} of ${holds} helpings`}>
-                {cells.map((d, i) => (
-                  <li key={`${i}:${d ?? ""}`} className="aspect-square">
-                    {d ? (
-                      <button type="button" onClick={() => setPicked(taken === d ? null : d)} aria-pressed={taken === d} title={name(d)} aria-label={name(d)} data-basket-cell={d}
-                              className={`tb-pop pressable grid size-full place-items-center rounded-lg border-2 bg-[#2a2050]/80 ${taken === d ? "border-[#f2c14e] shadow-[0_0_10px_rgba(242,193,78,0.6)]" : "border-[#4a3a8a]"}`}>
-                        <ItemIcon id={d} size={30} />
+                {cells.map((c, i) => (
+                  <li key={`${i}:${c?.d ?? ""}:${c?.g ?? ""}`} className="aspect-square">
+                    {c ? (
+                      <button type="button" onClick={() => setPicked(taken === c.d ? null : c.d)} aria-pressed={taken === c.d} title={name(c.d)} aria-label={name(c.d)} data-basket-cell={c.d}
+                              className={`tb-pop pressable relative grid size-full place-items-center rounded-lg border-2 bg-[#2a2050]/80 ${taken === c.d ? "border-[#f2c14e] shadow-[0_0_10px_rgba(242,193,78,0.6)]" : "border-[#4a3a8a]"}`}>
+                        <ItemIcon id={c.d} size={30} />
+                        <GradeBadge grade={c.g} th={th} />
                       </button>
                     ) : <span className="block size-full rounded-lg border-2 border-dashed border-[#3b2f66]/70" data-basket-cell="" />}
                   </li>
@@ -147,6 +150,8 @@ export default function TownBasket({ keeper, purse, now, th, seated, helpings, s
                             className="pressable min-h-11 shrink-0 rounded-full bg-accent px-4 text-ui font-semibold text-bg disabled:opacity-40">
                       {armed && takesSpice(taken) ? (th ? "โรยแล้วกิน" : "Sprinkle & eat") : (th ? "กิน" : "Eat")}
                     </button>
+                    {/* (piece 2.4: of a dish kept at more than one grade, or graded, which comes out or is eaten first: the lowest) */}
+                    {graded && <p className="w-full text-meta text-[#ffe9a6]" data-basket-next={next}>{th ? `ออกก่อน: ${gradeFood(next, th)}` : `Out first: ${gradeFood(next, th)}`}</p>}
                     {!eats && !purse.eating && <p className="w-full text-meta text-[#ffb09c]">{th ? WHY.meal[0] : WHY.meal[1]}</p>}
                     {eats && !seated && <p className="w-full text-meta text-[#ffb09c]">{th ? WHY.stand[0] : WHY.stand[1]}</p>}
                   </div>
@@ -162,7 +167,7 @@ export default function TownBasket({ keeper, purse, now, th, seated, helpings, s
                     <button key={s.slot} type="button" disabled={busy || room < 1} onClick={() => void doing(() => keeper.basketPut(s.slot, 1), ["ใส่ตะกร้าแล้ว", "Into the basket."])}
                             title={name(s.dish)} aria-label={th ? `ใส่ ${name(s.dish)} ลงตะกร้าหนึ่งที่` : `Put one ${name(s.dish)} in`} data-basket-put={s.dish}
                             className="pressable flex min-h-11 items-center gap-1 rounded-full border border-[#6b4a2a] bg-[#33251a] pl-1.5 pr-2.5 text-meta text-[#f3e3c3] hover:border-[#f2c14e] disabled:opacity-40">
-                      <ItemIcon id={s.dish} size={24} /><span className="font-data tabular-nums">×{s.n}</span>
+                      <ItemIcon id={s.dish} size={24} /><span className="font-data tabular-nums">×{s.n}</span><GradeBadge grade={s.grade} th={th} inline />
                     </button>
                   ))}
                   <button type="button" disabled={busy || room < 1} onClick={() => void putAll()} data-basket-all

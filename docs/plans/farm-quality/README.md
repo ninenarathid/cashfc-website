@@ -13,7 +13,7 @@ is the artifact https://claude.ai/artifact/6jR6hbg7pHtGmfa3vQHFJC. This file is 
 | 2.1 | Pure Quality rules (`lib/town/quality.ts`): bars, range, roll, grades, pay, helpers' shapes, partners | done |
 | 2.2 | Coverage on each plant and the plant inspector (bars, sources, range, chances); harvest still ungraded | done: `quality-plant.ts`, trial hook, **v259** (trigger, dry run 1337 checks), `TownQuality.tsx` chip + inspector (shot, Codex looked); the compost act moves to 2.6 with the brush |
 | 2.3 | The roll at the pick and grades on items through every path (bag, box, ground, deal, notices, stalls, pouches, the uncle's relatives) | done: TS (trade, farm pick, box, deal) + **v260** (12 functions guarded, private salt, dry run 3446 checks) + bag stars, sell line, pick note (shot, Codex looked); Codex's code check of v259–v260 pending |
-| 2.4 | Cooking and stamina by grade | |
+| 2.4 | Cooking and stamina by grade | done on branch `farm-cook`: TS (cooking, preparation, stamina, the basket; `carriesGrade`/`usedGrade`, `FOOD_PREPS`; `quality-cook.test.ts`) + **v261** (12 functions guarded, 4 helpers closed, dry run 5163 checks) + the grade on the cook's card, the feast table, the meal in the bag, the basket and the picnic (shot, Codex looked) |
 | 2.5 | The twenty helper plants (four from the uncle), their shapes, fennel; the bed overview | |
 | 2.6 | Partners, the pollen brush and compost (hand acts on a plant: one RPC, tired hands as other farm work) | |
 | 2.7 | Dig out from the inspector (tilled ground, 2 stamina, nothing back) | |
@@ -65,6 +65,24 @@ is the artifact https://claude.ai/artifact/6jR6hbg7pHtGmfa3vQHFJC. This file is 
 - **A line helper** reaches three cells each way (Codex's figure); a **partner** narrows by the share of the round it
   stood touching (as a rare insect does), so a partner set just before ripeness gives little.
 - **Migrations:** the next free number is v259 (v257 and v258 exist untracked in the shared tree); ask the peers first.
+- **What carries a grade into a dish** (piece 2.4): produce (kind `crop`; a normal unit counts as normal) and the
+  sixteen preparations made of produce, directly or through another, that feed a dish (`FOOD_PREPS` in
+  lib/town/quality; a test checks it against the recipes, the dry run the database's `town.carries_grade` against the
+  catalog). Things of produce that feed no dish (the gourd cup, pickle, dried chilli, the cure, the guard fertiliser)
+  carry none, so they stay plain for stalls and the board; compost and tools never do.
+- **Counted from what left the bag:** the grade of each graded thing is the lowest grade of which fewer are left after
+  cooking (`usedGrade` / `town.used_grade`), the big pot's batches included; with the bag giving the lowest first, it is
+  the lowest grade the cook held of it. The odd dish is a dish and takes a grade the same way.
+- **Graded dishes and preparations are not plain**, as graded produce: stalls, the notice board and the jar pass them
+  over until grade-aware listings; the relatives pay them the old price (`gradePays` is for raw produce only).
+- **The basket** keeps one entry a dish and grade, `[dish, n, grade]` (a pair is normal, as before); taking out and
+  eating by dish give the lowest grade first (the RPCs are unchanged), and the basket tells which grade comes out first.
+- **Eating:** `(stamina × (1 + restores) + scent) × company`, under the hundred; an excellent dish's own buff is at the
+  second level at least (`raised` / `town.raised_to` with `max(spice, 2)`), one more on a buff one has, never past the
+  fourth; the flavour stays at the first. The table's button counts the grade in the stamina it promises.
+- **A fix found on the way:** the big pot's batch take calls `town.take(bag, id, numeric)`, and `town.take` takes an
+  integer, so on the bench (built from the migrations) a pot cooked with the batch power fails with "function does not
+  exist", as it likely does live since v177; v261 casts it to a whole number.
 
 ## Checks a piece gets
 
