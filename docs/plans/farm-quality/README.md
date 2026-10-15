@@ -11,11 +11,11 @@ is the artifact https://claude.ai/artifact/6jR6hbg7pHtGmfa3vQHFJC. This file is 
 | 1a | The clock names the eight bands (`lib/town/bands.ts`, TownClock) | done, waits for his OK |
 | 1b | The trade board as a board of its own in the town centre (art: the board, the before-dawn icon) | to do |
 | 2.1 | Pure Quality rules (`lib/town/quality.ts`): bars, range, roll, grades, pay, helpers' shapes, partners | done |
-| 2.2 | Coverage on each plant and the plant inspector (bars, sources, range, chances); harvest still ungraded | TS done (`quality-plant.ts`, trial hook); SQL trigger, compost act, inspector next |
+| 2.2 | Coverage on each plant and the plant inspector (bars, sources, range, chances); harvest still ungraded | done: `quality-plant.ts`, trial hook, **v259** (trigger, dry run 1337 checks), `TownQuality.tsx` chip + inspector (shot, Codex looked); the compost act moves to 2.6 with the brush |
 | 2.3 | The roll at the pick and grades on items through every path (bag, box, ground, deal, notices, stalls, pouches, the uncle's relatives) | |
 | 2.4 | Cooking and stamina by grade | |
 | 2.5 | The twenty helper plants (four from the uncle), their shapes, fennel; the bed overview | |
-| 2.6 | Partners and the pollen brush (narrowing) | |
+| 2.6 | Partners, the pollen brush and compost (hand acts on a plant: one RPC, tired hands as other farm work) | |
 | 2.7 | Dig out from the inspector (tilled ground, 2 stamina, nothing back) | |
 | 3 | The 27 fertilisers, two slots, the chart, holding one shows its gain | |
 | 4 | The insect house, 48 new species, time icons, "out now" notebook, wild insects drawn to good gardens | |
