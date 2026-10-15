@@ -10,7 +10,7 @@
  * fertiliser, the cure, moon water) until it runs out; a released pollinator until its `pollenUntil`.
  */
 import { CROPS } from "./items";
-import { encoreHours, grown, moreOf, quickMs, type FarmSky, type Plant, type Plot } from "./farm";
+import { encoreHours, grown, quickMs, type FarmSky, type Plant, type Plot } from "./farm";
 import { HOUR } from "./trade";
 import { DRY, type Rain } from "./weather";
 import { NO_Q, QUALITY, accrue, barsOfQ, ceilingOf, chancesOf, narrowingOfQ, rangeOf, type Cover, type PlantQ } from "./quality";
@@ -31,9 +31,10 @@ export const roundStart = (p: Plant): number => (p.picked > 0 ? p.pickedAt : p.s
 
 /** The part of its present round a plant has grown by a moment, 0 to 1 (stops at 1 when it is ripe). */
 export function progressOf(p: Plant, rains: FarmSky = DRY): (t: number) => number {
-  const c = CROPS[p.crop], picks = c.picks ?? 1;
+  const c = CROPS[p.crop];
   if (p.picked === 0) return (t) => Math.min(1, Math.max(0, grown(p, t, rains) / c.hours));
-  const wait = moreOf(p) > 0 && p.picked >= picks ? encoreHours(p.crop) : c.again ?? encoreHours(p.crop);
+  // (a bearing after the first waits the crop's own while; one the mandrake sang to, the same: encoreHours)
+  const wait = encoreHours(p.crop);
   return (t) => Math.min(1, Math.max(0, (t - p.pickedAt + quickMs(p, p.pickedAt, t)) / HOUR / wait));
 }
 

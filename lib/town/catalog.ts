@@ -50,6 +50,8 @@ import { WELL_BOOK } from "./well";
 import { DRINK, FROG, MOON } from "./well-gifts";
 import { BEDS_IN_FARM, COLS, FARM, FOREST, MOUNTAIN, KITCHEN, ROWS, STOREBOX, WELL, asBuilt, bedCorner, bedOf, fishFrom } from "./world";
 import { YARD } from "./yard";
+import { QUALITY } from "./quality";
+import { HAND } from "./quality-plant";
 
 /**
  * What the database is told of the game: the numbers its functions decide by.
@@ -97,6 +99,8 @@ export function catalogOf() {
     geology: GEOLOGY,
     gardening: GARDEN,
     insect_garden: INSECT_GARDEN,
+    // (v259: the farm's Quality, lib/town/quality and quality-plant: the range's numbers, from when it counts, hand work's hours, the encore's part)
+    quality: { ...QUALITY, hand: HAND, encore: ENCORE },
     forest_parts: FORAGE_PARTS,
     stream_work: STREAM_WORK,
     preparation: PREPARATION,
@@ -532,7 +536,7 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * line to be won) and `insects` (new: `rare`, the kinds that are rare among the others).
  */
 // v176 ran on 2026-10-10: box_upgrade holds the character's three expansion prices, up to forty slots.
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = { v180: { keys: ["workshop"], over: [] } };
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = { v180: { keys: ["workshop"], over: [] }, v259: { keys: ["quality"], over: [] } };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {
