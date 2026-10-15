@@ -51,7 +51,8 @@ export type Use =
   | "insectCare" // reads routes, lures insects or releases them into a garden
   | "foraging" // inspects, separates and protects forest plant parts
   | "waterwork" // samples, routes, filters, mixes and preserves mountain water
-  | "preparation" | "camp";
+  | "preparation" | "camp"
+  | "house"; // set on a plot of one's bed, takes insects in its rooms (lib/town/insect-house)
 
 /** The uses of a thing, as the rules have them. Empty for a thing that is only ever an ingredient, a bait, a seed, something to eat or to sell. */
 export function usesOf(id: ItemId): Use[] {
@@ -79,6 +80,7 @@ export function usesOf(id: ItemId): Use[] {
   if (NETS.includes(id)) uses.push("net");
   if (toolKindOf(id) === "pick") uses.push("pick");
   if (toolKindOf(id) === "axe") uses.push("axe");
+  if (id === "insectHouse") uses.push("house");
   return uses;
 }
 

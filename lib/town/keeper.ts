@@ -79,6 +79,7 @@ import { dust, pourFor } from "./farm";
 import type { HelpRefusal } from "./helping";
 // ── forging ──
 import { mayTwice } from "./farm";
+import { houseDeedFor, type HouseDeed } from "./insect-house";
 import { newBoard, smithView, soundSmithy, type Did as SmithDid, type Outcome as ForgeOutcome, type Pending, type SmithBoard, type SmithRefusal, type Smelting, type Smithy } from "./forge";
 import { has, type Element, type OptionId } from "./tools";
 import type { FireTold } from "./great-fire";
@@ -133,6 +134,8 @@ export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRef
   | TreeRefusal
   // ── the bridge built by hand ──
   | BridgeRefusal
+  // ── the farm's insect house ──
+  | import("./insect-house").HouseRefusal
   // ── the lamp relay ──
   | LampRefusal;
 export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why };
@@ -330,6 +333,9 @@ export interface Keeper {
    */
   gnomeAt(key: string): string[];
   gnomeDo(key: string): Promise<Did<{ watered: string[] }>>;
+  /** The insect house (lib/town/insect-house): what the thing in my hand does at a plot with one in mind (set it down, fill a room, lift it), and doing it. */
+  houseAt(key: string): HouseDeed | null;
+  houseDo(key: string): Promise<Did<{ deed: HouseDeed }>>;
   /**
    * The hourglass of seasons (lib/town/farm's glassTurn): the plots of the bed I stand in that it would quicken if I
    * turned it now (none: there is nothing to turn it for), and turning it: which plots it quickened, and until when
@@ -1776,6 +1782,18 @@ export class DbKeeper implements Keeper {
   async glassDo(key: string): Promise<Did<{ quickened: string[]; until: number }>> {
     const [x, y] = key.split(",").map(Number);
     const did = await this.deed<{ quickened: string[]; until: number }>("town_hourglass", { p_x: x, p_y: y });
+    if (did.ok) this.onDeed?.("farm");
+    return did;
+  }
+  houseAt(key: string): HouseDeed | null {
+    const [x, y] = key.split(",").map(Number), bed = bedOf(x, y);
+    if (bed < 0) return null;
+    return houseDeedFor(key, this.bedPlots(bed), handOf(this.mine), this.id, this.owners().get(bed)?.by ?? null, this.now());
+  }
+  async houseDo(key: string): Promise<Did<{ deed: HouseDeed }>> {
+    const [x, y] = key.split(",").map(Number);
+    // (the answer brings the house's plot and every plant of the bed it settled, kept as any answer's are)
+    const did = await this.deed<{ deed: HouseDeed }>("town_house", { p_x: x, p_y: y });
     if (did.ok) this.onDeed?.("farm");
     return did;
   }

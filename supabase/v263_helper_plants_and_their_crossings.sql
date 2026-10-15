@@ -821,6 +821,7 @@ insert into public.town_catalog (key, data) values
     "nasturtium": {"kind":"crop","tier":1,"stack":20,"pays":3},
     "garlicChives": {"kind":"crop","tier":1,"stack":20,"pays":3},
     "dill": {"kind":"crop","tier":1,"stack":20,"pays":3},
+    "insectHouse": {"kind":"tool","tier":2,"stack":20,"pays":30},
     "seedRunnerBean": {"kind":"seed","tier":1,"stack":10,"pays":1},
     "seedPeanut": {"kind":"seed","tier":1,"stack":10,"pays":0},
     "seedBuckwheat": {"kind":"seed","tier":1,"stack":10,"pays":0},

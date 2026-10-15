@@ -25,6 +25,7 @@ const SOURCE: Record<string, [th: string, en: string]> = {
   watered: ["รดน้ำ", "Watered"], damp: ["ร่องดินชื้น", "Damp furrow"], rain: ["ฝน", "Rain"], cloud: ["เมฆฝน", "Rain cloud"],
   wet: ["ดินชื้น", "Wet soil"], compost: ["ปุ๋ยหมัก", "Compost"], brush: ["พู่กันเกสร", "Pollen brush"],
   pollinator: ["แมลงผสมเกสร", "Pollinator"], guard: ["กันแมลง", "Pest guard"], helper: ["พืชช่วยข้าง ๆ", "A helper beside it"],
+  house: ["บ้านแมลง", "Insect house"],
 };
 const TIP: Record<Role, [th: string, en: string]> = {
   soil: ["ใส่ปุ๋ยหมักครั้งเดียวได้ครึ่งแถบทั้งต้น", "Compost once for half the bar, all its life"],
@@ -124,7 +125,7 @@ export function QualityInspector({ plant, now, rains, th, onClose, onBed }: { pl
           {[
             { on: brushed, label: th ? "พู่กัน −10" : "Brush −10" },
             { on: !!plant.q?.bed?.p, label: partnerName ? (th ? `คู่หู ${partnerName} −10` : `Partner ${partnerName} −10`) : th ? "คู่หู −10" : "Partner −10" },
-            { on: false, label: th ? "แมลงหายาก −10" : "Rare insect −10" },
+            { on: !!plant.q?.bed?.h?.some((e) => e.x && e.from <= now && now < e.to), label: th ? "แมลงหายาก −10" : "Rare insect −10" },
             { on: false, label: th ? "ห่อสามวัน −10" : "3-day packet −10" },
           ].map((n) => <span key={n.label} className={`inline-flex min-h-8 items-center gap-1 rounded border-[1.5px] px-2 ${n.on ? "border-[#2f5a1f] bg-[#8fd17a] text-[#16300c]" : "border-[#1a0e06] bg-[#4a3522] text-ink"}`}>{n.on ? "✓ " : ""}{n.label}</span>)}
         </div>

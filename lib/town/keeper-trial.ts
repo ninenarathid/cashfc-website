@@ -372,6 +372,8 @@ class TrialKeeper implements Keeper {
   rowAt(key: string) { return this.trial.rowAt(key); }
   async rowDo(key: string, name: string, marks: Record<string, boolean>): Promise<Did<RowDid>> { return this.trial.rowDo(key, name, marks); }
   gnomeAt(key: string) { return this.trial.gnomeAt(key); }
+  houseAt(key: string) { return this.trial.houseAt(key); }
+  async houseDo(key: string) { return this.trial.houseDo(key); }
   async gnomeDo(key: string): Promise<Did<{ watered: string[] }>> { return this.trial.gnomeDo(key); }
   async insectCare(key: string, slot: number, mode: InsectCare): Promise<Did> { return this.trial.insectCare(key, slot, mode); }
   glassAt(key: string) { return this.trial.glassAt(key); }

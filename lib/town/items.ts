@@ -6,7 +6,7 @@ import { INSECT_ITEMS, INSECT_MAKES, INSECT_DISHES, INSECT_SCROLLS, INSECT_SCROL
 import { FORAGE_ITEMS, FORAGE_MAKES, FORAGE_DISHES, FORAGE_SCROLLS, FORAGE_SCROLL_ITEMS, type ForageDishId } from "./foraging-items";
 import { STREAM_ITEMS, STREAM_MAKES, STREAM_DISHES, STREAM_SCROLLS, STREAM_SCROLL_ITEMS, type StreamDishId } from "./stream-items";
 import { GARDEN_CROPS, GARDEN_DISHES, GARDEN_ITEMS, GARDEN_MAKES, GARDEN_SEED_ITEMS, GARDEN_SCROLL_ITEMS, GARDEN_SCROLLS, type GardenCropId, type GardenDishId } from "./garden-items";
-import { HELPER_CROPS, HELPER_ITEMS, HELPER_SEED_ITEMS, type HelperCropId } from "./helper-items";
+import { HELPER_CROPS, HELPER_ITEMS, HELPER_SEED_ITEMS, QUALITY_GEAR, type HelperCropId } from "./helper-items";
 import { GEOLOGY_DISHES, GEOLOGY_ITEMS, GEOLOGY_MAKES, GEOLOGY_SCROLL_ITEMS, GEOLOGY_SCROLLS, type GeologyDishId } from "./geology-items";
 import { WOOD_DISHES, WOOD_ITEMS, WOOD_MAKES, WOOD_SCROLL_ITEMS, WOOD_SCROLLS, type WoodDishId } from "./wood-items";
 import { RIVER_DISHES, RIVER_FISH, RIVER_ITEMS, RIVER_MAKES, RIVER_SCROLL_ITEMS, RIVER_SCROLLS, type Current, type FishingHabitat, type RiverDishId, type RiverFishId } from "./river-items";
@@ -665,7 +665,7 @@ export const ITEMS = {
   ...GARDEN_ITEMS,
   ...GARDEN_SEED_ITEMS,
   // (the farm's Quality: the twenty helper plants and their seeds, lib/town/helper-items)
-  ...HELPER_ITEMS,
+  ...HELPER_ITEMS, ...QUALITY_GEAR,
   ...HELPER_SEED_ITEMS,
   ...GARDEN_SCROLL_ITEMS,
   ...WOOD_SCROLL_ITEMS,

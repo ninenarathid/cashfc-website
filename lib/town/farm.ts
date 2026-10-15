@@ -161,7 +161,8 @@ export const WATER = {
  */
 export const BEDS = { empty: 24, untended: 96, each: 2 };
 
-export type Soil = "wild" | "cleared" | "tilled";
+// ("house": an insect house stands on it, lib/town/insect-house: nothing is sown, hoed or spread onto it while it does)
+export type Soil = "wild" | "cleared" | "tilled" | "house";
 /** A plant in a plot: who sowed it, what, and what has been done to it. Times are milliseconds. */
 export interface Plant {
   wingGuard?:number;
@@ -226,6 +227,8 @@ export interface Plot {
   soil: Soil; plant: Plant | null;
   // ── forging: old tools ── (a furrow left damp by the hoe that tilled it: what is sown in it has had its first watering. Missing from every other plot.)
   damp?: boolean;
+  /** The insect house standing on it (its soil is "house"): lib/town/insect-house. */
+  house?: import("./insect-house").InsectHouse;
 }
 export const WILD: Plot = { soil: "wild", plant: null };
 /** A plot's name in the farm's keeping: its tile. */

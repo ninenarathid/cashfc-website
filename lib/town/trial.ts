@@ -98,6 +98,7 @@ import { aided, belled, pouredAs, ring, share, type HelpRefusal } from "./helpin
 import { FORGE, toolKindOf, type OptionId, type ToolKind } from "./tools";
 import { beside, mayTwice } from "./farm";
 import { canHolds } from "./farm";
+import { houseDeedFor, houseDo as doHouse, type HouseDeed, type HouseRefusal } from "./insect-house";
 import { canFx, netFx } from "./forged";
 import { usePower } from "./powers";
 import { heldStack as toolInHand } from "./trade";
@@ -730,6 +731,24 @@ export class Trial {
     return { ok: true, quickened: did.quickened, until: did.until };
   }
   /** Send it. (Its water is nobody's, and the plants its member's own: the well's book has nothing to read of it.) */
+  /** The insect house (lib/town/insect-house): what the thing in my hand does at a plot with one in mind (set it down, fill a room, lift it), if anything. */
+  houseAt(key: string): HouseDeed | null {
+    const [x, y] = key.split(",").map(Number);
+    return houseDeedFor(key, this.farm(), handOf(this.purse()), this.id, this.owners().get(bedOf(x, y))?.by ?? null, this.now());
+  }
+  /** Do it. The bed's plants are settled and given what the house gives them now by the farm's one write. */
+  houseDo(key: string): { ok: true; deed: HouseDeed } | { ok: false; why: Refusal | HouseRefusal } {
+    const [x, y] = key.split(",").map(Number), bed = bedOf(x, y), now = this.now(), plots = this.farm(), hand = handOf(this.purse());
+    const did = doHouse(key, plots, this.purse(), this.id, this.owners().get(bed)?.by ?? null, now);
+    if (!did.ok) return did;
+    this.write(FARM, { ...plots, [key]: did.plot });
+    // (its owner's every deed in a bed counts as tending it)
+    const beds = this.beds();
+    if (beds[bed]?.by === this.id) this.write(BEDS, { ...beds, [bed]: { ...beds[bed], tended: now } });
+    this.save(did.purse);
+    this.counted({ from: "deed", what: `house_${did.deed}`, thing: did.deed === "room" ? hand : "insectHouse", n: 1, doc: {} });
+    return { ok: true, deed: did.deed };
+  }
   gnomeDo(key: string): { ok: true; watered: string[] } | { ok: false; why: Refusal | FarmRefusal } {
     const [x, y] = key.split(",").map(Number), bed = bedOf(x, y), now = this.now(), plots = this.farm();
     if (bed < 0) return no("none");

@@ -15,6 +15,7 @@ import { HOUR } from "./trade";
 import { DRY, type Rain } from "./weather";
 import { COMPANIONS, NO_Q, PARTNERS, QUALITY, ROLES, accrue, barsOfQ, ceilingOf, chancesOf, coveredShare, gradeOf, narrowingOfQ, rangeOf, rollOne, type BedGift, type CompanionId, type Cover, type Grade, type NarrowCover, type Penalty, type PlantQ, type Range, type Role } from "./quality";
 import { bedOf } from "./world";
+import { HOUSE, houseCovers } from "./insect-house";
 
 export const HAND = {
   /** The stamina the farm's own care costs: compost put on a plant, the pollen brush. */
@@ -71,7 +72,8 @@ const rootAt = (plots: Readonly<Record<string, Plot>>, key: string): Plant | nul
 
 /**
  * What the bed gives a plant now: the helpers of its bed by their shapes (each role's best), its partner touching it
- * (✚), and fennel touching it (✚) taking soil. Nothing for a plant alone. (A dead helper helps until it is taken out.)
+ * (✚), fennel touching it (✚) taking soil, and the rooms of the bed's insect house that reaches it. Nothing for a plant
+ * alone. (A dead helper helps until it is taken out.)
  */
 export function bedGift(key: string, plots: Readonly<Record<string, Plot>>): BedGift | undefined {
   const p = rootAt(plots, key);
@@ -90,7 +92,8 @@ export function bedGift(key: string, plots: Readonly<Record<string, Plot>>): Bed
     if (o.crop === "fennel" && touching(mine, theirs)) fennel += QUALITY.fennel;
   }
   const cs = Object.fromEntries(ROLES.filter((r) => c[r]).map((r) => [r, c[r]!])) as Partial<Record<Role, number>>;
-  const gift: BedGift = { ...(Object.keys(cs).length ? { c: cs } : {}), ...(partner ? { p: 1 as const } : {}), ...(fennel ? { f: fennel } : {}) };
+  const h = houseCovers(mine, plots);
+  const gift: BedGift = { ...(Object.keys(cs).length ? { c: cs } : {}), ...(partner ? { p: 1 as const } : {}), ...(fennel ? { f: fennel } : {}), ...(h.length ? { h } : {}) };
   return Object.keys(gift).length ? gift : undefined;
 }
 
@@ -98,8 +101,9 @@ export function bedGift(key: string, plots: Readonly<Record<string, Plot>>): Bed
 function giftOf(q: PlantQ): { covers: Cover[]; narrows: NarrowCover[]; penalties: Penalty[] } {
   const g = q.bed;
   return {
-    covers: ROLES.flatMap((role) => (g?.c?.[role] ? [{ role, level: g.c[role]!, from: 0, to: END, src: "helper" }] : [])),
-    narrows: g?.p ? [{ kind: "partner", from: 0, to: END }] : [],
+    covers: [...ROLES.flatMap((role) => (g?.c?.[role] ? [{ role, level: g.c[role]!, from: 0, to: END, src: "helper" }] : [])),
+      ...(g?.h ?? []).map((e) => ({ role: e.r, level: HOUSE.level * e.s, from: e.from, to: e.to, src: "house" }))],
+    narrows: [...(g?.p ? [{ kind: "partner" as const, from: 0, to: END }] : []), ...(g?.h ?? []).filter((e) => e.x).map((e) => ({ kind: "rare" as const, from: e.from, to: e.to, share: e.s }))],
     penalties: g?.f ? [{ role: "soil", points: g.f, from: 0, to: END }] : [],
   };
 }
@@ -114,7 +118,9 @@ export function settled(p: Plant, now: number, rains: FarmSky = DRY, launch: num
 
 /** Whether two gifts of a bed are the same (none and none alike). */
 const sameGift = (a: BedGift | undefined, b: BedGift | undefined): boolean =>
-  (a?.p ?? 0) === (b?.p ?? 0) && (a?.f ?? 0) === (b?.f ?? 0) && ROLES.every((r) => (a?.c?.[r] ?? 0) === (b?.c?.[r] ?? 0));
+  (a?.p ?? 0) === (b?.p ?? 0) && (a?.f ?? 0) === (b?.f ?? 0) && ROLES.every((r) => (a?.c?.[r] ?? 0) === (b?.c?.[r] ?? 0))
+  && (a?.h ?? []).length === (b?.h ?? []).length
+  && (a?.h ?? []).every((e, i) => { const f = b!.h![i]; return e.r === f.r && e.from === f.from && e.to === f.to && e.s === f.s && (e.x ?? 0) === (f.x ?? 0); });
 /** The same planting before and after a change (and not one sown in its place). */
 const samePlanting = (a: Plant, b: Plant): boolean => a.sown === b.sown && a.crop === b.crop && a.by === b.by;
 
@@ -128,6 +134,8 @@ export function syncQuality(before: Readonly<Record<string, Plot>>, after: Recor
   const set = (key: string, plant: Plant) => { if (out === after) out = { ...after }; out[key] = { ...out[key], plant }; };
   const beds = new Set<number>(), done = new Set<string>();
   for (const key of new Set([...Object.keys(before), ...Object.keys(after)])) {
+    // (an insect house set, filled or lifted changes the bed around it, as a plant does)
+    if (JSON.stringify(before[key]?.house ?? null) !== JSON.stringify(after[key]?.house ?? null)) beds.add(keyBed(key));
     const was = rootAt(before, key), p = rootAt(after, key);
     if (!was && !p) continue;
     if (was && p && samePlanting(was, p)) {

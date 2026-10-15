@@ -64,6 +64,8 @@ import { GARDEN_CROPS, type GardenCropId } from "@/lib/town/garden-items";
 import { gardenCross, gardenMods } from "@/lib/town/gardening";
 import TownGardenPlacement from "./TownGardenPlacement";
 import { QualityBed, QualityChip, QualityInspector } from "./TownQuality";
+import { HouseChip, HousePanel } from "./TownInsectHouse";
+import { houseRoleOf, type HouseDeed, type InsectHouse } from "@/lib/town/insect-house";
 import { qualityNow } from "@/lib/town/quality-plant";
 import { COMPANIONS } from "@/lib/town/quality";
 import { held as countIn } from "@/lib/town/trade";
@@ -99,13 +101,15 @@ export interface FarmFrame {
 export type FarmDraw = (frame: FarmFrame) => void;
 
 /** A piece of the farm's work: a deed to a plot, a chore with water, or a bucket poured over a bed (lib/town/ditch). */
-type Work = Deed | Chore | "ditch";
+// (and the insect house's own deeds: set it down, fill a room, lift it, lib/town/insect-house)
+type Work = Deed | Chore | "ditch" | HouseDeed;
 /** The word on the button for each deed, and for each chore with water. */
 const VERB: Record<Work, [th: string, en: string]> = {
   ditch: ["เทน้ำรดทั้งแปลง", "Pour it over the bed"],
   clear: ["ถางหญ้า", "Clear the weeds"], till: ["พรวนดิน", "Till the soil"], pull: ["ถอนทิ้ง", "Pull it up"], uproot: ["ขุดออก", "Dig it out"], sow: ["หว่านเมล็ด", "Sow"],
   water: ["รดน้ำ", "Water"], feed: ["ใส่ปุ๋ย", "Feed"], cure: ["ไล่แมลง", "Drive the pest off"], pick: ["เก็บ", "Pick"],
   compost: ["ใส่ปุ๋ยหมัก", "Put compost on"], brush: ["ปัดเกสรด้วยพู่กัน", "Brush the pollen"],
+  house: ["วางบ้านแมลง", "Set the insect house down"], room: ["ใส่แมลงในบ้าน", "Put it in the house"], lift: ["ยกบ้านแมลงคืน", "Lift the house"],
   draw: ["ตักน้ำ", "Draw water"], pour: ["เทน้ำลงบ่อ", "Pour it into the well"], fill: ["เติมน้ำใส่บัว", "Fill the can"],
 };
 /** An insect in the hand is let go on a plant, not spread on it: the button says so (the deed is the fertiliser's all the same: lib/town/farm's PUT_ON). */
@@ -121,7 +125,10 @@ const WHY_FARM: Record<string, [string, string]> = {
   // (the gifts of the farming line: what each is refused for, where the plain words do not say it)
   running: ["ทรายยังไหลอยู่", "The sand is still running here"], spent: ["วันนี้ใช้ไปแล้ว", "Used already today"],
   shaky: ["หมดแรง มือสั่นจนทำไม่สำเร็จ", "Too tired: your hands shake, and it comes to nothing"],
+  // (the insect house)
+  rooms: ["ทั้งสองห้องมีแมลงอยู่แล้ว", "Both rooms are lived in"],
 };
+const HOUSE_DEEDS: readonly Work[] = ["house", "room", "lift"];
 /** What water is poured into (or onto, or taken from) in each piece of work that is done with it: the picture beside the thing in the hand. */
 const INTO: Partial<Record<Work, IconName>> = { water: "plotSprout", draw: "plotDrop", pour: "well", fill: "well", ditch: "plotSprout" };
 /** The word on the button that is held for each of them. */
@@ -273,7 +280,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const [working, setWorking] = useState<{ key: string | null; work: Work; need: number; row?: string[]; whole?: boolean; sweep?: Array<{ key: string; place: number; crop: CropId; hard: number }>;
     long?: Array<{ key: string; place: number; crop: CropId }>; hard?: number; rotation?: number } | null>(null);
   /** The plant I have been asked a second time about digging out: in which plot, and whether it is a dead one (pull) or a living (uproot). */
-  const [asking, setAsking] = useState<{ key: string; deed: "pull" | "uproot" } | null>(null);
+  const [asking, setAsking] = useState<{ key: string; deed: "pull" | "uproot" | "lift" } | null>(null);
   /** The plot whose plant's Quality is open (components/town/TownQuality): shut again on walking off it. */
   const [inspecting, setInspecting] = useState<string | null>(null);
   /** Whether the bed's overview is open from the inspector (components/town/TownQuality's QualityBed). */
@@ -298,6 +305,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const gardenRoots = useRef(new Map<string, string>());
   const giants=useRef(new Map<string,string>());giants.current=new Map(Object.entries(plots).flatMap(([k,plot])=>plot.plant?.giant&&plot.plant.root?[[k,plot.plant.root] as [string,string]]:[]));
   gardenRoots.current = new Map(Object.entries(plots).flatMap(([k, plot]) => plot.plant?.root ? [[k, plot.plant.root] as [string, string]] : []));
+  /** The insect houses standing on the farm, by their plots (lib/town/insect-house): drawn on their plots, with the insects of their lived-in rooms about them. */
+  const houses = useRef(new Map<string, InsectHouse>());
+  houses.current = new Map(Object.entries(plots).flatMap(([k, plot]) => (plot.house ? [[k, plot.house] as [string, InsectHouse]] : [])));
   /** A whole tree's root: the middle of its plots on the map, and the frontmost of them (it is drawn over all their soil). */
   const wholeTrees = useRef(new Map<string, { x: number; y: number; front: number }>());
   wholeTrees.current = new Map(Object.entries(plots).flatMap(([k, plot]) => {
@@ -643,6 +653,26 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         things.push({ depth: tx + ty + .6, draw: () => {
           if (!what) { for (const w of weedsOf(tx, ty)) blit(w.name, { x: at.x + w.dx * s, y: at.y + w.dy * s }, 0, PLANT * s * w.k, w.flip); return; }
           if (what.soil === "tilled" && !(what.crop && underTree)) blit("plotSoil", at, 0, PLANT * s * 0.9);
+          // (an insect house: the house on its plot, and an insect of each lived-in room flitting about it in its role's colour)
+          const house = what.soil === "house" ? houses.current.get(plotKey(tx, ty)) : undefined;
+          if (house) {
+            const cell = ICON_ATLAS.icons["plotInsectHouse" as IconName];
+            blit("plotInsectHouse", at, 0, cell ? Math.max(PLANT, 34 / cell[3]) * s : PLANT * s);
+            const px = Math.max(2, Math.round(1.6 * s)), seed = tx * 5 + ty * 7;
+            house.rooms.forEach((room, i) => {
+              const role = room && room.until > game ? houseRoleOf(room.bug) : null;
+              if (!role) return;
+              for (let j = 0; j < 2; j++) {
+                const turn = (still ? 0 : t / (1700 + 300 * j)) + i * 2.3 + j * 3.1 + seed;
+                const x = Math.round(at.x + Math.cos(turn) * (10 + 4 * j) * s), y = Math.round(at.y - (22 + 6 * i + Math.sin(turn * 2) * 4) * s);
+                ctx.fillStyle = role === "pollen" ? "#ffd34d" : role === "guard" ? "#e2553f" : "#a8743c";
+                ctx.fillRect(x, y, px, px);
+                ctx.fillStyle = "rgba(255,255,255,0.75)";
+                ctx.fillRect(x - px, y - px, px, px);
+              }
+            });
+            return;
+          }
           // ── forging: old tools ── (a furrow the hoe left damp: a drop on the bare soil, as on a plant that has been watered)
           if (what.damp) blit("plotDrop", { x: at.x + 13 * s, y: at.y }, 0, PLANT * s * 0.45);
           if (!what.crop) return;
@@ -716,8 +746,10 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const key = stoodKey ? keeper.farm()[stoodKey]?.plant?.root ?? stoodKey : null;
   const purse = keeper.purse(), hand = handOf(purse);
   const pollenHint = key && (gardenMods(purse, now).hint || (plots[key]?.plant?.pollenUntil ?? 0) > now) ? gardenCross(key, plots, keeper.id, now, rains) : null;
-  const deed = key ? keeper.deedAt(key) : null;
-  const chore = !deed ? keeper.choreAt(water) : null;
+  // (the insect house's deeds come first: on its plot nothing else is done, and with it in the hand it is set down)
+  const houseDeed = key ? keeper.houseAt(key) : null;
+  const deed = key && !houseDeed ? keeper.deedAt(key) : null;
+  const chore = !deed && !houseDeed ? keeper.choreAt(water) : null;
   /** With a bucket of water in the hand and nothing else to do here: the plots of this bed it would water, poured from where I stand (lib/town/ditch). */
   const flood = key && !deed && !chore ? keeper.ditchAt(key) : [];
   const pours = flood.length > 0;
@@ -779,6 +811,21 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     return true;
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the purse and the clock are read when the deed is done
   }, [keeper, th, sfx, name, say, vfx, chimeAt]);
+  /** The insect house's deed, done at once (lifting it is asked twice: the insects in it are lost). */
+  const doHouse = useCallback(async (k: string) => {
+    const held = handOf(keeper.purse());
+    const did = await keeper.houseDo(k);
+    if (!did.ok) { say(did.why); return; }
+    const [x, y] = k.split(",").map(Number), at = { x: x + 0.5, y: y + 0.5 }, house = keeper.farm()[k]?.house;
+    sfx?.wake();
+    sfx?.work(did.deed === "room" ? "flit" : did.deed === "lift" ? "pull" : "sow");
+    vfx.add(did.deed === "room" ? "sparkle" : "soil", at);
+    const room = did.deed === "room" ? house?.rooms.find((r) => r && r.bug === held && r.from >= keeper.now() - 60_000) : null;
+    setNote(did.deed === "house" ? (th ? "วางบ้านแมลงแล้ว ถือแมลงแล้วกดที่บ้านเพื่อใส่ห้อง" : "The house is set down: hold an insect and use it on the house")
+      : did.deed === "lift" ? (th ? "ยกบ้านแมลงกลับเข้ากระเป๋าแล้ว" : "The house is back in your bag")
+        : room ? (th ? `${nameOf(room.bug)}เข้าบ้านแล้ว · อยู่ ${Math.round((room.until - room.from) / 3_600_000)} ชม.` : `The ${nameOf(room.bug).toLowerCase()} moves in · stays ${Math.round((room.until - room.from) / 3_600_000)} h`) : null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the purse and the clock are read when the deed is done
+  }, [keeper, say, sfx, th, vfx]);
   /** Draw a bucket of water, pour it into the well, or fill the can. */
   const carry = useCallback(async () => {
     const mine = keeper.purse(), began = keeper.now();
@@ -812,8 +859,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     setNote(th ? `รดไป ${did.watered.length} ต้น` : `${did.watered.length} plants watered`);
   }, [keeper, sfx, th, say, vfx]);
   const begin = useCallback(() => {
-    const work: Work | null = key && deed ? deed : chore ?? (key && pours ? "ditch" : null);
+    const work: Work | null = key && houseDeed ? houseDeed : key && deed ? deed : chore ?? (key && pours ? "ditch" : null);
     if (!work) return;
+    if (key && houseDeed) { if (houseDeed === "lift") setAsking({ key, deed: "lift" }); else void doHouse(key); return; }
     const planting = cropOf(handOf(keeper.purse()));
     // (a sprawling crop, and every helper plant of the farm's Quality: placed where what it covers can be seen first)
     if (work === "sow" && key && planting && (planting in GARDEN_CROPS || planting in COMPANIONS)) { setPlacement({ key, crop: planting as CropId }); return; }
@@ -827,11 +875,11 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     if (key && (deed === "pull" || deed === "uproot")) { setAsking({ key, deed }); return; }
     // the hoe's work is the game of timing; with no stamina left so is everything else, a short round of it
     // (under the guardian's cloak, work for somebody else is as with stamina: what is done at once is done at once)
-    const need = hitsFor(work, key && deed ? tiredOn(key) : isSpent(keeper.purse(), keeper.now()));
+    const need = hitsFor(work as Deed | Chore, key && deed ? tiredOn(key) : isSpent(keeper.purse(), keeper.now()));
     if (need) setWorking({ key: key && deed ? key : null, work, need });
     else if (key && deed) void act(key);
     else void carry();
-  }, [key, deed, chore, pours, act, carry, pourOver, keeper, th, tiredOn]);
+  }, [key, deed, houseDeed, chore, pours, act, carry, pourOver, keeper, th, tiredOn, doHouse]);
   /** A row's deed, done whole by whoever keeps the game: what flies up over each plot it did, and a word of how many those were. */
   const doRow = useCallback(async (k: string, marks: Record<string, boolean>, timing: GameResult | null) => {
     // (the plots as they stand: which plants the mandrake sang to is read from each as it was and as it is)
@@ -965,7 +1013,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   // walking off the plot, or away from the water, leaves the work
   useEffect(() => { if (working && (working.key ? working.key !== key : working.work !== chore)) setWorking(null); }, [working, key, chore]);
   // …and the asking: it is about this plot and this plant as it stands (one that dies meanwhile, or is cured, is asked about afresh)
-  useEffect(() => { if (asking && (asking.key !== key || asking.deed !== deed)) setAsking(null); }, [asking, key, deed]);
+  useEffect(() => { if (asking && (asking.key !== key || asking.deed !== (asking.deed === "lift" ? houseDeed : deed))) setAsking(null); }, [asking, key, deed, houseDeed]);
   useEffect(() => { if (inspecting && inspecting !== key) setInspecting(null); }, [inspecting, key]);
   useEffect(() => { if (!inspecting) setBedView(false); }, [inspecting]);
   // The asking opens with "leave it" under the keys: Space or Enter, pressed once too often, digs nothing out. Escape leaves it too.
@@ -981,10 +1029,11 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     if (!asking) return;
     const { key: k, deed: what } = asking;
     setAsking(null);
+    if (what === "lift") { void doHouse(k); return; }
     void act(k, undefined, what === "uproot");
-  }, [asking, act]);
+  }, [asking, act, doHouse]);
   const hoeing = working?.work === "clear" || working?.work === "till";
-  const offer: Work | null = deed ?? chore ?? (pours ? "ditch" : null);
+  const offer: Work | null = houseDeed ?? deed ?? chore ?? (pours ? "ditch" : null);
 
   // The space bar is the button (while the timing game is up it is the game's).
   useEffect(() => {
@@ -1056,11 +1105,12 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   // (it keeps its place whatever else is shown: so what it is telling of is not lost when a button comes or goes)
   const gardenInfo = key && (pollenHint || plots[key]?.plant || purse.gardenBook?.length || purse.insectGardenBook?.length);
   const inspected = inspecting && inspecting === key ? plots[inspecting]?.plant ?? null : null;
+  const inspectedHouse = inspecting && inspecting === key ? plots[inspecting]?.house ?? null : null;
   const bare = (!placement && !working && !offer && !note && !powers.length && !running && !gardenInfo) || !!inspected;
   /** The plant the asking is about, as it stands. */
   const asked = asking ? seen.current.get(asking.key) : undefined;
   return (
-    <>{reaction.notice&&<TownFoot rank="note" order={5}><TownComboFx cue={reaction.notice.cue} effect={{cue:reaction.notice.cue,fresh:reaction.notice.fresh}} th={th}/></TownFoot>}<TownRootExtraction keeper={keeper} th={th} at={here}/><TownRowContinuation keeper={keeper} th={th} at={here}/><TownGardenRetry keeper={keeper} th={th} at={tile}/><TownRainCare keeper={keeper} th={th} at={tile}/><TownWaykeeper keeper={keeper} th={th} at={here}/><TownCampFlag keeper={keeper} th={th} at={here}/><TownGardenHelp keeper={keeper} th={th} at={tile}/><TownSkyBean keeper={keeper} th={th} at={tile}/><TownGardenRewards keeper={keeper} th={th} at={tile}/><TownKitchenRewards keeper={keeper} th={th} at={here}/><TownPicnic keeper={keeper} th={th} at={here} register={registerPicnic} sit={sitPicnic}/>{keeper.purse().professionRewards?.trail?.kind==="dragon"&&<TownForestTrail keeper={keeper} th={th} at={()=>here} walk={walkTrail}/>}<TownWingCrown keeper={keeper} th={th} at={here}/><TownMoonLantern keeper={keeper} th={th} at={here}/><TownBeetleRing keeper={keeper} th={th} at={here}/><TownLotusBoat keeper={keeper} th={th} at={here} register={registerBoats}/><TownBeaverBridge keeper={keeper} th={th} at={here} register={registerCrossings}/><TownNursery keeper={keeper} th={th} at={here}/><TownCloud keeper={keeper} th={th} at={tile} people={people}/><TownSprings keeper={keeper} th={th} at={here} register={registerSprings}/><TownConduit keeper={keeper} th={th} at={tile} onWatered={keys=>{for(const key of keys){const [x,y]=key.split(",").map(Number);vfx.add("water",{x:x+.5,y:y+.5});}sfx?.work("pour");}}/><TownWaterRelay keeper={keeper} th={th} at={here} register={registerRelay}/>{news}{ringOffer}{inspected && <TownFoot rank="board" order={62}>{bedView
+    <>{reaction.notice&&<TownFoot rank="note" order={5}><TownComboFx cue={reaction.notice.cue} effect={{cue:reaction.notice.cue,fresh:reaction.notice.fresh}} th={th}/></TownFoot>}<TownRootExtraction keeper={keeper} th={th} at={here}/><TownRowContinuation keeper={keeper} th={th} at={here}/><TownGardenRetry keeper={keeper} th={th} at={tile}/><TownRainCare keeper={keeper} th={th} at={tile}/><TownWaykeeper keeper={keeper} th={th} at={here}/><TownCampFlag keeper={keeper} th={th} at={here}/><TownGardenHelp keeper={keeper} th={th} at={tile}/><TownSkyBean keeper={keeper} th={th} at={tile}/><TownGardenRewards keeper={keeper} th={th} at={tile}/><TownKitchenRewards keeper={keeper} th={th} at={here}/><TownPicnic keeper={keeper} th={th} at={here} register={registerPicnic} sit={sitPicnic}/>{keeper.purse().professionRewards?.trail?.kind==="dragon"&&<TownForestTrail keeper={keeper} th={th} at={()=>here} walk={walkTrail}/>}<TownWingCrown keeper={keeper} th={th} at={here}/><TownMoonLantern keeper={keeper} th={th} at={here}/><TownBeetleRing keeper={keeper} th={th} at={here}/><TownLotusBoat keeper={keeper} th={th} at={here} register={registerBoats}/><TownBeaverBridge keeper={keeper} th={th} at={here} register={registerCrossings}/><TownNursery keeper={keeper} th={th} at={here}/><TownCloud keeper={keeper} th={th} at={tile} people={people}/><TownSprings keeper={keeper} th={th} at={here} register={registerSprings}/><TownConduit keeper={keeper} th={th} at={tile} onWatered={keys=>{for(const key of keys){const [x,y]=key.split(",").map(Number);vfx.add("water",{x:x+.5,y:y+.5});}sfx?.work("pour");}}/><TownWaterRelay keeper={keeper} th={th} at={here} register={registerRelay}/>{news}{ringOffer}{inspectedHouse && <TownFoot rank="board" order={62}><HousePanel at={inspecting!} house={inspectedHouse} plots={plots} now={now} th={th} mine={inspectedHouse.by === keeper.id} onClose={() => setInspecting(null)} /></TownFoot>}{inspected && <TownFoot rank="board" order={62}>{bedView
       ? <QualityBed at={inspecting!} plots={plots} now={now} rains={rains} th={th} onClose={() => setBedView(false)} />
       : <QualityInspector plant={inspected} now={now} rains={rains} th={th} onClose={() => setInspecting(null)} onBed={() => setBedView(true)} />}</TownFoot>}{bare ? null : (
     <TownFoot rank={placement || working || asking ? "board" : "main"} order={62}>
@@ -1077,7 +1127,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       {!working && !placement && pollenHint && <p data-garden-cross className="rounded-md border border-[#a8c583] bg-[#304323]/95 px-3 py-2 text-meta text-[#e1f1c9]">{th ? `เกสรของต้นข้างกันเข้าคู่กัน: เก็บแล้วได้เมล็ด${ITEMS[pollenHint].name.th}` : `Neighbouring pollen matches: harvest for ${ITEMS[pollenHint].name.en} seeds`}</p>}
       {working ? (() => {
         // each piece of work's own game (lib/town/farm's gameFor), on the same board, told the same things
-        const game = working.long ? "longpour" : working.sweep ? "sweep" : working.work === "ditch" ? "pouring" : gameFor(working.work), title = verbOf(working.work, hand)[th ? 0 : 1];
+        const game = working.long ? "longpour" : working.sweep ? "sweep" : working.work === "ditch" ? "pouring" : gameFor(working.work as Deed | Chore), title = verbOf(working.work, hand)[th ? 0 : 1];
         // (a meal's buff on the hands: steady hands for the pouring, a keen eye for the hoe and the weeding; the game of
         // tired hands is as it is)
         const growing = working.key ? seen.current.get(working.key) : undefined;
@@ -1166,12 +1216,14 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         <div role="alertdialog" aria-labelledby="farm-ask-h" aria-describedby="farm-ask-p" data-state="open" data-farm-ask={asking.deed}
              className="pop-in pointer-events-auto w-full max-w-[22rem] rounded-2xl border border-line-lit bg-surface/97 p-4 shadow-xl shadow-black/40 backdrop-blur-sm">
           <p id="farm-ask-h" className="text-read font-semibold text-ink">
-            {asking.deed === "pull"
+            {asking.deed === "lift" ? (th ? "ยกบ้านแมลงคืน?" : "Lift the insect house?")
+              : asking.deed === "pull"
               ? (th ? "ถอนต้นที่ตายแล้วออกจากแปลง?" : "Pull the dead plant up?")
               : th ? `ขุด${asked?.crop ? nameOf(asked.crop) : "ต้นนี้"}ออกจากแปลง?` : `Dig the ${asked?.crop ? nameOf(asked.crop).toLowerCase() : "plant"} out?`}
           </p>
           <p id="farm-ask-p" className="mt-1 text-ui leading-relaxed text-muted">
-            {asking.deed === "pull"
+            {asking.deed === "lift" ? (th ? "บ้านกลับเข้ากระเป๋า แมลงที่อยู่ในห้องจะบินหนีไป เอาคืนไม่ได้" : "The house goes back in your bag. The insects in it fly off and cannot be had back.")
+              : asking.deed === "pull"
               ? (th ? "แปลงจะกลับเป็นดินว่าง" : "The plot will be bare ground again.")
               : asked?.ripe
                 ? (th ? "ต้นนี้เก็บได้แล้ว ถ้าขุดออกจะไม่ได้ผลผลิต และเอาคืนไม่ได้" : "It is ripe. Dug out, it gives nothing, and it cannot be had back.")
@@ -1184,13 +1236,14 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
             </button>
             <button type="button" onClick={digOut} data-farm-ask-yes
                     className="pressable min-h-11 rounded-full border border-chili bg-chili/15 px-4 text-ui font-semibold text-chili transition-colors hover:bg-chili/25">
-              {asking.deed === "pull" ? (th ? "ถอนออก" : "Pull it up") : th ? "ขุดออก" : "Dig it out"}
+              {asking.deed === "lift" ? (th ? "ยกคืน" : "Lift it") : asking.deed === "pull" ? (th ? "ถอนออก" : "Pull it up") : th ? "ขุดออก" : "Dig it out"}
             </button>
           </div>
         </div>
-      ) : !placement && (offer || powers.length > 0 || !!(key && plots[key]?.plant)) && (
+      ) : !placement && (offer || powers.length > 0 || !!(key && (plots[key]?.plant || plots[key]?.house))) && (
         <div className="flex max-w-full flex-col items-center justify-center gap-2 sm:flex-row sm:flex-wrap">
           {key && plots[key]?.plant && <QualityChip plant={plots[key].plant!} now={now} rains={rains} th={th} onOpen={() => setInspecting(key)} />}
+          {key && plots[key]?.house && <HouseChip at={key} house={plots[key].house!} plots={plots} now={now} th={th} onOpen={() => setInspecting(key)} />}
           {offer && (
             <button type="button" onClick={begin} data-farm-offer={offer}
                     className="pop-in pressable pointer-events-auto flex min-h-12 items-center gap-2 rounded-full bg-accent px-6 text-read font-semibold text-bg shadow-xl shadow-black/40" data-state="open">

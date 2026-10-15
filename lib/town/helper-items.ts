@@ -46,6 +46,17 @@ export const HELPER_ITEMS = {
   dill: item("crop", "ผักชีลาว", "Dill", "ใบฝอยเส้นเล็กกับดอกเหลืองเป็นร่ม", "Thread-fine leaves and yellow flower umbrellas", 3),
 } as const satisfies Record<Exclude<HelperCropId, ForestHerb>, Item>;
 
+/**
+ * The farm's Quality's own gear: the insect house (lib/town/insect-house), set on a plot of one's bed with two rooms
+ * for caught insects. Made at the workshop of the woodworkers' things (piece 4a: "สายตัดไม้คราฟต์บ้านแมลงแล้วขายได้").
+ */
+export const QUALITY_GEAR = {
+  insectHouse: item("tool", "บ้านแมลง", "Insect house", "บ้านไม้หลังคาจั่ว มีสองห้องของกระบอกไม้ไผ่และไม้เจาะรู", "A gabled wooden house with two rooms of bamboo tubes and drilled wood", 30, 2),
+} as const satisfies Record<string, Item>;
+export const QUALITY_CRAFTS = {
+  insectHouse: [["splitPlank", 3], ["carvingBlank", 1], ["pitchSeal", 1]],
+} as const;
+
 const seedName = (id: HelperCropId) => `seed${id[0].toUpperCase()}${id.slice(1)}` as `seed${Capitalize<HelperCropId>}`;
 const nameOf = (id: HelperCropId): [th: string, en: string] => (id in HERB_NAMES ? HERB_NAMES[id as ForestHerb] : [HELPER_ITEMS[id as Exclude<HelperCropId, ForestHerb>].name.th, HELPER_ITEMS[id as Exclude<HelperCropId, ForestHerb>].name.en]);
 export const HELPER_IDS = [...Object.keys(HELPER_ITEMS), "mint", "chamomile", "lavender"] as HelperCropId[];

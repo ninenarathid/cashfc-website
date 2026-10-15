@@ -17,7 +17,7 @@ describe("advanced equipment workshop", () => {
   it("gives every tier 2 and 3 tool a craft path", () => {
     const missing = ITEM_IDS.filter((id) => ITEMS[id].kind === "tool" && ITEMS[id].tier > 1 && !MAKES[id] && !(id in CRAFTS));
     expect(missing).toEqual([]);
-    expect(CRAFT_IDS).toHaveLength(105);
+    expect(CRAFT_IDS).toHaveLength(106);
   });
   it.each(CRAFT_IDS)("makes %s with exact costs and no mutation", (id) => {
     const before = prepared(id), copy = structuredClone(before);

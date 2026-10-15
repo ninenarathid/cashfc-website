@@ -7,6 +7,7 @@ import { FORAGE_CRAFTS } from "./foraging-items";
 import { STREAM_CRAFTS } from "./stream-items";
 import { PREP_CRAFTS } from "./preparation-items";
 import { CAMP_CRAFTS } from "./camp-items";
+import { QUALITY_CRAFTS } from "./helper-items";
 import { spend } from "./stamina";
 import { held, no, put, roomFor, take, type Done, type Purse } from "./trade";
 
@@ -47,7 +48,7 @@ export const BASE_CRAFTS = {
   rodMaster: [["timber", 6], ["silkCocoon", 6], ["oreSilver", 2]],
   steamerBamboo: [["bambooCane", 8], ["rope", 2], ["timber", 2]],
 } as const satisfies Partial<Record<ItemId, ReadonlyArray<readonly [ItemId, number]>>>;
-export const CRAFTS = { ...BASE_CRAFTS, ...WOOD_CRAFTS, ...GARDEN_CRAFTS, ...GEOLOGY_CRAFTS, ...INSECT_CRAFTS, ...FORAGE_CRAFTS, ...STREAM_CRAFTS, ...PREP_CRAFTS, ...CAMP_CRAFTS };
+export const CRAFTS = { ...BASE_CRAFTS, ...WOOD_CRAFTS, ...GARDEN_CRAFTS, ...GEOLOGY_CRAFTS, ...INSECT_CRAFTS, ...FORAGE_CRAFTS, ...STREAM_CRAFTS, ...PREP_CRAFTS, ...CAMP_CRAFTS, ...QUALITY_CRAFTS };
 export type CraftId = keyof typeof CRAFTS;
 export const CRAFT_IDS = Object.keys(CRAFTS) as CraftId[];
 export const isCraft = (id: unknown): id is CraftId => typeof id === "string" && Object.hasOwn(CRAFTS, id);
