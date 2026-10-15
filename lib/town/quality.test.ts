@@ -87,12 +87,12 @@ describe("the farm's Quality", () => {
     }
   });
 
-  it("covers by its shape: four, eight, a line of four, or the fig's twelve round it", () => {
+  it("covers by its shape: four, eight, a line of six, or the fig's twelve round it", () => {
     expect(coverOffsets("plus")).toHaveLength(4);
     expect(coverOffsets("x")).toHaveLength(4);
     expect(coverOffsets("ring")).toHaveLength(8);
-    expect(coverOffsets("line", 0)).toEqual([[-2, 0], [-1, 0], [1, 0], [2, 0]]);
-    expect(coverOffsets("line", 1)).toEqual([[0, -2], [0, -1], [0, 1], [0, 2]]);
+    expect(coverOffsets("line", 0)).toEqual([[-3, 0], [-2, 0], [-1, 0], [1, 0], [2, 0], [3, 0]]);
+    expect(coverOffsets("line", 1)).toEqual([[0, -3], [0, -2], [0, -1], [0, 1], [0, 2], [0, 3]]);
     expect(coverOffsets("fig")).toHaveLength(12);
   });
 

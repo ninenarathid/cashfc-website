@@ -155,7 +155,7 @@ const X = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
 const RING = [...PLUS, ...X];
 
 /**
- * The cells a helper standing at its anchor covers, as offsets. A line runs two cells each way along its axis
+ * The cells a helper standing at its anchor covers, as offsets. A line runs three cells each way along its axis
  * (rotation 0 east–west, 1 north–south); the fig is 2×2 from its anchor and covers the twelve cells round it.
  */
 export function coverOffsets(shape: Shape, rotation = 0): number[][] {
@@ -163,7 +163,7 @@ export function coverOffsets(shape: Shape, rotation = 0): number[][] {
     case "plus": return PLUS;
     case "x": return X;
     case "ring": return RING;
-    case "line": return rotation % 2 ? [[0, -2], [0, -1], [0, 1], [0, 2]] : [[-2, 0], [-1, 0], [1, 0], [2, 0]];
+    case "line": return [-3, -2, -1, 1, 2, 3].map((d) => (rotation % 2 ? [0, d] : [d, 0]));
     case "fig": {
       const out: number[][] = [];
       for (let y = -1; y <= 2; y++) for (let x = -1; x <= 2; x++) if (x < 0 || x > 1 || y < 0 || y > 1) out.push([x, y]);
