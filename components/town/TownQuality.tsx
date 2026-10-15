@@ -43,7 +43,7 @@ export function QualityRange({ range, base, th, odds = true }: { range: Range; b
   return (
     <div className="flex flex-col gap-1" data-quality-range={`${lo}-${hi}`}>
       <div className="relative h-7 rounded-[3px] bg-[#22130a] shadow-[0_0_0_2px_#1a0e06]" role="img"
-           aria-label={th ? `เก็บได้ ${lo} ถึง ${hi} จาก 100` : `Quality ${lo} to ${hi} of 100`}>
+           aria-label={th ? `คุณภาพ ${lo} ถึง ${hi} จาก 100` : `Quality ${lo} to ${hi} of 100`}>
         {GRADES.map((g) => <i key={g.grade} className="absolute inset-y-0 opacity-30" style={{ left: pct(g.from), width: pct(g.to - g.from + 1), background: ZONE[g.grade] }} />)}
         {base !== undefined && base < lo && <i className="absolute inset-y-1 border-y border-l border-dashed border-[#e8d8b0] bg-[repeating-linear-gradient(45deg,#e8d8b0_0_2px,transparent_2px_6px)] opacity-70" style={{ left: pct(base), width: pct(lo - base) }} />}
         <i className="absolute inset-y-px rounded-[3px] border-2 border-[#fff7df] bg-gradient-to-r from-[#c3ced8] to-[#f0c060] shadow-[0_0_0_2px_#1a0e06]" style={{ left: pct(lo), width: pct(hi - lo + 1) }} />
@@ -104,7 +104,7 @@ export function QualityInspector({ plant, now, rains, th, onClose, onBed, onChar
         <button ref={close} type="button" onClick={onClose} aria-label={th ? "ปิด" : "Close"} className="pressable tk tk-btn-wood grid size-11 shrink-0 place-items-center"><TownIcon name="close" size={16} /></button>
       </header>
       <div className="flex flex-wrap items-baseline justify-between gap-x-2">
-        <b className="font-display text-[1.5rem] leading-tight" data-quality-headline>{th ? `เก็บได้ ${seen.range.lo}–${seen.range.hi}` : `Quality ${seen.range.lo}–${seen.range.hi}`}</b>
+        <b className="font-display text-[1.5rem] leading-tight" data-quality-headline>{th ? `คุณภาพ ${seen.range.lo}–${seen.range.hi}` : `Quality ${seen.range.lo}–${seen.range.hi}`}</b>
         <span className="text-meta text-muted">{ripe ? (th ? "ช่วงล็อกแล้ว สุ่มทีละผลตอนเก็บ" : "Locked: each fruit rolled at the pick") : th ? "ถ้าดูแลแบบนี้ต่อจนสุก" : "If cared for like this until ripe"}</span>
       </div>
       <QualityRange range={seen.range} base={base} th={th} />
@@ -190,7 +190,7 @@ export function QualityBed({ at, plots, now, rains, th, onClose }: { at: string;
         {([null, ...ROLES] as Array<Role | null>).map((r) => <button key={r ?? "all"} type="button" aria-pressed={lens === r} onClick={() => setLens(r)}
           className={`pressable tk ${lens === r ? "tk-btn" : "tk-btn-wood"} flex min-h-11 items-center gap-1 px-3 text-meta`}>{r ? <><TownIcon name={ROLE[r].icon} size={14} />{th ? ROLE[r].th : ROLE[r].en}</> : th ? "ทั้งหมด" : "All"}</button>)}
       </div>
-      <p className="text-label text-[#ead9b4]">{lens ? (th ? `สีเต็ม = แถบ${ROLE[lens].th}เต็ม · จาง = ครึ่ง · มืด = ขาด` : `Solid = whole ${ROLE[lens].en.toLowerCase()} bar · faint = half · dark = none`) : th ? "จุด ซ้ายบน ดิน · ขวาบน น้ำ · ซ้ายล่าง เกสร · ขวาล่าง ป้องกัน · ทึบ = ได้ครึ่งแถบขึ้นไป · เลข = สูงสุดที่เก็บได้" : "Dots: top left soil · top right water · bottom left pollen · bottom right guard · solid = half a bar or more · number = ceiling"}</p>
+      <p className="text-label text-[#ead9b4]">{lens ? (th ? `สีเต็ม = แถบ${ROLE[lens].th}เต็ม · จาง = ครึ่ง · มืด = ขาด` : `Solid = whole ${ROLE[lens].en.toLowerCase()} bar · faint = half · dark = none`) : th ? "จุด ซ้ายบน ดิน · ขวาบน น้ำ · ซ้ายล่าง เกสร · ขวาล่าง ป้องกัน · ทึบ = ได้ครึ่งแถบขึ้นไป · เลข = คุณภาพสูงสุด" : "Dots: top left soil · top right water · bottom left pollen · bottom right guard · solid = half a bar or more · number = ceiling"}</p>
       <div className="relative">
         <div ref={grid} className="grid gap-[3px] rounded border-2 border-[#22150a] bg-[#2c1e12] p-1" style={{ gridTemplateColumns: `repeat(${side},minmax(0,1fr))` }}>
           {cells.map((k) => {
@@ -217,7 +217,7 @@ export function QualityBed({ at, plots, now, rains, th, onClose }: { at: string;
         </svg>}
       </div>
       {mine && seenMine && <div className="tk tk-slot px-3 py-2 text-meta" data-quality-bed-pick>
-        <b>{name(mine.crop)} · {th ? `เก็บได้ ${seenMine.range.lo}–${seenMine.range.hi}` : `Quality ${seenMine.range.lo}–${seenMine.range.hi}`}</b><br />
+        <b>{name(mine.crop)} · {th ? `คุณภาพ ${seenMine.range.lo}–${seenMine.range.hi}` : `Quality ${seenMine.range.lo}–${seenMine.range.hi}`}</b><br />
         {helpers.length ? helpers.map((h, i) => `${"①②③④⑤⑥⑦⑧"[i]} ${th ? ROLE[h.role].th : ROLE[h.role].en} ← ${name(h.crop)}`).join(" · ") : th ? "ยังไม่มีพืชช่วยต้นนี้ ▸ ปลูกพืชช่วยข้าง ๆ" : "No helper reaches it yet ▸ plant one beside it"}
       </div>}
     </section>
