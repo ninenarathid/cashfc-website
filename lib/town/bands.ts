@@ -16,8 +16,9 @@ export interface Band {
   to: number;
   th: string;
   en: string;
-  /** Its picture on the clock: the town icon of the sky that suits it (components/town/TownIcon). */
-  icon: Phase;
+  /** Its picture on the clock: the town icon of the sky that suits it (components/town/TownIcon); the hour before dawn has
+   * one of its own, the low moon in the mist, which no daylight phase has. */
+  icon: Phase | "beforeDawn";
 }
 
 /** In the order of the day, from the game day's turn at 05:00 (lib/town/stamina's dawn) round to it again. */
@@ -29,8 +30,7 @@ export const BANDS: readonly Band[] = [
   { id: "evening", from: 16, to: 19, th: "เย็น", en: "Evening", icon: "dusk" },
   { id: "night", from: 19, to: 23, th: "ค่ำ", en: "Night", icon: "evening" },
   { id: "lateNight", from: 23, to: 27, th: "ดึก", en: "Late night", icon: "night" },
-  // (the crescent too until an icon of its own is drawn)
-  { id: "beforeDawn", from: 3, to: 5, th: "ก่อนรุ่ง", en: "Before dawn", icon: "night" },
+  { id: "beforeDawn", from: 3, to: 5, th: "ก่อนรุ่ง", en: "Before dawn", icon: "beforeDawn" },
 ];
 
 /** The band a minute of the day (0–1440, Thai time) falls in. */

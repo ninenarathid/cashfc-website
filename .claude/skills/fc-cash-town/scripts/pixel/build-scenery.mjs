@@ -132,6 +132,13 @@ const SHEETS = [
   // with the tall post beside them they are the stall's own. The first is kept as scene-forge.first.png.)
   ["popoto-smith", ["sm_stand", "sm_up", "sm_hit", "sm_wipe"], "body"],
   ["scene-forge", ["forge", "smithboard", "smithsign"]],
+  // the members' trade board, on its own in the plaza (lib/town/world's TRADE_BOARD; 2026-10-15): drawn with a
+  // character sheet for the scale and the Popoto Board for its size and style, and a tall post beside it to hold the
+  // sheet to the characters' pixel size (a name beginning "_" is cut and not packed). Cut on the board's own grid (7.26):
+  // measured freely the first came out on 5.4 and a third larger than the board. The first drawing (scene-trade-board,
+  // a shingled roof like the board's) read as the same kind of board in the game; this one has a market's striped awning,
+  // a coin sign and a crate of goods
+  ["scene-trade-board-2", ["tradeBoard", "_tradePost"], undefined, undefined, [7.1, 7.4]],
   ["talk-smith", ["tk_smith", "tk_smith_o"], "talk", undefined, [7.5, 13]],
 ];
 // The forest's own (the owner, 2026-10-05: "หาของป่า จะมี map ใหม่ เป็นป่าใหญ่ๆ"): its trees and what grows and lies under them,
@@ -380,6 +387,7 @@ for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: 
   const figs = how === "scene" ? [new Set(Array.from({ length: g.GW * g.GH }, (_, i) => i))]
     : how === "whole" ? [new Set(L.components(g).filter(c => c.mem.length >= 3).flatMap(c => c.mem))] : L.figures(g, L.spansOf(g, names.length));
   names.forEach((name, k) => {
+    if (name.startsWith("_")) return;
     const set = figs[k], b = L.bbox(g, set), im = L.crop(g, set);
     // the ground point: the bottom middle (props stand on it)
     let ax = Math.round((b.x0 + b.x1) / 2);

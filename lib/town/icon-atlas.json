@@ -1,8 +1,8 @@
 {
-  "image": "/town/icons-03139f1d0719.png",
+  "image": "/town/icons-60c9fb1aa86f.png",
   "size": [
     256,
-    11411
+    11429
   ],
   "icons": {
     "mic": [
@@ -8212,6 +8212,12 @@
       10911,
       46,
       59
+    ],
+    "beforeDawn": [
+      2,
+      11413,
+      15,
+      14
     ]
   },
   "cursor": {

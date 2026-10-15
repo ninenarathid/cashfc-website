@@ -2505,13 +2505,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
           "#e5cc80", "rgba(15,19,25,0.82)"));
       } });
     }
-    // The trade board: the members' notices to sell and to want, on its own in the plaza (its own picture is to be
-    // drawn; the board's stands in for it, with its name over it)
+    // The trade board: the members' notices to sell and to want, on its own in the plaza: a market board of its own
+    // (pinned notes, goods tags, coins on its shelf), the Popoto Board's size, with its name over it
     tradeBoardBox.current = null;
-    if (scenery?.has("board")) {
+    if (scenery?.has("tradeBoard")) {
       const feet = project({ x: TRADE_BOARD.x + TRADE_BOARD.w * 0.8, y: TRADE_BOARD.y + TRADE_BOARD.h * 0.8 });
-      things.push({ depth: TRADE_BOARD.x + TRADE_BOARD.y + TRADE_BOARD.w + TRADE_BOARD.h - 1, draw: () => scenery.drawProp(ctx, "board", feet.x, feet.y, v.s, dpr) });
-      const [w, h] = scenery.sizeOf("board");
+      things.push({ depth: TRADE_BOARD.x + TRADE_BOARD.y + TRADE_BOARD.w + TRADE_BOARD.h - 1, draw: () => scenery.drawProp(ctx, "tradeBoard", feet.x, feet.y, v.s, dpr) });
+      const [w, h] = scenery.sizeOf("tradeBoard");
       tradeBoardBox.current = { x0: feet.x - (w / 2) * v.s, y0: feet.y - h * v.s, x1: feet.x + (w / 2) * v.s, y1: feet.y };
       const y = feet.y - (h + 12) * v.s, due = keeper?.notices()?.due ?? 0;
       signs.push(() => label(ctx, words.current.th ? `บอร์ดซื้อขาย${due > 0 ? ` · ${due}` : ""}` : `Trade board${due > 0 ? ` · ${due}` : ""}`, feet.x, y, "#bfe3a0", "rgba(15,19,25,0.82)", null));

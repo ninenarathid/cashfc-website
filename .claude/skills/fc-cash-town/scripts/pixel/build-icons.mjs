@@ -52,6 +52,10 @@ const SHEETS = [
   // over a bench: the arrow bobbing down onto the seat, and somebody sitting as it is clicked
   ["icons-cursor-sit", ["sit1", "sit2", "sit3", "sit4"]],
   ["icons-sky", ["dawn", "morning", "noon", "afternoon", "dusk", "evening", "night"]],
+  // the clock's eighth band, 03:00 to 05:00 (lib/town/bands, 2026-10-15): the hour before dawn, drawn among its
+  // neighbours of the set so that it takes their order, size and palette; only it is packed. (The first, icons-sky-b, a
+  // crescent sinking into mist, read as night in the game: this one has dawn's shape in night blue and a line of pink)
+  ["icons-sky-c", ["_evening", "_night", "beforeDawn", "_dawn", "_morning", "_noon"], { range: [12.7, 13.2] }],
   // what the uncle sells and a bag holds, the Popoto coin, and the bag itself: things, drawn in their own colours
   ["icons-items-a", ["rod", "hoe", "can", "pot", "worm", "dough"]],
   ["icons-items-b", ["seedKangkong", "seedCabbage", "seedChili", "seedPumpkin", "coin", "bag"]],
