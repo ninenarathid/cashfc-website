@@ -21,7 +21,8 @@
    "Doomtrain",
    "Enuo",
    "Necron",
-   "Queen Eternal"
+   "Queen Eternal",
+   "Valigarmanda"
   ],
   "ults": [],
   "chg": "2026-10-14"
@@ -29,7 +30,7 @@
  "15308846": {
   "name": "Aqua Eleison",
   "parse": 100,
-  "ult": 4,
+  "ult": 5,
   "mounts": 285,
   "minions": 487,
   "rare": 500,
@@ -165,12 +166,13 @@
    "Zelenia"
   ],
   "ults": [
+   "Dancing Mad",
    "Dragonsong's Reprise",
    "Futures Rewritten",
    "The Epic of Alexander",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-10-11"
+  "chg": "2026-10-15"
  },
  "3968346": {
   "name": "Panuz Chocobunny",
@@ -2287,7 +2289,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 36,
+  "level": 42,
   "cc": [
    true,
    true,
@@ -2333,7 +2335,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-14"
+  "chg": "2026-10-15"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -2543,7 +2545,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -2556,7 +2558,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-14"
+  "chg": "2026-10-15"
  },
  "25506828": {
   "name": "Kururuki Tzuzaku",
@@ -5879,7 +5881,7 @@
   "tiers": {},
   "jobs": {
    "Bard": "expert",
-   "WhiteMage": "expert",
+   "WhiteMage": "master",
    "Astrologian": "master",
    "Scholar": "expert",
    "Summoner": "expert"
@@ -7816,7 +7818,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 70,
+  "level": 89,
   "cc": [
    false,
    false,
@@ -7861,7 +7863,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-14"
+  "chg": "2026-10-15"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -8626,7 +8628,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 90,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -8644,7 +8646,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-14"
+  "chg": "2026-10-15"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -9565,7 +9567,7 @@
   "mounts": 2,
   "minions": 2,
   "rare": 0,
-  "level": 84,
+  "level": 36,
   "cc": [
    false,
    false,
@@ -9578,7 +9580,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-14"
+  "chg": "2026-10-15"
  },
  "20400811": {
   "name": "Ariadne Ilsildar",

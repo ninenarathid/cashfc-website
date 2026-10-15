@@ -8670,7 +8670,7 @@
     "state": "learning",
     "pct": 69.97,
     "phase": 4,
-    "pulls": 34,
+    "pulls": 10,
     "last": "2026-10-05",
     "last_ts": 1791219669
    }
@@ -10374,8 +10374,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1085,
     "name": "Dancing Mad",
-    "best": 75,
-    "kills": 2,
+    "best": 82,
+    "kills": 3,
     "job": "Viper",
     "cleared": true,
     "job_kills": {
@@ -11953,6 +11953,17 @@
   },
   "ultimates": [
    {
+    "zone": "Dancing Mad",
+    "zone_id": 76,
+    "expansion": "Dawntrail",
+    "encounter_id": 1085,
+    "name": "Dancing Mad",
+    "best": 65,
+    "kills": 1,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
     "zone": "Futures Rewritten",
     "zone_id": 65,
     "expansion": "Dawntrail",
@@ -12617,7 +12628,20 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 1085,
+    "name": "Dancing Mad",
+    "kind": "ultimate",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 10,
+    "last": "2026-10-14",
+    "last_ts": 1791989912
+   }
+  ]
  },
  "15543487": {
   "current": {
@@ -23428,6 +23452,17 @@
       "best": 7
      }
     }
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1071,
+    "name": "Valigarmanda",
+    "best": 6,
+    "kills": 1,
+    "job": "Sage",
+    "cleared": true
    }
   ],
   "legacy": [
@@ -27987,7 +28022,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 54,
-    "kills": 2,
+    "kills": 3,
     "job": "BlackMage",
     "cleared": true,
     "job_kills": {
@@ -34634,12 +34669,12 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 66,
-    "kills": 2,
+    "kills": 3,
     "job": "Samurai",
     "cleared": true,
     "job_kills": {
      "Samurai": {
-      "kills": 2,
+      "kills": 3,
       "best": 66
      }
     }
@@ -43778,7 +43813,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 27,
-    "kills": 2,
+    "kills": 3,
     "job": "Bard",
     "cleared": true,
     "job_kills": {
@@ -46146,7 +46181,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 18,
-    "kills": 2,
+    "kills": 3,
     "job": "WhiteMage",
     "cleared": true,
     "job_kills": {
@@ -73026,7 +73061,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 92,
-    "kills": 25,
+    "kills": 27,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -73149,7 +73184,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 93,
-    "kills": 32,
+    "kills": 34,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -73206,7 +73241,7 @@
     "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 88,
-    "kills": 15,
+    "kills": 17,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -73467,11 +73502,11 @@
       "best": 36
      },
      "Astrologian": {
-      "kills": 19,
+      "kills": 20,
       "best": 82
      },
      "WhiteMage": {
-      "kills": 6,
+      "kills": 7,
       "best": 77
      },
      "Scholar": {
@@ -73512,7 +73547,7 @@
       "best": 90
      },
      "Astrologian": {
-      "kills": 7,
+      "kills": 9,
       "best": 90
      },
      "Scholar": {
@@ -80669,7 +80704,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 63,
-    "kills": 20,
+    "kills": 21,
     "job": "Summoner",
     "cleared": true,
     "job_kills": {
@@ -80702,7 +80737,7 @@
     "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 62,
-    "kills": 9,
+    "kills": 11,
     "job": "Pictomancer",
     "cleared": true,
     "job_kills": {
