@@ -7,7 +7,7 @@ import type { TownMapAddon } from "@/lib/town/map-addon";
 import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
-  BENCHES, BEYOND_PROPS, BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SMITH, SPEED, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle,
+  BENCHES, BEYOND_PROPS, BOARD, TRADE_BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SMITH, SPEED, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle,
   atFire, atWell, benchAt, bySmith, byStorebox, distance, fishFrom, fromIso, isBuilt, isFar, setBridge, setBuilt, setFar, groundAt, hearing, inDiningYard, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
 import { bridgeSpans, bridgeWhole } from "@/lib/town/bridge";
@@ -498,6 +498,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   }, []);
   /** The Popoto Board on the screen, for taps; and whether it waits for my vote (a "!" over it). */
   const boardBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
+  /** Where the trade board stands on the screen (the members' notices, lib/town/world's TRADE_BOARD). */
+  const tradeBoardBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
   /** Where the fountain's picture is on the screen: a tap on it opens the wishing panel, once the game is open. */
   const fountainBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
   /** The shopkeepers and the gateways on the screen this frame, for taps and the cursor: who, or the tile a gateway leads to. */
@@ -2503,6 +2505,17 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
           "#e5cc80", "rgba(15,19,25,0.82)"));
       } });
     }
+    // The trade board: the members' notices to sell and to want, on its own in the plaza (its own picture is to be
+    // drawn; the board's stands in for it, with its name over it)
+    tradeBoardBox.current = null;
+    if (scenery?.has("board")) {
+      const feet = project({ x: TRADE_BOARD.x + TRADE_BOARD.w * 0.8, y: TRADE_BOARD.y + TRADE_BOARD.h * 0.8 });
+      things.push({ depth: TRADE_BOARD.x + TRADE_BOARD.y + TRADE_BOARD.w + TRADE_BOARD.h - 1, draw: () => scenery.drawProp(ctx, "board", feet.x, feet.y, v.s, dpr) });
+      const [w, h] = scenery.sizeOf("board");
+      tradeBoardBox.current = { x0: feet.x - (w / 2) * v.s, y0: feet.y - h * v.s, x1: feet.x + (w / 2) * v.s, y1: feet.y };
+      const y = feet.y - (h + 12) * v.s, due = keeper?.notices()?.due ?? 0;
+      signs.push(() => label(ctx, words.current.th ? `บอร์ดซื้อขาย${due > 0 ? ` · ${due}` : ""}` : `Trade board${due > 0 ? ` · ${due}` : ""}`, feet.x, y, "#bfe3a0", "rgba(15,19,25,0.82)", null));
+    }
     // The Popoto Board: the town's news and its vote, standing north of the fountain.
     boardBox.current = null;
     if (scenery?.has("board")) {
@@ -3608,6 +3621,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (b) { setPopover({ b, x, y }); return; }
     const bb = boardBox.current;
     if (bb && x >= bb.x0 && x <= bb.x1 && y >= bb.y0 && y <= bb.y1) { setPopover(null); openBoard(); return; }
+    // the trade board: the members' notices, opened as the Popoto Board is (where the game is open to me)
+    const tb = tradeBoardBox.current;
+    if (gameRef.current && tb && x >= tb.x0 && x <= tb.x1 && y >= tb.y0 && y <= tb.y1) { setPopover(null); openTrade("board"); return; }
     // the fountain: a wish (the game's: until it is open to me, the fountain is only a fountain)
     const fb = fountainBox.current;
     if (gameRef.current && fb && x >= fb.x0 && x <= fb.x1 && y >= fb.y0 && y <= fb.y1) { setPopover(null); openFountain(); return; }
@@ -3865,6 +3881,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       at: (id: string) => { const a = sessionRef.current?.avatars.get(id); return a ? { x: a.pos.x, y: a.pos.y, moving: a.path.length > 0 } : null; },
       /** The shopkeepers and the gateways on the screen this frame. */
       keepers: () => keeperBoxes.current.map((k) => ({ ...k })),
+      // (where the trade board stands on the screen, for a script that taps it)
+      tradeBoard: () => (tradeBoardBox.current ? { ...tradeBoardBox.current } : null),
       /** The place to fish from that I stand at, if it is one: its tile, where its float lands, and whether that is deep water. */
       fishAt: () => fishAtRef.current,
       // ── gifts: fishing ── where each familiar this page draws is now, by its member (the otter by a float)
@@ -4153,7 +4171,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // keeper has been told there is one; with what waits there for me, when something does. The owner looked for it
     // here, 2026-10-05: "ผมยังไม่เห็นกระดานเลยนะ")
     const pinned = who === "uncle" ? keeper?.notices() ?? null : null;
-    const board: TalkChoice[] = pinned ? [{ id: "board", label: th ? "กระดานฝากขาย" : "Notice board", ...(pinned.due > 0 ? { note: String(pinned.due) } : {}) }] : [];
+    // (2026-10-15: the board stands on its own in the plaza now, lib/town/world's TRADE_BOARD; the uncle no longer keeps it)
+    const board: TalkChoice[] = [];
+    void pinned;
     const choices: TalkChoice[] = who === "banker"
       ? [{ id: "bank", label: th ? "แลก popoto" : "Exchange popoto" }, chat]
       : purse.waiting > 0

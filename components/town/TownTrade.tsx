@@ -316,8 +316,9 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
   };
 
   if (!view) return null;
-  const uncle = atStall, order = keeper.order(), board = keeper.notices();
-  const title = uncle ? (th ? "แผงของลุง" : "The uncle's stall") : view === "bank" ? (th ? "ธนาคาร Popoto" : "The Popoto Bank") : (th ? "กระเป๋าของฉัน" : "My bag");
+  // (the board stands on its own in the plaza since 2026-10-15: the uncle's tabs are his buying and selling only)
+  const uncle = view === "buy" || view === "sell", order = keeper.order(), board = keeper.notices();
+  const title = view === "board" ? (th ? "บอร์ดซื้อขายกลางเมือง" : "The town's trade board") : uncle ? (th ? "แผงของลุง" : "The uncle's stall") : view === "bank" ? (th ? "ธนาคาร Popoto" : "The Popoto Bank") : (th ? "กระเป๋าของฉัน" : "My bag");
   return (
     <section aria-labelledby="town-trade-h" className="flex h-full flex-col">
       <div className="flex items-center gap-2 border-b border-line px-4 py-3">
@@ -335,12 +336,11 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
       </div>}
       {uncle && (
         <div role="tablist" aria-label={title} className="flex gap-1 border-b border-line px-3 pt-2">
-          {([["buy", th ? "ซื้อของ" : "Buy"], ["sell", th ? "ฝากขาย" : "Sell"], ...(board ? [["board", th ? "กระดาน" : "Board"] as const] : [])] as const).map(([v, label]) => (
+          {([["buy", th ? "ซื้อของ" : "Buy"], ["sell", th ? "ฝากขาย" : "Sell"]] as const).map(([v, label]) => (
             <button key={v} type="button" role="tab" aria-selected={view === v} onClick={() => onView(v)}
                     className={`pressable -mb-px rounded-t-lg border-b-2 px-3 py-2 text-ui font-semibold ${view === v ? "border-accent text-accent" : "border-transparent text-muted hover:text-ink"}`}>
               {label}
               {v === "sell" && due.coins > 0 && <span className="ml-1.5 rounded-full bg-gold/20 px-1.5 py-0.5 font-data text-meta text-gold">{due.coins}</span>}
-              {v === "board" && !!board?.due && <span className="ml-1.5 rounded-full bg-gold/20 px-1.5 py-0.5 font-data text-meta text-gold">{board.due}</span>}
             </button>
           ))}
         </div>

@@ -114,6 +114,12 @@ export const SHOP = { x: 39, y: 24, w: 3, h: 3, stage: 2 };
  */
 export const BOARD = { x: 23, y: 23, w: 2, h: 2 };
 /**
+ * The trade board (the owner, 2026-10-15: "บอร์ดซื้อขายอยากให้แยกจากลุงขายของ ออกมาตั้งเป็นบอร์ดกลางเมืองไปเลย"): the
+ * members' notices to sell and to want (lib/town/notices), once a tab of the uncle's stall, standing on its own in the
+ * plaza beside the fountain, where members of every hour pass. Not walkable; a tap on it opens it.
+ */
+export const TRADE_BOARD = { x: 29, y: 29, w: 2, h: 2 };
+/**
  * The storage box (the owner, 2026-10-05: "ช่วยทำ กล่องเก็บของ มาตั้งไว้กลางเมือง"): a big chest in the plaza, in front of
  * the fountain as the screen sees it, at the near corner of its ring of benches. Not walkable. Whoever stands by it
  * keeps things of their own in it (lib/town/box).
@@ -1483,7 +1489,7 @@ export function thingAt(tx: number, ty: number): Building | "fountain" | "shop" 
   for (const b of BUILDINGS) if (within(tx, ty, b)) return b;
   if (within(tx, ty, FOUNTAIN)) return "fountain";
   if (isShop(tx, ty)) return "shop";
-  if (isBoard(tx, ty)) return "board";
+  if (isBoard(tx, ty) || within(tx, ty, TRADE_BOARD)) return "board";
   if (onDeck(tx, ty)) return null;
   if (isPier(tx, ty) || behindDeck(tx, ty)) return "pier";
   if (onYard(tx, ty)) return null;
