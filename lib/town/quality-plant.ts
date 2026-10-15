@@ -13,7 +13,7 @@ import { CROPS } from "./items";
 import { encoreHours, grown, quickMs, type FarmSky, type Plant, type Plot } from "./farm";
 import { HOUR } from "./trade";
 import { DRY, type Rain } from "./weather";
-import { NO_Q, QUALITY, accrue, barsOfQ, ceilingOf, chancesOf, narrowingOfQ, rangeOf, type Cover, type PlantQ } from "./quality";
+import { NO_Q, QUALITY, accrue, barsOfQ, ceilingOf, chancesOf, narrowingOfQ, rangeOf, type Cover, type PlantQ, type Role } from "./quality";
 
 export const HAND = {
   /** How long a watering keeps the water bar's half. */
@@ -44,15 +44,15 @@ export function progressOf(p: Plant, rains: FarmSky = DRY): (t: number) => numbe
  */
 export function handCovers(p: Plant, from: number, rains: FarmSky = DRY): Cover[] {
   const half = HAND.level, end = Number.MAX_SAFE_INTEGER, out: Cover[] = [];
-  if (p.watered > 0) out.push({ role: "water", level: half, from: p.watered, to: p.watered + HAND.water });
-  if (p.moist) out.push({ role: "water", level: half, from: p.sown, to: end });
-  for (const [a, b] of rainsIn(rains)) out.push({ role: "water", level: half, from: a, to: b + HAND.afterRain });
-  if (p.localRain) out.push({ role: "water", level: half, from: p.localRain.from, to: p.localRain.until + HAND.afterRain });
-  if (typeof p.wetUntil === "number") out.push({ role: "water", level: half, from, to: p.wetUntil });
-  if (typeof p.compost === "number") out.push({ role: "soil", level: half, from: p.compost, to: end });
-  if (typeof p.brushed === "number" && p.brushed >= roundStart(p)) out.push({ role: "pollen", level: half, from: p.brushed, to: end });
-  if (typeof p.pollenUntil === "number") out.push({ role: "pollen", level: half, from, to: p.pollenUntil });
-  if (p.guard > 0) out.push({ role: "guard", level: half, from, to: p.guard });
+  if (p.watered > 0) out.push({ role: "water", level: half, from: p.watered, to: p.watered + HAND.water, src: "watered" });
+  if (p.moist) out.push({ role: "water", level: half, from: p.sown, to: end, src: "damp" });
+  for (const [a, b] of rainsIn(rains)) out.push({ role: "water", level: half, from: a, to: b + HAND.afterRain, src: "rain" });
+  if (p.localRain) out.push({ role: "water", level: half, from: p.localRain.from, to: p.localRain.until + HAND.afterRain, src: "cloud" });
+  if (typeof p.wetUntil === "number") out.push({ role: "water", level: half, from, to: p.wetUntil, src: "wet" });
+  if (typeof p.compost === "number") out.push({ role: "soil", level: half, from: p.compost, to: end, src: "compost" });
+  if (typeof p.brushed === "number" && p.brushed >= roundStart(p)) out.push({ role: "pollen", level: half, from: p.brushed, to: end, src: "brush" });
+  if (typeof p.pollenUntil === "number") out.push({ role: "pollen", level: half, from, to: p.pollenUntil, src: "pollinator" });
+  if (p.guard > 0) out.push({ role: "guard", level: half, from, to: p.guard, src: "guard" });
   return out;
 }
 
@@ -86,4 +86,15 @@ export function syncQuality(before: Readonly<Record<string, Plot>>, after: Recor
 export function qualityNow(p: Plant, now: number, rains: FarmSky = DRY, launch: number = QUALITY.launch) {
   const q = settled(p, now, rains, launch), bars = barsOfQ(q), narrowing = narrowingOfQ(q, typeof p.brushed === "number" && p.brushed >= roundStart(p)), range = rangeOf(ceilingOf(bars), narrowing);
   return { bars, narrowing, range, chances: chancesOf(range), grown: progressOf(p, rains)(now) };
+}
+
+/** What covers each bar at a moment, the best of them (and, among the best, the one that lasts longest): what the inspector names. */
+export function coveringNow(p: Plant, now: number, rains: FarmSky = DRY): Partial<Record<Role, Cover>> {
+  const out: Partial<Record<Role, Cover>> = {};
+  for (const c of handCovers(p, now, rains)) {
+    if (!(c.from <= now && now < c.to)) continue;
+    const was = out[c.role];
+    if (!was || c.level > was.level || (c.level === was.level && c.to > was.to)) out[c.role] = c;
+  }
+  return out;
 }

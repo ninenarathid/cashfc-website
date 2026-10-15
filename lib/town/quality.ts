@@ -55,8 +55,8 @@ export function dishGrade(ingredients: ReadonlyArray<Grade | null>): Grade {
 
 /* ── the bars ── */
 
-/** A source covering one bar for a while: `level` 1 a whole bar, 0.5 half. Times in ms. */
-export interface Cover { role: Role; level: number; from: number; to: number }
+/** A source covering one bar for a while: `level` 1 a whole bar, 0.5 half. Times in ms. `src` names it for the page. */
+export interface Cover { role: Role; level: number; from: number; to: number; src?: string }
 /** Something taking points off a bar while it lasts (fennel beside the plant): `points` at full time. */
 export interface Penalty { role: Role; points: number; from: number; to: number }
 
