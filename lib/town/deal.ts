@@ -1,5 +1,5 @@
 import { ITEMS, type ItemId } from "./items";
-import { held, no, put, roomFor, wholeStack, type Done, type Purse, type Stack } from "./trade";
+import { gradeIn, held, no, put, roomFor, wholeStack, type Done, type Purse, type Stack } from "./trade";
 
 /**
  * Trading between two members, as rules (the owner, 2026-10-03: "ช่วยทำระบบ เทรด
@@ -83,7 +83,8 @@ export const hasAll = (purse: Purse, give: Give) => {
     if (!Number.isInteger(selected.slot) || used.has(selected.slot) || !stack || stack.item !== id || n > stack.n || canonical(stack) !== canonical(selected.stack)) return false;
     used.add(selected.slot);
   }
-  return mine.every(([id,n,selected]) => selected || held(purse.bag.filter((_,i) => !used.has(i)), id) >= n);
+  // (what is given by its kind and not by its slot is normal stock only: graded produce goes only as the slot it is in)
+  return mine.every(([id,n,selected]) => selected || held(purse.bag.filter((_,i) => !used.has(i)), id, 0) >= n);
 };
 
 /** Change one side of a deal, its things and its coins: both words are taken back. */
@@ -110,7 +111,7 @@ export function pull(bag: Purse["bag"], give: Give): { bag: Purse["bag"]; stacks
     let n = want;
     for (let i = out.length - 1; i >= 0 && n > 0; i--) {
       const s = out[i];
-      if (s?.item !== id || (selected ? i !== selected.slot : selectedSlots.has(i))) continue;
+      if (s?.item !== id || (selected ? i !== selected.slot : selectedSlots.has(i) || !!s.grade)) continue;
       const less = Math.min(n, s.n);
       n -= less;
       stacks.push({ ...s, n: less });
@@ -119,11 +120,14 @@ export function pull(bag: Purse["bag"], give: Give): { bag: Purse["bag"]; stacks
   }
   return { bag: out, stacks };
 }
-/** Put stacks into a bag: one that holds something into a slot of its own, as it is; the rest onto their own kind. Null when they do not fit. */
+/** Put stacks into a bag: one that holds something into a slot of its own, as it is; the rest (graded produce onto its own grade) onto their own kind. Null when they do not fit. */
 export function push(bag: Purse["bag"], stacks: Stack[]): Purse["bag"] | null {
   let out = bag.map((s) => (s ? { ...s } : null));
   for (const s of stacks) {
-    if (wholeStack(s)) {
+    if (s.grade && !s.of && s.water === undefined) {
+      if (roomFor(out, s.item, gradeIn(s)) < s.n) return null;
+      out = put(out, s.item, s.n, gradeIn(s));
+    } else if (wholeStack(s)) {
       const slot = out.findIndex((b) => !b);
       if (slot < 0) return null;
       out[slot] = { ...s };

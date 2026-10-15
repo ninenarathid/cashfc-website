@@ -10,10 +10,10 @@
  * fertiliser, the cure, moon water) until it runs out; a released pollinator until its `pollenUntil`.
  */
 import { CROPS } from "./items";
-import { encoreHours, grown, quickMs, type FarmSky, type Plant, type Plot } from "./farm";
+import { encoreHours, grown, quickMs, roll, type FarmSky, type Plant, type Plot } from "./farm";
 import { HOUR } from "./trade";
 import { DRY, type Rain } from "./weather";
-import { NO_Q, QUALITY, accrue, barsOfQ, ceilingOf, chancesOf, narrowingOfQ, rangeOf, type Cover, type PlantQ, type Role } from "./quality";
+import { NO_Q, QUALITY, accrue, barsOfQ, ceilingOf, chancesOf, gradeOf, narrowingOfQ, rangeOf, rollOne, type Cover, type Grade, type PlantQ, type Range, type Role } from "./quality";
 
 export const HAND = {
   /** How long a watering keeps the water bar's half. */
@@ -97,4 +97,19 @@ export function coveringNow(p: Plant, now: number, rains: FarmSky = DRY): Partia
     if (!was || c.level > was.level || (c.level === was.level && c.to > was.to)) out[c.role] = c;
   }
   return out;
+}
+
+/**
+ * A pick's fruits: the round's range as it stands (ripe, so frozen), and one even roll a fruit. The draws are the same
+ * for the same plant, picking and fruit (a retry with a full bag gives the same fruits, never a new roll); the database
+ * mixes in a salt of its own that no browser sees, the trial an empty one.
+ */
+export function harvestOf(key: string, p: Plant, n: number, now: number, rains: FarmSky = DRY, launch: number = QUALITY.launch, salt = ""):
+  { range: Range; values: number[]; groups: Array<[Grade, number]> } {
+  const q = settled(p, now, rains, launch), brushed = typeof p.brushed === "number" && p.brushed >= roundStart(p);
+  const range = rangeOf(ceilingOf(barsOfQ(q)), narrowingOfQ(q, brushed));
+  const values = Array.from({ length: n }, (_, i) => rollOne(range, () => roll(`quality|${salt}|${key}`, p.sown, p.picked, i)));
+  const count = [0, 0, 0, 0];
+  for (const v of values) count[gradeOf(v)]++;
+  return { range, values, groups: ([0, 1, 2, 3] as const).filter((g) => count[g] > 0).map((g) => [g, count[g]] as [Grade, number]) };
 }

@@ -169,25 +169,39 @@ export interface Stack {
   secondary?: import("./items").MealBuffId; cookedBy?:string; cookId?:string;
   warm?: number;
   scent?: number;
+  /**
+   * (the farm's Quality, lib/town/quality) Produce's grade: 1 silver, 2 gold, 3 excellent; left out for normal (0), as
+   * all produce from before Quality was. Stacks of one thing join only at the same grade.
+   */
+  grade?: 1 | 2 | 3;
 }
+/** A stack's grade: its own, or normal. */
+export const gradeIn = (s: Stack | null | undefined): 0 | 1 | 2 | 3 => s?.grade ?? 0;
 // ── forging ──
 /** Whether a tool carries something of its own: a plus, an option drawn for it (awake or asleep), a gem set in it. */
 export const forged = (s: Stack | null | undefined): boolean => !!s && ((s.plus ?? 0) > 0 || !!s.opts?.length || !!s.gems?.length || !!Object.keys(s.mastery ?? {}).length);
 /**
- * A plain thing: one that holds nothing (no dish, no water) and carries nothing of its own. Only plain things are
- * counted, bought and sold by number (a stall, the notice board, the yard's jar): one of them is like any other.
+ * A plain thing: one that holds nothing (no dish, no water) and carries nothing of its own (graded produce carries its
+ * grade). Only plain things are counted, bought and sold by number (a stall, the notice board, the yard's jar): one
+ * of them is like any other.
  */
-export const plainStack = (s: Stack | null | undefined): boolean => !!s && !s.of && !s.water && !forged(s);
+export const plainStack = (s: Stack | null | undefined): boolean => !!s && !s.of && !s.water && !forged(s) && !s.grade;
 /** A thing that is moved whole, slot to slot, and never laid on another of its kind: one that holds something, or a tool that carries something of its own (a deal, the storage box, the ground). */
-export const wholeStack = (s: Stack | null | undefined): boolean => !!s && (!!s.of || s.water !== undefined || forged(s));
+export const wholeStack = (s: Stack | null | undefined): boolean => !!s && (!!s.of || s.water !== undefined || forged(s) || !!s.grade);
 /**
  * Some of one thing left with the uncle to be sold: what each fetches at the usual price, the round it was left in,
  * and the round's price it was left at, in hundredths of the usual one (lib/town/market; left out when it is the
  * usual price, as it is for everything the price of which does not move, and for a lot from before prices moved).
  */
-export interface Lot { item: ItemId; n: number; pays: number; round: number; f?: number }
+export interface Lot { item: ItemId; n: number; pays: number; round: number; f?: number; grade?: 1 | 2 | 3 }
+/**
+ * What the relatives pay over the usual for a grade (lib/town/quality's GRADES: ×1.25 silver, ×1.75 gold, ×2.5
+ * excellent), for raw produce only: a preparation keeps its grade for the kitchen but sells at the old price.
+ */
+export const GRADE_PAYS = [1, 1.25, 1.75, 2.5] as const;
+export const gradePays = (item: ItemId, grade: 0 | 1 | 2 | 3 = 0): number => (ITEMS[item]?.kind === "crop" ? GRADE_PAYS[grade] : 1);
 /** What a lot fetches in all: whole coins. */
-export const lotWorth = (l: Lot) => (l.n * l.pays * (l.f ?? 100)) / 100;
+export const lotWorth = (l: Lot) => (l.n * l.pays * (l.f ?? 100) * gradePays(l.item, l.grade ?? 0)) / 100;
 
 /**
  * One person's: their coins and bag, what they have bought this round, what
@@ -375,29 +389,34 @@ export const no = (why: Refusal): { ok: false; why: Refusal } => ({ ok: false, w
 
 /* ── the bag ────────────────────────────────────────────────────────────── */
 
-/** How many of something are in a bag. */
-export const held = (bag: Purse["bag"], id: ItemId) => bag.reduce((t, s) => t + (s?.item === id ? s.n : 0), 0);
-/** How many more of it the bag has room for: what its own stacks lack, and every empty slot. */
-export function roomFor(bag: Purse["bag"], id: ItemId): number {
+/** How many of something are in a bag (of one grade, when asked). */
+export const held = (bag: Purse["bag"], id: ItemId, grade?: 0 | 1 | 2 | 3) => bag.reduce((t, s) => t + (s?.item === id && (grade === undefined || gradeIn(s) === grade) ? s.n : 0), 0);
+/** How many more of it (of a grade, normal when not said) the bag has room for: what its own stacks lack, and every empty slot. */
+export function roomFor(bag: Purse["bag"], id: ItemId, grade: 0 | 1 | 2 | 3 = 0): number {
   const stack = ITEMS[id].stack;
-  return bag.reduce((t, s) => t + (!s ? stack : s.item === id ? stack - s.n : 0), 0);
+  return bag.reduce((t, s) => t + (!s ? stack : s.item === id && gradeIn(s) === grade ? stack - s.n : 0), 0);
 }
-/** A bag with some more of something in it: onto its own stacks first, then into the first empty slots. (It must have the room.) */
-export function put(bag: Purse["bag"], id: ItemId, n: number): Purse["bag"] {
+/** A bag with some more of something in it (of a grade, normal when not said): onto its own stacks first, then into the first empty slots. (It must have the room.) */
+export function put(bag: Purse["bag"], id: ItemId, n: number, grade: 0 | 1 | 2 | 3 = 0): Purse["bag"] {
   const out = bag.map((s) => (s ? { ...s } : null)), stack = ITEMS[id].stack;
-  for (const s of out) if (n > 0 && s?.item === id && s.n < stack) { const add = Math.min(n, stack - s.n); s.n += add; n -= add; }
-  for (let i = 0; i < out.length && n > 0; i++) if (!out[i]) { const add = Math.min(n, stack); out[i] = { item: id, n: add }; n -= add; }
+  for (const s of out) if (n > 0 && s?.item === id && gradeIn(s) === grade && s.n < stack) { const add = Math.min(n, stack - s.n); s.n += add; n -= add; }
+  for (let i = 0; i < out.length && n > 0; i++) if (!out[i]) { const add = Math.min(n, stack); out[i] = grade ? { item: id, n: add, grade } : { item: id, n: add }; n -= add; }
   return out;
 }
-/** A bag with some of something taken out of it, from its last stacks first. (It must hold as many.) */
-export function take(bag: Purse["bag"], id: ItemId, n: number): Purse["bag"] {
+/**
+ * A bag with some of something taken out of it: of one grade when asked, else the lowest grade first (normal produce
+ * before graded); from the last stacks first. A stack left with fewer keeps what it carries. (It must hold as many.)
+ */
+export function take(bag: Purse["bag"], id: ItemId, n: number, grade?: 0 | 1 | 2 | 3): Purse["bag"] {
   const out = bag.map((s) => (s ? { ...s } : null));
-  for (let i = out.length - 1; i >= 0 && n > 0; i--) {
-    const s = out[i];
-    if (s?.item !== id) continue;
-    const less = Math.min(n, s.n);
-    n -= less;
-    out[i] = s.n === less ? null : { item: id, n: s.n - less };
+  for (const g of grade === undefined ? ([0, 1, 2, 3] as const) : [grade]) {
+    for (let i = out.length - 1; i >= 0 && n > 0; i--) {
+      const s = out[i];
+      if (s?.item !== id || gradeIn(s) !== g) continue;
+      const less = Math.min(n, s.n);
+      n -= less;
+      out[i] = s.n === less ? null : { ...s, n: s.n - less };
+    }
   }
   return out;
 }
@@ -537,9 +556,10 @@ export function leave(purse: Purse, slot: number, n: number, now: number, f = 10
   if (!pays) return no("unwanted");
   // (forging: a tool that carries something of its own is not left to be sold as one of its kind: what it carries would be lost with it)
   if (forged(s)) return no("unwanted");
-  const bag = purse.bag.map((b, i) => (i !== slot ? b : s.n === n ? null : { item: s.item, n: s.n - n }));
-  const same = purse.left.findIndex((l) => l.item === s.item && l.round === round && l.pays === pays && (l.f ?? 100) === f);
-  const left = same < 0 ? [...purse.left, { item: s.item, n, pays, round, ...(f === 100 ? {} : { f }) }]
+  // (a graded slot leaves a lot of its grade, and what stays in the slot keeps it)
+  const bag = purse.bag.map((b, i) => (i !== slot ? b : s.n === n ? null : { ...s, n: s.n - n })), grade = gradeIn(s);
+  const same = purse.left.findIndex((l) => l.item === s.item && l.round === round && l.pays === pays && (l.f ?? 100) === f && (l.grade ?? 0) === grade);
+  const left = same < 0 ? [...purse.left, { item: s.item, n, pays, round, ...(f === 100 ? {} : { f }), ...(grade ? { grade } : {}) }]
     : purse.left.map((l, i) => (i === same ? { ...l, n: l.n + n } : l));
   return { ok: true, purse: { ...purse, bag, left } };
 }
@@ -556,8 +576,8 @@ export function waiting(purse: Purse, now: number): { held: Lot[]; fetched: Lot[
 export function takeBack(purse: Purse, at: number, now: number): Done<{ purse: Purse }> {
   const lot = waiting(purse, now).held[at];
   if (!lot) return no(purse.left.length ? "gone" : "none");
-  if (roomFor(purse.bag, lot.item) < lot.n) return no("full");
-  return { ok: true, purse: { ...purse, bag: put(purse.bag, lot.item, lot.n), left: purse.left.filter((l) => l !== lot) } };
+  if (roomFor(purse.bag, lot.item, lot.grade ?? 0) < lot.n) return no("full");
+  return { ok: true, purse: { ...purse, bag: put(purse.bag, lot.item, lot.n, lot.grade ?? 0), left: purse.left.filter((l) => l !== lot) } };
 }
 
 /** Collect the money for everything the relatives have fetched. */

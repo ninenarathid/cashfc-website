@@ -17,6 +17,7 @@ import { keptMotion } from "@/lib/town/motion";
 import { levelHue } from "./held";
 import type { Order } from "@/lib/town/orders";
 import { opens } from "@/lib/town/scrolls";
+import { GRADES } from "@/lib/town/quality";
 import { carried } from "@/lib/town/line";
 import type { MarketQuote, PricesTold } from "@/lib/town/market";
 import { MEALS, STAMINA, bowlsToday, buffsOf, levelOf, mayEat as mayEatNow, mealBuffs, mealOf, mealProgress, nextMealAt, staminaOf } from "@/lib/town/stamina";
@@ -988,7 +989,11 @@ export function ItemCard({ id, n, th, at, holds }: { id: ItemId; n?: number; th:
   );
 }
 /** What a thing in the bag holds, in words: the dish in a pot and its helpings, the water in a can or a bucket. Nothing, for a thing that holds nothing. */
+/** A grade's tint on a slot's badge (the inspector's grade zones). */
+const GRADE_TINT: Record<1 | 2 | 3, string> = { 1: "#c3ced8", 2: "#f0c060", 3: "#d2a6ff" };
 export function holdsOf(s: Stack, th: boolean): string | null {
+  // (the farm's Quality: graded produce says its grade, and what the uncle's relatives pay for it)
+  if (s.grade) return [heldIn(s, th), th ? `${GRADES[s.grade].th} · ลุงรับซื้อ ×${GRADES[s.grade].pays}` : `${GRADES[s.grade].en} · relatives pay ×${GRADES[s.grade].pays}`].filter(Boolean).join(" · ");
   const holds = heldIn(s, th);
   // ── forging ── (and what a tool carries of its own: its plus, its gem, its options by their names; what each does is the smith's card's to say)
   if (!forged(s)) return holds;
@@ -1110,6 +1115,7 @@ export function Pockets({ bag, th, picked = null, hand = null, held = -1, onPick
             {(s.of || (s.water !== undefined && !(s.item in WATER.buckets))) && (
               <span className={`absolute bottom-0 right-1 font-data text-meta font-semibold tabular-nums [text-shadow:0_1px_2px_#000,0_0_2px_#000] ${s.of ? "text-[#f3e3c3]" : "text-[#8fd0ff]"}`}>{s.of ? s.of.left : s.water}</span>
             )}
+            {s.grade ? <span data-bag-grade={s.grade} aria-hidden className="absolute right-0.5 top-0.5 rounded-sm px-0.5 font-data text-[9px] font-bold leading-3 text-[#2a1a08] shadow-[0_0_0_1px_#1a0e06]" style={{ background: GRADE_TINT[s.grade] }}>{"★".repeat(s.grade)}</span> : null}
             {hand === s.item && (!s.of || i === held) && <span data-bag-held className="absolute left-0.5 top-0.5 rounded-full bg-gold px-1 font-data text-[9px] font-semibold uppercase leading-4 text-bg">{th ? "ถือ" : "held"}</span>}
             {/* (no card over a thing while one is carried or placed: it would lie on the slots above, and on the bag's head where the way to place is said) */}
             {known && !drag && placing === null && <ItemCard id={s.item} n={s.n} th={th} at={((i % 5) + 0.5) / 5} holds={holdsOf(s, th)} />}

@@ -14,6 +14,7 @@ import { buffBy, hasBuff, isSpent, spend } from "./stamina";
 // ── gifts: helpers ──
 import { HELPING, bridged, chime, diesAt, dustUntil, dustsOf, type HelpRefusal } from "./helping";
 import { DRY, rainingAt, wetMs, type Rain } from "./weather";
+import { harvestOf } from "./quality-plant";
 import { BANGKOK, DAY, HOUR, forged, handOf, handSlot, held, heldStack, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
 
 /**
@@ -401,7 +402,7 @@ export function see(key: string, plot: Plot, now: number, rains: FarmSky = DRY):
 
 /** Why something was not done to a plot, beyond a purse's own reasons: the wrong thing in the hand, a plot not ready for it, watered already this hour, somebody else's bed, not ripe yet, as many beds held as one may, a living plant that nothing said was meant to go. */
 export type FarmRefusal = "hand" | "soil" | "wet" | "theirs" | "unripe" | "beds" | "sure" | "running";
-type Did = Done<{ purse: Purse; plot: Plot; got?: Array<[ItemId, number]> }> | { ok: false; why: FarmRefusal };
+type Did = Done<{ purse: Purse; plot: Plot; got?: Array<[ItemId, number]>; fruits?: { range: import("./quality").Range; values: number[] } }> | { ok: false; why: FarmRefusal };
 const not = (why: FarmRefusal): { ok: false; why: FarmRefusal } => ({ ok: false, why });
 const hasInHand = (purse: Purse, hand: ItemId | null) => !!hand && held(purse.bag, hand) > 0;
 
@@ -582,16 +583,19 @@ export function pick(key: string, purse: Purse, plot: Plot, may: boolean, hand: 
   if (!may) return not("theirs");
   if (!seen.ripe) return not("unripe");
   const n = yieldOf(key, p, hasInHand(purse, hand) ? hand : null);
-  if (roomFor(purse.bag, p.crop) < n) return no("full");
+  // (each fruit's Quality, lib/town/quality-plant: the bag must hold every grade the pick gives, before anything is done)
+  const fruits = harvestOf(key, p, n, now, rains);
+  let room = purse.bag;
+  for (const [g, c] of fruits.groups) { if (roomFor(room, p.crop, g) < c) return no("full"); room = put(room, p.crop, c, g); }
   const picked = p.picked + 1, last = picked >= (CROPS[p.crop].picks ?? 1) + moreOf(p);
   // (the mandrake that follows whoever picks sings as a plant is picked for what would be the last time, and the plant
   // bears once more: any crop, one that is picked only once too; so many plants a day, lib/town/gifts' USES; a plant
   // it has sung to is not sung to again)
   const sung = !p.giant && last && !moreOf(p) ? useGift(purse, "famMandrake", now) : null, mine = sung?.ok ? sung.purse : purse, spent = last && !sung?.ok;
   return {
-    ok: true, got: [[p.crop, n]],
+    ok: true, got: [[p.crop, n]], fruits: { range: fruits.range, values: fruits.values },
     plot: spent ? { soil: "cleared", plant: null } : { ...plot, plant: { ...p, picked, pickedAt: now, watered: 0, ...(sung?.ok ? { more: numberOf("famMandrake") } : {}) } },
-    purse: { ...spend(mine, FARMING.costs.pick, now), bag: put(mine.bag, p.crop, n) },
+    purse: { ...spend(mine, FARMING.costs.pick, now), bag: fruits.groups.reduce((b, [g, c]) => put(b, p.crop, c, g), mine.bag) },
   };
 }
 

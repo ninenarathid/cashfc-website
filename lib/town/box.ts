@@ -1,7 +1,7 @@
 import { push } from "./deal";
 import { moveSlot, sortBag, sorted } from "./bag";
 import type { ItemId } from "./items";
-import { held, newPurse, no, roomFor, take, wholeStack, type Done, type Purse, type Stack } from "./trade";
+import { gradeIn, held, newPurse, no, roomFor, take, wholeStack, type Done, type Purse, type Stack } from "./trade";
 import { MOUNTAIN_PROPS, byStorebox } from "./world";
 
 /**
@@ -115,9 +115,9 @@ export const byMoreChest = (tx: number, ty: number, reach: number = BOX.reach) =
 /** Whether somebody on a tile stands by the box. */
 export const nearBox = (at: readonly [number, number]) => byStorebox(at[0], at[1], BOX.reach) || byMoreChest(at[0], at[1]);
 
-/** How many of what is in a stack some slots have room for: a thing that holds something takes an empty slot of its own; the rest go onto their own kind first. */
+/** How many of what is in a stack some slots have room for: a thing that holds something takes an empty slot of its own; the rest (graded produce too, onto its own grade) go onto their own kind first. */
 export function fits(into: Array<Stack | null>, s: Stack): number {
-  return wholeStack(s) ? Math.min(s.n, into.filter((x) => !x).length) : Math.min(s.n, roomFor(into, s.item));
+  return wholeStack(s) && !s.grade ? Math.min(s.n, into.filter((x) => !x).length) : Math.min(s.n, roomFor(into, s.item, gradeIn(s)));
 }
 
 /** Move so many of what is in a slot of some slots into others. Null when there is nothing of the kind to move, the number is no number of them, or they do not fit. */
