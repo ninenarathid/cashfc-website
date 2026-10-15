@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { BAITS, DISHES, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, type BaitId, type CatchId, type FishId, type ItemId, type Sign } from "./items";
+import { BAITS, DISHES, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, WEIGHED_FISH_IDS, type BaitId, type CatchId, type FishId, type ItemId, type Sign } from "./items";
+import { SMALL_FISH_BAITS } from "./band-species";
 import {
   ALL_SIGNS, FIGHT, ORB, REST, SIGNS, SILK, STEPS, STRIKE, bangkokDay, PAIR, WARY, biggerBy, boutsOf, harderOf, hookStar, isWary, leastMs, lightOrb, orbHaste, orbOf, starOdds, tookUp, underOrb, castFrom, castLine, driveBack, hookBait, hookBaits, moonAge, oddsOf, playFight, replayFight, seeded, seesOdds, settling, signsOf, startFight, stepFight, sift, startPair, stepPair, strikeOf, strikeWindow, surging, warning,
   type Fight, type FightMods, type OrbSky, type Pair,
@@ -59,7 +60,8 @@ describe("what takes the bait", () => {
   });
 
   it("brings a fish only on a bait it takes, in the hours it feeds", () => {
-    for (const id of FISH_IDS) for (const bait of BAITS) for (let hour = 0; hour < 24; hour++) {
+    // (the time bands' newcomers are not weighed here: they take only what is no fish's place, band-species.test)
+    for (const id of WEIGHED_FISH_IDS) for (const bait of BAITS) for (let hour = 0; hour < 24; hour++) {
       const feeds = FISH[id].hours.some(([a, b]) => hour >= a && hour < b), takes = (FISH[id].baits[bait] ?? 0) > 0;
       expect(share(home(id, bait, hour), id) > 0).toBe(feeds && takes);
     }
@@ -67,7 +69,8 @@ describe("what takes the bait", () => {
     for (const bait of ["worm", "dough"] as const) for (let hour = 0; hour < 24; hour++)
       expect(oddsOf(bait, hour).some((o) => o.what in FISH)).toBe(true);
     // every fish can be caught at some hour on some bait
-    for (const id of FISH_IDS) expect(BAITS.some((b) => Array.from({ length: 24 }, (_, h) => h).some((h) => share(home(id, b, h), id) > 0))).toBe(true);
+    // (a newcomer of the time bands comes in what is no fish's place: band-species.test)
+    for (const id of WEIGHED_FISH_IDS) expect(BAITS.some((b) => Array.from({ length: 24 }, (_, h) => h).some((h) => share(home(id, b, h), id) > 0))).toBe(true);
     // and every fish is a thing in the catalog, with a picture of that name (two are eaten as they come up, and so are dishes among the things)
     for (const id of FISH_IDS) expect(ITEMS[id].kind).toBe(id in DISHES ? "dish" : "fish");
     expect(FISH_IDS.filter((id) => id in DISHES)).toEqual(["dozyFish", "rainbowFish"]);
@@ -131,7 +134,8 @@ describe("twenty more of the early game's fish (the owner: \"แต่ละป�
     for (const id of NEW) {
       expect(FISH[id]).toBeDefined();
       expect(ITEMS[id].tier).toBe(1);
-      for (const bait of Object.keys(FISH[id].baits)) expect(ITEMS[bait as BaitId].tier).toBe(1);
+      // (a newcomer small fish goes on a hook as a minnow does, BAIT_AS: not a bait of its own)
+      for (const bait of Object.keys(FISH[id].baits).filter((b) => !SMALL_FISH_BAITS.includes(b as never))) expect(ITEMS[bait as BaitId].tier).toBe(1);
     }
     expect(FISH_IDS.filter(id => !FISH[id].habitat).length).toBe(32 + 20);
     // they are weighed after the fish there were, in this order

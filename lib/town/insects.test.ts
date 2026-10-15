@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { INSECT_SPECIES } from "./insect-items";
+import { INSECT_GARDEN } from "./insect-garden";
+import { SMALL_FISH_BAITS } from "./band-species";
 import { FARMING, PUT_ON, see, type Plant, type Plot } from "./farm";
 import { oddsOf } from "./fishing";
 import {
@@ -33,7 +35,8 @@ function outOver(salt: string, from: number, days: number, rains = DRY): Map<Bug
 
 describe("insects (the owner: \"จับแมลง ในทุกแมพในเกม แมพกลางเมือง ฟาร์ม ป่า จะมีแมลงออกมา\")", () => {
   it("are twenty-four, of eight habits, each an item of its own and none of one country alone", () => {
-    expect(BUG_IDS).toHaveLength(32);
+    // (and the time bands' twenty-four newcomers, band-species)
+    expect(BUG_IDS).toHaveLength(32 + 24);
     expect(new Set(BUG_IDS.map((id) => BUGS[id].habit)).size).toBe(8);
     for (const id of BUG_IDS) {
       expect(ITEMS[id], id).toBeDefined();
@@ -459,7 +462,8 @@ describe("how each insect is caught", () => {
 
 describe("what an insect is good for, besides the uncle's relatives", () => {
   it("four go on a hook, each as a bait there already was: nothing else in the river changes", () => {
-    expect(BAIT_AS).toEqual({ caterpillar: "worm", moth: "dough", dragonfly: "minnow", grasshopper: "cricket" });
+    // (and the time bands' small fish, each as a minnow: band-species)
+    expect(BAIT_AS).toEqual({ caterpillar: "worm", moth: "dough", dragonfly: "minnow", grasshopper: "cricket", ...Object.fromEntries(SMALL_FISH_BAITS.map((id) => [id, "minnow"])) });
     for (const [bug, as] of Object.entries(BAIT_AS) as Array<[keyof typeof BAIT_AS, NonNullable<(typeof BAIT_AS)[keyof typeof BAIT_AS]>]>) {
       expect(BAITS).toContain(bug);
       for (const hour of [6, 12, 20, 2]) for (const rain of [false, true]) for (const shallow of [false, true]) {
@@ -467,7 +471,7 @@ describe("what an insect is good for, besides the uncle's relatives", () => {
       }
       for (const id of FISH_IDS) expect(FISH[id].baits[bug], `${id} on ${bug}`).toBe(FISH[id].baits[as]);
       // (an insect is of its bait's tier, so that a later tier's fish still takes only that tier's baits)
-      expect(ITEMS[bug].tier).toBe(ITEMS[as].tier);
+      if (bug in BUGS) expect(ITEMS[bug].tier).toBe(ITEMS[as].tier);
     }
     // a cricket caught is the cricket that goes on a hook
     expect(BAITS).toContain("cricket");
@@ -840,7 +844,7 @@ describe("the insects on the farm, counted", () => {
   it("are the ones out at the farm's haunts that nobody has caught, less the two that eat pests", () => {
     let seen = 0, eaters = 0;
     for (let i = 0; i < 60; i++) {
-      const now = NOON + i * 7 * MINUTE, here = out(now), plain = here.filter((x) => !(x.has!.bug in INSECT_SPECIES) && FARMING.rids[x.has!.bug] === undefined);
+      const now = NOON + i * 7 * MINUTE, here = out(now), plain = here.filter((x) => !INSECT_GARDEN.visitors.includes(x.has!.bug) && FARMING.rids[x.has!.bug] === undefined);
       expect(farmBugs(WORD, now, DRY, none)).toBe(plain.length);
       seen += plain.length; eaters += here.length - plain.length;
       // one of them caught: one fewer; all of them: none

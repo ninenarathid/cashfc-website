@@ -5,12 +5,16 @@ import { createPortal } from "react-dom";
 import TownIcon, { type IconName } from "./TownIcon";
 import styles from "./TownAdventure.module.css";
 
-export interface NotebookEntry { key: string; title: string; searchText?: string; icon?: IconName; category?: string; body: ReactNode }
+export interface NotebookEntry { key: string; title: string; searchText?: string; icon?: IconName; category?: string; body: ReactNode;
+  /** Its picture as a dark silhouette (something not found yet). */
+  shade?: boolean }
 
 /** Only supplied discoveries are rendered; this component never imports hidden rules. */
-export default function TownNotebook({ title, entries, th, icon = "wellBook", initiallyOpen = false, first, onClose, compact = false }: {
+export default function TownNotebook({ title, entries, th, icon = "wellBook", initiallyOpen = false, first, onClose, compact = false, cover: withCover = true }: {
   title: string; entries: readonly NotebookEntry[]; th: boolean; icon?: IconName;
   initiallyOpen?: boolean; first?: string | null; onClose?: () => void; compact?: boolean;
+  /** (false: the book opened from something else, the clock's band, with no cover of its own) */
+  cover?: boolean;
 }) {
   const [open, setOpen] = useState(initiallyOpen);
   const [category, setCategory] = useState<string | null>(null);
@@ -23,6 +27,7 @@ export default function TownNotebook({ title, entries, th, icon = "wellBook", in
   const current = Math.min(page, Math.max(0, shown.length - 1)), entry = shown[current];
   const indexStart = Math.floor(current / 10) * 10;
   const close = () => { if (onClose) onClose(); else { setOpen(false); requestAnimationFrame(() => cover.current?.focus()); } };
+  const shadeCls = (e?: NotebookEntry) => (e?.shade ? "brightness-0 opacity-60" : "");
   useEffect(() => {
     if (!open) return;
     const modal=dialog.current;
@@ -30,11 +35,11 @@ export default function TownNotebook({ title, entries, th, icon = "wellBook", in
     closeButton.current?.focus({ preventScroll: true });
     return () => modal?.close();
   }, [open]);
-  return <section className={styles.book} data-town-notebook data-state={open ? "open" : "closed"} aria-label={title}>
-    <button type="button" ref={cover} onClick={() => setOpen(true)} aria-expanded={open} className={`${styles.cover} ${compact ? styles.coverCompact : ""}`}>
+  return <section className={styles.book} hidden={!withCover} data-town-notebook data-state={open ? "open" : "closed"} aria-label={title}>
+    {withCover && <button type="button" ref={cover} onClick={() => setOpen(true)} aria-expanded={open} className={`${styles.cover} ${compact ? styles.coverCompact : ""}`}>
       <TownIcon name={icon} size={compact?22:38}/><span className="min-w-0"><span className={`${styles.coverTitle} font-display`}>{title}</span>
         <span className={styles.coverHint}>{th ? `บันทึกไว้ ${entries.length} เรื่อง · เปิดสมุด` : `${entries.length} discoveries · Open the notebook`}</span></span>
-    </button>
+    </button>}
     {open&&createPortal(<dialog ref={dialog} className={styles.notebookDialog} aria-labelledby={titleId} onCancel={e=>{e.preventDefault();close();}} onKeyDown={e=>e.stopPropagation()}>
       <div className={styles.book} data-notebook-reader><div className={styles.binding}>
       <header className={styles.bookHeader}><TownIcon name={icon} size={24}/><h3 id={titleId} className="font-display">{title}</h3>
@@ -46,13 +51,13 @@ export default function TownNotebook({ title, entries, th, icon = "wellBook", in
       <div className={styles.spread}>
         <nav className={styles.index} aria-label={th ? "สารบัญสมุด" : "Notebook contents"}>
           {shown.slice(indexStart, indexStart + 10).map((e, i) => <button key={e.key} type="button" aria-pressed={current === indexStart + i} onClick={() => setPage(indexStart + i)}>
-            {e.icon && <TownIcon name={e.icon} size={22}/>}<span>{e.title}</span>
+            {e.icon && <TownIcon name={e.icon} size={22} className={shadeCls(e)}/>}<span>{e.title}</span>
           </button>)}
           {shown.length > 10 && <div className={styles.indexPager}><button type="button" disabled={!indexStart} onClick={() => setPage(indexStart - 10)} aria-label={th ? "สารบัญหน้าก่อน" : "Previous contents page"}>←</button><span>{indexStart + 1}–{Math.min(indexStart + 10, shown.length)} / {shown.length}</span><button type="button" disabled={indexStart + 10 >= shown.length} onClick={() => setPage(indexStart + 10)} aria-label={th ? "สารบัญหน้าถัดไป" : "Next contents page"}>→</button></div>}
         </nav>
         <article className={styles.leaf}>
           <div key={entry?.key ?? "empty"} className={styles.turn} data-notebook-page={entry?.key}>
-            <div className={styles.leafHeading}>{entry?.icon && <TownIcon name={entry.icon} size={48}/>}<h4 className="font-display">{entry?.title ?? (search ? th ? "ไม่พบรายการที่ค้นหา" : "No matching entries" : th ? "หน้าที่ยังว่าง" : "An unwritten page")}</h4></div>
+            <div className={styles.leafHeading}>{entry?.icon && <TownIcon name={entry.icon} size={48} className={shadeCls(entry)}/>}<h4 className="font-display">{entry?.title ?? (search ? th ? "ไม่พบรายการที่ค้นหา" : "No matching entries" : th ? "หน้าที่ยังว่าง" : "An unwritten page")}</h4></div>
             <div className={styles.leafBody}>{entry?.body ?? <p>{search ? th ? "ลองเปลี่ยนคำค้นหรือเลือกหมวดอื่น" : "Try another search or category." : th ? "สิ่งที่พบระหว่างเดินทางจะถูกจดไว้ในสมุดนี้" : "Discoveries along your journey will be written here."}</p>}</div>
           </div>
           <footer className={styles.bookFoot}>

@@ -5,7 +5,8 @@ import { partOf, rodFx, slowPartOf } from "./forged";
 import { toolPaid } from "./forged-keep";
 import { powerLeft, usePower } from "./powers";
 import { PLAIN, ROD_IDS, gearOf, rodStack, type Gear } from "./gear";
-import { BAITS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, KEPT_BAITS, TIER_WEIGHT, byOf, type BaitId, type CatchId, type FishId, type FightStyle, type FlotsamId, type Sign, type Tier } from "./items";
+import { FRESH, inHours as inBand } from "./band-species";
+import { BAITS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, FRESH_FISH_IDS, ITEMS, KEPT_BAITS, TIER_WEIGHT, WEIGHED_FISH_IDS, byOf, type BaitId, type CatchId, type FishId, type FightStyle, type FlotsamId, type Sign, type Tier } from "./items";
 import { charmBy, numberOf, useGift, works, type GiftRefusal } from "./gifts";
 import { STAMINA, isSpent, levelOf, spend } from "./stamina";
 import { handOf, handSlot, held, no, put, roomFor, take, type Done, type Purse, type Stack } from "./trade";
@@ -107,7 +108,8 @@ const lvl = (l: Level | undefined): number => (l === true ? 1 : l || 0);
  */
 export function oddsOf(bait: BaitId, hour: number, rain = false, lucky: Level = false, shallow = false, signs: readonly Sign[] = [], habitat: FishingHabitat = "town", current: Current = "eddy"): Array<{ what: CatchId; p: number }> {
   const weights: Array<[CatchId, number]> = [];
-  for (const id of FISH_IDS) {
+  // (the fish there were: the time bands' newcomers are never weighed with them, `freshOdds`)
+  for (const id of WEIGHED_FISH_IDS) {
     const f = FISH[id], likes = f.baits[bait] ?? 0;
     if (!(f.habitat ?? ["town"]).includes(habitat) || (f.current && !f.current.includes(current))) continue;
     if (!likes || !inHours(f.hours, ((Math.floor(hour) % 24) + 24) % 24)) continue;
@@ -123,6 +125,37 @@ export function oddsOf(bait: BaitId, hour: number, rain = false, lucky: Level = 
   for (const id of FLOTSAM_IDS) if (!FLOTSAM[id].on || FLOTSAM[id].on!.includes(bait)) weights.push([id, FLOTSAM[id].weight]);
   const total = weights.reduce((t, [, w]) => t + w, 0);
   return weights.map(([what, w]) => ({ what, p: w / total }));
+}
+
+/** What is no fish that a newcomer may take the place of: never a pearl or a chest. */
+export const FRESH_JUNK: readonly FlotsamId[] = ["hyacinth", "boot", "driftwood", "bottle"];
+/**
+ * The time bands' newcomers on a cast (lib/town/band-species; the farm's Quality, piece 4b): **a newcomer only ever
+ * takes the place of what is no fish.** Given the odds of a cast as every gift has shaped them (the last step before
+ * the line is drawn), every fish keeps its own chance to the last digit. Each newcomer that takes this bait in this
+ * water at this hour has its own share of the cast (`fresh`, half outside its peak band), all of them together never
+ * more than FRESH.take of what is no fish (but a pearl or a chest): where that is less, they share it in proportion.
+ * What is no fish comes up that much less often, and a newcomer in its place. A
+ * newcomer keeps to its water and its hours, a common one comes off the bank too and the others only to the deck's
+ * deep water, as the old fish do; a tier a gift keeps off the line (`never`: a pair's, a wary hand's) keeps them off
+ * too. No rain, moon or sign: the newcomers are found by place, band and bait alone. None on a stardust bait.
+ */
+export function freshOdds(odds: ReadonlyArray<{ what: CatchId; p: number }>, bait: BaitId, hour: number, habitat: FishingHabitat, shallow: boolean, never: readonly Tier[] = []): Array<{ what: CatchId; p: number }> {
+  const h = ((Math.floor(hour) % 24) + 24) % 24;
+  const fresh: Array<[CatchId, number]> = [];
+  for (const id of FRESH_FISH_IDS) {
+    const f = FISH[id];
+    if (!(f.baits[bait] ?? 0) || !(f.habitat ?? ["town"]).includes(habitat) || !inBand(f.hours, h) || never.includes(f.tier)) continue;
+    if (shallow && f.tier !== "common") continue;
+    fresh.push([id, f.fresh! * (f.peak && !inBand(f.peak, h) ? FRESH.offPeak : 1)]);
+  }
+  const junk = odds.reduce((t, o) => t + (FRESH_JUNK.includes(o.what as FlotsamId) ? o.p : 0), 0);
+  if (!fresh.length || !(junk > 0)) return odds.map((o) => ({ ...o }));
+  let want = 0;
+  for (const [, s] of fresh) want += s;
+  const scale = Math.min(1, (junk * FRESH.take) / want), taken = want * scale;
+  return [...odds.map((o) => (FRESH_JUNK.includes(o.what as FlotsamId) ? { what: o.what, p: o.p * (1 - taken / junk) } : { ...o })),
+    ...fresh.map(([what, s]) => ({ what, p: s * scale }))];
 }
 
 /**
@@ -817,7 +850,7 @@ export type FishRefusal = "calm";
 /** What takes a stardust bait, and how likely each is: every fish of its tiers that is in this water under this sky, by its tier and the sky alone. None, where there is none. */
 export function starOdds(rain: boolean, shallow: boolean, signs: readonly Sign[], top: number, habitat: FishingHabitat = "town", current: Current = "eddy"): Array<{ what: CatchId; p: number }> {
   const weights: Array<[CatchId, number]> = [];
-  for (const id of FISH_IDS) {
+  for (const id of WEIGHED_FISH_IDS) {
     const f = FISH[id];
     if (!(f.habitat ?? ["town"]).includes(habitat) || (f.current && !f.current.includes(current))) continue;
     if (!STAR.tiers.includes(f.tier) || ITEMS[id].tier > top) continue;

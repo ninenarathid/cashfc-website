@@ -99,7 +99,8 @@ export function TownBranchVein({keeper,th,at}:Props){
 export function TownSchoolBell({keeper,th,tile,bait,current,star}:{keeper:Keeper;th:boolean;tile:[number,number];bait:BaitId;current:Current;star:boolean}){
   const action=useReward(keeper,"school"),[chosen,setChosen]=useState<FishId|null>(null),p=keeper.purse(),call=p.professionRewards?.school;
   if(!keeper.rewardDo||!works(p,"thingSchoolBell"))return null;
-  const known=FISH_IDS.filter(id=>FISH[id].tier!=="legend"&&(p.best[id]??0)>0),fish=chosen&&known.includes(chosen)?chosen:known[0];
+  // (not the time bands' newcomers: they only take what is no fish's place, so the bell cannot call them: lib/town/fishing's freshOdds)
+  const known=FISH_IDS.filter(id=>FISH[id].tier!=="legend"&&!FISH[id].fresh&&(p.best[id]??0)>0),fish=chosen&&known.includes(chosen)?chosen:known[0];
   const active=call&&call.left>0&&keeper.now()<call.until;
   return <div className="mt-3 rounded-lg border border-[#c5cf93]/40 bg-[#24372f]/70 p-3 text-[#e6efbe]" data-school-bell>
     <p className="flex items-center gap-2 text-ui font-semibold"><TownIcon name="thingSchoolBell" size={24}/>{th?"กระดิ่งเรียกฝูง":"Shoal-calling bell"}</p>

@@ -26,8 +26,11 @@ import * as L from "./pxlib.mjs";
 
 const HERE = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Z]:)/, "$1");
 const OUT = process.env.ICONS_SHEETS ?? path.join(HERE, "work", "out");
-const PUB = process.env.ICONS_PUB ?? "E:/NinenineProject/fcnext/public/town";
-const JSON_OUT = process.env.ICONS_JSON ?? "E:/NinenineProject/fcnext/lib/town/icon-atlas.json";
+// (the tree this copy of the builder is in, not always the shared one: a build in a worktree once wrote the shared
+// tree's atlas and removed the picture another session's atlas stood on, 2026-10-15)
+const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1")), "../../../../..");
+const PUB = process.env.ICONS_PUB ?? path.join(ROOT, "public/town");
+const JSON_OUT = process.env.ICONS_JSON ?? path.join(ROOT, "lib/town/icon-atlas.json");
 
 // [sheet, names] in the order they stand on the sheet, left to right
 const SHEETS = [
@@ -290,6 +293,21 @@ const SHEETS = [
   // (the bag's house drawn again with icons-wood and the first sheet for the reference: in the bag and the hotbar the
   // first one's nine small tube ends and holes ran into speckles; this one has six bigger ones)
   ["icons-insect-house-b", ["insectHouse", "_wedge", "_stake", "_barkKnife", "_sapTap", "_grainLens"], { range: [5.45, 5.65] }],
+  // ── the time bands' newcomers (2026-10-15; lib/town/band-species) ── twenty-four insects (with icons-items-bm for the
+  // reference), twenty-four fish (with icons-items-av), and the four rare finds, glow powder and the mist time icon (with
+  // icons-items-bd). icons-band-insects-d came out coarse with its moths drawn half, and was drawn again (d2, with
+  // icons-band-insects-a for the reference), which is the one listed; its true pixels came out at 13.5 of the canvas,
+  // so it is cut on its half, which gives its insects the others' size (the first drawing is kept in work/out, not listed).
+  ["icons-band-insects-a", ["megaloptaBee", "ghostMantis", "railroadWorm", "indianNightBee", "snakefly", "earwig"], { range: [7.9, 8.1] }],
+  ["icons-band-insects-b", ["masonBee", "tigerBeetle", "roseChafer", "woolCarderBee", "oilBeetle", "assassinBug"], { range: [7.9, 8.1] }],
+  ["icons-band-insects-c", ["blueBandedBee", "robberFly", "superworm", "clearwingMoth", "antlion", "bessBeetle"], { range: [7.9, 8.1] }],
+  ["icons-band-insects-d2", ["yuccaMoth", "roveBeetle", "cucujoBeetle", "tobaccoHawkmoth", "blueGhostFirefly", "californiaGlowworm"], { range: [6.6, 6.85] }],
+  ["icons-band-fish-a", ["pearlDanio", "peacockGudgeon", "huchen", "forktailBlueEye", "empireGudgeon", "lenok"], { range: [5.3, 5.5] }],
+  ["icons-band-fish-b", ["zebrafish", "europeanChub", "arcticChar", "rosyBitterling", "pumpkinseed", "europeanGrayling"], { range: [5.2, 5.45] }],
+  ["icons-band-fish-c", ["leastKillifish", "australianBass", "lakeWhitefish", "tench", "goldenDorado", "europeanBullhead"], { range: [5.2, 5.45] }],
+  ["icons-band-fish-d", ["glassKnifefish", "tigerShovelnose", "burbot", "elephantnoseFish", "freshwaterSole", "dollyVarden"], { range: [4.8, 5.0] }],
+  ["icons-band-finds-a", ["mistMushroom", "queenPollen", "morningDew", "batGuano", "glowPowder", "timeMist"], { range: [6.8, 7.1] }],
+  // ── end: the time bands' newcomers ──
 ];
 
 const ONLY = process.env.ICONS_ONLY?.split(",").map((s) => s.trim()).filter(Boolean);

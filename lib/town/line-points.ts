@@ -150,8 +150,9 @@ export function bugPoints(id: string): number {
   const b = BUGS[id as keyof typeof BUGS];
   if (!b) return 0;
   const base = b.habit === "path" || b.habit === "crawl" ? POINTS.insects.plain : POINTS.insects.way;
-  const rare = b.habit === "lure" || !!b.day || b.weight <= 15;
-  return Math.max(base, b.cost, rare ? POINTS.insects.rare : 0);
+  const rare = b.habit === "lure" || !!b.day || b.weight <= 15, raw = Math.max(base, b.cost, rare ? POINTS.insects.rare : 0);
+  // (on the ladder of plain, way and rare, as every insect there was came out: a newcomer of two stamina is a way's)
+  return raw > base && raw < POINTS.insects.way ? POINTS.insects.way : raw;
 }
 
 /** What something done counts for, on every line it counts on: nothing, for most of what is done. `doer` is who did it. */

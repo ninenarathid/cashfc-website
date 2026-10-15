@@ -20,6 +20,7 @@ import { INSECT_GARDEN } from "./insect-garden";
 import { spend } from "./stamina";
 import { held, no, put, roomFor, take, type Done, type Purse, type Refusal } from "./trade";
 import { bedOf } from "./world";
+import { DECOMPOSERS } from "./band-species";
 
 export const HOUSE = {
   /** The plots each way the house reaches (5×5 about it). */
@@ -52,17 +53,23 @@ export const FAVOURITES: Partial<Record<ItemId, CompanionId>> = {
   orchardBeetle: "fig", butterflyWhite: "nasturtium", monarch: "marigold", morpho: "gardenStrawberry", moth: "mint",
   lunaMoth: "rhubarb", hawkMoth: "sesame",
   lacewing: "buckwheat", goldenAnt: "peanut", mantis: "fennel", ladybird: "chamomile", orchidMantis: "passionfruit",
+  // (the time bands' newcomers, lib/town/band-species: the bees to fruit blossom, clover and cress, the night moths to
+  // pale tubular flowers, the hunters where their prey gathers, the soil-workers to rot and damp)
+  megaloptaBee: "chamomile", indianNightBee: "mint", masonBee: "gardenStrawberry", woolCarderBee: "sesame", blueBandedBee: "watercress",
+  clearwingMoth: "nasturtium", yuccaMoth: "peanut", tobaccoHawkmoth: "garlicChives",
+  ghostMantis: "lavender", snakefly: "borage", tigerBeetle: "clover", assassinBug: "milkweed", robberFly: "buckwheat", antlion: "peanut", roveBeetle: "rhubarb",
+  earwig: "marigold", roseChafer: "borage", oilBeetle: "dill", superworm: "rhubarb", bessBeetle: "fig",
 };
 
-/** The insects that work the soil: none yet (the soil-workers come with piece 4b's new species). */
-export const SOIL_WORKERS: readonly ItemId[] = [];
+/** The insects that work the soil: the decomposers of the time bands' newcomers (lib/town/band-species). */
+export { DECOMPOSERS as SOIL_WORKERS } from "./band-species";
 
 /** What an insect does in a house: its role, or null for one that has no room there. */
 export function houseRoleOf(id: ItemId | null | undefined): Role | null {
   if (!id) return null;
   if (INSECT_GARDEN.pollinators.includes(id)) return "pollen";
   if (INSECT_GARDEN.predators.includes(id)) return "guard";
-  return SOIL_WORKERS.includes(id) ? "soil" : null;
+  return (DECOMPOSERS as readonly string[]).includes(id) ? "soil" : null;
 }
 /** Whether a house insect is rare (by what it is worth, as lib/town/insects' tiers have it). */
 export const isRareInHouse = (id: ItemId): boolean => (ITEMS[id]?.pays ?? 0) >= HOUSE.rarePays;

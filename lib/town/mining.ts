@@ -6,6 +6,8 @@ import { depthOf, isRest } from "./cave";
 import { roll } from "./farm";
 import { harderFor, wearing } from "./gifts";
 import type { ItemId } from "./items";
+import { GUANO, inHours } from "./band-species";
+import { BANGKOK, DAY, HOUR } from "./trade";
 import { stowAll } from "./pouches";
 import { mayPower, usePower } from "./powers";
 import { eased, isSpent, spend, staminaOf } from "./stamina";
@@ -459,7 +461,23 @@ function pay(purse: Purse, go: Go, rock: RockAt, struck: Struck, quake: boolean,
   // A rock that does open one never comes here with one open: it is refused above, and waits)
   after = { ...after, mine: { ...kept, owed, crumb, loose: { k, ids: loose }, vein: vein ?? kept.vein, last: own ? go.now : kept.last, paid } };
   if(vein)after=rememberVeinSite(after,purse,vein,go.at,go.day);
-  return { ok: true, done: true, purse: learnFloor(after,go.floor,MINING.floors), struck, broke: gone, chained, got, way, vein, crystal, loose, cost, spent, each, moss };
+  return guanoOf({ ok: true, done: true, purse: learnFloor(after,go.floor,MINING.floors), struck, broke: gone, chained, got, way, vein, crystal, loose, cost, spent, each, moss }, go, turn);
+}
+/**
+ * The bat guano (the time bands' rare finds, lib/town/band-species' GUANO): as the bats leave the cave at dusk, each
+ * plain rock of the cave broken in that hour lets some fall by its own chance, rolled after everything the rock held,
+ * so it is never instead of anything. Into the bag (or a pouch) only where there is room: a full bag loses the guano,
+ * never the go. Its own lines of what was got; whoever the rock was broken for is told what it left, not this.
+ */
+export function guanoOf(mined: Mined, go: Go, turn: number): Mined {
+  const h = ((((go.now + BANGKOK) % DAY) + DAY) % DAY) / HOUR;
+  if (go.floor <= 0 || !inHours(GUANO.hours, h)) return mined;
+  const n = mined.each.filter((b) => b.kind === "stone" && roll(`${go.salt}:guano`, go.floor, b.rock, turn) < GUANO.chance).length * GUANO.n;
+  const stowed = n > 0 ? stowAll(mined.purse, [[GUANO.item as ItemId, n]]) : null;
+  if (!stowed) return mined;
+  const got = mined.got.map(([id, k]): [ItemId, number] => [id, k]);
+  add(got, GUANO.item as ItemId, n);
+  return { ...mined, purse: stowed, got };
 }
 
 /* ── a vein played out ──────────────────────────────────────────────────── */

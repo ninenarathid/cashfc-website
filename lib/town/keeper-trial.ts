@@ -25,7 +25,7 @@ import { castPattern, currentAt, patternOdds } from "./river-fishing";
 import { fishFrom } from "./world";
 import type { Give } from "./deal";
 import type { Chore, Deed } from "./farm";
-import { ALL_SIGNS, PAIR, SIGNS, WARY, biggerBy, castFrom, driveBack, harderOf, hookBaits, hookStar, isWary, lightOrb, linesOf, oddsOf, orbHaste, orbOf, seeded, sift, signsOf, starOdds, tookUp, underOrb, type Cast, type Strike } from "./fishing";
+import { ALL_SIGNS, PAIR, SIGNS, WARY, biggerBy, castFrom, driveBack, freshOdds, harderOf, hookBaits, hookStar, isWary, lightOrb, linesOf, oddsOf, orbHaste, orbOf, seeded, sift, signsOf, starOdds, tookUp, underOrb, type Cast, type Strike } from "./fishing";
 // ── forging: old tools ──
 import { baitKept, called, calledCast, fightPaid, goldStrike, lulled, rarer, rodHaste, rodOf } from "./fishing";
 import { rodFx } from "./forged";
@@ -254,6 +254,8 @@ class TrialKeeper implements Keeper {
     if (!odds.length) return { ok: false, why: "calm" };
     const dragon=dragonDraw(hooked.purse,odds,bait,current,place.tile,pair,star,now);
     const school=schoolWeights(dragon.purse,dragon.odds,star,now);odds=school.odds;
+    // (the time bands' newcomers, last of all: only in what is no fish's place, lib/town/fishing's freshOdds)
+    if (!star) odds = freshOdds(odds, bait, under.hour, habitat, !place.deep, [...(pair ? PAIR.never : []), ...(isWary(p, now) ? WARY.tiers : [])]);
     // (the line goes out: the bait has left the bag, or the stardust is counted)
     this.trial.fished(habitat !== "town" ? {...school.purse,fishingPattern:pattern} : school.purse);
     // (from the fourth rank of the deck, what is uncommon or better is bigger, and fights harder)

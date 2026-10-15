@@ -15,7 +15,8 @@ describe("twenty exclusive fish per regional water", () => {
     expect(Object.keys(REGIONAL_FISH)).toHaveLength(51);
     expect(Object.values(REGIONAL_FISH).filter(f=>f.tier==="legend")).toHaveLength(6);
     for (const habitat of ["creek", "headwater", "pool"] as const) {
-      expect(Object.values(FISH).filter(f => f.habitat?.length === 1 && f.habitat[0] === habitat)).toHaveLength(20);
+      // (the time bands' newcomers keep to a water of theirs too, but are not of its twenty: band-species)
+      expect(Object.values(FISH).filter(f => !f.fresh && f.habitat?.length === 1 && f.habitat[0] === habitat)).toHaveLength(20);
       for (const row of REGIONAL_SPECIES[habitat]) expect(REGIONAL_FISH[row[0]].habitat).toEqual([habitat]);
     }
     expect(FISH.torrentBarb.habitat).toEqual(["creek", "headwater"]);

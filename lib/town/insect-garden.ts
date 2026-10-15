@@ -6,12 +6,17 @@ import { held, take, type Purse } from "./trade";
 import type { ItemId } from "./items";
 import { INSECT_SPECIES } from "./insect-items";
 import { POLLINATOR_SKY } from "./helper-items";
+import { NEW_INSECTS } from "./band-species";
+
+/** The time bands' newcomers by family (lib/town/band-species): the pollinators and the hunters join the garden's helpers. */
+const newOf = (family: string) => NEW_INSECTS.filter((r) => r.family === family).map((r) => r.id as ItemId);
 
 export const INSECT_GARDEN = {
-  visitors: Object.keys(INSECT_SPECIES),
+  // (every newcomer too: they are the garden's, and the farm's pests do not count them, lib/town/insects' farmBugs)
+  visitors: [...Object.keys(INSECT_SPECIES), ...NEW_INSECTS.map((r) => r.id)],
   boost: 30 * 60000, fanBoost: 45 * 60000, pollenMinutes: 60, cageMinutes: 90, guardMinutes: 120, satchel: 0.85,
-  pollinators: ["honeyBee", "carpenterBee", "hoverfly", "pollenMidge", "silkMoth", "orchardBeetle", "butterflyWhite", "monarch", "morpho", "moth", "lunaMoth", "hawkMoth"] as ItemId[],
-  predators: ["lacewing", "goldenAnt", "mantis", "ladybird", "orchidMantis"] as ItemId[],
+  pollinators: [...["honeyBee", "carpenterBee", "hoverfly", "pollenMidge", "silkMoth", "orchardBeetle", "butterflyWhite", "monarch", "morpho", "moth", "lunaMoth", "hawkMoth"] as ItemId[], ...newOf("pollinator")],
+  predators: [...["lacewing", "goldenAnt", "mantis", "ladybird", "orchidMantis"] as ItemId[], ...newOf("predator")],
 };
 export type InsectCare = "pollinate" | "guard" | "grow" | "cross";
 export function scentMods(purse: Purse, now: number) {

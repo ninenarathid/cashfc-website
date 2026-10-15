@@ -47,6 +47,7 @@ import { announceElementAction, onElementAction } from './element-action-events'
 import { readElementAction } from '@/lib/town/element-action';
 import { measureElement } from '@/lib/town/sfx';
 import TownClock from "./TownClock";
+import TownOutNow from "./TownOutNow";
 import { RANK_TITLES } from "@/lib/town/well";
 import { ALL_GIFTS, CHARMS, dueOf, giftsOf, type Gifts } from "@/lib/town/gifts";
 import { rides } from "@/lib/town/riding";
@@ -622,6 +623,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const [popover, setPopover] = useState<{ b: Building; x: number; y: number } | null>(null);
   const [card, setCard] = useState<Card | null>(null);
   const [peopleOpen, setPeopleOpen] = useState(false);
+  // (what is out now on the map I am on, opened from the clock's band: lib/town/band-species, TownOutNow)
+  const [outNow, setOutNow] = useState<Place | null>(null);
   const [statsOpen, setStatsOpen] = useState(false);
   /** The settings' choice of how often the map is drawn: kept on this device, the most until it is read. */
   const [pace, setPace] = useState<Fps>(PACE.most);
@@ -4492,9 +4495,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
           <span aria-hidden className="hidden h-3 w-px shrink-0 bg-current opacity-30 sm:block" />
           {s && everReady && !live
             ? <span className="flex shrink-0 items-center gap-1 text-label text-gold"><TownIcon name="signal" size={13} className="animate-pulse" />{w.reconnecting}</span>
-            : <TownClock th={w.th} compact={phone} bare hour={forcedHour.current} />}
+            : <button type="button" data-town-out-now onClick={() => { setOutNow(placeRef.current); setPeopleOpen(false); setMenuOpen(false); }} disabled={!keeper}
+                      aria-label={w.th ? "ดูว่าตอนนี้มีอะไรออกแถวนี้" : "See what is out around here now"} title={w.th ? "ออกตอนนี้" : "Out now"}
+                      className="pressable relative flex shrink-0 items-center after:absolute after:-inset-x-1 after:-inset-y-3.5 after:content-['']">
+                <TownClock th={w.th} compact={phone} bare hour={forcedHour.current} />
+              </button>}
         </div>
         <span role="status" className="sr-only">{s && everReady ? (live ? w.online : w.reconnecting) : ""}</span>
+        {outNow && keeper && <TownOutNow keeper={keeper} th={w.th} place={outNow} hour={forcedHour.current} onClose={() => setOutNow(null)} />}
        </div>
        {/* On the right, bug reports and the menu. Behind the menu everything that is the machine's and not the game's (the
            wardrobe, the music, the settings, the numbers, fullscreen, the zoom, the site's own bars, the way out):

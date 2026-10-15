@@ -1,0 +1,8 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D town game. Draw a new sprite sheet of small icons for that game's bag, of rare things found at dawn and at night, in the same pixel art style.
+
+Each icon is drawn on its own 16 by 16 pixel grid, scaled up big so every pixel of the icon is a large crisp square, all icons the same size, simple and bold so they read clearly when shown small, with a thick dark outline and two or three tones per colour. Six icons in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping:
+1) a small mushroom with a thin pale grey-violet cap and a slender white stalk, a few tiny white beads on its cap, one small golden four-pointed sparkle star at its upper right corner; 2) a large white flower petal folded open, holding a little heap of soft golden pollen; 3) a little round glass vial holding clear round drops of water, a single green blade of grass leaning in it; 4) a small tied cloth sack, half open, showing crumbly dark brown pellets inside; 5) a little squat glass jar with a cork stopper, filled with fine blue-green powder; 6) a compact sign of dawn mist: three thick pale grey-blue wavy bands lying one above the other, each with a hard dark outline, simple enough to read when shown very small.
+
+Render the glass and water with solid pale blue colour blocks and crisp white highlights, not partial transparency.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no frames or boxes around the icons, no shadows, no text, no letters, no numbers.
