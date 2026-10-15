@@ -18,6 +18,7 @@ import { levelHue } from "./held";
 import type { Order } from "@/lib/town/orders";
 import { opens } from "@/lib/town/scrolls";
 import { GRADES } from "@/lib/town/quality";
+import { gradePays } from "@/lib/town/trade";
 import { carried } from "@/lib/town/line";
 import type { MarketQuote, PricesTold } from "@/lib/town/market";
 import { MEALS, STAMINA, bowlsToday, buffsOf, levelOf, mayEat as mayEatNow, mealBuffs, mealOf, mealProgress, nextMealAt, staminaOf } from "@/lib/town/stamina";
@@ -576,6 +577,8 @@ function Sell({ purse, now, th, prices, onLeave, onBack, onCollect }: {
                   <ItemIcon id={s!.item} size={30} className="shrink-0" />
                   <div className="min-w-0 flex-1">
                     <span className="block truncate text-ui font-semibold text-ink">{th ? it.name.th : it.name.en} <span className="font-data text-muted">×{s!.n}</span></span>
+                    {/* (graded produce: its grade, and what the relatives pay over the price below) */}
+                    {s!.grade ? <span data-sell-grade={s!.grade} className="block text-meta font-semibold text-[#f0c060]">{th ? `${GRADES[s!.grade].th} · ลุงจ่าย ×${gradePays(s!.item, s!.grade)}` : `${GRADES[s!.grade].en} · pays ×${gradePays(s!.item, s!.grade)}`}</span> : null}
                     {told
                       ? <PriceNow id={s!.item} told={told} th={th} open={graph === slot} onToggle={() => setGraph(graph === slot ? null : slot)} />
                       : it.pays

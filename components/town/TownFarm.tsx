@@ -64,6 +64,9 @@ import { GARDEN_CROPS, type GardenCropId } from "@/lib/town/garden-items";
 import { gardenCross, gardenMods } from "@/lib/town/gardening";
 import TownGardenPlacement from "./TownGardenPlacement";
 import { QualityChip, QualityInspector } from "./TownQuality";
+import { qualityNow } from "@/lib/town/quality-plant";
+import { held as countIn } from "@/lib/town/trade";
+import { GRADES } from "@/lib/town/quality";
 import TownInsectRelease from "./TownInsectRelease";
 import { insectCareMode } from "@/lib/town/insect-garden";
 
@@ -718,7 +721,14 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     const rid = did.deed === "feed" && held ? ridCameOf(k, stood, keeper.farm()[k] ?? WILD, held, began, keeper.rains()) : null;
     // the mandrake that follows me sang to the plant as I picked it: it stays in its plot, and bears once more (lib/town/farm's pick)
     const sang = did.deed === "pick" && sungTo(stood, keeper.farm()[k]);
-    setNote(did.got.length ? `${did.got.map(([id, n]) => `${nameOf(id)} ×${n}`).join(" · ")}${sang ? (th ? " · แมนเดรกร้องเพลง ต้นนี้จะออกผลอีกรอบ" : " · the mandrake sang: it will bear once more") : ""}`
+    // (the farm's Quality: the plant's range as it stood, and the grades the pick gave, read from the bag before and after)
+    const grades = did.deed === "pick" && stood.plant ? (() => {
+      const crop = stood.plant!.crop, after = keeper.purse().bag, range = qualityNow(stood.plant!, began, keeper.rains()).range;
+      if (range.hi <= 0) return "";
+      const got = ([3, 2, 1, 0] as const).map((g) => [g, countIn(after, crop, g) - countIn(mine.bag, crop, g)] as const).filter(([, n]) => n > 0);
+      return ` · ${th ? "ช่วง" : "range"} ${range.lo}–${range.hi}: ${got.map(([g, n]) => `${th ? GRADES[g].th : GRADES[g].en} ×${n}`).join(" · ")}`;
+    })() : "";
+    setNote(did.got.length ? `${did.got.map(([id, n]) => `${nameOf(id)} ×${n}`).join(" · ")}${grades}${sang ? (th ? " · แมนเดรกร้องเพลง ต้นนี้จะออกผลอีกรอบ" : " · the mandrake sang: it will bear once more") : ""}`
       : rid === null || !held ? null
         : th ? `${nameOf(held)}${rid ? "กินศัตรูพืชหมดแล้ว" : "บินหนีไปแล้ว ศัตรูพืชยังอยู่"}`
           : `The ${nameOf(held).toLowerCase()} ${rid ? "ate the pest" : "flew off, and the pest is still there"}`);
