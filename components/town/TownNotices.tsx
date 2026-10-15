@@ -46,13 +46,15 @@ function Coin({ n, small = false }: { n: number; small?: boolean }) {
   return <span className={`flex shrink-0 items-center gap-1 font-data tabular-nums text-gold ${small ? "text-meta" : "text-ui font-semibold"}`}><TownIcon name="coin" size={small ? 13 : 17} />{n}<span className="sr-only"> Popoto coin</span></span>;
 }
 const Pic = ({ id, size }: { id: ItemId; size: number }) => <TownIcon name={iconOf(id) as IconName} size={size} className="shrink-0" />;
-/** A notice's thing, its grade's stars and how many: on a narrow line how many is cut short first, then the name; the stars never are. */
+/** A notice's thing, its grade's stars and how many: on a narrow line how many goes to a line of its own rather than be cut short; the stars stay with the name. */
 function Named({ name, grade, th, children }: { name: string; grade?: number; th: boolean; children: React.ReactNode }) {
   return (
-    <span className="flex min-w-0 items-center gap-x-1 text-ui font-semibold text-ink">
-      <span className="min-w-0 truncate">{name}</span>
-      {grade ? <span className="-ml-1 shrink-0"><GradeBadge grade={grade} th={th} inline /></span> : null}
-      <span className="min-w-0 shrink-[4] truncate">{children}</span>
+    <span className="flex min-w-0 flex-wrap items-center gap-x-1 text-ui font-semibold text-ink">
+      <span className="flex min-w-0 items-center">
+        <span className="min-w-0 truncate">{name}</span>
+        {grade ? <span className="shrink-0"><GradeBadge grade={grade} th={th} inline /></span> : null}
+      </span>
+      <span className="whitespace-nowrap">{children}</span>
     </span>
   );
 }
