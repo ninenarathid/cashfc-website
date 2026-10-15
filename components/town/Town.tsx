@@ -4476,11 +4476,19 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         </div>
         <span role="status" className="sr-only">{s && everReady ? (live ? w.online : w.reconnecting) : ""}</span>
        </div>
-       {/* On the right, one button: the menu. Behind it everything that is the machine's and not the game's (the
+       {/* On the right, bug reports and the menu. Behind the menu everything that is the machine's and not the game's (the
            wardrobe, the music, the settings, the numbers, fullscreen, the zoom, the site's own bars, the way out):
            until 2026-10-09 six buttons here and three more down the right edge, sixteen round the screen of a phone.
            Its panel is always there and only put away, so that the music, which its button keeps, plays on. */}
        {s && (
+        <div className="flex shrink-0 items-start gap-2">
+         <a href="/feedback#cash-town" target="_blank" rel="noopener noreferrer" data-town-bug-report
+            aria-label={w.th ? "แจ้งบั๊ก (เปิด Feedback ในแท็บใหม่)" : "Report a bug (opens Feedback in a new tab)"}
+            title={w.th ? "แจ้งบั๊ก · Feedback" : "Report a bug · Feedback"}
+            className={`${hudBtn} town-hud-report pointer-events-auto`}>
+           <TownIcon name="note" size={18} />
+           <span className="font-data text-[11px] leading-none">{w.th ? "แจ้งบั๊ก" : "Report bug"}</span>
+         </a>
          <div ref={menuBox} className="relative shrink-0 [&>*]:pointer-events-auto">
            <button type="button" data-town-menu onClick={() => { setMenuOpen((o) => !o); setCard(null); setPopover(null); setPeopleOpen(false); }}
                    aria-expanded={menuOpen} aria-label={w.th ? "เมนู" : "Menu"} title={w.th ? "เมนู" : "Menu"} className={hudBtn}>
@@ -4566,6 +4574,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
              </div>
            </div>
          </div>
+        </div>
        )}
       </div>
 

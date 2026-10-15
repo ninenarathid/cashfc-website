@@ -145,7 +145,7 @@ export default function Feedback() {
   }, [supabase, loadThreads]);
 
   /**
-   * One thread, linked to from elsewhere: /feedback#t12 opens number twelve.
+   * /feedback#cash-town opens a new bug report; /feedback#t12 opens thread twelve.
    *
    * The admin inbox is the one place that does this, and it is what the link
    * on a feedback notification is for: somebody wrote in about a thing, and
@@ -162,6 +162,13 @@ export default function Feedback() {
     if (!ready) return;
     const go = () => {
       const hash = window.location.hash.slice(1);
+      if (hash === "cash-town" && jumped.current !== hash) {
+        jumped.current = hash;
+        setOpenId(null);
+        setSubject("Cash town");
+        setWriting(true);
+        return;
+      }
       const m = /^t(\d+)$/.exec(hash);
       if (!m || jumped.current === hash) return;
       jumped.current = hash;
