@@ -634,21 +634,22 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         }
         // A whole tree (the fig): drawn once from its root, standing in the middle of its plots and over all their soil.
         const whole = wholeTrees.current.get(plotKey(tx, ty));
-        if (whole && what?.crop && !what.dead) {
+        if (whole && what?.crop) {
           const plant = growIconOf(what.crop, what.stage), mid = project({ x: whole.x, y: whole.y });
-          things.push({ depth: whole.front + 0.7, draw: () => blit(plant, mid, 0, (PLANT_SCALES[plant] ?? PLANT) * s) });
+          things.push({ depth: whole.front + 0.7, draw: () => what.dead ? blit("plotDead", mid) : blit(plant, mid, 0, (PLANT_SCALES[plant] ?? PLANT) * s) });
         }
-        const wholeRoot = gardenRoots.current.get(plotKey(tx, ty));
+        // (its plots show the bed's own soil under it: the tree's picture has its mound)
+        const wholeRoot = gardenRoots.current.get(plotKey(tx, ty)), underTree = !!wholeRoot && wholeTrees.current.has(wholeRoot);
         things.push({ depth: tx + ty + .6, draw: () => {
           if (!what) { for (const w of weedsOf(tx, ty)) blit(w.name, { x: at.x + w.dx * s, y: at.y + w.dy * s }, 0, PLANT * s * w.k, w.flip); return; }
-          if (what.soil === "tilled") blit("plotSoil", at, 0, PLANT * s * 0.9);
+          if (what.soil === "tilled" && !(what.crop && underTree)) blit("plotSoil", at, 0, PLANT * s * 0.9);
           // ── forging: old tools ── (a furrow the hoe left damp: a drop on the bare soil, as on a plant that has been watered)
           if (what.damp) blit("plotDrop", { x: at.x + 13 * s, y: at.y }, 0, PLANT * s * 0.45);
           if (!what.crop) return;
           if (giantRoot) return;
-          if (what.dead) { blit("plotDead", at); return; }
+          if (what.dead) { if (!underTree) blit("plotDead", at); return; }
           const plant = growIconOf(what.crop, what.stage);
-          if (!(wholeRoot && wholeTrees.current.has(wholeRoot))) blit(plant, at, 0, (PLANT_SCALES[plant] ?? PLANT) * s);
+          if (!underTree) blit(plant, at, 0, (PLANT_SCALES[plant] ?? PLANT) * s);
           // Fill the real growing space with foliage, not a miniature placeholder.
           // Its care and harvest indicators still belong to the actionable root.
           if (gardenRoots.current.get(plotKey(tx, ty)) && gardenRoots.current.get(plotKey(tx, ty)) !== plotKey(tx, ty)) return;
