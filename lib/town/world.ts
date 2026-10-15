@@ -116,9 +116,10 @@ export const BOARD = { x: 23, y: 23, w: 2, h: 2 };
 /**
  * The trade board (the owner, 2026-10-15: "บอร์ดซื้อขายอยากให้แยกจากลุงขายของ ออกมาตั้งเป็นบอร์ดกลางเมืองไปเลย"): the
  * members' notices to sell and to want (lib/town/notices), once a tab of the uncle's stall, standing on its own in the
- * plaza beside the fountain, where members of every hour pass. Not walkable; a tap on it opens it.
+ * plaza south-east of the fountain, just outside the ring where members appear (world's SPAWNS), so all of them pass
+ * it. Not walkable; a tap on it opens it.
  */
-export const TRADE_BOARD = { x: 29, y: 29, w: 2, h: 2 };
+export const TRADE_BOARD = { x: 36, y: 33, w: 2, h: 2 };
 /**
  * The storage box (the owner, 2026-10-05: "ช่วยทำ กล่องเก็บของ มาตั้งไว้กลางเมือง"): a big chest in the plaza, in front of
  * the fountain as the screen sees it, at the near corner of its ring of benches. Not walkable. Whoever stands by it
