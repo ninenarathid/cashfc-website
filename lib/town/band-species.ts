@@ -288,12 +288,16 @@ export const GUANO = { item: "batGuano" as const, hours: [[18, 19]] as Array<[nu
 
 export type Kind = "insect" | "fish" | "find";
 export interface Window { id: string; kind: Kind; family: Family | null; rarity: Rarity; bands: BandId[]; peak: BandId | null; places: Place[]; time: TimeIcon | null;
+  /** (a window narrower than its band: the guano's hour) the hours it is out, Thai time */
+  hours?: Array<[number, number]>;
   /** Where on its map: the haunt's kind (an insect), the habitat (a fish), the words (a find). */
   where: string; how: [string, string] | null; bait: string | null }
 export const WINDOWS: readonly Window[] = [
   ...NEW_INSECTS.map((r): Window => ({ id: r.id, kind: "insect", family: r.family, rarity: r.rarity, bands: r.bands, peak: r.bands.length > 1 ? r.bands[0] : null, places: [r.place], time: r.time, where: r.at, how: r.hint, bait: null })),
   ...NEW_FISH_ROWS.map((r): Window => ({ id: r.id, kind: "fish", family: r.family, rarity: r.rarity, bands: r.bands, peak: r.bands.length > 1 ? r.bands[0] : null, places: HABITAT_MAPS[r.habitat], time: null, where: r.habitat, how: null, bait: r.bait })),
-  ...Object.entries(FINDS).map(([id, f]): Window => ({ id, kind: "find", family: null, rarity: f.rarity, bands: [...f.bands], peak: null, places: [f.place], time: null, where: f.where[1], how: f.where, bait: null })),
+  ...Object.entries(FINDS).map(([id, f]): Window => ({ id, kind: "find", family: null, rarity: f.rarity, bands: [...f.bands], peak: null, places: [f.place], time: null, where: f.where[1], how: f.where, bait: null,
+    ...(id === GUANO.item ? { hours: GUANO.hours } : {}) })),
 ];
-/** What is out now on a map, in a band: every newcomer whose window and place hold. */
-export const outNow = (place: Place, band: BandId): Window[] => WINDOWS.filter((w) => w.places.includes(place) && w.bands.includes(band));
+/** What is out now on a map, in a band (and, given the hour, 0–24, Thai time, within a window narrower than its band): every newcomer whose window and place hold. */
+export const outNow = (place: Place, band: BandId, hour?: number): Window[] =>
+  WINDOWS.filter((w) => w.places.includes(place) && w.bands.includes(band) && (hour === undefined || !w.hours || inHours(w.hours, hour)));

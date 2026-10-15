@@ -228,6 +228,9 @@ describe("what is out now", () => {
     expect(forestBeforeDawn).not.toContain("masonBee");
     expect(outNow("town", "lateMorning").map((w) => w.id)).toEqual(expect.arrayContaining(["masonBee", "zebrafish"]));
     expect(outNow("cave", "evening").map((w) => w.id)).toEqual(["batGuano"]);
+    // (the guano only in its hour of the evening, as it falls)
+    expect(outNow("cave", "evening", 17.5)).toEqual([]);
+    expect(outNow("cave", "evening", 18.5).map((w) => w.id)).toEqual(["batGuano"]);
     expect(outNow("mountain", "earlyMorning").map((w) => w.id)).toEqual(expect.arrayContaining(["morningDew", "lenok"]));
     for (const b of BANDS) expect(BANDS.some((x) => outNow("forest", x.id).length > 0)).toBe(true);
   });

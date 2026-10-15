@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Keeper } from "@/lib/town/keeper";
 import { BANDS, bandAt, bandOf, type BandId } from "@/lib/town/bands";
+import { bangkokMinute } from "@/lib/town/daylight";
 import { FAMILIES, NEW_FISH_ROWS, NEW_INSECTS, outNow, type Rarity, type TimeIcon, type Window } from "@/lib/town/band-species";
 import type { HauntKind } from "@/lib/town/insects";
 import { ITEMS, type FishId, type ItemId } from "@/lib/town/items";
@@ -29,10 +30,14 @@ const span = (b: { from: number; to: number }) => `${String(b.from % 24).padStar
  */
 export default function TownOutNow({ keeper, th, place, hour, onClose }: { keeper: Keeper; th: boolean; place: Place; hour: number | null; onClose: () => void }) {
   const lang = th ? 0 : 1;
-  const band = hour !== null ? bandAt(hour * 60) : bandOf(new Date());
+  // (it follows the clock while open, as TownClock does, and the keeper: what is caught is named at once)
+  const [tick, setTick] = useState(0);
+  useEffect(() => { const t = setInterval(() => setTick((n) => n + 1), 15_000); const off = keeper.watch(() => setTick((n) => n + 1)); return () => { clearInterval(t); off(); }; }, [keeper]);
+  const minute = hour !== null ? hour * 60 : bangkokMinute(new Date());
+  const band = hour !== null ? bandAt(minute) : bandOf(new Date()), h = (((minute % 1440) + 1440) % 1440) / 60;
   const book = keeper.bugBook(), best = keeper.purse().best;
   const entries = useMemo((): NotebookEntry[] => {
-    const here = outNow(place, band.id).sort((a, b) => (a.kind === b.kind ? ORDER[a.rarity] - ORDER[b.rarity] : 0));
+    const here = outNow(place, band.id, h).sort((a, b) => (a.kind === b.kind ? ORDER[a.rarity] - ORDER[b.rarity] : 0));
     const found = (w: Window) => (w.kind === "insect" ? book[w.id] !== undefined : w.kind === "fish" ? best[w.id as FishId] !== undefined : true);
     const out = here.map((w): NotebookEntry => {
       const known = found(w), name = ITEMS[w.id as ItemId].name[th ? "th" : "en"], fam = w.family ? FAMILIES[w.family] : null;
@@ -46,7 +51,8 @@ export default function TownOutNow({ keeper, th, place, hour, onClose }: { keepe
         body: <div data-out-now={w.id}>
           {insect && <p className="flex items-center gap-2"><TownIcon name={TIME[insect.time][0]} size={18}/>{TIME[insect.time][th ? 1 : 2]}</p>}
           <p><small>{th ? "ที่" : "Where"}</small><br/>{where}</p>
-          <p><small>{th ? "ช่วงเวลา" : "When"}</small><br/>{w.bands.map((b) => `${bandName(b, th)} ${span(BANDS.find((x) => x.id === b)!)}`).join(" · ")}
+          <p><small>{th ? "ช่วงเวลา" : "When"}</small><br/>{w.hours ? `${bandName(w.bands[0], th)} ${w.hours.map((r) => span({ from: r[0], to: r[1] })).join(" · ")}`
+            : w.bands.map((b) => `${bandName(b, th)} ${span(BANDS.find((x) => x.id === b)!)}`).join(" · ")}
             {w.peak && <><br/>{th ? `ออกมากที่สุดช่วง${bandName(w.peak, th)}` : `Most out in the ${bandName(w.peak, th).toLowerCase()}`}</>}</p>
           {insect && <p><small>{th ? "วิธีจับ" : "How to catch it"}</small><br/>{insect.hint[lang]}</p>}
           {fish && <p><small>{th ? "เหยื่อ" : "Bait"}</small><br/><span className="flex flex-wrap items-center gap-2">{baits.map((b) => <span key={b} className="flex items-center gap-1"><TownIcon name={b as IconName} size={20}/>{ITEMS[b].name[th ? "th" : "en"]}</span>)}</span></p>}
@@ -57,7 +63,7 @@ export default function TownOutNow({ keeper, th, place, hour, onClose }: { keepe
       };
     });
     // the other maps, in a line each: how many are out there now (the same band)
-    const elsewhere = (["town", "farm", "forest", "mountain", "cave"] as Place[]).filter((p) => p !== place).map((p) => [p, outNow(p, band.id)] as const).filter(([, ws]) => ws.length);
+    const elsewhere = (["town", "farm", "forest", "mountain", "cave"] as Place[]).filter((p) => p !== place).map((p) => [p, outNow(p, band.id, h)] as const).filter(([, ws]) => ws.length);
     if (elsewhere.length || !out.length) out.push({
       key: "elsewhere", icon: "walk", title: th ? "ที่อื่นตอนนี้" : "Elsewhere now",
       body: <div data-out-elsewhere>
@@ -67,7 +73,7 @@ export default function TownOutNow({ keeper, th, place, hour, onClose }: { keepe
       </div>,
     });
     return out;
-  }, [place, band.id, book, best, th, lang]);
+  }, [place, band.id, h, book, best, th, lang, tick]);
   return <TownNotebook cover={false} initiallyOpen onClose={onClose} icon="bugNet" th={th} entries={entries}
     title={`${th ? "ออกตอนนี้" : "Out now"} · ${th ? band.th : band.en} · ${MAP[place][lang]}`}/>;
 }
