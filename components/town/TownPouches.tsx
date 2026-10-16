@@ -3,14 +3,18 @@
 import { useState } from "react";
 import { giftOf } from "@/lib/town/gifts";
 import { ITEMS, iconOf } from "@/lib/town/items";
+import { GRADES } from "@/lib/town/quality";
 import type { Keeper } from "@/lib/town/keeper";
 import { pouchesOf } from "@/lib/town/pouches";
 import TownIcon, { type IconName } from "./TownIcon";
+import { GradeBadge } from "./TownTrade";
 
 /**
  * The pouches somebody has, in the bag's panel: each a row of its own under the bag's pockets (lib/town/pouches: slots
  * beyond the bag's that hold only some things). A tap on what is in a slot takes it out into the bag; the button at a
- * row's end puts away what the bag has that the pouch takes. Nothing at all, for whoever has no pouch.
+ * row's end puts away what the bag has that the pouch takes. Nothing at all, for whoever has no pouch. (Graded produce
+ * keeps its grade in the farm's pouch: its stars are in a corner of its slot, as in the bag's; a row has as many slots
+ * as its pouch, six for the farm's.)
  */
 export default function TownPouches({ keeper, th }: { keeper: Keeper; th: boolean }) {
   const [busy, setBusy] = useState(false), [said, setSaid] = useState<string | null>(null);
@@ -37,16 +41,17 @@ export default function TownPouches({ keeper, th }: { keeper: Keeper; th: boolea
                       onClick={() => run(async () => { let any = false, why: string | undefined; for (const { i } of [...fits].reverse()) { const did = await keeper.pouchIn(i); if (did.ok) any = true; else why = did.why; } return { ok: any, why }; })}
                       className="pressable ml-auto min-h-8 rounded-md border border-[#6b4a2a] bg-[#33251a] px-2.5 text-label text-[#f3e3c3] disabled:opacity-40">{th ? "เก็บจากกระเป๋า" : "Put away"}</button>
             </div>
-            <ul className="grid grid-cols-5 gap-1.5">
+            <ul className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${slots.length},minmax(0,1fr))` }}>
               {slots.map((s, i) => {
                 const look = `relative grid h-11 w-full place-items-center rounded-xl border-2 ${s ? "border-[#7a6a4a] bg-[#2f2a22] shadow-[inset_0_-3px_0_rgba(0,0,0,0.35)] hover:border-[#c9a877]" : "border-dashed border-[#4a4334] bg-[#211d17] shadow-[inset_0_3px_6px_rgba(0,0,0,0.5)]"}`;
                 if (!s) return <li key={i} className={look} data-pouch-slot={i}><span className="sr-only">{th ? "ช่องว่าง" : "Empty slot"}</span></li>;
-                const name = th ? ITEMS[s.item].name.th : ITEMS[s.item].name.en;
+                const name = th ? ITEMS[s.item].name.th : ITEMS[s.item].name.en, grade = s.grade ? ` ${th ? GRADES[s.grade].th : GRADES[s.grade].en}` : "";
                 return (
                   <li key={i}>
-                    <button type="button" disabled={busy} onClick={() => run(() => keeper.pouchOut(pouch.gift, i))} data-pouch-slot={i} data-item={s.item} data-n={s.n}
-                            aria-label={`${name} ×${s.n}`} title={name} className={`pressable ${look}`}>
+                    <button type="button" disabled={busy} onClick={() => run(() => keeper.pouchOut(pouch.gift, i))} data-pouch-slot={i} data-item={s.item} data-n={s.n} data-grade={s.grade ?? 0}
+                            aria-label={`${name}${grade} ×${s.n}`} title={`${name}${grade}`} className={`pressable ${look}`}>
                       <TownIcon name={iconOf(s.item) as IconName} size={26} />
+                      <GradeBadge grade={s.grade} th={th} />
                       <span className="absolute bottom-0 right-1 font-data text-meta font-semibold tabular-nums text-[#f3e3c3] [text-shadow:0_1px_2px_#000,0_0_2px_#000]">{s.n}</span>
                     </button>
                   </li>

@@ -48,18 +48,18 @@ describe("things dropped on the ground (the owner: \"ทิ้งของที
   });
 
   it("is picked up by anybody who stands by it, all of it at once", () => {
-    const thing = done(drop(purseWith(10, ["kangkong", 12]), 0, "me", HERE, NOW, 1)).dropped;
-    const other = purseWith(10, ["kangkong", 15], ["rod", 1]);
+    const thing = done(drop(purseWith(10, ["rice", 12]), 0, "me", HERE, NOW, 1)).dropped;
+    const other = purseWith(10, ["rice", 15], ["rod", 1]);
     for (const at of [[30, 40], [31, 41], [29, 40], [30, 39], [31, 39]] as Array<[number, number]>) expect(reaches(thing, at)).toBe(true);
     for (const at of [[32, 40], [30, 42], [28, 38], [0, 0]] as Array<[number, number]>) {
       expect(reaches(thing, at)).toBe(false);
       expect(pickUp(other, thing, at, NOW + 1000)).toEqual({ ok: false, why: "far" });
     }
     const did = done(pickUp(other, thing, [31, 41], NOW + 1000));
-    expect(did.item).toBe("kangkong");
+    expect(did.item).toBe("rice");
     expect(did.n).toBe(12);
     // onto their own stack first, then into an empty slot
-    expect(did.purse.bag.slice(0, 3)).toEqual([{ item: "kangkong", n: 20 }, { item: "rod", n: 1 }, { item: "kangkong", n: 7 }]);
+    expect(did.purse.bag.slice(0, 3)).toEqual([{ item: "rice", n: 20 }, { item: "rod", n: 1 }, { item: "rice", n: 7 }]);
     expect({ ...did.purse, bag: null }).toEqual({ ...other, bag: null });
   });
 
@@ -87,11 +87,11 @@ describe("things dropped on the ground (the owner: \"ทิ้งของที
   });
 
   it("stays on the ground when the bag has no room for all of it", () => {
-    const thing: Dropped = { id: 1, by: "me", stack: { item: "kangkong", n: 12 }, at: HERE, until: NOW + 10_000 };
+    const thing: Dropped = { id: 1, by: "me", stack: { item: "rice", n: 12 }, at: HERE, until: NOW + 10_000 };
     const tools: ItemId[] = ["rod", "hoe", "can", "pot"];
-    const full: Purse = { ...newPurse(), bag: [...tools.map((item): Stack => ({ item, n: 1 })), { item: "kangkong", n: ITEMS.kangkong.stack - 11 }] };
+    const full: Purse = { ...newPurse(), bag: [...tools.map((item): Stack => ({ item, n: 1 })), { item: "rice", n: ITEMS.rice.stack - 11 }] };
     expect(pickUp(full, thing, HERE, NOW)).toEqual({ ok: false, why: "full" });
-    expect(done(pickUp({ ...full, bag: [...full.bag.slice(0, 4), { item: "kangkong", n: ITEMS.kangkong.stack - 12 }] }, thing, HERE, NOW)).purse.bag[4]).toEqual({ item: "kangkong", n: 20 });
+    expect(done(pickUp({ ...full, bag: [...full.bag.slice(0, 4), { item: "rice", n: ITEMS.rice.stack - 12 }] }, thing, HERE, NOW)).purse.bag[4]).toEqual({ item: "rice", n: 20 });
     // a thing that holds something wants a slot of its own
     const can: Dropped = { ...thing, stack: { item: "can", n: 1, water: 2 } };
     expect(pickUp(full, can, HERE, NOW)).toEqual({ ok: false, why: "full" });

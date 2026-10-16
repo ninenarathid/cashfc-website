@@ -2,7 +2,8 @@ import { carriedBag } from "./passive-equipment";
 import { GARDEN_CROPS, type GardenCropId } from "./garden-items";
 import { CROPS, type CropId, type ItemId } from "./items";
 import { WILD, atTop, see, tend, type Bed, type FarmSky, type Plot } from "./farm";
-import { held, handOf, no, put, roomFor, type Purse } from "./trade";
+import { held, handOf, no, type Purse } from "./trade";
+import { roomIn, stow, stowAll } from "./pouches";
 import { hasBuff } from "./stamina";
 import { bedOf } from "./world";
 import { HELPER_CROSSES, HELPER_SHAPES } from "./helper-items";
@@ -102,10 +103,13 @@ export function gardenHarvest<T extends { purse: Purse; plot: Plot; got: Array<[
   // (the twine's fruit is of the plant's own crop: rolled for its Quality as the fruits after the pick's, lib/town/quality-plant;
   // at the top of its range, of my own plant with the mandrake at heel, lib/town/farm's atTop)
   const twine = plant.root && fx.extra ? harvestOf(key, plant, GARDEN.extra, now, sky, QUALITY.launch, "", did.got[0]?.[1] ?? 0, atTop(before, plant, me)) : null;
-  for (const [g, c] of twine?.groups ?? []) { if (roomFor(after.bag, plant.crop, g) < c) return no("full"); after = { ...after, bag: put(after.bag, plant.crop, c, g) }; }
+  // (into the farm's pouch first, then the bag, with its grade: lib/town/pouches' stow; and so the seeds, below)
+  for (const [g, c] of twine?.groups ?? []) { if (roomIn(after, plant.crop, g) < c) return no("full"); after = stow(after, plant.crop, c, g); }
   if (!updated.plant && plant.root && fx.seed) extras.push([CROPS[plant.crop].seed, 1]);
   if (child) extras.push([CROPS[child].seed, fx.knife || plant.insectCrossRound===plant.picked ? 2 : 1]);
-  for (const [id, n] of extras) { if (roomFor(after.bag, id) < n) return no("full"); after = { ...after, bag: put(after.bag, id, n) }; }
+  const stowed = stowAll(after, extras);
+  if (!stowed) return no("full");
+  after = stowed;
   if (child) {
     after = { ...after, gardenBook: [...new Set([...(after.gardenBook ?? []), child])] };
     if (updated.plant) updated = { ...updated, plant: { ...updated.plant, crossed: true } };

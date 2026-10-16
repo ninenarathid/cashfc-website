@@ -72,7 +72,7 @@ import { insectPose, type HouseFlight, type InsectPose } from "./houseInsects";
 import { FERTS, isFert } from "@/lib/town/fertilisers";
 import { fertGain, qualityNow } from "@/lib/town/quality-plant";
 import { COMPANIONS } from "@/lib/town/quality";
-import { held as countIn } from "@/lib/town/trade";
+import { heldIn } from "@/lib/town/pouches";
 import { GRADES } from "@/lib/town/quality";
 import TownInsectRelease, { bagVisitor } from "./TownInsectRelease";
 import { insectCareMode } from "@/lib/town/insect-garden";
@@ -906,11 +906,12 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     // the mandrake that follows me sang as I picked my own plant: every fruit at the top of its range (lib/town/farm's atTop);
     // (a plant it sang to before its song was changed still bears its once more, and says nothing new here)
     const sang = did.deed === "pick" && atTop(mine, stood.plant, keeper.id);
-    // (the farm's Quality: the plant's range as it stood, and the grades the pick gave, read from the bag before and after)
+    // (the farm's Quality: the plant's range as it stood, and the grades the pick gave, read from the bag and the farm's
+    // pouch before and after: lib/town/pouches' heldIn)
     const grades = did.deed === "pick" && stood.plant ? (() => {
-      const crop = stood.plant!.crop, after = keeper.purse().bag, range = qualityNow(stood.plant!, began, keeper.rains()).range;
+      const crop = stood.plant!.crop, after = keeper.purse(), range = qualityNow(stood.plant!, began, keeper.rains()).range;
       if (range.hi <= 0) return "";
-      const got = ([3, 2, 1, 0] as const).map((g) => [g, countIn(after, crop, g) - countIn(mine.bag, crop, g)] as const).filter(([, n]) => n > 0);
+      const got = ([3, 2, 1, 0] as const).map((g) => [g, heldIn(after, crop, g) - heldIn(mine, crop, g)] as const).filter(([, n]) => n > 0);
       return ` · ${th ? "ช่วง" : "range"} ${range.lo}–${range.hi}: ${got.map(([g, n]) => `${th ? GRADES[g].th : GRADES[g].en} ×${n}`).join(" · ")}`;
     })() : "";
     setNote(did.got.length ? `${did.got.map(([id, n]) => `${nameOf(id)} ×${n}`).join(" · ")}${grades}${sang ? (th ? " · แมนเดรกร้องเพลง ทุกลูกได้ค่าสูงสุดของช่วง" : " · the mandrake sang: every fruit at the top of the range") : ""}`

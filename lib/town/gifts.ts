@@ -132,8 +132,10 @@ export const GIFTS: readonly Gift[] = [
   { id: "charmCloak", kind: "charm", line: "insects", rank: 6, by: 3, name: { th: "ผ้าคลุมปีกผีเสื้อ", en: "Butterfly-wing cloak" },
     does: { th: "จับได้ทีละคู่: แมลงที่จับได้มีอีกตัวตามมา ต้องสวิงให้ทันใน 3 วินาที และแมลงหายากเฉพาะวันออกมาให้เราเห็นทุกวัน", en: "A pair at a time: an insect caught has another following, to be netted within three seconds; and the rare insects of a day show for you every day" } },
   // the farm
+  // (and since 2026-10-16 a pouch of the farm's own, lib/town/pouches: the owner, "ช่วยทำให้ เครื่องรางบางชิ้นในสาย ปลูกพืช มี
+  // กระเป๋าเก็บของสำหรับสายนี้โดยเฉพาะ สำหรับ เก็บพืช เมล็ด ได้ ให้slot มากกว่าสายอื่นเล็กน้อย")
   { id: "thingPouch", kind: "thing", line: "farming", rank: 3, by: 5, name: { th: "ถุงเมล็ดร่ายมนตร์", en: "Spellbound seed pouch" },
-    does: { th: "หว่านทั้งแถว 7 ช่องในครั้งเดียว ใช้เมล็ดแค่ 5 เมล็ด", en: "Sows a row's seven plots at once, for five seeds" } },
+    does: { th: "หว่านทั้งแถว 7 ช่องในครั้งเดียว ใช้เมล็ดแค่ 5 เมล็ด และเป็นกระเป๋าแยก 6 ช่องสำหรับผักผลไม้และเมล็ด ไม่กินช่องกระเป๋าหลัก ของที่เก็บเกี่ยวได้เข้าที่นี่ก่อน เกรดไม่หาย เมล็ดในนี้หว่านได้เลย ย้ายออกมาทำอาหารหรือแลกได้", en: "Sows a row's seven plots at once, for five seeds; and is a pouch of six slots for produce and seeds, in no slot of the bag: what you harvest goes in first, keeping its grade, and seeds in it are sown from it. Move things to the bag to cook or trade" } },
   { id: "charmSickle", kind: "charm", line: "farming", rank: 4, by: 1, name: { th: "เคียวจันทร์เสี้ยว", en: "Crescent sickle" },
     does: { th: "เก็บผักที่สุกทั้งแถวในครั้งเดียวด้วยเกมตวัดเคียว ได้ผลเพิ่มต้นละ 1 ต้นไหนตวัดพลาดต้นนั้นไม่ได้เพิ่ม (เฉพาะแปลงของเรา)", en: "Picks a whole ripe row at once by a game of the sickle, one more a plant; a plant swung at badly gives no more (your own beds)" } },
   { id: "thingHourglass", kind: "thing", line: "farming", rank: 5, by: 3, name: { th: "นาฬิกาทรายแห่งฤดู", en: "Hourglass of seasons" },

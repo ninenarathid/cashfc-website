@@ -1045,6 +1045,13 @@ export const CROPS: Record<CropId, Crop> = {
   watermelon: { seed: "seedWatermelon", hours: 144, yield: [2, 2] },
 };
 export const CROP_IDS = Object.keys(CROPS) as CropId[];
+/**
+ * Everything the farm grows stacks so many times as high as it was written above (the owner, 2026-10-16: "เพิ่ม stack
+ * ต่อ slot ให้กับพืชด้วย มีคนบอกว่าตอนนี้น้อยไป และเปลืองช่อง"): 10, 20 or 40 to a slot where it was 5, 10 or 20, the three
+ * helper plants that are wild things too (mint, chamomile, lavender) among them. Seeds are as they were.
+ */
+export const CROP_STACK = 2;
+for (const id of CROP_IDS) (ITEMS[id] as Item).stack *= CROP_STACK;
 export const STAGES = 5;
 /**
  * How far through its hours a plant is when each stage begins: what was sown

@@ -579,7 +579,9 @@ export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Ar
   // (the garden's hybrids and the fig on one plot: their shapes, their yields a picking, the fig's ring, their points)
   v269: { keys: [], over: ["gardening", "crops", "quality", "work"] },
   // (the farming line's first and sixth ranks, 2026-10-16: the enchanted hoe's ten moves a day counted, the mandrake's songs no longer)
-  v273: { keys: [], over: ["gifts"] } };
+  v273: { keys: [], over: ["gifts"] },
+  // (the farm's pouch and its produce stacked twice as high, 2026-10-16: every thing's stack, and the pouches)
+  v274: { keys: [], over: ["items", "pouches"] } };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

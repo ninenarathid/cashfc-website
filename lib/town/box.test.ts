@@ -143,19 +143,19 @@ describe("the storage box in the plaza (the owner: \"กล่องเก็บ
   });
 
   it("takes a part of a stack, and stacks what is put away onto its own kind", () => {
-    const purse = purseWith(10, ["kangkong", 20], ["kangkong", 15]);
-    expect(ITEMS.kangkong.stack).toBe(20);
+    const purse = purseWith(10, ["rice", 20], ["rice", 15]);
+    expect(ITEMS.rice.stack).toBe(20);
     let did = done(stow(purse, newBox(), 1, 5, BY));
-    expect(did.purse.bag[1]).toEqual({ item: "kangkong", n: 10 });
-    expect(did.box.things[0]).toEqual({ item: "kangkong", n: 5 });
+    expect(did.purse.bag[1]).toEqual({ item: "rice", n: 10 });
+    expect(did.box.things[0]).toEqual({ item: "rice", n: 5 });
     // a whole stack onto those five: fifteen fill the slot, the other five begin the next
     did = done(stow(did.purse, did.box, 0, 20, BY));
-    expect(did.box.things.slice(0, 3)).toEqual([{ item: "kangkong", n: 20 }, { item: "kangkong", n: 5 }, null]);
-    expect(count(did.purse.bag, "kangkong") + count(did.box.things, "kangkong")).toBe(35);
+    expect(did.box.things.slice(0, 3)).toEqual([{ item: "rice", n: 20 }, { item: "rice", n: 5 }, null]);
+    expect(count(did.purse.bag, "rice") + count(did.box.things, "rice")).toBe(35);
     // and a part taken out again goes onto the bag's own stack
     const out = done(unstow(did.purse, did.box, 0, 7, BY));
-    expect(out.box.things[0]).toEqual({ item: "kangkong", n: 13 });
-    expect(count(out.purse.bag, "kangkong")).toBe(17);
+    expect(out.box.things[0]).toEqual({ item: "rice", n: 13 });
+    expect(count(out.purse.bag, "rice")).toBe(17);
   });
 
   it("keeps a thing that holds something as it is: a pot with its food, a can with its water", () => {
@@ -197,18 +197,18 @@ describe("the storage box in the plaza (the owner: \"กล่องเก็บ
   });
 
   it("is packed when it has no room, and says how many of a thing still fit", () => {
-    // ten slots, nine of them taken by things that do not stack, and one by seventeen of a thing that stacks to twenty
+    // ten slots, nine of them taken by things that do not stack, and one by seventeen of a thing that stacks to twenty (rice: the farm's produce stacks to forty since 2026-10-16)
     const tools: ItemId[] = ["rod", "hoe", "can", "pot", "pan", "grill", "bucket", "bugNet", "bowl"];
-    const box: Box = { more: 0, things: [...tools.map((item): Stack => ({ item, n: 1 })), { item: "kangkong", n: 17 }] };
-    const purse = purseWith(10, ["kangkong", 8], ["minnow", 2], ["apron", 1]);
+    const box: Box = { more: 0, things: [...tools.map((item): Stack => ({ item, n: 1 })), { item: "rice", n: 17 }] };
+    const purse = purseWith(10, ["rice", 8], ["minnow", 2], ["apron", 1]);
     expect(fits(box.things, purse.bag[0]!)).toBe(3);
     expect(fits(box.things, purse.bag[1]!)).toBe(0);
     expect(stow(purse, box, 0, 8, BY)).toEqual({ ok: false, why: "packed" });
     expect(stow(purse, box, 1, 1, BY)).toEqual({ ok: false, why: "packed" });
     expect(stow(purse, box, 2, 1, BY)).toEqual({ ok: false, why: "packed" });
     const did = done(stow(purse, box, 0, 3, BY));
-    expect(did.box.things[9]).toEqual({ item: "kangkong", n: 20 });
-    expect(did.purse.bag[0]).toEqual({ item: "kangkong", n: 5 });
+    expect(did.box.things[9]).toEqual({ item: "rice", n: 20 });
+    expect(did.purse.bag[0]).toEqual({ item: "rice", n: 5 });
     // a thing that holds something wants a slot of its own
     expect(fits([null, { item: "can", n: 1 }], { item: "can", n: 1, water: 3 })).toBe(1);
     expect(fits([{ item: "can", n: 1 }], { item: "can", n: 1, water: 3 })).toBe(0);

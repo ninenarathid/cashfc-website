@@ -315,7 +315,9 @@ describe("the crescent sickle: a whole ripe row picked at one sweep", () => {
       const d: { purse: Purse; bed: Bed | undefined; plot: Plot } = done(tend(key, state[key], bed, KEYS.filter((k) => k !== key && state[k].plant).length, 0, p, "me", NOON));
       p = d.purse; bed = d.bed; state[key] = d.plot;
     }
-    expect(did.purse).toEqual(p);
+    // (but for what the row's garden harvest learns of minerals by stowing its seeds, lib/town/pouches' stowAll: nothing here)
+    expect({ ...did.purse, professionRewards: undefined }).toEqual({ ...p, professionRewards: undefined });
+    expect(did.purse.professionRewards).toEqual({ minerals: [] });
     expect(did.bed).toEqual(bed);
     expect(did.got).toEqual([["pumpkin", 14]]);
   });

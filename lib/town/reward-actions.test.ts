@@ -56,7 +56,7 @@ describe("earned profession rewards",()=>{
     const d=endExtraction(b.purse,request,[0,0,0],[10,10],now+3000);expect(d.ok).toBe(true);if(d.ok){expect(d.got).toEqual([]);expect(d.left).toBe(4);}
   });
   it("supports the new small materials in old pouches with unchanged capacities",()=>{
-    expect(POUCHES.map(p=>[p.gift,p.slots])).toEqual([["thingCreel",5],["thingSack",5],["thingBundle",3]]);
+    expect(POUCHES.map(p=>[p.gift,p.slots])).toEqual([["thingCreel",5],["thingSack",5],["thingBundle",3],["thingPouch",6]]);
     const p={...player(),gifts:{...player().gifts!,had:[...player().gifts!.had,"thingBundle" as const]}};
     const q=stowAll(p,[["pineBark",2]])!;expect(q.bag.every(s=>s===null)).toBe(true);expect(q.pouches?.thingBundle?.[0]).toEqual({item:"pineBark",n:2});
   });

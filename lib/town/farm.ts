@@ -18,6 +18,7 @@ import { DRY, rainingAt, wetMs, type Rain } from "./weather";
 import { HAND, bedGift, harvestOf, roundStart, settled } from "./quality-plant";
 import { NO_Q, QUALITY } from "./quality";
 import { bedOf } from "./world";
+import { heldIn, roomIn, stow, useUp } from "./pouches";
 import { BANGKOK, DAY, HOUR, forged, handOf, handSlot, held, heldStack, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
 
 /**
@@ -469,7 +470,8 @@ export function sow(purse: Purse, plot: Plot, hand: ItemId | null, me: string, n
     ok: true,
     // (under the fountain's warm soil a seed is some of its way to ripe at once: lib/town/fountain)
     plot: { soil: "tilled", plant: { by: me, crop, sown: now, boost: (hasBuff(purse, now, "sprout") ? BLESSINGS.sprout.by * CROPS[crop].hours * 3_600_000 : 0) + damp, watered: plot.damp ? now : 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0, ...(plot.damp ? { moist: true } : {}) } },
-    purse: { ...spend(purse, FARMING.costs.sow, now), bag: take(purse.bag, hand!, 1) },
+    // (the seed is taken from the farm's pouch first, then the bag, whose is the one in the hand: lib/town/pouches' useUp)
+    purse: useUp(spend(purse, FARMING.costs.sow, now), hand!, 1),
   };
 }
 
@@ -648,16 +650,17 @@ export function pick(key: string, purse: Purse, plot: Plot, may: boolean, hand: 
   if (!may) return not("theirs");
   if (!seen.ripe) return not("unripe");
   const n = yieldOf(key, p, hasInHand(purse, hand) ? hand : null);
-  // (each fruit's Quality, lib/town/quality-plant: the bag must hold every grade the pick gives, before anything is done)
+  // (each fruit's Quality, lib/town/quality-plant: the farm's pouch and the bag must hold every grade the pick gives,
+  // before anything is done; the pouch takes what it can first, lib/town/pouches' stow)
   const fruits = harvestOf(key, p, n, now, rains, QUALITY.launch, "", 0, atTop(purse, p, me));
-  let room = purse.bag;
-  for (const [g, c] of fruits.groups) { if (roomFor(room, p.crop, g) < c) return no("full"); room = put(room, p.crop, c, g); }
+  let room: Purse = purse;
+  for (const [g, c] of fruits.groups) { if (roomIn(room, p.crop, g) < c) return no("full"); room = stow(room, p.crop, c, g); }
   // (a plant the mandrake sang to, before its song was changed, has its bearing more still: `moreOf`)
   const picked = p.picked + 1, spent = picked >= (CROPS[p.crop].picks ?? 1) + moreOf(p);
   return {
     ok: true, got: [[p.crop, n]], fruits: { range: fruits.range, values: fruits.values },
     plot: spent ? { soil: "cleared", plant: null } : { ...plot, plant: { ...p, picked, pickedAt: now, watered: 0 } },
-    purse: { ...spend(purse, FARMING.costs.pick, now), bag: fruits.groups.reduce((b, [g, c]) => put(b, p.crop, c, g), purse.bag) },
+    purse: spend(room, FARMING.costs.pick, now),
   };
 }
 
@@ -898,7 +901,7 @@ export function rowFor(at: string, keys: readonly string[], plots: Readonly<Reco
   if (!hoes && !sows && !reaps) return null;
   const x0 = xOf(at), all = keys.filter((key) => want(key) === deed).sort((a, b) => Math.abs(xOf(a) - x0) - Math.abs(xOf(b) - x0) || xOf(a) - xOf(b));
   // (the pouch sows as many plots as the seeds in the bag reach, the nearest first)
-  const row = sows ? all.slice(0, pouchPlots(held(purse.bag, hand!), keys.length)) : all;
+  const row = sows ? all.slice(0, pouchPlots(heldIn(purse, hand!), keys.length)) : all;
   return row.length > 1 ? { deed: deed as RowDeed, plots: row } : null;
 }
 /**
@@ -1085,20 +1088,22 @@ export function rowTend(at: string, keys: readonly string[], plots: Readonly<Rec
     const plot = state[key] ?? plots[key] ?? WILD, base = tend(key, plot, keeping, planted({ ...plots, ...state }, key) - ((plot.plant?.footprint?.length ?? 1) - 1), holds, mine, me, now, rains);
     const did = base.ok && reaps ? gardenHarvest(key, { ...plots, ...state }, mine, base, me, now, rains) : base;
     if (!did.ok || did.deed !== found.deed) { if (!each.length && !did.ok) return did; break; }
+    const was = mine;
     mine = did.purse; keeping = did.bed; state[key] = did.plot;
     for (const cell of plot.plant?.footprint ?? []) state[cell] = did.plot;
-    // (a seed spared is back in the bag as soon as it was taken: there is room for it where it lay)
-    if (sows && each.length < spared) mine = { ...mine, bag: put(mine.bag, hand!, 1) };
+    // (a seed spared is back where it was taken from as soon as it was taken: the bag, or the farm's pouch, which is
+    // sown from first; there is room for it where it lay)
+    if (sows && each.length < spared) mine = held(mine.bag, hand!) < held(was.bag, hand!) ? { ...mine, bag: put(mine.bag, hand!, 1) } : stow(mine, hand!, 1);
     if (!reaps) { each.push({ key, crop: plot.plant?.crop ?? did.plot.plant?.crop ?? null, n: 1 }); continue; }
-    // (a plant cut well: the sickle's one more, where the bag has room for it)
+    // (a plant cut well: the sickle's one more, where the farm's pouch or the bag has room for it)
     // (its fruits are rolled for their Quality as the fruits after the pick's and the twine's, lib/town/quality-plant)
     const crop = plot.plant!.crop, well = marks[key] === true, from = did.got.filter(([id]) => id === crop).reduce((t, [, m]) => t + m, 0);
     // (and at the top of the range, of my own plant with the mandrake at heel: `atTop`)
     const sickle = well ? harvestOf(key, plot.plant!, numberOf("charmSickle"), now, rains, QUALITY.launch, "", from, atTop(purse, plot.plant, me)) : null;
-    let cut: Purse["bag"] | null = sickle ? mine.bag : null;
-    for (const [g, c] of sickle?.groups ?? []) cut = cut && roomFor(cut, crop, g) >= c ? put(cut, crop, c, g) : null;
+    let cut: Purse | null = sickle ? mine : null;
+    for (const [g, c] of sickle?.groups ?? []) cut = cut && roomIn(cut, crop, g) >= c ? stow(cut, crop, c, g) : null;
     const more = cut ? numberOf("charmSickle") : 0;
-    if (cut) mine = { ...mine, bag: cut };
+    if (cut) mine = cut;
     const n = (did.got[0]?.[1] ?? 0) + more;
     each.push({ key, crop, n, well });
     got.set(crop, (got.get(crop) ?? 0) + n);
