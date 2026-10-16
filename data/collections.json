@@ -181,7 +181,7 @@
     "name": "Uolon",
     "pct": 0.5,
     "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004335_hr1.tex",
-    "patch": "7.4",
+    "patch": "7.56",
     "source": "Event"
    },
    "420": {
@@ -615,7 +615,7 @@
    },
    "559": {
     "name": "Oglop",
-    "pct": 1.4,
+    "pct": 1.5,
     "icon": "https://v2.xivapi.com/api/asset?format=webp&path=ui%2Ficon%2F004000%2F004962_hr1.tex",
     "patch": "7.55",
     "source": "Quest"
@@ -1424,9 +1424,14 @@
    ]
   },
   "44133352": {
+   "mounts": [
+    414,
+    434
+   ],
    "minions": [
     163,
     164,
+    559,
     591,
     165,
     568,
@@ -1714,8 +1719,8 @@
     437
    ],
    "minions": [
-    559,
     251,
+    559,
     593,
     568,
     552,

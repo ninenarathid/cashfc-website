@@ -2,6 +2,55 @@
  "events": [
   {
    "date": "2026-10-15",
+   "type": "rare_up",
+   "id": 29152036,
+   "name": "Fluffy Tinytail",
+   "text": "earned Phantom of the Umbra: War Scythe Umbrae"
+  },
+  {
+   "date": "2026-10-15",
+   "type": "rare_up",
+   "id": 44133352,
+   "name": "Seville Beoulve",
+   "text": "earned Crucible Checkmate III — only 2.3% of players have it"
+  },
+  {
+   "date": "2026-10-15",
+   "type": "parse_up",
+   "id": 34874723,
+   "name": "Allen Fliegen",
+   "text": "set a new best parse: 41 on Zoraal Ja as Samurai"
+  },
+  {
+   "date": "2026-10-15",
+   "type": "ex_clear",
+   "id": 34874723,
+   "name": "Allen Fliegen",
+   "text": "cleared Queen Eternal (Extreme)"
+  },
+  {
+   "date": "2026-10-15",
+   "type": "ex_clear",
+   "id": 34874723,
+   "name": "Allen Fliegen",
+   "text": "cleared Zoraal Ja (Extreme)"
+  },
+  {
+   "date": "2026-10-15",
+   "type": "ex_clear",
+   "id": 57519259,
+   "name": "Kertia Cruz",
+   "text": "cleared Queen Eternal (Extreme)"
+  },
+  {
+   "date": "2026-10-15",
+   "type": "parse_up",
+   "id": 44085912,
+   "name": "Mayu Ferguson",
+   "text": "set a new best parse: 22 on Zoraal Ja as Reaper"
+  },
+  {
+   "date": "2026-10-15",
    "type": "parse_up",
    "id": 38488824,
    "name": "Daffodil Amary",
@@ -1350,55 +1399,6 @@
    "id": 37056222,
    "name": "Lucine Nokomis",
    "text": "earned The Might Phantastick: Index Penumbrae"
-  },
-  {
-   "date": "2026-10-03",
-   "type": "level_100",
-   "id": 36183541,
-   "name": "Nagi Amano",
-   "text": "reached level 100 on Samurai!"
-  },
-  {
-   "date": "2026-10-03",
-   "type": "rare_up",
-   "id": 38488824,
-   "name": "Daffodil Amary",
-   "text": "earned R&D: Stellar Saw"
-  },
-  {
-   "date": "2026-10-03",
-   "type": "rare_up",
-   "id": 46243891,
-   "name": "Marin Elysium",
-   "text": "earned Unbreakable II — only 1.0% of players have it"
-  },
-  {
-   "date": "2026-10-03",
-   "type": "level_100",
-   "id": 38152072,
-   "name": "Parker Thonhart",
-   "text": "reached level 100 on Red Mage!"
-  },
-  {
-   "date": "2026-10-02",
-   "type": "job_up",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "is now a Master Paladin"
-  },
-  {
-   "date": "2026-10-02",
-   "type": "level_100",
-   "id": 8286372,
-   "name": "Aloha Banana",
-   "text": "reached level 100 on Summoner!"
-  },
-  {
-   "date": "2026-10-02",
-   "type": "parse_up",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "set a new best parse: 95 on Doomtrain as Paladin"
   }
  ]
 }

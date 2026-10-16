@@ -218,7 +218,7 @@
     }
    },
    "fflogs": "ok",
-   "stats_seen": "2026-10-15",
+   "stats_seen": "2026-10-16",
    "lode_achv_public": true
   },
   "31441339": {
@@ -453,7 +453,7 @@
     }
    },
    "fflogs": "ok",
-   "stats_seen": "2026-10-15",
+   "stats_seen": "2026-10-16",
    "lode_achv_public": true
   },
   "42349146": {
@@ -569,7 +569,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-10-15"
+   "stats_seen": "2026-10-16"
   },
   "27788858": {
    "name": "Stole Your'cat",
@@ -636,7 +636,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-10-15"
+   "stats_seen": "2026-10-16"
   },
   "49339655": {
    "name": "Kaozuai Xino",
@@ -724,7 +724,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-10-15"
+   "stats_seen": "2026-10-16"
   },
   "48097900": {
    "name": "Neyrah's Yvaine",
@@ -819,9 +819,9 @@
     },
     "Scholar": {
      "fights": 19,
-     "kills": 80,
-     "parse": 72.6,
-     "score": 72.6,
+     "kills": 81,
+     "parse": 72.9,
+     "score": 72.9,
      "tier": "expert",
      "hardest": "ultimate"
     },
@@ -956,7 +956,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-10-15"
+   "stats_seen": "2026-10-16"
   },
   "31445625": {
    "name": "Empress Killer",
@@ -1127,7 +1127,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-10-15"
+   "stats_seen": "2026-10-16"
   },
   "58744659": {
    "name": "Laira Thalor",
@@ -1211,7 +1211,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-10-15"
+   "stats_seen": "2026-10-16"
   },
   "43284378": {
    "name": "Busy Party",
@@ -1286,7 +1286,7 @@
    "job_scores": {
     "Ninja": {
      "fights": 32,
-     "kills": 405,
+     "kills": 406,
      "parse": 98.8,
      "score": 98.8,
      "tier": "legendary",
@@ -1359,7 +1359,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-10-15",
+   "stats_seen": "2026-10-16",
    "mounts": 114,
    "minions": 328,
    "rare_achv": 122,
@@ -1434,7 +1434,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": false,
-   "stats_seen": "2026-10-15",
+   "stats_seen": "2026-10-16",
    "mounts": 63,
    "minions": 125,
    "rare_achv": null,
@@ -1521,7 +1521,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-10-15"
+   "stats_seen": "2026-10-16"
   },
   "35413272": {
    "name": "Poppy Lydian",
@@ -1619,7 +1619,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-10-15"
+   "stats_seen": "2026-10-16"
   },
   "22590312": {
    "name": "Siegcross Avalontear",
@@ -1727,7 +1727,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": false,
-   "stats_seen": "2026-10-15"
+   "stats_seen": "2026-10-16"
   },
   "10769690": {
    "name": "Monkey Pub",
@@ -1840,9 +1840,9 @@
    },
    "fflogs": "ok",
    "lode_achv_public": false,
-   "stats_seen": "2026-10-15"
+   "stats_seen": "2026-10-16"
   }
  },
- "generated_at": "2026-10-15T13:39:52Z",
+ "generated_at": "2026-10-15T23:14:10Z",
  "count": 14
 }
