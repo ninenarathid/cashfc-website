@@ -7,7 +7,9 @@
 -- deadline for the whole of it, the next turn of any of the 149 haunts (most turn every seven minutes, each at its own
 -- moment), so it lasted some three seconds, and nearly every look rolled every haunt again while the others waited.
 -- town.shared_read_data's insects' branch now keeps each haunt's own deadline and rolls again only the haunts whose
--- turn has come. What a look is told is the same (v271.test.mjs: against every haunt rolled afresh, moment by moment).
+-- turn has come. What a look is told is the same (v271.test.mjs: against every haunt rolled afresh, moment by moment),
+-- but for a good garden's haunt, which reads its bed: its visitors may show up to 30 s after the bed turns good (v200's
+-- own bound; v200 mostly saw it within seconds, as its cache was rolled again every few; Codex, 2026-10-16).
 -- The forest's finds (wild) and the cave are as they were.
 begin;
 set local statement_timeout='30s';
