@@ -12,7 +12,11 @@
 --     grade is as it was.
 --   * What a picking gives goes into the pouch first, then the bag, with the same refusal when neither has the room:
 --     by hand and the giants (town.pick), the crescent sickle's row and its one more (town.row_tend), the garden
---     twine's fruit (town.garden_harvest; the seeds it gives back went through town.stow_all already).
+--     twine's fruit (town.garden_harvest; the seeds it gives back went through town.stow_all already). Grade by grade,
+--     each onto its own stacks first (the pouch's, then the bag's), then into empty slots (the pouch's, then the bag's),
+--     so that no grade takes the empty slot another needed (town.stow_harvest; Codex).
+--   * The farm's pouch is no thing of the far side's: its things are moved in and out by a member whether the far side
+--     is open or not (public.town_pouch_out, public.town_pouch_in; Codex).
 --   * A seed sown is taken from the pouch first, then the bag, whose is the one in the hand (town.use_up in town.sow);
 --     the seed pouch's row counts the pouch's seeds (town.row_for), and a seed it spares goes back where it was taken.
 --   * The catalog's `items` row: every crop, and the wild helper plants, stack twice as high (10, 20, 40); seeds as
@@ -33,10 +37,12 @@ do $$ begin
  if md5(replace(pg_get_functiondef('town.bag_to_pouch(jsonb,integer)'::regprocedure),chr(13),'')) not in ('6cf8fd7e8809c43723e9ff2f00457a2b','bbce557e1e6055cdf8628c3d7d0a56b8') then raise exception 'Definition changed: town.bag_to_pouch(jsonb,integer); rebuild v274'; end if;
  if md5(replace(pg_get_functiondef('town.sow(jsonb,jsonb,text,text,bigint)'::regprocedure),chr(13),'')) not in ('fbba7d8d741c441408c4d4a00cff508b','eec503ed5bb53b19fb8e8226cbe5c5b9') then raise exception 'Definition changed: town.sow(jsonb,jsonb,text,text,bigint); rebuild v274'; end if;
  if md5(replace(pg_get_functiondef('town.row_for(text,jsonb,jsonb,jsonb,text,bigint,text)'::regprocedure),chr(13),'')) not in ('87c33397a2228724c01130624303937d','e70cfe2871bd8a8dd48ef170033fbf8f') then raise exception 'Definition changed: town.row_for(text,jsonb,jsonb,jsonb,text,bigint,text); rebuild v274'; end if;
- if md5(replace(pg_get_functiondef('town.pick(text,jsonb,jsonb,boolean,text,bigint,text)'::regprocedure),chr(13),'')) not in ('bceb973971a538b6cb8a9670e222e6ae','6961d699b312a63158fbfc47576e9dce') then raise exception 'Definition changed: town.pick(text,jsonb,jsonb,boolean,text,bigint,text); rebuild v274'; end if;
- if md5(replace(pg_get_functiondef('town.garden_harvest(text,jsonb,jsonb,jsonb,jsonb,bigint,boolean)'::regprocedure),chr(13),'')) not in ('c92cde725b2d49357a030216099ce778','4149655412eca259b35aa2db3517c521') then raise exception 'Definition changed: town.garden_harvest(text,jsonb,jsonb,jsonb,jsonb,bigint,boolean); rebuild v274'; end if;
- if md5(replace(pg_get_functiondef('town.row_tend(text,jsonb,jsonb,jsonb,integer,integer,jsonb,text,bigint,jsonb)'::regprocedure),chr(13),'')) not in ('2d257be26507b4f98d4564dcea210775','994a387f12459689703295b979341e64') then raise exception 'Definition changed: town.row_tend(text,jsonb,jsonb,jsonb,integer,integer,jsonb,text,bigint,jsonb); rebuild v274'; end if;
+ if md5(replace(pg_get_functiondef('town.pick(text,jsonb,jsonb,boolean,text,bigint,text)'::regprocedure),chr(13),'')) not in ('bceb973971a538b6cb8a9670e222e6ae','671a3c96fc9e4432aa33cb1209b648dc') then raise exception 'Definition changed: town.pick(text,jsonb,jsonb,boolean,text,bigint,text); rebuild v274'; end if;
+ if md5(replace(pg_get_functiondef('town.garden_harvest(text,jsonb,jsonb,jsonb,jsonb,bigint,boolean)'::regprocedure),chr(13),'')) not in ('c92cde725b2d49357a030216099ce778','7d3bbef5edca69c48bae810fffad77ec') then raise exception 'Definition changed: town.garden_harvest(text,jsonb,jsonb,jsonb,jsonb,bigint,boolean); rebuild v274'; end if;
+ if md5(replace(pg_get_functiondef('town.row_tend(text,jsonb,jsonb,jsonb,integer,integer,jsonb,text,bigint,jsonb)'::regprocedure),chr(13),'')) not in ('2d257be26507b4f98d4564dcea210775','3c22cf3beb8f3c2e29b0d0b4a0e63009') then raise exception 'Definition changed: town.row_tend(text,jsonb,jsonb,jsonb,integer,integer,jsonb,text,bigint,jsonb); rebuild v274'; end if;
  if md5(replace(pg_get_functiondef('town.deed_th(text)'::regprocedure),chr(13),'')) not in ('5ca4d5bdc0290e9987b3dce8b94292fb','33255cdd54fa6431ffe69a3bcebe7989') then raise exception 'Definition changed: town.deed_th(text); rebuild v274'; end if;
+ if md5(replace(pg_get_functiondef('public.town_pouch_out(text,integer)'::regprocedure),chr(13),'')) not in ('449aeef35628031bded157ad77b8efe9','727ec31f7b3e6ac568b2a7f6c9182703') then raise exception 'Definition changed: public.town_pouch_out(text,integer); rebuild v274'; end if;
+ if md5(replace(pg_get_functiondef('public.town_pouch_in(integer)'::regprocedure),chr(13),'')) not in ('c073dfc965e69aff95dd699abac7ff70','1873aa7aa6d1c4ccf33afe0d2caab334') then raise exception 'Definition changed: public.town_pouch_in(integer); rebuild v274'; end if;
 -- </guards:v274>
 end $$;
 
@@ -1157,6 +1163,127 @@ begin
 end;
 $function$;
 
+CREATE OR REPLACE FUNCTION town.stow_harvest(p_purse jsonb, p_id text, p_groups jsonb)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ STABLE
+AS $function$
+-- v274: lib/town/pouches' stowHarvest: a picking's fruits put away grade by grade ([grade, n], ...), each onto the stacks
+-- of its own already there first (the pouches', then the bag's), and only then into empty slots (the pouches' first,
+-- then the bag's): so no grade takes an empty slot another needed while its own stacks had room. Null when they do not
+-- all fit.
+declare
+  stack integer := (town.cat('items')->p_id->>'stack')::integer;
+  mine jsonb := coalesce((select jsonb_agg(e.v order by e.ord) from jsonb_array_elements(town.pouches_of(p_purse)) with ordinality e(v, ord) where e.v->'holds' ? p_id), '[]'::jsonb);
+  cur jsonb;
+  touched jsonb := '[]'::jsonb;
+  bag jsonb := p_purse->'bag';
+  bag_touched boolean := false;
+  pouches jsonb := case when jsonb_typeof(p_purse->'pouches') = 'object' then p_purse->'pouches' else '{}'::jsonb end;
+  out_ jsonb := p_purse;
+  any_ boolean := false;
+  g jsonb;
+  grade integer;
+  left_ integer;
+  k integer;
+  i integer;
+  s jsonb;
+  add_ integer;
+begin
+  select coalesce(jsonb_agg(e.v->'slots' order by e.ord), '[]'::jsonb) into cur from jsonb_array_elements(mine) with ordinality e(v, ord);
+  for g in select e.v from jsonb_array_elements(coalesce(p_groups, '[]'::jsonb)) with ordinality e(v, ord) order by e.ord loop
+    grade := coalesce((g->>0)::integer, 0);
+    left_ := coalesce((g->>1)::integer, 0);
+    -- onto its own stacks: the pouches', then the bag's
+    for k in 0..jsonb_array_length(cur) - 1 loop
+      for i in 0..jsonb_array_length(cur->k) - 1 loop
+        exit when left_ <= 0;
+        s := cur->k->i;
+        if s->>'item' = p_id and town.grade_in(s) = grade and (s->>'n')::integer < stack then
+          add_ := least(left_, stack - (s->>'n')::integer);
+          cur := jsonb_set(cur, array[k::text, i::text, 'n'], to_jsonb((s->>'n')::integer + add_));
+          left_ := left_ - add_;
+          touched := touched || to_jsonb(k);
+        end if;
+      end loop;
+    end loop;
+    for i in 0..jsonb_array_length(bag) - 1 loop
+      exit when left_ <= 0;
+      s := bag->i;
+      if s->>'item' = p_id and town.grade_in(s) = grade and (s->>'n')::integer < stack then
+        add_ := least(left_, stack - (s->>'n')::integer);
+        bag := jsonb_set(bag, array[i::text, 'n'], to_jsonb((s->>'n')::integer + add_));
+        left_ := left_ - add_;
+        bag_touched := true;
+      end if;
+    end loop;
+    -- then into empty slots: the pouches' first, then the bag's
+    for k in 0..jsonb_array_length(cur) - 1 loop
+      for i in 0..jsonb_array_length(cur->k) - 1 loop
+        exit when left_ <= 0;
+        if cur->k->i = 'null'::jsonb then
+          add_ := least(left_, stack);
+          cur := jsonb_set(cur, array[k::text, i::text], jsonb_build_object('item', p_id, 'n', add_) || case when grade > 0 then jsonb_build_object('grade', grade) else '{}'::jsonb end);
+          left_ := left_ - add_;
+          touched := touched || to_jsonb(k);
+        end if;
+      end loop;
+    end loop;
+    for i in 0..jsonb_array_length(bag) - 1 loop
+      exit when left_ <= 0;
+      if bag->i = 'null'::jsonb then
+        add_ := least(left_, stack);
+        bag := jsonb_set(bag, array[i::text], jsonb_build_object('item', p_id, 'n', add_) || case when grade > 0 then jsonb_build_object('grade', grade) else '{}'::jsonb end);
+        left_ := left_ - add_;
+        bag_touched := true;
+      end if;
+    end loop;
+    if left_ > 0 then return null; end if;
+  end loop;
+  for k in 0..jsonb_array_length(cur) - 1 loop
+    if touched @> jsonb_build_array(k) then pouches := pouches || jsonb_build_object(mine->k->>'gift', cur->k); any_ := true; end if;
+  end loop;
+  if any_ then out_ := out_ || jsonb_build_object('pouches', pouches); end if;
+  if bag_touched then out_ := out_ || jsonb_build_object('bag', bag); end if;
+  return out_;
+end;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.town_pouch_out(p_gift text, p_slot integer)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+declare
+  -- v274: the farm's pouch is no thing of the far side's: a member moves its things out wherever the far side stands
+  me uuid := case when p_gift = 'thingPouch' then town.member() else town.far_member() end;
+  did jsonb := town.pouch_to_bag(town.purse_of(me, true), p_gift, p_slot);
+begin
+  if (did->>'ok')::boolean then perform town.keep_purse(me, did->'purse'); end if;
+  return town.answer(me, did);
+end;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.town_pouch_in(p_slot integer)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+declare
+  me uuid := town.member();
+  purse jsonb := town.purse_of(me, true);
+  did jsonb;
+begin
+  -- v274: a thing of the farm's pouch is no thing of the far side's: any other is put away only once the far side is open
+  if not coalesce((select e.v->'holds' ? (purse->'bag'->p_slot->>'item') from jsonb_array_elements(town.cat('pouches')) e(v) where e.v->>'gift' = 'thingPouch'), false) then perform town.far_member(); end if;
+  did := town.bag_to_pouch(purse, p_slot);
+  if (did->>'ok')::boolean then perform town.keep_purse(me, did->'purse'); end if;
+  return town.answer(me, did);
+end;
+$function$;
+
 CREATE OR REPLACE FUNCTION town.pouch_to_bag(p_purse jsonb, p_gift text, p_slot integer)
  RETURNS jsonb
  LANGUAGE plpgsql
@@ -1305,13 +1432,11 @@ begin
   -- v273: the mandrake that follows whoever picks puts every fruit of a plant they sowed at the top of its range (lib/town/farm's atTop)
   top_ := coalesce(p_me <> '' and p->>'by' = p_me and town.gift_works(p_purse, 'famMandrake'), false);
   -- ── v260: each fruit's Quality; the bag must hold every grade the pick gives, before anything is done ──
-  -- (v274: the farm's pouch and the bag, the pouch taking what it can first, each fruit with its grade: town.stow_away_g)
+  -- (v274: the farm's pouch and the bag, each grade onto its own stacks first, then the pouch's empty slots, then the
+  -- bag's, each fruit with its grade: town.stow_harvest)
   fruits := town.quality_harvest(p_key, p, n, p_now, (select s.salt from town.quality_salt s where s.one), 0, top_);
-  room_ := p_purse;
-  for g in select e.v from jsonb_array_elements(fruits->'groups') e(v) loop
-    if town.room_in_g(room_, p->>'crop', (g->>0)::integer) < (g->>1)::integer then return town.no('full'); end if;
-    room_ := town.stow_away_g(room_, p->>'crop', (g->>1)::integer, (g->>0)::integer);
-  end loop;
+  room_ := town.stow_harvest(p_purse, p->>'crop', fruits->'groups');
+  if room_ is null then return town.no('full'); end if;
   picked := (p->>'picked')::int + 1;
   -- (v273: the mandrake sings no more; a plant it sang to before has its bearing more still, town.more_of)
   last_ := picked >= (town.cat('crops')->(p->>'crop')->>'picks')::int + town.more_of(p);
@@ -1339,11 +1464,9 @@ begin
  -- of its range with the mandrake at heel, `p_top`)
  if p->>'root' is not null and town.held(town.carried_bag(p_before),'gardenTwine')>0 then
   twine:=town.quality_harvest(p_key,p,(town.cat('gardening')->>'extra')::integer,p_now,(select s.salt from town.quality_salt s where s.one),coalesce((p_done->'got'->0->>1)::integer,0),coalesce(p_top,false));
-  for g in select e.v from jsonb_array_elements(twine->'groups') e(v) loop
-   -- (v274: into the farm's pouch first, then the bag, with its grade)
-   if town.room_in_g(after_,p->>'crop',(g->>0)::integer)<(g->>1)::integer then return town.no('full'); end if;
-   after_:=town.stow_away_g(after_,p->>'crop',(g->>1)::integer,(g->>0)::integer);
-  end loop;
+  -- (v274: grade by grade onto its own stacks first, then the farm's pouch, then the bag: town.stow_harvest)
+  after_:=town.stow_harvest(after_,p->>'crop',twine->'groups');
+  if after_ is null then return town.no('full'); end if;
  end if;
  if updated->'plant'='null'::jsonb and p->>'root' is not null and town.held(town.carried_bag(p_before),'seedTray')>0 then extras:=extras || jsonb_build_array(jsonb_build_array(town.cat('crops')->(p->>'crop')->>'seed',1)); end if;
  if child is not null then extras:=extras || jsonb_build_array(jsonb_build_array(town.cat('crops')->child->>'seed',case when town.held(town.carried_bag(p_before),'graftKnife')>0 or p->'insectCrossRound'=p->'picked' then 2 else 1 end)); end if;
@@ -1439,11 +1562,9 @@ begin
     if well then
       -- (v273: at the top of the range, of my own plant with the mandrake at heel: lib/town/farm's atTop)
       top_ := coalesce(p_me <> '' and plot->'plant'->>'by' = p_me and town.gift_works(p_purse, 'famMandrake'), false);
-      cut_ := mine;
-      for g_ in select e.v from jsonb_array_elements((town.quality_harvest(key, plot->'plant', more, p_now, (select s.salt from town.quality_salt s where s.one),
-          (select coalesce(sum((e.v->>1)::integer), 0)::integer from jsonb_array_elements(did->'got') e(v) where e.v->>0 = crop), top_))->'groups') e(v) loop
-        if cut_ is not null and town.room_in_g(cut_, crop, (g_->>0)::integer) >= (g_->>1)::integer then cut_ := town.stow_away_g(cut_, crop, (g_->>1)::integer, (g_->>0)::integer); else cut_ := null; end if;
-      end loop;
+      -- (v274: grade by grade onto its own stacks first, then the farm's pouch, then the bag: town.stow_harvest)
+      cut_ := town.stow_harvest(mine, crop, (town.quality_harvest(key, plot->'plant', more, p_now, (select s.salt from town.quality_salt s where s.one),
+          (select coalesce(sum((e.v->>1)::integer), 0)::integer from jsonb_array_elements(did->'got') e(v) where e.v->>0 = crop), top_))->'groups');
       if cut_ is not null then
         mine := cut_;
         n := n + more;
@@ -1521,7 +1642,7 @@ AS $function$
     when 'box_upgrade' then 'อัปเกรดกล่องเก็บของ' else p_what end
 $function$;
 
-revoke all on function town.room_in_g(jsonb,text,integer), town.stow_away_g(jsonb,text,integer,integer), town.use_up(jsonb,text,integer) from public, anon, authenticated;
+revoke all on function town.room_in_g(jsonb,text,integer), town.stow_away_g(jsonb,text,integer,integer), town.use_up(jsonb,text,integer), town.stow_harvest(jsonb,text,jsonb) from public, anon, authenticated;
 -- (the functions written over keep the grants they had)
 
 commit;

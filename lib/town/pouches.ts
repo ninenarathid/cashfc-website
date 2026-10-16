@@ -81,6 +81,35 @@ export function stow<P extends Pick<Purse, "bag" | "gifts" | "pouches">>(purse: 
   }
   return left > 0 ? { ...out, bag: put(out.bag, id, left, grade) } : out;
 }
+/**
+ * A picking's fruits put away, grade by grade (the farm's harvests: lib/town/farm's pick and the sickle's row,
+ * lib/town/gardening's twine): each grade onto the stacks of its own already there first, the pouches' and then the
+ * bag's, and only then into empty slots, the pouches' first and then the bag's. So no grade takes an empty slot that
+ * another needed while its own stacks had room (Codex, 2026-10-16: five plain tomatoes took the pouch's last slot, and
+ * a silver one was refused though the bag's stack of plain ones had room for the five). Null when they do not all fit.
+ */
+export function stowHarvest<P extends Pick<Purse, "bag" | "gifts" | "pouches">>(purse: P, id: ItemId, groups: ReadonlyArray<readonly [Grade, number]>): P | null {
+  const stack = ITEMS[id].stack, mine = pouchesOf(purse).filter((p) => p.pouch.holds.includes(id));
+  const cur = mine.map((p) => p.slots.map((s) => (s ? { ...s } : null))), bag = purse.bag.map((s) => (s ? { ...s } : null)), touched = new Set<number>();
+  let bagTouched = false;
+  for (const [g, n] of groups) {
+    let left = n;
+    const onto = (slots: Array<Stack | null>, mark: () => void) => {
+      for (const s of slots) if (left > 0 && s && s.item === id && gradeIn(s) === g && s.n < stack) { const add = Math.min(left, stack - s.n); s.n += add; left -= add; mark(); }
+    };
+    const into = (slots: Array<Stack | null>, mark: () => void) => {
+      for (let i = 0; i < slots.length && left > 0; i++) if (!slots[i]) { const add = Math.min(left, stack); slots[i] = g ? { item: id, n: add, grade: g } : { item: id, n: add }; left -= add; mark(); }
+    };
+    cur.forEach((slots, k) => onto(slots, () => touched.add(k)));
+    onto(bag, () => (bagTouched = true));
+    cur.forEach((slots, k) => into(slots, () => touched.add(k)));
+    into(bag, () => (bagTouched = true));
+    if (left > 0) return null;
+  }
+  let out = purse;
+  for (const k of [...touched].sort((a, b) => a - b)) out = kept(out, mine[k].pouch.gift, cur[k]);
+  return bagTouched ? { ...out, bag } : out;
+}
 /** A thing to stow: what, how many, and (graded produce) of what grade. */
 export type Stowed = readonly [ItemId, number] | readonly [ItemId, number, Grade];
 /** A purse with several things more, each put away as `stow` puts it: null when they do not all fit. */

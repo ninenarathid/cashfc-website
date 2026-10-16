@@ -3,7 +3,7 @@ import { newBox, stow as boxStow } from "./box";
 import { pick, rowFor, rowTend, sow, tend, type Bed, type Plant, type Plot } from "./farm";
 import { gardenHarvest } from "./gardening";
 import { CROP_IDS, ITEMS, type ItemId } from "./items";
-import { FARM_HOLDS, POUCHES, bagToPouch, heldIn, pouchToBag, pouchesOf, roomIn, stow, stowAll, takeOut, useUp } from "./pouches";
+import { FARM_HOLDS, POUCHES, bagToPouch, heldIn, pouchToBag, pouchesOf, roomIn, stow, stowAll, stowHarvest, takeOut, useUp } from "./pouches";
 import { dayOf } from "./stamina";
 import { HOUR, held, hold, newPurse, put, type Purse, type Stack } from "./trade";
 import { STOREBOX, bedCorner, rowOf } from "./world";
@@ -101,6 +101,19 @@ describe("the farm's pouch and its produce", () => {
     expect(heldIn(g.purse!, "corn")).toBe(base.got![0][1] + 1);
     expect(slots(g.purse!).some((s) => s?.item === "seedCorn" && s.n === 1)).toBe(true);
     expect(g.purse!.bag).toEqual(tools.bag);
+  });
+
+  it("takes a picking grade by grade onto its own stacks first, so one grade never takes the empty slot another needed (Codex, 2026-10-16)", () => {
+    // the bag: 35 plain tomatoes and nine rods; the pouch: five full stacks of seeds and one empty slot
+    const seeds = Array.from({ length: 5 }, () => ({ item: "seedTomato" as ItemId, n: 10 }));
+    const p = purseWith(POUCH, [{ item: "tomato", n: 35 }, ...full(9)], [...seeds, null]);
+    const did = stowHarvest(p, "tomato", [[0, 5], [1, 1]])!;
+    expect(did.bag[0]).toEqual({ item: "tomato", n: 40 });
+    expect(slots(did)[5]).toEqual({ item: "tomato", n: 1, grade: 1 });
+    expect(stowHarvest(p, "tomato", [[0, 6], [1, 1]])).toBeNull();
+    // (no own stack: the pouch's empty slots first, then the bag's; a purse that is not changed keeps its bag)
+    const fresh = stowHarvest(purseWith(POUCH, [null, null]), "tomato", [[2, 50]])!;
+    expect([slots(fresh)[0], slots(fresh)[1], fresh.bag]).toEqual([{ item: "tomato", n: 40, grade: 2 }, { item: "tomato", n: 10, grade: 2 }, [null, null]]);
   });
 
   it("is sown from: the seed in the hand is the bag's, and the pouch's seeds go first; a row counts them, and a seed spared goes back where it was", () => {

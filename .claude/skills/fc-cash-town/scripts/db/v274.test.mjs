@@ -169,9 +169,45 @@ try {
   }
   ok(sownFromPouch > 30 && rows > 30 && spared > 15, `sowings (${sownFromPouch} from the pouch first, ${rows} rows, ${spared} sparing seeds)`);
 
+  /* ── a picking's grades, each onto its own stacks first (Codex, 2026-10-16) ── */
+  const seedsFull = Array.from({ length: 5 }, () => ({ item: "seedTomato", n: 10 }));
+  const codex = { ...trade.newPurse(), bag: [{ item: "tomato", n: 35 }, ...Array.from({ length: 9 }, () => ({ item: "rod", n: 1 }))], gifts: { had: ["thingPouch"], charms: [] }, pouches: { thingPouch: [...seedsFull, null] } };
+  const fits = await v("select town.stow_harvest($1::jsonb,'tomato','[[0,5],[1,1]]'::jsonb) v", [JSON.stringify(codex)]);
+  eq(norm(fits), norm(P.stowHarvest(codex, "tomato", [[0, 5], [1, 1]])), "five plain tomatoes onto the bag's stack, the silver one into the pouch's last slot");
+  eq([fits.bag[0], fits.pouches.thingPouch[5]], [{ item: "tomato", n: 40 }, { item: "tomato", n: 1, grade: 1 }], "…as the code puts them");
+  eq(await v("select town.stow_harvest($1::jsonb,'tomato','[[0,6],[1,1]]'::jsonb) v", [JSON.stringify(codex)]), null, "one more than there is room for: refused");
+  for (let k = 0; k < 200; k++) {
+    const purse = purseOf(), id = pick(CROPS_), groups = [0, 1, 2, 3].filter(() => rand() < 0.6).map((g) => [g, 1 + int(50)]);
+    eq(norm(await v("select town.stow_harvest($1::jsonb,$2,$3::jsonb) v", [JSON.stringify(purse), id, JSON.stringify(groups)])), norm(P.stowHarvest(purse, id, groups)), `a picking of ${id} ${JSON.stringify(groups)} put away`);
+  }
+
+  /* ── the farm's pouch is no thing of the far side's ── */
+  const member = (await one("select p.id from public.profiles p order by p.id limit 1"))?.id;
+  let gate = "not run (no profile on the bench)";
+  if (member) {
+    const as = async (sqlText, args = []) => { await db.query("select set_config('request.jwt.claim.sub',$1,false)", [member]); await db.query("select set_config('request.jwt.claim.role','authenticated',false)"); await db.exec("set role authenticated"); try { return (await db.query(sqlText, args)).rows[0]; } finally { await db.exec("reset role"); } };
+    await db.exec("insert into public.town_knobs(key, value) values ('far_open', 0) on conflict (key) do update set value = 0");
+    const p0 = (await one("select town.purse_of($1,true) p", [member])).p;
+    await one("select town.keep_purse($1,$2::jsonb)", [member, JSON.stringify({ ...p0, bag: [{ item: "carrot", n: 5, grade: 2 }, { item: "minnow", n: 2 }, ...Array(8).fill(null)], gifts: { had: ["thingPouch", "thingCreel"], charms: [] }, pouches: { thingPouch: [{ item: "tomato", n: 12, grade: 1 }, null, null, null, null, null], thingCreel: [{ item: "minnow", n: 1 }, null, null, null, null] } })]);
+    try {
+      const out = (await as("select public.town_pouch_out('thingPouch', 0) r")).r;
+      eq([out.ok, out.n, out.purse.bag.find((x) => x?.item === "tomato")], [true, 12, { item: "tomato", n: 12, grade: 1 }], "the far side shut: the farm's pouch emptied into the bag, grade and all");
+      const into = (await as("select public.town_pouch_in(0) r")).r;
+      eq([into.ok, into.purse.pouches.thingPouch.find((x) => x?.item === "carrot")], [true, { item: "carrot", n: 5, grade: 2 }], "…and a graded carrot put into it");
+      let refused = null;
+      try { await as("select public.town_pouch_out('thingCreel', 0) r"); } catch (e) { refused = String(e.message ?? e); }
+      ok(/far side/.test(refused ?? ""), `…but the creel is still the far side's (${refused})`);
+      refused = null;
+      try { await as("select public.town_pouch_in(1) r"); } catch (e) { refused = String(e.message ?? e); }
+      ok(/far side/.test(refused ?? ""), `…and so is putting a fish away (${refused})`);
+      gate = "the farm's pouch moved in and out with the far side shut, the creel not";
+    } catch (e) { if (/proved character|not open|signed in/.test(String(e.message))) gate = `not run (${e.message})`; else throw e; }
+    await db.exec("update public.town_knobs set value = 1 where key = 'far_open'");
+  }
+
   /* ── closed ── */
-  for (const sig of ["town.room_in_g(jsonb,text,integer)", "town.stow_away_g(jsonb,text,integer,integer)", "town.use_up(jsonb,text,integer)"])
+  for (const sig of ["town.room_in_g(jsonb,text,integer)", "town.stow_away_g(jsonb,text,integer,integer)", "town.use_up(jsonb,text,integer)", "town.stow_harvest(jsonb,text,jsonb)"])
     for (const role of ["anon", "authenticated"]) eq((await one("select has_function_privilege($1,$2,'EXECUTE') ok", [role, sig])).ok, false, `${role} may not call ${sig}`);
   eq((await bareWrites((q) => db.query(q).then((r) => r.rows))).length, 0, "no bare write");
-  console.log(`v274: ${checks} checks passed (pouch rules: ${stowed} stowings, ${moved} moves; ${picks} pickings, ${pouched} into the pouch, ${fullRefused} refused full; ${swept} sweeps; ${rows} rows sown).`);
+  console.log(`v274: ${checks} checks passed (pouch rules: ${stowed} stowings, ${moved} moves; ${picks} pickings, ${pouched} into the pouch, ${fullRefused} refused full; ${swept} sweeps; ${rows} rows sown; ${gate}).`);
 } finally { await db.close(); }

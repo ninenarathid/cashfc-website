@@ -3,7 +3,7 @@ import { GARDEN_CROPS, type GardenCropId } from "./garden-items";
 import { CROPS, type CropId, type ItemId } from "./items";
 import { WILD, atTop, see, tend, type Bed, type FarmSky, type Plot } from "./farm";
 import { held, handOf, no, type Purse } from "./trade";
-import { roomIn, stow, stowAll } from "./pouches";
+import { stowAll, stowHarvest } from "./pouches";
 import { hasBuff } from "./stamina";
 import { bedOf } from "./world";
 import { HELPER_CROSSES, HELPER_SHAPES } from "./helper-items";
@@ -103,8 +103,9 @@ export function gardenHarvest<T extends { purse: Purse; plot: Plot; got: Array<[
   // (the twine's fruit is of the plant's own crop: rolled for its Quality as the fruits after the pick's, lib/town/quality-plant;
   // at the top of its range, of my own plant with the mandrake at heel, lib/town/farm's atTop)
   const twine = plant.root && fx.extra ? harvestOf(key, plant, GARDEN.extra, now, sky, QUALITY.launch, "", did.got[0]?.[1] ?? 0, atTop(before, plant, me)) : null;
-  // (into the farm's pouch first, then the bag, with its grade: lib/town/pouches' stow; and so the seeds, below)
-  for (const [g, c] of twine?.groups ?? []) { if (roomIn(after, plant.crop, g) < c) return no("full"); after = stow(after, plant.crop, c, g); }
+  // (onto its own stacks first, then the farm's pouch, then the bag, with its grade: lib/town/pouches' stowHarvest; the
+  // seeds, below, into the pouch first)
+  if (twine) { const twined = stowHarvest(after, plant.crop, twine.groups); if (!twined) return no("full"); after = twined; }
   if (!updated.plant && plant.root && fx.seed) extras.push([CROPS[plant.crop].seed, 1]);
   if (child) extras.push([CROPS[child].seed, fx.knife || plant.insectCrossRound===plant.picked ? 2 : 1]);
   const stowed = stowAll(after, extras);

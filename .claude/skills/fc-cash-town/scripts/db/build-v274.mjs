@@ -13,7 +13,7 @@ export const SIGS = [
   "town.pouch_to_bag(jsonb,text,integer)", "town.bag_to_pouch(jsonb,integer)", "town.sow(jsonb,jsonb,text,text,bigint)",
   "town.row_for(text,jsonb,jsonb,jsonb,text,bigint,text)", "town.pick(text,jsonb,jsonb,boolean,text,bigint,text)",
   "town.garden_harvest(text,jsonb,jsonb,jsonb,jsonb,bigint,boolean)", "town.row_tend(text,jsonb,jsonb,jsonb,integer,integer,jsonb,text,bigint,jsonb)",
-  "town.deed_th(text)",
+  "town.deed_th(text)", "public.town_pouch_out(text,integer)", "public.town_pouch_in(integer)",
 ];
 const md5s = async (db) => Object.fromEntries(await Promise.all(SIGS.map(async (sig) => [sig, (await db.query(`select md5(replace(pg_get_functiondef('${sig}'::regprocedure),chr(13),'')) m`)).rows[0].m])));
 /** The file without its guards (as written before they are filled). */

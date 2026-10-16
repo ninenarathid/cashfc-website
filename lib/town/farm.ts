@@ -18,7 +18,7 @@ import { DRY, rainingAt, wetMs, type Rain } from "./weather";
 import { HAND, bedGift, harvestOf, roundStart, settled } from "./quality-plant";
 import { NO_Q, QUALITY } from "./quality";
 import { bedOf } from "./world";
-import { heldIn, roomIn, stow, useUp } from "./pouches";
+import { heldIn, stow, stowHarvest, useUp } from "./pouches";
 import { BANGKOK, DAY, HOUR, forged, handOf, handSlot, held, heldStack, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
 
 /**
@@ -651,10 +651,10 @@ export function pick(key: string, purse: Purse, plot: Plot, may: boolean, hand: 
   if (!seen.ripe) return not("unripe");
   const n = yieldOf(key, p, hasInHand(purse, hand) ? hand : null);
   // (each fruit's Quality, lib/town/quality-plant: the farm's pouch and the bag must hold every grade the pick gives,
-  // before anything is done; the pouch takes what it can first, lib/town/pouches' stow)
+  // before anything is done; each grade onto its own stacks first, then the pouch's empty slots: lib/town/pouches' stowHarvest)
   const fruits = harvestOf(key, p, n, now, rains, QUALITY.launch, "", 0, atTop(purse, p, me));
-  let room: Purse = purse;
-  for (const [g, c] of fruits.groups) { if (roomIn(room, p.crop, g) < c) return no("full"); room = stow(room, p.crop, c, g); }
+  const room = stowHarvest(purse, p.crop, fruits.groups);
+  if (!room) return no("full");
   // (a plant the mandrake sang to, before its song was changed, has its bearing more still: `moreOf`)
   const picked = p.picked + 1, spent = picked >= (CROPS[p.crop].picks ?? 1) + moreOf(p);
   return {
@@ -1100,8 +1100,7 @@ export function rowTend(at: string, keys: readonly string[], plots: Readonly<Rec
     const crop = plot.plant!.crop, well = marks[key] === true, from = did.got.filter(([id]) => id === crop).reduce((t, [, m]) => t + m, 0);
     // (and at the top of the range, of my own plant with the mandrake at heel: `atTop`)
     const sickle = well ? harvestOf(key, plot.plant!, numberOf("charmSickle"), now, rains, QUALITY.launch, "", from, atTop(purse, plot.plant, me)) : null;
-    let cut: Purse | null = sickle ? mine : null;
-    for (const [g, c] of sickle?.groups ?? []) cut = cut && roomIn(cut, crop, g) >= c ? stow(cut, crop, c, g) : null;
+    const cut = sickle ? stowHarvest(mine, crop, sickle.groups) : null;
     const more = cut ? numberOf("charmSickle") : 0;
     if (cut) mine = cut;
     const n = (did.got[0]?.[1] ?? 0) + more;
