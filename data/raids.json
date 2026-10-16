@@ -23463,6 +23463,17 @@
     "kills": 1,
     "job": "Sage",
     "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1072,
+    "name": "Zoraal Ja",
+    "best": 20,
+    "kills": 3,
+    "job": "Sage",
+    "cleared": true
    }
   ],
   "legacy": [
@@ -33642,9 +33653,9 @@
     "state": "learning",
     "pct": 17.05,
     "phase": 3,
-    "pulls": 69,
-    "last": "2026-10-11",
-    "last_ts": 1791738094
+    "pulls": 87,
+    "last": "2026-10-15",
+    "last_ts": 1792079472
    }
   ]
  },
@@ -33983,7 +33994,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 99,
-    "kills": 73,
+    "kills": 78,
     "job": "Dancer",
     "cleared": true,
     "job_kills": {
@@ -60666,6 +60677,17 @@
       "best": 8
      }
     }
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1072,
+    "name": "Zoraal Ja",
+    "best": 84,
+    "kills": 3,
+    "job": "Reaper",
+    "cleared": true
    }
   ],
   "legacy": [
@@ -73104,7 +73126,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 92,
-    "kills": 27,
+    "kills": 29,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -73283,8 +73305,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1072,
     "name": "Zoraal Ja",
-    "best": 88,
-    "kills": 17,
+    "best": 92,
+    "kills": 20,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -79660,7 +79682,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 22,
-    "kills": 1,
+    "kills": 3,
     "job": "Machinist",
     "cleared": true
    },
@@ -80760,6 +80782,17 @@
   },
   "ultimates": [],
   "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1084,
+    "name": "Enuo",
+    "best": 8,
+    "kills": 2,
+    "job": "Pictomancer",
+    "cleared": true
+   },
    {
     "zone": "Trials I (Extreme)",
     "zone_id": 58,

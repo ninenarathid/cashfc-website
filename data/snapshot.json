@@ -1,7 +1,7 @@
 {
  "24228478": {
   "name": "Pyrozus Helison",
-  "parse": 13,
+  "parse": 20,
   "ult": 0,
   "mounts": 61,
   "minions": 227,
@@ -22,7 +22,8 @@
    "Enuo",
    "Necron",
    "Queen Eternal",
-   "Valigarmanda"
+   "Valigarmanda",
+   "Zoraal Ja"
   ],
   "ults": [],
   "chg": "2026-10-16"
@@ -517,6 +518,7 @@
   },
   "jobs": {},
   "ex": [
+   "Enuo",
    "Valigarmanda",
    "Zoraal Ja"
   ],
@@ -1814,7 +1816,8 @@
    "Doomtrain",
    "Enuo",
    "Necron",
-   "Zelenia"
+   "Zelenia",
+   "Zoraal Ja"
   ],
   "ults": [
    "The Weapon's Refrain"

@@ -2,6 +2,34 @@
  "events": [
   {
    "date": "2026-10-16",
+   "type": "parse_up",
+   "id": 24228478,
+   "name": "Pyrozus Helison",
+   "text": "set a new best parse: 20 on Zoraal Ja as Sage"
+  },
+  {
+   "date": "2026-10-16",
+   "type": "ex_clear",
+   "id": 24228478,
+   "name": "Pyrozus Helison",
+   "text": "cleared Zoraal Ja (Extreme)"
+  },
+  {
+   "date": "2026-10-16",
+   "type": "ex_clear",
+   "id": 58199536,
+   "name": "Areeya Lovekin",
+   "text": "cleared Enuo (Extreme)"
+  },
+  {
+   "date": "2026-10-16",
+   "type": "ex_clear",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "cleared Zoraal Ja (Extreme)"
+  },
+  {
+   "date": "2026-10-16",
    "type": "level_100",
    "id": 24228478,
    "name": "Pyrozus Helison",
@@ -1371,34 +1399,6 @@
    "id": 38041221,
    "name": "Kori Kona",
    "text": "is now a Legendary Crafter ✨"
-  },
-  {
-   "date": "2026-10-04",
-   "type": "grade_up",
-   "id": 38041221,
-   "name": "Kori Kona",
-   "text": "is now a Legendary Relic grinder ✨"
-  },
-  {
-   "date": "2026-10-04",
-   "type": "grade_up",
-   "id": 38041221,
-   "name": "Kori Kona",
-   "text": "is now a Legendary Explorer ✨"
-  },
-  {
-   "date": "2026-10-04",
-   "type": "grade_up",
-   "id": 38041221,
-   "name": "Kori Kona",
-   "text": "is now a Expert Treasure hunter ✨"
-  },
-  {
-   "date": "2026-10-04",
-   "type": "rare_up",
-   "id": 38041221,
-   "name": "Kori Kona",
-   "text": "earned Where Rabbits Roam II — only 0.2% of players have it, and 99 more"
   }
  ]
 }
