@@ -73284,13 +73284,13 @@
       "kills": 1,
       "best": 50
      },
-     "Paladin": {
-      "kills": 3,
-      "best": 88
-     },
      "Gunbreaker": {
-      "kills": 4,
-      "best": 80
+      "kills": 5,
+      "best": 92
+     },
+     "Paladin": {
+      "kills": 5,
+      "best": 92
      },
      "Warrior": {
       "kills": 4,

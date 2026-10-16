@@ -1,6 +1,13 @@
 {
  "events": [
   {
+   "date": "2026-10-16",
+   "type": "job_up",
+   "id": 42021700,
+   "name": "Josuke Mizumoto",
+   "text": "is now a Legendary Paladin"
+  },
+  {
    "date": "2026-10-15",
    "type": "rare_up",
    "id": 29152036,
@@ -1392,13 +1399,6 @@
    "id": 34509521,
    "name": "Liliya Quintilis",
    "text": "earned R&D: Stellar Cross-pein Hammer"
-  },
-  {
-   "date": "2026-10-03",
-   "type": "rare_up",
-   "id": 37056222,
-   "name": "Lucine Nokomis",
-   "text": "earned The Might Phantastick: Index Penumbrae"
   }
  ]
 }
