@@ -607,9 +607,11 @@ begin
   perform town.note(me, 'move', did->'plots'->to_->'plant'->>'crop', 1, 0,
     jsonb_build_object('from', jsonb_build_array(fx, fy), 'to', jsonb_build_array(tx, ty), 'bed', bed_n)
       || case when swap_ then jsonb_build_object('swap', did->'plots'->from_->'plant'->>'crop') else '{}'::jsonb end);
-  -- the answer brings every plot of the bed as it is kept now, each plant settled with what the bed gives it
+  -- the answer brings every plot of the bed as it is kept now, each plant settled with what the bed gives it (and a
+  -- furrow's damp and a house, where a plot has them: the page keeps each plot as told, Codex, 2026-10-16)
   return town.answer(me, did - 'plots') || jsonb_build_object('plots', (
     select coalesce(jsonb_object_agg(p.x::text || ',' || p.y::text, jsonb_build_object('soil', p.soil, 'plant', coalesce(p.plant, 'null'::jsonb))
+             || case when p.damp then '{"damp": true}'::jsonb else '{}'::jsonb end
              || case when p.house is not null then jsonb_build_object('house', p.house) else '{}'::jsonb end), '{}'::jsonb)
       from public.town_plots p where p.bed = bed_n));
 end $function$;

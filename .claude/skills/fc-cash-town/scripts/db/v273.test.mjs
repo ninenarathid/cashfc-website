@@ -205,6 +205,9 @@ try {
           // (somebody helped each plant; and an old helper of the empty plot, of the plant that stood there before)
           const [fx, fy] = from.split(",").map(Number), [tx, ty] = to.split(",").map(Number);
           await db.query("insert into public.town_plot_help(x,y,helper,owner,water,carry) values($1,$2,$5,$6,3,0),($3,$4,$5,$6,1,2)", [fx, fy, tx, ty, pal, me]);
+          // (and a furrow left damp elsewhere in the bed, which the answer tells as it is kept)
+          const damp = Object.keys(before).find((k) => k !== from && k !== to && before[k].soil === "tilled" && !before[k].plant);
+          if (damp) { const [dx, dy] = damp.split(",").map(Number); await db.query("update public.town_plots set damp=true where x=$1 and y=$2", [dx, dy]); }
           const want = farm.movePlant(from, to, before, purse, me, now, me, []);
           ok(want.ok, `the code moves ${from} → ${to}`);
           const r = (await as("select public.town_move($1,$2,$3,$4) r", [fx, fy, tx, ty])).r;
@@ -219,6 +222,8 @@ try {
           }
           // (the answer brings the bed as it is kept)
           eq(Object.keys(r.plots).sort(), Object.keys(after).sort(), "the answer brings the bed");
+          if (damp) eq(r.plots[damp].damp, true, "a damp furrow told as damp");
+          eq(Object.values(r.plots).filter((p) => p.damp).length, damp ? 1 : 0, "no other plot told damp");
           eq((await one("select town.purse_of($1,false) p", [me])).p.gifts.used.charmHoe, { k: dayOf(now), n: 1 }, "one move counted");
           const deed = await one("select what, thing, n, doc from public.town_deeds where member_id=$1 order by at desc, id desc limit 1", [me]);
           eq([deed.what, deed.thing, deed.doc.from, deed.doc.to, deed.doc.swap ?? null], ["move", before[from].plant.crop, [fx, fy], [tx, ty], want.swap ? before[to].plant.crop : null], "the deed written");
@@ -234,14 +239,17 @@ try {
       now0 = await nowOf();
       await db.exec(`delete from public.town_plots where bed=${BED}; delete from public.town_beds where bed=${BED}`);
       const P = (over = {}) => JSON.stringify({ by: me, crop: "pumpkin", sown: now0 - 10 * H, boost: 0, watered: 0, fed: 0, guard: now0 + 99 * H, cured: 0, picked: 0, pickedAt: 0, ...over });
+      // (an unguarded pumpkin sown so long ago that a pest has struck it and it has died of it, by the code's reckoning)
+      let deadAge = 100;
+      while (deadAge < 140 && !farm.see(`${bx + 3},${by + 1}`, { soil: "tilled", plant: JSON.parse(P({ guard: 0, sown: now0 - deadAge * H })) }, now0, []).dead) deadAge++;
       const rows = [[0, 0, P()], [1, 0, null], [2, 0, P({ by: YOU })], [3, 0, P({ crop: "kangkong", sown: now0 - 9 * H })], [4, 0, P({ giant: true, root: `${bx + 4},${by}`, footprint: [`${bx + 4},${by}`] })],
-        [0, 1, P({ root: `${bx},${by + 1}`, footprint: [`${bx},${by + 1}`, `${bx + 1},${by + 1}`] })], [3, 1, P({ guard: 0, sown: now0 - 130 * H })]];
+        [0, 1, P({ root: `${bx},${by + 1}`, footprint: [`${bx},${by + 1}`, `${bx + 1},${by + 1}`] })], [3, 1, P({ guard: 0, sown: now0 - deadAge * H })]];
       for (const [u, v, p] of rows) await db.query("insert into public.town_plots(x,y,bed,soil,plant,changed) values($1,$2,$3,'tilled',$4::jsonb,$5)", [bx + u, by + v, BED, p, now0 - H]);
       await db.query("insert into public.town_plots(x,y,bed,soil,plant,house,changed) values($1,$2,$3,'house',null,$4::jsonb,$5)", [bx + 5, by, BED, JSON.stringify({ by: me, at: now0 - H, rooms: [null, null] }), now0 - H]);
       await db.query("insert into public.town_beds(bed,member_id,tended,empty) values($1,$2,$3,0)", [BED, me, now0 - H]);
       // (the plant over two plots stands on (1,1) too: the garden's trigger lays it there)
       eq((await one("select plant->>'root' r from public.town_plots where x=$1 and y=$2", [bx + 1, by + 1])).r, `${bx},${by + 1}`, "a plant over two plots");
-      const dead = (await one("select (town.see($1,$2::jsonb,$3)->>'dead')::boolean d", [`${bx + 3},${by + 1}`, JSON.stringify({ soil: "tilled", plant: JSON.parse(P({ guard: 0, sown: now0 - 130 * H })) }), now0])).d;
+      const dead = (await one("select (town.see($1,$2::jsonb,$3)->>'dead')::boolean d", [`${bx + 3},${by + 1}`, JSON.stringify({ soil: "tilled", plant: JSON.parse(P({ guard: 0, sown: now0 - deadAge * H })) }), now0])).d;
       const [ox, oy] = bedCorner(BED + 1);
       await setPurse({ had: ["charmHoe"], charms: ["charmHoe"] });
       const move = async (a, b) => (await as("select public.town_move($1,$2,$3,$4) r", [bx + a[0], by + a[1], b[0], b[1]])).r;
