@@ -60,7 +60,7 @@ export default function CasinoSimulation({ draft, settings, issue = null, onClos
           <div><dt>งบ Gil คงเหลือ</dt><dd>{money(r.gilRemaining)}</dd></div>
         </dl>
         <ul className="casino-simulation-prizes" aria-label="รางวัลจากการจำลอง">
-          {r.prizes.map(p => <li key={p.id}><strong>{p.name}</strong><span>ออก {money(p.wins)} · เหลือ {money(p.remaining)}</span></li>)}
+          {r.prizes.map(p => <li key={p.id}><strong>{p.kind === 'gil' ? `${money(p.amount)} Gil` : p.kind === 'coin' ? `${money(p.amount)} Coin` : p.name}</strong><span>ออก {money(p.wins)} · เหลือ {money(p.remaining)}</span></li>)}
         </ul>
         {r.poolRemaining !== null && <p>กองเหลือ {money(r.poolRemaining)} สิทธิ์</p>}
       </div>}
