@@ -21,9 +21,10 @@ function ActiveCasinoAnnouncementHost() {
     let timer: ReturnType<typeof setTimeout> | undefined;
     const revealTimers=new Set<ReturnType<typeof setTimeout>>();
     const seen = new Set<string>();
-    const channel = client.channel(`casino-announcements:${uid}`)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'town_casino_announcements' }, ({ new: row }) => {
-        const r = row as Announcement;
+    // (the database sends each win to this channel as it is written, v272; the change feed is not listened to)
+    const channel = client.channel('casino-announcements')
+      .on('broadcast', { event: 'win' }, ({ payload }) => {
+        const r = payload as Announcement;
         if (typeof r.id !== 'string' || typeof r.player_name !== 'string' || typeof r.prize_name !== 'string' ||
           seen.has(r.id) || Date.now() - Date.parse(r.created_at) > 15000) return;
         seen.add(r.id); if (seen.size > 100) seen.delete(seen.values().next().value!);

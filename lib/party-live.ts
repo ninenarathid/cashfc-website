@@ -45,33 +45,20 @@ export function useLiveParties(
       timer = setTimeout(() => { void cb.current(); }, 400);
     };
 
-    const ch = supabase.channel("party-board");
-    for (const table of ["party_posts", "party_members", "party_comments",
-                         "party_comment_reactions"]) {
-      ch.on("postgres_changes",
-        { event: "*", schema: "public", table }, soon);
-    }
-    ch.subscribe();
-
     /*
-     * The questions, on a channel of their own (v136).
-     *
-     * One table for all of it: every answer and every change to a question
-     * moves that question's own row, so this hears a vote without the votes
-     * being published at all. Its own channel so that whatever the server
-     * makes of a table it does not have yet, on a board ahead of its
-     * migration, it says it about this channel and not about the other four.
-     * Both ride the one socket.
+     * The database tells the board (v272): a write to any of its tables (the
+     * listings, the seats, the comments and their reactions, the questions)
+     * sends one hint with nothing in it to this channel, once a statement.
+     * It used to ride the change feed, whose poll of the database ran ten
+     * times a second for as long as anybody listened (2026-10-16).
      */
-    const polls = supabase.channel("party-polls")
-      .on("postgres_changes",
-        { event: "*", schema: "public", table: "party_polls" }, soon)
+    const ch = supabase.channel("party-board")
+      .on("broadcast", { event: "changed" }, soon)
       .subscribe();
 
     return () => {
       if (timer) clearTimeout(timer);
       void supabase.removeChannel(ch);
-      void supabase.removeChannel(polls);
     };
   }, [supabase, enabled]);
 }

@@ -1102,19 +1102,23 @@ export default function NotificationBell() {
    * in the subscription and again by the read policy underneath it, so what
    * arrives here is only ever yours.
    *
-   * The poll stays as the floor. If the table is not in the realtime
-   * publication, or the socket cannot be opened, this is late rather than
-   * missing.
+   * The poll stays as the floor. If the socket cannot be opened, this is late
+   * rather than missing.
+   *
+   * The database tells it (v272): a new row sends a hint with nothing in it to
+   * this account's own private channel, and the bell reads its rows again. It
+   * used to ride the change feed, whose poll of the database ran ten times a
+   * second for as long as anybody listened (2026-10-16: the second-largest
+   * cost of the database's time).
    */
   useEffect(() => {
     if (!supabase || !me) return;
-    const channel = supabase.channel(`notifications:${me}`)
-      .on("postgres_changes",
-          { event: "INSERT", schema: "public", table: "notifications",
-            filter: `recipient=eq.${me}` },
-          () => { void load(); })
-      .subscribe();
-    return () => { void supabase.removeChannel(channel); };
+    let gone = false;
+    const channel = supabase.channel(`notifications:${me}`, { config: { private: true } })
+      .on("broadcast", { event: "new" }, () => { void load(); });
+    // (a private channel is checked against the signed-in member's token)
+    void supabase.realtime.setAuth().catch(() => {}).then(() => { if (!gone) channel.subscribe(); });
+    return () => { gone = true; void supabase.removeChannel(channel); };
   }, [supabase, me, load]);
 
   // Clicking anywhere else puts it away, which is what everybody expects of a
