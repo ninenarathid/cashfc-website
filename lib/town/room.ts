@@ -39,6 +39,15 @@ import { BENCHES, KITCHEN, SIT_HERE, YARD_SEATS } from "./world";
  * the same name hears nothing from the private one (tried 2026-10-01).
  */
 
+/**
+ * How often a member's page says hello again on its own, to mend a move that was missed (ms). It was every 30 s, and
+ * every hello is answered by everybody into its letterbox: 2 × (n − 1) deliveries a member a hello, n² a round, the
+ * most of the project's realtime messages (2026-10-16: 19M in a month against a quota of 5M, the owner's ask to cut
+ * the biggest senders). A hello is still sent on joining, on every rejoin and when a hidden tab comes back (check(true)),
+ * and moves carry their own place; so the routine one is rare, and never from a hidden tab.
+ */
+export const HELLO_AGAIN_MS = 10 * 60_000;
+
 export interface Identity {
   id: string;
   name: string;
@@ -397,7 +406,8 @@ export async function joinTown(
   };
   const hello = (force = false) => {
     if (!roomUp || !boxUp || !tracked || leaving) return;
-    if (!force && Date.now() - helloAt < 30_000) return;
+    if (!force && Date.now() - helloAt < HELLO_AGAIN_MS) return;
+    if (!force && typeof document !== "undefined" && document.visibilityState === "hidden") return;
     const d = opts.doing?.();
     if (d && cast("hi", { id: me.id, ...d })) helloAt = Date.now();
   };

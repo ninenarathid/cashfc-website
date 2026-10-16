@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { joinTown, type RoomHandlers, type RoomStatus } from "./room";
+import { HELLO_AGAIN_MS, joinTown, type RoomHandlers, type RoomStatus } from "./room";
 
 class Channel {
   state = "joining";
@@ -101,7 +101,10 @@ describe("town presence and position recovery", () => {
     s.room.check(true);
     expect(s.channel.send).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ event: "hi", payload: expect.objectContaining({ x: 50 }) }));
     s.room.check(); expect(s.channel.send).toHaveBeenCalledTimes(1);
+    // (not every 30 s any more: every hello is answered by everybody, the most of the realtime messages)
     await vi.advanceTimersByTimeAsync(30_000); s.room.check();
+    expect(s.channel.send).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(HELLO_AGAIN_MS); s.room.check();
     expect(s.channel.send).toHaveBeenCalledTimes(2);
   });
   it("reports a lost socket or letterbox so the watchdog can reconnect", async () => {
