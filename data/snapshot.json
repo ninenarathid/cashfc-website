@@ -6,7 +6,7 @@
   "mounts": 61,
   "minions": 227,
   "rare": null,
-  "level": 52,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -2251,7 +2251,7 @@
   "mounts": 49,
   "minions": 115,
   "rare": null,
-  "level": 100,
+  "level": 83,
   "cc": [
    true,
    true,
@@ -2280,7 +2280,7 @@
    "Dancing Mad",
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-09-30"
+  "chg": "2026-10-16"
  },
  "50821570": {
   "name": "Haruki Mizumoto",
@@ -2342,9 +2342,9 @@
   "parse": 95,
   "ult": 0,
   "mounts": 111,
-  "minions": 225,
-  "rare": 91,
-  "level": 100,
+  "minions": 227,
+  "rare": 96,
+  "level": 80,
   "cc": [
    true,
    true,
@@ -2367,6 +2367,7 @@
    3648,
    3652,
    3653,
+   3656,
    3658,
    3677,
    3683,
@@ -2381,6 +2382,7 @@
    3762,
    3766,
    3767,
+   3770,
    3772,
    3805,
    3811,
@@ -2398,6 +2400,7 @@
    3852,
    3856,
    3857,
+   3860,
    3862,
    3875,
    3895,
@@ -2406,6 +2409,7 @@
    3941,
    3943,
    3944,
+   3945,
    3949,
    3950,
    3951,
@@ -2417,6 +2421,7 @@
    3959,
    3963,
    3964,
+   3967,
    3969,
    3979,
    3998,
@@ -2465,7 +2470,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-09"
+  "chg": "2026-10-16"
  },
  "36183378": {
   "name": "K' Potassium",
@@ -2545,7 +2550,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -2558,7 +2563,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-15"
+  "chg": "2026-10-16"
  },
  "25506828": {
   "name": "Kururuki Tzuzaku",
@@ -3751,7 +3756,7 @@
   "mounts": 76,
   "minions": 137,
   "rare": 62,
-  "level": 100,
+  "level": 87,
   "cc": [
    true,
    true,
@@ -3851,7 +3856,7 @@
    "The Omega Protocol",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-10-08"
+  "chg": "2026-10-16"
  },
  "9444020": {
   "name": "Non Elemental",
@@ -4274,7 +4279,7 @@
   "mounts": 265,
   "minions": 338,
   "rare": 535,
-  "level": 50,
+  "level": 100,
   "cc": null,
   "rare_ids": [
    847,
@@ -4394,7 +4399,7 @@
    "The Omega Protocol",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-09"
+  "chg": "2026-10-16"
  },
  "29998658": {
   "name": "Shippei Astana",
@@ -4798,7 +4803,7 @@
   "mounts": 22,
   "minions": 65,
   "rare": 7,
-  "level": 100,
+  "level": 72,
   "cc": [
    true,
    true,
@@ -5606,7 +5611,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 93,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6812,7 +6817,7 @@
   "mounts": 55,
   "minions": 109,
   "rare": 1,
-  "level": 92,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8635,7 +8640,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 100,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -8653,7 +8658,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-15"
+  "chg": "2026-10-16"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -8776,7 +8781,7 @@
   "mounts": 4,
   "minions": 7,
   "rare": null,
-  "level": 70,
+  "level": 71,
   "cc": [
    false,
    false,
@@ -8789,7 +8794,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-13"
+  "chg": "2026-10-16"
  },
  "44085912": {
   "name": "Mayu Ferguson",
@@ -8825,7 +8830,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 100,
+  "level": 71,
   "cc": [
    false,
    false,
@@ -8879,7 +8884,7 @@
   "mounts": 4,
   "minions": 14,
   "rare": null,
-  "level": 71,
+  "level": 72,
   "cc": [
    false,
    false,
@@ -8892,7 +8897,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-14"
+  "chg": "2026-10-16"
  },
  "61748681": {
   "name": "Qzarel Lumina",

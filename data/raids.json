@@ -81966,8 +81966,8 @@
       "best": 5
      },
      "DarkKnight": {
-      "kills": 5,
-      "best": 14
+      "kills": 8,
+      "best": 22
      },
      "Paladin": {
       "kills": 2,
@@ -90773,7 +90773,13 @@
     "best": 5,
     "kills": 3,
     "job": "DarkKnight",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "DarkKnight": {
+      "kills": 3,
+      "best": 5
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -90877,7 +90883,13 @@
     "best": 16,
     "kills": 3,
     "job": "Monk",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Monk": {
+      "kills": 3,
+      "best": 16
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -90913,7 +90925,13 @@
     "best": 41,
     "kills": 2,
     "job": "Samurai",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Samurai": {
+      "kills": 2,
+      "best": 41
+     }
+    }
    }
   ],
   "legacy": [],

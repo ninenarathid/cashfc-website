@@ -3,6 +3,41 @@
   {
    "date": "2026-10-16",
    "type": "level_100",
+   "id": 24228478,
+   "name": "Pyrozus Helison",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-10-16",
+   "type": "rare_up",
+   "id": 42021700,
+   "name": "Josuke Mizumoto",
+   "text": "earned Dire, Dire Deepcroft — only 0.2% of players have it, and 4 more"
+  },
+  {
+   "date": "2026-10-16",
+   "type": "level_100",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "reached level 100 on Pictomancer!"
+  },
+  {
+   "date": "2026-10-16",
+   "type": "level_100",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-10-16",
+   "type": "level_100",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
+   "date": "2026-10-16",
+   "type": "level_100",
    "id": 50821570,
    "name": "Haruki Mizumoto",
    "text": "reached level 100 on Monk!"
@@ -1364,41 +1399,6 @@
    "id": 38041221,
    "name": "Kori Kona",
    "text": "earned Where Rabbits Roam II — only 0.2% of players have it, and 99 more"
-  },
-  {
-   "date": "2026-10-03",
-   "type": "level_100",
-   "id": 9444020,
-   "name": "Non Elemental",
-   "text": "reached level 100 on Black Mage!"
-  },
-  {
-   "date": "2026-10-03",
-   "type": "level_100",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-10-03",
-   "type": "level_100",
-   "id": 39959181,
-   "name": "El Blung",
-   "text": "reached level 100 on Dancer!"
-  },
-  {
-   "date": "2026-10-03",
-   "type": "level_100",
-   "id": 61014734,
-   "name": "Hanna Doss",
-   "text": "reached level 100 on Samurai!"
-  },
-  {
-   "date": "2026-10-03",
-   "type": "rare_up",
-   "id": 58199536,
-   "name": "Areeya Lovekin",
-   "text": "earned R&D: Stellar Saw"
   }
  ]
 }
