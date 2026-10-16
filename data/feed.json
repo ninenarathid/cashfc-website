@@ -3,6 +3,55 @@
   {
    "date": "2026-10-16",
    "type": "parse_up",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "set a new best parse: 97 on Zoraal Ja as Whit\u0001 \u0002age"
+  },
+  {
+   "date": "2026-10-16",
+   "type": "ex_clear",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "cleared Zoraal Ja (Extreme)"
+  },
+  {
+   "date": "2026-10-16",
+   "type": "job_up",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "is now a Legendary White Mage"
+  },
+  {
+   "date": "2026-10-16",
+   "type": "parse_up",
+   "id": 38488824,
+   "name": "Daffodil Amary",
+   "text": "set a new best parse: 62 on Zoraal Ja as Machinist"
+  },
+  {
+   "date": "2026-10-16",
+   "type": "ex_clear",
+   "id": 38488824,
+   "name": "Daffodil Amary",
+   "text": "cleared Enuo (Extreme)"
+  },
+  {
+   "date": "2026-10-16",
+   "type": "parse_up",
+   "id": 60852230,
+   "name": "Lucien Rhul",
+   "text": "set a new best parse: 22 on Zoraal Ja as Dar\u0001 \u0002night"
+  },
+  {
+   "date": "2026-10-16",
+   "type": "ex_clear",
+   "id": 46243891,
+   "name": "Marin Elysium",
+   "text": "cleared Zoraal Ja (Extreme)"
+  },
+  {
+   "date": "2026-10-16",
+   "type": "parse_up",
    "id": 24228478,
    "name": "Pyrozus Helison",
    "text": "set a new best parse: 20 on Zoraal Ja as Sage"
@@ -1350,55 +1399,6 @@
    "id": 37056222,
    "name": "Lucine Nokomis",
    "text": "earned Phantom of the Umbra: Sword & Kite Shield Umbrae"
-  },
-  {
-   "date": "2026-10-04",
-   "type": "level_100",
-   "id": 60852230,
-   "name": "Lucienvt Yenslayer",
-   "text": "reached level 100 on Dark Knight!"
-  },
-  {
-   "date": "2026-10-04",
-   "type": "level_100",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "reached level 100 on Sage!"
-  },
-  {
-   "date": "2026-10-04",
-   "type": "rare_up",
-   "id": 46243891,
-   "name": "Marin Elysium",
-   "text": "earned Vilekin Mate — only 0.4% of players have it, and 4 more"
-  },
-  {
-   "date": "2026-10-04",
-   "type": "level_100",
-   "id": 29907674,
-   "name": "Ranjoe Tp'",
-   "text": "reached level 100 on Fisher!"
-  },
-  {
-   "date": "2026-10-04",
-   "type": "level_100",
-   "id": 60972300,
-   "name": "Mizuki Sekine",
-   "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-10-04",
-   "type": "grade_up",
-   "id": 38041221,
-   "name": "Kori Kona",
-   "text": "is now a Expert Gatherer ✨"
-  },
-  {
-   "date": "2026-10-04",
-   "type": "grade_up",
-   "id": 38041221,
-   "name": "Kori Kona",
-   "text": "is now a Legendary Crafter ✨"
   }
  ]
 }

@@ -5010,7 +5010,7 @@
  },
  "42976317": {
   "name": "Zeadz Stellar",
-  "parse": 95,
+  "parse": 97,
   "ult": 0,
   "mounts": 56,
   "minions": 129,
@@ -5071,7 +5071,7 @@
   ],
   "tiers": {},
   "jobs": {
-   "WhiteMage": "master"
+   "WhiteMage": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -5079,10 +5079,11 @@
    "Necron",
    "Queen Eternal",
    "Valigarmanda",
-   "Zelenia"
+   "Zelenia",
+   "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-12"
+  "chg": "2026-10-16"
  },
  "24123541": {
   "name": "Zeren Dragonia",
@@ -5934,7 +5935,7 @@
  },
  "38488824": {
   "name": "Daffodil Amary",
-  "parse": 43,
+  "parse": 62,
   "ult": 0,
   "mounts": 175,
   "minions": 358,
@@ -6055,11 +6056,12 @@
   },
   "jobs": {},
   "ex": [
+   "Enuo",
    "Valigarmanda",
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-15"
+  "chg": "2026-10-16"
  },
  "34546216": {
   "name": "Dekkapi Kung",
@@ -6917,7 +6919,7 @@
  },
  "60852230": {
   "name": "Lucien Rhul",
-  "parse": 15,
+  "parse": 22,
   "ult": 0,
   "mounts": 30,
   "minions": 58,
@@ -6940,7 +6942,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-15"
+  "chg": "2026-10-16"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -7334,7 +7336,8 @@
    "Guardian Arkveld",
    "Necron",
    "Valigarmanda",
-   "Zelenia"
+   "Zelenia",
+   "Zoraal Ja"
   ],
   "ults": [],
   "chg": "2026-10-16"
@@ -8643,7 +8646,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 80,
+  "level": 83,
   "cc": [
    false,
    false,

@@ -8668,11 +8668,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 69.97,
+    "pct": 59.48,
     "phase": 4,
-    "pulls": 10,
-    "last": "2026-10-05",
-    "last_ts": 1791219669
+    "pulls": 23,
+    "last": "2026-10-16",
+    "last_ts": 1792169912
    }
   ]
  },
@@ -13799,12 +13799,12 @@
     "zone": "The Omega Protocol",
     "zone_id": 53,
     "expansion": "Endwalker",
+    "encounter_id": 1068,
     "name": "The Omega Protocol",
     "best": 97,
     "kills": 3,
     "job": "DarkKnight",
     "cleared": true,
-    "encounter_id": 1068,
     "job_kills": {
      "DarkKnight": {
       "kills": 3,
@@ -27002,9 +27002,9 @@
     "state": "learning",
     "pct": 17.05,
     "phase": 3,
-    "pulls": 68,
-    "last": "2026-10-11",
-    "last_ts": 1791738094
+    "pulls": 86,
+    "last": "2026-10-15",
+    "last_ts": 1792079472
    }
   ]
  },
@@ -68024,6 +68024,17 @@
   "ultimates": [],
   "extremes": [
    {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1084,
+    "name": "Enuo",
+    "best": 27,
+    "kills": 2,
+    "job": "Machinist",
+    "cleared": true
+   },
+   {
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
@@ -68046,8 +68057,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1072,
     "name": "Zoraal Ja",
-    "best": 43,
-    "kills": 2,
+    "best": 62,
+    "kills": 5,
     "job": "Machinist",
     "cleared": true,
     "job_kills": {
@@ -70416,7 +70427,7 @@
     "encounter_id": 1082,
     "name": "Guardian Arkveld",
     "best": 44,
-    "kills": 10,
+    "kills": 16,
     "job": "Warrior",
     "cleared": true,
     "job_kills": {
@@ -73385,7 +73396,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 83,
-    "kills": 59,
+    "kills": 63,
     "job": "Bard",
     "cleared": true,
     "job_kills": {
@@ -73422,7 +73433,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 79,
-    "kills": 61,
+    "kills": 71,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -73488,7 +73499,7 @@
     "encounter_id": 1080,
     "name": "Zelenia",
     "best": 65,
-    "kills": 4,
+    "kills": 13,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -73509,7 +73520,7 @@
     "encounter_id": 1078,
     "name": "Queen Eternal",
     "best": 87,
-    "kills": 50,
+    "kills": 51,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -73587,7 +73598,7 @@
     "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 90,
-    "kills": 41,
+    "kills": 44,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -74903,6 +74914,17 @@
       "best": 39
      }
     }
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1072,
+    "name": "Zoraal Ja",
+    "best": 97,
+    "kills": 3,
+    "job": "WhiteMage",
+    "cleared": true
    }
   ],
   "legacy": [],
@@ -76801,6 +76823,17 @@
       "best": 70
      }
     }
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1072,
+    "name": "Zoraal Ja",
+    "best": 62,
+    "kills": 3,
+    "job": "Viper",
+    "cleared": true
    }
   ],
   "legacy": [],
@@ -81039,8 +81072,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 1,
-    "kills": 1,
+    "best": 2,
+    "kills": 3,
     "job": "Astrologian",
     "cleared": true
    },
@@ -81953,8 +81986,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 2,
-    "kills": 1,
+    "best": 4,
+    "kills": 5,
     "job": "DarkKnight",
     "cleared": true
    },
@@ -81989,9 +82022,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1072,
     "name": "Zoraal Ja",
-    "best": 14,
-    "kills": 11,
-    "job": "Paladin",
+    "best": 22,
+    "kills": 14,
+    "job": "DarkKnight",
     "cleared": true,
     "job_kills": {
      "Dragoon": {
