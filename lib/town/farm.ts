@@ -182,6 +182,9 @@ export interface Plant {
   /** A sprawling plant is tended and harvested only at its root plot. */
   root?: string;
   footprint?: string[];
+  /** A hybrid sown over several plots before they became one-plot plants, made one-plot on 2026-10-17 (v275): how many
+   * plots it stood on, which it still gives for until it is done (yieldOf). */
+  oldPlots?: number;
   rotation?: number;
   crossed?: boolean;
   by: string;
@@ -608,7 +611,7 @@ export const isTree = (crop: CropId) => (CROPS[crop].picks ?? 1) >= TREE_PICKS;
  */
 export function yieldOf(key: string, p: Plant, hand: ItemId | null = null): number {
   const [lo, hi] = CROPS[p.crop].yield;
-  const plots = p.giant ? 6 : Math.max(1, p.footprint?.length ?? 1);
+  const plots = p.giant ? 6 : Math.max(1, p.oldPlots ?? p.footprint?.length ?? 1);
   return (lo + Math.floor(roll(homeOf(key, p), p.sown, p.picked) * (hi - lo + 1))) * plots + (hand === (isTree(p.crop) ? BLADES.tree : BLADES.plant) ? 1 : 0);
 }
 
