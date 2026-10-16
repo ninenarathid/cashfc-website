@@ -70398,9 +70398,17 @@
     "job": "Warrior",
     "cleared": true,
     "job_kills": {
+     "Gunbreaker": {
+      "kills": 4,
+      "best": 21
+     },
      "Warrior": {
-      "kills": 10,
+      "kills": 11,
       "best": 44
+     },
+     "Sage": {
+      "kills": 1,
+      "best": 25
      }
     }
    },
@@ -73376,7 +73384,7 @@
       "best": 70
      },
      "Astrologian": {
-      "kills": 28,
+      "kills": 32,
       "best": 75
      },
      "Scholar": {
@@ -73413,7 +73421,7 @@
       "best": 54
      },
      "Scholar": {
-      "kills": 10,
+      "kills": 12,
       "best": 39
      }
     }
@@ -73467,7 +73475,7 @@
       "best": 28
      },
      "Astrologian": {
-      "kills": 3,
+      "kills": 12,
       "best": 65
      }
     }
@@ -73492,7 +73500,7 @@
       "best": 19
      },
      "Astrologian": {
-      "kills": 29,
+      "kills": 30,
       "best": 87
      },
      "WhiteMage": {
@@ -73562,8 +73570,8 @@
     "cleared": true,
     "job_kills": {
      "Summoner": {
-      "kills": 3,
-      "best": 72
+      "kills": 4,
+      "best": 73
      },
      "Bard": {
       "kills": 1,
@@ -73573,9 +73581,17 @@
       "kills": 2,
       "best": 42
      },
+     "BlackMage": {
+      "kills": 1,
+      "best": 34
+     },
      "Monk": {
       "kills": 1,
       "best": 30
+     },
+     "RedMage": {
+      "kills": 1,
+      "best": 47
      },
      "WhiteMage": {
       "kills": 9,

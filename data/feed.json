@@ -2,6 +2,27 @@
  "events": [
   {
    "date": "2026-10-16",
+   "type": "level_100",
+   "id": 50821570,
+   "name": "Haruki Mizumoto",
+   "text": "reached level 100 on Monk!"
+  },
+  {
+   "date": "2026-10-16",
+   "type": "level_100",
+   "id": 58202955,
+   "name": "Trevas Aka",
+   "text": "reached level 100 on Astrologian!"
+  },
+  {
+   "date": "2026-10-16",
+   "type": "level_100",
+   "id": 60972300,
+   "name": "Mizuki Sekine",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
+   "date": "2026-10-16",
    "type": "job_up",
    "id": 42021700,
    "name": "Josuke Mizumoto",
@@ -1378,27 +1399,6 @@
    "id": 58199536,
    "name": "Areeya Lovekin",
    "text": "earned R&D: Stellar Saw"
-  },
-  {
-   "date": "2026-10-03",
-   "type": "grade_up",
-   "id": 38152072,
-   "name": "Parker Thonhart",
-   "text": "is now a Legendary Crafter ✨"
-  },
-  {
-   "date": "2026-10-03",
-   "type": "rare_up",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "earned Cut Above the Rest: Degen Occultum — only 1.8% of players have it, and 3 more"
-  },
-  {
-   "date": "2026-10-03",
-   "type": "rare_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "earned R&D: Stellar Cross-pein Hammer"
   }
  ]
 }
