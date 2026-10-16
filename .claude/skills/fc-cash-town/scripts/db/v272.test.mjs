@@ -64,12 +64,12 @@ try {
   }
   if (have.includes("town_casino_announcements")) {
     const sent = await sentBy("town_casino_announcements", { player_name: "Aqua", prize_name: "a potato" });
-    ok(sent.length === 1 && sent[0].topic === "casino-announcements" && sent[0].event === "win" && sent[0].private === false && sent[0].payload.player_name === "Aqua" && sent[0].payload.prize_name === "a potato" && "id" in sent[0].payload && "created_at" in sent[0].payload, `a win: ${JSON.stringify(sent)}`);
+    ok(sent.length === 1 && sent[0].topic === "casino-announcements" && sent[0].event === "win" && sent[0].private === true && sent[0].payload.player_name === "Aqua" && sent[0].payload.prize_name === "a potato" && "id" in sent[0].payload && "created_at" in sent[0].payload, `a win: ${JSON.stringify(sent)}`);
   }
   for (const t of have.filter((t) => t.startsWith("party_"))) {
     const sent = await sentBy(t).catch((e) => `could not lay a row: ${e.message}`);
     if (typeof sent === "string") { console.log(`${t}: ${sent} (the trigger is there; its hint is not tried here)`); continue; }
-    ok(sent.length === 1 && sent[0].topic === "party-board" && sent[0].event === "changed" && sent[0].payload.t === t, `${t}: ${JSON.stringify(sent)}`);
+    ok(sent.length === 1 && sent[0].topic === "party-board" && sent[0].event === "changed" && sent[0].private === true && sent[0].payload.t === t, `${t}: ${JSON.stringify(sent)}`);
   }
   // a hint that fails stops nothing
   if (have.includes("notifications")) {

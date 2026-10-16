@@ -7,9 +7,11 @@
 -- casino's win banner on every page away from the town, and the town's gate (the casino's door, now read every half
 -- minute instead). The owner: "ทำทั้งคู่".
 --   * public.rt_hint, a trigger, sends a broadcast from the database (realtime.send) as a row is written: to
---     notifications:<recipient> (private: a member hears only their own; nothing in it, the bell reads its rows again),
---     to casino-announcements (the win, as the banner shows it), and to party-board once a statement for any of the
+--     notifications:<recipient> (a member hears only their own; nothing in it, the bell reads its rows again), to
+--     casino-announcements (the win, as the banner shows it), and to party-board once a statement for any of the
 --     board's tables (nothing in it, the board reads itself again). A hint that cannot be sent never stops the write.
+--     All three are private channels a signed-in member may only hear (no policy lets a page send on them): a win
+--     cannot be forged, nor the board's hint spammed (Codex, 2026-10-16).
 --   * Those tables leave the change feed's publication; the casino's own tables (its page, open only in an event or to
 --     an admin) stay in it.
 begin;
@@ -29,9 +31,9 @@ begin
       perform realtime.send('{}'::jsonb, 'new', 'notifications:' || new.recipient::text, true);
     elsif tg_table_name = 'town_casino_announcements' then
       perform realtime.send(jsonb_build_object('id', new.id, 'player_name', new.player_name, 'prize_name', new.prize_name, 'created_at', new.created_at),
-        'win', 'casino-announcements', false);
+        'win', 'casino-announcements', true);
     else
-      perform realtime.send(jsonb_build_object('t', tg_table_name), 'changed', 'party-board', false);
+      perform realtime.send(jsonb_build_object('t', tg_table_name), 'changed', 'party-board', true);
     end if;
   exception when others then
     -- (a hint is a courtesy: the bell and the board poll besides; the write goes on)
@@ -54,10 +56,13 @@ do $$ declare t text; begin
   end loop;
 end $$;
 
--- the bell's hint is private: a member may hear only the channel of their own account
+-- the hints may only be heard: a member the bell's channel of their own account, the casino's wins and the board's
+-- hint; no page may send on any of them (there is no policy for insert)
 drop policy if exists notifications_hint_read on realtime.messages;
-create policy notifications_hint_read on realtime.messages for select to authenticated
-  using (realtime.topic() = 'notifications:' || (select auth.uid())::text and realtime.messages.extension = 'broadcast');
+drop policy if exists hints_read on realtime.messages;
+create policy hints_read on realtime.messages for select to authenticated
+  using (realtime.messages.extension = 'broadcast' and (realtime.topic() = 'notifications:' || (select auth.uid())::text
+    or realtime.topic() in ('casino-announcements', 'party-board')));
 
 -- the change feed no longer carries them
 do $$ declare t text; begin

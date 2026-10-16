@@ -48,15 +48,18 @@ export function useLiveParties(
     /*
      * The database tells the board (v272): a write to any of its tables (the
      * listings, the seats, the comments and their reactions, the questions)
-     * sends one hint with nothing in it to this channel, once a statement.
+     * sends one hint with nothing in it to this private channel, once a
+     * statement; a page may only hear it, not send it.
      * It used to ride the change feed, whose poll of the database ran ten
      * times a second for as long as anybody listened (2026-10-16).
      */
-    const ch = supabase.channel("party-board")
-      .on("broadcast", { event: "changed" }, soon)
-      .subscribe();
+    let gone = false;
+    const ch = supabase.channel("party-board", { config: { private: true } })
+      .on("broadcast", { event: "changed" }, soon);
+    void supabase.realtime.setAuth().catch(() => {}).then(() => { if (!gone) ch.subscribe(); });
 
     return () => {
+      gone = true;
       if (timer) clearTimeout(timer);
       void supabase.removeChannel(ch);
     };
