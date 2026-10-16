@@ -63,7 +63,8 @@ export function QualityRange({ range, base, th, odds = true }: { range: Range; b
 }
 
 /** Standing on a plant: its range in a word, and the way into the inspector. */
-export function QualityChip({ plant, now, rains, th, onOpen, gain }: { plant: Plant; now: number; rains: FarmSky; th: boolean; onOpen: () => void; gain?: number }) {
+/** (`top`: the mandrake follows me and the plant is mine, lib/town/farm's atTop: every fruit of its picking lands at the range's top, and the chip says so) */
+export function QualityChip({ plant, now, rains, th, onOpen, gain, top }: { plant: Plant; now: number; rains: FarmSky; th: boolean; onOpen: () => void; gain?: number; top?: boolean }) {
   const { range, grown } = qualityNow(plant, now, rains);
   return (
     <button type="button" onClick={onOpen} data-quality-chip
@@ -72,6 +73,7 @@ export function QualityChip({ plant, now, rains, th, onOpen, gain }: { plant: Pl
       <span className="font-semibold">{th ? "คุณภาพ" : "Quality"} <span className="font-data tabular-nums">{range.lo}–{range.hi}</span></span>
       {/* (a fertiliser in the hand: what it would add to the ceiling by ripeness, lib/town/quality-plant's fertGain) */}
       {gain !== undefined ? <span className="font-data text-meta font-semibold text-[#8fd17a]" data-quality-gain={gain}>{gain > 0 ? (th ? `ใส่แล้ว +${gain}` : `+${gain} if put on`) : th ? "ใส่แล้วไม่เพิ่ม" : "adds nothing"}</span>
+        : top ? <span className="font-data text-meta font-semibold text-[#f0c060]" data-quality-top={range.hi}>{th ? `แมนเดรก: ได้ ${range.hi}` : `mandrake: all ${range.hi}`}</span>
         : <span className="text-meta text-muted">{grown >= 1 ? (th ? "สุกแล้ว" : "ripe") : th ? "ดูรายละเอียด" : "details"}</span>}
     </button>
   );

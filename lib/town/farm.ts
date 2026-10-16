@@ -10,13 +10,14 @@ import { GARDEN_CROPS } from "./garden-items";
 import { gardenHarvest } from "./gardening";
 import { CROPS, CROP_IDS, ITEMS, growth, type CropId, type ItemId } from "./items";
 import { BLESSINGS } from "./fountain";
-import { famBy, gloved, harderFor, hasThing, numberOf, useGift, usesLeft, wearing } from "./gifts";
+import { famBy, gloved, harderFor, hasThing, numberOf, useGift, usesLeft, wearing, works } from "./gifts";
 import { buffBy, hasBuff, isSpent, spend } from "./stamina";
 // ── gifts: helpers ──
 import { HELPING, bridged, chime, diesAt, dustUntil, dustsOf, type HelpRefusal } from "./helping";
 import { DRY, rainingAt, wetMs, type Rain } from "./weather";
-import { HAND, harvestOf, roundStart } from "./quality-plant";
-import { QUALITY } from "./quality";
+import { HAND, bedGift, harvestOf, roundStart, settled } from "./quality-plant";
+import { NO_Q, QUALITY } from "./quality";
+import { bedOf } from "./world";
 import { BANGKOK, DAY, HOUR, forged, handOf, handSlot, held, heldStack, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
 
 /**
@@ -195,8 +196,14 @@ export interface Plant {
   /** How many times it has been picked, and when last. */
   picked: number;
   pickedAt: number;
-  /** How many bearings more than its kind has: one, of a plant the mandrake sang to as it was picked for what would have been the last time (lib/town/gifts' famMandrake). Missing from every other plant. */
+  /** How many bearings more than its kind has: one, of a plant the mandrake sang to as it was picked for what would have been the last time (lib/town/gifts' famMandrake, until 2026-10-16: kept by those it sang to). Missing from every other plant. */
   more?: number;
+  /**
+   * The plot it was sown at, once the enchanted hoe has moved it (lib/town/gifts' charmHoe, `movePlant`): what everything
+   * rolled by a plot is rolled by for it (its yield, its pests, its fruits' Quality: `homeOf`), so that a move rolls
+   * nothing again. Missing from a plant never moved.
+   */
+  home?: string;
   /** The moments an hourglass of seasons was turned over its bed while it stood there (lib/town/gifts' thingHourglass): from each, for `HOURGLASS.hours`, it grows so many times as fast (`quickMs`). Missing from a plant no hourglass was turned over. */
   fast?: number[];
   // ── gifts: helpers ──
@@ -271,6 +278,13 @@ export const PUT_ON: Partial<Record<ItemId, "feed" | "guard" | "cure">> = {
 /** What can be done to a plot with a thing in the hand, by its kind. */
 export const toolOf = (hand: ItemId | null): "hoe" | "can" | "seed" | "feed" | "guard" | "cure" | null =>
   (isHoe(hand) ? "hoe" : isCan(hand) ? "can" : cropOf(hand) ? "seed" : (hand && PUT_ON[hand]) || null);
+
+/**
+ * The plot a plant's rolls are rolled by: the one it was sown at (`home`, once it has been moved), or the one it is in.
+ * The owner's settled design of 2026-10-15: a plant keeps "its growth, coverage and identity (no reroll of coordinate
+ * rolls)". The database reads it the same way (`coalesce(p->>'home', p_key)`, v273).
+ */
+export const homeOf = (key: string, p: Pick<Plant, "home">): string => (typeof p.home === "string" && p.home ? p.home : key);
 
 /** A number in [0, 1) from a few numbers and a word: the same for everybody. */
 export function roll(word: string, ...n: number[]): number {
@@ -354,8 +368,9 @@ export function grown(p: Plant, now: number, rains: FarmSky = DRY): number {
   return (Math.max(0, now - p.sown) + fed + p.boost + rained + quickMs(p, p.sown, now)) / HOUR;
 }
 /**
- * The mandrake's song (lib/town/gifts' famMandrake, the farming line's sixth rank): what part of its hours a crop
- * that is picked only once takes to bear the once more (one that bears again takes its own while, as ever).
+ * The mandrake's song (lib/town/gifts' famMandrake, the farming line's sixth rank, until 2026-10-16: a plant it sang to
+ * then keeps its bearing more): what part of its hours a crop that is picked only once takes to bear the once more (one
+ * that bears again takes its own while, as ever).
  */
 export const ENCORE = 0.5;
 /** How many bearings more than its kind a plant has (none, but for one the mandrake sang to). */
@@ -387,7 +402,8 @@ export function pestAt(key: string, p: Plant, now: number, rains: FarmSky = DRY)
     if (hour < from || hour >= to || t < p.guard || t <= p.cured) continue;
     // (a ripe plant is safe: it only waits to be picked)
     if (growing(p, t, rains).ripe) return null;
-    if (roll(key, h, p.sown) < pestChance(bugsIn(rains, h))) {if(!wingUsed&&p.wingGuard&&t<p.wingGuard){wingUsed=true;continue;}return t;}
+    // (by the plot it was sown at: a plant the hoe moved meets the pests it would have met, lib/town/farm's homeOf)
+    if (roll(homeOf(key, p), h, p.sown) < pestChance(bugsIn(rains, h))) {if(!wingUsed&&p.wingGuard&&t<p.wingGuard){wingUsed=true;continue;}return t;}
   }
   return null;
 }
@@ -585,12 +601,13 @@ export const isTree = (crop: CropId) => (CROPS[crop].picks ?? 1) >= TREE_PICKS;
 /**
  * How many a picking gives: between the vegetable's least and most, the same for everybody who asks about that picking;
  * one more with the right blade in the hand (a sickle, or shears for a tree). A hybrid sown over several plots before
- * they became one-plot plants (2026-10-16) gives for each of its plots, as it did.
+ * they became one-plot plants (2026-10-16) gives for each of its plots, as it did. (Rolled by the plot it was sown at:
+ * `homeOf`.)
  */
 export function yieldOf(key: string, p: Plant, hand: ItemId | null = null): number {
   const [lo, hi] = CROPS[p.crop].yield;
   const plots = p.giant ? 6 : Math.max(1, p.footprint?.length ?? 1);
-  return (lo + Math.floor(roll(key, p.sown, p.picked) * (hi - lo + 1))) * plots + (hand === (isTree(p.crop) ? BLADES.tree : BLADES.plant) ? 1 : 0);
+  return (lo + Math.floor(roll(homeOf(key, p), p.sown, p.picked) * (hi - lo + 1))) * plots + (hand === (isTree(p.crop) ? BLADES.tree : BLADES.plant) ? 1 : 0);
 }
 
 /**
@@ -613,26 +630,34 @@ export function care(deed: "compost" | "brush" | "fert", purse: Purse, plot: Plo
   return { ok: true, purse: { ...spent, bag }, plot: { ...plot, plant: { ...p, [deed === "compost" ? "compost" : "brushed"]: now } } };
 }
 
-/** Pick a ripe plant into the bag (which must have the room), by somebody who may. One that bears again goes back a stage; another leaves the plot cleared. */
-export function pick(key: string, purse: Purse, plot: Plot, may: boolean, hand: ItemId | null, now: number, rains: FarmSky = DRY): Did | { ok: false; why: Refusal } {
+/**
+ * **The mandrake sprout** (a familiar, following; the farming line's sixth rank, as the owner had it changed on
+ * 2026-10-16: "เครื่องราง lv 6 อยากให้เปลี่ยน effect ให้ OP มากกว่านี้"): while it follows whoever picks, every fruit of a
+ * plant they sowed themselves lands at the top of the plant's Quality range, by every way of picking (the hand, the
+ * crescent sickle's row and its one more, the garden twine's fruit, a giant). The range itself is the four bars', the
+ * ceiling's and the narrowing's as ever: only the roll within it is gone. Somebody else's plant is rolled as ever. Always
+ * on: nothing is counted. (Its song of before, a bearing more seven times a day, is no longer sung; a plant it sang
+ * to keeps its bearing more: `moreOf`.)
+ */
+export const atTop = (purse: Pick<Purse, "gifts">, p: Pick<Plant, "by"> | null | undefined, me: string): boolean => !!me && !!p && p.by === me && works(purse, "famMandrake");
+
+/** Pick a ripe plant into the bag (which must have the room), by somebody who may (`me`: who picks, for the mandrake's top: `atTop`). One that bears again goes back a stage; another leaves the plot cleared. */
+export function pick(key: string, purse: Purse, plot: Plot, may: boolean, hand: ItemId | null, now: number, rains: FarmSky = DRY, me = ""): Did | { ok: false; why: Refusal } {
   const p = plot.plant, seen = see(key, plot, now, rains);
   if (!p || seen.dead || (p.root && p.root !== key)) return not("soil");
   if (!may) return not("theirs");
   if (!seen.ripe) return not("unripe");
   const n = yieldOf(key, p, hasInHand(purse, hand) ? hand : null);
   // (each fruit's Quality, lib/town/quality-plant: the bag must hold every grade the pick gives, before anything is done)
-  const fruits = harvestOf(key, p, n, now, rains);
+  const fruits = harvestOf(key, p, n, now, rains, QUALITY.launch, "", 0, atTop(purse, p, me));
   let room = purse.bag;
   for (const [g, c] of fruits.groups) { if (roomFor(room, p.crop, g) < c) return no("full"); room = put(room, p.crop, c, g); }
-  const picked = p.picked + 1, last = picked >= (CROPS[p.crop].picks ?? 1) + moreOf(p);
-  // (the mandrake that follows whoever picks sings as a plant is picked for what would be the last time, and the plant
-  // bears once more: any crop, one that is picked only once too; so many plants a day, lib/town/gifts' USES; a plant
-  // it has sung to is not sung to again)
-  const sung = !p.giant && last && !moreOf(p) ? useGift(purse, "famMandrake", now) : null, mine = sung?.ok ? sung.purse : purse, spent = last && !sung?.ok;
+  // (a plant the mandrake sang to, before its song was changed, has its bearing more still: `moreOf`)
+  const picked = p.picked + 1, spent = picked >= (CROPS[p.crop].picks ?? 1) + moreOf(p);
   return {
     ok: true, got: [[p.crop, n]], fruits: { range: fruits.range, values: fruits.values },
-    plot: spent ? { soil: "cleared", plant: null } : { ...plot, plant: { ...p, picked, pickedAt: now, watered: 0, ...(sung?.ok ? { more: numberOf("famMandrake") } : {}) } },
-    purse: { ...spend(mine, FARMING.costs.pick, now), bag: fruits.groups.reduce((b, [g, c]) => put(b, p.crop, c, g), mine.bag) },
+    plot: spent ? { soil: "cleared", plant: null } : { ...plot, plant: { ...p, picked, pickedAt: now, watered: 0 } },
+    purse: { ...spend(purse, FARMING.costs.pick, now), bag: fruits.groups.reduce((b, [g, c]) => put(b, p.crop, c, g), purse.bag) },
   };
 }
 
@@ -690,7 +715,7 @@ function tendUntrained(key: string, plot: Plot, bed: Bed | undefined, others: nu
   const did = deed === "clear" || deed === "till" ? hoe(key, purse, plot, hand, now, rains) : deed === "pull" || deed === "uproot" ? uproot(key, purse, plot, true, sure, hand, now, rains)
     : deed === "sow" ? sow(purse, plot, hand, me, now) : deed === "water" ? water(key, purse, plot, hand, now, rains)
       : deed === "feed" ? feed(key, purse, plot, hand, now, rains, luck) : deed === "cure" ? cure(key, purse, plot, hand, now, rains)
-        : deed === "compost" || deed === "brush" || deed === "fert" ? care(deed, purse, plot, now) : pick(key, purse, plot, true, hand, now, rains);
+        : deed === "compost" || deed === "brush" || deed === "fert" ? care(deed, purse, plot, now) : pick(key, purse, plot, true, hand, now, rains, me);
   if (!did.ok) return did;
   // (work in somebody else's bed, or on somebody else's plant, with the gardener's gloves on: half its stamina)
   const theirs = (owner !== null && owner !== me) || (!!plot.plant && plot.plant.by !== me);
@@ -957,7 +982,78 @@ export function glassTurn(plots: Readonly<Record<string, Plot>>, purse: Purse, m
   return { ok: true, purse: used.purse, plots: next, quickened: live, until: now + HOURGLASS.hours * HOUR };
 }
 
-/** Whether the mandrake sang to the plant in a plot as it was picked: read from the plot as it was and as it is, for the page, which shows it. */
+/* ── the enchanted hoe moves a plant (lib/town/gifts' charmHoe) ──────────── */
+
+/**
+ * **The enchanted hoe moves plants** (a charm, worn; the owner, 2026-10-16: "ใน lv ต้นๆ อยากให้เพิ่ม effect ที่สามารถ
+ * ย้ายตำแหน่งผักในแปลงตัวเองได้"): a living, unripe plant of mine on one plot of my own bed goes to a tilled empty plot of
+ * the same bed, or changes places with another such plant of mine there. Ten a day (lib/town/gifts' USES: a swap is
+ * one), no stamina, no game, nothing to fail, no points. No hoe need be held: the charm is the hoe.
+ *
+ * The plant keeps everything it has: its growing, waterings and covers, its fertilisers, whose it is, and its Quality
+ * round so far, settled to the moment under what the bed gave it where it stood (`movedTo`). Whatever is rolled by a plot
+ * is rolled for it by the plot it was sown at (`home`, `homeOf`): moving it rolls nothing again (the owner's settled
+ * design of 2026-10-15). What the bed gives it at its new place, and every plant about both plots, is worked out afresh
+ * as for a plant dug out and one sown (lib/town/quality-plant's syncMove; the database's trigger, v273).
+ */
+export type MoveRefusal = "none" | "spent" | "theirs" | "soil";
+/** Whether the plant in a plot is one I may move: mine, on that one plot (not a giant, nor one sown over several), living and not ripe. */
+export function movable(key: string, plot: Plot | undefined, me: string, now: number, rains: FarmSky = DRY): boolean {
+  const p = plot?.plant;
+  if (!p || p.by !== me || p.giant || plot!.house) return false;
+  if ((p.root !== undefined && p.root !== key) || (p.footprint !== undefined && !(Array.isArray(p.footprint) && p.footprint.length === 1 && p.footprint[0] === key))) return false;
+  const seen = see(key, plot!, now, rains);
+  return !seen.dead && !seen.ripe;
+}
+/** Whether a plot is one a plant may be moved onto: tilled, empty, no insect house on it. */
+const openPlot = (plot: Plot | undefined): boolean => !!plot && plot.soil === "tilled" && !plot.plant && !plot.house;
+/**
+ * The plots a plant of my bed may go to now, by their keys, down the bed a row at a time (`plots`: the bed's plots that
+ * are kept; `owner`: whose the bed is now): its tilled empty plots, and my other plants it may change places with. None:
+ * there is no move to offer (the charm not worn, the day's moves used, not my bed, or not a plant I may move).
+ */
+export function moveTargets(from: string, plots: Readonly<Record<string, Plot>>, purse: Purse, me: string, now: number, owner: string | null, rains: FarmSky = DRY): string[] {
+  const [x, y] = from.split(",").map(Number), bed = bedOf(x, y);
+  if (bed < 0 || !works(purse, "charmHoe") || usesLeft(purse, "charmHoe", now) < 1 || owner !== me || !movable(from, plots[from], me, now, rains)) return [];
+  const yx = (key: string) => key.split(",").map(Number);
+  return Object.keys(plots).filter((k) => k !== from && bedOf(yx(k)[0], yx(k)[1]) === bed && (openPlot(plots[k]) || movable(k, plots[k], me, now, rains)))
+    .sort((a, b) => yx(a)[1] - yx(b)[1] || yx(a)[0] - yx(b)[0]);
+}
+/**
+ * A plant as it goes from one plot to another: its round settled to the moment under what the bed gave it where it stood
+ * (one with no round yet is given its first, with that, as the trigger gives one), the plot it was sown at remembered, and
+ * a root and a footprint of one plot (a hybrid's, a helper's) set to its new plot. `plots`: the bed as it stood.
+ */
+function movedTo(from: string, to: string, plots: Readonly<Record<string, Plot>>, now: number, rains: FarmSky, launch: number): Plant {
+  const p = plots[from]!.plant!, gift = p.q ? undefined : bedGift(from, plots);
+  const q = settled(p.q ? p : { ...p, q: { ...NO_Q(Math.max(launch, roundStart(p))), ...(gift ? { bed: gift } : {}) } }, now, rains, launch);
+  return { ...p, q, home: homeOf(from, p), ...(p.root !== undefined ? { root: to } : {}), ...(p.footprint !== undefined ? { footprint: [to] } : {}) };
+}
+/**
+ * Move it: the purse with the day's move counted, and the two plots as the move leaves them (the plant on its new plot;
+ * on the old one, the plant it changed places with, or tilled ground), not yet settled with the bed (the farm's one
+ * write does that: lib/town/quality-plant's syncMove). Refused without the charm worn (`none`), with the day's moves
+ * used (`spent`), off my bed or onto another bed (`soil`), in a bed or of a plant not mine (`theirs`), and for a plant
+ * that may not move or a plot it may not go to (`soil`).
+ */
+export function movePlant(from: string, to: string, plots: Readonly<Record<string, Plot>>, purse: Purse, me: string, now: number, owner: string | null, rains: FarmSky = DRY, launch: number = QUALITY.launch):
+  { ok: true; purse: Purse; plots: Record<string, Plot>; swap: boolean; left: number } | { ok: false; why: MoveRefusal } {
+  if (!works(purse, "charmHoe")) return { ok: false, why: "none" };
+  if (usesLeft(purse, "charmHoe", now) < 1) return { ok: false, why: "spent" };
+  const [fx, fy] = from.split(",").map(Number), [tx, ty] = to.split(",").map(Number), bed = bedOf(fx, fy);
+  if (bed < 0 || bedOf(tx, ty) !== bed || from === to) return { ok: false, why: "soil" };
+  const here = plots[from]?.plant, there = plots[to]?.plant;
+  if (owner !== me || (here && here.by !== me) || (there && there.by !== me)) return { ok: false, why: "theirs" };
+  if (!movable(from, plots[from], me, now, rains) || (there ? !movable(to, plots[to], me, now, rains) : !openPlot(plots[to]))) return { ok: false, why: "soil" };
+  const used = useGift(purse, "charmHoe", now);
+  if (!used.ok) return { ok: false, why: used.why === "spent" ? "spent" : "none" };
+  return { ok: true, purse: used.purse, left: used.left, swap: !!there, plots: {
+    [from]: there ? { soil: "tilled", plant: movedTo(to, from, plots, now, rains, launch) } : { soil: "tilled", plant: null },
+    [to]: { soil: "tilled", plant: movedTo(from, to, plots, now, rains, launch) },
+  } };
+}
+
+/** Whether the mandrake sang to the plant in a plot as it was picked (never since 2026-10-16, when its song became `atTop`'s): read from the plot as it was and as it is, for the page, which shows it. */
 export const sungTo = (was: Plot | undefined, is: Plot | undefined): boolean => !!was?.plant && !!is?.plant && moreOf(is.plant) > moreOf(was.plant);
 
 /** A plot a row's deed did: which, what grows or grew there, and how many it came to (a plot hoed or sown is one; a plant picked, how many were picked, the sickle's one more among them where it was `well` cut). */
@@ -997,7 +1093,8 @@ export function rowTend(at: string, keys: readonly string[], plots: Readonly<Rec
     // (a plant cut well: the sickle's one more, where the bag has room for it)
     // (its fruits are rolled for their Quality as the fruits after the pick's and the twine's, lib/town/quality-plant)
     const crop = plot.plant!.crop, well = marks[key] === true, from = did.got.filter(([id]) => id === crop).reduce((t, [, m]) => t + m, 0);
-    const sickle = well ? harvestOf(key, plot.plant!, numberOf("charmSickle"), now, rains, QUALITY.launch, "", from) : null;
+    // (and at the top of the range, of my own plant with the mandrake at heel: `atTop`)
+    const sickle = well ? harvestOf(key, plot.plant!, numberOf("charmSickle"), now, rains, QUALITY.launch, "", from, atTop(purse, plot.plant, me)) : null;
     let cut: Purse["bag"] | null = sickle ? mine.bag : null;
     for (const [g, c] of sickle?.groups ?? []) cut = cut && roomFor(cut, crop, g) >= c ? put(cut, crop, c, g) : null;
     const more = cut ? numberOf("charmSickle") : 0;

@@ -10,7 +10,7 @@
  * fertiliser, the cure, moon water) until it runs out; a released pollinator until its `pollenUntil`.
  */
 import { CROPS } from "./items";
-import { encoreHours, grown, quickMs, roll, type FarmSky, type Plant, type Plot } from "./farm";
+import { encoreHours, grown, homeOf, quickMs, roll, type FarmSky, type Plant, type Plot } from "./farm";
 import { HOUR } from "./trade";
 import { DRY, type Rain } from "./weather";
 import { COMPANIONS, NO_Q, PARTNERS, QUALITY, ROLES, accrue, barsOfQ, ceilingOf, chancesOf, coveredShare, gradeOf, narrowingOfQ, rangeOf, rollOne, type BedGift, type CompanionId, type Cover, type Grade, type NarrowCover, type Penalty, type PlantQ, type Range, type Role } from "./quality";
@@ -178,6 +178,17 @@ export function syncQuality(before: Readonly<Record<string, Plot>>, after: Recor
   return out;
 }
 
+/**
+ * A move of the enchanted hoe's laid on the farm (lib/town/farm's movePlant: `moved` is the two plots as it leaves them),
+ * as the database lays it (v273): first the two plots emptied, then the plants set down in their new places, each a
+ * change of the bed. In two steps, so that a plant set where another of the same sowing stood (two sown at one moment
+ * from the seed pouch, changing places) is never taken for that one, and given its round.
+ */
+export function syncMove(before: Readonly<Record<string, Plot>>, moved: Readonly<Record<string, Plot>>, now: number, rains: FarmSky = DRY, launch: number = QUALITY.launch): Record<string, Plot> {
+  const emptied = syncQuality(before, { ...before, ...Object.fromEntries(Object.keys(moved).map((k) => [k, { soil: "tilled", plant: null } as Plot])) }, now, rains, launch);
+  return syncQuality(emptied, { ...emptied, ...moved }, now, rains, launch);
+}
+
 /** What the inspector shows of a plant now: its bars, how far its floor is raised, its range and each grade's chance. */
 export function qualityNow(p: Plant, now: number, rains: FarmSky = DRY, launch: number = QUALITY.launch) {
   const q = settled(p, now, rains, launch), bars = barsOfQ(q), narrowing = narrowingOfQ(q, typeof p.brushed === "number" && p.brushed >= roundStart(p)), range = rangeOf(ceilingOf(bars), narrowing);
@@ -211,13 +222,16 @@ export function coveringNow(p: Plant, now: number, rains: FarmSky = DRY): Partia
  * A pick's fruits: the round's range as it stands (ripe, so frozen), and one even roll a fruit. The draws are the same
  * for the same plant, picking and fruit (a retry with a full bag gives the same fruits, never a new roll). The database
  * draws with md5 over a salt of its own that no browser sees; with an empty salt (the trial, the bench) it draws as here.
+ * They are drawn by the plot the plant was sown at, should the enchanted hoe have moved it since (lib/town/farm's
+ * homeOf). `top`: every fruit at the top of the range, with no draw (the mandrake that follows whoever picks their own
+ * plant: lib/town/farm's atTop).
  */
-export function harvestOf(key: string, p: Plant, n: number, now: number, rains: FarmSky = DRY, launch: number = QUALITY.launch, salt = "", from = 0):
+export function harvestOf(key: string, p: Plant, n: number, now: number, rains: FarmSky = DRY, launch: number = QUALITY.launch, salt = "", from = 0, top = false):
   { range: Range; values: number[]; groups: Array<[Grade, number]> } {
   const q = settled(p, now, rains, launch), brushed = typeof p.brushed === "number" && p.brushed >= roundStart(p);
-  const range = rangeOf(ceilingOf(barsOfQ(q)), narrowingOfQ(q, brushed));
+  const range = rangeOf(ceilingOf(barsOfQ(q)), narrowingOfQ(q, brushed)), home = homeOf(key, p);
   // (fruits after the pick's own, the garden twine's and the sickle's, are drawn as the fruits that follow: `from` on)
-  const values = Array.from({ length: n }, (_, i) => rollOne(range, () => roll(`quality|${salt}|${key}`, p.sown, p.picked, from + i)));
+  const values = Array.from({ length: n }, (_, i) => (top ? range.hi : rollOne(range, () => roll(`quality|${salt}|${home}`, p.sown, p.picked, from + i))));
   const count = [0, 0, 0, 0];
   for (const v of values) count[gradeOf(v)]++;
   return { range, values, groups: ([0, 1, 2, 3] as const).filter((g) => count[g] > 0).map((g) => [g, count[g]] as [Grade, number]) };

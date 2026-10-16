@@ -29,7 +29,7 @@ import TownWaterRelay from "./TownWaterRelay";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import TownNotebook, { type NotebookEntry } from "./TownNotebook";
-import { BLADES, FARMING, WATER, WILD, cropOf, gameFor, guardBy, hardFor, hardIn, hitsFor, moreOf, theirsAt, tiredAt, plotKey, pouchSeeds, quickUntil, ridCameOf, roll, see, sungTo, type Chore, type Deed, type Plant, type RowDeed, type Seen } from "@/lib/town/farm";
+import { BLADES, FARMING, WATER, WILD, atTop, cropOf, gameFor, guardBy, hardFor, hardIn, hitsFor, moreOf, theirsAt, tiredAt, plotKey, pouchSeeds, quickUntil, ridCameOf, roll, see, type Chore, type Deed, type Plant, type RowDeed, type Seen } from "@/lib/town/farm";
 import { canFx, hitsWith, hoeFx } from "@/lib/town/forged";
 import { FIELD } from "@/lib/town/gear";
 import { ITEMS, growIconOf, iconOf, type CropId, type ItemId } from "@/lib/town/items";
@@ -64,6 +64,7 @@ import { Vfx, type VfxKind } from "./vfx";
 import type { GardenCropId } from "@/lib/town/garden-items";
 import { GARDEN, gardenCross, gardenMods } from "@/lib/town/gardening";
 import TownGardenPlacement from "./TownGardenPlacement";
+import TownMovePlant from "./TownMovePlant";
 import { FertChart, QualityBed, QualityChip, QualityInspector } from "./TownQuality";
 import { HouseChip, HousePanel } from "./TownInsectHouse";
 import { houseRoleOf, plantsInReach, type HouseDeed, type InsectHouse } from "@/lib/town/insect-house";
@@ -289,6 +290,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   /** (`long`: the plants of a row of somebody else's that the gardener's gloves water at one long pour, from the row's head: where each stands in the row and what it is; `hard`: how much harder the row is for me) */
   const leaving = useLeaving(keeper);
   const [placement, setPlacement] = useState<{ key: string; crop: CropId } | null>(null);
+  /** The plot whose plant the enchanted hoe is moving (components/town/TownMovePlant): shut again on walking off it. */
+  const [moving, setMoving] = useState<string | null>(null);
   const [working, setWorking] = useState<{ key: string | null; work: Work; need: number; row?: string[]; whole?: boolean; sweep?: Array<{ key: string; place: number; crop: CropId; hard: number }>;
     long?: Array<{ key: string; place: number; crop: CropId }>; hard?: number; rotation?: number } | null>(null);
   /** The plant I have been asked a second time about digging out: in which plot, and whether it is a dead one (pull) or a living (uproot). */
@@ -900,8 +903,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     if (timing) keeper.record({ game: "farming", board: did.deed === "clear" ? "weeding" : "timing", at: keeper.now(), won: true, secs: timing.secs, spent: isSpent(purse, now), buff: null, what: did.deed, need: timing.need, hits: timing.hits, misses: timing.misses });
     // an insect that eats pests, let go on a plant that had one: it ate it, or it is off with the pest still there (lib/town/farm's FARMING.rids)
     const rid = did.deed === "feed" && held ? ridCameOf(k, stood, keeper.farm()[k] ?? WILD, held, began, keeper.rains()) : null;
-    // the mandrake that follows me sang to the plant as I picked it: it stays in its plot, and bears once more (lib/town/farm's pick)
-    const sang = did.deed === "pick" && sungTo(stood, keeper.farm()[k]);
+    // the mandrake that follows me sang as I picked my own plant: every fruit at the top of its range (lib/town/farm's atTop);
+    // (a plant it sang to before its song was changed still bears its once more, and says nothing new here)
+    const sang = did.deed === "pick" && atTop(mine, stood.plant, keeper.id);
     // (the farm's Quality: the plant's range as it stood, and the grades the pick gave, read from the bag before and after)
     const grades = did.deed === "pick" && stood.plant ? (() => {
       const crop = stood.plant!.crop, after = keeper.purse().bag, range = qualityNow(stood.plant!, began, keeper.rains()).range;
@@ -909,7 +913,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       const got = ([3, 2, 1, 0] as const).map((g) => [g, countIn(after, crop, g) - countIn(mine.bag, crop, g)] as const).filter(([, n]) => n > 0);
       return ` · ${th ? "ช่วง" : "range"} ${range.lo}–${range.hi}: ${got.map(([g, n]) => `${th ? GRADES[g].th : GRADES[g].en} ×${n}`).join(" · ")}`;
     })() : "";
-    setNote(did.got.length ? `${did.got.map(([id, n]) => `${nameOf(id)} ×${n}`).join(" · ")}${grades}${sang ? (th ? " · แมนเดรกร้องเพลง ต้นนี้จะออกผลอีกรอบ" : " · the mandrake sang: it will bear once more") : ""}`
+    setNote(did.got.length ? `${did.got.map(([id, n]) => `${nameOf(id)} ×${n}`).join(" · ")}${grades}${sang ? (th ? " · แมนเดรกร้องเพลง ทุกลูกได้ค่าสูงสุดของช่วง" : " · the mandrake sang: every fruit at the top of the range") : ""}`
       : rid === null || !held ? null
         : th ? `${nameOf(held)}${rid ? "กินศัตรูพืชหมดแล้ว" : "บินหนีไปแล้ว ศัตรูพืชยังอยู่"}`
           : `The ${nameOf(held).toLowerCase()} ${rid ? "ate the pest" : "flew off, and the pest is still there"}`);
@@ -1007,8 +1011,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   }, [key, deed, houseDeed, chore, pours, act, carry, pourOver, keeper, th, tiredOn, doHouse]);
   /** A row's deed, done whole by whoever keeps the game: what flies up over each plot it did, and a word of how many those were. */
   const doRow = useCallback(async (k: string, marks: Record<string, boolean>, timing: GameResult | null) => {
-    // (the plots as they stand: which plants the mandrake sang to is read from each as it was and as it is)
-    const stood = keeper.farm();
+    // (the plots as they stand, and my purse: which plants the mandrake sings over is read from each as it was)
+    const stood = keeper.farm(), mine = keeper.purse();
     if (sent.current) return;
     sent.current = true;
     const did = await keeper.rowDo(k, name, marks, timing ? { hits: timing.hits, misses: timing.misses, secs: timing.secs, need: timing.need } : undefined).finally(() => { sent.current = false; });
@@ -1025,11 +1029,11 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       window.setTimeout(() => { vfx.add(fx, at); if (reaped && marks[plot] && did.got[0]) vfx.add("pop", at, { icon: did.got[0][0] }); }, i * 70);
     });
     const of = Object.keys(marks).length, n = did.done.length, well = did.done.filter((plot) => marks[plot]).length;
-    // (the mandrake sang to every plant of the row that was picked for the last time, while it had songs left)
-    const after = keeper.farm(), sung = reaped ? did.done.filter((plot) => sungTo(stood[plot], after[plot])) : [];
+    // (the mandrake at heel sings over every plant of mine the sweep picked: each fruit at the top of its range, lib/town/farm's atTop)
+    const sung = reaped ? did.done.filter((plot) => atTop(mine, stood[plot]?.plant, keeper.id)) : [];
     sung.forEach((plot, i) => { const [x, y] = plot.split(",").map(Number); window.setTimeout(() => songs.current.push({ x, y, from: null }), 200 + i * 90); });
     if (sung.length) sfx?.work("cooked", 0.7);
-    setNote(reaped ? `${did.got.map(([id, m]) => `${nameOf(id)} ×${m}`).join(" · ")} · ${th ? `ตวัดคม ${well}/${n}` : `${well} of ${n} cut clean`}${sung.length ? (th ? ` · แมนเดรกร้องเพลง ${sung.length} ต้น` : ` · the mandrake sang to ${sung.length}`) : ""}`
+    setNote(reaped ? `${did.got.map(([id, m]) => `${nameOf(id)} ×${m}`).join(" · ")} · ${th ? `ตวัดคม ${well}/${n}` : `${well} of ${n} cut clean`}${sung.length ? (th ? ` · แมนเดรกร้องเพลง ${sung.length} ต้น ได้ค่าสูงสุดของช่วง` : ` · the mandrake sang: ${sung.length} at the top of the range`) : ""}`
       : did.deed === "sow" ? (th ? `หว่านทั้งแถว ${n} ช่อง ใช้ ${did.seeds ?? n} เมล็ด` : `${n} plots sown for ${did.seeds ?? n} seeds`)
       : th ? `ทั้งแถว: เสร็จ ${n} จาก ${of} ช่อง` : `The row: ${n} of ${of} plots done`);
   }, [keeper, name, say, sfx, th, vfx]);
@@ -1062,6 +1066,25 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     did.quickened.forEach((plot, i) => { const [x, y] = plot.split(",").map(Number); window.setTimeout(() => vfx.add("sparkle", { x: x + 0.5, y: y + 0.5 }), i * 45); });
     setNote(th ? "ทรายเริ่มไหลแล้ว" : "The sand is running");
   }, [key, keeper, say, sfx, th, vfx]);
+  /** The plots of my bed the enchanted hoe may move the plant I stand at to (lib/town/farm's moveTargets): none, when there is no move to offer. */
+  const moveHere = key ? keeper.moveAt(key) : [];
+  /** Move it: earth turned over at both plots, and a word of what was done and how many moves the day has left. */
+  const doMove = useCallback(async (from: string, to: string) => {
+    if (sent.current) return false;
+    sent.current = true;
+    const crop = keeper.farm()[from]?.plant?.crop;
+    const did = await keeper.moveDo(from, to).finally(() => { sent.current = false; });
+    if (!did.ok) { say(did.why); return false; }
+    setMoving(null);
+    sfx?.wake();
+    sfx?.work("sow");
+    for (const k of [from, to]) { const [x, y] = k.split(",").map(Number); vfx.add("soil", { x: x + 0.5, y: y + 0.5 }); vfx.add("sparkle", { x: x + 0.5, y: y + 0.5 }, { lift: 6 }); }
+    const what = crop ? nameOf(crop) : th ? "ต้น" : "plant";
+    setNote(did.swap ? (th ? `สลับที่${what}แล้ว · วันนี้ย้ายได้อีก ${did.left} ครั้ง` : `${what} swapped · ${did.left} moves left today`)
+      : th ? `ย้าย${what}แล้ว · วันนี้ย้ายได้อีก ${did.left} ครั้ง` : `${what} moved · ${did.left} moves left today`);
+    return true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- names are read when the move is made
+  }, [keeper, say, sfx, th, vfx]);
   /** What a gift of the farming line would do to the whole row from where I stand (lib/town/farm's rowFor), if anything. */
   const rowHere = key ? keeper.rowAt(key) : null;
   /**
@@ -1140,6 +1163,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   // …and the asking: it is about this plot and this plant as it stands (one that dies meanwhile, or is cured, is asked about afresh)
   useEffect(() => { if (asking && (asking.key !== key || asking.deed !== (asking.deed === "lift" ? houseDeed : deed))) setAsking(null); }, [asking, key, deed, houseDeed]);
   useEffect(() => { if (inspecting && inspecting !== key) setInspecting(null); }, [inspecting, key]);
+  useEffect(() => { if (moving && moving !== key) setMoving(null); }, [moving, key]);
   useEffect(() => { if (!inspecting) { setBedView(false); setChartView(false); setBookView(false); } }, [inspecting]);
   // The asking opens with "leave it" under the keys: Space or Enter, pressed once too often, digs nothing out. Escape leaves it too.
   useEffect(() => {
@@ -1199,6 +1223,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       sung: () => [...sungPlots.current], singing: () => songs.current.length,
       gnome: () => (key ? keeper.gnomeAt(key) : []), gnomeSend: sendGnome, gnomeOut: () => (gnome.current ? { shown: gnome.current.shown, of: gnome.current.path.length } : null),
       asking: () => asking,
+      // (the enchanted hoe's move: the plots the plant here may go to, opening the bed's grid, which plot's is open, and moving it at once)
+      move: () => (key ? keeper.moveAt(key) : []), moveOpen: () => { if (key) setMoving(key); }, moving: () => moving, moveTo: (to: string) => (key ? doMove(key, to) : Promise.resolve(false)),
       well: () => keeper.well(), owners: () => [...keeper.owners()].map(([bed, who]) => ({ bed, ...who })), weeds: (x: number, y: number) => weedsOf(x, y).map((w) => w.name),
       // (whether a tile is a plot at all: a script that lays plots of its own over the farm lays some on the grass between the beds)
       isPlot: (x: number, y: number) => plotAt(x, y),
@@ -1206,16 +1232,18 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     (window as unknown as { __townFarm?: typeof handle }).__townFarm = handle;
     return () => { delete (window as unknown as { __townFarm?: typeof handle }).__townFarm; };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the plots a bucket would water are told by how many they are
-  }, [deed, chore, offer, flood.join("|"), note, begin, keeper, asking, beginRow, key, sendGnome, turnGlass, beginLong, dustHere, sprinkle]);
+  }, [deed, chore, offer, flood.join("|"), note, begin, keeper, asking, beginRow, key, sendGnome, turnGlass, beginLong, dustHere, sprinkle, moving, doMove]);
 
   /** What the gifts of the farming line offer here, beside the plain deed: each a button of its own, with the gift's picture. */
-  const powers: Array<{ id: GiftId; word: string; more?: string; go: () => void }> = [];
+  const powers: Array<{ id: GiftId; word: string; more?: string; go: () => void; act?: string }> = [];
   if (rowHere) {
     // (how many plots it would do now; and of the pouch, for how many seeds)
     const n = rowHere.plots.length, seeds = pouchSeeds(n);
     powers.push({ id: ROW_GIFT[rowHere.deed], word: ROW_VERB[rowHere.deed][th ? 0 : 1], go: beginRow,
       more: rowHere.deed === "sow" ? (th ? `${n} ช่อง · ${seeds} เมล็ด` : `${n} plots · ${seeds} seeds`) : th ? `${n} ช่อง` : `${n} plots` });
   }
+  // (the enchanted hoe's move: my own unripe plant, to an empty plot of its bed or another plant's place, so many a day)
+  if (moveHere.length && key) { const left = usesLeft(purse, "charmHoe", now); powers.push({ id: "charmHoe", act: "move", word: th ? "ย้ายต้นนี้" : "Move this plant", go: () => { setInspecting(null); setMoving(key); }, more: th ? `วันนี้เหลือ ${left}` : `${left} left today` }); }
   if (gnomeHere.length) powers.push({ id: "famGnome", word: th ? "ให้โนมรดน้ำทั้งแปลง" : "Send the gnome down the bed", go: () => void sendGnome() });
   if (glassHere.length) powers.push({ id: "thingHourglass", word: th ? "พลิกนาฬิกาทราย" : "Turn the hourglass", go: () => void turnGlass(), more: th ? `${glassHere.length} ต้น` : `${glassHere.length} plants` });
   // ── gifts: helpers ── what the gifts of the helpers' line offer here, the same way
@@ -1242,7 +1270,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   ];
   const inspected = inspecting && inspecting === key ? plots[inspecting]?.plant ?? null : null;
   const inspectedHouse = inspecting && inspecting === key ? plots[inspecting]?.house ?? null : null;
-  const bare = (!placement && !working && !offer && !note && !powers.length && !running && !gardenInfo) || !!inspected;
+  const bare = (!placement && !moving && !working && !offer && !note && !powers.length && !running && !gardenInfo) || !!inspected;
   /** The plant the asking is about, as it stands. */
   const asked = asking ? seen.current.get(asking.key) : undefined;
   return (
@@ -1254,7 +1282,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           <div className="min-h-0 overflow-y-auto"><TownNotebook initiallyOpen onClose={() => setBookView(false)} icon="gardenNotebook" title={th ? "สมุดทดลองสวนของฉัน" : "My garden experiments"} th={th} entries={bookEntries}/></div>
         </div>
       : <QualityInspector plant={inspected} now={now} rains={rains} th={th} onClose={() => setInspecting(null)} onBed={() => setBedView(true)} onChart={() => setChartView(true)} notes={panelNotes} onBook={() => setBookView(true)} book={bookCount} />}</TownFoot>}{bare ? null : (
-    <TownFoot rank={placement || working || asking ? "board" : "main"} order={62}>
+    <TownFoot rank={placement || moving || working || asking ? "board" : "main"} order={62}>
+      {moving && !placement && !working && <TownMovePlant at={moving} keeper={keeper} th={th} now={now} rains={rains} onClose={() => setMoving(null)} onMove={(to) => doMove(moving, to)} />}
       {placement && <TownGardenPlacement at={placement.key} crop={placement.crop} keeper={keeper} th={th} onClose={() => setPlacement(null)} onPlant={async rotation => { const need = hitsFor("sow", tiredOn(placement.key)); if (need) { setWorking({ key: placement.key, work: "sow", need, rotation }); setPlacement(null); } else if (await act(placement.key, undefined, false, rotation)) setPlacement(null); }} />}
       {running && <AnkletRun keeper={keeper} />}
       {!working && !placement && key && <TownInsectRelease keeper={keeper} at={key} th={th} />}
@@ -1374,9 +1403,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
             </button>
           </div>
         </div>
-      ) : !placement && (offer || powers.length > 0 || !!(key && (plots[key]?.plant || plots[key]?.house))) && (
+      ) : !placement && !moving && (offer || powers.length > 0 || !!(key && (plots[key]?.plant || plots[key]?.house))) && (
         <div className="flex max-w-full flex-col items-center justify-center gap-2 sm:flex-row sm:flex-wrap">
-          {key && plots[key]?.plant && <QualityChip plant={plots[key].plant!} now={now} rains={rains} th={th} onOpen={() => setInspecting(key)} gain={deed === "fert" && isFert(hand) ? fertGain(plots[key].plant!, hand, now, rains) : undefined} />}
+          {key && plots[key]?.plant && <QualityChip plant={plots[key].plant!} now={now} rains={rains} th={th} onOpen={() => setInspecting(key)} gain={deed === "fert" && isFert(hand) ? fertGain(plots[key].plant!, hand, now, rains) : undefined} top={atTop(purse, plots[key].plant, keeper.id)} />}
           {key && plots[key]?.house && <HouseChip at={key} house={plots[key].house!} plots={plots} now={now} th={th} onOpen={() => setInspecting(key)} />}
           {offer && (
             <button type="button" onClick={begin} data-farm-offer={offer}
@@ -1387,7 +1416,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           )}
           {/* what a gift of the farming line does here, beside the plain deed: never in its place */}
           {powers.map((p) => (
-            <TownFoot key={p.id} rank="power" icon={p.id as IconName}><button type="button" onClick={p.go} data-farm-gift={p.id} data-state="open" className={GIFT_BTN}
+            <TownFoot key={`${p.id}:${p.act ?? ""}`} rank="power" icon={p.id as IconName}><button type="button" onClick={p.go} data-farm-gift={p.id} data-farm-act={p.act} data-state="open" className={GIFT_BTN}
                     title={(() => { const g = giftOf(p.id); return g ? g.name[th ? "th" : "en"] : undefined; })()}>
               <span aria-hidden className="grid size-9 place-items-center rounded-full border-2 border-[#2a190d] bg-[#6b4424]"><TownIcon name={p.id as IconName} size={26} /></span>
               <span className="flex flex-col items-start leading-tight">

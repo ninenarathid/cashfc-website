@@ -88,7 +88,7 @@ import { canPour, freshen, pourIn } from "./yard";
 import { carried, pass, type PassRefusal } from "./line";
 import { keptAs, natureAt, natureOf, pouredIn, type Nature, type WellWater } from "./waters";
 // ── gifts: farming ──
-import { glassReach, glassTurn, gnomeReach, gnomeWater, plotKey, rowFor, rowTend, type RowDeed } from "./farm";
+import { glassReach, glassTurn, gnomeReach, gnomeWater, moveTargets, movePlant, plotKey, rowFor, rowTend, type MoveRefusal, type RowDeed } from "./farm";
 import { rowOf, plotsOfBed } from "./world";
 // ── gifts: well ──
 import { MOON, drinkOffer, drinkTake, moonKeep, moonPour, rainFill, type WellGiftRefusal } from "./well-gifts";
@@ -730,6 +730,33 @@ export class Trial {
     if (beds[bed]) this.write(BEDS, { ...beds, [bed]: { ...beds[bed], tended: now } });
     this.save(did.purse);
     return { ok: true, quickened: did.quickened, until: did.until };
+  }
+  /** The plots of its bed my enchanted hoe may move the plant in a plot to now (lib/town/farm's moveTargets): none, when there is no move to offer. */
+  moveAt(key: string): string[] {
+    const [x, y] = key.split(",").map(Number), bed = bedOf(x, y);
+    return bed < 0 ? [] : moveTargets(key, this.bedAt(x, y), this.purse(), this.id, this.now(), this.owners().get(bed)?.by ?? null, this.sky());
+  }
+  /**
+   * Move it (lib/town/farm's movePlant), laid on the farm as the database lays it (v273): the two plots emptied, then
+   * the plants set in their new places, each write of the farm settling the bed's Quality (lib/town/quality-plant's
+   * syncMove). Its owner's every deed in a bed counts as tending it; who helped each plant goes with it.
+   */
+  moveDo(from: string, to: string): { ok: true; swap: boolean; left: number } | { ok: false; why: MoveRefusal } {
+    const [x, y] = from.split(",").map(Number), bed = bedOf(x, y), now = this.now();
+    if (bed < 0) return { ok: false, why: "soil" };
+    const did = movePlant(from, to, this.bedAt(x, y), this.purse(), this.id, now, this.owners().get(bed)?.by ?? null, this.sky());
+    if (!did.ok) return did;
+    this.write(FARM, { ...this.farm(), ...Object.fromEntries(Object.keys(did.plots).map((k) => [k, { soil: "tilled", plant: null } as Plot])) });
+    this.write(FARM, { ...this.farm(), ...did.plots });
+    const beds = this.beds();
+    if (beds[bed]?.by === this.id) this.write(BEDS, { ...beds, [bed]: { ...beds[bed], tended: now } });
+    const log = this.wellLog(), help = { ...log.help };
+    delete help[from]; delete help[to];
+    if (log.help[from]) help[to] = log.help[from];
+    if (did.swap && log.help[to]) help[from] = log.help[to];
+    this.write(WELL_LOG, { ...log, help });
+    this.save(did.purse);
+    return { ok: true, swap: did.swap, left: did.left };
   }
   /** Send it. (Its water is nobody's, and the plants its member's own: the well's book has nothing to read of it.) */
   /** The insect house (lib/town/insect-house): what the thing in my hand does at a plot with one in mind (set it down, fill a room, lift it), if anything. */

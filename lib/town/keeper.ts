@@ -68,7 +68,7 @@ export interface VeinDid { got: Array<[ItemId, number]>; passed: number; of: num
 export type MineDone<T> = ({ ok: true } & T) | { ok: false; why: Why | MineRefusal | PouchRefusal };
 // ── end: mining ──
 // ── gifts: farming ──
-import { glassReach, gnomeReach, plotKey, rowFor, type RowDeed } from "./farm";
+import { glassReach, gnomeReach, moveTargets, plotKey, rowFor, type RowDeed } from "./farm";
 /** What a row's deed came to (lib/town/farm's rowTend), as a panel is told it. */
 export interface RowDid { deed: RowDeed; done: string[]; got: Array<[ItemId, number]>; seeds?: number }
 import { rowOf } from "./world";
@@ -347,6 +347,13 @@ export interface Keeper {
    */
   glassAt(key: string): string[];
   glassDo(key: string): Promise<Did<{ quickened: string[]; until: number }>>;
+  /**
+   * The enchanted hoe's move (lib/town/farm's movePlant): the plots of its bed the plant in a plot of mine may go to now
+   * (none: there is no move to offer), and moving it there: onto a tilled empty plot, or changing places with another
+   * plant of mine (`swap`). `left`: how many moves the day has left.
+   */
+  moveAt(key: string): string[];
+  moveDo(from: string, to: string): Promise<Did<{ swap: boolean; left: number }>>;
   // ── gifts: helpers ──
   /**
    * The long pour of the gardener's gloves (lib/town/farm's pourFor): the plants of the row of somebody else's bed
@@ -1791,6 +1798,18 @@ export class DbKeeper implements Keeper {
   async glassDo(key: string): Promise<Did<{ quickened: string[]; until: number }>> {
     const [x, y] = key.split(",").map(Number);
     const did = await this.deed<{ quickened: string[]; until: number }>("town_hourglass", { p_x: x, p_y: y });
+    if (did.ok) this.onDeed?.("farm");
+    return did;
+  }
+  moveAt(key: string): string[] {
+    const [x, y] = key.split(",").map(Number), bed = bedOf(x, y);
+    if (bed < 0) return [];
+    return moveTargets(key, this.bedPlots(bed), this.mine, this.id, this.now(), this.owners().get(bed)?.by ?? null, this.rains());
+  }
+  async moveDo(from: string, to: string): Promise<Did<{ swap: boolean; left: number }>> {
+    const [x, y] = from.split(",").map(Number), [u, v] = to.split(",").map(Number);
+    // (the answer brings every plot of the bed as the move left it, each plant settled with what the bed gives it now: kept as any answer's are)
+    const did = await this.deed<{ swap: boolean; left: number }>("town_move", { p_from_x: x, p_from_y: y, p_to_x: u, p_to_y: v });
     if (did.ok) this.onDeed?.("farm");
     return did;
   }

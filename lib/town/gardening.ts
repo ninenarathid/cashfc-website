@@ -1,7 +1,7 @@
 import { carriedBag } from "./passive-equipment";
 import { GARDEN_CROPS, type GardenCropId } from "./garden-items";
 import { CROPS, type CropId, type ItemId } from "./items";
-import { WILD, see, tend, type Bed, type FarmSky, type Plot } from "./farm";
+import { WILD, atTop, see, tend, type Bed, type FarmSky, type Plot } from "./farm";
 import { held, handOf, no, put, roomFor, type Purse } from "./trade";
 import { hasBuff } from "./stamina";
 import { bedOf } from "./world";
@@ -99,8 +99,9 @@ export function gardenHarvest<T extends { purse: Purse; plot: Plot; got: Array<[
   const child = gardenCross(key, plots, me, now, sky), fx = gardenMods(before, now);
   let after = did.purse, updated = did.plot;
   const extras: Array<[ItemId, number]> = [];
-  // (the twine's fruit is of the plant's own crop: rolled for its Quality as the fruits after the pick's, lib/town/quality-plant)
-  const twine = plant.root && fx.extra ? harvestOf(key, plant, GARDEN.extra, now, sky, QUALITY.launch, "", did.got[0]?.[1] ?? 0) : null;
+  // (the twine's fruit is of the plant's own crop: rolled for its Quality as the fruits after the pick's, lib/town/quality-plant;
+  // at the top of its range, of my own plant with the mandrake at heel, lib/town/farm's atTop)
+  const twine = plant.root && fx.extra ? harvestOf(key, plant, GARDEN.extra, now, sky, QUALITY.launch, "", did.got[0]?.[1] ?? 0, atTop(before, plant, me)) : null;
   for (const [g, c] of twine?.groups ?? []) { if (roomFor(after.bag, plant.crop, g) < c) return no("full"); after = { ...after, bag: put(after.bag, plant.crop, c, g) }; }
   if (!updated.plant && plant.root && fx.seed) extras.push([CROPS[plant.crop].seed, 1]);
   if (child) extras.push([CROPS[child].seed, fx.knife || plant.insectCrossRound===plant.picked ? 2 : 1]);

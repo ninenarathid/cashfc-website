@@ -63,8 +63,9 @@ export const GIFTS: readonly Gift[] = [
     does: { th: "ในป่าตอนมืด รอบตัวเราสว่างขึ้น และของที่เก็บได้ในวงแสงมีประกาย (เห็นเฉพาะจอเรา)", en: "In the forest's dark, a light about you, and what can be gathered in it glints (on your own screen)" } },
   { id: "charmNet", kind: "charm", line: "insects", rank: 1, name: { th: "สวิงใยเงิน", en: "Silver-web net" },
     does: { th: "เห็นแมลงทุกตัวที่ออกมาตอนนี้ทั้งแผนที่ มีประกายเงินบอกว่าอยู่ตรงไหน แม้ตัวที่ซ่อน (เห็นเฉพาะจอเรา)", en: "Every insect that is out on the map glints silver where it is, the hidden ones too (on your own screen)" } },
+  // (and since 2026-10-16 it moves plants too, the owner: "ใน lv ต้นๆ อยากให้เพิ่ม effect ที่สามารถ ย้ายตำแหน่งผักในแปลงตัวเองได้": lib/town/farm's movePlant)
   { id: "charmHoe", kind: "charm", line: "farming", rank: 1, name: { th: "จอบต้องมนตร์", en: "Enchanted hoe" },
-    does: { th: "จอบเดียวทั้งแถว: ถอนหญ้าหรือพรวนดินทั้งแถวของแปลงด้วยมินิเกมเดียว จังหวะไหนพลาด ช่องนั้นไม่เสร็จ", en: "A whole row at a swing: weed or till a bed's row in one game, a beat to a plot; a beat missed leaves its plot undone" } },
+    does: { th: "จอบเดียวทั้งแถว: ถอนหญ้าหรือพรวนดินทั้งแถวของแปลงด้วยมินิเกมเดียว จังหวะไหนพลาด ช่องนั้นไม่เสร็จ และย้ายผักที่ยังไม่สุกในแปลงของเราไปช่องว่างที่พรวนแล้ว หรือสลับที่กับต้นอื่นของเรา ต้นยังเก็บทุกอย่างไว้ วันละ 10 ครั้ง", en: "A whole row at a swing: weed or till a bed's row in one game, a beat to a plot; a beat missed leaves its plot undone. And it moves an unripe plant of yours to a tilled empty plot of its bed, or swaps it with another of yours, keeping all it has: ten moves a day" } },
   // the second rank: the first familiars
   { id: "famSquirrel", kind: "familiar", line: "forest", rank: 2, name: { th: "กระรอกคู่ใจ", en: "A squirrel" },
     does: { th: "ของที่วางอยู่บนพื้นในป่า กระรอกวิ่งไปเก็บมาให้เองตอนเราเดินผ่าน ไม่เสียแรง มื้อละ 20 ครั้ง และตอนเขย่าต้นไม้ช่วยรับลูกไม้ที่เราพลาดให้ ต้นละ 2 ลูก", en: "It runs to fetch what lies on the forest's ground as you walk past, for no stamina, twenty times to a meal's hours; and when a tree is shaken it catches two of the fruit you miss" } },
@@ -137,8 +138,11 @@ export const GIFTS: readonly Gift[] = [
     does: { th: "เก็บผักที่สุกทั้งแถวในครั้งเดียวด้วยเกมตวัดเคียว ได้ผลเพิ่มต้นละ 1 ต้นไหนตวัดพลาดต้นนั้นไม่ได้เพิ่ม (เฉพาะแปลงของเรา)", en: "Picks a whole ripe row at once by a game of the sickle, one more a plant; a plant swung at badly gives no more (your own beds)" } },
   { id: "thingHourglass", kind: "thing", line: "farming", rank: 5, by: 3, name: { th: "นาฬิกาทรายแห่งฤดู", en: "Hourglass of seasons" },
     does: { th: "แปลงของเราหนึ่งแปลงโตเร็วขึ้น 3 เท่า 3 ชั่วโมง วันละครั้ง", en: "One bed of yours grows three times as fast for three hours, once a day" } },
-  { id: "famMandrake", kind: "familiar", line: "farming", rank: 6, by: 1, name: { th: "ต้นกล้าแมนเดรก", en: "A mandrake sprout" },
-    does: { th: "ร้องเพลงให้ต้นไม้: ต้นที่เก็บแล้วออกผลให้เก็บได้อีก 1 รอบ ทุกชนิด วันละ 7 ต้น", en: "It sings to a plant: one that was picked bears once more, any crop; seven plants a day" } },
+  // (its song made a picked plant bear once more, seven a day, until the owner asked for more, 2026-10-16: "เครื่องราง lv 6
+  // อยากให้เปลี่ยน effect ให้ OP มากกว่านี้": now every fruit of my own plants lands at the top of its range, lib/town/farm's
+  // atTop. A plant it sang to before keeps its bearing more, lib/town/farm's moreOf)
+  { id: "famMandrake", kind: "familiar", line: "farming", rank: 6, name: { th: "ต้นกล้าแมนเดรก", en: "A mandrake sprout" },
+    does: { th: "ร้องเพลงให้ผัก: ระหว่างที่แมนเดรกเดินตาม ผลทุกลูกที่เก็บจากต้นของเราได้คุณภาพสูงสุดของช่วงต้นนั้นเสมอ ไม่ต้องลุ้น ทุกวิธีเก็บ ไม่จำกัดครั้ง", en: "It sings to your plants: while it follows you, every fruit picked from your own plants is at the very top of the plant's Quality range, no roll, by every way of picking, with no daily count" } },
   // the well (its first three ranks give things of the bag, lib/town/well's own)
   { id: "thingFlask", kind: "thing", line: "well", rank: 4, by: 30, name: { th: "กระติกน้ำพุแห่งชีวิต", en: "Flask of living water" },
     does: { th: "รินให้เพื่อนดื่ม เพื่อนได้แรง +30 และเราได้ +10 (คนหนึ่งดื่มได้มื้อละครั้ง)", en: "Pour a friend a drink: thirty stamina to them and ten to you (a drinker once to a meal's hours)" } },
@@ -204,7 +208,9 @@ export const USES: Partial<Record<GiftId, Use>> = {
   // (the squirrel's fetching: uncounted when it went out, twenty to a meal's hours on the owner's word the same morning, 2026-10-07: "ขอ 20 พอ")
   famSquirrel: { n: 20, per: "meal" }, famPiglet: { n: 10, per: "meal" }, thingMap: { n: 3, per: "day" },
   thingNectar: { n: 10, per: "day" }, thingFlute: { n: 1, per: "span", ms: 300_000 },
-  thingHourglass: { n: 1, per: "day" }, famMandrake: { n: 7, per: "day" },
+  thingHourglass: { n: 1, per: "day" },
+  // (the enchanted hoe's moves, lib/town/farm's movePlant: a swap is one. The mandrake's songs were seven a day until 2026-10-16)
+  charmHoe: { n: 10, per: "day" },
 };
 /**
  * The stretch of time a count is of, as one number: the day, the day and which meal's hours of it, or which span of

@@ -35,7 +35,8 @@ import { BEDS_IN_FARM, FARM, bedCorner, bedOf, rowOf } from "./world";
  *   `glass_turn` over beds of every sort, had and not, used today and yesterday, running and not, mine and not.
  * - the mandrake: `more_of`; `pick` and `tend` of plants at a first picking, a last one, one that was sung to and
  *   waits, one that is ripe for its bearing more, and one past it, with the mandrake following and not, songs left
- *   and none, a count of today and of yesterday; and `growing`, `pest_at`, `see` of the same plants.
+ *   and none, a count of today and of yesterday; and `growing`, `pest_at`, `see` of the same plants. (Since v273 it
+ *   sings no more: a plant it sang to keeps its bearing more, and no picking gives one.)
  * - `gnome_water`: beds with plants of every pace sown at many moments (growing, ripe, bearing again, watered a
  *   while ago and just now), bare soil and nothing at all; the gnome following, another familiar, none; rounds kept
  *   for this bed and for others, fresh, old and kept wrongly; one's own bed, somebody else's and nobody's.
@@ -304,15 +305,17 @@ describe("the cases the database's rules of the farming line's gifts are held to
     for (const why of ["none", "spent", "theirs", "running", "soil"]) expect(turned.some((x) => !x.d.ok && x.d.why === why), why).toBe(true);
     expect(turned.every((x) => !x.d.ok || usedOf(x.d.purse!, "thingHourglass", x.now) === 1)).toBe(true);
     expect(turned.some((x) => x.d.ok && (x.purse.gifts?.used as Record<string, { k: number }> | undefined)?.thingHourglass?.k === dayOf(x.now) - 1)).toBe(true);
-    // the mandrake: a plant sung to at its last picking (one picked once, and one that bears again), not sung to before its last, nor twice, nor without the mandrake, nor with no song left
+    // the mandrake (since v273, the owner, 2026-10-16): it sings no more, so no picking gives a plant a bearing more nor
+    // counts a song; every last picking leaves its plot bare, with the mandrake following too; a plant it sang to before
+    // bears its once more, and is gone after it
     const sang = (v: Vector) => { const was = (v.args[2] as Plot).plant!, d = v.want as { ok: boolean; plot?: Plot }; return d.ok && !!d.plot!.plant && moreOf(d.plot!.plant) > moreOf(was); };
     const picks = of("pick"), lastOf = (v: Vector) => { const pl = (v.args[2] as Plot).plant!; return pl.picked + 1 >= (CROPS[pl.crop].picks ?? 1) + moreOf(pl); };
-    expect(picks.filter(sang).length).toBeGreaterThan(20);
-    expect(picks.some((v) => sang(v) && (CROPS[(v.args[2] as Plot).plant!.crop].picks ?? 1) === 1) && picks.some((v) => sang(v) && (CROPS[(v.args[2] as Plot).plant!.crop].picks ?? 1) > 1)).toBe(true);
-    expect(picks.every((v) => !sang(v) || (lastOf(v) && usedOf((v.want as { purse: Purse }).purse, "famMandrake", v.args[5] as number) === usedOf(v.args[1] as Purse, "famMandrake", v.args[5] as number) + 1))).toBe(true);
+    expect(picks.filter(sang).length).toBe(0);
+    expect(picks.every((v) => !(v.want as { ok: boolean }).ok || usedOf((v.want as { purse: Purse }).purse, "famMandrake", v.args[5] as number) === usedOf(v.args[1] as Purse, "famMandrake", v.args[5] as number))).toBe(true);
     const gone = picks.filter((v) => (v.want as { ok: boolean; plot?: Plot }).ok && (v.want as { plot: Plot }).plot.plant === null);
-    expect(gone.some((v) => usedOf(v.args[1] as Purse, "famMandrake", v.args[5] as number) >= 7) && gone.some((v) => moreOf((v.args[2] as Plot).plant!) > 0) && gone.some((v) => !(v.args[1] as Purse).gifts)).toBe(true);
-    expect(of("tend").some((v) => (v.want as { ok: boolean; deed?: string; plot?: Plot }).ok && (v.want as { deed: string }).deed === "pick" && moreOf((v.want as { plot: Plot }).plot.plant ?? ({} as Plant)) > moreOf((v.args[1] as Plot).plant ?? ({} as Plant)))).toBe(true);
+    expect(gone.every(lastOf) && picks.every((v) => !(v.want as { ok: boolean }).ok || !lastOf(v) || (v.want as { plot: Plot }).plot.plant === null)).toBe(true);
+    expect(gone.some((v) => (v.args[1] as Purse).gifts?.familiar === "famMandrake") && gone.some((v) => moreOf((v.args[2] as Plot).plant!) > 0) && gone.some((v) => !(v.args[1] as Purse).gifts)).toBe(true);
+    expect(of("tend").some((v) => (v.want as { ok: boolean; deed?: string; plot?: Plot }).ok && (v.want as { deed: string }).deed === "pick" && moreOf((v.want as { plot: Plot }).plot.plant ?? ({} as Plant)) > moreOf((v.args[1] as Plot).plant ?? ({} as Plant)))).toBe(false);
     // (a plant that waits for its bearing more is not ripe, and one whose wait is over is; one past it is spent)
     const sung = of("growing").filter((v) => moreOf(v.args[0] as Plant) > 0).map((v) => v.want as { ripe: boolean; spent: boolean });
     expect(sung.some((g) => g.ripe) && sung.some((g) => !g.ripe && !g.spent) && sung.some((g) => g.spent)).toBe(true);
