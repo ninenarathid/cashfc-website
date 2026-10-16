@@ -368,13 +368,15 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     }
   }
   // (each plot's look is kept while it and its root are the same objects, within the farm's own five seconds: a deed or
-  // a read hands on new ones, and the five-second tick looks at them all afresh)
+  // a read hands on new ones, and the five-second tick looks at them all afresh; the plant I stand at is always looked at
+  // afresh, so that what it shows and the deed offered agree, Codex)
   const seenWorked = useRef<{ bucket: number; at: Map<string, { plot: unknown; root: unknown; seen: Seen }> }>({ bucket: -1, at: new Map() });
   {
     const bucket = Math.floor(now / 5000), was = seenWorked.current.bucket === bucket ? seenWorked.current.at : null, at = new Map<string, { plot: unknown; root: unknown; seen: Seen }>();
+    const stood = tile ? plotKey(tile[0], tile[1]) : null, stoodRoot = stood ? plots[stood]?.plant?.root ?? stood : null;
     seen.current = new Map(Object.entries(plots).map(([key, plot]) => {
       // A footprint shares one living root, including its growth and pest state.
-      const root = plot.plant?.root ?? key, rootPlot = plots[root], old = was?.get(key);
+      const root = plot.plant?.root ?? key, rootPlot = plots[root], old = root === stoodRoot ? undefined : was?.get(key);
       const s = old && old.plot === plot && old.root === rootPlot ? old.seen : see(root, rootPlot ?? plot, now, rains);
       at.set(key, { plot, root: rootPlot, seen: s });
       return [key, s];
@@ -384,11 +386,12 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   // ── forging: old tools ── (a can with light in it: the plants that could be watered now, and within how many tiles of me one of them glints: lib/town/forged)
   const glintOf = canFx(heldStack(keeper.purse(), keeper.handSlot())).glint;
   const thirsty = useRef<{ reach: number; keys: Set<string> }>({ reach: 0, keys: new Set() });
-  const thirstyOf = useRef<{ plots: unknown; bucket: number; glint: number } | null>(null);
+  // (again when the farm, my purse (the can in my hand and whether it may water twice), or the five seconds change)
+  const thirstyOf = useRef<{ plots: unknown; purse: unknown; bucket: number } | null>(null);
   if (glintOf <= 0) { thirsty.current = { reach: 0, keys: new Set() }; thirstyOf.current = null; }
-  else if (!thirstyOf.current || thirstyOf.current.plots !== plots || thirstyOf.current.glint !== glintOf || thirstyOf.current.bucket !== Math.floor(now / 5000)) {
+  else if (!thirstyOf.current || thirstyOf.current.plots !== plots || thirstyOf.current.purse !== keeper.purse() || thirstyOf.current.bucket !== Math.floor(now / 5000)) {
     thirsty.current = { reach: glintOf, keys: new Set(Object.keys(plots).filter((key) => keeper.deedAt(key) === "water")) };
-    thirstyOf.current = { plots, glint: glintOf, bucket: Math.floor(now / 5000) };
+    thirstyOf.current = { plots, purse: keeper.purse(), bucket: Math.floor(now / 5000) };
   }
   const owners = useRef(keeper.owners());
   owners.current = keeper.owners();
