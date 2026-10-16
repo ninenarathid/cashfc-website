@@ -317,28 +317,35 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   // and every few seconds, not every frame.
   const now = keeper.now(), plots = keeper.farm();
   const seen = useRef(new Map<string, Seen>());
+  // (what follows of the farm's shapes is worked out again only when the farm changes (the keeper hands a new farm on
+  // every change of it), not at each render: the farm renders at every update the game hears; 2026-10-16, "ตรวจ เคสที่
+  // คล้ายกันด้วย" after the fertiliser's lag)
+  const shapesOf = useRef<typeof plots | null>(null);
   const gardenRoots = useRef(new Map<string, string>());
-  gardenRoots.current = new Map(Object.entries(plots).flatMap(([k, plot]) => plot.plant?.root ? [[k, plot.plant.root] as [string, string]] : []));
   /** The insect houses standing on the farm, by their plots (lib/town/insect-house): drawn on their plots, with the insects of their lived-in rooms about them. */
   const houses = useRef(new Map<string, InsectHouse>());
-  houses.current = new Map(Object.entries(plots).flatMap(([k, plot]) => (plot.house ? [[k, plot.house] as [string, InsectHouse]] : [])));
   /** The plants each house reaches, where its insects settle: the middle of each one's plots. */
   const houseStops = useRef(new Map<string, Vec[]>());
-  houseStops.current = new Map([...houses.current.keys()].map((k) => [k, plantsInReach(k, plots).map((root) => {
-    const cells = (plots[root]?.plant?.footprint ?? [root]).map((c) => c.split(",").map(Number));
-    return { x: cells.reduce((n, [x]) => n + x + 0.5, 0) / cells.length, y: cells.reduce((n, [, y]) => n + y + 0.5, 0) / cells.length };
-  })]));
+  if (shapesOf.current !== plots) {
+    gardenRoots.current = new Map(Object.entries(plots).flatMap(([k, plot]) => plot.plant?.root ? [[k, plot.plant.root] as [string, string]] : []));
+    houses.current = new Map(Object.entries(plots).flatMap(([k, plot]) => (plot.house ? [[k, plot.house] as [string, InsectHouse]] : [])));
+    houseStops.current = new Map([...houses.current.keys()].map((k) => [k, plantsInReach(k, plots).map((root) => {
+      const cells = (plots[root]?.plant?.footprint ?? [root]).map((c) => c.split(",").map(Number));
+      return { x: cells.reduce((n, [x]) => n + x + 0.5, 0) / cells.length, y: cells.reduce((n, [, y]) => n + y + 0.5, 0) / cells.length };
+    })]));
+  }
   /**
    * A plant over several plots, by its root (the fig, a garden hybrid, a giant): the middle of its plots on the map, the
    * frontmost of them (it is drawn over all their soil), its plots, its crop and whether it is a giant.
    */
   const wholeTrees = useRef(new Map<string, { x: number; y: number; front: number; cells: Array<[number, number]>; crop: string; giant: boolean }>());
-  wholeTrees.current = new Map(Object.entries(plots).flatMap(([k, plot]) => {
+  if (shapesOf.current !== plots) wholeTrees.current = new Map(Object.entries(plots).flatMap(([k, plot]) => {
     const p = plot.plant, cells = p?.root === k ? p.footprint ?? [] : [];
     if (!p || cells.length < 2) return [];
     const at = cells.map((c) => c.split(",").map(Number) as [number, number]);
     return [[k, { x: at.reduce((n, [x]) => n + x + 0.5, 0) / at.length, y: at.reduce((n, [, y]) => n + y + 0.5, 0) / at.length, front: Math.max(...at.map(([x, y]) => x + y)), cells: at, crop: p.crop, giant: !!p.giant }]];
   }));
+  shapesOf.current = plots;
   // (with the rain the plots have had: lib/town/weather, by way of whoever keeps the game)
   const rains = keeper.rains();
   /** With a fertiliser in the hand: what it would add to each of my plants it may go on (lib/town/quality-plant's fertGain), drawn over each. */
@@ -360,15 +367,29 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       fertGains.current = fertWorked.current!.gains;
     }
   }
-  seen.current = new Map(Object.entries(plots).map(([key, plot]) => {
-    // A footprint shares one living root, including its growth and pest state.
-    const root = plot.plant?.root ?? key;
-    return [key, see(root, plots[root] ?? plot, now, rains)];
-  }));
+  // (each plot's look is kept while it and its root are the same objects, within the farm's own five seconds: a deed or
+  // a read hands on new ones, and the five-second tick looks at them all afresh)
+  const seenWorked = useRef<{ bucket: number; at: Map<string, { plot: unknown; root: unknown; seen: Seen }> }>({ bucket: -1, at: new Map() });
+  {
+    const bucket = Math.floor(now / 5000), was = seenWorked.current.bucket === bucket ? seenWorked.current.at : null, at = new Map<string, { plot: unknown; root: unknown; seen: Seen }>();
+    seen.current = new Map(Object.entries(plots).map(([key, plot]) => {
+      // A footprint shares one living root, including its growth and pest state.
+      const root = plot.plant?.root ?? key, rootPlot = plots[root], old = was?.get(key);
+      const s = old && old.plot === plot && old.root === rootPlot ? old.seen : see(root, rootPlot ?? plot, now, rains);
+      at.set(key, { plot, root: rootPlot, seen: s });
+      return [key, s];
+    }));
+    seenWorked.current = { bucket, at };
+  }
   // ── forging: old tools ── (a can with light in it: the plants that could be watered now, and within how many tiles of me one of them glints: lib/town/forged)
   const glintOf = canFx(heldStack(keeper.purse(), keeper.handSlot())).glint;
   const thirsty = useRef<{ reach: number; keys: Set<string> }>({ reach: 0, keys: new Set() });
-  thirsty.current = { reach: glintOf, keys: glintOf > 0 ? new Set(Object.keys(plots).filter((key) => keeper.deedAt(key) === "water")) : new Set() };
+  const thirstyOf = useRef<{ plots: unknown; bucket: number; glint: number } | null>(null);
+  if (glintOf <= 0) { thirsty.current = { reach: 0, keys: new Set() }; thirstyOf.current = null; }
+  else if (!thirstyOf.current || thirstyOf.current.plots !== plots || thirstyOf.current.glint !== glintOf || thirstyOf.current.bucket !== Math.floor(now / 5000)) {
+    thirsty.current = { reach: glintOf, keys: new Set(Object.keys(plots).filter((key) => keeper.deedAt(key) === "water")) };
+    thirstyOf.current = { plots, glint: glintOf, bucket: Math.floor(now / 5000) };
+  }
   const owners = useRef(keeper.owners());
   owners.current = keeper.owners();
   const well = useRef(0);
