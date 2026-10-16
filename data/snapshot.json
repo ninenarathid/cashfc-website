@@ -2289,7 +2289,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 52,
+  "level": 53,
   "cc": [
    true,
    true,
@@ -2335,7 +2335,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-15"
+  "chg": "2026-10-16"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -2450,7 +2450,7 @@
    "explorer": "legendary"
   },
   "jobs": {
-   "Paladin": "master",
+   "Paladin": "legendary",
    "Gunbreaker": "master",
    "Warrior": "expert"
   },
@@ -5606,7 +5606,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 92,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -5728,7 +5728,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-10-14"
+  "chg": "2026-10-16"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -7823,7 +7823,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 90,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -7868,7 +7868,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-15"
+  "chg": "2026-10-16"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -8825,7 +8825,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 55,
+  "level": 66,
   "cc": [
    false,
    false,
@@ -8841,7 +8841,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-15"
+  "chg": "2026-10-16"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
