@@ -69,7 +69,7 @@ export function QualityChip({ plant, now, rains, th, onOpen, gain }: { plant: Pl
     <button type="button" onClick={onOpen} data-quality-chip
             className="pop-in pressable tk tk-slot pointer-events-auto flex min-h-11 items-center gap-2 px-3 text-ui text-ink" data-state="open">
       <TownIcon name={plant.crop as IconName} size={22} />
-      <span className="font-semibold">{th ? "Quality" : "Quality"} <span className="font-data tabular-nums">{range.lo}–{range.hi}</span></span>
+      <span className="font-semibold">{th ? "คุณภาพ" : "Quality"} <span className="font-data tabular-nums">{range.lo}–{range.hi}</span></span>
       {/* (a fertiliser in the hand: what it would add to the ceiling by ripeness, lib/town/quality-plant's fertGain) */}
       {gain !== undefined ? <span className="font-data text-meta font-semibold text-[#8fd17a]" data-quality-gain={gain}>{gain > 0 ? (th ? `ใส่แล้ว +${gain}` : `+${gain} if put on`) : th ? "ใส่แล้วไม่เพิ่ม" : "adds nothing"}</span>
         : <span className="text-meta text-muted">{grown >= 1 ? (th ? "สุกแล้ว" : "ripe") : th ? "ดูรายละเอียด" : "details"}</span>}
@@ -78,7 +78,9 @@ export function QualityChip({ plant, now, rains, th, onOpen, gain }: { plant: Pl
 }
 
 /** The plant inspector: the range, the four bars and what covers them, and what has narrowed the range. */
-export function QualityInspector({ plant, now, rains, th, onClose, onBed, onChart }: { plant: Plant; now: number; rains: FarmSky; th: boolean; onClose: () => void; onBed?: () => void; onChart?: () => void }) {
+export function QualityInspector({ plant, now, rains, th, onClose, onBed, onChart, notes, onBook, book }: { plant: Plant; now: number; rains: FarmSky; th: boolean; onClose: () => void; onBed?: () => void; onChart?: () => void;
+  /** (what the plant's place tells besides: an insect in the bag that could help, a crossing the pollen matches; the owner, 2026-10-16, one panel) */
+  notes?: string[]; onBook?: () => void; book?: number }) {
   const seen = qualityNow(plant, now, rains), cover = coveringNow(plant, now, rains), close = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     close.current?.focus();
@@ -144,6 +146,8 @@ export function QualityInspector({ plant, now, rains, th, onClose, onBed, onChar
           ].map((n) => <span key={n.label} className={`inline-flex min-h-8 items-center gap-1 rounded border-[1.5px] px-2 ${n.on ? "border-[#2f5a1f] bg-[#8fd17a] text-[#16300c]" : "border-[#1a0e06] bg-[#4a3522] text-ink"}`}>{n.on ? "✓ " : ""}{n.label}</span>)}
         </div>
       </div>
+      {notes?.map((n) => <p key={n} className="rounded-md border border-[#a8c583]/60 bg-[#304323]/60 px-3 py-1.5 text-meta text-[#e1f1c9]" data-quality-note>{n}</p>)}
+      {onBook && book ? <button type="button" onClick={onBook} data-quality-book className="pressable tk tk-btn-wood flex min-h-11 items-center gap-2 px-3 text-meta font-semibold"><TownIcon name="gardenNotebook" size={18} />{th ? `สมุดทดลองสวน · ${book} เรื่อง` : `Garden experiments · ${book}`}</button> : null}
     </section>
   );
 }

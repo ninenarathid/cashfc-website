@@ -9,27 +9,15 @@ import { see } from "@/lib/town/farm";
 import TownIcon, { type IconName } from "./TownIcon";
 import { WHY } from "./TownTrade";
 import styles from "./TownAdventure.module.css";
-import TownDiscoveryNote from "./TownDiscoveryNote";
 
 export default function TownInsectRelease({ keeper, at, th }: { keeper: Keeper; at: string; th: boolean }) {
   const [busy, setBusy] = useState(false), [note, setNote] = useState("");
   const p = keeper.purse(), hand = handOf(p), mode = insectCareMode(hand);
   if (!keeper.farm()[at]?.plant) return null;
   const plot = keeper.farm()[at], plant = plot.plant!, seen = see(at, plot, keeper.now(), keeper.rains());
-  if (!mode || !hand) {
-    if (seen.dead || (plant.root && plant.root !== at)) return null;
-    const visitor = p.bag.find(s => s && s.n > 0 && (
-      insectCareMode(s.item) === "guard" && seen.pest ||
-      insectCareMode(s.item) === "pollinate" && plant.by === keeper.id && !seen.ripe && plant.pollenRound !== plant.picked
-    ));
-    if (!visitor && plant.by !== keeper.id) return null;
-    return <div className="pointer-events-auto w-[min(380px,calc(100vw-24px))]" data-garden-start-hint>
-      <TownDiscoveryNote title={th ? visitor ? "ในกระเป๋ามีแมลงที่ช่วยต้นนี้ได้" : "ลองปลูกต้นต่างชนิดไว้ข้างกัน" : visitor ? "An insect in your bag can help this plant" : "Try growing different neighbours"}>
-        {visitor && <p>{th ? `เปิดกระเป๋าแล้วถือ${ITEMS[visitor.item].name.th}ในมือ ขณะยืนที่จุดเมล็ดของต้นนี้ จะมีปุ่มให้ปล่อยแมลง · ใช้แมลง 1 ตัว` : `Open your bag and hold ${ITEMS[visitor.item].name.en} at this plant's seed plot to reveal the release action. It uses one insect.`}</p>}
-        {plant.by === keeper.id && <p>{th ? "ปลูกต่างชนิดให้ติดกันในแปลงเดียวกันของคุณ ดูแลจนทั้งคู่สุกพร้อมกัน แล้วลองเก็บผลที่จุดเมล็ด บางคู่มีสิ่งให้ค้นพบ" : "Grow different neighbours in the same bed of your own. Tend both until they are ripe together, then harvest at a seed plot. Some pairs have something to discover."}</p>}
-      </TownDiscoveryNote>
-    </div>;
-  }
+  // (with no insect in the hand nothing is shown here: an insect in the bag that could help is told in the plant's
+  // Quality panel, bagVisitor; the owner, 2026-10-16: the phone's farm was too full)
+  if (!mode || !hand) return null;
   const unavailable = plant.root && plant.root !== at ? th ? "กลับไปปล่อยที่จุดเมล็ดของต้นนี้" : "Release at this plant's seed plot."
     : seen.dead ? th ? "ต้นนี้ตายแล้ว ต้องปลูกใหม่ก่อน" : "This plant has died. Plant again first."
     : mode === "pollinate" && plant.by !== keeper.id ? th ? "ผสมเกสรได้เฉพาะต้นของคุณ" : "Pollinate your own plant."
@@ -46,4 +34,17 @@ export default function TownInsectRelease({ keeper, at, th }: { keeper: Keeper; 
     {guardian?<div className="mt-2 grid gap-2"><p className="text-meta">{th?"เลือกหนึ่งผล ใช้แมลงหนึ่งตัวและสิทธิ์เกสรของรอบนี้ เมล็ดผสมต้องมีคู่สุกข้างกันตอนเก็บ ไม่ซ้อนมีดทาบยอดเกินสองเมล็ด":"Choose one effect, using one insect and this bearing’s pollination. Hybrid seeds still need ripe neighbours at harvest; at most two with a grafting knife."}</p>{(["grow","cross"] as const).map(choice=><button key={choice} data-pollen-choice={choice} disabled={busy||slot<0||!!unavailable} className="pressable min-h-11 rounded border border-[#d5df9a] bg-[#476238] px-3 py-2 text-[#f0e8c8] text-ui disabled:opacity-50" onClick={()=>void release(choice)}>{choice==="grow"?(th?"ปล่อย 1 ตัว · เพิ่มโต 1 ชั่วโมง":"Release one · grow one hour"):(th?"ปล่อย 1 ตัว · เตรียมเมล็ดผสม":"Release one · prepare hybrid seed")}</button>)}</div>:<button type="button" disabled={busy||slot<0||!!unavailable} className="pressable mt-2 min-h-11 w-full rounded border border-[#d5df9a] bg-[#476238] px-3 py-2 text-[#f0e8c8] text-ui disabled:opacity-50" onClick={()=>void release(mode)}>{busy?(th?"กำลังปล่อย…":"Releasing…"):mode==="pollinate"?(th?"ปล่อย 1 ตัวไปผสมเกสร":"Release one to pollinate"):(th?"ปล่อย 1 ตัวไปกำจัดศัตรูพืช":"Release one to tend pests")}</button>}
     {note && <p className="mt-2 text-meta" aria-live="polite">{note}</p>}
   </section>;
+}
+
+/** An insect in the bag that could help a plant now (a guard on a pest, a pollinator on my own growing plant): for the Quality panel. */
+export function bagVisitor(keeper: Keeper, at: string): string | null {
+  const p = keeper.purse(), plot = keeper.farm()[at];
+  if (!plot?.plant || (plot.plant.root && plot.plant.root !== at)) return null;
+  const plant = plot.plant, seen = see(at, plot, keeper.now(), keeper.rains());
+  if (seen.dead) return null;
+  const visitor = p.bag.find(s => s && s.n > 0 && (
+    insectCareMode(s.item) === "guard" && seen.pest ||
+    insectCareMode(s.item) === "pollinate" && plant.by === keeper.id && !seen.ripe && plant.pollenRound !== plant.picked
+  ));
+  return visitor ? visitor.item : null;
 }

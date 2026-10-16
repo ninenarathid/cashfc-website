@@ -73,7 +73,7 @@ import { fertGain, qualityNow } from "@/lib/town/quality-plant";
 import { COMPANIONS } from "@/lib/town/quality";
 import { held as countIn } from "@/lib/town/trade";
 import { GRADES } from "@/lib/town/quality";
-import TownInsectRelease from "./TownInsectRelease";
+import TownInsectRelease, { bagVisitor } from "./TownInsectRelease";
 import { insectCareMode } from "@/lib/town/insect-garden";
 
 /** What the map hands the farm each frame, to draw its plots among everything else. */
@@ -299,6 +299,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const [bedView, setBedView] = useState(false);
   /** The fertiliser chart open from the inspector (lib/town/fertilisers). */
   const [chartView, setChartView] = useState(false);
+  const [bookView, setBookView] = useState(false);
   const leaveIt = useRef<HTMLButtonElement>(null);
   const [note, setNote] = useState<string | null>(null);
   useEffect(() => { if (!note) return; const t = setTimeout(() => setNote(null), 2600); return () => clearTimeout(t); }, [note]);
@@ -1099,7 +1100,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   // …and the asking: it is about this plot and this plant as it stands (one that dies meanwhile, or is cured, is asked about afresh)
   useEffect(() => { if (asking && (asking.key !== key || asking.deed !== (asking.deed === "lift" ? houseDeed : deed))) setAsking(null); }, [asking, key, deed, houseDeed]);
   useEffect(() => { if (inspecting && inspecting !== key) setInspecting(null); }, [inspecting, key]);
-  useEffect(() => { if (!inspecting) { setBedView(false); setChartView(false); } }, [inspecting]);
+  useEffect(() => { if (!inspecting) { setBedView(false); setChartView(false); setBookView(false); } }, [inspecting]);
   // The asking opens with "leave it" under the keys: Space or Enter, pressed once too often, digs nothing out. Escape leaves it too.
   useEffect(() => {
     if (!asking) return;
@@ -1187,7 +1188,18 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   /** The ring of shared strength, for a friend standing near: wherever I stand still. */
   const ringOffer = people ? <RingOffer keeper={keeper} th={th} here={here} people={people} name={name} sfx={sfx} bottom={bottom} onGave={onGave} /> : null;
   // (it keeps its place whatever else is shown: so what it is telling of is not lost when a button comes or goes)
-  const gardenInfo = key && (pollenHint || plots[key]?.plant || purse.gardenBook?.length || purse.insectGardenBook?.length);
+  // (the garden's notes are told in the plant's Quality panel now: only an insect held keeps its panel here)
+  const gardenInfo = key && !!insectCareMode(hand) && !!plots[key]?.plant;
+  const visitorHere = key ? bagVisitor(keeper, key) : null;
+  const panelNotes = [
+    ...(visitorHere ? [th ? `ในกระเป๋ามี${ITEMS[visitorHere as ItemId].name.th} ถือไว้แล้วยืนที่ต้นนี้เพื่อปล่อยให้ช่วย` : `${ITEMS[visitorHere as ItemId].name.en} in your bag can help: hold it here to let it go`] : []),
+    ...(pollenHint ? [th ? `เกสรของต้นข้างกันเข้าคู่กัน: เก็บแล้วได้เมล็ด${ITEMS[pollenHint].name.th}` : `Neighbouring pollen matches: harvest for ${ITEMS[pollenHint].name.en} seeds`] : []),
+  ];
+  const bookCount = (purse.gardenBook?.length ?? 0) + (purse.insectGardenBook?.length ?? 0);
+  const bookEntries: NotebookEntry[] = [
+    ...(purse.gardenBook??[]).map(id=>({key:id,title:ITEMS[id].name[th?"th":"en"],icon:id as IconName,category:th?"เมล็ดจากต้นข้างกัน":"Neighbouring seeds",body:<p>{th?`เคยได้เมล็ด${ITEMS[id].name.th}จากต้นข้างกัน ดูแลต้นและเก็บผลที่จุดเมล็ดเพื่อทดลองต่อ`:`Discovered ${ITEMS[id].name.en} seeds from neighbouring plants. Tend and harvest at the seed plot to experiment further.`}</p>})),
+    ...(purse.insectGardenBook??[]).flatMap((entry):NotebookEntry[]=>{const[bug,crop,mode]=entry.split(":");return bug in ITEMS&&crop in ITEMS?[{key:entry,title:ITEMS[bug as ItemId].name[th?"th":"en"],icon:bug as IconName,category:th?"แมลงดูแลสวน":"Insect visitors",body:<><p>{ITEMS[crop as ItemId].name[th?"th":"en"]}</p><p>{mode==="guard"?th?"ปล่อยแมลงไปกำจัดศัตรูพืชบนต้นนี้":"Released an insect to remove pests on this plant.":th?"ปล่อยแมลงไปช่วยเกสรบนต้นนี้":"Released an insect to help pollination on this plant."}</p></>}]:[];}),
+  ];
   const inspected = inspecting && inspecting === key ? plots[inspecting]?.plant ?? null : null;
   const inspectedHouse = inspecting && inspecting === key ? plots[inspecting]?.house ?? null : null;
   const bare = (!placement && !working && !offer && !note && !powers.length && !running && !gardenInfo) || !!inspected;
@@ -1197,19 +1209,16 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     <>{reaction.notice&&<TownFoot rank="note" order={5}><TownComboFx cue={reaction.notice.cue} effect={{cue:reaction.notice.cue,fresh:reaction.notice.fresh}} th={th}/></TownFoot>}<TownRootExtraction keeper={keeper} th={th} at={here}/><TownRowContinuation keeper={keeper} th={th} at={here}/><TownGardenRetry keeper={keeper} th={th} at={tile}/><TownRainCare keeper={keeper} th={th} at={tile}/><TownWaykeeper keeper={keeper} th={th} at={here}/><TownCampFlag keeper={keeper} th={th} at={here}/><TownGardenHelp keeper={keeper} th={th} at={tile}/><TownSkyBean keeper={keeper} th={th} at={tile}/><TownGardenRewards keeper={keeper} th={th} at={tile}/><TownKitchenRewards keeper={keeper} th={th} at={here}/><TownPicnic keeper={keeper} th={th} at={here} register={registerPicnic} sit={sitPicnic}/>{keeper.purse().professionRewards?.trail?.kind==="dragon"&&<TownForestTrail keeper={keeper} th={th} at={()=>here} walk={walkTrail}/>}<TownWingCrown keeper={keeper} th={th} at={here}/><TownMoonLantern keeper={keeper} th={th} at={here}/><TownBeetleRing keeper={keeper} th={th} at={here}/><TownLotusBoat keeper={keeper} th={th} at={here} register={registerBoats}/><TownBeaverBridge keeper={keeper} th={th} at={here} register={registerCrossings}/><TownNursery keeper={keeper} th={th} at={here}/><TownCloud keeper={keeper} th={th} at={tile} people={people}/><TownSprings keeper={keeper} th={th} at={here} register={registerSprings}/><TownConduit keeper={keeper} th={th} at={tile} onWatered={keys=>{for(const key of keys){const [x,y]=key.split(",").map(Number);vfx.add("water",{x:x+.5,y:y+.5});}sfx?.work("pour");}}/><TownWaterRelay keeper={keeper} th={th} at={here} register={registerRelay}/>{news}{ringOffer}{inspectedHouse && <TownFoot rank="board" order={62}><HousePanel at={inspecting!} house={inspectedHouse} plots={plots} now={now} th={th} mine={inspectedHouse.by === keeper.id} onClose={() => setInspecting(null)} /></TownFoot>}{inspected && <TownFoot rank="board" order={62}>{bedView
       ? <QualityBed at={inspecting!} plots={plots} now={now} rains={rains} th={th} onClose={() => setBedView(false)} />
       : chartView ? <FertChart th={th} onClose={() => setChartView(false)} />
-      : <QualityInspector plant={inspected} now={now} rains={rains} th={th} onClose={() => setInspecting(null)} onBed={() => setBedView(true)} onChart={() => setChartView(true)} />}</TownFoot>}{bare ? null : (
+      : bookView ? <div className="pointer-events-auto flex w-[min(440px,calc(100vw-16px))] flex-col gap-2" data-garden-notebook style={{ maxHeight: "min(46rem, calc(100dvh - 10rem))" }}>
+          <button type="button" onClick={() => setBookView(false)} className="pressable tk tk-btn-wood flex min-h-11 items-center gap-2 self-start px-3 text-meta font-semibold"><TownIcon name="close" size={14} />{th ? "กลับไปที่ต้นนี้" : "Back to the plant"}</button>
+          <div className="min-h-0 overflow-y-auto"><TownNotebook initiallyOpen onClose={() => setBookView(false)} icon="gardenNotebook" title={th ? "สมุดทดลองสวนของฉัน" : "My garden experiments"} th={th} entries={bookEntries}/></div>
+        </div>
+      : <QualityInspector plant={inspected} now={now} rains={rains} th={th} onClose={() => setInspecting(null)} onBed={() => setBedView(true)} onChart={() => setChartView(true)} notes={panelNotes} onBook={() => setBookView(true)} book={bookCount} />}</TownFoot>}{bare ? null : (
     <TownFoot rank={placement || working || asking ? "board" : "main"} order={62}>
       {placement && <TownGardenPlacement at={placement.key} crop={placement.crop} keeper={keeper} th={th} onClose={() => setPlacement(null)} onPlant={async rotation => { const need = hitsFor("sow", tiredOn(placement.key)); if (need) { setWorking({ key: placement.key, work: "sow", need, rotation }); setPlacement(null); } else if (await act(placement.key, undefined, false, rotation)) setPlacement(null); }} />}
       {running && <AnkletRun keeper={keeper} />}
       {!working && !placement && key && <TownInsectRelease keeper={keeper} at={key} th={th} />}
-      {!working && !placement && key && ((purse.gardenBook?.length ?? 0) > 0 || (purse.insectGardenBook?.length ?? 0) > 0) && <div className="pointer-events-auto w-[min(400px,calc(100vw-24px))] max-h-[70dvh] overflow-y-auto" data-garden-notebook>
-        <TownNotebook compact title={th ? "สมุดทดลองสวนของฉัน" : "My garden experiments"} th={th} entries={[
-          ...(purse.gardenBook??[]).map(id=>({key:id,title:ITEMS[id].name[th?"th":"en"],icon:id as IconName,category:th?"เมล็ดจากต้นข้างกัน":"Neighbouring seeds",body:<p>{th?`เคยได้เมล็ด${ITEMS[id].name.th}จากต้นข้างกัน ดูแลต้นและเก็บผลที่จุดเมล็ดเพื่อทดลองต่อ`:`Discovered ${ITEMS[id].name.en} seeds from neighbouring plants. Tend and harvest at the seed plot to experiment further.`}</p>})),
-          ...(purse.insectGardenBook??[]).flatMap((entry):NotebookEntry[]=>{const[bug,crop,mode]=entry.split(":");return bug in ITEMS&&crop in ITEMS?[{key:entry,title:ITEMS[bug as ItemId].name[th?"th":"en"],icon:bug as IconName,category:th?"แมลงดูแลสวน":"Insect visitors",body:<><p>{ITEMS[crop as ItemId].name[th?"th":"en"]}</p><p>{mode==="guard"?th?"ปล่อยแมลงไปกำจัดศัตรูพืชบนต้นนี้":"Released an insect to remove pests on this plant.":th?"ปล่อยแมลงไปช่วยเกสรบนต้นนี้":"Released an insect to help pollination on this plant."}</p></>}]:[];})
-        ]}/>
-      </div>}
       {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
-      {!working && !placement && pollenHint && <p data-garden-cross className="rounded-md border border-[#a8c583] bg-[#304323]/95 px-3 py-2 text-meta text-[#e1f1c9]">{th ? `เกสรของต้นข้างกันเข้าคู่กัน: เก็บแล้วได้เมล็ด${ITEMS[pollenHint].name.th}` : `Neighbouring pollen matches: harvest for ${ITEMS[pollenHint].name.en} seeds`}</p>}
       {working ? (() => {
         // each piece of work's own game (lib/town/farm's gameFor), on the same board, told the same things
         const game = working.long ? "longpour" : working.sweep ? "sweep" : working.work === "ditch" ? "pouring" : gameFor(working.work as Deed | Chore), title = verbOf(working.work, hand)[th ? 0 : 1];
