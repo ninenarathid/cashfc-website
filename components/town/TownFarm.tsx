@@ -10,8 +10,7 @@ import TownGardenHelp from './TownGardenHelp';
 import TownCampFlag from './TownCampFlag';
 import TownWaykeeper from './TownWaykeeper';
 import TownSkyBean from "./TownSkyBean";
-import { wideSprite } from "@/lib/town/wide-plants";
-import WIDE_ART from "@/lib/town/wide-art.json";
+import { giantSprite } from "@/lib/town/wide-plants";
 import TownGardenRewards from "./TownGardenRewards";
 import TownKitchenRewards from "./TownKitchenRewards";
 import TownPicnic from "./TownPicnic";
@@ -178,8 +177,6 @@ const TREE_HEIGHT: Record<string, number> = {
   // (the fig, a helper of the farm's Quality, on one plot since 2026-10-16: as tall as the orchard's)
   growFig: 46, growDewFig: 46,
 };
-/** Trees that stand over their whole footprint: drawn once, from the middle of their plots, not once a plot. */
-const WHOLE_TREES = new Set<string>(["fig", "dewFig"]);
 const PLANT_SCALES: Record<string, number> = Object.fromEntries(
   Object.entries(ICON_ATLAS.icons).filter(([name]) => /^grow.+[AB]$/.test(name)).map(([name, [, , w, h]]) => {
     const young = name.endsWith("A"), height = TREE_HEIGHT[name.slice(0, -1)];
@@ -338,16 +335,29 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     })]));
   }
   /**
-   * A plant over several plots, by its root (the fig, a garden hybrid, a giant): the middle of its plots on the map, the
-   * frontmost of them (it is drawn over all their soil), its plots, its crop and whether it is a giant.
+   * A giant (2x2, a reward), by its root: the middle of its plots on the map, the frontmost of them (it is drawn over
+   * all their soil) and its crop.
    */
-  const wholeTrees = useRef(new Map<string, { x: number; y: number; front: number; cells: Array<[number, number]>; crop: string; giant: boolean }>());
-  if (shapesOf.current !== plots) wholeTrees.current = new Map(Object.entries(plots).flatMap(([k, plot]) => {
-    const p = plot.plant, cells = p?.root === k ? p.footprint ?? [] : [];
-    if (!p || cells.length < 2) return [];
-    const at = cells.map((c) => c.split(",").map(Number) as [number, number]);
-    return [[k, { x: at.reduce((n, [x]) => n + x + 0.5, 0) / at.length, y: at.reduce((n, [, y]) => n + y + 0.5, 0) / at.length, front: Math.max(...at.map(([x, y]) => x + y)), cells: at, crop: p.crop, giant: !!p.giant }]];
-  }));
+  const giants = useRef(new Map<string, { x: number; y: number; front: number; crop: string }>());
+  /**
+   * The other plots of a plant sown over several before 2026-10-16 that is not a giant (a garden hybrid, a fig on its
+   * 2x2): the plant stands small on its root, as its one-plot picture, and each of these shows a sprout, so that it is
+   * plainly taken and nothing tall stands over the plots behind (the owner, 2026-10-16: "พอมันใหญ่ มันทำให้ click พื้นที่
+   * ด้านหลังไม่ได้").
+   */
+  const asidePlots = useRef(new Set<string>());
+  if (shapesOf.current !== plots) {
+    giants.current = new Map(Object.entries(plots).flatMap(([k, plot]) => {
+      const p = plot.plant, cells = p?.root === k ? p.footprint ?? [] : [];
+      if (!p?.giant || cells.length < 2) return [];
+      const at = cells.map((c) => c.split(",").map(Number) as [number, number]);
+      return [[k, { x: at.reduce((n, [x]) => n + x + 0.5, 0) / at.length, y: at.reduce((n, [, y]) => n + y + 0.5, 0) / at.length, front: Math.max(...at.map(([x, y]) => x + y)), crop: p.crop }]];
+    }));
+    asidePlots.current = new Set(Object.entries(plots).flatMap(([k, plot]) => {
+      const root = plot.plant?.root;
+      return root && root !== k && !plots[root]?.plant?.giant ? [k] : [];
+    }));
+  }
   shapesOf.current = plots;
   // (with the rain the plots have had: lib/town/weather, by way of whoever keeps the game)
   const rains = keeper.rains();
@@ -477,27 +487,13 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         ctx.drawImage(img, x, y, w, h, -(w * k) / 2, Math.round(at.y - h * k + 5 * s - lift), w * k, h * k);
         ctx.restore();
       };
-      /** How a plant over several plots is drawn once, from its root: its one picture, or null for one a plot. */
-      const wholeDraw = (whole: { x: number; y: number; cells: Array<[number, number]>; crop: string; giant: boolean }, what: Seen): (() => void) | null => {
-        const mid = project({ x: whole.x, y: whole.y });
-        if (WHOLE_TREES.has(whole.crop)) { const plant = growIconOf(what.crop!, what.stage); return () => (what.dead ? blit("plotDead", mid) : blit(plant, mid, 0, (PLANT_SCALES[plant] ?? PLANT) * s)); }
+      /** How a giant is drawn once, from its root, standing on the middle of its four plots: its one picture, or null for one a plot while young. */
+      const giantDraw = (giant: { x: number; y: number; crop: string }, what: Seen): (() => void) | null => {
         if (what.dead) return null;
-        const w = wideSprite(whole.crop, whole.giant, what.stage, whole.cells);
-        if (!w || !(w.name in ICON_ATLAS.icons)) return null;
-        // (a picture measured onto its plots, lib/town/wide-art.json: its scale, and the point of it that stands on the
-        // middle of its plots, each plot's mound on that plot's middle; turned over, about the same middle)
-        const fit = (WIDE_ART as unknown as Record<string, [number, number, number]>)[w.name], cell = ICON_ATLAS.icons[w.name as IconName];
-        if (fit && cell && img) {
-          const [k, fx, fy] = fit, [cx, cy, cw, chh] = cell, kk = k * s;
-          return () => {
-            ctx.imageSmoothingEnabled = false;
-            if (!w.flip) { ctx.drawImage(img, cx, cy, cw, chh, Math.round(mid.x - fx * kk), Math.round(mid.y - fy * kk), cw * kk, chh * kk); return; }
-            ctx.save(); ctx.translate(Math.round(mid.x), 0); ctx.scale(-1, 1); ctx.drawImage(img, cx, cy, cw, chh, -fx * kk, Math.round(mid.y - fy * kk), cw * kk, chh * kk); ctx.restore();
-          };
-        }
-        // (a giant stands on the middle of its four plots; a row or an L on the front of its frontmost plot)
-        const foot = { x: mid.x, y: w.giant ? mid.y + 7 * s : Math.max(...whole.cells.map(([x, y]) => project({ x: x + 0.5, y: y + 0.5 }).y)) + s };
-        return () => blit(w.name, foot, 0, PLANT * s, w.flip);
+        const name = giantSprite(giant.crop, what.stage);
+        if (!name || !(name in ICON_ATLAS.icons)) return null;
+        const mid = project({ x: giant.x, y: giant.y });
+        return () => blit(name, { x: mid.x, y: mid.y + 7 * s });
       };
       /**
        * One of an insect house's insects (the owner's ask, 2026-10-15): its own picture, in the air with its shadow under
@@ -726,8 +722,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           });
         }
       }
-      // (a plant over several plots chooses its picture once a frame, at the first of its plots met; the rest only ask)
-      const wholeOnce = new Map<string, (() => void) | null>();
+      // (a giant chooses its picture once a frame, at the first of its plots met; the rest only ask)
+      const giantOnce = new Map<string, (() => void) | null>();
       for (let v = 0; v < FARM.h; v++) for (let u = 0; u < FARM.w; u++) {
         const tx = FARM.x + u, ty = FARM.y + v;
         if (!plotAt(tx, ty)) continue;
@@ -777,14 +773,14 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
             things.push({ depth: pose.at.x + pose.at.y + (pose.lift > 0.2 ? 3.6 : 0.65), draw: () => drawHouseInsect(room.bug, how, pose, c, seed) });
           }
         });
-        // A plant over several plots (the fig, a garden hybrid, a giant): drawn once from its root, over all its plots'
-        // soil, by its one picture (lib/town/wide-plants: the owner, 2026-10-15); a young one keeps a sprout a plot
-        const rootKey = gardenRoots.current.get(plotKey(tx, ty)) ?? plotKey(tx, ty), whole = wholeTrees.current.get(rootKey);
+        // A giant: drawn once from its root, over all its plots' soil, by its one picture (lib/town/wide-plants); a young
+        // one keeps a sprout a plot. (A plant of several plots that is not a giant stands small on its root: asidePlots)
+        const rootKey = gardenRoots.current.get(plotKey(tx, ty)) ?? plotKey(tx, ty), giant = giants.current.get(rootKey);
         let once: (() => void) | null = null;
-        if (whole && what?.crop) { if (wholeOnce.has(rootKey)) once = wholeOnce.get(rootKey)!; else { once = wholeDraw(whole, seen.current.get(rootKey) ?? what); wholeOnce.set(rootKey, once); } }
-        if (once && rootKey === plotKey(tx, ty)) things.push({ depth: whole!.front + 0.7, draw: once });
+        if (giant && what?.crop) { if (giantOnce.has(rootKey)) once = giantOnce.get(rootKey)!; else { once = giantDraw(giant, seen.current.get(rootKey) ?? what); giantOnce.set(rootKey, once); } }
+        if (once && rootKey === plotKey(tx, ty)) things.push({ depth: giant!.front + 0.7, draw: once });
         // (its plots show the bed's own soil under it: its picture has its own ground)
-        const underTree = !!once;
+        const underTree = !!once, aside = asidePlots.current.has(plotKey(tx, ty));
         things.push({ depth: tx + ty + .6, draw: () => {
           if (!what) { for (const w of weedsOf(tx, ty)) blit(w.name, { x: at.x + w.dx * s, y: at.y + w.dy * s }, 0, PLANT * s * w.k, w.flip); return; }
           if (what.soil === "tilled" && !(what.crop && underTree)) blit("plotSoil", at, 0, PLANT * s * 0.9);
@@ -799,7 +795,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           if (what.damp) blit("plotDrop", { x: at.x + 13 * s, y: at.y }, 0, PLANT * s * 0.45);
           if (!what.crop) return;
           if (what.dead) { if (!underTree) blit("plotDead", at); return; }
-          const plant = growIconOf(what.crop, what.stage);
+          // (a plot beside the root of a plant sown over several: no more than a sprout, never its tall picture)
+          const plant = growIconOf(what.crop, aside ? Math.min(what.stage, 2) : what.stage);
           if (!underTree) blit(plant, at, 0, (PLANT_SCALES[plant] ?? PLANT) * s);
           // Fill the real growing space with foliage, not a miniature placeholder.
           // Its care and harvest indicators still belong to the actionable root.
