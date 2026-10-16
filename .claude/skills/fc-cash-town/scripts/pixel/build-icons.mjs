@@ -391,9 +391,10 @@ const SHEETS = [
   // Template เดียวกัน"): their one-plot growth sprites with icons-farm-d, their crops and seed packets with icons-items-d (the
   // packet's band the crop's colour), replacing what build-garden-icons.mjs packed from grow-garden.png and icons-garden.png
   // (drawn outside gen.mjs, each cell resized into a box). Packed with ICONS_REPLACE; the names beginning "_" are fillers
-  ["icons-garden-grow-a", ["growBottleGourdA", "growBottleGourdB", "growRowBeanA", "growRowBeanB", "growTrellisBerryA", "growTrellisBerryB"], { range: [9.9, 10.3] }],
-  ["icons-garden-grow-b", ["growBlueCornA", "growBlueCornB", "growTeaBushA", "growTeaBushB", "growSunflowerPatchA", "growSunflowerPatchB"], { range: [6.0, 6.25] }],
-  ["icons-garden-grow-c", ["growRedOkraA", "growRedOkraB", "growLotusRootBedA", "growLotusRootBedB", "_tomato", "_basil"], { range: [7.85, 8.15] }],
+  // (the growth sprites' names begin "_" since icons-hybrid-small-* replaced them, 2026-10-16)
+  ["icons-garden-grow-a", ["_growBottleGourdA", "_growBottleGourdB", "_growRowBeanA", "_growRowBeanB", "_growTrellisBerryA", "_growTrellisBerryB"], { range: [9.9, 10.3] }],
+  ["icons-garden-grow-b", ["_growBlueCornA", "_growBlueCornB", "_growTeaBushA", "_growTeaBushB", "_growSunflowerPatchA", "_growSunflowerPatchB"], { range: [6.0, 6.25] }],
+  ["icons-garden-grow-c", ["_growRedOkraA", "_growRedOkraB", "_growLotusRootBedA", "_growLotusRootBedB", "_tomato", "_basil"], { range: [7.85, 8.15] }],
   ["icons-garden-bag-a", ["bottleGourd", "seedBottleGourd", "rowBean", "seedRowBean", "trellisBerry", "seedTrellisBerry"], { range: [8.0, 8.3] }],
   ["icons-garden-bag-b", ["blueCorn", "seedBlueCorn", "teaBush", "seedTeaBush", "sunflowerPatch", "seedSunflowerPatch"], { range: [6.25, 6.5] }],
   ["icons-garden-bag-c", ["redOkra", "seedRedOkra", "lotusRootBed", "seedLotusRootBed", "_seedTomato", "_seedBasil"], { range: [6.5, 6.75] }],
@@ -427,6 +428,14 @@ const SHEETS = [
   ["icons-mist-bag-e", ["glassFlower", "seedGlassFlower", "_opalStalk", "_seedOpalStalk", "_crystalLeaf", "_seedCrystalLeaf"], { range: [5.3, 5.6] }],
   ["icons-wide4-a3", ["_wideBlueCornA", "_wideBlueCornB", "_wideLotusRootBedA", "_wideLotusRootBedB", "_wideTrellisBerryA", "_wideTrellisBerryB"], { range: [3.9, 4.1] }],
   ["icons-wide4-c4", ["_wideBottleGourdFrontA", "_wideBottleGourdFrontB", "_wideBottleGourdBackA", "_wideBottleGourdBackB", "_wideBottleGourdSideA", "_wideBottleGourdSideB"], { range: [3.9, 4.1] }],
+  // ── the garden's eight hybrids small, on one plot each (the owner, 2026-10-16: "ช่วยลดขนาดผักที่มีขนาดใหญ่ และใช้หลายช่อง
+  // gen ภาพใหม่ ให้ต้นเล็ก ใช้แค่ช่องเดียวพอ"): each grown and ripe, as low and wide as the tomato and the chilli, with
+  // icons-farm-d and icons-farm-c for the reference; they replace icons-garden-grow-*'s (ICONS_REPLACE). Each cut on its own
+  // grid: a's 6.9 (on 8.4 the gourds' and flowers' outlines went soft), b's 8.0, c's 8.5, where c's tomato and basil
+  // come out the atlas's own (21x35, 25x35 beside 22x36, 25x36)
+  ["icons-hybrid-small-a", ["growBottleGourdA", "growBottleGourdB", "growRowBeanA", "growRowBeanB", "growTrellisBerryA", "growTrellisBerryB"], { range: [6.7, 6.95] }],
+  ["icons-hybrid-small-b", ["growBlueCornA", "growBlueCornB", "growTeaBushA", "growTeaBushB", "growSunflowerPatchA", "growSunflowerPatchB"], { range: [7.9, 8.1] }],
+  ["icons-hybrid-small-c", ["growRedOkraA", "growRedOkraB", "growLotusRootBedA", "growLotusRootBedB", "_tomato", "_basil"], { range: [8.4, 8.65] }],
 ];
 
 const ONLY = process.env.ICONS_ONLY?.split(",").map((s) => s.trim()).filter(Boolean);
