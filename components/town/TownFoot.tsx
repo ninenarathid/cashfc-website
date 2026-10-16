@@ -38,7 +38,8 @@ export const TownFootContext = createContext<FootPlaces>({ dock: null, side: nul
 
 const ORDER: Record<FootRank, number> = { note: 10, chip: 30, power: 20, main: 60, board: 60, side: 0, toast: 30, corner: 30 };
 
-export default function TownFoot({ rank = "chip", order, wide = false, icon, children }: { rank?: FootRank; order?: number; wide?: boolean; icon?: IconName; children: ReactNode }) {
+/** (`badge`: of a power, a small count over the corner of its icon, such as the uses the day has left of it) */
+export default function TownFoot({ rank = "chip", order, wide = false, icon, badge, children }: { rank?: FootRank; order?: number; wide?: boolean; icon?: IconName; badge?: string | number; children: ReactNode }) {
   const places = useContext(TownFootContext);
   // Keep gameplay clear of transient notices on both phones and desktops.
   if (rank === "toast") return null;
@@ -50,7 +51,8 @@ export default function TownFoot({ rank = "chip", order, wide = false, icon, chi
         if (!isValidElement<{ children?: ReactNode; className?: string; title?: string; "aria-label"?: string }>(child) || child.type !== "button") return child;
         const words = (node: ReactNode): string => typeof node === "string" || typeof node === "number" ? String(node) : Array.isArray(node) ? node.map(words).join(" ") : isValidElement<{children?:ReactNode}>(node) ? words(node.props.children) : "";
         const title = child.props["aria-label"] || child.props.title || words(child.props.children);
-        return cloneElement(child, { title, "aria-label": title, className: "pressable grid h-11 w-11 place-items-center rounded-xl border-2 border-[#987144] bg-[#302a22]/95 text-[#f0dfb6] shadow-md hover:border-gold disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-gold" }, <TownIcon name={icon} size={30} />);
+        return cloneElement(child, { title, "aria-label": title, className: "pressable relative grid h-11 w-11 place-items-center rounded-xl border-2 border-[#987144] bg-[#302a22]/95 text-[#f0dfb6] shadow-md hover:border-gold disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-gold" }, <TownIcon name={icon} size={30} />,
+          badge !== undefined ? <span key="badge" aria-hidden data-foot-badge className="absolute -right-1.5 -top-1.5 min-w-5 rounded-full border border-[#2a190d] bg-[#f0c060] px-1 text-center font-data text-[11px] font-bold leading-[18px] tabular-nums text-[#3a2209] shadow">{badge}</span> : null);
       })}
     </div>, into);
   return createPortal(

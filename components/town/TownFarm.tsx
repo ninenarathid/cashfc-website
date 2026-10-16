@@ -1235,7 +1235,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   }, [deed, chore, offer, flood.join("|"), note, begin, keeper, asking, beginRow, key, sendGnome, turnGlass, beginLong, dustHere, sprinkle, moving, doMove]);
 
   /** What the gifts of the farming line offer here, beside the plain deed: each a button of its own, with the gift's picture. */
-  const powers: Array<{ id: GiftId; word: string; more?: string; go: () => void; act?: string }> = [];
+  const powers: Array<{ id: GiftId; word: string; more?: string; go: () => void; act?: string; badge?: number }> = [];
   if (rowHere) {
     // (how many plots it would do now; and of the pouch, for how many seeds)
     const n = rowHere.plots.length, seeds = pouchSeeds(n);
@@ -1243,7 +1243,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       more: rowHere.deed === "sow" ? (th ? `${n} ช่อง · ${seeds} เมล็ด` : `${n} plots · ${seeds} seeds`) : th ? `${n} ช่อง` : `${n} plots` });
   }
   // (the enchanted hoe's move: my own unripe plant, to an empty plot of its bed or another plant's place, so many a day)
-  if (moveHere.length && key) { const left = usesLeft(purse, "charmHoe", now); powers.push({ id: "charmHoe", act: "move", word: th ? "ย้ายต้นนี้" : "Move this plant", go: () => { setInspecting(null); setMoving(key); }, more: th ? `วันนี้เหลือ ${left}` : `${left} left today` }); }
+  if (moveHere.length && key) { const left = usesLeft(purse, "charmHoe", now); powers.push({ id: "charmHoe", act: "move", badge: left, word: th ? "ย้ายต้นนี้" : "Move this plant", go: () => { setInspecting(null); setMoving(key); }, more: th ? `วันนี้เหลือ ${left}` : `${left} left today` }); }
   if (gnomeHere.length) powers.push({ id: "famGnome", word: th ? "ให้โนมรดน้ำทั้งแปลง" : "Send the gnome down the bed", go: () => void sendGnome() });
   if (glassHere.length) powers.push({ id: "thingHourglass", word: th ? "พลิกนาฬิกาทราย" : "Turn the hourglass", go: () => void turnGlass(), more: th ? `${glassHere.length} ต้น` : `${glassHere.length} plants` });
   // ── gifts: helpers ── what the gifts of the helpers' line offer here, the same way
@@ -1416,8 +1416,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           )}
           {/* what a gift of the farming line does here, beside the plain deed: never in its place */}
           {powers.map((p) => (
-            <TownFoot key={`${p.id}:${p.act ?? ""}`} rank="power" icon={p.id as IconName}><button type="button" onClick={p.go} data-farm-gift={p.id} data-farm-act={p.act} data-state="open" className={GIFT_BTN}
-                    title={(() => { const g = giftOf(p.id); return g ? g.name[th ? "th" : "en"] : undefined; })()}>
+            <TownFoot key={`${p.id}:${p.act ?? ""}`} rank="power" icon={p.id as IconName} badge={p.badge}><button type="button" onClick={p.go} data-farm-gift={p.id} data-farm-act={p.act} data-state="open" className={GIFT_BTN}
+                    title={(() => { const g = giftOf(p.id); return p.act ? `${p.word}${p.more ? ` · ${p.more}` : ""}` : g ? g.name[th ? "th" : "en"] : undefined; })()}>
               <span aria-hidden className="grid size-9 place-items-center rounded-full border-2 border-[#2a190d] bg-[#6b4424]"><TownIcon name={p.id as IconName} size={26} /></span>
               <span className="flex flex-col items-start leading-tight">
                 {p.word}
