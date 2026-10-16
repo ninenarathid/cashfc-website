@@ -42,7 +42,7 @@ const diffOf = (a, b, at = "") => {
   return [`${at}: ${JSON.stringify(a)?.slice(0, 200)} against ${JSON.stringify(b)?.slice(0, 200)}`];
 };
 const eq = (a, b, what) => { try { assert.deepEqual(a, b); } catch { assert.fail(`${what}:\n  ${diffOf(norm(a), norm(b)).slice(0, 12).join("\n  ")}`); } checks++; };
-/** A purse as the database's stowing leaves it: with an empty list of minerals among its rewards (town.stow_all), which the code's has not. */
+/** A purse as a stowing of seeds leaves it: with an empty list of minerals among its rewards (town.stow_all; the code's stowAll since v274), left out of both. */
 const unstowed = (x) => {
   const p = x?.purse;
   if (!p?.professionRewards || JSON.stringify(p.professionRewards) !== '{"minerals":[]}') return x;
@@ -93,7 +93,7 @@ try {
     const plot = { soil: "tilled", plant }, plots = { [key]: plot };
     const got = (await one("select town.pick($1,$2::jsonb,$3::jsonb,true,$4,$5,$6) v", [key, JSON.stringify(purse), JSON.stringify(plot), hand, T, me])).v;
     const base = farm.pick(key, purse, plot, true, hand, T, [], me), want = base.ok ? gardenHarvest(key, plots, purse, base, me, T, []) : base;
-    eq(norm(unstowed(got)), norm(want), `a picking of ${crop} at ${key} by ${me || "nobody"}`);
+    eq(norm(unstowed(got)), norm(unstowed(want)), `a picking of ${crop} at ${key} by ${me || "nobody"}`);
     if (!want.ok) continue;
     const top = farm.atTop(purse, plant, me);
     if (top) { tops++; ok(want.fruits.values.every((v) => v === want.fruits.range.hi), "every fruit at the top"); }
@@ -118,7 +118,7 @@ try {
     const bedKept = { by: ME, tended: T - H, empty: 0 }, rest = int(4);
     const got = (await one("select town.row_tend($1,$2::jsonb,$3::jsonb,$4::jsonb,$5,0,$6::jsonb,$7,$8,$9::jsonb) v", [at, JSON.stringify(keys), JSON.stringify(plots), JSON.stringify(bedKept), rest, JSON.stringify(purse), ME, T, JSON.stringify(marks)])).v;
     const want = farm.rowTend(at, keys, plots, bedKept, rest, 0, purse, ME, T, marks, []);
-    eq(norm(unstowed(got)), norm(want), `a sweep from ${at}`);
+    eq(norm(unstowed(got)), norm(unstowed(want)), `a sweep from ${at}`);
     if (want.ok && want.deed === "pick" && purse.gifts.familiar === "famMandrake") swept++;
   }
   ok(swept > 5, `sweeps with the mandrake at heel (${swept})`);
