@@ -21,6 +21,8 @@ import { readFileSync } from "node:fs";
 import { rewardDB } from "./reward-db.mjs";
 import { bareWrites } from "./bare-writes.mjs";
 import { CHAIN, FILE, SIGS } from "./build-v273.mjs";
+// (the code read is the tree it is run in, FC_REPO or not: the bench reads its files from there already)
+process.env.FC_REPO ??= process.cwd().replace(/\\/g, "/");
 await import("./repo-ts-town.mjs");
 const farm = await import("@/lib/town/farm");
 const { gardenHarvest } = await import("@/lib/town/gardening");
