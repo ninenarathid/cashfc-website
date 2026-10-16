@@ -29,7 +29,7 @@ import TownWaterRelay from "./TownWaterRelay";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import TownNotebook, { type NotebookEntry } from "./TownNotebook";
-import { BLADES, FARMING, WATER, WILD, cropOf, gameFor, guardBy, hardFor, hardIn, hitsFor, moreOf, theirsAt, tiredAt, plotKey, pouchSeeds, quickUntil, ridCameOf, roll, see, sungTo, type Chore, type Deed, type RowDeed, type Seen } from "@/lib/town/farm";
+import { BLADES, FARMING, WATER, WILD, cropOf, gameFor, guardBy, hardFor, hardIn, hitsFor, moreOf, theirsAt, tiredAt, plotKey, pouchSeeds, quickUntil, ridCameOf, roll, see, sungTo, type Chore, type Deed, type Plant, type RowDeed, type Seen } from "@/lib/town/farm";
 import { canFx, hitsWith, hoeFx } from "@/lib/town/forged";
 import { FIELD } from "@/lib/town/gear";
 import { ITEMS, growIconOf, iconOf, type CropId, type ItemId } from "@/lib/town/items";
@@ -343,13 +343,22 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const rains = keeper.rains();
   /** With a fertiliser in the hand: what it would add to each of my plants it may go on (lib/town/quality-plant's fertGain), drawn over each. */
   const fertGains = useRef(new Map<string, number>());
+  const fertWorked = useRef<{ held: string; bucket: number; plants: Plant[]; gains: Map<string, number> } | null>(null);
   {
     const held = handOf(keeper.purse());
-    fertGains.current = isFert(held) ? new Map(Object.keys(plots).flatMap((k) => {
-      const p = plots[k]?.plant;
-      if (!p || (p.root && p.root !== k) || keeper.deedAt(k) !== "fert") return [];
-      return [[k, fertGain(p, held, now, rains)] as [string, number]];
-    })) : new Map();
+    if (!isFert(held)) { fertGains.current = new Map(); fertWorked.current = null; }
+    else {
+      // (only my own plants take a fertiliser, lib/town/farm's deedFor: those first, not every plot of the farm; and what
+      // each would gain is worked out again when the hand, one of them or a quarter minute changes, not at each render:
+      // "ถือถ่านชีวภาพ แล้ว แลค", 2026-10-16)
+      const mine = Object.entries(plots).filter(([k, pl]) => pl.plant && pl.plant.by === keeper.id && (!pl.plant.root || pl.plant.root === k));
+      const bucket = Math.floor(now / 15_000), was = fertWorked.current;
+      if (!was || was.held !== held || was.bucket !== bucket || was.plants.length !== mine.length || mine.some(([, pl], i) => was.plants[i] !== pl.plant)) {
+        const gains = new Map(mine.flatMap(([k, pl]) => (keeper.deedAt(k) === "fert" ? [[k, fertGain(pl.plant!, held, now, rains)] as [string, number]] : [])));
+        fertWorked.current = { held, bucket, plants: mine.map(([, pl]) => pl.plant!), gains };
+      }
+      fertGains.current = fertWorked.current!.gains;
+    }
   }
   seen.current = new Map(Object.entries(plots).map(([key, plot]) => {
     // A footprint shares one living root, including its growth and pest state.
