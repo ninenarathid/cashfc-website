@@ -214,10 +214,11 @@ describe("stock decisions and buyer interest", () => {
     }
   });
   it("one ordinary hybrid harvest is buffered even in the smallest village", () => {
+    // (a hybrid's harvest is one plot's since 2026-10-16, under the least batch)
     const t = thingOf("blueCorn", c)!;
-    expect(t.batch).toBe(7);
+    expect(t.batch).toBe(MARKET.minVolume);
     const usual = Math.max(t.usual * MARKET.heads, t.batch);
-    expect(next({ f: 100, m: usual }, 7, usual, t.floor, t.ceil).f).toBe(100);
+    expect(next({ f: 100, m: usual }, t.batch, usual, t.floor, t.ceil).f).toBe(100);
   });
   it("crafted staples move while bought staples keep their fixed buyback price", () => {
     expect(thingOf("berryJam", c)!.floor).toBe(100);

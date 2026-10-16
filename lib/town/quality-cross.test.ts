@@ -17,6 +17,7 @@ describe("the helpers' crossings beside the garden's own (the owner, 2026-10-15:
     expect(gardenCross("133,5", { "133,5": ripe("pumpkin", { pollenRound: 0, pollenSky: "sun" }), "132,5": ripe("tomato") }, "me", now, [])).toBe("fig");
     expect(gardenCross("133,5", { "133,5": ripe("pumpkin"), "132,5": ripe("tomato") }, "me", now, [])).toBe(null);
     const gourdShape = GARDEN.shapes.bottleGourd;
-    expect(gourdShape).toEqual([[0, 0], [1, 0], [1, 1]]);
+    // (on one plot since 2026-10-16)
+    expect(gourdShape).toEqual([[0, 0]]);
   });
 });

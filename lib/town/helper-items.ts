@@ -93,7 +93,7 @@ export const HELPER_CROPS: Record<HelperCropId, Crop> = {
   runnerBean: crop("runnerBean", 48, 24, 3, 2), peanut: crop("peanut", 72, null, 1, 4), buckwheat: crop("buckwheat", 48, null, 1, 3),
   sesame: crop("sesame", 60, null, 1, 3), clover: crop("clover", 36, 24, 3, 2),
   gardenStrawberry: crop("gardenStrawberry", 48, 24, 3, 2), rhubarb: crop("rhubarb", 72, 36, 3, 2), watercress: crop("watercress", 24, 24, 3, 2),
-  fig: crop("fig", 120, 48, 4, 4), chamomile: crop("chamomile", 48, 24, 3, 2),
+  fig: crop("fig", 120, 48, 4, 1), chamomile: crop("chamomile", 48, 24, 3, 2),
   borage: crop("borage", 36, 24, 3, 2), lavender: crop("lavender", 72, 36, 3, 2), passionfruit: crop("passionfruit", 96, 36, 4, 2),
   milkweed: crop("milkweed", 48, 24, 3, 2), fennel: crop("fennel", 72, 36, 3, 2),
   marigold: crop("marigold", 36, 24, 3, 2), nasturtium: crop("nasturtium", 48, 24, 3, 2), garlicChives: crop("garlicChives", 36, 24, 3, 2),
@@ -101,7 +101,7 @@ export const HELPER_CROPS: Record<HelperCropId, Crop> = {
   // (each mist child grows as its sun child does)
   pearlNut: crop("pearlNut", 72, null, 1, 4), silverGrain: crop("silverGrain", 48, null, 1, 3), dewSesame: crop("dewSesame", 60, null, 1, 3),
   glassFlower: crop("glassFlower", 36, 24, 3, 2), opalStalk: crop("opalStalk", 72, 36, 3, 2), crystalLeaf: crop("crystalLeaf", 24, 24, 3, 2),
-  dewFig: crop("dewFig", 120, 48, 4, 4), silkPollen: crop("silkPollen", 48, 24, 3, 2),
+  dewFig: crop("dewFig", 120, 48, 4, 1), silkPollen: crop("silkPollen", 48, 24, 3, 2),
 };
 
 /**
@@ -130,11 +130,12 @@ export const POLLINATOR_SKY: Readonly<Record<string, "sun" | "moon" | "mist">> =
 };
 
 /**
- * The plots a helper stands on, for the garden's placing (lib/town/gardening's GARDEN.shapes): the fig on 2×2, and each
- * line helper on one plot, but turned (its line runs east–west or north–south, as it was turned at its sowing).
+ * The plots a helper stands on, for the garden's placing (lib/town/gardening's GARDEN.shapes): each on one plot (the fig
+ * too since 2026-10-16, its four a picking cut to one), a line helper turned (its line runs east–west or north–south, as
+ * it was turned at its sowing).
  */
 export const HELPER_SHAPES: Partial<Record<HelperCropId, number[][]>> = {
-  fig: [[0, 0], [1, 0], [0, 1], [1, 1]], dewFig: [[0, 0], [1, 0], [0, 1], [1, 1]],
+  fig: [[0, 0]], dewFig: [[0, 0]],
   sesame: [[0, 0]], watercress: [[0, 0]], borage: [[0, 0]], passionfruit: [[0, 0]], garlicChives: [[0, 0]],
   dewSesame: [[0, 0]], crystalLeaf: [[0, 0]],
 };

@@ -224,7 +224,7 @@ export const COMPANIONS: Record<CompanionId, { role: Role; shape: Shape; uncle?:
   gardenStrawberry: { role: "water", shape: "plus", uncle: true, th: "สตรอว์เบอร์รีสวน", en: "Garden strawberry" },
   rhubarb: { role: "water", shape: "ring", th: "รูบาร์บ", en: "Rhubarb" },
   watercress: { role: "water", shape: "line", th: "วอเตอร์เครส", en: "Watercress" },
-  fig: { role: "water", shape: "fig", th: "มะเดื่อ", en: "Fig" },
+  fig: { role: "water", shape: "ring", th: "มะเดื่อ", en: "Fig" },
   chamomile: { role: "water", shape: "x", th: "คาโมมายล์", en: "Chamomile" },
   borage: { role: "pollen", shape: "line", uncle: true, th: "โบราจ", en: "Borage" },
   lavender: { role: "pollen", shape: "ring", th: "ลาเวนเดอร์", en: "Lavender" },
@@ -243,7 +243,7 @@ export const COMPANIONS: Record<CompanionId, { role: Role; shape: Shape; uncle?:
   glassFlower: { role: "soil", shape: "x", th: "โคลเวอร์หมอก", en: "Mist clover" },
   opalStalk: { role: "water", shape: "ring", th: "รูบาร์บหมอก", en: "Mist rhubarb" },
   crystalLeaf: { role: "water", shape: "line", th: "วอเตอร์เครสหมอก", en: "Mist watercress" },
-  dewFig: { role: "water", shape: "fig", th: "มะเดื่อหมอก", en: "Mist fig" },
+  dewFig: { role: "water", shape: "ring", th: "มะเดื่อหมอก", en: "Mist fig" },
   silkPollen: { role: "water", shape: "x", th: "คาโมมายล์หมอก", en: "Mist chamomile" },
 };
 

@@ -582,10 +582,15 @@ export const ridWords = (id: ItemId): { th: string; en: string } | null => {
 
 /** Whether a vegetable is a tree or a bush that bears for a season (picked five times and more): shears are for those, a sickle for the rest. */
 export const isTree = (crop: CropId) => (CROPS[crop].picks ?? 1) >= TREE_PICKS;
-/** How many a picking gives: between the vegetable's least and most, the same for everybody who asks about that picking; one more with the right blade in the hand (a sickle, or shears for a tree). */
+/**
+ * How many a picking gives: between the vegetable's least and most, the same for everybody who asks about that picking;
+ * one more with the right blade in the hand (a sickle, or shears for a tree). A hybrid sown over several plots before
+ * they became one-plot plants (2026-10-16) gives for each of its plots, as it did.
+ */
 export function yieldOf(key: string, p: Plant, hand: ItemId | null = null): number {
   const [lo, hi] = CROPS[p.crop].yield;
-  return (lo + Math.floor(roll(key, p.sown, p.picked) * (hi - lo + 1))) * (p.giant ? 6 : 1) + (hand === (isTree(p.crop) ? BLADES.tree : BLADES.plant) ? 1 : 0);
+  const plots = p.giant ? 6 : Math.max(1, p.footprint?.length ?? 1);
+  return (lo + Math.floor(roll(key, p.sown, p.picked) * (hi - lo + 1))) * plots + (hand === (isTree(p.crop) ? BLADES.tree : BLADES.plant) ? 1 : 0);
 }
 
 /**

@@ -12,11 +12,12 @@ import { harvestOf } from "./quality-plant";
 export const GARDEN = {
   version: 1, boost: 3600000, extra: 1,
   shapes: {
-    bottleGourd: [[0, 0], [1, 0], [1, 1]], rowBean: [[0, 0], [1, 0]],
-    trellisBerry: [[0, 0], [0, 1], [0, 2]], blueCorn: [[0, 0], [1, 0], [2, 0]],
-    teaBush: [[0, 0], [1, 0]], sunflowerPatch: [[0, 0], [1, 0], [0, 1]],
-    redOkra: [[0, 0], [0, 1]], lotusRootBed: [[0, 0], [1, 0], [2, 0]],
-    // (the farm's Quality: the fig on 2x2, and each line helper on one plot it is turned on, lib/town/helper-items)
+    // (each hybrid on one plot, the owner, 2026-10-16: "พืชหลายช่อง ทำให้คน งง กันเยอะ ... เอาให้เหลือช่องเดียว"; its
+    // yield cut to a plot's share of what it gave over two or three, lib/town/garden-items. One sown before stands on
+    // its plots, and gives for them, until it is done: lib/town/farm's yieldOf)
+    bottleGourd: [[0, 0]], rowBean: [[0, 0]], trellisBerry: [[0, 0]], blueCorn: [[0, 0]],
+    teaBush: [[0, 0]], sunflowerPatch: [[0, 0]], redOkra: [[0, 0]], lotusRootBed: [[0, 0]],
+    // (the farm's Quality: the fig and each line helper on one plot, a line turned as it was sown, lib/town/helper-items)
     ...HELPER_SHAPES,
   } as Record<GardenCropId, number[][]> & Partial<Record<CropId, number[][]>>,
   crosses: [

@@ -34,14 +34,16 @@ export type GardenCropId = "bottleGourd" | "rowBean" | "trellisBerry" | "blueCor
 export type GardenDishId = "pollenRice" | "berryTea" | "blueCornCake" | "lotusGardenSoup";
 export const GARDEN_TOOLS = ["pollenBrush", "graftKnife", "rootGuide", "soilScoop", "seedTray", "gardenTwine"] as const;
 export const GARDEN_CROPS: Record<GardenCropId, Crop> = {
-  bottleGourd: { seed: "seedBottleGourd", hours: 72, yield: [4, 6], again: 36, picks: 3 },
-  rowBean: { seed: "seedRowBean", hours: 60, yield: [6, 8], again: 24, picks: 3 },
-  trellisBerry: { seed: "seedTrellisBerry", hours: 192, yield: [6, 8], again: 48, picks: 5 },
-  blueCorn: { seed: "seedBlueCorn", hours: 120, yield: [6, 8] },
-  teaBush: { seed: "seedTeaBush", hours: 168, yield: [6, 8], again: 48, picks: 5 },
-  sunflowerPatch: { seed: "seedSunflowerPatch", hours: 72, yield: [6, 10] },
-  redOkra: { seed: "seedRedOkra", hours: 72, yield: [6, 8], again: 24, picks: 3 },
-  lotusRootBed: { seed: "seedLotusRootBed", hours: 120, yield: [4, 6] },
+  // (on one plot since 2026-10-16: what each gave over its two or three plots, a plot's share, rounded to keep each
+  // between 1.45 and 2 times its parents' pay a plot-hour, lib/town/garden-economy.test)
+  bottleGourd: { seed: "seedBottleGourd", hours: 72, yield: [1, 2], again: 36, picks: 3 },
+  rowBean: { seed: "seedRowBean", hours: 60, yield: [3, 4], again: 24, picks: 3 },
+  trellisBerry: { seed: "seedTrellisBerry", hours: 192, yield: [2, 3], again: 48, picks: 5 },
+  blueCorn: { seed: "seedBlueCorn", hours: 120, yield: [2, 4] },
+  teaBush: { seed: "seedTeaBush", hours: 168, yield: [3, 4], again: 48, picks: 5 },
+  sunflowerPatch: { seed: "seedSunflowerPatch", hours: 72, yield: [2, 4] },
+  redOkra: { seed: "seedRedOkra", hours: 72, yield: [3, 4], again: 24, picks: 3 },
+  lotusRootBed: { seed: "seedLotusRootBed", hours: 120, yield: [2, 2] },
 };
 export const GARDEN_SEED_ITEMS = Object.fromEntries(Object.entries(GARDEN_CROPS).map(([crop, rule]) => [rule.seed, item("seed", `เมล็ด${GARDEN_ITEMS[crop as GardenCropId].name.th}`, `${GARDEN_ITEMS[crop as GardenCropId].name.en} seeds`, "เมล็ดพันธุ์ในซองใบไม้", "Garden seeds in a folded leaf packet", 4, GARDEN_ITEMS[crop as GardenCropId].tier)])) as Record<`seed${Capitalize<GardenCropId>}`, Item>;
 export const GARDEN_MAKES = {

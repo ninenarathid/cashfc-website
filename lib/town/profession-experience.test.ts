@@ -8,10 +8,10 @@ const deed = (what: string, thing: string | null, doc: Record<string, unknown> =
 const harvest: Counts = { to: null, line: "farming", raw: 12 };
 
 describe("profession experience rewards actual work", () => {
-  it("pays hybrids for their real footprint and giants once for four occupied cells", () => {
+  it("pays hybrids for their one plot (2026-10-16) and giants once for four occupied cells", () => {
     expect(farmPoints("corn")).toBe(4);
-    expect(farmPoints("blueCorn")).toBe(30);
-    expect(farmPoints("teaBush")).toBe(28);
+    expect(farmPoints("blueCorn")).toBe(10);
+    expect(farmPoints("teaBush")).toBe(14);
     expect(farmPoints("pumpkin", 0, true)).toBe(48);
     expect(farmPoints("pumpkin", 0, true, 50)).toBe(50);
     expect(countsOf(deed("pick", "pumpkin", {}, 100), "me")[0].raw).toBe(12);
@@ -22,7 +22,7 @@ describe("profession experience rewards actual work", () => {
     expect(farmPoints("tomato", 1)).toBe(4);
     expect(farmPoints("coconut")).toBe(24);
     expect(farmPoints("coconut", 9)).toBe(8);
-    expect(farmPoints("trellisBerry", 1)).toBe(18);
+    expect(farmPoints("trellisBerry", 1)).toBe(6);
   });
 
   it("credits care only in its actual bearing, never an old fertiliser again", () => {

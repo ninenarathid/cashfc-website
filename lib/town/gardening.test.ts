@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { GARDEN_CROPS, GARDEN_ITEMS, GARDEN_TOOLS, type GardenCropId } from "./garden-items";
 import { GARDEN, gardenCross, gardenMods, gardenRoom, gardenShape, gardenTend, syncGarden } from "./gardening";
-import { deedFor, glassTurn, gnomeWater, pick, rowFor, rowTend, type FarmSky, type Plant, type Plot } from "./farm";
+import { deedFor, glassTurn, gnomeWater, pick, rowFor, rowTend, yieldOf, type FarmSky, type Plant, type Plot } from "./farm";
 import { CROPS, type CropId, type ItemId } from "./items";
 import { held, hold, newPurse, type Purse } from "./trade";
 import { dayOf } from "./stamina";
@@ -15,7 +15,25 @@ const ripe = (crop: CropId): Plant => ({ by: "me", crop, sown: NOW - CROPS[crop]
 const bed = { by: "me", tended: NOW, empty: 0 };
 const space = () => Object.fromEntries(Array.from({ length: 49 }, (_, i) => [`${bx + i % 7},${by + Math.floor(i / 7)}`, { soil: "tilled", plant: null }])) as Record<string, Plot>;
 const holding = (p: Purse, id: ItemId) => { const d = hold(p, p.bag.findIndex(s => s?.item === id)); if (!d.ok) throw new Error("cannot hold"); return d.purse; };
+/**
+ * The shapes the hybrids had before they became one-plot plants (2026-10-16): a plant sown over several plots then stands
+ * on them until it is done, so what keeps such a plant whole is still tried, with the old shapes put back for the test.
+ */
+const OLD_SHAPES = { bottleGourd: [[0, 0], [1, 0], [1, 1]], rowBean: [[0, 0], [1, 0]], blueCorn: [[0, 0], [1, 0], [2, 0]] };
+const sprawled = (test: () => void) => () => {
+  const was = structuredClone(GARDEN.shapes);
+  Object.assign(GARDEN.shapes, structuredClone(OLD_SHAPES));
+  try { test(); } finally { Object.assign(GARDEN.shapes, was); }
+};
 describe("sprawling gardens", () => {
+  it("sows a hybrid on one plot, and one sown over several plots before gives for each of them (2026-10-16)", () => {
+    const p = holding(base(["seedBlueCorn"]), "seedBlueCorn"), planted = gardenTend(key, space(), bed, 0, 0, p, "me", NOW, sky);
+    expect(planted.ok).toBe(true); if (!planted.ok) return;
+    expect(planted.plot.plant?.footprint ?? [key]).toEqual([key]);
+    expect(Object.keys(planted.plots ?? {}).filter((k) => k !== key)).toEqual([]);
+    const old: Plant = { ...ripe("blueCorn"), root: key, footprint: [key, `${bx + 3},${by + 2}`, `${bx + 4},${by + 2}`] };
+    expect(yieldOf(key, old)).toBe(3 * yieldOf(key, { ...old, footprint: [key] }));
+  });
   it("has 25 usable, obtainable additions and eight accompanying seeds", () => {
     expect(Object.keys(GARDEN_ITEMS)).toHaveLength(25);
     const from = sources();
@@ -23,7 +41,7 @@ describe("sprawling gardens", () => {
     for (const id of GARDEN_TOOLS) expect(usesOf(id)).toContain("garden");
     expect(Object.keys(GARDEN_CROPS)).toHaveLength(8);
   });
-  it("rotates footprints without crossing the bed or consuming a seed on an occupied cell", () => {
+  it("rotates footprints without crossing the bed or consuming a seed on an occupied cell", sprawled(() => {
     for (const crop of Object.keys(GARDEN_CROPS) as GardenCropId[]) for (let r = 0; r < 4; r++) expect(gardenShape(key, crop, r)).toHaveLength(GARDEN.shapes[crop].length);
     expect(gardenShape(key, "rowBean", 4)).toBeNull();
     expect(gardenShape(`${bx},${by}`, "rowBean", 2)).toBeNull();
@@ -31,8 +49,8 @@ describe("sprawling gardens", () => {
     plots[`${bx + 3},${by + 2}`].plant = ripe("corn");
     expect(gardenTend(key, plots, bed, 1, 0, p, "me", NOW, sky)).toEqual({ ok: false, why: "soil" });
     expect(p).toEqual(before);
-  });
-  it("reserves every cell and refuses a second harvest from the same plant", () => {
+  }));
+  it("reserves every cell and refuses a second harvest from the same plant", sprawled(() => {
     const p = holding(base(["seedRowBean"]), "seedRowBean"), planted = gardenTend(key, space(), bed, 0, 0, p, "me", NOW, sky);
     expect(planted.ok).toBe(true); if (!planted.ok) return;
     const plots = { ...space(), ...planted.plots }, root = { ...ripe("rowBean"), ...planted.plot.plant!, sown: ripe("rowBean").sown, guard: NOW + 3600000 };
@@ -44,7 +62,7 @@ describe("sprawling gardens", () => {
     expect(d.ok).toBe(true); if (!d.ok) return;
     expect(held(d.purse.bag, "rowBean")).toBeGreaterThan(0);
     expect(gardenTend(key, { ...synced, ...d.plots }, bed, 1, 0, d.purse, "me", NOW, sky).ok).toBe(false);
-  });
+  }));
   it("records a ripe neighbour cross once and keeps bag failures atomic", () => {
     const plots = space(), next = `${bx + 3},${by + 2}`;
     plots[key] = { soil: "tilled", plant: ripe("longBean") }; plots[next] = { soil: "tilled", plant: ripe("basil") };
@@ -86,7 +104,7 @@ describe("sprawling gardens", () => {
     expect(gnome.watered).toEqual([key]);
     for (const cell of cells) expect(syncGarden({ ...planted, ...gnome.plots })[cell].plant?.watered).toBe(NOW);
   });
-  it("the sickle removes vertical reservations and rests the bed after the last root", () => {
+  it("the sickle removes vertical reservations and rests the bed after the last root", sprawled(() => {
     const cells = gardenShape(key, "blueCorn", 1)!, plots = space(), next = `${bx + 3},${by + 2}`;
     plots[key].plant = { ...ripe("blueCorn"), root: key, footprint: cells };
     plots[next].plant = ripe("corn");
@@ -98,5 +116,5 @@ describe("sprawling gardens", () => {
     expect(did.bed?.empty).toBe(NOW);
     expect(cells.every(k => did.plots[k]?.plant === null)).toBe(true);
     expect(did.got.find(([id]) => id === "blueCorn")?.[1]).toBe(held(did.purse.bag, "blueCorn"));
-  });
+  }));
 });

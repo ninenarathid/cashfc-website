@@ -61,8 +61,8 @@ import TownTiming from "./TownTiming";
 import TownWeeding from "./TownWeeding";
 import { WHY } from "./TownTrade";
 import { Vfx, type VfxKind } from "./vfx";
-import { GARDEN_CROPS, type GardenCropId } from "@/lib/town/garden-items";
-import { gardenCross, gardenMods } from "@/lib/town/gardening";
+import type { GardenCropId } from "@/lib/town/garden-items";
+import { GARDEN, gardenCross, gardenMods } from "@/lib/town/gardening";
 import TownGardenPlacement from "./TownGardenPlacement";
 import { FertChart, QualityBed, QualityChip, QualityInspector } from "./TownQuality";
 import { HouseChip, HousePanel } from "./TownInsectHouse";
@@ -174,8 +174,8 @@ const PLANT = 0.62;
  * keeping its aspect ratio and roots at the soil; seedlings use their original scale. */
 const TREE_HEIGHT: Record<string, number> = {
   growLime: 40, growPapaya: 46, growMango: 46, growBanana: 46, growCoconut: 50,
-  // (the fig, a helper of the farm's Quality, stands over its 2×2 as one tree: a little taller than the orchard's)
-  growFig: 54, growDewFig: 54,
+  // (the fig, a helper of the farm's Quality, on one plot since 2026-10-16: as tall as the orchard's)
+  growFig: 46, growDewFig: 46,
 };
 /** Trees that stand over their whole footprint: drawn once, from the middle of their plots, not once a plot. */
 const WHOLE_TREES = new Set<string>(["fig", "dewFig"]);
@@ -767,7 +767,13 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           if (!underTree) blit(plant, at, 0, (PLANT_SCALES[plant] ?? PLANT) * s);
           // Fill the real growing space with foliage, not a miniature placeholder.
           // Its care and harvest indicators still belong to the actionable root.
-          if (gardenRoots.current.get(plotKey(tx, ty)) && gardenRoots.current.get(plotKey(tx, ty)) !== plotKey(tx, ty)) return;
+          // (a giant, or a plant sown over several plots before: its drop on each of its plots with the root's, as watering
+          // any of them waters the whole of it; the owner, 2026-10-16)
+          if (gardenRoots.current.get(plotKey(tx, ty)) && gardenRoots.current.get(plotKey(tx, ty)) !== plotKey(tx, ty)) {
+            const root = gardenRoots.current.get(plotKey(tx, ty))!;
+            if ((seen.current.get(root) ?? what).wet && !later.has(root)) blit("plotDrop", { x: at.x + 13 * s, y: at.y }, 0, PLANT * s * 0.45);
+            return;
+          }
           if (what.wet && !later.has(plotKey(tx, ty))) blit("plotDrop", { x: at.x + 13 * s, y: at.y }, 0, PLANT * s * 0.45);
           // (a hot afternoon: the air shimmers over a plant that is still growing and has had no water this hour)
           else if (hot.current && !what.ripe) shimmer(at, tx * 3 + ty);
@@ -949,7 +955,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     if (key && houseDeed) { if (houseDeed === "lift") setAsking({ key, deed: "lift" }); else void doHouse(key); return; }
     const planting = cropOf(handOf(keeper.purse()));
     // (a sprawling crop, and every helper plant of the farm's Quality: placed where what it covers can be seen first)
-    if (work === "sow" && key && planting && (planting in GARDEN_CROPS || planting in COMPANIONS)) { setPlacement({ key, crop: planting as CropId }); return; }
+    // (a helper's placing shows what it reaches; a hybrid, on one plot since 2026-10-16, is sown as any crop is)
+    if (work === "sow" && key && planting && ((GARDEN.shapes[planting as GardenCropId]?.length ?? 1) > 1 || planting in COMPANIONS)) { setPlacement({ key, crop: planting as CropId }); return; }
     if (work === "ditch") {
       // (no game with stamina; with none it is poured like any water, a short round)
       if (tiredOn(key)) setWorking({ key, work, need: FARMING.tired });
