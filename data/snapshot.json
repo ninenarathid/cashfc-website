@@ -6,7 +6,7 @@
   "mounts": 61,
   "minions": 227,
   "rare": null,
-  "level": 90,
+  "level": 52,
   "cc": [
    false,
    false,
@@ -25,7 +25,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-10-15"
+  "chg": "2026-10-16"
  },
  "15308846": {
   "name": "Aqua Eleison",
@@ -2289,7 +2289,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 53,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4798,7 +4798,7 @@
   "mounts": 22,
   "minions": 65,
   "rare": 7,
-  "level": 71,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4825,7 +4825,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-15"
+  "chg": "2026-10-16"
  },
  "26298391": {
   "name": "Yozora Luna",
@@ -6812,7 +6812,7 @@
   "mounts": 55,
   "minions": 109,
   "rare": 1,
-  "level": 100,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -6831,7 +6831,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-15"
+  "chg": "2026-10-16"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -7253,7 +7253,7 @@
   "mounts": 70,
   "minions": 104,
   "rare": 57,
-  "level": 84,
+  "level": 56,
   "cc": [
    false,
    false,
@@ -7329,7 +7329,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-10-15"
+  "chg": "2026-10-16"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -8294,7 +8294,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 97,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -8307,7 +8307,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-13"
+  "chg": "2026-10-16"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -8825,7 +8825,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 66,
+  "level": 100,
   "cc": [
    false,
    false,
