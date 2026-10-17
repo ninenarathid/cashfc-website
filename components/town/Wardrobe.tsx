@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { LINES, type LineId } from "@/lib/town/lines";
 import { KIT_SHEET_EVENT, type PixelKit } from "@/lib/town/pixeldoll";
-import { FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS, owns, type Wearable } from "@/lib/town/wear";
+import { FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS, owns, together, type Wearable } from "@/lib/town/wear";
 import {
   EYES, EYE_COLORS, GENDERS, HAIR_COLORS, ONE_MODEL, RACES, hairForGender, hairsFor, hairsOf, lookAsRace, skinsOf,
   type Look, type Named, type Swatch,
@@ -81,13 +81,13 @@ export default function Wardrobe({ look, kit, points, had, onChange, onTurn, onC
         )}
         {tab === "wear" && <>
           <Cards label={th ? "หมวก" : "Hats"} items={HATS} value={look.hat ?? 0} th={th} points={points} had={had} kit={kit}
-                 lookFor={(hat) => ({ ...look, hat })} onPick={(hat) => set({ hat })} />
+                 lookFor={(hat) => ({ ...look, hat })} onPick={(hat) => set(together(look, { hat }))} />
           <Cards label={th ? "แว่นตา" : "Glasses"} items={FACE_WEAR} value={look.faceWear ?? 0} th={th} points={points} had={had} kit={kit}
                  lookFor={(faceWear) => ({ ...look, faceWear })} onPick={(faceWear) => set({ faceWear })} />
           <Cards label={th ? "ที่คอ" : "Neck"} items={NECK_WEAR} value={look.neck ?? 0} th={th} points={points} had={had} kit={kit}
                  lookFor={(neck) => ({ ...look, neck })} onPick={(neck) => set({ neck })} />
           <Cards label={th ? "ที่ผม" : "In the hair"} items={HAIR_WEAR} value={look.hairWear ?? 0} th={th} points={points} had={had} kit={kit}
-                 lookFor={(hairWear) => ({ ...look, hairWear })} onPick={(hairWear) => set({ hairWear })} />
+                 lookFor={(hairWear) => ({ ...look, hairWear })} onPick={(hairWear) => set(together(look, { hairWear }))} />
         </>}
         {tab === "me" && <>
 

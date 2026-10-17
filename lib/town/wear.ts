@@ -39,7 +39,8 @@ export type Source =
  * rain; `knob`: a knob of town_knobs that says the chance in ten-thousandths instead; `how`: what the wardrobe says of it.
  */
 export interface Drop { drop: LineId; chance: number; what?: readonly string[]; things?: readonly string[]; hours?: readonly [number, number]; rain?: true; knob?: string; how?: { th: string; en: string } }
-export type Wearable = Named & { from?: Source };
+/** `top`: a hair thing worn on top of the head (ears, horns, a tiara, a crown, a big bow), which a hat would sit on. */
+export type Wearable = Named & { from?: Source; top?: true };
 
 const NONE: Wearable = { id: "none", th: "ไม่ใส่", en: "None" };
 const at = (rank: number, ...lines: LineId[]): Source => ({ lines, rank });
@@ -132,18 +133,30 @@ export const HAIR_WEAR: Wearable[] = [
   NONE,
   { id: "flower", th: "กิ๊บดอกไม้", en: "Flower clip", from: drop("helpers", 0.001, { knob: "wear_flower_in_ten_thousand" }) },
   // (v277)
-  { id: "ribbon", th: "โบผมใหญ่", en: "Big ribbon", from: UNCLE },
+  { id: "ribbon", th: "โบผมใหญ่", en: "Big ribbon", from: UNCLE, top: true },
   { id: "leaf", th: "กิ๊บใบไม้", en: "Leaf clip", from: drop("forest", 0.005, { what: ["gather"] }) },
   { id: "tassel", th: "ปิ่นพู่ไหม", en: "Tassel hairpin", from: CRAFT },
-  { id: "catears", th: "หูแมว", en: "Cat ears", from: CRAFT },
-  { id: "bunnyears", th: "หูกระต่าย", en: "Rabbit ears", from: CRAFT },
+  { id: "catears", th: "หูแมว", en: "Cat ears", from: CRAFT, top: true },
+  { id: "bunnyears", th: "หูกระต่าย", en: "Rabbit ears", from: CRAFT, top: true },
   { id: "starclip", th: "กิ๊บดาว", en: "Star clip", from: drop("insects", 0.01, { what: ["net"], hours: [19, 23] }) },
   { id: "butterfly", th: "กิ๊บผีเสื้อ", en: "Butterfly clip", from: drop("insects", 0.02, { what: ["net"], things: ["butterflyWhite", "monarch", "morpho"], how: { th: "จับผีเสื้อ", en: "Catching a butterfly" } }) },
   { id: "featherpin", th: "ขนนกเหน็บผม", en: "Feather pin", from: drop("felling", 0.002, { what: ["fell"] }) },
-  { id: "horns", th: "เขาปีศาจ", en: "Little horns", from: CRAFT },
-  { id: "tiara", th: "มงกุฎเงินจิ๋ว", en: "Tiny tiara", from: CRAFT },
-  { id: "crown", th: "มงกุฎดอกไม้", en: "Flower crown", from: CRAFT },
+  { id: "horns", th: "เขาปีศาจ", en: "Little horns", from: CRAFT, top: true },
+  { id: "tiara", th: "มงกุฎเงินจิ๋ว", en: "Tiny tiara", from: CRAFT, top: true },
+  { id: "crown", th: "มงกุฎดอกไม้", en: "Flower crown", from: CRAFT, top: true },
 ];
+
+/** Whether a look's hair thing is worn on top of the head (where a hat goes). */
+export const onTop = (hairWear: number | undefined): boolean => !!HAIR_WEAR[hairWear ?? 0]?.top;
+/**
+ * A change to a look in the wardrobe, with a hat and a thing on top of the head taking turns (one in place of the
+ * other: a hat over cat ears or a tiara would squash them); a clip at the side stays with a hat.
+ */
+export function together<L extends { hat?: number; hairWear?: number }>(look: L, change: Partial<L>): Partial<L> {
+  if (change.hat && onTop(look.hairWear)) return { ...change, hairWear: 0 };
+  if (change.hairWear !== undefined && onTop(change.hairWear) && look.hat) return { ...change, hat: 0 };
+  return change;
+}
 
 /** Whether a Bangkok hour is inside a drop's hours (from up to, but not, to). */
 const inHours = (hour: number, [from, to]: readonly [number, number]) => (from <= to ? hour >= from && hour < to : hour >= from || hour < to);

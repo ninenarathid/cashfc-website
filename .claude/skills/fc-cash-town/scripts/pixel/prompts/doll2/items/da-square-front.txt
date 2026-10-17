@@ -1,0 +1,5 @@
+Edit the attached pixel art sprite sheet. Keep everything exactly where it is: the same canvas, the same four figures at the same positions and the same size, the same walking poses, the same bald round head with exactly the same outline and size, the same long pointed ears, the same outfit, the same chunky square pixel size, the same thick dark outline and the same pixel art style.
+
+Change only one thing: put thick black square-framed glasses with clear lenses over her eyes, a thick bridge over the nose, the same on all four figures. Her eyes, face and head stay exactly as they are. Simple bold shapes with two or three tones per colour, no tiny patterns.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients. Transparent background, no text, no labels, no ground shadow, nothing else changed.

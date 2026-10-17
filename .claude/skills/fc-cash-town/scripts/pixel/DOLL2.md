@@ -126,9 +126,17 @@ bytes, not only its name (Codex: `gen.mjs` stamps basenames).
 ## Ownership
 
 - The starter needs no database change.
-- **Rank outfits need ownership and selection validated on the server** (a numbered
-  migration) before they become rewards. A client-claimed outfit id must never be trusted
-  (Codex).
+- **Where a thing comes from is its `from` in lib/town/wear** (as built, v276 and v277):
+  - a rank of a line (`at(rank, line)`): worked out on the page from the lines' points, nothing in the database;
+  - the workbench (`CRAFT`) or the uncle's shelf (`UNCLE`): a thing of the bag in lib/town/wear-items (its item,
+    its recipe or its price), worn once into the wardrobe by `town_dress` (DRESS_ITEMS says what it is worn into);
+  - a drop (`drop(line, chance, { what, things, hours, rain, knob, how })`): rolled by town.work_counted at every
+    count of that line's points that gives points, from the catalog's `wear_drops` (lib/town/wear's dropsFor is the
+    same rule, and the trial's);
+  - the bat merchant: not built, the card says "soon".
+- What is bought or dropped is `town_dressed` (closed to the browser; `town_dressed()` tells a member their own). A
+  new bought, made or dropped thing needs a migration for its catalog rows (TOWN_WRITE writes them); a rank one does not.
+- Looks are still trusted from other players' pages (cosmetic); a page takes off what its own player does not have.
 
 ## The new starter outfit (not FFXIV's, universal, unisex)
 
@@ -139,12 +147,17 @@ strap reads at game size.
 
 ## Adding a thing, as built (2026-10-17)
 
-1. Add a line to `prompts/doll2/items.json`: an outfit's `front` and `back` words, a hat's, or an accessory's with its
-   `slot` (face, neck, hair). Add `key` when the thing has parts a plain word misses. Use the same id in `lib/town/wear.ts`,
-   at the end of its list.
+1. Add a line to `prompts/doll2/items.json`: an outfit's `front` and `back` words (and `f` for the women's version,
+   with `pose` when it has a skirt), a hat's, or an accessory's with its `slot` (face, neck, hair). Add `key` when the
+   thing has parts a plain word misses, `clear: true` for glasses whose lenses show the eyes. Closed shoes: strap
+   sandals came out as empty rings and a bare foot when sitting (2026-10-17). Something that sits on the hair and lets
+   it show (a crown, ears) is a hair thing, not a hat: a hat takes away the hair above its brim. Use the same id in
+   `lib/town/wear.ts`, at the end of its list, with its `from`.
 2. Run `node make-items.mjs 1 <calls>`, then `codex-ask.mjs art --calls <calls>`, then the printed `gen.mjs` lines.
    Stages 2 to 4 are run the same way: an outfit's eating sheet and skin keys, then a hat's or an accessory's magenta key.
 3. Run `node build-pixel-atlas.mjs --doll2 --out <tree>/public/town`, then `node checks/wear-look.mjs`: one picture of everything.
+   Each outfit is packed in a picture of its own (`pixel-o-<id>-<hash>.png`, pixel.json's `sheets`), which the page
+   fetches when somebody first wears it; everything else is in the one picture.
 4. Shoot it in the dev town at desktop and phone size, and have Codex look (the UI rule). Then it is the owner's.
 
 Calls a thing costs: an outfit 8 (four sheets and their keys), a hat 4 (two views and their keys), an accessory 2 to 4.

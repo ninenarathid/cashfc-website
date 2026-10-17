@@ -1,7 +1,7 @@
 "use client";
 
 import { EYES, EYE_COLORS, GENDERS, HAIR_COLORS, RACES, hairsOf, raceOf, skinsOf, type Look } from "./look";
-import { FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS, wornId } from "./wear";
+import { FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS, onTop, wornId } from "./wear";
 
 /**
  * Drawing a Cash Town avatar: a pixel character of one of the game's races.
@@ -501,7 +501,7 @@ export class PixelKit {
     const hairName = A.hair[hairsOf(this.race)[look.hair]?.id ?? ""]?.front;
     const W = A.wear, hatId = wornId(HATS, look.hat), hat = hatId ? W?.hat?.[hatId] : undefined;
     const worn = (slot: "face" | "neck" | "hair", list: typeof HATS, i: number | undefined) => { const id = wornId(list, i); return id ? W?.[slot]?.[id]?.front : undefined; };
-    const neck = worn("neck", NECK_WEAR, look.neck), glasses = worn("face", FACE_WEAR, look.faceWear), clip = worn("hair", HAIR_WEAR, look.hairWear);
+    const neck = worn("neck", NECK_WEAR, look.neck), glasses = worn("face", FACE_WEAR, look.faceWear), clip = hatId && onTop(look.hairWear) ? undefined : worn("hair", HAIR_WEAR, look.hairWear);
     const layers: Array<{ name: string; draw: () => CanvasImageSource }> = [];
     const plain = (name: string | undefined) => { if (name && A.frames[name]) layers.push({ name, draw: () => this.plain(name) }); };
     plain(neck);
@@ -606,7 +606,8 @@ export class PixelKit {
       ctx.drawImage(clip ? this.hairUnder(hairName, look, hatId!, view, clip) : this.hair(hairName, look), hox, hoy);
     }
     lay(worn("face", wornId(FACE_WEAR, look.faceWear))?.[view]);
-    lay(worn("hair", wornId(HAIR_WEAR, look.hairWear))?.[view]);
+    // (a thing on top of the head is not worn under a hat: lib/town/wear's together; a look that says both shows the hat)
+    if (!(hatId && onTop(look.hairWear))) lay(worn("hair", wornId(HAIR_WEAR, look.hairWear))?.[view]);
     lay(hat?.[view]);
     ctx.restore();
   }

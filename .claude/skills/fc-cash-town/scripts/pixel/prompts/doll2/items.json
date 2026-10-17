@@ -308,8 +308,8 @@
     {
       "id": "monocle",
       "slot": "face",
-      "front": "a single round gold-rimmed monocle with a clear lens over her eye on the viewer's left, a thin gold chain hanging from its rim down past her cheek",
-      "key": "the monocle's gold rim and its chain",
+      "front": "a big single round monocle with a thick gold rim, a little larger than her eye, over her eye on the viewer's left, a thick gold chain hanging from its rim down to her collar",
+      "key": "the monocle's thick gold rim and its chain",
       "clear": true
     },
     {
@@ -333,7 +333,7 @@
     {
       "id": "amber",
       "slot": "face",
-      "front": "round glasses with a thick mottled amber-and-brown tortoiseshell frame and clear lenses over her eyes",
+      "front": "round glasses with a very thick frame, about twice as thick as ordinary glasses, in dark brown with big honey-yellow blotches, and clear lenses over her eyes",
       "clear": true
     },
     {
@@ -353,7 +353,7 @@
     {
       "id": "crystalpendant",
       "slot": "neck",
-      "front": "a big pale-violet crystal pendant shaped like a pointed six-sided prism, about as big as her eye, on a thin silver chain, hanging on the upper chest just below the collar",
+      "front": "a big deep-violet crystal pendant shaped like a pointed six-sided prism, as big as her eye, with a dark outline and one white shine, on a silver chain, hanging on the upper chest just below the collar",
       "key": "the crystal pendant, including its chain, but not the clothes under it",
       "solid": true
     },
@@ -382,8 +382,8 @@
     {
       "id": "bell",
       "slot": "neck",
-      "front": "a red velvet ribbon choker around the neck with a small round gold bell at the front",
-      "back": "the same red velvet ribbon choker around the back of her neck, tied in a small bow",
+      "front": "a wide red velvet ribbon choker around the neck with a big round gold bell at the front, the bell as big as her eye",
+      "back": "the same wide red velvet ribbon choker around the back of her neck, tied in a small bow",
       "key": "the ribbon choker and its bell, but not the clothes under it",
       "solid": true
     },
