@@ -79,7 +79,7 @@ ${CLOSE}
 `;
   for (const h of items.hats) for (const v of ["front", "back"]) call(`dhk-${h.id}-${v}`, thing(h.key ?? "the hat"), `work/out/dh-${h.id}-${v}.png`);
   const WHAT = { face: "the glasses", neck: "the thing worn at the neck", hair: "the hair clip" };
-  for (const a of items.accessories) for (const v of ["front", "back"]) if (a[v]) call(`dak-${a.id}-${v}`, thing(a.key ?? WHAT[a.slot], a.id === "glasses"), `work/out/da-${a.id}-${v}.png`);
+  for (const a of items.accessories) for (const v of ["front", "back"]) if (a[v]) call(`dak-${a.id}-${v}`, thing(a.key ?? WHAT[a.slot], a.clear ?? a.id === "glasses"), `work/out/da-${a.id}-${v}.png`);
 } else {
   call("d2-skinkey-eat", skinkey(), "work/out/d2-starter-eat.png");
   for (const o of [...items.outfits, ...women]) call(`dk-${o.id}-eat`, skinkey(), `work/out/do-${o.id}-eat.png`);

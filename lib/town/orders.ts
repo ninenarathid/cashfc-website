@@ -52,6 +52,8 @@ export const BASIC: ItemId[] = [
   "seedRunnerBean", "seedGardenStrawberry", "seedBorage", "seedMarigold",
   // (v276, things to wear: the round glasses)
   "wearGlasses",
+  // (v277, the uncle's other things to wear)
+  "wearMonocle", "wearSquare", "wearNecktie", "wearRibbon",
 ];
 /**
  * What the orders open, in this order, one for each day filled: the early

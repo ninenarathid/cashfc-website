@@ -440,6 +440,15 @@ const SHEETS = [
   // for when he comes, with icons-items-e for the reference; its four goods drawn only to hold the size. Cut on the
   // finer grid (5.54): on its coarser (10.9) the lenses came out square
   ["icons-wear-a", ["wearGlasses", "wearSunglasses", "_wearSauce", "_wearTub", "_wearGrowFert", "_wearGuardFert"], { range: [5.4, 5.65] }],
+  // ── the 24 more of the bag (v277, 2026-10-17: lib/town/wear-items), with icons-wear-a for the reference, each sheet cut
+  // on the fine grid that gives the glasses' own size (on the coarser one, 8 to 16, they came out blocky). `f` drew
+  // again the four that read as something else beside their neighbours: the apron (a bag), the pumpkin hat (the
+  // crop), the tortoiseshell glasses (the copper ones), the garland (the flower crown); its witch's hat and beret hold the size
+  ["icons-wear-b", ["_wearSmith", "wearWeaver", "wearWitch", "wearBeret", "wearTraveller", "_wearPumpkin"], { range: [5.4, 5.6] }],
+  ["icons-wear-c", ["wearSmithGoggles", "wearCopper", "wearCrystal", "_wearAmber", "wearHexagon", "wearMonocle"], { range: [5.4, 5.7] }],
+  ["icons-wear-d", ["wearSquare", "wearScarf", "_wearLei", "wearBeads", "wearNecktie", "wearTassel"], { range: [5.55, 5.8] }],
+  ["icons-wear-e", ["wearCatEars", "wearBunnyEars", "wearHorns", "wearTiara", "wearCrown", "wearRibbon"], { range: [5.3, 5.8] }],
+  ["icons-wear-f", ["wearSmith", "wearPumpkin", "wearAmber", "wearLei", "_wearWitchSize", "_wearBeretSize"], { range: [5.3, 5.8] }],
 ];
 
 const ONLY = process.env.ICONS_ONLY?.split(",").map((s) => s.trim()).filter(Boolean);

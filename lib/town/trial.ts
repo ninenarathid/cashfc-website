@@ -18,7 +18,8 @@ import{crownAction}from"./reward-crown";
 import{lanternAction}from"./reward-lantern";
 import{arenaAction}from"./reward-arena";
 import{beginDragon}from"./reward-dragon";
-import { dressFrom } from "./wear";
+import { bangkokMinute } from "./daylight";
+import { dressFrom, dropsFor } from "./wear";
 import {boatAction} from './reward-boat';
 import type {LotusBoat} from './lotus-boats';
 import {buildCrossing} from "./reward-crossing";
@@ -1637,10 +1638,11 @@ export class Trial {
       const who = c.to ?? this.id, theirs = { ...(all[who] ?? {}) };
       theirs[c.line] = countLine(theirs[c.line] ?? newLine(), c, day);
       all[who] = theirs;
-      // (v276, as town.work_counted) the helpers' flower clip: a chance in a thousand at every count that gives points
-      if (c.line === "helpers" && c.raw > 0 && Math.random() < 0.001) {
-        const had = this.read<string[]>(dressedKey(who), () => [], Array.isArray);
-        if (!had.includes("flower")) this.write(dressedKey(who), [...had, "flower"]);
+      // (v276, v277: as town.work_counted) what a count of points may drop to wear, each a chance of its own
+      const dropped = dropsFor(done, c, bangkokMinute(new Date(this.now())) / 60, SKIES.raining(this.now()), Math.random);
+      if (dropped.length) {
+        const had = this.read<string[]>(dressedKey(who), () => [], Array.isArray), fresh = dropped.filter((w) => !had.includes(w));
+        if (fresh.length) this.write(dressedKey(who), [...had, ...fresh]);
       }
     }
     this.write(LINES_AT, all);

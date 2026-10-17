@@ -216,7 +216,31 @@ $function$;
 -- <catalog:v276> written from lib/town/catalog.ts (npm test checks it; TOWN_WRITE=1 npx vitest run lib/town/catalog.test.ts writes it)
 insert into public.town_catalog (key, data) values
   ('dress', $town${
-    "wearGlasses": "glasses"
+    "wearGlasses": "glasses",
+    "wearSmith": "smith",
+    "wearWeaver": "weaver",
+    "wearWitch": "witch",
+    "wearBeret": "beret",
+    "wearTraveller": "traveller",
+    "wearPumpkin": "pumpkin",
+    "wearSmithGoggles": "smithgoggles",
+    "wearCopper": "copper",
+    "wearCrystal": "crystal",
+    "wearAmber": "amber",
+    "wearHexagon": "hexagon",
+    "wearScarf": "scarf",
+    "wearLei": "lei",
+    "wearBeads": "beads",
+    "wearTassel": "tassel",
+    "wearCatEars": "catears",
+    "wearBunnyEars": "bunnyears",
+    "wearHorns": "horns",
+    "wearTiara": "tiara",
+    "wearCrown": "crown",
+    "wearMonocle": "monocle",
+    "wearSquare": "square",
+    "wearNecktie": "necktie",
+    "wearRibbon": "ribbon"
   }$town$::jsonb)
   on conflict (key) do nothing;
 insert into public.town_catalog (key, data) values
@@ -1052,6 +1076,30 @@ insert into public.town_catalog (key, data) values
     "glowPowder": {"kind":"goods","tier":2,"stack":20,"pays":10},
     "packetMist": {"kind":"goods","tier":3,"stack":20,"pays":72},
     "packetNight": {"kind":"goods","tier":3,"stack":20,"pays":75},
+    "wearSmith": {"kind":"goods","tier":2,"stack":5,"pays":160},
+    "wearWeaver": {"kind":"goods","tier":2,"stack":5,"pays":160},
+    "wearWitch": {"kind":"goods","tier":2,"stack":5,"pays":120},
+    "wearBeret": {"kind":"goods","tier":2,"stack":5,"pays":80},
+    "wearTraveller": {"kind":"goods","tier":2,"stack":5,"pays":120},
+    "wearPumpkin": {"kind":"goods","tier":2,"stack":5,"pays":80},
+    "wearSmithGoggles": {"kind":"goods","tier":2,"stack":5,"pays":120},
+    "wearCopper": {"kind":"goods","tier":2,"stack":5,"pays":80},
+    "wearCrystal": {"kind":"goods","tier":2,"stack":5,"pays":180},
+    "wearAmber": {"kind":"goods","tier":2,"stack":5,"pays":120},
+    "wearHexagon": {"kind":"goods","tier":2,"stack":5,"pays":120},
+    "wearScarf": {"kind":"goods","tier":2,"stack":5,"pays":80},
+    "wearLei": {"kind":"goods","tier":2,"stack":5,"pays":60},
+    "wearBeads": {"kind":"goods","tier":2,"stack":5,"pays":80},
+    "wearTassel": {"kind":"goods","tier":2,"stack":5,"pays":120},
+    "wearCatEars": {"kind":"goods","tier":2,"stack":5,"pays":80},
+    "wearBunnyEars": {"kind":"goods","tier":2,"stack":5,"pays":80},
+    "wearHorns": {"kind":"goods","tier":2,"stack":5,"pays":120},
+    "wearTiara": {"kind":"goods","tier":2,"stack":5,"pays":180},
+    "wearCrown": {"kind":"goods","tier":2,"stack":5,"pays":60},
+    "wearMonocle": {"kind":"goods","tier":1,"stack":5,"pays":300},
+    "wearSquare": {"kind":"goods","tier":1,"stack":5,"pays":75},
+    "wearNecktie": {"kind":"goods","tier":1,"stack":5,"pays":120},
+    "wearRibbon": {"kind":"goods","tier":1,"stack":5,"pays":45},
     "seedRunnerBean": {"kind":"seed","tier":1,"stack":10,"pays":1},
     "seedPeanut": {"kind":"seed","tier":1,"stack":10,"pays":0},
     "seedBuckwheat": {"kind":"seed","tier":1,"stack":10,"pays":0},
@@ -1302,10 +1350,14 @@ insert into public.town_catalog (key, data) values
     "seedWatermelon": {"price":46,"stock":20,"each":2},
     "scrollGreenCurry": {"price":160,"stock":2,"each":1},
     "scrollHoMok": {"price":160,"stock":2,"each":1},
-    "wearGlasses": {"price":400,"stock":6,"each":1}
+    "wearGlasses": {"price":400,"stock":6,"each":1},
+    "wearMonocle": {"price":2000,"stock":3,"each":1},
+    "wearSquare": {"price":500,"stock":6,"each":1},
+    "wearNecktie": {"price":800,"stock":4,"each":1},
+    "wearRibbon": {"price":300,"stock":6,"each":1}
   }$town$::jsonb),
   ('shelf', $town${
-    "basic": ["rod","hoe","can","pot","pan","grill","worm","dough","rice","salt","riceBox","seedKangkong","seedScallion","seedCabbage","seedCarrot","seedChili","seedPumpkin","scrollFriedMinnow","scrollGrilledFish","scrollPestCure","bowl","bucket","bugNet","pick","axe","seedRunnerBean","seedGardenStrawberry","seedBorage","seedMarigold","wearGlasses"],
+    "basic": ["rod","hoe","can","pot","pan","grill","worm","dough","rice","salt","riceBox","seedKangkong","seedScallion","seedCabbage","seedCarrot","seedChili","seedPumpkin","scrollFriedMinnow","scrollGrilledFish","scrollPestCure","bowl","bucket","bugNet","pick","axe","seedRunnerBean","seedGardenStrawberry","seedBorage","seedMarigold","wearGlasses","wearMonocle","wearSquare","wearNecktie","wearRibbon"],
     "unlocks": ["seedGarlic","seedBasil","seedTomato","seedCorn","seedDaikon","seedSweetPotato","cricket","seedCucumber","oil","egg","scrollOmelette","flour","mortar","seedLongBean","sugar","rollingPin","seedEggplant","branBait","wok","seaweed","seedLemongrass","jar","sushiMat","seedGalangal","shrimpLive","steamer","tofu","seedLime","cleaver","stoneBowl","seedPapaya","scrollSomTam","tamarind","manure","floatQuill","hookSteel","lineBraid","netSmall","rodTeak","hoeIron","canCopper","sickle","krabung","bucketIron","apron","antEggs","seedGinger","soy","stickyRice","seedBanana","bananaLeaf","pepper","milk","seedTurmeric","seedTaro","fermentedBait","cheese","seedWatermelon","steamerBamboo","oven","seedCoconut","seedMango","lure","potBrass","panBrass","hotpot","stoveBig","ladle","tok","scrollGreenCurry","scrollHoMok","floatBell","hookTwin","lineSilk","netLong","rodMaster","hoeSteel","canBrass","shears","yoke"]
   }$town$::jsonb)
   on conflict (key) do update set data = excluded.data, updated_at = now();
@@ -1318,6 +1370,6 @@ notify pgrst, 'reload schema';
 --   select count(*) from public.town_dressed;                                   -- 0 (nobody has anything yet)
 --   select value from public.town_knobs where key = 'wear_flower_in_ten_thousand';     -- 10
 --   select data->'wearGlasses' from public.town_catalog where key = 'goods';    -- {"each": 1, "price": 400, "stock": 6}
---   select data from public.town_catalog where key = 'dress';                   -- {"wearGlasses": "glasses"}
+--   select data->'wearGlasses' from public.town_catalog where key = 'dress';    -- "glasses"
 --   select has_function_privilege('anon', 'public.town_dress(integer)', 'execute');   -- false
 --   select has_table_privilege('authenticated', 'public.town_dressed', 'select');     -- false

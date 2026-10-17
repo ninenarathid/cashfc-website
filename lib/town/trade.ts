@@ -1,4 +1,5 @@
 import { isPassiveEquipment } from "./passive-equipment";
+import { WEAR_GOODS } from "./wear-items";
 import { CARRIES } from "./gear";
 import type { WishId } from "./fountain";
 import { ITEMS, type BuffId, type DishId, type FishId, type ItemId, type MealBuffId } from "./items";
@@ -104,6 +105,8 @@ export const GOODS: Partial<Record<ItemId, Good>> = {
   scrollGreenCurry: good(160, 2, 1), scrollHoMok: good(160, 2, 1),
   // (v276) the round glasses: one each a round, six for the village
   wearGlasses: good(400, 6, 1),
+  // (v277) the monocle, the square glasses, the necktie and the big ribbon (lib/town/wear-items)
+  ...Object.fromEntries(Object.entries(WEAR_GOODS).map(([id, [price, stock, each]]) => [id, good(price, stock, each)])),
 };
 /** The stall's shelf, in the order it is laid out. */
 export const SHELF = Object.keys(GOODS) as ItemId[];

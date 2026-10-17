@@ -4403,8 +4403,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     return () => window.removeEventListener(WEAR_ALL_EVENT, read);
   }, []);
   // what is bought or found (v276: the keeper's `dressed`), or everything with the TEST switch; asked again when I wear
-  // one from the bag and whenever my lines change (the helpers' flower clip drops as their points are counted), and
-  // a thing newly had is told once
+  // one from the bag and whenever my lines change (a drop comes as a line's points are counted, v277), and a thing
+  // newly dropped is told once (one worn from the bag is told by the bag)
   const [dressed, setDressed] = useState<string[] | null>(null);
   useEffect(() => {
     if (!keeper) return;
@@ -4412,7 +4412,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const ask = () => { void keeper.dressed().then((d) => { if (on) setDressed((was) => {
       const fresh = was ? d.filter((x) => !was.includes(x)) : [];
       for (const id of fresh) { const thing = [FACE_WEAR, NECK_WEAR, HAIR_WEAR, HATS, OUTFITS].flatMap((l) => l).find((w) => w.id === id);
-        if (thing && id === "flower") toast({ text: w.th ? `ได้ ${thing.th} จากแต้มผู้ช่วยเหลือ! อยู่ในตู้แต่งตัวแล้ว` : `A ${thing.en.toLowerCase()} from your helping! It is in your wardrobe.` }); }
+        if (thing?.from && "drop" in thing.from) toast({ text: w.th ? `ได้ ${thing.th}! อยู่ในตู้แต่งตัวแล้ว` : `You found a ${thing.en.toLowerCase()}! It is in your wardrobe.` }); }
       return d;
     }); }); };
     ask();

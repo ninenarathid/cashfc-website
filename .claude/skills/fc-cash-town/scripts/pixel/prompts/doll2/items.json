@@ -78,6 +78,93 @@
         "back": "the back of a cream long-sleeved blouse and the plain back of a bright orange pinafore dress to the knee; brown boots seen from behind; the small canvas tool bag at the side of the hip",
         "pose": " In both sitting poses, the skirt drapes continuously over the lap and upper thighs, with one continuous hem at the bent knees, rather than separate shorts-like leg openings; preserve the reference's hand, knee and foot positions and the readable bent-leg silhouette. In the sleeping pose, the skirt follows the bent hips and thighs without changing the leg positions."
       }
+    },
+    {
+      "id": "smith",
+      "front": "a dark grey short-sleeved work shirt; over it a long heavy brown leather smith's apron from the chest to the knees with a big square front pocket, held by a strap around the neck; dark brown trousers; heavy black work boots",
+      "back": "the back of a dark grey short-sleeved work shirt with the brown leather apron's neck strap and its two waist ties crossed at the back; dark brown trousers seen from behind; heavy black work boots seen from behind",
+      "f": {
+        "front": "a rust-red short-sleeved work blouse with the sleeves rolled up; over it a long heavy brown leather smith's apron from the chest to the knees with a big square front pocket, held by a strap around the neck; dark brown leggings; heavy black work boots",
+        "back": "the back of a rust-red short-sleeved work blouse with the brown leather apron's neck strap and its two waist ties crossed at the back; dark brown leggings seen from behind; heavy black work boots seen from behind"
+      }
+    },
+    {
+      "id": "sailor",
+      "front": "a white short-sleeved shirt with bold navy blue horizontal stripes; a wide navy sailor collar with a white trim line and a small red knotted neckerchief at the front; white knee-length shorts; navy canvas deck shoes with white soles",
+      "back": "the back of a white short-sleeved shirt with bold navy blue horizontal stripes; the wide square navy sailor collar with a white trim line lying flat across the upper back; white knee-length shorts seen from behind; navy canvas deck shoes with white soles seen from behind",
+      "f": {
+        "front": "a white short-sleeved top with bold navy blue horizontal stripes; a wide navy sailor collar with a white trim line and a small red bow at the front; a pleated navy skirt reaching the knee; short white socks; navy canvas deck shoes with white soles",
+        "back": "the back of a white short-sleeved top with bold navy blue horizontal stripes; the wide square navy sailor collar with a white trim line lying flat across the upper back; a pleated navy skirt reaching the knee seen from behind; short white socks; navy canvas deck shoes seen from behind",
+        "pose": " In both sitting poses, the skirt drapes continuously over the lap and upper thighs, with one continuous hem at the bent knees, rather than separate shorts-like leg openings; preserve the reference's hand, knee and foot positions and the readable bent-leg silhouette. In the sleeping pose, the skirt follows the bent hips and thighs without changing the leg positions."
+      }
+    },
+    {
+      "id": "lamplighter",
+      "front": "a short dark bottle-green wool coat reaching the hips, with two rows of round brass buttons, a small stand-up collar and turned-up cuffs; dark grey trousers; black ankle boots",
+      "back": "the back of a short dark bottle-green wool coat reaching the hips, with a small stand-up collar, a short back vent and turned-up cuffs; dark grey trousers seen from behind; black ankle boots seen from behind",
+      "f": {
+        "front": "a dark bottle-green wool coat dress reaching the knee, with one row of round brass buttons, a narrow belt at the waist, a small stand-up collar and turned-up cuffs; dark grey tights; black ankle boots",
+        "back": "the back of a dark bottle-green wool coat dress reaching the knee, with a small stand-up collar, the narrow belt across the back of the waist and turned-up cuffs; dark grey tights; black ankle boots seen from behind",
+        "pose": " In both sitting poses, the skirt drapes continuously over the lap and upper thighs, with one continuous hem at the bent knees, rather than separate shorts-like leg openings; preserve the reference's hand, knee and foot positions and the readable bent-leg silhouette. In the sleeping pose, the skirt follows the bent hips and thighs without changing the leg positions."
+      }
+    },
+    {
+      "id": "builder",
+      "front": "a white short-sleeved t-shirt under mustard-yellow canvas dungarees with a big square bib pocket and two shoulder straps; a brown leather tool belt around the waist with a hammer hanging at the hip; tan work boots",
+      "back": "the back of a white short-sleeved t-shirt with the two mustard-yellow dungaree straps crossed on the back; the brown leather tool belt across the back of the waist; mustard-yellow canvas trouser legs seen from behind; tan work boots seen from behind",
+      "f": {
+        "front": "a white short-sleeved t-shirt under a mustard-yellow canvas pinafore dress reaching the knee, with a big square bib pocket and two shoulder straps; a brown leather tool belt around the waist with a hammer hanging at the hip; tan work boots",
+        "back": "the back of a white short-sleeved t-shirt with the two mustard-yellow pinafore straps crossed on the back; the brown leather tool belt across the back of the waist; the mustard-yellow pinafore skirt reaching the knee seen from behind; tan work boots seen from behind",
+        "pose": " In both sitting poses, the skirt drapes continuously over the lap and upper thighs, with one continuous hem at the bent knees, rather than separate shorts-like leg openings; preserve the reference's hand, knee and foot positions and the readable bent-leg silhouette. In the sleeping pose, the skirt follows the bent hips and thighs without changing the leg positions."
+      }
+    },
+    {
+      "id": "raincoat",
+      "front": "a deep teal waxed-cotton rain jacket reaching the hips, with its hood down behind the neck, three wooden toggle buttons and two flap pockets; dark brown trousers; black rubber rain boots",
+      "back": "the back of a deep teal waxed-cotton rain jacket reaching the hips, with its hood lying down over the upper back; dark brown trousers seen from behind; black rubber rain boots seen from behind",
+      "f": {
+        "front": "a deep teal waxed-cotton rain jacket reaching the thigh, belted at the waist, with its hood down behind the neck and three wooden toggle buttons; dark brown leggings; bright red rubber rain boots",
+        "back": "the back of a deep teal waxed-cotton rain jacket reaching the thigh, its hood lying down over the upper back and its belt across the back of the waist; dark brown leggings seen from behind; bright red rubber rain boots seen from behind"
+      }
+    },
+    {
+      "id": "tea",
+      "front": "a loose white linen smock shirt with wide short sleeves and leaf-green trim at the collar and the sleeve ends, tied at the waist with a leaf-green cloth sash; a small woven bamboo basket on a strap at the hip; loose leaf-green trousers; soft brown cloth shoes",
+      "back": "the back of a loose white linen smock shirt with wide short sleeves and leaf-green trim, the bow of the leaf-green sash at the back of the waist and the basket's strap across the back; loose leaf-green trousers seen from behind; soft brown cloth shoes seen from behind",
+      "f": {
+        "front": "a loose white linen smock dress reaching the knee, with wide short sleeves and leaf-green trim at the collar, the sleeve ends and the hem, tied at the waist with a leaf-green cloth sash; a small woven bamboo basket on a strap at the hip; soft brown cloth shoes",
+        "back": "the back of a loose white linen smock dress reaching the knee with leaf-green trim, the bow of the leaf-green sash at the back of the waist and the basket's strap across the back; soft brown cloth shoes seen from behind",
+        "pose": " In both sitting poses, the skirt drapes continuously over the lap and upper thighs, with one continuous hem at the bent knees, rather than separate shorts-like leg openings; preserve the reference's hand, knee and foot positions and the readable bent-leg silhouette. In the sleeping pose, the skirt follows the bent hips and thighs without changing the leg positions."
+      }
+    },
+    {
+      "id": "caver",
+      "front": "a quilted padded jacket in slate blue-grey reaching the hips, with a high collar and one wide reflective silver stripe across the chest and the sleeves; a coil of rope over one shoulder; dark charcoal trousers; heavy brown boots with thick soles",
+      "back": "the back of a quilted padded jacket in slate blue-grey with a high collar and one wide reflective silver stripe across the back and the sleeves; the coil of rope over one shoulder; dark charcoal trousers seen from behind; heavy brown boots seen from behind",
+      "f": {
+        "front": "a quilted padded jacket in slate blue-grey reaching the hips, belted at the waist, with a high collar and one wide reflective silver stripe across the chest and the sleeves; a coil of rope over one shoulder; dark charcoal leggings tucked into heavy brown boots with thick soles",
+        "back": "the back of a belted quilted padded jacket in slate blue-grey with a high collar and one wide reflective silver stripe across the back and the sleeves; the coil of rope over one shoulder; dark charcoal leggings tucked into heavy brown boots seen from behind"
+      }
+    },
+    {
+      "id": "waiter",
+      "front": "a crisp white shirt with its sleeves rolled to the elbow and an open collar; a fitted black waistcoat with small gold buttons; a short black waist apron over black trousers; polished black shoes",
+      "back": "the back of a crisp white shirt with its sleeves rolled to the elbow; the back of a fitted black waistcoat with a small buckle strap at the waist; the waist apron's tie at the back; black trousers seen from behind; polished black shoes seen from behind",
+      "f": {
+        "front": "a crisp white short-sleeved blouse with an open collar; a fitted black waistcoat with small gold buttons; a black skirt reaching the knee with a short white waist apron over it; polished black shoes",
+        "back": "the back of a crisp white short-sleeved blouse; the back of a fitted black waistcoat with a small buckle strap at the waist; the white apron's bow at the back of the waist; a black skirt reaching the knee seen from behind; polished black shoes seen from behind",
+        "pose": " In both sitting poses, the skirt drapes continuously over the lap and upper thighs, with one continuous hem at the bent knees, rather than separate shorts-like leg openings; preserve the reference's hand, knee and foot positions and the readable bent-leg silhouette. In the sleeping pose, the skirt follows the bent hips and thighs without changing the leg positions."
+      }
+    },
+    {
+      "id": "weaver",
+      "front": "a cream long-sleeved shirt; over it a short sleeveless waistcoat of bright woven wool in bold red, yellow and teal zigzag stripes with a black border; dark brown trousers; brown ankle boots",
+      "back": "the back of a cream long-sleeved shirt; the back of the short sleeveless waistcoat of bright woven wool in bold red, yellow and teal zigzag stripes with a black border; dark brown trousers seen from behind; brown ankle boots seen from behind",
+      "f": {
+        "front": "a cream long-sleeved blouse; over it a short sleeveless waistcoat of bright woven wool in bold red, yellow and teal zigzag stripes with a black border; a full dark red skirt reaching the knee with one yellow band at its hem; brown ankle boots",
+        "back": "the back of a cream long-sleeved blouse; the back of the short sleeveless waistcoat of bright woven wool in bold red, yellow and teal zigzag stripes with a black border; the full dark red skirt reaching the knee with its yellow hem band seen from behind; brown ankle boots seen from behind",
+        "pose": " In both sitting poses, the skirt drapes continuously over the lap and upper thighs, with one continuous hem at the bent knees, rather than separate shorts-like leg openings; preserve the reference's hand, knee and foot positions and the readable bent-leg silhouette. In the sleeping pose, the skirt follows the bent hips and thighs without changing the leg positions."
+      }
     }
   ],
   "hats": [
@@ -121,6 +208,53 @@
       "id": "cap",
       "front": "a soft orange cap with a short stiff brim at the front and a small white star on the front",
       "back": "the same soft orange cap, seen from behind, its short brim hidden at the front"
+    },
+    {
+      "id": "witch",
+      "front": "a tall pointed black witch's hat with a wide floppy brim, a purple band with a small square gold buckle, its tall tip bent over to one side",
+      "back": "the same tall pointed black witch's hat with its wide floppy brim, purple band and bent tip, seen from behind",
+      "key": "the witch's hat, including its brim, band, buckle and bent tip"
+    },
+    {
+      "id": "sailorcap",
+      "front": "a round white sailor's cap with a flat top and a navy blue band all round",
+      "back": "the same round white sailor's cap with its navy blue band, seen from behind, two short navy ribbons hanging down from the band at the back",
+      "key": "the sailor's cap, including its band and any ribbons"
+    },
+    {
+      "id": "beret",
+      "front": "a soft round red beret worn tilted towards the viewer's right, with a tiny stalk on top",
+      "back": "the same soft round red beret with its tiny stalk, seen from behind, tilted towards the viewer's left in this back view"
+    },
+    {
+      "id": "lampcap",
+      "front": "a dark bottle-green peaked cap with a short shiny black brim and a small round brass badge on its front",
+      "back": "the same dark bottle-green peaked cap seen from behind, the short black brim showing at the front edge",
+      "key": "the peaked cap, including its brim and badge"
+    },
+    {
+      "id": "mushroom",
+      "front": "a big round red mushroom-cap hat with large white spots, its rounded edge curling down all round like a mushroom's cap, a thin cream frill under its edge",
+      "back": "the same big round red mushroom-cap hat with large white spots and the cream frill under its edge, seen from behind",
+      "key": "the mushroom-cap hat, including its spots and the frill under its edge"
+    },
+    {
+      "id": "beekeeper",
+      "front": "a wide-brimmed round cream canvas hat with a honey-yellow band and a small black-and-yellow bee shape on the band",
+      "back": "the same wide-brimmed round cream canvas hat with its honey-yellow band, seen from behind",
+      "key": "the canvas hat, including its brim, band and the bee on it"
+    },
+    {
+      "id": "traveller",
+      "front": "a soft brown felt traveller's hat with a dented crown and a short brim turned up on the viewer's right, a long blue-and-white feather tucked into its dark band",
+      "back": "the same soft brown felt traveller's hat with its dark band and the long blue-and-white feather, seen from behind",
+      "key": "the felt hat, including its brim, band and the feather"
+    },
+    {
+      "id": "pumpkin",
+      "front": "a round orange pumpkin hat with deep ribs, a short curly green stem and one small green leaf on top",
+      "back": "the same round orange ribbed pumpkin hat with its short curly green stem and small leaf, seen from behind",
+      "key": "the pumpkin hat, including its stem and leaf"
     }
   ],
   "accessories": [
@@ -156,6 +290,218 @@
       "slot": "neck",
       "front": "a necklace of three large white fan-shaped seashells with scalloped lower edges on a thick brown cord, each shell about as big as her eye, individually outlined in dark brown and separated from its neighbours by visible brown cord, hanging on the upper chest just below the collar",
       "key": "the shell necklace, including every visible shell and its cord, but not the clothes under it"
+    },
+    {
+      "id": "goggles",
+      "slot": "face",
+      "front": "a pair of round swimming goggles with tinted sea-blue lenses in a thick blue rubber frame over her eyes, the blue strap running back over the sides of her head",
+      "key": "the goggles, including both tinted lenses, the rubber frame and the strap",
+      "solid": true
+    },
+    {
+      "id": "smithgoggles",
+      "slot": "face",
+      "front": "a pair of round brass-rimmed smith's goggles with smoky dark green lenses and thick dark brown leather surrounds over her eyes, the brown leather strap running back over the sides of her head",
+      "key": "the goggles, including both lenses, the brass rims, the leather and the strap",
+      "solid": true
+    },
+    {
+      "id": "monocle",
+      "slot": "face",
+      "front": "a single round gold-rimmed monocle with a clear lens over her eye on the viewer's left, a thin gold chain hanging from its rim down past her cheek",
+      "key": "the monocle's gold rim and its chain",
+      "clear": true
+    },
+    {
+      "id": "square",
+      "slot": "face",
+      "front": "thick black square-framed glasses with clear lenses over her eyes, a thick bridge over the nose",
+      "clear": true
+    },
+    {
+      "id": "copper",
+      "slot": "face",
+      "front": "oval spectacles with a thick shiny copper-orange frame and clear lenses over her eyes, a thin copper bridge over the nose",
+      "clear": true
+    },
+    {
+      "id": "crystal",
+      "slot": "face",
+      "front": "glasses with a frame of pale lilac crystal, a small faceted crystal point at each outer corner, and clear lenses over her eyes",
+      "clear": true
+    },
+    {
+      "id": "amber",
+      "slot": "face",
+      "front": "round glasses with a thick mottled amber-and-brown tortoiseshell frame and clear lenses over her eyes",
+      "clear": true
+    },
+    {
+      "id": "hexagon",
+      "slot": "face",
+      "front": "thin gold wire glasses with six-sided hexagonal clear lenses over her eyes, a thin gold bridge over the nose",
+      "clear": true
+    },
+    {
+      "id": "scarf",
+      "slot": "neck",
+      "front": "a short chunky knitted scarf in mustard yellow with two red stripes, wrapped once around her neck over the collar, one short fringed end hanging down the front of the chest",
+      "back": "the same chunky knitted mustard-yellow scarf with red stripes wrapped around the back of her neck over the collar",
+      "key": "the knitted scarf, including its fringed end, but not the clothes under it",
+      "solid": true
+    },
+    {
+      "id": "crystalpendant",
+      "slot": "neck",
+      "front": "a big pale-violet crystal pendant shaped like a pointed six-sided prism, about as big as her eye, on a thin silver chain, hanging on the upper chest just below the collar",
+      "key": "the crystal pendant, including its chain, but not the clothes under it",
+      "solid": true
+    },
+    {
+      "id": "bowtie",
+      "slot": "neck",
+      "front": "a big bright red bow tie at the collar, just under the chin",
+      "key": "the bow tie, but not the clothes under it",
+      "solid": true
+    },
+    {
+      "id": "lei",
+      "slot": "neck",
+      "front": "a thick garland of small pink, white and yellow flowers around her neck, resting on the shoulders and the upper chest",
+      "back": "the same thick garland of small pink, white and yellow flowers around the back of her neck and over the shoulders",
+      "key": "the flower garland, every flower of it, but not the clothes under it",
+      "solid": true
+    },
+    {
+      "id": "medal",
+      "slot": "neck",
+      "front": "a round gold medal stamped with a small arch, about as big as her eye, hanging on a short red-and-white striped ribbon on the upper chest just below the collar",
+      "key": "the medal, including its ribbon, but not the clothes under it",
+      "solid": true
+    },
+    {
+      "id": "bell",
+      "slot": "neck",
+      "front": "a red velvet ribbon choker around the neck with a small round gold bell at the front",
+      "back": "the same red velvet ribbon choker around the back of her neck, tied in a small bow",
+      "key": "the ribbon choker and its bell, but not the clothes under it",
+      "solid": true
+    },
+    {
+      "id": "beads",
+      "slot": "neck",
+      "front": "a necklace of big round wooden beads in two browns on a dark cord, hanging on the upper chest just below the collar, each bead individually outlined",
+      "key": "the bead necklace, every bead and its cord, but not the clothes under it",
+      "solid": true
+    },
+    {
+      "id": "necktie",
+      "slot": "neck",
+      "front": "a long dark navy necktie with thin diagonal gold stripes, knotted at the collar and hanging straight down the chest to the waist",
+      "key": "the necktie, including its knot, but not the clothes under it",
+      "solid": true
+    },
+    {
+      "id": "beetle",
+      "slot": "neck",
+      "front": "a pendant of a glossy green-and-gold jewel beetle, about as big as her eye, on a thin gold chain, hanging on the upper chest just below the collar",
+      "key": "the beetle pendant, including its chain, but not the clothes under it",
+      "solid": true
+    },
+    {
+      "id": "starpendant",
+      "slot": "neck",
+      "front": "a small five-pointed golden star pendant, about as big as her eye, on a thin gold chain, hanging on the upper chest just below the collar",
+      "key": "the star pendant, including its chain, but not the clothes under it",
+      "solid": true
+    },
+    {
+      "id": "ribbon",
+      "slot": "hair",
+      "front": "a big red satin ribbon bow on top of her head, a little towards the viewer's right, with two wide loops and two short tails",
+      "back": "the same big red satin ribbon bow on top of her head seen from behind, a little towards the viewer's left in this back view",
+      "key": "the ribbon bow, including its loops and tails",
+      "solid": true
+    },
+    {
+      "id": "leaf",
+      "slot": "hair",
+      "front": "a hair clip of two bright green leaves, about as big as her eye, just above the ear on the viewer's right",
+      "back": "the same hair clip of two bright green leaves seen from behind, just above the character's left ear (on the viewer's left in this back view, corresponding to the viewer's right in the front sheet)",
+      "key": "the leaf hair clip",
+      "solid": true
+    },
+    {
+      "id": "tassel",
+      "slot": "hair",
+      "front": "a gold hairpin with a small red silk tassel hanging from its end, pinned just above the ear on the viewer's right",
+      "back": "the same gold hairpin with its small red silk tassel seen from behind, just above the character's left ear (on the viewer's left in this back view, corresponding to the viewer's right in the front sheet)",
+      "key": "the hairpin and its tassel",
+      "solid": true
+    },
+    {
+      "id": "catears",
+      "slot": "hair",
+      "front": "a black hairband with a pair of black cat ears with pink insides standing on top of her head",
+      "back": "the same black hairband seen from behind, its two black cat ears standing on top of her head",
+      "key": "the cat-ear hairband, including both ears",
+      "solid": true
+    },
+    {
+      "id": "bunnyears",
+      "slot": "hair",
+      "front": "a white hairband with a pair of long upright white rabbit ears with pink insides on top of her head, the ear on the viewer's right bent over at its tip",
+      "back": "the same white hairband seen from behind, its two long white rabbit ears standing on top of her head, one bent over at its tip",
+      "key": "the rabbit-ear hairband, including both ears",
+      "solid": true
+    },
+    {
+      "id": "starclip",
+      "slot": "hair",
+      "front": "a small bright yellow five-pointed star hair clip, about as big as her eye, just above the ear on the viewer's right",
+      "back": "the same small yellow star hair clip seen from behind, just above the character's left ear (on the viewer's left in this back view, corresponding to the viewer's right in the front sheet)",
+      "key": "the star hair clip",
+      "solid": true
+    },
+    {
+      "id": "butterfly",
+      "slot": "hair",
+      "front": "a butterfly hair clip with sky-blue and violet wings, about as big as her eye, just above the ear on the viewer's right",
+      "back": "the same butterfly hair clip with sky-blue and violet wings seen from behind, just above the character's left ear (on the viewer's left in this back view, corresponding to the viewer's right in the front sheet)",
+      "key": "the butterfly hair clip, including both wings",
+      "solid": true
+    },
+    {
+      "id": "featherpin",
+      "slot": "hair",
+      "front": "a long white feather with a grey tip tucked in above the ear on the viewer's right, pointing up and back",
+      "back": "the same long white feather with a grey tip seen from behind, tucked in above the character's left ear (on the viewer's left in this back view), pointing up",
+      "key": "the feather",
+      "solid": true
+    },
+    {
+      "id": "horns",
+      "slot": "hair",
+      "front": "a pair of small curved dark red devil horns standing on top of her head",
+      "back": "the same pair of small curved dark red horns seen from behind, standing on top of her head",
+      "key": "both horns",
+      "solid": true
+    },
+    {
+      "id": "tiara",
+      "slot": "hair",
+      "front": "a small silver tiara with one pale-blue gem at its peak, set on top of her head",
+      "back": "the same small silver tiara seen from behind, set on top of her head",
+      "key": "the tiara, including its gem",
+      "solid": true
+    },
+    {
+      "id": "crown",
+      "slot": "hair",
+      "front": "a ring of small pink, white and yellow flowers with green leaves resting around the top of her head",
+      "back": "the same ring of small pink, white and yellow flowers with green leaves around the back of her head",
+      "key": "the flower crown, every flower and leaf of it",
+      "solid": true
     }
   ],
   "starter": {

@@ -7,6 +7,7 @@ import { FORAGE_ITEMS, FORAGE_MAKES, FORAGE_DISHES, FORAGE_SCROLLS, FORAGE_SCROL
 import { STREAM_ITEMS, STREAM_MAKES, STREAM_DISHES, STREAM_SCROLLS, STREAM_SCROLL_ITEMS, type StreamDishId } from "./stream-items";
 import { GARDEN_CROPS, GARDEN_DISHES, GARDEN_ITEMS, GARDEN_MAKES, GARDEN_SEED_ITEMS, GARDEN_SCROLL_ITEMS, GARDEN_SCROLLS, type GardenCropId, type GardenDishId } from "./garden-items";
 import { HELPER_CROPS, HELPER_ITEMS, HELPER_SEED_ITEMS, QUALITY_GEAR, type HelperCropId } from "./helper-items";
+import { WEAR_ITEMS } from "./wear-items";
 import { FERT_ITEMS, FERT_MAKES } from "./fertilisers";
 import { GEOLOGY_DISHES, GEOLOGY_ITEMS, GEOLOGY_MAKES, GEOLOGY_SCROLL_ITEMS, GEOLOGY_SCROLLS, type GeologyDishId } from "./geology-items";
 import { WOOD_DISHES, WOOD_ITEMS, WOOD_MAKES, WOOD_SCROLL_ITEMS, WOOD_SCROLLS, type WoodDishId } from "./wood-items";
@@ -670,6 +671,8 @@ export const ITEMS = {
   ...GARDEN_SEED_ITEMS,
   // (the farm's Quality: the twenty helper plants and their seeds, lib/town/helper-items)
   ...HELPER_ITEMS, ...QUALITY_GEAR, ...FERT_ITEMS,
+  // (v277: things to wear kept in the bag, made at the workbench or bought from the uncle, lib/town/wear-items)
+  ...WEAR_ITEMS,
   ...HELPER_SEED_ITEMS,
   ...GARDEN_SCROLL_ITEMS,
   ...WOOD_SCROLL_ITEMS,

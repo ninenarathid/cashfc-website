@@ -129,18 +129,18 @@ try {
   await db.query("insert into public.town_deeds (member_id, what, n) values ($1, 'bell', 2)", [b]);
   eq(await flower(b), 1, "dropped through a deed of the helpers' line");
   ok((await work(b)).some((r) => r.line === "helpers"), "…and its points counted");
-  await knob(10);
+  await knob(100);
   let drops = 0;
   for (let k = 0; k < 2000; k++) { await db.query("delete from public.town_dressed where member_id=$1 and wearable='flower'", [d]); await counted(d, helped); drops += await flower(d); }
-  ok(drops > 0 && drops < 12, `about one in a thousand at 10 (${drops} in 2000)`);
+  ok(drops > 4 && drops < 45, `the knob read: about one in a hundred at 100 (${drops} in 2000)`);
   await knob(10);
 
   /* ── what it should say afterwards ── */
   eq((await one("select value from public.town_knobs where key='wear_flower_in_ten_thousand'")).value, 10, "afterwards: the knob");
   eq((await one("select data->'wearGlasses' d from public.town_catalog where key='goods'")).d, { each: 1, price: 400, stock: 6 }, "afterwards: the stall");
-  eq((await one("select data from public.town_catalog where key='dress'")).data, { wearGlasses: "glasses" }, "afterwards: the row");
+  eq((await one("select data->'wearGlasses' d from public.town_catalog where key='dress'")).d, "glasses", "afterwards: the row");
   eq((await one("select has_function_privilege('anon','public.town_dress(integer)','execute') ok")).ok, false, "afterwards: anon");
   eq((await one("select has_table_privilege('authenticated','public.town_dressed','select') ok")).ok, false, "afterwards: the table");
   eq((await bareWrites((q) => db.query(q).then((r) => r.rows))).length, 0, "no bare write");
-  console.log(`v276: ${checks} checks passed (town.dress: ${worn} worn, ${known} known, ${none} none; the flower ${drops} in 2000 at 10).`);
+  console.log(`v276: ${checks} checks passed (town.dress: ${worn} worn, ${known} known, ${none} none; the flower ${drops} in 2000 at 100).`);
 } finally { await db.close(); }
