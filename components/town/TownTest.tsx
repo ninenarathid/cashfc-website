@@ -1,5 +1,6 @@
 "use client";
 
+import { setWearAllHere, wearAllHere } from "@/lib/town/wear";
 import { WISH } from "@/lib/town/fountain";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
@@ -186,6 +187,11 @@ export default function TownTest({ me, name: called, th, onClose }: { me: string
 
       {view === "me" && (
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-3">
+          {/* every outfit, hat and accessory had, on this browser alone (lib/town/wear's wearAllHere) */}
+          <Row label={th ? "ของแต่งตัว" : "Wearables"} value={<span className="text-meta text-muted">{wearAllHere() ? (th ? "ปลดล็อกทั้งหมด (เครื่องนี้)" : "All unlocked (this browser)") : (th ? "ตามแรงค์สาย" : "By line rank")}</span>}>
+            <Do on={wearAllHere()} onClick={() => { setWearAllHere(true); setTick((n) => n + 1); setSaid(th ? "ปลดล็อกของแต่งตัวทั้งหมดในเครื่องนี้แล้ว เปิดตู้แต่งตัวได้เลย" : "Every wearable is unlocked on this browser"); }}>{th ? "ปลดล็อกทั้งหมด" : "Unlock all"}</Do>
+            <Do on={!wearAllHere()} onClick={() => { setWearAllHere(false); setTick((n) => n + 1); setSaid(th ? "กลับไปล็อกตามแรงค์สายแล้ว" : "Back to line ranks"); }}>{th ? "ตามแรงค์" : "By rank"}</Do>
+          </Row>
           <Row label={th ? "Popoto coin" : "Popoto coins"} value={<Coins n={purse.coins} th={th} />}>
             {[100, 1000].map((n) => <Do key={n} onClick={() => trial.grant("rod", 0, n)}>+{n}</Do>)}
           </Row>

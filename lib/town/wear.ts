@@ -73,6 +73,21 @@ export function onlyOwned<L extends { outfit?: number; hat?: number; faceWear?: 
   return out;
 }
 
+/**
+ * (dev only) The TEST panel's switch that has every wearable thing had, on this browser alone (the owner, 2026-10-17:
+ * "เพิ่มปุ่มใน TEST สำหรับ unlock ทุกของตกแต่งสำหรับlocal"). Never in a production build; it changes nobody's lines.
+ */
+export const WEAR_ALL_KEY = "cashTown:wearAll";
+export const WEAR_ALL_EVENT = "cashTown:wearAll";
+export function wearAllHere(): boolean {
+  if (process.env.NODE_ENV === "production") return false;
+  try { return localStorage.getItem(WEAR_ALL_KEY) === "1"; } catch { return false; }
+}
+export function setWearAllHere(on: boolean) {
+  try { if (on) localStorage.setItem(WEAR_ALL_KEY, "1"); else localStorage.removeItem(WEAR_ALL_KEY); } catch { /* private window: the switch stays as it was */ }
+  window.dispatchEvent(new Event(WEAR_ALL_EVENT));
+}
+
 /** The id worn in a slot, or null for nothing (or an index this page does not know). */
 export const wornId = (list: readonly Named[], i: number | undefined): string | null => {
   const id = list[i ?? 0]?.id;

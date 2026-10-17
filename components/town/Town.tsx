@@ -75,7 +75,7 @@ import SignIcon from "./SignIcon";
 import type { SignView } from "./TownSign";
 import { TownFaces } from "./TownFaces";
 import { EXPRESSION_MS, expressionOf } from "@/lib/town/expression";
-import { onlyOwned } from "@/lib/town/wear";
+import { WEAR_ALL_EVENT, onlyOwned, wearAllHere } from "@/lib/town/wear";
 import type { Stuck } from "@/lib/town/session";
 import type { Standing } from "./TownCook";
 import type { Pairing, Stander } from "./TownLine";
@@ -4386,14 +4386,24 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // Everybody is the one model now (lib/town/look's ONE_MODEL): whoever chose another race is told once that their
   // hairstyle and skin were chosen for them, to choose their own in the wardrobe (the owner, 2026-10-17)
   const wasRace = s ? readLook(s.self.info.look)?.race ?? 0 : 0;
+  // (dev only) the TEST panel's "every wearable thing had, here"
+  const [wearAll, setWearAll] = useState(false);
+  useEffect(() => {
+    const read = () => setWearAll(wearAllHere());
+    read();
+    window.addEventListener(WEAR_ALL_EVENT, read);
+    return () => window.removeEventListener(WEAR_ALL_EVENT, read);
+  }, []);
+  const wearPoints = wearAll ? Object.fromEntries(Object.keys(linesTold?.lines ?? {}).concat(["farming", "fishing", "kitchen", "forest", "mining", "felling", "insects", "well", "helpers"]).map((id) => [id, 1e9]))
+    : Object.fromEntries(Object.entries(linesTold?.lines ?? {}).map(([id, l]) => [id, l.points]));
   // What I wear and have not had from the game (worn in the trial, before things were had from ranks) comes off, once
   // my lines are known; the test room keeps whatever its scripts put on
   useEffect(() => {
-    if (!s || !linesTold || testTopic) return;
+    if (!s || !linesTold || testTopic || wearAll) return;
     const points = Object.fromEntries(Object.entries(linesTold.lines).map(([id, l]) => [id, l.points]));
     const had = onlyOwned(myLook, points);
     if (had !== myLook) s.setLook(had);
-  }, [s, linesTold, myLook, testTopic]);
+  }, [s, linesTold, myLook, testTopic, wearAll]);
   useEffect(() => {
     if (!wasRace) return;
     try { if (localStorage.getItem("cashTown:oneModel")) return; localStorage.setItem("cashTown:oneModel", "1"); } catch { return; }
@@ -5064,7 +5074,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
              style={phone ? { bottom: tabbar ? "calc(4.5rem + env(safe-area-inset-bottom))" : 0 } : { bottom: "0.75rem" }}
              data-state="open">
           <Wardrobe look={myLook} th={w.th} kit={kits.current.get(0) ?? null}
-                    points={Object.fromEntries(Object.entries(linesTold?.lines ?? {}).map(([id, l]) => [id, l.points]))}
+                    points={wearPoints}
                     onChange={(l) => s.setLook(l)}
                     onTurn={(d) => { turn.current += d; }}
                     onClose={closeWardrobe} />
