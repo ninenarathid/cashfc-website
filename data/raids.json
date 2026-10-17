@@ -66697,12 +66697,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 5,
     "kills": 1,
     "job": "WhiteMage",
-    "cleared": true,
-    "encounter_id": 1065
+    "cleared": true
    },
    {
     "zone": "Ultimates (Legacy)",

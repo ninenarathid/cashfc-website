@@ -1,6 +1,20 @@
 {
  "events": [
   {
+   "date": "2026-10-17",
+   "type": "level_100",
+   "id": 42021700,
+   "name": "Josuke Mizumoto",
+   "text": "reached level 100 on Paladin!"
+  },
+  {
+   "date": "2026-10-17",
+   "type": "level_100",
+   "id": 60972300,
+   "name": "Mizuki Sekine",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
    "date": "2026-10-16",
    "type": "parse_up",
    "id": 42976317,
@@ -1385,20 +1399,6 @@
    "id": 31236337,
    "name": "Whitefrost Marionette",
    "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-10-04",
-   "type": "rare_up",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "earned Cutting the Carats: Exemplar"
-  },
-  {
-   "date": "2026-10-04",
-   "type": "rare_up",
-   "id": 37056222,
-   "name": "Lucine Nokomis",
-   "text": "earned Phantom of the Umbra: Sword & Kite Shield Umbrae"
   }
  ]
 }

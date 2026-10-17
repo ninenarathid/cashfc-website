@@ -2292,7 +2292,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 100,
+  "level": 59,
   "cc": [
    true,
    true,
@@ -2338,7 +2338,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-16"
+  "chg": "2026-10-17"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -2347,7 +2347,7 @@
   "mounts": 111,
   "minions": 227,
   "rare": 96,
-  "level": 80,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2473,7 +2473,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-16"
+  "chg": "2026-10-17"
  },
  "36183378": {
   "name": "K' Potassium",
@@ -6822,7 +6822,7 @@
   "mounts": 55,
   "minions": 109,
   "rare": 1,
-  "level": 100,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -6841,7 +6841,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-16"
+  "chg": "2026-10-17"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -8646,7 +8646,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 83,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -8664,7 +8664,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-16"
+  "chg": "2026-10-17"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -8836,7 +8836,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 71,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8852,7 +8852,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-16"
+  "chg": "2026-10-17"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
