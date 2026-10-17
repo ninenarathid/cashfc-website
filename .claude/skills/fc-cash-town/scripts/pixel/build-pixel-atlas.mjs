@@ -58,6 +58,9 @@ FACES.push(...["f", "m"].flatMap(g => EXPRS.map(([e]) => [g, `x_${e}`, "front"])
 const D2 = process.argv.includes("--doll2");
 // Doll 2's wearable things (prompts/doll2/items.json, whose prompts make-items.mjs writes): outfits, hats, accessories
 const ITEMS = D2 ? JSON.parse(fs.readFileSync(path.join(HERE, "prompts", "doll2", "items.json"), "utf8")) : { outfits: [], hats: [], accessories: [] };
+// every outfit's sheets: the men's (the first drawn, under the outfit's own id) and the women's (<id>_f, and the
+   // women's starter, starter_f: the owner, 2026-10-17, "ชุดเดิมให้เป็นชุด ผู้ชาย ชุดผู้หญิง ให้ Gen ใหม่")
+const OUTFIT_IDS = [...ITEMS.outfits.map((o) => o.id), ...ITEMS.outfits.filter((o) => o.f).map((o) => `${o.id}_f`), ...(ITEMS.starter?.f ? ["starter_f"] : [])];
 const WEAR = []; // [g, h, t, slot] of every hat and accessory sheet: dh-<id>-<view>, da-<id>-<view>
 for (const h of ITEMS.hats) for (const t of ["front", "back"]) WEAR.push(["dh", h.id, t, "hat", h.solid !== false]);
 for (const a of ITEMS.accessories) for (const t of ["front", "back"]) WEAR.push(["da", a.id, t, a.slot, !!a.solid]);
@@ -77,7 +80,7 @@ for (const t of TYPES) {
 }
 wanted.push(...FACES);
 if (D2) {
-  for (const o of ITEMS.outfits) for (const t of ["front", "back"]) wanted.push(["do", o.id, t], ["dk", o.id, t]);
+  for (const id of OUTFIT_IDS) for (const t of ["front", "back"]) wanted.push(["do", id, t], ["dk", id, t]);
   wanted.push(...WEAR.map(([g, h, t]) => [g, h, t]), ...WEAR.map(([g, h, t]) => [`${g}k`, h, t]), ["d2", "mannequin", "front"], ["d2", "mannequin", "back"]);
 }
 for (const t of TYPES) typeGrid[t] = L.detectGrid(await L.loadRaw(file("f", "bald", t)));
@@ -160,7 +163,7 @@ for (const t of TYPES) {
   fix(`f-skinkey-${t}`, head);
   fix(`m-skinkey-${t}`, head);
   for (const [g, h, tt] of FACES) if (tt === t) fix(`${g}-${h}-${t}`, head);
-  for (const o of ITEMS.outfits) { fix(`do-${o.id}-${t}`, head); fix(`dk-${o.id}-${t}`, head); }
+  for (const id of OUTFIT_IDS) { fix(`do-${id}-${t}`, head); fix(`dk-${id}-${t}`, head); }
   for (const [g, h, tt] of WEAR) if (tt === t) { fix(`${g}-${h}-${t}`, head); fix(`${g}k-${h}-${t}`, head); }
   fix(`d2-mannequin-${t}`, head);
 }
@@ -376,9 +379,9 @@ for (const gnd of GENDERS) {
 }
 // Doll 2's outfits: one body for both genders, so one set of steps each
 meta.outfits = {};
-for (const o of ITEMS.outfits) {
-  if (!grids[`do-${o.id}-front`] || !grids[`do-${o.id}-back`]) { console.log(`  no outfit ${o.id}`); continue; }
-  meta.outfits[o.id] = { walk: Object.fromEntries(["front", "back"].map(t => [t, walkOf(`do-${o.id}-${t}`, `dk-${o.id}-${t}`, `body-${o.id}-${t}`, t, "f")])) };
+for (const id of OUTFIT_IDS) {
+  if (!grids[`do-${id}-front`] || !grids[`do-${id}-back`]) { console.log(`  no outfit ${id}`); continue; }
+  meta.outfits[id] = { walk: Object.fromEntries(["front", "back"].map(t => [t, walkOf(`do-${id}-${t}`, `dk-${id}-${t}`, `body-${id}-${t}`, t, "f")])) };
 }
 
 // sitting: the starter poses' first two frames (sitting, front and back), resampled so their
@@ -489,13 +492,13 @@ if (D2) {
   if (fs.existsSync(path.join(OUT, "d2-starter-eat.png"))) {
     meta.eat = eatOf(await seatedOf(path.join(OUT, "d2-starter-eat.png"), path.join(OUT, "d2-skinkey-eat.png"), PALS.body, EAT("starter")), "starter");
   }
-  for (const o of ITEMS.outfits) {
-    if (!meta.outfits[o.id]) continue;
-    const pal = PALS[`body:${o.id}`];
-    const sit = await seatedOf(path.join(OUT, `do-${o.id}-poses.png`), path.join(OUT, `dk-${o.id}-poses.png`), pal, [[0, "front", `sit-${o.id}-front`], [1, "back", `sit-${o.id}-back`]]);
-    meta.outfits[o.id].sit = { front: sit[`sit-${o.id}-front`], back: sit[`sit-${o.id}-back`] };
-    if (fs.existsSync(path.join(OUT, `do-${o.id}-eat.png`))) {
-      meta.outfits[o.id].eat = eatOf(await seatedOf(path.join(OUT, `do-${o.id}-eat.png`), path.join(OUT, `dk-${o.id}-eat.png`), pal, EAT(o.id)), o.id);
+  for (const id of OUTFIT_IDS) {
+    if (!meta.outfits[id] || !fs.existsSync(path.join(OUT, `do-${id}-poses.png`))) continue;
+    const pal = PALS[`body:${id}`];
+    const sit = await seatedOf(path.join(OUT, `do-${id}-poses.png`), path.join(OUT, `dk-${id}-poses.png`), pal, [[0, "front", `sit-${id}-front`], [1, "back", `sit-${id}-back`]]);
+    meta.outfits[id].sit = { front: sit[`sit-${id}-front`], back: sit[`sit-${id}-back`] };
+    if (fs.existsSync(path.join(OUT, `do-${id}-eat.png`))) {
+      meta.outfits[id].eat = eatOf(await seatedOf(path.join(OUT, `do-${id}-eat.png`), path.join(OUT, `dk-${id}-eat.png`), pal, EAT(id)), id);
     }
   }
   // an outfit's eating frames without a key of their own find no hands: the starter's are where every outfit's are

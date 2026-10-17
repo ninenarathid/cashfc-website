@@ -1,0 +1,5 @@
+Edit the attached pixel art sprite sheet. Keep everything exactly where it is: the same canvas, the same four figures at the same positions and the same size, the same walking poses, the same bald round head with exactly the same outline and size, the same face, the same long pointed ears, the same bare hands, the same chunky square pixel size, the same thick dark outline and the same pixel art style.
+
+Change only the clothes, to this outfit, the same on all four figures: a loose light-blue linen blouse with short puffed sleeves and a small round collar; over it a short maroon bodice vest laced at the front; a cream knee-length skirt; soft brown leather ankle boots with a lighter tan sole; a thin brown leather strap from the right shoulder across the chest down to a small brown satchel resting on the left hip. Simple bold shapes with two or three tones per colour, no tiny patterns. The grey base layer is completely gone. Nothing on the head.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients. Transparent background, no text, no labels, no ground shadow, nothing else changed.

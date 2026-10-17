@@ -1,45 +1,83 @@
 {
-  "_": "Doll 2's wearable things (DOLL2.md). make-items.mjs writes every prompt from this file; lib/town/wear.ts names them in the game. Ids are letters only. An outfit is three sheets (front, back, poses: in-place edits of d2-mannequin-*) and their skin keys; a head thing is one sheet a view it shows in. `key`: what a key copy calls the thing, where \"the hat\" or the slot's word is not enough (Codex's read, 2026-10-17). `solid`: a thing whole inside its outline (hats are, unless false): what its outline closes in is cut with it.",
+  "_": "Doll 2's wearable things (DOLL2.md). make-items.mjs writes every prompt from this file; lib/town/wear.ts names them in the game. Ids are letters only. An outfit is three sheets (front, back, poses: in-place edits of d2-mannequin-*) and their skin keys; a head thing is one sheet a view it shows in. `key`: what a key copy calls the thing, where \"the hat\" or the slot's word is not enough (Codex's read, 2026-10-17). `solid`: a thing whole inside its outline (hats are, unless false): what its outline closes in is cut with it. `f`: the women's version of an outfit (the owner, 2026-10-17: the first drawings are the men's), sheets do-<id>_f-<type>; `starter.f` the women's starter, do-starter_f-<type>.",
   "outfits": [
     {
       "id": "farmer",
       "front": "a plain tomato-red shirt with its sleeves rolled up to just below the elbow; over it faded denim-blue overalls with a bib front, two shoulder straps and two small brass buttons, the legs ending just above the knee; sturdy brown work boots",
-      "back": "the back of a plain tomato-red shirt with its sleeves rolled up to just below the elbow; the two shoulder straps of faded denim-blue overalls crossing in an X on the back; the back of the overalls with one small back pocket, the legs ending just above the knee; sturdy brown work boots seen from behind"
+      "back": "the back of a plain tomato-red shirt with its sleeves rolled up to just below the elbow; the two shoulder straps of faded denim-blue overalls crossing in an X on the back; the back of the overalls with one small back pocket, the legs ending just above the knee; sturdy brown work boots seen from behind",
+      "f": {
+        "front": "a tomato-red blouse with short puffed sleeves; over it a faded denim-blue pinafore dress with a bib front, two shoulder straps and two small brass buttons, its skirt ending just above the knee with a small white frill at the hem; sturdy brown work boots",
+        "back": "the back of a tomato-red blouse with short puffed sleeves; the two shoulder straps of a faded denim-blue pinafore dress crossing in an X on the back; the back of its skirt ending just above the knee with a small white frill at the hem; sturdy brown work boots seen from behind",
+        "pose": " In both sitting poses, the skirt drapes continuously over the lap and upper thighs, with one continuous hem just above the bent knees, rather than separate shorts-like leg openings; preserve the reference's hand, knee and foot positions and the readable bent-leg silhouette. In the sleeping pose, the skirt follows the bent hips and thighs without changing the leg positions."
+      }
     },
     {
       "id": "fisher",
       "front": "a short bright yellow fishing jacket ending at the hips, its sleeves ending just below the elbows and one small pocket on the chest; navy-blue knee-length shorts; tall dark green rubber boots up to just below the knee",
-      "back": "the plain back of a short bright yellow fishing jacket ending at the hips, its sleeves ending just below the elbows; navy-blue knee-length shorts seen from behind; tall dark green rubber boots seen from behind"
+      "back": "the plain back of a short bright yellow fishing jacket ending at the hips, its sleeves ending just below the elbows; navy-blue knee-length shorts seen from behind; tall dark green rubber boots seen from behind",
+      "f": {
+        "front": "a short bright yellow fishing jacket ending at the hips, its sleeves ending just below the elbows, a small hood lying down at the back of the collar; navy-blue culottes to the knee; tall dark green rubber boots up to just below the knee",
+        "back": "the plain back of a short bright yellow fishing jacket ending at the hips with a small hood lying down at the collar, its sleeves ending just below the elbows; navy-blue culottes to the knee seen from behind; tall dark green rubber boots seen from behind"
+      }
     },
     {
       "id": "cook",
       "front": "a white cook's jacket with two rows of small round buttons and sleeves to the elbow; a brown apron tied at the waist, hanging to the knees; dark grey trousers; plain black shoes",
-      "back": "the plain back of a white cook's jacket with sleeves to the elbow; the brown apron's strings tied in a small bow at the back of the waist; dark grey trousers seen from behind; plain black shoes seen from behind"
+      "back": "the plain back of a white cook's jacket with sleeves to the elbow; the brown apron's strings tied in a small bow at the back of the waist; dark grey trousers seen from behind; plain black shoes seen from behind",
+      "f": {
+        "front": "a white cook's jacket with one row of small round buttons and short puffed sleeves; a soft pink apron with a frilled edge tied at the waist, hanging to the knees; a dark grey knee-length skirt; plain black shoes",
+        "back": "the plain back of a white cook's jacket with short puffed sleeves; the soft pink apron's strings tied in a big bow at the back of the waist; a dark grey knee-length skirt seen from behind; plain black shoes seen from behind",
+        "pose": " In both sitting poses, the skirt drapes continuously over the lap and upper thighs, with one continuous hem at the bent knees, rather than separate shorts-like leg openings; preserve the reference's hand, knee and foot positions and the readable bent-leg silhouette. In the sleeping pose, the skirt follows the bent hips and thighs without changing the leg positions. The pink apron lies over the skirt and lap in the front sitting pose."
+      }
     },
     {
       "id": "forest",
       "front": "an olive-green shirt with short sleeves; an open khaki vest with four small pockets; brown knee-length shorts; brown hiking boots with light laces",
-      "back": "the back of an olive-green shirt with short sleeves; the plain back of a khaki vest; brown knee-length shorts seen from behind; brown hiking boots seen from behind"
+      "back": "the back of an olive-green shirt with short sleeves; the plain back of a khaki vest; brown knee-length shorts seen from behind; brown hiking boots seen from behind",
+      "f": {
+        "front": "an olive-green blouse with short puffed sleeves; an open khaki vest with four small pockets; a brown knee-length skirt with a thin belt; brown hiking boots with light laces",
+        "back": "the back of an olive-green blouse with short puffed sleeves; the plain back of a khaki vest; a brown knee-length skirt seen from behind; brown hiking boots seen from behind",
+        "pose": " In both sitting poses, the skirt drapes continuously over the lap and upper thighs, with one continuous hem at the bent knees, rather than separate shorts-like leg openings; preserve the reference's hand, knee and foot positions and the readable bent-leg silhouette. In the sleeping pose, the skirt follows the bent hips and thighs without changing the leg positions."
+      }
     },
     {
       "id": "mountain",
       "front": "a dark red flannel shirt with sleeves down to the wrists; brown suspenders over the shoulders; sturdy grey-brown work trousers tucked into tall brown boots",
-      "back": "the back of a dark red flannel shirt with sleeves down to the wrists; brown suspenders crossing in an X on the back; sturdy grey-brown work trousers seen from behind, tucked into tall brown boots"
+      "back": "the back of a dark red flannel shirt with sleeves down to the wrists; brown suspenders crossing in an X on the back; sturdy grey-brown work trousers seen from behind, tucked into tall brown boots",
+      "f": {
+        "front": "a dark red flannel shirt with sleeves down to the wrists, its ends tied in a knot at the waist; brown suspenders over the shoulders; grey-brown work shorts to the knee over dark brown leggings; tall brown boots",
+        "back": "the back of a dark red flannel shirt with sleeves down to the wrists; brown suspenders crossing in an X on the back; grey-brown work shorts to the knee over dark brown leggings seen from behind; tall brown boots seen from behind"
+      }
     },
     {
       "id": "insects",
       "front": "a mint-green short-sleeved shirt with two chest pockets; khaki knee-length shorts with a small round glass jar hanging from the belt; white knee socks and brown shoes. Render the glass jar with fully opaque pale-blue pixels, a dark outline and one solid white highlight, not partial transparency",
-      "back": "the back of a mint-green short-sleeved shirt; the back of khaki knee-length shorts, the small glass jar at the side of the belt; white knee socks and brown shoes seen from behind. Render the glass jar with fully opaque pale-blue pixels, a dark outline and one solid white highlight, not partial transparency"
+      "back": "the back of a mint-green short-sleeved shirt; the back of khaki knee-length shorts, the small glass jar at the side of the belt; white knee socks and brown shoes seen from behind. Render the glass jar with fully opaque pale-blue pixels, a dark outline and one solid white highlight, not partial transparency",
+      "f": {
+        "front": "a mint-green short-sleeved blouse with a round white collar; a khaki knee-length skirt with a small round glass jar hanging from the belt; white knee socks and brown shoes. Render the glass jar with fully opaque pale-blue pixels, a dark outline and one solid white highlight, not partial transparency",
+        "back": "the back of a mint-green short-sleeved blouse with a round white collar; the back of a khaki knee-length skirt, the small glass jar at the side of the belt; white knee socks and brown shoes seen from behind. Render the glass jar with fully opaque pale-blue pixels, a dark outline and one solid white highlight, not partial transparency",
+        "pose": " In both sitting poses, the skirt drapes continuously over the lap and upper thighs, with one continuous hem at the bent knees, rather than separate shorts-like leg openings; preserve the reference's hand, knee and foot positions and the readable bent-leg silhouette. In the sleeping pose, the skirt follows the bent hips and thighs without changing the leg positions."
+      }
     },
     {
       "id": "well",
       "front": "a sky-blue sleeveless tunic over a white short-sleeved undershirt; a wide navy sash tied at the waist; loose navy trousers rolled up to the shins; simple brown sandals",
-      "back": "the back of a sky-blue sleeveless tunic over a white short-sleeved undershirt; the knot of the wide navy sash at the back of the waist; loose navy trousers rolled up to the shins seen from behind; simple brown sandals seen from behind"
+      "back": "the back of a sky-blue sleeveless tunic over a white short-sleeved undershirt; the knot of the wide navy sash at the back of the waist; loose navy trousers rolled up to the shins seen from behind; simple brown sandals seen from behind",
+      "f": {
+        "front": "a sky-blue sleeveless tunic dress reaching the knee over a white short-sleeved undershirt; a wide navy sash tied at the waist with its two ends hanging down at the side; simple brown sandals",
+        "back": "the back of a sky-blue sleeveless tunic dress reaching the knee over a white short-sleeved undershirt; a wide navy sash tied at the waist with its knot and two hanging ends at the side, matching the front view; simple brown sandals seen from behind",
+        "pose": " In both sitting poses, the skirt drapes continuously over the lap and upper thighs, with one continuous hem at the bent knees, rather than separate shorts-like leg openings; preserve the reference's hand, knee and foot positions and the readable bent-leg silhouette. In the sleeping pose, the skirt follows the bent hips and thighs without changing the leg positions."
+      }
     },
     {
       "id": "helpers",
       "front": "a cream long-sleeved shirt under a bright orange vest with a small white star badge on the chest; brown trousers; brown boots; a small canvas tool bag at the hip",
-      "back": "the back of a cream long-sleeved shirt and the plain back of a bright orange vest; brown trousers seen from behind; brown boots seen from behind; the small canvas tool bag at the side of the hip"
+      "back": "the back of a cream long-sleeved shirt and the plain back of a bright orange vest; brown trousers seen from behind; brown boots seen from behind; the small canvas tool bag at the side of the hip",
+      "f": {
+        "front": "a cream long-sleeved blouse; over it a bright orange pinafore dress to the knee with a small white star badge on the chest; brown boots; a small canvas tool bag at the hip",
+        "back": "the back of a cream long-sleeved blouse and the plain back of a bright orange pinafore dress to the knee; brown boots seen from behind; the small canvas tool bag at the side of the hip",
+        "pose": " In both sitting poses, the skirt drapes continuously over the lap and upper thighs, with one continuous hem at the bent knees, rather than separate shorts-like leg openings; preserve the reference's hand, knee and foot positions and the readable bent-leg silhouette. In the sleeping pose, the skirt follows the bent hips and thighs without changing the leg positions."
+      }
     }
   ],
   "hats": [
@@ -119,5 +157,12 @@
       "front": "a necklace of three large white fan-shaped seashells with scalloped lower edges on a thick brown cord, each shell about as big as her eye, individually outlined in dark brown and separated from its neighbours by visible brown cord, hanging on the upper chest just below the collar",
       "key": "the shell necklace, including every visible shell and its cord, but not the clothes under it"
     }
-  ]
+  ],
+  "starter": {
+    "f": {
+      "front": "a loose light-blue linen blouse with short puffed sleeves and a small round collar; over it a short maroon bodice vest laced at the front; a cream knee-length skirt; soft brown leather ankle boots with a lighter tan sole; a thin brown leather strap from the right shoulder across the chest down to a small brown satchel resting on the left hip",
+      "back": "the back of a loose light-blue linen blouse with short puffed sleeves; the plain back of a short maroon bodice vest; a thin brown leather strap crossing the back from the right shoulder down to the left hip, where a small brown satchel shows at the side; a cream knee-length skirt seen from behind; soft brown leather ankle boots with a lighter tan sole seen from behind",
+      "pose": " In both sitting poses, the skirt drapes continuously over the lap and upper thighs, with one continuous hem at the bent knees, rather than separate shorts-like leg openings; preserve the reference's hand, knee and foot positions and the readable bent-leg silhouette. In the sleeping pose, the skirt follows the bent hips and thighs without changing the leg positions."
+    }
+  }
 }

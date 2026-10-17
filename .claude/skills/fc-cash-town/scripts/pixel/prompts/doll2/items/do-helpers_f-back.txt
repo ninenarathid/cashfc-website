@@ -1,0 +1,5 @@
+Edit the attached pixel art sprite sheet. Keep everything exactly where it is: the same canvas, the same four figures at the same positions and the same size, the same walking poses seen from behind, the same bald round head with exactly the same outline and size, the same smooth bald back of the head, the same long pointed ears, the same bare hands, the same chunky square pixel size, the same thick dark outline and the same pixel art style.
+
+Change only the clothes, to this outfit as it looks from behind, the same on all four figures walking away: the back of a cream long-sleeved blouse and the plain back of a bright orange pinafore dress to the knee; brown boots seen from behind; the small canvas tool bag at the side of the hip. Only the back shows: no front details. Simple bold shapes with two or three tones per colour, no tiny patterns. The grey base layer is completely gone. Nothing on the head.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients. Transparent background, no text, no labels, no ground shadow, nothing else changed.

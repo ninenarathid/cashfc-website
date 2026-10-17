@@ -305,10 +305,15 @@ export class PixelKit {
     return { x: mirror ? -x : x, y };
   }
 
-  /** The outfit a look wears, where this atlas has it (none: the starter, the gender's own body). */
+  /**
+   * The outfit a look wears, where this atlas has it: a woman's own version of it (<id>_f, the owner's ask of
+   * 2026-10-17) where there is one, else the outfit as first drawn; the starter is the gender's own body unless a
+   * woman's starter is drawn.
+   */
   private outfitOf(look: Look) {
-    const id = wornId(OUTFITS, look.outfit);
-    return id && id !== "starter" ? this.atlas.outfits?.[id] : undefined;
+    const id = wornId(OUTFITS, look.outfit) ?? "starter";
+    if (GENDERS[look.gender]?.id === "f") { const hers = this.atlas.outfits?.[`${id}_f`]; if (hers) return hers; }
+    return id !== "starter" ? this.atlas.outfits?.[id] : undefined;
   }
 
   /** The eating frame a look sits in, if this atlas has them. */
