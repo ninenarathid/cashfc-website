@@ -9,7 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import { rememberTown, setTownActive } from "./active";
 import { Flood, LOG_MAX, chatEvery, cleanChat } from "./chat";
 import { admit, fromRoom, hears, listed, newCircle, readWord, without, type Circle, type CircleWord } from "./circle";
-import { defaultLook, encodeLook, saveLook, savedLook, type Look } from "./look";
+import { decodeLook, defaultLook, encodeLook, saveLook, savedLook, type Look } from "./look";
 import { joinTown, townClient, type Doing, type Identity, type Room, type RoomStatus } from "./room";
 import { SHOP } from "./shop";
 import { SIGN, decodeSign, encodeSign, inReach, mayRaise, tidyTitle, type Sign } from "./sign";
@@ -1374,6 +1374,8 @@ export class TownSession {
       sitHere: () => this.sitHere(),
       standUp: () => this.standUp(),
       express: (mood: number) => this.express(mood),
+      eat: (dish: string | null) => this.setEating(dish),
+      wear: (code: string) => { const look = decodeLook(code); if (look) this.setLook(look); return !!look; },
       chat: (text: string) => this.sendChat(text),
       chatLog: () => this.chat.map((l) => ({ name: l.name, text: l.text, mine: l.mine })),
       unread: () => this.unread,

@@ -1,5 +1,6 @@
 "use client";
 
+import { FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS } from "@/lib/town/wear";
 import {
   EYES, EYE_COLORS, GENDERS, HAIR_COLORS, ONE_MODEL, RACES, hairForGender, hairsFor, hairsOf, lookAsRace, randomLook, skinsOf,
   type Look, type Named, type Swatch,
@@ -82,6 +83,12 @@ export default function Wardrobe({ look, onChange, onTurn, onClose, th }: {
         <Swatches label={th ? "สีผิว" : "Skin"} items={skinsOf(look.race)} value={look.skin} t={t} onPick={(skin) => set({ skin })} />
         <Choices label={th ? "ทรงตา" : "Eyes"} items={EYES} value={look.eyes} t={t} onPick={(eyes) => set({ eyes })} />
         <Swatches label={th ? "สีตา" : "Eye colour"} items={EYE_COLORS} value={look.eyeColor} t={t} onPick={(eyeColor) => set({ eyeColor })} />
+        {/* What is worn (lib/town/wear; the owner, 2026-10-17: a trial of five outfits, five hats, five accessories) */}
+        <Choices label={th ? "ชุด" : "Outfit"} items={OUTFITS} value={look.outfit ?? 0} t={t} onPick={(outfit) => set({ outfit })} />
+        <Choices label={th ? "หมวก" : "Hat"} items={HATS} value={look.hat ?? 0} t={t} onPick={(hat) => set({ hat })} />
+        <Choices label={th ? "แว่น" : "Glasses"} items={FACE_WEAR} value={look.faceWear ?? 0} t={t} onPick={(faceWear) => set({ faceWear })} />
+        <Choices label={th ? "ที่คอ" : "Neck"} items={NECK_WEAR} value={look.neck ?? 0} t={t} onPick={(neck) => set({ neck })} />
+        <Choices label={th ? "ที่ผม" : "In the hair"} items={HAIR_WEAR} value={look.hairWear ?? 0} t={t} onPick={(hairWear) => set({ hairWear })} />
       </div>
     </section>
   );
@@ -106,7 +113,7 @@ function Choices({ label, items, only, value, onPick, t }: {
       <div role="group" aria-label={label} className="flex flex-wrap gap-1.5">
         {(only ?? items.map((_, i) => i)).map((i) => [i, items[i]] as const).map(([i, n]) => (
           <button key={n.id} type="button" aria-pressed={i === value} onClick={() => onPick(i)}
-                  className={`pressable rounded-full px-3 py-1.5 text-ui transition-colors ${i === value
+                  className={`pressable min-h-11 rounded-full px-3 py-1.5 text-ui transition-colors sm:min-h-0 ${i === value
                     ? "bg-accent/20 font-semibold text-accent ring-1 ring-accent/60"
                     : "border border-line-strong text-ink hover:border-accent"}`}>
             {t(n)}

@@ -20,6 +20,7 @@
  * Pure, so it can be tested without a browser.
  */
 import OTHER_RACES from "./races.json";
+import { FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS } from "./wear";
 
 export type Named = { id: string; th: string; en: string };
 export type Swatch = { hex: string; th: string; en: string };
@@ -178,6 +179,15 @@ export interface Look {
   eyeColor: number;
   skin: number;
   eyes: number;
+  /**
+   * What is worn (lib/town/wear), each an index into its list: missing (or 0) is the starter outfit and nothing else.
+   * A look read back has only the ones that are not 0, so a look of before them reads back as it was written.
+   */
+  outfit?: number;
+  hat?: number;
+  faceWear?: number;
+  neck?: number;
+  hairWear?: number;
 }
 
 /** The fields in the order they are written, and how many choices each has (the race's own lists for hair and skin). */
@@ -186,12 +196,17 @@ const FIELDS = (race: number): Array<[keyof Look, number]> => [
   ["eyeColor", EYE_COLORS.length], ["skin", skinsOf(race).length], ["eyes", EYES.length],
 ];
 
-const VERSION = "5";
+/** What is worn, after the rest (version 6 on): each a digit, an index into its list in lib/town/wear. */
+const WEAR_FIELDS: Array<[keyof Look, number]> = [
+  ["outfit", OUTFITS.length], ["hat", HATS.length], ["faceWear", FACE_WEAR.length], ["neck", NECK_WEAR.length], ["hairWear", HAIR_WEAR.length],
+];
+
+const VERSION = "6";
 /** How long a written look is: the version and one digit per field. */
-export const LOOK_LENGTH = 1 + FIELDS(0).length;
+export const LOOK_LENGTH = 1 + FIELDS(0).length + WEAR_FIELDS.length;
 
 export function encodeLook(look: Look): string {
-  return VERSION + FIELDS(look.race).map(([k]) => look[k].toString(36)).join("");
+  return VERSION + [...FIELDS(look.race), ...WEAR_FIELDS].map(([k]) => (look[k] ?? 0).toString(36)).join("");
 }
 
 /** The same look as another race: the hairstyle at the same place in its list, a skin from its own. */
@@ -228,7 +243,20 @@ export const ONE_MODEL = true;
 /** A look as written, of whatever race it was written for (`readLook`): what decodeLook shows. */
 export function decodeLook(code: unknown): Look | null {
   const look = readLook(code);
-  return look && ONE_MODEL && look.race !== 0 ? lookAsRace(look, 0) : look;
+  return look && ONE_MODEL && look.race !== 0 ? asOneModel(look) : look;
+}
+
+/**
+ * A look of another race as the one model (the owner, 2026-10-17: "จับคู่ใหม่ แล้วให้เขาไปเปลี่ยนในเกมเองน่าจะดีกว่า"): the
+ * skin nearest to theirs in colour, the gender's first hairstyle, everything else kept; the town tells them once to
+ * choose their own in the wardrobe.
+ */
+export function asOneModel(look: Look): Look {
+  const rgb = (hex: string) => [1, 3, 5].map((k) => parseInt(hex.slice(k, k + 2), 16));
+  const theirs = rgb(skinsOf(look.race)[look.skin]?.hex ?? SKINS[0].hex);
+  let skin = 0, best = Infinity;
+  SKINS.forEach((s, i) => { const d = rgb(s.hex).reduce((n, v, k) => n + (v - theirs[k]) ** 2, 0); if (d < best) { best = d; skin = i; } });
+  return { ...look, race: 0, hair: hairsFor(look.gender, 0)[0] ?? 0, skin };
 }
 
 /**
@@ -238,16 +266,19 @@ export function decodeLook(code: unknown): Look | null {
  */
 export function readLook(code: unknown): Look | null {
   if (typeof code !== "string") return null;
-  if (code.length === LOOK_LENGTH && code[0] === VERSION) {
+  // Version 6: version 5's fields, then what is worn. Version 5: race, gender, hair, colours, skin, eyes.
+  const v6 = code.length === LOOK_LENGTH && code[0] === VERSION, v5 = code.length === 1 + FIELDS(0).length && code[0] === "5";
+  if (v6 || v5) {
     const race = digit(code[1], RACES.length);
     if (race === null) return null;
     const out: Partial<Look> = {};
-    const fields = FIELDS(race);
+    const fields = v6 ? [...FIELDS(race), ...WEAR_FIELDS] : FIELDS(race);
     for (let i = 0; i < fields.length; i++) {
       const [k, n] = fields[i];
       const v = digit(code[i + 1], n);
       if (v === null) return null;
-      out[k] = v;
+      // (what is worn only when something is)
+      if (v || i < FIELDS(race).length) out[k] = v;
     }
     const look = out as Look;
     return { ...look, hair: hairForGender(look.hair, look.gender, race) };

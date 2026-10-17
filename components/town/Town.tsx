@@ -26,7 +26,8 @@ import { boxSprite } from "@/lib/town/box-art";
 import { personHitAt } from "@/lib/town/person-hit";
 import { bangkokMinute, daylight, daylightAt, overcast, sunOf } from "@/lib/town/daylight";
 import { SHAPES as CLOUD_SHAPES, cloudBlobs, cloudsAt } from "@/lib/town/clouds";
-import { SKINS, decodeLook, defaultLook, hairsFor, skinsOf, type Look } from "@/lib/town/look";
+import { SKINS, decodeLook, defaultLook, hairsFor, readLook, skinsOf, type Look } from "@/lib/town/look";
+import { toast } from "@/components/ui/Toast";
 import { BUILDING, POLL, etaShort } from "@/lib/town/board";
 import { alongRoute, outingsNow, presence, type Activity, type Outing } from "@/lib/town/popotos";
 import { BIRDS, BUTTERFLIES, birdAt, butterflyAt, petsOf, rompsNow } from "@/lib/town/critters";
@@ -3195,6 +3196,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const bite = eats && !reducedRef.current ? ((now + a.info.id.charCodeAt(0) * 173) % BITE_MS) / BITE_MS : -1;
     const chew = bite >= 0.3 && (bite < 0.42 || (bite < 0.9 && Math.floor(now / 170) % 2 === 0));
     const talk = eats ? chew : talking && Math.floor(now / 150) % 2 === 1;
+    // (the owner, 2026-10-17: "การกินอาหาร ช่วยทำให้ดูเหมือน ถือแล้วกินมากกว่านี้"): where the doll has eating frames, the
+    // dish is held at the chest and brought up to the mouth for each bite, the mouth opening as it arrives
+    const eatPose: 0 | 1 | undefined = eats && kit?.eatsInHand(look) ? (bite >= 0.1 && bite < 0.42 ? 1 : 0) : undefined;
     // A rod in their hands, or whatever else they hold: behind them when they face away; in front otherwise.
     // (what is held is held walking too: the owner, "ตอนนี้ถือแล้ว เดินของที่ถือจะหายไป")
     const rod = rodOf(a, isMe), held = !rod ? a.info.hold || null : null;
@@ -3264,7 +3268,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       const mood = a.info.mood ?? 0, seen = moodSeen.current.get(a.info.id);
       if (!seen || seen.mood !== mood) moodSeen.current.set(a.info.id, { mood, at: now });
       const expr = mood && now - (moodSeen.current.get(a.info.id)?.at ?? now) < EXPRESSION_MS + 1500 ? expressionOf(mood) : null;
-      kit.draw(ctx, look, face.view, face.mirror, p.x, p.y, k, { step, blink, talk, expr, sit: sitting(a) || riding, perch: !!tableSeatOf(a)?.back }, dpr);
+      kit.draw(ctx, look, face.view, face.mirror, p.x, p.y, k, { step, blink, talk, expr, eat: eatPose, sit: sitting(a) || riding, perch: !!tableSeatOf(a)?.back }, dpr);
     } else {
       // Until the dolls arrive: a simple figure.
       ctx.fillStyle = "#6aa9e0";
@@ -3304,7 +3308,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     }
     // What they are eating: the dish set down before them, on the side they face, and a morsel on its way up to
     // their mouth (when they face the viewer, and their picture says where the mouth is).
-    if (eats) {
+    if (eats && eatPose !== undefined) {
+      // held: in the hands, in front of the doll; seen from behind it is before them, out of sight
+      const hand = kit?.handOf(look, face.view, face.mirror, k, eatPose);
+      if (hand) { drawIcon(ctx, iconImg.current, a.info.eat as IconName, p.x + hand.x, p.y + hand.y, 12 * k); kit?.drawFingers(ctx, look, face.view, face.mirror, p.x, p.y, k, eatPose, dpr); }
+    } else if (eats) {
       const side = face.mirror ? -1 : 1, size = 17 * k, px = Math.max(1, k);
       const dish = { x: p.x + side * h * 0.5, y: p.y - size * 0.3 };
       drawIcon(ctx, iconImg.current, a.info.eat as IconName, dish.x, dish.y, size);
@@ -4374,6 +4382,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     : s?.micProblem === "failed" ? w.micFailed : null;
   const recent = s ? s.chat.filter((l) => Date.now() - l.at < LOG_SHOWN_MS).slice(phone ? -3 : -5) : [];
   const myLook = s ? (decodeLook(s.self.info.look) ?? defaultLook(me.id)) : defaultLook(me.id);
+  // Everybody is the one model now (lib/town/look's ONE_MODEL): whoever chose another race is told once that their
+  // hairstyle and skin were chosen for them, to choose their own in the wardrobe (the owner, 2026-10-17)
+  const wasRace = s ? readLook(s.self.info.look)?.race ?? 0 : 0;
+  useEffect(() => {
+    if (!wasRace) return;
+    try { if (localStorage.getItem("cashTown:oneModel")) return; localStorage.setItem("cashTown:oneModel", "1"); } catch { return; }
+    toast({ text: w.th ? "ตัวละครของคุณเปลี่ยนเป็นโมเดลใหม่แล้ว เลือกทรงผมและสีผิวของคุณเองได้ที่ตู้เสื้อผ้า" : "Everybody is one model now: choose your own hairstyle and skin in the wardrobe" });
+  }, [wasRace, w.th]);
 
   // The card's person, if they are still here.
   const cardWho = card && s ? (card.id === me.id ? s.self : s.avatars.get(card.id) ?? null) : null;

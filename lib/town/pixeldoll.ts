@@ -1,6 +1,7 @@
 "use client";
 
 import { EYES, EYE_COLORS, GENDERS, HAIR_COLORS, RACES, hairsOf, raceOf, skinsOf, type Look } from "./look";
+import { FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS, wornId } from "./wear";
 
 /**
  * Drawing a Cash Town avatar: a pixel character of one of the game's races.
@@ -32,6 +33,11 @@ import { EYES, EYE_COLORS, GENDERS, HAIR_COLORS, RACES, hairsOf, raceOf, skinsOf
 type Frame = [x: number, y: number, w: number, h: number, ox: number, oy: number];
 type Eye = { x0: number; y0: number; x1: number; y1: number; cells: Array<[number, number]> };
 type G = "f" | "m";
+type Step = { body: string; hx: number; hy: number; chair?: boolean };
+/** An eating frame: a seated step, and (seen from the front) where its hands are from the feet, for the dish. */
+type EatStep = Step & { hand?: { x: number; y: number }; fingers?: string };
+/** A worn thing's piece per way (lib/town/wear); a hat also says where its brim comes down to in each column. */
+type Worn = Partial<Record<View, string>> & { clip?: Partial<Record<View, { x0: number; ys: number[] }>> };
 type RGB = [number, number, number];
 
 interface AtlasJson {
@@ -64,6 +70,12 @@ interface AtlasJson {
    * face (`keep`: their eyes stay) or shown in its place. Missing from an atlas built before them.
    */
   expr?: Partial<Record<G, Record<string, { face: string; keep: boolean }>>>;
+  /** Doll 2's outfits (lib/town/wear's OUTFITS but the starter), one body for both genders. Missing before them. */
+  outfits?: Record<string, { walk: Record<View, Step[]>; sit?: Record<View, Step>; eat?: Record<View, EatStep[]> }>;
+  /** The starter's eating frames, both genders: the hands at the chest, then at the mouth. */
+  eat?: Record<View, EatStep[]>;
+  /** Doll 2's hats and accessories, by slot and id. */
+  wear?: { hat: Record<string, Worn>; face: Record<string, Worn>; neck: Record<string, Worn>; hair: Record<string, Worn> };
 }
 
 /** Which way a doll faces: three-quarter towards the viewer, or away; both turned to the right. */
@@ -80,6 +92,8 @@ export interface DrawState {
   talk?: boolean;
   /** A face made for a moment (an id of lib/town/expression), seen from the front only; no blink or talk meanwhile. */
   expr?: string | null;
+  /** Eating where they sit: 0 the dish held at the chest, 1 brought up to the mouth (where the atlas has eating frames). */
+  eat?: 0 | 1;
   /** Sitting (on a bench): drawn with its seat at (x, y). */
   sit?: boolean;
   /**
@@ -280,15 +294,84 @@ export class PixelKit {
    * Where a doll's mouth is from its feet, in canvas units, standing or sitting: for what is brought up to it (a
    * morsel of a meal). Null when it faces away, or its picture does not say where its mouth is.
    */
-  mouthOf(look: Look, view: View, mirror: boolean, scale: number, sit = false): { x: number; y: number } | null {
+  mouthOf(look: Look, view: View, mirror: boolean, scale: number, sit = false, eat?: 0 | 1): { x: number; y: number } | null {
     if (view === "back") return null;
-    const A = this.atlas, g = (GENDERS[look.gender]?.id ?? "f") as G;
-    const step = (sit && A.sit?.[g]?.[view]) || A.walk[g][view][STAND];
+    const A = this.atlas, g = (GENDERS[look.gender]?.id ?? "f") as G, O = this.outfitOf(look);
+    const step = (sit && this.eatStep(look, view, eat)) || (sit && (O?.sit?.[view] ?? A.sit?.[g]?.[view])) || (O?.walk ?? A.walk[g])[view][STAND];
     const name = A.face[g][EYES[look.eyes]?.id] ?? A.face[g].round, mouth = A.faceData[name]?.mouth, frame = A.frames[name];
     if (!mouth || !frame) return null;
     const sizes = this.sizesOf(g), kb = scale * sizes.body, kh = scale * sizes.head;
     const x = step.hx * kb + (frame[4] + mouth.x + 0.5) * kh, y = step.hy * kb + (frame[5] + mouth.y + 1) * kh;
     return { x: mirror ? -x : x, y };
+  }
+
+  /** The outfit a look wears, where this atlas has it (none: the starter, the gender's own body). */
+  private outfitOf(look: Look) {
+    const id = wornId(OUTFITS, look.outfit);
+    return id && id !== "starter" ? this.atlas.outfits?.[id] : undefined;
+  }
+
+  /** The eating frame a look sits in, if this atlas has them. */
+  private eatStep(look: Look, view: View, eat: 0 | 1 | undefined): EatStep | undefined {
+    if (eat === undefined) return undefined;
+    // (an outfit's own, or none: the starter's eating body in another outfit's place would change the clothes)
+    const O = this.outfitOf(look);
+    return (O ? O.eat : this.atlas.eat)?.[view]?.[eat];
+  }
+
+  /** Whether this atlas can draw a look eating with the dish in its hands. */
+  eatsInHand(look: Look): boolean { return !!this.eatStep(look, "front", 0)?.hand; }
+
+  /**
+   * Where the hands of a look eating are (frame 0 or 1, seen from the front), from its feet, in canvas units: the
+   * dish is drawn there, held. Null seen from behind, or where the atlas has no eating frames.
+   */
+  handOf(look: Look, view: View, mirror: boolean, scale: number, eat: 0 | 1): { x: number; y: number } | null {
+    const step = view === "front" ? this.eatStep(look, view, eat) : undefined;
+    if (!step?.hand) return null;
+    const kb = scale * this.sizesOf((GENDERS[look.gender]?.id ?? "f") as G).body;
+    const x = (step.hand.x + 0.5) * kb, y = (step.hand.y + 0.5) * kb;
+    return { x: mirror ? -x : x, y };
+  }
+
+  /**
+   * The fingers of a look eating (frame 0 or 1, seen from the front), drawn over the dish the town has put in its hands
+   * (handOf), with the doll's own feet at (x, y) as for draw: so the dish is held.
+   */
+  drawFingers(ctx: CanvasRenderingContext2D, look: Look, view: View, mirror: boolean, x: number, y: number, scale: number, eat: 0 | 1, px = 1) {
+    const step = view === "front" ? this.eatStep(look, view, eat) : undefined;
+    if (!step?.fingers || !this.atlas.frames[step.fingers]) return;
+    const kb = scale * this.sizesOf((GENDERS[look.gender]?.id ?? "f") as G).body;
+    const [, , , , ox, oy] = this.atlas.frames[step.fingers];
+    ctx.save();
+    ctx.translate(Math.round(x * px) / px, Math.round(y * px) / px);
+    if (mirror) ctx.scale(-1, 1);
+    ctx.imageSmoothingEnabled = kb * px < 1;
+    ctx.scale(kb, kb);
+    ctx.drawImage(this.body(step.fingers, look), ox, oy);
+    ctx.restore();
+  }
+
+  /** A worn thing's piece as drawn (it is not recoloured). */
+  private plain(name: string) {
+    return this.keep(`${name}|plain`, () => [canvasOf(this.read(name))])[0];
+  }
+
+  /** A hairstyle under a hat: its hair above the hat's brim taken away, column by column, so none shows through. */
+  private hairUnder(name: string, look: Look, hat: string, view: View, clip: { x0: number; ys: number[] }) {
+    return this.keep(`${name}|${look.hairColor}|${look.skin}|${hat}|${view}`, () => {
+      const [, , w, h, ox, oy] = this.atlas.frames[name];
+      const c = document.createElement("canvas");
+      c.width = w; c.height = h;
+      const x = c.getContext("2d")!;
+      x.drawImage(this.hair(name, look), 0, 0);
+      for (let px = 0; px < w; px++) {
+        const j = Math.min(clip.ys.length - 1, Math.max(0, px + ox - clip.x0));
+        const rows = Math.min(h, clip.ys[j] - oy + 1);
+        if (rows > 0) x.clearRect(px, 0, 1, rows);
+      }
+      return [c];
+    })[0];
   }
 
   /**
@@ -399,13 +482,15 @@ export class PixelKit {
     scale: number, state: DrawState = {}, px = 1) {
     const A = this.atlas;
     const g = (GENDERS[look.gender]?.id ?? "f") as G;
-    const steps = A.walk[g][view];
-    const sat = state.sit ? A.sit?.[g]?.[view] : undefined;
+    const O = this.outfitOf(look);
+    const steps = O?.walk[view] ?? A.walk[g][view];
+    const sat = state.sit ? (O?.sit?.[view] ?? A.sit?.[g]?.[view]) : undefined;
     // (how much of the standing body is legs: what the head comes down by when the same doll sits)
     // A complete rear seated pose keeps its folded legs on chairs and benches.
     // Older ground poses still need the table's existing hidden-leg fallback.
     const perch = state.perch && view === "back" && sat && !sat.chair ? Math.max(0, sat.hy - steps[STAND].hy) : 0;
-    const step = perch ? steps[STAND] : sat || steps[state.step === undefined ? STAND : ((state.step % 4) + 4) % 4];
+    const eating = !perch && state.sit ? this.eatStep(look, view, state.eat) : undefined;
+    const step = perch ? steps[STAND] : eating || sat || steps[state.step === undefined ? STAND : ((state.step % 4) + 4) % 4];
     const faceName = view === "back" ? (A.face[g].back ?? A.face.back!) : (A.face[g][EYES[look.eyes]?.id] ?? A.face[g].round);
     const hairName = A.hair[hairsOf(this.race)[look.hair]?.id ?? ""]?.[view];
     const ex = view === "front" && state.expr ? A.expr?.[g]?.[state.expr] : undefined;
@@ -431,13 +516,23 @@ export class PixelKit {
     ctx.translate(step.hx * kb, (step.hy + perch) * kb);
     ctx.imageSmoothingEnabled = state.smooth ?? kh * px < 1;
     ctx.scale(kh, kh);
+    // what is worn (lib/town/wear), in the head's place: at the neck under the face, on the face over it, in the
+    // hair over the hair, and the hat over everything; the hair under a hat is cut at its brim
+    const W = A.wear, worn = (slot: "hat" | "face" | "neck" | "hair", id: string | null) => (id ? W?.[slot]?.[id] : undefined);
+    const hatId = wornId(HATS, look.hat), hat = worn("hat", hatId);
+    const lay = (name: string | undefined) => { if (!name || !A.frames[name]) return; const [, , , , ox, oy] = A.frames[name]; ctx.drawImage(this.plain(name), ox, oy); };
+    lay(worn("neck", wornId(NECK_WEAR, look.neck))?.[view]);
     const [, , , , fox, foy] = A.frames[shown];
     ctx.drawImage(face, fox, foy);
     if (ex?.keep) { const [, , , , eox, eoy] = A.frames[ex.face]; ctx.drawImage(this.face(ex.face, look)[0], eox, eoy); }
+    lay(worn("face", wornId(FACE_WEAR, look.faceWear))?.[view]);
     if (hairName) {
       const [, , , , hox, hoy] = A.frames[hairName];
-      ctx.drawImage(this.hair(hairName, look), hox, hoy);
+      const clip = hat?.[view] ? hat.clip?.[view] : undefined;
+      ctx.drawImage(clip ? this.hairUnder(hairName, look, hatId!, view, clip) : this.hair(hairName, look), hox, hoy);
     }
+    lay(worn("hair", wornId(HAIR_WEAR, look.hairWear))?.[view]);
+    lay(hat?.[view]);
     ctx.restore();
   }
 }

@@ -136,3 +136,16 @@ A light-blue linen shirt with sleeves rolled to the elbow, a short sleeveless ma
 cream knee-length shorts, soft brown ankle boots, and a thin leather strap across the chest
 to a small satchel at the hip. Codex: keep the rolled sleeves modest and test that the
 strap reads at game size.
+
+## Adding a thing, as built (2026-10-17)
+
+1. Add a line to `prompts/doll2/items.json`: an outfit's `front` and `back` words, a hat's, or an accessory's with its
+   `slot` (face, neck, hair). Add `key` when the thing has parts a plain word misses. Use the same id in `lib/town/wear.ts`,
+   at the end of its list.
+2. Run `node make-items.mjs 1 <calls>`, then `codex-ask.mjs art --calls <calls>`, then the printed `gen.mjs` lines.
+   Stages 2 to 4 are run the same way: an outfit's eating sheet and skin keys, then a hat's or an accessory's magenta key.
+3. Run `node build-pixel-atlas.mjs --doll2 --out <tree>/public/town`, then `node checks/wear-look.mjs`: one picture of everything.
+4. Shoot it in the dev town at desktop and phone size, and have Codex look (the UI rule). Then it is the owner's.
+
+Calls a thing costs: an outfit 8 (four sheets and their keys), a hat 4 (two views and their keys), an accessory 2 to 4.
+At about $0.02 a call, an outfit is $0.15. Claude writes one line and looks at two pictures.

@@ -404,3 +404,20 @@ The owner, 2026-10-17: every player becomes one model with the Lalafell's propor
 - **`d2-mannequin-front`, `-back`, `-poses`**: in-place edits of `f-bald-*` (the approved proportions), in a plain grey top and shorts with bare feet. Every outfit from now on is an in-place edit of these. Figures land where the reference has them, within 2–4 canvas px. On the poses sheet Codex's words replaced "keeps its exact outline", so the old tunic's outline would not survive.
 - **`d2-starter-front`, `-back`, `-poses`**: the new starter outfit, unisex, not FFXIV's. It is a light-blue shirt with rolled sleeves, an open maroon vest, cream knee shorts, brown ankle boots with tan soles, and a strap to a satchel at the hip. The back sheet says what shows from behind (the strap across the back, no vest front), as this file's lesson on back views says. Codex added the tan soles on the back sheet and the open vest on the poses sheet.
 - `checks/cut-look.mjs` measured pitches from 4.9 to 6.7 freely on these sheets. That is the free search's noise: the figures' boxes match the reference. The builder takes each type's grid from its mannequin sheet.
+
+## Doll 2: the trial wearables, the eating pose, the faces redrawn (2026-10-17)
+
+The owner asked for five outfits, five hats and five accessories, everyday things of the lines, "to see how well they work in the real game". He also asked that eating look held ("การกินอาหาร ช่วยทำให้ดูเหมือน ถือแล้วกินมากกว่านี้"), and that sad and pout be made plainer. That was 81 calls, $1.49; the day's total was $1.83 in 100 calls. Every prompt is written by **`make-items.mjs`** from **`prompts/doll2/items.json`** and read by Codex in three batches; the skin keys of stage 3 used stage 2's words.
+
+- **Outfits** `do-<id>-front|back|poses|eat`, with skin keys `dk-<id>-*`: in-place edits of the mannequin sheets. The ids are farmer, fisher, cook, forest and mountain.
+  - Codex caught that the drawn farmer's legs end above the knee and the fisher's sleeves at the elbow. `items.json` now says what was drawn, so the eating sheets match.
+- **Eating**: `d2-mannequin-eat` is a new pose sheet drawn from the mannequin's poses. It has four seated figures: the hands at the chest, then at the mouth, then the same two from behind, with the hands empty.
+  - The starter's and every outfit's eating sheets are in-place edits of it.
+  - The game draws the dish's own icon at the hands, then the fingers over it (`<frame>-hands`), so it is held.
+  - Where the hands are was measured once on the base (`EAT_HANDS`, from the head's point): 6 rows under the chin, then at the chin. Found from the skin that moves between the frames instead, the arms pulled it about.
+- **Hats** `dh-<id>-front|back` (straw, bucket, chef, beanie, hardhat) and **accessories** `da-<id>-*` (glasses, sunglasses, flower, kerchief, shells) are edits of the bald head, the girl's face or the mannequin.
+  - **Each has a magenta key copy** (`dhk-`, `dak-`), and the builder cuts the thing out by it. Cut by colour difference from the base instead, a golden straw hat and a mustard beanie passed for skin, and dark lenses passed for the eye's outline, so pieces of them were lost.
+  - Codex had the hard hat's lamp, the sunglasses' lenses and the neck things named in their keys (`key` in `items.json`).
+  - A hat stores its brim's lowest row per column (`clip`), and the browser takes the hair away above it, so no hair shows through. Seen on four hairstyles front and back.
+- **Sad and pout** were redrawn as in-place edits of the first ones, which are kept in `work/out/expr-v1/`. Sad has half-shut drooping eyes, a larger tear and a wider down-turned mouth. Pout has a strong blush inside the head's outline and a puckered round mouth.
+- **`checks/wear-look.mjs`** lays every hat and accessory over a few hairstyles, and every outfit walking, sitting and eating, without a browser (`DIR=` a trial build). Shots in the dev town: `work/debug/doll2-items-shots.mjs`.

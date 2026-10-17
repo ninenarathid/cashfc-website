@@ -56,6 +56,11 @@ const FACE = { f: "f-neutral-front", m: "m-face-front" };
 const EXPRS = [["happy", false], ["surprised", false], ["sad", false], ["pout", false], ["shy", true]];
 FACES.push(...["f", "m"].flatMap(g => EXPRS.map(([e]) => [g, `x_${e}`, "front"])));
 const D2 = process.argv.includes("--doll2");
+// Doll 2's wearable things (prompts/doll2/items.json, whose prompts make-items.mjs writes): outfits, hats, accessories
+const ITEMS = D2 ? JSON.parse(fs.readFileSync(path.join(HERE, "prompts", "doll2", "items.json"), "utf8")) : { outfits: [], hats: [], accessories: [] };
+const WEAR = []; // [g, h, t, slot] of every hat and accessory sheet: dh-<id>-<view>, da-<id>-<view>
+for (const h of ITEMS.hats) for (const t of ["front", "back"]) WEAR.push(["dh", h.id, t, "hat"]);
+for (const a of ITEMS.accessories) for (const t of ["front", "back"]) WEAR.push(["da", a.id, t, a.slot]);
 
 const file = (g, h, t) => path.join(OUT, D2 && (h === "starter" || h === "skinkey") ? `d2-${h}-${t}.png` : `${g}-${h}-${t}.png`);
 const have = (g, h, t) => fs.existsSync(file(g, h, t));
@@ -71,6 +76,10 @@ for (const t of TYPES) {
   for (const h of HAIRS) if (h !== "bald" && t !== "poses") wanted.push(["f", h, t]);
 }
 wanted.push(...FACES);
+if (D2) {
+  for (const o of ITEMS.outfits) for (const t of ["front", "back"]) wanted.push(["do", o.id, t], ["dk", o.id, t]);
+  wanted.push(...WEAR.map(([g, h, t]) => [g, h, t]), ...WEAR.map(([g, h, t]) => [`${g}k`, h, t]), ["d2", "mannequin", "front"], ["d2", "mannequin", "back"]);
+}
 for (const t of TYPES) typeGrid[t] = L.detectGrid(await L.loadRaw(file("f", "bald", t)));
 for (const [g, h, t] of wanted) {
   if (!have(g, h, t)) continue;
@@ -105,9 +114,10 @@ for (const t of TYPES) { const g = grids[`f-bald-${t}`]; rawSkull[t] = { GW: g.G
 // rarer colours drown among the hair sheets' greens.
 // Expressions have a palette of their own: among the other faces their few pinks (a blush, a tongue) and the blue of
 // a tear were merged into the skin.
-const role = k => (k.includes("-skinkey-") ? "key" : k.includes("-starter-") ? "body" : /^[fm]-x_/.test(k) ? "expr" : /^(f-bald|f-neutral|m-face|[fm]-eyes_)/.test(k) ? "face" : "hair");
+// Doll 2's outfits and things each have a palette of their own too (an outfit's colours among the others' drown).
+const role = k => (k.includes("-skinkey-") || /^d[kha]?k-/.test(k) ? "key" : k.startsWith("do-") ? `body:${k.split("-")[1]}` : /^(d[ha]-|d2-mannequin-)/.test(k) ? `item:${k.split("-")[1]}` : k.includes("-starter-") ? "body" : /^[fm]-x_/.test(k) ? "expr" : /^(f-bald|f-neutral|m-face|[fm]-eyes_)/.test(k) ? "face" : "hair");
 const PALS = {};
-for (const r of ["body", "face", "hair", "expr"]) {
+for (const r of [...new Set(Object.keys(grids).map(role))].filter(r => r !== "key")) {
   const keys = Object.keys(grids).filter(k => role(k) === r);
   const pal = L.paletteOf(keys.map(k => grids[k]), 96);
   PALS[r] = pal;
@@ -150,6 +160,9 @@ for (const t of TYPES) {
   fix(`f-skinkey-${t}`, head);
   fix(`m-skinkey-${t}`, head);
   for (const [g, h, tt] of FACES) if (tt === t) fix(`${g}-${h}-${t}`, head);
+  for (const o of ITEMS.outfits) { fix(`do-${o.id}-${t}`, head); fix(`dk-${o.id}-${t}`, head); }
+  for (const [g, h, tt] of WEAR) if (tt === t) { fix(`${g}-${h}-${t}`, head); fix(`${g}k-${h}-${t}`, head); }
+  fix(`d2-mannequin-${t}`, head);
 }
 
 // Hairstyles line up by what the hair is drawn around, not by the body: adding hair, the model
@@ -324,12 +337,11 @@ const copyOf = g => ({ GW: g.GW, GH: g.GH, c: Uint8Array.from(g.c) });
 const bodies = []; // [name, grid, set, ax, ay]
 /** Every walking step, to check its body and the shared head leave no hole (see "hole check" below). */
 const checks = [];
-for (const gnd of GENDERS) {
-  meta.walk[gnd] = {};
-  for (const t of ["front", "back"]) {
+/** A body's four walking steps one way (its sheet and skin key in grids), as pieces named `<prefix>-<step>`. */
+function walkOf(sheet, keyName, prefix, t, gnd) {
     const R = REF[t];
-    const g = copyOf(grids[`${gnd}-starter-${t}`]), F = figs[`${gnd}-starter-${t}`];
-    const key = grids[`${gnd}-skinkey-${t}`];
+    const g = copyOf(grids[sheet]), F = figs[sheet];
+    const key = grids[keyName];
     const frames = [];
     for (let k = 0; k < 4; k++) {
       // where the shared skull sits on this gender's body in this step
@@ -344,27 +356,80 @@ for (const gnd of GENDERS) {
           const x = i % g.GW + ks.dx, y = ((i / g.GW) | 0) + ks.dy;
           if (isWarm(g.c, i * 4) && x < key.GW && y < key.GH && key.c[(y * key.GW + x) * 4 + 3] && isCyan(key.c, (y * key.GW + x) * 4)) { skinCells.push([g, i]); n++; }
         }
-        if (k === IDLE) console.log(`  ${gnd} ${t}: ${n} skin cells (key off by ${ks.dx},${ks.dy})`);
+        if (k === IDLE) console.log(`  ${prefix}: ${n} skin cells (key off by ${ks.dx},${ks.dy})`);
       }
-      const name = `body-${gnd}-${t}-${k}`;
+      const name = `${prefix}-${k}`;
       bodies.push([name, g, body, ax, ay]);
       checks.push({ gnd, t, k, g, frame: F[k], body, s, cut: R.low });
       // the head's reference point (the skull's centre at its chin cut) from this step's feet
       frames.push({ body: name, hx: 0, hy: R.cut + s.sy - ay });
     }
+    return frames;
+}
+for (const gnd of GENDERS) {
+  meta.walk[gnd] = {};
+  for (const t of ["front", "back"]) {
+    const frames = walkOf(`${gnd}-starter-${t}`, `${gnd}-skinkey-${t}`, `body-${gnd}-${t}`, t, gnd);
     meta.walk[gnd][t] = frames;
     console.log(`  ${gnd} ${t}: head moves`, frames.map(f => f.hy).join(" "));
   }
+}
+// Doll 2's outfits: one body for both genders, so one set of steps each
+meta.outfits = {};
+for (const o of ITEMS.outfits) {
+  if (!grids[`do-${o.id}-front`] || !grids[`do-${o.id}-back`]) { console.log(`  no outfit ${o.id}`); continue; }
+  meta.outfits[o.id] = { walk: Object.fromEntries(["front", "back"].map(t => [t, walkOf(`do-${o.id}-${t}`, `dk-${o.id}-${t}`, `body-${o.id}-${t}`, t, "f")])) };
 }
 
 // sitting: the starter poses' first two frames (sitting, front and back), resampled so their
 // heads are the shared skull's size (the pose sheets came out about 8% larger), the head
 // fitted the same way as on a walking step
 meta.sit = {};
+const widthTop = (g, set, p) => { const b = L.bbox(g, set), lim = b.y0 + (b.y1 - b.y0) * 0.35; let x0 = 1e9, x1 = -1;
+  for (const i of set) { const x = i % g.GW, y = (i / g.GW) | 0; if (y <= lim) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); } } return (x1 - x0 + 1) * p; };
+const walkW = widthTop(grids["f-bald-front"], figs["f-bald-front"][IDLE], typeGrid.front.p);
+/**
+ * Whole frames of a sheet of seated figures (sitting, eating), resampled so their heads are the shared skull's size,
+ * each fitted with the shared head the way a walking step is. `picks`: [figure, way, piece name]. A front frame's
+ * `hand` is where its hands are, from the feet (the eating dish is drawn there): the middle of the bare skin the key
+ * shows between the neck and the lap.
+ */
+async function seatedOf(sheet, keySheet, pal, picks) {
+  const raw = await L.loadRaw(sheet);
+  const g0 = L.cellsOf(raw, L.detectGrid(raw, typeGrid.poses.p));
+  const sitW = widthTop(g0, L.figures(g0, L.spansOf(g0, 4))[0], typeGrid.poses.p);
+  const p = typeGrid.front.p * sitW / walkW;
+  const g = L.cellsOf(raw, L.detectGrid(raw, p));
+  L.snap(g, pal);
+  const F = L.figures(g, L.spansOf(g, 4));
+  const keyRaw = keySheet && fs.existsSync(keySheet) ? await L.loadRaw(keySheet) : null;
+  const key = keyRaw && L.cellsOf(keyRaw, L.detectGrid(keyRaw, p));
+  const out = {};
+  for (const [k, t, name] of picks) {
+    const R = REF[t];
+    const s = headShift(R.g, R.idle, R.cut, g, F[k]);
+    const ground = L.bbox(g, F[k]).y1;
+    const ax = R.hx + s.sx, ay = ground;
+    const body = subset(g, F[k], (x, y) => y >= R.low + s.sy);
+    const skinAt = new Set(); // the frame's bare skin, from its feet: what moves between two eating frames is the hands
+    if (key) {
+      const ks = keyShift(g, key, body);
+      for (const i of body) {
+        const x = i % g.GW + ks.dx, y = ((i / g.GW) | 0) + ks.dy;
+        if (isWarm(g.c, i * 4) && x < key.GW && y < key.GH && key.c[(y * key.GW + x) * 4 + 3] && isCyan(key.c, (y * key.GW + x) * 4)) {
+          skinCells.push([g, i]);
+          skinAt.add(`${i % g.GW - ax},${((i / g.GW) | 0) - ay}`);
+        }
+      }
+    }
+    bodies.push([name, g, body, ax, ay]);
+    out[name] = { body: name, hx: 0, hy: R.cut + s.sy - ay };
+    Object.defineProperty(out[name], "skin", { value: skinAt, enumerable: false });
+    console.log(`  ${name}: resampled at ${p.toFixed(2)}, head at ${out[name].hy}`);
+  }
+  return out;
+}
 {
-  const widthTop = (g, set, p) => { const b = L.bbox(g, set), lim = b.y0 + (b.y1 - b.y0) * 0.35; let x0 = 1e9, x1 = -1;
-    for (const i of set) { const x = i % g.GW, y = (i / g.GW) | 0; if (y <= lim) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); } } return (x1 - x0 + 1) * p; };
-  const walkW = widthTop(grids["f-bald-front"], figs["f-bald-front"][IDLE], typeGrid.front.p);
   for (const gnd of GENDERS) {
     if (!have(gnd, "starter", "poses")) continue;
     const raw = await L.loadRaw(file(gnd, "starter", "poses"));
@@ -396,6 +461,47 @@ meta.sit = {};
       console.log(`  ${gnd} sit ${t}: resampled at ${p.toFixed(2)}, head at ${meta.sit[gnd][t].hy}`);
     }
   }
+}
+// where the hands are in the two eating frames, from the head's reference point (see eatOf)
+const EAT_HANDS = [{ x: 0, y: 6 }, { x: 0, y: -1 }];
+if (D2) {
+  // eating: four seated figures, the hands at the chest and then at the mouth, seen from the front and from behind
+  const EAT = (id) => [[0, "front", `eat-${id}-front-0`], [1, "front", `eat-${id}-front-1`], [2, "back", `eat-${id}-back-0`], [3, "back", `eat-${id}-back-1`]];
+  const eatOf = (got, id) => {
+    const e = { front: [got[`eat-${id}-front-0`], got[`eat-${id}-front-1`]], back: [got[`eat-${id}-back-0`], got[`eat-${id}-back-1`]] };
+    // the hands, from the head's reference point: measured once on the eating base (d2-mannequin-eat, which every
+    // outfit's eating sheet is an in-place edit of), at the chest and then just under the mouth. Found by the skin that
+    // moves between the two frames instead, the arms and the sleeves moved with them and pulled the middle about.
+    EAT_HANDS.forEach((h, k) => { const f = e.front[k]; if (f) f.hand = { x: f.hx + h.x, y: f.hy + h.y }; });
+    // the fingers: the frame's bare skin about and below the hands' middle, laid over the dish so it is held, not
+    // stuck on (Codex's look at the shots, 2026-10-17)
+    for (const f of e.front) {
+      const b = f && f.hand && bodies.find(([n]) => n === f.body);
+      if (!b || !f.skin) continue;
+      const [, g, , ax, ay] = b, fingers = new Set();
+      for (const k of f.skin) { const [x, y] = k.split(",").map(Number); if (Math.abs(x - f.hand.x) <= 7 && y >= f.hand.y && y <= f.hand.y + 5) fingers.add((y + ay) * g.GW + x + ax); }
+      if (fingers.size < 4) continue;
+      bodies.push([`${f.body}-hands`, g, fingers, ax, ay]);
+      f.fingers = `${f.body}-hands`;
+    }
+    return e;
+  };
+  if (fs.existsSync(path.join(OUT, "d2-starter-eat.png"))) {
+    meta.eat = eatOf(await seatedOf(path.join(OUT, "d2-starter-eat.png"), path.join(OUT, "d2-skinkey-eat.png"), PALS.body, EAT("starter")), "starter");
+  }
+  for (const o of ITEMS.outfits) {
+    if (!meta.outfits[o.id]) continue;
+    const pal = PALS[`body:${o.id}`];
+    const sit = await seatedOf(path.join(OUT, `do-${o.id}-poses.png`), path.join(OUT, `dk-${o.id}-poses.png`), pal, [[0, "front", `sit-${o.id}-front`], [1, "back", `sit-${o.id}-back`]]);
+    meta.outfits[o.id].sit = { front: sit[`sit-${o.id}-front`], back: sit[`sit-${o.id}-back`] };
+    if (fs.existsSync(path.join(OUT, `do-${o.id}-eat.png`))) {
+      meta.outfits[o.id].eat = eatOf(await seatedOf(path.join(OUT, `do-${o.id}-eat.png`), path.join(OUT, `dk-${o.id}-eat.png`), pal, EAT(o.id)), o.id);
+    }
+  }
+  // an outfit's eating frames without a key of their own find no hands: the starter's are where every outfit's are
+  // (each is an in-place edit of the one eating base)
+  const hands = meta.eat ? meta.eat.front.map(f => f?.hand) : [];
+  for (const e of [meta.eat, ...Object.values(meta.outfits).map(o => o.eat)]) if (e) e.front.forEach((f, i) => { if (f && !f.hand && hands[i]) f.hand = hands[i]; });
 }
 
 // faces: the skull and a face above the chin, one per gender and eye shape; the back of the head is shared
@@ -587,6 +693,75 @@ for (const hair of HAIRS) for (const t of ["front", "back"]) {
   const name = `hair-${hair}-${t}`;
   pieces.push({ name, img: im, ox: im.x0 - REF[t].hx, oy: im.y0 - REF[t].cut });
   (meta.hair[hair] ??= {})[t] = name;
+}
+
+// Doll 2's hats and accessories (DOLL2.md): each the cells its sheet's standing figure has that its base sheet does
+// not (a hat or a clip: the bald head; glasses: the girl's face; a neckerchief, a necklace: the grey mannequin), in a
+// band of the head about where the thing is, laid in the head's place like the hair. A hat says, for each column of
+// the head, where its brim comes down to: the browser hides the hair above it, so no hair shows through the hat.
+meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
+{
+  const eyes = eyesAt(grids[FACE.f]);
+  const bandOf = (slot, t) => slot === "face" ? (x, y) => !!eyes && Math.abs(y - eyes.y) <= 7
+    : slot === "neck" ? (x, y) => y >= REF[t].cut - 3 && y <= REF[t].cut + 14
+    : (x, y) => y <= REF[t].cut;
+  const baseOf = (slot, t) => grids[slot === "face" ? FACE.f : slot === "neck" ? `d2-mannequin-${t}` : `f-bald-${t}`];
+  const near = (g, x, y, want) => { for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const X = x + dx, Y = y + dy; if (X >= 0 && Y >= 0 && X < g.GW && Y < g.GH && g.c[(Y * g.GW + X) * 4 + 3] && L.clsAt(g, X, Y) === want) return true; } return false; };
+  for (const [g0, id, t, slot] of WEAR) {
+    const key = `${g0}-${id}-${t}`, base = baseOf(slot, t);
+    if (!grids[key] || !base) continue;
+    const g = copyOf(grids[key]), F = figs[key][IDLE], band = bandOf(slot, t), set = new Set();
+    // the thing's key copy (dhk-, dak-: the thing alone painted magenta) says which cells are the thing; told apart from
+    // the base by colour instead, a golden straw hat passed for skin and dark lenses for the eye's outline
+    const mk = grids[`${g0}k-${id}-${t}`];
+    const isMagenta = (c, o) => { const [h, s, l] = L.hsl(c[o], c[o + 1], c[o + 2]); return h >= 280 && h <= 335 && s > 0.4 && l > 0.18; };
+    if (mk) {
+      let best = { n: -1, dx: 0, dy: 0 };
+      for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) {
+        let n = 0;
+        for (const i of F) { const x = i % g.GW + dx, y = ((i / g.GW) | 0) + dy; if (x >= 0 && y >= 0 && x < mk.GW && y < mk.GH && mk.c[(y * mk.GW + x) * 4 + 3] && isMagenta(mk.c, (y * mk.GW + x) * 4)) n++; }
+        if (n > best.n) best = { n, dx, dy };
+      }
+      for (const i of F) { const x = i % g.GW + best.dx, y = ((i / g.GW) | 0) + best.dy; if (x >= 0 && y >= 0 && x < mk.GW && y < mk.GH && mk.c[(y * mk.GW + x) * 4 + 3] && isMagenta(mk.c, (y * mk.GW + x) * 4)) set.add(i); }
+    }
+    if (!mk) for (const i of F) {
+      const x = i % g.GW, y = (i / g.GW) | 0;
+      if (!band(x, y)) continue;
+      const c = L.clsAt(g, x, y);
+      const bi = (y * base.GW + x) * 4;
+      if (x >= base.GW || y >= base.GH || !base.c[bi + 3]) { if (c !== "skin") set.add(i); continue; }
+      // the head's own outline and skin, a cell off in the edit, are not the thing
+      if ((c === "dark" && near(base, x, y, "dark")) || (c === "skin" && near(base, x, y, "skin"))) continue;
+      const d = Math.abs(base.c[bi] - g.c[i * 4]) + Math.abs(base.c[bi + 1] - g.c[i * 4 + 1]) + Math.abs(base.c[bi + 2] - g.c[i * 4 + 2]);
+      if (d > 80 || (c !== L.clsAt(base, x, y) && d > 40)) set.add(i);
+    }
+    // only clumps of four or more, then the few cells they close in
+    const seen = new Set();
+    for (const i of [...set]) { if (seen.has(i)) continue;
+      const st = [i], comp = []; seen.add(i);
+      while (st.length) { const q = st.pop(); comp.push(q); const x = q % g.GW, y = (q / g.GW) | 0;
+        for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const j = (y + dy) * g.GW + x + dx; if (set.has(j) && !seen.has(j)) { seen.add(j); st.push(j); } } }
+      if (comp.length < 4) for (const q of comp) set.delete(q); }
+    for (let pass = 0; pass < 2; pass++) for (const i of F) {
+      if (set.has(i)) continue;
+      const n = [1, -1, g.GW, -g.GW].filter(d => set.has(i + d)).length;
+      if (n >= 3 && L.clsAt(g, i % g.GW, (i / g.GW) | 0) !== "skin") set.add(i);
+    }
+    if (set.size < 6) { console.log(`  ${key}: nothing found`); continue; }
+    unclash(g, set);
+    const im = L.crop(g, set), name = `wear-${id}-${t}`;
+    pieces.push({ name, img: im, ox: im.x0 - REF[t].hx, oy: im.y0 - REF[t].cut });
+    const entry = (meta.wear[slot][id] ??= {});
+    entry[t] = name;
+    if (slot === "hat") {
+      // the brim: the lowest row of the hat in each of its columns, from the head's reference point
+      const low = new Map();
+      for (const i of set) { const x = i % g.GW, y = (i / g.GW) | 0; low.set(x, Math.max(low.get(x) ?? -1e9, y)); }
+      const xs = [...low.keys()].sort((a, b) => a - b);
+      (entry.clip ??= {})[t] = { x0: xs[0] - REF[t].hx, ys: xs.map(x => low.get(x) - REF[t].cut) };
+    }
+    console.log(`  ${key}: ${set.size} cells`);
+  }
 }
 
 /** Eye cells (to close for a blink) and the mouth's centre (to open when talking), in piece pixels. */

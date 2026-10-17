@@ -46,7 +46,7 @@ describe("a look, written down and read back", () => {
 
   it("refuses what another browser could send instead", () => {
     const good = encodeLook(every);
-    for (const bad of [null, 42, "", "6" + good.slice(1), good + "0", good.slice(0, -1), good.toUpperCase(),
+    for (const bad of [null, 42, "", "7" + good.slice(1), good + "0", good.slice(0, -1), good.toUpperCase(),
       // No such race (the first field).
       good.slice(0, 1) + RACES.length.toString(36) + good.slice(2),
       // One past the end of the skin list (the sixth field).
@@ -75,6 +75,13 @@ describe("races", () => {
       expect(RACES[r].hairs[as.hair].g).toBe(1);
       expect(readLook(encodeLook(as))).toEqual(as);
     }
+  });
+
+  it("keep what is worn, and read a version 5 look as wearing nothing", () => {
+    const worn: Look = { race: 0, gender: 1, hair: at("m05"), hairColor: 7, eyeColor: 3, skin: 2, eyes: 4, outfit: 2, hat: 1, faceWear: 2, neck: 1, hairWear: 1 };
+    expect(decodeLook(encodeLook(worn))).toEqual(worn);
+    const plainLook: Look = { race: 0, gender: 1, hair: at("m05"), hairColor: 7, eyeColor: 3, skin: 2, eyes: 4 };
+    expect(decodeLook(encodeLook(plainLook).slice(0, 8).replace(/^6/, "5"))).toEqual(plainLook);
   });
 
   it("are all shown as the one model, gender, colours and eyes kept (the owner, 2026-10-17)", () => {
