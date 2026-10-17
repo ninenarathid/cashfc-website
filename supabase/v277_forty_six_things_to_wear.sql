@@ -18,7 +18,9 @@
 --   2026-10-15): the mushroom cap and the jewel beetle at 03–05, the sailor's stripes at 05–07. Each drop is rolled in a
 --   block of its own, so a drop that fails never takes a deed's points with it.
 -- * The bridge is built, so stones are laid no more: everybody who laid or handed on a stone (`town_deeds`) is given the
---   bridge builder's outfit and medal now, and a later work of stones would drop them too.
+--   builder's outfit and medal now, and from now on they drop from helping somebody else's work, as the bridge was
+--   built together (the owner: "อาจจะไม่มีสร้างสะพานอีกแล้ว ช่วยเปลี่ยนไปดรอปที่อื่น"): a rock somebody else struck
+--   broken with one's swings, the bellows worked for somebody's piece at the smith, a tree somebody else fells braced.
 --
 -- What is mine, not answered: the chances, the uncle's prices, the recipes.
 
@@ -97,7 +99,7 @@ on conflict (member_id, wearable) do nothing;
 
 -- <catalog:v277> written from lib/town/catalog.ts (npm test checks it; TOWN_WRITE=1 npx vitest run lib/town/catalog.test.ts writes it)
 insert into public.town_catalog (key, data) values
-  ('wear_drops', $town$[{"wear":"sailor","line":"fishing","in":100,"from":5,"to":7},{"wear":"lamplighter","line":"helpers","in":200,"what":["lamp_light","lamp_hand"]},{"wear":"builder","line":"helpers","in":200,"what":["stone_lay","stone_hand"]},{"wear":"raincoat","line":"forest","in":100,"what":["gather"],"rain":true},{"wear":"waiter","line":"kitchen","in":100,"what":["ladle"]},{"wear":"lampcap","line":"helpers","in":200,"what":["lamp_light","lamp_hand"]},{"wear":"mushroom","line":"forest","in":100,"what":["gather"],"from":3,"to":5},{"wear":"goggles","line":"fishing","in":50},{"wear":"crystalpendant","line":"mining","in":100,"what":["crystal","vein"]},{"wear":"medal","line":"helpers","in":200,"what":["stone_lay","stone_hand"]},{"wear":"beetle","line":"insects","in":100,"what":["net"],"from":3,"to":5},{"wear":"starpendant","line":"helpers","in":300,"what":["lamp_light","lamp_hand"],"from":19,"to":23},{"wear":"flower","line":"helpers","in":10,"knob":"wear_flower_in_ten_thousand"},{"wear":"leaf","line":"forest","in":50,"what":["gather"]},{"wear":"starclip","line":"insects","in":100,"what":["net"],"from":19,"to":23},{"wear":"butterfly","line":"insects","in":200,"what":["net"],"things":["butterflyWhite","monarch","morpho"]},{"wear":"featherpin","line":"felling","in":20,"what":["fell"]}]$town$::jsonb)
+  ('wear_drops', $town$[{"wear":"sailor","line":"fishing","in":100,"from":5,"to":7},{"wear":"lamplighter","line":"helpers","in":200,"what":["lamp_light","lamp_hand"]},{"wear":"builder","line":"helpers","in":200,"what":["hew","bellows","fell"]},{"wear":"raincoat","line":"forest","in":100,"what":["gather"],"rain":true},{"wear":"waiter","line":"kitchen","in":100,"what":["ladle"]},{"wear":"lampcap","line":"helpers","in":200,"what":["lamp_light","lamp_hand"]},{"wear":"mushroom","line":"forest","in":100,"what":["gather"],"from":3,"to":5},{"wear":"goggles","line":"fishing","in":50},{"wear":"crystalpendant","line":"mining","in":100,"what":["crystal","vein"]},{"wear":"medal","line":"helpers","in":200,"what":["hew","bellows","fell"]},{"wear":"beetle","line":"insects","in":100,"what":["net"],"from":3,"to":5},{"wear":"starpendant","line":"helpers","in":300,"what":["lamp_light","lamp_hand"],"from":19,"to":23},{"wear":"flower","line":"helpers","in":10,"knob":"wear_flower_in_ten_thousand"},{"wear":"leaf","line":"forest","in":50,"what":["gather"]},{"wear":"starclip","line":"insects","in":100,"what":["net"],"from":19,"to":23},{"wear":"butterfly","line":"insects","in":200,"what":["net"],"things":["butterflyWhite","monarch","morpho"]},{"wear":"featherpin","line":"felling","in":20,"what":["fell"]}]$town$::jsonb)
   on conflict (key) do nothing;
 insert into public.town_catalog (key, data) values
   ('items', $town${

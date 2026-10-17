@@ -14,8 +14,8 @@
  * (lib/town/wear-items), four more on the uncle's shelf, the sixth ranks of five lines, and chances with a line's
  * points narrowed by the deed, the thing, the hour or the rain (`Drop`). The rarest are before dawn (lib/town/bands,
  * the owner's rule of 2026-10-15): the mushroom cap and the beetle at 03–05, the sailor's stripes at 05–07. Everybody who
- * helped build the bridge has the builder's things already (v277 gives them from the deeds); the chances and the
- * prices are mine, not answered.
+ * helped build the bridge has the builder's things already (v277 gives them from the deeds), and anybody may have
+ * them by helping somebody else's work; the chances and the prices are mine, not answered.
  *
  * A look writes each slot as an index into its list (lib/town/look), so only ever add at the end. The first of every
  * list but the outfits is nothing worn. Pure.
@@ -47,8 +47,11 @@ const at = (rank: number, ...lines: LineId[]): Source => ({ lines, rank });
 const isRank = (s: Source): s is { lines: LineId[]; rank: number } => "lines" in s;
 const CRAFT: Source = { craft: true }, UNCLE: Source = { shop: "uncle" };
 const drop = (line: LineId, chance: number, more: Omit<Drop, "drop" | "chance"> = {}): Drop => ({ drop: line, chance, ...more });
-const LAMPS = ["lamp_light", "lamp_hand"], STONES = ["stone_lay", "stone_hand"];
-const LAMP_HOW = { th: "จุดตะเกียงด้วยกัน", en: "Lighting the lamps" }, BRIDGE_HOW = { th: "ช่วยสร้างสะพาน", en: "Building the bridge" };
+// (the builder's two: helping somebody else's work, as the bridge was built together: a rock somebody else struck
+// broken with my swings, the bellows worked for somebody's piece at the smith, a tree somebody else fells braced; the
+// owner, 2026-10-17: "อาจจะไม่มีสร้างสะพานอีกแล้ว ช่วยเปลี่ยนไปดรอปที่อื่น")
+const LAMPS = ["lamp_light", "lamp_hand"], HELPING = ["hew", "bellows", "fell"];
+const LAMP_HOW = { th: "จุดตะเกียงด้วยกัน", en: "Lighting the lamps" }, HELPING_HOW = { th: "ช่วยงานของคนอื่น", en: "Helping others' work" };
 
 /** Whole outfits: the starter, then one for each line. */
 export const OUTFITS: Wearable[] = [
@@ -65,7 +68,7 @@ export const OUTFITS: Wearable[] = [
   { id: "smith", th: "ชุดช่างตีเหล็ก", en: "Smith", from: CRAFT },
   { id: "sailor", th: "ชุดกะลาสี", en: "Sailor", from: drop("fishing", 0.01, { hours: [5, 7] }) },
   { id: "lamplighter", th: "ชุดคนจุดตะเกียง", en: "Lamplighter", from: drop("helpers", 0.02, { what: LAMPS, how: LAMP_HOW }) },
-  { id: "builder", th: "ชุดช่างสร้างสะพาน", en: "Bridge builder", from: drop("helpers", 0.02, { what: STONES, how: BRIDGE_HOW }) },
+  { id: "builder", th: "ชุดช่างก่อสร้าง", en: "Builder", from: drop("helpers", 0.02, { what: HELPING, how: HELPING_HOW }) },
   { id: "raincoat", th: "เสื้อกันฝน", en: "Rain jacket", from: drop("forest", 0.01, { what: ["gather"], rain: true }) },
   { id: "tea", th: "ชุดเก็บใบชา", en: "Tea picker", from: at(6, "farming") },
   { id: "caver", th: "ชุดนักสำรวจถ้ำ", en: "Caver", from: at(6, "mining") },
@@ -120,7 +123,7 @@ export const NECK_WEAR: Wearable[] = [
   { id: "crystalpendant", th: "จี้คริสตัล", en: "Crystal pendant", from: drop("mining", 0.01, { what: ["crystal", "vein"] }) },
   { id: "bowtie", th: "โบว์ไท", en: "Bow tie", from: at(6, "kitchen") },
   { id: "lei", th: "พวงมาลัยดอกไม้", en: "Flower garland", from: CRAFT },
-  { id: "medal", th: "เหรียญช่างสะพาน", en: "Bridge medal", from: drop("helpers", 0.02, { what: STONES, how: BRIDGE_HOW }) },
+  { id: "medal", th: "เหรียญช่าง", en: "Builder's medal", from: drop("helpers", 0.02, { what: HELPING, how: HELPING_HOW }) },
   { id: "bell", th: "โชคเกอร์กระดิ่ง", en: "Bell choker", from: at(6, "helpers") },
   { id: "beads", th: "สร้อยลูกปัดไม้", en: "Wooden beads", from: CRAFT },
   { id: "necktie", th: "เนกไท", en: "Necktie", from: UNCLE },

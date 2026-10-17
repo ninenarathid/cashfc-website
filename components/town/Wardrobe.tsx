@@ -25,7 +25,7 @@ import TownIcon from "./TownIcon";
  */
 type Tab = "me" | "outfit" | "wear";
 
-export default function Wardrobe({ look, kit, points, had, onChange, onTurn, onClose, th }: {
+export default function Wardrobe({ look, kit, points, had, fresh = new Set(), note = null, onChange, onTurn, onClose, th }: {
   look: Look;
   /** The doll's pictures, for the cards (none yet: the cards wait for them). */
   kit: PixelKit | null;
@@ -33,6 +33,10 @@ export default function Wardrobe({ look, kit, points, had, onChange, onTurn, onC
   points: Partial<Record<LineId, number>>;
   /** What the player has bought or found (lib/town/wear's `owns`). */
   had: ReadonlySet<string>;
+  /** What dropped and is seen here for the first time: marked "new" on its card, and its tab opened first. */
+  fresh?: ReadonlySet<string>;
+  /** Something to say at the top of the page once (the one model). */
+  note?: string | null;
   onChange: (look: Look) => void;
   /** Turn the avatar to see its side or back: -1 one way, 1 the other. */
   onTurn: (dir: -1 | 1) => void;
@@ -41,7 +45,17 @@ export default function Wardrobe({ look, kit, points, had, onChange, onTurn, onC
 }) {
   const set = (patch: Partial<Look>) => onChange({ ...look, ...patch });
   const t = (n: Named | Swatch) => (th ? n.th : n.en);
-  const [tab, setTab] = useState<Tab>("me");
+  const freshIn = (lists: Wearable[][]) => lists.some((l) => l.some((x) => fresh.has(x.id)));
+  const freshTab: Partial<Record<Tab, boolean>> = { outfit: freshIn([OUTFITS]), wear: freshIn([HATS, FACE_WEAR, NECK_WEAR, HAIR_WEAR]) };
+  const [tab, setTab] = useState<Tab>(freshTab.outfit ? "outfit" : freshTab.wear ? "wear" : "me");
+  // (what is new comes a moment after the wardrobe opens: its tab is shown then)
+  useEffect(() => { if (freshTab.outfit) setTab("outfit"); else if (freshTab.wear) setTab("wear"); }, [fresh]); // eslint-disable-line react-hooks/exhaustive-deps
+  // (and the first new card scrolled into sight: a hat's may be far down the list)
+  useEffect(() => {
+    if (!fresh.size) return;
+    const id = window.setTimeout(() => document.querySelector("[data-wear-fresh]")?.closest("button")?.scrollIntoView({ block: "center" }), 120);
+    return () => window.clearTimeout(id);
+  }, [fresh, tab]);
   const TABS: Array<[Tab, string]> = [["me", th ? "ตัวเรา" : "Me"], ["outfit", th ? "ชุด" : "Outfits"], ["wear", th ? "ของตกแต่ง" : "Accessories"]];
 
   return (
@@ -62,7 +76,7 @@ export default function Wardrobe({ look, kit, points, had, onChange, onTurn, onC
             <button key={id} type="button" role="tab" aria-selected={tab === id} onClick={() => setTab(id)}
                     className={`pressable min-h-11 border-b-2 px-3 pb-2 pt-2.5 text-ui transition-colors ${tab === id
                       ? "border-accent font-semibold text-accent" : "border-transparent text-muted hover:text-ink"}`}>
-              {label}
+              <span className={`relative ${freshTab[id] ? "pr-2.5" : ""}`}>{label}{freshTab[id] && <span aria-hidden className="tk-dot" />}</span>
             </button>
           ))}
         </div>
@@ -74,19 +88,20 @@ export default function Wardrobe({ look, kit, points, had, onChange, onTurn, onC
         </div>
       </div>
 
+      {note && <p role="status" className="border-b border-line bg-accent/10 px-4 py-2 text-ui text-ink">{note}</p>}
       <div role="tabpanel" className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4 pt-2">
         {tab === "outfit" && (
-          <Cards label={th ? "ชุด" : "Outfits"} items={OUTFITS} value={look.outfit ?? 0} th={th} points={points} had={had} kit={kit}
+          <Cards label={th ? "ชุด" : "Outfits"} items={OUTFITS} value={look.outfit ?? 0} th={th} points={points} had={had} fresh={fresh} kit={kit}
                  lookFor={(outfit) => ({ ...look, outfit })} body onPick={(outfit) => set({ outfit })} />
         )}
         {tab === "wear" && <>
-          <Cards label={th ? "หมวก" : "Hats"} items={HATS} value={look.hat ?? 0} th={th} points={points} had={had} kit={kit}
+          <Cards label={th ? "หมวก" : "Hats"} items={HATS} value={look.hat ?? 0} th={th} points={points} had={had} fresh={fresh} kit={kit}
                  lookFor={(hat) => ({ ...look, hat })} onPick={(hat) => set(together(look, { hat }))} />
-          <Cards label={th ? "แว่นตา" : "Glasses"} items={FACE_WEAR} value={look.faceWear ?? 0} th={th} points={points} had={had} kit={kit}
+          <Cards label={th ? "แว่นตา" : "Glasses"} items={FACE_WEAR} value={look.faceWear ?? 0} th={th} points={points} had={had} fresh={fresh} kit={kit}
                  lookFor={(faceWear) => ({ ...look, faceWear })} onPick={(faceWear) => set({ faceWear })} />
-          <Cards label={th ? "ที่คอ" : "Neck"} items={NECK_WEAR} value={look.neck ?? 0} th={th} points={points} had={had} kit={kit}
+          <Cards label={th ? "ที่คอ" : "Neck"} items={NECK_WEAR} value={look.neck ?? 0} th={th} points={points} had={had} fresh={fresh} kit={kit}
                  lookFor={(neck) => ({ ...look, neck })} onPick={(neck) => set({ neck })} />
-          <Cards label={th ? "ที่ผม" : "In the hair"} items={HAIR_WEAR} value={look.hairWear ?? 0} th={th} points={points} had={had} kit={kit}
+          <Cards label={th ? "ที่ผม" : "In the hair"} items={HAIR_WEAR} value={look.hairWear ?? 0} th={th} points={points} had={had} fresh={fresh} kit={kit}
                  lookFor={(hairWear) => ({ ...look, hairWear })} onPick={(hairWear) => set(together(look, { hairWear }))} />
         </>}
         {tab === "me" && <>
@@ -179,9 +194,9 @@ function Swatches({ label, items, value, onPick, t }: {
  * 2026-10-17: "ของตกแต่งที่ยังไม่ได้ปลดล็อคให้ทำเป้นเงาดำๆไว้ ปกปิดไม่ให้เห้นรายละเอียด เห็นแค่เงา"): something to find,
  * and a way to feel towards it. One size for every card of a list, so the heads are drawn alike.
  */
-function Cards({ label, items, value, onPick, lookFor, kit, points, had: bought, th, body }: {
+function Cards({ label, items, value, onPick, lookFor, kit, points, had: bought, fresh, th, body }: {
   label: string; items: Wearable[]; value: number; onPick: (i: number) => void; lookFor: (i: number) => Look;
-  kit: PixelKit | null; points: Partial<Record<LineId, number>>; had: ReadonlySet<string>; th: boolean;
+  kit: PixelKit | null; points: Partial<Record<LineId, number>>; had: ReadonlySet<string>; fresh: ReadonlySet<string>; th: boolean;
   /** Show the whole doll (outfits), not the head. */
   body?: boolean;
 }) {
@@ -234,6 +249,8 @@ ${f.how ? (th ? f.how.th : f.how.en) : line(f.drop)}${hours}${rain}`;
                            if (!had) { ctx.globalCompositeOperation = "source-in"; ctx.fillStyle = "#0a0d13"; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = "source-over"; }
                          }} />
                 {!had && <span className="absolute bottom-0 right-0 grid size-5 place-items-center rounded-full bg-surface ring-1 ring-line-strong"><TownIcon name="lock" size={12} /></span>}
+                {/* (a lucky drop, seen here for the first time) */}
+                {had && fresh.has(item.id) && <span data-wear-fresh className="absolute -left-1 -top-1 rounded-full bg-gold px-1.5 text-[10px] font-bold leading-4 text-bg shadow">{th ? "ใหม่" : "New"}</span>}
               </span>
               <span className="text-meta leading-tight">{had ? (th ? item.th : item.en) : "???"}</span>
               {!had && <span className="whitespace-pre-line text-meta leading-tight text-muted">{whence(item)}</span>}

@@ -27,7 +27,6 @@ import { personHitAt } from "@/lib/town/person-hit";
 import { bangkokMinute, daylight, daylightAt, overcast, sunOf } from "@/lib/town/daylight";
 import { SHAPES as CLOUD_SHAPES, cloudBlobs, cloudsAt } from "@/lib/town/clouds";
 import { SKINS, decodeLook, defaultLook, hairsFor, readLook, skinsOf, type Look } from "@/lib/town/look";
-import { toast } from "@/components/ui/Toast";
 import { BUILDING, POLL, etaShort } from "@/lib/town/board";
 import { alongRoute, outingsNow, presence, type Activity, type Outing } from "@/lib/town/popotos";
 import { BIRDS, BUTTERFLIES, birdAt, butterflyAt, petsOf, rompsNow } from "@/lib/town/critters";
@@ -4393,7 +4392,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const myLook = s ? (decodeLook(s.self.info.look) ?? defaultLook(me.id)) : defaultLook(me.id);
   // Everybody is the one model now (lib/town/look's ONE_MODEL): whoever chose another race is told once that their
   // hairstyle and skin were chosen for them, to choose their own in the wardrobe (the owner, 2026-10-17)
-  const wasRace = s ? readLook(s.self.info.look)?.race ?? 0 : 0;
+  // (the race this device's saved look was of, read as it is kept and once: the session reads it as the one model
+  // already, lib/town/look's decodeLook, and saves it so as soon as anything is changed)
+  const [wasRace] = useState(() => { try { return readLook(localStorage.getItem(`cashTown:look:${me.id}`))?.race ?? 0; } catch { return 0; } });
   // (dev only) the TEST panel's "every wearable thing had, here"
   const [wearAll, setWearAll] = useState(false);
   useEffect(() => {
@@ -4404,21 +4405,40 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   }, []);
   // what is bought or found (v276: the keeper's `dressed`), or everything with the TEST switch; asked again when I wear
   // one from the bag and whenever my lines change (a drop comes as a line's points are counted, v277), and a thing
-  // newly dropped is told once (one worn from the bag is told by the bag)
+  // newly dropped is marked as new until the wardrobe is opened (the owner: "ตอนปลดล็อค (โชคดี ดรอป จะมีอะไรแจ้งเตือน
+  // ผู้เล่นไหม)"; the town shows no passing notices over the game: components/town/TownFoot's "toast")
   const [dressed, setDressed] = useState<string[] | null>(null);
   useEffect(() => {
     if (!keeper) return;
     let on = true;
-    const ask = () => { void keeper.dressed().then((d) => { if (on) setDressed((was) => {
-      const fresh = was ? d.filter((x) => !was.includes(x)) : [];
-      for (const id of fresh) { const thing = [FACE_WEAR, NECK_WEAR, HAIR_WEAR, HATS, OUTFITS].flatMap((l) => l).find((w) => w.id === id);
-        if (thing?.from && "drop" in thing.from) toast({ text: w.th ? `ได้ ${thing.th}! อยู่ในตู้แต่งตัวแล้ว` : `You found a ${thing.en.toLowerCase()}! It is in your wardrobe.` }); }
-      return d;
-    }); }); };
+    const ask = () => { void keeper.dressed().then((d) => { if (on) setDressed((prev) => (JSON.stringify(prev) === JSON.stringify(d) ? prev : d)); }); };
     ask();
     window.addEventListener("cashtown:dressed", ask);
     return () => { on = false; window.removeEventListener("cashtown:dressed", ask); };
-  }, [keeper, linesTold, w.th]);
+  }, [keeper, linesTold]);
+  // What dropped that I have not seen in the wardrobe yet (kept per member in this browser), and what was new when I
+  // opened it (marked on the cards while it is open); the one model told once, on the wardrobe's own page
+  const seenKey = `cashTown:wearSeen.${me.id}`;
+  const [wearSeen, setWearSeen] = useState<string[] | null>(null);
+  useEffect(() => { try { const v = JSON.parse(localStorage.getItem(seenKey) ?? "[]"); setWearSeen(Array.isArray(v) ? v.filter((x) => typeof x === "string") : []); } catch { setWearSeen([]); } }, [seenKey]);
+  const wearFresh = useMemo(() => !dressed || !wearSeen ? [] : dressed.filter((id) => !wearSeen.includes(id)
+    && [OUTFITS, HATS, FACE_WEAR, NECK_WEAR, HAIR_WEAR].some((l) => l.some((x) => x.id === id && !!x.from && "drop" in x.from))), [dressed, wearSeen]);
+  const [freshShown, setFreshShown] = useState<ReadonlySet<string>>(new Set());
+  const [oneModelNew, setOneModelNew] = useState(false);
+  useEffect(() => { if (!wasRace) return; try { if (!localStorage.getItem("cashTown:oneModel")) setOneModelNew(true); } catch { /* told nowhere: a private window */ } }, [wasRace]);
+  const [oneModelShown, setOneModelShown] = useState(false);
+  useEffect(() => {
+    if (!wardrobeOpen) { setFreshShown(new Set()); setOneModelShown(false); return; }
+    if (wearFresh.length) {
+      setFreshShown(new Set(wearFresh));
+      const seen = [...(wearSeen ?? []), ...wearFresh];
+      setWearSeen(seen);
+      try { localStorage.setItem(seenKey, JSON.stringify(seen)); } catch { /* a private window: new again next time */ }
+    }
+    if (oneModelNew) { setOneModelShown(true); setOneModelNew(false); try { localStorage.setItem("cashTown:oneModel", "1"); } catch { /* as above */ } }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- marked once, as the wardrobe opens
+  }, [wardrobeOpen]);
+  const wardrobeNew = wearFresh.length > 0 || oneModelNew;
   const wearHad = useMemo(() => new Set<string>(wearAll ? [OUTFITS, HATS, FACE_WEAR, NECK_WEAR, HAIR_WEAR].flatMap((l) => l.map((x) => x.id)) : dressed ?? []), [wearAll, dressed]);
   const wearPoints = wearAll ? Object.fromEntries(Object.keys(linesTold?.lines ?? {}).concat(["farming", "fishing", "kitchen", "forest", "mining", "felling", "insects", "well", "helpers"]).map((id) => [id, 1e9]))
     : Object.fromEntries(Object.entries(linesTold?.lines ?? {}).map(([id, l]) => [id, l.points]));
@@ -4430,11 +4450,6 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const had = onlyOwned(myLook, points, new Set(dressed));
     if (had !== myLook) s.setLook(had);
   }, [s, linesTold, myLook, testTopic, wearAll, dressed]);
-  useEffect(() => {
-    if (!wasRace) return;
-    try { if (localStorage.getItem("cashTown:oneModel")) return; localStorage.setItem("cashTown:oneModel", "1"); } catch { return; }
-    toast({ text: w.th ? "ตัวละครของคุณเปลี่ยนเป็นโมเดลใหม่แล้ว เลือกทรงผมและสีผิวของคุณเองได้ที่ตู้เสื้อผ้า" : "Everybody is one model now: choose your own hairstyle and skin in the wardrobe" });
-  }, [wasRace, w.th]);
 
   // The card's person, if they are still here.
   const cardWho = card && s ? (card.id === me.id ? s.self : s.avatars.get(card.id) ?? null) : null;
@@ -5069,7 +5084,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                     <button type="button" onClick={() => { setMenuOpen(false); if (wardrobeOpen) closeWardrobe(); else openWardrobe(); }}
                             aria-expanded={wardrobeOpen} title={w.wardrobe} aria-keyshortcuts="V" data-town-wardrobe-button
                             className={`${hudBtn} town-hud-labelled`}>
-                      <TownIcon name="wardrobe" size={20} /><span aria-hidden className="town-hud-label">{w.th ? "แต่งตัว" : "Wardrobe"}</span><span className="sr-only">{w.wardrobe}</span>
+                      <TownIcon name="wardrobe" size={20} /><span aria-hidden className="town-hud-label">{w.th ? "แต่งตัว" : "Wardrobe"}</span><span className="sr-only">{w.wardrobe}{wardrobeNew ? (w.th ? " (มีของใหม่)" : " (something new)") : ""}</span>
+                      {/* (something new to wear: a lucky drop not seen yet, or the one model, as the lines' button tells a gift) */}
+                      {wardrobeNew && <span aria-hidden data-wardrobe-new className="tk-dot" />}
                       {!phone && <kbd aria-hidden className="tk-key town-hud-key absolute -top-1 -left-1">V</kbd>}
                     </button>
                   )}
@@ -5110,7 +5127,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
              style={phone ? { bottom: tabbar ? "calc(4.5rem + env(safe-area-inset-bottom))" : 0 } : { bottom: "0.75rem" }}
              data-state="open">
           <Wardrobe look={myLook} th={w.th} kit={kits.current.get(0) ?? null}
-                    points={wearPoints} had={wearHad}
+                    points={wearPoints} had={wearHad} fresh={freshShown}
+                    note={oneModelShown ? (w.th ? "ตัวละครของคุณเปลี่ยนเป็นโมเดลใหม่แล้ว เลือกทรงผมและสีผิวของคุณเองได้ที่นี่" : "Everybody is one model now: choose your own hairstyle and skin here") : null}
                     onChange={(l) => s.setLook(l)}
                     onTurn={(d) => { turn.current += d; }}
                     onClose={closeWardrobe} />

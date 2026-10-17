@@ -5,7 +5,8 @@
 //     to the thing; the pot's owner has the waiter's drop, not the one who ladled; and the points are the same whether
 //     anything drops or not;
 //   * at the real chances: about 2 in 100 lamps light the lamplighter's coat;
-//   * everybody who laid or handed a stone before v277 has the builder's outfit and medal, nobody else;
+//   * everybody who laid or handed a stone before v277 has the builder's outfit and medal, nobody else; a stone laid
+//     after drops nothing (the builder's two come from helping somebody else's work now);
 //   * as a member: a tiny tiara made at the workbench and a monocle bought from the uncle, each worn into the wardrobe;
 //   * "what it should say afterwards"; the wardrobe still closed to a browser; no bare write.
 //   cd <the tree> && node .claude/skills/fc-cash-town/scripts/db/v277.test.mjs
@@ -73,6 +74,8 @@ try {
     { what: "crystal", doc: { floor: 1 } }, { what: "vein", n: 1, doc: { floor: 1 } },
     { what: "fell", thing: "teak" }, { what: "fell", thing: "pine" },
     { what: "bell", n: 2 }, { what: "carry", n: 5 },
+    // (the builder's two: helping somebody else's work; a braced tree is the bracer's, cook here)
+    { what: "hew", doc: { whose: cook } }, { what: "bellows", doc: { whose: cook } }, { what: "fell", thing: "pine", doc: { braced: cook } },
     { what: "ladle", doc: { whose: cook } },
   ];
   const H = { 4: "before dawn", 6: "early morning", 12: "midday", 20: "evening", 0: "late night" };
@@ -88,7 +91,7 @@ try {
       const done = { from: deed.from ?? "deed", won: deed.won, what: deed.what, thing: deed.thing ?? null, n: deed.n ?? 1, doc: deed.doc ?? {} };
       await db.exec("delete from public.town_dressed where true");
       await db.query("select town.work_counted($1, $2::jsonb, $3)", [me, JSON.stringify(done), at]);
-      const got = (await db.query("select member_id, wearable from public.town_dressed order by 1, 2")).rows.map((r) => `${r.member_id === me ? "me" : r.member_id === cook ? "cook" : r.member_id}:${r.wearable}`);
+      const got = (await db.query("select member_id, wearable from public.town_dressed order by 1, 2")).rows.map((r) => `${r.member_id === me ? "me" : r.member_id === cook ? "cook" : r.member_id}:${r.wearable}`).sort();
       const counts = await v("select town.work_counts_of($1::jsonb, $2) v", [JSON.stringify(done), me]);
       const want = counts.flatMap((c) => W.dropsFor(done, { line: c.line, raw: Number(c.raw) }, Number(h), rain, () => 0, { wear_flower_in_ten_thousand: 10000 })
         .map((w) => `${(c.to ?? me) === me ? "me" : c.to === cook ? "cook" : c.to}:${w}`));
