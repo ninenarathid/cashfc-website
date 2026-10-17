@@ -37,17 +37,29 @@ interface AdminState {
    * like the rest of this: the town's room checks for itself.
    */
   canEnterTown: boolean;
+  /**
+   * Whether the staff page is open to this member: staff (v279), or an admin with their powers on. Staff is an
+   * ordinary member everywhere else, so nothing but that page and its link asks this. A view like the rest:
+   * the contacts on the page are the database's to hand over or not.
+   */
+  canSeeStaff: boolean;
   ready: boolean;
 }
 
 const KEY = "cashfc_admin_mode";
 const AdminCtx = createContext<AdminState>({
-  realAdmin: false, on: true, setOn: () => {}, isAdmin: false, canEnterTown: false, ready: false,
+  realAdmin: false, on: true, setOn: () => {}, isAdmin: false, canEnterTown: false, canSeeStaff: false,
+  ready: false,
 });
+
+type ProfileFlags = {
+  is_admin?: boolean; is_staff?: boolean; character_id?: number | null; character_verified_at?: string | null;
+};
 
 export function AdminProvider({ children }: { children: React.ReactNode }) {
   const [realAdmin, setRealAdmin] = useState(false);
   const [verified, setVerified] = useState(false);
+  const [staff, setStaff] = useState(false);
   const [on, setOnState] = useState(true);
   const [ready, setReady] = useState(false);
 
@@ -63,11 +75,15 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     const supabase = createClient();
     if (!supabase) { setReady(true); return; }
     const resolve = async (userId: string | undefined) => {
-      if (!userId) { setRealAdmin(false); setVerified(false); setReady(true); return; }
-      const { data } = await supabase.from("profiles")
-        .select("is_admin, character_id, character_verified_at").eq("id", userId).maybeSingle();
-      const p = data as { is_admin?: boolean; character_id?: number | null; character_verified_at?: string | null } | null;
+      if (!userId) { setRealAdmin(false); setVerified(false); setStaff(false); setReady(true); return; }
+      const base = "is_admin, character_id, character_verified_at";
+      let { data, error } = await supabase.from("profiles")
+        .select(`${base}, is_staff`).eq("id", userId).maybeSingle();
+      // A database without v279 has no is_staff, and the whole row would be lost with it, the admin's included.
+      if (error) ({ data } = await supabase.from("profiles").select(base).eq("id", userId).maybeSingle());
+      const p = data as ProfileFlags | null;
       setRealAdmin(!!p?.is_admin);
+      setStaff(!!p?.is_staff);
       setVerified(!!p?.character_id && !!p?.character_verified_at);
       setReady(true);
     };
@@ -84,7 +100,10 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AdminCtx.Provider
-      value={{ realAdmin, on, setOn, isAdmin: realAdmin && on, canEnterTown: realAdmin || verified, ready }}>
+      value={{
+        realAdmin, on, setOn, isAdmin: realAdmin && on, canEnterTown: realAdmin || verified,
+        canSeeStaff: staff || (realAdmin && on), ready,
+      }}>
       {children}
     </AdminCtx.Provider>
   );

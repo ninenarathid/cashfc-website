@@ -34,7 +34,7 @@ export default function AuthButton() {
   // The character, not the account: the same name and face the rest of the site
   // uses for this member. The account's own details only stand in for a guest.
   const me = useMyFace();
-  const { isAdmin } = useAdmin();
+  const { isAdmin, canSeeStaff } = useAdmin();
   // What is waiting on the admin page, which deliberately no longer rings the
   // bell. See lib/notifications.
   const waiting = useAdminUnread(isAdmin);
@@ -159,6 +159,14 @@ export default function AuthButton() {
             <Menu.Item asChild>
               <Link href="/admin/aqua" className={`${item} text-gold hover:text-gold`}>
                 {t("nav.aqua")}
+              </Link>
+            </Menu.Item>
+          )}
+          {/* The staff's one door (v279), and the admins' way to see what it shows. */}
+          {canSeeStaff && (
+            <Menu.Item asChild>
+              <Link href="/staff" className={`${item} text-accent hover:text-accent`}>
+                {t("nav.staff")}
               </Link>
             </Menu.Item>
           )}

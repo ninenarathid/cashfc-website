@@ -10,8 +10,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  *
  * Who reads which is the database's to decide and it does: the Discord goes to
  * signed-in members of the FC and to admins, the Facebook to admins alone, and
- * the function below is simply not sent what the asker may not see. Nothing
- * here should be mistaken for the rule.
+ * the function below is simply not sent what the asker may not see. The staff
+ * (v279) read the whole table on their own page, as admins do. Nothing here
+ * should be mistaken for the rule.
  */
 export interface Contact {
   discord: string | null;
@@ -97,7 +98,7 @@ export async function saveContact(
   return error ? error.message : null;
 }
 
-/** Every one on file, for the admin page. `missing` when the table is not there to ask. */
+/** Every one on file, for Aqua's page and the staff page. `missing` when the table is not there to ask. */
 export async function allContacts(supabase: Client): Promise<{ rows: ContactRow[]; missing: boolean }> {
   const { data, error } = await supabase.from("member_contacts")
     .select("character_id, discord, facebook");
