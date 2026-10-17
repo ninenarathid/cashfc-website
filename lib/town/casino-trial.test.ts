@@ -1,5 +1,5 @@
 import {describe,it,expect} from 'vitest';
-import {CASINO_TESTERS,casinoTrialLeader,newCasinoTrial,trialCommand,trialState} from './casino-trial';
+import {CASINO_TESTERS,casinoTrialLeader,newCasinoTrial,trialCommand,trialSetup,trialState} from './casino-trial';
 import {casinoPath,casinoWalkable,CASINO_MACHINE_X,CASINO_SPAWN} from './casino-map';
 import {draftOf} from '@/lib/casino';
 const [nine,aqua]=CASINO_TESTERS;
@@ -46,6 +46,16 @@ describe('volatile casino room',()=>{
   for(let i=0;i<3;i++)t=trialCommand(t,nine,'casino_lab_spin',{...spinArgs(null),p_revision:2},10000+i*4000,()=>.5).trial;
   expect(t.receipts).toHaveLength(2);expect(t.settings.pool_draws).toBe(3);
   expect(()=>trialCommand(t,nine,'casino_lab_spin',{...spinArgs(null),p_revision:2},24000)).toThrow();
+ });
+ it('starts a new room from the last saved setup, with nothing issued, and drops a damaged one',()=>{
+  let t=newCasinoTrial(10000);const doc=draftOf(trialState(t,nine));doc.price=250;doc.prizes[3]={...doc.prizes[3],name:'500,000 Gil',amount:500000};
+  t=trialCommand(t,nine,'casino_lab_save',{p_revision:1,p_doc:doc},10000).trial;
+  t=trialCommand(t,nine,'casino_lab_spin',{...spinArgs('popoto'),p_revision:2},10000).trial;
+  const kept=JSON.parse(JSON.stringify(trialSetup(t))),next=newCasinoTrial(20000,kept);
+  expect(next.settings.price).toBe(250);expect(next.prizes[3]).toMatchObject({name:'500,000 Gil',amount:500000,issued:0});
+  expect(next.settings.reserved).toBe(0);expect(next.receipts).toEqual([]);
+  expect(newCasinoTrial(20000,{...kept,prizes:kept.prizes.slice(1)}).prizes[3].amount).toBe(250000);
+  expect(newCasinoTrial(20000,'junk').settings.price).toBe(100);
  });
  it('never animates a miss as four matching winning symbols',()=>{
   const r=trialCommand(newCasinoTrial(10000),nine,'casino_lab_spin',spinArgs('miss'),10000,()=>0).trial.spins[0];

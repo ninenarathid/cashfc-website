@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { draftOf, draftProblem, effectiveChance, reelAt, spinRevealed, type CasinoState, type CasinoSpin } from './casino';
+import { draftOf, draftProblem, effectiveChance, prizeWithAmount, reelAt, spinRevealed, type CasinoState, type CasinoSpin } from './casino';
 const fixture = (): CasinoState => ({ user_id: 'tester', settings: { id: 1, revision: 1, title: 'Halloween', open: true, mode: 'weighted', price: 100, per_player: 100, budget: 100000000, reserved: 0, spins: 0, pool_size: 1800, pool_draws: 0, starts_at: null, ends_at: null, updated_at: '', updated_by: null }, prizes: [{ id: 'gold', name: 'Gil', kind: 'gil', amount: 1000000, chance: .4, stock: 20, issued: 0, announce: false, active: true }], account: { coins: 20000, spins: 0 }, spins: [], receipts: [], queue: [], server_now: '', paid_gil: 0 });
 describe('Casino presentation and settings', () => {
   it('shows depleted or unaffordable prizes as zero without redistributing odds', () => {
@@ -16,6 +16,14 @@ describe('Casino presentation and settings', () => {
     const s = fixture(), d = draftOf(s); d.mode = 'pool'; d.budget = 1000000;
     expect(draftProblem(d, s.settings)).toContain('งบไม่พอ');
     s.settings.reserved = 2000000; expect(draftProblem(d, s.settings)).toContain('งบที่จอง');
+  });
+  it('renames a prize named by its amount, and leaves any other name alone', () => {
+    const p = { name: '250,000 Gil', kind: 'gil' as const, amount: 250000 };
+    expect(prizeWithAmount(p, 500000)).toEqual({ name: '500,000 Gil', kind: 'gil', amount: 500000 });
+    expect(prizeWithAmount({ ...p, amount: 300000 }, 400000).name).toBe('400,000 Gil');
+    expect(prizeWithAmount(p, 1000, 'coin').name).toBe('1,000 Coin');
+    expect(prizeWithAmount(p, 0, 'physical').name).toBe('250,000 Gil');
+    expect(prizeWithAmount({ ...p, name: 'Gil ก้อนใหญ่' }, 500000).name).toBe('Gil ก้อนใหญ่');
   });
   it('stops reels in sequence and keeps reduced motion from revealing a win early', () => {
     const s = { created_at: new Date(1000).toISOString(), reveal_at: new Date(4600).toISOString(), reels: ['seven', 'seven', 'seven', 'seven'] } as CasinoSpin;

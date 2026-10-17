@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { CLAIM_LABEL, draftOf, draftProblem, effectiveChance, money, type CasinoDraft, type CasinoReceipt } from '@/lib/casino';
+import { CLAIM_LABEL, draftOf, draftProblem, effectiveChance, money, prizeWithAmount, type CasinoDraft, type CasinoReceipt } from '@/lib/casino';
 import { useCasino } from './useCasino';
 import './casino.css';
 
@@ -52,7 +52,7 @@ export default function CasinoDesk() {
   const activeQueue = state.queue;
   return <main id="casino"><div className="casino-links"><Link href="/admin/aqua">กลับ Aqua</Link><Link href={live?"/town?map=casino":"/town?map=casino-test"}>เข้าห้อง Casino {live?"LIVE":"TEST"} ↗</Link><Link href={live?"/admin/aqua/casino":"/admin/aqua/casino-live"}>ตั้งค่า {live?"TEST":"LIVE"} ↗</Link></div>
     <section className="casino-desk"><h2><span className="casino-test">{live?"LIVE":"TEST"}</span>Casino · โต๊ะ Aqua</h2>
-      <p>{live?"ค่าชุดนี้ใช้เงินจริงของ Cash Town และบันทึกรางวัลถาวร เปิดรับการหมุนเมื่อพร้อมเปิดตัว การเปลี่ยนค่ามีผลกับรอบใหม่ทันที":"ค่าชุดนี้ใช้กับห้องทดลอง Nine และ Aqua เท่านั้น ข้อมูลอยู่ในห้อง Realtime และไม่เขียนฐานข้อมูล เมื่อทุกหน้าของห้องถูกปิด ข้อมูลทดลองจะเริ่มใหม่"}</p>
+      <p>{live?"ค่าชุดนี้ใช้เงินจริงของ Cash Town และบันทึกรางวัลถาวร เปิดรับการหมุนเมื่อพร้อมเปิดตัว การเปลี่ยนค่ามีผลกับรอบใหม่ทันที":"ค่าชุดนี้ใช้กับห้องทดลอง Nine และ Aqua เท่านั้น ข้อมูลอยู่ในห้อง Realtime และไม่เขียนฐานข้อมูล ค่าที่บันทึกจำไว้ในเบราว์เซอร์นี้ เมื่อทุกหน้าของห้องถูกปิด Coin การหมุน และรางวัลทดลองจะเริ่มใหม่"}</p>
       <p>{connected ? 'อัปเดตสด' : 'กำลังเชื่อมต่ออัปเดตสด'} · รุ่น {settings.revision} · หมุนแล้ว {money(settings.spins)} ครั้ง</p>
       {error && <p role="alert" className="casino-error">{error}</p>}
       {message && <p role="status">{message}</p>}
@@ -74,8 +74,8 @@ export default function CasinoDesk() {
           const issued = state.prizes.find(q => q.id === p.id)?.issued ?? p.issued;
           return <tr key={p.id}><td><input aria-label={`เปิด ${p.id}`} type="checkbox" checked={p.active} onChange={e => change({ active: e.target.checked })} /></td>
             <td><label><span>{p.id}</span><input aria-label={`ชื่อ ${p.id}`} value={p.name} maxLength={100} onChange={e => change({ name: e.target.value })} /></label></td>
-            <td><select aria-label={`ประเภท ${p.id}`} value={p.kind} onChange={e => change({ kind: e.target.value as typeof p.kind })}><option value="physical">ของนอกเกม</option><option value="gil">FFXIV Gil</option><option value="coin">Coin ในเกม</option></select></td>
-            <td><input aria-label={`มูลค่า ${p.id}`} type="number" min={p.kind === 'physical' ? 0 : 1} max={1e9} value={p.amount} onChange={e => change({ amount: Number(e.target.value) })} /></td>
+            <td><select aria-label={`ประเภท ${p.id}`} value={p.kind} onChange={e => change(prizeWithAmount(p, p.amount, e.target.value as typeof p.kind))}><option value="physical">ของนอกเกม</option><option value="gil">FFXIV Gil</option><option value="coin">Coin ในเกม</option></select></td>
+            <td><input aria-label={`มูลค่า ${p.id}`} type="number" min={p.kind === 'physical' ? 0 : 1} max={1e9} value={p.amount} onChange={e => change(prizeWithAmount(p, Number(e.target.value)))} /></td>
             <td><input aria-label={`โอกาส ${p.id}`} type="number" min={0} max={100} step="0.000001" disabled={draft.mode === 'pool'} value={p.chance} onChange={e => change({ chance: Number(e.target.value) })} /></td>
             <td><input aria-label={`สต็อก ${p.id}`} type="number" min={issued} max={1e6} value={p.stock} onChange={e => change({ stock: Number(e.target.value) })} /></td><td>{money(issued)}</td>
             <td><label className="casino-check"><input type="checkbox" checked={p.announce} onChange={e => change({ announce: e.target.checked })} />ประกาศ</label></td></tr>;

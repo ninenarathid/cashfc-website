@@ -4,8 +4,9 @@ export const CASINO_TESTERS = ['9c0e6904-df00-452d-b005-dac3fa6cd1d7', '6805ef04
 export function casinoTrialLeader(members:Iterable<string>,ready:Iterable<string>,hosts:Iterable<string>=[]){const present=[...members],established=[...hosts].filter(h=>present.includes(h));if(established.length)return established.sort()[0];const candidates=[...ready];return (candidates.length?candidates:present).sort()[0];}
 type Account = { coins: number; spins: number; available: number };
 export type CasinoTrial = { epoch: string; version: number; settings: CasinoState['settings']; prizes: CasinoState['prizes']; accounts: Record<string, Account>; spins: CasinoSpin[]; receipts: CasinoReceipt[]; audit: Array<{at:number;user:string;action:string}> };
-export function newCasinoTrial(now = Date.now()): CasinoTrial {
-  return { epoch: crypto.randomUUID(), version: 0,
+/** A new room starts from the last saved setup it is given (prizes unissued); a stale or damaged one is dropped for the built-in prizes. */
+export function newCasinoTrial(now = Date.now(), setup?: unknown): CasinoTrial {
+  const t: CasinoTrial = { epoch: crypto.randomUUID(), version: 0,
     settings: { id:1,revision:1,title:'Halloween rehearsal',open:true,mode:'weighted',price:100,per_player:100,budget:100000000,reserved:0,spins:0,pool_size:1800,pool_draws:0,starts_at:null,ends_at:null,updated_at:new Date(now).toISOString(),updated_by:null },
     prizes: [
       {id:'seven',name:'ทองคำ 96.5% 0.1 กรัม',kind:'physical',amount:0,chance:.02,stock:1,issued:0,announce:true,active:true},
@@ -13,6 +14,26 @@ export function newCasinoTrial(now = Date.now()): CasinoTrial {
       {id:'gold',name:'1,000,000 Gil',kind:'gil',amount:1000000,chance:.4,stock:20,issued:0,announce:false,active:true},
       {id:'popoto',name:'250,000 Gil',kind:'gil',amount:250000,chance:6.4,stock:320,issued:0,announce:false,active:true},
     ], accounts:{},spins:[],receipts:[],audit:[] };
+  if (setup) try {
+    const d=checkedDraft(t,setup);
+    for(const k of SETUP_KEYS)(t.settings as Record<string,unknown>)[k]=d[k];
+    t.prizes=t.prizes.map(old=>{const p=d.prizes.find(x=>x.id===old.id)!;return {id:old.id,name:p.name,kind:p.kind,amount:p.amount,chance:p.chance,stock:p.stock,issued:0,announce:p.announce,active:p.active};});
+  } catch { /* the built-in prizes */ }
+  return t;
+}
+const SETUP_KEYS = ['title','open','mode','price','per_player','budget','pool_size','starts_at','ends_at'] as const;
+/** What a browser keeps of a room: its settings and prizes, not its coins, spins or receipts. */
+export function trialSetup(t: CasinoTrial): CasinoDraft {
+  const d=Object.fromEntries(SETUP_KEYS.map(k=>[k,t.settings[k]])) as Omit<CasinoDraft,'prizes'>;
+  return {...d,prizes:t.prizes.map(p=>({...p,issued:0}))};
+}
+function checkedDraft(t: CasinoTrial, doc: unknown): CasinoDraft {
+  const s=t.settings, d=structuredClone(doc) as CasinoDraft;
+  if(!d || !['pool','weighted'].includes(d.mode) || typeof d.open!=='boolean'||!Array.isArray(d.prizes)||d.prizes.length!==4||new Set(d.prizes.map(p=>p.id)).size!==4)throw Error('ตั้งค่าไม่ครบ');
+  for(const p of d.prizes){const current=t.prizes.find(x=>x.id===p.id);if(!current||!['gil','coin','physical'].includes(p.kind)||typeof p.active!=='boolean'||typeof p.announce!=='boolean')throw Error('รางวัลไม่ถูกต้อง');p.issued=current.issued;p.chance=Math.round(Number(p.chance)*1e6)/1e6;}
+  const issue=draftProblem(d,s);if(issue)throw Error(issue);
+  if([d.starts_at,d.ends_at].some(v=>v!==null&&!Number.isFinite(Date.parse(v))))throw Error('เวลาไม่ถูกต้อง');
+  return d;
 }
 export function trialState(t: CasinoTrial, user: string, page=0, history=false, now=Date.now()): CasinoState {
   if (!CASINO_TESTERS.includes(user as typeof CASINO_TESTERS[number])) throw Error('ไม่มีสิทธิ์เข้าห้องทดลอง');
@@ -57,12 +78,7 @@ export function trialCommand(original: CasinoTrial,user:string,name:string,args:
     data=spin;
   }else if(name==='casino_lab_save'){
     if(Number(args.p_revision)!==s.revision)throw Error('อีกบัญชีเปลี่ยนค่าแล้ว โหลดค่าปัจจุบันก่อนบันทึก');
-    const d=structuredClone(args.p_doc) as CasinoDraft;
-    if(!d || !['pool','weighted'].includes(d.mode) || typeof d.open!=='boolean'||!Array.isArray(d.prizes)||d.prizes.length!==4||new Set(d.prizes.map(p=>p.id)).size!==4)throw Error('ตั้งค่าไม่ครบ');
-    for(const p of d.prizes){const current=t.prizes.find(x=>x.id===p.id);if(!current||!['gil','coin','physical'].includes(p.kind)||typeof p.active!=='boolean'||typeof p.announce!=='boolean')throw Error('รางวัลไม่ถูกต้อง');p.issued=current.issued;p.chance=Math.round(Number(p.chance)*1e6)/1e6;}
-    const issue=draftProblem(d,s);if(issue)throw Error(issue);
-    if([d.starts_at,d.ends_at].some(v=>v!==null&&!Number.isFinite(Date.parse(v))))throw Error('เวลาไม่ถูกต้อง');
-    const {prizes,...values}=d;Object.assign(s,values,{revision:s.revision+1,updated_at:new Date(now).toISOString(),updated_by:user});t.prizes=prizes;data=trialState(t,user,0,false,now);
+    const {prizes,...values}=checkedDraft(t,args.p_doc);Object.assign(s,values,{revision:s.revision+1,updated_at:new Date(now).toISOString(),updated_by:user});t.prizes=prizes;data=trialState(t,user,0,false,now);
   }else if(name==='casino_lab_credit'){
     if(a.available>now)throw Error('รอให้รอบปัจจุบันจบก่อน');
     a.coins=args.p_reset?20000:Math.min(a.coins+20000,1e12);if(args.p_reset)a.spins=0;data=trialState(t,user,0,false,now);

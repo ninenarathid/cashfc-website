@@ -3,7 +3,7 @@
 Entry routes: `/town?map=casino-test` (Nine and Aqua only), `/town?map=casino` (LIVE).
 Admin desks: `/admin/aqua/casino` (TEST), `/admin/aqua/casino-live` (LIVE).
 
-TEST shares a volatile ledger through the private `casino-lab` Realtime room. Authentication and profile checks read Supabase; gameplay, settings, credits, spins and receipts never call database mutation RPCs. Keep at least one TEST tab open to retain the rehearsal. Closing every tab starts a new room with 20,000 test coins per tester. TEST announcements are confined to the room.
+TEST shares a volatile ledger through the private `casino-lab` Realtime room. Authentication and profile checks read Supabase; gameplay, settings, credits, spins and receipts never call database mutation RPCs. Keep at least one TEST tab open to retain the rehearsal. Closing every tab starts a new room with 20,000 test coins per tester, from the last saved settings and prizes that browser saw (`casino-test-setup` in local storage; prizes unissued). TEST announcements are confined to the room.
 
 LIVE uses server-authoritative commands and the existing Cash Town purse locking contract. The five machines share one short database lock for stock, budget, settings revision and idempotent requests. Prize snapshots retain the configured announcement flag even if settings later change. External items and FFXIV Gil create unique Event bag receipts; fulfilled/cancelled receipts stay in history. Coins pay directly into the town purse. LIVE never accepts forced results or grants test credits.
 

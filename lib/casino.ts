@@ -68,4 +68,9 @@ export function reelAt(spin: CasinoSpin, reel: number, now: number, reduced = fa
 }
 export function spinRevealed(spin: CasinoSpin, now: number) { return now >= Date.parse(spin.reveal_at); }
 export const money = (n: number) => n.toLocaleString('en-US');
+/** A Gil or Coin prize named by its amount alone ("250,000 Gil") is renamed with it; any other name is the admin's own. */
+export function prizeWithAmount<P extends Pick<CasinoPrize, 'name' | 'kind' | 'amount'>>(p: P, amount: number, kind: CasinoPrize['kind'] = p.kind): P {
+  const label = kind === 'gil' ? `${money(amount)} Gil` : kind === 'coin' ? `${money(amount)} Coin` : null;
+  return { ...p, kind, amount, name: label && Number.isSafeInteger(amount) && /^\s*[\d,]+\s*(gil|coin)\s*$/i.test(p.name) ? label : p.name };
+}
 export const CLAIM_LABEL = { pending: 'รอรับ', processing: 'กำลังส่งมอบ', fulfilled: 'ส่งมอบแล้ว', cancelled: 'ยกเลิก' };

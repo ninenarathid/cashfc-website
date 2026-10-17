@@ -2,11 +2,14 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
 import { createClient } from '@/lib/supabase/client';
-import { CASINO_TESTERS, casinoTrialLeader, newCasinoTrial, trialCommand, trialState, type CasinoTrial } from '@/lib/town/casino-trial';
+import { CASINO_TESTERS, casinoTrialLeader, newCasinoTrial, trialCommand, trialSetup, trialState, type CasinoTrial } from '@/lib/town/casino-trial';
 import {casinoTestFrom} from '@/lib/town/casino-test-access';
 type Reply = {data: unknown; error: {code:string;message:string}|null};
 type Handler = {type:string;event:string;run:(payload:unknown)=>void};
 type Peer = {id:string;name:string;look:string;x:number;y:number;seat:number|null};
+/** The last saved TEST settings this browser saw, so a room started afresh keeps them. */
+const SETUP_KEY = 'casino-test-setup';
+const rememberedSetup = (): unknown => { try { return JSON.parse(localStorage.getItem(SETUP_KEY) ?? 'null'); } catch { return null; } };
 const Context = createContext<SupabaseClient | null>(null);
 const Mode = createContext(false);
 export const useCasinoClient = () => useContext(Context);
@@ -47,6 +50,7 @@ class Sandbox {
   private initialized = false;
   private stopped = false;
   private offset = 0;
+  private setup = '';
   private initializeTimer: ReturnType<typeof setTimeout> | undefined;
   private heartbeatTimer: ReturnType<typeof setInterval> | undefined;
   constructor(private real: SupabaseClient, private uid: string) {
@@ -75,7 +79,8 @@ class Sandbox {
     const doc=JSON.stringify({trial:this.data,now:Date.now()}), id=crypto.randomUUID(), count=Math.ceil(doc.length/24000);
     for(let index=0;index<count;index++)await this.send('snapshot',{id,index,count,part:doc.slice(index*24000,(index+1)*24000)});
   }
-  private ready() { const first=!this.initialized;this.initialized=true;if(first||this.trackedHost!==this.host){this.trackedHost=this.host;void this.channel?.track({uid:this.uid,state:true,host:this.host});}for(const sub of this.subscribers)sub.status('SUBSCRIBED');this.emit('postgres_changes','*'); }
+  private remember() { if(!this.data)return;try{const doc=JSON.stringify(trialSetup(this.data));if(doc!==this.setup){localStorage.setItem(SETUP_KEY,doc);this.setup=doc;}}catch{/* storage off: the room still works */} }
+  private ready() { this.remember();const first=!this.initialized;this.initialized=true;if(first||this.trackedHost!==this.host){this.trackedHost=this.host;void this.channel?.track({uid:this.uid,state:true,host:this.host});}for(const sub of this.subscribers)sub.status('SUBSCRIBED');this.emit('postgres_changes','*'); }
   private settleReplies(){for(const [id,w] of this.pending)if(w.reply&&this.data&&this.data.version>=(w.version??0)){clearTimeout(w.timer);this.pending.delete(id);w.resolve(w.reply);}}
   async open() {
     await this.real.realtime.setAuth(); if(this.stopped)return;
@@ -91,7 +96,7 @@ class Sandbox {
       if(this.leader()===this.key){
         if(this.data){this.host=this.key;this.ready();void this.snapshot();}
         else if(!this.initializeTimer)this.initializeTimer=setTimeout(()=>{
-          this.initializeTimer=undefined;if(this.leader()===this.key&&!this.data){this.host=this.key;this.data=newCasinoTrial();this.ready();void this.snapshot();}
+          this.initializeTimer=undefined;if(this.leader()===this.key&&!this.data){this.host=this.key;this.data=newCasinoTrial(Date.now(),rememberedSetup());this.ready();void this.snapshot();}
         },900);
       }else if(oldLeader!==this.leader()||!this.initialized)void this.send('hello',{});
     });
@@ -144,7 +149,7 @@ class Sandbox {
     }
   }
   private apply(uid:string,name:string,args:Record<string,unknown>): Reply {
-    try{const next=trialCommand(this.data!,uid,name,args,Date.now());this.data=next.trial;this.emit('postgres_changes','*');void this.snapshot();return {data:next.data,error:null};}
+    try{const next=trialCommand(this.data!,uid,name,args,Date.now());this.data=next.trial;this.remember();this.emit('postgres_changes','*');void this.snapshot();return {data:next.data,error:null};}
     catch(e){return {data:null,error:{code:'TRIAL',message:e instanceof Error?e.message:String(e)}};}
   }
   private async rpc(name:string,args:Record<string,unknown>): Promise<Reply> {
