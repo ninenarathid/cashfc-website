@@ -3,10 +3,11 @@ import StaffDesk from "@/components/StaffDesk";
 import type { BoardData } from "@/lib/types";
 import { everyone } from "@/lib/people";
 
-export const metadata = { title: "Staff — Cafe And SHabu" };
+export const metadata = { title: "Crew — Cafe And SHabu" };
 
 /**
- * The staff page (v279). A name and a face for everybody with a page, as
+ * The staff page (v279), called the Crew's on the site since 2026-10-17 (the
+ * owner's choice; the database still says is_staff). A name and a face for everybody with a page, as
  * Aqua's list is handed; the contacts themselves come from the database, and
  * only to staff and admins.
  */

@@ -162,10 +162,10 @@ export default function AuthButton() {
               </Link>
             </Menu.Item>
           )}
-          {/* The staff's one door (v279), and the admins' way to see what it shows. */}
+          {/* The Crew's one door (the staff role of v279), and the admins' way in. */}
           {canSeeStaff && (
             <Menu.Item asChild>
-              <Link href="/staff" className={`${item} text-accent hover:text-accent`}>
+              <Link href="/crew" className={`${item} text-accent hover:text-accent`}>
                 {t("nav.staff")}
               </Link>
             </Menu.Item>

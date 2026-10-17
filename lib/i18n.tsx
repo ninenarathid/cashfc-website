@@ -197,7 +197,7 @@ const DICT = {
   "nav.marketWip": { en: "Market (WIP)", th: "ตลาด (WIP)" },
   "nav.market": { en: "Market", th: "ตลาด" },
   "nav.aqua": { en: "Aqua's page", th: "หน้าของ Aqua" },
-  "nav.staff": { en: "Staff page", th: "หน้า Staff" },
+  "nav.staff": { en: "Crew page", th: "หน้า Crew" },
   "nav.party": { en: "Party finder", th: "หาปาร์ตี้" },
   // The hamburger, and the sheet it opens. Only ever seen on a narrow screen.
   "nav.menu": { en: "Menu", th: "เมนู" },
@@ -3649,7 +3649,7 @@ const DICT = {
   "contact.copyFacebook": { en: "Copy the Facebook {name}", th: "คัดลอก Facebook {name}" },
   "contact.openFacebook": { en: "Open {name}'s Facebook", th: "เปิด Facebook ของ {name}" },
   "contact.fcOnly": { en: "FC members see this", th: "สมาชิก FC เห็น" },
-  "contact.adminOnly": { en: "staff and admins", th: "Staff และแอดมิน" },
+  "contact.adminOnly": { en: "the Crew and admins", th: "Crew และแอดมิน" },
   "contact.adminTag": { en: "admins", th: "แอดมิน" },
   "contact.add": { en: "+ Discord / Facebook", th: "+ Discord / Facebook" },
   "contact.edit": { en: "Edit contact", th: "แก้ช่องทางติดต่อ" },
@@ -3661,8 +3661,8 @@ const DICT = {
     th: "สมาชิก FC ที่ยืนยันตัวละครแล้วจะเห็นในหน้าของสมาชิกคนนี้",
   },
   "contact.facebookHint": {
-    en: "Only admins and staff ever see this. A profile link or a name, either is fine.",
-    th: "เห็นเฉพาะแอดมินและ Staff เท่านั้น ใส่ลิงก์โปรไฟล์หรือชื่อก็ได้",
+    en: "Only admins and the Crew ever see this. A profile link or a name, either is fine.",
+    th: "เห็นเฉพาะแอดมินและ Crew เท่านั้น ใส่ลิงก์โปรไฟล์หรือชื่อก็ได้",
   },
   "contact.blankRemoves": { en: "Leave both blank to remove them.", th: "เว้นว่างทั้งสองช่องเพื่อลบออก" },
   "contact.removed": { en: "Removed", th: "ลบออกแล้ว" },
@@ -3670,8 +3670,8 @@ const DICT = {
   "contact.listTitle": { en: "Members' Discord and Facebook", th: "Discord / Facebook ของสมาชิก" },
   "contact.listCount": { en: "{n} of {all} on file", th: "ใส่แล้ว {n} จาก {all} คน" },
   "contact.listHint": {
-    en: "A Discord name and a Facebook for each member, typed in by hand. FC members with a verified character see the Discord on that member's page. The Facebook is for admins and staff only.",
-    th: "Discord กับ Facebook ของสมาชิกแต่ละคน กรอกเองทีละคนนะ Discord จะขึ้นในหน้าของสมาชิกคนนั้น ให้คนใน FC ที่ยืนยันตัวละครแล้วเห็น ส่วน Facebook เห็นเฉพาะแอดมินและ Staff",
+    en: "A Discord name and a Facebook for each member, typed in by hand. FC members with a verified character see the Discord on that member's page. The Facebook is for admins and the Crew only.",
+    th: "Discord กับ Facebook ของสมาชิกแต่ละคน กรอกเองทีละคนนะ Discord จะขึ้นในหน้าของสมาชิกคนนั้น ให้คนใน FC ที่ยืนยันตัวละครแล้วเห็น ส่วน Facebook เห็นเฉพาะแอดมินและ Crew",
   },
   "contact.search": { en: "Search a name, a Discord or a Facebook…", th: "ค้นหาชื่อ, Discord หรือ Facebook…" },
   "contact.all": { en: "Everyone ({n})", th: "ทุกคน ({n})" },
@@ -3689,14 +3689,15 @@ const DICT = {
 
   /* ── The staff page (v279, v280) ───────────────────────────────────
      Staff are members everywhere else; this page is the one thing more
-     they have: the contacts above, to read and to type in. */
-  "staff.eyebrow": { en: "Staff", th: "Staff" },
+     they have: the contacts above, to read and to type in. On the site
+     the staff are called the Crew (the owner, 2026-10-17). */
+  "staff.eyebrow": { en: "Crew", th: "Crew" },
   "staff.title": { en: "Members' Discord and Facebook", th: "Discord / Facebook ของสมาชิก" },
   "staff.lead": {
-    en: "How to reach each member outside the game. Staff and admins add and edit them here; each row saves by itself. Keep the Facebook to yourself: it is for staff and admins only.",
-    th: "ช่องทางติดต่อสมาชิกนอกเกม Staff และแอดมินเพิ่มหรือแก้ไขได้ที่นี่ กดบันทึกทีละแถว Facebook เป็นข้อมูลส่วนตัว เห็นเฉพาะ Staff กับแอดมิน อย่านำไปเผยแพร่ต่อนะ",
+    en: "How to reach each member outside the game. The Crew and admins add and edit them here; each row saves by itself. Keep the Facebook to yourself: it is for the Crew and admins only.",
+    th: "ช่องทางติดต่อสมาชิกนอกเกม Crew และแอดมินเพิ่มหรือแก้ไขได้ที่นี่ กดบันทึกทีละแถว Facebook เป็นข้อมูลส่วนตัว เห็นเฉพาะ Crew กับแอดมิน อย่านำไปเผยแพร่ต่อนะ",
   },
-  "staff.denied": { en: "This page is for staff.", th: "หน้านี้สำหรับ Staff เท่านั้น" },
+  "staff.denied": { en: "This page is for the Crew.", th: "หน้านี้สำหรับ Crew เท่านั้น" },
 
   /* ── The glamour contest ───────────────────────────────────────────
      Aqua's, one per festival. "Glamour", "popoto" and "mod" stay in

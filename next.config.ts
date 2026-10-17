@@ -53,6 +53,13 @@ const nextConfig: NextConfig = {
       { source: "/:name(logo|logo-header|icon-512|sprout).png", headers: week },
     ];
   },
+  /**
+   * The staff page's first address (v279). The owner named the role the Crew on 2026-10-17; a link
+   * already handed out still lands, with a real 308 rather than a page that sends the browser on.
+   */
+  async redirects() {
+    return [{ source: "/staff", destination: "/crew", permanent: true }];
+  },
 };
 
 export default nextConfig;
