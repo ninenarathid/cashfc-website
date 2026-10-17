@@ -771,7 +771,7 @@
   "mounts": 187,
   "minions": 454,
   "rare": 430,
-  "level": 100,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -894,7 +894,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-10-09"
+  "chg": "2026-10-17"
  },
  "35634484": {
   "name": "Little Eevee",
@@ -1593,7 +1593,7 @@
   "mounts": 74,
   "minions": 121,
   "rare": 14,
-  "level": 100,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -1632,7 +1632,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-11"
+  "chg": "2026-10-17"
  },
  "26699926": {
   "name": "Boonies Princess",
@@ -2215,7 +2215,7 @@
   "mounts": 174,
   "minions": 271,
   "rare": null,
-  "level": 4,
+  "level": 22,
   "cc": [
    true,
    true,
@@ -2246,7 +2246,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-10-17"
  },
  "12478532": {
   "name": "Hakuryu Flare",
@@ -2255,7 +2255,7 @@
   "mounts": 49,
   "minions": 115,
   "rare": null,
-  "level": 100,
+  "level": 84,
   "cc": [
    true,
    true,
@@ -2519,7 +2519,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 79,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -5617,7 +5617,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 94,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8980,7 +8980,7 @@
   "mounts": 6,
   "minions": 16,
   "rare": null,
-  "level": 96,
+  "level": 97,
   "cc": [
    false,
    false,

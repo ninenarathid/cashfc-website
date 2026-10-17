@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-10-17",
+   "type": "level_100",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-10-17",
    "type": "rare_up",
    "id": 15308846,
    "name": "Aqua Eleison",
@@ -1392,13 +1399,6 @@
    "id": 22461237,
    "name": "Metatron Vtretikh",
    "text": "earned An Eye for Detail: Culinarian IV"
-  },
-  {
-   "date": "2026-10-05",
-   "type": "rare_up",
-   "id": 46243891,
-   "name": "Marin Elysium",
-   "text": "earned Legends Never Die I — only 0.6% of players have it"
   }
  ]
 }

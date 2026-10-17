@@ -4058,7 +4058,7 @@
       "best": 31
      },
      "Scholar": {
-      "kills": 2,
+      "kills": 3,
       "best": 19
      }
     }
@@ -9407,7 +9407,7 @@
       "best": 11
      },
      "Sage": {
-      "kills": 9,
+      "kills": 10,
       "best": 66
      },
      "WhiteMage": {
@@ -9509,6 +9509,10 @@
     "job": "Sage",
     "cleared": true,
     "job_kills": {
+     "Monk": {
+      "kills": 1,
+      "best": 30
+     },
      "Samurai": {
       "kills": 1,
       "best": 34
@@ -68060,7 +68064,13 @@
     "best": 27,
     "kills": 2,
     "job": "Machinist",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Machinist": {
+      "kills": 2,
+      "best": 27
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -70469,7 +70479,7 @@
      },
      "Sage": {
       "kills": 1,
-      "best": 25
+      "best": 24
      }
     }
    },
@@ -73436,6 +73446,10 @@
       "kills": 2,
       "best": 35
      },
+     "Viper": {
+      "kills": 2,
+      "best": 28
+     },
      "RedMage": {
       "kills": 1,
       "best": 19
@@ -73445,7 +73459,7 @@
       "best": 70
      },
      "Astrologian": {
-      "kills": 32,
+      "kills": 34,
       "best": 75
      },
      "Scholar": {
@@ -73474,16 +73488,16 @@
       "best": 26
      },
      "Astrologian": {
-      "kills": 38,
+      "kills": 40,
       "best": 79
      },
      "WhiteMage": {
-      "kills": 6,
+      "kills": 8,
       "best": 54
      },
      "Scholar": {
-      "kills": 12,
-      "best": 39
+      "kills": 17,
+      "best": 41
      }
     }
    },
@@ -73510,8 +73524,12 @@
       "kills": 2,
       "best": 39
      },
+     "WhiteMage": {
+      "kills": 5,
+      "best": 49
+     },
      "Astrologian": {
-      "kills": 9,
+      "kills": 10,
       "best": 50
      },
      "Scholar": {
@@ -73536,8 +73554,12 @@
       "best": 28
      },
      "Astrologian": {
-      "kills": 12,
+      "kills": 13,
       "best": 65
+     },
+     "WhiteMage": {
+      "kills": 1,
+      "best": 27
      }
     }
    },
@@ -73561,7 +73583,7 @@
       "best": 19
      },
      "Astrologian": {
-      "kills": 30,
+      "kills": 32,
       "best": 87
      },
      "WhiteMage": {
@@ -73606,7 +73628,7 @@
       "best": 36
      },
      "Astrologian": {
-      "kills": 20,
+      "kills": 21,
       "best": 82
      },
      "WhiteMage": {
@@ -73659,7 +73681,7 @@
       "best": 90
      },
      "Astrologian": {
-      "kills": 9,
+      "kills": 10,
       "best": 90
      },
      "Scholar": {
@@ -74864,6 +74886,10 @@
      "WhiteMage": {
       "kills": 32,
       "best": 95
+     },
+     "Sage": {
+      "kills": 1,
+      "best": 64
      }
     }
    },
@@ -74952,7 +74978,13 @@
     "best": 97,
     "kills": 3,
     "job": "WhiteMage",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "WhiteMage": {
+      "kills": 3,
+      "best": 97
+     }
+    }
    }
   ],
   "legacy": [],
@@ -81119,7 +81151,13 @@
     "best": 2,
     "kills": 3,
     "job": "Astrologian",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Astrologian": {
+      "kills": 3,
+      "best": 2
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
