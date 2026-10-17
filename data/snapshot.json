@@ -2254,7 +2254,7 @@
   "mounts": 49,
   "minions": 115,
   "rare": null,
-  "level": 83,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2283,7 +2283,7 @@
    "Dancing Mad",
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-10-16"
+  "chg": "2026-10-17"
  },
  "50821570": {
   "name": "Haruki Mizumoto",
@@ -2292,7 +2292,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 59,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2517,7 +2517,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 100,
+  "level": 77,
   "cc": [
    false,
    false,
@@ -2544,7 +2544,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-10-07"
+  "chg": "2026-10-17"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -4282,7 +4282,7 @@
   "mounts": 265,
   "minions": 338,
   "rare": 535,
-  "level": 100,
+  "level": 50,
   "cc": null,
   "rare_ids": [
    847,
@@ -4402,7 +4402,7 @@
    "The Omega Protocol",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-16"
+  "chg": "2026-10-17"
  },
  "29998658": {
   "name": "Shippei Astana",
@@ -5615,7 +5615,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 100,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -5737,7 +5737,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-10-16"
+  "chg": "2026-10-17"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -6822,7 +6822,7 @@
   "mounts": 55,
   "minions": 109,
   "rare": 1,
-  "level": 93,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8380,7 +8380,7 @@
   "mounts": 8,
   "minions": 18,
   "rare": null,
-  "level": 100,
+  "level": 70,
   "cc": [
    false,
    false,
@@ -8396,7 +8396,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-10-08"
+  "chg": "2026-10-17"
  },
  "42845691": {
   "name": "Yuukizuz Akino",
@@ -8646,7 +8646,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 90,
+  "level": 97,
   "cc": [
    false,
    false,
