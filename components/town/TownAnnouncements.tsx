@@ -19,7 +19,7 @@ function Portrait({ event }: { event: TownAnnouncement }) {
     const icons = new Image(); icons.src=ICON_ATLAS.image;
     const held=heldPicture();
     const ready=(img: HTMLImageElement|null) => !img || img.complete ? Promise.resolve() : new Promise<void>(resolve => {img.addEventListener("load",()=>resolve(),{once:true});img.addEventListener("error",()=>resolve(),{once:true});});
-    void Promise.all([loadPixelKit(look.race),ready(icons),ready(held)]).then(([kit]) => {
+    void Promise.all([loadPixelKit(look.race).then(async (k) => { await k.ready(look); return k; }),ready(icons),ready(held)]).then(([kit]) => {
       if (stopped) return; const ctx = canvas.current?.getContext("2d"); if (!ctx) return;
       const picture=document.createElement("canvas"); picture.width=picture.height=512;
       const draw=picture.getContext("2d");if(!draw)return;

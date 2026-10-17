@@ -6,13 +6,16 @@ const DIR = process.env.DIR ?? "E:/NinenineProject/fcnext/public/town";
 const OUT = process.argv[2] ?? "work/debug/hat-hair.png", VIEW = process.argv[3] ?? "front", G = process.argv[4] ?? "f";
 const j = JSON.parse(fs.readFileSync(`${DIR}/pixel.json`, "utf8"));
 const { data } = await L.loadRaw(`${DIR}/${j.image}`);
+// (an outfit's pieces are in a picture of its own, named by the frame's seventh entry: build-pixel-atlas's meta.sheets)
+const pics = { "": { data, W: j.size[0] } };
+for (const [g, s] of Object.entries(j.sheets ?? {})) pics[g] = { data: (await L.loadRaw(`${DIR}/${s.image}`)).data, W: s.size[0] };
 const W = j.size[0], CW = 64, CH = 76, S = 3;
 const hairs = Object.keys(j.hair).filter((h) => h[0] === G && j.hair[h][VIEW]);
 const hats = [null, ...Object.keys(j.wear?.hat ?? {})];
 const OW = CW * hats.length, OH = CH * hairs.length, out = Buffer.alloc(OW * OH * 4);
 const blit = (name, dx, dy, keep = () => true) => {
   const f = j.frames[name]; if (!f) return;
-  const [x, y, w, h, ox, oy] = f;
+  const [x, y, w, h, ox, oy, g] = f, { data, W } = pics[g ?? ""];
   for (let r = 0; r < h; r++) for (let c = 0; c < w; c++) {
     const si = ((y + r) * W + x + c) * 4; if (!data[si + 3] || !keep(ox + c, oy + r)) continue;
     const X = dx + ox + c, Y = dy + oy + r; if (X < 0 || Y < 0 || X >= OW || Y >= OH) continue;

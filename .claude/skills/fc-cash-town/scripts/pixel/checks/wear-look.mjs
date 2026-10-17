@@ -9,6 +9,9 @@ const OUT = process.argv[2] ?? "work/debug/wear-look.png";
 const HAIRS = (process.argv[3] ?? "f01,f05,m03,m13").split(",");
 const j = JSON.parse(fs.readFileSync(`${DIR}/pixel.json`, "utf8"));
 const { data } = await L.loadRaw(`${DIR}/${j.image}`);
+// (an outfit's pieces are in a picture of its own, named by the frame's seventh entry: build-pixel-atlas's meta.sheets)
+const pics = { "": { data, W: j.size[0] } };
+for (const [g, s] of Object.entries(j.sheets ?? {})) pics[g] = { data: (await L.loadRaw(`${DIR}/${s.image}`)).data, W: s.size[0] };
 const W = j.size[0], CW = 70, CH = 92, S = 3;
 const rows = [];
 const g = (h) => (h[0] === "m" ? "m" : "f");
@@ -24,7 +27,7 @@ const out = Buffer.alloc(CW * cols * CH * rows.length * 4);
 const OW = CW * cols;
 const blit = (name, dx, dy, keep = () => true) => {
   const f = j.frames[name]; if (!f) return;
-  const [x, y, w, h, ox, oy] = f;
+  const [x, y, w, h, ox, oy, g] = f, { data, W } = pics[g ?? ""];
   for (let r = 0; r < h; r++) for (let c = 0; c < w; c++) {
     const si = ((y + r) * W + x + c) * 4; if (!data[si + 3] || !keep(ox + c, oy + r)) continue;
     const X = dx + ox + c, Y = dy + oy + r; if (X < 0 || Y < 0 || X >= OW || Y >= CH * rows.length) continue;

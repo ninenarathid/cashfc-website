@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { LINES, type LineId } from "@/lib/town/lines";
-import type { PixelKit } from "@/lib/town/pixeldoll";
+import { KIT_SHEET_EVENT, type PixelKit } from "@/lib/town/pixeldoll";
 import { FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS, owns, type Wearable } from "@/lib/town/wear";
 import {
   EYES, EYE_COLORS, GENDERS, HAIR_COLORS, ONE_MODEL, RACES, hairForGender, hairsFor, hairsOf, lookAsRace, skinsOf,
@@ -248,6 +248,13 @@ ${f.how ? (th ? f.how.th : f.how.en) : line(f.drop)}${hours}${rain}`;
 /** A small picture drawn by the doll's own code, crisp at the screen's own pixels. */
 function Preview({ w, h, draw, deps }: { w: number; h: number; draw: (ctx: CanvasRenderingContext2D, W: number, H: number) => void; deps: unknown[] }) {
   const ref = useRef<HTMLCanvasElement>(null);
+  // (drawn again when an outfit's own picture comes: the starter's body stands in until then, lib/town/pixeldoll)
+  const [sheets, setSheets] = useState(0);
+  useEffect(() => {
+    const came = () => setSheets((n) => n + 1);
+    window.addEventListener(KIT_SHEET_EVENT, came);
+    return () => window.removeEventListener(KIT_SHEET_EVENT, came);
+  }, []);
   useEffect(() => {
     const c = ref.current, ctx = c?.getContext("2d");
     if (!c || !ctx) return;
@@ -256,6 +263,6 @@ function Preview({ w, h, draw, deps }: { w: number; h: number; draw: (ctx: Canva
     ctx.clearRect(0, 0, c.width, c.height);
     draw(ctx, c.width, c.height);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
+  }, [...deps, sheets]);
   return <canvas ref={ref} aria-hidden style={{ width: w, height: h, imageRendering: "pixelated" }} />;
 }

@@ -873,28 +873,51 @@ function faceOf(g, head, im) {
 
 /* ── 4. pack ───────────────────────────────────────────────────────────── */
 
+// Doll 2: each outfit but the starters in a picture of its own (`pixel-o-<id>-<hash>.png`, named in `meta.sheets`;
+// a frame of it says which as its seventh entry), fetched by the page only when somebody wears it (the owner, before
+// any push: the outfits in one picture were 421 KB and grow with every outfit). Everything else in the one picture.
 const PAD = 1, W = 512;
-pieces.sort((a, b) => b.img.h - a.img.h);
-let x = PAD, y = PAD, rowH = 0;
-for (const p of pieces) {
-  if (x + p.img.w + PAD > W) { x = PAD; y += rowH + PAD; rowH = 0; }
-  p.x = x; p.y = y; x += p.img.w + PAD; rowH = Math.max(rowH, p.img.h);
+const groupOf = (name) => {
+  const m = D2 && name.match(/^(?:body|sit|eat)-([a-z_]+?)-(?:front|back)/);
+  return m && meta.outfits?.[m[1]] && !m[1].startsWith("starter") ? m[1] : "";
+};
+async function packed(list) {
+  list.sort((a, b) => b.img.h - a.img.h);
+  let x = PAD, y = PAD, rowH = 0;
+  for (const p of list) {
+    if (x + p.img.w + PAD > W) { x = PAD; y += rowH + PAD; rowH = 0; }
+    p.x = x; p.y = y; x += p.img.w + PAD; rowH = Math.max(rowH, p.img.h);
+  }
+  const H = y + rowH + PAD, sheet = Buffer.alloc(W * H * 4);
+  for (const p of list) for (let r = 0; r < p.img.h; r++)
+    p.img.buf.copy(sheet, ((p.y + r) * W + p.x) * 4, r * p.img.w * 4, (r + 1) * p.img.w * 4);
+  const png = await L.sharp(sheet, { raw: { width: W, height: H, channels: 4 } }).png({ compressionLevel: 9, palette: false }).toBuffer();
+  return { png, H, hash: crypto.createHash("sha256").update(png).digest("hex").slice(0, 10) };
 }
-const H = y + rowH + PAD;
-const sheet = Buffer.alloc(W * H * 4);
-for (const p of pieces) for (let r = 0; r < p.img.h; r++)
-  p.img.buf.copy(sheet, ((p.y + r) * W + p.x) * 4, r * p.img.w * 4, (r + 1) * p.img.w * 4);
-const png = await L.sharp(sheet, { raw: { width: W, height: H, channels: 4 } }).png({ compressionLevel: 9, palette: false }).toBuffer();
-const hash = crypto.createHash("sha256").update(png).digest("hex").slice(0, 10);
-meta.image = `pixel-${hash}.png`;
-meta.size = [W, H];
-meta.frames = Object.fromEntries(pieces.map(p => [p.name, [p.x, p.y, p.img.w, p.img.h, p.ox, p.oy]]));
+const groups = new Map([["", []]]);
+for (const p of pieces) { const g = groupOf(p.name); if (!groups.has(g)) groups.set(g, []); groups.get(g).push(p); }
+const base = await packed(groups.get(""));
+meta.image = `pixel-${base.hash}.png`;
+meta.size = [W, base.H];
+meta.frames = Object.fromEntries(groups.get("").map(p => [p.name, [p.x, p.y, p.img.w, p.img.h, p.ox, p.oy]]));
+const written = [[meta.image, base.png]];
+if (groups.size > 1) meta.sheets = {};
+for (const [g, list] of groups) {
+  if (!g) continue;
+  const s = await packed(list), file = `pixel-o-${g}-${s.hash}.png`;
+  meta.sheets[g] = { image: file, size: [W, s.H] };
+  for (const p of list) meta.frames[p.name] = [p.x, p.y, p.img.w, p.img.h, p.ox, p.oy, g];
+  written.push([file, s.png]);
+}
 meta.hairs = Object.keys(meta.hair).filter(h => meta.hair[h].front && meta.hair[h].back);
 
-for (const f of fs.readdirSync(PUB)) if (/^pixel-[0-9a-f]{10}\.png$/.test(f) && f !== meta.image) fs.unlinkSync(path.join(PUB, f));
-fs.writeFileSync(path.join(PUB, meta.image), png);
+const keep = new Set(written.map(([f]) => f));
+for (const f of fs.readdirSync(PUB)) if (/^pixel-(o-[a-z_]+-)?[0-9a-f]{10}\.png$/.test(f) && !keep.has(f)) fs.unlinkSync(path.join(PUB, f));
+for (const [f, png] of written) fs.writeFileSync(path.join(PUB, f), png);
 fs.writeFileSync(path.join(PUB, "pixel.json"), JSON.stringify(meta));
-console.log(`wrote ${meta.image} ${W}x${H} (${(png.length / 1024).toFixed(0)} KB), ${pieces.length} pieces, hairs: ${meta.hairs.join(" ")}`);
+const kb = (b) => (b.length / 1024).toFixed(0);
+console.log(`wrote ${meta.image} ${W}x${base.H} (${kb(base.png)} KB), ${pieces.length} pieces, hairs: ${meta.hairs.join(" ")}`);
+if (meta.sheets) console.log(`  and ${written.length - 1} outfits' own pictures: ${written.slice(1).map(([f, png]) => `${f.replace(/^pixel-o-|-[0-9a-f]{10}\.png$/g, "")} ${kb(png)} KB`).join(", ")}`);
 
 /* ── 5. a debug picture: every gender x hair, walking front and back, at 3x ── */
 
@@ -903,12 +926,14 @@ for (const gnd of GENDERS) for (const hair of HAIRS) if (hairFor(gnd, hair) && (
 const CW = 80, CH = 100, S = 3;
 const dbg = Buffer.alloc(CW * 8 * cols.length * CH * 4);
 const DW = CW * 8;
+// (from each piece's own pixels: the pieces are in several pictures now)
+const byName = new Map(pieces.map(p => [p.name, p]));
 const put = (name, ax, ay, row) => {
-  const [px, py, w, h, ox, oy] = meta.frames[name];
+  const [, , w, h, ox, oy] = meta.frames[name], buf = byName.get(name).img.buf;
   for (let r = 0; r < h; r++) for (let c = 0; c < w; c++) {
-    const si = ((py + r) * W + px + c) * 4; if (!sheet[si + 3]) continue;
+    const si = (r * w + c) * 4; if (!buf[si + 3]) continue;
     const X = ax + ox + c, Y = row * CH + ay + oy + r; if (X < 0 || Y < 0 || X >= DW || Y >= cols.length * CH) continue;
-    sheet.copy(dbg, (Y * DW + X) * 4, si, si + 4);
+    buf.copy(dbg, (Y * DW + X) * 4, si, si + 4);
   }
 };
 cols.forEach(([gnd, hair], row) => {

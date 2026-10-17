@@ -30,7 +30,8 @@ import { FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS, wornId } from "./wear";
  * mouth open, for blinking and talking.
  */
 
-type Frame = [x: number, y: number, w: number, h: number, ox: number, oy: number];
+/** Where a piece is in its picture, and where it is drawn from its reference point; an outfit's own picture's name last (Doll 2). */
+type Frame = [x: number, y: number, w: number, h: number, ox: number, oy: number, sheet?: string];
 type Eye = { x0: number; y0: number; x1: number; y1: number; cells: Array<[number, number]> };
 type G = "f" | "m";
 type Step = { body: string; hx: number; hy: number; chair?: boolean };
@@ -72,6 +73,11 @@ interface AtlasJson {
   expr?: Partial<Record<G, Record<string, { face: string; keep: boolean }>>>;
   /** Doll 2's outfits (lib/town/wear's OUTFITS but the starter), one body for both genders. Missing before them. */
   outfits?: Record<string, { walk: Record<View, Step[]>; sit?: Record<View, Step>; eat?: Record<View, EatStep[]> }>;
+  /**
+   * Doll 2: the outfits each in a picture of its own, by outfit (`<id>`, `<id>_f`), fetched when somebody first wears
+   * one (the owner, before any push: every outfit in one picture grew with each). Missing before them.
+   */
+  sheets?: Record<string, { image: string; size: [number, number] }>;
   /** The starter's eating frames, both genders: the hands at the chest, then at the mouth. */
   eat?: Record<View, EatStep[]>;
   /** Doll 2's hats and accessories, by slot and id. */
@@ -123,6 +129,11 @@ const LALAFELL_SIZE = 0.67;
 
 /** Steps a second while walking. */
 export const WALK_FPS = 10;
+
+/** Said on the window when an outfit's own picture has come (a drawing made once draws again: the wardrobe's cards). */
+export const KIT_SHEET_EVENT = "cashtown:kit-sheet";
+/** How long a picture that would not load is left before it is asked for again. */
+const SHEET_RETRY_MS = 30_000;
 /** The step with both feet under the body. */
 const STAND = 1;
 
@@ -208,6 +219,10 @@ const KEPT = 400;
 
 export class PixelKit {
   private readonly pixels: CanvasRenderingContext2D;
+  /** The outfits' own pictures that have come, and when each was last asked for (lib/town/pixeldoll's `sheets`). */
+  private readonly sheetPixels = new Map<string, CanvasRenderingContext2D>();
+  private readonly sheetAsked = new Map<string, number>();
+  private readonly sheetWaits = new Map<string, Array<() => void>>();
   private readonly kept = new Map<string, HTMLCanvasElement[]>();
   private readonly skinRamp: { keys: Map<string, RGB>; base: [number, number] };
 
@@ -233,8 +248,40 @@ export class PixelKit {
 
   /** A piece's pixels, as drawn in the picture. */
   private read(name: string): ImageData {
-    const [x, y, w, h] = this.atlas.frames[name];
-    return this.pixels.getImageData(x, y, w, h);
+    const [x, y, w, h, , , sheet] = this.atlas.frames[name];
+    const from = sheet ? this.sheetPixels.get(sheet) : this.pixels;
+    // (an outfit's piece is asked for only once its picture has come: outfitOf)
+    return from ? from.getImageData(x, y, w, h) : new ImageData(w, h);
+  }
+
+  /** Whether an outfit's own picture is here (or it has none); the first time it is not, it is asked for. */
+  private hasSheet(id: string): boolean {
+    const s = this.atlas.sheets?.[id];
+    if (!s || this.sheetPixels.has(id)) return true;
+    const asked = this.sheetAsked.get(id);
+    if (asked !== undefined && Date.now() - asked < SHEET_RETRY_MS) return false;
+    this.sheetAsked.set(id, Date.now());
+    const i = new Image();
+    i.decoding = "async";
+    i.onload = () => {
+      const c = document.createElement("canvas");
+      c.width = s.size[0]; c.height = s.size[1];
+      const ctx = c.getContext("2d", { willReadFrequently: true })!;
+      ctx.drawImage(i, 0, 0);
+      this.sheetPixels.set(id, ctx);
+      for (const done of this.sheetWaits.get(id) ?? []) done();
+      this.sheetWaits.delete(id);
+      window.dispatchEvent(new Event(KIT_SHEET_EVENT));
+    };
+    i.src = `/town/${s.image}`;
+    return false;
+  }
+
+  /** When the outfit a look wears can be drawn as itself (at once if it has no picture of its own, or it has come). */
+  ready(look: Look): Promise<void> {
+    const id = this.outfitKey(look);
+    if (!id || this.hasSheet(id)) return Promise.resolve();
+    return new Promise((done) => { const w = this.sheetWaits.get(id) ?? []; w.push(done); this.sheetWaits.set(id, w); });
   }
 
   private keep(key: string, make: () => HTMLCanvasElement[]): HTMLCanvasElement[] {
@@ -311,9 +358,15 @@ export class PixelKit {
    * woman's starter is drawn.
    */
   private outfitOf(look: Look) {
+    const key = this.outfitKey(look);
+    // (the starter's body while the outfit's own picture is on its way: hasSheet asks for it)
+    return key && this.hasSheet(key) ? this.atlas.outfits?.[key] : undefined;
+  }
+  /** Which of the atlas's outfits a look wears (`<id>_f` for a woman where there is one), or none for the starter's body. */
+  private outfitKey(look: Look): string | undefined {
     const id = wornId(OUTFITS, look.outfit) ?? "starter";
-    if (GENDERS[look.gender]?.id === "f") { const hers = this.atlas.outfits?.[`${id}_f`]; if (hers) return hers; }
-    return id !== "starter" ? this.atlas.outfits?.[id] : undefined;
+    if (GENDERS[look.gender]?.id === "f" && this.atlas.outfits?.[`${id}_f`]) return `${id}_f`;
+    return id !== "starter" && this.atlas.outfits?.[id] ? id : undefined;
   }
 
   /** The eating frame a look sits in, if this atlas has them. */
