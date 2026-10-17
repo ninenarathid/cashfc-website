@@ -1,8 +1,8 @@
 {
-  "image": "/town/icons-5c704f2ecf07.png",
+  "image": "/town/icons-2f885712ec7b.png",
   "size": [
     256,
-    19447
+    19479
   ],
   "icons": {
     "mic": [
@@ -9442,6 +9442,18 @@
       17757,
       36,
       47
+    ],
+    "wearGlasses": [
+      2,
+      19449,
+      42,
+      28
+    ],
+    "wearSunglasses": [
+      46,
+      19449,
+      43,
+      28
     ]
   },
   "cursor": {

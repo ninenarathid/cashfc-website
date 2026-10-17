@@ -436,6 +436,10 @@ const SHEETS = [
   ["icons-hybrid-small-a", ["growBottleGourdA", "growBottleGourdB", "growRowBeanA", "growRowBeanB", "growTrellisBerryA", "growTrellisBerryB"], { range: [6.7, 6.95] }],
   ["icons-hybrid-small-b", ["growBlueCornA", "growBlueCornB", "growTeaBushA", "growTeaBushB", "growSunflowerPatchA", "growSunflowerPatchB"], { range: [7.9, 8.1] }],
   ["icons-hybrid-small-c", ["growRedOkraA", "growRedOkraB", "growLotusRootBedA", "growLotusRootBedB", "_tomato", "_basil"], { range: [8.4, 8.65] }],
+  // ── things to wear kept in the bag (v276, 2026-10-17): the uncle's round glasses, and the bat merchant's sunglasses
+  // for when he comes, with icons-items-e for the reference; its four goods drawn only to hold the size. Cut on the
+  // finer grid (5.54): on its coarser (10.9) the lenses came out square
+  ["icons-wear-a", ["wearGlasses", "wearSunglasses", "_wearSauce", "_wearTub", "_wearGrowFert", "_wearGuardFert"], { range: [5.4, 5.65] }],
 ];
 
 const ONLY = process.env.ICONS_ONLY?.split(",").map((s) => s.trim()).filter(Boolean);

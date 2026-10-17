@@ -97,6 +97,7 @@ insert into public.town_catalog (key, data) values
     "hyacinth": {"kind":"catch","tier":1,"stack":20,"pays":2},
     "boot": {"kind":"catch","tier":1,"stack":5,"pays":3},
     "fishSauce": {"kind":"goods","tier":1,"stack":10,"pays":12},
+    "wearGlasses": {"kind":"goods","tier":1,"stack":5,"pays":60},
     "compost": {"kind":"goods","tier":1,"stack":20,"pays":4},
     "growFert": {"kind":"goods","tier":1,"stack":20,"pays":10},
     "guardFert": {"kind":"goods","tier":1,"stack":20,"pays":12},

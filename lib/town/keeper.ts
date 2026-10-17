@@ -267,6 +267,10 @@ export interface Keeper {
   chew(company: number): void;
   getUp(company: number): Promise<void>;
   readScroll(slot: number): Promise<Did<{ dish: ItemId }>>;
+  /** (v276) Wear a thing of the bag (lib/town/wear's DRESS_ITEMS): used up, and what it gives to wear had for good. */
+  dress(slot: number): Promise<Did<{ wearable: string; dressed: string[] }>>;
+  /** (v276) What I have to wear for good, bought or found (none, from a database before v276). */
+  dressed(): Promise<string[]>;
   openThing(slot: number): Promise<Did<{ found: ItemId | null }>>;
   /** Take up the thing in a slot, to hold it; null puts away what is held. */
   hold(slot: number | null): Promise<Did>;
@@ -1650,6 +1654,11 @@ export class DbKeeper implements Keeper {
   }
   async getUp(company: number) { if (this.mine.eating) await this.ask("town_get_up", { p_company: company }); }
   readScroll(slot: number) { return this.deed<{ dish: ItemId }>("town_read", { p_slot: slot }); }
+  dress(slot: number) { return this.deed<{ wearable: string; dressed: string[] }>("town_dress", { p_slot: slot }); }
+  async dressed() {
+    const a = await this.ask("town_dressed").catch(() => null);
+    return Array.isArray(a?.dressed) ? (a.dressed as unknown[]).filter((x): x is string => typeof x === "string") : [];
+  }
   /** (Its answer's `found` is what was inside, one thing or none: not the list of what has been found, which is a list and so is not mistaken for it.) */
   openThing(slot: number) { return this.deed<{ found: ItemId | null }>("town_open", { p_slot: slot }); }
   hold(slot: number | null) {

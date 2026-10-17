@@ -14,7 +14,9 @@
  * list but the outfits is nothing worn. Pure.
  */
 import type { Named } from "./look";
+import type { ItemId } from "./items";
 import { rankOf, type LineId } from "./lines";
+import { no, type Done, type Purse } from "./trade";
 
 /** What gives a wearable thing: a rank on any of these lines, the uncle's shop, the bat merchant, or a chance with a line's points. */
 export type Source =
@@ -89,10 +91,10 @@ export const wearAt = (line: LineId, rank: number): Wearable[] =>
   [OUTFITS, HATS, FACE_WEAR, NECK_WEAR, HAIR_WEAR].flatMap((list) => list.filter((w) => !!w.from && isRank(w.from) && w.from.rank === rank && w.from.lines.includes(line)));
 
 /** A look with whatever of it is not had taken off (to the starter, or to nothing worn), or the same look if all is had. */
-export function onlyOwned<L extends { outfit?: number; hat?: number; faceWear?: number; neck?: number; hairWear?: number }>(look: L, points: Partial<Record<LineId, number>>): L {
+export function onlyOwned<L extends { outfit?: number; hat?: number; faceWear?: number; neck?: number; hairWear?: number }>(look: L, points: Partial<Record<LineId, number>>, had: ReadonlySet<string> = new Set()): L {
   const slots: Array<[keyof L & string, Wearable[]]> = [["outfit", OUTFITS], ["hat", HATS], ["faceWear", FACE_WEAR], ["neck", NECK_WEAR], ["hairWear", HAIR_WEAR]];
   let out = look;
-  for (const [k, list] of slots) { const i = look[k] as number | undefined; if (i && !owns(list[i], points)) out = { ...out, [k]: 0 }; }
+  for (const [k, list] of slots) { const i = look[k] as number | undefined; if (i && !owns(list[i], points, had)) out = { ...out, [k]: 0 }; }
   return out;
 }
 
@@ -109,6 +111,20 @@ export function wearAllHere(): boolean {
 export function setWearAllHere(on: boolean) {
   try { if (on) localStorage.setItem(WEAR_ALL_KEY, "1"); else localStorage.removeItem(WEAR_ALL_KEY); } catch { /* private window: the switch stays as it was */ }
   window.dispatchEvent(new Event(WEAR_ALL_EVENT));
+}
+
+/** (v276) The things of the bag that are worn into the wardrobe, and what each gives to wear (the catalog's row `dress`). */
+export const DRESS_ITEMS: Partial<Record<ItemId, string>> = { wearGlasses: "glasses" };
+
+/**
+ * Wearing a thing of the bag (as the database's town.dress): the slot's thing, if it is one to wear and not had yet,
+ * used up, and what it gives to wear had for good.
+ */
+export function dressFrom(purse: Purse, slot: number, had: readonly string[]): Done<{ purse: Purse; wearable: string; item: ItemId }> {
+  const s = slot >= 0 ? purse.bag[slot] : null, w = s ? DRESS_ITEMS[s.item] : undefined;
+  if (!s || !w) return no("none");
+  if (had.includes(w)) return no("known");
+  return { ok: true, wearable: w, item: s.item, purse: { ...purse, bag: purse.bag.map((b, i) => (i !== slot ? b : s.n <= 1 ? null : { ...s, n: s.n - 1 })) } };
 }
 
 /** The id worn in a slot, or null for nothing (or an index this page does not know). */

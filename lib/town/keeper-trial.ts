@@ -177,6 +177,8 @@ class TrialKeeper implements Keeper {
   chew(company: number) { this.trial.chew(company); }
   async getUp(company: number) { this.trial.getUp(company); }
   async readScroll(slot: number): Promise<Did<{ dish: ItemId }>> { return this.trial.readScroll(slot); }
+  async dress(slot: number) { return this.trial.dress(slot); }
+  async dressed() { return this.trial.dressed(); }
   async openThing(slot: number): Promise<Did<{ found: ItemId | null }>> { return this.trial.openThing(slot); }
   async hold(slot: number | null): Promise<Did> {
     // (kept before the trial tells whoever watches; an empty slot holds nothing, and is no slot of the hand's)

@@ -79,6 +79,7 @@ insert into public.town_catalog (key, data) values
     "hyacinth": {"kind":"catch","tier":1,"stack":20,"pays":2},
     "boot": {"kind":"catch","tier":1,"stack":5,"pays":3},
     "fishSauce": {"kind":"goods","tier":1,"stack":10,"pays":12},
+    "wearGlasses": {"kind":"goods","tier":1,"stack":5,"pays":60},
     "compost": {"kind":"goods","tier":1,"stack":20,"pays":4},
     "growFert": {"kind":"goods","tier":1,"stack":20,"pays":10},
     "guardFert": {"kind":"goods","tier":1,"stack":20,"pays":12},
@@ -1175,10 +1176,11 @@ insert into public.town_catalog (key, data) values
     "seedTaro": {"price":42,"stock":30,"each":4},
     "seedWatermelon": {"price":46,"stock":20,"each":2},
     "scrollGreenCurry": {"price":160,"stock":2,"each":1},
-    "scrollHoMok": {"price":160,"stock":2,"each":1}
+    "scrollHoMok": {"price":160,"stock":2,"each":1},
+    "wearGlasses": {"price":400,"stock":6,"each":1}
   }$town$::jsonb),
   ('shelf', $town${
-    "basic": ["rod","hoe","can","pot","pan","grill","worm","dough","rice","salt","riceBox","seedKangkong","seedScallion","seedCabbage","seedCarrot","seedChili","seedPumpkin","scrollFriedMinnow","scrollGrilledFish","scrollPestCure","bowl","bucket","bugNet","pick","axe","seedRunnerBean","seedGardenStrawberry","seedBorage","seedMarigold"],
+    "basic": ["rod","hoe","can","pot","pan","grill","worm","dough","rice","salt","riceBox","seedKangkong","seedScallion","seedCabbage","seedCarrot","seedChili","seedPumpkin","scrollFriedMinnow","scrollGrilledFish","scrollPestCure","bowl","bucket","bugNet","pick","axe","seedRunnerBean","seedGardenStrawberry","seedBorage","seedMarigold","wearGlasses"],
     "unlocks": ["seedGarlic","seedBasil","seedTomato","seedCorn","seedDaikon","seedSweetPotato","cricket","seedCucumber","oil","egg","scrollOmelette","flour","mortar","seedLongBean","sugar","rollingPin","seedEggplant","branBait","wok","seaweed","seedLemongrass","jar","sushiMat","seedGalangal","shrimpLive","steamer","tofu","seedLime","cleaver","stoneBowl","seedPapaya","scrollSomTam","tamarind","manure","floatQuill","hookSteel","lineBraid","netSmall","rodTeak","hoeIron","canCopper","sickle","krabung","bucketIron","apron","antEggs","seedGinger","soy","stickyRice","seedBanana","bananaLeaf","pepper","milk","seedTurmeric","seedTaro","fermentedBait","cheese","seedWatermelon","steamerBamboo","oven","seedCoconut","seedMango","lure","potBrass","panBrass","hotpot","stoveBig","ladle","tok","scrollGreenCurry","scrollHoMok","floatBell","hookTwin","lineSilk","netLong","rodMaster","hoeSteel","canBrass","shears","yoke"]
   }$town$::jsonb)
   on conflict (key) do update set data = excluded.data, updated_at = now();

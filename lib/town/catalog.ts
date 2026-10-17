@@ -1,4 +1,5 @@
 import { BOX, MORE_CHESTS } from "./box";
+import { DRESS_ITEMS } from "./wear";
 import { GARDEN } from "./gardening";
 import { INSECT_GARDEN } from "./insect-garden";
 import { FORAGE_PARTS } from "./foraging-parts";
@@ -120,6 +121,8 @@ export function catalogOf() {
     goods: GOODS,
     /** What is on the shelf from the first day, and what the orders open, in order. */
     shelf: { basic: BASIC, unlocks: UNLOCKS },
+    /** (v276) The things of the bag worn into the wardrobe, and what each gives to wear (lib/town/wear). */
+    dress: DRESS_ITEMS,
     /** The bag's first slots, the hours of the uncle's rounds, the hour a day begins. */
     rules: { slots: RULES.slots, rounds: RULES.rounds, dawn: STAMINA.dawn },
     /** What is worn to carry more: the slots each adds. */
@@ -581,7 +584,9 @@ export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Ar
   // (the farming line's first and sixth ranks, 2026-10-16: the enchanted hoe's ten moves a day counted, the mandrake's songs no longer)
   v273: { keys: [], over: ["gifts"] },
   // (the farm's pouch and its produce stacked twice as high, 2026-10-16: every thing's stack, and the pouches)
-  v274: { keys: [], over: ["items", "pouches"] } };
+  v274: { keys: [], over: ["items", "pouches"] },
+  // (v276: things to wear had from the game: the round glasses on the stall, and the row that says what each is worn into)
+  v276: { keys: ["dress"], over: ["items", "goods", "shelf"] } };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

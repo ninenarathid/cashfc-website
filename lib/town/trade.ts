@@ -102,6 +102,8 @@ export const GOODS: Partial<Record<ItemId, Good>> = {
   seedMango: good(95, 10, 2), seedBanana: good(60, 12, 2), seedCoconut: good(110, 8, 2), seedGinger: good(38, 30, 4),
   seedTurmeric: good(38, 30, 4), seedTaro: good(42, 30, 4), seedWatermelon: good(46, 20, 2),
   scrollGreenCurry: good(160, 2, 1), scrollHoMok: good(160, 2, 1),
+  // (v276) the round glasses: one each a round, six for the village
+  wearGlasses: good(400, 6, 1),
 };
 /** The stall's shelf, in the order it is laid out. */
 export const SHELF = Object.keys(GOODS) as ItemId[];

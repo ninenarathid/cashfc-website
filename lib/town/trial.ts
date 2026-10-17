@@ -18,6 +18,7 @@ import{crownAction}from"./reward-crown";
 import{lanternAction}from"./reward-lantern";
 import{arenaAction}from"./reward-arena";
 import{beginDragon}from"./reward-dragon";
+import { dressFrom } from "./wear";
 import {boatAction} from './reward-boat';
 import type {LotusBoat} from './lotus-boats';
 import {buildCrossing} from "./reward-crossing";
@@ -214,6 +215,8 @@ export type KeptBed = Bed & { name?: string };
 const purseKey = (id: string) => `cashtown.trial.purse.2.${id}`;
 /** How many slots a bag began with when this tester's purse was last looked at: a purse kept from when bags began smaller is given the rest, once (the test window can still make a bag smaller afterwards, to try one). */
 const slotsKey = (id: string) => `cashtown.trial.slots.1.${id}`;
+/** (v276) What each member has to wear for good, bought or found. */
+const dressedKey = (id: string) => `cashtown.trial.dressed.1.${id}`;
 const playsKey = (id: string) => `cashtown.trial.plays.1.${id}`, tallyKey = (id: string) => `cashtown.trial.tally.1.${id}`;
 /** What a tester keeps in the plaza's storage box (lib/town/box): each tester's own, like a purse. */
 const boxKey = (id: string) => `cashtown.trial.box.1.${id}`;
@@ -539,6 +542,17 @@ export class Trial {
   }
   getUp(company: number) { const p = this.purse(); if (p.eating) this.save(getUp(p, company, this.now())); }
   readScroll(slot: number) { return this.keep(readScroll(this.purse(), slot)); }
+  /** (v276) What I have to wear for good. */
+  dressed(): string[] { return this.read<string[]>(dressedKey(this.id), () => [], (v) => Array.isArray(v) && v.every((x) => typeof x === "string")); }
+  /** (v276) Wear a thing of the bag into the wardrobe (town_dress). */
+  dress(slot: number): Done<{ purse: Purse; wearable: string; dressed: string[] }> {
+    const had = this.dressed(), did = dressFrom(this.purse(), slot, had);
+    if (!did.ok) return did;
+    const dressed = [...had, did.wearable];
+    this.write(dressedKey(this.id), dressed);
+    this.keep(did);
+    return { ...did, dressed };
+  }
   /** Open what may hold something (an old boot, a bottle, a chest): says what was in it, if anything. */
   openThing(slot: number) { return this.keep(open(this.purse(), slot, [Math.random(), Math.random()])); }
 
@@ -1623,6 +1637,11 @@ export class Trial {
       const who = c.to ?? this.id, theirs = { ...(all[who] ?? {}) };
       theirs[c.line] = countLine(theirs[c.line] ?? newLine(), c, day);
       all[who] = theirs;
+      // (v276, as town.work_counted) the helpers' flower clip: a chance in a thousand at every count that gives points
+      if (c.line === "helpers" && c.raw > 0 && Math.random() < 0.001) {
+        const had = this.read<string[]>(dressedKey(who), () => [], Array.isArray);
+        if (!had.includes("flower")) this.write(dressedKey(who), [...had, "flower"]);
+      }
     }
     this.write(LINES_AT, all);
   }

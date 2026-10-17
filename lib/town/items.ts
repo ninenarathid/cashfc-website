@@ -146,6 +146,8 @@ export const ITEMS = {
 
   // goods made from other things
   fishSauce: it("goods", "น้ำปลา", "Fish sauce", "น้ำใสสีอำพันในขวดแก้ว กลิ่นแรง รสเค็ม", "A clear amber liquid in a glass bottle. Pungent and salty.", 10, 12),
+  // (v276, the owner 2026-10-17: "แว่นกลม มีขายในร้านลุงขายของ") worn once from the bag, the round glasses are had in the wardrobe for good
+  wearGlasses: it("goods", "แว่นกลม", "Round glasses", "แว่นกรอบลวดกลม กด \"ใส่\" ในกระเป๋าแล้วจะอยู่ในตู้แต่งตัวตลอดไป", "Thin round wire glasses. Wear them from the bag and they are in your wardrobe for good.", 5, 60),
   compost: it("goods", "ปุ๋ยหมัก", "Compost", "เนื้อร่วนสีดำ กลิ่นเหมือนดินหลังฝน", "Dark and crumbly, smelling of earth after rain", 20, 4),
   growFert: it("goods", "ปุ๋ยเร่งโต", "Growth fertiliser", "ผงสีเขียวอ่อนในถุงผ้า", "A pale green powder in a cloth bag", 20, 10),
   guardFert: it("goods", "ปุ๋ยกันแมลง", "Pest-proof fertiliser", "ผงสีน้ำตาลแดงในถุงผ้า กลิ่นฉุน", "A red-brown powder in a cloth bag. It smells sharp.", 20, 12),

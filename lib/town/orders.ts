@@ -50,6 +50,8 @@ export const BASIC: ItemId[] = [
   "pick", "axe",
   // (the farm's Quality, 2026-10-15: the four helper plants' seeds)
   "seedRunnerBean", "seedGardenStrawberry", "seedBorage", "seedMarigold",
+  // (v276, things to wear: the round glasses)
+  "wearGlasses",
 ];
 /**
  * What the orders open, in this order, one for each day filled: the early

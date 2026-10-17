@@ -4402,18 +4402,34 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     window.addEventListener(WEAR_ALL_EVENT, read);
     return () => window.removeEventListener(WEAR_ALL_EVENT, read);
   }, []);
-  // what is bought or found: the database's (not built yet), or everything with the TEST switch
-  const wearHad = useMemo(() => new Set<string>(wearAll ? [OUTFITS, HATS, FACE_WEAR, NECK_WEAR, HAIR_WEAR].flatMap((l) => l.map((w) => w.id)) : []), [wearAll]);
+  // what is bought or found (v276: the keeper's `dressed`), or everything with the TEST switch; asked again when I wear
+  // one from the bag and whenever my lines change (the helpers' flower clip drops as their points are counted), and
+  // a thing newly had is told once
+  const [dressed, setDressed] = useState<string[] | null>(null);
+  useEffect(() => {
+    if (!keeper) return;
+    let on = true;
+    const ask = () => { void keeper.dressed().then((d) => { if (on) setDressed((was) => {
+      const fresh = was ? d.filter((x) => !was.includes(x)) : [];
+      for (const id of fresh) { const thing = [FACE_WEAR, NECK_WEAR, HAIR_WEAR, HATS, OUTFITS].flatMap((l) => l).find((w) => w.id === id);
+        if (thing && id === "flower") toast({ text: w.th ? `ได้ ${thing.th} จากแต้มผู้ช่วยเหลือ! อยู่ในตู้แต่งตัวแล้ว` : `A ${thing.en.toLowerCase()} from your helping! It is in your wardrobe.` }); }
+      return d;
+    }); }); };
+    ask();
+    window.addEventListener("cashtown:dressed", ask);
+    return () => { on = false; window.removeEventListener("cashtown:dressed", ask); };
+  }, [keeper, linesTold, w.th]);
+  const wearHad = useMemo(() => new Set<string>(wearAll ? [OUTFITS, HATS, FACE_WEAR, NECK_WEAR, HAIR_WEAR].flatMap((l) => l.map((x) => x.id)) : dressed ?? []), [wearAll, dressed]);
   const wearPoints = wearAll ? Object.fromEntries(Object.keys(linesTold?.lines ?? {}).concat(["farming", "fishing", "kitchen", "forest", "mining", "felling", "insects", "well", "helpers"]).map((id) => [id, 1e9]))
     : Object.fromEntries(Object.entries(linesTold?.lines ?? {}).map(([id, l]) => [id, l.points]));
   // What I wear and have not had from the game (worn in the trial, before things were had from ranks) comes off, once
   // my lines are known; the test room keeps whatever its scripts put on
   useEffect(() => {
-    if (!s || !linesTold || testTopic || wearAll) return;
+    if (!s || !linesTold || testTopic || wearAll || dressed === null) return;
     const points = Object.fromEntries(Object.entries(linesTold.lines).map(([id, l]) => [id, l.points]));
-    const had = onlyOwned(myLook, points);
+    const had = onlyOwned(myLook, points, new Set(dressed));
     if (had !== myLook) s.setLook(had);
-  }, [s, linesTold, myLook, testTopic, wearAll]);
+  }, [s, linesTold, myLook, testTopic, wearAll, dressed]);
   useEffect(() => {
     if (!wasRace) return;
     try { if (localStorage.getItem("cashTown:oneModel")) return; localStorage.setItem("cashTown:oneModel", "1"); } catch { return; }

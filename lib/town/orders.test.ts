@@ -31,9 +31,9 @@ describe("the uncle's shelf (the owner: \"เราเอาของ basic ข�
     expect([...BASIC, ...UNLOCKS].sort()).toEqual([...all].sort());
     // (twenty-one, and the scroll of the cure for pests: the owner, 2026-10-04; and a net for insects, 2026-10-05;
     // and a pick and an axe, the first tools of mining and woodcutting, 2026-10-08)
-    // (with the farm's Quality's four helper seeds, 2026-10-15)
-    expect(BASIC.length).toBe(29);
-    expect(UNLOCKS.length).toBe(all.length - 29);
+    // (with the farm's Quality's four helper seeds, 2026-10-15; and the round glasses, 2026-10-17)
+    expect(BASIC.length).toBe(30);
+    expect(UNLOCKS.length).toBe(all.length - 30);
     // the basic things are the early game's; what is opened comes tier by tier
     for (const id of BASIC) expect(ITEMS[id].tier).toBe(1);
     const tiers = UNLOCKS.map((id) => ITEMS[id].tier);

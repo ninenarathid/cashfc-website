@@ -1,4 +1,5 @@
 "use client";
+import { DRESS_ITEMS } from "@/lib/town/wear";
 import {useMapBag} from '@/lib/town/map-bag';
 import {useTownEphemeral} from "@/lib/town/ephemeral";
 
@@ -379,6 +380,12 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
                                 onServe={async (slot) => { const did = await keeper.serve(slot); if (did.ok) say("ตักใส่ถ้วยแล้ว", "A helping, in your bowl."); else say(...(did.why === "tool" ? (["ไม่มีถ้วย", "No bowl"] as [string, string]) : why(did.why))); }}
                                 onEat={(slot) => tried(eatFrom(slot), ["เริ่มกินแล้ว", "Tucking in."])}
                                 onGetUp={() => { void keeper.getUp(company).then(() => say("ลุกจากมื้ออาหารแล้ว", "You left the meal.")); }}
+                                onDress={async (slot) => {
+                                  const did = await keeper.dress(slot);
+                                  if (did.ok) { say("อยู่ในตู้แต่งตัวแล้ว เลือกใส่ได้ตลอดไป", "In your wardrobe now, to wear whenever you like."); window.dispatchEvent(new Event("cashtown:dressed")); }
+                                  else if (did.why === "known") say("มีอันนี้ในตู้แต่งตัวแล้ว เก็บไว้ขายหรือให้เพื่อนได้", "You have this in your wardrobe already: keep it to sell or give.");
+                                  else say(...why(did.why));
+                                }}
                                 onRead={async (slot) => {
                                   const item = purse.bag[slot]?.item, dish = item ? SCROLLS[item] : undefined;
                                   if (!dish) return;
@@ -688,7 +695,7 @@ function Bank({ purse, now, th, onChange }: { purse: Purse; now: number; th: boo
 }
 
 /** My bag, and how I am: my stamina and the day's meals, what a meal left, the bag itself, opened, and the recipes I know. */
-function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book, dropsAll, lying, onEat, onGetUp, onRead, onHold, onDrop, onWear, onTakeOff, onServe, onOpen, kitchen, sprinkles, tidy = false, onMove, onSort, pouches, rodHook }: {
+function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book, dropsAll, lying, onEat, onGetUp, onRead, onDress, onHold, onDrop, onWear, onTakeOff, onServe, onOpen, kitchen, sprinkles, tidy = false, onMove, onSort, pouches, rodHook }: {
   rodHook?: React.ReactNode;
   // ── mining ── (the pouches somebody has, each a row of its own under the bag's pockets: components/town/TownPouches)
   pouches?: React.ReactNode;
@@ -708,6 +715,8 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book
   /** The village's book of insects: who first caught each kind that has been caught. */
   book: Record<string, string>;
   onEat: (slot: number) => void; onGetUp: () => void; onRead: (slot: number) => void;
+  /** (v276) Wear a thing of the bag into the wardrobe (lib/town/wear's DRESS_ITEMS). */
+  onDress?: (slot: number) => void;
   /** Equip carrying gear or passive tools from a slot, take one off, and ladle a helping out of a pot. */
   onWear: (slot: number) => void; onTakeOff: (item: ItemId) => void; onServe: (slot: number) => void;
   /** Take the thing in a slot up to hold it in the hand, or (null) put away what is held. */
@@ -894,6 +903,13 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book
                             aria-label={sprinkles?.(inHand.item) ? (th ? "โรยเครื่องเทศแล้วกิน" : "Sprinkle the spice and eat") : undefined}
                             className="pressable flex min-h-11 shrink-0 items-center gap-1 rounded-full bg-accent px-4 text-ui font-semibold text-bg disabled:opacity-40">
                       {sprinkles?.(inHand.item) && <TownIcon name={"thingSpice" as IconName} size={18} />}{th ? "กิน" : "Eat"}
+                    </button>
+                  )}
+                  {/* a thing to wear: into the wardrobe for good (v276) */}
+                  {onDress && DRESS_ITEMS[inHand.item] && (
+                    <button type="button" onClick={() => onDress(slot!)} data-bag-dress
+                            className="pressable min-h-11 shrink-0 rounded-full bg-accent px-4 text-ui font-semibold text-bg">
+                      {th ? "ใส่" : "Wear"}
                     </button>
                   )}
                   {scroll && (

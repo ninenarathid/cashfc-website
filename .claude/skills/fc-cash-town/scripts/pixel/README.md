@@ -421,3 +421,11 @@ The owner asked for five outfits, five hats and five accessories, everyday thing
   - A hat stores its brim's lowest row per column (`clip`), and the browser takes the hair away above it, so no hair shows through. Seen on four hairstyles front and back.
 - **Sad and pout** were redrawn as in-place edits of the first ones, which are kept in `work/out/expr-v1/`. Sad has half-shut drooping eyes, a larger tear and a wider down-turned mouth. Pout has a strong blush inside the head's outline and a puckered round mouth.
 - **`checks/wear-look.mjs`** lays every hat and accessory over a few hairstyles, and every outfit walking, sitting and eating, without a browser (`DIR=` a trial build). Shots in the dev town: `work/debug/doll2-items-shots.mjs`.
+
+## Doll 2: the round glasses in the bag (2026-10-17)
+
+The owner: "แว่นกลม มีขายในร้านลุงขายของ" (v276: a thing of the bag, worn once into the wardrobe for good). One call, $0.0191 (`gpt-image-2.5-sunburst`, low, 1536x1024). The ledger then stood at 1,580 calls and $30.029. Prompt `prompts/icons/icons-wear-a.txt`, on the owner's ICON SHEET template with its closing sentence.
+
+- **`icons-wear-a`** (with `icons-items-e`, the goods set, for the reference): the round glasses (`wearGlasses`: a dark brown wire frame, pale blue lenses, as the worn ones are brown wire), the round sunglasses (`wearSunglasses`: a gold frame and dark lenses, as worn; packed for the bat merchant, who is not built), and four of the reference's own goods drawn only to hold the size (`_` names). Cut on the finer grid (5.54): 42x28 and 43x28; on the coarser (10.9) the lenses came out square.
+- **Drawn with `NO_REVIEW`:** Codex's weekly limit was used up, and the owner had said Claude does everything, the checks too. Read by Claude against ART_WORKFLOW's ICON SHEET template.
+- In the game (the dev town, `work/debug/doll2-glasses-shots.mjs`: bought at the uncle's stall, worn from the bag, worn from the wardrobe; 1280x860 and 384x730): `work/debug/glasses/`. The bag's button was first "ใส่ (เข้าตู้แต่งตัว)", which squeezed the description to a word a line on the desktop; it is "ใส่" now, as the bag's other one-word actions are, and the glasses' own words say where they go.
