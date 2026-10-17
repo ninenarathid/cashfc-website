@@ -773,6 +773,19 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
       const n = [1, -1, g.GW, -g.GW].filter(d => set.has(i + d)).length;
       if (n >= 3 && L.clsAt(g, i % g.GW, (i / g.GW) | 0) !== "skin") set.add(i);
     }
+    // a hat is one shape: what lies apart from its body (the key's spill on the eyes, a speck) goes, or the brim would be
+    // taken as coming down to the eyes in those columns and the hair cut there in stripes (the owner, 2026-10-17: "หมวก
+    // บางอย่างใส่แล้ว ผมบั๊ค")
+    if (slot === "hat" && set.size) {
+      const comps = [], seen = new Set();
+      for (const i of set) { if (seen.has(i)) continue;
+        const st = [i], comp = []; seen.add(i);
+        while (st.length) { const q = st.pop(); comp.push(q); const x = q % g.GW, y = (q / g.GW) | 0;
+          for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const j = (y + dy) * g.GW + x + dx; if (set.has(j) && !seen.has(j)) { seen.add(j); st.push(j); } } }
+        comps.push(comp); }
+      const big = Math.max(...comps.map((c) => c.length));
+      for (const c of comps) if (c.length < big * 0.25) for (const q of c) set.delete(q);
+    }
     if (process.env.WEAR_DEBUG === id) console.log(`  ${key}: ${set.size} cells after the clumps, figure ${F.size}, key ${mk ? "yes" : "no"}`);
     if (set.size < 6) { console.log(`  ${key}: nothing found`); continue; }
     unclash(g, set);
@@ -784,8 +797,11 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
       // the brim: the lowest row of the hat in each of its columns, from the head's reference point
       const low = new Map();
       for (const i of set) { const x = i % g.GW, y = (i / g.GW) | 0; low.set(x, Math.max(low.get(x) ?? -1e9, y)); }
-      const xs = [...low.keys()].sort((a, b) => a - b);
-      (entry.clip ??= {})[t] = { x0: xs[0] - REF[t].hx, ys: xs.map(x => low.get(x) - REF[t].cut) };
+      const xs = [...low.keys()].sort((a, b) => a - b), raw = xs.map(x => low.get(x) - REF[t].cut);
+      // smoothed: each column's brim no higher than its neighbours', two to a side, so no lone column of hair is left
+      // between two cut lower (stripes on the forehead)
+      const ys = raw.map((_, k) => Math.max(...raw.slice(Math.max(0, k - 2), k + 3)));
+      (entry.clip ??= {})[t] = { x0: xs[0] - REF[t].hx, ys };
     }
     console.log(`  ${key}: ${set.size} cells`);
   }
