@@ -59,8 +59,8 @@ const D2 = process.argv.includes("--doll2");
 // Doll 2's wearable things (prompts/doll2/items.json, whose prompts make-items.mjs writes): outfits, hats, accessories
 const ITEMS = D2 ? JSON.parse(fs.readFileSync(path.join(HERE, "prompts", "doll2", "items.json"), "utf8")) : { outfits: [], hats: [], accessories: [] };
 const WEAR = []; // [g, h, t, slot] of every hat and accessory sheet: dh-<id>-<view>, da-<id>-<view>
-for (const h of ITEMS.hats) for (const t of ["front", "back"]) WEAR.push(["dh", h.id, t, "hat"]);
-for (const a of ITEMS.accessories) for (const t of ["front", "back"]) WEAR.push(["da", a.id, t, a.slot]);
+for (const h of ITEMS.hats) for (const t of ["front", "back"]) WEAR.push(["dh", h.id, t, "hat", h.solid !== false]);
+for (const a of ITEMS.accessories) for (const t of ["front", "back"]) WEAR.push(["da", a.id, t, a.slot, !!a.solid]);
 
 const file = (g, h, t) => path.join(OUT, D2 && (h === "starter" || h === "skinkey") ? `d2-${h}-${t}.png` : `${g}-${h}-${t}.png`);
 const have = (g, h, t) => fs.existsSync(file(g, h, t));
@@ -703,18 +703,19 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
 {
   const eyes = eyesAt(grids[FACE.f]);
   const bandOf = (slot, t) => slot === "face" ? (x, y) => !!eyes && Math.abs(y - eyes.y) <= 7
-    : slot === "neck" ? (x, y) => y >= REF[t].cut - 3 && y <= REF[t].cut + 14
+    : slot === "neck" ? (x, y) => y >= REF[t].cut - 3 && y <= REF[t].cut + 22
     : (x, y) => y <= REF[t].cut;
   const baseOf = (slot, t) => grids[slot === "face" ? FACE.f : slot === "neck" ? `d2-mannequin-${t}` : `f-bald-${t}`];
   const near = (g, x, y, want) => { for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const X = x + dx, Y = y + dy; if (X >= 0 && Y >= 0 && X < g.GW && Y < g.GH && g.c[(Y * g.GW + X) * 4 + 3] && L.clsAt(g, X, Y) === want) return true; } return false; };
-  for (const [g0, id, t, slot] of WEAR) {
+  for (const [g0, id, t, slot, solid] of WEAR) {
     const key = `${g0}-${id}-${t}`, base = baseOf(slot, t);
     if (!grids[key] || !base) continue;
     const g = copyOf(grids[key]), F = figs[key][IDLE], band = bandOf(slot, t), set = new Set();
     // the thing's key copy (dhk-, dak-: the thing alone painted magenta) says which cells are the thing; told apart from
     // the base by colour instead, a golden straw hat passed for skin and dark lenses for the eye's outline
     const mk = grids[`${g0}k-${id}-${t}`];
-    const isMagenta = (c, o) => { const [h, s, l] = L.hsl(c[o], c[o + 1], c[o + 2]); return h >= 280 && h <= 335 && s > 0.4 && l > 0.18; };
+    // (dark lenses come out a very dark magenta in the key)
+    const isMagenta = (c, o) => { const [h, s, l] = L.hsl(c[o], c[o + 1], c[o + 2]); return h >= 280 && h <= 340 && s > 0.3 && l > 0.07; };
     if (mk) {
       let best = { n: -1, dx: 0, dy: 0 };
       for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) {
@@ -722,11 +723,25 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
         for (const i of F) { const x = i % g.GW + dx, y = ((i / g.GW) | 0) + dy; if (x >= 0 && y >= 0 && x < mk.GW && y < mk.GH && mk.c[(y * mk.GW + x) * 4 + 3] && isMagenta(mk.c, (y * mk.GW + x) * 4)) n++; }
         if (n > best.n) best = { n, dx, dy };
       }
-      for (const i of F) { const x = i % g.GW + best.dx, y = ((i / g.GW) | 0) + best.dy; if (x >= 0 && y >= 0 && x < mk.GW && y < mk.GH && mk.c[(y * mk.GW + x) * 4 + 3] && isMagenta(mk.c, (y * mk.GW + x) * 4)) set.add(i); }
+      // a key cell is the thing's only where the sheet has something there its base has not: the key spills a cell or
+      // two onto the face and the grey base layer around the thing, and the base has those (seen: sunglasses carrying
+      // skin along their arms, a neckerchief grey bits of the mannequin)
+      const sameAsBase = (i) => {
+        const x = i % g.GW, y = (i / g.GW) | 0, bi = (y * base.GW + x) * 4;
+        if (x >= base.GW || y >= base.GH || !base.c[bi + 3]) return false;
+        const d = Math.abs(base.c[bi] - g.c[i * 4]) + Math.abs(base.c[bi + 1] - g.c[i * 4 + 1]) + Math.abs(base.c[bi + 2] - g.c[i * 4 + 2]);
+        const c = L.clsAt(g, x, y);
+        // (only an accessory's: a hat's key is good as it is; and never a dark cell, a lens or an outline)
+        return g0 === "da" && c !== "dark" && d < 45 && c === L.clsAt(base, x, y);
+      };
+      for (const i of F) { const x = i % g.GW + best.dx, y = ((i / g.GW) | 0) + best.dy; if (x >= 0 && y >= 0 && x < mk.GW && y < mk.GH && mk.c[(y * mk.GW + x) * 4 + 3] && isMagenta(mk.c, (y * mk.GW + x) * 4) && !sameAsBase(i)) set.add(i); }
     }
-    if (!mk) for (const i of F) {
+    // An accessory takes, besides its key, what differs from its base in the key's own box: a small thing's key is a
+    // cell or two off the drawing (seen: the far lens of the sunglasses half cut)
+    const keyBox = mk && g0 === "da" && set.size ? L.bbox(g, set) : null;
+    if (!mk || keyBox) for (const i of F) {
       const x = i % g.GW, y = (i / g.GW) | 0;
-      if (!band(x, y)) continue;
+      if (!band(x, y) || (keyBox && (x < keyBox.x0 - 2 || x > keyBox.x1 + 2 || y < keyBox.y0 - 2 || y > keyBox.y1 + 2))) continue;
       const c = L.clsAt(g, x, y);
       const bi = (y * base.GW + x) * 4;
       if (x >= base.GW || y >= base.GH || !base.c[bi + 3]) { if (c !== "skin") set.add(i); continue; }
@@ -734,6 +749,17 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
       if ((c === "dark" && near(base, x, y, "dark")) || (c === "skin" && near(base, x, y, "skin"))) continue;
       const d = Math.abs(base.c[bi] - g.c[i * 4]) + Math.abs(base.c[bi + 1] - g.c[i * 4 + 1]) + Math.abs(base.c[bi + 2] - g.c[i * 4 + 2]);
       if (d > 80 || (c !== L.clsAt(base, x, y) && d > 40)) set.add(i);
+    }
+    {
+      // a solid thing (a hat, dark lenses, a scarf) is whole inside its outline: what is closed in by it is it
+      if (solid && set.size) {
+        const b = L.bbox(g, set), W2 = b.x1 - b.x0 + 3, H2 = b.y1 - b.y0 + 3, out = new Uint8Array(W2 * H2), st = [0];
+        const at = (x, y) => (y - b.y0 + 1) * W2 + (x - b.x0 + 1);
+        out[0] = 1;
+        while (st.length) { const q = st.pop(), x = (q % W2) + b.x0 - 1, y = ((q / W2) | 0) + b.y0 - 1;
+          for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const X = x + dx, Y = y + dy; if (X < b.x0 - 1 || Y < b.y0 - 1 || X > b.x1 + 1 || Y > b.y1 + 1) continue; const j = at(X, Y); if (out[j] || set.has(Y * g.GW + X)) continue; out[j] = 1; st.push(j); } }
+        for (let y = b.y0; y <= b.y1; y++) for (let x = b.x0; x <= b.x1; x++) { const i = y * g.GW + x; if (!out[at(x, y)] && !set.has(i) && F.has(i)) set.add(i); }
+      }
     }
     // only clumps of four or more, then the few cells they close in
     const seen = new Set();
@@ -747,6 +773,7 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
       const n = [1, -1, g.GW, -g.GW].filter(d => set.has(i + d)).length;
       if (n >= 3 && L.clsAt(g, i % g.GW, (i / g.GW) | 0) !== "skin") set.add(i);
     }
+    if (process.env.WEAR_DEBUG === id) console.log(`  ${key}: ${set.size} cells after the clumps, figure ${F.size}, key ${mk ? "yes" : "no"}`);
     if (set.size < 6) { console.log(`  ${key}: nothing found`); continue; }
     unclash(g, set);
     const im = L.crop(g, set), name = `wear-${id}-${t}`;

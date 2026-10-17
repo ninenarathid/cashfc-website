@@ -42,10 +42,10 @@ rows.forEach((cells, ri) => cells.forEach((cell, ci) => {
   const worn = (slot, id) => (id ? j.wear?.[slot]?.[id]?.[view] : null);
   blit(worn("neck", cell.neck), hx, hy);
   blit(view === "front" ? j.face[gg].round : j.face.back, hx, hy);
-  blit(worn("face", cell.face), hx, hy);
   const clip = cell.hat ? j.wear.hat[cell.hat]?.clip?.[view] : null;
   const under = clip ? (x, y) => y > clip.ys[Math.min(clip.ys.length - 1, Math.max(0, x - clip.x0))] : () => true;
   if (j.hair[cell.hair]?.[view]) blit(j.hair[cell.hair][view], hx, hy, under);
+  blit(worn("face", cell.face), hx, hy);
   blit(worn("hair", cell.hairWear), hx, hy);
   blit(worn("hat", cell.hat), hx, hy);
   if (cell.pose?.startsWith("eat") && view === "front" && step.hand) for (let d = -1; d <= 1; d++) { const X = ax + step.hand.x + d, Y = ay + step.hand.y; out.writeUInt32BE(0xff00ffff, (Y * OW + X) * 4); }

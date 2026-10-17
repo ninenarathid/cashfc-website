@@ -432,44 +432,60 @@ export class PixelKit {
   }
 
   /**
-   * A look's head seen from the front, and its box about the head's reference point, in picture pixels: the whole head,
-   * ears and hair, from just above the crown down to the chin (a tall topknot above it and hair hanging below the chin
-   * are left out, as a portrait), so the face is large enough to read in a button.
+   * A look's head seen from the front with what it wears there, layer by layer, and the box it takes about the head's
+   * reference point, in picture pixels: the face between its ears from just above the crown to the chin, grown to take
+   * in a hat, a neck thing and the rest (a tall topknot above it and hair below the chin are left out, as a portrait).
    */
   private headOf(look: Look, expr?: string | null) {
     const A = this.atlas, g = (GENDERS[look.gender]?.id ?? "f") as G;
     const faceName = A.face[g][EYES[look.eyes]?.id] ?? A.face[g].round;
     const ex = expr ? A.expr?.[g]?.[expr] : undefined;
     const hairName = A.hair[hairsOf(this.race)[look.hair]?.id ?? ""]?.front;
-    const names = [ex && !ex.keep ? ex.face : faceName, ...(ex?.keep ? [ex.face] : []), ...(hairName ? [hairName] : [])];
+    const W = A.wear, hatId = wornId(HATS, look.hat), hat = hatId ? W?.hat?.[hatId] : undefined;
+    const worn = (slot: "face" | "neck" | "hair", list: typeof HATS, i: number | undefined) => { const id = wornId(list, i); return id ? W?.[slot]?.[id]?.front : undefined; };
+    const neck = worn("neck", NECK_WEAR, look.neck), glasses = worn("face", FACE_WEAR, look.faceWear), clip = worn("hair", HAIR_WEAR, look.hairWear);
+    const layers: Array<{ name: string; draw: () => CanvasImageSource }> = [];
+    const plain = (name: string | undefined) => { if (name && A.frames[name]) layers.push({ name, draw: () => this.plain(name) }); };
+    plain(neck);
+    const shown = ex && !ex.keep ? ex.face : faceName;
+    layers.push({ name: shown, draw: () => this.face(shown, look)[0] });
+    if (ex?.keep) layers.push({ name: ex.face, draw: () => this.face(ex.face, look)[0] });
+    if (hairName) {
+      const cut = hat?.front ? hat.clip?.front : undefined;
+      layers.push({ name: hairName, draw: () => (cut ? this.hairUnder(hairName, look, hatId!, "front", cut) : this.hair(hairName, look)) });
+    }
+    plain(glasses); plain(clip); plain(hat?.front);
     const [, , w, h, ox, oy] = A.frames[faceName];
-    let x0 = ox, y0 = oy, x1 = ox + w;
+    let x0 = ox, y0 = oy, x1 = ox + w, y1 = oy + h;
     if (hairName) { const [, , hw, , hox, hoy] = A.frames[hairName]; x0 = Math.min(x0, hox); x1 = Math.max(x1, hox + hw); y0 = Math.max(oy - 5, Math.min(y0, hoy)); }
-    return { names, hairName, box: { x0, y0, x1, y1: oy + h } };
+    for (const n of [neck, glasses, clip, hat?.front]) {
+      if (!n || !A.frames[n]) continue;
+      const [, , iw, ih, iox, ioy] = A.frames[n];
+      x0 = Math.min(x0, iox); x1 = Math.max(x1, iox + iw); y0 = Math.min(y0, ioy); y1 = Math.max(y1, ioy + ih);
+    }
+    return { layers, box: { x0, y0, x1, y1 } };
   }
 
-  /** How wide and tall a look's head is seen from the front, in picture pixels (for drawing it alone, in a button). */
+  /** How wide and tall a look's head is seen from the front, with what it wears there, in picture pixels. */
   headSize(look: Look): { w: number; h: number } {
     const { box } = this.headOf(look);
     return { w: box.x1 - box.x0, h: box.y1 - box.y0 };
   }
 
   /**
-   * A look's head alone, seen from the front, making a face (or none), its box's top left at (x, y), one picture
-   * pixel `scale` canvas units: the emote window's buttons show the player's own head making each face.
+   * A look's head alone, seen from the front, with what it wears there, making a face (or none), its box's top left at
+   * (x, y), one picture pixel `scale` canvas units: the emote window's faces and the wardrobe's cards (the player's own
+   * head making each face, wearing each thing).
    */
   drawHead(ctx: CanvasRenderingContext2D, look: Look, x: number, y: number, scale: number, expr?: string | null) {
-    const A = this.atlas, { names, hairName, box } = this.headOf(look, expr);
+    const A = this.atlas, { layers, box } = this.headOf(look, expr);
     ctx.save();
     ctx.imageSmoothingEnabled = scale < 1;
     ctx.imageSmoothingQuality = "high";
     ctx.translate(x, y);
     ctx.scale(scale, scale);
     ctx.translate(-box.x0, -box.y0);
-    for (const n of names) {
-      const [, , , , ox, oy] = A.frames[n];
-      ctx.drawImage(n === hairName ? this.hair(n, look) : this.face(n, look)[0], ox, oy);
-    }
+    for (const { name, draw } of layers) { const [, , , , ox, oy] = A.frames[name]; ctx.drawImage(draw(), ox, oy); }
     ctx.restore();
   }
 
@@ -516,8 +532,9 @@ export class PixelKit {
     ctx.translate(step.hx * kb, (step.hy + perch) * kb);
     ctx.imageSmoothingEnabled = state.smooth ?? kh * px < 1;
     ctx.scale(kh, kh);
-    // what is worn (lib/town/wear), in the head's place: at the neck under the face, on the face over it, in the
-    // hair over the hair, and the hat over everything; the hair under a hat is cut at its brim
+    // what is worn (lib/town/wear), in the head's place: at the neck under the face; glasses, the hair clip and the
+    // hat over the hair (glasses under it, their far lens was lost behind the side hair and read as a monocle: the
+    // owner, 2026-10-17, "แว่นกันแดดยังไม่ดี"); the hair under a hat is cut at its brim
     const W = A.wear, worn = (slot: "hat" | "face" | "neck" | "hair", id: string | null) => (id ? W?.[slot]?.[id] : undefined);
     const hatId = wornId(HATS, look.hat), hat = worn("hat", hatId);
     const lay = (name: string | undefined) => { if (!name || !A.frames[name]) return; const [, , , , ox, oy] = A.frames[name]; ctx.drawImage(this.plain(name), ox, oy); };
@@ -525,12 +542,12 @@ export class PixelKit {
     const [, , , , fox, foy] = A.frames[shown];
     ctx.drawImage(face, fox, foy);
     if (ex?.keep) { const [, , , , eox, eoy] = A.frames[ex.face]; ctx.drawImage(this.face(ex.face, look)[0], eox, eoy); }
-    lay(worn("face", wornId(FACE_WEAR, look.faceWear))?.[view]);
     if (hairName) {
       const [, , , , hox, hoy] = A.frames[hairName];
       const clip = hat?.[view] ? hat.clip?.[view] : undefined;
       ctx.drawImage(clip ? this.hairUnder(hairName, look, hatId!, view, clip) : this.hair(hairName, look), hox, hoy);
     }
+    lay(worn("face", wornId(FACE_WEAR, look.faceWear))?.[view]);
     lay(worn("hair", wornId(HAIR_WEAR, look.hairWear))?.[view]);
     lay(hat?.[view]);
     ctx.restore();

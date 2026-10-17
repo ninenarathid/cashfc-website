@@ -75,6 +75,7 @@ import SignIcon from "./SignIcon";
 import type { SignView } from "./TownSign";
 import { TownFaces } from "./TownFaces";
 import { EXPRESSION_MS, expressionOf } from "@/lib/town/expression";
+import { onlyOwned } from "@/lib/town/wear";
 import type { Stuck } from "@/lib/town/session";
 import type { Standing } from "./TownCook";
 import type { Pairing, Stander } from "./TownLine";
@@ -4385,6 +4386,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // Everybody is the one model now (lib/town/look's ONE_MODEL): whoever chose another race is told once that their
   // hairstyle and skin were chosen for them, to choose their own in the wardrobe (the owner, 2026-10-17)
   const wasRace = s ? readLook(s.self.info.look)?.race ?? 0 : 0;
+  // What I wear and have not had from the game (worn in the trial, before things were had from ranks) comes off, once
+  // my lines are known; the test room keeps whatever its scripts put on
+  useEffect(() => {
+    if (!s || !linesTold || testTopic) return;
+    const points = Object.fromEntries(Object.entries(linesTold.lines).map(([id, l]) => [id, l.points]));
+    const had = onlyOwned(myLook, points);
+    if (had !== myLook) s.setLook(had);
+  }, [s, linesTold, myLook, testTopic]);
   useEffect(() => {
     if (!wasRace) return;
     try { if (localStorage.getItem("cashTown:oneModel")) return; localStorage.setItem("cashTown:oneModel", "1"); } catch { return; }
@@ -5054,7 +5063,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                : "right-3 top-16 w-[22rem] rounded-2xl"}`}
              style={phone ? { bottom: tabbar ? "calc(4.5rem + env(safe-area-inset-bottom))" : 0 } : { bottom: "0.75rem" }}
              data-state="open">
-          <Wardrobe look={myLook} th={w.th}
+          <Wardrobe look={myLook} th={w.th} kit={kits.current.get(0) ?? null}
+                    points={Object.fromEntries(Object.entries(linesTold?.lines ?? {}).map(([id, l]) => [id, l.points]))}
                     onChange={(l) => s.setLook(l)}
                     onTurn={(d) => { turn.current += d; }}
                     onClose={closeWardrobe} />

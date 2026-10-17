@@ -1,5 +1,5 @@
 {
-  "_": "Doll 2's wearable things (DOLL2.md). make-items.mjs writes every prompt from this file; lib/town/wear.ts names them in the game. Ids are letters only. An outfit is three sheets (front, back, poses: in-place edits of d2-mannequin-*) and their skin keys; a head thing is one sheet a view it shows in. `key`: what a key copy calls the thing, where \"the hat\" or the slot's word is not enough (Codex's read, 2026-10-17).",
+  "_": "Doll 2's wearable things (DOLL2.md). make-items.mjs writes every prompt from this file; lib/town/wear.ts names them in the game. Ids are letters only. An outfit is three sheets (front, back, poses: in-place edits of d2-mannequin-*) and their skin keys; a head thing is one sheet a view it shows in. `key`: what a key copy calls the thing, where \"the hat\" or the slot's word is not enough (Codex's read, 2026-10-17). `solid`: a thing whole inside its outline (hats are, unless false): what its outline closes in is cut with it.",
   "outfits": [
     {
       "id": "farmer",
@@ -65,26 +65,29 @@
       "id": "sunglasses",
       "slot": "face",
       "front": "round sunglasses with a thin gold frame and dark lenses over her eyes, a thin bridge over the nose",
-      "key": "the sunglasses, including both dark lenses, the frames, bridge and visible arms"
+      "key": "the sunglasses, including both dark lenses, the frames, bridge and visible arms",
+      "solid": true
     },
     {
       "id": "flower",
       "slot": "hair",
       "front": "a small pink five-petal flower hair clip with a yellow centre, just above the ear on the viewer's right",
-      "back": "the same small pink five-petal flower hair clip with a yellow centre, seen from behind, just above the character's left ear (on the viewer's left in this back view, corresponding to the viewer's right in the front sheet)"
+      "back": "the same small pink five-petal flower hair clip with a yellow centre, seen from behind, just above the character's left ear (on the viewer's left in this back view, corresponding to the viewer's right in the front sheet)",
+      "solid": true
     },
     {
       "id": "kerchief",
       "slot": "neck",
-      "front": "a small red neckerchief tied around her neck, its knot and two short ends at the front of the neck",
-      "back": "a small red neckerchief tied around her neck, seen from behind, its knot at the front hidden, only the band around the back of the neck",
-      "key": "the kerchief, including its knot and tails wherever visible, but not the shirt collar"
+      "front": "a big red bandana scarf tied around her neck, wide enough to cover the whole collar and the top of the chest, with a large knot at the front and two pointed ends hanging down over the chest",
+      "back": "the wide band of the same big red bandana scarf around the back of her neck, covering the collar",
+      "key": "the bandana scarf, including its knot and ends wherever visible, but not the clothes under it",
+      "solid": true
     },
     {
       "id": "shells",
       "slot": "neck",
-      "front": "a thin brown cord necklace with three small white seashells hanging at the base of the neck",
-      "key": "the shell necklace, including every visible shell and connecting cord, but not the shirt collar"
+      "front": "a necklace of three large white fan-shaped seashells with scalloped lower edges on a thick brown cord, each shell about as big as her eye, individually outlined in dark brown and separated from its neighbours by visible brown cord, hanging on the upper chest just below the collar",
+      "key": "the shell necklace, including every visible shell and its cord, but not the clothes under it"
     }
   ]
 }

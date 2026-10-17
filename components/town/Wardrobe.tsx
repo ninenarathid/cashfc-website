@@ -1,6 +1,9 @@
 "use client";
 
-import { FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS } from "@/lib/town/wear";
+import { useEffect, useRef, useState } from "react";
+import { LINES, type LineId } from "@/lib/town/lines";
+import type { PixelKit } from "@/lib/town/pixeldoll";
+import { FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS, owns, type Wearable } from "@/lib/town/wear";
 import {
   EYES, EYE_COLORS, GENDERS, HAIR_COLORS, ONE_MODEL, RACES, hairForGender, hairsFor, hairsOf, lookAsRace, randomLook, skinsOf,
   type Look, type Named, type Swatch,
@@ -15,11 +18,19 @@ import TownIcon from "./TownIcon";
  * standing in the town. The room hears about it once you stop changing things
  * (TownSession.setLook).
  *
- * Every choice is free and can be changed back at any time: no unlocking, no
- * cost (the owner's call for the first version, 2026-10-01).
+ * How one looks is free and can be changed back at any time (the owner's call for the first version, 2026-10-01).
+ * What one wears is had from the game (lib/town/wear: a line's rank), and what is not had yet is shown, locked, with
+ * where it comes from. Three tabs (the owner, 2026-10-17: "ทำ UI สำหรับใส่ ของตกแต่งด้วย"): oneself, outfits, and the
+ * things worn; each outfit and each thing is a card showing the player's own doll, or head, wearing it.
  */
-export default function Wardrobe({ look, onChange, onTurn, onClose, th }: {
+type Tab = "me" | "outfit" | "wear";
+
+export default function Wardrobe({ look, kit, points, onChange, onTurn, onClose, th }: {
   look: Look;
+  /** The doll's pictures, for the cards (none yet: the cards wait for them). */
+  kit: PixelKit | null;
+  /** The player's points on each line: what they have to wear. */
+  points: Partial<Record<LineId, number>>;
   onChange: (look: Look) => void;
   /** Turn the avatar to see its side or back: -1 one way, 1 the other. */
   onTurn: (dir: -1 | 1) => void;
@@ -28,31 +39,60 @@ export default function Wardrobe({ look, onChange, onTurn, onClose, th }: {
 }) {
   const set = (patch: Partial<Look>) => onChange({ ...look, ...patch });
   const t = (n: Named | Swatch) => (th ? n.th : n.en);
+  const [tab, setTab] = useState<Tab>("me");
+  // (the dice changes how one looks, never what one wears)
+  const worn = { outfit: look.outfit, hat: look.hat, faceWear: look.faceWear, neck: look.neck, hairWear: look.hairWear };
+  const TABS: Array<[Tab, string]> = [["me", th ? "ตัวเรา" : "Me"], ["outfit", th ? "ชุด" : "Outfits"], ["wear", th ? "ของตกแต่ง" : "Accessories"]];
 
   return (
     <section aria-labelledby="wardrobe-h" className="flex h-full flex-col">
       <div className="flex items-center gap-2 border-b border-line px-4 py-3">
         <h2 id="wardrobe-h" className="font-display text-title font-semibold text-ink"><span className="flex items-center gap-2"><TownIcon name="wardrobe" size={22} />{th ? "แต่งตัว" : "Wardrobe"}</span></h2>
-        <button type="button" onClick={() => onChange(randomLook(look.race))}
-                className="pressable ml-auto rounded-full border border-line-strong px-3 py-1.5 text-ui text-ink hover:border-accent hover:text-accent">
+        <button type="button" onClick={() => onChange({ ...randomLook(look.race), ...worn })}
+                className="pressable ml-auto min-h-11 rounded-full border border-line-strong px-3 py-1.5 text-ui text-ink hover:border-accent hover:text-accent sm:min-h-0">
           <span className="flex items-center gap-1.5"><TownIcon name="dice" size={16} />{th ? "สุ่ม" : "Surprise me"}</span>
         </button>
         <button type="button" onClick={onClose}
-                className="pressable rounded-full bg-accent px-4 py-1.5 text-ui font-semibold text-bg">
+                className="pressable min-h-11 rounded-full bg-accent px-4 py-1.5 text-ui font-semibold text-bg sm:min-h-0">
           {th ? "เสร็จ" : "Done"}
         </button>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4 pt-2">
+      {/* the tabs, and turning round, which every tab wants */}
+      <div className="flex items-end gap-1 border-b border-line px-3">
+        <div role="tablist" aria-label={th ? "แต่งตัว" : "Wardrobe"} className="flex gap-1">
+          {TABS.map(([id, label]) => (
+            <button key={id} type="button" role="tab" aria-selected={tab === id} onClick={() => setTab(id)}
+                    className={`pressable min-h-11 border-b-2 px-3 pb-2 pt-2.5 text-ui transition-colors ${tab === id
+                      ? "border-accent font-semibold text-accent" : "border-transparent text-muted hover:text-ink"}`}>
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className="mb-1.5 ml-auto flex gap-1">
+          <button type="button" onClick={() => onTurn(-1)} aria-label={th ? "หมุนซ้าย" : "Turn left"}
+                  className="pressable grid size-11 place-items-center rounded-full border border-line-strong text-read text-ink hover:border-accent sm:size-9"><TownIcon name="turnLeft" size={18} /></button>
+          <button type="button" onClick={() => onTurn(1)} aria-label={th ? "หมุนขวา" : "Turn right"}
+                  className="pressable grid size-11 place-items-center rounded-full border border-line-strong text-read text-ink hover:border-accent sm:size-9"><TownIcon name="turnRight" size={18} /></button>
+        </div>
+      </div>
 
-        <Group label={th ? "หมุนตัวดู" : "Turn around"}>
-          <div className="flex gap-1.5">
-            <button type="button" onClick={() => onTurn(-1)} aria-label={th ? "หมุนซ้าย" : "Turn left"}
-                    className="pressable grid size-9 place-items-center rounded-full border border-line-strong text-read text-ink hover:border-accent"><TownIcon name="turnLeft" size={18} /></button>
-            <button type="button" onClick={() => onTurn(1)} aria-label={th ? "หมุนขวา" : "Turn right"}
-                    className="pressable grid size-9 place-items-center rounded-full border border-line-strong text-read text-ink hover:border-accent"><TownIcon name="turnRight" size={18} /></button>
-          </div>
-        </Group>
+      <div role="tabpanel" className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4 pt-2">
+        {tab === "outfit" && (
+          <Cards label={th ? "ชุด" : "Outfits"} items={OUTFITS} value={look.outfit ?? 0} th={th} points={points} kit={kit}
+                 lookFor={(outfit) => ({ ...look, outfit })} body onPick={(outfit) => set({ outfit })} />
+        )}
+        {tab === "wear" && <>
+          <Cards label={th ? "หมวก" : "Hats"} items={HATS} value={look.hat ?? 0} th={th} points={points} kit={kit}
+                 lookFor={(hat) => ({ ...look, hat })} onPick={(hat) => set({ hat })} />
+          <Cards label={th ? "แว่นตา" : "Glasses"} items={FACE_WEAR} value={look.faceWear ?? 0} th={th} points={points} kit={kit}
+                 lookFor={(faceWear) => ({ ...look, faceWear })} onPick={(faceWear) => set({ faceWear })} />
+          <Cards label={th ? "ที่คอ" : "Neck"} items={NECK_WEAR} value={look.neck ?? 0} th={th} points={points} kit={kit}
+                 lookFor={(neck) => ({ ...look, neck })} onPick={(neck) => set({ neck })} />
+          <Cards label={th ? "ที่ผม" : "In the hair"} items={HAIR_WEAR} value={look.hairWear ?? 0} th={th} points={points} kit={kit}
+                 lookFor={(hairWear) => ({ ...look, hairWear })} onPick={(hairWear) => set({ hairWear })} />
+        </>}
+        {tab === "me" && <>
 
         {/* The game's races: each opens when its pictures are made; the rest are there, locked. Gone while everybody is
             the one model (lib/town/look's ONE_MODEL). */}
@@ -83,12 +123,7 @@ export default function Wardrobe({ look, onChange, onTurn, onClose, th }: {
         <Swatches label={th ? "สีผิว" : "Skin"} items={skinsOf(look.race)} value={look.skin} t={t} onPick={(skin) => set({ skin })} />
         <Choices label={th ? "ทรงตา" : "Eyes"} items={EYES} value={look.eyes} t={t} onPick={(eyes) => set({ eyes })} />
         <Swatches label={th ? "สีตา" : "Eye colour"} items={EYE_COLORS} value={look.eyeColor} t={t} onPick={(eyeColor) => set({ eyeColor })} />
-        {/* What is worn (lib/town/wear; the owner, 2026-10-17: a trial of five outfits, five hats, five accessories) */}
-        <Choices label={th ? "ชุด" : "Outfit"} items={OUTFITS} value={look.outfit ?? 0} t={t} onPick={(outfit) => set({ outfit })} />
-        <Choices label={th ? "หมวก" : "Hat"} items={HATS} value={look.hat ?? 0} t={t} onPick={(hat) => set({ hat })} />
-        <Choices label={th ? "แว่น" : "Glasses"} items={FACE_WEAR} value={look.faceWear ?? 0} t={t} onPick={(faceWear) => set({ faceWear })} />
-        <Choices label={th ? "ที่คอ" : "Neck"} items={NECK_WEAR} value={look.neck ?? 0} t={t} onPick={(neck) => set({ neck })} />
-        <Choices label={th ? "ที่ผม" : "In the hair"} items={HAIR_WEAR} value={look.hairWear ?? 0} t={t} onPick={(hairWear) => set({ hairWear })} />
+        </>}
       </div>
     </section>
   );
@@ -139,4 +174,77 @@ function Swatches({ label, items, value, onPick, t }: {
       </div>
     </Group>
   );
+}
+
+/**
+ * A tab's cards: each thing on the player's own doll (an outfit, the whole doll) or head (the rest), the one worn
+ * ringed, what is not had yet greyed with where it comes from (a rank of a line). One size for every card of a list,
+ * so the heads are drawn alike.
+ */
+function Cards({ label, items, value, onPick, lookFor, kit, points, th, body }: {
+  label: string; items: Wearable[]; value: number; onPick: (i: number) => void; lookFor: (i: number) => Look;
+  kit: PixelKit | null; points: Partial<Record<LineId, number>>; th: boolean;
+  /** Show the whole doll (outfits), not the head. */
+  body?: boolean;
+}) {
+  // one picture pixel a size for the whole list: the largest every head fits at (not a whole number: the heads are small
+  // things in a card, and a whole number of screen pixels left them a third of it)
+  const fit = (W: number, H: number) => {
+    if (!kit) return 1;
+    let k = Infinity;
+    for (let i = 0; i < items.length; i++) { const { w, h } = kit.headSize(lookFor(i)); k = Math.min(k, W / w, H / h); }
+    return k;
+  };
+  const whence = (item: Wearable) => item.from
+    ? `${th ? "แรงค์" : "Rank"} ${item.from.rank} · ${item.from.lines.map((l) => (th ? LINES[l].name.th : LINES[l].name.en)).join(" / ")}`
+    : "";
+  return (
+    <Group label={label}>
+      {/* (three to a row on the narrowest phones, where four squeezed the names: Codex's look, 2026-10-17) */}
+      <div role="group" aria-label={label} className="grid grid-cols-3 gap-2 min-[380px]:grid-cols-4">
+        {items.map((item, i) => {
+          const had = owns(item, points), on = i === value;
+          return (
+            <button key={item.id} type="button" aria-pressed={on} disabled={!had} onClick={() => onPick(i)}
+                    title={had ? (th ? item.th : item.en) : whence(item)}
+                    className={`pressable flex min-h-11 flex-col items-center gap-1 rounded-xl border px-1 pb-1.5 pt-1 text-center transition-colors ${on
+                      ? "border-accent bg-accent/15 text-accent" : had ? "border-line-strong text-ink hover:border-accent" : "cursor-not-allowed border-dashed border-line-strong text-ink"}`}>
+              <span className={`relative ${had ? "" : "opacity-45 grayscale"}`}>
+                <Preview w={56} h={body ? 72 : 56} deps={[kit, JSON.stringify(lookFor(i))]}
+                         draw={(ctx, W, H) => {
+                           if (!kit) return;
+                           const l = lookFor(i);
+                           if (body) {
+                             const s = (H * 0.92) / (kit.heightOf(l) ?? 52);
+                             kit.draw(ctx, l, "front", false, W / 2, H - Math.round(H * 0.04), s, {}, 1);
+                           } else {
+                             const k = fit(W, H), { w, h } = kit.headSize(l);
+                             kit.drawHead(ctx, l, Math.round((W - w * k) / 2), Math.round((H - h * k) / 2), k);
+                           }
+                         }} />
+                {!had && <span className="absolute bottom-0 right-0 grid size-5 place-items-center rounded-full bg-surface ring-1 ring-line-strong"><TownIcon name="lock" size={12} /></span>}
+              </span>
+              <span className="text-meta leading-tight">{th ? item.th : item.en}</span>
+              {!had && <span className="text-meta leading-tight text-muted">{whence(item)}</span>}
+            </button>
+          );
+        })}
+      </div>
+    </Group>
+  );
+}
+
+/** A small picture drawn by the doll's own code, crisp at the screen's own pixels. */
+function Preview({ w, h, draw, deps }: { w: number; h: number; draw: (ctx: CanvasRenderingContext2D, W: number, H: number) => void; deps: unknown[] }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const c = ref.current, ctx = c?.getContext("2d");
+    if (!c || !ctx) return;
+    const dpr = Math.max(1, Math.round(window.devicePixelRatio || 1));
+    c.width = w * dpr; c.height = h * dpr;
+    ctx.clearRect(0, 0, c.width, c.height);
+    draw(ctx, c.width, c.height);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+  return <canvas ref={ref} aria-hidden style={{ width: w, height: h, imageRendering: "pixelated" }} />;
 }
