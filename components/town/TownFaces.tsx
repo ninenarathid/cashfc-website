@@ -15,7 +15,7 @@ export function TownFaces({ look, kit, th, onPick }: { look: Look; kit: PixelKit
     <div role="group" aria-label={th ? "สีหน้า" : "Faces"} className="grid grid-cols-[repeat(3,3.5rem)] gap-1.5 sm:flex">
       {EXPRESSIONS.map((e, i) => (
         <button key={e.id} type="button" role="menuitem" onClick={() => onPick(i + 1)} data-emote-face={e.id}
-                className="pressable flex w-14 flex-col items-center gap-1 px-0.5 py-1.5 text-label text-ink hover:bg-card">
+                className="pressable flex w-14 flex-col items-center gap-1 px-0.5 py-1.5 text-ui text-ink hover:bg-card">
           <Head look={look} kit={kit} expr={e.id} />
           {th ? e.th : e.en}
         </button>
@@ -24,7 +24,7 @@ export function TownFaces({ look, kit, th, onPick }: { look: Look; kit: PixelKit
   );
 }
 
-const SIZE = 40;
+const SIZE = 46;
 
 function Head({ look, kit, expr }: { look: Look; kit: PixelKit | null; expr: string }) {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -34,9 +34,8 @@ function Head({ look, kit, expr }: { look: Look; kit: PixelKit | null; expr: str
     const dpr = Math.max(1, Math.round(window.devicePixelRatio || 1));
     c.width = SIZE * dpr; c.height = SIZE * dpr;
     ctx.clearRect(0, 0, c.width, c.height);
-    // a whole number of screen pixels to a picture pixel where that fits, so it stays crisp; smaller, smoothed
-    const { w, h } = kit.headSize(look), fit = Math.min(c.width / w, c.height / h);
-    const k = fit >= 1 ? Math.floor(fit) : fit;
+    // the whole head as large as fits: hard pixels at a picture pixel to a screen pixel or more, smoothed below that
+    const { w, h } = kit.headSize(look), k = Math.min(c.width / w, c.height / h);
     kit.drawHead(ctx, look, Math.round((c.width - w * k) / 2), Math.round((c.height - h * k) / 2), k, expr);
   }, [look, kit, expr]);
   return <canvas ref={ref} aria-hidden style={{ width: SIZE, height: SIZE, imageRendering: "pixelated" }} />;

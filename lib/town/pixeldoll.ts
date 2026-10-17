@@ -349,8 +349,9 @@ export class PixelKit {
   }
 
   /**
-   * A look's head seen from the front, and the box of its face about the head's reference point, in picture pixels:
-   * the face between the ears, from the brow to the chin, so every head is framed alike and the face is what shows.
+   * A look's head seen from the front, and its box about the head's reference point, in picture pixels: the whole head,
+   * ears and hair, from just above the crown down to the chin (a tall topknot above it and hair hanging below the chin
+   * are left out, as a portrait), so the face is large enough to read in a button.
    */
   private headOf(look: Look, expr?: string | null) {
     const A = this.atlas, g = (GENDERS[look.gender]?.id ?? "f") as G;
@@ -359,7 +360,9 @@ export class PixelKit {
     const hairName = A.hair[hairsOf(this.race)[look.hair]?.id ?? ""]?.front;
     const names = [ex && !ex.keep ? ex.face : faceName, ...(ex?.keep ? [ex.face] : []), ...(hairName ? [hairName] : [])];
     const [, , w, h, ox, oy] = A.frames[faceName];
-    return { names, hairName, box: { x0: ox + 7, y0: oy + 3, x1: ox + w - 7, y1: oy + h } };
+    let x0 = ox, y0 = oy, x1 = ox + w;
+    if (hairName) { const [, , hw, , hox, hoy] = A.frames[hairName]; x0 = Math.min(x0, hox); x1 = Math.max(x1, hox + hw); y0 = Math.max(oy - 5, Math.min(y0, hoy)); }
+    return { names, hairName, box: { x0, y0, x1, y1: oy + h } };
   }
 
   /** How wide and tall a look's head is seen from the front, in picture pixels (for drawing it alone, in a button). */

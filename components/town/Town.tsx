@@ -4849,13 +4849,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                   <TownFaces look={myLook} kit={kits.current.get(0) ?? null} th={w.th} onPick={(mood) => { s.express(mood); setEmoteOpen(false); }} />
                   <div className="flex gap-1.5 border-t border-line pt-2">
                   <button type="button" role="menuitem" onClick={() => { if (down) s.standUp(); else s.sitHere(); setEmoteOpen(false); }}
-                          className="pressable flex w-16 flex-col items-center gap-1 px-1 py-1.5 text-label text-ink hover:bg-card">
+                          className="pressable flex w-16 flex-col items-center gap-1 px-1 py-1.5 text-ui text-ink hover:bg-card">
                     <TownIcon name={down ? "standUp" : "sitDown"} size={30} />{down ? w.standUp : w.sitDown}
                     <kbd aria-hidden className="tk-key hidden sm:inline-grid">X</kbd>
                   </button>
                   {/* a sign held up over my head: a chat room, or a stall (the owner, 2026-10-06) */}
                   <button type="button" role="menuitem" onClick={() => { setEmoteOpen(false); openSignPanel(); }} data-emote-sign
-                          className="pressable flex w-16 flex-col items-center gap-1 px-1 py-1.5 text-label text-ink hover:bg-card">
+                          className="pressable flex w-16 flex-col items-center gap-1 px-1 py-1.5 text-ui text-ink hover:bg-card">
                     <SignIcon size={30} />{s.self.info.sign ? (w.th ? "ป้ายของฉัน" : "My sign") : (w.th ? "ชูป้าย" : "Sign")}
                   </button>
                   </div>
