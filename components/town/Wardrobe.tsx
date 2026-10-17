@@ -5,7 +5,7 @@ import { LINES, type LineId } from "@/lib/town/lines";
 import type { PixelKit } from "@/lib/town/pixeldoll";
 import { FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS, owns, type Wearable } from "@/lib/town/wear";
 import {
-  EYES, EYE_COLORS, GENDERS, HAIR_COLORS, ONE_MODEL, RACES, hairForGender, hairsFor, hairsOf, lookAsRace, randomLook, skinsOf,
+  EYES, EYE_COLORS, GENDERS, HAIR_COLORS, ONE_MODEL, RACES, hairForGender, hairsFor, hairsOf, lookAsRace, skinsOf,
   type Look, type Named, type Swatch,
 } from "@/lib/town/look";
 import TownIcon from "./TownIcon";
@@ -42,20 +42,15 @@ export default function Wardrobe({ look, kit, points, had, onChange, onTurn, onC
   const set = (patch: Partial<Look>) => onChange({ ...look, ...patch });
   const t = (n: Named | Swatch) => (th ? n.th : n.en);
   const [tab, setTab] = useState<Tab>("me");
-  // (the dice changes how one looks, never what one wears)
-  const worn = { outfit: look.outfit, hat: look.hat, faceWear: look.faceWear, neck: look.neck, hairWear: look.hairWear };
   const TABS: Array<[Tab, string]> = [["me", th ? "ตัวเรา" : "Me"], ["outfit", th ? "ชุด" : "Outfits"], ["wear", th ? "ของตกแต่ง" : "Accessories"]];
 
   return (
     <section aria-labelledby="wardrobe-h" className="flex h-full flex-col">
       <div className="flex items-center gap-2 border-b border-line px-4 py-3">
         <h2 id="wardrobe-h" className="font-display text-title font-semibold text-ink"><span className="flex items-center gap-2"><TownIcon name="wardrobe" size={22} />{th ? "แต่งตัว" : "Wardrobe"}</span></h2>
-        <button type="button" onClick={() => onChange({ ...randomLook(look.race), ...worn })}
-                className="pressable ml-auto min-h-11 rounded-full border border-line-strong px-3 py-1.5 text-ui text-ink hover:border-accent hover:text-accent sm:min-h-0">
-          <span className="flex items-center gap-1.5"><TownIcon name="dice" size={16} />{th ? "สุ่ม" : "Surprise me"}</span>
-        </button>
+        {/* (no dice any more: the owner, 2026-10-17, "เอาปุ่มสุ่มออกจากหน้า แต่งตัวเลย") */}
         <button type="button" onClick={onClose}
-                className="pressable min-h-11 rounded-full bg-accent px-4 py-1.5 text-ui font-semibold text-bg sm:min-h-0">
+                className="pressable ml-auto min-h-11 rounded-full bg-accent px-4 py-1.5 text-ui font-semibold text-bg sm:min-h-0">
           {th ? "เสร็จ" : "Done"}
         </button>
       </div>

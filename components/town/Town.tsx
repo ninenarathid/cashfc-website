@@ -3846,6 +3846,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const bagKey = useRef<(() => void) | null>(null);
   // (C's deed, and whether anything lies open over the map: both said anew at every render, read by the keys)
   const meKey = useRef<(() => void) | null>(null);
+  /** V opens the wardrobe and shuts it (the owner, 2026-10-17: a button for it in the HUD below, with a key). */
+  const wardrobeKey = useRef<(() => void) | null>(null);
   const openRef = useRef(false);
   useEffect(() => { wardrobeOpenRef.current = wardrobeOpen; }, [wardrobeOpen]);
 
@@ -4005,6 +4007,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         if (!meKey.current) return;
         e.preventDefault();
         meKey.current();
+        return;
+      }
+      if (e.code === "KeyV" && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat) {
+        if (!wardrobeKey.current) return;
+        e.preventDefault();
+        wardrobeKey.current();
         return;
       }
       if (e.code === "KeyM" && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat) {
@@ -4481,6 +4489,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const tabbar = phone && !covered;
   const hudBottom = tabbar ? "calc(4.5rem + env(safe-area-inset-bottom) + 0.75rem)" : "calc(env(safe-area-inset-bottom) + 0.75rem)";
   const chatBottom = lift > 40 ? `${lift + 8}px` : hudBottom;
+  wardrobeKey.current = s ? () => { if (wardrobeOpen) closeWardrobe(); else openWardrobe(); } : null;
   meKey.current = game && keeper && linesTold ? () => { setCard(null); setPopover(null); setPeopleOpen(false); setMenuOpen(false); setLinesOpen((o) => (o === "me" ? false : "me")); } : null;
   openRef.current = !!(card || popover || peopleOpen || historyOpen || trade || talk || wardrobeOpen || linesOpen || testOpen || boardOpen || signView || scroll || menuOpen || voiceTray || emoteOpen || statsOpen);
   // Forty-four pixel targets, grouped in quiet frames so the map keeps the attention.
@@ -4628,7 +4637,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
              </div>
              {!phone && (
                <ul aria-label={w.th ? "ปุ่มลัด" : "Keys"} data-town-keys className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 border-t-2 border-line pt-3 text-label leading-normal text-muted">
-                 {([["E", w.th ? "ทำกิจกรรมตรงนี้" : "Do what this place offers"], ["Space", w.th ? "กิจกรรมประจำจุด" : "This place's work"], ["I", w.th ? "กระเป๋า" : "Bag"], ["C", w.th ? "ตัวฉัน" : "Me"],
+                 {([["E", w.th ? "ทำกิจกรรมตรงนี้" : "Do what this place offers"], ["Space", w.th ? "กิจกรรมประจำจุด" : "This place's work"], ["I", w.th ? "กระเป๋า" : "Bag"], ["C", w.th ? "ตัวฉัน" : "Me"], ["V", w.th ? "แต่งตัว" : "Wardrobe"],
                     ["Q · 1–9", w.th ? "ของในมือ" : "In the hand"], ["X", w.th ? "นั่ง / ลุก" : "Sit / get up"], ["Enter", w.th ? "แชท" : "Chat"], ["M", w.th ? "ปิด/เปิดเสียงตัวเอง" : "Mute / unmute"],
                     ["Esc · F2", w.th ? "ปิด / เมนู" : "Close / menu"], ["+ − 0", w.th ? "ซูม / กลับมาที่ตัวเรา" : "Zoom / back to me"]] as const).map(([k, what]) => (
                    <li key={k} className="flex items-center gap-1.5"><kbd className="tk-key shrink-0">{k}</kbd><span className="min-w-0">{what}</span></li>
@@ -5038,6 +5047,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                     <Suspense fallback={null}>
                       <TownHand keeper={keeper} th={w.th} phone hidden={!!talk || boardOpen || wardrobeOpen || !!linesOpen || !!scroll || testOpen} className={hudBtn} />
                     </Suspense>
+                  )}
+                  {/* The wardrobe (the owner, 2026-10-17: "เพิ่มปุ่มแต่งตัวใน HUD ด้านล่าง พร้อม hot key"): V opens and shuts it */}
+                  {s && (
+                    <button type="button" onClick={() => { setMenuOpen(false); if (wardrobeOpen) closeWardrobe(); else openWardrobe(); }}
+                            aria-expanded={wardrobeOpen} title={w.wardrobe} aria-keyshortcuts="V" data-town-wardrobe-button
+                            className={`${hudBtn} town-hud-labelled`}>
+                      <TownIcon name="wardrobe" size={20} /><span aria-hidden className="town-hud-label">{w.th ? "แต่งตัว" : "Wardrobe"}</span><span className="sr-only">{w.wardrobe}</span>
+                      {!phone && <kbd aria-hidden className="tk-key town-hud-key absolute -top-1 -left-1">V</kbd>}
+                    </button>
                   )}
                   {/* The lines of work and their ladders: where whoever keeps the game has them */}
                   {game && keeper && linesTold && (
