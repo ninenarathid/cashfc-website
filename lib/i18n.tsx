@@ -3687,24 +3687,16 @@ const DICT = {
   "contact.savedFor": { en: "Saved for {name}", th: "บันทึกของ {name} แล้ว" },
   "contact.removedFor": { en: "Removed for {name}", th: "ลบของ {name} ออกแล้ว" },
 
-  /* ── The staff page (v279) ─────────────────────────────────────────
+  /* ── The staff page (v279, v280) ───────────────────────────────────
      Staff are members everywhere else; this page is the one thing more
-     they have, and for now it holds the contacts above, to read. */
+     they have: the contacts above, to read and to type in. */
   "staff.eyebrow": { en: "Staff", th: "Staff" },
   "staff.title": { en: "Members' Discord and Facebook", th: "Discord / Facebook ของสมาชิก" },
   "staff.lead": {
-    en: "How to reach each member outside the game, as the admins typed it in. Keep the Facebook to yourself: it is for staff and admins only.",
-    th: "ช่องทางติดต่อสมาชิกนอกเกม ตามที่แอดมินกรอกไว้ Facebook เป็นข้อมูลส่วนตัว เห็นเฉพาะ Staff กับแอดมิน อย่านำไปเผยแพร่ต่อนะ",
+    en: "How to reach each member outside the game. Staff and admins add and edit them here; each row saves by itself. Keep the Facebook to yourself: it is for staff and admins only.",
+    th: "ช่องทางติดต่อสมาชิกนอกเกม Staff และแอดมินเพิ่มหรือแก้ไขได้ที่นี่ กดบันทึกทีละแถว Facebook เป็นข้อมูลส่วนตัว เห็นเฉพาะ Staff กับแอดมิน อย่านำไปเผยแพร่ต่อนะ",
   },
-  "staff.count": { en: "{n} members on file", th: "มีข้อมูล {n} คน" },
   "staff.denied": { en: "This page is for staff.", th: "หน้านี้สำหรับ Staff เท่านั้น" },
-  "staff.empty": { en: "Nobody's contact is on file yet.", th: "ยังไม่มีข้อมูลติดต่อของใคร" },
-  "staff.notYet": {
-    en: "Not ready yet: the database needs v279 first.",
-    th: "ยังใช้ไม่ได้ ต้องรัน v279 ในฐานข้อมูลก่อน",
-  },
-  "staff.editAtAqua": { en: "Edit them on Aqua's page", th: "แก้ไขได้ที่หน้าของ Aqua" },
-  "staff.none": { en: "None", th: "ไม่มี" },
 
   /* ── The glamour contest ───────────────────────────────────────────
      Aqua's, one per festival. "Glamour", "popoto" and "mod" stay in

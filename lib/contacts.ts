@@ -84,8 +84,8 @@ export async function readContact(supabase: Client, characterId: number): Promis
 }
 
 /**
- * Keep what an admin typed. Both fields every time; both blank takes the row
- * away. Answers with the reason when it was refused, and null when it was not.
+ * Keep what an admin or a staff member (v280) typed. Both fields every time;
+ * both blank takes the row away. Answers with the reason when it was refused, and null when it was not.
  */
 export async function saveContact(
   supabase: Client, characterId: number, c: Contact,

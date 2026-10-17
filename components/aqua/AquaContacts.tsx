@@ -37,12 +37,16 @@ const fieldCls =
  * Somebody who has left the roster keeps their row here, named by number,
  * until an admin clears it. The site would otherwise be holding a Facebook
  * for a person nobody could find to remove.
+ *
+ * The staff page (v280) shows the same list `bare`: open from the start,
+ * with no fold and no heading, since the page around it is nothing else.
  */
 export default function AquaContacts(
-  { people: roster, className = "" }: {
+  { people: roster, className = "", bare = false }: {
     /** Everybody with a page: the roster, then the guests. */
     people: ContactPerson[];
     className?: string;
+    bare?: boolean;
   },
 ) {
   const { t } = useLang();
@@ -50,7 +54,7 @@ export default function AquaContacts(
   const box = useRef<HTMLDetailsElement>(null);
   const [open, setOpen] = useState(false);
   /** Once opened the rows stay, so folding it does not throw away what was being typed. */
-  const [everOpen, setEverOpen] = useState(false);
+  const [everOpen, setEverOpen] = useState(bare);
   const [state, setState] = useState<"loading" | "ready" | "missing">("loading");
   const [onFile, setOnFile] = useState<Map<number, Contact>>(new Map());
   const [q, setQ] = useState("");
@@ -114,22 +118,8 @@ export default function AquaContacts(
     ["empty", t("contact.empty", { n: counts.empty })],
   ];
 
-  return (
-    <details ref={box} id="contacts" open={open} className={`scroll-mt-24 ${className}`}
-             onToggle={(e) => {
-               const now = e.currentTarget.open;
-               setOpen(now);
-               if (now) setEverOpen(true);
-             }}>
-      <summary className="cursor-pointer font-display text-title font-semibold">
-        {t("contact.listTitle")}
-        {state === "ready" && (
-          <span className="ml-2 font-body text-ui font-normal text-muted">
-            {t("contact.listCount", { n: counts.filled, all: counts.all })}
-          </span>
-        )}
-      </summary>
-
+  const body = (
+    <>
       {everOpen && state === "loading" && (
         <div className="skeleton mt-3 h-24 rounded-lg" aria-hidden />
       )}
@@ -139,9 +129,9 @@ export default function AquaContacts(
 
       {everOpen && state === "ready" && (
         <>
-          <p className="mt-2 text-ui leading-relaxed text-muted">{t("contact.listHint")}</p>
+          {!bare && <p className="mt-2 text-ui leading-relaxed text-muted">{t("contact.listHint")}</p>}
 
-          <div className="mt-3 flex flex-wrap items-center gap-2">
+          <div className={`${bare ? "" : "mt-3 "}flex flex-wrap items-center gap-2`}>
             <input value={q}
                    onChange={(e) => { setQ(e.target.value); setLimit(PAGE); }}
                    placeholder={t("contact.search")} aria-label={t("contact.search")}
@@ -203,6 +193,27 @@ export default function AquaContacts(
           </div>
         </>
       )}
+    </>
+  );
+
+  if (bare) return <div className={className}>{body}</div>;
+
+  return (
+    <details ref={box} id="contacts" open={open} className={`scroll-mt-24 ${className}`}
+             onToggle={(e) => {
+               const now = e.currentTarget.open;
+               setOpen(now);
+               if (now) setEverOpen(true);
+             }}>
+      <summary className="cursor-pointer font-display text-title font-semibold">
+        {t("contact.listTitle")}
+        {state === "ready" && (
+          <span className="ml-2 font-body text-ui font-normal text-muted">
+            {t("contact.listCount", { n: counts.filled, all: counts.all })}
+          </span>
+        )}
+      </summary>
+      {body}
     </details>
   );
 }
