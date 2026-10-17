@@ -75,6 +75,15 @@ Where they differed, Codex's correction is taken and marked "(Codex)".
   at game size. Intentional isolated pixels in an expression are kept, not cleaned away as
   specks.
 
+**As built in the pilot (2026-10-17):** five expressions to start, on the owner's word: smile, surprised, sad,
+pout and shy.
+- Each is an in-place edit of the gender's own face (`<g>-x_<expr>-front`), shown for 4 s from the emote window.
+- Shy is laid over the player's own face and keeps their eyes (what changed below the eyes: the blush, the mouth).
+- The other four show their own eyes while they last, as authored faces first, as Codex advised.
+- The pinks are a cool rose, in a palette of their own, and never taken for skin.
+- Adding one: a prompt in `prompts/doll2/x-<g>-<id>.txt`, a line in `EXPRS` in the builder (with `keep`), and one
+  at the end of `lib/town/expression.ts`.
+
 ## Frames (per view; 2 views are drawn and mirrored to 4 directions)
 
 | Phase | Frames per view | Per outfit (×2 views) |
