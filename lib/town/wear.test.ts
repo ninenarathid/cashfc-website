@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { LINES } from "./lines";
-import { HATS, OUTFITS, onlyOwned, owns } from "./wear";
+import { FACE_WEAR, HATS, OUTFITS, onlyOwned, owns } from "./wear";
 
 const rank3 = (line: keyof typeof LINES) => LINES[line].marks[2];
 
@@ -14,6 +14,12 @@ describe("what is worn is had from the game (the owner, 2026-10-17)", () => {
     // the mountain's outfit: either of its two lines
     const mountain = OUTFITS.findIndex((o) => o.id === "mountain");
     expect(owns(OUTFITS[mountain], { felling: rank3("felling") })).toBe(true);
+  });
+
+  it("has what is bought or found only when the database says so", () => {
+    const glasses = FACE_WEAR.find((w) => w.id === "glasses")!;
+    expect(owns(glasses, { insects: 1e9 })).toBe(false);
+    expect(owns(glasses, {}, new Set(["glasses"]))).toBe(true);
   });
 
   it("takes off what is not had, and keeps a look that has everything as it is", () => {

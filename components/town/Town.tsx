@@ -75,7 +75,7 @@ import SignIcon from "./SignIcon";
 import type { SignView } from "./TownSign";
 import { TownFaces } from "./TownFaces";
 import { EXPRESSION_MS, expressionOf } from "@/lib/town/expression";
-import { WEAR_ALL_EVENT, onlyOwned, wearAllHere } from "@/lib/town/wear";
+import { FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS, WEAR_ALL_EVENT, onlyOwned, wearAllHere } from "@/lib/town/wear";
 import type { Stuck } from "@/lib/town/session";
 import type { Standing } from "./TownCook";
 import type { Pairing, Stander } from "./TownLine";
@@ -4394,6 +4394,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     window.addEventListener(WEAR_ALL_EVENT, read);
     return () => window.removeEventListener(WEAR_ALL_EVENT, read);
   }, []);
+  // what is bought or found: the database's (not built yet), or everything with the TEST switch
+  const wearHad = useMemo(() => new Set<string>(wearAll ? [OUTFITS, HATS, FACE_WEAR, NECK_WEAR, HAIR_WEAR].flatMap((l) => l.map((w) => w.id)) : []), [wearAll]);
   const wearPoints = wearAll ? Object.fromEntries(Object.keys(linesTold?.lines ?? {}).concat(["farming", "fishing", "kitchen", "forest", "mining", "felling", "insects", "well", "helpers"]).map((id) => [id, 1e9]))
     : Object.fromEntries(Object.entries(linesTold?.lines ?? {}).map(([id, l]) => [id, l.points]));
   // What I wear and have not had from the game (worn in the trial, before things were had from ranks) comes off, once
@@ -5074,7 +5076,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
              style={phone ? { bottom: tabbar ? "calc(4.5rem + env(safe-area-inset-bottom))" : 0 } : { bottom: "0.75rem" }}
              data-state="open">
           <Wardrobe look={myLook} th={w.th} kit={kits.current.get(0) ?? null}
-                    points={wearPoints}
+                    points={wearPoints} had={wearHad}
                     onChange={(l) => s.setLook(l)}
                     onTurn={(d) => { turn.current += d; }}
                     onClose={closeWardrobe} />

@@ -25,6 +25,21 @@
       "id": "mountain",
       "front": "a dark red flannel shirt with sleeves down to the wrists; brown suspenders over the shoulders; sturdy grey-brown work trousers tucked into tall brown boots",
       "back": "the back of a dark red flannel shirt with sleeves down to the wrists; brown suspenders crossing in an X on the back; sturdy grey-brown work trousers seen from behind, tucked into tall brown boots"
+    },
+    {
+      "id": "insects",
+      "front": "a mint-green short-sleeved shirt with two chest pockets; khaki knee-length shorts with a small round glass jar hanging from the belt; white knee socks and brown shoes. Render the glass jar with fully opaque pale-blue pixels, a dark outline and one solid white highlight, not partial transparency",
+      "back": "the back of a mint-green short-sleeved shirt; the back of khaki knee-length shorts, the small glass jar at the side of the belt; white knee socks and brown shoes seen from behind. Render the glass jar with fully opaque pale-blue pixels, a dark outline and one solid white highlight, not partial transparency"
+    },
+    {
+      "id": "well",
+      "front": "a sky-blue sleeveless tunic over a white short-sleeved undershirt; a wide navy sash tied at the waist; loose navy trousers rolled up to the shins; simple brown sandals",
+      "back": "the back of a sky-blue sleeveless tunic over a white short-sleeved undershirt; the knot of the wide navy sash at the back of the waist; loose navy trousers rolled up to the shins seen from behind; simple brown sandals seen from behind"
+    },
+    {
+      "id": "helpers",
+      "front": "a cream long-sleeved shirt under a bright orange vest with a small white star badge on the chest; brown trousers; brown boots; a small canvas tool bag at the hip",
+      "back": "the back of a cream long-sleeved shirt and the plain back of a bright orange vest; brown trousers seen from behind; brown boots seen from behind; the small canvas tool bag at the side of the hip"
     }
   ],
   "hats": [
@@ -53,6 +68,21 @@
       "front": "a bright yellow miner's hard hat with a short brim and a small round lamp fixed on the front",
       "back": "the same bright yellow miner's hard hat with its short brim, seen from behind, the lamp's strap around the back",
       "key": "the hat, including its attached lamp, the lamp's lens and housing, the retaining band and rear fitting wherever visible"
+    },
+    {
+      "id": "pith",
+      "front": "a light khaki pith helmet with a rounded dome and a short brim all round, with a mint-green band",
+      "back": "the same light khaki pith helmet with its mint-green band, seen from behind"
+    },
+    {
+      "id": "conical",
+      "front": "a wide conical hat woven from pale bamboo, its point at the top and its wide brim sloping down over her head",
+      "back": "the same wide conical woven bamboo hat, seen from behind"
+    },
+    {
+      "id": "cap",
+      "front": "a soft orange cap with a short stiff brim at the front and a small white star on the front",
+      "back": "the same soft orange cap, seen from behind, its short brim hidden at the front"
     }
   ],
   "accessories": [
