@@ -1,5 +1,6 @@
 "use client";
 
+import { wearAt } from "@/lib/town/wear";
 import { useEffect, useRef, useState } from "react";
 import { giftsAt, type Gifts } from "@/lib/town/gifts";
 import type { Keeper } from "@/lib/town/keeper";
@@ -168,6 +169,10 @@ export default function TownLines({ keeper, told, gifts, gifting, given, leaf, t
                           {rewards.filter(gift => gifts.had.includes(gift.id)).map(gift => (
                             <span key={gift.id} className="mt-0.5 flex items-center gap-1 text-label" data-lines-gift={gift.id}><TownIcon name={gift.id as IconName} size={16} /><span className="truncate">{th ? gift.name.th : gift.name.en}</span></span>
                           ))}
+                          {/* what this rank gives to wear (lib/town/wear), had with it */}
+                          {wearAt(picked, r.rank).map(w => (
+                            <span key={w.id} className="mt-0.5 flex items-center gap-1 text-label" data-lines-wearable={w.id}><TownIcon name="wardrobe" size={16} /><span className="truncate">{th ? w.th : w.en}</span></span>
+                          ))}
                           {missing && (
                             <button type="button" disabled={busy} onClick={() => take(r.rank)} data-lines-take={r.rank}
                                     className="pressable mt-1 min-h-8 rounded-md border-2 px-2.5 text-label font-semibold disabled:opacity-50" style={{ borderColor: "#8a5a12", backgroundColor: "#f0c060", color: "#3a2513" }}>{th ? "รับของขั้นนี้" : "Take this rank's gift"}</button>
@@ -177,6 +182,10 @@ export default function TownLines({ keeper, told, gifts, gifting, given, leaf, t
                         <>
                           <span className="block text-ui font-semibold" style={{ color: INK_SOFT }}>???</span>
                           {r.state === "next" && <span className="block font-data text-label tabular-nums" style={{ color: INK_SOFT }}>{th ? `ต้องถึง ${fmt(r.at)} แต้ม (อีก ${fmt(Math.max(0, r.at - mine.points))})` : `at ${fmt(r.at)} points (${fmt(Math.max(0, r.at - mine.points))} to go)`}</span>}
+                          {/* (the next rank says only how many things to wear it gives, never which) */}
+                          {r.state === "next" && wearAt(picked, r.rank).length > 0 && (
+                            <span className="mt-0.5 flex items-center gap-1 text-label" style={{ color: INK_SOFT }} data-lines-wearables-next><TownIcon name="wardrobe" size={16} />{th ? `+ ของแต่งตัว ${wearAt(picked, r.rank).length} ชิ้น` : `+ ${wearAt(picked, r.rank).length} to wear`}</span>
+                          )}
                         </>
                       )}
                     </span>

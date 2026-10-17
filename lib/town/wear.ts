@@ -84,6 +84,10 @@ export const owns = (item: Wearable | undefined, points: Partial<Record<LineId, 
   return isRank(from) ? from.lines.some((line) => rankOf(line, points[line] ?? 0) >= from.rank) : had.has(item.id);
 };
 
+/** What a rank of a line gives to wear (the lines' page lists it: the owner, 2026-10-17, "เพิ่มข้อมูลของ ของแต่งตัวที่จะได้ ในหน้า อาชีพ ด้วย"). */
+export const wearAt = (line: LineId, rank: number): Wearable[] =>
+  [OUTFITS, HATS, FACE_WEAR, NECK_WEAR, HAIR_WEAR].flatMap((list) => list.filter((w) => !!w.from && isRank(w.from) && w.from.rank === rank && w.from.lines.includes(line)));
+
 /** A look with whatever of it is not had taken off (to the starter, or to nothing worn), or the same look if all is had. */
 export function onlyOwned<L extends { outfit?: number; hat?: number; faceWear?: number; neck?: number; hairWear?: number }>(look: L, points: Partial<Record<LineId, number>>): L {
   const slots: Array<[keyof L & string, Wearable[]]> = [["outfit", OUTFITS], ["hat", HATS], ["faceWear", FACE_WEAR], ["neck", NECK_WEAR], ["hairWear", HAIR_WEAR]];

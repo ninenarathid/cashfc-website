@@ -196,29 +196,31 @@ function Cards({ label, items, value, onPick, lookFor, kit, points, had: bought,
     if (!kit) return 1;
     let k = Infinity;
     for (let i = 0; i < items.length; i++) { const { w, h } = kit.headSize(lookFor(i)); k = Math.min(k, W / w, H / h); }
-    return k;
+    return k * 0.86;
   };
   const line = (l: LineId) => (th ? LINES[l].name.th : LINES[l].name.en);
   const whence = (item: Wearable) => {
     const f = item.from;
     if (!f) return "";
-    if ("lines" in f) return `${th ? "แรงค์" : "Rank"} ${f.rank} · ${f.lines.map(line).join(" / ")}`;
+    if ("lines" in f) return `${th ? "แรงค์" : "Rank"} ${f.rank}
+${f.lines.map(line).join(" / ")}`;
     if ("shop" in f) return th ? "ร้านลุงขายของ" : "The uncle's shop";
     if ("merchant" in f) return th ? "พ่อค้าค้างคาว (เร็วๆ นี้)" : "The bat merchant (soon)";
-    return `${th ? "ดรอป" : "Drop"} ${+(f.chance * 100).toFixed(2)}% · ${line(f.drop)}`;
+    return `${th ? "ดรอป" : "Drop"} ${+(f.chance * 100).toFixed(2)}%
+${line(f.drop)}`;
   };
   return (
     <Group label={label}>
       {/* (three to a row on the narrowest phones, where four squeezed the names: Codex's look, 2026-10-17) */}
       <div role="group" aria-label={label} className="grid grid-cols-3 gap-2 min-[380px]:grid-cols-4">
         {items.map((item, i) => {
-          const had = owns(item, points, bought), on = i === value;
+          const had = owns(item, points, bought), on = had && i === value;
           return (
             <button key={item.id} type="button" aria-pressed={on} disabled={!had} onClick={() => onPick(i)}
-                    title={had ? (th ? item.th : item.en) : whence(item)} aria-label={had ? undefined : `??? · ${whence(item)}`}
+                    title={had ? (th ? item.th : item.en) : whence(item)} aria-label={had ? undefined : `??? · ${whence(item).replace("\n", " · ")}`}
                     className={`pressable flex min-h-11 flex-col items-center gap-1 rounded-xl border px-1 pb-1.5 pt-1 text-center transition-colors ${on
                       ? "border-accent bg-accent/15 text-accent" : had ? "border-line-strong text-ink hover:border-accent" : "cursor-not-allowed border-dashed border-line-strong text-ink"}`}>
-              <span className="relative">
+              <span className={`relative rounded-lg ${had ? "" : "bg-line-strong/35"}`}>
                 <Preview w={56} h={body ? 72 : 56} deps={[kit, JSON.stringify(lookFor(i)), had]}
                          draw={(ctx, W, H) => {
                            if (!kit) return;
@@ -236,7 +238,7 @@ function Cards({ label, items, value, onPick, lookFor, kit, points, had: bought,
                 {!had && <span className="absolute bottom-0 right-0 grid size-5 place-items-center rounded-full bg-surface ring-1 ring-line-strong"><TownIcon name="lock" size={12} /></span>}
               </span>
               <span className="text-meta leading-tight">{had ? (th ? item.th : item.en) : "???"}</span>
-              {!had && <span className="text-meta leading-tight text-muted">{whence(item)}</span>}
+              {!had && <span className="whitespace-pre-line text-meta leading-tight text-muted">{whence(item)}</span>}
             </button>
           );
         })}
