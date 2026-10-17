@@ -2,6 +2,90 @@
  "events": [
   {
    "date": "2026-10-17",
+   "type": "rare_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "earned Savoring the Realm: Veteran — only 2.9% of players have it"
+  },
+  {
+   "date": "2026-10-17",
+   "type": "job_up",
+   "id": 29152036,
+   "name": "Fluffy Tinytail",
+   "text": "is now a Expert Summoner"
+  },
+  {
+   "date": "2026-10-17",
+   "type": "rare_up",
+   "id": 38152072,
+   "name": "Parker Thonhart",
+   "text": "earned Skyward Knife II — only 2.9% of players have it"
+  },
+  {
+   "date": "2026-10-17",
+   "type": "rare_up",
+   "id": 44970350,
+   "name": "Allen Crist",
+   "text": "earned Denizens of the Sirensong Sea — only 4.2% of players have it"
+  },
+  {
+   "date": "2026-10-17",
+   "type": "job_up",
+   "id": 12478532,
+   "name": "Hakuryu Flare",
+   "text": "is now a Expert Reaper"
+  },
+  {
+   "date": "2026-10-17",
+   "type": "level_100",
+   "id": 57375278,
+   "name": "Komi Kona",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-10-17",
+   "type": "grade_up",
+   "id": 22461237,
+   "name": "Metatron Vtretikh",
+   "text": "is now a Master Explorer ✨"
+  },
+  {
+   "date": "2026-10-17",
+   "type": "level_100",
+   "id": 5644067,
+   "name": "Ninenine Everdark",
+   "text": "reached level 100 on Sage!"
+  },
+  {
+   "date": "2026-10-17",
+   "type": "rare_up",
+   "id": 44133352,
+   "name": "Seville Beoulve",
+   "text": "earned I've Got It: Pyros Knives — only 3.0% of players have it"
+  },
+  {
+   "date": "2026-10-17",
+   "type": "rare_up",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "earned Phantom of the Umbra: Staff Umbrae"
+  },
+  {
+   "date": "2026-10-17",
+   "type": "level_100",
+   "id": 58202955,
+   "name": "Trevas Aka",
+   "text": "reached level 100 on Astrologian!"
+  },
+  {
+   "date": "2026-10-17",
+   "type": "level_100",
+   "id": 60429500,
+   "name": "Jin Theape",
+   "text": "reached level 100 on Reaper!"
+  },
+  {
+   "date": "2026-10-17",
    "type": "level_100",
    "id": 12478532,
    "name": "Hakuryu Flare",
@@ -1315,90 +1399,6 @@
    "id": 46243891,
    "name": "Marin Elysium",
    "text": "earned Legends Never Die I — only 0.6% of players have it"
-  },
-  {
-   "date": "2026-10-05",
-   "type": "level_100",
-   "id": 29991345,
-   "name": "Transparent Crystal",
-   "text": "reached level 100 on Paladin!"
-  },
-  {
-   "date": "2026-10-05",
-   "type": "level_100",
-   "id": 42845691,
-   "name": "Yuukizuz Akino",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-10-05",
-   "type": "level_100",
-   "id": 60429500,
-   "name": "Jin Theape",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-10-05",
-   "type": "new_member",
-   "id": 57519259,
-   "name": "Kertia Cruz",
-   "text": "joined the FC — welcome!"
-  },
-  {
-   "date": "2026-10-05",
-   "type": "new_member",
-   "id": 21388050,
-   "name": "Riizerk Ciel",
-   "text": "joined the FC — welcome!"
-  },
-  {
-   "date": "2026-10-05",
-   "type": "level_100",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-10-05",
-   "type": "rare_up",
-   "id": 47218599,
-   "name": "Kawa Lynn",
-   "text": "earned With Pestle in Hand III — only 4.2% of players have it"
-  },
-  {
-   "date": "2026-10-05",
-   "type": "level_100",
-   "id": 51060767,
-   "name": "Yatchy Concreategirls",
-   "text": "reached level 100 on Reaper!"
-  },
-  {
-   "date": "2026-10-04",
-   "type": "level_100",
-   "id": 43864764,
-   "name": "Shinonome Kamemaru",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-10-04",
-   "type": "parse_up",
-   "id": 47525984,
-   "name": "Dasei Mizumoto",
-   "text": "set a new best parse: 10 on Valigarmanda as Machinist"
-  },
-  {
-   "date": "2026-10-04",
-   "type": "ex_clear",
-   "id": 47525984,
-   "name": "Dasei Mizumoto",
-   "text": "cleared Valigarmanda (Extreme)"
-  },
-  {
-   "date": "2026-10-04",
-   "type": "level_100",
-   "id": 61014734,
-   "name": "Hanna Doss",
-   "text": "reached level 100 on White Mage!"
   }
  ]
 }

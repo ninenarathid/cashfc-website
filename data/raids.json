@@ -10459,13 +10459,13 @@
     "job": "Samurai",
     "cleared": true,
     "job_kills": {
+     "Reaper": {
+      "kills": 7,
+      "best": 89
+     },
      "Samurai": {
       "kills": 1,
       "best": 76
-     },
-     "Reaper": {
-      "kills": 2,
-      "best": 56
      },
      "Monk": {
       "kills": 1,
@@ -23427,8 +23427,8 @@
       "best": 5
      },
      "Sage": {
-      "kills": 1,
-      "best": 1
+      "kills": 5,
+      "best": 5
      }
     }
    },
@@ -23473,7 +23473,13 @@
     "best": 20,
     "kills": 3,
     "job": "Sage",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Sage": {
+      "kills": 3,
+      "best": 20
+     }
+    }
    }
   ],
   "legacy": [
@@ -31010,7 +31016,7 @@
       "best": 20
      },
      "WhiteMage": {
-      "kills": 1,
+      "kills": 2,
       "best": 13
      }
     }
@@ -33984,6 +33990,10 @@
      "Dancer": {
       "kills": 17,
       "best": 81
+     },
+     "RedMage": {
+      "kills": 1,
+      "best": 19
      }
     }
    },
@@ -33999,12 +34009,12 @@
     "cleared": true,
     "job_kills": {
      "Dancer": {
-      "kills": 24,
+      "kills": 28,
       "best": 99
      },
      "BlackMage": {
-      "kills": 10,
-      "best": 60
+      "kills": 11,
+      "best": 61
      },
      "Pictomancer": {
       "kills": 4,
@@ -34015,8 +34025,8 @@
       "best": 67
      },
      "Summoner": {
-      "kills": 22,
-      "best": 56
+      "kills": 23,
+      "best": 61
      },
      "Bard": {
       "kills": 1,
@@ -34064,6 +34074,10 @@
     "job": "Dancer",
     "cleared": true,
     "job_kills": {
+     "Summoner": {
+      "kills": 5,
+      "best": 84
+     },
      "Dancer": {
       "kills": 11,
       "best": 90
@@ -60655,6 +60669,10 @@
     "job": "BlackMage",
     "cleared": true,
     "job_kills": {
+     "Samurai": {
+      "kills": 4,
+      "best": 37
+     },
      "BlackMage": {
       "kills": 5,
       "best": 63
@@ -60687,7 +60705,17 @@
     "best": 84,
     "kills": 3,
     "job": "Reaper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Reaper": {
+      "kills": 1,
+      "best": 84
+     },
+     "Samurai": {
+      "kills": 2,
+      "best": 62
+     }
+    }
    }
   ],
   "legacy": [
@@ -73142,7 +73170,7 @@
     "cleared": true,
     "job_kills": {
      "Paladin": {
-      "kills": 10,
+      "kills": 12,
       "best": 92
      },
      "DarkKnight": {
@@ -73190,8 +73218,8 @@
       "best": 43
      },
      "Paladin": {
-      "kills": 2,
-      "best": 64
+      "kills": 7,
+      "best": 70
      },
      "DarkKnight": {
       "kills": 1,
@@ -79717,7 +79745,17 @@
     "best": 22,
     "kills": 3,
     "job": "Machinist",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Machinist": {
+      "kills": 1,
+      "best": 22
+     },
+     "Monk": {
+      "kills": 2,
+      "best": 5
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -80824,7 +80862,13 @@
     "best": 8,
     "kills": 2,
     "job": "Pictomancer",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Pictomancer": {
+      "kills": 2,
+      "best": 8
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
