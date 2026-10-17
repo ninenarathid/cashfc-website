@@ -76893,7 +76893,13 @@
     "best": 62,
     "kills": 3,
     "job": "Viper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Viper": {
+      "kills": 3,
+      "best": 62
+     }
+    }
    }
   ],
   "legacy": [],
@@ -82053,7 +82059,7 @@
     "cleared": true,
     "job_kills": {
      "DarkKnight": {
-      "kills": 5,
+      "kills": 6,
       "best": 8
      },
      "Sage": {
@@ -82071,7 +82077,13 @@
     "best": 4,
     "kills": 5,
     "job": "DarkKnight",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "DarkKnight": {
+      "kills": 5,
+      "best": 4
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -82114,7 +82126,7 @@
       "best": 5
      },
      "DarkKnight": {
-      "kills": 8,
+      "kills": 9,
       "best": 22
      },
      "Paladin": {
