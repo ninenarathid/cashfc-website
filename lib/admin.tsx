@@ -77,10 +77,12 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
     const resolve = async (userId: string | undefined) => {
       if (!userId) { setRealAdmin(false); setVerified(false); setStaff(false); setReady(true); return; }
       const base = "is_admin, character_id, character_verified_at";
-      let { data, error } = await supabase.from("profiles")
+      const first = await supabase.from("profiles")
         .select(`${base}, is_staff`).eq("id", userId).maybeSingle();
       // A database without v279 has no is_staff, and the whole row would be lost with it, the admin's included.
-      if (error) ({ data } = await supabase.from("profiles").select(base).eq("id", userId).maybeSingle());
+      const { data } = first.error
+        ? await supabase.from("profiles").select(base).eq("id", userId).maybeSingle()
+        : first;
       const p = data as ProfileFlags | null;
       setRealAdmin(!!p?.is_admin);
       setStaff(!!p?.is_staff);
