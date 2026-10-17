@@ -72,6 +72,8 @@ import type { BridgeTap, Hand } from "./TownBridge";
 import type { Bearer, LampsHooks } from "./TownLamps";
 import SignIcon from "./SignIcon";
 import type { SignView } from "./TownSign";
+import { TownFaces } from "./TownFaces";
+import { EXPRESSION_MS, expressionOf } from "@/lib/town/expression";
 import type { Stuck } from "@/lib/town/session";
 import type { Standing } from "./TownCook";
 import type { Pairing, Stander } from "./TownLine";
@@ -422,6 +424,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const stillAt = useRef(0);
   /** The dolls' pictures, one per race, each fetched the first time somebody of that race is drawn. */
   const kits = useRef(new Map<number, PixelKit>());
+  /**
+   * When each face somebody makes was first seen here (lib/town/expression): its maker's page puts it away after a
+   * while, and this puts it away a little after that anyway, should that word be lost.
+   */
+  const moodSeen = useRef(new Map<string, { mood: number; at: number }>());
   const kitFor = (race: number): PixelKit | null => {
     const k = kits.current.get(race);
     if (k) return k;
@@ -3254,7 +3261,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (kit) {
       // Everybody on their own foot: a step offset from their id.
       const step = moving && !riding ? Math.floor(now / 1000 * WALK_FPS) + (a.info.id.charCodeAt(0) & 3) : undefined;
-      kit.draw(ctx, look, face.view, face.mirror, p.x, p.y, k, { step, blink, talk, sit: sitting(a) || riding, perch: !!tableSeatOf(a)?.back }, dpr);
+      const mood = a.info.mood ?? 0, seen = moodSeen.current.get(a.info.id);
+      if (!seen || seen.mood !== mood) moodSeen.current.set(a.info.id, { mood, at: now });
+      const expr = mood && now - (moodSeen.current.get(a.info.id)?.at ?? now) < EXPRESSION_MS + 1500 ? expressionOf(mood) : null;
+      kit.draw(ctx, look, face.view, face.mirror, p.x, p.y, k, { step, blink, talk, expr, sit: sitting(a) || riding, perch: !!tableSeatOf(a)?.back }, dpr);
     } else {
       // Until the dolls arrive: a simple figure.
       ctx.fillStyle = "#6aa9e0";
@@ -4834,7 +4844,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
             {emoteOpen && (() => {
               const down = (s.self.info.sit ?? -1) !== -1;
               return (
-                <div role="menu" aria-label={w.emote} className="pop-in tk tk-window absolute bottom-full left-0 z-20 mb-2 flex gap-1.5 p-3.5" data-state="open">
+                <div role="menu" aria-label={w.emote} className="pop-in tk tk-window absolute bottom-full left-0 z-20 mb-2 flex flex-col gap-2 p-3.5" data-state="open">
+                  {/* faces made for a moment (the owner, 2026-10-17): the player's own head making each */}
+                  <TownFaces look={myLook} kit={kits.current.get(0) ?? null} th={w.th} onPick={(mood) => { s.express(mood); setEmoteOpen(false); }} />
+                  <div className="flex gap-1.5 border-t border-line pt-2">
                   <button type="button" role="menuitem" onClick={() => { if (down) s.standUp(); else s.sitHere(); setEmoteOpen(false); }}
                           className="pressable flex w-16 flex-col items-center gap-1 px-1 py-1.5 text-label text-ink hover:bg-card">
                     <TownIcon name={down ? "standUp" : "sitDown"} size={30} />{down ? w.standUp : w.sitDown}
@@ -4845,6 +4858,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                           className="pressable flex w-16 flex-col items-center gap-1 px-1 py-1.5 text-label text-ink hover:bg-card">
                     <SignIcon size={30} />{s.self.info.sign ? (w.th ? "ป้ายของฉัน" : "My sign") : (w.th ? "ชูป้าย" : "Sign")}
                   </button>
+                  </div>
                 </div>
               );
             })()}

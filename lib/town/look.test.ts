@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   EYES, EYE_COLORS, GENDERS, HAIRS, HAIR_COLORS, LOOK_LENGTH, RACES, SKINS,
-  decodeLook, defaultLook, encodeLook, hairForGender, hairsFor, lookAsRace, randomLook, type Look,
+  ONE_MODEL, decodeLook, defaultLook, encodeLook, readLook, hairForGender, hairsFor, lookAsRace, randomLook, type Look,
 } from "./look";
 
 const at = (id: string) => HAIRS.findIndex((h) => h.id === id);
@@ -73,7 +73,18 @@ describe("races", () => {
       const as = lookAsRace(look, r);
       expect(as).toMatchObject({ race: r, gender: 1, hairColor: 7, eyeColor: 3, eyes: 4 });
       expect(RACES[r].hairs[as.hair].g).toBe(1);
-      expect(decodeLook(encodeLook(as))).toEqual(as);
+      expect(readLook(encodeLook(as))).toEqual(as);
+    }
+  });
+
+  it("are all shown as the one model, gender, colours and eyes kept (the owner, 2026-10-17)", () => {
+    expect(ONE_MODEL).toBe(true);
+    const look: Look = { race: 0, gender: 1, hair: at("m05"), hairColor: 7, eyeColor: 3, skin: 2, eyes: 4 };
+    for (let r = 1; r < RACES.length; r++) {
+      if (!RACES[r].hairs.length) continue;
+      const shown = decodeLook(encodeLook(lookAsRace(look, r)))!;
+      expect(shown).toMatchObject({ race: 0, gender: 1, hairColor: 7, eyeColor: 3, eyes: 4 });
+      expect(HAIRS[shown.hair].g).toBe(1);
     }
   });
 });

@@ -1,5 +1,6 @@
 // CASINO_NATIVE_MAP: native Town runtime, private admin rehearsal.
 "use client";
+import { EXPRESSION_MS, isMood } from "./expression";
 import {crossingExit} from "./temporary-crossings";
 import {boatMotion,boatRecovery,ridingBoat,boatMoving} from './lotus-boats';
 
@@ -285,7 +286,7 @@ export class TownSession {
   /** What I am doing, as the room is told. */
   doing(): Doing {
     const i = this.self.info;
-    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, turn: i.turn ?? 0, typing: i.typing ?? false, eat: i.eat ?? "", hold: i.hold ?? "", wet: i.wet ?? false, spent: i.spent ?? false, pet: i.pet ?? "", fish: i.fish ?? 0, sign: i.sign ?? "", circle: i.circle ?? "", carry: i.carry ?? "", flame: i.flame ?? 0, /* mining */ ...(i.lit ? { lit: i.lit } : {}),
+    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, turn: i.turn ?? 0, typing: i.typing ?? false, eat: i.eat ?? "", hold: i.hold ?? "", wet: i.wet ?? false, spent: i.spent ?? false, pet: i.pet ?? "", fish: i.fish ?? 0, sign: i.sign ?? "", circle: i.circle ?? "", carry: i.carry ?? "", flame: i.flame ?? 0, mood: i.mood ?? 0, /* mining */ ...(i.lit ? { lit: i.lit } : {}),
       // (felling: said only by somebody who has had a board up at a tree or braced a trunk, and from then on, so that it is heard to be over; a room where nobody has hears nothing new)
       ...(i.fell !== undefined ? { fell: i.fell } : {}),
       // (forging: said only by somebody who has held a tool with something to tell, and from then on, so that it is heard to be put away; a room where nobody has one hears nothing new)
@@ -423,6 +424,15 @@ export class TownSession {
     const turn = left ? 2 : 1;
     if ((this.self.info.turn ?? 0) !== turn) this.tell({ turn });
     return true;
+  }
+
+  private moodTimer: ReturnType<typeof setTimeout> | null = null;
+  /** Make a face for a moment (lib/town/expression: its place in the list plus one), from the emote window. */
+  express(mood: number) {
+    if (this.closed || !isMood(mood) || mood === 0) return;
+    if (this.moodTimer) clearTimeout(this.moodTimer);
+    this.tell({ mood });
+    this.moodTimer = setTimeout(() => { this.moodTimer = null; if (!this.closed && this.self.info.mood) this.tell({ mood: 0 }); }, EXPRESSION_MS);
   }
 
   /** Get up, from a bench or the ground, and stay where I am. */
@@ -1363,6 +1373,7 @@ export class TownSession {
       sitOn: (bench: number) => this.sitOn(bench),
       sitHere: () => this.sitHere(),
       standUp: () => this.standUp(),
+      express: (mood: number) => this.express(mood),
       chat: (text: string) => this.sendChat(text),
       chatLog: () => this.chat.map((l) => ({ name: l.name, text: l.text, mine: l.mine })),
       unread: () => this.unread,

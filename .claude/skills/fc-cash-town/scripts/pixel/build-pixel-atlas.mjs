@@ -1,12 +1,16 @@
 // Cash Town's pixel Lalafell: AI sheets in work/out -> public/town/pixel-<hash>.png + pixel.json.
 //
-//   node build-pixel-atlas.mjs [--out <dir>]        (default: fcnext/public/town)
+//   node build-pixel-atlas.mjs [--out <dir>] [--doll2]   (default: fcnext/public/town)
+//
+// --doll2 (DOLL2.md, the owner 2026-10-17): one body for both genders, the new starter outfit
+// (d2-starter-<type>, skin from d2-skinkey-<type>), in place of the gendered starter bodies.
 //
 // Sheets, all 1536x1024 in-place edits of one another so their figures line up:
 //   f-bald-<type>.png      the shared skull: a bald Lalafell girl
 //   <g>-starter-<type>.png the body: bald, in the gender's starter outfit (g = f | m)
 //   f-neutral-front.png    the girl's calm face on the bald head
 //   m-face-front.png       the boy's face on that same head
+//   <g>-x_<expr>-front.png an expression: an in-place edit of the gender's face (EXPRS below)
 //   f-<hair>-<type>.png    a hairstyle on the girl's bald head, the hair in key green
 //                          (hair = f01..f14 for girls, m01..m13 for boys: the creator's own list)
 //   type = front (walk, 3/4 front), back (walk, 3/4 back), poses (sit front, sit back, sleep, wave)
@@ -46,8 +50,14 @@ const EYES = ["round", "big", "sharp", "droopy", "cat", "small"];
 const FACES = [["f", "neutral", "front"], ["m", "face", "front"],
   ...["f", "m"].flatMap(g => EYES.slice(1).map(e => [g, `eyes_${e}`, "front"]))];
 const FACE = { f: "f-neutral-front", m: "m-face-front" };
+// Expressions (the owner, 2026-10-17: "expression ช่วยออกแบบ เริ่มต้นมาซัก 5 แบบ"), each an in-place edit of the
+// gender's face. `keep`: the player's own eyes stay and only what changed elsewhere (the blush, the mouth) is laid
+// over their face; otherwise the expression's whole face is shown in place of theirs while it lasts.
+const EXPRS = [["happy", false], ["surprised", false], ["sad", false], ["pout", false], ["shy", true]];
+FACES.push(...["f", "m"].flatMap(g => EXPRS.map(([e]) => [g, `x_${e}`, "front"])));
+const D2 = process.argv.includes("--doll2");
 
-const file = (g, h, t) => path.join(OUT, `${g}-${h}-${t}.png`);
+const file = (g, h, t) => path.join(OUT, D2 && (h === "starter" || h === "skinkey") ? `d2-${h}-${t}.png` : `${g}-${h}-${t}.png`);
 const have = (g, h, t) => fs.existsSync(file(g, h, t));
 
 /* ── 1. every sheet to cells, on its type's grid, in one palette, lined up ── */
@@ -93,9 +103,11 @@ for (const t of TYPES) { const g = grids[`f-bald-${t}`]; rawSkull[t] = { GW: g.G
 // Three palettes: the bodies (the outfits' reds and navies), the skull and faces (the
 // violet eyes, recoloured later, must stay violet), and the hair. In one shared palette the
 // rarer colours drown among the hair sheets' greens.
-const role = k => (k.includes("-skinkey-") ? "key" : k.includes("-starter-") ? "body" : /^(f-bald|f-neutral|m-face|[fm]-eyes_)/.test(k) ? "face" : "hair");
+// Expressions have a palette of their own: among the other faces their few pinks (a blush, a tongue) and the blue of
+// a tear were merged into the skin.
+const role = k => (k.includes("-skinkey-") ? "key" : k.includes("-starter-") ? "body" : /^[fm]-x_/.test(k) ? "expr" : /^(f-bald|f-neutral|m-face|[fm]-eyes_)/.test(k) ? "face" : "hair");
 const PALS = {};
-for (const r of ["body", "face", "hair"]) {
+for (const r of ["body", "face", "hair", "expr"]) {
   const keys = Object.keys(grids).filter(k => role(k) === r);
   const pal = L.paletteOf(keys.map(k => grids[k]), 96);
   PALS[r] = pal;
@@ -402,6 +414,54 @@ for (const gnd of GENDERS) for (const e of EYES) {
   faceSkin(g, set);
   faces.push(["face-back", g, set]);
 }
+// expressions: the blush, a tongue and a tear are drawn in a cool rose-pink or blue, never skin, so a
+// change of skin keeps them (Codex's read of the prompts, 2026-10-17)
+const isAccent = (c, i) => { const [h, s] = L.hsl(c[i], c[i + 1], c[i + 2]); return (h >= 320 || h <= 4) && s > 0.35; };
+const exprSkin = (g, set) => { for (const i of set) if (isWarm(g.c, i * 4) && !isAccent(g.c, i * 4) && !L.clsAt(g, i % g.GW, (i / g.GW) | 0).startsWith("violet")) skinCells.push([g, i]); };
+meta.expr = { f: {}, m: {} };
+for (const gnd of GENDERS) for (const [e, keep] of EXPRS) {
+  const key = `${gnd}-x_${e}-front`;
+  if (!grids[key]) { console.log(`  no ${key}`); continue; }
+  const g = copyOf(grids[key]), whole = subset(g, figs[key][IDLE], (x, y) => y <= REF.front.cut);
+  let set = whole;
+  if (keep) {
+    // only what differs from the gender's own face, away from the eyes (theirs stay)
+    const base = grids[FACE[gnd]], near = new Set();
+    for (const i of whole) { const x = i % g.GW, y = (i / g.GW) | 0;
+      if (L.clsAt(base, x, y).startsWith("violet"))
+        for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) near.add((y + dy) * g.GW + x + dx); }
+    // A cell is a feature when it is pink, dark (a line, a mouth) or not skin at all; the model repaints the skin
+    // in its own shades, so plain colour differences would take the whole face.
+    const feature = (gr, i) => { const o = i * 4; if (!gr.c[o + 3]) return false;
+      return isAccent(gr.c, o) || !isWarm(gr.c, o) || L.hsl(gr.c[o], gr.c[o + 1], gr.c[o + 2])[2] < 0.35; };
+    // what changes is at the eyes' level and below (a blush, a mouth): nothing above them is laid over the face
+    let eyeTop = 1e9; for (const i of whole) if (L.clsAt(base, i % g.GW, (i / g.GW) | 0).startsWith("violet")) eyeTop = Math.min(eyeTop, (i / g.GW) | 0);
+    set = new Set([...whole].filter(i => {
+      if (near.has(i)) return false;
+      const fe = feature(g, i), fb = feature(base, i);
+      if (fe !== fb) return true;
+      if (!fe) return false;
+      const o = i * 4;
+      return Math.abs(g.c[o] - base.c[o]) + Math.abs(g.c[o + 1] - base.c[o + 1]) + Math.abs(g.c[o + 2] - base.c[o + 2]) > 90;
+    }));
+    // the outline is the head's own: never part of what is laid over it
+    const edge = (i) => { const x = i % g.GW, y = (i / g.GW) | 0; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (!whole.has((y + dy) * g.GW + x + dx)) return true; return false; };
+    for (const i of [...set]) if (edge(i) || ((i / g.GW) | 0) < eyeTop - 1) set.delete(i);
+    // and only clumps of three or more (a pink cell always stays: a blush is drawn in short strokes): single cells
+    // are the model's own repainting
+    const seen = new Set();
+    for (const i of [...set]) { if (seen.has(i)) continue;
+      const st = [i], comp = []; seen.add(i);
+      while (st.length) { const q = st.pop(); comp.push(q); const x = q % g.GW, y = (q / g.GW) | 0;
+        for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const j = (y + dy) * g.GW + x + dx; if (set.has(j) && !seen.has(j)) { seen.add(j); st.push(j); } } }
+      if (comp.length < 3) for (const q of comp) if (!isAccent(g.c, q * 4)) set.delete(q); }
+  }
+  if (process.env.EXPR_DEBUG) { const acc = [...whole].filter(i => isAccent(g.c, i * 4)).length, accIn = [...set].filter(i => isAccent(g.c, i * 4)).length; console.log(`  expr ${gnd} ${e}: ${whole.size} face cells, ${acc} pink, ${set.size} laid (${accIn} pink)`); }
+  exprSkin(g, set);
+  const name = `expr-${gnd}-${e}`;
+  faces.push([name, g, set]);
+  meta.expr[gnd][e] = { face: name, keep };
+}
 
 // hole check (as build-race-atlas.mjs): every cell of a step's figure from the chin down, and any cell of it
 // inside the doll, must be covered by the body or the shared head laid on it
@@ -463,7 +523,7 @@ for (const [name, g, set] of faces) {
   const t = name === "face-back" ? "back" : "front";
   const im = L.crop(g, set);
   const piece = { name, img: im, ox: im.x0 - REF[t].hx, oy: im.y0 - REF[t].cut };
-  if (t === "front") { const f = faceOf(g, set, im); if (f.eyes.length === 2) meta.faceData[name] = f; else console.log(`  ${name}: ${f.eyes.length} eye(s) found, no blink`); }
+  if (t === "front" && !name.startsWith("expr-")) { const f = faceOf(g, set, im); if (f.eyes.length === 2) meta.faceData[name] = f; else console.log(`  ${name}: ${f.eyes.length} eye(s) found, no blink`); }
   pieces.push(piece);
 }
 

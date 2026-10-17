@@ -1,0 +1,5 @@
+Edit the attached pixel art sprite sheet. Keep everything exactly where it is: the same canvas, the same four figures at the same positions and the same size, the same poses, the same bald round head with exactly the same outline and size, the same long pointed ears, the same outfit, the same chunky square pixel size, the same thick dark outline and the same pixel art style.
+
+Change only his facial expression to a cute annoyed pout: the eyes narrowed, the upper eyelids slanting down towards the nose, the same violet colour, the cheeks a little puffed with a light pink blush, and a small pouting mouth pressed shut. Use opaque cool rose-pink near #CF5C92 for all pink accents, with any shades kept in hue 320–340 degrees, distinct from the peach skin and violet eyes. The same expression in all four frames, drawn in the same place on the face as the eyes and mouth are now.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients. Transparent background, no text, no labels, no ground shadow, nothing else changed.

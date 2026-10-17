@@ -59,6 +59,11 @@ interface AtlasJson {
   faceData: Record<string, { eyes: Eye[]; mouth: { x: number; y: number } | null; skin: RGB }>;
   /** The skin ramp: every skin pixel is exactly one of these. */
   skin: RGB[];
+  /**
+   * Faces made for a moment (lib/town/expression), per gender: the piece, and whether it is laid over the player's own
+   * face (`keep`: their eyes stay) or shown in its place. Missing from an atlas built before them.
+   */
+  expr?: Partial<Record<G, Record<string, { face: string; keep: boolean }>>>;
 }
 
 /** Which way a doll faces: three-quarter towards the viewer, or away; both turned to the right. */
@@ -73,6 +78,8 @@ export interface DrawState {
   blink?: boolean;
   /** Mouth open (talking). */
   talk?: boolean;
+  /** A face made for a moment (an id of lib/town/expression), seen from the front only; no blink or talk meanwhile. */
+  expr?: string | null;
   /** Sitting (on a bench): drawn with its seat at (x, y). */
   sit?: boolean;
   /**
@@ -342,6 +349,45 @@ export class PixelKit {
   }
 
   /**
+   * A look's head seen from the front, and the box of its face about the head's reference point, in picture pixels:
+   * the face between the ears, from the brow to the chin, so every head is framed alike and the face is what shows.
+   */
+  private headOf(look: Look, expr?: string | null) {
+    const A = this.atlas, g = (GENDERS[look.gender]?.id ?? "f") as G;
+    const faceName = A.face[g][EYES[look.eyes]?.id] ?? A.face[g].round;
+    const ex = expr ? A.expr?.[g]?.[expr] : undefined;
+    const hairName = A.hair[hairsOf(this.race)[look.hair]?.id ?? ""]?.front;
+    const names = [ex && !ex.keep ? ex.face : faceName, ...(ex?.keep ? [ex.face] : []), ...(hairName ? [hairName] : [])];
+    const [, , w, h, ox, oy] = A.frames[faceName];
+    return { names, hairName, box: { x0: ox + 7, y0: oy + 3, x1: ox + w - 7, y1: oy + h } };
+  }
+
+  /** How wide and tall a look's head is seen from the front, in picture pixels (for drawing it alone, in a button). */
+  headSize(look: Look): { w: number; h: number } {
+    const { box } = this.headOf(look);
+    return { w: box.x1 - box.x0, h: box.y1 - box.y0 };
+  }
+
+  /**
+   * A look's head alone, seen from the front, making a face (or none), its box's top left at (x, y), one picture
+   * pixel `scale` canvas units: the emote window's buttons show the player's own head making each face.
+   */
+  drawHead(ctx: CanvasRenderingContext2D, look: Look, x: number, y: number, scale: number, expr?: string | null) {
+    const A = this.atlas, { names, hairName, box } = this.headOf(look, expr);
+    ctx.save();
+    ctx.imageSmoothingEnabled = scale < 1;
+    ctx.imageSmoothingQuality = "high";
+    ctx.translate(x, y);
+    ctx.scale(scale, scale);
+    ctx.translate(-box.x0, -box.y0);
+    for (const n of names) {
+      const [, , , , ox, oy] = A.frames[n];
+      ctx.drawImage(n === hairName ? this.hair(n, look) : this.face(n, look)[0], ox, oy);
+    }
+    ctx.restore();
+  }
+
+  /**
    * Draw a doll with its feet at (x, y), one picture pixel `scale` canvas
    * units across. `mirror` faces it left. `px` is how many device pixels a
    * canvas unit is, so the doll lands on whole pixels and stays crisp.
@@ -359,8 +405,10 @@ export class PixelKit {
     const step = perch ? steps[STAND] : sat || steps[state.step === undefined ? STAND : ((state.step % 4) + 4) % 4];
     const faceName = view === "back" ? (A.face[g].back ?? A.face.back!) : (A.face[g][EYES[look.eyes]?.id] ?? A.face[g].round);
     const hairName = A.hair[hairsOf(this.race)[look.hair]?.id ?? ""]?.[view];
-    const faces = this.face(faceName, look);
-    const face = faces[faces.length > 1 ? (state.blink ? 1 : 0) + (state.talk ? 2 : 0) : 0];
+    const ex = view === "front" && state.expr ? A.expr?.[g]?.[state.expr] : undefined;
+    const shown = ex && !ex.keep ? ex.face : faceName;
+    const faces = this.face(shown, look);
+    const face = faces[!ex && faces.length > 1 ? (state.blink ? 1 : 0) + (state.talk ? 2 : 0) : 0];
 
     ctx.save();
     // Hard pixels while a picture pixel covers at least a screen pixel; zoomed
@@ -380,8 +428,9 @@ export class PixelKit {
     ctx.translate(step.hx * kb, (step.hy + perch) * kb);
     ctx.imageSmoothingEnabled = state.smooth ?? kh * px < 1;
     ctx.scale(kh, kh);
-    const [, , , , fox, foy] = A.frames[faceName];
+    const [, , , , fox, foy] = A.frames[shown];
     ctx.drawImage(face, fox, foy);
+    if (ex?.keep) { const [, , , , eox, eoy] = A.frames[ex.face]; ctx.drawImage(this.face(ex.face, look)[0], eox, eoy); }
     if (hairName) {
       const [, , , , hox, hoy] = A.frames[hairName];
       ctx.drawImage(this.hair(hairName, look), hox, hoy);

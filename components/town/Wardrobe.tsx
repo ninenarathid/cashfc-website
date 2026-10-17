@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  EYES, EYE_COLORS, GENDERS, HAIR_COLORS, RACES, hairForGender, hairsFor, hairsOf, lookAsRace, randomLook, skinsOf,
+  EYES, EYE_COLORS, GENDERS, HAIR_COLORS, ONE_MODEL, RACES, hairForGender, hairsFor, hairsOf, lookAsRace, randomLook, skinsOf,
   type Look, type Named, type Swatch,
 } from "@/lib/town/look";
 import TownIcon from "./TownIcon";
@@ -53,8 +53,9 @@ export default function Wardrobe({ look, onChange, onTurn, onClose, th }: {
           </div>
         </Group>
 
-        {/* The game's races: each opens when its pictures are made; the rest are there, locked. */}
-        <Group label={th ? "เผ่า" : "Race"}>
+        {/* The game's races: each opens when its pictures are made; the rest are there, locked. Gone while everybody is
+            the one model (lib/town/look's ONE_MODEL). */}
+        {!ONE_MODEL && <Group label={th ? "เผ่า" : "Race"}>
           <div role="group" aria-label={th ? "เผ่า" : "Race"} className="flex flex-wrap gap-1.5">
             {RACES.map((r, i) => r.open ? (
               <button key={r.id} type="button" aria-pressed={look.race === i} onClick={() => onChange(lookAsRace(look, i))}
@@ -71,7 +72,7 @@ export default function Wardrobe({ look, onChange, onTurn, onClose, th }: {
               </button>
             ))}
           </div>
-        </Group>
+        </Group>}
 
         <Choices label={th ? "เพศ" : "Body"} items={GENDERS} value={look.gender} t={t}
                  onPick={(gender) => set({ gender, hair: hairForGender(look.hair, gender, look.race) })} />

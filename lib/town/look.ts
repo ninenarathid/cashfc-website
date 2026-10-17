@@ -218,11 +218,25 @@ const V2_HAIRS = ["twin", "spiky", "bun", "bob", "long", "pony", "bald"];
 const oldHair = (name: string, gender: number) => hairAt(OLD_HAIRS[name][gender]);
 
 /**
+ * One model for everybody (the owner, 2026-10-17: everyone becomes the one model, never named a race, only male and
+ * female; DOLL2.md in the fc-cash-town skill's scripts/pixel): every look is read as the first race's, keeping its
+ * gender, colours and eyes, the hairstyle at the same place in that gender's list. What a member chose is still
+ * written as they chose it, until they change it in the wardrobe.
+ */
+export const ONE_MODEL = true;
+
+/** A look as written, of whatever race it was written for (`readLook`): what decodeLook shows. */
+export function decodeLook(code: unknown): Look | null {
+  const look = readLook(code);
+  return look && ONE_MODEL && look.race !== 0 ? lookAsRace(look, 0) : look;
+}
+
+/**
  * A look as written by encodeLook (or by versions 1 to 3), or null for
  * anything else (it may come from another browser). A hairstyle from the other
  * gender's list is moved to the same place in this gender's.
  */
-export function decodeLook(code: unknown): Look | null {
+export function readLook(code: unknown): Look | null {
   if (typeof code !== "string") return null;
   if (code.length === LOOK_LENGTH && code[0] === VERSION) {
     const race = digit(code[1], RACES.length);
