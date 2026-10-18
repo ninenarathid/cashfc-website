@@ -1758,7 +1758,13 @@
       "best": 16,
       "median": 8,
       "kills": 5,
-      "job": "BlackMage"
+      "job": "BlackMage",
+      "job_kills": {
+       "BlackMage": {
+        "kills": 5,
+        "best": 16
+       }
+      }
      },
      {
       "label": "P10S",
@@ -1767,7 +1773,13 @@
       "best": 11,
       "median": 3,
       "kills": 8,
-      "job": "BlackMage"
+      "job": "BlackMage",
+      "job_kills": {
+       "BlackMage": {
+        "kills": 8,
+        "best": 11
+       }
+      }
      },
      {
       "label": "P11S",
@@ -1776,7 +1788,13 @@
       "best": 17,
       "median": 6,
       "kills": 9,
-      "job": "BlackMage"
+      "job": "BlackMage",
+      "job_kills": {
+       "BlackMage": {
+        "kills": 9,
+        "best": 17
+       }
+      }
      },
      {
       "label": "P12S",
@@ -1785,7 +1803,13 @@
       "best": 17,
       "median": 7,
       "kills": 39,
-      "job": "BlackMage"
+      "job": "BlackMage",
+      "job_kills": {
+       "BlackMage": {
+        "kills": 39,
+        "best": 17
+       }
+      }
      },
      {
       "label": null,
@@ -1794,7 +1818,13 @@
       "best": 4,
       "median": 3,
       "kills": 5,
-      "job": "BlackMage"
+      "job": "BlackMage",
+      "job_kills": {
+       "BlackMage": {
+        "kills": 5,
+        "best": 4
+       }
+      }
      }
     ]
    },
@@ -5385,6 +5415,7 @@
     "encounters": [
      {
       "label": "P1S",
+      "encounter_id": 78,
       "name": "Erichthonios",
       "best": 87,
       "median": 72,
@@ -5393,6 +5424,7 @@
      },
      {
       "label": "P2S",
+      "encounter_id": 79,
       "name": "Hippokampos",
       "best": 87,
       "median": 63,
@@ -5401,6 +5433,7 @@
      },
      {
       "label": "P3S",
+      "encounter_id": 80,
       "name": "Phoinix",
       "best": 77,
       "median": 36,
@@ -5408,7 +5441,8 @@
       "job": "WhiteMage"
      },
      {
-      "label": "P4S-1",
+      "label": "P4S",
+      "encounter_id": 81,
       "name": "Hesperos",
       "best": 61,
       "median": 40,
@@ -5416,7 +5450,8 @@
       "job": "WhiteMage"
      },
      {
-      "label": "P4S-2",
+      "label": null,
+      "encounter_id": 82,
       "name": "Hesperos II",
       "best": 35,
       "median": 15,
@@ -16109,6 +16144,7 @@
     "encounters": [
      {
       "label": "P1S",
+      "encounter_id": 78,
       "name": "Erichthonios",
       "best": 98,
       "median": 91,
@@ -16117,6 +16153,7 @@
      },
      {
       "label": "P2S",
+      "encounter_id": 79,
       "name": "Hippokampos",
       "best": 98,
       "median": 98,
@@ -16125,6 +16162,7 @@
      },
      {
       "label": "P3S",
+      "encounter_id": 80,
       "name": "Phoinix",
       "best": 92,
       "median": 76,
@@ -16132,7 +16170,8 @@
       "job": "Scholar"
      },
      {
-      "label": "P4S-1",
+      "label": "P4S",
+      "encounter_id": 81,
       "name": "Hesperos",
       "best": 92,
       "median": 79,
@@ -16140,7 +16179,8 @@
       "job": "Scholar"
      },
      {
-      "label": "P4S-2",
+      "label": null,
+      "encounter_id": 82,
       "name": "Hesperos II",
       "best": 88,
       "median": 78,
@@ -29698,6 +29738,7 @@
     "encounters": [
      {
       "label": "P1S",
+      "encounter_id": 78,
       "name": "Erichthonios",
       "best": 43,
       "median": 27,
@@ -29706,6 +29747,7 @@
      },
      {
       "label": "P2S",
+      "encounter_id": 79,
       "name": "Hippokampos",
       "best": 28,
       "median": 28,
@@ -30723,6 +30765,7 @@
     "encounters": [
      {
       "label": "P1S",
+      "encounter_id": 78,
       "name": "Erichthonios",
       "best": 98,
       "median": 92,
@@ -30731,6 +30774,7 @@
      },
      {
       "label": "P2S",
+      "encounter_id": 79,
       "name": "Hippokampos",
       "best": 95,
       "median": 75,
@@ -30739,6 +30783,7 @@
      },
      {
       "label": "P3S",
+      "encounter_id": 80,
       "name": "Phoinix",
       "best": 93,
       "median": 81,
@@ -30746,7 +30791,8 @@
       "job": "BlackMage"
      },
      {
-      "label": "P4S-1",
+      "label": "P4S",
+      "encounter_id": 81,
       "name": "Hesperos",
       "best": 90,
       "median": 64,
@@ -30754,7 +30800,8 @@
       "job": "BlackMage"
      },
      {
-      "label": "P4S-2",
+      "label": null,
+      "encounter_id": 82,
       "name": "Hesperos II",
       "best": 97,
       "median": 67,
@@ -34692,6 +34739,7 @@
     "encounters": [
      {
       "label": "P1S",
+      "encounter_id": 78,
       "name": "Erichthonios",
       "best": 65,
       "median": 53,
@@ -34700,6 +34748,7 @@
      },
      {
       "label": "P2S",
+      "encounter_id": 79,
       "name": "Hippokampos",
       "best": 50,
       "median": 33,
@@ -34708,6 +34757,7 @@
      },
      {
       "label": "P3S",
+      "encounter_id": 80,
       "name": "Phoinix",
       "best": 19,
       "median": 19,
@@ -38138,6 +38188,7 @@
     "encounters": [
      {
       "label": "P1S",
+      "encounter_id": 78,
       "name": "Erichthonios",
       "best": 27,
       "median": 21,
@@ -38146,6 +38197,7 @@
      },
      {
       "label": "P2S",
+      "encounter_id": 79,
       "name": "Hippokampos",
       "best": 33,
       "median": 32,
@@ -38153,7 +38205,8 @@
       "job": "Scholar"
      },
      {
-      "label": "P4S-1",
+      "label": "P4S",
+      "encounter_id": 81,
       "name": "Hesperos",
       "best": 53,
       "median": 41,
@@ -38268,6 +38321,7 @@
     "encounters": [
      {
       "label": "P1S",
+      "encounter_id": 78,
       "name": "Erichthonios",
       "best": 98,
       "median": 63,
@@ -38276,6 +38330,7 @@
      },
      {
       "label": "P2S",
+      "encounter_id": 79,
       "name": "Hippokampos",
       "best": 97,
       "median": 34,
@@ -38284,6 +38339,7 @@
      },
      {
       "label": "P3S",
+      "encounter_id": 80,
       "name": "Phoinix",
       "best": 62,
       "median": 9,
@@ -38291,7 +38347,8 @@
       "job": "Reaper"
      },
      {
-      "label": "P4S-1",
+      "label": "P4S",
+      "encounter_id": 81,
       "name": "Hesperos",
       "best": 41,
       "median": 23,
@@ -38299,7 +38356,8 @@
       "job": "Reaper"
      },
      {
-      "label": "P4S-2",
+      "label": null,
+      "encounter_id": 82,
       "name": "Hesperos II",
       "best": 58,
       "median": 17,
@@ -41695,6 +41753,7 @@
     "encounters": [
      {
       "label": "P1S",
+      "encounter_id": 78,
       "name": "Erichthonios",
       "best": 77,
       "median": 64,
@@ -41703,6 +41762,7 @@
      },
      {
       "label": "P2S",
+      "encounter_id": 79,
       "name": "Hippokampos",
       "best": 77,
       "median": 57,
@@ -41710,7 +41770,8 @@
       "job": "Scholar"
      },
      {
-      "label": "P4S-1",
+      "label": "P4S",
+      "encounter_id": 81,
       "name": "Hesperos",
       "best": 62,
       "median": 45,
@@ -41718,7 +41779,8 @@
       "job": "Scholar"
      },
      {
-      "label": "P4S-2",
+      "label": null,
+      "encounter_id": 82,
       "name": "Hesperos II",
       "best": 48,
       "median": 25,
@@ -46148,6 +46210,7 @@
     "encounters": [
      {
       "label": "P1S",
+      "encounter_id": 78,
       "name": "Erichthonios",
       "best": 45,
       "median": 40,
@@ -46156,6 +46219,7 @@
      },
      {
       "label": "P2S",
+      "encounter_id": 79,
       "name": "Hippokampos",
       "best": 30,
       "median": 30,
@@ -51491,6 +51555,7 @@
     "encounters": [
      {
       "label": "P1S",
+      "encounter_id": 78,
       "name": "Erichthonios",
       "best": 37,
       "median": 24,
@@ -51499,6 +51564,7 @@
      },
      {
       "label": "P2S",
+      "encounter_id": 79,
       "name": "Hippokampos",
       "best": 33,
       "median": 17,
@@ -53183,6 +53249,7 @@
     "encounters": [
      {
       "label": "P1S",
+      "encounter_id": 78,
       "name": "Erichthonios",
       "best": 13,
       "median": 10,
@@ -53191,6 +53258,7 @@
      },
      {
       "label": "P2S",
+      "encounter_id": 79,
       "name": "Hippokampos",
       "best": 1,
       "median": 1,
@@ -54657,6 +54725,7 @@
     "encounters": [
      {
       "label": "P1S",
+      "encounter_id": 78,
       "name": "Erichthonios",
       "best": 41,
       "median": 41,
@@ -57155,6 +57224,7 @@
     "encounters": [
      {
       "label": "P1S",
+      "encounter_id": 78,
       "name": "Erichthonios",
       "best": 100,
       "median": 90,
@@ -57163,6 +57233,7 @@
      },
      {
       "label": "P2S",
+      "encounter_id": 79,
       "name": "Hippokampos",
       "best": 99,
       "median": 81,
@@ -57171,6 +57242,7 @@
      },
      {
       "label": "P3S",
+      "encounter_id": 80,
       "name": "Phoinix",
       "best": 99,
       "median": 80,
@@ -57178,7 +57250,8 @@
       "job": "Warrior"
      },
      {
-      "label": "P4S-1",
+      "label": "P4S",
+      "encounter_id": 81,
       "name": "Hesperos",
       "best": 99,
       "median": 76,
@@ -57186,7 +57259,8 @@
       "job": "Warrior"
      },
      {
-      "label": "P4S-2",
+      "label": null,
+      "encounter_id": 82,
       "name": "Hesperos II",
       "best": 100,
       "median": 69,
@@ -64887,7 +64961,13 @@
     "best": 33,
     "kills": 2,
     "job": "Viper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Viper": {
+      "kills": 2,
+      "best": 33
+     }
+    }
    },
    {
     "zone": "Futures Rewritten",
@@ -69094,6 +69174,7 @@
     "encounters": [
      {
       "label": "P1S",
+      "encounter_id": 78,
       "name": "Erichthonios",
       "best": 81,
       "median": 27,
@@ -69102,6 +69183,7 @@
      },
      {
       "label": "P2S",
+      "encounter_id": 79,
       "name": "Hippokampos",
       "best": 62,
       "median": 17,
@@ -69110,6 +69192,7 @@
      },
      {
       "label": "P3S",
+      "encounter_id": 80,
       "name": "Phoinix",
       "best": 29,
       "median": 28,
@@ -71812,6 +71895,7 @@
     "encounters": [
      {
       "label": "P1S",
+      "encounter_id": 78,
       "name": "Erichthonios",
       "best": 4,
       "median": 1,
@@ -71820,6 +71904,7 @@
      },
      {
       "label": "P2S",
+      "encounter_id": 79,
       "name": "Hippokampos",
       "best": 1,
       "median": 1,
@@ -71827,7 +71912,8 @@
       "job": "DarkKnight"
      },
      {
-      "label": "P4S-1",
+      "label": "P4S",
+      "encounter_id": 81,
       "name": "Hesperos",
       "best": 1,
       "median": 1,
@@ -72997,6 +73083,7 @@
     "encounters": [
      {
       "label": "P1S",
+      "encounter_id": 78,
       "name": "Erichthonios",
       "best": 32,
       "median": 30,
@@ -73005,6 +73092,7 @@
      },
      {
       "label": "P2S",
+      "encounter_id": 79,
       "name": "Hippokampos",
       "best": 28,
       "median": 17,
@@ -73013,6 +73101,7 @@
      },
      {
       "label": "P3S",
+      "encounter_id": 80,
       "name": "Phoinix",
       "best": 22,
       "median": 15,
@@ -73020,7 +73109,8 @@
       "job": "Astrologian"
      },
      {
-      "label": "P4S-1",
+      "label": "P4S",
+      "encounter_id": 81,
       "name": "Hesperos",
       "best": 11,
       "median": 11,
@@ -82353,7 +82443,13 @@
     "best": 6,
     "kills": 5,
     "job": "DarkKnight",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "DarkKnight": {
+      "kills": 9,
+      "best": 9
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
