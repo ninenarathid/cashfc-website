@@ -6,7 +6,7 @@
   "mounts": 61,
   "minions": 227,
   "rare": null,
-  "level": 100,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -26,7 +26,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-16"
+  "chg": "2026-10-18"
  },
  "15308846": {
   "name": "Aqua Eleison",
@@ -2215,7 +2215,7 @@
   "mounts": 174,
   "minions": 271,
   "rare": null,
-  "level": 36,
+  "level": 40,
   "cc": [
    true,
    true,
@@ -2246,7 +2246,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-17"
+  "chg": "2026-10-18"
  },
  "12478532": {
   "name": "Hakuryu Flare",
@@ -2289,12 +2289,12 @@
  },
  "50821570": {
   "name": "Haruki Mizumoto",
-  "parse": 85,
+  "parse": 89,
   "ult": 0,
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 100,
+  "level": 62,
   "cc": [
    true,
    true,
@@ -2335,12 +2335,13 @@
   "ex": [
    "Doomtrain",
    "Enuo",
+   "Necron",
    "Queen Eternal",
    "Valigarmanda",
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-17"
+  "chg": "2026-10-18"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -2519,7 +2520,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 84,
+  "level": 88,
   "cc": [
    false,
    false,
@@ -2546,7 +2547,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-10-17"
+  "chg": "2026-10-18"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -3840,6 +3841,7 @@
    "RedMage": "expert",
    "DarkKnight": "master",
    "Gunbreaker": "expert",
+   "Ninja": "expert",
    "Reaper": "legendary",
    "Bard": "expert",
    "Dancer": "expert",
@@ -4027,9 +4029,9 @@
   "name": "Rothe Happer",
   "parse": 83,
   "ult": 4,
-  "mounts": 48,
-  "minions": 140,
-  "rare": null,
+  "mounts": 61,
+  "minions": 143,
+  "rare": 52,
   "level": 100,
   "cc": [
    true,
@@ -4038,7 +4040,60 @@
    true,
    true
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   560,
+   572,
+   1192,
+   1299,
+   1300,
+   1304,
+   1337,
+   1407,
+   1429,
+   1430,
+   1431,
+   1444,
+   1448,
+   1468,
+   1500,
+   1606,
+   1613,
+   1668,
+   1675,
+   1696,
+   1703,
+   1709,
+   1716,
+   1851,
+   1993,
+   3074,
+   3252,
+   3253,
+   3348,
+   3349,
+   3616,
+   3630,
+   3642,
+   3651,
+   3756,
+   3765,
+   3805,
+   3811,
+   3823,
+   3824,
+   3846,
+   3855,
+   3868,
+   3869,
+   3890,
+   3895,
+   3897,
+   3943,
+   3953,
+   3962,
+   3979,
+   4069
+  ],
   "tiers": {},
   "jobs": {
    "Sage": "expert"
@@ -4058,7 +4113,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-14"
+  "chg": "2026-10-18"
  },
  "30667251": {
   "name": "Roxas Akatsuki",
@@ -5617,7 +5672,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 100,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -5739,7 +5794,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-10-17"
+  "chg": "2026-10-18"
  },
  "13860363": {
   "name": "Ayino Kun",

@@ -4041,7 +4041,7 @@
     "encounter_id": 1081,
     "name": "Necron",
     "best": 60,
-    "kills": 14,
+    "kills": 15,
     "job": "Ninja",
     "cleared": true,
     "job_kills": {
@@ -4185,6 +4185,49 @@
    }
   ],
   "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 61,
+      "median": 61,
+      "kills": 3,
+      "job": "Viper"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 83,
+      "median": 32,
+      "kills": 3,
+      "job": "Viper"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 19,
+      "median": 12,
+      "kills": 2,
+      "job": "Viper"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 61,
+      "median": 61,
+      "kills": 1,
+      "job": "Ninja"
+     }
+    ]
+   },
    {
     "zone": "AAC Light-Heavyweight",
     "zone_id": 62,
@@ -8670,9 +8713,9 @@
     "state": "learning",
     "pct": 59.48,
     "phase": 4,
-    "pulls": 23,
-    "last": "2026-10-16",
-    "last_ts": 1792169912
+    "pulls": 51,
+    "last": "2026-10-17",
+    "last_ts": 1792256384
    }
   ]
  },
@@ -9390,7 +9433,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 66,
-    "kills": 20,
+    "kills": 21,
     "job": "Sage",
     "cleared": true,
     "job_kills": {
@@ -9505,7 +9548,7 @@
     "encounter_id": 1081,
     "name": "Necron",
     "best": 46,
-    "kills": 9,
+    "kills": 10,
     "job": "Sage",
     "cleared": true,
     "job_kills": {
@@ -10458,9 +10501,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1081,
     "name": "Necron",
-    "best": 76,
-    "kills": 4,
-    "job": "Samurai",
+    "best": 89,
+    "kills": 9,
+    "job": "Reaper",
     "cleared": true,
     "job_kills": {
      "Reaper": {
@@ -23422,7 +23465,7 @@
     "encounter_id": 1081,
     "name": "Necron",
     "best": 5,
-    "kills": 5,
+    "kills": 9,
     "job": "BlackMage",
     "cleared": true,
     "job_kills": {
@@ -27010,11 +27053,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 17.05,
+    "pct": 14.65,
     "phase": 3,
-    "pulls": 86,
-    "last": "2026-10-15",
-    "last_ts": 1792079472
+    "pulls": 101,
+    "last": "2026-10-17",
+    "last_ts": 1792257115
    }
   ]
  },
@@ -31003,7 +31046,7 @@
     "encounter_id": 1081,
     "name": "Necron",
     "best": 20,
-    "kills": 5,
+    "kills": 6,
     "job": "BlackMage",
     "cleared": true,
     "job_kills": {
@@ -33661,11 +33704,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 17.05,
+    "pct": 14.65,
     "phase": 3,
-    "pulls": 87,
-    "last": "2026-10-15",
-    "last_ts": 1792079472
+    "pulls": 102,
+    "last": "2026-10-17",
+    "last_ts": 1792257115
    }
   ]
  },
@@ -33987,7 +34030,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 81,
-    "kills": 17,
+    "kills": 19,
     "job": "Dancer",
     "cleared": true,
     "job_kills": {
@@ -34008,7 +34051,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 99,
-    "kills": 78,
+    "kills": 79,
     "job": "Dancer",
     "cleared": true,
     "job_kills": {
@@ -34074,7 +34117,7 @@
     "encounter_id": 1081,
     "name": "Necron",
     "best": 90,
-    "kills": 15,
+    "kills": 21,
     "job": "Dancer",
     "cleared": true,
     "job_kills": {
@@ -60619,7 +60662,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 89,
-    "kills": 16,
+    "kills": 17,
     "job": "RedMage",
     "cleared": true,
     "job_kills": {
@@ -60669,7 +60712,7 @@
     "encounter_id": 1081,
     "name": "Necron",
     "best": 63,
-    "kills": 5,
+    "kills": 9,
     "job": "BlackMage",
     "cleared": true,
     "job_kills": {
@@ -63216,7 +63259,20 @@
    }
   ],
   "legacy": [],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 103,
+    "name": "The Tyrant",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 58,
+    "last": "2026-10-17",
+    "last_ts": 1792222100
+   }
+  ]
  },
  "36225854": {
   "current": {
@@ -73214,8 +73270,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1081,
     "name": "Necron",
-    "best": 64,
-    "kills": 9,
+    "best": 70,
+    "kills": 14,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -73391,7 +73447,20 @@
    }
   ],
   "legacy": [],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 103,
+    "name": "The Tyrant",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 116,
+    "last": "2026-10-17",
+    "last_ts": 1792238840
+   }
+  ]
  },
  "42053180": {
   "current": {
@@ -74879,7 +74948,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 95,
-    "kills": 32,
+    "kills": 33,
     "job": "WhiteMage",
     "cleared": true,
     "job_kills": {
@@ -79796,6 +79865,17 @@
     }
    },
    {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1081,
+    "name": "Necron",
+    "best": 89,
+    "kills": 5,
+    "job": "Machinist",
+    "cleared": true
+   },
+   {
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
@@ -79848,7 +79928,20 @@
    }
   ],
   "legacy": [],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 103,
+    "name": "The Tyrant",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 65,
+    "last": "2026-10-17",
+    "last_ts": 1792238840
+   }
+  ]
  },
  "51044792": {
   "current": {
