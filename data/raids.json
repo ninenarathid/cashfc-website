@@ -1174,6 +1174,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 97,
       "median": 78,
@@ -1182,6 +1183,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 92,
       "median": 82,
@@ -1190,6 +1192,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 92,
       "median": 76,
@@ -1197,7 +1200,8 @@
       "job": "DarkKnight"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 98,
       "median": 45,
@@ -1205,7 +1209,8 @@
       "job": "DarkKnight"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 77,
       "median": 52,
@@ -4202,7 +4207,17 @@
       "best": 61,
       "median": 61,
       "kills": 3,
-      "job": "Viper"
+      "job": "Viper",
+      "job_kills": {
+       "Viper": {
+        "kills": 1,
+        "best": 61
+       },
+       "Ninja": {
+        "kills": 2,
+        "best": 37
+       }
+      }
      },
      {
       "label": "M6S",
@@ -4211,7 +4226,13 @@
       "best": 83,
       "median": 32,
       "kills": 3,
-      "job": "Viper"
+      "job": "Viper",
+      "job_kills": {
+       "Viper": {
+        "kills": 3,
+        "best": 83
+       }
+      }
      },
      {
       "label": "M7S",
@@ -4220,7 +4241,13 @@
       "best": 19,
       "median": 12,
       "kills": 2,
-      "job": "Viper"
+      "job": "Viper",
+      "job_kills": {
+       "Viper": {
+        "kills": 2,
+        "best": 19
+       }
+      }
      },
      {
       "label": "M8S",
@@ -5081,6 +5108,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 59,
       "median": 36,
@@ -5089,6 +5117,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 63,
       "median": 36,
@@ -5097,6 +5126,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 48,
       "median": 40,
@@ -5104,7 +5134,8 @@
       "job": "Gunbreaker"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 81,
       "median": 31,
@@ -5112,7 +5143,8 @@
       "job": "Gunbreaker"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 70,
       "median": 27,
@@ -7404,6 +7436,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 69,
       "median": 54,
@@ -7412,6 +7445,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 74,
       "median": 46,
@@ -7420,6 +7454,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 80,
       "median": 14,
@@ -7427,7 +7462,8 @@
       "job": "Samurai"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 8,
       "median": 4,
@@ -7435,7 +7471,8 @@
       "job": "Samurai"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 19,
       "median": 14,
@@ -9559,7 +9596,7 @@
     "job_kills": {
      "Monk": {
       "kills": 1,
-      "best": 30
+      "best": 31
      },
      "Samurai": {
       "kills": 1,
@@ -11772,7 +11809,17 @@
       "best": 84,
       "median": 54,
       "kills": 5,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 4,
+        "best": 84
+       },
+       "Paladin": {
+        "kills": 1,
+        "best": 17
+       }
+      }
      },
      {
       "label": "M2S",
@@ -11781,7 +11828,13 @@
       "best": 87,
       "median": 16,
       "kills": 7,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 7,
+        "best": 87
+       }
+      }
      },
      {
       "label": "M3S",
@@ -11790,7 +11843,17 @@
       "best": 50,
       "median": 32,
       "kills": 5,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 4,
+        "best": 50
+       },
+       "Paladin": {
+        "kills": 1,
+        "best": 13
+       }
+      }
      },
      {
       "label": "M4S",
@@ -11799,7 +11862,13 @@
       "best": 54,
       "median": 23,
       "kills": 6,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 6,
+        "best": 54
+       }
+      }
      }
     ]
    },
@@ -15414,6 +15483,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 66,
       "median": 27,
@@ -15422,6 +15492,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 67,
       "median": 26,
@@ -15430,6 +15501,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 58,
       "median": 33,
@@ -15437,7 +15509,8 @@
       "job": "DarkKnight"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 62,
       "median": 62,
@@ -15445,7 +15518,8 @@
       "job": "Gunbreaker"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 31,
       "median": 23,
@@ -16345,6 +16419,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 72,
       "median": 43,
@@ -16353,6 +16428,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 53,
       "median": 39,
@@ -16361,6 +16437,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 45,
       "median": 33,
@@ -16368,7 +16445,8 @@
       "job": "WhiteMage"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 20,
       "median": 19,
@@ -21164,6 +21242,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 90,
       "median": 38,
@@ -21172,6 +21251,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 87,
       "median": 80,
@@ -21180,6 +21260,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 85,
       "median": 69,
@@ -21187,7 +21268,8 @@
       "job": "DarkKnight"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 53,
       "median": 22,
@@ -21195,7 +21277,8 @@
       "job": "DarkKnight"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 21,
       "median": 8,
@@ -21372,6 +21455,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 92,
       "median": 63,
@@ -21380,6 +21464,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 95,
       "median": 74,
@@ -21388,6 +21473,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 88,
       "median": 44,
@@ -21395,7 +21481,8 @@
       "job": "Scholar"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 59,
       "median": 20,
@@ -21403,7 +21490,8 @@
       "job": "Scholar"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 69,
       "median": 19,
@@ -22390,6 +22478,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 69,
       "median": 42,
@@ -22398,6 +22487,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 79,
       "median": 38,
@@ -22406,6 +22496,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 70,
       "median": 32,
@@ -22413,7 +22504,8 @@
       "job": "Dancer"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 87,
       "median": 24,
@@ -22421,7 +22513,8 @@
       "job": "Dancer"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 67,
       "median": 36,
@@ -40312,7 +40405,7 @@
     "cleared": true,
     "job_kills": {
      "Warrior": {
-      "kills": 12,
+      "kills": 13,
       "best": 41
      }
     }
@@ -42472,6 +42565,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 78,
       "median": 28,
@@ -42480,6 +42574,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 55,
       "median": 54,
@@ -42488,6 +42583,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 5,
       "median": 5,
@@ -42495,7 +42591,8 @@
       "job": "DarkKnight"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 16,
       "median": 9,
@@ -42503,7 +42600,8 @@
       "job": "Warrior"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 5,
       "median": 5,
@@ -48427,6 +48525,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 58,
       "median": 32,
@@ -48435,6 +48534,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 70,
       "median": 37,
@@ -48443,6 +48543,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 28,
       "median": 23,
@@ -51519,6 +51620,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 19,
       "median": 10,
@@ -51527,6 +51629,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 1,
       "median": 1,
@@ -51534,7 +51637,8 @@
       "job": "Samurai"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 1,
       "median": 1,
@@ -57254,6 +57358,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 93,
       "median": 74,
@@ -57262,6 +57367,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 91,
       "median": 41,
@@ -57270,6 +57376,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 82,
       "median": 52,
@@ -57277,7 +57384,8 @@
       "job": "Summoner"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 80,
       "median": 32,
@@ -57285,7 +57393,8 @@
       "job": "Summoner"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 60,
       "median": 28,
@@ -57590,6 +57699,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 4,
       "median": 1,
@@ -57598,6 +57708,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 1,
       "median": 1,
@@ -65603,6 +65714,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 62,
       "median": 24,
@@ -65611,6 +65723,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 55,
       "median": 43,
@@ -65619,6 +65732,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 57,
       "median": 30,
@@ -65626,7 +65740,8 @@
       "job": "Dragoon"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 66,
       "median": 22,
@@ -65634,7 +65749,8 @@
       "job": "Dragoon"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 79,
       "median": 30,
@@ -70549,6 +70665,10 @@
     "job": "Warrior",
     "cleared": true,
     "job_kills": {
+     "RedMage": {
+      "kills": 2,
+      "best": 24
+     },
      "Gunbreaker": {
       "kills": 4,
       "best": 21
@@ -73552,7 +73672,7 @@
       "best": 70
      },
      "Astrologian": {
-      "kills": 34,
+      "kills": 36,
       "best": 75
      },
      "Scholar": {
@@ -73676,7 +73796,7 @@
       "best": 19
      },
      "Astrologian": {
-      "kills": 32,
+      "kills": 37,
       "best": 87
      },
      "WhiteMage": {
@@ -75619,6 +75739,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 87,
       "median": 22,
@@ -75627,6 +75748,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 64,
       "median": 13,
@@ -75635,6 +75757,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 74,
       "median": 59,
@@ -75642,7 +75765,8 @@
       "job": "Monk"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 80,
       "median": 26,
@@ -75650,7 +75774,8 @@
       "job": "Monk"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 40,
       "median": 26,
