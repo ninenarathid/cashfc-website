@@ -90804,6 +90804,58 @@
       }
      }
     ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 97,
+      "median": 62,
+      "kills": 21,
+      "job": "Paladin"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 91,
+      "median": 26,
+      "kills": 15,
+      "job": "Paladin"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 90,
+      "median": 48,
+      "kills": 23,
+      "job": "Paladin"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 74,
+      "median": 43,
+      "kills": 26,
+      "job": "Paladin"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 59,
+      "median": 15,
+      "kills": 7,
+      "job": "Paladin"
+     }
+    ]
    }
   ],
   "_status": "ok"
@@ -91227,6 +91279,58 @@
       "best": 23,
       "median": 23,
       "kills": 1,
+      "job": "Dancer"
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 95,
+      "median": 81,
+      "kills": 12,
+      "job": "Dancer"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 86,
+      "median": 15,
+      "kills": 9,
+      "job": "Dancer"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 89,
+      "median": 54,
+      "kills": 10,
+      "job": "Dancer"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 95,
+      "median": 25,
+      "kills": 21,
+      "job": "Dancer"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 88,
+      "median": 51,
+      "kills": 11,
       "job": "Dancer"
      }
     ]
