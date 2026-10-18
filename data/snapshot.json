@@ -771,7 +771,7 @@
   "mounts": 187,
   "minions": 454,
   "rare": 430,
-  "level": 80,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -894,7 +894,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-10-17"
+  "chg": "2026-10-18"
  },
  "35634484": {
   "name": "Little Eevee",
@@ -1593,7 +1593,7 @@
   "mounts": 74,
   "minions": 121,
   "rare": 14,
-  "level": 93,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -2215,7 +2215,7 @@
   "mounts": 174,
   "minions": 271,
   "rare": null,
-  "level": 56,
+  "level": 59,
   "cc": [
    true,
    true,
@@ -2255,7 +2255,7 @@
   "mounts": 49,
   "minions": 115,
   "rare": null,
-  "level": 85,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2520,7 +2520,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 89,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -5672,7 +5672,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 94,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5997,7 +5997,7 @@
   "mounts": 175,
   "minions": 358,
   "rare": 158,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6661,7 +6661,7 @@
   "mounts": 122,
   "minions": 301,
   "rare": 67,
-  "level": 40,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6940,7 +6940,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 87,
+  "level": 89,
   "cc": [
    false,
    false,
@@ -6953,7 +6953,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-10-18"
  },
  "53933347": {
   "name": "Little Alyss",
@@ -7576,7 +7576,7 @@
   "mounts": 146,
   "minions": 291,
   "rare": null,
-  "level": 96,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7596,7 +7596,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-15"
+  "chg": "2026-10-18"
  },
  "7283668": {
   "name": "Nowhere Man",
@@ -7895,7 +7895,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 77,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -8707,7 +8707,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 80,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8897,7 +8897,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 28,
+  "level": 81,
   "cc": [
    false,
    false,
@@ -9647,7 +9647,7 @@
   "mounts": 2,
   "minions": 2,
   "rare": 0,
-  "level": 40,
+  "level": 70,
   "cc": [
    false,
    false,
@@ -9660,7 +9660,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-15"
+  "chg": "2026-10-18"
  },
  "20400811": {
   "name": "Ariadne Ilsildar",

@@ -1748,6 +1748,7 @@
     "encounters": [
      {
       "label": "P9S",
+      "encounter_id": 88,
       "name": "Kokytos",
       "best": 16,
       "median": 8,
@@ -1756,6 +1757,7 @@
      },
      {
       "label": "P10S",
+      "encounter_id": 89,
       "name": "Pandaemonium",
       "best": 11,
       "median": 3,
@@ -1764,6 +1766,7 @@
      },
      {
       "label": "P11S",
+      "encounter_id": 90,
       "name": "Themis",
       "best": 17,
       "median": 6,
@@ -1771,7 +1774,8 @@
       "job": "BlackMage"
      },
      {
-      "label": "P12S-1",
+      "label": "P12S",
+      "encounter_id": 91,
       "name": "Athena",
       "best": 17,
       "median": 7,
@@ -1779,7 +1783,8 @@
       "job": "BlackMage"
      },
      {
-      "label": "P12S-2",
+      "label": null,
+      "encounter_id": 92,
       "name": "Pallas Athena",
       "best": 4,
       "median": 3,
@@ -34045,6 +34050,10 @@
      "RedMage": {
       "kills": 1,
       "best": 19
+     },
+     "WhiteMage": {
+      "kills": 1,
+      "best": 33
      }
     }
    },
@@ -34130,7 +34139,7 @@
       "best": 84
      },
      "Dancer": {
-      "kills": 11,
+      "kills": 12,
       "best": 90
      },
      "RedMage": {
@@ -60683,7 +60692,7 @@
       "best": 32
      },
      "Samurai": {
-      "kills": 1,
+      "kills": 2,
       "best": 14
      }
     }
@@ -73222,7 +73231,7 @@
     "cleared": true,
     "job_kills": {
      "Paladin": {
-      "kills": 13,
+      "kills": 15,
       "best": 95
      },
      "Warrior": {
@@ -79899,7 +79908,13 @@
     "best": 89,
     "kills": 5,
     "job": "Machinist",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Machinist": {
+      "kills": 5,
+      "best": 89
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -91170,7 +91185,20 @@
    }
   ],
   "legacy": [],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 103,
+    "name": "The Tyrant",
+    "kind": "savage",
+    "state": "learning",
+    "pct": 76.71,
+    "phase": 0,
+    "pulls": 16,
+    "last": "2026-10-17",
+    "last_ts": 1792215436
+   }
+  ]
  },
  "21388050": {
   "current": {
