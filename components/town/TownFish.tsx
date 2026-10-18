@@ -50,8 +50,8 @@ type Phase =
   | { at: "casting" }
   /** (`shade`: under the fountain's clear water, how rare a thing is on its way; never which) */
   /** (`coming`: what is on its way, for whoever wears the whispering float: a fish landed before is shown as itself, another as a shade of its tier) */
-  /** (`pair`: two lines are out, on a rod of two lines; `coming2`: what is on its way to the second, told as the first's is; `star`: a stardust bait is on the hook) */
-  | { at: "waiting"; wait: number; nibbles: number[]; from: number; shade?: Shade; coming?: CatchId; pair?: boolean; coming2?: CatchId; lines?: number; star?: boolean }
+  /** (`pair`: two lines are out, on a rod of two lines; `coming2`, `coming3`: what is on its way to the second and the third, told as the first's is; `star`: a stardust bait is on the hook) */
+  | { at: "waiting"; wait: number; nibbles: number[]; from: number; shade?: Shade; coming?: CatchId; pair?: boolean; coming2?: CatchId; coming3?: CatchId; lines?: number; star?: boolean }
   | { at: "striking" }
   /** (`harder`: how many times as hard the deck's good fish are for me, as the keeper said at the strike; `bout`: which of a legend's fights running this is) */
   | { at: "fight"; powers?:Array<{key:string;quiet:number}>;combo?: import("@/lib/town/combo-types").ComboEffect; fish: FishId; size: number; strike: Strike; reaction: number; harder?: number; bout?: number }
@@ -313,7 +313,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
     out.current = { bait: inHand, hour, rain, gear, wait: cast.wait, nibbles: cast.nibbles.length };
     forgiven.current = 0;
     setPhase({ at: "waiting", wait: cast.wait, nibbles: cast.nibbles, from: performance.now() - cast.lag * 1000, ...(cast.shade ? { shade: cast.shade } : {}), ...(cast.coming ? { coming: cast.coming } : {}),
-      ...(cast.pair ? { pair: true, lines: cast.lines ?? 2 } : {}), ...(cast.coming2 ? { coming2: cast.coming2 } : {}), ...(how === "star" ? { star: true } : {}) });
+      ...(cast.pair ? { pair: true, lines: cast.lines ?? 2 } : {}), ...(cast.coming2 ? { coming2: cast.coming2 } : {}), ...(cast.coming3 ? { coming3: cast.coming3 } : {}), ...(how === "star" ? { star: true } : {}) });
   };
   const float = useRef<HTMLSpanElement>(null), ring = useRef<HTMLSpanElement>(null), thread = useRef<SVGLineElement>(null);
   // ── forging: old tools ── (how many strikes too soon this cast has been forgiven by the rod it went out with: lib/town/forged)
@@ -808,7 +808,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   useEffect(() => {
     if (process.env.NODE_ENV === "production") return;
     const handle = {
-      phase: () => phase.at, cast: () => (phase.at === "waiting" ? { wait: phase.wait, nibbles: phase.nibbles, since: (performance.now() - phase.from) / 1000, coming: phase.coming ?? null, pair: !!phase.pair, coming2: phase.coming2 ?? null } : null),
+      phase: () => phase.at, cast: () => (phase.at === "waiting" ? { wait: phase.wait, nibbles: phase.nibbles, since: (performance.now() - phase.from) / 1000, coming: phase.coming ?? null, pair: !!phase.pair, coming2: phase.coming2 ?? null, coming3: phase.coming3 ?? null } : null),
       /** Two fish fought at once, on a rod of two lines: the fight as it stands. */
       pair: () => pair.current,
       /** Which of a legend's bouts the fight in hand is, and how many times as hard the fish is for me (as the keeper said). */
@@ -922,11 +922,12 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   /** Whether I have a rod of two lines (lib/town/gifts' thingRod): both lines are then offered beside the plain one. */
   const lineCount = linesOf(purse, keeper.handSlot()), rodOfTwo = lineCount >= 2;
   /** What the whispering float tells of a line: a fish landed before as itself with its name, another as a shade of its tier. */
-  const whisper = (what: CatchId, second = false) => {
-    const fish = what in FISH ? (what as FishId) : null, met = !fish || purse.best[fish] !== undefined, tier: Shade = fish ? FISH[fish].tier : "other";
+  /** (`n`: which line, 1 to 3; `small`: three of them stand in the water's height, so each is a size smaller) */
+  const whisper = (what: CatchId, n = 1, small = false) => {
+    const fish = what in FISH ? (what as FishId) : null, met = !fish || purse.best[fish] !== undefined, tier: Shade = fish ? FISH[fish].tier : "other", px = small ? 20 : 28;
     return (
-      <span key={second ? 2 : 1} className="flex items-center gap-1.5 rounded-md border border-white/25 bg-black/45 px-1.5 py-1" data-fx={second ? "whisper2" : "whisper"} data-coming={met ? what : ""} data-tier={tier}>
-        {met ? <ItemIcon id={what} size={28} /> : <span style={{ filter: SHADE_LOOK[tier] }}><TownIcon name="fishShadow" size={28} /></span>}
+      <span key={n} className={`flex items-center gap-1.5 rounded-md border border-white/25 bg-black/45 px-1.5 ${small ? "py-0.5" : "py-1"}`} data-fx={n > 1 ? `whisper${n}` : "whisper"} data-coming={met ? what : ""} data-tier={tier}>
+        {met ? <ItemIcon id={what} size={px} /> : <span style={{ filter: SHADE_LOOK[tier] }}><TownIcon name="fishShadow" size={px} /></span>}
         <span className="font-data text-label text-white/90">{met ? (th ? ITEMS[what].name.th : ITEMS[what].name.en) : "???"}</span>
       </span>
     );
@@ -1080,8 +1081,9 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
                 bite, and a flash at the true bite. A fish landed before is itself; another is a shade of its tier. */}
             {phase.at === "waiting" && phase.coming && (
               <span className="absolute left-2 top-2 flex flex-col items-start gap-1">
-                {whisper(phase.coming)}
-                {phase.coming2 && whisper(phase.coming2, true)}
+                {whisper(phase.coming, 1, !!phase.coming3)}
+                {phase.coming2 && whisper(phase.coming2, 2, !!phase.coming3)}
+                {phase.coming3 && whisper(phase.coming3, 3, true)}
               </span>
             )}
             {phase.at === "waiting" && phase.coming && (

@@ -278,7 +278,7 @@ class TrialKeeper implements Keeper {
     // (the trial's short wait: a fifth of it, never so short that the float cannot be watched)
     const k = quick ? 0.2 : 1, wait = Math.max(2, cast.wait * k);
     return { ok: true, wait, nibbles: cast.nibbles.map((n) => n * k).filter((n, i, all) => n >= 1 && wait - n >= 1.5 && (i === 0 || n - all[i - 1] >= 1.5)), lag: 0, ...(hasBuff(p, now, "clear") ? { shade: shadeOf(cast.what) } : {}), ...(told ? { coming: cast.what } : {}),
-      ...(pair ? { pair: true, lines: count } : {}), ...(others[0] && told ? { coming2: others[0].what } : {}) };
+      ...(pair ? { pair: true, lines: count } : {}), ...(others[0] && told ? { coming2: others[0].what } : {}), ...(others[1] && told ? { coming3: others[1].what } : {}) };
   }
   // ── gifts: fishing ──
   async orbLight(sky: string): Promise<Did<{ until: number }>> {
@@ -341,7 +341,11 @@ class TrialKeeper implements Keeper {
       o.powers?.splice(i,1);
       o.cast = { ...o.cast, ...others[0] };
       o.hooks = others.length > 1 ? others : undefined;
-      if (how === "landed") return { how, ...this.trial.land(mine.what, mine.size), more: true };
+      // (and a rod that spares the bait spares each line's, as a line's by itself below: until v281 only the last fish of a cast could)
+      if (how === "landed") {
+        const kept = !!o.bait && mine.what in FISH && baitKept(this.trial.purse(), Math.random(), this.handSlot());
+        return { how, ...this.trial.land(mine.what, mine.size), ...(kept && o.bait && this.trial.back(o.bait) ? { back: true } : {}), more: true };
+      }
       if (how === "snapped" && o.bait) this.trial.lose(o.bait);
       return { how, kept: false, record: false, ...(o.bait && this.trial.back(o.bait) ? { back: true } : {}), more: true };
     }

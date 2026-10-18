@@ -165,8 +165,8 @@ export interface Hooked { what: CatchId; size: number; landed: boolean; kept?: b
 /** (a strike's answer, of a rod of two lines: the two, in their order; and `harder`: how many times as hard the deck's good fish are for me, where they are: lib/town/gifts' harderFor) */
 export interface Struck { pair?: Hooked[]; harder?: number }
 export interface Struck { powers?:Array<{key:string;quiet:number}> }
-/** What a line dropped is told of: how long until the bite and when the float twitches; and, where it is told, a shade or the thing itself of what is on its way (`coming2`: of the second line's), and that two lines are out. */
-export type CastTold = { wait: number; nibbles: number[]; lag: number; shade?: Shade; coming?: CatchId; pair?: boolean; coming2?: CatchId; lines?: number };
+/** What a line dropped is told of: how long until the bite and when the float twitches; and, where it is told, a shade or the thing itself of what is on its way (`coming2`, `coming3`: of the second line's and the third's), and that two lines or more are out. */
+export type CastTold = { wait: number; nibbles: number[]; lag: number; shade?: Shade; coming?: CatchId; pair?: boolean; coming2?: CatchId; coming3?: CatchId; lines?: number };
 
 export interface Keeper {
   announcements?(after: number | null, look: string | null): Promise<import("./announcements").AnnouncementPage | null>;
@@ -1719,10 +1719,10 @@ export class DbKeeper implements Keeper {
     if (!a) return AWAY;
     if (!a.ok) return { ok: false, why: (a.why as Why) ?? "none" };
     // (under clear water the database tells the shade of what is on its way, and nothing more of it)
-    const line = a.line as { wait: number; nibbles: number[]; shade?: Shade; coming?: CatchId; pair?: boolean; coming2?: CatchId; lines?: number };
+    const line = a.line as { wait: number; nibbles: number[]; shade?: Shade; coming?: CatchId; pair?: boolean; coming2?: CatchId; coming3?: CatchId; lines?: number };
     return { ok: true, wait: line.wait, nibbles: line.nibbles, lag: Math.max(0, (Date.now() - sent) / 2000), ...(line.shade ? { shade: line.shade } : {}), ...(typeof line.coming === "string" ? { coming: line.coming } : {}),
-      // ── gifts: fishing ──
-      ...(line.pair ? { pair: true, lines: line.lines ?? 2 } : {}), ...(typeof line.coming2 === "string" ? { coming2: line.coming2 } : {}) };
+      // ── gifts: fishing ── (`coming3` from v281: a page out before it shows the first two)
+      ...(line.pair ? { pair: true, lines: line.lines ?? 2 } : {}), ...(typeof line.coming2 === "string" ? { coming2: line.coming2 } : {}), ...(typeof line.coming3 === "string" ? { coming3: line.coming3 } : {}) };
   }
   // ── gifts: fishing ──
   orbLight(sky: string) { return this.deed<{ until: number }>("town_orb", { p_sky: sky }); }
