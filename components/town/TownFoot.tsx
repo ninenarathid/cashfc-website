@@ -33,8 +33,8 @@ import TownIcon, { type IconName } from "./TownIcon";
  * drawn. The layout itself is `FOOT_CSS`, which the map puts on the page.
  */
 export type FootRank = "main" | "chip" | "power" | "note" | "board" | "side" | "toast" | "corner";
-export interface FootPlaces { dock: HTMLElement | null; side: HTMLElement | null; head: HTMLElement | null; corner: HTMLElement | null }
-export const TownFootContext = createContext<FootPlaces>({ dock: null, side: null, head: null, corner: null });
+export interface FootPlaces { dock: HTMLElement | null; side: HTMLElement | null; head: HTMLElement | null; corner: HTMLElement | null; powers?: HTMLElement | null }
+export const TownFootContext = createContext<FootPlaces>({ dock: null, side: null, head: null, corner: null, powers: null });
 
 const ORDER: Record<FootRank, number> = { note: 10, chip: 30, power: 20, main: 60, board: 60, side: 0, toast: 30, corner: 30 };
 
@@ -43,7 +43,7 @@ export default function TownFoot({ rank = "chip", order, wide = false, icon, bad
   const places = useContext(TownFootContext);
   // Keep gameplay clear of transient notices on both phones and desktops.
   if (rank === "toast") return null;
-  const into = rank === "side" ? places.side : rank === "corner" || rank === "power" ? places.corner : places.dock;
+  const into = rank === "side" ? places.side : rank === "power" ? places.powers ?? places.corner : rank === "corner" ? places.corner : places.dock;
   if (!into) return null;
   if (rank === "power" && icon) return createPortal(
     <div data-foot="power" style={{ order: order ?? ORDER.power }} className="pointer-events-auto">
@@ -89,8 +89,9 @@ export default function TownFoot({ rank = "chip", order, wide = false, icon, bad
  *   that on a screen a keyboard has made short the box stays at the foot and is not pushed under the keyboard.
  */
 export const FOOT_CSS = `
-  .town-foot { display: grid; align-items: end; column-gap: 0.5rem; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto minmax(0, 1fr) minmax(0, auto) auto auto; grid-template-areas: "corner corner" "toast toast" "hand hand" "said said" "dock dock" "ctrl right"; }
+  .town-foot { display: grid; align-items: end; column-gap: 0.5rem; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto auto minmax(0, 1fr) minmax(0, auto) auto auto; grid-template-areas: "corner corner" "powers powers" "toast toast" "hand hand" "said said" "dock dock" "ctrl right"; }
   .town-foot > [data-head-corner] { grid-area: corner; align-self: start; justify-self: start; }
+  .town-foot > [data-foot-powers] { grid-area: powers; align-self: start; justify-self: start; padding-bottom: .375rem; }
   [data-foot-powers] { display: flex; flex-wrap: wrap; gap: .375rem; max-width: min(20rem,calc(100vw - 2rem)); }
   .town-foot > [data-head-toast] { grid-area: toast; align-self: start; }
   .town-foot > [data-foot-hand] { grid-area: hand; }
@@ -106,10 +107,11 @@ export const FOOT_CSS = `
   .town-foot[data-typing] > [data-foot-dock] { display: none; }
   @media (max-width: 63.999rem) {
     .town-foot:not([data-typing]):has([data-foot="board"]) { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr); grid-template-areas: "corner" "toast" "dock"; }
-    .town-foot:not([data-typing]):has([data-foot="board"]) > :is([data-foot-hand], [data-foot-said], [data-foot-ctrl], [data-foot-right]) { display: none; }
+    .town-foot:not([data-typing]):has([data-foot="board"]) > :is([data-foot-hand], [data-foot-said], [data-foot-ctrl], [data-foot-right], [data-foot-powers]) { display: none; }
   }
   @media (min-width: 64rem) {
-    .town-foot { grid-template-columns: minmax(16rem, 1fr) auto minmax(16rem, 1fr); grid-template-rows: auto minmax(0, 1fr) minmax(0, auto) auto; grid-template-areas: "corner toast ." "hand dock ." "said dock ." "ctrl dock right"; }
+    .town-foot { grid-template-columns: minmax(16rem, 1fr) auto minmax(16rem, 1fr); grid-template-rows: auto minmax(0, 1fr) minmax(0, auto) auto; grid-template-areas: "corner toast ." "hand dock ." "said dock powers" "ctrl dock right"; }
     .town-foot > [data-head-toast] { justify-self: center; }
+    .town-foot > [data-foot-powers] { align-self: end; justify-self: end; justify-content: flex-end; padding-bottom: .5rem; }
   }
 `;

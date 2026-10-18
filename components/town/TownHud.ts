@@ -98,7 +98,6 @@ export const HUD_CSS = `
   left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right));
 }
 .town-hud-labelled { height: 56px; gap: 2px; align-content: center; }
-.town-hud-report { width: 64px; gap: 3px; align-content: center; }
 .town-hud-chat-row { padding: 4px; }
 [data-town-hand="bar"].town-hud-surface { padding: 5px; gap: 4px; }
 [data-town-hand="bar"] .town-hud-button { width: 44px; height: 44px; }

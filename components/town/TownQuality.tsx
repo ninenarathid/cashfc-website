@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useCloses } from "./useCloses";
 import { COMPANIONS, GRADES, PARTNERS, QUALITY, ROLES, coverOffsets, type CompanionId, type Grade, type Range, type Role } from "@/lib/town/quality";
 import { coveringNow, qualityNow, roundStart } from "@/lib/town/quality-plant";
 import type { FarmSky, Plant, Plot } from "@/lib/town/farm";
@@ -84,12 +85,7 @@ export function QualityInspector({ plant, now, rains, th, onClose, onBed, onChar
   /** (what the plant's place tells besides: an insect in the bag that could help, a crossing the pollen matches; the owner, 2026-10-16, one panel) */
   notes?: string[]; onBook?: () => void; book?: number }) {
   const seen = qualityNow(plant, now, rains), cover = coveringNow(plant, now, rains), close = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    close.current?.focus();
-    const down = (e: KeyboardEvent) => { if (e.key === "Escape") { e.preventDefault(); onClose(); } };
-    window.addEventListener("keydown", down);
-    return () => window.removeEventListener("keydown", down);
-  }, [onClose]);
+  useCloses(onClose, close);
   const ripe = seen.grown >= 1, base = Math.max(0, seen.range.hi - QUALITY.spread);
   const weakest = ROLES.reduce((w, r) => (seen.bars[r] < seen.bars[w] ? r : w), ROLES[0]);
   const partner = PARTNERS[plant.crop], partnerName = partner ? (partner in COMPANIONS ? COMPANIONS[partner as keyof typeof COMPANIONS][th ? "th" : "en"] : ITEMS[partner as ItemId]?.name[th ? "th" : "en"]) : null;
@@ -238,12 +234,7 @@ export function FertChart({ th, onClose }: { th: boolean; onClose: () => void })
   const close = useRef<HTMLButtonElement>(null);
   // (a phone has no hover: the fertiliser tapped is named under the chart)
   const [picked, setPicked] = useState<string | null>(null);
-  useEffect(() => {
-    close.current?.focus();
-    const down = (e: KeyboardEvent) => { if (e.key === "Escape") { e.preventDefault(); onClose(); } };
-    window.addEventListener("keydown", down);
-    return () => window.removeEventListener("keydown", down);
-  }, [onClose]);
+  useCloses(onClose, close);
   const fills = (a: Role, b: Role) => (Object.entries(FERTS) as Array<[string, Fert]>).filter(([, f]) => {
     const bars = f.bars as Partial<Record<Role, number>>;
     return a === b ? bars[a] === 1 : bars[a] === 0.5 && bars[b] === 0.5;

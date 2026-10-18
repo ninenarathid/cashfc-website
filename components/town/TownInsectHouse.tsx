@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
+import { useCloses } from "./useCloses";
 import { COMPANIONS } from "@/lib/town/quality";
 import { FAVOURITES, HOUSE, favouriteNear, houseRoleOf, isRareInHouse, plantsInReach, type InsectHouse } from "@/lib/town/insect-house";
 import type { Plot } from "@/lib/town/farm";
@@ -33,12 +34,7 @@ export function HouseChip({ at, house, plots, now, th, onOpen }: { at: string; h
 /** The house's card: its reach, and each room. */
 export function HousePanel({ at, house, plots, now, th, mine, onClose }: { at: string; house: InsectHouse; plots: Readonly<Record<string, Plot>>; now: number; th: boolean; mine: boolean; onClose: () => void }) {
   const close = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    close.current?.focus();
-    const down = (e: KeyboardEvent) => { if (e.key === "Escape") { e.preventDefault(); onClose(); } };
-    window.addEventListener("keydown", down);
-    return () => window.removeEventListener("keydown", down);
-  }, [onClose]);
+  useCloses(onClose, close);
   const name = (id: ItemId) => ITEMS[id]?.name[th ? "th" : "en"] ?? id;
   const helped = plantsInReach(at, plots).length;
   return (

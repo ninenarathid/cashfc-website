@@ -67,7 +67,10 @@ export default function CommandPalette({ members }: { members: PaletteMember[] }
       const el = e.target as HTMLElement | null;
       const typing = el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA"
                             || el.isContentEditable);
-      if (e.key === "/" && !typing) {
+      // On a Thai keyboard the 2 of the number row types a slash, and in Cash
+      // Town that key picks the second thing in the hand: a slash that comes
+      // from a digit is the digit's, not ours.
+      if (e.key === "/" && !typing && !e.code.startsWith("Digit")) {
         e.preventDefault();
         setOpen(true);
       }

@@ -843,6 +843,8 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
           <p className="text-read font-semibold text-[#fff6e3]">{th ? `ได้ ${name(o.what)}` : `You landed: ${name(o.what)}`}{o.size ? (th ? ` ยาว ${o.size} ซม.` : `, ${o.size} cm`) : ""}</p>
           {o.record && <p className="text-ui font-semibold text-[#ffe19a]">{th ? "ตัวยาวที่สุดที่เคยจับได้!" : "Your longest yet!"}</p>}
           {o.kept === false && <p className="text-meta text-[#ffb09c]">{th ? "กระเป๋าเต็ม เลยปล่อยกลับลงน้ำไป" : "Your bag is full, so it went back in the water."}</p>}
+          {/* (the rod's gem gave the bait back: said, so that the gem is seen to work; a member, 2026-10-13) */}
+          {o.back && <p className="mt-0.5 inline-block rounded-[4px] bg-[#ffe19a]/15 px-1.5 text-meta font-semibold text-[#ffe19a]" data-fx="bait-back">{th ? "✦ ได้เหยื่อคืน" : "✦ Bait returned"}</p>}
           <p className="text-meta text-[#e9cfa4]">{th ? ITEMS[o.what].about.th : ITEMS[o.what].about.en}</p>
         </div>
       </div>
@@ -1173,7 +1175,10 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
           <div className="flex items-stretch gap-2.5">
             <div aria-hidden className={`${STAGE} h-[min(20rem,44dvh)] w-14 shrink-0 bg-[#1c2c38]`} data-look="tension">
               <span className="absolute inset-x-0 top-0 h-[2.5%] bg-[#e9573f]" />
-              <span className="absolute inset-y-0 left-1/2 w-px bg-[#2a190d]" />
+              {/* a rule between each fish's column: one in the middle for two, two at the thirds for three */}
+              {phase.fish.slice(1).map((_, i) => (
+                <span key={i} className="absolute inset-y-0 w-px bg-[#2a190d]" style={{ left: `${(i + 1) * 100 / phase.fish.length}%` }} />
+              ))}
               {PAIR_LOOK.slice(0, phase.fish.length).map((look, i) => (
                 <span key={i} ref={two.band[i]} data-band={i} data-fx={buffs.includes("calm") ? "calm" : undefined} className={`absolute border-y-[3px] ${look.band} ${buffs.includes("calm") ? "shadow-[0_0_14px_4px_rgba(150,225,255,0.75)]" : ""}`} style={{ left: `${i * 100 / phase.fish.length}%`, width: `${100 / phase.fish.length}%`, bottom: "42%", height: "12%" }} />
               ))}

@@ -21,3 +21,11 @@ describe("a crowded storage box", () => {
     expect(personHitAt([behind, front], 730, 350, chest)).toBeNull();
   });
 });
+
+describe("one's own doll", () => {
+  it("lets a tap through to whoever stands behind it, or to the ground", () => {
+    expect(personHitAt([behind, front], 678, 220, null, "front")).toBe(behind);
+    expect(personHitAt([front], 678, 220, null, "front")).toBeNull();
+    expect(personHitAt([behind, front], 678, 220, null, "behind")).toBe(front);
+  });
+});

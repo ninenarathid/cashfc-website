@@ -995,7 +995,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const [footSide, setFootSide] = useState<HTMLElement | null>(null);
   const [footHead, setFootHead] = useState<HTMLElement | null>(null);
   const [footCorner, setFootCorner] = useState<HTMLElement | null>(null);
-  const footPlaces = useMemo<FootPlaces>(() => ({ dock: footDock, side: footSide, head: footHead, corner: footCorner }), [footDock, footSide, footHead, footCorner]);
+  const [footPowers, setFootPowers] = useState<HTMLElement | null>(null);
+  const footPlaces = useMemo<FootPlaces>(() => ({ dock: footDock, side: footSide, head: footHead, corner: footCorner, powers: footPowers }), [footDock, footSide, footHead, footCorner, footPowers]);
 
   /** The stay already going in this tab, or a new one (resumed, after a reload). */
   const enter = useCallback(() => {
@@ -3616,6 +3617,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   /** Somebody under the pointer, the one in front first. */
   const personAt = (x: number, y: number) => personHitAt(hits.current, x, y,
     gameRef.current && boxKnown() ? storeBox.current : null);
+  /**
+   * Somebody else under the pointer: my own doll is gone through, to whoever stands behind me or to the tile, rock or
+   * plot under me (members, 2026-10-15: "ขอให้เอาการคลิกโดนตัวเองออก มันขัดขวางการเดินมากๆ"; a step beside me and a
+   * swing at a rock behind me both opened my own card). Dressing and my own page are in the menu and on their keys.
+   */
+  const otherAt = (x: number, y: number) => personHitAt(hits.current, x, y,
+    gameRef.current && boxKnown() ? storeBox.current : null, sessionRef.current?.self.info.id ?? null);
 
   const tap = (x: number, y: number) => {
     setHint(false);
@@ -3626,10 +3634,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // a sign held up: what it is for (its board is over a head, and over whatever is behind it)
     const board = signBoxes.current.find((b) => x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1);
     if (board) { setPopover(null); setCard(null); openSign(board.id); return; }
-    // (my own doll drawn over a plot behind me is no reason that plot cannot be tapped: a tap on me over another tile
-    // than the one I stand on is a step to it, the owner's ask of 2026-10-15 that every plot of a bed be reachable)
-    const whoAt = personAt(x, y), mineAt = sessionRef.current?.self, under = tileAt(x, y);
-    const who = whoAt && mineAt && whoAt.id === mineAt.info.id && walkable(under.x, under.y) && (under.x !== Math.floor(mineAt.pos.x) || under.y !== Math.floor(mineAt.pos.y)) ? null : whoAt;
+    // (my own doll drawn over a plot, a rock or a step behind me is no reason that cannot be tapped: a tap on me is for
+    // what is under me, the owner's ask of 2026-10-15 that every plot of a bed be reachable)
+    const who = otherAt(x, y);
     // (a thing lying at somebody's feet is drawn over them: a tap on it is for the thing, not for who stands there)
     const atFeet = !!who && gameRef.current && !!groundTap.current?.(x, y, true);
     // (and so is an insect that is over somebody, my own doll too: with a net in the hand a tap on one within reach is
@@ -3734,7 +3741,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // press is for then. Whoever sits aims over nobody, as before: a tap there is theirs to turn by.)
     if (pointers.current.size === 1 && gameRef.current && !sessionRef.current?.stuck() && !(sessionRef.current?.seated && personAt(p.x, p.y))) bugsAimOn.current = !!bugsAim.current?.press(bugsAt(p));
     // ── mining ── (one finger down on the map, on nobody: a press that may be held on a rock; a second finger calls it off)
-    if (pointers.current.size === 1 && gameRef.current && !personAt(p.x, p.y) && !sessionRef.current?.stuck() && !sessionRef.current?.seated) mineHold.current?.down(p.x, p.y); else mineHold.current?.up();
+    if (pointers.current.size === 1 && gameRef.current && !otherAt(p.x, p.y) && !sessionRef.current?.stuck() && !sessionRef.current?.seated) mineHold.current?.down(p.x, p.y); else mineHold.current?.up();
     if (pointers.current.size === 1) {
       Object.assign(g, { mode: "tap", sx: p.x, sy: p.y, lx: p.x, ly: p.y, slop: e.pointerType === "mouse" ? SLOP_MOUSE : SLOP_TOUCH });
     } else if (pointers.current.size === 2) {
@@ -3761,10 +3768,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (!pointers.current.has(e.pointerId)) {
       // Just hovering: a hand over what can be clicked.
       if (e.pointerType === "mouse") {
-        const b = personAt(p.x, p.y) ? null : buildingAt(p.x, p.y);
+        const b = otherAt(p.x, p.y) ? null : buildingAt(p.x, p.y);
         hover.current = b;
         const bb = boardBox.current, t = tileAt(p.x, p.y);
-        const someone = !!personAt(p.x, p.y);
+        const someone = !!otherAt(p.x, p.y);
         const seat = !someone && (benchUnder(p.x, p.y) >= 0 || benchAt(t.x, t.y) >= 0);
         const sb = gameRef.current && boxKnown() ? storeBox.current : null;
         const clickable = !!b || someone || (!!bb && p.x >= bb.x0 && p.x <= bb.x1 && p.y >= bb.y0 && p.y <= bb.y1)
@@ -4599,19 +4606,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         <span role="status" className="sr-only">{s && everReady ? (live ? w.online : w.reconnecting) : ""}</span>
         {outNow && keeper && <TownOutNow keeper={keeper} th={w.th} place={outNow} hour={forcedHour.current} onClose={() => setOutNow(null)} />}
        </div>
-       {/* On the right, bug reports and the menu. Behind the menu everything that is the machine's and not the game's (the
-           wardrobe, the music, the settings, the numbers, fullscreen, the zoom, the site's own bars, the way out):
-           until 2026-10-09 six buttons here and three more down the right edge, sixteen round the screen of a phone.
+       {/* On the right, the menu. Behind it everything that is the machine's and not the game's (the wardrobe, the music,
+           the settings, the numbers, fullscreen, the zoom, bug reports, the site's own bars, the way out): until
+           2026-10-09 six buttons here and three more down the right edge, sixteen round the screen of a phone; bug reports
+           went in with them on 2026-10-18 (a member: "มันไม่ค่อยได้ใช้ไม่ต้องอยู่บนจอตลอดเวลา มันรกสำหรับจอเล็ก").
            Its panel is always there and only put away, so that the music, which its button keeps, plays on. */}
        {s && (
         <div className="flex shrink-0 items-start gap-2">
-         <a href="/feedback#cash-town" target="_blank" rel="noopener noreferrer" data-town-bug-report
-            aria-label={w.th ? "แจ้งบั๊ก (เปิด Feedback ในแท็บใหม่)" : "Report a bug (opens Feedback in a new tab)"}
-            title={w.th ? "แจ้งบั๊ก · Feedback" : "Report a bug · Feedback"}
-            className={`${hudBtn} town-hud-report pointer-events-auto`}>
-           <TownIcon name="note" size={18} />
-           <span className="font-data text-[11px] leading-none">{w.th ? "แจ้งบั๊ก" : "Report bug"}</span>
-         </a>
          <div ref={menuBox} className="relative shrink-0 [&>*]:pointer-events-auto">
            <button type="button" data-town-menu onClick={() => { setMenuOpen((o) => !o); setCard(null); setPopover(null); setPeopleOpen(false); }}
                    aria-expanded={menuOpen} aria-label={w.th ? "เมนู" : "Menu"} title={w.th ? "เมนู" : "Menu"} className={hudBtn}>
@@ -4659,6 +4660,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                  <button type="button" onClick={() => { setStatsOpen((o) => !o); setMenuOpen(false); }} aria-pressed={statsOpen} title={w.stats} className={hudBtn}>
                    <TownIcon name="stats" size={20} /><span className="sr-only">{w.stats}</span>
                  </button>)}
+               {menuTile(w.th ? "แจ้งบั๊ก" : "Report bug",
+                 <a href="/feedback#cash-town" target="_blank" rel="noopener noreferrer" data-town-bug-report onClick={() => setMenuOpen(false)}
+                    aria-label={w.th ? "แจ้งบั๊ก (เปิด Feedback ในแท็บใหม่)" : "Report a bug (opens Feedback in a new tab)"}
+                    title={w.th ? "แจ้งบั๊ก · Feedback" : "Report a bug · Feedback"} className={hudBtn}>
+                   <TownIcon name="note" size={18} />
+                 </a>)}
                {/* The test window's button (the trial's, in `next dev` only): look at every thing there is, and conjure it */}
                {TownTest && keeper?.trial && menuTile("Test",
                  <button type="button" onClick={() => { setMenuOpen(false); setCard(null); setPopover(null); setPeopleOpen(false); setHistoryOpen(false); if (phone) { setTrade(null); setChatOpen(false); } setTestOpen((o) => !o); }}
@@ -4965,8 +4972,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                 </div>
               )}
               {/* (and whatever else stays there puts itself here: a chat room folded away) */}
-              <div ref={setFootCorner} data-foot-powers />
+              <div ref={setFootCorner} data-foot-corner className="flex max-w-full flex-col items-start gap-1.5 empty:hidden" />
             </div>
+            {/* The powers of the gifts worn and of the place (the gnome's watering, the moon lantern, the cloud jar …): under
+                the clock on a narrow screen; on a wide one at the foot, over the bag's buttons and beside the hand's bar,
+                where the eye already is (a member, 2026-10-15: "พอปุ่มอยู่ข้างบน มันไม่ทันสังเกต"). */}
+            <div ref={setFootPowers} data-foot-powers className="z-[5] empty:hidden" />
             <div ref={setFootHead} data-head-toast className="z-30 flex min-w-0 flex-col items-center gap-2 pb-1.5 empty:hidden" />
             {/* What is used by hand, over the chat: the hunter's belt (it puts itself here), and while I sit the way to
                 get up (a tap on the map only turns me; at a meal it says what getting up costs). Over the chat and not
