@@ -1179,7 +1179,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
               <span className="absolute inset-x-0 top-0 h-[2.5%] bg-[#e9573f]" />
               {/* a rule between each fish's column: one in the middle for two, two at the thirds for three */}
               {phase.fish.slice(1).map((_, i) => (
-                <span key={i} className="absolute inset-y-0 w-px bg-[#2a190d]" style={{ left: `${(i + 1) * 100 / phase.fish.length}%` }} />
+                <span key={i} className="absolute inset-y-0 w-0.5 -translate-x-1/2 bg-[#e9cfa4]/40" style={{ left: `${(i + 1) * 100 / phase.fish.length}%` }} />
               ))}
               {PAIR_LOOK.slice(0, phase.fish.length).map((look, i) => (
                 <span key={i} ref={two.band[i]} data-band={i} data-fx={buffs.includes("calm") ? "calm" : undefined} className={`absolute border-y-[3px] ${look.band} ${buffs.includes("calm") ? "shadow-[0_0_14px_4px_rgba(150,225,255,0.75)]" : ""}`} style={{ left: `${i * 100 / phase.fish.length}%`, width: `${100 / phase.fish.length}%`, bottom: "42%", height: "12%" }} />
