@@ -11762,6 +11762,7 @@
     "encounters": [
      {
       "label": "M1S",
+      "encounter_id": 93,
       "name": "Black Cat",
       "best": 84,
       "median": 54,
@@ -11770,6 +11771,7 @@
      },
      {
       "label": "M2S",
+      "encounter_id": 94,
       "name": "Honey B. Lovely",
       "best": 87,
       "median": 16,
@@ -11778,6 +11780,7 @@
      },
      {
       "label": "M3S",
+      "encounter_id": 95,
       "name": "Brute Bomber",
       "best": 50,
       "median": 32,
@@ -11786,6 +11789,7 @@
      },
      {
       "label": "M4S",
+      "encounter_id": 96,
       "name": "Wicked Thunder",
       "best": 54,
       "median": 23,
@@ -64760,8 +64764,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1085,
     "name": "Dancing Mad",
-    "best": 21,
-    "kills": 1,
+    "best": 33,
+    "kills": 2,
     "job": "Viper",
     "cleared": true
    },
@@ -68115,6 +68119,17 @@
     "zone": "Trials III (Extreme)",
     "zone_id": 72,
     "expansion": "Dawntrail",
+    "encounter_id": 1083,
+    "name": "Doomtrain",
+    "best": 24,
+    "kills": 1,
+    "job": "Machinist",
+    "cleared": true
+   },
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 27,
@@ -70521,7 +70536,7 @@
     "encounter_id": 1082,
     "name": "Guardian Arkveld",
     "best": 44,
-    "kills": 16,
+    "kills": 18,
     "job": "Warrior",
     "cleared": true,
     "job_kills": {
@@ -73503,7 +73518,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 83,
-    "kills": 63,
+    "kills": 67,
     "job": "Bard",
     "cleared": true,
     "job_kills": {
@@ -73544,7 +73559,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 79,
-    "kills": 71,
+    "kills": 72,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -73577,7 +73592,7 @@
     "encounter_id": 1081,
     "name": "Necron",
     "best": 53,
-    "kills": 20,
+    "kills": 26,
     "job": "RedMage",
     "cleared": true,
     "job_kills": {
@@ -73614,7 +73629,7 @@
     "encounter_id": 1080,
     "name": "Zelenia",
     "best": 65,
-    "kills": 13,
+    "kills": 15,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -73639,7 +73654,7 @@
     "encounter_id": 1078,
     "name": "Queen Eternal",
     "best": 87,
-    "kills": 51,
+    "kills": 58,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -73676,7 +73691,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 89,
-    "kills": 46,
+    "kills": 47,
     "job": "Summoner",
     "cleared": true,
     "job_kills": {
@@ -73717,7 +73732,7 @@
     "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 90,
-    "kills": 44,
+    "kills": 45,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -77454,6 +77469,17 @@
    }
   ],
   "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1083,
+    "name": "Doomtrain",
+    "best": 2,
+    "kills": 1,
+    "job": "Gunbreaker",
+    "cleared": true
+   },
    {
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
@@ -82147,7 +82173,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 8,
-    "kills": 6,
+    "kills": 7,
     "job": "DarkKnight",
     "cleared": true,
     "job_kills": {
@@ -82177,6 +82203,17 @@
       "best": 4
      }
     }
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1081,
+    "name": "Necron",
+    "best": 6,
+    "kills": 5,
+    "job": "DarkKnight",
+    "cleared": true
    },
    {
     "zone": "Trials I (Extreme)",
@@ -82210,7 +82247,7 @@
     "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 22,
-    "kills": 14,
+    "kills": 15,
     "job": "DarkKnight",
     "cleared": true,
     "job_kills": {

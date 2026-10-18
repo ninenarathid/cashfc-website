@@ -66,6 +66,7 @@
    2494,
    2497,
    2500,
+   2502,
    2503,
    2506,
    2509,
@@ -138,7 +139,6 @@
    3959,
    3960,
    4000,
-   4007,
    4018,
    4035,
    4043,
@@ -1045,6 +1045,7 @@
    3686,
    3687,
    3785,
+   3812,
    3820,
    3833,
    3834,
@@ -1066,7 +1067,6 @@
    3997,
    4000,
    4005,
-   4007,
    4008,
    4015,
    4018,
@@ -1593,7 +1593,7 @@
   "mounts": 74,
   "minions": 121,
   "rare": 14,
-  "level": 97,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -1632,7 +1632,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-17"
+  "chg": "2026-10-18"
  },
  "26699926": {
   "name": "Boonies Princess",
@@ -2215,7 +2215,7 @@
   "mounts": 174,
   "minions": 271,
   "rare": null,
-  "level": 40,
+  "level": 56,
   "cc": [
    true,
    true,
@@ -2255,7 +2255,7 @@
   "mounts": 49,
   "minions": 115,
   "rare": null,
-  "level": 84,
+  "level": 85,
   "cc": [
    true,
    true,
@@ -2285,7 +2285,7 @@
    "Dancing Mad",
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-10-17"
+  "chg": "2026-10-18"
  },
  "50821570": {
   "name": "Haruki Mizumoto",
@@ -2294,7 +2294,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 62,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2520,7 +2520,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 88,
+  "level": 89,
   "cc": [
    false,
    false,
@@ -3578,7 +3578,7 @@
    3921,
    3925,
    3979,
-   4023,
+   3988,
    4028,
    4029,
    4030
@@ -3640,7 +3640,7 @@
   "mounts": 65,
   "minions": 131,
   "rare": 57,
-  "level": 94,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3722,7 +3722,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-10-17"
+  "chg": "2026-10-18"
  },
  "21620195": {
   "name": "Nefe'li Lucias",
@@ -4524,6 +4524,7 @@
    3770,
    3771,
    3802,
+   3823,
    3832,
    3842,
    3843,
@@ -4567,7 +4568,6 @@
    3954,
    3997,
    3999,
-   4003,
    4004,
    4005,
    4006,
@@ -4973,6 +4973,7 @@
    3703,
    3726,
    3729,
+   3736,
    3757,
    3758,
    3778,
@@ -5040,8 +5041,7 @@
    4015,
    4017,
    4018,
-   4022,
-   4033
+   4022
   ],
   "tiers": {
    "relic": "legendary",
@@ -5997,7 +5997,7 @@
   "mounts": 175,
   "minions": 358,
   "rare": 158,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -6113,12 +6113,13 @@
   },
   "jobs": {},
   "ex": [
+   "Doomtrain",
    "Enuo",
    "Valigarmanda",
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-16"
+  "chg": "2026-10-18"
  },
  "34546216": {
   "name": "Dekkapi Kung",
@@ -6660,7 +6661,7 @@
   "mounts": 122,
   "minions": 301,
   "rare": 67,
-  "level": 30,
+  "level": 40,
   "cc": [
    false,
    false,
@@ -6745,7 +6746,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-10-17"
+  "chg": "2026-10-18"
  },
  "31001781": {
   "name": "Ician Wyra'li",
@@ -6876,9 +6877,9 @@
   "name": "Kawa Lynn",
   "parse": 72,
   "ult": 1,
-  "mounts": 55,
-  "minions": 109,
-  "rare": 1,
+  "mounts": 57,
+  "minions": 111,
+  "rare": 2,
   "level": 100,
   "cc": [
    false,
@@ -6888,17 +6889,19 @@
    false
   ],
   "rare_ids": [
-   631
+   631,
+   3945
   ],
   "tiers": {},
   "jobs": {},
   "ex": [
+   "Doomtrain",
    "Valigarmanda"
   ],
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-17"
+  "chg": "2026-10-18"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -6995,6 +6998,7 @@
   "ex": [
    "Doomtrain",
    "Enuo",
+   "Necron",
    "Valigarmanda",
    "Zoraal Ja"
   ],
@@ -7239,6 +7243,7 @@
    3860,
    3861,
    3862,
+   3885,
    3886,
    3887,
    3914,
@@ -7287,7 +7292,6 @@
    4026,
    4027,
    4031,
-   4033,
    4034,
    4035,
    4043,
@@ -7320,7 +7324,7 @@
   "mounts": 70,
   "minions": 104,
   "rare": 57,
-  "level": 56,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -7397,7 +7401,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-16"
+  "chg": "2026-10-18"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -7657,7 +7661,7 @@
   "mounts": 55,
   "minions": 177,
   "rare": null,
-  "level": 100,
+  "level": 65,
   "cc": [
    false,
    false,
@@ -7673,7 +7677,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-10-18"
  },
  "37061370": {
   "name": "Peonies Dunieres",
@@ -7891,7 +7895,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 91,
+  "level": 77,
   "cc": [
    false,
    false,
@@ -7936,7 +7940,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-16"
+  "chg": "2026-10-18"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -8362,7 +8366,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 80,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8375,7 +8379,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-17"
+  "chg": "2026-10-18"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -8703,7 +8707,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 72,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -8721,7 +8725,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-17"
+  "chg": "2026-10-18"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -8893,7 +8897,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 100,
+  "level": 28,
   "cc": [
    false,
    false,
@@ -8909,7 +8913,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-17"
+  "chg": "2026-10-18"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
