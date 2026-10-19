@@ -1,6 +1,9 @@
 import{mealDuration}from"./stamina";
 import { syncQuality } from "./quality-plant";
 import type { RockChoice } from "./geology";
+// ── the pasture ── (lib/town/animal-act: one step of the animal line; docs/plans/animals)
+import type { AnimalInput, AnimalReply, AnimalWhy, AnimalWorld } from "./animal-act";
+import { EMPTY_WORLD, mergeAnimals } from "./animal-world";
 import type { InsectCare } from "./insect-garden";
 import type { Box, BoxRefusal, BoxUpgrade } from "./box";
 import type { RewardInput, RewardReply } from "./reward-types";
@@ -150,7 +153,9 @@ export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild"
   // ── the bridge built by hand ── and ── the lamp relay ──
   | "works" | "lamps" | "boats"
   // ── every crop's price, told at the farm (v283) ──
-  | "farmPrices";
+  | "farmPrices"
+  // ── the pasture ── (everybody's animals, the gate, the gifts' hours and the wagons: v291's town_animals)
+  | "animals";
 export type Water = "river" | "well" | null;
 /** A game of timing as the browser played it: the database keeps it with the play, and bounds what it costs. */
 export interface Timing { hits: number; misses: number; secs: number; need?: number; rotation?: number }
@@ -636,6 +641,15 @@ export interface Keeper {
   smith(): SmithTold | null;
   /** Ask what I have at the smith again (the database's; the trial's is in the browser already). */
   smithLook(): void;
+  // ── the pasture ── (docs/plans/animals/README.md "The contract between the page and the database")
+  /**
+   * One step of the animal line (lib/town/animal-act's animalAction, the database's town_animals): the answer says
+   * whether it was done (and why not), the world as this keeper now holds it, and what a collection, a cross or the
+   * cradle came to. `request` makes a step tried again answer as its first try did.
+   */
+  animals(input: AnimalInput, request?: string): Promise<{ ok: boolean; why?: AnimalWhy; world: AnimalWorld; got?: AnimalReply["got"] }>;
+  /** Everybody's animals, the herds, the gate, the gifts' hours and the wagons, as last read: null until whoever keeps the game has told of a pasture. */
+  animalWorld(): AnimalWorld | null;
   /** Put so many pieces of one kind in to smelt; take what is done; widen the queue. */
   smithSmelt(piece: ItemId, n: number): Promise<SmithDid<{ timber: number; fee: number }>>;
   smithTake(): Promise<SmithDid<{ got: Array<[ItemId, number]> }>>;
@@ -780,7 +794,8 @@ interface Turn { before?: () => boolean | void; after?: (a: Answer | null) => vo
 
 /** How often what others may change is asked for while it is looked at, in milliseconds. A nudge from the room asks at once. */
 const EVERY: Record<Looked, number> = { /* mining */ boats: 15000, cave: 60_000, stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000, fountain: 60_000, wild: 45_000, bugs: 45_000, notices: 30_000, line: 60_000, ground: 10_000, shop: 30_000, /* felling */ trees: 60_000, works: 45_000, lamps: 60_000,
-  /* (a price moves only at a round's turn, twice a day) */ farmPrices: 5 * 60_000 };
+  /* (a price moves only at a round's turn, twice a day) */ farmPrices: 5 * 60_000,
+  /* ── the pasture ── (read while on the farm: a step of mine or a word from the room reads it at once) */ animals: 30_000 };
 /**
  * The room's word that a thing changed is answered at once, and then no oftener than this for the things that are
  * dear to read (seen on the live database the evening the mountain opened, 2026-10-09: seven members in the cave,
@@ -1447,6 +1462,8 @@ export class DbKeeper implements Keeper {
       : what === "lamps" ? this.refresh("town_lamps_read")
       : what === "boats" ? this.refresh("town_reward_boats",()=>({p_x:this.boatAt_[0],p_y:this.boatAt_[1]}))
       : what === "farmPrices" ? this.refresh("town_farm_prices")
+      // ── the pasture ── (the whole world, everybody's animals for drawing; a database before v291 answers nothing, and no pasture is kept)
+      : what === "animals" ? this.refresh("town_animals", () => ({ p_input: { action: "look" }, p_request: null })).then((a) => { if (a && a.ok !== false) this.animalsTold(a.world, true); return a; })
       : this.refresh("town_farm", () => ({ p_since: this.farmAt })).then((a) => { if (a && typeof a.now === "number") this.farmAt = a.now; return a; });
     void asked.then(() => {
       const still = this.looking.get(what);
@@ -2308,6 +2325,23 @@ export class DbKeeper implements Keeper {
     return did.ok ? did : { ok: false, why: did.why === "away" ? "away" : "none" };
   }
   smith(): SmithTold | null { return this.smith_; }
+  // ── the pasture ── (the world as town_animals last told it: whole on a look, laid over what is held on any other step)
+  private animals_: AnimalWorld | null = null;
+  animalWorld(): AnimalWorld | null { return this.animals_; }
+  /** Keep a pasture's world told in an answer: whole (a look), or a part laid over the one held. */
+  private animalsTold(told: unknown, whole: boolean) {
+    if (!told || typeof told !== "object") return;
+    this.animals_ = mergeAnimals(whole ? null : this.animals_, told as Record<string, unknown>);
+    this.tell();
+  }
+  async animals(input: AnimalInput, request?: string) {
+    const a = await this.ask("town_animals", { p_input: input, p_request: request ?? null });
+    if (!a) return { ok: false, why: "away" as AnimalWhy, world: this.animals_ ?? EMPTY_WORLD };
+    this.animalsTold(a.world, input.action === "look");
+    // (what others see changed: their pages read the pasture again)
+    if (a.ok === true && input.action !== "look" && input.action !== "lend") this.onDeed?.("animals");
+    return { ok: a.ok === true, ...(a.ok === true ? {} : { why: ((a.why as AnimalWhy) ?? "none") }), world: this.animals_ ?? EMPTY_WORLD, ...(a.got && typeof a.got === "object" ? { got: a.got as AnimalReply["got"] } : {}) };
+  }
   smithLook() { if (this.smith_) void this.ask("town_smith"); }
   private async smithDeed<T>(fn: string, args: Record<string, unknown> = {}): Promise<SmithDid<T>> {
     if (!this.smith_) return { ok: false, why: "away" };

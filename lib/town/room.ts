@@ -121,6 +121,12 @@ export interface Doing {
   mood?: number;
   /** The flame they bear from a fire to a lamp post (lib/town/lamps): the moment it dies, in ms of the clock of whoever keeps the game; 0 when none; missing from a browser older than that. Every page draws it in their hands, with what is left of it. */
   flame?: number;
+  /**
+   * ── the pasture ── Where they sit that is no seat of their own (lib/town/riding): "r:" and a rider's id, behind them
+   * on a cloud ram; "w:" and a run's id, on the hay wagon; "" when neither; missing from a browser older than that.
+   * Every page puts them there, and walks them no more while they sit.
+   */
+  seat?: string;
 }
 
 /**

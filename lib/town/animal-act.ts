@@ -70,7 +70,9 @@ export type AnimalInput =
 
 export type AnimalWhy =
   | "none" | "theirs" | "coins" | "room" | "places" | "stage" | "hungry" | "nothing" | "spent" | "stamina" | "rest"
-  | "hearts" | "species" | "offering" | "gift" | "used" | "lent" | "far" | "name" | "soon" | "full";
+  | "hearts" | "species" | "offering" | "gift" | "used" | "lent" | "far" | "name" | "soon" | "full"
+  // (the page's own: the town could not be reached, and nothing is known to have been done)
+  | "away";
 
 /** What a step did that is written down: the line's points (`animals`) or the helpers' (`helpers`), and what for. */
 export interface AnimalNote { what: string; n: number; line?: "animals" | "helpers"; pts?: number; doc?: Record<string, unknown> }

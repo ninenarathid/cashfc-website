@@ -176,7 +176,7 @@ const TownFountain = lazy(() => import("./TownFountain"));
 // ── forging ── (the blacksmith's screen: asked for only where whoever keeps the game has a smith)
 const TownSmith = lazy(() => import("./TownSmith"));
 /** What a nudge from the room may be about (lib/town/keeper's Looked). */
-const NUDGES: readonly string[] = ["boats","stall", "farm", "kitchen", "deal", "fountain", "notices", "bugs", "line", "ground", "shop", /* mining */ "cave", /* felling */ "trees", /* the bridge and the lamps */ "works", "lamps"];
+const NUDGES: readonly string[] = ["boats","stall", "farm", "kitchen", "deal", "fountain", "notices", "bugs", "line", "ground", "shop", /* mining */ "cave", /* felling */ "trees", /* the bridge and the lamps */ "works", "lamps", /* the pasture */ "animals"];
 /** The colour a carrier's rank is written in under their name (lib/town/well): wood, silver, gold. */
 const RANK_INK = ["#e0a66a", "#d5dce3", "#f2c94c"];
 /** How near somebody has to stand for a deal to be opened with them, in tiles: lib/town/deal's own number, kept apart so that the catalog stays out of the map's code (a test holds the two together). */

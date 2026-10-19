@@ -256,6 +256,10 @@ export function countsOf(d: Done, doer: string): Counts[] {
     }
     // ── end: felling ──
     default:
+      // ── the pasture ── (lib/town/animal-act: each step that earns says what it earned as the deed's `doc.pts`; care
+      // of somebody else's animal is the helpers' line, everything else of the pasture's is its own line, "animals")
+      if (d.what.startsWith("animal_") && typeof d.doc.pts === "number" && d.doc.pts > 0)
+        return [{ to: null, line: d.what === "animal_care" ? "helpers" : "animals", raw: Math.floor(d.doc.pts) }];
       return [];
   }
 }
