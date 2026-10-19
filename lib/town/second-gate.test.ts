@@ -33,11 +33,11 @@ describe("the farm's second gate", () => {
 
   it("is walked to from the town's first gate, down the lane, and from the farm's", () => {
     const [town1, town2] = GATES.filter((g) => g.from === "farm" && g.leads === "town").map((g) => g.to);
-    const way = findPath({ x: town1.x, y: town1.y }, { x: 62.5, y: 72.5 });
+    const way = findPath({ x: town1.x, y: town1.y }, { x: 62.5, y: 72.5 }) ?? [];
     expect(way.length).toBeGreaterThan(30);
     expect(way.every((p) => walkable(Math.floor(p.x), Math.floor(p.y)))).toBe(true);
     const [, farm2] = GATES.filter((g) => g.from === "town" && g.leads === "farm").map((g) => g.to);
-    expect(findPath({ x: farm2.x, y: farm2.y }, { x: FARM.x + 28.5, y: FARM.y + 63.5 }).length).toBeGreaterThan(20);
+    expect((findPath({ x: farm2.x, y: farm2.y }, { x: FARM.x + 28.5, y: FARM.y + 63.5 }) ?? []).length).toBeGreaterThan(20);
     expect(town2).toEqual({ x: COLS - 3.5, y: 73.5 });
   });
 });
