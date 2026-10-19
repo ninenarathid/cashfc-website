@@ -41,13 +41,14 @@ const NATURE_ICONS: Record<Nature, IconName> = { dawn: "waterDawn", rain: "water
  * book is read as it is opened; in `next dev`'s test room the browser's trial.
  * A keeper that knows of no book (the database before v127) offers none.
  */
-export default function TownWell({ keeper, name, th, at, phone, tabbar, bottom, sfx }: {
+export default function TownWell({ keeper, name, th, at, well = 0, phone, tabbar, bottom, sfx }: {
   keeper: Keeper;
   /** What I am called: the trial knows its carriers only by their ids. */
   name: string;
   th: boolean;
-  /** Whether I stand at the well. */
+  /** Whether I stand at a well, and which (its number in lib/town/world's WELLS: each has its own water). */
   at: boolean;
+  well?: number;
   phone: boolean;
   tabbar: boolean;
   /** How far up from the foot of the map the little book sits. */
@@ -70,6 +71,10 @@ export default function TownWell({ keeper, name, th, at, phone, tabbar, bottom, 
   }, [open]);
 
   const book = keeper.wellBook(), thanks = keeper.thanks(), jar = keeper.jar();
+  // (the nature of the water of the well I stand at: the book tells the first's with whose doing it is; the second's is the
+  // keeper's, whose bringer it names only when it is me)
+  const second = well > 0 ? keeper.wellWater(well) : null;
+  const water = well > 0 ? (second ? { kind: second.kind, until: second.until, name: second.by === keeper.id ? name : "" } : null) : book?.water ?? null;
   const purse = keeper.purse(), hand = handOf(purse);
   // (the thing in my hand, at each grade the bag holds of it that the jar takes: one button a grade, the lowest first)
   const handSlots = hand ? ([0, 1, 2, 3] as const).flatMap((g) => { const slot = purse.bag.findIndex((s) => s?.item === hand && gradeIn(s) === g && mayDrop(s)); return slot >= 0 ? [{ slot, grade: g }] : []; }) : [];
@@ -177,13 +182,13 @@ export default function TownWell({ keeper, name, th, at, phone, tabbar, bottom, 
               </div>
 
               {/* the well's water, while it has a nature (lib/town/waters): what it is, for how long yet, and whose doing; never what it does */}
-              {book.water && book.water.until > keeper.now() && (
-                <p className="mt-3 flex items-center gap-2 rounded-xl border border-gold/50 bg-gold/10 px-3 py-2 text-ui text-ink" data-well-water={book.water.kind}>
-                  <TownIcon name={NATURE_ICONS[book.water.kind]} size={24} />
+              {water && water.until > keeper.now() && (
+                <p className="mt-3 flex items-center gap-2 rounded-xl border border-gold/50 bg-gold/10 px-3 py-2 text-ui text-ink" data-well-water={water.kind}>
+                  <TownIcon name={NATURE_ICONS[water.kind]} size={24} />
                   <span className="min-w-0">
                     {th
-                      ? `น้ำในบ่อตอนนี้คือ${NATURE_NAMES[book.water.kind][0]} · อีก ${Math.max(1, Math.ceil((book.water.until - keeper.now()) / 60_000))} นาที · ${book.water.name || "เพื่อนคนหนึ่ง"}หาบมา`
-                      : `The well's water is ${NATURE_NAMES[book.water.kind][1].toLowerCase()} · ${Math.max(1, Math.ceil((book.water.until - keeper.now()) / 60_000))} min more · brought by ${book.water.name || "somebody"}`}
+                      ? `น้ำในบ่อตอนนี้คือ${NATURE_NAMES[water.kind][0]} · อีก ${Math.max(1, Math.ceil((water.until - keeper.now()) / 60_000))} นาที · ${water.name || "เพื่อนคนหนึ่ง"}หาบมา`
+                      : `The well's water is ${NATURE_NAMES[water.kind][1].toLowerCase()} · ${Math.max(1, Math.ceil((water.until - keeper.now()) / 60_000))} min more · brought by ${water.name || "somebody"}`}
                   </span>
                 </p>
               )}

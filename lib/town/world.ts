@@ -882,13 +882,19 @@ export function bedCorner(bed: number): [number, number] {
 export const WELL = { x: FARM.x + 28, y: FARM.y + 23 };
 /**
  * The farm's wells: the first, and since its southern half a second where that half's lanes cross (the owner,
- * 2026-10-19: "บ่อน้ำเพิ่มเติมด้วยก็ได้"). The two draw on one water: what is poured into either is in both, and a can
- * is filled at either from the same store (lib/town/well's book, the jar and the gifts know of one well).
+ * 2026-10-19: "บ่อน้ำเพิ่มเติมด้วยก็ได้"). **Each keeps its own water** (the same day: "ช่วยทำให้ น้ำแต่ละบ่อ มีน้ำแยกกัน"):
+ * what is poured into one is in that one, a can filled at one takes that one's; and its water's nature is its own, which
+ * a plant watered takes from the well nearest it (`wellOf`: the first half's the first well's, the southern half's the
+ * second's; and of the waters, "แยกตามบ่อ"). The well's book of who carried what, the jar and the gifts are the farm's.
  */
 export const WELLS: ReadonlyArray<{ x: number; y: number }> = [WELL, { x: FARM.x + 28, y: FARM.y + 65 }];
-export const atWell = (tx: number, ty: number) => WELLS.some((w) => Math.max(Math.abs(tx - w.x), Math.abs(ty - w.y)) === 1);
+/** Which well a tile stands beside (one of the eight about it), by its number in WELLS; −1 for none. */
+export const wellBy = (tx: number, ty: number) => WELLS.findIndex((w) => Math.max(Math.abs(tx - w.x), Math.abs(ty - w.y)) === 1);
+export const atWell = (tx: number, ty: number) => wellBy(tx, ty) >= 0;
+/** The well nearest a point, by its number in WELLS (the first of two as near): whose water's nature a plant there takes. */
+export const wellOf = (x: number, y: number) => WELLS.reduce((best, w, i) => ((x - w.x) ** 2 + (y - w.y) ** 2 < (x - WELLS[best].x) ** 2 + (y - WELLS[best].y) ** 2 ? i : best), 0);
 /** The well nearest a point, as the crow flies. */
-export const wellNear = (x: number, y: number) => WELLS.reduce((a, b) => (Math.hypot(b.x - x, b.y - y) < Math.hypot(a.x - x, a.y - y) ? b : a));
+export const wellNear = (x: number, y: number) => WELLS[wellOf(x, y)];
 /** The farm as it is now, or (as built, see asBuilt) as it was before its southern half. */
 const farmNow = () => (asWas ? FARM_FIRST : FARM);
 /**

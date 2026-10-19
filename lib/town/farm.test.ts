@@ -8,7 +8,7 @@ import { CROPS, CROP_IDS, FISH, ITEMS, STAGES, growIconOf, type ItemId } from ".
 import { staminaOf } from "./stamina";
 import { GOODS, held, hold, newPurse, put, type Purse } from "./trade";
 import { ALWAYS_RAIN, SLOT_MS, rainsOf, slotOf, type Rain } from "./weather";
-import { BEDS_IN_FARM, FARM, WELL, WELLS, atWell, bedCorner, bedOf, plotAt, walkable, wellNear } from "./world";
+import { BEDS_IN_FARM, FARM, WELL, WELLS, atWell, bedCorner, bedOf, plotAt, walkable, wellBy, wellNear, wellOf } from "./world";
 
 /** A moment by Bangkok's clock. */
 const at = (s: string) => Date.parse(`${s}+07:00`);
@@ -758,6 +758,12 @@ describe("water", () => {
     expect(round.filter(([x, y]) => walkable(x, y)).length).toBeGreaterThanOrEqual(6);
     expect([atWell(second.x, second.y), atWell(second.x, second.y + 2)]).toEqual([false, false]);
     expect([wellNear(second.x, second.y + 3), wellNear(WELL.x, WELL.y + 3)]).toEqual([second, WELL]);
+  });
+  it("tells the wells apart: which one somebody stands at, and which one a plot's water's nature is of (each its own water, 2026-10-19)", () => {
+    const [first, second] = WELLS;
+    expect([wellBy(first.x + 1, first.y), wellBy(second.x, second.y - 1), wellBy(second.x, second.y), wellBy(second.x + 2, second.y)]).toEqual([0, 1, -1, -1]);
+    // (the first half's plots the first well's, the southern half's the second's)
+    for (let y = FARM.y; y < FARM.y + FARM.h; y++) for (let x = FARM.x; x < FARM.x + FARM.w; x++) if (plotAt(x, y)) expect([x, y, wellOf(x, y)]).toEqual([x, y, y - FARM.y < 44 ? 0 : 1]);
   });
 });
 describe("what waiting is worth (the owner, 2026-10-04: every crop twice as many, the hoe half the stamina)", () => {

@@ -8,7 +8,7 @@ import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
   BENCHES, BEYOND_PROPS, BOARD, TRADE_BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SMITH, SPEED, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle,
-  atFire, atWell, benchAt, bySmith, byStorebox, distance, fishFrom, fromIso, isBuilt, isFar, setBridge, setBuilt, setFar, groundAt, hearing, inDiningYard, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
+  atFire, atWell, wellBy, benchAt, bySmith, byStorebox, distance, fishFrom, fromIso, isBuilt, isFar, setBridge, setBuilt, setFar, groundAt, hearing, inDiningYard, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
 import { bridgeSpans, bridgeWhole } from "@/lib/town/bridge";
 import { DECOR, FACES, artOf, carving, gateLook, ringAt } from "@/lib/town/decor";
@@ -5249,7 +5249,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       {s && game && keeper && <Suspense fallback={null}><TownFieldwork sfx={sfxRef.current} keeper={keeper} th={w.th} far={farOn} register={registerFieldwork} tile={standing?.tile??null} busy={!!talk||!!trade||boardOpen||wardrobeOpen||fishing||(phone&&testOpen)} /></Suspense>}
       {s && game && keeper && (
         <Suspense fallback={null}>
-          <TownWell keeper={keeper} name={me.name} th={w.th} at={wellHere && !talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen)} phone={phone} tabbar={tabbar}
+          <TownWell keeper={keeper} name={me.name} th={w.th} at={wellHere && !talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen)} well={wellHere && standing ? Math.max(0, wellBy(standing.tile[0], standing.tile[1])) : 0} phone={phone} tabbar={tabbar}
                     bottom={phone && tabbar ? "calc(12rem + env(safe-area-inset-bottom))" : "8rem"} sfx={sfxRef.current} />
         </Suspense>
       )}

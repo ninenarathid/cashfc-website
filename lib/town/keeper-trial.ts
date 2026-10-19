@@ -47,7 +47,7 @@ import { STAMINA, hasBuff, isSpent, levelOf } from "./stamina";
 import { handSlot, type Purse } from "./trade";
 import { sortedSlot } from "./bag";
 import type { Nature } from "./waters";
-import { KITCHEN, atWell } from "./world";
+import { KITCHEN, atWell, wellBy } from "./world";
 import { trialFor, Trial } from "./trial";
 import { wetMs } from "./weather";
 // ── gifts: farming ──
@@ -123,11 +123,11 @@ class TrialKeeper implements Keeper {
   order() { return this.trial.order(); }
   hintPrice() { return this.trial.hintPrice(); }
   farm() { return this.trial.farm(); }
-  well() { return this.trial.well(); }
+  well(i = 0) { return this.trial.well(i); }
   owners() { return this.trial.owners(); }
   deedAt(key: string) { return this.trial.deedAt(key); }
   rains() { return this.trial.sky(); }
-  choreAt(where: Water) { return this.trial.choreAt(where); }
+  choreAt(where: Water, at?: readonly [number, number] | null) { return this.trial.choreAt(where, at); }
   pots() { return this.trial.pots(); }
   feast() { return { pots: COOKING.feast.pots, ground: COOKING.feast.ground, tile: KITCHEN.feast.tile }; }
   found() { return this.trial.found(); }
@@ -377,7 +377,7 @@ class TrialKeeper implements Keeper {
     if (did.ok && timing?.misses) this.trial.spend(timing.misses);
     return did;
   }
-  async choreDo(where: Water): Promise<Did<{ chore: Chore }>> { return this.trial.choreDo(where); }
+  async choreDo(where: Water, at?: [number, number] | null): Promise<Did<{ chore: Chore }>> { return this.trial.choreDo(where, at); }
   // ── gifts: farming ──
   rowAt(key: string) { return this.trial.rowAt(key); }
   async rowDo(key: string, name: string, marks: Record<string, boolean>): Promise<Did<RowDid>> { return this.trial.rowDo(key, name, marks); }
@@ -446,7 +446,7 @@ class TrialKeeper implements Keeper {
   yardJar() { return this.trial.yardJar(); }
   yardCanPour() { return this.trial.yardCanPour(); }
   async yardPour(): Promise<Did<{ poured: number }>> { return this.trial.yardPour(); }
-  wellWater() { return this.trial.wellWater(); }
+  wellWater(i = 0) { return this.trial.wellWater(i); }
   drawnNow() { return this.trial.drawnNow(); }
   canPass() { return this.trial.canPass(); }
   async passTo(to: string): Promise<Did<{ n: number }>> {
@@ -603,7 +603,7 @@ class TrialKeeper implements Keeper {
   async moonPour(n: number, at: [number, number] | null): Promise<Did<{ poured: number; into: number; kind: Nature }>> {
     // (at the well, as the database holds a pour to: on one of the tiles about it)
     if (!at || !atWell(at[0], at[1])) return { ok: false, why: "none" };
-    const did = this.trial.moonPour(n);
+    const did = this.trial.moonPour(n, Math.max(0, wellBy(at[0], at[1])));
     if (did.ok) this.onDeed?.("farm");
     return did;
   }

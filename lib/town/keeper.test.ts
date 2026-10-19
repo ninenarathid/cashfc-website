@@ -969,6 +969,27 @@ describe("the database's keeper", () => {
     o.close();
   });
 
+  it("keeps each well's own water and its nature as the farm tells them (v287), and the one water of a database before it as both", async () => {
+    let wells = true;
+    const db = database({
+      town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }),
+      town_farm: () => (wells
+        ? { now: NOW + 1, well: 40, wells: [40, 7], wellWaters: [null, { kind: "dawn", until: NOW + 3_600_000, by: "pal" }], plots: {}, beds: {} }
+        : { now: NOW + 1, well: 12, wellWater: { kind: "rain", until: NOW + 3_600_000, by: "pal" }, plots: {}, beds: {} }),
+    });
+    const k = new DbKeeper("me", db.ask);
+    const stop = k.look("farm");
+    await settle();
+    expect([k.well(), k.well(0), k.well(1)]).toEqual([40, 40, 7]);
+    expect([k.wellWater(0)?.kind ?? null, k.wellWater(1)?.kind ?? null]).toEqual([null, "dawn"]);
+    wells = false;
+    k.nudged("farm");
+    await settle();
+    expect([k.well(0), k.well(1)]).toEqual([12, 12]);
+    expect([k.wellWater(0)?.kind, k.wellWater(1)?.kind]).toEqual(["rain", "rain"]);
+    stop();
+  });
+
   it("keeps the farm as it is told of it: what changed, a plot gone back to weeds, whose a bed is", async () => {
     const bed = bedOf(133, 5);
     const plant = { by: "me", crop: "kangkong", sown: NOW, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0 };

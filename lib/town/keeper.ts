@@ -47,7 +47,7 @@ import type { KitchenRefusal } from "./cooking";
 export interface Timing { sprite?: boolean; flame?: boolean }
 /** What a go at the kitchen came to: `sprite`, the hearth sprite cooked it (its helping more is in `n`); `back`, it came to nothing and the phoenix flame gave every thing back. */
 export type Cooked = { made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean; sprite?: boolean; back?: boolean };
-import { bedOf } from "./world";
+import { WELLS, bedOf, wellBy } from "./world";
 // ── mining ──
 import type { CaveTold } from "./cave-state";
 import type { MineRefusal, Peek, PendingVein } from "./mining";
@@ -220,12 +220,14 @@ export interface Keeper {
   /** What the uncle's next hint costs me (lib/town/hints), or null when he has none for me. Which hint it will be is by chance and the keeper's to say, at the buying. */
   hintPrice(): number | null;
   farm(): Record<string, Plot>;
-  well(): number;
+  /** A well's water, by its number in lib/town/world's WELLS (the first when none is said): each keeps its own (v287). */
+  well(i?: number): number;
   owners(): Map<number, { by: string; name: string }>;
   deedAt(key: string): Deed | null;
   /** The stretches of rain the plots have had (lib/town/weather), and the hours the farm was counted with insects on it (lib/town/farm's Swarms): what the farm's rules are read with. */
   rains(): FarmSky;
-  choreAt(where: Water): Chore | null;
+  /** What the thing in my hand does with water where I stand: `at`, the tile, says which well. */
+  choreAt(where: Water, at?: readonly [number, number] | null): Chore | null;
   pots(): Pot[];
   found(): ItemId[];
   finder(id: ItemId): string | null;
@@ -505,7 +507,7 @@ export interface Keeper {
    * is (null when it has none, and where whoever keeps the game knows of no such thing); and the nature of water
    * drawn at this moment, for the page to name a bucket's water by as it is drawn (what counts is the keeper's own).
    */
-  wellWater(): WellWater | null;
+  wellWater(i?: number): WellWater | null;
   drawnNow(): Nature | null;
 
   /**
@@ -892,7 +894,8 @@ export class DbKeeper implements Keeper {
   private finders_: Record<string, string> = {};
   private plots: Record<string, Plot> = {};
   private beds: Record<string, KeptBed> = {};
-  private well_ = 0;
+  // (each well's water, by its number in WELLS: the database tells them as `wells` from v287; before it, the one water `well`, both alike)
+  private wells_: number[] = WELLS.map(() => 0);
   private farmAt = 0;
   private pots_: Pot[] = [];
   private feast_: FeastTold | null = null;
@@ -935,7 +938,7 @@ export class DbKeeper implements Keeper {
   private line_ = false;
   /** Whether the database knows of waters that differ, and the well's water as it last told it: both said with everybody's rank. */
   private waters_ = false;
-  private water_: WellWater | null = null;
+  private water_: Array<WellWater | null> = WELLS.map(() => null);
   private stream_: StreamGate | null = null;
   private camps_:FieldCamp[]=[];
   private box_: Box | null = null;
@@ -1230,7 +1233,8 @@ export class DbKeeper implements Keeper {
       if (a.bed && typeof a.bed === "object") beds[n] = a.bed as KeptBed; else delete beds[n];
       this.beds = beds;
     }
-    if (typeof a.well === "number") this.well_ = a.well;
+    if (Array.isArray(a.wells)) this.wells_ = WELLS.map((_, i) => Number((a.wells as unknown[])[i]) || 0);
+    else if (typeof a.well === "number") this.wells_ = WELLS.map(() => a.well as number);
     if (Array.isArray(a.pots)) this.pots_ = a.pots as Pot[];
     // (told with the pots by a database that has a feast table)
     if (a.feast && typeof a.feast === "object" && Array.isArray((a.feast as FeastTold).tile)) this.feast_ = a.feast as FeastTold;
@@ -1276,7 +1280,9 @@ export class DbKeeper implements Keeper {
     if (a.jar && typeof a.jar === "object") this.jar_ = a.jar as JarTold;
     if (a.yard && typeof a.yard === "object" && typeof (a.yard as { jar?: unknown }).jar === "number") this.yard_ = (a.yard as { jar: number }).jar;
     if (a.line === true) this.line_ = true;
-    if ("wellWater" in a) { this.waters_ = true; this.water_ = a.wellWater && typeof a.wellWater === "object" ? (a.wellWater as WellWater) : null; }
+    // (each well's water's nature, `wellWaters`, from v287; before it the one `wellWater`, both wells' alike)
+    if ("wellWater" in a) { this.waters_ = true; const w = a.wellWater && typeof a.wellWater === "object" ? (a.wellWater as WellWater) : null; this.water_ = WELLS.map(() => w); }
+    if (Array.isArray(a.wellWaters)) { this.waters_ = true; this.water_ = WELLS.map((_, i) => { const w = (a.wellWaters as unknown[])[i]; return w && typeof w === "object" ? (w as WellWater) : null; }); }
     if (a.box && typeof a.box === "object" && Array.isArray((a.box as Box).things)) this.box_ = a.box as Box;
     if (a.boxTidy === true) this.boxTidy_ = true;
     if ("boxOffer" in a) this.boxOffer_ = a.boxOffer as BoxUpgrade | null;
@@ -1463,7 +1469,7 @@ export class DbKeeper implements Keeper {
     return hintPrice(this.mine, this.found_, (id) => at.has(id) && (mountain || !ofMountain(id)));
   }
   farm(): Record<string, Plot> { return this.plots; }
-  well(): number { return this.well_; }
+  well(i = 0): number { return this.wells_[i] ?? 0; }
   owners(): Map<number, { by: string; name: string }> {
     const now = this.now(), planted = new Map<number, number>(), out = new Map<number, { by: string; name: string }>();
     for (const [key, plot] of Object.entries(this.plots)) {
@@ -1489,7 +1495,7 @@ export class DbKeeper implements Keeper {
    */
   private swarms_: Swarms = {};
   rains(): FarmSky { return { rains: SKIES.rains(), swarms: this.swarms_ }; }
-  choreAt(where: Water): Chore | null { return choreFor(this.mine, where, this.well_); }
+  choreAt(where: Water, at?: readonly [number, number] | null): Chore | null { return choreFor(this.mine, where, this.well(at ? Math.max(0, wellBy(at[0], at[1])) : 0)); }
   wellBook(): WellBook | null { return this.wellBook_; }
   ranks(): Record<string, number> { return this.ranks_; }
   lines(): LinesTold | null { return this.lines_; }
@@ -1782,7 +1788,7 @@ export class DbKeeper implements Keeper {
     // ── gifts: helpers ── (a duet bell rang: whoever it rang with has stamina back and is told of it, in their own purse, which they read again)
     if (did.ok) this.rangWith(did);
     // (a watering on a hot afternoon, or while the well's water has a nature, is kept with more than this answer says: the plot is read again)
-    if (did.ok && did.deed === "water" && (this.hot() || this.wellWater())) this.fetch("farm");
+    if (did.ok && did.deed === "water" && (this.hot() || WELLS.some((_, i) => this.wellWater(i)))) this.fetch("farm");
     return did;
   }
   // ── gifts: farming ──
@@ -2089,7 +2095,7 @@ export class DbKeeper implements Keeper {
     return did;
   }
 
-  wellWater(): WellWater | null { return this.water_ && natureOf(this.water_, this.now()) ? this.water_ : null; }
+  wellWater(i = 0): WellWater | null { const w = this.water_[i] ?? null; return w && natureOf(w, this.now()) ? w : null; }
   drawnNow(): Nature | null { const now = this.now(); return this.waters_ ? natureAt(now, SKIES.raining(now)) : null; }
   canPass(): boolean { return this.line_ && !!carried(this.mine); }
   async passTo(to: string): Promise<Did<{ n: number }>> {

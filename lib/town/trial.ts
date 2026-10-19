@@ -78,7 +78,7 @@ import {
   RULES, buy, change, collect, handOf, hold, leave, letGo, newPurse, newStall, nextRoundAt, no, put, roomFor, roomy, roundOf, takeBack, takeOff, wear,
   type Done, type Purse, type Refusal, type Stall,
 } from "./trade";
-import { KITCHEN, bedCorner, bedOf, yardFloor } from "./world";
+import { KITCHEN, bedCorner, bedOf, wellBy, wellOf, yardFloor } from "./world";
 import { collect as jarCollect, drop as jarDrop, newJar, settle, type Jar, type JarThing, type JarTold, type Owed } from "./jar";
 import { boardOf, thank, toThank, type Helper, type Thanks, type ThanksBoard } from "./thanks";
 // ── gifts: kitchen ──
@@ -170,6 +170,13 @@ import { LAMPS, held as lampHeld, light as lampLight, lighted as lampLighted, li
 
 const STALL = "cashtown.trial.stall.1", CLOCK = "cashtown.trial.clock.1", FARM = "cashtown.trial.farm.2";
 const WELL = "cashtown.trial.well.1", BEDS = "cashtown.trial.beds.1";
+/** The farm's second well (lib/town/world's WELLS): its water, and its water's nature (the first's is the well's book's, `wellWater`). */
+const WELL_SOUTH = "cashtown.trial.well.south.1", WELL_WATER_SOUTH = "cashtown.trial.wellwater.south.1";
+const wellKey = (i: number) => (i === 1 ? WELL_SOUTH : WELL);
+/** The well a plot's watering takes its water's nature from: the one nearest it. */
+const wellOfKey = (key: string) => { const [x, y] = key.split(",").map(Number); return wellOf(x, y); };
+/** Which well somebody on a tile stands at (the first, where none). */
+const wellAt = (at: readonly [number, number] | null | undefined) => (at ? Math.max(0, wellBy(at[0], at[1])) : 0);
 /** The fountain (lib/town/fountain): the village's, like the stall. */
 const FOUNTAIN = "cashtown.trial.fountain.1", NOTES = "cashtown.trial.wishes.1";
 /** The relatives' prices (lib/town/market): the village's, like the stall; and the rounds gone by, as they were written down. */
@@ -388,15 +395,15 @@ export class Trial {
     const key=`cashtown.trial.stream.receipts.1.${this.id}`;
     const receipts=this.read<Record<string,{action:string;choice:string}>>(key,()=>({}),v=>!!v&&typeof v==="object");
     if (Object.hasOwn(receipts,request)) return { ok: false as const, why: "had" as const };
-    if (action==="pour" && this.well()>=WATER.well) return no("full");
+    const at_=wellAt(at);
+    if (action==="pour" && this.well(at_)>=WATER.well) return no("full");
     const now=this.now(),d=streamWork(this.purse(),action,choice,at,this.streamGate(),this.id,now);
     if (!d.ok) return d;
     if (d.gate) this.write("cashtown.trial.stream.1",d.gate);
     if (d.nature) {
-      this.write(WELL,this.well()+1);
+      this.write(wellKey(at_),this.well(at_)+1);
       this.wellSeen({by:this.id,at:now,what:"pour",n:1});
-      const log=this.wellLog();
-      this.write(WELL_LOG,{...log,wellWater:pouredIn(log.wellWater,d.nature,1,this.id,now,d.times)});
+      this.keepWellWater(at_,pouredIn(this.wellWaterOf(at_),d.nature,1,this.id,now,d.times));
     }
     this.write(key,{...receipts,[request]:{action,choice}});
     this.save(d.purse);
@@ -592,8 +599,8 @@ export class Trial {
   beds(): Record<string, KeptBed> {
     return this.read<Record<string, KeptBed>>(BEDS, () => ({}), (v) => !!v && typeof v === "object" && !Array.isArray(v));
   }
-  well(): number {
-    return this.read<number>(WELL, () => 0, (v) => typeof v === "number" && v >= 0 && v <= WATER.well);
+  well(i = 0): number {
+    return this.read<number>(wellKey(i), () => 0, (v) => typeof v === "number" && v >= 0 && v <= WATER.well);
   }
   /** How many plots of each bed have a plant in them. */
   private plantedIn(plots: Record<string, Plot>): Map<number, number> {
@@ -655,11 +662,11 @@ export class Trial {
     if(did.deed==="sow"){const guarded=guardSeed(did.purse,did.plot,key,now);did.purse=guarded.purse;did.plot=guarded.plot;did.plots[key]=guarded.plot;}
     const next = { ...plots, ...did.plots };
     // (a watering on a hot afternoon does as much again, and has the nature of the well's water while it has one: lib/town/heat and waters, as the plot is kept)
-    if (did.plot.soil === "wild" && !did.plot.plant) delete next[key]; else next[key] = this.poured(plot, did.plot, now, did.deed === "water" ? did.times ?? 1 : 0, this.bellWorn(bed));
+    if (did.plot.soil === "wild" && !did.plot.plant) delete next[key]; else next[key] = this.poured(plot, did.plot, now, did.deed === "water" ? did.times ?? 1 : 0, this.bellWorn(bed), key);
     // ── forging: old tools ── (what the deed did to the plots beside it, with lightning in the tool or a can that rains: lib/town/farm's beside.
     // Each is kept as the one done was kept, and none of them is counted on a line: they are the tool's doing.)
     const more = beside(key, canFx(toolInHand(p)).rain ? plotsOfBed(x, y).map(([u, v]) => plotKey(u, v)) : this.rowKeys(key), plots, did.deed, p, did.purse, this.id, now, this.owners().get(bed)?.by ?? null, this.sky());
-    for (const [k, beside2] of Object.entries(more.plots)) next[k] = did.deed === "water" && plots[k] ? this.poured(plots[k], beside2, now, 1, this.bellWorn(bed)) : beside2;
+    for (const [k, beside2] of Object.entries(more.plots)) next[k] = did.deed === "water" && plots[k] ? this.poured(plots[k], beside2, now, 1, this.bellWorn(bed), k) : beside2;
     this.write(FARM, syncGarden(next));
     const kept = { ...beds };
     if (!did.bed) delete kept[bed];
@@ -702,7 +709,7 @@ export class Trial {
     if (!did.ok) return did;
     if(did.deed==="sow")for(const e of did.each){const g=guardSeed(did.purse,did.plots[e.key],e.key,now);did.purse=g.purse;did.plots[e.key]=g.plot;}
     const next = { ...plots }, sky = SKIES.sky(now);
-    for (const [k, plot] of Object.entries(did.plots)) { if (plot.soil === "wild" && !plot.plant) delete next[k]; else next[k] = keptAs(plots[k], plot, now, sky, this.natureNow(now)); }
+    for (const [k, plot] of Object.entries(did.plots)) { if (plot.soil === "wild" && !plot.plant) delete next[k]; else next[k] = keptAs(plots[k], plot, now, sky, this.natureNow(now, wellOfKey(k))); }
     this.write(FARM, next);
     const kept = { ...beds };
     if (!did.bed) delete kept[bed];
@@ -800,7 +807,7 @@ export class Trial {
     const did = gnomeWater(bed, this.bedAt(x, y), this.purse(), this.id, now, this.owners().get(bed)?.by ?? null, this.sky());
     if (!did.ok) return did;
     const next = { ...plots }, sky = SKIES.sky(now);
-    for (const [k, plot] of Object.entries(did.plots)) next[k] = keptAs(plots[k], plot, now, sky, this.natureNow(now));
+    for (const [k, plot] of Object.entries(did.plots)) next[k] = keptAs(plots[k], plot, now, sky, this.natureNow(now, wellOfKey(k)));
     this.write(FARM, next);
     // (its owner's every deed in a bed counts as tending it)
     const beds = this.beds();
@@ -814,8 +821,9 @@ export class Trial {
    * of the helpers' line in it) is kept by lib/town/helping's pouredAs, with the heat and the well's water and never
    * past the bound of them all, and the plant remembers it; anything else (`times` 0) as it always was.
    */
-  private poured(was: Plot | undefined, next: Plot, now: number, times: number, worn = false): Plot {
-    return times > 0 ? pouredAs(was, next, now, hotAt(now, SKIES.sky(now)), this.natureNow(now), this.id, times, worn) : keptAs(was, next, now, SKIES.sky(now), this.natureNow(now));
+  private poured(was: Plot | undefined, next: Plot, now: number, times: number, worn = false, key?: string): Plot {
+    const nature = this.natureNow(now, key ? wellOfKey(key) : 0);
+    return times > 0 ? pouredAs(was, next, now, hotAt(now, SKIES.sky(now)), nature, this.id, times, worn) : keptAs(was, next, now, SKIES.sky(now), nature);
   }
   /** The plants of the row the long pour of the gardener's gloves would water from a plot (lib/town/farm's pourFor): none, when there is no row to pour along. */
   pourAt(key: string): string[] {
@@ -831,7 +839,7 @@ export class Trial {
     const did = pourRow(key, keys, plots, beds[bed], (planted.get(bed) ?? 0) - keys.filter((k) => !!plots[k]?.plant).length, holds, p, this.id, now, marks, secs, this.sky());
     if (!did.ok) return did;
     const next = { ...plots }, hand = handOf(p) ?? undefined;
-    for (const e of did.each) next[e.key] = this.poured(plots[e.key], did.plots[e.key], now, e.times, this.bellWorn(bed));
+    for (const e of did.each) next[e.key] = this.poured(plots[e.key], did.plots[e.key], now, e.times, this.bellWorn(bed), e.key);
     this.write(FARM, next);
     const kept = { ...beds };
     if (!did.bed) delete kept[bed];
@@ -911,7 +919,7 @@ export class Trial {
     const did = ditch(p, this.bedAt(x, y), [x, y], now, this.sky());
     if (!did.ok) return did;
     const next = { ...plots }, sky = SKIES.sky(now), hand = handOf(p) ?? undefined;
-    for (const [k, plot] of Object.entries(did.plots)) next[k] = keptAs(plots[k], plot, now, sky, this.natureNow(now));
+    for (const [k, plot] of Object.entries(did.plots)) next[k] = keptAs(plots[k], plot, now, sky, this.natureNow(now, wellOfKey(k)));
     this.write(FARM, next);
     // (its owner's every deed in a bed counts as tending it)
     const beds = this.beds(), bed = String(bedOf(x, y));
@@ -937,12 +945,15 @@ export class Trial {
     return { ok: true, poured: did.poured };
   }
   /** Waters that differ (lib/town/waters): the nature the well's water has now, if any, with whose doing it is; and the nature of water drawn at this moment. */
-  private natureNow(now: number): Nature | null { return natureOf(this.wellLog().wellWater, now); }
-  wellWater(): WellWater | null { const w = this.wellLog().wellWater; return w && natureOf(w, this.now()) ? w : null; }
+  private natureNow(now: number, i = 0): Nature | null { return natureOf(this.wellWaterOf(i), now); }
+  /** A well's water's nature as kept, whether or not it still holds (the first's in the well's book, the second's by itself), and keeping it. */
+  private wellWaterOf(i: number): WellWater | null { return i === 1 ? this.read<WellWater | null>(WELL_WATER_SOUTH, () => null, (v) => v === null || (!!v && typeof v === "object")) : this.wellLog().wellWater; }
+  private keepWellWater(i: number, w: WellWater | null) { if (i === 1) this.write(WELL_WATER_SOUTH, w); else this.write(WELL_LOG, { ...this.wellLog(), wellWater: w }); }
+  wellWater(i = 0): WellWater | null { const w = this.wellWaterOf(i); return w && natureOf(w, this.now()) ? w : null; }
   drawnNow(): Nature | null { const now = this.now(); return natureAt(now, SKIES.raining(now)); }
   /** For scripts and the test window: the well's water given a nature for so many minutes (as if somebody had poured it in), or none. */
-  setWellWater(kind: Nature | null, minutes = 30) {
-    this.write(WELL_LOG, { ...this.wellLog(), wellWater: kind ? { kind, until: this.now() + minutes * 60_000, by: this.id } : null });
+  setWellWater(kind: Nature | null, minutes = 30, i = 0) {
+    this.keepWellWater(i, kind ? { kind, until: this.now() + minutes * 60_000, by: this.id } : null);
     this.tell();
   }
   /** A bucket line (lib/town/line): whether I hold a bucket with water to hand on, and handing it on to another tester of this browser. */
@@ -1085,11 +1096,11 @@ export class Trial {
   /** For scripts and the test window: so many bucketfuls in the yard's jar (nobody's water). */
   setYardJar(buckets: number) { this.write(YARD_JAR, Math.max(0, Math.floor(buckets))); this.tell(); }
   /** What the thing in my hand can do with water where I stand (by the river, or at the well), if anything; and doing it. */
-  choreAt(where: "river" | "well" | null): Chore | null { return choreFor(this.purse(), where, this.well()); }
-  choreDo(where: "river" | "well" | null): { ok: true; chore: Chore } | { ok: false; why: Refusal } {
-    const p = this.purse(), well = this.well(), now = this.now(), did = chore(p, where, well, now);
+  choreAt(where: "river" | "well" | null, at?: readonly [number, number] | null): Chore | null { return choreFor(this.purse(), where, this.well(wellAt(at))); }
+  choreDo(where: "river" | "well" | null, at?: readonly [number, number] | null): { ok: true; chore: Chore } | { ok: false; why: Refusal } {
+    const i = wellAt(at), p = this.purse(), well = this.well(i), now = this.now(), did = chore(p, where, well, now);
     if (!did.ok) return did;
-    this.write(WELL, did.well);
+    this.write(wellKey(i), did.well);
     // (the well's book: so many bucketfuls poured, and out of which bucket; a can filled; a bucket drawn, with nobody's hands on its water yet)
     if (did.chore === "pour") this.wellSeen({ by: this.id, at: now, what: "pour", n: did.well - well, can: handOf(p) ?? undefined });
     else if (did.chore === "fill") this.wellSeen({ by: this.id, at: now, what: "fill", n: well - did.well, can: handOf(p) ?? undefined });
@@ -1388,13 +1399,12 @@ export class Trial {
    * Pour so many bucketfuls of my flask into the well: what the well has room for is a bucketful poured like any
    * other in its book, and the well takes the water's nature from all of it, so many times as long.
    */
-  moonPour(n: number): { ok: true; poured: number; into: number; kind: Nature } | { ok: false; why: WellGiftRefusal } {
-    const now = this.now(), did = moonPour(this.purse(), this.well(), n, now);
+  moonPour(n: number, i = 0): { ok: true; poured: number; into: number; kind: Nature } | { ok: false; why: WellGiftRefusal } {
+    const now = this.now(), did = moonPour(this.purse(), this.well(i), n, now);
     if (!did.ok) return did;
-    this.write(WELL, did.well);
+    this.write(wellKey(i), did.well);
     if (did.into > 0) this.wellSeen({ by: this.id, at: now, what: "pour", n: did.into, can: "thingMoon" });
-    const log = this.wellLog();
-    this.write(WELL_LOG, { ...log, wellWater: pouredIn(log.wellWater, did.kind, did.poured, this.id, now, MOON.times) });
+    this.keepWellWater(i, pouredIn(this.wellWaterOf(i), did.kind, did.poured, this.id, now, MOON.times));
     this.save(did.purse);
     return { ok: true, poured: did.poured, into: did.into, kind: did.kind };
   }
@@ -1413,7 +1423,7 @@ export class Trial {
   /** For scripts trying things out: a plot as it is told (a plant sown days ago that a pest has had, say: nothing else brings one about for certain). */
   setPlot(key: string, plot: Plot) { this.write(FARM, { ...this.farm(), [key]: plot }); this.tell(); }
   /** For the test window: so many buckets in the well. */
-  setWell(buckets: number) { this.write(WELL, Math.max(0, Math.min(WATER.well, Math.floor(buckets)))); this.tell(); }
+  setWell(buckets: number, i = 0) { this.write(wellKey(i), Math.max(0, Math.min(WATER.well, Math.floor(buckets)))); this.tell(); }
   /**
    * For the test window: the four beds round the well planted as a show garden, mine (the owner: "ขอวิธี test การปลูกพืช
    * ให้ผมด้วย อยากรู้ว่า แต่ละอันมีกี่ state และ หน้าตาตอนโตเต็มที่เป้นยังไงบ้าง"). Every vegetable has a row of its own, seven
@@ -2197,7 +2207,7 @@ export class Trial {
       if(c.plots){
         const hand=handOf(p)!,plots=this.farm(),next={...plots};
         if(c.used)this.wellSeen({by:this.id,at:now,what:"ditch",n:c.used,plants:c.watered!.length,can:hand});
-        for(const key of c.watered??[]){const [x,y]=key.split(',').map(Number),was=plots[key];next[key]=keptAs(was,c.plots[key],now,SKIES.sky(now),this.natureNow(now));this.wellSeen({by:this.id,at:now,what:"water",can:hand,tile:[x,y],...(was?.plant?.by!==this.id?{whose:was?.plant?.by}:{})});}
+        for(const key of c.watered??[]){const [x,y]=key.split(',').map(Number),was=plots[key];next[key]=keptAs(was,c.plots[key],now,SKIES.sky(now),this.natureNow(now,wellOfKey(key)));this.wellSeen({by:this.id,at:now,what:"water",can:hand,tile:[x,y],...(was?.plant?.by!==this.id?{whose:was?.plant?.by}:{})});}
         this.write(FARM,next);
         const beds=this.beds();if(beds[bed]&&ownerOf(beds[bed],true,now)===this.id)this.write(BEDS,{...beds,[bed]:{...beds[bed],tended:now}});
       }

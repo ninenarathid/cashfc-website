@@ -39,7 +39,7 @@ import { buffBy, isSpent } from "@/lib/town/stamina";
 import { handOf, heldStack } from "@/lib/town/trade";
 import { NATURE_NAMES, type Nature } from "@/lib/town/waters";
 import type { Keeper } from "@/lib/town/keeper";
-import { FARM, TILE_H, WELLS, bedCorner, bedOf, plotAt, type Vec } from "@/lib/town/world";
+import { FARM, TILE_H, WELLS, bedCorner, bedOf, plotAt, wellBy, type Vec } from "@/lib/town/world";
 import TownIcon, { ICON_ATLAS, petScale, type IconName } from "./TownIcon";
 import TownFoot from "./TownFoot";
 import { useLeaving } from "./useLeaving";
@@ -411,14 +411,15 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   }
   const owners = useRef(keeper.owners());
   owners.current = keeper.owners();
-  const well = useRef(0);
-  well.current = keeper.well();
+  // (each well's own water, by its number in WELLS)
+  const well = useRef<number[]>([]);
+  well.current = WELLS.map((_, i) => keeper.well(i));
   /** Whether it is a hot afternoon: looked at with the rest, not every frame. */
   const hot = useRef(false);
   hot.current = keeper.hot();
-  /** The nature the well's water has now, if any. */
-  const nature = useRef<Nature | null>(null);
-  nature.current = keeper.wellWater()?.kind ?? null;
+  /** The nature each well's water has now, if any. */
+  const nature = useRef<Array<Nature | null>>([]);
+  nature.current = WELLS.map((_, i) => keeper.wellWater(i)?.kind ?? null);
   /**
    * The hourglass of seasons (lib/town/farm's glassTurn): the plants the sand runs over now, each with the moment it
    * runs out, and of each bed that has any the latest of those. Read off the plants themselves, so everybody at the
@@ -844,11 +845,11 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           ctx.restore();
         });
       }
-      // (each well, the one water: lib/town/world's WELLS)
-      const kind = nature.current;
-      for (const WELL of WELLS) {
+      // (each well with its own water: lib/town/world's WELLS)
+      for (const [i, WELL] of WELLS.entries()) {
+      const kind = nature.current[i] ?? null;
       const top = project({ x: WELL.x + 0.5, y: WELL.y + 0.5 });
-      if (onScreen(top)) sign(`${thai ? "บ่อน้ำ" : "Well"} ${well.current}/${WATER.well}${kind ? ` · ${NATURE_NAMES[kind][thai ? 0 : 1]}` : ""}`, top.x, top.y - 66 * s);
+      if (onScreen(top)) sign(`${thai ? "บ่อน้ำ" : "Well"} ${well.current[i] ?? 0}/${WATER.well}${kind ? ` · ${NATURE_NAMES[kind][thai ? 0 : 1]}` : ""}`, top.x, top.y - 66 * s);
       // while its water has a nature: motes of that water's colour rising about the well, each in its own time
       if (kind && onScreen(top)) {
         things.push({ depth: WELL.x + WELL.y + 1.2, draw: () => {
@@ -879,7 +880,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   // (the insect house's deeds come first: on its plot nothing else is done, and with it in the hand it is set down)
   const houseDeed = key ? keeper.houseAt(key) : null;
   const deed = key && !houseDeed ? keeper.deedAt(key) : null;
-  const chore = !deed && !houseDeed ? keeper.choreAt(water) : null;
+  const chore = !deed && !houseDeed ? keeper.choreAt(water, at) : null;
   /** With a bucket of water in the hand and nothing else to do here: the plots of this bed it would water, poured from where I stand (lib/town/ditch). */
   const flood = key && !deed && !chore ? keeper.ditchAt(key) : [];
   const pours = flood.length > 0;
@@ -969,7 +970,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     vfx.element(heldStack(mine, keeper.handSlot()), null, { lift: 12 });
     // (a bucket drawn under the fountain's blessing for water bearers: its own burst)
     for (const id of seenAtPlot(did.chore, mine, began)) vfx.add("bless", null, { icon: BURST[id], lift: 26 });
-    if (did.chore !== "draw") setNote(`${th ? "บ่อน้ำ" : "Well"} ${keeper.well()}/${WATER.well}`);
+    if (did.chore !== "draw") setNote(`${th ? "บ่อน้ำ" : "Well"} ${keeper.well(at ? Math.max(0, wellBy(at[0], at[1])) : 0)}/${WATER.well}`);
     else {
       // (water drawn at certain moments has a nature: it is named for what it is, and a light goes up from the bucket)
       const kind = keeper.drawnNow();
@@ -1229,7 +1230,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       asking: () => asking,
       // (the enchanted hoe's move: the plots the plant here may go to, opening the bed's grid, which plot's is open, and moving it at once)
       move: () => (key ? keeper.moveAt(key) : []), moveOpen: () => { if (key) setMoving(key); }, moving: () => moving, moveTo: (to: string) => (key ? doMove(key, to) : Promise.resolve(false)),
-      well: () => keeper.well(), owners: () => [...keeper.owners()].map(([bed, who]) => ({ bed, ...who })), weeds: (x: number, y: number) => weedsOf(x, y).map((w) => w.name),
+      well: () => keeper.well(), wells: () => WELLS.map((_, i) => keeper.well(i)), owners: () => [...keeper.owners()].map(([bed, who]) => ({ bed, ...who })), weeds: (x: number, y: number) => weedsOf(x, y).map((w) => w.name),
       // (whether a tile is a plot at all: a script that lays plots of its own over the farm lays some on the grass between the beds)
       isPlot: (x: number, y: number) => plotAt(x, y),
     };
