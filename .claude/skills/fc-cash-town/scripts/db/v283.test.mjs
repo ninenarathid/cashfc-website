@@ -115,7 +115,10 @@ try {
     [JSON.stringify({ round, at, sold: {} })]);
   const told = (await v("select public.town_farm_prices() v")).farmPrices;
   const want = market.farmPricesOf({ round, at, sold: {} }, market.factsOf());
-  eq(told, want, "every crop's price this round, as the code tells it");
+  // (what v283 tells: the price, its floor, its base and the buyers' interest. A crop's ceiling and the village's usual
+  // amount are v285's, which the code has already and this bench has not: v285.test.mjs holds them to the code)
+  const v283sOwn = (p) => ({ round: p.round, things: Object.fromEntries(Object.entries(p.things).map(([id, { ceil: _ceil, usual: _usual, selling: _selling, ...t }]) => [id, t])) });
+  eq(v283sOwn(told), v283sOwn(want), "every crop's price this round, as the code tells it");
   ok(Object.keys(told.things).length > 40 && told.things.kangkong.f === 60 && told.things.carrot.f === 140 && told.things.blueCorn.f === 40 && told.things.tomato.f === 100,
     `the moved prices among them (${Object.keys(told.things).length} crops)`);
   ok(Object.values(told.things).every((t) => Array.isArray(t.was) && t.was.length === 0), "without the days gone by");
