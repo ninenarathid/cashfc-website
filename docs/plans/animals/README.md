@@ -220,3 +220,17 @@ Kept up to date as the build goes; newest last.
   x 128..187 × y 0..85 and lib/town/reward-relay's `relayPlace` is the page's copy; a second farm<->town gate sits at
   farm (128, 63-64). **jsonb `@>` takes [128,0,60,44] to be in [128,0,60,86]**: guards compare elements exactly.
   Its branch `town-gate` (not pushed) drops the first half's south-rim trees in FARM_PROPS' `gap` filter only.
+- 2026-10-20, the page piece (branch `animals-page` on `animals`, worktree `fcnext-wt-animals-page`, not pushed): the
+  pasture's map (lib/town/pasture: the rows at y -32..-1, FARM_ALL (128,-32,60,118); the garden held byte for byte by
+  lib/town/pasture.test.ts), Keeper.animals (trial: the browser's world; DbKeeper: town_animals, a look whole, a step's
+  part merged by lib/town/animal-world; a denied town_animals is the pasture shut, not the game), the map's drawing
+  and taps (components/town/TownPasture), Uncle Popoto's talk and panel (TownAnimals), the three games
+  (lib/town/animal-games, TownAnimalGames), the gifts' buttons, the wagon's tour and the ram's second seat (a `seat`
+  told to the room, lib/town/seats), the test window's Animals leaf. Art: every picture by one name
+  (lib/town/pasture-art), stand-ins marked `// ART:`, the list in ART-NEEDED.md. Checked by
+  `.claude/skills/fc-cash-town/scripts/town-animals.mjs` (113 checks at desktop, phone, small phone and two tabs);
+  screenshots and the contact sheet in `shots/` (not committed: the repo keeps no plan pictures).
+  For the database: POPOTO_SHOP sells the four making tools and the 17 dish scrolls; the egg spots, the meadow's
+  spots and the wagon's stops have their values (farm [151,-3], town [57,32], forest [190,186]); line-points counts
+  `animal_*` deeds by `doc.pts` (animal_care on the helpers' line); the page reads the purse's `animalCare`,
+  `animalBook`, `meadow`, `animalRode`.

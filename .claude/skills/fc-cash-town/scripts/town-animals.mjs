@@ -188,13 +188,14 @@ async function run(label) {
     await X.evaluate(`(() => { const t = ${T}; for (const a of t.animalWorld().animals) if (a.owner === window.__townKeeper.id && a.born <= t.now()) t.animalSet(a.id, { outside: [{ at: [150, -26], n: 2 }], outBands: 4 }); t.animalGive("dairyCow", "adult", 3); t.animalGive("meadowSheep", "young", 2); t.animalGive("puddleDuck", "adult", 2); })()`);
     await warp(X, 151, -24, 9000);
     await shot("16-meadow-open");
+    // (room in the bag for what is picked up and gathered: the games and the nest filled it)
+    await X.evaluate(`${T}.fished({ ...${T}.purse(), bag: ${T}.purse().bag.map((x, i) => (i < 3 ? x : null)) })`);
     let egg = null;
     for (let i = 0; i < 4 && !egg; i++) { egg = await hit(X, "egg"); if (!egg) await warp(X, 150, -24, 1500); }
     ok(`${label}: an egg laid out is there to pick`, !!egg, await X.evaluate(`${S}.hits().map((h) => h.kind).join(",")`));
     const eggsBefore = await held(X, "farmEgg");
     if (egg) { await press(X, egg.x, egg.y); await until("walked to the egg and picked it up", async () => (await held(X, "farmEgg")) > eggsBefore, 15000).catch(() => {}); }
     ok(`${label}: picked up by its owner`, (await held(X, "farmEgg")) > eggsBefore, await say(X));
-    // (room in the bag for what the meadow gives)
     await X.evaluate(`${T}.fished({ ...${T}.purse(), bag: ${T}.purse().bag.map((x, i) => (i < 3 ? x : null)) })`);
     const forage = await hit(X, "forage");
     const bagBefore = await X.evaluate(`${T}.purse().bag.filter(Boolean).length`);
