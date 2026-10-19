@@ -799,8 +799,18 @@ const solidAt = new Set(PROPS.filter((p) => p.solid).map((p) => `${p.x},${p.y}`)
  * by two, a bed seven plots by seven with a tile of grass between; a lane from
  * the gate in the west across to the east, and another across that; woods at
  * the rim. Nothing can be done in it yet: there are no tools.
+ *
+ * Its southern half (the owner, 2026-10-19, every bed held: "ช่วยเพิ่ม แปลงปลูกผักมาอีก เท่านึง ในฟาร์ม",
+ * pointing past the south rim): as many beds again, laid as the first half is, beyond the old rim's trees, with the
+ * north–south lane running on down to them and a lane of its own across. Its beds are numbered after the first 24.
  */
-export const FARM = { x: 128, y: 0, w: 60, h: 44 };
+export const FARM = { x: 128, y: 0, w: 60, h: 86 };
+/**
+ * The farm as it was before its southern half: what the insects' haunts were laid out on (asBuilt), which the
+ * database keeps a copy of. Nothing of it moved when the half came; the trees of its south rim stand where they stood,
+ * but on the lane that runs on through them.
+ */
+export const FARM_FIRST = { x: 128, y: 0, w: 60, h: 44 };
 /**
  * The forest (the owner, 2026-10-05: "หาของป่า จะมี map ใหม่ เป็นป่าใหญ่ๆ สามารถเดินเข้าไป
  * เก็บของป่า"): a third map, out of the town's north path, where its road works
@@ -818,24 +828,31 @@ export function placeOf(x: number, y: number): Place | null {
   if (x >= 0 && y >= 0 && x < COLS && y < ROWS) return "town";
   // ── to come ── (both lie below every other map in the tile space)
   if (PREVIEW && y >= MOUNTAIN.y) return within(x, y, MOUNTAIN) ? "mountain" : floorOf(x, y) ? "cave" : null;
-  return within(x, y, FARM) ? "farm" : within(x, y, FOREST) ? "forest" : null;
+  return within(x, y, asWas ? FARM_FIRST : FARM) ? "farm" : within(x, y, FOREST) ? "forest" : null;
+}
+/** How many quarters of beds the farm has down it (two of them the first half's), and how far apart they lie, in tiles: a quarter's two beds (15), and the grass and the lane between (6). */
+const QUARTERS = 4, QUARTER = 21;
+/** A farm tile's place in its quarter down the farm, counted from the farm's own corner: the quarter and the row in it, or null off the beds. */
+function quarterOf(v: number): { q: number; b: number } | null {
+  if (v < 4) return null;
+  const q = Math.floor((v - 4) / QUARTER), b = v - 4 - q * QUARTER;
+  return q < QUARTERS && b < 15 && b % 8 !== 7 ? { q, b } : null;
 }
 /** Whether a farm tile, counted from the farm's own corner, is a plot. */
 function isPlot(u: number, v: number): boolean {
   const a = u >= 4 && u < 27 ? u - 4 : u >= 33 && u < 56 ? u - 33 : -1;
-  const b = v >= 4 && v < 19 ? v - 4 : v >= 25 && v < 40 ? v - 25 : -1;
-  return a >= 0 && b >= 0 && a % 8 !== 7 && b % 8 !== 7;
+  return a >= 0 && a % 8 !== 7 && quarterOf(v) !== null;
 }
 /** Whether a tile is one of the farm's plots. */
-export const plotAt = (tx: number, ty: number) => within(tx, ty, FARM) && isPlot(tx - FARM.x, ty - FARM.y);
-/** How many beds the farm has: six across, four down. */
-export const BEDS_IN_FARM = 24;
+export const plotAt = (tx: number, ty: number) => within(tx, ty, farmNow()) && isPlot(tx - FARM.x, ty - FARM.y);
+/** How many beds the farm has: six across, eight down (four of them the southern half's, beds 24 to 47). */
+export const BEDS_IN_FARM = 48;
 /** Which of the farm's beds a plot is in, counted along the rows from the north-west corner; −1 for a tile that is not a plot. */
 export function bedOf(tx: number, ty: number): number {
   if (!plotAt(tx, ty)) return -1;
-  const u = tx - FARM.x, v = ty - FARM.y;
-  const a = u < 27 ? u - 4 : u - 33, b = v < 19 ? v - 4 : v - 25;
-  return ((v < 19 ? 0 : 2) + Math.floor(b / 8)) * 6 + (u < 27 ? 0 : 3) + Math.floor(a / 8);
+  const u = tx - FARM.x, { q, b } = quarterOf(ty - FARM.y)!;
+  const a = u < 27 ? u - 4 : u - 33;
+  return (q * 2 + Math.floor(b / 8)) * 6 + (u < 27 ? 0 : 3) + Math.floor(a / 8);
 }
 /** The row of its bed that a plot is in: the bed's plots that share its y, from one end to the other (none, off the beds). */
 export function rowOf(tx: number, ty: number): Array<[number, number]> {
@@ -854,7 +871,7 @@ export function plotsOfBed(tx: number, ty: number): Array<[number, number]> {
 /** A bed's corner tile nearest the top of the screen (its smallest x and y). */
 export function bedCorner(bed: number): [number, number] {
   const col = bed % 6, row = Math.floor(bed / 6);
-  return [FARM.x + (col < 3 ? 4 : 33) + (col % 3) * 8, FARM.y + (row < 2 ? 4 : 25) + (row % 2) * 8];
+  return [FARM.x + (col < 3 ? 4 : 33) + (col % 3) * 8, FARM.y + 4 + Math.floor(row / 2) * QUARTER + (row % 2) * 8];
 }
 /**
  * The farm's well, where its lanes cross (the owner, 2026-10-03: "ต้องมีคนขนน้ำมา
@@ -864,9 +881,15 @@ export function bedCorner(bed: number): [number, number] {
  */
 export const WELL = { x: FARM.x + 28, y: FARM.y + 23 };
 export const atWell = (tx: number, ty: number) => Math.max(Math.abs(tx - WELL.x), Math.abs(ty - WELL.y)) === 1;
-/** The farm's ground at a point counted from its own corner: its two lanes, its plots, and grass. */
-function farmGround(u: number, v: number): "road" | "field" | "grass" {
-  if ((v >= 21 && v < 23 && u < 58) || (u >= 29 && u < 31 && v >= 3 && v < 41)) return "road";
+/** The farm as it is now, or (as built, see asBuilt) as it was before its southern half. */
+const farmNow = () => (asWas ? FARM_FIRST : FARM);
+/**
+ * The farm's ground at a point counted from its own corner: its lanes, its plots, and grass. `first`: as the first
+ * half was, the lane from north to south stopping at its rim and no lane across the southern half.
+ */
+function farmGround(u: number, v: number, first = asWas): "road" | "field" | "grass" {
+  if ((v >= 21 && v < 23 && u < 58) || (u >= 29 && u < 31 && v >= 3 && v < (first ? 41 : 83))) return "road";
+  if (!first && v >= 63 && v < 65 && u >= 2 && u < 58) return "road";
   return isPlot(Math.floor(u), Math.floor(v)) ? "field" : "grass";
 }
 /**
@@ -882,21 +905,43 @@ function farmGround(u: number, v: number): "road" | "field" | "grass" {
  * insects' haunts above all, which the database keeps a copy of and holds a
  * catch to. The scarecrow's picture stays in the scenery, used by nothing.)
  */
-/** The four tiles of the farm a great pumpkin sits on, one in each quarter (counted from the farm's corner): closed, as they were under the scarecrows. */
-export const FARM_PUMPKINS: Array<[u: number, v: number]> = [[11, 11], [48, 11], [19, 32], [40, 32]];
-export const FARM_PROPS: Prop[] = (() => {
+/** The tiles of the farm a great pumpkin sits on, one in each quarter (counted from the farm's corner): closed, as they were under the scarecrows; the first four the first half's, the last four the southern half's, where its quarters have them. */
+export const FARM_PUMPKINS: Array<[u: number, v: number]> = [[11, 11], [48, 11], [19, 32], [40, 32], [11, 53], [48, 53], [19, 74], [40, 74]];
+/** A seeded random number, as the town's layouts draw them. */
+const seeded = (seed: number) => { let a = seed; return () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; };
+/** What stood about the farm before its southern half, every one where it was laid (the insects' haunts were laid out by them: lib/town/insects). */
+export const FARM_PROPS_FIRST: Prop[] = (() => {
   const out: Prop[] = [];
   const put = (kind: PropKind, u: number, v: number, solid = true) => { out.push({ kind, x: FARM.x + u, y: FARM.y + v, solid }); };
   for (const v of [5, 8, 11, 14, 17, 26, 29, 32, 35, 38]) put("fence", 0, v);
   put("shed", 2, 18);
   for (const [u, v] of [[3, 20], [2, 24], [27, 20], [32, 24]]) put("hay", u, v);
   put("well", 28, 23); // (WELL)
-  let a = 20261003;
-  const rnd = () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
-  const taken = new Set<string>();
+  const rnd = seeded(20261003), taken = new Set<string>();
   for (let tries = 0, placed = 0; placed < 80 && tries < 6000; tries++) {
-    const u = Math.floor(rnd() * FARM.w), v = Math.floor(rnd() * FARM.h), kind = rnd();
-    if (!(v < 3 || v >= 41 || u >= 57) || taken.has(`${u},${v}`) || farmGround(u + 0.5, v + 0.5) !== "grass") continue;
+    const u = Math.floor(rnd() * FARM_FIRST.w), v = Math.floor(rnd() * FARM_FIRST.h), kind = rnd();
+    if (!(v < 3 || v >= 41 || u >= 57) || taken.has(`${u},${v}`) || farmGround(u + 0.5, v + 0.5, true) !== "grass") continue;
+    taken.add(`${u},${v}`);
+    put(kind < 0.5 ? "tree" : kind < 0.8 ? "pine" : "bush", u, v);
+    placed++;
+  }
+  return out;
+})();
+/**
+ * What stands about the farm: the first half's things (but the trees of its south rim on and beside the lane that runs
+ * on south through it, so that the way through is open and nobody walking it is hidden behind one), and the southern
+ * half's: the fence on down the west edge, hay where its lanes cross, and woods along its east and south.
+ */
+export const FARM_PROPS: Prop[] = (() => {
+  const gap = (p: Prop) => p.y - FARM.y >= 41 && p.x - FARM.x >= 27 && p.x - FARM.x < 33;
+  const out = FARM_PROPS_FIRST.filter((p) => !["tree", "pine", "bush"].includes(p.kind) || (farmGround(p.x - FARM.x + 0.5, p.y - FARM.y + 0.5, false) === "grass" && !gap(p)));
+  const put = (kind: PropKind, u: number, v: number, solid = true) => { out.push({ kind, x: FARM.x + u, y: FARM.y + v, solid }); };
+  for (const v of [47, 50, 53, 56, 59, 68, 71, 74, 77, 80]) put("fence", 0, v);
+  for (const [u, v] of [[27, 62], [32, 66]]) put("hay", u, v);
+  const rnd = seeded(20261019), taken = new Set<string>();
+  for (let tries = 0, placed = 0; placed < 50 && tries < 6000; tries++) {
+    const u = Math.floor(rnd() * FARM.w), v = FARM_FIRST.h + Math.floor(rnd() * (FARM.h - FARM_FIRST.h)), kind = rnd();
+    if (!(v >= 83 || u >= 57) || taken.has(`${u},${v}`) || farmGround(u + 0.5, v + 0.5, false) !== "grass") continue;
     taken.add(`${u},${v}`);
     put(kind < 0.5 ? "tree" : kind < 0.8 ? "pine" : "bush", u, v);
     placed++;
@@ -904,12 +949,13 @@ export const FARM_PROPS: Prop[] = (() => {
   return out;
 })();
 /** The farm's tiles that stop a walker: what stands on them, a fence's three, the shed's three, and the gateway's two posts either side of the lane. */
-const farmSolid = new Set([`${FARM.x + 1},${FARM.y + 20}`, `${FARM.x + 1},${FARM.y + 23}`, ...FARM_PUMPKINS.map(([u, v]) => `${FARM.x + u},${FARM.y + v}`), ...FARM_PROPS.flatMap((p) => {
+const solidOf = (props: Prop[], pumpkins: Array<[number, number]>) => new Set([`${FARM.x + 1},${FARM.y + 20}`, `${FARM.x + 1},${FARM.y + 23}`, ...pumpkins.map(([u, v]) => `${FARM.x + u},${FARM.y + v}`), ...props.flatMap((p) => {
   const at = (dx: number, dy: number) => `${p.x + dx},${p.y + dy}`;
   if (p.kind === "fence") return [at(0, -1), at(0, 0), at(0, 1)];
   if (p.kind === "shed") return [at(-1, 1), at(0, 0), at(1, -1)];
   return p.solid ? [at(0, 0)] : [];
 })]);
+const farmSolid = solidOf(FARM_PROPS, FARM_PUMPKINS), farmSolidFirst = solidOf(FARM_PROPS_FIRST, FARM_PUMPKINS.slice(0, 4));
 
 /* ── the forest ─────────────────────────────────────────────────────────── */
 
@@ -1485,7 +1531,7 @@ export function gateAt(x: number, y: number): Vec | null {
 export function thingAt(tx: number, ty: number): Building | "fountain" | "shop" | "board" | "pier" | "kitchen" | "keeper" | "roadworks" | "water" | "prop" | null {
   // ── to come ── (the mountain's foot and the cave: a cliff, the rim, rock, and what stands there)
   if (PREVIEW && ty >= MOUNTAIN.y) return moreShut(tx, ty) ? "prop" : null;
-  if (within(tx, ty, FARM)) return farmSolid.has(`${tx},${ty}`) ? "prop" : null;
+  if (within(tx, ty, farmNow())) return (asWas ? farmSolidFirst : farmSolid).has(`${tx},${ty}`) ? "prop" : null;
   if (within(tx, ty, FOREST)) return forestSolid.has(`${tx},${ty}`) ? "prop" : isForestWater(tx, ty) ? "water" : null;
   for (const b of BUILDINGS) if (within(tx, ty, b)) return b;
   if (within(tx, ty, FOUNTAIN)) return "fountain";
@@ -1689,7 +1735,7 @@ export function groundAt(tx: number, ty: number): Ground {
   // grass and a wood's floor are themselves, and bare rock, snow, a cliff and all of a cave are sand. What they are
   // drawn as is groundLook's to say)
   if (PREVIEW && ty >= MOUNTAIN.y) { const g = moreLook(tx + 0.5, ty + 0.5); return g === "road" || g === "stair" ? "road" : g === "grass" || g === "wood" ? g : "sand"; }
-  if (within(tx, ty, FARM)) return farmGround(tx - FARM.x + 0.5, ty - FARM.y + 0.5);
+  if (within(tx, ty, farmNow())) return farmGround(tx - FARM.x + 0.5, ty - FARM.y + 0.5);
   if (within(tx, ty, FOREST)) return forestGround(tx - FOREST.x + 0.5, ty - FOREST.y + 0.5);
   if (isWater(tx, ty)) return "water";
   if (isBank(tx, ty)) return "sand";
@@ -1706,7 +1752,7 @@ export function groundAt(tx: number, ty: number): Ground {
 export function groundLook(x: number, y: number): Ground | MoreGround {
   // ── to come ── (the mountain, the cave's floors, what is seen beyond them, and the earth at the bridge's two ends)
   if (PREVIEW) { const more = moreLook(x, y); if (more) return more; }
-  if (within(x, y, FARM)) return farmGround(x - FARM.x, y - FARM.y);
+  if (within(x, y, farmNow())) return farmGround(x - FARM.x, y - FARM.y);
   if (within(x, y, FOREST)) return forestGround(x - FOREST.x, y - FOREST.y);
   if (within(x, y, BEYOND.north) || within(x, y, BEYOND.south)) return beyondGround(x, y);
   const r = acrossRiver(x, y);

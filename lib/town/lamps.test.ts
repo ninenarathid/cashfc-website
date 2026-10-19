@@ -6,7 +6,7 @@ import {
 import { countsOf } from "./line-points";
 import { dayOf, staminaOf } from "./stamina";
 import { newPurse, put, type Purse } from "./trade";
-import { FARM, FARM_PROPS, FOREST, FOREST_PROPS, findPath, groundAt, placeOf, plotAt, walkable } from "./world";
+import { FARM, FARM_FIRST, FARM_PROPS, FOREST, FOREST_PROPS, findPath, groundAt, placeOf, plotAt, walkable } from "./world";
 
 const at = (iso: string) => Date.parse(iso);
 /** Nine in the evening, Bangkok: night. And noon: day. */
@@ -327,7 +327,8 @@ describe("where the fires, the boards and the posts stand", () => {
     }
   });
   it("stands the farm's next twelve round its rim, within three tiles of its edge and off its ways, and its last four in the middle of the beds", () => {
-    const edge = ([x, y]: [number, number]) => Math.min(x - FARM.x, y - FARM.y, FARM.w - 1 - (x - FARM.x), FARM.h - 1 - (y - FARM.y));
+    // (round the first half's rim: the southern half, 2026-10-19, has no posts of its own yet)
+    const edge = ([x, y]: [number, number]) => Math.min(x - FARM_FIRST.x, y - FARM_FIRST.y, FARM_FIRST.w - 1 - (x - FARM_FIRST.x), FARM_FIRST.h - 1 - (y - FARM_FIRST.y));
     const posts = LAMPS.maps.farm.posts;
     expect(posts.slice(12, 24).map(edge).every((e) => e >= 1 && e <= 3)).toBe(true);
     expect(posts.slice(24).map(edge)).toEqual([11, 11, 11, 11]);
@@ -346,7 +347,7 @@ describe("where the fires, the boards and the posts stand", () => {
       return most;
     };
     expect(worst("forest", FOREST)).toBeLessThan(11);
-    expect(worst("farm", FARM)).toBeLessThan(9);
+    expect(worst("farm", FARM_FIRST)).toBeLessThan(9);
     // (and every corner of the forest has a lamp within ten tiles of it)
     for (const [u, v] of [[0, 0], [FOREST.w - 1, 0], [0, FOREST.h - 1], [FOREST.w - 1, FOREST.h - 1]]) {
       expect([u, v, Math.min(...LAMPS.maps.forest.posts.map(([x, y]) => Math.hypot(x - FOREST.x - u, y - FOREST.y - v))) <= 14]).toEqual([u, v, true]);

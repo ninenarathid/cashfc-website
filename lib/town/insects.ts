@@ -13,7 +13,7 @@ import { ITEMS, type ItemId } from "./items";
 import { buffBy, isSpent, spend } from "./stamina";
 import { BANGKOK, DAY, HOUR, heldStack, no, put, roomFor, type Done, type Purse } from "./trade";
 import { DRY, wetMs, type Rain } from "./weather";
-import { BEDS_IN_FARM, CAMP, COLS, FARM, FARM_PROPS, FOREST, FOREST_PROPS, GATES, PROPS, ROWS, WATERFALL, WELL, asBuilt, bedCorner, groundAt, placeOf, plotAt, walkable, zoneAt, type Place, type Vec, type Zone } from "./world";
+import { BEDS_IN_FARM, CAMP, COLS, FARM, FARM_FIRST, FARM_PROPS_FIRST, FOREST, FOREST_PROPS, GATES, PROPS, ROWS, WATERFALL, WELL, asBuilt, bedCorner, groundAt, placeOf, plotAt, walkable, zoneAt, type Place, type Vec, type Zone } from "./world";
 import { POLLINATOR_SKY } from "./helper-items";
 
 /**
@@ -354,7 +354,7 @@ export const HAUNTS: Haunt[] = asBuilt(() => {
   }
   scatter("water", "town", 5, 8, tilesOf(TOWN_ALL, (x, y) => stands(x, y) && shore(x, y)));
   // the farm: its lanes and verges, and its well
-  scatter("field", "farm", 14, 6, tilesOf(FARM, (x, y) => stands(x, y) && !plotAt(x, y) && Math.hypot(x - WELL.x, y - WELL.y) > 4));
+  scatter("field", "farm", 14, 6, tilesOf(FARM_FIRST, (x, y) => stands(x, y) && !plotAt(x, y) && Math.hypot(x - WELL.x, y - WELL.y) > 4));
   { const ps = about(WELL.x, WELL.y, "field", "farm", 5, 2.2); if (ps.length >= 4) add("water", "farm", WELL.x, WELL.y, ps); }
   // the forest: the meadow's flowers and grass, the stream, the fall, trees, the litter under them, the glades, the camp's fire
   const taken = (x: number, y: number) => SPOTS.some((s) => Math.hypot(s.x - x, s.y - y) < 2.5);
@@ -385,16 +385,16 @@ export const HAUNTS: Haunt[] = asBuilt(() => {
   const verge = (x: number, y: number) => stands(x, y) && !plotAt(x, y) && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => plotAt(x + dx, y + dy));
   const woodFloor = (x: number, y: number) => stands(x, y) && groundAt(x, y) === "wood" && !taken(x, y) && ["woods", "bamboo", "rise", "deep"].includes(z(x, y));
   scatter("petals", "town", 3, 5, nearProps(["flowers", "flowerbed", "planter"], PROPS, "town"));
-  scatter("petals", "farm", 3, 6, tilesOf(FARM, verge));
+  scatter("petals", "farm", 3, 6, tilesOf(FARM_FIRST, verge));
   scatter("petals", "forest", 3, 6, tilesOf(FOREST, (x, y) => stands(x, y) && z(x, y) === "edge" && groundAt(x, y) === "grass"));
   scatter("leaves", "forest", 3, 6, [...nearProps(["fern", "bush"], FOREST_PROPS, "forest"), ...tilesOf(FOREST, (x, y) => stands(x, y) && ["woods", "deep"].includes(z(x, y)) && groundAt(x, y) === "grass")]);
-  scatter("leaves", "farm", 2, 6, [...nearProps(["hay", "bush"], FARM_PROPS, "farm"), ...tilesOf(FARM, verge)]);
+  scatter("leaves", "farm", 2, 6, [...nearProps(["hay", "bush"], FARM_PROPS_FIRST, "farm"), ...tilesOf(FARM_FIRST, verge)]);
   scatter("logs", "forest", 3, 6, [...nearProps(["log", "stump", "logseat"], FOREST_PROPS, "forest"), ...tilesOf(FOREST, woodFloor)]);
   scatter("bark", "forest", 3, 6, nearProps(["oak", "birch"], FOREST_PROPS, "forest"));
-  scatter("duff", "farm", 3, 6, tilesOf(FARM, verge));
+  scatter("duff", "farm", 3, 6, tilesOf(FARM_FIRST, verge));
   scatter("duff", "forest", 3, 6, tilesOf(FOREST, woodFloor));
   scatter("sand", "forest", 3, 6, tilesOf(FOREST, (x, y) => stands(x, y) && groundAt(x, y) === "sand"));
-  scatter("posts", "farm", 2, 6, nearProps(["fence"], FARM_PROPS, "farm"));
+  scatter("posts", "farm", 2, 6, nearProps(["fence"], FARM_PROPS_FIRST, "farm"));
   // ── a good garden's (2026-10-16): one haunt over each bed of the farm, laid after every other so that none moves, its
   // perches round the bed's middle, open while its bed is good (`GOOD_GARDEN`)
   for (let b = 0; b < BEDS_IN_FARM; b++) {

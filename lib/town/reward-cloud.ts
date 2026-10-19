@@ -3,7 +3,7 @@ import {carried} from "./line";
 import {FARMING,localRainMs,see,type Plot,type FarmSky} from "./farm";
 import {WATERS,type Nature} from "./waters";
 import {spend,dayOf} from "./stamina";
-import {bedOf,bedCorner} from "./world";
+import {BEDS_IN_FARM,bedOf,bedCorner} from "./world";
 import type {Purse} from "./trade";
 import type {RewardInput,RewardReply,CloudRun} from "./reward-types";
 import {plantIdentity} from "./reward-conduit";
@@ -25,7 +25,7 @@ export function callCloud(p:Purse,input:RewardInput,id:string,me:string,w:CloudW
  if(!works(p,'thingCloudJar')||!water||!w.kind)return {ok:false,why:'none'};
  if(input.action==='cloudBegin'){
   if(run&&run.until>=now)return {ok:false,why:'none'};
-  if(bed<0||input.beds.length<1||input.beds.length>3||new Set(input.beds).size!==input.beds.length||!input.beds.every(n=>Number.isSafeInteger(n)&&n>=0&&n<24))return {ok:false,why:'far'};
+  if(bed<0||input.beds.length<1||input.beds.length>3||new Set(input.beds).size!==input.beds.length||!input.beds.every(n=>Number.isSafeInteger(n)&&n>=0&&n<BEDS_IN_FARM))return {ok:false,why:'far'};
   if(!input.beds.every(n=>permitted(n,me,w,now)))return {ok:false,why:'theirs'};
   if(!input.beds.every(n=>{const c=bedCorner(n);return Math.max(Math.abs(c[0]+4-input.at[0]),Math.abs(c[1]+4-input.at[1]))<=20;}))return {ok:false,why:'far'};
   const roots=Object.entries(w.plots).sort(([a],[b])=>a<b?-1:a>b?1:0).filter(([key,plot])=>{const [x,y]=key.split(',').map(Number),q=plot.plant,s=see(key,plot,now,w.rains);return input.beds.includes(bedOf(x,y))&&q&&(!q.root||q.root===key)&&!s.dead&&!s.wet&&!s.ripe&&q.localRain?.day!==dayOf(now);}).map(([key,plot])=>({key,identity:plantIdentity(key,plot)!}));

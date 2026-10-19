@@ -380,7 +380,7 @@ describe("walking", () => {
     // (no scarecrow stands on the farm any more: the owner, 2026-10-07; the four tiles they stood on are closed still,
     // for the great pumpkins, so that nothing laid out from the open tiles moved)
     expect(FARM_PROPS.filter((p) => p.kind === "scarecrow").length).toBe(0);
-    expect(FARM_PUMPKINS.length).toBe(4);
+    expect(FARM_PUMPKINS.length).toBe(8);
     for (const [u, v] of FARM_PUMPKINS) { expect(walkable(FARM.x + u, FARM.y + v)).toBe(false); expect(plotAt(FARM.x + u, FARM.y + v)).toBe(false); }
     // no walking between the maps
     const [town, farm] = GATES;
@@ -389,7 +389,7 @@ describe("walking", () => {
     expect(findPath(town.to, { x: 32.5, y: 31.5 })).toBeNull();
     expect(walkable(COLS + 10, 10)).toBe(false);
     // from where the town's gate puts you, every corner of the farm is walked to, and the gate back
-    for (const [u, v] of [[5, 5], [55, 5], [5, 39], [55, 39], [29, 21]]) expect(findPath(town.to, { x: FARM.x + u + 0.5, y: FARM.y + v + 0.5 })).not.toBeNull();
+    for (const [u, v] of [[5, 5], [55, 5], [5, 39], [55, 39], [29, 21], [5, 46], [55, 46], [5, 81], [55, 81], [29, 63], [29, 82]]) expect(findPath(town.to, { x: FARM.x + u + 0.5, y: FARM.y + v + 0.5 })).not.toBeNull();
     expect(findPath(town.to, { x: farm.tiles[0][0] + 0.5, y: farm.tiles[0][1] + 0.5 })).not.toBeNull();
   });
 
@@ -428,8 +428,8 @@ describe("walking", () => {
   it("has a forest of its own, out of the north path, that only a gate reaches", () => {
     expect(placeOf(FOREST.x + 5, FOREST.y + 5)).toBe("forest");
     expect(placeOf(FOREST.x - 1, FOREST.y + 5)).toBeNull();
-    // clear of the farm, and no further east than a path's tiles are numbered
-    expect(FOREST.y).toBeGreaterThan(FARM.y + FARM.h + 32);
+    // clear of the farm (by twenty-six tiles since the farm's southern half, 2026-10-19), and no further east than a path's tiles are numbered
+    expect(FOREST.y).toBeGreaterThan(FARM.y + FARM.h + 24);
     expect(FOREST.x + FOREST.w).toBeLessThanOrEqual(256);
     const [, , north] = GATES;
     expect(findPath({ x: 32.5, y: 31.5 }, north.to)).toBeNull();

@@ -28,7 +28,7 @@ import TownWaterRelay from "./TownWaterRelay";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import TownNotebook, { type NotebookEntry } from "./TownNotebook";
-import { BLADES, FARMING, WATER, WILD, atTop, cropOf, gameFor, guardBy, hardFor, hardIn, hitsFor, moreOf, theirsAt, tiredAt, plotKey, pouchSeeds, quickUntil, ridCameOf, roll, see, type Chore, type Deed, type Plant, type RowDeed, type Seen } from "@/lib/town/farm";
+import { BEDS, BLADES, FARMING, WATER, WILD, atTop, cropOf, gameFor, guardBy, hardFor, hardIn, hitsFor, moreOf, theirsAt, tiredAt, plotKey, pouchSeeds, quickUntil, ridCameOf, roll, see, type Chore, type Deed, type Plant, type RowDeed, type Seen } from "@/lib/town/farm";
 import { canFx, hitsWith, hoeFx } from "@/lib/town/forged";
 import { FIELD } from "@/lib/town/gear";
 import { ITEMS, growIconOf, iconOf, type CropId, type ItemId } from "@/lib/town/items";
@@ -131,7 +131,7 @@ const verbOf = (work: Work, hand: ItemId | null): [th: string, en: string] => (w
 const WHY_FARM: Record<string, [string, string]> = {
   hand: ["ของในมือทำอะไรกับแปลงนี้ไม่ได้", "What you hold does nothing here"], soil: ["แปลงนี้ยังไม่พร้อม", "This plot is not ready for that"],
   wet: ["เพิ่งรดไป", "Watered already"], theirs: ["แปลงนี้มีเจ้าของแล้ว", "This bed is somebody's"], unripe: ["ยังไม่สุก", "Not ripe yet"],
-  beds: ["มีแปลงของตัวเองครบแล้ว", "You hold as many beds as you may"],
+  beds: [`มีแปลงครบ ${BEDS.each} แปลงแล้ว · คนละไม่เกิน ${BEDS.each} แปลง`, `You hold ${BEDS.each} beds already · at most ${BEDS.each} each`],
   // (the page thought the plant dead and asked about a dead one; it lives: somebody cured it just now)
   sure: ["ต้นนี้ยังไม่ตาย ถ้าจะขุดออกให้กดอีกครั้ง", "It is alive after all: ask again to dig it out"],
   tired: ["หมดแรง จอบหลุดมือ", "Too tired: the hoe slips from your hands"],

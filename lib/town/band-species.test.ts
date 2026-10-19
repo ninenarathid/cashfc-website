@@ -13,6 +13,7 @@ import { roll } from "./farm";
 import { sampleOut, streamWork, STREAM_WORK } from "./stream-work";
 import { HOUR, newPurse } from "./trade";
 import { DRY } from "./weather";
+import { BEDS_IN_FARM } from "./world";
 
 const T0 = Date.UTC(2026, 9, 20) - 7 * HOUR; // 00:00 Thai time
 const at = (h: number) => T0 + h * HOUR;
@@ -52,8 +53,8 @@ describe("the time bands' newcomers (piece 4b)", () => {
   });
 
   it("lays its own haunts after every old one, leaving those as they were", () => {
-    // (and after them, a good garden's over each bed of the farm, 2026-10-16: lib/town/insects' GOOD_GARDEN)
-    expect(HAUNTS.length).toBe(OLD_HAUNTS + 31 + 24);
+    // (and after them, a good garden's over each bed of the farm, 2026-10-16: lib/town/insects' GOOD_GARDEN; 48 beds since the farm's southern half, 2026-10-19)
+    expect(HAUNTS.length).toBe(OLD_HAUNTS + 31 + BEDS_IN_FARM);
     expect(HAUNTS.slice(OLD_HAUNTS + 31).every((h) => h.kind === "garden")).toBe(true);
     expect(HAUNTS.slice(0, OLD_HAUNTS).every((h) => !NEW_HAUNT_KINDS.includes(h.kind as never))).toBe(true);
     expect(HAUNTS.slice(OLD_HAUNTS).every((h) => HAUNT_KINDS[h.kind].alone)).toBe(true);
