@@ -134,7 +134,7 @@ export function BedHandPanel({ keeper, bed, plots, holds, people, th, onClose, o
         </p>
       )}
       <button type="button" disabled={busy} onClick={() => setAsking({ what: "leave" })} data-bed-leave
-              className="pressable mt-1 min-h-11 self-start rounded-full border border-chili bg-chili/10 px-4 text-ui font-semibold text-chili transition-colors hover:bg-chili/20 disabled:opacity-60">
+              className="pressable mt-1 min-h-11 self-start rounded-full border-2 border-[#4a140c] bg-[#b8432f] px-4 text-ui font-semibold text-[#fff7df] shadow-[0_2px_0_rgb(0_0_0/0.35)] transition-[filter] [text-shadow:0_1px_0_rgb(0_0_0/0.4)] hover:brightness-110 disabled:opacity-60">
         {th ? "เลิกแปลงนี้" : "Give this bed up"}
       </button>
     </section>
