@@ -27678,9 +27678,9 @@
     "state": "learning",
     "pct": 14.65,
     "phase": 3,
-    "pulls": 101,
-    "last": "2026-10-17",
-    "last_ts": 1792257115
+    "pulls": 54,
+    "last": "2026-10-18",
+    "last_ts": 1792342200
    }
   ]
  },
@@ -34396,9 +34396,9 @@
     "state": "learning",
     "pct": 14.65,
     "phase": 3,
-    "pulls": 102,
-    "last": "2026-10-17",
-    "last_ts": 1792257115
+    "pulls": 95,
+    "last": "2026-10-18",
+    "last_ts": 1792342200
    }
   ]
  },
@@ -34745,7 +34745,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 99,
-    "kills": 79,
+    "kills": 81,
     "job": "Dancer",
     "cleared": true,
     "job_kills": {
@@ -61986,7 +61986,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 71,
-    "kills": 7,
+    "kills": 9,
     "job": "RedMage",
     "cleared": true,
     "job_kills": {
@@ -62007,7 +62007,7 @@
     "encounter_id": 1081,
     "name": "Necron",
     "best": 63,
-    "kills": 9,
+    "kills": 13,
     "job": "BlackMage",
     "cleared": true,
     "job_kills": {
@@ -64563,7 +64563,7 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 58,
+    "pulls": 26,
     "last": "2026-10-17",
     "last_ts": 1792222100
    }
@@ -67137,8 +67137,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1083,
     "name": "Doomtrain",
-    "best": 42,
-    "kills": 8,
+    "best": 63,
+    "kills": 10,
     "job": "Dancer",
     "cleared": true,
     "job_kills": {
@@ -74661,7 +74661,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 95,
-    "kills": 30,
+    "kills": 32,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -74906,20 +74906,7 @@
    }
   ],
   "legacy": [],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 103,
-    "name": "The Tyrant",
-    "kind": "savage",
-    "state": "cleared",
-    "pct": null,
-    "phase": 0,
-    "pulls": 116,
-    "last": "2026-10-17",
-    "last_ts": 1792238840
-   }
-  ]
+  "_status": "ok"
  },
  "42053180": {
   "current": {
@@ -81504,7 +81491,7 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 65,
+    "pulls": 60,
     "last": "2026-10-17",
     "last_ts": 1792238840
    }
