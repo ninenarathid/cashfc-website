@@ -92,12 +92,14 @@ export interface WaterDeed {
   kind?: Nature;
   tile?: [number, number];
   whose?: string;
+  /** Poured into, or filled from: which well, by its number in lib/town/world's WELLS (the first, where none is said): each keeps its own water (v287). */
+  well?: number;
 }
 
 /** What is kept of the water. */
 export interface WellLog {
-  /** The well's water, the oldest first: whose each lot is (nobody's, for water from before the book) and how many bucketfuls of it are left. */
-  water: Array<{ by: string | null; left: number }>;
+  /** The wells' water, the oldest first: whose each lot is (nobody's, for water from before the book), how many bucketfuls of it are left, and which well it is in (the first, where none is said). */
+  water: Array<{ by: string | null; left: number; well?: number }>;
   /** Whose water is in each can, by who holds it and which can it is, and the waterings left of it. */
   cans: Record<string, { by: string | null; left: number }>;
   /** Every carrier: the bucketfuls poured, all told, and the ranks whose gift was taken. */
@@ -123,8 +125,9 @@ export interface WellLog {
   line: Record<string, string[]>;
   /** The nature of the water in a bucket, when it has one (lib/town/waters): by who holds the bucket and which it is. */
   kinds: Record<string, Nature>;
-  /** The well's water when a nature was last poured into it: which, until when, by whom. */
+  /** The well's water when a nature was last poured into it: which, until when, by whom; the second well's apart (`southWater`, v287). */
   wellWater: WellWater | null;
+  southWater?: WellWater | null;
 }
 export const newLog = (): WellLog => ({ water: [], cans: {}, carriers: {}, days: {}, reach: {}, hands: {}, help: {}, work: {}, yard: [], pots: {}, line: {}, kinds: {}, wellWater: null });
 /** How many of those whose hands the water went through are remembered: the last so many (lib/town/line's own number, kept here so that the book does not hang on the map). */
@@ -197,8 +200,8 @@ export function seen(log: WellLog, d: WaterDeed): WellLog {
     const kind = d.can ? log.kinds[canKey(d.by, d.can)] : undefined;
     return counted({
       ...log,
-      ...(kind ? { wellWater: pouredIn(log.wellWater, kind, n, d.by, d.at) } : {}),
-      water: [...log.water, { by: d.by, left: n }],
+      ...(kind ? (d.well === 1 ? { southWater: pouredIn(log.southWater ?? null, kind, n, d.by, d.at) } : { wellWater: pouredIn(log.wellWater, kind, n, d.by, d.at) }) : {}),
+      water: [...log.water, { by: d.by, left: n, ...(d.well ? { well: d.well } : {}) }],
       carriers: { ...log.carriers, [d.by]: { ...was, buckets: was.buckets + n } },
       days: { ...log.days, [day]: { ...today, [d.by]: { ...mine, buckets: mine.buckets + n } } },
       work: worked(log.work, round, d.by, n, 0),
@@ -229,9 +232,16 @@ export function seen(log: WellLog, d: WaterDeed): WellLog {
     // so many bucketfuls of the oldest water there is: as many as the filling took of the well (`n`; one where the deed
     // says none: a filling took one until 2026-10-07). The can's water is of whoever carried the oldest of them; of
     // nobody's, when the book knows of none
-    const first = log.water[0];
+    // (of the well it was filled at: each keeps its own water)
+    const here = (lot: { well?: number }) => (lot.well ?? 0) === (d.well ?? 0);
+    const first = log.water.find(here);
     let water = log.water;
-    for (let n = Math.max(1, Math.floor(d.n ?? 1)); n > 0 && water.length; n--) { const [head, ...rest] = water; water = head.left > 1 ? [{ ...head, left: head.left - 1 }, ...rest] : rest; }
+    for (let n = Math.max(1, Math.floor(d.n ?? 1)); n > 0; n--) {
+      const i = water.findIndex(here);
+      if (i < 0) break;
+      const head = water[i];
+      water = [...water.slice(0, i), ...(head.left > 1 ? [{ ...head, left: head.left - 1 }] : []), ...water.slice(i + 1)];
+    }
     return { ...log, water, cans: { ...log.cans, [canKey(d.by, d.can)]: { by: first?.by ?? null, left: WATER.cans[d.can as ItemId] ?? 0 } } };
   }
   // a plant watered: with whose water, and whose plant

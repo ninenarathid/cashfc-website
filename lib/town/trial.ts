@@ -170,8 +170,8 @@ import { LAMPS, held as lampHeld, light as lampLight, lighted as lampLighted, li
 
 const STALL = "cashtown.trial.stall.1", CLOCK = "cashtown.trial.clock.1", FARM = "cashtown.trial.farm.2";
 const WELL = "cashtown.trial.well.1", BEDS = "cashtown.trial.beds.1";
-/** The farm's second well (lib/town/world's WELLS): its water, and its water's nature (the first's is the well's book's, `wellWater`). */
-const WELL_SOUTH = "cashtown.trial.well.south.1", WELL_WATER_SOUTH = "cashtown.trial.wellwater.south.1";
+/** The farm's second well (lib/town/world's WELLS): its water (its water's nature is the well's book's `southWater`). */
+const WELL_SOUTH = "cashtown.trial.well.south.1";
 const wellKey = (i: number) => (i === 1 ? WELL_SOUTH : WELL);
 /** The well a plot's watering takes its water's nature from: the one nearest it. */
 const wellOfKey = (key: string) => { const [x, y] = key.split(",").map(Number); return wellOf(x, y); };
@@ -402,7 +402,7 @@ export class Trial {
     if (d.gate) this.write("cashtown.trial.stream.1",d.gate);
     if (d.nature) {
       this.write(wellKey(at_),this.well(at_)+1);
-      this.wellSeen({by:this.id,at:now,what:"pour",n:1});
+      this.wellSeen({by:this.id,at:now,what:"pour",n:1,well:at_});
       this.keepWellWater(at_,pouredIn(this.wellWaterOf(at_),d.nature,1,this.id,now,d.times));
     }
     this.write(key,{...receipts,[request]:{action,choice}});
@@ -947,8 +947,8 @@ export class Trial {
   /** Waters that differ (lib/town/waters): the nature the well's water has now, if any, with whose doing it is; and the nature of water drawn at this moment. */
   private natureNow(now: number, i = 0): Nature | null { return natureOf(this.wellWaterOf(i), now); }
   /** A well's water's nature as kept, whether or not it still holds (the first's in the well's book, the second's by itself), and keeping it. */
-  private wellWaterOf(i: number): WellWater | null { return i === 1 ? this.read<WellWater | null>(WELL_WATER_SOUTH, () => null, (v) => v === null || (!!v && typeof v === "object")) : this.wellLog().wellWater; }
-  private keepWellWater(i: number, w: WellWater | null) { if (i === 1) this.write(WELL_WATER_SOUTH, w); else this.write(WELL_LOG, { ...this.wellLog(), wellWater: w }); }
+  private wellWaterOf(i: number): WellWater | null { const log = this.wellLog(); return i === 1 ? log.southWater ?? null : log.wellWater; }
+  private keepWellWater(i: number, w: WellWater | null) { this.write(WELL_LOG, { ...this.wellLog(), ...(i === 1 ? { southWater: w } : { wellWater: w }) }); }
   wellWater(i = 0): WellWater | null { const w = this.wellWaterOf(i); return w && natureOf(w, this.now()) ? w : null; }
   drawnNow(): Nature | null { const now = this.now(); return natureAt(now, SKIES.raining(now)); }
   /** For scripts and the test window: the well's water given a nature for so many minutes (as if somebody had poured it in), or none. */
@@ -1102,8 +1102,8 @@ export class Trial {
     if (!did.ok) return did;
     this.write(wellKey(i), did.well);
     // (the well's book: so many bucketfuls poured, and out of which bucket; a can filled; a bucket drawn, with nobody's hands on its water yet)
-    if (did.chore === "pour") this.wellSeen({ by: this.id, at: now, what: "pour", n: did.well - well, can: handOf(p) ?? undefined });
-    else if (did.chore === "fill") this.wellSeen({ by: this.id, at: now, what: "fill", n: well - did.well, can: handOf(p) ?? undefined });
+    if (did.chore === "pour") this.wellSeen({ by: this.id, at: now, what: "pour", n: did.well - well, can: handOf(p) ?? undefined, well: i });
+    else if (did.chore === "fill") this.wellSeen({ by: this.id, at: now, what: "fill", n: well - did.well, can: handOf(p) ?? undefined, well: i });
     else this.wellSeen({ by: this.id, at: now, what: "draw", can: handOf(p) ?? undefined, kind: natureAt(now, SKIES.raining(now)) ?? undefined });
     this.save(did.purse);
     return { ok: true, chore: did.chore };
@@ -1403,7 +1403,7 @@ export class Trial {
     const now = this.now(), did = moonPour(this.purse(), this.well(i), n, now);
     if (!did.ok) return did;
     this.write(wellKey(i), did.well);
-    if (did.into > 0) this.wellSeen({ by: this.id, at: now, what: "pour", n: did.into, can: "thingMoon" });
+    if (did.into > 0) this.wellSeen({ by: this.id, at: now, what: "pour", n: did.into, can: "thingMoon", well: i });
     this.keepWellWater(i, pouredIn(this.wellWaterOf(i), did.kind, did.poured, this.id, now, MOON.times));
     this.save(did.purse);
     return { ok: true, poured: did.poured, into: did.into, kind: did.kind };
@@ -2162,7 +2162,7 @@ export class Trial {
     }else if(input.action==="rowContinueBegin"||input.action==="rowContinueEnd"){const plots=this.farm(),d=rowContinue(p,input,request,now,this.id,plots,this.beds()[bedOf(...input.at)],this.sky(),matchesCombo(p,["charmHoe","charmGloves"]),comboLoadout(p));if(!d.ok)return d;if(input.action==="rowContinueBegin"){const bond=commitCombo(d.purse,"SC17",`row:${p.professionRewards!.rowContinuation!.id}`,now);if(!bond)return{ok:false,why:"spent"};d.purse=bond.purse;}if(d.plots)this.write(FARM,{...plots,...d.plots});for(const e of d.each??[])this.counted({from:"deed",what:p.professionRewards!.rowContinuation!.deed,thing:e.crop,n:1,doc:{owner:p.professionRewards!.rowContinuation!.owner,continuation:true}});did=d;
     }else if(input.action==="gardenRetryBegin"||input.action==="gardenRetryEnd"){const plots=this.farm(),d=gardenRetry(p,input,request,now,crypto.getRandomValues(new Uint32Array(1))[0],this.id,plots[input.at.join(",")],this.beds()[bedOf(...input.at)],this.sky(),matchesCombo(p,["charmGuard","famGnome"]),comboLoadout(p));if(!d.ok)return d;if(input.action==="gardenRetryBegin"){const token=`retry:${input.job!.split(":")[0]}:${input.at[1]}`;if(p.combos?.actions?.[token])return{ok:false,why:"none"};const bond=commitCombo(d.purse,"SC12",token,now);if(!bond)return{ok:false,why:"spent"};d.purse=bond.purse;}if(d.plots)this.write(FARM,{...plots,...d.plots});if(d.helpDone)this.counted({from:"deed",what:d.helpDone,thing:null,n:1,doc:{owner:this.owners().get(bedOf(...input.at))?.by,retry:true}});did=d;
     }else if(input.action==="rainCareBegin"||input.action==="rainCareEnd"||input.action==="rainCareCancel"){const plots=this.farm(),d=rainCare(p,input,request,now,crypto.getRandomValues(new Uint32Array(1))[0],this.id,plots[input.at.join(",")],this.sky(),matchesCombo(p,["charmGloves","famFrog"]),comboLoadout(p));if(!d.ok)return d;if("rainPassed"in d&&d.rainPassed){const bond=commitCombo(d.purse,"SC07",`rain:${input.at.join(",")}:${plots[input.at.join(",")]!.plant!.sown}:${p.professionRewards!.rainCare!.began}`,now);if(!bond)return{ok:false,why:"spent"};d.purse=bond.purse;}if("plots"in d&&d.plots)this.write(FARM,syncGarden({...plots,...d.plots}));did=d;
-    }else if(input.action==="helpMend"||input.action==="reviveBegin"||input.action==="reviveEnd"||input.action==="reviveCancel"){const plots=this.farm(),bed=this.beds()[bedOf(...input.at)],d=helpGarden(p,input,request,now,crypto.getRandomValues(new Uint32Array(1))[0],this.id,plots,bed,this.sky());if(!d.ok)return d;if("helpDone"in d&&d.helpDone==="water"&&"plots"in d&&d.plots)d.plots[input.at.join(",")]=this.poured(plots[input.at.join(",")],d.plots[input.at.join(",")],now,"times"in d?d.times??1:1,this.bellWorn(bedOf(...input.at)));if("plots"in d&&d.plots)this.write(FARM,syncGarden({...plots,...d.plots}));if("helpDone"in d&&d.helpDone)this.counted({from:"deed",what:d.helpDone,thing:plots[input.at.join(",")]?.plant?.crop??null,n:1,doc:{whose:plots[input.at.join(",")]?.plant?.by??bed?.by}});did=d;
+    }else if(input.action==="helpMend"||input.action==="reviveBegin"||input.action==="reviveEnd"||input.action==="reviveCancel"){const plots=this.farm(),bed=this.beds()[bedOf(...input.at)],d=helpGarden(p,input,request,now,crypto.getRandomValues(new Uint32Array(1))[0],this.id,plots,bed,this.sky());if(!d.ok)return d;if("helpDone"in d&&d.helpDone==="water"&&"plots"in d&&d.plots)d.plots[input.at.join(",")]=this.poured(plots[input.at.join(",")],d.plots[input.at.join(",")],now,"times"in d?d.times??1:1,this.bellWorn(bedOf(...input.at)),input.at.join(","));if("plots"in d&&d.plots)this.write(FARM,syncGarden({...plots,...d.plots}));if("helpDone"in d&&d.helpDone)this.counted({from:"deed",what:d.helpDone,thing:plots[input.at.join(",")]?.plant?.crop??null,n:1,doc:{whose:plots[input.at.join(",")]?.plant?.by??bed?.by}});did=d;
     }else if(input.action==="beanBegin"||input.action==="beanStage"||input.action==="beanEnd"||input.action==="beanCancel"){const d=beanAction(p,input,request,now,crypto.getRandomValues(new Uint32Array(1))[0],this.id,this.farm()[input.at.join(",")],this.sky());if(!d.ok)return d;did=d;
     }else if(input.action==="giantBegin"||input.action==="giantEnd"||input.action==="giantCancel"||input.action==="gardenBrush"||input.action==="pollenCollect"||input.action==="pollenApply"){const plots=this.farm(),owner=this.owners().get(bedOf(...input.at))?.by??null,d=gardenAction(p,input,request,now,crypto.getRandomValues(new Uint32Array(1))[0],this.id,plots,owner,this.sky());if(!d.ok)return d;if("plots"in d&&d.plots)this.write(FARM,syncGarden({...plots,...d.plots}));did=d;
     }else if(input.action==="kitchenBegin"||input.action==="kitchenEnd"||input.action==="kitchenCancel"||input.action==="flavorTune"){
@@ -2469,7 +2469,7 @@ export class Trial {
   /** Begin again: my purse, the stall, its prices, the farm and the clock as they were at first. (What was played stays written down.) */
   reset() {
     this.set(`cashtown.trial.craft.1.${this.id}`, null);
-    for (const key of [purseKey(this.id), boxKey(this.id), /* felling */ TREES_AT, GROUND_AT, SHOPS, STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, WELL_LOG, THANKS, JAR, YARD_JAR, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE, WORKS_AT, LAMPS_AT]) this.set(key, null);
+    for (const key of [purseKey(this.id), boxKey(this.id), /* felling */ TREES_AT, GROUND_AT, SHOPS, STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, WELL_SOUTH, WELL_LOG, THANKS, JAR, YARD_JAR, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE, WORKS_AT, LAMPS_AT]) this.set(key, null);
     // ── forging ──
     for (const key of [smithKey(this.id), SMITH_BOARD, SMITH_LOG, SMITH_FIRE]) this.set(key, null);
     this.tell();

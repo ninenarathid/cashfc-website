@@ -32,3 +32,23 @@ describe("the well's book, when a can's filling takes more than one bucketful", 
     expect(old.water).toEqual([{ by: "al", left: 2 }]);
   });
 });
+
+describe("the well's book, each well its own water (v287)", () => {
+  it("keeps a lot poured into the second well as the second's, fills a can there from the second's alone, and leaves the first's", () => {
+    const log = after([pour("al", 3), { ...pour("bo", 2, T + 1), well: 1 }, { by: "cy", at: T + 2, what: "fill", n: 2, can: "can", well: 1 }]);
+    expect(log.water).toEqual([{ by: "al", left: 3 }]);
+    expect(log.cans["cy/can"]).toEqual({ by: "bo", left: 8 });
+    const next = seen(log, { by: "di", at: T + 3, what: "fill", n: 2, can: "can" });
+    expect(next.water).toEqual([{ by: "al", left: 1 }]);
+    expect(next.cans["di/can"]).toEqual({ by: "al", left: 8 });
+    // (a can filled at a well with none of the book's water is of nobody's, and takes nothing of the other's)
+    const dry = seen(next, { by: "ed", at: T + 4, what: "fill", n: 2, can: "can", well: 1 });
+    expect([dry.water, dry.cans["ed/can"]]).toEqual([[{ by: "al", left: 1 }], { by: null, left: 8 }]);
+  });
+  it("gives a bucket's nature to the well it was poured into, and to no other", () => {
+    const drawn = (by: string, well?: number): WaterDeed[] => [{ by, at: T, what: "draw", can: "bucket", kind: "dawn" }, { ...pour(by, 1, T + 1), ...(well === undefined ? {} : { well }) }];
+    const south = after(drawn("al", 1)), north = after(drawn("bo"));
+    expect([south.wellWater, south.southWater?.kind]).toEqual([null, "dawn"]);
+    expect([north.wellWater?.kind, north.southWater ?? null]).toEqual(["dawn", null]);
+  });
+});
