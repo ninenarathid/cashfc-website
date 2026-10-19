@@ -84,9 +84,11 @@ export function GradePrices({ id, told, th, reach }: { id: string; told: PriceTo
         {GRADES.map((g) => {
           const out = reach !== undefined && !(reach[g.grade] > 0);
           return <li key={g.grade} data-farm-price-grade={g.grade} aria-label={`${th ? g.th : g.en} ${coinsOf((base * told.f * gradePays(id as ItemId, g.grade)) / 100)}`}
-                     className={`flex min-h-11 flex-col items-center justify-center gap-0.5 rounded border-[1.5px] border-[#1a0e06] bg-[#4a3522] px-1 py-1 text-ink ${out ? "opacity-45" : ""}`}>
-            <span className="flex items-center gap-1 whitespace-nowrap text-label"><i aria-hidden className="inline-block size-2.5 shrink-0 border border-[#22150a]" style={{ background: ZONE[g.grade] }} />{g.grade ? "★".repeat(g.grade) : th ? "ธรรมดา" : "Normal"}</span>
-            <span className="flex items-center gap-0.5 font-data text-meta font-semibold tabular-nums text-gold"><TownIcon name="coin" size={12} />{coinsOf((base * told.f * gradePays(id as ItemId, g.grade)) / 100)}</span>
+                     className={`flex min-h-11 flex-col items-center justify-center gap-0.5 rounded border-[1.5px] px-1 py-1 ${out ? "border-dashed border-[#6b4a2a] bg-[#3a2a1c] text-[#d8c39a]" : "border-[#1a0e06] bg-[#4a3522] text-ink"}`}
+                     data-out={out || undefined}>
+            {/* (a grade out of the range's reach: the chip's frame is dashed and its marker faint, its price still read) */}
+            <span className="flex items-center gap-1 whitespace-nowrap text-label"><i aria-hidden className={`inline-block size-2.5 shrink-0 border border-[#22150a] ${out ? "opacity-50" : ""}`} style={{ background: ZONE[g.grade] }} />{g.grade ? "★".repeat(g.grade) : th ? "ธรรมดา" : "Normal"}</span>
+            <span className={`flex items-center gap-0.5 font-data text-meta font-semibold tabular-nums ${out ? "text-[#e3cfa6]" : "text-gold"}`}><TownIcon name="coin" size={12} />{coinsOf((base * told.f * gradePays(id as ItemId, g.grade)) / 100)}</span>
           </li>;
         })}
       </ul>
