@@ -170,9 +170,9 @@ try {
   await db.query("update public.town_pasture set found = found || jsonb_build_object('silkie', jsonb_build_object('by', $1::text, 'at', 0)) where one", [me]);
   eq((await pals({ action: "scroll", breed: "silkie" })).why, "theirs", "only the first breeder writes it out");
   const wrote = await mine({ action: "scroll", breed: "silkie" });
-  eq([wrote.ok, wrote.got.item], [true, "scrollBreed_chicken_B"], "a scroll written out");
-  eq((await mine({ action: "read", item: "scrollBreed_chicken_B" })).ok, true, "read");
-  eq((await one("select doc->'recipes' ? 'scrollBreed_chicken_B' r from public.town_purses where member_id = $1", [me])).r, true, "known from now on");
+  eq([wrote.ok, wrote.got.item], [true, "scrollBreedChickenB"], "a scroll written out");
+  eq((await mine({ action: "read", item: "scrollBreedChickenB" })).ok, true, "read");
+  eq((await one("select doc->'recipes' ? 'scrollBreedChickenB' r from public.town_purses where member_id = $1", [me])).r, true, "known from now on");
   // (gifts: the cradle once a day, spring wind readying a round once an animal)
   await db.query("update public.town_purses set doc = jsonb_set(doc, '{gifts}', jsonb_build_object('had', jsonb_build_array('thingCradle', 'thingSpringWind'), 'charms', '[]'::jsonb, 'owed', 0, 'familiar', null, 'used', '{}'::jsonb)) where member_id = $1", [me]);
   await db.query("update public.town_animals set a = a || jsonb_build_object('food', 20, 'made', 3, 'banked', 0) where id = $1", [chick]);

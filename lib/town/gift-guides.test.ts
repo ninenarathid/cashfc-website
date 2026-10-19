@@ -3,9 +3,9 @@ import {ALL_GIFTS} from './gifts';
 import {GIFT_GUIDES,GUIDE_COMMON} from './gift-guides';
 
 describe('public reward instructions',()=>{
- it('covers all 91 current rewards without unreleased entries',()=>{
+ it('covers all 101 current rewards without unreleased entries',()=>{
   const ids=[...ALL_GIFTS.map(g=>g.id),'waterYoke','waterCart','waterYokeGreat'];
-  expect(ids).toHaveLength(91);
+  expect(ids).toHaveLength(101);
   expect(Object.keys(GIFT_GUIDES).sort()).toEqual(ids.sort());
  });
  it('has a location, preparation, two ordered actions and a constraint in both languages',()=>{

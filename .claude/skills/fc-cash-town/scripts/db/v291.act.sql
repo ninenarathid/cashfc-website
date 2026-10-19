@@ -469,7 +469,7 @@ begin
     if pas.found->item->>'by' is distinct from me::text then return town.answer(me, town.no('theirs')); end if;
     price := (kn->>'scrollFee')::integer;
     if (purse->>'coins')::integer < price then return town.answer(me, town.no('coins')); end if;
-    tool := 'scrollBreed_' || (breed->>'species') || '_' || (breed->>'letter');
+    tool := 'scrollBreed' || initcap(breed->>'species') || (breed->>'letter');
     if town.room_g(purse->'bag', tool, 0) < 1 then return town.answer(me, town.no('room')); end if;
     purse := purse || jsonb_build_object('coins', (purse->>'coins')::integer - price, 'bag', town.put_g(purse->'bag', tool, 1, 0));
     got := jsonb_build_object('item', tool, 'n', 1);

@@ -12,6 +12,7 @@ import { CRAFTS, isCraft } from "./crafting";
 import { PREP_MAKES } from "./preparation-items";
 import { PREPARATION, type PrepId } from "./preparation";
 import type { Zone } from "./world";
+import { BREEDS } from "./animals";
 
 /**
  * What a recipe's hidden thing is told by (the owner, 2026-10-06: "อยากให้ใบ้ง่ายขึ้น เพราะมี่คนเจอ ของป่าอะไรซักอย่าง แล้ว
@@ -217,6 +218,38 @@ function madeClue(id: ItemId): Clue | null {
   };
 }
 
+/* ── the pasture ────────────────────────────────────────────────────────── */
+
+const SPECIES_SORT: Record<string, Line> = {
+  chicken: line("ของที่แม่ไก่วางไว้", "something a hen left in the coop"),
+  duck: line("ของที่เป็ดวางไว้", "something a duck left by the pond"),
+  sheep: line("ของที่ตัดจากแกะ", "something sheared from a sheep"),
+  cow: line("ของที่รีดจากวัว", "something drawn from a cow"),
+};
+/** What a breed's produce is told by: the animal it comes from, and how rare a breed it is (never the produce's name). */
+const PRODUCE_OF = new Map(BREEDS.map((b) => [b.produce as string, b]));
+/** What the barn's feed is for: the animal, and whether it is for a grown one or a young one. */
+const FEED_FOR: Record<string, Clue> = {
+  chickFeed: { sort: line("ของที่ไก่กิน", "something hens eat"), from: line("อาหารประจำวันของตัวโต", "the daily fare of a grown bird") },
+  duckFeed: { sort: line("ของที่เป็ดกิน", "something ducks eat"), from: line("อาหารประจำวันของตัวโต", "the daily fare of a grown bird") },
+  sheepFeed: { sort: line("ของที่แกะกิน", "something sheep eat"), from: line("อาหารประจำวันของตัวโต", "the daily fare of a grown animal") },
+  cowFeed: { sort: line("ของที่วัวกิน", "something cattle eat"), from: line("อาหารประจำวันของตัวโต", "the daily fare of a grown animal") },
+  chickGrow: { sort: line("ของที่ลูกไก่กิน", "something chicks eat"), from: line("ให้ตัวเล็กโตเร็วขึ้น", "to help a young one grow") },
+  duckGrow: { sort: line("ของที่ลูกเป็ดกิน", "something ducklings eat"), from: line("ให้ตัวเล็กโตเร็วขึ้น", "to help a young one grow") },
+  lambGrow: { sort: line("ของที่ลูกแกะกิน", "something lambs drink"), from: line("ให้ตัวเล็กโตเร็วขึ้น", "to help a young one grow") },
+  calfGrow: { sort: line("ของที่ลูกวัวกิน", "something calves drink"), from: line("ให้ตัวเล็กโตเร็วขึ้น", "to help a young one grow") },
+};
+function pastureClue(id: ItemId): Clue | null {
+  if (Object.hasOwn(FEED_FOR, id)) return FEED_FOR[id];
+  const b = PRODUCE_OF.get(id);
+  if (!b) return null;
+  const rare = b.letter === "A" ? line("จากพันธุ์เริ่มต้น", "from the plain starter breed")
+    : "BCD".includes(b.letter) ? line("จากพันธุ์แท้ที่หายากขึ้นมา", "from a real breed of some note")
+      : "EFG".includes(b.letter) ? line("จากพันธุ์แฟนตาซี", "from a fantasy breed")
+        : line("จากพันธุ์ในตำนาน", "from a breed of legend");
+  return { sort: SPECIES_SORT[b.species], from: rare };
+}
+
 /**
  * The clues of a thing: which sort it is, and where it is had. Every thing has a sort (its kind's own word at the
  * least); `from` is null only for what nothing here knows the whereabouts of.
@@ -238,6 +271,7 @@ export function clueOf(id: ItemId): Clue {
   if (kind === "fish" && id in FISH) return fishClue(FISH[id as FishId]);
   if (kind === "crop" && id in CROPS) return cropClue(id as CropId);
   if (kind === "wild") { const w = wildClue(id); if (w) return w; }
+  if (kind === "goods") { const p = pastureClue(id); if (p) return p; }
   if (kind === "goods" || kind === "staple") { const m = madeClue(id); if (m) return m; }
   if (kind === "catch") return { sort: KIND_WORD.catch, from: line("ติดเบ็ดขึ้นมาแทนปลา", "comes up on a line in a fish's place") };
   if ((GEOLOGY_RAW as readonly string[]).includes(id)) return { sort: KIND_WORD[kind], from: id === "wholeGeode" ? line("ผลึกที่รักษาไว้หลังตามเสียงในสายแร่อัญมณี", "a crystal preserved after following a gem seam's echo") : id === "quartzCore" ? line("พบตามแนวแร่ด้วยสิ่วหรือสายสำรวจ", "found along a ringing seam using a chisel or survey cord") : line("เก็บจากชั้นหินหลังฟังเสียงสะท้อนในถ้ำ", "gathered from rock layers after listening to a cave's echoes") };

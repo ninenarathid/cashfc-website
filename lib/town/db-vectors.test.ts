@@ -129,7 +129,8 @@ export function vectorsV106(): Vector[] {
     const now = c.of(MOMENTS), p = purseOf(c, now, CARRIERS), slot = c.maybe(0.1) ? c.of([-1, p.bag.length, null]) : c.int(0, p.bag.length - 1);
     add("hold", [p, slot], hold(p, slot as number));
     add("wear", [p, slot], wear(p, slot as number));
-    const off = c.maybe(0.75) ? c.of(CARRIERS) : c.of(ITEM_IDS);
+    // (what is worn is asked to be taken off half the time it has anything on, so that "ok" is reached whatever the item list is)
+    const off = p.wears?.length && c.maybe(0.5) ? c.of(p.wears) : c.maybe(0.75) ? c.of(CARRIERS) : c.of(ITEM_IDS);
     add("take_off", [p, off], takeOff(p, off));
   }
 

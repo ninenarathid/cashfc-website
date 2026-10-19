@@ -99,9 +99,9 @@ All are drawn on a 320 × 240 board.
 - **wild** (16, the meadow's forage): mistVetch, ghostReed, dewClover, dawnOats, meadowOats, sweetTimothy, sunAlfalfa,
   pondMillet, copperSedge, orchardPea, amberClover, reedSeed, lanternGrass, velvetVetch, moonOats, nightDuckweed [clover].
 - **dishes** (17): custard, pancakes, cheesecake, butterCookies, quiche, lanternCustard, cloudSouffle, goldenOmelette,
-  emberBakedEggs, rainBroth, moonPudding, paperFish, leviathanSteamedEgg, strawberryShake, hotCocoa, flowerLatte,
+  emberBakedEggs, rainBroth, moonPudding, paperFish, leviathanEggCup, strawberryShake, hotCocoa, flowerLatte,
   starPudding [bowl]; and each its pot, `pot<Dish>` (as every dish has).
-- **scrolls**: the 17 dish scrolls and 28 breed scrolls (`scrollBreed_<species>_<letter>`) use the town's `scroll`.
+- **scrolls**: the 17 dish scrolls and 28 breed scrolls (`scrollBreed<Species><letter>`) use the town's `scroll`.
 - **gifts** (10): charmHerdBell [charmBell], thingBarnCat [thingBasket], thingWarmBottle [bottle], charmStarCollar
   [charmGloves], thingCradle [basket], famCloudRam [famCloud], thingTwinCradle [thingBasket], thingHarp [thingFlute],
   thingSpringWind [charmWind], thingHayWagon [waterCart]; and the line's icon `cowBell` [charmBell].

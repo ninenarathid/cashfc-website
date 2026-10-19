@@ -40,9 +40,10 @@ describe("three times the things (the owner: \"ช่วยเพิ่ม ไ�
     // (and the two yokes the well gives whoever carries water to it, 2026-10-05; and the cart it has between them)
     // (and woodcutting and mining, 2026-10-08: a pick and an axe, stone, two woods, three ores in fragments and
     // smelted, eight gems in fragments and cut, and a torch: twenty-eight)
+    // (+ 7: the barn's tools, the stall's to sell, so of the first tier: the milker, shears, basket, churn, press, spindle, needles)
     // (+ 37: the farm's Quality's helper plants, seventeen new crops and twenty seeds, all of the first tier)
     // (+ 1: the round glasses, worn from the bag into the wardrobe, 2026-10-17; + 4: the uncle's other things to wear)
-    expect(by(1).length).toBe(79 - 3 + 13 + 1 + 20 + 2 + 8 + 8 + 35 + 5 + 16 + 16 + 1 + 22 + 2 + 1 + 28 + 37 + 1 + 4);
+    expect(by(1).length).toBe(79 - 3 + 13 + 1 + 20 + 2 + 8 + 8 + 35 + 5 + 16 + 16 + 1 + 22 + 2 + 1 + 28 + 37 + 1 + 4 + 7);
     expect(ITEM_IDS.filter((id) => ITEMS[id].kind === "bug" && !(id in expansion)).length).toBe(23);
     expect(by(1).filter((id) => ITEMS[id].kind === "wild").length).toBe(35);
     // the later tiers were twice what the early game was when he asked, seventy-two each; then came the dishes of five
@@ -54,10 +55,12 @@ describe("three times the things (the owner: \"ช่วยเพิ่ม ไ�
     // (and the farm's Quality's insect house, of the second tier, 2026-10-15; and its seventeen fertilisers, lib/town/fertilisers)
     // (and of the time bands' newcomers, five fertilisers of the second tier and three of the third)
     // (+ 20: the things to wear made at the workbench, v277)
-    expect(by(2).length).toBe(72 + 13 + 1 + 2 + 3 + 1 + 23 - 2 + 2 + 2 + 1 + 1 + 17 + 5 + 20);
+    // (+ 69: the pasture's, of the second tier: 41 things apart from its tools, and the 28 breed scrolls)
+    expect(by(2).length).toBe(72 + 13 + 1 + 2 + 3 + 1 + 23 - 2 + 2 + 2 + 1 + 1 + 17 + 5 + 20 + 69);
     // (+ 16: the eight mist children of the helpers' crossings, their rare produce and their seeds)
-    expect(by(3).length).toBe(72 + 12 + 2 + 1 - 1 + 24 + 3 + 16);
-    expect(by(2).length + by(3).length).toBe(72 * 2 + 25 + 1 + 4 + 4 + 47 - 2 + 4 + 1 + 1 + 17 + 8 + 16 + 20);
+    // (+ 60: the pasture's, of the third: 43 things and the 17 dishes' scrolls)
+    expect(by(3).length).toBe(72 + 12 + 2 + 1 - 1 + 24 + 3 + 16 + 60);
+    expect(by(2).length + by(3).length).toBe(72 * 2 + 25 + 1 + 4 + 4 + 47 - 2 + 4 + 1 + 1 + 17 + 8 + 16 + 20 + 69 + 60);
     // what was there before is still the early game, and still what the uncle sells
     for (const id of ["rod", "hoe", "pot", "worm", "minnow", "koi", "shabu", "scrollGrilledFish"] as const) expect(tierOf(id)).toBe(1);
     for (const id of ["rod", "hoe", "can", "pot", "pan", "grill", "worm", "dough", "rice", "salt", "riceBox", "seedKangkong", "scrollFriedMinnow"] as const) expect(GOODS[id]).toBeDefined();

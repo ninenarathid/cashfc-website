@@ -6,11 +6,12 @@ import { BREEDS, GRAPH, SPECIES_IDS, scrollOf } from "./animals";
  * what animals eat, the tools of the three games, the meadow's forage by the hour, the dishes and the breed scrolls.
  * Descriptions say what a thing looks like, never what it is for.
  */
-const item = (kind: Item["kind"], th: string, en: string, shTh: string, shEn: string, pays: number, tier: 2 | 3 = 2, stack?: number): Item =>
+const item = (kind: Item["kind"], th: string, en: string, shTh: string, shEn: string, pays: number, tier: 1 | 2 | 3 = 2, stack?: number): Item =>
   ({ kind, tier, name: { th, en }, about: { th: shTh, en: shEn }, stack: stack ?? (kind === "tool" ? 1 : 20), pays });
 const goods = (th: string, en: string, shTh: string, shEn: string, pays: number, tier: 2 | 3 = 2) => item("goods", th, en, shTh, shEn, pays, tier);
 const wild = (th: string, en: string, shTh: string, shEn: string, pays: number, tier: 2 | 3 = 2) => item("wild", th, en, shTh, shEn, pays, tier);
-const tool = (th: string, en: string, shTh: string, shEn: string, pays: number) => item("tool", th, en, shTh, shEn, pays);
+/** The barn's tools are of the first tier: the stall sells them, so that a tool of a later tier needs no craft path (lib/town/crafting). */
+const tool = (th: string, en: string, shTh: string, shEn: string, pays: number) => item("tool", th, en, shTh, shEn, pays, 1);
 const dish = (th: string, en: string, shTh: string, shEn: string, pays: number, tier: 2 | 3 = 2) => item("dish", th, en, shTh, shEn, pays, tier, 5);
 
 /** What each breed gives (its family's thing of its own kind), what is made of it, and the barn's tools. */
@@ -75,7 +76,7 @@ export const ANIMAL_ITEMS = {
   milker: tool("เครื่องรีดนมมือโยก", "Hand-pump milker", "ถังทองเหลืองมีคันโยกไม้สองข้างและสายยางสองเส้น", "A brass pail with two wooden pump handles and two hoses", 90),
   woolShears: tool("กรรไกรตัดขนแกะ", "Shears", "กรรไกรเหล็กใบโค้ง ด้ามไม้พันเชือก", "Curved steel shears with rope-wrapped handles", 30),
   eggBasket: tool("ตะกร้าบุนวมเก็บไข่", "Padded egg basket", "ตะกร้าหวายบุผ้านุ่มสีแดงลายตาราง", "A wicker basket lined with soft red gingham", 12),
-  churn: tool("ถังปั่นเนย", "Butter churn", "ถังไม้ทรงสูงมีด้ามไม้กระทุ้งตรงกลาง", "A tall wooden barrel with a dasher through its lid", 40),
+  churn: tool("ถังปั่นเนย", "Wooden churn", "ถังไม้ทรงสูงมีด้ามไม้กระทุ้งตรงกลาง", "A tall wooden barrel with a dasher through its lid", 40),
   cheesePress: tool("เครื่องอัดชีส", "Cheese press", "กรอบไม้มีเกลียวหมุนกดแผ่นไม้ลงในพิมพ์กลม", "A wooden frame whose screw presses a board into a round mould", 50),
   spindle: tool("ไม้ปั่นด้าย", "Drop spindle", "แท่งไม้เรียวมีจานไม้กลมที่ปลาย", "A slim wooden rod with a round wooden whorl", 30),
   knittingNeedles: tool("ไม้ถักนิตติ้ง", "Knitting needles", "ไม้ถักสองอันปลายมน มีลูกปัดที่หัว", "Two round-tipped needles with beads at their heads", 30),
@@ -97,11 +98,11 @@ export const ANIMAL_ITEMS = {
   moonOats: wild("ข้าวโอ๊ตจันทร์", "Moon oats", "รวงข้าวโอ๊ตสีเงินซีดใต้แสงจันทร์", "Pale silver oat sprays in moonlight", 5),
   nightDuckweed: wild("แหนราตรี", "Night duckweed", "แผ่นแหนเล็กๆ สีเขียวเข้มเกือบดำ", "Tiny dark, almost black-green duckweed", 4),
   // ── dishes ──
-  custard: dish("คัสตาร์ดไข่", "Egg custard", "คัสตาร์ดสีเหลืองนวลในถ้วยกระเบื้อง ผิวเรียบเนียน", "A smooth pale yellow custard in a china cup", 18),
-  pancakes: dish("แพนเค้กเนยสด", "Butter pancakes", "แพนเค้กซ้อนสามชั้นมีเนยละลายด้านบน", "A stack of three pancakes with butter melting on top", 22),
+  custard: dish("คัสตาร์ดไข่", "Egg custard", "คัสตาร์ดสีเหลืองนวลในถ้วยกระเบื้อง ผิวเรียบเนียน", "A smooth pale yellow custard in a china cup", 18, 3),
+  pancakes: dish("แพนเค้กเนยสด", "Butter pancakes", "แพนเค้กซ้อนสามชั้นมีเนยละลายด้านบน", "A stack of three pancakes with butter melting on top", 22, 3),
   cheesecake: dish("ชีสเค้ก", "Cheesecake", "ชีสเค้กเนื้อเนียนสีครีม ขอบสีทอง", "A smooth cream cheesecake with a golden edge", 40, 3),
-  butterCookies: dish("คุกกี้เนยสด", "Butter cookies", "คุกกี้กลมสีทองเรียงในกล่องสังกะสี", "Round golden cookies in a tin", 26),
-  quiche: dish("คีชไข่และชีส", "Egg and cheese quiche", "พายแป้งกรอบไส้ไข่และชีสสีทอง", "A crisp tart filled with golden egg and cheese", 36),
+  butterCookies: dish("คุกกี้เนยสด", "Butter cookies", "คุกกี้กลมสีทองเรียงในกล่องสังกะสี", "Round golden cookies in a tin", 26, 3),
+  quiche: dish("คีชไข่และชีส", "Egg and cheese quiche", "พายแป้งกรอบไส้ไข่และชีสสีทอง", "A crisp tart filled with golden egg and cheese", 36, 3),
   lanternCustard: dish("พุดดิ้งโคมไฟ", "Lantern pudding", "พุดดิ้งสีอำพันที่มีแสงอุ่นๆ เรืองอยู่ตรงกลาง", "An amber pudding with a warm light glowing at its heart", 40, 3),
   cloudSouffle: dish("ซูเฟล่เมฆ", "Cloud souffle", "ซูเฟล่ฟูสูงขาวนวลเหมือนก้อนเมฆ", "A tall white souffle risen like a cloud", 44, 3),
   goldenOmelette: dish("ไข่เจียวทองคำ", "Golden omelette", "ไข่เจียวพับครึ่งสีทองประกายวาว", "A folded omelette of glittering gold", 46, 3),
@@ -109,7 +110,7 @@ export const ANIMAL_ITEMS = {
   rainBroth: dish("ซุปหยดฝน", "Raindrop broth", "ซุปใสมีผักน้ำและไข่ลอยเหมือนหยดฝน", "A clear soup of waterweed with an egg floating like a raindrop", 38, 3),
   moonPudding: dish("พุดดิ้งจันทรา", "Moon pudding", "พุดดิ้งสีขาวมุกทรงจันทร์เสี้ยว", "A pearl-white pudding shaped like a crescent", 40, 3),
   paperFish: dish("ปลาอบห่อกระดาษ", "Fish in paper", "ปลาอบในห่อกระดาษพับรูปเรือ", "Fish baked in a parcel folded like a boat", 38, 3),
-  leviathanSteamedEgg: dish("ไข่ตุ๋นทะเลลึก", "Deep-sea steamed egg", "ไข่ตุ๋นสีน้ำทะเลมีกุ้งอยู่ข้างบน", "A sea-blue steamed egg with a prawn on top", 58, 3),
+  leviathanEggCup: dish("ไข่ตุ๋นทะเลลึก", "Deep-sea steamed egg", "ไข่ตุ๋นสีน้ำทะเลมีกุ้งอยู่ข้างบน", "A sea-blue steamed egg with a prawn on top", 58, 3),
   strawberryShake: dish("นมปั่นสตรอว์เบอร์รี่", "Strawberry shake", "แก้วสูงใส่นมปั่นสีชมพูมีหลอดลาย", "A tall glass of pink shake with a striped straw", 30, 3),
   hotCocoa: dish("โกโก้ร้อน", "Hot cocoa", "แก้วมัคโกโก้ร้อนมีมาร์ชเมลโล่ลอย", "A mug of hot cocoa with marshmallows floating", 30, 3),
   flowerLatte: dish("ลาเต้ดอกไม้", "Flower latte", "ถ้วยลาเต้มีฟองนมเป็นรูปดอกไม้", "A cup of latte with foam in the shape of a flower", 30, 3),
@@ -128,7 +129,7 @@ export const FAMILY: Readonly<Record<string, string>> = {
 export const ANIMAL_GRADED: readonly string[] = [...BREEDS.map((b) => b.produce), "cream", "butter", "farmCheese", "yarn"];
 
 export type AnimalDishId = "custard" | "pancakes" | "cheesecake" | "butterCookies" | "quiche" | "lanternCustard" | "cloudSouffle" | "goldenOmelette"
-  | "emberBakedEggs" | "rainBroth" | "moonPudding" | "paperFish" | "leviathanSteamedEgg" | "strawberryShake" | "hotCocoa" | "flowerLatte" | "starPudding";
+  | "emberBakedEggs" | "rainBroth" | "moonPudding" | "paperFish" | "leviathanEggCup" | "strawberryShake" | "hotCocoa" | "flowerLatte" | "starPudding";
 export const ANIMAL_DISHES: Record<AnimalDishId, Dish> = {
   custard: { stamina: 30, buff: "calm", recipe: { needs: [["egg", 2], ["milk", 1], ["sugar", 1]], in: ["pot"], serves: 3, cooks: 1 } },
   pancakes: { stamina: 32, buff: "green", recipe: { needs: [["flour", 1], ["egg", 1], ["milk", 1], ["butter", 1]], in: ["pan"], serves: 3, cooks: 1 } },
@@ -142,19 +143,19 @@ export const ANIMAL_DISHES: Record<AnimalDishId, Dish> = {
   rainBroth: { stamina: 34, buff: "green", recipe: { needs: [["rainEgg", 1], ["watercress", 2], ["salt", 1]], in: ["pot"], serves: 3, cooks: 1 } },
   moonPudding: { stamina: 38, buff: "calm", recipe: { needs: [["moonEgg", 1], ["cream", 1], ["sugar", 1]], in: ["pot"], serves: 3, cooks: 1 } },
   paperFish: { stamina: 36, buff: "lucky", recipe: { needs: [["paperEgg", 1], ["perch", 1], ["salt", 1]], in: ["oven"], serves: 2, cooks: 1 } },
-  leviathanSteamedEgg: { stamina: 52, buff: "lucky", recipe: { needs: [["leviathanEgg", 1], ["prawn", 2], ["salt", 1]], in: ["steamer"], serves: 4, cooks: 1 } },
+  leviathanEggCup: { stamina: 50, buff: "lucky", recipe: { needs: [["leviathanEgg", 1], ["prawn", 2], ["salt", 1]], in: ["steamer"], serves: 4, cooks: 1 } },
   strawberryShake: { stamina: 26, buff: "green", recipe: { needs: [["strawberryMilk", 2], ["sugar", 1]], in: ["mortar"], serves: 3, cooks: 1 } },
   hotCocoa: { stamina: 26, buff: "calm", recipe: { needs: [["cocoaMilk", 2], ["sugar", 1]], in: ["pot"], serves: 3, cooks: 1 } },
-  flowerLatte: { stamina: 26, buff: "calm", recipe: { needs: [["flowerMilk", 2], ["chamomile", 1]], in: ["pot"], serves: 3, cooks: 1 } },
-  starPudding: { stamina: 54, buff: "hearty", recipe: { needs: [["starMilk", 2], ["cream", 1], ["sugar", 1]], in: ["pot"], serves: 4, cooks: 1 } },
+  flowerLatte: { stamina: 26, buff: "calm", recipe: { needs: [["flowerMilk", 2], ["sugar", 1]], in: ["pot"], serves: 3, cooks: 1 } },
+  starPudding: { stamina: 50, buff: "hearty", recipe: { needs: [["starMilk", 2], ["cream", 1], ["sugar", 1]], in: ["pot"], serves: 4, cooks: 1 } },
 };
-const scrollItem = (th: string, en: string, pays: number): Item =>
-  ({ kind: "scroll", tier: 2, name: { th: `ม้วนสูตร ${th}`, en: `Recipe scroll: ${en}` }, about: { th: "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", en: "A roll of paper tied with red string. Something is written inside." }, stack: 1, pays });
+const scrollItem = (th: string, en: string, pays: number, tier: 2 | 3 = 2): Item =>
+  ({ kind: "scroll", tier, name: { th: `ม้วนสูตร ${th}`, en: `Recipe scroll: ${en}` }, about: { th: "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", en: "A roll of paper tied with red string. Something is written inside." }, stack: 1, pays });
 /** A scroll for every dish (Uncle Popoto's shelf), as every other dish has. */
 export const ANIMAL_SCROLLS = Object.fromEntries((Object.keys(ANIMAL_DISHES) as AnimalDishId[]).map((d) => [`scroll${d[0].toUpperCase()}${d.slice(1)}`, d])) as Record<string, AnimalDishId>;
 export const ANIMAL_SCROLL_ITEMS: Record<string, Item> = Object.fromEntries(Object.entries(ANIMAL_SCROLLS).map(([id, d]) => {
   const it = ANIMAL_ITEMS[d as AnimalItemId];
-  return [id, scrollItem(it.name.th, it.name.en, Math.max(30, it.pays * 2))];
+  return [id, scrollItem(it.name.th, it.name.en, Math.max(30, it.pays * 2), it.tier as 2 | 3)];
 }));
 /** A breed's recipe written out: what its step's offering is (lib/town/animals' scrollOf). */
 export const BREED_SCROLL_ITEMS: Record<string, Item> = Object.fromEntries(SPECIES_IDS.flatMap((sp) => GRAPH.map((g) => {

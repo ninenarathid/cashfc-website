@@ -525,7 +525,7 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
     }
     case "read": {
       // a breed's scroll read: its step's offering known from now on (lib/town/animals' knowsOffering)
-      if (!input.item.startsWith("scrollBreed_") || held(purse.bag, input.item as ItemId) < 1) return no("nothing");
+      if (!input.item.startsWith("scrollBreed") || held(purse.bag, input.item as ItemId) < 1) return no("nothing");
       const recipes = purse.recipes.includes(input.item as ItemId) ? purse.recipes : [...purse.recipes, input.item as ItemId];
       return yes(world, { ...purse, recipes, bag: take(purse.bag, input.item as ItemId, 1) });
     }

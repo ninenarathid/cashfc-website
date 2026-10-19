@@ -515,7 +515,7 @@ export const stepKey = (species: SpeciesId, child: Letter) => `${species}.${chil
 export const knowsOffering = (book: Book, recipes: readonly string[], species: SpeciesId, child: Letter) =>
   (book.misses[stepKey(species, child)] ?? 0) >= ANIMALS.clueAfter || recipes.includes(scrollOf(species, child));
 /** A breed's recipe written out (a scroll item id, drawn as every scroll is): the species and the child's letter. */
-export const scrollOf = (species: SpeciesId, child: Letter) => `scrollBreed_${species}_${child}`;
+export const scrollOf = (species: SpeciesId, child: Letter) => `scrollBreed${species[0].toUpperCase()}${species.slice(1)}${child}`;
 
 /** What two parents and an offering come to: the step (if any), its breed, the odds in hundredths. */
 export function crossOf(a: Breed, b: Breed, offering: string | null, dawn: boolean) {
