@@ -13,7 +13,7 @@ import { ITEMS, type ItemId } from "./items";
 import { buffBy, isSpent, spend } from "./stamina";
 import { BANGKOK, DAY, HOUR, heldStack, no, put, roomFor, type Done, type Purse } from "./trade";
 import { DRY, wetMs, type Rain } from "./weather";
-import { BEDS_IN_FARM, CAMP, COLS, FARM, FARM_FIRST, FARM_PROPS_FIRST, FOREST, FOREST_PROPS, GATES, PROPS_FIRST, ROWS, WATERFALL, WELL, asBuilt, bedCorner, groundAt, placeOf, plotAt, walkable, zoneAt, type Place, type Vec, type Zone } from "./world";
+import { BEDS_IN_FARM, CAMP, COLS, FARM_ALL, FARM_FIRST, FARM_PROPS_FIRST, FOREST, FOREST_PROPS, GATES, PROPS_FIRST, ROWS, WATERFALL, WELL, asBuilt, bedCorner, groundAt, placeOf, plotAt, walkable, zoneAt, type Place, type Vec, type Zone } from "./world";
 import { POLLINATOR_SKY } from "./helper-items";
 
 /**
@@ -704,7 +704,7 @@ export function followerPose(bug: BugId, at: Vec, seed: number, began: number, n
  */
 export const NECTAR = { within: 10, soon: 3, stays: 120, at: ["blooms", "water", "field", "lamp", "litter"] as HauntKind[] };
 /** The maps, each as its name and the box of its tiles: what the database is told, which knows no tile's map (lib/town/world's placeOf is the code's). */
-export const NECTAR_MAPS: Array<[Place, number, number, number, number]> = [["town", 0, 0, COLS, ROWS], ["farm", FARM.x, FARM.y, FARM.w, FARM.h], ["forest", FOREST.x, FOREST.y, FOREST.w, FOREST.h]];
+export const NECTAR_MAPS: Array<[Place, number, number, number, number]> = [["town", 0, 0, COLS, ROWS], ["farm", FARM_ALL.x, FARM_ALL.y, FARM_ALL.w, FARM_ALL.h], ["forest", FOREST.x, FOREST.y, FOREST.w, FOREST.h]];
 /** A drop that is out and what it brings: the tile it lies on, the haunt it called from, the insect and how many a catch gives, from when it is there and until when, and the seed its ways follow from. */
 export type Lured = NonNullable<Purse["lured"]>;
 /** The haunt a drop on a tile calls from: of the map the tile is on, among the kinds a drop calls from, the one a perch of which is nearest (the lower number, of two as near). None off the maps. */

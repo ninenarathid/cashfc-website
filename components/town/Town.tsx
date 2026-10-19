@@ -7,7 +7,7 @@ import type { TownMapAddon } from "@/lib/town/map-addon";
 import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
-  BENCHES, BEYOND_PROPS, BOARD, TRADE_BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SMITH, SPEED, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle,
+  BENCHES, BEYOND_PROPS, BOARD, TRADE_BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_ALL, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SMITH, SPEED, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle,
   atFire, atWell, wellBy, benchAt, bySmith, byStorebox, distance, fishFrom, fromIso, isBuilt, isFar, setBridge, setBuilt, setFar, groundAt, hearing, inDiningYard, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
 import { bridgeSpans, bridgeWhole } from "@/lib/town/bridge";
@@ -2056,7 +2056,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       if (stopped !== stoppedRef.current) { stoppedRef.current = stopped; if (stopped) setStops((n) => n + 1); }
       const byBox = !mine.path.length && (mine.info.sit ?? -1) === -1 && (byStorebox(tx, ty, BOX.reach) || /* mining: the foot yard's chest */ byMoreChest(tx, ty));
       if (byBox !== boxHereRef.current) { boxHereRef.current = byBox; setBoxHere(byBox); }
-      const farming = tx >= FARM.x - 2 && ty >= FARM.y - 2 && tx < FARM.x + FARM.w + 2 && ty < FARM.y + FARM.h + 2;
+      // (the farm with its pasture, at negative y: lib/town/pasture)
+      const farming = tx >= FARM_ALL.x - 2 && ty >= FARM_ALL.y - 2 && tx < FARM_ALL.x + FARM_ALL.w + 2 && ty < FARM_ALL.y + FARM_ALL.h + 2;
       if (farming !== onFarmRef.current) { onFarmRef.current = farming; setOnFarm(farming); }
       const foraging = placeOf(tx, ty) === "forest";
       if (foraging !== onForestRef.current) { onForestRef.current = foraging; setOnForest(foraging); }

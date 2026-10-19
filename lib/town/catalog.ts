@@ -50,7 +50,7 @@ import { GOODS, RULES } from "./trade";
 import { WATERS } from "./waters";
 import { WELL_BOOK } from "./well";
 import { DRINK, FROG, MOON } from "./well-gifts";
-import { BEDS_IN_FARM, COLS, FARM, FOREST, MOUNTAIN, KITCHEN, ROWS, STOREBOX, WELL, WELLS, asBuilt, bedCorner, bedOf, fishFrom } from "./world";
+import { BEDS_IN_FARM, COLS, FARM_ALL, FOREST, MOUNTAIN, KITCHEN, ROWS, STOREBOX, WELL, WELLS, asBuilt, bedCorner, bedOf, fishFrom } from "./world";
 import { YARD } from "./yard";
 import { COMPANIONS, PARTNERS, QUALITY } from "./quality";
 import { HAND } from "./quality-plant";
@@ -250,7 +250,8 @@ export function catalogOf() {
       recipes: RECIPE_IDS, needs: Object.fromEntries(RECIPE_IDS.map((id) => [id, Object.fromEntries(tidy(needsOf(id)))])), cookware: COOKWARE_IDS, gear: KITCHEN_GEAR, never: NOT_PUT_IN, putIn: PUT_IN, bowl: BOWL, bowled: DISH_IDS.filter(inBowl),
       // (`scrolls` is what may be inside, whatever it is: a fish's belly may hold a seed)
       inside: Object.fromEntries((Object.keys(INSIDE) as ItemId[]).map((id) => [id, { chance: INSIDE[id]!.chance, scrolls: insideOf(id) }])),
-      map: { town: [COLS, ROWS], farm: [FARM.x, FARM.y, FARM.w, FARM.h] },
+      // (the farm with its pasture since v291: lib/town/pasture)
+      map: { town: [COLS, ROWS], farm: [FARM_ALL.x, FARM_ALL.y, FARM_ALL.w, FARM_ALL.h] },
       misses: 30,
       // (the feast table, lib/town/cooking: how many pots of one member's it takes, the minutes a pot stands on the
       // ground before it is on it, the tile a pot on it is said to stand on, and the yard's floor, from which it is reached)

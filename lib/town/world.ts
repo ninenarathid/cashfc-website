@@ -19,6 +19,8 @@ import {boatFishing} from './lotus-boats';
 import { CAVE_SIZE, caveFloor, depthOf, hollowAt, type CaveFloor } from "./cave";
 import type { Current, FishingHabitat } from "./river-items";
 import { mountainWater } from "./mountain-water";
+// ── the pasture (lib/town/pasture: the farm's rows at negative y, laid out there; docs/plans/animals) ──
+import { PASTURE, inPasture, pastureGround, pastureThing } from "./pasture";
 import { mountainRiverBed, mountainRiverGround } from "./river-landscape";
 import { ANCIENT as CEDAR, GATE_ROWS, LOOKOUT as LOOKOUT_AT, MOUNTAIN_H, MOUNTAIN_W, MOUTH as MINE_MOUTH, MOUTH_AT, cliffAt, closedOf, layMountain, mountainGround } from "./mountain";
 
@@ -885,6 +887,13 @@ export const FARM = { x: 128, y: 0, w: 60, h: 86 };
  */
 export const FARM_FIRST = { x: 128, y: 0, w: 60, h: 44 };
 /**
+ * The farm with its pasture (the owner, 2026-10-19: "ขยายฟาร์มออกไปทางนั้นจริงๆ"): 32 rows more north-east of the old
+ * rim, at negative y (lib/town/pasture lays them out). The garden's origin stays FARM's (128, 0), so no bed, plot,
+ * well, lamp, prop or haunt moves; this is the farm's extent as a map: which map a point is on, the camera's and the
+ * ground's bounds. (Built as it was, `asBuilt`, the farm has no pasture.)
+ */
+export const FARM_ALL = { x: PASTURE.rect[0], y: PASTURE.rect[1], w: PASTURE.rect[2], h: PASTURE.rect[3] };
+/**
  * The forest (the owner, 2026-10-05: "หาของป่า จะมี map ใหม่ เป็นป่าใหญ่ๆ สามารถเดินเข้าไป
  * เก็บของป่า"): a third map, out of the town's north path, where its road works
  * were. Like the farm it lies far off in the same tile space (below the farm
@@ -901,7 +910,7 @@ export function placeOf(x: number, y: number): Place | null {
   if (x >= 0 && y >= 0 && x < COLS && y < (asWas ? ROWS_FIRST : ROWS)) return "town";
   // ── to come ── (both lie below every other map in the tile space)
   if (PREVIEW && y >= MOUNTAIN.y) return within(x, y, MOUNTAIN) ? "mountain" : floorOf(x, y) ? "cave" : null;
-  return within(x, y, asWas ? FARM_FIRST : FARM) ? "farm" : within(x, y, FOREST) ? "forest" : null;
+  return within(x, y, asWas ? FARM_FIRST : FARM_ALL) ? "farm" : within(x, y, FOREST) ? "forest" : null;
 }
 /** How many quarters of beds the farm has down it (two of them the first half's), and how far apart they lie, in tiles: a quarter's two beds (15), and the grass and the lane between (6). */
 const QUARTERS = 4, QUARTER = 21;
@@ -1643,6 +1652,8 @@ export function gateAt(x: number, y: number): Vec | null {
 export function thingAt(tx: number, ty: number): Building | "fountain" | "shop" | "board" | "pier" | "kitchen" | "keeper" | "roadworks" | "water" | "prop" | null {
   // ── to come ── (the mountain's foot and the cave: a cliff, the rim, rock, and what stands there)
   if (PREVIEW && ty >= MOUNTAIN.y) return moreShut(tx, ty) ? "prop" : null;
+  // ── the pasture ── (its buildings, troughs, stall, fences and woods, and the pond)
+  if (!asWas && inPasture(tx, ty)) return pastureThing(tx, ty);
   if (within(tx, ty, farmNow())) return (asWas ? farmSolidFirst : farmSolid).has(`${tx},${ty}`) ? "prop" : null;
   if (within(tx, ty, FOREST)) return forestSolid.has(`${tx},${ty}`) ? "prop" : isForestWater(tx, ty) ? "water" : null;
   for (const b of BUILDINGS) if (within(tx, ty, b)) return b;
@@ -1852,6 +1863,7 @@ export function groundAt(tx: number, ty: number): Ground {
   // grass and a wood's floor are themselves, and bare rock, snow, a cliff and all of a cave are sand. What they are
   // drawn as is groundLook's to say)
   if (PREVIEW && ty >= MOUNTAIN.y) { const g = moreLook(tx + 0.5, ty + 0.5); return g === "road" || g === "stair" ? "road" : g === "grass" || g === "wood" ? g : "sand"; }
+  if (!asWas && inPasture(tx, ty)) return pastureGround(tx + 0.5, ty + 0.5);
   if (within(tx, ty, farmNow())) return farmGround(tx - FARM.x + 0.5, ty - FARM.y + 0.5);
   if (within(tx, ty, FOREST)) return forestGround(tx - FOREST.x + 0.5, ty - FOREST.y + 0.5);
   if (isWater(tx, ty)) return "water";
@@ -1869,6 +1881,7 @@ export function groundAt(tx: number, ty: number): Ground {
 export function groundLook(x: number, y: number): Ground | MoreGround {
   // ── to come ── (the mountain, the cave's floors, what is seen beyond them, and the earth at the bridge's two ends)
   if (PREVIEW) { const more = moreLook(x, y); if (more) return more; }
+  if (!asWas && inPasture(x, y)) return pastureGround(x, y);
   if (within(x, y, farmNow())) return farmGround(x - FARM.x, y - FARM.y);
   if (within(x, y, FOREST)) return forestGround(x - FOREST.x, y - FOREST.y);
   if (within(x, y, BEYOND.north) || within(x, y, BEYOND.south)) return beyondGround(x, y);
@@ -1914,9 +1927,11 @@ export function findPath(from: Vec, to: Vec): Vec[] | null {
   // No walking from one map to the other: only a gate goes there.
   if (placeOf(sx, sy) !== placeOf(gx, gy)) return null;
 
-  // A tile's number: wider than the farthest tile east (the forest's), so no two tiles share one.
-  const SPAN = 256;
-  const key = (x: number, y: number) => y * SPAN + x;
+  // A tile's number: wider than the farthest tile east (the forest's), so no two tiles share one; counted from a corner
+  // far enough west and north that every tile's x and y are positive (the pasture lies at negative y: a number made
+  // straight of a negative y read its x back wrong, `k % SPAN` being negative).
+  const SPAN = 4096, OFF = 2048;
+  const key = (x: number, y: number) => (y + OFF) * SPAN + (x + OFF);
   const h = (x: number, y: number) => {
     const dx = Math.abs(x - gx), dy = Math.abs(y - gy);
     return Math.max(dx, dy) + (Math.SQRT2 - 1) * Math.min(dx, dy);
@@ -1937,7 +1952,7 @@ export function findPath(from: Vec, to: Vec): Vec[] | null {
       const path: Vec[] = [];
       let k: number | undefined = ck;
       while (k !== undefined && k !== key(sx, sy)) {
-        path.push({ x: (k % SPAN) + 0.5, y: Math.floor(k / SPAN) + 0.5 });
+        path.push({ x: (k % SPAN) - OFF + 0.5, y: Math.floor(k / SPAN) - OFF + 0.5 });
         k = came.get(k);
       }
       return path.reverse();

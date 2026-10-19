@@ -1,7 +1,7 @@
 import { push } from "./deal";
 import type { ItemId } from "./items";
 import { no, type Done, type Purse, type Stack } from "./trade";
-import { COLS, FARM, FOREST, ROWS, placeOf } from "./world";
+import { COLS, FARM_ALL, FOREST, ROWS, placeOf } from "./world";
 
 /**
  * Things dropped on the ground (the owner, 2026-10-05: "สามารถทิ้งของที่ไม่ใช้จาก
@@ -29,7 +29,7 @@ export const GROUND = {
   reach: 1,
 };
 /** The maps a thing may be dropped on, each as the box of its tiles: the town, the farm and the forest (what the database is told: it knows no tile's ground). */
-export const GROUND_MAPS: Array<[x: number, y: number, w: number, h: number]> = [[0, 0, COLS, ROWS], [FARM.x, FARM.y, FARM.w, FARM.h], [FOREST.x, FOREST.y, FOREST.w, FOREST.h]];
+export const GROUND_MAPS: Array<[x: number, y: number, w: number, h: number]> = [[0, 0, COLS, ROWS], [FARM_ALL.x, FARM_ALL.y, FARM_ALL.w, FARM_ALL.h], [FOREST.x, FOREST.y, FOREST.w, FOREST.h]];
 
 /** A thing lying on the ground: who dropped it, the stack as it left their bag, the tile it lies on, and the moment it is gone. */
 export interface Dropped { id: number; by: string; stack: Stack; at: [number, number]; until: number }
