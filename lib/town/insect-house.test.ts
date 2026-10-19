@@ -138,6 +138,11 @@ describe("the insect house keeps pests off (the owner, 2026-10-19)", () => {
     expect([keepOf("ladybird"), keepOf("robberFly"), keepOf("antlion"), keepOf("roveBeetle")]).toEqual([0.5, 0.5, 0.5, 0.5]);
     expect([keepOf("mantis"), keepOf("lacewing"), keepOf("goldenAnt"), keepOf("orchidMantis")]).toEqual([0.7, 0.7, 0.7, 0.7]);
     const s = T1;
+    // its keep is written into its room as it goes in, and the room's own keep is what its cover says (a change of the numbers later changes no hour gone by)
+    const mantis = houseDo("133,5", { "133,5": housed([null, null]) }, holding("mantis"), "me", "me", s), bee = houseDo("133,5", { "133,5": housed([null, null]) }, holding("honeyBee"), "me", "me", s);
+    expect(mantis.ok && mantis.plot.house!.rooms[0]!.k).toBe(0.7);
+    expect(bee.ok && "k" in bee.plot.house!.rooms[0]!).toBe(false);
+    expect(houseCovers(["134,5"], { "133,5": housed([{ bug: "mantis", from: s, until: s + 48 * H, k: 0.9 }, null]) })[0].k).toBe(0.9);
     expect(bedGift("134,5", { "133,5": housed([{ bug: "ladybird", from: s, until: s + 48 * H }, { bug: "honeyBee", from: s, until: s + 48 * H }]), "134,5": grow("tomato") })!.h)
       .toEqual([{ r: "guard", from: s, to: s + 48 * H, s: 1, k: 0.5 }, { r: "pollen", from: s, to: s + 48 * H, s: 1 }]);
     // the best room counts, never the two added; a pollinator keeps nothing off

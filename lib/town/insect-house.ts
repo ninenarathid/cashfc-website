@@ -43,8 +43,8 @@ export const HOUSE = {
   keeps: { ladybird: 0.5, mantis: 0.7, robberFly: 0.5, antlion: 0.5, roveBeetle: 0.5 } as Partial<Record<ItemId, number>>,
 } as const;
 
-/** An insect in a room: which, since when, and until when it stays. */
-export interface HouseRoom { bug: ItemId; from: number; until: number }
+/** An insect in a room: which, since when, and until when it stays; a hunter, how often it keeps a pest off, as it was when it went in (`keepOf`: so that a change of the numbers later changes no hour gone by). */
+export interface HouseRoom { bug: ItemId; from: number; until: number; k?: number }
 /** A house on a plot: whose, since when, and its two rooms (null when empty). */
 export interface InsectHouse { by: string; at: number; rooms: Array<HouseRoom | null> }
 /** What one room gives a plant of the bed: its role's half from `from` to `to`, by the share `s` of the plant's plots in reach; `x` when it is rare; `k`, a hunter's, how often it keeps a pest off (`keepOf`). */
@@ -114,7 +114,7 @@ export function houseCovers(cells: readonly string[], plots: Readonly<Record<str
     if (!(s > 0)) continue;
     for (const room of house.rooms) {
       const r = room ? houseRoleOf(room.bug) : null;
-      if (room && r) out.push({ r, from: room.from, to: room.until, s, ...(isRareInHouse(room.bug) ? { x: 1 as const } : {}), ...(r === "guard" ? { k: keepOf(room.bug) } : {}) });
+      if (room && r) out.push({ r, from: room.from, to: room.until, s, ...(isRareInHouse(room.bug) ? { x: 1 as const } : {}), ...(r === "guard" ? { k: room.k ?? keepOf(room.bug) } : {}) });
     }
   }
   return out;
@@ -160,6 +160,6 @@ export function houseDo(key: string, plots: Readonly<Record<string, Plot>>, purs
     return { ok: true, deed, purse: { ...spend(purse, HOUSE.costs.lift, now), bag: put(purse.bag, "insectHouse", 1) }, plot: { soil: "tilled", plant: null } };
   }
   const bug = hand!, i = freeRoom(house!, now), stay = (isRareInHouse(bug) ? HOUSE.rareHours : HOUSE.hours) + (favouriteNear(key, bug, plots) ? HOUSE.favHours : 0);
-  const rooms = house!.rooms.map((r, j) => (j === i ? { bug, from: now, until: now + stay * 3_600_000 } : r));
+  const rooms = house!.rooms.map((r, j) => (j === i ? { bug, from: now, until: now + stay * 3_600_000, ...(houseRoleOf(bug) === "guard" ? { k: keepOf(bug) } : {}) } : r));
   return { ok: true, deed, purse: { ...spend(purse, HOUSE.costs.room, now), bag: take(purse.bag, bug, 1) }, plot: { ...plot!, house: { ...house!, rooms } } };
 }

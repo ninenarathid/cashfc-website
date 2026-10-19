@@ -22,6 +22,8 @@ await import("./repo-ts-town.mjs");
 const farm = await import("@/lib/town/farm");
 const { syncQuality } = await import("@/lib/town/quality-plant");
 const { catalogOf } = await import("@/lib/town/catalog");
+const { houseDo, keepOf } = await import("@/lib/town/insect-house");
+const trade = await import("@/lib/town/trade");
 
 const H = 3_600_000, FROM = farm.FARMING.pests.house.from;
 let checks = 0, s = 286;
@@ -47,8 +49,30 @@ try {
   const LIVE = { ...code.farming, pests: livePests, bedsAt: [...code.farming.bedsAt, [999, 999]] }, LIVE_Q = { ...code.quality, house: liveHouse };
   await db.query("update public.town_catalog set data = $1::jsonb where key = 'farming'", [JSON.stringify(LIVE)]);
   await db.query("update public.town_catalog set data = $1::jsonb where key = 'quality'", [JSON.stringify(LIVE_Q)]);
+  // (a bed as members left it before v286: a house with a mantis and a ladybird in it, plants about it given their gifts
+  // by the trigger as it was, with no keep)
+  const OLD_BED = 1, [obx, oby] = code.farming.bedsAt[OLD_BED], OLD_MID = `${obx + 2},${oby + 2}`, OT = FROM + 5 * H;
+  const OLD_ROOMS = [{ bug: "mantis", from: OT - 10 * H, until: OT + 38 * H }, { bug: "ladybird", from: OT - 4 * H, until: OT + 44 * H }];
+  await db.query("insert into public.town_plots(x,y,bed,soil,plant,house,changed) values($1,$2,$3,'house',null,$4::jsonb,$5)", [obx + 2, oby + 2, OLD_BED, JSON.stringify({ by: "m1", at: OT - 20 * H, rooms: OLD_ROOMS }), OT - 4 * H]);
+  for (const [dx, dy] of [[1, 1], [2, 3], [3, 2], [4, 4], [0, 2], [6, 6]]) {
+    await db.query("insert into public.town_plots(x,y,bed,soil,plant,house,changed) values($1,$2,$3,'tilled',$4::jsonb,null,$5)", [obx + dx, oby + dy, OLD_BED,
+      JSON.stringify({ by: "m1", crop: "tomato", sown: OT - 3 * H, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0 }), OT - 3 * H]);
+  }
+  const oldGuards = async () => (await db.query("select x||','||y k, plant->'q'->'bed'->'h' h from public.town_plots where bed=$1 and plant is not null", [OLD_BED])).rows;
+  ok((await oldGuards()).some((r) => r.h?.some((e) => e.r === "guard" && !("k" in e))), "the old bed has covers with no keep before the file");
   const sql = readFileSync(FILE, "utf8").replace(/\r\n/g, "\n");
   await db.exec(sql.replace(/\n/g, "\r\n"));
+  // (each cover of the old bed given its room's keep, in place; the rooms theirs; nothing kept as gone)
+  const keepOfBug = { mantis: 0.7, ladybird: 0.5 };
+  let stamped = 0;
+  for (const r of await oldGuards()) for (const e of r.h ?? []) if (e.r === "guard") {
+    const room = OLD_ROOMS.find((m) => m.from === e.from && m.until === e.to);
+    eq(e.k, keepOfBug[room?.bug], `${r.k}'s cover from the ${room?.bug} has its keep`); stamped++;
+  }
+  ok(stamped >= 6, `covers given their keep in place (${stamped})`);
+  eq((await one("select house->'rooms' r from public.town_plots where x=$1 and y=$2", [obx + 2, oby + 2])).r, OLD_ROOMS.map((m) => ({ ...m, k: keepOfBug[m.bug] })), "the old rooms have their keep");
+  eq(Number((await one("select count(*) n from public.town_plots where bed=$1 and plant ? 'hg'", [OLD_BED])).n), 0, "nothing kept as gone: the gifts worked out again are the same");
+  await db.exec(`delete from public.town_plots where bed=${OLD_BED}`);
   const fnAfter = await md5s(), rowAfter = await v("select data v from public.town_catalog where key = 'farming'");
   await db.exec(sql);
   eq(await md5s(), fnAfter, "a second run leaves the functions as the first made them");
@@ -59,9 +83,23 @@ try {
   eq(await v("select data v from public.town_catalog where key = 'quality'"), code.quality, "the quality row is the code's, house.keep and house.keeps added");
   ok(new Date(FROM).toISOString() === "2026-10-20T01:00:00.000Z" && code.farming.pests.house.old === 0.5, "houses keep pests off from 2026-10-20 08:00 Bangkok; an old room as the weakest");
 
-  /* ── town.pest_at: pestAt ── */
   const MAINS = ["tomato", "chili", "corn", "basil", "cabbage", "carrot", "pumpkin", "cucumber", "longBean", "eggplant", "kangkong", "scallion"];
   const GUARD = ["ladybird", "mantis", "lacewing", "goldenAnt", "robberFly", "antlion"], OTHER = ["honeyBee", "hoverfly", "monarch"];
+
+  /* ── town.house_do: houseDo, a hunter's keep written into its room ── */
+  {
+    const [hx, hy] = code.farming.bedsAt[0], key = `${hx + 2},${hy + 2}`;
+    for (const bug of [...GUARD, "orchidMantis", "roveBeetle", ...OTHER]) {
+      const now = FROM + int(40) * H, plots = { [key]: { soil: "house", plant: null, house: { by: "me", at: now - H, rooms: [null, pick([null, { bug: "honeyBee", from: now - 60 * H, until: now - H }])] } } };
+      const purse = { ...trade.newPurse(), bag: trade.put(trade.newPurse().bag, bug, 1), hand: bug };
+      const sqlDid = await v("select town.house_do($1,$2::jsonb,$3::jsonb,'me','me',$4) v", [key, JSON.stringify(plots), JSON.stringify(purse), now]), tsDid = houseDo(key, plots, purse, "me", "me", now);
+      ok(sqlDid.ok && tsDid.ok, `a ${bug} goes in`);
+      eq(sqlDid.plot, tsDid.plot, `the room a ${bug} goes into`);
+      eq(tsDid.plot.house.rooms[0].k ?? null, GUARD.includes(bug) || bug === "orchidMantis" || bug === "roveBeetle" ? keepOf(bug) : null, `a ${bug}'s keep in its room`);
+    }
+  }
+
+  /* ── town.pest_at: pestAt ── */
   const stretch = (t) => { const a = t + (int(80) - 30) * H + int(H); return [a, a + (1 + int(60)) * H + int(H)]; };
   const plantAt = (t) => {
     const sown = t + (int(90) - 40) * H + int(H), p = { by: "m1", crop: pick(MAINS), sown, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0 };
@@ -112,24 +150,11 @@ try {
         plots = syncQuality(plots, next, t0, []);
       }
     }
-    // (a hunter in it already in half the beds: the room as a member filled it before v286, its plants' gifts stripped of the keep below)
-    const setHouse = { soil: "house", plant: null, house: { by: "m1", at: T - 40 * H, rooms: [round % 2 ? { bug: pick(GUARD), from: T - 40 * H, until: T + (4 + int(30)) * H } : null, null] } };
+    // (a hunter in it already in half the beds, its room with its keep or, as the file left an old one, with it stamped)
+    const first = pick(GUARD), setHouse = { soil: "house", plant: null, house: { by: "m1", at: T - 40 * H, rooms: [round % 2 ? { bug: first, from: T - 40 * H, until: T + (4 + int(30)) * H, k: keepOf(first) } : null, null] } };
     await write(mid, setHouse, T - 40 * H);
     plots = syncQuality(plots, { ...plots, [mid]: setHouse }, T - 40 * H, []);
     eq(shape(await readBed(bed)), shape(plots), `bed ${bed} laid`);
-    // (half the beds as a gift written before v286 left them: no keep on a hunter's room)
-    if (round % 2) {
-      await db.exec("alter table public.town_plots disable trigger user");
-      for (const [key, plot] of Object.entries(plots)) {
-        if (!plot.plant?.q?.bed?.h) continue;
-        const bare = { ...plot.plant, q: { ...plot.plant.q, bed: { ...plot.plant.q.bed, h: plot.plant.q.bed.h.map(({ k: _k, ...e }) => e) } } };
-        plots = { ...plots, [key]: { ...plot, plant: bare } };
-        const [x, y] = key.split(",").map(Number);
-        await db.query("update public.town_plots set plant=$3::jsonb where x=$1 and y=$2", [x, y, JSON.stringify(bare)]);
-      }
-      await db.exec("alter table public.town_plots enable trigger user");
-      eq(shape(await readBed(bed)), shape(plots), `bed ${bed} as before v286`);
-    }
     // the deeds, never on the stroke of an hour
     let t = T;
     for (let i = 0; i < 14; i++) {
@@ -148,7 +173,9 @@ try {
         const free = house.rooms.findIndex((r) => !r || r.until <= t), at = what === "refill" ? int(2) : free;
         if (at >= 0) {
           if (house.rooms[at]) refills++;
-          const rooms = house.rooms.map((r, j) => (j === at ? { bug: rand() < 0.75 ? pick(GUARD) : pick(OTHER), from: t, until: t + pick([48, 72, 72 + 24]) * H } : r));
+          // (a hunter's room with its keep as town.house_do writes it, or now and then without, as the cover's fallback has it)
+          const bug = rand() < 0.75 ? pick(GUARD) : pick(OTHER);
+          const rooms = house.rooms.map((r, j) => (j === at ? { bug, from: t, until: t + pick([48, 72, 72 + 24]) * H, ...(GUARD.includes(bug) && rand() < 0.8 ? { k: keepOf(bug) } : {}) } : r));
           steps.push([mid, { ...plots[mid], house: { ...house, rooms } }]);
         }
       }

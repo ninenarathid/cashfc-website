@@ -6,7 +6,7 @@ import { rewardDB } from "./reward-db.mjs";
 import { CHAIN as BEFORE_V277 } from "./build-v277.mjs";
 export const FILE = "supabase/v286_the_insect_house_keeps_pests_off.sql";
 export const CHAIN = [...BEFORE_V277, "v277_forty_six_things_to_wear", "v283_the_farm_picks_for_one_and_tells_its_prices", "v285_crops_keep_a_deeper_market"];
-export const SIGS = ["town.pest_at(text,jsonb,bigint)", "town.quality_keep()", "town.quality_bed_gift(text,jsonb)"];
+export const SIGS = ["town.pest_at(text,jsonb,bigint)", "town.quality_keep()", "town.quality_bed_gift(text,jsonb)", "town.house_do(text,jsonb,jsonb,text,text,bigint)"];
 const md5s = async (db) => Object.fromEntries(await Promise.all(SIGS.map(async (sig) => [sig, (await db.query(`select md5(replace(pg_get_functiondef('${sig}'::regprocedure),chr(13),'')) m`)).rows[0].m])));
 /** The file without its guards (as written before they are filled). */
 export const bare = (text) => { const open = text.indexOf("-- <guards:v286>"), close = text.indexOf("-- </guards:v286>"); return text.slice(0, open) + "-- <guards:v286>\n" + text.slice(close); };

@@ -63,7 +63,7 @@ export function HousePanel({ at, house, plots, now, th, mine, onClose }: { at: s
               </b>
               {live && room && role ? <>
                 {/* (a hunter keeps pests off the plants it reaches so often as well, lib/town/farm's houseKeepAt: the owner, 2026-10-19) */}
-                <span className="text-label text-[#ead9b4]">{role === "guard" ? `${th ? "กันศัตรูพืช" : "Keeps pests off"} ${Math.round(keepOf(room.bug) * 100)}% · ` : ""}{ROLE_WORD[role][th ? 0 : 1]}{isRareInHouse(room.bug) ? (th ? " · หายาก ยกต่ำสุด" : " · rare: raises the floor") : ""} · {th ? `เหลือ ${hoursLeft(room.until, now)} ชม.` : `${hoursLeft(room.until, now)} h left`}</span>
+                <span className="text-label text-[#ead9b4]">{role === "guard" ? `${th ? "กันศัตรูพืช" : "Keeps pests off"} ${Math.round((room.k ?? keepOf(room.bug)) * 100)}% · ` : ""}{ROLE_WORD[role][th ? 0 : 1]}{isRareInHouse(room.bug) ? (th ? " · หายาก ยกต่ำสุด" : " · rare: raises the floor") : ""} · {th ? `เหลือ ${hoursLeft(room.until, now)} ชม.` : `${hoursLeft(room.until, now)} h left`}</span>
                 {favName && <span className="text-label text-[#ead9b4]">{kept ? (th ? `${favName}อยู่ใกล้ ✓ +${HOUSE.favHours} ชม.` : `${favName} near ✓ +${HOUSE.favHours} h`) : th ? `ชอบ${favName} · ตอนใส่ยังไม่มี` : `Likes ${favName} · none when it went in`}</span>}
               </> : <span className="text-label text-[#ead9b4]">{room ? (th ? `ว่าง · ${name(room.bug)}ออกไปแล้ว` : `Empty · the ${name(room.bug).toLowerCase()} has gone`) : th ? "ว่าง" : "Empty"}</span>}
             </div>

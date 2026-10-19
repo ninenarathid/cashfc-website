@@ -15,8 +15,14 @@
 --     insect's to rid). A plant the enchanted hoe set down in reach is kept from the move on (`hs`). Only from the
 --     catalog's farming.pests.house.from (2026-10-20 08:00 Bangkok), so that no strike before then is undone; a room
 --     written down before it said its keep keeps as the weakest hunter does (farming.pests.house.old).
---   * town.quality_bed_gift: a guard room's cover says how often its hunter keeps a pest off (`k`: quality.house.keeps,
---     else quality.house.keep).
+--   * town.house_do: a hunter put in a room is written down with how often it keeps a pest off (`k`: quality.house.keeps,
+--     else quality.house.keep), as it is then: a change of the numbers later changes no hour gone by.
+--   * town.quality_bed_gift: a guard room's cover says how often its hunter keeps a pest off (the room's `k`, else as
+--     town.house_do would write it).
+--   * Every room of a house and every cover of a plant written down before this file is given its keep in place (the
+--     covers matched to their room by its coming and leaving), so that no gift is ever worked out anew with another keep
+--     for a time gone by (Codex's check, 2026-10-19: a mantis's cover read at the weakest keep and then at its own would
+--     have taken away a pest that had struck).
 --   * town.quality_keep (the trigger on town_plots): whenever a plant's gift from its bed changes, the guard rooms it
 --     loses (a room filled again, the house lifted, the plant moved out of reach) are kept on the plant up to that
 --     moment with their keep (town.house_kept), so that what was kept off stays kept off; a plant moved here with a
@@ -33,7 +39,8 @@ do $$ begin
 -- <guards:v286>
  if md5(replace(pg_get_functiondef('town.pest_at(text,jsonb,bigint)'::regprocedure),chr(13),'')) not in ('853fa7e45dc5329be946cd83889ef384','e352279eaf6144b3fa23a3977c148e85') then raise exception 'Definition changed: town.pest_at(text,jsonb,bigint); rebuild v286'; end if;
  if md5(replace(pg_get_functiondef('town.quality_keep()'::regprocedure),chr(13),'')) not in ('2c65aa2aa07898897384067f95c95925','a768c6bd65b9a1c3f429939c992d354e') then raise exception 'Definition changed: town.quality_keep(); rebuild v286'; end if;
- if md5(replace(pg_get_functiondef('town.quality_bed_gift(text,jsonb)'::regprocedure),chr(13),'')) not in ('e9157dced6fd8c993146f4a1955521f1','05caea9f257f7cc14d02bffdf41f98f9') then raise exception 'Definition changed: town.quality_bed_gift(text,jsonb); rebuild v286'; end if;
+ if md5(replace(pg_get_functiondef('town.quality_bed_gift(text,jsonb)'::regprocedure),chr(13),'')) not in ('e9157dced6fd8c993146f4a1955521f1','a793d7c873a5ab65c3fdda65f0d315e9') then raise exception 'Definition changed: town.quality_bed_gift(text,jsonb); rebuild v286'; end if;
+ if md5(replace(pg_get_functiondef('town.house_do(text,jsonb,jsonb,text,text,bigint)'::regprocedure),chr(13),'')) not in ('eadfdcbb9a3c84220d370b31c23d7fd9','06c42ab5fbc175519998346e1155f953') then raise exception 'Definition changed: town.house_do(text,jsonb,jsonb,text,text,bigint); rebuild v286'; end if;
 -- </guards:v286>
 end $$;
 
@@ -79,6 +86,43 @@ AS $function$
  select case when count(*) = 0 then null else jsonb_agg(jsonb_build_array(a, b, k) order by a, b, k) end from kept
 $function$;
 revoke all on function town.house_kept(jsonb, jsonb, jsonb, bigint, boolean) from public, anon, authenticated;
+
+-- What the house's deeds do (lib/town/insect-house's houseDo): as v265 had it, a hunter's keep written into its room.
+create or replace function town.house_do(p_key text, p_plots jsonb, p_purse jsonb, p_me text, p_owner text, p_now bigint)
+returns jsonb language plpgsql stable set search_path='' as $$
+declare
+ h jsonb:=town.cat('quality')->'house'; hand_ text:=town.hand_of(p_purse); deed_ text; plot jsonb:=p_plots->p_key; house jsonb:=p_plots->p_key->'house';
+ slot_ integer; stay double precision; rooms jsonb;
+begin
+ deed_:=town.house_deed_for(p_key,p_plots,hand_,p_me,p_owner,p_now);
+ if deed_ is null then
+  return town.no(case when jsonb_typeof(house)='object' and house->>'by' is distinct from p_me then 'theirs'
+   when jsonb_typeof(house)='object' then case when town.house_role(hand_) is not null then 'rooms' else 'hand' end
+   when hand_='insectHouse' then case when p_owner is distinct from p_me then 'theirs' else 'soil' end else 'hand' end);
+ end if;
+ if deed_='house' then
+  return jsonb_build_object('ok',true,'deed',deed_,
+   'purse',town.spend(p_purse,(h->'costs'->>'set')::double precision,p_now) || jsonb_build_object('bag',town.take(p_purse->'bag','insectHouse',1)),
+   'plot',jsonb_build_object('soil','house','plant',null,'house',jsonb_build_object('by',p_me,'at',p_now,'rooms',(select jsonb_agg('null'::jsonb) from generate_series(1,(h->>'rooms')::integer)))));
+ end if;
+ if deed_='lift' then
+  if town.room(p_purse->'bag','insectHouse')<1 then return town.no('full'); end if;
+  return jsonb_build_object('ok',true,'deed',deed_,
+   'purse',town.spend(p_purse,(h->'costs'->>'lift')::double precision,p_now) || jsonb_build_object('bag',town.put(p_purse->'bag','insectHouse',1)),
+   'plot',jsonb_build_object('soil','tilled','plant',null));
+ end if;
+ slot_:=town.house_free(house,p_now);
+ stay:=case when town.house_rare(hand_) then (h->>'rareHours')::double precision else (h->>'hours')::double precision end
+  + case when town.house_fav_near(p_key,hand_,p_plots) then (h->>'favHours')::double precision else 0 end;
+ select jsonb_agg(case when r.n-1=slot_ then jsonb_build_object('bug',hand_,'from',p_now,'until',p_now+(stay*3600000)::bigint)
+    -- v286: a hunter's keep as it is now (lib/town/insect-house's keepOf), kept with it
+    || case when town.house_role(hand_)='guard' then jsonb_build_object('k',coalesce((h->'keeps'->>hand_)::double precision,(h->>'keep')::double precision)) else '{}'::jsonb end
+   else r.v end order by r.n)
+   into rooms from jsonb_array_elements(house->'rooms') with ordinality r(v,n);
+ return jsonb_build_object('ok',true,'deed',deed_,
+  'purse',town.spend(p_purse,(h->'costs'->>'room')::double precision,p_now) || jsonb_build_object('bag',town.take(p_purse->'bag',hand_,1)),
+  'plot',plot || jsonb_build_object('house',house || jsonb_build_object('rooms',rooms)));
+end $$;
 
 CREATE OR REPLACE FUNCTION town.pest_at(p_key text, p_plant jsonb, p_now bigint)
  RETURNS bigint
@@ -221,7 +265,7 @@ begin
    h:=h || jsonb_build_array(jsonb_build_object('r',role_,'from',(room->>'from')::bigint,'to',(room->>'until')::bigint,'s',n::double precision/total)
     || case when town.house_rare(room->>'bug') then '{"x":1}'::jsonb else '{}'::jsonb end
     -- v286: how often a hunter keeps a pest off (lib/town/insect-house's keepOf)
-    || case when role_='guard' then jsonb_build_object('k',coalesce((qc->'house'->'keeps'->>(room->>'bug'))::double precision,(qc->'house'->>'keep')::double precision)) else '{}'::jsonb end);
+    || case when role_='guard' then jsonb_build_object('k',coalesce((room->>'k')::double precision,(qc->'house'->'keeps'->>(room->>'bug'))::double precision,(qc->'house'->>'keep')::double precision)) else '{}'::jsonb end);
   end loop;
  end loop;
  if c<>'{}'::jsonb then gift:=gift || jsonb_build_object('c',c); end if;
@@ -300,6 +344,35 @@ begin
  end loop;
  return new;
 end $function$;
+
+-- Every cover of a hunter's room a plant was given before this file, its keep in place: the room's that it came from
+-- (matched by its coming and leaving, in the plant's own bed), else the weakest (farming.pests.house.old). Only the
+-- round's gift changes, so town.quality_keep lets the write by as it is; `changed` so that pages read it again.
+update public.town_plots t
+   set plant = jsonb_set(t.plant, '{q,bed,h}', (
+         select jsonb_agg(case when e->>'r' = 'guard' and not (e ? 'k') then e || jsonb_build_object('k', coalesce(
+             (select coalesce((rm->>'k')::double precision, (c.qc->'house'->'keeps'->>(rm->>'bug'))::double precision, (c.qc->'house'->>'keep')::double precision)
+                from public.town_plots hp, jsonb_array_elements(hp.house->'rooms') rm
+               where hp.bed = t.bed and jsonb_typeof(hp.house) = 'object' and jsonb_typeof(rm) = 'object'
+                 and (rm->>'from')::bigint = (e->>'from')::bigint and (rm->>'until')::bigint = (e->>'to')::bigint
+               limit 1),
+             (c.f->'pests'->'house'->>'old')::double precision)) else e end order by x.i)
+           from jsonb_array_elements(t.plant->'q'->'bed'->'h') with ordinality x(e, i))),
+       changed = town.now_ms()
+  from (select town.cat('quality') qc, town.cat('farming') f) c
+ where jsonb_typeof(t.plant->'q'->'bed'->'h') = 'array'
+   and exists (select 1 from jsonb_array_elements(t.plant->'q'->'bed'->'h') e where e->>'r' = 'guard' and not (e ? 'k'));
+-- Then every hunter's room its keep (the gifts worked out again are the same, now that the covers have it).
+update public.town_plots t
+   set house = jsonb_set(t.house, '{rooms}', (
+         select jsonb_agg(case when jsonb_typeof(rm) = 'object' and town.house_role(rm->>'bug') = 'guard' and not (rm ? 'k')
+                  then rm || jsonb_build_object('k', coalesce((c.qc->'house'->'keeps'->>(rm->>'bug'))::double precision, (c.qc->'house'->>'keep')::double precision))
+                  else rm end order by x.i)
+           from jsonb_array_elements(t.house->'rooms') with ordinality x(rm, i))),
+       changed = town.now_ms()
+  from (select town.cat('quality') qc) c
+ where jsonb_typeof(t.house) = 'object'
+   and exists (select 1 from jsonb_array_elements(t.house->'rooms') rm where jsonb_typeof(rm) = 'object' and town.house_role(rm->>'bug') = 'guard' and not (rm ? 'k'));
 
 -- (the functions written over keep the grants they had)
 
