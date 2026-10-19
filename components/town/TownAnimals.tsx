@@ -182,7 +182,7 @@ export default function TownAnimals({ keeper, th, view, onView, onClose, focus, 
         {view === "mine" && <Mine th={th} purse={purse} world={world} mine={mine} now={now} kit={kit} busy={busy} act={act} focus={focus} members={members} nameOf={nameOf} onCollect={onCollect} me={me} />}
         {view === "care" && <Care th={th} purse={purse} world={world} herd={herd} now={now} kit={kit} busy={busy} act={act} members={members} nameOf={nameOf} me={me} />}
         {view === "nest" && <Nest th={th} purse={purse} world={world} mine={mine} now={now} kit={kit} busy={busy} act={act} me={me} nameOf={nameOf} />}
-        {view === "book" && <Book th={th} purse={purse} world={world} kit={kit} nameOf={nameOf} />}
+        {view === "book" && <Book th={th} purse={purse} world={world} kit={kit} nameOf={nameOf} me={me} busy={busy} act={act} />}
       </div>
     </section>
   );
@@ -246,8 +246,8 @@ function Shop({ th, purse, herd, mine, now, kit, busy, act }: { th: boolean; pur
       <H3>{t("ที่เลี้ยงและโรงนา", "Places and the barn")}</H3>
       <div className="grid gap-2">
         <div className="flex items-center gap-2 rounded-xl border border-line bg-bg/50 p-2" data-keeping={herd.keeping}>
-          <span className="min-w-0 flex-1 text-ui text-ink">{nextKeeping ? t(`ที่เก็บเพิ่ม ${nextKeeping[0]} ที่ (เลี้ยงไว้เฉยๆ ไม่ผลิต)`, `${nextKeeping[0]} more keeping places (they keep, never produce)`) : t("ที่เก็บครบแล้ว", "Every keeping place bought")}{nextKeeping && <Coins n={nextKeeping[1]} th={th} small />}</span>
-          <button type="button" className={button} disabled={busy || !nextKeeping || purse.coins < (nextKeeping?.[1] ?? Infinity)} onClick={() => void act({ action: "keeping" }, ["ลุงกั้นคอกให้เพิ่มแล้ว", "More places, built."])}>{t("ซื้อ", "Buy")}</button>
+          <span className="min-w-0 flex-1 text-ui text-ink">{nextKeeping ? t(`ที่เก็บเพิ่ม ${nextKeeping[0]} ที่ (เลี้ยงไว้เฉยๆ ไม่ผลิต)`, `${nextKeeping[0]} more keeping places (they keep, never produce)`) : t("ที่เก็บครบแล้ว", "Every keeping place bought")}{nextKeeping && <Coins n={nextKeeping[1]} th={th} small />}{nextKeeping && <span className="ml-1 text-meta text-muted">{t(`+ ท่อนไม้ ${nextKeeping[2]}`, `+ ${nextKeeping[2]} logs`)}</span>}</span>
+          <button type="button" className={button} disabled={busy || !nextKeeping || purse.coins < (nextKeeping?.[1] ?? Infinity) || held(purse.bag, "log" as ItemId) < (nextKeeping?.[2] ?? Infinity)} onClick={() => void act({ action: "keeping" }, ["ลุงกั้นคอกให้เพิ่มแล้ว", "More places, built."])}>{t("ซื้อ", "Buy")}</button>
         </div>
         <div className="flex items-center gap-2 rounded-xl border border-line bg-bg/50 p-2" data-facade={herd.facade}>
           <span className="min-w-0 flex-1 text-ui text-ink">{nextFront !== undefined ? t(`หน้าโรงนาแบบที่ ${herd.facade + 1} (ความสวยงาม)`, `Barn front no. ${herd.facade + 1} (looks only)`) : t("หน้าโรงนาครบทุกแบบแล้ว", "Every barn front bought")}{nextFront !== undefined && <Coins n={nextFront} th={th} small />}</span>
@@ -481,7 +481,8 @@ function Nest({ th, purse, world, mine, now, kit, busy, act, me, nameOf }: { th:
   const [pa, setPa] = useState<string>(""), [pb, setPb] = useState<string>(""), [offering, setOffering] = useState<string>(""), [dawn, setDawn] = useState<string>("");
   const A = adults.find((a) => a.id === pa) ?? null, B = [...adults, ...lent].find((a) => a.id === pb) ?? null;
   const ba = A ? breedOf(A.breed)! : null, bb = B ? breedOf(B.breed)! : null;
-  const book = bookOf(purse), recipes = [...purse.recipes, ...purse.bag.filter((x) => x?.item.startsWith("scrollBreed_")).map((x) => x!.item)] as string[];
+  // (a breed's scroll is known once it is read, as the database has it: holding one is not reading it)
+  const book = bookOf(purse), recipes = purse.recipes as string[];
   const steps = ba && bb ? stepsOf(ba, bb) : [];
   const offerings = purse.bag.map((x) => x?.item).filter((id): id is ItemId => !!id && kindOf(id) !== null).filter((id, i, all) => all.indexOf(id) === i);
   const dawns = purse.bag.map((x) => x?.item).filter((id): id is ItemId => !!id && DAWN_BOOSTS.includes(id)).filter((id, i, all) => all.indexOf(id) === i);
@@ -563,9 +564,10 @@ function Nest({ th, purse, world, mine, now, kit, busy, act, me, nameOf }: { th:
 }
 
 /* ── the breed book ── */
-function Book({ th, purse, world, kit, nameOf }: { th: boolean; purse: Purse; world: AnimalWorld; kit: SceneryKit | null; nameOf: (id: string) => string }) {
+function Book({ th, purse, world, kit, nameOf, me, busy, act }: { th: boolean; purse: Purse; world: AnimalWorld; kit: SceneryKit | null; nameOf: (id: string) => string; me: string; busy: boolean; act: Act }) {
   const t = (a: string, b: string) => (th ? a : b);
-  const book = bookOf(purse), recipes = [...purse.recipes, ...purse.bag.filter((x) => x?.item.startsWith("scrollBreed_")).map((x) => x!.item)] as string[];
+  // (a breed's scroll is known once it is read, as the database has it: holding one is not reading it)
+  const book = bookOf(purse), recipes = purse.recipes as string[];
   const [sp, setSp] = useState<SpeciesId>("chicken");
   const found = Object.keys(world.found).length;
   return (
@@ -589,7 +591,14 @@ function Book({ th, purse, world, kit, nameOf }: { th: boolean; purse: Purse; wo
               </div>
               {f && <p className="mt-1 truncate text-label text-gold">{t(`พบครั้งแรกโดย ${nameOf(f.by)}`, `First bred by ${nameOf(f.by)}`)}</p>}
               {g && <p className="mt-1 text-label text-muted">{g.parents.join(" + ")} + {known ? <b className="text-gold">{ITEMS[OFFERINGS[sp][L] as ItemId]?.name[th ? "th" : "en"]}</b> : OFFERING_KINDS[g.kind][th ? "th" : "en"]}{misses > 0 && !known ? t(` · พลาด ${misses}/${ANIMALS.clueAfter}`, ` · missed ${misses}/${ANIMALS.clueAfter}`) : ""}{misses >= ANIMALS.clueAfter && t(" (ใบ้แล้ว)", " (clue)")}</p>}
-              {held(purse.bag, scrollOf(sp, L) as ItemId) > 0 && <p className="text-label text-jade">{t("มีม้วนสูตรนี้", "You hold its scroll")}</p>}
+              {held(purse.bag, scrollOf(sp, L) as ItemId) > 0 && !known && (
+                <button type="button" className="pressable mt-1 min-h-11 w-full rounded-lg border border-jade/50 px-2 text-ui text-jade" disabled={busy} data-book-read={b.id}
+                  onClick={() => void act({ action: "read", item: scrollOf(sp, L) }, ["อ่านม้วนสูตรแล้ว รู้ของเซ่นของขั้นนี้", "Read: you know this step's offering now."])}>{t("อ่านม้วนสูตร", "Read the scroll")}</button>
+              )}
+              {f && f.by === me && L !== "A" && (
+                <button type="button" className="pressable mt-1 min-h-11 w-full rounded-lg border border-line-strong px-2 text-ui text-ink" disabled={busy || purse.coins < ANIMALS.scrollFee} data-book-write={b.id}
+                  onClick={() => void act({ action: "scroll", breed: b.id }, ["เขียนม้วนสูตรแล้ว อยู่ในกระเป๋า แลกหรือขายได้", "Written out: the scroll is in your bag, to give or sell."])}>{t(`เขียนม้วนสูตร (${ANIMALS.scrollFee} เหรียญ)`, `Write it out (${ANIMALS.scrollFee} coins)`)}</button>
+              )}
             </li>
           );
         })}

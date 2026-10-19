@@ -35,8 +35,8 @@ export const ANIMALS = {
   wagonHeart: 20,
   /** Places that come with the first animal: two that produce, two for the young. */
   places: { producing: 2, nursery: 2 },
-  /** Keeping places bought of Uncle Popoto, in order: how many, for how much. They keep; they never produce. */
-  keeping: [[2, 500], [4, 2000], [8, 6000]] as ReadonlyArray<readonly [number, number]>,
+  /** Keeping places bought of Uncle Popoto, in order: how many, for how much, and the logs their stalls are built of (the woodcutters' cross). They keep; they never produce. */
+  keeping: [[2, 500, 20], [4, 2000, 40], [8, 6000, 80]] as ReadonlyArray<readonly [number, number, number]>,
   /** The barn's front, three dearer looks, cosmetic. */
   facades: [5000, 15000, 40000] as readonly number[],
   /** Breeding: hearts (points) each parent needs, how long a parent rests, how long until the child is out. */
@@ -119,28 +119,28 @@ export const SPECIES: Record<SpeciesId, Species> = {
     price: 400, grow: [24, 24], cycle: 6, bank: 4, game: "eggs", kind: "bird",
     sack: "chickFeed" as ItemId, sackPrice: 4, growItem: "chickGrow" as ItemId, growPrice: 10,
     feeds: { corn: 6, buckwheat: 6, meadowOats: 6, dawnOats: 8, moonOats: 6, pondMillet: 6, orchardPea: 5, reedSeed: 5 } as Partial<Record<ItemId, number>>,
-    treats: ["grasshopper", "cricket"] as ItemId[], bredBack: 20,
+    treats: ["grasshopper", "cricket", "blueberry"] as ItemId[], bredBack: 20,
   }),
   duck: s({
     id: "duck", name: { th: "เป็ด", en: "Duck" }, baby: { th: "ลูกเป็ด", en: "Duckling" }, young: { th: "เป็ดรุ่น", en: "Young duck" },
     price: 1000, grow: [24, 48], cycle: 8, bank: 3, game: "eggs", kind: "bird",
     sack: "duckFeed" as ItemId, sackPrice: 6, growItem: "duckGrow" as ItemId, growPrice: 15,
     feeds: { watercress: 6, cabbage: 4, pondMillet: 6, nightDuckweed: 6, ghostReed: 6, reedSeed: 5 } as Partial<Record<ItemId, number>>,
-    treats: ["minnow", "snail"] as ItemId[], bredBack: 30,
+    treats: ["minnow", "snail", "raspberry"] as ItemId[], bredBack: 30,
   }),
   sheep: s({
     id: "sheep", name: { th: "แกะ", en: "Sheep" }, baby: { th: "ลูกแกะ", en: "Lamb" }, young: { th: "แกะรุ่น", en: "Hogget" },
     price: 2500, grow: [48, 72], cycle: 24, bank: 1, game: "shear", kind: "mammal",
     sack: "sheepFeed" as ItemId, sackPrice: 8, growItem: "lambGrow" as ItemId, growPrice: 25,
     feeds: { clover: 8, carrot: 4, sweetTimothy: 8, amberClover: 8, dewClover: 10, lanternGrass: 8, copperSedge: 6, velvetVetch: 8 } as Partial<Record<ItemId, number>>,
-    treats: ["clover", "chamomile"] as ItemId[], bredBack: 40,
+    treats: ["clover", "chamomile", "wildApple"] as ItemId[], bredBack: 40,
   }),
   cow: s({
     id: "cow", name: { th: "วัว", en: "Cow" }, baby: { th: "ลูกวัว", en: "Calf" }, young: { th: "วัวรุ่น", en: "Heifer" },
     price: 4000, grow: [72, 96], cycle: 12, bank: 2, game: "milk", kind: "mammal",
     sack: "cowFeed" as ItemId, sackPrice: 10, growItem: "calfGrow" as ItemId, growPrice: 40,
     feeds: { corn: 6, pumpkin: 8, sunAlfalfa: 10, sweetTimothy: 8, mistVetch: 10, copperSedge: 6, velvetVetch: 8, lanternGrass: 8 } as Partial<Record<ItemId, number>>,
-    treats: ["mineralSalt", "pumpkin"] as ItemId[], bredBack: 50,
+    treats: ["mineralSalt", "pumpkin", "chestnut"] as ItemId[], bredBack: 50,
   }),
 };
 /** Feed any species eats: the packed ration (`ANIMALS.packed` hours, of before-dawn forage). */

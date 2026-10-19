@@ -183,6 +183,11 @@ try {
   eq(came.world.animals.find((x) => x.id === chick).banked, 1, "a round ready at once");
   const came2 = await mine({ action: "enter" });
   eq((came2.world.animals.find((x) => x.id === chick) ?? { banked: 1 }).banked, 1, "once an animal a day");
+  // (keeping places are built of logs: refused without them, built with them)
+  eq((await mine({ action: "keeping" })).why, "nothing", "places want logs");
+  await db.query("update public.town_purses set doc = jsonb_set(doc, '{bag}', $2::jsonb) where member_id = $1", [me, JSON.stringify([{ item: "log", n: 20 }, ...Array(19).fill(null)])]);
+  const built = await mine({ action: "keeping" });
+  eq([built.ok, built.world.herds[0].keeping], [true, 2], "two keeping places built");
   // (nobody reaches the tables but through the function)
   for (const tbl of ["town_animals", "town_herds", "town_pasture", "town_animal_asks"]) {
     let no = false;

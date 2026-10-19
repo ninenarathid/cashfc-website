@@ -35,7 +35,7 @@ insert into public.town_catalog (key, data) values
     "comeback": {"after":30,"least":120},
     "scarce": {"day":24,"half":20},
     "garden": {"least":3,"draws":{"morpho":1,"lunaMoth":1,"hawkMoth":1,"honeyBee":3,"carpenterBee":3,"hoverfly":3,"silkMoth":3,"orchardBeetle":3,"pollenMidge":3,"megaloptaBee":3,"indianNightBee":3,"blueBandedBee":3,"clearwingMoth":3,"yuccaMoth":3,"tobaccoHawkmoth":3},"milkweed":["monarch",3]},
-    "nectar": {"within":10,"soon":3,"stays":120,"at":["blooms","water","field","lamp","litter"],"maps":[["town",0,0,64,80],["farm",128,0,60,86],["forest",144,112,96,80]]},
+    "nectar": {"within":10,"soon":3,"stays":120,"at":["blooms","water","field","lamp","litter"],"maps":[["town",0,0,64,80],["farm",128,-32,60,118],["forest",144,112,96,80]]},
     "pair": {"slack":2500},
     "quiet": {"offPeak":0.5}
   }$town$::jsonb)

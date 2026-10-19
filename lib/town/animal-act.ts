@@ -191,8 +191,10 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
       const next = total === herd.keeping ? ANIMALS.keeping[step] : undefined;
       if (!next) return no("full");
       if (purse.coins < next[1]) return no("coins");
-      notes.push({ what: "animal_places", n: next[0], doc: { coins: next[1] } });
-      return yes(withHerd(world, { ...herd, keeping: herd.keeping + next[0] }), { ...purse, coins: purse.coins - next[1] });
+      // (the stalls are built of logs: the woodcutters' cross)
+      if (held(purse.bag, "log" as ItemId) < next[2]) return no("nothing");
+      notes.push({ what: "animal_places", n: next[0], doc: { coins: next[1], logs: next[2] } });
+      return yes(withHerd(world, { ...herd, keeping: herd.keeping + next[0] }), { ...purse, coins: purse.coins - next[1], bag: take(purse.bag, "log" as ItemId, next[2]) });
     }
 
     case "facade": {

@@ -19,7 +19,7 @@
 --   onto the farm, the gifts' spring wind, harp and hay wagon, ride, the meadow's forage), answering through town.answer.
 -- * Elsewhere, in their live text: a pasture deed counts its own points into the line "animals" or the helpers'
 --   (town.work_counts_of); an animal's produce falls when oversold, as a crop does (town.market_things); the farm's new
---   rows (local y 0..-1) are the farm's for a reward's relay (town.reward_relay_place). Written whole:
+--   rows (local y -32..-1) are the farm's for a reward's relay (town.reward_relay_place). Written whole:
 --   town.carries_grade and town.grade_pays take an animal's produce (the kitchen counts its grade, the relatives pay by
 --   it); town.made_of reads a pot as it is and then as its families (any breed's egg an egg, any milk milk, any wool wool).
 -- * The catalog: the row `animals`, and merged into their rows entry by entry: 136 things, 17 dishes and their
@@ -372,15 +372,17 @@ begin
     -- (the packs in order: the next is the one after what is had, all told)
     n_ := 0; price := null;
     for r in select x from jsonb_array_elements(kn->'keeping') x loop
-      if n_ = (herd->>'keeping')::integer then price := (r->>1)::integer; q := (r->>0)::integer; exit; end if;
+      if n_ = (herd->>'keeping')::integer then price := (r->>1)::integer; q := (r->>0)::integer; units := (r->>2)::integer; exit; end if;
       n_ := n_ + (r->>0)::integer;
       exit when n_ > (herd->>'keeping')::integer;
     end loop;
     if price is null then return town.answer(me, town.no('full')); end if;
     if (purse->>'coins')::integer < price then return town.answer(me, town.no('coins')); end if;
+    -- (the stalls are built of logs: the woodcutters' cross)
+    if town.held(purse->'bag', 'log') < units then return town.answer(me, town.no('nothing')); end if;
     herd := herd || jsonb_build_object('keeping', (herd->>'keeping')::integer + q);
-    purse := purse || jsonb_build_object('coins', (purse->>'coins')::integer - price);
-    notes := notes || jsonb_build_array(jsonb_build_array('animal_places', q, null, 0, '{}'::jsonb, -price));
+    purse := purse || jsonb_build_object('coins', (purse->>'coins')::integer - price, 'bag', town.take(purse->'bag', 'log', units));
+    notes := notes || jsonb_build_array(jsonb_build_array('animal_places', q, null, 0, jsonb_build_object('logs', units), -price));
 
   elsif act = 'facade' then
     price := (kn->'facades'->>((herd->>'facade')::integer))::integer;
@@ -860,7 +862,7 @@ begin
   end if;
   if p_done->>''from'' = ''play'' then', '1'],
     ['town.market_things(jsonb)', 'case when t.kind in (''dish'', ''goods'', ''staple'') then (p_k->>''made'')::int', 'case when t.kind in (''dish'', ''goods'', ''staple'') and not coalesce(town.cat(''animals'')->''produce'' ? t.id, false) then (p_k->>''made'')::int', '1'],
-    ['town.reward_relay_place(jsonb)', '(at_->>1)::integer between 0 and 85 then ''farm''', '(at_->>1)::integer between 0 and 85 then ''farm''', '1']] loop
+    ['town.reward_relay_place(jsonb)', '(at_->>1)::integer between 0 and 85 then ''farm''', '(at_->>1)::integer between -32 and 85 then ''farm''', '1']] loop
     d := replace(pg_get_functiondef(c[1]::regprocedure), chr(13), '');
     -- (the file may come with CR at its line ends: the texts compared without them)
     o := replace(c[2], chr(13), ''); nw := replace(c[3], chr(13), '');
@@ -875,8 +877,8 @@ end $$;
 -- <catalog:v291> written from lib/town/catalog.ts (npm test checks it; TOWN_WRITE=1 npx vitest run lib/town/catalog.test.ts writes it)
 insert into public.town_catalog (key, data) values
   ('animals', $town${
-    "knobs": {"trough":24,"outRate":0.5,"perHeart":20,"hearts":10,"heart":{"fed":3,"pet":3,"treat":2,"out":2},"wagonHeart":20,"places":{"producing":2,"nursery":2},"keeping":[[2,500],[4,2000],[8,6000]],"facades":[5000,15000,40000],"breedHearts":60,"rest":172800000,"hatch":{"bird":43200000,"mammal":86400000},"odds":{"real":60,"fantasy":30,"legend":10},"dawnBoost":10,"oddsCap":70,"fees":{"real":80,"fantasy":220,"legend":600},"scrollFee":12,"clueAfter":3,"speedCap":3,"growFeed":86400000,"dewFeed":172800000,"packed":72,"quality":{"base":30,"perHeart":7,"spread":30,"narrowest":20,"narrowBy":[0,5,10,15]},"stamina":{"eggs":2,"shear":3,"milk":4},"care":{"pet":1,"treat":1,"foodHours":4,"cap":30},"points":{"feed":15,"pet":10,"treat":10,"unit":2,"breed":20,"found":60,"cradle":15},"sellBack":{"bought":0.25},"cradleRare":0.2,"harp":{"mins":30,"near":8},"wind":{"mins":60},"wagon":{"legs":2,"mins":4,"seats":0},"outsideShare":0.3333333333333333},
-    "species": {"chicken":{"price":400,"grow":[24,24],"cycle":6,"bank":4,"game":"eggs","kind":"bird","sack":"chickFeed","sackPrice":4,"growItem":"chickGrow","growPrice":10,"feeds":{"corn":6,"buckwheat":6,"meadowOats":6,"dawnOats":8,"moonOats":6,"pondMillet":6,"orchardPea":5,"reedSeed":5},"treats":["grasshopper","cricket"],"bredBack":20},"duck":{"price":1000,"grow":[24,48],"cycle":8,"bank":3,"game":"eggs","kind":"bird","sack":"duckFeed","sackPrice":6,"growItem":"duckGrow","growPrice":15,"feeds":{"watercress":6,"cabbage":4,"pondMillet":6,"nightDuckweed":6,"ghostReed":6,"reedSeed":5},"treats":["minnow","snail"],"bredBack":30},"sheep":{"price":2500,"grow":[48,72],"cycle":24,"bank":1,"game":"shear","kind":"mammal","sack":"sheepFeed","sackPrice":8,"growItem":"lambGrow","growPrice":25,"feeds":{"clover":8,"carrot":4,"sweetTimothy":8,"amberClover":8,"dewClover":10,"lanternGrass":8,"copperSedge":6,"velvetVetch":8},"treats":["clover","chamomile"],"bredBack":40},"cow":{"price":4000,"grow":[72,96],"cycle":12,"bank":2,"game":"milk","kind":"mammal","sack":"cowFeed","sackPrice":10,"growItem":"calfGrow","growPrice":40,"feeds":{"corn":6,"pumpkin":8,"sunAlfalfa":10,"sweetTimothy":8,"mistVetch":10,"copperSedge":6,"velvetVetch":8,"lanternGrass":8},"treats":["mineralSalt","pumpkin"],"bredBack":50}},
+    "knobs": {"trough":24,"outRate":0.5,"perHeart":20,"hearts":10,"heart":{"fed":3,"pet":3,"treat":2,"out":2},"wagonHeart":20,"places":{"producing":2,"nursery":2},"keeping":[[2,500,20],[4,2000,40],[8,6000,80]],"facades":[5000,15000,40000],"breedHearts":60,"rest":172800000,"hatch":{"bird":43200000,"mammal":86400000},"odds":{"real":60,"fantasy":30,"legend":10},"dawnBoost":10,"oddsCap":70,"fees":{"real":80,"fantasy":220,"legend":600},"scrollFee":12,"clueAfter":3,"speedCap":3,"growFeed":86400000,"dewFeed":172800000,"packed":72,"quality":{"base":30,"perHeart":7,"spread":30,"narrowest":20,"narrowBy":[0,5,10,15]},"stamina":{"eggs":2,"shear":3,"milk":4},"care":{"pet":1,"treat":1,"foodHours":4,"cap":30},"points":{"feed":15,"pet":10,"treat":10,"unit":2,"breed":20,"found":60,"cradle":15},"sellBack":{"bought":0.25},"cradleRare":0.2,"harp":{"mins":30,"near":8},"wind":{"mins":60},"wagon":{"legs":2,"mins":4,"seats":0},"outsideShare":0.3333333333333333},
+    "species": {"chicken":{"price":400,"grow":[24,24],"cycle":6,"bank":4,"game":"eggs","kind":"bird","sack":"chickFeed","sackPrice":4,"growItem":"chickGrow","growPrice":10,"feeds":{"corn":6,"buckwheat":6,"meadowOats":6,"dawnOats":8,"moonOats":6,"pondMillet":6,"orchardPea":5,"reedSeed":5},"treats":["grasshopper","cricket","blueberry"],"bredBack":20},"duck":{"price":1000,"grow":[24,48],"cycle":8,"bank":3,"game":"eggs","kind":"bird","sack":"duckFeed","sackPrice":6,"growItem":"duckGrow","growPrice":15,"feeds":{"watercress":6,"cabbage":4,"pondMillet":6,"nightDuckweed":6,"ghostReed":6,"reedSeed":5},"treats":["minnow","snail","raspberry"],"bredBack":30},"sheep":{"price":2500,"grow":[48,72],"cycle":24,"bank":1,"game":"shear","kind":"mammal","sack":"sheepFeed","sackPrice":8,"growItem":"lambGrow","growPrice":25,"feeds":{"clover":8,"carrot":4,"sweetTimothy":8,"amberClover":8,"dewClover":10,"lanternGrass":8,"copperSedge":6,"velvetVetch":8},"treats":["clover","chamomile","wildApple"],"bredBack":40},"cow":{"price":4000,"grow":[72,96],"cycle":12,"bank":2,"game":"milk","kind":"mammal","sack":"cowFeed","sackPrice":10,"growItem":"calfGrow","growPrice":40,"feeds":{"corn":6,"pumpkin":8,"sunAlfalfa":10,"sweetTimothy":8,"mistVetch":10,"copperSedge":6,"velvetVetch":8,"lanternGrass":8},"treats":["mineralSalt","pumpkin","chestnut"],"bredBack":50}},
     "starters": {"chicken":"barnHen","duck":"puddleDuck","sheep":"meadowSheep","cow":"dairyCow"},
     "breeds": {"barnHen":{"species":"chicken","letter":"A","tier":"starter","produce":"farmEgg"},"silkie":{"species":"chicken","letter":"B","tier":"real","produce":"silkieEgg"},"araucana":{"species":"chicken","letter":"C","tier":"real","produce":"blueEgg"},"marans":{"species":"chicken","letter":"D","tier":"real","produce":"chocolateEgg"},"lanternHen":{"species":"chicken","letter":"E","tier":"fantasy","produce":"lanternEgg"},"cloudHen":{"species":"chicken","letter":"F","tier":"fantasy","produce":"cloudEgg"},"goldenHen":{"species":"chicken","letter":"G","tier":"fantasy","produce":"goldenEgg"},"pocketPhoenix":{"species":"chicken","letter":"H","tier":"legend","produce":"emberEgg"},"puddleDuck":{"species":"duck","letter":"A","tier":"starter","produce":"duckEgg"},"runner":{"species":"duck","letter":"B","tier":"real","produce":"runnerEgg"},"cayuga":{"species":"duck","letter":"C","tier":"real","produce":"cayugaEgg"},"mandarin":{"species":"duck","letter":"D","tier":"real","produce":"mandarinEgg"},"raindropDuck":{"species":"duck","letter":"E","tier":"fantasy","produce":"rainEgg"},"moonDuck":{"species":"duck","letter":"F","tier":"fantasy","produce":"moonEgg"},"paperboatDuck":{"species":"duck","letter":"G","tier":"fantasy","produce":"paperEgg"},"littleLeviathan":{"species":"duck","letter":"H","tier":"legend","produce":"leviathanEgg"},"meadowSheep":{"species":"sheep","letter":"A","tier":"starter","produce":"wool"},"shetland":{"species":"sheep","letter":"B","tier":"real","produce":"shetlandWool"},"jacob":{"species":"sheep","letter":"C","tier":"real","produce":"jacobWool"},"valais":{"species":"sheep","letter":"D","tier":"real","produce":"valaisWool"},"dandelionLamb":{"species":"sheep","letter":"E","tier":"fantasy","produce":"dandelionWool"},"rainbowSheep":{"species":"sheep","letter":"F","tier":"fantasy","produce":"rainbowWool"},"starFleece":{"species":"sheep","letter":"G","tier":"fantasy","produce":"starWool"},"goldenFleece":{"species":"sheep","letter":"H","tier":"legend","produce":"goldenWool"},"dairyCow":{"species":"cow","letter":"A","tier":"starter","produce":"farmMilk"},"jersey":{"species":"cow","letter":"B","tier":"real","produce":"jerseyMilk"},"highland":{"species":"cow","letter":"C","tier":"real","produce":"highlandMilk"},"brownSwiss":{"species":"cow","letter":"D","tier":"real","produce":"swissMilk"},"strawberryCow":{"species":"cow","letter":"E","tier":"fantasy","produce":"strawberryMilk"},"cocoaCow":{"species":"cow","letter":"F","tier":"fantasy","produce":"cocoaMilk"},"flowerCow":{"species":"cow","letter":"G","tier":"fantasy","produce":"flowerMilk"},"milkyWayCow":{"species":"cow","letter":"H","tier":"legend","produce":"starMilk"}},
     "graph": [{"child":"B","parents":["A","A"],"kind":"seed"},{"child":"C","parents":["A","A"],"kind":"mineral"},{"child":"D","parents":["B","C"],"kind":"flower"},{"child":"E","parents":["B","D"],"kind":"seed"},{"child":"F","parents":["C","D"],"kind":"mineral"},{"child":"G","parents":["E","F"],"kind":"flower"},{"child":"H","parents":["E","G"],"kind":"prism"}],
@@ -887,8 +889,8 @@ insert into public.town_catalog (key, data) values
     "findOdds": 3,
     "meadow": {"spots":12,"stamina":1,"points":1},
     "forage": {"mistVetch":[0],"ghostReed":[0,1],"dewClover":[1],"dawnOats":[1,0],"meadowOats":[2,3],"sweetTimothy":[2],"sunAlfalfa":[3,4],"pondMillet":[3],"copperSedge":[4],"orchardPea":[4,5],"amberClover":[5],"reedSeed":[5,6],"lanternGrass":[6],"velvetVetch":[6,7],"moonOats":[7],"nightDuckweed":[7,0]},
-    "eggSpots": [[134,-28],[140,-26],[146,-29],[152,-27],[158,-25],[164,-28],[170,-26],[176,-29],[182,-27],[136,-20],[143,-18],[149,-21],[156,-19],[162,-22],[168,-18],[175,-21],[181,-19],[138,-12],[145,-10],[151,-13],[157,-11],[163,-14],[170,-10],[177,-13]],
-    "wagonStops": {"farm":[150,-4],"town":[30,40],"forest":[150,120]},
+    "eggSpots": [[134,-27],[139,-25],[145,-28],[150,-26],[155,-28],[160,-25],[164,-28],[152,-20],[157,-14],[162,-22],[147,-12],[154,-11],[165,-12],[178,-13],[181,-19],[183,-15],[137,-5],[143,-6],[148,-4],[165,-6],[171,-5],[177,-4],[183,-7],[132,-12]],
+    "wagonStops": {"farm":[151,-3],"town":[57,32],"forest":[190,186]},
     "shop": {"chickFeed":4,"chickGrow":10,"duckFeed":6,"duckGrow":15,"sheepFeed":8,"lambGrow":25,"cowFeed":10,"calfGrow":40,"milker":180,"woolShears":60,"eggBasket":24,"churn":80,"cheesePress":100,"spindle":60,"knittingNeedles":60,"scrollCustard":72,"scrollPancakes":88,"scrollCheesecake":160,"scrollButterCookies":104,"scrollQuiche":144,"scrollLanternCustard":160,"scrollCloudSouffle":176,"scrollGoldenOmelette":184,"scrollEmberBakedEggs":224,"scrollRainBroth":152,"scrollMoonPudding":160,"scrollPaperFish":152,"scrollLeviathanSteamedEgg":232,"scrollStrawberryShake":120,"scrollHotCocoa":120,"scrollFlowerLatte":120,"scrollStarPudding":240},
     "tools": {"eggs":"eggBasket","shear":"woolShears","milk":"milker"},
     "gifts": {"bell":"charmHerdBell","cat":"thingBarnCat","bottle":"thingWarmBottle","collar":"charmStarCollar","cradle":"thingCradle","ram":"famCloudRam","twin":"thingTwinCradle","harp":"thingHarp","wind":"thingSpringWind","wagon":"thingHayWagon"},
@@ -917,9 +919,9 @@ update public.town_catalog set data = jsonb_set(jsonb_set(jsonb_set(data,
     '{cookware}', (data->'cookware') || (select coalesce(jsonb_agg(w), '[]'::jsonb) from jsonb_array_elements_text($j$["churn","cheesePress","spindle","knittingNeedles"]$j$::jsonb) w where not (data->'cookware') ? w)),
   updated_at = now() where key = 'cooking';
 -- (the farm's shape: each entry that is the farm as it was, [128,0,60,86], made the farm as it is now; an entry is matched whole, never by `@>`)
-update public.town_catalog set data = jsonb_set(data, '{map,farm}', $j$[128,0,60,86]$j$::jsonb), updated_at = now() where key = 'cooking' and data->'map'->'farm' = $j$[128,0,60,86]$j$::jsonb;
-update public.town_catalog set data = jsonb_set(data, '{maps}', (select jsonb_agg(case when m = $j$[128,0,60,86]$j$::jsonb then $j$[128,0,60,86]$j$::jsonb else m end order by o) from jsonb_array_elements(data->'maps') with ordinality x(m, o))), updated_at = now() where key = 'ground';
-update public.town_catalog set data = jsonb_set(data, '{nectar,maps}', (select jsonb_agg(case when m = $j$["farm",128,0,60,86]$j$::jsonb then $j$["farm",128,0,60,86]$j$::jsonb else m end order by o) from jsonb_array_elements(data->'nectar'->'maps') with ordinality x(m, o))), updated_at = now() where key = 'insects';
+update public.town_catalog set data = jsonb_set(data, '{map,farm}', $j$[128,-32,60,118]$j$::jsonb), updated_at = now() where key = 'cooking' and data->'map'->'farm' = $j$[128,0,60,86]$j$::jsonb;
+update public.town_catalog set data = jsonb_set(data, '{maps}', (select jsonb_agg(case when m = $j$[128,0,60,86]$j$::jsonb then $j$[128,-32,60,118]$j$::jsonb else m end order by o) from jsonb_array_elements(data->'maps') with ordinality x(m, o))), updated_at = now() where key = 'ground';
+update public.town_catalog set data = jsonb_set(data, '{nectar,maps}', (select jsonb_agg(case when m = $j$["farm",128,0,60,86]$j$::jsonb then $j$["farm",128,-32,60,118]$j$::jsonb else m end order by o) from jsonb_array_elements(data->'nectar'->'maps') with ordinality x(m, o))), updated_at = now() where key = 'insects';
 
 
 -- ── 8. Each as it is meant to be, or nothing of this stays ──────────────────────────────────────────────────────────────
@@ -927,7 +929,7 @@ do $$ begin
   if town.cat('animals') is null or town.cat('animals')->'species'->'cow' is null then raise exception 'v291: the catalog has no animals'; end if;
   if town.made_of('[["farmEgg", 2], ["oil", 1]]'::jsonb) is distinct from 'omelette' then raise exception 'v291: a farm egg is no egg in the kitchen'; end if;
   if town.grade_pays('farmEgg', 3) <> 2.5 or not town.carries_grade('farmMilk') then raise exception 'v291: the grade of what an animal gives'; end if;
-  if town.reward_relay_place('[150,0]'::jsonb) is distinct from 'farm' then raise exception 'v291: the farm''s new rows'; end if;
+  if town.reward_relay_place('[150,-32]'::jsonb) is distinct from 'farm' then raise exception 'v291: the farm''s new rows'; end if;
   if not (town.cat('work')->'ids' ? 'animals') then raise exception 'v291: the line is not in work'; end if;
 end $$;
 commit;
@@ -937,4 +939,4 @@ notify pgrst, 'reload schema';
 --   select to_regprocedure('public.town_animals(jsonb,text)') is not null;                           -- true
 --   select town.made_of('[["blueEgg", 1], ["duckEgg", 1], ["oil", 1]]'::jsonb);                      -- omelette
 --   select data->'species'->'cow'->>'price' from public.town_catalog where key = 'animals';           -- 4000
---   select town.reward_relay_place('[150,0]'::jsonb), town.reward_relay_place('[150,-1]'::jsonb);   -- farm, null
+--   select town.reward_relay_place('[150,-32]'::jsonb), town.reward_relay_place('[150,-33]'::jsonb);   -- farm, null

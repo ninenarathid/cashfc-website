@@ -77,15 +77,17 @@ begin
     -- (the packs in order: the next is the one after what is had, all told)
     n_ := 0; price := null;
     for r in select x from jsonb_array_elements(kn->'keeping') x loop
-      if n_ = (herd->>'keeping')::integer then price := (r->>1)::integer; q := (r->>0)::integer; exit; end if;
+      if n_ = (herd->>'keeping')::integer then price := (r->>1)::integer; q := (r->>0)::integer; units := (r->>2)::integer; exit; end if;
       n_ := n_ + (r->>0)::integer;
       exit when n_ > (herd->>'keeping')::integer;
     end loop;
     if price is null then return town.answer(me, town.no('full')); end if;
     if (purse->>'coins')::integer < price then return town.answer(me, town.no('coins')); end if;
+    -- (the stalls are built of logs: the woodcutters' cross)
+    if town.held(purse->'bag', 'log') < units then return town.answer(me, town.no('nothing')); end if;
     herd := herd || jsonb_build_object('keeping', (herd->>'keeping')::integer + q);
-    purse := purse || jsonb_build_object('coins', (purse->>'coins')::integer - price);
-    notes := notes || jsonb_build_array(jsonb_build_array('animal_places', q, null, 0, '{}'::jsonb, -price));
+    purse := purse || jsonb_build_object('coins', (purse->>'coins')::integer - price, 'bag', town.take(purse->'bag', 'log', units));
+    notes := notes || jsonb_build_array(jsonb_build_array('animal_places', q, null, 0, jsonb_build_object('logs', units), -price));
 
   elsif act = 'facade' then
     price := (kn->'facades'->>((herd->>'facade')::integer))::integer;
