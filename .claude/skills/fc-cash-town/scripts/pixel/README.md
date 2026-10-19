@@ -1,5 +1,9 @@
 # Cash Town's pixel avatars (live art pipeline, 2026-10-02)
 
+## Required workflow for new art (owner, 2026-10-15)
+
+Read the entire [ART_WORKFLOW.md](ART_WORKFLOW.md), this README, and the repository's `AGENTS.md` "Game art quality" section before preparing prompts or generating Cash Town art. `ART_WORKFLOW.md` preserves the owner's exact prompt templates, required references, generator settings, review gate, builders, and gameplay checks. Follow it for all new or regenerated art; older entries below describe history, including past built-in `image_gen` assets, earlier budgets, and four-icon sheets, and do not authorize repeating those methods. Read current spending from the shared ledger and the current budget from `gen.mjs`.
+
 **The official set** (the user, 2026-10-02: "เอาข้อมูล ทรงผม ชุด lalafell มา … ทรงผมแบบ starter และชุดเริ่มต้น lalafell เหมือนเดิม ffxiv official"):
 - **Bodies wear the Lalafellin attire**, the race's starter outfit: `<g>-starter-*`, in-place edits of the bald sheets (`prompts/o-starter-*`), described in words from reference pictures that were never sent to the model.
   - Girls: a white kaftan dress, a brown embossed vest, a red cowl, a flowered pouch, bloomers and boots.
@@ -25,6 +29,7 @@ Spike demo: [Pixel Lalafell Spike](https://claude.ai/artifact/Uetw3Y3U1iCnDn4Z9q
 | File | What it does |
 |---|---|
 | `gen.mjs` | One API call: `node gen.mjs <name> <model> <quality> <size> <prompt.txt> [ref.png ...]`. It draws only a call Codex has read (see "Codex reads a prompt before it is drawn") |
+| `pl.mjs` | One PixelLab call: `node pl.mjs <name> <endpoint> <body.json>`, for the four jobs of ART_WORKFLOW.md's "PixelLab" only; `REVIEW=` or `NO_REVIEW=` as with gen.mjs; the same ledger (see "PixelLab") |
 | `gen-hairs.sh` | Hairstyle sheets as in-place edits: `./gen-hairs.sh <g> <hair> [<g> <hair> ...]` |
 | `build-scenery.mjs` | The town's scenery; `--set forest` the forest's own sheet; `--set kitchen` the cooking screen's (`public/town/kitchen.json`). In a worktree pass `--out <tree>/public/town` (the default writes into fcnext's), and link `work` to fcnext's so that the ledger is the one ledger (`mklink /J work …cnext…pixelwork`) |
 | `build-pixel-atlas.mjs` | `work/out` → `public/town` (`--out <dir>` to try elsewhere; `--poses` adds sit, sleep and wave) |
@@ -444,3 +449,22 @@ The owner: "ทำ 46 ชิ้นก่อน", of the list both AIs made (the 
 - **Bag icons** (`icons-wear-b` … `-f`, five calls, with `icons-wear-a` for the reference): the twenty-four made or bought things. `-f` drew again four that read as something else beside their neighbours: the apron as a bag, the pumpkin hat as the crop, the tortoiseshell glasses as the copper ones, the garland as the flower crown. The tortoiseshell's icon is still only a little apart from the copper's. Cut on the fine grid (5.3 to 5.8): 37 to 49 wide, as the round glasses.
 - **The atlas** is now one picture of 168 KB for everything but the outfits and a picture of 15 to 20 KB for each outfit (34), fetched when somebody wears it (it was 421 KB for half as many things in one picture).
 - **In the game:** `work/debug/new46/worn-desk.png` (18 looks walking, from behind, sitting and eating), `work/debug/wardrobe46/contact-{desk,phone,small}.png` (the wardrobe's tabs, a hat put on over cat ears, the locked cards). A thing on top of the head (ears, horns, tiara, crown, the big bow) and a hat take turns in the wardrobe (lib/town/wear's `together`).
+## PixelLab (2026-10-18/19)
+
+Tried on the real Doll 2 mannequin and starter outfit with the free trial (40 generations), then bought by the owner as Tier 1 (2,000 generations a month, 2026-10-19). What it is used for is ART_WORKFLOW.md's "PixelLab"; `pl.mjs` makes the calls. The trial's pictures were in a private page (https://claude.ai/artifact/CuXtn4dKKMLRLXz5VAHWjW); its scripts were throwaway.
+
+What each tool cost and gave, measured on the trial (frames padded to 64×96, 96×112 or 128×128):
+
+| Tool | Generations | What came out |
+|---|---|---|
+| `/estimate-skeleton` | 0.1 | 18 joints of a standing frame, close enough to start a pose set from |
+| `/animate-with-skeleton-v3`, 7 frames | 3 | the pose asked for, the 3/4 view held, no tool added, the outline kept; the mannequin and the starter with the same keypoints overlap 94–96% front, 90–92% back. A crouch "to pick something up" drew a stone in both outfits alike: say only the motion |
+| `/animate-with-text-v3`, 8 frames | 1 at 64×96, 2 at 96×112 | real motion, but the body turns towards the viewer or sideways, an axe or a stick appears, eyes close on some frames, the head shrinks; the same seed on another outfit gives another pose (77–89%) |
+| `/generate-8-rotations-v3` | 1 | eight views of the starter, its face, colours and pixel size kept, the satchel strap right from behind |
+| `/inpaint-image-pro-flash`, 64×64 head | 5 | a happy face (closed smiling eyes, blush, open mouth) in the doll's style; 0 pixels changed outside the mask |
+| `/inpaint`, 64×64 head | 1 | 0 pixels changed outside the mask, but small realistic eyes: off-style |
+| `/vfx` lite | 1 | 6–12 frames at 12 fps on the sprite's own pixel size, with a pivot; `game_pack` split a rank-up ring into behind and in front of the doll. Thin and plain for big moments |
+| `/vfx` pro | quoted 8 for a fire burst on the axe | not tried |
+
+- **The shared head fixes the head.** Laying the standing frame's own head on each generated frame, as Doll 2 lays its one head, (found by colour agreement within ±22 cells, the frame's own head cleared within 3 cells of the shared one) took away the closed eyes and the shrinking head of every route; it cannot undo a turned body.
+- **Jobs take 2 to 12 minutes**, and the trial ran one at a time.
