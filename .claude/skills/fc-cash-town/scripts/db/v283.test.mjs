@@ -43,15 +43,29 @@ const v = async (q, a) => (await one(q, a)).v;
 const fails = async (q, a = []) => { try { await db.query(q, a); return false; } catch { return true; } };
 try {
   for (const f of CHAIN) await db.exec(readFileSync(`supabase/${f}.sql`, "utf8"));
+  // (the rows as the live database has them before v283: a picking for two, the farm's pouch of six; and a bed more in
+  // farming.bedsAt, as v284 (more beds, fcnext-16) may have laid before this file runs: it must stand)
+  const code = catalogOf();
+  const LIVE_FARMING = { ...code.farming, costs: { ...code.farming.costs, pick: 2 }, bedsAt: [...code.farming.bedsAt, [999, 999]] };
+  const LIVE_POUCHES = code.pouches.map((p) => (p.gift === "thingPouch" ? { ...p, slots: 6 } : p));
+  await db.query("update public.town_catalog set data = $1::jsonb where key = 'farming'", [JSON.stringify(LIVE_FARMING)]);
+  await db.query("update public.town_catalog set data = $1::jsonb where key = 'pouches'", [JSON.stringify(LIVE_POUCHES)]);
   const sql = readFileSync(FILE, "utf8").replace(/\r\n/g, "\n");
   await db.exec(sql.replace(/\n/g, "\r\n"));
   const fnAfter = await v("select md5(replace(pg_get_functiondef('public.town_farm_prices()'::regprocedure),chr(13),'')) v");
+  const rowsAfter = await v("select jsonb_agg(data order by key) v from public.town_catalog where key in ('farming','pouches')");
   await db.exec(sql);
   eq(await v("select md5(replace(pg_get_functiondef('public.town_farm_prices()'::regprocedure),chr(13),'')) v"), fnAfter, "a second run leaves public.town_farm_prices as the first made it");
+  eq(await v("select jsonb_agg(data order by key) v from public.town_catalog where key in ('farming','pouches')"), rowsAfter, "a second run leaves the two rows as the first made them");
 
-  /* ── the catalog ── */
-  const code = catalogOf();
-  const farming = await v("select data v from public.town_catalog where key = 'farming'"), pouches = await v("select data v from public.town_catalog where key = 'pouches'");
+  /* ── the catalog: the two numbers and nothing else ── */
+  let farming = await v("select data v from public.town_catalog where key = 'farming'");
+  eq(farming, { ...LIVE_FARMING, costs: { ...LIVE_FARMING.costs, pick: 1 } }, "the farming row as it was but for costs.pick (another file's bed kept)");
+  eq(await v("select data v from public.town_catalog where key = 'pouches'"), code.pouches, "the pouches row as it was but for the farm pouch's slots");
+  // (the stand-in bed taken out again: the row is then the code's)
+  await db.query("update public.town_catalog set data = $1::jsonb where key = 'farming'", [JSON.stringify({ ...farming, bedsAt: code.farming.bedsAt })]);
+  farming = await v("select data v from public.town_catalog where key = 'farming'");
+  const pouches = await v("select data v from public.town_catalog where key = 'pouches'");
   eq(farming, code.farming, "the farming row is the code's");
   eq(farming.costs.pick, 1, "a picking costs one stamina");
   eq(pouches, code.pouches, "the pouches row is the code's");
