@@ -31,6 +31,13 @@ try {
   const sql = readFileSync(FILE, "utf8").replace(/\r\n/g, "\n");
   await db.exec(sql.replace(/\n/g, "\r\n"));
   await db.exec(sql);
+  // (with a file after it, run twice as written: v289's whole bed in time)
+  if (process.env.THEN) {
+    const then = readFileSync(process.env.THEN, "utf8");
+    await db.exec(then);
+    await db.exec(then);
+    eq((await one("select (length(d) - length(replace(d, 'town.quality_quiet', ''))) / length('town.quality_quiet') n from (select pg_get_functiondef('town.quality_keep()'::regprocedure) d) x")).n, 1, "the trigger is told once, the file run twice");
+  }
 
   const [me, pal, third] = (await rows("select p.id from public.profiles p order by p.id limit 3")).map((r) => r.id);
   const asOf = (who) => async (q, a = []) => { await db.query("select set_config('request.jwt.claim.sub',$1,false)", [who]); await db.query("select set_config('request.jwt.claim.role','authenticated',false)"); await db.exec("set role authenticated"); try { return (await db.query(q, a)).rows[0].r; } finally { await db.exec("reset role"); } };
