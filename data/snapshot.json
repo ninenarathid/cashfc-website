@@ -6,7 +6,7 @@
   "mounts": 61,
   "minions": 227,
   "rare": null,
-  "level": 27,
+  "level": 96,
   "cc": [
    false,
    false,
@@ -2294,7 +2294,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 60,
+  "level": 66,
   "cc": [
    true,
    true,
@@ -2520,7 +2520,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 98,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5672,7 +5672,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 96,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6342,7 +6342,7 @@
   "mounts": 130,
   "minions": 208,
   "rare": 48,
-  "level": 97,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -6661,7 +6661,7 @@
   "mounts": 122,
   "minions": 301,
   "rare": 67,
-  "level": 42,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6880,7 +6880,7 @@
   "mounts": 57,
   "minions": 111,
   "rare": 2,
-  "level": 96,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -6940,7 +6940,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 62,
+  "level": 63,
   "cc": [
    false,
    false,
@@ -8707,7 +8707,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 80,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8848,7 +8848,7 @@
   "mounts": 4,
   "minions": 7,
   "rare": null,
-  "level": 71,
+  "level": 72,
   "cc": [
    false,
    false,
@@ -8861,7 +8861,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-16"
+  "chg": "2026-10-19"
  },
  "44085912": {
   "name": "Mayu Ferguson",
