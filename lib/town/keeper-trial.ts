@@ -371,6 +371,8 @@ class TrialKeeper implements Keeper {
    return {ok:true as const,quiet:power.quiet,...(bond?{combo:bond.effect}:{})};
   }
 
+  async bedGive(bed: number, to: string, name: string): Promise<Did<{ plants: number }>> { const did = this.trial.bedGive(bed, to, name); if (did.ok) this.onDeed?.("farm"); return did; }
+  async bedLeave(bed: number): Promise<Did<{ plants: number }>> { const did = this.trial.bedLeave(bed); if (did.ok) this.onDeed?.("farm"); return did; }
   async farmDo(key: string, name: string, timing?: Timing, sure = false): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]>; also?: string[] }>> {
     const did = this.trial.farmDo(key, name, sure, timing?.rotation ?? 0);
     // every miss of the hoe is a little more stamina gone

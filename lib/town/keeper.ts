@@ -330,6 +330,9 @@ export interface Keeper {
   /** `sure`: the page has asked a second time and been told that a living plant is meant to be dug out (lib/town/farm). */
   // (forging: `also`, the plots beside it that the tool in the hand did the same to, by their keys: lib/town/farm's beside)
   farmDo(key: string, name: string, timing?: Timing, sure?: boolean): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]>; also?: string[] }>>;
+  /** My bed handed on to another member near me, or given up (lib/town/bed-hand): each the page asks twice before it is sent. */
+  bedGive(bed: number, to: string, name: string): Promise<Did<{ plants: number }>>;
+  bedLeave(bed: number): Promise<Did<{ plants: number }>>;
   choreDo(where: Water, at: [number, number] | null): Promise<Did<{ chore: Chore }>>;
   // ── gifts: farming ──
   /**
@@ -1779,6 +1782,17 @@ export class DbKeeper implements Keeper {
   async fishingPower(key:string,charge:number){return this.deed<{quiet:number;combo?:import('./combo-types').ComboEffect}>('town_fishing_power',{p_key:key,p_charge:charge});}
 
   // (forging: old tools: the answer's `also` are the plots beside the deed's that it changed too, each of which comes in the answer's `plots` and is kept as any answer's are)
+  async bedGive(bed: number, to: string): Promise<Did<{ plants: number }>> {
+    const did = await this.deed<{ plants: number }>("town_bed_give", { p_bed: bed, p_to: to });
+    // (the farm is told again by everybody, the taker above all: their page reads its beds anew)
+    if (did.ok) this.onDeed?.("farm", to);
+    return did;
+  }
+  async bedLeave(bed: number): Promise<Did<{ plants: number }>> {
+    const did = await this.deed<{ plants: number }>("town_bed_leave", { p_bed: bed });
+    if (did.ok) this.onDeed?.("farm");
+    return did;
+  }
   async farmDo(key: string, _name: string, timing?: Timing, sure = false): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]>; also?: string[] }>> {
     const [x, y] = key.split(",").map(Number);
     // (the word is sent only when it is given: a database that has not had v119 knows no such argument, and every

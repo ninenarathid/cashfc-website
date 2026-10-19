@@ -78,6 +78,7 @@ import {
   RULES, buy, change, collect, handOf, hold, leave, letGo, newPurse, newStall, nextRoundAt, no, put, roomFor, roomy, roundOf, takeBack, takeOff, wear,
   type Done, type Purse, type Refusal, type Stall,
 } from "./trade";
+import { giveBed, leaveBed, plantsIn, type BedRefusal } from "./bed-hand";
 import { KITCHEN, bedCorner, bedOf, wellBy, wellOf, yardFloor } from "./world";
 import { collect as jarCollect, drop as jarDrop, newJar, settle, type Jar, type JarThing, type JarTold, type Owed } from "./jar";
 import { boardOf, thank, toThank, type Helper, type Thanks, type ThanksBoard } from "./thanks";
@@ -651,6 +652,32 @@ export class Trial {
     return deedFor(key, this.farm()[key] ?? WILD, handOf(this.purse()), this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null, this.sky(), mayTwice(this.purse(), this.now()));
   }
   /** Do to a plot what the thing in my hand does: clear it, till it, dig its plant out (a living one only when it is `sure`), sow it, water it, feed it, cure it, pick it. Says what was done and what came of it, or why not. */
+  /**
+   * My bed handed on to another tester of this browser, or given up (lib/town/bed-hand): the beds, the farm and my purse
+   * written as the database would leave them (v288).
+   */
+  bedGive(bed: number, to: string, name: string): { ok: true; plants: number } | { ok: false; why: BedRefusal } {
+    const now = this.now(), beds = this.beds(), plots = this.farm();
+    const toHolds = [...this.owners()].filter(([n, o]) => n !== bed && o.by === to).length;
+    const did = giveBed(bed, beds[bed], plots, this.id, to, toHolds, now);
+    if (!did.ok) return did;
+    this.write(FARM, { ...plots, ...did.plots });
+    this.write(BEDS, { ...beds, [bed]: { ...did.bed, name: name || to } });
+    this.counted({ from: "deed", what: "bed_give", thing: null, n: plantsIn(bed, plots), doc: { bed, to } });
+    return { ok: true, plants: plantsIn(bed, plots) };
+  }
+  bedLeave(bed: number): { ok: true; plants: number } | { ok: false; why: BedRefusal } {
+    const now = this.now(), beds = this.beds(), plots = this.farm();
+    const did = leaveBed(bed, beds[bed], plots, this.purse(), this.id, now);
+    if (!did.ok) return did;
+    this.write(FARM, { ...plots, ...did.plots });
+    const kept = { ...beds };
+    delete kept[bed];
+    this.write(BEDS, kept);
+    this.save(did.purse);
+    this.counted({ from: "deed", what: "bed_leave", thing: null, n: plantsIn(bed, plots), doc: { bed } });
+    return { ok: true, plants: plantsIn(bed, plots) };
+  }
   farmDo(key: string, name = "", sure = false, rotation = 0): { ok: true; deed: Deed; got: Array<[ItemId, number]>; also?: string[] } | { ok: false; why: Refusal | FarmRefusal } {
     // (somebody is at the farm: its hour is counted, if it has not been)
     this.swarmNote();

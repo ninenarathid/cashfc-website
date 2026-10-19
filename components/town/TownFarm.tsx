@@ -40,6 +40,7 @@ import { handOf, heldStack } from "@/lib/town/trade";
 import { NATURE_NAMES, type Nature } from "@/lib/town/waters";
 import type { Keeper } from "@/lib/town/keeper";
 import { FARM, TILE_H, WELLS, bedCorner, bedOf, plotAt, wellBy, type Vec } from "@/lib/town/world";
+import { BedChip, BedHandPanel } from "./TownBedHand";
 import TownIcon, { ICON_ATLAS, petScale, type IconName } from "./TownIcon";
 import TownFoot from "./TownFoot";
 import { useLeaving } from "./useLeaving";
@@ -298,6 +299,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     long?: Array<{ key: string; place: number; crop: CropId }>; hard?: number; rotation?: number } | null>(null);
   /** The plant I have been asked a second time about digging out: in which plot, and whether it is a dead one (pull) or a living (uproot). */
   const [asking, setAsking] = useState<{ key: string; deed: "pull" | "uproot" | "lift" } | null>(null);
+  /** My bed's card open (lib/town/bed-hand): to hand it on or give it up. */
+  const [bedOpen, setBedOpen] = useState(false);
   /** The plot whose plant's Quality is open (components/town/TownQuality): shut again on walking off it. */
   const [inspecting, setInspecting] = useState<string | null>(null);
   /** Whether the bed's overview is open from the inspector (components/town/TownQuality's QualityBed). */
@@ -877,6 +880,12 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
 
   const stoodKey = tile ? plotKey(tile[0], tile[1]) : null;
   const key = stoodKey ? keeper.farm()[stoodKey]?.plant?.root ?? stoodKey : null;
+  // (my own bed, where I stand in it: handed on or given up from its card, lib/town/bed-hand; and how many beds each holds)
+  const bedHere = tile ? bedOf(tile[0], tile[1]) : -1, myBed = bedHere >= 0 && keeper.owners().get(bedHere)?.by === keeper.id;
+  const holds = new Map<string, number>();
+  for (const [, o] of keeper.owners()) holds.set(o.by, (holds.get(o.by) ?? 0) + 1);
+  // (walked off my bed, or it is mine no more: its card is shut, not left to open again on coming back)
+  useEffect(() => { if (!myBed) setBedOpen(false); }, [myBed]);
   const purse = keeper.purse(), hand = handOf(purse);
   const pollenHint = key && (gardenMods(purse, now).hint || (plots[key]?.plant?.pollenUntil ?? 0) > now) ? gardenCross(key, plots, keeper.id, now, rains) : null;
   // (the insect house's deeds come first: on its plot nothing else is done, and with it in the hand it is set down)
@@ -1277,7 +1286,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   ];
   const inspected = inspecting && inspecting === key ? plots[inspecting]?.plant ?? null : null;
   const inspectedHouse = inspecting && inspecting === key ? plots[inspecting]?.house ?? null : null;
-  const bare = (!placement && !moving && !working && !offer && !note && !powers.length && !running && !gardenInfo) || !!inspected;
+  const bare = (!placement && !moving && !working && !offer && !note && !powers.length && !running && !gardenInfo && !myBed) || !!inspected;
   /** The plant the asking is about, as it stands. */
   const asked = asking ? seen.current.get(asking.key) : undefined;
   return (
@@ -1289,7 +1298,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           <div className="min-h-0 overflow-y-auto"><TownNotebook initiallyOpen onClose={() => setBookView(false)} icon="gardenNotebook" title={th ? "สมุดทดลองสวนของฉัน" : "My garden experiments"} th={th} entries={bookEntries}/></div>
         </div>
       : <QualityInspector plant={inspected} now={now} rains={rains} th={th} onClose={() => setInspecting(null)} onBed={() => setBedView(true)} onChart={() => setChartView(true)} notes={panelNotes} onBook={() => setBookView(true)} book={bookCount} price={farmPriceOf(keeper, inspected.crop)} />}</TownFoot>}{bare ? null : (
-    <TownFoot rank={placement || moving || working || asking ? "board" : "main"} order={62}>
+    <TownFoot rank={placement || moving || working || asking || (bedOpen && myBed) ? "board" : "main"} order={62}>
       {moving && !placement && !working && <TownMovePlant at={moving} keeper={keeper} th={th} now={now} rains={rains} onClose={() => setMoving(null)} onMove={(to) => doMove(moving, to)} />}
       {placement && <TownGardenPlacement at={placement.key} crop={placement.crop} keeper={keeper} th={th} onClose={() => setPlacement(null)} onPlant={async rotation => { const need = hitsFor("sow", tiredOn(placement.key)); if (need) { setWorking({ key: placement.key, work: "sow", need, rotation }); setPlacement(null); } else if (await act(placement.key, undefined, false, rotation)) setPlacement(null); }} />}
       {running && <AnkletRun keeper={keeper} />}
@@ -1410,8 +1419,11 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
             </button>
           </div>
         </div>
-      ) : !placement && !moving && (offer || powers.length > 0 || !!(key && (plots[key]?.plant || plots[key]?.house))) && (
+      ) : bedOpen && myBed ? (
+        <BedHandPanel keeper={keeper} bed={bedHere} plots={plots} holds={holds} people={people ?? (() => [])} th={th} onClose={() => setBedOpen(false)} onDone={setNote} />
+      ) : !placement && !moving && (offer || powers.length > 0 || myBed || !!(key && (plots[key]?.plant || plots[key]?.house))) && (
         <div className="flex max-w-full flex-col items-center justify-center gap-2 sm:flex-row sm:flex-wrap">
+          {myBed && <BedChip bed={bedHere} plots={plots} th={th} onOpen={() => setBedOpen(true)} />}
           {key && plots[key]?.plant && <QualityChip plant={plots[key].plant!} now={now} rains={rains} th={th} onOpen={() => setInspecting(key)} gain={deed === "fert" && isFert(hand) ? fertGain(plots[key].plant!, hand, now, rains) : undefined} top={atTop(purse, plots[key].plant, keeper.id)} />}
           {key && plots[key]?.house && <HouseChip at={key} house={plots[key].house!} plots={plots} now={now} th={th} onOpen={() => setInspecting(key)} />}
           {offer && (
