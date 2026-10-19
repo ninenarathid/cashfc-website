@@ -220,3 +220,16 @@ Kept up to date as the build goes; newest last.
   x 128..187 × y 0..85 and lib/town/reward-relay's `relayPlace` is the page's copy; a second farm<->town gate sits at
   farm (128, 63-64). **jsonb `@>` takes [128,0,60,44] to be in [128,0,60,86]**: guards compare elements exactly.
   Its branch `town-gate` (not pushed) drops the first half's south-rim trees in FARM_PROPS' `gap` filter only.
+- 2026-10-20 ~01:00, committed on `animals`:
+  - The rules (`9c37e1b4`, `b6562b85`): 16 unit tests.
+  - The contract and lib/town/pasture.ts (`e3140886`).
+  - The v291 draft (`359ce8cd`):
+    - scripts/db/v291.core.sql, v291.act.sql and build-v291.mjs make supabase/v291_a_farm_of_animals.sql.
+    - v291.test.mjs: 1,946 checks, among them 300 random settlings held to lib/town/animals, the bands, the yields, the range and the meadow, and every step.
+    - v291.mutations.mjs: 9 breaks.
+  - Also: the market lets produce fall, the pasture counts as a source (uses.ts), breed scrolls are written and read, and the kitchen reads families.
+- Dry-run bench: `V291_BENCH=<scratch>/bench-v290.tar` caches the replayed database after v290. Without it the test replays everything, which takes about 5 minutes. The worktree's supabase/ needs the shared tree's untracked v199, v200, v201 and v257 copied in. They must never be committed.
+- Owed:
+  - Regenerate v291 after the page piece's world.ts is merged (the farm's shape copies, the relay's rows).
+  - `TOWN_WRITE=1 npx vitest run lib/town/catalog.test.ts` to rewrite the ran files' seed blocks, as v277 did.
+  - Pot icons for the 17 dishes (cooking.test). The art piece.

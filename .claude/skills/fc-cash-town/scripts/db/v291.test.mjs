@@ -18,11 +18,12 @@ const A = await import("@/lib/town/animals");
 const ACT = await import("@/lib/town/animal-act");
 const { FORAGE_BANDS } = await import("@/lib/town/animal-items");
 
-const FILE = process.env.V291_FILE ?? "supabase/v291_a_farm_of_animals.sql", BASE = "5568ab2b";
+const FILE = process.env.MIGRATION_FILE ?? process.env.V291_FILE ?? "supabase/v291_a_farm_of_animals.sql", BASE = "5568ab2b";
 const ran = (f) => execFileSync("git", ["show", `${BASE}:supabase/${f}`], { encoding: "utf8", maxBuffer: 1 << 28 });
-let checks = 0;
-const eq = (a, b, what) => { assert.deepEqual(a, b, what); checks++; };
-const near = (a, b, what, tol = 1e-6) => { assert.ok(Math.abs(a - b) <= tol * Math.max(1, Math.abs(b)), `${what}: ${a} against ${b}`); checks++; };
+// (each check says FAIL and goes on, as the migration harness's do, so that mutate.mjs can see which ones a break trips)
+let checks = 0, failed = 0;
+const eq = (a, b, what) => { try { assert.deepEqual(a, b, what); checks++; } catch { failed++; console.log(`  FAIL ${what}`); } };
+const near = (a, b, what, tol = 1e-6) => { if (Math.abs(a - b) <= tol * Math.max(1, Math.abs(b))) checks++; else { failed++; console.log(`  FAIL ${what}: ${a} against ${b}`); } };
 // (the bench as it is after v290, kept between runs: V291_BENCH, built once from the replay when it is not there)
 const CACHE = process.env.V291_BENCH;
 const { PGlite } = await import(pathToFileURL(createRequire(join(process.env.FC_DB_BENCH ?? "E:/NinenineProject/fcnext-codex-bench", "package.json")).resolve("@electric-sql/pglite")).href);
@@ -89,7 +90,8 @@ try {
   // ── a member's steps ──
   const [me, pal, third] = (await rows("select p.id from public.profiles p order by p.id limit 3")).map((r) => r.id);
   const asOf = (who) => async (q, a = []) => { await db.query("select set_config('request.jwt.claim.sub',$1,false)", [who]); await db.query("select set_config('request.jwt.claim.role','authenticated',false)"); await db.exec("set role authenticated"); try { return (await db.query(q, a)).rows[0].r; } finally { await db.exec("reset role"); } };
-  const step = (who) => { const as = asOf(who); return (input, request = null) => as("select public.town_animals($1::jsonb, $2) r", [JSON.stringify(input), request]); };
+  // (an error of the database's own, a constraint say, is a refusal too: the step did not come off)
+  const step = (who) => { const as = asOf(who); return async (input, request = null) => { try { return await as("select public.town_animals($1::jsonb, $2) r", [JSON.stringify(input), request]); } catch (e) { await db.exec("reset role").catch(() => {}); return { ok: false, why: `error ${e.code}` }; } }; };
   const mine = step(me), pals = step(pal);
   // (anon is refused outright)
   await db.exec("set role anon");
@@ -97,9 +99,10 @@ try {
   try { await db.query(`select public.town_animals('{"action":"look"}'::jsonb)`); } catch (e) { refused = e.code === "42501"; }
   await db.exec("reset role");
   eq(refused, true, "anon may not call it");
+  eq((await one("select has_function_privilege('anon', 'public.town_animals(jsonb,text)', 'execute') r")).r, false, "anon has no grant to it");
   eq((await mine({ action: "look" })).ok, true, "a member looks");
   const give = async (who, coins, stacks) => {
-    await asOf(who)("select town.purse_of($1::uuid, false) r", [who]);
+    await step(who)({ action: "look" });
     const bag = [...stacks.map(([item, n, grade]) => ({ item, n, ...(grade ? { grade } : {}) })), ...Array(20 - stacks.length).fill(null)];
     await db.query("update public.town_purses set coins = $2, doc = jsonb_set(coalesce(doc, '{}'::jsonb), '{bag}', $3::jsonb) where member_id = $1", [who, coins, JSON.stringify(bag)]);
   };
@@ -127,6 +130,12 @@ try {
   eq(cared.ok, true, "a friend feeds it");
   eq((await one("select count(*)::int n from public.town_deeds where member_id = $1 and what = 'animal_care' and (doc->>'pts')::int = 6", [pal])).n, 1, "a care deed of six points");
   eq((await pals({ action: "collect", id: chick, cracked: 0 })).why, "theirs", "only the owner collects");
+  // (the thirty a day: a friend at twenty-nine has one more point of it)
+  await db.query("update public.town_purses set doc = jsonb_set(doc, '{animalCare}', jsonb_build_object('day', $2::int, 'n', 29)) where member_id = $1", [pal, A.dayOf(t0)]);
+  await db.query("update public.town_animals set a = jsonb_set(a, '{food}', '0') where id = $1", [chick]);
+  await db.query("update public.town_purses set doc = jsonb_set(doc, '{bag}', $2::jsonb) where member_id = $1", [pal, JSON.stringify([{ item: "chickFeed", n: 1 }, ...Array(19).fill(null)])]);
+  eq((await pals({ action: "feed", id: chick, item: "chickFeed" })).ok, true, "fed again by the friend");
+  eq((await one("select max((doc->>'pts')::int) p from public.town_deeds where member_id = $1 and what = 'animal_care' and id = (select max(id) from public.town_deeds where member_id = $1)", [pal])).p, 1, "thirty a day at most");
   // (a grown hen with eggs waiting: collected with the basket, graded, a manure; then nothing to collect)
   const hen = { ...bought.world.animals[0], grown: A.adultAt("chicken"), banked: 3, hearts: 200, at: t0, today: { day: A.dayOf(t0) } };
   await db.query("update public.town_animals set a = $2::jsonb where id = $1", [chick, JSON.stringify(hen)]);
@@ -157,6 +166,23 @@ try {
   const before = (await one("select coins::int c from public.town_purses where member_id = $1", [me])).c;
   eq((await mine({ action: "sell", id: hen2.id })).ok, true, "sold back");
   eq((await one("select coins::int c from public.town_purses where member_id = $1", [me])).c - before, 100, "a quarter of 400");
+  // (a breed first bred: its scroll written out by its first breeder alone, and read, the step's offering known)
+  await db.query("update public.town_pasture set found = found || jsonb_build_object('silkie', jsonb_build_object('by', $1::text, 'at', 0)) where one", [me]);
+  eq((await pals({ action: "scroll", breed: "silkie" })).why, "theirs", "only the first breeder writes it out");
+  const wrote = await mine({ action: "scroll", breed: "silkie" });
+  eq([wrote.ok, wrote.got.item], [true, "scrollBreed_chicken_B"], "a scroll written out");
+  eq((await mine({ action: "read", item: "scrollBreed_chicken_B" })).ok, true, "read");
+  eq((await one("select doc->'recipes' ? 'scrollBreed_chicken_B' r from public.town_purses where member_id = $1", [me])).r, true, "known from now on");
+  // (gifts: the cradle once a day, spring wind readying a round once an animal)
+  await db.query("update public.town_purses set doc = jsonb_set(doc, '{gifts}', jsonb_build_object('had', jsonb_build_array('thingCradle', 'thingSpringWind'), 'charms', '[]'::jsonb, 'owed', 0, 'familiar', null, 'used', '{}'::jsonb)) where member_id = $1", [me]);
+  await db.query("update public.town_animals set a = a || jsonb_build_object('food', 20, 'made', 3, 'banked', 0) where id = $1", [chick]);
+  const cr = await mine({ action: "cradle", id: chick });
+  eq([cr.ok, (await mine({ action: "cradle", id: chick })).why], [true, "spent"], "the cradle once a day");
+  eq((await mine({ action: "wind" })).ok, true, "the wind called");
+  const came = await mine({ action: "enter" });
+  eq(came.world.animals.find((x) => x.id === chick).banked, 1, "a round ready at once");
+  const came2 = await mine({ action: "enter" });
+  eq((came2.world.animals.find((x) => x.id === chick) ?? { banked: 1 }).banked, 1, "once an animal a day");
   // (nobody reaches the tables but through the function)
   for (const tbl of ["town_animals", "town_herds", "town_pasture", "town_animal_asks"]) {
     let no = false;
@@ -165,5 +191,6 @@ try {
     await db.exec("reset role");
     eq(no, true, `${tbl} closed to members`);
   }
-  console.log(`v291: ${checks} checks passed`);
-} finally { await db.close(); }
+  console.log(`v291: ${checks} checks passed, ${failed} failed`);
+  if (failed) process.exitCode = 1;
+} catch (e) { console.log(`  FAIL crashed: ${String(e.message).split(String.fromCharCode(10))[0]}`); process.exitCode = 1; } finally { await db.close(); }
