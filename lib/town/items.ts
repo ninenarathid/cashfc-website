@@ -1057,6 +1057,12 @@ export const CROP_IDS = Object.keys(CROPS) as CropId[];
  */
 export const CROP_STACK = 2;
 for (const id of CROP_IDS) (ITEMS[id] as Item).stack *= CROP_STACK;
+/**
+ * Every dish stacks twenty to a slot (the owner, 2026-10-20: "ช่วยทำให้ให้ จานstack กันได้ ซัก 20 ใบ"), where most were
+ * five and a few ten; whatever is written above for a dish is overruled here. A pot of food is a tool, and as it was.
+ */
+export const DISH_STACK = 20;
+for (const id of ITEM_IDS) if (ITEMS[id].kind === "dish") (ITEMS[id] as Item).stack = DISH_STACK;
 export const STAGES = 5;
 /**
  * How far through its hours a plant is when each stage begins: what was sown
