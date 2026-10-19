@@ -2,6 +2,97 @@
  "events": [
   {
    "date": "2026-10-19",
+   "type": "rare_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "earned An Eye for Detail: Weaver IV — only 2.9% of players have it"
+  },
+  {
+   "date": "2026-10-19",
+   "type": "rare_up",
+   "id": 44970350,
+   "name": "Allen Crist",
+   "text": "earned Clare Obscurum: Longpole Obscurum — only 4.2% of players have it"
+  },
+  {
+   "date": "2026-10-19",
+   "type": "rare_up",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "earned R&D: Stellar Alembic"
+  },
+  {
+   "date": "2026-10-19",
+   "type": "rare_up",
+   "id": 22461237,
+   "name": "Metatron Vtretikh",
+   "text": "earned Savage Gaze of the Abyss III"
+  },
+  {
+   "date": "2026-10-19",
+   "type": "rare_up",
+   "id": 6173187,
+   "name": "Motochita Muses",
+   "text": "earned A Wolf in Green Tights II"
+  },
+  {
+   "date": "2026-10-19",
+   "type": "rare_up",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "earned Cut Above the Rest: Fans Occultum — only 2.3% of players have it"
+  },
+  {
+   "date": "2026-10-19",
+   "type": "level_100",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-10-19",
+   "type": "rare_up",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "earned R&D: Cross-pein Hyperhammer"
+  },
+  {
+   "date": "2026-10-19",
+   "type": "rare_up",
+   "id": 29918255,
+   "name": "Lyndanisse Vymmaith",
+   "text": "earned Crucible Checkmate I"
+  },
+  {
+   "date": "2026-10-19",
+   "type": "level_100",
+   "id": 60972300,
+   "name": "Mizuki Sekine",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
+   "date": "2026-10-19",
+   "type": "job_up",
+   "id": 29659200,
+   "name": "Kleenex Tissue",
+   "text": "is now a Expert Reaper"
+  },
+  {
+   "date": "2026-10-19",
+   "type": "job_up",
+   "id": 34510497,
+   "name": "Leonest Lionheart",
+   "text": "is now a Master Gunbreaker"
+  },
+  {
+   "date": "2026-10-19",
+   "type": "job_up",
+   "id": 34510497,
+   "name": "Leonest Lionheart",
+   "text": "is now a Master Monk"
+  },
+  {
+   "date": "2026-10-19",
    "type": "job_up",
    "id": 28127069,
    "name": "Jim Carried",
@@ -1308,97 +1399,6 @@
    "id": 30864049,
    "name": "Lay Stardust",
    "text": "earned A Storied Collection"
-  },
-  {
-   "date": "2026-10-06",
-   "type": "rare_up",
-   "id": 37056222,
-   "name": "Lucine Nokomis",
-   "text": "earned Critical Analysis I"
-  },
-  {
-   "date": "2026-10-06",
-   "type": "rare_up",
-   "id": 44133352,
-   "name": "Seville Beoulve",
-   "text": "earned Eighth Rank II — only 1.8% of players have it, and 1 more"
-  },
-  {
-   "date": "2026-10-06",
-   "type": "level_100",
-   "id": 44133352,
-   "name": "Seville Beoulve",
-   "text": "reached level 100 on Red Mage!"
-  },
-  {
-   "date": "2026-10-06",
-   "type": "rare_up",
-   "id": 43864764,
-   "name": "Shinonome Kamemaru",
-   "text": "earned An Ode to Mining — only 2.3% of players have it"
-  },
-  {
-   "date": "2026-10-06",
-   "type": "rare_up",
-   "id": 22425670,
-   "name": "Shizuna-pan Misurugi",
-   "text": "earned Splendid: Crystalline Cross-pein Hammer"
-  },
-  {
-   "date": "2026-10-06",
-   "type": "level_100",
-   "id": 29795820,
-   "name": "Elle Lauren",
-   "text": "reached level 100 on Summoner!"
-  },
-  {
-   "date": "2026-10-06",
-   "type": "level_100",
-   "id": 29907674,
-   "name": "Ranjoe Tp'",
-   "text": "reached level 100 on Fisher!"
-  },
-  {
-   "date": "2026-10-06",
-   "type": "new_member",
-   "id": 34874723,
-   "name": "Allen Fliegen",
-   "text": "joined the FC — welcome!"
-  },
-  {
-   "date": "2026-10-06",
-   "type": "level_100",
-   "id": 60972300,
-   "name": "Mizuki Sekine",
-   "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-10-06",
-   "type": "level_100",
-   "id": 60852230,
-   "name": "Lucienvt Yenslayer",
-   "text": "reached level 100 on Dragoon!"
-  },
-  {
-   "date": "2026-10-06",
-   "type": "parse_up",
-   "id": 51060767,
-   "name": "Yatchy Concreategirls",
-   "text": "set a new best parse: 22 on Valigarmanda as Reaper"
-  },
-  {
-   "date": "2026-10-06",
-   "type": "ex_clear",
-   "id": 51060767,
-   "name": "Yatchy Concreategirls",
-   "text": "cleared Valigarmanda (Extreme)"
-  },
-  {
-   "date": "2026-10-06",
-   "type": "parse_up",
-   "id": 58199536,
-   "name": "Areeya Lovekin",
-   "text": "set a new best parse: 62 on Zoraal Ja as Pictomancer"
   }
  ]
 }

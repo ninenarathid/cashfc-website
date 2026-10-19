@@ -1662,7 +1662,7 @@
   },
   {
    "date": "2026-10-19",
-   "total": 510,
+   "total": 509,
    "tags": {
     "veteran": 155,
     "extreme": 149,
@@ -1676,7 +1676,7 @@
     "goldsaucer": 7,
     "seasonal": 14,
     "pvp": 19,
-    "private": 223,
+    "private": 222,
     "casual": 30,
     "prog": 23,
     "oldtimer": 1
@@ -1686,7 +1686,7 @@
    "extreme": 149,
    "unknown": 0,
    "final_boss": 42,
-   "active": 168,
+   "active": 167,
    "vacation": 342,
    "guests": 14
   }

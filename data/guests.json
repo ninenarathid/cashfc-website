@@ -1842,8 +1842,15 @@
    "fflogs": "ok",
    "lode_achv_public": false,
    "stats_seen": "2026-10-18"
+  },
+  "61997211": {
+   "name": "Punipi Puni",
+   "world": "Tonberry",
+   "dc": "Elemental",
+   "fc": null,
+   "seen": "2026-10-19"
   }
  },
- "generated_at": "2026-10-19T05:09:19Z",
- "count": 14
+ "generated_at": "2026-10-19T16:14:35Z",
+ "count": 15
 }
