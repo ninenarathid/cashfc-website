@@ -66,6 +66,12 @@ export function BedHandPanel({ keeper, bed, plots, holds, people, th, onClose, o
 
   const send = async () => {
     if (!asking || busy) return;
+    // (the one to hand it to is still near at the confirming: whoever walked off or left is not handed a bed)
+    if (asking.what === "give" && !standersNear(people(), keeper.id).some((p) => p.id === asking.to)) {
+      setAsking(null);
+      onDone(th ? `${asking.name} ไม่ได้ยืนใกล้แล้ว · ยังไม่ได้ยกแปลง` : `${asking.name} is no longer near · the bed is still yours`);
+      return;
+    }
     setBusy(true);
     const did = asking.what === "give" ? await keeper.bedGive(bed, asking.to, asking.name) : await keeper.bedLeave(bed);
     setBusy(false);

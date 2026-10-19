@@ -15,7 +15,7 @@ const { bedCorner } = await import("@/lib/town/world");
 const { giveBed, leaveBed } = await import("@/lib/town/bed-hand");
 const { put } = await import("@/lib/town/trade");
 
-const FILE = "supabase/v288_a_bed_handed_on_or_given_up.sql", BASE = "5568ab2b";
+const FILE = process.env.V288_FILE ?? "supabase/v288_a_bed_handed_on_or_given_up.sql", BASE = "5568ab2b";
 const ran = (f) => execFileSync("git", ["show", `${BASE}:supabase/${f}`], { encoding: "utf8", maxBuffer: 1 << 28 });
 let checks = 0;
 const eq = (a, b, what) => { assert.deepEqual(a, b, what); checks++; };
@@ -111,8 +111,33 @@ try {
   eq((await rows("select count(*)::int n from public.town_beds where bed = $1", [C]))[0].n, 0, "the bed row gone");
   eq([(await as("select public.town_bed_leave($1) r", [A])).why], ["theirs"], "a bed not mine cannot be given up");
   eq([(await as("select public.town_bed_leave($1) r", [-1])).why], ["none"], "nor a bed that is not");
+  // ── partners side by side (Codex's check, 2026-10-19): the Quality trigger writes each one's neighbour as it changes;
+  // laid with the triggers on, as a member's sowing lays them, both hand-on and give-up go through ──
+  const D = 33, E = 34, F = 35, sown = (bed, by) => {
+    const [x, y] = bedCorner(bed);
+    return [[x + 1, y + 1, "carrot"], [x + 2, y + 1, "scallion"], [x + 1, y + 2, "scallion"], [x + 2, y + 2, "carrot"]].map(([px, py, crop]) => [px, py, plant(by, crop)]);
+  };
+  for (const bed of [D, E, F]) {
+    await db.query("delete from public.town_plots where bed = $1", [bed]);
+    for (const [x, y, p] of sown(bed, me)) await db.query("insert into public.town_plots(x, y, bed, soil, plant, changed) values ($1::int, $2::int, $3, 'tilled', $4::jsonb, $5)", [x, y, bed, JSON.stringify(p), t - H]);
+  }
+  await db.exec("delete from public.town_beds where member_id in (select id from public.profiles)");
+  for (const bed of [D, E]) await db.query("insert into public.town_beds(bed, member_id, tended, empty) values ($1, $2, $3, 0)", [bed, me, t - H]);
+  const partnered = (await rows("select count(*)::int n from public.town_plots where bed = $1 and plant->'q'->'bed'->>'p' is not null", [D]))[0].n;
+  eq(partnered > 0, true, "the trigger gave the partners their gift as they were sown");
+  const gaveD = await as("select public.town_bed_give($1, $2) r", [D, pal]);
+  eq([gaveD.ok, gaveD.plants], [true, 4], "a bed of partners handed on");
+  eq((await rows("select count(*)::int n from public.town_plots where bed = $1 and plant->>'by' = $2", [D, pal]))[0].n, 4, "every partner the taker's");
+  const leftE = await as("select public.town_bed_leave($1) r", [E]);
+  eq([leftE.ok, leftE.plants], [true, 4], "a bed of partners given up");
+  eq((await rows("select count(*)::int n from public.town_plots where bed = $1 and plant is not null", [E]))[0].n, 0, "every partner gone");
+  // (a taker with no purse yet is made one and held: given a bed all the same)
+  await db.query("delete from public.town_purses where member_id = $1", [third]);
+  await db.query("insert into public.town_beds(bed, member_id, tended, empty) values ($1, $2, $3, 0) on conflict (bed) do update set member_id = excluded.member_id", [F, me, t - H]);
+  const toNew = await as("select public.town_bed_give($1, $2) r", [F, third]);
+  eq([toNew.ok, (await one("select count(*)::int n from public.town_purses where member_id = $1", [third])).n], [true, 1], "to one with no purse yet: made, held and given");
   // (and the deeds are written for the town's record)
-  eq((await rows("select what from public.town_deeds where member_id = $1 and what in ('bed_give', 'bed_leave') order by id", [me])).map((r) => r.what), ["bed_give", "bed_leave"], "each is written as a deed");
+  eq((await rows("select what from public.town_deeds where member_id = $1 and what in ('bed_give', 'bed_leave') order by id", [me])).map((r) => r.what), ["bed_give", "bed_leave", "bed_give", "bed_leave", "bed_give"], "each is written as a deed");
 
   console.log(`v288: ${checks} checks passed`);
 } finally { await db.close(); }

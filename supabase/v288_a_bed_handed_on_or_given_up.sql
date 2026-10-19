@@ -15,7 +15,10 @@
 --   * public.town_bed_leave(p_bed): my bed; every plant in it is gone (each plot left as its soil is, written, not
 --     deleted, so that every page hears of it), its insect house lifted into my bag (its rooms' insects gone, as at a
 --     lifting; refused 'full' with no room), the help on its plants forgotten, and the bed nobody's.
--- Each takes the bed's lock as a tend does, and the giver's and the taker's purses in the order of their ids.
+-- Each takes the giver's and the taker's purses first, in the order of their ids, made if they were not (as a deal
+-- opens them: a taker who never had one is held all the same, and a tend of theirs, which holds their purse, waits),
+-- then the bed's lock as a tend does. The plots are written one at a time: the Quality trigger (town.quality_keep)
+-- writes a plant's neighbours in the bed as each one changes, which one statement over all of them would trip on.
 begin;
 set local statement_timeout = '60s';
 set local lock_timeout = '10s';
@@ -54,12 +57,13 @@ declare
   keeping jsonb;
   planted boolean;
   plants integer;
-  held uuid;
+  r record;
 begin
   if p_bed is null or p_bed < 0 or p_bed >= jsonb_array_length(town.cat('farming')->'bedsAt') then return town.answer(me, town.no('none')); end if;
   if p_to is null or p_to = me or not town.is_member(p_to) then return town.answer(me, town.no('none')); end if;
-  -- (both purses, in the order of their ids, as a deal holds them; then the bed, as a tend does)
-  for held in select pp.member_id from public.town_purses pp where pp.member_id in (me, p_to) order by pp.member_id for update loop null; end loop;
+  -- (both purses, made if need be and held, the lesser id first, as a deal holds them; then the bed, as a tend does)
+  perform town.purse_of(least(me, p_to), true);
+  perform town.purse_of(greatest(me, p_to), true);
   perform pg_advisory_xact_lock(hashtext('town.bed'), p_bed);
   select jsonb_build_object('by', b.member_id, 'tended', b.tended, 'empty', b.empty) into keeping from public.town_beds b where b.bed = p_bed for update;
   planted := exists (select 1 from public.town_plots p where p.bed = p_bed and p.plant is not null);
@@ -67,11 +71,13 @@ begin
   if town.beds_held(p_to, p_bed, now_) >= (town.cat('farming')->'beds'->>'each')::integer then return town.answer(me, town.no('beds')); end if;
   select count(*)::integer into plants from public.town_plots p
    where p.bed = p_bed and jsonb_typeof(p.plant) = 'object' and (p.plant->>'root' is null or p.plant->>'root' = p.x::text || ',' || p.y::text);
-  update public.town_plots p set
-      plant = case when jsonb_typeof(p.plant) = 'object' then p.plant || jsonb_build_object('by', p_to::text) else p.plant end,
-      house = case when jsonb_typeof(p.house) = 'object' then p.house || jsonb_build_object('by', p_to::text) else p.house end,
-      changed = now_
-   where p.bed = p_bed and (jsonb_typeof(p.plant) = 'object' or jsonb_typeof(p.house) = 'object');
+  for r in select p.x, p.y from public.town_plots p where p.bed = p_bed and (jsonb_typeof(p.plant) = 'object' or jsonb_typeof(p.house) = 'object') order by p.x, p.y loop
+    update public.town_plots p set
+        plant = case when jsonb_typeof(p.plant) = 'object' then p.plant || jsonb_build_object('by', p_to::text) else p.plant end,
+        house = case when jsonb_typeof(p.house) = 'object' then p.house || jsonb_build_object('by', p_to::text) else p.house end,
+        changed = now_
+     where p.x = r.x and p.y = r.y;
+  end loop;
   update public.town_plot_help h set owner = p_to
    where h.owner = me and exists (select 1 from public.town_plots p where p.bed = p_bed and p.x = h.x and p.y = h.y);
   update public.town_beds b set member_id = p_to, tended = now_, empty = case when planted then 0 else now_ end where b.bed = p_bed;
@@ -89,9 +95,9 @@ declare
   planted boolean;
   plants integer;
   house_ boolean;
+  r record;
 begin
   if p_bed is null or p_bed < 0 or p_bed >= jsonb_array_length(town.cat('farming')->'bedsAt') then return town.answer(me, town.no('none')); end if;
-  perform 1 from public.town_purses pp where pp.member_id = me for update;
   purse := town.purse_of(me, true);
   perform pg_advisory_xact_lock(hashtext('town.bed'), p_bed);
   select jsonb_build_object('by', b.member_id, 'tended', b.tended, 'empty', b.empty) into keeping from public.town_beds b where b.bed = p_bed for update;
@@ -101,13 +107,15 @@ begin
   if house_ and town.room(purse->'bag', 'insectHouse') < 1 then return town.answer(me, town.no('full')); end if;
   select count(*)::integer into plants from public.town_plots p
    where p.bed = p_bed and jsonb_typeof(p.plant) = 'object' and (p.plant->>'root' is null or p.plant->>'root' = p.x::text || ',' || p.y::text);
-  -- (written, not deleted: a page is told the plots that changed since it last asked)
-  update public.town_plots p set
-      plant = null,
-      house = null,
-      soil = case when p.house is not null then 'tilled' else p.soil end,
-      changed = now_
-   where p.bed = p_bed and (p.plant is not null or p.house is not null);
+  -- (written, not deleted: a page is told the plots that changed since it last asked; one at a time, as above)
+  for r in select p.x, p.y from public.town_plots p where p.bed = p_bed and (p.plant is not null or p.house is not null) order by p.x, p.y loop
+    update public.town_plots p set
+        plant = null,
+        house = null,
+        soil = case when p.house is not null then 'tilled' else p.soil end,
+        changed = now_
+     where p.x = r.x and p.y = r.y;
+  end loop;
   delete from public.town_plot_help h where exists (select 1 from public.town_plots p where p.bed = p_bed and p.x = h.x and p.y = h.y);
   delete from public.town_beds b where b.bed = p_bed;
   if house_ then perform town.keep_purse(me, purse || jsonb_build_object('bag', town.put(purse->'bag', 'insectHouse', 1))); end if;
