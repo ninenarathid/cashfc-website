@@ -191,6 +191,25 @@ dyes from the rainbow sheep).
   the cloud ram with two riders. Base pictures by gen.mjs (the owner's workflow, Codex's `art` gate), facings and frames
   by PixelLab (`pl.mjs`), trial on the chick and hen first.
 
+## The contract between the page and the database
+
+- One keeper method: `animals(input: AnimalInput, request?: string): Promise<{ ok: boolean; why?: AnimalWhy; world: AnimalWorld; got?: AnimalReply["got"] }>`
+  (types in lib/town/animal-act.ts). The trial runs `animalAction` and keeps its world in localStorage (as the
+  warehouse does); DbKeeper calls `town_animals(p_input jsonb, p_request text)`.
+- `town_animals` answers through `town.answer(me, …)` (so the purse comes back as every deed's does) with
+  `{ ok, why?, got?, world }`. On `look` the world is whole: every animal (all members', for drawing), every herd's
+  `{owner, care, carers, facade}` (keeping counts only for me), the gate log (last 64), `found`, live spells, today's
+  wagons. On any other step `world` is partial: `{ animals: <the animals the step touched or added>, removed: [ids],
+  herds: [mine], gate, spells, wagons, found }`, and the keeper merges it into what it holds. `p_request` makes a retried
+  call answer the first answer (idempotent).
+- Map facts the database needs (egg spots, meadow spots, wagon stops, the farm's bounds) live in lib/town/pasture.ts and
+  go into the catalog row `animals` with the rules' numbers; the page piece owns their values.
+- What changes elsewhere in the database: the farm's shape copies widen to `[128,-32,60,118]` (cooking.map.farm,
+  insects.nectar.maps, ground.maps, rewards.nurseryBoxes) and `town.reward_relay_place`'s farm rows to -32..85; the
+  kitchen's matching reads a breed's egg / milk / wool as its family; `town.carries_grade` and the relatives' grade pay
+  take animal produce; the line `animals` is counted from the deeds `animal_*` (`doc.pts`), helpers points from
+  `animal_care`.
+
 ## State and order of work
 
 Kept up to date as the build goes; newest last.
