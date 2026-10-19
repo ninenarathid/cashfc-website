@@ -233,3 +233,6 @@ Kept up to date as the build goes; newest last.
   - Regenerate v291 after the page piece's world.ts is merged (the farm's shape copies, the relay's rows).
   - `TOWN_WRITE=1 npx vitest run lib/town/catalog.test.ts` to rewrite the ran files' seed blocks, as v277 did.
   - Pot icons for the 17 dishes (cooking.test). The art piece.
+  - From fcnext-d9 (v292, every dish stacks 20 a slot; worktree fcnext-wt-dishstack, branch dish-stack): once its
+    DISH_STACK rule is on main, rebase and regenerate v291 so the pasture's 17 dishes come out at 20. The next free number
+    after v292 is v293.
