@@ -11,6 +11,7 @@ import { WEAR_ITEMS } from "./wear-items";
 import { FERT_ITEMS, FERT_MAKES } from "./fertilisers";
 import { GEOLOGY_DISHES, GEOLOGY_ITEMS, GEOLOGY_MAKES, GEOLOGY_SCROLL_ITEMS, GEOLOGY_SCROLLS, type GeologyDishId } from "./geology-items";
 import { WOOD_DISHES, WOOD_ITEMS, WOOD_MAKES, WOOD_SCROLL_ITEMS, WOOD_SCROLLS, type WoodDishId } from "./wood-items";
+import { ANIMAL_DISHES, ANIMAL_ITEMS, ANIMAL_MAKES, ANIMAL_SCROLL_ITEMS, ANIMAL_SCROLLS, BREED_SCROLL_ITEMS, type AnimalDishId } from "./animal-items";
 import { FIND_ITEMS, NEW_FISH, NEW_FISH_ITEMS, NEW_INSECT_ITEMS, SMALL_FISH_BAITS, type NewFishId } from "./band-species";
 import { RIVER_DISHES, RIVER_FISH, RIVER_ITEMS, RIVER_MAKES, RIVER_SCROLL_ITEMS, RIVER_SCROLLS, type Current, type FishingHabitat, type RiverDishId, type RiverFishId } from "./river-items";
 
@@ -667,6 +668,7 @@ export const ITEMS = {
   ...FORAGE_SCROLL_ITEMS,
   ...INSECT_SCROLL_ITEMS,
   ...WOOD_ITEMS,
+  ...ANIMAL_ITEMS,
   ...GARDEN_ITEMS,
   ...GARDEN_SEED_ITEMS,
   // (the farm's Quality: the twenty helper plants and their seeds, lib/town/helper-items)
@@ -676,6 +678,8 @@ export const ITEMS = {
   ...HELPER_SEED_ITEMS,
   ...GARDEN_SCROLL_ITEMS,
   ...WOOD_SCROLL_ITEMS,
+  ...ANIMAL_SCROLL_ITEMS,
+  ...BREED_SCROLL_ITEMS,
   ...GEOLOGY_ITEMS,
   ...GEOLOGY_SCROLL_ITEMS,
   ...RIVER_SCROLL_ITEMS,
@@ -702,6 +706,7 @@ export const ITEM_IDS = Object.keys(ITEMS) as ItemId[];
 export const SCROLLS: Partial<Record<ItemId, ItemId>> = {
   ...REGIONAL_SCROLLS,
   ...WOOD_SCROLLS,
+  ...ANIMAL_SCROLLS,
   ...INSECT_SCROLLS,
   ...FORAGE_SCROLLS,
   ...STREAM_SCROLLS,
@@ -1148,7 +1153,7 @@ export const BUFF_STEPS: Record<MealBuffId, [number, number, number, number]> = 
 /** How much a buff does at a level: nothing at none, and no more past the fourth. */
 export const byOf = (id: MealBuffId, level: number): number => (level >= 1 ? BUFF_STEPS[id][Math.min(BUFF_LEVELS, Math.floor(level)) - 1] : 0);
 
-export type DishId = RegionalDishId | PrepDishId | CampDishId | ForageDishId | RiverDishId | WoodDishId | GeologyDishId | GardenDishId | InsectDishId | StreamDishId
+export type DishId = AnimalDishId | RegionalDishId | PrepDishId | CampDishId | ForageDishId | RiverDishId | WoodDishId | GeologyDishId | GardenDishId | InsectDishId | StreamDishId
   | "riceBox" | "oddDish" | "friedMinnow" | "grilledFish" | "grilledCorn" | "roastSweetPotato" | "stirKangkong" | "basilCatfish" | "tomYum" | "sourCurry" | "friedPerch" | "fishCake" | "spicyEel" | "grilledPrawn" | "steamedGoby" | "pumpkinSoup" | "shabu"
   | "somTam" | "grilledEggplant" | "tomKha" | "friedGourami" | "crabCurry" | "steamedSheatfish" | "friedFrog" | "laab" | "omelette" | "snailCurry" | "candiedPumpkin" | "friedRice"
   | "greenCurry" | "khanomJeen" | "hoMok" | "mangoStickyRice" | "bananaInCoconut" | "taroPudding" | "steamedCroaker" | "gingerFish" | "turmericFish" | "jungleCurry" | "megaLaab" | "watermelonSlices" | "khantoke" | "naamPrik"
@@ -1159,6 +1164,8 @@ export type DishId = RegionalDishId | PrepDishId | CampDishId | ForageDishId | R
 /** What a dish is cooked in: the first three, and the cookware of the later tiers. */
 export type Cookware = "fermentCrock" | "fieldKettle" | "pot" | "pan" | "grill" | "mortar" | "steamer" | "cleaver" | "jar" | "wok" | "potBrass" | "stoveBig" | "panBrass" | "steamerBamboo" | "hotpot"
   | "rollingPin" | "sushiMat" | "stoneBowl" | "oven"
+  // (the pasture's makings, lib/town/animal-items)
+  | "churn" | "cheesePress" | "spindle" | "knittingNeedles"
   // (a twig whittled to a point: what the forest's roasts are made on)
   | "skewer";
 
@@ -1189,6 +1196,7 @@ export const DISHES: Record<DishId, Dish> = {
   ...PREP_DISHES,
   ...CAMP_DISHES,
   ...WOOD_DISHES,
+  ...ANIMAL_DISHES,
   ...GARDEN_DISHES,
   ...GEOLOGY_DISHES,
   riceBox: { stamina: 15 },
@@ -1330,6 +1338,7 @@ export const MAKES: Partial<Record<ItemId, Make>> = {
   // (the farm's Quality's fertilisers, made by hand: lib/town/fertilisers)
   ...FERT_MAKES,
   ...WOOD_MAKES,
+  ...ANIMAL_MAKES,
   ...INSECT_MAKES,
   ...FORAGE_MAKES,
   ...STREAM_MAKES,

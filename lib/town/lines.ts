@@ -27,7 +27,7 @@ export const LINE_IDS = ["kitchen", "well", "helpers", "fishing", "forest", "ins
 // ── lines to come (woodcutting and mining, 2026-10-08) ── The seven above are the ones every keeper of the game knows.
 // A later line is one only where whoever keeps the game gives it (`LinesTold.given`): a database from before it says
 // nothing of it, and the board then has no card for it.
-export const MORE_LINE_IDS = ["felling", "mining"] as const;
+export const MORE_LINE_IDS = ["felling", "mining", "animals"] as const;
 export const ALL_LINE_IDS = [...LINE_IDS, ...MORE_LINE_IDS] as const;
 export type LineId = (typeof ALL_LINE_IDS)[number];
 // ── end: lines to come ──
@@ -150,6 +150,16 @@ export const LINES: Record<LineId, LineDef> = {
     ],
   },
   // ── end: mining ──
+  // ── lines to come: animals (docs/plans/animals/README.md) ──
+  animals: {
+    name: { th: "สายเลี้ยงสัตว์", en: "The pasture" }, icon: "cowBell", marks: MARKS, day: 150,
+    titles: [
+      ["เด็กเลี้ยงไก่", "Hen-minding child"], ["สหายแมวโรงนา", "Barn cat's friend"], ["พี่เลี้ยงลูกสัตว์", "Nurse of the young"], ["ผู้สวมปลอกคอดาว", "Bearer of the star collar"],
+      ["หลานรักของยาย", "Grandma's favourite"], ["ผู้ขี่แกะปุยเมฆ", "Rider of the cloud ram"], ["ผู้ผูกเปลแฝด", "Weaver of the twin cradle"], ["นักพิณแห่งทุ่ง", "Harper of the pasture"],
+      ["ผู้เรียกลมฤดูใบไม้ผลิ", "Caller of the spring wind"], ["นายเกวียนหญ้าแห่งหมู่บ้าน", "Master of the village hay wagon"],
+    ],
+  },
+  // ── end: animals ──
 };
 
 /** The title somebody wears under their name: of which line, and which rank of it. */

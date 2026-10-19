@@ -36,6 +36,7 @@ const LEGEND: Record<LineId, Look> = {
   farming: { deep: "#211903", mid: "#544412", rim: "#ffd95a", light: "#fff8d0", ink: "#ffe58a", motes: ["#fff1a0", "#d8f07a", "#ffffff"], drift: "pollen" },
   felling: { deep: "#1f1308", mid: "#53351a", rim: "#e6a55c", light: "#ffe6c0", ink: "#f5c890", motes: ["#8fcf4a", "#5fa83a", "#e8c89a"], drift: "leaves" },
   mining: { deep: "#1e0610", mid: "#511628", rim: "#ff6f91", light: "#ffe0e8", ink: "#ffb0c4", motes: ["#ffb8cc", "#b8f2ff", "#ffffff"], drift: "shards" },
+  animals: { deep: "#1f1607", mid: "#4d3a12", rim: "#f2c46b", light: "#fff4d6", ink: "#ffe2a0", motes: ["#fff6e0", "#a8e07a", "#ffd1e0"], drift: "petals" },
 };
 
 const HEIGHT: Record<Band, number> = { 0: 16, 1: 16, 2: 17, 3: 18, 4: 20 };

@@ -13,6 +13,7 @@ import { STAMINA, begun, hasBuff, mayEat, nextMealAt, sitDown, spend } from "./s
 import type { TimingMods } from "./timing";
 import { carriesGrade, gradeIn, held, heldStack, no, put, roomFor, take, usedGrade, type BasketEntry, type Done, type Purse, type Refusal, type Stack } from "./trade";
 import { asGrade } from "./quality";
+import { FAMILY } from "./animal-items";
 
 /**
  * Cooking and serving, as rules (the owner, 2026-10-03, and the bowls of 2026-10-04).
@@ -155,12 +156,22 @@ export function inHands(tools: Cookware[], crew: Array<ItemId | null>): boolean 
   const hands = crew.filter(isCookware) as Cookware[];
   return tools.every((tool) => { const i = hands.indexOf(tool); if (i < 0) return false; hands.splice(i, 1); return true; });
 }
-/** What some things are the makings of, whoever cooks them: a dish, or something else that is made; or nothing. */
-export function madeOf(things: Array<[ItemId, number]>): ItemId | null {
+/**
+ * Things as their families (lib/town/animal-items' FAMILY): a breed's egg as "egg", any milk as "milk", any wool as
+ * "wool", farm cheese as "cheese". A recipe that asks for the family takes any of it; one that names a breed's own thing
+ * still wants that thing (so a pot is read as it is first, and as its families only when that makes nothing).
+ */
+export const asFamily = (things: Array<[ItemId, number]>): Array<[ItemId, number]> => things.map(([id, n]) => [(FAMILY[id] ?? id) as ItemId, n]);
+const hasFamily = (things: Array<[ItemId, number]>) => things.some(([id]) => id in FAMILY);
+function madeExactly(things: Array<[ItemId, number]>): ItemId | null {
   const mine = JSON.stringify(tidy(things));
   for (const id of DISH_IDS) { const r = DISHES[id].recipe; if (r && JSON.stringify(tidy(r.needs)) === mine) return id; }
   for (const id of MAKE_IDS) if (JSON.stringify(tidy(MAKES[id]!.needs)) === mine) return id;
   return null;
+}
+/** What some things are the makings of, whoever cooks them: a dish, or something else that is made; or nothing. */
+export function madeOf(things: Array<[ItemId, number]>): ItemId | null {
+  return madeExactly(things) ?? (hasFamily(things) ? madeExactly(asFamily(things)) : null);
 }
 /** What making a thing takes: its cookware, and how many cooks. */
 export const takes = (id: ItemId): { in: Cookware[]; cooks: number } =>
@@ -216,7 +227,7 @@ export function potSays(things: Array<[ItemId, number]>): { fits: boolean; whole
   const mine = tidy(things);
   if (!mine.length) return { fits: true, whole: false, wrong: [] };
   const within = (some: Array<[ItemId, number]>) => RECIPE_IDS.some((id) => { const needs = new Map(needsOf(id)); return some.every(([k, n]) => (needs.get(k) ?? 0) >= n); });
-  if (within(mine)) return { fits: true, whole: madeOf(mine) !== null, wrong: [] };
+  if (within(mine) || (hasFamily(mine) && within(tidy(asFamily(mine))))) return { fits: true, whole: madeOf(mine) !== null, wrong: [] };
   const less = (k: ItemId) => mine.flatMap(([j, n]): Array<[ItemId, number]> => (j !== k ? [[j, n]] : n > 1 ? [[j, n - 1]] : []));
   const wrong = mine.filter(([k]) => within(less(k))).map(([k]) => k);
   return { fits: false, whole: false, wrong: wrong.length ? wrong : mine.map(([k]) => k) };
@@ -237,6 +248,15 @@ export type Taste = "far" | "some" | "less" | "more" | "swap" | "amounts" | "way
  * cooks' hands). Says the taste, the recipe it was measured against, and, when one thing is missing, which.
  */
 export function tasteOf(things: Array<[ItemId, number]>, crew: Array<ItemId | null>): { taste: Taste; of: ItemId | null; lacks: ItemId | null } {
+  // (read as they are and as their families: whichever comes nearer something)
+  return tasteNear(things, crew, hasFamily(things) ? asFamily(things) : null);
+}
+const TASTES: Taste[] = ["way", "amounts", "swap", "more", "less", "some", "far"];
+function tasteNear(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, family: Array<[ItemId, number]> | null): { taste: Taste; of: ItemId | null; lacks: ItemId | null } {
+  const raw = tasteOne(things, crew), fam = family ? tasteOne(family, crew) : null;
+  return fam && TASTES.indexOf(fam.taste) < TASTES.indexOf(raw.taste) ? fam : raw;
+}
+function tasteOne(things: Array<[ItemId, number]>, crew: Array<ItemId | null>): { taste: Taste; of: ItemId | null; lacks: ItemId | null } {
   const mine = new Map(tidy(things));
   let best: { id: ItemId; missing: ItemId[]; extra: number; off: number; rank: number } | null = null;
   for (const id of RECIPE_IDS) {

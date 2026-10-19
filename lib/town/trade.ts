@@ -4,6 +4,10 @@ import { CARRIES } from "./gear";
 import type { WishId } from "./fountain";
 import { ITEMS, type BuffId, type DishId, type FishId, type ItemId, type MealBuffId } from "./items";
 import { FOOD_PREPS } from "./quality";
+import { ANIMAL_GRADED } from "./animal-items";
+import { BREEDS } from "./animals";
+/** What an animal gives (any breed's egg, milk or wool): raw produce, paid by its grade as a crop is. */
+const ANIMAL_PRODUCE = new Set<string>(BREEDS.map((b) => b.produce));
 
 /**
  * Cash Town's trade: what the uncle's stall and the banker's counter do, as
@@ -225,13 +229,13 @@ export interface Lot { item: ItemId; n: number; pays: number; round: number; f?:
  * excellent), for raw produce only: a preparation keeps its grade for the kitchen but sells at the old price.
  */
 export const GRADE_PAYS = [1, 1.25, 1.75, 2.5] as const;
-export const gradePays = (item: ItemId, grade: 0 | 1 | 2 | 3 = 0): number => (ITEMS[item]?.kind === "crop" ? GRADE_PAYS[grade] : 1);
+export const gradePays = (item: ItemId, grade: 0 | 1 | 2 | 3 = 0): number => (ITEMS[item]?.kind === "crop" || ANIMAL_PRODUCE.has(item) ? GRADE_PAYS[grade] : 1);
 /**
  * (piece 2.4) Whether a thing carries a grade into what is cooked of it: produce, and the preparations made of it that
  * go into a dish (lib/town/quality's FOOD_PREPS). Everything else (what the uncle sells, fish, the wild's things) does
  * not count towards a dish's grade.
  */
-export const carriesGrade = (id: ItemId): boolean => ITEMS[id]?.kind === "crop" || FOOD_PREPS.includes(id);
+export const carriesGrade = (id: ItemId): boolean => ITEMS[id]?.kind === "crop" || FOOD_PREPS.includes(id) || ANIMAL_GRADED.includes(id);
 /**
  * The grade of what went into something, from the units that actually left the bag (`before` and `after` it, of the
  * things `ids`): of each thing that carries a grade, the lowest grade of which fewer are left; the lowest of those.

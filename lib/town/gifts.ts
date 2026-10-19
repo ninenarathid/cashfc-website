@@ -42,9 +42,10 @@ export type ThingId = (typeof THING_IDS)[number] | (typeof MORE_THING_IDS)[numbe
 // ── gifts to come (woodcutting and mining, 2026-10-08) ── The lists above are the gifts every keeper of the game
 // knows. A later line's gifts are in lists of their own, and are offered only where whoever keeps the game gives them
 // (the keeper's `gives`), as every round of gifts has gone out.
-export const MORE_CHARM_IDS = ["charmEchoAxe", "charmMinerLamp"] as const;
-export const MORE_FAMILIAR_IDS = ["famWoodpecker", "famBat"] as const;
-export const MORE_THING_IDS = ["thingBundle", "thingSack", "thingCreel"] as const;
+export const MORE_CHARM_IDS = ["charmEchoAxe", "charmMinerLamp", /* animals */ "charmHerdBell", "charmStarCollar"] as const;
+export const MORE_FAMILIAR_IDS = ["famWoodpecker", "famBat", /* animals */ "famCloudRam"] as const;
+export const MORE_THING_IDS = ["thingBundle", "thingSack", "thingCreel",
+  /* animals */ "thingBarnCat", "thingWarmBottle", "thingCradle", "thingTwinCradle", "thingHarp", "thingSpringWind", "thingHayWagon"] as const;
 // ── end: gifts to come ──
 export type GiftId = CharmId | FamiliarId | ThingId;
 export type GiftKind = "charm" | "familiar" | "thing";
@@ -170,6 +171,27 @@ export const MORE_GIFTS: readonly Gift[] = [
     does: { th: "พอลงถึงชั้นไหน แผนที่ย่อของชั้นนั้นเปิดทั้งชั้นทันที: โถง อุโมงค์ และที่ที่มีหินตั้งอยู่", en: "On entering a floor its whole small map is known at once: chambers, tunnels, and where rocks stand" } },
   { id: "thingSack", kind: "thing", line: "mining", rank: 3, by: 5, name: { th: "กระสอบคนเหมือง", en: "Miner's sack" },
     does: { th: "ช่องเก็บของเพิ่ม 5 ช่อง ใส่ได้เฉพาะของจากเหมือง: หิน เศษแร่ เศษพลอย แร่ก้อน และพลอย", en: "Five more slots that hold only the mine's things: stone, ore fragments, gem fragments, big ore and gems" } },
+  // ── the pasture (lib/town/animals, docs/plans/animals/README.md) ──
+  { id: "charmHerdBell", kind: "charm", line: "animals", rank: 1, name: { th: "กระดิ่งเรียกฝูง", en: "Herd bell" },
+    does: { th: "สั่นที่ไหนในฟาร์มก็ได้ สัตว์ของเราวิ่งมาหา และไข่ที่สัตว์ของเราออกไว้ในทุ่งเรืองให้เห็น", en: "Ring it anywhere on the farm: your animals come to you, and the eggs they laid out on the meadow glint for you" } },
+  { id: "thingBarnCat", kind: "thing", line: "animals", rank: 2, name: { th: "แมวส้มประจำโรงนา", en: "The orange barn cat" },
+    does: { th: "อยู่ประจำโรงนา เข้าฟาร์มครั้งแรกของวัน สัตว์ของเราทุกตัวได้ลูบหัวของวันนั้นเลย", en: "It lives in the barn: the first time a day you come onto the farm, every animal of yours has its day's pet" } },
+  { id: "thingWarmBottle", kind: "thing", line: "animals", rank: 3, name: { th: "ขวดนมอุ่น", en: "Warm milk bottle" },
+    does: { th: "ลูกสัตว์และสัตว์รุ่นของเราโตเร็วขึ้น 2 เท่าตลอดเวลา ขอแค่มีอาหาร (รวมกับของเร่งโตอื่นได้ไม่เกิน 3 เท่า)", en: "Your babies and young always grow twice as fast while fed (with other speed-ups, three times at the most)" } },
+  { id: "charmStarCollar", kind: "charm", line: "animals", rank: 4, name: { th: "ปลอกคอดาว", en: "Star collar" },
+    does: { th: "ผลผลิตของสัตว์เราได้ Quality ที่ปลายบนของช่วงเสมอ (เพดานยังขึ้นกับหัวใจ)", en: "Your animals' produce always comes at the top of its Quality range (the ceiling is still the hearts)" } },
+  { id: "thingCradle", kind: "thing", line: "animals", rank: 5, name: { th: "เปลอุ่นของยาย", en: "Grandma's warm cradle" },
+    does: { th: "วันละครั้ง สัตว์โตเต็มวัยของเราตัวไหนก็ได้ให้ลูก 1 ตัวพันธุ์เดียวกับมัน ไม่ต้องมีคู่ 1 ใน 5 ได้พันธุ์แท้หายากของชนิดนั้น", en: "Once a day an adult of yours of any kind gives a baby of its breed, no partner needed; one in five is a real rare breed of its kind" } },
+  { id: "famCloudRam", kind: "familiar", line: "animals", rank: 6, by: 1.5, name: { th: "แกะปุยเมฆ", en: "A cloud ram" },
+    does: { th: "ขี่ได้ทุกแผนที่ เร็วขึ้น 1.5 เท่า และนั่งได้ 2 คน: ชวนคนใกล้ๆ ขึ้นนั่งด้วย เขากดตกลงก่อน", en: "Ridden on every map, half as fast again, and it seats two: ask somebody near to ride with you, and they accept" } },
+  { id: "thingTwinCradle", kind: "thing", line: "animals", rank: 7, name: { th: "เปลแฝด", en: "Twin cradle" },
+    does: { th: "ผสมพันธุ์กับสัตว์ที่เพื่อนให้ยืม ได้ลูกคนละตัว วันละครั้ง", en: "A cross with a friend's lent animal gives a baby to each of you, once a day" } },
+  { id: "thingHarp", kind: "thing", line: "animals", rank: 8, name: { th: "พิณทุ่งหญ้า", en: "Pasture harp" },
+    does: { th: "กดวันละครั้ง ทุกคนที่อยู่ใกล้ตอนนั้นเล่นเกมรีดนม ตัดขน เก็บไข่ได้ง่ายขึ้น 2 เท่า นาน 30 นาที", en: "Once a day: for 30 minutes everybody near you then plays milking, shearing and egg games with twice the room" } },
+  { id: "thingSpringWind", kind: "thing", line: "animals", rank: 9, name: { th: "ลมฤดูใบไม้ผลิ", en: "Spring wind" },
+    does: { th: "กดวันละครั้ง 1 ชม. ใครเข้าฟาร์มในชั่วโมงนั้น สัตว์โตของเขาได้ผลผลิตรอบที่กำลังทำพร้อมเก็บทันที ลูกสัตว์โต 3 เท่าจนหมดชั่วโมง (ตัวละครั้งต่อวัน)", en: "Once a day, for an hour: whoever comes onto the farm in it has each grown animal's round in hand ready at once, and their young grow three times as fast until the hour ends (once an animal a day)" } },
+  { id: "thingHayWagon", kind: "thing", line: "animals", rank: 10, name: { th: "เกวียนหญ้าแห้ง", en: "The hay wagon" },
+    does: { th: "กดวันละครั้ง วัวลากเกวียนเที่ยวฟาร์มกับอีก 2 แมพ ใครก็ขึ้นได้ นั่งครบ 2 ช่วง สัตว์ทุกตัวของคนนั้นได้ +1 หัวใจ (วันละครั้งต่อคน)", en: "Once a day an ox draws a wagon round the farm and two other maps; anybody may ride, and two legs ridden give every animal of the rider a heart (once a day a member)" } },
 ];
 // ── end: felling, mining ──
 /** (gifts to come) Every gift there is: the ones every keeper knows, and the later lines'. */
@@ -213,6 +235,9 @@ export const USES: Partial<Record<GiftId, Use>> = {
   thingHourglass: { n: 1, per: "day" },
   // (the enchanted hoe's moves, lib/town/farm's movePlant: a swap is one. The mandrake's songs were seven a day until 2026-10-16)
   charmHoe: { n: 10, per: "day" },
+  // (the pasture's, lib/town/animal-act: each once a day)
+  thingBarnCat: { n: 1, per: "day" }, thingCradle: { n: 1, per: "day" }, thingTwinCradle: { n: 1, per: "day" },
+  thingHarp: { n: 1, per: "day" }, thingSpringWind: { n: 1, per: "day" }, thingHayWagon: { n: 1, per: "day" },
 };
 /**
  * The stretch of time a count is of, as one number: the day, the day and which meal's hours of it, or which span of
