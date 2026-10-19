@@ -23,7 +23,7 @@ const farm = await import("@/lib/town/farm");
 const { syncQuality } = await import("@/lib/town/quality-plant");
 const { catalogOf } = await import("@/lib/town/catalog");
 
-const H = 3_600_000, FROM = farm.FARMING.pests.house;
+const H = 3_600_000, FROM = farm.FARMING.pests.house.from;
 let checks = 0, s = 286;
 const norm = (x) => JSON.parse(JSON.stringify(x ?? null));
 const diffOf = (a, b, at = "") => {
@@ -41,10 +41,12 @@ const v = async (q, a) => (await one(q, a)).v;
 const md5s = async () => Object.fromEntries(await Promise.all(SIGS.map(async (sig) => [sig, await v(`select md5(replace(pg_get_functiondef('${sig}'::regprocedure),chr(13),'')) v`)])));
 try {
   for (const f of CHAIN) await db.exec(readFileSync(`supabase/${f}.sql`, "utf8"));
-  // (the row as the live database has it before v286: no pests.house; and a bed more, as another file may have laid)
-  const code = catalogOf(), { house: _, ...livePests } = code.farming.pests;
-  const LIVE = { ...code.farming, pests: livePests, bedsAt: [...code.farming.bedsAt, [999, 999]] };
+  // (the rows as the live database has them before v286: no pests.house, no house.keep nor house.keeps; and a bed more,
+  // as another file may have laid)
+  const code = catalogOf(), { house: _, ...livePests } = code.farming.pests, { keep: _k, keeps: _ks, ...liveHouse } = code.quality.house;
+  const LIVE = { ...code.farming, pests: livePests, bedsAt: [...code.farming.bedsAt, [999, 999]] }, LIVE_Q = { ...code.quality, house: liveHouse };
   await db.query("update public.town_catalog set data = $1::jsonb where key = 'farming'", [JSON.stringify(LIVE)]);
+  await db.query("update public.town_catalog set data = $1::jsonb where key = 'quality'", [JSON.stringify(LIVE_Q)]);
   const sql = readFileSync(FILE, "utf8").replace(/\r\n/g, "\n");
   await db.exec(sql.replace(/\n/g, "\r\n"));
   const fnAfter = await md5s(), rowAfter = await v("select data v from public.town_catalog where key = 'farming'");
@@ -54,11 +56,12 @@ try {
   eq(rowAfter, { ...LIVE, pests: code.farming.pests }, "the farming row as it was but for pests.house (another file's bed kept)");
   await db.query("update public.town_catalog set data = $1::jsonb where key = 'farming'", [JSON.stringify(code.farming)]);
   eq(await v("select data v from public.town_catalog where key = 'farming'"), code.farming, "the farming row is the code's");
-  ok(code.farming.pests.house === FROM && new Date(FROM).toISOString() === "2026-10-20T01:00:00.000Z", "houses keep pests off from 2026-10-20 08:00 Bangkok");
+  eq(await v("select data v from public.town_catalog where key = 'quality'"), code.quality, "the quality row is the code's, house.keep and house.keeps added");
+  ok(new Date(FROM).toISOString() === "2026-10-20T01:00:00.000Z" && code.farming.pests.house.old === 0.5, "houses keep pests off from 2026-10-20 08:00 Bangkok; an old room as the weakest");
 
   /* ── town.pest_at: pestAt ── */
   const MAINS = ["tomato", "chili", "corn", "basil", "cabbage", "carrot", "pumpkin", "cucumber", "longBean", "eggplant", "kangkong", "scallion"];
-  const GUARD = ["ladybird", "mantis", "lacewing", "goldenAnt"], OTHER = ["honeyBee", "hoverfly", "monarch"];
+  const GUARD = ["ladybird", "mantis", "lacewing", "goldenAnt", "robberFly", "antlion"], OTHER = ["honeyBee", "hoverfly", "monarch"];
   const stretch = (t) => { const a = t + (int(80) - 30) * H + int(H); return [a, a + (1 + int(60)) * H + int(H)]; };
   const plantAt = (t) => {
     const sown = t + (int(90) - 40) * H + int(H), p = { by: "m1", crop: pick(MAINS), sown, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0 };
@@ -66,8 +69,8 @@ try {
     if (rand() < 0.15) p.guard = sown + int(30) * H;
     if (rand() < 0.1) p.wingGuard = sown + int(30) * H;
     if (rand() < 0.1) p.boost = int(10) * H;
-    if (rand() < 0.85) p.q = { at: sown, span: 0, area: [0, 0, 0, 0], nar: [0, 0, 0], bed: { h: Array.from({ length: int(4) }, () => { const [from, to] = stretch(sown); return { r: rand() < 0.7 ? "guard" : pick(["pollen", "soil"]), from, to, s: pick([1, 0.5]) }; }) } };
-    if (rand() < 0.35) p.hg = Array.from({ length: 1 + int(2) }, () => stretch(sown)).sort((x, y) => x[0] - y[0]);
+    if (rand() < 0.85) p.q = { at: sown, span: 0, area: [0, 0, 0, 0], nar: [0, 0, 0], bed: { h: Array.from({ length: int(4) }, () => { const [from, to] = stretch(sown); const r = rand() < 0.7 ? "guard" : pick(["pollen", "soil"]); return { r, from, to, s: pick([1, 0.5]), ...(r === "guard" && rand() < 0.85 ? { k: pick([0.5, 0.7, 1]) } : {}) }; }) } };
+    if (rand() < 0.35) p.hg = Array.from({ length: 1 + int(2) }, () => [...stretch(sown), ...(rand() < 0.85 ? [pick([0.5, 0.7, 1])] : [])]).sort((x, y) => x[0] - y[0]);
     if (rand() < 0.25) p.hs = sown + int(40) * H + int(H);
     return p;
   };
@@ -80,7 +83,7 @@ try {
     if (farm.pestAt(key, bare, now) !== want) saved++;
     cases++;
   }
-  ok(saved > 60, `the house made a difference in ${saved} of ${cases} plants`);
+  ok(saved > 30, `the house made a difference in ${saved} of ${cases} plants`);
 
   /* ── town.quality_keep: syncQuality, deed by deed ── */
   const f = code.farming, side = f.side;
@@ -109,10 +112,24 @@ try {
         plots = syncQuality(plots, next, t0, []);
       }
     }
-    const setHouse = { soil: "house", plant: null, house: { by: "m1", at: T - 40 * H, rooms: [null, null] } };
+    // (a hunter in it already in half the beds: the room as a member filled it before v286, its plants' gifts stripped of the keep below)
+    const setHouse = { soil: "house", plant: null, house: { by: "m1", at: T - 40 * H, rooms: [round % 2 ? { bug: pick(GUARD), from: T - 40 * H, until: T + (4 + int(30)) * H } : null, null] } };
     await write(mid, setHouse, T - 40 * H);
     plots = syncQuality(plots, { ...plots, [mid]: setHouse }, T - 40 * H, []);
     eq(shape(await readBed(bed)), shape(plots), `bed ${bed} laid`);
+    // (half the beds as a gift written before v286 left them: no keep on a hunter's room)
+    if (round % 2) {
+      await db.exec("alter table public.town_plots disable trigger user");
+      for (const [key, plot] of Object.entries(plots)) {
+        if (!plot.plant?.q?.bed?.h) continue;
+        const bare = { ...plot.plant, q: { ...plot.plant.q, bed: { ...plot.plant.q.bed, h: plot.plant.q.bed.h.map(({ k: _k, ...e }) => e) } } };
+        plots = { ...plots, [key]: { ...plot, plant: bare } };
+        const [x, y] = key.split(",").map(Number);
+        await db.query("update public.town_plots set plant=$3::jsonb where x=$1 and y=$2", [x, y, JSON.stringify(bare)]);
+      }
+      await db.exec("alter table public.town_plots enable trigger user");
+      eq(shape(await readBed(bed)), shape(plots), `bed ${bed} as before v286`);
+    }
     // the deeds, never on the stroke of an hour
     let t = T;
     for (let i = 0; i < 14; i++) {

@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { useCloses } from "./useCloses";
 import { COMPANIONS } from "@/lib/town/quality";
-import { FAVOURITES, HOUSE, favouriteNear, houseRoleOf, isRareInHouse, plantsInReach, type InsectHouse } from "@/lib/town/insect-house";
+import { FAVOURITES, HOUSE, favouriteNear, houseRoleOf, isRareInHouse, keepOf, plantsInReach, type InsectHouse } from "@/lib/town/insect-house";
 import type { Plot } from "@/lib/town/farm";
 import { ITEMS, type ItemId } from "@/lib/town/items";
 import TownIcon, { type IconName } from "./TownIcon";
@@ -14,9 +14,10 @@ import TownIcon, { type IconName } from "./TownIcon";
  * how long it stays, and its favourite plant. Rules: lib/town/insect-house.
  */
 
-// (a hunter keeps pests off the plants it reaches as well, lib/town/farm's housedAt: the owner, 2026-10-19)
-const ROLE_WORD = { soil: ["เติมดิน", "Fills soil"], water: ["เติมน้ำ", "Fills water"], pollen: ["เติมเกสร", "Fills pollen"], guard: ["กันศัตรูพืช · เติมป้องกัน", "Keeps pests off · fills guard"] } as const;
+const ROLE_WORD = { soil: ["เติมดิน", "Fills soil"], water: ["เติมน้ำ", "Fills water"], pollen: ["เติมเกสร", "Fills pollen"], guard: ["เติมป้องกัน", "Fills guard"] } as const;
 const ROLE_TINT = { soil: "#b07a3e", water: "#4a9be0", pollen: "#e3b23c", guard: "#d65a48" } as const;
+// (how often the hunters keep a pest off, the least and the most, lib/town/insect-house's HOUSE.keeps)
+const KEEPS = [HOUSE.keep, ...Object.values(HOUSE.keeps)].map((k) => Math.round((k ?? 0) * 100)), KEEP_SPAN = `${Math.min(...KEEPS)}–${Math.max(...KEEPS)}%`;
 const hoursLeft = (to: number, now: number) => Math.max(1, Math.ceil((to - now) / 3_600_000));
 
 /** Standing at the house: how many plants it reaches and how many rooms are lived in, and the way into its card. */
@@ -61,7 +62,8 @@ export function HousePanel({ at, house, plots, now, th, mine, onClose }: { at: s
                 {th ? `ห้อง ${i + 1}` : `Room ${i + 1}`}{live && room ? <> · <TownIcon name={room.bug as IconName} size={18} />{name(room.bug)}</> : null}
               </b>
               {live && room && role ? <>
-                <span className="text-label text-[#ead9b4]">{ROLE_WORD[role][th ? 0 : 1]}{isRareInHouse(room.bug) ? (th ? " · หายาก ยกต่ำสุด" : " · rare: raises the floor") : ""} · {th ? `เหลือ ${hoursLeft(room.until, now)} ชม.` : `${hoursLeft(room.until, now)} h left`}</span>
+                {/* (a hunter keeps pests off the plants it reaches so often as well, lib/town/farm's houseKeepAt: the owner, 2026-10-19) */}
+                <span className="text-label text-[#ead9b4]">{role === "guard" ? `${th ? "กันศัตรูพืช" : "Keeps pests off"} ${Math.round(keepOf(room.bug) * 100)}% · ` : ""}{ROLE_WORD[role][th ? 0 : 1]}{isRareInHouse(room.bug) ? (th ? " · หายาก ยกต่ำสุด" : " · rare: raises the floor") : ""} · {th ? `เหลือ ${hoursLeft(room.until, now)} ชม.` : `${hoursLeft(room.until, now)} h left`}</span>
                 {favName && <span className="text-label text-[#ead9b4]">{kept ? (th ? `${favName}อยู่ใกล้ ✓ +${HOUSE.favHours} ชม.` : `${favName} near ✓ +${HOUSE.favHours} h`) : th ? `ชอบ${favName} · ตอนใส่ยังไม่มี` : `Likes ${favName} · none when it went in`}</span>}
               </> : <span className="text-label text-[#ead9b4]">{room ? (th ? `ว่าง · ${name(room.bug)}ออกไปแล้ว` : `Empty · the ${name(room.bug).toLowerCase()} has gone`) : th ? "ว่าง" : "Empty"}</span>}
             </div>
@@ -71,8 +73,8 @@ export function HousePanel({ at, house, plots, now, th, mine, onClose }: { at: s
       <p className="tk tk-window px-3 py-2 text-meta text-[#3b2412]" data-house-tip>
         {/* (a sentence a line, Codex's look of 2026-10-19: one run of words read dense on a phone) */}
         {mine
-          ? (th ? ["ถือแมลงผสมเกสร (เกสร) หรือแมลงล่าเหยื่อ (กันศัตรูพืช) แล้วกดที่บ้าน ต้นใน 5×5 ได้ครึ่งแถบ", "ศัตรูพืชที่เกาะก่อนแล้ว ยังต้องใช้ยา", "มีพืชที่มันชอบอยู่ใกล้ตอนใส่ อยู่ต่อ +24 ชม."]
-            : ["Use a pollinator (pollen) or a predator (keeps pests off) on the house: plants within 5×5 get half a bar", "A pest already there still needs a cure", "With its favourite plant near as it goes in, it stays 24 h more"]).map((line) => <span key={line} className="block">▸ {line}</span>)
+          ? (th ? [`ถือแมลงผสมเกสร (เกสร) หรือแมลงล่าเหยื่อ (กันศัตรูพืช ${KEEP_SPAN}) แล้วกดที่บ้าน ต้นใน 5×5 ได้ครึ่งแถบ`, "ศัตรูพืชที่เกาะก่อนแล้ว ยังต้องใช้ยา", "มีพืชที่มันชอบอยู่ใกล้ตอนใส่ อยู่ต่อ +24 ชม."]
+            : [`Use a pollinator (pollen) or a predator (keeps ${KEEP_SPAN} of pests off) on the house: plants within 5×5 get half a bar`, "A pest already there still needs a cure", "With its favourite plant near as it goes in, it stays 24 h more"]).map((line) => <span key={line} className="block">▸ {line}</span>)
           : <>▸ {th ? "บ้านแมลงของคนอื่น" : "Somebody else's insect house"}</>}
         {mine && house.rooms.some((r) => !r || r.until <= now) && (() => {
           const near = Object.entries(FAVOURITES).filter(([bug]) => favouriteNear(at, bug as ItemId, plots)).map(([bug]) => name(bug as ItemId));

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { FARMING, housedAt, pestAt, type Plant, type Plot } from "./farm";
+import { FARMING, houseKeepAt, pestAt, type Plant, type Plot } from "./farm";
 import { barsOfQ, narrowingOfQ } from "./quality";
 import { bedGift, houseKept, settled, syncMove, syncQuality } from "./quality-plant";
-import { HOUSE, freeRoom, houseCovers, houseDeedFor, houseDo, houseRoleOf, inReach, isRareInHouse, plantsInReach } from "./insect-house";
+import { HOUSE, freeRoom, houseCovers, houseDeedFor, houseDo, houseRoleOf, inReach, isRareInHouse, keepOf, plantsInReach, type HouseCover } from "./insect-house";
 import { newPurse, put, held, type Purse } from "./trade";
 import { bedOf } from "./world";
 
@@ -88,7 +88,7 @@ describe("the insect house", () => {
   it("covers half the bar of each room's role for the plants it reaches, while its insect stays", () => {
     const plots = { "133,5": housed([{ bug: "honeyBee", from: T0, until: T0 + 36 * H }, { bug: "mantis", from: T0, until: T0 + 72 * H }]), "134,5": grow("tomato"), "136,5": grow("tomato"), "120,5": grow("tomato") };
     expect(plantsInReach("133,5", plots)).toEqual(["134,5"]);
-    expect(houseCovers(["134,5"], plots)).toEqual([{ r: "pollen", from: T0, to: T0 + 36 * H, s: 1 }, { r: "guard", from: T0, to: T0 + 72 * H, s: 1 }]);
+    expect(houseCovers(["134,5"], plots)).toEqual([{ r: "pollen", from: T0, to: T0 + 36 * H, s: 1 }, { r: "guard", from: T0, to: T0 + 72 * H, s: 1, k: 0.7 }]);
     expect(bedGift("136,5", plots)).toBeUndefined();
     const gift = bedGift("134,5", plots)!;
     const q = settled({ ...plots["134,5"].plant!, q: { at: T0, span: 0, area: [0, 0, 0, 0], nar: [0, 0, 0], bed: gift } }, T0 + 100 * H, [], LAUNCH);
@@ -121,7 +121,7 @@ describe("the insect house", () => {
 
 describe("the insect house keeps pests off (the owner, 2026-10-19)", () => {
   // (a day after pests are kept off by houses at all, FARMING.pests.house)
-  const T1 = FARMING.pests.house + 24 * H;
+  const T1 = FARMING.pests.house.from + 24 * H;
   const tomato = (sown: number, more: Partial<Plant> = {}): Plant => ({ by: "me", crop: "tomato", sown, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0, ...more });
   /** A sowing at `key` from `from` on that a pest strikes, unhoused, within a day and a half: when it was sown and when it is struck. */
   const strikeOf = (key: string, from: number) => {
@@ -131,37 +131,62 @@ describe("the insect house keeps pests off (the owner, 2026-10-19)", () => {
     const plots: Record<string, Plot> = { "133,5": housed(rooms), [key]: { soil: "tilled", plant: p } };
     return { ...p, q: { at: p.sown, span: 0, area: [0, 0, 0, 0], nar: [0, 0, 0], bed: bedGift(key, plots) } };
   };
+  /** A plant whose bed gives it these rooms' covers as they are written (a keep of 1 or 0 to see the rest alone). */
+  const given = (p: Plant, h: HouseCover[]): Plant => ({ ...p, q: { at: p.sown, span: 0, area: [0, 0, 0, 0], nar: [0, 0, 0], bed: { h } } });
 
-  it("keeps every new pest off what it reaches while a hunter stays, and only a hunter, and only from when it went in", () => {
-    const { s, at } = strikeOf("134,5", T1);
-    expect(pestAt("134,5", housedWith([{ bug: "ladybird", from: s, until: s + 48 * H }, null], "134,5", tomato(s)), at + H)).toBeNull();
+  it("keeps a pest off so often as its hunter does: the cheap ones half the time, every other hunter seven in ten", () => {
+    expect([keepOf("ladybird"), keepOf("robberFly"), keepOf("antlion"), keepOf("roveBeetle")]).toEqual([0.5, 0.5, 0.5, 0.5]);
+    expect([keepOf("mantis"), keepOf("lacewing"), keepOf("goldenAnt"), keepOf("orchidMantis")]).toEqual([0.7, 0.7, 0.7, 0.7]);
+    const s = T1;
+    expect(bedGift("134,5", { "133,5": housed([{ bug: "ladybird", from: s, until: s + 48 * H }, { bug: "honeyBee", from: s, until: s + 48 * H }]), "134,5": grow("tomato") })!.h)
+      .toEqual([{ r: "guard", from: s, to: s + 48 * H, s: 1, k: 0.5 }, { r: "pollen", from: s, to: s + 48 * H, s: 1 }]);
+    // the best room counts, never the two added; a pollinator keeps nothing off
+    const both = housedWith([{ bug: "ladybird", from: s, until: s + 48 * H }, { bug: "mantis", from: s, until: s + 48 * H }], "134,5", tomato(s));
+    expect(houseKeepAt(both, s + H)).toBe(0.7);
+    expect(houseKeepAt(housedWith([{ bug: "honeyBee", from: s, until: s + 48 * H }, null], "134,5", tomato(s)), s + H)).toBe(0);
+    // over many sowings, about so many of the pests that would strike are kept off
+    for (const [bug, k] of [["ladybird", 0.5], ["mantis", 0.7]] as const) {
+      let kept = 0, n = 0;
+      for (let from = T1; n < 300; n++) {
+        const { s: sown, at } = strikeOf("134,5", from);
+        from = sown + 60_000;
+        if (pestAt("134,5", housedWith([{ bug, from: sown, until: sown + 48 * H }, null], "134,5", tomato(sown)), at) !== at) kept++;
+      }
+      expect(Math.abs(kept / n - k)).toBeLessThan(0.08);
+    }
+  });
+
+  it("keeps a pest off only while its hunter stays, from when it went in, and from the day houses began to", () => {
+    const { s, at } = strikeOf("134,5", T1), p = tomato(s);
+    expect(pestAt("134,5", given(p, [{ r: "guard", from: s, to: s + 48 * H, s: 1, k: 1 }]), at + H)).toBeNull();
+    expect(pestAt("134,5", given(p, [{ r: "guard", from: s, to: s + 48 * H, s: 1, k: 0 }]), at + H)).toBe(at);
     // a pollinator keeps nothing off
-    expect(pestAt("134,5", housedWith([{ bug: "honeyBee", from: s, until: s + 48 * H }, null], "134,5", tomato(s)), at + H)).toBe(at);
+    expect(pestAt("134,5", given(p, [{ r: "pollen", from: s, to: s + 48 * H, s: 1 }]), at + H)).toBe(at);
     // a pest already there stays: the cure's, or a let-go insect's, to rid
-    expect(pestAt("134,5", housedWith([{ bug: "mantis", from: at + 1, until: at + 48 * H }, null], "134,5", tomato(s)), at + H)).toBe(at);
+    expect(pestAt("134,5", given(p, [{ r: "guard", from: at + 1, to: at + 48 * H, s: 1, k: 1 }]), at + H)).toBe(at);
     // once it has left, they come again
-    expect(pestAt("134,5", housedWith([{ bug: "mantis", from: s, until: at }, null], "134,5", tomato(s)), at + H)).toBe(at);
-    // and nothing before the moment houses began to keep them off is undone
-    const kept = housedWith([{ bug: "mantis", from: 0, until: Number.MAX_SAFE_INTEGER }, null], "134,5", tomato(s));
-    expect(housedAt(kept, FARMING.pests.house - H)).toBe(false);
-    expect(housedAt(kept, FARMING.pests.house)).toBe(true);
+    expect(pestAt("134,5", given(p, [{ r: "guard", from: s, to: at, s: 1, k: 1 }]), at + H)).toBe(at);
+    // nothing before the moment houses began to keep them off is undone; a room written down before its keep was, as the weakest
+    const kept = given(p, [{ r: "guard", from: 0, to: Number.MAX_SAFE_INTEGER, s: 1 }]);
+    expect(houseKeepAt(kept, FARMING.pests.house.from - H)).toBe(0);
+    expect(houseKeepAt(kept, FARMING.pests.house.from)).toBe(FARMING.pests.house.old);
   });
 
   it("keeps what it kept off when its room is filled again or it is lifted: no pest comes back into those hours", () => {
     const { s, at } = strikeOf("134,5", T1);
     let plots: Record<string, Plot> = syncQuality({}, { "133,5": housed([null, null]), "134,5": { soil: "tilled", plant: tomato(s) } }, s, [], LAUNCH);
     plots = syncQuality(plots, { ...plots, "133,5": housed([{ bug: "ladybird", from: s, until: at + 1 }, null]) }, s, [], LAUNCH);
-    expect(pestAt("134,5", plots["134,5"].plant!, at + H)).toBeNull();
-    // the ladybird gone and a bee in its room: the hours it stayed are still kept
+    expect(houseKeepAt(plots["134,5"].plant!, at)).toBe(0.5);
+    // the ladybird gone and a bee in its room: the hours it stayed are kept, as they were
     const refilled = syncQuality(plots, { ...plots, "133,5": housed([{ bug: "honeyBee", from: at + H, until: at + 49 * H }, null]) }, at + H, [], LAUNCH);
-    expect(refilled["134,5"].plant!.hg).toEqual([[s, at + 1]]);
-    expect(pestAt("134,5", refilled["134,5"].plant!, at + H)).not.toBe(at);
+    expect(refilled["134,5"].plant!.hg).toEqual([[s, at + 1, 0.5]]);
+    expect(pestAt("134,5", refilled["134,5"].plant!, at + H)).toBe(pestAt("134,5", plots["134,5"].plant!, at + H));
     // lifted while the ladybird stays: kept up to the lifting, not after
     const lifted = syncQuality(plots, { ...plots, "133,5": { soil: "tilled", plant: null } }, at - 1, [], LAUNCH);
-    expect(lifted["134,5"].plant!.hg).toEqual([[s, at - 1]]);
+    expect(lifted["134,5"].plant!.hg).toEqual([[s, at - 1, 0.5]]);
     expect(pestAt("134,5", lifted["134,5"].plant!, at + H)).toBe(at);
     // what ended before it was last cured is let go
-    expect(houseKept({ ...tomato(s), cured: at, hg: [[s, at - 1]] }, undefined, undefined, at + H)).toBeUndefined();
+    expect(houseKept({ ...tomato(s), cured: at, hg: [[s, at - 1, 0.5]] }, undefined, undefined, at + H)).toBeUndefined();
   });
 
   it("keeps pests off a plant the hoe moves into its reach from the move on, not before", () => {
@@ -172,9 +197,10 @@ describe("the insect house keeps pests off (the owner, 2026-10-19)", () => {
     expect(pestAt("137,5", plots["137,5"].plant!, at + H)).toBe(at);
     const moved = syncMove(plots, { "137,5": { soil: "tilled", plant: null }, "134,5": { soil: "tilled", plant: plots["137,5"].plant } }, at + H, [], LAUNCH);
     expect(moved["134,5"].plant!.hs).toBe(at + H);
+    expect(houseKeepAt(moved["134,5"].plant!, at)).toBe(0);
     expect(pestAt("134,5", moved["134,5"].plant!, at + 2 * H)).toBe(at);
-    // and one that came in before its pest is kept from it
+    // and one that came in before its pest is kept from it as the rest are
     const early = syncMove(plots, { "137,5": { soil: "tilled", plant: null }, "134,5": { soil: "tilled", plant: plots["137,5"].plant } }, s + 1, [], LAUNCH);
-    expect(pestAt("134,5", early["134,5"].plant!, at + H)).toBeNull();
+    expect(houseKeepAt(early["134,5"].plant!, at)).toBe(0.7);
   });
 });

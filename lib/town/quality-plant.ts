@@ -10,7 +10,7 @@
  * fertiliser, the cure, moon water) until it runs out; a released pollinator until its `pollenUntil`.
  */
 import { CROPS } from "./items";
-import { encoreHours, grown, homeOf, quickMs, roll, type FarmSky, type Plant, type Plot } from "./farm";
+import { FARMING, encoreHours, grown, homeOf, quickMs, roll, type FarmSky, type Plant, type Plot } from "./farm";
 import { HOUR } from "./trade";
 import { DRY, type Rain } from "./weather";
 import { COMPANIONS, NO_Q, PARTNERS, QUALITY, ROLES, accrue, barsOfQ, ceilingOf, chancesOf, coveredShare, gradeOf, narrowingOfQ, rangeOf, rollOne, type BedGift, type CompanionId, type Cover, type Grade, type NarrowCover, type Penalty, type PlantQ, type Range, type Role } from "./quality";
@@ -128,7 +128,7 @@ export function settled(p: Plant, now: number, rains: FarmSky = DRY, launch: num
 const sameGift = (a: BedGift | undefined, b: BedGift | undefined): boolean =>
   (a?.p ?? 0) === (b?.p ?? 0) && (a?.f ?? 0) === (b?.f ?? 0) && ROLES.every((r) => (a?.c?.[r] ?? 0) === (b?.c?.[r] ?? 0))
   && (a?.h ?? []).length === (b?.h ?? []).length
-  && (a?.h ?? []).every((e, i) => { const f = b!.h![i]; return e.r === f.r && e.from === f.from && e.to === f.to && e.s === f.s && (e.x ?? 0) === (f.x ?? 0); });
+  && (a?.h ?? []).every((e, i) => { const f = b!.h![i]; return e.r === f.r && e.from === f.from && e.to === f.to && e.s === f.s && (e.x ?? 0) === (f.x ?? 0) && (e.k ?? 0) === (f.k ?? 0); });
 /** The same planting before and after a change (and not one sown in its place). */
 const samePlanting = (a: Plant, b: Plant): boolean => a.sown === b.sown && a.crop === b.crop && a.by === b.by;
 
@@ -172,7 +172,7 @@ export function syncQuality(before: Readonly<Record<string, Plot>>, after: Recor
     const q = done.has(key) ? p.q!
       : fresh.has(key) ? (p.picked > was!.picked ? NO_Q(Math.max(launch, now)) : settled({ ...was!, q: { ...NO_Q(Math.max(launch, roundStart(was!))), ...(gift ? { bed: gift } : {}) } }, now, rains, launch))
       : same ? settled(was!, now, rains, launch) : p.q ?? NO_Q(Math.max(launch, roundStart(p)));
-    // (one set down here with a round already, which the hoe moved: the house here keeps pests off it from now, lib/town/farm's housedAt)
+    // (one set down here with a round already, which the hoe moved: the house here keeps pests off it from now, lib/town/farm's houseKeepAt)
     const arrived = !same && !!p.q, { bed: _, ...rest } = q, { hg: _hg, hs: _hs, ...bare } = p, hg = houseKept(p, q.bed, gift, now, arrived), hs = arrived ? now : p.hs;
     set(key, { ...bare, ...(hg ? { hg } : {}), ...(hs !== undefined ? { hs } : {}), q: gift ? { ...rest, bed: gift } : rest });
   }
@@ -180,21 +180,24 @@ export function syncQuality(before: Readonly<Record<string, Plot>>, after: Recor
 }
 
 /**
- * What a plant keeps of the stretches its bed's insect house kept pests off it (lib/town/farm's housedAt), as its gift
+ * What a plant keeps of the stretches its bed's insect house kept pests off it (lib/town/farm's houseKeepAt), as its gift
  * changes from `was` to `gift`: those it had (`hg`), and each guard room of the gift it had that the new one does not
  * hold (a room filled again, the house lifted, the plant moved out of reach), from when it stood there (`hs`) up to
  * now; every one of them when the plant has `arrived` somewhere else. Only what can still bear on its pests: a stretch
  * over before it was sown, last cured or picked is dropped. In order, each once. (The database's trigger keeps the
  * same, town.house_kept.)
  */
-export function houseKept(p: Plant, was: BedGift | undefined, gift: BedGift | undefined, now: number, arrived = false): Array<[number, number]> | undefined {
-  const start = Math.max(p.sown, p.cured, p.pickedAt), still = (gift?.h ?? []).filter((e) => e.r === "guard"), out = [...(p.hg ?? [])];
+export function houseKept(p: Plant, was: BedGift | undefined, gift: BedGift | undefined, now: number, arrived = false): Array<[number, number, number]> | undefined {
+  // (each with how often it kept a pest off: a gift written before that was, as the weakest hunter, FARMING.pests.house.old)
+  const old = FARMING.pests.house.old, start = Math.max(p.sown, p.cured, p.pickedAt), still = (gift?.h ?? []).filter((e) => e.r === "guard");
+  const out: Array<[number, number, number]> = (p.hg ?? []).map(([a, b, k]) => [a, b, k ?? old]);
   for (const e of was?.h ?? []) {
-    if (e.r !== "guard" || (!arrived && still.some((f) => f.from === e.from && f.to === e.to))) continue;
+    if (e.r !== "guard" || (!arrived && still.some((f) => f.from === e.from && f.to === e.to && (f.k ?? old) === (e.k ?? old)))) continue;
     const from = Math.max(e.from, p.hs ?? 0), to = Math.min(e.to, now);
-    if (to > from) out.push([from, to]);
+    if (to > from) out.push([from, to, e.k ?? old]);
   }
-  const kept = out.filter(([, b]) => b > start).sort((x, y) => x[0] - y[0] || x[1] - y[1]).filter((x, i, a) => i === 0 || x[0] !== a[i - 1][0] || x[1] !== a[i - 1][1]);
+  const kept = out.filter(([, b]) => b > start).sort((x, y) => x[0] - y[0] || x[1] - y[1] || x[2] - y[2])
+    .filter((x, i, a) => i === 0 || x[0] !== a[i - 1][0] || x[1] !== a[i - 1][1] || x[2] !== a[i - 1][2]);
   return kept.length ? kept : undefined;
 }
 

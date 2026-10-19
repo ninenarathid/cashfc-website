@@ -121,10 +121,11 @@ export const FARMING = {
    * more, the first of `adds`; with `many` or more, the second; with none, nothing. The steps are mine, his to
    * change: one insect is "some", and four are "many" (left alone, a dry day's farm has about six out at a time).
    * Who counts, and when, is `Swarms`, below.
-   * And `house`: the moment from which an insect house keeps pests off (`housedAt`), so that no strike before it is
-   * undone (the owner, 2026-10-19: "ให้บ้านกันศัตรูพืชได้จริงครับ").
+   * And `house`: the moment from which an insect house keeps pests off (`houseKeepAt`), so that no strike before it is
+   * undone (the owner, 2026-10-19: "ให้บ้านกันศัตรูพืชได้จริงครับ"); and how often a room written down before it said how
+   * often its hunter keeps them off does (`old`: as the weakest, lib/town/insect-house's HOUSE.keeps).
    */
-  pests: { from: 8, to: 18, chance: 0.03, kills: 6, swarm: { some: 1, many: 4, adds: [0.01, 0.02] as readonly [number, number] }, house: Date.UTC(2026, 9, 20, 1) },
+  pests: { from: 8, to: 18, chance: 0.03, kills: 6, swarm: { some: 1, many: 4, adds: [0.01, 0.02] as readonly [number, number] }, house: { from: Date.UTC(2026, 9, 20, 1), old: 0.5 } },
   /** How many hits of the hoe it takes to clear a plot of weeds, and to till it. */
   swings: { clear: 3, till: 3 },
   /** What a dead plant leaves when it is pulled up. */
@@ -243,10 +244,10 @@ export interface Plant {
   q?: import("./quality").PlantQ;
   /**
    * The stretches an insect house kept pests off it that its bed's gift no longer holds (a room filled again, the house
-   * lifted, the plant moved out of its reach), each [from, to): kept so that a strike in them stays kept off
-   * (lib/town/quality-plant's houseKept). Missing from a plant with none.
+   * lifted, the plant moved out of its reach), each [from, to) and how often its hunter kept one off: kept so that what
+   * was kept off in them stays kept off (lib/town/quality-plant's houseKept). Missing from a plant with none.
    */
-  hg?: Array<[number, number]>;
+  hg?: Array<[number, number, number]>;
   /** When the enchanted hoe set it down where it stands (lib/town/quality-plant's syncQuality): its bed's house keeps pests off it from then, not before. Missing from a plant never moved since this was kept. */
   hs?: number;
 }
@@ -401,17 +402,21 @@ export function growing(p: Plant, now: number, rains: FarmSky = DRY): ReturnType
 }
 
 /**
- * Whether an insect house kept pests off a plant at a moment (the owner, 2026-10-19, told that the house only filled
- * half the guard bar: "ให้บ้านกันศัตรูพืชได้จริงครับ แก้เลย"): a hunter lived in a room of its bed's house that reaches it
- * (its bed's gift, `q.bed.h`, a guard room), or did and was kept (`hg`). From the moment it went in, so a pest already
- * there stays, the cure's or a let-go insect's to rid, as with a cover put on (and one the hoe moves into its reach is
- * kept from the move on: `hs`); and from `FARMING.pests.house` only, so that no strike before then is undone. One
- * hunter keeps them all off; a rare one or its favourite plant only keeps it longer (lib/town/insect-house). Codex
- * agreed (2026-10-19): a cut chance still shows a pest and reads as "it does not work".
+ * How often an insect house keeps off a pest that would strike a plant at a moment, 0 for none (the owner, 2026-10-19,
+ * told that the house only filled half the guard bar: "ให้บ้านกันศัตรูพืชได้จริงครับ แก้เลย"; and then, of the cheap ones,
+ * "ทำให้เต่าทอง ตักแตนตำข้าว มีผลน้อยลง", Codex's figures): a hunter lived in a room of its bed's house that reaches it
+ * (its bed's gift, `q.bed.h`, a guard room and its `k`), or did and was kept (`hg`); the best of them, never added. From
+ * the moment it went in, so a pest already there stays, the cure's or a let-go insect's to rid, as with a cover put on
+ * (and one the hoe moves into its reach is kept from the move on: `hs`); and from `FARMING.pests.house.from` only, so
+ * that no strike before then is undone.
  */
-export function housedAt(p: Plant, t: number): boolean {
-  if (t < FARMING.pests.house) return false;
-  return (t >= (p.hs ?? 0) && (p.q?.bed?.h ?? []).some((e) => e.r === "guard" && e.from <= t && t < e.to)) || (p.hg ?? []).some(([a, b]) => a <= t && t < b);
+export function houseKeepAt(p: Plant, t: number): number {
+  const { from, old } = FARMING.pests.house;
+  if (t < from) return 0;
+  let best = 0;
+  if (t >= (p.hs ?? 0)) for (const e of p.q?.bed?.h ?? []) if (e.r === "guard" && e.from <= t && t < e.to) best = Math.max(best, e.k ?? old);
+  for (const [a, b, k] of p.hg ?? []) if (a <= t && t < b) best = Math.max(best, k ?? old);
+  return best;
 }
 
 /**
@@ -429,11 +434,17 @@ export function pestAt(key: string, p: Plant, now: number, rains: FarmSky = DRY)
     const t = h * HOUR, hour = Math.floor((((t + BANGKOK) % DAY) + DAY) % DAY / HOUR);
     // (the pest that comes at the very moment a plant is rid of one is the one it was rid of: until 2026-10-06 a
     // plant cured on the stroke of the hour had it still, one moment in 3,600,000)
-    if (hour < from || hour >= to || t < p.guard || t <= p.cured || housedAt(p, t)) continue;
+    if (hour < from || hour >= to || t < p.guard || t <= p.cured) continue;
     // (a ripe plant is safe: it only waits to be picked)
     if (growing(p, t, rains).ripe) return null;
     // (by the plot it was sown at: a plant the hoe moved meets the pests it would have met, lib/town/farm's homeOf)
-    if (roll(homeOf(key, p), h, p.sown) < pestChance(bugsIn(rains, h))) {if(!wingUsed&&p.wingGuard&&t<p.wingGuard){wingUsed=true;continue;}return t;}
+    const home = homeOf(key, p);
+    if (roll(home, h, p.sown) < pestChance(bugsIn(rains, h))) {
+      // (a hunter of its bed's house keeps it off so often, by a roll of its own: houseKeepAt)
+      const keep = houseKeepAt(p, t);
+      if (keep > 0 && roll(`house|${home}`, h, p.sown) < keep) continue;
+      if(!wingUsed&&p.wingGuard&&t<p.wingGuard){wingUsed=true;continue;}return t;
+    }
   }
   return null;
 }

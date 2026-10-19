@@ -34,14 +34,21 @@ export const HOUSE = {
   rarePays: 20,
   /** Stamina: setting the house down, putting an insect in, lifting it. */
   costs: { set: 1, room: 1, lift: 1 },
+  /**
+   * How often a hunter in a room keeps off a pest that would strike a plant it reaches (lib/town/farm's houseKeepAt; the
+   * owner, 2026-10-19, asked whether the ladybird and the mantis should do less, and chose Codex's answer): the cheap
+   * ones half the time, every other hunter seven times in ten; none of them always, which is the made cure's.
+   */
+  keep: 0.7,
+  keeps: { ladybird: 0.5, mantis: 0.7, robberFly: 0.5, antlion: 0.5, roveBeetle: 0.5 } as Partial<Record<ItemId, number>>,
 } as const;
 
 /** An insect in a room: which, since when, and until when it stays. */
 export interface HouseRoom { bug: ItemId; from: number; until: number }
 /** A house on a plot: whose, since when, and its two rooms (null when empty). */
 export interface InsectHouse { by: string; at: number; rooms: Array<HouseRoom | null> }
-/** What one room gives a plant of the bed: its role's half from `from` to `to`, by the share `s` of the plant's plots in reach; `x` when it is rare. */
-export interface HouseCover { r: Role; from: number; to: number; s: number; x?: 1 }
+/** What one room gives a plant of the bed: its role's half from `from` to `to`, by the share `s` of the plant's plots in reach; `x` when it is rare; `k`, a hunter's, how often it keeps a pest off (`keepOf`). */
+export interface HouseCover { r: Role; from: number; to: number; s: number; x?: 1; k?: number }
 
 /**
  * Each house insect's favourite plant, a helper of another role (mine, 2026-10-15, after what each is drawn to:
@@ -71,6 +78,8 @@ export function houseRoleOf(id: ItemId | null | undefined): Role | null {
   if (INSECT_GARDEN.predators.includes(id)) return "guard";
   return (DECOMPOSERS as readonly string[]).includes(id) ? "soil" : null;
 }
+/** How often a hunter in a room keeps off a pest that would strike (`HOUSE.keeps`, else `HOUSE.keep`). */
+export const keepOf = (id: ItemId): number => HOUSE.keeps[id] ?? HOUSE.keep;
 /** Whether a house insect is rare (by what it is worth, as lib/town/insects' tiers have it). */
 export const isRareInHouse = (id: ItemId): boolean => (ITEMS[id]?.pays ?? 0) >= HOUSE.rarePays;
 
@@ -105,7 +114,7 @@ export function houseCovers(cells: readonly string[], plots: Readonly<Record<str
     if (!(s > 0)) continue;
     for (const room of house.rooms) {
       const r = room ? houseRoleOf(room.bug) : null;
-      if (room && r) out.push({ r, from: room.from, to: room.until, s, ...(isRareInHouse(room.bug) ? { x: 1 as const } : {}) });
+      if (room && r) out.push({ r, from: room.from, to: room.until, s, ...(isRareInHouse(room.bug) ? { x: 1 as const } : {}), ...(r === "guard" ? { k: keepOf(room.bug) } : {}) });
     }
   }
   return out;
