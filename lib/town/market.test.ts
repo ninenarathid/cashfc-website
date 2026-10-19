@@ -32,7 +32,7 @@ describe("a thing whose price moves", () => {
     for (const id of moving) { const t = thingOf(id, c)!; expect(ITEMS[id as keyof typeof ITEMS].pays).toBeGreaterThan(0); expect(t.floor).toBeLessThanOrEqual(100); expect(t.ceil).toBeGreaterThan(100); }
   });
   it("never falls under its cost and half as much again, nor under two fifths; what is cooked or made does not fall", () => {
-    expect(thingOf("kangkong", c)).toEqual({ usual: 5, floor: 40, ceil: 220, batch: 5 });
+    expect(thingOf("kangkong", c)).toEqual({ usual: 5, floor: 40, ceil: 150, batch: 5, fall: 25 });
     expect(thingOf("pumpkin", c)!.floor).toBe(40);
     // a minnow takes a worm that costs most of what it fetches: its price cannot fall
     expect(thingOf("minnow", c)!.floor).toBe(100);
@@ -45,16 +45,25 @@ describe("a thing whose price moves", () => {
       expect(it.pays * t.floor / 100).toBeGreaterThanOrEqual(Math.min(it.pays, costOf(id, c) * 1.5) - 1e-9);
     }
   });
-  it("may rise the higher the plainer it is", () => {
-    const by = (tier: number) => new Set(movingOf(c).filter((id) => ITEMS[id as keyof typeof ITEMS].tier === tier).map((id) => thingOf(id, c)!.ceil));
+  it("may rise the higher the plainer it is; a crop, whatever its tier, to its own ceiling (v285)", () => {
+    const by = (tier: number) => new Set(movingOf(c).filter((id) => ITEMS[id as keyof typeof ITEMS].tier === tier && ITEMS[id as keyof typeof ITEMS].kind !== "crop").map((id) => thingOf(id, c)!.ceil));
+    expect(new Set(movingOf(c).filter((id) => ITEMS[id as keyof typeof ITEMS].kind === "crop").map((id) => thingOf(id, c)!.ceil))).toEqual(new Set([MARKET.cropCeil]));
+    expect(MARKET.cropCeil).toBe(150);
     expect([...by(1)]).toEqual([220]);
     expect([...by(2)]).toEqual([200]);
     expect([...by(3)]).toEqual([180]);
   });
-  it("has the same usual worth a head a round as every other of its kind", () => {
+  it("has the same usual worth a head a round as every other of its kind; a crop dearer than kangkong more pieces than its worth says (v285)", () => {
     expect(thingOf("kangkong", c)!.usual * ITEMS.kangkong.pays).toBe(MARKET.usual.crop);
-    expect(thingOf("pumpkin", c)!.usual * ITEMS.pumpkin.pays).toBeCloseTo(MARKET.usual.crop!, 10);
     expect(thingOf("catfish", c)!.usual * ITEMS.catfish.pays).toBeCloseTo(MARKET.usual.fish!, 10);
+    // (a crop: its coins' worth measured against the square root of its price from kangkong up; never fewer pieces than before)
+    expect(thingOf("pumpkin", c)!.usual).toBeCloseTo((MARKET.usual.crop! / ITEMS.pumpkin.pays) * Math.sqrt(ITEMS.pumpkin.pays / MARKET.cropAnchor), 10);
+    for (const id of movingOf(c).filter((id) => ITEMS[id as keyof typeof ITEMS].kind === "crop")) expect(thingOf(id, c)!.usual * ITEMS[id as keyof typeof ITEMS].pays).toBeGreaterThanOrEqual(MARKET.usual.crop! - 1e-9);
+    // at forty heads, a round: kangkong as before, the dear ones several times what they were (five, the batch, before)
+    const at40 = (id: string) => Math.round(Math.max(thingOf(id, c)!.usual * 40, thingOf(id, c)!.batch));
+    expect(["kangkong", "tomato", "redOkra", "pumpkin", "bottleGourd", "blueCorn", "trellisBerry"].map(at40)).toEqual([200, 122, 53, 33, 31, 27, 25]);
+    expect(MARKET.cropFall).toBe(25);
+    for (const id of movingOf(c)) expect(thingOf(id, c)!.fall).toBe(ITEMS[id as keyof typeof ITEMS].kind === "crop" ? 25 : undefined);
   });
 });
 
@@ -113,7 +122,7 @@ describe("the market kept by the village", () => {
     const { market, log } = rolled(m, R + 1, heads, c);
     expect(market.round).toBe(R + 1);
     expect(market.sold).toEqual({});
-    expect(factorOf(market, "kangkong")).toBe(60);
+    expect(factorOf(market, "kangkong")).toBe(75); // (a crop falls a quarter a round at the most since v285; 60 before)
     expect(factorOf(market, "chili")).toBeGreaterThanOrEqual(40);
     expect(factorOf(market, "carrot")).toBeGreaterThanOrEqual(40);
     expect(factorOf(market, "minnow")).toBeGreaterThanOrEqual(100);
@@ -129,7 +138,7 @@ describe("the market kept by the village", () => {
     const first = rolled(counted(newMarket(R), "kangkong", 5_000), R + 1, heads, c).market;
     const { market, log } = rolled(first, R + 4, heads, c);
     expect(log.map(([round]) => round)).toEqual([R + 1, R + 2, R + 3]);
-    expect(log[0][1].kangkong[0]).toBe(60);
+    expect(log[0][1].kangkong[0]).toBe(75);
     expect(log.slice(1).every(([, things]) => things.kangkong[1] === 0)).toBe(true);
     expect(factorOf(market, "kangkong")).toBeGreaterThanOrEqual(40);
   });
@@ -218,7 +227,9 @@ describe("stock decisions and buyer interest", () => {
     const t = thingOf("blueCorn", c)!;
     expect(t.batch).toBe(MARKET.minVolume);
     const usual = Math.max(t.usual * MARKET.heads, t.batch);
-    expect(next({ f: 100, m: usual }, t.batch, usual, t.floor, t.ceil).f).toBe(100);
+    // (since v285 a dear crop's usual amount is over the batch even at the fewest heads: one harvest does not lower it)
+    expect(usual).toBeGreaterThan(t.batch);
+    expect(next({ f: 100, m: usual }, t.batch, usual, t.floor, t.ceil, MARKET, 100, t.fall).f).toBeGreaterThanOrEqual(100);
   });
   it("crafted staples move while bought staples keep their fixed buyback price", () => {
     expect(thingOf("berryJam", c)!.floor).toBe(100);
@@ -243,13 +254,14 @@ describe("stock decisions and buyer interest", () => {
     for (let r = 1; r <= 42; r++) {
       market = rolled(market, r, 10, c).market;
       const f = factorOf(market, "blueCorn");
-      expect(f).toBeGreaterThanOrEqual(Math.round(prior * 0.6));
-      expect(f).toBeLessThanOrEqual(Math.round(prior * 1.35));
+      // (a crop falls a quarter a round at the most since v285, and rises to its own ceiling)
+      expect(f).toBeGreaterThanOrEqual(Math.round(prior * (1 - MARKET.cropFall / 100)));
+      expect(f).toBeLessThanOrEqual(Math.min(MARKET.cropCeil, Math.round(prior * 1.35)));
       seen.push(f); prior = f;
     }
     expect(seen.some((f, i) => i > 0 && f < seen[i - 1])).toBe(true);
     expect(seen.some((f, i) => i > 0 && f > seen[i - 1])).toBe(true);
-    expect(Math.max(...seen) - Math.min(...seen)).toBeGreaterThan(60);
+    expect(Math.max(...seen) - Math.min(...seen)).toBeGreaterThan(40);
   });
 });
 
@@ -260,7 +272,10 @@ describe("every crop's price, told at the farm (v283; the owner, 2026-10-19)", (
     const crops = Object.keys(c.items).filter((id) => c.items[id].kind === "crop" && thingOf(id, c) !== null);
     expect(Object.keys(told.things).sort()).toEqual(crops.sort());
     expect(told.round).toBe(500);
-    expect(told.things.kangkong).toEqual({ ...pricesTold(m, [], ["kangkong"], c).things.kangkong, was: [] });
+    // (v285: the whole village's usual amount a round, at the heads the market was counted as, and what is left so far)
+    expect(told.things.kangkong).toEqual({ ...pricesTold(m, [], ["kangkong"], c).things.kangkong, was: [], usual: 5 * MARKET.heads, selling: 0 });
+    const counted40 = farmPricesOf({ ...m, heads: 40, sold: { bottleGourd: 12 } }, c);
+    expect([counted40.things.kangkong.usual, counted40.things.bottleGourd.usual, counted40.things.bottleGourd.selling]).toEqual([200, 31, 12]);
     expect([told.things.kangkong.f, told.things.blueCorn.f, told.things.tomato.f]).toEqual([60, 140, 100]);
     expect(Object.values(told.things).every((t) => t.was.length === 0)).toBe(true);
     // (no seed, fish or dish among them)

@@ -78,6 +78,24 @@ export const MARKET = {
    * day puts those four and some fifteen things of the forest under their usual price, and leaves the rest over it.
    */
   usual: { crop: 15, fish: 8, catch: 5, dish: 8, goods: 8, staple: 8, wild: 8, bug: 4 } as Partial<Record<ItemKind, number>>,
+  /**
+   * Crops, by rules of their own since v285 (the owner, 2026-10-19, after members said a crop sold only a few times
+   * fell hard: "1-3 เอา", "ยังไม่ปิด แต่ให้ตกช้ากว่านี้หน่อย", "เพิ่มเฉพาะ สายปลูกผัก เพราะสายนี้ ต้องลงทุนเงิน และ เวลาเยอะ").
+   * A usual amount in coins made a dear crop's market thin: at forty heads a village took two hundred kangkong a round
+   * at their usual price, and five bottle gourds, blue corn or trellis berries (the batch's least), so that one
+   * member's harvest of a few plants (46 bottle gourds in one round, read live) halved its price for everybody, and
+   * the dearest crops, which a good planner grows, fetched the least for it.
+   * - `cropAnchor`: a crop dearer than this many coins is usual in sqrt(pays / anchor) times the pieces its coins'
+   *   worth alone would say; a cheaper one as before (kangkong, 3, as before: 200 a round at forty heads; tomato 122
+   *   where it was 75, red okra 53 where 14, pumpkin 33, bottle gourd 31, blue corn 27, trellis berry 25 where 5).
+   * - `cropCeil`: the most a crop's price rises to, whatever its tier (220, 200 and 180 before): an unsold crop no
+   *   longer stands at twice its price to drop at the first sales.
+   * - `cropFall`: how far a crop's price falls in a round at the most (40 before, as every other thing's still is).
+   * The buyers' interest moves crops as before (the owner: not closed).
+   */
+  cropAnchor: 3,
+  cropCeil: 150,
+  cropFall: 25,
 };
 export type MarketKnobs = typeof MARKET;
 
@@ -112,14 +130,16 @@ export function costOf(id: string, c: MarketFacts): number {
   return 0;
 }
 
-/** Per-head reference volume, one minimum batch, and its price band. */
-export interface Thing { usual: number; floor: number; ceil: number; batch: number }
+/** Per-head reference volume, one minimum batch, and its price band; and, for a crop, how far it falls in a round at the most (`MARKET.cropFall`; every other thing `MARKET.fall`). */
+export interface Thing { usual: number; floor: number; ceil: number; batch: number; fall?: number }
 export function thingOf(id: string, c: MarketFacts, k: MarketKnobs = MARKET): Thing | null {
   const it = c.items[id], coins = it ? k.usual[it.kind] : undefined;
   if (!it || !(it.pays > 0) || c.goods[id] || coins === undefined) return null;
   const floor = it.kind === "dish" || it.kind === "goods" || it.kind === "staple" ? k.made : Math.min(100, Math.max(k.floor, Math.ceil(costOf(id, c) * k.margin / it.pays)));
   const crop = c.crops[id];
   const batch = Math.max(k.minVolume, crop ? (crop.yield[0] + crop.yield[1]) / 2 : 1);
+  // (a crop: its usual amount less steep against its price, a ceiling and a fall of its own: MARKET.cropAnchor, v285)
+  if (it.kind === "crop") return { usual: (coins / it.pays) * Math.max(1, Math.sqrt(it.pays / k.cropAnchor)), floor, ceil: k.cropCeil, batch, fall: k.cropFall };
   return { usual: coins / it.pays, floor, ceil: k.ceil[it.tier - 1] ?? k.ceil[k.ceil.length - 1], batch };
 }
 /** Every thing whose price moves, as the catalog lists them. */
@@ -127,13 +147,13 @@ export const movingOf = (c: MarketFacts, k: MarketKnobs = MARKET): string[] => O
 
 /** Where a thing's price stands: `f` hundredths of its usual price; and `m`, how much of it the village has been selling a round, as it is remembered. */
 export interface Standing { f: number; m: number }
-/** A round on: so many were sold in the round that ended, against the usual amount (for the whole village). */
-export function next(st: Standing, sold: number, usual: number, floor: number, ceil: number, k: MarketKnobs = MARKET, demand = 100): Standing {
+/** A round on: so many were sold in the round that ended, against the usual amount (for the whole village). `fall`: the thing's own, a crop's (`Thing.fall`), where it has one. */
+export function next(st: Standing, sold: number, usual: number, floor: number, ceil: number, k: MarketKnobs = MARKET, demand = 100, fall = k.fall): Standing {
   const mem = k.memory / 100, m = (1 - mem) * st.m + mem * sold;
   // A reference batch buffers tiny volumes. An empty market can cool again when
   // buyers lose interest; zero sales no longer guarantee a permanent ceiling.
   const want = Math.min(ceil, Math.max(floor, 100 * Math.pow((2 * usual * demand / 100) / (m + usual), k.bend / 100)));
-  const f = want < st.f ? Math.max(want, st.f * (1 - k.fall / 100)) : Math.min(want, st.f * (1 + k.rise / 100));
+  const f = want < st.f ? Math.max(want, st.f * (1 - fall / 100)) : Math.min(want, st.f * (1 + k.rise / 100));
   return { f: Math.floor(f + 0.5), m };
 }
 
@@ -142,6 +162,8 @@ export interface Market {
   round: number;
   at: Record<string, Standing>;
   sold: Record<string, number>;
+  /** How many heads the village was counted as when the round turned (the database keeps it since v285, for the farm's prices to tell a usual amount by). */
+  heads?: number;
 }
 export const newMarket = (round: number): Market => ({ round, at: {}, sold: {} });
 /** Every moving item's completed round: factor, shared sales, and its base then (unknown in legacy logs). */
@@ -180,7 +202,7 @@ export function rolled(market: Market, round: number, heads: number, c: MarketFa
     for (const id of ids) {
       const t = thingOf(id, c, k)!, usual = Math.max(t.usual * heads, t.batch);
       const st = was[id] ?? { f: 100, m: usual }, sold = i === 0 && start === market.round ? market.sold[id] ?? 0 : 0;
-      now[id] = next(st, sold, usual, t.floor, t.ceil, k, marketDemand(id, start + i + 1));
+      now[id] = next(st, sold, usual, t.floor, t.ceil, k, marketDemand(id, start + i + 1), t.fall);
       // Store the base used in this round; later balance changes must never
       // relabel an old percentage as a coin price that was never available.
       things[id] = [st.f, sold, c.items[id].pays];
@@ -208,7 +230,9 @@ export const historicalPrice = (base: number | null | undefined, f: number): num
  * hundredths of the usual one), and the rounds of the last seven days as they ended, the oldest first: the round, the
  * price it had, and how many the village sold in it.
  */
-export interface PriceTold { f: number; floor: number; ceil: number; base?: number; demand?: number; demandTrend?: number; was: Array<[round: number, f: number, sold: number, base?: number | null]> }
+export interface PriceTold { f: number; floor: number; ceil: number; base?: number; demand?: number; demandTrend?: number; was: Array<[round: number, f: number, sold: number, base?: number | null]>;
+  /** (the farm's, v285) the whole village's usual amount a round at the heads it is counted as, whole pieces; and how many have been left with the uncle so far this round */
+  usual?: number; selling?: number }
 /** The displayed offer, checked again under the purse/world locks on deposit. */
 export interface MarketQuote { item: string; round: number; f: number; base: number }
 /** …and of prices: the round they are of, and each thing I hold or have left with the uncle whose price moves. Of nothing else: what I do not hold has no price here. */
@@ -231,5 +255,12 @@ export function pricesTold(market: Market, log: Logged[], held: string[], c: Mar
  * "แสดงราคาที่ฟาร์ม ให้เห็นราคาตอนนี้ ราคาของแต่ละเกรด", after members said they could not see a price before picking):
  * what `pricesTold` tells of a thing held, without the days gone by. The database's public.town_farm_prices (v283).
  */
-export const farmPricesOf = (market: Market, c: MarketFacts, k: MarketKnobs = MARKET): PricesTold =>
-  pricesTold(market, [], Object.keys(c.items).filter((id) => c.items[id].kind === "crop"), c, k);
+export function farmPricesOf(market: Market, c: MarketFacts, k: MarketKnobs = MARKET): PricesTold {
+  const told = pricesTold(market, [], Object.keys(c.items).filter((id) => c.items[id].kind === "crop"), c, k), heads = market.heads ?? k.heads;
+  // (v285: the whole village's usual amount a round, and what has been left so far: "ขายเกินนี้ ราคารอบหน้าจะลง")
+  for (const [id, t] of Object.entries(told.things)) {
+    const thing = thingOf(id, c, k)!;
+    told.things[id] = { ...t, usual: Math.floor(Math.max(thing.usual * heads, thing.batch) + 0.5), selling: market.sold[id] ?? 0 };
+  }
+  return told;
+}

@@ -96,6 +96,11 @@ export function GradePrices({ id, told, th, reach }: { id: string; told: PriceTo
         {th ? "ผู้ซื้อรอบนี้" : "Buyer interest"}: {told.demand >= 115 ? th ? "คึกคัก" : "Strong" : told.demand <= 85 ? th ? "ซบเซา" : "Quiet" : th ? "ปกติ" : "Normal"}
         {!!told.demandTrend && <span> · {told.demandTrend > 0 ? th ? "เริ่มสนใจมากขึ้น" : "Picking up" : th ? "ความสนใจลดลง" : "Cooling"}</span>}
       </p>}
+      {/* (v285: the whole village's usual amount a round, and what has been left so far: past it, the next round's price tends down) */}
+      {told.usual !== undefined && <p className="text-label text-[#ead9b4]" data-farm-usual={told.usual} data-farm-selling={told.selling ?? 0}>
+        {th ? `ปริมาณปกติทั้งหมู่บ้าน ≈ ${told.usual} ชิ้น/รอบ · รอบนี้ฝากแล้ว ${told.selling ?? 0}` : `Village usual ≈ ${told.usual} a round · left this round ${told.selling ?? 0}`}
+        {(told.selling ?? 0) > told.usual && <span className="font-semibold text-[#ffb09c]"> · {th ? "เกินปกติแล้ว ราคารอบหน้ามีแนวโน้มลง" : "over usual: the next round's price tends down"}</span>}
+      </p>}
     </div>
   );
 }
