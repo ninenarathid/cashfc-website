@@ -123,6 +123,8 @@ const VERB: Record<Work, [th: string, en: string]> = {
   house: ["วางบ้านแมลง", "Set the insect house down"], room: ["ใส่แมลงในบ้าน", "Put it in the house"], lift: ["ยกบ้านแมลงคืน", "Lift the house"],
   draw: ["ตักน้ำ", "Draw water"], pour: ["เทน้ำลงบ่อ", "Pour it into the well"], fill: ["เติมน้ำใส่บัว", "Fill the can"],
 };
+/** The wells by name, each with its own water (lib/town/world's WELLS): the first half's and the southern half's. */
+const WELL_NAMES: Array<[th: string, en: string]> = [["บ่อเหนือ", "North well"], ["บ่อใต้", "South well"]];
 /** An insect in the hand is let go on a plant, not spread on it: the button says so (the deed is the fertiliser's all the same: lib/town/farm's PUT_ON). */
 const LET_GO: [th: string, en: string] = ["ปล่อยแมลง", "Let it go"];
 // (a fertiliser of Quality says which of the plant's two slots it fills, lib/town/fertilisers)
@@ -849,7 +851,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       for (const [i, WELL] of WELLS.entries()) {
       const kind = nature.current[i] ?? null;
       const top = project({ x: WELL.x + 0.5, y: WELL.y + 0.5 });
-      if (onScreen(top)) sign(`${thai ? "บ่อน้ำ" : "Well"} ${well.current[i] ?? 0}/${WATER.well}${kind ? ` · ${NATURE_NAMES[kind][thai ? 0 : 1]}` : ""}`, top.x, top.y - 66 * s);
+      if (onScreen(top)) sign(`${WELL_NAMES[i]?.[thai ? 0 : 1] ?? (thai ? "บ่อน้ำ" : "Well")} ${well.current[i] ?? 0}/${WATER.well}${kind ? ` · ${NATURE_NAMES[kind][thai ? 0 : 1]}` : ""}`, top.x, top.y - 66 * s);
       // while its water has a nature: motes of that water's colour rising about the well, each in its own time
       if (kind && onScreen(top)) {
         things.push({ depth: WELL.x + WELL.y + 1.2, draw: () => {
@@ -970,7 +972,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     vfx.element(heldStack(mine, keeper.handSlot()), null, { lift: 12 });
     // (a bucket drawn under the fountain's blessing for water bearers: its own burst)
     for (const id of seenAtPlot(did.chore, mine, began)) vfx.add("bless", null, { icon: BURST[id], lift: 26 });
-    if (did.chore !== "draw") setNote(`${th ? "บ่อน้ำ" : "Well"} ${keeper.well(at ? Math.max(0, wellBy(at[0], at[1])) : 0)}/${WATER.well}`);
+    if (did.chore !== "draw") { const i = at ? Math.max(0, wellBy(at[0], at[1])) : 0; setNote(`${WELL_NAMES[i]?.[th ? 0 : 1] ?? (th ? "บ่อน้ำ" : "Well")} ${keeper.well(i)}/${WATER.well}`); }
     else {
       // (water drawn at certain moments has a nature: it is named for what it is, and a light goes up from the bucket)
       const kind = keeper.drawnNow();
