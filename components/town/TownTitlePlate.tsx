@@ -12,8 +12,9 @@ const WINGS = [0, 0, 1, 12, 15];
 
 /**
  * A worn title as it reads under one's name on the map, drawn by the map's own painter, for the lines' board
- * (components/town/TownLines). Its words are there for a screen reader too; it moves only while it is on the screen
- * and the page has not been asked for less motion.
+ * (components/town/TownLines). Its words are there for a screen reader too. It moves at about thirty frames a second
+ * (the map's own resting pace, lib/town/pace), not at a fast screen's rate, and not at all where the page has been
+ * asked for less motion; the browser rests it with the page when the page is hidden.
  */
 export default function TownTitlePlate({ text, line, rank }: { text: string; line: LineId; rank: number }) {
   const ref = useRef<HTMLCanvasElement>(null), holder = useRef<HTMLSpanElement>(null);
@@ -28,14 +29,16 @@ export default function TownTitlePlate({ text, line, rank }: { text: string; lin
     canvas.width = Math.ceil(cw * dpr); canvas.height = Math.ceil(ch * dpr); canvas.style.width = `${cw * big}px`;
     if (holder.current) Object.assign(holder.current.style, { marginLeft: `${-(ROOM_X - WINGS[band]) * big}px`, marginTop: `${-(ROOM_Y - 6) * big}px`, marginBottom: `${-(ROOM_Y - 4) * big}px` });
     const img = new Image(); img.src = ICON_ATLAS.image;
-    let frame = 0, gone = false;
+    let frame = 0, gone = false, last = -1e9;
     const draw = (now: number) => {
       if (gone) return;
+      if (now - last < 32) { frame = requestAnimationFrame(draw); return; }
+      last = now;
       ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       drawTitlePlate(ctx, { text, line, rank, x: cw / 2, y: ROOM_Y + h / 2 - (band === 4 ? 3 : band === 3 ? 1 : 0), now, seed: 1, img, font, reduced: still });
       if (!still && band >= 2) frame = requestAnimationFrame(draw);
     };
-    img.onload = () => { cancelAnimationFrame(frame); frame = requestAnimationFrame(draw); };
+    img.onload = () => { cancelAnimationFrame(frame); last = -1e9; frame = requestAnimationFrame(draw); };
     frame = requestAnimationFrame(draw);
     return () => { gone = true; cancelAnimationFrame(frame); };
   }, [text, line, rank, band]);

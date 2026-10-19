@@ -176,12 +176,20 @@ function sheenPicture(): HTMLCanvasElement {
   return sheen;
 }
 
-/** The line's picture, made small smoothly: a pixel picture taken down by a share that is not whole loses pixels. */
+/**
+ * The line's picture, about `size` (a fifth larger at most), taken down only by a whole share on the screen's own pixels (each of its
+ * pixels one of the screen's, or every two by two made one) and set on the screen's grid: a pixel picture taken down
+ * by a share that is not whole loses pixels and smears.
+ */
 function emblem(ctx: CanvasRenderingContext2D, img: HTMLImageElement | null, name: IconName, cx: number, cy: number, size: number) {
   if (!img?.complete || !img.naturalWidth || !ICON_ATLAS.icons[name]) return;
-  const [x, y, w, h] = ICON_ATLAS.icons[name], k = size / Math.max(w, h);
-  ctx.save(); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(img, x, y, w, h, cx - (w * k) / 2, cy - (h * k) / 2, w * k, h * k);
+  const [x, y, w, h] = ICON_ATLAS.icons[name], k = ctx.getTransform().a || 1;
+  const most = Math.max(w, h), want = size * k;
+  let n = Math.max(1, Math.round(most / want));
+  if (most / n > want * 1.2) n++;
+  const dw = Math.round(w / n), dh = Math.round(h / n);
+  ctx.save(); ctx.imageSmoothingEnabled = n > 1; ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(img, x, y, w, h, Math.round(cx * k - dw / 2) / k, Math.round(cy * k - dh / 2) / k, dw / k, dh / k);
   ctx.restore();
 }
 
