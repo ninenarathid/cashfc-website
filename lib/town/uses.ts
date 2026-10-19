@@ -19,6 +19,10 @@ import { DEW, GUANO } from "./band-species";
 import { PREP_TOOLS } from "./preparation-items";
 import { CAMP_TOOLS, CAMP_CRAFTS } from "./camp-items";
 import { WOOD_RAW, WOOD_TOOL_IDS } from "./wood-items";
+import { BREEDS } from "./animals";
+import { FORAGE_BANDS } from "./animal-items";
+import { POPOTO_SHOP, TOOL_OF } from "./animal-act";
+import { BREED_SCROLL_ITEMS } from "./animal-items";
 import { CRAFT_IDS, CRAFTS } from "./crafting";
 
 /**
@@ -53,7 +57,8 @@ export type Use =
   | "foraging" // inspects, separates and protects forest plant parts
   | "waterwork" // samples, routes, filters, mixes and preserves mountain water
   | "preparation" | "camp"
-  | "house"; // set on a plot of one's bed, takes insects in its rooms (lib/town/insect-house)
+  | "house" // set on a plot of one's bed, takes insects in its rooms (lib/town/insect-house)
+  | "pasture"; // a game's tool at the pasture: the milker, the shears, the egg basket (lib/town/animal-act's TOOL_OF)
 
 /** The uses of a thing, as the rules have them. Empty for a thing that is only ever an ingredient, a bait, a seed, something to eat or to sell. */
 export function usesOf(id: ItemId): Use[] {
@@ -82,11 +87,12 @@ export function usesOf(id: ItemId): Use[] {
   if (toolKindOf(id) === "pick") uses.push("pick");
   if (toolKindOf(id) === "axe") uses.push("axe");
   if (id === "insectHouse") uses.push("house");
+  if ((Object.values(TOOL_OF) as string[]).includes(id)) uses.push("pasture");
   return uses;
 }
 
 /** Where a thing comes from. */
-export type Source = "shop" | "river" | "farm" | "kitchen" | "forest" | "net" | "well" | "mountain" | "smith";
+export type Source = "shop" | "river" | "farm" | "kitchen" | "forest" | "net" | "well" | "mountain" | "smith" | "pasture";
 
 /**
  * Everything that can be had in the game, and from where: bought from the
@@ -141,6 +147,16 @@ export function sources(shelf: ItemId[] = Object.keys(GOODS) as ItemId[], wild =
     // insects (lib/town/insects): with a net, whatever is out at whatever hour and under whatever sky; a beetle only
     // when somebody has something sweet to hold under its tree
     if (wild && NETS.some(has)) for (const id of BUG_IDS) if (BUGS[id].habit !== "lure" || LURES.some(has)) add(id, "net");
+    // the pasture (lib/town/animals): what Uncle Popoto sells, what every breed gives (a cross makes them all), a manure a
+    // day, the meadow's forage by its hour and what an animal out brings back. Like the forest's, it is gone out for.
+    if (wild) {
+      for (const id of Object.keys(POPOTO_SHOP) as ItemId[]) add(id, "pasture");
+      for (const b of BREEDS) add(b.produce, "pasture");
+      for (const id of Object.keys(FORAGE_BANDS) as ItemId[]) add(id, "pasture");
+      // (a breed's scroll: written out by whoever first bred it, lib/town/animal-act's 'scroll')
+      for (const id of Object.keys(BREED_SCROLL_ITEMS) as ItemId[]) add(id, "pasture");
+      add("manure" as ItemId, "pasture");
+    }
     // the mountain (lib/town/tools): with an axe, what a felled tree leaves; with a pick, what a broken rock leaves,
     // on the mountain's foot and down the cave. Like the forest's, it is what somebody goes out and finds.
     if (wild) {

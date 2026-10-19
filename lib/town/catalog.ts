@@ -1,4 +1,5 @@
 import { BOX, MORE_CHESTS } from "./box";
+import { animalsRow } from "./animal-catalog";
 import { DRESS_ITEMS, wearDropsRow } from "./wear";
 import { GARDEN } from "./gardening";
 import { INSECT_GARDEN } from "./insect-garden";
@@ -370,6 +371,8 @@ export function catalogOf() {
     gifts: giftsRowAll(),
     /** Things dropped on the ground (lib/town/ground): the seconds one lies before it is gone, how near it one stands to pick it up, and the maps one may be dropped on, each as the box of its tiles. */
     ground: { lasts: GROUND.lasts, reach: GROUND.reach, maps: GROUND_MAPS },
+    // (v291: the pasture, lib/town/animal-catalog)
+    animals: animalsRow(),
     // ── forging ──
     /** The blacksmith (lib/town/forge, lib/town/tools): the kinds of tool that are forged, the table of tries, his knobs, the options and what is built of them, the gems, and what is smelted of what (lib/town/forge-row says each part). */
     forge: forgeRow(),
@@ -590,7 +593,10 @@ export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Ar
   // (v276: things to wear had from the game: the round glasses on the stall, and the row that says what each is worn into)
   v276: { keys: ["dress"], over: ["items", "goods", "shelf"] },
   // (v277: the 46 things to wear: made at the workbench, bought from the uncle, and dropped)
-  v277: { keys: ["wear_drops"], over: ["items", "goods", "shelf", "dress", "workshop"] } };
+  v277: { keys: ["wear_drops"], over: ["items", "goods", "shelf", "dress", "workshop"] },
+  // (v291: the pasture's own row; its things, dishes, makes, scrolls, gifts and the farm's new rows are merged into the rows they belong to by
+  // scripts/db/build-v291.mjs, entry by entry, so that nothing another file wrote of those rows is written over)
+  v291: { keys: ["animals"], over: [] } };
 // (v283, 2026-10-19, writes no whole row: `farming.costs.pick` and the farm pouch's `slots` by jsonb_set alone, so that
 // v284's beds in `farming.bedsAt` stand whichever runs first; v286 the same, `farming.pests.house` alone)
 

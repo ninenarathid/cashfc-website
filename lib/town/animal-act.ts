@@ -10,14 +10,14 @@
 import {
   ANIMALS, ANY_FEED, BREED, DAWN_BOOSTS, DEW_GROW, OFFERINGS, SPECIES, SPECIES_IDS, adultAt, breedAt, breedOf, crossOf,
   feeOf, freePlace, heartsOf, kindOf, mayCare, newHerd, rangeOf, realOf, rollOf, scoreOf, sellBackOf, settle, stageOf,
-  starterOf, stepKey, stepsOf, unitsOf, LEAST_SECS, MEADOW, bandOf, findOf, forageAt,
+  starterOf, stepKey, stepsOf, unitsOf, LEAST_SECS, MEADOW, bandOf, findOf, forageAt, scrollOf,
   type Animal, type Book, type Ctx, type GateLog, type Herd, type Place, type Play, type SpeciesId,
 } from "./animals";
 import { put, roomFor, take, held, type Purse } from "./trade";
 import { dayOf, spend, staminaOf } from "./stamina";
 import { HOUR } from "./trade";
 import type { ItemId } from "./items";
-import { FORAGE_BANDS } from "./animal-items";
+import { FORAGE_BANDS, POPOTO_SCROLL_PRICES } from "./animal-items";
 import { useGift, works, hasThing, wearing, type CharmId, type ThingId } from "./gifts";
 
 /** The gifts of the line, by rank (lib/town/gifts' MORE_ lists hold them). */
@@ -66,7 +66,9 @@ export type AnimalInput =
   | { action: "wagon"; stops: string[] }
   | { action: "ride"; run: string; leg: number }
   | { action: "rode"; run: string }
-  | { action: "forage"; spot: number };
+  | { action: "forage"; spot: number }
+  | { action: "scroll"; breed: string }
+  | { action: "read"; item: string };
 
 export type AnimalWhy =
   | "none" | "theirs" | "coins" | "room" | "places" | "stage" | "hungry" | "nothing" | "spent" | "stamina" | "rest"
@@ -130,7 +132,8 @@ export function growFor(species: SpeciesId, item: string): number {
 /** What Uncle Popoto sells besides the animals, and for how much. */
 export const POPOTO_SHOP: Record<string, number> = {
   ...Object.fromEntries(SPECIES_IDS.flatMap((sp) => [[SPECIES[sp].sack, SPECIES[sp].sackPrice], [SPECIES[sp].growItem, SPECIES[sp].growPrice]])),
-  milker: 180, woolShears: 60, eggBasket: 24,
+  milker: 180, woolShears: 60, eggBasket: 24, churn: 80, cheesePress: 100, spindle: 60, knittingNeedles: 60,
+  ...POPOTO_SCROLL_PRICES,
 };
 /** The tool each game asks for. */
 export const TOOL_OF = { eggs: "eggBasket", shear: "woolShears", milk: "milker" } as const;
@@ -501,6 +504,23 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
       }
       notes.push({ what: "animal_rode", n: 1, doc: { run: run.id } });
       return yes(w, { ...purse, animalRode: k } as Purse);
+    }
+    case "scroll": {
+      // whoever first bred a breed may write its recipe out, for a little ink and paper
+      const br = BREED.get(input.breed);
+      if (!br || br.letter === "A") return no("none");
+      if (world.found[br.id]?.by !== me) return no("theirs");
+      if (purse.coins < ANIMALS.scrollFee) return no("coins");
+      const sid = scrollOf(br.species, br.letter) as ItemId;
+      if (roomFor(purse.bag, sid) < 1) return no("room");
+      notes.push({ what: "animal_scroll", n: 1, doc: { breed: br.id }, });
+      return yes(world, { ...purse, coins: purse.coins - ANIMALS.scrollFee, bag: put(purse.bag, sid, 1) }, { item: sid, n: 1 });
+    }
+    case "read": {
+      // a breed's scroll read: its step's offering known from now on (lib/town/animals' knowsOffering)
+      if (!input.item.startsWith("scrollBreed_") || held(purse.bag, input.item as ItemId) < 1) return no("nothing");
+      const recipes = purse.recipes.includes(input.item as ItemId) ? purse.recipes : [...purse.recipes, input.item as ItemId];
+      return yes(world, { ...purse, recipes, bag: take(purse.bag, input.item as ItemId, 1) });
     }
     case "forage": {
       const spot = Math.floor(input.spot);

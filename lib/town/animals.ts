@@ -48,6 +48,8 @@ export const ANIMALS = {
   dawnBoost: 10,
   oddsCap: 70,
   fees: { real: 80, fantasy: 220, legend: 600 } as const,
+  /** What the first breeder of a breed pays to write its recipe out (a scroll, tradeable). */
+  scrollFee: 12,
   /** Misses at one step before the book tells that member its offering outright. */
   clueAfter: 3,
   /** Growth speed-ups add; this is the most. */
@@ -234,10 +236,13 @@ export const OFFERINGS: Record<SpeciesId, Partial<Record<Letter, ItemId>>> = {
   cow: { B: "seedPumpkin", C: "ironNodule", D: "dill", E: "seedTrellisBerry", F: "wholeGeode", G: "nasturtium", H: "prism" } as Partial<Record<Letter, ItemId>>,
 };
 /** What each kind of offering is, for the book's words and for telling a try at a step from no try at all. */
+/** The minerals and the flowers that may be offered (any seed is a seed). */
+export const MINERALS: readonly string[] = ["slateLayer", "clayPocket", "quartzCore", "pyriteCluster", "copperNodule", "ironNodule", "silverNodule", "wholeGeode", "mineralSalt"];
+export const FLOWERS: readonly string[] = ["marigold", "borage", "chamomile", "clover", "lavender", "nasturtium", "milkweed", "dill", "fennel", "mint"];
 export const OFFERING_KINDS: Record<OfferingKind, { th: string; en: string; is: (id: string) => boolean }> = {
   seed: { th: "เมล็ดพันธุ์", en: "a seed", is: (id) => id.startsWith("seed") },
-  mineral: { th: "แร่", en: "a mineral", is: (id) => ["slateLayer", "clayPocket", "quartzCore", "pyriteCluster", "copperNodule", "ironNodule", "silverNodule", "wholeGeode", "mineralSalt"].includes(id) },
-  flower: { th: "ดอกไม้", en: "a flower", is: (id) => ["marigold", "borage", "chamomile", "clover", "lavender", "nasturtium", "milkweed", "dill", "fennel", "mint"].includes(id) },
+  mineral: { th: "แร่", en: "a mineral", is: (id) => MINERALS.includes(id) },
+  flower: { th: "ดอกไม้", en: "a flower", is: (id) => FLOWERS.includes(id) },
   prism: { th: "ปริซึม", en: "a prism", is: (id) => id === "prism" },
 };
 /** The rare before-dawn forage (03-07) that, laid in the nest beside the offering, adds `ANIMALS.dawnBoost` to the odds. */
