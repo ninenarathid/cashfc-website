@@ -40,7 +40,7 @@ export function HousePanel({ at, house, plots, now, th, mine, onClose }: { at: s
   const helped = plantsInReach(at, plots).length;
   return (
     <section data-house-panel style={{ maxHeight: "min(40rem, calc(100dvh - 10rem))" }}
-             className="tk tk-plate pointer-events-auto flex w-[min(440px,calc(100vw-16px))] flex-col gap-2 overflow-y-auto overscroll-contain p-3 text-ui text-ink sm:gap-2.5 sm:p-4"
+             className="tk tk-plate pointer-events-auto flex w-[min(440px,calc(100vw-16px))] flex-col gap-2 overflow-y-auto overscroll-contain p-3 pb-12 text-ui text-ink sm:gap-2.5 sm:p-4"
              aria-label={th ? "บ้านแมลง" : "Insect house"}>
       <header className="flex items-center gap-2">
         <TownIcon name={"insectHouse" as IconName} size={30} />
@@ -69,9 +69,11 @@ export function HousePanel({ at, house, plots, now, th, mine, onClose }: { at: s
         })}
       </div>
       <p className="tk tk-window px-3 py-2 text-meta text-[#3b2412]" data-house-tip>
-        ▸ {mine
-          ? (th ? "ถือแมลงผสมเกสร (เกสร) หรือแมลงล่าเหยื่อ (กันศัตรูพืช) แล้วกดที่บ้าน ต้นใน 5×5 ได้ครึ่งแถบ ศัตรูพืชที่เกาะก่อนแล้วยังต้องใช้ยา ถ้ามีพืชที่มันชอบอยู่ใกล้ตอนใส่ อยู่ต่อ +24 ชม." : "Use a pollinator (pollen) or a predator (keeps pests off) on the house: plants within 5×5 get half a bar; a pest already there still needs a cure; with its favourite plant near as it goes in, it stays 24 h more")
-          : th ? "บ้านแมลงของคนอื่น" : "Somebody else's insect house"}
+        {/* (a sentence a line, Codex's look of 2026-10-19: one run of words read dense on a phone) */}
+        {mine
+          ? (th ? ["ถือแมลงผสมเกสร (เกสร) หรือแมลงล่าเหยื่อ (กันศัตรูพืช) แล้วกดที่บ้าน ต้นใน 5×5 ได้ครึ่งแถบ", "ศัตรูพืชที่เกาะก่อนแล้ว ยังต้องใช้ยา", "มีพืชที่มันชอบอยู่ใกล้ตอนใส่ อยู่ต่อ +24 ชม."]
+            : ["Use a pollinator (pollen) or a predator (keeps pests off) on the house: plants within 5×5 get half a bar", "A pest already there still needs a cure", "With its favourite plant near as it goes in, it stays 24 h more"]).map((line) => <span key={line} className="block">▸ {line}</span>)
+          : <>▸ {th ? "บ้านแมลงของคนอื่น" : "Somebody else's insect house"}</>}
         {mine && house.rooms.some((r) => !r || r.until <= now) && (() => {
           const near = Object.entries(FAVOURITES).filter(([bug]) => favouriteNear(at, bug as ItemId, plots)).map(([bug]) => name(bug as ItemId));
           return near.length ? <span className="block" data-house-favourites>{th ? `ตอนนี้ได้ +24 ชม.: ${near.slice(0, 4).join(", ")}` : `+24 h now: ${near.slice(0, 4).join(", ")}`}</span> : null;
