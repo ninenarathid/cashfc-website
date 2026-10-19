@@ -7,6 +7,7 @@ import type { Keeper } from "@/lib/town/keeper";
 import { ALL_LINE_IDS, HARVEST_BANK_DAYS, LINES, RANKS, ladderOf, lineSlowed, linesShown, rankOf, titleOf, towards, type LineId, type LinesTold, type Worn } from "@/lib/town/lines";
 import TownIcon, { type IconName } from "./TownIcon";
 import TownMe from "./TownMe";
+import TownTitlePlate from "./TownTitlePlate";
 
 /** The board's wood and what is written on it; a ladder's paper and its ink (the kitchen table's own). */
 const CREAM = "#ffeccb", CREAM_SOFT = "#e9cfa4", HOLLOW = "#3a2513";
@@ -95,7 +96,7 @@ export default function TownLines({ keeper, told, gifts, gifting, given, leaf, t
             <p className="font-data text-label" style={{ color: CREAM_SOFT }}>{th ? "ฉายาใต้ชื่อ" : "The title under your name"}</p>
             <p className="truncate text-ui font-semibold" style={{ color: CREAM }}>{called}</p>
             {wornTitle
-              ? <p className="mt-0.5 inline-block max-w-full truncate rounded-full bg-[rgba(15,19,25,0.72)] px-2.5 py-0.5 text-meta font-semibold" style={{ color: rankInk(worn!.rank) }}>{th ? wornTitle.th : wornTitle.en}</p>
+              ? <TownTitlePlate text={th ? wornTitle.th : wornTitle.en} line={worn!.line} rank={worn!.rank} />
               : <p className="mt-0.5 text-meta" style={{ color: CREAM_SOFT }}>{th ? "ยังไม่ได้ใส่ฉายา" : "No title worn"}</p>}
           </div>
           {worn && <button type="button" disabled={busy} onClick={() => wear(null)} data-lines-bare className="pressable min-h-10 shrink-0 rounded-md border-2 border-[#2a190d] bg-[#4a2f18] px-3 text-meta disabled:opacity-50" style={{ color: CREAM }}>{th ? "ถอดฉายา" : "Wear none"}</button>}

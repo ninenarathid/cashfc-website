@@ -50,7 +50,7 @@ for (const [label, size] of [["wide", { width: 1280, height: 860 }], ["phone", {
     ok(`[${label}] …the next one by its mark alone, and how far it is`, rungs[3].state === "next" && /\?\?\?/.test(rungs[3].text) && /700 แต้ม/.test(rungs[3].text) && /อีก 300/.test(rungs[3].text) && !/นักเล่นแร่แปรรส/.test(rungs[3].text), rungs[3]);
     const whole = await X.evaluate(`${L}.innerText`);
     ok(`[${label}] …and nothing at all of the ranks beyond: no title of theirs, and no mark`, rungs.slice(4).every((r) => r.state === "far" && r.text.replace(/\s/g, "") === `${r.rank}???`)
-      && !/ผู้คุมเตาเวท|จอมเวทแห่งกระทะ|ตำนานแห่งรสทิพย์|1,300|2,200|12,000/.test(whole), rungs.slice(4));
+      && !/ผู้คุมเตาเวท|จอมเวทแห่งกระทะ|จอมเชฟมังกร|1,300|2,200|12,000/.test(whole), rungs.slice(4));
     await X.shot(`${OUT}/lines-${label}-kitchen.png`);
 
     // a title worn, and taken off

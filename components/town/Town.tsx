@@ -51,7 +51,7 @@ import TownOutNow from "./TownOutNow";
 import { RANK_TITLES } from "@/lib/town/well";
 import { ALL_GIFTS, CHARMS, dueOf, giftsOf, type Gifts } from "@/lib/town/gifts";
 import { rides } from "@/lib/town/riding";
-import { ALL_LINE_IDS, RANKS, titleOf, type LinesTold, type Worn } from "@/lib/town/lines";
+import { ALL_LINE_IDS, titleOf, type LinesTold, type Worn } from "@/lib/town/lines";
 import { CART } from "@/lib/town/cart";
 import { companyOf, type Beside } from "@/lib/town/company";
 import { BOX, byMoreChest } from "@/lib/town/box";
@@ -94,6 +94,7 @@ import { SKIN_CSS } from "./TownSkin";
 import { HUD_CSS, hudTierFor } from "./TownHud";
 import { STAMINA } from "@/lib/town/stamina";
 import TownIcon, { ICON_ATLAS, drawIcon, petScale, type IconName } from "./TownIcon";
+import { drawTitlePlate } from "./title-plate";
 import { FORGED_BEATS, drawForged } from "./TownForged";
 // ── to come ── (the preview of the mountain and the cave: only its types here; the module itself is asked for in `next dev` alone)
 import type { MoreFrame, MountainArt } from "./mountain-art";
@@ -178,8 +179,6 @@ const TownSmith = lazy(() => import("./TownSmith"));
 const NUDGES: readonly string[] = ["boats","stall", "farm", "kitchen", "deal", "fountain", "notices", "bugs", "line", "ground", "shop", /* mining */ "cave", /* felling */ "trees", /* the bridge and the lamps */ "works", "lamps"];
 /** The colour a carrier's rank is written in under their name (lib/town/well): wood, silver, gold. */
 const RANK_INK = ["#e0a66a", "#d5dce3", "#f2c94c"];
-/** What a worn title is written in, by its rank (components/town/TownLines' own, kept here so that the map does not load that screen to draw a name): bronze, silver, gold, and the last rank's own. */
-const titleInk = (rank: number) => (rank >= RANKS ? "#ff9d6c" : rank >= 7 ? "#f2c94c" : rank >= 4 ? "#d5dce3" : "#e0a66a");
 /** How near somebody has to stand for a deal to be opened with them, in tiles: lib/town/deal's own number, kept apart so that the catalog stays out of the map's code (a test holds the two together). */
 const DEAL_NEAR = 3;
 /** A sign as it was read, kept by what was told: the map reads everybody's every frame (lib/town/sign). */
@@ -3345,7 +3344,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       // name the well has for those who carried enough water to it, as before there were lines
       const who = isMe ? ranksRef.current.me : a.info.id, worn = ranksRef.current.titles[who], title = worn ? titleOf(worn.line, worn.rank) : null;
       const rank = ranksRef.current.ranks[who] ?? 0;
-      if (title) tag(ctx, words.current.th ? title.th : title.en, p.x, foot.y + 31, titleInk(worn.rank));
+      if (title) drawTitlePlate(ctx, { text: words.current.th ? title.th : title.en, line: worn.line, rank: worn.rank, x: p.x, y: foot.y + 31, now, seed: seedOf(a.info.id), img: iconImg.current, font: fontRef.current, reduced: reducedRef.current });
       else if (rank > 0) tag(ctx, RANK_TITLES[rank - 1][words.current.th ? 0 : 1], p.x, foot.y + 31, RANK_INK[rank - 1]);
       ctx.restore();
     }
@@ -3895,6 +3894,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       cam: () => ({ s: cam.current.s, cx: cam.current.cx, cy: cam.current.cy, follow: cam.current.follow }),
       /** So many more of my own doll about me, each holding `hold` with a tool's word (lib/town/tools' toolWord: "2", "2fff2"), walking or not; 0 for none. To look at many forged tools at once. */
       crowd: (n: number, hold = "pick", word = "2", walk = false) => { crowd.current = n > 0 ? { n: Math.min(60, Math.floor(n)), hold, word, walk } : null; return crowd.current?.n ?? 0; },
+      /** A title plate drawn where asked, into any canvas (components/town/title-plate): to look at every rank and line at once. */
+      plate: (ctx: CanvasRenderingContext2D, text: string, line: Worn["line"], rank: number, x: number, y: number, now: number, seed = 1, reduced = false) =>
+        drawTitlePlate(ctx, { text, line, rank, x, y, now, seed, img: iconImg.current, font: fontRef.current, reduced }),
       /** The map at a zoom (as far as the camera allows), where it looks now. */
       zoom: (s: number) => { setCam({ s, cx: cam.current.cx, cy: cam.current.cy }); return cam.current.s; },
       /** My doll as another race and gender (the first hairstyle of theirs), to look at each size of doll. */

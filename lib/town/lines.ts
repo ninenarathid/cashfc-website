@@ -17,6 +17,10 @@ import type { Line } from "./talk";
  *   nothing else; and the ranks beyond it with nothing at all, not even their marks ("ซ่อนแต้มไว้ เราจะมาคิดกันใหม่
  *   ในอนาคต").
  *
+ * - **The high ranks' titles were made grander** (the owner, 2026-10-19: "อยากทำให้อลังการกว่านี้ ใน tier สูงๆ", and to
+ *   the words both AIs laid before him, "เห็นด้วยเรื่องเปลี่ยนชื่อ"): each rank 10 its own and echoing its gift, and none
+ *   that says king or lord, for members are of every gender. A title is kept as its line and rank, so words change freely.
+ *
  * Pure: every number is a knob, and nothing here knows who did what.
  */
 export const LINE_IDS = ["kitchen", "well", "helpers", "fishing", "forest", "insects", "farming"] as const;
@@ -75,7 +79,7 @@ export const LINES: Record<LineId, LineDef> = {
     titles: [
       ["ลูกมือครัว", "Kitchen hand"], ["ศิษย์เตาไฟ", "Hearth apprentice"], ["นักปรุงฝึกเวท", "Spellcook in training"], ["นักเล่นแร่แปรรส", "Flavour alchemist"],
       ["ผู้คุมเตาเวท", "Keeper of the spell-stove"], ["จอมเวทแห่งกระทะ", "Wizard of the pan"], ["สหายภูตเตาไฟ", "Hearth-sprite's friend"], ["เชฟเพลิงฟีนิกซ์", "Phoenix-fire chef"],
-      ["ปรมาจารย์รสทิพย์", "Grandmaster of heavenly taste"], ["ตำนานแห่งรสทิพย์", "Legend of heavenly taste"],
+      ["ปรมาจารย์ประสานรส", "Grandmaster of paired flavours"], ["จอมเชฟมังกร", "Dragon-feast chef"],
     ],
   },
   well: {
@@ -83,7 +87,7 @@ export const LINES: Record<LineId, LineDef> = {
     titles: [
       ["ผู้หาบน้ำ", "Water bearer"], ["ศิษย์แห่งสายธาร", "Apprentice of the stream"], ["ผู้เฝ้าบ่อน้ำ", "Keeper of the well"], ["ผู้ฟังเสียงน้ำ", "Listener to the water"],
       ["ผู้อ่านเมฆ", "Cloud reader"], ["นักเก็บน้ำค้างจันทร์", "Gatherer of moon dew"], ["สหายภูตน้ำ", "Water-sprite's friend"], ["ผู้เป่าแตรสายธาร", "Horn-blower of the stream"],
-      ["ผู้ปลุกตาน้ำ", "Springwaker"], ["ผู้เรียกฝน", "Rain caller"],
+      ["ผู้ปลุกตาน้ำ", "Springwaker"], ["ผู้บัญชาเมฆฝน", "Commander of the rain clouds"],
     ],
   },
   helpers: {
@@ -99,7 +103,7 @@ export const LINES: Record<LineId, LineDef> = {
     titles: [
       ["นักตกปลาฝึกหัด", "Novice angler"], ["สหายนากน้ำ", "Otter's friend"], ["นักตกปลาสองมือ", "Two-handed angler"], ["ผู้ถือสายใยมังกร", "Bearer of the dragon-silk line"],
       ["นักตกปลาจันทรา", "Moonlight angler"], ["ผู้ท้าทายปลาตำนาน", "Challenger of legends"], ["ผู้เรียกฝูงปลา", "Caller of shoals"], ["นายเรือใบบัว", "Captain of the lotus-leaf boat"],
-      ["เจ้าแห่งลานตกปลา", "Lord of the fishing deck"], ["สหายมังกรสายธาร", "River dragon's friend"],
+      ["จอมเบ็ดจันทรา", "Moon-reel master"], ["คู่พันธะมังกรสายธาร", "Dragon-bound of the river"],
     ],
   },
   forest: {
@@ -107,23 +111,23 @@ export const LINES: Record<LineId, LineDef> = {
     titles: [
       ["ผู้เดินป่า", "Forest walker"], ["สหายกระรอก", "Squirrel's friend"], ["นักดมกลิ่นป่า", "Sniffer of the woods"], ["ผู้ถือโคมหิ่งห้อย", "Firefly-lantern bearer"],
       ["นักล่าลายแทง", "Treasure-map hunter"], ["ผู้ขี่กวางมอส", "Rider of the moss stag"], ["ผู้เฝ้าวงแหวนเห็ด", "Keeper of the fairy ring"], ["คนเลี้ยงผึ้งแห่งต้นไม้ใหญ่", "Beekeeper of the great tree"],
-      ["ผู้เรียกดาวตก", "Caller of falling stars"], ["ผู้พิทักษ์ต้นไม้ใหญ่", "Guardian of the great tree"],
+      ["ผู้เรียกดาวตก", "Caller of falling stars"], ["จิตวิญญาณไพร", "Spirit of the wildwood"],
     ],
   },
   insects: {
     name: { th: "สายจับแมลง", en: "The insects" }, icon: "bugNet", marks: MARKS, day: 150,
     titles: [
       ["นักจับแมลงฝึกหัด", "Novice bug catcher"], ["สหายผีเสื้อ", "Butterfly's friend"], ["นักวางน้ำหวาน", "Layer of nectar"], ["มือสวิงสายลม", "Wind-net hand"],
-      ["ผู้กล่อมแมลง", "Lullabist of insects"], ["ผู้ห่มปีกผีเสื้อ", "Wearer of butterfly wings"], ["เจ้าสังเวียนด้วง", "Lord of the beetle ring"], ["ผู้ถือโคมจันทร์", "Moon-lamp bearer"],
-      ["ผู้พิทักษ์ปวงแมลง", "Guardian of all insects"], ["ราชาแห่งปวงปีก", "King of all wings"],
+      ["ผู้กล่อมแมลง", "Lullabist of insects"], ["ผู้ห่มปีกผีเสื้อ", "Wearer of butterfly wings"], ["เจ้าสังเวียนด้วง", "Champion of the beetle ring"], ["ผู้ถือโคมจันทร์", "Moon-lamp bearer"],
+      ["ผู้พิทักษ์เกสร", "Pollen warden"], ["ผู้สวมมงกุฎปวงปีก", "Crowned of all wings"],
     ],
   },
   farming: {
     name: { th: "สายปลูกผัก", en: "The farm" }, icon: "hoe", marks: MARKS, day: 150,
     titles: [
       ["ชาวสวนฝึกหัด", "Novice gardener"], ["สหายโนมสวน", "Gnome's friend"], ["มือหว่านทั้งแถว", "Sower of whole rows"], ["ผู้ถือเคียวจันทร์เสี้ยว", "Bearer of the crescent sickle"],
-      ["ผู้ถือนาฬิกาทรายฤดูกาล", "Bearer of the hourglass of seasons"], ["สหายแมนเดรก", "Mandrake's friend"], ["ผู้ปลูกผักยักษ์", "Grower of giant vegetables"], ["นักผสมพันธุ์พืช", "Crossbreeder of plants"],
-      ["เจ้าแห่งเทศกาลเก็บเกี่ยว", "Lord of the harvest festival"], ["ผู้ปลูกต้นถั่ววิเศษ", "Grower of the magic beanstalk"],
+      ["ผู้ถือนาฬิกาทรายฤดูกาล", "Bearer of the hourglass of seasons"], ["สหายแมนเดรก", "Mandrake's friend"], ["ผู้ปลูกผักยักษ์", "Grower of giant vegetables"], ["จิตรกรสายพันธุ์", "Cultivar artist"],
+      ["เจ้าแห่งเทศกาลเก็บเกี่ยว", "Master of the harvest festival"], ["เจ้าแห่งสวนเหนือเมฆ", "Sovereign of the cloud garden"],
     ],
   },
   // ── lines to come: felling ──
@@ -131,8 +135,8 @@ export const LINES: Record<LineId, LineDef> = {
     name: { th: "สายตัดไม้", en: "The woodcutters" }, icon: "axe", marks: MARKS, day: 150,
     titles: [
       ["เด็กเก็บฟืน", "Kindling child"], ["ลูกมือโรงไม้", "Sawmill hand"], ["คนตัดไม้", "Woodcutter"], ["นักอ่านลายไม้", "Grain reader"],
-      ["สหายภูตไม้", "Wood-sprite's friend"], ["ผู้เฝ้าป่าสน", "Keeper of the pines"], ["จอมขวานแห่งขุนเขา", "Axe-lord of the heights"], ["ผู้ปลุกไม้เก่าแก่", "Waker of the old wood"],
-      ["เจ้าแห่งพงไพร", "Lord of the wildwood"], ["ตำนานแห่งพงไพร", "Legend of the wildwood"],
+      ["สหายภูตไม้", "Wood-sprite's friend"], ["ผู้เฝ้าป่าสน", "Keeper of the pines"], ["จอมขวานแห่งขุนเขา", "Axe-master of the heights"], ["ผู้ปลุกไม้เก่าแก่", "Waker of the old wood"],
+      ["ผู้รักษาสัญญาไพร", "Keeper of the woodland pact"], ["ผู้กุมป่าในมือ", "Bearer of the forest"],
     ],
   },
   // ── end: felling ──
@@ -142,7 +146,7 @@ export const LINES: Record<LineId, LineDef> = {
     titles: [
       ["เด็กถือตะเกียง", "Lantern child"], ["ลูกมือเหมือง", "Mine hand"], ["นักทุบหิน", "Rock breaker"], ["นักล่าสายแร่", "Vein hunter"],
       ["ผู้ฟังเสียงหิน", "Stone listener"], ["สหายคนแคระ", "Dwarf-friend"], ["จอมขุดแห่งห้วงลึก", "Delver of the deep"], ["ผู้ปลุกผลึก", "Crystal waker"],
-      ["เจ้าแห่งแกนภูเขา", "Lord of the mountain's core"], ["ตำนานแห่งห้วงลึก", "Legend of the deep"],
+      ["ปรมาจารย์สีพลอย", "Master of gem colours"], ["ผู้ไขหัวใจภูผา", "Opener of the mountain's heart"],
     ],
   },
   // ── end: mining ──

@@ -61,7 +61,7 @@ describe("a rank", () => {
   });
   it("has a title, in both languages; no rank has none", () => {
     expect(titleOf("kitchen", 1)).toEqual({ th: "ลูกมือครัว", en: "Kitchen hand" });
-    expect(titleOf("farming", 10)).toEqual({ th: "ผู้ปลูกต้นถั่ววิเศษ", en: "Grower of the magic beanstalk" });
+    expect(titleOf("farming", 10)).toEqual({ th: "เจ้าแห่งสวนเหนือเมฆ", en: "Sovereign of the cloud garden" });
     expect(titleOf("fishing", 0)).toBeNull();
     expect(titleOf("fishing", 11)).toBeNull();
   });
@@ -123,7 +123,7 @@ describe("a ladder as its member is told it (the owner: \"ของที่ย�
     expect(none.slice(1).every((r) => r.state === "far")).toBe(true);
     const all = ladderOf("insects", 12000);
     expect(all.every((r) => r.state === "had")).toBe(true);
-    expect(all[9]).toEqual({ rank: 10, state: "had", at: 12000, title: { th: "ราชาแห่งปวงปีก", en: "King of all wings" } });
+    expect(all[9]).toEqual({ rank: 10, state: "had", at: 12000, title: { th: "ผู้สวมมงกุฎปวงปีก", en: "Crowned of all wings" } });
   });
 });
 

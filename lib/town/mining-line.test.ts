@@ -33,7 +33,7 @@ describe("the mining line", () => {
     expect(l.marks).toEqual([50, 150, 350, 700, 1300, 2200, 3600, 5500, 8000, 12000]);
     expect(l.day).toBe(150);
     expect(l.titles).toHaveLength(10);
-    expect(l.titles.map((t) => t[1])).toEqual(["Lantern child", "Mine hand", "Rock breaker", "Vein hunter", "Stone listener", "Dwarf-friend", "Delver of the deep", "Crystal waker", "Lord of the mountain's core", "Legend of the deep"]);
+    expect(l.titles.map((t) => t[1])).toEqual(["Lantern child", "Mine hand", "Rock breaker", "Vein hunter", "Stone listener", "Dwarf-friend", "Delver of the deep", "Crystal waker", "Master of gem colours", "Opener of the mountain's heart"]);
     for (const [th, en] of l.titles) expect(th && en).toBeTruthy();
     expect(titleOf("mining", 1)).toEqual({ th: "เด็กถือตะเกียง", en: "Lantern child" });
     expect(rankOf("mining", 49)).toBe(0); expect(rankOf("mining", 50)).toBe(1); expect(rankOf("mining", 12000)).toBe(10);
