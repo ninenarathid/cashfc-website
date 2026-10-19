@@ -478,7 +478,7 @@ begin
   elsif act = 'read' then
     -- a breed's scroll read: its step's offering known from now on
     item := p_input->>'item';
-    if coalesce(item, '') not like 'scrollBreed\_%' or town.held(purse->'bag', item) < 1 then return town.answer(me, town.no('nothing')); end if;
+    if coalesce(item, '') not like 'scrollBreed%' or town.held(purse->'bag', item) < 1 then return town.answer(me, town.no('nothing')); end if;
     purse := purse || jsonb_build_object('bag', town.take(purse->'bag', item, 1),
       'recipes', case when coalesce(purse->'recipes', '[]'::jsonb) ? item then purse->'recipes' else coalesce(purse->'recipes', '[]'::jsonb) || to_jsonb(item) end);
 
