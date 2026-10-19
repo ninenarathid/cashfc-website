@@ -10,13 +10,14 @@
 import {
   ANIMALS, ANY_FEED, BREED, DAWN_BOOSTS, DEW_GROW, OFFERINGS, SPECIES, SPECIES_IDS, adultAt, breedAt, breedOf, crossOf,
   feeOf, freePlace, heartsOf, kindOf, mayCare, newHerd, rangeOf, realOf, rollOf, scoreOf, sellBackOf, settle, stageOf,
-  starterOf, stepKey, stepsOf, unitsOf, LEAST_SECS,
+  starterOf, stepKey, stepsOf, unitsOf, LEAST_SECS, MEADOW, bandOf, findOf, forageAt,
   type Animal, type Book, type Ctx, type GateLog, type Herd, type Place, type Play, type SpeciesId,
 } from "./animals";
 import { put, roomFor, take, held, type Purse } from "./trade";
 import { dayOf, spend, staminaOf } from "./stamina";
 import { HOUR } from "./trade";
 import type { ItemId } from "./items";
+import { FORAGE_BANDS } from "./animal-items";
 import { useGift, works, hasThing, wearing, type CharmId, type ThingId } from "./gifts";
 
 /** The gifts of the line, by rank (lib/town/gifts' MORE_ lists hold them). */
@@ -64,7 +65,8 @@ export type AnimalInput =
   | { action: "harp"; near: string[] }
   | { action: "wagon"; stops: string[] }
   | { action: "ride"; run: string; leg: number }
-  | { action: "rode"; run: string };
+  | { action: "rode"; run: string }
+  | { action: "forage"; spot: number };
 
 export type AnimalWhy =
   | "none" | "theirs" | "coins" | "room" | "places" | "stage" | "hungry" | "nothing" | "spent" | "stamina" | "rest"
@@ -80,7 +82,7 @@ export interface AnimalReply {
   purse: Purse;
   notes: AnimalNote[];
   /** What a collection, a cross or the cradle came to, for the page to tell. */
-  got?: { item?: ItemId; n?: number; grades?: number[]; whole?: boolean; child?: string; first?: boolean; right?: boolean; clue?: boolean; spot?: [number, number] };
+  got?: { find?: ItemId | null; item?: ItemId; n?: number; grades?: number[]; whole?: boolean; child?: string; first?: boolean; right?: boolean; clue?: boolean; spot?: [number, number] };
 }
 
 /** Where eggs laid out on the meadow lie: a spot of the pasture, picked from the animal and the round (the page's world.ts puts the pasture's tiles in order). */
@@ -305,10 +307,13 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
       for (let g = 0; g < 4; g++) if (byGrade[g]) bag = put(bag, breed.produce, byGrade[g], g as 0 | 1 | 2 | 3);
       // a day's manure, at the first collection of the day
       if (!a.today.manure && roomFor(bag, "manure" as ItemId) > 0) bag = put(bag, "manure" as ItemId, 1);
+      // a round it was out in may bring a find back with it (lib/town/animals FINDS)
+      const find = findOf(a.species, a.outBands, env.rand(), env.rand());
+      if (find && roomFor(bag, find) > 0) bag = put(bag, find, 1);
       p = { ...p, bag };
       const b: Animal = { ...a, banked: 0, narrow: 0, outside, outBands: 0, today: { ...a.today, manure: true } };
       notes.push({ what: "animal_collect", n: units, line: "animals", pts: units * ANIMALS.points.unit, doc: { id: a.id, breed: a.breed, item: breed.produce, grades: byGrade, whole, score: play ? scoreOf(play) : null } });
-      return yes(withAnimal(world, b), p, { item: breed.produce, n: units, grades, whole });
+      return yes(withAnimal(world, b), p, { item: breed.produce, n: units, grades, whole, find });
     }
 
     case "pick": {
@@ -496,6 +501,20 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
       }
       notes.push({ what: "animal_rode", n: 1, doc: { run: run.id } });
       return yes(w, { ...purse, animalRode: k } as Purse);
+    }
+    case "forage": {
+      const spot = Math.floor(input.spot);
+      if (!(spot >= 0 && spot < MEADOW.spots)) return no("none");
+      const day = dayOf(now), band = bandOf(now), key = day * 8 + band;
+      const taken = (purse as Purse & { meadow?: { k: number; spots: number[] } }).meadow;
+      const spots = taken && taken.k === key ? taken.spots : [];
+      if (spots.includes(spot)) return no("used");
+      const item = forageAt(FORAGE_BANDS, day, band, spot);
+      if (!item) return no("nothing");
+      if (roomFor(purse.bag, item) < 1) return no("room");
+      const p = { ...spend(purse, MEADOW.stamina, now), bag: put(purse.bag, item, 1), meadow: { k: key, spots: [...spots, spot] } } as Purse;
+      notes.push({ what: "animal_forage", n: 1, line: "animals", pts: MEADOW.points, doc: { item, spot, band } });
+      return yes(world, p, { item, n: 1 });
     }
   }
   return no("none");

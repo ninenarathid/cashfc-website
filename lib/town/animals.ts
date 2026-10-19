@@ -418,6 +418,33 @@ export function bandOf(t: number): number {
   return BAND_EDGES.length - 1; // 00-03 belongs to 23-03
 }
 
+/* ── what an animal out on the meadow brings back, by band (things of other lines; the before-dawn ones the meadow's) ── */
+
+/** A round it was out in gives a find one time in `FIND_ODDS`, of a band it was out in: day (07-19), night (19-03), before dawn (03-07). */
+export const FIND_ODDS = 3;
+export const FINDS: Record<SpeciesId, { day: ItemId; night: ItemId; dawn: ItemId }> = {
+  chicken: { day: "worm", night: "scarab", dawn: "dewClover" } as Record<"day" | "night" | "dawn", ItemId>,
+  duck: { day: "snail", night: "nightDuckweed", dawn: "ghostReed" } as Record<"day" | "night" | "dawn", ItemId>,
+  sheep: { day: "wildflower", night: "velvetVetch", dawn: "mistVetch" } as Record<"day" | "night" | "dawn", ItemId>,
+  cow: { day: "sunAlfalfa", night: "lanternGrass", dawn: "dawnOats" } as Record<"day" | "night" | "dawn", ItemId>,
+};
+export const partOfDay = (band: number): "day" | "night" | "dawn" => (band <= 1 ? "dawn" : band >= 6 ? "night" : "day");
+/** The find of a round, from its out-bands and two rolls; null most rounds. */
+export function findOf(species: SpeciesId, outBands: number, r1: number, r2: number): ItemId | null {
+  if (!outBands || r1 * FIND_ODDS >= 1) return null;
+  const bands = BAND_EDGES.map((_, i) => i).filter((i) => outBands & (1 << i));
+  return FINDS[species][partOfDay(bands[Math.floor(r2 * bands.length) % bands.length])];
+}
+
+/* ── the meadow's forage (twelve spots; each gives one thing of the band, once a band to a member) ── */
+
+export const MEADOW = { spots: 12, stamina: 1, points: 1 } as const;
+/** What a spot of the meadow gives in a band of a day: one of the band's forage (lib/town/animal-items' FORAGE_BANDS). */
+export function forageAt(bands: Readonly<Record<string, readonly number[]>>, day: number, band: number, spot: number): ItemId | null {
+  const of = Object.keys(bands).filter((id) => bands[id].includes(band)).sort();
+  return of.length ? (of[(day * 31 + band * 7 + spot * 13) % of.length] as ItemId) : null;
+}
+
 /* ── Quality of what it gives ── */
 
 /** The range a unit of its produce is rolled in: the ceiling from its hearts, the floor 30 under it raised by graded feed. */

@@ -189,3 +189,20 @@ describe("a keeper's steps", () => {
     expect(again.world.animals[0].banked).toBe(1);
   });
 });
+
+describe("the meadow", () => {
+  it("gives one thing a spot a band to a member, and a round out brings a find now and then", async () => {
+    const { findOf, forageAt, MEADOW } = await import("./animals");
+    const { FORAGE_BANDS } = await import("./animal-items");
+    const r = animalAction(world(), purseWith(0), { action: "forage", spot: 3 }, env(T0));
+    expect(r.ok).toBe(true);
+    expect(r.got?.item).toBe(forageAt(FORAGE_BANDS, dayOf(T0), 2, 3));
+    expect(animalAction(r.world, r.purse, { action: "forage", spot: 3 }, env(T0 + 1000)).why).toBe("used");
+    expect(animalAction(r.world, r.purse, { action: "forage", spot: MEADOW.spots }, env(T0)).why).toBe("none");
+    for (let band = 0; band < 8; band++) expect(forageAt(FORAGE_BANDS, 1, band, 0)).toBeTruthy();
+    expect(findOf("chicken", 0, 0, 0)).toBeNull();
+    expect(findOf("chicken", 1 << 2, 0.1, 0)).toBe("worm");
+    expect(findOf("duck", 1 << 0, 0.1, 0)).toBe("ghostReed");
+    expect(findOf("cow", 1 << 6, 0.9, 0)).toBeNull();
+  });
+});
