@@ -191,8 +191,8 @@ const PACE: Record<string, number> = { cow: 0.55, sheep: 0.7, chicken: 1.3, duck
  * at nightfall. `open(t)` says whether the gate stood open at a moment (lib/town/animals' gateAt). Purely for drawing:
  * nothing of the game hangs on where an animal is.
  */
-export function animalSpot(id: string, species: string, young: boolean, now: number, open: (t: number) => boolean): AnimalSpot {
-  if (asleepAt(now)) { const at = wander(id, species, young, nightBegan(now), open); return { x: at.x, y: at.y, right: at.right, pose: at.pose === "swim" ? "swim" : "sleep" }; }
+export function animalSpot(id: string, species: string, young: boolean, now: number, open: (t: number) => boolean, night = asleepAt(now)): AnimalSpot {
+  if (night) { const at = wander(id, species, young, nightBegan(now), open); return { x: at.x, y: at.y, right: at.right, pose: at.pose === "swim" ? "swim" : "sleep" }; }
   return wander(id, species, young, now, open);
 }
 function wander(id: string, species: string, young: boolean, now: number, open: (t: number) => boolean): AnimalSpot {

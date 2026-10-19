@@ -23,8 +23,10 @@ const LOOK: Record<string, [body: string, accent: string, mark?: "spots" | "glow
   strawberryCow: ["#f4a8b8", "#f8e060", "spots"], cocoaCow: ["#5a3420", "#f0e0c0", "horns"], flowerCow: ["#f4f4f0", "#f08ab0", "flowers"], milkyWayCow: ["#1f2a5a", "#fff6c8", "stars"],
 };
 const YOUNG: Record<string, [string, string]> = { chicken: ["#f8e060", "#f0a030"], duck: ["#f8e070", "#f0a030"], sheep: ["#f4f0e8", "#3a3a3a"], cow: ["#d8b890", "#f4f0e8"] };
-/** How long each kind is drawn, in the map's pixels, grown (a baby is about half, a young one three quarters). */
-const SIZE: Record<string, number> = { cow: 40, sheep: 30, chicken: 14, duck: 15 };
+/** How long each kind is drawn, in the map's pixels, grown (a baby is about half, a young one three quarters): a cow longer than a member is wide, a hen at their knee. */
+export const ANIMAL_LEN: Record<string, number> = { cow: 62, sheep: 44, chicken: 19, duck: 20 };
+export const lengthOf = (species: string, stage: string) => (ANIMAL_LEN[species] ?? 24) * (stage === "adult" ? 1 : stage === "young" ? 0.74 : 0.55);
+const SIZE = ANIMAL_LEN;
 const BIRD = (sp: string) => sp === "chicken" || sp === "duck";
 const facingOf = (right: boolean): Facing => (right ? "SE" : "SW");
 
@@ -35,8 +37,8 @@ export function drawAnimal(ctx: CanvasRenderingContext2D, kit: SceneryKit | null
   const name = animalSprite(a.species, a.breed, a.stage, facingOf(a.right), frame);
   if (kit?.has(name)) { kit.drawProp(ctx, name, at.x, at.y, s, px, 0, false); return; }
   // ART: a stand-in animal (body, head, legs in its breed's colours) until the pasture's sheet has `an_*` pictures.
-  const grown = a.stage === "adult" ? 1 : a.stage === "young" ? 0.74 : 0.52;
-  const len = (SIZE[a.species] ?? 20) * grown, bird = BIRD(a.species);
+  const len = lengthOf(a.species, a.stage), bird = BIRD(a.species);
+  void SIZE;
   const [body, accent, mark] = a.stage === "baby" ? [...(YOUNG[a.species] ?? ["#ddd", "#999"]), undefined] as const : LOOK[a.breed] ?? ["#ddd", "#999"];
   const step = a.pose === "walk" && !still ? Math.sin(now / 130) : 0;
   ctx.save();

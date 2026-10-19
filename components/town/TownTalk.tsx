@@ -41,7 +41,7 @@ export interface TalkChoice { id: string; label: string; note?: string }
  * stays shut.
  */
 export default function TownTalk({ who, as, lines, choices, onPick, th, phone, reduced, art, onClose }: {
-  who: Speaker | "smith";
+  who: Speaker | "smith" | "popoto";
   /** Their name and portrait, for somebody `who` does not name. */
   as?: TalkAs;
   lines: Line[];

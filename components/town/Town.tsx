@@ -70,6 +70,12 @@ import type { BugsAim } from "./TownBugs";
 import type { GroundTap } from "./TownGround";
 import type { BridgeTap, Hand } from "./TownBridge";
 import type { Bearer, LampsHooks } from "./TownLamps";
+import type { PastureHooks } from "./TownPasture";
+import type { AnimalsView } from "./TownAnimals";
+import { POPOTO_ASK, POPOTO_SOON, POPOTO_WHO, popotoChat, popotoHello } from "@/lib/town/pasture-talk";
+import { RAM, riderOf, runOf } from "@/lib/town/riding";
+import { drawRam } from "./pasture-draw";
+import { wagonPlace, wagonRun } from "@/lib/town/seats";
 import SignIcon from "./SignIcon";
 import type { SignView } from "./TownSign";
 import { TownFaces } from "./TownFaces";
@@ -159,6 +165,8 @@ const TownBox = lazy(() => import("./TownBox"));
 const TownGround = lazy(() => import("./TownGround"));
 const TownBridge = lazy(() => import("./TownBridge"));
 const TownLamps = lazy(() => import("./TownLamps"));
+// ── the pasture ── (the animal line on the farm's new rows: its map, its panel and its games; docs/plans/animals)
+const TownPasture = lazy(() => import("./TownPasture"));
 const TownSign = lazy(() => import("./TownSign"));
 const TownCircle = lazy(() => import("./TownCircle"));
 const TownThanks = lazy(() => import("./TownThanks"));
@@ -244,6 +252,8 @@ function seatNear(p: Vec): number | null {
 // ── gifts: forest ──
 /** A moss stag under its rider (lib/town/riding): how big its picture is drawn against the map's own pixels, and how far up its back is. */
 const STEED = { k: 2.1, lift: 30 };
+/** ── the pasture ── How far up a cloud ram's back is (lower than a stag's), and the hay wagon's bed. */
+const RAM_LIFT = 24, WAGON_LIFT = 17;
 /** How tall somebody sitting is against standing, for their name and the box a tap finds them in. */
 const SIT_HEIGHT = 0.72;
 /** How long a bite of a meal takes, the morsel going up and the chewing after it, in milliseconds. */
@@ -668,7 +678,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   /** The wishing fountain's panel: it takes the board's place while it is open (so whatever makes way for the board makes way for it). */
   const [fountainOpen, setFountainOpen] = useState(false);
   /** A talk with a shopkeeper: who, what they say, and what there is to choose at its end. Each has a number of its own, so a new one starts at its first line. */
-  const [talk, setTalk] = useState<{ who: Speaker | "smith"; n: number; lines: Line[]; choices?: TalkChoice[]; as?: TalkAs } | null>(null);
+  const [talk, setTalk] = useState<{ who: Speaker | "smith" | "popoto"; n: number; lines: Line[]; choices?: TalkChoice[]; as?: TalkAs } | null>(null);
   /** Which of their conversations comes next (they go round, tap after tap), and how many talks there have been. */
   const talkTurns = useRef<Record<Speaker, number>>({ uncle: 0, banker: 0 });
   const talks = useRef(0);
@@ -948,6 +958,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // round a lit lamp and the flame somebody bears are all asked of it through one hand; everybody on the map as its
   // offering needs them (the flame each bears among it); and the room told of the flame I bear
   const lampsHooks = useRef<LampsHooks | null>(null);
+  // ── the pasture ── (TownPasture: what it draws, what a tap on it comes to, and its panel opened by Uncle Popoto's talk)
+  const pastureHooks = useRef<PastureHooks | null>(null);
+  const registerPasture = useCallback((hooks: PastureHooks | null) => { pastureHooks.current = hooks; }, []);
+  const popotoTurn = useRef(0);
   const registerLamps = useCallback((hooks: LampsHooks | null) => { lampsHooks.current = hooks; }, []);
   const bearers = useCallback((): Bearer[] => {
     const stay = sessionRef.current && !sessionRef.current.closed ? sessionRef.current : null;
@@ -1032,10 +1046,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // A game two play together (water handed on: lib/town/handing): what the two pages tell each other goes by the
   // room's letterboxes, from one to the other and to nobody else.
   // ── gifts: well ── (a drink held out goes by the same letterboxes: each of the two hears every word, and takes its own)
-  const pairHears = useRef<{ line: ((from: string, data: unknown) => void) | null; drink: ((from: string, data: unknown) => void) | null }>({ line: null, drink: null });
+  const pairHears = useRef<{ line: ((from: string, data: unknown) => void) | null; drink: ((from: string, data: unknown) => void) | null; ram: ((from: string, data: unknown) => void) | null }>({ line: null, drink: null, ram: null });
   const pairWire = useCallback((s: TownSession) => {
-    const { line, drink } = pairHears.current;
-    s.onPair = line || drink ? (from, data) => { pairHears.current.line?.(from, data); pairHears.current.drink?.(from, data); } : null;
+    const { line, drink, ram } = pairHears.current;
+    s.onPair = line || drink || ram ? (from, data) => { pairHears.current.line?.(from, data); pairHears.current.drink?.(from, data); pairHears.current.ram?.(from, data); } : null;
   }, []);
   const pairing = useMemo<Pairing | null>(() => (session ? { send: (to, told) => session.pair(to, told), hear: (fn) => { pairHears.current.line = fn; pairWire(session); } } : null), [session, pairWire]);
   const drinking = useMemo<DrinkPairing | null>(() => (session ? { send: (to, told) => session.pair(to, told), hear: (fn) => { pairHears.current.drink = fn; pairWire(session); } } : null), [session, pairWire]);
@@ -1043,7 +1057,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // said the same way. Only the word for what: never the change.
   useEffect(() => {
     if (!session || !keeper) return;
-    session.onNudge = (what) => { if (NUDGES.includes(what)) keeper.nudged(what as Looked); };
+    session.onNudge = (what) => {
+      // ── the pasture ── (a spring wind called, a hay wagon set off: the whole town is told, and reads the pasture a while)
+      if (what === "wind" || what === "wagon") { window.dispatchEvent(new CustomEvent("cashtown:pasture-word", { detail: what })); return; }
+      if (NUDGES.includes(what)) keeper.nudged(what as Looked);
+    };
     // (to one person when they are in the room under that id; a stand-in's members are not, so the room is told)
     keeper.onDeed = (what, to) => session.nudge(what, to && session.avatars.has(to) ? to : undefined);
     return () => { session.onNudge = null; keeper.onDeed = null; };
@@ -2422,6 +2440,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       bridgeDraw.current?.(frame);
       // ── the lamp relay ── (the farm's brazier, the board by each fire, the lamp posts dark and lit, and what the night brings out)
       lampsHooks.current?.draw(frame);
+      // ── the pasture ── (its buildings, animals, eggs, Uncle Popoto, the gate; and the hay wagon on whichever map it is)
+      pastureHooks.current?.draw(frame);
     }
     if (scenery && placeRef.current === "farm") for (const p of FARM_PROPS) {
       const c = project({ x: p.x + 0.5, y: p.y + 0.62 });
@@ -2754,7 +2774,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
    */
   function petOf(a: Avatar, dt: number): { at: Vec; right: boolean; moving: boolean; name: IconName; swims?: boolean; perched?: boolean } | null {
     const name = a.info.pet;
-    if (!name || !name.startsWith("fam") || !(name in ICON_ATLAS.icons) || a.byeAt !== undefined) { pets.current.delete(a.info.id); return null; }
+    if (!name || !name.startsWith("fam") || (!(name in ICON_ATLAS.icons) && name !== RAM) || a.byeAt !== undefined) { pets.current.delete(a.info.id); return null; }
     // ── gifts: forest ── (a moss stag is ridden: it is under its member and drawn with them, see drawAvatar; here only
     // which way it goes is kept. Sat down, they have got off, and it stands by like any familiar)
     if (rides(name, sitting(a))) {
@@ -2801,6 +2821,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   /** A familiar at its place: its picture out of the icons', turned the way it goes, hopping as it runs (a butterfly flies and never lands). */
   function drawPet(ctx: CanvasRenderingContext2D, pet: { at: Vec; right: boolean; moving: boolean; name: IconName; swims?: boolean; perched?: boolean }, now: number) {
     const img = iconImg.current;
+    // ── the pasture ── (a cloud ram not ridden, its rider sat down: at their heels, smaller; its stand-in until its picture comes)
+    if ((pet.name as string) === RAM) { const c = project({ x: pet.at.x + 0.5, y: pet.at.y + 0.5 }); if (onScreen(c)) drawRam(ctx, null, c, cam.current.s * 0.6, pet.right, 0, now, pet.moving && !reducedRef.current); return; }
     if (!img?.complete || !img.naturalWidth) return;
     const c = project({ x: pet.at.x + 0.5, y: pet.at.y + 0.5 });
     if (!onScreen(c)) return;
@@ -2857,6 +2879,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // ── gifts: forest ──
   /** A moss stag under its rider (lib/town/riding): its picture out of the icons', bigger than at the heels, turned the way they go, stepping as it runs. */
   function drawSteed(ctx: CanvasRenderingContext2D, a: Avatar, at: Vec, hop: number) {
+    // ── the pasture ── (a cloud ram: its own picture once the art piece has made it; a stand-in meanwhile, components/town/pasture-draw)
+    if (a.info.pet === RAM) { drawRam(ctx, null, at, cam.current.s * 1.05, pets.current.get(a.info.id)?.right ?? true, hop, performance.now(), a.path.length > 0 && !reducedRef.current); return; }
     const img = iconImg.current, cell = ICON_ATLAS.icons["famStag" as IconName];
     if (!img?.complete || !img.naturalWidth || !cell) return;
     const [x, y, w, h] = cell, sc = cam.current.s, k = STEED.k * sc, right = pets.current.get(a.info.id)?.right ?? true;
@@ -3146,13 +3170,21 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const v = cam.current;
     const k = v.s;
     // ── gifts: forest ── (on a moss stag's back, lib/town/riding: lifted onto it, sat, and stepping with it; the stag is drawn under them)
-    const foot = mapRef.current ? project(a.pos) : spotOf(a), riding = rides(a.info.pet, sitting(a)) && "famStag" in ICON_ATLAS.icons, ride = riding ? STEED.lift * k : 0;
-    const hop = riding && a.path.length > 0 && !reducedRef.current ? Math.abs(Math.sin(now / 105)) * 2.5 * k : 0;
-    const p = mapRef.current ? spotOf(a) : riding ? { x: foot.x, y: foot.y - ride - hop } : foot;
+    // ── the pasture ── (on a cloud ram's back, x1.5 and lower than a stag's; behind its rider in its second seat; or sat on the hay wagon's bed)
+    const behindOf = riderOf(a.info.seat), wagonOf = runOf(a.info.seat), ram = a.info.pet === RAM;
+    const foot = mapRef.current ? project(a.pos) : spotOf(a), riding = rides(a.info.pet, sitting(a)) && (ram || "famStag" in ICON_ATLAS.icons);
+    const perched = riding || !!behindOf || !!wagonOf;
+    const ride = riding ? (ram ? RAM_LIFT : STEED.lift) * k : behindOf ? RAM_LIFT * k : wagonOf ? WAGON_LIFT * k : 0;
+    const carrier = behindOf ? (behindOf === sessionRef.current?.self.info.id ? sessionRef.current?.self : sessionRef.current?.avatars.get(behindOf)) : null;
+    const hop = (riding ? a.path.length > 0 : !!carrier?.path.length) && !reducedRef.current ? Math.abs(Math.sin(now / 105)) * 2.5 * k : 0;
+    // (behind the rider, the way they face; on the wagon's bed, each in their place along it)
+    const run = wagonOf ? wagonRun(wagonOf) : null, place = run ? wagonPlace(run, a.info.id) : 0;
+    const shift = behindOf ? ((pets.current.get(behindOf)?.right ?? true) ? -11 : 11) * k : run ? ((place % 4) - 1.5) * 9 * k : 0;
+    const p = mapRef.current ? spotOf(a) : perched ? { x: foot.x + shift, y: foot.y - ride - hop - (run ? Math.floor(place / 4) * 4 * k : 0) } : foot;
     const look = lookOf(a);
     const kit = kitFor(look.race);
     // sitting, the name and the tap box come down with the head
-    const tall = (kit?.heightOf(look) ?? DOLL_H) * k, h = tall * (sitting(a) || riding ? SIT_HEIGHT : 1);
+    const tall = (kit?.heightOf(look) ?? DOLL_H) * k, h = tall * (sitting(a) || perched ? SIT_HEIGHT : 1);
     const voice = sessionRef.current?.voice;
     const level = voice?.active ? voice.level(isMe ? "me" : a.info.id) : 0;
     const talking = a.info.voice && !a.info.muted && level > 0.06;
@@ -3167,7 +3199,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
 
     // A shadow (not on a bench: the bench has the ground), and a ring at the feet while they speak.
     if (riding) drawSteed(ctx, a, foot, hop);
-    else if (mapRef.current?.shadows !== false && !seatOf(a) && !tableSeatOf(a)) {
+    else if (mapRef.current?.shadows !== false && !seatOf(a) && !tableSeatOf(a) && !behindOf && !wagonOf) {
       ctx.fillStyle = "rgba(0,0,0,0.32)";
       ctx.beginPath();
       ctx.ellipse(p.x, p.y, 15 * k, 6 * k, 0, 0, Math.PI * 2);
@@ -3205,7 +3237,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const rod = rodOf(a, isMe), held = !rod ? a.info.hold || null : null;
     const carriesTool = !!held && (isRod(held) || !!handOf(held));
     const heldTall = carriesTool ? (kit?.bodyHeightOf(look) ?? tall / k) * k : tall;
-    const heldH = heldTall * (sitting(a) || riding ? SIT_HEIGHT : 1);
+    const heldH = heldTall * (sitting(a) || perched ? SIT_HEIGHT : 1);
     const handSide = (face.view === "back") !== face.mirror ? -1 : 1;
     const fishesWith: RodId = isRod(a.info.hold) ? a.info.hold : "rod";
     // ── forging ── (a tool forged far has a light of its own, +7 and grander at the top, and its gems show as their
@@ -3265,11 +3297,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (flame) flame(ctx, a.info.flame!, p, h, face.view === "back" ? "both" : "feet", dpr, names);
     if (kit) {
       // Everybody on their own foot: a step offset from their id.
-      const step = moving && !riding ? Math.floor(now / 1000 * WALK_FPS) + (a.info.id.charCodeAt(0) & 3) : undefined;
+      const step = moving && !perched ? Math.floor(now / 1000 * WALK_FPS) + (a.info.id.charCodeAt(0) & 3) : undefined;
       const mood = a.info.mood ?? 0, seen = moodSeen.current.get(a.info.id);
       if (!seen || seen.mood !== mood) moodSeen.current.set(a.info.id, { mood, at: now });
       const expr = mood && now - (moodSeen.current.get(a.info.id)?.at ?? now) < EXPRESSION_MS + 1500 ? expressionOf(mood) : null;
-      kit.draw(ctx, look, face.view, face.mirror, p.x, p.y, k, { step, blink, talk, expr, eat: eatPose, sit: sitting(a) || riding, perch: !!tableSeatOf(a)?.back }, dpr);
+      kit.draw(ctx, look, face.view, face.mirror, p.x, p.y, k, { step, blink, talk, expr, eat: eatPose, sit: sitting(a) || perched, perch: !!tableSeatOf(a)?.back }, dpr);
     } else {
       // Until the dolls arrive: a simple figure.
       ctx.fillStyle = "#6aa9e0";
@@ -3663,6 +3695,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // a shopkeeper: a talk; a gateway: walk to it, and through
     const keeper = keeperBoxes.current.find((k) => x >= k.x0 && x <= k.x1 && y >= k.y0 && y <= k.y1);
     if (keeper) { setPopover(null); openTalk(keeper.id); return; }
+    // ── the pasture ── (Uncle Popoto, the nest, a trough, an animal of mine or one I may care for: done or opened at once;
+    // an egg of mine, a forage spot, the gate, the wagon at its stop: walked up to first)
+    if (gameRef.current && pastureHooks.current && !sessionRef.current?.stuck()) {
+      const hit = pastureHooks.current.tap(x, y);
+      if (hit) { setPopover(null); setPeopleOpen(false); if (hit !== true && sessionRef.current?.walkTo(hit.walk)) cam.current.follow = true; return; }
+    }
     // Whoever holds a sign up, is in a chat room or looks at a stall stays where they are: a tap that would walk
     // them (to a gate, a bench, a thing, the chest, a tile) says why instead, and nothing is put down by a slip.
     const stuck = sessionRef.current?.stuck();
@@ -3780,7 +3818,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
           || (!!gameRef.current && !!keeper?.feast() && feastBoxes.current.some((k) => p.x >= k.x0 && p.x <= k.x1 && p.y >= k.y0 && p.y <= k.y1))
           || [...keeperBoxes.current, ...gateBoxes.current].some((k) => p.x >= k.x0 && p.x <= k.x1 && p.y >= k.y0 && p.y <= k.y1)
           || (!!gameRef.current && !!bridgeTap.current?.(p.x, p.y, true))   // ── the bridge built by hand ── (its pile and its sign)
-          || (!!gameRef.current && !!lampsHooks.current?.tap(p.x, p.y, true));   // ── the lamp relay ── (the brazier, a board, a lamp post)
+          || (!!gameRef.current && !!lampsHooks.current?.tap(p.x, p.y, true))   // ── the lamp relay ── (the brazier, a board, a lamp post)
+          || (!!gameRef.current && !!pastureHooks.current?.tap(p.x, p.y, true));   // ── the pasture ──
         mouseAt(e.currentTarget, p, seat ? "sit" : clickable ? "hand" : "arrow");
       }
       return;
@@ -4182,11 +4221,25 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
    * Talk to a shopkeeper. While their stall or counter is closed: a greeting, and their next conversation, in turn.
    * Open (the trial): a greeting, what they ask, and what one came for to choose from.
    */
-  const openTalk = (asked: Speaker | "smith") => {
+  const openTalk = (asked: Speaker | "smith" | "popoto") => {
     if (wardrobeOpenRef.current) closeWardrobe();
     setCard(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setBoardOpen(false); setTrade(null);
     setFishing(false);
     const hour = Math.floor(bangkokMinute(new Date()) / 60), n = ++talks.current, th = words.current.th;
+    // ── the pasture ── (Uncle Popoto: what one came for, where whoever keeps the game has a pasture; else that it opens soon)
+    if (asked === "popoto") {
+      // ART: the uncle's portraits stand in for Uncle Popoto's (tk_popoto, tk_popoto_o)
+      const as: TalkAs = { name: POPOTO_WHO.name, job: POPOTO_WHO.job, art: ["tk_uncle", "tk_uncle_o"] };
+      if (!gameRef.current || !keeper?.animalWorld()) { setTalk({ who: asked, n, as, lines: [popotoHello(hour), ...POPOTO_SOON] }); return; }
+      setTalk({ who: asked, n, as, lines: [popotoHello(hour), POPOTO_ASK], choices: [
+        { id: "shop", label: th ? "รับลูกสัตว์ ซื้ออาหาร เครื่องมือ" : "Young animals, feed and tools" },
+        { id: "mine", label: th ? "ดูสัตว์ของฉัน" : "My animals" },
+        { id: "nest", label: th ? "รังผสมพันธุ์" : "The breeding nest" },
+        { id: "book", label: th ? "สมุดพันธุ์สัตว์" : "The breed book" },
+        { id: "chat", label: th ? "คุยเล่น" : "Just chatting" },
+      ] });
+      return;
+    }
     // ── the far side ── (the blacksmith: his lines, his name and his portrait are the far side's module's; he only
     // talks, whether the game is open or not. Where no smith is kept for me (the database's, until his file has run) he
     // says that his forge is not open yet, and has no screen to offer)
@@ -4346,9 +4399,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const mine = standers().find((p) => p.id === me.id), board = document.querySelector('[data-foot="board"] [data-town-game]');
     return { at: mine ? ([Math.floor(mine.x), Math.floor(mine.y)] as [number, number]) : null, playing: !!board && !board.closest('[aria-labelledby="town-fish-h"]') };
   }, [standers, me.id]);
-  const pickTalk = (who: Speaker | "smith", id: string) => {
+  const pickTalk = (who: Speaker | "smith" | "popoto", id: string) => {
     // ── forging ── (the blacksmith's choices are his screen's leaves)
     if (who === "smith") { openSmith(id as SmithView); return; }
+    // ── the pasture ── (Uncle Popoto's are his panel's leaves; a chat is his next one, in turn)
+    if (who === "popoto") {
+      if (id === "chat") { setTalk((was) => (was ? { ...was, n: ++talks.current, lines: popotoChat(popotoTurn.current++), choices: undefined } : was)); return; }
+      setTalk(null);
+      pastureHooks.current?.open(id as AnimalsView);
+      return;
+    }
     if (id === "chat") setTalk({ who, n: ++talks.current, lines: chatFor(who, talkTurns.current[who]++) });
     else openTrade(id === "order" ? "sell" : (id as TradeView));
   };
@@ -5315,6 +5375,22 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
           <TownLamps keeper={keeper} me={me.id} th={w.th} people={bearers} place={onForest ? "forest" : onFarm ? "farm" : null}
                      here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing && !signView ? standing?.tile ?? null : null}
                      sfx={sfxRef.current} phone={phone} tabbar={tabbar} register={registerLamps} bear={flameTold} />
+        </Suspense>
+      )}
+      {/* ── the pasture ── the farm's new rows: Uncle Popoto, the animals and what is done with them, the gifts' buttons, the games */}
+      {s && game && keeper && (
+        <Suspense fallback={null}>
+          <TownPasture keeper={keeper} th={w.th} phone={phone} tabbar={tabbar} reduced={!moving} myName={me.name}
+                       place={onFarm ? "farm" : onForest ? "forest" : onMountain ? "mountain" : "town"}
+                       here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing && !signView ? standing?.tile ?? null : null}
+                       self={() => { const m = sessionRef.current?.self; return m ? { x: m.pos.x, y: m.pos.y } : null; }}
+                       people={() => [...(sessionRef.current?.avatars.values() ?? [])].filter((a) => a.byeAt === undefined).map((a) => ({ id: a.info.id, name: a.info.name, x: a.pos.x, y: a.pos.y, pet: a.info.pet, seat: a.info.seat, sit: a.info.sit }))}
+                       pet={s.self.info.pet ?? null} sitting={(s.self.info.sit ?? -1) !== -1} seat={s.self.info.seat ?? ""}
+                       takeSeat={(seat) => sessionRef.current?.takeSeat(seat)} getDown={() => sessionRef.current?.getDown()}
+                       walkTo={(tile) => { const ok = sessionRef.current?.walkTo(tile) ?? false; if (ok) cam.current.follow = true; return ok; }}
+                       pairSend={(to, data) => sessionRef.current?.pair(to, data)}
+                       pairHear={(fn) => { pairHears.current.ram = fn; if (sessionRef.current) pairWire(sessionRef.current); }}
+                       tellRoom={(what) => sessionRef.current?.nudge(what)} onTalk={() => openTalk("popoto")} register={registerPasture} art={boardArt} />
         </Suspense>
       )}
       {/* Thanks: for whoever helped the plant in the plot of mine I stand on; and being told when I am thanked */}
