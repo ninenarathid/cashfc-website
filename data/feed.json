@@ -1,6 +1,20 @@
 {
  "events": [
   {
+   "date": "2026-10-19",
+   "type": "job_up",
+   "id": 28127069,
+   "name": "Jim Carried",
+   "text": "is now a Expert Summoner"
+  },
+  {
+   "date": "2026-10-19",
+   "type": "job_up",
+   "id": 34184163,
+   "name": "Moji Momiji",
+   "text": "is now a Master Machinist"
+  },
+  {
    "date": "2026-10-18",
    "type": "level_100",
    "id": 46243891,
@@ -1385,20 +1399,6 @@
    "id": 58199536,
    "name": "Areeya Lovekin",
    "text": "set a new best parse: 62 on Zoraal Ja as Pictomancer"
-  },
-  {
-   "date": "2026-10-06",
-   "type": "ex_clear",
-   "id": 58199536,
-   "name": "Areeya Lovekin",
-   "text": "cleared Zoraal Ja (Extreme)"
-  },
-  {
-   "date": "2026-10-06",
-   "type": "ex_clear",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "cleared Zoraal Ja (Extreme)"
   }
  ]
 }

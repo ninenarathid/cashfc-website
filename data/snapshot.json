@@ -2520,7 +2520,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 91,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -2547,7 +2547,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-10-18"
+  "chg": "2026-10-19"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -8707,7 +8707,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 83,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -8725,7 +8725,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-18"
+  "chg": "2026-10-19"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -11441,7 +11441,6 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Summoner": "expert",
    "RedMage": "master"
   },
   "ex": [],
@@ -12133,8 +12132,8 @@
   "tiers": {},
   "jobs": {
    "Scholar": "expert",
-   "Warrior": "master",
-   "Gunbreaker": "expert"
+   "Gunbreaker": "expert",
+   "Warrior": "master"
   },
   "ex": [],
   "ults": [
@@ -12515,7 +12514,8 @@
   "jobs": {
    "Bard": "master",
    "BlackMage": "legendary",
-   "Dragoon": "legendary"
+   "Dragoon": "legendary",
+   "Summoner": "expert"
   },
   "ex": [
    "Valigarmanda",
@@ -14028,7 +14028,8 @@
   "tiers": {},
   "jobs": {
    "Reaper": "legendary",
-   "Dragoon": "master"
+   "Dragoon": "master",
+   "Machinist": "master"
   },
   "ex": [],
   "ults": [
