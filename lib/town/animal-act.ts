@@ -17,7 +17,7 @@ import { put, roomFor, take, held, type Purse } from "./trade";
 import { dayOf, spend, staminaOf } from "./stamina";
 import { HOUR } from "./trade";
 import type { ItemId } from "./items";
-import { FORAGE_BANDS } from "./animal-items";
+import { FORAGE_BANDS, POPOTO_SCROLL_PRICES } from "./animal-items";
 import { useGift, works, hasThing, wearing, type CharmId, type ThingId } from "./gifts";
 
 /** The gifts of the line, by rank (lib/town/gifts' MORE_ lists hold them). */
@@ -133,6 +133,10 @@ export function growFor(species: SpeciesId, item: string): number {
 export const POPOTO_SHOP: Record<string, number> = {
   ...Object.fromEntries(SPECIES_IDS.flatMap((sp) => [[SPECIES[sp].sack, SPECIES[sp].sackPrice], [SPECIES[sp].growItem, SPECIES[sp].growPrice]])),
   milker: 180, woolShears: 60, eggBasket: 24,
+  // (the making table's tools, at twice what the uncle pays for one, as the three games' tools are; and the shelf of the
+  // pasture's dishes' scrolls: the page's piece, 2026-10-20, as the README's "Uncle Popoto's panel" asks of his stall)
+  churn: 80, cheesePress: 100, spindle: 60, knittingNeedles: 60,
+  ...POPOTO_SCROLL_PRICES,
 };
 /** The tool each game asks for. */
 export const TOOL_OF = { eggs: "eggBasket", shear: "woolShears", milk: "milker" } as const;

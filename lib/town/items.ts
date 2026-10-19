@@ -12,6 +12,7 @@ import { FERT_ITEMS, FERT_MAKES } from "./fertilisers";
 import { GEOLOGY_DISHES, GEOLOGY_ITEMS, GEOLOGY_MAKES, GEOLOGY_SCROLL_ITEMS, GEOLOGY_SCROLLS, type GeologyDishId } from "./geology-items";
 import { WOOD_DISHES, WOOD_ITEMS, WOOD_MAKES, WOOD_SCROLL_ITEMS, WOOD_SCROLLS, type WoodDishId } from "./wood-items";
 import { ANIMAL_DISHES, ANIMAL_ITEMS, ANIMAL_MAKES, ANIMAL_SCROLL_ITEMS, ANIMAL_SCROLLS, BREED_SCROLL_ITEMS, type AnimalDishId } from "./animal-items";
+import { animalIcon } from "./animal-icons";
 import { FIND_ITEMS, NEW_FISH, NEW_FISH_ITEMS, NEW_INSECT_ITEMS, SMALL_FISH_BAITS, type NewFishId } from "./band-species";
 import { RIVER_DISHES, RIVER_FISH, RIVER_ITEMS, RIVER_MAKES, RIVER_SCROLL_ITEMS, RIVER_SCROLLS, type Current, type FishingHabitat, type RiverDishId, type RiverFishId } from "./river-items";
 
@@ -736,7 +737,9 @@ export const SCROLLS: Partial<Record<ItemId, ItemId>> = {
   scrollBambooShootStir: "bambooShootStir", scrollRosemaryFish: "rosemaryFish", scrollGinsengSoup: "ginsengSoup", scrollMoonTea: "moonTea", scrollTruffleEggs: "truffleEggs", scrollMushroomOmelette: "mushroomOmelette",
 };
 /** The name of an item's picture: its own id, but every scroll looks the same. */
-export const iconOf = (id: ItemId): string => (id in SCROLLS ? "scroll" : id);
+export const iconOf = (id: ItemId): string => (id in SCROLLS ? "scroll" : id in ANIMAL_ITEMS || id in BREED_SCROLL_ITEMS || id in GIFT_ICON_IDS ? animalIcon(id) : id);
+// ART: the pasture's things and gifts, drawn with a like thing's icon until their own are in the atlas (lib/town/animal-icons)
+const GIFT_ICON_IDS: Readonly<Record<string, true>> = { charmHerdBell: true, thingBarnCat: true, thingWarmBottle: true, charmStarCollar: true, thingCradle: true, famCloudRam: true, thingTwinCradle: true, thingHarp: true, thingSpringWind: true, thingHayWagon: true };
 /** The name of the picture of a dish's pot (the owner, 2026-10-03: a dish comes as a big pot of it, each with its own picture). */
 export const potIconOf = (dish: DishId): string => `pot${dish[0].toUpperCase()}${dish.slice(1)}`;
 
