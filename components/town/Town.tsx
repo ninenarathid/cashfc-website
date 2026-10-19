@@ -3670,7 +3670,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // what is under me, the owner's ask of 2026-10-15 that every plot of a bed be reachable)
     const who = otherAt(x, y);
     // (a thing lying at somebody's feet is drawn over them: a tap on it is for the thing, not for who stands there)
-    const atFeet = !!who && gameRef.current && !!groundTap.current?.(x, y, true);
+    // ── the pasture ── (and an egg laid out, or a forage spot: small things on the ground, taken before whoever stands over them)
+    const atFeet = !!who && gameRef.current && (!!groundTap.current?.(x, y, true) || !!pastureHooks.current?.feet(x, y));
     // (and so is an insect that is over somebody, my own doll too: with a net in the hand a tap on one within reach is
     // a swing at it, not a look at who stands behind it. Until 2026-10-08 the person was asked first, and an insect
     // that came to where its hunter stood, as one called by nectar does, could not be swung at at all: every tap

@@ -119,7 +119,7 @@ export default function TownTalk({ who, as, lines, choices, onPick, th, phone, r
       <div className="flex items-baseline gap-2">
         <span className="min-w-0 truncate text-meta text-muted">{th ? w.job.th : w.job.en}</span>
         <button type="button" onClick={(e) => { e.stopPropagation(); onClose(); }}
-                className="pressable -mr-2 -mt-1 ml-auto shrink-0 px-3 py-1.5 text-meta text-muted hover:text-ink">
+                className="pressable -mr-2 -mt-1 ml-auto inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center px-3 text-meta text-muted hover:text-ink">
           {th ? "ปิด" : "Close"}
         </button>
       </div>

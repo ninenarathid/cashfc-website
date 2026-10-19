@@ -38,6 +38,8 @@ export interface PastureHooks {
   draw: (frame: FarmFrame) => void;
   /** A tap at a point of the screen: done (true), a walk to make first, or nothing of the pasture's (null). `peek`: only whether there is something. */
   tap: (x: number, y: number, peek?: boolean) => true | { walk: Vec } | null;
+  /** Whether a point is on a small thing on the ground (an egg laid out of mine, a forage spot): a tap there is it, not whoever stands over it. */
+  feet: (x: number, y: number) => boolean;
   /** Open Uncle Popoto's panel at one of its leaves (his talk's choices). */
   open: (view: AnimalsView, focus?: string | null) => void;
 }
@@ -207,6 +209,9 @@ export default function TownPasture(props: PastureProps) {
 
   // ── the map: what is drawn, and what a tap on it comes to
   const hits = useRef<Hit[]>([]);
+  const fontRef = useRef("");
+  /** Each animal's view (settled, its stage, hunger, rounds), worked out once a second, not every frame. */
+  const views = useRef(new Map<string, { at: number; key: string; v: ReturnType<typeof viewOf> }>());
   useEffect(() => {
     const draw = (frame: FarmFrame) => {
       const { ctx, things, project, onScreen, s, now: tick, still, self, over } = frame;
@@ -215,7 +220,8 @@ export default function TownPasture(props: PastureProps) {
       const out: Hit[] = [];
       hits.current = out;
       const map = self ? placeOf(Math.floor(self.x), Math.floor(self.y)) : null;
-      const font = typeof document !== "undefined" ? getComputedStyle(document.body).getPropertyValue("--font-body-face").trim() || "sans-serif" : "sans-serif";
+      if (!fontRef.current) fontRef.current = getComputedStyle(document.body).getPropertyValue("--font-body-face").trim() || "sans-serif";
+      const font = fontRef.current;
       const tag = (text: string, x: number, y: number, fg = "#f3e3c3") => over?.(() => {
         ctx.save(); ctx.font = `600 10px ${font}`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
         const tw = ctx.measureText(text).width + 10; ctx.fillStyle = "rgba(15,19,25,0.74)"; ctx.beginPath(); ctx.roundRect(x - tw / 2, y - 8, tw, 16, 8); ctx.fill();
@@ -233,10 +239,10 @@ export default function TownPasture(props: PastureProps) {
       }
       // the stops: a little sign at each
       if (map && WAGON_STOPS[map] && sc?.has("signpost")) { const [sx, sy] = WAGON_STOPS[map], c = project({ x: sx - 1.2, y: sy - 0.6 }); if (onScreen(c)) things.push({ depth: sx + sy - 1.5, draw: () => sc.drawProp(ctx, "signpost", c.x, c.y, s * 0.7, px) }); }
-      if (map !== "farm" || !w) return;
+      if (map !== "farm") return;
       const look = (r: { x: number; y: number; w: number; h: number }) => onScreen(project({ x: r.x + r.w / 2, y: r.y + r.h / 2 }));
       // ── the buildings (ART: stand-ins; their pictures are pa_barn, pa_coop, pa_nursery)
-      const myFront = w.herds.find((h) => h.owner === me)?.facade ?? 0;
+      const myFront = w?.herds.find((h) => h.owner === me)?.facade ?? 0;
       if (look(BARN)) things.push({ depth: BARN.x + BARN.y + (BARN.w + BARN.h) / 2, draw: () => drawHouse(ctx, project, BARN, { wall: ["#a8442e", "#4a6a8a", "#5a7a3a", "#8a5aa0"][myFront] ?? "#a8442e", roof: "#5a3424", trim: "#f0e2c8", wallH: 46, roofH: 30, door: 0.22, windows: 2 }, s) });
       if (look(COOP)) things.push({ depth: COOP.x + COOP.y + (COOP.w + COOP.h) / 2, draw: () => drawHouse(ctx, project, COOP, { wall: "#d8c090", roof: "#8a4a2a", trim: "#5a3a1a", wallH: 30, roofH: 20, door: 0.2, windows: 2 }, s) });
       if (look(NURSERY)) things.push({ depth: NURSERY.x + NURSERY.y + (NURSERY.w + NURSERY.h) / 2, draw: () => drawHouse(ctx, project, NURSERY, { wall: "#f0d8a8", roof: "#c8604a", trim: "#7a4a2a", wallH: 22, roofH: 14, door: 0.3, windows: 0 }, s) });
@@ -249,7 +255,7 @@ export default function TownPasture(props: PastureProps) {
       };
       trough(TROUGHS.barn, "#b8c870"); trough(TROUGHS.coop, "#e0c870"); trough(TROUGHS.village, "#6aa8d8");
       { const c = project({ x: NEST[0] + 0.5, y: NEST[1] + 0.5 }); if (onScreen(c)) {
-        const eggs = w.animals.filter((a) => a.born > clock && SPECIES[a.species].kind === "bird").length;
+        const eggs = (w?.animals ?? []).filter((a) => a.born > clock && SPECIES[a.species].kind === "bird").length;
         things.push({ depth: NEST[0] + NEST[1] + 1, draw: () => {
           drawBlock(ctx, project, { x: NEST[0] + 0.1, y: NEST[1] + 0.1, w: 0.8, h: 0.8 }, "#a07838", "#d8b050", 5, s);
           // ART: pa_nest / pa_nestEgg: the straw ring and an egg in it for each child coming
@@ -289,6 +295,8 @@ export default function TownPasture(props: PastureProps) {
         const art = p.kind === "fence" ? "fence" : (() => { const a = artOf({ kind: p.kind, x: p.x, y: p.y }); return sc.has(a) ? a : p.kind; })();
         if (sc.has(art)) things.push({ depth: p.x + p.y + 1, draw: () => sc.drawProp(ctx, art, c.x, c.y, s, px, 0, !!p.across) });
       }
+      // (what is no building is drawn only where whoever keeps the game has a pasture: v291's town_animals)
+      if (!w) return;
       // ── the meadow's forage spots: what each gives this band, plain grass once I took it
       const meadow = (keeper.purse() as { meadow?: { k: number; spots: number[] } }).meadow, key = dayOf(clock) * 8 + bandOf(clock);
       MEADOW_SPOTS.forEach(([x, y], i) => {
@@ -319,13 +327,18 @@ export default function TownPasture(props: PastureProps) {
         const care = !mine && mayCare(w.herds.find((h) => h.owner === a.owner), me);
         if (mine || care) out.push({ kind: "animal", id: a.id, x0: c.x - (size / 2 + 6) * s, y0: c.y - (size * 0.9 + 8) * s, x1: c.x + (size / 2 + 6) * s, y1: c.y + 6 * s });
         // bubbles over mine and those I may care for; a name over mine
-        const v = viewOf(a, clock, { gate: w.gate });
+        const sec = Math.floor(clock / 1000), key = `${a.at}:${a.food}:${a.banked}:${a.hearts}:${w.gate.length}`, had = views.current.get(a.id);
+        const v = had && had.at === sec && had.key === key ? had.v : viewOf(a, clock, { gate: w.gate });
+        views.current.set(a.id, { at: sec, key, v });
         const head = c.y - (size * 0.85 + 6) * s;
         if (mine && v.ready > 0 && a.place === "producing") over?.(() => drawBubble(ctx, k, "ready", SPECIES[a.species].game, c.x, head, s, tick, still, px));
         else if (v.hungry && (mine || care)) over?.(() => drawBubble(ctx, k, mine ? "hungry" : "care", SPECIES[a.species].game, c.x, head, s, tick, still, px));
         if (mine && s >= 0.8) tag((a.name || breedOf(a.breed)?.name[th ? "th" : "en"] || "").slice(0, 12), c.x, c.y + 10 * s, "#cfe6ff");
         else if (a.name && s >= 1.4) tag(a.name.slice(0, 12), c.x, c.y + 10 * s);
-        // the eggs it laid out on the meadow: everybody sees whose; only the owner picks them up
+      }
+      // the eggs laid out on the meadow, wherever their hens are now: everybody sees whose; only the owner picks them up
+      for (const a of w.animals) {
+        const mine = a.owner === me;
         a.outside.forEach((o, i) => {
           const e = project({ x: o.at[0] + 0.5, y: o.at[1] + 0.55 });
           if (!onScreen(e)) return;
@@ -342,9 +355,9 @@ export default function TownPasture(props: PastureProps) {
       const hit = [...hits.current].reverse().find((h) => inBox(h, x, y));
       if (!hit) return null;
       if (peek) return true;
+      if (hit.kind === "popoto") { P.onTalk(); return true; }
       if (!worldRef.current) return null;
       switch (hit.kind) {
-        case "popoto": P.onTalk(); return true;
         case "nest": open("nest"); return true;
         case "trough": open("mine"); return true;
         case "table": say(t("โต๊ะแปรรูป: ทำครีม เนย ชีส ไหมพรม ได้ที่หน้าครัวเหมือนของแปรรูปอื่นๆ (ต้องมีเครื่องมือ)", "The making table: cream, butter, cheese and yarn are made as other preparations are (with their tools).")); return true;
@@ -361,7 +374,8 @@ export default function TownPasture(props: PastureProps) {
       }
       return null;
     };
-    register({ draw, tap, open });
+    const feet = (x: number, y: number) => hits.current.some((h) => (h.kind === "egg" || h.kind === "forage") && inBox(h, x, y));
+    register({ draw, tap, feet, open });
     return () => register(null);
   }); // (re-registered each render: what it draws reads the latest of everything through refs)
 
@@ -422,7 +436,7 @@ export default function TownPasture(props: PastureProps) {
     if (process.env.NODE_ENV === "production") return;
     const w = window as unknown as { __townPasture?: unknown };
     w.__townPasture = { open: (v: AnimalsView, f?: string) => open(v, f ?? null), close: () => setView(null), world: () => keeper.animalWorld(),
-      hits: () => hits.current.map((h) => ({ ...h, x: (h.x0 + h.x1) / 2, y: (h.y0 + h.y1) / 2 })), view: () => view, game: null as unknown, play: (id: string) => { const a = keeper.animalWorld()?.animals.find((x) => x.id === id); if (a) { setView(null); setGame(a); } }, collect: (id: string, play: Play, cracked?: number) => { const a = keeper.animalWorld()?.animals.find((x) => x.id === id); if (a) void collected(a, play, cracked); } };
+      hits: () => hits.current.map((h) => ({ ...h, x: (h.x0 + h.x1) / 2, y: (h.y0 + h.y1) / 2 })), view: () => view, self: () => propsRef.current.self(), seat: () => propsRef.current.seat, people: () => propsRef.current.people(), pet: () => propsRef.current.pet, play: (id: string) => { const a = keeper.animalWorld()?.animals.find((x) => x.id === id); if (a) { setView(null); setGame(a); } }, collect: (id: string, play: Play, cracked?: number) => { const a = keeper.animalWorld()?.animals.find((x) => x.id === id); if (a) void collected(a, play, cracked); } };
     return () => { delete w.__townPasture; };
   }, [keeper, open, collected, view]);
 

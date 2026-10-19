@@ -245,6 +245,8 @@ function readDoing(p: Record<string, unknown>): Partial<Doing> {
   if (typeof p.carry === "string" && /^[a-z]{0,24}$/.test(p.carry)) d.carry = p.carry;
   if (typeof p.flame === "number" && Number.isFinite(p.flame) && p.flame >= 0) d.flame = Math.floor(p.flame);
   if (isMood(p.mood)) d.mood = p.mood;
+  // ── the pasture ── (behind a cloud ram's rider, or on the hay wagon: "r:" or "w:" and an id; "" for neither)
+  if (typeof p.seat === "string" && /^(?:[rw]:[A-Za-z0-9_-]{1,64})?$/.test(p.seat)) d.seat = p.seat;
   return d;
 }
 

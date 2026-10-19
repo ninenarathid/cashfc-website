@@ -98,6 +98,10 @@ async function run(label) {
     await sleep(600);
     ok(`${label}: his stall opens`, await X.evaluate(`document.querySelector("[data-animals-panel]")?.dataset.view === "shop"`));
     await shot("03-shop");
+    if (phone) {
+      const small = await X.evaluate(`[...document.querySelectorAll("[data-pasture-panel] button, [data-pasture-panel] select")].filter((b) => b.offsetParent).map((b) => [b.innerText.trim().slice(0, 16), Math.round(b.getBoundingClientRect().height)]).filter(([, h]) => h < 44)`);
+      ok(`${label}: every button of the panel is 44 px tall or more`, small.length === 0, small);
+    }
     for (const sp of ["chicken", "cow", "sheep", "duck"]) await click(X, `[data-buy="${sp}"] button`), await sleep(500);
     ok(`${label}: four babies bought, into two producing places and two in the nursery`, (await mine(X)).length === 4, (await mine(X)).map((a) => a.place));
     ok(`${label}: the coins paid`, (await X.evaluate(`${T}.purse().coins`)) === 30000 - 400 - 4000 - 2500 - 1000);
@@ -122,6 +126,10 @@ async function run(label) {
     ok(`${label}: and petted (closer by a pet)`, (await world(X)).animals.find((a) => a.id === chick.id).hearts > petBefore);
     ok(`${label}: the line counts points`, (await X.evaluate(`${T}.lines().lines.animals.points`)) > 0);
     await shot("06-card");
+    if (phone) {
+      const small = await X.evaluate(`[...document.querySelectorAll("[data-pasture-panel] button, [data-pasture-panel] select")].filter((b) => b.offsetParent).map((b) => [b.innerText.trim().slice(0, 16), Math.round(b.getBoundingClientRect().height)]).filter(([, h]) => h < 44)`);
+      ok(`${label}: every button of an open card is 44 px tall or more`, small.length === 0, small);
+    }
 
     // the three games, played through to what they give
     await X.evaluate(`(${T}.animalsClear(), ${T}.grant("milker", 1), ${T}.grant("eggBasket", 1), ${T}.grant("woolShears", 1))`);
@@ -134,6 +142,7 @@ async function run(label) {
       await sleep(900);
       ok(`${label}: the ${game} board is up`, await X.evaluate(`!!document.querySelector('[data-town-game="${game}"]')`));
       await shot(`08-${game}-ready`);
+      if (phone) { const small = await X.evaluate(`[...document.querySelectorAll('[data-town-game] button')].filter((b) => b.offsetParent).map((b) => [b.innerText.trim().slice(0, 12), Math.round(b.getBoundingClientRect().height)]).filter(([, h]) => h < 44)`); ok(`${label}: the ${game} board's buttons are 44 px or more`, small.length === 0, small); }
       const going = play(X);
       await sleep(game === "shear" ? 3500 : 4200);
       await shot(`09-${game}-on`);
@@ -173,6 +182,7 @@ async function run(label) {
     // the gate opened: out they go to the meadow; eggs laid out, with their owner's name; the forage
     await warp(X, 156, -3);
     await shot("15-gate-chip");
+    if (phone) { const h = await X.evaluate(`Math.round(document.querySelector("[data-gate]")?.getBoundingClientRect().height ?? 0)`); ok(`${label}: the gate's chip is 44 px tall or more`, h >= 44, h); }
     await click(X, '[data-gate="shut"]'); await sleep(600);
     ok(`${label}: the gate is opened by its chip`, (await world(X)).gate.some((g) => g[1] === null));
     await X.evaluate(`(() => { const t = ${T}; for (const a of t.animalWorld().animals) if (a.owner === window.__townKeeper.id && a.born <= t.now()) t.animalSet(a.id, { outside: [{ at: [150, -26], n: 2 }], outBands: 4 }); t.animalGive("dairyCow", "adult", 3); t.animalGive("meadowSheep", "young", 2); t.animalGive("puddleDuck", "adult", 2); })()`);
@@ -205,7 +215,15 @@ async function run(label) {
     await sleep(2500);
     ok(`${label}: sat on the wagon`, await X.evaluate(`!!document.querySelector("[data-wagon-off]")`));
     await shot("20-wagon-on");
+    // two legs ridden (the trial's clock put forward three minutes): on to the forest's stop, every animal of mine a heart
+    const heartsBefore = (await mine(X)).reduce((n, a) => n + a.hearts, 0);
+    await X.evaluate(`${T}.skipHours(0.05)`);
+    await sleep(4000);
+    ok(`${label}: carried to the last stop of the tour (the forest)`, await X.evaluate(`(() => { const p = ${S}.self(); return !!p && p.y > 112; })()`), await X.evaluate(`${S}.self()`));
+    ok(`${label}: two legs ridden, every animal of mine closer by a heart`, (await mine(X)).reduce((n, a) => n + a.hearts, 0) > heartsBefore, await say(X));
+    await shot("20b-wagon-forest");
     await click(X, "[data-wagon-off]"); await sleep(800);
+    ok(`${label}: got off the wagon`, !(await X.evaluate(`${S}.seat()`)));
     // the cloud ram ridden
     await X.evaluate(`${T}.familiarWear("famCloudRam")`);
     await sleep(1500);
@@ -230,7 +248,45 @@ async function run(label) {
   } finally { N.close(); }
 }
 
-for (const label of ONLY === "all" ? ["desktop", "phone", "small"] : [ONLY]) {
+/** The cloud ram's second seat: a rider asks a member beside them, who takes it, and is carried along. */
+async function ramSeat() {
+  const X = await browser("animals-ram", SIZES.desktop);
+  try {
+    const tag = String(Date.now() % 100000);
+    await enter(X, 9, `R${tag}`);
+    await until("the pasture's own code", () => X.evaluate(`!!${S}`), 40000);
+    await X.evaluate(`(${T}.setGifts(true), ${T}.familiarWear("famCloudRam"))`);
+    await warp(X, 160, -6);
+    const P = await X.tab("RamFriend", SIZES.phone);
+    await enter(P, 9, `Q${tag}`);
+    await until("the friend's pasture code", () => P.evaluate(`!!${S}`), 40000);
+    await warp(P, 161, -6);
+    await warp(X, 160, -6);
+    await until("the rider is offered to ask", () => X.evaluate(`!!document.querySelector("[data-ram-ask]")`), 90000).catch(async () => {
+      console.log("  ram: not offered;", JSON.stringify({ me: await X.evaluate(`${S}.self()`), pet: await X.evaluate(`${S}.pet()`), people: await X.evaluate(`${S}.people()`) }));
+    });
+    ok("ram: the rider is offered to ask the member beside them", await click(X, "[data-ram-ask]"));
+    await until("the invite has come", () => P.evaluate(`!!document.querySelector("[data-ram-invite]")`), 15000).catch(() => {});
+    ok("ram: the member is asked onto the ram", await P.evaluate(`!!document.querySelector("[data-ram-invite]")`));
+    await P.shot(`${OUT}/phone-23-ram-invite.png`);
+    await P.evaluate(`document.querySelector("[data-ram-invite] button")?.click()`);
+    await sleep(1500);
+    ok("ram: sat behind the rider", (await P.evaluate(`${S}.seat()`))?.startsWith("r:"), await P.evaluate(`${S}.seat()`));
+    await X.evaluate(`window.__townView.walk(170, -6)`);
+    await sleep(5000);
+    const [a, b] = [await X.evaluate(`${S}.self()`), await P.evaluate(`${S}.self()`)];
+    ok("ram: carried along where the rider goes", !!a && !!b && Math.hypot(a.x - b.x, a.y - b.y) < 1.2, { a, b });
+    await X.shot(`${OUT}/desktop-24-ram-two.png`);
+    await P.shot(`${OUT}/phone-24-ram-two.png`);
+    await P.evaluate(`document.querySelector("[data-ram-off]")?.click()`);
+    await sleep(1200);
+    ok("ram: got down", !(await P.evaluate(`${S}.seat()`)));
+    ok("ram: no page errors", X.errors().length === 0 && P.errors().length === 0, [...X.errors(), ...P.errors()]);
+  } finally { X.close(); }
+}
+
+if (ONLY === "all" || ONLY === "ram") { console.log("— ram"); await ramSeat().catch((e) => { fail++; console.log(`  FAIL ram: ${e.message}`); }); }
+for (const label of ONLY === "all" ? ["desktop", "phone", "small"] : ONLY === "ram" ? [] : [ONLY]) {
   console.log(`— ${label}`);
   await run(label).catch((e) => { fail++; console.log(`  FAIL ${label}: ${e.message}`); });
 }

@@ -1207,6 +1207,8 @@ export class DbKeeper implements Keeper {
     if (a.denied && (FELLING_FNS.has(fn) || MINING_FNS.has(fn))) { this.farShut(); return null; }
     // ── forging ── (and one of the smith's or the great fire's: the smith is shut to me again, which is neither the game nor the far side shut)
     if (a.denied && SMITH_FNS.has(fn)) { this.smithShut(); return null; }
+    // ── the pasture ── (and town_animals: the pasture shut to me, its owner's knob for testers first; the game is as it was)
+    if (a.denied && fn === "town_animals") { if (this.animals_) { this.animals_ = null; this.tell(); } return null; }
     if (a.denied) { if (this.opened !== false) { this.opened = false; this.tell(); } return null; }
     this.take(a, sent);
     return a;
