@@ -72,7 +72,9 @@ export type AnimalInput =
 
 export type AnimalWhy =
   | "none" | "theirs" | "coins" | "room" | "places" | "stage" | "hungry" | "nothing" | "spent" | "stamina" | "rest"
-  | "hearts" | "species" | "offering" | "gift" | "used" | "lent" | "far" | "name" | "soon" | "full";
+  | "hearts" | "species" | "offering" | "gift" | "used" | "lent" | "far" | "name" | "soon" | "full"
+  // (the page's own: the town could not be reached, and nothing is known to have been done)
+  | "away";
 
 /** What a step did that is written down: the line's points (`animals`) or the helpers' (`helpers`), and what for. */
 export interface AnimalNote { what: string; n: number; line?: "animals" | "helpers"; pts?: number; doc?: Record<string, unknown> }
@@ -132,7 +134,10 @@ export function growFor(species: SpeciesId, item: string): number {
 /** What Uncle Popoto sells besides the animals, and for how much. */
 export const POPOTO_SHOP: Record<string, number> = {
   ...Object.fromEntries(SPECIES_IDS.flatMap((sp) => [[SPECIES[sp].sack, SPECIES[sp].sackPrice], [SPECIES[sp].growItem, SPECIES[sp].growPrice]])),
-  milker: 180, woolShears: 60, eggBasket: 24, churn: 80, cheesePress: 100, spindle: 60, knittingNeedles: 60,
+  milker: 180, woolShears: 60, eggBasket: 24,
+  // (the making table's tools, at twice what the uncle pays for one, as the three games' tools are; and the shelf of the
+  // pasture's dishes' scrolls: the page's piece, 2026-10-20, as the README's "Uncle Popoto's panel" asks of his stall)
+  churn: 80, cheesePress: 100, spindle: 60, knittingNeedles: 60,
   ...POPOTO_SCROLL_PRICES,
 };
 /** The tool each game asks for. */

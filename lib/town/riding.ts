@@ -19,6 +19,23 @@ export const hasStag = (pet: string | null | undefined): boolean => pet === STAG
  * Whether they are on its back now: while they walk or stand. Sat down (a bench, a table of the yard, the ground),
  * they have got off, and the stag stands by like any familiar.
  */
-export const rides = (pet: string | null | undefined, sitting: boolean): boolean => hasStag(pet) && !sitting;
-/** How many times as fast somebody walks for their familiar: twice, with a stag to ride; as anybody, with any other or none. */
-export const paceOf = (pet: string | null | undefined): number => (hasStag(pet) ? STAG_PACE : 1);
+export const rides = (pet: string | null | undefined, sitting: boolean): boolean => (hasStag(pet) || hasRam(pet)) && !sitting;
+/** How many times as fast somebody walks for their familiar: twice, with a stag to ride; half as fast again on a cloud ram; as anybody, with any other or none. */
+export const paceOf = (pet: string | null | undefined): number => (hasStag(pet) ? STAG_PACE : hasRam(pet) ? RAM_PACE : 1);
+
+// ── the pasture ── (the cloud ram, the pasture's sixth rank: lib/town/gifts' famCloudRam; the owner: "เป็น สัตว์ขี่ เหมือน
+// กวาง ความเร็วน้อยกว่ากวาง ซัก 150% ก็ได้ แต่นั่งได้สองคน")
+export const RAM = "famCloudRam";
+/** How many times as fast a cloud ram's rider walks: the gift's own number (held to it by riding.test.ts). */
+export const RAM_PACE = 1.5;
+export const hasRam = (pet: string | null | undefined): boolean => pet === RAM;
+/**
+ * The ram's second seat, as the room is told it by whoever sits there (lib/town/room's `seat`): "r:" and the rider's
+ * id. Every page puts them where the rider is, behind them on its back, for as long as the rider rides; a rider who
+ * has gone, got off or sat down lets them down where they are.
+ */
+export const ramSeat = (rider: string) => `r:${rider}`;
+export const riderOf = (seat: string | null | undefined): string | null => (seat && seat.startsWith("r:") ? seat.slice(2) || null : null);
+/** The hay wagon's seat (lib/town/seats): "w:" and the run's id. */
+export const wagonSeat = (run: string) => `w:${run}`;
+export const runOf = (seat: string | null | undefined): string | null => (seat && seat.startsWith("w:") ? seat.slice(2) || null : null);

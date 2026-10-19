@@ -121,6 +121,12 @@ export interface Doing {
   mood?: number;
   /** The flame they bear from a fire to a lamp post (lib/town/lamps): the moment it dies, in ms of the clock of whoever keeps the game; 0 when none; missing from a browser older than that. Every page draws it in their hands, with what is left of it. */
   flame?: number;
+  /**
+   * ── the pasture ── Where they sit that is no seat of their own (lib/town/riding): "r:" and a rider's id, behind them
+   * on a cloud ram; "w:" and a run's id, on the hay wagon; "" when neither; missing from a browser older than that.
+   * Every page puts them there, and walks them no more while they sit.
+   */
+  seat?: string;
 }
 
 /**
@@ -239,6 +245,8 @@ function readDoing(p: Record<string, unknown>): Partial<Doing> {
   if (typeof p.carry === "string" && /^[a-z]{0,24}$/.test(p.carry)) d.carry = p.carry;
   if (typeof p.flame === "number" && Number.isFinite(p.flame) && p.flame >= 0) d.flame = Math.floor(p.flame);
   if (isMood(p.mood)) d.mood = p.mood;
+  // ── the pasture ── (behind a cloud ram's rider, or on the hay wagon: "r:" or "w:" and an id; "" for neither)
+  if (typeof p.seat === "string" && /^(?:[rw]:[A-Za-z0-9_-]{1,64})?$/.test(p.seat)) d.seat = p.seat;
   return d;
 }
 

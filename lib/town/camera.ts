@@ -1,4 +1,4 @@
-import { CAVE, COLS, FARM, FOREST, MOUNTAIN, ROWS, TILE_H, TILE_W, floorCorner, type Place, type Vec } from "./world";
+import { CAVE, COLS, FARM_ALL, FOREST, MOUNTAIN, ROWS, TILE_H, TILE_W, floorCorner, type Place, type Vec } from "./world";
 
 /**
  * The town's camera: how far in it is zoomed and which point of the map is
@@ -27,7 +27,8 @@ const boundsOf = (r: { x: number; y: number; w: number; h: number }): Bounds => 
 /** The town's, and the farm's and the forest's (maps of their own, far off in the same tile space). */
 export const BOUNDS: Record<Place, Bounds> = {
   town: { minX: ISO_MIN_X, maxX: ISO_MAX_X, minY: ISO_MIN_Y, maxY: ISO_MAX_Y },
-  farm: boundsOf(FARM),
+  // (with the pasture, at negative y: lib/town/pasture)
+  farm: boundsOf(FARM_ALL),
   forest: boundsOf(FOREST),
   // ── the far side ── (in every build; nobody is in either place while the far side is shut)
   // the mountain's foot, and the cave: which is the floor one is on, and no more of it (floorBounds)

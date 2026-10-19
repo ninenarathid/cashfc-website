@@ -25,13 +25,14 @@ import { handSlot } from "@/lib/town/trade";
 import { WELL } from "@/lib/town/world";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import { Coins, ItemCard, ItemIcon } from "./TownTrade";
+import TownTestAnimals from "./TownTestAnimals";
 
 const KINDS: Array<[ItemKind | "all", string, string]> = [
   ["all", "ทั้งหมด", "All"], ["tool", "เครื่องมือ", "Tools"], ["bait", "เหยื่อ", "Bait"], ["staple", "ของคู่ครัว", "Staples"], ["seed", "เมล็ด", "Seeds"],
   ["crop", "ผัก", "Vegetables"], ["fish", "ปลา", "Fish"], ["catch", "ของจากน้ำ", "Flotsam"], ["wild", "ของป่า", "Forest"], ["bug", "แมลง", "Insects"], ["goods", "ของแปรรูป", "Goods"], ["dish", "อาหาร", "Dishes"], ["scroll", "ม้วนสูตร", "Scrolls"],
   ["wood", "ไม้", "Wood"], ["mineral", "หินและแร่", "Stone and ore"],
 ];
-type View = "things" | "plants" | "me" | "plays";
+type View = "things" | "plants" | "me" | "plays" | "animals";
 /**
  * (forging: the look) The tools the test window puts in the hand with gems, and a few telling sets of several
  * elements: the four pairs that make something of the two together, a pair that simply shows both, three of a
@@ -91,7 +92,7 @@ export default function TownTest({ me, name: called, th, onClose }: { me: string
         <button type="button" onClick={onClose} className="pressable ml-auto rounded-full bg-accent px-4 py-1.5 text-ui font-semibold text-bg">{th ? "ปิด" : "Close"}</button>
       </div>
       <div role="tablist" className="flex gap-1 border-b border-line px-3 pt-2">
-        {([["things", th ? `ของ (${ITEM_IDS.length})` : `Things (${ITEM_IDS.length})`], ["plants", th ? `พืช (${CROP_IDS.length})` : `Plants (${CROP_IDS.length})`], ["me", th ? "ตัวฉัน" : "Me"], ["plays", th ? "ประวัติมินิเกม" : "Plays"]] as const).map(([v, label]) => (
+        {([["things", th ? `ของ (${ITEM_IDS.length})` : `Things (${ITEM_IDS.length})`], ["plants", th ? `พืช (${CROP_IDS.length})` : `Plants (${CROP_IDS.length})`], ["me", th ? "ตัวฉัน" : "Me"], ["plays", th ? "ประวัติมินิเกม" : "Plays"], ["animals", th ? "สัตว์" : "Animals"]] as const).map(([v, label]) => (
           <button key={v} type="button" role="tab" aria-selected={view === v} onClick={() => setView(v)}
                   className={`pressable -mb-px rounded-t-lg border-b-2 px-3 py-2 text-ui font-semibold ${view === v ? "border-gold text-gold" : "border-transparent text-muted hover:text-ink"}`}>
             {label}
@@ -381,6 +382,8 @@ export default function TownTest({ me, name: called, th, onClose }: { me: string
         </div>
       )}
 
+      {/* ── the pasture ── (components/town/TownTestAnimals) */}
+      {view === "animals" && <TownTestAnimals trial={trial} th={th} me={me} say={setSaid} />}
       {view === "plays" && <Plays th={th} tally={trial.tally()} log={trial.plays()} onForget={() => { trial.forget(); setSaid(th ? "ล้างประวัติแล้ว" : "The record is wiped"); }} />}
 
       <p className="flex items-center gap-2 border-t border-line bg-bg/40 px-4 py-2 text-meta text-muted">

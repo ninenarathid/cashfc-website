@@ -90,6 +90,13 @@ class TrialKeeper implements Keeper {
     return did;
   }
   onDeed: ((what: Looked, to?: string) => void) | null = null;
+  // ── the pasture ── (lib/town/animal-act run on the browser's world, as the warehouse is; whoever else is in town is in another tab: told through the room)
+  async animals(input: import("./animal-act").AnimalInput) {
+    const did = this.trial.animals(input);
+    if (did.ok && input.action !== "look" && input.action !== "lend") this.onDeed?.("animals");
+    return did;
+  }
+  animalWorld() { return this.trial.animalWorld(); }
   /** The line that is out: what is on its way, and the bait it took. */
   // ── gifts: fishing ── (`again`: the otter has driven this line's fish back once; `two`: what is on the second line of a rod of two lines, while both are on)
   // (`bait`: none, of a stardust bait: nothing left the bag, and nothing comes back to it; `told`: the line told what was on its way; `hooked`: a strike has set the hook; `harder`: how many times as hard the deck's good fish are for whoever dropped it)

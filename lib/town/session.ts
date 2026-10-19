@@ -19,10 +19,12 @@ import { KNOCKS_MS, SHOW, readTold as readForged, toldOf, type ForgeShow } from 
 import { carryPace } from "./carry";
 import { readTold } from "./handing";
 import { paceOf } from "./riding";
+// ── the pasture ── (a seat on a cloud ram behind its rider, or on the hay wagon: lib/town/seats)
+import { seatSpot } from "./seats";
 import { walkPace } from "./tools";
 import { readElementAction, type ElementAction } from './element-action';
 import {
-  BENCHES, FRONT, KITCHEN, SIT_HERE, SPEED, YARD_SEATS, distance, findPath, gateAt, hearing, moveEvery, pickLines, placeOf, spawnFor, stepAlong, yardSeat, type Vec,
+  BENCHES, FRONT, KITCHEN, SIT_HERE, SPEED, YARD_SEATS, distance, findPath, gateAt, hearing, moveEvery, pickLines, placeOf, spawnFor, stepAlong, walkable, yardSeat, type Vec,
 } from "./world";
 
 /**
@@ -157,6 +159,8 @@ const NUDGE_MS = 4000;
 
 export class TownSession {
   private boatMark='';
+  // ── the pasture ── (when my seat's place was last told to the room: a new map, or every few seconds)
+  private seatMark = "";
   /** Tells one stay from the next: the same id after a page change means nothing reconnected. */
   readonly id = Math.random().toString(36).slice(2, 10);
   readonly me: Identity;
@@ -289,6 +293,8 @@ export class TownSession {
     return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, turn: i.turn ?? 0, typing: i.typing ?? false, eat: i.eat ?? "", hold: i.hold ?? "", wet: i.wet ?? false, spent: i.spent ?? false, pet: i.pet ?? "", fish: i.fish ?? 0, sign: i.sign ?? "", circle: i.circle ?? "", carry: i.carry ?? "", flame: i.flame ?? 0, mood: i.mood ?? 0, /* mining */ ...(i.lit ? { lit: i.lit } : {}),
       // (felling: said only by somebody who has had a board up at a tree or braced a trunk, and from then on, so that it is heard to be over; a room where nobody has hears nothing new)
       ...(i.fell !== undefined ? { fell: i.fell } : {}),
+      // (the pasture: said only by somebody who has sat on a ram or a wagon, and from then on, so that getting down is heard)
+      ...(i.seat !== undefined ? { seat: i.seat } : {}),
       // (forging: said only by somebody who has held a tool with something to tell, and from then on, so that it is heard to be put away; a room where nobody has one hears nothing new)
       ...(i.tool !== undefined ? { tool: i.tool } : {}) };
   }
@@ -324,6 +330,20 @@ export class TownSession {
     if(!this.options.terrain&&!ridingBoat(this.self.info.id)){const bank=boatRecovery(this.self.pos);if(bank)this.warpTo(bank);}
     const all = [this.self, ...this.avatars.values()];
     for (const a of all) {
+      // ── the pasture ── (sat behind a ram's rider or on the hay wagon: where the seat is, on every page; mine lost, I am let down where I am)
+      if (!this.options.terrain && a.info.seat) {
+        const at = seatSpot(a.info.seat, Date.now(), (id) => (id === this.self.info.id ? this.self : this.avatars.get(id)));
+        if (at) {
+          a.pos = { x: at.x, y: at.y }; a.path = [];
+          if (a === this.self) {
+            this.sitWhenThere = null;
+            const stamp = `${placeOf(at.x, at.y)}:${Math.floor(Date.now() / 3000)}`;
+            if (stamp !== this.seatMark) { this.seatMark = stamp; a.info = { ...a.info, x: at.x, y: at.y }; this.announceMove(); this.notify(); }
+          }
+          continue;
+        }
+        if (a === this.self) this.getDown();
+      }
       if(!this.options.terrain){const pos=boatMotion(a.info.id);if(pos){a.pos=pos;a.path=[];if(a===this.self){this.sitWhenThere=null;if(this.self.info.sit!==-1)this.tell({sit:-1});const boat=ridingBoat(a.info.id)!,stamp=`${boat.owner}:${boat.trip?.at??0}:${boatMoving(boat)?0:1}`;if(stamp!==this.boatMark){this.boatMark=stamp;this.announceMove();this.notify();}}continue;}}
       if (!a.path.length) continue;
       // (a water cart is heavy for one, and goes as fast as anybody with somebody beside it: lib/town/cart)
@@ -358,6 +378,8 @@ export class TownSession {
   walkTo(tile: Vec): boolean {
     if (this.closed) return false;
     if(!this.options.terrain&&ridingBoat(this.self.info.id))return false;
+    // ── the pasture ── (sat on a ram behind its rider, or on the wagon: got down by its own button first)
+    if (this.self.info.seat) return false;
     // Whoever holds a sign up, is in a chat room or looks at a stall stays where they are (the owner, 2026-10-06:
     // "ตอนอยุ่ในระหว่างชูป้าย หรือ คนที่เข้ามาดูช่วยทำให้คลิกเดินไม่ได้ด้วย"): each is left by its own button, never by
     // a slip of the finger on the map.
@@ -1064,7 +1086,7 @@ export class TownSession {
           // others' games hang on: who cooks with me, whether a beetle comes down its tree, lib/town/insects)
           info: { ...p, x: spot.x, y: spot.y, voice: d.voice ?? false, muted: d.muted ?? false, away: d.away ?? false, look: d.look, sit: d.sit ?? -1,
             ...(d.hold !== undefined ? { hold: d.hold } : {}), ...(d.wet !== undefined ? { wet: d.wet } : {}), ...(d.spent !== undefined ? { spent: d.spent } : {}), ...(d.pet !== undefined ? { pet: d.pet } : {}), ...(d.eat !== undefined ? { eat: d.eat } : {}), ...(d.fish !== undefined ? { fish: d.fish } : {}),
-            ...(d.sign !== undefined ? { sign: d.sign } : {}), ...(d.circle !== undefined ? { circle: d.circle } : {}), ...(d.tool !== undefined ? { tool: d.tool } : {}), ...(d.carry !== undefined ? { carry: d.carry } : {}), ...(d.flame !== undefined ? { flame: d.flame } : {}), /* mining */ ...(d.lit !== undefined ? { lit: d.lit } : {}), /* felling */ ...(d.fell !== undefined ? { fell: d.fell } : {}) },
+            ...(d.sign !== undefined ? { sign: d.sign } : {}), ...(d.circle !== undefined ? { circle: d.circle } : {}), ...(d.tool !== undefined ? { tool: d.tool } : {}), ...(d.carry !== undefined ? { carry: d.carry } : {}), ...(d.flame !== undefined ? { flame: d.flame } : {}), /* mining */ ...(d.lit !== undefined ? { lit: d.lit } : {}), /* felling */ ...(d.fell !== undefined ? { fell: d.fell } : {}), /* the pasture */ ...(d.seat !== undefined ? { seat: d.seat } : {}) },
           pos: { ...spot }, path: [], img: loadFace(p.face), placed: d.x !== undefined, sat: ++this.sittings,
         });
         // A presence sync can beat or outlive the one-shot hello broadcast.
@@ -1230,6 +1252,25 @@ export class TownSession {
   }
   // ── end: felling ──
 
+  // ── the pasture ──
+  /** Sit behind a ram's rider, or on the hay wagon (lib/town/riding's ramSeat, wagonSeat): every page puts me there from now on. */
+  takeSeat(seat: string) {
+    if (this.closed || this.self.info.seat === seat) return;
+    this.sitWhenThere = null;
+    this.self.path = [];
+    this.tell({ seat, ...((this.self.info.sit ?? -1) !== -1 ? { sit: -1 } : {}) });
+  }
+  /** Get down from a seat that is no seat of my own, where I am now (on a tile I can stand on: the nearest, if this is none). */
+  getDown() {
+    if (this.closed || !this.self.info.seat) return;
+    const a = this.self, tx = Math.floor(a.pos.x), ty = Math.floor(a.pos.y);
+    let at = { x: tx + 0.5, y: ty + 0.5 };
+    if (!walkable(tx, ty)) for (let r = 1; r <= 4 && !walkable(Math.floor(at.x), Math.floor(at.y)); r++) for (const [dx, dy] of [[r, 0], [-r, 0], [0, r], [0, -r], [r, r], [-r, -r], [r, -r], [-r, r]]) if (walkable(tx + dx, ty + dy)) { at = { x: tx + dx + 0.5, y: ty + dy + 0.5 }; break; }
+    a.pos = at; a.path = [];
+    a.info = { ...a.info, x: at.x, y: at.y };
+    this.tell({ seat: "" });
+    this.announceMove();
+  }
   private tell(patch: Partial<Doing>) {
     this.self.info = { ...this.self.info, ...patch };
     this.current?.say(this.doing());

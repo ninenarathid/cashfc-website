@@ -19,6 +19,11 @@ import{lanternAction}from"./reward-lantern";
 import{arenaAction}from"./reward-arena";
 import{beginDragon}from"./reward-dragon";
 import { bangkokMinute } from "./daylight";
+// ── the pasture ── (lib/town/animal-act, docs/plans/animals)
+import { animalAction, type AnimalInput, type AnimalWorld, type Spell, type WagonRun } from "./animal-act";
+import { EMPTY_WORLD } from "./animal-world";
+import { ANIMALS as ANIMAL_RULES, BREED as ANIMAL_BREEDS, SPECIES as ANIMAL_SPECIES, dayOf as animalDay, type Animal, type Stage as AnimalStage } from "./animals";
+import { spotOf as pastureSpot } from "./pasture";
 import { dressFrom, dropsFor } from "./wear";
 import {boatAction} from './reward-boat';
 import type {LotusBoat} from './lotus-boats';
@@ -212,6 +217,8 @@ const SHOPS = "cashtown.trial.shops.1";
 const GROUND_AT = "cashtown.trial.ground.1";
 // ── felling ── (the mountain's trees, lib/town/trees: the whole browser's, so that one tester sees the stump another made)
 const TREES_AT = "cashtown.trial.trees.1";
+// ── the pasture ── (everybody's animals, the herds, the gate, the gifts' hours and the wagons: the whole browser's, so that one tester cares for another's animals)
+const ANIMALS_AT = "cashtown.trial.animals.1";
 const POTS = "cashtown.trial.pots.1", FOUND = "cashtown.trial.found.1", FINDERS = "cashtown.trial.finders.1", DEALS = "cashtown.trial.deals.1", VILLAGE = "cashtown.trial.village.1";
 /** The beds the test window plants as a show garden: the four round the well. */
 const SHOW_BEDS = [8, 9, 14, 15];
@@ -2488,6 +2495,73 @@ export class Trial {
     this.write(CLOCK, now - Date.now() + (nextRoundAt(now) - now) + 1000);
     this.tell();
   }
+  /* ── the pasture (lib/town/animal-act): everybody's animals as one world, kept in this browser ── */
+  animalWorld(): AnimalWorld {
+    return this.read<AnimalWorld>(ANIMALS_AT, () => EMPTY_WORLD, (v) => !!v && typeof v === "object" && Array.isArray((v as AnimalWorld).animals) && Array.isArray((v as AnimalWorld).herds));
+  }
+  /** The purses of the others a step may look at (an owner's gifts, a lender's): whoever has one in this browser. */
+  private animalPurses(world: AnimalWorld): Record<string, Purse> {
+    const out: Record<string, Purse> = {};
+    for (const id of new Set([...world.animals.map((a) => a.owner), ...world.herds.map((h) => h.owner)])) {
+      if (id === this.id) continue;
+      const raw = this.get(purseKey(id));
+      if (raw) { try { out[id] = JSON.parse(raw) as Purse; } catch { /* a purse that will not parse is nobody's */ } }
+    }
+    return out;
+  }
+  /** One step of the line, as the database's town_animals takes it: the world and my purse after it, and what it earned counted on its line. */
+  animals(input: AnimalInput) {
+    const world = this.animalWorld(), now = this.now();
+    const r = animalAction(world, this.purse(), input, { me: this.id, now, rand: Math.random, newId: () => crypto.randomUUID(), spot: pastureSpot, onFarm: true }, this.animalPurses(world));
+    if (r.ok && input.action !== "look") {
+      this.write(ANIMALS_AT, r.world);
+      for (const n of r.notes) if (n.pts) this.counted({ from: "deed", what: n.what, thing: null, n: n.n, doc: { ...(n.doc ?? {}), pts: n.pts } });
+      this.save(r.purse);
+    }
+    return { ok: r.ok, ...(r.why ? { why: r.why } : {}), world: r.ok ? r.world : world, ...(r.got ? { got: r.got } : {}) };
+  }
+  /** For trying things out: an animal of any breed at any stage, mine at once (fed a day; `hearts` in hearts). */
+  animalGive(breed: string, stage: AnimalStage, hearts = 0) {
+    const b = ANIMAL_BREEDS.get(breed);
+    if (!b) return null;
+    const sp = ANIMAL_SPECIES[b.species], now = this.now(), world = this.animalWorld();
+    const mine = world.animals.filter((a) => a.owner === this.id);
+    const place = stage === "adult" && mine.filter((a) => a.place === "producing").length < ANIMAL_RULES.places.producing ? "producing" : mine.filter((a) => a.place === "nursery").length < ANIMAL_RULES.places.nursery ? "nursery" : "keeping";
+    const grown = stage === "adult" ? sp.grow[0] + sp.grow[1] : stage === "young" ? sp.grow[0] + 1 : 0;
+    const a: Animal = {
+      id: crypto.randomUUID(), owner: this.id, species: b.species, breed: b.id, name: "", born: stage === "coming" ? now + ANIMAL_RULES.hatch[sp.kind] : now, bought: b.letter === "A",
+      place, at: now, food: 24, grown, made: 0, banked: 0, hearts: Math.max(0, Math.min(10, hearts)) * ANIMAL_RULES.perHeart, today: { day: animalDay(now) },
+      speedUntil: 0, windUntil: 0, narrow: 0, rest: 0, lent: null, outside: [], outBands: 0,
+    };
+    const herds = world.herds.some((h) => h.owner === this.id) ? world.herds : [...world.herds, { owner: this.id, keeping: 0, facade: 0, care: "named" as const, carers: [] }];
+    // (a keeping place made for one that has none: the test window gives past the places, as it gives past the coins)
+    const herd = herds.find((h) => h.owner === this.id)!;
+    const keeping = place === "keeping" && mine.filter((x) => x.place === "keeping").length >= herd.keeping ? herd.keeping + 1 : herd.keeping;
+    this.write(ANIMALS_AT, { ...world, animals: [...world.animals, a], herds: herds.map((h) => (h.owner === this.id ? { ...h, keeping } : h)) });
+    this.tell();
+    return a;
+  }
+  /** For trying things out: a change laid straight onto one of the animals (rounds ready, hearts, food). */
+  animalSet(id: string, patch: Partial<Animal>) {
+    const world = this.animalWorld();
+    this.write(ANIMALS_AT, { ...world, animals: world.animals.map((a) => (a.id === id ? { ...a, ...patch } : a)) });
+    this.tell();
+  }
+  /** For trying things out: spring wind or the pasture's harp blowing now (as if somebody had called it). */
+  animalSpell(kind: Spell["kind"]) {
+    const world = this.animalWorld(), now = this.now(), mins = kind === "wind" ? ANIMAL_RULES.wind.mins : ANIMAL_RULES.harp.mins;
+    const spell: Spell = { kind, by: this.id, from: now, until: now + mins * 60_000, ...(kind === "harp" ? { who: [this.id] } : {}) };
+    this.write(ANIMALS_AT, { ...world, spells: [...world.spells.filter((x) => x.until > now), spell] });
+    this.tell();
+  }
+  /** For trying things out: the hay wagon setting off now, round the farm, the town and the forest. */
+  animalWagon() {
+    const world = this.animalWorld(), now = this.now();
+    const run: WagonRun = { id: crypto.randomUUID(), by: this.id, from: now, stops: ["farm", "town", "forest"], riders: [] };
+    this.write(ANIMALS_AT, { ...world, wagons: [...world.wagons.filter((r) => r.from > now - 24 * 3_600_000), run] });
+    this.tell();
+  }
+  animalsClear() { this.set(ANIMALS_AT, null); this.tell(); }
   /** Put the clock forward by so many hours: to try another hour's fish, or the next meal. */
   skipHours(hours: number) {
     this.write(CLOCK, this.now() - Date.now() + hours * 3_600_000);
@@ -2496,7 +2570,7 @@ export class Trial {
   /** Begin again: my purse, the stall, its prices, the farm and the clock as they were at first. (What was played stays written down.) */
   reset() {
     this.set(`cashtown.trial.craft.1.${this.id}`, null);
-    for (const key of [purseKey(this.id), boxKey(this.id), /* felling */ TREES_AT, GROUND_AT, SHOPS, STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, WELL_SOUTH, WELL_LOG, THANKS, JAR, YARD_JAR, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE, WORKS_AT, LAMPS_AT]) this.set(key, null);
+    for (const key of [purseKey(this.id), boxKey(this.id), /* felling */ TREES_AT, GROUND_AT, SHOPS, STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, WELL_SOUTH, WELL_LOG, THANKS, JAR, YARD_JAR, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE, WORKS_AT, LAMPS_AT, /* the pasture */ ANIMALS_AT]) this.set(key, null);
     // ── forging ──
     for (const key of [smithKey(this.id), SMITH_BOARD, SMITH_LOG, SMITH_FIRE]) this.set(key, null);
     this.tell();
