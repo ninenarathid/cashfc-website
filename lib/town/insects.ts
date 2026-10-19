@@ -13,7 +13,7 @@ import { ITEMS, type ItemId } from "./items";
 import { buffBy, isSpent, spend } from "./stamina";
 import { BANGKOK, DAY, HOUR, heldStack, no, put, roomFor, type Done, type Purse } from "./trade";
 import { DRY, wetMs, type Rain } from "./weather";
-import { BEDS_IN_FARM, CAMP, COLS, FARM, FARM_FIRST, FARM_PROPS_FIRST, FOREST, FOREST_PROPS, GATES, PROPS, ROWS, WATERFALL, WELL, asBuilt, bedCorner, groundAt, placeOf, plotAt, walkable, zoneAt, type Place, type Vec, type Zone } from "./world";
+import { BEDS_IN_FARM, CAMP, COLS, FARM, FARM_FIRST, FARM_PROPS_FIRST, FOREST, FOREST_PROPS, GATES, PROPS_FIRST, ROWS, WATERFALL, WELL, asBuilt, bedCorner, groundAt, placeOf, plotAt, walkable, zoneAt, type Place, type Vec, type Zone } from "./world";
 import { POLLINATOR_SKY } from "./helper-items";
 
 /**
@@ -347,8 +347,8 @@ export const HAUNTS: Haunt[] = asBuilt(() => {
 
   // the town: its flowers, its lamps, and its bank of the river
   const TOWN_ALL = { x: 0, y: 0, w: 64, h: 64 };
-  scatter("blooms", "town", 8, 6, PROPS.filter((p) => (p.kind === "flowers" || p.kind === "flowerbed" || p.kind === "planter") && placeOf(p.x, p.y) === "town").map((p) => [p.x, p.y]));
-  for (const p of PROPS.filter((q) => q.kind === "lamp" && placeOf(q.x, q.y) === "town")) {
+  scatter("blooms", "town", 8, 6, PROPS_FIRST.filter((p) => (p.kind === "flowers" || p.kind === "flowerbed" || p.kind === "planter") && placeOf(p.x, p.y) === "town").map((p) => [p.x, p.y]));
+  for (const p of PROPS_FIRST.filter((q) => q.kind === "lamp" && placeOf(q.x, q.y) === "town")) {
     if (out.filter((h) => h.kind === "lamp").length >= 7 || !clear(p.x, p.y, 7) || !by({ x: p.x + 0.5, y: p.y + 0.5 })) continue;
     add("lamp", "town", p.x, p.y, [{ x: p.x + 0.5, y: p.y + 0.5 }]);
   }
@@ -384,7 +384,7 @@ export const HAUNTS: Haunt[] = asBuilt(() => {
     props.filter((p) => kinds.includes(p.kind) && placeOf(p.x, p.y) === place).map((p): [number, number] => [p.x, p.y]);
   const verge = (x: number, y: number) => stands(x, y) && !plotAt(x, y) && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => plotAt(x + dx, y + dy));
   const woodFloor = (x: number, y: number) => stands(x, y) && groundAt(x, y) === "wood" && !taken(x, y) && ["woods", "bamboo", "rise", "deep"].includes(z(x, y));
-  scatter("petals", "town", 3, 5, nearProps(["flowers", "flowerbed", "planter"], PROPS, "town"));
+  scatter("petals", "town", 3, 5, nearProps(["flowers", "flowerbed", "planter"], PROPS_FIRST, "town"));
   scatter("petals", "farm", 3, 6, tilesOf(FARM_FIRST, verge));
   scatter("petals", "forest", 3, 6, tilesOf(FOREST, (x, y) => stands(x, y) && z(x, y) === "edge" && groundAt(x, y) === "grass"));
   scatter("leaves", "forest", 3, 6, [...nearProps(["fern", "bush"], FOREST_PROPS, "forest"), ...tilesOf(FOREST, (x, y) => stands(x, y) && ["woods", "deep"].includes(z(x, y)) && groundAt(x, y) === "grass")]);

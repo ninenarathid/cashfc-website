@@ -29,6 +29,14 @@ function walked(W: World, from: { x: number; y: number }): Set<string> {
   }
   return seen;
 }
+/**
+ * The town's southern strip (2026-10-19) and the tiles on the lane down to it that what stood there was taken off: what
+ * is new in the town, beside the far side, and changes nothing else of it.
+ */
+function inStrip(W: World): (k: string) => boolean {
+  const lane = new Set(W.PROPS_FIRST.filter((p) => p.solid && !W.PROPS.some((q) => q.x === p.x && q.y === p.y)).map((p) => `${p.x},${p.y}`));
+  return (k) => { const [x, y] = k.split(",").map(Number); return W.placeOf(x, y) === "town" && (y >= W.ROWS_FIRST || lane.has(k)); };
+}
 
 describe("the far side, in every build and reached only while it is open", () => {
   afterEach(() => { vi.unstubAllEnvs(); vi.resetModules(); });
@@ -39,7 +47,7 @@ describe("the far side, in every build and reached only while it is open", () =>
       expect(W.PREVIEW).toBe(true);
       expect(W.isFar()).toBe(false);
       // the lists are full in every environment: the maps, their gates, the bridge, the smith, the mountain and the cave
-      expect(W.GATES.map((g) => [g.from, g.leads])).toEqual([["town", "farm"], ["farm", "town"], ["town", "forest"], ["forest", "town"], ["town", "mountain"], ["mountain", "town"]]);
+      expect(W.GATES.map((g) => [g.from, g.leads])).toEqual([["town", "farm"], ["farm", "town"], ["town", "forest"], ["forest", "town"], ["town", "mountain"], ["mountain", "town"], ["town", "farm"], ["farm", "town"]]);
       expect(W.KEEPERS.map((k) => k.id)).toEqual(["uncle", "banker"]);
       expect([W.BRIDGE.tiles.length, W.SMITH.tiles.length, W.MOUNTAIN_ROCKS.length, W.MORE_GROUND.length, W.CAVE.laid.length]).toEqual([6, 5, 54, 6, 30]);
       expect(W.MOUNTAIN_TREES.length).toBe(212);
@@ -93,7 +101,10 @@ describe("the far side, in every build and reached only while it is open", () =>
     const southern = (x: number, y: number) => W.placeOf(x, y) === "farm" && (y >= W.FARM_FIRST.y + W.FARM_FIRST.h || (y >= W.FARM_FIRST.y + 41 && ((x - W.FARM.x >= 27 && x - W.FARM.x < 33) || x === W.FARM.x)));
     const turned = (): string[] => [...was].filter(([k, w]) => { const [x, y] = k.split(",").map(Number); return W.walkable(x, y) !== w; }).map(([k]) => k);
     expect(turned().filter((k) => southern(...(k.split(",").map(Number) as [number, number]))).length).toBeGreaterThan(1500);
-    const changed = (): string[] => turned().filter((k) => !southern(...(k.split(",").map(Number) as [number, number]))).sort();
+    // (and the town's southern strip, with what stood on the lane down to it taken off it, 2026-10-19: no other tile of the town)
+    const strip = inStrip(W);
+    expect(turned().filter(strip).length).toBeGreaterThan(500);
+    const changed = (): string[] => turned().filter((k) => !southern(...(k.split(",").map(Number) as [number, number])) && !strip(k)).sort();
     expect(changed()).toEqual([...water, ...smith].sort());
     // a bridge short of whole: only the blacksmith's
     W.setBridge(5, true);
@@ -190,7 +201,8 @@ describe("the far side, in every build and reached only while it is open", () =>
     W.setBridge(0);
     const after = walked(W, FOUNTAIN_SIDE), his = new Set(S.tiles.map(([x, y]) => `${x},${y}`));
     expect([...before].filter((k) => !after.has(k)).sort()).toEqual([...his].sort());
-    expect([...after].filter((k) => !before.has(k))).toEqual([]);
+    const strip = inStrip(W);
+    expect([...after].filter((k) => !before.has(k) && !strip(k))).toEqual([]);
   });
 
   it("puts the mountain and the cave's floors in tile space of their own, clear of every other map", async () => {
@@ -233,7 +245,7 @@ describe("the far side, in every build and reached only while it is open", () =>
 
   it("joins the town and the mountain by a gate each, beyond the bridge and in the mountain's east edge", async () => {
     const W = await made("development");
-    expect(W.GATES.map((g) => [g.from, g.leads])).toEqual([["town", "farm"], ["farm", "town"], ["town", "forest"], ["forest", "town"], ["town", "mountain"], ["mountain", "town"]]);
+    expect(W.GATES.map((g) => [g.from, g.leads])).toEqual([["town", "farm"], ["farm", "town"], ["town", "forest"], ["forest", "town"], ["town", "mountain"], ["mountain", "town"], ["town", "farm"], ["farm", "town"]]);
     const [, , , , west, back] = W.GATES;
     // the town's is at its west edge, on the far bank; no tile is a gate to two places
     for (const [x] of west.tiles) expect(x).toBeLessThan(2);

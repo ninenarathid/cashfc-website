@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { BOX, boxOffer, boxSorted, fits, moveBox, nearBox, newBox, roomyBox, sortBox, stow, unstow, upgradeBox, type Box } from "./box";
 import { ITEMS, type ItemId } from "./items";
 import { handOf, held, hold, newPurse, put, take, type Purse, type Stack } from "./trade";
-import { BENCHES, FOUNTAIN, PLAZA, PROPS, STOREBOX, findPath, thingAt, walkable } from "./world";
+import { BENCHES, FOUNTAIN, PLAZA, PROPS, PROPS_FIRST, STOREBOX, findPath, thingAt, walkable } from "./world";
 
 const purseWith = (slots: number, ...items: Array<[ItemId, number]>): Purse => {
   const p = newPurse();
@@ -284,7 +284,8 @@ describe("where the box stands", () => {
     // (nearer the viewer than the fountain, on its diagonal: straight below it on the screen)
     expect(STOREBOX.x - (FOUNTAIN.x + FOUNTAIN.w / 2)).toBe(STOREBOX.y - (FOUNTAIN.y + FOUNTAIN.h / 2));
     expect(STOREBOX.x).toBeGreaterThan(FOUNTAIN.x + FOUNTAIN.w);
-    expect(PROPS[PROPS.length - 1]).toEqual({ kind: "storebox", x: STOREBOX.x, y: STOREBOX.y, solid: true });
+    // (the last thing laid out as the town was built: the southern strip's things came after it, 2026-10-19, in PROPS)
+    expect(PROPS_FIRST[PROPS_FIRST.length - 1]).toEqual({ kind: "storebox", x: STOREBOX.x, y: STOREBOX.y, solid: true });
     expect(PROPS.filter((p) => p.kind === "storebox")).toHaveLength(1);
     // nothing else stood there, and the town's benches are numbered as they were (somebody sitting is told by the number)
     expect(PROPS.filter((p) => p.x === STOREBOX.x && p.y === STOREBOX.y)).toHaveLength(1);

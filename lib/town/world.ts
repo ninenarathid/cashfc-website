@@ -23,7 +23,14 @@ import { mountainRiverBed, mountainRiverGround } from "./river-landscape";
 import { ANCIENT as CEDAR, GATE_ROWS, LOOKOUT as LOOKOUT_AT, MOUNTAIN_H, MOUNTAIN_W, MOUTH as MINE_MOUTH, MOUTH_AT, cliffAt, closedOf, layMountain, mountainGround } from "./mountain";
 
 export const COLS = 64;
-export const ROWS = 64;
+/**
+ * The town's rows: 64 until its southern strip (the owner, 2026-10-19, wanting a second way back from the farm's
+ * southern half, as far below the first as the farm's second gate is below its first: "อาจจะต้องขยายแมพ เมืองหลัก
+ * ให้ยาวขึ้น"), 16 more past its old south-west edge (SOUTH_LANE, and the strip's own things in PROPS).
+ */
+export const ROWS = 80;
+/** The town's rows before its southern strip: what everything laid out from where one may walk was laid out on (asBuilt), which the database keeps a copy of. */
+export const ROWS_FIRST = 64;
 /** One tile on screen, before the town is scaled to fit. */
 export const TILE_W = 64;
 export const TILE_H = 32;
@@ -539,6 +546,38 @@ function pathAt(x: number, y: number): boolean {
   for (const [a, b, w] of TRAILS) if (nearSegment({ x, y }, a, b) < w) return true;
   return false;
 }
+/**
+ * The lane to the farm's second gate (the owner, 2026-10-19): off the east path where it turns back up to its gate,
+ * down past the feast hall's east side and through the southern strip, out at the town's east edge in its rows 72 and
+ * 73: 42 rows below the first gate's 30 and 31, as the farm's second gate (its rows 63 and 64) is below its first (21
+ * and 22). A curve through these points, a little narrower than the paths. Not one of the paths the town was laid out
+ * round (pathAt, roadThen), and not there as the town was built (asBuilt): what stood on it is taken off it (PROPS).
+ */
+const LANE_AT: Vec[] = [
+  { x: 56.6, y: 33.0 }, { x: 57.6, y: 37.8 }, { x: 59.0, y: 43.0 }, { x: 57.4, y: 49.0 }, { x: 58.9, y: 55.0 },
+  { x: 57.3, y: 61.0 }, { x: 58.6, y: 66.2 }, { x: 59.3, y: 70.3 }, { x: 60.5, y: 72.75 }, { x: 62.0, y: 73.0 }, { x: 64.6, y: 73.0 },
+];
+/** The lane as short straight pieces along its curve (a Catmull-Rom curve through LANE_AT, eight pieces between two points). */
+const LANE: Array<[Vec, Vec]> = (() => {
+  const n = LANE_AT.length, p = [{ x: 2 * LANE_AT[0].x - LANE_AT[1].x, y: 2 * LANE_AT[0].y - LANE_AT[1].y }, ...LANE_AT,
+    { x: 2 * LANE_AT[n - 1].x - LANE_AT[n - 2].x, y: 2 * LANE_AT[n - 1].y - LANE_AT[n - 2].y }];
+  const on = (a: number, b: number, c: number, d: number, t: number) =>
+    0.5 * (2 * b + (c - a) * t + (2 * a - 5 * b + 4 * c - d) * t * t + (3 * b - a - 3 * c + d) * t * t * t);
+  const pts: Vec[] = [];
+  for (let i = 1; i < p.length - 2; i++) for (let k = 0; k < 8; k++) {
+    pts.push({ x: on(p[i - 1].x, p[i].x, p[i + 1].x, p[i + 2].x, k / 8), y: on(p[i - 1].y, p[i].y, p[i + 1].y, p[i + 2].y, k / 8) });
+  }
+  pts.push(LANE_AT[n - 1]);
+  return pts.slice(1).map((b, i): [Vec, Vec] => [pts[i], b]);
+})();
+/** Half the lane's width at a point down it: two tiles wide at the gate, and a little more or less on the way. */
+const laneHalf = (y: number) => (y >= 69 ? 0.95 : 0.92 + 0.09 * Math.sin(y / 3.3 + 1.1));
+/** Whether a point (not a tile) is on the lane to the farm's second gate: never as the town was built. */
+function laneAt(x: number, y: number): boolean {
+  if (asWas || x < 54.5 || x > 65.6 || y < 31.5 || y > 74.5) return false;
+  const half = laneHalf(y);
+  return LANE.some(([a, b]) => nearSegment({ x, y }, a, b) < half);
+}
 
 /** Which way something faces, as the screen sees it: down-right, down-left, up-right, up-left. */
 export type Facing = "SE" | "SW" | "NE" | "NW";
@@ -568,7 +607,7 @@ export interface Prop {
 const within = (x: number, y: number, r: { x: number; y: number; w: number; h: number }) => x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h;
 const isPlaza = (x: number, y: number) => within(x, y, PLAZA);
 const isShop = (x: number, y: number) => within(x, y, SHOP);
-const isRoad = (x: number, y: number) => !isPlaza(x, y) && !isWater(x, y) && !isBank(x, y) && pathAt(x + 0.5, y + 0.5);
+const isRoad = (x: number, y: number) => !isPlaza(x, y) && !isWater(x, y) && !isBank(x, y) && (pathAt(x + 0.5, y + 0.5) || laneAt(x + 0.5, y + 0.5));
 /** A path's tile when the town was laid out, beside the narrower river (see wetThen). */
 const roadThen = (x: number, y: number) => !isPlaza(x, y) && !wetThen(x, y) && pathAt(x + 0.5, y + 0.5);
 const isBoard = (x: number, y: number) => within(x, y, BOARD);
@@ -663,8 +702,11 @@ export const NORTH_WOOD = { x: 14, w: 38, h: 9 };
  * fountain and the paths, planters at the plaza's corners; outside, woods and
  * meadows. Nothing grows on a path, the plaza or the shop's plot, nor right
  * beside them, so nobody's way is blocked.
+ *
+ * As it was laid out on the town's first 64 rows, before its southern strip: what the insects' haunts were laid out
+ * by, which the database keeps a copy of (lib/town/insects). What stands in the town now is PROPS.
  */
-export const PROPS: Prop[] = (() => {
+export const PROPS_FIRST: Prop[] = (() => {
   const out: Prop[] = [];
   const taken = new Set<string>();
   const put = (kind: PropKind, x: number, y: number, solid = true, facing?: Facing) => {
@@ -717,7 +759,7 @@ export const PROPS: Prop[] = (() => {
   let a = 20261002;
   const rnd = () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
   const clear = (x: number, y: number, r: number) => {
-    if (x < 1 || y < 1 || x >= COLS - 1 || y >= ROWS - 1) return false;
+    if (x < 1 || y < 1 || x >= COLS - 1 || y >= ROWS_FIRST - 1) return false;
     for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
       const X = x + dx, Y = y + dy;
       if (taken.has(`${X},${Y}`) || roadThen(X, Y) || isPlaza(X, Y) || isShop(X, Y) || isBoard(X, Y) || wetThen(X, Y) || closedThen.has(`${X},${Y}`)) return false;
@@ -726,7 +768,7 @@ export const PROPS: Prop[] = (() => {
   };
   const scatter = (kind: PropKind, n: number, r: number, inTown: boolean, solid = true) => {
     for (let tries = 0, placed = 0; placed < n && tries < n * 80; tries++) {
-      const x = Math.floor(rnd() * COLS), y = Math.floor(rnd() * ROWS);
+      const x = Math.floor(rnd() * COLS), y = Math.floor(rnd() * ROWS_FIRST);
       if (within(x, y, TOWN) !== inTown || !clear(x, y, r)) continue;
       put(kind, x, y, solid); placed++;
     }
@@ -765,6 +807,35 @@ export const PROPS: Prop[] = (() => {
 })();
 
 /**
+ * What stands about the town now: as it was laid out (PROPS_FIRST), less what grew on the lane to the farm's second
+ * gate or right beside it (trees, bushes, rocks, flowers: nothing of the town's own stood there), and then the southern
+ * strip's own: woods and meadows as the countryside's, thicker on the river's far side and
+ * along the strip's rim, each laid from its own tile as the north wood is, none on a way or right beside one, nor before
+ * the gate.
+ */
+export const PROPS: Prop[] = (() => {
+  const nearLane = (x: number, y: number) => [-1, 0, 1].some((dx) => [-1, 0, 1].some((dy) => laneAt(x + dx + 0.5, y + dy + 0.5)));
+  const out = PROPS_FIRST.filter((p) => !(["tree", "pine", "bush", "rock", "flowers"].includes(p.kind) && nearLane(p.x, p.y)));
+  const taken = new Set(out.map((p) => `${p.x},${p.y}`));
+  const nearWay = (x: number, y: number) => [-1, 0, 1].some((dx) => [-1, 0, 1].some((dy) => isRoad(x + dx, y + dy)));
+  const hash = (x: number, y: number, salt: number) => {
+    let h = Math.imul(x + 613 + salt, 374761393) ^ Math.imul(y + 157, 668265263);
+    h = Math.imul(h ^ (h >>> 13), 1274126177);
+    return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+  };
+  for (let y = ROWS_FIRST; y < ROWS - 1; y++) for (let x = 1; x < COLS - 1; x++) {
+    if (taken.has(`${x},${y}`) || isWater(x, y) || isBank(x, y) || nearWay(x, y) || (x >= 59 && Math.abs(y - 73) <= 3)) continue;
+    // (the river's far side is below its middle in y − x, as fishFrom has it the other way about)
+    const far = y + 0.5 - (x + 0.5) - riverMiddle(x + y) > 0, rim = y >= ROWS - 4 || x >= COLS - 3;
+    const k = hash(x, y, 0), kind = hash(x, y, 1);
+    const wood = far ? 0.22 : rim ? 0.3 : 0.11;
+    if (k < wood) out.push({ kind: kind < (far ? 0.3 : 0.42) ? "tree" : kind < 0.7 ? "pine" : kind < 0.88 ? "bush" : "rock", x, y, solid: true });
+    else if (k < wood + 0.05) out.push({ kind: "flowers", x, y, solid: false });
+  }
+  return out;
+})();
+
+/**
  * The benches, in a fixed order: somebody sitting is told to the room by this index. The town's come first, as they
  * always were; the logs round the forest camp's fire are added after them, where the forest is laid out (the owner,
  * 2026-10-05: "ท่อนไม้แถว กองไฟ ช่วยทำให้นั่งได้ด้วย เหมือนเก้าอี้").
@@ -783,6 +854,8 @@ export function benchAt(tx: number, ty: number): number {
 }
 
 const solidAt = new Set(PROPS.filter((p) => p.solid).map((p) => `${p.x},${p.y}`));
+/** And as the town was built (asBuilt). */
+const solidFirst = new Set(PROPS_FIRST.filter((p) => p.solid).map((p) => `${p.x},${p.y}`));
 
 /* ── the farm ───────────────────────────────────────────────────────────── */
 
@@ -825,7 +898,7 @@ export type Place = "town" | "farm" | "forest"
   | "mountain" | "cave";
 /** Which map a point is on, or null for nowhere. */
 export function placeOf(x: number, y: number): Place | null {
-  if (x >= 0 && y >= 0 && x < COLS && y < ROWS) return "town";
+  if (x >= 0 && y >= 0 && x < COLS && y < (asWas ? ROWS_FIRST : ROWS)) return "town";
   // ── to come ── (both lie below every other map in the tile space)
   if (PREVIEW && y >= MOUNTAIN.y) return within(x, y, MOUNTAIN) ? "mountain" : floorOf(x, y) ? "cave" : null;
   return within(x, y, asWas ? FARM_FIRST : FARM) ? "farm" : within(x, y, FOREST) ? "forest" : null;
@@ -903,7 +976,8 @@ const farmNow = () => (asWas ? FARM_FIRST : FARM);
  */
 function farmGround(u: number, v: number, first = asWas): "road" | "field" | "grass" {
   if ((v >= 21 && v < 23 && u < 58) || (u >= 29 && u < 31 && v >= 3 && v < (first ? 41 : 83))) return "road";
-  if (!first && v >= 63 && v < 65 && u >= 2 && u < 58) return "road";
+  // (the southern half's lane runs from its gate at the west edge: the farm's second, since 2026-10-19)
+  if (!first && v >= 63 && v < 65 && u < 58) return "road";
   return isPlot(Math.floor(u), Math.floor(v)) ? "field" : "grass";
 }
 /**
@@ -1500,7 +1574,7 @@ const northCol = (y: number) => Math.floor(pathMiddle(y + 0.5, PLAZA.y - y - 0.5
 export const GATES: Array<{ from: Place; leads: Place; tiles: Array<[number, number]>; to: Vec; arch: Vec; across?: boolean }> = [
   {
     from: "town", leads: "farm",
-    tiles: [COLS - 2, COLS - 1].flatMap((x) => [...Array(ROWS).keys()].filter((y) => isRoad(x, y)).map((y): [number, number] => [x, y])),
+    tiles: [COLS - 2, COLS - 1].flatMap((x) => [...Array(ROWS_FIRST).keys()].filter((y) => isRoad(x, y)).map((y): [number, number] => [x, y])),
     to: { x: FARM.x + 2.5, y: FARM.y + 21.5 },
     arch: { x: COLS - 1.5, y: pathMiddle(COLS - 1.5, COLS - 1.5 - PLAZA.x - PLAZA.w, EAST.seed) },
   },
@@ -1529,7 +1603,7 @@ export const GATES: Array<{ from: Place; leads: Place; tiles: Array<[number, num
   ...(MT ? [
     {
       from: "town" as const, leads: "mountain" as const,
-      tiles: [0, 1].flatMap((x) => [...Array(ROWS).keys()].filter((y) => isRoad(x, y)).map((y): [number, number] => [x, y])),
+      tiles: [0, 1].flatMap((x) => [...Array(ROWS_FIRST).keys()].filter((y) => isRoad(x, y)).map((y): [number, number] => [x, y])),
       to: { x: MOUNTAIN.x + MOUNTAIN.w - 3.5, y: MOUNTAIN.y + MT.GATE_ROWS[0] + 0.5 },
       arch: { x: 1.5, y: pathMiddle(1.5, PLAZA.x - 1.5, WEST_SEED) },
     },
@@ -1540,6 +1614,22 @@ export const GATES: Array<{ from: Place; leads: Place; tiles: Array<[number, num
       arch: { x: MOUNTAIN.x + MOUNTAIN.w - 1.5, y: MOUNTAIN.y + MT.GATE_ROWS[1] },
     },
   ] : []),
+  // The farm's second gate (the owner, 2026-10-19: "อยากทำวาร์ปกลับเมืองตรงนี้"), at the head of its southern half's
+  // lane in the west fence's gap, and the town's to it at the end of its lane through the southern strip: each 42 rows
+  // below the first, and where it puts you as far below where the first does. Last of all, so that each before it is
+  // found as it was.
+  {
+    from: "town", leads: "farm",
+    tiles: [COLS - 2, COLS - 1].flatMap((x) => Array.from({ length: ROWS - ROWS_FIRST }, (_, i) => ROWS_FIRST + i).filter((y) => isRoad(x, y)).map((y): [number, number] => [x, y])),
+    to: { x: FARM.x + 2.5, y: FARM.y + 63.5 },
+    arch: { x: COLS - 1.5, y: 73 },
+  },
+  {
+    from: "farm", leads: "town",
+    tiles: [[FARM.x, FARM.y + 63], [FARM.x, FARM.y + 64]],
+    to: { x: COLS - 3.5, y: 73.5 },
+    arch: { x: FARM.x + 1.5, y: FARM.y + 64 },
+  },
 ];
 /** Where the gate under a point leads, or null when there is none there. */
 export function gateAt(x: number, y: number): Vec | null {
@@ -1571,7 +1661,7 @@ export function thingAt(tx: number, ty: number): Building | "fountain" | "shop" 
   }
   if (isClosed(tx, ty)) return "roadworks";
   if (isWater(tx, ty)) return "water";
-  if (solidAt.has(`${tx},${ty}`)) return "prop";
+  if ((asWas ? solidFirst : solidAt).has(`${tx},${ty}`)) return "prop";
   return null;
 }
 
@@ -1661,8 +1751,11 @@ export function asBuilt<T>(make: () => T): T {
   // with neither, and has to come out so in the preview too)
   const was = asWas;
   asWas = true;
+  // (and before the town's southern strip: where a line may be dropped from in it is worked out anew either side of this)
+  if (!was) fishing.clear();
   try { return make(); } finally {
     asWas = was;
+    if (!was) fishing.clear();
     if (!same) { PIER.stage = pier; KITCHEN.stage = kitchen; fishing.clear(); }
   }
 }
@@ -1736,7 +1829,9 @@ export function fishFrom(tx: number, ty: number): Fishing | null {
         break;
       }
     });
-  } else if (placeOf(tx, ty) === "town" && side < 0 && isBank(tx, ty) && walkable(tx, ty)) {
+  // (not from the bank in the town's southern strip, 2026-10-19: by the farm's second gate, it is a hand of water away from
+  // the farm's southern well, and a line from the river to a well is three: lib/town/line)
+  } else if (placeOf(tx, ty) === "town" && ty < ROWS_FIRST && side < 0 && isBank(tx, ty) && walkable(tx, ty)) {
     // straight across the screen, out to where the water is a little way from its edge; further if the deck is in the way
     const across = -side;
     for (let more = 0; more <= 2.5 && !found; more += 0.25) {
@@ -1781,7 +1876,7 @@ export function groundLook(x: number, y: number): Ground | MoreGround {
   if (r < RIVER_HALF) return "water";
   if (r < RIVER_HALF + 0.9 + 0.22 * Math.sin(x * 1.9) * Math.sin(y * 2.3)) return "sand";
   if (within(x, y, PLAZA)) return "plaza";
-  if (within(x, y, SHOP) || pathAt(x, y)) return "road";
+  if (within(x, y, SHOP) || pathAt(x, y) || laneAt(x, y)) return "road";
   return "grass";
 }
 

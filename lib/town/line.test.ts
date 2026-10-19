@@ -8,7 +8,7 @@ import { hold, newPurse, put, type Purse } from "./trade";
 import { workOf } from "./jar";
 import { helpersOf } from "./thanks";
 import { LINE_HANDS, bookOf, newLog, rankOf, seen, type WaterDeed } from "./well";
-import { FARM, GATES, WELL, atWell } from "./world";
+import { FARM, GATES, WELL, WELLS, atWell } from "./world";
 
 const NOW = Date.parse("2026-10-06T09:00:00+07:00");
 const purseWith = (...items: Array<[ItemId, number]>): Purse => {
@@ -263,9 +263,12 @@ describe("whom a page offers the water to (the owner, 2026-10-05: \"การส
   it("still makes a line of three from the river to the well", () => {
     const river = Object.keys(catalogOf().fishing.places).map((k) => { const [x, y] = k.split(",").map(Number); return { x: x + 0.5, y: y + 0.5 }; })
       .sort((p, q) => toWell(p) - toWell(q))[0];
-    const gate = GATES.find((g) => g.from === "town" && g.leads === "farm")!;
+    // (through whichever gate is on its way, to whichever well is nearest: since 2026-10-19 the farm's second gate and its southern half's well)
+    const tile = (g: (typeof GATES)[number]) => ({ x: g.tiles[0][0] + 0.5, y: g.tiles[0][1] + 0.5 });
+    const gate = GATES.filter((g) => g.from === "town" && g.leads === "farm").sort((a, b) => between(river, tile(a)) - between(river, tile(b)))[0];
+    const well = [...WELLS].sort((a, b) => between(river, { x: a.x + 0.5, y: a.y + 0.5 }) - between(river, { x: b.x + 0.5, y: b.y + 0.5 }))[0];
     const mid: Stander = { id: "mid", name: "mid", x: gate.tiles[0][0] + 0.5 - 2, y: gate.tiles[0][1] + 0.5, moving: false, hold: "bucket", wet: false };
-    const last: Stander = { id: "last", name: "last", x: WELL.x - 0.5, y: WELL.y + 0.5, moving: false, hold: "bucketIron", wet: false };
+    const last: Stander = { id: "last", name: "last", x: well.x - 0.5, y: well.y + 0.5, moving: false, hold: "bucketIron", wet: false };
     // by the river: the one about the gate, and not the one at the well (out of reach)
     expect(takers("first", river, [mid, last]).offered.map((p) => p.id)).toEqual(["mid"]);
     // about the gate with the water: the one at the well first, then the one by the river (whose bucket is empty now)

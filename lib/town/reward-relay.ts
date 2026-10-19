@@ -4,13 +4,13 @@ import { works, useGift } from "./gifts";
 import { spend } from "./stamina";
 import type { Purse } from "./trade";
 import type { RewardInput, RewardReply, WaterRelay } from "./reward-types";
-import { FARM, FOREST } from "./world";
+import { COLS, FARM, FOREST, ROWS } from "./world";
 
 /** One real container left at a real point. It is neither extra bag storage nor a water source. */
 export function relayPlace(at: readonly number[]): string | null {
   if (at.length!==2 || !at.every(Number.isSafeInteger)) return null;
   const [x,y]=at;
-  if(x>=0&&y>=0&&x<64&&y<64)return "town";
+  if(x>=0&&y>=0&&x<COLS&&y<ROWS)return "town"; // (64 × 80 since the town's southern strip, v290)
   for(const [name,b] of [["farm",FARM],["forest",FOREST]] as const)
     if(x>=b.x&&y>=b.y&&x<b.x+b.w&&y<b.y+b.h)return name;
   return null;
