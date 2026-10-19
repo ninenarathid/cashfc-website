@@ -20,7 +20,7 @@
 --   * town.quality_bed_gift: a guard room's cover says how often its hunter keeps a pest off (the room's `k`, else as
 --     town.house_do would write it).
 --   * Every room of a house and every cover of a plant written down before this file is given its keep in place (the
---     covers matched to their room by its coming and leaving), so that no gift is ever worked out anew with another keep
+--     covers matched to their room by its place among the rooms, its coming and leaving), so that no gift is ever worked out anew with another keep
 --     for a time gone by (Codex's check, 2026-10-19: a mantis's cover read at the weakest keep and then at its own would
 --     have taken away a pest that had struck).
 --   * town.quality_keep (the trigger on town_plots): whenever a plant's gift from its bed changes, the guard rooms it
@@ -345,18 +345,23 @@ begin
  return new;
 end $function$;
 
--- Every cover of a hunter's room a plant was given before this file, its keep in place: the room's that it came from
--- (matched by its coming and leaving, in the plant's own bed), else the weakest (farming.pests.house.old). Only the
--- round's gift changes, so town.quality_keep lets the write by as it is; `changed` so that pages read it again.
+-- Every cover of a hunter's room a plant was given before this file, its keep in place: the room's that it came from,
+-- else the weakest (farming.pests.house.old). A gift's covers are the rooms of its bed's one house that have an insect
+-- of some use, in their order (town.quality_bed_gift), so the n-th cover is the n-th such room: matched so, and by its
+-- coming and leaving and a hunter in it, never by the times alone (Codex's check, 2026-10-19: a bee and a ladybird gone
+-- in at the same moment). Only the round's gift changes, so town.quality_keep lets the write by as it is; `changed` so
+-- that pages read it again.
 update public.town_plots t
    set plant = jsonb_set(t.plant, '{q,bed,h}', (
-         select jsonb_agg(case when e->>'r' = 'guard' and not (e ? 'k') then e || jsonb_build_object('k', coalesce(
-             (select coalesce((rm->>'k')::double precision, (c.qc->'house'->'keeps'->>(rm->>'bug'))::double precision, (c.qc->'house'->>'keep')::double precision)
-                from public.town_plots hp, jsonb_array_elements(hp.house->'rooms') rm
-               where hp.bed = t.bed and jsonb_typeof(hp.house) = 'object' and jsonb_typeof(rm) = 'object'
-                 and (rm->>'from')::bigint = (e->>'from')::bigint and (rm->>'until')::bigint = (e->>'to')::bigint
-               limit 1),
-             (c.f->'pests'->'house'->>'old')::double precision)) else e end order by x.i)
+         select jsonb_agg(case when x.e->>'r' = 'guard' and not (x.e ? 'k') then x.e || jsonb_build_object('k', coalesce(
+             (select coalesce((rm.v->>'k')::double precision, (c.qc->'house'->'keeps'->>(rm.v->>'bug'))::double precision, (c.qc->'house'->>'keep')::double precision)
+                from (select r.v, row_number() over (order by hp.x, hp.y, r.n) i
+                        from public.town_plots hp, jsonb_array_elements(hp.house->'rooms') with ordinality r(v, n)
+                       where hp.bed = t.bed and jsonb_typeof(hp.house) = 'object' and jsonb_typeof(r.v) = 'object'
+                         and town.house_role(r.v->>'bug') is not null) rm
+               where rm.i = x.i and town.house_role(rm.v->>'bug') = 'guard'
+                 and (rm.v->>'from')::bigint = (x.e->>'from')::bigint and (rm.v->>'until')::bigint = (x.e->>'to')::bigint),
+             (c.f->'pests'->'house'->>'old')::double precision)) else x.e end order by x.i)
            from jsonb_array_elements(t.plant->'q'->'bed'->'h') with ordinality x(e, i))),
        changed = town.now_ms()
   from (select town.cat('quality') qc, town.cat('farming') f) c

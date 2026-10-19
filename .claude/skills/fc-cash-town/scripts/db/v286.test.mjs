@@ -49,30 +49,41 @@ try {
   const LIVE = { ...code.farming, pests: livePests, bedsAt: [...code.farming.bedsAt, [999, 999]] }, LIVE_Q = { ...code.quality, house: liveHouse };
   await db.query("update public.town_catalog set data = $1::jsonb where key = 'farming'", [JSON.stringify(LIVE)]);
   await db.query("update public.town_catalog set data = $1::jsonb where key = 'quality'", [JSON.stringify(LIVE_Q)]);
-  // (a bed as members left it before v286: a house with a mantis and a ladybird in it, plants about it given their gifts
-  // by the trigger as it was, with no keep)
-  const OLD_BED = 1, [obx, oby] = code.farming.bedsAt[OLD_BED], OLD_MID = `${obx + 2},${oby + 2}`, OT = FROM + 5 * H;
-  const OLD_ROOMS = [{ bug: "mantis", from: OT - 10 * H, until: OT + 38 * H }, { bug: "ladybird", from: OT - 4 * H, until: OT + 44 * H }];
-  await db.query("insert into public.town_plots(x,y,bed,soil,plant,house,changed) values($1,$2,$3,'house',null,$4::jsonb,$5)", [obx + 2, oby + 2, OLD_BED, JSON.stringify({ by: "m1", at: OT - 20 * H, rooms: OLD_ROOMS }), OT - 4 * H]);
-  for (const [dx, dy] of [[1, 1], [2, 3], [3, 2], [4, 4], [0, 2], [6, 6]]) {
-    await db.query("insert into public.town_plots(x,y,bed,soil,plant,house,changed) values($1,$2,$3,'tilled',$4::jsonb,null,$5)", [obx + dx, oby + dy, OLD_BED,
-      JSON.stringify({ by: "m1", crop: "tomato", sown: OT - 3 * H, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0 }), OT - 3 * H]);
+  // (beds as members left them before v286: a house with a mantis and a ladybird in it; another with a bee and a ladybird
+  // gone in at the very same moment (Codex's check: the times alone cannot tell their covers apart); plants about them
+  // given their gifts by the trigger as it was, with no keep)
+  // (their rooms lived in when the file runs: the file writes them at the database's own clock)
+  const OT = Number(await v("select town.now_ms() v")) - 2 * H, keepOfBug = { mantis: 0.7, ladybird: 0.5 };
+  const OLD = [
+    { bed: 1, rooms: [{ bug: "mantis", from: OT - 10 * H, until: OT + 38 * H }, { bug: "ladybird", from: OT - 4 * H, until: OT + 44 * H }] },
+    { bed: 2, rooms: [{ bug: "honeyBee", from: OT - 6 * H, until: OT + 42 * H }, { bug: "ladybird", from: OT - 6 * H, until: OT + 42 * H }] },
+  ];
+  for (const { bed, rooms } of OLD) {
+    const [obx, oby] = code.farming.bedsAt[bed];
+    await db.query("insert into public.town_plots(x,y,bed,soil,plant,house,changed) values($1,$2,$3,'house',null,$4::jsonb,$5)", [obx + 2, oby + 2, bed, JSON.stringify({ by: "m1", at: OT - 20 * H, rooms }), OT - 4 * H]);
+    for (const [dx, dy] of [[1, 1], [2, 3], [3, 2], [4, 4], [0, 2], [6, 6]]) {
+      await db.query("insert into public.town_plots(x,y,bed,soil,plant,house,changed) values($1,$2,$3,'tilled',$4::jsonb,null,$5)", [obx + dx, oby + dy, bed,
+        JSON.stringify({ by: "m1", crop: "tomato", sown: OT - 3 * H, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0 }), OT - 3 * H]);
+    }
   }
-  const oldGuards = async () => (await db.query("select x||','||y k, plant->'q'->'bed'->'h' h from public.town_plots where bed=$1 and plant is not null", [OLD_BED])).rows;
-  ok((await oldGuards()).some((r) => r.h?.some((e) => e.r === "guard" && !("k" in e))), "the old bed has covers with no keep before the file");
+  const coversOf = async (bed) => (await db.query("select x||','||y k, plant->'q'->'bed'->'h' h from public.town_plots where bed=$1 and plant is not null", [bed])).rows;
+  ok((await coversOf(1)).some((r) => r.h?.some((e) => e.r === "guard" && !("k" in e))), "the old bed has covers with no keep before the file");
   const sql = readFileSync(FILE, "utf8").replace(/\r\n/g, "\n");
   await db.exec(sql.replace(/\n/g, "\r\n"));
-  // (each cover of the old bed given its room's keep, in place; the rooms theirs; nothing kept as gone)
-  const keepOfBug = { mantis: 0.7, ladybird: 0.5 };
-  let stamped = 0;
-  for (const r of await oldGuards()) for (const e of r.h ?? []) if (e.r === "guard") {
-    const room = OLD_ROOMS.find((m) => m.from === e.from && m.until === e.to);
-    eq(e.k, keepOfBug[room?.bug], `${r.k}'s cover from the ${room?.bug} has its keep`); stamped++;
+  // (each cover of the old beds given its room's keep, in place, the n-th cover the n-th room; the rooms theirs; nothing kept as gone)
+  for (const { bed, rooms } of OLD) {
+    const [obx, oby] = code.farming.bedsAt[bed];
+    let stamped = 0;
+    for (const r of await coversOf(bed)) for (const [i, e] of (r.h ?? []).entries()) {
+      eq(e.r, rooms[i].bug === "honeyBee" ? "pollen" : "guard", `${r.k}'s cover ${i} is its room's`);
+      if (e.r === "guard") { eq(e.k, keepOfBug[rooms[i].bug], `${r.k}'s cover from the ${rooms[i].bug} has its keep`); stamped++; }
+      else ok(!("k" in e), `${r.k}'s bee's cover has no keep`);
+    }
+    ok(stamped >= 4, `bed ${bed}: covers given their keep in place (${stamped})`);
+    eq((await one("select house->'rooms' r from public.town_plots where x=$1 and y=$2", [obx + 2, oby + 2])).r, rooms.map((m) => (m.bug === "honeyBee" ? m : { ...m, k: keepOfBug[m.bug] })), `bed ${bed}: the old rooms have their keep`);
+    eq(Number((await one("select count(*) n from public.town_plots where bed=$1 and plant ? 'hg'", [bed])).n), 0, `bed ${bed}: nothing kept as gone: the gifts worked out again are the same`);
+    await db.exec(`delete from public.town_plots where bed=${bed}`);
   }
-  ok(stamped >= 6, `covers given their keep in place (${stamped})`);
-  eq((await one("select house->'rooms' r from public.town_plots where x=$1 and y=$2", [obx + 2, oby + 2])).r, OLD_ROOMS.map((m) => ({ ...m, k: keepOfBug[m.bug] })), "the old rooms have their keep");
-  eq(Number((await one("select count(*) n from public.town_plots where bed=$1 and plant ? 'hg'", [OLD_BED])).n), 0, "nothing kept as gone: the gifts worked out again are the same");
-  await db.exec(`delete from public.town_plots where bed=${OLD_BED}`);
   const fnAfter = await md5s(), rowAfter = await v("select data v from public.town_catalog where key = 'farming'");
   await db.exec(sql);
   eq(await md5s(), fnAfter, "a second run leaves the functions as the first made them");
