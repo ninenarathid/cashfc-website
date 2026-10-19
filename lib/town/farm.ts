@@ -121,8 +121,10 @@ export const FARMING = {
    * more, the first of `adds`; with `many` or more, the second; with none, nothing. The steps are mine, his to
    * change: one insect is "some", and four are "many" (left alone, a dry day's farm has about six out at a time).
    * Who counts, and when, is `Swarms`, below.
+   * And `house`: the moment from which an insect house keeps pests off (`housedAt`), so that no strike before it is
+   * undone (the owner, 2026-10-19: "ให้บ้านกันศัตรูพืชได้จริงครับ").
    */
-  pests: { from: 8, to: 18, chance: 0.03, kills: 6, swarm: { some: 1, many: 4, adds: [0.01, 0.02] as readonly [number, number] } },
+  pests: { from: 8, to: 18, chance: 0.03, kills: 6, swarm: { some: 1, many: 4, adds: [0.01, 0.02] as readonly [number, number] }, house: Date.UTC(2026, 9, 20, 1) },
   /** How many hits of the hoe it takes to clear a plot of weeds, and to till it. */
   swings: { clear: 3, till: 3 },
   /** What a dead plant leaves when it is pulled up. */
@@ -239,6 +241,14 @@ export interface Plant {
   top?: import("./fertilisers").FertOn;
   /** Its present round as gathered so far (settled before every change of it). Missing from a plant not yet settled. */
   q?: import("./quality").PlantQ;
+  /**
+   * The stretches an insect house kept pests off it that its bed's gift no longer holds (a room filled again, the house
+   * lifted, the plant moved out of its reach), each [from, to): kept so that a strike in them stays kept off
+   * (lib/town/quality-plant's houseKept). Missing from a plant with none.
+   */
+  hg?: Array<[number, number]>;
+  /** When the enchanted hoe set it down where it stands (lib/town/quality-plant's syncQuality): its bed's house keeps pests off it from then, not before. Missing from a plant never moved since this was kept. */
+  hs?: number;
 }
 export interface Plot {
   soil: Soil; plant: Plant | null;
@@ -391,6 +401,20 @@ export function growing(p: Plant, now: number, rains: FarmSky = DRY): ReturnType
 }
 
 /**
+ * Whether an insect house kept pests off a plant at a moment (the owner, 2026-10-19, told that the house only filled
+ * half the guard bar: "ให้บ้านกันศัตรูพืชได้จริงครับ แก้เลย"): a hunter lived in a room of its bed's house that reaches it
+ * (its bed's gift, `q.bed.h`, a guard room), or did and was kept (`hg`). From the moment it went in, so a pest already
+ * there stays, the cure's or a let-go insect's to rid, as with a cover put on (and one the hoe moves into its reach is
+ * kept from the move on: `hs`); and from `FARMING.pests.house` only, so that no strike before then is undone. One
+ * hunter keeps them all off; a rare one or its favourite plant only keeps it longer (lib/town/insect-house). Codex
+ * agreed (2026-10-19): a cut chance still shows a pest and reads as "it does not work".
+ */
+export function housedAt(p: Plant, t: number): boolean {
+  if (t < FARMING.pests.house) return false;
+  return (t >= (p.hs ?? 0) && (p.q?.bed?.h ?? []).some((e) => e.r === "guard" && e.from <= t && t < e.to)) || (p.hg ?? []).some(([a, b]) => a <= t && t < b);
+}
+
+/**
  * When a pest struck a plant, if one has and it has not been cured since: the
  * first of the day's pest hours, since it was sown or last cured, in which the
  * roll for that plot and that hour came up, the plant being still unripe and
@@ -405,7 +429,7 @@ export function pestAt(key: string, p: Plant, now: number, rains: FarmSky = DRY)
     const t = h * HOUR, hour = Math.floor((((t + BANGKOK) % DAY) + DAY) % DAY / HOUR);
     // (the pest that comes at the very moment a plant is rid of one is the one it was rid of: until 2026-10-06 a
     // plant cured on the stroke of the hour had it still, one moment in 3,600,000)
-    if (hour < from || hour >= to || t < p.guard || t <= p.cured) continue;
+    if (hour < from || hour >= to || t < p.guard || t <= p.cured || housedAt(p, t)) continue;
     // (a ripe plant is safe: it only waits to be picked)
     if (growing(p, t, rains).ripe) return null;
     // (by the plot it was sown at: a plant the hoe moved meets the pests it would have met, lib/town/farm's homeOf)

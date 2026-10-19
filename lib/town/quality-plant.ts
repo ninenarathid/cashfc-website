@@ -172,10 +172,30 @@ export function syncQuality(before: Readonly<Record<string, Plot>>, after: Recor
     const q = done.has(key) ? p.q!
       : fresh.has(key) ? (p.picked > was!.picked ? NO_Q(Math.max(launch, now)) : settled({ ...was!, q: { ...NO_Q(Math.max(launch, roundStart(was!))), ...(gift ? { bed: gift } : {}) } }, now, rains, launch))
       : same ? settled(was!, now, rains, launch) : p.q ?? NO_Q(Math.max(launch, roundStart(p)));
-    const { bed: _, ...rest } = q;
-    set(key, { ...p, q: gift ? { ...rest, bed: gift } : rest });
+    // (one set down here with a round already, which the hoe moved: the house here keeps pests off it from now, lib/town/farm's housedAt)
+    const arrived = !same && !!p.q, { bed: _, ...rest } = q, { hg: _hg, hs: _hs, ...bare } = p, hg = houseKept(p, q.bed, gift, now, arrived), hs = arrived ? now : p.hs;
+    set(key, { ...bare, ...(hg ? { hg } : {}), ...(hs !== undefined ? { hs } : {}), q: gift ? { ...rest, bed: gift } : rest });
   }
   return out;
+}
+
+/**
+ * What a plant keeps of the stretches its bed's insect house kept pests off it (lib/town/farm's housedAt), as its gift
+ * changes from `was` to `gift`: those it had (`hg`), and each guard room of the gift it had that the new one does not
+ * hold (a room filled again, the house lifted, the plant moved out of reach), from when it stood there (`hs`) up to
+ * now; every one of them when the plant has `arrived` somewhere else. Only what can still bear on its pests: a stretch
+ * over before it was sown, last cured or picked is dropped. In order, each once. (The database's trigger keeps the
+ * same, town.house_kept.)
+ */
+export function houseKept(p: Plant, was: BedGift | undefined, gift: BedGift | undefined, now: number, arrived = false): Array<[number, number]> | undefined {
+  const start = Math.max(p.sown, p.cured, p.pickedAt), still = (gift?.h ?? []).filter((e) => e.r === "guard"), out = [...(p.hg ?? [])];
+  for (const e of was?.h ?? []) {
+    if (e.r !== "guard" || (!arrived && still.some((f) => f.from === e.from && f.to === e.to))) continue;
+    const from = Math.max(e.from, p.hs ?? 0), to = Math.min(e.to, now);
+    if (to > from) out.push([from, to]);
+  }
+  const kept = out.filter(([, b]) => b > start).sort((x, y) => x[0] - y[0] || x[1] - y[1]).filter((x, i, a) => i === 0 || x[0] !== a[i - 1][0] || x[1] !== a[i - 1][1]);
+  return kept.length ? kept : undefined;
 }
 
 /**

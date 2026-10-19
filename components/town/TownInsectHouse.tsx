@@ -14,7 +14,8 @@ import TownIcon, { type IconName } from "./TownIcon";
  * how long it stays, and its favourite plant. Rules: lib/town/insect-house.
  */
 
-const ROLE_WORD = { soil: ["เติมดิน", "Fills soil"], water: ["เติมน้ำ", "Fills water"], pollen: ["เติมเกสร", "Fills pollen"], guard: ["เติมป้องกัน", "Fills guard"] } as const;
+// (a hunter keeps pests off the plants it reaches as well, lib/town/farm's housedAt: the owner, 2026-10-19)
+const ROLE_WORD = { soil: ["เติมดิน", "Fills soil"], water: ["เติมน้ำ", "Fills water"], pollen: ["เติมเกสร", "Fills pollen"], guard: ["กันศัตรูพืช · เติมป้องกัน", "Keeps pests off · fills guard"] } as const;
 const ROLE_TINT = { soil: "#b07a3e", water: "#4a9be0", pollen: "#e3b23c", guard: "#d65a48" } as const;
 const hoursLeft = (to: number, now: number) => Math.max(1, Math.ceil((to - now) / 3_600_000));
 
@@ -69,7 +70,7 @@ export function HousePanel({ at, house, plots, now, th, mine, onClose }: { at: s
       </div>
       <p className="tk tk-window px-3 py-2 text-meta text-[#3b2412]" data-house-tip>
         ▸ {mine
-          ? (th ? "ถือแมลงผสมเกสร (เกสร) หรือแมลงล่าเหยื่อ (ป้องกัน) แล้วกดที่บ้าน ต้นในพื้นที่ 5×5 ได้ครึ่งแถบ ถ้ามีพืชที่มันชอบอยู่ใกล้ตอนใส่ อยู่ต่อ +24 ชม." : "Use a pollinator (pollen) or a predator (guard) on the house: plants within 5×5 get half a bar; with its favourite plant near as it goes in, it stays 24 h more")
+          ? (th ? "ถือแมลงผสมเกสร (เกสร) หรือแมลงล่าเหยื่อ (กันศัตรูพืช) แล้วกดที่บ้าน ต้นใน 5×5 ได้ครึ่งแถบ ศัตรูพืชที่เกาะก่อนแล้วยังต้องใช้ยา ถ้ามีพืชที่มันชอบอยู่ใกล้ตอนใส่ อยู่ต่อ +24 ชม." : "Use a pollinator (pollen) or a predator (keeps pests off) on the house: plants within 5×5 get half a bar; a pest already there still needs a cure; with its favourite plant near as it goes in, it stays 24 h more")
           : th ? "บ้านแมลงของคนอื่น" : "Somebody else's insect house"}
         {mine && house.rooms.some((r) => !r || r.until <= now) && (() => {
           const near = Object.entries(FAVOURITES).filter(([bug]) => favouriteNear(at, bug as ItemId, plots)).map(([bug]) => name(bug as ItemId));

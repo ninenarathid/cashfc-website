@@ -1166,7 +1166,7 @@ insert into public.town_catalog (key, data) values
     "guard": 24,
     "rids": {"ladybird":0.5,"mantis":0.7},
     "cures": {"pestCure":24},
-    "pests": {"from":8,"to":18,"chance":0.03,"kills":6,"swarm":{"some":1,"many":4,"adds":[0.01,0.02]}},
+    "pests": {"from":8,"to":18,"chance":0.03,"kills":6,"swarm":{"some":1,"many":4,"adds":[0.01,0.02]},"house":1792458000000},
     "swings": {"clear":3,"till":3},
     "pulled": "compost",
     "stages": [0,0.1,0.3,0.6,1],

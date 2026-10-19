@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import type { Plant, Plot } from "./farm";
+import { FARMING, housedAt, pestAt, type Plant, type Plot } from "./farm";
 import { barsOfQ, narrowingOfQ } from "./quality";
-import { bedGift, settled, syncQuality } from "./quality-plant";
+import { bedGift, houseKept, settled, syncMove, syncQuality } from "./quality-plant";
 import { HOUSE, freeRoom, houseCovers, houseDeedFor, houseDo, houseRoleOf, inReach, isRareInHouse, plantsInReach } from "./insect-house";
 import { newPurse, put, held, type Purse } from "./trade";
 import { bedOf } from "./world";
@@ -116,5 +116,65 @@ describe("the insect house", () => {
     // lifted: the bed gives nothing again
     plots = syncQuality(plots, { ...plots, "133,5": { soil: "tilled", plant: null } }, t1 + H, [], LAUNCH);
     expect(plots["134,5"].plant!.q!.bed).toBeUndefined();
+  });
+});
+
+describe("the insect house keeps pests off (the owner, 2026-10-19)", () => {
+  // (a day after pests are kept off by houses at all, FARMING.pests.house)
+  const T1 = FARMING.pests.house + 24 * H;
+  const tomato = (sown: number, more: Partial<Plant> = {}): Plant => ({ by: "me", crop: "tomato", sown, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0, ...more });
+  /** A sowing at `key` from `from` on that a pest strikes, unhoused, within a day and a half: when it was sown and when it is struck. */
+  const strikeOf = (key: string, from: number) => {
+    for (let s = from; ; s += 60_000) { const at = pestAt(key, tomato(s), s + 36 * H); if (at !== null && at > s + H) return { s, at }; }
+  };
+  const housedWith = (rooms: Parameters<typeof housed>[0], key: string, p: Plant): Plant => {
+    const plots: Record<string, Plot> = { "133,5": housed(rooms), [key]: { soil: "tilled", plant: p } };
+    return { ...p, q: { at: p.sown, span: 0, area: [0, 0, 0, 0], nar: [0, 0, 0], bed: bedGift(key, plots) } };
+  };
+
+  it("keeps every new pest off what it reaches while a hunter stays, and only a hunter, and only from when it went in", () => {
+    const { s, at } = strikeOf("134,5", T1);
+    expect(pestAt("134,5", housedWith([{ bug: "ladybird", from: s, until: s + 48 * H }, null], "134,5", tomato(s)), at + H)).toBeNull();
+    // a pollinator keeps nothing off
+    expect(pestAt("134,5", housedWith([{ bug: "honeyBee", from: s, until: s + 48 * H }, null], "134,5", tomato(s)), at + H)).toBe(at);
+    // a pest already there stays: the cure's, or a let-go insect's, to rid
+    expect(pestAt("134,5", housedWith([{ bug: "mantis", from: at + 1, until: at + 48 * H }, null], "134,5", tomato(s)), at + H)).toBe(at);
+    // once it has left, they come again
+    expect(pestAt("134,5", housedWith([{ bug: "mantis", from: s, until: at }, null], "134,5", tomato(s)), at + H)).toBe(at);
+    // and nothing before the moment houses began to keep them off is undone
+    const kept = housedWith([{ bug: "mantis", from: 0, until: Number.MAX_SAFE_INTEGER }, null], "134,5", tomato(s));
+    expect(housedAt(kept, FARMING.pests.house - H)).toBe(false);
+    expect(housedAt(kept, FARMING.pests.house)).toBe(true);
+  });
+
+  it("keeps what it kept off when its room is filled again or it is lifted: no pest comes back into those hours", () => {
+    const { s, at } = strikeOf("134,5", T1);
+    let plots: Record<string, Plot> = syncQuality({}, { "133,5": housed([null, null]), "134,5": { soil: "tilled", plant: tomato(s) } }, s, [], LAUNCH);
+    plots = syncQuality(plots, { ...plots, "133,5": housed([{ bug: "ladybird", from: s, until: at + 1 }, null]) }, s, [], LAUNCH);
+    expect(pestAt("134,5", plots["134,5"].plant!, at + H)).toBeNull();
+    // the ladybird gone and a bee in its room: the hours it stayed are still kept
+    const refilled = syncQuality(plots, { ...plots, "133,5": housed([{ bug: "honeyBee", from: at + H, until: at + 49 * H }, null]) }, at + H, [], LAUNCH);
+    expect(refilled["134,5"].plant!.hg).toEqual([[s, at + 1]]);
+    expect(pestAt("134,5", refilled["134,5"].plant!, at + H)).not.toBe(at);
+    // lifted while the ladybird stays: kept up to the lifting, not after
+    const lifted = syncQuality(plots, { ...plots, "133,5": { soil: "tilled", plant: null } }, at - 1, [], LAUNCH);
+    expect(lifted["134,5"].plant!.hg).toEqual([[s, at - 1]]);
+    expect(pestAt("134,5", lifted["134,5"].plant!, at + H)).toBe(at);
+    // what ended before it was last cured is let go
+    expect(houseKept({ ...tomato(s), cured: at, hg: [[s, at - 1]] }, undefined, undefined, at + H)).toBeUndefined();
+  });
+
+  it("keeps pests off a plant the hoe moves into its reach from the move on, not before", () => {
+    // (rolled by the plot it was sown at, as a moved plant is: lib/town/farm's homeOf)
+    expect(bedOf(137, 5)).toBe(bedOf(133, 5));
+    const { s, at } = strikeOf("137,5", T1), p = tomato(s, { home: "137,5" });
+    const plots: Record<string, Plot> = syncQuality({}, { "133,5": housed([{ bug: "mantis", from: s, until: s + 48 * H }, null]), "137,5": { soil: "tilled", plant: p }, "134,5": { soil: "tilled", plant: null } }, s, [], LAUNCH);
+    expect(pestAt("137,5", plots["137,5"].plant!, at + H)).toBe(at);
+    const moved = syncMove(plots, { "137,5": { soil: "tilled", plant: null }, "134,5": { soil: "tilled", plant: plots["137,5"].plant } }, at + H, [], LAUNCH);
+    expect(moved["134,5"].plant!.hs).toBe(at + H);
+    expect(pestAt("134,5", moved["134,5"].plant!, at + 2 * H)).toBe(at);
+    // and one that came in before its pest is kept from it
+    const early = syncMove(plots, { "137,5": { soil: "tilled", plant: null }, "134,5": { soil: "tilled", plant: plots["137,5"].plant } }, s + 1, [], LAUNCH);
+    expect(pestAt("134,5", early["134,5"].plant!, at + H)).toBeNull();
   });
 });
