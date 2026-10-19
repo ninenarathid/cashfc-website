@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import {
-  ARMS, BOARD_AT, LAMPS, LAMP_MAPS, RING, byTile, embers, holdFor, isLampMap, leftOf, nightBegins, nightOf, postBy, postsOf, stepOf, takers, tierOf,
+  ARMS, BOARD_AT, LAMPS, LAMP_MAPS, RING, byFire, byTile, fireNear, embers, holdFor, isLampMap, leftOf, nightBegins, nightOf, postBy, postsOf, stepOf, takers, tierOf,
   type Bearer, type Lack, type LampMap, type LampsTold, type LitTold, type Named,
 } from "@/lib/town/lamps";
 import { loadLampsArt } from "@/lib/town/lamps-art";
@@ -12,7 +12,7 @@ import type { SceneryKit, Sprite } from "@/lib/town/scenery";
 import type { FishSfx } from "@/lib/town/sfx";
 import { isSpent } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
-import { FARM, FARM_PUMPKINS, FOREST, GREAT_TREE, TILE_W, WATERFALL, WELL, findPath, groundAt, placeOf, plotAt, walkable, type Vec } from "@/lib/town/world";
+import { FARM, FARM_PUMPKINS, FOREST, GREAT_TREE, TILE_W, WATERFALL, WELLS, findPath, groundAt, placeOf, plotAt, walkable, type Vec } from "@/lib/town/world";
 import type { FarmFrame } from "./TownFarm";
 import TownFoot from "./TownFoot";
 
@@ -230,10 +230,10 @@ const ways = new Map<LampMap, Ways>();
 function waysOf(map: LampMap): Ways {
   const known = ways.get(map);
   if (known) return known;
-  const [fx, fy] = LAMPS.maps[map].fire;
-  // (the camp's fire is not stood on: from a tile beside it that is)
-  const start = [[0, 0], [1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, 1], [1, -1], [-1, -1]].map(([dx, dy]) => ({ x: fx + dx, y: fy + dy })).find((t) => walkable(t.x, t.y)) ?? { x: fx, y: fy };
+  // (the camp's fire is not stood on: from a tile beside it that is; each arm from the fire nearest its first post)
+  const startOf = ([fx, fy]: readonly [number, number]) => [[0, 0], [1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, 1], [1, -1], [-1, -1]].map(([dx, dy]) => ({ x: fx + dx, y: fy + dy })).find((t) => walkable(t.x, t.y)) ?? { x: fx, y: fy };
   const arms = ARMS[map].map((arm) => {
+    const start = startOf(fireNear(map, ...LAMPS.maps[map].posts[arm[0]]));
     const out: Vec[] = [{ x: start.x + 0.5, y: start.y + 0.5 }];
     let from = out[0];
     for (const i of arm) { const [px, py] = LAMPS.maps[map].posts[i], to = { x: px + 0.5, y: py + 0.5 }; out.push(...(findPath(from, to) ?? [to])); from = to; }
@@ -387,7 +387,7 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
     return () => clearInterval(t);
   }, [looking]);
 
-  const atFire = !!here && !!place && byTile(here, LAMPS.maps[place].fire);
+  const atFire = !!here && !!place && byFire(here, place);
   const byPost = place && here && fresh ? postBy(place, here, litHere.map((l) => l.post)) : -1;
   // (a flame goes the way out from the fire it was taken at: on a map with no lamps, from the farm's)
   const found = looking && here ? takers(me, { x: here[0] + 0.5, y: here[1] + 0.5 }, people(), place ?? "farm", now) : null;
@@ -485,7 +485,7 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
   const want = useRef<"fire" | "board" | { post: number } | null>(null);
   const byBoard = !!here && !!place && byTile(here, BOARD_AT[place], READ);
   // (it is read from by the board, and from by the fire: the fire's card has a button for it, since on a phone the card lies over the board itself)
-  const mayRead = byBoard || (!!here && !!place && byTile(here, LAMPS.maps[place].fire));
+  const mayRead = byBoard || (!!here && !!place && byFire(here, place));
   useEffect(() => { if (!mayRead) setPanel(false); }, [mayRead]);
   useEffect(() => { if (panel) void keeper.lampsLook(); }, [panel, keeper]);
   useEffect(() => {
@@ -502,14 +502,14 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
   useEffect(() => {
     const at = hereRef.current, map = placeRef.current, w = want.current;
     if (!w || !at || !map) return;
-    if (w === "fire") { if (byTile(at, LAMPS.maps[map].fire)) { want.current = null; void take(); } }
+    if (w === "fire") { if (byFire(at, map)) { want.current = null; void take(); } }
     else if (w === "board") { if (byTile(at, BOARD_AT[map], READ)) { want.current = null; setPanel(true); } }
     else if (byTile(at, LAMPS.maps[map].posts[w.post])) { want.current = null; if (!tiredRef.current) void light(w.post); }
   }, [hereKey, take, light]);
 
   // ── what the map draws, and what it asks ──
   // (a post's box comes with what is needed to ask its picture whether a point is the post: its name, foot and scale)
-  const boxes = useRef<{ fire: Box | null; board: Box | null; posts: Array<[number, Box, Art]>; fireArt?: Art; boardArt?: Art }>({ fire: null, board: null, posts: [] });
+  const boxes = useRef<{ fires: Array<[readonly [number, number], Box, Art]>; board: Box | null; posts: Array<[number, Box, Art]>; boardArt?: Art }>({ fires: [], board: null, posts: [] });
   /** The rings of the lamps in sight this frame, for the night's dark to be lifted in: where on the screen, how wide and high, how far up its light has come. */
   const rings = useRef<Array<{ x: number; y: number; rx: number; ry: number; k: number }>>([]);
   const shade = useRef<HTMLCanvasElement | null>(null), tintWas = useRef<readonly [number, number, number] | null>(null);
@@ -520,7 +520,7 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
       const { ctx, things, project, s, now: t, still, self, over, dark = 0 } = frame;
       view.current = { s, still, dark, project };
       rings.current = [];
-      boxes.current = { fire: null, board: null, posts: [] };
+      boxes.current = { fires: [], board: null, posts: [] };
       const k = kit.current, told = lampsRef.current, map = self ? placeOf(Math.floor(self.x), Math.floor(self.y)) : null;
       if (!k || !told || !over || !isLampMap(map)) return;
       const px = Math.abs(ctx.getTransform().a) || 1, cw = ctx.canvas.width / px, ch = ctx.canvas.height / px;
@@ -535,22 +535,24 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
       const ringOf = (reach: number) => { const rx = reach * (TILE_W / 2) * 1.42 * s; return [rx, rx / 2] as const; };
       const soft = (rgb: string) => lightPicture(rgb);
 
-      // ── the fire: the farm's brazier (the forest's is the camp's own, which the map draws), and the board by it
-      const [fx, fy] = LAMPS.maps[map].fire, fire = tile(fx, fy);
-      if (map === "farm" && k.has("brazier") && inSight(fire, 80 * s, 120 * s)) {
-        const name = isNight && k.has("brazierLit") ? "brazierLit" : "brazier", z = s * FIRE_K;
-        boxes.current.fire = boxOf(name, fire, z, 4); boxes.current.fireArt = { name, x: fire.x, y: fire.y, z };
-        things.push({ depth: fx + fy + 1, draw: () => k.drawProp(ctx, name, fire.x, fire.y, z, px) });
+      // ── the fire: the farm's braziers (the forest's is the camp's own, which the map draws), and the board by the first
+      for (const at of LAMPS.maps[map].fires) {
+        const [fx, fy] = at, fire = tile(fx, fy);
+        if (map === "farm" && k.has("brazier") && inSight(fire, 80 * s, 120 * s)) {
+          const name = isNight && k.has("brazierLit") ? "brazierLit" : "brazier", z = s * FIRE_K;
+          boxes.current.fires.push([at, boxOf(name, fire, z, 4), { name, x: fire.x, y: fire.y, z }]);
+          things.push({ depth: fx + fy + 1, draw: () => k.drawProp(ctx, name, fire.x, fire.y, z, px) });
+        }
+        // (the brazier's own warm light on the ground, as the camp's fire has the map's: added over the dark, which it
+        // does not lift. **Only a lit post takes the night's tint away**: the dark about a fire is as it was)
+        if (isNight && map === "farm" && inSight(fire, 160 * s, 120 * s)) over(() => {
+          ctx.save();
+          ctx.globalCompositeOperation = "lighter";
+          lay(ctx, soft(WARMER), fire.x, fire.y - 22 * s, 46 * s, 46 * s, 0.5 * lum * breath);
+          lay(ctx, soft(WARMER), fire.x, fire.y + 4 * s, 150 * s, 75 * s, 0.22 * lum * breath);
+          ctx.restore();
+        });
       }
-      // (the brazier's own warm light on the ground, as the camp's fire has the map's: added over the dark, which it
-      // does not lift. **Only a lit post takes the night's tint away**: the dark about a fire is as it was)
-      if (isNight && map === "farm" && inSight(fire, 160 * s, 120 * s)) over(() => {
-        ctx.save();
-        ctx.globalCompositeOperation = "lighter";
-        lay(ctx, soft(WARMER), fire.x, fire.y - 22 * s, 46 * s, 46 * s, 0.5 * lum * breath);
-        lay(ctx, soft(WARMER), fire.x, fire.y + 4 * s, 150 * s, 75 * s, 0.22 * lum * breath);
-        ctx.restore();
-      });
       const [bx, by] = BOARD_AT[map], board = tile(bx, by);
       if (k.has("lampBoard") && inSight(board, 60 * s, 90 * s)) {
         const z = s * BOARD_K;
@@ -635,7 +637,7 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
         const spans: Array<[Vec, Vec, number]> = [];
         for (const arm of ARMS.farm) arm.forEach((post, j) => {
           if (!lit.has(post) || (j > 0 && !lit.has(arm[j - 1]))) return;
-          const [ax, ay] = j > 0 ? LAMPS.maps.farm.posts[arm[j - 1]] : LAMPS.maps.farm.fire, [px_, py_] = LAMPS.maps.farm.posts[post];
+          const [px_, py_] = LAMPS.maps.farm.posts[post], [ax, ay] = j > 0 ? LAMPS.maps.farm.posts[arm[j - 1]] : fireNear("farm", px_, py_);
           spans.push([{ x: ax + 0.5, y: ay + 0.5 }, { x: px_ + 0.5, y: py_ + 0.5 }, post]);
         });
         if (spans.length) over(() => {
@@ -713,7 +715,8 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
           k.drawProp(ctx, "skyLantern", lx, ly, kz, px);
           ctx.globalAlpha = 1;
         }
-        const well = tile(WELL.x, WELL.y);
+        for (const W of WELLS) {
+        const well = tile(W.x, W.y);
         if (inSight(well, 80 * s, 80 * s)) {
           const beat = still ? 0.9 : 0.75 + 0.25 * Math.sin(t / 2100);
           ctx.globalCompositeOperation = "lighter";
@@ -726,6 +729,7 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
             k.drawProp(ctx, "twinkle", well.x + (g - 1) * 8 * s, well.y - (14 + g * 3) * s, s * 0.34, px);
           }
           ctx.globalAlpha = 1;
+        }
         }
         ctx.restore();
       });
@@ -820,19 +824,20 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
           return { walk: null };
         }
         if (tonight === null) { words(WHY.day); return { walk: null }; }
-        if (leftOf(told.flame, clock) <= 0) { words(["โคมต้นนี้ยังมืด รับไฟที่กองไฟกลางแมพ แล้วพามาจุด", "This lamp is dark. Take a flame at the fire in the middle of the map, and bring it here"]); return { walk: null }; }
+        if (leftOf(told.flame, clock) <= 0) { words(["โคมต้นนี้ยังมืด รับไฟที่กองไฟที่ใกล้ที่สุด แล้วพามาจุด", "This lamp is dark. Take a flame at the nearest fire, and bring it here"]); return { walk: null }; }
         if (at && byTile(at, tile)) { if (!tiredRef.current) void light(post); return { walk: null }; }
         want.current = { post };
         return { walk: beside(tile, LAMPS.near) };
       }
-      if (hit(b.fire) && drawn(b.fireArt)) {
+      const tapped = b.fires.find(([, box, art]) => hit(box) && drawn(art));
+      if (tapped) {
         if (peek) return { walk: null };
         want.current = null;
         if (tonight === null) { words(WHY.day); return { walk: null }; }
         if (leftOf(told.flame, clock) > 0) { words(WHY.held); return { walk: null }; }
-        if (at && byTile(at, LAMPS.maps[map].fire)) { void take(); return { walk: null }; }
+        if (at && byTile(at, tapped[0])) { void take(); return { walk: null }; }
         want.current = "fire";
-        return { walk: beside(LAMPS.maps[map].fire, LAMPS.near) };
+        return { walk: beside(tapped[0], LAMPS.near) };
       }
       if (!peek) want.current = null;
       return null;
@@ -920,7 +925,7 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
       tint: () => tintWas.current, shadeAt: (x: number, y: number) => { const c = shade.current, g = c?.getContext("2d"); if (!c || !g || !rings.current.length) return null; const d = g.getImageData(Math.max(0, Math.min(c.width - 1, Math.floor(x / DARK_K))), Math.max(0, Math.min(c.height - 1, Math.floor(y / DARK_K))), 1, 1).data; return [d[0], d[1], d[2]]; },
       ringsAt: () => rings.current.map((o) => ({ ...o })),
       panel: (on = true) => setPanel(on), isPanel: () => panel, ways: (map: LampMap) => { const w = waysOf(map); return { arms: w.arms.map((a) => a.length), shrooms: w.shrooms.length, stream: w.stream.length }; },
-      fires: { farm: LAMPS.maps.farm.fire, forest: LAMPS.maps.forest.fire }, posts: { farm: LAMPS.maps.farm.posts, forest: LAMPS.maps.forest.posts }, boards: BOARD_AT,
+      fires: { farm: LAMPS.maps.farm.fire, forest: LAMPS.maps.forest.fire }, allFires: { farm: LAMPS.maps.farm.fires, forest: LAMPS.maps.forest.fires }, posts: { farm: LAMPS.maps.farm.posts, forest: LAMPS.maps.forest.posts }, boards: BOARD_AT,
       life: LAMPS.life, reach: LAMPS.reach, near: LAMPS.near, light_: LAMPS.light,
     };
     (window as unknown as { __townLamps?: typeof handle }).__townLamps = handle;
@@ -1001,7 +1006,7 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
                   <span className="w-12 text-right font-data text-ui tabular-nums text-ink">{secs.toFixed(1)}{th ? " วิ" : " s"}</span>
                 </div>
               ) : (
-                <p className="mt-1.5 px-1 text-center text-label leading-snug text-muted" data-lamps-hint>{atFire ? (th ? LIVES[0] : LIVES[1]) : th ? "โคมต้นนี้ยังมืด: รับไฟที่กองไฟกลางแมพ แล้วพามาจุด หลายคนช่วยกันส่งต่อจะไปได้ไกล" : "This lamp is dark: take a flame at the fire in the middle of the map and bring it here. Handed from friend to friend it goes far"}</p>
+                <p className="mt-1.5 px-1 text-center text-label leading-snug text-muted" data-lamps-hint>{atFire ? (th ? LIVES[0] : LIVES[1]) : th ? "โคมต้นนี้ยังมืด: รับไฟที่กองไฟที่ใกล้ที่สุด แล้วพามาจุด หลายคนช่วยกันส่งต่อจะไปได้ไกล" : "This lamp is dark: take a flame at the nearest fire and bring it here. Handed from friend to friend it goes far"}</p>
               )}
               <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
                 {!bearing && atFire && (

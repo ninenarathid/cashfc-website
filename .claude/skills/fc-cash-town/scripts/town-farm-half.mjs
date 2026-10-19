@@ -73,6 +73,29 @@ for (const [label, size] of [["night", { width: 1280, height: 860 }], ["large", 
       await settle(X);
       await X.shot(`${OUT}/half-${label}-${name}.png`);
     }
+    if (label === "night") {
+      // a flame taken at the second brazier, by its own well (what the board and the card offer there)
+      const L = "window.__townLamps";
+      await until("the lamps' own code has come", () => X.evaluate(`!!${L}`), 20000);
+      await X.evaluate(`${L}.toNight()`);
+      await X.evaluate(`${L}.anew()`);
+      await X.evaluate(`window.__townView.warp(156, 67)`);
+      await sleep(1500);
+      ok("night: by the second brazier, a flame is offered", await X.evaluate(`${L}.atFire()`));
+      await X.evaluate(`${L}.take()`);
+      await sleep(900);
+      ok("night: a flame taken there", (await X.evaluate(`${L}.left()`)) > 0, await X.evaluate(`${L}.note()`));
+      await X.shot(`${OUT}/half-night-flame.png`);
+      // and every post of the farm lit: the southern half's night lifted, the braziers and both wells aglow
+      await X.evaluate(`${L}.lit("farm", 52)`);
+      await sleep(2500);
+      ok("night: all fifty-two lit is the night's whole", (await X.evaluate(`${L}.tier()`)) === 3, await X.evaluate(`${L}.tier()`));
+      for (const [name, x, y] of [["lit-crossing", 158, 64], ["lit-quarter", 146, 52]]) {
+        await X.evaluate(`window.__townView.warp(${x}, ${y})`);
+        await settle(X);
+        await X.shot(`${OUT}/half-night-${name}.png`);
+      }
+    }
   } finally { X.close(); }
 }
 console.log(`\n${pass} passed, ${fail} failed`);

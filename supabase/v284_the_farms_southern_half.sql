@@ -1,9 +1,13 @@
 -- v284: the farm's southern half, 24 more beds (the owner, 2026-10-19, every bed held: "ช่วยเพิ่ม แปลงปลูกผักมาอีก
 -- เท่านึง ในฟาร์ม"; "1 คน เป็นเจ้าของมากสุดได้แค่ 2 แปลง", which beds.each already holds the database to, unchanged).
 --
--- Run after v281, and after v283 if v283 is to run: v283 writes the farming row whole with the first 24 beds, and run
--- after this one it would take the new beds out again. Safe to run twice. Either order with the page is safe: before
--- the page is live nobody can stand in the southern half; after it, a bed there is refused ('soil') until this has run.
+-- And its lamps, a second brazier and a second well (the owner, the same day: "เพิ่มจุดโคมไฟใหม่ด้วย", "เพิ่มจุด เริ่มอีก
+-- จุด ใน area ใหม่ และ บ่อน้ำเพิ่มเติมด้วยก็ได้"): 24 more lamp posts (28 to 51), a flame taken at either brazier, and
+-- a can filled or water poured at either well, the two wells one water.
+--
+-- Run after v281; v283 and this may run in either order (each writes only its own entries). Safe to run twice. Either
+-- order with the page is safe: before the page is live nobody can stand in the southern half; after it, a bed, a post,
+-- the second brazier or the second well there is refused until this has run.
 --
 -- What it changes (the database's own copies of the farm's shape, lib/town/world):
 --   * the catalog: farming.bedsAt (beds 24 to 47 after the first 24, none of whose numbers moves), rewards.cloudCorners
@@ -13,8 +17,13 @@
 --     moves or changes its number);
 --   * the two tables keyed by bed that held the bed to 0..23 (the conduit's and the cloud's), and the two functions that
 --     held a cloud's beds to 0..23 (public.town_reward and town.reward_cloud, each its live text but for that range);
---   * town.reward_relay_place: the farm's rows run to 85.
--- No plot, bed, purse or member is touched.
+--   * town.reward_relay_place: the farm's rows run to 85;
+--   * the lamps: the catalog's lamps.maps.farm.posts (the first 28 as they were) and each map's `fires` (`fire`
+--     stays the first, for a page loaded before); town.lamp_by, written again, takes a flame at any of a map's fires;
+--   * the wells: the catalog's farming.wells (`wellAt` stays the first); town.at_well, new; and the three functions that
+--     held somebody to the one well (public.town_chore, public.town_moon_pour, town.stream_work), each its live text but
+--     for that one test.
+-- No plot, bed, purse, lamp lit or member is touched.
 begin;
 set local statement_timeout = '60s';
 set local lock_timeout = '10s';
@@ -93,9 +102,63 @@ returns text language sql immutable set search_path='' as $$
  when (at_->>0)::integer between 128 and 187 and (at_->>1)::integer between 0 and 85 then 'farm'
  when (at_->>0)::integer between 144 and 239 and (at_->>1)::integer between 112 and 191 then 'forest' end
 $$;
+
+-- ── 5. The lamps: the southern half's posts after the first 28, and a flame taken at either brazier ───────────────────────
+update public.town_catalog set data = jsonb_set(data, '{maps,farm,posts}', $j$[[146,23],[136,20],[131,23],[166,23],[172,20],[178,23],[184,20],[159,20],[156,10],[159,3],[156,31],[159,39],[131,3],[144,2],[173,3],[183,3],[185,11],[185,32],[185,40],[173,41],[144,41],[131,39],[130,32],[130,12],[143,11],[172,11],[143,32],[172,32],[156,70],[159,62],[149,62],[159,55],[168,65],[159,78],[140,65],[148,53],[147,81],[156,47],[139,75],[170,53],[171,82],[176,72],[139,49],[177,62],[131,62],[130,72],[132,82],[184,62],[181,53],[130,49],[185,73],[182,82]]$j$::jsonb), updated_at = now()
+ where key = 'lamps' and data->'maps'->'farm'->'posts' is distinct from $j$[[146,23],[136,20],[131,23],[166,23],[172,20],[178,23],[184,20],[159,20],[156,10],[159,3],[156,31],[159,39],[131,3],[144,2],[173,3],[183,3],[185,11],[185,32],[185,40],[173,41],[144,41],[131,39],[130,32],[130,12],[143,11],[172,11],[143,32],[172,32],[156,70],[159,62],[149,62],[159,55],[168,65],[159,78],[140,65],[148,53],[147,81],[156,47],[139,75],[170,53],[171,82],[176,72],[139,49],[177,62],[131,62],[130,72],[132,82],[184,62],[181,53],[130,49],[185,73],[182,82]]$j$::jsonb
+   and (select jsonb_agg(p order by o) from jsonb_array_elements(data->'maps'->'farm'->'posts') with ordinality x(p, o) where o <= 28) = $j$[[146,23],[136,20],[131,23],[166,23],[172,20],[178,23],[184,20],[159,20],[156,10],[159,3],[156,31],[159,39],[131,3],[144,2],[173,3],[183,3],[185,11],[185,32],[185,40],[173,41],[144,41],[131,39],[130,32],[130,12],[143,11],[172,11],[143,32],[172,32]]$j$::jsonb;
+update public.town_catalog set data = jsonb_set(jsonb_set(data, '{maps,farm,fires}', $j$[[155,24],[155,66]]$j$::jsonb), '{maps,forest,fires}', $j$[[193,159]]$j$::jsonb), updated_at = now()
+ where key = 'lamps' and (data->'maps'->'farm'->'fires' is distinct from $j$[[155,24],[155,66]]$j$::jsonb or data->'maps'->'forest'->'fires' is distinct from $j$[[193,159]]$j$::jsonb);
+do $$ begin
+  if (select data->'maps'->'farm'->'posts' from public.town_catalog where key = 'lamps') is distinct from $j$[[146,23],[136,20],[131,23],[166,23],[172,20],[178,23],[184,20],[159,20],[156,10],[159,3],[156,31],[159,39],[131,3],[144,2],[173,3],[183,3],[185,11],[185,32],[185,40],[173,41],[144,41],[131,39],[130,32],[130,12],[143,11],[172,11],[143,32],[172,32],[156,70],[159,62],[149,62],[159,55],[168,65],[159,78],[140,65],[148,53],[147,81],[156,47],[139,75],[170,53],[171,82],[176,72],[139,49],[177,62],[131,62],[130,72],[132,82],[184,62],[181,53],[130,49],[185,73],[182,82]]$j$::jsonb then raise exception 'v284: the farm''s lamp posts are not the 52 (its first 28 moved?): rebuild v284'; end if;
+  if (select data->'maps'->'farm'->'fire' from public.town_catalog where key = 'lamps') is distinct from $j$[155,24]$j$::jsonb then raise exception 'v284: the farm''s first fire moved'; end if;
+end $$;
+
+-- A map's fire, or one of its posts, within reach of a tile (v163's, but a fire is any of the map's `fires`, or its
+-- `fire` where it has no list)
+CREATE OR REPLACE FUNCTION town.lamp_by(p_map text, p_post integer, p_x integer, p_y integer)
+ RETURNS boolean
+ LANGUAGE sql
+ STABLE
+AS $function$
+  select p_x is not null and p_y is not null and exists (
+    select 1
+      from (select town.cat('lamps') as k) l,
+           lateral jsonb_array_elements(case when p_post is null then coalesce(l.k->'maps'->p_map->'fires', jsonb_build_array(l.k->'maps'->p_map->'fire'))
+                                             when p_post >= 0 then jsonb_build_array(l.k->'maps'->p_map->'posts'->p_post) end) t(tile)
+     where jsonb_typeof(t.tile) = 'array'
+       and greatest(abs(p_x - (t.tile->>0)::integer), abs(p_y - (t.tile->>1)::integer)) <= (l.k->>'near')::integer)
+$function$;
+
+-- ── 6. The wells: both, one water ──────────────────────────────────────────────────────────────────────────────────────
+update public.town_catalog set data = jsonb_set(data, '{wells}', $j$[[156,23],[156,65]]$j$::jsonb), updated_at = now()
+ where key = 'farming' and data->'wells' is distinct from $j$[[156,23],[156,65]]$j$::jsonb;
+-- Whether a tile is beside one of the farm's wells (lib/town/world's atWell): `wells`, or `wellAt` where there is no list.
+create or replace function town.at_well(p_x integer, p_y integer)
+returns boolean language sql stable set search_path = '' as $$
+  select p_x is not null and p_y is not null and exists (
+    select 1 from jsonb_array_elements(coalesce(town.cat('farming')->'wells', jsonb_build_array(town.cat('farming')->'wellAt'))) w
+     where jsonb_typeof(w) = 'array' and greatest(abs(p_x - (w->>0)::integer), abs(p_y - (w->>1)::integer)) = 1)
+$$;
+revoke all on function town.at_well(integer, integer) from public, anon, authenticated;
+do $$
+declare c text[]; d text; n integer;
+begin
+  foreach c slice 1 in array array[['public.town_chore(integer,integer)', 'greatest(abs(p_x - (f->''wellAt''->>0)::int), abs(p_y - (f->''wellAt''->>1)::int)) = 1', 'town.at_well(p_x, p_y)'],
+                                  ['public.town_moon_pour(integer,integer,integer)', 'greatest(abs(p_x - (f->''wellAt''->>0)::int), abs(p_y - (f->''wellAt''->>1)::int)) <> 1', 'not town.at_well(p_x, p_y)'],
+                                  ['town.stream_work(jsonb,text,text,integer,integer,jsonb,text,bigint)', 'greatest(abs(p_x-(well_->>0)::integer),abs(p_y-(well_->>1)::integer))<>1', 'not town.at_well(p_x,p_y)']] loop
+    d := pg_get_functiondef(c[1]::regprocedure);
+    n := (length(d) - length(replace(d, c[2], ''))) / length(c[2]);
+    if n = 1 then execute replace(d, c[2], c[3]);
+    elsif not (n = 0 and position(c[3] in d) > 0) then raise exception 'v284: % holds somebody to the one well % times, not once: rebuild v284', c[1], n; end if;
+  end loop;
+  if not town.at_well(157, 65) or not town.at_well(155, 24) or town.at_well(156, 65) then raise exception 'v284: town.at_well does not see both wells'; end if;
+end $$;
 commit;
 
 -- After it has run, in the SQL editor (each answers as said):
 --   select jsonb_array_length(data->'bedsAt') from public.town_catalog where key = 'farming';                  -- 48
 --   select town.bed_of(177, 75);                                                                   -- 47
 --   select jsonb_array_length(data->'haunts') from public.town_catalog where key = 'insects';                  -- 173
+--   select jsonb_array_length(data->'maps'->'farm'->'posts') from public.town_catalog where key = 'lamps';     -- 52
+--   select town.at_well(157, 65);                                                                       -- true

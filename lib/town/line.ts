@@ -3,7 +3,7 @@ import type { ItemId } from "./items";
 import { spend } from "./stamina";
 import { handOf, type Purse } from "./trade";
 import { LINE_HANDS } from "./well";
-import { GATES, WELL, placeOf, type Vec } from "./world";
+import { GATES, WELLS, placeOf, type Vec } from "./world";
 
 /**
  * A bucket line (the owner, 2026-10-05, of the members who carry water for
@@ -120,7 +120,7 @@ export function between(a: Vec, b: Vec): number {
 export const inReach = (a: Vec, b: Vec) => between(a, b) <= LINE.reach;
 
 /** How far a point is from the farm's well, as the path goes. */
-export const toWell = (p: Vec) => between(p, { x: WELL.x + 0.5, y: WELL.y + 0.5 });
+export const toWell = (p: Vec) => Math.min(...WELLS.map((w) => between(p, { x: w.x + 0.5, y: w.y + 0.5 })));
 
 /**
  * Somebody on the map, as a page has them: where, whether they are walking, what they hold in their hand, and whether

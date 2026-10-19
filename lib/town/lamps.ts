@@ -85,18 +85,33 @@ export const LAMPS = {
    * each. **They are only drawn: no tile's walking changes for a post or for the brazier**, and none stands on a way,
    * on a plot, where something else stands, or behind a tree as the screen sees it (lib/town/lamps.test holds them to
    * that, and to how far each is from its fire).
+   *
+   * The farm's twenty-four more, for its southern half (the owner, 2026-10-19: "เพิ่มจุดโคมไฟใหม่ด้วย", and "เพิ่มจุด
+   * เริ่มอีกจุด ใน area ใหม่": a second brazier, by its own well), after its first twenty-eight, whose numbers stay:
+   * eleven beside its lanes (out from the second brazier along both: `ARMS`) and thirteen off them, each put, one at a
+   * time, on the free tile nearest to the darkest open ground there was, seven tiles or more from every post and with
+   * nothing standing in front of it, until no ground that can be walked to is nine tiles or more from a lamp, as in the
+   * first half. Written the nearest to a brazier first, as one walks; the furthest is some thirty-four tiles of path
+   * from its brazier, a relay of three hands, as in the first half.
    */
   maps: {
     farm: {
       fire: F(27, 24),
+      // (where a flame is taken: the brazier by the well, and since the southern half a second by its own well, where
+      // its lanes cross (the owner, 2026-10-19: "เพิ่มจุดเริ่มอีกจุด ใน area ใหม่"); `fire` is the first, as it was)
+      fires: [F(27, 24), F(27, 66)],
       posts: [F(18, 23), F(8, 20), F(3, 23), F(38, 23), F(44, 20), F(50, 23), F(56, 20), F(31, 20), F(28, 10), F(31, 3), F(28, 31), F(31, 39),
         // the rim, clockwise from the north-west corner
         F(3, 3), F(16, 2), F(45, 3), F(55, 3), F(57, 11), F(57, 32), F(57, 40), F(45, 41), F(16, 41), F(3, 39), F(2, 32), F(2, 12),
         // the middle of each quarter of the beds
-        F(15, 11), F(44, 11), F(15, 32), F(44, 32)],
+        F(15, 11), F(44, 11), F(15, 32), F(44, 32),
+        // the southern half's, the nearest to a brazier first (28 to 51)
+        F(28, 70), F(31, 62), F(21, 62), F(31, 55), F(40, 65), F(31, 78), F(12, 65), F(20, 53), F(19, 81), F(28, 47), F(11, 75), F(42, 53),
+        F(43, 82), F(48, 72), F(11, 49), F(49, 62), F(3, 62), F(2, 72), F(4, 82), F(56, 62), F(53, 53), F(2, 49), F(57, 73), F(54, 82)],
     },
     forest: {
       fire: [CAMP.fire.x, CAMP.fire.y] as [number, number],
+      fires: [[CAMP.fire.x, CAMP.fire.y]] as Array<[number, number]>,
       posts: [W(50, 56), W(48, 65), W(46, 70), W(46, 74), W(49, 36), W(48, 29), W(50, 20), W(45, 12), W(61, 46), W(69, 46), W(74, 38), W(80, 34),
         // off the trails, over the whole map, the nearest to the camp fire first: within thirty tiles of path
         W(40, 54), W(38, 45), W(63, 57), W(58, 31), W(33, 61), W(26, 48), W(32, 35), W(59, 69),
@@ -118,10 +133,15 @@ export const isLampMap = (v: unknown): v is LampMap => v === "farm" || v === "fo
 /**
  * What is the page's alone, and only drawn: where the board stands by each fire (how to play, how many are lit
  * tonight, the night's lighters); and which posts follow one another out from the fire along one way (`ARMS`: what
- * goes along the way between two lit posts goes by these; the posts off the ways are on no arm).
+ * goes along the way between two lit posts goes by these; the posts off the ways are on no arm). An arm goes out from
+ * the fire nearest its first post (`fireNear`): the farm's southern half's four from its own brazier.
  */
 export const BOARD_AT: Record<LampMap, [number, number]> = { farm: F(27, 26), forest: W(51, 48) };
-export const ARMS: Record<LampMap, number[][]> = { farm: [[0, 1, 2], [3, 4, 5, 6], [7, 8, 9], [10, 11]], forest: [[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]] };
+export const ARMS: Record<LampMap, number[][]> = {
+  farm: [[0, 1, 2], [3, 4, 5, 6], [7, 8, 9], [10, 11], [29, 31, 37], [28, 33], [30, 34, 44], [32, 43, 47]],
+  forest: [[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]],
+};
+
 /** As the bucket line's and the bridge's: how near somebody has to stand to be named with what they lack, and how many are offered at once. */
 export const OFFER = { beside: 4, most: 3 };
 /** In how many embers the ring round a flame's bearer shows what is left of it. */
@@ -160,8 +180,15 @@ const no = (why: LampRefusal): No => ({ ok: false, why });
 /** Whether somebody on a tile stands near enough another to do something at it: within so many tiles of it, either way. */
 export const byTile = (at: readonly [number, number] | null | undefined, tile: readonly [number, number] | null | undefined, reach = LAMPS.near): boolean =>
   !!at && !!tile && Number.isInteger(at[0]) && Number.isInteger(at[1]) && Math.max(Math.abs(at[0] - tile[0]), Math.abs(at[1] - tile[1])) <= reach;
-/** A map's fire, and one of its posts: null for a map that has no lamps, or a post it has none of. */
+/** A map's (first) fire, and one of its posts: null for a map that has no lamps, or a post it has none of. */
 export const fireOf = (map: string): [number, number] | null => (isLampMap(map) ? LAMPS.maps[map].fire : null);
+/** Every fire of a map a flame is taken at (the farm has two since its southern half): none for a map that has no lamps. */
+export const firesOf = (map: string): ReadonlyArray<readonly [number, number]> => (isLampMap(map) ? LAMPS.maps[map].fires : []);
+/** Whether somebody on a tile stands by one of a map's fires. */
+export const byFire = (at: readonly [number, number] | null | undefined, map: string): boolean => firesOf(map).some((f) => byTile(at, f));
+/** A map's fire nearest a tile, as the crow flies (an arm of posts goes out from it). */
+export const fireNear = (map: LampMap, x: number, y: number): readonly [number, number] =>
+  LAMPS.maps[map].fires.reduce((a, b) => (Math.hypot(b[0] - x, b[1] - y) < Math.hypot(a[0] - x, a[1] - y) ? b : a));
 export const postOf = (map: string, post: number): [number, number] | null => (isLampMap(map) && Number.isInteger(post) ? LAMPS.maps[map].posts[post] ?? null : null);
 /** How many posts a map has. */
 export const postsOf = (map: string): number => (isLampMap(map) ? LAMPS.maps[map].posts.length : 0);
@@ -188,7 +215,7 @@ export function take(purse: Purse, flame: Flame | null, stone: boolean, lit: num
   if (alive(flame, now)) return no("held");
   if (handOf(purse)) return no("hand");
   if (stone) return no("stone");
-  if (!byTile(at, fireOf(map))) return no("far");
+  if (!byFire(at, map)) return no("far");
   return { ok: true, flame: { from: map, until: now + LAMPS.life * 1000, hands: [me] } };
 }
 
@@ -342,8 +369,8 @@ export interface Bearer { id: string; name: string; x: number; y: number; moving
 /** What somebody close by lacks to be handed a flame: they bear one already, they have a thing in the hand, they carry a stone, or they are walking. */
 export type Lack = "held" | "hand" | "stone" | "walking";
 
-/** How far a point is from a map's fire, as the path goes. */
-export const toFire = (p: Vec, map: LampMap) => { const [x, y] = LAMPS.maps[map].fire; return between(p, { x: x + 0.5, y: y + 0.5 }); };
+/** How far a point is from a map's nearest fire, as the path goes. */
+export const toFire = (p: Vec, map: LampMap) => Math.min(...LAMPS.maps[map].fires.map(([x, y]) => between(p, { x: x + 0.5, y: y + 0.5 })));
 
 /**
  * Whom the flame in my hands can be handed on to from where I stand, and, when there is nobody, who stands close by

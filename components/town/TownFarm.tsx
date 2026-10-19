@@ -39,7 +39,7 @@ import { buffBy, isSpent } from "@/lib/town/stamina";
 import { handOf, heldStack } from "@/lib/town/trade";
 import { NATURE_NAMES, type Nature } from "@/lib/town/waters";
 import type { Keeper } from "@/lib/town/keeper";
-import { FARM, TILE_H, WELL, bedCorner, bedOf, plotAt, type Vec } from "@/lib/town/world";
+import { FARM, TILE_H, WELLS, bedCorner, bedOf, plotAt, type Vec } from "@/lib/town/world";
 import TownIcon, { ICON_ATLAS, petScale, type IconName } from "./TownIcon";
 import TownFoot from "./TownFoot";
 import { useLeaving } from "./useLeaving";
@@ -844,8 +844,10 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           ctx.restore();
         });
       }
-      const top = project({ x: WELL.x + 0.5, y: WELL.y + 0.5 });
+      // (each well, the one water: lib/town/world's WELLS)
       const kind = nature.current;
+      for (const WELL of WELLS) {
+      const top = project({ x: WELL.x + 0.5, y: WELL.y + 0.5 });
       if (onScreen(top)) sign(`${thai ? "บ่อน้ำ" : "Well"} ${well.current}/${WATER.well}${kind ? ` · ${NATURE_NAMES[kind][thai ? 0 : 1]}` : ""}`, top.x, top.y - 66 * s);
       // while its water has a nature: motes of that water's colour rising about the well, each in its own time
       if (kind && onScreen(top)) {
@@ -864,6 +866,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           }
           ctx.globalAlpha = 1;
         } });
+      }
       }
     });
     return () => register(null);

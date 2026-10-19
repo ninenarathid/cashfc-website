@@ -880,7 +880,15 @@ export function bedCorner(bed: number): [number, number] {
  * it is at it.
  */
 export const WELL = { x: FARM.x + 28, y: FARM.y + 23 };
-export const atWell = (tx: number, ty: number) => Math.max(Math.abs(tx - WELL.x), Math.abs(ty - WELL.y)) === 1;
+/**
+ * The farm's wells: the first, and since its southern half a second where that half's lanes cross (the owner,
+ * 2026-10-19: "บ่อน้ำเพิ่มเติมด้วยก็ได้"). The two draw on one water: what is poured into either is in both, and a can
+ * is filled at either from the same store (lib/town/well's book, the jar and the gifts know of one well).
+ */
+export const WELLS: ReadonlyArray<{ x: number; y: number }> = [WELL, { x: FARM.x + 28, y: FARM.y + 65 }];
+export const atWell = (tx: number, ty: number) => WELLS.some((w) => Math.max(Math.abs(tx - w.x), Math.abs(ty - w.y)) === 1);
+/** The well nearest a point, as the crow flies. */
+export const wellNear = (x: number, y: number) => WELLS.reduce((a, b) => (Math.hypot(b.x - x, b.y - y) < Math.hypot(a.x - x, a.y - y) ? b : a));
 /** The farm as it is now, or (as built, see asBuilt) as it was before its southern half. */
 const farmNow = () => (asWas ? FARM_FIRST : FARM);
 /**
@@ -943,6 +951,7 @@ export const FARM_PROPS: Prop[] = (() => {
   // the fence on down the west edge, across the old rim's foot and on to the south corner
   for (const v of [44, 47, 50, 53, 56, 59, 68, 71, 74, 77, 80, 83]) put("fence", 0, v);
   for (const [u, v] of [[27, 62], [32, 66]]) put("hay", u, v);
+  put("well", 28, 65); // (WELLS' second)
   // the lane's south end closed by low bushes, no tall tree in front of whoever walks to it
   for (const [u, v] of [[29, 83], [30, 83], [28, 84], [31, 84]]) put("bush", u, v);
   const rnd = seeded(20261019);

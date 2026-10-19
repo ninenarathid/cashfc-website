@@ -9,7 +9,7 @@ import type { FishSfx } from "@/lib/town/sfx";
 import { isSpent } from "@/lib/town/stamina";
 import { NATURE_NAMES, type Nature } from "@/lib/town/waters";
 import { MOON, moonOf } from "@/lib/town/well-gifts";
-import { WELL } from "@/lib/town/world";
+import { wellNear } from "@/lib/town/world";
 import type { FarmDraw } from "./TownFarm";
 import TownIcon, { type IconName } from "./TownIcon";
 import TownFoot from "./TownFoot";
@@ -84,17 +84,17 @@ export default function TownMoon({ keeper, th, compact, reduced, sfx, at, bottom
   useEffect(() => { if (working !== null && !canPour) setWorking(null); }, [working, canPour]);
 
   // The light at the well, for a few seconds after I pour: drawn by the map among its own things.
-  const light = useRef<{ from: number; kind: Nature; n: number } | null>(null);
+  const light = useRef<{ from: number; kind: Nature; n: number; well: { x: number; y: number } } | null>(null);
   useEffect(() => {
     register((frame) => {
       const l = light.current;
       if (!l) return;
       const t = (performance.now() - l.from) / FLASK_LIGHT_MS;
       if (t >= 1) { light.current = null; return; }
-      const foot = frame.project({ x: WELL.x + 0.5, y: WELL.y + 0.5 });
+      const foot = frame.project({ x: l.well.x + 0.5, y: l.well.y + 0.5 });
       if (!frame.onScreen(foot)) return;
       const draw = () => drawFlaskLight(frame.ctx, foot, frame.s, t, GLOW[l.kind], l.n, frame.still);
-      if (frame.over) frame.over(draw); else frame.things.push({ depth: WELL.x + WELL.y + 1.3, draw });
+      if (frame.over) frame.over(draw); else frame.things.push({ depth: l.well.x + l.well.y + 1.3, draw });
     });
     return () => register(null);
   }, [register]);
@@ -119,7 +119,7 @@ export default function TownMoon({ keeper, th, compact, reduced, sfx, at, bottom
     sfx?.wake();
     sfx?.work("pour");
     sfx?.work("made", 0.5);
-    light.current = { from: performance.now(), kind: did.kind, n: did.poured };
+    light.current = { from: performance.now(), kind: did.kind, n: did.poured, well: wellNear(at[0], at[1]) };
     const w = keeper.wellWater(), mins = w ? Math.max(1, Math.ceil((w.until - keeper.now()) / 60_000)) : 0, h = Math.floor(mins / 60), m = mins % 60;
     const long = th ? `${h ? `${h} ชม. ` : ""}${m ? `${m} นาที` : ""}`.trim() : `${h ? `${h} h ` : ""}${m ? `${m} min` : ""}`.trim();
     setNote(th ? `น้ำในบ่อเป็น${name(did.kind)}แล้ว${long ? ` · อีก ${long}` : ""}` : `The well's water is ${name(did.kind).toLowerCase()} now${long ? ` · ${long} more` : ""}`);

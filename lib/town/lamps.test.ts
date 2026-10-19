@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  ARMS, BOARD_AT, LAMPS, LAMP_MAPS, OFFER, RING, alive, byTile, embers, fireOf, held, holdFor, lampsOf, leftOf, light, lighted, litOf, newLamps, nightBegins, nightEnds, nightOf,
+  ARMS, BOARD_AT, LAMPS, LAMP_MAPS, OFFER, RING, alive, byFire, byTile, embers, fireOf, held, holdFor, lampsOf, leftOf, light, lighted, litOf, newLamps, nightBegins, nightEnds, nightOf,
   pass, postBy, postOf, postsOf, stepOf, take, takers, tierOf, toFire, told, type Bearer, type Flame, type LampMap, type LampsKept,
 } from "./lamps";
 import { countsOf } from "./line-points";
@@ -61,7 +61,7 @@ describe("a flame taken at the fire", () => {
     expect(take(purse(NIGHT, 0), flame(NIGHT), false, 11, "farm", FIRE, "a", NIGHT).ok).toBe(true);
   });
   it("is not given once every lamp of that map is lit", () => {
-    expect(take(purse(NIGHT), null, false, 28, "farm", FIRE, "a", NIGHT)).toEqual({ ok: false, why: "whole" });
+    expect(take(purse(NIGHT), null, false, 52, "farm", FIRE, "a", NIGHT)).toEqual({ ok: false, why: "whole" });
     expect(take(purse(NIGHT), null, false, 27, "farm", FIRE, "a", NIGHT).ok).toBe(true);
     expect(take(purse(NIGHT), null, false, 11, "farm", FIRE, "a", NIGHT).ok).toBe(true);
   });
@@ -97,7 +97,7 @@ describe("a flame handed on", () => {
 describe("a post lit", () => {
   it("is lit from within two tiles with a live flame: one stamina, the flame spent, everybody it came by told", () => {
     const p = purse(NIGHT, 40), did = light(p, flame(NIGHT + 1, ["a", "b"]), [3, 5], "farm", 0, [POST[0] - 2, POST[1] + 2], NIGHT);
-    expect(did.ok && { hands: did.hands, n: did.n, of: did.of, full: did.full, left: staminaOf(did.purse, NIGHT) }).toEqual({ hands: ["a", "b"], n: 3, of: 28, full: false, left: 39 });
+    expect(did.ok && { hands: did.hands, n: did.n, of: did.of, full: did.full, left: staminaOf(did.purse, NIGHT) }).toEqual({ hands: ["a", "b"], n: 3, of: 52, full: false, left: 39 });
   });
   it("is refused by day, with no flame, with one gone out, far from the post, at no post, or when it is lit already", () => {
     const p = purse(NIGHT);
@@ -105,7 +105,7 @@ describe("a post lit", () => {
     expect(light(p, null, [], "farm", 0, POST, NIGHT)).toEqual({ ok: false, why: "none" });
     expect(light(p, flame(NIGHT - 1001), [], "farm", 0, POST, NIGHT)).toEqual({ ok: false, why: "out" });
     expect(light(p, flame(NIGHT + 1), [], "farm", 0, [POST[0] + 3, POST[1]], NIGHT)).toEqual({ ok: false, why: "far" });
-    expect(light(p, flame(NIGHT + 1), [], "farm", 28, POST, NIGHT)).toEqual({ ok: false, why: "far" });
+    expect(light(p, flame(NIGHT + 1), [], "farm", 52, POST, NIGHT)).toEqual({ ok: false, why: "far" });
     expect(light(p, flame(NIGHT + 1), [], "farm", -1, POST, NIGHT)).toEqual({ ok: false, why: "far" });
     expect(light(p, flame(NIGHT + 1), [], "forest", 0, POST, NIGHT)).toEqual({ ok: false, why: "far" });
     expect(light(p, flame(NIGHT + 1), [], "town", 0, POST, NIGHT)).toEqual({ ok: false, why: "far" });
@@ -125,12 +125,12 @@ describe("a post lit", () => {
     expect(holdFor(false)).toBe(0);
   });
   it("says so when it is the map's last", () => {
-    const others = [...Array(27).keys()];
-    const did = light(purse(NIGHT), flame(NIGHT + 1), others, "farm", 27, LAMPS.maps.farm.posts[27], NIGHT);
-    expect(did.ok && [did.n, did.of, did.full]).toEqual([28, 28, true]);
+    const others = [...Array(51).keys()];
+    const did = light(purse(NIGHT), flame(NIGHT + 1), others, "farm", 51, LAMPS.maps.farm.posts[51], NIGHT);
+    expect(did.ok && [did.n, did.of, did.full]).toEqual([52, 52, true]);
     // (the twelfth, which was the last until 2026-10-09, is not)
     const twelfth = light(purse(NIGHT), flame(NIGHT + 1), [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], "farm", 11, LAMPS.maps.farm.posts[11], NIGHT);
-    expect(twelfth.ok && [twelfth.n, twelfth.of, twelfth.full]).toEqual([12, 28, false]);
+    expect(twelfth.ok && [twelfth.n, twelfth.of, twelfth.full]).toEqual([12, 52, false]);
   });
   it("is three points on the helpers' line to whoever lit it and to each of the others the flame came by, and nothing else of the lamps counts", () => {
     for (const what of ["lamp_light", "lamp_hand"]) expect(countsOf({ from: "deed", what, thing: "flame", n: 1, doc: {} }, "a")).toEqual([{ to: null, line: "helpers", raw: 3 }]);
@@ -270,11 +270,11 @@ describe("whom a page offers a flame to", () => {
 describe("where the fires, the boards and the posts stand", () => {
   const propAt = new Set([...FARM_PROPS, ...FOREST_PROPS].map((p) => `${p.x},${p.y}`));
   const lengthOf = (path: Array<{ x: number; y: number }>, from: { x: number; y: number }) => { let d = 0, was = from; for (const p of path) { d += Math.hypot(p.x - was.x, p.y - was.y); was = p; } return d; };
-  /** How far a post is from its map's fire as anybody walks it: from the tile by the fire nearest the post that can be stood on. */
+  /** How far a post is from its map's nearest fire as anybody walks it: from the tile by a fire nearest the post that can be stood on. */
   const walk = (map: LampMap, post: number): number => {
-    const [fx, fy] = LAMPS.maps[map].fire, [px, py] = LAMPS.maps[map].posts[post];
+    const [px, py] = LAMPS.maps[map].posts[post];
     let best = Infinity;
-    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+    for (const [fx, fy] of LAMPS.maps[map].fires) for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
       if (!walkable(fx + dx, fy + dy)) continue;
       const from = { x: fx + dx + 0.5, y: fy + dy + 0.5 }, path = findPath(from, { x: px + 0.5, y: py + 0.5 });
       if (path) best = Math.min(best, lengthOf(path, from) + Math.hypot(dx, dy));
@@ -283,8 +283,8 @@ describe("where the fires, the boards and the posts stand", () => {
   };
   const far = Object.fromEntries(LAMP_MAPS.map((map) => [map, LAMPS.maps[map].posts.map((_, i) => walk(map, i))])) as Record<LampMap, number[]>;
 
-  it("has twenty-eight posts on the farm and fifty-six in the forest, the bigger map, each on its own tile of its map, the first twelve where they were", () => {
-    const HAS: Record<LampMap, number> = { farm: 28, forest: 56 };
+  it("has fifty-two posts on the farm (twenty-eight before its southern half) and fifty-six in the forest, each on its own tile of its map, the first twelve where they were", () => {
+    const HAS: Record<LampMap, number> = { farm: 52, forest: 56 };
     for (const map of LAMP_MAPS) {
       const posts = LAMPS.maps[map].posts;
       expect([map, posts.length, postsOf(map)]).toEqual([map, HAS[map], HAS[map]]);
@@ -295,7 +295,7 @@ describe("where the fires, the boards and the posts stand", () => {
     }
     expect(postsOf("town")).toBe(0);
     expect(fireOf("town")).toBe(null);
-    expect(postOf("farm", 28)).toBe(null);
+    expect([postOf("farm", 51) !== null, postOf("farm", 52)]).toEqual([true, null]);
     expect([postOf("forest", 55) !== null, postOf("forest", 56)]).toEqual([true, null]);
     // (a lamp lit is kept by its post's number: the twelve of the ways are the tiles they were on the first night)
     expect(LAMPS.maps.farm.posts.slice(0, 12).map(([x, y]) => [x - FARM.x, y - FARM.y])).toEqual([[18, 23], [8, 20], [3, 23], [38, 23], [44, 20], [50, 23], [56, 20], [31, 20], [28, 10], [31, 3], [28, 31], [31, 39]]);
@@ -304,7 +304,8 @@ describe("where the fires, the boards and the posts stand", () => {
   });
   it("stands every post, both boards and the brazier on free ground that can be walked: nothing is closed for them, and nothing else stands there", () => {
     const tiles: Array<readonly [string, [number, number]]> = LAMP_MAPS.flatMap((map) => [...LAMPS.maps[map].posts.map((t, i) => [`${map} post ${i}`, t] as const), [`${map} board`, BOARD_AT[map]] as const]);
-    tiles.push(["the farm's brazier", LAMPS.maps.farm.fire]);
+    for (const [i, fire] of LAMPS.maps.farm.fires.entries()) tiles.push([`the farm's brazier ${i}`, fire]);
+    expect(LAMPS.maps.farm.fires[0]).toEqual(LAMPS.maps.farm.fire);
     for (const [name, [x, y]] of tiles) {
       expect([name, walkable(x, y), propAt.has(`${x},${y}`), plotAt(x, y), groundAt(x, y) === "road" || groundAt(x, y) === "water"]).toEqual([name, true, false, false, false]);
     }
@@ -327,12 +328,25 @@ describe("where the fires, the boards and the posts stand", () => {
     }
   });
   it("stands the farm's next twelve round its rim, within three tiles of its edge and off its ways, and its last four in the middle of the beds", () => {
-    // (round the first half's rim: the southern half, 2026-10-19, has no posts of its own yet)
+    // (round the first half's rim, as it was before the southern half)
     const edge = ([x, y]: [number, number]) => Math.min(x - FARM_FIRST.x, y - FARM_FIRST.y, FARM_FIRST.w - 1 - (x - FARM_FIRST.x), FARM_FIRST.h - 1 - (y - FARM_FIRST.y));
     const posts = LAMPS.maps.farm.posts;
     expect(posts.slice(12, 24).map(edge).every((e) => e >= 1 && e <= 3)).toBe(true);
-    expect(posts.slice(24).map(edge)).toEqual([11, 11, 11, 11]);
-    for (const [x, y] of posts.slice(12)) for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) expect([x, y, groundAt(x + dx, y + dy) === "road"]).toEqual([x, y, false]);
+    expect(posts.slice(24, 28).map(edge)).toEqual([11, 11, 11, 11]);
+    for (const [x, y] of posts.slice(12, 28)) for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) expect([x, y, groundAt(x + dx, y + dy) === "road"]).toEqual([x, y, false]);
+  });
+  it("stands the farm's southern half's twenty-four in it, the nearest to a brazier first: those on an arm beside a lane, the others off the ways, none behind what stands in front of it", () => {
+    const posts = LAMPS.maps.farm.posts.slice(28), on = new Set(ARMS.farm.flat());
+    expect(posts.length).toBe(24);
+    for (const [x, y] of posts) expect([x, y, y - FARM.y >= FARM_FIRST.h]).toEqual([x, y, true]);
+    for (let i = 29; i < 52; i++) expect([i, far.farm[i] >= far.farm[i - 1]]).toEqual([i, true]);
+    const tall = new Set(FARM_PROPS.filter((p) => ["tree", "pine", "bush", "hay"].includes(p.kind)).map((p) => `${p.x},${p.y}`));
+    for (const [i, [x, y]] of posts.entries()) {
+      let road = false;
+      for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) if (groundAt(x + dx, y + dy) === "road") road = true;
+      expect([i + 28, road]).toEqual([i + 28, on.has(i + 28)]);
+      expect([i + 28, [[1, 0], [0, 1], [1, 1], [2, 1], [1, 2], [2, 2]].some(([dx, dy]) => tall.has(`${x + dx},${y + dy}`))]).toEqual([i + 28, false]);
+    }
   });
   it("stands the forest's forty-four more over the whole of the map, the nearest to the fire first: no open ground further than eleven tiles from a lamp", () => {
     const more = far.forest.slice(12);
@@ -347,7 +361,7 @@ describe("where the fires, the boards and the posts stand", () => {
       return most;
     };
     expect(worst("forest", FOREST)).toBeLessThan(11);
-    expect(worst("farm", FARM_FIRST)).toBeLessThan(9);
+    expect(worst("farm", FARM)).toBeLessThan(9);
     // (and every corner of the forest has a lamp within ten tiles of it)
     for (const [u, v] of [[0, 0], [FOREST.w - 1, 0], [0, FOREST.h - 1], [FOREST.w - 1, FOREST.h - 1]]) {
       expect([u, v, Math.min(...LAMPS.maps.forest.posts.map(([x, y]) => Math.hypot(x - FOREST.x - u, y - FOREST.y - v))) <= 14]).toEqual([u, v, true]);
@@ -358,28 +372,30 @@ describe("where the fires, the boards and the posts stand", () => {
       for (let i = 12; i < posts.length; i++) for (let j = 0; j < i; j++) expect([map, i, j, Math.hypot(posts[i][0] - posts[j][0], posts[i][1] - posts[j][1]) >= 7]).toEqual([map, i, j, true]);
     }
   });
-  it("has every post where it can be walked to from its fire: none of the farm's further than fifty tiles of path, none of the forest's further than eighty", () => {
+  it("has every post where it can be walked to from a fire: none of the farm's further than fifty tiles of path from its nearest, none of the forest's further than eighty", () => {
     for (const map of LAMP_MAPS) for (const [i, d] of far[map].entries()) expect([map, i, d <= (map === "farm" ? 50 : 80)]).toEqual([map, i, true]);
   });
   it("has four within what one member walks in three seconds, who lights them alone", () => {
     // (three seconds at the walking pace is ten and a half tiles, and a post is lit from two tiles off)
     const near = Object.fromEntries(LAMP_MAPS.map((map) => [map, far[map].filter((d) => d <= 10.5 + LAMPS.near).length]));
     expect(near.forest).toBe(4);
-    // (the farm is the smaller map, and one of its posts stands where the lanes cross, by the well and the brazier)
-    expect(near.farm).toBe(4);
+    // (the farm is the smaller map, and one of its posts stands where the lanes cross, by the well and the brazier; and
+    // since its southern half three more by the second brazier, where that half's lanes cross)
+    expect(near.farm).toBe(4 + 3);
   });
   it("has the others out of one member's reach: they take a relay, the furthest of the farm's three hands and of the forest's six", () => {
     // (alone: three seconds' walk, and the two tiles' reach at the fire and at the post; each hand more, a walk and a handing's reach)
     const alone = LAMPS.life * 3.5 + 2 * LAMPS.near, leg = LAMPS.life * 3.5 + LAMPS.reach;
     const hands = (d: number) => Math.max(1, Math.ceil((d - alone) / leg) + 1);
     expect([alone, leg]).toEqual([14.5, 13.5]);
-    expect(far.farm.filter((d) => d > alone).length).toBe(23);
+    expect(far.farm.slice(28).filter((d) => d > alone).length).toBe(18);
     expect(far.forest.filter((d) => d > alone).length).toBe(51);
     expect([Math.max(...far.farm.map(hands)), Math.max(...far.forest.map(hands))]).toEqual([3, 6]);
   });
   it("follows each way out from the fire: every post is on one arm, and each is further than the one before it", () => {
     for (const map of LAMP_MAPS) {
-      expect(ARMS[map].flat().sort((a, b) => a - b)).toEqual([...Array(12).keys()]);
+      // (and the farm's southern half's lane posts, out from its own brazier)
+      expect(ARMS[map].flat().sort((a, b) => a - b)).toEqual(map === "farm" ? [...Array(12).keys(), 28, 29, 30, 31, 32, 33, 34, 37, 43, 44, 47] : [...Array(12).keys()]);
       for (const arm of ARMS[map]) for (let i = 1; i < arm.length; i++) expect([map, arm[i], far[map][arm[i]] > far[map][arm[i - 1]]]).toEqual([map, arm[i], true]);
     }
   });

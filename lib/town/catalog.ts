@@ -50,7 +50,7 @@ import { GOODS, RULES } from "./trade";
 import { WATERS } from "./waters";
 import { WELL_BOOK } from "./well";
 import { DRINK, FROG, MOON } from "./well-gifts";
-import { BEDS_IN_FARM, COLS, FARM, FOREST, MOUNTAIN, KITCHEN, ROWS, STOREBOX, WELL, asBuilt, bedCorner, bedOf, fishFrom } from "./world";
+import { BEDS_IN_FARM, COLS, FARM, FOREST, MOUNTAIN, KITCHEN, ROWS, STOREBOX, WELL, WELLS, asBuilt, bedCorner, bedOf, fishFrom } from "./world";
 import { YARD } from "./yard";
 import { COMPANIONS, PARTNERS, QUALITY } from "./quality";
 import { HAND } from "./quality-plant";
@@ -222,7 +222,7 @@ export function catalogOf() {
       seeds: Object.fromEntries(CROP_IDS.map((id) => [CROPS[id].seed, id])),
       field: FIELD, blades: BLADES, tree: TREE_PICKS,
       cans: WATER.cans, buckets: WATER.buckets, well: WATER.well, fill: WATER.fill, chores: WATER.costs, beds: BEDS,
-      bedsAt: Array.from({ length: BEDS_IN_FARM }, (_, bed) => bedCorner(bed)), side: bedSide(), wellAt: [WELL.x, WELL.y],
+      bedsAt: Array.from({ length: BEDS_IN_FARM }, (_, bed) => bedCorner(bed)), side: bedSide(), wellAt: [WELL.x, WELL.y], wells: WELLS.map((w): [number, number] => [w.x, w.y]),
       misses: 30,
       // ── gifts: farming ── what the farming line's gifts go by, beyond each one's own number (the gifts' row): the hours an hourglass runs, and how many turnings a plant
       // remembers; and what part of its hours a crop that is picked once takes to bear the once more the mandrake sang it to

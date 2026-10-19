@@ -8,7 +8,7 @@ import { CROPS, CROP_IDS, FISH, ITEMS, STAGES, growIconOf, type ItemId } from ".
 import { staminaOf } from "./stamina";
 import { GOODS, held, hold, newPurse, put, type Purse } from "./trade";
 import { ALWAYS_RAIN, SLOT_MS, rainsOf, slotOf, type Rain } from "./weather";
-import { BEDS_IN_FARM, FARM, WELL, atWell, bedCorner, bedOf, plotAt, walkable } from "./world";
+import { BEDS_IN_FARM, FARM, WELL, WELLS, atWell, bedCorner, bedOf, plotAt, walkable, wellNear } from "./world";
 
 /** A moment by Bangkok's clock. */
 const at = (s: string) => Date.parse(`${s}+07:00`);
@@ -747,6 +747,17 @@ describe("water", () => {
     expect(round.filter(([x, y]) => walkable(x, y)).length).toBeGreaterThanOrEqual(6);
     expect(atWell(WELL.x, WELL.y)).toBe(false);
     expect(atWell(WELL.x + 2, WELL.y)).toBe(false);
+  });
+  it("has a second well where its southern half's lanes cross, the same room round it (2026-10-19)", () => {
+    const [first, second] = WELLS;
+    expect([WELLS.length, first]).toEqual([2, WELL]);
+    expect([second.x - FARM.x, second.y - FARM.y]).toEqual([28, 65]);
+    expect(walkable(second.x, second.y)).toBe(false);
+    const round = [-1, 0, 1].flatMap((dx) => [-1, 0, 1].map((dy): [number, number] => [second.x + dx, second.y + dy])).filter(([x, y]) => x !== second.x || y !== second.y);
+    for (const [x, y] of round) expect(atWell(x, y)).toBe(true);
+    expect(round.filter(([x, y]) => walkable(x, y)).length).toBeGreaterThanOrEqual(6);
+    expect([atWell(second.x, second.y), atWell(second.x, second.y + 2)]).toEqual([false, false]);
+    expect([wellNear(second.x, second.y + 3), wellNear(WELL.x, WELL.y + 3)]).toEqual([second, WELL]);
   });
 });
 describe("what waiting is worth (the owner, 2026-10-04: every crop twice as many, the hoe half the stamina)", () => {

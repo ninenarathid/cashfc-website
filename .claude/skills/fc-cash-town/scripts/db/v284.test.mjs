@@ -12,7 +12,8 @@ import { rewardDB } from "./reward-db.mjs";
 import { CHAIN } from "./build-v275.mjs";
 await import("./repo-ts-town.mjs");
 const { catalogOf } = await import("@/lib/town/catalog");
-const { BEDS_IN_FARM, FARM, bedCorner, bedOf } = await import("@/lib/town/world");
+const { BEDS_IN_FARM, FARM, WELLS, atWell, bedCorner, bedOf } = await import("@/lib/town/world");
+const { LAMPS, byFire } = await import("@/lib/town/lamps");
 const { relayPlace } = await import("@/lib/town/reward-relay");
 const { BEDS } = await import("@/lib/town/farm");
 const { put } = await import("@/lib/town/trade");
@@ -21,7 +22,8 @@ const FILE = "supabase/v284_the_farms_southern_half.sql";
 // (the files that ran, as they ran: this tree writes the catalog blocks of v264, v266 and v267 again from the code)
 const BASE = "5568ab2b";
 const ran = (f) => execFileSync("git", ["show", `${BASE}:supabase/${f}`], { encoding: "utf8", maxBuffer: 1 << 28 });
-const SIGS = ["public.town_reward(uuid,jsonb)", "town.reward_cloud(jsonb,jsonb,uuid,uuid,jsonb,jsonb,jsonb,text,bigint,bigint)", "town.reward_relay_place(jsonb)"];
+const SIGS = ["public.town_reward(uuid,jsonb)", "town.reward_cloud(jsonb,jsonb,uuid,uuid,jsonb,jsonb,jsonb,text,bigint,bigint)", "town.reward_relay_place(jsonb)",
+  "public.town_chore(integer,integer)", "public.town_moon_pour(integer,integer,integer)", "town.stream_work(jsonb,text,text,integer,integer,jsonb,text,bigint)", "town.lamp_by(text,integer,integer,integer)"];
 let checks = 0;
 const eq = (a, b, what) => { assert.deepEqual(a, b, what); checks++; };
 const code = catalogOf();
@@ -37,7 +39,7 @@ try {
   for (let n = 276; n <= 281; n++) for (const f of readdirSync("supabase").filter((x) => x.startsWith(`v${n}_`)).sort()) {
     try { await db.exec(ran(f)); } catch { await db.exec("rollback"); }
   }
-  const before = await cat(), [rewardWas, cloudWas, relayWas] = await defs();
+  const before = await cat(), [rewardWas, cloudWas, relayWas, choreWas, moonWas, streamWas, lampByWas] = await defs();
   eq(before.farming.bedsAt.length, 24, "the bench has the first 24 beds");
 
   const sql = readFileSync(FILE, "utf8").replace(/\r\n/g, "\n");
@@ -58,6 +60,11 @@ try {
   want.ground.maps = before.ground.maps.map((m) => (JSON.stringify(m) === "[128,0,60,44]" ? code.ground.maps[1] : m));
   want.insects.nectar.maps = code.insects.nectar.maps;
   want.insects.haunts = code.insects.haunts;
+  want.farming.wells = code.farming.wells;
+  want.lamps.maps.farm.posts = code.lamps.maps.farm.posts;
+  want.lamps.maps.farm.fires = code.lamps.maps.farm.fires;
+  want.lamps.maps.forest.fires = code.lamps.maps.forest.fires;
+  eq(before.lamps.maps.farm.posts, code.lamps.maps.farm.posts.slice(0, 28), "the bench's 28 farm posts are the code's first 28");
   for (const key of Object.keys(want)) eq(after[key], want[key], `the catalog's ${key} row`);
   eq(after.farming.bedsAt.length, BEDS_IN_FARM, "48 beds");
   eq(after.farming.bedsAt.slice(0, 24), before.farming.bedsAt, "none of the first 24 moved");
@@ -82,7 +89,25 @@ try {
   }
 
   // ── the two functions: their text but for the range ──
-  const [rewardNow, cloudNow, relayNow] = defsAfter;
+  const [rewardNow, cloudNow, relayNow, choreNow, moonNow, streamNow, lampByNow] = defsAfter;
+  eq(choreNow, choreWas.replace("greatest(abs(p_x - (f->'wellAt'->>0)::int), abs(p_y - (f->'wellAt'->>1)::int)) = 1", "town.at_well(p_x, p_y)"), "public.town_chore but for the well");
+  eq(moonNow, moonWas.replace("greatest(abs(p_x - (f->'wellAt'->>0)::int), abs(p_y - (f->'wellAt'->>1)::int)) <> 1", "not town.at_well(p_x, p_y)"), "public.town_moon_pour but for the well");
+  eq(streamNow, streamWas.replace("greatest(abs(p_x-(well_->>0)::integer),abs(p_y-(well_->>1)::integer))<>1", "not town.at_well(p_x,p_y)"), "town.stream_work but for the well");
+  assert.notEqual(lampByNow, lampByWas); checks++;
+  // town.at_well is atWell, and town.lamp_by is the page's byFire and post reach, round every well, fire and post
+  const near = [];
+  for (const w of WELLS) for (let dy = -3; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) near.push([w.x + dx, w.y + dy]);
+  const wellsGot = await rows("select town.at_well((t->>0)::int, (t->>1)::int) b from jsonb_array_elements($1::jsonb) t", [JSON.stringify(near)]);
+  eq(wellsGot.map((r) => r.b), near.map(([x, y]) => atWell(x, y)), `town.at_well on ${near.length} tiles`);
+  for (const map of ["farm", "forest"]) {
+    const spots = [];
+    for (const [fx, fy] of LAMPS.maps[map].fires) for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) spots.push([fx + dx, fy + dy]);
+    const got = await rows("select town.lamp_by($2, null, (t->>0)::int, (t->>1)::int) b from jsonb_array_elements($1::jsonb) t", [JSON.stringify(spots), map]);
+    eq(got.map((r) => r.b), spots.map((s) => byFire(s, map)), `town.lamp_by at the ${map}'s fires`);
+    const posts = LAMPS.maps[map].posts.map((p, i) => [i, p[0] + 2, p[1] - 2]);
+    eq((await rows("select town.lamp_by($2, (t->>0)::int, (t->>1)::int, (t->>2)::int) b from jsonb_array_elements($1::jsonb) t", [JSON.stringify(posts), map])).map((r) => r.b), posts.map(() => true), `town.lamp_by by each of the ${map}'s posts`);
+  }
+  eq((await one("select town.lamp_by('farm', 52, 155, 66) a, town.lamp_by('farm', -1, 155, 66) b, town.lamp_by('town', null, 155, 66) c, town.lamp_by('farm', null, null, 66) d")), { a: false, b: false, c: false, d: false }, "no 53rd post, no post -1, no fire in town, no tile");
   eq(rewardNow, rewardWas.replace("not between 0 and 23", "not between 0 and 47"), "public.town_reward but for the range");
   eq(cloudNow, cloudWas.replace("not between 0 and 23", "not between 0 and 47"), "town.reward_cloud but for the range");
   assert.notEqual(relayNow, relayWas); checks++;
@@ -111,6 +136,29 @@ try {
   const second = (await as("select public.town_tend($1, $2, $3::jsonb, false) r", [...tile, game])).r;
   eq([second.ok, second.deed, second.plot?.plant?.crop], [true, "sow", code.farming.seeds[seed]], "holding one, they sow in the new half");
   eq((await one("select member_id from public.town_beds where bed = 30")).member_id, me, "and bed 30 is theirs");
+
+  // ── by night, at the southern half's brazier and well ──
+  const NIGHT = Date.parse("2026-10-19T20:00:00+07:00");
+  await db.exec(`create or replace function town.now_ms() returns bigint language sql stable as $$select ${NIGHT}::bigint$$;`);
+  const empty = (await one("select town.purse_of($1,true) p", [me])).p;
+  await one("select town.keep_purse($1,$2::jsonb)", [me, JSON.stringify({ ...empty, hand: null, stamina: { day: empty.stamina?.day ?? 0, left: 100 } })]);
+  const [f2x, f2y] = LAMPS.maps.farm.fires[1];
+  const far = (await as("select public.town_flame_take('farm', $1, $2) r", [f2x + 4, f2y])).r;
+  eq([far.ok, far.why], [false, "far"], "four tiles from the second brazier, no flame");
+  const took = (await as("select public.town_flame_take('farm', $1, $2) r", [f2x + 1, f2y + 1])).r;
+  eq(took.ok, true, "a flame taken at the second brazier");
+  const [p28x, p28y] = LAMPS.maps.farm.posts[28];
+  const lit28 = (await as("select public.town_lamp_light('farm', 28, $1, $2) r", [p28x, p28y + 1])).r;
+  eq([lit28.ok, lit28.n ?? lit28.lit, lit28.of], [true, 1, 52], "post 28, the southern half's nearest, lit with it: one of fifty-two");
+  // the second well is the first's water: with a can in the hand, what is said there is what is said at the first, and
+  // away from both it is not
+  const canned = (await one("select town.purse_of($1,true) p", [me])).p;
+  await one("select town.keep_purse($1,$2::jsonb)", [me, JSON.stringify({ ...canned, bag: put(Array(canned.bag.length).fill(null), "can", 1), hand: "can" })]);
+  const at1 = (await as("select public.town_chore($1, $2) r", [WELLS[0].x + 1, WELLS[0].y])).r, at2 = (await as("select public.town_chore($1, $2) r", [WELLS[1].x + 1, WELLS[1].y])).r;
+  const away = (await as("select public.town_chore($1, $2) r", [WELLS[1].x + 3, WELLS[1].y])).r;
+  eq([at2.ok, at2.why], [at1.ok, at1.why], "at the second well as at the first");
+  assert.notEqual(at1.why, "none"); checks++;
+  assert.notDeepEqual([away.ok, away.why], [at1.ok, at1.why], "and not away from both"); checks++;
 
   console.log(`v284: ${checks} checks passed`);
 } finally { await db.close(); }
