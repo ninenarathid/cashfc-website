@@ -25,7 +25,8 @@ const sql = `-- v284: the farm's southern half, 24 more beds (the owner, 2026-10
 --
 -- What it changes (the database's own copies of the farm's shape, lib/town/world):
 --   * the catalog: farming.bedsAt (beds 24 to 47 after the first 24, none of whose numbers moves), rewards.cloudCorners
---     (the cloud jar's beds, the same corners), cooking.map.farm, insects.nectar.maps and ground.maps (the farm's tiles,
+--     (the cloud jar's beds, the same corners), rewards.nurseryBoxes (where the bottle forest's nursery may begin),
+--     cooking.map.farm, insects.nectar.maps and ground.maps (the farm's tiles,
 --     ${was} → ${now}), and insects.haunts (one good garden's haunt over each new bed, after every other, so no haunt
 --     moves or changes its number);
 --   * the two tables keyed by bed that held the bed to 0..23 (the conduit's and the cloud's), and the two functions that
@@ -46,6 +47,9 @@ update public.town_catalog set data = jsonb_set(data, '{bedsAt}', $j$${json(beds
  where key = 'farming' and data->'bedsAt' is distinct from $j$${json(beds)}$j$::jsonb;
 update public.town_catalog set data = jsonb_set(data, '{cloudCorners}', $j$${json(beds)}$j$::jsonb), updated_at = now()
  where key = 'rewards' and data ? 'cloudCorners' and data->'cloudCorners' is distinct from $j$${json(beds)}$j$::jsonb;
+update public.town_catalog set data = jsonb_set(data, '{nurseryBoxes}', (select jsonb_agg(case when m = '${was}'::jsonb then '${now}'::jsonb else m end order by o)
+                                                                           from jsonb_array_elements(data->'nurseryBoxes') with ordinality x(m, o))), updated_at = now()
+ where key = 'rewards' and data->'nurseryBoxes' @> '[${was}]'::jsonb;
 update public.town_catalog set data = jsonb_set(data, '{map,farm}', '${now}'::jsonb), updated_at = now()
  where key = 'cooking' and data->'map'->'farm' = '${was}'::jsonb;
 update public.town_catalog set data = jsonb_set(data, '{maps}', (select jsonb_agg(case when m = '${was}'::jsonb then '${now}'::jsonb else m end order by o)
@@ -67,6 +71,7 @@ begin
   select data into g from public.town_catalog where key = 'ground';
   if (select data->'bedsAt' from public.town_catalog where key = 'farming') is distinct from $j$${json(beds)}$j$::jsonb then raise exception 'v284: farming.bedsAt is not the 48 beds'; end if;
   if r->'cloudCorners' is distinct from $j$${json(beds)}$j$::jsonb then raise exception 'v284: rewards.cloudCorners is not the 48 beds'; end if;
+  if not r->'nurseryBoxes' @> '[${now}]'::jsonb or r->'nurseryBoxes' @> '[${was}]'::jsonb then raise exception 'v284: rewards.nurseryBoxes is %', r->'nurseryBoxes'; end if;
   if k->'map'->'farm' is distinct from '${now}'::jsonb then raise exception 'v284: cooking.map.farm is %', k->'map'->'farm'; end if;
   if not g->'maps' @> '[${now}]'::jsonb or g->'maps' @> '[${was}]'::jsonb then raise exception 'v284: ground.maps is %', g->'maps'; end if;
   if not i->'nectar'->'maps' @> '[["farm",${now.slice(1)}]'::jsonb or i->'nectar'->'maps' @> '[["farm",${was.slice(1)}]'::jsonb then raise exception 'v284: insects.nectar.maps is %', i->'nectar'->'maps'; end if;

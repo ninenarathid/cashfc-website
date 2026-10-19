@@ -7,6 +7,7 @@
 //   cd <the tree> && FC_REPO=<the tree> node .claude/skills/fc-cash-town/scripts/db/v284.test.mjs
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { rewardDB } from "./reward-db.mjs";
 import { CHAIN } from "./build-v275.mjs";
 await import("./repo-ts-town.mjs");
@@ -17,6 +18,9 @@ const { BEDS } = await import("@/lib/town/farm");
 const { put } = await import("@/lib/town/trade");
 
 const FILE = "supabase/v284_the_farms_southern_half.sql";
+// (the files that ran, as they ran: this tree writes the catalog blocks of v264, v266 and v267 again from the code)
+const BASE = "5568ab2b";
+const ran = (f) => execFileSync("git", ["show", `${BASE}:supabase/${f}`], { encoding: "utf8", maxBuffer: 1 << 28 });
 const SIGS = ["public.town_reward(uuid,jsonb)", "town.reward_cloud(jsonb,jsonb,uuid,uuid,jsonb,jsonb,jsonb,text,bigint,bigint)", "town.reward_relay_place(jsonb)"];
 let checks = 0;
 const eq = (a, b, what) => { assert.deepEqual(a, b, what); checks++; };
@@ -28,10 +32,10 @@ const cat = async () => Object.fromEntries((await rows("select key, data from pu
 const defs = async () => Promise.all(SIGS.map(async (s) => (await one("select replace(pg_get_functiondef($1::regprocedure), chr(13), '') d", [s])).d));
 const checksOn = async () => (await rows("select conrelid::regclass::text t, pg_get_constraintdef(oid) c from pg_constraint where contype = 'c' and conrelid in ('town.reward_conduits'::regclass, 'town.reward_cloud_consents'::regclass) order by 1")).map((r) => `${r.t} ${r.c}`);
 try {
-  for (const f of CHAIN) await db.exec(readFileSync(`supabase/${f}.sql`, "utf8"));
+  for (const f of CHAIN) await db.exec(ran(`${f}.sql`));
   // (the files after v275 that the bench can run; v279 needs the site's member_contacts, which is not the town's)
   for (let n = 276; n <= 281; n++) for (const f of readdirSync("supabase").filter((x) => x.startsWith(`v${n}_`)).sort()) {
-    try { await db.exec(readFileSync(`supabase/${f}`, "utf8")); } catch { await db.exec("rollback"); }
+    try { await db.exec(ran(f)); } catch { await db.exec("rollback"); }
   }
   const before = await cat(), [rewardWas, cloudWas, relayWas] = await defs();
   eq(before.farming.bedsAt.length, 24, "the bench has the first 24 beds");
@@ -48,6 +52,8 @@ try {
   const want = structuredClone(before);
   want.farming.bedsAt = code.farming.bedsAt;
   want.rewards.cloudCorners = code.farming.bedsAt;
+  want.rewards.nurseryBoxes = before.rewards.nurseryBoxes.map((m) => (JSON.stringify(m) === "[128,0,60,44]" ? [128, 0, 60, 86] : m));
+  eq(want.rewards.nurseryBoxes.filter((m) => JSON.stringify(m) === "[128,0,60,86]").length, 1, "the nursery's farm box is there to widen");
   want.cooking.map.farm = code.cooking.map.farm;
   want.ground.maps = before.ground.maps.map((m) => (JSON.stringify(m) === "[128,0,60,44]" ? code.ground.maps[1] : m));
   want.insects.nectar.maps = code.insects.nectar.maps;

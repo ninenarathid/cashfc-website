@@ -89,8 +89,8 @@ describe("the far side, in every build and reached only while it is open", () =>
     // is walked on (the bridge comes before the mountain: it is walked over whatever the far side's switch says)
     const smith = W.SMITH.tiles.map(([x, y]) => `${x},${y}`);
     const water = W.BRIDGE.tiles.flat().filter(([x, y]) => W.groundAt(x, y) === "water").map(([x, y]) => `${x},${y}`);
-    // (and the farm's southern half, 2026-10-19, with the lane run on south through the first half's rim and its trees on and beside it gone: no other tile of the farm)
-    const southern = (x: number, y: number) => W.placeOf(x, y) === "farm" && (y >= W.FARM_FIRST.y + W.FARM_FIRST.h || (y >= W.FARM_FIRST.y + 41 && x - W.FARM.x >= 27 && x - W.FARM.x < 33));
+    // (and the farm's southern half, 2026-10-19, with the lane run on south through the first half's rim and its trees on and beside it gone, and the west fence run on across the rim's foot: no other tile of the farm)
+    const southern = (x: number, y: number) => W.placeOf(x, y) === "farm" && (y >= W.FARM_FIRST.y + W.FARM_FIRST.h || (y >= W.FARM_FIRST.y + 41 && ((x - W.FARM.x >= 27 && x - W.FARM.x < 33) || x === W.FARM.x)));
     const turned = (): string[] => [...was].filter(([k, w]) => { const [x, y] = k.split(",").map(Number); return W.walkable(x, y) !== w; }).map(([k]) => k);
     expect(turned().filter((k) => southern(...(k.split(",").map(Number) as [number, number]))).length).toBeGreaterThan(1500);
     const changed = (): string[] => turned().filter((k) => !southern(...(k.split(",").map(Number) as [number, number]))).sort();

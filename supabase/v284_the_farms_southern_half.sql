@@ -7,7 +7,8 @@
 --
 -- What it changes (the database's own copies of the farm's shape, lib/town/world):
 --   * the catalog: farming.bedsAt (beds 24 to 47 after the first 24, none of whose numbers moves), rewards.cloudCorners
---     (the cloud jar's beds, the same corners), cooking.map.farm, insects.nectar.maps and ground.maps (the farm's tiles,
+--     (the cloud jar's beds, the same corners), rewards.nurseryBoxes (where the bottle forest's nursery may begin),
+--     cooking.map.farm, insects.nectar.maps and ground.maps (the farm's tiles,
 --     [128,0,60,44] → [128,0,60,86]), and insects.haunts (one good garden's haunt over each new bed, after every other, so no haunt
 --     moves or changes its number);
 --   * the two tables keyed by bed that held the bed to 0..23 (the conduit's and the cloud's), and the two functions that
@@ -28,6 +29,9 @@ update public.town_catalog set data = jsonb_set(data, '{bedsAt}', $j$[[132,4],[1
  where key = 'farming' and data->'bedsAt' is distinct from $j$[[132,4],[140,4],[148,4],[161,4],[169,4],[177,4],[132,12],[140,12],[148,12],[161,12],[169,12],[177,12],[132,25],[140,25],[148,25],[161,25],[169,25],[177,25],[132,33],[140,33],[148,33],[161,33],[169,33],[177,33],[132,46],[140,46],[148,46],[161,46],[169,46],[177,46],[132,54],[140,54],[148,54],[161,54],[169,54],[177,54],[132,67],[140,67],[148,67],[161,67],[169,67],[177,67],[132,75],[140,75],[148,75],[161,75],[169,75],[177,75]]$j$::jsonb;
 update public.town_catalog set data = jsonb_set(data, '{cloudCorners}', $j$[[132,4],[140,4],[148,4],[161,4],[169,4],[177,4],[132,12],[140,12],[148,12],[161,12],[169,12],[177,12],[132,25],[140,25],[148,25],[161,25],[169,25],[177,25],[132,33],[140,33],[148,33],[161,33],[169,33],[177,33],[132,46],[140,46],[148,46],[161,46],[169,46],[177,46],[132,54],[140,54],[148,54],[161,54],[169,54],[177,54],[132,67],[140,67],[148,67],[161,67],[169,67],[177,67],[132,75],[140,75],[148,75],[161,75],[169,75],[177,75]]$j$::jsonb), updated_at = now()
  where key = 'rewards' and data ? 'cloudCorners' and data->'cloudCorners' is distinct from $j$[[132,4],[140,4],[148,4],[161,4],[169,4],[177,4],[132,12],[140,12],[148,12],[161,12],[169,12],[177,12],[132,25],[140,25],[148,25],[161,25],[169,25],[177,25],[132,33],[140,33],[148,33],[161,33],[169,33],[177,33],[132,46],[140,46],[148,46],[161,46],[169,46],[177,46],[132,54],[140,54],[148,54],[161,54],[169,54],[177,54],[132,67],[140,67],[148,67],[161,67],[169,67],[177,67],[132,75],[140,75],[148,75],[161,75],[169,75],[177,75]]$j$::jsonb;
+update public.town_catalog set data = jsonb_set(data, '{nurseryBoxes}', (select jsonb_agg(case when m = '[128,0,60,44]'::jsonb then '[128,0,60,86]'::jsonb else m end order by o)
+                                                                           from jsonb_array_elements(data->'nurseryBoxes') with ordinality x(m, o))), updated_at = now()
+ where key = 'rewards' and data->'nurseryBoxes' @> '[[128,0,60,44]]'::jsonb;
 update public.town_catalog set data = jsonb_set(data, '{map,farm}', '[128,0,60,86]'::jsonb), updated_at = now()
  where key = 'cooking' and data->'map'->'farm' = '[128,0,60,44]'::jsonb;
 update public.town_catalog set data = jsonb_set(data, '{maps}', (select jsonb_agg(case when m = '[128,0,60,44]'::jsonb then '[128,0,60,86]'::jsonb else m end order by o)
@@ -49,6 +53,7 @@ begin
   select data into g from public.town_catalog where key = 'ground';
   if (select data->'bedsAt' from public.town_catalog where key = 'farming') is distinct from $j$[[132,4],[140,4],[148,4],[161,4],[169,4],[177,4],[132,12],[140,12],[148,12],[161,12],[169,12],[177,12],[132,25],[140,25],[148,25],[161,25],[169,25],[177,25],[132,33],[140,33],[148,33],[161,33],[169,33],[177,33],[132,46],[140,46],[148,46],[161,46],[169,46],[177,46],[132,54],[140,54],[148,54],[161,54],[169,54],[177,54],[132,67],[140,67],[148,67],[161,67],[169,67],[177,67],[132,75],[140,75],[148,75],[161,75],[169,75],[177,75]]$j$::jsonb then raise exception 'v284: farming.bedsAt is not the 48 beds'; end if;
   if r->'cloudCorners' is distinct from $j$[[132,4],[140,4],[148,4],[161,4],[169,4],[177,4],[132,12],[140,12],[148,12],[161,12],[169,12],[177,12],[132,25],[140,25],[148,25],[161,25],[169,25],[177,25],[132,33],[140,33],[148,33],[161,33],[169,33],[177,33],[132,46],[140,46],[148,46],[161,46],[169,46],[177,46],[132,54],[140,54],[148,54],[161,54],[169,54],[177,54],[132,67],[140,67],[148,67],[161,67],[169,67],[177,67],[132,75],[140,75],[148,75],[161,75],[169,75],[177,75]]$j$::jsonb then raise exception 'v284: rewards.cloudCorners is not the 48 beds'; end if;
+  if not r->'nurseryBoxes' @> '[[128,0,60,86]]'::jsonb or r->'nurseryBoxes' @> '[[128,0,60,44]]'::jsonb then raise exception 'v284: rewards.nurseryBoxes is %', r->'nurseryBoxes'; end if;
   if k->'map'->'farm' is distinct from '[128,0,60,86]'::jsonb then raise exception 'v284: cooking.map.farm is %', k->'map'->'farm'; end if;
   if not g->'maps' @> '[[128,0,60,86]]'::jsonb or g->'maps' @> '[[128,0,60,44]]'::jsonb then raise exception 'v284: ground.maps is %', g->'maps'; end if;
   if not i->'nectar'->'maps' @> '[["farm",128,0,60,86]]'::jsonb or i->'nectar'->'maps' @> '[["farm",128,0,60,44]]'::jsonb then raise exception 'v284: insects.nectar.maps is %', i->'nectar'->'maps'; end if;

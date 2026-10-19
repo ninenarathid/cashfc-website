@@ -23,6 +23,13 @@ try {
     const hits = d.split("\n").map((l, i) => [i + 1, l]).filter(([, l]) => /(?<![\w.])(23|24|43|44|47|48|86)(?![\w.])/.test(l.replace(/--.*$/, "")) && !/interval|hour|3600|86400|minute|day/i.test(l));
     if (hits.length) console.log(`\n## ${sig}\n` + hits.slice(0, 8).map(([i, l]) => `${i}: ${l.trim().slice(0, 200)}`).join("\n"));
   }
+  console.log("\n--- any function with the farm's x (128, 187, 188) and its old last rows (43, 44) on one line");
+  for (const { sig, d } of fns) {
+    const hits = d.split("\n").map((l, i) => [i + 1, l]).filter(([, l]) => /(?<![\w.])(128|187|188)(?![\w.])/.test(l) && /(?<![\w.])(43|44)(?![\w.])/.test(l));
+    if (hits.length) console.log(`\n## ${sig}\n` + hits.slice(0, 6).map(([i, l]) => `${i}: ${l.trim().slice(0, 200)}`).join("\n"));
+  }
+  const nb = (await db.query(`select data->'nurseryBoxes' n from public.town_catalog where key = 'rewards'`)).rows[0]?.n;
+  console.log("\nrewards.nurseryBoxes on the bench:", JSON.stringify(nb));
   const cons = (await db.query(`select conrelid::regclass::text t, pg_get_constraintdef(oid) c from pg_constraint where contype = 'c' and pg_get_constraintdef(oid) ~ '23|24'`)).rows;
   console.log("\nCHECKS", cons);
   const cat = (await db.query(`select key, data::text d from public.town_catalog`)).rows;

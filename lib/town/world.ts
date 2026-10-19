@@ -933,15 +933,22 @@ export const FARM_PROPS_FIRST: Prop[] = (() => {
  * half's: the fence on down the west edge, hay where its lanes cross, and woods along its east and south.
  */
 export const FARM_PROPS: Prop[] = (() => {
-  const gap = (p: Prop) => p.y - FARM.y >= 41 && p.x - FARM.x >= 27 && p.x - FARM.x < 33;
+  const gap = (p: Prop) => p.y - FARM.y >= 41 && ((p.x - FARM.x >= 27 && p.x - FARM.x < 33) || (p.x - FARM.x === 0 && p.y - FARM.y >= 43));
   const out = FARM_PROPS_FIRST.filter((p) => !["tree", "pine", "bush"].includes(p.kind) || (farmGround(p.x - FARM.x + 0.5, p.y - FARM.y + 0.5, false) === "grass" && !gap(p)));
-  const put = (kind: PropKind, u: number, v: number, solid = true) => { out.push({ kind, x: FARM.x + u, y: FARM.y + v, solid }); };
-  for (const v of [47, 50, 53, 56, 59, 68, 71, 74, 77, 80]) put("fence", 0, v);
+  const taken = new Set<string>();
+  const put = (kind: PropKind, u: number, v: number, solid = true) => {
+    out.push({ kind, x: FARM.x + u, y: FARM.y + v, solid });
+    for (const dv of kind === "fence" ? [-1, 0, 1] : [0]) taken.add(`${u},${v + dv}`);
+  };
+  // the fence on down the west edge, across the old rim's foot and on to the south corner
+  for (const v of [44, 47, 50, 53, 56, 59, 68, 71, 74, 77, 80, 83]) put("fence", 0, v);
   for (const [u, v] of [[27, 62], [32, 66]]) put("hay", u, v);
-  const rnd = seeded(20261019), taken = new Set<string>();
-  for (let tries = 0, placed = 0; placed < 50 && tries < 6000; tries++) {
+  // the lane's south end closed by low bushes, no tall tree in front of whoever walks to it
+  for (const [u, v] of [[29, 83], [30, 83], [28, 84], [31, 84]]) put("bush", u, v);
+  const rnd = seeded(20261019);
+  for (let tries = 0, placed = 0; placed < 60 && tries < 6000; tries++) {
     const u = Math.floor(rnd() * FARM.w), v = FARM_FIRST.h + Math.floor(rnd() * (FARM.h - FARM_FIRST.h)), kind = rnd();
-    if (!(v >= 83 || u >= 57) || taken.has(`${u},${v}`) || farmGround(u + 0.5, v + 0.5, false) !== "grass") continue;
+    if (!(v >= 83 || u >= 57) || (v >= 83 && u >= 26 && u < 34) || taken.has(`${u},${v}`) || farmGround(u + 0.5, v + 0.5, false) !== "grass") continue;
     taken.add(`${u},${v}`);
     put(kind < 0.5 ? "tree" : kind < 0.8 ? "pine" : "bush", u, v);
     placed++;
