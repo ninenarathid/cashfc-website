@@ -6,7 +6,7 @@ import {useTownEphemeral} from "@/lib/town/ephemeral";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { sorted, whatOf } from "@/lib/town/bag";
-import { WATER } from "@/lib/town/farm";
+import { WATER, cropOf } from "@/lib/town/farm";
 import { seedTime } from "@/lib/town/clues";
 import { CARRIES } from "@/lib/town/gear";
 import { equipmentEffect, isPassiveEquipment } from "@/lib/town/passive-equipment";
@@ -21,7 +21,7 @@ import { opens } from "@/lib/town/scrolls";
 import { GRADES, asGrade, buffFloorOf } from "@/lib/town/quality";
 import { gradePays } from "@/lib/town/trade";
 import { carried } from "@/lib/town/line";
-import type { MarketQuote, PricesTold } from "@/lib/town/market";
+import { historicalPrice, type MarketQuote, type PriceTold, type PricesTold } from "@/lib/town/market";
 import { MEALS, STAMINA, bowlsToday, buffsOf, levelOf, mayEat as mayEatNow, mealBuffs, mealOf, mealProgress, nextMealAt, staminaOf } from "@/lib/town/stamina";
 import {
   GOODS, RULES, SHELF, forged, handOf, leftOf, lotWorth, mayBuy, mayChange, nextRoundAt, onShelf, waiting,
@@ -38,7 +38,7 @@ import TownNotices from "./TownNotices";
 // ── gifts: kitchen ──
 import TownBasket, { takesSpice } from "./TownBasket";
 import { hasThing, usesLeft } from "@/lib/town/gifts";
-import { Delta, PriceGraph, PriceNow } from "./TownPrice";
+import { Delta, PriceGraph, PriceNow, farmPriceOf } from "./TownPrice";
 
 /** What of the trade is open on the screen: the uncle's stall (buying, leaving things to be sold, or the notice board beside it, where members sell to one another), the bank, or my own bag. */
 export type TradeView = "buy" | "sell" | "board" | "bank" | "bag";
@@ -201,13 +201,23 @@ export function ItemIcon({ id, size, className }: { id: ItemId; size: number; cl
  * 2026-10-06: "ควรต้องเปิดเผยเวลาในการปลูกพืชแต่ละต้นในถุงเมล็ด", "บอกไปเลย"). The same words a recipe's clue uses of a
  * vegetable, so that one can be matched to the other. Nothing, for what is no seed.
  */
-export function SeedTime({ id, th, className = "" }: { id: ItemId; th: boolean; className?: string }) {
+export function SeedTime({ id, th, className = "", price }: { id: ItemId; th: boolean; className?: string;
+  /** (what its crop fetches this round, a piece of normal grade, as the farm is told it: v283; the owner, 2026-10-19) */
+  price?: PriceTold }) {
   const t = seedTime(id);
   if (!t) return null;
+  const crop = cropOf(id);
   return (
-    <span className={`flex items-center gap-1 ${className}`} data-seed-time>
-      <TownIcon name="plotSprout" size={14} className="shrink-0" />{th ? t.th : t.en[0].toUpperCase() + t.en.slice(1)}
-    </span>
+    <>
+      <span className={`flex items-center gap-1 ${className}`} data-seed-time>
+        <TownIcon name="plotSprout" size={14} className="shrink-0" />{th ? t.th : t.en[0].toUpperCase() + t.en.slice(1)}
+      </span>
+      {price && crop && <span className={`flex flex-wrap items-center gap-1 ${className}`} data-seed-price={price.f}>
+        {th ? "ผลขายตอนนี้" : "Its crop fetches"}
+        <span className="flex items-center gap-0.5 font-data tabular-nums text-gold"><TownIcon name="coin" size={13} />{historicalPrice(price.base ?? ITEMS[crop].pays, price.f)}</span>
+        {th ? "/ชิ้น" : "each now"}<Delta f={price.f} th={th} />
+      </span>}
+    </>
   );
 }
 
@@ -263,6 +273,9 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
   // What the stall has left is the whole village's: kept in sight while its panel is open.
   const atStall = view === "buy" || view === "sell" || view === "board";
   useEffect(() => (atStall ? keeper.look("stall") : undefined), [atStall, keeper]);
+  // …and every crop's price, so that a seed on the shelf says what its crop fetches now (v283; the owner, 2026-10-19)
+  useEffect(() => (view === "buy" ? keeper.look("farmPrices") : undefined), [view, keeper]);
+  const seedPrice = (seed: ItemId) => farmPriceOf(keeper, cropOf(seed));
   // …and so is the notice board beside it (lib/town/notices): there is a tab for it once the keeper has been told of one
   useEffect(() => (atStall ? keeper.look("notices") : undefined), [atStall, keeper]);
   // (handed to scripts in `next dev`, like the town's own handle: the trial itself where there is one)
@@ -353,7 +366,7 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-3 pt-3">
         {view==='bag'&&eventBag&&mapBag ? mapBag : <p className="mb-2 min-h-[1.5em] text-meta text-accent" aria-live="polite">{said ?? ""}</p>}
-        {view === "buy" && <Buy purse={purse} stall={stall} now={now} th={th} hintCoins={keeper.hintPrice()} shelf={keeper.shelf()}
+        {view === "buy" && <Buy purse={purse} stall={stall} now={now} th={th} hintCoins={keeper.hintPrice()} shelf={keeper.shelf()} seedPrice={seedPrice}
                                 onBuy={(id, n) => tried(keeper.buy(id, n), ["ขอบใจนะหลาน", "Much obliged, kiddo."])}
                                 onHint={() => tried(keeper.hint(), ["ลุงจดให้แล้วนะ ส่วนอย่างสุดท้าย ไปเดาเอาเอง", "There, I've jotted it down. The last thing is yours to guess."])} />}
         {view === "sell" && order && <Wanted order={order} purse={purse} th={th}
@@ -370,7 +383,7 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
         {view === "board" && board && <TownNotices keeper={keeper} board={board} purse={purse} prices={keeper.prices()} now={now} th={th} say={say} />}
         {view === "bank" && <Bank purse={purse} now={now} th={th}
                                   onChange={(kind, n) => tried(keeper.change(kind, n), ["เรียบร้อยครับ ผมจดลงสมุดแล้ว", "All done. It is written in my ledger."])} />}
-        {view === "bag" && !(eventBag && mapBag) && <Bag rodHook={<TownRodHook keeper={keeper} purse={purse} th={th} />} pouches={<TownPouches keeper={keeper} th={th} />} purse={purse} held={keeper.handSlot()} now={now} th={th} seated={seated} company={company} helpings={keeper.helpings()} recipeBook={<TownRecipeBook keeper={keeper} purse={purse} th={th}/>} book={keeper.bugBook()}
+        {view === "bag" && !(eventBag && mapBag) && <Bag seedPrice={seedPrice} rodHook={<TownRodHook keeper={keeper} purse={purse} th={th} />} pouches={<TownPouches keeper={keeper} th={th} />} purse={purse} held={keeper.handSlot()} now={now} th={th} seated={seated} company={company} helpings={keeper.helpings()} recipeBook={<TownRecipeBook keeper={keeper} purse={purse} th={th}/>} book={keeper.bugBook()}
                                 // ── gifts: kitchen ── (the kitchen's gifts that are used from the bag: components/town/TownBasket)
                                 kitchen={<TownBasket keeper={keeper} purse={purse} now={now} th={th} seated={seated} helpings={keeper.helpings()} say={say} spice={spiceOn} onSpice={setSpiceOn}
                                                      onStove={() => { onView(null); window.dispatchEvent(new CustomEvent("cashtown:stove")); }} />}
@@ -445,8 +458,10 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
 }
 
 /** The stall's shelf: each thing, what it costs, how many are left for the village and for me, and a button to buy. */
-function Buy({ purse, stall, now, th, hintCoins, shelf, onBuy, onHint }: {
+function Buy({ purse, stall, now, th, hintCoins, shelf, onBuy, onHint, seedPrice }: {
   purse: Purse; stall: Stall; now: number; th: boolean;
+  /** What a seed's crop fetches this round, as the farm is told it (v283). */
+  seedPrice?: (seed: ItemId) => PriceTold | undefined;
   /** What his next hint costs me, if he has one for me: which one it will be is by chance, and not this page's to know. */
   hintCoins: number | null;
   /** What the stall has open: the basic things, and what the village's orders have opened since (lib/town/orders). */
@@ -509,7 +524,7 @@ function Buy({ purse, stall, now, th, hintCoins, shelf, onBuy, onHint }: {
                 </div>
                 <p className="truncate text-meta text-muted">{th ? it.about.th : it.about.en}</p>
                 {equipmentEffect(id, th) && <p className="text-meta leading-relaxed text-[#bbd990]">{equipmentEffect(id, th)}</p>}
-                <SeedTime id={id} th={th} className="text-meta text-ink" />
+                <SeedTime id={id} th={th} className="text-meta text-ink" price={seedPrice?.(id)} />
                 <p className={`font-data text-meta ${may.n ? "text-muted" : "text-chili"}`}>
                   {may.n
                     ? (th ? `เหลือ ${left} · ซื้อได้อีก ${may.n}` : `${left} left · you may buy ${may.n}`)
@@ -695,8 +710,10 @@ function Bank({ purse, now, th, onChange }: { purse: Purse; now: number; th: boo
 }
 
 /** My bag, and how I am: my stamina and the day's meals, what a meal left, the bag itself, opened, and the recipes I know. */
-function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book, dropsAll, lying, onEat, onGetUp, onRead, onDress, onHold, onDrop, onWear, onTakeOff, onServe, onOpen, kitchen, sprinkles, tidy = false, onMove, onSort, pouches, rodHook }: {
+function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book, dropsAll, lying, onEat, onGetUp, onRead, onDress, onHold, onDrop, onWear, onTakeOff, onServe, onOpen, kitchen, sprinkles, tidy = false, onMove, onSort, pouches, rodHook, seedPrice }: {
   rodHook?: React.ReactNode;
+  /** What a seed's crop fetches this round, as the farm is told it (v283). */
+  seedPrice?: (seed: ItemId) => PriceTold | undefined;
   // ── mining ── (the pouches somebody has, each a row of its own under the bag's pockets: components/town/TownPouches)
   pouches?: React.ReactNode;
   purse: Purse; now: number; th: boolean; seated: boolean; company: number;
@@ -875,7 +892,7 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book
                       <p className="mt-1 text-meta leading-relaxed text-[#bbd990]" data-passive-effect={inHand.item}>{equipmentEffect(inHand.item, th)}</p>
                       <p className="text-meta text-[#c9a877]">{th ? "กดติดตัวเพื่อคืนช่องกระเป๋า" : "Equip to free its bag slot"}</p>
                     </>}
-                    <SeedTime id={inHand.item} th={th} className="text-meta text-[#f3e3c3]" />
+                    <SeedTime id={inHand.item} th={th} className="text-meta text-[#f3e3c3]" price={seedPrice?.(inHand.item)} />
                     {holdsOf(inHand, th) && <p className="text-meta text-[#f3e3c3]">{inHand.of ? (th ? `เหลือ ${inHand.of.left} ที่` : `${inHand.of.left} helpings left`) : holdsOf(inHand, th)}</p>}
                     {dish && !mayEat && !purse.eating && <p className="text-meta text-chili">{th ? WHY.meal[0] : WHY.meal[1]}</p>}
                     {dish && mayEat && !seated && <p className="text-meta text-chili">{th ? WHY.stand[0] : WHY.stand[1]}</p>}

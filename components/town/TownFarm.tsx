@@ -65,6 +65,7 @@ import { GARDEN, gardenCross, gardenMods } from "@/lib/town/gardening";
 import TownGardenPlacement from "./TownGardenPlacement";
 import TownMovePlant from "./TownMovePlant";
 import { FertChart, QualityBed, QualityChip, QualityInspector } from "./TownQuality";
+import { farmPriceOf } from "./TownPrice";
 import { HouseChip, HousePanel } from "./TownInsectHouse";
 import { houseRoleOf, plantsInReach, type HouseDeed, type InsectHouse } from "@/lib/town/insect-house";
 import { insectPose, type HouseFlight, type InsectPose } from "./houseInsects";
@@ -280,6 +281,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     return () => { stop(); clearInterval(t); };
   }, [keeper]);
   useEffect(() => (near ? keeper.look("farm") : undefined), [near, keeper]);
+  // (every crop's price this round, for the inspector and the seed in the hand: v283; the owner, 2026-10-19)
+  useEffect(() => (near ? keeper.look("farmPrices") : undefined), [near, keeper]);
   /** The work being done by the game of timing: on which plot (none, for carrying water), what, and how many hits it asks for. */
   /** (`row`: the plots of a bed's row that the enchanted hoe works at one swing, the one stood on first: a beat to each) */
   /** (`whole`: tired hands steadying themselves for a row's deed that has no game of its own, the pouch's sowing: done, the whole row is sown) */
@@ -1279,7 +1282,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           <button type="button" onClick={() => setBookView(false)} className="pressable tk tk-btn-wood flex min-h-11 items-center gap-2 self-start px-3 text-meta font-semibold"><TownIcon name="close" size={14} />{th ? "กลับไปที่ต้นนี้" : "Back to the plant"}</button>
           <div className="min-h-0 overflow-y-auto"><TownNotebook initiallyOpen onClose={() => setBookView(false)} icon="gardenNotebook" title={th ? "สมุดทดลองสวนของฉัน" : "My garden experiments"} th={th} entries={bookEntries}/></div>
         </div>
-      : <QualityInspector plant={inspected} now={now} rains={rains} th={th} onClose={() => setInspecting(null)} onBed={() => setBedView(true)} onChart={() => setChartView(true)} notes={panelNotes} onBook={() => setBookView(true)} book={bookCount} />}</TownFoot>}{bare ? null : (
+      : <QualityInspector plant={inspected} now={now} rains={rains} th={th} onClose={() => setInspecting(null)} onBed={() => setBedView(true)} onChart={() => setChartView(true)} notes={panelNotes} onBook={() => setBookView(true)} book={bookCount} price={farmPriceOf(keeper, inspected.crop)} />}</TownFoot>}{bare ? null : (
     <TownFoot rank={placement || moving || working || asking ? "board" : "main"} order={62}>
       {moving && !placement && !working && <TownMovePlant at={moving} keeper={keeper} th={th} now={now} rains={rains} onClose={() => setMoving(null)} onMove={(to) => doMove(moving, to)} />}
       {placement && <TownGardenPlacement at={placement.key} crop={placement.crop} keeper={keeper} th={th} onClose={() => setPlacement(null)} onPlant={async rotation => { const need = hitsFor("sow", tiredOn(placement.key)); if (need) { setWorking({ key: placement.key, work: "sow", need, rotation }); setPlacement(null); } else if (await act(placement.key, undefined, false, rotation)) setPlacement(null); }} />}

@@ -88,9 +88,11 @@ export const FARMING = {
   /**
    * Stamina: clearing weeds, tilling, pulling up a dead plant, sowing, watering, feeding, curing, picking. Clearing
    * and tilling were 4 each: on the game's first morning two hundred plots were hoed for thirty-six sown, and half
-   * the village had no stamina left (the owner, 2026-10-04: "1 + 2 ครับ ทำเลย").
+   * the village had no stamina left (the owner, 2026-10-04: "1 + 2 ครับ ทำเลย"). Picking was 2 until v283: two full
+   * beds took 196 stamina to pick, and members said the morning's picking alone used up the day's (the owner,
+   * 2026-10-19: "ลด stamina ตอนเก็บผักจาก 2 เป็น 1 ทำอันนี้ด้วย").
    */
-  costs: { clear: 2, till: 2, pull: 2, sow: 1, water: 1, feed: 1, cure: 1, pick: 2 },
+  costs: { clear: 2, till: 2, pull: 2, sow: 1, water: 1, feed: 1, cure: 1, pick: 1 },
   /** A watering: the minutes of growth it adds, and the minutes before the same plot can be watered again. */
   water: { adds: 30, every: 60 },
   /** Growth fertiliser: how many times as fast a plant grows from when it is put on. */

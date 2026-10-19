@@ -226,3 +226,10 @@ export function pricesTold(market: Market, log: Logged[], held: string[], c: Mar
   }
   return { round: market.round, things };
 }
+/**
+ * Every crop's price this round, as the farm is told it whether one holds the crop or not (the owner, 2026-10-19:
+ * "แสดงราคาที่ฟาร์ม ให้เห็นราคาตอนนี้ ราคาของแต่ละเกรด", after members said they could not see a price before picking):
+ * what `pricesTold` tells of a thing held, without the days gone by. The database's public.town_farm_prices (v283).
+ */
+export const farmPricesOf = (market: Market, c: MarketFacts, k: MarketKnobs = MARKET): PricesTold =>
+  pricesTold(market, [], Object.keys(c.items).filter((id) => c.items[id].kind === "crop"), c, k);

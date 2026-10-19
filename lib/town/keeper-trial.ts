@@ -140,6 +140,7 @@ class TrialKeeper implements Keeper {
   deal() { return this.trial.deal(); }
   fountain() { return this.trial.fountain(); }
   prices() { return this.trial.prices(); }
+  farmPrices() { return this.trial.farmPrices(); }
   notices() { return this.trial.notices(); }
 
   async buy(item: ItemId, n: number): Promise<Did> { return this.trial.buy(item, n); }

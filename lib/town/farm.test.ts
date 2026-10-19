@@ -762,8 +762,8 @@ describe("what waiting is worth (the owner, 2026-10-04: every crop twice as many
     for (const [id, [lo, hi]] of Object.entries(OPENED)) expect(CROPS[id as keyof typeof CROPS].yield, id).toEqual([lo * 2, hi * 2]);
   });
 
-  it("clears and tills for two stamina each, and the other deeds for what they cost", () => {
-    expect(FARMING.costs).toEqual({ clear: 2, till: 2, pull: 2, sow: 1, water: 1, feed: 1, cure: 1, pick: 2 });
+  it("clears and tills for two stamina each, and the other deeds for what they cost (picking one since v283)", () => {
+    expect(FARMING.costs).toEqual({ clear: 2, till: 2, pull: 2, sow: 1, water: 1, feed: 1, cure: 1, pick: 1 });
   });
 
   it("pays a point of stamina better for morning glory than for a common fish, and better still for what takes longer", () => {

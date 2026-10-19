@@ -1160,7 +1160,7 @@ insert into public.town_catalog (key, data) values
     "shadeLure": {"needs":[["glassGoby",1],["fishRoe",1],["resin",1]],"in":[],"gives":2}
   }$town$::jsonb),
   ('farming', $town${
-    "costs": {"clear":2,"till":2,"pull":2,"sow":1,"water":1,"feed":1,"cure":1,"pick":2},
+    "costs": {"clear":2,"till":2,"pull":2,"sow":1,"water":1,"feed":1,"cure":1,"pick":1},
     "water": {"adds":30,"every":60},
     "feed": 1.25,
     "guard": 24,

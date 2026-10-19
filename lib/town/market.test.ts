@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CROPS, ITEMS, ITEM_IDS } from "./items";
-import { MARKET, costOf, counted, factorOf, factsOf, historicalPrice, marketDemand, movingOf, newMarket, next, pricesTold, rolled, thingOf, worth, type Market } from "./market";
+import { MARKET, costOf, counted, factorOf, factsOf, farmPricesOf, historicalPrice, marketDemand, movingOf, newMarket, next, pricesTold, rolled, thingOf, worth, type Market } from "./market";
 import { GOODS } from "./trade";
 
 const c = factsOf();
@@ -250,5 +250,20 @@ describe("stock decisions and buyer interest", () => {
     expect(seen.some((f, i) => i > 0 && f < seen[i - 1])).toBe(true);
     expect(seen.some((f, i) => i > 0 && f > seen[i - 1])).toBe(true);
     expect(Math.max(...seen) - Math.min(...seen)).toBeGreaterThan(60);
+  });
+});
+
+describe("every crop's price, told at the farm (v283; the owner, 2026-10-19)", () => {
+  it("tells each crop whose price moves, held or not, as a thing held is told, without the days gone by", () => {
+    const c = factsOf(), m: Market = { round: 500, at: { kangkong: { f: 60, m: 400 }, blueCorn: { f: 140, m: 1 } }, sold: {} };
+    const told = farmPricesOf(m, c);
+    const crops = Object.keys(c.items).filter((id) => c.items[id].kind === "crop" && thingOf(id, c) !== null);
+    expect(Object.keys(told.things).sort()).toEqual(crops.sort());
+    expect(told.round).toBe(500);
+    expect(told.things.kangkong).toEqual({ ...pricesTold(m, [], ["kangkong"], c).things.kangkong, was: [] });
+    expect([told.things.kangkong.f, told.things.blueCorn.f, told.things.tomato.f]).toEqual([60, 140, 100]);
+    expect(Object.values(told.things).every((t) => t.was.length === 0)).toBe(true);
+    // (no seed, fish or dish among them)
+    expect(["seedKangkong", "minnow", "stirKangkong"].some((id) => id in told.things)).toBe(false);
   });
 });

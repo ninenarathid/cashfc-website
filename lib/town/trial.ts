@@ -66,7 +66,7 @@ import { drop as dropDown, lying, pickUp, type Dropped } from "./ground";
 import * as Shops from "./shop";
 import { buyHint, hintPrice, hintsLeft } from "./hints";
 import * as Notices from "./notices";
-import { MARKET, counted, factorOf, factsOf, newMarket, pricesTold, rolled, type Logged, type Market, type MarketQuote, type PricesTold } from "./market";
+import { MARKET, counted, factorOf, factsOf, farmPricesOf, newMarket, pricesTold, rolled, type Logged, type Market, type MarketQuote, type PricesTold } from "./market";
 import { CROPS, CROP_IDS, DISHES, ITEMS, STAGES, STAGE_AT, type BaitId, type CatchId, type DishId, type ItemId } from "./items";
 import { UNLOCKS, give, newVillage, orderOf, shelfOf, sourcesAt, type Order, type Village } from "./orders";
 import { count, keep, newTally, type Play, type Tally } from "./plays";
@@ -450,6 +450,8 @@ export class Trial {
     const p = this.purse(), market = this.market();
     return pricesTold(market, this.marketLog(), [...p.bag.flatMap((s) => (s ? [s.item] : [])), ...p.left.map((l) => l.item)], factsOf());
   }
+  /** Every crop's price this round, as the farm is told it (v283). */
+  farmPrices(): PricesTold { return farmPricesOf(this.market(), factsOf()); }
   /** Leave things with the uncle at this round's price. What is left counts as sold this round; what is taken back in the round it was left in was not sold. */
   leave(slot: number, n: number, quote?: MarketQuote) {
     const purse = this.purse(), market = this.market(), item = purse.bag[slot]?.item;

@@ -148,7 +148,9 @@ export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild"
   // ── felling ── (the mountain's trees: who felled which is everybody's)
   | "trees"
   // ── the bridge built by hand ── and ── the lamp relay ──
-  | "works" | "lamps" | "boats";
+  | "works" | "lamps" | "boats"
+  // ── every crop's price, told at the farm (v283) ──
+  | "farmPrices";
 export type Water = "river" | "well" | null;
 /** A game of timing as the browser played it: the database keeps it with the play, and bounds what it costs. */
 export interface Timing { hits: number; misses: number; secs: number; need?: number; rotation?: number }
@@ -211,6 +213,8 @@ export interface Keeper {
   stall(): Stall;
   /** What I am told of the relatives' prices (lib/town/market): of each thing I hold or have left with the uncle whose price moves. Of none, where no price moves yet. */
   prices(): PricesTold;
+  /** Every crop's price this round, told at the farm whether I hold it or not (v283; the owner, 2026-10-19), without the days gone by. Of none until the farm has asked. */
+  farmPrices(): PricesTold;
   shelf(): ItemId[];
   order(): Order | null;
   /** What the uncle's next hint costs me (lib/town/hints), or null when he has none for me. Which hint it will be is by chance and the keeper's to say, at the buying. */
@@ -770,7 +774,8 @@ type Answer = Record<string, unknown>;
 interface Turn { before?: () => boolean | void; after?: (a: Answer | null) => void }
 
 /** How often what others may change is asked for while it is looked at, in milliseconds. A nudge from the room asks at once. */
-const EVERY: Record<Looked, number> = { /* mining */ boats: 15000, cave: 60_000, stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000, fountain: 60_000, wild: 45_000, bugs: 45_000, notices: 30_000, line: 60_000, ground: 10_000, shop: 30_000, /* felling */ trees: 60_000, works: 45_000, lamps: 60_000 };
+const EVERY: Record<Looked, number> = { /* mining */ boats: 15000, cave: 60_000, stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000, fountain: 60_000, wild: 45_000, bugs: 45_000, notices: 30_000, line: 60_000, ground: 10_000, shop: 30_000, /* felling */ trees: 60_000, works: 45_000, lamps: 60_000,
+  /* (a price moves only at a round's turn, twice a day) */ farmPrices: 5 * 60_000 };
 /**
  * The room's word that a thing changed is answered at once, and then no oftener than this for the things that are
  * dear to read (seen on the live database the evening the mountain opened, 2026-10-09: seven members in the cave,
@@ -879,6 +884,7 @@ export class DbKeeper implements Keeper {
   private caveLaidAt = 0;
   private stall_: Stall = newStall();
   private prices_: PricesTold = NO_PRICES;
+  private farmPrices_: PricesTold = NO_PRICES;
   private unlocked = 0;
   private shelf_: ItemId[] = shelfOf(0);
   private order_: Order | null = null;
@@ -1195,6 +1201,8 @@ export class DbKeeper implements Keeper {
     if (a.stall && typeof a.stall === "object") this.stall_ = a.stall as Stall;
     // (the stall's answer, and a thing left or taken back: a database that has no moving price yet says nothing, and every thing keeps its one price)
     if (a.prices && typeof a.prices === "object" && typeof (a.prices as PricesTold).things === "object") this.prices_ = a.prices as PricesTold;
+    // (every crop's, told at the farm: v283's public.town_farm_prices; a database before it has no such function, and the farm tells no price)
+    if (a.farmPrices && typeof a.farmPrices === "object" && typeof (a.farmPrices as PricesTold).things === "object") this.farmPrices_ = a.farmPrices as PricesTold;
     if (typeof a.unlocked === "number") this.unlocked = a.unlocked;
     // The shelf is the database's, and the database can come to sell a thing this page was built before (the scroll of
     // the cure for pests did, on the game's first day, with members in town who had not loaded the page again). Such
@@ -1429,6 +1437,7 @@ export class DbKeeper implements Keeper {
       : what === "works" ? this.refresh("town_works_read")
       : what === "lamps" ? this.refresh("town_lamps_read")
       : what === "boats" ? this.refresh("town_reward_boats",()=>({p_x:this.boatAt_[0],p_y:this.boatAt_[1]}))
+      : what === "farmPrices" ? this.refresh("town_farm_prices")
       : this.refresh("town_farm", () => ({ p_since: this.farmAt })).then((a) => { if (a && typeof a.now === "number") this.farmAt = a.now; return a; });
     void asked.then(() => {
       const still = this.looking.get(what);
@@ -1444,6 +1453,7 @@ export class DbKeeper implements Keeper {
   helpings(): number { return this.mine.meals?.bowls ? STAMINA.bowls : 1; }
   stall(): Stall { return this.stall_; }
   prices(): PricesTold { return this.prices_; }
+  farmPrices(): PricesTold { return this.farmPrices_; }
   shelf(): ItemId[] { return this.shelf_; }
   order(): Order | null { return this.order_; }
   hintPrice(): number | null {

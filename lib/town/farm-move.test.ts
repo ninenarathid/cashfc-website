@@ -214,7 +214,7 @@ describe("the mandrake sprout: every fruit of my own plants at the top of its ra
     const g2 = gardenHarvest(k(1, 1), plots, plainTwine, { purse: b2.purse, plot: b2.plot, got: b2.got! }, "me", NOON, []) as { purse?: Purse };
     expect(held(g2.purse!.bag, "corn")).toBe(b2.got![0][1] + 1);
     expect(held(g2.purse!.bag, "corn", gradeOf(81))).toBeLessThan(b2.got![0][1] + 1);
-    expect(FARMING.costs.pick).toBe(2);
+    expect(FARMING.costs.pick).toBe(1);
   });
 });
 

@@ -8,7 +8,10 @@ import type { FarmSky, Plant, Plot } from "@/lib/town/farm";
 import { bedCorner, bedOf } from "@/lib/town/world";
 import { ITEMS, type ItemId } from "@/lib/town/items";
 import { FERTS, type Fert } from "@/lib/town/fertilisers";
+import type { PriceTold } from "@/lib/town/market";
+import { gradePays } from "@/lib/town/trade";
 import TownIcon, { type IconName } from "./TownIcon";
+import { Delta } from "./TownPrice";
 
 /*
  * The farm's Quality on the page (the design's mock screens, approved 2026-10-15): a chip that says the range of the
@@ -63,6 +66,38 @@ export function QualityRange({ range, base, th, odds = true }: { range: Range; b
   );
 }
 
+/** A coin amount to the hundredth, without the zeros it does not need. */
+const coinsOf = (n: number) => String(Math.round(n * 100) / 100);
+/**
+ * What the plant's crop fetches this round, a piece at each grade (v283; the owner, 2026-10-19: "แสดงราคาที่ฟาร์ม ให้เห็น
+ * ราคาตอนนี้ ราคาของแต่ละเกรด", after members said they could not see a price before picking). The grades its range
+ * cannot reach are dimmed; how far the price stands from its base, and the buyers' interest, as the stall says them.
+ */
+export function GradePrices({ id, told, th, reach }: { id: string; told: PriceTold; th: boolean; reach?: Record<Grade, number> }) {
+  const base = told.base ?? ITEMS[id as ItemId]?.pays ?? 0;
+  return (
+    <div className="flex flex-col gap-1" data-farm-price={id} data-price-f={told.f}>
+      <p className="flex flex-wrap items-center gap-x-1.5 text-meta font-semibold text-[#ffd27a]">
+        {th ? "ลุงรับซื้อตอนนี้ (ต่อชิ้น)" : "The uncle pays now (a piece)"}<Delta f={told.f} th={th} />
+      </p>
+      <ul className="grid grid-cols-4 gap-1">
+        {GRADES.map((g) => {
+          const out = reach !== undefined && !(reach[g.grade] > 0);
+          return <li key={g.grade} data-farm-price-grade={g.grade} aria-label={`${th ? g.th : g.en} ${coinsOf((base * told.f * gradePays(id as ItemId, g.grade)) / 100)}`}
+                     className={`flex min-h-11 flex-col items-center justify-center gap-0.5 rounded border-[1.5px] border-[#1a0e06] bg-[#4a3522] px-1 py-1 text-ink ${out ? "opacity-45" : ""}`}>
+            <span className="flex items-center gap-1 whitespace-nowrap text-label"><i aria-hidden className="inline-block size-2.5 shrink-0 border border-[#22150a]" style={{ background: ZONE[g.grade] }} />{g.grade ? "★".repeat(g.grade) : th ? "ธรรมดา" : "Normal"}</span>
+            <span className="flex items-center gap-0.5 font-data text-meta font-semibold tabular-nums text-gold"><TownIcon name="coin" size={12} />{coinsOf((base * told.f * gradePays(id as ItemId, g.grade)) / 100)}</span>
+          </li>;
+        })}
+      </ul>
+      {told.demand !== undefined && <p className="text-label text-[#ead9b4]" data-farm-demand={told.demand}>
+        {th ? "ผู้ซื้อรอบนี้" : "Buyer interest"}: {told.demand >= 115 ? th ? "คึกคัก" : "Strong" : told.demand <= 85 ? th ? "ซบเซา" : "Quiet" : th ? "ปกติ" : "Normal"}
+        {!!told.demandTrend && <span> · {told.demandTrend > 0 ? th ? "เริ่มสนใจมากขึ้น" : "Picking up" : th ? "ความสนใจลดลง" : "Cooling"}</span>}
+      </p>}
+    </div>
+  );
+}
+
 /** Standing on a plant: its range in a word, and the way into the inspector. */
 /** (`top`: the mandrake follows me and the plant is mine, lib/town/farm's atTop: every fruit of its picking lands at the range's top, and the chip says so) */
 export function QualityChip({ plant, now, rains, th, onOpen, gain, top }: { plant: Plant; now: number; rains: FarmSky; th: boolean; onOpen: () => void; gain?: number; top?: boolean }) {
@@ -81,9 +116,11 @@ export function QualityChip({ plant, now, rains, th, onOpen, gain, top }: { plan
 }
 
 /** The plant inspector: the range, the four bars and what covers them, and what has narrowed the range. */
-export function QualityInspector({ plant, now, rains, th, onClose, onBed, onChart, notes, onBook, book }: { plant: Plant; now: number; rains: FarmSky; th: boolean; onClose: () => void; onBed?: () => void; onChart?: () => void;
+export function QualityInspector({ plant, now, rains, th, onClose, onBed, onChart, notes, onBook, book, price }: { plant: Plant; now: number; rains: FarmSky; th: boolean; onClose: () => void; onBed?: () => void; onChart?: () => void;
   /** (what the plant's place tells besides: an insect in the bag that could help, a crossing the pollen matches; the owner, 2026-10-16, one panel) */
-  notes?: string[]; onBook?: () => void; book?: number }) {
+  notes?: string[]; onBook?: () => void; book?: number;
+  /** (its crop's price this round, v283: none where the database tells no farm prices yet) */
+  price?: PriceTold }) {
   const seen = qualityNow(plant, now, rains), cover = coveringNow(plant, now, rains), close = useRef<HTMLButtonElement>(null);
   useCloses(onClose, close);
   const ripe = seen.grown >= 1, base = Math.max(0, seen.range.hi - QUALITY.spread);
@@ -108,6 +145,7 @@ export function QualityInspector({ plant, now, rains, th, onClose, onBed, onChar
         <span className="text-meta text-muted">{ripe ? (th ? "ช่วงล็อกแล้ว สุ่มทีละผลตอนเก็บ" : "Locked: each fruit rolled at the pick") : th ? "ถ้าดูแลแบบนี้ต่อจนสุก" : "If cared for like this until ripe"}</span>
       </div>
       <QualityRange range={seen.range} base={base} th={th} />
+      {price && <GradePrices id={plant.crop} told={price} th={th} reach={seen.chances} />}
       <ul className="flex flex-col gap-1.5" aria-label={th ? "สี่แถบ" : "The four bars"}>
         {ROLES.map((r) => {
           const c = cover[r], v = seen.bars[r];

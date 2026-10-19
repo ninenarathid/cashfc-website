@@ -3,8 +3,16 @@
 import { useState, type KeyboardEvent, type PointerEvent } from "react";
 import { ITEMS, type ItemId } from "@/lib/town/items";
 import { historicalPrice, type PriceTold } from "@/lib/town/market";
-import { roundStart } from "@/lib/town/trade";
+import type { Keeper } from "@/lib/town/keeper";
+import { roundOf, roundStart } from "@/lib/town/trade";
 import TownIcon from "./TownIcon";
+
+/** A crop's price this round as the farm was told it (v283's public.town_farm_prices), or none: nothing told yet, or told of a round gone by. */
+export function farmPriceOf(keeper: Pick<Keeper, "farmPrices" | "now">, crop: string | null | undefined): PriceTold | undefined {
+  if (!crop) return undefined;
+  const told = keeper.farmPrices();
+  return told.round === roundOf(keeper.now()) ? told.things[crop] : undefined;
+}
 
 /**
  * The relatives' price for a thing, where things are left to be sold (the owner, 2026-10-05: "ช่วยทำให้กราฟราคาด้วย ตอน

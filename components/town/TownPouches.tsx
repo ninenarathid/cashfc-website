@@ -14,8 +14,11 @@ import { GradeBadge } from "./TownTrade";
  * beyond the bag's that hold only some things). A tap on what is in a slot takes it out into the bag; the button at a
  * row's end puts away what the bag has that the pouch takes. Nothing at all, for whoever has no pouch. (Graded produce
  * keeps its grade in the farm's pouch: its stars are in a corner of its slot, as in the bag's; a row has as many slots
- * as its pouch, six for the farm's.)
+ * as its pouch.) A pouch of more than `ROW` slots (the farm's, thirty since v283) is laid five to a row as the bag is,
+ * with only the slots that hold something and one cell that says how many are empty, so that the panel grows as the
+ * pouch fills and not by thirty empty squares; its heading says how many are used.
  */
+const ROW = 6;
 export default function TownPouches({ keeper, th }: { keeper: Keeper; th: boolean }) {
   const [busy, setBusy] = useState(false), [said, setSaid] = useState<string | null>(null);
   const purse = keeper.purse(), mine = pouchesOf(purse).filter((p) => keeper.gives(p.pouch.gift));
@@ -31,18 +34,21 @@ export default function TownPouches({ keeper, th }: { keeper: Keeper; th: boolea
     <div className="mt-2 flex flex-col gap-2" data-pouches>
       {mine.map(({ pouch, slots }) => {
         const gift = giftOf(pouch.gift), fits = purse.bag.map((s, i) => ({ s, i })).filter(({ s }) => !!s && pouch.holds.includes(s.item) && !s.of && s.water === undefined && !(s.plus ?? 0) && !s.opts?.length && !s.gems?.length);
+        const big = slots.length > ROW, used = slots.filter(Boolean).length, empty = slots.length - used;
+        const shown = slots.map((s, i) => ({ s, i })).filter(({ s }) => !big || !!s);
         return (
           <section key={pouch.gift} aria-label={gift ? (th ? gift.name.th : gift.name.en) : pouch.gift} data-pouch={pouch.gift}>
             <div className="mb-1 flex items-center gap-1.5">
               <TownIcon name={pouch.gift as IconName} size={20} />
               <h3 className="text-meta font-semibold text-[#e9cfa4]">{gift ? (th ? gift.name.th : gift.name.en) : pouch.gift}</h3>
+              {big && <span className="font-data text-label tabular-nums text-[#c9a877]" data-pouch-used={used}>{used}/{slots.length}</span>}
               {said && <span className="text-label text-[#ffb09c]" aria-live="polite">{said}</span>}
               <button type="button" disabled={busy || !fits.length} data-pouch-in
                       onClick={() => run(async () => { let any = false, why: string | undefined; for (const { i } of [...fits].reverse()) { const did = await keeper.pouchIn(i); if (did.ok) any = true; else why = did.why; } return { ok: any, why }; })}
                       className="pressable ml-auto min-h-8 rounded-md border border-[#6b4a2a] bg-[#33251a] px-2.5 text-label text-[#f3e3c3] disabled:opacity-40">{th ? "เก็บจากกระเป๋า" : "Put away"}</button>
             </div>
-            <ul className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${slots.length},minmax(0,1fr))` }}>
-              {slots.map((s, i) => {
+            <ul className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${big ? 5 : slots.length},minmax(0,1fr))` }}>
+              {shown.map(({ s, i }) => {
                 const look = `relative grid h-11 w-full place-items-center rounded-xl border-2 ${s ? "border-[#7a6a4a] bg-[#2f2a22] shadow-[inset_0_-3px_0_rgba(0,0,0,0.35)] hover:border-[#c9a877]" : "border-dashed border-[#4a4334] bg-[#211d17] shadow-[inset_0_3px_6px_rgba(0,0,0,0.5)]"}`;
                 if (!s) return <li key={i} className={look} data-pouch-slot={i}><span className="sr-only">{th ? "ช่องว่าง" : "Empty slot"}</span></li>;
                 const name = th ? ITEMS[s.item].name.th : ITEMS[s.item].name.en, grade = s.grade ? ` ${th ? GRADES[s.grade].th : GRADES[s.grade].en}` : "";
@@ -57,6 +63,9 @@ export default function TownPouches({ keeper, th }: { keeper: Keeper; th: boolea
                   </li>
                 );
               })}
+              {big && empty > 0 && <li className="grid h-11 w-full place-items-center rounded-xl border-2 border-dashed border-[#4a4334] bg-[#211d17] text-label text-[#c9a877] shadow-[inset_0_3px_6px_rgba(0,0,0,0.5)]" data-pouch-empty={empty}>
+                {th ? `ว่าง ${empty}` : `${empty} free`}
+              </li>}
             </ul>
           </section>
         );

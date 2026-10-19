@@ -36,8 +36,9 @@ export const POUCHES: readonly Pouch[] = [
     "slateLayer", "clayPocket", "quartzCore", "pyriteCluster", "copperNodule", "ironNodule", "silverNodule", "mineralSalt", "wholeGeode"] },
   // ── felling ── (wood: logs and fine timber)
   { gift: "thingBundle", slots: 3, holds: ["log", "timber", "knottedWood", "straightWood", "heartwood", "cedarSliver", "pineBark", "pinePitch", "pineNut", "rootFiber"] },
-  // ── farming ── (the spellbound seed pouch's, rank 3: a slot more than the others', 2026-10-16)
-  { gift: "thingPouch", slots: 6, holds: FARM_HOLDS },
+  // ── farming ── (the spellbound seed pouch's, rank 3: six slots on 2026-10-16; thirty since v283, the owner,
+  // 2026-10-19, when members said they had nowhere to keep a crop while its price was low: "กระเป๋าฟาร์ม แก้เป็น 30 ช่องไปเลย")
+  { gift: "thingPouch", slots: 30, holds: FARM_HOLDS },
 ];
 export const pouchOf = (gift: string): Pouch | null => POUCHES.find((p) => p.gift === gift) ?? null;
 

@@ -11,7 +11,7 @@ import { STOREBOX, bedCorner, rowOf } from "./world";
 /**
  * The farming line's pouch (lib/town/pouches; the owner, 2026-10-16: "ช่วยทำให้ เครื่องรางบางชิ้นในสาย ปลูกพืช มี
  * กระเป๋าเก็บของสำหรับสายนี้โดยเฉพาะ สำหรับ เก็บพืช เมล็ด ได้ ให้slot มากกว่าสายอื่นเล็กน้อย / เพิ่ม stack ต่อ slot ให้กับพืชด้วย"):
- * the seed pouch's six slots of produce and seeds, grades kept; what is harvested goes in first; seeds are sown from it;
+ * the seed pouch's thirty slots (six until v283) of produce and seeds, grades kept; what is harvested goes in first; seeds are sown from it;
  * and produce stacked twice as high.
  */
 const NOON = Date.UTC(2026, 9, 17, 5), [BX, BY] = bedCorner(0), K = `${BX + 3},${BY + 3}`;
@@ -25,14 +25,14 @@ const ripe = (crop: Plant["crop"], over: Partial<Plant> = {}): Plant => ({ by: "
   q: { at: NOON - HOUR, span: 1, area: [0.8, 0.9, 0.56, 1], nar: [0, 0, 0] }, ...over });
 
 describe("the farm's pouch and its produce", () => {
-  it("is the seed pouch's: six slots, for everything the farm grows and every seed, and nothing else", () => {
-    expect(POUCHES.find((p) => p.gift === "thingPouch")?.slots).toBe(6);
+  it("is the seed pouch's: thirty slots (six until v283), for everything the farm grows and every seed, and nothing else", () => {
+    expect(POUCHES.find((p) => p.gift === "thingPouch")?.slots).toBe(30);
     for (const id of CROP_IDS) expect(FARM_HOLDS, id).toContain(id);
     for (const id of ["mint", "chamomile", "lavender", "seedTomato", "seedPumpkin"] as ItemId[]) expect(FARM_HOLDS, id).toContain(id);
     for (const id of ["minnow", "log", "rod", "compost", "salt"] as ItemId[]) expect(FARM_HOLDS, id).not.toContain(id);
     expect(FARM_HOLDS.every((id) => ITEMS[id].kind === "crop" || ITEMS[id].kind === "seed" || CROP_IDS.includes(id as never))).toBe(true);
     expect(pouchesOf(purseWith(undefined))).toEqual([]);
-    expect(slots(purseWith(POUCH))).toEqual(Array(6).fill(null));
+    expect(slots(purseWith(POUCH))).toEqual(Array(30).fill(null));
   });
 
   it("stacks the farm's produce twice as high (10, 20, 40), the wild helpers too, and seeds as they were", () => {
@@ -46,20 +46,20 @@ describe("the farm's pouch and its produce", () => {
 
   it("keeps a grade to a slot, as the bag does: stowed into the pouch first, the rest into the bag, each with its grade", () => {
     let p = purseWith(POUCH);
-    expect(roomIn(p, "tomato", 2)).toBe(16 * 40);
+    expect(roomIn(p, "tomato", 2)).toBe(40 * 40);
     p = stow(p, "tomato", 30, 2);
     p = stow(p, "tomato", 15);
     p = stow(p, "tomato", 20, 2);
     expect(slots(p).slice(0, 3)).toEqual([{ item: "tomato", n: 40, grade: 2 }, { item: "tomato", n: 15 }, { item: "tomato", n: 10, grade: 2 }]);
     expect(p.bag.every((s) => s === null)).toBe(true);
     expect([heldIn(p, "tomato"), heldIn(p, "tomato", 2), heldIn(p, "tomato", 0), heldIn(p, "tomato", 3)]).toEqual([65, 50, 15, 0]);
-    expect(roomIn(p, "tomato", 2)).toBe(30 + 3 * 40 + 10 * 40);
+    expect(roomIn(p, "tomato", 2)).toBe(30 + 27 * 40 + 10 * 40);
     // the pouch full: the bag takes the rest, graded as it was
-    const crammed = stowAll(purseWith(POUCH, [null, null], Array.from({ length: 6 }, () => ({ item: "seedTomato" as ItemId, n: 10 }))), [["tomato", 5, 3], ["seedTomato", 2]])!;
+    const crammed = stowAll(purseWith(POUCH, [null, null], Array.from({ length: 30 }, () => ({ item: "seedTomato" as ItemId, n: 10 }))), [["tomato", 5, 3], ["seedTomato", 2]])!;
     expect(crammed.bag).toEqual([{ item: "tomato", n: 5, grade: 3 }, { item: "seedTomato", n: 2 }]);
     expect(stowAll(crammed, [["tomato", 80, 1]])).toBeNull();
     // (a grade that is no grade is none, and a stack is never more than stack)
-    expect(slots(purseWith(POUCH, undefined, [{ item: "tomato", n: 99, grade: 7 as 1 }, { item: "minnow", n: 1 }]))).toEqual([{ item: "tomato", n: 40 }, null, null, null, null, null]);
+    expect(slots(purseWith(POUCH, undefined, [{ item: "tomato", n: 99, grade: 7 as 1 }, { item: "minnow", n: 1 }]))).toEqual([{ item: "tomato", n: 40 }, ...Array(29).fill(null)]);
   });
 
   it("moves a graded slot into the bag and back with its grade, as much as there is room for", () => {
@@ -86,7 +86,7 @@ describe("the farm's pouch and its produce", () => {
     expect(slots(did.purse).some((s) => s?.item === "corn" && (s.grade ?? 0) > 0)).toBe(true);
     // no pouch: the bag, as ever; neither with room: refused, nothing changed
     expect(heldIn(ok(pick(K, purseWith(undefined), corn(), true, null, NOON, [], "me")).purse, "corn")).toBe(did.got![0][1]);
-    expect(pick(K, purseWith(POUCH, full(), Array.from({ length: 6 }, () => ({ item: "seedTomato" as ItemId, n: 10 }))), corn(), true, null, NOON, [], "me")).toEqual({ ok: false, why: "full" });
+    expect(pick(K, purseWith(POUCH, full(), Array.from({ length: 30 }, () => ({ item: "seedTomato" as ItemId, n: 10 }))), corn(), true, null, NOON, [], "me")).toEqual({ ok: false, why: "full" });
     // the sickle's sweep of a row of mine: every fruit in the pouch, the one more of each plant cut well among them
     const keys = rowOf(BX + 3, BY + 3).map(([x, y]) => `${x},${y}`), row = Object.fromEntries(keys.map((key) => [key, { soil: "tilled", plant: ripe("cabbage") } as Plot]));
     const mine: Bed = { by: "me", tended: NOON - HOUR, empty: 0 };
@@ -104,12 +104,12 @@ describe("the farm's pouch and its produce", () => {
   });
 
   it("takes a picking grade by grade onto its own stacks first, so one grade never takes the empty slot another needed (Codex, 2026-10-16)", () => {
-    // the bag: 35 plain tomatoes and nine rods; the pouch: five full stacks of seeds and one empty slot
-    const seeds = Array.from({ length: 5 }, () => ({ item: "seedTomato" as ItemId, n: 10 }));
+    // the bag: 35 plain tomatoes and nine rods; the pouch: twenty-nine full stacks of seeds and one empty slot
+    const seeds = Array.from({ length: 29 }, () => ({ item: "seedTomato" as ItemId, n: 10 }));
     const p = purseWith(POUCH, [{ item: "tomato", n: 35 }, ...full(9)], [...seeds, null]);
     const did = stowHarvest(p, "tomato", [[0, 5], [1, 1]])!;
     expect(did.bag[0]).toEqual({ item: "tomato", n: 40 });
-    expect(slots(did)[5]).toEqual({ item: "tomato", n: 1, grade: 1 });
+    expect(slots(did)[29]).toEqual({ item: "tomato", n: 1, grade: 1 });
     expect(stowHarvest(p, "tomato", [[0, 6], [1, 1]])).toBeNull();
     // (no own stack: the pouch's empty slots first, then the bag's; a purse that is not changed keeps its bag)
     const fresh = stowHarvest(purseWith(POUCH, [null, null]), "tomato", [[2, 50]])!;

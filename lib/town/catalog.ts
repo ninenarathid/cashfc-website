@@ -590,7 +590,9 @@ export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Ar
   // (v276: things to wear had from the game: the round glasses on the stall, and the row that says what each is worn into)
   v276: { keys: ["dress"], over: ["items", "goods", "shelf"] },
   // (v277: the 46 things to wear: made at the workbench, bought from the uncle, and dropped)
-  v277: { keys: ["wear_drops"], over: ["items", "goods", "shelf", "dress", "workshop"] } };
+  v277: { keys: ["wear_drops"], over: ["items", "goods", "shelf", "dress", "workshop"] },
+  // (v283, 2026-10-19: a picking for one stamina, and the farm's pouch of thirty slots)
+  v283: { keys: [], over: ["farming", "pouches"] } };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {
