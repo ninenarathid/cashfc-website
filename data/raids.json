@@ -18859,6 +18859,10 @@
       "kills": 2,
       "best": 70
      },
+     "Viper": {
+      "kills": 2,
+      "best": 33
+     },
      "Dancer": {
       "kills": 1,
       "best": 51
@@ -75007,7 +75011,7 @@
       "best": 26
      },
      "Astrologian": {
-      "kills": 40,
+      "kills": 42,
       "best": 79
      },
      "WhiteMage": {
@@ -83731,8 +83735,8 @@
     "cleared": true,
     "job_kills": {
      "DarkKnight": {
-      "kills": 5,
-      "best": 4
+      "kills": 7,
+      "best": 5
      }
     }
    },
@@ -92740,6 +92744,17 @@
   "ultimates": [],
   "extremes": [
    {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1083,
+    "name": "Doomtrain",
+    "best": 4,
+    "kills": 1,
+    "job": "Reaper",
+    "cleared": true
+   },
+   {
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
@@ -92863,6 +92878,17 @@
   "ultimates": [],
   "extremes": [
    {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1083,
+    "name": "Doomtrain",
+    "best": 6,
+    "kills": 1,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
@@ -92923,6 +92949,19 @@
    }
   ],
   "legacy": [],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 103,
+    "name": "The Tyrant",
+    "kind": "savage",
+    "state": "learning",
+    "pct": 76.71,
+    "phase": 0,
+    "pulls": 16,
+    "last": "2026-10-17",
+    "last_ts": 1792215436
+   }
+  ]
  }
 }

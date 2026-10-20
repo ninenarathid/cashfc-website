@@ -2,6 +2,48 @@
  "events": [
   {
    "date": "2026-10-20",
+   "type": "rare_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "earned Skyward Knife II — only 2.9% of players have it"
+  },
+  {
+   "date": "2026-10-20",
+   "type": "rare_up",
+   "id": 44970350,
+   "name": "Allen Crist",
+   "text": "earned R&D: Raising Hammer of Stars — only 4.2% of players have it"
+  },
+  {
+   "date": "2026-10-20",
+   "type": "level_100",
+   "id": 50821570,
+   "name": "Haruki Mizumoto",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
+   "date": "2026-10-20",
+   "type": "rare_up",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "earned Critical Analysis III — only 2.3% of players have it"
+  },
+  {
+   "date": "2026-10-20",
+   "type": "ex_clear",
+   "id": 34874723,
+   "name": "Allen Fliegen",
+   "text": "cleared Doomtrain (Extreme)"
+  },
+  {
+   "date": "2026-10-20",
+   "type": "ex_clear",
+   "id": 57519259,
+   "name": "Kertia Cruz",
+   "text": "cleared Doomtrain (Extreme)"
+  },
+  {
+   "date": "2026-10-20",
    "type": "level_100",
    "id": 39850923,
    "name": "Hiro Hikari",
@@ -1356,48 +1398,6 @@
    "type": "level_100",
    "id": 42948817,
    "name": "Karuma Amamiya",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-10-07",
-   "type": "level_100",
-   "id": 43864764,
-   "name": "Shinonome Kamemaru",
-   "text": "reached level 100 on Dancer!"
-  },
-  {
-   "date": "2026-10-07",
-   "type": "level_100",
-   "id": 39959181,
-   "name": "El Blung",
-   "text": "reached level 100 on Astrologian!"
-  },
-  {
-   "date": "2026-10-07",
-   "type": "level_100",
-   "id": 60852230,
-   "name": "Lucienvt Yenslayer",
-   "text": "reached level 100 on Dark Knight!"
-  },
-  {
-   "date": "2026-10-07",
-   "type": "rare_up",
-   "id": 46243891,
-   "name": "Marin Elysium",
-   "text": "earned A Beast in the Hand V — only 2.8% of players have it"
-  },
-  {
-   "date": "2026-10-07",
-   "type": "rare_up",
-   "id": 60429500,
-   "name": "Jin Theape",
-   "text": "earned Onward and Upward"
-  },
-  {
-   "date": "2026-10-06",
-   "type": "level_100",
-   "id": 60429500,
-   "name": "Jin Theape",
    "text": "reached level 100 on Viper!"
   }
  ]

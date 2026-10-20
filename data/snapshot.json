@@ -67,6 +67,7 @@
    2494,
    2497,
    2500,
+   2502,
    2503,
    2506,
    2509,
@@ -106,7 +107,6 @@
    2766,
    2785,
    2803,
-   2811,
    2815,
    2816,
    2877,
@@ -403,7 +403,7 @@
   "mounts": 70,
   "minions": 196,
   "rare": 127,
-  "level": 100,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -523,7 +523,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-07"
+  "chg": "2026-10-20"
  },
  "24186600": {
   "name": "Dumb Bunny",
@@ -1454,7 +1454,6 @@
    3846,
    3847,
    3853,
-   3855,
    3902,
    3903,
    3904,
@@ -1467,6 +1466,7 @@
    3911,
    3912,
    3913,
+   3916,
    3918,
    3922,
    3923,
@@ -2294,7 +2294,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 61,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4432,9 +4432,9 @@
    3834,
    3835,
    3952,
-   3961,
    3962,
    3963,
+   4000,
    4005,
    4010,
    4011,
@@ -4735,8 +4735,8 @@
   "jobs": {
    "Machinist": "legendary",
    "Pictomancer": "expert",
-   "Bard": "master",
-   "Viper": "master"
+   "Viper": "master",
+   "Bard": "master"
   },
   "ex": [
    "Doomtrain",
@@ -6661,7 +6661,7 @@
   "mounts": 122,
   "minions": 301,
   "rare": 67,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -8366,7 +8366,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 83,
+  "level": 85,
   "cc": [
    false,
    false,
@@ -8603,6 +8603,7 @@
   "tiers": {},
   "jobs": {},
   "ex": [
+   "Doomtrain",
    "Queen Eternal",
    "Valigarmanda",
    "Zoraal Ja"
@@ -8790,6 +8791,7 @@
   "tiers": {},
   "jobs": {},
   "ex": [
+   "Doomtrain",
    "Queen Eternal",
    "Valigarmanda",
    "Zoraal Ja"
