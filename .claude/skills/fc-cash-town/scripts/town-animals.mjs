@@ -86,7 +86,12 @@ const playShear = (X) => X.evaluate(`new Promise((done) => {
 async function run(label) {
   const X = await browser(`animals-${label}`, SIZES[label]);
   // (the page itself never scrolled under the town: its header would come down over it)
-  const shot = async (name) => { await X.evaluate(`(window.scrollTo(0, 0), document.scrollingElement && (document.scrollingElement.scrollTop = 0))`); await X.shot(`${OUT}/${label}-${name}.png`); };
+  // (and the town back over the site's bars: a page reconnecting to its room shows them for a moment)
+  const shot = async (name) => {
+    await X.evaluate(`(window.scrollTo(0, 0), document.scrollingElement && (document.scrollingElement.scrollTop = 0))`);
+    await until("the town over the site's bars", () => X.evaluate(`!!document.querySelector("[data-town-hud-tier]")?.className.includes("inset-0")`), 12000).catch(() => {});
+    await X.shot(`${OUT}/${label}-${name}.png`);
+  };
   const phone = label !== "desktop";
   const tall = async (what) => { if (phone) { const s = await small(X); ok(`${label}: every control of ${what} is 44 px tall or more`, s.length === 0, s); } };
   try {

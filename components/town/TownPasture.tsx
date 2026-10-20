@@ -150,7 +150,7 @@ export default function TownPasture(props: PastureProps) {
     if (!first) return;
     const words: string[] = [];
     const left = myHerd ? untendedOf(myHerd, now) : null;
-    if (left && left.level >= 1 && left.level < 3) words.push(t(`โรงของหลานไม่มีใครดูแลมา ${left.days} วันแล้ว ครบ ${ANIMALS.untended.reclaim} วันคนอื่นจองได้นะ`, `Your barn has gone ${left.days} days untended. At ${ANIMALS.untended.reclaim} days another may take it.`));
+    if (left && left.level >= 1 && left.level < 3) words.push(t(`โรงของหลานไม่มีใครดูแลมา ${left.days} วันแล้ว หากครบ ${ANIMALS.untended.reclaim} วัน ผู้เล่นที่รอโรงอาจจองต่อได้`, `Your barn has gone ${left.days} days untended. At ${ANIMALS.untended.reclaim} days a member waiting for one may take it.`));
     const offers = (world.offers ?? []).filter((o) => o.to === me && o.at > now - ANIMALS.offerHours * 3_600_000).length;
     const asks = (world.asks ?? []).filter((q) => q.to === me && q.at > now - ANIMALS.askHours * 3_600_000).length;
     if (offers + asks) words.push(t(`มีเพื่อน${offers ? `ส่งสัตว์มาให้ ${offers} ตัว` : ""}${offers && asks ? " และ" : ""}${asks ? `ขอยืมสัตว์ ${asks} ครั้ง` : ""} ไปดูที่ลุง Popoto`, `Friends have ${offers ? `${offers} animal${offers > 1 ? "s" : ""} for you` : ""}${offers && asks ? " and " : ""}${asks ? `${asks} ask${asks > 1 ? "s" : ""} for yours` : ""}: see Uncle Popoto.`));
@@ -266,6 +266,13 @@ export default function TownPasture(props: PastureProps) {
       const map = self ? placeOf(Math.floor(self.x), Math.floor(self.y)) : null;
       if (!fontRef.current) fontRef.current = getComputedStyle(document.body).getPropertyValue("--font-body-face").trim() || "sans-serif";
       const font = fontRef.current;
+      /** Where the small names are laid this frame (and mine, under my feet): one that would lie over another gives way. */
+      const laid: Box[] = self ? [(() => { const m = project(self); return { x0: m.x - 52, y0: m.y + 2, x1: m.x + 52, y1: m.y + 24 }; })()] : [];
+      const fits = (text: string, x: number, y: number) => {
+        const w2 = text.length * 3.6 + 8, b = { x0: x - w2, y0: y - 9, x1: x + w2, y1: y + 9 };
+        if (laid.some((o) => b.x0 < o.x1 && b.x1 > o.x0 && b.y0 < o.y1 && b.y1 > o.y0)) return false;
+        laid.push(b); return true;
+      };
       const tag = (text: string, x: number, y: number, fg = "#f3e3c3") => over?.(() => {
         ctx.save(); ctx.font = `600 10px ${font}`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
         const tw = ctx.measureText(text).width + 10; ctx.fillStyle = "rgba(15,19,25,0.74)"; ctx.beginPath(); ctx.roundRect(x - tw / 2, y - 8, tw, 16, 8); ctx.fill();
@@ -301,7 +308,7 @@ export default function TownPasture(props: PastureProps) {
         const beat = still ? 0 : Math.floor(tick / 700) % 14;
         things.push({ depth: POPOTO.at.x + POPOTO.at.y, draw: () => { drawPopoto(ctx, sc, k, at, s, px, beat); } });
         out.push({ kind: "popoto", x0: at.x - 22 * s, y0: at.y - 66 * s, x1: at.x + 22 * s, y1: at.y + 4 * s });
-        tag(t("ลุง Popoto", "Uncle Popoto"), at.x, at.y - 74 * s, "#e5cc80");
+        if (s >= 0.6) tag(t("ลุง Popoto", "Uncle Popoto"), at.x, at.y - 74 * s, "#e5cc80");
       } }
       { const c = project({ x: TABLE[0] + 1, y: TABLE[1] + 0.5 }); if (onScreen(c)) {
         things.push({ depth: TABLE[0] + TABLE[1] + 1.5, draw: () => { if (!drawPastureProp(ctx, k, PASTURE_ART.table, c.x, c.y + 6 * s, s, px)) drawBlock(ctx, project, { x: TABLE[0] + 0.1, y: TABLE[1] + 0.2, w: 1.8, h: 0.6 }, "#8a6a40", "#b89060", 14, s); } });
@@ -312,7 +319,8 @@ export default function TownPasture(props: PastureProps) {
       for (const g of FARM_GATES) {
         for (const y of [g.rows[0] - 0.05, g.rows[1] + 1.05]) { const c = project({ x: FENCE_X + 0.5, y }); if (onScreen(c)) things.push({ depth: FENCE_X + 0.5 + y, draw: () => drawGateSide(ctx, project, FENCE_X, y, s) }); }
         const c = project({ x: FENCE_X + 0.5, y: g.road + 1 });
-        if (onScreen(c)) tag(g.name === "north" ? t("ฟาร์มเลี้ยงสัตว์ · ลุง Popoto", "Animal farm · Uncle Popoto") : t("ฟาร์มเลี้ยงสัตว์", "Animal farm"), c.x, c.y - 62 * s, "#e5cc80");
+        // (from afar Uncle Popoto's own name says it: the gate's sign only close to)
+        if (onScreen(c) && s >= 0.9) tag(g.name === "north" ? t("ฟาร์มเลี้ยงสัตว์ · ลุง Popoto", "Animal farm · Uncle Popoto") : t("ฟาร์มเลี้ยงสัตว์", "Animal farm"), c.x, c.y - 62 * s, "#e5cc80");
       }
       if (sc) for (const p of PASTURE_PROPS) {
         const c = project({ x: p.x + 0.5, y: p.y + 0.62 });
@@ -325,7 +333,7 @@ export default function TownPasture(props: PastureProps) {
         things.push({ depth: PEN.x + PEN.y + 0.2, draw: () => drawPenFence(ctx, project, PEN, s, "back") });
         things.push({ depth: PEN.x + PEN.w + PEN.y + PEN.h - 0.2, draw: () => drawPenFence(ctx, project, PEN, s, "front") });
         out.push({ kind: "pen", x0: c.x - 70 * s, y0: c.y - 40 * s, x1: c.x + 70 * s, y1: c.y + 30 * s });
-        tag(t("คอกฝากของลุง", "Uncle's pen"), c.x, c.y - 52 * s, "#e5cc80");
+        if (s >= 0.9) tag(t("คอกฝากของลุง", "Uncle's pen"), c.x, c.y - 52 * s, "#e5cc80");
       } }
 
       /** Hits that go over everything else of the farm's (pushed last). */
@@ -352,13 +360,15 @@ export default function TownPasture(props: PastureProps) {
           out.push({ kind: "trough", barn: b.i, x0: Math.min(tr0.x, tr1.x) - 8 * s, y0: Math.min(tr0.y, tr1.y) - 30 * s, x1: Math.max(tr0.x, tr1.x) + 8 * s, y1: Math.max(tr0.y, tr1.y) + 10 * s });
           if (holder && (holder.owner === me || mayCare(holder, me))) {
             const tx = (tr0.x + tr1.x) / 2, ty = Math.min(tr0.y, tr1.y) - 34 * s;
+            fits(t("รางอาหาร · แตะเพื่อเติม", "Trough · tap to feed"), tx, ty);
             tag(t("รางอาหาร · แตะเพื่อเติม", "Trough · tap to feed"), tx, ty, "#cfe6ff");
             // (its label a tap too, over whatever stands before the trough: pushed after the animals, below)
             late.push({ kind: "trough", barn: b.i, tag: true, x0: tx - 70, y0: ty - 12, x1: tx + 70, y1: ty + 12 });
           }
           const n = project({ x: b.nest[0] + 0.5, y: b.nest[1] + 0.5 });
           out.push({ kind: "nest", barn: b.i, x0: n.x - 22 * s, y0: n.y - 22 * s, x1: n.x + 22 * s, y1: n.y + 8 * s });
-          if (mine) tag(t("รังผสมพันธุ์", "Breeding nest"), n.x, n.y - 28 * s);
+          // (the nest's and the trough's names hold their place: an animal's name gives way to them)
+          if (mine) { fits(t("รังผสมพันธุ์", "Breeding nest"), n.x, n.y - 28 * s); tag(t("รังผสมพันธุ์", "Breeding nest"), n.x, n.y - 28 * s); }
         }
         // its door, for a tap (mine opens or shuts; anybody's is walked into)
         const d = doorOf(b), dc = project(d);
@@ -424,8 +434,8 @@ export default function TownPasture(props: PastureProps) {
         const head = c.y - (box.h + 4) * s;
         if (mine && v.ready > 0) over?.(() => drawBubble(ctx, k, "ready", SPECIES[a.species].game, c.x, head, s, tick, still, px));
         else if (v.hungry && (mine || care)) over?.(() => drawBubble(ctx, k, mine ? "hungry" : "care", SPECIES[a.species].game, c.x, head, s, tick, still, px));
-        if (mine && s >= 0.8) tag(`${a.sex === "m" ? "♂" : "♀"} ${(a.name || breedOf(a.breed)?.name[th ? "th" : "en"] || "").slice(0, 12)}`, c.x, c.y + 10 * s, "#cfe6ff");
-        else if (a.name && s >= 1.4) tag(a.name.slice(0, 12), c.x, c.y + 10 * s);
+        { const text = mine ? `${a.sex === "m" ? "♂" : "♀"} ${(a.name || breedOf(a.breed)?.name[th ? "th" : "en"] || "").slice(0, 12)}` : a.name.slice(0, 12);
+          if (((mine && s >= 0.8) || (a.name && s >= 1.4)) && fits(text, c.x, c.y + 10 * s)) tag(text, c.x, c.y + 10 * s, mine ? "#cfe6ff" : "#f3e3c3"); }
       }
       out.push(...late);
       // the eggs laid out on the meadows, wherever their hens are now: everybody sees whose; only the owner picks them up
@@ -436,7 +446,8 @@ export default function TownPasture(props: PastureProps) {
           if (!onScreen(e)) return;
           things.push({ depth: o.at[0] + o.at[1] + 0.8, draw: () => drawEggOut(ctx, k, e, s, mine && glints, tick, still, px) });
           if (mine) out.push({ kind: "egg", id: a.id, spot: i, at: [o.at[0], o.at[1]], x0: e.x - 14 * s, y0: e.y - 18 * s, x1: e.x + 14 * s, y1: e.y + 6 * s });
-          if (s >= 0.9 || mine) tag(t(`ไข่ของ${mine ? "เรา" : ` ${nameOf(a.owner)}`}`, `${mine ? "Your" : nameOf(a.owner) + "'s"} eggs`), e.x, e.y - 22 * s, mine ? "#fff1a0" : "#f3e3c3");
+          const words = t(`ไข่ของ${mine ? "เรา" : ` ${nameOf(a.owner)}`}`, `${mine ? "Your" : nameOf(a.owner) + "'s"} eggs`);
+          if ((s >= 0.9 || mine) && fits(words, e.x, e.y - 22 * s)) tag(words, e.x, e.y - 22 * s, mine ? "#fff1a0" : "#f3e3c3");
         });
       }
     };

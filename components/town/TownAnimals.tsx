@@ -240,10 +240,10 @@ export default function TownAnimals({ keeper, th, view, onView, onClose, focus, 
         <Coins n={purse.coins} th={th} className="ml-auto" />
         <button type="button" onClick={onClose} data-animals-close className="pressable min-h-11 rounded-full bg-accent px-4 py-1.5 text-ui font-semibold text-bg">{t("ปิด", "Close")}</button>
       </div>
-      <div role="tablist" aria-label={t("ฟาร์มสัตว์", "The animal farm")} className="flex gap-0.5 border-b border-line px-2 pt-1">
+      <div role="tablist" aria-label={t("ฟาร์มสัตว์", "The animal farm")} className="no-bar flex gap-0.5 overflow-x-auto border-b border-line px-2 pt-1">
         {VIEWS.map(([v, a, b]) => (
           <button key={v} type="button" role="tab" aria-selected={view === v} onClick={() => onView(v)} data-animals-tab={v}
-                  className={`pressable -mb-px min-h-11 min-w-0 flex-1 truncate rounded-t-lg border-b-2 px-0.5 text-ui font-semibold ${view === v ? "border-accent text-accent" : "border-transparent text-muted hover:text-ink"}`}>
+                  className={`pressable -mb-px min-h-11 flex-1 shrink-0 whitespace-nowrap rounded-t-lg border-b-2 px-2 text-ui font-semibold ${view === v ? "border-accent text-accent" : "border-transparent text-muted hover:text-ink"}`}>
             {th ? a : b}
             {dot(v) && <span aria-hidden className="ml-0.5 inline-block size-2 rounded-full bg-gold align-middle" data-tab-dot />}
           </button>
@@ -313,7 +313,7 @@ function BarnPicker({ th, purse, world, now, busy, act, me, nameOf, onView, focu
       </button>
     );
   };
-  const lane = () => <div aria-hidden className="my-0.5 ml-9 h-2 rounded-full bg-[#4a4033]" />;
+  const lane = () => <div aria-hidden className="my-0.5 ml-11 h-2 rounded-full bg-[#4a4033]" />;
   const sel = pick !== null ? BARNS[pick] : null, st = pick !== null ? stateOf(pick) : null, h = pick !== null ? holders.get(pick) : undefined;
   const credit = herd?.credit ?? 0, pay = Math.max(0, S.coins - credit);
   const short = !!sel && (purse.coins < pay || held(purse.bag, "log" as ItemId) < S.logs || held(purse.bag, "stoneTile" as ItemId) < S.stone);
@@ -327,7 +327,7 @@ function BarnPicker({ th, purse, world, now, busy, act, me, nameOf, onView, focu
           <div key={r}>
             {r === 3 && <p aria-hidden className="my-1.5 rounded-lg bg-[#3a5a2c]/70 py-1 text-center text-label text-[#cfe6b0]">{t("ทุ่งหญ้า · บ่อเป็ด", "Meadow · duck pond")}</p>}
             <div className="flex items-stretch gap-1">
-              <span aria-hidden className="flex w-8 shrink-0 flex-col items-center justify-end pb-0.5 text-center text-[0.65rem] leading-3 text-[#e5cc80]">{r === 1 ? <>{t("ลุง", "Uncle")}<br />{t("◀ประตู", "◀gate")}</> : r === 4 ? t("◀ประตู", "◀gate") : ""}</span>
+              <span aria-hidden className="flex w-10 shrink-0 flex-col items-start justify-center gap-0.5 text-label leading-tight text-[#e5cc80]">{r === 1 && <span>{t("ลุง", "Uncle")}</span>}{(r === 1 || r === 4) && <span className="flex items-center gap-0.5"><svg width="7" height="8" viewBox="0 0 7 8" className="shrink-0"><path d="M7 0v8L0 4Z" fill="currentColor" /></svg>{t("ประตู", "gate")}</span>}</span>
               {cell(r * 4)}{cell(r * 4 + 1)}
               <span aria-hidden className="w-1.5 shrink-0 rounded-full bg-[#4a4033]" />
               {cell(r * 4 + 2)}{cell(r * 4 + 3)}
@@ -387,7 +387,7 @@ function BarnHead({ th, purse, world, now, busy, act, me, onView, mine }: Common
         <button type="button" className={open ? button : main} disabled={busy} onClick={() => void act({ action: "door", open: !open }, open ? ["ปิดประตูโรงแล้ว สัตว์เดินกลับเข้าโรง", "The door is shut: they walk home."] : ["เปิดประตูโรงแล้ว สัตว์ออกไปกินหญ้า เดินเล่นถึงสวนผัก", "The door is open: out they go to graze."])} data-door-toggle>{open ? t("ปิดประตู", "Shut door") : t("เปิดประตู", "Open door")}</button>
       </div>
       <p className="mt-1.5 text-label text-muted">{open ? t("สัตว์ออกไปกินหญ้าในทุ่งและเดินเล่นถึงสวนผัก กินอาหารช้าลงครึ่งหนึ่ง", "They graze the meadows and wander the garden's lanes, eating half as fast.") : t("สัตว์อยู่ในโรง เปิดประตูตอนเช้าให้ออกไปกินหญ้าได้ (ได้หัวใจวันละครั้ง)", "They're inside: open the door of a morning to let them graze (a heart once a day).")}</p>
-      {u.level >= 1 && u.level < 3 && <div className="mt-2"><Warn bad={u.level === 2} data-untended={u.level}>{t(`ไม่ได้ดูแลสัตว์ในโรงมา ${u.days} วันแล้ว ถ้าครบ ${ANIMALS.untended.reclaim} วัน คนที่รอโรงอาจจองโรงนี้ไปได้ (สัตว์จะไปอยู่คอกลุง)`, `Your barn has gone ${u.days} days without care. At ${ANIMALS.untended.reclaim} days somebody waiting may take it (your animals would go to Uncle's pen).`)}</Warn></div>}
+      {u.level >= 1 && u.level < 3 && <div className="mt-2"><Warn bad={u.level === 2} data-untended={u.level}>{t(`ไม่ได้ดูแลสัตว์ในโรงมา ${u.days} วันแล้ว หากครบ ${ANIMALS.untended.reclaim} วัน ผู้เล่นที่รอโรงว่างอาจจองโรงนี้ได้ (สัตว์จะไปอยู่คอกลุง)`, `Your barn has gone ${u.days} days without care. At ${ANIMALS.untended.reclaim} days somebody waiting may take it (your animals would go to Uncle's pen).`)}</Warn></div>}
       {next ? (
         <div className="mt-2 border-t border-line pt-2" data-enlarge={next.room}>
           <p className="text-meta text-ink">{t(`ขยายโรงเลี้ยงเป็น ${next.room} ตัว`, `Enlarge the barn to house ${next.room}`)}</p>
@@ -668,7 +668,7 @@ function Card({ a, th, purse, world, now, kit, busy, act, open, onOpen, onCollec
           )}
           {!yields && <p className="mt-2 text-meta text-muted" data-no-yield>{t("ไม่ให้ผลผลิต · ไว้ผสมพันธุ์", "Gives nothing to collect · for breeding")}</p>}
           {yields && <div className="mt-2">
-            <p className="mb-1 text-meta text-ink">{t("คุณภาพผลผลิต (หัวใจตั้งเพดาน อาหารเกรดดียกพื้น)", "Produce quality (hearts set the ceiling; graded feed lifts the floor)")}</p>
+            <p className="mb-1 text-meta text-ink">{t("คุณภาพผลผลิต · หัวใจเพิ่มคุณภาพสูงสุด · อาหารเกรดดีเพิ่มคุณภาพขั้นต่ำ", "Produce quality · hearts raise the best it can be · graded feed raises the least")}</p>
             <QualityRange range={{ lo: v.range.floor, hi: v.range.ceiling }} base={Math.max(0, v.range.ceiling - ANIMALS.quality.spread)} th={th} odds={false} />
           </div>}
           {mine && (
@@ -728,7 +728,7 @@ function AnimalLine({ a, th, kit, now, children, note }: { a: Animal; th: boolea
       <AnimalPic species={a.species} breed={a.breed} stage={artStage(a, now)} size={40} kit={kit} sex={a.sex} />
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-1 text-ui font-semibold text-ink"><SexMark sex={a.sex} th={th} /><span className="truncate">{nameOfAnimal(a, th)}</span></span>
-        {note && <span className="block truncate text-label text-muted">{note}</span>}
+        {note && <span className="block break-words text-label leading-snug text-muted">{note}</span>}
       </span>
       {children}
     </li>
@@ -879,7 +879,7 @@ function Nest({ th, purse, world, now, kit, busy, act, me, nameOf, mine, asksIn,
         <div className="mt-3 rounded-xl border border-line bg-bg/50 p-2" data-nest-range>
           <p className="mb-1 text-meta font-semibold text-ink">{t("ค่าพันธุกรรมที่ลูกน่าจะได้", "The child's likely stats")}</p>
           <div className="grid gap-1">{STAT_IDS.map((k) => <StatRow key={k} k={k} range={range[k]} th={th} />)}</div>
-          <p className="mt-1.5 text-label leading-relaxed text-muted">{t(`การดูแลพ่อแม่เฉลี่ย ${Math.round(care * 100)}% · ยิ่งดูแลดี (หัวใจเยอะ ให้อาหารอิ่มทุกวันต่อเนื่อง) ลูกยิ่งมีโอกาสได้ค่าสูงขึ้น ถ้าปล่อยหิว ค่ามักลดลง · เพศของลูกสุ่ม`, `The parents' care: ${Math.round(care * 100)}%. The better cared for (many hearts, fed through day after day), the better the child's chances; neglected, its stats often fall. Its sex is by chance.`)}</p>
+          <p className="mt-1.5 text-label leading-relaxed text-muted">{t(`พ่อแม่ได้รับการดูแลเฉลี่ย ${Math.round(care * 100)}% · ยิ่งดูแลดี (หัวใจเยอะ ให้อาหารอิ่มทุกวันต่อเนื่อง) ลูกยิ่งมีโอกาสได้ค่าสูงขึ้น ถ้าปล่อยหิว ค่ามักลดลง · เพศของลูกสุ่ม`, `The parents' care: ${Math.round(care * 100)}%. The better cared for (many hearts, fed through day after day), the better the child's chances; neglected, its stats often fall. Its sex is by chance.`)}</p>
         </div>
       )}
       {ba && bb && (
@@ -939,7 +939,7 @@ function Nest({ th, purse, world, now, kit, busy, act, me, nameOf, mine, asksIn,
       <H3>{t("ขอยืมสัตว์เพื่อนมาผสม", "Ask a friend's animal for a cross")}</H3>
       <div className="grid gap-2 rounded-xl border border-line bg-bg/40 p-2" data-ask-form>
         <p className="text-label text-muted">{t("เลือกตัวของเรา แล้วขอยืมตัวอีกเพศของเพื่อน ถ้าเพื่อนให้ยืม จะได้ 1 ชั่วโมงไว้ผสมที่รังของเรา ลูกเป็นของเรา", "Pick yours, then ask a friend's of the other sex. If they say yes it's lent an hour for your nest; the child is yours.")}</p>
-        <label className="block text-meta text-muted">{t("ตัวของเรา", "Mine")}
+        <label className="block text-meta text-muted">{t("สัตว์ของเรา", "Mine")}
           <select value={askMine} onChange={(e) => setAskMine(e.target.value)} className={select} data-ask-mine>
             <option value="">{t("เลือกตัวที่โตแล้ว", "Choose a grown one")}</option>
             {adults.map((a) => <option key={a.id} value={a.id}>{a.sex === "m" ? "♂" : "♀"} {nameOfAnimal(a, th)} · {SPECIES[a.species].name[th ? "th" : "en"]}</option>)}
@@ -1067,7 +1067,7 @@ function Book({ th, purse, world, kit, nameOf, me, busy, act }: Common) {
           );
         })}
       </ul>
-      <p className="mt-2 text-label text-muted">{t(`${SPECIES[sp].name.th}โตเต็มวัยเมื่อกินอิ่มครบ ${adultAt(sp)} ชม.`, `A ${SPECIES[sp].name.en.toLowerCase()} is grown after ${adultAt(sp)} fed hours`)}</p>
+      <p className="mt-2 text-label text-muted">{t(`อักษร A–H คือขั้นของพันธุ์ (A พันธุ์เริ่มต้นจากร้านลุง) สูตร "B + C + ดอกไม้" คือผสมพันธุ์ขั้น B กับขั้น C ใส่ดอกไม้เป็นของเซ่น · ${SPECIES[sp].name.th}โตเต็มวัยเมื่อกินอิ่มครบ ${adultAt(sp)} ชม.`, `A–H are a breed's steps (A the starter from the stall): "B + C + a flower" is a step-B and a step-C parent with a flower offered · a ${SPECIES[sp].name.en.toLowerCase()} is grown after ${adultAt(sp)} fed hours`)}</p>
     </div>
   );
 }
