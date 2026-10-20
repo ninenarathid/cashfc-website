@@ -41,6 +41,10 @@ of logs, the village gate, lending by the owner's choice), this section is what 
   growth speed a point above 1, inside x3). 1..10; bought 2..4. A child: the parents' average, then by their CARE
   (hearts 60%, days fed through in a row 40%): well cared for, often +1, now and then +2, never down; neglected, seldom
   up, often down (`childStats`); the nest shows the likely range (`childRange`). The cradle: its parent with itself.
+- **The barn's inside** (2026-10-20): "ในคอกสัตว์ไม่ต้องมี รั้วแยกแต่ละสัตว์ ให้เดินรวมๆกันไปเลย แค่ต้องมีช่องใส่อาหารให้พอ / ทำ
+  ช่องใส่อาหารอันเดียว ยาวทั้งแถบโรงเลี้ยงไปเลย แต่วางอาหารได้หลาย…" (the last word garbled; read as many portions): no stall
+  per animal, they wander together; one long trough along the barn, a portion a place (each animal's own `food`, its
+  feed's colour), "fill every portion" from the bag at the trough. Rules unchanged.
 - **Outfit at rank 3** ("ชุดประจำสาย โอเค"): patched denim overalls, a red neckerchief, a straw hat with a feather, rubber
   boots (Doll 2; the art round).
 - **Shorn sheep**: "แกะช่วย gen รูปตอนตัดขนแล้วด้วย" (the art round; the page shows it after a shearing until it regrows).
