@@ -375,6 +375,9 @@ export function drawBarnOutside(ctx: CanvasRenderingContext2D, kit: SceneryKit |
   ctx.save();
   ctx.globalAlpha *= alpha;
   const name = kit?.has(art) ? art : PASTURE_ART.barn, fit = BUILDING_FIT[name];
+  // (its door slid open, drawn, in the front's own paint: the art round's pa_barnDoorOpen and its repaints)
+  const openArt = name === PASTURE_ART.barn ? PASTURE_ART.barnDoorOpen : name.replace("pa_barnFront", "pa_barnDoorOpenFront");
+  if (open && kit?.has(openArt) && drawBuilding(ctx, kit, project, r, openArt, s, px)) { ctx.restore(); return; }
   if (!drawBuilding(ctx, kit, project, r, name, s, px)) {
     // ART: the barn's plain stand-in while the sheet has none
     drawHouse(ctx, project, r, { wall: "#8e3626", roof: "#5a3424", trim: BARN_INK.trim, wallH: 70, roofH: 56, door: 0.34, windows: 2 }, s);
@@ -415,8 +418,12 @@ export function drawBarnInside(things: Array<{ depth: number; draw: () => void }
   const up = (p: Vec, k: number) => ({ x: p.x, y: p.y - k * s });
   const poly = (pts: Vec[], fill: string, line?: string, lw = 1) => { ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y))); ctx.closePath(); ctx.fillStyle = fill; ctx.fill(); if (line) { ctx.strokeStyle = line; ctx.lineWidth = Math.max(1, lw * s); ctx.stroke(); } };
   const fade = (draw: () => void) => () => { ctx.save(); ctx.globalAlpha *= opts.alpha; draw(); ctx.restore(); };
+  // (drawn: pa_barnInside, its floor, back walls and the low front sill in one picture, under whoever stands inside;
+  // the stand-ins below are drawn only while the sheet has none)
+  const drawn = !!kit?.has(PASTURE_ART.barnInside);
+  if (drawn) things.push({ depth: base - 1, draw: fade(() => { drawBuilding(ctx, kit, project, b, PASTURE_ART.barnInside, s, px); }) });
   // the floor: boards along the barn, straw strewn in the stalls, the daylight through the door when it is open
-  things.push({ depth: base - 1, draw: fade(() => {
+  if (!drawn) things.push({ depth: base - 1, draw: fade(() => {
     poly([P(0, 0), P(w, 0), P(w, h), P(0, h)], BARN_INK.floor, BARN_INK.line);
     ctx.strokeStyle = BARN_INK.plank; ctx.lineWidth = Math.max(1, 0.8 * s);
     for (let v = 0.5; v < h; v += 0.5) { const a = P(0, v), c = P(w, v); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(c.x, c.y); ctx.stroke(); }
@@ -425,7 +432,7 @@ export function drawBarnInside(things: Array<{ depth: number; draw: () => void }
     if (opts.open) poly([P(3, h), P(5, h), P(5, h - 1.6), P(3, h - 1.6)], "rgba(255,226,160,0.16)");
   }) });
   // the back walls: boards, a beam along the top, a window in the long one
-  things.push({ depth: base - 0.9, draw: fade(() => {
+  if (!drawn) things.push({ depth: base - 0.9, draw: fade(() => {
     const A = P(0, 0), B = P(w, 0), D = P(0, h);
     poly([D, A, up(A, WALL), up(D, WALL)], BARN_INK.wall, BARN_INK.line);
     poly([A, B, up(B, WALL), up(A, WALL)], BARN_INK.wallLit, BARN_INK.line);
@@ -476,7 +483,7 @@ export function drawBarnInside(things: Array<{ depth: number; draw: () => void }
   { const c = P(b.hay[0] - x + 0.5, b.hay[1] - y + 0.62);
     things.push({ depth: b.hay[0] + b.hay[1] + 1, draw: fade(() => { if (scenery?.has("hay")) scenery.drawProp(ctx, "hay", c.x, c.y, s * 0.7, px); else drawBlock(ctx, project, { x: b.hay[0] + 0.1, y: b.hay[1] + 0.1, w: 0.8, h: 0.8 }, "#b08a3a", "#e8c860", 14, s); }) }); }
   // the low sill where the front walls were, open at the door, and the door's two posts
-  things.push({ depth: base + w + h - 0.2, draw: fade(() => {
+  if (!drawn) things.push({ depth: base + w + h - 0.2, draw: fade(() => {
     const SILL = 9;
     for (const [u0, v0, u1, v1] of [[0, h, 3, h], [5, h, w, h], [w, h, w, 0]] as const) {
       const a = P(u0, v0), c = P(u1, v1);
@@ -518,8 +525,10 @@ function drawTroughArt(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, P:
  * fence's end, and its leaf swung back against the garden's rim. ART: a stand-in in the fence's own wood until
  * pa_farmGate.
  */
-export function drawGateSide(ctx: CanvasRenderingContext2D, project: Project, gx: number, y: number, s: number) {
+export function drawGateSide(ctx: CanvasRenderingContext2D, project: Project, gx: number, y: number, s: number, kit?: SceneryKit | null, px = 1) {
   const a = project({ x: gx + 0.5, y }), c = project({ x: gx + 0.5 - 2.4, y });
+  // (drawn: pa_farmGate, standing on its post's foot, its leaf swung back up to the left)
+  if (kit?.has(PASTURE_ART.farmGate)) { kit.drawProp(ctx, PASTURE_ART.farmGate, a.x, a.y, s * (PROP_K[PASTURE_ART.farmGate] ?? 0.78), px); return; }
   // the leaf: three bars and a brace, its far end's stile
   for (const [ink, lw] of [[BARN_INK.line, 3.6], ["#b07a48", 2]] as const) {
     ctx.strokeStyle = ink; ctx.lineWidth = Math.max(1, lw * s);
@@ -536,7 +545,16 @@ export function drawGateSide(ctx: CanvasRenderingContext2D, project: Project, gx
   ctx.fillStyle = "#8a4e28"; ctx.fillRect(a.x - 4 * s, a.y - 49 * s, 8 * s, 4 * s);
 }
 /** One side of Uncle Popoto's pen: a low rail fence along the paddock's back (drawn before what is in it) or front (after). ART: a stand-in until pa_penFence. */
-export function drawPenFence(ctx: CanvasRenderingContext2D, project: Project, r: Box, s: number, side: "back" | "front") {
+export function drawPenFence(ctx: CanvasRenderingContext2D, project: Project, r: Box, s: number, side: "back" | "front", kit?: SceneryKit | null, px = 1) {
+  // (drawn: pa_penFence, a tile of low rail fence standing on its lower post's foot, rising along -y; mirrored along x.
+  // The back: the west side (along y) and the north side (along x); the front: the east side and the south side.)
+  if (kit?.has(PASTURE_ART.penFence)) {
+    const k = s * (PROP_K[PASTURE_ART.penFence] ?? 0.78), lay = (tx: number, ty: number, mirror: boolean) => { const p = project({ x: tx, y: ty }); kit.drawProp(ctx, PASTURE_ART.penFence, p.x, p.y, k, px, 0, mirror); };
+    const [x0, y0, x1, y1] = [r.x, r.y, r.x + r.w, r.y + r.h];
+    if (side === "back") { for (let j = y1; j > y0; j--) lay(x0, j, false); for (let i = x0 + 1; i <= x1; i++) lay(i, y0, true); }
+    else { for (let j = y1; j > y0; j--) lay(x1, j, false); for (let i = x0 + 1; i <= x1; i++) lay(i, y1, true); }
+    return;
+  }
   const corners: Array<[number, number]> = [[r.x, r.y], [r.x + r.w, r.y], [r.x + r.w, r.y + r.h], [r.x, r.y + r.h]];
   const edges: Array<[number, number]> = side === "back" ? [[3, 0], [0, 1]] : [[1, 2], [2, 3]];
   for (const [i, j] of edges) {

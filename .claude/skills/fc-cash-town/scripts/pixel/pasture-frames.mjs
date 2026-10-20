@@ -158,10 +158,30 @@ function mirror(im) {
   return { ...im, d: out };
 }
 /** The looks drawn in round 2 (work/pasture/chars.json), as pieces; and what each has, for lib/town/pasture-art's table. */
+/**
+ * The characters PixelLab made, from its own answers (work/pl/pasture2-char-<look>/response.json), not from
+ * work/pasture/chars.json: two runs of pasture-looks.mjs at once each wrote their copy over the other's (2026-10-20).
+ */
+export function charsFromPl() {
+  const PL = path.join(WORK, "pl"), chars = {};
+  const speciesOf = (look) => {
+    const breed = look.replace(/Back$/, "").replace(/Shorn$/, "").replace(/M$/, "");
+    for (const [sp, list] of Object.entries(KIND)) if (list.includes(breed)) return sp;
+    for (const [sp, list] of Object.entries(YOUNG)) if (list.includes(breed)) return sp;
+    return breed === "cloudRam" ? "sheep" : null;
+  };
+  for (const d of fs.readdirSync(PL).filter((d) => /^pasture2-char-[A-Za-z]+$/.test(d)).sort()) {
+    const look = d.slice("pasture2-char-".length), r = path.join(PL, d, "response.json");
+    if (!fs.existsSync(r)) continue;
+    const id = /"character_id":\s*"([^"]+)"/.exec(fs.readFileSync(r, "utf8"))?.[1], sp = speciesOf(look);
+    if (!id || !sp) continue;
+    const kind = look.endsWith("Back") ? { cow: "back", chicken: "backbird", duck: "backbird", sheep: "backsheep" }[sp] : sp === "chicken" || sp === "duck" ? "bird" : sp;
+    chars[look] = { id, base: look, kind };
+  }
+  return chars;
+}
 export async function lookFrames(only) {
-  const charsFile = path.join(WORK, "pasture", "chars.json");
-  if (!fs.existsSync(charsFile)) return { pieces: [], table: {} };
-  const chars = JSON.parse(fs.readFileSync(charsFile, "utf8")), pieces = [], table = {};
+  const chars = charsFromPl(), pieces = [], table = {};
   for (const [look, c] of Object.entries(chars)) {
     const who = lookOf(look);
     if (!who || (only && who.species !== only)) continue;
@@ -173,7 +193,10 @@ export async function lookFrames(only) {
       // (a back view drawn as PixelLab's "north" faces the upper left: mirrored; the meadow sheep's trial drew it as "east")
       const flip = view === "NE" && !/-east$/.test(dir) && fs.readFileSync(path.join(WORK, "pl", dir, "response.json"), "utf8").includes("\"direction\": \"north\"");
       const ims = [];
-      for (const f of loopFiles(dir, action)) { let im = tidy(await rgba(f), pal); if (flip) im = mirror(im); ims.push(im); }
+      // (a part apart from the animal under 6% of it is a stray PixelLab left, as the Araucana rooster's floating tail
+      // stroke: dropped; the raindrop ducks' rain cloud floats by design and is kept)
+      const keepApart = /^raindropDuck/.test(look) ? 4 : null;
+      for (const f of loopFiles(dir, action)) { const raw = await rgba(f); let n = 0; for (let i = 3; i < raw.d.length; i += 4) if (raw.d[i] >= 128) n++; let im = tidy(raw, pal, keepApart ?? Math.max(4, Math.round(n * 0.06))); if (flip) im = mirror(im); ims.push(im); }
       // one ground point for the loop: the middle of all its frames' boxes, their lowest row
       let x0 = Infinity, x1 = -1, y1 = -1;
       for (const im of ims) for (let y = 0; y < im.h; y++) for (let x = 0; x < im.w; x++) if (im.d[(y * im.w + x) * 4 + 3]) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
@@ -187,12 +210,21 @@ export async function lookFrames(only) {
       });
       ((table[who.prefix] ??= {})[view] ??= {})[action] = ims.length;
     }
-    // (a view whose idle is not drawn yet stands as its walk's first frame, so the page has one to stand it by)
+    // (a view whose idle is not drawn stands still: on the picture its custom walk started from (the base itself, as the
+    // cows' back views do, Codex 2026-10-20-10-31-50), else on its walk's first frame)
     for (const view of ["SE", "NE"]) {
       const t = table[who.prefix]?.[view];
       if (!t?.walk || t.idle) continue;
-      const first = pieces.find((p) => p.name === `${who.prefix}_${view}_walk_0`);
-      first.also.push(`${who.prefix}_${view}_idle_0`, `${who.prefix}_${view}_idle`);
+      const dir = loopDir(look, "walk", view), start = dir && path.join(WORK, "pl", dir, "images-0.png");
+      const custom = dir && /"mode":\s*"pixminimax"|"type":\s*"done"/.test(fs.readFileSync(path.join(WORK, "pl", dir, "response.json"), "utf8")) && fs.readdirSync(path.join(WORK, "pl", dir)).filter((f) => /^images-\d+\.png$/.test(f)).length === 5;
+      if (custom && fs.existsSync(start)) {
+        const raw = await rgba(start), walk = pieces.filter((p) => p.name.startsWith(`${who.prefix}_${view}_walk_`));
+        let im = tidy(raw, pal, Math.max(4, Math.round(raw.d.filter((v, i) => i % 4 === 3 && v >= 128).length * 0.06)));
+        // stood on the walk's ground point: the walk's frames were laid on one point of the same canvas
+        const w0 = walk[0], tr = trim(im);
+        const ref = await (async () => { const r = await rgba(path.join(WORK, "pl", dir, "images-1.png")); return trim(tidy(r, pal)); })();
+        pieces.push({ name: `${who.prefix}_${view}_idle_0`, img: tr.img, ax: w0.ax + (ref.x0 - tr.x0), ay: w0.ay + (ref.y0 - tr.y0), also: [`${who.prefix}_${view}_idle`], ...(w0.k ? { k: w0.k } : {}) });
+      } else pieces.find((p) => p.name === `${who.prefix}_${view}_walk_0`).also.push(`${who.prefix}_${view}_idle_0`, `${who.prefix}_${view}_idle`);
       t.idle = 1;
     }
   }

@@ -464,6 +464,8 @@ const SHEETS = [
   ["icons-pasture-feed-a", ["chickFeed", "duckFeed", "sheepFeed", "cowFeed", "chickGrow", "duckGrow"], { range: [6.7, 7] }],
   ["icons-pasture-feed-b", ["lambGrow", "calfGrow", "dewGrow", "cowBell", "milker", "woolShears"], { range: [6, 6.3] }],
   ["icons-pasture-tool-a", ["eggBasket", "churn", "cheesePress", "spindle", "knittingNeedles", "charmHerdBell"], { range: [5.95, 6.2] }],
+  // (Uncle Popoto's tag that renames an animal, 2026-10-20)
+  ["icons-pasture-tag", ["renameTag"]],
   ["icons-pasture-gift-a", ["thingBarnCat", "thingWarmBottle", "charmStarCollar", "thingCradle", "famCloudRam", "thingTwinCradle"], { range: [7.25, 7.55] }],
   ["icons-pasture-wild-a", ["mistVetch", "ghostReed", "dewClover", "dawnOats", "meadowOats", "sweetTimothy"], { range: [7.85, 8.15] }],
   ["icons-pasture-wild-b", ["sunAlfalfa", "pondMillet", "copperSedge", "orchardPea", "amberClover", "reedSeed"], { range: [7.85, 8.15] }],
