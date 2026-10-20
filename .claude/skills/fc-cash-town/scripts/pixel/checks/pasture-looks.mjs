@@ -5,7 +5,7 @@
 //   node checks/pasture-looks.mjs [out.png] [--zoom 3] [--only chicken|duck|sheep|cow] [--looks a,b,c]
 import fs from "node:fs";
 import path from "node:path";
-import { lookFrames, lookOf } from "../pasture-frames.mjs";
+import { charsFromPl, lookFrames, lookOf } from "../pasture-frames.mjs";
 import * as L from "../pxlib.mjs";
 
 const HERE = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Z]:)/, "$1");
@@ -14,7 +14,7 @@ const out = args[0] && !args[0].startsWith("--") ? args[0] : path.join(HERE, "..
 const zoom = +opt("--zoom", 3), only = opt("--only", undefined), pick = opt("--looks", "")?.split(",").filter(Boolean);
 const K = { chicken: 0.6, duck: 0.6, sheep: 0.5, cow: 0.5 };
 const { pieces } = await lookFrames(only);
-const chars = JSON.parse(fs.readFileSync(path.join(HERE, "..", "work", "pasture", "chars.json"), "utf8"));
+const chars = charsFromPl();
 const rows = [];
 for (const look of Object.keys(chars)) {
   if (pick.length && !pick.includes(look)) continue;

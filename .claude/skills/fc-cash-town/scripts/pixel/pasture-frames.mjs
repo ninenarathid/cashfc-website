@@ -158,10 +158,30 @@ function mirror(im) {
   return { ...im, d: out };
 }
 /** The looks drawn in round 2 (work/pasture/chars.json), as pieces; and what each has, for lib/town/pasture-art's table. */
+/**
+ * The characters PixelLab made, from its own answers (work/pl/pasture2-char-<look>/response.json), not from
+ * work/pasture/chars.json: two runs of pasture-looks.mjs at once each wrote their copy over the other's (2026-10-20).
+ */
+export function charsFromPl() {
+  const PL = path.join(WORK, "pl"), chars = {};
+  const speciesOf = (look) => {
+    const breed = look.replace(/Back$/, "").replace(/Shorn$/, "").replace(/M$/, "");
+    for (const [sp, list] of Object.entries(KIND)) if (list.includes(breed)) return sp;
+    for (const [sp, list] of Object.entries(YOUNG)) if (list.includes(breed)) return sp;
+    return breed === "cloudRam" ? "sheep" : null;
+  };
+  for (const d of fs.readdirSync(PL).filter((d) => /^pasture2-char-[A-Za-z]+$/.test(d)).sort()) {
+    const look = d.slice("pasture2-char-".length), r = path.join(PL, d, "response.json");
+    if (!fs.existsSync(r)) continue;
+    const id = /"character_id":\s*"([^"]+)"/.exec(fs.readFileSync(r, "utf8"))?.[1], sp = speciesOf(look);
+    if (!id || !sp) continue;
+    const kind = look.endsWith("Back") ? { cow: "back", chicken: "backbird", duck: "backbird", sheep: "backsheep" }[sp] : sp === "chicken" || sp === "duck" ? "bird" : sp;
+    chars[look] = { id, base: look, kind };
+  }
+  return chars;
+}
 export async function lookFrames(only) {
-  const charsFile = path.join(WORK, "pasture", "chars.json");
-  if (!fs.existsSync(charsFile)) return { pieces: [], table: {} };
-  const chars = JSON.parse(fs.readFileSync(charsFile, "utf8")), pieces = [], table = {};
+  const chars = charsFromPl(), pieces = [], table = {};
   for (const [look, c] of Object.entries(chars)) {
     const who = lookOf(look);
     if (!who || (only && who.species !== only)) continue;
