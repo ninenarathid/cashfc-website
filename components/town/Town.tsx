@@ -73,6 +73,7 @@ import type { Bearer, LampsHooks } from "./TownLamps";
 import type { PastureHooks } from "./TownPasture";
 import type { AnimalsView } from "./TownAnimals";
 import { POPOTO_ASK, POPOTO_SOON, POPOTO_WHO, popotoChat, popotoHello } from "@/lib/town/pasture-talk";
+import { POPOTO_TALK } from "@/lib/town/pasture-art";
 import { RAM, riderOf, runOf } from "@/lib/town/riding";
 import { drawRam } from "./pasture-draw";
 import { wagonPlace, wagonRun } from "@/lib/town/seats";
@@ -4229,8 +4230,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const hour = Math.floor(bangkokMinute(new Date()) / 60), n = ++talks.current, th = words.current.th;
     // ── the pasture ── (Uncle Popoto: what one came for, where whoever keeps the game has a pasture; else that it opens soon)
     if (asked === "popoto") {
-      // ART: the uncle's portraits stand in for Uncle Popoto's (tk_popoto, tk_popoto_o)
-      const as: TalkAs = { name: POPOTO_WHO.name, job: POPOTO_WHO.job, art: ["tk_uncle", "tk_uncle_o"] };
+      // (his own portraits, from the pasture's sheet once it has come; the uncle's until then)
+      const as: TalkAs = { name: POPOTO_WHO.name, job: POPOTO_WHO.job, art: sceneryRef.current?.has(POPOTO_TALK[0]) ? POPOTO_TALK : ["tk_uncle", "tk_uncle_o"] };
       if (!gameRef.current || !keeper?.animalWorld()) { setTalk({ who: asked, n, as, lines: [popotoHello(hour), ...POPOTO_SOON] }); return; }
       setTalk({ who: asked, n, as, lines: [popotoHello(hour), POPOTO_ASK], choices: [
         { id: "shop", label: th ? "รับลูกสัตว์ ซื้ออาหาร เครื่องมือ" : "Young animals, feed and tools" },
