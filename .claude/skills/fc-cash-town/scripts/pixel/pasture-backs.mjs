@@ -48,6 +48,8 @@ const SHEETS = {
     ["pasture-sheep-a1-m-shorn", 4, ["the shorn meadow ram", "the shorn Shetland ram", "the shorn Jacob ram"], 1, "shorn rams"],
     ["pasture-sheep-a2-m-shorn", 4, ["the shorn Valais ram", "the shorn dandelion ram", "the shorn rainbow ram"], 1, "shorn rams"],
     ["pasture-sheep-b-m-shorn", 5, ["the shorn star-fleece ram", "the shorn golden fleece ram"], 3, "shorn rams"],
+    // (the cloud ram, the line's mount, with the wagon's ox beside it on its sheet)
+    ["pasture-mounts", 3, ["the brown ox in his harness", "the fluffy white cloud ram with his riding saddle and straps"], 1, "an ox and a ram"],
   ],
 };
 /** A bird's and a sheep's words for the same turn (the cows' are kept as Codex passed them, below). */
