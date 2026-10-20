@@ -1,0 +1,8 @@
+{
+ "image": "@bull-brownSwissM-native-64.png",
+ "mask_image": "@bull-brownSwissM-mask-64.png",
+ "description": "The same grey-brown Brown Swiss bull from below his belly: he is a bull and has no udder. Where the mask is, his belly ends in its dark outline and below it is his far hind leg in the same coat colour and the empty background between his legs, as in the rest of the picture. The same pixel art style, the same thick dark outline and the same pixel size. No pink.",
+ "no_background": true,
+ "output_method": "Modify current layer",
+ "seed": 0
+}

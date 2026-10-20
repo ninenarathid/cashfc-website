@@ -1,0 +1,5 @@
+The attached picture is a sprite sheet of 3 items in one row from a cozy 2D town game: two bulls and a post. Redraw the same sheet with every item in exactly the same place on the canvas, at the same size, in the same three-quarter top-down view facing the lower right, with the same chunky pixel size, the same thick dark outline and the same cute style with big shiny dark eyes.
+
+Change only this: neither bull has an udder: remove the small pink udder and its teats beneath each belly, between the hind legs, continuing the surrounding coat colour and shading over where they were. Keep the Highland bull's shaggy red-orange coat and the Brown Swiss bull's soft grey-brown coat as they are. Preserve the legs, hooves and empty gaps between them. Everything else stays exactly as it is.
+
+Use the same pixel size as the attached picture: do not make the pixels smaller or larger. Crisp pixel art with hard square pixel edges, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground, no shadows, no text, no labels.

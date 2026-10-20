@@ -75,41 +75,140 @@ export const GAME_ART = {
 } as const;
 
 let sheet: Promise<SceneryKit | null> | null = null;
-/** The pasture's own sheet as it came (for a panel's picture of one of its pieces). */
-let own: { image: string; size: [number, number]; props: Record<string, number[]>; scale?: Record<string, number> } | null = null;
+type PastureJson = Parameters<SceneryKit["add"]>[0] & { image: string; size: [number, number]; props: Record<string, number[]>; scale?: Record<string, number> };
+/** The pasture's own sheets as they came (for a panel's picture of one of its pieces, and each piece's scale). */
+const own: PastureJson[] = [];
 /**
- * The pasture's sheet (public/town/pasture.json, the fc-cash-town skill's build-scenery.mjs with `--set pasture`),
- * fetched once per tab by whoever comes onto the farm and added to the town's scenery, as the lamps' and the works' are
- * (so its pieces are drawn by the same kit); null while there is none (the stand-ins are drawn then).
+ * The pasture's animals, a picture a species (build-scenery.mjs `--set pasture-<species>`: every look in two views with
+ * its loops would be one picture too large for a phone to draw from).
+ */
+const ANIMAL_SHEETS = ["pasture-chicken", "pasture-duck", "pasture-sheep", "pasture-cow"] as const;
+async function fetchSheet(file: string): Promise<{ json: PastureJson; img: HTMLImageElement } | null> {
+  const r = await fetch(`/town/${file}.json`);
+  if (!r.ok) return null;
+  const json = await r.json() as PastureJson;
+  const img = await new Promise<HTMLImageElement>((ok, no) => {
+    const i = new Image();
+    i.decoding = "async";
+    i.onload = () => ok(i);
+    i.onerror = () => no(new Error(`${file} picture did not load`));
+    i.src = `/town/${json.image}`;
+  });
+  return { json, img };
+}
+/**
+ * The pasture's sheets (public/town/pasture.json and pasture-<species>.json, the fc-cash-town skill's build-scenery.mjs
+ * with `--set pasture` and `--set pasture-<species>`), fetched once per tab by whoever comes onto the farm and added to
+ * the town's scenery, as the lamps' and the works' are (so their pieces are drawn by the same kit); null while there is
+ * none (the stand-ins are drawn then). A species' sheet that is not there yet leaves its animals to the stand-ins.
  */
 export function loadPastureArt(): Promise<SceneryKit | null> {
   sheet ??= (async () => {
     try {
       const into = await loadScenery();
-      const r = await fetch("/town/pasture.json");
-      if (!r.ok) return null;
-      const json = await r.json() as Parameters<SceneryKit["add"]>[0] & { image: string; size: [number, number]; props: Record<string, number[]>; scale?: Record<string, number> };
-      const img = await new Promise<HTMLImageElement>((ok, no) => {
-        const i = new Image();
-        i.decoding = "async";
-        i.onload = () => ok(i);
-        i.onerror = () => no(new Error("pasture picture did not load"));
-        i.src = `/town/${json.image}`;
-      });
-      into.add(json, img);
-      own = json;
+      const [main, ...animals] = await Promise.all(["pasture", ...ANIMAL_SHEETS].map((f) => fetchSheet(f).catch(() => null)));
+      if (!main) return null;
+      for (const s of [main, ...animals]) if (s) { into.add(s.json, s.img); own.push(s.json); }
       return into;
     } catch { return null; }
   })();
   return sheet;
 }
 /**
- * How much larger than its kind's pictures a piece of the pasture's sheet is drawn (1 for most): a sheet cut on a finer
+ * How much larger than its kind's pictures a piece of the pasture's sheets is drawn (1 for most): a sheet cut on a finer
  * grid drew its animal in more pixels, and a young one the model drew as large as a grown one is drawn smaller.
  */
-export const pastureScale = (name: string): number => own?.scale?.[name] ?? 1;
-/** A picture of the pasture's sheet for a panel (a talk's portrait, a card), or null while there is none. */
+export const pastureScale = (name: string): number => own.find((j) => j.scale?.[name])?.scale?.[name] ?? 1;
+/** A picture of the pasture's sheets for a panel (a talk's portrait, a card), or null while there is none. */
 export function pastureSprite(kit: SceneryKit | null, name: string): Sprite | null {
-  const p = kit && own?.props[name];
-  return p && own ? { src: `/town/${own.image}`, sheet: own.size, at: [p[0], p[1], p[2], p[3]] } : null;
+  const j = kit ? own.find((x) => x.props[name]) : undefined, p = j?.props[name];
+  return p && j ? { src: `/town/${j.image}`, sheet: j.size, at: [p[0], p[1], p[2], p[3]] } : null;
 }
+
+/* ── round 2: every look in two views, its walk and its idle as loops ──
+ *
+ * The owner, 2026-10-20: "ช่วยใช้ pixellab ในการทำท่า idle ของทุกสัตว์ ทุกช่วงวัย และ ตอนหันหน้าหันหลัง animation ตอนเดิน ด้วย", and
+ * a male of each breed drawn as his own. A look's pictures (the pasture-<species> sheets) are named
+ * `<prefix>_<SE|NE>_<walk|idle>_<i>`, where the prefix is the look's:
+ *   an_<breed>_adult  a grown female            an_<breed>_male        a grown male (rooster, drake, ram, bull)
+ *   an_<breed>_shorn  a shorn ewe               an_<breed>_male_shorn  a shorn ram
+ *   an_<species>_baby, an_<species>_young  the young, alike whatever their breed or sex     pa_ram  the cloud ram
+ * SE faces the viewer to the lower right, NE turns its back to the upper right; SW and NW are those mirrored. Round 1's
+ * names (`<prefix>_<SE|NE>_idle`, `_walk1`, `_walk2`) are kept on the same pictures, and its eat, sleep, happy and swim
+ * stay where they were drawn (`<prefix>_SE_<pose>`).
+ */
+export type ArtView = "SE" | "NE";
+export type ArtAction = "idle" | "walk" | "eat" | "sleep" | "happy" | "swim";
+export interface AnimalArtAsk {
+  species: string; breed: string; stage: ArtStage;
+  /** Its sex ("m" a rooster, drake, ram or bull once grown); a female's pictures when not said. */
+  sex?: "m" | "f";
+  /** A sheep shorn, its fleece not grown back. */
+  shorn?: boolean;
+  /** The way it faces: SE and SW toward the viewer, NE and NW away; W is drawn mirrored. */
+  facing: Facing;
+  action: ArtAction;
+  /** The clock the loops run by (ms); give each animal its own offset so a herd does not step as one. */
+  now: number;
+}
+/** How long each picture of a loop is shown (ms): a bird's quick step, a cow's slow one; a breath. */
+export const LOOP_MS: { walk: Readonly<Record<string, number>>; idle: number } = { walk: { chicken: 110, duck: 120, sheep: 140, cow: 170 }, idle: 260 };
+/**
+ * The looks an animal may be drawn as, the nearest first (the coordinator's order, 2026-10-20: a back view missing is the
+ * front, a male missing is the female, a shorn one missing is the fleeced): a grown male shorn, then his fleeced self, then
+ * the ewe shorn and fleeced; the young by their species and stage alone.
+ */
+export function lookPrefixes(a: Pick<AnimalArtAsk, "species" | "breed" | "stage" | "sex" | "shorn">): string[] {
+  if (a.stage !== "adult") return [`an_${a.species}_${a.stage}`];
+  const female = a.shorn ? [`an_${a.breed}_shorn`, `an_${a.breed}_adult`] : [`an_${a.breed}_adult`];
+  return a.sex === "m" ? [...(a.shorn ? [`an_${a.breed}_male_shorn`] : []), `an_${a.breed}_male`, ...female] : female;
+}
+/**
+ * The picture to draw an animal with now: its own look if drawn, else the nearest (lookPrefixes); its view if drawn,
+ * else SE; the loop's picture for the moment `now`, or for a pose with no loop (eat, sleep, happy, swim) round 1's
+ * picture of it, else the animal standing. `mirror` when it faces west. Null while no sheet has the animal (its stand-in).
+ */
+export function animalFrame(kit: SceneryKit | null, a: AnimalArtAsk): { name: string; mirror: boolean } | null {
+  if (!kit) return null;
+  const view: ArtView = a.facing === "NE" || a.facing === "NW" ? "NE" : "SE", mirror = a.facing === "SW" || a.facing === "NW";
+  const views: ArtView[] = view === "NE" ? ["NE", "SE"] : ["SE"];
+  const loop = (prefix: string, v: ArtView, act: "walk" | "idle") => {
+    const n = ANIMAL_LOOPS[prefix]?.[v]?.[act];
+    if (!n) return null;
+    const ms = act === "walk" ? LOOP_MS.walk[a.species] ?? 130 : LOOP_MS.idle, name = `${prefix}_${v}_${act}_${Math.floor(a.now / ms) % n}`;
+    return kit.has(name) ? name : null;
+  };
+  for (const prefix of lookPrefixes(a)) for (const v of views) {
+    if (a.action === "walk" || a.action === "idle") { const name = loop(prefix, v, a.action) ?? loop(prefix, v, "idle"); if (name) return { name, mirror }; }
+    else {
+      const pose = `${prefix}_${v}_${a.action}`;
+      if (kit.has(pose)) return { name: pose, mirror };
+    }
+    // (round 1's names, for a look drawn before the loops)
+    for (const old of a.action === "walk" ? [`${prefix}_${v}_walk1`, `${prefix}_${v}_idle`] : [`${prefix}_${v}_idle`]) if (kit.has(old)) return { name: old, mirror };
+  }
+  // a pose with no picture of its own: the animal standing (the page draws the pose's sign about it)
+  return a.action === "idle" ? null : animalFrame(kit, { ...a, action: "idle" });
+}
+/**
+ * The barn's one trough, laid end to end from pieces (the pasture sheet, pasture-trough.mjs; the names are
+ * TROUGH_ART's: pa_troughLeft, pa_troughRight, pa_troughSlot, pa_troughSlot_<species>_<half|full>). Every piece stands
+ * on its place's point (where the compartment's front wall meets the floor, at its middle). A trough of n places: place
+ * i's point is the first's moved i steps (`step`, in the pieces' own pixels, so `step` times the scale on the map: up
+ * to the right as drawn, mirrored for a trough the other way); each place's slot is drawn at its point, the left end at
+ * the first place's and the right end at the last's, the ends after the slots. At `k` map pixels a picture pixel a
+ * place is one tile long (a tile's step along the row is 32 x -16 map px; the pieces' is 32 x -16.8, so lay them by
+ * their own step, not the tiles'). The trough is about half a tile deep, from its front wall back to the wall it stands
+ * against.
+ */
+export const TROUGH_FIT = { step: [38, -20] as const, k: 0.842 } as const;
+
+// ── built: what each look has drawn (pasture-frames.mjs --table writes this; do not edit by hand) ──
+export const ANIMAL_LOOPS: Readonly<Record<string, Partial<Record<ArtView, Partial<Record<"walk" | "idle", number>>>>>> = {
+  an_barnHen_adult: { SE: { walk: 4, idle: 5 }, NE: { walk: 4, idle: 5 } },
+  an_chicken_baby: { SE: { walk: 4, idle: 5 }, NE: { walk: 4, idle: 5 } },
+  an_cow_baby: { SE: { walk: 4, idle: 5 }, NE: { walk: 4, idle: 5 } },
+  an_meadowSheep_adult: { SE: { walk: 4, idle: 4 }, NE: { walk: 4, idle: 4 } },
+  an_sheep_baby: { SE: { walk: 4, idle: 4 }, NE: { walk: 4, idle: 4 } },
+};
+// ── end built ──

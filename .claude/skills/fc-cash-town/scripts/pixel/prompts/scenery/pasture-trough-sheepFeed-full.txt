@@ -1,0 +1,5 @@
+The attached picture is a long wooden feeding trough from a cozy 2D town game, with three compartments in a row. Redraw the same picture with everything in exactly the same place on the canvas, at the same size, in the same three-quarter top-down view, with the same chunky pixel size and the same thick dark outline.
+
+Change only this: the middle compartment is heaped a little above its rim, from one board to the other, with loose pale golden hay shaken out of a bale, its strands sticking up. The feed stays inside the middle compartment, between its two boards; the two other compartments stay empty, and every plank, board, foot and the iron rim stay exactly as they are.
+
+Use the same pixel size as the attached picture: do not make the pixels smaller or larger. Crisp pixel art with hard square pixel edges, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground, no shadows, no text, no labels.

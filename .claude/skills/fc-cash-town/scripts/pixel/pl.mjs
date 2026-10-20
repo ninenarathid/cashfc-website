@@ -84,8 +84,10 @@ for (const u of links) fs.writeFileSync(path.join(out, path.basename(new URL(u).
 
 const usage = last.billing_usage ?? last.usage ?? res.usage ?? {};
 const after = await left();
-const gens = +(usage.generations ?? (before - after)).toFixed(2);
-const row = { t: new Date().toISOString(), tool: "pixellab", name: outName, endpoint, pictures: files.map(f => path.basename(f)), stamp,
+// (several calls at once (PL_BATCH=<id>): the month's balance before and after a call counts the others' too, so a call
+// that does not say what it took is written 0 here, and the batch's runner writes one row with the batch's whole cost)
+const gens = +(usage.generations ?? (process.env.PL_BATCH ? 0 : before - after)).toFixed(2);
+const row = { t: new Date().toISOString(), tool: "pixellab", name: outName, endpoint, pictures: files.map(f => path.basename(f)), stamp, ...(process.env.PL_BATCH ? { batch: process.env.PL_BATCH } : {}),
   cost: 0, gens, ...(usage.cost_if_paid ? { usdIfPaid: +usage.cost_if_paid.toFixed(4) } : {}), secs: Math.round((Date.now() - t0) / 1000),
   ...(process.env.REVIEW ? { review: process.env.REVIEW } : { noReview: process.env.NO_REVIEW }) };
 fs.appendFileSync(path.join(HERE, "work", "ledger.jsonl"), JSON.stringify(row) + "\n");
