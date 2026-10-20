@@ -32,10 +32,10 @@ export async function proxy(request: NextRequest) {
 /**
  * Only where the server reads the session.
  *
- * Two pages render with the reader's session on the server, an event and a
- * gallery post, and two routes act on it: the character claim and the sign-in
- * callback. Every other page is the same for everybody, and the browser client
- * keeps its own session fresh.
+ * Three pages render with the reader's session on the server, an event, a
+ * gallery post and a contest (its link card), and two routes act on it: the
+ * character claim and the sign-in callback. Every other page is the same for
+ * everybody, and the browser client keeps its own session fresh.
  *
  * This used to run in front of every page, and on Vercel that is an invocation
  * and a round trip to Supabase Auth for each page view and each prefetch —
@@ -45,12 +45,14 @@ export async function proxy(request: NextRequest) {
  * With nothing refreshing in front of it, a server component that finds an
  * expired token refreshes it itself and cannot write the result back, which
  * leaves the browser holding a spent refresh token — and Supabase answers that
- * by signing the member out.
+ * by signing the member out. The contest page went without it from 60e94caf
+ * until 2026-10-20 (found looking into a Crew save that went out signed out).
  */
 export const config = {
   matcher: [
     "/events/:id",
     "/gallery/:id",
+    "/contest/:id",
     "/api/verify-character",
     "/auth/:path*",
   ],
