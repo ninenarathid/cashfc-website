@@ -64698,12 +64698,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 92,
     "kills": 15,
     "job": "Scholar",
     "cleared": true,
-    "encounter_id": 1048,
     "job_kills": {
      "Summoner": {
       "kills": 6,
