@@ -32,7 +32,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import * as L from "./pxlib.mjs";
-import { pastureFrames } from "./pasture-frames.mjs";
+import { lookFrames, pastureFrames, troughPieces } from "./pasture-frames.mjs";
 
 const HERE = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Z]:)/, "$1");
 const argWork = process.argv.indexOf("--work");
@@ -44,7 +44,10 @@ fs.mkdirSync(PUB, { recursive: true });
 const argSet = process.argv.indexOf("--set");
 /** Which picture is built: the town's scenery, the forest's, or the cooking screen's. */
 const SET = argSet > 0 ? process.argv[argSet + 1] : "scenery";
-if (!["scenery", "forest", "kitchen", "mountain", "cave", /* felling */ "felling", "works", "lamps", "pasture"].includes(SET)) throw new Error(`no such set: ${SET}`);
+// (the pasture's animals are a picture a species, `pasture-<species>`: every look in two views with its loops is too
+// large for one picture a phone draws from)
+const ANIMAL_SETS = ["pasture-chicken", "pasture-duck", "pasture-sheep", "pasture-cow"];
+if (!["scenery", "forest", "kitchen", "mountain", "cave", /* felling */ "felling", "works", "lamps", "pasture", ...ANIMAL_SETS].includes(SET)) throw new Error(`no such set: ${SET}`);
 
 // [sheet, names, how]: "whole" keeps every shape on the sheet as one piece (the shop site and its
 // heaps); "hat" stands frames on their feet under the middle of their yellow hard hat, so a
@@ -401,7 +404,7 @@ const isWater = (r, g, b) => { const mx = Math.max(r, g, b), mn = Math.min(r, g,
   return (b > r + 25 && b >= g && (mx - mn) / 255 > 0.18) || (l > 0.82 && b >= r && b >= g - 4); };
 // (the mountain's own ground: bare stony earth, a cliff's face seen from the front, snow, and the forest's floor under its
 // pines; the cave's: its floor, the top of its rock, and the same face for its walls)
-const TEXTURES = { forest: ["wood"], kitchen: [], felling: [], works: [], lamps: [], pasture: [], mountain: ["rock", "cliff", "snow", "wood"], cave: ["cavefloor", "cavewall", "cliff"] }[SET]
+const TEXTURES = ANIMAL_SETS.includes(SET) ? [] : { forest: ["wood"], kitchen: [], felling: [], works: [], lamps: [], pasture: [], mountain: ["rock", "cliff", "snow", "wood"], cave: ["cavefloor", "cavewall", "cliff"] }[SET]
   ?? ["grass", "plaza", "road", "water", "sand", "field"];
 
 const pieces = [];
@@ -424,7 +427,7 @@ function moveOnto(g, ref, refSet) {
   }
   return { ...best, of: low.length };
 }
-for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: KITCHEN, mountain: MOUNTAIN, cave: CAVE, felling: FELLING, works: WORKS, lamps: LAMPS, pasture: PASTURE }[SET] ?? SHEETS) {
+for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: KITCHEN, mountain: MOUNTAIN, cave: CAVE, felling: FELLING, works: WORKS, lamps: LAMPS, pasture: PASTURE }[SET] ?? (ANIMAL_SETS.includes(SET) ? [] : SHEETS)) {
   if (!fs.existsSync(path.join(OUT, `${sheet}.png`))) { console.log(`no ${sheet}`); continue; }
   const raw = await L.loadRaw(path.join(OUT, `${sheet}.png`));
   // the characters' own pixel size (about 5.3–6.2): a double period scores as well and halves every prop
@@ -529,7 +532,7 @@ for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: 
 }
 
 // what came drawn: its true pixels, less a painted shadow and whatever specks that leaves, doubled where it is to be
-for (const [file, name, p, how = {}] of READY[SET]) {
+for (const [file, name, p, how = {}] of READY[SET] ?? []) {
   const src = path.join(WORK, "oatto", `${file}.png`);
   if (!fs.existsSync(src)) { console.log(`no ${file}`); continue; }
   const g = trueCells(await L.loadRaw(src), p, how.drop, how.greys);
@@ -549,7 +552,11 @@ for (const [file, name, p, how = {}] of READY[SET]) {
 
 // the pasture's animals: their frames, each on its base's ground point; the barn's fronts, repainted
 if (SET === "pasture") {
-  pieces.push(...await pastureFrames());
+  // (round 1's frames, but not under a name a species' picture now has: those are its looks' own)
+  const theirs = new Set((await lookFrames()).pieces.flatMap((p) => [p.name, ...p.also]));
+  pieces.push(...(await pastureFrames()).filter((p) => !theirs.has(p.name)));
+  // the barn's trough, in pieces laid end to end (pasture-trough.mjs)
+  pieces.push(...await troughPieces());
   for (const [from, name, hue, sat, lift] of PASTURE_REPAINT) {
     const p = pieces.find((q) => q.name === from);
     if (!p) continue;
@@ -566,6 +573,9 @@ if (SET === "pasture") {
     console.log(`${name.padEnd(9)} ${from} repainted (${n} cells)`);
   }
 }
+
+// a species' looks: each in two views, its walk and idle loops (pasture-frames.mjs's lookFrames)
+if (ANIMAL_SETS.includes(SET)) pieces.push(...(await lookFrames(SET.slice("pasture-".length))).pieces);
 
 // textures: true pixels, cut to a whole number of their own pixels
 const textures = [];
@@ -610,10 +620,11 @@ const png = await L.sharp(sheet, { raw: { width: W, height: H, channels: 4 } }).
 const hash = crypto.createHash("sha256").update(png).digest("hex").slice(0, 10);
 const meta = {
   v: 1, image: `${SET}-${hash}.png`, size: [W, H],
-  props: Object.fromEntries(pieces.map(p => [p.name, [p.x, p.y, p.img.w, p.img.h, p.ax, p.ay]])),
+  // (a piece may be known by more names than one, `also`: the same pixels, written once)
+  props: Object.fromEntries(pieces.flatMap(p => [p.name, ...(p.also ?? [])].map(n => [n, [p.x, p.y, p.img.w, p.img.h, p.ax, p.ay]]))),
   textures: Object.fromEntries(textures.map(p => [p.name, [p.x, p.y, p.img.w, p.img.h]])),
   // (the pasture's: how much larger than its kind's own a piece is drawn, where not 1: pasture-frames.mjs)
-  ...(pieces.some(p => p.k && p.k !== 1) ? { scale: Object.fromEntries(pieces.filter(p => p.k && p.k !== 1).map(p => [p.name, p.k])) } : {}),
+  ...(pieces.some(p => p.k && p.k !== 1) ? { scale: Object.fromEntries(pieces.filter(p => p.k && p.k !== 1).flatMap(p => [p.name, ...(p.also ?? [])].map(n => [n, p.k]))) } : {}),
 };
 for (const f of fs.readdirSync(PUB)) if (f.startsWith(`${SET}-`) && /^-[0-9a-f]{10}\.png$/.test(f.slice(SET.length)) && f !== meta.image) fs.unlinkSync(path.join(PUB, f));
 fs.writeFileSync(path.join(PUB, meta.image), png);

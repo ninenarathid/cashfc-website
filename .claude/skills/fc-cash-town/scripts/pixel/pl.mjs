@@ -50,7 +50,10 @@ To make it unread, set NO_REVIEW="<why>".`);
 const key = fs.readFileSync(ENV, "utf8").match(/^PIXELLAB_API_KEY=(.+)$/m)?.[1].trim();
 if (!key) { console.log(`no PIXELLAB_API_KEY in ${ENV}`); process.exit(1); }
 const H = { Authorization: `Bearer ${key}`, "Content-Type": "application/json" };
-const left = async () => (await (await fetch(`${API}/balance`, { headers: H })).json()).subscription?.generations;
+// (what only reads is asked again when the network drops for a while, as it did on 2026-10-20: a job already paid for
+// must not be lost to a dropped poll, nor sent again by a runner that saw it fail)
+const again = async (f, what) => { for (let t = 0; ; t++) { try { return await f(); } catch (e) { if (t >= 30) throw e; console.error(`(${what}: ${e.cause?.code ?? e.message}; again in 10 s)`); await new Promise((s) => setTimeout(s, 10000)); } } };
+const left = () => again(async () => (await (await fetch(`${API}/balance`, { headers: H })).json()).subscription?.generations, "balance");
 
 const out = path.join(HERE, "work", "pl", outName);
 fs.mkdirSync(out, { recursive: true });
@@ -62,7 +65,7 @@ if (!r.ok) { console.log(`HTTP ${r.status} ${JSON.stringify(res).slice(0, 800)}`
 const job = res.background_job_id ?? res.background_job_ids?.[0];
 if (job) for (;;) {
   await new Promise(s => setTimeout(s, 5000));
-  res = await (await fetch(`${API}/background-jobs/${job}`, { headers: H })).json();
+  res = await again(async () => (await fetch(`${API}/background-jobs/${job}`, { headers: H })).json(), "poll");
   if (res.status === "completed" || res.status === "failed") break;
 }
 const short = o => JSON.stringify(o, (k, v) => typeof v === "string" && v.length > 300 ? `<${v.length} chars>` : v, 1);
@@ -80,12 +83,14 @@ const walk = (o, field) => {
 };
 const last = res.last_response ?? res;
 walk(last);
-for (const u of links) fs.writeFileSync(path.join(out, path.basename(new URL(u).pathname)), Buffer.from(await (await fetch(u)).arrayBuffer()));
+for (const u of links) fs.writeFileSync(path.join(out, path.basename(new URL(u).pathname)), await again(async () => { const d = await fetch(u); if (!d.ok) throw new Error(`HTTP ${d.status}`); const b = Buffer.from(await d.arrayBuffer()); if (b.subarray(1, 4).toString() !== "PNG" && u.endsWith(".png")) throw new Error("not a PNG"); return b; }, "download"));
 
 const usage = last.billing_usage ?? last.usage ?? res.usage ?? {};
 const after = await left();
-const gens = +(usage.generations ?? (before - after)).toFixed(2);
-const row = { t: new Date().toISOString(), tool: "pixellab", name: outName, endpoint, pictures: files.map(f => path.basename(f)), stamp,
+// (several calls at once (PL_BATCH=<id>): the month's balance before and after a call counts the others' too, so a call
+// that does not say what it took is written 0 here, and the batch's runner writes one row with the batch's whole cost)
+const gens = +(usage.generations ?? (process.env.PL_BATCH ? 0 : before - after)).toFixed(2);
+const row = { t: new Date().toISOString(), tool: "pixellab", name: outName, endpoint, pictures: files.map(f => path.basename(f)), stamp, ...(process.env.PL_BATCH ? { batch: process.env.PL_BATCH } : {}),
   cost: 0, gens, ...(usage.cost_if_paid ? { usdIfPaid: +usage.cost_if_paid.toFixed(4) } : {}), secs: Math.round((Date.now() - t0) / 1000),
   ...(process.env.REVIEW ? { review: process.env.REVIEW } : { noReview: process.env.NO_REVIEW }) };
 fs.appendFileSync(path.join(HERE, "work", "ledger.jsonl"), JSON.stringify(row) + "\n");
