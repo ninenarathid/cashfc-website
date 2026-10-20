@@ -18847,7 +18847,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 88,
-    "kills": 16,
+    "kills": 18,
     "job": "Machinist",
     "cleared": true,
     "job_kills": {
@@ -34750,7 +34750,7 @@
     "cleared": true,
     "job_kills": {
      "Dancer": {
-      "kills": 28,
+      "kills": 30,
       "best": 99
      },
      "BlackMage": {
@@ -41103,7 +41103,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 41,
-    "kills": 12,
+    "kills": 13,
     "job": "Warrior",
     "cleared": true,
     "job_kills": {
@@ -61994,6 +61994,10 @@
       "kills": 5,
       "best": 71
      },
+     "Samurai": {
+      "kills": 2,
+      "best": 37
+     },
      "Reaper": {
       "kills": 2,
       "best": 33
@@ -62012,8 +62016,8 @@
     "cleared": true,
     "job_kills": {
      "Samurai": {
-      "kills": 4,
-      "best": 37
+      "kills": 8,
+      "best": 38
      },
      "BlackMage": {
       "kills": 5,
@@ -67143,8 +67147,8 @@
     "cleared": true,
     "job_kills": {
      "Dancer": {
-      "kills": 5,
-      "best": 42
+      "kills": 7,
+      "best": 63
      },
      "Sage": {
       "kills": 3,
@@ -74670,7 +74674,7 @@
       "best": 95
      },
      "Warrior": {
-      "kills": 8,
+      "kills": 9,
       "best": 66
      },
      "Gunbreaker": {
@@ -74949,7 +74953,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 83,
-    "kills": 67,
+    "kills": 69,
     "job": "Bard",
     "cleared": true,
     "job_kills": {
@@ -74990,7 +74994,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 79,
-    "kills": 72,
+    "kills": 74,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -83721,8 +83725,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 4,
-    "kills": 5,
+    "best": 5,
+    "kills": 7,
     "job": "DarkKnight",
     "cleared": true,
     "job_kills": {
@@ -83738,8 +83742,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1081,
     "name": "Necron",
-    "best": 6,
-    "kills": 5,
+    "best": 9,
+    "kills": 9,
     "job": "DarkKnight",
     "cleared": true,
     "job_kills": {

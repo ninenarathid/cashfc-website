@@ -1,6 +1,13 @@
 {
  "events": [
   {
+   "date": "2026-10-20",
+   "type": "level_100",
+   "id": 39850923,
+   "name": "Hiro Hikari",
+   "text": "reached level 100 on Bard!"
+  },
+  {
    "date": "2026-10-19",
    "type": "level_100",
    "id": 42948817,
@@ -1392,13 +1399,6 @@
    "id": 60429500,
    "name": "Jin Theape",
    "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-10-06",
-   "type": "rare_up",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "earned On a Boat IV — only 2.8% of players have it"
   }
  ]
 }
