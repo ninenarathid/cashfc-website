@@ -15,6 +15,9 @@
 //                                               pile of stone, a stone, its sign (lib/town/works-art.ts)
 //   node build-scenery.mjs --set lamps          the lamp relay's things (lamps-<hash>.png + lamps.json): the posts, the
 //                                               brazier, a flame, what the night brings out (lib/town/lamps-art.ts)
+//   node build-scenery.mjs --set pasture        the animal line's pasture (pasture-<hash>.png + pasture.json): its animals'
+//                                               frames (pasture-frames.mjs), buildings, things, Uncle Popoto and the
+//                                               three games' scenes and pieces, by lib/town/pasture-art.ts's names
 //   node build-scenery.mjs --work <dir>         the sheets are another tree's (a worktree has no work folder of its own)
 //   node build-scenery.mjs --own-ground         the ground in the model's own textures, not the drawn ones (READY_TEX)
 //
@@ -29,6 +32,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import * as L from "./pxlib.mjs";
+import { pastureFrames } from "./pasture-frames.mjs";
 
 const HERE = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Z]:)/, "$1");
 const argWork = process.argv.indexOf("--work");
@@ -40,7 +44,7 @@ fs.mkdirSync(PUB, { recursive: true });
 const argSet = process.argv.indexOf("--set");
 /** Which picture is built: the town's scenery, the forest's, or the cooking screen's. */
 const SET = argSet > 0 ? process.argv[argSet + 1] : "scenery";
-if (!["scenery", "forest", "kitchen", "mountain", "cave", /* felling */ "felling", "works", "lamps"].includes(SET)) throw new Error(`no such set: ${SET}`);
+if (!["scenery", "forest", "kitchen", "mountain", "cave", /* felling */ "felling", "works", "lamps", "pasture"].includes(SET)) throw new Error(`no such set: ${SET}`);
 
 // [sheet, names, how]: "whole" keeps every shape on the sheet as one piece (the shop site and its
 // heaps); "hat" stands frames on their feet under the middle of their yellow hard hat, so a
@@ -239,6 +243,12 @@ const LAMPS = [
   ["scene-lamps-night", ["bloomShut", "bloomOpen", "shroom", "shroomGlow", "shroomOne", "wisp"]],
   ["scene-lamps-fete", ["feteString", "feteLantern", "twinkle"]],
 ];
+// ── pasture ── The animal line's own (docs/plans/animals/ART-NEEDED.md; lib/town/pasture-art.ts names every piece): a
+// picture of its own, fetched only by whoever comes onto the farm. The animals are not here: their frames are
+// pasture-frames.mjs's (a gen.mjs base and PixelLab's frames of it), laid in after these.
+const PASTURE = [
+];
+// ── end: pasture ──
 // Pixel art that came drawn (the owner's folder of 2026-10-05, "oatto-asset": kept in work/oatto like the sheets, and
 // like them not in the repo), each thing true pixels blown up a whole number of times, at whatever size its artist
 // liked. [file, name, the size of its own pixel, how]. `twice` doubles one that is to stand as tall as the town's own
@@ -274,6 +284,7 @@ const READY = {
   cave: [],
   works: [],
   lamps: [],
+  pasture: [],
 };
 // Ground that came drawn (the same folder's pack of textures; the ones used are in work/oatto/tex, with the pack's
 // licence: free to use and to change, not to be handed on as files, which is one more reason they stay out of the
@@ -294,6 +305,7 @@ const READY_TEX = {
   cave: {},
   works: {},
   lamps: {},
+  pasture: {},
 };
 /** The mean of each colour of a picture's pixels, and how far its light and dark spread about their mean. */
 function colourOf(buf) {
@@ -352,7 +364,7 @@ const isWater = (r, g, b) => { const mx = Math.max(r, g, b), mn = Math.min(r, g,
   return (b > r + 25 && b >= g && (mx - mn) / 255 > 0.18) || (l > 0.82 && b >= r && b >= g - 4); };
 // (the mountain's own ground: bare stony earth, a cliff's face seen from the front, snow, and the forest's floor under its
 // pines; the cave's: its floor, the top of its rock, and the same face for its walls)
-const TEXTURES = { forest: ["wood"], kitchen: [], felling: [], works: [], lamps: [], mountain: ["rock", "cliff", "snow", "wood"], cave: ["cavefloor", "cavewall", "cliff"] }[SET]
+const TEXTURES = { forest: ["wood"], kitchen: [], felling: [], works: [], lamps: [], pasture: [], mountain: ["rock", "cliff", "snow", "wood"], cave: ["cavefloor", "cavewall", "cliff"] }[SET]
   ?? ["grass", "plaza", "road", "water", "sand", "field"];
 
 const pieces = [];
@@ -375,7 +387,7 @@ function moveOnto(g, ref, refSet) {
   }
   return { ...best, of: low.length };
 }
-for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: KITCHEN, mountain: MOUNTAIN, cave: CAVE, felling: FELLING, works: WORKS, lamps: LAMPS }[SET] ?? SHEETS) {
+for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: KITCHEN, mountain: MOUNTAIN, cave: CAVE, felling: FELLING, works: WORKS, lamps: LAMPS, pasture: PASTURE }[SET] ?? SHEETS) {
   if (!fs.existsSync(path.join(OUT, `${sheet}.png`))) { console.log(`no ${sheet}`); continue; }
   const raw = await L.loadRaw(path.join(OUT, `${sheet}.png`));
   // the characters' own pixel size (about 5.3–6.2): a double period scores as well and halves every prop
@@ -493,6 +505,9 @@ for (const [file, name, p, how = {}] of READY[SET]) {
   pieces.push({ name, img: im, ax, ay });
   console.log(`${name.padEnd(9)} ${im.w}x${im.h}  (drawn: ${p} to the pixel${how.twice ? ", doubled" : ""})`);
 }
+
+// the pasture's animals: their frames, each on its base's ground point
+if (SET === "pasture") pieces.push(...await pastureFrames());
 
 // textures: true pixels, cut to a whole number of their own pixels
 const textures = [];

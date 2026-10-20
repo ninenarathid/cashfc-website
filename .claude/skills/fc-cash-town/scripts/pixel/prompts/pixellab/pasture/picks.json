@@ -1,0 +1,5 @@
+{
+  "an_barnHen_adult_SE": { "base": "barnHen", "frames": {
+    "idle": "base", "walk1": ["pasture-barnHen-walk", 1], "walk2": "base",
+    "eat": ["pasture-barnHen-eatE", 0], "sleep": ["pasture-barnHen-sleepE", 0], "happy": ["pasture-barnHen-happy", 1] } }
+}

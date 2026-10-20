@@ -1,6 +1,6 @@
 import type { SceneryKit } from "@/lib/town/scenery";
 import type { Vec } from "@/lib/town/world";
-import { POPOTO_FRAMES, animalSprite, type AnimalFrame, type ArtStage, type Facing } from "@/lib/town/pasture-art";
+import { POPOTO_FRAMES, animalSprite, shornSprite, type AnimalFrame, type ArtStage, type Facing } from "@/lib/town/pasture-art";
 
 /**
  * The pasture drawn on the map: each thing by its picture in the pasture's sheet when the art piece has made it
@@ -31,11 +31,61 @@ const BIRD = (sp: string) => sp === "chicken" || sp === "duck";
 const facingOf = (right: boolean): Facing => (right ? "SE" : "SW");
 
 export interface AnimalLook { species: string; breed: string; stage: ArtStage; pose: "walk" | "idle" | "eat" | "sleep" | "swim" | "happy"; right: boolean; shorn?: boolean }
+/**
+ * How large each kind's pictures are drawn: map pixels to one of the picture's own. Near the dolls' own (two thirds of
+ * a map pixel, lib/town/pixeldoll's LALAFELL_SIZE), so that an animal's pixels are the size of the members' beside it,
+ * and a grown hen stands a little under half a member's height, a cow nearly as tall as one.
+ */
+export const ANIMAL_K: Readonly<Record<string, number>> = { chicken: 0.6, duck: 0.6, sheep: 0.62, cow: 0.62 };
+/**
+ * The picture an animal is drawn with: the frame asked for, else the walk's first step for its second, else the animal
+ * standing (a frame not drawn falls back to the animal, never to the stand-in). SE is the facing drawn; SW is SE
+ * mirrored (ART-NEEDED: the page turns them by the way they go). Null while the sheet has no picture of the animal.
+ */
+export function animalPicture(kit: SceneryKit | null, a: Pick<AnimalLook, "species" | "breed" | "stage" | "shorn" | "right">, frame: AnimalFrame): { name: string; mirror: boolean } | null {
+  if (!kit) return null;
+  const want: AnimalFrame[] = [frame, ...(frame === "walk2" ? ["walk1" as const] : []), "idle"];
+  const facing = facingOf(a.right);
+  for (const f of want) {
+    const own = a.shorn ? shornSprite(a.breed, facing, f) : animalSprite(a.species, a.breed, a.stage, facing, f);
+    if (kit.has(own)) return { name: own, mirror: false };
+    if (facing === "SW") {
+      const se = a.shorn ? shornSprite(a.breed, "SE", f) : animalSprite(a.species, a.breed, a.stage, "SE", f);
+      if (kit.has(se)) return { name: se, mirror: true };
+    }
+  }
+  // (a shorn sheep with no picture of its own yet is the sheep)
+  return a.shorn ? animalPicture(kit, { ...a, shorn: false }, frame) : null;
+}
+/** How large an animal is on the map at scale 1 (map pixels): its picture's, or its stand-in's. For taps, bubbles and cards. */
+export function animalSize(kit: SceneryKit | null, a: Pick<AnimalLook, "species" | "breed" | "stage">): { w: number; h: number } {
+  const p = animalPicture(kit, { ...a, right: true }, "idle");
+  if (p && kit) { const [w, h] = kit.sizeOf(p.name), k = ANIMAL_K[a.species] ?? 0.6; return { w: w * k, h: h * k }; }
+  const len = lengthOf(a.species, a.stage);
+  return { w: len, h: len * 0.9 };
+}
 /** An animal at its feet's point: its picture, or its stand-in. */
 export function drawAnimal(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, a: AnimalLook, at: Vec, s: number, px: number, now: number, still: boolean) {
   const frame: AnimalFrame = a.pose === "walk" ? (still || Math.floor(now / 260) % 2 ? "walk1" : "walk2") : a.pose;
-  const name = animalSprite(a.species, a.breed, a.stage, facingOf(a.right), frame);
-  if (kit?.has(name)) { kit.drawProp(ctx, name, at.x, at.y, s, px, 0, false); return; }
+  const pic = animalPicture(kit, a, frame);
+  if (pic && kit) {
+    const k = s * (ANIMAL_K[a.species] ?? 0.6), [w, h] = kit.sizeOf(pic.name);
+    if (a.pose === "swim" && !pic.name.endsWith("_swim")) {
+      // swimming with no picture of it: the animal standing, sunk to its middle (its feet under the water), and the
+      // water's ring about it
+      ctx.save();
+      ctx.beginPath(); ctx.rect(at.x - w * k, at.y - h * k * 1.3, w * k * 2, h * k * 1.3); ctx.clip();
+      kit.drawProp(ctx, pic.name, at.x, at.y + h * k * 0.3, k, px, 0, pic.mirror);
+      ctx.restore();
+    } else kit.drawProp(ctx, pic.name, at.x, at.y, k, px, 0, pic.mirror);
+    if (a.pose === "swim") {
+      const r = still ? 0 : Math.sin(now / 500);
+      ctx.save(); ctx.strokeStyle = "rgba(225,245,255,0.7)"; ctx.lineWidth = Math.max(1, s * 0.8);
+      ctx.beginPath(); ctx.ellipse(at.x, at.y - 1 * s, w * k * (0.55 + r * 0.04), 3 * s, 0, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+    }
+    if (a.pose === "sleep" && !still) sleepZ(ctx, at, s, now, h * k / s);
+    return;
+  }
   // ART: a stand-in animal (body, head, legs in its breed's colours) until the pasture's sheet has `an_*` pictures.
   const len = lengthOf(a.species, a.stage), bird = BIRD(a.species);
   void SIZE;
@@ -82,12 +132,13 @@ export function drawAnimal(ctx: CanvasRenderingContext2D, kit: SceneryKit | null
   ctx.fillStyle = "#1a1410";
   if (lying) ctx.fillRect(hx + hr * 0.15, hy - hr * 0.1, hr * 0.5, Math.max(0.6, hr * 0.12)); else { ctx.beginPath(); ctx.arc(hx + hr * 0.35, hy - hr * 0.15, Math.max(0.7, hr * 0.16), 0, Math.PI * 2); ctx.fill(); }
   ctx.restore();
-  if (lying && !still) {
-    // a small "z" drifting up, now and then
-    const f = ((now / 1600) + (at.x % 7) / 7) % 1;
-    ctx.save(); ctx.globalAlpha = 0.7 * (1 - f); ctx.fillStyle = "#f3e3c3"; ctx.font = `700 ${Math.round(8 * s)}px sans-serif`; ctx.textAlign = "center";
-    ctx.fillText("z", at.x + 6 * s, at.y - (h + legH + 6 + f * 10) * s); ctx.restore();
-  }
+  if (lying && !still) sleepZ(ctx, at, s, now, h + legH);
+}
+/** A small "z" drifting up over a sleeper now and then (`tall`: how tall it lies, in map pixels). */
+function sleepZ(ctx: CanvasRenderingContext2D, at: Vec, s: number, now: number, tall: number) {
+  const f = ((now / 1600) + (at.x % 7) / 7) % 1;
+  ctx.save(); ctx.globalAlpha = 0.7 * (1 - f); ctx.fillStyle = "#f3e3c3"; ctx.font = `700 ${Math.round(8 * s)}px sans-serif`; ctx.textAlign = "center";
+  ctx.fillText("z", at.x + 6 * s, at.y - (tall + 6 + f * 10) * s); ctx.restore();
 }
 
 /** A colour made lighter (k > 0) or darker (k < 0). */

@@ -24,7 +24,7 @@ import TownFoot from "./TownFoot";
 import type { IconName } from "./TownIcon";
 import TownAnimals, { why, type AnimalsView } from "./TownAnimals";
 import { EggsGame, MilkGame, ShearGame } from "./TownAnimalGames";
-import { drawAnimal, drawBlock, drawBubble, drawEggOut, drawForage, drawGateArt, drawHouse, drawPopoto, drawWagon, lengthOf } from "./pasture-draw";
+import { animalSize, drawAnimal, drawBlock, drawBubble, drawEggOut, drawForage, drawGateArt, drawHouse, drawPopoto, drawWagon } from "./pasture-draw";
 import type { Play } from "@/lib/town/animals";
 
 /*
@@ -321,16 +321,16 @@ export default function TownPasture(props: PastureProps) {
         if (mine && bellNow) { const f = Math.min(1, (bellNow.till - clock) > 15_000 ? (20_000 - (bellNow.till - clock)) / 5000 : 1); const ang = (a.id.charCodeAt(0) % 8) / 8 * Math.PI * 2; spot = { ...spot, x: spot.x + (bellNow.at.x + Math.cos(ang) * 1.3 - spot.x) * f, y: spot.y + (bellNow.at.y + Math.sin(ang) * 1.3 - spot.y) * f, pose: f < 1 ? "walk" : "happy" as never }; }
         const c = project({ x: spot.x, y: spot.y });
         if (!onScreen(c)) continue;
-        const pose = spot.pose === ("happy" as never) ? "idle" : spot.pose;
+        const pose = spot.pose;
         things.push({ depth: spot.x + spot.y, draw: () => drawAnimal(ctx, k, { species: a.species, breed: a.breed, stage: st, pose, right: spot.right }, c, s, px, tick, still) });
-        const size = lengthOf(a.species, st);
+        const box = animalSize(k, { species: a.species, breed: a.breed, stage: st });
         const care = !mine && mayCare(w.herds.find((h) => h.owner === a.owner), me);
-        if (mine || care) out.push({ kind: "animal", id: a.id, x0: c.x - (size / 2 + 6) * s, y0: c.y - (size * 0.9 + 8) * s, x1: c.x + (size / 2 + 6) * s, y1: c.y + 6 * s });
+        if (mine || care) out.push({ kind: "animal", id: a.id, x0: c.x - (box.w / 2 + 6) * s, y0: c.y - (box.h + 8) * s, x1: c.x + (box.w / 2 + 6) * s, y1: c.y + 6 * s });
         // bubbles over mine and those I may care for; a name over mine
         const sec = Math.floor(clock / 1000), key = `${a.at}:${a.food}:${a.banked}:${a.hearts}:${w.gate.length}`, had = views.current.get(a.id);
         const v = had && had.at === sec && had.key === key ? had.v : viewOf(a, clock, { gate: w.gate });
         views.current.set(a.id, { at: sec, key, v });
-        const head = c.y - (size * 0.85 + 6) * s;
+        const head = c.y - (box.h + 4) * s;
         if (mine && v.ready > 0 && a.place === "producing") over?.(() => drawBubble(ctx, k, "ready", SPECIES[a.species].game, c.x, head, s, tick, still, px));
         else if (v.hungry && (mine || care)) over?.(() => drawBubble(ctx, k, mine ? "hungry" : "care", SPECIES[a.species].game, c.x, head, s, tick, still, px));
         if (mine && s >= 0.8) tag((a.name || breedOf(a.breed)?.name[th ? "th" : "en"] || "").slice(0, 12), c.x, c.y + 10 * s, "#cfe6ff");

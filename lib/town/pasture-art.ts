@@ -1,4 +1,4 @@
-import { SceneryKit, type Sprite } from "./scenery";
+import { loadScenery, type SceneryKit, type Sprite } from "./scenery";
 
 /**
  * Every picture of the pasture, by one name each: the ONE mapping the art piece drops its pictures into
@@ -49,16 +49,20 @@ export const GAME_ART = {
 } as const;
 
 let sheet: Promise<SceneryKit | null> | null = null;
+/** The pasture's own sheet as it came (for a panel's picture of one of its pieces). */
+let own: { image: string; size: [number, number]; props: Record<string, number[]> } | null = null;
 /**
- * The pasture's sheet, fetched once per tab by whoever comes onto the farm; null while there is none (the stand-ins
- * are drawn then). A sheet that comes later is used the next time a page is loaded.
+ * The pasture's sheet (public/town/pasture.json, the fc-cash-town skill's build-scenery.mjs with `--set pasture`),
+ * fetched once per tab by whoever comes onto the farm and added to the town's scenery, as the lamps' and the works' are
+ * (so its pieces are drawn by the same kit); null while there is none (the stand-ins are drawn then).
  */
 export function loadPastureArt(): Promise<SceneryKit | null> {
   sheet ??= (async () => {
     try {
-      const r = await fetch("/town/pasture.json", { cache: "force-cache" });
+      const into = await loadScenery();
+      const r = await fetch("/town/pasture.json");
       if (!r.ok) return null;
-      const json = await r.json();
+      const json = await r.json() as Parameters<SceneryKit["add"]>[0] & { image: string; size: [number, number]; props: Record<string, number[]> };
       const img = await new Promise<HTMLImageElement>((ok, no) => {
         const i = new Image();
         i.decoding = "async";
@@ -66,15 +70,15 @@ export function loadPastureArt(): Promise<SceneryKit | null> {
         i.onerror = () => no(new Error("pasture picture did not load"));
         i.src = `/town/${json.image}`;
       });
-      return new SceneryKit(json, img);
+      into.add(json, img);
+      own = json;
+      return into;
     } catch { return null; }
   })();
   return sheet;
 }
-/** A picture of the sheet for a panel (a talk's portrait, a card), or null while there is none. */
+/** A picture of the pasture's sheet for a panel (a talk's portrait, a card), or null while there is none. */
 export function pastureSprite(kit: SceneryKit | null, name: string): Sprite | null {
-  if (!kit?.has(name)) return null;
-  const json = (kit as unknown as { json: { image: string; size: [number, number]; props: Record<string, number[]> } }).json;
-  const p = json?.props?.[name];
-  return p ? { src: `/town/${json.image}`, sheet: json.size, at: [p[0], p[1], p[2], p[3]] } : null;
+  const p = kit && own?.props[name];
+  return p && own ? { src: `/town/${own.image}`, sheet: own.size, at: [p[0], p[1], p[2], p[3]] } : null;
 }
