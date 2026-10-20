@@ -206,9 +206,20 @@ export const TROUGH_FIT = { step: [38, -20] as const, k: 0.842 } as const;
 // ── built: what each look has drawn (pasture-frames.mjs --table writes this; do not edit by hand) ──
 export const ANIMAL_LOOPS: Readonly<Record<string, Partial<Record<ArtView, Partial<Record<"walk" | "idle", number>>>>>> = {
   an_barnHen_adult: { SE: { walk: 4, idle: 5 }, NE: { walk: 4, idle: 5 } },
+  an_barnHen_male: { SE: { walk: 4, idle: 5 }, NE: { walk: 4, idle: 5 } },
   an_chicken_baby: { SE: { walk: 4, idle: 5 }, NE: { walk: 4, idle: 5 } },
+  an_chicken_young: { SE: { walk: 4, idle: 5 }, NE: { walk: 4, idle: 5 } },
   an_cow_baby: { SE: { walk: 4, idle: 5 }, NE: { walk: 4, idle: 5 } },
+  an_cow_young: { SE: { walk: 4, idle: 5 }, NE: { walk: 4, idle: 5 } },
+  an_dairyCow_adult: { SE: { walk: 4, idle: 1 }, NE: { walk: 4, idle: 1 } },
+  an_dairyCow_male: { SE: { walk: 4, idle: 1 }, NE: { walk: 4, idle: 1 } },
+  an_duck_baby: { SE: { walk: 4, idle: 5 }, NE: { walk: 4, idle: 5 } },
+  an_duck_young: { SE: { walk: 4, idle: 5 }, NE: { walk: 4, idle: 5 } },
   an_meadowSheep_adult: { SE: { walk: 4, idle: 4 }, NE: { walk: 4, idle: 4 } },
+  an_meadowSheep_male: { SE: { walk: 4, idle: 4 }, NE: { walk: 4, idle: 4 } },
+  an_puddleDuck_adult: { SE: { walk: 4, idle: 5 }, NE: { walk: 4, idle: 5 } },
+  an_puddleDuck_male: { SE: { walk: 4, idle: 5 }, NE: { walk: 4, idle: 5 } },
   an_sheep_baby: { SE: { walk: 4, idle: 4 }, NE: { walk: 4, idle: 4 } },
+  an_sheep_young: { SE: { walk: 4, idle: 4 }, NE: { walk: 4, idle: 4 } },
 };
 // ── end built ──

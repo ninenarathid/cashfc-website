@@ -1,7 +1,14 @@
 {
  "image": "@bull-highlandM-native-64.png",
  "mask_image": "@bull-highlandM-mask-64.png",
- "description": "The same shaggy red-orange Highland bull from below his belly: he is a bull and has no udder. Where the mask is, his belly ends in its dark outline and below it is his far hind leg in the same coat colour and the empty background between his legs, as in the rest of the picture. The same pixel art style, the same thick dark outline and the same pixel size. No pink.",
+ "context_image": "@../../../work/pasture/base/highlandM.png",
+ "bounding_box": {
+  "x": 28,
+  "y": 108,
+  "width": 64,
+  "height": 64
+ },
+ "description": "The same shaggy red-orange Highland bull from below his belly: he is a bull and has no udder. Remove only the udder and all its pink pixels and dark outline. Continue the existing belly outline naturally; restore the exposed far hind leg in its existing coat colours and leave the gap between the legs transparent. Preserve the existing hoof, pixel size, palette and outline.",
  "no_background": true,
  "output_method": "Modify current layer",
  "seed": 0

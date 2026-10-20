@@ -54,14 +54,14 @@ const DESC = {
   highland: "a shaggy red-orange cow with a fringe over its eyes and wide horns", highlandM: "a shaggy red-orange bull with a fringe over its eyes and very wide upcurved horns",
   brownSwiss: "a grey-brown cow with big fuzzy ears and a pale muzzle", brownSwissM: "a grey-brown bull with big fuzzy ears, a pale muzzle, short horns and a heavy neck",
   // E to H, and the cloud ram
-  lanternHen: "an amber hen whose tail tips glow pale lemon yellow", lanternHenM: "an amber rooster with a big red comb and long arching tail feathers tipped with glowing pale lemon yellow",
-  cloudHen: "a puffy white hen with soft pale blue shading, like a little cloud", cloudHenM: "a puffy white rooster with soft pale blue shading, a small pink comb and a long fluffy tail like a trailing cloud",
-  goldenHen: "a hen of shining gold feathers with a red comb", goldenHenM: "a shining gold rooster with a big red comb and a tall golden sickle tail",
+  lanternHen: "an amber hen whose tail tips glow pale lemon yellow", lanternHenM: "an amber rooster with a big red comb and short curled tail feathers tipped with glowing pale lemon yellow",
+  cloudHen: "a puffy white hen with soft pale blue shading, like a little cloud", cloudHenM: "a puffy white rooster with soft pale blue shading, a red comb and a curled white tail",
+  goldenHen: "a hen of shining gold feathers with a red comb", goldenHenM: "a shining gold rooster with a big red comb and a curled golden tail",
   pocketPhoenix: "a small bird of red-orange plumes with a crest and a tail of flame-shaped feathers", pocketPhoenixM: "a small red-orange phoenix cock with a tall crest of flame feathers and a long curling tail of orange and yellow flame feathers",
   raindropDuck: "a clear sky-blue duck with a tiny grey-white rain cloud over its head", raindropDuckM: "a deep sky-blue drake with a darker blue head and a tiny rain cloud with blue drops above its head",
-  moonDuck: "a pearl-white duck with a yellow crescent on its wing", moonDuckM: "a pearl-white drake with a silvery blue head and a warm yellow crescent on its wing",
+  moonDuck: "a pearl-white duck with a yellow crescent on its wing", moonDuckM: "a pearl-white drake with a white head and a warm yellow crescent on its wing",
   paperboatDuck: "a cream-white duck whose feathers fold in crisp pleats like a paper boat", paperboatDuckM: "a cream-white drake folded in crisp paper pleats, with a pointed paper crest and an upright folded paper tail",
-  littleLeviathan: "a long-necked sea-blue duck with deep-sea scales and a finned tail", littleLeviathanM: "a long-necked deep sea-blue drake with scales, a tall fin crest on its head and a long finned tail",
+  littleLeviathan: "a short-necked sea-blue duck with deep-sea scales and a finned tail", littleLeviathanM: "a short-necked deep sea-blue drake with scales, a tall fin crest on its head and a long finned tail",
   dandelionLamb: "a sheep fluffed into pale yellow seed heads like a dandelion", dandelionLambM: "a ram fluffed into pale yellow seed heads like a dandelion, with two curled pale cream horns",
   rainbowSheep: "a sheep whose fleece runs in seven coloured bands", rainbowSheepM: "a ram whose fleece runs in seven coloured bands, with two curled cream horns",
   starFleece: "a midnight-blue sheep speckled with glowing stars", starFleeceM: "a midnight-blue ram speckled with glowing stars, with two curled silver-grey horns",
@@ -70,7 +70,7 @@ const DESC = {
   cocoaCow: "a dark chocolate cow with milk-chocolate patches and cream horns", cocoaCowM: "a dark chocolate bull with milk-chocolate patches and big cream horns",
   flowerCow: "a white cow with green mossy patches and little flowers on its back", flowerCowM: "a white bull with green mossy patches, little flowers on its back and short horns",
   milkyWayCow: "a midnight-blue cow patterned with star constellations", milkyWayCowM: "a midnight-blue bull patterned with star constellations, with short pale horns",
-  cloudRam: "a big fluffy white ram with a grey face, curled horns and a brown leather riding saddle",
+  cloudRam: "a big fluffy white ram with a grey face, curled horns and a brown leather riding saddle, keeping the saddle, straps and stirrups in their reference positions",
 };
 const NOUN = { sheep: "sheep", cow: "cow", bird: "bird" };
 const desc = (l) => DESC[l.look] ?? `a ${NOUN[l.kind]} (${l.look})`;
@@ -78,18 +78,23 @@ const desc = (l) => DESC[l.look] ?? `a ${NOUN[l.kind]} (${l.look})`;
 // (pasture-frames.mjs). Its "east" came out a profile for the hen, the lamb and the calf, and only now and then the back
 // three quarters; "north" was the back three quarters for every look of the starters (stage 2, 2026-10-20).
 const BACK = { sheep: "north", cow: "north", bird: "north" };
-// each skeleton 's standing loop (the horse has no `idle`: its `rest-idle` is the standing one)
-const IDLE = { sheep: "idle", cow: "rest-idle" };
+// the dog skeleton's standing loop, for the sheep. (The horse has no `idle`; its `rest-idle` lay the bull down into a
+// sheep and striped the cow's spots (stage 3), so a cow's idle is a custom one, as a bird's: the calf's and the heifer's
+// rest-idle held and were kept.)
+const IDLE = { sheep: "idle" };
+const STAND = (l, dir) => `standing in place, ${l.kind === "cow" ? "four hooves" : "feet"} planted, facing unchanged; subtle breathing, one brief blink${dir === "north" ? " only if an eye is already visible; never turn to reveal the face" : ""}${l.kind === "cow" ? ", a small flick of an ear" : ""}; head returns to its starting position; seamless four-frame loop`;
 const createBody = (l) => ({ description: `${desc(l)}, cute chibi pixel art with a thick dark outline, as in the reference`, reference_image: `@../../../work/pasture/base/${l.base}.png`, n_directions: 8, view: "low top-down", template_id: TEMPLATE[l.kind], name: l.look });
 const animBodies = (l, id) => {
   const views = { south: "SE", [BACK[l.kind]]: "NE" }, out = [];
   for (const [dir, view] of Object.entries(views)) {
     if (l.kind === "bird") {
       out.push([`walk-${view}`, { character_id: id, mode: "pixminimax", action_description: "walking in place with small waddling steps, alternating its feet, facing unchanged, its body turned the same way in every frame", subject_description: desc(l), frame_count: 4, directions: [dir], animation_name: `walk-${view}` }]);
-      out.push([`idle-${view}`, { character_id: id, mode: "pixminimax", action_description: `standing in place, feet planted, facing unchanged; subtle breathing, one brief blink${dir === "north" ? " only if an eye is already visible; never turn to reveal the face" : ""}; head returns to its starting position; seamless four-frame loop`, subject_description: desc(l), frame_count: 4, directions: [dir], animation_name: `idle-${view}` }]);
+      out.push([`idle-${view}`, { character_id: id, mode: "pixminimax", action_description: STAND(l, dir), subject_description: desc(l), frame_count: 4, directions: [dir], animation_name: `idle-${view}` }]);
     } else {
       out.push([`walk-${view}`, { character_id: id, mode: "template", template_animation_id: "walk-4-frames", directions: [dir], animation_name: `walk-${view}` }]);
-      out.push([`idle-${view}`, { character_id: id, mode: "template", template_animation_id: IDLE[l.kind], directions: [dir], animation_name: `idle-${view}` }]);
+      out.push([`idle-${view}`, IDLE[l.kind]
+        ? { character_id: id, mode: "template", template_animation_id: IDLE[l.kind], directions: [dir], animation_name: `idle-${view}` }
+        : { character_id: id, mode: "pixminimax", action_description: STAND(l, dir), subject_description: desc(l), frame_count: 4, directions: [dir], animation_name: `idle-${view}` }]);
     }
   }
   return out;
@@ -116,12 +121,47 @@ let free = jobs; const waiting = [];
 const slot = async (f) => { if (free > 0) free--; else await new Promise((r) => waiting.push(r)); try { return await f(); } finally { const w = waiting.shift(); if (w) w(); else free++; } };
 const start = await balance();
 let i = 0;
+/**
+ * A character PixelLab made for a look although its call failed on our side (the network dropped while it was polled,
+ * 2026-10-20: three looks were made twice that way): the newest of that name made today and not already a look's,
+ * once PixelLab has finished it, its rotations fetched as the call would have. Taken before any new one is made.
+ */
+const ACCOUNT = "d269bb68-a0d3-4f22-b155-effb53323d61";
+async function adopt(l) {
+  const used = new Set(Object.values(chars).map((c) => c.id)), day = new Date().toISOString().slice(0, 10);
+  for (let t = 0; t < 40; t++) {
+    const list = (await (await fetch("https://api.pixellab.ai/v2/characters?limit=100", { headers: { Authorization: `Bearer ${key}` } })).json()).characters ?? [];
+    const mine = list.filter((c) => c.name === l.look && c.created_at.startsWith(day) && !used.has(c.id)).sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+    if (!mine.length) return null;
+    const made = mine.find((c) => c.status === "completed");
+    if (made) {
+      const out = path.join(WORK, "pl", `pasture2-char-${l.look}`);
+      fs.mkdirSync(out, { recursive: true });
+      for (const d of ["south", "south-east", "east", "north-east", "north", "north-west", "west", "south-west"]) {
+        const r = await fetch(`https://backblaze.pixellab.ai/file/pixellab-characters/${ACCOUNT}/${made.id}/rotations/${d}.png`);
+        if (r.ok) fs.writeFileSync(path.join(out, `${d}.png`), Buffer.from(await r.arrayBuffer()));
+      }
+      fs.writeFileSync(path.join(out, "response.json"), JSON.stringify({ adopted: true, character_id: made.id, created_at: made.created_at, others: mine.filter((c) => c !== made).map((c) => c.id) }, null, 1));
+      return made.id;
+    }
+    await new Promise((r) => setTimeout(r, 30000));
+  }
+  return null;
+}
+const take = async (l) => {
+  const id = await adopt(l).catch(() => null);
+  if (id) { chars[l.look] = { id, base: l.base, kind: l.kind, adopted: true }; saveChars(); console.log(`char ${l.look} ${id} (made before, taken)`); }
+  return !!id;
+};
 async function one(l) {
-  // the character
+  // the character (one PixelLab made for it already, if any)
+  if (!chars[l.look] && only !== "anim") await take(l);
   if (!chars[l.look] && only !== "anim") {
     const f = path.join(BODIES, `char-${l.look}.json`);
     fs.writeFileSync(f, JSON.stringify(createBody(l)) + "\n");
     for (let t = 0; t < 3 && !chars[l.look]; t++) {
+      // (a call that failed may still have made it: taken rather than made again)
+      if (t && (await take(l))) break;
       const out = await slot(() => run(`pasture2-char-${l.look}`, "create-character-v3", f));
       const r = path.join(WORK, "pl", `pasture2-char-${l.look}`, "response.json");
       const id = fs.existsSync(r) && /"character_id": "([^"]+)"/.exec(fs.readFileSync(r, "utf8"))?.[1];

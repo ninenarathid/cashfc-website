@@ -187,6 +187,14 @@ export async function lookFrames(only) {
       });
       ((table[who.prefix] ??= {})[view] ??= {})[action] = ims.length;
     }
+    // (a view whose idle is not drawn yet stands as its walk's first frame, so the page has one to stand it by)
+    for (const view of ["SE", "NE"]) {
+      const t = table[who.prefix]?.[view];
+      if (!t?.walk || t.idle) continue;
+      const first = pieces.find((p) => p.name === `${who.prefix}_${view}_walk_0`);
+      first.also.push(`${who.prefix}_${view}_idle_0`, `${who.prefix}_${view}_idle`);
+      t.idle = 1;
+    }
   }
   return { pieces, table };
 }
