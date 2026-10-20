@@ -1,0 +1,6 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D town game. Draw a new sprite sheet of small icons for the wool shorn from the farm's sheep of that game, in the same pixel art style.
+
+Each icon is drawn on its own 16 by 16 pixel grid, scaled up big so every pixel of the icon is a large crisp square, all icons the same size, simple and bold so they read clearly when shown small, with a thick dark outline and two or three tones per colour. Every fleece across both wool sheets has the same soft round tuft silhouette, width and height; only its colour and internal curl pattern differ. Six icons in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping:
+1) a soft white tuft; 2) a tuft in patches of brown, fawn and grey; 3) a tuft patched black and white; 4) a white tuft filled with bold fluffy curls; 5) a cream fleece tuft with pale yellow centres in its fluffy lobes like dandelion seed heads; 6) a tuft in seven bands of colour from red to violet.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no frames or boxes around the icons, no shadows, no text, no letters, no numbers.

@@ -1,4 +1,5 @@
 import type { SceneryKit } from "@/lib/town/scenery";
+import { drawIcon, type IconName } from "./TownIcon";
 import type { Vec } from "@/lib/town/world";
 import { BUILDING_FIT, POPOTO_FRAMES, PROP_K, animalSprite, pastureScale, shornSprite, type AnimalFrame, type ArtStage, type Facing } from "@/lib/town/pasture-art";
 
@@ -196,6 +197,8 @@ export function drawBlock(ctx: CanvasRenderingContext2D, project: Project, r: { 
 
 /** The middle between the gate's two posts' feet in each of its pictures (its own pixels), measured on them. */
 const GATE_MID: Readonly<Record<string, readonly [number, number]>> = { pa_gateShut: [49, 78], pa_gateOpen: [53, 71] };
+/** How large a meadow forage spot's plant stands, in map pixels at scale 1 (ART-NEEDED: about 16 to 20). */
+const FORAGE_SIZE = 20;
 /** Where the ox walks ahead of the wagon's point, in map pixels at scale 1 (its yoke at the shafts' ends; measured in the game). */
 export const OX_AHEAD: readonly [number, number] = [34, 8];
 /** A thing of the pasture's sheet at its own scale (PROP_K); false while the sheet has no picture of it. */
@@ -329,7 +332,10 @@ export function drawEggOut(ctx: CanvasRenderingContext2D, kit: SceneryKit | null
 }
 
 /** ART: a forage spot of the meadow: a clump with a flower of its colour (plain grass once taken this band). */
-export function drawForage(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, at: Vec, s: number, colour: string, taken: boolean, now: number, still: boolean, px = 1) {
+export function drawForage(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, at: Vec, s: number, colour: string, taken: boolean, now: number, still: boolean, px = 1, icons: HTMLImageElement | null = null, item: string | null = null) {
+  // what grows there this band is its own bag icon, a clump of the plant drawn to stand in the grass; once taken, a
+  // tuft grazed short
+  if (!taken && item && drawIcon(ctx, icons, item as IconName, at.x, at.y - FORAGE_SIZE * s * 0.45, FORAGE_SIZE * s)) return;
   const name = taken ? "pa_forageTaken" : "pa_forage";
   if (kit?.has(name)) { kit.drawProp(ctx, name, at.x, at.y, s * (PROP_K[name] ?? 0.45), px); return; }
   ctx.save();

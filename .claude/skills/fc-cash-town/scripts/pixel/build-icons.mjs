@@ -449,6 +449,31 @@ const SHEETS = [
   ["icons-wear-d", ["wearSquare", "wearScarf", "_wearLei", "wearBeads", "wearNecktie", "wearTassel"], { range: [5.55, 5.8] }],
   ["icons-wear-e", ["wearCatEars", "wearBunnyEars", "wearHorns", "wearTiara", "wearCrown", "wearRibbon"], { range: [5.3, 5.8] }],
   ["icons-wear-f", ["wearSmith", "wearPumpkin", "wearAmber", "wearLei", "_wearWitchSize", "_wearBeretSize"], { range: [5.3, 5.8] }],
+  // ── the pasture (2026-10-20, docs/plans/animals): every item's bag icon, written by pasture-icons.mjs on the ICON SHEET
+  // template (the pots on theirs), read by Codex as one batch (one silhouette a family: every egg, fleece and milk bottle
+  // the same shape). Each cut on the grid that shows crisp squares at the town's icon size (26 to 60 of their pixels):
+  // the feed and tool sheets on their finer grid (6.1; on 12 the hoses and the press's screw went jagged), the pots on
+  // theirs (6, as the town's pots of 46 by 55), the rest on their own. README "The pasture".
+  ["icons-pasture-eggs-a", ["farmEgg", "silkieEgg", "blueEgg", "chocolateEgg", "lanternEgg", "cloudEgg"], { range: [7.4, 7.75] }],
+  ["icons-pasture-eggs-b", ["goldenEgg", "emberEgg", "duckEgg", "runnerEgg", "cayugaEgg", "mandarinEgg"], { range: [6.7, 7] }],
+  ["icons-pasture-eggs-c", ["rainEgg", "moonEgg", "paperEgg", "leviathanEgg", "cream", "butter"], { range: [9.2, 9.6] }],
+  ["icons-pasture-wool-a", ["wool", "shetlandWool", "jacobWool", "valaisWool", "dandelionWool", "rainbowWool"], { range: [8.3, 8.6] }],
+  ["icons-pasture-wool-b", ["starWool", "goldenWool", "yarn", "woolScarf", "rainbowScarf", "starScarf"], { range: [7.1, 7.4] }],
+  ["icons-pasture-milk-a", ["farmMilk", "jerseyMilk", "highlandMilk", "swissMilk", "strawberryMilk", "cocoaMilk"], { range: [7.9, 8.15] }],
+  ["icons-pasture-milk-b", ["flowerMilk", "starMilk", "farmCheese", "goldenScarf", "prism", "packedRation"], { range: [5.95, 6.2] }],
+  ["icons-pasture-feed-a", ["chickFeed", "duckFeed", "sheepFeed", "cowFeed", "chickGrow", "duckGrow"], { range: [6.7, 7] }],
+  ["icons-pasture-feed-b", ["lambGrow", "calfGrow", "dewGrow", "cowBell", "milker", "woolShears"], { range: [6, 6.3] }],
+  ["icons-pasture-tool-a", ["eggBasket", "churn", "cheesePress", "spindle", "knittingNeedles", "charmHerdBell"], { range: [5.95, 6.2] }],
+  ["icons-pasture-gift-a", ["thingBarnCat", "thingWarmBottle", "charmStarCollar", "thingCradle", "famCloudRam", "thingTwinCradle"], { range: [7.25, 7.55] }],
+  ["icons-pasture-wild-a", ["mistVetch", "ghostReed", "dewClover", "dawnOats", "meadowOats", "sweetTimothy"], { range: [7.85, 8.15] }],
+  ["icons-pasture-wild-b", ["sunAlfalfa", "pondMillet", "copperSedge", "orchardPea", "amberClover", "reedSeed"], { range: [7.85, 8.15] }],
+  ["icons-pasture-wild-c", ["lanternGrass", "velvetVetch", "moonOats", "nightDuckweed", "thingHarp", "thingSpringWind"], { range: [9.4, 9.8] }],
+  ["icons-pasture-dish-a", ["custard", "pancakes", "cheesecake", "butterCookies", "quiche", "lanternCustard"], { range: [7.85, 8.15] }],
+  ["icons-pasture-dish-b", ["cloudSouffle", "goldenOmelette", "emberBakedEggs", "rainBroth", "moonPudding", "paperFish"], { range: [7.85, 8.15] }],
+  ["icons-pasture-dish-c", ["leviathanEggCup", "strawberryShake", "hotCocoa", "flowerLatte", "starPudding", "thingHayWagon"], { range: [6.7, 7] }],
+  ["icons-pasture-pots-a", ["potCustard", "potPancakes", "potCheesecake", "potButterCookies", "potQuiche", "potLanternCustard"], { range: [5.8, 6.05] }],
+  ["icons-pasture-pots-b", ["potCloudSouffle", "potGoldenOmelette", "potEmberBakedEggs", "potRainBroth", "potMoonPudding", "potPaperFish"], { range: [6.05, 6.35] }],
+  ["icons-pasture-pots-c", ["potLeviathanEggCup", "potStrawberryShake", "potHotCocoa", "potFlowerLatte", "potStarPudding", "_potCustard"], { range: [6.1, 6.35] }],
 ];
 
 const ONLY = process.env.ICONS_ONLY?.split(",").map((s) => s.trim()).filter(Boolean);

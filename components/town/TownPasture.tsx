@@ -307,7 +307,7 @@ export default function TownPasture(props: PastureProps) {
         const c = project({ x: x + 0.5, y: y + 0.6 });
         if (!onScreen(c)) return;
         const item = forageAt(FORAGE_BANDS, dayOf(clock), bandOf(clock), i), taken = !!meadow && meadow.k === key && meadow.spots.includes(i);
-        things.push({ depth: x + y + 0.9, draw: () => drawForage(ctx, k, c, s, FORAGE_TINT[item ?? ""] ?? "#f0e0a0", taken, tick, still, px) });
+        things.push({ depth: x + y + 0.9, draw: () => drawForage(ctx, k, c, s, FORAGE_TINT[item ?? ""] ?? "#f0e0a0", taken, tick, still, px, frame.img, item ?? null) });
         if (!taken) out.push({ kind: "forage", spot: i, x0: c.x - 14 * s, y0: c.y - 20 * s, x1: c.x + 14 * s, y1: c.y + 6 * s });
       });
       // ── the animals, everybody's, and the eggs laid out

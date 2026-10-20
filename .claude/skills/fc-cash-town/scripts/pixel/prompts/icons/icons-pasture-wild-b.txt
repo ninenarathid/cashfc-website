@@ -1,0 +1,6 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D town game. Draw a new sprite sheet of small icons for the meadow's wild forage that farm animals eat, each a small clump of the plant as it is picked of that game, in the same pixel art style.
+
+Each icon is drawn on its own 16 by 16 pixel grid, scaled up big so every pixel of the icon is a large crisp square, all icons the same size, simple and bold so they read clearly when shown small, with a thick dark outline and two or three tones per colour. Six icons in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping:
+1) a clump of bright green alfalfa with little purple flowers; 2) green stalks bowed under heads of round cream millet seeds; 3) a clump of slim sedge leaves the copper orange of afternoon sun; 4) a sprig of vine with plump pale green pea pods hanging from it; 5) a clump of orange-green clover leaves with one round amber flower; 6) a few reed stems with soft fluffy brown seed plumes.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no frames or boxes around the icons, no shadows, no text, no letters, no numbers.
