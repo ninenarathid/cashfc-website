@@ -23,9 +23,17 @@ export function animalSprite(species: string, breed: string, stage: ArtStage, fa
 }
 /** A sheep that has been shorn (its fleece grows back over its round): its own pictures, by breed. */
 export const shornSprite = (breed: string, facing: Facing, frame: AnimalFrame) => `an_${breed}_shorn_${facing}_${frame}`;
+/**
+ * A grown male of a breed (a rooster, a drake, a ram, a bull: the owner, 2026-10-20, sexes chosen at the stall): its own
+ * pictures; the young of either sex look alike. A shorn ram is `an_<breed>_male_shorn_<facing>_<frame>`.
+ */
+export const maleSprite = (breed: string, facing: Facing, frame: AnimalFrame, shorn = false) => `an_${breed}_male_${shorn ? "shorn_" : ""}${facing}_${frame}`;
 /** The pasture's things. */
 export const PASTURE_ART = {
+  // (a barn of the animal farm, 8 x 4 tiles, its walls and roof as seen from outside: the old barn's picture fits it; its
+  // inside, its open door and its fronts as the next art round draws them, lib/town/pasture's BARNS)
   barn: "pa_barn", barnFront: ["pa_barn", "pa_barnFront1", "pa_barnFront2", "pa_barnFront3"],
+  barnInside: "pa_barnInside", barnDoorOpen: "pa_barnDoorOpen", farmGate: "pa_farmGate", penFence: "pa_penFence",
   coop: "pa_coop", nursery: "pa_nursery",
   trough: "pa_trough", troughFed: "pa_troughFed", villageTrough: "pa_villageTrough",
   nest: "pa_nest", nestEgg: "pa_nestEgg",
@@ -60,6 +68,16 @@ export const PROP_K: Readonly<Record<string, number>> = {
   pp_stand: 0.8, pp_wave: 0.8, pp_show: 0.8, pp_laugh: 0.8,
   pa_ox_idle: 0.5, pa_ox_walk1: 0.5, pa_ox_walk2: 0.5, pa_ram_idle: 0.5, pa_ram_walk1: 0.5, pa_ram_walk2: 0.5,
 };
+/**
+ * A barn's one trough (lib/town/pasture's troughOf: half a tile an end, a whole tile a slot), in pieces the art round
+ * draws to be laid end to end along the back wall, each standing by its middle on the wall's foot: the left end, the
+ * right end, an empty slot, and a slot with a species' sack in it, half or full. The names are the art round's to
+ * settle; the page draws its stand-in while the sheet has none.
+ */
+export const TROUGH_ART = {
+  left: "pa_troughLeft", right: "pa_troughRight", empty: "pa_troughSlot",
+  feed: (species: string, level: "half" | "full") => `pa_troughSlot_${species}_${level}`,
+} as const;
 /** Uncle Popoto on the map, his round of frames (as the uncle's: standing, waving, holding up a chick, laughing). */
 export const POPOTO_FRAMES = ["pp_stand", "pp_wave", "pp_show", "pp_laugh"] as const;
 export const POPOTO_TALK: [quiet: string, talking: string] = ["tk_popoto", "tk_popoto_o"];

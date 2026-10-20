@@ -72,7 +72,7 @@ import type { BridgeTap, Hand } from "./TownBridge";
 import type { Bearer, LampsHooks } from "./TownLamps";
 import type { PastureHooks } from "./TownPasture";
 import type { AnimalsView } from "./TownAnimals";
-import { POPOTO_ASK, POPOTO_SOON, POPOTO_WHO, popotoChat, popotoHello } from "@/lib/town/pasture-talk";
+import { POPOTO_ASK, POPOTO_BARN, POPOTO_SOON, POPOTO_WHO, popotoChat, popotoHello } from "@/lib/town/pasture-talk";
 import { POPOTO_TALK } from "@/lib/town/pasture-art";
 import { RAM, riderOf, runOf } from "@/lib/town/riding";
 import { drawRam } from "./pasture-draw";
@@ -2626,6 +2626,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       const roofOn = KITCHEN.stage === 2 && !!scenery?.has("kitchenHouse") && roofRef.current >= 1;
       for (const a of stay.avatars.values()) {
         if (a.byeAt !== undefined || (roofOn && onYard(Math.floor(a.pos.x), Math.floor(a.pos.y)))) continue;
+        // ── the pasture ── (nor whoever is inside a barn whose roof is on for me: lib/town/pasture's BARNS)
+        if (placeRef.current === "farm" && pastureHooks.current?.hides(a.pos.x, a.pos.y)) continue;
         things.push({ depth: depthOf(a), draw: () => drawAvatar(ctx, a, false, names, boxes, !live, wall, now, dpr) });
         const pet = petOf(a, dt);
         if (pet) things.push({ depth: pet.at.x + pet.at.y, draw: () => drawPet(ctx, pet, now) });
@@ -4233,11 +4235,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       // (his own portraits, from the pasture's sheet once it has come; the uncle's until then)
       const as: TalkAs = { name: POPOTO_WHO.name, job: POPOTO_WHO.job, art: sceneryRef.current?.has(POPOTO_TALK[0]) ? POPOTO_TALK : ["tk_uncle", "tk_uncle_o"] };
       if (!gameRef.current || !keeper?.animalWorld()) { setTalk({ who: asked, n, as, lines: [popotoHello(hour), ...POPOTO_SOON] }); return; }
-      setTalk({ who: asked, n, as, lines: [popotoHello(hour), POPOTO_ASK], choices: [
+      // (no barn yet: buying one comes first, "การทำฟาร์มต้องซื้อ ฟาร์มกับ ลุง popoto เลี้ยงสัตว์ก่อน")
+      const barnless = !keeper.animalWorld()?.herds.some((h) => h.owner === keeper.id && h.barn !== null);
+      setTalk({ who: asked, n, as, lines: [popotoHello(hour), barnless ? POPOTO_BARN : POPOTO_ASK], choices: [
+        ...(barnless ? [{ id: "barn", label: th ? "เลือกซื้อโรงเลี้ยงสัตว์" : "Choose a barn to buy" }] : []),
         { id: "shop", label: th ? "รับลูกสัตว์ ซื้ออาหาร เครื่องมือ" : "Young animals, feed and tools" },
-        { id: "mine", label: th ? "ดูสัตว์ของฉัน" : "My animals" },
-        { id: "nest", label: th ? "รังผสมพันธุ์" : "The breeding nest" },
-        { id: "book", label: th ? "สมุดพันธุ์สัตว์" : "The breed book" },
+        ...(barnless ? [] : [{ id: "mine", label: th ? "ดูโรงและสัตว์ของฉัน" : "My barn and animals" }]),
+        { id: "pen", label: th ? "คอกฝาก · ส่งต่อสัตว์ให้เพื่อน" : "The pen · hand animals on" },
+        { id: "nest", label: th ? "รังผสมพันธุ์ · ขอยืมสัตว์เพื่อน" : "The nest · ask a friend's animal" },
         { id: "chat", label: th ? "คุยเล่น" : "Just chatting" },
       ] });
       return;

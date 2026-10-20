@@ -2561,6 +2561,78 @@ export class Trial {
     this.write(ANIMALS_AT, { ...world, wagons: [...world.wagons.filter((r) => r.from > now - 24 * 3_600_000), run] });
     this.tell();
   }
+  /** For trying things out: my herd as asked: a barn (a number, or the first free), how many it houses, its last care so many days ago. */
+  animalHerd(patch: { barn?: number | null; room?: number; untendedDays?: number }) {
+    const world = this.animalWorld(), now = this.now(), held = world.herds.find((h) => h.owner === this.id) ?? newAnimalHerd(this.id);
+    const taken = new Set(world.herds.filter((h) => h.owner !== this.id).map((h) => h.barn));
+    let barn = held.barn;
+    if (patch.barn === null) barn = null;
+    else if (patch.barn !== undefined && !taken.has(patch.barn)) barn = patch.barn;
+    else if (patch.barn === undefined && barn === null) barn = Array.from({ length: ANIMAL_RULES.barns.count }, (_, i) => i).find((i) => !taken.has(i)) ?? null;
+    const herd = { ...held, barn, room: patch.room ?? held.room, lastCare: patch.untendedDays !== undefined ? now - patch.untendedDays * 24 * 3_600_000 : barn !== held.barn ? now : held.lastCare };
+    this.write(ANIMALS_AT, { ...world, herds: [...world.herds.filter((h) => h.owner !== this.id), herd] });
+    this.tell();
+    return herd;
+  }
+  /**
+   * For trying things out: friends in the barns about, with grown animals of both sexes (one's door open, so its animals
+   * are out; one barn left untended a month), one of them offering me an animal, one asking for one of mine, one lending
+   * me one; `fill`: every other barn taken too, so that the untended one may be taken.
+   */
+  animalFriends(fill = false) {
+    let world = this.animalWorld();
+    const now = this.now(), me = this.id, H = 3_600_000, DAYS = 24 * H;
+    const taken = new Set(world.herds.map((h) => h.barn).filter((b) => b !== null));
+    const free = () => { const i = Array.from({ length: ANIMAL_RULES.barns.count }, (_, k) => k).find((k) => !taken.has(k)); if (i !== undefined) taken.add(i); return i ?? null; };
+    const herds = [...world.herds], animals = [...world.animals];
+    const friend = (id: string, open: boolean, untended = 0) => {
+      if (herds.some((h) => h.owner === id)) return;
+      const barn = free();
+      herds.push({ ...newAnimalHerd(id), barn, room: 4, care: "anybody", lastCare: now - untended * DAYS, door: open ? [[now - 25 * 60_000, null]] : [] });
+    };
+    const grown = (owner: string, breed: string, sex: "m" | "f", hearts = 6) => {
+      const b = ANIMAL_BREEDS.get(breed)!, sp = ANIMAL_SPECIES[b.species];
+      const a: Animal = { ...newAnimal(crypto.randomUUID(), owner, b.species, b.id, now - 9 * DAYS, b.letter === "A", "barn", sex, boughtAnimalStats(Math.random)), at: now, food: 20, grown: sp.grow[0] + sp.grow[1], hearts: hearts * ANIMAL_RULES.perHeart, streak: 5, today: { day: animalDay(now) } };
+      animals.push(a);
+      return a;
+    };
+    const [mali, ploy, ton, old] = ["trial-friend-Mali", "trial-friend-Ploy", "trial-friend-Ton", "trial-friend-Somchai"];
+    if (!herds.some((h) => h.owner === mali)) {
+      friend(mali, true); friend(ploy, false); friend(ton, false); friend(old, false, 30);
+      grown(mali, "barnHen", "m"); grown(mali, "barnHen", "f"); grown(mali, "meadowSheep", "m"); grown(mali, "dairyCow", "f");
+      grown(ploy, "dairyCow", "m"); grown(ploy, "puddleDuck", "f"); grown(ton, "meadowSheep", "f"); grown(ton, "silkie", "f", 8); grown(old, "puddleDuck", "m");
+    }
+    if (fill) for (let n = 0; n < ANIMAL_RULES.barns.count; n++) friend(`trial-friend-Barn${n + 1}`, false);
+    world = { ...world, herds, animals };
+    // an offer to me (Ploy's duck), an ask for one of mine (Mali's of the other sex), a loan to me (Ton's ewe, for my ram if I have one)
+    const mine = animals.filter((a) => a.owner === me && a.home !== "pen" && a.grown >= ANIMAL_SPECIES[a.species].grow[0] + ANIMAL_SPECIES[a.species].grow[1]);
+    const offers = [...(world.offers ?? [])], asks = [...(world.asks ?? [])];
+    const duck = animals.find((a) => a.owner === ploy && a.species === "duck");
+    if (duck && !offers.some((o) => o.animal === duck.id)) offers.push({ id: crypto.randomUUID(), from: ploy, to: me, animal: duck.id, at: now - 2 * H });
+    // (a ram of mine if there is one, else my first grown one)
+    const target = mine.find((a) => a.species === "sheep" && a.sex === "m") ?? mine[0];
+    if (target && !asks.some((q) => q.to === me)) {
+      const theirs = animals.find((a) => a.owner === mali && a.species === target.species && a.sex !== target.sex) ?? grown(mali, ANIMAL_BREEDS.get(target.breed)!.letter === "A" ? target.breed : [...ANIMAL_BREEDS.values()].find((b) => b.species === target.species && b.letter === "A")!.id, target.sex === "m" ? "f" : "m");
+      asks.push({ id: crypto.randomUUID(), from: mali, to: me, mine: theirs.id, theirs: target.id, at: now - 3 * H });
+    }
+    const ram = mine.find((a) => a.species === "sheep" && a.sex === "m"), ewe = animals.find((a) => a.owner === ton && a.species === "sheep");
+    if (ewe) Object.assign(ewe, { lent: { to: me, until: now + 52 * 60_000, ...(ram ? { with: ram.id } : {}) } });
+    this.write(ANIMALS_AT, { ...world, animals, offers, asks });
+    this.tell();
+  }
+  /** For trying things out: an offer and an ask of mine standing (my first animal offered to a friend; asking a friend's for my first grown one). */
+  animalMine() {
+    const world = this.animalWorld(), now = this.now(), me = this.id;
+    const mine = world.animals.filter((a) => a.owner === me);
+    const offers = [...(world.offers ?? [])], asks = [...(world.asks ?? [])];
+    const first = mine.find((a) => a.born <= now && !offers.some((o) => o.animal === a.id));
+    if (first) offers.push({ id: crypto.randomUUID(), from: me, to: "trial-friend-Ton", animal: first.id, at: now - 1 * 3_600_000 });
+    const grownOne = mine.find((a) => a.home !== "pen" && a.grown >= ANIMAL_SPECIES[a.species].grow[0] + ANIMAL_SPECIES[a.species].grow[1]);
+    const theirs = grownOne && world.animals.find((a) => a.owner !== me && a.species === grownOne.species && a.sex !== grownOne.sex);
+    if (grownOne && theirs && !asks.some((q) => q.from === me)) asks.push({ id: crypto.randomUUID(), from: me, to: theirs.owner, mine: grownOne.id, theirs: theirs.id, at: now - 2 * 3_600_000 });
+    this.write(ANIMALS_AT, { ...world, offers, asks });
+    this.tell();
+  }
   animalsClear() { this.set(ANIMALS_AT, null); this.tell(); }
   /** Put the clock forward by so many hours: to try another hour's fish, or the next meal. */
   skipHours(hours: number) {
