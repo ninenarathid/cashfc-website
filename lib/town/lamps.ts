@@ -93,13 +93,20 @@ export const LAMPS = {
    * nothing standing in front of it, until no ground that can be walked to is nine tiles or more from a lamp, as in the
    * first half. Written the nearest to a brazier first, as one walks; the furthest is some thirty-four tiles of path
    * from its brazier, a relay of three hands, as in the first half.
+   *
+   * The farm's forty more, for its animal farm east of the garden (the owner, 2026-10-20: "ช่วยเพิ่ม จุดโคมไฟในฟาร์มสัตว์
+   * ด้วย"), after its first fifty-two, whose numbers stay, with two braziers of its own where its lanes cross the two
+   * roads from the garden's gates (it lies some forty to eighty tiles from the garden's two): each post put, one at a
+   * time, on the free tile nearest the darkest ground that can be walked to from them, seven tiles or more from every
+   * post, never on a lane, inside a barn or with a barn or a tall thing in front of it, until no such ground is nine
+   * tiles or more from a lamp. Written the nearest to a brazier first; the furthest is some thirty-six tiles of path.
    */
   maps: {
     farm: {
       fire: F(27, 24),
       // (where a flame is taken: the brazier by the well, and since the southern half a second by its own well, where
       // its lanes cross (the owner, 2026-10-19: "เพิ่มจุดเริ่มอีกจุด ใน area ใหม่"); `fire` is the first, as it was)
-      fires: [F(27, 24), F(27, 66)],
+      fires: [F(27, 24), F(27, 66), F(88, 23), F(88, 65)],
       posts: [F(18, 23), F(8, 20), F(3, 23), F(38, 23), F(44, 20), F(50, 23), F(56, 20), F(31, 20), F(28, 10), F(31, 3), F(28, 31), F(31, 39),
         // the rim, clockwise from the north-west corner
         F(3, 3), F(16, 2), F(45, 3), F(55, 3), F(57, 11), F(57, 32), F(57, 40), F(45, 41), F(16, 41), F(3, 39), F(2, 32), F(2, 12),
@@ -107,7 +114,12 @@ export const LAMPS = {
         F(15, 11), F(44, 11), F(15, 32), F(44, 32),
         // the southern half's, the nearest to a brazier first (28 to 51)
         F(28, 70), F(31, 62), F(21, 62), F(31, 55), F(40, 65), F(31, 78), F(12, 65), F(20, 53), F(19, 81), F(28, 47), F(11, 75), F(42, 53),
-        F(43, 82), F(48, 72), F(11, 49), F(49, 62), F(3, 62), F(2, 72), F(4, 82), F(56, 62), F(53, 53), F(2, 49), F(57, 73), F(54, 82)],
+        F(43, 82), F(48, 72), F(11, 49), F(49, 62), F(3, 62), F(2, 72), F(4, 82), F(56, 62), F(53, 53), F(2, 49), F(57, 73), F(54, 82),
+        // the animal farm's, east of the garden (52 to 91), the nearest to its two braziers first
+        F(90, 24), F(83, 66), F(95, 66), F(79, 23), F(89, 76), F(85, 34), F(84, 12), F(83, 54), F(102, 23), F(95, 12), F(77, 76), F(99, 34),
+        F(76, 55), F(98, 54), F(100, 76), F(107, 62), F(68, 24), F(68, 66), F(74, 13), F(85, 43), F(75, 36), F(96, 41), F(83, 85), F(94, 85),
+        F(76, 44), F(94, 0), F(81, 0), F(111, 30), F(110, 15), F(111, 73), F(68, 54), F(67, 34), F(66, 76), F(108, 41), F(111, 52), F(107, 85),
+        F(67, 85), F(67, 43), F(68, 1), F(108, 0)],
     },
     forest: {
       fire: [CAMP.fire.x, CAMP.fire.y] as [number, number],

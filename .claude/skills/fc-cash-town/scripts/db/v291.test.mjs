@@ -317,6 +317,9 @@ try {
   eq((await one("select town.animal_bottle($1) r", [me])).r, false, "a bottle just had does not count yet");
   await mine({ action: "name", id: chick, name: "Pip" });
   eq([(await one("select jsonb_typeof(h->'bottleAt') t from public.town_herds where owner = $1", [me])).t, (await one("select town.animal_bottle($1) r", [me])).r], ["number", true], "the bottle counts from the first step after it");
+  // (the animal farm's lamps: the catalog's posts and braziers the page's, a flame taken at a new brazier, a new post lit)
+  const L = (await import("@/lib/town/lamps")).LAMPS.maps.farm;
+  eq([(await one("select town.cat('lamps')->'maps'->'farm'->'posts' r")).r, (await one("select town.cat('lamps')->'maps'->'farm'->'fires' r")).r], [L.posts, L.fires], "the farm's lamps as the page's");
   // (a name: the first free, a later one takes a rename tag)
   eq((await mine({ action: "name", id: chick, name: "Pippa" })).why, "tag", "a second name takes a rename tag");
   await db.query("update public.town_purses set doc = jsonb_set(doc, '{bag}', $2::jsonb) where member_id = $1", [me, JSON.stringify([{ item: "renameTag", n: 1 }, ...Array(19).fill(null)])]);

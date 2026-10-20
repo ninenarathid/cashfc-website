@@ -1244,6 +1244,11 @@ update public.town_catalog set data = jsonb_set(data, '{kinds,nook,finds}', (sel
     from jsonb_array_elements(data->'kinds'->'nook'->'finds') with ordinality x(f, o) where f->>'item' <> 'egg')), updated_at = now()
  where key = 'forest' and exists (select 1 from jsonb_array_elements(data->'kinds'->'nook'->'finds') f where f->>'item' = 'egg');
 
+-- (the animal farm's lamps, the owner, 2026-10-20: "ช่วยเพิ่ม จุดโคมไฟในฟาร์มสัตว์ด้วย": two braziers and forty posts after the
+-- farm's fifty-two, whose numbers stay: a lamp lit is kept by its number. Only where the farm's are as v284 left them.)
+update public.town_catalog set data = jsonb_set(jsonb_set(data, '{maps,farm,posts}', $j$[[146,23],[136,20],[131,23],[166,23],[172,20],[178,23],[184,20],[159,20],[156,10],[159,3],[156,31],[159,39],[131,3],[144,2],[173,3],[183,3],[185,11],[185,32],[185,40],[173,41],[144,41],[131,39],[130,32],[130,12],[143,11],[172,11],[143,32],[172,32],[156,70],[159,62],[149,62],[159,55],[168,65],[159,78],[140,65],[148,53],[147,81],[156,47],[139,75],[170,53],[171,82],[176,72],[139,49],[177,62],[131,62],[130,72],[132,82],[184,62],[181,53],[130,49],[185,73],[182,82],[218,24],[211,66],[223,66],[207,23],[217,76],[213,34],[212,12],[211,54],[230,23],[223,12],[205,76],[227,34],[204,55],[226,54],[228,76],[235,62],[196,24],[196,66],[202,13],[213,43],[203,36],[224,41],[211,85],[222,85],[204,44],[222,0],[209,0],[239,30],[238,15],[239,73],[196,54],[195,34],[194,76],[236,41],[239,52],[235,85],[195,85],[195,43],[196,1],[236,0]]$j$::jsonb), '{maps,farm,fires}', $j$[[155,24],[155,66],[216,23],[216,65]]$j$::jsonb), updated_at = now()
+ where key = 'lamps' and data->'maps'->'farm'->'posts' = $j$[[146,23],[136,20],[131,23],[166,23],[172,20],[178,23],[184,20],[159,20],[156,10],[159,3],[156,31],[159,39],[131,3],[144,2],[173,3],[183,3],[185,11],[185,32],[185,40],[173,41],[144,41],[131,39],[130,32],[130,12],[143,11],[172,11],[143,32],[172,32],[156,70],[159,62],[149,62],[159,55],[168,65],[159,78],[140,65],[148,53],[147,81],[156,47],[139,75],[170,53],[171,82],[176,72],[139,49],[177,62],[131,62],[130,72],[132,82],[184,62],[181,53],[130,49],[185,73],[182,82]]$j$::jsonb and data->'maps'->'farm'->'fires' = $j$[[155,24],[155,66]]$j$::jsonb;
+
 -- ── 8. Each as it is meant to be, or nothing of this stays ──────────────────────────────────────────────────────────────
 do $$ begin
   if town.cat('animals') is null or town.cat('animals')->'species'->'cow' is null then raise exception 'v291: the catalog has no animals'; end if;
@@ -1252,6 +1257,8 @@ do $$ begin
   if town.made_of('[["milk", 2]]'::jsonb) is not null or town.made_of('[["jerseyMilk", 2]]'::jsonb) is distinct from 'cream' then raise exception 'v291: cream of farm milk alone'; end if;
   if town.made_of('[["lanternEgg", 2], ["farmMilk", 1], ["sugar", 1]]'::jsonb) is distinct from 'lanternCustard' then raise exception 'v291: a breed''s own egg read as its own'; end if;
   if exists (select 1 from jsonb_array_elements(town.cat('forest')->'kinds'->'nook'->'finds') f where f->>'item' = 'egg') then raise exception 'v291: an egg in the forest'; end if;
+  if jsonb_array_length(town.cat('lamps')->'maps'->'farm'->'posts') <> 92 or jsonb_array_length(town.cat('lamps')->'maps'->'farm'->'fires') <> 4 then
+    raise exception 'v291: the animal farm''s lamps'; end if;
   if town.reward_relay_place('[239,85]'::jsonb) is distinct from 'farm' then raise exception 'v291: the animal farm east of the garden'; end if;
   if not (town.cat('work')->'ids' ? 'animals') then raise exception 'v291: the line is not in work'; end if;
 end $$;
