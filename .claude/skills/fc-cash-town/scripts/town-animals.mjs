@@ -21,7 +21,9 @@ async function enter(X, hour, who = "M") {
   await until("the trial is there", () => X.evaluate(`!!${T}`), 30000);
 }
 // (and the camera on where one stands: a lookAt before leaves it where it looked)
-const warp = async (X, x, y, ms = 2200) => { const r = await X.evaluate(`(() => { const r = window.__townView.warp(${x}, ${y}); window.__townView.lookAt(${x + 0.5}, ${y + 0.5}); return r; })()`); await sleep(ms); return r; };
+/** A real pointer moved (over the HUD in the top left, not the map): a page with no input for a while is taken as away and leaves its room (the site's bars come back). */
+const alive = (X) => X.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: 8 + Math.round(Math.random() * 6), y: 8 }).catch(() => {});
+const warp = async (X, x, y, ms = 2200) => { await alive(X); const r = await X.evaluate(`(() => { const r = window.__townView.warp(${x}, ${y}); window.__townView.lookAt(${x + 0.5}, ${y + 0.5}); return r; })()`); await sleep(ms); return r; };
 const press = async (X, x, y) => {
   await X.send("Input.dispatchMouseEvent", { type: "mouseMoved", x, y });
   await X.send("Input.dispatchMouseEvent", { type: "mousePressed", x, y, button: "left", clickCount: 1 });
@@ -29,7 +31,7 @@ const press = async (X, x, y) => {
 };
 const hit = (X, kind) => X.evaluate(`(${S}.hits().filter((h) => h.kind === ${JSON.stringify(kind)}).sort((a, b) => Math.hypot(a.x - innerWidth / 2, a.y - innerHeight / 2) - Math.hypot(b.x - innerWidth / 2, b.y - innerHeight / 2))[0] ?? null)`);
 const tapMap = async (X, kind) => { const h = await hit(X, kind); if (!h) return false; await press(X, h.x, h.y); await sleep(700); return true; };
-const click = (X, sel) => X.evaluate(`(() => { const b = document.querySelector(${JSON.stringify(sel)}); if (!b || b.disabled) return false; b.click(); return true; })()`);
+const click = async (X, sel) => (await alive(X), X.evaluate(`(() => { const b = document.querySelector(${JSON.stringify(sel)}); if (!b || b.disabled) return false; b.click(); return true; })()`));
 const clickText = (X, re) => X.evaluate(`(() => { const b = [...document.querySelectorAll("button")].find((e) => ${re}.test(e.innerText)); if (!b) return false; b.click(); return true; })()`);
 const choose = (X, sel, value) => X.evaluate(`(() => { const s = document.querySelector(${JSON.stringify(sel)}); if (!s) return false; const set = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, "value").set; set.call(s, ${JSON.stringify(value)}); s.dispatchEvent(new Event("change", { bubbles: true })); return true; })()`);
 const world = (X) => X.evaluate(`${S}.world()`);
@@ -40,7 +42,7 @@ const held = (X, id) => X.evaluate(`${T}.purse().bag.reduce((n, s) => n + (s?.it
 const coins = (X) => X.evaluate(`${T}.purse().coins`);
 const say = (X) => X.evaluate(`document.querySelector("[data-animals-said]")?.innerText ?? document.querySelector("[data-pasture-note]")?.innerText ?? ""`);
 // (the panel's own list scrolled to a part of it: never the page, whose header would come down over the town)
-const scrollPanel = (X, sel) => X.evaluate(`(() => { const e = document.querySelector(${JSON.stringify(sel)}), c = e?.closest(".overflow-y-auto"); if (!e || !c) return false; c.scrollTop += e.getBoundingClientRect().top - c.getBoundingClientRect().top - 8; window.scrollTo(0, 0); return true; })()`);
+const scrollPanel = (X, sel) => X.evaluate(`(() => { const e = document.querySelector(${JSON.stringify(sel)}), c = e?.closest(".overflow-y-auto"); if (!e || !c) return false; c.scrollTop += e.getBoundingClientRect().top - c.getBoundingClientRect().top - 28; window.scrollTo(0, 0); return true; })()`);
 /** Every control of the panel and the map's chips shorter than 44 px (on a phone): none should be. */
 const small = (X) => X.evaluate(`[...document.querySelectorAll("[data-pasture-panel] button, [data-pasture-panel] select, [data-pasture-chips] button")].filter((b) => b.offsetParent).map((b) => [b.innerText.trim().slice(0, 16), Math.round(b.getBoundingClientRect().height)]).filter(([, h]) => h < 44)`);
 
@@ -89,7 +91,11 @@ async function run(label) {
   // (and the town back over the site's bars: a page reconnecting to its room shows them for a moment)
   const shot = async (name) => {
     await X.evaluate(`(window.scrollTo(0, 0), document.scrollingElement && (document.scrollingElement.scrollTop = 0))`);
-    await until("the town over the site's bars", () => X.evaluate(`!!document.querySelector("[data-town-hud-tier]")?.className.includes("inset-0")`), 12000).catch(() => {});
+    const over = await until("the town over the site's bars", () => X.evaluate(`!!document.querySelector("[data-town-hud-tier]")?.className.includes("inset-0")`), 40000).then(() => true).catch(() => false);
+    // (nor mid view-transition: the site's header and tab bar are lifted over everything while one runs, globals.css)
+    await until("no view transition running", () => X.evaluate(`!document.getAnimations().some((a) => String(a.effect?.pseudoElement ?? "").startsWith("::view-transition"))`), 15000).catch(() => {});
+    await sleep(150);
+    if (!over) console.log(`  (note: ${name} shot with the site's bars: ${JSON.stringify(await X.evaluate(`({ status: window.__cashTown?.status?.() ?? null, bars: localStorage.getItem("cashTown:bars"), full: !!document.fullscreenElement, hidden: document.visibilityState })`))})`);
     await X.shot(`${OUT}/${label}-${name}.png`);
   };
   const phone = label !== "desktop";
@@ -146,7 +152,8 @@ async function run(label) {
     // ── the stall: young of a sex chosen; a third past the barn's two waits in Uncle's pen
     await click(X, '[data-animals-tab="shop"]'); await sleep(500);
     // (both sexes shown: a hen chick and a ewe-or-ram lamb, a drake and a bull calf; each card says what its sex gives)
-    for (const sp of ["duck", "sheep", "cow"]) { await click(X, `[data-buy="${sp}"] [data-sex-pick="m"]`); await sleep(150); }
+    const pickSex = async (sp, x) => { for (let i = 0; i < 5 && !(await X.evaluate(`document.querySelector('[data-buy="${sp}"] [data-sex-pick="${x}"]')?.getAttribute("aria-checked") === "true"`)); i++) { await click(X, `[data-buy="${sp}"] [data-sex-pick="${x}"]`); await sleep(250); } };
+    for (const sp of ["duck", "sheep", "cow"]) await pickSex(sp, "m");
     ok(`${label}: each young's card says what the sex chosen gives`, await X.evaluate(`document.querySelector('[data-buy="chicken"] [data-yields]')?.dataset.yields === "yes" && document.querySelector('[data-buy="duck"] [data-yields]')?.dataset.yields === "no" && document.querySelector('[data-buy="sheep"] [data-yields]')?.dataset.yields === "yes" && document.querySelector('[data-buy="cow"] [data-yields]')?.dataset.yields === "no" && !!document.querySelector("[data-cross-rule]")`));
     await scrollPanel(X, "[data-cross-rule]"); await sleep(200);
     await shot("08-shop-sex");
@@ -155,7 +162,7 @@ async function run(label) {
     await tall("the stall");
     await click(X, '[data-buy="chicken"] [data-buy-go]'); await sleep(700);
     await click(X, '[data-buy="sheep"] [data-buy-go]'); await sleep(700);
-    await click(X, '[data-buy="sheep"] [data-sex-pick="f"]'); await sleep(200);
+    await pickSex("sheep", "f");
     await click(X, '[data-buy="sheep"] [data-buy-go]'); await sleep(700);
     { const m = await mine(X); ok(`${label}: a hen chick, a ram lamb and a ewe lamb; the third past the barn's two in the pen`, m.length === 3 && m.filter((a) => a.sex === "m").length === 1 && m.filter((a) => a.home === "pen").length === 1, m.map((a) => [a.species, a.sex, a.home])); }
     // ── enlarged to four; the one in the pen moved in
@@ -226,7 +233,9 @@ async function run(label) {
     await scrollPanel(X, "[data-nest-result]"); await sleep(200);
     await shot("15-nest-result");
     await choose(X, "[data-ask-mine]", ewe.id); await sleep(500);
-    await click(X, "[data-ask-list] [data-ask]"); await sleep(800);
+    await until("a friend's ram to ask for", () => X.evaluate(`!!document.querySelector("[data-ask-list] [data-ask]:not(:disabled)")`), 10000).catch(() => {});
+    await click(X, "[data-ask-list] [data-ask]");
+    await until("the ask is out", async () => (await world(X)).asks.some((q) => q.mine === ewe.id), 8000).catch(() => {});
     ok(`${label}: an ask sent to a friend for my ewe`, (await world(X)).asks.some((q) => q.mine === ewe.id), await say(X));
     await scrollPanel(X, "[data-asks-out]"); await sleep(200);
     await shot("16-nest-asks-out");

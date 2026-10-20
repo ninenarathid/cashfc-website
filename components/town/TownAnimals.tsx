@@ -243,7 +243,7 @@ export default function TownAnimals({ keeper, th, view, onView, onClose, focus, 
       <div role="tablist" aria-label={t("ฟาร์มสัตว์", "The animal farm")} className="no-bar flex gap-0.5 overflow-x-auto border-b border-line px-2 pt-1">
         {VIEWS.map(([v, a, b]) => (
           <button key={v} type="button" role="tab" aria-selected={view === v} onClick={() => onView(v)} data-animals-tab={v}
-                  className={`pressable -mb-px min-h-11 flex-1 shrink-0 whitespace-nowrap rounded-t-lg border-b-2 px-2 text-ui font-semibold ${view === v ? "border-accent text-accent" : "border-transparent text-muted hover:text-ink"}`}>
+                  className={`pressable -mb-px min-h-11 flex-1 shrink-0 whitespace-nowrap rounded-t-lg border-b-2 px-1 text-ui font-semibold sm:px-2 ${view === v ? "border-accent text-accent" : "border-transparent text-muted hover:text-ink"}`}>
             {th ? a : b}
             {dot(v) && <span aria-hidden className="ml-0.5 inline-block size-2 rounded-full bg-gold align-middle" data-tab-dot />}
           </button>
@@ -253,7 +253,7 @@ export default function TownAnimals({ keeper, th, view, onView, onClose, focus, 
       {pending.current && !busy && (
         <div className="px-4 pb-1"><button type="button" className={button} onClick={() => void act(null)} data-animals-retry>{t("ลองรายการเดิมอีกครั้ง", "Retry the same step")}</button></div>
       )}
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4">
+      <div key={view} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4">
         {view === "barn" && <BarnPicker {...c} focus={focus} />}
         {view === "trough" && <Trough {...c} focus={focus} />}
         {view === "shop" && <Shop {...c} mine={mine} />}
@@ -451,7 +451,8 @@ function Trough({ th, purse, world, now, kit, busy, act, many, me, nameOf, focus
                 <AnimalPic species={a.species} breed={a.breed} stage={artStage(a, now)} size={40} kit={kit} sex={a.sex} />
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-1 text-ui font-semibold text-ink"><SexMark sex={a.sex} th={th} /><span className="truncate">{nameOfAnimal(a, th)}</span></span>
-                  <span className="mt-1 flex items-center gap-2"><span className="block w-full max-w-[9rem]"><Bar value={v.food / ANIMALS.trough} tone={v.hungry ? "rose" : "jade"} label={t(`อาหาร ${Math.round(v.food)} ชม.`, `${Math.round(v.food)} h of food`)} /></span><span className="shrink-0 text-label text-muted">{Math.round(v.food)}/{ANIMALS.trough} {t("ชม.", "h")} · {level}</span></span>
+                  <span className="mt-1 block w-full max-w-[12rem]"><Bar value={v.food / ANIMALS.trough} tone={v.hungry ? "rose" : "jade"} label={t(`อาหาร ${Math.round(v.food)} ชม.`, `${Math.round(v.food)} h of food`)} /></span>
+                  <span className="mt-0.5 block text-meta text-muted" data-trough-level>{t(`อาหาร ${Math.round(v.food)}/${ANIMALS.trough} ชม. · ${level}`, `${Math.round(v.food)}/${ANIMALS.trough} h of food · ${level}`)}</span>
                 </span>
                 {v.hungry && <span className="rounded-full bg-[#ff7a93]/20 px-2 py-0.5 text-meta font-semibold text-[#ff9fb0]">{t("หิว", "Hungry")}</span>}
               </div>
@@ -668,7 +669,8 @@ function Card({ a, th, purse, world, now, kit, busy, act, open, onOpen, onCollec
           )}
           {!yields && <p className="mt-2 text-meta text-muted" data-no-yield>{t("ไม่ให้ผลผลิต · ไว้ผสมพันธุ์", "Gives nothing to collect · for breeding")}</p>}
           {yields && <div className="mt-2">
-            <p className="mb-1 text-meta text-ink">{t("คุณภาพผลผลิต · หัวใจเพิ่มคุณภาพสูงสุด · อาหารเกรดดีเพิ่มคุณภาพขั้นต่ำ", "Produce quality · hearts raise the best it can be · graded feed raises the least")}</p>
+            <p className="text-meta text-ink">{t("คุณภาพผลผลิต", "Produce quality")}</p>
+            <p className="mb-1 text-label text-muted">{t("หัวใจเพิ่มคุณภาพสูงสุด · อาหารเกรดดีเพิ่มคุณภาพขั้นต่ำ", "Hearts raise the best it can be · graded feed raises the least")}</p>
             <QualityRange range={{ lo: v.range.floor, hi: v.range.ceiling }} base={Math.max(0, v.range.ceiling - ANIMALS.quality.spread)} th={th} odds={false} />
           </div>}
           {mine && (

@@ -432,8 +432,9 @@ export default function TownPasture(props: PastureProps) {
         // bubbles over mine and those I may care for; a name over mine
         if (inPen) continue;
         const head = c.y - (box.h + 4) * s;
-        if (mine && v.ready > 0) over?.(() => drawBubble(ctx, k, "ready", SPECIES[a.species].game, c.x, head, s, tick, still, px));
-        else if (v.hungry && (mine || care)) over?.(() => drawBubble(ctx, k, mine ? "hungry" : "care", SPECIES[a.species].game, c.x, head, s, tick, still, px));
+        // (a bubble gives way as a name does: animals crowded at the trough show one each where there is room)
+        if (mine && v.ready > 0) { if (fits("   ", c.x, head - 9 * s)) over?.(() => drawBubble(ctx, k, "ready", SPECIES[a.species].game, c.x, head, s, tick, still, px)); }
+        else if (v.hungry && (mine || care) && fits("   ", c.x, head - 9 * s)) over?.(() => drawBubble(ctx, k, mine ? "hungry" : "care", SPECIES[a.species].game, c.x, head, s, tick, still, px));
         { const text = mine ? `${a.sex === "m" ? "♂" : "♀"} ${(a.name || breedOf(a.breed)?.name[th ? "th" : "en"] || "").slice(0, 12)}` : a.name.slice(0, 12);
           if (((mine && s >= 0.8) || (a.name && s >= 1.4)) && fits(text, c.x, c.y + 10 * s)) tag(text, c.x, c.y + 10 * s, mine ? "#cfe6ff" : "#f3e3c3"); }
       }
