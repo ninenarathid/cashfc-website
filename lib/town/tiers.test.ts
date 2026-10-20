@@ -56,11 +56,12 @@ describe("three times the things (the owner: \"ช่วยเพิ่ม ไ�
     // (and of the time bands' newcomers, five fertilisers of the second tier and three of the third)
     // (+ 20: the things to wear made at the workbench, v277)
     // (+ 69: the pasture's, of the second tier: 41 things apart from its tools, and the 28 breed scrolls)
-    expect(by(2).length).toBe(72 + 13 + 1 + 2 + 3 + 1 + 23 - 2 + 2 + 2 + 1 + 1 + 17 + 5 + 20 + 69);
+    // (+ 1: the pasture's rename tag, 2026-10-20)
+    expect(by(2).length).toBe(72 + 13 + 1 + 2 + 3 + 1 + 23 - 2 + 2 + 2 + 1 + 1 + 17 + 5 + 20 + 69 + 1);
     // (+ 16: the eight mist children of the helpers' crossings, their rare produce and their seeds)
     // (+ 60: the pasture's, of the third: 43 things and the 17 dishes' scrolls)
     expect(by(3).length).toBe(72 + 12 + 2 + 1 - 1 + 24 + 3 + 16 + 60);
-    expect(by(2).length + by(3).length).toBe(72 * 2 + 25 + 1 + 4 + 4 + 47 - 2 + 4 + 1 + 1 + 17 + 8 + 16 + 20 + 69 + 60);
+    expect(by(2).length + by(3).length).toBe(72 * 2 + 25 + 1 + 4 + 4 + 47 - 2 + 4 + 1 + 1 + 17 + 8 + 16 + 20 + 69 + 60 + 1);
     // what was there before is still the early game, and still what the uncle sells
     for (const id of ["rod", "hoe", "pot", "worm", "minnow", "koi", "shabu", "scrollGrilledFish"] as const) expect(tierOf(id)).toBe(1);
     for (const id of ["rod", "hoe", "can", "pot", "pan", "grill", "worm", "dough", "rice", "salt", "riceBox", "seedKangkong", "scrollFriedMinnow"] as const) expect(GOODS[id]).toBeDefined();

@@ -2513,12 +2513,13 @@ export class Trial {
   animals(input: AnimalInput) {
     const world = this.animalWorld(), now = this.now();
     const r = animalAction(world, this.purse(), input, { me: this.id, now, rand: Math.random, newId: () => crypto.randomUUID(), spot: pastureSpot, onFarm: true }, this.animalPurses(world));
+    // (a world the step changed is kept even on a look or a refusal: the warm bottle's moment is written so, as the database writes it)
+    if (r.world !== world) this.write(ANIMALS_AT, r.world);
     if (r.ok && input.action !== "look") {
-      this.write(ANIMALS_AT, r.world);
       for (const n of r.notes) if (n.pts) this.counted({ from: "deed", what: n.what, thing: null, n: n.n, doc: { ...(n.doc ?? {}), pts: n.pts } });
       this.save(r.purse);
     }
-    return { ok: r.ok, ...(r.why ? { why: r.why } : {}), world: r.ok ? r.world : world, ...(r.got ? { got: r.got } : {}) };
+    return { ok: r.ok, ...(r.why ? { why: r.why } : {}), world: r.world, ...(r.got ? { got: r.got } : {}) };
   }
   /** For trying things out: an animal of any breed at any stage, mine at once (fed a day; `hearts` in hearts). */
   animalGive(breed: string, stage: AnimalStage, hearts = 0, sex: "m" | "f" = "f") {

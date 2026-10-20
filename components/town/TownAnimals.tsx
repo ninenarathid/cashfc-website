@@ -7,7 +7,7 @@ import {
   dayOf, freeHome, gives, kindOf, knowsOffering, mayCare, nextStage, scrollOf, sellBackOf, stageOf, statOf, stepKey, stepsOf, untendedOf, usedOf,
   type Animal, type Herd, type Sex, type SpeciesId, type Stats,
 } from "@/lib/town/animals";
-import { ANIMAL_GIFTS, POPOTO_SHOP, TOOL_OF, bookOf, feedHours, growFor, viewOf, type AnimalInput, type AnimalReply, type AnimalWhy, type AnimalWorld } from "@/lib/town/animal-act";
+import { ANIMAL_GIFTS, POPOTO_SHOP, RENAME_TAG, TOOL_OF, bookOf, feedHours, growFor, viewOf, type AnimalInput, type AnimalReply, type AnimalWhy, type AnimalWorld } from "@/lib/town/animal-act";
 import { ANIMAL_SCROLL_ITEMS } from "@/lib/town/animal-items";
 import { BARNS, LANE_ROWS } from "@/lib/town/pasture";
 import { hasThing, usesLeft, type ThingId } from "@/lib/town/gifts";
@@ -61,6 +61,7 @@ export const WHY: Record<AnimalWhy, [string, string]> = {
   had: ["หลานมีโรงแล้ว คนละหนึ่งโรง", "You have a barn already: one each."],
   pen: ["ตัวนี้อยู่ในคอกลุง ย้ายเข้าโรงก่อน", "It's waiting in Uncle's pen: move it to a barn first."],
   sex: ["ต้องเป็นตัวผู้กับตัวเมีย ชนิดเดียวกัน", "It takes a male and a female of one kind."],
+  tag: ["ตัวนี้มีชื่อแล้ว เปลี่ยนชื่อต้องใช้ป้ายเปลี่ยนชื่อ (ร้านลุง 500)", "It has a name: a rename tag (Uncle's stall, 500) changes it."],
   away: ["ติดต่อเมืองไม่ได้ กดลองใหม่อีกครั้ง", "Couldn't reach the town. Try again."],
 };
 export const why = (w: AnimalWhy | undefined, th: boolean) => (WHY[w ?? "none"] ?? WHY.none)[th ? 0 : 1];
@@ -188,6 +189,8 @@ export default function TownAnimals({ keeper, th, view, onView, onClose, focus, 
   useEffect(() => { const t = setInterval(() => setTick((n) => n + 1), 1000); return () => clearInterval(t); }, []);
   const [said, setSaid] = useState<string>("");
   const [busy, setBusy] = useState(false);
+  // (a new animal's name asked at once: the first name is free; the owner, 2026-10-20, "อยากให้ขึ้นช่องตั้งชื่อเลยตอนซื้อเสร็จ หรือตอนลูกเกิด")
+  const [naming, setNaming] = useState<string | null>(null);
   const pending = useRef<{ input: AnimalInput; request: string } | null>(null);
   const alive = useRef(true);
   useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
@@ -207,6 +210,7 @@ export default function TownAnimals({ keeper, th, view, onView, onClose, focus, 
       if (!alive.current) return;
       if (r.ok || r.why !== "away") pending.current = null;
       setSaid(r.ok ? (ok ? (typeof ok === "function" ? ok(r) : ok)[th ? 0 : 1] : t("เรียบร้อย", "Done.")) : (whyFor?.[r.why ?? "none"] ?? WHY[r.why ?? "none"] ?? WHY.none)[th ? 0 : 1]);
+      if (r.ok && r.got?.id) setNaming(r.got.id);
       after?.(r);
     } finally { if (alive.current) setBusy(false); }
   }, [busy, keeper, th]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -229,6 +233,13 @@ export default function TownAnimals({ keeper, th, view, onView, onClose, focus, 
   const offersIn = (world.offers ?? []).filter((o) => o.to === me && live(o.at, ANIMALS.offerHours));
   const asksIn = (world.asks ?? []).filter((q) => q.to === me && live(q.at, ANIMALS.askHours));
   const lentToMe = world.animals.filter((a) => a.owner !== me && a.lent?.to === me && a.lent.until > now);
+  // (a newborn of mine with no name yet, out in the last three days: asked its name once, while the panel is open)
+  useEffect(() => {
+    if (naming) return;
+    const born = mine.find((a) => !a.name && !a.bought && a.born <= now && a.born > now - 3 * 24 * HOUR && !namePrompted(`born:${a.id}`));
+    if (born) { noteNamePrompt(`born:${born.id}`); setNaming(born.id); }
+  });
+  const toName = naming ? mine.find((a) => a.id === naming && !a.name) ?? null : null;
   const c: Common = { th, purse, world, now, kit, busy, act, many, me, nameOf, onView };
   const dot = (v: AnimalsView) => (v === "mine" && mine.some((a) => a.home !== "pen" && viewOf(a, now, ctxOf(world, me, purse, me)).ready > 0)) || (v === "pen" && offersIn.length > 0) || (v === "nest" && (asksIn.length > 0 || lentToMe.length > 0));
 
@@ -250,6 +261,8 @@ export default function TownAnimals({ keeper, th, view, onView, onClose, focus, 
         ))}
       </div>
       <p className="min-h-[1.75em] px-4 pt-1.5 text-meta text-accent" aria-live="polite" data-animals-said>{said}</p>
+      {toName && <NamePrompt key={toName.id} a={toName} th={th} now={now} busy={busy} onLater={() => setNaming(null)}
+        onName={(name) => void act({ action: "name", id: toName.id, name }, ["ตั้งชื่อแล้ว น่ารักจัง", "Named. Lovely."], (r) => { if (r.ok) setNaming(null); })} />}
       {pending.current && !busy && (
         <div className="px-4 pb-1"><button type="button" className={button} onClick={() => void act(null)} data-animals-retry>{t("ลองรายการเดิมอีกครั้ง", "Retry the same step")}</button></div>
       )}
@@ -268,6 +281,36 @@ export default function TownAnimals({ keeper, th, view, onView, onClose, focus, 
 }
 
 const herdOf = (world: AnimalWorld, me: string): Herd | null => world.herds.find((h) => h.owner === me) ?? null;
+/** Which newborns' names were asked already, in this browser (only that it was asked once: nothing that matters is kept here). */
+const PROMPTED = "cashtown.animals.namePrompted.1";
+const namePrompted = (key: string): boolean => { try { return (JSON.parse(localStorage.getItem(PROMPTED) ?? "[]") as string[]).includes(key); } catch { return false; } };
+const noteNamePrompt = (key: string) => {
+  try { const list = JSON.parse(localStorage.getItem(PROMPTED) ?? "[]") as string[]; localStorage.setItem(PROMPTED, JSON.stringify([...list.filter((k) => k !== key), key].slice(-200))); } catch { /* (a browser that keeps nothing asks again) */ }
+};
+/** A new animal's name, asked at once: a buy, a cross or the cradle, or a newborn still unnamed. Its first name is free. */
+function NamePrompt({ a, th, now, busy, onName, onLater }: { a: Animal; th: boolean; now: number; busy: boolean; onName: (name: string) => void; onLater: () => void }) {
+  const t = (x: string, y: string) => (th ? x : y);
+  const [name, setName] = useState("");
+  const kind = breedOf(a.breed)?.name[th ? "th" : "en"] ?? "";
+  const coming = a.born > now;
+  return (
+    <form className="mx-4 mb-2 flex flex-col gap-2 rounded-xl border border-accent/60 bg-card p-3" data-name-prompt onSubmit={(e) => { e.preventDefault(); if (name.trim()) onName(name); }}>
+      <p className="text-ui font-semibold text-ink">
+        {coming ? t(`ตั้งชื่อลูก${kind}ที่กำลังจะเกิด`, `Name the ${kind} to be born`) : t(`ตั้งชื่อให้${kind}ตัวใหม่`, `Name your new ${kind}`)}
+        <span className="ml-1 text-muted">{a.sex === "m" ? t("♂ ตัวผู้", "♂ male") : t("♀ ตัวเมีย", "♀ female")}</span>
+      </p>
+      <div className="flex gap-2">
+        <input value={name} maxLength={16} onChange={(e) => setName(e.target.value)} aria-label={t("ชื่อ", "Name")} placeholder={kind}
+               className="min-h-11 min-w-0 flex-1 rounded-lg border border-line bg-bg px-3 text-ink" data-name-input />
+        <button type="submit" className={main} disabled={busy || !name.trim()}>{t("ตั้งชื่อ", "Name it")}</button>
+      </div>
+      <div className="flex items-center justify-between gap-2">
+        <p className="min-w-0 text-label text-muted">{t("ตั้งครั้งแรกฟรี เปลี่ยนภายหลังต้องใช้ป้ายเปลี่ยนชื่อ (ร้านลุง 500)", "The first name is free; changing it later takes a rename tag (Uncle's, 500).")}</p>
+        <button type="button" className={button} onClick={onLater} data-name-later>{t("ไว้ทีหลัง", "Later")}</button>
+      </div>
+    </form>
+  );
+}
 /** Logs and stone tiles a barn's stage asks, against what is in the bag: a line of chips. */
 function Needs({ th, purse, coins, logs, stone, credit = 0 }: { th: boolean; purse: Purse; coins: number; logs: number; stone: number; credit?: number }) {
   const t = (a: string, b: string) => (th ? a : b);
@@ -458,7 +501,7 @@ function Trough({ th, purse, world, now, kit, busy, act, many, me, nameOf, focus
               </div>
               {may && (feeds.length ? (
                 <ul className="mt-2 flex flex-wrap gap-1.5">{feeds.map(({ x, slot }) => (
-                  <li key={slot}><button type="button" className={`${button} flex items-center gap-1.5 px-2`} disabled={busy || v.food >= ANIMALS.trough - 0.01} data-trough-feed={x!.item}
+                  <li key={slot}><button type="button" className={`${button} flex items-center gap-1.5 px-2`} disabled={busy || v.food >= (x!.item === "packedRation" ? ANIMALS.packed : ANIMALS.trough) - 0.01} data-trough-feed={x!.item}
                     onClick={() => void act({ action: "feed", id: a.id, item: x!.item, grade: (x!.grade ?? 0) as 0 | 1 | 2 | 3 }, ["เติมอาหารในช่องแล้ว", "Into its slot."])}>
                     <ItemIcon id={x!.item} size={22} /><span className="text-meta">×{x!.n}</span><span className="text-label text-muted">+{feedHours(a.species, x!.item)}{t("ชม.", "h")}</span>
                   </button></li>
@@ -549,6 +592,8 @@ function Shop({ th, purse, world, now, kit, busy, act, me, onView, mine }: Commo
       <ul>{SPECIES_IDS.flatMap((sp) => [row(SPECIES[sp].sack, SPECIES[sp].sackPrice, t("อิ่ม 24 ชม.", "24 h of food")), row(SPECIES[sp].growItem, SPECIES[sp].growPrice, t("โตไวขึ้น 24 ชม.", "faster growth for 24 h"))])}</ul>
       <H3>{t("เครื่องมือ", "Tools")}</H3>
       <ul>{["milker", "woolShears", "eggBasket", "churn", "cheesePress", "spindle", "knittingNeedles"].map((id) => row(id, POPOTO_SHOP[id], id === "milker" ? t("ใช้รีดนมวัว", "for milking") : id === "woolShears" ? t("ใช้ตัดขนแกะ", "for shearing") : id === "eggBasket" ? t("ใช้เก็บไข่", "for eggs") : t("ใช้ที่โต๊ะแปรรูป", "for the making table")))}</ul>
+      <H3>{t("ป้ายเปลี่ยนชื่อ", "Rename tag")}</H3>
+      <ul>{row(RENAME_TAG, POPOTO_SHOP[RENAME_TAG], t("เปลี่ยนชื่อสัตว์ที่ตั้งแล้ว 1 ครั้ง", "renames a named animal once"))}</ul>
       <details className="mt-3 rounded-xl border border-line bg-bg/40 px-3 py-1" data-shop-scrolls>
         <summary className="pressable flex min-h-11 cursor-pointer items-center text-ui font-semibold text-ink">{t(`ม้วนสูตรอาหารจากฟาร์ม (${Object.keys(ANIMAL_SCROLL_ITEMS).length})`, `Farm recipe scrolls (${Object.keys(ANIMAL_SCROLL_ITEMS).length})`)}</summary>
         <ul>{Object.keys(ANIMAL_SCROLL_ITEMS).map((id) => row(id, POPOTO_SHOP[id]))}</ul>
@@ -685,7 +730,7 @@ function Card({ a, th, purse, world, now, kit, busy, act, open, onOpen, onCollec
                 ? <button type="button" className={main} disabled={busy || !herd || herd.barn === null || used.barn >= (herd?.room ?? 0)} onClick={() => void act({ action: "move", id: a.id, home: "barn" }, ["ย้ายเข้าโรงแล้ว", "Into the barn."])} data-move="barn">{t("ย้ายเข้าโรง", "Move to barn")}</button>
                 : <button type="button" className={button} disabled={busy || lent || used.pen >= ANIMALS.pen} onClick={() => void act({ action: "move", id: a.id, home: "pen" }, ["ฝากไว้ที่คอกลุงแล้ว", "Left in Uncle's pen."])} data-move="pen">{t("ฝากคอกลุง", "To Uncle's pen")}</button>}
               <button type="button" className={button} disabled={busy || stage === "coming" || lent} onClick={() => onView("pen", a.id)} data-hand-on>{t("ส่งต่อให้เพื่อน", "Hand on")}</button>
-              <button type="button" className={button} disabled={busy} onClick={() => setPicker(picker === "name" ? null : "name")} aria-expanded={picker === "name"}>{t("ตั้งชื่อ", "Rename")}</button>
+              <button type="button" className={button} disabled={busy} onClick={() => setPicker(picker === "name" ? null : "name")} aria-expanded={picker === "name"}>{a.name ? t("เปลี่ยนชื่อ", "Rename") : t("ตั้งชื่อ", "Name")}</button>
               {cradle && <button type="button" className={button} disabled={busy || usesLeft(purse, ANIMAL_GIFTS.cradle, now) < 1} onClick={() => void act({ action: "cradle", id: a.id }, (r) => cradleWords(r.got))} data-cradle>{t("เปลอุ่นของยาย", "Warm cradle")}</button>}
             </div>
           )}
@@ -712,9 +757,14 @@ function Card({ a, th, purse, world, now, kit, busy, act, open, onOpen, onCollec
             </div>
           )}
           {picker === "name" && (
-            <form className="mt-2 flex gap-2 rounded-lg border border-line p-2" data-picker="name" onSubmit={(e) => { e.preventDefault(); setPicker(null); void act({ action: "name", id: a.id, name }, ["ตั้งชื่อแล้ว น่ารักจัง", "Named. Lovely."]); }}>
-              <input value={name} maxLength={16} onChange={(e) => setName(e.target.value)} aria-label={t("ชื่อ", "Name")} className="min-h-11 min-w-0 flex-1 rounded-lg border border-line bg-card px-3 text-ink" placeholder={breed?.name[th ? "th" : "en"]} />
-              <button type="submit" className={main} disabled={busy}>{t("บันทึก", "Save")}</button>
+            <form className="mt-2 flex flex-col gap-1.5 rounded-lg border border-line p-2" data-picker="name" onSubmit={(e) => { e.preventDefault(); setPicker(null); void act({ action: "name", id: a.id, name }, a.name ? ["เปลี่ยนชื่อแล้ว ใช้ป้ายไป 1 ใบ", "Renamed: one tag used."] : ["ตั้งชื่อแล้ว น่ารักจัง", "Named. Lovely."]); }}>
+              <div className="flex gap-2">
+                <input value={name} maxLength={16} onChange={(e) => setName(e.target.value)} aria-label={t("ชื่อ", "Name")} className="min-h-11 min-w-0 flex-1 rounded-lg border border-line bg-card px-3 text-ink" placeholder={breed?.name[th ? "th" : "en"]} />
+                <button type="submit" className={main} disabled={busy || name.trim() === a.name || (!!a.name && held(purse.bag, RENAME_TAG as ItemId) < 1)}>{t("บันทึก", "Save")}</button>
+              </div>
+              {a.name
+                ? <p className="text-label text-muted" data-rename-tag>{t(`ใช้ป้ายเปลี่ยนชื่อ 1 ใบ · มี ${held(purse.bag, RENAME_TAG as ItemId)} ใบ (ร้านลุง 500)`, `Takes one rename tag · you have ${held(purse.bag, RENAME_TAG as ItemId)} (Uncle's stall, 500)`)}</p>
+                : <p className="text-label text-muted">{t("ตั้งครั้งแรกฟรี เปลี่ยนภายหลังต้องใช้ป้ายเปลี่ยนชื่อ", "The first name is free; changing it later takes a rename tag.")}</p>}
             </form>
           )}
         </div>

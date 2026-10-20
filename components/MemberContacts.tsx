@@ -6,7 +6,7 @@ import { toast } from "@/components/ui/Toast";
 import { DiscordGlyph, FacebookGlyph, LockGlyph } from "@/components/ui/ContactIcons";
 import { useAdmin } from "@/lib/admin";
 import {
-  DISCORD_MAX, FACEBOOK_MAX, facebookHref, readContact, saveContact, tidy, type Contact,
+  DISCORD_MAX, FACEBOOK_MAX, facebookHref, readContact, refusalLine, saveContact, tidy, type Contact,
 } from "@/lib/contacts";
 import { useLang } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase/client";
@@ -212,7 +212,7 @@ function ContactDialog(
         {why && (
           <p role="alert"
              className="rounded-lg border border-chili/60 bg-chili/10 px-3 py-2 text-ui leading-relaxed text-ink">
-            {t("adm.saveFailed", { why })}
+            {refusalLine(why, t)}
           </p>
         )}
 

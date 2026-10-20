@@ -153,6 +153,8 @@ export default function TownPasture(props: PastureProps) {
     if (left && left.level >= 1 && left.level < 3) words.push(t(`โรงของหลานไม่มีใครดูแลมา ${left.days} วันแล้ว หากครบ ${ANIMALS.untended.reclaim} วัน ผู้เล่นที่รอโรงอาจจองต่อได้`, `Your barn has gone ${left.days} days untended. At ${ANIMALS.untended.reclaim} days a member waiting for one may take it.`));
     const offers = (world.offers ?? []).filter((o) => o.to === me && o.at > now - ANIMALS.offerHours * 3_600_000).length;
     const asks = (world.asks ?? []).filter((q) => q.to === me && q.at > now - ANIMALS.askHours * 3_600_000).length;
+    const unnamed = (world.animals ?? []).filter((a) => a.owner === me && !a.name && !a.bought && a.born <= now && a.born > now - 3 * 24 * 3_600_000).length;
+    if (unnamed) words.push(t(`ลูกสัตว์เกิดใหม่ ${unnamed} ตัวยังไม่มีชื่อ ไปตั้งชื่อที่ลุง Popoto`, `${unnamed} newborn${unnamed > 1 ? "s have" : " has"} no name yet: see Uncle Popoto.`));
     if (offers + asks) words.push(t(`มีเพื่อน${offers ? `ส่งสัตว์มาให้ ${offers} ตัว` : ""}${offers && asks ? " และ" : ""}${asks ? `ขอยืมสัตว์ ${asks} ครั้ง` : ""} ไปดูที่ลุง Popoto`, `Friends have ${offers ? `${offers} animal${offers > 1 ? "s" : ""} for you` : ""}${offers && asks ? " and " : ""}${asks ? `${asks} ask${asks > 1 ? "s" : ""} for yours` : ""}: see Uncle Popoto.`));
     if (words.length) say(words.join(" · "), 9000);
   }, [onFarm, !!world, windKey]); // eslint-disable-line react-hooks/exhaustive-deps

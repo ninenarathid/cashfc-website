@@ -11,7 +11,7 @@ import {
   type Bed, type Plant, type Plot,
 } from "./farm";
 import { ALL_SIGNS, SIGNS, castLine, hookBait, landCatch, loseBait, oddsOf, signsOf, strikeWindowOf } from "./fishing";
-import { CARRIES } from "./gear";
+import { CARRIES, ROD_IDS } from "./gear";
 import { HINT_IDS, buyHint, nextHint } from "./hints";
 import { BAITS, BUFF_LEVELS, CROPS, CROP_IDS, DISH_IDS, FISH, FISH_IDS, FLOTSAM_IDS, ITEMS, ITEM_IDS, SCROLLS, byOf, growth, type BaitId, type BuffId, type CatchId, type DishId, type ItemId, type MealBuffId, type Sign } from "./items";
 import { UNLOCKS, give, mayAsk, orderOf, shelfOf, sourcesAt, wantsFor, type Village } from "./orders";
@@ -329,7 +329,9 @@ export function vectorsV108(): Vector[] {
       best: Object.fromEntries(Array.from({ length: c.int(0, 4) }, () => [c.of(FISH_IDS), c.of([5, 12.3, 40, 99.9])])),
     };
     const bait = c.maybe(0.9) ? c.of(BAITS) : (c.of(ITEM_IDS) as BaitId), what = c.of(CATCHES), size = c.of([0, 4.2, 12.3, 12.4, 33, 250.5]);
-    add("hook_bait", [p, bait], hookBait(p, bait));
+    // (one case in ten holds a rod and the bait, so that "ok" is reached whatever the item list is; no draw of `c` is spent on it)
+    const ready = i % 10 === 0 && BAITS.includes(bait) && roomFor(p.bag, ROD_IDS[0]) > 0 && roomFor(put(p.bag, ROD_IDS[0], 1), bait) > 0 ? { ...p, bag: put(put(p.bag, ROD_IDS[0], 1), bait, 1) } : p;
+    add("hook_bait", [ready, bait], hookBait(ready, bait));
     add("lose_bait", [p, bait], loseBait(p, bait));
     add("land_catch", [p, what, size], landCatch(p, what, size));
     add("strike_window", [p, now], strikeWindowOf(p, now));
