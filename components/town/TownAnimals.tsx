@@ -105,7 +105,9 @@ export function AnimalPic({ species, breed, stage, size = 48, kit, dark = false,
     let s = Math.min(2.6, (size * 0.8) / Math.max(18, box.w * 1.15));
     if (art && kit) { const [w, h] = kit.sizeOf(art.name), fit = (size * 0.88) / Math.max(w, h); s = (fit >= 1 ? Math.min(3, Math.floor(fit)) : fit) / k; }
     drawAnimal(ctx, kit, { species, breed, stage, pose, right: true, sex }, { x: size / 2, y: size * 0.93 }, s, dpr, 0, true);
-    if (dark) { ctx.globalCompositeOperation = "source-atop"; ctx.fillStyle = "rgba(20,24,32,0.92)"; ctx.fillRect(0, 0, size, size); ctx.globalCompositeOperation = "source-over"; }
+    // (a breed not found yet: a solid silhouette, its outline alone and nothing of its look; the owner, 2026-10-20,
+    // "ถ้ายังไม่ปลดล็อคช่วยทำเป็นเงาทึบไว้ก่อน ไม่บอกหน้าตา")
+    if (dark) { ctx.globalCompositeOperation = "source-atop"; ctx.fillStyle = "#3a4256"; ctx.fillRect(0, 0, size, size); ctx.globalCompositeOperation = "source-over"; }
   }, [species, breed, stage, size, kit, dark, pose, sex]);
   return <canvas ref={ref} aria-hidden className="shrink-0" style={{ width: size, height: size, imageRendering: "pixelated" }} />;
 }
