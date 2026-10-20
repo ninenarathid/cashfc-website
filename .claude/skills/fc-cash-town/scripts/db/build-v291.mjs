@@ -1,7 +1,7 @@
 // Writes supabase/v291_a_farm_of_animals.sql: the pasture (docs/plans/animals/README.md). The new tables and functions are
 // v291.core.sql and v291.act.sql beside this file; the functions it changes elsewhere are changed in their live text,
 // each replacement exactly so many times (PATCHES); the catalog is the new row `animals` and, merged entry by entry into
-// the rows they belong to, the line's things, dishes, makes, scrolls, gifts and the farm's new rows (nothing else of
+// the rows they belong to, the line's things, dishes, makes, scrolls, gifts and the farm's new shape (nothing else of
 // those rows is written over).
 //   cd <the tree> && FC_REPO=<the tree> node .claude/skills/fc-cash-town/scripts/db/build-v291.mjs
 import { readFileSync, writeFileSync } from "node:fs";
@@ -33,7 +33,7 @@ const farmNow = all.cooking.map.farm;
 const groundFarm = all.ground.maps.find((m) => m[0] === 128);
 const nectarFarm = all.insects.nectar.maps.find((m) => m[0] === "farm");
 const nurseryFarm = all.rewards?.nurseryBoxes?.find?.((m) => m[0] === 128) ?? null;
-const relayFrom = farmNow[1], relayTo = farmNow[1] + farmNow[3] - 1;
+const [farmX, farmY, farmW, farmH] = farmNow, farmX2 = farmX + farmW - 1, farmY2 = farmY + farmH - 1;
 
 /** [function, [old text, new text, how many times it stands there]...]: applied to the live text, a run again skipping what is made. */
 export const PATCHES = [
@@ -44,8 +44,8 @@ export const PATCHES = [
     "case when t.kind in ('dish', 'goods', 'staple') then (p_k->>'made')::int",
     "case when t.kind in ('dish', 'goods', 'staple') and not coalesce(town.cat('animals')->'graded' ? t.id, false) then (p_k->>'made')::int", 1]]],
   ["town.reward_relay_place(jsonb)", [[
-    "(at_->>1)::integer between 0 and 85 then 'farm'",
-    `(at_->>1)::integer between ${relayFrom} and ${relayTo} then 'farm'`, 1]]],
+    "(at_->>0)::integer between 128 and 187 and (at_->>1)::integer between 0 and 85 then 'farm'",
+    `(at_->>0)::integer between ${farmX} and ${farmX2} and (at_->>1)::integer between ${farmY} and ${farmY2} then 'farm'`, 1]]],
 ];
 const lit = (s) => s.replace(/'/g, "''");
 const core = readFileSync(here("v291.core.sql"), "utf8").replace(/\r\n/g, "\n");
@@ -79,7 +79,7 @@ const sql = `-- v291 — a farm of animals (ฟาร์มสัตว์)
 --   onto the farm, the gifts' spring wind, harp and hay wagon, ride, the meadow's forage), answering through town.answer.
 -- * Elsewhere, in their live text: a pasture deed counts its own points into the line "animals" or the helpers'
 --   (town.work_counts_of); an animal's produce falls when oversold, as a crop does (town.market_things); the farm's new
---   rows (local y ${relayFrom}..-1) are the farm's for a reward's relay (town.reward_relay_place). Written whole:
+--   east side (x ${farmX2 - 51}..${farmX2}) is the farm's for a reward's relay (town.reward_relay_place). Written whole:
 --   town.carries_grade and town.grade_pays take an animal's produce (the kitchen counts its grade, the relatives pay by
 --   it); town.made_of reads a pot as it is and then as its families (any breed's egg an egg, any milk milk, any wool wool).
 -- * The catalog: the row \`animals\`, and merged into their rows entry by entry: ${itemIds.length} things, ${dishIds.length} dishes and their
@@ -177,7 +177,7 @@ do $$ begin
   if town.grade_pays('farmEgg', 3) <> 2.5 or town.grade_pays('butter', 3) <> 2.5 or not town.carries_grade('farmMilk') then raise exception 'v291: the grade of what an animal gives'; end if;
   if town.made_of('[["milk", 2]]'::jsonb) is not null or town.made_of('[["jerseyMilk", 2]]'::jsonb) is distinct from 'cream' then raise exception 'v291: cream of farm milk alone'; end if;
   if exists (select 1 from jsonb_array_elements(town.cat('forest')->'kinds'->'nook'->'finds') f where f->>'item' = 'egg') then raise exception 'v291: an egg in the forest'; end if;
-  if town.reward_relay_place('[150,${relayFrom}]'::jsonb) is distinct from 'farm' then raise exception 'v291: the farm''s new rows'; end if;
+  if town.reward_relay_place('[${farmX2},${farmY2}]'::jsonb) is distinct from 'farm' then raise exception 'v291: the animal farm east of the garden'; end if;
   if not (town.cat('work')->'ids' ? 'animals') then raise exception 'v291: the line is not in work'; end if;
 end $$;
 commit;
@@ -187,7 +187,7 @@ notify pgrst, 'reload schema';
 --   select to_regprocedure('public.town_animals(jsonb,text)') is not null;                           -- true
 --   select town.made_of('[["blueEgg", 1], ["duckEgg", 1], ["oil", 1]]'::jsonb);                      -- omelette
 --   select data->'species'->'cow'->>'price' from public.town_catalog where key = 'animals';           -- 4000
---   select town.reward_relay_place('[150,${relayFrom}]'::jsonb), town.reward_relay_place('[150,${relayFrom - 1}]'::jsonb);   -- farm, null
+--   select town.reward_relay_place('[${farmX2},${farmY2}]'::jsonb), town.reward_relay_place('[${farmX2 + 1},${farmY2}]'::jsonb);   -- farm, null
 `;
 writeFileSync(FILE, sql);
 console.log("written", FILE, sql.length, "farm now", JSON.stringify(farmNow), "work ids", workIds, "keyed", Object.keys(workKeyed));

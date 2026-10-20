@@ -25,7 +25,7 @@
 --   onto the farm, the gifts' spring wind, harp and hay wagon, ride, the meadow's forage), answering through town.answer.
 -- * Elsewhere, in their live text: a pasture deed counts its own points into the line "animals" or the helpers'
 --   (town.work_counts_of); an animal's produce falls when oversold, as a crop does (town.market_things); the farm's new
---   rows (local y -32..-1) are the farm's for a reward's relay (town.reward_relay_place). Written whole:
+--   east side (x 188..239) is the farm's for a reward's relay (town.reward_relay_place). Written whole:
 --   town.carries_grade and town.grade_pays take an animal's produce (the kitchen counts its grade, the relatives pay by
 --   it); town.made_of reads a pot as it is and then as its families (any breed's egg an egg, any milk milk, any wool wool).
 -- * The catalog: the row `animals`, and merged into their rows entry by entry: 136 things, 17 dishes and their
@@ -1121,7 +1121,7 @@ begin
   end if;
   if p_done->>''from'' = ''play'' then', '1'],
     ['town.market_things(jsonb)', 'case when t.kind in (''dish'', ''goods'', ''staple'') then (p_k->>''made'')::int', 'case when t.kind in (''dish'', ''goods'', ''staple'') and not coalesce(town.cat(''animals'')->''graded'' ? t.id, false) then (p_k->>''made'')::int', '1'],
-    ['town.reward_relay_place(jsonb)', '(at_->>1)::integer between 0 and 85 then ''farm''', '(at_->>1)::integer between -32 and 85 then ''farm''', '1']] loop
+    ['town.reward_relay_place(jsonb)', '(at_->>0)::integer between 128 and 187 and (at_->>1)::integer between 0 and 85 then ''farm''', '(at_->>0)::integer between 128 and 239 and (at_->>1)::integer between 0 and 85 then ''farm''', '1']] loop
     d := replace(pg_get_functiondef(c[1]::regprocedure), chr(13), '');
     -- (the file may come with CR at its line ends: the texts compared without them)
     o := replace(c[2], chr(13), ''); nw := replace(c[3], chr(13), '');
@@ -1148,8 +1148,8 @@ insert into public.town_catalog (key, data) values
     "findOdds": 3,
     "meadow": {"spots":12,"stamina":1,"points":1},
     "forage": {"mistVetch":[0],"ghostReed":[0,1],"dewClover":[1],"dawnOats":[1,0],"meadowOats":[2,3],"sweetTimothy":[2],"sunAlfalfa":[3,4],"pondMillet":[3],"copperSedge":[4],"orchardPea":[4,5],"amberClover":[5],"reedSeed":[5,6],"lanternGrass":[6],"velvetVetch":[6,7],"moonOats":[7],"nightDuckweed":[7,0]},
-    "eggSpots": [[134,-27],[139,-25],[145,-28],[150,-26],[155,-28],[160,-25],[164,-28],[152,-20],[157,-14],[162,-22],[147,-12],[154,-11],[165,-12],[178,-13],[181,-19],[183,-15],[137,-5],[143,-6],[148,-4],[165,-6],[171,-5],[177,-4],[183,-7],[132,-12]],
-    "wagonStops": {"farm":[151,-3],"town":[57,32],"forest":[190,186]},
+    "eggSpots": [[198,36],[203,39],[207,35],[211,42],[217,37],[220,44],[223,39],[200,44],[209,38],[218,41],[205,45],[212,36],[197,78],[202,81],[206,77],[210,80],[217,78],[220,82],[224,79],[228,77],[231,81],[200,82],[212,79],[226,82]],
+    "wagonStops": {"farm":[191,24],"town":[57,32],"forest":[190,186]},
     "shop": {"chickFeed":4,"chickGrow":10,"duckFeed":6,"duckGrow":15,"sheepFeed":8,"lambGrow":25,"cowFeed":10,"calfGrow":40,"milker":180,"woolShears":60,"eggBasket":24,"churn":80,"cheesePress":100,"spindle":60,"knittingNeedles":60,"scrollCustard":72,"scrollPancakes":88,"scrollCheesecake":160,"scrollButterCookies":104,"scrollQuiche":144,"scrollLanternCustard":160,"scrollCloudSouffle":176,"scrollGoldenOmelette":184,"scrollEmberBakedEggs":224,"scrollRainBroth":152,"scrollMoonPudding":160,"scrollPaperFish":152,"scrollLeviathanEggCup":232,"scrollStrawberryShake":120,"scrollHotCocoa":120,"scrollFlowerLatte":120,"scrollStarPudding":240},
     "tools": {"eggs":"eggBasket","shear":"woolShears","milk":"milker"},
     "gifts": {"bell":"charmHerdBell","cat":"thingBarnCat","bottle":"thingWarmBottle","collar":"charmStarCollar","cradle":"thingCradle","ram":"famCloudRam","twin":"thingTwinCradle","harp":"thingHarp","wind":"thingSpringWind","wagon":"thingHayWagon"},
@@ -1179,9 +1179,9 @@ update public.town_catalog set data = jsonb_set(jsonb_set(jsonb_set(data,
     '{cookware}', (data->'cookware') || (select coalesce(jsonb_agg(w), '[]'::jsonb) from jsonb_array_elements_text($j$["churn","cheesePress","spindle","knittingNeedles"]$j$::jsonb) w where not (data->'cookware') ? w)),
   updated_at = now() where key = 'cooking';
 -- (the farm's shape: each entry that is the farm as it was, [128,0,60,86], made the farm as it is now; an entry is matched whole, never by `@>`)
-update public.town_catalog set data = jsonb_set(data, '{map,farm}', $j$[128,-32,60,118]$j$::jsonb), updated_at = now() where key = 'cooking' and data->'map'->'farm' = $j$[128,0,60,86]$j$::jsonb;
-update public.town_catalog set data = jsonb_set(data, '{maps}', (select jsonb_agg(case when m = $j$[128,0,60,86]$j$::jsonb then $j$[128,-32,60,118]$j$::jsonb else m end order by o) from jsonb_array_elements(data->'maps') with ordinality x(m, o))), updated_at = now() where key = 'ground';
-update public.town_catalog set data = jsonb_set(data, '{nectar,maps}', (select jsonb_agg(case when m = $j$["farm",128,0,60,86]$j$::jsonb then $j$["farm",128,-32,60,118]$j$::jsonb else m end order by o) from jsonb_array_elements(data->'nectar'->'maps') with ordinality x(m, o))), updated_at = now() where key = 'insects';
+update public.town_catalog set data = jsonb_set(data, '{map,farm}', $j$[128,0,112,86]$j$::jsonb), updated_at = now() where key = 'cooking' and data->'map'->'farm' = $j$[128,0,60,86]$j$::jsonb;
+update public.town_catalog set data = jsonb_set(data, '{maps}', (select jsonb_agg(case when m = $j$[128,0,60,86]$j$::jsonb then $j$[128,0,112,86]$j$::jsonb else m end order by o) from jsonb_array_elements(data->'maps') with ordinality x(m, o))), updated_at = now() where key = 'ground';
+update public.town_catalog set data = jsonb_set(data, '{nectar,maps}', (select jsonb_agg(case when m = $j$["farm",128,0,60,86]$j$::jsonb then $j$["farm",128,0,112,86]$j$::jsonb else m end order by o) from jsonb_array_elements(data->'nectar'->'maps') with ordinality x(m, o))), updated_at = now() where key = 'insects';
 
 
 -- (no eggs in the forest's nooks: the owner, 2026-10-20, "เลิกทำให้ไข่ไก่ ดรอปในป่าด้วย เดี๋ยวจะซ้ำซ้อน"; eggs are the hens' and the uncle's)
@@ -1196,7 +1196,7 @@ do $$ begin
   if town.grade_pays('farmEgg', 3) <> 2.5 or town.grade_pays('butter', 3) <> 2.5 or not town.carries_grade('farmMilk') then raise exception 'v291: the grade of what an animal gives'; end if;
   if town.made_of('[["milk", 2]]'::jsonb) is not null or town.made_of('[["jerseyMilk", 2]]'::jsonb) is distinct from 'cream' then raise exception 'v291: cream of farm milk alone'; end if;
   if exists (select 1 from jsonb_array_elements(town.cat('forest')->'kinds'->'nook'->'finds') f where f->>'item' = 'egg') then raise exception 'v291: an egg in the forest'; end if;
-  if town.reward_relay_place('[150,-32]'::jsonb) is distinct from 'farm' then raise exception 'v291: the farm''s new rows'; end if;
+  if town.reward_relay_place('[239,85]'::jsonb) is distinct from 'farm' then raise exception 'v291: the animal farm east of the garden'; end if;
   if not (town.cat('work')->'ids' ? 'animals') then raise exception 'v291: the line is not in work'; end if;
 end $$;
 commit;
@@ -1206,4 +1206,4 @@ notify pgrst, 'reload schema';
 --   select to_regprocedure('public.town_animals(jsonb,text)') is not null;                           -- true
 --   select town.made_of('[["blueEgg", 1], ["duckEgg", 1], ["oil", 1]]'::jsonb);                      -- omelette
 --   select data->'species'->'cow'->>'price' from public.town_catalog where key = 'animals';           -- 4000
---   select town.reward_relay_place('[150,-32]'::jsonb), town.reward_relay_place('[150,-33]'::jsonb);   -- farm, null
+--   select town.reward_relay_place('[239,85]'::jsonb), town.reward_relay_place('[240,85]'::jsonb);   -- farm, null
