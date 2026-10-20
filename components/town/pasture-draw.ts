@@ -151,7 +151,7 @@ export function shade(hex: string, k: number): string {
 }
 
 /**
- * ART: a building's stand-in: a box on its tiles with a gabled roof, its door on the side that faces the lanes
+ * Fallback (the building's picture is in the pasture's sheet, drawBuilding): a box on its tiles with a gabled roof, its door on the side that faces the lanes
  * (+y, the screen's lower left). `wall` and `roof` in the map's own pixels at scale 1.
  */
 export function drawHouse(ctx: CanvasRenderingContext2D, project: Project, r: { x: number; y: number; w: number; h: number }, look: { wall: string; roof: string; trim: string; wallH: number; roofH: number; door: number; label?: string; windows?: number }, s: number) {
@@ -185,7 +185,7 @@ export function drawHouse(ctx: CanvasRenderingContext2D, project: Project, r: { 
   ctx.restore();
 }
 
-/** ART: a long low box on the ground (a trough, the making table, the nest's bed, the stall's counter). */
+/** Fallback while the sheet has no picture of it: a long low box on the ground (a trough, the making table, the nest's bed, the stall's counter). */
 export function drawBlock(ctx: CanvasRenderingContext2D, project: Project, r: { x: number; y: number; w: number; h: number }, side: string, top: string, height: number, s: number) {
   const A = project({ x: r.x, y: r.y }), B = project({ x: r.x + r.w, y: r.y }), C = project({ x: r.x + r.w, y: r.y + r.h }), D = project({ x: r.x, y: r.y + r.h });
   const up = (p: Vec) => ({ x: p.x, y: p.y - height * s });
@@ -219,7 +219,7 @@ export function drawBuilding(ctx: CanvasRenderingContext2D, kit: SceneryKit | nu
   return true;
 }
 
-/** ART: Uncle Popoto: the uncle's own frames stand in for his (a popoto in a farmer's straw hat is to be drawn). */
+/** Uncle Popoto: his own frames (pp_*, popoto-rancher); while the sheet has none, the uncle's frames with a straw hat stand in. */
 export function drawPopoto(ctx: CanvasRenderingContext2D, scenery: SceneryKit | null, kit: SceneryKit | null, at: Vec, s: number, px: number, beat: number) {
   const frame = POPOTO_FRAMES[beat === 3 ? 1 : beat === 7 || beat === 8 ? 2 : beat === 12 ? 3 : 0];
   if (kit?.has(frame)) { const k = s * (PROP_K[frame] ?? 0.8); kit.drawProp(ctx, frame, at.x, at.y, k, px); return { tall: kit.sizeOf(frame)[1] * k, w: kit.sizeOf(frame)[0] * k }; }
@@ -228,7 +228,7 @@ export function drawPopoto(ctx: CanvasRenderingContext2D, scenery: SceneryKit | 
     const k = s * 0.78;
     scenery.drawProp(ctx, stand, at.x, at.y, k, px);
     const [w, h] = scenery.sizeOf(stand), [, ay] = scenery.anchorOf(stand);
-    // ART: his straw hat over the uncle's frames
+    // (the stand-in: a straw hat over the uncle's frames)
     ctx.save(); ctx.fillStyle = "#e8c870"; ctx.strokeStyle = "#8a6a2a"; ctx.lineWidth = Math.max(1, s);
     const top = at.y - ay * k;
     ctx.beginPath(); ctx.ellipse(at.x, top + 5 * s, 15 * s, 4 * s, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
@@ -261,7 +261,7 @@ export function drawRam(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, a
   ctx.restore();
 }
 
-/** ART: the hay wagon and its ox, at the wagon's point (the bed's middle), the ox ahead the way it goes. */
+/** The hay wagon and its ox (pa_wagon, pa_ox_*; a stand-in while the sheet has none), at the wagon's point (the bed's middle), the ox ahead the way it goes. */
 export function drawWagon(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, at: Vec, s: number, right: boolean, now: number, moving: boolean, px = 1) {
   if (kit?.has("pa_wagon")) {
     kit.drawProp(ctx, "pa_wagon", at.x, at.y, s * (PROP_K.pa_wagon ?? 0.5), px, 0, !right);
@@ -290,7 +290,7 @@ export function drawWagon(ctx: CanvasRenderingContext2D, kit: SceneryKit | null,
   ctx.restore();
 }
 
-/** ART: a little bubble over an animal: hungry (an empty bowl), ready (what it gives), a friend's hungry (a heart). */
+/** A little bubble over an animal (pa_bubble*; a stand-in while the sheet has none): hungry (an empty bowl), ready (what it gives), a friend's hungry (a heart). */
 export function drawBubble(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, kind: "hungry" | "ready" | "care", game: "eggs" | "milk" | "shear", x: number, y: number, s: number, now: number, still: boolean, px = 1) {
   const bob = still ? 0 : Math.sin(now / 300) * 1.5 * s;
   const name = kind === "hungry" ? "pa_bubbleHungry" : kind === "care" ? "pa_bubbleCare" : game === "milk" ? "pa_bubbleReadyMilk" : game === "shear" ? "pa_bubbleReadyWool" : "pa_bubbleReady";
@@ -311,7 +311,7 @@ export function drawBubble(ctx: CanvasRenderingContext2D, kit: SceneryKit | null
   ctx.restore();
 }
 
-/** ART: an egg laid out on the meadow, with a glint for its owner under the herd bell. */
+/** An egg laid out on the meadow (pa_eggOutside; a stand-in while the sheet has none), with a glint for its owner under the herd bell. */
 export function drawEggOut(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, at: Vec, s: number, glint: boolean, now: number, still: boolean, px = 1) {
   if (kit?.has("pa_eggOutside")) kit.drawProp(ctx, "pa_eggOutside", at.x, at.y, s * (PROP_K.pa_eggOutside ?? 0.45), px);
   else {
@@ -331,7 +331,7 @@ export function drawEggOut(ctx: CanvasRenderingContext2D, kit: SceneryKit | null
   }
 }
 
-/** ART: a forage spot of the meadow: a clump with a flower of its colour (plain grass once taken this band). */
+/** A forage spot of the meadow: its plant's own icon, a grazed tuft once taken (pa_forageTaken); a stand-in while neither has come. */
 export function drawForage(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, at: Vec, s: number, colour: string, taken: boolean, now: number, still: boolean, px = 1, icons: HTMLImageElement | null = null, item: string | null = null) {
   // what grows there this band is its own bag icon, a clump of the plant drawn to stand in the grass; once taken, a
   // tuft grazed short
@@ -346,7 +346,7 @@ export function drawForage(ctx: CanvasRenderingContext2D, kit: SceneryKit | null
   ctx.restore();
 }
 
-/** ART: the village gate: two posts and a field gate of three bars, swung open toward the meadow, or shut across. */
+/** The village gate (pa_gateShut, pa_gateOpen; a stand-in while the sheet has none): two posts and a field gate of three bars, swung open toward the meadow, or shut across. */
 export function drawGateArt(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, project: Project, g: { x: number; y: number; w: number }, open: boolean, s: number, px = 1) {
   const name = open ? "pa_gateOpen" : "pa_gateShut";
   const foot = project({ x: g.x + g.w / 2, y: g.y + 0.5 });

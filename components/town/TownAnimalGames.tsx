@@ -16,8 +16,8 @@ import { drawAnimal, shade } from "./pasture-draw";
  * foot's board: milking in the barn's warm stall (two pump handles to the cow's chewing beat, a pressure needle), the
  * coop's eggs (nest boxes in a row, eggs tapped out in the order one likes, a padded basket slid under them), and
  * shearing in the pen (the fleece's swirl traced with the shears). Their rules are lib/town/animal-games; each ends
- * with its Play, which the keeper's `collect` turns into what is given. The scenes are drawn here by hand until the
- * art piece's pictures come (// ART:, lib/town/pasture-art's GAME_ART names).
+ * with its Play, which the keeper's `collect` turns into what is given. Their scenes and pieces are the pasture's sheet's
+ * (lib/town/pasture-art's GAME_ART); what is drawn here by hand is the fallback while the sheet has not come.
  */
 
 export interface GameProps { animal: Animal; ease: Ease; th: boolean; kit: SceneryKit | null; reduced: boolean; onDone: (play: Play, cracked?: number) => void; onQuit: () => void }

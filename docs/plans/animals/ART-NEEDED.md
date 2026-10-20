@@ -6,6 +6,15 @@ The page piece (branch `animals-page`, 2026-10-20) draws the pasture through **o
 (`lib/town/animal-icons.ts`). Nothing below exists yet; the art piece makes them with the owner's workflow
 (AGENTS.md "Cash Town image generation": read `.claude/skills/fc-cash-town/scripts/pixel/ART_WORKFLOW.md` and its README
 first; gen.mjs + `codex-ask.mjs art`, PixelLab for facings and frames as agreed in the README's round 5).
+**State, 2026-10-20 (branch `animals-art`; the pixel README's "The pasture" has how each was made).** In the sheet and the
+atlas: the barn hen (every frame), the ox; the barn and its three fronts, the coop, the nursery, the troughs, the nest,
+the stall, the table, the gate, the wagon, the wagon stop, eggs out, the grazed tuft, the bubbles; Uncle Popoto on the
+map and in his talk; the three games' scenes and pieces; all 119 icons (a forage spot draws its plant's icon). Waiting
+on the owner's new designs: every other animal and the young (animals get a sex; their gen.mjs bases and some PixelLab
+frames are made and kept in the shared work/), the shorn sheep, the cloud ram (`pa_ram_*`), the walk-in barns of the
+new layout (the buildings above may be replaced by it), `pa_harpNotes` and `pa_windGust` (the page draws neither).
+The glint over eggs out is a light, made in code. The games show each breed's own picture, so `mg_milk_cow`,
+`mg_milk_cowShift`, `mg_eggs_hen`, `mg_shear_sheep` and `mg_shear_fleece` are not drawn (pasture-art's GAME_ART).
 
 **How to drop them in.** Build a sheet `public/town/pasture.json` + its picture with the scenery script
 (`--set pasture`), same JSON shape as `public/town/scenery.json` (`image`, `size`, `props: { name: [x, y, w, h, anchorX?, anchorY?] }`).

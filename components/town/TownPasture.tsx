@@ -309,6 +309,9 @@ export default function TownPasture(props: PastureProps) {
         const item = forageAt(FORAGE_BANDS, dayOf(clock), bandOf(clock), i), taken = !!meadow && meadow.k === key && meadow.spots.includes(i);
         things.push({ depth: x + y + 0.9, draw: () => drawForage(ctx, k, c, s, FORAGE_TINT[item ?? ""] ?? "#f0e0a0", taken, tick, still, px, frame.img, item ?? null) });
         if (!taken) out.push({ kind: "forage", spot: i, x0: c.x - 14 * s, y0: c.y - 20 * s, x1: c.x + 14 * s, y1: c.y + 6 * s });
+        // (in the dark a plant still to be picked holds a little of the dew's light, so the night's and the before-dawn
+        // forage can be found: a faint pool, nothing by day; Codex, on the night frames of the in-game review)
+        if (!taken && item) frame.light?.(c.x, c.y - 8 * s, 12, "214,236,206", 0.45, 0.55);
       });
       // ── the animals, everybody's, and the eggs laid out
       const openAt = (tt: number) => gateOpenAt(w.gate, tt).open;

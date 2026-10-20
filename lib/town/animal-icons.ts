@@ -2,7 +2,7 @@ import atlas from "./icon-atlas.json";
 import { ANIMAL_ITEMS, ANIMAL_SCROLL_ITEMS, BREED_SCROLL_ITEMS, FAMILY } from "./animal-items";
 
 /**
- * ART: what the pasture's things are drawn with until their own icons are in the atlas (the art piece makes them:
+ * What the pasture's things are drawn with if their own icon is not in the atlas (all 119 are, since 2026-10-20:
  * docs/plans/animals/ART-NEEDED.md, "Icons"). Each stands in by an icon of a thing like it (every egg the egg, every
  * milk the milk, a sack the sack), so that no slot, card or button of the line is ever an empty square meanwhile.
  * An id the atlas has is its own picture, always.
