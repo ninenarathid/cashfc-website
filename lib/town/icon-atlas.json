@@ -1,8 +1,8 @@
 {
-  "image": "/town/icons-e9e9b44940a5.png",
+  "image": "/town/icons-05dfcf975503.png",
   "size": [
     256,
-    20381
+    20447
   ],
   "icons": {
     "mic": [
@@ -10312,6 +10312,12 @@
       19948,
       40,
       46
+    ],
+    "renameTag": [
+      2,
+      20383,
+      32,
+      62
     ]
   },
   "cursor": {
