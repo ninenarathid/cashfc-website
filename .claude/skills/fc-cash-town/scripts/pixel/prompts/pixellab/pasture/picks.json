@@ -1,0 +1,38 @@
+{
+ "an_barnHen_adult_SE": {
+  "base": "barnHen",
+  "k": 1,
+  "frames": {
+   "idle": "base",
+   "walk1": [
+    "pasture-barnHen-walk",
+    1
+   ],
+   "walk2": "base",
+   "happy": [
+    "pasture-barnHen-happy",
+    1
+   ],
+   "sleep": [
+    "pasture-barnHen-sleepE",
+    0
+   ],
+   "eat": [
+    "pasture-barnHen-eatE",
+    0
+   ]
+  }
+ },
+ "pa_ox": {
+  "base": "ox",
+  "k": 0.95,
+  "frames": {
+   "idle": "base",
+   "walk1": [
+    "pasture-ox-walk",
+    1
+   ],
+   "walk2": "base"
+  }
+ }
+}

@@ -1,6 +1,7 @@
 import type { SceneryKit } from "@/lib/town/scenery";
+import { drawIcon, type IconName } from "./TownIcon";
 import type { Vec } from "@/lib/town/world";
-import { POPOTO_FRAMES, animalSprite, type AnimalFrame, type ArtStage, type Facing } from "@/lib/town/pasture-art";
+import { BUILDING_FIT, POPOTO_FRAMES, PROP_K, animalSprite, pastureScale, shornSprite, type AnimalFrame, type ArtStage, type Facing } from "@/lib/town/pasture-art";
 
 /**
  * The pasture drawn on the map: each thing by its picture in the pasture's sheet when the art piece has made it
@@ -31,11 +32,63 @@ const BIRD = (sp: string) => sp === "chicken" || sp === "duck";
 const facingOf = (right: boolean): Facing => (right ? "SE" : "SW");
 
 export interface AnimalLook { species: string; breed: string; stage: ArtStage; pose: "walk" | "idle" | "eat" | "sleep" | "swim" | "happy"; right: boolean; shorn?: boolean }
+/**
+ * How large each kind's pictures are drawn: map pixels to one of the picture's own. Near the dolls' own (two thirds of
+ * a map pixel, lib/town/pixeldoll's LALAFELL_SIZE), so that an animal's pixels are the size of the members' beside it,
+ * and a grown hen stands a little under half a member's height, a cow nearly as tall as one.
+ */
+export const ANIMAL_K: Readonly<Record<string, number>> = { chicken: 0.6, duck: 0.6, sheep: 0.5, cow: 0.5 };
+/** The map pixels to one of a picture's own: its kind's, times the picture's own share (lib/town/pasture-art's pastureScale). */
+export const animalK = (species: string, name: string) => (ANIMAL_K[species] ?? 0.6) * pastureScale(name);
+/**
+ * The picture an animal is drawn with: the frame asked for, else the walk's first step for its second, else the animal
+ * standing (a frame not drawn falls back to the animal, never to the stand-in). SE is the facing drawn; SW is SE
+ * mirrored (ART-NEEDED: the page turns them by the way they go). Null while the sheet has no picture of the animal.
+ */
+export function animalPicture(kit: SceneryKit | null, a: Pick<AnimalLook, "species" | "breed" | "stage" | "shorn" | "right">, frame: AnimalFrame): { name: string; mirror: boolean } | null {
+  if (!kit) return null;
+  const want: AnimalFrame[] = [frame, ...(frame === "walk2" ? ["walk1" as const] : []), "idle"];
+  const facing = facingOf(a.right);
+  for (const f of want) {
+    const own = a.shorn ? shornSprite(a.breed, facing, f) : animalSprite(a.species, a.breed, a.stage, facing, f);
+    if (kit.has(own)) return { name: own, mirror: false };
+    if (facing === "SW") {
+      const se = a.shorn ? shornSprite(a.breed, "SE", f) : animalSprite(a.species, a.breed, a.stage, "SE", f);
+      if (kit.has(se)) return { name: se, mirror: true };
+    }
+  }
+  // (a shorn sheep with no picture of its own yet is the sheep)
+  return a.shorn ? animalPicture(kit, { ...a, shorn: false }, frame) : null;
+}
+/** How large an animal is on the map at scale 1 (map pixels): its picture's, or its stand-in's. For taps, bubbles and cards. */
+export function animalSize(kit: SceneryKit | null, a: Pick<AnimalLook, "species" | "breed" | "stage">): { w: number; h: number } {
+  const p = animalPicture(kit, { ...a, right: true }, "idle");
+  if (p && kit) { const [w, h] = kit.sizeOf(p.name), k = animalK(a.species, p.name); return { w: w * k, h: h * k }; }
+  const len = lengthOf(a.species, a.stage);
+  return { w: len, h: len * 0.9 };
+}
 /** An animal at its feet's point: its picture, or its stand-in. */
 export function drawAnimal(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, a: AnimalLook, at: Vec, s: number, px: number, now: number, still: boolean) {
   const frame: AnimalFrame = a.pose === "walk" ? (still || Math.floor(now / 260) % 2 ? "walk1" : "walk2") : a.pose;
-  const name = animalSprite(a.species, a.breed, a.stage, facingOf(a.right), frame);
-  if (kit?.has(name)) { kit.drawProp(ctx, name, at.x, at.y, s, px, 0, false); return; }
+  const pic = animalPicture(kit, a, frame);
+  if (pic && kit) {
+    const k = s * animalK(a.species, pic.name), [w, h] = kit.sizeOf(pic.name);
+    if (a.pose === "swim" && !pic.name.endsWith("_swim")) {
+      // swimming with no picture of it: the animal standing, sunk to its middle (its feet under the water), and the
+      // water's ring about it
+      ctx.save();
+      ctx.beginPath(); ctx.rect(at.x - w * k, at.y - h * k * 1.3, w * k * 2, h * k * 1.3); ctx.clip();
+      kit.drawProp(ctx, pic.name, at.x, at.y + h * k * 0.3, k, px, 0, pic.mirror);
+      ctx.restore();
+    } else kit.drawProp(ctx, pic.name, at.x, at.y, k, px, 0, pic.mirror);
+    if (a.pose === "swim") {
+      const r = still ? 0 : Math.sin(now / 500);
+      ctx.save(); ctx.strokeStyle = "rgba(225,245,255,0.7)"; ctx.lineWidth = Math.max(1, s * 0.8);
+      ctx.beginPath(); ctx.ellipse(at.x, at.y - 1 * s, w * k * (0.55 + r * 0.04), 3 * s, 0, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+    }
+    if (a.pose === "sleep" && !still) sleepZ(ctx, at, s, now, h * k / s);
+    return;
+  }
   // ART: a stand-in animal (body, head, legs in its breed's colours) until the pasture's sheet has `an_*` pictures.
   const len = lengthOf(a.species, a.stage), bird = BIRD(a.species);
   void SIZE;
@@ -82,12 +135,13 @@ export function drawAnimal(ctx: CanvasRenderingContext2D, kit: SceneryKit | null
   ctx.fillStyle = "#1a1410";
   if (lying) ctx.fillRect(hx + hr * 0.15, hy - hr * 0.1, hr * 0.5, Math.max(0.6, hr * 0.12)); else { ctx.beginPath(); ctx.arc(hx + hr * 0.35, hy - hr * 0.15, Math.max(0.7, hr * 0.16), 0, Math.PI * 2); ctx.fill(); }
   ctx.restore();
-  if (lying && !still) {
-    // a small "z" drifting up, now and then
-    const f = ((now / 1600) + (at.x % 7) / 7) % 1;
-    ctx.save(); ctx.globalAlpha = 0.7 * (1 - f); ctx.fillStyle = "#f3e3c3"; ctx.font = `700 ${Math.round(8 * s)}px sans-serif`; ctx.textAlign = "center";
-    ctx.fillText("z", at.x + 6 * s, at.y - (h + legH + 6 + f * 10) * s); ctx.restore();
-  }
+  if (lying && !still) sleepZ(ctx, at, s, now, h + legH);
+}
+/** A small "z" drifting up over a sleeper now and then (`tall`: how tall it lies, in map pixels). */
+function sleepZ(ctx: CanvasRenderingContext2D, at: Vec, s: number, now: number, tall: number) {
+  const f = ((now / 1600) + (at.x % 7) / 7) % 1;
+  ctx.save(); ctx.globalAlpha = 0.7 * (1 - f); ctx.fillStyle = "#f3e3c3"; ctx.font = `700 ${Math.round(8 * s)}px sans-serif`; ctx.textAlign = "center";
+  ctx.fillText("z", at.x + 6 * s, at.y - (tall + 6 + f * 10) * s); ctx.restore();
 }
 
 /** A colour made lighter (k > 0) or darker (k < 0). */
@@ -97,7 +151,7 @@ export function shade(hex: string, k: number): string {
 }
 
 /**
- * ART: a building's stand-in: a box on its tiles with a gabled roof, its door on the side that faces the lanes
+ * Fallback (the building's picture is in the pasture's sheet, drawBuilding): a box on its tiles with a gabled roof, its door on the side that faces the lanes
  * (+y, the screen's lower left). `wall` and `roof` in the map's own pixels at scale 1.
  */
 export function drawHouse(ctx: CanvasRenderingContext2D, project: Project, r: { x: number; y: number; w: number; h: number }, look: { wall: string; roof: string; trim: string; wallH: number; roofH: number; door: number; label?: string; windows?: number }, s: number) {
@@ -131,7 +185,7 @@ export function drawHouse(ctx: CanvasRenderingContext2D, project: Project, r: { 
   ctx.restore();
 }
 
-/** ART: a long low box on the ground (a trough, the making table, the nest's bed, the stall's counter). */
+/** Fallback while the sheet has no picture of it: a long low box on the ground (a trough, the making table, the nest's bed, the stall's counter). */
 export function drawBlock(ctx: CanvasRenderingContext2D, project: Project, r: { x: number; y: number; w: number; h: number }, side: string, top: string, height: number, s: number) {
   const A = project({ x: r.x, y: r.y }), B = project({ x: r.x + r.w, y: r.y }), C = project({ x: r.x + r.w, y: r.y + r.h }), D = project({ x: r.x, y: r.y + r.h });
   const up = (p: Vec) => ({ x: p.x, y: p.y - height * s });
@@ -141,16 +195,40 @@ export function drawBlock(ctx: CanvasRenderingContext2D, project: Project, r: { 
   poly([up(A), up(B), up(C), up(D)], top);
 }
 
-/** ART: Uncle Popoto: the uncle's own frames stand in for his (a popoto in a farmer's straw hat is to be drawn). */
+/** The middle between the gate's two posts' feet in each of its pictures (its own pixels), measured on them. */
+const GATE_MID: Readonly<Record<string, readonly [number, number]>> = { pa_gateShut: [49, 78], pa_gateOpen: [53, 71] };
+/** How large a meadow forage spot's plant stands, in map pixels at scale 1 (ART-NEEDED: about 16 to 20). */
+const FORAGE_SIZE = 20;
+/** Where the ox walks ahead of the wagon's point, in map pixels at scale 1 (its yoke at the shafts' ends; measured in the game). */
+export const OX_AHEAD: readonly [number, number] = [34, 8];
+/** A thing of the pasture's sheet at its own scale (PROP_K); false while the sheet has no picture of it. */
+export function drawPastureProp(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, name: string, x: number, y: number, s: number, px = 1, mirror = false): boolean {
+  if (!kit?.has(name)) return false;
+  kit.drawProp(ctx, name, x, y, s * (PROP_K[name] ?? 0.67) * pastureScale(name), px, 0, mirror);
+  return true;
+}
+/**
+ * A building of the pasture on its footprint: its picture's front corner on the footprint's front corner, at the scale
+ * that makes its walls' foot as wide as the footprint (lib/town/pasture-art's BUILDING_FIT); false while there is none.
+ */
+export function drawBuilding(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, project: Project, r: { x: number; y: number; w: number; h: number }, name: string, s: number, px = 1): boolean {
+  const fit = BUILDING_FIT[name];
+  if (!fit || !kit?.has(name)) return false;
+  const C = project({ x: r.x + r.w, y: r.y + r.h }), k = s * ((r.w + r.h) * 32) / fit.base;
+  kit.drawProp(ctx, name, C.x - fit.corner[0] * k, C.y - fit.corner[1] * k, k, px);
+  return true;
+}
+
+/** Uncle Popoto: his own frames (pp_*, popoto-rancher); while the sheet has none, the uncle's frames with a straw hat stand in. */
 export function drawPopoto(ctx: CanvasRenderingContext2D, scenery: SceneryKit | null, kit: SceneryKit | null, at: Vec, s: number, px: number, beat: number) {
   const frame = POPOTO_FRAMES[beat === 3 ? 1 : beat === 7 || beat === 8 ? 2 : beat === 12 ? 3 : 0];
-  if (kit?.has(frame)) { kit.drawProp(ctx, frame, at.x, at.y, s, px); return { tall: kit.sizeOf(frame)[1] * s, w: kit.sizeOf(frame)[0] * s }; }
+  if (kit?.has(frame)) { const k = s * (PROP_K[frame] ?? 0.8); kit.drawProp(ctx, frame, at.x, at.y, k, px); return { tall: kit.sizeOf(frame)[1] * k, w: kit.sizeOf(frame)[0] * k }; }
   const stand = ["un_stand", "un_wave", "un_show", "un_laugh"][POPOTO_FRAMES.indexOf(frame)];
   if (scenery?.has(stand)) {
     const k = s * 0.78;
     scenery.drawProp(ctx, stand, at.x, at.y, k, px);
     const [w, h] = scenery.sizeOf(stand), [, ay] = scenery.anchorOf(stand);
-    // ART: his straw hat over the uncle's frames
+    // (the stand-in: a straw hat over the uncle's frames)
     ctx.save(); ctx.fillStyle = "#e8c870"; ctx.strokeStyle = "#8a6a2a"; ctx.lineWidth = Math.max(1, s);
     const top = at.y - ay * k;
     ctx.beginPath(); ctx.ellipse(at.x, top + 5 * s, 15 * s, 4 * s, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
@@ -167,7 +245,7 @@ export function drawRam(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, a
   const name = moving ? (Math.floor(now / 200) % 2 ? "pa_ram_walk1" : "pa_ram_walk2") : "pa_ram_idle";
   ctx.fillStyle = "rgba(0,0,0,0.3)";
   ctx.beginPath(); ctx.ellipse(at.x, at.y, 22 * s, 8 * s, 0, 0, Math.PI * 2); ctx.fill();
-  if (kit?.has(name)) { kit.drawProp(ctx, name, at.x, at.y - hop, s, px, 0, !right); return; }
+  if (kit?.has(name)) { kit.drawProp(ctx, name, at.x, at.y - hop, s * (PROP_K[name] ?? 0.5) * pastureScale(name), px, 0, !right); return; }
   ctx.save();
   ctx.translate(Math.round(at.x), Math.round(at.y - hop));
   ctx.scale(s * (right ? 1 : -1), s);
@@ -183,12 +261,12 @@ export function drawRam(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, a
   ctx.restore();
 }
 
-/** ART: the hay wagon and its ox, at the wagon's point (the bed's middle), the ox ahead the way it goes. */
+/** The hay wagon and its ox (pa_wagon, pa_ox_*; a stand-in while the sheet has none), at the wagon's point (the bed's middle), the ox ahead the way it goes. */
 export function drawWagon(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, at: Vec, s: number, right: boolean, now: number, moving: boolean, px = 1) {
   if (kit?.has("pa_wagon")) {
-    kit.drawProp(ctx, "pa_wagon", at.x, at.y, s, px, 0, !right);
+    kit.drawProp(ctx, "pa_wagon", at.x, at.y, s * (PROP_K.pa_wagon ?? 0.5), px, 0, !right);
     const ox = moving ? (Math.floor(now / 300) % 2 ? "pa_ox_walk1" : "pa_ox_walk2") : "pa_ox_idle";
-    if (kit.has(ox)) kit.drawProp(ctx, ox, at.x + (right ? 34 : -34) * s, at.y + 8 * s, s, px, 0, !right);
+    if (kit.has(ox)) kit.drawProp(ctx, ox, at.x + (right ? OX_AHEAD[0] : -OX_AHEAD[0]) * s, at.y + OX_AHEAD[1] * s, s * (PROP_K[ox] ?? 0.5) * pastureScale(ox), px, 0, !right);
     return;
   }
   ctx.save();
@@ -212,10 +290,11 @@ export function drawWagon(ctx: CanvasRenderingContext2D, kit: SceneryKit | null,
   ctx.restore();
 }
 
-/** ART: a little bubble over an animal: hungry (an empty bowl), ready (what it gives), a friend's hungry (a heart). */
+/** A little bubble over an animal (pa_bubble*; a stand-in while the sheet has none): hungry (an empty bowl), ready (what it gives), a friend's hungry (a heart). */
 export function drawBubble(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, kind: "hungry" | "ready" | "care", game: "eggs" | "milk" | "shear", x: number, y: number, s: number, now: number, still: boolean, px = 1) {
-  const bob = still ? 0 : Math.sin(now / 300) * 1.5 * s, name = kind === "hungry" ? "pa_bubbleHungry" : kind === "ready" ? "pa_bubbleReady" : "pa_bubbleCare";
-  if (kit?.has(name)) { kit.drawProp(ctx, name, x, y + bob, s, px); return; }
+  const bob = still ? 0 : Math.sin(now / 300) * 1.5 * s;
+  const name = kind === "hungry" ? "pa_bubbleHungry" : kind === "care" ? "pa_bubbleCare" : game === "milk" ? "pa_bubbleReadyMilk" : game === "shear" ? "pa_bubbleReadyWool" : "pa_bubbleReady";
+  if (kit?.has(name)) { kit.drawProp(ctx, name, x, y + bob, s * (PROP_K[name] ?? 1), px); return; }
   const r = 8.5 * Math.max(0.85, s);
   ctx.save();
   ctx.translate(x, y + bob);
@@ -232,9 +311,9 @@ export function drawBubble(ctx: CanvasRenderingContext2D, kit: SceneryKit | null
   ctx.restore();
 }
 
-/** ART: an egg laid out on the meadow, with a glint for its owner under the herd bell. */
+/** An egg laid out on the meadow (pa_eggOutside; a stand-in while the sheet has none), with a glint for its owner under the herd bell. */
 export function drawEggOut(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, at: Vec, s: number, glint: boolean, now: number, still: boolean, px = 1) {
-  if (kit?.has("pa_eggOutside")) kit.drawProp(ctx, "pa_eggOutside", at.x, at.y, s, px);
+  if (kit?.has("pa_eggOutside")) kit.drawProp(ctx, "pa_eggOutside", at.x, at.y, s * (PROP_K.pa_eggOutside ?? 0.45), px);
   else {
     ctx.save();
     ctx.fillStyle = "rgba(0,0,0,0.2)"; ctx.beginPath(); ctx.ellipse(at.x, at.y, 6 * s, 2 * s, 0, 0, Math.PI * 2); ctx.fill();
@@ -252,10 +331,13 @@ export function drawEggOut(ctx: CanvasRenderingContext2D, kit: SceneryKit | null
   }
 }
 
-/** ART: a forage spot of the meadow: a clump with a flower of its colour (plain grass once taken this band). */
-export function drawForage(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, at: Vec, s: number, colour: string, taken: boolean, now: number, still: boolean, px = 1) {
+/** A forage spot of the meadow: its plant's own icon, a grazed tuft once taken (pa_forageTaken); a stand-in while neither has come. */
+export function drawForage(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, at: Vec, s: number, colour: string, taken: boolean, now: number, still: boolean, px = 1, icons: HTMLImageElement | null = null, item: string | null = null) {
+  // what grows there this band is its own bag icon, a clump of the plant drawn to stand in the grass; once taken, a
+  // tuft grazed short
+  if (!taken && item && drawIcon(ctx, icons, item as IconName, at.x, at.y - FORAGE_SIZE * s * 0.45, FORAGE_SIZE * s)) return;
   const name = taken ? "pa_forageTaken" : "pa_forage";
-  if (kit?.has(name)) { kit.drawProp(ctx, name, at.x, at.y, s, px); return; }
+  if (kit?.has(name)) { kit.drawProp(ctx, name, at.x, at.y, s * (PROP_K[name] ?? 0.45), px); return; }
   ctx.save();
   const sway = still ? 0 : Math.sin(now / 700 + at.x) * 1.2 * s;
   ctx.strokeStyle = taken ? "#5a7a3a" : "#4a8a30"; ctx.lineWidth = Math.max(1, 1.2 * s);
@@ -264,11 +346,17 @@ export function drawForage(ctx: CanvasRenderingContext2D, kit: SceneryKit | null
   ctx.restore();
 }
 
-/** ART: the village gate: two posts and a field gate of three bars, swung open toward the meadow, or shut across. */
+/** The village gate (pa_gateShut, pa_gateOpen; a stand-in while the sheet has none): two posts and a field gate of three bars, swung open toward the meadow, or shut across. */
 export function drawGateArt(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, project: Project, g: { x: number; y: number; w: number }, open: boolean, s: number, px = 1) {
   const name = open ? "pa_gateOpen" : "pa_gateShut";
   const foot = project({ x: g.x + g.w / 2, y: g.y + 0.5 });
-  if (kit?.has(name)) { kit.drawProp(ctx, name, foot.x, foot.y, s, px); return; }
+  // (drawn running from the lower left up to the upper right, as the town's fence; the gate runs down to the right:
+  // mirrored. Both pictures stand by the middle between their two posts' feet, so the posts stay where they are as it opens)
+  if (kit?.has(name)) {
+    const k = s * (PROP_K[name] ?? 1), [ax, ay] = kit.anchorOf(name), [mx, my] = GATE_MID[name] ?? [ax, ay];
+    kit.drawProp(ctx, name, foot.x + (mx - ax) * k, foot.y - (my - ay) * k, k, px, 0, true);
+    return;
+  }
   const L = project({ x: g.x - 0.1, y: g.y + 0.5 }), R = project({ x: g.x + g.w + 0.1, y: g.y + 0.5 });
   ctx.save();
   ctx.fillStyle = "#6a4a2a";

@@ -16,8 +16,8 @@ import { drawAnimal, shade } from "./pasture-draw";
  * foot's board: milking in the barn's warm stall (two pump handles to the cow's chewing beat, a pressure needle), the
  * coop's eggs (nest boxes in a row, eggs tapped out in the order one likes, a padded basket slid under them), and
  * shearing in the pen (the fleece's swirl traced with the shears). Their rules are lib/town/animal-games; each ends
- * with its Play, which the keeper's `collect` turns into what is given. The scenes are drawn here by hand until the
- * art piece's pictures come (// ART:, lib/town/pasture-art's GAME_ART names).
+ * with its Play, which the keeper's `collect` turns into what is given. Their scenes and pieces are the pasture's sheet's
+ * (lib/town/pasture-art's GAME_ART); what is drawn here by hand is the fallback while the sheet has not come.
  */
 
 export interface GameProps { animal: Animal; ease: Ease; th: boolean; kit: SceneryKit | null; reduced: boolean; onDone: (play: Play, cracked?: number) => void; onQuit: () => void }
@@ -43,6 +43,29 @@ function useBoard(paint: (ctx: CanvasRenderingContext2D, now: number) => void, r
     return () => cancelAnimationFrame(raf);
   }, [running]);
   return ref;
+}
+/** A board's scene: the middle of its picture laid over the whole board, as tall as the board (its sides beyond the board's 4:3 fall away); false while the pasture's sheet has none. */
+function scene(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, name: string): boolean {
+  if (!kit?.has(name)) return false;
+  kit.drawProp(ctx, name, W / 2, H, H / kit.sizeOf(name)[1], 1);
+  return true;
+}
+/** Board units to one pixel of a game's piece (drawn on the icon template's grid, a little coarser than its scene). */
+const P = 2.2;
+/** A piece of a board standing on (x, y), at k board units to one of its pixels; false while the sheet has none. */
+function piece(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, name: string, x: number, y: number, k = P, mirror = false): boolean {
+  if (!kit?.has(name)) return false;
+  kit.drawProp(ctx, name, x, y, k, 1, 0, mirror);
+  return true;
+}
+/** A piece turned by a about its own middle, which stands at (x, y): the gauge's needle on its hub. */
+function turned(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, name: string, x: number, y: number, a: number, k = P): boolean {
+  if (!kit?.has(name)) return false;
+  const [w, h] = kit.sizeOf(name), [ax, ay] = kit.anchorOf(name);
+  ctx.save(); ctx.translate(x, y); ctx.rotate(a);
+  kit.drawProp(ctx, name, (ax - w / 2) * k, (ay - h / 2) * k, k, 1);
+  ctx.restore();
+  return true;
 }
 /** Where a pointer is on a board, in its own units. */
 const boardPoint = (cv: HTMLCanvasElement, e: { clientX: number; clientY: number }) => { const r = cv.getBoundingClientRect(); return { x: ((e.clientX - r.left) / r.width) * W, y: ((e.clientY - r.top) / r.height) * H }; };
@@ -82,19 +105,28 @@ export function MilkGame({ animal, ease, th, kit, reduced, onDone, onQuit }: Gam
   const ref = useBoard((ctx, now) => {
     const st = s.current;
     if (st && state === "on" && milkTick(st, now, ease)) { setState("done"); onDone(milkPlay(st, now)); }
-    // ART: the barn's stall (GAME_ART.milk): warm boards, straw, the cow from the side, the pail under her.
-    ctx.fillStyle = "#3a2414"; ctx.fillRect(0, 0, W, H);
-    for (let i = 0; i < 8; i++) { ctx.fillStyle = i % 2 ? "#47301c" : "#3f2a18"; ctx.fillRect(i * 40, 0, 40, 150); }
-    ctx.fillStyle = "#c9a35a"; ctx.fillRect(0, 150, W, 90);
-    ctx.fillStyle = "#b08a44"; for (let i = 0; i < 40; i++) ctx.fillRect((i * 37) % W, 156 + ((i * 13) % 70), 10, 2);
+    // the barn's stall (its scene: plank walls, a lantern, a hay rack, straw); the stand-in's boards while there is none
+    const lit = scene(ctx, kit, GAME_ART.milk.scene);
+    if (!lit) {
+      ctx.fillStyle = "#3a2414"; ctx.fillRect(0, 0, W, H);
+      for (let i = 0; i < 8; i++) { ctx.fillStyle = i % 2 ? "#47301c" : "#3f2a18"; ctx.fillRect(i * 40, 0, 40, 150); }
+      ctx.fillStyle = "#c9a35a"; ctx.fillRect(0, 150, W, 90);
+      ctx.fillStyle = "#b08a44"; for (let i = 0; i < 40; i++) ctx.fillRect((i * 37) % W, 156 + ((i * 13) % 70), 10, 2);
+    }
     const shifted = !!st && now < st.shiftedUntil;
     const chewing = !!st && Math.abs(((now - chewAt(st, 0)) % MILK.beat + MILK.beat) % MILK.beat) < 160;
-    void kit; void GAME_ART;
-    drawAnimal(ctx, kit, { species: "cow", breed: animal.breed, stage: "adult", pose: chewing ? "eat" : "idle", right: false }, { x: 172 + (shifted ? (reduced ? 6 : Math.sin(now / 40) * 6) : 0), y: 168 }, 2.3, 1, now, reduced);
-    // the pail and its milk
-    const level = st ? st.hits / MILK.beats : 0;
-    ctx.fillStyle = "#b9c2cc"; ctx.fillRect(132, 176, 50, 46); ctx.fillStyle = "#e8eef4"; ctx.fillRect(136, 180 + 38 * (1 - level), 42, 38 * level + 2);
-    ctx.strokeStyle = "#6a7480"; ctx.lineWidth = 2; ctx.strokeRect(132, 176, 50, 46);
+    drawAnimal(ctx, kit, { species: "cow", breed: animal.breed, stage: "adult", pose: chewing ? "eat" : "idle", right: false }, { x: 172 + (shifted ? (reduced ? 6 : Math.sin(now / 40) * 6) : 0), y: lit ? 196 : 168 }, 2.3, 1, now, reduced);
+    // the milking machine, its two pump levers (the one pumped last is down a moment) and the pail with its milk
+    const level = st ? st.hits / MILK.beats : 0, l0 = last.current, pumped = (side: "L" | "R") => !!l0 && l0.side === side && now - l0.at < 200;
+    if (piece(ctx, kit, GAME_ART.milk.machine, 112, 222)) {
+      piece(ctx, kit, pumped("L") ? GAME_ART.milk.handleDown : GAME_ART.milk.handleUp, 86, 224, P, true);
+      piece(ctx, kit, pumped("R") ? GAME_ART.milk.handleDown : GAME_ART.milk.handleUp, 138, 224);
+      piece(ctx, kit, GAME_ART.milk.pail[level >= 0.95 ? 2 : level >= 0.35 ? 1 : 0], 178, 226);
+      if (l0 && l0.said === "hit" && now - l0.at < 320) piece(ctx, kit, GAME_ART.milk.splash, 178, 186 - ((now - l0.at) / 320) * 8, 1.6);
+    } else {
+      ctx.fillStyle = "#b9c2cc"; ctx.fillRect(132, 176, 50, 46); ctx.fillStyle = "#e8eef4"; ctx.fillRect(136, 180 + 38 * (1 - level), 42, 38 * level + 2);
+      ctx.strokeStyle = "#6a7480"; ctx.lineWidth = 2; ctx.strokeRect(132, 176, 50, 46);
+    }
     // the beat line: the chews to come, sliding to the mark
     if (st) {
       ctx.fillStyle = "rgba(0,0,0,0.45)"; ctx.fillRect(10, 10, 300, 26);
@@ -108,13 +140,16 @@ export function MilkGame({ animal, ease, th, kit, reduced, onDone, onQuit }: Gam
         ctx.fillStyle = handleOf(n) === "L" ? "#7ad0f0" : "#ff9fb0"; ctx.beginPath(); ctx.arc(x, 23, 7, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = "#151a22"; ctx.font = "700 9px sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(handleOf(n) === "L" ? (th ? "ซ" : "L") : (th ? "ข" : "R"), x, 23.5);
       }
-      // the pressure gauge
+      // the pressure gauge: its dial, and its needle turned from the green (left) to the red (right) as the pressure rises
       const cx = 280, cy = 92;
-      ctx.fillStyle = "#2a1a0e"; ctx.beginPath(); ctx.arc(cx, cy, 26, Math.PI, 0); ctx.fill();
-      ctx.strokeStyle = "#e05a3a"; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(cx, cy, 21, Math.PI * 1.7, Math.PI * 2); ctx.stroke();
-      const a = Math.PI + Math.min(1, st.pressure) * Math.PI;
-      ctx.strokeStyle = "#f3e3c3"; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(a) * 20, cy + Math.sin(a) * 20); ctx.stroke();
-      ctx.fillStyle = "#f3e3c3"; ctx.font = "600 8px sans-serif"; ctx.fillText(th ? "แรงดัน" : "pressure", cx, cy + 9);
+      if (piece(ctx, kit, GAME_ART.milk.gauge, cx, cy + 20)) turned(ctx, kit, GAME_ART.milk.needle, cx, cy + 1, (Math.min(1, st.pressure) - 0.5) * Math.PI * 0.9, 1.9);
+      else {
+        ctx.fillStyle = "#2a1a0e"; ctx.beginPath(); ctx.arc(cx, cy, 26, Math.PI, 0); ctx.fill();
+        ctx.strokeStyle = "#e05a3a"; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(cx, cy, 21, Math.PI * 1.7, Math.PI * 2); ctx.stroke();
+        const a = Math.PI + Math.min(1, st.pressure) * Math.PI;
+        ctx.strokeStyle = "#f3e3c3"; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(a) * 20, cy + Math.sin(a) * 20); ctx.stroke();
+      }
+      ctx.fillStyle = "#f3e3c3"; ctx.font = "600 8px sans-serif"; ctx.textAlign = "center"; ctx.fillText(th ? "แรงดัน" : "pressure", cx, cy + 30);
     }
     const l = last.current;
     if (l && now - l.at < 600) { ctx.fillStyle = l.said === "hit" ? "#a8f0c0" : "#ffb4a0"; ctx.font = "800 16px sans-serif"; ctx.textAlign = "center"; ctx.fillText(l.said === "hit" ? (th ? "ฉ่า!" : "Squirt!") : l.said === "wrong" ? (th ? "ผิดข้าง" : "Wrong side") : l.said === "shift" ? (th ? "วัวขยับหนี!" : "She shifts!") : l.said === "still" ? (th ? "รอวัวนิ่งก่อน" : "Wait…") : (th ? "เร็วไป" : "Too fast"), 160, 62); }
@@ -163,28 +198,42 @@ export function EggsGame({ animal, ease, th, kit, reduced, onDone, onQuit }: Gam
       g.eggs.forEach((e, i) => { if (e.out === null && now >= g.due[i]) e.out = now; if (e.out !== null && !e.landed && now >= e.out + fallMs(ease)) { e.landed = true; e.caught = caughtBy(e.box, basket.current, ease); } });
       if (g.eggs.every((e) => e.landed)) { setState("done"); const p = eggsPlay(g.eggs, g.started, now); onDone({ hits: p.hits, misses: p.misses, secs: Math.max(p.secs, 3.2) }, p.cracked); }
     }
-    // ART: the coop inside (GAME_ART.eggs): a beam of nest boxes with straw, hens peeping over, the floor of straw.
-    ctx.fillStyle = "#4a3422"; ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = "#5a4028"; ctx.fillRect(0, 0, W, 64);
-    ctx.fillStyle = "#e6c46a"; ctx.fillRect(0, 214, W, 26);
+    // the coop inside (its scene: a beam along the top, plank walls, a straw floor); the stand-in's boards while there is none
+    const lit = scene(ctx, kit, GAME_ART.eggs.scene);
+    if (!lit) {
+      ctx.fillStyle = "#4a3422"; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = "#5a4028"; ctx.fillRect(0, 0, W, 64);
+      ctx.fillStyle = "#e6c46a"; ctx.fillRect(0, 214, W, 26);
+    } else for (const [x, y] of [[34, 236], [292, 238]] as const) piece(ctx, kit, GAME_ART.eggs.straw, x, y, 1.8);
+    // the five nest boxes on the beam, a hen peeping over each box that still holds her egg
     for (let i = 0; i < EGGS.boxes; i++) {
-      const x = boxAt(i) * W;
-      ctx.fillStyle = "#7a5432"; ctx.fillRect(x - 26, 20, 52, 38); ctx.fillStyle = "#2a1a0e"; ctx.fillRect(x - 20, 26, 40, 26);
-      ctx.fillStyle = "#d8b450"; ctx.fillRect(x - 20, 46, 40, 6);
-      if (g && g.eggs.some((e) => e.box === i && e.out === null)) drawAnimal(ctx, kit, { species: animal.species, breed: animal.breed, stage: "adult", pose: "idle", right: i % 2 === 0 }, { x, y: 44 }, 1.5, 1, now, reduced);
+      const x = boxAt(i) * W, sitting = !!g && g.eggs.some((e) => e.box === i && e.out === null);
+      if (sitting) drawAnimal(ctx, kit, { species: animal.species, breed: animal.breed, stage: "adult", pose: "idle", right: i % 2 === 0 }, { x, y: 44 }, 1.5, 1, now, reduced);
+      if (!piece(ctx, kit, GAME_ART.eggs.box, x, 72, 1.8)) {
+        ctx.fillStyle = "#7a5432"; ctx.fillRect(x - 26, 20, 52, 38); ctx.fillStyle = "#2a1a0e"; ctx.fillRect(x - 20, 26, 40, 26);
+        ctx.fillStyle = "#d8b450"; ctx.fillRect(x - 20, 46, 40, 6);
+      }
     }
     // eggs: wobbling in their boxes, then rolling off the lip and falling
+    const anEgg = (x: number, y: number, cracked: boolean) => { if (!piece(ctx, kit, cracked ? GAME_ART.eggs.crack : GAME_ART.eggs.egg, x, y + (cracked ? 4 : 8), cracked ? 1.6 : 1.2)) egg(ctx, x, y, cracked); };
     if (g) for (const e of g.eggs) {
       const x = boxAt(e.box) * W;
-      if (e.out === null) { const wob = reduced ? 0 : Math.sin(now / 90 + e.box) * 2; egg(ctx, x + wob, 54, false); continue; }
+      if (e.out === null) { const wob = reduced ? 0 : Math.sin(now / 90 + e.box) * 2; anEgg(x + wob, 54, false); continue; }
       const f = Math.min(1, (now - e.out) / fallMs(ease));
-      if (!e.landed) egg(ctx, x, 60 + f * f * 150, false);
-      else egg(ctx, e.caught ? basket.current * W : x, e.caught ? 200 : 220, !e.caught);
+      if (!e.landed) anEgg(x, 60 + f * f * 150, false);
+      else if (!e.caught) anEgg(x, 220, true);
     }
-    // the padded basket
+    // the padded basket, as wide as it catches (the eggs caught in it, nestled in its cloth)
     const bw = basketWidth(ease) * W, bx = basket.current * W;
-    ctx.fillStyle = "#a0602a"; ctx.fillRect(bx - bw / 2, 196, bw, 18); ctx.fillStyle = "#d84a4a"; ctx.fillRect(bx - bw / 2 + 3, 196, bw - 6, 6);
-    ctx.fillStyle = "#f4f0e0"; for (let k = 0; k < bw / 8; k++) ctx.fillRect(bx - bw / 2 + 4 + k * 8, 197, 4, 4);
+    const inBasket = g ? g.eggs.filter((e) => e.landed && e.caught).length : 0;
+    if (kit?.has(GAME_ART.eggs.basket)) {
+      for (let k = 0; k < Math.min(5, inBasket); k++) anEgg(bx + (k - (Math.min(5, inBasket) - 1) / 2) * 9, 200, false);
+      piece(ctx, kit, GAME_ART.eggs.basket, bx, 216, bw / kit.sizeOf(GAME_ART.eggs.basket)[0]);
+    } else {
+      if (g) for (const e of g.eggs) if (e.landed && e.caught) egg(ctx, bx, 200, false);
+      ctx.fillStyle = "#a0602a"; ctx.fillRect(bx - bw / 2, 196, bw, 18); ctx.fillStyle = "#d84a4a"; ctx.fillRect(bx - bw / 2 + 3, 196, bw - 6, 6);
+      ctx.fillStyle = "#f4f0e0"; for (let k = 0; k < bw / 8; k++) ctx.fillRect(bx - bw / 2 + 4 + k * 8, 197, 4, 4);
+    }
     if (state === "ready") { ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.fillRect(0, 0, W, H); }
   }, state !== "done");
   const move = (e: React.PointerEvent<HTMLCanvasElement>) => { const p = boardPoint(e.currentTarget, e); aim.current = Math.max(0.05, Math.min(0.95, p.x / W)); };
@@ -219,7 +268,7 @@ function egg(ctx: CanvasRenderingContext2D, x: number, y: number, cracked: boole
 export function ShearGame({ animal, ease, th, kit, reduced, onDone, onQuit }: GameProps) {
   const [state, setState] = useState<"ready" | "on" | "done">("ready");
   const s = useRef<ShearState>(shearStart()), shears = useRef<{ x: number; y: number }>({ ...SWIRL[0] }), aim = useRef<{ x: number; y: number } | null>(null), trail = useRef<Array<{ x: number; y: number; off: boolean }>>([]);
-  const lastT = useRef(0);
+  const lastT = useRef(0), tufts = useRef<{ n: number; list: Array<{ x: number; y: number; t: number; d: number }> }>({ n: 0, list: [] });
   const ref = useBoard((ctx, now) => {
     const dt = lastT.current ? Math.min(0.05, (now - lastT.current) / 1000) : 0;
     lastT.current = now;
@@ -232,9 +281,11 @@ export function ShearGame({ animal, ease, th, kit, reduced, onDone, onQuit }: Ga
       if (trail.current.length > 600) trail.current.shift();
       if (done) { setState("done"); onDone(shearPlay(s.current, now)); }
     }
-    // ART: the shearing pen (GAME_ART.shear): boards, the sheep standing calm, the swirl in its fleece, the shears.
-    ctx.fillStyle = "#6a8a4a"; ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = "#8a6a3a"; for (let i = 0; i < 4; i++) ctx.fillRect(0, 30 + i * 60, W, 6);
+    // the shearing pen (its scene: a rail fence, the grass); the stand-in's boards while there is none
+    if (!scene(ctx, kit, GAME_ART.shear.scene)) {
+      ctx.fillStyle = "#6a8a4a"; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = "#8a6a3a"; for (let i = 0; i < 4; i++) ctx.fillRect(0, 30 + i * 60, W, 6);
+    }
     drawAnimal(ctx, kit, { species: "sheep", breed: animal.breed, stage: "adult", pose: "idle", right: true, shorn: false }, { x: 152, y: 230 }, 4.6, 1, now, reduced);
     // what has been shorn: the fleece taken off along the shears' way
     ctx.save(); ctx.lineCap = "round"; ctx.lineJoin = "round";
@@ -242,13 +293,22 @@ export function ShearGame({ animal, ease, th, kit, reduced, onDone, onQuit }: Ga
     // the swirl to follow: dotted marks, the ones done faded
     for (let i = 0; i < SWIRL.length; i++) { ctx.fillStyle = i < s.current.at ? "rgba(255,255,255,0.15)" : i === s.current.at ? "#f0c060" : "rgba(90,60,30,0.75)"; ctx.beginPath(); ctx.arc(SWIRL[i].x, SWIRL[i].y, i === s.current.at ? 4.5 : 2.6, 0, Math.PI * 2); ctx.fill(); }
     ctx.strokeStyle = "rgba(240,192,96,0.35)"; ctx.lineWidth = shearNear(ease) * 2; ctx.globalAlpha = 0.18; ctx.beginPath(); SWIRL.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y))); ctx.stroke(); ctx.globalAlpha = 1;
-    // nicks: a red mark where the shears left the line
-    ctx.fillStyle = "#e05a3a"; for (let i = 1; i < trail.current.length; i++) if (trail.current[i].off && !trail.current[i - 1].off) { ctx.fillRect(trail.current[i].x - 2, trail.current[i].y - 2, 4, 4); }
+    // nicks: where the shears left the line, a ragged tuft torn from the fleece (a red mark while the sheet has none)
+    ctx.fillStyle = "#e05a3a"; for (let i = 1; i < trail.current.length; i++) if (trail.current[i].off && !trail.current[i - 1].off) { if (!piece(ctx, kit, GAME_ART.shear.nick, trail.current[i].x, trail.current[i].y + 6, 1.1)) ctx.fillRect(trail.current[i].x - 2, trail.current[i].y - 2, 4, 4); }
     ctx.restore();
+    // the fleece shorn off: a tuft at each mark reached, falling and fading where the shears took it
+    if (s.current.at > tufts.current.n) { const q = SWIRL[Math.min(SWIRL.length - 1, s.current.at - 1)]; tufts.current.n = s.current.at; tufts.current.list.push({ x: q.x, y: q.y, t: now, d: (s.current.at % 2 ? 1 : -1) }); if (tufts.current.list.length > 12) tufts.current.list.shift(); }
+    if (kit?.has(GAME_ART.shear.tuft)) for (const f of tufts.current.list) {
+      const age = (now - f.t) / 900;
+      if (age >= 1 || reduced) continue;
+      ctx.save(); ctx.globalAlpha = 1 - age * age;
+      piece(ctx, kit, GAME_ART.shear.tuft, f.x + f.d * age * 14, f.y + age * age * 46, 1);
+      ctx.restore();
+    }
     // the shears
     const p = shears.current;
     ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(-0.6);
-    ctx.fillStyle = "#cfd6de"; ctx.fillRect(-2, -14, 3, 14); ctx.fillRect(1, -14, 3, 14); ctx.fillStyle = "#8a5a2a"; ctx.fillRect(-4, 0, 10, 8);
+    if (!piece(ctx, kit, GAME_ART.shear.shears, 0, 8, 1.6)) { ctx.fillStyle = "#cfd6de"; ctx.fillRect(-2, -14, 3, 14); ctx.fillRect(1, -14, 3, 14); ctx.fillStyle = "#8a5a2a"; ctx.fillRect(-4, 0, 10, 8); }
     ctx.restore();
     if (state === "ready") { ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.fillRect(0, 0, W, H); }
   }, state !== "done");

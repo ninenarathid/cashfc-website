@@ -15,7 +15,7 @@ import { held, type Purse } from "@/lib/town/trade";
 import type { SceneryKit } from "@/lib/town/scenery";
 import { Coins, ItemIcon, Pic } from "./TownTrade";
 import { QualityRange } from "./TownQuality";
-import { drawAnimal, lengthOf } from "./pasture-draw";
+import { animalK, animalPicture, animalSize, drawAnimal } from "./pasture-draw";
 import type { Sprite } from "@/lib/town/scenery";
 
 /*
@@ -74,9 +74,13 @@ export function AnimalPic({ species, breed, stage, size = 48, kit, dark = false,
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, size, size);
     ctx.imageSmoothingEnabled = false;
-    const len = lengthOf(species, stage);
-    const s = Math.min(2.6, (size * 0.8) / Math.max(18, len * 1.15));
-    drawAnimal(ctx, kit, { species, breed, stage, pose, right: true }, { x: size / 2 - 2, y: size * 0.86 }, s, dpr, 0, true);
+    // (sized to the box by its longer side: a picture at a whole number of the screen's pixels to one of its own where it
+    // fits, so its pixels stay square; a stand-in as before)
+    const box = animalSize(kit, { species, breed, stage });
+    const art = animalPicture(kit, { species, breed, stage, right: true }, pose), k = art ? animalK(species, art.name) : 0.6;
+    let s = Math.min(2.6, (size * 0.8) / Math.max(18, box.w * 1.15));
+    if (art && kit) { const [w, h] = kit.sizeOf(art.name), fit = (size * 0.88) / Math.max(w, h); s = (fit >= 1 ? Math.min(3, Math.floor(fit)) : fit) / k; }
+    drawAnimal(ctx, kit, { species, breed, stage, pose, right: true }, { x: size / 2, y: size * 0.93 }, s, dpr, 0, true);
     if (dark) { ctx.globalCompositeOperation = "source-atop"; ctx.fillStyle = "rgba(20,24,32,0.92)"; ctx.fillRect(0, 0, size, size); ctx.globalCompositeOperation = "source-over"; }
   }, [species, breed, stage, size, kit, dark, pose]);
   return <canvas ref={ref} aria-hidden className="shrink-0" style={{ width: size, height: size, imageRendering: "pixelated" }} />;

@@ -1,0 +1,11 @@
+Use the first attached sprite sheet only as the reference for the pixel art style, the chunky square pixel size and the scale: the little characters in it are the size of a person. The second attached picture is a sheet of hens from the same set: draw at exactly their pixel size and in their pose. Draw the animals in exactly its cute style, round and soft with big shiny dark eyes, seen from the same three-quarter top-down angle. Do not draw any characters.
+
+Draw six items, all at the characters' own scale and pixel size (do not draw them larger to fill the canvas). Five ducks of five breeds, plainly one kind of animal, each as tall as the hens of the second picture and in the same pose: a plump round duck standing on its two short orange webbed feet, its body turned three-quarters towards the viewer and facing the lower right, head on the right, so that its face with both round shiny dark eyes shows, a short rounded duck bill, cute and friendly:
+1) a puddle duck, white all over with cream shading and a bright orange bill and feet;
+2) an Indian runner duck standing tall and upright like a bottle, a long slim neck, fawn brown and white feathers, a yellow-green bill;
+3) a Cayuga duck with glossy black feathers that show a beetle-green sheen on its head and wings, a dark bill and dark feet;
+4) a mandarin duck with bright orange cheek plumes and two little orange sail feathers on its back, a purple breast, a green and cream striped head and a red bill;
+5) a raindrop duck with clear sky-blue feathers shaded in deeper blue, and a tiny grey-white rain cloud with three blue raindrops floating just above its head;
+6) a tall plain wooden post, twice as tall as a character.
+
+All six items in one row, evenly spaced, not overlapping, with clear empty space between them, standing on the same ground line. Crisp pixel art with hard square pixel edges, the same thick dark outline, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground under them, no shadows, no text, no labels.

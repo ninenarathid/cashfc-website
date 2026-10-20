@@ -15,6 +15,9 @@
 //                                               pile of stone, a stone, its sign (lib/town/works-art.ts)
 //   node build-scenery.mjs --set lamps          the lamp relay's things (lamps-<hash>.png + lamps.json): the posts, the
 //                                               brazier, a flame, what the night brings out (lib/town/lamps-art.ts)
+//   node build-scenery.mjs --set pasture        the animal line's pasture (pasture-<hash>.png + pasture.json): its animals'
+//                                               frames (pasture-frames.mjs), buildings, things, Uncle Popoto and the
+//                                               three games' scenes and pieces, by lib/town/pasture-art.ts's names
 //   node build-scenery.mjs --work <dir>         the sheets are another tree's (a worktree has no work folder of its own)
 //   node build-scenery.mjs --own-ground         the ground in the model's own textures, not the drawn ones (READY_TEX)
 //
@@ -29,6 +32,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import * as L from "./pxlib.mjs";
+import { pastureFrames } from "./pasture-frames.mjs";
 
 const HERE = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Z]:)/, "$1");
 const argWork = process.argv.indexOf("--work");
@@ -40,7 +44,7 @@ fs.mkdirSync(PUB, { recursive: true });
 const argSet = process.argv.indexOf("--set");
 /** Which picture is built: the town's scenery, the forest's, or the cooking screen's. */
 const SET = argSet > 0 ? process.argv[argSet + 1] : "scenery";
-if (!["scenery", "forest", "kitchen", "mountain", "cave", /* felling */ "felling", "works", "lamps"].includes(SET)) throw new Error(`no such set: ${SET}`);
+if (!["scenery", "forest", "kitchen", "mountain", "cave", /* felling */ "felling", "works", "lamps", "pasture"].includes(SET)) throw new Error(`no such set: ${SET}`);
 
 // [sheet, names, how]: "whole" keeps every shape on the sheet as one piece (the shop site and its
 // heaps); "hat" stands frames on their feet under the middle of their yellow hard hat, so a
@@ -239,6 +243,49 @@ const LAMPS = [
   ["scene-lamps-night", ["bloomShut", "bloomOpen", "shroom", "shroomGlow", "shroomOne", "wisp"]],
   ["scene-lamps-fete", ["feteString", "feteLantern", "twinkle"]],
 ];
+// ── pasture ── The animal line's own (docs/plans/animals/ART-NEEDED.md; lib/town/pasture-art.ts names every piece): a
+// picture of its own, fetched only by whoever comes onto the farm. The animals are not here: their frames are
+// pasture-frames.mjs's (a gen.mjs base and PixelLab's frames of it), laid in after these.
+const PASTURE = [
+  // the barn (cows, sheep), drawn three times and the first chosen (README "The pasture"); its fronts a member buys are
+  // edits of it, stood where it stands
+  ["pasture-barn", ["pa_barn"], "whole"],
+  // the coop (chickens, ducks) and the nursery hut beside it
+  ["pasture-coop", ["pa_coop"], "whole"],
+  ["pasture-nursery", ["pa_nursery", "_post"]],
+  // the troughs empty and fed, the village's water trough, the breeding nest empty and with an egg
+  ["pasture-things-a", ["pa_trough", "pa_troughFed", "pa_villageTrough", "pa_nest", "pa_nestEgg", "_post"]],
+  // Uncle Popoto's stall, the making table, the hay wagon and the sign at each map's wagon stop
+  ["pasture-things-b", ["pa_stall", "pa_table", "pa_wagon", "pa_wagonStop", "_post"]],
+  // the village gate shut and swung open ("pair": the open one stands where the shut one does, by their posts), eggs laid
+  // out in the grass, a forage tuft grazed
+  ["pasture-gate", ["pa_gateShut", "pa_gateOpen", "pa_eggOutside", "pa_forageTaken", "_post"], "pair"],
+  // the thought bubbles over an animal: hungry, ready (its egg, milk, wool), a friend's hungry one (the star: a filler)
+  // Uncle Popoto, who sells the animals (standing, waving, holding up a chick, laughing): "body" stands each frame under
+  // the middle of his brown, as the uncle's; and his portrait for a talk, the mouth shut and open
+  ["popoto-rancher", ["pp_stand", "pp_wave", "pp_show", "pp_laugh"], "body"],
+  ["talk-rancher", ["tk_popoto", "tk_popoto_o"], "talk", undefined, [7.5, 13]],
+  // the three games' boards (each drawn three times, one chosen: README "The pasture"), cut whole, and their pieces on
+  // the icon template's 16-pixel grid
+  ["pasture-game-milk", ["mg_milk_barn"], "scene"],
+  ["pasture-game-eggs", ["mg_eggs_coop"], "scene"],
+  ["pasture-game-shear", ["mg_shear_pen"], "scene"],
+  ["pasture-game-pieces-a", ["mg_milk_machine", "mg_milk_handleUp", "mg_milk_handleDown", "mg_milk_gauge", "mg_milk_needle", "mg_milk_splash"], "cols", undefined, [12, 16]],
+  ["pasture-game-pieces-b", ["mg_milk_pail", "mg_milk_pailHalf", "mg_milk_pailFull", "mg_eggs_box", "mg_eggs_basket", "mg_eggs_egg"], "cols", undefined, [12, 16]],
+  ["pasture-game-pieces-c", ["mg_eggs_crack", "mg_shear_shears", "mg_shear_tuft", "mg_shear_nick", "mg_eggs_straw", "_heart"], "cols", undefined, [12, 16]],
+  ["pasture-bubbles", ["pa_bubbleHungry", "pa_bubbleReady", "pa_bubbleReadyMilk", "pa_bubbleReadyWool", "pa_bubbleCare", "_bubbleStar"], undefined, undefined, [12, 15]],
+];
+// The fronts a member buys for the barn (cosmetic): the drawn red barn with its walls' paint alone turned to another
+// colour, cell for cell, so a front stands exactly where the barn does (an image edit would move its lines, and the
+// builder lays an edit on its first by colour, which a repainted wall defeats: Codex, 2026-10-20). A wall cell is one of
+// the red paint's hues (the roof's brown is hue 20 and up); its lightness is lifted and its saturation eased a little,
+// so the new paint keeps the planks' own shading. [piece, new piece, hue, saturation x, lightness +]
+const PASTURE_REPAINT = [
+  ["pa_barn", "pa_barnFront1", 205, 0.62, 0.14],
+  ["pa_barn", "pa_barnFront2", 105, 0.42, 0.12],
+  ["pa_barn", "pa_barnFront3", 272, 0.5, 0.13],
+];
+// ── end: pasture ──
 // Pixel art that came drawn (the owner's folder of 2026-10-05, "oatto-asset": kept in work/oatto like the sheets, and
 // like them not in the repo), each thing true pixels blown up a whole number of times, at whatever size its artist
 // liked. [file, name, the size of its own pixel, how]. `twice` doubles one that is to stand as tall as the town's own
@@ -274,6 +321,7 @@ const READY = {
   cave: [],
   works: [],
   lamps: [],
+  pasture: [],
 };
 // Ground that came drawn (the same folder's pack of textures; the ones used are in work/oatto/tex, with the pack's
 // licence: free to use and to change, not to be handed on as files, which is one more reason they stay out of the
@@ -294,6 +342,7 @@ const READY_TEX = {
   cave: {},
   works: {},
   lamps: {},
+  pasture: {},
 };
 /** The mean of each colour of a picture's pixels, and how far its light and dark spread about their mean. */
 function colourOf(buf) {
@@ -352,7 +401,7 @@ const isWater = (r, g, b) => { const mx = Math.max(r, g, b), mn = Math.min(r, g,
   return (b > r + 25 && b >= g && (mx - mn) / 255 > 0.18) || (l > 0.82 && b >= r && b >= g - 4); };
 // (the mountain's own ground: bare stony earth, a cliff's face seen from the front, snow, and the forest's floor under its
 // pines; the cave's: its floor, the top of its rock, and the same face for its walls)
-const TEXTURES = { forest: ["wood"], kitchen: [], felling: [], works: [], lamps: [], mountain: ["rock", "cliff", "snow", "wood"], cave: ["cavefloor", "cavewall", "cliff"] }[SET]
+const TEXTURES = { forest: ["wood"], kitchen: [], felling: [], works: [], lamps: [], pasture: [], mountain: ["rock", "cliff", "snow", "wood"], cave: ["cavefloor", "cavewall", "cliff"] }[SET]
   ?? ["grass", "plaza", "road", "water", "sand", "field"];
 
 const pieces = [];
@@ -375,7 +424,7 @@ function moveOnto(g, ref, refSet) {
   }
   return { ...best, of: low.length };
 }
-for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: KITCHEN, mountain: MOUNTAIN, cave: CAVE, felling: FELLING, works: WORKS, lamps: LAMPS }[SET] ?? SHEETS) {
+for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: KITCHEN, mountain: MOUNTAIN, cave: CAVE, felling: FELLING, works: WORKS, lamps: LAMPS, pasture: PASTURE }[SET] ?? SHEETS) {
   if (!fs.existsSync(path.join(OUT, `${sheet}.png`))) { console.log(`no ${sheet}`); continue; }
   const raw = await L.loadRaw(path.join(OUT, `${sheet}.png`));
   // the characters' own pixel size (about 5.3–6.2): a double period scores as well and halves every prop
@@ -385,7 +434,11 @@ for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: 
   L.snap(g, L.paletteOf([g], 64));
   // ("scene": the whole canvas is the one piece, every cell of it)
   const figs = how === "scene" ? [new Set(Array.from({ length: g.GW * g.GH }, (_, i) => i))]
-    : how === "whole" ? [new Set(L.components(g).filter(c => c.mem.length >= 3).flatMap(c => c.mem))] : L.figures(g, L.spansOf(g, names.length));
+    : how === "whole" ? [new Set(L.components(g).filter(c => c.mem.length >= 3).flatMap(c => c.mem))]
+    // ("cols": an icon sheet's way, each piece to the even column its middle is in: a thin needle beside a splash's
+    // drops is two pieces, where the emptiest-column split took them for one)
+    : how === "cols" ? names.map((_, k) => new Set(L.components(g).filter(c => c.mem.length >= 2 && Math.floor((c.cx / g.GW) * names.length) === k).flatMap(c => c.mem)))
+    : L.figures(g, L.spansOf(g, names.length));
   names.forEach((name, k) => {
     if (name.startsWith("_")) return;
     const set = figs[k], b = L.bbox(g, set), im = L.crop(g, set);
@@ -494,6 +547,26 @@ for (const [file, name, p, how = {}] of READY[SET]) {
   console.log(`${name.padEnd(9)} ${im.w}x${im.h}  (drawn: ${p} to the pixel${how.twice ? ", doubled" : ""})`);
 }
 
+// the pasture's animals: their frames, each on its base's ground point; the barn's fronts, repainted
+if (SET === "pasture") {
+  pieces.push(...await pastureFrames());
+  for (const [from, name, hue, sat, lift] of PASTURE_REPAINT) {
+    const p = pieces.find((q) => q.name === from);
+    if (!p) continue;
+    const buf = Buffer.from(p.img.buf);
+    let n = 0;
+    for (let i = 0; i < buf.length; i += 4) {
+      if (!buf[i + 3]) continue;
+      const [h, s2, l] = L.hsl(buf[i], buf[i + 1], buf[i + 2]);
+      if (!((h <= 18 || h >= 350) && s2 >= 0.45 && l >= 0.12)) continue;
+      const rgb = L.rgb(hue, Math.min(1, s2 * sat), Math.min(0.9, l + lift));
+      buf[i] = rgb[0]; buf[i + 1] = rgb[1]; buf[i + 2] = rgb[2]; n++;
+    }
+    pieces.push({ name, img: { ...p.img, buf }, ax: p.ax, ay: p.ay });
+    console.log(`${name.padEnd(9)} ${from} repainted (${n} cells)`);
+  }
+}
+
 // textures: true pixels, cut to a whole number of their own pixels
 const textures = [];
 for (const t of TEXTURES) {
@@ -539,6 +612,8 @@ const meta = {
   v: 1, image: `${SET}-${hash}.png`, size: [W, H],
   props: Object.fromEntries(pieces.map(p => [p.name, [p.x, p.y, p.img.w, p.img.h, p.ax, p.ay]])),
   textures: Object.fromEntries(textures.map(p => [p.name, [p.x, p.y, p.img.w, p.img.h]])),
+  // (the pasture's: how much larger than its kind's own a piece is drawn, where not 1: pasture-frames.mjs)
+  ...(pieces.some(p => p.k && p.k !== 1) ? { scale: Object.fromEntries(pieces.filter(p => p.k && p.k !== 1).map(p => [p.name, p.k])) } : {}),
 };
 for (const f of fs.readdirSync(PUB)) if (f.startsWith(`${SET}-`) && /^-[0-9a-f]{10}\.png$/.test(f.slice(SET.length)) && f !== meta.image) fs.unlinkSync(path.join(PUB, f));
 fs.writeFileSync(path.join(PUB, meta.image), png);

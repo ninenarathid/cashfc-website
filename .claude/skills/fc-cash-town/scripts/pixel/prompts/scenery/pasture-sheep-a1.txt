@@ -1,0 +1,9 @@
+Use the first attached sprite sheet only as the reference for the pixel art style, the chunky square pixel size and the scale: the little characters in it are the size of a person. The second attached picture is a sheet of hens from the same set: draw at exactly their pixel size and in their standing orientation, using each animal's own four-legged anatomy. Draw the animals in exactly its cute style, round and soft with big shiny dark eyes, seen from the same three-quarter top-down angle. Do not draw any characters.
+
+Draw four items, all at the characters' own scale and pixel size (do not draw them larger to fill the canvas). Three sheep of three breeds, plainly one kind of animal, each the same size and in the same pose: a plump round sheep about one and a half times as tall as the hens of the second picture and twice as long, a big soft cloud of fleece, each standing on its four short legs, its body turned three-quarters towards the viewer and facing the lower right, head on the right, so that its face with both round shiny dark eyes shows, cute and friendly:
+1) a meadow sheep with a soft white fleece, a cream face, cream ears and dark grey legs;
+2) a Shetland sheep, a little smaller than the others, its fleece in patches of many shades of brown, fawn and grey, a brown face;
+3) a Jacob sheep with a fleece patched black and white, a white face with black patches round its eyes and four short curled horns, two up and two to the sides;
+4) a tall plain wooden post, twice as tall as a character.
+
+All four items in one row, evenly spaced, not overlapping, with clear empty space between them, standing on the same ground line. Crisp pixel art with hard square pixel edges, the same thick dark outline, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground under them, no shadows, no text, no labels.

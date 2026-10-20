@@ -1,0 +1,11 @@
+Use the first attached sprite sheet only as the reference for the pixel art style, the chunky square pixel size and the scale: the little characters in it are the size of a person. The second attached picture is farm scenery from the same game: draw in exactly its style and at its size, seen from the same three-quarter top-down angle. Do not draw any characters.
+
+Draw six items, all at the characters' own scale and pixel size (do not draw them larger to fill the canvas):
+1) a long low wooden feeding trough on four short legs, empty, two map tiles long, about one and two fifths character heights end to end and knee high, running diagonally from the lower left up to the upper right as on an isometric map, like the fence of the second picture;
+2) the same trough, the same size and angle, filled with a heap of fresh green grass and golden grain;
+3) a village water trough of grey stone blocks, the same length and angle as the first trough, full of clear blue water;
+4) a round nest of golden straw on the ground, about as wide as a character, plump and loosely woven, empty;
+5) the same nest with one big cream egg nestled in its middle;
+6) a tall plain wooden post, twice as tall as a character.
+
+All six items in one row, evenly spaced, not overlapping, with clear empty space between them, standing on the same ground line. Crisp pixel art with hard square pixel edges, the same thick dark outline, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground under them, no shadows, no text, no labels.

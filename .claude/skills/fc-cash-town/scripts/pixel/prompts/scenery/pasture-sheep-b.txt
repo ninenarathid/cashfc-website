@@ -1,0 +1,10 @@
+Use the first attached sprite sheet only as the reference for the pixel art style, the chunky square pixel size and the scale: the little characters in it are the size of a person. The second attached picture is a sheet of sheep from the same set: draw at exactly their pixel size, with the same thick dark outline, and in their standing pose. Draw the animals in exactly their cute style, round and soft with big shiny dark eyes, seen from the same three-quarter top-down angle. Do not draw any characters.
+
+Draw five items, all at the characters' own scale and pixel size (do not draw them larger to fill the canvas). Four sheep, plainly one kind of animal with the sheep of the second picture, each standing on its four legs, its body turned three-quarters towards the viewer and facing the lower right, head on the right, so that its face with both round shiny dark eyes shows, cute and friendly:
+1) a star-fleece sheep, the same size as the sheep of the second picture, its fleece deep midnight blue marked with a few large, well-separated pale yellow four-pointed stars, a pale grey face;
+2) a golden fleece ram, a little larger than the sheep of the second picture, a fleece of shining golden curls in warm yellow and amber with bright pale yellow highlights, a cream face and two big curled horns of ivory;
+3) a lamb, half as tall as the sheep of the second picture, a small fluffy white lamb with a cream face, long wobbly legs and floppy ears;
+4) a hogget, a young sheep three quarters as tall as the sheep of the second picture, slimmer than them, with a short creamy white fleece, a cream face and long legs;
+5) a tall plain wooden post, twice as tall as a character.
+
+All five items in one row, evenly spaced, not overlapping, with clear empty space between them, standing on the same ground line. Crisp pixel art with hard square pixel edges, the same thick dark outline, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground under them, no shadows, no text, no labels.

@@ -7,7 +7,7 @@ import { ANIMAL_GIFTS, viewOf, wagonAt, wagonEnds, type AnimalInput, type Animal
 import { MEADOW_SPOTS, BARN, COOP, NURSERY, NEST, POPOTO, TABLE, TROUGHS, GATE, PASTURE_PROPS, WAGON_STOPS, animalSpot, homeOf } from "@/lib/town/pasture";
 import { forageAt, bandOf, dayOf, MEADOW } from "@/lib/town/animals";
 import { FORAGE_BANDS } from "@/lib/town/animal-items";
-import { loadPastureArt, pastureSprite, POPOTO_TALK } from "@/lib/town/pasture-art";
+import { PASTURE_ART, loadPastureArt, pastureSprite, POPOTO_TALK } from "@/lib/town/pasture-art";
 import { loadScenery, type SceneryKit, type Sprite } from "@/lib/town/scenery";
 import { artOf } from "@/lib/town/decor";
 import { knowWagons, wagonSpot, WAGON_LEG } from "@/lib/town/seats";
@@ -24,7 +24,7 @@ import TownFoot from "./TownFoot";
 import type { IconName } from "./TownIcon";
 import TownAnimals, { why, type AnimalsView } from "./TownAnimals";
 import { EggsGame, MilkGame, ShearGame } from "./TownAnimalGames";
-import { drawAnimal, drawBlock, drawBubble, drawEggOut, drawForage, drawGateArt, drawHouse, drawPopoto, drawWagon, lengthOf } from "./pasture-draw";
+import { animalSize, drawAnimal, drawBlock, drawBubble, drawBuilding, drawEggOut, drawForage, drawGateArt, drawHouse, drawPastureProp, drawPopoto, drawWagon } from "./pasture-draw";
 import type { Play } from "@/lib/town/animals";
 
 /*
@@ -238,35 +238,39 @@ export default function TownPasture(props: PastureProps) {
         if (at.standing) tag(t("เกวียนหญ้า · ขึ้นได้", "Hay wagon · hop on"), c.x, c.y - 46 * s, "#e5cc80");
       }
       // the stops: a little sign at each
-      if (map && WAGON_STOPS[map] && sc?.has("signpost")) { const [sx, sy] = WAGON_STOPS[map], c = project({ x: sx - 1.2, y: sy - 0.6 }); if (onScreen(c)) things.push({ depth: sx + sy - 1.5, draw: () => sc.drawProp(ctx, "signpost", c.x, c.y, s * 0.7, px) }); }
+      if (map && WAGON_STOPS[map] && (k?.has("pa_wagonStop") || sc?.has("signpost"))) { const [sx, sy] = WAGON_STOPS[map], c = project({ x: sx - 1.2, y: sy - 0.6 }); if (onScreen(c)) things.push({ depth: sx + sy - 1.5, draw: () => { if (!drawPastureProp(ctx, k, "pa_wagonStop", c.x, c.y, s, px)) sc?.drawProp(ctx, "signpost", c.x, c.y, s * 0.7, px); } }); }
       if (map !== "farm") return;
       const look = (r: { x: number; y: number; w: number; h: number }) => onScreen(project({ x: r.x + r.w / 2, y: r.y + r.h / 2 }));
-      // ── the buildings (ART: stand-ins; their pictures are pa_barn, pa_coop, pa_nursery)
+      // ── the buildings: their pictures on their footprints (the stand-ins while the sheet has none); my barn wears the front I bought
       const myFront = w?.herds.find((h) => h.owner === me)?.facade ?? 0;
-      if (look(BARN)) things.push({ depth: BARN.x + BARN.y + (BARN.w + BARN.h) / 2, draw: () => drawHouse(ctx, project, BARN, { wall: ["#a8442e", "#4a6a8a", "#5a7a3a", "#8a5aa0"][myFront] ?? "#a8442e", roof: "#5a3424", trim: "#f0e2c8", wallH: 46, roofH: 30, door: 0.22, windows: 2 }, s) });
-      if (look(COOP)) things.push({ depth: COOP.x + COOP.y + (COOP.w + COOP.h) / 2, draw: () => drawHouse(ctx, project, COOP, { wall: "#d8c090", roof: "#8a4a2a", trim: "#5a3a1a", wallH: 30, roofH: 20, door: 0.2, windows: 2 }, s) });
-      if (look(NURSERY)) things.push({ depth: NURSERY.x + NURSERY.y + (NURSERY.w + NURSERY.h) / 2, draw: () => drawHouse(ctx, project, NURSERY, { wall: "#f0d8a8", roof: "#c8604a", trim: "#7a4a2a", wallH: 22, roofH: 14, door: 0.3, windows: 0 }, s) });
-      // ── the troughs (food in each: the fuller, the greener), the nest, the stall and the table
-      const trough = (at: readonly [number, number], fill: string) => {
+      if (look(BARN)) things.push({ depth: BARN.x + BARN.y + (BARN.w + BARN.h) / 2, draw: () => { if (!drawBuilding(ctx, k, project, BARN, PASTURE_ART.barnFront[myFront] ?? PASTURE_ART.barn, s, px) && !drawBuilding(ctx, k, project, BARN, PASTURE_ART.barn, s, px)) drawHouse(ctx, project, BARN, { wall: ["#a8442e", "#4a6a8a", "#5a7a3a", "#8a5aa0"][myFront] ?? "#a8442e", roof: "#5a3424", trim: "#f0e2c8", wallH: 46, roofH: 30, door: 0.22, windows: 2 }, s); } });
+      if (look(COOP)) things.push({ depth: COOP.x + COOP.y + (COOP.w + COOP.h) / 2, draw: () => { if (!drawBuilding(ctx, k, project, COOP, PASTURE_ART.coop, s, px)) drawHouse(ctx, project, COOP, { wall: "#d8c090", roof: "#8a4a2a", trim: "#5a3a1a", wallH: 30, roofH: 20, door: 0.2, windows: 2 }, s); } });
+      if (look(NURSERY)) things.push({ depth: NURSERY.x + NURSERY.y + (NURSERY.w + NURSERY.h) / 2, draw: () => { if (!drawBuilding(ctx, k, project, NURSERY, PASTURE_ART.nursery, s, px)) drawHouse(ctx, project, NURSERY, { wall: "#f0d8a8", roof: "#c8604a", trim: "#7a4a2a", wallH: 22, roofH: 14, door: 0.3, windows: 0 }, s); } });
+      // ── the troughs (fed while an animal of that building has food in it), the nest, the stall and the table
+      const fedIn = (kinds: readonly string[]) => !!w?.animals.some((a) => kinds.includes(SPECIES[a.species].kind === "bird" ? "bird" : "mammal") && a.food > 0.5);
+      const trough = (at: readonly [number, number], fill: string, art: string) => {
         const r = { x: at[0] + 0.1, y: at[1] + 0.25, w: 1.8, h: 0.5 }, c = project({ x: at[0] + 1, y: at[1] + 0.5 });
         if (!onScreen(c)) return;
-        things.push({ depth: at[0] + at[1] + 1.5, draw: () => drawBlock(ctx, project, r, "#7a5432", fill, 9, s) });
+        // (drawn running from the lower left up to the upper right; a trough lies along x, down to the right: mirrored)
+        things.push({ depth: at[0] + at[1] + 1.5, draw: () => { if (!drawPastureProp(ctx, k, art, c.x, c.y + 6 * s, s, px, true)) drawBlock(ctx, project, r, "#7a5432", fill, 9, s); } });
         out.push({ kind: "trough", x0: c.x - 34 * s, y0: c.y - 22 * s, x1: c.x + 34 * s, y1: c.y + 10 * s });
       };
-      trough(TROUGHS.barn, "#b8c870"); trough(TROUGHS.coop, "#e0c870"); trough(TROUGHS.village, "#6aa8d8");
+      trough(TROUGHS.barn, "#b8c870", fedIn(["mammal"]) ? PASTURE_ART.troughFed : PASTURE_ART.trough); trough(TROUGHS.coop, "#e0c870", fedIn(["bird"]) ? PASTURE_ART.troughFed : PASTURE_ART.trough); trough(TROUGHS.village, "#6aa8d8", PASTURE_ART.villageTrough);
       { const c = project({ x: NEST[0] + 0.5, y: NEST[1] + 0.5 }); if (onScreen(c)) {
         const eggs = (w?.animals ?? []).filter((a) => a.born > clock && SPECIES[a.species].kind === "bird").length;
         things.push({ depth: NEST[0] + NEST[1] + 1, draw: () => {
+          // the nest of straw, an egg in it while a child is coming
+          if (drawPastureProp(ctx, k, eggs ? PASTURE_ART.nestEgg : PASTURE_ART.nest, c.x, c.y + 4 * s, s, px)) return;
           drawBlock(ctx, project, { x: NEST[0] + 0.1, y: NEST[1] + 0.1, w: 0.8, h: 0.8 }, "#a07838", "#d8b050", 5, s);
-          // ART: pa_nest / pa_nestEgg: the straw ring and an egg in it for each child coming
           for (let i = 0; i < Math.min(4, eggs); i++) { ctx.fillStyle = "#f4ead0"; ctx.strokeStyle = "#8a6a3a"; ctx.beginPath(); ctx.ellipse(c.x + (i - 1.5) * 6 * s, c.y - 7 * s, 3 * s, 4 * s, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); }
         } });
         out.push({ kind: "nest", x0: c.x - 22 * s, y0: c.y - 22 * s, x1: c.x + 22 * s, y1: c.y + 8 * s });
         tag(t("รังผสมพันธุ์", "Breeding nest"), c.x, c.y - 26 * s);
       } }
       { const r = { x: POPOTO.tiles[0][0], y: POPOTO.tiles[0][1], w: 3, h: 1 }, c = project({ x: r.x + 1.5, y: r.y + 0.5 }); if (onScreen(c)) {
-        // ART: pa_stall: a market stall with a striped awning
         things.push({ depth: r.x + r.y + 2, draw: () => {
+          // Uncle Popoto's stall, facing the viewer as the town's stalls do
+          if (drawPastureProp(ctx, k, PASTURE_ART.stall, c.x, c.y + 10 * s, s, px)) return;
           drawBlock(ctx, project, { x: r.x + 0.1, y: r.y + 0.1, w: 2.8, h: 0.9 }, "#8a5a2a", "#c89050", 16, s);
           const a = project({ x: r.x, y: r.y }), b = project({ x: r.x + 3, y: r.y });
           ctx.save(); for (let i = 0; i < 6; i++) { ctx.fillStyle = i % 2 ? "#f4eee0" : "#3a8a5a"; const x0 = a.x + ((b.x - a.x) * i) / 6, y0 = a.y + ((b.y - a.y) * i) / 6, x1 = a.x + ((b.x - a.x) * (i + 1)) / 6, y1 = a.y + ((b.y - a.y) * (i + 1)) / 6; ctx.beginPath(); ctx.moveTo(x0, y0 - 44 * s); ctx.lineTo(x1, y1 - 44 * s); ctx.lineTo(x1 + 8 * s, y1 - 32 * s); ctx.lineTo(x0 + 8 * s, y0 - 32 * s); ctx.fill(); } ctx.restore();
@@ -280,7 +284,7 @@ export default function TownPasture(props: PastureProps) {
         tag(t("ลุง Popoto", "Uncle Popoto"), at.x, at.y - 74 * s, "#e5cc80");
       } }
       { const c = project({ x: TABLE[0] + 1, y: TABLE[1] + 0.5 }); if (onScreen(c)) {
-        things.push({ depth: TABLE[0] + TABLE[1] + 1.5, draw: () => drawBlock(ctx, project, { x: TABLE[0] + 0.1, y: TABLE[1] + 0.2, w: 1.8, h: 0.6 }, "#8a6a40", "#b89060", 14, s) });
+        things.push({ depth: TABLE[0] + TABLE[1] + 1.5, draw: () => { if (!drawPastureProp(ctx, k, PASTURE_ART.table, c.x, c.y + 6 * s, s, px)) drawBlock(ctx, project, { x: TABLE[0] + 0.1, y: TABLE[1] + 0.2, w: 1.8, h: 0.6 }, "#8a6a40", "#b89060", 14, s); } });
         out.push({ kind: "table", x0: c.x - 30 * s, y0: c.y - 26 * s, x1: c.x + 30 * s, y1: c.y + 8 * s });
       } }
       // ── the gate, open or shut, and the fence and the rim's woods
@@ -303,8 +307,11 @@ export default function TownPasture(props: PastureProps) {
         const c = project({ x: x + 0.5, y: y + 0.6 });
         if (!onScreen(c)) return;
         const item = forageAt(FORAGE_BANDS, dayOf(clock), bandOf(clock), i), taken = !!meadow && meadow.k === key && meadow.spots.includes(i);
-        things.push({ depth: x + y + 0.9, draw: () => drawForage(ctx, k, c, s, FORAGE_TINT[item ?? ""] ?? "#f0e0a0", taken, tick, still, px) });
+        things.push({ depth: x + y + 0.9, draw: () => drawForage(ctx, k, c, s, FORAGE_TINT[item ?? ""] ?? "#f0e0a0", taken, tick, still, px, frame.img, item ?? null) });
         if (!taken) out.push({ kind: "forage", spot: i, x0: c.x - 14 * s, y0: c.y - 20 * s, x1: c.x + 14 * s, y1: c.y + 6 * s });
+        // (in the dark a plant still to be picked holds a little of the dew's light, so the night's and the before-dawn
+        // forage can be found: a faint pool, nothing by day; Codex, on the night frames of the in-game review)
+        if (!taken && item) frame.light?.(c.x, c.y - 8 * s, 12, "214,236,206", 0.45, 0.55);
       });
       // ── the animals, everybody's, and the eggs laid out
       const openAt = (tt: number) => gateOpenAt(w.gate, tt).open;
@@ -321,16 +328,16 @@ export default function TownPasture(props: PastureProps) {
         if (mine && bellNow) { const f = Math.min(1, (bellNow.till - clock) > 15_000 ? (20_000 - (bellNow.till - clock)) / 5000 : 1); const ang = (a.id.charCodeAt(0) % 8) / 8 * Math.PI * 2; spot = { ...spot, x: spot.x + (bellNow.at.x + Math.cos(ang) * 1.3 - spot.x) * f, y: spot.y + (bellNow.at.y + Math.sin(ang) * 1.3 - spot.y) * f, pose: f < 1 ? "walk" : "happy" as never }; }
         const c = project({ x: spot.x, y: spot.y });
         if (!onScreen(c)) continue;
-        const pose = spot.pose === ("happy" as never) ? "idle" : spot.pose;
+        const pose = spot.pose;
         things.push({ depth: spot.x + spot.y, draw: () => drawAnimal(ctx, k, { species: a.species, breed: a.breed, stage: st, pose, right: spot.right }, c, s, px, tick, still) });
-        const size = lengthOf(a.species, st);
+        const box = animalSize(k, { species: a.species, breed: a.breed, stage: st });
         const care = !mine && mayCare(w.herds.find((h) => h.owner === a.owner), me);
-        if (mine || care) out.push({ kind: "animal", id: a.id, x0: c.x - (size / 2 + 6) * s, y0: c.y - (size * 0.9 + 8) * s, x1: c.x + (size / 2 + 6) * s, y1: c.y + 6 * s });
+        if (mine || care) out.push({ kind: "animal", id: a.id, x0: c.x - (box.w / 2 + 6) * s, y0: c.y - (box.h + 8) * s, x1: c.x + (box.w / 2 + 6) * s, y1: c.y + 6 * s });
         // bubbles over mine and those I may care for; a name over mine
         const sec = Math.floor(clock / 1000), key = `${a.at}:${a.food}:${a.banked}:${a.hearts}:${w.gate.length}`, had = views.current.get(a.id);
         const v = had && had.at === sec && had.key === key ? had.v : viewOf(a, clock, { gate: w.gate });
         views.current.set(a.id, { at: sec, key, v });
-        const head = c.y - (size * 0.85 + 6) * s;
+        const head = c.y - (box.h + 4) * s;
         if (mine && v.ready > 0 && a.place === "producing") over?.(() => drawBubble(ctx, k, "ready", SPECIES[a.species].game, c.x, head, s, tick, still, px));
         else if (v.hungry && (mine || care)) over?.(() => drawBubble(ctx, k, mine ? "hungry" : "care", SPECIES[a.species].game, c.x, head, s, tick, still, px));
         if (mine && s >= 0.8) tag((a.name || breedOf(a.breed)?.name[th ? "th" : "en"] || "").slice(0, 12), c.x, c.y + 10 * s, "#cfe6ff");

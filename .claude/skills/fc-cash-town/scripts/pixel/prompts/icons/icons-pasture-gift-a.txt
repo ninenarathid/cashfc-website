@@ -1,0 +1,6 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D town game. Draw a new sprite sheet of small icons for the gifts a farmer earns in that game, kept as charms and keepsakes of that game, in the same pixel art style.
+
+Each icon is drawn on its own 16 by 16 pixel grid, scaled up big so every pixel of the icon is a large crisp square, all icons the same size, simple and bold so they read clearly when shown small, with a thick dark outline and two or three tones per colour. Six icons in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping:
+1) an orange tabby cat curled up asleep on a small round straw cushion; 2) a baby milk bottle in a knitted red cosy with a small white heart on it; 3) a red leather animal collar buckled in a ring, a golden star tag hanging from it; 4) a small round wooden cradle on rockers with a patchwork quilt; 5) a fluffy white cloud sheep with pale blue shading, curled pale gold horns and a red double saddle; 6) a wooden cradle on rockers with two little pillows side by side and two small pink hearts on its side.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no frames or boxes around the icons, no shadows, no text, no letters, no numbers.

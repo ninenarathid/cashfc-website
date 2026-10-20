@@ -1,0 +1,10 @@
+Use the first attached sprite sheet only as the reference for the pixel art style, the chunky square pixel size and the scale: the little characters in it are the size of a person. The second attached picture is farm scenery from the same game: draw in exactly its style and at its size, seen from the same three-quarter top-down angle. Do not draw any characters.
+
+Draw five items, all at the characters' own scale and pixel size (do not draw them larger to fill the canvas):
+1) a wooden field gate between two sturdy square gate posts with rounded caps, the gate of three horizontal rails with a diagonal brace, three map tiles long, about two character heights end to end and a little taller than a character's waist, running diagonally from the lower left up to the upper right as on an isometric map, like the fence of the second picture, shut;
+2) the same two posts in the same places with the same gate swung open, hinged on the lower-left post and turned ninety degrees so that its leaf extends down and to the right from that post, two pixels right for every one pixel down;
+3) two cream eggs lying together in a small tuft of green grass, very small, a fifth as tall as a character;
+4) a small tuft of meadow grass nibbled short, very small, a fifth as tall as a character;
+5) a tall plain wooden post, twice as tall as a character.
+
+All five items in one row, evenly spaced, not overlapping, with clear empty space between them, standing on the same ground line. Crisp pixel art with hard square pixel edges, the same thick dark outline, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground under them, no shadows, no text, no labels.
