@@ -1,7 +1,7 @@
 import type { SceneryKit } from "@/lib/town/scenery";
 import { drawIcon, type IconName } from "./TownIcon";
 import type { Vec } from "@/lib/town/world";
-import { BUILDING_FIT, PASTURE_ART, POPOTO_FRAMES, PROP_K, TROUGH_ART, animalSprite, maleSprite, pastureScale, shornSprite, type AnimalFrame, type ArtStage, type Facing } from "@/lib/town/pasture-art";
+import { BUILDING_FIT, PASTURE_ART, POPOTO_FRAMES, PROP_K, TROUGH_ART, TROUGH_FIT, animalFrame, pastureScale, type AnimalFrame, type ArtAction, type ArtStage, type Facing } from "@/lib/town/pasture-art";
 import { TROUGH, troughOf } from "@/lib/town/pasture";
 
 /**
@@ -30,9 +30,13 @@ export const ANIMAL_LEN: Record<string, number> = { cow: 62, sheep: 44, chicken:
 export const lengthOf = (species: string, stage: string) => (ANIMAL_LEN[species] ?? 24) * (stage === "adult" ? 1 : stage === "young" ? 0.74 : 0.55);
 const SIZE = ANIMAL_LEN;
 const BIRD = (sp: string) => sp === "chicken" || sp === "duck";
-const facingOf = (right: boolean): Facing => (right ? "SE" : "SW");
 
-export interface AnimalLook { species: string; breed: string; stage: ArtStage; pose: "walk" | "idle" | "eat" | "sleep" | "swim" | "happy"; right: boolean; shorn?: boolean; /** A grown male (a rooster, a drake, a ram, a bull) has pictures of his own. */ sex?: "m" | "f" }
+export interface AnimalLook {
+  species: string; breed: string; stage: ArtStage; pose: "walk" | "idle" | "eat" | "sleep" | "swim" | "happy"; right: boolean; shorn?: boolean;
+  /** A grown male (a rooster, a drake, a ram, a bull) has pictures of his own. */ sex?: "m" | "f";
+  /** Its back to the viewer (going up the screen). */ back?: boolean;
+  /** Its own offset of the loops' clock (from its id), so that a herd does not step as one. */ seed?: number;
+}
 /**
  * How large each kind's pictures are drawn: map pixels to one of the picture's own. Near the dolls' own (two thirds of
  * a map pixel, lib/town/pixeldoll's LALAFELL_SIZE), so that an animal's pixels are the size of the members' beside it,
@@ -41,28 +45,15 @@ export interface AnimalLook { species: string; breed: string; stage: ArtStage; p
 export const ANIMAL_K: Readonly<Record<string, number>> = { chicken: 0.6, duck: 0.6, sheep: 0.5, cow: 0.5 };
 /** The map pixels to one of a picture's own: its kind's, times the picture's own share (lib/town/pasture-art's pastureScale). */
 export const animalK = (species: string, name: string) => (ANIMAL_K[species] ?? 0.6) * pastureScale(name);
+/** Which of the four ways it faces: SE and SW toward the viewer, NE and NW away; W the mirrored. */
+const facingOf = (right: boolean, back = false): Facing => (back ? (right ? "NE" : "NW") : right ? "SE" : "SW");
 /**
- * The picture an animal is drawn with: the frame asked for, else the walk's first step for its second, else the animal
- * standing (a frame not drawn falls back to the animal, never to the stand-in). SE is the facing drawn; SW is SE
- * mirrored (ART-NEEDED: the page turns them by the way they go). Null while the sheet has no picture of the animal.
+ * The picture an animal is drawn with (the art round's frames, lib/town/pasture-art's animalFrame: its own look or the
+ * nearest, its view or the front, the loop's picture for the moment), or null while no sheet has it (its stand-in).
  */
-export function animalPicture(kit: SceneryKit | null, a: Pick<AnimalLook, "species" | "breed" | "stage" | "shorn" | "right" | "sex">, frame: AnimalFrame): { name: string; mirror: boolean } | null {
-  if (!kit) return null;
-  const want: AnimalFrame[] = [frame, ...(frame === "walk2" ? ["walk1" as const] : []), "idle"];
-  const facing = facingOf(a.right);
-  // (a grown male is drawn by his own pictures, never by the female's, which would be the wrong animal: his stand-in until they come)
-  const male = a.sex === "m" && a.stage === "adult";
-  const nameOf = (fc: Facing, f: AnimalFrame) => (male ? maleSprite(a.breed, fc, f, !!a.shorn) : a.shorn ? shornSprite(a.breed, fc, f) : animalSprite(a.species, a.breed, a.stage, fc, f));
-  for (const f of want) {
-    const own = nameOf(facing, f);
-    if (kit.has(own)) return { name: own, mirror: false };
-    if (facing === "SW") {
-      const se = nameOf("SE", f);
-      if (kit.has(se)) return { name: se, mirror: true };
-    }
-  }
-  // (a shorn sheep with no picture of its own yet is the sheep)
-  return a.shorn ? animalPicture(kit, { ...a, shorn: false }, frame) : null;
+export function animalPicture(kit: SceneryKit | null, a: Pick<AnimalLook, "species" | "breed" | "stage" | "shorn" | "right" | "sex" | "back">, frame: AnimalFrame | ArtAction, now = 0): { name: string; mirror: boolean } | null {
+  const action: ArtAction = frame === "walk1" || frame === "walk2" ? "walk" : (frame as ArtAction);
+  return animalFrame(kit, { species: a.species, breed: a.breed, stage: a.stage, sex: a.sex, shorn: a.shorn, facing: facingOf(a.right, a.back), action, now });
 }
 /** How large an animal is on the map at scale 1 (map pixels): its picture's, or its stand-in's. For taps, bubbles and cards. */
 export function animalSize(kit: SceneryKit | null, a: Pick<AnimalLook, "species" | "breed" | "stage" | "sex">): { w: number; h: number } {
@@ -71,10 +62,10 @@ export function animalSize(kit: SceneryKit | null, a: Pick<AnimalLook, "species"
   const len = lengthOf(a.species, a.stage);
   return { w: len, h: len * 0.9 };
 }
-/** An animal at its feet's point: its picture, or its stand-in. */
+/** An animal at its feet's point: its picture (walking or standing, its loop by its own clock), or its stand-in. */
 export function drawAnimal(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, a: AnimalLook, at: Vec, s: number, px: number, now: number, still: boolean) {
-  const frame: AnimalFrame = a.pose === "walk" ? (still || Math.floor(now / 260) % 2 ? "walk1" : "walk2") : a.pose;
-  const pic = animalPicture(kit, a, frame);
+  const action: ArtAction = a.pose === "walk" ? "walk" : a.pose;
+  const pic = animalPicture(kit, a, action, still ? 0 : now + (a.seed ?? 0));
   if (pic && kit) {
     const k = s * animalK(a.species, pic.name), [w, h] = kit.sizeOf(pic.name);
     if (a.pose === "swim" && !pic.name.endsWith("_swim")) {
@@ -451,7 +442,7 @@ export function drawBarnInside(things: Array<{ depth: number; draw: () => void }
     // (behind whatever stands on the floor: it is against the back wall)
     things.push({ depth: base + 0.5, draw: fade(() => {
       // ART: a stand-in of the trough until the art round's ends and slots (pasture-art's TROUGH_ART)
-      if (drawTroughArt(ctx, kit, P, tr.slots.length, u0, V0, opts.slots, s, px)) return;
+      if (drawTroughArt(ctx, kit, P, tr.slots.length, u0, V1, opts.slots, s, px)) return;
       // the body: a long box of planks, its near face lit, its far side the wall's shadow, its inside dark
       const side = (a: number, b2: number, h2: number, front: string, end: string, top: string) => {
         const A = P(a, V0), B = P(b2, V0), C = P(b2, V1), D = P(a, V1);
@@ -499,22 +490,27 @@ export function drawBarnInside(things: Array<{ depth: number; draw: () => void }
 /** The colour of each species' feed in its slot of the trough (its sack's grain, greens, clover or hay). */
 const FEED_INK: Record<string, string> = { chicken: "#e2bd52", duck: "#7fae4a", sheep: "#a6cf62", cow: "#c79a55" };
 /**
- * The trough of the art round's pieces (pasture-art's TROUGH_ART: a left end, a slot empty or with a species' feed half
- * or full, a right end), laid end to end along the back wall: false while the sheet has none of them.
+ * The trough of the art round's pieces (pasture-art's TROUGH_ART and TROUGH_FIT): every piece stands on its slot's point,
+ * where the compartment's front wall meets the floor at its middle. Ours runs along +x (down to the right), so the
+ * pieces are drawn mirrored and laid from the slot nearest the viewer's right up to the left, a step of their own each
+ * (not the tile's: the joints would drift); the slots first, then the left end on the first slot's point and the right
+ * end on the last's. False while the sheet has none of them.
  */
-function drawTroughArt(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, P: (u: number, v: number) => Vec, n: number, u0: number, v0: number, slots: Array<{ species: string; food: number } | null>, s: number, px: number): boolean {
+function drawTroughArt(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, P: (u: number, v: number) => Vec, n: number, u0: number, v1: number, slots: Array<{ species: string; food: number } | null>, s: number, px: number): boolean {
   const A = TROUGH_ART;
   if (!kit?.has(A.left) || !kit.has(A.right) || !kit.has(A.empty)) return false;
-  const at = (u: number) => P(u, v0 + TROUGH.depth / 2);
-  const k = s * (PROP_K[A.empty] ?? 0.67);
-  kit.drawProp(ctx, A.left, at(u0 + TROUGH.end / 2).x, at(u0 + TROUGH.end / 2).y, k, px);
+  const k = s * TROUGH_FIT.k, step = { x: -TROUGH_FIT.step[0] * k, y: TROUGH_FIT.step[1] * k };
+  // (the first drawn is our last slot, at the east end; each next one a step up to the left)
+  const first = P(u0 + TROUGH.end + (n - 1) * TROUGH.slot + TROUGH.slot / 2, v1);
+  const at = (i: number) => ({ x: first.x + step.x * i, y: first.y + step.y * i });
   for (let i = 0; i < n; i++) {
-    const sl = slots[i], fill = sl ? sl.food / 24 : 0, name = sl && fill > 0.02 ? A.feed(sl.species, fill < 0.55 ? "half" : "full") : A.empty;
-    const c = at(u0 + TROUGH.end + i * TROUGH.slot + TROUGH.slot / 2);
-    kit.drawProp(ctx, kit.has(name) ? name : A.empty, c.x, c.y, k, px);
+    const sl = slots[n - 1 - i], fill = sl ? sl.food / 24 : 0, want = sl && fill > 0.02 ? A.feed(sl.species, fill < 0.55 ? "half" : "full") : A.empty;
+    const name = kit.has(want) ? want : A.empty, p = at(i);
+    kit.drawProp(ctx, name, p.x, p.y, k * pastureScale(name), px, 0, true);
   }
-  const r = at(u0 + TROUGH.end + n * TROUGH.slot + TROUGH.end / 2);
-  kit.drawProp(ctx, A.right, r.x, r.y, k, px);
+  const l = at(0), r = at(n - 1);
+  kit.drawProp(ctx, A.left, l.x, l.y, k * pastureScale(A.left), px, 0, true);
+  kit.drawProp(ctx, A.right, r.x, r.y, k * pastureScale(A.right), px, 0, true);
   return true;
 }
 /**
