@@ -118,7 +118,8 @@ export function barnWall(ax: number, ay: number, bx: number, by: number): boolea
  */
 export const TROUGH = { slot: 1, end: 0.5, depth: 0.45 } as const;
 export function troughOf(barn: Pick<BarnPlace, "x" | "y" | "w">, room: number) {
-  const n = Math.max(1, Math.floor(room)), len = n * TROUGH.slot + 2 * TROUGH.end, x0 = barn.x + (barn.w - len) / 2;
+  // (never longer than the wall: past seven places, they share slots)
+  const n = Math.max(1, Math.min(barn.w - 1, Math.floor(room))), len = n * TROUGH.slot + 2 * TROUGH.end, x0 = barn.x + (barn.w - len) / 2;
   return { x0, x1: x0 + len, y: barn.y, slots: Array.from({ length: n }, (_, k) => ({ x0: x0 + TROUGH.end + k * TROUGH.slot, x1: x0 + TROUGH.end + (k + 1) * TROUGH.slot })) };
 }
 /** Where an animal of a barn eats: before its slot of the trough (its place among the barn's animals, past the room they share). */
@@ -237,7 +238,9 @@ export const nearFarmGate = (u: number, v: number) => u >= GATE_CLEAR.from && FA
 /* ── where an animal is: drawn the same on every page, from its id, its barn, its owner's door and the clock ── */
 
 export type Pose = "walk" | "idle" | "eat" | "sleep" | "swim";
-export interface AnimalSpot { x: number; y: number; right: boolean; pose: Pose; /** The barn it is inside (its floor), or -1: drawn only for whoever is in that barn. */ inside: number }
+export interface AnimalSpot { x: number; y: number; right: boolean; /** Its back to the viewer (going up the screen: x + y falling). */ back?: boolean; pose: Pose; /** The barn it is inside (its floor), or -1: drawn only for whoever is in that barn. */ inside: number }
+/** Whether a step from one point to another goes up the screen, away from the viewer. */
+const awayOf = (from: { x: number; y: number }, to: { x: number; y: number }) => to.x + to.y < from.x + from.y - 1e-6;
 type P = { x: number; y: number };
 
 export const hashStr = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
@@ -245,14 +248,14 @@ const mix = (...n: number[]) => { let h = 0x9e3779b9; for (const k of n) { h ^= 
 const dist = (a: P, b: P) => Math.hypot(b.x - a.x, b.y - a.y);
 const lenOf = (pts: readonly P[]) => pts.slice(1).reduce((n, p, i) => n + dist(pts[i], p), 0);
 /** A point a distance along a list of points, and which way it goes across the screen there. */
-function along(pts: readonly P[], d: number): { at: P; right: boolean } {
+function along(pts: readonly P[], d: number): { at: P; right: boolean; back: boolean } {
   let left = Math.max(0, d);
   for (let i = 1; i < pts.length; i++) {
     const a = pts[i - 1], b = pts[i], l = dist(a, b);
-    if (left <= l || i === pts.length - 1) { const f = l ? Math.min(1, left / l) : 1; return { at: { x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f }, right: b.x - b.y - (a.x - a.y) >= 0 }; }
+    if (left <= l || i === pts.length - 1) { const f = l ? Math.min(1, left / l) : 1; return { at: { x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f }, right: b.x - b.y - (a.x - a.y) >= 0, back: awayOf(a, b) }; }
     left -= l;
   }
-  return { at: pts[pts.length - 1] ?? { x: 0, y: 0 }, right: true };
+  return { at: pts[pts.length - 1] ?? { x: 0, y: 0 }, right: true, back: false };
 }
 
 /* The lanes as a network: nodes where lanes meet or end, and the lengths between them (worked out once). */
@@ -370,7 +373,7 @@ function patchToPatch(a: number, b: number): P[] {
   return w;
 }
 /** Where a moment is, out: a place on a way (and the way, so that a door shut then can bring it back the same way), in a patch, or still in its stall. */
-type Out = { at: P; right: boolean; pose: Pose; way?: { pts: P[]; d: number; from: number | "stall" }; patch?: number };
+type Out = { at: P; right: boolean; back?: boolean; pose: Pose; way?: { pts: P[]; d: number; from: number | "stall" }; patch?: number };
 
 interface Who { id: string; species: string; young: boolean }
 const paceOf = (a: Who) => (PACE[a.species] ?? 0.8) * (a.young ? 0.85 : 1);
@@ -381,7 +384,8 @@ const stretchOf = (seed: number) => {
 /** The first way out after a door opened: when it sets off, the stretch it goes to (this one's patch, or the next's if it would get there after this one is over), the way, and when it is there. */
 function firstOut(a: Who, barn: BarnPlace, slot: number, opened: number) {
   const seed = hashStr(a.id), lane = paceOf(a) * TROT, { period, start } = stretchOf(seed);
-  const go = opened + (seed % 7) * 900, p0 = period(opened);
+  // (one after another out of the door, by their places, so that they do not crowd in it)
+  const go = opened + (slot % 8) * 2200 + (seed % 5) * 500, p0 = period(opened);
   let q = p0, way = stallToPatch(barn, slot, patchOf(seed, a.species, p0));
   if (go + (lenOf(way) / lane) * 1000 > start(p0 + 1)) { q = p0 + 1; way = stallToPatch(barn, slot, patchOf(seed, a.species, q)); }
   return { go, q, way, there: go + (lenOf(way) / lane) * 1000 };
@@ -392,14 +396,14 @@ function outAt(a: Who, barn: BarnPlace, slot: number, opened: number, t: number)
   const { go, q, way: first, there } = firstOut(a, barn, slot, opened);
   if (t < go) return { at: restOf(barn, slot), right: true, pose: "idle" };
   const T0 = there - go;
-  if (t < there) { const d = ((t - go) / 1000) * lane, r = along(first, d); return { at: r.at, right: r.right, pose: "walk", way: { pts: first, d, from: "stall" } }; }
+  if (t < there) { const d = ((t - go) / 1000) * lane, r = along(first, d); return { at: r.at, right: r.right, back: r.back, pose: "walk", way: { pts: first, d, from: "stall" } }; }
   const k = Math.max(q, period(t)), patch = patchOf(seed, a.species, k);
   let w0 = k === q ? go + T0 : start(k);
   if (k > q) {
     const was = patchOf(seed, a.species, k - 1);
     if (was !== patch) {
       const way = patchToPatch(was, patch), T = (lenOf(way) / lane) * 1000;
-      if (t < start(k) + T) { const d = ((t - start(k)) / 1000) * lane, r = along(way, d); return { at: r.at, right: r.right, pose: "walk", way: { pts: way, d, from: was } }; }
+      if (t < start(k) + T) { const d = ((t - start(k)) / 1000) * lane, r = along(way, d); return { at: r.at, right: r.right, back: r.back, pose: "walk", way: { pts: way, d, from: was } }; }
       w0 = start(k) + T;
     }
   }
@@ -414,8 +418,9 @@ function wander(p: Patch, seed: number, k: number, pace: number, w0: number, w1:
   const from = i === 0 ? p.anchor : pt(i - 1), to = pt(i), d = dist(from, to);
   // (a step never takes longer than most of its slot: a longer one is taken at a trot)
   const walk = Math.min((d / pace) * 1000, L * 0.8), into = t - w0 - i * L, right = to.x - to.y - (from.x - from.y) >= 0;
-  if (into < walk && d > 0.05) { const f = into / walk; return { at: { x: from.x + (to.x - from.x) * f, y: from.y + (to.y - from.y) * f }, right, pose: swim ? "swim" : "walk" }; }
-  return { at: to, right: mix(seed, k, i, 6) < 0.5 ? right : !right, pose: swim ? "swim" : mix(seed, k, i, 4) < 0.45 ? "eat" : "idle" };
+  if (into < walk && d > 0.05) { const f = into / walk; return { at: { x: from.x + (to.x - from.x) * f, y: from.y + (to.y - from.y) * f }, right, back: awayOf(from, to), pose: swim ? "swim" : "walk" }; }
+  // (standing, it keeps the way it came now and then, else turns to the viewer)
+  return { at: to, right: mix(seed, k, i, 6) < 0.5 ? right : !right, back: awayOf(from, to) && mix(seed, k, i, 8) < 0.4, pose: swim ? "swim" : mix(seed, k, i, 4) < 0.45 ? "eat" : "idle" };
 }
 /** The way back to its resting place in the barn from wherever it was when its door was shut. */
 function homeWay(barn: BarnPlace, slot: number, out: Out): P[] {
@@ -466,9 +471,9 @@ function inBarn(a: Who, barn: BarnPlace, slot: number, room: number, since: numb
     return { x: barn.x + 0.7 + mix(seed, j, 1) * (barn.w - 1.4), y: barn.y + 1.0 + mix(seed, j, 2) * 1.6 };
   };
   const from = pt(k - 1), to = pt(k), into = t - since - k * L, walk = Math.min(L * 0.7, (dist(from, to) / (PACE[a.species] ?? 0.8)) * 1000), right = to.x - to.y - (from.x - from.y) >= 0;
-  if (into < walk && dist(from, to) > 0.05) { const f = into / walk; return { at: { x: from.x + (to.x - from.x) * f, y: from.y + (to.y - from.y) * f }, right, pose: "walk" }; }
-  // (at the trough it faces the wall, its head down)
-  return { at: to, right: to.eat ? false : mix(seed, k, 6) < 0.5, pose: to.eat ? "eat" : mix(seed, k, 7) < 0.25 ? "eat" : "idle" };
+  if (into < walk && dist(from, to) > 0.05) { const f = into / walk; return { at: { x: from.x + (to.x - from.x) * f, y: from.y + (to.y - from.y) * f }, right, back: awayOf(from, to), pose: "walk" }; }
+  // (at the trough it faces the wall, its back to the viewer, its head down)
+  return { at: to, right: to.eat ? false : mix(seed, k, 6) < 0.5, back: !!to.eat || (awayOf(from, to) && mix(seed, k, 8) < 0.4), pose: to.eat ? "eat" : mix(seed, k, 7) < 0.25 ? "eat" : "idle" };
 }
 /** When the door was last shut before a moment (for where in the barn an animal is when it is opened again), or none. */
 function shutBefore(door: GateLog, t: number) {
@@ -509,11 +514,11 @@ export function animalSpot(a: Who, barnIndex: number, slot: number, door: GateLo
     // (where it was as the door shut: lying where night found it, if the night had come and it was out by then)
     const atShut = asleepAt(d.since) ? Math.min(d.since, Math.max(nightBegan(d.since), firstOut(a, barn, slot, d.opened).there)) : d.since;
     const was = outAt(a, barn, slot, d.opened, atShut), home = homeWay(barn, slot, was), T = (lenOf(home) / lane) * 1000;
-    if (now < d.since + T) { const r = along(home, ((now - d.since) / 1000) * lane); o = { at: r.at, right: r.right, pose: "walk" }; }
+    if (now < d.since + T) { const r = along(home, ((now - d.since) / 1000) * lane); o = { at: r.at, right: r.right, back: r.back, pose: "walk" }; }
     else o = asleep(inBarn(a, barn, slot, room, Math.max(d.since + T, settled(d.since)), asleepIn(Math.max(d.since + T, settled(d.since)))));
   } else o = asleep(inBarn(a, barn, slot, room, 0, asleepIn(0)));
   if (night && o.pose !== "walk" && o.pose !== "swim") o = { ...o, pose: "sleep" };
-  return { x: o.at.x, y: o.at.y, right: o.right, pose: o.pose, inside: barnAt(o.at.x, o.at.y) };
+  return { x: o.at.x, y: o.at.y, right: o.right, back: !!o.back && o.pose !== "sleep", pose: o.pose, inside: barnAt(o.at.x, o.at.y) };
 }
 /** Where an animal waiting in Uncle Popoto's pen is: about the paddock, by its id and the clock. */
 export function penSpot(id: string, species: string, now: number, night = asleepAt(now)): AnimalSpot {
@@ -521,7 +526,7 @@ export function penSpot(id: string, species: string, now: number, night = asleep
   const seed = hashStr(id), L = 10_000 + (seed % 6) * 1000, t = night ? Math.min(now, nightBegan(now)) : now, k = Math.floor((t + seed % L) / L);
   const pt = (j: number): P => ({ x: PEN.x + 0.6 + mix(seed, j, 1) * (PEN.w - 1.2), y: PEN.y + 0.7 + mix(seed, j, 2) * (PEN.h - 1.3) });
   const from = pt(k - 1), to = pt(k), into = (t + seed % L) - k * L, walk = Math.min(L * 0.7, (dist(from, to) / (PACE[species] ?? 0.8)) * 1000), right = to.x - to.y - (from.x - from.y) >= 0;
-  if (!night && into < walk && dist(from, to) > 0.05) { const f = into / walk; return { x: from.x + (to.x - from.x) * f, y: from.y + (to.y - from.y) * f, right, pose: "walk", inside: -1 }; }
+  if (!night && into < walk && dist(from, to) > 0.05) { const f = into / walk; return { x: from.x + (to.x - from.x) * f, y: from.y + (to.y - from.y) * f, right, back: awayOf(from, to), pose: "walk", inside: -1 }; }
   return { x: to.x, y: to.y, right: mix(seed, k, 6) < 0.5, pose: night ? "sleep" : mix(seed, k, 4) < 0.4 ? "eat" : "idle", inside: -1 };
 }
 /** For the tests: every way an animal may take (out of each barn's stalls to each patch, and between patches), as lists of points. */

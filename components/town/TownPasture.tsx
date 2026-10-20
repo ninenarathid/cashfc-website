@@ -5,7 +5,7 @@ import type { Keeper } from "@/lib/town/keeper";
 import { ANIMALS, SPECIES, breedOf, gateAt as doorOpenAt, mayCare, stageOf, untendedOf, type Animal, type Herd } from "@/lib/town/animals";
 import { ANIMAL_GIFTS, viewOf, wagonAt, wagonEnds, type AnimalInput, type AnimalReply, type AnimalWorld } from "@/lib/town/animal-act";
 import {
-  BARNS, FARM_GATES, FENCE_X, MEADOW_SPOTS, PASTURE_PROPS, PEN, POPOTO, TABLE, TROUGHS, WAGON_STOPS, animalSpot, barnAt, doorOf, penSpot, troughOf,
+  BARNS, FARM_GATES, FENCE_X, MEADOW_SPOTS, PASTURE_PROPS, PEN, POPOTO, TABLE, TROUGHS, WAGON_STOPS, animalSpot, barnAt, doorOf, hashStr, penSpot, troughOf,
   type BarnPlace,
 } from "@/lib/town/pasture";
 import { forageAt, bandOf, dayOf } from "@/lib/town/animals";
@@ -353,7 +353,7 @@ export default function TownPasture(props: PastureProps) {
           // (the trough's slots: each the animal of that place's, its feed and how full; a free barn's two, empty)
           const inside = (w?.animals ?? []).filter((a) => holder && a.owner === holder.owner && a.home !== "pen" && a.born <= clock).sort((x, y) => (x.id < y.id ? -1 : 1));
           const room = holder?.room ?? ANIMALS.barns.stages[0].room;
-          const slots = Array.from({ length: room }, (_, i) => { const a = inside[i]; return a ? { species: a.species, food: views.current.get(a.id)?.v.food ?? a.food } : null; });
+          const slots = Array.from({ length: troughOf(b, room).slots.length }, (_, i) => { const a = inside[i]; return a ? { species: a.species, food: views.current.get(a.id)?.v.food ?? a.food } : null; });
           drawBarnInside(things, ctx, k, sc, project, b, s, px, { slots, eggs: holder ? coming(holder.owner) : 0, open, alpha: 1 - roof });
           // (what is tapped inside: the trough and the nest)
           const tr = troughOf(b, room), tr0 = project({ x: tr.x0, y: b.y + 0.3 }), tr1 = project({ x: tr.x1, y: b.y + 0.3 });
@@ -425,7 +425,7 @@ export default function TownPasture(props: PastureProps) {
         // (a sheep after its shearing looks shorn until half its fleece has grown again)
         const shorn = a.species === "sheep" && st === "adult" && v.ready === 0 && v.round < 0.5;
         const look = { species: a.species, breed: a.breed, stage: st, sex: a.sex };
-        things.push({ depth: spot.x + spot.y, draw: () => drawAnimal(ctx, k, { ...look, pose: spot.pose, right: spot.right, shorn }, c, s, px, tick, still) });
+        things.push({ depth: spot.x + spot.y, draw: () => drawAnimal(ctx, k, { ...look, pose: spot.pose, right: spot.right, back: spot.back, shorn, seed: hashStr(a.id) % 10_000 }, c, s, px, tick, still) });
         const box = animalSize(k, look);
         const care = !mine && mayCare(holder, me);
         if (mine || care) out.push({ kind: "animal", id: a.id, x0: c.x - (box.w / 2 + 6) * s, y0: c.y - (box.h + 8) * s, x1: c.x + (box.w / 2 + 6) * s, y1: c.y + 6 * s });
