@@ -3686,6 +3686,14 @@ const DICT = {
   },
   "contact.savedFor": { en: "Saved for {name}", th: "บันทึกของ {name} แล้ว" },
   "contact.removedFor": { en: "Removed for {name}", th: "ลบของ {name} ออกแล้ว" },
+  "contact.signedOut": {
+    en: "Not saved: this device is no longer signed in. Copy what you typed, sign in again on your profile page, then save.",
+    th: "บันทึกไม่สำเร็จ: เครื่องนี้หลุดจากการเข้าสู่ระบบแล้ว คัดลอกที่พิมพ์ไว้ แล้วเข้าสู่ระบบใหม่ที่หน้าโปรไฟล์ก่อนบันทึก",
+  },
+  "contact.signInStalled": {
+    en: "Not saved: the sign-in could not be renewed just now. What you typed is still here; wait a moment and save again.",
+    th: "บันทึกไม่สำเร็จ: ต่ออายุการเข้าสู่ระบบไม่ทัน ที่พิมพ์ไว้ยังอยู่ รอสักครู่แล้วกดบันทึกอีกครั้ง",
+  },
 
   /* ── The staff page (v279, v280) ───────────────────────────────────
      Staff are members everywhere else; this page is the one thing more

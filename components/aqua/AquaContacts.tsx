@@ -4,7 +4,7 @@ import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { DiscordGlyph, FacebookGlyph, LockGlyph } from "@/components/ui/ContactIcons";
 import {
-  DISCORD_MAX, FACEBOOK_MAX, allContacts, saveContact, tidy, type Contact,
+  DISCORD_MAX, FACEBOOK_MAX, allContacts, refusalLine, saveContact, tidy, type Contact,
 } from "@/lib/contacts";
 import { useLang } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase/client";
@@ -308,7 +308,7 @@ function Row(
       {why && (
         <p role="alert"
            className="rounded-lg border border-chili/60 bg-chili/10 px-3 py-1.5 text-ui leading-relaxed text-ink sm:col-span-4">
-          {t("adm.saveFailed", { why })}
+          {refusalLine(why, t)}
         </p>
       )}
     </form>
