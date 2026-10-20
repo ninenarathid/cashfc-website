@@ -70,22 +70,34 @@ const DESC = {
   cocoaCow: "a dark chocolate cow with milk-chocolate patches and cream horns", cocoaCowM: "a dark chocolate bull with milk-chocolate patches and big cream horns",
   flowerCow: "a white cow with green mossy patches and little flowers on its back", flowerCowM: "a white bull with green mossy patches, little flowers on its back and short horns",
   milkyWayCow: "a midnight-blue cow patterned with star constellations", milkyWayCowM: "a midnight-blue bull patterned with star constellations, with short pale horns",
+  // the shorn whose fleece is their mark (Codex, 2026-10-20: never ask for the wool just taken off)
+  valaisShorn: "a white sheep with a black face, ears and knees, just sheared: a slimmer body with a short smooth white coat",
+  valaisMShorn: "a white ram with a black face, ears and knees and two big spiral horns, just sheared: a slimmer body with a short smooth white coat",
+  dandelionLambShorn: "a pale cream sheep, just sheared: a slimmer body with a short smooth coat and a few small white flowers attached on its back",
+  dandelionLambMShorn: "a pale cream ram with two curled pale cream horns, just sheared: a slimmer body with a short smooth coat and a few small white flowers attached on its back",
+  starFleeceShorn: "a midnight-blue sheep, just sheared: a slimmer body with a short smooth coat marked with a few opaque pale-yellow stars inside its outline, with no glow or floating sparkles",
+  starFleeceMShorn: "a midnight-blue ram with two curled silver-grey horns, just sheared: a slimmer body with a short smooth coat marked with a few opaque pale-yellow stars inside its outline, with no glow or floating sparkles",
+  goldenFleeceShorn: "a hornless golden ewe with a cream face, just sheared: a slimmer body with a short smooth shining golden coat",
+  goldenFleeceMShorn: "a golden ram with big heavy curled ivory horns, just sheared: a slimmer body with a short smooth shining golden coat",
   cloudRam: "a big fluffy white ram with a grey face, curled horns and a brown leather riding saddle, keeping the saddle, straps and stirrups in their reference positions",
 };
 const NOUN = { sheep: "sheep", cow: "cow", bird: "bird" };
-const desc = (l) => DESC[l.look] ?? `a ${NOUN[l.kind]} (${l.look})`;
+// (a shorn look: its fleeced self's words, just sheared)
+const desc = (l) => DESC[l.look] ?? (l.look.endsWith("Shorn") && DESC[l.look.slice(0, -5)] ? `${DESC[l.look.slice(0, -5)]}, just sheared: a slimmer body with a short smooth coat in its fleece's colours` : `a ${NOUN[l.kind]} (${l.look})`);
 // The 3/4 back view (our NE): PixelLab's "north" (our NW, its back turned to the upper left), drawn mirrored as NE
 // (pasture-frames.mjs). Its "east" came out a profile for the hen, the lamb and the calf, and only now and then the back
 // three quarters; "north" was the back three quarters for every look of the starters (stage 2, 2026-10-20).
 const BACK = { sheep: "north", cow: "north", bird: "north" };
+// (looks whose "north" showed the face: their back view is "north-east", a straight back view, not mirrored; Codex, 2026-10-20-09-27-51)
+const BACK_OF = { cayuga: "north-east", cayugaM: "north-east", mandarinM: "north-east" };
 // the dog skeleton's standing loop, for the sheep. (The horse has no `idle`; its `rest-idle` lay the bull down into a
 // sheep and striped the cow's spots (stage 3), so a cow's idle is a custom one, as a bird's: the calf's and the heifer's
 // rest-idle held and were kept.)
 const IDLE = { sheep: "idle" };
-const STAND = (l, dir) => `standing in place, ${l.kind === "cow" ? "four hooves" : "feet"} planted, facing unchanged; subtle breathing, one brief blink${dir === "north" ? " only if an eye is already visible; never turn to reveal the face" : ""}${l.kind === "cow" ? ", a small flick of an ear" : ""}; head returns to its starting position; seamless four-frame loop`;
+const STAND = (l, dir) => `standing in place, ${l.kind === "cow" ? "four hooves" : "feet"} planted, facing unchanged; subtle breathing, one brief blink${dir !== "south" ? " only if an eye is already visible; never turn to reveal the face" : ""}${l.kind === "cow" ? ", a small flick of an ear" : ""}; head returns to its starting position; seamless four-frame loop`;
 const createBody = (l) => ({ description: `${desc(l)}, cute chibi pixel art with a thick dark outline, as in the reference`, reference_image: `@../../../work/pasture/base/${l.base}.png`, n_directions: 8, view: "low top-down", template_id: TEMPLATE[l.kind], name: l.look });
 const animBodies = (l, id) => {
-  const views = { south: "SE", [BACK[l.kind]]: "NE" }, out = [];
+  const views = { south: "SE", [BACK_OF[l.look] ?? BACK[l.kind]]: "NE" }, out = [];
   for (const [dir, view] of Object.entries(views)) {
     if (l.kind === "bird") {
       out.push([`walk-${view}`, { character_id: id, mode: "pixminimax", action_description: "walking in place with small waddling steps, alternating its feet, facing unchanged, its body turned the same way in every frame", subject_description: desc(l), frame_count: 4, directions: [dir], animation_name: `walk-${view}` }]);

@@ -1,1 +1,1 @@
-{"character_id":"63bc1397-0431-41ca-b361-9ee7cb3bf6a7","mode":"template","template_animation_id":"rest-idle","directions":["south"],"animation_name":"idle-SE"}
+{"character_id":"63bc1397-0431-41ca-b361-9ee7cb3bf6a7","mode":"pixminimax","action_description":"standing in place, four hooves planted, facing unchanged; subtle breathing, one brief blink, a small flick of an ear; head returns to its starting position; seamless four-frame loop","subject_description":"a white cow with black spots and a bell","frame_count":4,"directions":["south"],"animation_name":"idle-SE"}

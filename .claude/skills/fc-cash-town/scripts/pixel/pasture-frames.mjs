@@ -173,7 +173,10 @@ export async function lookFrames(only) {
       // (a back view drawn as PixelLab's "north" faces the upper left: mirrored; the meadow sheep's trial drew it as "east")
       const flip = view === "NE" && !/-east$/.test(dir) && fs.readFileSync(path.join(WORK, "pl", dir, "response.json"), "utf8").includes("\"direction\": \"north\"");
       const ims = [];
-      for (const f of loopFiles(dir, action)) { let im = tidy(await rgba(f), pal); if (flip) im = mirror(im); ims.push(im); }
+      // (a part apart from the animal under 6% of it is a stray PixelLab left, as the Araucana rooster's floating tail
+      // stroke: dropped; the raindrop ducks' rain cloud floats by design and is kept)
+      const keepApart = /^raindropDuck/.test(look) ? 4 : null;
+      for (const f of loopFiles(dir, action)) { const raw = await rgba(f); let n = 0; for (let i = 3; i < raw.d.length; i += 4) if (raw.d[i] >= 128) n++; let im = tidy(raw, pal, keepApart ?? Math.max(4, Math.round(n * 0.06))); if (flip) im = mirror(im); ims.push(im); }
       // one ground point for the loop: the middle of all its frames' boxes, their lowest row
       let x0 = Infinity, x1 = -1, y1 = -1;
       for (const im of ims) for (let y = 0; y < im.h; y++) for (let x = 0; x < im.w; x++) if (im.d[(y * im.w + x) * 4 + 3]) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
