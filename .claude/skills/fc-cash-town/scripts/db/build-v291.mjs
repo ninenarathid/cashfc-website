@@ -218,7 +218,7 @@ notify pgrst, 'reload schema';
 -- After it has run, in the SQL editor (each answers as said):
 --   select to_regprocedure('public.town_animals(jsonb,text)') is not null;                           -- true
 --   select town.made_of('[["blueEgg", 1], ["duckEgg", 1], ["oil", 1]]'::jsonb);                      -- omelette
---   select data->'species'->'cow'->>'price' from public.town_catalog where key = 'animals';           -- 4000
+--   select data->'species'->'cow'->>'price' from public.town_catalog where key = 'animals';           -- ${all.animals.species.cow.price}
 --   select town.reward_relay_place('[${farmX2},${farmY2}]'::jsonb), town.reward_relay_place('[${farmX2 + 1},${farmY2}]'::jsonb);   -- farm, null
 `;
 writeFileSync(FILE, sql);
