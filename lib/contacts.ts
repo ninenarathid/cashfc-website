@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Key } from "@/lib/i18n";
 
 /**
  * How to reach a member outside the game: a Discord name and a Facebook, typed
@@ -83,19 +84,41 @@ export async function readContact(supabase: Client, characterId: number): Promis
   return c.discord || c.facebook ? c : null;
 }
 
+/** A save that never reached the database as anybody, and why. */
+const NO_SESSION = { out: "contact.signedOut", stalled: "contact.signInStalled" } as const satisfies Record<string, Key>;
+
 /**
  * Keep what an admin or a staff member (v280) typed. Both fields every time;
  * both blank takes the row away. Answers with the reason when it was refused, and null when it was not.
+ *
+ * Without a session supabase-js sends the anon key in its place, and the
+ * database answers "permission denied for function member_contact_set": a
+ * lost sign-in that reads like a missing right (the Crew page, 2026-10-20).
+ * A list of five hundred rows stays open long enough to outlive its sign-in,
+ * through a token that ran out and could not be renewed that moment, or one
+ * another tab spent. So the session is asked for first, and a refusal of the
+ * call itself (42501, which a signed-in account never gets here) is said as
+ * the lost sign-in it is.
  */
 export async function saveContact(
   supabase: Client, characterId: number, c: Contact,
 ): Promise<string | null> {
+  const { data, error: lost } = await supabase.auth.getSession();
+  if (!data.session) return lost ? NO_SESSION.stalled : NO_SESSION.out;
   const { error } = await supabase.rpc("member_contact_set", {
     p_character: characterId,
     p_discord: tidy(c.discord),
     p_facebook: tidy(c.facebook),
   });
-  return error ? error.message : null;
+  if (!error) return null;
+  return error.code === "42501" ? NO_SESSION.out : error.message;
+}
+
+/** The line a refused save shows: this browser's sign-in said plainly, or the database's own words. */
+export function refusalLine(
+  why: string, t: (key: Key, vars?: Record<string, string | number>) => string,
+): string {
+  return why === NO_SESSION.out || why === NO_SESSION.stalled ? t(why) : t("adm.saveFailed", { why });
 }
 
 /** Every one on file, for Aqua's page and the staff page. `missing` when the table is not there to ask. */
