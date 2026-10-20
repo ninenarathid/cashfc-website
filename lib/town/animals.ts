@@ -103,7 +103,8 @@ export const ANIMALS = {
   cradleRare: 0.2,
   harp: { mins: 30, near: 8 },
   wind: { mins: 60 },
-  wagon: { legs: 2, mins: 4, seats: 0 /* (no limit) */ },
+  /** The wagon: a ride counts after so many legs, the tour lasts so many minutes, and a ride is told for its hearts within so many minutes of the tour's end (once). */
+  wagon: { legs: 2, mins: 4, seats: 0 /* (no limit) */, claimMins: 30 },
   /** How many rounds a bird's eggs laid out on the meadow may be, of its banked ones, at the most: one in three. */
   outsideShare: 1 / 3,
 } as const;
@@ -359,6 +360,8 @@ export interface Herd {
   credit: number;
   /** When its owner last cared for an animal of it (the untended rule reads it). */
   lastCare: number;
+  /** From when the owner's warm bottle (rank 3) counts for its animals: the first step after it was had, never before. */
+  bottleAt?: number | null;
   /** The barn's front; who may care for the animals (none, named, anybody) and whom. */
   facade: number;
   care: "none" | "named" | "anybody";
@@ -440,6 +443,8 @@ export function settle(a0: Animal, now: number, ctx: Ctx): Animal {
     let next = Math.min(now, gate.next, dayEnd);
     if (t < a.speedUntil) next = Math.min(next, a.speedUntil);
     if (t < a.windUntil) next = Math.min(next, a.windUntil);
+    // (out, a stretch ends where a band begins: each band it was out in counts for its finds; Codex, 2026-10-20)
+    if (out) next = Math.min(next, nextBandEdge(t));
     const rate = eatRate(a, out);
     if (a.food > 1e-9) {
       const runsOut = t + (a.food / rate) * HOUR;
@@ -486,6 +491,13 @@ export function bandOf(t: number): number {
   const h = new Date(t + 7 * HOUR).getUTCHours();
   for (let i = BAND_EDGES.length - 1; i >= 0; i--) if (h >= BAND_EDGES[i]) return i;
   return BAND_EDGES.length - 1; // 00-03 belongs to 23-03
+}
+
+/** The next moment a band begins after `t` (an outing's stretch ends there, so that every band it was out in is counted). */
+export function nextBandEdge(t: number): number {
+  const local = t + 7 * HOUR, midnight = Math.floor(local / DAY) * DAY;
+  for (const e of BAND_EDGES) { const at = midnight + e * HOUR; if (at > local) return at - 7 * HOUR; }
+  return midnight + DAY + BAND_EDGES[0] * HOUR - 7 * HOUR;
 }
 
 /* ── what an animal out on the meadow brings back, by band (things of other lines; the before-dawn ones the meadow's) ── */

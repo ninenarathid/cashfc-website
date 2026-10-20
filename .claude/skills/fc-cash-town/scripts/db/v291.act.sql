@@ -39,6 +39,8 @@ begin
   if k is null then return town.answer(me, town.no('none')); end if;
   kn := k->'knobs';
   if p_request is not null and char_length(p_request) not between 8 and 80 then return town.answer(me, town.no('none')); end if;
+  -- (the pasture's lock first: a second call of the same request waits for the first, and then finds its answer)
+  select * into pas from public.town_pasture where one for update;
   -- (a retried call: the answer it had, the purse as it is now)
   if p_request is not null then
     select x.answer into past from public.town_animal_asks x where x.member = me and x.request = p_request;
@@ -46,7 +48,15 @@ begin
   end if;
   purse := town.purse_of(me, true);
   herd := town.animal_herd(me); herd0 := herd;
-  select * into pas from public.town_pasture where one for update;
+  -- (the warm bottle counts from my first step after it is had: my animals brought to now without it, its moment written)
+  if jsonb_typeof(herd->'bottleAt') is distinct from 'number' and exists (select 1 from public.town_herds x where x.owner = me)
+     and coalesce(town.gifts_of(purse)->'had' ? (k->'gifts'->>'bottle'), false) then
+    with s as (update public.town_animals x set a = town.animal_settle(x.a, now_, herd->'door', false, k), changed = now_::bigint where x.owner = me returning x.a)
+    select touched || coalesce(jsonb_agg(s.a), '[]'::jsonb) into touched from s;
+    herd := herd || jsonb_build_object('bottleAt', now_);
+    update public.town_herds x set h = herd, changed = now_::bigint where x.owner = me;
+    herd0 := herd;
+  end if;
   offers_ := town.animal_live(pas.offers, now_, (kn->>'offerHours')::double precision);
   asks_ := town.animal_live(pas.asks, now_, (kn->>'askHours')::double precision);
 
@@ -368,8 +378,9 @@ begin
         an := an || jsonb_build_object('speedUntil', greatest(coalesce((an->>'speedUntil')::double precision, 0), now_) + grow);
         purse := purse || jsonb_build_object('bag', town.take(purse->'bag', item, 1));
       else
-        if (an->>'food')::double precision >= (kn->>'trough')::double precision - 0.01 then return town.answer(me, town.no('full')); end if;
-        hours := least(hours, (kn->>'trough')::double precision - (an->>'food')::double precision);
+        grow := case when item = 'packedRation' then (kn->>'packed')::double precision else (kn->>'trough')::double precision end;  -- (the trough's room: a packed ration's three days)
+        if (an->>'food')::double precision >= grow - 0.01 then return town.answer(me, town.no('full')); end if;
+        hours := least(hours, grow - (an->>'food')::double precision);
         an := an || jsonb_build_object('food', (an->>'food')::double precision + hours,
           'narrow', greatest(coalesce((an->>'narrow')::integer, 0), coalesce((kn->'quality'->'narrowBy'->>grade_)::integer, 0)));
         purse := purse || jsonb_build_object('bag', town.animal_take_g(purse->'bag', item, 1, grade_));
@@ -586,6 +597,9 @@ begin
     else
       select x into rider from jsonb_array_elements(run->'riders') x where x->>'who' = me::text limit 1;
       if rider is null then return town.answer(me, town.no('none')); end if;
+      if coalesce((rider->>'claimed')::boolean, false) then return town.answer(me, town.no('used')); end if;
+      if now_ > (run->>'from')::double precision + (kn->'wagon'->>'mins')::double precision * 60000 + (kn->'wagon'->>'claimMins')::double precision * 60000 then
+        return town.answer(me, town.no('none')); end if;
       leg_ms := ((kn->'wagon'->>'mins')::double precision * 60000) / greatest(1, jsonb_array_length(run->'stops'));
       if now_ < (rider->>'on')::double precision + (kn->'wagon'->>'legs')::double precision * leg_ms - 1000 then return town.answer(me, town.no('soon')); end if;
       if purse->>'animalRode' = 'wagon:' || town.day_of(now_::bigint) then return town.answer(me, town.no('used')); end if;
@@ -596,6 +610,9 @@ begin
         update public.town_animals x set a = an, changed = now_::bigint where x.id = row_.id;
         touched := touched || jsonb_build_array(an);
       end loop;
+      update public.town_pasture p set wagons = (select jsonb_agg(case when w->>'id' = run->>'id'
+          then w || jsonb_build_object('riders', (select jsonb_agg(case when x->>'who' = me::text then x || '{"claimed": true}'::jsonb else x end order by o) from jsonb_array_elements(w->'riders') with ordinality y(x, o)))
+          else w end) from jsonb_array_elements(p.wagons) w), changed = now_::bigint where p.one;
       purse := purse || jsonb_build_object('animalRode', 'wagon:' || town.day_of(now_::bigint));
       notes := notes || jsonb_build_array(jsonb_build_array('animal_rode', 1, null, 0, jsonb_build_object('run', run->>'id'), 0));
     end if;

@@ -171,10 +171,25 @@ function madeExactly(things: Array<[ItemId, number]>): ItemId | null {
 }
 /** What some things are the makings of, whoever cooks them: a dish, or something else that is made; or nothing. */
 export function madeOf(things: Array<[ItemId, number]>): ItemId | null {
-  if (madeExactly(things)) return madeExactly(things);
-  if (!hasFamily(things)) return null;
-  // (as its families: any breed's egg an egg, any milk milk; then, for the pasture's makings, any breed's milk farm milk)
-  return madeExactly(asFamily(things)) ?? madeExactly(things.map(([id, n]) => [(FARM_FAMILY[id] ?? id) as ItemId, n]));
+  for (const pot of readings(things)) { const made = madeExactly(pot); if (made) return made; }
+  return null;
+}
+/**
+ * Every way to read a pot: each thing as itself, as its family (any breed's egg an egg, any milk milk) or, for the
+ * pasture's makings, any breed's milk as farm milk; the fewest stand-ins first, and among as few, in reading order (the
+ * first thing's choices the slowest). So a breed's own egg stays its own where a recipe asks for it (Codex, 2026-10-20:
+ * lantern eggs read whole as "egg" made plain custard of lantern custard). The database's town.made_of reads the same.
+ */
+export function readings(things: Array<[ItemId, number]>): Array<Array<[ItemId, number]>> {
+  if (!hasFamily(things)) return [things];
+  const opts = things.map(([id, n]) => [...new Set([id, FAMILY[id], FARM_FAMILY[id]].filter((x): x is string => !!x))].map((x): [ItemId, number] => [x as ItemId, n]));
+  const out: Array<{ pot: Array<[ItemId, number]>; subs: number }> = [];
+  const walk = (i: number, pot: Array<[ItemId, number]>, subs: number): void => {
+    if (i === opts.length) { out.push({ pot, subs }); return; }
+    opts[i].forEach((o, k) => walk(i + 1, [...pot, o], subs + (k ? 1 : 0)));
+  };
+  walk(0, [], 0);
+  return out.sort((a, b) => a.subs - b.subs).map((x) => x.pot);
 }
 /** What making a thing takes: its cookware, and how many cooks. */
 export const takes = (id: ItemId): { in: Cookware[]; cooks: number } =>
@@ -230,7 +245,7 @@ export function potSays(things: Array<[ItemId, number]>): { fits: boolean; whole
   const mine = tidy(things);
   if (!mine.length) return { fits: true, whole: false, wrong: [] };
   const within = (some: Array<[ItemId, number]>) => RECIPE_IDS.some((id) => { const needs = new Map(needsOf(id)); return some.every(([k, n]) => (needs.get(k) ?? 0) >= n); });
-  if (within(mine) || (hasFamily(mine) && within(tidy(asFamily(mine))))) return { fits: true, whole: madeOf(mine) !== null, wrong: [] };
+  if (readings(mine).some((pot) => within(tidy(pot)))) return { fits: true, whole: madeOf(mine) !== null, wrong: [] };
   const less = (k: ItemId) => mine.flatMap(([j, n]): Array<[ItemId, number]> => (j !== k ? [[j, n]] : n > 1 ? [[j, n - 1]] : []));
   const wrong = mine.filter(([k]) => within(less(k))).map(([k]) => k);
   return { fits: false, whole: false, wrong: wrong.length ? wrong : mine.map(([k]) => k) };

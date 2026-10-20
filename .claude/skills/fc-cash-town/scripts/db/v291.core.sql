@@ -53,6 +53,13 @@ returns integer language sql immutable set search_path = '' as $$
   select case when h >= 23 then 7 when h >= 19 then 6 when h >= 16 then 5 when h >= 13 then 4 when h >= 11 then 3 when h >= 7 then 2 when h >= 5 then 1 when h >= 3 then 0 else 7 end
     from (select floor(((p_t + 25200000) - floor((p_t + 25200000) / 86400000) * 86400000) / 3600000)::integer as h) x
 $$;
+-- The next moment a band begins after a moment (nextBandEdge): an outing's stretch ends there, so each band it was out in counts.
+create or replace function town.animal_next_band_edge(p_t double precision)
+returns double precision language sql immutable set search_path = '' as $$
+  select coalesce((select x.m + e * 3600000 from unnest(array[3, 5, 7, 11, 13, 16, 19, 23]) e where x.m + e * 3600000 > x.l order by e limit 1),
+      x.m + 86400000 + 3 * 3600000) - 25200000
+    from (select p_t + 25200000 as l, floor((p_t + 25200000) / 86400000) * 86400000 as m) x
+$$;
 -- Whether a barn's door stood open at a moment, and the next moment after it that it opened or closed (gateAt).
 create or replace function town.animal_gate_at(p_gate jsonb, p_t double precision)
 returns jsonb language plpgsql immutable set search_path = '' as $$
@@ -143,6 +150,7 @@ begin
     nxt := least(p_now, coalesce((g->>'next')::double precision, 'Infinity'::double precision), day_end);
     if t < speed_until then nxt := least(nxt, speed_until); end if;
     if t < wind_until then nxt := least(nxt, wind_until); end if;
+    if out_ then nxt := least(nxt, town.animal_next_band_edge(t)); end if;
     rate := (case when out_ then rate_out else 1 end) * (1 - thrift_);
     if food > 1e-9 then
       runs := t + (food / rate) * 3600000;
@@ -219,10 +227,12 @@ begin
   end loop;
   return bag;
 end $$;
--- Whether a member has the rank-3 warm bottle (their animals grow faster wherever it is read).
+-- Whether a member's rank-3 warm bottle counts for their animals: had, and its moment written on their herd (it counts
+-- from their first step after it is had, never backwards: public.town_animals writes it).
 create or replace function town.animal_bottle(p_member uuid)
 returns boolean language sql stable set search_path = '' as $$
   select coalesce((select town.gifts_of(p.doc)->'had' ? (town.cat('animals')->'gifts'->>'bottle') from public.town_purses p where p.member_id = p_member), false)
+     and exists (select 1 from public.town_herds h where h.owner = p_member and jsonb_typeof(h.h->'bottleAt') = 'number')
 $$;
 -- A member's herd, or a new one's (newHerd: no barn yet).
 create or replace function town.animal_herd(p_member uuid)

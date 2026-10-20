@@ -28,7 +28,7 @@ export const ANIMAL_GIFTS = {
 } as const;
 
 /** A run of the hay wagon: who called it, when it set off, its stops in order (a map's stop each), and who rides. */
-export interface WagonRun { id: string; by: string; from: number; stops: string[]; riders: Array<{ who: string; on: number; leg: number }> }
+export interface WagonRun { id: string; by: string; from: number; stops: string[]; riders: Array<{ who: string; on: number; leg: number; claimed?: boolean }> }
 /** A gift's hour that others share: spring wind (owners on the farm in it) and the pasture harp (those near). */
 export interface Spell { kind: "wind" | "harp"; by: string; from: number; until: number; who?: string[] }
 
@@ -130,7 +130,8 @@ const closeDoor = (door: GateLog, now: number): GateLog => {
 /** What settles an animal: its owner's barn door, and their warm bottle (read off their purse where it is known, else the herd's word). */
 const ctxFor = (w: AnimalWorld, owner: string, ownerPurse: Pick<Purse, "gifts"> | null): Ctx => {
   const h = w.herds.find((x) => x.owner === owner);
-  return { door: h?.door ?? [], bottle: ownerPurse ? hasThing(ownerPurse, ANIMAL_GIFTS.bottle as ThingId) : !!(h as Herd & { bottle?: boolean } | undefined)?.bottle };
+  // (the bottle counts once its moment is written on the herd: see the first lines of animalAction)
+  return { door: h?.door ?? [], bottle: ownerPurse ? hasThing(ownerPurse, ANIMAL_GIFTS.bottle as ThingId) && h?.bottleAt != null : !!(h as Herd & { bottle?: boolean } | undefined)?.bottle };
 };
 /** A new animal: bought (born now, of the chosen sex and bought stats) or born of a cross or the cradle. */
 export function newAnimal(id: string, owner: string, species: SpeciesId, breed: string, born: number, bought: boolean, home: Home, sex: Sex, stats: Stats): Animal {
@@ -178,8 +179,19 @@ export const TOOL_OF = { eggs: "eggBasket", shear: "woolShears", milk: "milker" 
  * One step. `purses`: the purses of others it may touch, by id (a friend whose animal is lent, the owner of an animal
  * cared for: only for their gifts, never written). The answer brings the world and my purse after it.
  */
-export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInput, env: Env, purses: Record<string, Purse> = {}): AnimalReply {
+export function animalAction(world0: AnimalWorld, purse: Purse, input: AnimalInput, env: Env, purses: Record<string, Purse> = {}): AnimalReply {
   const { me, now } = env;
+  // the warm bottle (rank 3) counts from my first step after it is had, never before: my animals brought to now without
+  // it, and the moment written on my herd (Codex, 2026-10-20: claiming it must not grow them backwards). Kept even when
+  // the step itself is refused, as the database keeps it.
+  let world = world0;
+  {
+    const h = world.herds.find((x) => x.owner === me);
+    if (h && h.bottleAt == null && hasThing(purse, ANIMAL_GIFTS.bottle as ThingId)) {
+      const animals = world.animals.map((a) => (a.owner === me ? settle(a, now, { door: h.door, bottle: false }) : a));
+      world = withHerd({ ...world, animals }, { ...h, bottleAt: now });
+    }
+  }
   const notes: AnimalNote[] = [];
   const no = (why: AnimalWhy): AnimalReply => ({ ok: false, why, world, purse, notes: [] });
   const yes = (w: AnimalWorld, p: Purse, got?: AnimalReply["got"]): AnimalReply => ({ ok: true, world: w, purse: p, notes, got });
@@ -392,8 +404,10 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
         if (stageOf(a, now) === "adult") return no("stage");
         b = { ...a, speedUntil: Math.max(a.speedUntil, now) + grow };
       } else {
-        if (a.food >= ANIMALS.trough - 0.01) return no("full");
-        const add = Math.min(hours, ANIMALS.trough - a.food);
+        // (the packed ration fills a trough of three days: its whole `ANIMALS.packed` hours; Codex, 2026-10-20)
+        const cap = input.item === "packedRation" ? ANIMALS.packed : ANIMALS.trough;
+        if (a.food >= cap - 0.01) return no("full");
+        const add = Math.min(hours, cap - a.food);
         b = { ...a, food: a.food + add, narrow: Math.max(a.narrow, ANIMALS.quality.narrowBy[grade] ?? 0) };
         if (helper) {
           const left = ANIMALS.care.cap - careDone(purse, now), pts = Math.min(left, Math.floor(add / ANIMALS.care.foodHours));
@@ -463,8 +477,12 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
       let p = spend(purse, st, now), bag = p.bag;
       const byGrade = [0, 0, 0, 0];
       for (const q of grades) byGrade[q >= 95 ? 3 : q >= 70 ? 2 : q >= 40 ? 1 : 0] += 1;
-      for (let g = 0; g < 4; g++) if (byGrade[g] && roomFor(bag, breed.produce, g as 0 | 1 | 2 | 3) < byGrade[g]) return no("room");
-      for (let g = 0; g < 4; g++) if (byGrade[g]) bag = put(bag, breed.produce, byGrade[g], g as 0 | 1 | 2 | 3);
+      // (room asked of the bag as it fills, grade by grade, as the database does: Codex, 2026-10-20)
+      for (let g = 0; g < 4; g++) {
+        if (!byGrade[g]) continue;
+        if (roomFor(bag, breed.produce, g as 0 | 1 | 2 | 3) < byGrade[g]) return no("room");
+        bag = put(bag, breed.produce, byGrade[g], g as 0 | 1 | 2 | 3);
+      }
       // a day's manure, at the first collection of the day
       if (!a.today.manure && roomFor(bag, "manure" as ItemId) > 0) bag = put(bag, "manure" as ItemId, 1);
       // a round it was out in may bring a find back with it (lib/town/animals FINDS)
@@ -634,6 +652,9 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
     case "rode": {
       const run = world.wagons.find((r) => r.id === input.run), rider = run?.riders.find((r) => r.who === me);
       if (!run || !rider) return no("none");
+      // (a ride is told once, and soon after the tour: Codex, 2026-10-20, one old ride paid again day after day)
+      if (rider.claimed) return no("used");
+      if (now > wagonEnds(run) + ANIMALS.wagon.claimMins * 60_000) return no("none");
       // two legs ridden: a leg is the wagon's way from one stop to the next, at its own pace
       const legMs = (ANIMALS.wagon.mins * 60_000) / Math.max(1, run.stops.length);
       if (now < rider.on + ANIMALS.wagon.legs * legMs - 1000) return no("soon");
@@ -645,6 +666,7 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
         if (stageOf(a, now) === "coming") continue;
         w = withAnimal(w, { ...a, hearts: Math.min(ANIMALS.hearts * ANIMALS.perHeart, a.hearts + ANIMALS.wagonHeart) });
       }
+      w = { ...w, wagons: w.wagons.map((r) => (r.id === run.id ? { ...r, riders: r.riders.map((x) => (x.who === me ? { ...x, claimed: true } : x)) } : r)) };
       notes.push({ what: "animal_rode", n: 1, doc: { run: run.id } });
       return yes(w, { ...purse, animalRode: k } as Purse);
     }

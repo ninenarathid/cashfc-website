@@ -302,6 +302,21 @@ try {
     eq([await coinsOf(waiter), (await one("select (h->>'barn')::int b, (h->>'room')::int r from public.town_herds where owner = $1", [waiter]))], [19_500, { b: 0, r: 2 }], "the one who waited has it, its first stage, at its price");
     await db.query("update public.town_catalog set data = jsonb_set(data, '{knobs,barns,count}', '24') where key = 'animals'");
   }
+  // (Codex's check, 2026-10-20: a breed's own egg kept; the packed ration's three days; a ride told once; the bottle never backwards)
+  eq([(await one(`select town.made_of('[["lanternEgg", 2], ["farmMilk", 1], ["sugar", 1]]'::jsonb) r`)).r, (await one(`select town.made_of('[["farmCheese", 1], ["cream", 1], ["farmEgg", 1], ["sugar", 1]]'::jsonb) r`)).r],
+    ["lanternCustard", "cheesecake"], "a breed's own egg read as its own");
+  await db.query("update public.town_animals set a = jsonb_set(a, '{food}', '0') where id = $1", [chick]);
+  await db.query("update public.town_purses set doc = jsonb_set(doc, '{bag}', $2::jsonb) where member_id = $1", [me, JSON.stringify([{ item: "packedRation", n: 1 }, ...Array(19).fill(null)])]);
+  const packed = await mine({ action: "feed", id: chick, item: "packedRation" });
+  eq(Math.round(packed.world.animals.find((x) => x.id === chick)?.food ?? -1), A.ANIMALS.packed, "a packed ration fills three days");
+  await db.query("update public.town_pasture set wagons = $1::jsonb where one", [JSON.stringify([{ id: "w-test", by: me, from: t0 - 5 * 60000, stops: ["farm", "town"], riders: [{ who: me, on: t0 - 5 * 60000, leg: 0 }] }])]);
+  eq((await mine({ action: "rode", run: "w-test" })).ok, true, "a ride told");
+  await db.query("update public.town_purses set doc = doc - 'animalRode' where member_id = $1", [me]);
+  eq((await mine({ action: "rode", run: "w-test" })).why, "used", "a ride told once");
+  await db.query("update public.town_purses set doc = jsonb_set(doc, '{gifts,had}', (doc->'gifts'->'had') || '[\"thingWarmBottle\"]'::jsonb) where member_id = $1", [me]);
+  eq((await one("select town.animal_bottle($1) r", [me])).r, false, "a bottle just had does not count yet");
+  await mine({ action: "name", id: chick, name: "Pip" });
+  eq([(await one("select jsonb_typeof(h->'bottleAt') t from public.town_herds where owner = $1", [me])).t, (await one("select town.animal_bottle($1) r", [me])).r], ["number", true], "the bottle counts from the first step after it");
   // (nobody reaches the tables but through the function)
   for (const tbl of ["town_animals", "town_herds", "town_pasture", "town_animal_asks"]) {
     let no = false;

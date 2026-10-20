@@ -16,7 +16,7 @@ export default ({ swap }) => [
   ["another's barn taken", swap("if found then\n      id2 := row_.owner; hold_h := row_.h;", "if false then\n      id2 := row_.owner; hold_h := row_.h;"), ["a barn nobody else's"]],
   ["no index on the barn", swap("create unique index if not exists town_herds_barn on public.town_herds ((h->>'barn'));", ""), ["no barn two members', past the function too"]],
   ["a barn for nothing", swap("if town.held(purse->'bag', 'log') < (r->>'logs')::integer or town.held(purse->'bag', 'stoneTile') < (r->>'stone')::integer then", "if false then"), ["a barn wants logs and stone tiles"]],
-  ["cream of the uncle's milk", swap("coalesce(town.cat('animals')->'farmFamily'->>(x->>0), x->>0)", "case when x->>0 = 'milk' then 'farmMilk' else coalesce(town.cat('animals')->'farmFamily'->>(x->>0), x->>0) end"), ["cream and cheese of farm milk alone"]],
+  ["cream of the uncle's milk", swap("    v := jsonb_build_array(o->>0);", "    v := jsonb_build_array(o->>0) || case when o->>0 = 'milk' then '[\"farmMilk\"]'::jsonb else '[]'::jsonb end;"), ["cream and cheese of farm milk alone"]],
   ["eggs left in the forest", swap("where f->>'item' <> 'egg')), updated_at = now()", "where true)), updated_at = now()"), ["crashed"]], // (the migration's own last check refuses it: 'v291: an egg in the forest')
   ["enlarged for nothing", swap("if r is null then return town.answer(me, town.no('full')); end if;\n    price := (r->>'coins')::integer;", "if r is null then return town.answer(me, town.no('full')); end if;\n    price := 0;"), ["enlarged to four for 1,000, 40 logs and 12 tiles"]],
   ["animals without a barn", swap("if herd->>'barn' is null then return town.answer(me, town.no('barn')); end if;\n    price := (sp->>'price')::integer;", "    price := (sp->>'price')::integer;"), ["no barn, no animals"]],
@@ -28,4 +28,8 @@ export default ({ swap }) => [
   ["a friend's animal unasked", swap("if helper and not (town.animal_lent(bn, now_) and", "if false and not (town.animal_lent(bn, now_) and"), ["a friend's animal unasked"]],
   ["stats not by care", swap("elsif r < two + (i->>'upBase')::double precision + (i->>'upCare')::double precision * care then v := v + 1;", "elsif r < two + (i->>'upBase')::double precision + (i->>'upCare')::double precision then v := v + 1;"), ["child stats #0"]],
   ["thrift eats nothing less", swap("rate := (case when out_ then rate_out else 1 end) * (1 - thrift_);", "rate := (case when out_ then rate_out else 1 end);"), ["a thrifty animal eats less"]],
+  ["a ride told twice", swap("if coalesce((rider->>'claimed')::boolean, false) then return town.answer(me, town.no('used')); end if;", ""), ["a ride told once"]],
+  ["a breed's egg read plain", swap("if best is null or subs < best_subs then", "if true then"), ["crashed"]],
+  ["the bottle counted backwards", swap("\n     and exists (select 1 from public.town_herds h where h.owner = p_member and jsonb_typeof(h.h->'bottleAt') = 'number')", ""), ["a bottle just had does not count yet"]],
+  ["a packed ration of one day", swap("grow := case when item = 'packedRation' then (kn->>'packed')::double precision else (kn->>'trough')::double precision end;", "grow := (kn->>'trough')::double precision;"), ["a packed ration fills three days"]],
 ];

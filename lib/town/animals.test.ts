@@ -381,3 +381,41 @@ describe("the meadow", () => {
     expect(findOf("cow", 1 << 6, 0.9, 0)).toBeNull();
   });
 });
+
+describe("what Codex's check of the branch found (2026-10-20)", () => {
+  it("reads a pot thing by thing: a breed's own egg stays its own where a recipe asks for it", () => {
+    expect(madeOf([["farmCheese" as ItemId, 1], ["cream" as ItemId, 1], ["farmEgg" as ItemId, 1], ["sugar" as ItemId, 1]])).toBe("cheesecake");
+    expect(madeOf([["lanternEgg" as ItemId, 2], ["farmMilk" as ItemId, 1], ["sugar" as ItemId, 1]])).toBe("lanternCustard");
+    expect(madeOf([["blueEgg" as ItemId, 1], ["duckEgg" as ItemId, 1], ["oil" as ItemId, 1]])).toBe("omelette");
+    expect(potSays([["jerseyMilk" as ItemId, 2]])).toEqual({ fits: true, whole: true, wrong: [] });
+  });
+  it("fills a trough of three days with a packed ration", () => {
+    const r = animalAction(world([chick({ food: 0 })]), purseWith(0, [["packedRation", 1]]), { action: "feed", id: "a1", item: "packedRation" }, env(T0));
+    expect(r.world.animals[0].food).toBe(ANIMALS.packed);
+  });
+  it("refuses a collection the bag has no room for, never losing part of it", () => {
+    const hen = chick({ grown: adultAt("chicken"), banked: 2, hearts: 100 });
+    const full = { ...purseWith(0), bag: [{ item: "eggBasket", n: 1 }, ...Array(18).fill({ item: "log", n: 999 }), null] } as unknown as Purse;
+    expect(animalAction(world([hen]), full, { action: "collect", id: "a1", cracked: 0 }, env(T0, "me", [0, 0.99])).why).toBe("room");
+  });
+  it("pays a wagon ride once, and only soon after the tour", () => {
+    const run = { id: "w1", by: "x", from: T0, stops: ["farm", "town"], riders: [{ who: "me", on: T0, leg: 0 }, { who: "pal", on: T0, leg: 0 }] };
+    const w0: AnimalWorld = { ...world([chick()]), wagons: [run] };
+    const once = animalAction(w0, purseWith(0), { action: "rode", run: "w1" }, env(T0 + 4 * 60_000));
+    expect(once.ok).toBe(true);
+    expect(animalAction(once.world, purseWith(0), { action: "rode", run: "w1" }, env(T0 + 24 * H)).why).toBe("used");
+    expect(animalAction(once.world, purseWith(0), { action: "rode", run: "w1" }, env(T0 + 4 * 60_000 + (ANIMALS.wagon.claimMins + 1) * 60_000, "pal")).why).toBe("none");
+  });
+  it("counts every band an outing passes through", () => {
+    const out = settle(chick({ food: 24 }), T0 + 16 * H, { door: [[T0, null]] });
+    expect(out.outBands).toBe((1 << 2) | (1 << 3) | (1 << 4) | (1 << 5) | (1 << 6));
+  });
+  it("counts the warm bottle from the first step after it is had, never backwards", () => {
+    const withBottle = { ...purseWith(0), gifts: { had: ["thingWarmBottle"], charms: [], owed: 0, familiar: null, used: {} } } as unknown as Purse;
+    const first = animalAction(world([chick({ food: 24 })]), withBottle, { action: "pet", id: "a1" }, env(T0 + 10 * H));
+    expect(first.world.animals[0].grown).toBeCloseTo(10, 6);
+    expect(first.world.herds[0].bottleAt).toBe(T0 + 10 * H);
+    const later = animalAction(first.world, withBottle, { action: "name", id: "a1", name: "Pip" }, env(T0 + 14 * H));
+    expect(later.world.animals[0].grown).toBeCloseTo(10 + 4 * 2, 6);
+  });
+});

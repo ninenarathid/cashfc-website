@@ -118,14 +118,36 @@ begin
   end if;
 end $$;
 create or replace function town.made_of(p_things jsonb)
-returns text language sql stable set search_path = '' as $$
-  -- v291: as it is, then (when it holds a breed's egg, milk or wool, or farm cheese) as its families, then (for the
-  -- pasture's makings, which ask for farm milk) any breed's milk as farm milk: never the uncle's own milk
-  select coalesce(town.made_of_exact(p_things),
-    case when exists (select 1 from jsonb_array_elements(p_things) x where town.cat('animals')->'family' ? (x->>0))
-      then coalesce(town.made_of_exact((select jsonb_agg(jsonb_build_array(coalesce(town.cat('animals')->'family'->>(x->>0), x->>0), x->1)) from jsonb_array_elements(p_things) x)),
-        town.made_of_exact((select jsonb_agg(jsonb_build_array(coalesce(town.cat('animals')->'farmFamily'->>(x->>0), x->>0), x->1)) from jsonb_array_elements(p_things) x))) end)
-$$;
+returns text language plpgsql stable set search_path = '' as $$
+-- v291 (lib/town/cooking's madeOf and readings): as it is; else each thing read as itself, its family (any breed's egg an
+-- egg, any milk milk) or, for the pasture's makings, any breed's milk as farm milk (never the uncle's own milk): the
+-- fewest stand-ins first, and among as few the first in reading order (the first thing's choices the slowest)
+declare k jsonb := town.cat('animals'); opts jsonb := '[]'::jsonb; o jsonb; v jsonb; total integer := 1; c integer; r integer;
+  i integer; d integer; len integer; pot jsonb; subs integer; m text; best text; best_subs integer;
+begin
+  m := town.made_of_exact(p_things);
+  if m is not null or not exists (select 1 from jsonb_array_elements(p_things) x where k->'family' ? (x->>0)) then return m; end if;
+  for o in select x from jsonb_array_elements(p_things) x loop
+    v := jsonb_build_array(o->>0);
+    if k->'family'->>(o->>0) is not null and not v ? (k->'family'->>(o->>0)) then v := v || to_jsonb(k->'family'->>(o->>0)); end if;
+    if k->'farmFamily'->>(o->>0) is not null and not v ? (k->'farmFamily'->>(o->>0)) then v := v || to_jsonb(k->'farmFamily'->>(o->>0)); end if;
+    opts := opts || jsonb_build_array(v); total := total * jsonb_array_length(v);
+  end loop;
+  len := jsonb_array_length(opts);
+  for c in 0..total - 1 loop
+    r := c; subs := 0; pot := '[]'::jsonb;
+    for i in reverse len - 1..0 loop
+      d := r % jsonb_array_length(opts->i); r := r / jsonb_array_length(opts->i);
+      if d > 0 then subs := subs + 1; end if;
+      pot := jsonb_build_array(jsonb_build_array(opts->i->>d, p_things->i->1)) || pot;
+    end loop;
+    if best is null or subs < best_subs then
+      m := town.made_of_exact(pot);
+      if m is not null then best := m; best_subs := subs; end if;
+    end if;
+  end loop;
+  return best;
+end $$;
 revoke all on function town.carries_grade(text), town.grade_pays(text, integer), town.made_of(jsonb), town.made_of_exact(jsonb) from public, anon, authenticated;
 
 -- ── 6. The functions that count, price and place: their live text, but for these ─────────────────────────────────────
@@ -176,6 +198,7 @@ do $$ begin
   if town.made_of('[["farmEgg", 2], ["oil", 1]]'::jsonb) is distinct from 'omelette' then raise exception 'v291: a farm egg is no egg in the kitchen'; end if;
   if town.grade_pays('farmEgg', 3) <> 2.5 or town.grade_pays('butter', 3) <> 2.5 or not town.carries_grade('farmMilk') then raise exception 'v291: the grade of what an animal gives'; end if;
   if town.made_of('[["milk", 2]]'::jsonb) is not null or town.made_of('[["jerseyMilk", 2]]'::jsonb) is distinct from 'cream' then raise exception 'v291: cream of farm milk alone'; end if;
+  if town.made_of('[["lanternEgg", 2], ["farmMilk", 1], ["sugar", 1]]'::jsonb) is distinct from 'lanternCustard' then raise exception 'v291: a breed''s own egg read as its own'; end if;
   if exists (select 1 from jsonb_array_elements(town.cat('forest')->'kinds'->'nook'->'finds') f where f->>'item' = 'egg') then raise exception 'v291: an egg in the forest'; end if;
   if town.reward_relay_place('[${farmX2},${farmY2}]'::jsonb) is distinct from 'farm' then raise exception 'v291: the animal farm east of the garden'; end if;
   if not (town.cat('work')->'ids' ? 'animals') then raise exception 'v291: the line is not in work'; end if;

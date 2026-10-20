@@ -93,6 +93,13 @@ returns integer language sql immutable set search_path = '' as $$
   select case when h >= 23 then 7 when h >= 19 then 6 when h >= 16 then 5 when h >= 13 then 4 when h >= 11 then 3 when h >= 7 then 2 when h >= 5 then 1 when h >= 3 then 0 else 7 end
     from (select floor(((p_t + 25200000) - floor((p_t + 25200000) / 86400000) * 86400000) / 3600000)::integer as h) x
 $$;
+-- The next moment a band begins after a moment (nextBandEdge): an outing's stretch ends there, so each band it was out in counts.
+create or replace function town.animal_next_band_edge(p_t double precision)
+returns double precision language sql immutable set search_path = '' as $$
+  select coalesce((select x.m + e * 3600000 from unnest(array[3, 5, 7, 11, 13, 16, 19, 23]) e where x.m + e * 3600000 > x.l order by e limit 1),
+      x.m + 86400000 + 3 * 3600000) - 25200000
+    from (select p_t + 25200000 as l, floor((p_t + 25200000) / 86400000) * 86400000 as m) x
+$$;
 -- Whether a barn's door stood open at a moment, and the next moment after it that it opened or closed (gateAt).
 create or replace function town.animal_gate_at(p_gate jsonb, p_t double precision)
 returns jsonb language plpgsql immutable set search_path = '' as $$
@@ -183,6 +190,7 @@ begin
     nxt := least(p_now, coalesce((g->>'next')::double precision, 'Infinity'::double precision), day_end);
     if t < speed_until then nxt := least(nxt, speed_until); end if;
     if t < wind_until then nxt := least(nxt, wind_until); end if;
+    if out_ then nxt := least(nxt, town.animal_next_band_edge(t)); end if;
     rate := (case when out_ then rate_out else 1 end) * (1 - thrift_);
     if food > 1e-9 then
       runs := t + (food / rate) * 3600000;
@@ -259,10 +267,12 @@ begin
   end loop;
   return bag;
 end $$;
--- Whether a member has the rank-3 warm bottle (their animals grow faster wherever it is read).
+-- Whether a member's rank-3 warm bottle counts for their animals: had, and its moment written on their herd (it counts
+-- from their first step after it is had, never backwards: public.town_animals writes it).
 create or replace function town.animal_bottle(p_member uuid)
 returns boolean language sql stable set search_path = '' as $$
   select coalesce((select town.gifts_of(p.doc)->'had' ? (town.cat('animals')->'gifts'->>'bottle') from public.town_purses p where p.member_id = p_member), false)
+     and exists (select 1 from public.town_herds h where h.owner = p_member and jsonb_typeof(h.h->'bottleAt') = 'number')
 $$;
 -- A member's herd, or a new one's (newHerd: no barn yet).
 create or replace function town.animal_herd(p_member uuid)
@@ -448,6 +458,8 @@ begin
   if k is null then return town.answer(me, town.no('none')); end if;
   kn := k->'knobs';
   if p_request is not null and char_length(p_request) not between 8 and 80 then return town.answer(me, town.no('none')); end if;
+  -- (the pasture's lock first: a second call of the same request waits for the first, and then finds its answer)
+  select * into pas from public.town_pasture where one for update;
   -- (a retried call: the answer it had, the purse as it is now)
   if p_request is not null then
     select x.answer into past from public.town_animal_asks x where x.member = me and x.request = p_request;
@@ -455,7 +467,15 @@ begin
   end if;
   purse := town.purse_of(me, true);
   herd := town.animal_herd(me); herd0 := herd;
-  select * into pas from public.town_pasture where one for update;
+  -- (the warm bottle counts from my first step after it is had: my animals brought to now without it, its moment written)
+  if jsonb_typeof(herd->'bottleAt') is distinct from 'number' and exists (select 1 from public.town_herds x where x.owner = me)
+     and coalesce(town.gifts_of(purse)->'had' ? (k->'gifts'->>'bottle'), false) then
+    with s as (update public.town_animals x set a = town.animal_settle(x.a, now_, herd->'door', false, k), changed = now_::bigint where x.owner = me returning x.a)
+    select touched || coalesce(jsonb_agg(s.a), '[]'::jsonb) into touched from s;
+    herd := herd || jsonb_build_object('bottleAt', now_);
+    update public.town_herds x set h = herd, changed = now_::bigint where x.owner = me;
+    herd0 := herd;
+  end if;
   offers_ := town.animal_live(pas.offers, now_, (kn->>'offerHours')::double precision);
   asks_ := town.animal_live(pas.asks, now_, (kn->>'askHours')::double precision);
 
@@ -777,8 +797,9 @@ begin
         an := an || jsonb_build_object('speedUntil', greatest(coalesce((an->>'speedUntil')::double precision, 0), now_) + grow);
         purse := purse || jsonb_build_object('bag', town.take(purse->'bag', item, 1));
       else
-        if (an->>'food')::double precision >= (kn->>'trough')::double precision - 0.01 then return town.answer(me, town.no('full')); end if;
-        hours := least(hours, (kn->>'trough')::double precision - (an->>'food')::double precision);
+        grow := case when item = 'packedRation' then (kn->>'packed')::double precision else (kn->>'trough')::double precision end;  -- (the trough's room: a packed ration's three days)
+        if (an->>'food')::double precision >= grow - 0.01 then return town.answer(me, town.no('full')); end if;
+        hours := least(hours, grow - (an->>'food')::double precision);
         an := an || jsonb_build_object('food', (an->>'food')::double precision + hours,
           'narrow', greatest(coalesce((an->>'narrow')::integer, 0), coalesce((kn->'quality'->'narrowBy'->>grade_)::integer, 0)));
         purse := purse || jsonb_build_object('bag', town.animal_take_g(purse->'bag', item, 1, grade_));
@@ -995,6 +1016,9 @@ begin
     else
       select x into rider from jsonb_array_elements(run->'riders') x where x->>'who' = me::text limit 1;
       if rider is null then return town.answer(me, town.no('none')); end if;
+      if coalesce((rider->>'claimed')::boolean, false) then return town.answer(me, town.no('used')); end if;
+      if now_ > (run->>'from')::double precision + (kn->'wagon'->>'mins')::double precision * 60000 + (kn->'wagon'->>'claimMins')::double precision * 60000 then
+        return town.answer(me, town.no('none')); end if;
       leg_ms := ((kn->'wagon'->>'mins')::double precision * 60000) / greatest(1, jsonb_array_length(run->'stops'));
       if now_ < (rider->>'on')::double precision + (kn->'wagon'->>'legs')::double precision * leg_ms - 1000 then return town.answer(me, town.no('soon')); end if;
       if purse->>'animalRode' = 'wagon:' || town.day_of(now_::bigint) then return town.answer(me, town.no('used')); end if;
@@ -1005,6 +1029,9 @@ begin
         update public.town_animals x set a = an, changed = now_::bigint where x.id = row_.id;
         touched := touched || jsonb_build_array(an);
       end loop;
+      update public.town_pasture p set wagons = (select jsonb_agg(case when w->>'id' = run->>'id'
+          then w || jsonb_build_object('riders', (select jsonb_agg(case when x->>'who' = me::text then x || '{"claimed": true}'::jsonb else x end order by o) from jsonb_array_elements(w->'riders') with ordinality y(x, o)))
+          else w end) from jsonb_array_elements(p.wagons) w), changed = now_::bigint where p.one;
       purse := purse || jsonb_build_object('animalRode', 'wagon:' || town.day_of(now_::bigint));
       notes := notes || jsonb_build_array(jsonb_build_array('animal_rode', 1, null, 0, jsonb_build_object('run', run->>'id'), 0));
     end if;
@@ -1098,14 +1125,36 @@ begin
   end if;
 end $$;
 create or replace function town.made_of(p_things jsonb)
-returns text language sql stable set search_path = '' as $$
-  -- v291: as it is, then (when it holds a breed's egg, milk or wool, or farm cheese) as its families, then (for the
-  -- pasture's makings, which ask for farm milk) any breed's milk as farm milk: never the uncle's own milk
-  select coalesce(town.made_of_exact(p_things),
-    case when exists (select 1 from jsonb_array_elements(p_things) x where town.cat('animals')->'family' ? (x->>0))
-      then coalesce(town.made_of_exact((select jsonb_agg(jsonb_build_array(coalesce(town.cat('animals')->'family'->>(x->>0), x->>0), x->1)) from jsonb_array_elements(p_things) x)),
-        town.made_of_exact((select jsonb_agg(jsonb_build_array(coalesce(town.cat('animals')->'farmFamily'->>(x->>0), x->>0), x->1)) from jsonb_array_elements(p_things) x))) end)
-$$;
+returns text language plpgsql stable set search_path = '' as $$
+-- v291 (lib/town/cooking's madeOf and readings): as it is; else each thing read as itself, its family (any breed's egg an
+-- egg, any milk milk) or, for the pasture's makings, any breed's milk as farm milk (never the uncle's own milk): the
+-- fewest stand-ins first, and among as few the first in reading order (the first thing's choices the slowest)
+declare k jsonb := town.cat('animals'); opts jsonb := '[]'::jsonb; o jsonb; v jsonb; total integer := 1; c integer; r integer;
+  i integer; d integer; len integer; pot jsonb; subs integer; m text; best text; best_subs integer;
+begin
+  m := town.made_of_exact(p_things);
+  if m is not null or not exists (select 1 from jsonb_array_elements(p_things) x where k->'family' ? (x->>0)) then return m; end if;
+  for o in select x from jsonb_array_elements(p_things) x loop
+    v := jsonb_build_array(o->>0);
+    if k->'family'->>(o->>0) is not null and not v ? (k->'family'->>(o->>0)) then v := v || to_jsonb(k->'family'->>(o->>0)); end if;
+    if k->'farmFamily'->>(o->>0) is not null and not v ? (k->'farmFamily'->>(o->>0)) then v := v || to_jsonb(k->'farmFamily'->>(o->>0)); end if;
+    opts := opts || jsonb_build_array(v); total := total * jsonb_array_length(v);
+  end loop;
+  len := jsonb_array_length(opts);
+  for c in 0..total - 1 loop
+    r := c; subs := 0; pot := '[]'::jsonb;
+    for i in reverse len - 1..0 loop
+      d := r % jsonb_array_length(opts->i); r := r / jsonb_array_length(opts->i);
+      if d > 0 then subs := subs + 1; end if;
+      pot := jsonb_build_array(jsonb_build_array(opts->i->>d, p_things->i->1)) || pot;
+    end loop;
+    if best is null or subs < best_subs then
+      m := town.made_of_exact(pot);
+      if m is not null then best := m; best_subs := subs; end if;
+    end if;
+  end loop;
+  return best;
+end $$;
 revoke all on function town.carries_grade(text), town.grade_pays(text, integer), town.made_of(jsonb), town.made_of_exact(jsonb) from public, anon, authenticated;
 
 -- ── 6. The functions that count, price and place: their live text, but for these ─────────────────────────────────────
@@ -1136,7 +1185,7 @@ end $$;
 -- <catalog:v291> written from lib/town/catalog.ts (npm test checks it; TOWN_WRITE=1 npx vitest run lib/town/catalog.test.ts writes it)
 insert into public.town_catalog (key, data) values
   ('animals', $town${
-    "knobs": {"trough":24,"outRate":0.5,"perHeart":20,"hearts":10,"heart":{"fed":3,"pet":3,"treat":2,"out":2},"wagonHeart":20,"barns":{"count":24,"stages":[{"room":2,"coins":500,"logs":20,"stone":8},{"room":4,"coins":1000,"logs":40,"stone":12}]},"pen":8,"untended":{"warn":[14,21],"reclaim":28},"offerHours":24,"askHours":24,"lendHours":1,"asksOpen":4,"stats":{"min":1,"max":10,"bought":[2,4],"thrift":0.02,"gentle":0.03,"vigor":0.03},"inherit":{"upBase":0.05,"upCare":0.35,"downNeglect":0.25,"sparkFrom":0.9,"spark":0.05,"streakFull":7},"streakCap":14,"facades":[5000,15000,40000],"breedHearts":60,"rest":172800000,"hatch":{"bird":43200000,"mammal":86400000},"odds":{"real":60,"fantasy":30,"legend":10},"dawnBoost":10,"oddsCap":70,"fees":{"real":80,"fantasy":220,"legend":600},"scrollFee":12,"clueAfter":3,"speedCap":3,"growFeed":86400000,"dewFeed":172800000,"packed":72,"quality":{"base":30,"perHeart":7,"spread":30,"narrowest":20,"narrowBy":[0,5,10,15]},"stamina":{"eggs":2,"shear":3,"milk":4},"care":{"pet":1,"treat":1,"foodHours":4,"cap":30},"points":{"feed":15,"pet":10,"treat":10,"unit":2,"breed":20,"found":60,"cradle":15},"sellBack":{"bought":0.25},"cradleRare":0.2,"harp":{"mins":30,"near":8},"wind":{"mins":60},"wagon":{"legs":2,"mins":4,"seats":0},"outsideShare":0.3333333333333333},
+    "knobs": {"trough":24,"outRate":0.5,"perHeart":20,"hearts":10,"heart":{"fed":3,"pet":3,"treat":2,"out":2},"wagonHeart":20,"barns":{"count":24,"stages":[{"room":2,"coins":500,"logs":20,"stone":8},{"room":4,"coins":1000,"logs":40,"stone":12}]},"pen":8,"untended":{"warn":[14,21],"reclaim":28},"offerHours":24,"askHours":24,"lendHours":1,"asksOpen":4,"stats":{"min":1,"max":10,"bought":[2,4],"thrift":0.02,"gentle":0.03,"vigor":0.03},"inherit":{"upBase":0.05,"upCare":0.35,"downNeglect":0.25,"sparkFrom":0.9,"spark":0.05,"streakFull":7},"streakCap":14,"facades":[5000,15000,40000],"breedHearts":60,"rest":172800000,"hatch":{"bird":43200000,"mammal":86400000},"odds":{"real":60,"fantasy":30,"legend":10},"dawnBoost":10,"oddsCap":70,"fees":{"real":80,"fantasy":220,"legend":600},"scrollFee":12,"clueAfter":3,"speedCap":3,"growFeed":86400000,"dewFeed":172800000,"packed":72,"quality":{"base":30,"perHeart":7,"spread":30,"narrowest":20,"narrowBy":[0,5,10,15]},"stamina":{"eggs":2,"shear":3,"milk":4},"care":{"pet":1,"treat":1,"foodHours":4,"cap":30},"points":{"feed":15,"pet":10,"treat":10,"unit":2,"breed":20,"found":60,"cradle":15},"sellBack":{"bought":0.25},"cradleRare":0.2,"harp":{"mins":30,"near":8},"wind":{"mins":60},"wagon":{"legs":2,"mins":4,"seats":0,"claimMins":30},"outsideShare":0.3333333333333333},
     "species": {"chicken":{"price":200,"grow":[24,24],"cycle":6,"bank":4,"game":"eggs","kind":"bird","sack":"chickFeed","sackPrice":4,"growItem":"chickGrow","growPrice":10,"feeds":{"corn":6,"buckwheat":6,"meadowOats":6,"dawnOats":8,"moonOats":6,"pondMillet":6,"orchardPea":5,"reedSeed":5},"treats":["grasshopper","cricket","blueberry"],"bredBack":0},"duck":{"price":500,"grow":[24,48],"cycle":8,"bank":3,"game":"eggs","kind":"bird","sack":"duckFeed","sackPrice":6,"growItem":"duckGrow","growPrice":15,"feeds":{"watercress":6,"cabbage":4,"pondMillet":6,"nightDuckweed":6,"ghostReed":6,"reedSeed":5},"treats":["minnow","snail","raspberry"],"bredBack":0},"sheep":{"price":1250,"grow":[48,72],"cycle":24,"bank":1,"game":"shear","kind":"mammal","sack":"sheepFeed","sackPrice":8,"growItem":"lambGrow","growPrice":25,"feeds":{"clover":8,"carrot":4,"sweetTimothy":8,"amberClover":8,"dewClover":10,"lanternGrass":8,"copperSedge":6,"velvetVetch":8},"treats":["clover","chamomile","wildApple"],"bredBack":0},"cow":{"price":2000,"grow":[72,96],"cycle":12,"bank":2,"game":"milk","kind":"mammal","sack":"cowFeed","sackPrice":10,"growItem":"calfGrow","growPrice":40,"feeds":{"corn":6,"pumpkin":8,"sunAlfalfa":10,"sweetTimothy":8,"mistVetch":10,"copperSedge":6,"velvetVetch":8,"lanternGrass":8},"treats":["mineralSalt","pumpkin","chestnut"],"bredBack":0}},
     "starters": {"chicken":"barnHen","duck":"puddleDuck","sheep":"meadowSheep","cow":"dairyCow"},
     "breeds": {"barnHen":{"species":"chicken","letter":"A","tier":"starter","produce":"farmEgg"},"silkie":{"species":"chicken","letter":"B","tier":"real","produce":"silkieEgg"},"araucana":{"species":"chicken","letter":"C","tier":"real","produce":"blueEgg"},"marans":{"species":"chicken","letter":"D","tier":"real","produce":"chocolateEgg"},"lanternHen":{"species":"chicken","letter":"E","tier":"fantasy","produce":"lanternEgg"},"cloudHen":{"species":"chicken","letter":"F","tier":"fantasy","produce":"cloudEgg"},"goldenHen":{"species":"chicken","letter":"G","tier":"fantasy","produce":"goldenEgg"},"pocketPhoenix":{"species":"chicken","letter":"H","tier":"legend","produce":"emberEgg"},"puddleDuck":{"species":"duck","letter":"A","tier":"starter","produce":"duckEgg"},"runner":{"species":"duck","letter":"B","tier":"real","produce":"runnerEgg"},"cayuga":{"species":"duck","letter":"C","tier":"real","produce":"cayugaEgg"},"mandarin":{"species":"duck","letter":"D","tier":"real","produce":"mandarinEgg"},"raindropDuck":{"species":"duck","letter":"E","tier":"fantasy","produce":"rainEgg"},"moonDuck":{"species":"duck","letter":"F","tier":"fantasy","produce":"moonEgg"},"paperboatDuck":{"species":"duck","letter":"G","tier":"fantasy","produce":"paperEgg"},"littleLeviathan":{"species":"duck","letter":"H","tier":"legend","produce":"leviathanEgg"},"meadowSheep":{"species":"sheep","letter":"A","tier":"starter","produce":"wool"},"shetland":{"species":"sheep","letter":"B","tier":"real","produce":"shetlandWool"},"jacob":{"species":"sheep","letter":"C","tier":"real","produce":"jacobWool"},"valais":{"species":"sheep","letter":"D","tier":"real","produce":"valaisWool"},"dandelionLamb":{"species":"sheep","letter":"E","tier":"fantasy","produce":"dandelionWool"},"rainbowSheep":{"species":"sheep","letter":"F","tier":"fantasy","produce":"rainbowWool"},"starFleece":{"species":"sheep","letter":"G","tier":"fantasy","produce":"starWool"},"goldenFleece":{"species":"sheep","letter":"H","tier":"legend","produce":"goldenWool"},"dairyCow":{"species":"cow","letter":"A","tier":"starter","produce":"farmMilk"},"jersey":{"species":"cow","letter":"B","tier":"real","produce":"jerseyMilk"},"highland":{"species":"cow","letter":"C","tier":"real","produce":"highlandMilk"},"brownSwiss":{"species":"cow","letter":"D","tier":"real","produce":"swissMilk"},"strawberryCow":{"species":"cow","letter":"E","tier":"fantasy","produce":"strawberryMilk"},"cocoaCow":{"species":"cow","letter":"F","tier":"fantasy","produce":"cocoaMilk"},"flowerCow":{"species":"cow","letter":"G","tier":"fantasy","produce":"flowerMilk"},"milkyWayCow":{"species":"cow","letter":"H","tier":"legend","produce":"starMilk"}},
@@ -1195,6 +1244,7 @@ do $$ begin
   if town.made_of('[["farmEgg", 2], ["oil", 1]]'::jsonb) is distinct from 'omelette' then raise exception 'v291: a farm egg is no egg in the kitchen'; end if;
   if town.grade_pays('farmEgg', 3) <> 2.5 or town.grade_pays('butter', 3) <> 2.5 or not town.carries_grade('farmMilk') then raise exception 'v291: the grade of what an animal gives'; end if;
   if town.made_of('[["milk", 2]]'::jsonb) is not null or town.made_of('[["jerseyMilk", 2]]'::jsonb) is distinct from 'cream' then raise exception 'v291: cream of farm milk alone'; end if;
+  if town.made_of('[["lanternEgg", 2], ["farmMilk", 1], ["sugar", 1]]'::jsonb) is distinct from 'lanternCustard' then raise exception 'v291: a breed''s own egg read as its own'; end if;
   if exists (select 1 from jsonb_array_elements(town.cat('forest')->'kinds'->'nook'->'finds') f where f->>'item' = 'egg') then raise exception 'v291: an egg in the forest'; end if;
   if town.reward_relay_place('[239,85]'::jsonb) is distinct from 'farm' then raise exception 'v291: the animal farm east of the garden'; end if;
   if not (town.cat('work')->'ids' ? 'animals') then raise exception 'v291: the line is not in work'; end if;
