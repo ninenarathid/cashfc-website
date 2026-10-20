@@ -99,7 +99,7 @@ export interface AnimalReply {
   purse: Purse;
   notes: AnimalNote[];
   /** What a collection, a cross or the cradle came to, for the page to tell. */
-  got?: { find?: ItemId | null; item?: ItemId; n?: number; grades?: number[]; whole?: boolean; child?: string; first?: boolean; right?: boolean; clue?: boolean; spot?: [number, number] };
+  got?: { find?: ItemId | null; item?: ItemId; n?: number; grades?: number[]; whole?: boolean; child?: string; first?: boolean; right?: boolean; clue?: boolean; spot?: [number, number]; sex?: Sex; stats?: Stats };
 }
 
 /** Where eggs laid out on the meadow lie: a spot of the pasture, picked from the animal and the round (the page's world.ts puts the pasture's tiles in order). */
@@ -528,7 +528,7 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
       }
       if (hit && !w.found[child.id]) { first = true; w = { ...w, found: { ...w.found, [child.id]: { by: me, at: now } } }; }
       notes.push({ what: "animal_breed", n: 1, line: "animals", pts: ANIMALS.points.breed + (first ? ANIMALS.points.found : 0), doc: { a: a.breed, b: b.breed, offering, dawn, child: child.id, hit, twin, fee, sex: kid.sex, stats: kid.stats } });
-      return yes(cared(w), p, { child: child.id, first, right: x.right, clue });
+      return yes(cared(w), p, { child: child.id, first, right: x.right, clue, sex: kid.sex, stats: kid.stats });
     }
 
     case "cradle": {
@@ -547,7 +547,7 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
       const id = env.newId(), sex: Sex = env.rand() < 0.5 ? "m" : "f";
       const c = newAnimal(id, me, a.species, breed.id, now, false, home, sex, childStats(a, a, env.rand));
       notes.push({ what: "animal_cradle", n: 1, line: "animals", pts: ANIMALS.points.cradle, doc: { id: a.id, child: breed.id } });
-      return yes(cared({ ...world, animals: [...world.animals, c] }), used.purse, { child: breed.id });
+      return yes(cared({ ...world, animals: [...world.animals, c] }), used.purse, { child: breed.id, sex: c.sex, stats: c.stats });
     }
 
     case "care": {

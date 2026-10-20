@@ -41,22 +41,30 @@ try {
     await db.query("update public.town_purses set coins = $2, doc = jsonb_set(coalesce(doc, '{}'::jsonb), '{bag}', $3::jsonb) where member_id = $1", [who, coins, JSON.stringify(bag)]);
   };
   const K = new DbKeeper(me, askAs(me)), P = new DbKeeper(pal, askAs(pal));
-  const sortW = (w) => ({ animals: [...w.animals].sort((x, y) => (x.id < y.id ? -1 : 1)).map((a) => ({ id: a.id, owner: a.owner, breed: a.breed, place: a.place, banked: a.banked, hearts: a.hearts, food: Math.round(a.food * 1000), name: a.name })),
-    gate: w.gate, found: w.found, spells: w.spells.length, wagons: w.wagons.length });
+  // (a keeper's own herd is told by its every step; another's herd it learns at its next look, as the page does every 30 s)
+  const sortW = (w, who) => ({ animals: [...w.animals].sort((x, y) => (x.id < y.id ? -1 : 1)).map((a) => ({ id: a.id, owner: a.owner, breed: a.breed, home: a.home, sex: a.sex, stats: a.stats, banked: a.banked, hearts: a.hearts, food: Math.round(a.food * 1000), name: a.name })),
+    herds: w.herds.filter((h) => h.owner === who).map((h) => ({ owner: h.owner, barn: h.barn, door: h.door })), found: w.found, spells: w.spells.length, wagons: w.wagons.length, offers: w.offers, asks: w.asks });
   /** The keeper's world held to a fresh look's. */
   const same = async (k, what) => {
-    const fresh = await askAs(k === K ? me : pal)("town_animals", { p_input: { action: "look" }, p_request: null });
-    eq(sortW(k.animalWorld()), sortW(fresh.world), `${what}: the keeper holds what a look tells`);
+    const who = k === K ? me : pal;
+    const fresh = await askAs(who)("town_animals", { p_input: { action: "look" }, p_request: null });
+    eq(sortW(k.animalWorld(), who), sortW(fresh.world, who), `${what}: the keeper holds what a look tells`);
   };
   const look = await K.animals({ action: "look" });
   eq(look.ok, true, "a look");
   await P.animals({ action: "look" });
-  await give(me, 20_000, [["chickFeed", 5], ["eggBasket", 1], ["seedCorn", 3], ["log", 20]]);
-  await give(pal, 0, [["chickFeed", 2]]);
-  const b1 = await K.animals({ action: "buy", species: "chicken" }, "keeper-buy-1");
+  await give(me, 30_000, [["chickFeed", 5], ["eggBasket", 1], ["seedCorn", 3], ["log", 60], ["stoneTile", 20]]);
+  await give(pal, 20_000, [["chickFeed", 2], ["log", 60], ["stoneTile", 20]]);
+  eq((await K.animals({ action: "buy", species: "chicken", sex: "f" })).why, "barn", "no barn, no animals, through the keeper");
+  const barn = await K.animals({ action: "barn", index: 7 }, "keeper-barn-1");
+  eq([barn.ok, barn.world.herds.find((h) => h.owner === me)?.barn], [true, 7], "a barn bought through the keeper");
+  await same(K, "after a barn");
+  eq((await P.animals({ action: "barn", index: 7 })).why, "taken", "the other's keeper is refused that barn");
+  eq((await P.animals({ action: "barn", index: 8 })).ok, true, "and has its own");
+  const b1 = await K.animals({ action: "buy", species: "chicken", sex: "f" }, "keeper-buy-1");
   eq([b1.ok, b1.world.animals.length, b1.why ?? null], [true, 1, null], "a chick bought through the keeper");
   await same(K, "after a buy");
-  const b2 = await K.animals({ action: "buy", species: "chicken" }, "keeper-buy-2");
+  const b2 = await K.animals({ action: "buy", species: "chicken", sex: "m" }, "keeper-buy-2");
   const [c1, c2] = b2.world.animals.filter((a) => a.owner === me).map((a) => a.id);
   eq((await K.animals({ action: "feed", id: c1, item: "chickFeed" })).ok, true, "fed");
   eq((await K.animals({ action: "pet", id: c1 })).ok, true, "petted");
@@ -80,12 +88,21 @@ try {
   const cross = await K.animals({ action: "breed", a: c1, b: c2, offering: "seedCorn" });
   eq(cross.ok, true, "a cross through the keeper");
   await same(K, "after a cross");
-  eq((await K.animals({ action: "keeping" })).ok, true, "places built of logs");
-  const opened = await K.animals({ action: "gate", open: true });
-  eq([opened.ok, opened.world.gate.at(-1)?.[1]], [true, null], "the gate");
-  await same(K, "after the gate");
+  const opened = await K.animals({ action: "door", open: true });
+  eq([opened.ok, opened.world.herds.find((h) => h.owner === me)?.door.at(-1)?.[1]], [true, null], "my barn door");
+  await same(K, "after the door");
   await P.animals({ action: "look" });
-  eq(P.animalWorld().gate.at(-1)?.[1], null, "the other member's keeper sees the gate open after a look");
+  eq(P.animalWorld().herds.find((h) => h.owner === me)?.door.at(-1)?.[1], null, "the other member's keeper sees my door open after a look");
+  // (handing on through both keepers: offered, then taken into the other's pen)
+  const off = await K.animals({ action: "offer", id: c1, to: pal });
+  eq([off.ok, off.world.offers.length], [true, 1], "offered through the keeper");
+  await same(K, "after an offer");
+  await P.animals({ action: "look" });
+  const tk = await P.animals({ action: "take", offer: P.animalWorld().offers[0].id, yes: true });
+  eq([tk.ok, tk.world.animals.find((a) => a.id === c1)?.owner, tk.world.animals.find((a) => a.id === c1)?.home, tk.world.offers.length], [true, pal, "pen", 0], "taken through the other's keeper");
+  await same(P, "after a take");
+  await K.animals({ action: "look" });
+  eq(K.animalWorld().animals.find((a) => a.id === c1)?.owner, pal, "my keeper sees it gone to the other after a look");
   const f = await K.animals({ action: "forage", spot: 0 });
   eq(f.ok, true, "the meadow");
   const sold = await K.animals({ action: "sell", id: c2 });
@@ -94,3 +111,5 @@ try {
   console.log(`v291 keeper: ${checks} checks passed, ${failed} failed`);
   if (failed) process.exitCode = 1;
 } catch (e) { console.log(`  FAIL crashed: ${String(e.stack ?? e.message).split(String.fromCharCode(10)).slice(0, 4).join(" | ")}`); process.exitCode = 1; } finally { await db.close(); }
+// (the keepers' timers would keep the process up)
+process.exit(process.exitCode ?? 0);

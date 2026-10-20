@@ -61,15 +61,21 @@ const sql = `-- v291 — a farm of animals (ฟาร์มสัตว์)
 -- เจ้าของต้องนำอาหารมาให้ ที่รางให้อาหาร ... ยิ่งสนิทสนมมาก จะยิ่งให้ผลผลิตดีขึ้น ... ลุง popoto ขายสัตว์ ...", and over five rounds
 -- after it ("ขยายฟาร์มออกไปทางนั้นจริงๆ", "การเก็บผลผลิตต้องเป็นเจ้าของสัตว์ถึงจะเก็บได้", "มีระบบผสมพันธุ์ ... พันธุ์แปลกๆ แฟนตาซีๆ",
 -- "ให้ลุงรับซื้อไปเถอะ", "ตอนที่ซื้อมาเป็นแค่สัตว์ขั้นแรก ... ค่อยๆ โตขึ้นตามวันเวลา จะไม่มีของที่ทำให้โตทันที", "คนอื่นสามารถดูแลสัตว์
--- ของเพื่อนได้ (ได้แต้มผู้ช่วยเหลือ)", "เริ่มได้เลย เอาจนจบตาม requirment"). The whole design is docs/plans/animals/README.md; the
+-- ของเพื่อนได้ (ได้แต้มผู้ช่วยเหลือ)", "เริ่มได้เลย เอาจนจบตาม requirment"), and during the build (2026-10-20): a barn bought of Uncle
+-- Popoto first, 24 of them on the farm's east side, one a member, never two members' ("เลือกซ้ำกับเพื่อนไม่ได้"); four animals in
+-- a barn, eight in his pen; sexes, chosen when bought and at random when born, a cross one of each; three stats a child
+-- takes from its parents, raised only by real care ("ผู้เล่นต้องเอาใจใส่ดูแลสัตว์มาเป็นอย่างดีจริงๆ"); any animal handed on at
+-- Uncle Popoto; a friend asked for their animal for a cross. The whole design is docs/plans/animals/README.md; the
 -- rules are lib/town/animals.ts and lib/town/animal-act.ts, which this is, step for step.
 --
--- * Kept: public.town_animals (an animal a row, its state as the page keeps it), public.town_herds (a member's places,
---   barn front and who may care for their animals), public.town_pasture (the village's gate, who first bred each breed,
---   the gifts' hours that others share, the hay wagon's runs) and public.town_animal_asks (a call's answer, for a retry).
+-- * Kept: public.town_animals (an animal a row, its state as the page keeps it), public.town_herds (a member's barn, its
+--   door, its front, when its owner last cared, and who may care for their animals; one barn a member, a unique index),
+--   public.town_pasture (who first bred each breed, the gifts' hours that others share, the hay wagon's runs, offers to
+--   hand an animal on and asks for a cross) and public.town_animal_asks (a call's answer, for a retry).
 --   No grants and no policies: nothing reaches them but public.town_animals, security definer, for a proved member.
--- * public.town_animals(p_input, p_request): one step (buy a baby, the shop, places, a barn front, sell, name, move,
---   feed, pet, treat, collect with a game's play, pick an egg laid out, lend, breed, the cradle, care, the gate, coming
+-- * public.town_animals(p_input, p_request): one step (a barn, buy a baby, the shop, a barn front, sell, name, to the
+--   pen and back, the barn door, offer, take, ask, answer, feed, pet, treat, collect with a game's play, pick an egg laid
+--   out, breed, the cradle, care, coming
 --   onto the farm, the gifts' spring wind, harp and hay wagon, ride, the meadow's forage), answering through town.answer.
 -- * Elsewhere, in their live text: a pasture deed counts its own points into the line "animals" or the helpers'
 --   (town.work_counts_of); an animal's produce falls when oversold, as a crop does (town.market_things); the farm's new
