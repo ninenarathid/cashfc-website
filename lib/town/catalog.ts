@@ -599,7 +599,8 @@ export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Ar
   // scripts/db/build-v291.mjs, entry by entry, so that nothing another file wrote of those rows is written over)
   v291: { keys: ["animals"], over: [] } };
 // (v283, 2026-10-19, writes no whole row: `farming.costs.pick` and the farm pouch's `slots` by jsonb_set alone, so that
-// v284's beds in `farming.bedsAt` stand whichever runs first; v286 the same, `farming.pests.house` alone)
+// v284's beds in `farming.bedsAt` stand whichever runs first; v286 the same, `farming.pests.house` alone; v292 every
+// dish's `items.<id>.stack`, twenty, chosen by its kind: the blocks above follow the code, as the test asks)
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

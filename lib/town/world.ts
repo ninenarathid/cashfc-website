@@ -1025,12 +1025,13 @@ export const FARM_PROPS_FIRST: Prop[] = (() => {
   return out;
 })();
 /**
- * What stands about the farm: the first half's things (but the trees of its south rim on and beside the lane that runs
- * on south through it, so that the way through is open and nobody walking it is hidden behind one), and the southern
- * half's: the fence on down the west edge, hay where its lanes cross, and woods along its east and south.
+ * What stands about the farm: the first half's things (but the trees of its south rim, between the two halves, all
+ * taken off but those of the east rim's corner: first those on and beside the lane that runs on south through it, then,
+ * the owner, 2026-10-19, "ช่วยลบต้นไม้ตรงกลาง ระหว่าง ฟาร์มเก่า ใหม่ ออกด้วย", every one), and the southern half's: the
+ * fence on down the west edge, hay where its lanes cross, and woods along its east and south.
  */
 export const FARM_PROPS: Prop[] = (() => {
-  const gap = (p: Prop) => p.y - FARM.y >= 41 && ((p.x - FARM.x >= 27 && p.x - FARM.x < 33) || (p.x - FARM.x === 0 && p.y - FARM.y >= 43));
+  const gap = (p: Prop) => p.y - FARM.y >= 41 && p.x - FARM.x < 57;
   const out = FARM_PROPS_FIRST.filter((p) => !["tree", "pine", "bush"].includes(p.kind) || (farmGround(p.x - FARM.x + 0.5, p.y - FARM.y + 0.5, false) === "grass" && !gap(p)));
   const taken = new Set<string>();
   const put = (kind: PropKind, u: number, v: number, solid = true) => {
