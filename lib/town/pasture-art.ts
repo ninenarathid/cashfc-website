@@ -63,11 +63,15 @@ export const PROP_K: Readonly<Record<string, number>> = {
 /** Uncle Popoto on the map, his round of frames (as the uncle's: standing, waving, holding up a chick, laughing). */
 export const POPOTO_FRAMES = ["pp_stand", "pp_wave", "pp_show", "pp_laugh"] as const;
 export const POPOTO_TALK: [quiet: string, talking: string] = ["tk_popoto", "tk_popoto_o"];
-/** The three games' pictures. */
+/**
+ * The three games' pictures: each its own scene (a 4:3 window of its middle is the board) and its pieces on the icon
+ * template's grid. The animal on a board is its breed's own picture (a Highland cow is milked as herself), so the games
+ * have no cow, hen or sheep of their own.
+ */
 export const GAME_ART = {
-  milk: { scene: "mg_milk_barn", cow: "mg_milk_cow", cowShift: "mg_milk_cowShift", pail: "mg_milk_pail", handleL: "mg_milk_handleL", handleR: "mg_milk_handleR", gauge: "mg_milk_gauge", needle: "mg_milk_needle", splash: "mg_milk_splash" },
-  eggs: { scene: "mg_eggs_coop", box: "mg_eggs_box", hen: "mg_eggs_hen", egg: "mg_eggs_egg", basket: "mg_eggs_basket", crack: "mg_eggs_crack", straw: "mg_eggs_straw" },
-  shear: { scene: "mg_shear_pen", sheep: "mg_shear_sheep", fleece: "mg_shear_fleece", shears: "mg_shear_shears", nick: "mg_shear_nick", tuft: "mg_shear_tuft" },
+  milk: { scene: "mg_milk_barn", machine: "mg_milk_machine", handleUp: "mg_milk_handleUp", handleDown: "mg_milk_handleDown", pail: ["mg_milk_pail", "mg_milk_pailHalf", "mg_milk_pailFull"], gauge: "mg_milk_gauge", needle: "mg_milk_needle", splash: "mg_milk_splash" },
+  eggs: { scene: "mg_eggs_coop", box: "mg_eggs_box", egg: "mg_eggs_egg", basket: "mg_eggs_basket", crack: "mg_eggs_crack", straw: "mg_eggs_straw" },
+  shear: { scene: "mg_shear_pen", shears: "mg_shear_shears", nick: "mg_shear_nick", tuft: "mg_shear_tuft" },
 } as const;
 
 let sheet: Promise<SceneryKit | null> | null = null;
