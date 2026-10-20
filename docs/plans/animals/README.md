@@ -8,6 +8,47 @@ Worktree `E:/NinenineProject/fcnext-wt-animals`, branch `animals`. Migration **v
 fcnext-c3 and fcnext-43; take v292+ only after telling them). Nothing is pushed without his word; the owner sees desktop
 and phone screenshots first (AGENTS.md "Cash Town UI review").
 
+## Round 6 (2026-10-20): his asks during the build and his final answers — THIS SUPERSEDES what follows
+
+Where a section below says otherwise (the north-east rows, producing / nursery / keeping places, keeping packs bought
+of logs, the village gate, lending by the owner's choice), this section is what holds. The rules are built
+(`ad2a057f`) and so is v291 (`085a157f`): lib/town/animals.ts, animal-act.ts and the SQL are the truth.
+
+- **The farm moves EAST**, his last word on the layout: "ย้ายฟาร์มเลี้ยงสัตว์ มาเป็นอันใหญ่อันเดียวฝั่งนี้ดีกว่า 24 โรงเลี้ยง
+  อยู่ตรงนี้เลย และใช้ ลุง popoto คนเดียว" (he circled the farm's east edge: global x > 187, beside rows 0..85, the dark
+  beyond it). One big animal farm there, 24 barns, Uncle Popoto alone (no relative). The north-east rows (y -32..-1)
+  go: the farm's rows start at 0 again. "มีประตู 2 ประตู สำหรับ แปลงฝั่งเหนือ และ ใต้": two gates in the garden's east
+  rim, where the farm's two east-west roads meet it (rows 21-22 and 63-64), the roads carried on east into the animal
+  farm; "ประตูทุ่ง ขอกว้างกว่านี้ ลบต้นไม้แถวๆประตูออกให้หมดด้วย"; "ทำทางเดินในแมพ ให้เชื่อมไปที่ ฟาร์มเลี้ยงสัตว์ด้วย".
+- **Barns**: "การทำฟาร์มต้องซื้อ ฟาร์มกับ ลุง popoto เลี้ยงสัตว์ก่อน ราคาแพง แต่คุ้มการลงทุน"; "ตอนซื้อโรงเลี้ยงสัตว์ มี UI ให้
+  ผู้เล่น click ด้วยว่า จะเลือกโรงไหน เลือกซ้ำกับเพื่อนไม่ได้"; one barn a member ("พอ"); price "ตาม codex": 6,000 coins +
+  60 logs + 20 stone tiles (see "Open" below); 4 animals a barn (`herd.room`; members enlarge later). No barn, no
+  animals. Each barn has its own DOOR (the owner opens it: his animals go out to the meadow and the garden lanes, eating
+  half as fast); the village gate's state is gone. "ช่วยทำข้างใน โรงเลี้ยงสัตว์ด้วย ทำเหมือน โรงอาหาร ที่เดินเข้าไปแล้วจะ
+  ค่อยมองเห็นด้านใน": the barn is walked into, its inside revealed as the kitchen hall's is.
+- **Untended** ("ตาม codex"): no care by its owner 14 and 21 days: warned; 28: taken back, but only by one who waits
+  for a barn when none stands free; its animals go to its owner's pen; what they paid is kept as credit.
+- **Uncle Popoto's pen** ("คอกฝาก โอเค"): 8 animals a member, frozen there (they neither eat, grow nor give). A child or a
+  buy past the barn's room goes there. "สัตว์ทุกตัวสามารถโอนให้คนอื่นได้หมด โดยจัดการได้ที่ ลุงเลี้ยงสัตว์": any animal is
+  OFFERED to a member (it stands a day); the receiver says yes, and it goes into their pen with its hearts and stats.
+- **Sexes**: "ตอนซื้อเลือกเพศได้ แต่ตอนผสมพันธุ์ หรือ ออกจากไข่ เป็นสุ่มเพศ"; a cross is one of each sex of one species
+  ("ตามที่พวกคุณเสนอ": sheep of both sexes give wool; roosters, drakes and bulls give no eggs or milk).
+- **Friends' crosses**: "ไปขอสัตว์เพื่อนมาช่วยผสมพันธุ์ได้ คนที่เป็น Host เจ้าของ request จะได้สัตว์ตัวนั้นไป": the host ASKS for
+  a friend's animal for a cross with one of theirs; the friend says yes; it is lent an hour for that cross; the child is
+  the host's (the rank-7 twin cradle gives the friend one too).
+- **Stats** ("ค่าพันธุกรรม 3 ค่า: เห็นด้วย แต่ช่วยทำให้ การทำให้เกิด ค่าพันธุกรรมดีๆ ผู้เล่นต้องเอาใจใส่ดูแลสัตว์มาเป็นอย่างดีจริงๆ"):
+  thrift (eats 2% less a point above 1), gentleness (a pet or treat 3% more to heart a point above 1), vigour (+0.03
+  growth speed a point above 1, inside x3). 1..10; bought 2..4. A child: the parents' average, then by their CARE
+  (hearts 60%, days fed through in a row 40%): well cared for, often +1, now and then +2, never down; neglected, seldom
+  up, often down (`childStats`); the nest shows the likely range (`childRange`). The cradle: its parent with itself.
+- **Outfit at rank 3** ("ชุดประจำสาย โอเค"): patched denim overalls, a red neckerchief, a straw hat with a feather, rubber
+  boots (Doll 2; the art round).
+- **Shorn sheep**: "แกะช่วย gen รูปตอนตัดขนแล้วด้วย" (the art round; the page shows it after a shearing until it regrows).
+- **Money**: no ceiling now; measure a week ("ตาม claude").
+- **Open, asked 2026-10-20** ("ไอเทมใหม่ๆ ที่ได้จากสัตว์ ราคาขาย สมเหตุสมผลไหม คุ้มค่ากับการลงทุนไหม"): both AIs offered a staged
+  barn (2 places for 2,000 + 20 logs + 8 tiles, then 4 for 4,000 + 40 + 12), bredBack 0, and one shared market for all
+  animal goods (1,500 base coins a round for the village, floor 10%). His answer decides; the page reads `herd.room`.
+
 ## His asks, in his words
 
 - The first ask: "ช่วยวางแผน ระบบเลี้ยงสัตว์ ... เริ่มแรกสามารถเลี้ยงสัตว์ได้คนละ 2 ตัว สัตว์ phase แรกจะมีแค่ ไก่ วัว แกะ เป็ด
