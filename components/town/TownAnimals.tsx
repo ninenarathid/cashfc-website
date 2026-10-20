@@ -15,7 +15,7 @@ import { held, type Purse } from "@/lib/town/trade";
 import type { SceneryKit } from "@/lib/town/scenery";
 import { Coins, ItemIcon, Pic } from "./TownTrade";
 import { QualityRange } from "./TownQuality";
-import { ANIMAL_K, animalPicture, animalSize, drawAnimal } from "./pasture-draw";
+import { animalK, animalPicture, animalSize, drawAnimal } from "./pasture-draw";
 import type { Sprite } from "@/lib/town/scenery";
 
 /*
@@ -76,8 +76,8 @@ export function AnimalPic({ species, breed, stage, size = 48, kit, dark = false,
     ctx.imageSmoothingEnabled = false;
     // (sized to the box by its longer side: a picture at a whole number of the screen's pixels to one of its own where it
     // fits, so its pixels stay square; a stand-in as before)
-    const box = animalSize(kit, { species, breed, stage }), k = ANIMAL_K[species] ?? 0.6;
-    const art = animalPicture(kit, { species, breed, stage, right: true }, pose);
+    const box = animalSize(kit, { species, breed, stage });
+    const art = animalPicture(kit, { species, breed, stage, right: true }, pose), k = art ? animalK(species, art.name) : 0.6;
     let s = Math.min(2.6, (size * 0.8) / Math.max(18, box.w * 1.15));
     if (art && kit) { const [w, h] = kit.sizeOf(art.name), fit = (size * 0.88) / Math.max(w, h); s = (fit >= 1 ? Math.min(3, Math.floor(fit)) : fit) / k; }
     drawAnimal(ctx, kit, { species, breed, stage, pose, right: true }, { x: size / 2, y: size * 0.93 }, s, dpr, 0, true);

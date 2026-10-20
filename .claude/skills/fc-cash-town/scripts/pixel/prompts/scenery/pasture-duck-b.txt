@@ -1,0 +1,11 @@
+Use the first attached sprite sheet only as the reference for the pixel art style, the chunky square pixel size and the scale: the little characters in it are the size of a person. The second attached picture is a sheet of hens from the same set: draw at exactly their pixel size and in their pose. Draw the animals in exactly its cute style, round and soft with big shiny dark eyes, seen from the same three-quarter top-down angle. Do not draw any characters.
+
+Draw six items, all at the characters' own scale and pixel size (do not draw them larger to fill the canvas). The first five are ducks, each standing on its two short orange webbed feet, its body turned three-quarters towards the viewer and facing the lower right, head on the right, so that its face with both round shiny dark eyes shows, a short rounded duck bill, cute and friendly:
+1) a moon duck, as tall as the hens of the second picture, pearl white with pale lavender shading, one large warm yellow crescent moon marking covering most of its visible wing and edged with muted amber pixels, and a pale yellow bill;
+2) a paperboat duck, as tall as the hens of the second picture, its cream and white feathers folded in crisp straight-edged pleats like a paper boat, with thin grey crease lines and a pointed paper-fold tail, an orange bill;
+3) a little leviathan, as tall as the hens of the second picture, a duck with a longer curved neck, covered in small deep sea-blue and teal scales, a little fin crest on its head and a finned tail like a fish's, a dark blue bill;
+4) a duckling, half as tall as the hens of the second picture, a round ball of fluffy yellow down with tiny wing stubs, a small orange bill and small orange feet;
+5) a young duck, three quarters as tall as the hens of the second picture, slimmer than them, white feathers with a few soft patches of yellow down left on its head and back, an orange bill;
+6) a tall plain wooden post, twice as tall as a character.
+
+All six items in one row, evenly spaced, not overlapping, with clear empty space between them, standing on the same ground line. Crisp pixel art with hard square pixel edges, the same thick dark outline, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground under them, no shadows, no text, no labels.

@@ -1,0 +1,11 @@
+The attached picture is a pixel art sprite sheet of a cute round potato creature called popoto as a village shopkeeper, with a light brown body, a happy little face and pink cheeks: it shows the pixel art style, the chunky square pixel size and the size of a popoto to use.
+
+Draw a pixel art sprite sheet of that popoto as a jolly old animal farmer who sells chicks, ducklings, lambs and calves, the same size as the popoto in the attached picture, in the same style, seen from the same three-quarter top-down angle, facing the viewer. It keeps its round potato body, little face and pink cheeks. It has a big fluffy white beard and bushy white eyebrows, wears a wide-brimmed golden straw farmer's hat with a red band, a red and white checked neckerchief, and light blue denim dungarees with one front pocket and two brass buttons, and has a small coil of rope hanging at its side.
+
+Four frames in one row, the same popoto, the same size, evenly spaced, standing on the same ground line, not overlapping:
+1) standing, both hands resting on its dungarees, smiling;
+2) waving one hand high in greeting, mouth open, calling out happily;
+3) holding up a fluffy yellow chick in both hands in front of its chest, showing it proudly;
+4) eyes closed in a big laugh, both hands on its belly.
+
+Crisp pixel art with hard square pixel edges, the same thick dark outline, flat shading with a few tones, no anti-aliasing, no blur, no gradients. Transparent background, no ground, no shadows, no text, no labels.

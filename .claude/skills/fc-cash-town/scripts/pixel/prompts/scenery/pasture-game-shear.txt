@@ -1,0 +1,5 @@
+Use the attached sprite sheet only as the reference for the pixel art style, its colours and its chunky square pixel size. Draw one scene that fills the whole canvas from edge to edge, with no border and no frame, for a mini-game of the same cozy 2D game.
+
+A small grassy shearing pen outdoors on a sunny afternoon, seen flat and straight from the front. Across the upper third, a wooden rail fence of three plain rails on round posts runs from the left edge to the right edge, with a strip of pale blue sky and a soft distant green hedge above it. Below the fence the ground is short, even, quiet green grass from edge to edge with very little detail. Only at the far left edge, low down, a small wooden stool; only at the far right edge, low down, a woven basket holding a few white tufts of wool. The whole middle of the picture is left plain grass and empty (the game draws the sheep there).
+
+Crisp pixel art with hard square pixel edges, a thick dark outline on things, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients, no glow. No characters, no animals, no sheep, no shears, no text, no letters, no numbers.

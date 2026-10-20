@@ -1,0 +1,10 @@
+Use the first attached sprite sheet only as the reference for the pixel art style, the chunky square pixel size and the scale: the little characters in it are the size of a person. The second attached picture is farm scenery from the same game: draw in exactly its style, its wood and roof colours and its thick dark outline. Do not draw any characters.
+
+Draw one item in the middle, at the characters' own scale and pixel size: a big red barn for cows and sheep, seen from the same three-quarter top-down angle as an isometric map. Use parallel projection without perspective convergence: every ground edge moves two pixels horizontally for every one pixel vertically. Its long side faces the lower left and its short gable end faces the lower right; the bottom edge of the long side runs diagonally down to the right and the bottom edge of the gable end runs diagonally up to the right, meeting at the barn's front corner, the lowest point of the picture. Its rectangular footprint has sides in the ratio 9:6, and its overall projected width from leftmost to rightmost roof edge is about nine character heights; its walls are a little taller than a character and its roof ridge is about twice a character's height above the ground.
+- the walls are warm red painted wooden planks with cream trim at the corners and along the eaves;
+- in the middle of the long side, a big double barn door of red planks with a cream X brace on each half, closed;
+- two small square windows with cream frames on the long side, one each side of the door;
+- under the peak of the gable end, a small hayloft door standing open with golden hay showing, and a round cream vent above it;
+- a gable roof of dark brown wooden shingles, its ridge running the length of the barn, overhanging the walls a little.
+
+The barn sits in the middle of the canvas with empty space all around it, with room above for the roof, and nothing is cropped. Crisp pixel art with hard square pixel edges, the same thick dark outline, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground under them, no shadows, no text, no labels.

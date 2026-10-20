@@ -2,7 +2,11 @@
 // gen.mjs sheet cut to its true pixels) is its `idle`, and the frames PixelLab drew from it (pl.mjs, work/pl/<name>/)
 // are the rest, picked in prompts/pixellab/pasture/picks.json:
 //
-//   { "<piece prefix>": { "base": "<work/pasture/base name>", "frames": { "idle": "base", "walk1": ["<pl name>", <i>], ... } } }
+//   { "<piece prefix>": { "base": "<work/pasture/base name>", "k": <size>, "frames": { "idle": "base", "walk1": ["<pl name>", <i>], ... } } }
+//
+// `k` is how much larger than its kind's pictures it is drawn (written into pasture.json's `scale`, read by the page):
+// its sheet's grid over its kind's first sheet's (a sheet cut finer drew its animal in more pixels), times its stage's
+// share where the model drew a young one as large as a grown one.
 //
 // A piece is named "<prefix>_<frame>" (for an animal "an_<breed>_adult_SE", so "an_barnHen_adult_SE_walk1": the names of
 // lib/town/pasture-art.ts). What is done to a PixelLab frame, as the doll builder does to its frames (ART_WORKFLOW,
@@ -68,7 +72,7 @@ function trim(im) {
 export async function pastureFrames(picksFile = path.join(HERE, "prompts", "pixellab", "pasture", "picks.json")) {
   if (!fs.existsSync(picksFile)) return [];
   const picks = JSON.parse(fs.readFileSync(picksFile, "utf8")), pieces = [];
-  for (const [prefix, { base, frames, palette }] of Object.entries(picks)) {
+  for (const [prefix, { base, frames, palette, k }] of Object.entries(picks)) {
     if (prefix.startsWith("_")) continue;
     const baseFile = path.join(WORK, "pasture", "base", `${base}.png`), meta = JSON.parse(fs.readFileSync(path.join(WORK, "pasture", "base", `${base}.json`), "utf8"));
     const b = await rgba(baseFile), pal = paletteOf(b);
@@ -86,7 +90,7 @@ export async function pastureFrames(picksFile = path.join(HERE, "prompts", "pixe
         if (im.w !== b.w || im.h !== b.h) throw new Error(`${pl} frame ${i} is ${im.w}x${im.h}, its base ${b.w}x${b.h}: not the base's canvas`);
       }
       const t = trim(tidy(im, pal));
-      pieces.push({ name: `${prefix}_${frame}`, img: t.img, ax: fx - t.x0, ay: fy - t.y0 });
+      pieces.push({ name: `${prefix}_${frame}`, img: t.img, ax: fx - t.x0, ay: fy - t.y0, ...(k && k !== 1 ? { k: +k.toFixed(3) } : {}) });
       console.log(`${(prefix + "_" + frame).padEnd(30)} ${t.img.w}x${t.img.h}  (${from === "base" ? "base" : from.join(" ")})`);
     }
   }

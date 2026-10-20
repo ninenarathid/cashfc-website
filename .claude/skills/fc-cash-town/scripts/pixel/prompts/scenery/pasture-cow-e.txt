@@ -1,0 +1,8 @@
+Use the first attached sprite sheet only as the reference for the pixel art style, the chunky square pixel size and the scale: the little characters in it are the size of a person. The second attached picture is a sheet of cows from the same set: draw at exactly their pixel size, with the same thick dark outline, in their standing pose and in their cute style, round and soft with big shiny dark eyes, seen from the same three-quarter top-down angle. Do not draw any characters.
+
+Draw three items, all at the characters' own scale and pixel size (do not draw them larger to fill the canvas), each standing on its four legs, its body turned three-quarters towards the viewer and facing the lower right, head on the right, so that its face with both round shiny dark eyes shows, cute and friendly:
+1) a calf, half as tall as the cows of the second picture, a small plain fawn calf with big floppy ears, long knobbly legs, a pale pink muzzle and no horns;
+2) a heifer, a young cow three quarters as tall as the cows of the second picture, slimmer than them, plain light brown all over, two tiny horn buds and a pale pink muzzle;
+3) a tall plain wooden post, twice as tall as a character.
+
+All three items in one row, evenly spaced, not overlapping, with clear empty space between them, standing on the same ground line. Crisp pixel art with hard square pixel edges, the same thick dark outline, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground under them, no shadows, no text, no labels.
