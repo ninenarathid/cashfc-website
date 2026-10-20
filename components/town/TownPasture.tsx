@@ -83,7 +83,7 @@ export interface PastureProps {
   art: (name: string) => Sprite | null;
 }
 type Box = { x0: number; y0: number; x1: number; y1: number };
-type Hit = Box & ({ kind: "popoto" } | { kind: "nest"; barn: number } | { kind: "trough"; barn: number } | { kind: "door"; barn: number } | { kind: "barn"; barn: number } | { kind: "pen" } | { kind: "table" }
+type Hit = Box & ({ kind: "popoto" } | { kind: "nest"; barn: number } | { kind: "trough"; barn: number; tag?: boolean } | { kind: "door"; barn: number } | { kind: "barn"; barn: number } | { kind: "pen" } | { kind: "table" }
   | { kind: "animal"; id: string } | { kind: "egg"; id: string; spot: number; at: [number, number] } | { kind: "forage"; spot: number } | { kind: "wagon"; run: string; at: Vec; standing: boolean });
 const inBox = (b: Box, x: number, y: number) => x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1;
 const near = (a: readonly [number, number] | null, x: number, y: number, r = 1) => !!a && Math.max(Math.abs(a[0] - x), Math.abs(a[1] - y)) <= r;
@@ -328,6 +328,8 @@ export default function TownPasture(props: PastureProps) {
         tag(t("คอกฝากของลุง", "Uncle's pen"), c.x, c.y - 52 * s, "#e5cc80");
       } }
 
+      /** Hits that go over everything else of the farm's (pushed last). */
+      const late: Hit[] = [];
       // ── the barns: from outside their walls and roofs; the one I stand in, from inside
       const herdOf = new Map<number, Herd>();
       for (const h of w?.herds ?? []) if (h.barn !== null) herdOf.set(h.barn, h);
@@ -348,7 +350,12 @@ export default function TownPasture(props: PastureProps) {
           // (what is tapped inside: the trough and the nest)
           const tr = troughOf(b, room), tr0 = project({ x: tr.x0, y: b.y + 0.3 }), tr1 = project({ x: tr.x1, y: b.y + 0.3 });
           out.push({ kind: "trough", barn: b.i, x0: Math.min(tr0.x, tr1.x) - 8 * s, y0: Math.min(tr0.y, tr1.y) - 30 * s, x1: Math.max(tr0.x, tr1.x) + 8 * s, y1: Math.max(tr0.y, tr1.y) + 10 * s });
-          if (holder && (holder.owner === me || mayCare(holder, me))) tag(t("รางอาหาร · แตะเพื่อเติม", "Trough · tap to feed"), (tr0.x + tr1.x) / 2, Math.min(tr0.y, tr1.y) - 34 * s, "#cfe6ff");
+          if (holder && (holder.owner === me || mayCare(holder, me))) {
+            const tx = (tr0.x + tr1.x) / 2, ty = Math.min(tr0.y, tr1.y) - 34 * s;
+            tag(t("รางอาหาร · แตะเพื่อเติม", "Trough · tap to feed"), tx, ty, "#cfe6ff");
+            // (its label a tap too, over whatever stands before the trough: pushed after the animals, below)
+            late.push({ kind: "trough", barn: b.i, tag: true, x0: tx - 70, y0: ty - 12, x1: tx + 70, y1: ty + 12 });
+          }
           const n = project({ x: b.nest[0] + 0.5, y: b.nest[1] + 0.5 });
           out.push({ kind: "nest", barn: b.i, x0: n.x - 22 * s, y0: n.y - 22 * s, x1: n.x + 22 * s, y1: n.y + 8 * s });
           if (mine) tag(t("รังผสมพันธุ์", "Breeding nest"), n.x, n.y - 28 * s);
@@ -420,6 +427,7 @@ export default function TownPasture(props: PastureProps) {
         if (mine && s >= 0.8) tag(`${a.sex === "m" ? "♂" : "♀"} ${(a.name || breedOf(a.breed)?.name[th ? "th" : "en"] || "").slice(0, 12)}`, c.x, c.y + 10 * s, "#cfe6ff");
         else if (a.name && s >= 1.4) tag(a.name.slice(0, 12), c.x, c.y + 10 * s);
       }
+      out.push(...late);
       // the eggs laid out on the meadows, wherever their hens are now: everybody sees whose; only the owner picks them up
       for (const a of w.animals) {
         const mine = a.owner === me;

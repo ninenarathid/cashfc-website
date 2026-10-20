@@ -140,9 +140,13 @@ async function run(label) {
 
     // ── the stall: young of a sex chosen; a third past the barn's two waits in Uncle's pen
     await click(X, '[data-animals-tab="shop"]'); await sleep(500);
-    await click(X, '[data-buy="sheep"] [data-sex-pick="m"]'); await sleep(200);
-    await scrollPanel(X, '[data-buy="chicken"]'); await sleep(200);
+    // (both sexes shown: a hen chick and a ewe-or-ram lamb, a drake and a bull calf; each card says what its sex gives)
+    for (const sp of ["duck", "sheep", "cow"]) { await click(X, `[data-buy="${sp}"] [data-sex-pick="m"]`); await sleep(150); }
+    ok(`${label}: each young's card says what the sex chosen gives`, await X.evaluate(`document.querySelector('[data-buy="chicken"] [data-yields]')?.dataset.yields === "yes" && document.querySelector('[data-buy="duck"] [data-yields]')?.dataset.yields === "no" && document.querySelector('[data-buy="sheep"] [data-yields]')?.dataset.yields === "yes" && document.querySelector('[data-buy="cow"] [data-yields]')?.dataset.yields === "no" && !!document.querySelector("[data-cross-rule]")`));
+    await scrollPanel(X, "[data-cross-rule]"); await sleep(200);
     await shot("08-shop-sex");
+    await scrollPanel(X, '[data-buy="sheep"]'); await sleep(200);
+    await shot("08b-shop-sex-more");
     await tall("the stall");
     await click(X, '[data-buy="chicken"] [data-buy-go]'); await sleep(700);
     await click(X, '[data-buy="sheep"] [data-buy-go]'); await sleep(700);
@@ -259,7 +263,8 @@ async function run(label) {
     // (room in the bag for the feed: the games and the nest filled it)
     await X.evaluate(`(() => { const t = ${T}; t.fished({ ...t.purse(), bag: t.purse().bag.map((x, i) => (i < 3 ? x : null)) }); for (const a of t.animalWorld().animals.filter((x) => x.owner === window.__townKeeper.id && x.home === "barn")) t.animalSet(a.id, { food: a.species === "sheep" ? 0 : 6, at: t.now() }); t.grant("chickFeed", 3); t.grant("sheepFeed", 3); })()`);
     await sleep(800);
-    ok(`${label}: the trough is tapped`, await tapMap(X, "trough"));
+    // (by its label: whoever stands before the trough is tapped there, as an animal would be)
+    { const h = await X.evaluate(`${S}.hits().find((h) => h.kind === "trough" && h.tag) ?? null`); ok(`${label}: the trough is tapped by its label`, !!h); if (h) { await press(X, h.x, h.y); await sleep(700); } }
     await sleep(700);
     ok(`${label}: the trough opens, a slot a place`, await X.evaluate(`document.querySelectorAll("[data-animals-trough] [data-trough-slot]").length === 4`));
     await shot("22-trough");

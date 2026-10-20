@@ -506,7 +506,9 @@ export function animalSpot(a: Who, barnIndex: number, slot: number, door: GateLo
       if (now >= sleepFrom && o.pose !== "swim") o = { ...o, pose: "sleep" };
     }
   } else if (Number.isFinite(d.since) && Number.isFinite(d.opened)) {
-    const was = outAt(a, barn, slot, d.opened, d.since), home = homeWay(barn, slot, was), T = (lenOf(home) / lane) * 1000;
+    // (where it was as the door shut: lying where night found it, if the night had come and it was out by then)
+    const atShut = asleepAt(d.since) ? Math.min(d.since, Math.max(nightBegan(d.since), firstOut(a, barn, slot, d.opened).there)) : d.since;
+    const was = outAt(a, barn, slot, d.opened, atShut), home = homeWay(barn, slot, was), T = (lenOf(home) / lane) * 1000;
     if (now < d.since + T) { const r = along(home, ((now - d.since) / 1000) * lane); o = { at: r.at, right: r.right, pose: "walk" }; }
     else o = asleep(inBarn(a, barn, slot, room, Math.max(d.since + T, settled(d.since)), asleepIn(Math.max(d.since + T, settled(d.since)))));
   } else o = asleep(inBarn(a, barn, slot, room, 0, asleepIn(0)));
@@ -515,9 +517,10 @@ export function animalSpot(a: Who, barnIndex: number, slot: number, door: GateLo
 }
 /** Where an animal waiting in Uncle Popoto's pen is: about the paddock, by its id and the clock. */
 export function penSpot(id: string, species: string, now: number, night = asleepAt(now)): AnimalSpot {
-  const seed = hashStr(id), L = 10_000 + (seed % 6) * 1000, k = Math.floor((now + seed % L) / L);
+  // (at night it lies where it was as night fell)
+  const seed = hashStr(id), L = 10_000 + (seed % 6) * 1000, t = night ? Math.min(now, nightBegan(now)) : now, k = Math.floor((t + seed % L) / L);
   const pt = (j: number): P => ({ x: PEN.x + 0.6 + mix(seed, j, 1) * (PEN.w - 1.2), y: PEN.y + 0.7 + mix(seed, j, 2) * (PEN.h - 1.3) });
-  const from = pt(k - 1), to = pt(k), into = (now + seed % L) - k * L, walk = Math.min(L * 0.7, (dist(from, to) / (PACE[species] ?? 0.8)) * 1000), right = to.x - to.y - (from.x - from.y) >= 0;
+  const from = pt(k - 1), to = pt(k), into = (t + seed % L) - k * L, walk = Math.min(L * 0.7, (dist(from, to) / (PACE[species] ?? 0.8)) * 1000), right = to.x - to.y - (from.x - from.y) >= 0;
   if (!night && into < walk && dist(from, to) > 0.05) { const f = into / walk; return { x: from.x + (to.x - from.x) * f, y: from.y + (to.y - from.y) * f, right, pose: "walk", inside: -1 }; }
   return { x: to.x, y: to.y, right: mix(seed, k, 6) < 0.5, pose: night ? "sleep" : mix(seed, k, 4) < 0.4 ? "eat" : "idle", inside: -1 };
 }

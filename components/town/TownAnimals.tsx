@@ -177,7 +177,7 @@ export interface AnimalsProps {
   /** Uncle Popoto's face over the panel. */
   face: Sprite | null;
 }
-type Act = (input: AnimalInput | null, ok?: [string, string], after?: (r: { ok: boolean; got?: AnimalReply["got"] }) => void, whyFor?: Why) => Promise<void>;
+type Act = (input: AnimalInput | null, ok?: [string, string] | ((r: { ok: boolean; got?: AnimalReply["got"] }) => [string, string]), after?: (r: { ok: boolean; got?: AnimalReply["got"] }) => void, whyFor?: Why) => Promise<void>;
 /** Several steps one after another (the trough's "fill every slot"): how many went through, and why the first that did not. */
 type Many = (inputs: AnimalInput[], ok: (n: number) => [string, string]) => Promise<void>;
 interface Common { th: boolean; purse: Purse; world: AnimalWorld; now: number; kit: SceneryKit | null; busy: boolean; act: Act; many: Many; me: string; nameOf: (id: string) => string; onView: AnimalsProps["onView"] }
@@ -206,7 +206,7 @@ export default function TownAnimals({ keeper, th, view, onView, onClose, focus, 
       const r = await keeper.animals(p.input, p.request);
       if (!alive.current) return;
       if (r.ok || r.why !== "away") pending.current = null;
-      setSaid(r.ok ? (ok ? ok[th ? 0 : 1] : t("เรียบร้อย", "Done.")) : (whyFor?.[r.why ?? "none"] ?? WHY[r.why ?? "none"] ?? WHY.none)[th ? 0 : 1]);
+      setSaid(r.ok ? (ok ? (typeof ok === "function" ? ok(r) : ok)[th ? 0 : 1] : t("เรียบร้อย", "Done.")) : (whyFor?.[r.why ?? "none"] ?? WHY[r.why ?? "none"] ?? WHY.none)[th ? 0 : 1]);
       after?.(r);
     } finally { if (alive.current) setBusy(false); }
   }, [busy, keeper, th]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -508,18 +508,21 @@ function Shop({ th, purse, world, now, kit, busy, act, me, onView, mine }: Commo
         </p>
       )}
       <H3>{t("ลูกสัตว์ (เลือกเพศได้ ค่อยๆ โตเมื่อกินอิ่ม)", "Young ones (choose the sex; they grow while fed)")}</H3>
+      <p className="-mt-1 mb-2 text-meta text-muted" data-cross-rule>{t("ผสมพันธุ์ใช้ตัวผู้ 1 ตัวเมีย 1 ชนิดเดียวกัน", "A cross takes one male and one female of one kind.")}</p>
       <ul className="grid gap-2">
         {SPECIES_IDS.map((sp) => {
-          const s = SPECIES[sp], days = (s.grow[0] + s.grow[1]) / 24, x = sex[sp] ?? "f";
-          const yields = sp === "chicken" ? t(`ไข่ทุก ${s.cycle} ชม.`, `an egg every ${s.cycle} h`) : sp === "duck" ? t(`ไข่เป็ดทุก ${s.cycle} ชม.`, `a duck egg every ${s.cycle} h`) : sp === "sheep" ? t("ขนเต็มทุก 24 ชม.", "a fleece every 24 h") : t(`นมเต็มทุก ${s.cycle} ชม.`, `milk every ${s.cycle} h`);
-          const maleNote = sp === "sheep" ? t("แกะให้ขนทั้งสองเพศ", "sheep of both sexes give wool") : t("ตัวผู้ไม่ให้ผลผลิต ใช้ผสมพันธุ์", "males give nothing: for breeding");
+          const s = SPECIES[sp], days = (s.grow[0] + s.grow[1]) / 24, x = sex[sp] ?? "f", yields = gives({ sex: x, species: sp });
+          // (what this sex gives, the owner, 2026-10-20: "หน้านี้ช่วยอธิบายด้วยว่า เพศไหนให้ หรือ ไม่ให้ผลผลิตบ้าง")
+          const line = sp === "sheep" ? t(`ให้ขนทุก ${s.cycle} ชม. ทั้งตัวผู้และตัวเมีย`, `Wool every ${s.cycle} h, ram or ewe alike`)
+            : !yields ? (sp === "cow" ? t("ตัวผู้ ไม่ให้นม · ไว้ผสมพันธุ์", "A male gives no milk · for breeding") : t("ตัวผู้ ไม่ออกไข่ · ไว้ผสมพันธุ์", "A male lays no eggs · for breeding"))
+            : sp === "chicken" ? t(`ตัวเมีย ออกไข่ทุก ${s.cycle} ชม.`, `A female lays an egg every ${s.cycle} h`) : sp === "duck" ? t(`ตัวเมีย ออกไข่เป็ดทุก ${s.cycle} ชม.`, `A female lays a duck egg every ${s.cycle} h`) : t(`ตัวเมีย ให้นมทุก ${s.cycle} ชม.`, `A female gives milk every ${s.cycle} h`);
           return (
             <li key={sp} className="rounded-xl border border-line bg-bg/50 p-2" data-buy={sp}>
               <div className="flex items-center gap-3">
                 <AnimalPic species={sp} breed={breedAt(sp, "A").id} stage="baby" size={52} kit={kit} />
                 <span className="min-w-0 flex-1">
                   <span className="block text-ui font-semibold text-ink">{s.baby[th ? "th" : "en"]}</span>
-                  <span className="block text-meta text-muted">{t(`โตใน ${days} วัน · ${yields}`, `grown in ${days} d · ${yields}`)}</span>
+                  <span className="block text-meta text-muted">{t(`โตใน ${days} วัน`, `grown in ${days} d`)}</span>
                   <Coins n={s.price} th={th} small />
                 </span>
               </div>
@@ -535,12 +538,12 @@ function Shop({ th, purse, world, now, kit, busy, act, me, onView, mine }: Commo
                 <button type="button" className={`${main} flex-1`} disabled={busy || !hasBarn || purse.coins < s.price || !home} data-buy-go={sp}
                         onClick={() => void act({ action: "buy", species: sp, sex: x }, home === "pen" ? ["ได้ลูกสัตว์แล้ว! โรงเต็มเลยรอที่คอกลุงก่อนนะ", "Here's your little one! The barn's full, so it waits in Uncle's pen."] : ["ได้ลูกสัตว์แล้ว! อยู่ในโรงของหลาน อย่าลืมให้อาหารนะ", "Here's your little one, in your barn! Don't forget to feed it."])}>{t("รับเลี้ยง", "Take")}</button>
               </div>
-              {x === "m" && <p className="mt-1 text-label text-muted">{maleNote}</p>}
+              <p className={`mt-1.5 text-meta leading-snug ${yields ? "text-jade" : "text-muted"}`} data-yields={yields ? "yes" : "no"}>{line}</p>
             </li>
           );
         })}
       </ul>
-      <p className="mt-1.5 text-label text-muted">{t("ผสมพันธุ์ได้เมื่อมีตัวผู้กับตัวเมียชนิดเดียวกัน ลูกที่เกิดเป็นเพศสุ่ม", "A cross takes a male and a female of one kind; a child's sex is by chance.")}</p>
+      <p className="mt-1.5 text-label text-muted">{t("ลูกที่เกิดจากการผสมเป็นเพศสุ่ม", "A child of a cross is of either sex, by chance.")}</p>
       <H3>{t("อาหารและของเร่งโต", "Feed and growth feed")}</H3>
       <ul>{SPECIES_IDS.flatMap((sp) => [row(SPECIES[sp].sack, SPECIES[sp].sackPrice, t("อิ่ม 24 ชม.", "24 h of food")), row(SPECIES[sp].growItem, SPECIES[sp].growPrice, t("โตไวขึ้น 24 ชม.", "faster growth for 24 h"))])}</ul>
       <H3>{t("เครื่องมือ", "Tools")}</H3>
@@ -663,7 +666,7 @@ function Card({ a, th, purse, world, now, kit, busy, act, open, onOpen, onCollec
               <Bar value={v.ready >= sp.bank ? 1 : v.round} tone="gold" label={t("รอบผลผลิต", "The round")} />
             </div>
           )}
-          {stage === "adult" && !yields && <p className="mt-2 text-meta text-muted" data-no-yield>{t("ตัวผู้ไม่ให้ผลผลิต ใช้ผสมพันธุ์กับตัวเมีย", "A male gives nothing to collect: he's for breeding.")}</p>}
+          {!yields && <p className="mt-2 text-meta text-muted" data-no-yield>{t("ไม่ให้ผลผลิต · ไว้ผสมพันธุ์", "Gives nothing to collect · for breeding")}</p>}
           {yields && <div className="mt-2">
             <p className="mb-1 text-meta text-ink">{t("คุณภาพผลผลิต (หัวใจตั้งเพดาน อาหารเกรดดียกพื้น)", "Produce quality (hearts set the ceiling; graded feed lifts the floor)")}</p>
             <QualityRange range={{ lo: v.range.floor, hi: v.range.ceiling }} base={Math.max(0, v.range.ceiling - ANIMALS.quality.spread)} th={th} odds={false} />
@@ -681,7 +684,7 @@ function Card({ a, th, purse, world, now, kit, busy, act, open, onOpen, onCollec
                 : <button type="button" className={button} disabled={busy || lent || used.pen >= ANIMALS.pen} onClick={() => void act({ action: "move", id: a.id, home: "pen" }, ["ฝากไว้ที่คอกลุงแล้ว", "Left in Uncle's pen."])} data-move="pen">{t("ฝากคอกลุง", "To Uncle's pen")}</button>}
               <button type="button" className={button} disabled={busy || stage === "coming" || lent} onClick={() => onView("pen", a.id)} data-hand-on>{t("ส่งต่อให้เพื่อน", "Hand on")}</button>
               <button type="button" className={button} disabled={busy} onClick={() => setPicker(picker === "name" ? null : "name")} aria-expanded={picker === "name"}>{t("ตั้งชื่อ", "Rename")}</button>
-              {cradle && <button type="button" className={button} disabled={busy || usesLeft(purse, ANIMAL_GIFTS.cradle, now) < 1} onClick={() => void act({ action: "cradle", id: a.id }, ["เปลอุ่นของยายให้ลูกน้อยมาหนึ่งตัว!", "Grandma's cradle brings a little one!"], (r) => { if (r.ok && r.got?.sex && r.got.stats) void 0; })} data-cradle>{t("เปลอุ่นของยาย", "Warm cradle")}</button>}
+              {cradle && <button type="button" className={button} disabled={busy || usesLeft(purse, ANIMAL_GIFTS.cradle, now) < 1} onClick={() => void act({ action: "cradle", id: a.id }, (r) => cradleWords(r.got))} data-cradle>{t("เปลอุ่นของยาย", "Warm cradle")}</button>}
             </div>
           )}
           {picker === "feed" && (
@@ -731,6 +734,13 @@ function AnimalLine({ a, th, kit, now, children, note }: { a: Animal; th: boolea
     </li>
   );
 }
+/** A child's three stats in a line, both languages. */
+const statWords = (st: Stats): [string, string] => [STAT_IDS.map((k) => `${STAT_WORD[k][0]} ${statOf({ stats: st }, k)}`).join(" "), STAT_IDS.map((k) => `${STAT_WORD[k][1]} ${statOf({ stats: st }, k)}`).join(", ")];
+/** What grandma's cradle brought, told: the child's sex, its breed and its stats. */
+function cradleWords(g: AnimalReply["got"]): [string, string] {
+  const st = g?.stats ? statWords(g.stats) : ["", ""], b = breedOf(g?.child ?? "");
+  return [`เปลอุ่นของยายให้ลูก${g?.sex === "m" ? "ตัวผู้" : "ตัวเมีย"} ${b?.name.th ?? ""} · ${st[0]}`, `Grandma's cradle brings a little ${g?.sex === "m" ? "male" : "female"} ${b?.name.en ?? ""} · ${st[1]}`];
+}
 const statLine = (a: Animal, th: boolean) => STAT_IDS.map((k) => `${STAT_WORD[k][th ? 0 : 1].slice(0, th ? 6 : 6)} ${statOf(a, k)}`).join(" · ");
 
 /* ── Uncle Popoto's pen, and the handing on of animals ── */
@@ -763,7 +773,7 @@ function Pen({ th, purse, world, now, kit, busy, act, me, nameOf, mine, members,
       </>}
       <H3>{t("ในคอกของลุง", "In Uncle's pen")}</H3>
       {inPen.length ? <ul className="grid gap-2" data-pen-list>{inPen.map((a) => (
-        <AnimalLine key={a.id} a={a} th={th} kit={kit} now={now} note={STAGE[stageOf(a, now)][th ? 0 : 1]}>
+        <AnimalLine key={a.id} a={a} th={th} kit={kit} now={now} note={STAGE[viewOf(a, now, ctxOf(world, a.owner, purse, me)).stage][th ? 0 : 1]}>
           <button type="button" className={main} disabled={busy || !roomInBarn} onClick={() => void act({ action: "move", id: a.id, home: "barn" }, ["ย้ายเข้าโรงแล้ว", "Into the barn."])} data-move="barn">{t("ย้ายเข้าโรง", "To barn")}</button>
         </AnimalLine>
       ))}</ul> : <p className="text-meta text-muted">{t("ไม่มีสัตว์รออยู่ในคอก", "Nobody waiting in the pen.")}</p>}
@@ -771,7 +781,7 @@ function Pen({ th, purse, world, now, kit, busy, act, me, nameOf, mine, members,
       {inBarn.length > 0 && <>
         <H3>{t("ในโรงของฉัน", "In my barn")}</H3>
         <ul className="grid gap-2">{inBarn.map((a) => (
-          <AnimalLine key={a.id} a={a} th={th} kit={kit} now={now} note={STAGE[stageOf(a, now)][th ? 0 : 1]}>
+          <AnimalLine key={a.id} a={a} th={th} kit={kit} now={now} note={STAGE[viewOf(a, now, ctxOf(world, a.owner, purse, me)).stage][th ? 0 : 1]}>
             <button type="button" className={button} disabled={busy || used.pen >= ANIMALS.pen || (!!a.lent && a.lent.until > now)} onClick={() => void act({ action: "move", id: a.id, home: "pen" }, ["ฝากไว้ที่คอกลุงแล้ว", "Left in Uncle's pen."])} data-move="pen">{t("ฝากลุง", "To pen")}</button>
           </AnimalLine>
         ))}</ul>
@@ -808,7 +818,8 @@ function Pen({ th, purse, world, now, kit, busy, act, me, nameOf, mine, members,
 /* ── the breeding nest ── */
 function Nest({ th, purse, world, now, kit, busy, act, me, nameOf, mine, asksIn, lentToMe }: Common & { mine: Animal[]; asksIn: AnimalWorld["asks"]; lentToMe: Animal[] }) {
   const t = (a: string, b: string) => (th ? a : b);
-  const grown = (a: Animal) => stageOf(a, now) === "adult" && a.home !== "pen";
+  // (grown as it stands now: settled to the moment, not as it was last written)
+  const grown = (a: Animal) => a.home !== "pen" && viewOf(a, now, ctxOf(world, a.owner, purse, me)).stage === "adult";
   const adults = mine.filter(grown);
   const [pa, setPa] = useState<string>(""), [pb, setPb] = useState<string>(""), [offering, setOffering] = useState<string>(""), [dawn, setDawn] = useState<string>("");
   const [result, setResult] = useState<{ child: string; sex?: Sex; stats?: Stats } | null>(null);
