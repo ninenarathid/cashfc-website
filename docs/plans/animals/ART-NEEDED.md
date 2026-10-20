@@ -6,6 +6,7 @@ The page piece (branch `animals-page`, 2026-10-20) draws the pasture through **o
 (`lib/town/animal-icons.ts`). Nothing below exists yet; the art piece makes them with the owner's workflow
 (AGENTS.md "Cash Town image generation": read `.claude/skills/fc-cash-town/scripts/pixel/ART_WORKFLOW.md` and its README
 first; gen.mjs + `codex-ask.mjs art`, PixelLab for facings and frames as agreed in the README's round 5).
+
 **State, 2026-10-20 (branch `animals-art`; the pixel README's "The pasture" has how each was made).** In the sheet and the
 atlas: the barn hen (every frame), the ox; the barn and its three fronts, the coop, the nursery, the troughs, the nest,
 the stall, the table, the gate, the wagon, the wagon stop, eggs out, the grazed tuft, the bubbles; Uncle Popoto on the
