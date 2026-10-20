@@ -33,10 +33,36 @@ export const ANIMALS = {
   heart: { fed: 3, pet: 3, treat: 2, out: 2 } as const,
   /** The wagon's ride: so many points to every animal of a rider (a heart), once a day a member. */
   wagonHeart: 20,
-  /** Places that come with the first animal: two that produce, two for the young. */
-  places: { producing: 2, nursery: 2 },
-  /** Keeping places bought of Uncle Popoto, in order: how many, for how much, and the logs their stalls are built of (the woodcutters' cross). They keep; they never produce. */
-  keeping: [[2, 500, 20], [4, 2000, 40], [8, 6000, 80]] as ReadonlyArray<readonly [number, number, number]>,
+  /**
+   * The barns (the owner, 2026-10-20: "การทำฟาร์มต้องซื้อ ฟาร์มกับ ลุง popoto ก่อน ราคาแพง แต่คุ้มการลงทุน", "24 โรงเลี้ยงอยู่ตรงนี้
+   * เลย", one a member, Codex's price "ตาม codex"): 24 on the east pasture, one a member, four animals each (enlarged
+   * later); built of coins, logs and stone tiles (the woodcutters' and the miners' cross).
+   */
+  barns: { count: 24, room: 4, price: 6000, logs: 60, stone: 20 },
+  /** Uncle Popoto's pen: so many animals a member keeps there, frozen (they neither eat, grow nor give). */
+  pen: 8,
+  /** A barn untended (no care by its owner) so many days is warned of, and after `reclaim` days goes to whoever asks for it ("ตาม codex"). */
+  untended: { warn: [14, 21] as readonly number[], reclaim: 28 },
+  /** How long an offer to hand an animal on, or a friend's ask for a cross, stands; how long an ask accepted lends the animal. */
+  offerHours: 24,
+  askHours: 24,
+  lendHours: 1,
+  /** Asks a member may have standing at once. */
+  asksOpen: 4,
+  /**
+   * Three stats a animal is born with, 1 to 10 (the owner: "มี stat ต่างๆของ พ่อพันธุ์ แม่พันธุ์ ที่จะมีผลต่อลูก", and good
+   * ones only of good care: "ผู้เล่นต้องเอาใจใส่ดูแลสัตว์มาเป็นอย่างดีจริงๆ"): thrift eats less (2% a point above 1), gentleness
+   * takes a pet or a treat to heart (3% a point above 1), vigour grows faster (+0.03 speed a point above 1, inside the x3 cap). None of
+   * them makes more to sell (Codex: a yield stat would be the faucet). Bought animals are 2 to 4 in each.
+   */
+  stats: { min: 1, max: 10, bought: [2, 4] as readonly number[], thrift: 0.02, gentle: 0.03, vigor: 0.03 },
+  /**
+   * A child's stats: the parents' average, then by their CARE (hearts and days fed through in a row): well cared for,
+   * +1 often, +2 now and then, never -1; neglected, seldom up and often down.
+   */
+  inherit: { upBase: 0.05, upCare: 0.35, downNeglect: 0.25, sparkFrom: 0.9, spark: 0.05, streakFull: 7 },
+  /** Days fed through in a row are counted up to this. */
+  streakCap: 14,
   /** The barn's front, three dearer looks, cosmetic. */
   facades: [5000, 15000, 40000] as readonly number[],
   /** Breeding: hearts (points) each parent needs, how long a parent rests, how long until the child is out. */
@@ -264,7 +290,11 @@ export const stepsOf = (a: Breed, b: Breed) =>
 
 /* ── an animal ── */
 
-export type Place = "producing" | "nursery" | "keeping";
+/** Where an animal is: in its owner's barn (it eats, grows and gives), or in Uncle Popoto's pen (frozen). */
+export type Home = "barn" | "pen";
+export type Sex = "m" | "f";
+export interface Stats { thrift: number; gentle: number; vigor: number }
+export const STAT_IDS: ReadonlyArray<keyof Stats> = ["thrift", "gentle", "vigor"];
 /** A day's sources of hearts, and what helped it. `helpers`: who cared for it today and how many points each had of it. */
 export interface Today { day: number; fed?: boolean; pet?: boolean; treat?: boolean; out?: boolean; hungry?: boolean; manure?: boolean; wind?: boolean; points?: { feed?: boolean; pet?: boolean; treat?: boolean } }
 export interface Animal {
@@ -277,7 +307,12 @@ export interface Animal {
   born: number;
   /** Whether Uncle Popoto sold it (what he pays back depends on it). */
   bought: boolean;
-  place: Place;
+  home: Home;
+  /** Its sex (chosen when bought; at random when born): a cross is one of each; males but a ram give nothing to collect. */
+  sex: Sex;
+  stats: Stats;
+  /** Days in a row it was fed through (to `ANIMALS.streakCap`): half of what its care is, for its children. */
+  streak: number;
   /** Everything below is as it stood at `at`, and `settle` brings it to a later moment. */
   at: number;
   /** Fed hours left in its trough. */
@@ -298,32 +333,40 @@ export interface Animal {
   narrow: number;
   /** A parent rests until then. */
   rest: number;
-  /** Whom it is lent to for a cross, until when. */
-  lent: { to: string; until: number } | null;
+  /** Whom it is lent to for a cross (a friend's ask its owner accepted), with which of theirs, until when. */
+  lent: { to: string; until: number; with?: string } | null;
   /** Eggs it laid out on the meadow, waiting for its owner: each a spot and how many. */
   outside: Array<{ at: [number, number]; n: number }>;
   /** Bands it was out in during the round in hand (a bit a band, lib/town/bands' order), for its finds. */
   outBands: number;
 }
 
+/** A door's log: when it was opened and closed, newest last (an open one's close is null). */
+export type GateLog = ReadonlyArray<readonly [number, number | null]>;
+
 export interface Herd {
   owner: string;
-  /** Keeping places bought; the barn's front; who may care for the animals (none, named, anybody) and whom. */
-  keeping: number;
+  /** Which of the 24 barns is mine (null: none), how many it houses, and its door (open: my animals are out on the meadow). */
+  barn: number | null;
+  room: number;
+  door: GateLog;
+  /** What a barn taken back after it was left untended leaves its owner towards the next (coins, logs, stone). */
+  credit: number;
+  /** When its owner last cared for an animal of it (the untended rule reads it). */
+  lastCare: number;
+  /** The barn's front; who may care for the animals (none, named, anybody) and whom. */
   facade: number;
   care: "none" | "named" | "anybody";
   carers: string[];
 }
-export const newHerd = (owner: string): Herd => ({ owner, keeping: 0, facade: 0, care: "named", carers: [] });
-
-/** The village's gate between the meadow and the vegetable garden: when it was opened and closed, newest last. */
-export type GateLog = ReadonlyArray<readonly [number, number | null]>;
+export const newHerd = (owner: string): Herd => ({ owner, barn: null, room: ANIMALS.barns.room, door: [], credit: 0, lastCare: 0, facade: 0, care: "named", carers: [] });
 
 /** What else a settling needs to know of the keeper and of the town. */
 export interface Ctx {
   /** The rank-3 warm bottle (+1 to growth, always). */
   bottle?: boolean;
-  gate: GateLog;
+  /** The owner's barn door. */
+  door: GateLog;
 }
 
 export const adultAt = (sp: SpeciesId) => SPECIES[sp].grow[0] + SPECIES[sp].grow[1];
@@ -351,11 +394,26 @@ export const dayStart = (day: number) => day * DAY - 7 * HOUR + 5 * HOUR;
 /** A day's flags put right for a day: a later day starts them afresh. */
 const todayFor = (t: Today, day: number): Today => (t.day === day ? t : { day });
 
-/** Its growth speed at a moment (x1, +1 a speed-up feed, +1 the warm bottle, x3 in spring wind's hour), never above the cap. */
-export function speedAt(a: Pick<Animal, "speedUntil" | "windUntil">, t: number, ctx: Pick<Ctx, "bottle">): number {
+/** Its growth speed at a moment (x1, +1 a speed-up feed, +1 the warm bottle, its vigour, x3 in spring wind's hour), never above the cap. */
+export function speedAt(a: Pick<Animal, "speedUntil" | "windUntil" | "stats">, t: number, ctx: Pick<Ctx, "bottle">): number {
   if (t < a.windUntil) return ANIMALS.speedCap;
-  return Math.min(ANIMALS.speedCap, 1 + (t < a.speedUntil ? 1 : 0) + (ctx.bottle ? 1 : 0));
+  return Math.min(ANIMALS.speedCap, 1 + (t < a.speedUntil ? 1 : 0) + (ctx.bottle ? 1 : 0) + liftOf(a, "vigor") * ANIMALS.stats.vigor);
 }
+/** A stat as kept, made sound (one left out is the plainest). */
+export const statOf = (a: Pick<Animal, "stats">, k: keyof Stats): number => {
+  const v = Number(a.stats?.[k]);
+  return Number.isFinite(v) ? Math.max(ANIMALS.stats.min, Math.min(ANIMALS.stats.max, Math.round(v))) : ANIMALS.stats.min;
+};
+/** How far a stat stands above the plainest (a 1 does nothing; a 10 does nine steps). */
+export const liftOf = (a: Pick<Animal, "stats">, k: keyof Stats) => statOf(a, k) - ANIMALS.stats.min;
+/** Whether an animal gives anything to collect: a female, or a sheep of either sex (the owner took "ตามที่พวกคุณเสนอ"). */
+export const gives = (a: Pick<Animal, "sex" | "species">) => a.sex !== "m" || a.species === "sheep";
+/** What a pet, a treat, the barn cat's pet or the wagon gives its hearts: more for its gentleness (to a hundredth, as the database rounds). */
+export const heartGain = (a: Pick<Animal, "stats">, base: number) => Math.round(base * (1 + liftOf(a, "gentle") * ANIMALS.stats.gentle) * 100) / 100;
+/** Its hearts after a gain, never past the most. */
+export const heartsPlus = (a: Pick<Animal, "stats" | "hearts">, base: number) => Math.min(MAX_HEARTS, Math.round((a.hearts + heartGain(a, base)) * 100) / 100);
+/** How fast its trough goes, an hour's portion an hour: half while out, less for its thrift. */
+export const eatRate = (a: Pick<Animal, "stats">, out: boolean) => (out ? ANIMALS.outRate : 1) * (1 - liftOf(a, "thrift") * ANIMALS.stats.thrift);
 
 /**
  * Brings an animal from `a.at` to `now`: food eaten (half as fast while the gate is open: it is out), growth and
@@ -366,17 +424,18 @@ export function settle(a0: Animal, now: number, ctx: Ctx): Animal {
   const a: Animal = { ...a0, today: { ...a0.today } };
   const sp = SPECIES[a.species];
   let t = Math.max(a.at, a.born);
-  if (now <= t) return { ...a, at: Math.max(a.at, now) };
+  // (in Uncle Popoto's pen it is frozen: no food eaten, nothing grows, nothing is given, no day counts)
+  if (now <= t || a.home === "pen") return { ...a, at: Math.max(a.at, now) };
   a.today = todayFor(a.today, dayOf(t));
   let guard = 0;
   while (t < now && guard++ < 10_000) {
-    const gate = gateAt(ctx.gate, t);
+    const gate = gateAt(ctx.door, t);
     const out = gate.open;
     const dayEnd = dayStart(dayOf(t) + 1);
     let next = Math.min(now, gate.next, dayEnd);
     if (t < a.speedUntil) next = Math.min(next, a.speedUntil);
     if (t < a.windUntil) next = Math.min(next, a.windUntil);
-    const rate = out ? ANIMALS.outRate : 1;
+    const rate = eatRate(a, out);
     if (a.food > 1e-9) {
       const runsOut = t + (a.food / rate) * HOUR;
       const end = Math.min(next, runsOut);
@@ -389,7 +448,7 @@ export function settle(a0: Animal, now: number, ctx: Ctx): Animal {
         const need = (g - a.grown) / v;
         if (h < need) { a.grown += h * v; h = 0; } else { a.grown = g; h -= need; }
       }
-      if (h > 0 && a.place === "producing") {
+      if (h > 0 && gives(a)) {
         if (a.banked < sp.bank) {
           a.made += h;
           while (a.made >= sp.cycle - 1e-9 && a.banked < sp.bank) { a.banked += 1; a.made -= sp.cycle; }
@@ -406,8 +465,9 @@ export function settle(a0: Animal, now: number, ctx: Ctx): Animal {
       t = next;
     }
     if (t >= dayEnd && t <= now) {
-      // the day it closes: fed throughout, a heart's worth
+      // the day it closes: fed throughout, a heart's worth and a day more of its streak; hungry, the streak begins again
       if (!a.today.hungry && !a.today.fed) a.hearts = Math.min(MAX_HEARTS, a.hearts + ANIMALS.heart.fed);
+      a.streak = a.today.hungry ? 0 : Math.min(ANIMALS.streakCap, (a.streak ?? 0) + 1);
       a.today = { day: dayOf(t) };
     }
   }
@@ -483,20 +543,66 @@ export function unitsOf(game: Game, banked: number, play: Play | null, cracked =
   return { units: banked * (2 + Math.round(3 * sc)), whole: false };
 }
 
-/* ── places ── */
+/* ── the barn and the pen ── */
 
-export function placesOf(herd: Herd) {
-  return { producing: ANIMALS.places.producing, nursery: ANIMALS.places.nursery, keeping: herd.keeping };
-}
+/** How many of a member's animals are in their barn and in Uncle Popoto's pen. */
 export function usedOf(animals: readonly Animal[], owner: string) {
   const mine = animals.filter((a) => a.owner === owner);
-  return { producing: mine.filter((a) => a.place === "producing").length, nursery: mine.filter((a) => a.place === "nursery").length, keeping: mine.filter((a) => a.place === "keeping").length };
+  return { barn: mine.filter((a) => a.home !== "pen").length, pen: mine.filter((a) => a.home === "pen").length };
 }
-/** Where a new animal of mine would go: a producing place first for one bought, the nursery first for one born. */
-export function freePlace(herd: Herd, animals: readonly Animal[], prefer: Place): Place | null {
-  const all = placesOf(herd), used = usedOf(animals, herd.owner);
-  const order: Place[] = prefer === "producing" ? ["producing", "nursery", "keeping"] : ["nursery", "keeping", "producing"];
-  return order.find((p) => used[p] < all[p]) ?? null;
+/** Where a new animal of a member's goes: their barn while it has room, else the pen while it has room, else nowhere. */
+export function freeHome(herd: Herd, animals: readonly Animal[]): Home | null {
+  const used = usedOf(animals, herd.owner);
+  if (herd.barn !== null && used.barn < herd.room) return "barn";
+  return used.pen < ANIMALS.pen ? "pen" : null;
+}
+/** Who holds each of the 24 barns. */
+export const barnsOf = (herds: readonly Herd[]): Array<string | null> =>
+  Array.from({ length: ANIMALS.barns.count }, (_, i) => herds.find((h) => h.barn === i)?.owner ?? null);
+/** Days a barn has gone untended (from its owner's last care), and what that comes to: 0 fine, 1 and 2 warned, 3 to be taken back by whoever asks. */
+export function untendedOf(herd: Pick<Herd, "barn" | "lastCare">, now: number): { days: number; level: 0 | 1 | 2 | 3 } {
+  if (herd.barn === null) return { days: 0, level: 0 };
+  const days = Math.floor((now - herd.lastCare) / DAY);
+  const u = ANIMALS.untended;
+  return { days, level: days >= u.reclaim ? 3 : days >= u.warn[1] ? 2 : days >= u.warn[0] ? 1 : 0 };
+}
+
+/* ── stats and children ── */
+
+/** How well an animal has been cared for, 0 to 1: its hearts (six parts) and its days fed through in a row (four). */
+export const careOf = (a: Pick<Animal, "hearts" | "streak">) =>
+  0.6 * Math.min(1, a.hearts / MAX_HEARTS) + 0.4 * Math.min(1, (a.streak ?? 0) / ANIMALS.inherit.streakFull);
+/** A bought animal's stats, from three rolls. */
+export const boughtStats = (rand: () => number): Stats => {
+  const [lo, hi] = ANIMALS.stats.bought, roll = () => lo + Math.floor(rand() * (hi - lo + 1));
+  return { thrift: roll(), gentle: roll(), vigor: roll() };
+};
+/**
+ * A child's stats: each the parents' average (a half rounded up or down at random), then one roll by the parents'
+ * care (the mean of the two): up 1 at 5% + 35% x care, up 2 instead at 5% when the care is 0.9 or more, down 1 at
+ * 25% x (1 - care). Kept between 1 and 10.
+ */
+export function childStats(a: Pick<Animal, "stats" | "hearts" | "streak">, b: Pick<Animal, "stats" | "hearts" | "streak">, rand: () => number): Stats {
+  const care = (careOf(a) + careOf(b)) / 2, I = ANIMALS.inherit;
+  const one = (k: keyof Stats) => {
+    const sum = statOf(a, k) + statOf(b, k);
+    let v = sum % 2 === 0 ? sum / 2 : rand() < 0.5 ? Math.floor(sum / 2) : Math.ceil(sum / 2);
+    // (one roll: the first `spark` of it a +2 when the care is high enough, then the +1's share, the -1's at the top)
+    const r = rand(), two = care >= I.sparkFrom ? I.spark : 0;
+    if (r < two) v += 2;
+    else if (r < two + I.upBase + I.upCare * care) v += 1;
+    else if (r > 1 - I.downNeglect * (1 - care)) v -= 1;
+    return Math.max(ANIMALS.stats.min, Math.min(ANIMALS.stats.max, v));
+  };
+  return { thrift: one("thrift"), gentle: one("gentle"), vigor: one("vigor") };
+}
+/** What the nest shows before a cross: each stat's likely low and high for the child. */
+export function childRange(a: Pick<Animal, "stats" | "hearts" | "streak">, b: Pick<Animal, "stats" | "hearts" | "streak">) {
+  const care = (careOf(a) + careOf(b)) / 2;
+  return Object.fromEntries(STAT_IDS.map((k) => {
+    const sum = statOf(a, k) + statOf(b, k), lo = Math.floor(sum / 2), hi = Math.ceil(sum / 2);
+    return [k, { lo: Math.max(ANIMALS.stats.min, lo - (care < 1 ? 1 : 0)), hi: Math.min(ANIMALS.stats.max, hi + (care >= ANIMALS.inherit.sparkFrom ? 2 : 1)) }];
+  })) as Record<keyof Stats, { lo: number; hi: number }>;
 }
 
 /* ── friend care ── */

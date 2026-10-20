@@ -9,9 +9,10 @@
  */
 import {
   ANIMALS, ANY_FEED, BREED, DAWN_BOOSTS, DEW_GROW, OFFERINGS, SPECIES, SPECIES_IDS, adultAt, breedAt, breedOf, crossOf,
-  feeOf, freePlace, heartsOf, kindOf, mayCare, newHerd, rangeOf, realOf, rollOf, scoreOf, sellBackOf, settle, stageOf,
-  starterOf, stepKey, stepsOf, unitsOf, LEAST_SECS, MEADOW, bandOf, findOf, forageAt, scrollOf,
-  type Animal, type Book, type Ctx, type GateLog, type Herd, type Place, type Play, type SpeciesId,
+  feeOf, freeHome, heartsOf, kindOf, mayCare, newHerd, rangeOf, realOf, rollOf, scoreOf, sellBackOf, settle, stageOf,
+  starterOf, stepKey, stepsOf, unitsOf, LEAST_SECS, MEADOW, bandOf, findOf, forageAt, scrollOf, boughtStats, childStats,
+  barnsOf, untendedOf, usedOf, gives, heartsPlus,
+  type Animal, type Book, type Ctx, type GateLog, type Herd, type Home, type Play, type Sex, type SpeciesId, type Stats,
 } from "./animals";
 import { put, roomFor, take, held, type Purse } from "./trade";
 import { dayOf, spend, staminaOf } from "./stamina";
@@ -31,35 +32,45 @@ export interface WagonRun { id: string; by: string; from: number; stops: string[
 /** A gift's hour that others share: spring wind (owners on the farm in it) and the pasture harp (those near). */
 export interface Spell { kind: "wind" | "harp"; by: string; from: number; until: number; who?: string[] }
 
+/** An offer to hand an animal on (the receiver says yes or no; it stands `ANIMALS.offerHours`). */
+export interface Offer { id: string; from: string; to: string; animal: string; at: number }
+/** A host's ask for a friend's animal, for a cross with one of the host's (the friend says yes: it is lent an hour). */
+export interface Ask { id: string; from: string; to: string; mine: string; theirs: string; at: number }
+
 export interface AnimalWorld {
   animals: Animal[];
   herds: Herd[];
-  gate: GateLog;
   /** Who first bred each breed, and when. */
   found: Record<string, { by: string; at: number }>;
   spells: Spell[];
   wagons: WagonRun[];
+  offers: Offer[];
+  asks: Ask[];
 }
 
 export type AnimalInput =
   | { action: "look" }
-  | { action: "buy"; species: SpeciesId }
+  | { action: "barn"; index: number }
+  | { action: "buy"; species: SpeciesId; sex: Sex }
   | { action: "shop"; item: string; n: number }
-  | { action: "keeping" }
   | { action: "facade" }
   | { action: "sell"; id: string }
   | { action: "name"; id: string; name: string }
-  | { action: "move"; id: string; place: Place }
+  | { action: "move"; id: string; home: Home }
+  | { action: "door"; open: boolean }
+  | { action: "offer"; id: string; to: string }
+  | { action: "unoffer"; offer: string }
+  | { action: "take"; offer: string; yes: boolean }
+  | { action: "ask"; mine: string; theirs: string }
+  | { action: "answer"; ask: string; yes: boolean }
   | { action: "feed"; id: string; item: string; grade?: 0 | 1 | 2 | 3 }
   | { action: "pet"; id: string }
   | { action: "treat"; id: string; item: string }
   | { action: "collect"; id: string; play?: Play | null; cracked?: number }
   | { action: "pick"; id: string; spot: number }
   | { action: "breed"; a: string; b: string; offering: string | null; dawn?: string | null }
-  | { action: "lend"; id: string; to: string | null; mins?: number }
   | { action: "cradle"; id: string }
   | { action: "care"; care: Herd["care"]; carers: string[] }
-  | { action: "gate"; open: boolean }
   | { action: "enter" }
   | { action: "wind" }
   | { action: "harp"; near: string[] }
@@ -73,6 +84,8 @@ export type AnimalInput =
 export type AnimalWhy =
   | "none" | "theirs" | "coins" | "room" | "places" | "stage" | "hungry" | "nothing" | "spent" | "stamina" | "rest"
   | "hearts" | "species" | "offering" | "gift" | "used" | "lent" | "far" | "name" | "soon" | "full"
+  // (the barns: none of mine yet, that one is somebody's, I have one already; an animal in the pen; a cross of one sex)
+  | "barn" | "taken" | "had" | "pen" | "sex"
   // (the page's own: the town could not be reached, and nothing is known to have been done)
   | "away";
 
@@ -108,7 +121,24 @@ export interface Env {
 const herdOf = (w: AnimalWorld, owner: string): Herd => w.herds.find((h) => h.owner === owner) ?? newHerd(owner);
 const withHerd = (w: AnimalWorld, h: Herd): AnimalWorld => ({ ...w, herds: [...w.herds.filter((x) => x.owner !== h.owner), h] });
 const withAnimal = (w: AnimalWorld, a: Animal): AnimalWorld => ({ ...w, animals: w.animals.map((x) => (x.id === a.id ? a : x)) });
-const ctxFor = (w: AnimalWorld, ownerPurse: Pick<Purse, "gifts"> | null): Ctx => ({ gate: w.gate, bottle: !!ownerPurse && hasThing(ownerPurse, ANIMAL_GIFTS.bottle as ThingId) });
+/** A door shut now, if it stands open. */
+const closeDoor = (door: GateLog, now: number): GateLog => {
+  const last = door[door.length - 1];
+  return last && last[1] === null ? door.map((g, i) => (i === door.length - 1 ? ([g[0], now] as const) : g)) : door;
+};
+/** What settles an animal: its owner's barn door, and their warm bottle (read off their purse where it is known, else the herd's word). */
+const ctxFor = (w: AnimalWorld, owner: string, ownerPurse: Pick<Purse, "gifts"> | null): Ctx => {
+  const h = w.herds.find((x) => x.owner === owner);
+  return { door: h?.door ?? [], bottle: ownerPurse ? hasThing(ownerPurse, ANIMAL_GIFTS.bottle as ThingId) : !!(h as Herd & { bottle?: boolean } | undefined)?.bottle };
+};
+/** A new animal: bought (born now, of the chosen sex and bought stats) or born of a cross or the cradle. */
+export function newAnimal(id: string, owner: string, species: SpeciesId, breed: string, born: number, bought: boolean, home: Home, sex: Sex, stats: Stats): Animal {
+  return {
+    id, owner, species, breed, name: "", born, bought, home, sex, stats, streak: 0,
+    at: born, food: 0, grown: 0, made: 0, banked: 0, hearts: 0, today: { day: dayOf(born) }, speedUntil: 0, windUntil: 0,
+    narrow: 0, rest: 0, lent: null, outside: [], outBands: 0,
+  };
+}
 
 /** A purse's book of the line's breeding (misses per step), made sound. */
 export const bookOf = (p: Purse): Book => {
@@ -117,7 +147,7 @@ export const bookOf = (p: Purse): Book => {
 };
 const withBook = (p: Purse, book: Book): Purse => ({ ...p, animalBook: book } as Purse);
 /** Helpers points from animal care counted today, for the 30 a day. */
-const careOf = (p: Purse, now: number) => {
+const careDone = (p: Purse, now: number) => {
   const c = (p as Purse & { animalCare?: { day: number; n: number } }).animalCare;
   return c && c.day === dayOf(now) ? c.n : 0;
 };
@@ -153,26 +183,56 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
   const no = (why: AnimalWhy): AnimalReply => ({ ok: false, why, world, purse, notes: [] });
   const yes = (w: AnimalWorld, p: Purse, got?: AnimalReply["got"]): AnimalReply => ({ ok: true, world: w, purse: p, notes, got });
   const ownerPurse = (owner: string) => (owner === me ? purse : purses[owner] ?? null);
-  const settled = (a: Animal) => settle(a, now, ctxFor(world, ownerPurse(a.owner)));
+  const settled = (a: Animal) => settle(a, now, ctxFor(world, a.owner, ownerPurse(a.owner)));
+  /** My herd with my care written down now (the untended rule reads it). */
+  const cared = (w: AnimalWorld) => withHerd(w, { ...herdOf(w, me), lastCare: now });
   const find = (id: string) => world.animals.find((a) => a.id === id) ?? null;
   const mineOf = (id: string) => { const a = find(id); return a && a.owner === me ? settled(a) : null; };
+  const lentNow = (a: Animal) => !!a.lent && a.lent.until > now;
+  /** Offers and asks still standing (each stands a day). */
+  const liveOffers = (w: AnimalWorld) => (w.offers ?? []).filter((o) => o.at > now - ANIMALS.offerHours * HOUR);
+  const liveAsks = (w: AnimalWorld) => (w.asks ?? []).filter((q) => q.at > now - ANIMALS.askHours * HOUR);
+  /** The offers and asks that name an animal gone or handed on, dropped. */
+  const dropOf = (w: AnimalWorld, id: string): AnimalWorld => ({ ...w, offers: liveOffers(w).filter((o) => o.animal !== id), asks: liveAsks(w).filter((q) => q.mine !== id && q.theirs !== id) });
 
   switch (input.action) {
     case "look": return yes(world, purse);
 
+    case "barn": {
+      // a barn of the 24 bought of Uncle Popoto, one a member; a barn its owner has left untended `untended.reclaim` days
+      // goes to one who waits for a barn, only when none stands free: its animals go to its owner's pen (past its eight
+      // if need be), and what they paid is kept towards their next ("ตาม codex")
+      const i = Math.floor(input.index);
+      if (!(i >= 0 && i < ANIMALS.barns.count)) return no("none");
+      const herd = herdOf(world, me), B = ANIMALS.barns;
+      if (herd.barn !== null) return no("had");
+      const holder = world.herds.find((h) => h.barn === i);
+      let w = world;
+      if (holder) {
+        if (untendedOf(holder, now).level < 3 || barnsOf(world.herds).includes(null)) return no("taken");
+        const animals = w.animals.map((a) => (a.owner === holder.owner && a.home === "barn" ? { ...settled(a), home: "pen" as Home, lent: null } : a));
+        w = withHerd({ ...w, animals }, { ...holder, barn: null, door: closeDoor(holder.door, now), credit: holder.credit + B.price });
+        notes.push({ what: "animal_reclaim", n: 1, doc: { barn: i, from: holder.owner } });
+      }
+      const coins = Math.max(0, B.price - herd.credit);
+      if (purse.coins < coins) return no("coins");
+      if (held(purse.bag, "log" as ItemId) < B.logs || held(purse.bag, "stoneTile" as ItemId) < B.stone) return no("nothing");
+      notes.push({ what: "animal_barn", n: 1, doc: { barn: i, coins, logs: B.logs, stone: B.stone } });
+      const bag = take(take(purse.bag, "log" as ItemId, B.logs), "stoneTile" as ItemId, B.stone);
+      return yes(withHerd(w, { ...herd, barn: i, credit: herd.credit - (B.price - coins), lastCare: now, door: [] }), { ...purse, coins: purse.coins - coins, bag });
+    }
+
     case "buy": {
       const sp = SPECIES[input.species];
-      if (!sp) return no("none");
+      if (!sp || (input.sex !== "m" && input.sex !== "f")) return no("none");
+      const herd = herdOf(world, me);
+      if (herd.barn === null) return no("barn");
       if (purse.coins < sp.price) return no("coins");
-      const herd = herdOf(world, me), place = freePlace(herd, world.animals, "producing");
-      if (!place) return no("places");
-      const a: Animal = {
-        id: env.newId(), owner: me, species: sp.id, breed: starterOf(sp.id).id, name: "", born: now, bought: true, place,
-        at: now, food: 0, grown: 0, made: 0, banked: 0, hearts: 0, today: { day: dayOf(now) }, speedUntil: 0, windUntil: 0,
-        narrow: 0, rest: 0, lent: null, outside: [], outBands: 0,
-      };
-      notes.push({ what: "animal_buy", n: 1, doc: { species: sp.id, coins: sp.price } });
-      return yes(withHerd({ ...world, animals: [...world.animals, a] }, herd), { ...purse, coins: purse.coins - sp.price }, { child: a.breed });
+      const home = freeHome(herd, world.animals);
+      if (!home) return no("places");
+      const a = newAnimal(env.newId(), me, sp.id, starterOf(sp.id).id, now, true, home, input.sex, boughtStats(env.rand));
+      notes.push({ what: "animal_buy", n: 1, doc: { species: sp.id, sex: input.sex, coins: sp.price } });
+      return yes(cared({ ...world, animals: [...world.animals, a] }), { ...purse, coins: purse.coins - sp.price }, { child: a.breed });
     }
 
     case "shop": {
@@ -184,21 +244,9 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
       return yes(world, { ...purse, coins: purse.coins - price * n, bag: put(purse.bag, input.item as ItemId, n) });
     }
 
-    case "keeping": {
-      const herd = herdOf(world, me);
-      let total = 0, step = 0;
-      while (step < ANIMALS.keeping.length && total < herd.keeping) total += ANIMALS.keeping[step++][0];
-      const next = total === herd.keeping ? ANIMALS.keeping[step] : undefined;
-      if (!next) return no("full");
-      if (purse.coins < next[1]) return no("coins");
-      // (the stalls are built of logs: the woodcutters' cross)
-      if (held(purse.bag, "log" as ItemId) < next[2]) return no("nothing");
-      notes.push({ what: "animal_places", n: next[0], doc: { coins: next[1], logs: next[2] } });
-      return yes(withHerd(world, { ...herd, keeping: herd.keeping + next[0] }), { ...purse, coins: purse.coins - next[1], bag: take(purse.bag, "log" as ItemId, next[2]) });
-    }
-
     case "facade": {
       const herd = herdOf(world, me), price = ANIMALS.facades[herd.facade];
+      if (herd.barn === null) return no("barn");
       if (price === undefined) return no("full");
       if (purse.coins < price) return no("coins");
       notes.push({ what: "animal_facade", n: herd.facade + 1, doc: { coins: price } });
@@ -209,9 +257,10 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
       const a = mineOf(input.id);
       if (!a) return no("theirs");
       if (stageOf(a, now) === "coming") return no("stage");
+      if (lentNow(a)) return no("lent");
       const coins = sellBackOf(a);
       notes.push({ what: "animal_sell", n: 1, doc: { species: a.species, breed: a.breed, coins } });
-      return yes({ ...world, animals: world.animals.filter((x) => x.id !== a.id) }, { ...purse, coins: purse.coins + coins });
+      return yes(dropOf({ ...world, animals: world.animals.filter((x) => x.id !== a.id) }, a.id), { ...purse, coins: purse.coins + coins });
     }
 
     case "name": {
@@ -222,13 +271,93 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
     }
 
     case "move": {
+      // between my barn and Uncle Popoto's pen (where it waits, frozen)
       const a = mineOf(input.id);
       if (!a) return no("theirs");
-      if (a.place === input.place) return yes(world, purse);
-      const herd = herdOf(world, me), all = { producing: ANIMALS.places.producing, nursery: ANIMALS.places.nursery, keeping: herd.keeping };
-      const used = world.animals.filter((x) => x.owner === me && x.place === input.place).length;
-      if (!(input.place in all) || used >= all[input.place]) return no("places");
-      return yes(withAnimal(world, { ...a, place: input.place }), purse);
+      if (input.home !== "barn" && input.home !== "pen") return no("none");
+      if (a.home === input.home) return yes(world, purse);
+      if (lentNow(a)) return no("lent");
+      const herd = herdOf(world, me), used = usedOf(world.animals, me);
+      if (input.home === "barn") { if (herd.barn === null) return no("barn"); if (used.barn >= herd.room) return no("places"); }
+      else if (used.pen >= ANIMALS.pen) return no("places");
+      return yes(withAnimal(world, { ...a, home: input.home, at: now }), purse);
+    }
+
+    case "door": {
+      const herd = herdOf(world, me);
+      if (herd.barn === null) return no("barn");
+      const last = herd.door[herd.door.length - 1], open = !!last && last[1] === null;
+      if (open === !!input.open) return yes(world, purse);
+      // my animals settled to this moment first: the door changes how fast their troughs go
+      const animals = world.animals.map((a) => (a.owner === me ? settled(a) : a));
+      const door: GateLog = input.open ? [...herd.door, [now, null] as const].slice(-64) : closeDoor(herd.door, now);
+      notes.push({ what: "animal_door", n: input.open ? 1 : 0 });
+      return yes(withHerd({ ...world, animals }, { ...herd, door, lastCare: now }), purse);
+    }
+
+    case "offer": {
+      // to hand an animal on: it stays mine until the other says yes (into their pen), for a day
+      const a = mineOf(input.id), to = typeof input.to === "string" ? input.to : "";
+      if (!a) return no("theirs");
+      if (!to || to === me) return no("none");
+      if (stageOf(a, now) === "coming") return no("stage");
+      if (lentNow(a)) return no("lent");
+      const offers = liveOffers(world);
+      if (offers.some((o) => o.animal === a.id)) return no("used");
+      if (offers.filter((o) => o.from === me).length >= ANIMALS.pen) return no("full");
+      notes.push({ what: "animal_offer", n: 1, doc: { id: a.id, to } });
+      return yes({ ...world, offers: [...offers, { id: env.newId(), from: me, to, animal: a.id, at: now }] }, purse);
+    }
+
+    case "unoffer": {
+      const offers = liveOffers(world), o = offers.find((x) => x.id === input.offer);
+      if (!o || o.from !== me) return no("none");
+      return yes({ ...world, offers: offers.filter((x) => x.id !== o.id) }, purse);
+    }
+
+    case "take": {
+      const offers = liveOffers(world), o = offers.find((x) => x.id === input.offer);
+      if (!o || o.to !== me) return no("none");
+      const rest: AnimalWorld = { ...world, offers: offers.filter((x) => x.id !== o.id) };
+      if (!input.yes) return yes(rest, purse);
+      const a0 = find(o.animal);
+      if (!a0 || a0.owner !== o.from) return no("none");
+      if (lentNow(a0)) return no("lent");
+      if (usedOf(world.animals, me).pen >= ANIMALS.pen) return no("places");
+      // its hearts, stats and breed go with it; it waits in my pen
+      const a: Animal = { ...settled(a0), owner: me, home: "pen", lent: null };
+      notes.push({ what: "animal_take", n: 1, doc: { id: a.id, from: o.from, species: a.species, breed: a.breed } });
+      return yes(dropOf(withAnimal(rest, a), a.id), purse);
+    }
+
+    case "ask": {
+      // a host asks a friend for their animal, for a cross with one of the host's: one of each sex, one species, both grown
+      const a = mineOf(input.mine), b0 = find(input.theirs);
+      if (!a || !b0 || b0.owner === me) return no("none");
+      const b = settled(b0);
+      if (a.home === "pen" || b.home === "pen") return no("pen");
+      if (a.species !== b.species) return no("species");
+      if (a.sex === b.sex) return no("sex");
+      if (stageOf(a, now) !== "adult" || stageOf(b, now) !== "adult") return no("stage");
+      const asks = liveAsks(world);
+      if (asks.some((x) => x.from === me && x.theirs === b.id)) return no("used");
+      if (asks.filter((x) => x.from === me).length >= ANIMALS.asksOpen) return no("full");
+      notes.push({ what: "animal_ask", n: 1, doc: { mine: a.id, theirs: b.id, to: b.owner } });
+      return yes({ ...world, asks: [...asks, { id: env.newId(), from: me, to: b.owner, mine: a.id, theirs: b.id, at: now }] }, purse);
+    }
+
+    case "answer": {
+      // the friend says yes: the animal is lent to the host for an hour, for that cross; the child is the host's
+      const asks = liveAsks(world), q = asks.find((x) => x.id === input.ask);
+      if (!q || q.to !== me) return no("none");
+      const rest: AnimalWorld = { ...world, asks: asks.filter((x) => x.id !== q.id) };
+      if (!input.yes) return yes(rest, purse);
+      const b = mineOf(q.theirs);
+      if (!b) return no("none");
+      if (b.home === "pen") return no("pen");
+      if (lentNow(b)) return no("lent");
+      notes.push({ what: "animal_lend", n: 1, doc: { id: b.id, to: q.from, with: q.mine } });
+      return yes(withAnimal(rest, { ...b, lent: { to: q.from, until: now + ANIMALS.lendHours * HOUR, with: q.mine } }), purse);
     }
 
     case "feed": {
@@ -236,6 +365,7 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
       if (!a0) return no("none");
       const helper = a0.owner !== me;
       if (helper && !mayCare(herdOf(world, a0.owner), me)) return no("theirs");
+      if (a0.home === "pen") return no("pen");
       const a = settled(a0);
       if (stageOf(a, now) === "coming") return no("stage");
       const grade = input.grade ?? 0;
@@ -251,15 +381,16 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
         const add = Math.min(hours, ANIMALS.trough - a.food);
         b = { ...a, food: a.food + add, narrow: Math.max(a.narrow, ANIMALS.quality.narrowBy[grade] ?? 0) };
         if (helper) {
-          const left = ANIMALS.care.cap - careOf(purse, now), pts = Math.min(left, Math.floor(add / ANIMALS.care.foodHours));
-          if (pts > 0) { purse = withCare(purse, now, careOf(purse, now) + pts); notes.push({ what: "animal_care", n: 1, line: "helpers", pts, doc: { id: a.id, owner: a.owner, food: add } }); }
+          const left = ANIMALS.care.cap - careDone(purse, now), pts = Math.min(left, Math.floor(add / ANIMALS.care.foodHours));
+          if (pts > 0) { purse = withCare(purse, now, careDone(purse, now) + pts); notes.push({ what: "animal_care", n: 1, line: "helpers", pts, doc: { id: a.id, owner: a.owner, food: add } }); }
         } else if (!b.today.points?.feed) {
           b = { ...b, today: { ...b.today, points: { ...b.today.points, feed: true } } };
           notes.push({ what: "animal_feed", n: 1, line: "animals", pts: ANIMALS.points.feed, doc: { id: a.id } });
         }
       }
       const p = { ...purse, bag: take(purse.bag, input.item as ItemId, 1, grow ? undefined : grade) };
-      return yes(withAnimal(world, b), p);
+      const w = withAnimal(world, b);
+      return yes(helper ? w : cared(w), p);
     }
 
     case "pet": case "treat": {
@@ -267,6 +398,7 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
       if (!a0) return no("none");
       const helper = a0.owner !== me;
       if (helper && !mayCare(herdOf(world, a0.owner), me)) return no("theirs");
+      if (a0.home === "pen") return no("pen");
       const a = settled(a0);
       if (stageOf(a, now) === "coming") return no("stage");
       const k = input.action;
@@ -278,20 +410,23 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
         if (held(p.bag, item as ItemId) < 1) return no("nothing");
         p = { ...p, bag: take(p.bag, item as ItemId, 1) };
       }
-      let b: Animal = { ...a, hearts: Math.min(ANIMALS.hearts * ANIMALS.perHeart, a.hearts + ANIMALS.heart[k]), today: { ...a.today, [k]: true } };
+      // (a gentle animal takes it more to heart)
+      let b: Animal = { ...a, hearts: heartsPlus(a, ANIMALS.heart[k]), today: { ...a.today, [k]: true } };
       if (helper) {
-        const left = ANIMALS.care.cap - careOf(p, now), pts = Math.min(left, ANIMALS.care[k]);
-        if (pts > 0) { p = withCare(p, now, careOf(p, now) + pts); notes.push({ what: "animal_care", n: 1, line: "helpers", pts, doc: { id: a.id, owner: a.owner, [k]: true } }); }
+        const left = ANIMALS.care.cap - careDone(p, now), pts = Math.min(left, ANIMALS.care[k]);
+        if (pts > 0) { p = withCare(p, now, careDone(p, now) + pts); notes.push({ what: "animal_care", n: 1, line: "helpers", pts, doc: { id: a.id, owner: a.owner, [k]: true } }); }
       } else if (!b.today.points?.[k]) {
         b = { ...b, today: { ...b.today, points: { ...b.today.points, [k]: true } } };
         notes.push({ what: `animal_${k}`, n: 1, line: "animals", pts: ANIMALS.points[k], doc: { id: a.id } });
       }
-      return yes(withAnimal(world, b), p);
+      const w = withAnimal(world, b);
+      return yes(helper ? w : cared(w), p);
     }
 
     case "collect": {
       const a = mineOf(input.id);
       if (!a) return no("theirs");
+      if (a.home === "pen") return no("pen");
       if (stageOf(a, now) !== "adult") return no("stage");
       const sp = SPECIES[a.species];
       if (a.banked < 1) return no("nothing");
@@ -323,7 +458,7 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
       p = { ...p, bag };
       const b: Animal = { ...a, banked: 0, narrow: 0, outside, outBands: 0, today: { ...a.today, manure: true } };
       notes.push({ what: "animal_collect", n: units, line: "animals", pts: units * ANIMALS.points.unit, doc: { id: a.id, breed: a.breed, item: breed.produce, grades: byGrade, whole, score: play ? scoreOf(play) : null } });
-      return yes(withAnimal(world, b), p, { item: breed.produce, n: units, grades, whole, find });
+      return yes(cared(withAnimal(world, b)), p, { item: breed.produce, n: units, grades, whole, find });
     }
 
     case "pick": {
@@ -336,24 +471,20 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
       const grades = Array.from({ length: s.n }, () => rollOf(r, env.rand(), collar));
       for (const q of grades) { const g = (q >= 95 ? 3 : q >= 70 ? 2 : q >= 40 ? 1 : 0) as 0 | 1 | 2 | 3; if (roomFor(bag, breed.produce, g) < 1) return no("room"); bag = put(bag, breed.produce, 1, g); }
       notes.push({ what: "animal_pick", n: s.n, line: "animals", pts: s.n * ANIMALS.points.unit, doc: { id: a.id, item: breed.produce } });
-      return yes(withAnimal(world, { ...a, outside: a.outside.filter((_, i) => i !== input.spot) }), { ...purse, bag }, { item: breed.produce, n: s.n, grades, spot: s.at });
-    }
-
-    case "lend": {
-      const a = mineOf(input.id);
-      if (!a) return no("theirs");
-      const mins = Math.max(5, Math.min(120, input.mins ?? 60));
-      return yes(withAnimal(world, { ...a, lent: input.to ? { to: input.to, until: now + mins * 60_000 } : null }), purse);
+      return yes(cared(withAnimal(world, { ...a, outside: a.outside.filter((_, i) => i !== input.spot) })), { ...purse, bag }, { item: breed.produce, n: s.n, grades, spot: s.at });
     }
 
     case "breed": {
+      // one of each sex, one species, both grown and in a barn: both mine, or the other a friend's lent to me for this one
       const a = mineOf(input.a), b0 = find(input.b);
       if (!a || !b0 || a.id === b0.id) return no("none");
       const borrowed = b0.owner !== me;
-      if (borrowed && !(b0.lent && b0.lent.to === me && b0.lent.until > now)) return no("lent");
+      if (borrowed && !(b0.lent && b0.lent.to === me && b0.lent.until > now && (!b0.lent.with || b0.lent.with === a.id))) return no("lent");
       const b = settled(b0);
+      if (a.home === "pen" || b.home === "pen") return no("pen");
       if (stageOf(a, now) !== "adult" || stageOf(b, now) !== "adult") return no("stage");
       if (a.species !== b.species) return no("species");
+      if (a.sex === b.sex) return no("sex");
       if (a.hearts < ANIMALS.breedHearts || b.hearts < ANIMALS.breedHearts) return no("hearts");
       if (a.rest > now || b.rest > now) return no("rest");
       const ba = breedOf(a.breed)!, bb = breedOf(b.breed)!;
@@ -362,25 +493,26 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
       if (dawn && held(purse.bag, dawn as ItemId) < (dawn === offering ? 2 : 1)) return no("offering");
       const x = crossOf(ba, bb, offering, !!dawn), fee = feeOf(x.target, ba, bb);
       if (purse.coins < fee) return no("coins");
-      const herd = herdOf(world, me), place = freePlace(herd, world.animals, "nursery");
-      if (!place) return no("places");
+      const home = freeHome(herdOf(world, me), world.animals);
+      if (!home) return no("places");
       const hit = x.right && env.rand() * 100 < x.odds;
       const child = hit ? x.target! : env.rand() < 0.5 ? ba : bb;
       const sp = SPECIES[a.species];
       const born = now + ANIMALS.hatch[sp.kind];
-      const mk = (owner: string, pl: Place): Animal => ({
-        id: env.newId(), owner, species: a.species, breed: child.id, name: "", born, bought: false, place: pl,
-        at: born, food: 0, grown: 0, made: 0, banked: 0, hearts: 0, today: { day: dayOf(born) }, speedUntil: 0, windUntil: 0,
-        narrow: 0, rest: 0, lent: null, outside: [], outBands: 0,
-      });
-      let w: AnimalWorld = { ...world, animals: [...world.animals, mk(me, place)] };
+      // its sex at random; its stats the parents', moved by how well both were cared for (lib/town/animals childStats)
+      const mk = (owner: string, h: Home): Animal => {
+        const id = env.newId(), sex: Sex = env.rand() < 0.5 ? "m" : "f";
+        return newAnimal(id, owner, a.species, child.id, born, false, h, sex, childStats(a, b, env.rand));
+      };
+      const kid = mk(me, home);
+      let w: AnimalWorld = { ...world, animals: [...world.animals, kid] };
       // the twin cradle (rank 7): a cross with a friend's animal gives a baby to its owner too, once a day
       let twin = false;
       let p: Purse = purse;
       if (borrowed && works(p, ANIMAL_GIFTS.twin)) {
         const used = useGift(p, ANIMAL_GIFTS.twin, now);
-        const theirPlace = used.ok ? freePlace(herdOf(w, b.owner), w.animals, "nursery") : null;
-        if (used.ok && theirPlace) { p = used.purse; w = { ...w, animals: [...w.animals, mk(b.owner, theirPlace)] }; twin = true; }
+        const theirHome = used.ok ? freeHome(herdOf(w, b.owner), w.animals) : null;
+        if (used.ok && theirHome) { p = used.purse; w = { ...w, animals: [...w.animals, mk(b.owner, theirHome)] }; twin = true; }
       }
       const rest = now + ANIMALS.rest;
       w = withAnimal(withAnimal(w, { ...a, rest }), { ...b, rest, lent: borrowed ? null : b.lent });
@@ -395,27 +527,27 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
         book.misses[k] = n; clue = n >= ANIMALS.clueAfter; p = withBook(p, book);
       }
       if (hit && !w.found[child.id]) { first = true; w = { ...w, found: { ...w.found, [child.id]: { by: me, at: now } } }; }
-      notes.push({ what: "animal_breed", n: 1, line: "animals", pts: ANIMALS.points.breed + (first ? ANIMALS.points.found : 0), doc: { a: a.breed, b: b.breed, offering, dawn, child: child.id, hit, twin, fee } });
-      return yes(w, p, { child: child.id, first, right: x.right, clue });
+      notes.push({ what: "animal_breed", n: 1, line: "animals", pts: ANIMALS.points.breed + (first ? ANIMALS.points.found : 0), doc: { a: a.breed, b: b.breed, offering, dawn, child: child.id, hit, twin, fee, sex: kid.sex, stats: kid.stats } });
+      return yes(cared(w), p, { child: child.id, first, right: x.right, clue });
     }
 
     case "cradle": {
+      // grandma's warm cradle (rank 5): a baby of a grown animal's breed (one in five a real breed), its stats its
+      // parent's moved by its care, as a cross's are, its sex at random
       const a = mineOf(input.id);
       if (!a) return no("theirs");
+      if (a.home === "pen") return no("pen");
       if (stageOf(a, now) !== "adult") return no("stage");
-      const herd = herdOf(world, me), place = freePlace(herd, world.animals, "nursery");
-      if (!place) return no("places");
+      const home = freeHome(herdOf(world, me), world.animals);
+      if (!home) return no("places");
       const used = useGift(purse, ANIMAL_GIFTS.cradle, now);
       if (!used.ok) return no(used.why === "spent" ? "spent" : "gift");
       const reals = realOf(a.species);
       const breed = env.rand() < ANIMALS.cradleRare ? reals[Math.floor(env.rand() * reals.length) % reals.length] : breedOf(a.breed)!;
-      const c: Animal = {
-        id: env.newId(), owner: me, species: a.species, breed: breed.id, name: "", born: now, bought: false, place,
-        at: now, food: 0, grown: 0, made: 0, banked: 0, hearts: 0, today: { day: dayOf(now) }, speedUntil: 0, windUntil: 0,
-        narrow: 0, rest: 0, lent: null, outside: [], outBands: 0,
-      };
+      const id = env.newId(), sex: Sex = env.rand() < 0.5 ? "m" : "f";
+      const c = newAnimal(id, me, a.species, breed.id, now, false, home, sex, childStats(a, a, env.rand));
       notes.push({ what: "animal_cradle", n: 1, line: "animals", pts: ANIMALS.points.cradle, doc: { id: a.id, child: breed.id } });
-      return yes({ ...world, animals: [...world.animals, c] }, used.purse, { child: breed.id });
+      return yes(cared({ ...world, animals: [...world.animals, c] }), used.purse, { child: breed.id });
     }
 
     case "care": {
@@ -425,21 +557,10 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
       return yes(withHerd(world, { ...herd, care: input.care, carers }), purse);
     }
 
-    case "gate": {
-      const last = world.gate[world.gate.length - 1];
-      const open = !!last && last[1] === null;
-      if (open === input.open) return yes(world, purse);
-      // settle everybody's animals to this moment first: the gate changes how fast their troughs go
-      const animals = world.animals.map((a) => settle(a, now, ctxFor(world, ownerPurse(a.owner))));
-      const gate: GateLog = input.open ? [...world.gate, [now, null] as const].slice(-64) : world.gate.map((g, i) => (i === world.gate.length - 1 ? ([g[0], now] as const) : g));
-      notes.push({ what: "animal_gate", n: input.open ? 1 : 0 });
-      return yes({ ...world, animals, gate }, purse);
-    }
-
     case "enter": {
       // coming onto the farm: the barn cat's pets (rank 2), and spring wind's gifts if one blows (rank 9's, anybody's)
       let w = world, p = purse;
-      const mine = w.animals.filter((a) => a.owner === me);
+      const mine = w.animals.filter((a) => a.owner === me && a.home !== "pen");
       if (works(p, ANIMAL_GIFTS.cat)) {
         const used = useGift(p, ANIMAL_GIFTS.cat, now);
         if (used.ok) {
@@ -447,18 +568,18 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
           for (const a0 of mine) {
             const a = settled(a0);
             if (stageOf(a, now) === "coming" || a.today.pet) continue;
-            w = withAnimal(w, { ...a, hearts: Math.min(ANIMALS.hearts * ANIMALS.perHeart, a.hearts + ANIMALS.heart.pet), today: { ...a.today, pet: true } });
+            w = withAnimal(w, { ...a, hearts: heartsPlus(a, ANIMALS.heart.pet), today: { ...a.today, pet: true } });
           }
         }
       }
       const wind = w.spells.find((s) => s.kind === "wind" && s.from <= now && now < s.until);
       if (wind) {
-        for (const a0 of w.animals.filter((a) => a.owner === me)) {
-          const a = settle(a0, now, ctxFor(w, p));
+        for (const a0 of w.animals.filter((a) => a.owner === me && a.home !== "pen")) {
+          const a = settle(a0, now, ctxFor(w, me, p));
           if ((a.today as { wind?: boolean }).wind || stageOf(a, now) === "coming") continue;
           let b: Animal = { ...a, today: { ...a.today, wind: true } as Animal["today"] };
           if (stageOf(a, now) === "adult") {
-            if (a.place === "producing" && a.made > 0 && a.banked < SPECIES[a.species].bank) b = { ...b, made: 0, banked: a.banked + 1 };
+            if (gives(a) && a.made > 0 && a.banked < SPECIES[a.species].bank) b = { ...b, made: 0, banked: a.banked + 1 };
           } else b = { ...b, windUntil: wind.until };
           w = withAnimal(w, b);
         }
@@ -504,7 +625,7 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
       const k = `wagon:${dayOf(now)}`;
       if ((purse as Purse & { animalRode?: string }).animalRode === k) return no("used");
       let w = world;
-      for (const a0 of w.animals.filter((a) => a.owner === me)) {
+      for (const a0 of w.animals.filter((a) => a.owner === me && a.home !== "pen")) {
         const a = settled(a0);
         if (stageOf(a, now) === "coming") continue;
         w = withAnimal(w, { ...a, hearts: Math.min(ANIMALS.hearts * ANIMALS.perHeart, a.hearts + ANIMALS.wagonHeart) });

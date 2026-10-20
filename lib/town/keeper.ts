@@ -2341,7 +2341,7 @@ export class DbKeeper implements Keeper {
     if (!a) return { ok: false, why: "away" as AnimalWhy, world: this.animals_ ?? EMPTY_WORLD };
     this.animalsTold(a.world, input.action === "look");
     // (what others see changed: their pages read the pasture again)
-    if (a.ok === true && input.action !== "look" && input.action !== "lend") this.onDeed?.("animals");
+    if (a.ok === true && input.action !== "look") this.onDeed?.("animals");
     return { ok: a.ok === true, ...(a.ok === true ? {} : { why: ((a.why as AnimalWhy) ?? "none") }), world: this.animals_ ?? EMPTY_WORLD, ...(a.got && typeof a.got === "object" ? { got: a.got as AnimalReply["got"] } : {}) };
   }
   smithLook() { if (this.smith_) void this.ask("town_smith"); }

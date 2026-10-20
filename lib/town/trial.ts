@@ -20,9 +20,9 @@ import{arenaAction}from"./reward-arena";
 import{beginDragon}from"./reward-dragon";
 import { bangkokMinute } from "./daylight";
 // ── the pasture ── (lib/town/animal-act, docs/plans/animals)
-import { animalAction, type AnimalInput, type AnimalWorld, type Spell, type WagonRun } from "./animal-act";
+import { animalAction, newAnimal, type AnimalInput, type AnimalWorld, type Spell, type WagonRun } from "./animal-act";
 import { EMPTY_WORLD } from "./animal-world";
-import { ANIMALS as ANIMAL_RULES, BREED as ANIMAL_BREEDS, SPECIES as ANIMAL_SPECIES, dayOf as animalDay, type Animal, type Stage as AnimalStage } from "./animals";
+import { ANIMALS as ANIMAL_RULES, BREED as ANIMAL_BREEDS, SPECIES as ANIMAL_SPECIES, dayOf as animalDay, newHerd as newAnimalHerd, freeHome as freeAnimalHome, boughtStats as boughtAnimalStats, type Animal, type Stage as AnimalStage } from "./animals";
 import { spotOf as pastureSpot } from "./pasture";
 import { dressFrom, dropsFor } from "./wear";
 import {boatAction} from './reward-boat';
@@ -218,7 +218,7 @@ const GROUND_AT = "cashtown.trial.ground.1";
 // ── felling ── (the mountain's trees, lib/town/trees: the whole browser's, so that one tester sees the stump another made)
 const TREES_AT = "cashtown.trial.trees.1";
 // ── the pasture ── (everybody's animals, the herds, the gate, the gifts' hours and the wagons: the whole browser's, so that one tester cares for another's animals)
-const ANIMALS_AT = "cashtown.trial.animals.1";
+const ANIMALS_AT = "cashtown.trial.animals.2";
 const POTS = "cashtown.trial.pots.1", FOUND = "cashtown.trial.found.1", FINDERS = "cashtown.trial.finders.1", DEALS = "cashtown.trial.deals.1", VILLAGE = "cashtown.trial.village.1";
 /** The beds the test window plants as a show garden: the four round the well. */
 const SHOW_BEDS = [8, 9, 14, 15];
@@ -2521,23 +2521,23 @@ export class Trial {
     return { ok: r.ok, ...(r.why ? { why: r.why } : {}), world: r.ok ? r.world : world, ...(r.got ? { got: r.got } : {}) };
   }
   /** For trying things out: an animal of any breed at any stage, mine at once (fed a day; `hearts` in hearts). */
-  animalGive(breed: string, stage: AnimalStage, hearts = 0) {
+  animalGive(breed: string, stage: AnimalStage, hearts = 0, sex: "m" | "f" = "f") {
     const b = ANIMAL_BREEDS.get(breed);
     if (!b) return null;
     const sp = ANIMAL_SPECIES[b.species], now = this.now(), world = this.animalWorld();
-    const mine = world.animals.filter((a) => a.owner === this.id);
-    const place = stage === "adult" && mine.filter((a) => a.place === "producing").length < ANIMAL_RULES.places.producing ? "producing" : mine.filter((a) => a.place === "nursery").length < ANIMAL_RULES.places.nursery ? "nursery" : "keeping";
+    // (the test window gives past the barn, as it gives past the coins: the first free barn is mine if I have none, and
+    // an animal past its room waits in the pen)
+    const held = world.herds.find((h) => h.owner === this.id);
+    const taken = new Set(world.herds.map((h) => h.barn).filter((x) => x !== null));
+    const free = Array.from({ length: ANIMAL_RULES.barns.count }, (_, i) => i).find((i) => !taken.has(i)) ?? null;
+    const herd = held && held.barn !== null ? held : { ...(held ?? newAnimalHerd(this.id)), barn: free, lastCare: now };
+    const home = freeAnimalHome(herd, world.animals) ?? "pen";
     const grown = stage === "adult" ? sp.grow[0] + sp.grow[1] : stage === "young" ? sp.grow[0] + 1 : 0;
     const a: Animal = {
-      id: crypto.randomUUID(), owner: this.id, species: b.species, breed: b.id, name: "", born: stage === "coming" ? now + ANIMAL_RULES.hatch[sp.kind] : now, bought: b.letter === "A",
-      place, at: now, food: 24, grown, made: 0, banked: 0, hearts: Math.max(0, Math.min(10, hearts)) * ANIMAL_RULES.perHeart, today: { day: animalDay(now) },
-      speedUntil: 0, windUntil: 0, narrow: 0, rest: 0, lent: null, outside: [], outBands: 0,
+      ...newAnimal(crypto.randomUUID(), this.id, b.species, b.id, stage === "coming" ? now + ANIMAL_RULES.hatch[sp.kind] : now, b.letter === "A", home, sex, boughtAnimalStats(Math.random)),
+      at: now, food: 24, grown, hearts: Math.max(0, Math.min(10, hearts)) * ANIMAL_RULES.perHeart, today: { day: animalDay(now) },
     };
-    const herds = world.herds.some((h) => h.owner === this.id) ? world.herds : [...world.herds, { owner: this.id, keeping: 0, facade: 0, care: "named" as const, carers: [] }];
-    // (a keeping place made for one that has none: the test window gives past the places, as it gives past the coins)
-    const herd = herds.find((h) => h.owner === this.id)!;
-    const keeping = place === "keeping" && mine.filter((x) => x.place === "keeping").length >= herd.keeping ? herd.keeping + 1 : herd.keeping;
-    this.write(ANIMALS_AT, { ...world, animals: [...world.animals, a], herds: herds.map((h) => (h.owner === this.id ? { ...h, keeping } : h)) });
+    this.write(ANIMALS_AT, { ...world, animals: [...world.animals, a], herds: [...world.herds.filter((h) => h.owner !== this.id), herd] });
     this.tell();
     return a;
   }

@@ -9,25 +9,28 @@ import { seatSpot, wagonSpot, knowWagons, WAGON_LEG } from "./seats";
 import { WAGON_STOPS } from "./pasture";
 import { placeOf, walkable } from "./world";
 import { newPurse, put, type Purse } from "./trade";
-import { dayStart, type Animal } from "./animals";
+import { dayStart, newHerd, type Animal } from "./animals";
 import type { ItemId } from "./items";
 import type { WagonRun } from "./animal-act";
 
 const NOW = dayStart(20_380) + 3 * 3_600_000;
 const animal = (over: Partial<Animal> = {}): Animal => ({
-  id: "a1", owner: "me", species: "chicken", breed: "barnHen", name: "", born: NOW, bought: true, place: "producing",
-  at: NOW, food: 0, grown: 0, made: 0, banked: 0, hearts: 0, today: { day: 1 }, speedUntil: 0, windUntil: 0,
+  id: "a1", owner: "me", species: "chicken", breed: "barnHen", name: "", born: NOW, bought: true, home: "barn",
+  sex: "f", stats: { thrift: 1, gentle: 1, vigor: 1 }, streak: 0, at: NOW, food: 0, grown: 0, made: 0, banked: 0, hearts: 0, today: { day: 1 }, speedUntil: 0, windUntil: 0,
   narrow: 0, rest: 0, lent: null, outside: [], outBands: 0, ...over,
 });
 
 describe("the pasture's world as the page holds it", () => {
   it("takes a look whole, and lays a step's part over what is held", () => {
-    const whole = mergeAnimals(null, { animals: [animal(), animal({ id: "a2", owner: "pal" })], herds: [{ owner: "me", keeping: 0, facade: 0, care: "named", carers: [] }], gate: [[1, null]], found: {}, spells: [], wagons: [] });
+    const offers = [{ id: "o1", from: "me", to: "pal", animal: "a1", at: 1 }];
+    const whole = mergeAnimals(null, { animals: [animal(), animal({ id: "a2", owner: "pal" })], herds: [{ ...newHerd("me"), barn: 2 }], found: {}, spells: [], wagons: [], offers, asks: [] });
     expect(whole.animals.map((a) => a.id)).toEqual(["a1", "a2"]);
-    const part = mergeAnimals(whole, { animals: [animal({ food: 12 }), animal({ id: "a3" })], removed: ["a2"], herds: [{ owner: "me", keeping: 2, facade: 0, care: "anybody", carers: [] }] });
+    const part = mergeAnimals(whole, { animals: [animal({ food: 12 }), animal({ id: "a3" })], removed: ["a2"], herds: [{ ...newHerd("me"), barn: 2, care: "anybody" }] });
     expect(part.animals.map((a) => [a.id, a.food])).toEqual([["a1", 12], ["a3", 0]]);
-    expect(part.herds).toEqual([{ owner: "me", keeping: 2, facade: 0, care: "anybody", carers: [] }]);
-    expect(part.gate).toEqual([[1, null]]);
+    expect(part.herds).toEqual([{ ...newHerd("me"), barn: 2, care: "anybody" }]);
+    expect(part.offers).toEqual(offers);
+    // (an animal or a herd told with something left out is made whole)
+    expect(mergeAnimals(null, { animals: [{ ...animal(), home: undefined, sex: undefined, stats: undefined }], herds: [{ owner: "me" }] })).toMatchObject({ animals: [{ home: "barn", sex: "f", stats: { thrift: 1 } }], herds: [{ barn: null, room: 4, door: [] }] });
     // (an animal of a breed this page does not know is left out: it could not be drawn)
     expect(mergeAnimals(null, { animals: [animal({ breed: "dodo" })] }).animals).toEqual([]);
     expect(mergeAnimals(null, {})).toEqual(EMPTY_WORLD);
@@ -35,7 +38,7 @@ describe("the pasture's world as the page holds it", () => {
   it("counts the line's points from a step's deed (`doc.pts`), and care of a friend's animal on the helpers' line", () => {
     expect(countsOf({ from: "deed", what: "animal_feed", thing: null, n: 1, doc: { pts: 15 } }, "me")).toEqual([{ to: null, line: "animals", raw: 15 }]);
     expect(countsOf({ from: "deed", what: "animal_care", thing: null, n: 1, doc: { pts: 2 } }, "me")).toEqual([{ to: null, line: "helpers", raw: 2 }]);
-    expect(countsOf({ from: "deed", what: "animal_gate", thing: null, n: 1, doc: {} }, "me")).toEqual([]);
+    expect(countsOf({ from: "deed", what: "animal_door", thing: null, n: 1, doc: {} }, "me")).toEqual([]);
   });
 });
 
@@ -52,8 +55,8 @@ describe("the database's keeper of the pasture", () => {
       if (fn === "town_me") return { now: NOW, purse: { ...newPurse(), coins: 5000 } };
       if (fn !== "town_animals" || !up) return null;
       const input = args.p_input as { action: string };
-      if (input.action === "look") return { ok: true, now: NOW, world: { animals: [animal({ owner: "pal", id: "p1" })], herds: [], gate: [], found: {}, spells: [], wagons: [] } };
-      return { ok: true, now: NOW, purse: { ...newPurse(), coins: 4600 }, world: { animals: [animal()], herds: [{ owner: "me", keeping: 0, facade: 0, care: "named", carers: [] }] }, got: { child: "barnHen" } };
+      if (input.action === "look") return { ok: true, now: NOW, world: { animals: [animal({ owner: "pal", id: "p1" })], herds: [], found: {}, spells: [], wagons: [], offers: [], asks: [] } };
+      return { ok: true, now: NOW, purse: { ...newPurse(), coins: 4600 }, world: { animals: [animal()], herds: [{ ...newHerd("me"), barn: 0 }] }, got: { child: "barnHen" } };
     };
     const k = new DbKeeper("me", ask);
     await settle();
@@ -62,11 +65,11 @@ describe("the database's keeper of the pasture", () => {
     const stop = k.look("animals");
     await settle();
     expect(k.animalWorld()?.animals.map((a) => a.id)).toEqual(["p1"]);
-    const did = await k.animals({ action: "buy", species: "chicken" }, "req-1");
+    const did = await k.animals({ action: "buy", species: "chicken", sex: "f" }, "req-1");
     expect(did).toMatchObject({ ok: true, got: { child: "barnHen" } });
     expect(did.world.animals.map((a) => a.id)).toEqual(["p1", "a1"]);
     expect(k.purse().coins).toBe(4600);
-    expect(sent.find(([fn, a]) => fn === "town_animals" && (a.p_input as { action: string }).action === "buy")?.[1]).toEqual({ p_input: { action: "buy", species: "chicken" }, p_request: "req-1" });
+    expect(sent.find(([fn, a]) => fn === "town_animals" && (a.p_input as { action: string }).action === "buy")?.[1]).toEqual({ p_input: { action: "buy", species: "chicken", sex: "f" }, p_request: "req-1" });
     expect(told).toContain("animals");
     up = false;
     const away = await k.animals({ action: "pet", id: "a1" });
@@ -80,10 +83,12 @@ describe("the trial's pasture", () => {
   it("runs a step on the browser's world, keeps the purse in step, and counts its points on the line", () => {
     const t = new Trial(`tester-${Math.random()}`, { memoryOnly: true });
     const before = t.purse().coins;
-    t.fished({ ...t.purse(), coins: before + 1000 });
-    const bought = t.animals({ action: "buy", species: "chicken" });
+    t.fished({ ...t.purse(), coins: before + 7000, bag: put(put(t.purse().bag, "log" as ItemId, 60), "stoneTile" as ItemId, 20) });
+    expect(t.animals({ action: "buy", species: "chicken", sex: "f" })).toMatchObject({ ok: false, why: "barn" });
+    expect(t.animals({ action: "barn", index: 0 }).ok).toBe(true);
+    const bought = t.animals({ action: "buy", species: "chicken", sex: "f" });
     expect(bought.ok).toBe(true);
-    expect(t.purse().coins).toBe(before + 1000 - 400);
+    expect(t.purse().coins).toBe(before + 7000 - 6000 - 400);
     expect(t.animalWorld().animals).toHaveLength(1);
     const id = t.animalWorld().animals[0].id;
     const p: Purse = { ...t.purse(), bag: put(t.purse().bag, "chickFeed" as ItemId, 2) };
@@ -92,7 +97,7 @@ describe("the trial's pasture", () => {
     expect(t.lines().lines.animals.points).toBeGreaterThan(0);
     expect(t.animals({ action: "pet", id: "nobody" })).toMatchObject({ ok: false, why: "none" });
     const given = t.animalGive("dairyCow", "adult", 5)!;
-    expect(given.place).toBe("producing");
+    expect(given.home).toBe("barn");
     t.animalWagon();
     expect(t.animalWorld().wagons).toHaveLength(1);
   });

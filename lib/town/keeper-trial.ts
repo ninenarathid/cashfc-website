@@ -93,7 +93,7 @@ class TrialKeeper implements Keeper {
   // ── the pasture ── (lib/town/animal-act run on the browser's world, as the warehouse is; whoever else is in town is in another tab: told through the room)
   async animals(input: import("./animal-act").AnimalInput) {
     const did = this.trial.animals(input);
-    if (did.ok && input.action !== "look" && input.action !== "lend") this.onDeed?.("animals");
+    if (did.ok && input.action !== "look") this.onDeed?.("animals");
     return did;
   }
   animalWorld() { return this.trial.animalWorld(); }
