@@ -183,7 +183,8 @@ async function run(label) {
     await tall("an open card");
 
     // ── the three games, played through to what they give (a ewe's fleece; a hen's eggs; the friend's cow is not mine, so the cow is given)
-    await X.evaluate(`(() => { const t = ${T}; t.grant("milker", 1); t.grant("eggBasket", 1); t.grant("woolShears", 1); for (const a of t.animalWorld().animals.filter((x) => x.owner === window.__townKeeper.id && x.home === "barn")) t.animalSet(a.id, { banked: a.species === "chicken" ? 4 : 1, at: t.now() }); })()`);
+    // (the bag cleared to the games' tools first: a go whose produce has no room is refused whole, never half lost)
+    await X.evaluate(`(() => { const t = ${T}; t.fished({ ...t.purse(), bag: t.purse().bag.map((x) => (x && ["milker", "eggBasket", "woolShears"].includes(x.item) ? x : null)) }); t.grant("milker", 1); t.grant("eggBasket", 1); t.grant("woolShears", 1); for (const a of t.animalWorld().animals.filter((x) => x.owner === window.__townKeeper.id && x.home === "barn")) t.animalSet(a.id, { banked: a.species === "chicken" ? 4 : 1, at: t.now() }); })()`);
     const ewe = (await mine(X)).find((a) => a.species === "sheep" && a.sex === "f"), hen = (await mine(X)).find((a) => a.species === "chicken" && a.sex === "f");
     await X.evaluate(`${S}.close()`);
     for (const [id, game, item, play] of [[hen.id, "eggs", "farmEgg", playEggs], [ewe.id, "shear", "wool", playShear]]) {
