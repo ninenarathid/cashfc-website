@@ -190,12 +190,21 @@ export async function lookFrames(only) {
       });
       ((table[who.prefix] ??= {})[view] ??= {})[action] = ims.length;
     }
-    // (a view whose idle is not drawn yet stands as its walk's first frame, so the page has one to stand it by)
+    // (a view whose idle is not drawn stands still: on the picture its custom walk started from (the base itself, as the
+    // cows' back views do, Codex 2026-10-20-10-31-50), else on its walk's first frame)
     for (const view of ["SE", "NE"]) {
       const t = table[who.prefix]?.[view];
       if (!t?.walk || t.idle) continue;
-      const first = pieces.find((p) => p.name === `${who.prefix}_${view}_walk_0`);
-      first.also.push(`${who.prefix}_${view}_idle_0`, `${who.prefix}_${view}_idle`);
+      const dir = loopDir(look, "walk", view), start = dir && path.join(WORK, "pl", dir, "images-0.png");
+      const custom = dir && /"mode":\s*"pixminimax"|"type":\s*"done"/.test(fs.readFileSync(path.join(WORK, "pl", dir, "response.json"), "utf8")) && fs.readdirSync(path.join(WORK, "pl", dir)).filter((f) => /^images-\d+\.png$/.test(f)).length === 5;
+      if (custom && fs.existsSync(start)) {
+        const raw = await rgba(start), walk = pieces.filter((p) => p.name.startsWith(`${who.prefix}_${view}_walk_`));
+        let im = tidy(raw, pal, Math.max(4, Math.round(raw.d.filter((v, i) => i % 4 === 3 && v >= 128).length * 0.06)));
+        // stood on the walk's ground point: the walk's frames were laid on one point of the same canvas
+        const w0 = walk[0], tr = trim(im);
+        const ref = await (async () => { const r = await rgba(path.join(WORK, "pl", dir, "images-1.png")); return trim(tidy(r, pal)); })();
+        pieces.push({ name: `${who.prefix}_${view}_idle_0`, img: tr.img, ax: w0.ax + (ref.x0 - tr.x0), ay: w0.ay + (ref.y0 - tr.y0), also: [`${who.prefix}_${view}_idle`], ...(w0.k ? { k: w0.k } : {}) });
+      } else pieces.find((p) => p.name === `${who.prefix}_${view}_walk_0`).also.push(`${who.prefix}_${view}_idle_0`, `${who.prefix}_${view}_idle`);
       t.idle = 1;
     }
   }

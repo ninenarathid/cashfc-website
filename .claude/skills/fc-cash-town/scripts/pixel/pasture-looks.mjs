@@ -22,14 +22,15 @@ const HERE = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Z]:
 const WORK = path.join(HERE, "work"), BODIES = path.join(HERE, "prompts", "pixellab", "pasture2");
 const CHARS = path.join(WORK, "pasture", "chars.json");
 const args = process.argv.slice(2), conc = +(args[args.indexOf("--conc") + 1] || 4) || 4, only = args.includes("--only") ? args[args.indexOf("--only") + 1] : null;
-const looks = args.filter((a) => a.split(":").length === 3 && !/^[A-Za-z]:[\/]/.test(a)).map((a) => { const [look, base, kind] = a.split(":"); return { look, base, kind }; });
+const seOnly = args.includes("--se");
+const looks = args.filter((a) => a.split(":").length === 3 && !/^[A-Za-z]:[\/]/.test(a)).map((a) => { const [look, base, kind] = a.split(":"); return { look, base, kind, ...(seOnly && !/^back/.test(kind) ? { only: "SE" } : {}) }; });
 const chars = fs.existsSync(CHARS) ? JSON.parse(fs.readFileSync(CHARS, "utf8")) : {};
 const saveChars = () => fs.writeFileSync(CHARS, JSON.stringify(chars, null, 1));
 const key = fs.readFileSync("E:/NinenineProject/fcnext/.env.local", "utf8").match(/^PIXELLAB_API_KEY=(.+)$/m)[1].trim();
 const balance = async () => (await (await fetch("https://api.pixellab.ai/v2/balance", { headers: { Authorization: `Bearer ${key}` } })).json()).subscription?.generations;
 const BATCH = `looks-${new Date().toISOString().slice(0, 16)}`;
 
-const TEMPLATE = { sheep: "dog", cow: "horse", bird: "mannequin" };
+const TEMPLATE = { sheep: "dog", cow: "horse", bird: "mannequin", back: "mannequin", backbird: "mannequin", backsheep: "mannequin" };
 // What each look is, in the words PixelLab is given (the breeds' own looks, lib/town/animals.ts; the males' as their sheets drew them)
 const DESC = {
   barnHen: "a red-brown hen with a small red comb", barnHenM: "a dark reddish-brown barn rooster with orange-brown neck hackles, a big red comb and a tall dark green sickle tail",
@@ -83,7 +84,7 @@ const DESC = {
 };
 const NOUN = { sheep: "sheep", cow: "cow", bird: "bird" };
 // (a shorn look: its fleeced self's words, just sheared)
-const desc = (l) => DESC[l.look] ?? (l.look.endsWith("Shorn") && DESC[l.look.slice(0, -5)] ? `${DESC[l.look.slice(0, -5)]}, just sheared: a slimmer body with a short smooth coat in its fleece's colours` : `a ${NOUN[l.kind]} (${l.look})`);
+const desc = (l) => /^back/.test(l.kind) ? `${desc({ ...l, look: l.look.replace(/Back$/, ""), kind: "cow" })}, seen from behind, facing away to the upper right` : DESC[l.look] ?? (l.look.endsWith("Shorn") && DESC[l.look.slice(0, -5)] ? `${DESC[l.look.slice(0, -5)]}, just sheared: a slimmer body with a short smooth coat in its fleece's colours` : `a ${NOUN[l.kind]} (${l.look})`);
 // The 3/4 back view (our NE): PixelLab's "north" (our NW, its back turned to the upper left), drawn mirrored as NE
 // (pasture-frames.mjs). Its "east" came out a profile for the hen, the lamb and the calf, and only now and then the back
 // three quarters; "north" was the back three quarters for every look of the starters (stage 2, 2026-10-20).
@@ -96,14 +97,27 @@ const BACK_OF = { cayuga: "north-east", cayugaM: "north-east", mandarinM: "north
 const IDLE = { sheep: "idle" };
 const STAND = (l, dir) => `standing in place, ${l.kind === "cow" ? "four hooves" : "feet"} planted, facing unchanged; subtle breathing, one brief blink${dir !== "south" ? " only if an eye is already visible; never turn to reveal the face" : ""}${l.kind === "cow" ? ", a small flick of an ear" : ""}; head returns to its starting position; seamless four-frame loop`;
 const createBody = (l) => ({ description: `${desc(l)}, cute chibi pixel art with a thick dark outline, as in the reference`, reference_image: `@../../../work/pasture/base/${l.base}.png`, n_directions: 8, view: "low top-down", template_id: TEMPLATE[l.kind], name: l.look });
+// A cow walks by the custom engine too (the owner, 2026-10-20, of the horse skeleton's walk: "ตัวนี้ขาเบี้ยว"), and its back
+// view is a character of its own made from its back base (pasture-backs.mjs: a true three-quarter back), whose "south" is
+// that view: its loops are written as its look's NE (kind `back`, look `<look>Back`).
+const BIRD_WALK = "walking in place with small waddling steps, alternating its feet, facing unchanged, its body turned the same way in every frame";
+const COW_WALK = "walking in place with a slow four-beat walk, one leg lifting at a time, all four legs straight and natural with the hooves stepping cleanly, never bending sideways; facing unchanged, its body turned the same way in every frame";
 const animBodies = (l, id) => {
-  const views = { south: "SE", [BACK_OF[l.look] ?? BACK[l.kind]]: "NE" }, out = [];
+  // (its idle is the back base standing still: an idle animated from behind turned the head to show the face, Codex's
+  // verdict on the Jersey trial, 2026-10-20-10-31-50; pasture-frames.mjs takes the walk's first picture, the base itself)
+  // (every species' back view, 2026-10-20: Codex found the birds' and sheep's straight or narrow too; kind back (a cow),
+  // backbird, backsheep)
+  if (/^back/.test(l.kind)) return [["walk-NE", { character_id: id, mode: "pixminimax", action_description: l.kind === "backbird" ? BIRD_WALK : COW_WALK, subject_description: desc(l), frame_count: 4, directions: ["south"], animation_name: "walk-NE" }]];
+  if (l.only === "SE") return animBodies({ ...l, only: undefined }, id).filter(([what]) => what.endsWith("-SE"));
+  const views = l.kind === "cow" ? { south: "SE" } : { south: "SE", [BACK_OF[l.look] ?? BACK[l.kind]]: "NE" }, out = [];
   for (const [dir, view] of Object.entries(views)) {
     if (l.kind === "bird") {
       out.push([`walk-${view}`, { character_id: id, mode: "pixminimax", action_description: "walking in place with small waddling steps, alternating its feet, facing unchanged, its body turned the same way in every frame", subject_description: desc(l), frame_count: 4, directions: [dir], animation_name: `walk-${view}` }]);
       out.push([`idle-${view}`, { character_id: id, mode: "pixminimax", action_description: STAND(l, dir), subject_description: desc(l), frame_count: 4, directions: [dir], animation_name: `idle-${view}` }]);
     } else {
-      out.push([`walk-${view}`, { character_id: id, mode: "template", template_animation_id: "walk-4-frames", directions: [dir], animation_name: `walk-${view}` }]);
+      out.push([`walk-${view}`, l.kind === "cow"
+        ? { character_id: id, mode: "pixminimax", action_description: COW_WALK, subject_description: desc(l), frame_count: 4, directions: [dir], animation_name: `walk-${view}` }
+        : { character_id: id, mode: "template", template_animation_id: "walk-4-frames", directions: [dir], animation_name: `walk-${view}` }]);
       out.push([`idle-${view}`, IDLE[l.kind]
         ? { character_id: id, mode: "template", template_animation_id: IDLE[l.kind], directions: [dir], animation_name: `idle-${view}` }
         : { character_id: id, mode: "pixminimax", action_description: STAND(l, dir), subject_description: desc(l), frame_count: 4, directions: [dir], animation_name: `idle-${view}` }]);
@@ -184,7 +198,7 @@ async function one(l) {
   if (!chars[l.look] || only === "create") return;
   // its walk and idle, both views, at once
   await Promise.all(animBodies(l, chars[l.look].id).map(async ([what, body]) => {
-    const name = `pasture2-${l.look}-${what}`;
+    const name = `pasture2-${/^back/.test(l.kind) ? l.look.replace(/Back$/, "") : l.look}-${what}`;
     if (done(name)) return;
     const f = path.join(BODIES, `anim-${l.look}-${what}.json`);
     fs.writeFileSync(f, JSON.stringify(body) + "\n");
