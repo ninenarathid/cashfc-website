@@ -317,6 +317,10 @@ try {
   eq((await one("select town.animal_bottle($1) r", [me])).r, false, "a bottle just had does not count yet");
   await mine({ action: "name", id: chick, name: "Pip" });
   eq([(await one("select jsonb_typeof(h->'bottleAt') t from public.town_herds where owner = $1", [me])).t, (await one("select town.animal_bottle($1) r", [me])).r], ["number", true], "the bottle counts from the first step after it");
+  // (a name: the first free, a later one takes a rename tag)
+  eq((await mine({ action: "name", id: chick, name: "Pippa" })).why, "tag", "a second name takes a rename tag");
+  await db.query("update public.town_purses set doc = jsonb_set(doc, '{bag}', $2::jsonb) where member_id = $1", [me, JSON.stringify([{ item: "renameTag", n: 1 }, ...Array(19).fill(null)])]);
+  eq([(await mine({ action: "name", id: chick, name: "Pippa" })).ok, await heldOf(me, "renameTag"), (await animal(chick)).name], [true, 0, "Pippa"], "renamed with a tag, the tag used");
   // (nobody reaches the tables but through the function)
   for (const tbl of ["town_animals", "town_herds", "town_pasture", "town_animal_asks"]) {
     let no = false;

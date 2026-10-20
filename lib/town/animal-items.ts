@@ -72,6 +72,8 @@ export const ANIMAL_ITEMS = {
   calfGrow: goods("นมอุ่นลูกวัว", "Calf's warm milk", "ขวดนมใบใหญ่มีจุกยางสีฟ้า", "A big bottle with a blue teat", 20),
   dewGrow: goods("อาหารเร่งโตโคลเวอร์น้ำค้าง", "Dew-clover mash", "ถ้วยดินใส่ใบโคลเวอร์บดที่ยังมีหยดน้ำค้างเกาะ", "An earthen cup of crushed clover still beaded with dew", 15, 3),
   packedRation: goods("อาหารอัดสามวัน", "Packed ration", "ก้อนอาหารอัดแน่นห่อใบไม้สีเงิน", "A dense block of fodder wrapped in silvery leaves", 12, 3),
+  // (a name changed after the first: the owner, 2026-10-20, "ถ้าอยากเปลี่ยนชื่อต้อง ซื้อไอเทมเปลี่ยนชื่อจากลุงเลี้ยงสัตว์ ราคา 500")
+  renameTag: goods("ป้ายเปลี่ยนชื่อสัตว์", "Rename tag", "ป้ายไม้เล็กผูกเชือกแดง หน้าป้ายยังว่างอยู่", "A small wooden tag on a red string, its face still blank", 0),
   // ── the games' tools and the makings' ──
   milker: tool("เครื่องรีดนมมือโยก", "Hand-pump milker", "ถังทองเหลืองมีคันโยกไม้สองข้างและสายยางสองเส้น", "A brass pail with two wooden pump handles and two hoses", 90),
   woolShears: tool("กรรไกรตัดขนแกะ", "Shears", "กรรไกรเหล็กใบโค้ง ด้ามไม้พันเชือก", "Curved steel shears with rope-wrapped handles", 30),

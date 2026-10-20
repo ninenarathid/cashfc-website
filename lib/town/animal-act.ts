@@ -87,6 +87,8 @@ export type AnimalWhy =
   | "hearts" | "species" | "offering" | "gift" | "used" | "lent" | "far" | "name" | "soon" | "full"
   // (the barns: none of mine yet, that one is somebody's, I have one already; an animal in the pen; a cross of one sex)
   | "barn" | "taken" | "had" | "pen" | "sex"
+  // (a named animal's name changed without a rename tag)
+  | "tag"
   // (the page's own: the town could not be reached, and nothing is known to have been done)
   | "away";
 
@@ -100,7 +102,7 @@ export interface AnimalReply {
   purse: Purse;
   notes: AnimalNote[];
   /** What a collection, a cross or the cradle came to, for the page to tell. */
-  got?: { find?: ItemId | null; item?: ItemId; n?: number; grades?: number[]; whole?: boolean; child?: string; first?: boolean; right?: boolean; clue?: boolean; spot?: [number, number]; sex?: Sex; stats?: Stats };
+  got?: { find?: ItemId | null; item?: ItemId; n?: number; grades?: number[]; whole?: boolean; child?: string; first?: boolean; right?: boolean; clue?: boolean; spot?: [number, number]; sex?: Sex; stats?: Stats; id?: string };
 }
 
 /** Where eggs laid out on the meadow lie: a spot of the pasture, picked from the animal and the round (the page's world.ts puts the pasture's tiles in order). */
@@ -163,6 +165,8 @@ export function feedHours(species: SpeciesId, item: string): number {
 export function growFor(species: SpeciesId, item: string): number {
   return SPECIES[species].growItem === item ? ANIMALS.growFeed : item === DEW_GROW ? ANIMALS.dewFeed : 0;
 }
+/** What changes an animal's name after its first: one, used up (its first name is free). */
+export const RENAME_TAG = "renameTag";
 /** What Uncle Popoto sells besides the animals, and for how much. */
 export const POPOTO_SHOP: Record<string, number> = {
   ...Object.fromEntries(SPECIES_IDS.flatMap((sp) => [[SPECIES[sp].sack, SPECIES[sp].sackPrice], [SPECIES[sp].growItem, SPECIES[sp].growPrice]])),
@@ -170,6 +174,8 @@ export const POPOTO_SHOP: Record<string, number> = {
   // (the making table's tools, at twice what the uncle pays for one, as the three games' tools are; and the shelf of the
   // pasture's dishes' scrolls: the page's piece, 2026-10-20, as the README's "Uncle Popoto's panel" asks of his stall)
   churn: 80, cheesePress: 100, spindle: 60, knittingNeedles: 60,
+  // (a name changed after the first)
+  [RENAME_TAG]: 500,
   ...POPOTO_SCROLL_PRICES,
 };
 /** The tool each game asks for. */
@@ -259,7 +265,7 @@ export function animalAction(world0: AnimalWorld, purse: Purse, input: AnimalInp
       if (!home) return no("places");
       const a = newAnimal(env.newId(), me, sp.id, starterOf(sp.id).id, now, true, home, input.sex, boughtStats(env.rand));
       notes.push({ what: "animal_buy", n: 1, doc: { species: sp.id, sex: input.sex, coins: sp.price } });
-      return yes(cared({ ...world, animals: [...world.animals, a] }), { ...purse, coins: purse.coins - sp.price }, { child: a.breed });
+      return yes(cared({ ...world, animals: [...world.animals, a] }), { ...purse, coins: purse.coins - sp.price }, { child: a.breed, id: a.id });
     }
 
     case "shop": {
@@ -294,7 +300,12 @@ export function animalAction(world0: AnimalWorld, purse: Purse, input: AnimalInp
       const a = mineOf(input.id), name = (input.name ?? "").trim().slice(0, 16);
       if (!a) return no("theirs");
       if (/[<>]/.test(name)) return no("name");
-      return yes(withAnimal(world, { ...a, name }), purse);
+      if (name === a.name) return yes(world, purse);
+      // (its first name is free; a name changed after takes a rename tag, of Uncle Popoto's)
+      if (!a.name) return yes(withAnimal(world, { ...a, name }), purse);
+      if (held(purse.bag, RENAME_TAG as ItemId) < 1) return no("tag");
+      notes.push({ what: "animal_rename", n: 1, doc: { id: a.id } });
+      return yes(withAnimal(world, { ...a, name }), { ...purse, bag: take(purse.bag, RENAME_TAG as ItemId, 1) });
     }
 
     case "move": {
@@ -561,7 +572,7 @@ export function animalAction(world0: AnimalWorld, purse: Purse, input: AnimalInp
       }
       if (hit && !w.found[child.id]) { first = true; w = { ...w, found: { ...w.found, [child.id]: { by: me, at: now } } }; }
       notes.push({ what: "animal_breed", n: 1, line: "animals", pts: ANIMALS.points.breed + (first ? ANIMALS.points.found : 0), doc: { a: a.breed, b: b.breed, offering, dawn, child: child.id, hit, twin, fee, sex: kid.sex, stats: kid.stats } });
-      return yes(cared(w), p, { child: child.id, first, right: x.right, clue, sex: kid.sex, stats: kid.stats });
+      return yes(cared(w), p, { child: child.id, first, right: x.right, clue, sex: kid.sex, stats: kid.stats, id: kid.id });
     }
 
     case "cradle": {
@@ -580,7 +591,7 @@ export function animalAction(world0: AnimalWorld, purse: Purse, input: AnimalInp
       const id = env.newId(), sex: Sex = env.rand() < 0.5 ? "m" : "f";
       const c = newAnimal(id, me, a.species, breed.id, now, false, home, sex, childStats(a, a, env.rand));
       notes.push({ what: "animal_cradle", n: 1, line: "animals", pts: ANIMALS.points.cradle, doc: { id: a.id, child: breed.id } });
-      return yes(cared({ ...world, animals: [...world.animals, c] }), used.purse, { child: breed.id, sex: c.sex, stats: c.stats });
+      return yes(cared({ ...world, animals: [...world.animals, c] }), used.purse, { child: breed.id, sex: c.sex, stats: c.stats, id: c.id });
     }
 
     case "care": {

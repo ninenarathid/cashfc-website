@@ -136,7 +136,7 @@ begin
     herd := herd || jsonb_build_object('lastCare', now_);
     purse := purse || jsonb_build_object('coins', (purse->>'coins')::integer - price);
     touched := touched || jsonb_build_array(an);
-    got := jsonb_build_object('child', an->>'breed');
+    got := jsonb_build_object('child', an->>'breed', 'id', id_::text);
     notes := notes || jsonb_build_array(jsonb_build_array('animal_buy', 1, null, 0, jsonb_build_object('species', p_input->>'species', 'sex', sex_), -price));
 
   elsif act = 'shop' then
@@ -180,6 +180,12 @@ begin
     elsif act = 'name' then
       item := left(btrim(coalesce(p_input->>'name', '')), 16);
       if item ~ '[<>]' then return town.answer(me, town.no('name')); end if;
+      -- (its first name is free; a name changed after takes a rename tag, of Uncle Popoto's)
+      if coalesce(an->>'name', '') <> '' and item is distinct from an->>'name' then
+        if town.held(purse->'bag', 'renameTag') < 1 then return town.answer(me, town.no('tag')); end if;
+        purse := purse || jsonb_build_object('bag', town.take(purse->'bag', 'renameTag', 1));
+        notes := notes || jsonb_build_array(jsonb_build_array('animal_rename', 1, null, 0, jsonb_build_object('id', id_), 0));
+      end if;
       an := an || jsonb_build_object('name', item);
 
     elsif act = 'move' then
@@ -274,7 +280,7 @@ begin
       insert into public.town_animals (id, owner, a, changed) values (id2, me, cn, now_::bigint);
       herd := herd || jsonb_build_object('lastCare', now_);
       touched := touched || jsonb_build_array(cn);
-      got := jsonb_build_object('child', child, 'sex', cn->>'sex', 'stats', cn->'stats');
+      got := jsonb_build_object('child', child, 'sex', cn->>'sex', 'stats', cn->'stats', 'id', cn->>'id');
       notes := notes || jsonb_build_array(jsonb_build_array('animal_cradle', 1, 'animals', (kn->'points'->>'cradle')::integer, jsonb_build_object('id', id_, 'child', child), 0));
 
     elsif act = 'offer' then
@@ -468,7 +474,7 @@ begin
     cn := town.animal_new(gen_random_uuid(), me, an->>'species', child, born, false, home_, case when random() < 0.5 then 'm' else 'f' end, town.animal_child_stats(an, bn, k));
     insert into public.town_animals (id, owner, a, changed) values ((cn->>'id')::uuid, me, cn, now_::bigint);
     touched := touched || jsonb_build_array(cn);
-    got := jsonb_build_object('sex', cn->>'sex', 'stats', cn->'stats');
+    got := jsonb_build_object('sex', cn->>'sex', 'stats', cn->'stats', 'id', cn->>'id');
     -- (the twin cradle: a cross with a friend's animal gives its owner a baby too, once a day, if they have room)
     if helper and town.gift_works(purse, k->'gifts'->>'twin') then
       used_ := town.gift_use(purse, k->'gifts'->>'twin', now_::bigint);

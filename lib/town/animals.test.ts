@@ -410,6 +410,17 @@ describe("what Codex's check of the branch found (2026-10-20)", () => {
     const out = settle(chick({ food: 24 }), T0 + 16 * H, { door: [[T0, null]] });
     expect(out.outBands).toBe((1 << 2) | (1 << 3) | (1 << 4) | (1 << 5) | (1 << 6));
   });
+  it("names an animal free the first time; a later name takes a rename tag of Uncle Popoto's", () => {
+    const first = animalAction(world([chick()]), purseWith(0), { action: "name", id: "a1", name: "Pip" }, env(T0));
+    expect(first.world.animals[0].name).toBe("Pip");
+    expect(animalAction(first.world, purseWith(0), { action: "name", id: "a1", name: "Pippa" }, env(T0)).why).toBe("tag");
+    expect(animalAction(first.world, purseWith(0), { action: "name", id: "a1", name: "Pip" }, env(T0)).ok).toBe(true);
+    const tagged = animalAction(first.world, purseWith(0, [["renameTag", 2]]), { action: "name", id: "a1", name: "Pippa" }, env(T0));
+    expect([tagged.world.animals[0].name, held(tagged.purse.bag, "renameTag" as ItemId)]).toEqual(["Pippa", 1]);
+    expect(POPOTO_SHOP.renameTag).toBe(500);
+    // (a buy, a cross and the cradle tell the new one's id, for its name to be asked at once)
+    expect(animalAction(world(), purseWith(1000), { action: "buy", species: "chicken", sex: "f" }, env(T0)).got?.id).toBeTruthy();
+  });
   it("counts the warm bottle from the first step after it is had, never backwards", () => {
     const withBottle = { ...purseWith(0), gifts: { had: ["thingWarmBottle"], charms: [], owed: 0, familiar: null, used: {} } } as unknown as Purse;
     const first = animalAction(world([chick({ food: 24 })]), withBottle, { action: "pet", id: "a1" }, env(T0 + 10 * H));

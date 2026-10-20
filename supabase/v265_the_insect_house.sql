@@ -841,6 +841,7 @@ insert into public.town_catalog (key, data) values
     "calfGrow": {"kind":"goods","tier":2,"stack":20,"pays":20},
     "dewGrow": {"kind":"goods","tier":3,"stack":20,"pays":15},
     "packedRation": {"kind":"goods","tier":3,"stack":20,"pays":12},
+    "renameTag": {"kind":"goods","tier":2,"stack":20,"pays":0},
     "milker": {"kind":"tool","tier":1,"stack":1,"pays":90},
     "woolShears": {"kind":"tool","tier":1,"stack":1,"pays":30},
     "eggBasket": {"kind":"tool","tier":1,"stack":1,"pays":12},
