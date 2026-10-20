@@ -6,7 +6,7 @@
   "mounts": 61,
   "minions": 227,
   "rare": null,
-  "level": 96,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -26,7 +26,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-19"
+  "chg": "2026-10-20"
  },
  "15308846": {
   "name": "Aqua Eleison",
@@ -4339,7 +4339,7 @@
   "mounts": 265,
   "minions": 338,
   "rare": 535,
-  "level": 50,
+  "level": 100,
   "cc": null,
   "rare_ids": [
    847,
@@ -6661,7 +6661,7 @@
   "mounts": 122,
   "minions": 301,
   "rare": 67,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6880,7 +6880,7 @@
   "mounts": 57,
   "minions": 111,
   "rare": 2,
-  "level": 97,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -6901,7 +6901,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-19"
+  "chg": "2026-10-20"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -6940,7 +6940,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 63,
+  "level": 89,
   "cc": [
    false,
    false,
@@ -6953,7 +6953,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-19"
+  "chg": "2026-10-20"
  },
  "53933347": {
   "name": "Little Alyss",
@@ -7324,7 +7324,7 @@
   "mounts": 70,
   "minions": 104,
   "rare": 57,
-  "level": 91,
+  "level": 58,
   "cc": [
    false,
    false,
@@ -7401,7 +7401,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-19"
+  "chg": "2026-10-20"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -8366,7 +8366,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 85,
+  "level": 88,
   "cc": [
    false,
    false,
@@ -8708,7 +8708,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 100,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -8726,7 +8726,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-19"
+  "chg": "2026-10-20"
  },
  "60475540": {
   "name": "Joaline Auchefornei",

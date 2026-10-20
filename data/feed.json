@@ -2,6 +2,27 @@
  "events": [
   {
    "date": "2026-10-20",
+   "type": "level_100",
+   "id": 24228478,
+   "name": "Pyrozus Helison",
+   "text": "reached level 100 on Sage!"
+  },
+  {
+   "date": "2026-10-20",
+   "type": "level_100",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "reached level 100 on Sage!"
+  },
+  {
+   "date": "2026-10-20",
+   "type": "level_100",
+   "id": 39850923,
+   "name": "Hiro Hikari",
+   "text": "reached level 100 on Paladin!"
+  },
+  {
+   "date": "2026-10-20",
    "type": "rare_up",
    "id": 15308846,
    "name": "Aqua Eleison",
@@ -1378,27 +1399,6 @@
    "id": 15932791,
    "name": "Yuziris Andra'nov",
    "text": "reached level 100 on Summoner!"
-  },
-  {
-   "date": "2026-10-07",
-   "type": "rare_up",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "earned An Ode to Leathercraft — only 2.8% of players have it"
-  },
-  {
-   "date": "2026-10-07",
-   "type": "level_100",
-   "id": 31236337,
-   "name": "Whitefrost Marionette",
-   "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-10-07",
-   "type": "level_100",
-   "id": 42948817,
-   "name": "Karuma Amamiya",
-   "text": "reached level 100 on Viper!"
   }
  ]
 }
