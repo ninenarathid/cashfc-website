@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { nearFarmGate } from "./pasture";
 
 /**
  * The far side (the bridge, the blacksmith, the mountain's foot, the cave) is in every build, whatever NODE_ENV is; what
@@ -98,7 +99,8 @@ describe("the far side, in every build and reached only while it is open", () =>
     const smith = W.SMITH.tiles.map(([x, y]) => `${x},${y}`);
     const water = W.BRIDGE.tiles.flat().filter(([x, y]) => W.groundAt(x, y) === "water").map(([x, y]) => `${x},${y}`);
     // (and the farm's southern half, 2026-10-19, with the first half's south rim between the two cleared of its trees but for the east rim's corner, the lane run on south through it, and the west fence run on across the rim's foot: no other tile of the farm)
-    const southern = (x: number, y: number) => W.placeOf(x, y) === "farm" && (y >= W.FARM_FIRST.y + W.FARM_FIRST.h || (y >= W.FARM_FIRST.y + 41 && x - W.FARM.x < 57));
+    // (and, 2026-10-20, the trees of the garden's east rim by the animal farm's two gates: lib/town/pasture's nearFarmGate)
+    const southern = (x: number, y: number) => W.placeOf(x, y) === "farm" && (y >= W.FARM_FIRST.y + W.FARM_FIRST.h || (y >= W.FARM_FIRST.y + 41 && x - W.FARM.x < 57) || nearFarmGate(x - W.FARM.x, y - W.FARM.y));
     const turned = (): string[] => [...was].filter(([k, w]) => { const [x, y] = k.split(",").map(Number); return W.walkable(x, y) !== w; }).map(([k]) => k);
     expect(turned().filter((k) => southern(...(k.split(",").map(Number) as [number, number]))).length).toBeGreaterThan(1500);
     // (and the town's southern strip, with what stood on the lane down to it taken off it, 2026-10-19: no other tile of the town)

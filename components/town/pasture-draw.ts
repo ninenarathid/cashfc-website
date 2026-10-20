@@ -1,7 +1,8 @@
 import type { SceneryKit } from "@/lib/town/scenery";
 import { drawIcon, type IconName } from "./TownIcon";
 import type { Vec } from "@/lib/town/world";
-import { BUILDING_FIT, POPOTO_FRAMES, PROP_K, animalSprite, pastureScale, shornSprite, type AnimalFrame, type ArtStage, type Facing } from "@/lib/town/pasture-art";
+import { BUILDING_FIT, PASTURE_ART, POPOTO_FRAMES, PROP_K, TROUGH_ART, animalSprite, maleSprite, pastureScale, shornSprite, type AnimalFrame, type ArtStage, type Facing } from "@/lib/town/pasture-art";
+import { TROUGH, troughOf } from "@/lib/town/pasture";
 
 /**
  * The pasture drawn on the map: each thing by its picture in the pasture's sheet when the art piece has made it
@@ -31,7 +32,7 @@ const SIZE = ANIMAL_LEN;
 const BIRD = (sp: string) => sp === "chicken" || sp === "duck";
 const facingOf = (right: boolean): Facing => (right ? "SE" : "SW");
 
-export interface AnimalLook { species: string; breed: string; stage: ArtStage; pose: "walk" | "idle" | "eat" | "sleep" | "swim" | "happy"; right: boolean; shorn?: boolean }
+export interface AnimalLook { species: string; breed: string; stage: ArtStage; pose: "walk" | "idle" | "eat" | "sleep" | "swim" | "happy"; right: boolean; shorn?: boolean; /** A grown male (a rooster, a drake, a ram, a bull) has pictures of his own. */ sex?: "m" | "f" }
 /**
  * How large each kind's pictures are drawn: map pixels to one of the picture's own. Near the dolls' own (two thirds of
  * a map pixel, lib/town/pixeldoll's LALAFELL_SIZE), so that an animal's pixels are the size of the members' beside it,
@@ -45,15 +46,18 @@ export const animalK = (species: string, name: string) => (ANIMAL_K[species] ?? 
  * standing (a frame not drawn falls back to the animal, never to the stand-in). SE is the facing drawn; SW is SE
  * mirrored (ART-NEEDED: the page turns them by the way they go). Null while the sheet has no picture of the animal.
  */
-export function animalPicture(kit: SceneryKit | null, a: Pick<AnimalLook, "species" | "breed" | "stage" | "shorn" | "right">, frame: AnimalFrame): { name: string; mirror: boolean } | null {
+export function animalPicture(kit: SceneryKit | null, a: Pick<AnimalLook, "species" | "breed" | "stage" | "shorn" | "right" | "sex">, frame: AnimalFrame): { name: string; mirror: boolean } | null {
   if (!kit) return null;
   const want: AnimalFrame[] = [frame, ...(frame === "walk2" ? ["walk1" as const] : []), "idle"];
   const facing = facingOf(a.right);
+  // (a grown male is drawn by his own pictures, never by the female's, which would be the wrong animal: his stand-in until they come)
+  const male = a.sex === "m" && a.stage === "adult";
+  const nameOf = (fc: Facing, f: AnimalFrame) => (male ? maleSprite(a.breed, fc, f, !!a.shorn) : a.shorn ? shornSprite(a.breed, fc, f) : animalSprite(a.species, a.breed, a.stage, fc, f));
   for (const f of want) {
-    const own = a.shorn ? shornSprite(a.breed, facing, f) : animalSprite(a.species, a.breed, a.stage, facing, f);
+    const own = nameOf(facing, f);
     if (kit.has(own)) return { name: own, mirror: false };
     if (facing === "SW") {
-      const se = a.shorn ? shornSprite(a.breed, "SE", f) : animalSprite(a.species, a.breed, a.stage, "SE", f);
+      const se = nameOf("SE", f);
       if (kit.has(se)) return { name: se, mirror: true };
     }
   }
@@ -61,7 +65,7 @@ export function animalPicture(kit: SceneryKit | null, a: Pick<AnimalLook, "speci
   return a.shorn ? animalPicture(kit, { ...a, shorn: false }, frame) : null;
 }
 /** How large an animal is on the map at scale 1 (map pixels): its picture's, or its stand-in's. For taps, bubbles and cards. */
-export function animalSize(kit: SceneryKit | null, a: Pick<AnimalLook, "species" | "breed" | "stage">): { w: number; h: number } {
+export function animalSize(kit: SceneryKit | null, a: Pick<AnimalLook, "species" | "breed" | "stage" | "sex">): { w: number; h: number } {
   const p = animalPicture(kit, { ...a, right: true }, "idle");
   if (p && kit) { const [w, h] = kit.sizeOf(p.name), k = animalK(a.species, p.name); return { w: w * k, h: h * k }; }
   const len = lengthOf(a.species, a.stage);
@@ -131,6 +135,22 @@ export function drawAnimal(ctx: CanvasRenderingContext2D, kit: SceneryKit | null
   if (bird) { ctx.fillStyle = a.species === "duck" ? "#f0a030" : "#e8b030"; ctx.fillRect(hx + hr * 0.7, hy - hr * 0.15, hr * (a.species === "duck" ? 0.9 : 0.55), hr * 0.42); }
   if (!bird && a.stage !== "baby" && (mark === "horns" || a.species === "cow")) { ctx.fillStyle = mark === "horns" ? "#e8dcc0" : "#d8ccb0"; ctx.fillRect(hx - hr * 0.6, hy - hr * 1.3, hr * 0.3, hr * 0.55); ctx.fillRect(hx + hr * 0.2, hy - hr * 1.3, hr * 0.3, hr * 0.55); }
   if (mark === "glow" && !still) { ctx.globalAlpha = 0.25 + 0.15 * Math.sin(now / 400); ctx.fillStyle = accent; ctx.beginPath(); ctx.arc(-len * 0.4, cy, len * 0.18, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1; }
+  // ART: a grown male's marks on the stand-in until his own pictures come: a rooster's tall comb, wattle and sickle
+  // tail; a drake's green head and curl; a ram's curled horns; a bull's horns and nose ring
+  if (a.sex === "m" && a.stage === "adult") {
+    if (a.species === "chicken") {
+      ctx.fillStyle = "#d83a2a"; ctx.fillRect(hx - hr * 0.55, hy - hr * 1.9, hr * 1.1, hr * 0.9); ctx.fillRect(hx + hr * 0.45, hy + hr * 0.35, hr * 0.35, hr * 0.6);
+      ctx.fillStyle = shade(body, -0.45); ctx.beginPath(); ctx.moveTo(-len * 0.42, cy - h * 0.1); ctx.quadraticCurveTo(-len * 0.75, cy - h * 1.1, -len * 0.3, cy - h * 0.75); ctx.lineTo(-len * 0.3, cy - h * 0.4); ctx.fill();
+    } else if (a.species === "duck") {
+      ctx.fillStyle = "#2f7a4a"; ctx.beginPath(); ctx.arc(hx, hy, hr * 1.02, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = "#2a2a2a"; ctx.lineWidth = 0.9; ctx.beginPath(); ctx.arc(-len * 0.45, cy - h * 0.45, len * 0.06, Math.PI * 0.2, Math.PI * 1.6); ctx.stroke();
+    } else if (a.species === "sheep") {
+      ctx.strokeStyle = "#cdb98a"; ctx.lineWidth = Math.max(1.2, hr * 0.32); ctx.beginPath(); ctx.arc(hx - hr * 0.35, hy - hr * 0.1, hr * 0.62, Math.PI * 0.9, Math.PI * 2.3); ctx.stroke();
+    } else if (a.species === "cow") {
+      ctx.fillStyle = "#e8dcc0"; ctx.fillRect(hx - hr * 0.9, hy - hr * 1.25, hr * 0.5, hr * 0.32); ctx.fillRect(hx + hr * 0.4, hy - hr * 1.25, hr * 0.5, hr * 0.32);
+      ctx.strokeStyle = "#d8b040"; ctx.lineWidth = 0.9; ctx.beginPath(); ctx.arc(hx + hr * 0.75, hy + hr * 0.45, hr * 0.28, 0, Math.PI * 2); ctx.stroke();
+    }
+  }
   // eye: shut, asleep
   ctx.fillStyle = "#1a1410";
   if (lying) ctx.fillRect(hx + hr * 0.15, hy - hr * 0.1, hr * 0.5, Math.max(0.6, hr * 0.12)); else { ctx.beginPath(); ctx.arc(hx + hr * 0.35, hy - hr * 0.15, Math.max(0.7, hr * 0.16), 0, Math.PI * 2); ctx.fill(); }
@@ -195,8 +215,6 @@ export function drawBlock(ctx: CanvasRenderingContext2D, project: Project, r: { 
   poly([up(A), up(B), up(C), up(D)], top);
 }
 
-/** The middle between the gate's two posts' feet in each of its pictures (its own pixels), measured on them. */
-const GATE_MID: Readonly<Record<string, readonly [number, number]>> = { pa_gateShut: [49, 78], pa_gateOpen: [53, 71] };
 /** How large a meadow forage spot's plant stands, in map pixels at scale 1 (ART-NEEDED: about 16 to 20). */
 const FORAGE_SIZE = 20;
 /** Where the ox walks ahead of the wagon's point, in map pixels at scale 1 (its yoke at the shafts' ends; measured in the game). */
@@ -346,28 +364,192 @@ export function drawForage(ctx: CanvasRenderingContext2D, kit: SceneryKit | null
   ctx.restore();
 }
 
-/** The village gate (pa_gateShut, pa_gateOpen; a stand-in while the sheet has none): two posts and a field gate of three bars, swung open toward the meadow, or shut across. */
-export function drawGateArt(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, project: Project, g: { x: number; y: number; w: number }, open: boolean, s: number, px = 1) {
-  const name = open ? "pa_gateOpen" : "pa_gateShut";
-  const foot = project({ x: g.x + g.w / 2, y: g.y + 0.5 });
-  // (drawn running from the lower left up to the upper right, as the town's fence; the gate runs down to the right:
-  // mirrored. Both pictures stand by the middle between their two posts' feet, so the posts stay where they are as it opens)
-  if (kit?.has(name)) {
-    const k = s * (PROP_K[name] ?? 1), [ax, ay] = kit.anchorOf(name), [mx, my] = GATE_MID[name] ?? [ax, ay];
-    kit.drawProp(ctx, name, foot.x + (mx - ax) * k, foot.y - (my - ay) * k, k, px, 0, true);
-    return;
-  }
-  const L = project({ x: g.x - 0.1, y: g.y + 0.5 }), R = project({ x: g.x + g.w + 0.1, y: g.y + 0.5 });
+/* ── the animal farm's barns (lib/town/pasture's BARNS: 8 x 4 tiles each, the door in the middle of the front) ── */
+
+type Box = { x: number; y: number; w: number; h: number };
+/**
+ * A barn's door in its picture (pa_barn), in its own pixels from its walls' front corner (the footprint's lowest point),
+ * measured on it: bottom left, bottom right, top right, top left. The open door's stand-in is laid over it.
+ */
+const BARN_DOOR: ReadonlyArray<readonly [number, number]> = [[-216, -86], [-104, -46], [-104, -135], [-216, -175]];
+/** The colours of the barn's picture, for the stand-ins laid with it: its door's boards, its trim, its outline, its walls inside. */
+const BARN_INK = { door: "#6c2a1d", trim: "#dabf9a", line: "#2a170c", wall: "#5e2418", wallLit: "#7e3122", floor: "#7a5a36", plank: "#5f4428", straw: "#d8b45a", rail: "#8a5a32" } as const;
+/**
+ * A barn as seen from outside: its walls and roof (the old barn's picture, or the member's front if bought, drawn at the
+ * scale that makes its walls' foot the footprint), its door open or shut, at `alpha` (the roof coming off for whoever
+ * walks in).
+ */
+export function drawBarnOutside(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, project: Project, r: Box, art: string, s: number, px: number, open: boolean, alpha: number) {
+  if (alpha <= 0.01) return;
   ctx.save();
-  ctx.fillStyle = "#6a4a2a";
-  for (const p of [L, R]) { ctx.fillRect(p.x - 2.5 * s, p.y - 26 * s, 5 * s, 26 * s); ctx.fillStyle = "#8a6a3a"; ctx.fillRect(p.x - 3.5 * s, p.y - 28 * s, 7 * s, 3 * s); ctx.fillStyle = "#6a4a2a"; }
-  ctx.strokeStyle = "#b08a5a"; ctx.lineWidth = Math.max(1.5, 2.5 * s);
-  const bars = [8, 14, 20];
-  if (!open) for (const b of bars) { ctx.beginPath(); ctx.moveTo(L.x, L.y - b * s); ctx.lineTo(R.x, R.y - b * s); ctx.stroke(); }
-  else {
-    // swung in, toward the meadow (up the screen, to the right)
-    const hinge = L, tip = project({ x: g.x - 0.1, y: g.y - g.w + 0.5 });
-    for (const b of bars) { ctx.beginPath(); ctx.moveTo(hinge.x, hinge.y - b * s); ctx.lineTo(tip.x, tip.y - b * s); ctx.stroke(); }
+  ctx.globalAlpha *= alpha;
+  const name = kit?.has(art) ? art : PASTURE_ART.barn, fit = BUILDING_FIT[name];
+  if (!drawBuilding(ctx, kit, project, r, name, s, px)) {
+    // ART: the barn's plain stand-in while the sheet has none
+    drawHouse(ctx, project, r, { wall: "#8e3626", roof: "#5a3424", trim: BARN_INK.trim, wallH: 70, roofH: 56, door: 0.34, windows: 2 }, s);
+  } else if (open && fit) {
+    // ART: the door slid open (its two leaves along the wall either side, the barn dark inside) until the next art
+    // round's pa_barnDoorOpen; drawn in the picture's own pixels from its front corner, so it lies on the door it opens
+    const C = project({ x: r.x + r.w, y: r.y + r.h }), k = s * ((r.w + r.h) * 32) / fit.base;
+    const at = ([qx, qy]: readonly [number, number], dx = 0, dy = 0) => ({ x: C.x + (qx + dx) * k, y: C.y + (qy + dy) * k });
+    const [bl, br, tr, tl] = BARN_DOOR, half = [(br[0] - bl[0]) / 2, (br[1] - bl[1]) / 2] as const, tall = bl[1] - tl[1];
+    const quad = (pts: Vec[], fill: string, line?: string) => { ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y))); ctx.closePath(); ctx.fillStyle = fill; ctx.fill(); if (line) { ctx.strokeStyle = line; ctx.lineWidth = Math.max(1, 3 * k); ctx.stroke(); } };
+    // the dark inside, a little lighter on the floor
+    quad([at(bl), at(br), at(tr), at(tl)], "#1e130c", BARN_INK.line);
+    quad([at(bl), at(br), at(br, 0, -16), at(bl, 0, -16)], "#3a2614");
+    // the two leaves, slid aside along the wall
+    const leaf = (from: readonly [number, number]) => {
+      const a = at(from), b = at(from, half[0], half[1]), c = { x: b.x, y: b.y - tall * k }, d = { x: a.x, y: a.y - tall * k };
+      quad([a, b, c, d], BARN_INK.door, BARN_INK.line);
+      ctx.strokeStyle = BARN_INK.trim; ctx.lineWidth = Math.max(1, 4 * k);
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.lineTo(c.x, c.y); ctx.lineTo(d.x, d.y); ctx.closePath(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(c.x, c.y); ctx.moveTo(b.x, b.y); ctx.lineTo(d.x, d.y); ctx.stroke();
+    };
+    leaf([bl[0] - half[0] * 0.95, bl[1] - half[1] * 0.95]);
+    leaf([br[0] - half[0] * 0.05, br[1] - half[1] * 0.05]);
   }
   ctx.restore();
+}
+/**
+ * A barn as seen from inside, for whoever stands in it (its roof and walls off, as the cooking yard's are): its floor,
+ * its two back walls, the one trough along the back wall with a slot for each place (lib/town/pasture's troughOf), the
+ * nest and the hay in the front corners, a low sill where its front walls were. No stalls: its animals go about together
+ * (the owner, 2026-10-20). Each part is pushed with its own depth, so that whoever stands inside is drawn among them.
+ * ART: every part but the nest and the hay is a stand-in until the next art round's pa_barnInside and trough pieces.
+ */
+export function drawBarnInside(things: Array<{ depth: number; draw: () => void }>, ctx: CanvasRenderingContext2D, kit: SceneryKit | null, scenery: SceneryKit | null, project: Project,
+  b: Box & { nest: readonly [number, number]; hay: readonly [number, number] }, s: number, px: number, opts: { slots: Array<{ species: string; food: number } | null>; eggs: number; open: boolean; alpha: number }) {
+  const { x, y, w, h } = b, base = x + y, WALL = 64;
+  const P = (u: number, v: number) => project({ x: x + u, y: y + v });
+  const up = (p: Vec, k: number) => ({ x: p.x, y: p.y - k * s });
+  const poly = (pts: Vec[], fill: string, line?: string, lw = 1) => { ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y))); ctx.closePath(); ctx.fillStyle = fill; ctx.fill(); if (line) { ctx.strokeStyle = line; ctx.lineWidth = Math.max(1, lw * s); ctx.stroke(); } };
+  const fade = (draw: () => void) => () => { ctx.save(); ctx.globalAlpha *= opts.alpha; draw(); ctx.restore(); };
+  // the floor: boards along the barn, straw strewn in the stalls, the daylight through the door when it is open
+  things.push({ depth: base - 1, draw: fade(() => {
+    poly([P(0, 0), P(w, 0), P(w, h), P(0, h)], BARN_INK.floor, BARN_INK.line);
+    ctx.strokeStyle = BARN_INK.plank; ctx.lineWidth = Math.max(1, 0.8 * s);
+    for (let v = 0.5; v < h; v += 0.5) { const a = P(0, v), c = P(w, v); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(c.x, c.y); ctx.stroke(); }
+    ctx.fillStyle = BARN_INK.straw;
+    for (let i = 0; i < 70; i++) { const u = (((i * 37) % 97) / 97) * w, v = (((i * 53) % 89) / 89) * 2; const p = P(u, v); ctx.fillRect(Math.round(p.x), Math.round(p.y), Math.max(1, 2 * s), Math.max(1, s)); }
+    if (opts.open) poly([P(3, h), P(5, h), P(5, h - 1.6), P(3, h - 1.6)], "rgba(255,226,160,0.16)");
+  }) });
+  // the back walls: boards, a beam along the top, a window in the long one
+  things.push({ depth: base - 0.9, draw: fade(() => {
+    const A = P(0, 0), B = P(w, 0), D = P(0, h);
+    poly([D, A, up(A, WALL), up(D, WALL)], BARN_INK.wall, BARN_INK.line);
+    poly([A, B, up(B, WALL), up(A, WALL)], BARN_INK.wallLit, BARN_INK.line);
+    ctx.strokeStyle = "rgba(42,23,12,0.55)"; ctx.lineWidth = Math.max(1, 0.8 * s);
+    for (let u = 0.5; u < w; u += 0.5) { const p = P(u, 0); ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y - WALL * s); ctx.stroke(); }
+    for (let v = 0.5; v < h; v += 0.5) { const p = P(0, v); ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y - WALL * s); ctx.stroke(); }
+    for (const [p0, p1] of [[D, A], [A, B]] as const) poly([up(p0, WALL), up(p1, WALL), up(p1, WALL - 6), up(p0, WALL - 6)], BARN_INK.trim, BARN_INK.line);
+    const w0 = P(3.4, 0), w1 = P(4.6, 0);
+    poly([up(w0, 30), up(w1, 30), up(w1, 50), up(w0, 50)], "#f6d98a", BARN_INK.trim, 2);
+  }) });
+  // the one trough along the back wall: its two ends and a slot for each place, each slot its animal's feed and level
+  {
+    const tr = troughOf(b, opts.slots.length), u0 = tr.x0 - x, u1 = tr.x1 - x, V0 = 0.06, V1 = V0 + TROUGH.depth, H = 13;
+    // (behind whatever stands on the floor: it is against the back wall)
+    things.push({ depth: base + 0.5, draw: fade(() => {
+      // ART: a stand-in of the trough until the art round's ends and slots (pasture-art's TROUGH_ART)
+      if (drawTroughArt(ctx, kit, P, tr.slots.length, u0, V0, opts.slots, s, px)) return;
+      // the body: a long box of planks, its near face lit, its far side the wall's shadow, its inside dark
+      const side = (a: number, b2: number, h2: number, front: string, end: string, top: string) => {
+        const A = P(a, V0), B = P(b2, V0), C = P(b2, V1), D = P(a, V1);
+        poly([D, C, up(C, h2), up(D, h2)], front, BARN_INK.line);
+        poly([C, B, up(B, h2), up(C, h2)], end, BARN_INK.line);
+        poly([up(A, h2), up(B, h2), up(C, h2), up(D, h2)], top, BARN_INK.line);
+      };
+      side(u0, u1, H, "#9a6a3a", "#7a5030", "#2e1d10");
+      // (a plank's seam along the near face, and the rim)
+      { const a = up(P(u0, V1), H * 0.5), c = up(P(u1, V1), H * 0.5); ctx.strokeStyle = "#6e4a28"; ctx.lineWidth = Math.max(1, s); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(c.x, c.y); ctx.stroke(); }
+      { const a = up(P(u0, V1), H), c = up(P(u1, V1), H); ctx.strokeStyle = BARN_INK.trim; ctx.lineWidth = Math.max(1, 2 * s); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(c.x, c.y); ctx.stroke(); }
+      opts.slots.forEach((slot, k) => {
+        const a = u0 + TROUGH.end + k * TROUGH.slot, c = a + TROUGH.slot, fill = slot ? Math.max(0, Math.min(1, slot.food / 24)) : 0;
+        if (fill > 0.02 && slot) {
+          // the feed in the slot, heaped as high as it is full (half or full), its own colour, a few grains lit
+          const top = fill < 0.55 ? H - 6 : H - 1, ink = FEED_INK[slot.species] ?? "#c9a05a";
+          poly([up(P(a + 0.1, V0 + 0.08), top), up(P(c - 0.1, V0 + 0.08), top), up(P(c - 0.1, V1 - 0.08), top), up(P(a + 0.1, V1 - 0.08), top)], ink, shade(ink, -0.45));
+          ctx.fillStyle = shade(ink, 0.35);
+          for (let q = 0; q < 6; q++) { const p2 = up(P(a + 0.22 + (q % 3) * 0.25, V0 + 0.15 + Math.floor(q / 3) * 0.16), top + 1); ctx.fillRect(Math.round(p2.x), Math.round(p2.y), Math.max(1, 2 * s), Math.max(1, s)); }
+        }
+        // (a board between one slot and the next)
+        if (k < opts.slots.length - 1) { const d0 = up(P(c, V0), H + 1), d1 = up(P(c, V1), H + 1); ctx.strokeStyle = BARN_INK.line; ctx.lineWidth = Math.max(1, 3 * s); ctx.beginPath(); ctx.moveTo(d0.x, d0.y); ctx.lineTo(d1.x, d1.y); ctx.stroke(); ctx.strokeStyle = "#b07a48"; ctx.lineWidth = Math.max(1, 1.5 * s); ctx.beginPath(); ctx.moveTo(d0.x, d0.y); ctx.lineTo(d1.x, d1.y); ctx.stroke(); }
+      });
+      // the two ends: thick posts a little taller, capped
+      for (const [a, c] of [[u0, u0 + TROUGH.end * 0.6], [u1 - TROUGH.end * 0.6, u1]] as const) side(a, c, H + 6, "#7a5030", "#5e3c22", BARN_INK.trim);
+    }) });
+  }
+  // the nest (an egg in it while a bird's child is coming) and the hay
+  { const c = P(b.nest[0] - x + 0.5, b.nest[1] - y + 0.5);
+    things.push({ depth: b.nest[0] + b.nest[1] + 1, draw: fade(() => { if (!drawPastureProp(ctx, kit, opts.eggs ? PASTURE_ART.nestEgg : PASTURE_ART.nest, c.x, c.y + 4 * s, s, px)) drawBlock(ctx, project, { x: b.nest[0] + 0.1, y: b.nest[1] + 0.1, w: 0.8, h: 0.8 }, "#a07838", "#d8b050", 5, s); }) }); }
+  { const c = P(b.hay[0] - x + 0.5, b.hay[1] - y + 0.62);
+    things.push({ depth: b.hay[0] + b.hay[1] + 1, draw: fade(() => { if (scenery?.has("hay")) scenery.drawProp(ctx, "hay", c.x, c.y, s * 0.7, px); else drawBlock(ctx, project, { x: b.hay[0] + 0.1, y: b.hay[1] + 0.1, w: 0.8, h: 0.8 }, "#b08a3a", "#e8c860", 14, s); }) }); }
+  // the low sill where the front walls were, open at the door, and the door's two posts
+  things.push({ depth: base + w + h - 0.2, draw: fade(() => {
+    const SILL = 9;
+    for (const [u0, v0, u1, v1] of [[0, h, 3, h], [5, h, w, h], [w, h, w, 0]] as const) {
+      const a = P(u0, v0), c = P(u1, v1);
+      poly([a, c, up(c, SILL), up(a, SILL)], u0 === w ? BARN_INK.wall : BARN_INK.wallLit, BARN_INK.line);
+      poly([up(a, SILL), up(c, SILL), up(c, SILL + 3), up(a, SILL + 3)], BARN_INK.trim);
+    }
+    for (const u of [3, 5]) { const p = P(u, h); ctx.fillStyle = BARN_INK.line; ctx.fillRect(p.x - 3 * s, p.y - 26 * s, 6 * s, 26 * s); ctx.fillStyle = BARN_INK.trim; ctx.fillRect(p.x - 2 * s, p.y - 25 * s, 4 * s, 24 * s); }
+  }) });
+}
+
+/** The colour of each species' feed in its slot of the trough (its sack's grain, greens, clover or hay). */
+const FEED_INK: Record<string, string> = { chicken: "#e2bd52", duck: "#7fae4a", sheep: "#a6cf62", cow: "#c79a55" };
+/**
+ * The trough of the art round's pieces (pasture-art's TROUGH_ART: a left end, a slot empty or with a species' feed half
+ * or full, a right end), laid end to end along the back wall: false while the sheet has none of them.
+ */
+function drawTroughArt(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, P: (u: number, v: number) => Vec, n: number, u0: number, v0: number, slots: Array<{ species: string; food: number } | null>, s: number, px: number): boolean {
+  const A = TROUGH_ART;
+  if (!kit?.has(A.left) || !kit.has(A.right) || !kit.has(A.empty)) return false;
+  const at = (u: number) => P(u, v0 + TROUGH.depth / 2);
+  const k = s * (PROP_K[A.empty] ?? 0.67);
+  kit.drawProp(ctx, A.left, at(u0 + TROUGH.end / 2).x, at(u0 + TROUGH.end / 2).y, k, px);
+  for (let i = 0; i < n; i++) {
+    const sl = slots[i], fill = sl ? sl.food / 24 : 0, name = sl && fill > 0.02 ? A.feed(sl.species, fill < 0.55 ? "half" : "full") : A.empty;
+    const c = at(u0 + TROUGH.end + i * TROUGH.slot + TROUGH.slot / 2);
+    kit.drawProp(ctx, kit.has(name) ? name : A.empty, c.x, c.y, k, px);
+  }
+  const r = at(u0 + TROUGH.end + n * TROUGH.slot + TROUGH.end / 2);
+  kit.drawProp(ctx, A.right, r.x, r.y, k, px);
+  return true;
+}
+/**
+ * One side of a wide gate in the animal farm's fence (lib/town/pasture's FARM_GATES), always open: a tall post at the
+ * fence's end, and its leaf swung back against the garden's rim. ART: a stand-in in the fence's own wood until
+ * pa_farmGate.
+ */
+export function drawGateSide(ctx: CanvasRenderingContext2D, project: Project, gx: number, y: number, s: number) {
+  const a = project({ x: gx + 0.5, y }), c = project({ x: gx + 0.5 - 2.4, y });
+  // the leaf: three bars and a brace, its far end's stile
+  for (const [ink, lw] of [[BARN_INK.line, 3.6], ["#b07a48", 2]] as const) {
+    ctx.strokeStyle = ink; ctx.lineWidth = Math.max(1, lw * s);
+    for (const k of [10, 20, 30]) { ctx.beginPath(); ctx.moveTo(a.x, a.y - k * s); ctx.lineTo(c.x, c.y - k * s); ctx.stroke(); }
+    ctx.beginPath(); ctx.moveTo(a.x, a.y - 10 * s); ctx.lineTo(c.x, c.y - 30 * s); ctx.stroke();
+  }
+  ctx.fillStyle = BARN_INK.line; ctx.fillRect(c.x - 2.5 * s, c.y - 33 * s, 5 * s, 26 * s);
+  ctx.fillStyle = "#8a5a32"; ctx.fillRect(c.x - 1.5 * s, c.y - 32 * s, 3 * s, 24 * s);
+  // the post, capped
+  ctx.fillStyle = BARN_INK.line; ctx.fillRect(a.x - 4 * s, a.y - 46 * s, 8 * s, 46 * s);
+  ctx.fillStyle = "#7a4424"; ctx.fillRect(a.x - 3 * s, a.y - 45 * s, 6 * s, 44 * s);
+  ctx.fillStyle = "#9a5a30"; ctx.fillRect(a.x - 3 * s, a.y - 45 * s, 2 * s, 44 * s);
+  ctx.fillStyle = BARN_INK.line; ctx.fillRect(a.x - 5 * s, a.y - 50 * s, 10 * s, 6 * s);
+  ctx.fillStyle = "#8a4e28"; ctx.fillRect(a.x - 4 * s, a.y - 49 * s, 8 * s, 4 * s);
+}
+/** One side of Uncle Popoto's pen: a low rail fence along the paddock's back (drawn before what is in it) or front (after). ART: a stand-in until pa_penFence. */
+export function drawPenFence(ctx: CanvasRenderingContext2D, project: Project, r: Box, s: number, side: "back" | "front") {
+  const corners: Array<[number, number]> = [[r.x, r.y], [r.x + r.w, r.y], [r.x + r.w, r.y + r.h], [r.x, r.y + r.h]];
+  const edges: Array<[number, number]> = side === "back" ? [[3, 0], [0, 1]] : [[1, 2], [2, 3]];
+  for (const [i, j] of edges) {
+    const a = project({ x: corners[i][0], y: corners[i][1] }), c = project({ x: corners[j][0], y: corners[j][1] });
+    for (const [ink, lw] of [[BARN_INK.line, 3.4], ["#a06a3c", 2]] as const) {
+      ctx.strokeStyle = ink; ctx.lineWidth = Math.max(1, lw * s);
+      for (const k of [9, 18]) { ctx.beginPath(); ctx.moveTo(a.x, a.y - k * s); ctx.lineTo(c.x, c.y - k * s); ctx.stroke(); }
+    }
+    const n = Math.round(Math.hypot(corners[j][0] - corners[i][0], corners[j][1] - corners[i][1]));
+    for (let t = 0; t <= n; t++) { const p = { x: a.x + ((c.x - a.x) * t) / n, y: a.y + ((c.y - a.y) * t) / n }; ctx.fillStyle = BARN_INK.line; ctx.fillRect(p.x - 2.5 * s, p.y - 22 * s, 5 * s, 22 * s); ctx.fillStyle = "#8a5a32"; ctx.fillRect(p.x - 1.5 * s, p.y - 21 * s, 3 * s, 20 * s); }
+  }
 }

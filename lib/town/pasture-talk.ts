@@ -22,9 +22,11 @@ export function popotoHello(hour: number): Line {
   return HELLO[h >= 5 && h < 12 ? 0 : h >= 12 && h < 17 ? 1 : h >= 17 && h < 22 ? 2 : 3];
 }
 export const POPOTO_ASK: Line = { th: "วันนี้มาหาลุงเรื่องอะไรดี จะรับลูกสัตว์ หรือมาดูแลตัวที่มีอยู่", en: "What brings you, kiddo? A young one to take home, or the ones you have?" };
+/** Asked by one who has no barn yet: a barn comes first. */
+export const POPOTO_BARN: Line = { th: "อยากเลี้ยงสัตว์ต้องมีโรงก่อนนะหลาน มีโรงว่างให้เลือกอยู่ คนละหนึ่งโรง", en: "Animals need a barn first, kiddo. Pick a free one: one each." };
 /** Said while no pasture is kept for me yet (whoever keeps the game has none): he is getting ready. */
 export const POPOTO_SOON: Line[] = [
-  { th: "ลุงกำลังสร้างโรงนากับเล้าไก่อยู่ อีกไม่นานเปิดให้เลี้ยงสัตว์ได้", en: "I'm still building the barn and the coop. You can keep animals here soon." },
+  { th: "ลุงกำลังสร้างโรงเลี้ยงสัตว์อยู่ อีกไม่นานเปิดให้เลี้ยงสัตว์ได้", en: "I'm still building the barns. You can keep animals here soon." },
   { th: "ไว้เปิดแล้ว มารับลูกเจี๊ยบไปเลี้ยงสักตัวนะหลาน", en: "When it opens, come and take a chick home." },
 ];
 export const POPOTO_CHATS: Line[][] = [
@@ -38,12 +40,12 @@ export const POPOTO_CHATS: Line[][] = [
     { th: "แต่เพื่อนที่หลานอนุญาต ช่วยให้อาหาร ลูบหัว ให้ขนมได้ แถมเขาได้แต้มผู้ช่วยด้วย", en: "But friends you allow can feed them, pet them and give treats, and they earn helpers' points for it." },
   ],
   [
-    { th: "เช้าๆ ลองเปิดประตูทุ่งดูสิ สัตว์จะวิ่งออกไปกินหญ้า เดินเล่นถึงสวนผักเลย", en: "Open the meadow gate of a morning. They'll trot out to graze, right down to the vegetable garden." },
+    { th: "เช้าๆ ลองเปิดประตูโรงดูสิ สัตว์จะเดินออกไปกินหญ้า เดินเล่นถึงสวนผักเลย", en: "Open your barn door of a morning. They'll trot out to graze, right down to the vegetable garden." },
     { th: "ออกไปเที่ยวแล้วกินอาหารช้าลง แถมบางทีคาบของแปลกๆ กลับมาด้วยนะ", en: "Out there they eat slower, and now and then they bring back something odd." },
     { th: "ไก่กับเป็ดบางทีก็ไข่ทิ้งไว้ในทุ่ง ใครเห็นก็ได้ แต่เก็บได้แค่เจ้าของ", en: "Hens and ducks sometimes lay out in the grass. Anybody can see the eggs; only the owner can pick them up." },
   ],
   [
-    { th: "รังผสมพันธุ์อยู่หน้าประตูโรงนา เอาสองตัวชนิดเดียวกันกับของเซ่นหนึ่งอย่างมาวาง", en: "The breeding nest is at the barn door. Two of a kind and one offering, laid in it." },
+    { th: "รังผสมพันธุ์อยู่ในโรงของหลานเอง ตัวผู้กับตัวเมียชนิดเดียวกันกับของเซ่นหนึ่งอย่าง วางลงรัง", en: "The breeding nest is in your own barn: a male and a female of one kind and one offering, laid in it." },
     { th: "ของเซ่นแต่ละขั้นเป็นของคนละชนิด เมล็ดบ้าง แร่บ้าง ดอกไม้บ้าง ต้องลองเอาเอง", en: "Each step wants a different kind: a seed, a mineral, a flower. You find out by trying." },
     { th: "ได้ยินว่ามีพันธุ์แปลกๆ แบบในนิทานด้วยนะ ไก่เรืองแสง แกะสีรุ้ง ใครเจอก่อนได้จารึกชื่อในสมุด", en: "They say there are breeds out of the old stories: glowing hens, rainbow sheep. Whoever breeds one first has their name in the book." },
   ],

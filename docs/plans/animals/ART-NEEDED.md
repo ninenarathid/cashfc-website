@@ -78,6 +78,42 @@ curled horns, with a saddle for TWO riders: the page lifts the rider 24 px and t
 The fence and the rim's woods use the town's own scenery (`fence` mirrored along the pasture's first row, `tree`,
 `pine`, `bush`) and need nothing new.
 
+## 2b. The animal farm of round 6 (page piece round 2, branch `animals-page2`, 2026-10-20)
+
+The farm moved east of the garden (lib/town/pasture.ts): global x 188..239 beside the garden's rows 0..85. What the
+next art round draws for it, on these footprints (tiles are the map's 64 × 32; the town's pixel scale, light from the
+upper left; nothing pasted on):
+
+- **24 barns, each 8 × 4 tiles** (8 along x, the screen's down-right; 4 along y), `BARNS[i]` = west column
+  `[196, 205, 217, 226][i % 4]`, north row `[5, 16, 27, 47, 58, 69][i / 4 | 0]`. The old `pa_barn` fits it now (drawn
+  at 0.84 so its walls' foot is the footprint; `BUILDING_FIT`), its door on the long face that looks +y (the screen's
+  lower left). **Door**: the middle two tiles of the front row, `(x+3, y+3)` and `(x+4, y+3)`; a barn is walked into
+  and out of only straight through them (from `(x+3|x+4, y+4)`). Wanted: `pa_barnDoorOpen` (the doors slid aside, the
+  barn dark inside; the page draws a stand-in over the closed door now, its quad measured on pa_barn:
+  pasture-draw's `BARN_DOOR`), and the three fronts as before.
+- **The inside**, shown to whoever stands in the barn (its roof and walls fade off as the cooking yard's house does):
+  `pa_barnInside`, the floor and the two back walls (the -y wall along x, the -x wall along y) for an 8 × 4 floor, the
+  front walls cut down to a low sill with the door's gap. No stalls (the owner: "ในคอกสัตว์ไม่ต้องมี รั้วแยกแต่ละสัตว์").
+  Two things stand on the floor and stop a walker: the **nest** (front row's east tile `(x+7, y+3)`, `pa_nest` /
+  `pa_nestEgg`, art exists) and **hay** (front row's west tile `(x, y+3)`, the town's `hay` at 0.7 now).
+- **One trough** along the back wall (row `y`, against the wall at the barn's north edge), laid as **[left end][slot ×
+  room][right end]**: a slot is **1 tile** wide, an end **half a tile**; centred on the wall, so 2 slots run
+  x+2.5..x+5.5 and 4 slots x+1.5..x+6.5; depth about 0.45 of a tile (lib/town/pasture's `TROUGH`, `troughOf`). Pieces,
+  each standing by its middle on the wall's foot: `pa_troughLeft`, `pa_troughRight`, `pa_troughSlot` (empty) and
+  `pa_troughSlot_<species>_<half|full>` (chicken, duck, sheep, cow: each its own sack's feed): pasture-art's
+  `TROUGH_ART`. The page's stand-in draws the same shape until they come.
+- **The fence and its two wide gates**: the fence down x 188 (rows 1..18, 25..60, 67..84; the town's `fence`, along y);
+  the gates leave rows 19..24 and 61..66 open, a tall post at each end and a field gate's leaf swung back west along
+  the garden's rim: `pa_farmGate` (stand-in now, pasture-draw's `drawGateSide`).
+- **Uncle Popoto's pen**: a paddock x 189..192, y 26..31 (`PEN`), a low rail fence round it, whoever waits in it idling
+  inside: `pa_penFence` (stand-in now). His stall at (190..192, 17), himself at (191.1, 18.55), the making table at
+  (189..190, 14), the village trough at (189..190, 33), the wagon's stop at (191, 24).
+- **Males**: `an_<breed>_male_<facing>_<frame>` for a grown male of each breed (rooster, drake, ram, bull), and
+  `an_<breed>_male_shorn_<facing>_<frame>` for a shorn ram; the young of either sex look alike (pasture-art's
+  `maleSprite`). Until they come a male is drawn by his stand-in (never by the female's picture).
+- **Shorn sheep**: `an_<breed>_shorn_<facing>_<frame>`, shown after a shearing while its fleece is less than half
+  grown back (the page reads it from the round).
+
 ## 3. Uncle Popoto
 
 - On the map: `pp_stand`, `pp_wave`, `pp_show` (holding up a chick), `pp_laugh`: a popoto like the uncle, the banker and

@@ -87,7 +87,10 @@ export function startScale(cw: number, ch: number): number {
   return Math.min(MAX_SCALE, Math.max(fit, minScale(cw, ch), narrow(cw, ch) ? START_PHONE : START_DESK));
 }
 
-export const clampScale = (s: number, cw: number, ch: number, b: Bounds = BOUNDS.town) => Math.min(MAX_SCALE, Math.max(minScale(cw, ch, b), s));
+export const clampScale = (s: number, cw: number, ch: number, b: Bounds = BOUNDS.town) =>
+  // (`next dev`: the check scripts may look at a whole map from afar, `__townZoomFree`, for an overview picture)
+  process.env.NODE_ENV !== "production" && (globalThis as { __townZoomFree?: boolean }).__townZoomFree ? Math.min(MAX_SCALE, Math.max(0.2, s))
+    : Math.min(MAX_SCALE, Math.max(minScale(cw, ch, b), s));
 
 /** Keep the map on the screen (see the note at the top): the town, or whichever map's bounds are given. */
 export function clampCam(cam: Cam, cw: number, ch: number, b: Bounds = BOUNDS.town): Cam {

@@ -20,7 +20,7 @@ import { CAVE_SIZE, caveFloor, depthOf, hollowAt, type CaveFloor } from "./cave"
 import type { Current, FishingHabitat } from "./river-items";
 import { mountainWater } from "./mountain-water";
 // ── the pasture (lib/town/pasture: the farm's rows at negative y, laid out there; docs/plans/animals) ──
-import { PASTURE, inPasture, pastureGround, pastureThing } from "./pasture";
+import { PASTURE, barnWall, inPasture, nearFarmGate, pastureGround, pastureThing } from "./pasture";
 import { mountainRiverBed, mountainRiverGround } from "./river-landscape";
 import { ANCIENT as CEDAR, GATE_ROWS, LOOKOUT as LOOKOUT_AT, MOUNTAIN_H, MOUNTAIN_W, MOUTH as MINE_MOUTH, MOUTH_AT, cliffAt, closedOf, layMountain, mountainGround } from "./mountain";
 
@@ -887,10 +887,11 @@ export const FARM = { x: 128, y: 0, w: 60, h: 86 };
  */
 export const FARM_FIRST = { x: 128, y: 0, w: 60, h: 44 };
 /**
- * The farm with its pasture (the owner, 2026-10-19: "ขยายฟาร์มออกไปทางนั้นจริงๆ"): 32 rows more north-east of the old
- * rim, at negative y (lib/town/pasture lays them out). The garden's origin stays FARM's (128, 0), so no bed, plot,
- * well, lamp, prop or haunt moves; this is the farm's extent as a map: which map a point is on, the camera's and the
- * ground's bounds. (Built as it was, `asBuilt`, the farm has no pasture.)
+ * The farm with its animal farm (the owner, 2026-10-20: "ย้ายฟาร์มเลี้ยงสัตว์ มาเป็นอันใหญ่อันเดียวฝั่งนี้ดีกว่า 24 โรงเลี้ยง
+ * อยู่ตรงนี้เลย"): the garden's x 128..187 and, east of it, the animal farm's 188..239, beside the garden's rows 0..85
+ * (lib/town/pasture lays it out). The garden's origin stays FARM's (128, 0), so no bed, plot, well, lamp, prop or haunt
+ * moves; this is the farm's extent as a map: which map a point is on, the camera's and the ground's bounds. (Built as it
+ * was, `asBuilt`, the farm has no animal farm.)
  */
 export const FARM_ALL = { x: PASTURE.rect[0], y: PASTURE.rect[1], w: PASTURE.rect[2], h: PASTURE.rect[3] };
 /**
@@ -984,9 +985,10 @@ const farmNow = () => (asWas ? FARM_FIRST : FARM);
  * half was, the lane from north to south stopping at its rim and no lane across the southern half.
  */
 function farmGround(u: number, v: number, first = asWas): "road" | "field" | "grass" {
-  if ((v >= 21 && v < 23 && u < 58) || (u >= 29 && u < 31 && v >= 3 && v < (first ? 41 : 83))) return "road";
+  // (since the animal farm, 2026-10-20, the two roads run on through the east rim to its two gates: lib/town/pasture)
+  if ((v >= 21 && v < 23 && u < (first ? 58 : 60)) || (u >= 29 && u < 31 && v >= 3 && v < (first ? 41 : 83))) return "road";
   // (the southern half's lane runs from its gate at the west edge: the farm's second, since 2026-10-19)
-  if (!first && v >= 63 && v < 65 && u < 58) return "road";
+  if (!first && v >= 63 && v < 65 && u < 60) return "road";
   return isPlot(Math.floor(u), Math.floor(v)) ? "field" : "grass";
 }
 /**
@@ -1031,7 +1033,8 @@ export const FARM_PROPS_FIRST: Prop[] = (() => {
  * fence on down the west edge, hay where its lanes cross, and woods along its east and south.
  */
 export const FARM_PROPS: Prop[] = (() => {
-  const gap = (p: Prop) => p.y - FARM.y >= 41 && p.x - FARM.x < 57;
+  // (and, the owner, 2026-10-20, of the animal farm's two gates in the east rim: "ลบต้นไม้แถวๆประตูออกให้หมดด้วย")
+  const gap = (p: Prop) => (p.y - FARM.y >= 41 && p.x - FARM.x < 57) || nearFarmGate(p.x - FARM.x, p.y - FARM.y);
   const out = FARM_PROPS_FIRST.filter((p) => !["tree", "pine", "bush"].includes(p.kind) || (farmGround(p.x - FARM.x + 0.5, p.y - FARM.y + 0.5, false) === "grass" && !gap(p)));
   const taken = new Set<string>();
   const put = (kind: PropKind, u: number, v: number, solid = true) => {
@@ -1052,7 +1055,8 @@ export const FARM_PROPS: Prop[] = (() => {
     put(kind < 0.5 ? "tree" : kind < 0.8 ? "pine" : "bush", u, v);
     placed++;
   }
-  return out;
+  // (the southern half's woods as they were laid, but those by the animal farm's south gate)
+  return out.filter((p) => !["tree", "pine", "bush"].includes(p.kind) || !nearFarmGate(p.x - FARM.x, p.y - FARM.y));
 })();
 /** The farm's tiles that stop a walker: what stands on them, a fence's three, the shed's three, and the gateway's two posts either side of the lane. */
 const solidOf = (props: Prop[], pumpkins: Array<[number, number]>) => new Set([`${FARM.x + 1},${FARM.y + 20}`, `${FARM.x + 1},${FARM.y + 23}`, ...pumpkins.map(([u, v]) => `${FARM.x + u},${FARM.y + v}`), ...props.flatMap((p) => {
@@ -1966,6 +1970,8 @@ export function findPath(from: Vec, to: Vec): Vec[] | null {
       if (onDeck(nx, ny) !== onDeck(cur.x, cur.y) && !bySteps(cur.x, cur.y, nx, ny)) continue;
       // Into the finished yard and out of it only by its two ways in.
       if (overKerb(cur.x, cur.y, nx, ny)) continue;
+      // ── the pasture ── (into a barn and out of it only by its door, straight through it)
+      if (!asWas && barnWall(cur.x, cur.y, nx, ny)) continue;
       // Diagonals only where both sides are open, so nobody clips a corner. (But across the finished yard's floor
       // they are straight up, down and across the screen, which is how its furniture stands: there they are free.)
       if (dx && dy && (!walkable(cur.x + dx, cur.y) || !walkable(cur.x, cur.y + dy)) && !(onYard(cur.x, cur.y) && onYard(nx, ny))) continue;

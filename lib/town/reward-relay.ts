@@ -11,7 +11,7 @@ export function relayPlace(at: readonly number[]): string | null {
   if (at.length!==2 || !at.every(Number.isSafeInteger)) return null;
   const [x,y]=at;
   if(x>=0&&y>=0&&x<COLS&&y<ROWS)return "town"; // (64 × 80 since the town's southern strip, v290)
-  for(const [name,b] of [["farm",FARM_ALL],["forest",FOREST]] as const) // (the farm with its pasture: y -32..85 since v291)
+  for(const [name,b] of [["farm",FARM_ALL],["forest",FOREST]] as const) // (the farm with its animal farm: x 128..239, rows 0..85, since v291)
     if(x>=b.x&&y>=b.y&&x<b.x+b.w&&y<b.y+b.h)return name;
   return null;
 }
