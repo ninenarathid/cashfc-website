@@ -30,13 +30,13 @@ describe("what is worn is had from the game (the owner, 2026-10-17)", () => {
     expect(onlyOwned(look, had)).toBe(look);
   });
 
-  // (v277) the 46: unique ids, every thing of the bag worn into a thing that is there, every drop rule a line's
+  // (v277) the 46, and the animal line's herder and hat (2026-10-20): unique ids, every thing of the bag worn into a thing that is there, every drop rule a line's
   it("keeps every id once, and every thing of the bag is worn into a thing there is", () => {
     for (const list of [OUTFITS, HATS, FACE_WEAR, NECK_WEAR, HAIR_WEAR]) expect(new Set(list.map((w) => w.id)).size).toBe(list.length);
     const all = new Set([...OUTFITS, ...HATS, ...FACE_WEAR, ...NECK_WEAR, ...HAIR_WEAR].map((w) => w.id));
     for (const w of Object.values(DRESS_ITEMS)) expect(all.has(w!)).toBe(true);
     for (const id of Object.keys(WEAR_CRAFTS)) expect(WEAR_BAG[id as keyof typeof WEAR_BAG]).toBeTruthy();
-    expect([OUTFITS, HATS, FACE_WEAR, NECK_WEAR, HAIR_WEAR].map((l) => l.length)).toEqual([18, 17, 11, 13, 13]);
+    expect([OUTFITS, HATS, FACE_WEAR, NECK_WEAR, HAIR_WEAR].map((l) => l.length)).toEqual([19, 18, 11, 13, 13]);
   });
 
   it("drops what the deed, the thing, the hour and the rain agree with, and nothing without points", () => {

@@ -165,6 +165,16 @@
         "back": "the back of a cream long-sleeved blouse; the back of the short sleeveless waistcoat of bright woven wool in bold red, yellow and teal zigzag stripes with a black border; the full dark red skirt reaching the knee with its yellow hem band seen from behind; brown ankle boots seen from behind",
         "pose": " In both sitting poses, the skirt drapes continuously over the lap and upper thighs, with one continuous hem at the bent knees, rather than separate shorts-like leg openings; preserve the reference's hand, knee and foot positions and the readable bent-leg silhouette. In the sleeping pose, the skirt follows the bent hips and thighs without changing the leg positions."
       }
+    },
+    {
+      "id": "herder",
+      "front": "a cream linen shirt with its sleeves rolled up to just below the elbow and a red neckerchief knotted at the throat; over it patched denim-blue overalls with a bib front and two shoulder straps, one lighter blue square patch stitched on the bib and one on a knee, the legs ending just below the knee; tall glossy green rubber boots",
+      "back": "the back of a cream linen shirt with its sleeves rolled up to just below the elbow and a red neckerchief passing around the back of the neck, its knot and tails at the throat out of sight; the two shoulder straps of patched denim-blue overalls crossing in an X on the back, one lighter blue square patch on the seat, the legs ending just below the knee; tall glossy green rubber boots seen from behind",
+      "f": {
+        "front": "a cream linen blouse with short puffed sleeves and a red neckerchief knotted at the throat; over it a patched denim-blue pinafore dress with a bib front and two shoulder straps, one lighter blue square patch stitched on the bib and one near the hem, its skirt ending just above the knee; tall glossy green rubber boots",
+        "back": "the back of a cream linen blouse with short puffed sleeves and a red neckerchief passing around the back of the neck, its knot and tails at the throat out of sight; the two shoulder straps of a patched denim-blue pinafore dress crossing in an X on the back, one lighter blue square patch near the hem, its skirt ending just above the knee; tall glossy green rubber boots seen from behind",
+        "pose": " In both sitting poses, the skirt drapes continuously over the lap and upper thighs, with one continuous hem just above the bent knees, rather than separate shorts-like leg openings; preserve the reference's hand, knee and foot positions and the readable bent-leg silhouette. In the sleeping pose, the skirt follows the bent hips and thighs without changing the leg positions."
+      }
     }
   ],
   "hats": [
@@ -255,6 +265,13 @@
       "front": "a round orange pumpkin hat with deep ribs, a short curly green stem and one small green leaf on top",
       "back": "the same round orange ribbed pumpkin hat with its short curly green stem and small leaf, seen from behind",
       "key": "the pumpkin hat, including its stem and leaf"
+    },
+    {
+      "id": "herderhat",
+      "front": "a round woven straw hat with a narrow brim turned up at the sides, a brown leather band and a long white feather with two broad brown markings tucked into the band on the wearer's left side",
+      "back": "the same round woven straw hat with its narrow turned-up brim and brown leather band, and the same long white feather with two broad brown markings on the wearer's left side, seen from behind",
+      "key": "the straw hat, including its brim, band and the feather",
+      "more": "The feather rises diagonally upward and outward in a bold silhouette, its solid shaft visibly joined to the band; the whole hat and feather stay inside each figure's slot and the canvas."
     }
   ],
   "accessories": [

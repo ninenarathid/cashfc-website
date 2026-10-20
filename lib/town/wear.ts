@@ -74,6 +74,8 @@ export const OUTFITS: Wearable[] = [
   { id: "caver", th: "ชุดนักสำรวจถ้ำ", en: "Caver", from: at(6, "mining") },
   { id: "waiter", th: "ชุดบริกร", en: "Waiter", from: drop("kitchen", 0.01, { what: ["ladle"], how: { th: "มีคนตักจากหม้อเรา", en: "Others eating from my pot" } }) },
   { id: "weaver", th: "ชุดเสื้อกั๊กทอลาย", en: "Woven waistcoat", from: CRAFT },
+  // (the animal line, 2026-10-20)
+  { id: "herder", th: "ชุดคนเลี้ยงสัตว์", en: "Herder", from: at(3, "animals") },
 ];
 
 export const HATS: Wearable[] = [
@@ -95,6 +97,8 @@ export const HATS: Wearable[] = [
   { id: "beekeeper", th: "หมวกคนเลี้ยงผึ้ง", en: "Beekeeper's hat", from: at(6, "helpers") },
   { id: "traveller", th: "หมวกนักเดินทาง", en: "Traveller's hat", from: CRAFT },
   { id: "pumpkin", th: "หมวกฟักทอง", en: "Pumpkin hat", from: CRAFT },
+  // (the animal line, 2026-10-20)
+  { id: "herderhat", th: "หมวกคนเลี้ยงสัตว์", en: "Herder's hat", from: at(3, "animals") },
 ];
 
 /** Worn on the face, over the eyes. */
