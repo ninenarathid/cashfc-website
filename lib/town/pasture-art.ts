@@ -53,7 +53,11 @@ export const PASTURE_ART = {
  * makes that the footprint's width. Measured on the pictures (the README's "The pasture"); a front is the barn repainted.
  */
 export const BUILDING_FIT: Readonly<Record<string, { corner: readonly [number, number]; base: number }>> = {
-  pa_barn: { corner: [80, 0], base: 458 }, pa_barnFront1: { corner: [80, 0], base: 458 }, pa_barnFront2: { corner: [80, 0], base: 458 }, pa_barnFront3: { corner: [80, 0], base: 458 },
+  // (round 2: the barn drawn for its 8 x 4 footprint, its walls' foot at 0.47 and 0.45 to the map's 0.5; its door slid open and
+  // its inside are edits of it standing where it stands, each with its own measure)
+  pa_barn: { corner: [87, 0], base: 470 }, pa_barnFront1: { corner: [87, 0], base: 470 }, pa_barnFront2: { corner: [87, 0], base: 470 }, pa_barnFront3: { corner: [87, 0], base: 470 },
+  pa_barnDoorOpen: { corner: [86, 0], base: 470 }, pa_barnDoorOpenFront1: { corner: [86, 0], base: 470 }, pa_barnDoorOpenFront2: { corner: [86, 0], base: 470 }, pa_barnDoorOpenFront3: { corner: [86, 0], base: 470 },
+  pa_barnInside: { corner: [89, -5], base: 470 },
   pa_coop: { corner: [55, -3], base: 263 }, pa_nursery: { corner: [12, 0], base: 152 },
 };
 /**
@@ -66,6 +70,9 @@ export const PROP_K: Readonly<Record<string, number>> = {
   pa_wagon: 0.6, pa_wagonStop: 0.55, pa_gateShut: 1.1, pa_gateOpen: 1.1, pa_eggOutside: 0.45, pa_forageTaken: 0.45,
   pa_bubbleHungry: 1, pa_bubbleReady: 1, pa_bubbleReadyMilk: 1, pa_bubbleReadyWool: 1, pa_bubbleCare: 1,
   pp_stand: 0.8, pp_wave: 0.8, pp_show: 0.8, pp_laugh: 0.8,
+  // (the farm's gate side stands on its post's foot, its leaf up to the left; a pen fence segment on its lower-left post's
+  // foot, the next one 42 x -20 of its pixels on (one tile along y at 0.78; mirrored, along x))
+  pa_farmGate: 0.78, pa_penFence: 0.78,
   pa_ox_idle: 0.5, pa_ox_walk1: 0.5, pa_ox_walk2: 0.5, pa_ram_idle: 0.5, pa_ram_walk1: 0.5, pa_ram_walk2: 0.5,
 };
 /**

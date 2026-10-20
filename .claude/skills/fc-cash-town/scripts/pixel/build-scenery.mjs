@@ -252,7 +252,16 @@ const LAMPS = [
 const PASTURE = [
   // the barn (cows, sheep), drawn three times and the first chosen (README "The pasture"); its fronts a member buys are
   // edits of it, stood where it stands
-  ["pasture-barn", ["pa_barn"], "whole"],
+  // (round 2: drawn for the 8 x 4 footprint, N=3 on a 2:1 footprint guide, the first chosen: its walls' foot nearest the
+  // map's 2:1, 0.47 and 0.45; its door slid open and its inside are in-place edits of it, stood where it stands: the
+  // inside by the canvas (its walls cut down, nothing of the barn's lowest third is left to match by colour))
+  ["pasture-barn8", ["pa_barn"], "whole"],
+  ["pasture-barn8-open", ["pa_barnDoorOpen"], "whole", "pasture-barn8"],
+  // (its sill a single low board, so the front row of the floor shows: the first inside's sill hid it, and the nest on it)
+  ["pasture-barn8-inside2", ["pa_barnInside"], "whole", "pasture-barn8", undefined, { same: true }],
+  // the farm's wide gate (one side: its post and its leaf swung back; drawn post on the left, mirrored here so the leaf
+  // runs up to the left as the page lays it) and a low rail fence segment for Uncle Popoto's pen
+  ["pasture-farm-things", ["pa_farmGate", "pa_penFence", "_post"], undefined, undefined, undefined, { mirror: ["pa_farmGate"], foot: ["pa_farmGate", "pa_penFence"] }],
   // the coop (chickens, ducks) and the nursery hut beside it
   ["pasture-coop", ["pa_coop"], "whole"],
   ["pasture-nursery", ["pa_nursery", "_post"]],
@@ -287,6 +296,10 @@ const PASTURE_REPAINT = [
   ["pa_barn", "pa_barnFront1", 205, 0.62, 0.14],
   ["pa_barn", "pa_barnFront2", 105, 0.42, 0.12],
   ["pa_barn", "pa_barnFront3", 272, 0.5, 0.13],
+  // (the door slid open, in each front's paint)
+  ["pa_barnDoorOpen", "pa_barnDoorOpenFront1", 205, 0.62, 0.14],
+  ["pa_barnDoorOpen", "pa_barnDoorOpenFront2", 105, 0.42, 0.12],
+  ["pa_barnDoorOpen", "pa_barnDoorOpenFront3", 272, 0.5, 0.13],
 ];
 // ── end: pasture ──
 // Pixel art that came drawn (the owner's folder of 2026-10-05, "oatto-asset": kept in work/oatto like the sheets, and
@@ -461,14 +474,26 @@ for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: 
     if (how === "whole") {
       const ref = wholes.get(like);
       if (ref) {
-        const m = moveOnto(g, ref.g, ref.set);
+        // (`same`: an edit drawn in place on the same canvas stands on the same canvas point, whatever its colours)
+        const m = opts?.same ? { dx: Math.round((ref.grid.phx + ref.ax * ref.grid.p - grid.phx) / grid.p) - ref.ax, dy: Math.round((ref.grid.phy + ref.ay * ref.grid.p - grid.phy) / grid.p) - ref.ay, n: 1, of: 1 } : moveOnto(g, ref.g, ref.set);
         ax = ref.ax + m.dx; ay = ref.ay + m.dy;
         console.log(`  ${name}: stands where ${like} does, moved ${m.dx},${m.dy} (${m.n} of ${m.of} cells of its heaps agree)`);
         if (m.n < m.of * (opts?.least ?? 0.5)) throw new Error(`${sheet}: its heaps do not match ${like}'s (${m.n} of ${m.of}); it cannot be stood on the same ground point`);
       }
       wholes.set(sheet, { g, grid, set, ax, ay });
     }
-    pieces.push({ name, img: im, ax: ax - im.x0, ay: ay - im.y0 });
+    if (opts?.mirror?.includes(name)) {
+      const buf = Buffer.alloc(im.buf.length);
+      for (let r = 0; r < im.h; r++) for (let c = 0; c < im.w; c++) im.buf.copy(buf, (r * im.w + (im.w - 1 - c)) * 4, (r * im.w + c) * 4, (r * im.w + c) * 4 + 4);
+      pieces.push({ name, img: { ...im, buf }, ax: im.w - 1 - (ax - im.x0), ay: ay - im.y0 });
+    } else pieces.push({ name, img: im, ax: ax - im.x0, ay: ay - im.y0 });
+    // (`foot`: a piece laid end to end or by a post stands on its lowest point, a post's foot, not its middle)
+    if (opts?.foot?.includes(name)) {
+      const p = pieces.at(-1), { w, h, buf } = p.img, low = [];
+      for (let c = 0; c < w; c++) { let b = -1; for (let r = h - 1; r >= 0; r--) if (buf[(r * w + c) * 4 + 3] > 128) { b = r; break; } low.push(b); }
+      const m = Math.max(...low), cols = low.map((b, c) => (b === m ? c : -1)).filter((c) => c >= 0);
+      p.ax = Math.round((cols[0] + cols.at(-1)) / 2); p.ay = m;
+    }
     console.log(`${name.padEnd(9)} ${im.w}x${im.h}  (grid ${grid.p.toFixed(2)})`);
   });
   if (how === "pair") {

@@ -317,7 +317,7 @@ export default function TownPasture(props: PastureProps) {
       { const [tx, ty] = TROUGHS.village, c = project({ x: tx + 1, y: ty + 0.5 }); if (onScreen(c)) things.push({ depth: tx + ty + 1.5, draw: () => { if (!drawPastureProp(ctx, k, PASTURE_ART.villageTrough, c.x, c.y + 6 * s, s, px, true)) drawBlock(ctx, project, { x: tx + 0.1, y: ty + 0.25, w: 1.8, h: 0.5 }, "#7a5432", "#6aa8d8", 9, s); } }); }
       // ── the fence down the west edge, its two wide gates, the hay and the rim's woods
       for (const g of FARM_GATES) {
-        for (const y of [g.rows[0] - 0.05, g.rows[1] + 1.05]) { const c = project({ x: FENCE_X + 0.5, y }); if (onScreen(c)) things.push({ depth: FENCE_X + 0.5 + y, draw: () => drawGateSide(ctx, project, FENCE_X, y, s) }); }
+        for (const y of [g.rows[0] - 0.05, g.rows[1] + 1.05]) { const c = project({ x: FENCE_X + 0.5, y }); if (onScreen(c)) things.push({ depth: FENCE_X + 0.5 + y, draw: () => drawGateSide(ctx, project, FENCE_X, y, s, k, px) }); }
         const c = project({ x: FENCE_X + 0.5, y: g.road + 1 });
         // (from afar Uncle Popoto's own name says it: the gate's sign only close to)
         if (onScreen(c) && s >= 0.9) tag(g.name === "north" ? t("ฟาร์มเลี้ยงสัตว์ · ลุง Popoto", "Animal farm · Uncle Popoto") : t("ฟาร์มเลี้ยงสัตว์", "Animal farm"), c.x, c.y - 62 * s, "#e5cc80");
@@ -330,8 +330,8 @@ export default function TownPasture(props: PastureProps) {
       }
       // ── Uncle Popoto's pen: its fence about whatever waits in it
       { const c = project({ x: PEN.x + PEN.w / 2, y: PEN.y + PEN.h / 2 }); if (onScreen(c)) {
-        things.push({ depth: PEN.x + PEN.y + 0.2, draw: () => drawPenFence(ctx, project, PEN, s, "back") });
-        things.push({ depth: PEN.x + PEN.w + PEN.y + PEN.h - 0.2, draw: () => drawPenFence(ctx, project, PEN, s, "front") });
+        things.push({ depth: PEN.x + PEN.y + 0.2, draw: () => drawPenFence(ctx, project, PEN, s, "back", k, px) });
+        things.push({ depth: PEN.x + PEN.w + PEN.y + PEN.h - 0.2, draw: () => drawPenFence(ctx, project, PEN, s, "front", k, px) });
         out.push({ kind: "pen", x0: c.x - 70 * s, y0: c.y - 40 * s, x1: c.x + 70 * s, y1: c.y + 30 * s });
         if (s >= 0.9) tag(t("คอกฝากของลุง", "Uncle's pen"), c.x, c.y - 52 * s, "#e5cc80");
       } }

@@ -1,0 +1,5 @@
+The attached picture is a red barn from a cozy 2D town game. Redraw the same picture with everything in exactly the same place on the canvas, at the same size, in the same three-quarter top-down view, with the same chunky pixel size and the same thick dark outline.
+
+Change only this: the big double sliding door in the middle of the long side is slid open: its two halves have slid apart along their iron rail, each now covering the wall beside the doorway, and the doorway between them is open and dark inside, a dim plank floor with a little golden straw just inside the threshold. Keep both door halves their original size. Extend the iron rail along the wall above their full travel. The slid door halves may obscure the windows; keep the windows unchanged behind them. The walls' foot, the roof and everything else stay exactly as they are.
+
+Use the same pixel size as the attached picture: do not make the pixels smaller or larger. Crisp pixel art with hard square pixel edges, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground, no shadows, no text, no labels.
