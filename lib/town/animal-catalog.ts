@@ -7,7 +7,7 @@ import {
   SPECIES_IDS, starterOf,
 } from "./animals";
 import { ANIMAL_GIFTS, POPOTO_SHOP, TOOL_OF } from "./animal-act";
-import { ANIMAL_GRADED, FAMILY, FORAGE_BANDS } from "./animal-items";
+import { ANIMAL_GRADED, FAMILY, FARM_FAMILY, FORAGE_BANDS } from "./animal-items";
 import { EGG_SPOTS, WAGON_STOPS } from "./pasture";
 
 export function animalsRow() {
@@ -39,5 +39,6 @@ export function animalsRow() {
     produce: BREEDS.map((b) => b.produce),
     graded: ANIMAL_GRADED,
     family: FAMILY,
+    farmFamily: FARM_FAMILY,
   };
 }

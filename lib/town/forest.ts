@@ -122,8 +122,9 @@ export const KINDS: Record<SpotKind, Kind> = {
     { item: "raspberry", weight: 100, n: [2, 3], zones: ["woods", "rise"] },
     { item: "wildStrawberry", weight: 40, n: [1, 2], zones: ["edge"] },
   ] },
+  // (no eggs in a nook since the pasture, v291: the owner, 2026-10-20, "เลิกทำให้ไข่ไก่ ดรอปในป่าด้วย เดี๋ยวจะซ้ำซ้อน";
+  // eggs are the hens' and the uncle's)
   nook: { how: "pick", every: 120, chance: 0.5, shares: 2, cost: 1, finds: [
-    { item: "egg", weight: 60, n: [1, 2], zones: ["edge", "woods"] },
     { item: "silkCocoon", weight: 40, n: [1, 1], zones: ["bamboo", "woods"] },
     { item: "feather", weight: 20, n: [1, 2] },
   ] },

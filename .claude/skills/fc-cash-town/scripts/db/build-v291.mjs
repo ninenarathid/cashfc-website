@@ -42,7 +42,7 @@ export const PATCHES = [
     "begin\n  -- v291: the pasture's deeds carry their own points, written by public.town_animals alone (animals: the line's; helpers: friend care, 30 a day)\n  if what like 'animal\\_%' and doc ? 'line' and doc ? 'pts' and doc->>'line' in ('animals', 'helpers') then\n    return jsonb_build_array(jsonb_build_object('to', null, 'line', doc->>'line', 'raw', least(200, greatest(0, (doc->>'pts')::double precision))));\n  end if;\n  if p_done->>'from' = 'play' then", 1]]],
   ["town.market_things(jsonb)", [[
     "case when t.kind in ('dish', 'goods', 'staple') then (p_k->>'made')::int",
-    "case when t.kind in ('dish', 'goods', 'staple') and not coalesce(town.cat('animals')->'produce' ? t.id, false) then (p_k->>'made')::int", 1]]],
+    "case when t.kind in ('dish', 'goods', 'staple') and not coalesce(town.cat('animals')->'graded' ? t.id, false) then (p_k->>'made')::int", 1]]],
   ["town.reward_relay_place(jsonb)", [[
     "(at_->>1)::integer between 0 and 85 then 'farm'",
     `(at_->>1)::integer between ${relayFrom} and ${relayTo} then 'farm'`, 1]]],
@@ -106,7 +106,7 @@ returns boolean language sql stable set search_path='' as $$
 $$;
 create or replace function town.grade_pays(p_item text, p_grade integer)
 returns numeric language sql stable set search_path='' as $$
- select case when town.cat('items')->p_item->>'kind' = 'crop' or coalesce(town.cat('animals')->'produce' ? p_item, false)
+ select case when town.cat('items')->p_item->>'kind' = 'crop' or coalesce(town.cat('animals')->'graded' ? p_item, false)
    then (array[1, 1.25, 1.75, 2.5]::numeric[])[coalesce(p_grade, 0) + 1] else 1 end
 $$;
 -- (town.made_of: its live text kept as town.made_of_exact, once; made_of reads a pot as it is, then as its families)
@@ -119,10 +119,12 @@ begin
 end $$;
 create or replace function town.made_of(p_things jsonb)
 returns text language sql stable set search_path = '' as $$
-  -- v291: as it is, then (when it holds a breed's egg, milk or wool, or farm cheese) as its families
+  -- v291: as it is, then (when it holds a breed's egg, milk or wool, or farm cheese) as its families, then (for the
+  -- pasture's makings, which ask for farm milk) any breed's milk as farm milk: never the uncle's own milk
   select coalesce(town.made_of_exact(p_things),
     case when exists (select 1 from jsonb_array_elements(p_things) x where town.cat('animals')->'family' ? (x->>0))
-      then town.made_of_exact((select jsonb_agg(jsonb_build_array(coalesce(town.cat('animals')->'family'->>(x->>0), x->>0), x->1)) from jsonb_array_elements(p_things) x)) end)
+      then coalesce(town.made_of_exact((select jsonb_agg(jsonb_build_array(coalesce(town.cat('animals')->'family'->>(x->>0), x->>0), x->1)) from jsonb_array_elements(p_things) x)),
+        town.made_of_exact((select jsonb_agg(jsonb_build_array(coalesce(town.cat('animals')->'farmFamily'->>(x->>0), x->>0), x->1)) from jsonb_array_elements(p_things) x))) end)
 $$;
 revoke all on function town.carries_grade(text), town.grade_pays(text, integer), town.made_of(jsonb), town.made_of_exact(jsonb) from public, anon, authenticated;
 
@@ -163,11 +165,18 @@ ${groundFarm ? `update public.town_catalog set data = jsonb_set(data, '{maps}', 
 ${nectarFarm ? `update public.town_catalog set data = jsonb_set(data, '{nectar,maps}', (select jsonb_agg(case when m = ${json(["farm", ...FARM_WAS])} then ${json(nectarFarm)} else m end order by o) from jsonb_array_elements(data->'nectar'->'maps') with ordinality x(m, o))), updated_at = now() where key = 'insects';` : ""}
 ${nurseryFarm ? `update public.town_catalog set data = jsonb_set(data, '{nurseryBoxes}', (select jsonb_agg(case when m = ${json(FARM_WAS)} then ${json(nurseryFarm)} else m end order by o) from jsonb_array_elements(data->'nurseryBoxes') with ordinality x(m, o))), updated_at = now() where key = 'rewards' and data ? 'nurseryBoxes';` : ""}
 
+-- (no eggs in the forest's nooks: the owner, 2026-10-20, "เลิกทำให้ไข่ไก่ ดรอปในป่าด้วย เดี๋ยวจะซ้ำซ้อน"; eggs are the hens' and the uncle's)
+update public.town_catalog set data = jsonb_set(data, '{kinds,nook,finds}', (select coalesce(jsonb_agg(f order by o), '[]'::jsonb)
+    from jsonb_array_elements(data->'kinds'->'nook'->'finds') with ordinality x(f, o) where f->>'item' <> 'egg')), updated_at = now()
+ where key = 'forest' and exists (select 1 from jsonb_array_elements(data->'kinds'->'nook'->'finds') f where f->>'item' = 'egg');
+
 -- ── 8. Each as it is meant to be, or nothing of this stays ──────────────────────────────────────────────────────────────
 do $$ begin
   if town.cat('animals') is null or town.cat('animals')->'species'->'cow' is null then raise exception 'v291: the catalog has no animals'; end if;
   if town.made_of('[["farmEgg", 2], ["oil", 1]]'::jsonb) is distinct from 'omelette' then raise exception 'v291: a farm egg is no egg in the kitchen'; end if;
-  if town.grade_pays('farmEgg', 3) <> 2.5 or not town.carries_grade('farmMilk') then raise exception 'v291: the grade of what an animal gives'; end if;
+  if town.grade_pays('farmEgg', 3) <> 2.5 or town.grade_pays('butter', 3) <> 2.5 or not town.carries_grade('farmMilk') then raise exception 'v291: the grade of what an animal gives'; end if;
+  if town.made_of('[["milk", 2]]'::jsonb) is not null or town.made_of('[["jerseyMilk", 2]]'::jsonb) is distinct from 'cream' then raise exception 'v291: cream of farm milk alone'; end if;
+  if exists (select 1 from jsonb_array_elements(town.cat('forest')->'kinds'->'nook'->'finds') f where f->>'item' = 'egg') then raise exception 'v291: an egg in the forest'; end if;
   if town.reward_relay_place('[150,${relayFrom}]'::jsonb) is distinct from 'farm' then raise exception 'v291: the farm''s new rows'; end if;
   if not (town.cat('work')->'ids' ? 'animals') then raise exception 'v291: the line is not in work'; end if;
 end $$;

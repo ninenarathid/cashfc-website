@@ -13,7 +13,7 @@ import { STAMINA, begun, hasBuff, mayEat, nextMealAt, sitDown, spend } from "./s
 import type { TimingMods } from "./timing";
 import { carriesGrade, gradeIn, held, heldStack, no, put, roomFor, take, usedGrade, type BasketEntry, type Done, type Purse, type Refusal, type Stack } from "./trade";
 import { asGrade } from "./quality";
-import { FAMILY } from "./animal-items";
+import { FAMILY, FARM_FAMILY } from "./animal-items";
 
 /**
  * Cooking and serving, as rules (the owner, 2026-10-03, and the bowls of 2026-10-04).
@@ -171,7 +171,10 @@ function madeExactly(things: Array<[ItemId, number]>): ItemId | null {
 }
 /** What some things are the makings of, whoever cooks them: a dish, or something else that is made; or nothing. */
 export function madeOf(things: Array<[ItemId, number]>): ItemId | null {
-  return madeExactly(things) ?? (hasFamily(things) ? madeExactly(asFamily(things)) : null);
+  if (madeExactly(things)) return madeExactly(things);
+  if (!hasFamily(things)) return null;
+  // (as its families: any breed's egg an egg, any milk milk; then, for the pasture's makings, any breed's milk farm milk)
+  return madeExactly(asFamily(things)) ?? madeExactly(things.map(([id, n]) => [(FARM_FAMILY[id] ?? id) as ItemId, n]));
 }
 /** What making a thing takes: its cookware, and how many cooks. */
 export const takes = (id: ItemId): { in: Cookware[]; cooks: number } =>

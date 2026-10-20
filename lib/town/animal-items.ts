@@ -52,13 +52,13 @@ export const ANIMAL_ITEMS = {
   flowerMilk: goods("นมดอกไม้", "Flower milk", "นมสีขาวมีกลีบดอกไม้เล็กๆ ลอยอยู่", "White milk with tiny petals floating in it", 15, 3),
   starMilk: goods("นมดาว", "Star milk", "นมสีกรมท่าที่มีประกายเหมือนทางช้างเผือก", "Midnight-blue milk sparkling like the Milky Way", 20, 3),
   // ── what is made of them (kitchen preparations: they keep the lowest grade that went in) ──
-  cream: goods("ครีมสด", "Fresh cream", "ครีมขาวข้นในถ้วยดินเผา", "Thick white cream in an earthenware cup", 22),
-  butter: goods("เนยสด", "Butter", "ก้อนเนยสีเหลืองอ่อนห่อผ้าขาว", "A pale yellow block wrapped in cloth", 46),
-  farmCheese: goods("ชีสฟาร์ม", "Farm cheese", "ชีสก้อนกลมเปลือกสีเหลืองนวล", "A round cheese with a pale yellow rind", 34),
-  yarn: goods("ไหมพรม", "Yarn", "ไหมพรมขาวนุ่มม้วนเป็นกลุ่ม", "A soft white ball of yarn", 26),
-  woolScarf: goods("ผ้าพันคอถัก", "Knitted scarf", "ผ้าพันคอถักลายเปียสีขาวนวล", "A cream scarf knitted in cables", 60),
-  rainbowScarf: goods("ผ้าพันคอสายรุ้ง", "Rainbow scarf", "ผ้าพันคอถักเป็นริ้วเจ็ดสี", "A scarf knitted in seven-coloured stripes", 90, 3),
-  starScarf: goods("ผ้าพันคอดาว", "Star scarf", "ผ้าพันคอสีน้ำเงินเข้มมีจุดเรืองแสงระยิบ", "A deep-blue scarf twinkling with glowing specks", 90, 3),
+  cream: goods("ครีมสด", "Fresh cream", "ครีมขาวข้นในถ้วยดินเผา", "Thick white cream in an earthenware cup", 27),
+  butter: goods("เนยสด", "Butter", "ก้อนเนยสีเหลืองอ่อนห่อผ้าขาว", "A pale yellow block wrapped in cloth", 73),
+  farmCheese: goods("ชีสฟาร์ม", "Farm cheese", "ชีสก้อนกลมเปลือกสีเหลืองนวล", "A round cheese with a pale yellow rind", 44),
+  yarn: goods("ไหมพรม", "Yarn", "ไหมพรมขาวนุ่มม้วนเป็นกลุ่ม", "A soft white ball of yarn", 32),
+  woolScarf: goods("ผ้าพันคอถัก", "Knitted scarf", "ผ้าพันคอถักลายเปียสีขาวนวล", "A cream scarf knitted in cables", 86),
+  rainbowScarf: goods("ผ้าพันคอสายรุ้ง", "Rainbow scarf", "ผ้าพันคอถักเป็นริ้วเจ็ดสี", "A scarf knitted in seven-coloured stripes", 92, 3),
+  starScarf: goods("ผ้าพันคอดาว", "Star scarf", "ผ้าพันคอสีน้ำเงินเข้มมีจุดเรืองแสงระยิบ", "A deep-blue scarf twinkling with glowing specks", 92, 3),
   goldenScarf: goods("ผ้าพันคอขนทองคำ", "Golden scarf", "ผ้าพันคอถักจากเส้นสีทองเปล่งประกาย", "A scarf knitted of shining golden thread", 120, 3),
   prism: goods("ปริซึมแสงรุ้ง", "Rainbow prism", "แท่งผลึกใสที่แตกแสงเป็นสีรุ้งบนพื้น", "A clear crystal bar that throws rainbows on the ground", 20, 3),
   // ── what they eat ──
@@ -125,8 +125,8 @@ export const FAMILY: Readonly<Record<string, string>> = {
   ...Object.fromEntries(BREEDS.filter((b) => b.species === "sheep" && b.produce !== "wool").map((b) => [b.produce, "wool"])),
   farmCheese: "cheese",
 };
-/** What carries a grade among the pasture's things: everything an animal gives, and what is made of it for the kitchen. */
-export const ANIMAL_GRADED: readonly string[] = [...BREEDS.map((b) => b.produce), "cream", "butter", "farmCheese", "yarn"];
+/** What carries a grade among the pasture's things: everything an animal gives, and what is made of it; each pays by its grade when sold (lib/town/trade gradePays), and falls when oversold (lib/town/market). */
+export const ANIMAL_GRADED: readonly string[] = [...BREEDS.map((b) => b.produce), "cream", "butter", "farmCheese", "yarn", "woolScarf", "rainbowScarf", "starScarf", "goldenScarf"];
 
 export type AnimalDishId = "custard" | "pancakes" | "cheesecake" | "butterCookies" | "quiche" | "lanternCustard" | "cloudSouffle" | "goldenOmelette"
   | "emberBakedEggs" | "rainBroth" | "moonPudding" | "paperFish" | "leviathanEggCup" | "strawberryShake" | "hotCocoa" | "flowerLatte" | "starPudding";
@@ -164,10 +164,16 @@ export const BREED_SCROLL_ITEMS: Record<string, Item> = Object.fromEntries(SPECI
 })));
 
 /** What is made by hand at the barn's table, as the kitchen's preparations are. */
+/**
+ * The pasture's makings take only what an animal gave: cream and cheese ask for farm milk, and any breed's milk stands in
+ * for it (lib/town/cooking's madeOf, its third look), never the uncle's own milk (he sells it at 9: a churn would turn it
+ * into butter worth 73). A kitchen dish still takes any milk.
+ */
+export const FARM_FAMILY: Readonly<Record<string, string>> = Object.fromEntries(BREEDS.filter((b) => b.species === "cow" && b.produce !== "farmMilk").map((b) => [b.produce, "farmMilk"]));
 export const ANIMAL_MAKES: Partial<Record<string, Make>> = {
-  cream: { needs: [["milk", 2]], in: ["churn"], gives: 1 },
+  cream: { needs: [["farmMilk", 2]], in: ["churn"], gives: 1 },
   butter: { needs: [["cream", 2]], in: ["churn"], gives: 1 },
-  farmCheese: { needs: [["milk", 3], ["salt", 1]], in: ["cheesePress"], gives: 1 },
+  farmCheese: { needs: [["farmMilk", 3], ["salt", 1]], in: ["cheesePress"], gives: 1 },
   yarn: { needs: [["wool", 2]], in: ["spindle"], gives: 1 },
   woolScarf: { needs: [["yarn", 2]], in: ["knittingNeedles"], gives: 1 },
   rainbowScarf: { needs: [["rainbowWool", 2], ["yarn", 1]], in: ["knittingNeedles"], gives: 1 },

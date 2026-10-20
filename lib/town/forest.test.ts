@@ -32,8 +32,9 @@ describe("the forest's things (the owner, 2026-10-05: \"หาของป่า
       expect(ITEMS[id].tier).toBe(1);
       expect(FINDS).toContain(id);
     }
-    // besides its own, the forest gives two things the uncle sells: a worm, and an egg he has not opened yet
-    expect(FINDS.filter((id) => ITEMS[id].kind !== "wild").sort()).toEqual(["egg", "worm"]);
+    // besides its own, the forest gives one thing the uncle sells: a worm (eggs, since v291, are the hens' and the uncle's:
+    // the owner, 2026-10-20, "เลิกทำให้ไข่ไก่ ดรอปในป่าด้วย เดี๋ยวจะซ้ำซ้อน")
+    expect(FINDS.filter((id) => ITEMS[id].kind !== "wild").sort()).toEqual(["worm"]);
     // a toadstool is worth nothing to anybody; nothing else of the forest's is
     for (const id of wild) expect(ITEMS[id].pays > 0).toBe(id !== "toadstool");
     // universal, and a few of no country at all as the rare finds (the owner: "ใช้ของประเทศไหนก็ได้ หรือจะแฟนตาซีก็ได้")
@@ -42,7 +43,7 @@ describe("the forest's things (the owner, 2026-10-05: \"หาของป่า
 
   it("can all be had: with empty hands, and what is dug with a hoe", () => {
     const bare = sources(["bowl"]);
-    for (const k of SPOT_KINDS) for (const f of KINDS[k].finds) expect(bare.get(f.item) === "forest").toBe(KINDS[k].how !== "dig" || f.item === "egg" || bare.has(f.item));
+    for (const k of SPOT_KINDS) for (const f of KINDS[k].finds) expect(bare.get(f.item) === "forest").toBe(KINDS[k].how !== "dig" || bare.has(f.item));
     expect(bare.get("toadstool")).toBe("forest");
     expect(bare.has("truffle")).toBe(false);
     const dug = sources(["hoe"]);
@@ -51,7 +52,7 @@ describe("the forest's things (the owner, 2026-10-05: \"หาของป่า
     for (const stage of [0, 5, 80]) for (const [id, from] of sourcesAt(stage)) { expect(from).not.toBe("forest"); expect(ITEMS[id].kind).not.toBe("wild"); }
     expect(sourcesAt(0).has("egg")).toBe(false);
     expect(sourcesAt(0).has("mushroomSoup")).toBe(false);
-    expect(sourcesAt(0, true).get("egg")).toBe("forest");
+    expect(sourcesAt(0, true).get("egg")).not.toBe("forest");
     expect(sourcesAt(0, true).get("mushroomSoup")).toBe("kitchen");
   });
 

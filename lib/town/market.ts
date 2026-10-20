@@ -1,6 +1,7 @@
 import { BAITS, CROPS, FISH, FLOTSAM, ITEMS, KEPT_BAITS, type ItemKind } from "./items";
-import { BREEDS } from "./animals";
-const ANIMAL_PRODUCE = new Set<string>(BREEDS.map((b) => b.produce));
+import { ANIMAL_GRADED } from "./animal-items";
+// (an animal's produce and what is made of it fall when oversold, as a crop does)
+const ANIMAL_GOODS = new Set<string>(ANIMAL_GRADED);
 import { GOODS } from "./trade";
 
 /**
@@ -137,8 +138,8 @@ export interface Thing { usual: number; floor: number; ceil: number; batch: numb
 export function thingOf(id: string, c: MarketFacts, k: MarketKnobs = MARKET): Thing | null {
   const it = c.items[id], coins = it ? k.usual[it.kind] : undefined;
   if (!it || !(it.pays > 0) || c.goods[id] || coins === undefined) return null;
-  // (an animal's produce is goods that falls when oversold, as a crop does: lib/town/animals; v291 the same in town.market_things)
-  const made = (it.kind === "dish" || it.kind === "goods" || it.kind === "staple") && !ANIMAL_PRODUCE.has(id);
+  // (an animal's produce and what is made of it fall when oversold, as a crop does: lib/town/animal-items ANIMAL_GRADED; v291 the same in town.market_things)
+  const made = (it.kind === "dish" || it.kind === "goods" || it.kind === "staple") && !ANIMAL_GOODS.has(id);
   const floor = made ? k.made : Math.min(100, Math.max(k.floor, Math.ceil(costOf(id, c) * k.margin / it.pays)));
   const crop = c.crops[id];
   const batch = Math.max(k.minVolume, crop ? (crop.yield[0] + crop.yield[1]) / 2 : 1);

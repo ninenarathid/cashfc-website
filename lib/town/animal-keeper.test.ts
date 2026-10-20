@@ -30,7 +30,7 @@ describe("the pasture's world as the page holds it", () => {
     expect(part.herds).toEqual([{ ...newHerd("me"), barn: 2, care: "anybody" }]);
     expect(part.offers).toEqual(offers);
     // (an animal or a herd told with something left out is made whole)
-    expect(mergeAnimals(null, { animals: [{ ...animal(), home: undefined, sex: undefined, stats: undefined }], herds: [{ owner: "me" }] })).toMatchObject({ animals: [{ home: "barn", sex: "f", stats: { thrift: 1 } }], herds: [{ barn: null, room: 4, door: [] }] });
+    expect(mergeAnimals(null, { animals: [{ ...animal(), home: undefined, sex: undefined, stats: undefined }], herds: [{ owner: "me" }] })).toMatchObject({ animals: [{ home: "barn", sex: "f", stats: { thrift: 1 } }], herds: [{ barn: null, room: 2, door: [] }] });
     // (an animal of a breed this page does not know is left out: it could not be drawn)
     expect(mergeAnimals(null, { animals: [animal({ breed: "dodo" })] }).animals).toEqual([]);
     expect(mergeAnimals(null, {})).toEqual(EMPTY_WORLD);
@@ -83,12 +83,12 @@ describe("the trial's pasture", () => {
   it("runs a step on the browser's world, keeps the purse in step, and counts its points on the line", () => {
     const t = new Trial(`tester-${Math.random()}`, { memoryOnly: true });
     const before = t.purse().coins;
-    t.fished({ ...t.purse(), coins: before + 7000, bag: put(put(t.purse().bag, "log" as ItemId, 60), "stoneTile" as ItemId, 20) });
+    t.fished({ ...t.purse(), coins: before + 7000, bag: put(put(t.purse().bag, "log" as ItemId, 20), "stoneTile" as ItemId, 8) });
     expect(t.animals({ action: "buy", species: "chicken", sex: "f" })).toMatchObject({ ok: false, why: "barn" });
     expect(t.animals({ action: "barn", index: 0 }).ok).toBe(true);
     const bought = t.animals({ action: "buy", species: "chicken", sex: "f" });
     expect(bought.ok).toBe(true);
-    expect(t.purse().coins).toBe(before + 7000 - 6000 - 400);
+    expect(t.purse().coins).toBe(before + 7000 - 500 - 200);
     expect(t.animalWorld().animals).toHaveLength(1);
     const id = t.animalWorld().animals[0].id;
     const p: Purse = { ...t.purse(), bag: put(t.purse().bag, "chickFeed" as ItemId, 2) };

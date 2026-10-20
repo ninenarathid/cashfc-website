@@ -54,8 +54,9 @@ begin
     return town.answer(me, jsonb_build_object('ok', true, 'world', town.animal_world(me)));
 
   elsif act = 'barn' then
-    -- a barn of the 24 bought of Uncle Popoto, one a member; one left untended `untended.reclaim` days goes to one who
-    -- waits for a barn, only when none stands free: its animals to its owner's pen, what they paid kept towards their next
+    -- a barn of the 24 bought of Uncle Popoto, one a member, its first stage; one left untended `untended.reclaim` days goes
+    -- to one who waits for a barn, only when none stands free: its animals to its owner's pen, the coins of its stages kept
+    -- towards their next
     n_ := floor(coalesce((p_input->>'index')::double precision, -1))::integer;
     if n_ < 0 or n_ >= (kn->'barns'->>'count')::integer then return town.answer(me, town.no('none')); end if;
     if herd->>'barn' is not null then return town.answer(me, town.no('had')); end if;
@@ -67,11 +68,12 @@ begin
         or (select count(*) from public.town_herds x where x.h->>'barn' is not null) < (kn->'barns'->>'count')::integer then
         return town.answer(me, town.no('taken')); end if;
     end if;
-    price := (kn->'barns'->>'price')::integer;
+    r := kn->'barns'->'stages'->0;
+    price := (r->>'coins')::integer;
     credit_ := coalesce((herd->>'credit')::integer, 0);
     coins_ := greatest(0, price - credit_);
     if (purse->>'coins')::integer < coins_ then return town.answer(me, town.no('coins')); end if;
-    if town.held(purse->'bag', 'log') < (kn->'barns'->>'logs')::integer or town.held(purse->'bag', 'stoneTile') < (kn->'barns'->>'stone')::integer then
+    if town.held(purse->'bag', 'log') < (r->>'logs')::integer or town.held(purse->'bag', 'stoneTile') < (r->>'stone')::integer then
       return town.answer(me, town.no('nothing')); end if;
     if id2 is not null then
       with moved as (
@@ -80,17 +82,34 @@ begin
       select touched || coalesce(jsonb_agg(m.a), '[]'::jsonb) into touched from moved m;
       door_ := coalesce(hold_h->'door', '[]'::jsonb);
       last_ := door_->(jsonb_array_length(door_) - 1);
-      hold_h := hold_h || jsonb_build_object('barn', null, 'credit', coalesce((hold_h->>'credit')::integer, 0) + price,
+      hold_h := hold_h || jsonb_build_object('barn', null, 'credit', coalesce((hold_h->>'credit')::integer, 0) + town.animal_stages_paid(coalesce((hold_h->>'room')::integer, 0), k),
         'door', case when last_ is not null and last_->1 = 'null'::jsonb then jsonb_set(door_, array[(jsonb_array_length(door_) - 1)::text, '1'], to_jsonb(now_)) else door_ end);
       update public.town_herds x set h = hold_h, changed = now_::bigint where x.owner = id2;
       others := others || jsonb_build_array(town.animal_herd_told(hold_h, id2, me));
       notes := notes || jsonb_build_array(jsonb_build_array('animal_reclaim', 1, null, 0, jsonb_build_object('barn', n_, 'from', id2), 0));
     end if;
-    herd := herd || jsonb_build_object('barn', n_, 'credit', credit_ - (price - coins_), 'lastCare', now_, 'door', '[]'::jsonb);
+    herd := herd || jsonb_build_object('barn', n_, 'room', (r->>'room')::integer, 'credit', credit_ - (price - coins_), 'lastCare', now_, 'door', '[]'::jsonb);
     purse := purse || jsonb_build_object('coins', (purse->>'coins')::integer - coins_,
-      'bag', town.take(town.take(purse->'bag', 'log', (kn->'barns'->>'logs')::integer), 'stoneTile', (kn->'barns'->>'stone')::integer));
+      'bag', town.take(town.take(purse->'bag', 'log', (r->>'logs')::integer), 'stoneTile', (r->>'stone')::integer));
     notes := notes || jsonb_build_array(jsonb_build_array('animal_barn', 1, null, 0,
-      jsonb_build_object('barn', n_, 'logs', (kn->'barns'->>'logs')::integer, 'stone', (kn->'barns'->>'stone')::integer), -coins_));
+      jsonb_build_object('barn', n_, 'logs', (r->>'logs')::integer, 'stone', (r->>'stone')::integer), -coins_));
+
+  elsif act = 'enlarge' then
+    -- my barn's next stage: room for more ("ลงทุนเพิ่มเพื่อขยาย"), of coins (less any credit), logs and stone tiles
+    if herd->>'barn' is null then return town.answer(me, town.no('barn')); end if;
+    r := town.animal_next_stage(coalesce((herd->>'room')::integer, 0), k);
+    if r is null then return town.answer(me, town.no('full')); end if;
+    price := (r->>'coins')::integer;
+    credit_ := coalesce((herd->>'credit')::integer, 0);
+    coins_ := greatest(0, price - credit_);
+    if (purse->>'coins')::integer < coins_ then return town.answer(me, town.no('coins')); end if;
+    if town.held(purse->'bag', 'log') < (r->>'logs')::integer or town.held(purse->'bag', 'stoneTile') < (r->>'stone')::integer then
+      return town.answer(me, town.no('nothing')); end if;
+    herd := herd || jsonb_build_object('room', (r->>'room')::integer, 'credit', credit_ - (price - coins_));
+    purse := purse || jsonb_build_object('coins', (purse->>'coins')::integer - coins_,
+      'bag', town.take(town.take(purse->'bag', 'log', (r->>'logs')::integer), 'stoneTile', (r->>'stone')::integer));
+    notes := notes || jsonb_build_array(jsonb_build_array('animal_enlarge', (r->>'room')::integer, null, 0,
+      jsonb_build_object('barn', (herd->>'barn')::integer, 'logs', (r->>'logs')::integer, 'stone', (r->>'stone')::integer), -coins_));
 
   elsif act = 'buy' then
     sp := k->'species'->(p_input->>'species');

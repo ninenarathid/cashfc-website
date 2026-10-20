@@ -51,12 +51,17 @@ try {
   eq((await one(`select town.made_of('[["blueEgg", 1], ["duckEgg", 1], ["oil", 1]]'::jsonb) r`)).r, "omelette", "any egg is an egg");
   eq((await one(`select town.made_of('[["lanternEgg", 2], ["milk", 1], ["sugar", 1]]'::jsonb) r`)).r, "lanternCustard", "a breed's own egg still its own");
   eq((await one(`select town.made_of('[["egg", 2], ["oil", 1]]'::jsonb) r`)).r, "omelette", "the uncle's egg as before");
-  eq((await one("select data->'species'->'cow'->>'price' r from public.town_catalog where key = 'animals'")).r, "4000", "the catalog's row");
-  eq([Number((await one("select town.grade_pays('farmEgg', 3) r")).r), Number((await one("select town.grade_pays('cream', 3) r")).r), Number((await one("select town.grade_pays('corn', 2) r")).r)], [2.5, 1, 1.75], "grade pay");
+  eq((await one("select data->'species'->'cow'->>'price' r from public.town_catalog where key = 'animals'")).r, "2000", "the catalog's row");
+  // (what is made of an animal's produce pays by its grade and falls when oversold; cream of farm milk, never the uncle's)
+  eq(Number((await one("select town.grade_pays('butter', 3) r")).r), 2.5, "butter pays by its grade");
+  eq([(await one(`select town.made_of('[["milk", 2]]'::jsonb) r`)).r, (await one(`select town.made_of('[["jerseyMilk", 1], ["farmMilk", 1]]'::jsonb) r`)).r,
+    (await one(`select town.made_of('[["milk", 1], ["farmMilk", 1]]'::jsonb) r`)).r, (await one(`select town.made_of('[["cocoaMilk", 3], ["salt", 1]]'::jsonb) r`)).r], [null, "cream", null, "farmCheese"], "cream and cheese of farm milk alone");
+  eq((await one("select exists (select 1 from jsonb_array_elements(town.cat('forest')->'kinds'->'nook'->'finds') f where f->>'item' = 'egg') r")).r, false, "no eggs in the forest");
+  eq([Number((await one("select town.grade_pays('farmEgg', 3) r")).r), Number((await one("select town.grade_pays('cream', 3) r")).r), Number((await one("select town.grade_pays('corn', 2) r")).r)], [2.5, 2.5, 1.75], "grade pay: produce, what is made of it, a crop");
   eq((await one("select town.carries_grade('farmMilk') and town.carries_grade('butter') and town.carries_grade('corn') and not town.carries_grade('egg') r")).r, true, "carries a grade");
   const k = (await one("select town.cat('animals') k")).k;
   const things = (await one("select town.market_things((select data from public.town_catalog where key = 'market')) r")).r;
-  if (things && things.farmEgg) eq(things.farmEgg[1] < 100 && things.cream[1] === 100, true, "an animal's produce falls; what is made of it does not");
+  if (things && things.farmEgg) eq([things.farmEgg[1] < 100, things.butter[1] < 100, things.omelette?.[1] ?? 100], [true, true, 100], "an animal's produce and what is made of it fall; a dish does not");
 
   // ── the rules, held to the page's ──
   const H = 3_600_000;
@@ -140,8 +145,11 @@ try {
   eq((await mine({ action: "barn", index: 24 })).why, "none", "the barns are 24");
   const barn = await mine({ action: "barn", index: 3 }, "req-barn-0001");
   eq([barn.ok, barn.world.herds[0].barn, barn.world.herds[0].door], [true, 3, []], "a barn bought");
-  eq([await coinsOf(me), await heldOf(me, "log"), await heldOf(me, "stoneTile")], [14_000, 10, 5], "paid 6,000, 60 logs and 20 stone tiles");
-  eq([(await mine({ action: "barn", index: 3 }, "req-barn-0001")).ok, await coinsOf(me)], [true, 14_000], "a retried barn is the first one");
+  eq([await coinsOf(me), await heldOf(me, "log"), await heldOf(me, "stoneTile"), barn.world.herds[0].room], [19_500, 50, 17, 2], "paid 500, 20 logs and 8 stone tiles, for two");
+  eq([(await mine({ action: "barn", index: 3 }, "req-barn-0001")).ok, await coinsOf(me)], [true, 19_500], "a retried barn is the first one");
+  const bigger = await mine({ action: "enlarge" });
+  eq([bigger.ok, bigger.world.herds[0].room, await coinsOf(me), await heldOf(me, "log"), await heldOf(me, "stoneTile")], [true, 4, 18_500, 10, 5], "enlarged to four for 1,000, 40 logs and 12 tiles");
+  eq((await mine({ action: "enlarge" })).why, "full", "as large as it goes");
   eq((await mine({ action: "barn", index: 4 })).why, "had", "one barn a member");
   await give(pal, 20_000, [["log", 60], ["stoneTile", 20]]);
   eq((await pals({ action: "barn", index: 3 })).why, "taken", "a barn nobody else's");
@@ -159,7 +167,7 @@ try {
   eq([bought.ok, bought.world.animals.length, a0.home, a0.sex, a0.breed, A.STAT_IDS.every((s) => a0.stats[s] >= 2 && a0.stats[s] <= 4)], [true, 1, "barn", "f", "barnHen", true], "a hen chick bought");
   const again = await mine({ action: "buy", species: "chicken", sex: "f" }, "req-buy-0001");
   eq([again.ok, (await one("select count(*)::int n from public.town_animals where owner = $1", [me])).n], [true, 1], "a retried buy is the first one");
-  eq(await coinsOf(me), 9600, "paid once");
+  eq(await coinsOf(me), 9800, "paid once");
   const chick = a0.id;
   const fed = await mine({ action: "feed", id: chick, item: "chickFeed" });
   eq([fed.ok, Math.round(fed.world.animals[0].food)], [true, 24], "fed a day");
@@ -254,7 +262,7 @@ try {
   // (sold back: a quarter of what it cost)
   const before = await coinsOf(me);
   eq((await mine({ action: "sell", id: fifth.id })).ok, true, "sold back");
-  eq((await coinsOf(me)) - before, 100, "a quarter of 400");
+  eq((await coinsOf(me)) - before, 50, "a quarter of 200");
   // (a breed first bred: its scroll written out by its first breeder alone, and read, the step's offering known)
   await db.query("update public.town_pasture set found = found || jsonb_build_object('silkie', jsonb_build_object('by', $1::text, 'at', 0)) where one", [me]);
   eq((await pals({ action: "scroll", breed: "silkie" })).why, "theirs", "only the first breeder writes it out");
@@ -289,9 +297,9 @@ try {
     const back = await step(waiter)({ action: "barn", index: 0 });
     eq([back.ok, (await animal(hid))?.home, (await animal(hid))?.owner], [true, "pen", holder], "taken back: its animals to its owner's pen");
     const hh = (await one("select h from public.town_herds where owner = $1", [holder])).h;
-    eq([hh.barn, hh.credit, hh.door[0][1] !== null], [null, 6000, true], "its door shut, its price kept towards the next");
+    eq([hh.barn, hh.credit, hh.door[0][1] !== null], [null, 1500, true], "its door shut, the coins of its two stages kept towards the next");
     eq([back.world.herds.find((h) => h.owner === holder)?.barn, back.world.herds.find((h) => h.owner === holder)?.credit], [null, undefined], "the step tells of the herd it changed, not what it left its owner");
-    eq([await coinsOf(waiter), (await one("select (h->>'barn')::int b from public.town_herds where owner = $1", [waiter])).b], [14_000, 0], "the one who waited has it, at its price");
+    eq([await coinsOf(waiter), (await one("select (h->>'barn')::int b, (h->>'room')::int r from public.town_herds where owner = $1", [waiter]))], [19_500, { b: 0, r: 2 }], "the one who waited has it, its first stage, at its price");
     await db.query("update public.town_catalog set data = jsonb_set(data, '{knobs,barns,count}', '24') where key = 'animals'");
   }
   // (nobody reaches the tables but through the function)

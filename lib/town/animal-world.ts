@@ -22,7 +22,7 @@ export const soundAnimal = (a: Animal): Animal => ({
 });
 /** A herd as told, made whole. */
 export const soundHerd = (h: Herd): Herd => ({
-  ...h, barn: typeof h.barn === "number" ? h.barn : null, room: Number(h.room) || ANIMALS.barns.room, door: Array.isArray(h.door) ? h.door : [],
+  ...h, barn: typeof h.barn === "number" ? h.barn : null, room: Number(h.room) || ANIMALS.barns.stages[0].room, door: Array.isArray(h.door) ? h.door : [],
   credit: Number(h.credit) || 0, lastCare: Number(h.lastCare) || 0, facade: Number(h.facade) || 0, care: h.care ?? "named", carers: Array.isArray(h.carers) ? h.carers : [],
 });
 

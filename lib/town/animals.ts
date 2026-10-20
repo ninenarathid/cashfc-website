@@ -34,11 +34,16 @@ export const ANIMALS = {
   /** The wagon's ride: so many points to every animal of a rider (a heart), once a day a member. */
   wagonHeart: 20,
   /**
-   * The barns (the owner, 2026-10-20: "การทำฟาร์มต้องซื้อ ฟาร์มกับ ลุง popoto ก่อน ราคาแพง แต่คุ้มการลงทุน", "24 โรงเลี้ยงอยู่ตรงนี้
-   * เลย", one a member, Codex's price "ตาม codex"): 24 on the east pasture, one a member, four animals each (enlarged
-   * later); built of coins, logs and stone tiles (the woodcutters' and the miners' cross).
+   * The barns (the owner, 2026-10-20: "การทำฟาร์มต้องซื้อ ฟาร์มกับ ลุง popoto ก่อน", "24 โรงเลี้ยงอยู่ตรงนี้เลย", one a member):
+   * 24 on the east pasture, one a member, built in stages of coins, logs and stone tiles (the woodcutters' and the
+   * miners' cross). His later word on the price: "เริ่มต้นแพงเกินไป: เห็นด้วย ทำให้ถูกกว่านี้", "ช่วยออกแบบให้คืนทุน ราวๆ 20-30
+   * วัน": the first stage houses two, the second four (more stages may follow: "ลงทุนเพิ่มเพื่อขยาย"). A first barn with two
+   * animals pays back in 23-28 days of full care, 25-30 of plain care (docs/plans/animals/README.md, "Prices").
    */
-  barns: { count: 24, room: 4, price: 6000, logs: 60, stone: 20 },
+  barns: {
+    count: 24,
+    stages: [{ room: 2, coins: 500, logs: 20, stone: 8 }, { room: 4, coins: 1000, logs: 40, stone: 12 }] as ReadonlyArray<{ room: number; coins: number; logs: number; stone: number }>,
+  },
   /** Uncle Popoto's pen: so many animals a member keeps there, frozen (they neither eat, grow nor give). */
   pen: 8,
   /** A barn untended (no care by its owner) so many days is warned of, and after `reclaim` days goes to whoever asks for it ("ตาม codex"). */
@@ -142,31 +147,31 @@ const s = (o: Species) => o;
 export const SPECIES: Record<SpeciesId, Species> = {
   chicken: s({
     id: "chicken", name: { th: "ไก่", en: "Chicken" }, baby: { th: "ลูกเจี๊ยบ", en: "Chick" }, young: { th: "ไก่รุ่น", en: "Pullet" },
-    price: 400, grow: [24, 24], cycle: 6, bank: 4, game: "eggs", kind: "bird",
+    price: 200, grow: [24, 24], cycle: 6, bank: 4, game: "eggs", kind: "bird",
     sack: "chickFeed" as ItemId, sackPrice: 4, growItem: "chickGrow" as ItemId, growPrice: 10,
     feeds: { corn: 6, buckwheat: 6, meadowOats: 6, dawnOats: 8, moonOats: 6, pondMillet: 6, orchardPea: 5, reedSeed: 5 } as Partial<Record<ItemId, number>>,
-    treats: ["grasshopper", "cricket", "blueberry"] as ItemId[], bredBack: 20,
+    treats: ["grasshopper", "cricket", "blueberry"] as ItemId[], bredBack: 0,
   }),
   duck: s({
     id: "duck", name: { th: "เป็ด", en: "Duck" }, baby: { th: "ลูกเป็ด", en: "Duckling" }, young: { th: "เป็ดรุ่น", en: "Young duck" },
-    price: 1000, grow: [24, 48], cycle: 8, bank: 3, game: "eggs", kind: "bird",
+    price: 500, grow: [24, 48], cycle: 8, bank: 3, game: "eggs", kind: "bird",
     sack: "duckFeed" as ItemId, sackPrice: 6, growItem: "duckGrow" as ItemId, growPrice: 15,
     feeds: { watercress: 6, cabbage: 4, pondMillet: 6, nightDuckweed: 6, ghostReed: 6, reedSeed: 5 } as Partial<Record<ItemId, number>>,
-    treats: ["minnow", "snail", "raspberry"] as ItemId[], bredBack: 30,
+    treats: ["minnow", "snail", "raspberry"] as ItemId[], bredBack: 0,
   }),
   sheep: s({
     id: "sheep", name: { th: "แกะ", en: "Sheep" }, baby: { th: "ลูกแกะ", en: "Lamb" }, young: { th: "แกะรุ่น", en: "Hogget" },
-    price: 2500, grow: [48, 72], cycle: 24, bank: 1, game: "shear", kind: "mammal",
+    price: 1250, grow: [48, 72], cycle: 24, bank: 1, game: "shear", kind: "mammal",
     sack: "sheepFeed" as ItemId, sackPrice: 8, growItem: "lambGrow" as ItemId, growPrice: 25,
     feeds: { clover: 8, carrot: 4, sweetTimothy: 8, amberClover: 8, dewClover: 10, lanternGrass: 8, copperSedge: 6, velvetVetch: 8 } as Partial<Record<ItemId, number>>,
-    treats: ["clover", "chamomile", "wildApple"] as ItemId[], bredBack: 40,
+    treats: ["clover", "chamomile", "wildApple"] as ItemId[], bredBack: 0,
   }),
   cow: s({
     id: "cow", name: { th: "วัว", en: "Cow" }, baby: { th: "ลูกวัว", en: "Calf" }, young: { th: "วัวรุ่น", en: "Heifer" },
-    price: 4000, grow: [72, 96], cycle: 12, bank: 2, game: "milk", kind: "mammal",
+    price: 2000, grow: [72, 96], cycle: 12, bank: 2, game: "milk", kind: "mammal",
     sack: "cowFeed" as ItemId, sackPrice: 10, growItem: "calfGrow" as ItemId, growPrice: 40,
     feeds: { corn: 6, pumpkin: 8, sunAlfalfa: 10, sweetTimothy: 8, mistVetch: 10, copperSedge: 6, velvetVetch: 8, lanternGrass: 8 } as Partial<Record<ItemId, number>>,
-    treats: ["mineralSalt", "pumpkin", "chestnut"] as ItemId[], bredBack: 50,
+    treats: ["mineralSalt", "pumpkin", "chestnut"] as ItemId[], bredBack: 0,
   }),
 };
 /** Feed any species eats: the packed ration (`ANIMALS.packed` hours, of before-dawn forage). */
@@ -359,7 +364,7 @@ export interface Herd {
   care: "none" | "named" | "anybody";
   carers: string[];
 }
-export const newHerd = (owner: string): Herd => ({ owner, barn: null, room: ANIMALS.barns.room, door: [], credit: 0, lastCare: 0, facade: 0, care: "named", carers: [] });
+export const newHerd = (owner: string): Herd => ({ owner, barn: null, room: ANIMALS.barns.stages[0].room, door: [], credit: 0, lastCare: 0, facade: 0, care: "named", carers: [] });
 
 /** What else a settling needs to know of the keeper and of the town. */
 export interface Ctx {
@@ -556,6 +561,10 @@ export function freeHome(herd: Herd, animals: readonly Animal[]): Home | null {
   if (herd.barn !== null && used.barn < herd.room) return "barn";
   return used.pen < ANIMALS.pen ? "pen" : null;
 }
+/** A barn's next stage after the room it has (none: it is as large as it goes). */
+export const nextStage = (room: number) => ANIMALS.barns.stages.find((s) => s.room > room) ?? null;
+/** The coins a barn's stages cost up to the room it has: what its owner keeps as credit if it is taken back. */
+export const stagesPaid = (room: number) => ANIMALS.barns.stages.filter((s) => s.room <= room).reduce((t, s) => t + s.coins, 0);
 /** Who holds each of the 24 barns. */
 export const barnsOf = (herds: readonly Herd[]): Array<string | null> =>
   Array.from({ length: ANIMALS.barns.count }, (_, i) => herds.find((h) => h.barn === i)?.owner ?? null);

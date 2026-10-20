@@ -11,7 +11,7 @@ import {
   ANIMALS, ANY_FEED, BREED, DAWN_BOOSTS, DEW_GROW, OFFERINGS, SPECIES, SPECIES_IDS, adultAt, breedAt, breedOf, crossOf,
   feeOf, freeHome, heartsOf, kindOf, mayCare, newHerd, rangeOf, realOf, rollOf, scoreOf, sellBackOf, settle, stageOf,
   starterOf, stepKey, stepsOf, unitsOf, LEAST_SECS, MEADOW, bandOf, findOf, forageAt, scrollOf, boughtStats, childStats,
-  barnsOf, untendedOf, usedOf, gives, heartsPlus,
+  barnsOf, untendedOf, usedOf, gives, heartsPlus, nextStage, stagesPaid,
   type Animal, type Book, type Ctx, type GateLog, type Herd, type Home, type Play, type Sex, type SpeciesId, type Stats,
 } from "./animals";
 import { put, roomFor, take, held, type Purse } from "./trade";
@@ -51,6 +51,7 @@ export interface AnimalWorld {
 export type AnimalInput =
   | { action: "look" }
   | { action: "barn"; index: number }
+  | { action: "enlarge" }
   | { action: "buy"; species: SpeciesId; sex: Sex }
   | { action: "shop"; item: string; n: number }
   | { action: "facade" }
@@ -199,27 +200,41 @@ export function animalAction(world: AnimalWorld, purse: Purse, input: AnimalInpu
     case "look": return yes(world, purse);
 
     case "barn": {
-      // a barn of the 24 bought of Uncle Popoto, one a member; a barn its owner has left untended `untended.reclaim` days
-      // goes to one who waits for a barn, only when none stands free: its animals go to its owner's pen (past its eight
-      // if need be), and what they paid is kept towards their next ("ตาม codex")
+      // a barn of the 24 bought of Uncle Popoto, one a member, its first stage; a barn its owner has left untended
+      // `untended.reclaim` days goes to one who waits for a barn, only when none stands free: its animals go to its
+      // owner's pen (past its eight if need be), and the coins of its stages are kept towards their next ("ตาม codex")
       const i = Math.floor(input.index);
       if (!(i >= 0 && i < ANIMALS.barns.count)) return no("none");
-      const herd = herdOf(world, me), B = ANIMALS.barns;
+      const herd = herdOf(world, me), B = ANIMALS.barns.stages[0];
       if (herd.barn !== null) return no("had");
       const holder = world.herds.find((h) => h.barn === i);
       let w = world;
       if (holder) {
         if (untendedOf(holder, now).level < 3 || barnsOf(world.herds).includes(null)) return no("taken");
         const animals = w.animals.map((a) => (a.owner === holder.owner && a.home === "barn" ? { ...settled(a), home: "pen" as Home, lent: null } : a));
-        w = withHerd({ ...w, animals }, { ...holder, barn: null, door: closeDoor(holder.door, now), credit: holder.credit + B.price });
+        w = withHerd({ ...w, animals }, { ...holder, barn: null, door: closeDoor(holder.door, now), credit: holder.credit + stagesPaid(holder.room) });
         notes.push({ what: "animal_reclaim", n: 1, doc: { barn: i, from: holder.owner } });
       }
-      const coins = Math.max(0, B.price - herd.credit);
+      const coins = Math.max(0, B.coins - herd.credit);
       if (purse.coins < coins) return no("coins");
       if (held(purse.bag, "log" as ItemId) < B.logs || held(purse.bag, "stoneTile" as ItemId) < B.stone) return no("nothing");
       notes.push({ what: "animal_barn", n: 1, doc: { barn: i, coins, logs: B.logs, stone: B.stone } });
       const bag = take(take(purse.bag, "log" as ItemId, B.logs), "stoneTile" as ItemId, B.stone);
-      return yes(withHerd(w, { ...herd, barn: i, credit: herd.credit - (B.price - coins), lastCare: now, door: [] }), { ...purse, coins: purse.coins - coins, bag });
+      return yes(withHerd(w, { ...herd, barn: i, room: B.room, credit: herd.credit - (B.coins - coins), lastCare: now, door: [] }), { ...purse, coins: purse.coins - coins, bag });
+    }
+
+    case "enlarge": {
+      // my barn's next stage: room for more ("ลงทุนเพิ่มเพื่อขยาย"), of coins (less any credit), logs and stone tiles
+      const herd = herdOf(world, me);
+      if (herd.barn === null) return no("barn");
+      const S = nextStage(herd.room);
+      if (!S) return no("full");
+      const coins = Math.max(0, S.coins - herd.credit);
+      if (purse.coins < coins) return no("coins");
+      if (held(purse.bag, "log" as ItemId) < S.logs || held(purse.bag, "stoneTile" as ItemId) < S.stone) return no("nothing");
+      notes.push({ what: "animal_enlarge", n: S.room, doc: { barn: herd.barn, coins, logs: S.logs, stone: S.stone } });
+      const bag = take(take(purse.bag, "log" as ItemId, S.logs), "stoneTile" as ItemId, S.stone);
+      return yes(withHerd(world, { ...herd, room: S.room, credit: herd.credit - (S.coins - coins) }), { ...purse, coins: purse.coins - coins, bag });
     }
 
     case "buy": {

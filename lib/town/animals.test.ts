@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   ANIMALS, BREEDS, OFFERINGS, SPECIES, SPECIES_IDS, adultAt, breedAt, crossOf, dayOf, dayStart, gateAt, heartsOf, rangeOf,
-  rollOf, settle, stageOf, starterOf, unitsOf, barnsOf, untendedOf, newHerd, heartGain, childStats, childRange, careOf,
+  rollOf, settle, stageOf, starterOf, unitsOf, barnsOf, untendedOf, newHerd, heartGain, stagesPaid, childStats, childRange, careOf,
   type Animal, type Ctx,
 } from "./animals";
 import { dayOf as staminaDayOf } from "./stamina";
@@ -90,7 +90,15 @@ describe("what it gives", () => {
   });
   it("pays a farm egg by its grade, and a farm egg is an egg in the kitchen", () => {
     expect(gradePays("farmEgg" as ItemId, 3)).toBe(2.5);
-    expect(gradePays("cream" as ItemId, 3)).toBe(1);
+    // (what is made of it pays by its grade too: the owner, 2026-10-20, "ของแปรรูป กำไรเยอะกว่านี้ได้")
+    expect(gradePays("cream" as ItemId, 3)).toBe(2.5);
+    expect(gradePays("omelette" as ItemId, 3)).toBe(1);
+    // (cream and cheese of farm milk, any breed's; never of the uncle's own milk, which would print coins)
+    expect(madeOf([["farmMilk" as ItemId, 2]])).toBe("cream");
+    expect(madeOf([["jerseyMilk" as ItemId, 1], ["farmMilk" as ItemId, 1]])).toBe("cream");
+    expect(madeOf([["milk" as ItemId, 2]])).toBe(null);
+    expect(madeOf([["milk" as ItemId, 1], ["farmMilk" as ItemId, 1]])).toBe(null);
+    expect(madeOf([["cocoaMilk" as ItemId, 3], ["salt" as ItemId, 1]])).toBe("farmCheese");
     expect(madeOf([["farmEgg" as ItemId, 2], ["oil" as ItemId, 1]])).toBe("omelette");
     expect(madeOf([["blueEgg" as ItemId, 1], ["duckEgg" as ItemId, 1], ["oil" as ItemId, 1]])).toBe("omelette");
     expect(madeOf([["lanternEgg" as ItemId, 2], ["milk" as ItemId, 1], ["sugar" as ItemId, 1]])).toBe("lanternCustard");
@@ -124,17 +132,24 @@ describe("breeding", () => {
 
 describe("the barns", () => {
   const rich = (coins = 20_000) => purseWith(coins, [["log", 100], ["stoneTile", 30]]);
-  it("sells one barn of the 24 a member, for coins, logs and stone tiles; no barn, no animals", () => {
+  it("sells one barn of the 24 a member in stages, for coins, logs and stone tiles; no barn, no animals", () => {
     const w0: AnimalWorld = { ...world(), herds: [] };
     expect(animalAction(w0, rich(), { action: "buy", species: "chicken", sex: "f" }, env(T0)).why).toBe("barn");
     expect(animalAction(w0, purseWith(20_000), { action: "barn", index: 3 }, env(T0)).why).toBe("nothing");
     expect(animalAction(w0, rich(), { action: "barn", index: ANIMALS.barns.count }, env(T0)).why).toBe("none");
-    expect(animalAction(w0, rich(5000), { action: "barn", index: 3 }, env(T0)).why).toBe("coins");
+    expect(animalAction(w0, rich(ANIMALS.barns.stages[0].coins - 1), { action: "barn", index: 3 }, env(T0)).why).toBe("coins");
     const r = animalAction(w0, rich(), { action: "barn", index: 3 }, env(T0));
     expect(r.ok).toBe(true);
-    expect(r.purse.coins).toBe(20_000 - ANIMALS.barns.price);
-    expect([held(r.purse.bag, "log" as ItemId), held(r.purse.bag, "stoneTile" as ItemId)]).toEqual([100 - ANIMALS.barns.logs, 30 - ANIMALS.barns.stone]);
-    expect(r.world.herds[0]).toMatchObject({ owner: "me", barn: 3, lastCare: T0 });
+    const [S1, S2] = ANIMALS.barns.stages;
+    expect(r.purse.coins).toBe(20_000 - S1.coins);
+    expect([held(r.purse.bag, "log" as ItemId), held(r.purse.bag, "stoneTile" as ItemId)]).toEqual([100 - S1.logs, 30 - S1.stone]);
+    expect(r.world.herds[0]).toMatchObject({ owner: "me", barn: 3, room: S1.room, lastCare: T0 });
+    // (enlarged to its next stage, and no further)
+    const big = animalAction(r.world, r.purse, { action: "enlarge" }, env(T0));
+    expect([big.ok, big.world.herds[0].room, big.purse.coins]).toEqual([true, S2.room, 20_000 - S1.coins - S2.coins]);
+    expect(animalAction(big.world, big.purse, { action: "enlarge" }, env(T0)).why).toBe("full");
+    expect(animalAction(w0, rich(), { action: "enlarge" }, env(T0)).why).toBe("barn");
+    expect(animalAction(r.world, purseWith(20_000), { action: "enlarge" }, env(T0)).why).toBe("nothing");
     expect(animalAction(r.world, rich(), { action: "barn", index: 4 }, env(T0)).why).toBe("had");
     expect(animalAction(r.world, rich(), { action: "barn", index: 3 }, env(T0, "pal")).why).toBe("taken");
     expect(barnsOf(r.world.herds)[3]).toBe("me");
@@ -155,7 +170,7 @@ describe("the barns", () => {
     const r = animalAction(w, rich(), { action: "barn", index: 5 }, env(later));
     expect(r.ok).toBe(true);
     expect(r.world.animals.find((a) => a.id === "a1")).toMatchObject({ owner: "m5", home: "pen", at: later });
-    expect(r.world.herds.find((h) => h.owner === "m5")).toMatchObject({ barn: null, credit: ANIMALS.barns.price, door: [[T0, later]] });
+    expect(r.world.herds.find((h) => h.owner === "m5")).toMatchObject({ barn: null, credit: stagesPaid(ANIMALS.barns.stages[0].room), door: [[T0, later]] });
     expect(r.world.herds.find((h) => h.owner === "me")).toMatchObject({ barn: 5 });
     // (a barn free: none is taken back)
     const free: AnimalWorld = { ...w, herds: w.herds.filter((h) => h.owner !== "m0") };
@@ -170,11 +185,11 @@ describe("the barns", () => {
 describe("a keeper's steps", () => {
   it("buys a baby of the sex chosen, with stats of 2 to 4, into the barn while it has room, then the pen, then no more", () => {
     let w = world(), p = purseWith(10_000);
-    for (let i = 0; i < ANIMALS.barns.room + ANIMALS.pen; i++) {
+    for (let i = 0; i < ANIMALS.barns.stages[0].room + ANIMALS.pen; i++) {
       const r = animalAction(w, p, { action: "buy", species: "chicken", sex: i % 2 ? "m" : "f" }, env(T0, "me", [0, 0.99, 0.5]));
       expect(r.ok).toBe(true); w = r.world; p = r.purse;
     }
-    expect(w.animals.map((a) => a.home)).toEqual([...Array(ANIMALS.barns.room).fill("barn"), ...Array(ANIMALS.pen).fill("pen")]);
+    expect(w.animals.map((a) => a.home)).toEqual([...Array(ANIMALS.barns.stages[0].room).fill("barn"), ...Array(ANIMALS.pen).fill("pen")]);
     expect(w.animals.slice(0, 2).map((a) => a.sex)).toEqual(["f", "m"]);
     expect(w.animals[0].stats).toEqual({ thrift: 2, gentle: 4, vigor: 3 });
     expect(animalAction(w, p, { action: "buy", species: "chicken", sex: "f" }, env(T0)).why).toBe("places");

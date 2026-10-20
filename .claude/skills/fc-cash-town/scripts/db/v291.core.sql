@@ -228,7 +228,7 @@ $$;
 create or replace function town.animal_herd(p_member uuid)
 returns jsonb language sql stable set search_path = '' as $$
   select coalesce((select h.h from public.town_herds h where h.owner = p_member),
-    jsonb_build_object('owner', p_member::text, 'barn', null, 'room', (town.cat('animals')->'knobs'->'barns'->>'room')::integer, 'door', '[]'::jsonb,
+    jsonb_build_object('owner', p_member::text, 'barn', null, 'room', (town.cat('animals')->'knobs'->'barns'->'stages'->0->>'room')::integer, 'door', '[]'::jsonb,
       'credit', 0, 'lastCare', 0, 'facade', 0, 'care', 'named', 'carers', '[]'::jsonb))
 $$;
 -- Where a new animal of a member's goes (freeHome): their barn while it has room, else the pen while it has room, else nowhere.
@@ -322,6 +322,15 @@ returns jsonb language sql immutable set search_path = '' as $$
       then greatest(0, least(1, (p_play->>'hits')::double precision / ((p_play->>'hits')::double precision + (p_play->>'misses')::double precision))) else 0 end as sc) x
 $$;
 
+-- A barn's next stage after the room it has (nextStage), or null; and the coins its stages cost up to it (stagesPaid).
+create or replace function town.animal_next_stage(p_room integer, p_k jsonb)
+returns jsonb language sql immutable set search_path = '' as $$
+  select s from jsonb_array_elements(p_k->'knobs'->'barns'->'stages') with ordinality x(s, o) where (s->>'room')::integer > p_room order by o limit 1
+$$;
+create or replace function town.animal_stages_paid(p_room integer, p_k jsonb)
+returns integer language sql immutable set search_path = '' as $$
+  select coalesce(sum((s->>'coins')::integer), 0)::integer from jsonb_array_elements(p_k->'knobs'->'barns'->'stages') s where (s->>'room')::integer <= p_room
+$$;
 -- Whether an animal is lent now (a friend's ask said yes to, for its hour).
 create or replace function town.animal_lent(p_a jsonb, p_now double precision)
 returns boolean language sql immutable set search_path = '' as $$
