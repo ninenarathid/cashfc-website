@@ -152,6 +152,16 @@ function loopFiles(dir, action) {
   if (!custom && action === "idle" && n > 5) idx = idx.filter((i) => i % 2 === 0);
   return idx.map((i) => path.join(d, `images-${i}.png`));
 }
+/**
+ * A loop's frames kept where PixelLab drew some of them unlike the rest (2026-10-22, the owner's "ทุกท่าทางของสัตว์ตัวเดียวกัน
+ * จะมีขนาดเท่ากันเสมอ"): `[]` drops the loop, and the view stands on its walk's start as an undrawn idle does.
+ */
+const KEEP = {
+  "heifer SE idle": [3, 4], // 0-2 a size smaller, a grey smudge on the flank
+  "jacobMShorn SE idle": [0, 1], // 2-3 a fifth larger, the horns drawn otherwise
+  "goldenFleeceMShorn SE idle": [0, 1], // 2-3 a tenth smaller
+  "shetlandM SE idle": [], // pale all through, its outline lost
+};
 function mirror(im) {
   const out = Buffer.alloc(im.d.length);
   for (let y = 0; y < im.h; y++) for (let x = 0; x < im.w; x++) im.d.copy(out, (y * im.w + (im.w - 1 - x)) * 4, (y * im.w + x) * 4, (y * im.w + x) * 4 + 4);
@@ -188,15 +198,16 @@ export async function lookFrames(only) {
     const m = meta(c.base), k = (m.grid / meta(REF[who.species]).grid) * (SHARE[look] ?? 1);
     const pal = paletteOf(await rgba(path.join(WORK, "pasture", "base", `${c.base}.png`)));
     for (const view of ["SE", "NE"]) for (const action of ["walk", "idle"]) {
-      const dir = loopDir(look, action, view);
-      if (!dir) continue;
+      const dir = loopDir(look, action, view), keep = KEEP[`${look} ${view} ${action}`];
+      const files = dir && loopFiles(dir, action).filter((f, i) => !keep || keep.includes(i));
+      if (!files?.length) continue;
       // (a back view drawn as PixelLab's "north" faces the upper left: mirrored; the meadow sheep's trial drew it as "east")
       const flip = view === "NE" && !/-east$/.test(dir) && fs.readFileSync(path.join(WORK, "pl", dir, "response.json"), "utf8").includes("\"direction\": \"north\"");
       const ims = [];
       // (a part apart from the animal under 6% of it is a stray PixelLab left, as the Araucana rooster's floating tail
       // stroke: dropped; the raindrop ducks' rain cloud floats by design and is kept)
       const keepApart = /^raindropDuck/.test(look) ? 4 : null;
-      for (const f of loopFiles(dir, action)) { const raw = await rgba(f); let n = 0; for (let i = 3; i < raw.d.length; i += 4) if (raw.d[i] >= 128) n++; let im = tidy(raw, pal, keepApart ?? Math.max(4, Math.round(n * 0.06))); if (flip) im = mirror(im); ims.push(im); }
+      for (const f of files) { const raw = await rgba(f); let n = 0; for (let i = 3; i < raw.d.length; i += 4) if (raw.d[i] >= 128) n++; let im = tidy(raw, pal, keepApart ?? Math.max(4, Math.round(n * 0.06))); if (flip) im = mirror(im); ims.push(im); }
       // one ground point for the loop: the middle of all its frames' boxes, their lowest row
       let x0 = Infinity, x1 = -1, y1 = -1;
       for (const im of ims) for (let y = 0; y < im.h; y++) for (let x = 0; x < im.w; x++) if (im.d[(y * im.w + x) * 4 + 3]) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
@@ -226,6 +237,19 @@ export async function lookFrames(only) {
         pieces.push({ name: `${who.prefix}_${view}_idle_0`, img: tr.img, ax: w0.ax + (ref.x0 - tr.x0), ay: w0.ay + (ref.y0 - tr.y0), also: [`${who.prefix}_${view}_idle`], ...(w0.k ? { k: w0.k } : {}) });
       } else pieces.find((p) => p.name === `${who.prefix}_${view}_walk_0`).also.push(`${who.prefix}_${view}_idle_0`, `${who.prefix}_${view}_idle`);
       t.idle = 1;
+    }
+    // (the cloud ram's round 1 names for a standing still made here too: without pa_ram_idle the map drew its stand-in)
+    if (who.prefix === "pa_ram") for (const p of pieces) if (p.name.startsWith("pa_ram_SE_")) for (const a of [...p.also]) if (a.includes("_SE_") && /_(idle|walk[12])$/.test(a) && !p.also.includes(a.replace("_SE_", "_"))) p.also.push(a.replace("_SE_", "_"));
+    // every loop of a look as big as its SE walk (the owner, 2026-10-22: "ทุกท่าทางของสัตว์ตัวเดียวกัน จะมีขนาดเท่ากันเสมอ";
+    // the back views came from their own characters and stood up to a quarter larger, the dog skeleton's idles smaller):
+    // a frame's size is between its mass and its reach, sqrt(sqrt(drawn pixels) x its box's diagonal), a loop's the median
+    const sizeOf = (p) => { let n = 0; for (let i = 3; i < p.img.buf.length; i += 4) if (p.img.buf[i]) n++; return Math.sqrt(Math.sqrt(n) * Math.hypot(p.img.w, p.img.h)); };
+    const loopSize = (view, action) => { const s = pieces.filter((p) => p.name.startsWith(`${who.prefix}_${view}_${action}_`)).map(sizeOf).sort((a, b) => a - b); return s[Math.floor(s.length / 2)]; };
+    const ref = loopSize("SE", "walk");
+    if (ref) for (const view of ["SE", "NE"]) for (const action of ["walk", "idle"]) {
+      const s = loopSize(view, action), fit = s ? ref / s : 1;
+      if (Math.abs(fit - 1) < 0.03) continue;
+      for (const p of pieces) if (p.name.startsWith(`${who.prefix}_${view}_${action}_`)) p.k = +((p.k ?? 1) * fit).toFixed(3);
     }
   }
   return { pieces, table };
