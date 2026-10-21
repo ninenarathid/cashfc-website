@@ -1,0 +1,11 @@
+{
+ "character_id": "ec3b2d54-22d8-4498-8dcb-826510b1da50",
+ "mode": "pixminimax",
+ "action_description": "walking in place with a slow four-beat walk, one leg lifting at a time, all four legs straight and natural with the hooves stepping cleanly, never bending sideways; facing unchanged, its body turned the same way in every frame",
+ "subject_description": "a golden ram with big heavy curled ivory horns, just sheared: a slimmer body with a short smooth shining golden coat",
+ "frame_count": 4,
+ "directions": [
+  "south"
+ ],
+ "animation_name": "walk-SE"
+}
