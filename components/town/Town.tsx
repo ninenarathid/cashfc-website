@@ -3301,7 +3301,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   /** A moss stag under its rider (lib/town/riding): its gallop while they go, standing while they stop, turned the way they go; its picture out of the icons' only while its own sheet comes. */
   function drawSteed(ctx: CanvasRenderingContext2D, a: Avatar, at: Vec, hop: number, now: number) {
     // ── the pasture ── (a cloud ram: its own picture; the stand-in only while the pasture's sheets come, components/town/pasture-draw)
-    if (a.info.pet === RAM) { drawRam(ctx, ramKit(), at, cam.current.s * 1.05, pets.current.get(a.info.id)?.right ?? true, hop, performance.now(), a.path.length > 0 && !reducedRef.current, 1, facings.current.get(a.info.id)?.view === "back"); return; }
+    if (a.info.pet === RAM) { drawRam(ctx, ramKit(), at, cam.current.s * 1.05, pets.current.get(a.info.id)?.right ?? true, hop, performance.now(), a.path.length > 0 && !reducedRef.current, 1, facingOf(a, a === sessionRef.current?.self, performance.now()).view === "back"); return; }
     const stag = stagKit();
     if (stag) { const still = reducedRef.current; drawStag(ctx, stag, at, cam.current.s, pets.current.get(a.info.id)?.right ?? true, a.path.length > 0 && !still ? "run" : "idle", still ? 0 : stagClock(a, now), facings.current.get(a.info.id)?.view === "back"); return; }
     const img = iconImg.current, cell = ICON_ATLAS.icons["famStag" as IconName];
@@ -3319,10 +3319,26 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     ctx.restore();
   }
 
+  /** The cloud ram's rider whose second seat somebody sits in, if they are here. */
+  function carrierOf(a: Avatar): Avatar | null {
+    const id = riderOf(a.info.seat);
+    if (!id || id === a.info.id) return null;
+    const c = (id === sessionRef.current?.self.info.id ? sessionRef.current?.self : sessionRef.current?.avatars.get(id)) ?? null;
+    // (one who sits behind somebody carries nobody: no loop however the room tells it)
+    return c && !riderOf(c.info.seat) ? c : null;
+  }
+  /** Whether a ram's passenger rides with their back to the viewer: then they sit nearer the viewer than the rider, drawn after them. */
+  function pillionAway(a: Avatar): boolean {
+    const carrier = carrierOf(a);
+    return !!carrier && facingOf(carrier, carrier === sessionRef.current?.self, performance.now()).view === "back";
+  }
   function depthOf(a: Avatar): number {
     // (on one of the casino's sofas: just over it)
     const sofa = sitting(a) && !a.path.length ? sofaSeatAt(a.pos) : 0;
     if (sofa) return CASINO_SOFA_SEATS[sofa - 1].depth;
+    // ── the pasture ── (behind a ram's rider: their seat is a little behind the rider's point (lib/town/seats), so they
+    // are drawn first; going up the screen the seat behind is the nearer, and they are drawn after)
+    if (pillionAway(a)) return a.pos.x + a.pos.y + 0.1;
     // at a table of the cooking yard: on its bench. On the far one that is behind the table's top, which is drawn
     // again over their legs (see where the yard is drawn)
     const place = tableSeatOf(a);
@@ -3560,6 +3576,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   /** Which way somebody faces: the way they walk; after standing a while, towards you; with a rod out, towards their float. */
   function facingOf(a: Avatar, isMe: boolean, now: number): { view: View; mirror: boolean } {
     if (isMe && wardrobeOpenRef.current) return TURNS[((turn.current % TURNS.length) + TURNS.length) % TURNS.length];
+    // ── the pasture ── (behind a cloud ram's rider: facing the way the rider faces)
+    const carrier = carrierOf(a);
+    if (carrier) return facingOf(carrier, carrier === sessionRef.current?.self, now);
     if ((mapRef.current && sitting(a) && Math.abs(a.pos.y - 3.5) < .1) || (sitting(a) && stoolAt(a.pos))) return { view: "back", mirror: false };
     // (on a casino sofa: facing the room, the way the sofa faces)
     if (sitting(a) && !a.path.length && sofaSeatAt(a.pos)) return facingFor(0, 1);
@@ -3612,14 +3631,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const perched = riding || !!behindOf || !!wagonOf;
     const stag = riding && !ram ? stagKit() : null;
     const ride = riding ? (ram ? RAM_LIFT : stag ? STAG_SEAT : STEED.lift) * k : behindOf ? RAM_LIFT * k : wagonOf ? WAGON_LIFT * k : 0;
-    const carrier = behindOf ? (behindOf === sessionRef.current?.self.info.id ? sessionRef.current?.self : sessionRef.current?.avatars.get(behindOf)) : null;
+    const carrier = behindOf ? carrierOf(a) : null, backSeat = !!behindOf && pillionAway(a);
     const stepping = (riding ? a.path.length > 0 : !!carrier?.path.length) && !reducedRef.current;
     // (on a stag, with its stride: the rider stays on its moss in every frame)
     const hop = !stepping ? 0 : stag ? riderLift(stagClock(a, now)) * k : Math.abs(Math.sin(now / 105)) * 2.5 * k;
     // (behind the rider, the way they face; on the wagon's bed, each in their place along it)
     const run = wagonOf ? wagonRun(wagonOf) : null, place = run ? wagonPlace(run, a.info.id) : 0;
     const shift = behindOf ? ((pets.current.get(behindOf)?.right ?? true) ? -11 : 11) * k : run ? ((place % 4) - 1.5) * 9 * k : 0;
-    const p = mapRef.current ? spotOf(a) : perched ? { x: foot.x + shift, y: foot.y - ride - hop - (run ? Math.floor(place / 4) * 4 * k : 0) } : foot;
+    const p = mapRef.current ? spotOf(a) : perched ? { x: foot.x + shift, y: foot.y - ride - hop - (run ? Math.floor(place / 4) * 4 * k : 0) + (backSeat ? 5 * k : 0) } : foot;
     const look = lookOf(a);
     const kit = kitFor(look.race);
     // sitting, the name and the tap box come down with the head
