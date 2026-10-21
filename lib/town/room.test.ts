@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { HELLO_AGAIN_MS, joinTown, type RoomHandlers, type RoomStatus } from "./room";
+import { joinTown, type RoomHandlers, type RoomStatus } from "./room";
 
 class Channel {
   state = "joining";
@@ -11,7 +11,7 @@ class Channel {
   track = vi.fn(async () => "ok");
   untrack = vi.fn(async () => "ok");
   send = vi.fn(async () => "ok");
-  httpSend = vi.fn(async () => ({ success: true }));
+  httpSend = vi.fn<(...args: unknown[]) => Promise<{ success: boolean; status?: number; error?: string }>>(async () => ({ success: true }));
   constructor(topic: string) { this.topic = `realtime:${topic}`; }
   on(type: string, filter: { event: string }, fn: (value: never) => void) { this.listeners.set(`${type}:${filter.event}`, fn); return this; }
   subscribe(fn: Channel["status"]) { this.status = fn; return this; }
@@ -19,14 +19,17 @@ class Channel {
   subscribed() { this.state = "joined"; this.status?.("SUBSCRIBED"); }
   sync(presence = this.presence) { this.presence = presence; this.listeners.get("presence:sync")?.(undefined as never); }
 }
-async function setup() {
+async function setup({ database = false, zones = false } = {}) {
   const channels: Channel[] = [];
   const connected = vi.fn(() => true);
   const site = {
+    rpc: vi.fn(async (name: string) => name === "town_zone_topic"
+      ? zones ? { data: "private-test:z:town", error: null } : { data: null, error: { code: "PGRST202", message: "not installed" } }
+      : { data: "private-test", error: null }),
     getChannels: () => channels,
     channel: (topic: string) => { const c = new Channel(topic); channels.push(c); return c; },
     removeChannel: vi.fn(async (c: Channel) => { channels.splice(channels.indexOf(c), 1); }),
-    realtime: { isConnected: connected },
+    realtime: { isConnected: connected, setAuth: vi.fn(async () => {}) },
   };
   const statuses: RoomStatus[] = [];
   const handlers: RoomHandlers = {
@@ -36,14 +39,34 @@ async function setup() {
   };
   let x = 40;
   const room = await joinTown(site as unknown as SupabaseClient, { id: "A", name: "Alice", face: null, color: "#abcdef" }, handlers,
-    { testTopic: "test", doing: () => ({ x, y: 30, voice: false, muted: false, away: false }) });
+    { testTopic: database ? undefined : "test", areas: zones, doing: () => ({ x, y: 30, voice: false, muted: false, away: false }) });
   const [channel, box] = channels;
-  return { room: room!, channel, box, connected, channels, statuses, move: () => { x = 50; } };
+  return { room: room!, channel, box, connected, channels, statuses, site, move: () => { x = 50; } };
 }
 const flush = async () => { await Promise.resolve(); await Promise.resolve(); };
 afterEach(() => { vi.useRealTimers(); });
 
 describe("town presence and position recovery", () => {
+  it("keeps an older database working before the map-policy migration has run", async () => {
+    const s = await setup({ database: true });
+    expect(s.site.rpc.mock.calls.map(c => c[0])).toEqual(["town_zone_topic", "town_topic"]);
+    expect(s.site.realtime.setAuth).toHaveBeenCalledTimes(1);
+    s.channel.subscribed(); s.box.subscribed(); s.channel.sync({ A: [{ n: "Alice" }] }); await flush();
+    expect(s.statuses.at(-1)).toBe("ready");
+    expect(s.channels).toHaveLength(2);
+  });
+  it("enables areas only after the capability exists and waits for the map subscription", async () => {
+    const s = await setup({ database: true, zones: true });
+    expect(s.site.rpc.mock.calls.map(c => c[0])).toEqual(["town_zone_topic"]);
+    expect(s.site.realtime.setAuth).toHaveBeenCalledTimes(1);
+    s.channel.subscribed(); s.box.subscribed(); s.channel.sync({ A: [{ n: "Alice" }] }); await flush();
+    expect(s.statuses).not.toContain("ready");
+    const map = s.channels.find(c => c.topic.endsWith(":z:town"))!;
+    map.subscribed(); await flush();
+    expect(s.statuses.at(-1)).toBe("ready");
+    await s.room.leave();
+    expect(s.channels).toHaveLength(0);
+  });
   it("updates the published name without flooding presence or reopening channels", async () => {
     vi.useFakeTimers();
     const s = await setup();
@@ -93,19 +116,19 @@ describe("town presence and position recovery", () => {
     finish("ok"); await flush();
     expect(s.statuses).not.toContain("ready");
   });
-  it("resends current position after wake and periodically repairs a missed hello", async () => {
+  it("resends current position after wake, coalesces wake events and keeps an idle room silent", async () => {
     vi.useFakeTimers();
     const s = await setup();
     s.channel.subscribed(); s.box.subscribed(); s.channel.sync({ A: [{ n: "Alice" }] }); await flush();
     s.channel.send.mockClear(); s.move();
+    await vi.advanceTimersByTimeAsync(2_000);
     s.room.check(true);
     expect(s.channel.send).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ event: "hi", payload: expect.objectContaining({ x: 50 }) }));
     s.room.check(); expect(s.channel.send).toHaveBeenCalledTimes(1);
-    // (not every 30 s any more: every hello is answered by everybody, the most of the realtime messages)
-    await vi.advanceTimersByTimeAsync(30_000); s.room.check();
+    s.room.check(true);
     expect(s.channel.send).toHaveBeenCalledTimes(1);
-    await vi.advanceTimersByTimeAsync(HELLO_AGAIN_MS); s.room.check();
-    expect(s.channel.send).toHaveBeenCalledTimes(2);
+    for (let i = 0; i < 3600; i++) { await vi.advanceTimersByTimeAsync(1000); s.room.check(); }
+    expect(s.channel.send).toHaveBeenCalledTimes(1);
   });
   it("reports a lost socket or letterbox so the watchdog can reconnect", async () => {
     const s = await setup();
@@ -125,5 +148,25 @@ describe("town presence and position recovery", () => {
     await s.room.leave();
     s.room.check(true);
     expect(s.statuses.at(-1)).toBe("ready");
+  });
+  it("answers the first explicit hello even when a proactive reply preceded the mailbox opening", async () => {
+    const s = await setup();
+    s.channel.subscribed(); s.box.subscribed(); s.channel.sync({ A: [{ n: "Alice" }] }); await flush();
+    const d = { x: 40, y: 30, voice: false, muted: false, away: false };
+    s.room.tell("B", d);
+    const outbox = s.channels[2];
+    expect(outbox.httpSend).toHaveBeenCalledTimes(1);
+    s.room.tell("B", d, true);
+    expect(outbox.httpSend).toHaveBeenCalledTimes(2);
+    s.room.tell("B", d, true); s.room.tell("B", d);
+    expect(outbox.httpSend).toHaveBeenCalledTimes(2);
+  });
+  it("repairs an HTTP error returned as a result as well as a rejected request", async () => {
+    const s = await setup();
+    s.channel.subscribed(); s.box.subscribed(); s.channel.sync({ A: [{ n: "Alice" }] }); await flush();
+    s.room.tell("B", { x: 51, y: 31, voice: false, muted: false, away: false });
+    s.channels[2].httpSend.mockResolvedValue({ success: false, status: 503, error: "unavailable" });
+    s.room.tell("B", { x: 52, y: 31, voice: false, muted: false, away: false }); await flush();
+    expect(s.channel.send).toHaveBeenCalledWith(expect.objectContaining({ event: "st", payload: expect.objectContaining({ x: 52 }) }));
   });
 });

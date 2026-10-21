@@ -1,7 +1,7 @@
 /**
  * Cash Town's typed chat: the rules, kept pure so they can be tested.
  *
- * A line goes to everybody in the room as it is typed and is never stored:
+ * A line goes to the current map as it is typed and is never stored:
  * somebody who arrives later does not see what was said before, the same as
  * the voice. It shows as a bubble over the speaker's head for a few seconds
  * (the Zheza way) and in a short log.

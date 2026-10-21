@@ -46,7 +46,7 @@ function useWords() {
     hear: th ? "แตะเพื่อฟังเสียง" : "Tap to hear",
     chat: th ? "แชท" : "Chat",
     unread: (n: number) => (th ? `${n} ข้อความใหม่` : `${n} new`),
-    placeholder: th ? "พิมพ์คุยกับทุกคนในเมือง…" : "Say something to everyone in town…",
+    placeholder: th ? "คุยในแผนที่ที่เราอยู่…" : "Chat on your current map…",
     send: th ? "ส่ง" : "Send",
     slow: th ? "พิมพ์เร็วไปนิด รอแป๊บนึงนะ" : "A little fast. Wait a moment.",
     offline: th ? "ยังส่งไม่ได้ กำลังต่อใหม่" : "Can't send while reconnecting.",
@@ -122,7 +122,8 @@ export default function TownBar() {
   }, [chatOpen]);
 
   // The latest line shows in the dock for a few seconds; this takes it away.
-  const last = session?.chat[session.chat.length - 1];
+  const mapChat = session?.mapChat ?? [];
+  const last = mapChat[mapChat.length - 1];
   useEffect(() => {
     if (!last || last.mine) return;
     const left = BUBBLE_MS - (Date.now() - last.at);
@@ -168,13 +169,13 @@ export default function TownBar() {
       {chatOpen && (
         <div data-state="open" className="pop-in mb-2 overflow-hidden rounded-2xl border border-line-lit bg-surface/95 shadow-xl shadow-black/40 backdrop-blur-sm"
              onKeyDown={(e) => { if (e.key === "Escape") setChatOpen(false); }}>
-          <ChatHistory lines={s.chat} th={w.th} className="max-h-60" />
+          <ChatHistory lines={mapChat} th={w.th} className="max-h-60" />
           <form onSubmit={send} className="flex items-center gap-2 border-t border-line p-2">
             <input value={draft} onChange={(e) => { setDraft(e.target.value); setNote(null); s.setTyping(e.target.value.trim().length > 0); }}
                    onBlur={() => s.setTyping(false)} autoFocus
                    maxLength={600} placeholder={w.placeholder} aria-label={w.placeholder} enterKeyHint="send"
-                   className="min-w-0 flex-1 rounded-full border border-line-strong bg-bg px-3 py-1.5 text-read text-ink outline-none placeholder:text-muted focus:border-accent" />
-            <button type="submit" disabled={sending} className="rounded-full bg-accent/20 px-3 py-1.5 text-ui font-semibold text-accent hover:bg-accent/30">
+                   className="min-h-11 min-w-0 flex-1 rounded-full border border-line-strong bg-bg px-3 py-1.5 text-read text-ink outline-none placeholder:text-muted focus:border-accent" />
+            <button type="submit" disabled={sending} className="min-h-11 min-w-11 rounded-full bg-accent/20 px-3 py-1.5 text-ui font-semibold text-accent hover:bg-accent/30">
               {w.send}
             </button>
           </form>

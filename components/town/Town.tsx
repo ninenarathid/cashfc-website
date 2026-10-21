@@ -373,8 +373,8 @@ function useWords() {
     direct: th ? "ตรง" : "direct",
     relay: "relay",
     chat: th ? "แชท" : "Chat",
-    chatPlaceholder: th ? "พิมพ์คุยกับทุกคน… (Enter)" : "Say something to everyone… (Enter)",
-    chatPlaceholderPhone: th ? "พิมพ์คุยกับทุกคน…" : "Say something to everyone…",
+    chatPlaceholder: th ? "คุยในแผนที่นี้… (Enter)" : "Chat on this map… (Enter)",
+    chatPlaceholderPhone: th ? "คุยในแผนที่นี้…" : "Chat on this map…",
     history: th ? "ประวัติแชท" : "Chat history",
     historyClose: th ? "ย่อประวัติแชท" : "Hide chat history",
     historyOpen: th ? "แตะเพื่อเลื่อนดูประวัติแชท" : "Tap to scroll back through the chat",
@@ -1186,7 +1186,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // In voice, the list says how each line is doing; twice a second is often
   // enough to read and cheap enough to ignore. With chat, old lines leave the
   // log over the map without anybody typing.
-  const chatting = !!s && s.chat.length > 0;
+  const chatting = !!s && s.mapChat.length > 0;
   useEffect(() => {
     if (!voiceOn && !chatting) return;
     const id = window.setInterval(() => setTick((n) => n + 1), voiceOn ? 500 : 2000);
@@ -4465,7 +4465,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const nameOf = (id: string) => s?.avatars.get(id)?.info.name ?? id.slice(0, 6);
   const micProblem = s?.micProblem === "denied" ? w.micDenied : s?.micProblem === "no-mic" ? w.noMic
     : s?.micProblem === "failed" ? w.micFailed : null;
-  const recent = s ? s.chat.filter((l) => Date.now() - l.at < LOG_SHOWN_MS).slice(phone ? -3 : -5) : [];
+  const mapChat = s?.mapChat ?? [];
+  const recent = mapChat.filter((l) => Date.now() - l.at < LOG_SHOWN_MS).slice(phone ? -3 : -5);
   const myLook = s ? (decodeLook(s.self.info.look) ?? defaultLook(me.id)) : defaultLook(me.id);
   // Everybody is the one model now (lib/town/look's ONE_MODEL): whoever chose another race is told once that their
   // hairstyle and skin were chosen for them, to choose their own in the wardrobe (the owner, 2026-10-17)
@@ -5077,12 +5078,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                 <div className={`pop-in tk tk-window pointer-events-auto flex flex-col p-3 ${phone ? "" : "max-h-[min(42vh,24rem)]"}`}
                      style={room ? { maxHeight: room } : undefined} data-state="open">
                   <div className="flex items-center gap-2 border-b border-line py-1 pl-3 pr-1">
-                    <span className="font-data text-label uppercase tracking-wider text-muted"><span className="flex items-center gap-1.5"><TownIcon name="chat" size={14} />{w.history} · {s.chat.length}</span></span>
+                    <span className="font-data text-label uppercase tracking-wider text-muted"><span className="flex items-center gap-1.5"><TownIcon name="chat" size={14} />{w.history} · {mapChat.length}</span></span>
                     <button type="button" onClick={() => { if (phone) setChatOpen(false); else setHistoryOpen(false); }}
                             aria-label={w.historyClose} title={w.historyClose}
-                            className="pressable ml-auto grid size-8 place-items-center rounded-full text-read text-muted hover:bg-card hover:text-ink"><TownIcon name="chevron" size={14} /></button>
+                            className="pressable ml-auto grid size-11 shrink-0 place-items-center rounded-full text-read text-muted hover:bg-card hover:text-ink"><TownIcon name="chevron" size={14} /></button>
                   </div>
-                  <ChatHistory lines={s.chat} th={w.th} className="min-h-0 flex-1" />
+                  <ChatHistory lines={mapChat} th={w.th} className="min-h-0 flex-1" />
                 </div>
               ) : recent.length > 0 && (
                 <ul aria-label={w.chatLog} title={w.historyOpen}

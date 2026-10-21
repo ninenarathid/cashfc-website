@@ -24,7 +24,7 @@ import { seatSpot } from "./seats";
 import { walkPace } from "./tools";
 import { readElementAction, type ElementAction } from './element-action';
 import {
-  BENCHES, FRONT, KITCHEN, SIT_HERE, SPEED, YARD_SEATS, distance, findPath, gateAt, hearing, moveEvery, pickLines, placeOf, spawnFor, stepAlong, walkable, yardSeat, type Vec,
+  BENCHES, FRONT, KITCHEN, SIT_HERE, SPEED, YARD_SEATS, distance, findPath, gateAt, hearing, moveEvery, pickLines, placeOf, spawnFor, stepAlong, walkable, yardSeat, type Place, type Vec,
 } from "./world";
 
 /**
@@ -88,6 +88,8 @@ export interface ChatLine {
   at: number;
   mine: boolean;
   announcement?: number;
+  /** Ordinary chat stays with the map where it was received. Announcements are global. */
+  area?: Place | null;
 }
 
 export type ChatResult = "sent" | "empty" | "slow" | "offline";
@@ -285,6 +287,11 @@ export class TownSession {
   /** Everybody else who is here, as shown: not the ones who just said goodbye. */
   get people(): Avatar[] {
     return [...this.avatars.values()].filter((a) => a.byeAt === undefined);
+  }
+
+  get mapChat(): ChatLine[] {
+    const area = placeOf(this.self.info.x, this.self.info.y);
+    return this.chat.filter(line => line.announcement !== undefined || line.area === area);
   }
 
   /** What I am doing, as the room is told. */
@@ -771,7 +778,7 @@ export class TownSession {
   }
 
   /**
-   * Type a line to everybody in the room. Not sent, and the box keeps the
+   * Type a line to the current map. Not sent, and the box keeps the
    * text, when it is empty, too soon after the last (chatEvery), or while
    * the room is reconnecting.
    */
@@ -1038,7 +1045,7 @@ export class TownSession {
         // Back after a goodbye (a reload): show them again.
         const a = this.avatars.get(id);
         if (a?.byeAt !== undefined) { a.byeAt = undefined; this.notify(); }
-        this.current?.tell(id, this.doing());
+        this.current?.tell(id, this.doing(), true);
       },
       onBye: (id) => { if (live()) this.onBye(id); },
       onChat: (id, text) => { if (live()) this.onChat(id, text); },
@@ -1149,6 +1156,9 @@ export class TownSession {
   private onChat(id: string, raw: unknown) {
     const a = this.avatars.get(id);
     if (!a || a.byeAt !== undefined || !this.listed.has(id)) return;
+    const area = placeOf(this.self.info.x, this.self.info.y);
+    // Old clients can still send unscoped packets to the original room.
+    if (!area || placeOf(a.info.x, a.info.y) !== area) return;
     const now = Date.now();
     const text = cleanChat(raw);
     if (!text || !this.flood.allow(id, now)) return;
@@ -1159,7 +1169,7 @@ export class TownSession {
   }
 
   private addLine(from: string, name: string, text: string, mine: boolean, at: number) {
-    this.chat.push({ key: ++this.chatKey, from, name, text, at, mine });
+    this.chat.push({ key: ++this.chatKey, from, name, text, at, mine, area: placeOf(this.self.info.x, this.self.info.y) });
     if (this.chat.length > LOG_MAX) this.chat.splice(0, this.chat.length - LOG_MAX);
   }
 
@@ -1418,7 +1428,7 @@ export class TownSession {
       eat: (dish: string | null) => this.setEating(dish),
       wear: (code: string) => { const look = decodeLook(code); if (look) this.setLook(look); return !!look; },
       chat: (text: string) => this.sendChat(text),
-      chatLog: () => this.chat.map((l) => ({ name: l.name, text: l.text, mine: l.mine })),
+      chatLog: () => this.mapChat.map((l) => ({ name: l.name, text: l.text, mine: l.mine })),
       unread: () => this.unread,
       leave: () => this.close(),
     };

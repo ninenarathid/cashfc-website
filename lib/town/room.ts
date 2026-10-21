@@ -8,7 +8,8 @@ import { cleanChat } from "./chat";
 import { decodeLook } from "./look";
 import { decodeSign, encodeSign } from "./sign";
 import { TOOL_WORD } from "./tools";
-import { BENCHES, KITCHEN, SIT_HERE, YARD_SEATS } from "./world";
+import { BENCHES, KITCHEN, SIT_HERE, YARD_SEATS, placeOf } from "./world";
+import { AreaChannel, STATE_SETTLE_MS } from "./area-channel";
 
 /**
  * The town's room on Supabase Realtime, written around the plan's limits
@@ -39,15 +40,6 @@ import { BENCHES, KITCHEN, SIT_HERE, YARD_SEATS } from "./world";
  * private, so Realtime checks the same rule on every join. A public channel of
  * the same name hears nothing from the private one (tried 2026-10-01).
  */
-
-/**
- * How often a member's page says hello again on its own, to mend a move that was missed (ms). It was every 30 s, and
- * every hello is answered by everybody into its letterbox: 2 × (n − 1) deliveries a member a hello, n² a round, the
- * most of the project's realtime messages (2026-10-16: 19M in a month against a quota of 5M, the owner's ask to cut
- * the biggest senders). A hello is still sent on joining, on every rejoin and when a hidden tab comes back (check(true)),
- * and moves carry their own place; so the routine one is rare, and never from a hidden tab.
- */
-export const HELLO_AGAIN_MS = 10 * 60_000;
 
 export interface Identity {
   id: string;
@@ -166,8 +158,8 @@ export interface Room {
   move(x: number, y: number): void;
   say(d: Doing): void;
   /** Into one person's letterbox: where I am, for somebody who just arrived. */
-  tell(to: string, d: Doing): void;
-  /** Type a line to everybody in the room; false when not connected (nothing was sent). */
+  tell(to: string, d: Doing, requested?: boolean): void;
+  /** Type a line to the current map; false when its channel is not ready. */
   chat(text: string): boolean;
   signal(to: string, data: unknown): void;
   /** A word of a chat room (lib/town/circle), into one person's letterbox: never to the room. */
@@ -255,7 +247,7 @@ export async function joinTown(
   me: Identity,
   h: RoomHandlers,
   /** `doing` is asked afresh whenever the room needs to be told where I am. */
-  opts: { testTopic?: string; privateTopic?: boolean; cancelled?: () => boolean; doing?: () => Doing } = {},
+  opts: { testTopic?: string; privateTopic?: boolean; cancelled?: () => boolean; doing?: () => Doing; areas?: boolean } = {},
 ): Promise<Room | null> {
   // A tick before anything else, so a page that mounts and unmounts at once
   // (React's development double-mount, or a quick back-and-forth) can call
@@ -264,6 +256,19 @@ export async function joinTown(
   if (opts.cancelled?.()) return null;
 
   let topic = opts.testTopic ?? null;
+  let areas = !!opts.testTopic && !opts.privateTopic && opts.areas !== false;
+  if (!topic) {
+    // The capability RPC exists only after the area's private policies are ready.
+    // Older databases continue to use the original private room.
+    const capability = await supabase.rpc("town_zone_topic", { p_zone: "town" });
+    if (!capability.error && typeof capability.data === "string" && capability.data.endsWith(":z:town")) {
+      topic = capability.data.slice(0, -":z:town".length);
+      areas = opts.areas !== false;
+    } else if (capability.error && capability.error.code !== "PGRST202") {
+      h.onStatus("reconnecting", capability.error.message);
+      return null;
+    }
+  }
   if (!topic) {
     const { data, error } = await supabase.rpc("town_topic");
     if (error) {
@@ -273,12 +278,13 @@ export async function joinTown(
     }
     if (!data) { h.onStatus("denied"); return null; }
     topic = data as string;
-    // A private channel is checked against the signed-in member's token.
-    try { await supabase.realtime.setAuth(); } catch { /* the callback supplies it anyway */ }
   }
   if (opts.cancelled?.()) return null;
 
   const isPrivate = !opts.testTopic || opts.privateTopic === true;
+  if (!opts.testTopic) {
+    try { await supabase.realtime.setAuth(); } catch { /* the callback supplies it anyway */ }
+  }
   const multiplex = opts.privateTopic === true;
   if (multiplex) {
     if (topic !== "casino-lab" && topic !== "casino-live") { h.onStatus("denied"); return null; }
@@ -291,7 +297,7 @@ export async function joinTown(
   // The client hands back an existing channel for the same name, already
   // subscribed, which cannot take new listeners. Close any left over first.
   for (const old of supabase.getChannels()) {
-    if (old.topic === `realtime:${topic}` || old.topic === `realtime:${boxOf(me.id)}`) {
+    if (old.topic === `realtime:${topic}` || old.topic === `realtime:${boxOf(me.id)}` || old.topic.startsWith(`realtime:${topic}:z:`)) {
       await supabase.removeChannel(old);
     }
   }
@@ -308,6 +314,10 @@ export async function joinTown(
   let ready = false;
   let identityVersion = 0, sentIdentityVersion = -1;
   const outboxes = new Map<string, RealtimeChannel>();
+  const replies = new Map<string, { at: number; state: string; requested: boolean }>();
+  let pendingState: Doing | null = null;
+  let stateTimer: ReturnType<typeof setTimeout> | null = null;
+  let sentState = "";
 
   /* ── the room ── */
   const room: RealtimeChannel = supabase.channel(topic, {
@@ -318,13 +328,15 @@ export async function joinTown(
     },
   });
   // Three short fields, well inside presence's ten.
-  const identity = { n: me.name.slice(0, 40), f: me.face, c: me.color };
+  const identity = { n: me.name.slice(0, 40), f: me.face, c: me.color, ...(areas ? { z: 1 } : {}) };
 
   room.on("presence", { event: "sync" }, () => {
     const people: Identity[] = [];
-    for (const [id, metas] of Object.entries(room.presenceState<{ n?: string; f?: string | null; c?: string }>())) {
+    let legacy = false;
+    for (const [id, metas] of Object.entries(room.presenceState<{ n?: string; f?: string | null; c?: string; z?: number }>())) {
       const m = metas[metas.length - 1];
       if (!m || typeof m.n !== "string") continue;
+      if (id !== me.id && m.z !== 1) legacy = true;
       people.push({
         id,
         // From another browser, like a chat line: one clean line, and short.
@@ -333,42 +345,34 @@ export async function joinTown(
         color: typeof m.c === "string" && /^#[0-9a-f]{6}$/i.test(m.c) ? m.c : "#6aa9e0",
       });
     }
+    area?.setLegacy(legacy);
+    const present = new Set(people.map(p => p.id));
+    for (const id of replies.keys()) if (!present.has(id)) replies.delete(id);
     h.onMembers(people);
     settle();
   });
-  room.on("broadcast", { event: "hi" }, ({ payload }) => {
-    const p = payload as Record<string, unknown>;
-    if (typeof p?.id !== "string" || p.id === me.id) return;
-    h.onDoing(p.id, readDoing(p));
-    h.onHello(p.id);
-  });
-  room.on("broadcast", { event: "mv" }, ({ payload }) => {
-    const p = payload as Record<string, unknown>;
-    if ((!multiplex || !p.to || p.to === me.id) && typeof p?.id === "string" && p.id !== me.id) h.onDoing(p.id, readDoing(p));
-  });
-  room.on("broadcast", { event: "st" }, ({ payload }) => {
-    const p = payload as Record<string, unknown>;
-    if ((!multiplex || !p.to || p.to === me.id) && typeof p?.id === "string" && p.id !== me.id) h.onDoing(p.id, readDoing(p));
-  });
+  const receiveWorld = (event: string, p: Record<string, unknown>) => {
+    if (typeof p?.id !== "string" || p.id === me.id || (multiplex && p.to && p.to !== me.id)) return;
+    if (event === "hi" || event === "mv" || event === "st") {
+      h.onDoing(p.id, readDoing(p));
+      if (event === "hi") h.onHello(p.id);
+    } else if (event === "chat") {
+      const d = opts.doing?.();
+      if (p.a !== undefined && (!d || p.a !== placeOf(d.x, d.y))) return;
+      h.onChat(p.id, p.t);
+    } else if (event === "fg") h.onForged(p.id, p);
+    else if (event === "fx" && typeof p.w === "string" && p.w.length <= 32) h.onEffect?.(p.id, p.w);
+  };
+  for (const event of ["hi", "mv", "st", "fg", "fx", "chat"]) {
+    room.on("broadcast", { event }, ({ payload }) => receiveWorld(event, payload as Record<string, unknown>));
+  }
   room.on("broadcast", { event: "bye" }, ({ payload }) => {
     const p = payload as Record<string, unknown>;
     if (typeof p?.id === "string" && p.id !== me.id) h.onBye(p.id);
   });
-  room.on("broadcast", { event: "chat" }, ({ payload }) => {
-    const p = payload as Record<string, unknown>;
-    if (typeof p?.id === "string" && p.id !== me.id) h.onChat(p.id, p.t);
-  });
   room.on("broadcast", { event: "nd" }, ({ payload }) => {
     const p = payload as Record<string, unknown>;
     if ((!multiplex || !p.to || p.to === me.id) && typeof p?.id === "string" && p.id !== me.id) h.onNudge(p.id, p.w);
-  });
-  room.on("broadcast", { event: "fg" }, ({ payload }) => {
-    const p = payload as Record<string, unknown>;
-    if (typeof p?.id === "string" && p.id !== me.id) h.onForged(p.id, p);
-  });
-  room.on("broadcast", { event: "fx" }, ({ payload }) => {
-    const p = payload as Record<string, unknown>;
-    if (typeof p?.id === 'string' && p.id !== me.id && typeof p.w === 'string' && p.w.length <= 32) h.onEffect?.(p.id, p.w);
   });
 
   /* ── my letterbox ── */
@@ -403,7 +407,7 @@ export async function joinTown(
   // quietly falls back to one HTTP request per message. Missed moves are not
   // lost: where I am is announced again (`hi`) the moment the room is back.
   const cast = (event: string, payload: Record<string, unknown>): boolean => {
-    if (room.state !== "joined" || !supabase.realtime.isConnected()) return false;
+    if (leaving || room.state !== "joined" || !supabase.realtime.isConnected()) return false;
     void room.send({ type: "broadcast", event, payload });
     return true;
   };
@@ -413,21 +417,46 @@ export async function joinTown(
   // opened to them.
   const settle = () => {
     if (leaving || !roomUp || !boxUp || !tracked || !room.presenceState()[me.id]?.length) return;
+    area?.sync();
+    if (area && !area.ready) return;
     hello();
     if (!ready) { ready = true; h.onStatus("ready"); }
   };
   const hello = (force = false) => {
     if (!roomUp || !boxUp || !tracked || leaving) return;
-    if (!force && Date.now() - helloAt < HELLO_AGAIN_MS) return;
-    if (!force && typeof document !== "undefined" && document.visibilityState === "hidden") return;
+    // A healthy idle room is silent. Rejoin resets this; waking can request
+    // another snapshot, but duplicate wake events cannot start a reply storm.
+    if (helloAt !== -Infinity && (!force || Date.now() - helloAt < 2_000)) return;
     const d = opts.doing?.();
-    if (d && cast("hi", { id: me.id, ...d })) helloAt = Date.now();
+    if (d && cast("hi", { id: me.id, ...d })) {
+      helloAt = Date.now();
+      sentState = JSON.stringify(d);
+      cancelState();
+    }
   };
   const trouble = (status: string, err?: Error) => {
     if (leaving) return;
     ready = false;
     const text = err?.message ?? status;
     h.onStatus(/unauthori[sz]ed|denied|policy|permission/i.test(text) ? "denied" : "reconnecting", text);
+  };
+  const area = areas ? new AreaChannel({ client: supabase, topic, id: me.id, private: isPrivate,
+    doing: () => opts.doing?.(), global: cast, receive: receiveWorld, trouble, ready: settle }) : null;
+  const world = (event: string, payload: Record<string, unknown>, d?: Doing) => {
+    if (leaving || room.state !== "joined" || !supabase.realtime.isConnected()) return false;
+    return area ? area.send(event, payload, d) : cast(event, payload);
+  };
+  const cancelState = () => {
+    if (stateTimer !== null) clearTimeout(stateTimer);
+    stateTimer = null;
+    pendingState = null;
+  };
+  const flushState = () => {
+    const d = pendingState;
+    cancelState();
+    if (!d) return;
+    const stamp = JSON.stringify(d);
+    if (stamp !== sentState && world("st", { id: me.id, ...d }, d)) sentState = stamp;
   };
   // check() runs every second. A missing presence must never turn that into
   // a track flood (the server permits only five tracks in thirty seconds).
@@ -471,13 +500,16 @@ export async function joinTown(
 
   /** Post into somebody's letterbox, over HTTP: one message, one delivery. */
   const post = (to: string, event: string, payload: Record<string, unknown>) => {
+    if (leaving) return;
     if (multiplex) { cast(event, { ...payload, to }); return; }
     let ch = outboxes.get(to);
     if (!ch) {
       ch = supabase.channel(boxOf(to), { config: { private: isPrivate } });
       outboxes.set(to, ch);
     }
-    void ch.httpSend(event, payload).catch(() => {
+    void ch.httpSend(event, payload).then(result => {
+      if (!result.success) throw new Error("letterbox delivery failed");
+    }).catch(() => {
       // Positions are already public to this private room. If a letterbox
       // reply fails, let the room hear it so a newcomer is not left at spawn.
       if (!leaving && event === "st") cast("st", payload);
@@ -493,17 +525,37 @@ export async function joinTown(
       identityVersion++;
       void track();
     },
-    move(x, y) { cast("mv", { id: me.id, x, y }); },
-    say(d) { cast("st", { id: me.id, ...d }); },
-    tell(to, d) { post(to, "st", { id: me.id, ...d }); },
-    chat(text) { return cast("chat", { id: me.id, t: text }); },
+    move(x, y) {
+      if (pendingState) { pendingState = { ...pendingState, x, y }; flushState(); }
+      else world("mv", { id: me.id, x, y }, opts.doing ? { ...opts.doing(), x, y } : undefined);
+    },
+    say(d) {
+      if (leaving) return;
+      pendingState = { ...d };
+      if (stateTimer === null) stateTimer = setTimeout(flushState, STATE_SETTLE_MS);
+    },
+    tell(to, d, requested = false) {
+      const state = JSON.stringify(d), previous = replies.get(to), now = Date.now();
+      // A proactive presence reply can beat the recipient's mailbox opening.
+      // Their first explicit hello must still be answered; subsequent global
+      // and area hellos with the same snapshot can share that one reply.
+      if (previous?.state === state && now - previous.at < 2_000 && (!requested || previous.requested)) return;
+      replies.set(to, { state, at: now, requested });
+      post(to, "st", { id: me.id, ...d });
+    },
+    chat(text) {
+      const d = opts.doing?.();
+      const here = d && placeOf(d.x, d.y);
+      if (!here) return false;
+      return world("chat", { id: me.id, t: text, a: here }, d);
+    },
     signal(to, data) { post(to, "rtc", { from: me.id, data }); },
     circle(to, word) { post(to, "cr", { from: me.id, w: word }); },
     pair(to, data) { post(to, "pg", { from: me.id, data }); },
     nudge(what, to) { if (to) post(to, "nd", { id: me.id, w: what }); else cast("nd", { id: me.id, w: what }); },
-    forged(told) { cast("fg", { ...told, id: me.id }); },
-    effect(word) { cast('fx', { id: me.id, w: word }); },
-    bye() { cast("bye", { id: me.id }); },
+    forged(told) { world("fg", { ...told, id: me.id }); },
+    effect(word) { world('fx', { id: me.id, w: word }); },
+    bye() { cancelState(); cast("bye", { id: me.id }); },
     check(resync = false) {
       if (leaving) return;
       if (room.state !== "joined" || box.state !== "joined" || !supabase.realtime.isConnected()) {
@@ -512,10 +564,13 @@ export async function joinTown(
       }
       const mine = room.presenceState()[me.id];
       if (!tracked || !mine?.length) { trouble("presence missing"); void track(); }
-      else { if (sentIdentityVersion !== identityVersion) void track(); hello(resync); settle(); }
+      else { if (sentIdentityVersion !== identityVersion) void track(); hello(resync); settle(); area?.check(); }
     },
     async leave() {
       leaving = true;
+      cancelState();
+      replies.clear();
+      await area?.leave();
       for (const ch of outboxes.values()) void supabase.removeChannel(ch);
       outboxes.clear();
       if (box !== room && supabase.getChannels().includes(box)) await supabase.removeChannel(box);
