@@ -6,7 +6,8 @@ import { useLang } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase/client";
 import { useMyFace } from "@/lib/avatars";
 import { rememberTown, resumable } from "@/lib/town/active";
-import { BUBBLE_MS } from "@/lib/town/chat";
+import { BUBBLE_MS, reachNote } from "@/lib/town/chat";
+import { placeOf } from "@/lib/town/world";
 import { currentSession, openSession, type TownSession } from "@/lib/town/session";
 import ChatHistory from "./ChatHistory";
 import TownIcon from "./TownIcon";
@@ -46,7 +47,8 @@ function useWords() {
     hear: th ? "แตะเพื่อฟังเสียง" : "Tap to hear",
     chat: th ? "แชท" : "Chat",
     unread: (n: number) => (th ? `${n} ข้อความใหม่` : `${n} new`),
-    placeholder: th ? "พิมพ์คุยกับทุกคนในเมือง…" : "Say something to everyone in town…",
+    placeholder: th ? "คุยในแผนที่ที่เราอยู่…" : "Chat on your current map…",
+    placeholderTown: th ? "พิมพ์คุยกับทุกคนในเมือง…" : "Say something to everyone in town…",
     send: th ? "ส่ง" : "Send",
     slow: th ? "พิมพ์เร็วไปนิด รอแป๊บนึงนะ" : "A little fast. Wait a moment.",
     offline: th ? "ยังส่งไม่ได้ กำลังต่อใหม่" : "Can't send while reconnecting.",
@@ -122,7 +124,8 @@ export default function TownBar() {
   }, [chatOpen]);
 
   // The latest line shows in the dock for a few seconds; this takes it away.
-  const last = session?.chat[session.chat.length - 1];
+  const shownChat = session?.shownChat ?? [];
+  const last = shownChat[shownChat.length - 1];
   useEffect(() => {
     if (!last || last.mine) return;
     const left = BUBBLE_MS - (Date.now() - last.at);
@@ -157,6 +160,10 @@ export default function TownBar() {
     else if (r === "forbidden") setNote(w.th ? "คำสั่งประกาศใช้ได้เฉพาะ Ninenine" : "Only Ninenine can announce.");
     else if (r === "invalid") setNote(w.th ? "ใช้ /announce ตามด้วยข้อความ 1–280 ตัวอักษร" : "Use /announce followed by 1–280 characters.");
     else if (r === "unavailable") setNote(w.th ? "คำสั่งประกาศยังไม่พร้อมใช้งาน" : "Announcements are not available yet.");
+    else {
+      setNote(reachNote(r, w.th));
+      if (r === "reach-town" || r === "reach-map") setDraft(current => current === draft ? "" : current);
+    }
   };
 
   // a size bigger than it was (the owner, 2026-10-02: "ใหญ่ขึ้น"), and the same footprint as the door (TownDock)
@@ -168,13 +175,14 @@ export default function TownBar() {
       {chatOpen && (
         <div data-state="open" className="pop-in mb-2 overflow-hidden rounded-2xl border border-line-lit bg-surface/95 shadow-xl shadow-black/40 backdrop-blur-sm"
              onKeyDown={(e) => { if (e.key === "Escape") setChatOpen(false); }}>
-          <ChatHistory lines={s.chat} th={w.th} className="max-h-60" />
+          <ChatHistory lines={shownChat} here={placeOf(s.self.info.x, s.self.info.y)} th={w.th} className="max-h-60" />
           <form onSubmit={send} className="flex items-center gap-2 border-t border-line p-2">
             <input value={draft} onChange={(e) => { setDraft(e.target.value); setNote(null); s.setTyping(e.target.value.trim().length > 0); }}
                    onBlur={() => s.setTyping(false)} autoFocus
-                   maxLength={600} placeholder={w.placeholder} aria-label={w.placeholder} enterKeyHint="send"
-                   className="min-w-0 flex-1 rounded-full border border-line-strong bg-bg px-3 py-1.5 text-read text-ink outline-none placeholder:text-muted focus:border-accent" />
-            <button type="submit" disabled={sending} className="rounded-full bg-accent/20 px-3 py-1.5 text-ui font-semibold text-accent hover:bg-accent/30">
+                   maxLength={600} placeholder={s.chatReach === "town" ? w.placeholderTown : w.placeholder}
+                   aria-label={s.chatReach === "town" ? w.placeholderTown : w.placeholder} enterKeyHint="send"
+                   className="min-h-11 min-w-0 flex-1 rounded-full border border-line-strong bg-bg px-3 py-1.5 text-read text-ink outline-none placeholder:text-muted focus:border-accent" />
+            <button type="submit" disabled={sending} className="min-h-11 min-w-11 rounded-full bg-accent/20 px-3 py-1.5 text-ui font-semibold text-accent hover:bg-accent/30">
               {w.send}
             </button>
           </form>

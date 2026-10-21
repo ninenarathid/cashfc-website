@@ -1,17 +1,55 @@
 /**
  * Cash Town's typed chat: the rules, kept pure so they can be tested.
  *
- * A line goes to everybody in the room as it is typed and is never stored:
- * somebody who arrives later does not see what was said before, the same as
- * the voice. It shows as a bubble over the speaker's head for a few seconds
- * (the Zheza way) and in a short log.
+ * A line goes to the whole town as it is typed (or only to the current map,
+ * when the town's switch says so: ChatReach) and is never stored: somebody
+ * who arrives later does not see what was said before, the same as the voice.
+ * It shows as a bubble over the speaker's head for a few seconds (the Zheza
+ * way), on the speaker's own map only, and in a short log that says which map
+ * a line came from.
  *
  * Lines come from other browsers, so they are cleaned on the way in as well as
  * the way out: one line, no control or direction-flipping characters, at most
  * CHAT_MAX letters, and not too many at once from anybody.
  */
 
+import type { Place } from "./world";
+
 export const CHAT_MAX = 200;
+
+/**
+ * Who hears a line (the owner, 2026-10-22, after members missed the town
+ * talking together): the whole town, or the speaker's map only. Steps and
+ * everything else stay on each map either way. An admin sets it with
+ * `/townchat town` or `/townchat map` (v294's town_chat_switch); every
+ * browser reads it on joining and every REACH_EVERY_MS.
+ */
+export type ChatReach = "town" | "map";
+export const REACH_DEFAULT: ChatReach = "town";
+export const REACH_EVERY_MS = 5 * 60_000;
+export function readReach(raw: unknown): ChatReach | null {
+  return raw === "town" || raw === "map" ? raw : null;
+}
+
+/** What a `/townchat` answer (lib/town/session ReachResult) says under the chat box; null for anything else. */
+export function reachNote(result: string, th: boolean): string | null {
+  switch (result) {
+    case "reach-town": return th ? "ตอนนี้แชทถึงทุกคนทั้งเมือง" : "Chat now reaches the whole town.";
+    case "reach-map": return th ? "ตอนนี้แชทถึงเฉพาะคนในแผนที่เดียวกัน" : "Chat now reaches your own map only.";
+    case "reach-usage": return th ? "ใช้ /townchat town หรือ /townchat map" : "Use /townchat town or /townchat map.";
+    case "reach-forbidden": return th ? "คำสั่งนี้ใช้ได้เฉพาะแอดมิน" : "Only admins can change this.";
+    case "reach-unavailable": return th ? "สวิตช์แชทยังไม่พร้อมใช้งาน" : "The chat switch is not ready yet.";
+    default: return null;
+  }
+}
+
+/** Which map a line came from, as its chip in the log says it. */
+export const CHAT_PLACE: Record<Place, [th: string, en: string]> = {
+  town: ["เมือง", "Town"], farm: ["ฟาร์ม", "Farm"], forest: ["ป่า", "Forest"], mountain: ["ภูเขา", "Mountain"], cave: ["ถ้ำ", "Cave"],
+};
+export function isPlace(raw: unknown): raw is Place {
+  return typeof raw === "string" && Object.prototype.hasOwnProperty.call(CHAT_PLACE, raw);
+}
 
 /** How long a bubble stays over somebody's head, ms. */
 export const BUBBLE_MS = 6_000;

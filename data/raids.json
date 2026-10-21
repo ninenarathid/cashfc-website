@@ -18859,6 +18859,10 @@
       "kills": 2,
       "best": 70
      },
+     "Viper": {
+      "kills": 2,
+      "best": 33
+     },
      "Dancer": {
       "kills": 1,
       "best": 51
@@ -64694,12 +64698,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 92,
     "kills": 15,
     "job": "Scholar",
     "cleared": true,
-    "encounter_id": 1048,
     "job_kills": {
      "Summoner": {
       "kills": 6,
@@ -75007,7 +75011,7 @@
       "best": 26
      },
      "Astrologian": {
-      "kills": 40,
+      "kills": 42,
       "best": 79
      },
      "WhiteMage": {
@@ -83731,8 +83735,8 @@
     "cleared": true,
     "job_kills": {
      "DarkKnight": {
-      "kills": 5,
-      "best": 4
+      "kills": 7,
+      "best": 5
      }
     }
    },
@@ -91990,7 +91994,17 @@
       "best": 91,
       "median": 81,
       "kills": 12,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 11,
+        "best": 91
+       },
+       "Paladin": {
+        "kills": 1,
+        "best": 55
+       }
+      }
      },
      {
       "label": "M6S",
@@ -91999,7 +92013,13 @@
       "best": 89,
       "median": 76,
       "kills": 13,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 13,
+        "best": 89
+       }
+      }
      },
      {
       "label": "M7S",
@@ -92008,7 +92028,13 @@
       "best": 71,
       "median": 46,
       "kills": 11,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 11,
+        "best": 71
+       }
+      }
      },
      {
       "label": "M8S",
@@ -92017,7 +92043,13 @@
       "best": 94,
       "median": 53,
       "kills": 10,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 10,
+        "best": 94
+       }
+      }
      }
     ]
    },
@@ -92119,7 +92151,21 @@
       "best": 97,
       "median": 62,
       "kills": 21,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Dragoon": {
+        "kills": 1,
+        "best": 56
+       },
+       "Paladin": {
+        "kills": 12,
+        "best": 97
+       },
+       "Warrior": {
+        "kills": 8,
+        "best": 64
+       }
+      }
      },
      {
       "label": "E10S",
@@ -92128,7 +92174,21 @@
       "best": 91,
       "median": 26,
       "kills": 15,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Dragoon": {
+        "kills": 1,
+        "best": 18
+       },
+       "Paladin": {
+        "kills": 9,
+        "best": 91
+       },
+       "Warrior": {
+        "kills": 5,
+        "best": 43
+       }
+      }
      },
      {
       "label": "E11S",
@@ -92137,7 +92197,21 @@
       "best": 90,
       "median": 48,
       "kills": 23,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Dragoon": {
+        "kills": 1,
+        "best": 27
+       },
+       "Paladin": {
+        "kills": 21,
+        "best": 90
+       },
+       "DarkKnight": {
+        "kills": 1,
+        "best": 50
+       }
+      }
      },
      {
       "label": "E12S",
@@ -92146,7 +92220,13 @@
       "best": 74,
       "median": 43,
       "kills": 26,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 26,
+        "best": 74
+       }
+      }
      },
      {
       "label": null,
@@ -92155,7 +92235,13 @@
       "best": 59,
       "median": 15,
       "kills": 7,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 7,
+        "best": 59
+       }
+      }
      }
     ]
    }
@@ -92597,7 +92683,17 @@
       "best": 95,
       "median": 81,
       "kills": 12,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 10,
+        "best": 95
+       },
+       "RedMage": {
+        "kills": 2,
+        "best": 16
+       }
+      }
      },
      {
       "label": "E10S",
@@ -92606,7 +92702,17 @@
       "best": 86,
       "median": 15,
       "kills": 9,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 8,
+        "best": 86
+       },
+       "Bard": {
+        "kills": 1,
+        "best": 28
+       }
+      }
      },
      {
       "label": "E11S",
@@ -92615,7 +92721,17 @@
       "best": 89,
       "median": 54,
       "kills": 10,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 9,
+        "best": 89
+       },
+       "Bard": {
+        "kills": 1,
+        "best": 32
+       }
+      }
      },
      {
       "label": "E12S",
@@ -92624,7 +92740,21 @@
       "best": 95,
       "median": 25,
       "kills": 21,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 19,
+        "best": 95
+       },
+       "Bard": {
+        "kills": 1,
+        "best": 14
+       },
+       "RedMage": {
+        "kills": 1,
+        "best": 8
+       }
+      }
      },
      {
       "label": null,
@@ -92633,7 +92763,17 @@
       "best": 88,
       "median": 51,
       "kills": 11,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 10,
+        "best": 88
+       },
+       "Bard": {
+        "kills": 1,
+        "best": 9
+       }
+      }
      }
     ]
    },
@@ -92739,6 +92879,17 @@
   },
   "ultimates": [],
   "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1083,
+    "name": "Doomtrain",
+    "best": 4,
+    "kills": 1,
+    "job": "Reaper",
+    "cleared": true
+   },
    {
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
@@ -92863,6 +93014,17 @@
   "ultimates": [],
   "extremes": [
    {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1083,
+    "name": "Doomtrain",
+    "best": 6,
+    "kills": 1,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
@@ -92923,6 +93085,19 @@
    }
   ],
   "legacy": [],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 103,
+    "name": "The Tyrant",
+    "kind": "savage",
+    "state": "learning",
+    "pct": 76.71,
+    "phase": 0,
+    "pulls": 16,
+    "last": "2026-10-17",
+    "last_ts": 1792215436
+   }
+  ]
  }
 }

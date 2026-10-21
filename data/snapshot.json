@@ -6,7 +6,7 @@
   "mounts": 61,
   "minions": 227,
   "rare": null,
-  "level": 96,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -26,7 +26,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-19"
+  "chg": "2026-10-20"
  },
  "15308846": {
   "name": "Aqua Eleison",
@@ -67,6 +67,7 @@
    2494,
    2497,
    2500,
+   2502,
    2503,
    2506,
    2509,
@@ -106,7 +107,6 @@
    2766,
    2785,
    2803,
-   2811,
    2815,
    2816,
    2877,
@@ -403,7 +403,7 @@
   "mounts": 70,
   "minions": 196,
   "rare": 127,
-  "level": 100,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -523,7 +523,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-07"
+  "chg": "2026-10-20"
  },
  "24186600": {
   "name": "Dumb Bunny",
@@ -1454,7 +1454,6 @@
    3846,
    3847,
    3853,
-   3855,
    3902,
    3903,
    3904,
@@ -1467,6 +1466,7 @@
    3911,
    3912,
    3913,
+   3916,
    3918,
    3922,
    3923,
@@ -2294,7 +2294,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 61,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4339,7 +4339,7 @@
   "mounts": 265,
   "minions": 338,
   "rare": 535,
-  "level": 50,
+  "level": 100,
   "cc": null,
   "rare_ids": [
    847,
@@ -4432,9 +4432,9 @@
    3834,
    3835,
    3952,
-   3961,
    3962,
    3963,
+   4000,
    4005,
    4010,
    4011,
@@ -4735,8 +4735,8 @@
   "jobs": {
    "Machinist": "legendary",
    "Pictomancer": "expert",
-   "Bard": "master",
-   "Viper": "master"
+   "Viper": "master",
+   "Bard": "master"
   },
   "ex": [
    "Doomtrain",
@@ -5419,7 +5419,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5443,7 +5443,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-08"
+  "chg": "2026-10-21"
  },
  "29090821": {
   "name": "Amber Levana",
@@ -6880,7 +6880,7 @@
   "mounts": 57,
   "minions": 111,
   "rare": 2,
-  "level": 97,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -6901,7 +6901,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-19"
+  "chg": "2026-10-20"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -6940,7 +6940,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 63,
+  "level": 89,
   "cc": [
    false,
    false,
@@ -6953,7 +6953,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-19"
+  "chg": "2026-10-20"
  },
  "53933347": {
   "name": "Little Alyss",
@@ -7324,7 +7324,7 @@
   "mounts": 70,
   "minions": 104,
   "rare": 57,
-  "level": 91,
+  "level": 58,
   "cc": [
    false,
    false,
@@ -7401,7 +7401,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-19"
+  "chg": "2026-10-20"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -7895,7 +7895,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 93,
+  "level": 79,
   "cc": [
    false,
    false,
@@ -7940,7 +7940,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-20"
+  "chg": "2026-10-21"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -8366,7 +8366,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 83,
+  "level": 88,
   "cc": [
    false,
    false,
@@ -8603,6 +8603,7 @@
   "tiers": {},
   "jobs": {},
   "ex": [
+   "Doomtrain",
    "Queen Eternal",
    "Valigarmanda",
    "Zoraal Ja"
@@ -8725,7 +8726,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-19"
+  "chg": "2026-10-21"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -8790,6 +8791,7 @@
   "tiers": {},
   "jobs": {},
   "ex": [
+   "Doomtrain",
    "Queen Eternal",
    "Valigarmanda",
    "Zoraal Ja"

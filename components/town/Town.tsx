@@ -36,10 +36,10 @@ import { createClient } from "@/lib/supabase/client";
 import type { PeerInfo } from "@/lib/town/voice";
 import type { Identity } from "@/lib/town/room";
 import { resumable } from "@/lib/town/active";
-import { BUBBLE_MS, wrapLines } from "@/lib/town/chat";
+import { BUBBLE_MS, reachNote, wrapLines } from "@/lib/town/chat";
 import { ROOM_CAP, openSession, type Avatar, type TownSession } from "@/lib/town/session";
 import { DbKeeper, type Ask, type Keeper as GameKeeper, type Looked } from "@/lib/town/keeper";
-import ChatHistory from "./ChatHistory";
+import ChatHistory, { ChatPlace } from "./ChatHistory";
 import Wardrobe from "./Wardrobe";
 import { TownElementProvider } from "./TownElementFx";
 import { ElementBursts, paintElementAction } from './element-action-art';
@@ -373,8 +373,11 @@ function useWords() {
     direct: th ? "ตรง" : "direct",
     relay: "relay",
     chat: th ? "แชท" : "Chat",
-    chatPlaceholder: th ? "พิมพ์คุยกับทุกคน… (Enter)" : "Say something to everyone… (Enter)",
-    chatPlaceholderPhone: th ? "พิมพ์คุยกับทุกคน…" : "Say something to everyone…",
+    chatPlaceholder: th ? "คุยในแผนที่นี้… (Enter)" : "Chat on this map… (Enter)",
+    chatPlaceholderPhone: th ? "คุยในแผนที่นี้…" : "Chat on this map…",
+    // (the whole town hears a line: lib/town/chat ChatReach)
+    chatPlaceholderTown: th ? "พิมพ์คุยกับทุกคนในเมือง… (Enter)" : "Say something to the whole town… (Enter)",
+    chatPlaceholderTownPhone: th ? "พิมพ์คุยกับทุกคนในเมือง…" : "Say something to the whole town…",
     history: th ? "ประวัติแชท" : "Chat history",
     historyClose: th ? "ย่อประวัติแชท" : "Hide chat history",
     historyOpen: th ? "แตะเพื่อเลื่อนดูประวัติแชท" : "Tap to scroll back through the chat",
@@ -1186,7 +1189,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // In voice, the list says how each line is doing; twice a second is often
   // enough to read and cheap enough to ignore. With chat, old lines leave the
   // log over the map without anybody typing.
-  const chatting = !!s && s.chat.length > 0;
+  const chatting = !!s && s.shownChat.length > 0;
   useEffect(() => {
     if (!voiceOn && !chatting) return;
     const id = window.setInterval(() => setTick((n) => n + 1), voiceOn ? 500 : 2000);
@@ -1206,6 +1209,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     else if (r === "forbidden") setChatNote(w.th ? "คำสั่งประกาศใช้ได้เฉพาะ Ninenine" : "Only Ninenine can announce.");
     else if (r === "invalid") setChatNote(w.th ? "ใช้ /announce ตามด้วยข้อความ 1–280 ตัวอักษร" : "Use /announce followed by 1–280 characters.");
     else if (r === "unavailable") setChatNote(w.th ? "คำสั่งประกาศยังไม่พร้อมใช้งาน" : "Announcements are not available yet.");
+    else {
+      setChatNote(reachNote(r, w.th));
+      if (r === "reach-town" || r === "reach-map") setDraft(current => current === draft ? "" : current);
+    }
   };
 
   /* ── the camera ──────────────────────────────────────────────────────── */
@@ -4465,7 +4472,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const nameOf = (id: string) => s?.avatars.get(id)?.info.name ?? id.slice(0, 6);
   const micProblem = s?.micProblem === "denied" ? w.micDenied : s?.micProblem === "no-mic" ? w.noMic
     : s?.micProblem === "failed" ? w.micFailed : null;
-  const recent = s ? s.chat.filter((l) => Date.now() - l.at < LOG_SHOWN_MS).slice(phone ? -3 : -5) : [];
+  const shownChat = s?.shownChat ?? [];
+  const chatHere = s ? placeOf(s.self.info.x, s.self.info.y) : null;
+  const townHears = s?.chatReach === "town";
+  const recent = shownChat.filter((l) => Date.now() - l.at < LOG_SHOWN_MS).slice(phone ? -3 : -5);
   const myLook = s ? (decodeLook(s.self.info.look) ?? defaultLook(me.id)) : defaultLook(me.id);
   // Everybody is the one model now (lib/town/look's ONE_MODEL): whoever chose another race is told once that their
   // hairstyle and skin were chosen for them, to choose their own in the wardrobe (the owner, 2026-10-17)
@@ -5077,12 +5087,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                 <div className={`pop-in tk tk-window pointer-events-auto flex flex-col p-3 ${phone ? "" : "max-h-[min(42vh,24rem)]"}`}
                      style={room ? { maxHeight: room } : undefined} data-state="open">
                   <div className="flex items-center gap-2 border-b border-line py-1 pl-3 pr-1">
-                    <span className="font-data text-label uppercase tracking-wider text-muted"><span className="flex items-center gap-1.5"><TownIcon name="chat" size={14} />{w.history} · {s.chat.length}</span></span>
+                    <span className="font-data text-label uppercase tracking-wider text-muted"><span className="flex items-center gap-1.5"><TownIcon name="chat" size={14} />{w.history} · {shownChat.length}</span></span>
                     <button type="button" onClick={() => { if (phone) setChatOpen(false); else setHistoryOpen(false); }}
                             aria-label={w.historyClose} title={w.historyClose}
-                            className="pressable ml-auto grid size-8 place-items-center rounded-full text-read text-muted hover:bg-card hover:text-ink"><TownIcon name="chevron" size={14} /></button>
+                            className="pressable ml-auto grid size-11 shrink-0 place-items-center rounded-full text-read text-muted hover:bg-card hover:text-ink"><TownIcon name="chevron" size={14} /></button>
                   </div>
-                  <ChatHistory lines={s.chat} th={w.th} className="min-h-0 flex-1" />
+                  <ChatHistory lines={shownChat} here={chatHere} th={w.th} className="min-h-0 flex-1" />
                 </div>
               ) : recent.length > 0 && (
                 <ul aria-label={w.chatLog} title={w.historyOpen}
@@ -5090,6 +5100,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                     onClick={openHistory}>
                   {recent.map((l) => (
                     <li key={l.key} className="max-w-full whitespace-pre-wrap break-words bg-[#2a180c]/95 px-2 py-0.5 text-meta leading-normal shadow-[0_0_0_2px_#1a0e06] [overflow-wrap:anywhere]">
+                      <ChatPlace line={l} here={chatHere} th={w.th} />
                       <span className={l.announcement ? "font-semibold text-gold" : l.mine ? "text-gold" : "text-accent"}>{l.mine ? w.you : l.name}</span>
                       <span className="text-muted">: </span>
                       <span className="text-ink">{l.text}</span>
@@ -5133,7 +5144,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                                    const next = e.relatedTarget as HTMLElement | null;
                                    if (phone && !draft && !next?.closest("[role=log]")) setChatOpen(false);
                                  }}
-                                 placeholder={phone ? w.chatPlaceholderPhone : w.chatPlaceholder} aria-label={w.chatPlaceholderPhone}
+                                 placeholder={townHears ? (phone ? w.chatPlaceholderTownPhone : w.chatPlaceholderTown) : phone ? w.chatPlaceholderPhone : w.chatPlaceholder}
+                                 aria-label={townHears ? w.chatPlaceholderTownPhone : w.chatPlaceholderPhone}
                                  className="h-full min-w-0 flex-1 bg-transparent text-read text-ink outline-none placeholder:text-muted" />
                         </span>
                         <button type="submit" disabled={sendingChat} className="pressable tk tk-btn town-hud-send h-11 shrink-0 px-3 font-display text-ui font-medium">
