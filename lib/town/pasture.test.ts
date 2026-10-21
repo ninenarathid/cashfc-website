@@ -4,8 +4,10 @@ import { BEDS_IN_FARM, FARM, FARM_ALL, FARM_PROPS, FARM_PROPS_FIRST, GATES, WELL
 import { HAUNTS } from "./insects";
 import {
   BARNS, BARN_SIZE, EGG_SPOTS, FARM_GATES, FENCE_X, MEADOW_SPOTS, PASTURE, PASTURE_AREA, PEN, POPOTO, TROUGH, WAGON_STOPS, allWays, animalSpot,
-  asleepAt, barnAt, barnWall, inPasture, nearFarmGate, onLane, pastureThing, penSpot, slotSpot, spotOf, troughOf,
+  asleepAt, barnAt, barnWall, gardenRoams, inPasture, nearFarmGate, onLane, pastureThing, patchShares, penSpot, slotSpot, spotOf, troughOf,
 } from "./pasture";
+import { gardenFree } from "./pasture-garden";
+import { LAMPS } from "./lamps";
 import { BOUNDS } from "./camera";
 
 const hash = (v: unknown) => createHash("sha256").update(JSON.stringify(v)).digest("hex").slice(0, 16);
@@ -111,6 +113,33 @@ describe("the animals on the map", () => {
         was = t;
       }
     }
+  });
+  it("roams the garden's blocks over free ground, beds and all, never through a post, a tree or a well, and back to its lane", () => {
+    // (the owner, 2026-10-22: "ช่วยทำให้เดินมั่วเลย เดินเข้าไปในแปลงผักด้วยก็ได้")
+    for (const [x, y] of [...LAMPS.maps.farm.posts, ...LAMPS.maps.farm.fires].filter(([x]) => x < FENCE_X)) expect(gardenFree(x, y), `lamp ${x},${y}`).toBe(false);
+    let points = 0, inBlock = 0, inBeds = 0;
+    const roams = gardenRoams([1, 77, 4242, 90001, 123457], [0, 3, 11, 40], 50);
+    expect(roams.length).toBe(32 * 5 * 4);
+    for (const { area, pts } of roams) {
+      expect(pts[0]).toEqual(pts[pts.length - 1]);
+      for (let i = 1; i < pts.length; i++) {
+        const a = pts[i - 1], b = pts[i], l = Math.hypot(b.x - a.x, b.y - a.y), n = Math.max(1, Math.ceil(l * 4));
+        expect(l).toBeLessThanOrEqual(6.01);
+        for (let k = 0; k <= n; k++) { const x = Math.floor(a.x + ((b.x - a.x) * k) / n), y = Math.floor(a.y + ((b.y - a.y) * k) / n); expect(gardenFree(x, y) && walkable(x, y), `${x},${y}`).toBe(true); }
+        points++;
+        if (b.x >= area.x && b.x < area.x + area.w && b.y >= area.y && b.y < area.y + area.h) inBlock++;
+        if (groundAt(Math.floor(b.x), Math.floor(b.y)) === "field") inBeds++;
+      }
+    }
+    // (most of a stretch about its block, and a good part of it in the beds)
+    expect(inBlock / points).toBeGreaterThan(0.6);
+    expect(inBeds / points).toBeGreaterThan(0.25);
+  });
+  it("spends about half its stretches out in the garden, a duck a third at the pond", () => {
+    const seeds = Array.from({ length: 300 }, (_, i) => i * 7919 + 13), ks = Array.from({ length: 12 }, (_, k) => k);
+    for (const sp of ["cow", "sheep", "chicken"]) { const n = patchShares(sp, seeds, ks), all = n.garden + n.meadow + n.pond; expect(n.pond).toBe(0); expect(n.garden / all).toBeGreaterThan(0.5); expect(n.garden / all).toBeLessThan(0.6); }
+    const d = patchShares("duck", seeds, ks), all = d.garden + d.meadow + d.pond;
+    expect(d.pond / all).toBeGreaterThan(0.25); expect(d.pond / all).toBeLessThan(0.35); expect(d.garden / all).toBeGreaterThan(0.33);
   });
   it("keeps to its barn while the door is shut, comes out when it opens and home when it shuts, the same on every page", () => {
     const b = BARNS[9];

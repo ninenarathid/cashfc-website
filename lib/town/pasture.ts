@@ -308,8 +308,19 @@ function laneWay(from: P, to: P): P[] {
   return pts;
 }
 
-/** The places an animal out of its barn grazes or wanders: patches of the meadows (entered from the lane above them), the pond, the garden's lanes. */
-interface Patch { kind: "meadow" | "pond" | "garden"; area: Rect; /** Where it is entered: a point on the lanes, and the point in it the way comes to. */ entry: P; anchor: P; along?: "x" | "y" }
+/** The garden's blocks an animal roams (x and y spans), and its lanes they are entered from (its two roads and its north-south lane). */
+const GARDEN = {
+  xs: [[129, 143], [143, 157], [159, 173], [173, 187]] as const,
+  ys: [[3, 12], [12, 21], [23, 33], [33, 43], [43, 53], [53, 63], [65, 74], [74, 83]] as const,
+  lanes: [[{ x: 134, y: laneY(1) }, { x: FENCE_X, y: laneY(1) }], [{ x: 134, y: laneY(4) }, { x: FENCE_X, y: laneY(4) }], [{ x: 158, y: 5 }, { x: 158, y: 80 }]] as ReadonlyArray<readonly [P, P]>,
+};
+/** The point of a straight stretch nearest a point. */
+function nearestOn(a: P, b: P, p: P): P {
+  const l2 = (b.x - a.x) ** 2 + (b.y - a.y) ** 2, t = l2 ? Math.max(0, Math.min(1, ((p.x - a.x) * (b.x - a.x) + (p.y - a.y) * (b.y - a.y)) / l2)) : 0;
+  return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
+}
+/** The places an animal out of its barn grazes or wanders: patches of the meadows (entered from the lane above them), the pond, blocks of the garden. */
+interface Patch { kind: "meadow" | "pond" | "garden"; area: Rect; /** Where it is entered: a point on the lanes, and the point in it the way comes to. */ entry: P; anchor: P }
 const PATCHES: readonly Patch[] = (() => {
   const out: Patch[] = [];
   for (let x = MEADOW.x; x < MEADOW.x + MEADOW.w; x += 5) {
@@ -322,16 +333,23 @@ const PATCHES: readonly Patch[] = (() => {
     out.push({ kind: "meadow", area: { x, y: SOUTH_MEADOW.y, w, h: SOUTH_MEADOW.h }, entry: { x: cx, y: laneY(5) }, anchor: { x: cx, y: SOUTH_MEADOW.y + 0.6 } });
   }
   out.push({ kind: "pond", area: { x: POND.cx - POND.rx, y: POND.cy - POND.ry, w: POND.rx * 2, h: POND.ry * 2 }, entry: { x: POND.cx, y: laneY(2) }, anchor: { x: POND.cx, y: POND.cy - POND.ry + 0.7 } });
-  // (the garden: its two roads and its lane north to south, a stretch each)
-  for (const y of [laneY(1), laneY(4)]) for (let x = 134; x < 186; x += 8) out.push({ kind: "garden", area: { x, y: y - 0.7, w: 8, h: 1.4 }, entry: { x: x + 4, y }, anchor: { x: x + 4, y }, along: "x" });
-  for (let y = 6; y < 78; y += 9) if (Math.abs(y + 4.5 - laneY(1)) > 4 && Math.abs(y + 4.5 - laneY(4)) > 4) out.push({ kind: "garden", area: { x: 157.3, y, w: 1.4, h: 9 }, entry: { x: 158, y: y + 4.5 }, anchor: { x: 158, y: y + 4.5 }, along: "y" });
+  // (the garden: blocks of it either side of its north-south lane, between its two roads, beds and all; each entered
+  // from the nearest point of its lanes, and roamed tile by tile: roamOf)
+  for (const [x0, x1] of GARDEN.xs) for (const [y0, y1] of GARDEN.ys) {
+    const c = { x: (x0 + x1) / 2, y: (y0 + y1) / 2 }, entry = GARDEN.lanes.map(([a, b]) => nearestOn(a, b, c)).sort((a, b) => dist(a, c) - dist(b, c))[0];
+    out.push({ kind: "garden", area: { x: x0, y: y0, w: x1 - x0, h: y1 - y0 }, entry, anchor: entry });
+  }
   return out;
 })();
-/** Which patch an animal is at in a stretch of time: the meadows mostly; ducks the pond as often; now and then the garden's lanes. */
+/**
+ * Which patch an animal is at in a stretch of time: the garden a little more often than the meadows (the owner,
+ * 2026-10-22: "ช่วยทำให้ สัตว์เดินออกไปที่แปลงผักมากขึ้น"), a duck the pond a third of the time.
+ */
+const GARDEN_SHARE = 0.55, POND_SHARE = 0.3;
 function patchOf(seed: number, species: string, k: number): number {
   const r = mix(seed, k, 21), garden = PATCHES.map((p, i) => [p, i] as const).filter(([p]) => p.kind === "garden"), meadow = PATCHES.map((p, i) => [p, i] as const).filter(([p]) => p.kind === "meadow");
-  if (species === "duck" && r < 0.45) return PATCHES.findIndex((p) => p.kind === "pond");
-  const list = r > 0.75 ? garden : meadow;
+  if (species === "duck" && r < POND_SHARE) return PATCHES.findIndex((p) => p.kind === "pond");
+  const list = mix(seed, k, 22) < GARDEN_SHARE ? garden : meadow;
   return list[Math.floor(mix(seed, k, 23) * list.length) % list.length][1];
 }
 /** A point in a patch for a wander's step. */
@@ -339,6 +357,54 @@ function pointIn(p: Patch, seed: number, k: number, n: number): P {
   const u = mix(seed, k, n, 1), v = mix(seed, k, n, 2);
   if (p.kind === "pond") { const a = u * Math.PI * 2, r = 0.25 + 0.6 * Math.sqrt(v); return { x: POND.cx + Math.cos(a) * (POND.rx - 0.9) * r, y: POND.cy + Math.sin(a) * (POND.ry - 0.8) * r }; }
   return { x: p.area.x + 0.4 + u * (p.area.w - 0.8), y: p.area.y + 0.4 + v * (p.area.h - 0.8) };
+}
+
+/**
+ * The garden's ground an animal may stand on (lib/town/pasture-garden lays it in: world.ts and lamps.ts know it, and this
+ * cannot import them); none, and an animal in the garden stands on its lane.
+ */
+let gardenFree: ((x: number, y: number) => boolean) | null = null;
+export function roamGarden(free: (x: number, y: number) => boolean) { gardenFree = free; roams.clear(); }
+/** Whether nothing stands on a straight way across the garden. */
+function clearWay(a: P, b: P): boolean {
+  const n = Math.max(1, Math.ceil(dist(a, b) * 4));
+  for (let i = 0; i <= n; i++) if (!gardenFree!(Math.floor(a.x + ((b.x - a.x) * i) / n), Math.floor(a.y + ((b.y - a.y) * i) / n))) return false;
+  return true;
+}
+/** How far a step of a roam goes at the most, in tiles. */
+const ROAM_STEP = 4;
+const roams = new Map<string, P[]>();
+/**
+ * A stretch's roam of a garden block, its steps 0 .. n-2 (the owner: "ช่วยทำให้เดินมั่วเลย เดินเข้าไปในแปลงผักด้วยก็ได้"):
+ * from its anchor on the lane a step at a time to free ground, beds and all, never through anything that stands; into
+ * the block and about it; then home along the way it came, cutting across wherever nothing is in the way, so that its
+ * last step is to the anchor. The same on every page, from the patch, the animal and the stretch.
+ */
+function roamOf(pi: number, seed: number, k: number, n: number): P[] {
+  const key = `${pi}:${seed}:${k}:${n}`, had = roams.get(key);
+  if (had) return had;
+  const p = PATCHES[pi], c = { x: p.area.x + p.area.w / 2, y: p.area.y + p.area.h / 2 }, rnd = seeded(Math.floor(mix(pi, seed, k, 31) * 2 ** 31));
+  const pts: P[] = [], trail: P[] = [p.anchor];
+  let at = p.anchor;
+  for (let j = 0; j <= n - 2; j++) {
+    if (trail.length - 1 >= n - 1 - j) {
+      // (home: to the furthest point back along the trail a straight way reaches, not too far for a step)
+      let i = trail.length - 2;
+      while (i > 0 && dist(at, trail[i - 1]) <= ROAM_STEP * 1.5 && clearWay(at, trail[i - 1])) i--;
+      if (i >= 0) { at = trail[i]; trail.length = i + 1; }
+    } else {
+      // (out: a step to free ground in the block, or towards it while it is not there yet; else it stands where it is)
+      for (let tries = 0; tries < 12; tries++) {
+        const a = rnd() * Math.PI * 2, r = 1.2 + rnd() * (ROAM_STEP - 1.2), q = { x: at.x + Math.cos(a) * r, y: at.y + Math.sin(a) * r };
+        if (!(inRect(q.x, q.y, p.area) || dist(q, c) < dist(at, c) - 0.5) || !clearWay(at, q)) continue;
+        at = q; trail.push(q); break;
+      }
+    }
+    pts.push(at);
+  }
+  if (roams.size > 600) roams.clear();
+  roams.set(key, pts);
+  return pts;
 }
 
 /** How fast each kind walks, tiles a second (on the lanes a little faster, at a trot). */
@@ -414,7 +480,8 @@ function wander(p: Patch, seed: number, k: number, pace: number, w0: number, w1:
   const L = 9_000 + (seed % 8) * 1000, n = Math.floor((w1 - w0) / L), i = Math.floor((t - w0) / L);
   const swim = p.kind === "pond";
   if (n < 2 || i >= n || i < 0) return { at: p.anchor, right: mix(seed, k, 9) < 0.5, pose: swim ? "swim" : "idle" };
-  const pt = (j: number) => (j < 0 || j >= n - 1 ? p.anchor : pointIn(p, seed, k, j));
+  const roam = p.kind === "garden" ? (gardenFree ? roamOf(PATCHES.indexOf(p), seed, k, n) : []) : null;
+  const pt = (j: number) => (j < 0 || j >= n - 1 ? p.anchor : roam ? (roam[j] ?? p.anchor) : pointIn(p, seed, k, j));
   const from = i === 0 ? p.anchor : pt(i - 1), to = pt(i), d = dist(from, to);
   // (a step never takes longer than most of its slot: a longer one is taken at a trot)
   const walk = Math.min((d / pace) * 1000, L * 0.8), into = t - w0 - i * L, right = to.x - to.y - (from.x - from.y) >= 0;
@@ -535,3 +602,12 @@ export const allWays = () => [
   ...PATCHES.flatMap((_, a) => PATCHES.map((__, b) => (a === b ? null : patchToPatch(a, b))).filter((w): w is P[] => !!w)),
 ];
 export const PATCH_AREAS = () => PATCHES.map((p) => ({ kind: p.kind, area: p.area, anchor: p.anchor }));
+/** For the tests: the roams of the garden's blocks for so many animals and stretches, each from its anchor and back to it. */
+export const gardenRoams = (seeds: readonly number[], ks: readonly number[], n = 50) =>
+  PATCHES.flatMap((p, pi) => (p.kind === "garden" ? seeds.flatMap((seed) => ks.map((k) => ({ area: p.area, pts: [p.anchor, ...roamOf(pi, seed, k, n), p.anchor] }))) : []));
+/** For the tests: how many stretches of so many animals are spent in the garden, the meadows and the pond. */
+export const patchShares = (species: string, seeds: readonly number[], ks: readonly number[]) => {
+  const n: Record<string, number> = { garden: 0, meadow: 0, pond: 0 };
+  for (const seed of seeds) for (const k of ks) n[PATCHES[patchOf(seed, species, k)].kind]++;
+  return n;
+};

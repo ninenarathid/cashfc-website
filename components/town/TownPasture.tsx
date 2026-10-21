@@ -29,6 +29,8 @@ import TownAnimals, { barnName, why, type AnimalsView } from "./TownAnimals";
 import { EggsGame, MilkGame, ShearGame } from "./TownAnimalGames";
 import { animalSize, drawAnimal, drawBarnInside, drawBarnOutside, drawBlock, drawBubble, drawEggOut, drawForage, drawGateSide, drawPastureProp, drawPenFence, drawPopoto, drawWagon } from "./pasture-draw";
 import type { Play } from "@/lib/town/animals";
+// (the garden's ground the animals roam, laid into lib/town/pasture)
+import "@/lib/town/pasture-garden";
 
 /*
  * The animal farm on the map (docs/plans/animals/README.md, "Round 6"): its 24 barns (each walked into, its inside
