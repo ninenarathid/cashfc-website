@@ -10,28 +10,26 @@ function stay() {
     avatars: new Map([["peer", { info: { id: "peer", name: "Peer", x: 31, y: 30 } }]]),
     listed: new Set(["peer"]), chat: [], chatKey: 0, lastChatAt: 0, flood: new Flood(),
     current: { chat: vi.fn(() => true), rest: vi.fn() }, notify: vi.fn(), views: 1, unread: 0,
-    chatReach: "town", chatView: "town", reachReadAt: 0, reachBusy: false, awaySince: null, tell: vi.fn(),
+    chatReach: "town", reachReadAt: 0, reachBusy: false, awaySince: null, tell: vi.fn(),
   });
 }
 const texts = (s: { shownChat: Array<{ text: string }> }) => s.shownChat.map(l => l.text);
 afterEach(() => vi.unstubAllGlobals());
 describe("chat history across maps, and global announcements", () => {
-  it("shows every map's lines with their map, and only my map's when I narrow it", () => {
+  it("shows every map's lines with their map, and only my map's while the town's switch says map", () => {
     const s = stay();
     s.onChat("peer", "town hello", "town");
     s.townAnnouncement(7, "Important town announcement", Date.now(), "Town");
     Object.assign(s.self.info, { x: FARM.x + 5, y: FARM.y + 5 });
     expect(texts(s)).toEqual(["town hello", "Important town announcement"]);
     expect(s.shownChat[0].area).toBe("town");
-    s.setChatView("map");
-    expect(texts(s)).toEqual(["Important town announcement"]);
     expect(s.sendChat("farm hello")).toBe("sent");
     expect(s.chat.at(-1).area).toBe("farm");
+    expect(texts(s)).toEqual(["town hello", "Important town announcement", "farm hello"]);
+    s.chatReach = "map";
     expect(texts(s)).toEqual(["Important town announcement", "farm hello"]);
     Object.assign(s.self.info, { x: 30, y: 30 });
     expect(texts(s)).toEqual(["town hello", "Important town announcement"]);
-    s.setChatView("town");
-    expect(texts(s)).toEqual(["town hello", "Important town announcement", "farm hello"]);
   });
   it("a line from another map is in the log without a bubble; from mine, with one", () => {
     const s = stay(), peer = s.avatars.get("peer");

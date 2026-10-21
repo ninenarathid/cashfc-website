@@ -1,8 +1,8 @@
 // Cash Town's chat heard across maps (the owner, 2026-10-22: members missed the town talking together after v293
 // kept chat to each map). On the dev test room (`next dev` only), somebody on the farm talks and somebody in town
-// reads it: the line is in the town's log with the farm's chip, no bubble is over a head on another map, the
-// history shows every map's lines, and its "this map" choice narrows it to the town's own. At three sizes:
-// nothing of the HUD lies on another, and the choice's buttons are big enough to tap on a phone.
+// reads it: the line is in the town's log with the farm's chip, no bubble is over a head on another map, and the
+// history shows every map's lines (the owner, the same day: no choice of "this map", the whole town as before).
+// At three sizes: nothing of the HUD lies on another.
 //
 //   node town-chat-maps.mjs <base> <outdir>
 import { browser, sleep, status, until } from "./cdp.mjs";
@@ -63,18 +63,10 @@ for (const [label, size] of Object.entries(SIZES)) {
     await X.evaluate(`(document.querySelector('button[aria-label="แชท"]') ?? document.querySelector('button[title="ประวัติแชท"]')).click()`); await sleep(800);
     const hist = await text(X, "[data-foot-said] [role=log]");
     ok("the history has every map's lines", hist.includes("ใครว่างมาช่วยรดน้ำ") && hist.includes("ขอขายปลา") && hist.includes("ขอบคุณ"), hist);
-    const choice = await X.evaluate(`[...document.querySelectorAll('[role=group][aria-label="แสดงแชทจาก"] button')].map((b) => { const r = b.getBoundingClientRect(); return { t: b.innerText, on: b.getAttribute("aria-pressed"), w: Math.round(r.width), h: Math.round(r.height) }; })`);
-    ok("the choice is there, the whole town chosen", choice.length === 2 && choice[0].on === "true" && choice[1].on === "false", choice);
-    ok("its buttons are 44 px high", choice.every((c) => c.h >= 44), choice);
     over = await overlaps(X);
     ok("the history open, nothing lies on another", over.length === 0, over);
     await X.shot(`${OUT}/chat-maps-history-${label}.png`);
 
-    await X.evaluate(`[...document.querySelectorAll('[role=group][aria-label="แสดงแชทจาก"] button')][1].click()`); await sleep(500);
-    const narrowed = await text(X, "[data-foot-said] [role=log]");
-    ok("'this map' shows the town's own lines only", narrowed.includes("ขอขายปลา") && !narrowed.includes("ใครว่างมาช่วยรดน้ำ"), narrowed);
-    await X.shot(`${OUT}/chat-maps-history-here-${label}.png`);
-    await X.evaluate(`[...document.querySelectorAll('[role=group][aria-label="แสดงแชทจาก"] button')][0].click()`); await sleep(300);
     const placeholder = await X.evaluate(`document.querySelector("[data-foot-ctrl] form input")?.placeholder ?? ""`);
     ok("the box says the whole town hears it", placeholder.includes("ทุกคนในเมือง"), placeholder);
     { const thrown = X.logs.filter((x) => x.startsWith("exception")); ok("no page errors", thrown.length === 0, thrown); }

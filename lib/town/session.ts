@@ -193,8 +193,6 @@ export class TownSession {
   unread = 0;
   /** Who hears a line: the town's switch (lib/town/chat ChatReach), read from the database. */
   chatReach: ChatReach = REACH_DEFAULT;
-  /** What the log shows me while the town hears everybody: every map's lines, or my map's only. */
-  chatView: ChatReach = "town";
   /**
    * The chat room I am in, or hold under my sign (lib/town/circle): who is in it, as its holder lists them; what was
    * typed in it while this tab was in it (gone with the room); how many of its lines nobody here has read; whom I
@@ -307,18 +305,11 @@ export class TownSession {
     return [...this.avatars.values()].filter((a) => a.byeAt === undefined);
   }
 
-  /** The lines the log shows: the whole town's, or my map's only (my choice, or the town's switch). Announcements always. */
+  /** The lines the log shows: the whole town's, or my map's only while the town's switch says map. Announcements always. */
   get shownChat(): ChatLine[] {
-    if (this.chatReach === "town" && this.chatView === "town") return this.chat;
+    if (this.chatReach === "town") return this.chat;
     const area = placeOf(this.self.info.x, this.self.info.y);
     return this.chat.filter(line => line.announcement !== undefined || line.area === area);
-  }
-
-  /** Show every map's lines in the log, or my map's only. */
-  setChatView(view: ChatReach) {
-    if (this.closed || view === this.chatView) return;
-    this.chatView = view;
-    this.notify();
   }
 
   /** What I am doing, as the room is told. */

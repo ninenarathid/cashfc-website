@@ -378,9 +378,6 @@ function useWords() {
     // (the whole town hears a line: lib/town/chat ChatReach)
     chatPlaceholderTown: th ? "พิมพ์คุยกับทุกคนในเมือง… (Enter)" : "Say something to the whole town… (Enter)",
     chatPlaceholderTownPhone: th ? "พิมพ์คุยกับทุกคนในเมือง…" : "Say something to the whole town…",
-    chatShow: th ? "แสดงแชทจาก" : "Show chat from",
-    chatShowTown: th ? "ทั้งเมือง" : "Whole town",
-    chatShowHere: th ? "แผนที่นี้" : "This map",
     history: th ? "ประวัติแชท" : "Chat history",
     historyClose: th ? "ย่อประวัติแชท" : "Hide chat history",
     historyOpen: th ? "แตะเพื่อเลื่อนดูประวัติแชท" : "Tap to scroll back through the chat",
@@ -5090,20 +5087,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                 <div className={`pop-in tk tk-window pointer-events-auto flex flex-col p-3 ${phone ? "" : "max-h-[min(42vh,24rem)]"}`}
                      style={room ? { maxHeight: room } : undefined} data-state="open">
                   <div className="flex items-center gap-2 border-b border-line py-1 pl-3 pr-1">
-                    <span className="min-w-0 font-data text-label uppercase tracking-wider text-muted"><span className="flex items-center gap-1.5"><TownIcon name="chat" size={14} />{w.history} · {shownChat.length}</span></span>
-                    {townHears && (
-                      <span role="group" aria-label={w.chatShow} className="ml-auto flex shrink-0 gap-1">
-                        {(["town", "map"] as const).map((view) => (
-                          <button key={view} type="button" onClick={() => s.setChatView(view)} aria-pressed={s.chatView === view}
-                                  className="pressable tk tk-slot min-h-11 whitespace-nowrap px-2.5 font-display text-label font-medium">
-                            {view === "town" ? w.chatShowTown : w.chatShowHere}
-                          </button>
-                        ))}
-                      </span>
-                    )}
+                    <span className="font-data text-label uppercase tracking-wider text-muted"><span className="flex items-center gap-1.5"><TownIcon name="chat" size={14} />{w.history} · {shownChat.length}</span></span>
                     <button type="button" onClick={() => { if (phone) setChatOpen(false); else setHistoryOpen(false); }}
                             aria-label={w.historyClose} title={w.historyClose}
-                            className={`pressable ${townHears ? "" : "ml-auto "}grid size-11 shrink-0 place-items-center rounded-full text-read text-muted hover:bg-card hover:text-ink`}><TownIcon name="chevron" size={14} /></button>
+                            className="pressable ml-auto grid size-11 shrink-0 place-items-center rounded-full text-read text-muted hover:bg-card hover:text-ink"><TownIcon name="chevron" size={14} /></button>
                   </div>
                   <ChatHistory lines={shownChat} here={chatHere} th={w.th} className="min-h-0 flex-1" />
                 </div>
