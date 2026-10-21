@@ -7,11 +7,14 @@ import type { TownMapAddon } from "@/lib/town/map-addon";
 import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
-  BENCHES, BEYOND_PROPS, BOARD, TRADE_BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_ALL, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SMITH, SPEED, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle,
+  BENCHES, BEYOND_PROPS, BOARD, TRADE_BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_ALL, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SMITH, SPEED, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle, T2, liftAt,
   atFire, atWell, wellBy, benchAt, bySmith, byStorebox, distance, fishFrom, fromIso, isBuilt, isFar, setBridge, setBuilt, setFar, groundAt, hearing, inDiningYard, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
 import { bridgeSpans, bridgeWhole } from "@/lib/town/bridge";
 import { DECOR, FACES, artOf, carving, gateLook, ringAt } from "@/lib/town/decor";
+// ── the editor's town ── (lib/town/town2: drawn from its own pictures, fetched as they come near the view)
+import { Town2Art } from "@/lib/town/town2-art";
+import { T2_CHEST_OPEN, T2_CHEST_SHUT, T2_LAMP_LIGHT, T2_PROP_THING, T2_RINGS, T2_THINGS, t2RiverPoint } from "@/lib/town/town2";
 import { BOUNDS, START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
 import { PACE, keepFps, keptFps, nap, paceOf, paced, wokenFor, type Fps } from "@/lib/town/pace";
 import { canvasDpr } from "@/lib/town/rendering";
@@ -483,6 +486,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
    * in (the owner, 2026-10-03: "ลานทำอาหาร จะกลายเป้น view แบบนี้เมื่อเดินเข้าไปแล้วเท่านั้น ถ้าอยู่ด้านนอกจะเห้นเป็นอาคาร มองไม่เห้นข้างใน").
    */
   const roofRef = useRef(1);
+  /** The editor's town's things and their pictures (only when it is this page's town: lib/town/town-map). */
+  const town2Ref = useRef<Town2Art | null>(null);
+  if (T2 && !town2Ref.current) town2Ref.current = new Town2Art();
   /** The roof as the last frame drew it (none at all where there is no house to draw), for the lights that follow it. */
   const roofSeen = useRef(0);
   /**
@@ -1126,7 +1132,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // the Lalafell's at once (most people); other races' when somebody of theirs comes
     loadPixelKit(0).then((k) => { if (alive) kits.current.set(0, k); }).catch(() => { /* simple figures until a reload */ });
     // The ground, trees and fountain in pixel art, the same way; plain shapes until they come.
-    loadScenery().then((k) => { if (alive) sceneryRef.current = k; }).catch(() => { /* plain shapes until a reload */ });
+    loadScenery().then((k) => { if (alive) { sceneryRef.current = k; void k.loadTown2(); } }).catch(() => { /* plain shapes until a reload */ });
     void loadBoxes().catch(() => { /* the original chest until a reload */ });
     return () => { alive = false; };
   }, []);
@@ -1346,6 +1352,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
    */
   /** A point on the river: `t` how far down it (x + y), `across` from its middle. */
   function riverPoint(t: number, across: number): Vec {
+    if (T2) return t2RiverPoint(t, across);
     const m = riverMiddle(t - 1) + across;
     return { x: (t - m) / 2, y: (t + m) / 2 };
   }
@@ -1816,7 +1823,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const s = cam.current.s, dot = Math.max(1, Math.round(2 * s));
     for (const g of GATES) {
       const ring = gateLook(g).ring;
-      if (g.from !== placeRef.current || !scenery.has(ring)) continue;
+      if (g.from !== placeRef.current || !scenery.has(ring) || (T2 && g.from === "town")) continue;
       const c = project(ringAt(g));
       if (!onScreen(c)) continue;
       scenery.drawProp(ctx, ring, c.x, c.y, s, dpr);
@@ -1841,15 +1848,32 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     ctx.globalCompositeOperation = "lighter";
     const breath = still ? 0.9 : 0.8 + 0.2 * Math.sin(now / 1500);
     for (const g of GATES) {
-      if (g.from !== placeRef.current || !scenery.has(gateLook(g).ring)) continue;
+      if (g.from !== placeRef.current || !scenery.has(gateLook(g).ring) || (T2 && g.from === "town")) continue;
       const c = project(ringAt(g));
       if (!onScreen(c)) continue;
       const lit = (0.14 + 0.5 * lamps) * breath;
       glowAt(ctx, c.x, c.y - 2 * s, 50 * s, "120,205,255", lit, 0.55);
       glowAt(ctx, c.x, c.y - 10 * s, 84 * s, "110,180,255", lit * 0.4, 0.7);
     }
+    // (the editor's town's lanterns and fires drawn in its pictures, warm at night, breathing slowly like the old hall's)
+    if (T2 && lamps > 0.02 && town2Ref.current) {
+      const cam0 = cam.current, warm = still ? 0.9 : 0.85 + 0.15 * Math.sin(now / 2100);
+      for (const [x, y, n] of town2Ref.current.lightsSeen()) {
+        const c = toScreen(cam0, { x, y }, cam0.cw, cam0.ch);
+        glowAt(ctx, c.x, c.y, (10 + 6 * n) * s, "255,200,130", 0.7 * lamps * warm);
+        glowAt(ctx, c.x, c.y + 8 * s, (40 + 18 * n) * s, "255,150,70", 0.28 * lamps * warm, 0.7);
+      }
+    }
+    // (the editor's town's rings are its own pictures: their glow where each lies)
+    if (T2 && placeRef.current === "town") for (const r of T2_RINGS) {
+      const c0 = project(r.at), c = { x: c0.x, y: c0.y - r.lift * s };
+      if (!onScreen(c)) continue;
+      const lit = (0.14 + 0.5 * lamps) * breath;
+      glowAt(ctx, c.x, c.y - 2 * s, 50 * s, "120,205,255", lit, 0.55);
+      glowAt(ctx, c.x, c.y - 10 * s, 84 * s, "110,180,255", lit * 0.4, 0.7);
+    }
     if (lamps > 0.02 && (forcedCarving.current ?? carving(Date.now()))) for (const d of DECOR) {
-      if (!d.carved || !scenery.has(d.art)) continue;
+      if (!d.carved || !scenery.has(d.art) || (T2 && placeOf(d.x, d.y) === "town")) continue;
       const c = project(d);
       if (!onScreen(c)) continue;
       const k = s * (PROP_K[d.art] ?? 1), [fx, fy] = FACES[d.art as keyof typeof FACES];
@@ -1869,7 +1893,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
    * the light from outside only breathes, over several seconds; by the fire itself it wavers a little more.
    */
   function drawYardLights(ctx: CanvasRenderingContext2D, lamps: number, now: number) {
-    if (KITCHEN.stage !== 2) return;
+    if (KITCHEN.stage !== 2 || T2) return;
     const feet = project(KITCHEN.foot);
     if (!onScreen(feet)) return;
     const s = cam.current.s, roof = roofSeen.current, L = KITCHEN.lights, still = reducedRef.current;
@@ -1956,9 +1980,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     ctx.globalCompositeOperation = "lighter";
     for (const p of PROPS) {
       if (p.kind !== "lamp") continue;
-      const base = project({ x: p.x + 0.5, y: p.y + 0.62 });
+      // (the editor's town's lanterns: at their own middle, their flame as high as each one's is)
+      const t2 = T2 ? T2_LAMP_LIGHT.get(p) : undefined;
+      const base = project(t2 ? t2.at : { x: p.x + 0.5, y: p.y + 0.62 });
       if (!onScreen(base)) continue;
-      glowAt(ctx, base.x, base.y - 78 * s, 44 * s, "255,196,120", 0.55 * day.lamps);
+      glowAt(ctx, base.x, base.y - (t2 ? t2.up : 78) * s, (t2 ? 34 : 44) * s, "255,196,120", 0.55 * day.lamps);
       // a pool of light on the ground
       glowAt(ctx, base.x, base.y, 70 * s, "255,180,100", 0.22 * day.lamps, 0.5);
     }
@@ -2132,7 +2158,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (scenery) {
       scenery.drawGround(ctx, v, cw, ch, dpr);
       // Flowers lie flat: under whoever walks over them.
-      for (const p of placeRef.current === "forest" ? FOREST_PROPS : PROPS) {
+      for (const p of placeRef.current === "forest" ? FOREST_PROPS : T2 ? [] : PROPS) {
         if (p.kind !== "flowers") continue;
         const c = project({ x: p.x + 0.5, y: p.y + 0.62 });
         if (onScreen(c)) scenery.drawProp(ctx, "flowers", c.x, c.y, v.s, dpr);
@@ -2149,8 +2175,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       }
     }
 
-    // The river flowing, and what floats and swims in it.
+    // ── the editor's town ── (lib/town/town2-art: what of it is near the view, and what lies on its ground under everybody;
+    // the kitchen hall's inside only while I am in it, when its roof is off)
+    const art2 = scenery ? town2Ref.current : null, inHall = T2 && roofRef.current < 1;
+    const iso2 = (ix: number, iy: number) => toScreen(v, { x: ix, y: iy }, cw, ch);
+    const seen2 = art2 ? art2.visible({ x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, now) : null;
+    // The river flowing, and what floats and swims in it (in the editor's town, down its own river, under its decks).
     if (scenery) drawRiver(ctx, scenery, dpr);
+    if (art2 && seen2) art2.drawFloor(ctx, seen2, iso2, v.s, dpr, reducedRef.current ? 0 : now, inHall);
     // A ring of light on the ground at each gate, under its gateway and whoever walks onto it.
     if (scenery) drawRings(ctx, scenery, dpr, now);
     /** Whether carved pumpkins are out (lib/town/decor), by the calendar or as `next dev` was asked. */
@@ -2197,7 +2229,20 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // Chat times are wall-clock; the frame's `now` is not.
     const wall = Date.now();
     for (const b of BUILDINGS) things.push({ depth: b.x + b.y + (b.w + b.h) / 2, draw: () => drawBuilding(ctx, b, signs) });
-    for (const p of PROPS) {
+    // ── the editor's town ── (its things back to front with everybody: the chest open while my panel of it is; and where
+    // its benches, its chest and its boards are on the screen, for taps)
+    if (art2 && seen2) {
+      const hide = new Set([boxShown.current ? T2_CHEST_SHUT : T2_CHEST_OPEN]);
+      art2.pushStanding(ctx, seen2.filter((t) => !hide.has(t.i)), (depth, draw) => things.push({ depth, draw }), iso2, v.s, dpr, inHall);
+      for (const p of PROPS) {
+        if (p.kind !== "bench" && p.kind !== "storebox") continue;
+        const box = art2.boxOf(T2_PROP_THING.get(p) ?? -1, iso2, v.s);
+        if (!box) continue;
+        if (p.kind === "storebox") storeBox.current = box;
+        else benchBoxes.current.push({ i: benchIndex.get(p) ?? -1, ...box, depth: p.x + p.y });
+      }
+    }
+    for (const p of T2 ? [] : PROPS) {
       if (p.kind === "flowers") continue;
       const c = project({ x: p.x + 0.5, y: p.y + 0.62 });
       if (!onScreen(c)) continue;
@@ -2230,7 +2275,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     }
     // Popoto Shop, being built: the site as it stands at its stage, and popoto workers at it.
     const shopArt = scenery?.has(`shop${SHOP.stage}`) ? `shop${SHOP.stage}` : "shop1";
-    if (scenery?.has(shopArt)) {
+    if (!T2 && scenery?.has(shopArt)) {
       const corner = project({ x: SHOP.x + SHOP.w - 0.1, y: SHOP.y + SHOP.h - 0.1 });
       things.push({ depth: SHOP.x + SHOP.y + SHOP.w + SHOP.h - 1, draw: () => {
         scenery.drawProp(ctx, shopArt, corner.x, corner.y, v.s, dpr);
@@ -2264,7 +2309,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // The fishing deck at the river, as it stands at its stage: going up, with popoto builders in a hurry at it; or
     // finished, with its places to fish from.
     const pierArt = `pier${PIER.stage}`;
-    if (scenery?.has(pierArt)) {
+    if (!T2 && scenery?.has(pierArt)) {
       // The picture is stood by the platform's left corner post, out in the river (so its bare frame is over the water
       // and its boards on the bank); everything else is measured from the picture's ground point, in its own pixels.
       const post = project(PIER.post);
@@ -2324,7 +2369,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     }
     // The cooking yard going up below the plaza, lying across the screen: the site, and popoto builders at it.
     const kitchenArt = `kitchen${KITCHEN.stage}`;
-    if (scenery?.has(kitchenArt)) {
+    if (!T2 && scenery?.has(kitchenArt)) {
       // stood by its ground point, the middle of its front by the way in; the builders are measured from it, in the
       // picture's own pixels
       const feet = project(KITCHEN.foot);
@@ -2393,6 +2438,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (scenery?.has("gateway")) for (const g of GATES) {
       const c = project(g.arch);
       if (!onScreen(c)) continue;
+      // (the editor's town's gateways are its own pictures, drawn with the rest of it: only their names and taps here)
+      if (T2 && g.from === "town") {
+        const th = words.current.th, more = moreArt.current?.gateName(g, th) ?? null;
+        const leads = more ?? (g.leads === "farm" ? (th ? "ไปแปลงผัก" : "To the farm") : g.leads === "forest" ? (th ? "ไปป่า" : "To the forest") : (th ? "ไปภูเขา" : "To the mountain"));
+        gateBoxes.current.push({ to: g.tiles[0], x0: c.x - 70 * v.s, y0: c.y - 150 * v.s, x1: c.x + 70 * v.s, y1: c.y + 10 * v.s });
+        signs.push(() => label(ctx, leads, c.x, c.y - 150 * v.s, "#e5cc80", "rgba(15,19,25,0.82)", popotoImg.current));
+        continue;
+      }
       // (the forest's way has a torii at both its ends: lib/town/decor. The wooden gateway is drawn for a way that
       // runs along the map and turned for one that runs up it; the torii the other way about)
       const torii = gateLook(g).arch === "torii" && scenery.has("torii"), arch = torii ? "torii" : "gateway";
@@ -2420,7 +2473,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       }
       const frame = {
         ctx, things, project, onScreen, s: v.s, now, img: iconImg.current, still: reducedRef.current, th: words.current.th,
-        indoors: !(KITCHEN.stage === 2 && !!scenery?.has("kitchenHouse") && roofRef.current >= 1),
+        indoors: !(KITCHEN.stage === 2 && (T2 || !!scenery?.has("kitchenHouse")) && roofRef.current >= 1),
         self: mine ? { x: mine.pos.x, y: mine.pos.y } : null,
         dark: skyNow().lamps,
         over: (draw: () => void) => { signs.push(draw); },
@@ -2463,7 +2516,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     }
     // Pumpkins (lib/town/decor): carved ones about the town in their season, great ones on the farm.
     if (scenery) for (const d of DECOR) {
-      if ((d.carved && !carvingNow) || !scenery.has(d.art)) continue;
+      if ((d.carved && !carvingNow) || !scenery.has(d.art) || (T2 && placeOf(d.x, d.y) === "town")) continue;
       const c = project(d);
       if (!onScreen(c)) continue;
       things.push({ depth: d.x + d.y, draw: () => scenery.drawProp(ctx, d.art, c.x, c.y, v.s * (PROP_K[d.art] ?? 1), dpr, 0, !!d.mirror) });
@@ -2528,7 +2581,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (scenery?.has("stall") && scenery.has("un_stand")) for (const kp of KEEPERS) {
       const uncle = kp.id === "uncle", stand = project(kp.stand), at = project(kp.at);
       if (!onScreen(stand)) continue;
-      things.push({ depth: kp.stand.x + kp.stand.y, draw: () => scenery.drawProp(ctx, uncle ? "stall" : "bankdesk", stand.x, stand.y, v.s, dpr) });
+      // (the editor's town has their shop and counter in it: only themselves here)
+      if (!T2) things.push({ depth: kp.stand.x + kp.stand.y, draw: () => scenery.drawProp(ctx, uncle ? "stall" : "bankdesk", stand.x, stand.y, v.s, dpr) });
       // Each has a little round of its own, by the clock: mostly standing; the uncle waves, holds up his wares and
       // laughs, the banker writes in his ledger, holds up a coin and bows.
       const beat = reducedRef.current ? 0 : Math.floor(now / 700) % 14;
@@ -2540,10 +2594,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         const size = v.s * (uncle ? 0.78 : 0.72);
         scenery.drawProp(ctx, frame, at.x, at.y, size, dpr);
         // a tap on either of them, the popoto or what it stands at, opens a talk
-        const [fw, fh] = scenery.sizeOf(frame), [sw, sh] = scenery.sizeOf(uncle ? "stall" : "bankdesk");
+        const [fw, fh] = scenery.sizeOf(frame), [sw, sh] = T2 ? [0, 0] : scenery.sizeOf(uncle ? "stall" : "bankdesk"), there = T2 ? at : stand;
         keeperBoxes.current.push({ id: kp.id,
-          x0: Math.min(at.x - (fw / 2) * size, stand.x - (sw / 2) * v.s), y0: Math.min(at.y - fh * size, stand.y - sh * v.s),
-          x1: Math.max(at.x + (fw / 2) * size, stand.x + (sw / 2) * v.s), y1: Math.max(at.y, stand.y) });
+          x0: Math.min(at.x - (fw / 2) * size, there.x - (sw / 2) * v.s), y0: Math.min(at.y - fh * size, there.y - sh * v.s),
+          x1: Math.max(at.x + (fw / 2) * size, there.x + (sw / 2) * v.s), y1: Math.max(at.y, there.y) });
         const [, tall] = scenery.anchorOf(uncle ? "un_stand" : "bk_stand");
         const th = words.current.th;
         signs.push(() => label(ctx, uncle ? (th ? "ลุงขายของ" : "Uncle's stall") : (th ? "นายธนาคาร" : "The banker"), at.x, at.y - tall * size - 10,
@@ -2553,7 +2607,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // The trade board: the members' notices to sell and to want, on its own in the plaza: a market board of its own
     // (pinned notes, goods tags, coins on its shelf), the Popoto Board's size, with its name over it
     tradeBoardBox.current = null;
-    if (scenery?.has("tradeBoard")) {
+    // (the editor's town's boards are its own pictures: their places on the screen, for taps, and their names)
+    const board2 = (re: RegExp) => { const t = art2 ? T2_THINGS.find((q) => re.test(q.name)) : null; return t && art2 ? art2.boxOf(t.i, iso2, v.s) : null; };
+    const trade2 = T2 ? board2(/^trade_board_cloud$/) : null;
+    if (trade2) {
+      tradeBoardBox.current = trade2;
+      const due = keeper?.notices()?.due ?? 0;
+      signs.push(() => label(ctx, words.current.th ? "บอร์ดซื้อขาย" + (due > 0 ? " · " + due : "") : "Trade board" + (due > 0 ? " · " + due : ""), (trade2.x0 + trade2.x1) / 2, trade2.y0 - 12 * v.s, "#bfe3a0", "rgba(15,19,25,0.82)", null));
+    } else if (!T2 && scenery?.has("tradeBoard")) {
       const feet = project({ x: TRADE_BOARD.x + TRADE_BOARD.w * 0.8, y: TRADE_BOARD.y + TRADE_BOARD.h * 0.8 });
       things.push({ depth: TRADE_BOARD.x + TRADE_BOARD.y + TRADE_BOARD.w + TRADE_BOARD.h - 1, draw: () => scenery.drawProp(ctx, "tradeBoard", feet.x, feet.y, v.s, dpr) });
       const [w, h] = scenery.sizeOf("tradeBoard");
@@ -2563,7 +2624,25 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     }
     // The Popoto Board: the town's news and its vote, standing north of the fountain.
     boardBox.current = null;
-    if (scenery?.has("board")) {
+    const popo2 = T2 ? board2(/^kosatsu_board_cloud$/) : null;
+    if (popo2) {
+      boardBox.current = popo2;
+      const x = (popo2.x0 + popo2.x1) / 2, y = popo2.y0 - 12 * v.s;
+      signs.push(() => {
+        label(ctx, "Popoto Board", x, y, "#e5cc80", "rgba(15,19,25,0.82)", popotoImg.current);
+        if (!boardNews.current) return;
+        const bob = reducedRef.current ? 0 : Math.sin(now / 260) * 2.5;
+        ctx.beginPath();
+        ctx.arc(x + 62, y - 9 + bob, 8, 0, Math.PI * 2);
+        ctx.fillStyle = "#e5cc80";
+        ctx.fill();
+        ctx.font = "800 11px " + fontRef.current;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#151a22";
+        ctx.fillText("!", x + 62, y - 8.5 + bob);
+      });
+    } else if (!T2 && scenery?.has("board")) {
       const feet = project({ x: BOARD.x + BOARD.w * 0.8, y: BOARD.y + BOARD.h * 0.8 });
       things.push({ depth: BOARD.x + BOARD.y + BOARD.w + BOARD.h - 1, draw: () => {
         scenery.drawProp(ctx, "board", feet.x, feet.y, v.s, dpr);
@@ -2621,7 +2700,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (scenery?.has("bird_sit")) drawLife(things, scenery, dpr, now);
     // Popoto out and about, as the hour suits (lib/town/popotos): the same on every screen.
     if (scenery?.has("pr1")) for (const o of outingsNow(wall, forcedPopoto.current)) drawOuting(o, things);
-    things.push({ depth: FOUNTAIN.x + FOUNTAIN.y + 2, draw: () => {
+    if (T2) fountainBox.current = board2(/^wishing_basin$/);
+    else things.push({ depth: FOUNTAIN.x + FOUNTAIN.y + 2, draw: () => {
       // the basin's front edge on the bottom corner of its two-by-two tiles
       const c = project({ x: FOUNTAIN.x + FOUNTAIN.w - 0.12, y: FOUNTAIN.y + FOUNTAIN.h - 0.12 });
       if (scenery?.has("fountain")) {
@@ -2633,7 +2713,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     gathering.current.clear();   // ── gifts: well ──
     if (stay) {
       // (whoever is under the cooking yard's roof is not seen from outside it, nor their name)
-      const roofOn = KITCHEN.stage === 2 && !!scenery?.has("kitchenHouse") && roofRef.current >= 1;
+      const roofOn = KITCHEN.stage === 2 && (T2 || !!scenery?.has("kitchenHouse")) && roofRef.current >= 1;
       for (const a of stay.avatars.values()) {
         if (a.byeAt !== undefined || (roofOn && onYard(Math.floor(a.pos.x), Math.floor(a.pos.y)))) continue;
         // ── the pasture ── (nor whoever is inside a barn whose roof is on for me: lib/town/pasture's BARNS)
@@ -2925,7 +3005,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const place = tableSeatOf(a);
     if (place) return project(place.at);
     const b = seatOf(a);
-    if (!b) return project(a.pos);
+    // (on the editor's town's bridges, up on their boards)
+    if (!b) { const p = project(a.pos), up = liftAt(a.pos.x, a.pos.y); return up ? { x: p.x, y: p.y - up * cam.current.s } : p; }
     const c = project({ x: b.x + 0.5, y: b.y + 0.62 });
     return { x: c.x, y: c.y - (b.kind === "logseat" ? LOG_LIFT : SEAT_LIFT) * cam.current.s };
   }
@@ -3984,6 +4065,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       /** Whether the deck and the cooking yard are finished on this page, and whether a tile can be stood on. */
       built: () => isBuilt(),
       walkable: (x: number, y: number) => walkable(x, y),
+      /** The editor's town: which town this page has, and how much of its pictures it holds now (lib/town/town2-art). */
+      town2: () => ({ on: T2, ...(town2Ref.current?.memory() ?? {}) }),
       gates: () => gateBoxes.current.map((k) => ({ ...k })),
       /** The popoto out now: what, and where. */
       outings: () => outingsNow(Date.now(), forcedPopoto.current).map((o) => ({ activity: o.activity, at: o.spots?.[0] ?? alongRoute(o, Date.now())?.pos })),
@@ -5383,8 +5466,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                       bottom={phone && tabbar ? "calc(12rem + env(safe-area-inset-bottom))" : "8rem"} sfx={sfxRef.current} register={registerGround} registerTap={registerGroundTap} />
         </Suspense>
       )}
-      {/* ── the bridge built by hand ── a stone lifted at the pile, handed on, laid at the foot; and the sign's panel */}
-      {s && game && keeper && (
+      {/* ── the bridge built by hand ── a stone lifted at the pile, handed on, laid at the foot; and the sign's panel (not in the
+          editor's town, whose bridges stand built: the owner, 2026-10-22, "ไม่ต้องมีเกมสร้างสะพานแล้วในเมือง") */}
+      {s && game && keeper && !T2 && (
         <Suspense fallback={null}>
           <TownBridge keeper={keeper} me={me.id} th={w.th} people={hands}
                       here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing && !signView ? standing?.tile ?? null : null}

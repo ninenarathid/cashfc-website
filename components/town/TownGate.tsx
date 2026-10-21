@@ -61,7 +61,40 @@ function CasinoEntrance(){
   },[canEnterTown]);
   return open||realAdmin?<Link href={open?"/town?map=casino":"/town?map=casino-test"} className="fixed right-3 top-[calc(var(--nav-h)+4rem)] z-[44] rounded-lg border border-amber-300 bg-[#402a37] px-3 py-2 text-sm text-amber-100">เทศบาล Popoto · Casino ↗</Link>:null;
 }
+/**
+ * Which main town the database says is the town now (`town_map()`, supabase v295: the owner's switch between the town of
+ * 2026-10-02 and the editor's, lib/town/town-map), told to the town before it is loaded. A page that had read the town
+ * already (the dock, resuming) with the other one loads again once. Not waited on for more than a moment: without an
+ * answer the town is the one this browser was last told. In `next dev`, `?townMap=town2` (or `classic`) says it instead.
+ */
+function useTownMap(): boolean {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    let settled = false;
+    const done = (m: unknown) => {
+      if (settled) return;
+      settled = true;
+      if (m === "classic" || m === "town2") {
+        try { localStorage.setItem("cashtown:map", m); } catch { /* asked again next time */ }
+        const g = globalThis as { __cashTownMap?: string; __cashTownMapUsed?: string };
+        g.__cashTownMap = m;
+        if (g.__cashTownMapUsed && g.__cashTownMapUsed !== m) { window.location.reload(); return; }
+      }
+      setReady(true);
+    };
+    const asked = process.env.NODE_ENV !== "production" ? new URLSearchParams(window.location.search).get("townMap") : null;
+    if (asked) { done(asked); return; }
+    const supabase = createClient();
+    if (!supabase) { done(null); return; }
+    const late = setTimeout(() => done(null), 2500);
+    void Promise.resolve(supabase.rpc("town_map")).then(({ data, error }) => done(error ? null : data)).catch(() => done(null));
+    return () => { settled = true; clearTimeout(late); };
+  }, []);
+  return ready;
+}
+
 function VillageGate() {
+  const mapReady = useTownMap();
   const { lang } = useLang();
   const th = lang === "th";
   const { realAdmin, ready } = useAdmin();
@@ -129,7 +162,9 @@ function VillageGate() {
   // The town (or the wait for it) fills the window; only a message for
   // somebody who cannot come in sits on the page under its title.
   let stage = true;
-  if (test) {
+  if (!mapReady) {
+    body = <Waiting />;
+  } else if (test) {
     const me: TownMe = { id: testId ?? "", name: th ? `ทดสอบ ${test}` : `Tester ${test}`, face: null, color: test === "B" ? "#c98a5b" : "#4fb8a8" };
     body = testId ? <Town me={me} testTopic={testRoom ? `${TEST_TOPIC}:${testRoom}` : TEST_TOPIC} cap={testCap} /> : <Waiting />;
   } else if (testBack) {

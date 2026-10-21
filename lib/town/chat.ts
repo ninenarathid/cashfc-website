@@ -39,6 +39,13 @@ export function reachNote(result: string, th: boolean): string | null {
     case "reach-usage": return th ? "ใช้ /townchat town หรือ /townchat map" : "Use /townchat town or /townchat map.";
     case "reach-forbidden": return th ? "คำสั่งนี้ใช้ได้เฉพาะแอดมิน" : "Only admins can change this.";
     case "reach-unavailable": return th ? "สวิตช์แชทยังไม่พร้อมใช้งาน" : "The chat switch is not ready yet.";
+    // `/townmap` (v295's town_map_switch: which main town it is; lib/town/town-map)
+    case "map-classic": return th ? "ตอนนี้ทุกคนอยู่เมืองเดิม" : "Everybody has the old town now.";
+    case "map-admins": return th ? "ตอนนี้เฉพาะแอดมินเห็นเมืองใหม่ (ทุกคนอื่นยังเมืองเดิม)" : "Only admins see the new town now; everybody else the old one.";
+    case "map-town2": return th ? "ตอนนี้ทุกคนอยู่เมืองใหม่" : "Everybody has the new town now.";
+    case "map-usage": return th ? "ใช้ /townmap town2, /townmap admins หรือ /townmap classic" : "Use /townmap town2, /townmap admins or /townmap classic.";
+    case "map-forbidden": return th ? "คำสั่งนี้ใช้ได้เฉพาะแอดมิน" : "Only admins can change this.";
+    case "map-unavailable": return th ? "สวิตช์เมืองยังไม่พร้อมใช้งาน (ยังไม่ได้รัน v295)" : "The town switch is not ready yet (v295 has not run).";
     default: return null;
   }
 }

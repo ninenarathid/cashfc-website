@@ -1,6 +1,7 @@
 "use client";
 
-import { BEYOND, BEYOND_MORE, CAVE, COLS, FARM_ALL, FOREST, MORE_GROUND, MOUNTAIN, PREVIEW, ROWS, TILE_H, TILE_W, floorCorner, fromIso, groundLook, groundTone, seenAt, type Ground, type MoreGround } from "./world";
+import { BEYOND, BEYOND_MORE, CAVE, COLS, FARM_ALL, FOREST, MORE_GROUND, MOUNTAIN, PREVIEW, ROWS, T2, TILE_H, TILE_W, floorCorner, fromIso, groundLook, groundTone, seenAt, type Ground, type MoreGround } from "./world";
+import { T2_LOOKS, T2_TEXTURES, type T2Look } from "./town2";
 import { riverPixel } from "./river-landscape";
 
 /**
@@ -63,6 +64,8 @@ interface GroundChunk {
 }
 /** The ground's kind is worked out once per eighth of a tile, then remembered. */
 const SUB = 8;
+/** The editor's town is remembered at a sixteenth of a tile: its borders wander off the grid in curves (lib/town/town2). */
+const subOf = (map: number) => (T2 && map === 0 ? 16 : SUB);
 const TOWN_KINDS = ["grass", "plaza", "road", "water", "sand", "field", "wood"] as const;
 /**
  * ── the far side ── The mountain's and the cave's own kinds of ground come after the
@@ -70,10 +73,12 @@ const TOWN_KINDS = ["grass", "plaza", "road", "water", "sand", "field", "wood"] 
  * its own picture has come (components/town/mountain-art's loadMore); a stair has no texture of its own and is laid in
  * the plaza's cobbles, which its steps are then shaded over.
  */
-type Kind = Ground | MoreGround;
-const KINDS: readonly Kind[] = [...TOWN_KINDS, ...MORE_GROUND];
+type Kind = Ground | MoreGround | T2Look;
+const KINDS: readonly Kind[] = [...TOWN_KINDS, ...MORE_GROUND, ...T2_LOOKS];
 /** What a kind is laid in while its own texture is missing. */
-const STAND_IN: Partial<Record<Kind, (typeof TOWN_KINDS)[number]>> = { field: "road", wood: "grass", ...(PREVIEW ? { stair: "plaza" as const } : {}) };
+const STAND_IN: Partial<Record<Kind, (typeof TOWN_KINDS)[number]>> = { field: "road", wood: "grass", ...(PREVIEW ? { stair: "plaza" as const } : {}),
+  // (the editor's town's own, until their pictures have come: lib/town/town2's T2_TEXTURES)
+  t2grass: "grass", t2water: "water", t2sand: "sand", t2road: "road", t2wood: "grass", t2plaza: "plaza" };
 /** The maps, each with its own grid of remembered kinds: the town's, the farm's, the forest's; and the woods seen beyond the town's north gate and the forest's own (ground to look at, on no map). */
 const MAPS = [{ x: 0, y: 0, w: COLS, h: ROWS }, /* the farm with its pasture */ FARM_ALL, FOREST, BEYOND.north, BEYOND.south,
   // ── to come ── (the preview) the mountain's foot, each floor of the cave the preview has, and what is seen beyond the town's west gate and beyond the mountain's map
@@ -100,7 +105,9 @@ export class SceneryKit {
   private readonly fountain: HTMLCanvasElement[] = [];
   private readonly tex: Record<Kind, { w: number; h: number; d: Uint8ClampedArray }>;
   /** The kind at each eighth of a tile, as 1 + its index in KINDS; 0 not worked out yet. A grid to a map (MAPS). */
-  private readonly kinds = MAPS.map((m) => new Uint8Array(m.w * SUB * m.h * SUB));
+  private readonly kinds = MAPS.map((m, i) => new Uint8Array(m.w * subOf(i) * m.h * subOf(i)));
+  /** Whether the editor's town's own textures have come (nothing of its ground is laid before they have: lib/town/town2). */
+  private t2Ready = !T2;
   /** The ground is laid in square chunks, each when it first comes into view, a few kept. */
   private readonly chunks = new Map<string, HTMLCanvasElement>();
   /** At most one unfinished chunk, discarded when it leaves the view or textures change. */
@@ -142,6 +149,30 @@ export class SceneryKit {
     this.parts.clear();
   }
 
+  /**
+   * The editor's town's ground textures (lib/town/town2), each a picture of its own: asked for once the kit is made, the
+   * town's ground laid only once they have come, so it is never first laid in the old town's colours.
+   */
+  async loadTown2(): Promise<void> {
+    if (!T2 || this.t2Ready) return;
+    await Promise.all(T2_TEXTURES.map(({ look, src }) => new Promise<void>((done) => {
+      const img = new Image();
+      img.onload = () => {
+        const c = document.createElement("canvas");
+        c.width = img.naturalWidth; c.height = img.naturalHeight;
+        const g = c.getContext("2d", { willReadFrequently: true })!;
+        g.drawImage(img, 0, 0);
+        this.tex[look] = { w: c.width, h: c.height, d: g.getImageData(0, 0, c.width, c.height).data };
+        done();
+      };
+      img.onerror = () => done();
+      img.src = src;
+    })));
+    this.t2Ready = true;
+    this.chunks.clear();
+    this.pending = null;
+  }
+
   /** A prop's piece and the picture it is in: the first picture's, or one added to it. */
   private piece(name: string): { p: Piece; img: HTMLImageElement } | null {
     const p = this.json.props[name];
@@ -162,11 +193,11 @@ export class SceneryKit {
     for (let i = 0; i < MAPS.length && n < 0; i++) if (x >= MAPS[i].x - 1 && y >= MAPS[i].y - 1 && x < MAPS[i].x + MAPS[i].w + 1 && y < MAPS[i].y + MAPS[i].h + 1) n = i;
     if (n < 0) n = 0;
     this.lastMap = n;
-    const { x: ox, y: oy, w: cols, h: rows } = MAPS[n], kinds = this.kinds[n];
-    const sx = Math.min(cols * SUB - 1, Math.max(0, Math.floor((x - ox) * SUB))), sy = Math.min(rows * SUB - 1, Math.max(0, Math.floor((y - oy) * SUB)));
-    const k = sy * cols * SUB + sx;
+    const { x: ox, y: oy, w: cols, h: rows } = MAPS[n], kinds = this.kinds[n], S = subOf(n);
+    const sx = Math.min(cols * S - 1, Math.max(0, Math.floor((x - ox) * S))), sy = Math.min(rows * S - 1, Math.max(0, Math.floor((y - oy) * S)));
+    const k = sy * cols * S + sx;
     let v = kinds[k];
-    if (!v) { v = KINDS.indexOf(groundLook(ox + (sx + 0.5) / SUB, oy + (sy + 0.5) / SUB)) + 1; kinds[k] = v; }
+    if (!v) { v = KINDS.indexOf(groundLook(ox + (sx + 0.5) / S, oy + (sy + 0.5) / S)) + 1; kinds[k] = v; }
     return KINDS[v - 1];
   }
 
@@ -257,7 +288,7 @@ export class SceneryKit {
         if (distance < nearest) { nearest = distance; next = { cx, cy }; }
       }
     }
-    if (next) this.paintChunk(next.cx, next.cy, until);
+    if (next && this.t2Ready) this.paintChunk(next.cx, next.cy, until);
     ctx.save();
     ctx.imageSmoothingEnabled = s * px < 1;
     for (let cy = top; cy <= bottom; cy++) {
@@ -426,7 +457,7 @@ export class SceneryKit {
 const FOUNTAIN_LOOP = ["fountain_a1", "fountain_a2", "fountain_a3", "fountain_a4", "fountain_a3", "fountain_a2"];
 const FOUNTAIN_MS = 150;
 /** How long each step of the cycled water shows (a picture without the drawn frames). */
-const WATER_MS = 130;
+export const WATER_MS = 130;
 /** The props of an added picture whose water moves the same way. */
 const FLOWING = ["waterfall"];
 const WATER_FRAMES = 6;
@@ -437,7 +468,7 @@ const WATER_FRAMES = 6;
  * in bands that move down over time (falling) and, low in the basin, sideways
  * (ripples). Nothing else in the picture changes.
  */
-function waterFrames(src: ImageData): HTMLCanvasElement[] {
+export function waterFrames(src: ImageData): HTMLCanvasElement[] {
   const { width: w, height: h, data } = src;
   const shades: Array<[number, number, number, number]> = [];
   const pick = new Map<string, number>();

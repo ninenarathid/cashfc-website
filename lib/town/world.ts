@@ -23,16 +23,21 @@ import { mountainWater } from "./mountain-water";
 import { PASTURE, barnWall, inPasture, nearFarmGate, pastureGround, pastureThing } from "./pasture";
 import { mountainRiverBed, mountainRiverGround } from "./river-landscape";
 import { ANCIENT as CEDAR, GATE_ROWS, LOOKOUT as LOOKOUT_AT, MOUNTAIN_H, MOUNTAIN_W, MOUTH as MINE_MOUTH, MOUTH_AT, cliffAt, closedOf, layMountain, mountainGround } from "./mountain";
+// ── the second main town (2026-10-22): which town this page has (lib/town/town-map), and the editor's town's own parts ──
+import { T2 } from "./town-map";
+import * as town2 from "./town2";
+export { T2 };
 
-export const COLS = 64;
+/** The town's columns: 64, or the editor's town's 80 (lib/town/town2). */
+export const COLS = T2 ? town2.T2_COLS : 64;
 /**
  * The town's rows: 64 until its southern strip (the owner, 2026-10-19, wanting a second way back from the farm's
  * southern half, as far below the first as the farm's second gate is below its first: "อาจจะต้องขยายแมพ เมืองหลัก
  * ให้ยาวขึ้น"), 16 more past its old south-west edge (SOUTH_LANE, and the strip's own things in PROPS).
  */
 export const ROWS = 80;
-/** The town's rows before its southern strip: what everything laid out from where one may walk was laid out on (asBuilt), which the database keeps a copy of. */
-export const ROWS_FIRST = 64;
+/** The town's rows before its southern strip: what everything laid out from where one may walk was laid out on (asBuilt), which the database keeps a copy of. (The editor's town has no history: all its rows.) */
+export const ROWS_FIRST = T2 ? ROWS : 64;
 /** One tile on screen, before the town is scaled to fit. */
 export const TILE_W = 64;
 export const TILE_H = 32;
@@ -104,37 +109,37 @@ export const BUILDINGS: Building[] = [];
  * plaza with the fountain, and the countryside all round it. Two paths cross the
  * whole map through the plaza.
  */
-export const PLAZA = { x: 26, y: 26, w: 12, h: 12 };
+export const PLAZA = T2 ? town2.T2_PLAZA : { x: 26, y: 26, w: 12, h: 12 };
 /** The fountain in the middle of the plaza: a landmark, and not walkable. */
-export const FOUNTAIN = { x: 31, y: 31, w: 2, h: 2 };
+export const FOUNTAIN = T2 ? town2.T2_FOUNTAIN : { x: 31, y: 31, w: 2, h: 2 };
 /** The starter town: lamps, benches and planters inside; woods and meadows outside. */
-export const TOWN = { x: 16, y: 16, w: 32, h: 32 };
+export const TOWN = T2 ? town2.T2_TOWN : { x: 16, y: 16, w: 32, h: 32 };
 /**
  * Popoto Shop, being built, popoto workers on site: stage 1 of 3 was the
  * foundation; stage 2 (the owner, 2026-10-03: "ขึ้น state 2 ได้เลย") is the
  * timber frame and walls up, the roof's rafters going on. Where things will be
  * bought; not walkable. The stage picks the picture (scenery `shop<stage>`).
  */
-export const SHOP = { x: 39, y: 24, w: 3, h: 3, stage: 2 };
+export const SHOP = T2 ? town2.T2_SHOP : { x: 39, y: 24, w: 3, h: 3, stage: 2 };
 /**
  * The Popoto Board: a big notice board just north of the plaza, in the middle
  * of the map, telling the town how the building work goes and taking votes for
  * the next building (supabase v103). Not walkable; a tap on it opens it.
  */
-export const BOARD = { x: 23, y: 23, w: 2, h: 2 };
+export const BOARD = T2 ? town2.T2_BOARD : { x: 23, y: 23, w: 2, h: 2 };
 /**
  * The trade board (the owner, 2026-10-15: "บอร์ดซื้อขายอยากให้แยกจากลุงขายของ ออกมาตั้งเป็นบอร์ดกลางเมืองไปเลย"): the
  * members' notices to sell and to want (lib/town/notices), once a tab of the uncle's stall, standing on its own in the
  * plaza south-east of the fountain, just outside the ring where members appear (world's SPAWNS), so all of them pass
  * it. Not walkable; a tap on it opens it.
  */
-export const TRADE_BOARD = { x: 36, y: 33, w: 2, h: 2 };
+export const TRADE_BOARD = T2 ? town2.T2_TRADE_BOARD : { x: 36, y: 33, w: 2, h: 2 };
 /**
  * The storage box (the owner, 2026-10-05: "ช่วยทำ กล่องเก็บของ มาตั้งไว้กลางเมือง"): a big chest in the plaza, in front of
  * the fountain as the screen sees it, at the near corner of its ring of benches. Not walkable. Whoever stands by it
  * keeps things of their own in it (lib/town/box).
  */
-export const STOREBOX = { x: 34, y: 34 };
+export const STOREBOX = T2 ? town2.T2_STOREBOX : { x: 34, y: 34 };
 /** Whether a tile is within so many steps of the storage box (and is not the box itself). */
 export const byStorebox = (tx: number, ty: number, reach: number) => {
   const far = Math.max(Math.abs(tx - STOREBOX.x), Math.abs(ty - STOREBOX.y));
@@ -171,7 +176,11 @@ export const byStorebox = (tx: number, ty: number, reach: number) => {
  * Finished only in `next dev` for now (the owner, 2026-10-03: "พร้อมกับ ลานตกปลา
  * ที่เสร็จแล้ว เฉพาะใน dev"): a production build's is still the building site.
  */
-export const PIER = (() => {
+export const PIER = T2 ? {
+  // (the editor's town: its decks are walked onto anywhere, off the land beside them: lib/town/town2's tiles "=")
+  stage: process.env.NODE_ENV !== "production" ? 2 : 1, post: { x: 12.3, y: 66.2 }, tiles: [] as Array<[number, number]>,
+  deck: [] as Array<[number, number]>, steps: { top: [-99, -99] as [number, number], foot: [-99, -99] as [number, number] },
+} : (() => {
   const post = { x: 18.4, y: 44.5 };
   /** The tiles whose middles are inside four corners (given round the same way as the post's). */
   const middles = (quad: Vec[]) => {
@@ -238,7 +247,7 @@ export const PIER = (() => {
  * screen (a tile's corner neighbours), between things that stand closer than
  * the map's own rule for corners would let anybody through.
  */
-export const KITCHEN = (() => {
+export const KITCHEN = T2 ? town2.T2_KITCHEN : (() => {
   const foot = { x: 48.75, y: 50.75 };
   /** A point of the picture, in its pixels from the ground point (right, down), as a point of the map. */
   const at = (px: number, py: number): Vec => ({
@@ -354,7 +363,7 @@ export const KITCHEN = (() => {
     windows: [[-248, -127, -172, -68], [172, -127, 249, -68]] as Array<[number, number, number, number]>,
     door: [-46, -93, 49, -34] as [number, number, number, number],
   };
-  return { stage: process.env.NODE_ENV !== "production" ? 2 : 1, foot, tiles, near, ways, way, floor, stands, posts, places, wash, seats, tops, feast, lights };
+  return { stage: process.env.NODE_ENV !== "production" ? 2 : 1, foot, tiles, near, ways, way, floor, stands, posts, places, wash, seats, tops, feast, lights, at };
 })();
 /** A place at one of the cooking yard's tables is told to the room as this much more than its number (a bench of the town's is told by its own number). */
 export const YARD_SEATS = 500;
@@ -368,7 +377,7 @@ export const yardSeat = (sit: number | undefined) => (KITCHEN.stage === 2 && sit
  * does, in front of it; `tiles` are the ones they close.
  */
 export interface Keeper { id: "uncle" | "banker"; stand: Vec; at: Vec; tiles: Array<[number, number]> }
-export const KEEPERS: Keeper[] = [
+export const KEEPERS: Keeper[] = T2 ? town2.T2_KEEPERS : [
   { id: "uncle", stand: { x: 45.5, y: 27.6 }, at: { x: 45.0, y: 28.5 }, tiles: [[45, 27], [46, 26], [44, 28], [45, 28]] },
   { id: "banker", stand: { x: 47.5, y: 25.6 }, at: { x: 47.3, y: 26.5 }, tiles: [[47, 25], [48, 24], [47, 26]] },
 ];
@@ -424,15 +433,20 @@ let asWas = false;
  * last on the far one. `foot` is the tile of the town's bank the first span is laid from. `ends` are the middles of
  * its floor's two ends, the town's first: the picture is stood between them.
  */
-export const BRIDGE = {
+export const BRIDGE = T2 ? {
+  // (the editor's town: its bridges stand built and are walked over, and there is no bridge to build: the owner, 2026-10-22,
+  // "ไม่ต้องมีเกมสร้างสะพานแล้วในเมือง ข้ามได้เลย")
+  spans: 0, open: true, foot: [6, 17] as [number, number], tiles: [] as Array<Array<[number, number]>>,
+  ends: [{ x: 5, y: 17 }, { x: 0, y: 17 }] as [Vec, Vec],
+} : {
   spans: 6, open: true,
   foot: [11, 27] as [number, number],
   tiles: PREVIEW ? Array.from({ length: 6 }, (_, i): Array<[number, number]> => [[10 - i, 28 + i], [9 - i, 28 + i], [10 - i, 29 + i]]) : [],
   ends: [{ x: 11, y: 28 }, { x: 5, y: 34 }] as [Vec, Vec],
 };
 const bridgeAt = new Set(BRIDGE.tiles.flat().map(([x, y]) => `${x},${y}`));
-/** Whether the bridge is walked on here now: whole, and opened; whatever the far side's switch says. */
-export const bridgeOpen = () => PREVIEW && !asWas && BRIDGE.open && BRIDGE.spans >= BRIDGE.tiles.length;
+/** Whether the bridge is walked on here now: whole, and opened; whatever the far side's switch says. (The editor's town's always are.) */
+export const bridgeOpen = () => T2 || (PREVIEW && !asWas && BRIDGE.open && BRIDGE.spans >= BRIDGE.tiles.length);
 /** Whether the gate beyond the bridge leads on to the mountain here now: over a bridge that is walked on, and only while the far side is open. */
 export const mountainOpen = () => bridgeOpen() && farOpen;
 /** How much of the bridge there is, and whether it is opened (it cannot be, short of whole). Each page works out where one may walk from this, as from setBuilt. */
@@ -451,7 +465,7 @@ export function setBridge(spans: number, open = true) {
  * round him. `reach`: whoever stands within so many tiles of the forge is by it (a friend's bellows; a move of what
  * he put into a tool: `bySmith`).
  */
-export const SMITH = {
+export const SMITH = T2 ? town2.T2_SMITH : {
   id: "smith" as const,
   stand: { x: 50.2, y: 24.1 }, at: { x: 51.42, y: 23.51 }, board: { x: 50.2, y: 26.6 }, sign: { x: 50.54, y: 23.26 },
   fire: [-19, 30] as [number, number],
@@ -617,7 +631,7 @@ const pierAt = new Set(PIER.tiles.map(([x, y]) => `${x},${y}`));
 const isPier = (x: number, y: number) => pierAt.has(`${x},${y}`);
 const deckAt = new Set(PIER.deck.map(([x, y]) => `${x},${y}`));
 /** Whether a tile is one of the finished deck's boards (never, while it is being built). */
-export const onDeck = (x: number, y: number) => PIER.stage === 2 && deckAt.has(`${x},${y}`);
+export const onDeck = (x: number, y: number) => (T2 ? town2.T2_DECK(x, y) : PIER.stage === 2 && deckAt.has(`${x},${y}`));
 /** The row behind the finished deck's far railing: nobody stands there, in front of what stands on the deck. */
 const behindDeck = (x: number, y: number) => PIER.stage === 2 && y === 37 && x >= 16 && x <= 27;
 /** Whether a step from one tile to the next goes up or down the deck's steps. */
@@ -639,8 +653,8 @@ export const inDiningYard = (sit: number | undefined, x: number, y: number) => !
 /** Whether a tile is of the yard's floor as it is when finished, whatever this page shows of it: what a rule that whoever keeps the game holds to asks (the database has the same tiles: the catalog's `cooking.feast.floor`). */
 export const yardFloor = (x: number, y: number) => yardAt.has(`${x},${y}`);
 /** Whether a step from one tile to the next crosses the yard's kerb: allowed only by one of its two ways in. */
-const overKerb = (ax: number, ay: number, bx: number, by: number) =>
-  onYard(ax, ay) !== onYard(bx, by) && !yardWay.has(onYard(ax, ay) ? `${ax},${ay}` : `${bx},${by}`);
+const overKerb = (ax: number, ay: number, bx: number, by: number) => (T2 ? town2.t2OverWall(ax, ay, bx, by)
+  : onYard(ax, ay) !== onYard(bx, by) && !yardWay.has(onYard(ax, ay) ? `${ax},${ay}` : `${bx},${by}`));
 const placeAt = new Map(KITCHEN.places.map((p) => [`${p.at[0]},${p.at[1]}`, p.kind])), washAt = new Set(KITCHEN.wash.map(([x, y]) => `${x},${y}`));
 /** What somebody standing on a tile of the finished yard stands at: a stove, a worktable or the fire (a place to cook), or the washing tub; or nothing. */
 export const yardPlace = (x: number, y: number): "stove" | "table" | "fire" | "wash" | null =>
@@ -708,7 +722,7 @@ export const NORTH_WOOD = { x: 14, w: 38, h: 9 };
  * As it was laid out on the town's first 64 rows, before its southern strip: what the insects' haunts were laid out
  * by, which the database keeps a copy of (lib/town/insects). What stands in the town now is PROPS.
  */
-export const PROPS_FIRST: Prop[] = (() => {
+export const PROPS_FIRST: Prop[] = T2 ? town2.T2_PROPS : (() => {
   const out: Prop[] = [];
   const taken = new Set<string>();
   const put = (kind: PropKind, x: number, y: number, solid = true, facing?: Facing) => {
@@ -815,7 +829,7 @@ export const PROPS_FIRST: Prop[] = (() => {
  * along the strip's rim, each laid from its own tile as the north wood is, none on a way or right beside one, nor before
  * the gate.
  */
-export const PROPS: Prop[] = (() => {
+export const PROPS: Prop[] = T2 ? PROPS_FIRST : (() => {
   const nearLane = (x: number, y: number) => [-1, 0, 1].some((dx) => [-1, 0, 1].some((dy) => laneAt(x + dx + 0.5, y + dy + 0.5)));
   const out = PROPS_FIRST.filter((p) => !(["tree", "pine", "bush", "rock", "flowers"].includes(p.kind) && nearLane(p.x, p.y)));
   const taken = new Set(out.map((p) => `${p.x},${p.y}`));
@@ -908,7 +922,7 @@ export type Place = "town" | "farm" | "forest"
   | "mountain" | "cave";
 /** Which map a point is on, or null for nowhere. */
 export function placeOf(x: number, y: number): Place | null {
-  if (x >= 0 && y >= 0 && x < COLS && y < (asWas ? ROWS_FIRST : ROWS)) return "town";
+  if (x >= 0 && y >= 0 && x < COLS && y < (asWas && !T2 ? ROWS_FIRST : ROWS)) return "town";
   // ── to come ── (both lie below every other map in the tile space)
   if (PREVIEW && y >= MOUNTAIN.y) return within(x, y, MOUNTAIN) ? "mountain" : floorOf(x, y) ? "cave" : null;
   return within(x, y, asWas ? FARM_FIRST : FARM_ALL) ? "farm" : within(x, y, FOREST) ? "forest" : null;
@@ -1556,7 +1570,9 @@ function beyondMore(r: { x: number; y: number; w: number; h: number }, what: (k:
 }
 /** What stands there: pines thinning into rocks towards the peaks, beyond the town; the town's own trees in the low country; rocks beyond the summit. */
 export const BEYOND_MORE_PROPS = PREVIEW ? {
-  west: beyondMore(BEYOND_MORE.west, (k, x) => (x > -9 ? (k < 0.24 ? "pine" : k < 0.3 ? "rock" : k < 0.34 ? "bush" : null) : null)),
+  // (the editor's town's two west bridges land on this far bank: nothing stands where they come down, nor beside it)
+  west: beyondMore(BEYOND_MORE.west, (k, x) => (x > -9 ? (k < 0.24 ? "pine" : k < 0.3 ? "rock" : k < 0.34 ? "bush" : null) : null))
+    .filter((p) => !T2 || !(p.x > -8 && ((p.y >= 13 && p.y <= 20) || (p.y >= 32 && p.y <= 39)))),
   low: beyondMore(BEYOND_MORE.low, (k, x) => (x < MOUNTAIN.x + MOUNTAIN.w + 1 ? null : k < 0.16 ? "tree" : k < 0.27 ? "pine" : k < 0.34 ? "bush" : null)),
   high: beyondMore(BEYOND_MORE.high, (k, x) => (x >= MOUNTAIN.x - 5 && k < 0.12 ? "mrock" : null)),
 } : { west: [], low: [], high: [] };
@@ -1585,7 +1601,28 @@ export const PEAKS: Array<{ x: number; y: number; art: 1 | 2; k: number; mirror?
 const EAST = ARMS.find((a) => a.dir === "E")!, NORTH = ARMS.find((a) => a.dir === "N")!;
 const eastRow = (x: number) => Math.floor(pathMiddle(x + 0.5, x + 0.5 - PLAZA.x - PLAZA.w, EAST.seed));
 const northCol = (y: number) => Math.floor(pathMiddle(y + 0.5, PLAZA.y - y - 0.5, NORTH.seed));
-export const GATES: Array<{ from: Place; leads: Place; tiles: Array<[number, number]>; to: Vec; arch: Vec; across?: boolean }> = [
+type Gate = { from: Place; leads: Place; tiles: Array<[number, number]>; to: Vec; arch: Vec; across?: boolean };
+/**
+ * The editor's town's ways out (lib/town/town2): its rings of light. The north gate's to the forest, the two village gates
+ * to the farm (the first and the second, side by side), and the far ends of the two west bridges to the mountain; the other
+ * maps' gates back are as they were, but where they put you in this town. In the same order as the old town's.
+ */
+const T2_GATES = (): Gate[] => {
+  const G = town2.T2_GATES;
+  return [
+    { from: "town", leads: "farm", tiles: G.farm.tiles, to: { x: FARM.x + 2.5, y: FARM.y + 21.5 }, arch: G.farm.arch },
+    { from: "farm", leads: "town", tiles: [[FARM.x, FARM.y + 21], [FARM.x, FARM.y + 22]], to: G.farm.back, arch: { x: FARM.x + 1.5, y: FARM.y + 22 } },
+    { from: "town", leads: "forest", tiles: G.forest.tiles, to: { x: FOREST.x + 48.5, y: FOREST.y + 76.5 }, arch: G.forest.arch, across: true },
+    { from: "forest", leads: "town", tiles: [[FOREST.x + 47, FOREST.y + 79], [FOREST.x + 48, FOREST.y + 79]], to: G.forest.back, arch: { x: FOREST.x + 48, y: FOREST.y + 78.5 }, across: true },
+    ...(MT ? [
+      { from: "town" as const, leads: "mountain" as const, tiles: G.mountain.tiles, to: { x: MOUNTAIN.x + MOUNTAIN.w - 3.5, y: MOUNTAIN.y + MT.GATE_ROWS[0] + 0.5 }, arch: G.mountain.arch },
+      { from: "mountain" as const, leads: "town" as const, tiles: MT.GATE_ROWS.map((v): [number, number] => [MOUNTAIN.x + MOUNTAIN.w - 1, MOUNTAIN.y + v]), to: G.mountain.back, arch: { x: MOUNTAIN.x + MOUNTAIN.w - 1.5, y: MOUNTAIN.y + MT.GATE_ROWS[1] } },
+    ] : []),
+    { from: "town", leads: "farm", tiles: G.farm2.tiles, to: { x: FARM.x + 2.5, y: FARM.y + 63.5 }, arch: G.farm2.arch },
+    { from: "farm", leads: "town", tiles: [[FARM.x, FARM.y + 63], [FARM.x, FARM.y + 64]], to: G.farm2.back, arch: { x: FARM.x + 1.5, y: FARM.y + 64 } },
+  ];
+};
+export const GATES: Gate[] = T2 ? T2_GATES() : [
   {
     from: "town", leads: "farm",
     tiles: [COLS - 2, COLS - 1].flatMap((x) => [...Array(ROWS_FIRST).keys()].filter((y) => isRoad(x, y)).map((y): [number, number] => [x, y])),
@@ -1661,6 +1698,19 @@ export function thingAt(tx: number, ty: number): Building | "fountain" | "shop" 
   if (!asWas && inPasture(tx, ty)) return pastureThing(tx, ty);
   if (within(tx, ty, farmNow())) return (asWas ? farmSolidFirst : farmSolid).has(`${tx},${ty}`) ? "prop" : null;
   if (within(tx, ty, FOREST)) return forestSolid.has(`${tx},${ty}`) ? "prop" : isForestWater(tx, ty) ? "water" : null;
+  // ── the editor's town ── (its tiles as built, lib/town/town2; what stands where it is told by what it is)
+  if (T2 && town2.inT2(tx, ty)) {
+    if (isKeeper(tx, ty)) return "keeper";
+    const c = town2.t2Tile(tx, ty);
+    if (c === "~") return "water";
+    if (c === "f") return KITCHEN.stage === 2 ? null : "kitchen";
+    if (c === "h") return "kitchen";
+    if (c !== "#") return null;
+    if (within(tx, ty, FOUNTAIN)) return "fountain";
+    if (within(tx, ty, BOARD) || within(tx, ty, TRADE_BOARD)) return "board";
+    if (within(tx, ty, SHOP)) return "shop";
+    return "prop";
+  }
   for (const b of BUILDINGS) if (within(tx, ty, b)) return b;
   if (within(tx, ty, FOUNTAIN)) return "fountain";
   if (isShop(tx, ty)) return "shop";
@@ -1826,6 +1876,12 @@ export function fishFrom(tx: number, ty: number): Fishing | null {
     fishing.set(key,found);
     return found;
   }
+  // ── the editor's town ── (from its decks, deep; from its shores, the shallows: lib/town/town2)
+  if (T2 && town2.inT2(tx, ty)) {
+    found = walkable(tx, ty) ? town2.t2Fish(tx, ty, CAST) : null;
+    fishing.set(key, found);
+    return found;
+  }
   // which side of the river's middle: the town's is below it in y − x
   const side = cy - cx - riverMiddle(cx + cy - 1);
   if (onDeck(tx, ty)) {
@@ -1871,6 +1927,7 @@ export function groundAt(tx: number, ty: number): Ground {
   if (!asWas && inPasture(tx, ty)) return pastureGround(tx + 0.5, ty + 0.5);
   if (within(tx, ty, farmNow())) return farmGround(tx - FARM.x + 0.5, ty - FARM.y + 0.5);
   if (within(tx, ty, FOREST)) return forestGround(tx - FOREST.x + 0.5, ty - FOREST.y + 0.5);
+  if (T2 && town2.inT2(tx, ty)) return town2.t2Ground(tx, ty);
   if (isWater(tx, ty)) return "water";
   if (isBank(tx, ty)) return "sand";
   if (isPlaza(tx, ty)) return "plaza";
@@ -1883,7 +1940,9 @@ export function groundAt(tx: number, ty: number): Ground {
  * tiles, but with curved edges, and the river's sand a band of its own that
  * frays a little at its edge.
  */
-export function groundLook(x: number, y: number): Ground | MoreGround {
+export function groundLook(x: number, y: number): Ground | MoreGround | town2.T2Look {
+  // ── the editor's town ── (its own ground, in its own textures: lib/town/town2)
+  if (T2 && town2.inT2(x, y)) return town2.t2Look(x, y);
   // ── to come ── (the mountain, the cave's floors, what is seen beyond them, and the earth at the bridge's two ends)
   if (PREVIEW) { const more = moreLook(x, y); if (more) return more; }
   if (!asWas && inPasture(x, y)) return pastureGround(x, y);
@@ -1966,8 +2025,8 @@ export function findPath(from: Vec, to: Vec): Vec[] | null {
     for (const [dx, dy] of DIRS) {
       const nx = cur.x + dx, ny = cur.y + dy;
       if (!walkable(nx, ny)) continue;
-      // Onto the finished deck and off it only by its steps.
-      if (onDeck(nx, ny) !== onDeck(cur.x, cur.y) && !bySteps(cur.x, cur.y, nx, ny)) continue;
+      // Onto the finished deck and off it only by its steps. (The editor's town's decks are walked onto from the land beside them.)
+      if (!T2 && onDeck(nx, ny) !== onDeck(cur.x, cur.y) && !bySteps(cur.x, cur.y, nx, ny)) continue;
       // Into the finished yard and out of it only by its two ways in.
       if (overKerb(cur.x, cur.y, nx, ny)) continue;
       // ── the pasture ── (into a barn and out of it only by its door, straight through it)
@@ -2079,6 +2138,12 @@ const SPAWNS: Vec[] = (() => {
   }
   return out;
 })();
+
+/**
+ * How far up the screen somebody standing at a point is drawn, in isometric pixels: on the editor's town's bridges, the
+ * height of their boards (lib/town/town2); on the ground, nothing.
+ */
+export const liftAt = (x: number, y: number): number => (T2 && town2.inT2(x, y) ? town2.t2Lift(x, y) : 0);
 
 /** Where somebody appears, the same spot for the same person every time. */
 export function spawnFor(id: string): Vec {

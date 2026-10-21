@@ -11,7 +11,7 @@ import { boxSprite } from "@/lib/town/box-art";
 import { SMITH_CLOSED, SMITH_WHO, smithAsk, smithTalk } from "@/lib/town/smith";
 import type { Line } from "@/lib/town/talk";
 import {
-  BEYOND_MORE_PROPS, BRIDGE, CAVE, CAVE_SEATS, GATES, MOUNTAIN, MOUNTAIN_AT, MOUNTAIN_PROPS, PEAKS, SMITH, TILE_H, TILE_W,
+  BEYOND_MORE_PROPS, BRIDGE, CAVE, CAVE_SEATS, GATES, MOUNTAIN, MOUNTAIN_AT, MOUNTAIN_PROPS, PEAKS, SMITH, T2, TILE_H, TILE_W,
   caveRocks, caveSpots, caveToday, caveWay, floorCorner, floorOf, mountainOpen, setBridge, setCaveDay, setCaveWay, walkable, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
 
@@ -407,12 +407,15 @@ export class MountainArt {
     if (scenery.has("forge") && scenery.has("sm_stand")) {
       const stand = f.project(SMITH.stand), at = f.project(SMITH.at);
       if (f.onScreen(stand)) {
-        this.stand(f, "smithsign", SMITH.sign, SMITH.sign.x + SMITH.sign.y);
-        this.stand(f, "smithboard", SMITH.board, SMITH.board.x + SMITH.board.y);
-        f.things.push({ depth: SMITH.stand.x + SMITH.stand.y, draw: () => {
-          scenery.drawProp(f.ctx, "forge", stand.x, stand.y, s, f.dpr);
-          f.flames(stand.x + SMITH.fire[0] * s, stand.y - (SMITH.fire[1] - 5) * s, s * 0.55);
-        } });
+        // (the editor's town has his forge in it, its own picture: only himself here)
+        if (!T2) {
+          this.stand(f, "smithsign", SMITH.sign, SMITH.sign.x + SMITH.sign.y);
+          this.stand(f, "smithboard", SMITH.board, SMITH.board.x + SMITH.board.y);
+          f.things.push({ depth: SMITH.stand.x + SMITH.stand.y, draw: () => {
+            scenery.drawProp(f.ctx, "forge", stand.x, stand.y, s, f.dpr);
+            f.flames(stand.x + SMITH.fire[0] * s, stand.y - (SMITH.fire[1] - 5) * s, s * 0.55);
+          } });
+        }
         // mostly standing; now and then three strokes at the anvil, and a wipe of the brow
         const beat = f.still ? 0 : Math.floor(f.now / 320) % 30;
         const frame = beat >= 6 && beat < 12 ? (beat % 2 ? "sm_hit" : "sm_up") : beat === 20 || beat === 21 ? "sm_wipe" : "sm_stand";
@@ -420,8 +423,8 @@ export class MountainArt {
           const size = s * SMITH_K;
           scenery.drawProp(f.ctx, frame, at.x, at.y, size, f.dpr);
           // a tap on him or on his forge opens a talk
-          const [fw, fh] = scenery.sizeOf("sm_stand"), [sw, sh] = scenery.sizeOf("forge");
-          f.keepers.push({ id: SMITH.id, x0: Math.min(at.x - (fw / 2) * size, stand.x - (sw / 2) * s), y0: Math.min(at.y - fh * size, stand.y - sh * s), x1: Math.max(at.x + (fw / 2) * size, stand.x + (sw / 2) * s), y1: Math.max(at.y, stand.y) });
+          const [fw, fh] = scenery.sizeOf("sm_stand"), [sw, sh] = T2 ? [0, 0] : scenery.sizeOf("forge"), there = T2 ? at : stand;
+          f.keepers.push({ id: SMITH.id, x0: Math.min(at.x - (fw / 2) * size, there.x - (sw / 2) * s), y0: Math.min(at.y - fh * size, there.y - sh * s), x1: Math.max(at.x + (fw / 2) * size, there.x + (sw / 2) * s), y1: Math.max(at.y, there.y) });
           f.signs.push(() => f.label(f.th ? SMITH_WHO.name.th : "The blacksmith", at.x, at.y - fh * size - 10));
         } });
       }

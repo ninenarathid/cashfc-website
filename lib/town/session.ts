@@ -8,6 +8,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { rememberTown, setTownActive } from "./active";
 import { Flood, LOG_MAX, REACH_DEFAULT, REACH_EVERY_MS, chatEvery, cleanChat, readReach, type ChatReach } from "./chat";
+import { TOWN_MAP, heardTownMap } from "./town-map";
 import { admit, fromRoom, hears, listed, newCircle, readWord, without, type Circle, type CircleWord } from "./circle";
 import { decodeLook, defaultLook, encodeLook, saveLook, savedLook, type Look } from "./look";
 import { joinTown, townClient, type Doing, type Identity, type Room, type RoomStatus } from "./room";
@@ -94,7 +95,9 @@ export interface ChatLine {
 
 export type ChatResult = "sent" | "empty" | "slow" | "offline";
 /** What `/townchat` answered (lib/town/chat reachNote words it). */
-export type ReachResult = "reach-town" | "reach-map" | "reach-usage" | "reach-forbidden" | "reach-unavailable";
+export type ReachResult = "reach-town" | "reach-map" | "reach-usage" | "reach-forbidden" | "reach-unavailable"
+  // `/townmap` (v295): which main town it is
+  | "map-classic" | "map-admins" | "map-town2" | "map-usage" | "map-forbidden" | "map-unavailable";
 export type MessageResult = ChatResult | "forbidden" | "invalid" | "unavailable" | ReachResult;
 
 /** How long somebody the room stopped listing (without a goodbye) stays. */
@@ -900,6 +903,8 @@ export class TownSession {
   async sendMessage(raw: string): Promise<MessageResult> {
     const reach = /^\/townchat(?:\s+(\S+))?\s*$/i.exec(raw.trim());
     if (reach) return this.switchReach(reach[1]);
+    const map = /^\/townmap(?:\s+(\S+))?\s*$/i.exec(raw.trim());
+    if (map) return this.switchMap(map[1]);
     const command = /^\/announce(?:\s|$)/i.exec(raw.trimStart());
     if (!command) return this.sendChat(raw);
     if (this.closed) return "offline";
@@ -940,6 +945,34 @@ export class TownSession {
     } catch { return "offline"; }
   }
 
+  /**
+   * `/townmap town2|admins|classic`: an admin says which main town it is (v295's town_set_map: the editor's for everybody, for
+   * the admins only, or the old one, which is also the way back in an emergency); with no word, says which this page has.
+   * A page whose town that changes loads again (lib/town/town-map).
+   */
+  private async switchMap(word: string | undefined): Promise<MessageResult> {
+    if (this.closed) return "offline";
+    if (!word) return TOWN_MAP === "town2" ? "map-town2" : "map-classic";
+    const want = word.toLowerCase();
+    if (!["town2", "admins", "classic"].includes(want)) return "map-usage";
+    try {
+      const { data, error } = await this.client.rpc("town_set_map", { p_map: want });
+      if (error) return error.code === "PGRST202" || error.code === "42883" ? "map-unavailable" : "offline";
+      if (data?.ok !== true) return data?.why === "forbidden" ? "map-forbidden" : "map-usage";
+      void this.readTownMap();
+      return want === "town2" ? "map-town2" : want === "admins" ? "map-admins" : "map-classic";
+    } catch { return "offline"; }
+  }
+
+  /** Which main town the database says this member has (v295): if not this page's, the page loads again in a moment. Before v295, nothing. */
+  private async readTownMap() {
+    if (this.closed || this.testTopic) return;
+    try {
+      const { data, error } = await this.client.rpc("town_map");
+      if (!error && heardTownMap(typeof data === "string" ? data : null) && typeof window !== "undefined") window.setTimeout(() => window.location.reload(), 1500);
+    } catch { /* asked again with the chat's switch */ }
+  }
+
   /** The town's switch, from the database: on joining and every REACH_EVERY_MS. Before v294 there is none: the town hears everybody. */
   private async readReach() {
     if (this.closed || this.testTopic || this.reachBusy) return;
@@ -949,6 +982,8 @@ export class TownSession {
       const { data, error } = await this.client.rpc("town_chat_reach");
       const reach = error ? (error.code === "PGRST202" || error.code === "42883" ? REACH_DEFAULT : null) : readReach(data);
       if (reach && reach !== this.chatReach && !this.closed) { this.chatReach = reach; this.notify(); }
+      // (and which main town it is, as often: a switch back reaches every page within the same few minutes)
+      void this.readTownMap();
     } catch { /* keep what was read last */ } finally { this.reachBusy = false; }
   }
 
