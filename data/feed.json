@@ -1,6 +1,20 @@
 {
  "events": [
   {
+   "date": "2026-10-21",
+   "type": "level_100",
+   "id": 8286372,
+   "name": "Aloha Banana",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-10-21",
+   "type": "level_100",
+   "id": 60429500,
+   "name": "Jin Theape",
+   "text": "reached level 100 on Samurai!"
+  },
+  {
    "date": "2026-10-20",
    "type": "level_100",
    "id": 24228478,
@@ -1384,20 +1398,6 @@
    "type": "level_100",
    "id": 6173187,
    "name": "Motochita Muses",
-   "text": "reached level 100 on Summoner!"
-  },
-  {
-   "date": "2026-10-07",
-   "type": "level_100",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-10-07",
-   "type": "level_100",
-   "id": 15932791,
-   "name": "Yuziris Andra'nov",
    "text": "reached level 100 on Summoner!"
   }
  ]
