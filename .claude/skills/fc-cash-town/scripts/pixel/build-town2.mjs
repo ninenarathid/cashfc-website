@@ -36,7 +36,8 @@ const toIso = (x, y) => ({ x: 32 * (x - y), y: 16 * (x + y) });
 
 /**
  * What a thing does to whoever walks, by its picture's name (first match wins):
- * - `flat`: lies on the ground, walked over (flowers, ferns, stepping stones, reeds, lotus leaves);
+ * - `flat`: lies on the ground, walked over (flowers, ferns, stepping stones, reeds, lotus leaves; and the pumpkins, out
+ *   only in their season);
  * - `ring`: a gate's ring of light, walked onto (where it leads is lib/town/town2's);
  * - `trunk`: a tree, a bamboo clump: only the tile its trunk stands on is closed, the crown is over people's heads;
  * - `through`: a gateway, a torii, a rope between posts: only what touches the ground closes a tile (its posts),
@@ -49,6 +50,8 @@ const toIso = (x, y) => ({ x: 32 * (x - y), y: 16 * (x + y) });
  */
 const WALK = [
   ["flat", /wildflower|bellflower|chrysanthemum|spider_lily|iris_clump|tulip|fern_fronds|stepping_stones|reed_clump|lotus_leaves|^game_flowers$|^game_fern$/],
+  // (the pumpkins are out only in their season, lib/town/decor's carving: walked over, so that none is an unseen wall the rest of the year)
+  ["flat", /^game_(pumpkin|jacko)/],
   ["ring", /^game_ring$/],
   ["trunk", /_tree_|bamboo_canes|^game_pine$|cherry_blossom_tree/],
   ["through", /^torii$|^village_gate$|tall_wooden_village_gateway|rope_barrier|laundry_hanging/],

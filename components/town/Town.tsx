@@ -2179,6 +2179,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // the kitchen hall's inside only while I am in it, when its roof is off)
     const art2 = scenery ? town2Ref.current : null, inHall = T2 && roofRef.current < 1;
     const iso2 = (ix: number, iy: number) => toScreen(v, { x: ix, y: iy }, cw, ch);
+    if (art2) art2.carving = forcedCarving.current ?? carving(Date.now());
     const seen2 = art2 ? art2.visible({ x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, now) : null;
     // The river flowing, and what floats and swims in it (in the editor's town, down its own river, under its decks).
     if (scenery) drawRiver(ctx, scenery, dpr);

@@ -21,6 +21,8 @@ import type { Vec } from "./world";
 const FLOOR = 0, STAND = 1, WIDE = 2;
 /** How narrow a strip of a wide thing is, in isometric pixels. */
 const STRIP = 12;
+/** The pumpkins and the carved ones, out only in their season (lib/town/decor's carving, 1 October to 2 November in Bangkok). */
+const SEASONAL = /^game_(pumpkin|jacko)/;
 /** Things whose water moves, as the old town's fountain's did: the plaza's fountain, the basin by the pond, the shrine's water pavilion. */
 const FLOWING = /wishing_basin|temizuya/;
 /** Let a picture go once it has been out of view this long (ms). */
@@ -53,6 +55,8 @@ export class Town2Art {
   private readonly flowing = new Map<number, HTMLCanvasElement[]>();
   /** The frame's time, for what moves. */
   private now = 0;
+  /** Whether the pumpkins are out (the calendar's, or as `next dev` was asked). */
+  carving = false;
   private ripplesReady = false;
 
   constructor() {
@@ -116,6 +120,7 @@ export class Town2Art {
     this.now = now;
     const w = view.x1 - view.x0, h = view.y1 - view.y0, out: Thing[] = [];
     for (const t of this.things) {
+      if (!this.carving && SEASONAL.test(t.name)) continue;
       const sp = this.sprites[t.s], x1 = t.x + sp.w * t.k, y1 = t.y + sp.h * t.k;
       if (x1 < view.x0 - w / 2 || t.x > view.x1 + w / 2 || y1 < view.y0 - h / 2 || t.y > view.y1 + h / 2) continue;
       const near = !(x1 < view.x0 || t.x > view.x1 || y1 < view.y0 || t.y > view.y1);
