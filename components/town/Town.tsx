@@ -73,7 +73,7 @@ import type { Bearer, LampsHooks } from "./TownLamps";
 import type { PastureHooks } from "./TownPasture";
 import type { AnimalsView } from "./TownAnimals";
 import { POPOTO_ASK, POPOTO_BARN, POPOTO_SOON, POPOTO_WHO, popotoChat, popotoHello } from "@/lib/town/pasture-talk";
-import { POPOTO_TALK } from "@/lib/town/pasture-art";
+import { POPOTO_TALK, loadPastureArt } from "@/lib/town/pasture-art";
 import { RAM, riderOf, runOf } from "@/lib/town/riding";
 import { drawRam } from "./pasture-draw";
 import { wagonPlace, wagonRun } from "@/lib/town/seats";
@@ -460,6 +460,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     return kits.current.get(look.race)?.heightOf(look) ?? DOLL_H;
   };
   const sceneryRef = useRef<SceneryKit | null>(null);
+  // ── the pasture ── (the cloud ram's pictures are the pasture's sheets: fetched the first time a ram is drawn, on any map)
+  const ramArt = useRef<SceneryKit | null | undefined>(undefined);
+  const ramKit = () => { if (ramArt.current === undefined) { ramArt.current = null; void loadPastureArt().then((k) => { ramArt.current = k; }); } return ramArt.current; };
   /** The site's own popoto (components/ui/PopotoIcon), for signs drawn on the map. */
   const popotoImg = useRef<HTMLImageElement | null>(null);
   useEffect(() => { const i = new Image(); i.src = popotoArt.src; popotoImg.current = i; }, []);
@@ -2831,8 +2834,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   /** A familiar at its place: its picture out of the icons', turned the way it goes, hopping as it runs (a butterfly flies and never lands). */
   function drawPet(ctx: CanvasRenderingContext2D, pet: { at: Vec; right: boolean; moving: boolean; name: IconName; swims?: boolean; perched?: boolean }, now: number) {
     const img = iconImg.current;
-    // ── the pasture ── (a cloud ram not ridden, its rider sat down: at their heels, smaller; its stand-in until its picture comes)
-    if ((pet.name as string) === RAM) { const c = project({ x: pet.at.x + 0.5, y: pet.at.y + 0.5 }); if (onScreen(c)) drawRam(ctx, null, c, cam.current.s * 0.6, pet.right, 0, now, pet.moving && !reducedRef.current); return; }
+    // ── the pasture ── (a cloud ram not ridden, its rider sat down: at their heels, smaller; its stand-in only while its picture comes)
+    if ((pet.name as string) === RAM) { const c = project({ x: pet.at.x + 0.5, y: pet.at.y + 0.5 }); if (onScreen(c)) drawRam(ctx, ramKit(), c, cam.current.s * 0.6, pet.right, 0, now, pet.moving && !reducedRef.current); return; }
     if (!img?.complete || !img.naturalWidth) return;
     const c = project({ x: pet.at.x + 0.5, y: pet.at.y + 0.5 });
     if (!onScreen(c)) return;
@@ -2889,8 +2892,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // ── gifts: forest ──
   /** A moss stag under its rider (lib/town/riding): its picture out of the icons', bigger than at the heels, turned the way they go, stepping as it runs. */
   function drawSteed(ctx: CanvasRenderingContext2D, a: Avatar, at: Vec, hop: number) {
-    // ── the pasture ── (a cloud ram: its own picture once the art piece has made it; a stand-in meanwhile, components/town/pasture-draw)
-    if (a.info.pet === RAM) { drawRam(ctx, null, at, cam.current.s * 1.05, pets.current.get(a.info.id)?.right ?? true, hop, performance.now(), a.path.length > 0 && !reducedRef.current); return; }
+    // ── the pasture ── (a cloud ram: its own picture; the stand-in only while the pasture's sheets come, components/town/pasture-draw)
+    if (a.info.pet === RAM) { drawRam(ctx, ramKit(), at, cam.current.s * 1.05, pets.current.get(a.info.id)?.right ?? true, hop, performance.now(), a.path.length > 0 && !reducedRef.current, 1, facings.current.get(a.info.id)?.view === "back"); return; }
     const img = iconImg.current, cell = ICON_ATLAS.icons["famStag" as IconName];
     if (!img?.complete || !img.naturalWidth || !cell) return;
     const [x, y, w, h] = cell, sc = cam.current.s, k = STEED.k * sc, right = pets.current.get(a.info.id)?.right ?? true;

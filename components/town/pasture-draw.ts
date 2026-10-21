@@ -249,9 +249,9 @@ export function drawPopoto(ctx: CanvasRenderingContext2D, scenery: SceneryKit | 
   return { tall: 40 * s, w: 24 * s };
 }
 
-/** ART: the cloud ram under its rider (and a passenger behind): a puff of cloud with a curled-horn head, stepping as it goes. */
-export function drawRam(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, at: Vec, s: number, right: boolean, hop: number, now: number, moving: boolean, px = 1) {
-  const name = moving ? (Math.floor(now / 200) % 2 ? "pa_ram_walk1" : "pa_ram_walk2") : "pa_ram_idle";
+/** ART: the cloud ram under its rider (and a passenger behind): a puff of cloud with a curled-horn head, stepping as it goes; `back`: going up the screen, its back view as its rider's. */
+export function drawRam(ctx: CanvasRenderingContext2D, kit: SceneryKit | null, at: Vec, s: number, right: boolean, hop: number, now: number, moving: boolean, px = 1, back = false) {
+  const v = back ? "_NE" : "", name = moving ? (Math.floor(now / 200) % 2 ? `pa_ram${v}_walk1` : `pa_ram${v}_walk2`) : `pa_ram${v}_idle`;
   ctx.fillStyle = "rgba(0,0,0,0.3)";
   ctx.beginPath(); ctx.ellipse(at.x, at.y, 22 * s, 8 * s, 0, 0, Math.PI * 2); ctx.fill();
   if (kit?.has(name)) { kit.drawProp(ctx, name, at.x, at.y - hop, s * (PROP_K[name] ?? 0.5) * pastureScale(name), px, 0, !right); return; }
