@@ -1,7 +1,9 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState } from "react";
+import { CHAT_PLACE } from "@/lib/town/chat";
 import type { ChatLine } from "@/lib/town/session";
+import type { Place } from "@/lib/town/world";
 import TownIcon from "./TownIcon";
 
 /**
@@ -13,11 +15,14 @@ import TownIcon from "./TownIcon";
  * says so. It follows the newest line while you are at the bottom, and stays
  * where you are while you read back up: new lines then wait under a "↓ new"
  * button rather than pulling the list away from what you were reading.
+ * A line said on another map than `here` carries that map's chip (ChatPlace).
  */
-export default function ChatHistory({ lines, th, className = "", note }: {
+export default function ChatHistory({ lines, th, className = "", note, here }: {
   lines: ChatLine[];
   th: boolean;
   className?: string;
+  /** The map I am on: lines from any other say where they were said. */
+  here?: Place | null;
   /** What the top of the list says, where the lines are not the town's own (a chat room's: lib/town/circle). */
   note?: string;
 }) {
@@ -80,6 +85,7 @@ export default function ChatHistory({ lines, th, className = "", note }: {
         ) : lines.map((l) => (
           <p key={l.key} className="break-words py-px">
             <span className="mr-1.5 font-data text-label tabular-nums text-muted">{time(l.at)}</span>
+            <ChatPlace line={l} here={here} th={th} />
             <span className={`font-semibold ${l.announcement ? "font-semibold text-gold" : l.mine ? "text-gold" : "text-accent"}`}>{l.mine ? (th ? "คุณ" : "You") : l.name}</span>
             <span className="text-muted">: </span>
             <span className="text-ink">{l.text}</span>
@@ -93,5 +99,16 @@ export default function ChatHistory({ lines, th, className = "", note }: {
         </button>
       )}
     </div>
+  );
+}
+
+/** The chip of a line said on another map than mine (the town hears every map: lib/town/chat ChatReach). */
+export function ChatPlace({ line, here, th }: { line: ChatLine; here?: Place | null; th: boolean }) {
+  if (line.announcement !== undefined || !line.area || !here || line.area === here) return null;
+  const [thName, enName] = CHAT_PLACE[line.area];
+  return (
+    <span className="mr-1.5 inline-block rounded-sm border border-current/40 px-1 align-[1px] font-data text-label leading-tight text-muted">
+      {th ? thName : enName}
+    </span>
   );
 }

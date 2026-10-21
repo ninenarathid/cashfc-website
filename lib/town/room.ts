@@ -4,11 +4,11 @@
 import { isMood } from "./expression";
 import { createClient as createSupabase, type RealtimeChannel, type SupabaseClient } from "@supabase/supabase-js";
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/supabase/config";
-import { cleanChat } from "./chat";
+import { cleanChat, isPlace, type ChatReach } from "./chat";
 import { decodeLook } from "./look";
 import { decodeSign, encodeSign } from "./sign";
 import { TOOL_WORD } from "./tools";
-import { BENCHES, KITCHEN, SIT_HERE, YARD_SEATS, placeOf } from "./world";
+import { BENCHES, KITCHEN, SIT_HERE, YARD_SEATS, placeOf, type Place } from "./world";
 import { AreaChannel, STATE_SETTLE_MS } from "./area-channel";
 
 /**
@@ -137,8 +137,8 @@ export interface RoomHandlers {
   onHello(id: string): void;
   /** Somebody closed the page: gone now, not after a timeout. */
   onBye(id: string): void;
-  /** Somebody typed a line (raw: clean it before showing it). */
-  onChat(id: string, text: unknown): void;
+  /** Somebody typed a line (raw: clean it before showing it), on the map they say; a browser older than maps says none. */
+  onChat(id: string, text: unknown, area?: Place): void;
   onSignal(from: string, data: unknown): void;
   /** A word of a chat room, into my letterbox (raw: lib/town/circle reads it). */
   onCircle(from: string, word: unknown): void;
@@ -159,7 +159,7 @@ export interface Room {
   say(d: Doing): void;
   /** Into one person's letterbox: where I am, for somebody who just arrived. */
   tell(to: string, d: Doing, requested?: boolean): void;
-  /** Type a line to the current map; false when its channel is not ready. */
+  /** Type a line to the town, or to the current map when the switch says so; false when its channel is not ready. */
   chat(text: string): boolean;
   signal(to: string, data: unknown): void;
   /** A word of a chat room (lib/town/circle), into one person's letterbox: never to the room. */
@@ -174,6 +174,8 @@ export interface Room {
   bye(): void;
   /** Make sure the room still lists me; say who I am again if it lost me. */
   check(resync?: boolean): void;
+  /** Away a while: off my map's channel (AreaChannel.rest), still in the room. */
+  rest?(on: boolean): void;
   leave(): Promise<void>;
 }
 
@@ -247,7 +249,7 @@ export async function joinTown(
   me: Identity,
   h: RoomHandlers,
   /** `doing` is asked afresh whenever the room needs to be told where I am. */
-  opts: { testTopic?: string; privateTopic?: boolean; cancelled?: () => boolean; doing?: () => Doing; areas?: boolean } = {},
+  opts: { testTopic?: string; privateTopic?: boolean; cancelled?: () => boolean; doing?: () => Doing; areas?: boolean; reach?: () => ChatReach } = {},
 ): Promise<Room | null> {
   // A tick before anything else, so a page that mounts and unmounts at once
   // (React's development double-mount, or a quick back-and-forth) can call
@@ -358,8 +360,12 @@ export async function joinTown(
       if (event === "hi") h.onHello(p.id);
     } else if (event === "chat") {
       const d = opts.doing?.();
-      if (p.a !== undefined && (!d || p.a !== placeOf(d.x, d.y))) return;
-      h.onChat(p.id, p.t);
+      const said = isPlace(p.a) ? p.a : undefined;
+      if (p.a !== undefined && !said) return;
+      // Town-wide, a line from any map is heard; map-only, a line from another map is not mine to hear.
+      // (A browser older than maps names none: the session hears it only from somebody on my map.)
+      if (said && opts.reach?.() !== "town" && (!d || said !== placeOf(d.x, d.y))) return;
+      h.onChat(p.id, p.t, said);
     } else if (event === "fg") h.onForged(p.id, p);
     else if (event === "fx" && typeof p.w === "string" && p.w.length <= 32) h.onEffect?.(p.id, p.w);
   };
@@ -418,7 +424,7 @@ export async function joinTown(
   const settle = () => {
     if (leaving || !roomUp || !boxUp || !tracked || !room.presenceState()[me.id]?.length) return;
     area?.sync();
-    if (area && !area.ready) return;
+    if (area && !area.ready && !area.away) return;
     hello();
     if (!ready) { ready = true; h.onStatus("ready"); }
   };
@@ -547,7 +553,11 @@ export async function joinTown(
       const d = opts.doing?.();
       const here = d && placeOf(d.x, d.y);
       if (!here) return false;
-      return world("chat", { id: me.id, t: text, a: here }, d);
+      const line = { id: me.id, t: text, a: here };
+      // Town-wide (the owner, 2026-10-22): into the room everybody is in. Map-only: to the map, or to the room
+      // while I rest off the map's channel (every other map drops it by its `a`).
+      if (!area || opts.reach?.() === "town" || area.away) return cast("chat", line);
+      return world("chat", line, d);
     },
     signal(to, data) { post(to, "rtc", { from: me.id, data }); },
     circle(to, word) { post(to, "cr", { from: me.id, w: word }); },
@@ -566,6 +576,7 @@ export async function joinTown(
       if (!tracked || !mine?.length) { trouble("presence missing"); void track(); }
       else { if (sentIdentityVersion !== identityVersion) void track(); hello(resync); settle(); area?.check(); }
     },
+    rest(on) { if (!leaving) area?.rest(on); },
     async leave() {
       leaving = true;
       cancelState();

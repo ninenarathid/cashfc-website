@@ -16,6 +16,8 @@ export class AreaChannel {
   private legacy = false;
   private social = "";
   private generation = 0;
+  /** Away for a while: off the map's channel, still in the room (presence, chat, voice status). */
+  private resting = false;
 
   constructor(private readonly options: {
     client: SupabaseClient;
@@ -31,6 +33,32 @@ export class AreaChannel {
 
   setLegacy(legacy: boolean) { this.legacy = legacy; }
   get ready() { return this.channel?.state === "joined"; }
+  get away() { return this.resting; }
+
+  /**
+   * Somebody away (a hidden tab, another page of the site) needs nobody's
+   * steps: leave the map's channel and keep the room. Where I stand is told
+   * to the whole room once, so a newcomer to my map still finds me where I am.
+   * Back (rest(false)): the map is joined again and its hello brings every
+   * position back, as on changing maps.
+   */
+  rest(on: boolean) {
+    if (this.closed || on === this.resting) return;
+    this.resting = on;
+    if (!on) { this.sync(); return; }
+    ++this.generation;
+    const ch = this.channel;
+    this.channel = null;
+    if (ch) void this.options.client.removeChannel(ch);
+    const d = this.options.doing();
+    if (!d) return;
+    this.area = placeOf(d.x, d.y) ?? this.area;
+    if (this.options.global("st", { id: this.options.id, ...d })) this.social = this.socialStamp(d);
+  }
+
+  private socialStamp(d: Doing) {
+    return JSON.stringify({ voice: d.voice, muted: d.muted, away: d.away, circle: d.circle ?? "", sign: d.sign ?? "" });
+  }
 
   private cast(event: string, payload: Payload): boolean {
     const ch = this.channel;
@@ -42,14 +70,14 @@ export class AreaChannel {
   /** Global voice/chat-room status still reaches friends on every map. */
   private shareSocial(d: Doing, moved: boolean) {
     const fields = { voice: d.voice, muted: d.muted, away: d.away, circle: d.circle ?? "", sign: d.sign ?? "" };
-    const stamp = JSON.stringify(fields);
+    const stamp = this.socialStamp(d);
     if (!moved && stamp === this.social) return;
     if (this.options.global("st", { id: this.options.id, ...fields, ...(moved ? { x: d.x, y: d.y } : {}) })) this.social = stamp;
   }
 
   /** A map transition publishes its destination once, then leaves the old map. */
   sync(d = this.options.doing()): boolean {
-    if (this.closed || !d) return false;
+    if (this.closed || this.resting || !d) return false;
     const area = placeOf(d.x, d.y);
     if (!area) return false;
     if (this.channel && this.area === area) return false;
@@ -82,12 +110,13 @@ export class AreaChannel {
       } else this.options.trouble(status, error);
     });
     if (moved) this.shareSocial(d, true);
-    else this.social = JSON.stringify({ voice: d.voice, muted: d.muted, away: d.away, circle: d.circle ?? "", sign: d.sign ?? "" });
+    else this.social = this.socialStamp(d);
     return true;
   }
 
   send(event: string, payload: Payload, d = this.options.doing()): boolean {
     if (this.closed) return false;
+    if (this.resting) return this.sendResting(event, payload, d);
     const changed = this.sync(d);
     // A browser opened before this release only hears the original room.
     // Local chat never falls back to a town-wide broadcast for old clients.
@@ -98,8 +127,27 @@ export class AreaChannel {
     return this.cast(event, payload);
   }
 
+  /**
+   * Resting, nobody hears my map's own events. Only what the room keeps for
+   * everybody still goes: voice and chat-room status, and my whole state if I
+   * end up on another map (a boat, say), so that both maps place me right.
+   */
+  private sendResting(event: string, payload: Payload, d: Doing | undefined): boolean {
+    if (this.legacy && event !== "chat") return this.options.global(event, payload);
+    if (!d || (event !== "mv" && event !== "st")) return false;
+    const area = placeOf(d.x, d.y);
+    if (area && area !== this.area) {
+      this.area = area;
+      if (!this.options.global("st", { id: this.options.id, ...d })) return false;
+      this.social = this.socialStamp(d);
+      return true;
+    }
+    this.shareSocial(d, false);
+    return false;
+  }
+
   check() {
-    if (this.closed) return;
+    if (this.closed || this.resting) return;
     this.sync();
     if (this.channel && this.channel.state !== "joined") this.options.trouble("area reconnecting");
   }

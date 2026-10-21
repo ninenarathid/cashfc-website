@@ -7,7 +7,7 @@ import {boatMotion,boatRecovery,ridingBoat,boatMoving} from './lotus-boats';
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { rememberTown, setTownActive } from "./active";
-import { Flood, LOG_MAX, chatEvery, cleanChat } from "./chat";
+import { Flood, LOG_MAX, REACH_DEFAULT, REACH_EVERY_MS, chatEvery, cleanChat, readReach, type ChatReach } from "./chat";
 import { admit, fromRoom, hears, listed, newCircle, readWord, without, type Circle, type CircleWord } from "./circle";
 import { decodeLook, defaultLook, encodeLook, saveLook, savedLook, type Look } from "./look";
 import { joinTown, townClient, type Doing, type Identity, type Room, type RoomStatus } from "./room";
@@ -88,12 +88,14 @@ export interface ChatLine {
   at: number;
   mine: boolean;
   announcement?: number;
-  /** Ordinary chat stays with the map where it was received. Announcements are global. */
+  /** The map it was said on (its chip in the log, when it is not mine). Announcements are everybody's. */
   area?: Place | null;
 }
 
 export type ChatResult = "sent" | "empty" | "slow" | "offline";
-export type MessageResult = ChatResult | "forbidden" | "invalid" | "unavailable";
+/** What `/townchat` answered (lib/town/chat reachNote words it). */
+export type ReachResult = "reach-town" | "reach-map" | "reach-usage" | "reach-forbidden" | "reach-unavailable";
+export type MessageResult = ChatResult | "forbidden" | "invalid" | "unavailable" | ReachResult;
 
 /** How long somebody the room stopped listing (without a goodbye) stays. */
 export const GONE_MS = 4_000;
@@ -112,6 +114,14 @@ export const BYE_TRUST_MS = 8_000;
  * party board and the bell) runs out somewhere past this.
  */
 export const ROOM_CAP = 30;
+
+/**
+ * Away this long (a hidden tab, another page of the site), the stay leaves its
+ * map's channel and hears nobody's steps (AreaChannel.rest); chat, presence
+ * and voice go on in the room. Not at once: somebody who looks away to the
+ * game and back each minute would cost more in coming back than resting saves.
+ */
+export const REST_AFTER_MS = 2 * 60_000;
 
 /** How often to knock again on a full room. */
 const FULL_RETRY_MS = 30_000;
@@ -181,6 +191,10 @@ export class TownSession {
   readonly chat: ChatLine[] = [];
   /** Lines from others that arrived while no town page was showing them. */
   unread = 0;
+  /** Who hears a line: the town's switch (lib/town/chat ChatReach), read from the database. */
+  chatReach: ChatReach = REACH_DEFAULT;
+  /** What the log shows me while the town hears everybody: every map's lines, or my map's only. */
+  chatView: ChatReach = "town";
   /**
    * The chat room I am in, or hold under my sign (lib/town/circle): who is in it, as its holder lists them; what was
    * typed in it while this tab was in it (gone with the room); how many of its lines nobody here has read; whom I
@@ -199,6 +213,10 @@ export class TownSession {
 
   private client: SupabaseClient;
   private current: Room | null = null;
+  private reachReadAt = -Infinity;
+  private reachBusy = false;
+  /** Since when no town page has shown this stay, or its tab has been hidden; null while it is seen. */
+  private awaySince: number | null = null;
   private gen = 0;
   /** When it was last fine, or when we last started over: the watchdog's clock. */
   private settledAt = Date.now();
@@ -289,9 +307,18 @@ export class TownSession {
     return [...this.avatars.values()].filter((a) => a.byeAt === undefined);
   }
 
-  get mapChat(): ChatLine[] {
+  /** The lines the log shows: the whole town's, or my map's only (my choice, or the town's switch). Announcements always. */
+  get shownChat(): ChatLine[] {
+    if (this.chatReach === "town" && this.chatView === "town") return this.chat;
     const area = placeOf(this.self.info.x, this.self.info.y);
     return this.chat.filter(line => line.announcement !== undefined || line.area === area);
+  }
+
+  /** Show every map's lines in the log, or my map's only. */
+  setChatView(view: ChatReach) {
+    if (this.closed || view === this.chatView) return;
+    this.chatView = view;
+    this.notify();
   }
 
   /** What I am doing, as the room is told. */
@@ -880,6 +907,8 @@ export class TownSession {
 
   /** Commands go to the authenticated RPC, never into player chat or a browser-only preview. */
   async sendMessage(raw: string): Promise<MessageResult> {
+    const reach = /^\/townchat(?:\s+(\S+))?\s*$/i.exec(raw.trim());
+    if (reach) return this.switchReach(reach[1]);
     const command = /^\/announce(?:\s|$)/i.exec(raw.trimStart());
     if (!command) return this.sendChat(raw);
     if (this.closed) return "offline";
@@ -900,6 +929,36 @@ export class TownSession {
       return "sent";
     } catch { return "offline"; }
     finally { this.announcementBusy = false; }
+  }
+
+  /** `/townchat town|map`: an admin sets who hears a line (v294); with no word, says how it is now. */
+  private async switchReach(word: string | undefined): Promise<MessageResult> {
+    if (this.closed) return "offline";
+    const now = (r: ChatReach): ReachResult => (r === "town" ? "reach-town" : "reach-map");
+    if (!word) return now(this.chatReach);
+    const want = readReach(word.toLowerCase());
+    if (!want) return "reach-usage";
+    try {
+      const { data, error } = await this.client.rpc("town_set_chat_reach", { p_reach: want });
+      if (error) return error.code === "PGRST202" || error.code === "42883" ? "reach-unavailable" : "offline";
+      if (data?.ok !== true) return data?.why === "forbidden" ? "reach-forbidden" : "reach-usage";
+      this.chatReach = want;
+      this.reachReadAt = Date.now();
+      this.notify();
+      return now(want);
+    } catch { return "offline"; }
+  }
+
+  /** The town's switch, from the database: on joining and every REACH_EVERY_MS. Before v294 there is none: the town hears everybody. */
+  private async readReach() {
+    if (this.closed || this.testTopic || this.reachBusy) return;
+    this.reachBusy = true;
+    this.reachReadAt = Date.now();
+    try {
+      const { data, error } = await this.client.rpc("town_chat_reach");
+      const reach = error ? (error.code === "PGRST202" || error.code === "42883" ? REACH_DEFAULT : null) : readReach(data);
+      if (reach && reach !== this.chatReach && !this.closed) { this.chatReach = reach; this.notify(); }
+    } catch { /* keep what was read last */ } finally { this.reachBusy = false; }
   }
 
   sendChat(raw: string): ChatResult {
@@ -1048,7 +1107,7 @@ export class TownSession {
         this.current?.tell(id, this.doing(), true);
       },
       onBye: (id) => { if (live()) this.onBye(id); },
-      onChat: (id, text) => { if (live()) this.onChat(id, text); },
+      onChat: (id, text, area) => { if (live()) this.onChat(id, text, area); },
       onNudge: (_id, what) => { if (live() && typeof what === "string" && what.length <= 12) this.onNudge?.(what); },
       onForged: (id, told) => { if (live()) this.heardForged(id, told); },
       onEffect: (id, word) => { if (live()) this.heardElement(id, word); },
@@ -1056,7 +1115,7 @@ export class TownSession {
       onSignal: (from, data) => { if (mine === this.gen && this.hearsNow(from)) void this.voice.receive(from, data as Signal); },
       onCircle: (from, word) => { if (live()) this.onCircle(from, word); },
       onPair: (from, data) => { if (live()) this.heardPair(from, data); },
-    }, { testTopic: this.testTopic, privateTopic: this.options.privateTopic, cancelled: () => !live(), doing: () => this.doing() });
+    }, { testTopic: this.testTopic, privateTopic: this.options.privateTopic, cancelled: () => !live(), doing: () => this.doing(), reach: () => this.chatReach });
     if (!r) return;
     if (!live()) { void r.leave(); return; }
     this.current = r;
@@ -1153,23 +1212,25 @@ export class TownSession {
   }
 
   // Only from somebody the room lists now, and not a flood from anybody.
-  private onChat(id: string, raw: unknown) {
+  private onChat(id: string, raw: unknown, said?: Place) {
     const a = this.avatars.get(id);
     if (!a || a.byeAt !== undefined || !this.listed.has(id)) return;
-    const area = placeOf(this.self.info.x, this.self.info.y);
-    // Old clients can still send unscoped packets to the original room.
-    if (!area || placeOf(a.info.x, a.info.y) !== area) return;
+    const here = placeOf(this.self.info.x, this.self.info.y);
+    // A line names its map. An old browser's names none: heard only from somebody on mine.
+    const there = said ?? placeOf(a.info.x, a.info.y);
+    if (!here || !there || (there !== here && (!said || this.chatReach !== "town"))) return;
     const now = Date.now();
     const text = cleanChat(raw);
     if (!text || !this.flood.allow(id, now)) return;
-    a.said = { text, at: now };
-    this.addLine(id, a.info.name, text, false, now);
+    // The bubble is over a head on my own map; from another map the line is in the log only.
+    if (there === here) a.said = { text, at: now };
+    this.addLine(id, a.info.name, text, false, now, there);
     if (this.views <= 0) this.unread++;
     this.notify();
   }
 
-  private addLine(from: string, name: string, text: string, mine: boolean, at: number) {
-    this.chat.push({ key: ++this.chatKey, from, name, text, at, mine, area: placeOf(this.self.info.x, this.self.info.y) });
+  private addLine(from: string, name: string, text: string, mine: boolean, at: number, area = placeOf(this.self.info.x, this.self.info.y)) {
+    this.chat.push({ key: ++this.chatKey, from, name, text, at, mine, area });
     if (this.chat.length > LOG_MAX) this.chat.splice(0, this.chat.length - LOG_MAX);
   }
 
@@ -1292,6 +1353,9 @@ export class TownSession {
   private updateAway() {
     if (this.closed) return;
     const away = this.views <= 0 || document.visibilityState !== "visible";
+    // Back: on the map's channel again before the room hears it (onTick rests it after REST_AFTER_MS).
+    if (!away) { this.awaySince = null; this.current?.rest?.(false); }
+    else if (this.awaySince === null) this.awaySince = Date.now();
     if (away === this.self.info.away) return;
     this.tell({ away });
   }
@@ -1352,6 +1416,8 @@ export class TownSession {
     this.beatShop();
     this.syncVoice();
     if (now - this.seenAt > SEEN_EVERY_MS) this.remember();
+    if (now - this.reachReadAt > REACH_EVERY_MS) void this.readReach();
+    if (this.awaySince !== null && now - this.awaySince >= REST_AFTER_MS) this.current?.rest?.(true);
     if (this.status === "ready") {
       this.current?.check();
       this.voice.repair();
@@ -1428,7 +1494,7 @@ export class TownSession {
       eat: (dish: string | null) => this.setEating(dish),
       wear: (code: string) => { const look = decodeLook(code); if (look) this.setLook(look); return !!look; },
       chat: (text: string) => this.sendChat(text),
-      chatLog: () => this.mapChat.map((l) => ({ name: l.name, text: l.text, mine: l.mine })),
+      chatLog: () => this.shownChat.map((l) => ({ name: l.name, text: l.text, mine: l.mine })),
       unread: () => this.unread,
       leave: () => this.close(),
     };

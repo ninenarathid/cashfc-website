@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { joinTown, type Doing, type Room, type RoomHandlers } from "./room";
 import { FARM, FOREST } from "./world";
 import { STATE_SETTLE_MS } from "./area-channel";
+import type { ChatReach } from "./chat";
 
 type Payload = Record<string, unknown>;
 type Listener = (value: { payload: Payload }) => void;
@@ -21,7 +22,8 @@ class Network {
   sync() {
     for (const c of this.channels.filter(c => c.state === "joined")) c.listeners.get("presence:sync")?.({ payload: {} });
   }
-  async player(id: string, position = { x: 30, y: 30 }, areas = true) {
+  /** `reach`: who hears a line (lib/town/chat ChatReach); these older cases are about map-only chat. */
+  async player(id: string, position = { x: 30, y: 30 }, areas = true, reach: ChatReach = "map") {
     const own: TestChannel[] = [];
     const doing: Doing = { ...position, voice: false, muted: false, away: false };
     const handlers: RoomHandlers = {
@@ -37,7 +39,7 @@ class Network {
       realtime: { isConnected: () => true },
     };
     const room = (await joinTown(client as unknown as SupabaseClient, { id, name: id, face: null, color: "#abcdef" }, handlers,
-      { testTopic: "cost-test", areas, doing: () => doing }))!;
+      { testTopic: "cost-test", areas, doing: () => doing, reach: () => reach }))!;
     handlers.onHello = vi.fn(to => room.tell(to, doing, true));
     await flush(); this.sync(); await flush();
     return { room, handlers, doing, own, client };
@@ -92,7 +94,7 @@ describe("Cash Town Realtime cost and map routing", () => {
     expect(b.handlers.onDoing).toHaveBeenCalledWith("A", { x: 35, y: 30 });
     expect(c.handlers.onDoing).not.toHaveBeenCalled();
     expect(b.handlers.onEffect).toHaveBeenCalledWith("A", "fire"); expect(c.handlers.onEffect).not.toHaveBeenCalled();
-    expect(b.handlers.onChat).toHaveBeenCalledWith("A", "hello");
+    expect(b.handlers.onChat).toHaveBeenCalledWith("A", "hello", "town");
     expect(c.handlers.onChat).not.toHaveBeenCalled();
     expect(c.handlers.onSignal).toHaveBeenCalledWith("A", { pc: "one" });
     expect(network.messages.find(m => m.event === "mv")?.deliveries).toBe(2);
@@ -173,7 +175,7 @@ describe("Cash Town Realtime cost and map routing", () => {
     expect(a.room.chat("local only")).toBe(true);
     expect(network.messages).toHaveLength(1);
     expect(network.messages[0]).toMatchObject({ topic: "realtime:cost-test:z:town", deliveries: 2 });
-    expect(b.handlers.onChat).toHaveBeenCalledWith("A", "local only");
+    expect(b.handlers.onChat).toHaveBeenCalledWith("A", "local only", "town");
   });
   it("rejects a late chat packet after a local warp, before its throttled move changes the subscription", async () => {
     const network = new Network(), a = await network.player("A"), b = await network.player("B");
@@ -190,7 +192,7 @@ describe("Cash Town Realtime cost and map routing", () => {
     expect(network.messages).toEqual([]);
     ch.state = "joined"; ch.status?.("SUBSCRIBED"); await flush(); network.messages = [];
     expect(a.room.chat("now ready")).toBe(true);
-    expect(b.handlers.onChat).toHaveBeenCalledWith("A", "now ready");
+    expect(b.handlers.onChat).toHaveBeenCalledWith("A", "now ready", "town");
   });
   it("receives new-map chat after entering, ignores other-map legacy chat, and keeps private rooms direct", async () => {
     const network = new Network(), a = await network.player("A"), b = await network.player("B", { x: FARM.x + 5, y: FARM.y + 5 });
@@ -198,8 +200,97 @@ describe("Cash Town Realtime cost and map routing", () => {
     vi.mocked(b.handlers.onChat).mockClear();
     old.room.chat("legacy town"); expect(b.handlers.onChat).not.toHaveBeenCalled();
     Object.assign(a.doing, { x: FARM.x + 6, y: FARM.y + 6 }); a.room.move(a.doing.x, a.doing.y); await flush();
-    a.room.chat("new farm"); expect(b.handlers.onChat).toHaveBeenCalledWith("A", "new farm");
+    a.room.chat("new farm"); expect(b.handlers.onChat).toHaveBeenCalledWith("A", "new farm", "farm");
     a.room.circle("old", { k: "private" });
     expect(old.handlers.onCircle).toHaveBeenCalledWith("A", { k: "private" });
+  });
+});
+
+describe("Cash Town chat for the whole town, and resting off the map while away", () => {
+  const farm = { x: FARM.x + 5, y: FARM.y + 5 };
+  it("sends a town-wide line once through the room to every map, while steps stay on the map", async () => {
+    const network = new Network();
+    const a = await network.player("A", undefined, true, "town"), b = await network.player("B", undefined, true, "town");
+    const c = await network.player("C", farm, true, "town");
+    vi.mocked(c.handlers.onDoing).mockClear(); network.messages = [];
+    expect(a.room.chat("hello town")).toBe(true);
+    expect(b.handlers.onChat).toHaveBeenCalledWith("A", "hello town", "town");
+    expect(c.handlers.onChat).toHaveBeenCalledWith("A", "hello town", "town");
+    expect(network.messages).toEqual([expect.objectContaining({ topic: "realtime:cost-test", event: "chat", deliveries: 3 })]);
+    a.doing.x = 31; a.room.move(31, 30);
+    expect(c.handlers.onDoing).not.toHaveBeenCalled();
+    expect(network.messages.at(-1)).toMatchObject({ topic: "realtime:cost-test:z:town", event: "mv" });
+  });
+  it("hears a map-only browser's line on its own map, and drops another map's line when the town is map-only", async () => {
+    const network = new Network();
+    const a = await network.player("A", undefined, true, "map"), b = await network.player("B", undefined, true, "town");
+    const c = await network.player("C", farm, true, "map");
+    a.room.chat("map line");
+    expect(b.handlers.onChat).toHaveBeenCalledWith("A", "map line", "town");
+    expect(c.handlers.onChat).not.toHaveBeenCalled();
+    b.room.chat("town line");
+    expect(c.handlers.onChat).not.toHaveBeenCalled();
+    expect(a.handlers.onChat).toHaveBeenCalledWith("B", "town line", "town");
+  });
+  it("a resting member leaves the map's channel, is placed once for the room, and hears no steps", async () => {
+    const network = new Network();
+    const a = await network.player("A", undefined, true, "town"), b = await network.player("B", undefined, true, "town");
+    const c = await network.player("C", farm, true, "town");
+    vi.mocked(a.handlers.onDoing).mockClear(); vi.mocked(c.handlers.onDoing).mockClear(); network.messages = [];
+    a.doing.x = 33; a.room.rest!(true); await flush();
+    expect(a.own.filter(ch => ch.topic.includes(":z:"))).toHaveLength(0);
+    expect(network.messages).toEqual([expect.objectContaining({ topic: "realtime:cost-test", event: "st", deliveries: 3 })]);
+    expect(c.handlers.onDoing).toHaveBeenCalledWith("A", expect.objectContaining({ x: 33, y: 30 }));
+    network.messages = [];
+    b.doing.x = 28; b.room.move(28, 30); b.room.effect!("fire");
+    expect(a.handlers.onDoing).not.toHaveBeenCalled();
+    expect(network.messages.map(m => m.deliveries)).toEqual([1, 1]);
+    // Still in the room: the town's chat, and voice status that everybody sees.
+    b.room.chat("still there?");
+    expect(a.handlers.onChat).toHaveBeenCalledWith("B", "still there?", "town");
+    network.messages = [];
+    a.doing.muted = true; a.room.say(a.doing); await new Promise(r => setTimeout(r, STATE_SETTLE_MS + 20));
+    expect(network.messages).toEqual([expect.objectContaining({ topic: "realtime:cost-test", event: "st" })]);
+    expect(c.handlers.onDoing).toHaveBeenLastCalledWith("A", expect.objectContaining({ muted: true }));
+    a.doing.hold = "rod"; a.room.say(a.doing); await new Promise(r => setTimeout(r, STATE_SETTLE_MS + 20));
+    expect(network.messages).toHaveLength(1);
+    a.room.check(); expect(a.handlers.onStatus).not.toHaveBeenCalledWith("reconnecting", expect.anything());
+  });
+  it("comes back from resting on the map's channel, and everybody's position with it", async () => {
+    const network = new Network();
+    const a = await network.player("A", undefined, true, "town"), b = await network.player("B", undefined, true, "town");
+    a.room.rest!(true); await flush();
+    b.doing.x = 25; b.room.move(25, 30);
+    vi.mocked(a.handlers.onDoing).mockClear();
+    a.doing.hold = "rod"; a.room.rest!(false); await flush();
+    expect(a.own.filter(ch => ch.topic.endsWith(":z:town") && ch.state === "joined")).toHaveLength(1);
+    expect(b.handlers.onDoing).toHaveBeenCalledWith("A", expect.objectContaining({ hold: "rod" }));
+    expect(a.handlers.onDoing).toHaveBeenCalledWith("B", expect.objectContaining({ x: 25, y: 30 }));
+    vi.mocked(a.handlers.onDoing).mockClear();
+    b.doing.x = 26; b.room.move(26, 30);
+    expect(a.handlers.onDoing).toHaveBeenCalledWith("B", { x: 26, y: 30 });
+  });
+  it("resting and map-only, a line goes through the room and only my map shows it", async () => {
+    const network = new Network();
+    const a = await network.player("A", undefined, true, "map"), b = await network.player("B", undefined, true, "map");
+    const c = await network.player("C", farm, true, "map");
+    a.room.rest!(true); await flush(); network.messages = [];
+    expect(a.room.chat("from another page")).toBe(true);
+    expect(network.messages[0]).toMatchObject({ topic: "realtime:cost-test", event: "chat" });
+    expect(b.handlers.onChat).toHaveBeenCalledWith("A", "from another page", "town");
+    expect(c.handlers.onChat).not.toHaveBeenCalled();
+  });
+  it("resting and carried to another map, both maps are told where I am", async () => {
+    const network = new Network();
+    const a = await network.player("A", undefined, true, "town"), b = await network.player("B", undefined, true, "town");
+    const c = await network.player("C", farm, true, "town");
+    a.room.rest!(true); await flush();
+    vi.mocked(b.handlers.onDoing).mockClear(); vi.mocked(c.handlers.onDoing).mockClear(); network.messages = [];
+    Object.assign(a.doing, farm, { x: farm.x + 1 }); a.room.move(a.doing.x, a.doing.y);
+    expect(network.messages).toEqual([expect.objectContaining({ topic: "realtime:cost-test", event: "st" })]);
+    expect(b.handlers.onDoing).toHaveBeenCalledWith("A", expect.objectContaining({ x: farm.x + 1 }));
+    expect(c.handlers.onDoing).toHaveBeenCalledWith("A", expect.objectContaining({ x: farm.x + 1 }));
+    a.room.rest!(false); await flush();
+    expect(a.own.filter(ch => ch.topic.endsWith(":z:farm"))).toHaveLength(1);
   });
 });
