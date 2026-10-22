@@ -153,12 +153,14 @@ export const T2_THINGS: T2Thing[] = (MAP.objects as number[][]).map((o, i) => ({
 const named = (re: RegExp) => T2_THINGS.filter((t) => re.test(t.name));
 /**
  * Things of the export that are not part of this town: the small ring and the road works laid in the shop's doorway
- * (where the uncle stands), and the ring by the road works in the south-east (that road is closed: a ring there would
- * be a way out that leads nowhere).
+ * (where the uncle stands), the ring by the road works in the south-east (that road is closed: a ring there would be a
+ * way out that leads nowhere), and the stove that stood in the kitchen hall's back doorway (the owner, 2026-10-22:
+ * "เอาอันนี้ออกให้ด้วย มันขวางทางประตู").
  */
 export const T2_LEFT_OUT = new Set(T2_THINGS.filter((t) =>
   (t.name === "game_ring" && (Math.abs(t.c.x - 45.21) < 0.5 || Math.abs(t.c.x - 73.96) < 0.5))
-  || (t.name === "game_roadworks" && Math.abs(t.c.x - 45.95) < 0.5)).map((t) => t.i));
+  || (t.name === "game_roadworks" && Math.abs(t.c.x - 45.95) < 0.5)
+  || (/^japanese_kamado/.test(t.name) && Math.abs(t.c.x - 68.5) < 0.3 && Math.abs(t.c.y - 46.5) < 0.3)).map((t) => t.i));
 /** Tiles under a box (whose middles are inside it). */
 const tilesIn = ([x0, y0, x1, y1]: readonly number[]): Array<[number, number]> => {
   const out: Array<[number, number]> = [];
@@ -210,17 +212,21 @@ export const T2_SMITH = {
 /* ── the kitchen hall ───────────────────────────────────────────────────── */
 
 const HALL = first(/^kitchen_house$/);
-/** Its floor (inside its walls), and its two doors: the noren at the front, the steps at the side. */
+/**
+ * Its floor (inside its walls), and its two ways in (the owner, 2026-10-22: "เดินเข้าครัวได้สองทางคือ ซ้ายล่าง กับ ขวาบนตาม
+ * ภาพ"): the gap in the low front wall under the noren, x 66.6 to 70.8 on its picture, and the doorway in the back wall,
+ * x 67.5 to 69.2 (the stove that stood in it taken out: T2_LEFT_OUT). No way in at the side any more.
+ */
 const FLOOR_BOX = { x0: 62, y0: 46, x1: 75, y1: 53 };
 export const T2_HALL_DOORS: Array<{ inside: [number, number]; outside: [number, number] }> = [
-  { inside: [66, 53], outside: [66, 54] }, { inside: [67, 53], outside: [67, 54] },
-  { inside: [75, 48], outside: [76, 48] }, { inside: [75, 49], outside: [76, 49] },
+  ...[67, 68, 69, 70].map((x) => ({ inside: [x, 53] as [number, number], outside: [x, 54] as [number, number] })),
+  { inside: [68, 46], outside: [68, 45] },
 ];
 export const t2InHall = (x: number, y: number) => x >= FLOOR_BOX.x0 && x <= FLOOR_BOX.x1 && y >= FLOOR_BOX.y0 && y <= FLOOR_BOX.y1;
 const WALK: string[] = MAP.walk;
 const doorOut = new Set(T2_HALL_DOORS.map((d) => d.outside.join(",")));
 /** The hall's things, by their footprints. */
-const HALL_THINGS = T2_THINGS.filter((t) => t.c.x > FLOOR_BOX.x0 && t.c.x < FLOOR_BOX.x1 + 1 && t.c.y > FLOOR_BOX.y0 && t.c.y < FLOOR_BOX.y1 + 1 && !/kitchen_house/.test(t.name));
+const HALL_THINGS = T2_THINGS.filter((t) => !T2_LEFT_OUT.has(t.i) && t.c.x > FLOOR_BOX.x0 && t.c.x < FLOOR_BOX.x1 + 1 && t.c.y > FLOOR_BOX.y0 && t.c.y < FLOOR_BOX.y1 + 1 && !/kitchen_house/.test(t.name));
 export const T2_HALL = { thing: HALL.i, inside: first(/^kitchen_house_inside/).i, box: HALL.box, floor: FLOOR_BOX, things: HALL_THINGS.map((t) => t.i) };
 
 type Station = "stove" | "table" | "fire";
@@ -270,7 +276,8 @@ export const T2_KITCHEN = (() => {
       const p = { x: x0 + ((i + 0.5) * (x1 - x0)) / 3 - 0.32, y: y - 0.32 }, q = px(p);
       const sy = back ? Math.ceil(y) : Math.floor(y) - 1, sx = Math.floor(p.x);
       const stand = (open(sx, sy) ? [sx, sy] : floor.slice().sort((a, c) => Math.hypot(a[0] + 0.5 - p.x, a[1] + 0.5 - p.y) - Math.hypot(c[0] + 0.5 - p.x, c[1] + 0.5 - p.y))[0]) as [number, number];
-      return { at: p, px: q.x, py: q.y, back, table, stand };
+      // (and drawn just before the bench's picture, on it: the near benches were drawn over their sitters, the owner, 2026-10-22)
+      return { at: p, px: q.x, py: q.y, back, table, stand, over: (MAP.objects as number[][])[b.i][7] + 0.01 };
     });
   }));
   // (each top's second figure is where it stands back to front, as the yard's tops were: whoever sits behind the table is
@@ -292,7 +299,7 @@ export const T2_KITCHEN = (() => {
   return {
     stage: process.env.NODE_ENV !== "production" ? 2 : 1, foot, tiles,
     near: (_x: number, _y: number) => false,
-    ways: { south: { x: 66.5, y: 53.5 }, north: { x: 75.5, y: 48.5 } },
+    ways: { south: { x: 68.5, y: 53.5 }, north: { x: 68.5, y: 46.5 } },
     way: T2_HALL_DOORS.map((d) => d.inside),
     floor,
     stands: [] as Array<{ kind: "stove" | "table" | "fire" | "dining" | "wash"; box: [number, number, number, number]; rise: number }>,
@@ -314,14 +321,65 @@ export const T2_DECK = (x: number, y: number) => inT2(x, y) && WALK[y][x] === "=
 /* ── where may be walked ────────────────────────────────────────────────── */
 
 const LEFT_OUT_TILES = new Set([...T2_LEFT_OUT].flatMap((i) => tilesIn(T2_THINGS[i].box).map(([x, y]) => `${x},${y}`)));
+/**
+ * The festival stage, walked on (the owner, 2026-10-22: "ทำให้เวที เดินขึ้นไปได้ด้วย"): its round top, 70 isometric
+ * pixels up (the height of its skirt in its picture), the tiles within 3.6 of a point a little left of its footprint's
+ * middle; and its stairs at its front right, the two columns before its footprint's right edge, on the two rows from its
+ * middle, coming down to the ground on the column after it (its picture with the tiles laid over it, at its height and
+ * on the ground). Stepped on and off by its stairs only. Drawn in strips at its back edges (lib/town/town2-art).
+ */
+export const T2_STAGE = first(/^oval_wooden_festival_stage/);
+export const T2_STAGE_UP = 70;
+const STAGE_MID = { x: (T2_STAGE.box[0] + T2_STAGE.box[2]) / 2 - 0.27, y: (T2_STAGE.box[1] + T2_STAGE.box[3]) / 2 + 0.28 };
+const STAGE_FOOT = Math.floor(T2_STAGE.box[2]) + 1, STAGE_ROW = Math.floor(STAGE_MID.y);
+const STAGE_STAIRS = new Set([STAGE_FOOT - 2, STAGE_FOOT - 1].flatMap((x) => [STAGE_ROW, STAGE_ROW + 1].map((y) => `${x},${y}`)));
+const STAGE_LANDINGS = new Set([STAGE_ROW, STAGE_ROW + 1].map((y) => `${STAGE_FOOT - 1},${y}|${STAGE_FOOT},${y}`));
+const onStageTop = (x: number, y: number) => Math.hypot(x + 0.5 - STAGE_MID.x, y + 0.5 - STAGE_MID.y) <= 3.6;
+const onStage = (x: number, y: number) => onStageTop(x, y) || STAGE_STAIRS.has(`${x},${y}`);
+/** Whether a tile is the stage's (its top or its stairs). */
+export const t2OnStage = onStage;
+/** How far up somebody on the stage is drawn: its top's height, less down its stairs (to nothing at their foot). */
+const stageLift = (x: number, y: number) => {
+  const tx = Math.floor(x), ty = Math.floor(y);
+  if (STAGE_STAIRS.has(`${tx},${ty}`)) return T2_STAGE_UP * Math.min(1, Math.max(0, (STAGE_FOOT - x) / 2));
+  return onStageTop(tx, ty) ? T2_STAGE_UP : 0;
+};
+/**
+ * The ground right behind the water pavilion's tank (the temizuya): closed, as its tank is (the owner, 2026-10-22: "ตรงนี้
+ * เดินเข้ามาแล้ว ตัวละครขาด", of somebody stood there under its roof, drawn behind the tank's wall and so cut in half in
+ * its water). Its front stays open.
+ */
+const TEMIZUYA = first(/^temizuya$/);
+const BEHIND_TANK = (() => {
+  const under = tilesIn(TEMIZUYA.box), bx = Math.floor(TEMIZUYA.box[0] - 0.5), by = Math.floor(TEMIZUYA.box[1] - 0.5);
+  return new Set([...under.map(([, y]) => `${bx},${y}`), ...under.map(([x]) => `${x},${by}`), `${bx},${by}`]);
+})();
 /** What a tile is: "." ground, "~" water, "#" something standing, "=" a deck, "f" the hall's floor, "h" the hall's walls. */
 export function t2Tile(tx: number, ty: number): string {
   if (!inT2(tx, ty)) return "#";
-  const c = WALK[ty][tx];
-  if (c === "h" || (c === "." && t2InHall(tx, ty))) return t2InHall(tx, ty) ? "f" : doorOut.has(`${tx},${ty}`) ? "." : "h";
+  if (onStage(tx, ty)) return "=";
+  if (BEHIND_TANK.has(`${tx},${ty}`)) return "#";
   // (what was left out of the town no longer stands in the way; the uncle stands in the shop's doorway instead)
-  if (c === "#" && LEFT_OUT_TILES.has(`${tx},${ty}`)) return ".";
+  const c = WALK[ty][tx] === "#" && LEFT_OUT_TILES.has(`${tx},${ty}`) ? "." : WALK[ty][tx];
+  if (c === "h" || (c === "." && t2InHall(tx, ty))) return t2InHall(tx, ty) ? "f" : doorOut.has(`${tx},${ty}`) ? "." : "h";
   return c;
+}
+/**
+ * The fishing pier stands up on its posts, railed with rope: it is stepped on and off only at the foot of its stairs, at
+ * its front right, where they come down to the ground at x 20, y 62.8 to 65 (the owner, 2026-10-22: "ตรงนี้เดินลงมาได้
+ * ทั้งๆที่ไม่ควร", of somebody stepping down off its front by the crates). Nowhere else is its deck a way to the ground.
+ */
+const PIER = first(/^fishing_pier$/);
+const PIER_LANDINGS = new Set(["19,63|20,63", "19,64|20,64"]);
+const onPier = (x: number, y: number) => WALK[y]?.[x] === "=" && x + 0.5 >= PIER.box[0] && x + 0.5 <= PIER.box[2] && y + 0.5 >= PIER.box[1] && y + 0.5 <= PIER.box[3];
+/** Whether a step goes over the fishing pier's railing or the stage's edge: between either and the ground anywhere but their stairs. */
+export function t2OverRail(ax: number, ay: number, bx: number, by: number): boolean {
+  const sa = onStage(ax, ay), sb = onStage(bx, by);
+  if (sa !== sb) return !STAGE_LANDINGS.has(sa ? `${ax},${ay}|${bx},${by}` : `${bx},${by}|${ax},${ay}`);
+  const a = onPier(ax, ay), b = onPier(bx, by);
+  if (a === b) return false;
+  const [dx, dy, gx, gy] = a ? [ax, ay, bx, by] : [bx, by, ax, ay];
+  return WALK[gy]?.[gx] !== "=" && !PIER_LANDINGS.has(`${dx},${dy}|${gx},${gy}`);
 }
 /** Whether a step crosses the hall's walls: in or out only by a door. */
 export function t2OverWall(ax: number, ay: number, bx: number, by: number): boolean {
@@ -345,26 +403,57 @@ const KINDS: Array<[RegExp, PropKind, boolean]> = [
   [/^game_bin$|bucket_bin/, "bin", true],
   [/^game_signpost$/, "signpost", true],
 ];
-/** Which way a bench's sitter faces: across its length, towards the side with more open ground before it (the viewer's side first). */
 /**
- * A bench's seat and the way its sitter faces: across its length, towards the side with more open ground (the viewer's
- * side first). The seat is the bench's tile on that side's edge, so that the tile before it, where one stands to sit
- * down (lib/town/session's sitOn: the seat's tile and a step the way it faces), is open ground and not the bench itself
- * (a bench two tiles deep, the tea house's under the plaza's tree, was sat on from inside itself: the owner, 2026-10-22).
+ * Which way a bench's sitter faces (the owner, 2026-10-22: "make sure ว่าเก้าอี้ทุกที่จะนั่งได้ถูกทิศทางเสมอ", of benches sat
+ * on with their backs behind their sitters' faces, and of one by the water sat on looking away from it). A bench with a
+ * back faces as its picture does: drawn facing down-left, mirrored down-right. One without faces what it was set about,
+ * by the tile under its middle: the two on the river's flower bank the water, the four round the stone square one
+ * another, the stage's two rows of three the stage, the two by the beckoning cat the cat, the long one by the tanuki the
+ * path. Any other faces the viewer, across its length.
  */
-function benchSeat(t: T2Thing): { x: number; y: number; facing: Facing } {
-  const [x0, y0, x1, y1] = t.box, along = x1 - x0 >= y1 - y0, cx = Math.floor(t.c.x), cy = Math.floor(t.c.y);
+const BACKED = /^(low_wide_wooden_tea_house_bench|plain_dark_wooden_bench_with)/;
+const FACES: Record<string, Facing> = {
+  "55,70": "SW", "58,70": "SW",
+  "10,23": "SW", "7,23": "SW", "10,27": "NE", "7,27": "NE",
+  "15,46": "NW", "17,46": "NW", "20,47": "NW", "15,51": "NW", "18,52": "NW", "20,52": "NW",
+  "40,66": "SW", "38,67": "SE",
+  "36,13": "SW",
+};
+/** How far forward of a bench's middle its sitter sits: on a bench with a back, before it. */
+const BEFORE_BACK = 0.15;
+/** A step the way something faces (lib/town/world's FRONT: this module is read before that one). */
+const FRONT: Record<Facing, Vec> = { SE: { x: 1, y: 0 }, SW: { x: 0, y: 1 }, NE: { x: 0, y: -1 }, NW: { x: -1, y: 0 } };
+/**
+ * A bench's places, a prop to each: two on a long one (the owner, 2026-10-22: "ถ้าเป็นเก้าอี้ยาวแบบนี้ช่วยทำให้นั่งได้สอง
+ * slot", after two people sat on one in the same place), one on a short one. Each says where its sitter is drawn (along
+ * the bench's length), where one stands to sit down there (the ground before it, or, where that is flowers or water,
+ * behind it), and how far forward its sitter is drawn: just before the bench's picture, on it (Town.tsx drew the long
+ * bench by the tanuki over whoever sat on it).
+ */
+function benchSeats(t: T2Thing): Prop[] {
+  const [x0, y0, x1, y1] = t.box;
+  const facing = BACKED.test(t.name) ? ((MAP.objects as number[][])[t.i][5] === 1 ? "SE" : "SW")
+    : FACES[`${Math.floor(t.c.x)},${Math.floor(t.c.y)}`] ?? (x1 - x0 >= y1 - y0 ? "SW" : "SE");
+  const alongX = facing === "SW" || facing === "NE", length = alongX ? x1 - x0 : y1 - y0, deep = alongX ? y1 - y0 : x1 - x0;
+  const n = length >= 1.5 ? 2 : 1, f = FRONT[facing], forward = BACKED.test(t.name) ? BEFORE_BACK : 0;
   const walk = (x: number, y: number) => { const c = WALK[y]?.[x]; return c === "." || c === "="; };
-  const open = (dx: number, dy: number) => [1, 2].filter((d) => walk(cx + dx * d, cy + dy * d)).length;
-  const sides: Facing[] = along ? (open(0, 1) >= open(0, -1) ? ["SW", "NE"] : ["NE", "SW"]) : (open(1, 0) >= open(-1, 0) ? ["SE", "NW"] : ["NW", "SE"]);
-  // (the footprint's last row or column that way: the tiles whose middles are inside it)
-  const last = { SW: Math.floor(y1 - 0.5), NE: Math.ceil(y0 - 0.5), SE: Math.floor(x1 - 0.5), NW: Math.ceil(x0 - 0.5) };
-  const step: Record<Facing, [number, number]> = { SE: [1, 0], SW: [0, 1], NE: [0, -1], NW: [-1, 0] };
-  for (const f of sides) {
-    const x = f === "SE" || f === "NW" ? last[f] : cx, y = f === "SW" || f === "NE" ? last[f] : cy;
-    if (walk(x + step[f][0], y + step[f][1])) return { x, y, facing: f };
-  }
-  return { x: cx, y: cy, facing: sides[0] };
+  const under = (x: number, y: number) => x + 0.5 > x0 && x + 0.5 < x1 && y + 0.5 > y0 && y + 0.5 < y1;
+  const over = (MAP.objects as number[][])[t.i][7] + 0.01;
+  return Array.from({ length: n }, (_, k) => {
+    const o = ((k - (n - 1) / 2) * length) / n;
+    const seat = { x: t.c.x + (alongX ? o : 0) + f.x * forward, y: t.c.y + (alongX ? 0 : o) + f.y * forward };
+    const reach = deep / 2 + 0.5, tile = (d: number) => ({ x: Math.floor(seat.x + f.x * d), y: Math.floor(seat.y + f.y * d) });
+    const ahead = tile(reach), behind = tile(-reach);
+    let stand = walk(ahead.x, ahead.y) && !under(ahead.x, ahead.y) ? ahead : walk(behind.x, behind.y) && !under(behind.x, behind.y) ? behind : null;
+    if (!stand) {
+      let best = Infinity;
+      for (let y = Math.floor(seat.y) - 2; y <= Math.floor(seat.y) + 2; y++) for (let x = Math.floor(seat.x) - 2; x <= Math.floor(seat.x) + 2; x++) {
+        const d = Math.hypot(x + 0.5 - seat.x, y + 0.5 - seat.y);
+        if (walk(x, y) && !under(x, y) && d < best) { best = d; stand = { x, y }; }
+      }
+    }
+    return { kind: "bench", x: Math.floor(seat.x), y: Math.floor(seat.y), solid: true, facing, seat, stand: stand ?? ahead, over, of: t.i };
+  });
 }
 /**
  * The town's props: what the game's rules look for (benches to sit on, lamps that glow and draw moths, trees birds sit
@@ -379,10 +468,10 @@ export const T2_PROPS: Prop[] = (() => {
     if (T2_LEFT_OUT.has(t.i) || HALL_THINGS.includes(t)) continue;
     const k = KINDS.find(([re]) => re.test(t.name));
     if (!k) continue;
-    const p: Prop = { kind: k[1], x: Math.floor(t.c.x), y: Math.floor(t.c.y), solid: k[2] };
-    if (p.kind === "bench") Object.assign(p, benchSeat(t));
-    out.push(p);
-    T2_PROP_THING.set(p, t.i);
+    for (const p of k[1] === "bench" ? benchSeats(t) : [{ kind: k[1], x: Math.floor(t.c.x), y: Math.floor(t.c.y), solid: k[2] } as Prop]) {
+      out.push(p);
+      T2_PROP_THING.set(p, t.i);
+    }
   }
   const box: Prop = { kind: "storebox", x: T2_STOREBOX.x, y: T2_STOREBOX.y, solid: true };
   out.push(box);
@@ -430,8 +519,10 @@ export const T2_RINGS: Array<{ at: Vec; lift: number }> = [
 
 /** How high the bridges' boards are over the ground, in isometric pixels, and how far from each end the steps climb to it. */
 const BRIDGE_LIFT = 17, STEPS = 1.4;
-/** How far up the screen somebody on a deck is drawn: on a bridge, its boards' height (less on its steps); elsewhere nothing. */
+/** How far up the screen somebody on a deck is drawn: on the stage, its top's height; on a bridge, its boards' (less on their steps); elsewhere nothing. */
 export function t2Lift(x: number, y: number): number {
+  const up = stageLift(x, y);
+  if (up) return up;
   for (const b of BRIDGES) {
     const [x0, y0, x1, y1] = b.box;
     if (x < x0 || x > x1 || y < y0 || y > y1 || WALK[Math.floor(y)]?.[Math.floor(x)] !== "=") continue;
@@ -483,7 +574,8 @@ const WAYS: Vec[] = [[-1, 1], [-1, 0], [0, 1], [-1, -1], [1, 1], [0, -1], [1, 0]
  */
 export function t2Fish(tx: number, ty: number, cast: { reach: number; least: number; clear: number }): Fishing | null {
   const c = t2Tile(tx, ty);
-  if (c !== "." && c !== "=") return null;
+  // (the stage is no deck to fish from, near as the river is)
+  if ((c !== "." && c !== "=") || onStage(tx, ty)) return null;
   const cx = tx + 0.5, cy = ty + 0.5, deep = c === "=";
   if (!deep && ![[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]].some(([dx, dy]) => WALK[ty + dy]?.[tx + dx] === "~")) return null;
   // (a row of tiles casting the same way would all land on one spot: each casts a little further than the next)

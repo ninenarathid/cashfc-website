@@ -25,7 +25,7 @@ import { seatSpot } from "./seats";
 import { walkPace } from "./tools";
 import { readElementAction, type ElementAction } from './element-action';
 import {
-  BENCHES, FRONT, KITCHEN, SIT_HERE, SPEED, YARD_SEATS, distance, findPath, gateAt, hearing, moveEvery, pickLines, placeOf, spawnFor, stepAlong, walkable, yardSeat, type Place, type Vec,
+  BENCHES, FRONT, KITCHEN, benchMates, SIT_HERE, SPEED, YARD_SEATS, distance, findPath, gateAt, hearing, moveEvery, pickLines, placeOf, spawnFor, stepAlong, walkable, yardSeat, type Place, type Vec,
 } from "./world";
 
 /**
@@ -504,10 +504,12 @@ export class TownSession {
       this.sitWhenThere = free.i;
       return true;
     }
-    const b = BENCHES[bench];
-    if (!b?.facing || this.closed) return false;
-    const f = FRONT[b.facing];
-    if (!this.walkTo({ x: b.x + f.x, y: b.y + f.y })) return false;
+    if (!BENCHES[bench]?.facing || this.closed) return false;
+    // (a place somebody has on a long bench of the editor's town: the other on it, if that one is free)
+    const taken = new Set(this.people.map((a) => a.info.sit ?? -1));
+    if (taken.has(bench)) bench = benchMates(bench).find((j) => !taken.has(j)) ?? bench;
+    const b = BENCHES[bench], f = FRONT[b.facing!], to = b.stand ?? { x: b.x + f.x, y: b.y + f.y };
+    if (!this.walkTo({ x: to.x, y: to.y })) return false;
     this.sitWhenThere = bench;
     return true;
   }
@@ -1563,8 +1565,8 @@ export function benchNear(p: Vec): number {
   let best = -1, bestD = 1.2;
   BENCHES.forEach((b, i) => {
     if (!b.facing) return;
-    const f = FRONT[b.facing];
-    for (const t of [{ x: b.x + 0.5, y: b.y + 0.5 }, { x: b.x + f.x + 0.5, y: b.y + f.y + 0.5 }]) {
+    const f = FRONT[b.facing], to = b.stand ?? { x: b.x + f.x, y: b.y + f.y };
+    for (const t of [b.seat ?? { x: b.x + 0.5, y: b.y + 0.5 }, { x: to.x + 0.5, y: to.y + 0.5 }]) {
       const d = distance(p, t);
       if (d < bestD) { bestD = d; best = i; }
     }

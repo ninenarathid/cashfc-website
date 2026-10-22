@@ -16,6 +16,7 @@ import { DRY, wetMs, type Rain } from "./weather";
 import { BEDS_IN_FARM, CAMP, COLS, FARM_ALL, FARM_FIRST, FARM_PROPS_FIRST, FOREST, FOREST_PROPS, GATES, PROPS_FIRST, ROWS, T2, WATERFALL, WELL, asBuilt, bedCorner, groundAt, placeOf, plotAt, walkable, zoneAt, type Place, type Vec, type Zone } from "./world";
 // ── the editor's town ── (the haunts as the old town laid them out, kept: lib/town/town2.test.ts holds them to it)
 import CLASSIC_HAUNTS from "./haunts-classic.json";
+import { t2OnStage } from "./town2";
 import { POLLINATOR_SKY } from "./helper-items";
 
 /**
@@ -426,7 +427,8 @@ function town2Haunts(): Haunt[] {
     const [x, y] = queue.pop()!;
     for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
       const k = `${x + dx},${y + dy}`;
-      if (!open.has(k) && placeOf(x + dx, y + dy) === "town" && walkable(x + dx, y + dy)) { open.add(k); queue.push([x + dx, y + dy]); }
+      // (the ground only: not up on the stage, which is walked on but is no shore and no bed of flowers)
+      if (!open.has(k) && placeOf(x + dx, y + dy) === "town" && walkable(x + dx, y + dy) && !t2OnStage(x + dx, y + dy)) { open.add(k); queue.push([x + dx, y + dy]); }
     }
   }
   const stands = (x: number, y: number) => open.has(`${x},${y}`);

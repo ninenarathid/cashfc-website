@@ -47,13 +47,32 @@ describe("the editor's town", () => {
     expect(w.walkable(39, 41)).toBe(false); // the fountain
     expect(w.walkable(69, 49)).toBe(true); // the kitchen hall's floor
     expect(w.walkable(65, 50)).toBe(false); // a table in it
-    // into the hall by a door, never through its wall
-    expect(w.findPath({ x: 66.5, y: 55.5 }, { x: 66.5, y: 51.5 })?.some((p) => Math.floor(p.y) === 54 && [66, 67].includes(Math.floor(p.x)))).toBe(true);
-    const round = w.findPath({ x: 70.5, y: 55.5 }, { x: 70.5, y: 52.5 })!;
+    // into the hall by its two ways only, never through its wall: the gap in the front wall, the doorway at the back
+    const front = [67, 68, 69, 70];
+    expect(w.findPath({ x: 66.5, y: 55.5 }, { x: 66.5, y: 51.5 })?.some((p) => Math.floor(p.y) === 54 && front.includes(Math.floor(p.x)))).toBe(true);
+    const round = w.findPath({ x: 73.5, y: 55.5 }, { x: 73.5, y: 51.5 })!;
     for (let i = 1; i < round.length; i++) {
       const [a, b] = [round[i - 1], round[i]], into = b.y < 54 && a.y >= 54;
-      if (into) expect([66, 67]).toContain(Math.floor(b.x));
+      if (into) expect(front).toContain(Math.floor(b.x));
     }
+    const back = w.findPath({ x: 68.5, y: 43.5 }, { x: 68.5, y: 48.5 })!;
+    expect(back.length).toBeLessThan(12);
+    expect(back.some((p) => Math.floor(p.x) === 68 && Math.floor(p.y) === 45)).toBe(true);
+    // (the stove that stood in the doorway taken out: its tile is the hall's floor)
+    expect(w.walkable(68, 46)).toBe(true);
+    // (and not in at the side any more)
+    expect(w.findPath({ x: 77.5, y: 47.5 }, { x: 74.5, y: 47.5 })!.length).toBeGreaterThan(6);
+  });
+
+  it("has its fishing pier stepped on and off at the foot of its stairs only", async () => {
+    const w = await load();
+    const { t2OverRail } = await import("./town2");
+    // off its front by the crates, its right side, a jetty's rope side: over the railing; down its stairs: not
+    expect([t2OverRail(15, 66, 15, 67), t2OverRail(17, 65, 18, 65), t2OverRail(18, 62, 19, 62), t2OverRail(14, 67, 15, 67), t2OverRail(8, 60, 8, 59)]).toEqual([true, true, true, true, true]);
+    expect([t2OverRail(19, 63, 20, 63), t2OverRail(20, 64, 19, 64), t2OverRail(15, 65, 15, 66)]).toEqual([false, false, false]);
+    // from the grass below its front, up onto the deck: round by the stairs
+    const way = w.findPath({ x: 16.5, y: 68.5 }, { x: 15.5, y: 65.5 })!;
+    expect(way.some((p) => Math.floor(p.x) === 20 && [63, 64].includes(Math.floor(p.y)))).toBe(true);
   });
 
   it("has each way out where its ring is, and every arrival on open ground", async () => {
@@ -90,6 +109,50 @@ describe("the editor's town", () => {
     for (const s of w.KITCHEN.seats) expect(w.walkable(s.stand[0], s.stand[1])).toBe(true);
     for (const p of w.KITCHEN.places) expect(w.walkable(p.at[0], p.at[1])).toBe(true);
     expect(w.walkable(w.KITCHEN.feast.tile[0], w.KITCHEN.feast.tile[1])).toBe(true);
+  });
+
+  it("has its stage walked on, up and down its stairs only, and nobody behind the water pavilion's tank", async () => {
+    const w = await load();
+    const { t2Lift, t2OverRail } = await import("./town2");
+    expect([w.walkable(9, 48), w.walkable(12, 49), w.walkable(13, 48), w.walkable(14, 49)]).toEqual([true, true, true, true]);
+    expect([t2Lift(9.5, 48.5), t2Lift(14.5, 48.5), t2Lift(15.5, 48.5)]).toEqual([70, 17.5, 0]);
+    // off its stairs' side: over its edge; off their foot: not
+    expect([t2OverRail(14, 48, 14, 47), t2OverRail(14, 49, 14, 50), t2OverRail(14, 48, 15, 48), t2OverRail(15, 49, 14, 49)]).toEqual([true, true, false, false]);
+    const up = w.findPath({ x: 16.5, y: 50.5 }, { x: 9.5, y: 48.5 })!;
+    expect(up.some((p) => Math.floor(p.x) === 15 && [48, 49].includes(Math.floor(p.y)))).toBe(true);
+    expect([w.walkable(69, 16), w.walkable(69, 17), w.walkable(70, 15), w.walkable(71, 15), w.walkable(70, 18), w.walkable(72, 17)]).toEqual([false, false, false, false, true, true]);
+  });
+
+  it("has every bench sat on facing its way, two to a long one, each reached and drawn on it", async () => {
+    const w = await load();
+    const { T2_THINGS } = await import("./town2");
+    const benches = w.BENCHES.filter((b) => b.of !== undefined);
+    const things = [...new Set(benches.map((b) => b.of!))];
+    expect(things.length).toBe(19);
+    for (const i of things) {
+      const t = T2_THINGS[i], places = benches.filter((b) => b.of === i), [x0, y0, x1, y1] = t.box;
+      const f = places[0].facing!, alongX = f === "SW" || f === "NE", length = alongX ? x1 - x0 : y1 - y0;
+      expect(places.every((p) => p.facing === f)).toBe(true);
+      expect(places.length).toBe(length >= 1.5 ? 2 : 1);
+      // a bench with a back faces as its picture does: down-left as drawn, down-right mirrored
+      if (/tea_house_bench|plain_dark_wooden_bench/.test(t.name)) expect(["SW", "SE"]).toContain(f);
+      for (const p of places) {
+        expect(w.walkable(p.stand!.x, p.stand!.y)).toBe(true);
+        expect(w.findPath({ x: 39.5, y: 46.5 }, { x: p.stand!.x + 0.5, y: p.stand!.y + 0.5 })).toBeTruthy();
+        expect(p.over).toBeGreaterThan(t.c.x + t.c.y - 0.5);
+      }
+    }
+    const at = (x: number, y: number) => benches.filter((b) => Math.floor(T2_THINGS[b.of!].c.x) === x && Math.floor(T2_THINGS[b.of!].c.y) === y)[0].facing;
+    // the water's two face it, the stage's rows the stage, the square's four one another, the backed ones by the lantern the path
+    expect([at(55, 70), at(58, 70)]).toEqual(["SW", "SW"]);
+    expect([at(15, 46), at(17, 46), at(20, 47), at(15, 51), at(18, 52), at(20, 52)]).toEqual(["NW", "NW", "NW", "NW", "NW", "NW"]);
+    expect([at(10, 23), at(7, 23), at(10, 27), at(7, 27)]).toEqual(["SW", "SW", "NE", "NE"]);
+    expect([at(53, 38), at(53, 36)]).toEqual(["SE", "SE"]);
+    // a place somebody has: the other one on the bench
+    const long = benches.find((b) => benches.filter((q) => q.of === b.of).length === 2)!;
+    expect(w.benchMates(w.BENCHES.indexOf(long)).length).toBe(2);
+    // the hall's places drawn on their benches, before them
+    for (const s of w.KITCHEN.seats) expect("over" in s && typeof s.over === "number").toBe(true);
   });
 
   it("is fished from its decks (deep) and its shores (the shallows)", async () => {

@@ -8,14 +8,15 @@
  * old town's one 12 MB sheet). `memory()` says what is held now.
  *
  * How a thing stands among the walkers (town2-map.json's own word for it, from the builder):
- * - on the floor, under everybody (the rings, stepping stones, the decks people walk on, the hall's inside);
+ * - on the floor, under everybody (the rings, stepping stones, the decks people walk on); the hall's inside, while I am
+ *   in it, and the stage stand in strips at their back edges (pushAtBack);
  * - in the order of its middle, as the editor draws it (most things);
  * - in upright strips (a building, the water wheel: anything too wide for one place in that order), each strip as far
  *   forward as the footprint's front edge below it, so that somebody beside a house is before or behind it as they stand.
  */
 import MAP from "./town2-map.json";
 import { WATER_MS, waterFrames } from "./scenery";
-import { T2_CHEST_OPEN, T2_CHEST_SHUT, T2_HALL, T2_LEFT_OUT, T2_RING_MOVES, t2InHall } from "./town2";
+import { T2_CHEST_OPEN, T2_CHEST_SHUT, T2_HALL, T2_LEFT_OUT, T2_RING_MOVES, T2_STAGE, t2InHall } from "./town2";
 import type { Vec } from "./world";
 
 const FLOOR = 0, STAND = 1, WIDE = 2;
@@ -213,8 +214,7 @@ export class Town2Art {
       ctx.restore();
     }
     for (const t of things) {
-      if (t.how !== FLOOR) continue;
-      if (t.i === T2_HALL.inside && !inHall) continue;
+      if (t.how !== FLOOR || t.i === T2_HALL.inside) continue;
       this.paint(ctx, t, screen, s, px);
     }
   }
@@ -225,6 +225,12 @@ export class Town2Art {
    */
   pushStanding(ctx: CanvasRenderingContext2D, things: Thing[], push: Push, screen: Screen, s: number, px: number, inHall: boolean) {
     for (const t of things) {
+      if (t.i === T2_HALL.inside) {
+        if (inHall) this.pushAtBack(ctx, t, push, screen, s, px, T2_HALL.floor.x0, T2_HALL.floor.y0);
+        continue;
+      }
+      // (the stage, walked on: in front of whoever is behind it, behind whoever is on it or before it)
+      if (t.i === T2_STAGE.i) { this.pushAtBack(ctx, t, push, screen, s, px, T2_STAGE.box[0], T2_STAGE.box[1]); continue; }
       if (t.how === FLOOR) continue;
       if (t.i === T2_HALL.thing && inHall) continue;
       if (t.how === STAND) { push(t.d, () => this.paint(ctx, t, screen, s, px)); continue; }
@@ -236,6 +242,20 @@ export class Town2Art {
         const depth = mid <= xBottom ? Math.min(bx1, Math.max(bx0, mid / 32 + by1)) + by1 : bx1 + Math.min(by1, Math.max(by0, bx1 - mid / 32));
         push(depth, () => this.paint(ctx, t, screen, s, px, [x, x + STRIP]));
       }
+    }
+  }
+
+  /**
+   * Something stood on, in upright strips, each as far forward as its back edge under it (y = y0 right of the back corner,
+   * x = x0 left of it), so that it stands in front of whoever is behind it and behind whoever is on it or before it: the
+   * hall's inside while I am in it (the owner, 2026-10-22: "ถ้ามีคนยืนตรงนี้มันควรโดนกำแพงบัง", of somebody outside behind
+   * its back wall drawn over it while the inside lay under everybody as a floor), and the stage.
+   */
+  private pushAtBack(ctx: CanvasRenderingContext2D, t: Thing, push: Push, screen: Screen, s: number, px: number, x0: number, y0: number) {
+    const sp = this.sprites[t.s], corner = (x0 - y0) * 32;
+    for (let x = t.x; x < t.x + sp.w * t.k; x += STRIP) {
+      const mid = x + STRIP / 2;
+      push(mid >= corner ? mid / 32 + 2 * y0 : 2 * x0 - mid / 32, () => this.paint(ctx, t, screen, s, px, [x, x + STRIP]));
     }
   }
 

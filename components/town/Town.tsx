@@ -2239,8 +2239,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         if (p.kind !== "bench" && p.kind !== "storebox") continue;
         const box = art2.boxOf(T2_PROP_THING.get(p) ?? -1, iso2, v.s);
         if (!box) continue;
-        if (p.kind === "storebox") storeBox.current = box;
-        else benchBoxes.current.push({ i: benchIndex.get(p) ?? -1, ...box, depth: p.x + p.y });
+        if (p.kind === "storebox") { storeBox.current = box; continue; }
+        // (a long bench's picture shared between its two places, left and right as they are on the screen)
+        const xs = BENCHES.filter((q) => q.of !== undefined && q.of === p.of && q.seat).map((q) => project(q.seat!).x).sort((a, b) => a - b);
+        const sx = p.seat ? project(p.seat).x : 0, k = xs.indexOf(sx);
+        const x0 = k > 0 ? (xs[k - 1] + sx) / 2 : box.x0, x1 = k >= 0 && k < xs.length - 1 ? (sx + xs[k + 1]) / 2 : box.x1;
+        benchBoxes.current.push({ i: benchIndex.get(p) ?? -1, ...box, x0, x1, depth: p.x + p.y });
       }
       // the kitchen hall, from inside: its long tables for a tap that opens the feast table, each place at them for a tap
       // to sit down (as the old yard's: lib/town/town2's T2_KITCHEN)
@@ -3007,9 +3011,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // at a table of the cooking yard: on its bench. On the far one that is behind the table's top, which is drawn
     // again over their legs (see where the yard is drawn)
     const place = tableSeatOf(a);
+    // (the editor's town's hall: on its bench, just before the bench's picture)
+    if (place && "over" in place && typeof place.over === "number") return place.over;
     if (place) return KITCHEN.foot.x + KITCHEN.foot.y + (place.back ? place.py : KITCHEN.tops[place.table][1]) / (TILE_H / 2) + 0.02;
     const b = seatOf(a);
     if (!b) return a.pos.x + a.pos.y;
+    if (b.over !== undefined) return b.over;
     return b.x + b.y + 1 + (b.facing === "NE" || b.facing === "NW" ? -0.01 : 0.01);
   }
 
@@ -3021,7 +3028,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const b = seatOf(a);
     // (on the editor's town's bridges, up on their boards)
     if (!b) { const p = project(a.pos), up = liftAt(a.pos.x, a.pos.y); return up ? { x: p.x, y: p.y - up * cam.current.s } : p; }
-    const c = project({ x: b.x + 0.5, y: b.y + 0.62 });
+    const c = project(b.seat ?? { x: b.x + 0.5, y: b.y + 0.62 });
     return { x: c.x, y: c.y - (b.kind === "logseat" ? LOG_LIFT : SEAT_LIFT) * cam.current.s };
   }
 

@@ -616,6 +616,12 @@ export interface Prop {
   solid: boolean;
   /** Benches: the way the seat faces. */
   facing?: Facing;
+  /**
+   * The editor's town's benches (lib/town/town2), a prop to each place on one (a long bench has two): where its sitter is
+   * drawn, the tile one stands on to sit down there, how far forward (back to front) the sitter is drawn (just before the
+   * bench's picture), and which placed thing it is on.
+   */
+  seat?: Vec; stand?: Vec; over?: number; of?: number;
   /** The mountain's trees: which kind (1 a pine, 2 an ironwood, 3 a moonwood). Its rocks: which of their looks. And the number that is a tree's or a rock's own (lib/town/mountain). */
   tier?: 1 | 2 | 3; look?: number; id?: number;
 }
@@ -653,7 +659,7 @@ export const inDiningYard = (sit: number | undefined, x: number, y: number) => !
 /** Whether a tile is of the yard's floor as it is when finished, whatever this page shows of it: what a rule that whoever keeps the game holds to asks (the database has the same tiles: the catalog's `cooking.feast.floor`). */
 export const yardFloor = (x: number, y: number) => yardAt.has(`${x},${y}`);
 /** Whether a step from one tile to the next crosses the yard's kerb: allowed only by one of its two ways in. */
-const overKerb = (ax: number, ay: number, bx: number, by: number) => (T2 ? town2.t2OverWall(ax, ay, bx, by)
+const overKerb = (ax: number, ay: number, bx: number, by: number) => (T2 ? town2.t2OverWall(ax, ay, bx, by) || town2.t2OverRail(ax, ay, bx, by)
   : onYard(ax, ay) !== onYard(bx, by) && !yardWay.has(onYard(ax, ay) ? `${ax},${ay}` : `${bx},${by}`));
 const placeAt = new Map(KITCHEN.places.map((p) => [`${p.at[0]},${p.at[1]}`, p.kind])), washAt = new Set(KITCHEN.wash.map(([x, y]) => `${x},${y}`));
 /** What somebody standing on a tile of the finished yard stands at: a stove, a worktable or the fire (a place to cook), or the washing tub; or nothing. */
@@ -867,6 +873,12 @@ export const SIT_HERE = -2;
 /** The bench on a tile, as an index into BENCHES, or −1. */
 export function benchAt(tx: number, ty: number): number {
   return BENCHES.findIndex((b) => b.x === tx && b.y === ty);
+}
+
+/** The places on the same bench as one (as indexes into BENCHES): itself, and on the editor's town's long benches the other. */
+export function benchMates(i: number): number[] {
+  const of = BENCHES[i]?.of;
+  return of === undefined ? [i] : BENCHES.flatMap((b, j) => (b.of === of ? [j] : []));
 }
 
 const solidAt = new Set(PROPS.filter((p) => p.solid).map((p) => `${p.x},${p.y}`));
