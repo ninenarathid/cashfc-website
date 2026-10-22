@@ -16,7 +16,7 @@
  */
 import MAP from "./town2-map.json";
 import { WATER_MS, waterFrames } from "./scenery";
-import { T2_CHEST_OPEN, T2_CHEST_SHUT, T2_HALL, T2_LEFT_OUT, T2_RING_MOVES, T2_STAGE, t2InHall } from "./town2";
+import { T2_CHEST_OPEN, T2_CHEST_SHUT, T2_HALL, T2_LEFT_OUT, T2_RING_MOVES, T2_STAGE, T2_STAGE_BASE, t2InHall } from "./town2";
 import type { Vec } from "./world";
 
 const FLOOR = 0, STAND = 1, WIDE = 2;
@@ -226,11 +226,17 @@ export class Town2Art {
   pushStanding(ctx: CanvasRenderingContext2D, things: Thing[], push: Push, screen: Screen, s: number, px: number, inHall: boolean) {
     for (const t of things) {
       if (t.i === T2_HALL.inside) {
-        if (inHall) this.pushAtBack(ctx, t, push, screen, s, px, T2_HALL.floor.x0, T2_HALL.floor.y0);
+        if (inHall) { const { x0, y0 } = T2_HALL.floor; this.pushAtBack(ctx, t, push, screen, s, px, (u) => (u >= x0 - y0 ? u + 2 * y0 : 2 * x0 - u)); }
         continue;
       }
       // (the stage, walked on: in front of whoever is behind it, behind whoever is on it or before it)
-      if (t.i === T2_STAGE.i) { this.pushAtBack(ctx, t, push, screen, s, px, T2_STAGE.box[0], T2_STAGE.box[1]); continue; }
+      // (round: its back edge under each strip is its round foot's, not its footprint's corner, or a pumpkin behind it by
+      // that corner came out on top of it, the owner, 2026-10-22: "ฟักทองตรงเวทีบั๊ค")
+      if (t.i === T2_STAGE.i) {
+        const { x, y, r } = T2_STAGE_BASE;
+        this.pushAtBack(ctx, t, push, screen, s, px, (u) => x + y - Math.sqrt(Math.max(0, 2 * r * r - (u - (x - y)) ** 2)));
+        continue;
+      }
       if (t.how === FLOOR) continue;
       if (t.i === T2_HALL.thing && inHall) continue;
       if (t.how === STAND) { push(t.d, () => this.paint(ctx, t, screen, s, px)); continue; }
@@ -246,17 +252,14 @@ export class Town2Art {
   }
 
   /**
-   * Something stood on, in upright strips, each as far forward as its back edge under it (y = y0 right of the back corner,
-   * x = x0 left of it), so that it stands in front of whoever is behind it and behind whoever is on it or before it: the
+   * Something stood on, in upright strips, each as far forward as its back edge under it (`back`, of the strip's column
+   * x − y in tiles), so that it stands in front of whoever is behind it and behind whoever is on it or before it: the
    * hall's inside while I am in it (the owner, 2026-10-22: "ถ้ามีคนยืนตรงนี้มันควรโดนกำแพงบัง", of somebody outside behind
    * its back wall drawn over it while the inside lay under everybody as a floor), and the stage.
    */
-  private pushAtBack(ctx: CanvasRenderingContext2D, t: Thing, push: Push, screen: Screen, s: number, px: number, x0: number, y0: number) {
-    const sp = this.sprites[t.s], corner = (x0 - y0) * 32;
-    for (let x = t.x; x < t.x + sp.w * t.k; x += STRIP) {
-      const mid = x + STRIP / 2;
-      push(mid >= corner ? mid / 32 + 2 * y0 : 2 * x0 - mid / 32, () => this.paint(ctx, t, screen, s, px, [x, x + STRIP]));
-    }
+  private pushAtBack(ctx: CanvasRenderingContext2D, t: Thing, push: Push, screen: Screen, s: number, px: number, back: (u: number) => number) {
+    const sp = this.sprites[t.s];
+    for (let x = t.x; x < t.x + sp.w * t.k; x += STRIP) push(back((x + STRIP / 2) / 32), () => this.paint(ctx, t, screen, s, px, [x, x + STRIP]));
   }
 
   /** The night's lights of the things last seen near the view (visible()). */

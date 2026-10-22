@@ -330,6 +330,11 @@ const LEFT_OUT_TILES = new Set([...T2_LEFT_OUT].flatMap((i) => tilesIn(T2_THINGS
  */
 export const T2_STAGE = first(/^oval_wooden_festival_stage/);
 export const T2_STAGE_UP = 70;
+/** Its round foot on the ground: its footprint's middle and half its width (what stands behind it is behind this). */
+export const T2_STAGE_BASE = {
+  x: (T2_STAGE.box[0] + T2_STAGE.box[2]) / 2, y: (T2_STAGE.box[1] + T2_STAGE.box[3]) / 2,
+  r: (T2_STAGE.box[2] - T2_STAGE.box[0] + T2_STAGE.box[3] - T2_STAGE.box[1]) / 4,
+};
 const STAGE_MID = { x: (T2_STAGE.box[0] + T2_STAGE.box[2]) / 2 - 0.27, y: (T2_STAGE.box[1] + T2_STAGE.box[3]) / 2 + 0.28 };
 const STAGE_FOOT = Math.floor(T2_STAGE.box[2]) + 1, STAGE_ROW = Math.floor(STAGE_MID.y);
 const STAGE_STAIRS = new Set([STAGE_FOOT - 2, STAGE_FOOT - 1].flatMap((x) => [STAGE_ROW, STAGE_ROW + 1].map((y) => `${x},${y}`)));
