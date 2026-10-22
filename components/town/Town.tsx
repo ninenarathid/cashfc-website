@@ -100,6 +100,7 @@ import { FishSfx, heard } from "@/lib/town/sfx";
 import TownMusicButton from "./TownMusicButton";
 import TownSettingsButton from "./TownSettingsButton";
 import TownFoot, { FOOT_CSS, TownFootContext, type FootPlaces } from "./TownFoot";
+import TownRide from "./TownRide";
 import { SKIN_CSS } from "./TownSkin";
 import { HUD_CSS, hudTierFor } from "./TownHud";
 import { STAMINA } from "@/lib/town/stamina";
@@ -2887,8 +2888,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const name = a.info.pet;
     if (!name || !name.startsWith("fam") || (!(name in ICON_ATLAS.icons) && name !== RAM) || a.byeAt !== undefined) { pets.current.delete(a.info.id); return null; }
     // ── gifts: forest ── (a moss stag is ridden: it is under its member and drawn with them, see drawAvatar; here only
-    // which way it goes is kept. Sat down, they have got off, and it stands by like any familiar)
-    if (rides(name, sitting(a))) {
+    // which way it goes is kept. Sat down, or got down to walk beside it, it follows like any familiar)
+    if (rides(name, sitting(a), a.info.afoot)) {
       const at = pets.current.get(a.info.id) ?? { x: a.pos.x, y: a.pos.y, right: true }, mx = a.pos.x - at.x, my = a.pos.y - at.y;
       if (Math.abs(mx - my) > 0.01) at.right = mx - my > 0;
       at.x = a.pos.x; at.y = a.pos.y;
@@ -3287,7 +3288,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // ── gifts: forest ── (on a moss stag's back, lib/town/riding: lifted onto it, sat, and stepping with it; the stag is drawn under them)
     // ── the pasture ── (on a cloud ram's back, x1.5 and lower than a stag's; behind its rider in its second seat; or sat on the hay wagon's bed)
     const behindOf = riderOf(a.info.seat), wagonOf = runOf(a.info.seat), ram = a.info.pet === RAM;
-    const foot = mapRef.current ? project(a.pos) : spotOf(a), riding = rides(a.info.pet, sitting(a)) && (ram || "famStag" in ICON_ATLAS.icons);
+    const foot = mapRef.current ? project(a.pos) : spotOf(a), riding = rides(a.info.pet, sitting(a), a.info.afoot) && (ram || "famStag" in ICON_ATLAS.icons);
     const perched = riding || !!behindOf || !!wagonOf;
     const ride = riding ? (ram ? RAM_LIFT : STEED.lift) * k : behindOf ? RAM_LIFT * k : wagonOf ? WAGON_LIFT * k : 0;
     const carrier = behindOf ? (behindOf === sessionRef.current?.self.info.id ? sessionRef.current?.self : sessionRef.current?.avatars.get(behindOf)) : null;
@@ -5512,13 +5513,18 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                        here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing && !signView ? standing?.tile ?? null : null}
                        self={() => { const m = sessionRef.current?.self; return m ? { x: m.pos.x, y: m.pos.y } : null; }}
                        people={() => [...(sessionRef.current?.avatars.values() ?? [])].filter((a) => a.byeAt === undefined).map((a) => ({ id: a.info.id, name: a.info.name, x: a.pos.x, y: a.pos.y, pet: a.info.pet, seat: a.info.seat, sit: a.info.sit }))}
-                       pet={s.self.info.pet ?? null} sitting={(s.self.info.sit ?? -1) !== -1} seat={s.self.info.seat ?? ""}
+                       pet={s.self.info.pet ?? null} afoot={s.self.info.afoot ?? true} sitting={(s.self.info.sit ?? -1) !== -1} seat={s.self.info.seat ?? ""}
                        takeSeat={(seat) => sessionRef.current?.takeSeat(seat)} getDown={() => sessionRef.current?.getDown()}
                        walkTo={(tile) => { const ok = sessionRef.current?.walkTo(tile) ?? false; if (ok) cam.current.follow = true; return ok; }}
                        pairSend={(to, data) => sessionRef.current?.pair(to, data)}
                        pairHear={(fn) => { pairHears.current.ram = fn; if (sessionRef.current) pairWire(sessionRef.current); }}
                        tellRoom={(what) => sessionRef.current?.nudge(what)} onTalk={() => openTalk("popoto")} register={registerPasture} art={boardArt} />
         </Suspense>
+      )}
+      {/* A stag or a ram to ride: on and off its back, first among the powers (R) */}
+      {s && game && !talk && !wardrobeOpen && (
+        <TownRide pet={s.self.info.pet ?? null} afoot={s.self.info.afoot ?? true} sitting={(s.self.info.sit ?? -1) !== -1} seat={s.self.info.seat ?? ""}
+                  th={w.th} phone={phone} onRide={(afoot) => sessionRef.current?.setAfoot(afoot)} />
       )}
       {/* Thanks: for whoever helped the plant in the plot of mine I stand on; and being told when I am thanked */}
       {s && game && keeper && (

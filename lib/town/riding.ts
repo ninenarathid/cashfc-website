@@ -15,13 +15,17 @@ export const STAG = "famStag";
 export const STAG_PACE = 2;
 /** Whether somebody whose familiar the room was told of has a stag to ride. */
 export const hasStag = (pet: string | null | undefined): boolean => pet === STAG;
+/** Whether their familiar is one to ride: a moss stag or a cloud ram. */
+export const hasSteed = (pet: string | null | undefined): boolean => hasStag(pet) || hasRam(pet);
 /**
- * Whether they are on its back now: while they walk or stand. Sat down (a bench, a table of the yard, the ground),
- * they have got off, and the stag stands by like any familiar.
+ * Whether they are on its back now: while they walk or stand, unless they have got down to walk beside it (`afoot`,
+ * lib/town/room: what they told the room; the owner, 2026-10-22: "เมื่อใส่จะยังไม่ขี่ แต่มีปุ่ม hotkey ขึ้นมาให้กดขี่ได้").
+ * Sat down (a bench, a table of the yard, the ground), they have got off, and the stag stands by like any familiar.
+ * A browser older than getting down tells nothing of it, and rides as it always did.
  */
-export const rides = (pet: string | null | undefined, sitting: boolean): boolean => (hasStag(pet) || hasRam(pet)) && !sitting;
-/** How many times as fast somebody walks for their familiar: twice, with a stag to ride; half as fast again on a cloud ram; as anybody, with any other or none. */
-export const paceOf = (pet: string | null | undefined): number => (hasStag(pet) ? STAG_PACE : hasRam(pet) ? RAM_PACE : 1);
+export const rides = (pet: string | null | undefined, sitting: boolean, afoot = false): boolean => hasSteed(pet) && !sitting && !afoot;
+/** How many times as fast somebody walks for their familiar: twice, with a stag to ride; half as fast again on a cloud ram; as anybody, with any other or none, or walking beside it. */
+export const paceOf = (pet: string | null | undefined, afoot = false): number => (afoot ? 1 : hasStag(pet) ? STAG_PACE : hasRam(pet) ? RAM_PACE : 1);
 
 // ── the pasture ── (the cloud ram, the pasture's sixth rank: lib/town/gifts' famCloudRam; the owner: "เป็น สัตว์ขี่ เหมือน
 // กวาง ความเร็วน้อยกว่ากวาง ซัก 150% ก็ได้ แต่นั่งได้สองคน")

@@ -4,6 +4,8 @@
 // other to have one, and rides the same stretch back in about half the time; the other's page walks the rider at the
 // rider's pace, so they arrive on both screens together; from its back a place two tiles off is gathered, which on
 // foot is too far; sat down, the rider is off its back; and it is ridden in town as in the forest.
+// Since 2026-10-22 (the owner: "เมื่อใส่จะยังไม่ขี่ แต่มีปุ่ม hotkey ขึ้นมาให้กดขี่ได้") a stag put on is walked beside:
+// the power's button (R) gets on and off, and the other is told.
 //
 //   node .claude/skills/fc-cash-town/scripts/town-stag.mjs <base-url> <out-dir>
 //
@@ -22,6 +24,9 @@ const enter = async (X, letter, more = "") => {
 };
 const self = (X) => X.evaluate(`${V}.self()`);
 const seenBy = (Y, id) => Y.evaluate(`(window.__cashTown.people().find((p) => p.id === ${JSON.stringify(id)})?.pet ?? null)`);
+const afootBy = (Y, id) => Y.evaluate(`(window.__cashTown.people().find((p) => p.id === ${JSON.stringify(id)})?.afoot ?? null)`);
+const rideButton = (X) => X.evaluate(`document.querySelector("[data-town-ride]")?.dataset.townRide ?? null`);
+const pressR = (X) => X.evaluate(`window.dispatchEvent(new KeyboardEvent("keydown", { code: "KeyR", key: "r", bubbles: true }))`);
 const offers = (X) => X.evaluate(`[...document.querySelectorAll("[data-forest-offer]")].map((b) => b.dataset.forestOffer)`);
 /** Walk to a tile and say how long it took, in milliseconds (by the page's own clock, so that waiting on the script's side is not counted). */
 const timed = (X, x, y) => X.evaluate(`new Promise((done) => { const t0 = performance.now(); ${V}.walk(${x}, ${y}); const look = () => { const me = ${V}.self(); if (!me.moving && Math.hypot(me.x - ${x + 0.5}, me.y - ${y + 0.5}) < 0.2) done(Math.round(performance.now() - t0)); else requestAnimationFrame(look); }; requestAnimationFrame(look); })`);
@@ -54,7 +59,19 @@ try {
   ok("the stag is called", called.ok === true, called);
   await until("the other is told a stag follows me", async () => (await seenBy(Y, me)) === "famStag", 8000);
   ok("the other is told a stag follows me", true);
+  // ── put on, it is walked beside: the button to get on is there, and nobody sees me on its back ──
+  await until("the button to get on", async () => (await rideButton(X)) === "off", 6000).catch(() => null);
+  ok("put on, the stag is not ridden yet: its button offers to get on", (await rideButton(X)) === "off", await rideButton(X));
+  ok("…and the other is told I walk beside it", (await afootBy(Y, me)) === true, await afootBy(Y, me));
   await sleep(700);
+  await X.shot(`${OUT}/stag-1-beside.png`);
+  // ── R: on its back, and the other is told ──
+  await pressR(X);
+  await until("on its back", async () => (await rideButton(X)) === "on", 4000).catch(() => null);
+  ok("R gets on: the button says so", (await rideButton(X)) === "on", await rideButton(X));
+  await until("the other is told I ride", async () => (await afootBy(Y, me)) === false, 6000).catch(() => null);
+  ok("…and the other is told I ride", (await afootBy(Y, me)) === false, await afootBy(Y, me));
+  await sleep(500);
   await X.shot(`${OUT}/stag-1-mounted.png`);
 
   // ── twice as fast, on my page and on theirs ──
@@ -106,6 +123,19 @@ try {
   ok("sat down on the ground, I am sat (the stag stands by)", (await X.evaluate(`window.__cashTown.me().sit`)) !== -1);
   await X.evaluate(`window.__cashTown.standUp()`);
   await sleep(600);
+  ok("standing again, on its back again", (await rideButton(X)) === "on", await rideButton(X));
+  // ── R again: down off it, walked beside at a walker's pace; a click on the button gets on again ──
+  await pressR(X);
+  await until("down off it", async () => (await rideButton(X)) === "off", 4000).catch(() => null);
+  ok("R again gets down", (await rideButton(X)) === "off", await rideButton(X));
+  await X.evaluate(`${V}.warp(${A[0]}, ${A[1]})`);
+  await sleep(900);
+  const beside = await timed(X, B[0], B[1]);
+  ok("walked beside, the stretch takes a walker's time", Math.abs(beside - afoot) < afoot * 0.2, { afoot, beside });
+  await X.shot(`${OUT}/stag-4b-beside.png`);
+  await X.evaluate(`document.querySelector("[data-town-ride]").click()`);
+  await until("on again", async () => (await rideButton(X)) === "on", 4000).catch(() => null);
+  ok("the button itself gets on again", (await rideButton(X)) === "on", await rideButton(X));
 
   // ── sent to rest: on foot again, at a walker's pace, and the other is told ──
   await X.evaluate(`${K}.familiarWear(null)`);
@@ -117,6 +147,9 @@ try {
 
   // ── in town too ──
   await X.evaluate(`${K}.familiarWear("famStag")`);
+  await until("put on again, walked beside", async () => (await rideButton(X)) === "off", 6000).catch(() => null);
+  ok("put on again, it is walked beside until R", (await rideButton(X)) === "off", await rideButton(X));
+  await pressR(X);
   await X.evaluate(`${V}.warp(30, 30)`);
   await sleep(1200);
   await X.evaluate(`${V}.walk(36, 30)`);
@@ -132,6 +165,11 @@ try {
   await P.evaluate(`(${T}.setGifts(["famStag"]), ${K}.familiarWear("famStag"))`);
   await P.evaluate(`${V}.warp(${144 + 48}, ${112 + 66})`);
   await sleep(2500);
+  await P.shot(`${OUT}/stag-phone-beside.png`);
+  ok("at a phone's width the button to get on is there, a thumb's size", await P.evaluate(`(() => { const b = document.querySelector("[data-town-ride]")?.getBoundingClientRect(); return !!b && b.width >= 44 && b.height >= 44 && b.right <= innerWidth && b.bottom <= innerHeight; })()`));
+  await P.evaluate(`document.querySelector("[data-town-ride]").click()`);
+  await sleep(1200);
+  ok("…and a tap on it gets on", (await rideButton(P)) === "on", await rideButton(P));
   await P.shot(`${OUT}/stag-phone.png`);
   ok("no page errors at a phone's width", P.logs.length === 0, P.logs);
 } catch (e) { ok("the phone's run", false, e.message); } finally { await P.close(); }

@@ -332,6 +332,11 @@ async function ramSeat() {
     await until("the friend's pasture code", () => P.evaluate(`!!${S}`), 40000);
     await warp(P, 206, 36);
     await warp(X, 205, 36);
+    // (put on, the ram is walked beside: nobody to ask until the rider gets on, by its power's button: 2026-10-22)
+    await until("the button to get on", () => X.evaluate(`document.querySelector("[data-town-ride]")?.dataset.townRide === "off"`), 15000).catch(() => {});
+    ok("ram: put on, it is walked beside, and nobody is offered to ask yet", await X.evaluate(`document.querySelector("[data-town-ride]")?.dataset.townRide === "off" && !document.querySelector("[data-ram-ask]")`));
+    await X.shot(`${OUT}/desktop-27a-ram-beside.png`);
+    ok("ram: its button gets on", await click(X, "[data-town-ride]"));
     await until("the rider is offered to ask", () => X.evaluate(`!!document.querySelector("[data-ram-ask]")`), 90000).catch(() => {});
     ok("ram: the rider is offered to ask the member beside them", await click(X, "[data-ram-ask]"));
     await until("the invite has come", () => P.evaluate(`!!document.querySelector("[data-ram-invite]")`), 15000).catch(() => {});

@@ -83,6 +83,11 @@ export interface Doing {
   spent?: boolean;
   /** The familiar that follows them (its name in lib/town/gifts), "" when none; missing from a browser older than familiars. Drawn at their heels by everybody's page; it does nothing here. */
   pet?: string;
+  /**
+   * Whether they walk beside the familiar they could ride (a moss stag, a cloud ram: lib/town/riding) rather than on
+   * its back: true on foot, false riding; missing from a browser older than getting down, which rides always.
+   */
+  afoot?: boolean;
   // ── mining ──
   /** How far their own light reaches in the cave when something they wear lights more than a walker's own does (a miner's lamp: 4), 0 or missing otherwise. Missing from a browser older than the cave. Every page lights their ground by it; it does nothing else. */
   lit?: number;
@@ -225,6 +230,8 @@ function readDoing(p: Record<string, unknown>): Partial<Doing> {
   const spent = bool(p.spent);
   if (spent !== undefined) d.spent = spent;
   if (typeof p.pet === "string" && /^[A-Za-z]{0,24}$/.test(p.pet)) d.pet = p.pet;
+  const afoot = bool(p.afoot);
+  if (afoot !== undefined) d.afoot = afoot;
   if (typeof p.lit === "number" && Number.isInteger(p.lit) && p.lit >= 0 && p.lit <= 9) d.lit = p.lit;   // ── mining ──
   if (p.fish === 0 || p.fish === 1 || p.fish === 2 || p.fish === 3 || p.fish === 4) d.fish = p.fish;
   // (a sign is written again from what was read of it: its title is somebody's own words, cleaned like a line of chat)

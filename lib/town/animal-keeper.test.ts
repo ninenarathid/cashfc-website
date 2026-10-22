@@ -116,6 +116,9 @@ describe("the cloud ram and the hay wagon", () => {
     expect(seatSpot(ramSeat("r1"), NOW, () => undefined)).toBeNull();
     expect(seatSpot(ramSeat("r1"), NOW, () => ({ ...rider, info: { pet: RAM, sit: 3 } }))).toBeNull();
     expect(seatSpot(ramSeat("r1"), NOW, () => ({ ...rider, info: { pet: "famStag", sit: -1 } }))).toBeNull();
+    // (and when the rider has got down to walk beside the ram)
+    expect(seatSpot(ramSeat("r1"), NOW, () => ({ ...rider, info: { pet: RAM, afoot: true, sit: -1 } }))).toBeNull();
+    expect(seatSpot(ramSeat("r1"), NOW, () => ({ ...rider, info: { pet: RAM, afoot: false, sit: -1 } }))).toEqual({ x: 150.46, y: -10.54 });
   });
   it("tours its stops in order: at the farm's stop to be boarded, on along the lane, at each map's stop in turn", () => {
     const run: WagonRun = { id: "w1", by: "me", from: NOW, stops: ["farm", "town", "forest"], riders: [] };

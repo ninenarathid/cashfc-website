@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { FORAGING, KINDS, SECRETS, SPOTS, gather, reachOf, type Held } from "./forest";
 import { giftOf, numberOf } from "./gifts";
-import { STAG, STAG_PACE, hasStag, paceOf, rides } from "./riding";
+import { RAM, STAG, STAG_PACE, hasSteed, hasStag, paceOf, rides } from "./riding";
 import { dayOf, staminaOf } from "./stamina";
 import { newPurse, type Purse } from "./trade";
 import { SPEED, stepAlong } from "./world";
@@ -32,6 +32,20 @@ describe("the moss stag (the forest's sixth rank): ridden on every map, twice as
     expect(rides(STAG, true)).toBe(false);
     expect(rides("famSquirrel", false)).toBe(false);
     expect(rides(null, false)).toBe(false);
+  });
+
+  it("is walked beside until its member gets on, at a walker's pace (the owner, 2026-10-22: put on, it is not ridden yet)", () => {
+    for (const steed of [STAG, RAM]) {
+      expect(hasSteed(steed)).toBe(true);
+      expect(rides(steed, false, true)).toBe(false);
+      expect(rides(steed, false, false)).toBe(true);
+      expect(paceOf(steed, true)).toBe(1);
+      expect(paceOf(steed, false)).toBeGreaterThan(1);
+    }
+    // (a browser older than getting down says nothing of it, and rides as it always did)
+    expect(rides(STAG, false, undefined)).toBe(true);
+    expect(paceOf(STAG, undefined)).toBe(STAG_PACE);
+    for (const pet of ["", null, undefined, "famSquirrel", "famPiglet"]) expect(hasSteed(pet)).toBe(false);
   });
 
   it("from its back whatever is within two tiles is gathered: what grows, hangs, lies buried or lies about", () => {

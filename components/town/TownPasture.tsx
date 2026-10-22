@@ -66,8 +66,9 @@ export interface PastureProps {
   myName: string;
   /** Everybody else on my page: where, what follows them, where they sit. */
   people: () => Array<{ id: string; name: string; x: number; y: number; pet?: string; seat?: string; sit?: number }>;
-  /** My familiar, whether I sit, and my seat that is no seat of mine (lib/town/riding). */
+  /** My familiar, whether I walk beside it, whether I sit, and my seat that is no seat of mine (lib/town/riding). */
   pet: string | null;
+  afoot: boolean;
   sitting: boolean;
   seat: string;
   takeSeat: (seat: string) => void;
@@ -535,7 +536,7 @@ export default function TownPasture(props: PastureProps) {
     });
     return () => props.pairHear(null);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  const riding = props.pet === RAM && !props.sitting && !props.seat;
+  const riding = props.pet === RAM && !props.afoot && !props.sitting && !props.seat;
   const nearby = riding ? props.people().filter((p) => !p.seat && (p.sit ?? -1) === -1 && p.pet !== RAM && (() => { const a = props.self(); return !!a && Math.hypot(p.x - a.x, p.y - a.y) <= RAM_REACH; })()).slice(0, 2) : [];
   const behind = riderOf(props.seat);
   useEffect(() => { if (passenger && !props.people().some((p) => p.id === passenger && riderOf(p.seat) === me)) { const t0 = setTimeout(() => setPassenger((x) => (x === passenger && !propsRef.current.people().some((p) => p.id === passenger && riderOf(p.seat) === me) ? null : x)), 4000); return () => clearTimeout(t0); } });

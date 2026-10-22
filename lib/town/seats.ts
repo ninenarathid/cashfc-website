@@ -68,17 +68,17 @@ export function knowWagons(runs: readonly WagonRun[], clock: () => number) { RUN
 export const wagonRun = (id: string) => RUNS.find((r) => r.id === id) ?? null;
 
 /** Somebody the room lists, as much of them as a seat asks: where they are, what follows them, whether they sit or have gone. */
-interface Sitter { pos: Vec; info: { id?: string; pet?: string; sit?: number }; byeAt?: number }
+interface Sitter { pos: Vec; info: { id?: string; pet?: string; afoot?: boolean; sit?: number }; byeAt?: number }
 /**
  * Where a seat is now: behind a ram's rider (a little behind their point, so that they are drawn first), or on the
  * wagon (a place of its bed by the order they got on); null when there is no such seat any more (the rider has gone,
- * got off or sat down; the wagon's tour is over, or this page does not know of it).
+ * got off, got down to walk beside it or sat down; the wagon's tour is over, or this page does not know of it).
  */
 export function seatSpot(seat: string, now: number, who: (id: string) => Sitter | undefined): Vec | null {
   const rider = riderOf(seat);
   if (rider) {
     const r = who(rider);
-    if (!r || r.byeAt !== undefined || r.info.pet !== RAM || (r.info.sit ?? -1) !== -1) return null;
+    if (!r || r.byeAt !== undefined || r.info.pet !== RAM || r.info.afoot || (r.info.sit ?? -1) !== -1) return null;
     return { x: r.pos.x - 0.04, y: r.pos.y - 0.04 };
   }
   void now;

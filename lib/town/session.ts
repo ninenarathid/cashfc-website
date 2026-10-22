@@ -260,7 +260,8 @@ export class TownSession {
     const start = opts.terrain?.spawn ?? spawnFor(me.id);
     const look = encodeLook(savedLook(me.id) ?? defaultLook(me.id));
     this.self = {
-      info: { ...me, x: start.x, y: start.y, voice: false, muted: false, away: true, look, sit: -1 },
+      // (a steed to ride is walked beside until I get on: lib/town/riding)
+      info: { ...me, x: start.x, y: start.y, voice: false, muted: false, away: true, look, sit: -1, afoot: true },
       pos: { ...start }, path: [], img: loadFace(me.face), placed: true,
     };
 
@@ -318,7 +319,7 @@ export class TownSession {
   /** What I am doing, as the room is told. */
   doing(): Doing {
     const i = this.self.info;
-    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, turn: i.turn ?? 0, typing: i.typing ?? false, eat: i.eat ?? "", hold: i.hold ?? "", wet: i.wet ?? false, spent: i.spent ?? false, pet: i.pet ?? "", fish: i.fish ?? 0, sign: i.sign ?? "", circle: i.circle ?? "", carry: i.carry ?? "", flame: i.flame ?? 0, mood: i.mood ?? 0, /* mining */ ...(i.lit ? { lit: i.lit } : {}),
+    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, turn: i.turn ?? 0, typing: i.typing ?? false, eat: i.eat ?? "", hold: i.hold ?? "", wet: i.wet ?? false, spent: i.spent ?? false, pet: i.pet ?? "", afoot: i.afoot ?? true, fish: i.fish ?? 0, sign: i.sign ?? "", circle: i.circle ?? "", carry: i.carry ?? "", flame: i.flame ?? 0, mood: i.mood ?? 0, /* mining */ ...(i.lit ? { lit: i.lit } : {}),
       // (felling: said only by somebody who has had a board up at a tree or braced a trunk, and from then on, so that it is heard to be over; a room where nobody has hears nothing new)
       ...(i.fell !== undefined ? { fell: i.fell } : {}),
       // (the pasture: said only by somebody who has sat on a ram or a wagon, and from then on, so that getting down is heard)
@@ -378,7 +379,7 @@ export class TownSession {
       // ── gifts: forest ── (and whoever has a moss stag to ride goes twice as fast, on every page that walks them: lib/town/riding; a cart is pushed on foot)
       // ── forging ── (and whoever holds a tool with the wind in it walks faster, by what the room was told of the tool: lib/town/tools)
       // ── the bridge built by hand ── (and whoever carries a stone in both hands goes at half the pace, a quarter with no stamina left, and on foot: lib/town/carry)
-      const pace = a.info.carry ? carryPace(a.info.carry, a.info.spent) : a.info.hold === CART.item ? cartPace(a.info.hold, a.pos, all.filter((o) => o !== a).map((o) => o.pos)) : paceOf(a.info.pet) * (a.info.hold ? walkPace(a.info.tool) : 1);
+      const pace = a.info.carry ? carryPace(a.info.carry, a.info.spent) : a.info.hold === CART.item ? cartPace(a.info.hold, a.pos, all.filter((o) => o !== a).map((o) => o.pos)) : paceOf(a.info.pet, a.info.afoot) * (a.info.hold ? walkPace(a.info.tool) : 1);
       Object.assign(a, stepAlong(a.pos, a.path, SPEED * pace * dt));
     }
     // Stopped on a gate: through it, to the other map.
@@ -1179,7 +1180,7 @@ export class TownSession {
           // (everything heard of them before the room listed them: what they hold, eat and do with a rod too, which
           // others' games hang on: who cooks with me, whether a beetle comes down its tree, lib/town/insects)
           info: { ...p, x: spot.x, y: spot.y, voice: d.voice ?? false, muted: d.muted ?? false, away: d.away ?? false, look: d.look, sit: d.sit ?? -1,
-            ...(d.hold !== undefined ? { hold: d.hold } : {}), ...(d.wet !== undefined ? { wet: d.wet } : {}), ...(d.spent !== undefined ? { spent: d.spent } : {}), ...(d.pet !== undefined ? { pet: d.pet } : {}), ...(d.eat !== undefined ? { eat: d.eat } : {}), ...(d.fish !== undefined ? { fish: d.fish } : {}),
+            ...(d.hold !== undefined ? { hold: d.hold } : {}), ...(d.wet !== undefined ? { wet: d.wet } : {}), ...(d.spent !== undefined ? { spent: d.spent } : {}), ...(d.pet !== undefined ? { pet: d.pet } : {}), ...(d.afoot !== undefined ? { afoot: d.afoot } : {}), ...(d.eat !== undefined ? { eat: d.eat } : {}), ...(d.fish !== undefined ? { fish: d.fish } : {}),
             ...(d.sign !== undefined ? { sign: d.sign } : {}), ...(d.circle !== undefined ? { circle: d.circle } : {}), ...(d.tool !== undefined ? { tool: d.tool } : {}), ...(d.carry !== undefined ? { carry: d.carry } : {}), ...(d.flame !== undefined ? { flame: d.flame } : {}), /* mining */ ...(d.lit !== undefined ? { lit: d.lit } : {}), /* felling */ ...(d.fell !== undefined ? { fell: d.fell } : {}), /* the pasture */ ...(d.seat !== undefined ? { seat: d.seat } : {}) },
           pos: { ...spot }, path: [], img: loadFace(p.face), placed: d.x !== undefined, sat: ++this.sittings,
         });
@@ -1321,9 +1322,15 @@ export class TownSession {
   setTool(word: string) {
     if ((this.self.info.tool ?? "") !== word) this.tell({ tool: word });
   }
-  /** Tell the room which familiar follows me (a gift's name, lib/town/gifts), or that none does. */
+  /** Tell the room which familiar follows me (a gift's name, lib/town/gifts), or that none does. A new one to ride is walked beside until I get on. */
   setPet(id: string | null) {
-    if ((this.self.info.pet ?? "") !== (id ?? "")) this.tell({ pet: id ?? "" });
+    if ((this.self.info.pet ?? "") !== (id ?? "")) this.tell({ pet: id ?? "", afoot: true });
+  }
+  /** Tell the room whether I walk beside my steed or ride it (lib/town/riding); getting on from a seat, I get up first. */
+  setAfoot(afoot: boolean) {
+    if (this.closed || (this.self.info.afoot ?? true) === afoot) return;
+    if (!afoot && (this.self.info.sit ?? -1) !== -1) { this.sitWhenThere = null; this.tell({ sit: -1, turn: 0, afoot }); return; }
+    this.tell({ afoot });
   }
   // ── mining ──
   /** Tell the room how far my own light reaches in the cave, when what I wear lights more than a walker's own (lib/town/mining), or 0 that nothing does. */
@@ -1486,6 +1493,7 @@ export class TownSession {
         wet: a.info.wet ?? null,
         spent: a.info.spent ?? null,
         pet: a.info.pet ?? "",
+        afoot: a.info.afoot ?? false,
         tool: a.info.tool ?? "",
         lit: a.info.lit ?? 0,   // ── mining ──
         carry: a.info.carry ?? "",
