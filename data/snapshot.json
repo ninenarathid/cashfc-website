@@ -2217,7 +2217,7 @@
   "mounts": 174,
   "minions": 271,
   "rare": null,
-  "level": 100,
+  "level": 62,
   "cc": [
    true,
    true,
@@ -6328,7 +6328,7 @@
   ],
   "tiers": {},
   "jobs": {
-   "Samurai": "master"
+   "Samurai": "expert"
   },
   "ex": [
    "Valigarmanda",
@@ -6981,7 +6981,7 @@
  },
  "60852230": {
   "name": "Lucien Rhul",
-  "parse": 22,
+  "parse": 36,
   "ult": 0,
   "mounts": 30,
   "minions": 58,
@@ -7005,7 +7005,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-16"
+  "chg": "2026-10-22"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -7515,7 +7515,7 @@
  },
  "3902073": {
   "name": "Namine Raspberyl",
-  "parse": null,
+  "parse": 88,
   "ult": 0,
   "mounts": 71,
   "minions": 228,
@@ -7544,10 +7544,12 @@
    3252
   ],
   "tiers": {},
-  "jobs": {},
+  "jobs": {
+   "Warrior": "master"
+  },
   "ex": [],
   "ults": [],
-  "chg": "2026-09-10"
+  "chg": "2026-10-22"
  },
  "30596644": {
   "name": "Noelle Eisner",
@@ -8753,7 +8755,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 100,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -8771,7 +8773,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-21"
+  "chg": "2026-10-22"
  },
  "60475540": {
   "name": "Joaline Auchefornei",

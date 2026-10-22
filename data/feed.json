@@ -2,6 +2,27 @@
  "events": [
   {
    "date": "2026-10-22",
+   "type": "parse_up",
+   "id": 60852230,
+   "name": "Lucien Rhul",
+   "text": "set a new best parse: 36 on Valigarmanda as Paladin"
+  },
+  {
+   "date": "2026-10-22",
+   "type": "parse_up",
+   "id": 3902073,
+   "name": "Namine Raspberyl",
+   "text": "set a new best parse: 88 on Themis as Warrior"
+  },
+  {
+   "date": "2026-10-22",
+   "type": "job_up",
+   "id": 3902073,
+   "name": "Namine Raspberyl",
+   "text": "is now a Master Warrior"
+  },
+  {
+   "date": "2026-10-22",
    "type": "job_up",
    "id": 22767255,
    "name": "Minami Taira",
@@ -1378,27 +1399,6 @@
    "id": 57519259,
    "name": "Kertia Cruz",
    "text": "set a new best parse: 63 on Zoraal Ja as Reaper"
-  },
-  {
-   "date": "2026-10-10",
-   "type": "level_100",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "reached level 100 on Dark Knight!"
-  },
-  {
-   "date": "2026-10-09",
-   "type": "level_100",
-   "id": 61014734,
-   "name": "Hanna Doss",
-   "text": "reached level 100 on Dark Knight!"
-  },
-  {
-   "date": "2026-10-09",
-   "type": "rare_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "earned Fit for a Queen: Blade's Providence"
   }
  ]
 }
