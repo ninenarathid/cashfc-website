@@ -15,7 +15,7 @@
  */
 import MAP from "./town2-map.json";
 import { WATER_MS, waterFrames } from "./scenery";
-import { T2_HALL, T2_LEFT_OUT, T2_RING_MOVES, t2InHall } from "./town2";
+import { T2_CHEST_OPEN, T2_CHEST_SHUT, T2_HALL, T2_LEFT_OUT, T2_RING_MOVES, t2InHall } from "./town2";
 import type { Vec } from "./world";
 
 const FLOOR = 0, STAND = 1, WIDE = 2;
@@ -67,6 +67,15 @@ export class Town2Art {
       i, name: MAP.names[o[0]], s: o[1], x: o[2], y: o[3], k: o[4], flip: o[5] === 1, how: o[6], d: o[7],
       box: [o[8], o[9], o[10], o[11]] as [number, number, number, number], rings: rings[i], lights: lights[i],
     })).filter((t) => !T2_LEFT_OUT.has(t.i));
+    // the chest's open picture stood where the closed one is (the editor laid it two tiles off: the owner, 2026-10-22, "ตอน
+    // เปิด มันไม่ขยับออกจากตำแหน่งเดิม"): the same bottom, the same middle, the same place back to front
+    const shut = this.things.find((q) => q.i === T2_CHEST_SHUT), open = this.things.find((q) => q.i === T2_CHEST_OPEN);
+    if (shut && open) {
+      const a = this.sprites[shut.s], b = this.sprites[open.s];
+      open.x = shut.x + (a.w * shut.k - b.w * open.k) / 2;
+      open.y = shut.y + a.h * shut.k - b.h * open.k;
+      open.d = shut.d; open.box = shut.box; open.how = shut.how;
+    }
     // the west bridges' rings, from the bridges' feet to their far ends (where the way on is), on the boards
     for (const m of T2_RING_MOVES) {
       const t = this.things.find((q) => q.i === m.i);

@@ -2242,6 +2242,19 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         if (p.kind === "storebox") storeBox.current = box;
         else benchBoxes.current.push({ i: benchIndex.get(p) ?? -1, ...box, depth: p.x + p.y });
       }
+      // the kitchen hall, from inside: its long tables for a tap that opens the feast table, each place at them for a tap
+      // to sit down (as the old yard's: lib/town/town2's T2_KITCHEN)
+      roofSeen.current = roofRef.current;
+      if (roofRef.current < 0.5) {
+        T2_THINGS.filter((q) => q.name === "dining_table").sort((a, b) => a.c.x - b.c.x).forEach((q, table) => {
+          const box = art2.boxOf(q.i, iso2, v.s);
+          if (box) feastBoxes.current.push({ table, ...box });
+        });
+        KITCHEN.seats.forEach((seat, i) => {
+          const c = project(seat.at);
+          benchBoxes.current.push({ i: YARD_SEATS + i, x0: c.x - 27 * v.s, y0: c.y - 30 * v.s, x1: c.x + 27 * v.s, y1: c.y + 14 * v.s, depth: seat.at.x + seat.at.y });
+        });
+      }
     }
     for (const p of T2 ? [] : PROPS) {
       if (p.kind === "flowers") continue;

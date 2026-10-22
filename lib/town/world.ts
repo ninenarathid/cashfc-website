@@ -1453,6 +1453,8 @@ export const BEYOND = {
 const NORTH_SEED = ARMS.find((a) => a.dir === "N")!.seed;
 /** Whether a point has ground to draw: it is on a map, or in the woods seen beyond a gate. */
 export const seenAt = (x: number, y: number) => placeOf(x, y) !== null || within(x, y, BEYOND.north) || within(x, y, BEYOND.south)
+  // (the editor's town's far banks)
+  || (T2 && town2.inT2Banks(x, y))
   // ── to come ── (and what is seen beyond the town's west gate and beyond the mountain's map)
   || (PREVIEW && (y >= BEYOND_MORE.low.y ? within(x, y, BEYOND_MORE.low) || within(x, y, BEYOND_MORE.high) : x < 0 && within(x, y, BEYOND_MORE.west)));
 /** The ground of those woods at a point: the path running on through them, and the forest's floor. */
@@ -1572,7 +1574,7 @@ function beyondMore(r: { x: number; y: number; w: number; h: number }, what: (k:
 export const BEYOND_MORE_PROPS = PREVIEW ? {
   // (the editor's town's two west bridges land on this far bank: nothing stands where they come down, nor beside it)
   west: beyondMore(BEYOND_MORE.west, (k, x) => (x > -9 ? (k < 0.24 ? "pine" : k < 0.3 ? "rock" : k < 0.34 ? "bush" : null) : null))
-    .filter((p) => !T2 || !(p.x > -8 && ((p.y >= 13 && p.y <= 20) || (p.y >= 32 && p.y <= 39)))),
+    .filter((p) => !T2 || (p.x < -4.5 && !(p.x > -8 && ((p.y >= 13 && p.y <= 20) || (p.y >= 32 && p.y <= 39))))),
   low: beyondMore(BEYOND_MORE.low, (k, x) => (x < MOUNTAIN.x + MOUNTAIN.w + 1 ? null : k < 0.16 ? "tree" : k < 0.27 ? "pine" : k < 0.34 ? "bush" : null)),
   high: beyondMore(BEYOND_MORE.high, (k, x) => (x >= MOUNTAIN.x - 5 && k < 0.12 ? "mrock" : null)),
 } : { west: [], low: [], high: [] };
@@ -1943,6 +1945,8 @@ export function groundAt(tx: number, ty: number): Ground {
 export function groundLook(x: number, y: number): Ground | MoreGround | town2.T2Look {
   // ── the editor's town ── (its own ground, in its own textures: lib/town/town2)
   if (T2 && town2.inT2(x, y)) return town2.t2Look(x, y);
+  // (and its far banks beyond the west and south edges, where its bridges come down)
+  if (T2) { const bank = town2.t2BankLook(x, y); if (bank) return bank; }
   // ── to come ── (the mountain, the cave's floors, what is seen beyond them, and the earth at the bridge's two ends)
   if (PREVIEW) { const more = moreLook(x, y); if (more) return more; }
   if (!asWas && inPasture(x, y)) return pastureGround(x, y);

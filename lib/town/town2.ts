@@ -116,6 +116,31 @@ const TILE_GROUND: Ground[] = (() => {
   return out;
 })();
 export const t2Ground = (tx: number, ty: number): Ground => TILE_GROUND[ty * T2_COLS + tx] ?? "grass";
+
+/**
+ * The far banks beyond the town's west and south edges, where its bridges come down (the owner, 2026-10-22, of the
+ * old town's ground showing there: "ส่วนนี้ transition ดูตัดกันไปหน่อย"): ground to look at, on no map. The river runs
+ * on a little past the edge in the town's own water, then a band of sand, then grass, and the woods' floor further off;
+ * where the town's edge is land, its grass goes on. All in the editor's textures, so nothing meets the town at a seam.
+ */
+export const T2_BANKS = [{ x: -18, y: -3, w: 18, h: 86 }, { x: -3, y: T2_ROWS, w: T2_COLS + 6, h: 10 }];
+export const inT2Banks = (x: number, y: number) => T2_BANKS.some((r) => x >= r.x && y >= r.y && x < r.x + r.w && y < r.y + r.h);
+export function t2BankLook(x: number, y: number): T2Look | null {
+  if (inT2(x, y) || !inT2Banks(x, y)) return null;
+  // the nearest point of the town's edge, and how far out from it
+  const ex = Math.min(Math.max(x, 0.02), T2_COLS - 0.02), ey = Math.min(Math.max(y, 0.02), T2_ROWS - 0.02);
+  const out = Math.max(Math.abs(x - ex), Math.abs(y - ey)), west = x < 0 && Math.abs(x - ex) >= Math.abs(y - ey);
+  const edge = NAMES[LEGEND[letterAt(ex, ey)] ?? "grass"]?.look ?? "t2grass";
+  const n = noise(x, y, 3.2, 31) - 0.5, n2 = noise(x, y, 1.3, 33) - 0.5, far = noise(x, y, 4.5, 37);
+  if (edge === "t2water") {
+    // (the west bridges' far ends are some two tiles out, the south bridge's one: each comes down on the sand)
+    // (its edge wanders as the editor's shores do: slowly, with a little fray)
+    const bank = (west ? 1.75 : 0.6) + n * (west ? 0.8 : 0.6) + n2 * 0.18;
+    if (out < bank) return "t2water";
+    if (out < bank + 0.85 + n2 * 0.5) return "t2sand";
+  } else if (out < 0.7 + n * 0.4) return edge === "t2road" || edge === "t2plaza" ? "t2grass" : edge;
+  return out > 5 + far * 4 ? "t2wood" : "t2grass";
+}
 export const inT2 = (x: number, y: number) => x >= 0 && y >= 0 && x < T2_COLS && y < T2_ROWS;
 
 /* ── what stands there ──────────────────────────────────────────────────── */
@@ -241,13 +266,20 @@ export const T2_KITCHEN = (() => {
     if (!b) return [];
     const [x0, , x1] = b.box, y = b.c.y;
     return [0, 1, 2].map((i) => {
-      const p = { x: x0 + ((i + 0.5) * (x1 - x0)) / 3, y }, q = px(p);
+      // (drawn up on the bench's seat: a step back up the screen from its middle)
+      const p = { x: x0 + ((i + 0.5) * (x1 - x0)) / 3 - 0.32, y: y - 0.32 }, q = px(p);
       const sy = back ? Math.ceil(y) : Math.floor(y) - 1, sx = Math.floor(p.x);
       const stand = (open(sx, sy) ? [sx, sy] : floor.slice().sort((a, c) => Math.hypot(a[0] + 0.5 - p.x, a[1] + 0.5 - p.y) - Math.hypot(c[0] + 0.5 - p.x, c[1] + 0.5 - p.y))[0]) as [number, number];
       return { at: p, px: q.x, py: q.y, back, table, stand };
     });
   }));
-  const tops = tables.map((t) => { const a = px({ x: t[0][0], y: t[0][1] }), b = px({ x: t[t.length - 1][0] + 1, y: t[0][1] + 1 }); return [Math.min(a.x, b.x), Math.min(a.y, b.y), Math.max(a.x, b.x), Math.max(a.y, b.y)] as [number, number, number, number]; });
+  // (each top's second figure is where it stands back to front, as the yard's tops were: whoever sits behind the table is
+  // just before it, a pot on it just after; Town.tsx's depthOf and TownCook's feast table read it so)
+  const tops = tables.map((t) => {
+    const a = px({ x: t[0][0], y: t[0][1] }), b = px({ x: t[t.length - 1][0] + 1, y: t[0][1] + 1 });
+    const thing = HALL_THINGS.find((q) => /^dining_table$/.test(q.name) && Math.floor(q.c.x) >= t[0][0] && Math.floor(q.c.x) <= t[t.length - 1][0])!;
+    return [Math.min(a.x, b.x), (thing.c.x + thing.c.y - foot.x - foot.y - 0.025) * 16, Math.max(a.x, b.x), Math.max(a.y, b.y)] as [number, number, number, number];
+  });
   const served = [1, 2, 0, 3].flatMap((i) => tables.map((t, table) => {
     const xs = t.map(([x]) => x), p = { x: Math.min(...xs) + 0.4 + (i * (xs.length + 0.2)) / 4, y: t[0][1] + 0.5 }, q = px(p);
     return { px: Math.round(q.x), py: Math.round(q.y), at: p, table };
@@ -314,10 +346,25 @@ const KINDS: Array<[RegExp, PropKind, boolean]> = [
   [/^game_signpost$/, "signpost", true],
 ];
 /** Which way a bench's sitter faces: across its length, towards the side with more open ground before it (the viewer's side first). */
-function benchFacing(t: T2Thing): Facing {
+/**
+ * A bench's seat and the way its sitter faces: across its length, towards the side with more open ground (the viewer's
+ * side first). The seat is the bench's tile on that side's edge, so that the tile before it, where one stands to sit
+ * down (lib/town/session's sitOn: the seat's tile and a step the way it faces), is open ground and not the bench itself
+ * (a bench two tiles deep, the tea house's under the plaza's tree, was sat on from inside itself: the owner, 2026-10-22).
+ */
+function benchSeat(t: T2Thing): { x: number; y: number; facing: Facing } {
   const [x0, y0, x1, y1] = t.box, along = x1 - x0 >= y1 - y0, cx = Math.floor(t.c.x), cy = Math.floor(t.c.y);
-  const open = (dx: number, dy: number) => [1, 2].filter((d) => { const c = WALK[cy + dy * d]?.[cx + dx * d]; return c === "." || c === "="; }).length;
-  return along ? (open(0, 1) >= open(0, -1) ? "SW" : "NE") : (open(1, 0) >= open(-1, 0) ? "SE" : "NW");
+  const walk = (x: number, y: number) => { const c = WALK[y]?.[x]; return c === "." || c === "="; };
+  const open = (dx: number, dy: number) => [1, 2].filter((d) => walk(cx + dx * d, cy + dy * d)).length;
+  const sides: Facing[] = along ? (open(0, 1) >= open(0, -1) ? ["SW", "NE"] : ["NE", "SW"]) : (open(1, 0) >= open(-1, 0) ? ["SE", "NW"] : ["NW", "SE"]);
+  // (the footprint's last row or column that way: the tiles whose middles are inside it)
+  const last = { SW: Math.floor(y1 - 0.5), NE: Math.ceil(y0 - 0.5), SE: Math.floor(x1 - 0.5), NW: Math.ceil(x0 - 0.5) };
+  const step: Record<Facing, [number, number]> = { SE: [1, 0], SW: [0, 1], NE: [0, -1], NW: [-1, 0] };
+  for (const f of sides) {
+    const x = f === "SE" || f === "NW" ? last[f] : cx, y = f === "SW" || f === "NE" ? last[f] : cy;
+    if (walk(x + step[f][0], y + step[f][1])) return { x, y, facing: f };
+  }
+  return { x: cx, y: cy, facing: sides[0] };
 }
 /**
  * The town's props: what the game's rules look for (benches to sit on, lamps that glow and draw moths, trees birds sit
@@ -333,7 +380,7 @@ export const T2_PROPS: Prop[] = (() => {
     const k = KINDS.find(([re]) => re.test(t.name));
     if (!k) continue;
     const p: Prop = { kind: k[1], x: Math.floor(t.c.x), y: Math.floor(t.c.y), solid: k[2] };
-    if (p.kind === "bench") p.facing = benchFacing(t);
+    if (p.kind === "bench") Object.assign(p, benchSeat(t));
     out.push(p);
     T2_PROP_THING.set(p, t.i);
   }
