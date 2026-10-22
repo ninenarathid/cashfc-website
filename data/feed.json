@@ -3,6 +3,20 @@
   {
    "date": "2026-10-22",
    "type": "parse_up",
+   "id": 51060767,
+   "name": "Yatchy Concreategirls",
+   "text": "set a new best parse: 31 on Valigarmanda as Reaper"
+  },
+  {
+   "date": "2026-10-22",
+   "type": "parse_up",
+   "id": 512253,
+   "name": "Ashelia White",
+   "text": "set a new best parse: 98 on Hegemone as Dar\u0001 \u0002night"
+  },
+  {
+   "date": "2026-10-22",
+   "type": "parse_up",
    "id": 60852230,
    "name": "Lucien Rhul",
    "text": "set a new best parse: 36 on Valigarmanda as Paladin"
@@ -1385,20 +1399,6 @@
    "id": 29918255,
    "name": "Lyndanisse Vymmaith",
    "text": "earned Phantom of the Umbra: Codex Umbrae"
-  },
-  {
-   "date": "2026-10-10",
-   "type": "level_100",
-   "id": 29907674,
-   "name": "Ranjoe Tp'",
-   "text": "reached level 100 on Fisher!"
-  },
-  {
-   "date": "2026-10-10",
-   "type": "parse_up",
-   "id": 57519259,
-   "name": "Kertia Cruz",
-   "text": "set a new best parse: 63 on Zoraal Ja as Reaper"
   }
  ]
 }

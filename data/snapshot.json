@@ -2217,7 +2217,7 @@
   "mounts": 174,
   "minions": 271,
   "rare": null,
-  "level": 62,
+  "level": 64,
   "cc": [
    true,
    true,
@@ -8440,7 +8440,7 @@
  },
  "51060767": {
   "name": "Yatchy Concreategirls",
-  "parse": 22,
+  "parse": 31,
   "ult": 0,
   "mounts": 8,
   "minions": 18,
@@ -8755,7 +8755,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 80,
+  "level": 82,
   "cc": [
    false,
    false,
@@ -9891,7 +9891,7 @@
  },
  "512253": {
   "name": "Ashelia White",
-  "parse": 88,
+  "parse": 98,
   "ult": 3,
   "mounts": 32,
   "minions": 112,
@@ -9915,7 +9915,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-30"
+  "chg": "2026-10-22"
  },
  "29918399": {
   "name": "Athaliah Aylin",

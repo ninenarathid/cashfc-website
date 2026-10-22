@@ -69,6 +69,58 @@
   "extremes": [],
   "legacy": [
    {
+    "zone": "Abyssos",
+    "zone_id": 49,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P5S",
+      "encounter_id": 83,
+      "name": "Proto-Carbuncle",
+      "best": 97,
+      "median": 76,
+      "kills": 14,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P6S",
+      "encounter_id": 84,
+      "name": "Hegemone",
+      "best": 98,
+      "median": 88,
+      "kills": 16,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P7S",
+      "encounter_id": 85,
+      "name": "Agdistis",
+      "best": 97,
+      "median": 78,
+      "kills": 16,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P8S",
+      "encounter_id": 86,
+      "name": "Hephaistos",
+      "best": 95,
+      "median": 71,
+      "kills": 24,
+      "job": "DarkKnight"
+     },
+     {
+      "label": null,
+      "encounter_id": 87,
+      "name": "Hephaistos II",
+      "best": 96,
+      "median": 82,
+      "kills": 13,
+      "job": "DarkKnight"
+     }
+    ]
+   },
+   {
     "zone": "Asphodelos",
     "zone_id": 44,
     "expansion": "Endwalker",
@@ -2158,7 +2210,13 @@
       "best": 83,
       "median": 51,
       "kills": 16,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 16,
+        "best": 83
+       }
+      }
      },
      {
       "label": "P10S",
@@ -2167,7 +2225,13 @@
       "best": 83,
       "median": 53,
       "kills": 14,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 14,
+        "best": 83
+       }
+      }
      },
      {
       "label": "P11S",
@@ -2176,7 +2240,13 @@
       "best": 88,
       "median": 34,
       "kills": 14,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 14,
+        "best": 88
+       }
+      }
      },
      {
       "label": "P12S",
@@ -2185,7 +2255,13 @@
       "best": 56,
       "median": 28,
       "kills": 14,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 14,
+        "best": 56
+       }
+      }
      },
      {
       "label": null,
@@ -2194,7 +2270,13 @@
       "best": 63,
       "median": 36,
       "kills": 7,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 7,
+        "best": 63
+       }
+      }
      }
     ]
    }
@@ -26952,6 +27034,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 39,
       "median": 5,
@@ -26960,6 +27043,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 27,
       "median": 13,
@@ -26968,6 +27052,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 27,
       "median": 17,
@@ -26975,7 +27060,8 @@
       "job": "Gunbreaker"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 45,
       "median": 23,
@@ -26983,7 +27069,8 @@
       "job": "Gunbreaker"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 14,
       "median": 6,
@@ -40902,6 +40989,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 36,
       "median": 30,
@@ -40910,6 +40998,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 23,
       "median": 23,
@@ -40918,6 +41007,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 21,
       "median": 15,
@@ -40925,7 +41015,8 @@
       "job": "WhiteMage"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 10,
       "median": 6,
@@ -40933,7 +41024,8 @@
       "job": "WhiteMage"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 18,
       "median": 12,
@@ -82813,8 +82905,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1071,
     "name": "Valigarmanda",
-    "best": 22,
-    "kills": 1,
+    "best": 31,
+    "kills": 3,
     "job": "Reaper",
     "cleared": true
    }
@@ -94223,20 +94315,7 @@
    }
   ],
   "legacy": [],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 103,
-    "name": "The Tyrant",
-    "kind": "savage",
-    "state": "learning",
-    "pct": 76.71,
-    "phase": 0,
-    "pulls": 16,
-    "last": "2026-10-17",
-    "last_ts": 1792215436
-   }
-  ]
+  "_status": "ok"
  },
  "21388050": {
   "current": {
@@ -94345,20 +94424,7 @@
    }
   ],
   "legacy": [],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 103,
-    "name": "The Tyrant",
-    "kind": "savage",
-    "state": "learning",
-    "pct": 76.71,
-    "phase": 0,
-    "pulls": 16,
-    "last": "2026-10-17",
-    "last_ts": 1792215436
-   }
-  ]
+  "_status": "ok"
  },
  "49053650": {
   "current": {
