@@ -3068,6 +3068,7 @@
     "encounters": [
      {
       "label": "M1S",
+      "encounter_id": 93,
       "name": "Black Cat",
       "best": 66,
       "median": 41,
@@ -3076,6 +3077,7 @@
      },
      {
       "label": "M2S",
+      "encounter_id": 94,
       "name": "Honey B. Lovely",
       "best": 50,
       "median": 25,
@@ -3084,6 +3086,7 @@
      },
      {
       "label": "M3S",
+      "encounter_id": 95,
       "name": "Brute Bomber",
       "best": 45,
       "median": 20,
@@ -3092,6 +3095,7 @@
      },
      {
       "label": "M4S",
+      "encounter_id": 96,
       "name": "Wicked Thunder",
       "best": 49,
       "median": 12,
@@ -3652,6 +3656,7 @@
     "encounters": [
      {
       "label": "M1S",
+      "encounter_id": 93,
       "name": "Black Cat",
       "best": 58,
       "median": 34,
@@ -3660,6 +3665,7 @@
      },
      {
       "label": "M2S",
+      "encounter_id": 94,
       "name": "Honey B. Lovely",
       "best": 60,
       "median": 31,
@@ -3668,6 +3674,7 @@
      },
      {
       "label": "M3S",
+      "encounter_id": 95,
       "name": "Brute Bomber",
       "best": 27,
       "median": 17,
@@ -3676,6 +3683,7 @@
      },
      {
       "label": "M4S",
+      "encounter_id": 96,
       "name": "Wicked Thunder",
       "best": 43,
       "median": 14,
@@ -4406,6 +4414,7 @@
     "encounters": [
      {
       "label": "M1S",
+      "encounter_id": 93,
       "name": "Black Cat",
       "best": 91,
       "median": 82,
@@ -4414,6 +4423,7 @@
      },
      {
       "label": "M2S",
+      "encounter_id": 94,
       "name": "Honey B. Lovely",
       "best": 90,
       "median": 77,
@@ -4422,6 +4432,7 @@
      },
      {
       "label": "M3S",
+      "encounter_id": 95,
       "name": "Brute Bomber",
       "best": 85,
       "median": 65,
@@ -4430,6 +4441,7 @@
      },
      {
       "label": "M4S",
+      "encounter_id": 96,
       "name": "Wicked Thunder",
       "best": 87,
       "median": 59,
@@ -6099,6 +6111,7 @@
     "encounters": [
      {
       "label": "M1S",
+      "encounter_id": 93,
       "name": "Black Cat",
       "best": 73,
       "median": 61,
@@ -6107,6 +6120,7 @@
      },
      {
       "label": "M2S",
+      "encounter_id": 94,
       "name": "Honey B. Lovely",
       "best": 56,
       "median": 39,
@@ -6115,6 +6129,7 @@
      },
      {
       "label": "M3S",
+      "encounter_id": 95,
       "name": "Brute Bomber",
       "best": 81,
       "median": 37,
@@ -6123,6 +6138,7 @@
      },
      {
       "label": "M4S",
+      "encounter_id": 96,
       "name": "Wicked Thunder",
       "best": 48,
       "median": 33,
@@ -8629,6 +8645,7 @@
     "encounters": [
      {
       "label": "M1S",
+      "encounter_id": 93,
       "name": "Black Cat",
       "best": 99,
       "median": 97,
@@ -8637,6 +8654,7 @@
      },
      {
       "label": "M2S",
+      "encounter_id": 94,
       "name": "Honey B. Lovely",
       "best": 97,
       "median": 93,
@@ -8645,6 +8663,7 @@
      },
      {
       "label": "M3S",
+      "encounter_id": 95,
       "name": "Brute Bomber",
       "best": 99,
       "median": 91,
@@ -8653,6 +8672,7 @@
      },
      {
       "label": "M4S",
+      "encounter_id": 96,
       "name": "Wicked Thunder",
       "best": 98,
       "median": 83,
@@ -10053,6 +10073,7 @@
     "encounters": [
      {
       "label": "M1S",
+      "encounter_id": 93,
       "name": "Black Cat",
       "best": 80,
       "median": 62,
@@ -10061,6 +10082,7 @@
      },
      {
       "label": "M2S",
+      "encounter_id": 94,
       "name": "Honey B. Lovely",
       "best": 76,
       "median": 55,
@@ -10069,6 +10091,7 @@
      },
      {
       "label": "M3S",
+      "encounter_id": 95,
       "name": "Brute Bomber",
       "best": 46,
       "median": 33,
@@ -10077,6 +10100,7 @@
      },
      {
       "label": "M4S",
+      "encounter_id": 96,
       "name": "Wicked Thunder",
       "best": 40,
       "median": 24,
@@ -10941,6 +10965,49 @@
     ]
    },
    {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 83,
+      "median": 60,
+      "kills": 13,
+      "job": "Monk"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 80,
+      "median": 55,
+      "kills": 10,
+      "job": "Monk"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 90,
+      "median": 53,
+      "kills": 10,
+      "job": "Monk"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 68,
+      "median": 24,
+      "kills": 9,
+      "job": "Monk"
+     }
+    ]
+   },
+   {
     "zone": "Asphodelos",
     "zone_id": 44,
     "expansion": "Endwalker",
@@ -11453,6 +11520,49 @@
         "best": 70
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 92,
+      "median": 87,
+      "kills": 6,
+      "job": "Pictomancer"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 95,
+      "median": 51,
+      "kills": 7,
+      "job": "Pictomancer"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 92,
+      "median": 82,
+      "kills": 7,
+      "job": "Pictomancer"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 61,
+      "median": 36,
+      "kills": 6,
+      "job": "Pictomancer"
      }
     ]
    },
@@ -12613,6 +12723,40 @@
     ]
    },
    {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 60,
+      "median": 55,
+      "kills": 4,
+      "job": "Summoner"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 8,
+      "median": 5,
+      "kills": 3,
+      "job": "Summoner"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 23,
+      "median": 23,
+      "kills": 2,
+      "job": "Summoner"
+     }
+    ]
+   },
+   {
     "zone": "Anabaseios",
     "zone_id": 54,
     "expansion": "Endwalker",
@@ -13486,6 +13630,7 @@
     "encounters": [
      {
       "label": "M1S",
+      "encounter_id": 93,
       "name": "Black Cat",
       "best": 92,
       "median": 71,
@@ -13494,6 +13639,7 @@
      },
      {
       "label": "M2S",
+      "encounter_id": 94,
       "name": "Honey B. Lovely",
       "best": 85,
       "median": 70,
@@ -13502,6 +13648,7 @@
      },
      {
       "label": "M3S",
+      "encounter_id": 95,
       "name": "Brute Bomber",
       "best": 95,
       "median": 65,
@@ -13510,6 +13657,7 @@
      },
      {
       "label": "M4S",
+      "encounter_id": 96,
       "name": "Wicked Thunder",
       "best": 84,
       "median": 60,
@@ -17320,6 +17468,49 @@
     ]
    },
    {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 98,
+      "median": 92,
+      "kills": 8,
+      "job": "Dancer"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 94,
+      "median": 73,
+      "kills": 9,
+      "job": "Dancer"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 94,
+      "median": 75,
+      "kills": 9,
+      "job": "Dancer"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 98,
+      "median": 50,
+      "kills": 9,
+      "job": "Dancer"
+     }
+    ]
+   },
+   {
     "zone": "Anabaseios",
     "zone_id": 54,
     "expansion": "Endwalker",
@@ -19623,6 +19814,7 @@
     "encounters": [
      {
       "label": "M1S",
+      "encounter_id": 93,
       "name": "Black Cat",
       "best": 72,
       "median": 47,
@@ -19631,6 +19823,7 @@
      },
      {
       "label": "M2S",
+      "encounter_id": 94,
       "name": "Honey B. Lovely",
       "best": 73,
       "median": 31,
@@ -19639,6 +19832,7 @@
      },
      {
       "label": "M3S",
+      "encounter_id": 95,
       "name": "Brute Bomber",
       "best": 64,
       "median": 46,
@@ -19647,6 +19841,7 @@
      },
      {
       "label": "M4S",
+      "encounter_id": 96,
       "name": "Wicked Thunder",
       "best": 50,
       "median": 29,
@@ -20310,6 +20505,49 @@
       "median": 4,
       "kills": 1,
       "job": "Dragoon"
+     }
+    ]
+   },
+   {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 91,
+      "median": 46,
+      "kills": 7,
+      "job": "Reaper"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 71,
+      "median": 51,
+      "kills": 8,
+      "job": "Reaper"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 90,
+      "median": 28,
+      "kills": 8,
+      "job": "Reaper"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 57,
+      "median": 16,
+      "kills": 8,
+      "job": "Reaper"
      }
     ]
    },
@@ -23360,6 +23598,49 @@
     ]
    },
    {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 73,
+      "median": 33,
+      "kills": 5,
+      "job": "Paladin"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 54,
+      "median": 15,
+      "kills": 6,
+      "job": "Paladin"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 56,
+      "median": 23,
+      "kills": 6,
+      "job": "Paladin"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 6,
+      "median": 4,
+      "kills": 3,
+      "job": "Paladin"
+     }
+    ]
+   },
+   {
     "zone": "Anabaseios",
     "zone_id": 54,
     "expansion": "Endwalker",
@@ -25930,6 +26211,49 @@
       "best": 15,
       "median": 15,
       "kills": 1,
+      "job": "Gunbreaker"
+     }
+    ]
+   },
+   {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 98,
+      "median": 83,
+      "kills": 12,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 96,
+      "median": 81,
+      "kills": 17,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 97,
+      "median": 79,
+      "kills": 13,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 96,
+      "median": 74,
+      "kills": 19,
       "job": "Gunbreaker"
      }
     ]
@@ -29002,6 +29326,49 @@
     ]
    },
    {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 97,
+      "median": 83,
+      "kills": 7,
+      "job": "Summoner"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 95,
+      "median": 82,
+      "kills": 12,
+      "job": "Summoner"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 98,
+      "median": 83,
+      "kills": 10,
+      "job": "Summoner"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 92,
+      "median": 67,
+      "kills": 9,
+      "job": "Summoner"
+     }
+    ]
+   },
+   {
     "zone": "Asphodelos",
     "zone_id": 44,
     "expansion": "Endwalker",
@@ -30652,6 +31019,49 @@
     ]
    },
    {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 88,
+      "median": 88,
+      "kills": 13,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 86,
+      "median": 68,
+      "kills": 13,
+      "job": "Warrior"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 78,
+      "median": 57,
+      "kills": 13,
+      "job": "Warrior"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 81,
+      "median": 70,
+      "kills": 10,
+      "job": "Warrior"
+     }
+    ]
+   },
+   {
     "zone": "Anabaseios",
     "zone_id": 54,
     "expansion": "Endwalker",
@@ -31972,6 +32382,49 @@
     ]
    },
    {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 86,
+      "median": 52,
+      "kills": 20,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 80,
+      "median": 37,
+      "kills": 19,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 74,
+      "median": 27,
+      "kills": 16,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 51,
+      "median": 41,
+      "kills": 11,
+      "job": "Gunbreaker"
+     }
+    ]
+   },
+   {
     "zone": "Anabaseios",
     "zone_id": 54,
     "expansion": "Endwalker",
@@ -32938,6 +33391,49 @@
         "best": 95
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 92,
+      "median": 85,
+      "kills": 9,
+      "job": "Warrior"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 99,
+      "median": 87,
+      "kills": 13,
+      "job": "Warrior"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 99,
+      "median": 89,
+      "kills": 11,
+      "job": "Warrior"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 98,
+      "median": 89,
+      "kills": 8,
+      "job": "Warrior"
      }
     ]
    },
@@ -34400,7 +34896,7 @@
     "state": "learning",
     "pct": 14.65,
     "phase": 3,
-    "pulls": 95,
+    "pulls": 56,
     "last": "2026-10-18",
     "last_ts": 1792342200
    }
@@ -34995,6 +35491,49 @@
         "best": 67
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 82,
+      "median": 79,
+      "kills": 5,
+      "job": "Dancer"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 88,
+      "median": 57,
+      "kills": 8,
+      "job": "Dancer"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 78,
+      "median": 57,
+      "kills": 6,
+      "job": "Dancer"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 66,
+      "median": 49,
+      "kills": 5,
+      "job": "Dancer"
      }
     ]
    },
@@ -35926,6 +36465,7 @@
     "encounters": [
      {
       "label": "M1S",
+      "encounter_id": 93,
       "name": "Black Cat",
       "best": 33,
       "median": 23,
@@ -35934,6 +36474,7 @@
      },
      {
       "label": "M2S",
+      "encounter_id": 94,
       "name": "Honey B. Lovely",
       "best": 97,
       "median": 20,
@@ -35942,6 +36483,7 @@
      },
      {
       "label": "M3S",
+      "encounter_id": 95,
       "name": "Brute Bomber",
       "best": 81,
       "median": 81,
@@ -35950,6 +36492,7 @@
      },
      {
       "label": "M4S",
+      "encounter_id": 96,
       "name": "Wicked Thunder",
       "best": 14,
       "median": 13,
@@ -38404,6 +38947,49 @@
         "best": 29
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 85,
+      "median": 59,
+      "kills": 17,
+      "job": "Paladin"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 89,
+      "median": 35,
+      "kills": 18,
+      "job": "Paladin"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 63,
+      "median": 63,
+      "kills": 11,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 78,
+      "median": 78,
+      "kills": 20,
+      "job": "Samurai"
      }
     ]
    },
@@ -41587,6 +42173,7 @@
     "encounters": [
      {
       "label": "M1S",
+      "encounter_id": 93,
       "name": "Black Cat",
       "best": 100,
       "median": 93,
@@ -41595,6 +42182,7 @@
      },
      {
       "label": "M2S",
+      "encounter_id": 94,
       "name": "Honey B. Lovely",
       "best": 99,
       "median": 91,
@@ -41603,6 +42191,7 @@
      },
      {
       "label": "M3S",
+      "encounter_id": 95,
       "name": "Brute Bomber",
       "best": 99,
       "median": 78,
@@ -41611,6 +42200,7 @@
      },
      {
       "label": "M4S",
+      "encounter_id": 96,
       "name": "Wicked Thunder",
       "best": 97,
       "median": 76,
@@ -45227,6 +45817,49 @@
     ]
    },
    {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 97,
+      "median": 87,
+      "kills": 25,
+      "job": "Pictomancer"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 92,
+      "median": 78,
+      "kills": 20,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 84,
+      "median": 71,
+      "kills": 16,
+      "job": "Summoner"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 82,
+      "median": 63,
+      "kills": 12,
+      "job": "Pictomancer"
+     }
+    ]
+   },
+   {
     "zone": "Anabaseios",
     "zone_id": 54,
     "expansion": "Endwalker",
@@ -47504,6 +48137,49 @@
         "best": 21
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 75,
+      "median": 69,
+      "kills": 11,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 92,
+      "median": 75,
+      "kills": 14,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 69,
+      "median": 43,
+      "kills": 11,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 78,
+      "median": 45,
+      "kills": 8,
+      "job": "WhiteMage"
      }
     ]
    },
@@ -53241,6 +53917,49 @@
     ]
    },
    {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 78,
+      "median": 66,
+      "kills": 21,
+      "job": "Samurai"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 81,
+      "median": 30,
+      "kills": 22,
+      "job": "Samurai"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 80,
+      "median": 22,
+      "kills": 23,
+      "job": "Viper"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 65,
+      "median": 43,
+      "kills": 16,
+      "job": "Samurai"
+     }
+    ]
+   },
+   {
     "zone": "Anabaseios",
     "zone_id": 54,
     "expansion": "Endwalker",
@@ -57440,6 +58159,49 @@
         "best": 32
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 84,
+      "median": 59,
+      "kills": 20,
+      "job": "Sage"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 71,
+      "median": 52,
+      "kills": 20,
+      "job": "Sage"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 83,
+      "median": 49,
+      "kills": 21,
+      "job": "Sage"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 56,
+      "median": 31,
+      "kills": 18,
+      "job": "Sage"
      }
     ]
    },
@@ -64961,6 +65723,49 @@
   ],
   "legacy": [
    {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 94,
+      "median": 69,
+      "kills": 13,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 94,
+      "median": 39,
+      "kills": 7,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 87,
+      "median": 57,
+      "kills": 8,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 60,
+      "median": 34,
+      "kills": 6,
+      "job": "WhiteMage"
+     }
+    ]
+   },
+   {
     "zone": "Anabaseios",
     "zone_id": 54,
     "expansion": "Endwalker",
@@ -65643,6 +66448,49 @@
         "best": 94
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 90,
+      "median": 77,
+      "kills": 12,
+      "job": "Astrologian"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 93,
+      "median": 71,
+      "kills": 13,
+      "job": "Astrologian"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 84,
+      "median": 67,
+      "kills": 14,
+      "job": "Astrologian"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 88,
+      "median": 63,
+      "kills": 14,
+      "job": "Astrologian"
      }
     ]
    },
@@ -67354,6 +68202,40 @@
         "best": 37
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 64,
+      "median": 24,
+      "kills": 10,
+      "job": "Dancer"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 57,
+      "median": 20,
+      "kills": 10,
+      "job": "Dancer"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 22,
+      "median": 16,
+      "kills": 7,
+      "job": "Dancer"
      }
     ]
    }
@@ -70162,6 +71044,49 @@
     ]
    },
    {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 84,
+      "median": 74,
+      "kills": 15,
+      "job": "Dancer"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 80,
+      "median": 70,
+      "kills": 15,
+      "job": "Dancer"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 88,
+      "median": 68,
+      "kills": 14,
+      "job": "Dancer"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 80,
+      "median": 63,
+      "kills": 12,
+      "job": "Dancer"
+     }
+    ]
+   },
+   {
     "zone": "Anabaseios",
     "zone_id": 54,
     "expansion": "Endwalker",
@@ -70868,6 +71793,49 @@
       "best": 40,
       "median": 40,
       "kills": 1,
+      "job": "Dragoon"
+     }
+    ]
+   },
+   {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 91,
+      "median": 74,
+      "kills": 11,
+      "job": "Dragoon"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 92,
+      "median": 68,
+      "kills": 12,
+      "job": "Dragoon"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 84,
+      "median": 61,
+      "kills": 11,
+      "job": "Dragoon"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 86,
+      "median": 55,
+      "kills": 12,
       "job": "Dragoon"
      }
     ]
@@ -74669,7 +75637,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 95,
-    "kills": 32,
+    "kills": 35,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -74738,7 +75706,7 @@
     "encounter_id": 1081,
     "name": "Necron",
     "best": 70,
-    "kills": 14,
+    "kills": 15,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -74825,7 +75793,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 93,
-    "kills": 34,
+    "kills": 36,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -74986,7 +75954,7 @@
       "best": 70
      },
      "Astrologian": {
-      "kills": 36,
+      "kills": 38,
       "best": 75
      },
      "Scholar": {
@@ -78401,6 +79369,49 @@
       }
      }
     ]
+   },
+   {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 54,
+      "median": 25,
+      "kills": 5,
+      "job": "Ninja"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 72,
+      "median": 51,
+      "kills": 5,
+      "job": "Ninja"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 38,
+      "median": 15,
+      "kills": 9,
+      "job": "Ninja"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 77,
+      "median": 34,
+      "kills": 8,
+      "job": "Ninja"
+     }
+    ]
    }
   ],
   "_status": "ok"
@@ -79495,6 +80506,49 @@
         "best": 54
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 95,
+      "median": 61,
+      "kills": 14,
+      "job": "Samurai"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 89,
+      "median": 58,
+      "kills": 11,
+      "job": "Samurai"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 92,
+      "median": 50,
+      "kills": 14,
+      "job": "Samurai"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 86,
+      "median": 55,
+      "kills": 11,
+      "job": "Samurai"
      }
     ]
    },
@@ -81503,7 +82557,7 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 60,
+    "pulls": 18,
     "last": "2026-10-17",
     "last_ts": 1792238840
    }
@@ -81974,6 +83028,7 @@
     "encounters": [
      {
       "label": "M1S",
+      "encounter_id": 93,
       "name": "Black Cat",
       "best": 23,
       "median": 6,
@@ -81982,6 +83037,7 @@
      },
      {
       "label": "M2S",
+      "encounter_id": 94,
       "name": "Honey B. Lovely",
       "best": 20,
       "median": 4,
@@ -81990,6 +83046,7 @@
      },
      {
       "label": "M3S",
+      "encounter_id": 95,
       "name": "Brute Bomber",
       "best": 6,
       "median": 1,
@@ -81998,6 +83055,7 @@
      },
      {
       "label": "M4S",
+      "encounter_id": 96,
       "name": "Wicked Thunder",
       "best": 4,
       "median": 2,

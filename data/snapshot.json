@@ -940,6 +940,7 @@
   "tiers": {},
   "jobs": {
    "Dragoon": "expert",
+   "Reaper": "master",
    "RedMage": "master",
    "Bard": "master"
   },
@@ -1115,7 +1116,7 @@
    "Samurai": "expert",
    "WhiteMage": "expert",
    "Dancer": "expert",
-   "Paladin": "expert",
+   "Paladin": "master",
    "Warrior": "expert"
   },
   "ex": [
@@ -1361,7 +1362,7 @@
   "jobs": {
    "RedMage": "legendary",
    "Warrior": "master",
-   "Pictomancer": "expert",
+   "Pictomancer": "legendary",
    "Reaper": "legendary"
   },
   "ex": [
@@ -1588,7 +1589,7 @@
  },
  "36248712": {
   "name": "Boom Astraea",
-  "parse": 80,
+  "parse": 94,
   "ult": 4,
   "mounts": 74,
   "minions": 121,
@@ -1620,7 +1621,8 @@
   "tiers": {},
   "jobs": {
    "Machinist": "expert",
-   "Sage": "expert"
+   "Sage": "expert",
+   "WhiteMage": "master"
   },
   "ex": [
    "Valigarmanda",
@@ -1632,7 +1634,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-18"
+  "chg": "2026-10-22"
  },
  "26699926": {
   "name": "Boonies Princess",
@@ -1905,7 +1907,7 @@
   "jobs": {
    "Viper": "master",
    "Warrior": "master",
-   "Gunbreaker": "expert",
+   "Gunbreaker": "master",
    "Reaper": "master",
    "Paladin": "master",
    "DarkKnight": "master"
@@ -2007,7 +2009,7 @@
   },
   "jobs": {
    "Monk": "legendary",
-   "Samurai": "master",
+   "Samurai": "legendary",
    "Warrior": "expert"
   },
   "ex": [
@@ -2030,7 +2032,7 @@
  },
  "39199441": {
   "name": "Dodoco Chocodoco",
-  "parse": 91,
+  "parse": 92,
   "ult": 3,
   "mounts": 162,
   "minions": 239,
@@ -2122,7 +2124,7 @@
    "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-08"
+  "chg": "2026-10-22"
  },
  "47540663": {
   "name": "Edel Meither",
@@ -2215,7 +2217,7 @@
   "mounts": 174,
   "minions": 271,
   "rare": null,
-  "level": 60,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2246,7 +2248,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-19"
+  "chg": "2026-10-22"
  },
  "12478532": {
   "name": "Hakuryu Flare",
@@ -2267,7 +2269,7 @@
   "tiers": {},
   "jobs": {
    "Viper": "master",
-   "Monk": "master",
+   "Monk": "legendary",
    "Samurai": "master",
    "Reaper": "expert",
    "Summoner": "expert"
@@ -2520,7 +2522,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 100,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -2547,7 +2549,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-10-19"
+  "chg": "2026-10-22"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -2795,9 +2797,9 @@
    "Scholar": "expert",
    "Astrologian": "master",
    "WhiteMage": "master",
-   "Summoner": "expert",
+   "Summoner": "master",
    "RedMage": "master",
-   "Pictomancer": "master"
+   "Pictomancer": "legendary"
   },
   "ex": [
    "Doomtrain",
@@ -4339,7 +4341,7 @@
   "mounts": 265,
   "minions": 338,
   "rare": 535,
-  "level": 50,
+  "level": 100,
   "cc": null,
   "rare_ids": [
    847,
@@ -5419,7 +5421,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6880,7 +6882,7 @@
   "mounts": 57,
   "minions": 111,
   "rare": 2,
-  "level": 91,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8366,7 +8368,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 92,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -8942,7 +8944,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 57,
+  "level": 68,
   "cc": [
    false,
    false,

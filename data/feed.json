@@ -2,6 +2,111 @@
  "events": [
   {
    "date": "2026-10-22",
+   "type": "job_up",
+   "id": 22767255,
+   "name": "Minami Taira",
+   "text": "is now a Master Reaper"
+  },
+  {
+   "date": "2026-10-22",
+   "type": "job_up",
+   "id": 29511615,
+   "name": "Whitefang Dimmoon",
+   "text": "is now a Master Paladin"
+  },
+  {
+   "date": "2026-10-22",
+   "type": "job_up",
+   "id": 13533056,
+   "name": "Akemi Rei",
+   "text": "is now a Legendary Pictomancer"
+  },
+  {
+   "date": "2026-10-22",
+   "type": "parse_up",
+   "id": 36248712,
+   "name": "Boom Astraea",
+   "text": "set a new best parse: 94 on Black Cat as Whit\u0001 \u0002age"
+  },
+  {
+   "date": "2026-10-22",
+   "type": "job_up",
+   "id": 36248712,
+   "name": "Boom Astraea",
+   "text": "is now a Master White Mage"
+  },
+  {
+   "date": "2026-10-22",
+   "type": "job_up",
+   "id": 28579232,
+   "name": "Dessiny Valkyrie",
+   "text": "is now a Master Gunbreaker"
+  },
+  {
+   "date": "2026-10-22",
+   "type": "job_up",
+   "id": 47221226,
+   "name": "Destiny Marjory",
+   "text": "is now a Legendary Samurai"
+  },
+  {
+   "date": "2026-10-22",
+   "type": "parse_up",
+   "id": 39199441,
+   "name": "Dodoco Chocodoco",
+   "text": "set a new best parse: 92 on Honey B. Lovely as Dragoon"
+  },
+  {
+   "date": "2026-10-22",
+   "type": "level_100",
+   "id": 28120733,
+   "name": "Fukurou Under",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
+   "date": "2026-10-22",
+   "type": "job_up",
+   "id": 12478532,
+   "name": "Hakuryu Flare",
+   "text": "is now a Legendary Monk"
+  },
+  {
+   "date": "2026-10-22",
+   "type": "job_up",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "is now a Master Summoner"
+  },
+  {
+   "date": "2026-10-22",
+   "type": "job_up",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "is now a Legendary Pictomancer"
+  },
+  {
+   "date": "2026-10-22",
+   "type": "level_100",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-10-22",
+   "type": "level_100",
+   "id": 8286372,
+   "name": "Aloha Banana",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-10-22",
+   "type": "level_100",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-10-22",
    "type": "rare_up",
    "id": 15308846,
    "name": "Aqua Eleison",
@@ -1294,111 +1399,6 @@
    "id": 34509521,
    "name": "Liliya Quintilis",
    "text": "earned Fit for a Queen: Blade's Providence"
-  },
-  {
-   "date": "2026-10-09",
-   "type": "rare_up",
-   "id": 44133352,
-   "name": "Seville Beoulve",
-   "text": "earned I Made That: Alchemist V — only 3.0% of players have it"
-  },
-  {
-   "date": "2026-10-09",
-   "type": "rare_up",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "earned Guardiansbane"
-  },
-  {
-   "date": "2026-10-09",
-   "type": "level_100",
-   "id": 60972300,
-   "name": "Mizuki Sekine",
-   "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-10-08",
-   "type": "parse_up",
-   "id": 31902843,
-   "name": "Lapista Scholares",
-   "text": "set a new best parse: 100 on Honey B. Lovely as Warrior"
-  },
-  {
-   "date": "2026-10-08",
-   "type": "level_100",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "reached level 100 on Monk!"
-  },
-  {
-   "date": "2026-10-08",
-   "type": "level_100",
-   "id": 57375278,
-   "name": "Komi Kona",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-10-08",
-   "type": "level_100",
-   "id": 46243891,
-   "name": "Marin Elysium",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-10-08",
-   "type": "rare_up",
-   "id": 58199536,
-   "name": "Areeya Lovekin",
-   "text": "earned Phantom of the Umbra: Crook Umbrae"
-  },
-  {
-   "date": "2026-10-08",
-   "type": "rare_up",
-   "id": 44970350,
-   "name": "Allen Crist",
-   "text": "earned Rocket Carpentry I — only 4.1% of players have it"
-  },
-  {
-   "date": "2026-10-08",
-   "type": "grade_up",
-   "id": 37056222,
-   "name": "Lucine Nokomis",
-   "text": "is now a Legendary Relic grinder ✨"
-  },
-  {
-   "date": "2026-10-08",
-   "type": "rare_up",
-   "id": 37056222,
-   "name": "Lucine Nokomis",
-   "text": "earned Cut Above the Rest: Round Brush Occultum — only 1.8% of players have it, and 4 more"
-  },
-  {
-   "date": "2026-10-08",
-   "type": "level_100",
-   "id": 43864764,
-   "name": "Shinonome Kamemaru",
-   "text": "reached level 100 on Dancer!"
-  },
-  {
-   "date": "2026-10-08",
-   "type": "job_up",
-   "id": 22425670,
-   "name": "Shizuna-pan Misurugi",
-   "text": "is now a Master Viper"
-  },
-  {
-   "date": "2026-10-08",
-   "type": "rare_up",
-   "id": 38488824,
-   "name": "Daffodil Amary",
-   "text": "earned Quick to Judge: Law's Order Index"
-  },
-  {
-   "date": "2026-10-08",
-   "type": "rare_up",
-   "id": 46243891,
-   "name": "Marin Elysium",
-   "text": "earned Legends Never Die II — only 0.5% of players have it, and 1 more"
   }
  ]
 }
