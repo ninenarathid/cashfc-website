@@ -74678,8 +74678,8 @@
       "best": 95
      },
      "Warrior": {
-      "kills": 9,
-      "best": 66
+      "kills": 11,
+      "best": 73
      },
      "Gunbreaker": {
       "kills": 7,
@@ -74753,6 +74753,10 @@
      "Paladin": {
       "kills": 7,
       "best": 70
+     },
+     "Warrior": {
+      "kills": 1,
+      "best": 46
      },
      "DarkKnight": {
       "kills": 1,
@@ -74858,8 +74862,8 @@
       "best": 88
      },
      "Warrior": {
-      "kills": 2,
-      "best": 68
+      "kills": 4,
+      "best": 87
      },
      "BlackMage": {
       "kills": 1,
@@ -93099,5 +93103,99 @@
     "last_ts": 1792215436
    }
   ]
+ },
+ "49053650": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "encounter_id": 101,
+     "name": "Vamp Fatale",
+     "best": 39,
+     "median": 28,
+     "kills": 2,
+     "job": "Sage"
+    },
+    {
+     "label": "M10S",
+     "encounter_id": 102,
+     "name": "Red Hot and Deep Blue",
+     "best": 20,
+     "median": 14,
+     "kills": 2,
+     "job": "WhiteMage"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1084,
+    "name": "Enuo",
+    "best": 32,
+    "kills": 7,
+    "job": "Sage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1080,
+    "name": "Zelenia",
+    "best": 66,
+    "kills": 29,
+    "job": "Sage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1078,
+    "name": "Queen Eternal",
+    "best": 32,
+    "kills": 26,
+    "job": "WhiteMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1071,
+    "name": "Valigarmanda",
+    "best": 55,
+    "kills": 28,
+    "job": "Sage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1072,
+    "name": "Zoraal Ja",
+    "best": 45,
+    "kills": 41,
+    "job": "Sage",
+    "cleared": true
+   }
+  ],
+  "legacy": [],
+  "_status": "ok"
  }
 }
