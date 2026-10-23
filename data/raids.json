@@ -82908,7 +82908,13 @@
     "best": 31,
     "kills": 3,
     "job": "Reaper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Reaper": {
+      "kills": 3,
+      "best": 31
+     }
+    }
    }
   ],
   "legacy": [],

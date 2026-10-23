@@ -2217,7 +2217,7 @@
   "mounts": 174,
   "minions": 271,
   "rare": null,
-  "level": 64,
+  "level": 66,
   "cc": [
    true,
    true,
@@ -2248,7 +2248,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-22"
+  "chg": "2026-10-23"
  },
  "12478532": {
   "name": "Hakuryu Flare",
@@ -2522,7 +2522,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 91,
+  "level": 83,
   "cc": [
    false,
    false,
@@ -2549,7 +2549,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-10-22"
+  "chg": "2026-10-23"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -8755,7 +8755,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 82,
+  "level": 89,
   "cc": [
    false,
    false,
@@ -8773,7 +8773,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-22"
+  "chg": "2026-10-23"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
