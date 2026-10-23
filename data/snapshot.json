@@ -2217,7 +2217,7 @@
   "mounts": 174,
   "minions": 271,
   "rare": null,
-  "level": 69,
+  "level": 70,
   "cc": [
    true,
    true,
@@ -2522,7 +2522,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 86,
+  "level": 89,
   "cc": [
    false,
    false,
@@ -2648,7 +2648,7 @@
    "Warrior": "master",
    "Dancer": "master",
    "BlackMage": "expert",
-   "Gunbreaker": "master",
+   "Gunbreaker": "expert",
    "Bard": "expert",
    "Summoner": "expert"
   },
@@ -8755,7 +8755,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 100,
+  "level": 96,
   "cc": [
    false,
    false,
