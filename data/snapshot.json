@@ -2296,7 +2296,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 80,
+  "level": 81,
   "cc": [
    true,
    true,
@@ -2465,7 +2465,7 @@
   "jobs": {
    "Paladin": "legendary",
    "Gunbreaker": "master",
-   "Warrior": "expert"
+   "Warrior": "master"
   },
   "ex": [
    "Doomtrain",
@@ -2522,7 +2522,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 85,
+  "level": 86,
   "cc": [
    false,
    false,

@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-10-23",
+   "type": "job_up",
+   "id": 42021700,
+   "name": "Josuke Mizumoto",
+   "text": "is now a Master Warrior"
+  },
+  {
+   "date": "2026-10-23",
    "type": "level_100",
    "id": 60429500,
    "name": "Jin Theape",
@@ -1392,13 +1399,6 @@
    "id": 30667251,
    "name": "Roxas Akatsuki",
    "text": "reached level 100 on Warrior!"
-  },
-  {
-   "date": "2026-10-10",
-   "type": "level_100",
-   "id": 58202955,
-   "name": "Trevas Aka",
-   "text": "reached level 100 on Astrologian!"
   }
  ]
 }
