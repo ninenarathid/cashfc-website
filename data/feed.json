@@ -3,6 +3,13 @@
   {
    "date": "2026-10-23",
    "type": "level_100",
+   "id": 60429500,
+   "name": "Jin Theape",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-10-23",
+   "type": "level_100",
    "id": 8836061,
    "name": "Allusia Heartfilia",
    "text": "reached level 100 on Gunbreaker!"
@@ -1392,13 +1399,6 @@
    "id": 58202955,
    "name": "Trevas Aka",
    "text": "reached level 100 on Astrologian!"
-  },
-  {
-   "date": "2026-10-10",
-   "type": "rare_up",
-   "id": 38488824,
-   "name": "Daffodil Amary",
-   "text": "earned Phantom of the Umbra: Crook Umbrae"
   }
  ]
 }

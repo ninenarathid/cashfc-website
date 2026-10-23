@@ -6,7 +6,7 @@
   "mounts": 61,
   "minions": 227,
   "rare": null,
-  "level": 30,
+  "level": 70,
   "cc": [
    false,
    false,
@@ -2217,7 +2217,7 @@
   "mounts": 174,
   "minions": 271,
   "rare": null,
-  "level": 66,
+  "level": 69,
   "cc": [
    true,
    true,
@@ -2296,7 +2296,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 76,
+  "level": 80,
   "cc": [
    true,
    true,
@@ -6882,7 +6882,7 @@
   "mounts": 57,
   "minions": 111,
   "rare": 2,
-  "level": 100,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -6903,7 +6903,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-22"
+  "chg": "2026-10-23"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -7558,7 +7558,7 @@
   "mounts": 178,
   "minions": 410,
   "rare": null,
-  "level": 100,
+  "level": 36,
   "cc": [
    false,
    false,
@@ -7571,7 +7571,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-12"
+  "chg": "2026-10-23"
  },
  "31831003": {
   "name": "North Nostafari",
@@ -7899,7 +7899,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 95,
+  "level": 96,
   "cc": [
    false,
    false,
@@ -7944,7 +7944,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-22"
+  "chg": "2026-10-23"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -8370,7 +8370,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 93,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -8383,7 +8383,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-22"
+  "chg": "2026-10-23"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -8755,7 +8755,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 94,
+  "level": 100,
   "cc": [
    false,
    false,
