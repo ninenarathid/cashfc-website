@@ -6,7 +6,7 @@
   "mounts": 61,
   "minions": 227,
   "rare": null,
-  "level": 54,
+  "level": 30,
   "cc": [
    false,
    false,
@@ -26,7 +26,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-22"
+  "chg": "2026-10-23"
  },
  "15308846": {
   "name": "Aqua Eleison",
@@ -2296,7 +2296,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 75,
+  "level": 76,
   "cc": [
    true,
    true,
@@ -2343,7 +2343,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-22"
+  "chg": "2026-10-23"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -2522,7 +2522,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 83,
+  "level": 85,
   "cc": [
    false,
    false,
@@ -5290,7 +5290,7 @@
   "mounts": 128,
   "minions": 320,
   "rare": 115,
-  "level": 99,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5412,7 +5412,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-28"
+  "chg": "2026-10-23"
  },
  "8286372": {
   "name": "Aloha Banana",
@@ -5674,7 +5674,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 100,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -5796,7 +5796,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-10-19"
+  "chg": "2026-10-23"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -7225,6 +7225,7 @@
    3758,
    3762,
    3770,
+   3771,
    3778,
    3784,
    3817,
@@ -7291,7 +7292,6 @@
    4014,
    4017,
    4018,
-   4026,
    4027,
    4031,
    4034,
@@ -7326,7 +7326,7 @@
   "mounts": 70,
   "minions": 104,
   "rare": 57,
-  "level": 74,
+  "level": 61,
   "cc": [
    false,
    false,
@@ -7403,7 +7403,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-22"
+  "chg": "2026-10-23"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -8755,7 +8755,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 89,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -8946,7 +8946,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 68,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -8962,7 +8962,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-22"
+  "chg": "2026-10-23"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
