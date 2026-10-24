@@ -18661,12 +18661,12 @@
     "zone": "The Weapon's Refrain",
     "zone_id": 23,
     "expansion": "Stormblood",
+    "encounter_id": 1042,
     "name": "The Weapon's Refrain",
     "best": 97,
     "kills": 17,
     "job": "Scholar",
     "cleared": true,
-    "encounter_id": 1042,
     "job_kills": {
      "Scholar": {
       "kills": 17,
