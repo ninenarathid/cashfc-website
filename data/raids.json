@@ -96042,6 +96042,28 @@
     "cleared": true
    },
    {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1084,
+    "name": "Enuo",
+    "best": 5,
+    "kills": 2,
+    "job": "Reaper",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1080,
+    "name": "Zelenia",
+    "best": 26,
+    "kills": 1,
+    "job": "Reaper",
+    "cleared": true
+   },
+   {
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
@@ -96158,6 +96180,17 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 6,
+    "kills": 1,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1080,
+    "name": "Zelenia",
+    "best": 19,
     "kills": 1,
     "job": "Samurai",
     "cleared": true

@@ -2,6 +2,34 @@
  "events": [
   {
    "date": "2026-10-24",
+   "type": "ex_clear",
+   "id": 34874723,
+   "name": "Allen Fliegen",
+   "text": "cleared Zelenia (Extreme)"
+  },
+  {
+   "date": "2026-10-24",
+   "type": "level_100",
+   "id": 60429500,
+   "name": "Jin Theape",
+   "text": "reached level 100 on Sage!"
+  },
+  {
+   "date": "2026-10-24",
+   "type": "ex_clear",
+   "id": 57519259,
+   "name": "Kertia Cruz",
+   "text": "cleared Enuo (Extreme)"
+  },
+  {
+   "date": "2026-10-24",
+   "type": "ex_clear",
+   "id": 57519259,
+   "name": "Kertia Cruz",
+   "text": "cleared Zelenia (Extreme)"
+  },
+  {
+   "date": "2026-10-24",
    "type": "rare_up",
    "id": 29152036,
    "name": "Fluffy Tinytail",
@@ -1371,34 +1399,6 @@
    "id": 36248712,
    "name": "Boom Astraea",
    "text": "reached level 100 on Sage!"
-  },
-  {
-   "date": "2026-10-11",
-   "type": "parse_up",
-   "id": 36130968,
-   "name": "Chu Celestial",
-   "text": "set a new best parse: 89 on Doomtrain as Re\u0001 \u0002age"
-  },
-  {
-   "date": "2026-10-11",
-   "type": "parse_up",
-   "id": 58202955,
-   "name": "Trevas Aka",
-   "text": "set a new best parse: 34 on Zoraal Ja as Astrologian"
-  },
-  {
-   "date": "2026-10-11",
-   "type": "ex_clear",
-   "id": 58202955,
-   "name": "Trevas Aka",
-   "text": "cleared Zoraal Ja (Extreme)"
-  },
-  {
-   "date": "2026-10-11",
-   "type": "level_100",
-   "id": 47218599,
-   "name": "Kawa Lynn",
-   "text": "reached level 100 on Gunbreaker!"
   }
  ]
 }
