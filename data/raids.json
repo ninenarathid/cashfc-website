@@ -1091,12 +1091,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1047,
     "name": "The Unending Coil of Bahamut",
     "best": 85,
     "kills": 15,
     "job": "Gunbreaker",
     "cleared": true,
-    "encounter_id": 1047,
     "job_kills": {
      "Gunbreaker": {
       "kills": 15,
@@ -7950,12 +7950,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 87,
     "kills": 4,
     "job": "Astrologian",
     "cleared": true,
-    "encounter_id": 1048,
     "job_kills": {
      "Astrologian": {
       "kills": 4,

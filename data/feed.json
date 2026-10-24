@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-10-24",
+   "type": "level_100",
+   "id": 36248712,
+   "name": "Boom Astraea",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
+   "date": "2026-10-24",
    "type": "ex_clear",
    "id": 34874723,
    "name": "Allen Fliegen",
@@ -1392,13 +1399,6 @@
    "id": 60211788,
    "name": "Shikihara Catlover",
    "text": "cleared Zoraal Ja (Extreme)"
-  },
-  {
-   "date": "2026-10-11",
-   "type": "level_100",
-   "id": 36248712,
-   "name": "Boom Astraea",
-   "text": "reached level 100 on Sage!"
   }
  ]
 }
