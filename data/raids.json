@@ -87942,11 +87942,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 45.86,
+    "pct": 39.61,
     "phase": 4,
-    "pulls": 10,
-    "last": "2026-10-16",
-    "last_ts": 1792162908
+    "pulls": 26,
+    "last": "2026-10-21",
+    "last_ts": 1792594328
    }
   ]
  },
@@ -92623,7 +92623,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 82,
-    "kills": 11,
+    "kills": 12,
     "job": "Ninja",
     "cleared": true,
     "job_kills": {
