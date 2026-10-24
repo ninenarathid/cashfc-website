@@ -6,7 +6,7 @@
   "mounts": 61,
   "minions": 227,
   "rare": null,
-  "level": 70,
+  "level": 55,
   "cc": [
    false,
    false,
@@ -23,10 +23,11 @@
    "Necron",
    "Queen Eternal",
    "Valigarmanda",
+   "Zelenia",
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-23"
+  "chg": "2026-10-24"
  },
  "15308846": {
   "name": "Aqua Eleison",
@@ -2217,7 +2218,7 @@
   "mounts": 174,
   "minions": 271,
   "rare": null,
-  "level": 70,
+  "level": 72,
   "cc": [
    true,
    true,
@@ -2248,7 +2249,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-23"
+  "chg": "2026-10-24"
  },
  "12478532": {
   "name": "Hakuryu Flare",
@@ -2296,7 +2297,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 81,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2343,7 +2344,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-23"
+  "chg": "2026-10-24"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -2522,7 +2523,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 89,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -2549,7 +2550,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-10-23"
+  "chg": "2026-10-24"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -6882,7 +6883,7 @@
   "mounts": 57,
   "minions": 111,
   "rare": 2,
-  "level": 94,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6903,7 +6904,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-23"
+  "chg": "2026-10-24"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -8755,7 +8756,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 96,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8773,7 +8774,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-23"
+  "chg": "2026-10-24"
  },
  "60475540": {
   "name": "Joaline Auchefornei",

@@ -1373,7 +1373,7 @@
    "world": "Typhon",
    "dc": "Elemental",
    "fc": null,
-   "seen": "2026-10-17",
+   "seen": "2026-10-24",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -1448,7 +1448,7 @@
    "world": "Typhon",
    "dc": "Elemental",
    "fc": "YORDLE",
-   "seen": "2026-10-17",
+   "seen": "2026-10-24",
    "mounts": 110,
    "minions": 234,
    "rare_achv": 166,
@@ -1529,7 +1529,7 @@
    "world": "Typhon",
    "dc": "Elemental",
    "fc": "YORDLE",
-   "seen": "2026-10-17",
+   "seen": "2026-10-24",
    "mounts": 123,
    "minions": 323,
    "rare_achv": 95,
@@ -1893,6 +1893,6 @@
    "stats_seen": "2026-10-24"
   }
  },
- "generated_at": "2026-10-23T23:24:04Z",
+ "generated_at": "2026-10-24T04:58:05Z",
  "count": 15
 }

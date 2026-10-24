@@ -4280,12 +4280,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 63,
     "kills": 17,
     "job": "Summoner",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Summoner": {
       "kills": 17,
@@ -15194,7 +15194,17 @@
       "best": 100,
       "median": 94,
       "kills": 9,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 8,
+        "best": 100
+       },
+       "Warrior": {
+        "kills": 1,
+        "best": 74
+       }
+      }
      },
      {
       "label": "P10S",
@@ -15203,7 +15213,17 @@
       "best": 100,
       "median": 96,
       "kills": 9,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 8,
+        "best": 100
+       },
+       "Warrior": {
+        "kills": 1,
+        "best": 96
+       }
+      }
      },
      {
       "label": "P11S",
@@ -15212,7 +15232,21 @@
       "best": 99,
       "median": 89,
       "kills": 9,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Warrior": {
+        "kills": 1,
+        "best": 96
+       },
+       "Paladin": {
+        "kills": 7,
+        "best": 99
+       },
+       "DarkKnight": {
+        "kills": 1,
+        "best": 80
+       }
+      }
      },
      {
       "label": "P12S",
@@ -15221,7 +15255,13 @@
       "best": 97,
       "median": 83,
       "kills": 16,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 16,
+        "best": 97
+       }
+      }
      },
      {
       "label": null,
@@ -15230,7 +15270,13 @@
       "best": 90,
       "median": 81,
       "kills": 8,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 8,
+        "best": 90
+       }
+      }
      }
     ]
    },
@@ -25036,6 +25082,17 @@
       "best": 5
      }
     }
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1080,
+    "name": "Zelenia",
+    "best": 2,
+    "kills": 1,
+    "job": "Sage",
+    "cleared": true
    },
    {
     "zone": "Trials I (Extreme)",
@@ -36088,7 +36145,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 99,
-    "kills": 81,
+    "kills": 83,
     "job": "Dancer",
     "cleared": true,
     "job_kills": {
@@ -41588,7 +41645,13 @@
       "best": 28,
       "median": 19,
       "kills": 2,
-      "job": "RedMage"
+      "job": "RedMage",
+      "job_kills": {
+       "RedMage": {
+        "kills": 2,
+        "best": 28
+       }
+      }
      }
     ]
    },
@@ -47829,7 +47892,17 @@
       "best": 75,
       "median": 35,
       "kills": 12,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 11,
+        "best": 75
+       },
+       "Bard": {
+        "kills": 1,
+        "best": 44
+       }
+      }
      },
      {
       "label": "P10S",
@@ -47838,7 +47911,13 @@
       "best": 70,
       "median": 31,
       "kills": 10,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 10,
+        "best": 70
+       }
+      }
      },
      {
       "label": "P11S",
@@ -47847,7 +47926,13 @@
       "best": 80,
       "median": 35,
       "kills": 7,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 7,
+        "best": 80
+       }
+      }
      },
      {
       "label": "P12S",
@@ -48558,7 +48643,13 @@
       "best": 3,
       "median": 3,
       "kills": 2,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 2,
+        "best": 3
+       }
+      }
      }
     ]
    },
@@ -61099,7 +61190,13 @@
       "best": 60,
       "median": 46,
       "kills": 13,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Sage": {
+        "kills": 13,
+        "best": 60
+       }
+      }
      },
      {
       "label": "P10S",
@@ -61108,7 +61205,13 @@
       "best": 56,
       "median": 31,
       "kills": 10,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Sage": {
+        "kills": 10,
+        "best": 56
+       }
+      }
      },
      {
       "label": "P11S",
@@ -61117,7 +61220,13 @@
       "best": 55,
       "median": 31,
       "kills": 8,
-      "job": "Sage"
+      "job": "Sage",
+      "job_kills": {
+       "Sage": {
+        "kills": 8,
+        "best": 55
+       }
+      }
      },
      {
       "label": "P12S",
@@ -66625,7 +66734,7 @@
     "encounter_id": 1080,
     "name": "Zelenia",
     "best": 55,
-    "kills": 8,
+    "kills": 9,
     "job": "Samurai",
     "cleared": true,
     "job_kills": {
@@ -66669,20 +66778,7 @@
    }
   ],
   "legacy": [],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 103,
-    "name": "The Tyrant",
-    "kind": "savage",
-    "state": "cleared",
-    "pct": null,
-    "phase": 0,
-    "pulls": 26,
-    "last": "2026-10-17",
-    "last_ts": 1792222100
-   }
-  ]
+  "_status": "ok"
  },
  "36225854": {
   "current": {
@@ -68672,7 +68768,13 @@
       "best": 86,
       "median": 57,
       "kills": 6,
-      "job": "DarkKnight"
+      "job": "DarkKnight",
+      "job_kills": {
+       "DarkKnight": {
+        "kills": 6,
+        "best": 86
+       }
+      }
      },
      {
       "label": "P10S",
@@ -68681,7 +68783,13 @@
       "best": 70,
       "median": 51,
       "kills": 8,
-      "job": "DarkKnight"
+      "job": "DarkKnight",
+      "job_kills": {
+       "DarkKnight": {
+        "kills": 8,
+        "best": 70
+       }
+      }
      },
      {
       "label": "P11S",
@@ -68690,7 +68798,13 @@
       "best": 68,
       "median": 51,
       "kills": 8,
-      "job": "DarkKnight"
+      "job": "DarkKnight",
+      "job_kills": {
+       "DarkKnight": {
+        "kills": 8,
+        "best": 68
+       }
+      }
      },
      {
       "label": "P12S",
@@ -68699,7 +68813,13 @@
       "best": 91,
       "median": 66,
       "kills": 9,
-      "job": "DarkKnight"
+      "job": "DarkKnight",
+      "job_kills": {
+       "DarkKnight": {
+        "kills": 9,
+        "best": 91
+       }
+      }
      },
      {
       "label": null,
@@ -68708,7 +68828,13 @@
       "best": 96,
       "median": 67,
       "kills": 6,
-      "job": "DarkKnight"
+      "job": "DarkKnight",
+      "job_kills": {
+       "DarkKnight": {
+        "kills": 6,
+        "best": 96
+       }
+      }
      }
     ]
    },
@@ -71824,7 +71950,7 @@
     "cleared": true,
     "job_kills": {
      "Machinist": {
-      "kills": 2,
+      "kills": 4,
       "best": 27
      }
     }
@@ -74611,7 +74737,21 @@
       "best": 82,
       "median": 57,
       "kills": 29,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 25,
+        "best": 82
+       },
+       "Paladin": {
+        "kills": 1,
+        "best": 20
+       },
+       "WhiteMage": {
+        "kills": 3,
+        "best": 15
+       }
+      }
      },
      {
       "label": "P10S",
@@ -74620,7 +74760,17 @@
       "best": 74,
       "median": 52,
       "kills": 20,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 19,
+        "best": 74
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 13
+       }
+      }
      },
      {
       "label": "P11S",
@@ -74629,7 +74779,13 @@
       "best": 77,
       "median": 44,
       "kills": 20,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 20,
+        "best": 77
+       }
+      }
      },
      {
       "label": "P12S",
@@ -74638,7 +74794,13 @@
       "best": 26,
       "median": 22,
       "kills": 2,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 2,
+        "best": 26
+       }
+      }
      }
     ]
    },
@@ -76353,7 +76515,13 @@
       "best": 57,
       "median": 30,
       "kills": 11,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 11,
+        "best": 57
+       }
+      }
      },
      {
       "label": "P10S",
@@ -76362,7 +76530,13 @@
       "best": 36,
       "median": 27,
       "kills": 6,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 6,
+        "best": 36
+       }
+      }
      },
      {
       "label": "P11S",
@@ -76371,7 +76545,17 @@
       "best": 42,
       "median": 32,
       "kills": 8,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 6,
+        "best": 42
+       },
+       "Monk": {
+        "kills": 2,
+        "best": 17
+       }
+      }
      },
      {
       "label": "P12S",
@@ -76380,7 +76564,17 @@
       "best": 25,
       "median": 6,
       "kills": 10,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 9,
+        "best": 25
+       },
+       "Monk": {
+        "kills": 1,
+        "best": 3
+       }
+      }
      }
     ]
    },
@@ -77276,7 +77470,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 92,
-    "kills": 29,
+    "kills": 33,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -77349,7 +77543,7 @@
     "encounter_id": 1080,
     "name": "Zelenia",
     "best": 76,
-    "kills": 9,
+    "kills": 10,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -77407,7 +77601,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 93,
-    "kills": 36,
+    "kills": 38,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -77663,7 +77857,7 @@
       "best": 28
      },
      "Astrologian": {
-      "kills": 13,
+      "kills": 14,
       "best": 65
      },
      "WhiteMage": {
@@ -84142,7 +84336,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 22,
-    "kills": 3,
+    "kills": 5,
     "job": "Machinist",
     "cleared": true,
     "job_kills": {
@@ -84226,20 +84420,7 @@
    }
   ],
   "legacy": [],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 103,
-    "name": "The Tyrant",
-    "kind": "savage",
-    "state": "cleared",
-    "pct": null,
-    "phase": 0,
-    "pulls": 18,
-    "last": "2026-10-17",
-    "last_ts": 1792238840
-   }
-  ]
+  "_status": "ok"
  },
  "51044792": {
   "current": {
@@ -86549,8 +86730,12 @@
     "cleared": true,
     "job_kills": {
      "DarkKnight": {
-      "kills": 7,
-      "best": 5
+      "kills": 10,
+      "best": 7
+     },
+     "Sage": {
+      "kills": 1,
+      "best": 1
      }
     }
    },
