@@ -2,6 +2,62 @@
  "events": [
   {
    "date": "2026-10-24",
+   "type": "rare_up",
+   "id": 29152036,
+   "name": "Fluffy Tinytail",
+   "text": "earned R&D: Hypersaw"
+  },
+  {
+   "date": "2026-10-24",
+   "type": "rare_up",
+   "id": 38152072,
+   "name": "Parker Thonhart",
+   "text": "earned Cut Above the Rest: Cane Occultum — only 2.9% of players have it"
+  },
+  {
+   "date": "2026-10-24",
+   "type": "rare_up",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "earned The Outer Researches"
+  },
+  {
+   "date": "2026-10-24",
+   "type": "level_100",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-10-24",
+   "type": "ex_clear",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "cleared Enuo (Extreme)"
+  },
+  {
+   "date": "2026-10-24",
+   "type": "ex_clear",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "cleared Zelenia (Extreme)"
+  },
+  {
+   "date": "2026-10-24",
+   "type": "ex_clear",
+   "id": 60852230,
+   "name": "Lucien Rhul",
+   "text": "cleared Zelenia (Extreme)"
+  },
+  {
+   "date": "2026-10-24",
+   "type": "level_100",
+   "id": 60972300,
+   "name": "Mizuki Sekine",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
+   "date": "2026-10-24",
    "type": "ex_clear",
    "id": 24228478,
    "name": "Pyrozus Helison",
@@ -1342,62 +1398,6 @@
    "type": "level_100",
    "id": 47218599,
    "name": "Kawa Lynn",
-   "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-10-11",
-   "type": "level_100",
-   "id": 46243891,
-   "name": "Marin Elysium",
-   "text": "reached level 100 on Machinist!"
-  },
-  {
-   "date": "2026-10-11",
-   "type": "rare_up",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "earned The Customer Is Always Right: Aunt Tii's Tacos I — only 2.8% of players have it"
-  },
-  {
-   "date": "2026-10-11",
-   "type": "level_100",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "reached level 100 on Warrior!"
-  },
-  {
-   "date": "2026-10-11",
-   "type": "rare_up",
-   "id": 29152036,
-   "name": "Fluffy Tinytail",
-   "text": "earned Phantom of the Umbra: Rapier Umbrae"
-  },
-  {
-   "date": "2026-10-11",
-   "type": "rare_up",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "earned Resplendent: Brilliant Mallet"
-  },
-  {
-   "date": "2026-10-11",
-   "type": "level_100",
-   "id": 44133352,
-   "name": "Seville Beoulve",
-   "text": "reached level 100 on Red Mage!"
-  },
-  {
-   "date": "2026-10-11",
-   "type": "rare_up",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "earned Gathering in Spaaace"
-  },
-  {
-   "date": "2026-10-11",
-   "type": "level_100",
-   "id": 60972300,
-   "name": "Mizuki Sekine",
    "text": "reached level 100 on Gunbreaker!"
   }
  ]

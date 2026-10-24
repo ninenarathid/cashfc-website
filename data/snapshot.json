@@ -6,7 +6,7 @@
   "mounts": 61,
   "minions": 227,
   "rare": null,
-  "level": 55,
+  "level": 32,
   "cc": [
    false,
    false,
@@ -668,7 +668,6 @@
    3736,
    3758,
    3760,
-   3761,
    3762,
    3763,
    3765,
@@ -702,6 +701,7 @@
    3862,
    3868,
    3869,
+   3877,
    3878,
    3879,
    3880,
@@ -1052,7 +1052,6 @@
    3833,
    3834,
    3835,
-   3949,
    3951,
    3952,
    3953,
@@ -1063,6 +1062,7 @@
    3960,
    3961,
    3964,
+   3966,
    3967,
    3968,
    3969,
@@ -2297,7 +2297,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 100,
+  "level": 83,
   "cc": [
    true,
    true,
@@ -2523,7 +2523,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 93,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -3089,7 +3089,7 @@
    4074
   ],
   "tiers": {
-   "relic": "legendary",
+   "relic": "master",
    "explorer": "expert",
    "goldsaucer": "master",
    "pvp": "legendary"
@@ -4542,7 +4542,6 @@
    3868,
    3869,
    3870,
-   3878,
    3879,
    3880,
    3881,
@@ -4563,6 +4562,7 @@
    3922,
    3923,
    3924,
+   3925,
    3937,
    3938,
    3939,
@@ -5675,7 +5675,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 97,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5797,7 +5797,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-10-23"
+  "chg": "2026-10-24"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -6899,7 +6899,9 @@
   "jobs": {},
   "ex": [
    "Doomtrain",
-   "Valigarmanda"
+   "Enuo",
+   "Valigarmanda",
+   "Zelenia"
   ],
   "ults": [
    "The Weapon's Refrain"
@@ -7003,6 +7005,7 @@
    "Enuo",
    "Necron",
    "Valigarmanda",
+   "Zelenia",
    "Zoraal Ja"
   ],
   "ults": [],
@@ -8371,7 +8374,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 94,
+  "level": 96,
   "cc": [
    false,
    false,
@@ -8384,7 +8387,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-23"
+  "chg": "2026-10-24"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -8756,7 +8759,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 100,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -8947,7 +8950,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 90,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8963,7 +8966,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-23"
+  "chg": "2026-10-24"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
