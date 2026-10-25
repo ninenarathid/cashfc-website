@@ -131,7 +131,9 @@ export default function Wardrobe({ look, kit, points, had, fresh = new Set(), no
         <Choices label={th ? "เพศ" : "Body"} items={GENDERS} value={look.gender} t={t}
                  onPick={(gender) => set({ gender, hair: hairForGender(look.hair, gender, look.race) })} />
         {/* The game's character creator's own hairstyles, each race and gender its own list. */}
-        <Choices label={th ? "ทรงผม" : "Hairstyle"} items={hairsOf(look.race)} only={hairsFor(look.gender, look.race)} value={look.hair} t={t} onPick={(hair) => set({ hair })} />
+        {/* (a hairstyle sold at Granny Twilla's is locked until bought: its name hidden, where it comes from shown) */}
+        <Choices label={th ? "ทรงผม" : "Hairstyle"} items={hairsOf(look.race)} only={hairsFor(look.gender, look.race)} value={look.hair} t={t} onPick={(hair) => set({ hair })}
+                 locked={(n) => { const sold = (n as { sold?: string }).sold; return sold && !had.has(sold) ? (th ? "ร้านผ้ายายทวิลล่า" : "Granny Twilla's shop") : null; }} />
         <Swatches label={th ? "สีผม" : "Hair colour"} items={HAIR_COLORS} value={look.hairColor} t={t} onPick={(hairColor) => set({ hairColor })} />
         <Swatches label={th ? "สีผิว" : "Skin"} items={skinsOf(look.race)} value={look.skin} t={t} onPick={(skin) => set({ skin })} />
         <Choices label={th ? "ทรงตา" : "Eyes"} items={EYES} value={look.eyes} t={t} onPick={(eyes) => set({ eyes })} />
@@ -151,22 +153,33 @@ function Group({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function Choices({ label, items, only, value, onPick, t }: {
+function Choices({ label, items, only, value, onPick, t, locked }: {
   label: string; items: Named[]; value: number; onPick: (i: number) => void; t: (n: Named) => string;
   /** Only these indices of items, in this order. */
   only?: number[];
+  /** Where a choice not had yet comes from (it is shown locked), or null for one that is had. */
+  locked?: (n: Named) => string | null;
 }) {
   return (
     <Group label={label}>
       <div role="group" aria-label={label} className="flex flex-wrap gap-1.5">
-        {(only ?? items.map((_, i) => i)).map((i) => [i, items[i]] as const).map(([i, n]) => (
+        {(only ?? items.map((_, i) => i)).map((i) => [i, items[i]] as const).map(([i, n]) => {
+          const whence = locked?.(n) ?? null;
+          if (whence) return (
+            <span key={n.id} aria-label={`??? · ${whence}`}
+                  className="flex min-h-11 items-center gap-1 rounded-full border border-dashed border-line-strong px-3 py-1.5 text-meta text-muted sm:min-h-0">
+              <TownIcon name="lock" size={12} />??? · {whence}
+            </span>
+          );
+          return (
           <button key={n.id} type="button" aria-pressed={i === value} onClick={() => onPick(i)}
                   className={`pressable min-h-11 rounded-full px-3 py-1.5 text-ui transition-colors sm:min-h-0 ${i === value
                     ? "bg-accent/20 font-semibold text-accent ring-1 ring-accent/60"
                     : "border border-line-strong text-ink hover:border-accent"}`}>
             {t(n)}
           </button>
-        ))}
+          );
+        })}
       </div>
     </Group>
   );
