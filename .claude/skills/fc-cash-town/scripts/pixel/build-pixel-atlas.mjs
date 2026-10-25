@@ -833,11 +833,24 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
       // the brim: the lowest row of the hat in each of its columns, from the head's reference point
       const low = new Map();
       for (const i of set) { const x = i % g.GW, y = (i / g.GW) | 0; low.set(x, Math.max(low.get(x) ?? -1e9, y)); }
-      const xs = [...low.keys()].sort((a, b) => a - b), raw = xs.map(x => low.get(x) - REF[t].cut);
-      // smoothed: each column's brim no higher than its neighbours', two to a side, so no lone column of hair is left
-      // between two cut lower (stripes on the forehead)
-      const ys = raw.map((_, k) => Math.max(...raw.slice(Math.max(0, k - 2), k + 3)));
-      (entry.clip ??= {})[t] = { x0: xs[0] - REF[t].hx, ys };
+      const hx = [...low.keys()].sort((a, b) => a - b), raw = hx.map(x => low.get(x) - REF[t].cut);
+      // smoothed only where a column's brim is a notch between two lower, two to a side, so no lone column of hair is
+      // left between two cut lower (stripes on the forehead); never past the brim's own edges
+      const sm = raw.map((r, k) => { const l = raw.slice(Math.max(0, k - 2), k), rr = raw.slice(k + 1, k + 3); return l.length && rr.length ? Math.max(r, Math.min(Math.max(...l), Math.max(...rr))) : r; });
+      // and never lower than the hat covers the head (its skin or its outline: the faces drawn in the game differ from the
+      // bald sheet by a cell at the edge): hair is taken off only what the hat is over, or the head shows
+      // bald under a brim or beside a small hat (the owner, 2026-10-25: "ช่วยแก้ pixel ล่างหมวกที่ดูเหมือนหัวล้านให้หน่อย
+      // check ทุกหมวกเลย"; checks/hat-bald.mjs). Every column of the head and the hat: outside the hat, the nearest brim.
+      const head = grids[`f-bald-${t}`], H = idleOf(head), skinAt = new Map();
+      for (const i of H) { const x = i % head.GW, y = (i / head.GW) | 0; (skinAt.get(x) ?? skinAt.set(x, []).get(x)).push(y); }
+      const x0 = Math.min(hx[0], ...skinAt.keys()), x1 = Math.max(hx[hx.length - 1], ...skinAt.keys()), ys = [];
+      for (let x = x0; x <= x1; x++) {
+        const k = Math.max(0, Math.min(hx.length - 1, hx.findIndex((c) => c >= x) < 0 ? hx.length - 1 : hx.findIndex((c) => c >= x)));
+        let cut = sm[k];
+        for (const y of (skinAt.get(x) ?? []).sort((a, b) => a - b)) if (!set.has(y * g.GW + x)) { cut = Math.min(cut, y - 1 - REF[t].cut); break; }
+        ys.push(cut);
+      }
+      (entry.clip ??= {})[t] = { x0: x0 - REF[t].hx, ys };
     }
     console.log(`  ${key}: ${set.size} cells`);
   }
