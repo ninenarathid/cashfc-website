@@ -2350,9 +2350,9 @@
   "name": "Josuke Mizumoto",
   "parse": 95,
   "ult": 0,
-  "mounts": 111,
+  "mounts": 112,
   "minions": 227,
-  "rare": 96,
+  "rare": 97,
   "level": 100,
   "cc": [
    true,
@@ -2363,6 +2363,7 @@
   ],
   "rare_ids": [
    1448,
+   2388,
    2393,
    2972,
    3509,
@@ -2479,7 +2480,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-17"
+  "chg": "2026-10-25"
  },
  "36183378": {
   "name": "K' Potassium",
@@ -2523,7 +2524,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 80,
+  "level": 81,
   "cc": [
    false,
    false,
@@ -3473,9 +3474,9 @@
   "name": "Motochita Muses",
   "parse": 96,
   "ult": 1,
-  "mounts": 187,
+  "mounts": 189,
   "minions": 436,
-  "rare": 141,
+  "rare": 142,
   "level": 100,
   "cc": [
    true,
@@ -3530,7 +3531,6 @@
    1311,
    1331,
    1429,
-   1458,
    1459,
    1585,
    1622,
@@ -3581,6 +3581,7 @@
    3884,
    3921,
    3925,
+   3945,
    3979,
    4028,
    4029,
@@ -3603,7 +3604,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-10"
+  "chg": "2026-10-25"
  },
  "51922514": {
   "name": "Mumu Nene",
@@ -4210,7 +4211,7 @@
   "ult": 0,
   "mounts": 176,
   "minions": 418,
-  "rare": 441,
+  "rare": 442,
   "level": 100,
   "cc": [
    false,
@@ -4333,7 +4334,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-10-22"
+  "chg": "2026-10-25"
  },
  "43864764": {
   "name": "Shinonome Kamemaru",
@@ -5675,7 +5676,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 100,
+  "level": 86,
   "cc": [
    false,
    false,
@@ -5797,7 +5798,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-10-24"
+  "chg": "2026-10-25"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -6880,9 +6881,9 @@
   "name": "Kawa Lynn",
   "parse": 72,
   "ult": 1,
-  "mounts": 57,
-  "minions": 111,
-  "rare": 2,
+  "mounts": 60,
+  "minions": 114,
+  "rare": 4,
   "level": 100,
   "cc": [
    false,
@@ -6893,7 +6894,9 @@
   ],
   "rare_ids": [
    631,
-   3945
+   3943,
+   3945,
+   3979
   ],
   "tiers": {},
   "jobs": {},
@@ -8374,7 +8377,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 99,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8757,9 +8760,9 @@
   "name": "Jin Theape",
   "parse": null,
   "ult": 0,
-  "mounts": 47,
-  "minions": 188,
-  "rare": 4,
+  "mounts": 51,
+  "minions": 208,
+  "rare": 6,
   "level": 100,
   "cc": [
    false,
@@ -8772,13 +8775,15 @@
    1302,
    2748,
    3875,
-   3943
+   3943,
+   3945,
+   4023
   ],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-24"
+  "chg": "2026-10-25"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -16639,7 +16644,7 @@
    "Ninja": "legendary",
    "Bard": "legendary",
    "Dragoon": "master",
-   "Reaper": "master",
+   "Reaper": "legendary",
    "Samurai": "legendary",
    "Machinist": "expert"
   },
