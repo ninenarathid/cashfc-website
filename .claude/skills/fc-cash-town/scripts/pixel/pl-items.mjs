@@ -82,7 +82,9 @@ function lay(list) {
     if (!fs.existsSync(got)) continue;
     const d = path.join(HERE, "work", "pl-doll", `head-${c.lay.slot}`);
     fs.copyFileSync(got, path.join(d, "head-out.png"));
-    const r = spawnSync("node", ["pl-doll.mjs", "unhead", d, c.lay.id, c.lay.g], { cwd: HERE, encoding: "utf8" });
+    // (hats and the bear ears' band: the thin ring a wide brim brought, taken off: pl-doll.mjs --prune)
+    const prune = c.lay.id === "bearears" ? ["--prune"] : [];
+    const r = spawnSync("node", ["pl-doll.mjs", "unhead", d, c.lay.id, c.lay.g, ...prune], { cwd: HERE, encoding: "utf8" });
     console.log(r.stdout.trim() || r.stderr);
   }
 }

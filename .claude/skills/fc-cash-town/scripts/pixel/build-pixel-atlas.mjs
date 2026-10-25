@@ -39,6 +39,8 @@ const GENDERS = ["f", "m"];
 const HAIRS = [
   ...Array.from({ length: 14 }, (_, i) => `f${String(i + 1).padStart(2, "0")}`),
   ...Array.from({ length: 13 }, (_, i) => `m${String(i + 1).padStart(2, "0")}`),
+  // (Granny Twilla's shop, 2026-10-25: four of each drawn by PixelLab, pl-doll.mjs's hairdo)
+  "f15", "f16", "f17", "f18", "m14", "m15", "m16", "m17",
   "bald",
 ];
 const hairFor = (gnd, hair) => hair === "bald" || hair[0] === gnd;

@@ -218,9 +218,13 @@ if (cmd === "unhead") {
       const d = Math.abs(a[o] - b[o]) + Math.abs(a[o + 1] - b[o + 1]) + Math.abs(a[o + 2] - b[o + 2]);
       // (inside the mask the model redraws the head too, a few shades off: a cell still of the head's own colour class
       // and near its colour is the head, not the thing; seen as skin carried over the hair by the pumpkin crown)
-      const redrawn = a[o + 3] >= 128 && b[o + 3] >= 128 && d < 60 && L.cls(a[o], a[o + 1], a[o + 2]) === L.cls(b[o], b[o + 1], b[o + 2]);
+      // (the head redrawn a few shades off is the head; skin painted past the head's old edge is the head grown, not the
+      // thing; but a straw hat, a brown bear ear or thin gold frames over the head are the thing though they are warm:
+      // so a skin-like colour is left out only outside the head's old outline, 2026-10-25)
+      const redrawn = a[o + 3] >= 128 && b[o + 3] >= 128 && d < 36 && L.cls(a[o], a[o + 1], a[o + 2]) === L.cls(b[o], b[o + 1], b[o + 2]);
+      const grown = a[o + 3] >= 128 && b[o + 3] < 128 && skinLike(o);
       // (over the whole head nothing of it is left to tell apart: every changed cell is the thing)
-      if (!(d < 4 && (a[o + 3] >= 128) === (b[o + 3] >= 128)) && (meta.slot === "full" || (!redrawn && !(a[o + 3] >= 128 && skinLike(o))))) changed.add(y * p.w + x);
+      if (!(d < 4 && (a[o + 3] >= 128) === (b[o + 3] >= 128)) && (meta.slot === "full" || (!redrawn && !grown))) changed.add(y * p.w + x);
     }
     // a speck or a stray stroke the model left apart from the thing (beside the head) is not the thing: the largest piece
     // of the change is kept, and any other piece inside its box (grown three cells) or a sixth its size or more
@@ -245,6 +249,13 @@ if (cmd === "unhead") {
       // crown): its lowest row keeps only what lies under the row above it, a cell either way (a brim's corner)
       const low = Math.max(...[...keep].map((c) => (c / p.w) | 0)), above = [...keep].filter((c) => ((c / p.w) | 0) === low - 1).map((c) => c % p.w);
       if (above.length) for (const c of [...keep]) if (((c / p.w) | 0) === low && (c % p.w < Math.min(...above) - 1 || c % p.w > Math.max(...above) + 1)) keep.delete(c);
+    }
+    // (--prune: a thread one cell thick, a ring the model drew round the head under a wide brim, goes; a solid thing's
+    // corners keep three neighbours or more. Not for what is meant thin: a halo, glasses' frames)
+    if (process.argv.includes("--prune")) for (let pass = 0; pass < 12; pass++) {
+      const drop = [...keep].filter((c) => { const x = c % p.w; let n = 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if ((dx || dy) && x + dx >= 0 && x + dx < p.w && keep.has(c + dy * p.w + dx)) n++; return n <= 2; });
+      if (!drop.length) break;
+      for (const c of drop) keep.delete(c);
     }
     for (const c of keep) {
       const x = c % p.w, y = (c / p.w) | 0, o = ((p.oy + y) * meta.W + p.ox + x) * 4;

@@ -408,8 +408,8 @@
     {
       "id": "cowboy",
       "src": "pixellab",
-      "front": "a light-brown leather cowboy hat with a wide brim curled up at the sides and a darker band",
-      "back": "the back of the light-brown cowboy hat with its curled brim"
+      "front": "a light-brown leather cowboy hat with a tall dented crown, a darker band, and a wide brim curled up at the sides drawn as a thick solid band at least three pixels deep, not a thin line",
+      "back": "the back of the light-brown cowboy hat, its wide thick brim curled up at the sides"
     },
     {
       "id": "newsboy",
@@ -420,8 +420,8 @@
     {
       "id": "sunhat",
       "src": "pixellab",
-      "front": "a wide-brimmed pale straw sun hat with a sky-blue ribbon tied in a bow",
-      "back": "the back of the pale straw sun hat with the sky-blue ribbon's tails"
+      "front": "a pale straw sun hat with a round crown and a very wide floppy brim drawn as a thick solid band at least three pixels deep all round, not a thin line, with a sky-blue ribbon tied in a bow",
+      "back": "the back of the pale straw sun hat, its wide thick brim all round and the sky-blue ribbon's tails"
     },
     {
       "id": "fedora",
