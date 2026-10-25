@@ -1,4 +1,5 @@
 import { BOX, MORE_CHESTS } from "./box";
+import { TAILOR } from "./tailor";
 import { animalsRow } from "./animal-catalog";
 import { DRESS_ITEMS, wearDropsRow } from "./wear";
 import { GARDEN } from "./gardening";
@@ -126,6 +127,8 @@ export function catalogOf() {
     dress: DRESS_ITEMS,
     /** (v277) What a count of a line's points may drop to wear (lib/town/wear's Drop), as town.work_counted rolls it. */
     wear_drops: wearDropsRow(),
+    /** (v297) Granny Twilla's rails (lib/town/tailor): each thing's price, and the season it is sold in. */
+    tailor: TAILOR,
     /** The bag's first slots, the hours of the uncle's rounds, the hour a day begins. */
     rules: { slots: RULES.slots, rounds: RULES.rounds, dawn: STAMINA.dawn },
     /** What is worn to carry more: the slots each adds. */
@@ -597,7 +600,9 @@ export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Ar
   v277: { keys: ["wear_drops"], over: ["items", "goods", "shelf", "dress", "workshop"] },
   // (v291: the pasture's own row; its things, dishes, makes, scrolls, gifts and the farm's new rows are merged into the rows they belong to by
   // scripts/db/build-v291.mjs, entry by entry, so that nothing another file wrote of those rows is written over)
-  v291: { keys: ["animals"], over: [] } };
+  v291: { keys: ["animals"], over: [] },
+  // (v297: Granny Twilla's shop, the price of each of her forty and the four sold only in the pumpkins' season)
+  v297: { keys: ["tailor"], over: [] } };
 // (v283, 2026-10-19, writes no whole row: `farming.costs.pick` and the farm pouch's `slots` by jsonb_set alone, so that
 // v284's beds in `farming.bedsAt` stand whichever runs first; v286 the same, `farming.pests.house` alone; v292 every
 // dish's `items.<id>.stack`, twenty, chosen by its kind: the blocks above follow the code, as the test asks)

@@ -294,8 +294,8 @@
       "more": "The feather rises diagonally upward and outward in a bold silhouette, its solid shaft visibly joined to the band; the whole hat and feather stay inside each figure's slot and the canvas."
     },
     {
-      "id": "countHat",
-      "pl": "prompts/pixellab/doll/countHat.json",
+      "id": "counthat",
+      "pl": "prompts/pixellab/doll/counthat.json",
       "front": "a small black silk top hat with a crimson band and a silver bat-wing pin",
       "back": "the plain back of the small black top hat and its crimson band"
     }
@@ -547,9 +547,9 @@
       "solid": true
     },
     {
-      "id": "pumpkinCrown",
+      "id": "pumpkincrown",
       "slot": "hair",
-      "pl": "prompts/pixellab/doll/pumpkinCrown.json",
+      "pl": "prompts/pixellab/doll/pumpkincrown.json",
       "front": "a carved pumpkin crown with jack-o-lantern faces and two candles with teal-green flames",
       "back": "the back of the carved pumpkin crown and its candles"
     }

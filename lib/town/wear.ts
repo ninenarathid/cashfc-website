@@ -32,6 +32,9 @@ export type Source =
   | { shop: "uncle" }
   | { merchant: "bat" }
   | { craft: true }
+  // (Granny Twilla's shop, lib/town/tailor; the weekly auction of limited outfits, lib/town/auction: the design's key)
+  | { tailor: true }
+  | { auction: string }
   | Drop;
 /**
  * A chance at every count of a line's points that gives points (town.work_counted), narrowed by the deed (`what`, the
@@ -45,7 +48,8 @@ export type Wearable = Named & { from?: Source; top?: true };
 const NONE: Wearable = { id: "none", th: "ไม่ใส่", en: "None" };
 const at = (rank: number, ...lines: LineId[]): Source => ({ lines, rank });
 const isRank = (s: Source): s is { lines: LineId[]; rank: number } => "lines" in s;
-const CRAFT: Source = { craft: true }, UNCLE: Source = { shop: "uncle" };
+const CRAFT: Source = { craft: true }, UNCLE: Source = { shop: "uncle" }, TAILOR: Source = { tailor: true };
+const AUCTION = (design: string): Source => ({ auction: design });
 const drop = (line: LineId, chance: number, more: Omit<Drop, "drop" | "chance"> = {}): Drop => ({ drop: line, chance, ...more });
 // (the builder's two: helping somebody else's work, as the bridge was built together: a rock somebody else struck
 // broken with my swings, the bellows worked for somebody's piece at the smith, a tree somebody else fells braced; the
@@ -76,6 +80,19 @@ export const OUTFITS: Wearable[] = [
   { id: "weaver", th: "ชุดเสื้อกั๊กทอลาย", en: "Woven waistcoat", from: CRAFT },
   // (the animal line, 2026-10-20)
   { id: "herder", th: "ชุดคนเลี้ยงสัตว์", en: "Herder", from: at(3, "animals") },
+  // (the limited auction's first round, Halloween 2026, and Granny Twilla's rails: the owner, 2026-10-25)
+  { id: "count", th: "ชุดเคานต์ค้างคาวรัตติกาล", en: "Midnight Bat Count", from: AUCTION("count") },
+  { id: "pumpkin", th: "ชุดราชาฟักทองไฟผี", en: "Pumpkin Wisp Monarch", from: AUCTION("pumpkin") },
+  { id: "knit", th: "ชุดไหมพรมอุ่นๆ", en: "Cozy knit", from: TAILOR },
+  { id: "beach", th: "ชุดริมหาด", en: "Beach shirt", from: TAILOR },
+  { id: "party", th: "ชุดงานเลี้ยง", en: "Party suit", from: TAILOR },
+  { id: "aviator", th: "ชุดนักบิน", en: "Aviator", from: TAILOR },
+  { id: "track", th: "ชุดวอร์ม", en: "Track suit", from: TAILOR },
+  { id: "academy", th: "ชุดนักเรียนเวทมนตร์", en: "Academy uniform", from: TAILOR },
+  { id: "pyjamas", th: "ชุดนอนลายดาว", en: "Star pyjamas", from: TAILOR },
+  { id: "ranch", th: "ชุดคาวบอย", en: "Ranch rider", from: TAILOR },
+  { id: "bard", th: "ชุดนักดนตรีพเนจร", en: "Wandering bard", from: TAILOR },
+  { id: "skeleton", th: "ชุดโครงกระดูก", en: "Skeleton suit", from: TAILOR },
 ];
 
 export const HATS: Wearable[] = [
@@ -99,6 +116,17 @@ export const HATS: Wearable[] = [
   { id: "pumpkin", th: "หมวกฟักทอง", en: "Pumpkin hat", from: CRAFT },
   // (the animal line, 2026-10-20)
   { id: "herderhat", th: "หมวกคนเลี้ยงสัตว์", en: "Herder's hat", from: at(3, "animals") },
+  // (2026-10-25)
+  { id: "counthat", th: "หมวกทรงสูงเคานต์", en: "Count's top hat", from: AUCTION("count") },
+  { id: "tophat", th: "หมวกทรงสูง", en: "Top hat", from: TAILOR },
+  { id: "cowboy", th: "หมวกคาวบอย", en: "Cowboy hat", from: TAILOR },
+  { id: "newsboy", th: "หมวกนิวส์บอย", en: "Newsboy cap", from: TAILOR },
+  { id: "sunhat", th: "หมวกปีกกว้างผูกโบ", en: "Sun hat", from: TAILOR },
+  { id: "fedora", th: "หมวกเฟดอร่า", en: "Fedora", from: TAILOR },
+  { id: "bearhat", th: "หมวกไหมพรมหมี", en: "Bear knit hat", from: TAILOR },
+  { id: "aviatorcap", th: "หมวกนักบิน", en: "Aviator cap", from: TAILOR },
+  { id: "tricorn", th: "หมวกโจรสลัด", en: "Tricorn", from: TAILOR },
+  { id: "ghostcap", th: "หมวกผีน้อย", en: "Little ghost cap", from: TAILOR },
 ];
 
 /** Worn on the face, over the eyes. */
@@ -115,6 +143,13 @@ export const FACE_WEAR: Wearable[] = [
   { id: "crystal", th: "แว่นกรอบคริสตัล", en: "Crystal glasses", from: CRAFT },
   { id: "amber", th: "แว่นกรอบกระ", en: "Tortoiseshell glasses", from: CRAFT },
   { id: "hexagon", th: "แว่นหกเหลี่ยม", en: "Hexagonal glasses", from: CRAFT },
+  // (Granny Twilla's, 2026-10-25)
+  { id: "heartshades", th: "แว่นหัวใจ", en: "Heart shades", from: TAILOR },
+  { id: "cateye", th: "แว่นตาแมว", en: "Cat-eye glasses", from: TAILOR },
+  { id: "eyepatch", th: "ผ้าปิดตา", en: "Eye patch", from: TAILOR },
+  { id: "masquerade", th: "หน้ากากงานเต้นรำ", en: "Masquerade mask", from: TAILOR },
+  { id: "starshades", th: "แว่นดาว", en: "Star shades", from: TAILOR },
+  { id: "halfmoon", th: "แว่นครึ่งเลนส์", en: "Half-moon glasses", from: TAILOR },
 ];
 
 /** Worn at the neck. */
@@ -133,6 +168,14 @@ export const NECK_WEAR: Wearable[] = [
   { id: "necktie", th: "เนกไท", en: "Necktie", from: UNCLE },
   { id: "beetle", th: "จี้ด้วงอัญมณี", en: "Jewel beetle pendant", from: drop("insects", 0.01, { what: ["net"], hours: [3, 5] }) },
   { id: "starpendant", th: "จี้ดาว", en: "Star pendant", from: drop("helpers", 0.03, { what: LAMPS, hours: [19, 23], how: LAMP_HOW }) },
+  // (Granny Twilla's, 2026-10-25)
+  { id: "pearls", th: "สร้อยไข่มุก", en: "Pearl necklace", from: TAILOR },
+  { id: "jabot", th: "ผ้าผูกคอลูกไม้", en: "Lace jabot", from: TAILOR },
+  { id: "headphones", th: "หูฟังคล้องคอ", en: "Neck headphones", from: TAILOR },
+  { id: "camera", th: "กล้องคล้องคอ", en: "Camera strap", from: TAILOR },
+  { id: "pocketwatch", th: "นาฬิกาพกโปโตะ", en: "Popoto pocket watch", from: TAILOR },
+  { id: "cord", th: "สร้อยเชือกถัก", en: "Braided cord", from: TAILOR },
+  { id: "batpendant", th: "จี้ค้างคาว", en: "Bat pendant", from: TAILOR },
 ];
 
 /** Worn in the hair. */
@@ -151,6 +194,16 @@ export const HAIR_WEAR: Wearable[] = [
   { id: "horns", th: "เขาปีศาจ", en: "Little horns", from: CRAFT, top: true },
   { id: "tiara", th: "มงกุฎเงินจิ๋ว", en: "Tiny tiara", from: CRAFT, top: true },
   { id: "crown", th: "มงกุฎดอกไม้", en: "Flower crown", from: CRAFT, top: true },
+  // (2026-10-25)
+  { id: "pumpkincrown", th: "มงกุฎฟักทองไฟผี", en: "Pumpkin wisp crown", from: AUCTION("pumpkin"), top: true },
+  { id: "bearears", th: "หูหมี", en: "Bear ears", from: TAILOR, top: true },
+  { id: "foxears", th: "หูจิ้งจอก", en: "Fox ears", from: TAILOR, top: true },
+  { id: "halo", th: "วงแหวนเทวดา", en: "Halo", from: TAILOR, top: true },
+  { id: "antennae", th: "ที่คาดผมหนวดผึ้ง", en: "Bee antennae", from: TAILOR, top: true },
+  { id: "cherry", th: "กิ๊บเชอร์รี่", en: "Cherry clip", from: TAILOR },
+  { id: "fanpin", th: "ปิ่นพัด", en: "Fan hairpin", from: TAILOR },
+  { id: "hibiscus", th: "ดอกชบาทัดหู", en: "Hibiscus", from: TAILOR },
+  { id: "batclip", th: "กิ๊บค้างคาว", en: "Bat clip", from: TAILOR },
 ];
 
 /** Whether a look's hair thing is worn on top of the head (where a hat goes). */

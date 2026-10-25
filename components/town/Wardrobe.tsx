@@ -217,6 +217,8 @@ ${f.lines.map(line).join(" / ")}`;
     if ("shop" in f) return th ? "ร้านลุงขายของ" : "The uncle's shop";
     if ("merchant" in f) return th ? "พ่อค้าค้างคาว (เร็วๆ นี้)" : "The bat merchant (soon)";
     if ("craft" in f) return th ? "โต๊ะช่างของลุง" : "The uncle's workbench";
+    if ("tailor" in f) return th ? "ร้านผ้ายายทวิลล่า" : "Granny Twilla's shop";
+    if ("auction" in f) return th ? "ประมูลลิมิเต็ด" : "The limited auction";
     // (a drop: its chance, then the deed it comes with or else its line, and the hours or the rain it needs)
     const hours = f.hours ? ` ${String(f.hours[0]).padStart(2, "0")}–${String(f.hours[1]).padStart(2, "0")}` : "", rain = f.rain ? (th ? " ฝนตก" : " in rain") : "";
     return `${th ? "ดรอป" : "Drop"} ${+(f.chance * 100).toFixed(2)}%

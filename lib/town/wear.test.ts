@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { TAILOR } from "./tailor";
+import { WEAR_MAX } from "./look";
 import { LINES } from "./lines";
 import { DRESS_ITEMS, FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS, dropsFor, onlyOwned, owns, together, wearDropsRow } from "./wear";
 import { WEAR_BAG, WEAR_CRAFTS } from "./wear-items";
@@ -36,7 +38,10 @@ describe("what is worn is had from the game (the owner, 2026-10-17)", () => {
     const all = new Set([...OUTFITS, ...HATS, ...FACE_WEAR, ...NECK_WEAR, ...HAIR_WEAR].map((w) => w.id));
     for (const w of Object.values(DRESS_ITEMS)) expect(all.has(w!)).toBe(true);
     for (const id of Object.keys(WEAR_CRAFTS)) expect(WEAR_BAG[id as keyof typeof WEAR_BAG]).toBeTruthy();
-    expect([OUTFITS, HATS, FACE_WEAR, NECK_WEAR, HAIR_WEAR].map((l) => l.length)).toEqual([19, 18, 11, 13, 13]);
+    // (2026-10-25: Granny Twilla's forty and the auction's first four, past a digit a list no more: look version 7)
+    expect([OUTFITS, HATS, FACE_WEAR, NECK_WEAR, HAIR_WEAR].map((l) => l.length)).toEqual([31, 28, 17, 20, 22]);
+    for (const id of Object.keys(TAILOR)) expect(all.has(id)).toBe(true);
+    for (const l of [OUTFITS, HATS, FACE_WEAR, NECK_WEAR, HAIR_WEAR]) expect(l.length).toBeLessThanOrEqual(WEAR_MAX);
   });
 
   it("drops what the deed, the thing, the hour and the rain agree with, and nothing without points", () => {
