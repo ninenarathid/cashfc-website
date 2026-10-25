@@ -533,3 +533,10 @@ Every picture here is PixelLab editing the game's own native pixels, so the styl
   watch's strays, the bear ears' thin ring, the hime cut's short front.
 - **Spent** (the ledger, PixelLab's own count): 110 calls (56 edit, 50 inpaint, 4 vfx), about 714 generations (866.7 to
   151.3 left this month); OpenAI none.
+- **The fringes** (the owner, the same evening, of the hairstyle sheet: "ทรงผมบางทรงดู ตลก ดูหัวล้าน"): beside the old
+  hairstyles (`checks/shop-gallery.mjs`, its sheet 6) seven new ones stopped at a straight hairline over a band of bare
+  forehead, where the old ones' bangs come down to just above the eyes. Each was given a fringe in its own style on its
+  own picture, the front view's forehead masked (`head-hairdo/fringe-mask.png`, x 11–49, y 26–37), read by Codex (fix:
+  gaps between locks allowed rather than a solid curtain; bolder shapes for f15, f17, m16, its words taken). 7 calls,
+  42 generations (109.3 left). The wardrobe now shows every hairstyle as a card on one's own head, the shop's not
+  bought as its shadow with the shop and the price.
