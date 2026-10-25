@@ -98,6 +98,9 @@ const SHEETS = [
   // seeds, the banker who changes popoto into Popoto coins
   ["popoto-uncle", ["un_stand", "un_wave", "un_show", "un_laugh"], "body"],
   ["popoto-banker", ["bk_stand", "bk_write", "bk_coin", "bk_bow"], "body"],
+  // Granny Twilla, who keeps the clothes shop in the townhouse (the owner, 2026-10-25): as the uncle, standing, waving,
+  // showing a shirt and laughing (lib/town/shop)
+  ["popoto-granny", ["gr_stand", "gr_wave", "gr_show", "gr_laugh"], "body"],
   ["scene-npc-stands", ["stall", "bankdesk"]],
   // the cooking yard going up below the plaza (its first stage). The model drew it soft on its largest canvas, with
   // no pixel size of its own: it is cut at 5 to the pixel, which gives its stoves and tables the size they had in
@@ -117,6 +120,7 @@ const SHEETS = [
   // with only its mouth changed, so nothing else moves when it speaks
   ["talk-uncle", ["tk_uncle", "tk_uncle_o"], "talk", undefined, [7.5, 13]],
   ["talk-banker", ["tk_banker", "tk_banker_o"], "talk", undefined, [7.5, 13]],
+  ["talk-granny", ["tk_granny", "tk_granny_o"], "talk", undefined, [7.5, 13]],
   // the plaza's storage box, shut and open (lib/town/box; the owner, 2026-10-05: "กล่องเก็บของ มาตั้งไว้กลางเมือง"). Two things
   // on a sheet came out with pixels twice the size, as the forest's second sheet did: cut at about twelve. "pair" stands
   // the second on the first's ground point (its lid thrown back makes it wider on one side: by the middle of its own
