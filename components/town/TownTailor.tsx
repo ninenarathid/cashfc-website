@@ -164,7 +164,7 @@ export default function TownTailor(p: ShopWindowProps) {
       <div role="tablist" aria-label={th ? "ราว" : "Rails"} className={`flex gap-1.5 px-3 pb-2 pt-2.5 ${p.phone ? "flex-nowrap overflow-x-auto" : "flex-wrap"}`}>
         {RAILS.map(([r, a, b]) => (
           <button key={r} type="button" role="tab" aria-selected={rail === r} onClick={() => setRail(r)}
-                  className={`pressable min-h-11 shrink-0 rounded-full border ${p.phone ? "px-2.5 text-meta" : "px-3.5 text-ui"} ${rail === r ? "border-accent bg-accent/15 font-semibold text-accent" : "border-line-strong text-ink"}`}>
+                  className={`pressable min-h-11 min-w-11 shrink-0 rounded-full border ${p.phone ? "px-2.5 text-meta" : "px-3.5 text-ui"} ${rail === r ? "border-accent bg-accent/15 font-semibold text-accent" : "border-line-strong text-ink"}`}>
             {th ? a : b}
           </button>
         ))}
@@ -172,7 +172,7 @@ export default function TownTailor(p: ShopWindowProps) {
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-6 pt-1">
         {!kit ? <p className="text-meta text-muted">{th ? "กำลังโหลด…" : "Loading…"}</p>
           : !shown.length ? <p className="text-meta text-muted">{th ? "ราวนี้ยังว่างอยู่จ้ะ" : "Nothing on this rail yet."}</p> : (
-          <div className="grid grid-cols-3 gap-2 min-[380px]:grid-cols-4">
+          <div className={`grid gap-2 ${p.phone ? "grid-cols-3" : "grid-cols-4"}`}>
             {shown.map((g) => {
               const on = isOn(g), have = isHad(g), body = g.rail === "outfit";
               // (a hairstyle's card shows the hair itself: what is tried on the head would hide it, a full hat all of it)
@@ -181,8 +181,11 @@ export default function TownTailor(p: ShopWindowProps) {
                 <button key={`${g.rail}-${g.sold}`} type="button" aria-pressed={on} onClick={() => pick(g)} title={t(g)}
                         className={`pressable relative flex min-h-11 flex-col items-center gap-0.5 rounded-xl border px-1 pb-1.5 pt-1 text-center ${on
                           ? "border-accent bg-accent/15" : "border-line-strong hover:border-accent"}`}>
-                  {on && <span className="absolute left-1 top-1 z-10 rounded-md bg-accent px-1.5 text-[10px] font-bold leading-4 text-bg">{th ? "ลองอยู่" : "Trying"}</span>}
-                  {g.season && <span className="absolute right-1 top-1 z-10 rounded-md bg-[#3a2414] px-1.5 text-[10px] font-bold leading-4 text-[#e7843a]">{th ? "ฮาโลวีน" : "Halloween"}</span>}
+                  {/* (a row of its own over the picture for its marks, never on it: tried on, a season's) */}
+                  <span className="flex h-4 w-full items-center justify-between">
+                    {on ? <span aria-hidden className="grid size-4 place-items-center rounded-full bg-accent text-[10px] font-bold leading-none text-bg">✓</span> : <span />}
+                    {g.season && <span className="rounded-md bg-[#3a2414] px-1.5 text-[10px] font-bold leading-4 text-[#e7843a]">{th ? "ฮาโลวีน" : "Halloween"}</span>}
+                  </span>
                   <DollPreview w={56} h={body ? 72 : 56} deps={[kit, JSON.stringify(l)]}
                                draw={(ctx, W, H) => {
                                  if (!kit) return;
@@ -194,7 +197,7 @@ export default function TownTailor(p: ShopWindowProps) {
                                    kit.drawHead(ctx, l, Math.round((W - w * k) / 2), Math.round((H - h * k) / 2), k);
                                  }
                                }} />
-                  <span className="text-meta leading-tight text-ink">{t(g)}</span>
+                  <span className={`${p.phone ? "text-ui" : "text-meta"} leading-tight text-ink`}>{t(g)}</span>
                   {have
                     ? <span className="rounded-full bg-ok/15 px-1.5 text-[11px] font-semibold leading-5 text-ok">{th ? "มีแล้ว" : "Owned"}</span>
                     : <span className="flex items-center gap-1 text-meta font-semibold tabular-nums text-gold"><TownIcon name="coin" size={12} />{fmt(g.price)}</span>}
@@ -239,7 +242,7 @@ export function ShopHead({ id, th, art, coins, panel, switchTo, onClose }: Pick<
       <div role="tablist" className="flex gap-5 border-b border-line px-4">
         {([["tailor", "เสื้อผ้า", "Clothes"], ["auction", "ประมูลลิมิเต็ด", "Limited auction"]] as const).map(([k, a, b]) => (
           <button key={k} type="button" role="tab" aria-selected={panel === k} onClick={() => { if (panel !== k) switchTo(k); }}
-                  className={`min-h-11 border-b-2 text-ui ${panel === k ? "border-accent font-semibold text-accent" : "border-transparent text-muted"}`}>
+                  className={`min-h-11 min-w-11 border-b-2 text-ui ${panel === k ? "border-accent font-semibold text-accent" : "border-transparent text-muted"}`}>
             {th ? a : b}
           </button>
         ))}

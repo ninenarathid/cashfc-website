@@ -37,7 +37,8 @@ async function press(X, words, within = "body", pick = "[0]") {
 const TAILOR = 'section[aria-labelledby="town-tailor-h"]';
 const panel = (X) => X.evaluate(`document.querySelector("[data-shop-panel]")?.getAttribute("data-shop-panel") ?? null`);
 
-for (const [label, size] of [["desktop", { width: 1280, height: 860 }], ["phone", { width: 384, height: 730 }]]) {
+// (SIZES=phone or desktop: one of them only)
+for (const [label, size] of [["desktop", { width: 1280, height: 860 }], ["phone", { width: 384, height: 730 }]].filter(([l]) => !process.env.SIZES || process.env.SIZES.split(",").includes(l))) {
   const X = await browser(`shop-${label}`, size);
   const shot = (n) => X.shot(`${OUT}/shop-${label}-${n}.png`);
   try {
@@ -70,8 +71,10 @@ for (const [label, size] of [["desktop", { width: 1280, height: 860 }], ["phone"
       await press(X, ["ต่อไป", "Next"]);
     }
     await shot("02-choices");
-    await press(X, ["ดูเสื้อผ้า", "Browse the clothes"]);
-    await until("tailor open", async () => (await panel(X)) === "tailor", 8000).catch(() => {});
+    for (let i = 0; i < 3 && (await panel(X)) !== "tailor"; i++) {
+      await press(X, ["ดูเสื้อผ้า", "Browse the clothes"]);
+      await until("tailor open", async () => (await panel(X)) === "tailor", 4000).catch(() => {});
+    }
     await sleep(1500);
     ok(`${label}: her rails open`, (await panel(X)) === "tailor");
     await shot("03-rails");

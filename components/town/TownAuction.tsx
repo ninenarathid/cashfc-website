@@ -130,7 +130,8 @@ export default function TownAuction(p: ShopWindowProps) {
                       <span className="mt-0.5 inline-block rounded-md bg-gradient-to-r from-[#d8b4ff] to-[#f7d58b] px-1.5 text-[11px] font-extrabold tracking-wide text-[#1c1230]">
                         LIMITED · {th ? `รอบ ${a.run} · ${a.copies} ชุด` : `round ${a.run} · ${a.copies} copies`}
                       </span>
-                      <p className="mt-1 text-meta leading-snug text-muted">{a.wearables.map((w) => t(nameOf(w))).join(" · ")}</p>
+                      {/* (what comes with the outfit: the title already names the outfit) */}
+                      {a.wearables.length > 1 && <p className="mt-1 text-meta leading-snug text-muted">+ {a.wearables.slice(1).map((w) => t(nameOf(w))).join(" · ")}</p>}
                       <p className="mt-1 text-meta font-semibold text-gold">
                         {early ? (th ? `เปิด ${when(a.opensAt)}` : `Opens ${when(a.opensAt)}`)
                           : done ? (th ? "ปิดประมูลแล้ว" : "Closed")
@@ -169,7 +170,12 @@ export default function TownAuction(p: ShopWindowProps) {
                   </p>
                   {open && !a.had && (
                     <>
-                      <div className="mt-2 flex items-center gap-1.5">
+                      {/* (what a bid takes and when it comes back, right above the bid itself) */}
+                      <p className="mt-2 text-meta leading-snug text-muted">
+                        {th ? <>หักเพิ่ม <b className="text-gold">{fmt(Math.max(0, amount - mine))}</b> · ขั้นต่ำ {fmt(leastOf(a))} · คืนทันทีเมื่อหลุด {a.copies} อันดับ · ถอนไม่ได้</>
+                          : <>Takes <b className="text-gold">{fmt(Math.max(0, amount - mine))}</b> more · at least {fmt(leastOf(a))} · back at once if pushed out of the top {a.copies} · can&apos;t be withdrawn</>}
+                      </p>
+                      <div className="mt-1.5 flex items-center gap-1.5">
                         <button type="button" aria-label={th ? "ลดราคา" : "Lower"} disabled={amount - step < leastOf(a)}
                                 onClick={() => setAmounts((s) => ({ ...s, [a.id]: Math.max(leastOf(a), amount - step) }))}
                                 className="pressable grid size-11 shrink-0 place-items-center rounded-xl border border-line-strong text-title text-ink disabled:opacity-40">−</button>
@@ -183,10 +189,6 @@ export default function TownAuction(p: ShopWindowProps) {
                           {busy === a.id ? "…" : th ? "เสนอ" : "Bid"}
                         </button>
                       </div>
-                      <p className="mt-1.5 text-meta leading-snug text-muted">
-                        {th ? <>หักเพิ่ม <b className="text-gold">{fmt(Math.max(0, amount - mine))}</b> · ขั้นต่ำ {fmt(leastOf(a))} · คืนทันทีเมื่อหลุด {a.copies} อันดับ · ถอนไม่ได้</>
-                          : <>Takes <b className="text-gold">{fmt(Math.max(0, amount - mine))}</b> more · at least {fmt(leastOf(a))} · back at once if pushed out of the top {a.copies} · can&apos;t be withdrawn</>}
-                      </p>
                     </>
                   )}
                   {said[a.id] && <p role="status" className="mt-1 text-meta text-ink">{said[a.id]}</p>}

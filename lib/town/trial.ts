@@ -599,7 +599,7 @@ export class Trial {
     const close = Date.parse("2026-10-31T21:00:00+07:00"), hard = Date.parse("2026-10-31T22:00:00+07:00");
     const round = (id: number, design: string, wearables: string[], bids: Bid[]): TrialRound =>
       ({ id, design, wearables, run: 1, copies: 3, start: 8000, stepPct: 5, stepMin: 500, opensAt: now - 3600_000, closesAt: Math.max(close, now + 3 * 86400_000), hardClose: Math.max(hard, now + 3 * 86400_000 + 3600_000), settledAt: null, bids, owners: [] });
-    const fresh = [round(1, "count", ["count", "counthat"], []), round(2, "pumpkin", ["pumpkin", "pumpkincrown"], [{ member: "trial-rival", name: "Mint", amount: 8500, at: now - 600_000 }])];
+    const fresh = [round(1, "count", ["count", "counthat", "batmask", "rosefascinator"], []), round(2, "pumpkin", ["pumpkin", "pumpkincrown", "pumpkinglasses", "pumpkinhead"], [{ member: "trial-rival", name: "Mint", amount: 8500, at: now - 600_000 }])];
     this.write(AUCTIONS, fresh);
     return fresh;
   }

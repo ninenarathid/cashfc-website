@@ -163,14 +163,7 @@ function Choices({ label, items, only, value, onPick, t, locked }: {
   return (
     <Group label={label}>
       <div role="group" aria-label={label} className="flex flex-wrap gap-1.5">
-        {(only ?? items.map((_, i) => i)).map((i) => [i, items[i]] as const).map(([i, n]) => {
-          const whence = locked?.(n) ?? null;
-          if (whence) return (
-            <span key={n.id} aria-label={`??? · ${whence}`}
-                  className="flex min-h-11 items-center gap-1 rounded-full border border-dashed border-line-strong px-3 py-1.5 text-meta text-muted sm:min-h-0">
-              <TownIcon name="lock" size={12} />??? · {whence}
-            </span>
-          );
+        {(only ?? items.map((_, i) => i)).map((i) => [i, items[i]] as const).filter(([, n]) => !locked?.(n)).map(([i, n]) => {
           return (
           <button key={n.id} type="button" aria-pressed={i === value} onClick={() => onPick(i)}
                   className={`pressable min-h-11 rounded-full px-3 py-1.5 text-ui transition-colors sm:min-h-0 ${i === value
@@ -180,6 +173,13 @@ function Choices({ label, items, only, value, onPick, t, locked }: {
           </button>
           );
         })}
+        {/* (what is not had yet, one mark for each place it comes from: how many, and where) */}
+        {[...(only ?? items.map((_, i) => i)).reduce((m, i) => { const w = locked?.(items[i]); return w ? m.set(w, (m.get(w) ?? 0) + 1) : m; }, new Map<string, number>())].map(([whence, n]) => (
+          <span key={whence} aria-label={`??? ×${n} · ${whence}`}
+                className="flex min-h-11 items-center gap-1 rounded-full border border-dashed border-line-strong px-3 py-1.5 text-meta text-muted sm:min-h-0">
+            <TownIcon name="lock" size={12} />??? ×{n} · {whence}
+          </span>
+        ))}
       </div>
     </Group>
   );
