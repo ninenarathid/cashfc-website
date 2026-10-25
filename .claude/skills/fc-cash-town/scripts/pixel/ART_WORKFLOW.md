@@ -170,3 +170,28 @@ new outfit, hat or hair (in-place edits of the mannequin, as DOLL2.md says).
 - one contact sheet, then the game at desktop and phone size;
 - the body JSON and pose sets kept in `prompts/pixellab/`;
 - a line in README.md: what was made, how many calls, how many generations.
+
+## No pixel bugs (the owner, 2026-10-26)
+
+"ช่วยจำไว้ใน workflow ว่า เครื่องแต่งกาย หรือ ภาพใหม่ๆ ที่ เพิ่มเข้าเกมห้ามมี pixel bug แบบนี้เด็ดขาด". Said after he tried Granny
+Twilla's new things on in the dev town and found, one after another: bare scalp under the brims, a strip of forehead
+under new hats lying over the bangs, a ring of the head's outline through a hat, brims eaten away, hollow bear ears, the
+eyes' outline under star sunglasses, a speckled net veil, flames drawn as black sticks, bangs cut straight, hair hanging
+as a flat block. None of these may reach the game or the owner again. Before showing any new wearable, hairstyle or
+picture:
+
+1. **The checks** (from this folder, `DIR=<the build>`), each must be clean for what is new:
+   - `node checks/hat-bald.mjs`: 0 cells of scalp bared under any hat, over every hairstyle, front and back.
+   - `node checks/hair-crown.mjs`: no bare crown on a new hairstyle.
+   - `node build-pixel-atlas.mjs ...`: "hole check: every step whole".
+2. **Each new piece alone, enlarged** (at least 6x, over a loud colour such as magenta, as `work/shop-mock/hat-piece.png`
+   was made): no holes inside it, no skin-coloured strip or speck it should not carry, nothing eaten from its edge.
+3. **The drawing against the build** (`work/pl/<name>/image.png` or `work/out/<sheet>.png` beside the built piece, both
+   enlarged): what the build lost is the pipeline's to fix; what the drawing lacks is drawn again.
+4. **On the doll** (`checks/wear-look.mjs` with `LOOKS=`, or `checks/shop-gallery.mjs`): over several hairstyles (a
+   long one, one with bangs, pigtails, a short one), front, back, sitting and eating, enlarged at least 3x; glasses
+   checked for the eyes under them, hats for the hair and forehead under the brim, hair things for the head's rim.
+5. **In the game** at desktop and phone size, as AGENTS.md says.
+
+The lay-back's rules that came of these (`pl-doll.mjs unhead`; the builder's `clip` and `coverRim`) are explained where
+they are written; a new bug of this kind gets its own check here.

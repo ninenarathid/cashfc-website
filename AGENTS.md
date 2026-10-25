@@ -19,6 +19,7 @@ No equipment, VFX, scenery, character detail, or other game visual may look like
 - Mixed elements must remain individually readable; matching sockets need a deliberate stronger design.
 - Review the result in actual gameplay at normal desktop and mobile sizes. A good-looking standalone asset does not establish quality in the game.
 - Revise any result that feels pasted on, coarse, incomplete, or visually out of place. Aim for the best polished result, not merely a technically working effect.
+- **No pixel bugs, ever** (the owner, 2026-10-26: "เครื่องแต่งกาย หรือ ภาพใหม่ๆ ที่ เพิ่มเข้าเกมห้ามมี pixel bug แบบนี้เด็ดขาด"). No costume or new picture reaches the game, or the owner, with: bare scalp or a forehead strip under a hat, a hole or skin speck inside a worn thing, a thin ring or line of the head's outline showing through, an eye's outline showing under opaque glasses, a brim or ear eaten away, bangs cut in one straight edge, hair cut in a flat block, or stray specks. Run `.claude/skills/fc-cash-town/scripts/pixel/ART_WORKFLOW.md`'s "No pixel bugs" checks for every new wearable and hairstyle and look at each new piece enlarged, alone and on the doll, before showing it. Fix the pipeline when the drawing is right; draw again when it is not.
 
 ## Cash Town image generation — persistent owner workflow (2026-10-15)
 
