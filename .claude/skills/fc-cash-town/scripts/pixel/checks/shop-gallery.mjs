@@ -82,6 +82,8 @@ const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
 const fmt = (n) => n.toLocaleString("en-US");
 /** A sheet: a title, then cards (a name, a line under it, a row of cells each with a small word), so many to a row. */
 async function sheet(file, title, cards, cols) {
+  // (ONLY=1,6: those sheets only)
+  if (process.env.ONLY && !process.env.ONLY.split(",").includes(file[0])) return;
   const cw = Math.max(...cards.map((c) => c.cells.length)) * CW * S, ch = LABEL + CH * S + 26;
   const W = PAD * 2 + cols * cw + (cols - 1) * GAP, H = 70 + PAD + Math.ceil(cards.length / cols) * (ch + GAP);
   const comp = [];
