@@ -11160,7 +11160,7 @@
     "cleared": true,
     "job_kills": {
      "Viper": {
-      "kills": 3,
+      "kills": 4,
       "best": 82
      }
     }
@@ -25087,7 +25087,7 @@
       "best": 3
      },
      "Sage": {
-      "kills": 1,
+      "kills": 2,
       "best": 2
      }
     }
@@ -29840,6 +29840,10 @@
      "BlackMage": {
       "kills": 3,
       "best": 54
+     },
+     "Summoner": {
+      "kills": 1,
+      "best": 1
      }
     }
    },
@@ -34044,8 +34048,8 @@
     "cleared": true,
     "job_kills": {
      "Warrior": {
-      "kills": 2,
-      "best": 58
+      "kills": 3,
+      "best": 69
      }
     }
    },
@@ -36214,8 +36218,8 @@
       "best": 99
      },
      "BlackMage": {
-      "kills": 11,
-      "best": 61
+      "kills": 12,
+      "best": 67
      },
      "Pictomancer": {
       "kills": 4,
@@ -36233,8 +36237,12 @@
       "kills": 1,
       "best": 28
      },
+     "Paladin": {
+      "kills": 1,
+      "best": 24
+     },
      "Sage": {
-      "kills": 11,
+      "kills": 12,
       "best": 47
      }
     }
@@ -49186,8 +49194,8 @@
     "cleared": true,
     "job_kills": {
      "WhiteMage": {
-      "kills": 3,
-      "best": 18
+      "kills": 4,
+      "best": 25
      }
     }
    },
@@ -77556,8 +77564,8 @@
       "best": 95
      },
      "Warrior": {
-      "kills": 11,
-      "best": 73
+      "kills": 18,
+      "best": 81
      },
      "Gunbreaker": {
       "kills": 7,
@@ -77580,12 +77588,16 @@
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
+     "Dragoon": {
+      "kills": 2,
+      "best": 34
+     },
      "Paladin": {
       "kills": 12,
       "best": 92
      },
      "Warrior": {
-      "kills": 7,
+      "kills": 10,
       "best": 83
      },
      "DarkKnight": {
@@ -77689,6 +77701,10 @@
      "Dragoon": {
       "kills": 1,
       "best": 33
+     },
+     "Warrior": {
+      "kills": 2,
+      "best": 83
      },
      "Gunbreaker": {
       "kills": 13,
@@ -84464,6 +84480,10 @@
     "job": "Machinist",
     "cleared": true,
     "job_kills": {
+     "Monk": {
+      "kills": 4,
+      "best": 60
+     },
      "Machinist": {
       "kills": 6,
       "best": 74
@@ -84481,13 +84501,17 @@
     "job": "Machinist",
     "cleared": true,
     "job_kills": {
+     "Monk": {
+      "kills": 4,
+      "best": 36
+     },
      "Machinist": {
       "kills": 1,
       "best": 22
      },
-     "Monk": {
+     "BlackMage": {
       "kills": 2,
-      "best": 5
+      "best": 7
      }
     }
    },
@@ -85694,8 +85718,12 @@
     "cleared": true,
     "job_kills": {
      "Pictomancer": {
-      "kills": 2,
-      "best": 8
+      "kills": 3,
+      "best": 12
+     },
+     "Bard": {
+      "kills": 1,
+      "best": 5
      }
     }
    },

@@ -1,6 +1,20 @@
 {
  "events": [
   {
+   "date": "2026-10-25",
+   "type": "level_100",
+   "id": 28579232,
+   "name": "Dessiny Valkyrie",
+   "text": "reached level 100 on Samurai!"
+  },
+  {
+   "date": "2026-10-25",
+   "type": "level_100",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
    "date": "2026-10-24",
    "type": "level_100",
    "id": 36248712,
@@ -1385,20 +1399,6 @@
    "id": 60852230,
    "name": "Lucienvt Yenslayer",
    "text": "cleared Enuo (Extreme)"
-  },
-  {
-   "date": "2026-10-11",
-   "type": "parse_up",
-   "id": 60211788,
-   "name": "Shikihara Catlover",
-   "text": "set a new best parse: 9 on Zoraal Ja as Ninja"
-  },
-  {
-   "date": "2026-10-11",
-   "type": "ex_clear",
-   "id": 60211788,
-   "name": "Shikihara Catlover",
-   "text": "cleared Zoraal Ja (Extreme)"
   }
  ]
 }
