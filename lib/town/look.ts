@@ -204,9 +204,21 @@ const WEAR_FIELDS: Array<[keyof Look, number]> = [
 const VERSION = "6";
 /** How long a written look is: the version and one digit per field. */
 export const LOOK_LENGTH = 1 + FIELDS(0).length + WEAR_FIELDS.length;
+/**
+ * Version 7 (the owner, 2026-10-25, when a digit a list was about to run out: "ทำให้ใส่ได้เยอะขึ้น"): version 6 with each
+ * thing worn in two digits, so a list may hold 36 × 36. A look is written so only when something worn is past the 36th
+ * of its list; every other look stays version 6, which a page from before version 7 still reads.
+ */
+const VERSION_WIDE = "7";
+export const LOOK_LENGTH_WIDE = 1 + FIELDS(0).length + WEAR_FIELDS.length * 2;
+/** How many things a list of lib/town/wear may hold, as a look writes them. */
+export const WEAR_MAX = 36 * 36;
 
 export function encodeLook(look: Look): string {
-  return VERSION + [...FIELDS(look.race), ...WEAR_FIELDS].map(([k]) => (look[k] ?? 0).toString(36)).join("");
+  const base = FIELDS(look.race).map(([k]) => (look[k] ?? 0).toString(36)).join("");
+  const worn = WEAR_FIELDS.map(([k]) => look[k] ?? 0);
+  return worn.every((v) => v < 36) ? VERSION + base + worn.map((v) => v.toString(36)).join("")
+    : VERSION_WIDE + base + worn.map((v) => v.toString(36).padStart(2, "0")).join("");
 }
 
 /** The same look as another race: the hairstyle at the same place in its list, a skin from its own. */
@@ -219,6 +231,11 @@ export function lookAsRace(look: Look, race: number): Look {
 
 const digit = (c: string | undefined, n: number): number | null => {
   if (!c || !/^[0-9a-z]$/.test(c)) return null;
+  const v = parseInt(c, 36);
+  return v < n ? v : null;
+};
+const digits = (c: string, n: number): number | null => {
+  if (!/^[0-9a-z]{2}$/.test(c)) return null;
   const v = parseInt(c, 36);
   return v < n ? v : null;
 };
@@ -266,16 +283,19 @@ export function asOneModel(look: Look): Look {
  */
 export function readLook(code: unknown): Look | null {
   if (typeof code !== "string") return null;
-  // Version 6: version 5's fields, then what is worn. Version 5: race, gender, hair, colours, skin, eyes.
+  // Version 7: version 6 with each thing worn in two digits. Version 6: version 5's fields, then what is worn.
+  // Version 5: race, gender, hair, colours, skin, eyes.
+  const v7 = code.length === LOOK_LENGTH_WIDE && code[0] === VERSION_WIDE;
   const v6 = code.length === LOOK_LENGTH && code[0] === VERSION, v5 = code.length === 1 + FIELDS(0).length && code[0] === "5";
-  if (v6 || v5) {
+  if (v7 || v6 || v5) {
     const race = digit(code[1], RACES.length);
     if (race === null) return null;
     const out: Partial<Look> = {};
-    const fields = v6 ? [...FIELDS(race), ...WEAR_FIELDS] : FIELDS(race);
+    const base = FIELDS(race).length, fields = v7 || v6 ? [...FIELDS(race), ...WEAR_FIELDS] : FIELDS(race);
     for (let i = 0; i < fields.length; i++) {
       const [k, n] = fields[i];
-      const v = digit(code[i + 1], n);
+      const at = 1 + base + (i - base) * 2;
+      const v = v7 && i >= base ? digits(code.slice(at, at + 2), n) : digit(code[i + 1], n);
       if (v === null) return null;
       // (what is worn only when something is)
       if (v || i < FIELDS(race).length) out[k] = v;

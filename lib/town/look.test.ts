@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  EYES, EYE_COLORS, GENDERS, HAIRS, HAIR_COLORS, LOOK_LENGTH, RACES, SKINS,
+  EYES, EYE_COLORS, GENDERS, HAIRS, HAIR_COLORS, LOOK_LENGTH, LOOK_LENGTH_WIDE, RACES, SKINS, WEAR_MAX,
   ONE_MODEL, decodeLook, defaultLook, encodeLook, readLook, hairForGender, hairsFor, lookAsRace, randomLook, type Look,
 } from "./look";
 
@@ -82,6 +82,20 @@ describe("races", () => {
     expect(decodeLook(encodeLook(worn))).toEqual(worn);
     const plainLook: Look = { race: 0, gender: 1, hair: at("m05"), hairColor: 7, eyeColor: 3, skin: 2, eyes: 4 };
     expect(decodeLook(encodeLook(plainLook).slice(0, 8).replace(/^6/, "5"))).toEqual(plainLook);
+  });
+
+  it("write version 6 while every thing worn fits a digit, and read version 7's two digits a thing (the owner, 2026-10-25)", () => {
+    const worn: Look = { race: 0, gender: 1, hair: at("m05"), hairColor: 7, eyeColor: 3, skin: 2, eyes: 4, outfit: 2, hat: 1, faceWear: 2, neck: 1, hairWear: 1 };
+    const v6 = encodeLook(worn);
+    expect(v6[0]).toBe("6");
+    const v7 = "7" + v6.slice(1, 8) + [...v6.slice(8)].map((c) => "0" + c).join("");
+    expect(v7).toHaveLength(LOOK_LENGTH_WIDE);
+    expect(decodeLook(v7)).toEqual(worn);
+    const far = encodeLook({ ...worn, outfit: 40 });
+    expect(far).toHaveLength(LOOK_LENGTH_WIDE);
+    expect(far.slice(0, 1) + far.slice(8, 10)).toBe("714");
+    expect(WEAR_MAX).toBe(1296);
+    expect(readLook("7" + v6.slice(1, 8) + "zz" + "0".repeat(8))).toBeNull();
   });
 
   it("are all shown as the one model, gender, colours and eyes kept (the owner, 2026-10-17)", () => {
