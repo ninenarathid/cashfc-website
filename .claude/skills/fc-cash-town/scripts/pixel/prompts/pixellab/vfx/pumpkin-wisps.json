@@ -1,0 +1,7 @@
+{
+ "name": "pumpkin-wisps",
+ "artist": "lite",
+ "game_pack": true,
+ "sprite": "@../../../work/pl-vfx/pumpkin-sprite.png",
+ "description": "A one-shot effect for a limited pumpkin king outfit: three small teal-green ghost flames (will-o'-the-wisps) lift off the character's shoulders and hands, drift upward with a gentle sway, flicker once and fade out after about one second. Pixel art at exactly the sprite's own pixel size, each flame only a few pixels tall, solid flame shapes in two or three teal-greens with one pale core pixel and a thick dark outline, crisp hard pixels, no soft glow, no halo, no smoke. The character itself does not change."
+}

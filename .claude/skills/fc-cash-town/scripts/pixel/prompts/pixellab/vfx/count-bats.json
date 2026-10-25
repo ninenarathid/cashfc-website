@@ -1,0 +1,7 @@
+{
+ "name": "count-bats",
+ "artist": "lite",
+ "game_pack": true,
+ "sprite": "@../../../work/pl-vfx/count-sprite.png",
+ "description": "A one-shot effect for a limited vampire count outfit: three small black bats with crimson-lined wings slip out from behind the character's cape at shoulder height, flap up and away to the upper left and upper right in short zigzags, and are gone after about one second. Pixel art at exactly the sprite's own pixel size, small enough that each bat is only a few pixels wide, dark silhouettes with a single crimson wing highlight and a thick dark outline, crisp hard pixels, no glow, no smoke, no sparkles. The character itself does not change."
+}
