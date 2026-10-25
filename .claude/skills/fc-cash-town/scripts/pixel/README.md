@@ -501,3 +501,35 @@ The owner's go for the whole line ("เริ่มได้เลย เอา�
   - **E-H and the cloud ram** (lanternHen ... goldenFleece and their males): their SE walk and idle in one run (`--se`), their 3/4 back from their back characters. The dog skeleton drew the rainbow ewe walking a fifth smaller and the rainbow ram with a long leg (Codex), and its idle drew both 15% smaller than the base: both redrawn by the custom engine (the cow walk and idle words), the dog runs kept as `-dog`. The cloud ram's SE idle dropped its saddle (kept as `-nosaddle`): it stands on its walk's first frame.
   - **Every pose of one animal the same size** (the owner, 2026-10-22: "ทุกท่าทางของสัตว์ตัวเดียวกัน จะมีขนาดเท่ากันเสมอ", the cow larger walking away than towards). Measured (scratch eh/area.mjs, sizes.mjs): the back views, drawn from their own characters, stood up to a quarter larger than the front (calf, lamb, heifer, the dandelion and star sheep, the dairy bull) and some idles a fifth off their walks. lookFrames now fits every loop of a look to its SE walk: a frame's size is sqrt(sqrt(drawn pixels) x its box's diagonal), a loop's the median, the fit goes into the piece's scale (no picture resized). After it every loop is within 4% of its SE walk. `KEEP` drops frames drawn unlike the rest of their loop: the heifer's SE idle 0-2 (smaller, a grey smudge), the shorn Jacob and golden rams' idles (two frames a fifth and a tenth off), the Shetland ram's SE idle (pale all through: it stands on its walk's start). The cloud ram's `pa_ram_idle` was never built after its idle was dropped, so the mount standing still was the code-drawn stand-in: now made. Not fixed, a redraw: the shorn golden ram's SE walk is a thin, long-legged body unlike its idle. **build-scenery.mjs writes to E:/NinenineProject/fcnext/public/town unless `--out` is given: in a worktree always pass `--out <worktree>/public/town`.**
   - Spent (the ledger, PixelLab's own count): PixelLab 766 generations this round (1,632.7 to 866.7 left); OpenAI 97 calls, $2.15 (the ledger's $38.77 of $45).
+
+## Granny Twilla's clothes shop: forty things, eight hairstyles, the auction's two sets (2026-10-25)
+
+The owner, 2026-10-25: an indoor clothes shop with Granny Twilla, about forty new wearables over every slot and price, a
+try-on, and a weekly auction of limited outfits, this round two Halloween sets for men and women. OpenAI credit was down
+to $1.10, so: "ช่วยเอาไปทำที่ PixelLab แทน แต่พยายามทำให้ออกมา เป็นแบบเดียวกันให้ได้" (gen.mjs's budget not raised).
+Every picture here is PixelLab editing the game's own native pixels, so the style is the mannequin's own:
+
+- **Outfits** (`pl-items.mjs`, `pl-doll.mjs pack|unpack`): the mannequin's eight walking and six sitting frames laid on
+  one canvas each at native size on the builder's own grid (the seated pitch too), edited by `/edit-image-pro-flash` with
+  the Count's words as the template (STYLE, WALK, REST, SEAT), laid back cell for cell into `do-`/`dk-` sheets. Long capes
+  and gowns are in the outfit itself (the Count's cape, the Countess's gown); seated, nothing may fall below the figure's
+  own lowest pixels. Eleven shop outfits x2 (men's, women's) and the two auction sets x2.
+- **Head things** (`pl-doll.mjs head <slot>`, `unhead`): the bald head front and back on one canvas, masked by slot
+  (`hat`, `hatwide` for a wide brim, `full` for the pumpkin head, `hair`, `face`, `neck`, `hairdo`), by
+  `/inpaint-image-pro-flash`. The changed cells are the thing; the head redrawn a few shades off is the head, and skin
+  grown past the head's old edge is the head only within two cells of it (a bear ear's tan inside, further off, is the
+  ear: fixed 2026-10-25 after the ears came out as hollow rings). `--prune` takes a one-cell thread off (a brim's ring);
+  `--one` keeps only what lies by the largest piece (the pocket watch's strays by the boots).
+- **Hairstyles** (`prompts/pixellab/hair/`): f15–f18, m14–m17 painted on the bald head (`hairdo` mask), green to be
+  recoloured as every hair is. The hime cut (f18) came out short in front; its long sides were painted on its own picture
+  with a mask beside the body only (`f18-sides`, read by Codex: send).
+- **Granny** (`popoto-granny`, `talk-granny`, `pl-sheet.mjs`) and **the limited one-shots** (`/vfx`, `count-bats`,
+  `pumpkin-wisps`: public/town/vfx, lib/town/limited-fx.json).
+- **Reviews**: each batch's template and its pictures read by Codex before it ran (`REVIEW=`); 7 calls made unread with
+  the reason in the ledger: cowboy/sunhat (Codex stopped only for a canvas in git-ignored work/, the words it had passed
+  in the batch read, only the brim's thickness added), the sun hat on a wider mask, the bear ears and the first hime
+  redraw (in the words of Codex's own art review).
+- **Codex's art review** of the whole set (`checks/wear-look.mjs` contact sheets): three faults, all fixed: the pocket
+  watch's strays, the bear ears' thin ring, the hime cut's short front.
+- **Spent** (the ledger, PixelLab's own count): 110 calls (56 edit, 50 inpaint, 4 vfx), about 714 generations (866.7 to
+  151.3 left this month); OpenAI none.
