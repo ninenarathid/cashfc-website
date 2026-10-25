@@ -129,6 +129,91 @@ if (cmd === "unpack") {
   }
 }
 
+// ── Head things (hats, glasses, things at the neck, in the hair): build-pixel-atlas.mjs reads only the standing figure of
+// a dh-/da- sheet against its base (a hat and a hair thing: f-bald-<view>; glasses: f-neutral-front; the neck:
+// d2-mannequin-<view>), and its key copy (dhk-/dak-) says which cells are the thing. PixelLab's inpaint keeps every
+// cell outside its mask exactly, so the key is the cells that changed.
+//   node pl-doll.mjs head <dir> <slot>          writes <dir>/head.png, <dir>/head-mask.png and head.json (slot: hat,
+//                                               hair, face, neck): the standing figure of each view side by side
+//   node pl-doll.mjs unhead <dir> <id> <g>      reads <dir>/head-out.png, writes work/out/<g>-<id>-<view>.png and
+//                                               <g>k-<id>-<view>.png (g: dh for a hat, da for the rest)
+const HEAD_BASE = { hat: (v) => `f-bald-${v}`, hair: (v) => `f-bald-${v}`, face: () => "f-neutral-front", neck: (v) => `d2-mannequin-${v}` };
+const HEAD_VIEWS = { hat: ["front", "back"], hair: ["front", "back"], face: ["front"], neck: ["front", "back"] };
+async function standing(slot, v) {
+  const name = HEAD_BASE[slot](v), raw = await L.loadRaw(path.join(OUT, `${name}.png`));
+  const t = name === "f-neutral-front" ? "front" : v;
+  const grid = L.detectGrid(raw, (await baldGrid(t)).p), g = L.cellsOf(raw, grid);
+  const F = L.figures(g, L.spansOf(g, 4))[1], b = L.bbox(g, F);
+  // the chin: the narrowest row between the head and the body
+  let cut = b.y0, w = 1e9;
+  for (let y = b.y0 + Math.round((b.y1 - b.y0) * 0.4); y <= b.y0 + Math.round((b.y1 - b.y0) * 0.75); y++) {
+    let x0 = 1e9, x1 = -1; for (const i of F) if (((i / g.GW) | 0) === y) { const x = i % g.GW; x0 = Math.min(x0, x); x1 = Math.max(x1, x); }
+    if (x1 >= 0 && x1 - x0 < w) { w = x1 - x0; cut = y; }
+  }
+  return { name, raw, grid, g, F, b, cut };
+}
+if (cmd === "head") {
+  const slot = id;
+  if (!HEAD_BASE[slot]) { console.log("head <dir> <hat|hair|face|neck>"); process.exit(1); }
+  fs.mkdirSync(dir, { recursive: true });
+  const parts = [];
+  for (const v of HEAD_VIEWS[slot]) {
+    const s = await standing(slot, v);
+    // what is cut: the head with room above it for a tall hat, down to a little under the chin (the neck: to the chest)
+    const y0 = s.b.y0 - (slot === "hat" || slot === "hair" ? 22 : 2), y1 = slot === "neck" ? s.cut + 16 : s.cut + 3;
+    const x0 = s.b.x0 - 6, x1 = s.b.x1 + 6;
+    parts.push({ v, s, x0, y0, w: x1 - x0 + 1, h: y1 - y0 + 1 });
+  }
+  const W = up4(Math.max(32, parts.reduce((n, p) => n + p.w, 0))), H = up4(Math.max(32, ...parts.map((p) => p.h)));
+  const img = Buffer.alloc(W * H * 4), mask = Buffer.alloc(W * H * 4);
+  for (let i = 0; i < W * H; i++) mask[i * 4 + 3] = 255;
+  let ox = 0;
+  const meta = { slot, W, H, parts: [] };
+  for (const p of parts) {
+    const { g, F, b, cut } = p.s, oy = H - p.h;
+    for (const i of F) { const x = i % g.GW, y = (i / g.GW) | 0; if (y < p.y0 || y >= p.y0 + p.h) continue; img.set(g.c.subarray(i * 4, i * 4 + 4), ((oy + y - p.y0) * W + ox + x - p.x0) * 4); }
+    // where it may draw: a hat or a hair thing above the ears (the face, the ears and the chin stay); glasses across
+    // the eyes; a neck thing from the chin down to the chest, over the shoulders
+    const earTop = b.y0 + Math.round((cut - b.y0) * 0.55), eyes = b.y0 + Math.round((cut - b.y0) * 0.62);
+    const may = (x, y) => slot === "hat" || slot === "hair" ? y <= earTop
+      : slot === "face" ? Math.abs(y - eyes) <= 5 && x >= b.x0 - 3 && x <= b.x1 + 3
+      : y >= cut - 2;
+    for (let y = 0; y < p.h; y++) for (let x = 0; x < p.w; x++) if (may(p.x0 + x, p.y0 + y)) { const o = ((oy + y) * W + ox + x) * 4; mask[o] = mask[o + 1] = mask[o + 2] = 255; }
+    meta.parts.push({ v: p.v, base: p.s.name, ox, oy, x0: p.x0, y0: p.y0, w: p.w, h: p.h });
+    ox += p.w;
+  }
+  await png(img, W, H, path.join(dir, "head.png"));
+  await png(mask, W, H, path.join(dir, "head-mask.png"));
+  fs.writeFileSync(path.join(dir, "head.json"), JSON.stringify(meta, null, 1));
+  console.log(`head.png ${W}x${H} (${meta.parts.map((p) => p.v).join(", ")})`);
+}
+if (cmd === "unhead") {
+  const g0 = look;
+  if (!id || !["dh", "da"].includes(g0)) { console.log("unhead <dir> <id> <dh|da>"); process.exit(1); }
+  const meta = JSON.parse(fs.readFileSync(path.join(dir, "head.json"), "utf8"));
+  const got = await L.loadRaw(path.join(dir, "head-out.png")), was = await L.loadRaw(path.join(dir, "head.png"));
+  for (const p of meta.parts) {
+    const s = await standing(meta.slot, p.v), { raw, grid, g } = s, { p: P, phx, phy } = grid;
+    const sheet = Buffer.from(raw.data), key = Buffer.from(raw.data);
+    const fill = (buf, gx, gy, c) => {
+      const x0 = Math.round(phx + gx * P), x1 = Math.round(phx + (gx + 1) * P), y0 = Math.round(phy + gy * P), y1 = Math.round(phy + (gy + 1) * P);
+      for (let y = Math.max(0, y0); y < Math.min(raw.H, y1); y++) for (let x = Math.max(0, x0); x < Math.min(raw.W, x1); x++) { const o = (y * raw.W + x) * 4; buf[o] = c[0]; buf[o + 1] = c[1]; buf[o + 2] = c[2]; buf[o + 3] = c[3]; }
+    };
+    let n = 0;
+    for (let y = 0; y < p.h; y++) for (let x = 0; x < p.w; x++) {
+      const o = ((p.oy + y) * meta.W + p.ox + x) * 4, a = got.data, b = was.data;
+      const same = Math.abs(a[o] - b[o]) + Math.abs(a[o + 1] - b[o + 1]) + Math.abs(a[o + 2] - b[o + 2]) < 4 && (a[o + 3] >= 128) === (b[o + 3] >= 128);
+      if (same) continue;
+      const gx = p.x0 + x, gy = p.y0 + y;
+      if (a[o + 3] >= 128) { fill(sheet, gx, gy, [a[o], a[o + 1], a[o + 2], 255]); fill(key, gx, gy, [230, 0, 200, 255]); n++; }
+      else { fill(sheet, gx, gy, [0, 0, 0, 0]); fill(key, gx, gy, [0, 0, 0, 0]); }
+    }
+    await png(sheet, raw.W, raw.H, path.join(OUT, `${g0}-${id}-${p.v}.png`));
+    await png(key, raw.W, raw.H, path.join(OUT, `${g0}k-${id}-${p.v}.png`));
+    console.log(`${g0}-${id}-${p.v}.png  ${n} cells changed (base ${p.base})`);
+  }
+}
+
 if (cmd === "look") {
   const pics = [];
   for (const name of ["walk", "rest"]) for (const f of [`${name}.png`, `${name}-out.png`]) if (fs.existsSync(path.join(dir, f))) pics.push(path.join(dir, f));

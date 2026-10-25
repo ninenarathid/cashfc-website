@@ -175,6 +175,16 @@
         "back": "the back of a cream linen blouse with short puffed sleeves and a red neckerchief passing around the back of the neck, its knot and tails at the throat out of sight; the two shoulder straps of a patched denim-blue pinafore dress crossing in an X on the back, one lighter blue square patch near the hem, its skirt ending just above the knee; tall glossy green rubber boots seen from behind",
         "pose": " In both sitting poses, the skirt drapes continuously over the lap and upper thighs, with one continuous hem just above the bent knees, rather than separate shorts-like leg openings; preserve the reference's hand, knee and foot positions and the readable bent-leg silhouette. In the sleeping pose, the skirt follows the bent hips and thighs without changing the leg positions."
       }
+    },
+    {
+      "id": "count",
+      "pl": "prompts/pixellab/doll/count-*.json",
+      "front": "a vampire count: a fitted black jacket with short tails, a crimson-lined stand-up collar below the chin, a dark crimson waistcoat with small silver buttons, a white cravat, slim black trousers, polished black boots with silver buckles, a black cape lined in crimson to mid-calf",
+      "back": "the plain black outside of the cape covering the back to mid-calf, the crimson collar at the neck, black boots below",
+      "f": {
+        "front": "the same jacket, collar, waistcoat, cravat and cape over a crimson knee-length skirt layered with black lace, black stockings and the buckled boots",
+        "back": "the plain black outside of the cape covering the back to mid-calf, the crimson collar at the neck, black boots below"
+      }
     }
   ],
   "hats": [

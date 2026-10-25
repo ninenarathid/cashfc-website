@@ -20,7 +20,7 @@ const hats = [null, ...Object.keys(j.wear?.hat ?? {})];
 for (const hair of HAIRS) for (const view of ["front", "back"]) rows.push(hats.map((hat) => ({ hair, view, hat })));
 const accs = [["face", Object.keys(j.wear?.face ?? {})], ["neck", Object.keys(j.wear?.neck ?? {})], ["hairWear", Object.keys(j.wear?.hair ?? {})]];
 for (const hair of HAIRS.slice(0, 2)) for (const view of ["front", "back"]) rows.push(accs.flatMap(([slot, ids]) => ids.map((id) => ({ hair, view, [slot]: id }))));
-const outfits = ["starter", ...Object.keys(j.outfits ?? {})];
+const outfits = process.env.OUTFITS ? process.env.OUTFITS.split(",") : ["starter", ...Object.keys(j.outfits ?? {})];
 for (const pose of ["walk", "sit", "eat0", "eat1"]) for (const view of ["front", "back"]) rows.push(outfits.map((outfit) => ({ hair: HAIRS[0], view, outfit, pose })));
 const cols = Math.max(...rows.map((r) => r.length));
 const out = Buffer.alloc(CW * cols * CH * rows.length * 4);
