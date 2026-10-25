@@ -127,6 +127,8 @@ export const HATS: Wearable[] = [
   { id: "aviatorcap", th: "หมวกนักบิน", en: "Aviator cap", from: TAILOR },
   { id: "tricorn", th: "หมวกโจรสลัด", en: "Tricorn", from: TAILOR },
   { id: "ghostcap", th: "หมวกผีน้อย", en: "Little ghost cap", from: TAILOR },
+  // (the pumpkin set's: the owner, 2026-10-25, "costome ฟักทอง ช่วยออกแบบหมวกให้ปิดทั้งหัวเลยก็ได้": over the whole head)
+  { id: "pumpkinhead", th: "หัวฟักทองแจ็ก", en: "Jack-o'-lantern head", from: AUCTION("pumpkin") },
 ];
 
 /** Worn on the face, over the eyes. */

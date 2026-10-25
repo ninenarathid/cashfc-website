@@ -39,7 +39,7 @@ describe("what is worn is had from the game (the owner, 2026-10-17)", () => {
     for (const w of Object.values(DRESS_ITEMS)) expect(all.has(w!)).toBe(true);
     for (const id of Object.keys(WEAR_CRAFTS)) expect(WEAR_BAG[id as keyof typeof WEAR_BAG]).toBeTruthy();
     // (2026-10-25: Granny Twilla's forty and the auction's first four, past a digit a list no more: look version 7)
-    expect([OUTFITS, HATS, FACE_WEAR, NECK_WEAR, HAIR_WEAR].map((l) => l.length)).toEqual([31, 28, 19, 20, 23]);
+    expect([OUTFITS, HATS, FACE_WEAR, NECK_WEAR, HAIR_WEAR].map((l) => l.length)).toEqual([31, 29, 19, 20, 23]);
     for (const id of Object.keys(TAILOR)) expect(all.has(id)).toBe(true);
     for (const l of [OUTFITS, HATS, FACE_WEAR, NECK_WEAR, HAIR_WEAR]) expect(l.length).toBeLessThanOrEqual(WEAR_MAX);
   });
