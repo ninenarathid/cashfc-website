@@ -540,3 +540,11 @@ Every picture here is PixelLab editing the game's own native pixels, so the styl
   gaps between locks allowed rather than a solid curtain; bolder shapes for f15, f17, m16, its words taken). 7 calls,
   42 generations (109.3 left). The wardrobe now shows every hairstyle as a card on one's own head, the shop's not
   bought as its shadow with the shop and the price.
+- **The hanging lengths** (the owner, of the hime cut and the half-up bun: "ทรงผมเหมือนโดนตัดแปลกๆ"): both hung as flat
+  blocks cut level (not a crop: the built hair is as tall as drawn). Their hanging lengths, front and back, were painted
+  again in locks with tapered ends of uneven length (`f18-ends`, `m17-ends`, masks clear of the ears, bangs and bun; read
+  by Codex: send). 2 calls, 12 generations (103.3 left). Specks of skin left at the crown's rim from behind (the model's
+  hair outline a cell inside the skull's light edge) are covered by the builder for the shop's hairstyles only
+  (`coverRim`, `SHOP_HAIRS`); `checks/hair-crown.mjs` counts bare crown cells (none on the eight; the old ones untouched).
+  Codex's look after: the undercut's blonde back (its shaved part near skin) and the mullet's back (a flat slab) still
+  weaker, shown to the owner before any redraw.
