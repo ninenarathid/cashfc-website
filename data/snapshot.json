@@ -519,6 +519,7 @@
   },
   "jobs": {},
   "ex": [
+   "Doomtrain",
    "Enuo",
    "Valigarmanda",
    "Zoraal Ja"
@@ -2297,7 +2298,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 97,
+  "level": 98,
   "cc": [
    true,
    true,
@@ -2524,7 +2525,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 91,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -5292,7 +5293,7 @@
   "mounts": 128,
   "minions": 320,
   "rare": 115,
-  "level": 92,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -5414,7 +5415,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-24"
+  "chg": "2026-10-25"
  },
  "8286372": {
   "name": "Aloha Banana",
@@ -8763,7 +8764,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 80,
+  "level": 81,
   "cc": [
    false,
    false,

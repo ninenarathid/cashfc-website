@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-10-25",
+   "type": "ex_clear",
+   "id": 58199536,
+   "name": "Areeya Lovekin",
+   "text": "cleared Doomtrain (Extreme)"
+  },
+  {
+   "date": "2026-10-25",
    "type": "level_100",
    "id": 9444020,
    "name": "Non Elemental",
@@ -1392,13 +1399,6 @@
    "id": 38488824,
    "name": "Daffodil Amary",
    "text": "earned R&D: Stellar Saw"
-  },
-  {
-   "date": "2026-10-12",
-   "type": "rare_up",
-   "id": 38152072,
-   "name": "Parker Thonhart",
-   "text": "earned A Load of Verminion I — only 2.9% of players have it"
   }
  ]
 }
