@@ -91,4 +91,5 @@ export interface AuctionBoard extends AuctionRound {
   /** Once settled: who has the copies, best first. */
   owners: Array<{ member: string; name: string; edition: number }>;
 }
-export interface AuctionBoards { now: number; auctions: AuctionBoard[] }
+/** Every round's boards, and every copy ever won (for the badge under its wearer's name). */
+export interface AuctionBoards { now: number; auctions: AuctionBoard[]; owners?: Array<{ member: string; outfit: string; edition: number; copies: number; run: number }> }

@@ -27,13 +27,14 @@ import { keepMotion, keptMotion } from "@/lib/town/motion";
 import { SHOP as STALL_RULES } from "@/lib/town/shop";
 import { SIGN, decodeSign, inReach, type Sign } from "@/lib/town/sign";
 import { askFor, chatFor, talkFor, type Line, type Speaker } from "@/lib/town/talk";
-import { WALK_FPS, facingFor, loadPixelKit, type PixelKit, type View } from "@/lib/town/pixeldoll";
+import { DOLL_PX, WALK_FPS, facingFor, loadPixelKit, type PixelKit, type View } from "@/lib/town/pixeldoll";
+import LIMITED_FX from "@/lib/town/limited-fx.json";
 import { loadBoxes, loadForest, loadScenery, type SceneryKit } from "@/lib/town/scenery";
 import { boxSprite } from "@/lib/town/box-art";
 import { personHitAt } from "@/lib/town/person-hit";
 import { bangkokMinute, daylight, daylightAt, overcast, sunOf } from "@/lib/town/daylight";
 import { SHAPES as CLOUD_SHAPES, cloudBlobs, cloudsAt } from "@/lib/town/clouds";
-import { SKINS, decodeLook, defaultLook, hairsFor, readLook, skinsOf, type Look } from "@/lib/town/look";
+import { SKINS, decodeLook, defaultLook, hairsFor, onlyOwnedHair, readLook, savedLook, skinsOf, type Look } from "@/lib/town/look";
 import { BUILDING, POLL, etaShort } from "@/lib/town/board";
 import { alongRoute, outingsNow, presence, type Activity, type Outing } from "@/lib/town/popotos";
 import { BIRDS, BUTTERFLIES, birdAt, butterflyAt, petsOf, rompsNow } from "@/lib/town/critters";
@@ -3501,6 +3502,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       if (!seen || seen.mood !== mood) moodSeen.current.set(a.info.id, { mood, at: now });
       const expr = mood && now - (moodSeen.current.get(a.info.id)?.at ?? now) < EXPRESSION_MS + 1500 ? expressionOf(mood) : null;
       kit.draw(ctx, look, face.view, face.mirror, p.x, p.y, k, { step, blink, talk, expr, eat: eatPose, sit: sitting(a) || perched, perch: !!tableSeatOf(a)?.back }, dpr);
+      // ── Granny Twilla's limited outfits ── (now and then what the outfit is made of shows: bats slip out of the
+      // count's cape, the pumpkin's ghost flames flicker off; a one-shot of PixelLab's, in the doll's own pixels)
+      const design = OUTFITS[look.outfit ?? 0]?.id;
+      if ((design === "count" || design === "pumpkin") && !reducedRef.current) limitedFx(ctx, a.info.id, design, p.x, p.y, k, face.mirror, now, sitting(a) || perched);
     } else {
       // Until the dolls arrive: a simple figure.
       ctx.fillStyle = "#6aa9e0";
@@ -3578,6 +3583,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       const rank = ranksRef.current.ranks[who] ?? 0;
       if (title) drawTitlePlate(ctx, { text: words.current.th ? title.th : title.en, line: worn.line, rank: worn.rank, x: p.x, y: foot.y + 31, now, seed: seedOf(a.info.id), img: iconImg.current, font: fontRef.current, reduced: reducedRef.current });
       else if (rank > 0) tag(ctx, RANK_TITLES[rank - 1][words.current.th ? 0 : 1], p.x, foot.y + 31, RANK_INK[rank - 1]);
+      // (Granny Twilla's: a try is said to be one; a limited copy worn by its winner says its number)
+      const below = foot.y + (title || rank > 0 ? 49 : 31);
+      if (a.info.trying) tag(ctx, words.current.th ? "ลองชุด" : "Trying on", p.x, below, "#9fd0ff");
+      else {
+        const lim = limitedOwners.current.get(isMe ? me.id : a.info.id)?.find((o) => o.outfit === OUTFITS[look.outfit ?? 0]?.id);
+        if (lim) tag(ctx, `LIMITED #${lim.edition}/${lim.copies}`, p.x, below, "#e9c6ff");
+      }
       ctx.restore();
     }
     names.push(() => {
@@ -3805,6 +3817,24 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   }
 
   /** A few small words under a name: what somebody is called for what they have done. */
+  /** A limited outfit's one-shot over its wearer, every eight to fourteen seconds (half as often sitting). */
+  function limitedFx(ctx: CanvasRenderingContext2D, id: string, design: "count" | "pumpkin", x: number, y: number, k: number, mirror: boolean, now: number, sat: boolean) {
+    const fx = LIMITED_FX[design], img = limitedImgs.current[design] ??= Object.assign(new Image(), { src: fx.src });
+    const st = limitedAt.current.get(id) ?? { next: now + 1500 + Math.random() * 5000, start: null as number | null };
+    limitedAt.current.set(id, st);
+    if (st.start === null && now >= st.next) st.start = now;
+    if (st.start === null || !img.complete || !img.naturalWidth) return;
+    const f = Math.floor((now - st.start) / fx.ms);
+    if (f >= fx.frames) { st.start = null; st.next = now + (8000 + Math.random() * 6000) * (sat ? 2 : 1); return; }
+    const s = k * DOLL_PX;
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    ctx.translate(Math.round(x), Math.round(y));
+    if (mirror) ctx.scale(-1, 1);
+    ctx.drawImage(img, (f % fx.columns) * fx.w, Math.floor(f / fx.columns) * fx.h, fx.w, fx.h, Math.round(fx.ox * s), Math.round(fx.oy * s), Math.round(fx.w * s), Math.round(fx.h * s));
+    ctx.restore();
+  }
+
   function tag(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, fg: string) {
     ctx.font = `600 10px ${fontRef.current}`;
     ctx.textAlign = "center";
@@ -4329,8 +4359,43 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (wardrobeOpenRef.current) closeWardrobe();
     setCard(null); setPopover(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setBoardOpen(false); setTalk(null); setTrade(null);
     setFishing(false);
+    // (her clothes are tried on my own avatar: the camera comes close to me, in the part of the screen the window
+    // leaves, as the wardrobe's does; it goes back as the window shuts)
+    if (panel === "tailor" && shopZoomBefore.current === null) {
+      shopZoomBefore.current = cam.current.s;
+      const v = cam.current;
+      focus.current = phone ? { x: v.cw / 2, y: v.ch * 0.2 } : { x: (v.cw - 368) / 2, y: v.ch / 2 };
+      setCam({ s: clampScale(WARDROBE_ZOOM, v.cw, v.ch, BOUNDS[placeRef.current]), cx: v.cx, cy: v.cy });
+      v.follow = true;
+    }
     setShopPanel(panel);
   };
+  const shopZoomBefore = useRef<number | null>(null);
+  // the limited outfits' one-shots (each wearer's next and current), their pictures, and who won which copy (asked of
+  // the auction's rounds as the town opens, every ten minutes, and as the shop's windows shut)
+  const limitedAt = useRef(new Map<string, { next: number; start: number | null }>());
+  const limitedImgs = useRef<Record<string, HTMLImageElement>>({});
+  const limitedOwners = useRef(new Map<string, Array<{ outfit: string; edition: number; copies: number }>>());
+  useEffect(() => {
+    if (!keeper || shopPanel) return;
+    let on = true;
+    const ask = () => void keeper.auctions().then((b) => {
+      if (!on || !b) return;
+      const m = new Map<string, Array<{ outfit: string; edition: number; copies: number }>>();
+      for (const o of b.owners ?? []) m.set(o.member, [...(m.get(o.member) ?? []), { outfit: o.outfit, edition: o.edition, copies: o.copies }]);
+      limitedOwners.current = m;
+    });
+    ask();
+    const id = window.setInterval(ask, 600_000);
+    return () => { on = false; window.clearInterval(id); };
+  }, [keeper, shopPanel]);
+  useEffect(() => {
+    if (shopPanel || shopZoomBefore.current === null) return;
+    const v = cam.current, s0 = shopZoomBefore.current;
+    shopZoomBefore.current = null;
+    focus.current = null;
+    setCam({ s: clampScale(s0, v.cw, v.ch, BOUNDS[placeRef.current]), cx: v.cx, cy: v.cy });
+  }, [shopPanel]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /** The wishing fountain: its panel takes the board's place. */
   const openFountain = () => {
@@ -4749,9 +4814,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // What I wear and have not had from the game (worn in the trial, before things were had from ranks) comes off, once
   // my lines are known; the test room keeps whatever its scripts put on
   useEffect(() => {
-    if (!s || !linesTold || testTopic || wearAll || dressed === null) return;
+    // (nor while clothes are tried on at Granny's: the look is not mine yet, and goes back when the try ends)
+    if (!s || !linesTold || testTopic || wearAll || dressed === null || s.self.info.trying) return;
     const points = Object.fromEntries(Object.entries(linesTold.lines).map(([id, l]) => [id, l.points]));
-    const had = onlyOwned(myLook, points, new Set(dressed));
+    const had = onlyOwnedHair(onlyOwned(myLook, points, new Set(dressed)), new Set(dressed));
     if (had !== myLook) s.setLook(had);
   }, [s, linesTold, myLook, testTopic, wearAll, dressed]);
 
@@ -5467,7 +5533,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
           <Suspense fallback={null}>
             {(() => {
               const props: ShopWindowProps = { th: w.th, keeper: keeper ?? null, art: boardArt, phone, onClose: () => setShopPanel(null),
-                dressMannequin: (draw) => { if (shopArtRef.current) shopArtRef.current.onMannequin = draw; } };
+                dressMannequin: (draw) => { if (shopArtRef.current) shopArtRef.current.onMannequin = draw; },
+                look: decodeLook(s.self.info.trying ? undefined : s.self.info.look) ?? savedLook(me.id) ?? defaultLook(me.id),
+                kit: kits.current.get(0) ?? null, had: wearHad, points: wearPoints, coins: purse.coins,
+                tryOn: (l) => s.tryLook(l),
+                // (what was bought is had at once, before the wardrobe's own answer comes, so the look is not taken off)
+                wear: (l) => { s.tryLook(null); s.setLook(l); },
+                onDressed: (ids) => { if (ids?.length) setDressed((d) => [...new Set([...(d ?? []), ...ids])]); window.dispatchEvent(new Event("cashtown:dressed")); },
+                switchTo: (panel) => openShopPanel(panel) };
               return shopPanel === "auction" ? <TownAuction {...props} /> : <TownTailor {...props} />;
             })()}
           </Suspense>

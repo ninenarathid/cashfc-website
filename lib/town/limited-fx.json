@@ -1,0 +1,22 @@
+{
+ "count": {
+  "src": "/town/vfx/limited-count-5d6ac93325.png",
+  "frames": 6,
+  "columns": 3,
+  "w": 109,
+  "h": 38,
+  "ox": -54,
+  "oy": -53,
+  "ms": 67
+ },
+ "pumpkin": {
+  "src": "/town/vfx/limited-pumpkin-6a77f3a0ce.png",
+  "frames": 5,
+  "columns": 3,
+  "w": 47,
+  "h": 30,
+  "ox": -25,
+  "oy": -50,
+  "ms": 63
+ }
+}

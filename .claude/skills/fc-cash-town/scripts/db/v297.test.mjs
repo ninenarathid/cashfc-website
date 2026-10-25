@@ -73,7 +73,7 @@ try {
   const faces = await one("select pg_get_constraintdef(oid) d from pg_constraint where conname = 'town_announcement_faces_look_check'");
   if (faces) eq(faces.d.includes("7[0-9a-z]{17}"), true, "the faces take a look of version 7");
   eq((await one("select data d from public.town_catalog where key = 'tailor'")).d, JSON.parse(JSON.stringify(TAILOR)), "the catalog's tailor row is lib/town/tailor's");
-  eq((await one("select (select count(*)::int from jsonb_object_keys(data)) n from public.town_catalog where key = 'tailor'")).n, 40, "forty things on her rails");
+  eq((await one("select (select count(*)::int from jsonb_object_keys(data)) n from public.town_catalog where key = 'tailor'")).n, 48, "forty things and eight hairstyles on her rails");
   eq((await rows("select design, run, copies, start_price from public.town_auctions order by id")).map((r) => [r.design, r.run, r.copies, r.start_price]), [["count", 1, 3, 8000], ["pumpkin", 1, 3, 8000]], "the first round's two designs");
   eq((await one("select to_char(closes_at at time zone 'Asia/Bangkok', 'YYYY-MM-DD HH24:MI') c from public.town_auctions where design = 'count'")).c, "2026-10-31 21:00", "closes Saturday 21:00 Bangkok");
   eq((await one("select has_function_privilege('anon', 'public.town_bid(bigint,integer,uuid)', 'execute') or has_function_privilege('anon', 'public.town_tailor_buy(text,uuid)', 'execute') or has_function_privilege('anon', 'public.town_auctions()', 'execute') r")).r, false, "anon may call none of it");
@@ -180,6 +180,7 @@ try {
   const wardrobe = await asOf(standing[0][0])("select public.town_dressed() r");
   eq(wardrobe.limited.party, [1, 1], "the wardrobe says the round and the number");
   ok(again.auctions.length >= 3, "the first round's two and ours");
+  eq(again.owners.filter((o) => o.outfit === "party").sort((x, y) => x.edition - y.edition).map((o) => [o.member, o.edition, o.copies]), standing.map(([m], i) => [m, i + 1, 2]), "every copy won, for the badge");
 
   // a round settled by a member's wardrobe alone, with one bid
   const id2 = Number(await round(3, 1000, 3600, 3600, 3600));

@@ -621,7 +621,7 @@ export class Trial {
       return { ...r, settledAt: now, owners: won.map((w) => ({ member: w.member, name: w.name, edition: w.edition })) };
     });
     this.write(AUCTIONS, all);
-    return { now, auctions: all.map((r) => this.boardOf(r)) };
+    return { now, auctions: all.map((r) => this.boardOf(r)), owners: all.flatMap((r) => r.owners.map((o) => ({ member: o.member, outfit: r.wearables[0], edition: o.edition, copies: r.copies, run: r.run }))) };
   }
   /** (v297) A bid on a round (town_bid): paid and held at once; the one pushed out is paid back (a pretend rival's coins go nowhere). */
   bid(auction: number, amount: number): { ok: true; pay: number; auction: AuctionBoard } | { ok: false; why: Refusal; least?: number; auction?: AuctionBoard } {

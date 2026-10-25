@@ -126,6 +126,8 @@ const GAME_LALAFELL = 0.6;
  * belt is at 0.54 of her height, 2.03 game Lalafell). Nobody else changes size.
  */
 const LALAFELL_SIZE = 0.67;
+/** Map pixels to one of the doll's own at scale 1: an effect drawn in the doll's pixels (lib/town/limited-fx) is laid at it. */
+export const DOLL_PX = LALAFELL_SIZE;
 
 /** Steps a second while walking. */
 export const WALK_FPS = 10;

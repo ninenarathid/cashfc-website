@@ -318,7 +318,12 @@ begin
   perform town.auctions_due();
   return jsonb_build_object('now', (extract(epoch from now()) * 1000)::bigint, 'auctions', coalesce((
     select jsonb_agg(town.auction_board(me, a.id) order by a.closes_at, a.id) from public.town_auctions a
-     where a.settled_at is null or a.settled_at > now() - interval '14 days'), '[]'::jsonb));
+     where a.settled_at is null or a.settled_at > now() - interval '14 days'), '[]'::jsonb),
+    -- (every copy ever won, for the badge under its wearer's name: who, which outfit, its number, of how many, which round)
+    'owners', coalesce((
+    select jsonb_agg(jsonb_build_object('member', d.member_id, 'outfit', d.wearable, 'edition', d.edition, 'copies', a.copies, 'run', d.run))
+      from public.town_dressed d join public.town_auctions a on a.wearables[1] = d.wearable and a.run = d.run and a.settled_at is not null
+     where d.how = 'auction'), '[]'::jsonb));
 end;
 $$;
 revoke all on function public.town_auctions() from public, anon;
@@ -456,7 +461,15 @@ insert into public.town_catalog (key, data) values
     "cherry": {"price":250},
     "fanpin": {"price":1500},
     "hibiscus": {"price":500},
-    "batclip": {"price":400,"season":[10,1,11,2]}
+    "batclip": {"price":400,"season":[10,1,11,2]},
+    "hairbuns": {"price":1800},
+    "hairwaves": {"price":2500},
+    "hairpixie": {"price":1500},
+    "hairhime": {"price":2200},
+    "hairundercut": {"price":1800},
+    "hairmullet": {"price":2200},
+    "haircurly": {"price":1500},
+    "hairhalfbun": {"price":2500}
   }$town$::jsonb)
   on conflict (key) do nothing;
 -- </catalog:v297>
@@ -472,7 +485,7 @@ notify pgrst, 'reload schema';
 --                                                    -- CHECK ((look ~ '^(5[0-9a-z]{7}|6[0-9a-z]{12}|7[0-9a-z]{17})$'::text))
 --   select pg_get_constraintdef(oid) from pg_constraint where conname = 'town_dressed_how_check';
 --                                                    -- CHECK ((how = ANY (ARRAY['dress'::text, 'drop'::text, 'shop'::text, 'auction'::text])))
---   select count(*) from public.town_catalog c, jsonb_object_keys(c.data) where c.key = 'tailor';    -- 40
+--   select count(*) from public.town_catalog c, jsonb_object_keys(c.data) where c.key = 'tailor';    -- 48
 --   select design, run, copies, start_price, closes_at at time zone 'Asia/Bangkok' from public.town_auctions order by id;
 --                                                    -- count 1 3 8000 2026-10-31 21:00, pumpkin 1 3 8000 2026-10-31 21:00
 --   select has_function_privilege('anon', 'public.town_bid(bigint,integer,uuid)', 'execute');            -- false
