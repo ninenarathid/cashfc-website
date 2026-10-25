@@ -565,3 +565,5 @@ Every picture here is PixelLab editing the game's own native pixels, so the styl
   curls back on their fringe versions (natural bangs already, Codex fine). 11 calls, about 66 generations: **PixelLab
   at 1.3 for the month.** Weak still, for next month: the mullet's bangs read nearly level in dark brown; the
   undercut's buzzed band goes tan in blonde.
+- The owner then of the space buns ("แก้ทรงนี้ด้วย"): its redraw's bangs were cut level too, and no generations were left
+  for a bangs pass: it is back on its fringe version (parted tapered locks), at no cost.
