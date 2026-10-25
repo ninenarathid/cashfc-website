@@ -20,6 +20,12 @@ export const TOWN_MAP_KEY = "cashtown:map";
 const isMap = (m: unknown): m is TownMap => m === "classic" || m === "town2";
 
 function picked(): TownMap {
+  // (`next dev`: the test link's `?townMap=` before anything else, whatever this browser kept or whoever read the town
+  // first: the owner's look at the shop on his own machine came up in the old town, 2026-10-25)
+  if (process.env.NODE_ENV !== "production" && typeof location !== "undefined") {
+    const asked = new URLSearchParams(location.search).get("townMap");
+    if (isMap(asked)) return asked;
+  }
   const g = globalThis as { __cashTownMap?: unknown };
   if (isMap(g.__cashTownMap)) return g.__cashTownMap;
   try {
