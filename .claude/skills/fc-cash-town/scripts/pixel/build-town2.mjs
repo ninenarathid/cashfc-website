@@ -16,12 +16,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
-import { createRequire } from "node:module";
+import { REPO, exportReader, sharp, spriteWriter, toIso } from "./editor-export.mjs";
 
-const HERE = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Z]:)/, "$1");
-const REPO = path.resolve(HERE, "../../../../..");
-const require = createRequire(path.join(REPO, "package.json"));
-const sharp = require("sharp");
 const arg = (name, fallback) => { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : fallback; };
 const SRC = arg("--src", "E:/NinenineProject/fcnext/.claude/skills/fc-cash-town/scripts/pixel/work/oatto2");
 const OUT = arg("--out", path.join(REPO, "public/town/town2"));
@@ -30,7 +26,6 @@ const DEBUG = arg("--debug", "");
 
 const map = JSON.parse(fs.readFileSync(path.join(SRC, "map.json"), "utf8"));
 const { cols: COLS, rows: ROWS } = map;
-const toIso = (x, y) => ({ x: 32 * (x - y), y: 16 * (x + y) });
 
 /* ── what each thing is, for walking ─────────────────────────────────────────────────────────────────────────────── */
 
@@ -80,37 +75,8 @@ const wetTile = (tx, ty) => { let n = 0; for (let sy = 0; sy < 8; sy++) for (let
 
 /* ── the pictures ────────────────────────────────────────────────────────────────────────────────────────────────── */
 
-fs.mkdirSync(OUT, { recursive: true });
-const pics = new Map(); // source file -> { data, pw, ph }
-async function picture(file) {
-  if (!pics.has(file)) { const { data, info } = await sharp(path.join(SRC, file)).ensureAlpha().raw().toBuffer({ resolveWithObject: true }); pics.set(file, { data, pw: info.width, ph: info.height }); }
-  return pics.get(file);
-}
-const opaque = (p, x, y) => x >= 0 && y >= 0 && x < p.pw && y < p.ph && p.data[(Math.floor(y) * p.pw + Math.floor(x)) * 4 + 3] > 40;
-
-/** Where a placed thing's picture is drawn, in isometric pixels (README §6), and the picture it is drawn from. */
-async function placeOf(o) {
-  const a = map.assets[o.asset], w = o.w ?? 1, h = o.h ?? 1;
-  const [cx, cy] = o.at ?? [o.x + w / 2, o.y + h / 2];
-  // (a thing standing in water is drawn from its picture without the rings, which the page draws moving: README §7)
-  const file = a.sink?.body ?? a.file, p = await picture(file);
-  const P = a.base === "corner" ? toIso(cx + w / 2, cy + h / 2) : toIso(cx, cy);
-  if (a.base !== "corner" && !a.anchor) P.y += 8 * (w + h) * (a.foot ?? 0.45);
-  let ax, ay;
-  if (a.anchor) [ax, ay] = a.anchor;
-  else {
-    let top = p.ph, bottom = -1, minx = p.pw, maxx = -1;
-    for (let y = 0; y < p.ph; y++) for (let x = 0; x < p.pw; x++) if (opaque(p, x, y)) { if (y < top) top = y; bottom = y; if (x < minx) minx = x; if (x > maxx) maxx = x; }
-    ay = bottom + 1;
-    const band = (from) => { let s = 0, n = 0, mn = p.pw, mx = -1; for (let y = from; y <= bottom; y++) for (let x = 0; x < p.pw; x++) if (opaque(p, x, y)) { s += x; n++; if (x < mn) mn = x; if (x > mx) mx = x; } return { mean: s / n, mid: (mn + mx) / 2 }; };
-    if (a.base === "corner") ax = band(bottom - 2).mean + 0.5;
-    else if (a.center === "base" || a.center === "mean") { const b = band(bottom - Math.max(2, Math.floor((bottom - top) / 12))); ax = a.center === "mean" ? b.mean : b.mid; }
-    else ax = (minx + maxx) / 2;
-  }
-  const k = (a.display?.h ? a.display.h / p.ph : a.display?.w ? a.display.w / p.pw : (a.scale ?? 0.5)) * (o.scale ?? 1);
-  if (o.flip) ax = p.pw - ax;
-  return { a, file, p, cx, cy, w, h, k, left: P.x - ax * k, top: P.y - ay * k, flip: !!o.flip };
-}
+// (reading the pictures, and where each placed thing is drawn: README §6, shared with build-shop.mjs)
+const { picture, opaque, placeOf } = exportReader(SRC, map);
 /** Whether a picture, drawn where it is, is opaque at an isometric point (`lift` pixels up the screen from it). */
 function drawnAt(pl, ix, iy, lift = 0) {
   let px = (ix - pl.left) / pl.k, py = (iy - lift - pl.top) / pl.k;
@@ -195,23 +161,8 @@ for (const { o, pl } of placed) {
 
 /* ── the pictures, cut and written ───────────────────────────────────────────────────────────────────────────────── */
 
-const sprites = [], spriteOf = new Map(); // source file -> index
-async function sprite(file) {
-  if (spriteOf.has(file)) return spriteOf.get(file);
-  const p = await picture(file);
-  let x0 = p.pw, y0 = p.ph, x1 = -1, y1 = -1;
-  for (let y = 0; y < p.ph; y++) for (let x = 0; x < p.pw; x++) if (p.data[(y * p.pw + x) * 4 + 3] > 0) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
-  const w = x1 - x0 + 1, h = y1 - y0 + 1;
-  const buf = await sharp(p.data, { raw: { width: p.pw, height: p.ph, channels: 4 } }).extract({ left: x0, top: y0, width: w, height: h }).webp({ lossless: true, effort: 6 }).toBuffer();
-  const hash = crypto.createHash("sha1").update(buf).digest("hex").slice(0, 10);
-  const slug = path.basename(file, ".png").replace(/~.*$/, "").replace(/[^a-z0-9]+/gi, "-").slice(0, 28).replace(/-$/, "");
-  const name = `${slug}-${hash}.webp`;
-  // (the same picture placed twice, or under two names, is one file)
-  let i = sprites.findIndex((s) => s.src === name);
-  if (i < 0) { fs.writeFileSync(path.join(OUT, name), buf); i = sprites.push({ src: name, w, h, cut: [x0, y0, p.pw, p.ph] }) - 1; }
-  spriteOf.set(file, i);
-  return i;
-}
+// (each picture cut to what is drawn of it and named by its content: shared with build-shop.mjs)
+const { sprites, sprite } = spriteWriter(OUT, picture);
 
 /**
  * How each thing is drawn among the walkers (lib/town/town2-art):
