@@ -51,7 +51,7 @@ import { KITCHEN, atWell, wellBy } from "./world";
 import { trialFor, Trial } from "./trial";
 import { wetMs } from "./weather";
 // ── gifts: farming ──
-import type { RowDid } from "./keeper";
+import type { BidDid, RowDid } from "./keeper";
 // ── mining ──
 import type { MineDid, MineDone, VeinDid } from "./keeper";
 import type { Peek } from "./mining";
@@ -187,6 +187,10 @@ class TrialKeeper implements Keeper {
   async readScroll(slot: number): Promise<Did<{ dish: ItemId }>> { return this.trial.readScroll(slot); }
   async dress(slot: number) { return this.trial.dress(slot); }
   async dressed() { return this.trial.dressed(); }
+  async tailorBuy(wearable: string) { return this.trial.tailorBuy(wearable) as Awaited<ReturnType<Keeper["tailorBuy"]>>; }
+  async auctions() { return this.trial.auctions(); }
+  async bid(auction: number, amount: number) { return this.trial.bid(auction, amount) as BidDid; }
+  async limited() { return this.trial.limited(); }
   async openThing(slot: number): Promise<Did<{ found: ItemId | null }>> { return this.trial.openThing(slot); }
   async hold(slot: number | null): Promise<Did> {
     // (kept before the trial tells whoever watches; an empty slot holds nothing, and is no slot of the hand's)

@@ -54,3 +54,6 @@ export function cannotBuy(id: string, coins: number, had: ReadonlySet<string>, m
   if (had.has(id)) return "known";
   return coins < good.price ? "coins" : null;
 }
+
+/** Why the shop or the auction says no (the database's words, v297). */
+export type TailorRefusal = "season" | "known" | "coins" | "none" | "low" | "closed";

@@ -82,3 +82,13 @@ export function placeBid(round: AuctionRound, bids: readonly Bid[], me: { id: st
 /** Who has a copy when the round is settled, best first, each with its number in the round. */
 export const winners = (round: AuctionRound, bids: readonly Bid[]): Array<Bid & { edition: number }> =>
   ranked(bids).slice(0, round.copies).map((b, i) => ({ ...b, edition: i + 1 }));
+
+/** A round as the database tells a member of it (v297's town.auction_board): the bidders by name only, theirs marked. */
+export interface AuctionBoard extends AuctionRound {
+  bids: Array<{ name: string; amount: number; at: number; mine: boolean }>;
+  /** Whether this member has the design already (from a round before, or this one settled). */
+  had: boolean;
+  /** Once settled: who has the copies, best first. */
+  owners: Array<{ member: string; name: string; edition: number }>;
+}
+export interface AuctionBoards { now: number; auctions: AuctionBoard[] }

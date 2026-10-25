@@ -1,4 +1,6 @@
 import{mealDuration}from"./stamina";
+import type { TailorRefusal } from "./tailor";
+import type { AuctionBoard, AuctionBoards } from "./auction";
 import { syncQuality } from "./quality-plant";
 import type { RockChoice } from "./geology";
 // ── the pasture ── (lib/town/animal-act: one step of the animal line; docs/plans/animals)
@@ -130,7 +132,7 @@ import { lampsOf, type LampMap, type LampRefusal, type LampsTold } from "./lamps
  *   did.
  */
 
-export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRefusal | PassRefusal | BoxRefusal | GroundRefusal | ShopRefusal | GiftRefusal | /* gifts: well */ WellGiftRefusal
+export type Why = Refusal | TailorRefusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRefusal | PassRefusal | BoxRefusal | GroundRefusal | ShopRefusal | GiftRefusal | /* gifts: well */ WellGiftRefusal
   // ── gifts: fishing ──
   | FishRefusal
   // ── felling ──
@@ -142,6 +144,8 @@ export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRef
   // ── the lamp relay ──
   | LampRefusal;
 export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why };
+/** A bid's answer: a refusal may carry the least that would do and the round as it stands (v297). */
+export type BidDid = ({ ok: true; pay: number; auction: AuctionBoard; repeated?: boolean }) | { ok: false; why: Why; least?: number; auction?: AuctionBoard };
 // ── gifts: kitchen ── (what a deed with a gift of the kitchen's comes to: the kitchen has reasons of its own for a no)
 export type KitchenDid<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why | KitchenRefusal };
 /** What can be looked at, and what the room says has changed. */
@@ -282,6 +286,14 @@ export interface Keeper {
   dress(slot: number): Promise<Did<{ wearable: string; dressed: string[] }>>;
   /** (v276) What I have to wear for good, bought or found (none, from a database before v276). */
   dressed(): Promise<string[]>;
+  /** (v297) Buy a thing to wear at Granny Twilla's (lib/town/tailor): coins out, the thing into the wardrobe for good. */
+  tailorBuy(wearable: string, request: string): Promise<Did<{ wearable: string; price: number; dressed: string[] }>>;
+  /** (v297) The limited auction's rounds as I see them (null from a database before v297, or the town away). */
+  auctions(): Promise<AuctionBoards | null>;
+  /** (v297) A bid on a round, paid and held at once (lib/town/auction); a refusal says the least that would do, and the round as it stands. */
+  bid(auction: number, amount: number, request: string): Promise<BidDid>;
+  /** (v297) Which of my things are limited: each its round and its number in it. */
+  limited(): Promise<Record<string, [number, number]>>;
   openThing(slot: number): Promise<Did<{ found: ItemId | null }>>;
   /** Take up the thing in a slot, to hold it; null puts away what is held. */
   hold(slot: number | null): Promise<Did>;
@@ -1696,6 +1708,20 @@ export class DbKeeper implements Keeper {
   async dressed() {
     const a = await this.ask("town_dressed").catch(() => null);
     return Array.isArray(a?.dressed) ? (a.dressed as unknown[]).filter((x): x is string => typeof x === "string") : [];
+  }
+  tailorBuy(wearable: string, request: string) { return this.deed<{ wearable: string; price: number; dressed: string[] }>("town_tailor_buy", { p_wearable: wearable, p_request: request }); }
+  async auctions() {
+    const a = await this.ask("town_auctions").catch(() => null);
+    return a && Array.isArray(a.auctions) ? (a as unknown as AuctionBoards) : null;
+  }
+  async bid(auction: number, amount: number, request: string): Promise<BidDid> {
+    const a = await this.ask("town_bid", { p_auction: auction, p_amount: amount, p_request: request });
+    if (!a) return AWAY;
+    return (a.ok ? a : { ok: false, why: (a.why as Why) ?? "none", least: a.least, auction: a.auction }) as BidDid;
+  }
+  async limited() {
+    const a = await this.ask("town_dressed").catch(() => null);
+    return a?.limited && typeof a.limited === "object" ? (a.limited as Record<string, [number, number]>) : {};
   }
   /** (Its answer's `found` is what was inside, one thing or none: not the list of what has been found, which is a list and so is not mistaken for it.) */
   openThing(slot: number) { return this.deed<{ found: ItemId | null }>("town_open", { p_slot: slot }); }

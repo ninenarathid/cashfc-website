@@ -18,6 +18,9 @@ import{crownAction}from"./reward-crown";
 import{lanternAction}from"./reward-lantern";
 import{arenaAction}from"./reward-arena";
 import{beginDragon}from"./reward-dragon";
+import { TAILOR, cannotBuy } from "./tailor";
+import { minBid, placeBid, ranked, winners, type AuctionBoard, type AuctionBoards, type AuctionRound, type Bid } from "./auction";
+type TrialRound = AuctionRound & { bids: Bid[]; owners: AuctionBoard["owners"] };
 import { bangkokMinute } from "./daylight";
 // ── the pasture ── (lib/town/animal-act, docs/plans/animals)
 import { animalAction, newAnimal, type AnimalInput, type AnimalWorld, type Spell, type WagonRun } from "./animal-act";
@@ -233,6 +236,9 @@ const purseKey = (id: string) => `cashtown.trial.purse.2.${id}`;
 const slotsKey = (id: string) => `cashtown.trial.slots.1.${id}`;
 /** (v276) What each member has to wear for good, bought or found. */
 const dressedKey = (id: string) => `cashtown.trial.dressed.1.${id}`;
+// (v297's in the browser: the auction's rounds, the bids that stand and who won what, and which of mine are limited)
+const AUCTIONS = "cashtown.trial.auctions.1";
+const limitedKey = (id: string) => `cashtown.trial.limited.1.${id}`;
 const playsKey = (id: string) => `cashtown.trial.plays.1.${id}`, tallyKey = (id: string) => `cashtown.trial.tally.1.${id}`;
 /** What a tester keeps in the plaza's storage box (lib/town/box): each tester's own, like a purse. */
 const boxKey = (id: string) => `cashtown.trial.box.1.${id}`;
@@ -570,6 +576,67 @@ export class Trial {
     this.write(dressedKey(this.id), dressed);
     this.keep(did);
     return { ...did, dressed };
+  }
+  /** (v297) Buy a thing to wear at Granny Twilla's (town_tailor_buy): coins out, into the wardrobe for good. */
+  tailorBuy(wearable: string): Done<{ purse: Purse; wearable: string; price: number; dressed: string[] }> {
+    const had = this.dressed(), purse = this.purse();
+    const why = cannotBuy(wearable, purse.coins, new Set(had), this.now());
+    if (why) return { ok: false, why: why as Refusal };
+    const price = TAILOR[wearable].price, dressed = [...had, wearable];
+    this.write(dressedKey(this.id), dressed);
+    return this.keep({ ok: true, purse: { ...purse, coins: purse.coins - price }, wearable, price, dressed });
+  }
+  /** (v297) Which of my things are limited, as town_dressed says: a wearable, its round and its number. */
+  limited(): Record<string, [number, number]> { return this.read<Record<string, [number, number]>>(limitedKey(this.id), () => ({}), (v) => !!v && typeof v === "object"); }
+  /**
+   * (v297) The auction's rounds in the browser: the first round's two designs open from now (the real ones open on
+   * Tuesday) to their real close, a pretend rival on the pumpkin so the board shows a held copy; settled when looked at.
+   */
+  private rounds(): TrialRound[] {
+    const now = this.now();
+    const made = this.read<TrialRound[]>(AUCTIONS, () => [], (v) => Array.isArray(v));
+    if (made.length) return made;
+    const close = Date.parse("2026-10-31T21:00:00+07:00"), hard = Date.parse("2026-10-31T22:00:00+07:00");
+    const round = (id: number, design: string, wearables: string[], bids: Bid[]): TrialRound =>
+      ({ id, design, wearables, run: 1, copies: 3, start: 8000, stepPct: 5, stepMin: 500, opensAt: now - 3600_000, closesAt: Math.max(close, now + 3 * 86400_000), hardClose: Math.max(hard, now + 3 * 86400_000 + 3600_000), settledAt: null, bids, owners: [] });
+    const fresh = [round(1, "count", ["count", "counthat"], []), round(2, "pumpkin", ["pumpkin", "pumpkincrown"], [{ member: "trial-rival", name: "Mint", amount: 8500, at: now - 600_000 }])];
+    this.write(AUCTIONS, fresh);
+    return fresh;
+  }
+  private boardOf(r: TrialRound): AuctionBoard {
+    const { bids, owners, ...round } = r;
+    return { ...round, bids: ranked(bids).map((b) => ({ name: b.member === this.id ? "คุณ" : b.name, amount: b.amount, at: b.at, mine: b.member === this.id })),
+      had: this.dressed().includes(r.wearables[0]), owners };
+  }
+  auctions(): AuctionBoards {
+    const now = this.now();
+    const all = this.rounds().map((r) => {
+      if (r.settledAt || now < r.closesAt) return r;
+      const won = winners(r, r.bids);
+      const mine = won.find((w) => w.member === this.id);
+      if (mine) {
+        this.write(dressedKey(this.id), [...new Set([...this.dressed(), ...r.wearables])]);
+        this.write(limitedKey(this.id), { ...this.limited(), ...Object.fromEntries(r.wearables.map((w) => [w, [r.run, mine.edition]])) });
+      }
+      return { ...r, settledAt: now, owners: won.map((w) => ({ member: w.member, name: w.name, edition: w.edition })) };
+    });
+    this.write(AUCTIONS, all);
+    return { now, auctions: all.map((r) => this.boardOf(r)) };
+  }
+  /** (v297) A bid on a round (town_bid): paid and held at once; the one pushed out is paid back (a pretend rival's coins go nowhere). */
+  bid(auction: number, amount: number): { ok: true; pay: number; auction: AuctionBoard } | { ok: false; why: Refusal; least?: number; auction?: AuctionBoard } {
+    this.auctions();
+    const all = this.rounds(), r = all.find((x) => x.id === auction);
+    if (!r) return { ok: false, why: "none" };
+    const purse = this.purse();
+    const did = placeBid(r, r.bids, { id: this.id, name: "คุณ", coins: purse.coins, owns: this.dressed().includes(r.wearables[0]) }, amount, this.now());
+    if (!did.ok) return { ok: false, why: did.why as Refusal, least: did.why === "low" ? minBid(r, r.bids, this.id) : undefined, auction: this.boardOf(r) };
+    const next = { ...r, bids: did.bids, closesAt: did.closesAt };
+    this.write(AUCTIONS, all.map((x) => (x.id === auction ? next : x)));
+    // (what I had in and was pushed out of comes back to me; nobody else's purse is kept here)
+    const back = did.out.filter((b) => b.member === this.id).reduce((n, b) => n + b.amount, 0);
+    this.keep({ ok: true, purse: { ...purse, coins: purse.coins - did.pay + back } });
+    return { ok: true, pay: did.pay, auction: this.boardOf(next) };
   }
   /** Open what may hold something (an old boot, a bottle, a chest): says what was in it, if anything. */
   openThing(slot: number) { return this.keep(open(this.purse(), slot, [Math.random(), Math.random()])); }
