@@ -8,13 +8,17 @@ import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
   BENCHES, BEYOND_PROPS, BOARD, TRADE_BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_ALL, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SMITH, SPEED, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle, T2, liftAt,
-  atFire, atWell, wellBy, benchAt, bySmith, byStorebox, distance, fishFrom, fromIso, isBuilt, isFar, setBridge, setBuilt, setFar, groundAt, hearing, inDiningYard, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
+  atFire, atWell, wellBy, benchAt, bySmith, byStorebox, distance, fishFrom, fromIso, indoors as underRoof, isBuilt, isFar, setBridge, setBuilt, setFar, groundAt, hearing, inDiningYard, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
 import { bridgeSpans, bridgeWhole } from "@/lib/town/bridge";
 import { DECOR, FACES, artOf, carving, gateLook, ringAt } from "@/lib/town/decor";
 // ── the editor's town ── (lib/town/town2: drawn from its own pictures, fetched as they come near the view)
 import { Town2Art } from "@/lib/town/town2-art";
 import { T2_CHEST_OPEN, T2_CHEST_SHUT, T2_LAMP_LIGHT, T2_PROP_THING, T2_RINGS, T2_THINGS, t2RiverPoint } from "@/lib/town/town2";
+// ── Granny Twilla's clothes shop ── (lib/town/shop-room: a room of its own, drawn from its own pictures as it comes near)
+import { ShopRoomArt } from "@/lib/town/shop-room-art";
+import { SHOP_BOARD } from "@/lib/town/shop-room";
+import type { ShopWindowProps } from "./TownTailor";
 import { BOUNDS, START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
 import { PACE, keepFps, keptFps, nap, paceOf, paced, wokenFor, type Fps } from "@/lib/town/pace";
 import { canvasDpr } from "@/lib/town/rendering";
@@ -188,6 +192,12 @@ const TownLines = lazy(() => import("./TownLines"));
 const TownFountain = lazy(() => import("./TownFountain"));
 // ── forging ── (the blacksmith's screen: asked for only where whoever keeps the game has a smith)
 const TownSmith = lazy(() => import("./TownSmith"));
+// ── Granny Twilla's clothes shop ── (her clothes, from a talk with her, and the weekly auction, from the board on her wall:
+// panel `tailor` and `auction`, each its own window, asked for only when opened)
+const TownTailor = lazy(() => import("./TownTailor"));
+const TownAuction = lazy(() => import("./TownAuction"));
+/** The clothes shop's windows: Granny's clothes, and the week's auction. */
+export type ShopPanel = "tailor" | "auction";
 /** What a nudge from the room may be about (lib/town/keeper's Looked). */
 const NUDGES: readonly string[] = ["boats","stall", "farm", "kitchen", "deal", "fountain", "notices", "bugs", "line", "ground", "shop", /* mining */ "cave", /* felling */ "trees", /* the bridge and the lamps */ "works", "lamps", /* the pasture */ "animals"];
 /** The colour a carrier's rank is written in under their name (lib/town/well): wood, silver, gold. */
@@ -490,6 +500,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   /** The editor's town's things and their pictures (only when it is this page's town: lib/town/town-map). */
   const town2Ref = useRef<Town2Art | null>(null);
   if (T2 && !town2Ref.current) town2Ref.current = new Town2Art();
+  // ── Granny Twilla's clothes shop ── (its pictures are asked for only once it comes near the view: the room's own art)
+  const shopArtRef = useRef<ShopRoomArt | null>(null);
+  if (T2 && !shopArtRef.current) shopArtRef.current = new ShopRoomArt();
+  /** How far in the camera was outdoors when I went into the shop: put back when I come out (the room asks for closer). */
+  const zoomOutdoors = useRef<number | null>(null);
   /** The roof as the last frame drew it (none at all where there is no house to draw), for the lights that follow it. */
   const roofSeen = useRef(0);
   /**
@@ -536,6 +551,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const fountainBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
   /** The shopkeepers and the gateways on the screen this frame, for taps and the cursor: who, or the tile a gateway leads to. */
   const keeperBoxes = useRef<Array<{ id: Keeper["id"] | "smith"; x0: number; y0: number; x1: number; y1: number }>>([]);
+  /** The clothes shop's notice board on the screen, for a tap that opens the week's auction (null while it is not drawn). */
+  const shopBoardBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
   const gateBoxes = useRef<Array<{ to: [number, number]; x0: number; y0: number; x1: number; y1: number }>>([]);
   const boardNews = useRef(false);
   useEffect(() => {
@@ -694,7 +711,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   /** A talk with a shopkeeper: who, what they say, and what there is to choose at its end. Each has a number of its own, so a new one starts at its first line. */
   const [talk, setTalk] = useState<{ who: Speaker | "smith" | "popoto"; n: number; lines: Line[]; choices?: TalkChoice[]; as?: TalkAs } | null>(null);
   /** Which of their conversations comes next (they go round, tap after tap), and how many talks there have been. */
-  const talkTurns = useRef<Record<Speaker, number>>({ uncle: 0, banker: 0 });
+  const talkTurns = useRef<Record<Speaker, number>>({ uncle: 0, banker: 0, granny: 0 });
   const talks = useRef(0);
   /** The trade's panel that is open (the uncle's stall, the bank, my bag), and what the map shows of my purse. */
   const [trade, setTrade] = useState<TradeView | null>(null);
@@ -702,6 +719,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // ── forging ── (the blacksmith's screen, and which of its leaves is open: lib/town/forge, TownSmith. His talk opens
   // it with `openSmith`, as the uncle's opens his stall; until he stands in town, `next dev` opens it by its handle.)
   const [smith, setSmith] = useState<SmithView | null>(null);
+  // ── Granny Twilla's clothes shop ── (which of its windows is open: her clothes, or the week's auction)
+  const [shopPanel, setShopPanel] = useState<ShopPanel | null>(null);
   /**
    * Who keeps the game for me (lib/town/keeper), and whether it is open to me: the database for a member (which
    * answers whether it is), the browser's trial in `next dev`'s test room. With `&townDb=<address>` the test room is
@@ -1536,6 +1555,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   function drawWeather(ctx: CanvasRenderingContext2D, cw: number, ch: number, now: number, dt: number) {
     // ── to come ── (there is no weather under the ground)
     if (placeRef.current === "cave") return;
+    // (nor under a roof: the clothes shop has no rain, no cloud's shadow and no leaves blowing in)
+    if (underRoof(placeRef.current)) return;
     // (`dt` is seconds, as everywhere here. Until 2026-10-03 this took it for milliseconds: the rain hung in the
     // air, no leaf ever reached the ground, and a change in the weather took hours to come on.)
     const sec = Math.min(dt, 0.1);
@@ -1824,7 +1845,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const s = cam.current.s, dot = Math.max(1, Math.round(2 * s));
     for (const g of GATES) {
       const ring = gateLook(g).ring;
-      if (g.from !== placeRef.current || !scenery.has(ring) || (T2 && g.from === "town")) continue;
+      // (the clothes shop's ring is its own picture, its door the townhouse's: lib/town/shop-room-art)
+      if (g.from !== placeRef.current || !scenery.has(ring) || (T2 && g.from === "town") || g.from === "shop") continue;
       const c = project(ringAt(g));
       if (!onScreen(c)) continue;
       scenery.drawProp(ctx, ring, c.x, c.y, s, dpr);
@@ -1849,7 +1871,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     ctx.globalCompositeOperation = "lighter";
     const breath = still ? 0.9 : 0.8 + 0.2 * Math.sin(now / 1500);
     for (const g of GATES) {
-      if (g.from !== placeRef.current || !scenery.has(gateLook(g).ring) || (T2 && g.from === "town")) continue;
+      if (g.from !== placeRef.current || !scenery.has(gateLook(g).ring) || (T2 && g.from === "town") || g.from === "shop") continue;
       const c = project(ringAt(g));
       if (!onScreen(c)) continue;
       const lit = (0.14 + 0.5 * lamps) * breath;
@@ -1953,6 +1975,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     toolLights.current = [];
     // ── to come ── (nor any sky: the cave's dark is its own, laid by the preview's module)
     if (placeRef.current === "cave") return;
+    // (nor in the clothes shop, under its roof: its own warm light, whatever the hour, and its ring's glow)
+    if (underRoof(placeRef.current)) {
+      const v = cam.current;
+      shopArtRef.current?.light(ctx, (ix, iy) => toScreen(v, { x: ix, y: iy }, cw, ch), v.s, cw, ch, now, reducedRef.current);
+      return;
+    }
     const day = skyNow();
     const [r, g, b] = day.tint;
     // ── the lamp relay ── (where a lit lamp is in sight the hour's dark is laid by the lamps' own hand, lifted in each
@@ -2024,7 +2052,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // (not swept across the nothing between the maps), and the screen comes up out of the dark.
     const place = (mine && placeOf(mine.pos.x, mine.pos.y)) || placeRef.current;
     if (place !== placeRef.current) {
+      const was = placeRef.current;
       placeRef.current = place;
+      // (the clothes shop is small, and its camera may not go as far out as the outdoors': the outdoors' zoom is put
+      // back on coming out, and its windows are shut)
+      if (underRoof(place) && !underRoof(was)) zoomOutdoors.current = v.s;
+      else if (!underRoof(place) && underRoof(was)) {
+        if (zoomOutdoors.current) v.s = zoomOutdoors.current;
+        zoomOutdoors.current = null;
+        queueMicrotask(() => setShopPanel(null));
+      }
       if (mine) { const iso = toIso(mine.pos.x, mine.pos.y); v.cx = iso.x; v.cy = iso.y - dollH(mine) * 0.45; }
       v.follow = true;
       setCam(camNow());
@@ -2182,9 +2219,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const iso2 = (ix: number, iy: number) => toScreen(v, { x: ix, y: iy }, cw, ch);
     if (art2) art2.carving = forcedCarving.current ?? carving(Date.now());
     const seen2 = art2 ? art2.visible({ x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, now) : null;
-    // The river flowing, and what floats and swims in it (in the editor's town, down its own river, under its decks).
-    if (scenery) drawRiver(ctx, scenery, dpr);
+    // ── Granny Twilla's clothes shop ── (lib/town/shop-room-art: nothing of it is fetched until it is near the view)
+    const roomArt = scenery ? shopArtRef.current : null;
+    const seenShop = roomArt ? roomArt.visible({ x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, now) : null;
+    // The river flowing, and what floats and swims in it (in the editor's town, down its own river, under its decks). (Not
+    // seen from a room.)
+    if (scenery && !underRoof(placeRef.current)) drawRiver(ctx, scenery, dpr);
     if (art2 && seen2) art2.drawFloor(ctx, seen2, iso2, v.s, dpr, reducedRef.current ? 0 : now, inHall);
+    if (roomArt && seenShop) roomArt.drawFloor(ctx, seenShop, iso2, v.s, dpr);
     // A ring of light on the ground at each gate, under its gateway and whoever walks onto it.
     if (scenery) drawRings(ctx, scenery, dpr, now);
     /** Whether carved pumpkins are out (lib/town/decor), by the calendar or as `next dev` was asked. */
@@ -2259,6 +2301,17 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
           const c = project(seat.at);
           benchBoxes.current.push({ i: YARD_SEATS + i, x0: c.x - 27 * v.s, y0: c.y - 30 * v.s, x1: c.x + 27 * v.s, y1: c.y + 14 * v.s, depth: seat.at.x + seat.at.y });
         });
+      }
+    }
+    // ── Granny Twilla's clothes shop ── (its walls and things back to front with everybody; and its notice board on the
+    // screen, for a tap that opens the week's auction, with its name over it)
+    shopBoardBox.current = null;
+    if (roomArt && seenShop) {
+      roomArt.pushStanding(ctx, seenShop, (depth, draw) => things.push({ depth, draw }), iso2, v.s, dpr, reducedRef.current ? 0 : now);
+      const bb = seenShop.some((t) => t.i === SHOP_BOARD) ? roomArt.boxOf(SHOP_BOARD, iso2, v.s) : null;
+      if (bb) {
+        shopBoardBox.current = bb;
+        signs.push(() => label(ctx, words.current.th ? "ประมูลประจำสัปดาห์" : "Weekly auction", (bb.x0 + bb.x1) / 2, bb.y0 - 12 * v.s, "#e5cc80", "rgba(15,19,25,0.82)", null));
       }
     }
     for (const p of T2 ? [] : PROPS) {
@@ -2457,6 +2510,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (scenery?.has("gateway")) for (const g of GATES) {
       const c = project(g.arch);
       if (!onScreen(c)) continue;
+      // ── Granny Twilla's clothes shop ── (in by the townhouse's door: its name over the door, and the door to tap; out by
+      // the ring: its name under the ring, and the ring to tap. Both are the pictures' own, drawn with the rest)
+      if (g.leads === "shop" || g.from === "shop") {
+        const th = words.current.th, inward = g.leads === "shop";
+        gateBoxes.current.push({ to: g.tiles[0], x0: c.x - (inward ? 22 : 34) * v.s, y0: c.y - (inward ? 70 : 24) * v.s, x1: c.x + (inward ? 22 : 34) * v.s, y1: c.y + (inward ? 4 : 14) * v.s });
+        // (the ring's name under it: whoever comes in stands just above it, their own name under their feet)
+        signs.push(() => label(ctx, inward ? (th ? "ร้านเสื้อผ้ายายทวิลล่า" : "Granny Twilla's clothes") : (th ? "กลับออกไปในเมือง" : "Back to town"), c.x, c.y + (inward ? -82 : 30) * v.s,
+          "#e5cc80", "rgba(15,19,25,0.82)", popotoImg.current));
+        continue;
+      }
       // (the editor's town's gateways are its own pictures, drawn with the rest of it: only their names and taps here)
       if (T2 && g.from === "town") {
         const th = words.current.th, more = moreArt.current?.gateName(g, th) ?? null;
@@ -2600,6 +2663,24 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (scenery?.has("stall") && scenery.has("un_stand")) for (const kp of KEEPERS) {
       const uncle = kp.id === "uncle", stand = project(kp.stand), at = project(kp.at);
       if (!onScreen(stand)) continue;
+      // ── Granny Twilla's clothes shop ── (behind her counter, drawn just before it so that its top hides her from the
+      // waist down: lib/town/shop-room-art's keeperDepth. Her round, like the uncle's: she waves, holds up a shirt, laughs)
+      if (kp.id === "granny") {
+        const art = shopArtRef.current;
+        if (!art || !scenery.has("gr_stand")) continue;
+        const beat = reducedRef.current ? 0 : Math.floor(now / 700) % 14;
+        const frame = beat === 3 ? "gr_wave" : beat === 7 || beat === 8 ? "gr_show" : beat === 12 ? "gr_laugh" : "gr_stand";
+        things.push({ depth: art.keeperDepth, draw: () => {
+          const size = v.s * 0.78;
+          scenery.drawProp(ctx, frame, at.x, at.y, size, dpr);
+          // a tap on her, or on the counter before her, opens a talk
+          const [fw, fh] = scenery.sizeOf(frame), [, tall] = scenery.anchorOf("gr_stand");
+          keeperBoxes.current.push({ id: kp.id, x0: at.x - (fw / 2) * size, y0: at.y - fh * size, x1: at.x + (fw / 2) * size, y1: at.y + 24 * v.s });
+          const th = words.current.th;
+          signs.push(() => label(ctx, th ? "ยายทวิลล่า" : "Granny Twilla", at.x, at.y - tall * size - 10, "#e5cc80", "rgba(15,19,25,0.82)"));
+        } });
+        continue;
+      }
       // (the editor's town has their shop and counter in it: only themselves here)
       if (!T2) things.push({ depth: kp.stand.x + kp.stand.y, draw: () => scenery.drawProp(ctx, uncle ? "stall" : "bankdesk", stand.x, stand.y, v.s, dpr) });
       // Each has a little round of its own, by the clock: mostly standing; the uncle waves, holds up his wares and
@@ -2716,9 +2797,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         scenery.drawProp(ctx, `pf${[1, 2, 3, 2][Math.floor(t / 260) % 4]}`, flag.x, flag.y, v.s * POPOTO_K, dpr, 0, w.arm === "E") });
     }
     // Birds, butterflies, cats and dogs (lib/town/critters), when the sky suits them.
-    if (scenery?.has("bird_sit")) drawLife(things, scenery, dpr, now);
+    // (none of it in a room)
+    const outdoors = !underRoof(placeRef.current);
+    if (outdoors && scenery?.has("bird_sit")) drawLife(things, scenery, dpr, now);
     // Popoto out and about, as the hour suits (lib/town/popotos): the same on every screen.
-    if (scenery?.has("pr1")) for (const o of outingsNow(wall, forcedPopoto.current)) drawOuting(o, things);
+    if (outdoors && scenery?.has("pr1")) for (const o of outingsNow(wall, forcedPopoto.current)) drawOuting(o, things);
     if (T2) fountainBox.current = board2(/^wishing_basin$/);
     else things.push({ depth: FOUNTAIN.x + FOUNTAIN.y + 2, draw: () => {
       // the basin's front edge on the bottom corner of its two-by-two tiles
@@ -3806,6 +3889,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // the trade board: the members' notices, opened as the Popoto Board is (where the game is open to me)
     const tb = tradeBoardBox.current;
     if (gameRef.current && tb && x >= tb.x0 && x <= tb.x1 && y >= tb.y0 && y <= tb.y1) { setPopover(null); openTrade("board"); return; }
+    // ── Granny Twilla's clothes shop ── (the notice board on her wall: the week's auction)
+    const sbb = shopBoardBox.current;
+    if (sbb && x >= sbb.x0 && x <= sbb.x1 && y >= sbb.y0 && y <= sbb.y1) { setPopover(null); openShopPanel("auction"); return; }
     // the fountain: a wish (the game's: until it is open to me, the fountain is only a fountain)
     const fb = fountainBox.current;
     if (gameRef.current && fb && x >= fb.x0 && x <= fb.x1 && y >= fb.y0 && y <= fb.y1) { setPopover(null); openFountain(); return; }
@@ -4231,8 +4317,19 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const openBoard = () => {
     if (wardrobeOpenRef.current) closeWardrobe();
     setFountainOpen(false);
-    setCard(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setTalk(null); setTrade(null);
+    setCard(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setTalk(null); setTrade(null); setShopPanel(null);
     setBoardOpen(true);
+  };
+
+  /**
+   * One of the clothes shop's windows (Granny Twilla's clothes, from a talk with her; the week's auction, from the
+   * board on her wall), in the Popoto Board's place, over whatever else was open.
+   */
+  const openShopPanel = (panel: ShopPanel) => {
+    if (wardrobeOpenRef.current) closeWardrobe();
+    setCard(null); setPopover(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setBoardOpen(false); setTalk(null); setTrade(null);
+    setFishing(false);
+    setShopPanel(panel);
   };
 
   /** The wishing fountain: its panel takes the board's place. */
@@ -4342,7 +4439,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
    */
   const openTalk = (asked: Speaker | "smith" | "popoto") => {
     if (wardrobeOpenRef.current) closeWardrobe();
-    setCard(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setBoardOpen(false); setTrade(null);
+    setCard(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setBoardOpen(false); setTrade(null); setShopPanel(null);
     setFishing(false);
     const hour = Math.floor(bangkokMinute(new Date()) / 60), n = ++talks.current, th = words.current.th;
     // ── the pasture ── (Uncle Popoto: what one came for, where whoever keeps the game has a pasture; else that it opens soon)
@@ -4386,6 +4483,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const who = asked as Speaker;
     if (!gameRef.current) { setTalk({ who, n, lines: talkFor(who, hour, talkTurns.current[who]++) }); return; }
     const chat: TalkChoice = { id: "chat", label: th ? "คุยเล่น" : "Just chatting" };
+    // ── Granny Twilla's clothes shop ── (what she asks, then her clothes, the week's auction, or a chat: the shop's windows
+    // are panel `tailor` and `auction`, openShopPanel)
+    if (who === "granny") {
+      setTalk({ who, n, lines: askFor(who, hour), choices: [
+        { id: "tailor", label: th ? "ดูเสื้อผ้า" : "Browse the clothes" },
+        { id: "auction", label: th ? "ประมูลประจำสัปดาห์" : "This week's auction" },
+        chat,
+      ] });
+      return;
+    }
     const buy: TalkChoice = { id: "buy", label: th ? "ซื้อของ" : "Buy" };
     // (his order of the day is where things are left with him: the same panel, asked for by its own name)
     const order: TalkChoice = { id: "order", label: th ? "ลุงอยากได้อะไร" : "What do you want today?" };
@@ -4481,7 +4588,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // กดเปิดกระเป๋าแล้วมันหลุดเลย". The rod put away there, or anything else opened, takes the line up as before.)
     if (view !== "bag") setFishing(false);
     if (wardrobeOpenRef.current) closeWardrobe();
-    setCard(null); setPopover(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setBoardOpen(false); setTalk(null);
+    setCard(null); setPopover(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setBoardOpen(false); setTalk(null); setShopPanel(null);
     setTrade(view);
   };
   // (which helping I am at, for the frame that counts my company: the moment it began)
@@ -4532,6 +4639,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       return;
     }
     if (id === "chat") setTalk({ who, n: ++talks.current, lines: chatFor(who, talkTurns.current[who]++) });
+    // ── Granny Twilla's clothes shop ── (her clothes, or the week's auction)
+    else if (who === "granny") openShopPanel(id === "auction" ? "auction" : "tailor");
     else openTrade(id === "order" ? "sell" : (id as TradeView));
   };
 
@@ -5345,6 +5454,23 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
           {fountainOpen && game && keeper
             ? <Suspense fallback={null}><TownFountain keeper={keeper} th={w.th} onClose={() => setBoardOpen(false)} /></Suspense>
             : <TownBoard th={w.th} onClose={() => setBoardOpen(false)} onVoted={onVoted} art={boardArt} />}
+        </div>
+      )}
+      {/* Granny Twilla's clothes shop: her clothes, or the week's auction (each its own window: TownTailor, TownAuction), in
+          the Popoto Board's place */}
+      {s && shopPanel && (
+        <div className={`pop-in absolute z-20 overflow-hidden border border-line-lit bg-surface/97 shadow-xl shadow-black/40 backdrop-blur-sm ${phone
+               ? "inset-x-0 h-[min(62%,34rem)] rounded-t-2xl"
+               : "right-3 top-16 w-[22rem] rounded-2xl"}`}
+             style={phone ? { bottom: tabbar ? "calc(4.5rem + env(safe-area-inset-bottom))" : 0 } : { bottom: "0.75rem" }}
+             data-state="open" data-shop-panel={shopPanel}>
+          <Suspense fallback={null}>
+            {(() => {
+              const props: ShopWindowProps = { th: w.th, keeper: keeper ?? null, art: boardArt, phone, onClose: () => setShopPanel(null),
+                dressMannequin: (draw) => { if (shopArtRef.current) shopArtRef.current.onMannequin = draw; } };
+              return shopPanel === "auction" ? <TownAuction {...props} /> : <TownTailor {...props} />;
+            })()}
+          </Suspense>
         </div>
       )}
       {/* A talk with a shopkeeper: across the foot of the map, like a story game's box */}

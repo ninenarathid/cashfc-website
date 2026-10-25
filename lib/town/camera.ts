@@ -1,4 +1,5 @@
 import { CAVE, COLS, FARM_ALL, FOREST, MOUNTAIN, ROWS, TILE_H, TILE_W, floorCorner, type Place, type Vec } from "./world";
+import { SHOP_ROOM } from "./shop-room";
 
 /**
  * The town's camera: how far in it is zoomed and which point of the map is
@@ -33,6 +34,8 @@ export const BOUNDS: Record<Place, Bounds> = {
   // ── the far side ── (in every build; nobody is in either place while the far side is shut)
   // the mountain's foot, and the cave: which is the floor one is on, and no more of it (floorBounds)
   mountain: boundsOf(MOUNTAIN), cave: boundsOf({ ...floorCorner(1), w: CAVE.size, h: CAVE.size }),
+  // Granny Twilla's clothes shop, a room (its walls stand a storey up from its back edges: within the room above)
+  shop: boundsOf(SHOP_ROOM),
 };
 /** The extent of one floor of the cave: the camera stays inside the floor one stands on (the map puts it in BOUNDS.cave on coming to a floor). */
 export const floorBounds = (n: number): Bounds => boundsOf({ ...floorCorner(n), w: CAVE.size, h: CAVE.size });

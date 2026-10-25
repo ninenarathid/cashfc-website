@@ -6,7 +6,8 @@ const SPEAKERS = Object.keys(TALKS) as Speaker[];
 
 describe("what the shopkeepers say", () => {
   it("has something for everybody who keeps shop in town, and nobody else", () => {
-    expect(SPEAKERS.sort()).toEqual(KEEPERS.map((k) => k.id).sort());
+    // (and Granny Twilla, who keeps the clothes shop: the editor's town's, entered by its townhouse, lib/town/shop-room)
+    expect(SPEAKERS.sort()).toEqual([...new Set([...KEEPERS.map((k) => k.id), "granny"])].sort());
     for (const who of SPEAKERS) {
       expect(WHO[who].name.th).toBeTruthy();
       expect(WHO[who].name.en).toBeTruthy();

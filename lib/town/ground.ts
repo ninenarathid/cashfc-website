@@ -1,7 +1,7 @@
 import { push } from "./deal";
 import type { ItemId } from "./items";
 import { no, type Done, type Purse, type Stack } from "./trade";
-import { COLS, FARM_ALL, FOREST, ROWS, placeOf } from "./world";
+import { COLS, FARM_ALL, FOREST, ROWS, indoors, placeOf } from "./world";
 
 /**
  * Things dropped on the ground (the owner, 2026-10-05: "สามารถทิ้งของที่ไม่ใช้จาก
@@ -48,12 +48,13 @@ export const reaches = (d: Dropped, at: readonly [number, number]) => Math.max(M
 
 /**
  * Drop what is in a slot of my bag onto the tile I stand on: all of it. `id` is the number whoever keeps the game
- * gives the thing. Refused when the slot has nothing in it, and when the tile is on no map.
+ * gives the thing. Refused when the slot has nothing in it, and when the tile is on no map, or in a room (the clothes
+ * shop: nothing a member lays down is left indoors, and the database knows no room among GROUND_MAPS).
  */
 export function drop(purse: Purse, slot: number, by: string, at: readonly [number, number], now: number, id: number): Done<{ purse: Purse; dropped: Dropped }> {
   const s = Number.isInteger(slot) && slot >= 0 ? purse.bag[slot] : null;
   if (!s) return no("none");
-  if (!Number.isInteger(at[0]) || !Number.isInteger(at[1]) || placeOf(at[0], at[1]) === null) return no("none");
+  if (!Number.isInteger(at[0]) || !Number.isInteger(at[1]) || placeOf(at[0], at[1]) === null || indoors(placeOf(at[0], at[1]))) return no("none");
   return {
     ok: true,
     purse: { ...purse, bag: purse.bag.map((b, i) => (i === slot ? null : b)) },
