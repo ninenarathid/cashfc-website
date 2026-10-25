@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { LINES, type LineId } from "@/lib/town/lines";
 import type { PixelKit } from "@/lib/town/pixeldoll";
 import { FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS, owns, together, type Wearable } from "@/lib/town/wear";
+import { TAILOR } from "@/lib/town/tailor";
 import {
   EYES, EYE_COLORS, GENDERS, HAIR_COLORS, ONE_MODEL, RACES, hairForGender, hairsFor, hairsOf, lookAsRace, skinsOf,
   type Look, type Named, type Swatch,
@@ -130,10 +131,10 @@ export default function Wardrobe({ look, kit, points, had, fresh = new Set(), no
 
         <Choices label={th ? "เพศ" : "Body"} items={GENDERS} value={look.gender} t={t}
                  onPick={(gender) => set({ gender, hair: hairForGender(look.hair, gender, look.race) })} />
-        {/* The game's character creator's own hairstyles, each race and gender its own list. */}
-        {/* (a hairstyle sold at Granny Twilla's is locked until bought: its name hidden, where it comes from shown) */}
-        <Choices label={th ? "ทรงผม" : "Hairstyle"} items={hairsOf(look.race)} only={hairsFor(look.gender, look.race)} value={look.hair} t={t} onPick={(hair) => set({ hair })}
-                 locked={(n) => { const sold = (n as { sold?: string }).sold; return sold && !had.has(sold) ? (th ? "ร้านผ้ายายทวิลล่า" : "Granny Twilla's shop") : null; }} />
+        {/* The game's character creator's own hairstyles, each race and gender its own list, as cards on my own head; one
+            sold at Granny Twilla's is a thing to buy, its shadow until bought */}
+        <HairCards label={th ? "ทรงผม" : "Hairstyle"} look={look} only={hairsFor(look.gender, look.race)} kit={kit} had={had} fresh={fresh} th={th}
+                   onPick={(hair) => set({ hair })} />
         <Swatches label={th ? "สีผม" : "Hair colour"} items={HAIR_COLORS} value={look.hairColor} t={t} onPick={(hairColor) => set({ hairColor })} />
         <Swatches label={th ? "สีผิว" : "Skin"} items={skinsOf(look.race)} value={look.skin} t={t} onPick={(skin) => set({ skin })} />
         <Choices label={th ? "ทรงตา" : "Eyes"} items={EYES} value={look.eyes} t={t} onPick={(eyes) => set({ eyes })} />
@@ -153,33 +154,74 @@ function Group({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function Choices({ label, items, only, value, onPick, t, locked }: {
+function Choices({ label, items, only, value, onPick, t }: {
   label: string; items: Named[]; value: number; onPick: (i: number) => void; t: (n: Named) => string;
   /** Only these indices of items, in this order. */
   only?: number[];
-  /** Where a choice not had yet comes from (it is shown locked), or null for one that is had. */
-  locked?: (n: Named) => string | null;
 }) {
   return (
     <Group label={label}>
       <div role="group" aria-label={label} className="flex flex-wrap gap-1.5">
-        {(only ?? items.map((_, i) => i)).map((i) => [i, items[i]] as const).filter(([, n]) => !locked?.(n)).map(([i, n]) => {
-          return (
+        {(only ?? items.map((_, i) => i)).map((i) => [i, items[i]] as const).map(([i, n]) => (
           <button key={n.id} type="button" aria-pressed={i === value} onClick={() => onPick(i)}
                   className={`pressable min-h-11 rounded-full px-3 py-1.5 text-ui transition-colors sm:min-h-0 ${i === value
                     ? "bg-accent/20 font-semibold text-accent ring-1 ring-accent/60"
                     : "border border-line-strong text-ink hover:border-accent"}`}>
             {t(n)}
           </button>
+        ))}
+      </div>
+    </Group>
+  );
+}
+
+/**
+ * The hairstyles as cards, each on my own head in my own hair colour (with nothing on the head to hide it), the one worn
+ * ringed: the owner, 2026-10-25, of the shop's new ones: "ช่วยทำให้มีหน้าตาเป็นไอเทมด้วย กดซื้อแล้วค่อย ปลดล็อค". One sold at
+ * Granny Twilla's and not bought yet is its shadow, as a thing not had is in the other tabs, with where it is sold and
+ * what it costs.
+ */
+function HairCards({ label, look, only, kit, had: bought, fresh, th, onPick }: {
+  label: string; look: Look; only: number[]; kit: PixelKit | null; had: ReadonlySet<string>; fresh: ReadonlySet<string>; th: boolean;
+  onPick: (i: number) => void;
+}) {
+  const hairs = hairsOf(look.race) as Array<Named & { sold?: string }>;
+  const lookFor = (i: number): Look => ({ ...look, hair: i, hat: 0, hairWear: 0 });
+  // (one picture pixel a size for the whole list, as Cards: the largest every head fits at)
+  const fit = (W: number, H: number) => {
+    if (!kit) return 1;
+    let k = Infinity;
+    for (const i of only) { const { w, h } = kit.headSize(lookFor(i)); k = Math.min(k, W / w, H / h); }
+    return k * 0.86;
+  };
+  return (
+    <Group label={label}>
+      <div role="group" aria-label={label} className="grid grid-cols-3 gap-2 min-[380px]:grid-cols-4">
+        {only.map((i) => {
+          const h = hairs[i], had = !h.sold || bought.has(h.sold), on = had && i === look.hair;
+          const where = h.sold ? `${th ? "ร้านผ้ายายทวิลล่า" : "Granny Twilla's shop"}
+${(TAILOR[h.sold]?.price ?? 0).toLocaleString(th ? "th-TH" : "en-US")} ${th ? "เหรียญ" : "coins"}` : "";
+          return (
+            <button key={h.id} type="button" aria-pressed={on} disabled={!had} onClick={() => onPick(i)}
+                    title={had ? (th ? h.th : h.en) : where.replace("\n", " · ")} aria-label={had ? undefined : `??? · ${where.replace("\n", " · ")}`}
+                    className={`pressable flex min-h-11 flex-col items-center gap-1 rounded-xl border px-1 pb-1.5 pt-1 text-center transition-colors ${on
+                      ? "border-accent bg-accent/15 text-accent" : had ? "border-line-strong text-ink hover:border-accent" : "cursor-not-allowed border-dashed border-line-strong text-ink"}`}>
+              <span className={`relative rounded-lg ${had ? "" : "bg-line-strong/35"}`}>
+                <DollPreview w={56} h={56} deps={[kit, JSON.stringify(lookFor(i)), had]}
+                             draw={(ctx, W, H) => {
+                               if (!kit) return;
+                               const l = lookFor(i), k = fit(W, H), { w, h: hh } = kit.headSize(l);
+                               kit.drawHead(ctx, l, Math.round((W - w * k) / 2), Math.round((H - hh * k) / 2), k);
+                               if (!had) { ctx.globalCompositeOperation = "source-in"; ctx.fillStyle = "#0a0d13"; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = "source-over"; }
+                             }} />
+                {!had && <span className="absolute bottom-0 right-0 grid size-5 place-items-center rounded-full bg-surface ring-1 ring-line-strong"><TownIcon name="lock" size={12} /></span>}
+                {had && h.sold && fresh.has(h.sold) && <span data-wear-fresh className="absolute -left-1 -top-1 rounded-full bg-gold px-1.5 text-[10px] font-bold leading-4 text-bg shadow">{th ? "ใหม่" : "New"}</span>}
+              </span>
+              <span className="text-meta leading-tight">{had ? (th ? h.th : h.en) : "???"}</span>
+              {!had && <span className="whitespace-pre-line text-meta leading-tight text-muted">{where}</span>}
+            </button>
           );
         })}
-        {/* (what is not had yet, one mark for each place it comes from: how many, and where) */}
-        {[...(only ?? items.map((_, i) => i)).reduce((m, i) => { const w = locked?.(items[i]); return w ? m.set(w, (m.get(w) ?? 0) + 1) : m; }, new Map<string, number>())].map(([whence, n]) => (
-          <span key={whence} aria-label={`??? ×${n} · ${whence}`}
-                className="flex min-h-11 items-center gap-1 rounded-full border border-dashed border-line-strong px-3 py-1.5 text-meta text-muted sm:min-h-0">
-            <TownIcon name="lock" size={12} />??? ×{n} · {whence}
-          </span>
-        ))}
       </div>
     </Group>
   );
