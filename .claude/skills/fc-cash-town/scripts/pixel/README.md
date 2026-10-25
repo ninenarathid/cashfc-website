@@ -555,3 +555,13 @@ Every picture here is PixelLab editing the game's own native pixels, so the styl
   locks of uneven length with pointed tips (`f18a-bangs`, the forehead between the tails masked; drawn twice, the second
   kept: the first left a bare patch over one eye). f18 is now "ทวินเทลยาว" (`hairtwintails`, 2,200). 6 calls, 36
   generations (67.3 left). **Bangs are never one straight edge** (his rule).
+- **The twin tails' way for all** (the owner: "ทวินเทลยาว ดีแล้ว ช่วยใช้ solution ทวินเทลยาว กับทุกทรงผมใหม่ด้วย", and of the half
+  bun again "ตัดแปลกๆ"): the seven others drawn again from the bald head on the twin tails' words (`<id>-v2`, Codex: the
+  women's send, the men's its words: the undercut's buzzed band "clearly visible dark green", the mullet's back "three
+  broad overlapping locks", the curls "rounded and scalloped", the bun "projects above the crown"). As with the twin
+  tails the fresh draws gave straight bangs again (f16, f17, m14, m15, m16, m17); the space buns' first draw came back
+  without its back view (drawn again). With 19 generations left: the undercut, mullet and half bun kept and given the
+  bangs-only pass (`<id>-bangs`, the twin tails' words, `bangs-mask.png` x 14–47 y 24–37); the long waves, pixie and
+  curls back on their fringe versions (natural bangs already, Codex fine). 11 calls, about 66 generations: **PixelLab
+  at 1.3 for the month.** Weak still, for next month: the mullet's bangs read nearly level in dark brown; the
+  undercut's buzzed band goes tan in blonde.
