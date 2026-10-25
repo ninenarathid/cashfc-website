@@ -208,6 +208,20 @@ export const T2_SMITH = {
   id: "smith" as const, stand: FORGE.c, at: { x: 33.9, y: 52.6 }, board: { x: 33.9, y: 54.2 }, sign: FORGE.c,
   fire: [0, 0] as [number, number], tiles: [[33, 52]] as Array<[number, number]>, reach: 6,
 };
+/**
+ * The townhouse's door, the way into Granny Twilla's clothes shop (the owner, 2026-10-25: its door is the townhouse's;
+ * lib/town/shop-room): the wooden door in its south-west face, at x 75.0 to 75.6 along its front edge (its picture
+ * looked at, 2026-10-25; the latticed front on its south-east face is a shop window, no door). `tile` is the house's
+ * tile behind the door, which nobody stands on: walked onto only to go in (lib/town/world's findPath lets a path end
+ * there and run nowhere else through it, so nothing else of the town changes); `out` is the street before it, where
+ * whoever comes out of the shop stands; `at` the door's foot, for its name and its tap.
+ */
+const TOWNHOUSE = first(/^townhouse$/);
+export const T2_SHOP_DOOR = {
+  tile: [75, Math.floor(TOWNHOUSE.box[3])] as [number, number],
+  out: { x: 75.5, y: Math.floor(TOWNHOUSE.box[3]) + 1.5 },
+  at: { x: 75.3, y: TOWNHOUSE.box[3] },
+};
 
 /* ── the kitchen hall ───────────────────────────────────────────────────── */
 

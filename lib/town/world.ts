@@ -26,6 +26,8 @@ import { ANCIENT as CEDAR, GATE_ROWS, LOOKOUT as LOOKOUT_AT, MOUNTAIN_H, MOUNTAI
 // ── the second main town (2026-10-22): which town this page has (lib/town/town-map), and the editor's town's own parts ──
 import { T2 } from "./town-map";
 import * as town2 from "./town2";
+// ── Granny Twilla's clothes shop (2026-10-25): a room of its own, entered by the townhouse's door (lib/town/shop-room) ──
+import * as room from "./shop-room";
 export { T2 };
 
 /** The town's columns: 64, or the editor's town's 80 (lib/town/town2). */
@@ -375,9 +377,13 @@ export const yardSeat = (sit: number | undefined) => (KITCHEN.stage === 2 && sit
  * his stall, and the banker, who changes popoto into Popoto coins at his
  * counter. `stand` is where the stall or counter stands, `at` where the popoto
  * does, in front of it; `tiles` are the ones they close.
+ *
+ * And in the editor's town a third since 2026-10-25, after them (so that each of the two is where it was in the list):
+ * Granny Twilla, who sells clothes behind her counter in the clothes shop (lib/town/shop-room), a room of its own whose
+ * door is the editor's town's townhouse. (The old town has no way into it, and no Granny.)
  */
-export interface Keeper { id: "uncle" | "banker"; stand: Vec; at: Vec; tiles: Array<[number, number]> }
-export const KEEPERS: Keeper[] = T2 ? town2.T2_KEEPERS : [
+export interface Keeper { id: "uncle" | "banker" | "granny"; stand: Vec; at: Vec; tiles: Array<[number, number]> }
+export const KEEPERS: Keeper[] = T2 ? [...town2.T2_KEEPERS, room.SHOP_KEEPER] : [
   { id: "uncle", stand: { x: 45.5, y: 27.6 }, at: { x: 45.0, y: 28.5 }, tiles: [[45, 27], [46, 26], [44, 28], [45, 28]] },
   { id: "banker", stand: { x: 47.5, y: 25.6 }, at: { x: 47.3, y: 26.5 }, tiles: [[47, 25], [48, 24], [47, 26]] },
 ];
@@ -931,14 +937,22 @@ export const FARM_ALL = { x: PASTURE.rect[0], y: PASTURE.rect[1], w: PASTURE.rec
 export const FOREST = { x: 144, y: 112, w: 96, h: 80 };
 export type Place = "town" | "farm" | "forest"
   // to come (the preview, `next dev` only): the mountain's foot, and the cave under it, all of whose floors are the one place
-  | "mountain" | "cave";
+  | "mountain" | "cave"
+  // Granny Twilla's clothes shop (2026-10-25): a room, east of every other map (lib/town/shop-room's SHOP_ROOM)
+  | "shop";
 /** Which map a point is on, or null for nowhere. */
 export function placeOf(x: number, y: number): Place | null {
   if (x >= 0 && y >= 0 && x < COLS && y < (asWas && !T2 ? ROWS_FIRST : ROWS)) return "town";
   // ── to come ── (both lie below every other map in the tile space)
   if (PREVIEW && y >= MOUNTAIN.y) return within(x, y, MOUNTAIN) ? "mountain" : floorOf(x, y) ? "cave" : null;
+  if (room.inShop(x, y)) return "shop";
   return within(x, y, asWas ? FARM_FIRST : FARM_ALL) ? "farm" : within(x, y, FOREST) ? "forest" : null;
 }
+/**
+ * Whether a map is a room, under a roof (the clothes shop): no sky, no weather and nothing of the outdoors there (no
+ * insects' haunts, nothing a member lays on the ground, Town.tsx's clouds, critters and river), and its own light.
+ */
+export const indoors = (place: Place | null | undefined) => place === "shop";
 /** How many quarters of beds the farm has down it (two of them the first half's), and how far apart they lie, in tiles: a quarter's two beds (15), and the grass and the lane between (6). */
 const QUARTERS = 4, QUARTER = 21;
 /** A farm tile's place in its quarter down the farm, counted from the farm's own corner: the quarter and the row in it, or null off the beds. */
@@ -1464,7 +1478,8 @@ export const BEYOND = {
 /** The north path's own shape, which runs on into the wood beyond its gate. */
 const NORTH_SEED = ARMS.find((a) => a.dir === "N")!.seed;
 /** Whether a point has ground to draw: it is on a map, or in the woods seen beyond a gate. */
-export const seenAt = (x: number, y: number) => placeOf(x, y) !== null || within(x, y, BEYOND.north) || within(x, y, BEYOND.south)
+// (the clothes shop's floor is its own picture, lib/town/shop-room-art: the ground is not laid there)
+export const seenAt = (x: number, y: number) => (placeOf(x, y) !== null && !room.inShop(x, y)) || within(x, y, BEYOND.north) || within(x, y, BEYOND.south)
   // (the editor's town's far banks)
   || (T2 && town2.inT2Banks(x, y))
   // ── to come ── (and what is seen beyond the town's west gate and beyond the mountain's map)
@@ -1634,6 +1649,11 @@ const T2_GATES = (): Gate[] => {
     ] : []),
     { from: "town", leads: "farm", tiles: G.farm2.tiles, to: { x: FARM.x + 2.5, y: FARM.y + 63.5 }, arch: G.farm2.arch },
     { from: "farm", leads: "town", tiles: [[FARM.x, FARM.y + 63], [FARM.x, FARM.y + 64]], to: G.farm2.back, arch: { x: FARM.x + 1.5, y: FARM.y + 64 } },
+    // Granny Twilla's clothes shop (the owner, 2026-10-25): in by the townhouse's door (its threshold, a tile of the house
+    // walked onto only to go in: findPath's DOORS), to the floor by the ring; out by the ring, to the street before the
+    // door. Last of all, so that each before it is found as it was. Neither puts anybody on a gate's tile.
+    { from: "town", leads: "shop", tiles: [town2.T2_SHOP_DOOR.tile], to: room.SHOP_IN, arch: town2.T2_SHOP_DOOR.at },
+    { from: "shop", leads: "town", tiles: room.SHOP_RING.tiles, to: town2.T2_SHOP_DOOR.out, arch: room.SHOP_RING.at },
   ];
 };
 export const GATES: Gate[] = T2 ? T2_GATES() : [
@@ -1708,6 +1728,8 @@ export function gateAt(x: number, y: number): Vec | null {
 export function thingAt(tx: number, ty: number): Building | "fountain" | "shop" | "board" | "pier" | "kitchen" | "keeper" | "roadworks" | "water" | "prop" | null {
   // ── to come ── (the mountain's foot and the cave: a cliff, the rim, rock, and what stands there)
   if (PREVIEW && ty >= MOUNTAIN.y) return moreShut(tx, ty) ? "prop" : null;
+  // ── the clothes shop ── (its tiles as the export has them: lib/town/shop-room)
+  if (room.inShop(tx, ty)) return room.shopOpen(tx, ty) ? null : "prop";
   // ── the pasture ── (its buildings, troughs, stall, fences and woods, and the pond)
   if (!asWas && inPasture(tx, ty)) return pastureThing(tx, ty);
   if (within(tx, ty, farmNow())) return (asWas ? farmSolidFirst : farmSolid).has(`${tx},${ty}`) ? "prop" : null;
@@ -1938,6 +1960,8 @@ export function groundAt(tx: number, ty: number): Ground {
   // grass and a wood's floor are themselves, and bare rock, snow, a cliff and all of a cave are sand. What they are
   // drawn as is groundLook's to say)
   if (PREVIEW && ty >= MOUNTAIN.y) { const g = moreLook(tx + 0.5, ty + 0.5); return g === "road" || g === "stair" ? "road" : g === "grass" || g === "wood" ? g : "sand"; }
+  // (the clothes shop's wooden floor: of the town's kinds, the plaza's, on which nothing grows or lies wet)
+  if (room.inShop(tx, ty)) return "plaza";
   if (!asWas && inPasture(tx, ty)) return pastureGround(tx + 0.5, ty + 0.5);
   if (within(tx, ty, farmNow())) return farmGround(tx - FARM.x + 0.5, ty - FARM.y + 0.5);
   if (within(tx, ty, FOREST)) return forestGround(tx - FOREST.x + 0.5, ty - FOREST.y + 0.5);
@@ -1957,6 +1981,8 @@ export function groundAt(tx: number, ty: number): Ground {
 export function groundLook(x: number, y: number): Ground | MoreGround | town2.T2Look {
   // ── the editor's town ── (its own ground, in its own textures: lib/town/town2)
   if (T2 && town2.inT2(x, y)) return town2.t2Look(x, y);
+  // (the clothes shop's floor, which is its own picture: the plaza's kind, as groundAt says)
+  if (room.inShop(x, y)) return "plaza";
   // (and its far banks beyond the west and south edges, where its bridges come down)
   if (T2) { const bank = town2.t2BankLook(x, y); if (bank) return bank; }
   // ── to come ── (the mountain, the cave's floors, what is seen beyond them, and the earth at the bridge's two ends)
@@ -1989,6 +2015,15 @@ export function fromIso(ix: number, iy: number): Vec {
 
 /* ── paths ──────────────────────────────────────────────────────────────── */
 
+/**
+ * The doors into rooms: a tile of a building that nobody stands on, which a path may end on, and nothing else (the
+ * townhouse's door into the clothes shop, lib/town/town2's T2_SHOP_DOOR; the gate on it takes whoever stops there in).
+ * Walked onto by its one open side only, straight (a step onto it diagonally would clip the house's corner). Whether a
+ * tile is walked on is otherwise untouched: nothing laid out from where one may walk (the insects' haunts) moves.
+ */
+const DOORS = new Set(T2 ? [town2.T2_SHOP_DOOR.tile.join(",")] : []);
+const isDoor = (x: number, y: number) => DOORS.has(`${x},${y}`);
+
 const DIRS: Array<[number, number]> = [
   [1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1],
 ];
@@ -2002,7 +2037,7 @@ const DIRS: Array<[number, number]> = [
 export function findPath(from: Vec, to: Vec): Vec[] | null {
   const sx = Math.floor(from.x), sy = Math.floor(from.y);
   const gx = Math.floor(to.x), gy = Math.floor(to.y);
-  if (!walkable(gx, gy)) return null;
+  if (!walkable(gx, gy) && !isDoor(gx, gy)) return null;
   if (sx === gx && sy === gy) return [{ x: gx + 0.5, y: gy + 0.5 }];
   // No walking from one map to the other: only a gate goes there.
   if (placeOf(sx, sy) !== placeOf(gx, gy)) return null;
@@ -2040,7 +2075,10 @@ export function findPath(from: Vec, to: Vec): Vec[] | null {
     closed.add(ck);
     for (const [dx, dy] of DIRS) {
       const nx = cur.x + dx, ny = cur.y + dy;
-      if (!walkable(nx, ny)) continue;
+      // (a door into a room is a path's end, never a way through: DOORS)
+      if (!walkable(nx, ny) && !(nx === gx && ny === gy && isDoor(nx, ny))) continue;
+      // ── the clothes shop ── (nobody steps across one of its walls, nor round a wall's end)
+      if (room.shopOverWall(cur.x, cur.y, nx, ny)) continue;
       // Onto the finished deck and off it only by its steps. (The editor's town's decks are walked onto from the land beside them.)
       if (!T2 && onDeck(nx, ny) !== onDeck(cur.x, cur.y) && !bySteps(cur.x, cur.y, nx, ny)) continue;
       // Into the finished yard and out of it only by its two ways in.

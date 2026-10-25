@@ -33,6 +33,13 @@ export const WHO: Record<Speaker, { name: Line; job: Line; art: [quiet: string, 
     job: { th: "ธนาคาร Popoto", en: "The Popoto Bank" },
     art: ["tk_banker", "tk_banker_o"],
   },
+  // Granny Twilla, who keeps the clothes shop in the townhouse (the owner, 2026-10-25): warm, a little teasing, about
+  // clothes, trying them on, and the week's auction on her board (lib/town/shop-room). Of no country's own customs.
+  granny: {
+    name: { th: "ยายทวิลล่า", en: "Granny Twilla" },
+    job: { th: "ร้านเสื้อผ้า · ประมูลชุดประจำสัปดาห์", en: "Clothes, and the weekly auction" },
+    art: ["tk_granny", "tk_granny_o"],
+  },
 };
 
 /** How each greets, by the hour in Bangkok: morning, afternoon, evening, late at night. */
@@ -48,6 +55,12 @@ const HELLO: Record<Speaker, [Line, Line, Line, Line]> = {
     { th: "สวัสดีตอนบ่ายครับ ยินดีต้อนรับสู่ธนาคาร Popoto", en: "Good afternoon. Welcome to the Popoto Bank." },
     { th: "สวัสดีตอนเย็นครับ ยินดีต้อนรับสู่ธนาคาร Popoto", en: "Good evening. Welcome to the Popoto Bank." },
     { th: "ดึกแล้วนะครับ แต่ธนาคาร Popoto ยินดีต้อนรับเสมอ", en: "It is late, but the Popoto Bank is always glad to see you." },
+  ],
+  granny: [
+    { th: "อรุณสวัสดิ์จ้ะหลาน มาเช้าแบบนี้ได้เลือกชุดก่อนใครเลยนะ", en: "Morning, dearie! Up early means first pick of the rails." },
+    { th: "อ้าว หลานมาแล้ว เข้ามาๆ ข้างนอกแดดแรง ในร้านยายเย็นสบาย", en: "Oh, it's you! Come in out of that sun, it's nice and cool in here." },
+    { th: "สวัสดีตอนเย็นจ้ะ จะแต่งตัวไปไหนคืนนี้ล่ะ ให้ยายช่วยเลือกไหม", en: "Good evening, sweetheart. Going somewhere tonight? Let Granny help you choose." },
+    { th: "ดึกป่านนี้ยังไม่นอนอีกเหรอหลาน ยายก็นั่งเย็บผ้าเพลินจนลืมเวลาเหมือนกัน", en: "Still up, dearie? Granny lost track of the hour at her sewing too." },
   ],
 };
 
@@ -100,6 +113,28 @@ export const TALKS: Record<Speaker, Line[][]> = {
       { th: "ผมจะจดทุกเหรียญลงสมุดอย่างเรียบร้อยครับ วางใจได้", en: "I shall write every coin down in my ledger. You may rely on it." },
     ],
   ],
+  granny: [
+    [
+      { th: "ร้านนี้ยายเปิดมาตั้งแต่ยังสาวๆ เสื้อทุกตัวยายเลือกเองกับมือเลยนะ", en: "I've kept this shop since I was a slip of a girl. Every piece here, I picked by hand." },
+      { th: "ชุดใหม่ยังจัดขึ้นราวไม่เสร็จเลย อีกเดี๋ยวก็พร้อมแล้วจ้ะ", en: "The new things aren't all on the rails yet. It won't be long now." },
+      { th: "ระหว่างนี้เดินดูไปก่อน จับได้ ลองทาบตัวได้ แต่อย่าทำยับนะ", en: "Have a look round meanwhile. Hold things up to you all you like, just don't crumple them!" },
+    ],
+    [
+      { th: "เห็นหุ่นตรงนั้นไหมหลาน ทุกสัปดาห์ยายจะเอาชุดพิเศษมาใส่ให้ดู", en: "See the dress form over there? Each week I dress it in something special." },
+      { th: "ชุดพวกนั้นมีแค่ไม่กี่ตัว ยายไม่ขายหน้าเคาน์เตอร์หรอก ต้องประมูลกันบนบอร์ด", en: "Those come only a few at a time. Not over the counter: they go to auction on my board." },
+      { th: "ใครให้มากที่สุดตอนปิดประมูลก็ได้ไป ใจเย็นๆ คิดดีๆ ก่อนยกมือนะ", en: "Whoever bids the most at the close takes it home. Keep a cool head before you raise a hand." },
+    ],
+    [
+      { th: "หลานรู้ไหม เสื้อตัวเดียวกัน ใส่คนละคนก็ดูคนละแบบ", en: "You know, the very same shirt looks different on everybody who wears it." },
+      { th: "ไม่ต้องแต่งตามใครหรอก เลือกตัวที่ใส่แล้วยิ้มได้ นั่นแหละใช่ที่สุด", en: "Don't dress for anybody else. Pick what makes you smile; that's the right one." },
+      { th: "ถ้าเลือกไม่ถูกก็มาถามยาย สายตายายยังดีอยู่นะจะบอกให้", en: "And if you can't decide, ask Granny. These old eyes don't miss a thing." },
+    ],
+    [
+      { th: "อุ๊ย หลานใส่ชุดนี้มาอีกแล้วเหรอ ยายจำได้นะ", en: "Oh my, that outfit again? Granny remembers, you know." },
+      { th: "ไม่ได้ว่าอะไรนะจ๊ะ ใส่แล้วดูดีออก แต่ลองอะไรใหม่ๆ บ้างก็สนุกดี", en: "Not that I'm complaining, it suits you! But something new now and then is half the fun." },
+      { th: "ไว้ชุดใหม่ขึ้นราวเมื่อไร มาให้ยายช่วยดูนะ ยายพูดตรงๆ ไม่อ้อมค้อม", en: "When the new things are out, come and let me look you over. I'll tell you straight." },
+    ],
+  ],
 };
 
 /** The lines of one talk: the greeting for the hour, then that speaker's conversation number `turn` (they go round). */
@@ -118,6 +153,7 @@ export function talkFor(who: Speaker, hour: number, turn: number): Line[] {
 export const ASK: Record<Speaker, Line> = {
   uncle: { th: "ของมาถึงแล้วนะ วันนี้รับอะไรดีล่ะหลาน", en: "The goods are in. What'll it be today, kiddo?" },
   banker: { th: "วันนี้ให้ผมช่วยเรื่องอะไรดีครับ", en: "How may I help you today?" },
+  granny: { th: "วันนี้มาหาชุดแบบไหนจ๊ะหลาน บอกยายมาเลย", en: "So, what are we looking for today, dearie? Tell Granny." },
 };
 export const PAID: Line = { th: "ญาติลุงเอาเงินค่าของที่ฝากไว้มาให้แล้วนะ มารับไปได้เลย", en: "My relatives brought the money for what you left. Come and take it." };
 export const CHATS: Record<Speaker, Line[][]> = {
@@ -190,6 +226,34 @@ export const CHATS: Record<Speaker, Line[][]> = {
       { th: "Popoto coin ใช้ได้ในเมืองนี้ครับ กับลุงที่แผงข้างๆ เป็นต้น", en: "Popoto coins are spent here in town: with the uncle at the stall beside me, for one." },
       { th: "ไม่เกี่ยวกับ gil ในกระเป๋าของเว็บนะครับ สองอย่างนี้แยกกัน แลกข้ามกันไม่ได้", en: "They are not the gil in your wallet on the site. The two are kept apart, and neither buys the other." },
       { th: "ผมจะจดทุกเหรียญลงสมุดอย่างเรียบร้อยครับ วางใจได้", en: "I shall write every coin down in my ledger. You may rely on it." },
+    ],
+  ],
+  granny: [
+    [
+      { th: "บอร์ดบนผนังนั่น ยายติดรายการประมูลของสัปดาห์นี้ไว้", en: "The board on the wall has this week's auction pinned up." },
+      { th: "ชุดประมูลมีไม่กี่ตัว ดูให้ดีว่าสัปดาห์นี้มีอะไร แล้วค่อยตัดสินใจ", en: "Auction pieces are few. Look well at what's up this week, then make up your mind." },
+      { th: "อย่าลืมแวะมาดูก่อนปิดประมูลนะ ยายไม่อยากให้หลานพลาด", en: "Do pop back before it closes. I'd hate for you to miss out." },
+    ],
+    [
+      { th: "ชุดที่ใส่หุ่นไว้ก็คือของประมูลนั่นแหละ ยายแต่งให้ดูว่าใส่จริงแล้วเป็นยังไง", en: "What's on the dress form is up for auction. I dress it so you can see it worn." },
+      { th: "ลองนึกภาพตัวเองใส่ดูก่อน ถ้ายิ้มออกมาเองก็แปลว่าใช่", en: "Picture yourself in it first. If you catch yourself smiling, that's the one." },
+      { th: "แต่ถ้ายืนทำหน้าเฉยๆ นานๆ ยายว่าข้ามไปเถอะ ไว้รอสัปดาห์หน้า", en: "If you just stand there frowning, skip it, dearie. There's always next week." },
+    ],
+    [
+      { th: "หลานยืนเลือกนานจัง ยายว่าใส่ได้ทุกตัวแหละ หน้าตาดีแบบนี้", en: "You've been choosing forever! Honestly, with a face like that, anything works." },
+      { th: "แต่ถ้าให้ยายเลือก ยายเอาสีอ่อนๆ ให้ เข้ากับหลานที่สุด", en: "But if Granny had to pick? Something soft in colour. It's you all over." },
+      { th: "อย่าบอกใครนะว่ายายแอบชม เดี๋ยวคนอื่นน้อยใจ", en: "Don't tell the others I said so. They'll sulk." },
+    ],
+    [
+      { th: "สมัยก่อนยายเย็บเสื้อให้คนทั้งหมู่บ้านเลยนะ", en: "In my day I sewed for half the village." },
+      { th: "ตอนนี้มือไม่ไวเหมือนเก่า แต่ฝีมือยังอยู่ครบทุกเข็ม", en: "My hands aren't as quick these days, but the knack's all there, every stitch." },
+      { th: "ผ้าดีๆ ใส่ได้นาน ดูแลมันดีๆ มันก็ดูแลหลานเหมือนกัน", en: "Good cloth lasts. Look after it and it'll look after you." },
+    ],
+    // (a secret to feel for, by the owner's rule: that cloth from far off comes now and then, never when nor how)
+    [
+      { th: "เมื่อก่อนมีพ่อค้าจากเมืองไกลๆ เอาผ้าแปลกๆ มาขายยายบ่อยๆ", en: "Traders from far-off towns used to bring me the oddest cloth." },
+      { th: "บางผืนลายเหมือนดาวบนฟ้า บางผืนเปลี่ยนสีได้ตามแสง", en: "Some patterned like the night sky, some that changed colour in the light." },
+      { th: "ถ้ามีมาอีกเมื่อไร ยายจะให้หลานดูก่อนใครเลย สัญญา", en: "If any comes my way again, you'll see it before anyone. Granny promises." },
     ],
   ],
 };
