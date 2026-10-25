@@ -200,10 +200,46 @@ if (cmd === "unhead") {
       for (let y = Math.max(0, y0); y < Math.min(raw.H, y1); y++) for (let x = Math.max(0, x0); x < Math.min(raw.W, x1); x++) { const o = (y * raw.W + x) * 4; buf[o] = c[0]; buf[o + 1] = c[1]; buf[o + 2] = c[2]; buf[o + 3] = c[3]; }
     };
     let n = 0;
+    const a = got.data, b = was.data, changed = new Set();
+    // the head's own skin tones: the model may also paint skin out past the head's old edge under the thing, which is
+    // the head, never the thing (a pumpkin's orange is far from them, though both are "warm")
+    const skins = [];
+    for (let i = 0; i < meta.W * meta.H; i++) if (b[i * 4 + 3] >= 128 && L.cls(b[i * 4], b[i * 4 + 1], b[i * 4 + 2]) === "skin") skins.push([b[i * 4], b[i * 4 + 1], b[i * 4 + 2]]);
+    const skinLike = (o) => skins.some((s) => Math.abs(s[0] - a[o]) + Math.abs(s[1] - a[o + 1]) + Math.abs(s[2] - a[o + 2]) < 50);
     for (let y = 0; y < p.h; y++) for (let x = 0; x < p.w; x++) {
-      const o = ((p.oy + y) * meta.W + p.ox + x) * 4, a = got.data, b = was.data;
-      const same = Math.abs(a[o] - b[o]) + Math.abs(a[o + 1] - b[o + 1]) + Math.abs(a[o + 2] - b[o + 2]) < 4 && (a[o + 3] >= 128) === (b[o + 3] >= 128);
-      if (same) continue;
+      const o = ((p.oy + y) * meta.W + p.ox + x) * 4;
+      const d = Math.abs(a[o] - b[o]) + Math.abs(a[o + 1] - b[o + 1]) + Math.abs(a[o + 2] - b[o + 2]);
+      // (inside the mask the model redraws the head too, a few shades off: a cell still of the head's own colour class
+      // and near its colour is the head, not the thing; seen as skin carried over the hair by the pumpkin crown)
+      const redrawn = a[o + 3] >= 128 && b[o + 3] >= 128 && d < 60 && L.cls(a[o], a[o + 1], a[o + 2]) === L.cls(b[o], b[o + 1], b[o + 2]);
+      if (!(d < 4 && (a[o + 3] >= 128) === (b[o + 3] >= 128)) && !redrawn && !(a[o + 3] >= 128 && skinLike(o))) changed.add(y * p.w + x);
+    }
+    // a speck or a stray stroke the model left apart from the thing (beside the head) is not the thing: the largest piece
+    // of the change is kept, and any other piece inside its box (grown three cells) or a sixth its size or more
+    const pieces = [];
+    for (const c0 of [...changed]) {
+      if (!changed.has(c0)) continue;
+      const st = [c0], mem = [c0];
+      changed.delete(c0);
+      while (st.length) { const q = st.pop(), qx = q % p.w, qy = (q / p.w) | 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const r = (qy + dy) * p.w + qx + dx; if (qx + dx >= 0 && qx + dx < p.w && changed.has(r)) { changed.delete(r); st.push(r); mem.push(r); } } }
+      pieces.push(mem);
+    }
+    pieces.sort((u, v) => v.length - u.length);
+    const keep = new Set(pieces[0] ?? []);
+    if (pieces.length) {
+      const xs = pieces[0].map((c) => c % p.w), ys = pieces[0].map((c) => (c / p.w) | 0);
+      const bx = [Math.min(...xs) - 3, Math.max(...xs) + 3, Math.min(...ys) - 3, Math.max(...ys) + 3];
+      for (const pc of pieces.slice(1)) {
+        const inside = pc.every((c) => { const x = c % p.w, y = (c / p.w) | 0; return x >= bx[0] && x <= bx[1] && y >= bx[2] && y <= bx[3]; });
+        if (inside || pc.length * 6 >= pieces[0].length) for (const c of pc) keep.add(c);
+      }
+      // the model may run a thread of one row along the mask's lower edge, out past the thing (seen on the pumpkin
+      // crown): its lowest row keeps only what lies under the row above it, a cell either way (a brim's corner)
+      const low = Math.max(...[...keep].map((c) => (c / p.w) | 0)), above = [...keep].filter((c) => ((c / p.w) | 0) === low - 1).map((c) => c % p.w);
+      if (above.length) for (const c of [...keep]) if (((c / p.w) | 0) === low && (c % p.w < Math.min(...above) - 1 || c % p.w > Math.max(...above) + 1)) keep.delete(c);
+    }
+    for (const c of keep) {
+      const x = c % p.w, y = (c / p.w) | 0, o = ((p.oy + y) * meta.W + p.ox + x) * 4;
       const gx = p.x0 + x, gy = p.y0 + y;
       if (a[o + 3] >= 128) { fill(sheet, gx, gy, [a[o], a[o + 1], a[o + 2], 255]); fill(key, gx, gy, [230, 0, 200, 255]); n++; }
       else { fill(sheet, gx, gy, [0, 0, 0, 0]); fill(key, gx, gy, [0, 0, 0, 0]); }

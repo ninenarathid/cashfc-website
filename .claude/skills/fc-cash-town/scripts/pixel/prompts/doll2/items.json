@@ -185,6 +185,16 @@
         "front": "the same jacket, collar, waistcoat, cravat and cape over a crimson knee-length skirt layered with black lace, black stockings and the buckled boots",
         "back": "the plain black outside of the cape covering the back to mid-calf, the crimson collar at the neck, black boots below"
       }
+    },
+    {
+      "id": "pumpkin",
+      "pl": "prompts/pixellab/doll/pumpkin-*.json",
+      "front": "a pumpkin king: a fitted deep violet coat embroidered with orange pumpkin vines and green leaves, round carved-pumpkin buttons, an orange sash, orange-and-black striped trousers, black boots with brass buckles",
+      "back": "the violet coat from behind with its vine embroidery and the sash, striped trousers, buckled boots",
+      "f": {
+        "front": "the same violet coat, buttons and sash over an orange-and-black striped knee-length skirt, black stockings and the buckled boots",
+        "back": "the violet coat from behind with its vine embroidery and the sash, the striped skirt, buckled boots"
+      }
     }
   ],
   "hats": [
@@ -282,6 +292,12 @@
       "back": "the same round woven straw hat with its narrow turned-up brim and brown leather band, and the same long white feather with two broad brown markings on the wearer's left side, seen from behind",
       "key": "the straw hat, including its brim, band and the feather",
       "more": "The feather rises diagonally upward and outward in a bold silhouette, its solid shaft visibly joined to the band; the whole hat and feather stay inside each figure's slot and the canvas."
+    },
+    {
+      "id": "countHat",
+      "pl": "prompts/pixellab/doll/countHat.json",
+      "front": "a small black silk top hat with a crimson band and a silver bat-wing pin",
+      "back": "the plain back of the small black top hat and its crimson band"
     }
   ],
   "accessories": [
@@ -529,6 +545,13 @@
       "back": "the same ring of small pink, white and yellow flowers with green leaves around the back of her head",
       "key": "the flower crown, every flower and leaf of it",
       "solid": true
+    },
+    {
+      "id": "pumpkinCrown",
+      "slot": "hair",
+      "pl": "prompts/pixellab/doll/pumpkinCrown.json",
+      "front": "a carved pumpkin crown with jack-o-lantern faces and two candles with teal-green flames",
+      "back": "the back of the carved pumpkin crown and its candles"
     }
   ],
   "starter": {
