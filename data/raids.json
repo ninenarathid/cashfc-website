@@ -72115,7 +72115,7 @@
     "cleared": true,
     "job_kills": {
      "Machinist": {
-      "kills": 4,
+      "kills": 7,
       "best": 27
      }
     }
@@ -77939,7 +77939,7 @@
       "best": 75
      },
      "Scholar": {
-      "kills": 14,
+      "kills": 18,
       "best": 67
      }
     }
@@ -77964,7 +77964,7 @@
       "best": 26
      },
      "Astrologian": {
-      "kills": 42,
+      "kills": 43,
       "best": 79
      },
      "WhiteMage": {
@@ -77972,8 +77972,8 @@
       "best": 54
      },
      "Scholar": {
-      "kills": 17,
-      "best": 41
+      "kills": 28,
+      "best": 46
      }
     }
    },
@@ -82087,7 +82087,13 @@
     "best": 5,
     "kills": 2,
     "job": "Gunbreaker",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Gunbreaker": {
+      "kills": 2,
+      "best": 5
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -86987,6 +86993,10 @@
      "DarkKnight": {
       "kills": 10,
       "best": 7
+     },
+     "Paladin": {
+      "kills": 1,
+      "best": 4
      },
      "Sage": {
       "kills": 1,
@@ -96164,7 +96174,13 @@
     "best": 5,
     "kills": 2,
     "job": "Reaper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Reaper": {
+      "kills": 2,
+      "best": 5
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",

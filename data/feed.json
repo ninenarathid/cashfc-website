@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-10-25",
+   "type": "level_100",
+   "id": 9444020,
+   "name": "Non Elemental",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-10-25",
    "type": "rare_up",
    "id": 42021700,
    "name": "Josuke Mizumoto",
@@ -1392,13 +1399,6 @@
    "id": 38152072,
    "name": "Parker Thonhart",
    "text": "earned A Load of Verminion I — only 2.9% of players have it"
-  },
-  {
-   "date": "2026-10-12",
-   "type": "rare_up",
-   "id": 44970350,
-   "name": "Allen Crist",
-   "text": "earned R&D: Mallet of Stars — only 4.1% of players have it"
   }
  ]
 }
