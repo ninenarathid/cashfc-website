@@ -567,3 +567,13 @@ Every picture here is PixelLab editing the game's own native pixels, so the styl
   undercut's buzzed band goes tan in blonde.
 - The owner then of the space buns ("แก้ทรงนี้ด้วย"): its redraw's bangs were cut level too, and no generations were left
   for a bangs pass: it is back on its fringe version (parted tapered locks), at no cost.
+- **Trying them on locally** (the owner, 2026-10-25 night): "ชุดนี้ลองแล้ว เหมือน detail แปลกๆ", "หมวกมีหลายใบที่เก็บรายละเอียด
+  ไม่ดี", "แว่น รายละเอียดไม่ดีเลย". Drawn against built: the outfits and the glasses are in the game pixel for pixel as
+  PixelLab drew them (plain: the outfit template's "Simple bold shapes, no fine pattern" was taken to the letter; the
+  glasses are a few pixels across an eye of seven); the hats were not: `--prune` had eaten the cowboy's and the sun hat's
+  brims, the bear hat's ears were hollow, and where the model kept the head's outline under a hat in much the hat's
+  colour the lay-back left a hole the outline showed through, a ring over the hat. `pl-doll.mjs unhead` now fills, for a
+  hat (`dh`, or `--fill`), a cell the hat has on both sides and any gap it closes all round, in the picture's own
+  colour; ten hats laid again without `--prune`. **Owed next month (his choice: open now, redraw then):** the ten shop
+  outfits ×2 and the eight glasses redrawn with words for shading, folds and highlights (not "simple bold shapes"),
+  about 290 PixelLab generations (or about $4–5 by gen.mjs, which needs credit and BUDGET raised).
