@@ -210,7 +210,7 @@ if (cmd === "unhead") {
       for (let y = Math.max(0, y0); y < Math.min(raw.H, y1); y++) for (let x = Math.max(0, x0); x < Math.min(raw.W, x1); x++) { const o = (y * raw.W + x) * 4; buf[o] = c[0]; buf[o + 1] = c[1]; buf[o + 2] = c[2]; buf[o + 3] = c[3]; }
     };
     let n = 0;
-    const a = got.data, b = was.data, changed = new Set();
+    const a = got.data, b = was.data, changed = new Set(), skinOver = new Set();
     // the head's own skin tones: the model may also paint skin out past the head's old edge under the thing, which is
     // the head, never the thing (a pumpkin's orange is far from them, though both are "warm")
     const skins = [];
@@ -228,8 +228,21 @@ if (cmd === "unhead") {
       // so a skin-like colour is left out only outside the head's old outline, 2026-10-25)
       const redrawn = a[o + 3] >= 128 && b[o + 3] >= 128 && d < 36 && L.cls(a[o], a[o + 1], a[o + 2]) === L.cls(b[o], b[o + 1], b[o + 2]);
       const grown = a[o + 3] >= 128 && b[o + 3] < 128 && skinLike(o) && byHead(p.ox + x, p.oy + y);
+      // (a hat: skin painted over the head's own skin, below the hat, is the forehead the model drew again under the
+      // brim: told below, once the hat's own lowest pixels are known)
+      const forehead = g0 === "dh" && a[o + 3] >= 128 && b[o + 3] >= 128 && L.cls(b[o], b[o + 1], b[o + 2]) === "skin" && skinLike(o);
+      if (forehead) skinOver.add(y * p.w + x);
       // (over the whole head nothing of it is left to tell apart: every changed cell is the thing)
       if (!(d < 4 && (a[o + 3] >= 128) === (b[o + 3] >= 128)) && (meta.slot === "full" || (!redrawn && !grown))) changed.add(y * p.w + x);
+    }
+    // (the owner, 2026-10-26: "หมวกใหม่หลายใบยังมีบั๊คล่างหมวกอยู่": a strip of forehead under a brim lay over the bangs as a
+    // bare band. A hat's skin-coloured cell over the head's skin below the hat's lowest other pixel in its column is that
+    // forehead; above it, inside the hat, a tan or straw of the hat's own stays. Only seen from the front: behind, there is
+    // no forehead, and a knit band's tan was taken for one)
+    if (g0 === "dh" && p.v === "front" && skinOver.size) {
+      const low = new Map();
+      for (const c of changed) if (!skinOver.has(c)) { const x = c % p.w, y = (c / p.w) | 0; low.set(x, Math.max(low.get(x) ?? -1, y)); }
+      for (const c of [...changed]) if (skinOver.has(c) && ((c / p.w) | 0) > (low.get(c % p.w) ?? -1)) changed.delete(c);
     }
     // a speck or a stray stroke the model left apart from the thing (beside the head) is not the thing: the largest piece
     // of the change is kept, and any other piece inside its box (grown three cells) or a sixth its size or more

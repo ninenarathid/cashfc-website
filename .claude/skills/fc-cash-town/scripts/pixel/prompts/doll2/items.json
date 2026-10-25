@@ -710,9 +710,10 @@
     {
       "id": "pumpkincrown",
       "slot": "hair",
-      "pl": "prompts/pixellab/doll/pumpkincrown.json",
-      "front": "a carved pumpkin crown with jack-o-lantern faces and two candles with teal-green flames",
-      "back": "the back of the carved pumpkin crown and its candles"
+      "front": "a small crown of three little carved jack-o-lantern pumpkins side by side on a dark green vine band, sitting on top of her head and no wider than her head, a small teal-green flame on top of each pumpkin",
+      "back": "the same small crown of three pumpkins on its dark green vine band seen from behind, the band about two thirds of her skull width and touching the scalp with no gap, the total crown height including flames no more than one third of her skull height, their backs plain orange with short green stems, a small teal-green flame on top of each",
+      "key": "the pumpkin crown, including all three pumpkins, the vine band and the three flames",
+      "solid": true
     },
     {
       "id": "batmask",
@@ -728,9 +729,10 @@
     {
       "id": "rosefascinator",
       "slot": "hair",
-      "pl": "prompts/pixellab/doll/rosefascinator.json",
-      "front": "a small black lace fascinator with a crimson rose and a short net veil at the side of the head",
-      "back": "the small black fascinator and its rose at the side of the head"
+      "front": "a small black velvet fascinator clipped to one side of the top of her head: one big deep crimson rose with two dark green leaves, and two small black bat wings spreading out from behind it",
+      "back": "the same small black fascinator seen from behind on the character’s left side of the top of her head (on the viewer’s left in this back view, corresponding to the viewer’s right in the front sheet): the back of the crimson rose and the two small black bat wings",
+      "key": "the fascinator, including the rose, its leaves and both bat wings",
+      "solid": true
     },
     {
       "id": "heartshades",
