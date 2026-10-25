@@ -1,0 +1,5 @@
+Edit the attached pixel art sprite sheet. Keep everything exactly where it is: the same canvas, the same four figures at the same positions and the same size, the same walking poses, the same bald round head with exactly the same outline and size, the same long pointed ears, the same outfit, the same chunky square pixel size, the same thick dark outline and the same pixel art style.
+
+Change only one thing: put a fully opaque black eye patch over the eye on the viewer's left in every frame, covering that eye's entire outline and eyelashes, on a black strap across the forehead, the same on all four figures. Preserve her head geometry, the uncovered eye and her face outside the patch and strap; nothing of the covered eye shows around or through the patch. Simple bold shapes with two or three tones per colour, no tiny patterns.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients. Transparent background, no text, no labels, no ground shadow, nothing else changed.

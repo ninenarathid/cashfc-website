@@ -1,0 +1,5 @@
+Edit the attached pixel art sprite sheet. Keep everything exactly where it is: the same canvas, the same four figures at the same positions and the same size, the same walking poses, the same bald round head with exactly the same outline and size, the same long pointed ears, the same outfit, the same chunky square pixel size, the same thick dark outline and the same pixel art style.
+
+Change only one thing: put big red heart-shaped sunglasses with fully opaque dark lenses, each heart large enough to cover the whole eye including its dark outline and eyelashes, so nothing of the eyes shows above, below, around or through them, the same on all four figures. Preserve her head geometry and her face outside the lenses; the lenses completely hide the eyes they cover. Simple bold shapes with two or three tones per colour, no tiny patterns.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients. Transparent background, no text, no labels, no ground shadow, nothing else changed.

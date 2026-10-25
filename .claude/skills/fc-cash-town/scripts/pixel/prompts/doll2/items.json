@@ -288,12 +288,12 @@
     },
     {
       "id": "skeleton",
-      "src": "pixellab",
-      "front": "a black bodysuit with three thick white rib bars and single thick white arm and leg bones, and black shoes",
-      "back": "one thick white spine and single white limb bones on the black bodysuit, and black shoes",
+      "front": "a black bodysuit printed with a white skeleton: a rib cage of curved white ribs around a white breastbone on the chest, a white pelvis at the hips, white bones down each arm and each leg; black shoes",
+      "back": "the black bodysuit from behind printed with a white spine down the middle of the back, two white shoulder blades, a white pelvis and white bones down each arm and each leg; black shoes",
       "f": {
-        "front": "a black bodysuit with three thick white rib bars, single white limb bones and a short charcoal tutu with a grey hem, and black shoes",
-        "back": "a thick white spine, white limb bones, the charcoal tutu and black shoes"
+        "front": "a black bodysuit printed with a white skeleton: a rib cage of curved white ribs around a white breastbone on the chest, white bones down each arm and each leg; a short puffy charcoal tutu with a grey hem at the hips; black shoes",
+        "back": "the black bodysuit from behind printed with a white spine down the middle of the back, two white shoulder blades and white bones down each arm and each leg; the short puffy charcoal tutu from behind; black shoes",
+        "pose": " In both sitting poses, the tutu sits around the hips and spreads over the lap and upper thighs, with one continuous grey hem, rather than separate shorts-like leg openings; preserve the reference's hand, knee and foot positions and the readable bent-leg silhouette. In the sleeping pose, the tutu follows the bent hips without changing the leg positions."
       }
     }
   ],
@@ -717,15 +717,13 @@
     {
       "id": "batmask",
       "slot": "face",
-      "pl": "prompts/pixellab/doll/batmask.json",
-      "front": "a black bat-shaped masquerade half-mask with crimson trim and eye holes"
+      "front": "a black bat-shaped masquerade half-mask over both eyes and the top of the nose, its two pointed bat wings spreading out past the temples, crimson trim along its edge, with two almond eye holes the eyes show through"
     },
     {
       "id": "pumpkinglasses",
       "slot": "face",
       "clear": true,
-      "pl": "prompts/pixellab/doll/pumpkinglasses.json",
-      "front": "round glasses with little carved-pumpkin frames and green stems, clear lenses"
+      "front": "round orange glasses whose two frames are little carved jack-o-lantern pumpkins, a small green stem on top of each, joined by a green vine across the nose, with clear lenses"
     },
     {
       "id": "rosefascinator",
@@ -737,39 +735,37 @@
     {
       "id": "heartshades",
       "slot": "face",
-      "src": "pixellab",
-      "front": "red heart-shaped sunglasses with dark lenses"
+      "front": "big red heart-shaped sunglasses with dark lenses, each heart large enough to cover the whole eye, so nothing of the eyes shows above, below or around them",
+      "key": "the heart-shaped sunglasses, including both opaque lenses and their highlights, frames, bridge and visible arms"
     },
     {
       "id": "cateye",
       "slot": "face",
-      "src": "pixellab",
-      "front": "black cat-eye glasses whose outer corners sweep up into points, with clear lenses",
+      "front": "black cat-eye glasses with thick frames whose outer corners sweep up into points, with clear lenses",
       "clear": true
     },
     {
       "id": "eyepatch",
       "slot": "face",
-      "src": "pixellab",
-      "front": "a black eye patch over the left eye on a thin black strap across the forehead"
+      "front": "a black eye patch over one eye on a black strap across the forehead",
+      "key": "the eyepatch, including the entire opaque patch and every visible strap"
     },
     {
       "id": "masquerade",
       "slot": "face",
-      "src": "pixellab",
-      "front": "a gold masquerade half-mask with a small white feather at one side and two eye holes"
+      "front": "a gold masquerade half-mask over both eyes and the top of the nose, a small white feather standing up at one side, with two eye holes the eyes show through",
+      "key": "the masquerade mask, including every visible solid part, decoration, eye-opening rim and strap"
     },
     {
       "id": "starshades",
       "slot": "face",
-      "src": "pixellab",
-      "front": "yellow star-shaped sunglasses with dark lenses"
+      "front": "big yellow star-shaped sunglasses with fully opaque dark lenses, each star large enough to cover the whole eye including its dark outline and eyelashes, so nothing of the eyes shows above, below, around or through them",
+      "key": "the star-shaped sunglasses, including both opaque lenses and their highlights, frames, bridge and visible arms"
     },
     {
       "id": "halfmoon",
       "slot": "face",
-      "src": "pixellab",
-      "front": "small half-moon reading glasses with thin gold frames sitting low on the nose, with clear lenses",
+      "front": "half-moon reading glasses with bold thick gold frames sitting low on the nose just under the eyes, with clear lenses",
       "clear": true
     },
     {

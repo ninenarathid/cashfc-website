@@ -577,3 +577,17 @@ Every picture here is PixelLab editing the game's own native pixels, so the styl
   colour; ten hats laid again without `--prune`. **Owed next month (his choice: open now, redraw then):** the ten shop
   outfits ×2 and the eight glasses redrawn with words for shading, folds and highlights (not "simple bold shapes"),
   about 290 PixelLab generations (or about $4–5 by gen.mjs, which needs credit and BUDGET raised).
+- **The necessary first, by gen.mjs** (the owner, 2026-10-26: "ตอนนี้มี credit openai อยู่ 1.12 usd ช่วยแก้ไข เรื่องที่จำเป็นก่อน"):
+  the eight glasses (the two auction sets' among them), the skeleton outfit both genders (a Halloween thing on sale
+  now) and the long waves (f16) drawn again the Doll 2 way, on make-items.mjs's templates (`ONLY=` the ids) and
+  prompts/hair.txt, the PixelLab sheets kept in `work/out/pl-v1/`. New words in items.json: opaque shades whose
+  lenses hide the whole eye, outline and lashes included (the star shades had shown the eyes' outline under them), a
+  skeleton with a rib cage, spine and pelvis ("three bars" before), the tutu's sitting words after the farmer's skirt;
+  the long waves on both sides and down the back, its bangs in uneven pointed locks. **Codex read every call** (four
+  batch reads, 2026-10-25-16-56-18 … 17-05-59): its words taken for the masquerade (the feather on one side), the
+  eye patch (one eye), the pumpkin glasses, the heart shades, the women's skeleton from behind and the waves' back
+  view; the star shades corrected at the source and read again; four keys given `key` words (the whole opaque lens,
+  the whole patch, the mask's every part). **Watch out:** `make-items.mjs` writes every item's prompt file whatever
+  `ONLY` says, so Codex's words copied over a prompt are lost if it runs again: copy them after. 34 calls, $0.618
+  (the ledger $39.388 of $45; about $0.50 of the account's credit left). In the game: the skeleton reads as a
+  skeleton standing, sitting and eating; the lenses hide the eyes; the waves are full front and back.
