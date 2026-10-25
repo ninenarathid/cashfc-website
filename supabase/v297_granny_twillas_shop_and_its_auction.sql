@@ -28,8 +28,8 @@
 --    whoever is pushed out are held in the order of their ids under the round's own row, so two bids never wait on each
 --    other. The coins paid by the winners are gone from the town (no purse gets them), which is the point: the town must
 --    not inflate.
---    The first round: the Midnight Bat Count (the outfit and its top hat) and the Pumpkin Wisp Monarch (the outfit and
---    its crown), three copies each, a start of 8,000 coins (Codex's figure: the middle player held 8,431 that day; mine
+--    The first round: the Midnight Bat Count (the outfit for men and the countess's gown for women, the top hat, a
+--    bat-wing mask and a rose fascinator) and the Pumpkin Wisp Monarch (the outfit, its crown and pumpkin glasses), three copies each, a start of 8,000 coins (Codex's figure: the middle player held 8,431 that day; mine
 --    had been 10,000), a step of 5% and never under 500, open from Tuesday 27 October 20:00 to Saturday 31 October
 --    21:00 Bangkok, a bid in the last five minutes moving the close to five minutes after it, never past 22:00.
 
@@ -410,8 +410,8 @@ grant execute on function public.town_dressed() to authenticated;
 
 -- The first round: Halloween 2026.
 insert into public.town_auctions (design, wearables, run, copies, start_price, step_pct, step_min, opens_at, closes_at, hard_close) values
-  ('count', array['count', 'counthat'], 1, 3, 8000, 5, 500, '2026-10-27 20:00+07', '2026-10-31 21:00+07', '2026-10-31 22:00+07'),
-  ('pumpkin', array['pumpkin', 'pumpkincrown'], 1, 3, 8000, 5, 500, '2026-10-27 20:00+07', '2026-10-31 21:00+07', '2026-10-31 22:00+07')
+  ('count', array['count', 'counthat', 'batmask', 'rosefascinator'], 1, 3, 8000, 5, 500, '2026-10-27 20:00+07', '2026-10-31 21:00+07', '2026-10-31 22:00+07'),
+  ('pumpkin', array['pumpkin', 'pumpkincrown', 'pumpkinglasses'], 1, 3, 8000, 5, 500, '2026-10-27 20:00+07', '2026-10-31 21:00+07', '2026-10-31 22:00+07')
 on conflict (design, run) do nothing;
 
 -- <catalog:v297> written from lib/town/catalog.ts (npm test checks it; TOWN_WRITE=1 npx vitest run lib/town/catalog.test.ts writes it)

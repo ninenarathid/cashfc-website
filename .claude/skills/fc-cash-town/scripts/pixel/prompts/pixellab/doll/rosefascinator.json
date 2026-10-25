@@ -2,5 +2,5 @@
  "image": "@../../../work/pl-doll/head-hair/head.png",
  "mask_image": "@../../../work/pl-doll/head-hair/head-mask.png",
  "no_background": true,
- "description": "Two views of the same small chibi pixel art head, bald, with long pointed ears: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask: put the same small hair ornament on both heads, pinned at the left side of the top of the head and tilted a little: a tiny black lace fascinator hat no bigger than a third of the head, with one deep-crimson rose on it and a short black net veil hanging from its front edge (seen from behind, the small black fascinator, the rose and the veil's edge at the side of the head). Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the ears stay exactly as they are, nothing else added, transparent background."
+ "description": "Same two heads and pixels: front left, back right. Inside the white mask only, add one small black lace fascinator with a crimson rose, at most one third of the head’s width, pinned on the wearer’s left: image-right in front, image-left behind. Match its placement and shape between views. A short sparse veil ends above the ears, entirely within the mask. Preserve face, ears, head geometry and transparency."
 }

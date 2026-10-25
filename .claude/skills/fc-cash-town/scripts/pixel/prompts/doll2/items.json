@@ -552,6 +552,26 @@
       "pl": "prompts/pixellab/doll/pumpkincrown.json",
       "front": "a carved pumpkin crown with jack-o-lantern faces and two candles with teal-green flames",
       "back": "the back of the carved pumpkin crown and its candles"
+    },
+    {
+      "id": "batmask",
+      "slot": "face",
+      "pl": "prompts/pixellab/doll/batmask.json",
+      "front": "a black bat-shaped masquerade half-mask with crimson trim and eye holes"
+    },
+    {
+      "id": "pumpkinglasses",
+      "slot": "face",
+      "clear": true,
+      "pl": "prompts/pixellab/doll/pumpkinglasses.json",
+      "front": "round glasses with little carved-pumpkin frames and green stems, clear lenses"
+    },
+    {
+      "id": "rosefascinator",
+      "slot": "hair",
+      "pl": "prompts/pixellab/doll/rosefascinator.json",
+      "front": "a small black lace fascinator with a crimson rose and a short net veil at the side of the head",
+      "back": "the small black fascinator and its rose at the side of the head"
     }
   ],
   "starter": {

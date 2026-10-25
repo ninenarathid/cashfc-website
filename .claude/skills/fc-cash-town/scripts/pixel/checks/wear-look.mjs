@@ -22,6 +22,8 @@ const accs = [["face", Object.keys(j.wear?.face ?? {})], ["neck", Object.keys(j.
 for (const hair of HAIRS.slice(0, 2)) for (const view of ["front", "back"]) rows.push(accs.flatMap(([slot, ids]) => ids.map((id) => ({ hair, view, [slot]: id }))));
 const outfits = process.env.OUTFITS ? process.env.OUTFITS.split(",") : ["starter", ...Object.keys(j.outfits ?? {})];
 for (const pose of ["walk", "sit", "eat0", "eat1"]) for (const view of ["front", "back"]) rows.push(outfits.map((outfit) => ({ hair: HAIRS[0], view, outfit, pose })));
+// (LOOKS=<a JSON list of rows of cells>: only those, a whole look to a cell, e.g. an outfit with its hat and its glasses)
+if (process.env.LOOKS) rows.splice(0, rows.length, ...JSON.parse(process.env.LOOKS));
 const cols = Math.max(...rows.map((r) => r.length));
 const out = Buffer.alloc(CW * cols * CH * rows.length * 4);
 const OW = CW * cols;

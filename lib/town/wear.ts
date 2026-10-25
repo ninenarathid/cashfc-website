@@ -150,6 +150,9 @@ export const FACE_WEAR: Wearable[] = [
   { id: "masquerade", th: "หน้ากากงานเต้นรำ", en: "Masquerade mask", from: TAILOR },
   { id: "starshades", th: "แว่นดาว", en: "Star shades", from: TAILOR },
   { id: "halfmoon", th: "แว่นครึ่งเลนส์", en: "Half-moon glasses", from: TAILOR },
+  // (the auction sets' own, the owner, 2026-10-25: "ชุดประมูลช่วยเพิ่มหมวก หรือ ส่วนของแว่นตา ที่เข้ากับชุด")
+  { id: "batmask", th: "หน้ากากค้างคาว", en: "Bat-wing mask", from: AUCTION("count") },
+  { id: "pumpkinglasses", th: "แว่นฟักทอง", en: "Pumpkin glasses", from: AUCTION("pumpkin") },
 ];
 
 /** Worn at the neck. */
@@ -204,6 +207,8 @@ export const HAIR_WEAR: Wearable[] = [
   { id: "fanpin", th: "ปิ่นพัด", en: "Fan hairpin", from: TAILOR },
   { id: "hibiscus", th: "ดอกชบาทัดหู", en: "Hibiscus", from: TAILOR },
   { id: "batclip", th: "กิ๊บค้างคาว", en: "Bat clip", from: TAILOR },
+  // (the countess's, for whoever would not wear the count's top hat)
+  { id: "rosefascinator", th: "หมวกลูกไม้กุหลาบ", en: "Rose fascinator", from: AUCTION("count"), top: true },
 ];
 
 /** Whether a look's hair thing is worn on top of the head (where a hat goes). */
