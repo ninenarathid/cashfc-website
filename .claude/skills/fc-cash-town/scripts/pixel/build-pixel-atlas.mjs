@@ -40,9 +40,11 @@ const HAIRS = [
   ...Array.from({ length: 14 }, (_, i) => `f${String(i + 1).padStart(2, "0")}`),
   ...Array.from({ length: 13 }, (_, i) => `m${String(i + 1).padStart(2, "0")}`),
   // (Granny Twilla's shop, 2026-10-25: four of each drawn by PixelLab, pl-doll.mjs's hairdo)
-  "f15", "f16", "f17", "f18", "m14", "m15", "m16", "m17",
+  ...["f15", "f16", "f17", "f18", "m14", "m15", "m16", "m17"],
   "bald",
 ];
+/** The hairstyles PixelLab drew (Granny Twilla's shop): their crown's rim is covered from behind too (coverRim). */
+const SHOP_HAIRS = new Set(["f15", "f16", "f17", "f18", "m14", "m15", "m16", "m17"]);
 const hairFor = (gnd, hair) => hair === "bald" || hair[0] === gnd;
 const TYPES = ["front", "back", "poses"];
 const POSES = ["sitF", "sitB", "sleep", "wave"];
@@ -686,6 +688,34 @@ function fillCrown(g, set) {
   for (const i of added) if (!set.has(i + g.GW)) { g.c[i * 4] = dark >> 16; g.c[i * 4 + 1] = (dark >> 8) & 255; g.c[i * 4 + 2] = dark & 255; }
   return filled;
 }
+// Seen from behind, PixelLab drew some of the shop's hairstyles with their outline a cell inside the skull's, whose top
+// edge is light: specks of skin showed over the crown, a bald spot (the owner, 2026-10-25: "ดูหัวล้าน").
+// checks/hair-crown.mjs counts them. A cell of the skull's rim over the crown, right beside the hair, not dark already,
+// takes the hair's own outline tone (its darkest green): one pass, the rim only, nothing over the head's middle.
+function coverRim(g, set, base, t) {
+  const B = idleOf(base), inB = (x, y) => x >= 0 && y >= 0 && x < base.GW && y < base.GH && B.has(y * base.GW + x);
+  const top = L.bbox(base, B).y0, lim = top + Math.round((REF[t].cut - top) * 0.45);
+  let dark = null, darkL = 1;
+  for (const i of set) {
+    const o = i * 4;
+    if (L.clsAt(g, i % g.GW, (i / g.GW) | 0) !== "green") continue;
+    const l = L.hsl(g.c[o], g.c[o + 1], g.c[o + 2])[2];
+    if (l < darkL) { darkL = l; dark = [g.c[o], g.c[o + 1], g.c[o + 2]]; }
+  }
+  if (!dark) return 0;
+  const add = [];
+  for (const i of B) {
+    const x = i % base.GW, y = (i / base.GW) | 0;
+    if (y > lim || set.has(y * g.GW + x) || L.clsAt(base, x, y) === "dark") continue;
+    // (on the rim: open sky within two cells above or beside it)
+    if (![[0, -1], [0, -2], [-1, 0], [-2, 0], [1, 0], [2, 0]].some(([dx, dy]) => !inB(x + dx, y + dy))) continue;
+    let by = false;
+    for (let dy = -1; dy <= 1 && !by; dy++) for (let dx = -1; dx <= 1; dx++) if ((dx || dy) && set.has((y + dy) * g.GW + x + dx)) { by = true; break; }
+    if (by) add.push(y * g.GW + x);
+  }
+  for (const i of add) { g.c[i * 4] = dark[0]; g.c[i * 4 + 1] = dark[1]; g.c[i * 4 + 2] = dark[2]; g.c[i * 4 + 3] = 255; set.add(i); }
+  return add.length;
+}
 meta.hair = {};
 for (const hair of HAIRS) for (const t of ["front", "back"]) {
   const hk = `f-${hair}-${t}`;
@@ -694,6 +724,7 @@ for (const hair of HAIRS) for (const t of ["front", "back"]) {
   const set = hairOverlay(g, figs[hk][IDLE], grids[`f-bald-${t}`], REF[t].cut);
   unclash(g, set);
   if (t === "front") { const n = fillCrown(g, set); if (n) console.log(`  ${hk}: ${n} crown cell(s) filled`); }
+  if (SHOP_HAIRS.has(hair)) { const n = coverRim(g, set, grids[`f-bald-${t}`], t); if (n) console.log(`  ${hk}: ${n} rim cell(s) covered`); }
   const im = L.crop(g, set);
   const name = `hair-${hair}-${t}`;
   pieces.push({ name, img: im, ox: im.x0 - REF[t].hx, oy: im.y0 - REF[t].cut });
