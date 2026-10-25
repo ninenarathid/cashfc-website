@@ -246,7 +246,8 @@ if (cmd === "unhead") {
       const bx = [Math.min(...xs) - 3, Math.max(...xs) + 3, Math.min(...ys) - 3, Math.max(...ys) + 3];
       for (const pc of pieces.slice(1)) {
         const inside = pc.every((c) => { const x = c % p.w, y = (c / p.w) | 0; return x >= bx[0] && x <= bx[1] && y >= bx[2] && y <= bx[3]; });
-        if (inside || pc.length * 6 >= pieces[0].length) for (const c of pc) keep.add(c);
+        // (--one: only what lies by the largest piece; a stray block far off is dropped whatever its size: the pocket watch)
+        if (inside || (!process.argv.includes("--one") && pc.length * 6 >= pieces[0].length)) for (const c of pc) keep.add(c);
       }
       // the model may run a thread of one row along the mask's lower edge, out past the thing (seen on the pumpkin
       // crown): its lowest row keeps only what lies under the row above it, a cell either way (a brim's corner)
