@@ -591,3 +591,19 @@ Every picture here is PixelLab editing the game's own native pixels, so the styl
   `ONLY` says, so Codex's words copied over a prompt are lost if it runs again: copy them after. 34 calls, $0.618
   (the ledger $39.388 of $45; about $0.50 of the account's credit left). In the game: the skeleton reads as a
   skeleton standing, sitting and eating; the lenses hide the eyes; the waves are full front and back.
+- **Pixel bugs under the hats and at the neck** (the owner, 2026-10-26, trying them on: "หมวกใหม่หลายใบยังมีบั๊คล่างหมวก",
+  then "นอกลายตัดเส้น ลบออกให้หมดเลย ส่วนข้างในถมสีให้เต็ม" with the bad spots circled). Several causes, found with
+  `UNHEAD_DEBUG` and `checks/piece-look.mjs`: (1) PixelLab paints the forehead under a brim a few shades off our skin, so
+  it passed every skin test and came in as hat: the lay-back now learns the model's own skin tones from the cells that
+  touch the face left as it was (front only: the back has no face, and a hat's colour touches the bare nape there),
+  takes off what it reaches of them, then a few cells further into darker shades (never lighter: straw is as light as
+  skin); (2) the older "skin grown past the head's edge" rule took a straw brim's cells beside the head (the sun hat's
+  slits): not used for hats now; (3) **the atlas builder aligned a key to its sheet by the first of several equal shifts,
+  two cells up and left**, which cut the aviator cap two rows low, onto the forehead: a tie now goes to no shift, for
+  laid things only (the old hats' keys are drawn apart and keep the old rule: checked, all unchanged); (4) small
+  skin-hued bits outside the dark outline (ear tips) go, a slit two cells wide with hat on both sides fills, an enclosed
+  gap fills; (5) neck things kept the mannequin's grey top drawn again (the camera laid a grey shirt over the doll's
+  own): a grey over the grey top at nearly its lightness, and reddish skin over its skin, are left out.
+  `checks/hat-bald.mjs` 0, `hair-crown` clean, every hat and neck thing looked at alone and on dolls with short and long
+  hair, front and back. Left, unseen in the game: a few cells under the chin in some neck pieces, which the face always
+  covers.

@@ -184,8 +184,15 @@ picture:
    - `node checks/hat-bald.mjs`: 0 cells of scalp bared under any hat, over every hairstyle, front and back.
    - `node checks/hair-crown.mjs`: no bare crown on a new hairstyle.
    - `node build-pixel-atlas.mjs ...`: "hole check: every step whole".
-2. **Each new piece alone, enlarged** (at least 6x, over a loud colour such as magenta, as `work/shop-mock/hat-piece.png`
-   was made): no holes inside it, no skin-coloured strip or speck it should not carry, nothing eaten from its edge.
+2. **Each new piece alone, enlarged**: `node checks/piece-look.mjs <out.png> <hat|face|neck|hair> [ids]` lays every piece
+   of a slot at 6x over magenta. The owner's rule for what is right (2026-10-26, circling the faults on that very
+   picture): **"นอกลายตัดเส้น ลบออกให้หมดเลย ส่วนข้างในถมสีให้เต็ม"**, outside the thing's dark outline nothing at all, inside
+   it every cell filled. His examples of what is wrong: a skin-coloured strip under a brim (the forehead drawn again: the
+   top hat, the fedora, the newsboy cap, the aviator cap front and back, the ghost cap), a magenta slit inside a brim (the
+   sun hat, front and back), a one-cell tail hanging below a brim (the top hat's back), hair showing through a striped gap
+   under a knit band (the bear hat's back), the ear's own outline left under a brim. `UNHEAD_DEBUG=<png>` before
+   `pl-doll.mjs unhead` shows, on the drawing itself, what the lay-back kept, took off as the head (red) and filled
+   (green): look at it when a piece is wrong, to tell the drawing's fault from the pipeline's.
 3. **The drawing against the build** (`work/pl/<name>/image.png` or `work/out/<sheet>.png` beside the built piece, both
    enlarged): what the build lost is the pipeline's to fix; what the drawing lacks is drawn again.
 4. **On the doll** (`checks/wear-look.mjs` with `LOOKS=`, or `checks/shop-gallery.mjs`): over several hairstyles (a
@@ -193,5 +200,7 @@ picture:
    checked for the eyes under them, hats for the hair and forehead under the brim, hair things for the head's rim.
 5. **In the game** at desktop and phone size, as AGENTS.md says.
 
-The lay-back's rules that came of these (`pl-doll.mjs unhead`; the builder's `clip` and `coverRim`) are explained where
+The lay-back's rules that came of these (`pl-doll.mjs unhead`: the head drawn again, told by the model's own skin tones
+learned from the face; small skin-hued bits outside the outline; slits; enclosed gaps; the mannequin's top under a neck
+thing; the builder's `clip`, `coverRim`, and the key shift's tie going to no shift for laid things) are explained where
 they are written; a new bug of this kind gets its own check here.

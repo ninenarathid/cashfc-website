@@ -122,7 +122,7 @@ for (const [label, size] of [["desktop", { width: 1280, height: 860 }], ["phone"
     const wd = await press(X, ["แต่งตัว", "Wardrobe"]);
     await sleep(2000);
     const granny = () => X.evaluate(`[...document.querySelectorAll('[aria-label^="???"]')].filter((e) => e.offsetParent && /ร้านผ้ายายทวิลล่า|Granny Twilla|ประมูลลิมิเต็ด|limited auction/.test(e.getAttribute("aria-label"))).length`);
-    const boughtHair = await X.evaluate(`(() => { const b = [...document.querySelectorAll("button[title]")].find((e) => e.offsetParent && /ยาวลอนคลื่น|Long waves/.test(e.title)); b?.scrollIntoView({ block: "center" }); return !!b; })()`);
+    const boughtHair = await X.evaluate(`(() => { const b = [...document.querySelectorAll("button[title]")].find((e) => e.offsetParent && /สองจุกซาลาเปา|ยาวลอนคลื่น|พิกซี่ปอยลอน|ทวินเทลยาว|อันเดอร์คัต|มัลเล็ต|หยิกฟู|มวยครึ่งหัว|Space buns|Long waves|Pixie|twin tails|Undercut|Mullet|Curly|half-up/i.test(e.title)); b?.scrollIntoView({ block: "center" }); return !!b; })()`);
     await sleep(800);
     const lockedMe = await granny();
     await shot("12-wardrobe");
