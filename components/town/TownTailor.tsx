@@ -49,7 +49,7 @@ export interface ShopWindowProps {
 /** One rail of Granny's: a slot of the look and the things of hers that go in it. */
 type Rail = "outfit" | "hat" | "faceWear" | "neck" | "hairWear" | "hair";
 const RAILS: Array<[Rail, string, string]> = [
-  ["outfit", "ชุด", "Outfits"], ["hat", "หมวก", "Hats"], ["faceWear", "แว่น/หน้ากาก", "Eyewear"],
+  ["outfit", "ชุด", "Outfits"], ["hat", "หมวก", "Hats"], ["faceWear", "แว่นตา", "Glasses"],
   ["neck", "ที่คอ", "Neck"], ["hairWear", "ที่ผม", "Hair things"], ["hair", "ทรงผม", "Hairstyles"],
 ];
 const LISTS: Record<Exclude<Rail, "hair">, Wearable[]> = { outfit: OUTFITS, hat: HATS, faceWear: FACE_WEAR, neck: NECK_WEAR, hairWear: HAIR_WEAR };
@@ -154,24 +154,29 @@ export default function TownTailor(p: ShopWindowProps) {
   return (
     <section aria-labelledby="town-tailor-h" className="flex h-full flex-col">
       <ShopHead id="town-tailor-h" {...p} panel="tailor" />
-      <p className="border-b border-line px-4 py-2 text-meta text-muted">
-        {th ? "แตะการ์ดเพื่อลองใส่ ตัวละครของคุณเปลี่ยนทันที คนในร้านเห็นด้วย ซื้อแล้วเข้าตู้แต่งตัวเลย" : "Tap a card to try it on: your avatar changes at once and others in the shop see it. What you buy goes into your wardrobe."}
+      {/* (on a phone the window leaves the top of the screen to my avatar: one line of help, the rails in one row that stays
+          while the cards scroll, so that two rows of cards show) */}
+      <p className={`border-b border-line px-4 py-2 text-meta text-muted ${p.phone ? "truncate" : ""}`}>
+        {p.phone
+          ? th ? "แตะการ์ดเพื่อลองใส่ · ซื้อแล้วเข้าตู้แต่งตัว" : "Tap a card to try it on; what you buy goes to your wardrobe."
+          : th ? "แตะการ์ดเพื่อลองใส่ ตัวละครของคุณเปลี่ยนทันที คนในร้านเห็นด้วย ซื้อแล้วเข้าตู้แต่งตัวเลย" : "Tap a card to try it on: your avatar changes at once and others in the shop see it. What you buy goes into your wardrobe."}
       </p>
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-6 pt-3">
-        <div role="tablist" aria-label={th ? "ราว" : "Rails"} className="mb-3 flex flex-wrap gap-1.5">
-          {RAILS.map(([r, a, b]) => (
-            <button key={r} type="button" role="tab" aria-selected={rail === r} onClick={() => setRail(r)}
-                    className={`pressable min-h-11 rounded-full border px-3.5 text-ui ${rail === r ? "border-accent bg-accent/15 font-semibold text-accent" : "border-line-strong text-ink"}`}>
-              {th ? a : b}
-            </button>
-          ))}
-        </div>
+      <div role="tablist" aria-label={th ? "ราว" : "Rails"} className={`flex gap-1.5 px-3 pb-2 pt-2.5 ${p.phone ? "flex-nowrap overflow-x-auto" : "flex-wrap"}`}>
+        {RAILS.map(([r, a, b]) => (
+          <button key={r} type="button" role="tab" aria-selected={rail === r} onClick={() => setRail(r)}
+                  className={`pressable min-h-11 shrink-0 rounded-full border ${p.phone ? "px-2.5 text-meta" : "px-3.5 text-ui"} ${rail === r ? "border-accent bg-accent/15 font-semibold text-accent" : "border-line-strong text-ink"}`}>
+            {th ? a : b}
+          </button>
+        ))}
+      </div>
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-6 pt-1">
         {!kit ? <p className="text-meta text-muted">{th ? "กำลังโหลด…" : "Loading…"}</p>
           : !shown.length ? <p className="text-meta text-muted">{th ? "ราวนี้ยังว่างอยู่จ้ะ" : "Nothing on this rail yet."}</p> : (
           <div className="grid grid-cols-3 gap-2 min-[380px]:grid-cols-4">
             {shown.map((g) => {
               const on = isOn(g), have = isHad(g), body = g.rail === "outfit";
-              const l = { ...tried, ...(g.rail === "hair" ? { hair: g.index } : together(tried, { [g.rail]: g.index } as Partial<Look>)), [g.rail]: g.index } as Look;
+              // (a hairstyle's card shows the hair itself: what is tried on the head would hide it, a full hat all of it)
+              const l = { ...tried, ...(g.rail === "hair" ? { hair: g.index, hat: 0, hairWear: 0 } : together(tried, { [g.rail]: g.index } as Partial<Look>)), [g.rail]: g.index } as Look;
               return (
                 <button key={`${g.rail}-${g.sold}`} type="button" aria-pressed={on} onClick={() => pick(g)} title={t(g)}
                         className={`pressable relative flex min-h-11 flex-col items-center gap-0.5 rounded-xl border px-1 pb-1.5 pt-1 text-center ${on

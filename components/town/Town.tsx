@@ -1247,7 +1247,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
 
   /* ── the camera ──────────────────────────────────────────────────────── */
   const camNow = (): Cam => ({ s: cam.current.s, cx: cam.current.cx, cy: cam.current.cy });
-  const setCam = (c: Cam) => { const v = cam.current; const bounds = BOUNDS[placeRef.current]; const k = clampCam({ ...c, s: clampScale(c.s, v.cw, v.ch, bounds) }, v.cw, v.ch, bounds); v.s = k.s; v.cx = k.cx; v.cy = k.cy; };
+  // (a window over part of the screen, the wardrobe or Granny's rails, shows me in the part it leaves, `focus`: the map
+  // may then run past its edge by as much, or in a small room on a phone I stay under the window)
+  const setCam = (c: Cam) => {
+    const v = cam.current, b = BOUNDS[placeRef.current], s = clampScale(c.s, v.cw, v.ch, b), f = focus.current;
+    const ox = f ? f.x - v.cw / 2 : 0, oy = f ? f.y - v.ch / 2 : 0;
+    const bounds = f ? { minX: b.minX - Math.max(0, ox) / s, maxX: b.maxX - Math.min(0, ox) / s, minY: b.minY - Math.max(0, oy) / s, maxY: b.maxY - Math.min(0, oy) / s } : b;
+    const k = clampCam({ ...c, s }, v.cw, v.ch, bounds); v.s = k.s; v.cx = k.cx; v.cy = k.cy;
+  };
   const zoomBy = useCallback((factor: number, px?: number, py?: number) => {
     const v = cam.current;
     if (mapRef.current) { mapRef.current.camera.current?.zoom(factor); return; }

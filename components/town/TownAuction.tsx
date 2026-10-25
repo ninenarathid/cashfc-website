@@ -12,17 +12,12 @@ import { ShopHead, type ShopWindowProps } from "./TownTailor";
 const SLOTS = [["outfit", OUTFITS], ["hat", HATS], ["faceWear", FACE_WEAR], ["neck", NECK_WEAR], ["hairWear", HAIR_WEAR]] as const;
 /** A look in a whole set: a woman shows its hair thing where it has one, a man its hat (the two take turns). */
 export function setLook(look: Look, wearables: readonly string[]): Look {
-  const out: Look = { ...look };
-  for (const id of wearables) for (const [slot, list] of SLOTS) {
-    const i = list.findIndex((w) => w.id === id);
-    if (i < 0) continue;
-    const top = slot === "hairWear" && !!HAIR_WEAR[i]?.top;
-    if (slot === "hat" && look.gender === 0 && out.hairWear && HAIR_WEAR[out.hairWear]?.top) continue;
-    if (top && look.gender !== 0 && (out.hat ?? 0) > 0) continue;
-    if (slot === "hat" && (out.hat ?? 0) > 0) continue;
-    (out as unknown as Record<string, number>)[slot] = i;
-    if (top) out.hat = 0;
-  }
+  const found = wearables.flatMap((id) => SLOTS.flatMap(([slot, list]) => { const i = (list as readonly { id: string }[]).findIndex((w) => w.id === id); return i < 0 ? [] : [{ slot, i }]; }));
+  const hats = found.filter((f) => f.slot === "hat"), tops = found.filter((f) => f.slot === "hairWear" && !!HAIR_WEAR[f.i]?.top);
+  const left = new Set(look.gender === 0 ? (tops.length ? hats : []) : (hats.length ? tops : []));
+  // (a set that has something for the head takes the head whole: what I have on it goes, a hat bought before included)
+  const out: Look = { ...look, ...(hats.length || found.some((f) => f.slot === "hairWear") ? { hat: 0, hairWear: 0 } : {}) };
+  for (const f of found) if (!left.has(f)) (out as unknown as Record<string, number>)[f.slot] = f.i;
   return out;
 }
 const nameOf = (id: string) => SLOTS.flatMap(([, l]) => l as readonly { id: string; th: string; en: string }[]).find((w) => w.id === id);
