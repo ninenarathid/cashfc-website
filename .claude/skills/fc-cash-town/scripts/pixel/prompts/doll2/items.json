@@ -212,8 +212,8 @@
       "front": "a short-sleeved turquoise shirt printed with a few big red hibiscus flowers, worn open over a plain white vest, sand-coloured knee shorts and white canvas shoes",
       "back": "the back of the turquoise hibiscus shirt with one big red flower, sand-coloured knee shorts and white canvas shoes",
       "f": {
-        "front": "the same turquoise hibiscus shirt knotted at the waist over a plain white top, sand-coloured shorts and white canvas shoes",
-        "back": "the back of the turquoise hibiscus shirt knotted at the waist, sand-coloured shorts and white canvas shoes"
+        "front": "a turquoise shirt with one large red flower on each front panel, knotted over a white top, sand shorts and white canvas shoes",
+        "back": "a turquoise shirt with one large red flower, sand shorts and white shoes"
       }
     },
     {
@@ -259,11 +259,11 @@
     {
       "id": "pyjamas",
       "src": "pixellab",
-      "front": "soft light-blue pyjamas printed with a few small yellow stars, a long-sleeved top and long trousers, and closed fluffy white slippers",
-      "back": "the back of the light-blue star pyjamas and the fluffy white slippers",
+      "front": "light-blue long-sleeved pyjamas with one large yellow star centred on the chest, long trousers and closed white slippers",
+      "back": "plain light-blue pyjamas and white slippers",
       "f": {
-        "front": "the same light-blue star pyjamas with a white frilled collar below the chin, and closed fluffy white slippers",
-        "back": "the back of the light-blue star pyjamas and the fluffy white slippers"
+        "front": "a light-blue knee-length nightdress with one large yellow star on the chest, short puff sleeves, a white collar below the chin, and closed white slippers",
+        "back": "a plain light-blue nightdress and white slippers"
       }
     },
     {
@@ -289,11 +289,11 @@
     {
       "id": "skeleton",
       "src": "pixellab",
-      "front": "a black fitted bodysuit printed with a big bold white skeleton: ribs, spine, arm bones and leg bones, and black shoes",
-      "back": "the back of the black bodysuit printed with a white spine and shoulder blades, white leg bones and black shoes",
+      "front": "a black bodysuit with three thick white rib bars and single thick white arm and leg bones, and black shoes",
+      "back": "one thick white spine and single white limb bones on the black bodysuit, and black shoes",
       "f": {
-        "front": "the same black skeleton bodysuit with a short black tutu skirt at the waist, and black shoes",
-        "back": "the back of the black skeleton bodysuit with the short black tutu, and black shoes"
+        "front": "a black bodysuit with three thick white rib bars, single white limb bones and a short charcoal tutu with a grey hem, and black shoes",
+        "back": "a thick white spine, white limb bones, the charcoal tutu and black shoes"
       }
     }
   ],
@@ -414,8 +414,8 @@
     {
       "id": "newsboy",
       "src": "pixellab",
-      "front": "a grey tweed newsboy cap with a short front brim and a small button on top",
-      "back": "the back of the grey tweed newsboy cap"
+      "front": "a plain medium-grey newsboy cap with broad panel shading, a short front brim and a top button",
+      "back": "the rounded grey panelled crown, no speckles"
     },
     {
       "id": "sunhat",
@@ -864,8 +864,8 @@
       "id": "fanpin",
       "slot": "hair",
       "src": "pixellab",
-      "front": "a small red folding-fan hairpin with a hanging red tassel at the side of the head",
-      "back": "the small red fan hairpin and its tassel at the side of the head, seen from behind"
+      "front": "a broad red folding-fan pin with gold ribs and one short gold tassel, entirely above the left ear",
+      "back": "the same pin above that ear"
     },
     {
       "id": "hibiscus",
