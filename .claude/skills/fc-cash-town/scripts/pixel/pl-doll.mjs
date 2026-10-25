@@ -216,6 +216,8 @@ if (cmd === "unhead") {
     const skins = [];
     for (let i = 0; i < meta.W * meta.H; i++) if (b[i * 4 + 3] >= 128 && L.cls(b[i * 4], b[i * 4 + 1], b[i * 4 + 2]) === "skin") skins.push([b[i * 4], b[i * 4 + 1], b[i * 4 + 2]]);
     const skinLike = (o) => skins.some((s) => Math.abs(s[0] - a[o]) + Math.abs(s[1] - a[o + 1]) + Math.abs(s[2] - a[o + 2]) < 50);
+    // (the head grows a cell or two past its old edge, no further: a bear ear's tan inside, well off the head, is the thing)
+    const byHead = (X, Y) => { for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) { const x = X + dx, y = Y + dy; if (x >= 0 && y >= 0 && x < meta.W && y < meta.H && b[(y * meta.W + x) * 4 + 3] >= 128) return true; } return false; };
     for (let y = 0; y < p.h; y++) for (let x = 0; x < p.w; x++) {
       const o = ((p.oy + y) * meta.W + p.ox + x) * 4;
       const d = Math.abs(a[o] - b[o]) + Math.abs(a[o + 1] - b[o + 1]) + Math.abs(a[o + 2] - b[o + 2]);
@@ -225,7 +227,7 @@ if (cmd === "unhead") {
       // thing; but a straw hat, a brown bear ear or thin gold frames over the head are the thing though they are warm:
       // so a skin-like colour is left out only outside the head's old outline, 2026-10-25)
       const redrawn = a[o + 3] >= 128 && b[o + 3] >= 128 && d < 36 && L.cls(a[o], a[o + 1], a[o + 2]) === L.cls(b[o], b[o + 1], b[o + 2]);
-      const grown = a[o + 3] >= 128 && b[o + 3] < 128 && skinLike(o);
+      const grown = a[o + 3] >= 128 && b[o + 3] < 128 && skinLike(o) && byHead(p.ox + x, p.oy + y);
       // (over the whole head nothing of it is left to tell apart: every changed cell is the thing)
       if (!(d < 4 && (a[o + 3] >= 128) === (b[o + 3] >= 128)) && (meta.slot === "full" || (!redrawn && !grown))) changed.add(y * p.w + x);
     }
