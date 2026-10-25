@@ -28,7 +28,8 @@ import TownIcon from "./TownIcon";
  * In `next dev` only, `?townTest=A` skips the gate and uses a throwaway public
  * room, so two browsers can test walking and voice without anybody signing
  * in, and `&townCap=N` makes the room full at N so a test can reach that
- * without thirty browsers. A tester keeps one identity per tab, across
+ * without thirty browsers; `&townCoins=N` puts N coins in the tester's purse (to try
+ * Granny Twilla's shop and her auction). A tester keeps one identity per tab, across
  * reloads, the way a member does. A production build compiles the switch away (the
  * address is never read there), so the test room cannot be reached.
  */
@@ -126,6 +127,8 @@ function VillageGate() {
       setTestCap(Number(q.get("townCap")) || undefined);
       setTestRoom((q.get("townRoom") ?? "").replace(/[^A-Za-z0-9]/g, "").slice(0, 24));
       if (letter) setTestId(testerId(letter));
+      const coins = Math.floor(Number(q.get("townCoins")));
+      if (letter && coins > 0) void import("@/lib/town/trial").then(({ trialFor }) => trialFor(testerId(letter)).casinoCoins(coins));
       else { const rec = resumable(); if (rec?.testTopic) setTestBack(rec); }
     }
   }, []);
