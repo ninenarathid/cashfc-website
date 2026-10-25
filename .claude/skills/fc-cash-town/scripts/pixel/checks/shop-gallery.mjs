@@ -158,3 +158,13 @@ await sheet("5-auction-sets.png", "ชุดประมูลลิมิเต
   { name: `${th} · ชาย`, sub: `+ ${pieces.map(pieceName).join(" · ")}`, limited: true, cells: setCells(id, pieces, M) },
   { name: `${th} · หญิง`, sub: "LIMITED · เริ่มประมูล 8,000", limited: true, cells: setCells(`${id}_f`, pieces, F) },
 ]), 2);
+
+// 6. every hairstyle from the front beside the old ones, to see the hairline (the owner, 2026-10-25: some of the new
+// ones "ดูหัวล้าน")
+const front = (list) => list.map((h) => ({ hair: h.id, view: "front", color: "#3a2b28", word: h.id }));
+await sheet("6-hair-compare.png", "ด้านหน้า: ทรงเดิม (บน) กับทรงใหม่ (ล่าง)", [
+  { name: "หญิง · ทรงเดิม", sub: "", cells: front(HAIRS.filter((h) => !h.sold && h.g === 0)) },
+  { name: "หญิง · ทรงใหม่", sub: "", cells: front(HAIRS.filter((h) => h.sold && h.g === 0)) },
+  { name: "ชาย · ทรงเดิม", sub: "", cells: front(HAIRS.filter((h) => !h.sold && h.g === 1)) },
+  { name: "ชาย · ทรงใหม่", sub: "", cells: front(HAIRS.filter((h) => h.sold && h.g === 1)) },
+], 1);
