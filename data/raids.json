@@ -72085,8 +72085,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1083,
     "name": "Doomtrain",
-    "best": 24,
-    "kills": 1,
+    "best": 45,
+    "kills": 5,
     "job": "Machinist",
     "cleared": true
    },
@@ -72097,7 +72097,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 27,
-    "kills": 4,
+    "kills": 7,
     "job": "Machinist",
     "cleared": true,
     "job_kills": {
@@ -76391,6 +76391,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 96,
       "median": 55,
@@ -76399,6 +76400,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 96,
       "median": 77,
@@ -76407,6 +76409,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 93,
       "median": 27,
@@ -76414,7 +76417,8 @@
       "job": "Samurai"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 91,
       "median": 39,
@@ -76422,7 +76426,8 @@
       "job": "Samurai"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 62,
       "median": 36,
@@ -77897,7 +77902,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 83,
-    "kills": 71,
+    "kills": 75,
     "job": "Bard",
     "cleared": true,
     "job_kills": {
@@ -77938,7 +77943,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 79,
-    "kills": 74,
+    "kills": 86,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -78166,9 +78171,9 @@
     "name": "Red Hot and Deep Blue",
     "kind": "savage",
     "state": "learning",
-    "pct": 6.22,
+    "pct": 23.3,
     "phase": 0,
-    "pulls": 10,
+    "pulls": 4,
     "last": "2026-10-23",
     "last_ts": 1792745155
    }
@@ -86984,7 +86989,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 7,
-    "kills": 11,
+    "kills": 12,
     "job": "DarkKnight",
     "cleared": true,
     "job_kills": {
