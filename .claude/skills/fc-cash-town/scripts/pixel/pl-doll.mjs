@@ -256,6 +256,39 @@ if (cmd === "unhead") {
       const low = Math.max(...[...keep].map((c) => (c / p.w) | 0)), above = [...keep].filter((c) => ((c / p.w) | 0) === low - 1).map((c) => c % p.w);
       if (above.length) for (const c of [...keep]) if (((c / p.w) | 0) === low && (c % p.w < Math.min(...above) - 1 || c % p.w > Math.max(...above) + 1)) keep.delete(c);
     }
+    // (a hat covers the head: where the model kept the head's own outline under it in much the hat's colour, that cell was
+    // told apart as the head redrawn and left a hole the head's outline showed through, a thin ring over the hat (the
+    // owner, 2026-10-25: "หมวกมีหลายใบที่เก็บรายละเอียดไม่ดี"; --prune had hidden it and eaten the brims). A cell the hat has
+    // on both sides, across or up and down, is the hat, in the picture's own colour: two passes)
+    if (g0 === "dh" || process.argv.includes("--fill")) for (let pass = 0; pass < 2; pass++) {
+      const add = [];
+      const k = (x, y) => x >= 0 && x < p.w && y >= 0 && y < p.h && keep.has(y * p.w + x);
+      for (let y = 0; y < p.h; y++) for (let x = 0; x < p.w; x++) {
+        const c = y * p.w + x, o = ((p.oy + y) * meta.W + p.ox + x) * 4;
+        if (keep.has(c) || a[o + 3] < 128) continue;
+        if ((k(x - 1, y) && k(x + 1, y)) || (k(x, y - 1) && k(x, y + 1))) add.push(c);
+      }
+      for (const c of add) keep.add(c);
+    }
+    // (and any gap the hat closes all round, however wide: what cannot be reached from outside its box is the hat)
+    if ((g0 === "dh" || process.argv.includes("--fill")) && keep.size) {
+      const xs = [...keep].map((c) => c % p.w), ys = [...keep].map((c) => (c / p.w) | 0);
+      const X0 = Math.min(...xs), X1 = Math.max(...xs), Y0 = Math.min(...ys), Y1 = Math.max(...ys);
+      const outside = new Set(), st = [];
+      for (let y = Y0; y <= Y1; y++) for (let x = X0; x <= X1; x++) if ((x === X0 || x === X1 || y === Y0 || y === Y1) && !keep.has(y * p.w + x)) { outside.add(y * p.w + x); st.push(y * p.w + x); }
+      while (st.length) {
+        const c = st.pop(), x = c % p.w, y = (c / p.w) | 0;
+        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+          const X = x + dx, Y = y + dy, q = Y * p.w + X;
+          if (X < X0 || X > X1 || Y < Y0 || Y > Y1 || keep.has(q) || outside.has(q)) continue;
+          outside.add(q); st.push(q);
+        }
+      }
+      for (let y = Y0; y <= Y1; y++) for (let x = X0; x <= X1; x++) {
+        const c = y * p.w + x;
+        if (!keep.has(c) && !outside.has(c) && a[((p.oy + y) * meta.W + p.ox + x) * 4 + 3] >= 128) keep.add(c);
+      }
+    }
     // (--prune: a thread one cell thick, a ring the model drew round the head under a wide brim, goes; a solid thing's
     // corners keep three neighbours or more. Not for what is meant thin: a halo, glasses' frames)
     if (process.argv.includes("--prune")) for (let pass = 0; pass < 12; pass++) {
