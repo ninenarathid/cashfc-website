@@ -1,0 +1,6 @@
+{
+ "image": "@../../../work/pl-doll/head-hair/head.png",
+ "mask_image": "@../../../work/pl-doll/head-hair/head-mask.png",
+ "no_background": true,
+ "description": "Two views of the same small chibi pixel art head, bald, with long pointed ears: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask: put the same thing on both heads, in the same place on each: a black headband with two thin bee antennae ending in round yellow balls on top of the head (seen from behind, the black headband and the two bee antennae, seen from behind). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the ears stay exactly as they are, nothing else added, transparent background."
+}

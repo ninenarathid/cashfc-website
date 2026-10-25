@@ -1,0 +1,6 @@
+{
+ "image": "@../../../work/pl-doll/head-neck/head.png",
+ "mask_image": "@../../../work/pl-doll/head-neck/head-mask.png",
+ "no_background": true,
+ "description": "Two views of the same small chibi pixel art figure in a plain grey top, from the head to the chest: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask, at the neck and the chest: put a small black film camera hanging on a brown strap at the chest (seen from behind, the brown camera strap at the back of the neck). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the grey top stay exactly as they are, nothing else added, transparent background."
+}

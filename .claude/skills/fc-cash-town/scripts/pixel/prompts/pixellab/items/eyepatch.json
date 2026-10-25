@@ -1,0 +1,6 @@
+{
+ "image": "@../../../work/pl-doll/head-face/head.png",
+ "mask_image": "@../../../work/pl-doll/head-face/head-mask.png",
+ "no_background": true,
+ "description": "A small chibi pixel art head seen from the front, bald, with long pointed ears and big violet eyes. Paint only inside the white of the mask, across the eyes: put a black eye patch over the left eye on a thin black strap across the forehead. Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The rest of the face, the head and the ears stay exactly as they are, nothing else added, transparent background."
+}
