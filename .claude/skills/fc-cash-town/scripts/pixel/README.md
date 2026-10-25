@@ -548,3 +548,10 @@ Every picture here is PixelLab editing the game's own native pixels, so the styl
   (`coverRim`, `SHOP_HAIRS`); `checks/hair-crown.mjs` counts bare crown cells (none on the eight; the old ones untouched).
   Codex's look after: the undercut's blonde back (its shaved part near skin) and the mullet's back (a flat slab) still
   weaker, shown to the owner before any redraw.
+- **The fourth women's style, new** (the owner, of the hime cut: "ทรงนี้แปลก ไปออกแบบมาใหม่เลย"): three designs drawn on the
+  bald head and built each into an atlas of its own to show as the game draws them (`f18-a` long high twin tails, `f18-b`
+  high ponytail, `f18-c` crown braid; Codex: a send, b and c its words). He took the twin tails but not their bangs: "อย่า
+  ทำให้หน้าม้า ตัดตรงแบบนี้ ทำให้มันเหมือนทรงผมปกติหน่อย อันนี้มันเหมือนภาพเกินไป". The bangs painted again as a few swept
+  locks of uneven length with pointed tips (`f18a-bangs`, the forehead between the tails masked; drawn twice, the second
+  kept: the first left a bare patch over one eye). f18 is now "ทวินเทลยาว" (`hairtwintails`, 2,200). 6 calls, 36
+  generations (67.3 left). **Bangs are never one straight edge** (his rule).

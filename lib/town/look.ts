@@ -67,7 +67,7 @@ export const HAIRS: Hair[] = [
   { g: 0, id: "f15", th: "สองจุกซาลาเปา", en: "Space buns", sold: "hairbuns" },
   { g: 0, id: "f16", th: "ยาวลอนคลื่น", en: "Long waves", sold: "hairwaves" },
   { g: 0, id: "f17", th: "พิกซี่ปอยลอน", en: "Pixie with a curl", sold: "hairpixie" },
-  { g: 0, id: "f18", th: "ฮิเมะคัต", en: "Hime cut", sold: "hairhime" },
+  { g: 0, id: "f18", th: "ทวินเทลยาว", en: "Long twin tails", sold: "hairtwintails" },
   { g: 1, id: "m14", th: "อันเดอร์คัต", en: "Undercut", sold: "hairundercut" },
   { g: 1, id: "m15", th: "มัลเล็ต", en: "Mullet", sold: "hairmullet" },
   { g: 1, id: "m16", th: "หยิกฟู", en: "Curly top", sold: "haircurly" },

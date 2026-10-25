@@ -465,7 +465,7 @@ insert into public.town_catalog (key, data) values
     "hairbuns": {"price":1800},
     "hairwaves": {"price":2500},
     "hairpixie": {"price":1500},
-    "hairhime": {"price":2200},
+    "hairtwintails": {"price":2200},
     "hairundercut": {"price":1800},
     "hairmullet": {"price":2200},
     "haircurly": {"price":1500},
