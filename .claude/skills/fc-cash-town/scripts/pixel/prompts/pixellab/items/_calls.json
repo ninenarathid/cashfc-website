@@ -1,0 +1,802 @@
+[
+ {
+  "name": "knit-walk",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\knit-walk.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "knit",
+   "part": "walk"
+  },
+  "description": "Edit this sheet of eight small chibi pixel art figures: the top row walks towards the viewer, the bottom row walks away from the viewer. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: a chunky cream cable-knit sweater with a rolled collar kept below the chin and long sleeves to the wrist, brown corduroy trousers and brown lace-up boots. Seen from behind: the back of the chunky cream knit sweater, brown corduroy trousers and brown lace-up boots. Simple bold shapes, no fine pattern. The hands stay bare. Transparent background, nothing else added."
+ },
+ {
+  "name": "knit-rest",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\knit-rest.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "knit",
+   "part": "rest"
+  },
+  "description": "Edit this sheet of six small chibi pixel art figures sitting on the ground: in the top row one sits facing the viewer, one sits facing away from the viewer, one sits facing the viewer with the hands at the chest; in the bottom row one sits facing the viewer with the hands at the mouth and two sit facing away. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: a chunky cream cable-knit sweater with a rolled collar kept below the chin and long sleeves to the wrist, brown corduroy trousers and brown lace-up boots. Seen from behind: the back of the chunky cream knit sweater, brown corduroy trousers and brown lace-up boots. Simple bold shapes, no fine pattern. Nothing of the outfit reaches lower than each seated figure's own lowest pixels, which stay exactly where they are. The hands stay bare and keep their place. Transparent background, nothing else added."
+ },
+ {
+  "name": "knit_f-walk",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\knit_f-walk.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "knit_f",
+   "part": "walk"
+  },
+  "description": "Edit this sheet of eight small chibi pixel art figures: the top row walks towards the viewer, the bottom row walks away from the viewer. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: the same chunky cream cable-knit sweater over a red-and-green plaid knee-length skirt, dark tights and brown lace-up boots. Seen from behind: the back of the cream knit sweater, the plaid skirt, dark tights and brown boots. Simple bold shapes, no fine pattern. The hands stay bare. Transparent background, nothing else added."
+ },
+ {
+  "name": "knit_f-rest",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\knit_f-rest.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "knit_f",
+   "part": "rest"
+  },
+  "description": "Edit this sheet of six small chibi pixel art figures sitting on the ground: in the top row one sits facing the viewer, one sits facing away from the viewer, one sits facing the viewer with the hands at the chest; in the bottom row one sits facing the viewer with the hands at the mouth and two sit facing away. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: the same chunky cream cable-knit sweater over a red-and-green plaid knee-length skirt, dark tights and brown lace-up boots. Seen from behind: the back of the cream knit sweater, the plaid skirt, dark tights and brown boots. Simple bold shapes, no fine pattern. Nothing of the outfit reaches lower than each seated figure's own lowest pixels, which stay exactly where they are. The hands stay bare and keep their place. Transparent background, nothing else added."
+ },
+ {
+  "name": "beach-walk",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\beach-walk.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "beach",
+   "part": "walk"
+  },
+  "description": "Edit this sheet of eight small chibi pixel art figures: the top row walks towards the viewer, the bottom row walks away from the viewer. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: a short-sleeved turquoise shirt printed with a few big red hibiscus flowers, worn open over a plain white vest, sand-coloured knee shorts and white canvas shoes. Seen from behind: the back of the turquoise hibiscus shirt with one big red flower, sand-coloured knee shorts and white canvas shoes. Simple bold shapes, no fine pattern. The hands stay bare. Transparent background, nothing else added."
+ },
+ {
+  "name": "beach-rest",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\beach-rest.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "beach",
+   "part": "rest"
+  },
+  "description": "Edit this sheet of six small chibi pixel art figures sitting on the ground: in the top row one sits facing the viewer, one sits facing away from the viewer, one sits facing the viewer with the hands at the chest; in the bottom row one sits facing the viewer with the hands at the mouth and two sit facing away. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: a short-sleeved turquoise shirt printed with a few big red hibiscus flowers, worn open over a plain white vest, sand-coloured knee shorts and white canvas shoes. Seen from behind: the back of the turquoise hibiscus shirt with one big red flower, sand-coloured knee shorts and white canvas shoes. Simple bold shapes, no fine pattern. Nothing of the outfit reaches lower than each seated figure's own lowest pixels, which stay exactly where they are. The hands stay bare and keep their place. Transparent background, nothing else added."
+ },
+ {
+  "name": "beach_f-walk",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\beach_f-walk.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "beach_f",
+   "part": "walk"
+  },
+  "description": "Edit this sheet of eight small chibi pixel art figures: the top row walks towards the viewer, the bottom row walks away from the viewer. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: the same turquoise hibiscus shirt knotted at the waist over a plain white top, sand-coloured shorts and white canvas shoes. Seen from behind: the back of the turquoise hibiscus shirt knotted at the waist, sand-coloured shorts and white canvas shoes. Simple bold shapes, no fine pattern. The hands stay bare. Transparent background, nothing else added."
+ },
+ {
+  "name": "beach_f-rest",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\beach_f-rest.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "beach_f",
+   "part": "rest"
+  },
+  "description": "Edit this sheet of six small chibi pixel art figures sitting on the ground: in the top row one sits facing the viewer, one sits facing away from the viewer, one sits facing the viewer with the hands at the chest; in the bottom row one sits facing the viewer with the hands at the mouth and two sit facing away. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: the same turquoise hibiscus shirt knotted at the waist over a plain white top, sand-coloured shorts and white canvas shoes. Seen from behind: the back of the turquoise hibiscus shirt knotted at the waist, sand-coloured shorts and white canvas shoes. Simple bold shapes, no fine pattern. Nothing of the outfit reaches lower than each seated figure's own lowest pixels, which stay exactly where they are. The hands stay bare and keep their place. Transparent background, nothing else added."
+ },
+ {
+  "name": "party-walk",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\party-walk.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "party",
+   "part": "walk"
+  },
+  "description": "Edit this sheet of eight small chibi pixel art figures: the top row walks towards the viewer, the bottom row walks away from the viewer. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: a fitted navy suit jacket over a white shirt with a small silver pocket square, navy trousers and polished black shoes. Seen from behind: the back of the fitted navy suit jacket, navy trousers and polished black shoes. Simple bold shapes, no fine pattern. The hands stay bare. Transparent background, nothing else added."
+ },
+ {
+  "name": "party-rest",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\party-rest.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "party",
+   "part": "rest"
+  },
+  "description": "Edit this sheet of six small chibi pixel art figures sitting on the ground: in the top row one sits facing the viewer, one sits facing away from the viewer, one sits facing the viewer with the hands at the chest; in the bottom row one sits facing the viewer with the hands at the mouth and two sit facing away. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: a fitted navy suit jacket over a white shirt with a small silver pocket square, navy trousers and polished black shoes. Seen from behind: the back of the fitted navy suit jacket, navy trousers and polished black shoes. Simple bold shapes, no fine pattern. Nothing of the outfit reaches lower than each seated figure's own lowest pixels, which stay exactly where they are. The hands stay bare and keep their place. Transparent background, nothing else added."
+ },
+ {
+  "name": "party_f-walk",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\party_f-walk.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "party_f",
+   "part": "walk"
+  },
+  "description": "Edit this sheet of eight small chibi pixel art figures: the top row walks towards the viewer, the bottom row walks away from the viewer. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: a navy knee-length party dress with a short fitted navy jacket over it, a small silver brooch, and polished black shoes. Seen from behind: the back of the short navy jacket over the navy dress, and black shoes. Simple bold shapes, no fine pattern. The hands stay bare. Transparent background, nothing else added."
+ },
+ {
+  "name": "party_f-rest",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\party_f-rest.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "party_f",
+   "part": "rest"
+  },
+  "description": "Edit this sheet of six small chibi pixel art figures sitting on the ground: in the top row one sits facing the viewer, one sits facing away from the viewer, one sits facing the viewer with the hands at the chest; in the bottom row one sits facing the viewer with the hands at the mouth and two sit facing away. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: a navy knee-length party dress with a short fitted navy jacket over it, a small silver brooch, and polished black shoes. Seen from behind: the back of the short navy jacket over the navy dress, and black shoes. Simple bold shapes, no fine pattern. Nothing of the outfit reaches lower than each seated figure's own lowest pixels, which stay exactly where they are. The hands stay bare and keep their place. Transparent background, nothing else added."
+ },
+ {
+  "name": "aviator-walk",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\aviator-walk.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "aviator",
+   "part": "walk"
+  },
+  "description": "Edit this sheet of eight small chibi pixel art figures: the top row walks towards the viewer, the bottom row walks away from the viewer. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: a brown leather flight jacket with a thick cream fleece collar kept below the chin, khaki cargo trousers with side pockets and brown boots. Seen from behind: the back of the brown leather flight jacket with its cream fleece collar, khaki trousers and brown boots. Simple bold shapes, no fine pattern. The hands stay bare. Transparent background, nothing else added."
+ },
+ {
+  "name": "aviator-rest",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\aviator-rest.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "aviator",
+   "part": "rest"
+  },
+  "description": "Edit this sheet of six small chibi pixel art figures sitting on the ground: in the top row one sits facing the viewer, one sits facing away from the viewer, one sits facing the viewer with the hands at the chest; in the bottom row one sits facing the viewer with the hands at the mouth and two sit facing away. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: a brown leather flight jacket with a thick cream fleece collar kept below the chin, khaki cargo trousers with side pockets and brown boots. Seen from behind: the back of the brown leather flight jacket with its cream fleece collar, khaki trousers and brown boots. Simple bold shapes, no fine pattern. Nothing of the outfit reaches lower than each seated figure's own lowest pixels, which stay exactly where they are. The hands stay bare and keep their place. Transparent background, nothing else added."
+ },
+ {
+  "name": "aviator_f-walk",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\aviator_f-walk.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "aviator_f",
+   "part": "walk"
+  },
+  "description": "Edit this sheet of eight small chibi pixel art figures: the top row walks towards the viewer, the bottom row walks away from the viewer. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: the same brown leather flight jacket with its cream fleece collar over khaki cargo shorts, cream socks and brown boots. Seen from behind: the back of the brown flight jacket, khaki shorts, cream socks and brown boots. Simple bold shapes, no fine pattern. The hands stay bare. Transparent background, nothing else added."
+ },
+ {
+  "name": "aviator_f-rest",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\aviator_f-rest.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "aviator_f",
+   "part": "rest"
+  },
+  "description": "Edit this sheet of six small chibi pixel art figures sitting on the ground: in the top row one sits facing the viewer, one sits facing away from the viewer, one sits facing the viewer with the hands at the chest; in the bottom row one sits facing the viewer with the hands at the mouth and two sit facing away. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: the same brown leather flight jacket with its cream fleece collar over khaki cargo shorts, cream socks and brown boots. Seen from behind: the back of the brown flight jacket, khaki shorts, cream socks and brown boots. Simple bold shapes, no fine pattern. Nothing of the outfit reaches lower than each seated figure's own lowest pixels, which stay exactly where they are. The hands stay bare and keep their place. Transparent background, nothing else added."
+ },
+ {
+  "name": "track-walk",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\track-walk.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "track",
+   "part": "walk"
+  },
+  "description": "Edit this sheet of eight small chibi pixel art figures: the top row walks towards the viewer, the bottom row walks away from the viewer. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: a zip-up track jacket in royal blue with two white stripes down each sleeve, matching blue track trousers with white side stripes, and white sneakers. Seen from behind: the back of the royal-blue track jacket with white sleeve stripes, blue track trousers and white sneakers. Simple bold shapes, no fine pattern. The hands stay bare. Transparent background, nothing else added."
+ },
+ {
+  "name": "track-rest",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\track-rest.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "track",
+   "part": "rest"
+  },
+  "description": "Edit this sheet of six small chibi pixel art figures sitting on the ground: in the top row one sits facing the viewer, one sits facing away from the viewer, one sits facing the viewer with the hands at the chest; in the bottom row one sits facing the viewer with the hands at the mouth and two sit facing away. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: a zip-up track jacket in royal blue with two white stripes down each sleeve, matching blue track trousers with white side stripes, and white sneakers. Seen from behind: the back of the royal-blue track jacket with white sleeve stripes, blue track trousers and white sneakers. Simple bold shapes, no fine pattern. Nothing of the outfit reaches lower than each seated figure's own lowest pixels, which stay exactly where they are. The hands stay bare and keep their place. Transparent background, nothing else added."
+ },
+ {
+  "name": "track_f-walk",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\track_f-walk.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "track_f",
+   "part": "walk"
+  },
+  "description": "Edit this sheet of eight small chibi pixel art figures: the top row walks towards the viewer, the bottom row walks away from the viewer. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: the same royal-blue track jacket over blue track shorts with white side stripes, white knee socks and white sneakers. Seen from behind: the back of the blue track jacket, blue shorts, white knee socks and white sneakers. Simple bold shapes, no fine pattern. The hands stay bare. Transparent background, nothing else added."
+ },
+ {
+  "name": "track_f-rest",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\track_f-rest.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "track_f",
+   "part": "rest"
+  },
+  "description": "Edit this sheet of six small chibi pixel art figures sitting on the ground: in the top row one sits facing the viewer, one sits facing away from the viewer, one sits facing the viewer with the hands at the chest; in the bottom row one sits facing the viewer with the hands at the mouth and two sit facing away. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: the same royal-blue track jacket over blue track shorts with white side stripes, white knee socks and white sneakers. Seen from behind: the back of the blue track jacket, blue shorts, white knee socks and white sneakers. Simple bold shapes, no fine pattern. Nothing of the outfit reaches lower than each seated figure's own lowest pixels, which stay exactly where they are. The hands stay bare and keep their place. Transparent background, nothing else added."
+ },
+ {
+  "name": "academy-walk",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\academy-walk.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "academy",
+   "part": "walk"
+  },
+  "description": "Edit this sheet of eight small chibi pixel art figures: the top row walks towards the viewer, the bottom row walks away from the viewer. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: a navy school blazer with a small gold crest on the chest, a white shirt and a red tie, grey plaid trousers and brown loafers. Seen from behind: the back of the navy blazer, grey plaid trousers and brown loafers. Simple bold shapes, no fine pattern. The hands stay bare. Transparent background, nothing else added."
+ },
+ {
+  "name": "academy-rest",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\academy-rest.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "academy",
+   "part": "rest"
+  },
+  "description": "Edit this sheet of six small chibi pixel art figures sitting on the ground: in the top row one sits facing the viewer, one sits facing away from the viewer, one sits facing the viewer with the hands at the chest; in the bottom row one sits facing the viewer with the hands at the mouth and two sit facing away. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: a navy school blazer with a small gold crest on the chest, a white shirt and a red tie, grey plaid trousers and brown loafers. Seen from behind: the back of the navy blazer, grey plaid trousers and brown loafers. Simple bold shapes, no fine pattern. Nothing of the outfit reaches lower than each seated figure's own lowest pixels, which stay exactly where they are. The hands stay bare and keep their place. Transparent background, nothing else added."
+ },
+ {
+  "name": "academy_f-walk",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\academy_f-walk.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "academy_f",
+   "part": "walk"
+  },
+  "description": "Edit this sheet of eight small chibi pixel art figures: the top row walks towards the viewer, the bottom row walks away from the viewer. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: the same navy blazer with its gold crest, a white shirt and a red ribbon tie, a grey plaid pleated knee skirt, white socks and brown loafers. Seen from behind: the back of the navy blazer, the grey plaid pleated skirt, white socks and brown loafers. Simple bold shapes, no fine pattern. The hands stay bare. Transparent background, nothing else added."
+ },
+ {
+  "name": "academy_f-rest",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\academy_f-rest.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "academy_f",
+   "part": "rest"
+  },
+  "description": "Edit this sheet of six small chibi pixel art figures sitting on the ground: in the top row one sits facing the viewer, one sits facing away from the viewer, one sits facing the viewer with the hands at the chest; in the bottom row one sits facing the viewer with the hands at the mouth and two sit facing away. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: the same navy blazer with its gold crest, a white shirt and a red ribbon tie, a grey plaid pleated knee skirt, white socks and brown loafers. Seen from behind: the back of the navy blazer, the grey plaid pleated skirt, white socks and brown loafers. Simple bold shapes, no fine pattern. Nothing of the outfit reaches lower than each seated figure's own lowest pixels, which stay exactly where they are. The hands stay bare and keep their place. Transparent background, nothing else added."
+ },
+ {
+  "name": "pyjamas-walk",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\pyjamas-walk.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "pyjamas",
+   "part": "walk"
+  },
+  "description": "Edit this sheet of eight small chibi pixel art figures: the top row walks towards the viewer, the bottom row walks away from the viewer. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: soft light-blue pyjamas printed with a few small yellow stars, a long-sleeved top and long trousers, and closed fluffy white slippers. Seen from behind: the back of the light-blue star pyjamas and the fluffy white slippers. Simple bold shapes, no fine pattern. The hands stay bare. Transparent background, nothing else added."
+ },
+ {
+  "name": "pyjamas-rest",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\pyjamas-rest.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "pyjamas",
+   "part": "rest"
+  },
+  "description": "Edit this sheet of six small chibi pixel art figures sitting on the ground: in the top row one sits facing the viewer, one sits facing away from the viewer, one sits facing the viewer with the hands at the chest; in the bottom row one sits facing the viewer with the hands at the mouth and two sit facing away. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: soft light-blue pyjamas printed with a few small yellow stars, a long-sleeved top and long trousers, and closed fluffy white slippers. Seen from behind: the back of the light-blue star pyjamas and the fluffy white slippers. Simple bold shapes, no fine pattern. Nothing of the outfit reaches lower than each seated figure's own lowest pixels, which stay exactly where they are. The hands stay bare and keep their place. Transparent background, nothing else added."
+ },
+ {
+  "name": "pyjamas_f-walk",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\pyjamas_f-walk.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "pyjamas_f",
+   "part": "walk"
+  },
+  "description": "Edit this sheet of eight small chibi pixel art figures: the top row walks towards the viewer, the bottom row walks away from the viewer. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: the same light-blue star pyjamas with a white frilled collar below the chin, and closed fluffy white slippers. Seen from behind: the back of the light-blue star pyjamas and the fluffy white slippers. Simple bold shapes, no fine pattern. The hands stay bare. Transparent background, nothing else added."
+ },
+ {
+  "name": "pyjamas_f-rest",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\pyjamas_f-rest.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "pyjamas_f",
+   "part": "rest"
+  },
+  "description": "Edit this sheet of six small chibi pixel art figures sitting on the ground: in the top row one sits facing the viewer, one sits facing away from the viewer, one sits facing the viewer with the hands at the chest; in the bottom row one sits facing the viewer with the hands at the mouth and two sit facing away. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: the same light-blue star pyjamas with a white frilled collar below the chin, and closed fluffy white slippers. Seen from behind: the back of the light-blue star pyjamas and the fluffy white slippers. Simple bold shapes, no fine pattern. Nothing of the outfit reaches lower than each seated figure's own lowest pixels, which stay exactly where they are. The hands stay bare and keep their place. Transparent background, nothing else added."
+ },
+ {
+  "name": "ranch-walk",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\ranch-walk.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "ranch",
+   "part": "walk"
+  },
+  "description": "Edit this sheet of eight small chibi pixel art figures: the top row walks towards the viewer, the bottom row walks away from the viewer. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: a red-and-black checked shirt, a brown leather vest, blue jeans with a big silver buckle belt and tan cowboy boots. Seen from behind: the back of the checked shirt and the brown leather vest, blue jeans and tan cowboy boots. Simple bold shapes, no fine pattern. The hands stay bare. Transparent background, nothing else added."
+ },
+ {
+  "name": "ranch-rest",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\ranch-rest.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "ranch",
+   "part": "rest"
+  },
+  "description": "Edit this sheet of six small chibi pixel art figures sitting on the ground: in the top row one sits facing the viewer, one sits facing away from the viewer, one sits facing the viewer with the hands at the chest; in the bottom row one sits facing the viewer with the hands at the mouth and two sit facing away. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: a red-and-black checked shirt, a brown leather vest, blue jeans with a big silver buckle belt and tan cowboy boots. Seen from behind: the back of the checked shirt and the brown leather vest, blue jeans and tan cowboy boots. Simple bold shapes, no fine pattern. Nothing of the outfit reaches lower than each seated figure's own lowest pixels, which stay exactly where they are. The hands stay bare and keep their place. Transparent background, nothing else added."
+ },
+ {
+  "name": "ranch_f-walk",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\ranch_f-walk.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "ranch_f",
+   "part": "walk"
+  },
+  "description": "Edit this sheet of eight small chibi pixel art figures: the top row walks towards the viewer, the bottom row walks away from the viewer. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: the same checked shirt and brown leather vest over a blue denim knee skirt with a silver buckle belt, and tan cowboy boots. Seen from behind: the back of the leather vest, the denim skirt and tan cowboy boots. Simple bold shapes, no fine pattern. The hands stay bare. Transparent background, nothing else added."
+ },
+ {
+  "name": "ranch_f-rest",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\ranch_f-rest.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "ranch_f",
+   "part": "rest"
+  },
+  "description": "Edit this sheet of six small chibi pixel art figures sitting on the ground: in the top row one sits facing the viewer, one sits facing away from the viewer, one sits facing the viewer with the hands at the chest; in the bottom row one sits facing the viewer with the hands at the mouth and two sit facing away. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: the same checked shirt and brown leather vest over a blue denim knee skirt with a silver buckle belt, and tan cowboy boots. Seen from behind: the back of the leather vest, the denim skirt and tan cowboy boots. Simple bold shapes, no fine pattern. Nothing of the outfit reaches lower than each seated figure's own lowest pixels, which stay exactly where they are. The hands stay bare and keep their place. Transparent background, nothing else added."
+ },
+ {
+  "name": "bard-walk",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\bard-walk.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "bard",
+   "part": "walk"
+  },
+  "description": "Edit this sheet of eight small chibi pixel art figures: the top row walks towards the viewer, the bottom row walks away from the viewer. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: a fitted forest-green tunic with wide gold bands at the collar and the hem, long cream sleeves, a brown belt, brown trousers and soft folded brown boots. Seen from behind: the back of the forest-green tunic with its gold hem band, brown trousers and soft brown boots. Simple bold shapes, no fine pattern. The hands stay bare. Transparent background, nothing else added."
+ },
+ {
+  "name": "bard-rest",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\bard-rest.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "bard",
+   "part": "rest"
+  },
+  "description": "Edit this sheet of six small chibi pixel art figures sitting on the ground: in the top row one sits facing the viewer, one sits facing away from the viewer, one sits facing the viewer with the hands at the chest; in the bottom row one sits facing the viewer with the hands at the mouth and two sit facing away. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: a fitted forest-green tunic with wide gold bands at the collar and the hem, long cream sleeves, a brown belt, brown trousers and soft folded brown boots. Seen from behind: the back of the forest-green tunic with its gold hem band, brown trousers and soft brown boots. Simple bold shapes, no fine pattern. Nothing of the outfit reaches lower than each seated figure's own lowest pixels, which stay exactly where they are. The hands stay bare and keep their place. Transparent background, nothing else added."
+ },
+ {
+  "name": "bard_f-walk",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\bard_f-walk.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "bard_f",
+   "part": "walk"
+  },
+  "description": "Edit this sheet of eight small chibi pixel art figures: the top row walks towards the viewer, the bottom row walks away from the viewer. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: the same forest-green tunic flaring into a knee-length green dress with a wide gold hem band, long cream sleeves, a brown belt and soft brown boots. Seen from behind: the back of the green dress with its gold hem band and soft brown boots. Simple bold shapes, no fine pattern. The hands stay bare. Transparent background, nothing else added."
+ },
+ {
+  "name": "bard_f-rest",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\bard_f-rest.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "bard_f",
+   "part": "rest"
+  },
+  "description": "Edit this sheet of six small chibi pixel art figures sitting on the ground: in the top row one sits facing the viewer, one sits facing away from the viewer, one sits facing the viewer with the hands at the chest; in the bottom row one sits facing the viewer with the hands at the mouth and two sit facing away. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: the same forest-green tunic flaring into a knee-length green dress with a wide gold hem band, long cream sleeves, a brown belt and soft brown boots. Seen from behind: the back of the green dress with its gold hem band and soft brown boots. Simple bold shapes, no fine pattern. Nothing of the outfit reaches lower than each seated figure's own lowest pixels, which stay exactly where they are. The hands stay bare and keep their place. Transparent background, nothing else added."
+ },
+ {
+  "name": "skeleton-walk",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\skeleton-walk.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "skeleton",
+   "part": "walk"
+  },
+  "description": "Edit this sheet of eight small chibi pixel art figures: the top row walks towards the viewer, the bottom row walks away from the viewer. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: a black fitted bodysuit printed with a big bold white skeleton: ribs, spine, arm bones and leg bones, and black shoes. Seen from behind: the back of the black bodysuit printed with a white spine and shoulder blades, white leg bones and black shoes. Simple bold shapes, no fine pattern. The hands stay bare. Transparent background, nothing else added."
+ },
+ {
+  "name": "skeleton-rest",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\skeleton-rest.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "skeleton",
+   "part": "rest"
+  },
+  "description": "Edit this sheet of six small chibi pixel art figures sitting on the ground: in the top row one sits facing the viewer, one sits facing away from the viewer, one sits facing the viewer with the hands at the chest; in the bottom row one sits facing the viewer with the hands at the mouth and two sit facing away. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: a black fitted bodysuit printed with a big bold white skeleton: ribs, spine, arm bones and leg bones, and black shoes. Seen from behind: the back of the black bodysuit printed with a white spine and shoulder blades, white leg bones and black shoes. Simple bold shapes, no fine pattern. Nothing of the outfit reaches lower than each seated figure's own lowest pixels, which stay exactly where they are. The hands stay bare and keep their place. Transparent background, nothing else added."
+ },
+ {
+  "name": "skeleton_f-walk",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\skeleton_f-walk.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "skeleton_f",
+   "part": "walk"
+  },
+  "description": "Edit this sheet of eight small chibi pixel art figures: the top row walks towards the viewer, the bottom row walks away from the viewer. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: the same black skeleton bodysuit with a short black tutu skirt at the waist, and black shoes. Seen from behind: the back of the black skeleton bodysuit with the short black tutu, and black shoes. Simple bold shapes, no fine pattern. The hands stay bare. Transparent background, nothing else added."
+ },
+ {
+  "name": "skeleton_f-rest",
+  "endpoint": "edit-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\skeleton_f-rest.json",
+  "lay": {
+   "kind": "outfit",
+   "id": "skeleton_f",
+   "part": "rest"
+  },
+  "description": "Edit this sheet of six small chibi pixel art figures sitting on the ground: in the top row one sits facing the viewer, one sits facing away from the viewer, one sits facing the viewer with the hands at the chest; in the bottom row one sits facing the viewer with the hands at the mouth and two sit facing away. Dress every figure in the same outfit and change nothing else: keep each figure's pose, size, place, bald head, ears and face exactly as they are, with the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The outfit: the same black skeleton bodysuit with a short black tutu skirt at the waist, and black shoes. Seen from behind: the back of the black skeleton bodysuit with the short black tutu, and black shoes. Simple bold shapes, no fine pattern. Nothing of the outfit reaches lower than each seated figure's own lowest pixels, which stay exactly where they are. The hands stay bare and keep their place. Transparent background, nothing else added."
+ },
+ {
+  "name": "tophat",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\tophat.json",
+  "lay": {
+   "kind": "head",
+   "id": "tophat",
+   "slot": "hat",
+   "g": "dh"
+  },
+  "description": "Two views of the same small chibi pixel art head, bald, with long pointed ears: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask: put the same hat on both heads, sitting straight and a little loose, its band resting just above the ears and a little wider than the head: a tall black silk top hat with a black satin band (seen from behind, the plain back of the tall black top hat and its band). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the ears stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "cowboy",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\cowboy.json",
+  "lay": {
+   "kind": "head",
+   "id": "cowboy",
+   "slot": "hat",
+   "g": "dh"
+  },
+  "description": "Two views of the same small chibi pixel art head, bald, with long pointed ears: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask: put the same hat on both heads, sitting straight and a little loose, its band resting just above the ears and a little wider than the head: a light-brown leather cowboy hat with a wide brim curled up at the sides and a darker band (seen from behind, the back of the light-brown cowboy hat with its curled brim). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the ears stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "newsboy",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\newsboy.json",
+  "lay": {
+   "kind": "head",
+   "id": "newsboy",
+   "slot": "hat",
+   "g": "dh"
+  },
+  "description": "Two views of the same small chibi pixel art head, bald, with long pointed ears: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask: put the same hat on both heads, sitting straight and a little loose, its band resting just above the ears and a little wider than the head: a grey tweed newsboy cap with a short front brim and a small button on top (seen from behind, the back of the grey tweed newsboy cap). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the ears stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "sunhat",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\sunhat.json",
+  "lay": {
+   "kind": "head",
+   "id": "sunhat",
+   "slot": "hat",
+   "g": "dh"
+  },
+  "description": "Two views of the same small chibi pixel art head, bald, with long pointed ears: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask: put the same hat on both heads, sitting straight and a little loose, its band resting just above the ears and a little wider than the head: a wide-brimmed pale straw sun hat with a sky-blue ribbon tied in a bow (seen from behind, the back of the pale straw sun hat with the sky-blue ribbon's tails). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the ears stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "fedora",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\fedora.json",
+  "lay": {
+   "kind": "head",
+   "id": "fedora",
+   "slot": "hat",
+   "g": "dh"
+  },
+  "description": "Two views of the same small chibi pixel art head, bald, with long pointed ears: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask: put the same hat on both heads, sitting straight and a little loose, its band resting just above the ears and a little wider than the head: a dark-brown felt fedora with a pinched crown and a black band (seen from behind, the back of the dark-brown fedora and its black band). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the ears stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "bearhat",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\bearhat.json",
+  "lay": {
+   "kind": "head",
+   "id": "bearhat",
+   "slot": "hat",
+   "g": "dh"
+  },
+  "description": "Two views of the same small chibi pixel art head, bald, with long pointed ears: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask: put the same hat on both heads, sitting straight and a little loose, its band resting just above the ears and a little wider than the head: a brown knitted beanie with two round bear ears on top (seen from behind, the back of the brown knitted bear beanie with its two round ears). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the ears stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "aviatorcap",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\aviatorcap.json",
+  "lay": {
+   "kind": "head",
+   "id": "aviatorcap",
+   "slot": "hat",
+   "g": "dh"
+  },
+  "description": "Two views of the same small chibi pixel art head, bald, with long pointed ears: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask: put the same hat on both heads, sitting straight and a little loose, its band resting just above the ears and a little wider than the head: a brown leather aviator cap with round flying goggles pushed up on its front, no ear flaps (seen from behind, the back of the brown leather aviator cap and the goggles' strap). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the ears stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "tricorn",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\tricorn.json",
+  "lay": {
+   "kind": "head",
+   "id": "tricorn",
+   "slot": "hat",
+   "g": "dh"
+  },
+  "description": "Two views of the same small chibi pixel art head, bald, with long pointed ears: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask: put the same hat on both heads, sitting straight and a little loose, its band resting just above the ears and a little wider than the head: a black three-cornered pirate hat with gold trim on its edges (seen from behind, the back of the black three-cornered hat with gold trim). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the ears stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "ghostcap",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\ghostcap.json",
+  "lay": {
+   "kind": "head",
+   "id": "ghostcap",
+   "slot": "hat",
+   "g": "dh"
+  },
+  "description": "Two views of the same small chibi pixel art head, bald, with long pointed ears: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask: put the same hat on both heads, sitting straight and a little loose, its band resting just above the ears and a little wider than the head: a soft white cap shaped like a little smiling ghost with two black dot eyes (seen from behind, the back of the soft white ghost cap with its wavy edge). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the ears stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "heartshades",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\heartshades.json",
+  "lay": {
+   "kind": "head",
+   "id": "heartshades",
+   "slot": "face",
+   "g": "da"
+  },
+  "description": "A small chibi pixel art head seen from the front, bald, with long pointed ears and big violet eyes. Paint only inside the white of the mask, across the eyes: put red heart-shaped sunglasses with dark lenses. Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The rest of the face, the head and the ears stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "cateye",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\cateye.json",
+  "lay": {
+   "kind": "head",
+   "id": "cateye",
+   "slot": "face",
+   "g": "da"
+  },
+  "description": "A small chibi pixel art head seen from the front, bald, with long pointed ears and big violet eyes. Paint only inside the white of the mask, across the eyes: put black cat-eye glasses whose outer corners sweep up into points, with clear lenses. The lenses are clear, so the eyes show through them. Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The rest of the face, the head and the ears stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "eyepatch",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\eyepatch.json",
+  "lay": {
+   "kind": "head",
+   "id": "eyepatch",
+   "slot": "face",
+   "g": "da"
+  },
+  "description": "A small chibi pixel art head seen from the front, bald, with long pointed ears and big violet eyes. Paint only inside the white of the mask, across the eyes: put a black eye patch over the left eye on a thin black strap across the forehead. Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The rest of the face, the head and the ears stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "masquerade",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\masquerade.json",
+  "lay": {
+   "kind": "head",
+   "id": "masquerade",
+   "slot": "face",
+   "g": "da"
+  },
+  "description": "A small chibi pixel art head seen from the front, bald, with long pointed ears and big violet eyes. Paint only inside the white of the mask, across the eyes: put a gold masquerade half-mask with a small white feather at one side and two eye holes. Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The rest of the face, the head and the ears stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "starshades",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\starshades.json",
+  "lay": {
+   "kind": "head",
+   "id": "starshades",
+   "slot": "face",
+   "g": "da"
+  },
+  "description": "A small chibi pixel art head seen from the front, bald, with long pointed ears and big violet eyes. Paint only inside the white of the mask, across the eyes: put yellow star-shaped sunglasses with dark lenses. Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The rest of the face, the head and the ears stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "halfmoon",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\halfmoon.json",
+  "lay": {
+   "kind": "head",
+   "id": "halfmoon",
+   "slot": "face",
+   "g": "da"
+  },
+  "description": "A small chibi pixel art head seen from the front, bald, with long pointed ears and big violet eyes. Paint only inside the white of the mask, across the eyes: put small half-moon reading glasses with thin gold frames sitting low on the nose, with clear lenses. The lenses are clear, so the eyes show through them. Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The rest of the face, the head and the ears stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "pearls",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\pearls.json",
+  "lay": {
+   "kind": "head",
+   "id": "pearls",
+   "slot": "neck",
+   "g": "da"
+  },
+  "description": "Two views of the same small chibi pixel art figure in a plain grey top, from the head to the chest: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask, at the neck and the chest: put a single strand of big white pearls around the neck (seen from behind, the pearl strand at the back of the neck). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the grey top stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "jabot",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\jabot.json",
+  "lay": {
+   "kind": "head",
+   "id": "jabot",
+   "slot": "neck",
+   "g": "da"
+  },
+  "description": "Two views of the same small chibi pixel art figure in a plain grey top, from the head to the chest: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask, at the neck and the chest: put a white frilled lace jabot at the throat (seen from behind, the white lace band at the back of the neck). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the grey top stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "headphones",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\headphones.json",
+  "lay": {
+   "kind": "head",
+   "id": "headphones",
+   "slot": "neck",
+   "g": "da"
+  },
+  "description": "Two views of the same small chibi pixel art figure in a plain grey top, from the head to the chest: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask, at the neck and the chest: put mint-green headphones hanging around the neck (seen from behind, the mint-green headphone band at the back of the neck). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the grey top stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "camera",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\camera.json",
+  "lay": {
+   "kind": "head",
+   "id": "camera",
+   "slot": "neck",
+   "g": "da"
+  },
+  "description": "Two views of the same small chibi pixel art figure in a plain grey top, from the head to the chest: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask, at the neck and the chest: put a small black film camera hanging on a brown strap at the chest (seen from behind, the brown camera strap at the back of the neck). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the grey top stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "pocketwatch",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\pocketwatch.json",
+  "lay": {
+   "kind": "head",
+   "id": "pocketwatch",
+   "slot": "neck",
+   "g": "da"
+  },
+  "description": "Two views of the same small chibi pixel art figure in a plain grey top, from the head to the chest: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask, at the neck and the chest: put a golden pocket watch shaped like a little potato on a gold chain at the chest (seen from behind, the gold chain at the back of the neck). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the grey top stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "cord",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\cord.json",
+  "lay": {
+   "kind": "head",
+   "id": "cord",
+   "slot": "neck",
+   "g": "da"
+  },
+  "description": "Two views of the same small chibi pixel art figure in a plain grey top, from the head to the chest: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask, at the neck and the chest: put a braided necklace of three colours, red, yellow and green, around the neck (seen from behind, the braided red, yellow and green cord at the back of the neck). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the grey top stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "batpendant",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\batpendant.json",
+  "lay": {
+   "kind": "head",
+   "id": "batpendant",
+   "slot": "neck",
+   "g": "da"
+  },
+  "description": "Two views of the same small chibi pixel art figure in a plain grey top, from the head to the chest: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask, at the neck and the chest: put a black bat pendant with spread wings on a thin silver chain at the chest (seen from behind, the thin silver chain at the back of the neck). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the grey top stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "bearears",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\bearears.json",
+  "lay": {
+   "kind": "head",
+   "id": "bearears",
+   "slot": "hair",
+   "g": "da"
+  },
+  "description": "Two views of the same small chibi pixel art head, bald, with long pointed ears: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask: put the same thing on both heads, in the same place on each: two round brown bear ears on a thin brown headband on top of the head (seen from behind, the two round brown bear ears on their headband, seen from behind). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the ears stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "foxears",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\foxears.json",
+  "lay": {
+   "kind": "head",
+   "id": "foxears",
+   "slot": "hair",
+   "g": "da"
+  },
+  "description": "Two views of the same small chibi pixel art head, bald, with long pointed ears: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask: put the same thing on both heads, in the same place on each: two tall orange fox ears with white tips on a thin headband on top of the head (seen from behind, the two tall orange fox ears on their headband, seen from behind). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the ears stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "halo",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\halo.json",
+  "lay": {
+   "kind": "head",
+   "id": "halo",
+   "slot": "hair",
+   "g": "da"
+  },
+  "description": "Two views of the same small chibi pixel art head, bald, with long pointed ears: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask: put the same thing on both heads, in the same place on each: a thin golden ring floating just above the top of the head, no glow (seen from behind, the thin golden ring floating just above the head, seen from behind). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the ears stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "antennae",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\antennae.json",
+  "lay": {
+   "kind": "head",
+   "id": "antennae",
+   "slot": "hair",
+   "g": "da"
+  },
+  "description": "Two views of the same small chibi pixel art head, bald, with long pointed ears: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask: put the same thing on both heads, in the same place on each: a black headband with two thin bee antennae ending in round yellow balls on top of the head (seen from behind, the black headband and the two bee antennae, seen from behind). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the ears stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "cherry",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\cherry.json",
+  "lay": {
+   "kind": "head",
+   "id": "cherry",
+   "slot": "hair",
+   "g": "da"
+  },
+  "description": "Two views of the same small chibi pixel art head, bald, with long pointed ears: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask: put the same thing on both heads, in the same place on each: a red double-cherry hair clip with two green leaves at the side of the head (seen from behind, the red cherry clip at the side of the head, seen from behind). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the ears stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "fanpin",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\fanpin.json",
+  "lay": {
+   "kind": "head",
+   "id": "fanpin",
+   "slot": "hair",
+   "g": "da"
+  },
+  "description": "Two views of the same small chibi pixel art head, bald, with long pointed ears: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask: put the same thing on both heads, in the same place on each: a small red folding-fan hairpin with a hanging red tassel at the side of the head (seen from behind, the small red fan hairpin and its tassel at the side of the head, seen from behind). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the ears stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "hibiscus",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\hibiscus.json",
+  "lay": {
+   "kind": "head",
+   "id": "hibiscus",
+   "slot": "hair",
+   "g": "da"
+  },
+  "description": "Two views of the same small chibi pixel art head, bald, with long pointed ears: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask: put the same thing on both heads, in the same place on each: a big red hibiscus flower tucked at the side of the head (seen from behind, the big red hibiscus flower at the side of the head, seen from behind). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the ears stay exactly as they are, nothing else added, transparent background."
+ },
+ {
+  "name": "batclip",
+  "endpoint": "inpaint-image-pro-flash",
+  "file": "E:\\NinenineProject\\fcnext-wt-shop\\.claude\\skills\\fc-cash-town\\scripts\\pixel\\prompts\\pixellab\\items\\batclip.json",
+  "lay": {
+   "kind": "head",
+   "id": "batclip",
+   "slot": "hair",
+   "g": "da"
+  },
+  "description": "Two views of the same small chibi pixel art head, bald, with long pointed ears: on the left seen from the front, on the right seen from behind. Paint only inside the white of the mask: put the same thing on both heads, in the same place on each: a small black bat-shaped hair clip with spread wings at the side of the head (seen from behind, the small black bat clip at the side of the head, seen from behind). Simple bold shapes. Keep the same chunky pixel size, the same thick dark outline and the same flat shading with a few tones per colour. The head, the face and the ears stay exactly as they are, nothing else added, transparent background."
+ }
+]
