@@ -187,7 +187,7 @@
       }
     },
     {
-      "id": "pumpkin",
+      "id": "pumpkinmonarch",
       "pl": "prompts/pixellab/doll/pumpkin-*.json",
       "front": "a pumpkin king: a fitted deep violet coat embroidered with orange pumpkin vines and green leaves, round carved-pumpkin buttons, an orange sash, orange-and-black striped trousers, black boots with brass buckles",
       "back": "the violet coat from behind with its vine embroidery and the sash, striped trousers, buckled boots",

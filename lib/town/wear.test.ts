@@ -4,6 +4,7 @@ import { WEAR_MAX } from "./look";
 import { LINES } from "./lines";
 import { DRESS_ITEMS, FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS, dropsFor, onlyOwned, owns, together, wearDropsRow } from "./wear";
 import { WEAR_BAG, WEAR_CRAFTS } from "./wear-items";
+import { HAIRS } from "./look";
 
 const rank3 = (line: keyof typeof LINES) => LINES[line].marks[2];
 
@@ -64,5 +65,17 @@ describe("what is worn is had from the game (the owner, 2026-10-17)", () => {
     expect(together({ hat: witch, hairWear: 0 }, { hairWear: ears })).toEqual({ hairWear: ears, hat: 0 });
     expect(together({ hat: witch, hairWear: 0 }, { hairWear: clip })).toEqual({ hairWear: clip });
     expect(together({ hat: 0, hairWear: clip }, { hat: witch })).toEqual({ hat: witch });
+  });
+});
+
+describe("one id for one thing (Codex's check of the shop, 2026-10-25)", () => {
+  // (what a member has is one list of ids, town_dressed's, whatever the slot: the limited pumpkin outfit was first
+  // "pumpkin", the craftable pumpkin hat's id, and whoever had the hat had the outfit without a bid)
+  it("never gives two worn things, or a worn thing and a shop hairstyle, the same id", () => {
+    const ids = [...OUTFITS, ...HATS, ...FACE_WEAR, ...NECK_WEAR, ...HAIR_WEAR].map((w) => w.id).filter((id) => id !== "none");
+    const sold = HAIRS.flatMap((h) => ("sold" in h && h.sold ? [h.sold] : []));
+    const all = [...ids, ...sold], twice = all.filter((id, i) => all.indexOf(id) !== i);
+    expect(twice).toEqual([]);
+    for (const id of all) expect(id).toMatch(/^[a-z]{1,24}$/);
   });
 });

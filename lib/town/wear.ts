@@ -82,7 +82,7 @@ export const OUTFITS: Wearable[] = [
   { id: "herder", th: "ชุดคนเลี้ยงสัตว์", en: "Herder", from: at(3, "animals") },
   // (the limited auction's first round, Halloween 2026, and Granny Twilla's rails: the owner, 2026-10-25)
   { id: "count", th: "ชุดเคานต์ค้างคาวรัตติกาล", en: "Midnight Bat Count", from: AUCTION("count") },
-  { id: "pumpkin", th: "ชุดราชาฟักทองไฟผี", en: "Pumpkin Wisp Monarch", from: AUCTION("pumpkin") },
+  { id: "pumpkinmonarch", th: "ชุดราชาฟักทองไฟผี", en: "Pumpkin Wisp Monarch", from: AUCTION("pumpkin") },
   { id: "knit", th: "ชุดไหมพรมอุ่นๆ", en: "Cozy knit", from: TAILOR },
   { id: "beach", th: "ชุดริมหาด", en: "Beach shirt", from: TAILOR },
   { id: "party", th: "ชุดงานเลี้ยง", en: "Party suit", from: TAILOR },

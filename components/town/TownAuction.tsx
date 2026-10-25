@@ -83,7 +83,8 @@ export default function TownAuction(p: ShopWindowProps) {
     setBusy(null);
     const board = did.auction;
     if (board) setBoards((bs) => bs?.map((x) => (x.id === board.id ? board : x)) ?? bs);
-    if (did.ok) { requests.current.delete(key); setSaid((s) => ({ ...s, [a.id]: th ? `เสนอแล้ว หัก ${fmt(did.pay)} เหรียญ` : `Bid placed: ${fmt(did.pay)} coins held` })); return; }
+    // (a bid asked again after its answer was lost takes nothing more: said as placed, without a sum)
+    if (did.ok) { requests.current.delete(key); setSaid((s) => ({ ...s, [a.id]: did.repeated || typeof did.pay !== "number" ? (th ? "เสนอแล้ว" : "Bid placed") : th ? `เสนอแล้ว หัก ${fmt(did.pay)} เหรียญ` : `Bid placed: ${fmt(did.pay)} coins held` })); return; }
     setSaid((s) => ({ ...s, [a.id]: did.why === "low" ? (th ? `ต่ำไปจ้ะ ขั้นต่ำตอนนี้ ${fmt(did.least ?? leastOf(a))}` : `Too low: at least ${fmt(did.least ?? leastOf(a))} now`)
       : did.why === "coins" ? (th ? "เหรียญไม่พอจ้ะ" : "Not enough coins.")
       : did.why === "closed" ? (th ? "ปิดประมูลแล้วจ้ะ" : "This round has closed.")

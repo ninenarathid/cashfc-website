@@ -140,7 +140,7 @@ try {
   r = await bid(m1, 3000, uuid(17)); tsBid(m1, 3000);
   eq([r.ok, r.pay, await coinsOf(m1)], [true, 1800, 17000], "and again");
   r = await bid(m1, 3000, uuid(17));
-  eq([r.ok, r.repeated, await coinsOf(m1)], [true, true, 17000], "a bid retried is answered once");
+  eq([r.ok, r.repeated, r.pay, await coinsOf(m1)], [true, true, 0, 17000], "a bid retried is answered once, says it took nothing more");
   r = await bid(m2, 1999, uuid(18));
   eq([r.ok, r.why, r.least, AU.minBid(roundTs, ts, m2)], [false, "low", 2000, 2000], "the lowest held is 1500: the least is 1500 and its step");
   const least2 = AU.minBid(roundTs, ts, m2);

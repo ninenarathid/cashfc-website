@@ -3512,7 +3512,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       // ── Granny Twilla's limited outfits ── (now and then what the outfit is made of shows: bats slip out of the
       // count's cape, the pumpkin's ghost flames flicker off; a one-shot of PixelLab's, in the doll's own pixels)
       const design = OUTFITS[look.outfit ?? 0]?.id;
-      if ((design === "count" || design === "pumpkin") && !reducedRef.current) limitedFx(ctx, a.info.id, design, p.x, p.y, k, face.mirror, now, sitting(a) || perched);
+      if (design && design in LIMITED_FX && !reducedRef.current) limitedFx(ctx, a.info.id, design as keyof typeof LIMITED_FX, p.x, p.y, k, face.mirror, now, sitting(a) || perched);
     } else {
       // Until the dolls arrive: a simple figure.
       ctx.fillStyle = "#6aa9e0";
@@ -3825,7 +3825,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
 
   /** A few small words under a name: what somebody is called for what they have done. */
   /** A limited outfit's one-shot over its wearer, every eight to fourteen seconds (half as often sitting). */
-  function limitedFx(ctx: CanvasRenderingContext2D, id: string, design: "count" | "pumpkin", x: number, y: number, k: number, mirror: boolean, now: number, sat: boolean) {
+  function limitedFx(ctx: CanvasRenderingContext2D, id: string, design: keyof typeof LIMITED_FX, x: number, y: number, k: number, mirror: boolean, now: number, sat: boolean) {
     const fx = LIMITED_FX[design], img = limitedImgs.current[design] ??= Object.assign(new Image(), { src: fx.src });
     const st = limitedAt.current.get(id) ?? { next: now + 1500 + Math.random() * 5000, start: null as number | null };
     limitedAt.current.set(id, st);

@@ -352,7 +352,8 @@ begin
   select * into receipt from town.auction_receipts r where r.member_id = me and r.request = p_request;
   if found then
     if receipt.auction_id is distinct from p_auction or receipt.amount is distinct from p_amount then return town.answer(me, town.no('none')); end if;
-    return town.answer(me, jsonb_build_object('ok', true, 'repeated', true, 'auction', town.auction_board(me, p_auction)));
+    -- (the same bid asked again, its answer lost on the way: nothing more is taken, and it says so: Codex's check)
+    return town.answer(me, jsonb_build_object('ok', true, 'repeated', true, 'pay', 0, 'auction', town.auction_board(me, p_auction)));
   end if;
   if a.settled_at is not null or now() < a.opens_at or now() >= a.closes_at then
     return town.answer(me, town.no('closed') || jsonb_build_object('auction', town.auction_board(me, p_auction)));
@@ -416,7 +417,7 @@ grant execute on function public.town_dressed() to authenticated;
 -- The first round: Halloween 2026.
 insert into public.town_auctions (design, wearables, run, copies, start_price, step_pct, step_min, opens_at, closes_at, hard_close) values
   ('count', array['count', 'counthat', 'batmask', 'rosefascinator'], 1, 3, 8000, 5, 500, '2026-10-27 20:00+07', '2026-10-31 21:00+07', '2026-10-31 22:00+07'),
-  ('pumpkin', array['pumpkin', 'pumpkincrown', 'pumpkinglasses', 'pumpkinhead'], 1, 3, 8000, 5, 500, '2026-10-27 20:00+07', '2026-10-31 21:00+07', '2026-10-31 22:00+07')
+  ('pumpkin', array['pumpkinmonarch', 'pumpkincrown', 'pumpkinglasses', 'pumpkinhead'], 1, 3, 8000, 5, 500, '2026-10-27 20:00+07', '2026-10-31 21:00+07', '2026-10-31 22:00+07')
 on conflict (design, run) do nothing;
 
 -- <catalog:v297> written from lib/town/catalog.ts (npm test checks it; TOWN_WRITE=1 npx vitest run lib/town/catalog.test.ts writes it)

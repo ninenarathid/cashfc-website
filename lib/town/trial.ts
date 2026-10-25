@@ -599,7 +599,7 @@ export class Trial {
     const close = Date.parse("2026-10-31T21:00:00+07:00"), hard = Date.parse("2026-10-31T22:00:00+07:00");
     const round = (id: number, design: string, wearables: string[], bids: Bid[]): TrialRound =>
       ({ id, design, wearables, run: 1, copies: 3, start: 8000, stepPct: 5, stepMin: 500, opensAt: now - 3600_000, closesAt: Math.max(close, now + 3 * 86400_000), hardClose: Math.max(hard, now + 3 * 86400_000 + 3600_000), settledAt: null, bids, owners: [] });
-    const fresh = [round(1, "count", ["count", "counthat", "batmask", "rosefascinator"], []), round(2, "pumpkin", ["pumpkin", "pumpkincrown", "pumpkinglasses", "pumpkinhead"], [{ member: "trial-rival", name: "Mint", amount: 8500, at: now - 600_000 }])];
+    const fresh = [round(1, "count", ["count", "counthat", "batmask", "rosefascinator"], []), round(2, "pumpkin", ["pumpkinmonarch", "pumpkincrown", "pumpkinglasses", "pumpkinhead"], [{ member: "trial-rival", name: "Mint", amount: 8500, at: now - 600_000 }])];
     this.write(AUCTIONS, fresh);
     return fresh;
   }
@@ -613,10 +613,12 @@ export class Trial {
     const all = this.rounds().map((r) => {
       if (r.settledAt || now < r.closesAt) return r;
       const won = winners(r, r.bids);
-      const mine = won.find((w) => w.member === this.id);
-      if (mine) {
-        this.write(dressedKey(this.id), [...new Set([...this.dressed(), ...r.wearables])]);
-        this.write(limitedKey(this.id), { ...this.limited(), ...Object.fromEntries(r.wearables.map((w) => [w, [r.run, mine.edition]])) });
+      // (every winner has the set, whoever's look settled it: the testers share the browser, Codex's check)
+      for (const w of won) {
+        const dressed = this.read<string[]>(dressedKey(w.member), () => [], (v) => Array.isArray(v) && v.every((x) => typeof x === "string"));
+        const limited = this.read<Record<string, [number, number]>>(limitedKey(w.member), () => ({}), (v) => !!v && typeof v === "object");
+        this.write(dressedKey(w.member), [...new Set([...dressed, ...r.wearables])]);
+        this.write(limitedKey(w.member), { ...limited, ...Object.fromEntries(r.wearables.map((x) => [x, [r.run, w.edition]])) });
       }
       return { ...r, settledAt: now, owners: won.map((w) => ({ member: w.member, name: w.name, edition: w.edition })) };
     });
@@ -633,8 +635,14 @@ export class Trial {
     if (!did.ok) return { ok: false, why: did.why as Refusal, least: did.why === "low" ? minBid(r, r.bids, this.id) : undefined, auction: this.boardOf(r) };
     const next = { ...r, bids: did.bids, closesAt: did.closesAt };
     this.write(AUCTIONS, all.map((x) => (x.id === auction ? next : x)));
-    // (what I had in and was pushed out of comes back to me; nobody else's purse is kept here)
+    // (what I had in and was pushed out of comes back to me, and another tester's to them: their purse in this browser,
+    // Codex's check; the pretend rival's coins go nowhere)
     const back = did.out.filter((b) => b.member === this.id).reduce((n, b) => n + b.amount, 0);
+    for (const b of did.out) {
+      if (b.member === this.id) continue;
+      const theirs = this.read<Purse | null>(purseKey(b.member), () => null, (v) => !!v && typeof v === "object");
+      if (theirs) this.write(purseKey(b.member), { ...theirs, coins: theirs.coins + b.amount });
+    }
     this.keep({ ok: true, purse: { ...purse, coins: purse.coins - did.pay + back } });
     return { ok: true, pay: did.pay, auction: this.boardOf(next) };
   }

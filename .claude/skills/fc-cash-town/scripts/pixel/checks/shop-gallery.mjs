@@ -147,7 +147,7 @@ await sheet("3-hats-glasses.png", `หมวก ${hats.length} · แว่น�
 await sheet("4-neck-hair.png", `ที่คอ ${neck.length} · ที่ผม ${hw.length}`, [...neck, ...hw], 4);
 
 // 5. the auction's two sets, whole, as a woman and a man wear them (a woman the hair thing, a man the hat)
-const SETS = [["count", "ชุดเคานต์ค้างคาวรัตติกาล", ["counthat", "batmask", "rosefascinator"]], ["pumpkin", "ชุดราชาฟักทองไฟผี", ["pumpkincrown", "pumpkinglasses", "pumpkinhead"]]];
+const SETS = [["count", "ชุดเคานต์ค้างคาวรัตติกาล", ["counthat", "batmask", "rosefascinator"]], ["pumpkinmonarch", "ชุดราชาฟักทองไฟผี", ["pumpkincrown", "pumpkinglasses", "pumpkinhead"]]];
 const pieceName = (id) => [...HATS, ...FACE_WEAR, ...HAIR_WEAR].find((w) => w.id === id)?.th ?? id;
 const setCells = (outfit, pieces, hair) => {
   const slotOf = (id) => (HATS.some((w) => w.id === id) ? "hat" : FACE_WEAR.some((w) => w.id === id) ? "face" : "hairWear");
