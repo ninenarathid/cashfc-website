@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { LINES, type LineId } from "@/lib/town/lines";
 import type { PixelKit } from "@/lib/town/pixeldoll";
 import { FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS, owns, together, type Wearable } from "@/lib/town/wear";
-import { TAILOR } from "@/lib/town/tailor";
 import {
   EYES, EYE_COLORS, GENDERS, HAIR_COLORS, ONE_MODEL, RACES, hairForGender, hairsFor, hairsOf, lookAsRace, skinsOf,
   type Look, type Named, type Swatch,
@@ -178,47 +177,42 @@ function Choices({ label, items, only, value, onPick, t }: {
 /**
  * The hairstyles as cards, each on my own head in my own hair colour (with nothing on the head to hide it), the one worn
  * ringed: the owner, 2026-10-25, of the shop's new ones: "ช่วยทำให้มีหน้าตาเป็นไอเทมด้วย กดซื้อแล้วค่อย ปลดล็อค". One sold at
- * Granny Twilla's and not bought yet is its shadow, as a thing not had is in the other tabs, with where it is sold and
- * what it costs.
+ * Granny Twilla's is not here at all until it is bought (the owner, 2026-10-26: "ไม่เห็นใน เมนูแต่งตัว ก่อนจะปลดล็อค
+ * หลังปลดล็อคค่อยเห้น"): her rails are where it is seen first.
  */
 function HairCards({ label, look, only, kit, had: bought, fresh, th, onPick }: {
   label: string; look: Look; only: number[]; kit: PixelKit | null; had: ReadonlySet<string>; fresh: ReadonlySet<string>; th: boolean;
   onPick: (i: number) => void;
 }) {
   const hairs = hairsOf(look.race) as Array<Named & { sold?: string }>;
+  const shown = only.filter((i) => !hairs[i].sold || bought.has(hairs[i].sold));
   const lookFor = (i: number): Look => ({ ...look, hair: i, hat: 0, hairWear: 0 });
   // (one picture pixel a size for the whole list, as Cards: the largest every head fits at)
   const fit = (W: number, H: number) => {
     if (!kit) return 1;
     let k = Infinity;
-    for (const i of only) { const { w, h } = kit.headSize(lookFor(i)); k = Math.min(k, W / w, H / h); }
+    for (const i of shown) { const { w, h } = kit.headSize(lookFor(i)); k = Math.min(k, W / w, H / h); }
     return k * 0.86;
   };
   return (
     <Group label={label}>
       <div role="group" aria-label={label} className="grid grid-cols-3 gap-2 min-[380px]:grid-cols-4">
-        {only.map((i) => {
-          const h = hairs[i], had = !h.sold || bought.has(h.sold), on = had && i === look.hair;
-          const where = h.sold ? `${th ? "ร้านผ้ายายทวิลล่า" : "Granny Twilla's shop"}
-${(TAILOR[h.sold]?.price ?? 0).toLocaleString(th ? "th-TH" : "en-US")} ${th ? "เหรียญ" : "coins"}` : "";
+        {shown.map((i) => {
+          const h = hairs[i], on = i === look.hair;
           return (
-            <button key={h.id} type="button" aria-pressed={on} disabled={!had} onClick={() => onPick(i)}
-                    title={had ? (th ? h.th : h.en) : where.replace("\n", " · ")} aria-label={had ? undefined : `??? · ${where.replace("\n", " · ")}`}
+            <button key={h.id} type="button" aria-pressed={on} onClick={() => onPick(i)} title={th ? h.th : h.en}
                     className={`pressable flex min-h-11 flex-col items-center gap-1 rounded-xl border px-1 pb-1.5 pt-1 text-center transition-colors ${on
-                      ? "border-accent bg-accent/15 text-accent" : had ? "border-line-strong text-ink hover:border-accent" : "cursor-not-allowed border-dashed border-line-strong text-ink"}`}>
-              <span className={`relative rounded-lg ${had ? "" : "bg-line-strong/35"}`}>
-                <DollPreview w={56} h={56} deps={[kit, JSON.stringify(lookFor(i)), had]}
+                      ? "border-accent bg-accent/15 text-accent" : "border-line-strong text-ink hover:border-accent"}`}>
+              <span className="relative rounded-lg">
+                <DollPreview w={56} h={56} deps={[kit, JSON.stringify(lookFor(i))]}
                              draw={(ctx, W, H) => {
                                if (!kit) return;
                                const l = lookFor(i), k = fit(W, H), { w, h: hh } = kit.headSize(l);
                                kit.drawHead(ctx, l, Math.round((W - w * k) / 2), Math.round((H - hh * k) / 2), k);
-                               if (!had) { ctx.globalCompositeOperation = "source-in"; ctx.fillStyle = "#0a0d13"; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = "source-over"; }
                              }} />
-                {!had && <span className="absolute bottom-0 right-0 grid size-5 place-items-center rounded-full bg-surface ring-1 ring-line-strong"><TownIcon name="lock" size={12} /></span>}
-                {had && h.sold && fresh.has(h.sold) && <span data-wear-fresh className="absolute -left-1 -top-1 rounded-full bg-gold px-1.5 text-[10px] font-bold leading-4 text-bg shadow">{th ? "ใหม่" : "New"}</span>}
+                {h.sold && fresh.has(h.sold) && <span data-wear-fresh className="absolute -left-1 -top-1 rounded-full bg-gold px-1.5 text-[10px] font-bold leading-4 text-bg shadow">{th ? "ใหม่" : "New"}</span>}
               </span>
-              <span className="text-meta leading-tight">{had ? (th ? h.th : h.en) : "???"}</span>
-              {!had && <span className="whitespace-pre-line text-meta leading-tight text-muted">{where}</span>}
+              <span className="text-meta leading-tight">{th ? h.th : h.en}</span>
             </button>
           );
         })}
@@ -248,7 +242,8 @@ function Swatches({ label, items, value, onPick, t }: {
  * A tab's cards: each thing on the player's own doll (an outfit, the whole doll) or head (the rest), the one worn
  * ringed. What is not had yet is only a dark shadow of it, with no name, and where it comes from (the owner,
  * 2026-10-17: "ของตกแต่งที่ยังไม่ได้ปลดล็อคให้ทำเป้นเงาดำๆไว้ ปกปิดไม่ให้เห้นรายละเอียด เห็นแค่เงา"): something to find,
- * and a way to feel towards it. One size for every card of a list, so the heads are drawn alike.
+ * and a way to feel towards it. What Granny Twilla sells or auctions is not here at all until it is had (the owner,
+ * 2026-10-26): her shop is where it is seen first. One size for every card of a list, so the heads are drawn alike.
  */
 function Cards({ label, items, value, onPick, lookFor, kit, points, had: bought, fresh, th, body }: {
   label: string; items: Wearable[]; value: number; onPick: (i: number) => void; lookFor: (i: number) => Look;
@@ -273,8 +268,7 @@ ${f.lines.map(line).join(" / ")}`;
     if ("shop" in f) return th ? "ร้านลุงขายของ" : "The uncle's shop";
     if ("merchant" in f) return th ? "พ่อค้าค้างคาว (เร็วๆ นี้)" : "The bat merchant (soon)";
     if ("craft" in f) return th ? "โต๊ะช่างของลุง" : "The uncle's workbench";
-    if ("tailor" in f) return th ? "ร้านผ้ายายทวิลล่า" : "Granny Twilla's shop";
-    if ("auction" in f) return th ? "ประมูลลิมิเต็ด" : "The limited auction";
+    if ("tailor" in f || "auction" in f) return ""; // (Granny's things are not shown until had)
     // (a drop: its chance, then the deed it comes with or else its line, and the hours or the rain it needs)
     const hours = f.hours ? ` ${String(f.hours[0]).padStart(2, "0")}–${String(f.hours[1]).padStart(2, "0")}` : "", rain = f.rain ? (th ? " ฝนตก" : " in rain") : "";
     return `${th ? "ดรอป" : "Drop"} ${+(f.chance * 100).toFixed(2)}%
@@ -286,6 +280,7 @@ ${f.how ? (th ? f.how.th : f.how.en) : line(f.drop)}${hours}${rain}`;
       <div role="group" aria-label={label} className="grid grid-cols-3 gap-2 min-[380px]:grid-cols-4">
         {items.map((item, i) => {
           const had = owns(item, points, bought), on = had && i === value;
+          if (!had && item.from && ("tailor" in item.from || "auction" in item.from)) return null;
           return (
             <button key={item.id} type="button" aria-pressed={on} disabled={!had} onClick={() => onPick(i)}
                     title={had ? (th ? item.th : item.en) : whence(item)} aria-label={had ? undefined : `??? · ${whence(item).replace("\n", " · ")}`}

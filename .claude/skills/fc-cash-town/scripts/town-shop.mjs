@@ -118,14 +118,24 @@ for (const [label, size] of [["desktop", { width: 1280, height: 860 }], ["phone"
     await sleep(2500);
     await shot("11-closed");
 
-    // ── the wardrobe: the shop's hairstyles not yet had are locked ──
+    // ── the wardrobe: what Granny sells or auctions is not there until had (the owner, 2026-10-26), what was bought is ──
     const wd = await press(X, ["แต่งตัว", "Wardrobe"]);
     await sleep(2000);
-    // (to its hairstyles, where the shop's not yet had are locked)
-    const locked = await X.evaluate(`(() => { const b = [...document.querySelectorAll('[aria-label^="???"]')].filter((e) => e.offsetParent); b[0]?.scrollIntoView({ block: "center" }); return b.length; })()`);
-    await sleep(1000);
-    ok(`${label}: the wardrobe opens, the shop's hairstyles not had locked (${locked})`, !!wd && locked > 0, { wd, locked });
+    const granny = () => X.evaluate(`[...document.querySelectorAll('[aria-label^="???"]')].filter((e) => e.offsetParent && /ร้านผ้ายายทวิลล่า|Granny Twilla|ประมูลลิมิเต็ด|limited auction/.test(e.getAttribute("aria-label"))).length`);
+    const boughtHair = await X.evaluate(`(() => { const b = [...document.querySelectorAll("button[title]")].find((e) => e.offsetParent && /ยาวลอนคลื่น|Long waves/.test(e.title)); b?.scrollIntoView({ block: "center" }); return !!b; })()`);
+    await sleep(800);
+    const lockedMe = await granny();
     await shot("12-wardrobe");
+    await press(X, ["ชุด", "Outfits"], '[role="tablist"]');
+    await sleep(1500);
+    const lockedOutfits = await granny();
+    const boughtOutfit = await X.evaluate(`[...document.querySelectorAll("button[title]")].some((e) => e.offsetParent && /ชุดโครงกระดูก|Skeleton/.test(e.title))`);
+    await shot("13-wardrobe-outfits");
+    await press(X, ["ของตกแต่ง", "Wear"], '[role="tablist"]');
+    await sleep(1500);
+    const lockedWear = await granny();
+    await shot("14-wardrobe-wear");
+    ok(`${label}: the wardrobe opens, Granny's things shown only once had (bought hair ${boughtHair}, outfit ${boughtOutfit}; locked shown ${lockedMe}/${lockedOutfits}/${lockedWear})`, !!wd && boughtHair && boughtOutfit && lockedMe + lockedOutfits + lockedWear === 0, { wd, boughtHair, boughtOutfit, lockedMe, lockedOutfits, lockedWear });
     ok(`${label}: no page errors`, !X.errors().length, X.errors());
   } catch (e) { fail++; console.log(`  FAIL ${label}: ${e.message}`); await shot("zz-error").catch(() => {}); }
   finally { X.close(); }
