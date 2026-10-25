@@ -16,7 +16,7 @@ fs.mkdirSync(OUT, { recursive: true });
 const j = JSON.parse(fs.readFileSync(`${DIR}/pixel.json`, "utf8"));
 const pics = { "": { data: (await L.loadRaw(`${DIR}/${j.image}`)).data, W: j.size[0] } };
 for (const [g, s] of Object.entries(j.sheets ?? {})) pics[g] = { data: (await L.loadRaw(`${DIR}/${s.image}`)).data, W: s.size[0] };
-const CW = 70, CH = 92, S = 3, LABEL = 64, GAP = 14, PAD = 18;
+const CW = 70, CH = 106, S = 3, LABEL = 64, GAP = 14, PAD = 18;
 
 // ── the hair's colour, as lib/town/pixeldoll's paintKeys moves the art's green ──
 const hsl = (r, g, b) => {
