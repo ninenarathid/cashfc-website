@@ -30,6 +30,10 @@ export const TAILOR: Record<string, TailorGood> = {
   // in the hair
   bearears: { price: 800 }, foxears: { price: 1000 }, halo: { price: 5000 }, antennae: { price: 600 }, cherry: { price: 250 },
   fanpin: { price: 1500 }, hibiscus: { price: 500 }, batclip: { price: 400, season: HALLOWEEN },
+  // hairstyles (lib/town/look's HAIRS, each by its `sold`: the owner, 2026-10-25, "ทรงผมใหม่ในร้านขายเสื้อผ้า ซัก 3-4 ทรง
+  // สำหรับ ชาย หญิง"; the prices are mine, a little dearer than the middle of the clothes)
+  hairbuns: { price: 1800 }, hairwaves: { price: 2500 }, hairpixie: { price: 1500 }, hairhime: { price: 2200 },
+  hairundercut: { price: 1800 }, hairmullet: { price: 2200 }, haircurly: { price: 1500 }, hairhalfbun: { price: 2500 },
 };
 
 /** The Bangkok month and day of a moment. */

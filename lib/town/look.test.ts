@@ -12,15 +12,16 @@ const every: Look = {
 const plain = { race: 0, skin: 4, eyes: 0 };
 
 describe("the hairstyles", () => {
-  it("are the creator's own lists: 14 for girls, 13 for boys", () => {
-    expect(hairsFor(0)).toHaveLength(14);
-    expect(hairsFor(1)).toHaveLength(13);
+  it("are the creator's own lists, 14 for girls and 13 for boys, and Granny Twilla's four of each (2026-10-25)", () => {
+    expect(hairsFor(0)).toHaveLength(18);
+    expect(hairsFor(1)).toHaveLength(17);
+    expect(HAIRS.filter((h) => h.sold).map((h) => h.id)).toEqual(["f15", "f16", "f17", "f18", "m14", "m15", "m16", "m17"]);
     expect(new Set(HAIRS.map((h) => h.id)).size).toBe(HAIRS.length);
   });
 
   it("move to the same place in the other gender's list", () => {
     expect(HAIRS[hairForGender(at("f05"), 1)].id).toBe("m05");
-    expect(HAIRS[hairForGender(at("f14"), 1)].id).toBe("m13");
+    expect(HAIRS[hairForGender(at("f14"), 1)].id).toBe("m14");
     expect(HAIRS[hairForGender(at("m01"), 0)].id).toBe("f01");
     expect(hairForGender(at("m08"), 1)).toBe(at("m08"));
   });

@@ -25,7 +25,8 @@ import { FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS } from "./wear";
 export type Named = { id: string; th: string; en: string };
 export type Swatch = { hex: string; th: string; en: string };
 /** A hairstyle, and which gender's list it is in (an index into GENDERS). */
-export type Hair = Named & { g: number };
+/** `sold`: a hairstyle bought at Granny Twilla's, by the id the wardrobe keeps of it (lib/town/tailor). */
+export type Hair = Named & { g: number; sold?: string };
 
 export const GENDERS: Named[] = [
   { id: "f", th: "หญิง", en: "Female" },
@@ -61,7 +62,23 @@ export const HAIRS: Hair[] = [
   { g: 1, id: "m11", th: "ถักแนบหัว", en: "Braided rows" },
   { g: 1, id: "m12", th: "ชี้กระจาย", en: "Wild spikes" },
   { g: 1, id: "m13", th: "ชี้ตั้งฟ้า", en: "Tall spikes" },
+  // (sold at Granny Twilla's: the owner, 2026-10-25, "ช่วยทำให้มีทรงผมใหม่ในร้านขายเสื้อผ้าด้วยได้ไหม ซัก 3-4 ทรง สำหรับ ชาย
+  // หญิง"; `sold` is what the wardrobe keeps of it once bought, lib/town/tailor's id)
+  { g: 0, id: "f15", th: "สองจุกซาลาเปา", en: "Space buns", sold: "hairbuns" },
+  { g: 0, id: "f16", th: "ยาวลอนคลื่น", en: "Long waves", sold: "hairwaves" },
+  { g: 0, id: "f17", th: "พิกซี่ปอยลอน", en: "Pixie with a curl", sold: "hairpixie" },
+  { g: 0, id: "f18", th: "ฮิเมะคัต", en: "Hime cut", sold: "hairhime" },
+  { g: 1, id: "m14", th: "อันเดอร์คัต", en: "Undercut", sold: "hairundercut" },
+  { g: 1, id: "m15", th: "มัลเล็ต", en: "Mullet", sold: "hairmullet" },
+  { g: 1, id: "m16", th: "หยิกฟู", en: "Curly top", sold: "haircurly" },
+  { g: 1, id: "m17", th: "มวยครึ่งหัว", en: "Half-up bun", sold: "hairhalfbun" },
 ];
+
+/** A look with a hairstyle sold at Granny's that is not had put back to the gender's first (as lib/town/wear's onlyOwned does for what is worn). */
+export function onlyOwnedHair<L extends Look>(look: L, had: ReadonlySet<string>): L {
+  const sold = hairsOf(look.race)[look.hair]?.sold;
+  return sold && !had.has(sold) ? { ...look, hair: hairsFor(look.gender, look.race)[0] ?? 0 } : look;
+}
 
 /** A gender's hairstyles in a race, as indices into that race's list (the Lalafell's by default). */
 export const hairsFor = (gender: number, race = 0): number[] => hairsOf(race).flatMap((h, i) => (h.g === gender ? [i] : []));

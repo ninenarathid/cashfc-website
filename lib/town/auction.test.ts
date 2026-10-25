@@ -63,7 +63,7 @@ describe("Granny Twilla's rails", () => {
     const now = Date.parse("2026-10-25T12:00:00+07:00");
     expect([cannotBuy("witch", 1e6, new Set(), now), cannotBuy("knit", 1199, new Set(), now), cannotBuy("knit", 1200, new Set(["knit"]), now), cannotBuy("knit", 1200, new Set(), now)])
       .toEqual(["none", "coins", "known", null]);
-    expect(Object.keys(TAILOR)).toHaveLength(40);
-    expect(Object.values(TAILOR).reduce((n, g) => n + g.price, 0)).toBe(63750);
+    expect(Object.keys(TAILOR)).toHaveLength(48);
+    expect(Object.values(TAILOR).reduce((n, g) => n + g.price, 0)).toBe(63750 + 16000);
   });
 });

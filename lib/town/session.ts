@@ -319,7 +319,7 @@ export class TownSession {
   /** What I am doing, as the room is told. */
   doing(): Doing {
     const i = this.self.info;
-    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, turn: i.turn ?? 0, typing: i.typing ?? false, eat: i.eat ?? "", hold: i.hold ?? "", wet: i.wet ?? false, spent: i.spent ?? false, pet: i.pet ?? "", afoot: i.afoot ?? true, fish: i.fish ?? 0, sign: i.sign ?? "", circle: i.circle ?? "", carry: i.carry ?? "", flame: i.flame ?? 0, mood: i.mood ?? 0, /* mining */ ...(i.lit ? { lit: i.lit } : {}),
+    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, turn: i.turn ?? 0, typing: i.typing ?? false, ...(i.trying !== undefined ? { trying: i.trying } : {}), eat: i.eat ?? "", hold: i.hold ?? "", wet: i.wet ?? false, spent: i.spent ?? false, pet: i.pet ?? "", afoot: i.afoot ?? true, fish: i.fish ?? 0, sign: i.sign ?? "", circle: i.circle ?? "", carry: i.carry ?? "", flame: i.flame ?? 0, mood: i.mood ?? 0, /* mining */ ...(i.lit ? { lit: i.lit } : {}),
       // (felling: said only by somebody who has had a board up at a tree or braced a trunk, and from then on, so that it is heard to be over; a room where nobody has hears nothing new)
       ...(i.fell !== undefined ? { fell: i.fell } : {}),
       // (the pasture: said only by somebody who has sat on a ram or a wagon, and from then on, so that getting down is heard)
@@ -1015,6 +1015,20 @@ export class TownSession {
     if (code === this.self.info.look) return;
     this.self.info = { ...this.self.info, look: code };
     if (!this.options.ephemeral) saveLook(this.me.id, look);
+    if (this.lookTimer !== null) clearTimeout(this.lookTimer);
+    this.lookTimer = setTimeout(() => this.settleLook(), LOOK_SETTLE_MS);
+    this.notify();
+  }
+
+  /**
+   * Clothes tried on at Granny Twilla's (the owner, 2026-10-25: "มีระบบลองใส่ดูได้"): on my avatar at once and told to the
+   * room with a tag that says it is a try, never kept on this device; null puts back the look I keep.
+   */
+  tryLook(look: Look | null) {
+    if (this.closed) return;
+    const code = encodeLook(look ?? savedLook(this.me.id) ?? defaultLook(this.me.id)), trying = look !== null;
+    if (code === this.self.info.look && !!this.self.info.trying === trying) return;
+    this.self.info = { ...this.self.info, look: code, trying };
     if (this.lookTimer !== null) clearTimeout(this.lookTimer);
     this.lookTimer = setTimeout(() => this.settleLook(), LOOK_SETTLE_MS);
     this.notify();

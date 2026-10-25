@@ -140,8 +140,9 @@ if (cmd === "unpack") {
 // (full: a hat over the whole head, face and ears and all, as the pumpkin set's jack-o'-lantern: the owner, 2026-10-25)
 // (hairdo: a whole hairstyle, the owner's ask of 2026-10-25 for Granny's shop: over the head and down the back, never the
 // face nor the front of the body; laid as f-<id>-<view>, which the builder reads as it reads gen-hairs.sh's sheets)
-const HEAD_BASE = { hat: (v) => `f-bald-${v}`, full: (v) => `f-bald-${v}`, hairdo: (v) => `f-bald-${v}`, hair: (v) => `f-bald-${v}`, face: () => "f-neutral-front", neck: (v) => `d2-mannequin-${v}` };
-const HEAD_VIEWS = { hat: ["front", "back"], full: ["front", "back"], hairdo: ["front", "back"], hair: ["front", "back"], face: ["front"], neck: ["front", "back"] };
+// (hatwide: a hat whose brim spreads past the head: it may also draw down to the eyes where the head is not, 2026-10-25)
+const HEAD_BASE = { hatwide: (v) => `f-bald-${v}`, hat: (v) => `f-bald-${v}`, full: (v) => `f-bald-${v}`, hairdo: (v) => `f-bald-${v}`, hair: (v) => `f-bald-${v}`, face: () => "f-neutral-front", neck: (v) => `d2-mannequin-${v}` };
+const HEAD_VIEWS = { hatwide: ["front", "back"], hat: ["front", "back"], full: ["front", "back"], hairdo: ["front", "back"], hair: ["front", "back"], face: ["front"], neck: ["front", "back"] };
 async function standing(slot, v) {
   const name = HEAD_BASE[slot](v), raw = await L.loadRaw(path.join(OUT, `${name}.png`));
   const t = name === "f-neutral-front" ? "front" : v;
@@ -163,7 +164,7 @@ if (cmd === "head") {
   for (const v of HEAD_VIEWS[slot]) {
     const s = await standing(slot, v);
     // what is cut: the head with room above it for a tall hat, down to a little under the chin (the neck: to the chest)
-    const y0 = s.b.y0 - (slot === "hat" || slot === "hair" || slot === "full" ? 22 : slot === "hairdo" ? 14 : 2), y1 = slot === "neck" ? s.cut + 16 : slot === "hairdo" ? s.cut + 22 : s.cut + 3;
+    const y0 = s.b.y0 - (slot === "hat" || slot === "hatwide" || slot === "hair" || slot === "full" ? 22 : slot === "hairdo" ? 14 : 2), y1 = slot === "neck" ? s.cut + 16 : slot === "hairdo" ? s.cut + 22 : s.cut + 3;
     const x0 = s.b.x0 - 6, x1 = s.b.x1 + 6;
     parts.push({ v, s, x0, y0, w: x1 - x0 + 1, h: y1 - y0 + 1 });
   }
@@ -180,7 +181,9 @@ if (cmd === "head") {
     const earTop = b.y0 + Math.round((cut - b.y0) * 0.55), eyes = b.y0 + Math.round((cut - b.y0) * 0.62);
     // (a hairdo's face: between the ears from just above the eyes down, and the body in front below it)
     const faceX0 = b.x0 + Math.round((b.x1 - b.x0) * 0.2), faceX1 = b.x1 - Math.round((b.x1 - b.x0) * 0.2), eyesTop = b.y0 + Math.round((cut - b.y0) * 0.5);
-    const may = (x, y) => slot === "hairdo" ? (p.v === "back" || y < eyesTop || x < faceX0 || x > faceX1)
+    const head = new Set([...F].filter((i) => ((i / g.GW) | 0) <= cut).map((i) => i));
+    const may = (x, y) => slot === "hatwide" ? y <= earTop || (y <= b.y0 + Math.round((cut - b.y0) * 0.8) && !head.has(y * g.GW + x))
+      : slot === "hairdo" ? (p.v === "back" || y < eyesTop || x < faceX0 || x > faceX1)
       : slot === "full" ? y <= cut + 1
       : slot === "hat" || slot === "hair" ? y <= earTop
       : slot === "face" ? Math.abs(y - eyes) <= 5 && x >= b.x0 - 3 && x <= b.x1 + 3

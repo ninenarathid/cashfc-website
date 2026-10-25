@@ -73,6 +73,8 @@ export interface Doing {
   turn?: number;
   /** Typing a chat line now ("…" over their head); missing from a browser older than that. */
   typing?: boolean;
+  /** Trying clothes on at Granny Twilla's (the look is not theirs yet: a tag says so); missing from a browser older than the shop. */
+  trying?: boolean;
   /** The dish being eaten (its name in lib/town/items), "" when none; missing from a browser older than meals. */
   eat?: string;
   /** The thing held in the hand (its name in lib/town/items), "" when none; missing from a browser older than hands. */
@@ -223,6 +225,8 @@ function readDoing(p: Record<string, unknown>): Partial<Doing> {
   if (p.turn === 0 || p.turn === 1 || p.turn === 2) d.turn = p.turn;
   const typing = bool(p.typing);
   if (typing !== undefined) d.typing = typing;
+  const trying = bool(p.trying);
+  if (trying !== undefined) d.trying = trying;
   if (typeof p.eat === "string" && /^[A-Za-z]{0,24}$/.test(p.eat)) d.eat = p.eat;
   if (typeof p.hold === "string" && /^[A-Za-z]{0,24}$/.test(p.hold)) d.hold = p.hold;
   const wet = bool(p.wet);
