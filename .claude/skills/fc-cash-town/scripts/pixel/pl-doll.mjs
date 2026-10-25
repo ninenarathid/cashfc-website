@@ -202,6 +202,7 @@ if (cmd === "unhead") {
   if (!id || !["dh", "da", "f"].includes(g0)) { console.log("unhead <dir> <id> <dh|da|f>"); process.exit(1); }
   const meta = JSON.parse(fs.readFileSync(path.join(dir, "head.json"), "utf8"));
   const got = await L.loadRaw(path.join(dir, "head-out.png")), was = await L.loadRaw(path.join(dir, "head.png"));
+  let faceTones = null, dbgHead = new Set();
   for (const p of meta.parts) {
     const s = await standing(meta.slot, p.v), { raw, grid, g } = s, { p: P, phx, phy } = grid;
     const sheet = Buffer.from(raw.data), key = Buffer.from(raw.data);
@@ -210,7 +211,7 @@ if (cmd === "unhead") {
       for (let y = Math.max(0, y0); y < Math.min(raw.H, y1); y++) for (let x = Math.max(0, x0); x < Math.min(raw.W, x1); x++) { const o = (y * raw.W + x) * 4; buf[o] = c[0]; buf[o + 1] = c[1]; buf[o + 2] = c[2]; buf[o + 3] = c[3]; }
     };
     let n = 0;
-    const a = got.data, b = was.data, changed = new Set(), skinOver = new Set();
+    const a = got.data, b = was.data, changed = new Set();
     // the head's own skin tones: the model may also paint skin out past the head's old edge under the thing, which is
     // the head, never the thing (a pumpkin's orange is far from them, though both are "warm")
     const skins = [];
@@ -227,22 +228,54 @@ if (cmd === "unhead") {
       // thing; but a straw hat, a brown bear ear or thin gold frames over the head are the thing though they are warm:
       // so a skin-like colour is left out only outside the head's old outline, 2026-10-25)
       const redrawn = a[o + 3] >= 128 && b[o + 3] >= 128 && d < 36 && L.cls(a[o], a[o + 1], a[o + 2]) === L.cls(b[o], b[o + 1], b[o + 2]);
+      // (a thing at the neck: the mannequin's grey top drawn again a few shades off, or its skin, is the base, never the
+      // thing: kept, the camera laid a grey shirt over the doll's own, 2026-10-26. A gold chain is of another hue than skin)
+      const [ah, as_, al] = L.hsl(a[o], a[o + 1], a[o + 2]), [, bs, bl] = L.hsl(b[o], b[o + 1], b[o + 2]);
+      const baseAgain = meta.slot === "neck" && a[o + 3] >= 128 && b[o + 3] >= 128 && ((as_ < 0.18 && bs < 0.18 && Math.abs(al - bl) < 0.14 && al > 0.25)
+        || (L.cls(a[o], a[o + 1], a[o + 2]) === "skin" && L.cls(b[o], b[o + 1], b[o + 2]) === "skin" && ah <= 28));
       const grown = a[o + 3] >= 128 && b[o + 3] < 128 && skinLike(o) && byHead(p.ox + x, p.oy + y);
-      // (a hat: skin painted over the head's own skin, below the hat, is the forehead the model drew again under the
-      // brim: told below, once the hat's own lowest pixels are known)
-      const forehead = g0 === "dh" && a[o + 3] >= 128 && b[o + 3] >= 128 && L.cls(b[o], b[o + 1], b[o + 2]) === "skin" && skinLike(o);
-      if (forehead) skinOver.add(y * p.w + x);
       // (over the whole head nothing of it is left to tell apart: every changed cell is the thing)
-      if (!(d < 4 && (a[o + 3] >= 128) === (b[o + 3] >= 128)) && (meta.slot === "full" || (!redrawn && !grown))) changed.add(y * p.w + x);
+      if (!(d < 4 && (a[o + 3] >= 128) === (b[o + 3] >= 128)) && (meta.slot === "full" || ((!redrawn || (g0 === "dh" && L.cls(a[o], a[o + 1], a[o + 2]) !== "dark")) && (!grown || g0 === "dh") && !baseAgain))) changed.add(y * p.w + x);
     }
-    // (the owner, 2026-10-26: "หมวกใหม่หลายใบยังมีบั๊คล่างหมวกอยู่": a strip of forehead under a brim lay over the bangs as a
-    // bare band. A hat's skin-coloured cell over the head's skin below the hat's lowest other pixel in its column is that
-    // forehead; above it, inside the hat, a tan or straw of the hat's own stays. Only seen from the front: behind, there is
-    // no forehead, and a knit band's tan was taken for one)
-    if (g0 === "dh" && p.v === "front" && skinOver.size) {
-      const low = new Map();
-      for (const c of changed) if (!skinOver.has(c)) { const x = c % p.w, y = (c / p.w) | 0; low.set(x, Math.max(low.get(x) ?? -1, y)); }
-      for (const c of [...changed]) if (skinOver.has(c) && ((c / p.w) | 0) > (low.get(c % p.w) ?? -1)) changed.delete(c);
+    // (the owner, 2026-10-26: "หมวกใหม่หลายใบยังมีบั๊คล่างหมวกอยู่": a strip of the head the model drew again under a hat lay
+    // over the bangs, or over the hair behind, as a bare band. It is the skin-coloured part of the change that can be
+    // reached from the head left as it was without crossing anything else: a straw or a tan of the hat's own lies behind
+    // the hat's outline and is not reached)
+    // (a hat: the head the model drew again under it is outside the hat's outline and goes (the owner, 2026-10-26:
+    // "นอกลายตัดเส้น ลบออกให้หมดเลย"). It is told by the model's own skin: the colours of the changed cells that touch the
+    // face left as it was (the eyes and cheeks under the hat, drawn exactly as the head is), and whatever changed cell of
+    // those colours can be reached from them without crossing anything else. A straw, a tan, the hat's dark edge are other
+    // colours, so a gap in the edge does not let it into the hat)
+    if (g0 === "dh") {
+      const at = (c) => ((p.oy + ((c / p.w) | 0)) * meta.W + p.ox + (c % p.w)) * 4;
+      const n4 = (c) => { const x = c % p.w, y = (c / p.w) | 0; return [[1, 0], [-1, 0], [0, 1], [0, -1]].filter(([dx, dy]) => x + dx >= 0 && x + dx < p.w && y + dy >= 0 && y + dy < p.h).map(([dx, dy]) => (y + dy) * p.w + x + dx); };
+      const face = (c) => { const o = at(c); return !changed.has(c) && a[o + 3] >= 128 && b[o + 3] >= 128 && L.cls(b[o], b[o + 1], b[o + 2]) === "skin" && Math.abs(a[o] - b[o]) + Math.abs(a[o + 1] - b[o + 1]) + Math.abs(a[o + 2] - b[o + 2]) < 4; };
+      const isDark = (c) => { const o = at(c); return L.cls(a[o], a[o + 1], a[o + 2]) === "dark"; };
+      // (the tones are learned from the front, where the face is: the back has none, and a hat's own colour touches the
+      // bare nape there; the two views are one picture in one palette, so the front's tones hold for the back)
+      const skinCls = (c) => { const o = at(c); return L.cls(a[o], a[o + 1], a[o + 2]) === "skin"; };
+      if (p.v === "front") faceTones = [...new Set([...changed].filter((c) => !isDark(c) && skinCls(c) && n4(c).some(face)).map((c) => { const o = at(c); return `${a[o]},${a[o + 1]},${a[o + 2]}`; }))].map((k) => k.split(",").map(Number));
+      const tones = faceTones ?? [];
+      const NEAR = +(process.env.FACE_NEAR ?? 30);
+      const like = (c) => { const o = at(c); return a[o + 3] >= 128 && !isDark(c) && tones.some((t) => Math.abs(t[0] - a[o]) + Math.abs(t[1] - a[o + 1]) + Math.abs(t[2] - a[o + 2]) < NEAR); };
+      const seeds = [...changed].filter((c) => like(c) && n4(c).some(face));
+      const head = new Set(seeds), st = [...seeds];
+      while (st.length) for (const q of n4(st.pop())) if (changed.has(q) && !head.has(q) && like(q)) { head.add(q); st.push(q); }
+      // (and its shaded ends, a few cells on: where the strip meets the ears the model shaded the skin darker; never across
+      // the dark edge)
+      const near = (c, k) => { const o = at(c); return a[o + 3] >= 128 && !isDark(c) && tones.some((t) => Math.abs(t[0] - a[o]) + Math.abs(t[1] - a[o + 1]) + Math.abs(t[2] - a[o + 2]) < k); };
+      // (only darker than the face's own tones: a straw beside the strip is as light as the skin, or lighter)
+      const lightOf = (c) => { const o = at(c); return (Math.max(a[o], a[o + 1], a[o + 2]) + Math.min(a[o], a[o + 1], a[o + 2])) / 510; };
+      const shade = Math.min(...tones.map((t) => (Math.max(...t) + Math.min(...t)) / 510), 1);
+      let ring = [...head];
+      for (let r = 0; r < 3 && ring.length; r++) {
+        const next = [];
+        for (const c of ring) for (const q of n4(c)) if (changed.has(q) && !head.has(q) && near(q, 80) && lightOf(q) < shade) { head.add(q); next.push(q); }
+        ring = next;
+      }
+      for (const c of head) changed.delete(c);
+      dbgHead = head;
+      if (process.env.OUTLINE_DEBUG) console.log(`  ${id} ${p.v}: the head drawn again under it ${head.size} (${tones.length} tones)`);
     }
     // a speck or a stray stroke the model left apart from the thing (beside the head) is not the thing: the largest piece
     // of the change is kept, and any other piece inside its box (grown three cells) or a sixth its size or more
@@ -262,6 +295,8 @@ if (cmd === "unhead") {
       for (const pc of pieces.slice(1)) {
         const inside = pc.every((c) => { const x = c % p.w, y = (c / p.w) | 0; return x >= bx[0] && x <= bx[1] && y >= bx[2] && y <= bx[3]; });
         // (--one: only what lies by the largest piece; a stray block far off is dropped whatever its size: the pocket watch)
+        // (a hat: a piece wholly below the hat, a line the model drew under the head's strip, is not the hat)
+        if (g0 === "dh" && pc.every((c) => ((c / p.w) | 0) > Math.max(...pieces[0].map((q) => (q / p.w) | 0)) - 2)) continue;
         if (inside || (!process.argv.includes("--one") && pc.length * 6 >= pieces[0].length)) for (const c of pc) keep.add(c);
       }
       // the model may run a thread of one row along the mask's lower edge, out past the thing (seen on the pumpkin
@@ -309,10 +344,111 @@ if (cmd === "unhead") {
       if (!drop.length) break;
       for (const c of drop) keep.delete(c);
     }
+    // ── a hat: nothing outside its outline, all hat inside it (the owner, 2026-10-26: "นอกลายตัดเส้น ลบออกให้หมดเลย ส่วนข้างใน
+    // ถมสีให้เต็ม"). The head drawn again is gone already (above). Of what is left: a chain of single cells hanging off
+    // it goes (a stroke under a brim); a small patch of the head's shaded skin goes, outside the dark outline or inside it
+    // (an ear's tip); a slit at most two cells wide with hat on both sides and above is filled; then what can be reached
+    // from the picture's edge without crossing the hat, four ways so a diagonal outline holds, is outside, and each patch
+    // it cannot reach is inside and filled with the commonest colour of the hat around it. checks/piece-look.mjs shows
+    // each piece alone; checks/hat-bald.mjs the hair under it.
+    const fillCol = new Map();
+    if (g0 === "dh" || meta.slot === "neck") {
+      const at = (c) => ((p.oy + ((c / p.w) | 0)) * meta.W + p.ox + (c % p.w)) * 4;
+      const n4 = (c) => { const x = c % p.w, y = (c / p.w) | 0; return [[1, 0], [-1, 0], [0, 1], [0, -1]].filter(([dx, dy]) => x + dx >= 0 && x + dx < p.w && y + dy >= 0 && y + dy < p.h).map(([dx, dy]) => (y + dy) * p.w + x + dx); };
+      const proper = new Set([...keep].filter((c) => a[at(c) + 3] >= 128));
+      const chains = () => { for (let pass = 0; pass < 16; pass++) {
+        const drop = [...proper].filter((c) => { const x = c % p.w; let n = 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if ((dx || dy) && x + dx >= 0 && x + dx < p.w && proper.has(c + dy * p.w + dx)) n++; return n <= 1; });
+        if (!drop.length) break;
+        for (const c of drop) proper.delete(c);
+      } };
+      chains();
+      // what lies outside the hat's dark outline in a small bit (an ear's tip, a scrap of the head's outline under the
+      // brim) goes; a large part outside it is the hat itself where its outline has a gap, and stays
+      {
+        const darkC = (c) => { const o = at(c); return L.cls(a[o], a[o + 1], a[o + 2]) === "dark"; };
+        const D = new Set([...proper].filter(darkC)), out = new Set(), q = [];
+        for (let y = 0; y < p.h; y++) for (let x = 0; x < p.w; x++) if ((x === 0 || y === 0 || x === p.w - 1 || y === p.h - 1) && !D.has(y * p.w + x)) { out.add(y * p.w + x); q.push(y * p.w + x); }
+        while (q.length) for (const r of n4(q.pop())) if (!D.has(r) && !out.has(r)) { out.add(r); q.push(r); }
+        // (a small patch of the head's own skin, shaded: near the face's tones and of their reddish hue. Outside the outline
+        // it is an ear's tip or a cheek; inside, an ear tip the brim was drawn around. A gold buckle or a bear's tan ear is
+        // of another hue, and the hat's own browns are far from the skin)
+        const hue = (o) => { const [h] = L.hsl(a[o], a[o + 1], a[o + 2]); return h; };
+        const skinBit = (comp) => {
+          const ds = comp.map((c) => { const o = at(c); return Math.min(...(faceTones ?? [[999, 999, 999]]).map((t) => Math.abs(t[0] - a[o]) + Math.abs(t[1] - a[o + 1]) + Math.abs(t[2] - a[o + 2]))); }).sort((u, v) => u - v);
+          const hs = comp.map((c) => hue(at(c))).sort((u, v) => u - v);
+          return ds[ds.length >> 1] < 160 && hs[hs.length >> 1] <= 28;
+        };
+        const done = new Set();
+        for (const c0 of proper) {
+          if (D.has(c0) || done.has(c0)) continue;
+          const comp = [c0], w = [c0]; done.add(c0);
+          while (w.length) for (const r of n4(w.pop())) if (proper.has(r) && !D.has(r) && !done.has(r)) { done.add(r); comp.push(r); w.push(r); }
+          if (process.env.BITS_DEBUG && comp.length < 30) { const o = at(comp[0]); console.log(`    ${p.v} bit ${comp.length} at ${comp[0] % p.w},${(comp[0] / p.w) | 0} rgb ${a[o]},${a[o + 1]},${a[o + 2]} ${out.has(c0) ? "outside" : "inside"} skin ${skinBit(comp)}`); }
+          if (comp.length < 30 && skinBit(comp)) for (const c of comp) proper.delete(c);
+        }
+        chains();
+      }
+      // a slit at most two cells wide with the hat on both sides of it and above it is the hat (a gap the model left
+      // down a brim), filled row by row from the top in the colour beside it
+      const gap = new Map();
+      for (let y = 1; y < p.h; y++) for (let x = 1; x < p.w - 1; x++) {
+        const c = y * p.w + x;
+        if (proper.has(c) || gap.has(c) || !(proper.has(c - p.w) || gap.has(c - p.w))) continue;
+        const hat = (q) => proper.has(q) || gap.has(q);
+        const L1 = hat(c - 1), R1 = hat(c + 1), R2 = x + 2 < p.w && hat(c + 2), L2 = x >= 2 && hat(c - 2);
+        if ((L1 && R1) || (L1 && R2 && !hat(c + 1)) || (L2 && R1 && !hat(c - 1))) {
+          const side = proper.has(c - 1) ? c - 1 : proper.has(c + 1) ? c + 1 : proper.has(c - p.w) ? c - p.w : c - 2;
+          const o = at(side); gap.set(c, [a[o], a[o + 1], a[o + 2]]);
+          if (!L1 && L2 && !hat(c - 1)) gap.set(c - 1, [a[o], a[o + 1], a[o + 2]]);
+          if (!R1 && R2) gap.set(c + 1, [a[o], a[o + 1], a[o + 2]]);
+        }
+      }
+      for (const [c] of gap) proper.add(c);
+      const outside = new Set(), st = [];
+      for (let y = 0; y < p.h; y++) for (let x = 0; x < p.w; x++) if ((x === 0 || y === 0 || x === p.w - 1 || y === p.h - 1) && !proper.has(y * p.w + x)) { outside.add(y * p.w + x); st.push(y * p.w + x); }
+      while (st.length) for (const q of n4(st.pop())) if (!proper.has(q) && !outside.has(q)) { outside.add(q); st.push(q); }
+      keep.clear();
+      for (const c of proper) keep.add(c);
+      for (const [c, col] of gap) fillCol.set(c, col);
+      const seen = new Set();
+      for (let c0 = 0; c0 < p.w * p.h; c0++) {
+        if (proper.has(c0) || outside.has(c0) || seen.has(c0)) continue;
+        const patch = [c0], q = [c0]; seen.add(c0);
+        while (q.length) for (const r of n4(q.pop())) if (!proper.has(r) && !outside.has(r) && !seen.has(r)) { seen.add(r); patch.push(r); q.push(r); }
+        // (a necklace's loop closes in the whole neck and chest: only a small patch inside a neck thing is the thing)
+        if (meta.slot === "neck" && patch.length > 40) continue;
+        const count = new Map();
+        for (const c of patch) for (const r of n4(c)) if (proper.has(r)) {
+          const o = at(r), k = `${a[o]},${a[o + 1]},${a[o + 2]}`, dark = L.cls(a[o], a[o + 1], a[o + 2]) === "dark";
+          count.set(k, (count.get(k) ?? 0) + (dark ? 0.01 : 1));
+        }
+        const best = [...count.entries()].sort((u, v) => v[1] - u[1])[0]?.[0];
+        if (process.env.OUTLINE_DEBUG && patch.some((c) => a[at(c) + 3] >= 128)) { const xs = patch.map((c) => c % p.w), ys = patch.map((c) => (c / p.w) | 0); console.log(`    patch ${patch.length} x ${Math.min(...xs)}-${Math.max(...xs)} y ${Math.min(...ys)}-${Math.max(...ys)} (hat y ${Math.min(...[...proper].map((c) => (c / p.w) | 0))}-${Math.max(...[...proper].map((c) => (c / p.w) | 0))})`); }
+        if (!best) continue;
+        const col = best.split(",").map(Number);
+        // (inside, what the picture has there stays as drawn, a tan close to skin as much as any; only an empty gap is filled)
+        for (const c of patch) { keep.add(c); if (a[at(c) + 3] < 128) fillCol.set(c, col); }
+      }
+      if (process.env.OUTLINE_DEBUG) console.log(`  ${id} ${p.v}: hat ${proper.size}, filled inside ${fillCol.size}`);
+    }
+    // (UNHEAD_DEBUG=<png>: the part as drawn, dimmed where it is not the thing; red what was taken as the head drawn again,
+    // green what was filled inside, the rest of what is kept as drawn)
+    if (process.env.UNHEAD_DEBUG) {
+      const D = Buffer.alloc(p.w * p.h * 4);
+      for (let c = 0; c < p.w * p.h; c++) {
+        const x = c % p.w, y = (c / p.w) | 0, o = ((p.oy + y) * meta.W + p.ox + x) * 4, d = c * 4;
+        if (fillCol.has(c)) { D[d + 1] = 255; D[d + 3] = 255; }
+        else if (keep.has(c)) { D[d] = a[o]; D[d + 1] = a[o + 1]; D[d + 2] = a[o + 2]; D[d + 3] = 255; }
+        else if (dbgHead.has(c)) { D[d] = 255; D[d + 3] = 255; }
+        else if (a[o + 3] >= 128) { D[d] = a[o] >> 2; D[d + 1] = a[o + 1] >> 2; D[d + 2] = a[o + 2] >> 2; D[d + 3] = 255; }
+      }
+      await L.sharp(D, { raw: { width: p.w, height: p.h, channels: 4 } }).resize(p.w * 8, p.h * 8, { kernel: "nearest" }).png().toFile(process.env.UNHEAD_DEBUG.replace(".png", `-${p.v}.png`));
+    }
     for (const c of keep) {
       const x = c % p.w, y = (c / p.w) | 0, o = ((p.oy + y) * meta.W + p.ox + x) * 4;
       const gx = p.x0 + x, gy = p.y0 + y;
-      if (a[o + 3] >= 128) { fill(sheet, gx, gy, [a[o], a[o + 1], a[o + 2], 255]); fill(key, gx, gy, [230, 0, 200, 255]); n++; }
+      if (fillCol.has(c)) { fill(sheet, gx, gy, [...fillCol.get(c), 255]); fill(key, gx, gy, [230, 0, 200, 255]); n++; }
+      else if (a[o + 3] >= 128) { fill(sheet, gx, gy, [a[o], a[o + 1], a[o + 2], 255]); fill(key, gx, gy, [230, 0, 200, 255]); n++; }
       else { fill(sheet, gx, gy, [0, 0, 0, 0]); fill(key, gx, gy, [0, 0, 0, 0]); }
     }
     await png(sheet, raw.W, raw.H, path.join(OUT, `${g0}-${id}-${p.v}.png`));

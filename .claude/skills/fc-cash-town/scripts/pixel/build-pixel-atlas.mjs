@@ -66,8 +66,8 @@ const ITEMS = D2 ? JSON.parse(fs.readFileSync(path.join(HERE, "prompts", "doll2"
    // women's starter, starter_f: the owner, 2026-10-17, "ชุดเดิมให้เป็นชุด ผู้ชาย ชุดผู้หญิง ให้ Gen ใหม่")
 const OUTFIT_IDS = [...ITEMS.outfits.map((o) => o.id), ...ITEMS.outfits.filter((o) => o.f).map((o) => `${o.id}_f`), ...(ITEMS.starter?.f ? ["starter_f"] : [])];
 const WEAR = []; // [g, h, t, slot] of every hat and accessory sheet: dh-<id>-<view>, da-<id>-<view>
-for (const h of ITEMS.hats) for (const t of ["front", "back"]) WEAR.push(["dh", h.id, t, "hat", h.solid !== false]);
-for (const a of ITEMS.accessories) for (const t of ["front", "back"]) WEAR.push(["da", a.id, t, a.slot, !!a.solid]);
+for (const h of ITEMS.hats) for (const t of ["front", "back"]) WEAR.push(["dh", h.id, t, "hat", h.solid !== false, !!(h.pl || h.src === "pixellab")]);
+for (const a of ITEMS.accessories) for (const t of ["front", "back"]) WEAR.push(["da", a.id, t, a.slot, !!a.solid, !!(a.pl || a.src === "pixellab")]);
 
 const file = (g, h, t) => path.join(OUT, D2 && (h === "starter" || h === "skinkey") ? `d2-${h}-${t}.png` : `${g}-${h}-${t}.png`);
 const have = (g, h, t) => fs.existsSync(file(g, h, t));
@@ -743,13 +743,14 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
     : (x, y) => y <= REF[t].cut;
   const baseOf = (slot, t) => grids[slot === "face" ? FACE.f : slot === "neck" ? `d2-mannequin-${t}` : `f-bald-${t}`];
   const near = (g, x, y, want) => { for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const X = x + dx, Y = y + dy; if (X >= 0 && Y >= 0 && X < g.GW && Y < g.GH && g.c[(Y * g.GW + X) * 4 + 3] && L.clsAt(g, X, Y) === want) return true; } return false; };
-  for (const [g0, id, t, slot, solid] of WEAR) {
+  for (const [g0, id, t, slot, solid, laid] of WEAR) {
     const key = `${g0}-${id}-${t}`, base = baseOf(slot, t);
     if (!grids[key] || !base) continue;
     const g = copyOf(grids[key]), F = figs[key][IDLE], band = bandOf(slot, t), set = new Set();
     // the thing's key copy (dhk-, dak-: the thing alone painted magenta) says which cells are the thing; told apart from
     // the base by colour instead, a golden straw hat passed for skin and dark lenses for the eye's outline
     const mk = grids[`${g0}k-${id}-${t}`];
+    let keyShift = { dx: 0, dy: 0 };
     // (dark lenses come out a very dark magenta in the key)
     const isMagenta = (c, o) => { const [h, s, l] = L.hsl(c[o], c[o + 1], c[o + 2]); return h >= 280 && h <= 340 && s > 0.3 && l > 0.07; };
     if (mk) {
@@ -757,8 +758,12 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
       for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) {
         let n = 0;
         for (const i of F) { const x = i % g.GW + dx, y = ((i / g.GW) | 0) + dy; if (x >= 0 && y >= 0 && x < mk.GW && y < mk.GH && mk.c[(y * mk.GW + x) * 4 + 3] && isMagenta(mk.c, (y * mk.GW + x) * 4)) n++; }
-        if (n > best.n) best = { n, dx, dy };
+        // (a thing laid by pl-doll.mjs has its key on the sheet's own grid, so a tie goes to the smaller shift: a key wholly
+        // inside the figure counts the same at every shift, and the first tried, two cells up and left, cut the aviator cap
+        // two rows low, onto the forehead: the owner, 2026-10-26. A key drawn apart keeps the old rule, as it is live)
+        if (n > best.n || (laid && n === best.n && Math.abs(dx) + Math.abs(dy) < Math.abs(best.dx) + Math.abs(best.dy))) best = { n, dx, dy };
       }
+      keyShift = best;
       // a key cell is the thing's only where the sheet has something there its base has not: the key spills a cell or
       // two onto the face and the grey base layer around the thing, and the base has those (seen: sunglasses carrying
       // skin along their arms, a neckerchief grey bits of the mannequin)
@@ -822,7 +827,7 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
       const big = Math.max(...comps.map((c) => c.length));
       for (const c of comps) if (c.length < big * 0.25) for (const q of c) set.delete(q);
     }
-    if (process.env.WEAR_DEBUG === id) console.log(`  ${key}: ${set.size} cells after the clumps, figure ${F.size}, key ${mk ? "yes" : "no"}`);
+    if (process.env.WEAR_DEBUG === id) console.log(`  ${key}: ${set.size} cells after the clumps, figure ${F.size}, key ${mk ? "yes" : "no"}${mk ? `, key shift ${keyShift.dx},${keyShift.dy}` : ""}`);
     if (set.size < 6) { console.log(`  ${key}: nothing found`); continue; }
     unclash(g, set);
     const im = L.crop(g, set), name = `wear-${id}-${t}`;
