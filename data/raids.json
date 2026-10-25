@@ -10151,8 +10151,12 @@
       "best": 18
      },
      "Paladin": {
-      "kills": 3,
-      "best": 11
+      "kills": 6,
+      "best": 21
+     },
+     "DarkKnight": {
+      "kills": 1,
+      "best": 7
      },
      "Sage": {
       "kills": 10,
@@ -10190,6 +10194,10 @@
      "Scholar": {
       "kills": 4,
       "best": 23
+     },
+     "Astrologian": {
+      "kills": 2,
+      "best": 8
      }
     }
    },
@@ -21925,6 +21933,49 @@
    }
   ],
   "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 99,
+      "median": 90,
+      "kills": 12,
+      "job": "Reaper"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 93,
+      "median": 69,
+      "kills": 10,
+      "job": "Reaper"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 95,
+      "median": 74,
+      "kills": 10,
+      "job": "Reaper"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 76,
+      "median": 52,
+      "kills": 9,
+      "job": "Reaper"
+     }
+    ]
+   },
    {
     "zone": "AAC Light-Heavyweight",
     "zone_id": 62,
@@ -36990,7 +37041,7 @@
     "cleared": true,
     "job_kills": {
      "Samurai": {
-      "kills": 3,
+      "kills": 4,
       "best": 66
      }
     }
@@ -46648,7 +46699,7 @@
     "cleared": true,
     "job_kills": {
      "Bard": {
-      "kills": 3,
+      "kills": 4,
       "best": 27
      }
     }
@@ -66798,8 +66849,8 @@
     "cleared": true,
     "job_kills": {
      "Samurai": {
-      "kills": 7,
-      "best": 84
+      "kills": 11,
+      "best": 97
      }
     }
    },
@@ -66815,7 +66866,7 @@
     "cleared": true,
     "job_kills": {
      "Samurai": {
-      "kills": 16,
+      "kills": 19,
       "best": 93
      },
      "Viper": {
@@ -80448,7 +80499,42 @@
     }
    }
   ],
-  "legacy": [],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 47,
+      "median": 13,
+      "kills": 8,
+      "job": "Warrior"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 12,
+      "median": 3,
+      "kills": 4,
+      "job": "Warrior"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 1,
+      "median": 1,
+      "kills": 1,
+      "job": "Warrior"
+     }
+    ]
+   }
+  ],
   "_status": "ok"
  },
  "44143115": {

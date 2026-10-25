@@ -2,6 +2,55 @@
  "events": [
   {
    "date": "2026-10-25",
+   "type": "rare_up",
+   "id": 42021700,
+   "name": "Josuke Mizumoto",
+   "text": "earned Tank You, Warrior IV"
+  },
+  {
+   "date": "2026-10-25",
+   "type": "rare_up",
+   "id": 6173187,
+   "name": "Motochita Muses",
+   "text": "earned Dire, Dire Deepcroft — only 2.5% of players have it"
+  },
+  {
+   "date": "2026-10-25",
+   "type": "rare_up",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "earned Nothing Out of Nothing, and 1 more"
+  },
+  {
+   "date": "2026-10-25",
+   "type": "level_100",
+   "id": 29991345,
+   "name": "Transparent Crystal",
+   "text": "reached level 100 on Dragoon!"
+  },
+  {
+   "date": "2026-10-25",
+   "type": "minions_up",
+   "id": 60429500,
+   "name": "Jin Theape",
+   "text": "passed 200 minions"
+  },
+  {
+   "date": "2026-10-25",
+   "type": "rare_up",
+   "id": 60429500,
+   "name": "Jin Theape",
+   "text": "earned Dire, Dire Deepcroft — only 2.5% of players have it, and 1 more"
+  },
+  {
+   "date": "2026-10-25",
+   "type": "job_up",
+   "id": 23767900,
+   "name": "Spike Le'granddanois",
+   "text": "is now a Legendary Reaper"
+  },
+  {
+   "date": "2026-10-25",
    "type": "level_100",
    "id": 28579232,
    "name": "Dessiny Valkyrie",
@@ -1350,55 +1399,6 @@
    "id": 44970350,
    "name": "Allen Crist",
    "text": "earned R&D: Mallet of Stars — only 4.1% of players have it"
-  },
-  {
-   "date": "2026-10-12",
-   "type": "rare_up",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "earned Phantom of the Umbra: Harp Bow Umbrae"
-  },
-  {
-   "date": "2026-10-12",
-   "type": "rare_up",
-   "id": 42976317,
-   "name": "Zeadz Stellar",
-   "text": "earned Cloud Strife, and 1 more"
-  },
-  {
-   "date": "2026-10-12",
-   "type": "level_100",
-   "id": 60429500,
-   "name": "Jin Theape",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-10-12",
-   "type": "job_up",
-   "id": 36130968,
-   "name": "Chu Celestial",
-   "text": "is now a Expert Red Mage"
-  },
-  {
-   "date": "2026-10-12",
-   "type": "level_100",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "reached level 100 on Black Mage!"
-  },
-  {
-   "date": "2026-10-11",
-   "type": "parse_up",
-   "id": 60852230,
-   "name": "Lucienvt Yenslayer",
-   "text": "set a new best parse: 14 on Zoraal Ja as Dar\u0001 \u0002night"
-  },
-  {
-   "date": "2026-10-11",
-   "type": "ex_clear",
-   "id": 60852230,
-   "name": "Lucienvt Yenslayer",
-   "text": "cleared Enuo (Extreme)"
   }
  ]
 }
