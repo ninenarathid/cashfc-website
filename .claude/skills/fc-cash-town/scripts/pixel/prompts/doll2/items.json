@@ -195,6 +195,106 @@
         "front": "the same violet coat, buttons and sash over an orange-and-black striped knee-length skirt, black stockings and the buckled boots",
         "back": "the violet coat from behind with its vine embroidery and the sash, the striped skirt, buckled boots"
       }
+    },
+    {
+      "id": "knit",
+      "src": "pixellab",
+      "front": "a chunky cream cable-knit sweater with a rolled collar kept below the chin and long sleeves to the wrist, brown corduroy trousers and brown lace-up boots",
+      "back": "the back of the chunky cream knit sweater, brown corduroy trousers and brown lace-up boots",
+      "f": {
+        "front": "the same chunky cream cable-knit sweater over a red-and-green plaid knee-length skirt, dark tights and brown lace-up boots",
+        "back": "the back of the cream knit sweater, the plaid skirt, dark tights and brown boots"
+      }
+    },
+    {
+      "id": "beach",
+      "src": "pixellab",
+      "front": "a short-sleeved turquoise shirt printed with a few big red hibiscus flowers, worn open over a plain white vest, sand-coloured knee shorts and white canvas shoes",
+      "back": "the back of the turquoise hibiscus shirt with one big red flower, sand-coloured knee shorts and white canvas shoes",
+      "f": {
+        "front": "the same turquoise hibiscus shirt knotted at the waist over a plain white top, sand-coloured shorts and white canvas shoes",
+        "back": "the back of the turquoise hibiscus shirt knotted at the waist, sand-coloured shorts and white canvas shoes"
+      }
+    },
+    {
+      "id": "party",
+      "src": "pixellab",
+      "front": "a fitted navy suit jacket over a white shirt with a small silver pocket square, navy trousers and polished black shoes",
+      "back": "the back of the fitted navy suit jacket, navy trousers and polished black shoes",
+      "f": {
+        "front": "a navy knee-length party dress with a short fitted navy jacket over it, a small silver brooch, and polished black shoes",
+        "back": "the back of the short navy jacket over the navy dress, and black shoes"
+      }
+    },
+    {
+      "id": "aviator",
+      "src": "pixellab",
+      "front": "a brown leather flight jacket with a thick cream fleece collar kept below the chin, khaki cargo trousers with side pockets and brown boots",
+      "back": "the back of the brown leather flight jacket with its cream fleece collar, khaki trousers and brown boots",
+      "f": {
+        "front": "the same brown leather flight jacket with its cream fleece collar over khaki cargo shorts, cream socks and brown boots",
+        "back": "the back of the brown flight jacket, khaki shorts, cream socks and brown boots"
+      }
+    },
+    {
+      "id": "track",
+      "src": "pixellab",
+      "front": "a zip-up track jacket in royal blue with two white stripes down each sleeve, matching blue track trousers with white side stripes, and white sneakers",
+      "back": "the back of the royal-blue track jacket with white sleeve stripes, blue track trousers and white sneakers",
+      "f": {
+        "front": "the same royal-blue track jacket over blue track shorts with white side stripes, white knee socks and white sneakers",
+        "back": "the back of the blue track jacket, blue shorts, white knee socks and white sneakers"
+      }
+    },
+    {
+      "id": "academy",
+      "src": "pixellab",
+      "front": "a navy school blazer with a small gold crest on the chest, a white shirt and a red tie, grey plaid trousers and brown loafers",
+      "back": "the back of the navy blazer, grey plaid trousers and brown loafers",
+      "f": {
+        "front": "the same navy blazer with its gold crest, a white shirt and a red ribbon tie, a grey plaid pleated knee skirt, white socks and brown loafers",
+        "back": "the back of the navy blazer, the grey plaid pleated skirt, white socks and brown loafers"
+      }
+    },
+    {
+      "id": "pyjamas",
+      "src": "pixellab",
+      "front": "soft light-blue pyjamas printed with a few small yellow stars, a long-sleeved top and long trousers, and closed fluffy white slippers",
+      "back": "the back of the light-blue star pyjamas and the fluffy white slippers",
+      "f": {
+        "front": "the same light-blue star pyjamas with a white frilled collar below the chin, and closed fluffy white slippers",
+        "back": "the back of the light-blue star pyjamas and the fluffy white slippers"
+      }
+    },
+    {
+      "id": "ranch",
+      "src": "pixellab",
+      "front": "a red-and-black checked shirt, a brown leather vest, blue jeans with a big silver buckle belt and tan cowboy boots",
+      "back": "the back of the checked shirt and the brown leather vest, blue jeans and tan cowboy boots",
+      "f": {
+        "front": "the same checked shirt and brown leather vest over a blue denim knee skirt with a silver buckle belt, and tan cowboy boots",
+        "back": "the back of the leather vest, the denim skirt and tan cowboy boots"
+      }
+    },
+    {
+      "id": "bard",
+      "src": "pixellab",
+      "front": "a fitted forest-green tunic with wide gold bands at the collar and the hem, long cream sleeves, a brown belt, brown trousers and soft folded brown boots",
+      "back": "the back of the forest-green tunic with its gold hem band, brown trousers and soft brown boots",
+      "f": {
+        "front": "the same forest-green tunic flaring into a knee-length green dress with a wide gold hem band, long cream sleeves, a brown belt and soft brown boots",
+        "back": "the back of the green dress with its gold hem band and soft brown boots"
+      }
+    },
+    {
+      "id": "skeleton",
+      "src": "pixellab",
+      "front": "a black fitted bodysuit printed with a big bold white skeleton: ribs, spine, arm bones and leg bones, and black shoes",
+      "back": "the back of the black bodysuit printed with a white spine and shoulder blades, white leg bones and black shoes",
+      "f": {
+        "front": "the same black skeleton bodysuit with a short black tutu skirt at the waist, and black shoes",
+        "back": "the back of the black skeleton bodysuit with the short black tutu, and black shoes"
+      }
     }
   ],
   "hats": [
@@ -298,6 +398,67 @@
       "pl": "prompts/pixellab/doll/counthat.json",
       "front": "a small black silk top hat with a crimson band and a silver bat-wing pin",
       "back": "the plain back of the small black top hat and its crimson band"
+    },
+    {
+      "id": "tophat",
+      "src": "pixellab",
+      "front": "a tall black silk top hat with a black satin band",
+      "back": "the plain back of the tall black top hat and its band"
+    },
+    {
+      "id": "cowboy",
+      "src": "pixellab",
+      "front": "a light-brown leather cowboy hat with a wide brim curled up at the sides and a darker band",
+      "back": "the back of the light-brown cowboy hat with its curled brim"
+    },
+    {
+      "id": "newsboy",
+      "src": "pixellab",
+      "front": "a grey tweed newsboy cap with a short front brim and a small button on top",
+      "back": "the back of the grey tweed newsboy cap"
+    },
+    {
+      "id": "sunhat",
+      "src": "pixellab",
+      "front": "a wide-brimmed pale straw sun hat with a sky-blue ribbon tied in a bow",
+      "back": "the back of the pale straw sun hat with the sky-blue ribbon's tails"
+    },
+    {
+      "id": "fedora",
+      "src": "pixellab",
+      "front": "a dark-brown felt fedora with a pinched crown and a black band",
+      "back": "the back of the dark-brown fedora and its black band"
+    },
+    {
+      "id": "bearhat",
+      "src": "pixellab",
+      "front": "a brown knitted beanie with two round bear ears on top",
+      "back": "the back of the brown knitted bear beanie with its two round ears"
+    },
+    {
+      "id": "aviatorcap",
+      "src": "pixellab",
+      "front": "a brown leather aviator cap with round flying goggles pushed up on its front, no ear flaps",
+      "back": "the back of the brown leather aviator cap and the goggles' strap"
+    },
+    {
+      "id": "tricorn",
+      "src": "pixellab",
+      "front": "a black three-cornered pirate hat with gold trim on its edges",
+      "back": "the back of the black three-cornered hat with gold trim"
+    },
+    {
+      "id": "ghostcap",
+      "src": "pixellab",
+      "front": "a soft white cap shaped like a little smiling ghost with two black dot eyes",
+      "back": "the back of the soft white ghost cap with its wavy edge"
+    },
+    {
+      "id": "pumpkinhead",
+      "src": "pixellab",
+      "front": "a carved jack-o'-lantern pumpkin worn over the whole head",
+      "back": "the back of the round pumpkin worn over the whole head",
+      "full": true
     }
   ],
   "accessories": [
@@ -572,6 +733,153 @@
       "pl": "prompts/pixellab/doll/rosefascinator.json",
       "front": "a small black lace fascinator with a crimson rose and a short net veil at the side of the head",
       "back": "the small black fascinator and its rose at the side of the head"
+    },
+    {
+      "id": "heartshades",
+      "slot": "face",
+      "src": "pixellab",
+      "front": "red heart-shaped sunglasses with dark lenses"
+    },
+    {
+      "id": "cateye",
+      "slot": "face",
+      "src": "pixellab",
+      "front": "black cat-eye glasses whose outer corners sweep up into points, with clear lenses",
+      "clear": true
+    },
+    {
+      "id": "eyepatch",
+      "slot": "face",
+      "src": "pixellab",
+      "front": "a black eye patch over the left eye on a thin black strap across the forehead"
+    },
+    {
+      "id": "masquerade",
+      "slot": "face",
+      "src": "pixellab",
+      "front": "a gold masquerade half-mask with a small white feather at one side and two eye holes"
+    },
+    {
+      "id": "starshades",
+      "slot": "face",
+      "src": "pixellab",
+      "front": "yellow star-shaped sunglasses with dark lenses"
+    },
+    {
+      "id": "halfmoon",
+      "slot": "face",
+      "src": "pixellab",
+      "front": "small half-moon reading glasses with thin gold frames sitting low on the nose, with clear lenses",
+      "clear": true
+    },
+    {
+      "id": "pearls",
+      "slot": "neck",
+      "src": "pixellab",
+      "front": "a single strand of big white pearls around the neck",
+      "back": "the pearl strand at the back of the neck"
+    },
+    {
+      "id": "jabot",
+      "slot": "neck",
+      "src": "pixellab",
+      "front": "a white frilled lace jabot at the throat",
+      "back": "the white lace band at the back of the neck"
+    },
+    {
+      "id": "headphones",
+      "slot": "neck",
+      "src": "pixellab",
+      "front": "mint-green headphones hanging around the neck",
+      "back": "the mint-green headphone band at the back of the neck"
+    },
+    {
+      "id": "camera",
+      "slot": "neck",
+      "src": "pixellab",
+      "front": "a small black film camera hanging on a brown strap at the chest",
+      "back": "the brown camera strap at the back of the neck"
+    },
+    {
+      "id": "pocketwatch",
+      "slot": "neck",
+      "src": "pixellab",
+      "front": "a golden pocket watch shaped like a little potato on a gold chain at the chest",
+      "back": "the gold chain at the back of the neck"
+    },
+    {
+      "id": "cord",
+      "slot": "neck",
+      "src": "pixellab",
+      "front": "a braided necklace of three colours, red, yellow and green, around the neck",
+      "back": "the braided red, yellow and green cord at the back of the neck"
+    },
+    {
+      "id": "batpendant",
+      "slot": "neck",
+      "src": "pixellab",
+      "front": "a black bat pendant with spread wings on a thin silver chain at the chest",
+      "back": "the thin silver chain at the back of the neck"
+    },
+    {
+      "id": "bearears",
+      "slot": "hair",
+      "src": "pixellab",
+      "front": "two round brown bear ears on a thin brown headband on top of the head",
+      "back": "the two round brown bear ears on their headband, seen from behind",
+      "top": true
+    },
+    {
+      "id": "foxears",
+      "slot": "hair",
+      "src": "pixellab",
+      "front": "two tall orange fox ears with white tips on a thin headband on top of the head",
+      "back": "the two tall orange fox ears on their headband, seen from behind",
+      "top": true
+    },
+    {
+      "id": "halo",
+      "slot": "hair",
+      "src": "pixellab",
+      "front": "a thin golden ring floating just above the top of the head, no glow",
+      "back": "the thin golden ring floating just above the head, seen from behind",
+      "top": true
+    },
+    {
+      "id": "antennae",
+      "slot": "hair",
+      "src": "pixellab",
+      "front": "a black headband with two thin bee antennae ending in round yellow balls on top of the head",
+      "back": "the black headband and the two bee antennae, seen from behind",
+      "top": true
+    },
+    {
+      "id": "cherry",
+      "slot": "hair",
+      "src": "pixellab",
+      "front": "a red double-cherry hair clip with two green leaves at the side of the head",
+      "back": "the red cherry clip at the side of the head, seen from behind"
+    },
+    {
+      "id": "fanpin",
+      "slot": "hair",
+      "src": "pixellab",
+      "front": "a small red folding-fan hairpin with a hanging red tassel at the side of the head",
+      "back": "the small red fan hairpin and its tassel at the side of the head, seen from behind"
+    },
+    {
+      "id": "hibiscus",
+      "slot": "hair",
+      "src": "pixellab",
+      "front": "a big red hibiscus flower tucked at the side of the head",
+      "back": "the big red hibiscus flower at the side of the head, seen from behind"
+    },
+    {
+      "id": "batclip",
+      "slot": "hair",
+      "src": "pixellab",
+      "front": "a small black bat-shaped hair clip with spread wings at the side of the head",
+      "back": "the small black bat clip at the side of the head, seen from behind"
     }
   ],
   "starter": {

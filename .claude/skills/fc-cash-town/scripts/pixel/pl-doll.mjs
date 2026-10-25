@@ -137,8 +137,9 @@ if (cmd === "unpack") {
 //                                               hair, face, neck): the standing figure of each view side by side
 //   node pl-doll.mjs unhead <dir> <id> <g>      reads <dir>/head-out.png, writes work/out/<g>-<id>-<view>.png and
 //                                               <g>k-<id>-<view>.png (g: dh for a hat, da for the rest)
-const HEAD_BASE = { hat: (v) => `f-bald-${v}`, hair: (v) => `f-bald-${v}`, face: () => "f-neutral-front", neck: (v) => `d2-mannequin-${v}` };
-const HEAD_VIEWS = { hat: ["front", "back"], hair: ["front", "back"], face: ["front"], neck: ["front", "back"] };
+// (full: a hat over the whole head, face and ears and all, as the pumpkin set's jack-o'-lantern: the owner, 2026-10-25)
+const HEAD_BASE = { hat: (v) => `f-bald-${v}`, full: (v) => `f-bald-${v}`, hair: (v) => `f-bald-${v}`, face: () => "f-neutral-front", neck: (v) => `d2-mannequin-${v}` };
+const HEAD_VIEWS = { hat: ["front", "back"], full: ["front", "back"], hair: ["front", "back"], face: ["front"], neck: ["front", "back"] };
 async function standing(slot, v) {
   const name = HEAD_BASE[slot](v), raw = await L.loadRaw(path.join(OUT, `${name}.png`));
   const t = name === "f-neutral-front" ? "front" : v;
@@ -160,7 +161,7 @@ if (cmd === "head") {
   for (const v of HEAD_VIEWS[slot]) {
     const s = await standing(slot, v);
     // what is cut: the head with room above it for a tall hat, down to a little under the chin (the neck: to the chest)
-    const y0 = s.b.y0 - (slot === "hat" || slot === "hair" ? 22 : 2), y1 = slot === "neck" ? s.cut + 16 : s.cut + 3;
+    const y0 = s.b.y0 - (slot === "hat" || slot === "hair" || slot === "full" ? 22 : 2), y1 = slot === "neck" ? s.cut + 16 : s.cut + 3;
     const x0 = s.b.x0 - 6, x1 = s.b.x1 + 6;
     parts.push({ v, s, x0, y0, w: x1 - x0 + 1, h: y1 - y0 + 1 });
   }
@@ -175,7 +176,8 @@ if (cmd === "head") {
     // where it may draw: a hat or a hair thing above the ears (the face, the ears and the chin stay); glasses across
     // the eyes; a neck thing from the chin down to the chest, over the shoulders
     const earTop = b.y0 + Math.round((cut - b.y0) * 0.55), eyes = b.y0 + Math.round((cut - b.y0) * 0.62);
-    const may = (x, y) => slot === "hat" || slot === "hair" ? y <= earTop
+    const may = (x, y) => slot === "full" ? y <= cut + 1
+      : slot === "hat" || slot === "hair" ? y <= earTop
       : slot === "face" ? Math.abs(y - eyes) <= 5 && x >= b.x0 - 3 && x <= b.x1 + 3
       : y >= cut - 2;
     for (let y = 0; y < p.h; y++) for (let x = 0; x < p.w; x++) if (may(p.x0 + x, p.y0 + y)) { const o = ((oy + y) * W + ox + x) * 4; mask[o] = mask[o + 1] = mask[o + 2] = 255; }
@@ -212,7 +214,8 @@ if (cmd === "unhead") {
       // (inside the mask the model redraws the head too, a few shades off: a cell still of the head's own colour class
       // and near its colour is the head, not the thing; seen as skin carried over the hair by the pumpkin crown)
       const redrawn = a[o + 3] >= 128 && b[o + 3] >= 128 && d < 60 && L.cls(a[o], a[o + 1], a[o + 2]) === L.cls(b[o], b[o + 1], b[o + 2]);
-      if (!(d < 4 && (a[o + 3] >= 128) === (b[o + 3] >= 128)) && !redrawn && !(a[o + 3] >= 128 && skinLike(o))) changed.add(y * p.w + x);
+      // (over the whole head nothing of it is left to tell apart: every changed cell is the thing)
+      if (!(d < 4 && (a[o + 3] >= 128) === (b[o + 3] >= 128)) && (meta.slot === "full" || (!redrawn && !(a[o + 3] >= 128 && skinLike(o))))) changed.add(y * p.w + x);
     }
     // a speck or a stray stroke the model left apart from the thing (beside the head) is not the thing: the largest piece
     // of the change is kept, and any other piece inside its box (grown three cells) or a sixth its size or more
