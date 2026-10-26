@@ -429,6 +429,41 @@ if (cmd === "unhead") {
         // (inside, what the picture has there stays as drawn, a tan close to skin as much as any; only an empty gap is filled)
         for (const c of patch) { keep.add(c); if (a[at(c) + 3] < 128) fillCol.set(c, col); }
       }
+      // ── a hat seen from behind, cut flat where the model's mask ended (the owner, 2026-10-26: "เหมือนภาพหมวกโดนตัด ช่วยเติมให้
+      // เต็ม"): when most of its lowest row is one straight run with no dark edge, its own colours are carried a few cells
+      // further down in a gentle curve, lowest in the middle as a hat sits round a head, and closed with its own outline)
+      if (p.v === "back" && keep.size) {
+        const colOf = (c) => fillCol.get(c) ?? (() => { const o = at(c); return [a[o], a[o + 1], a[o + 2]]; })();
+        const darkOf = (col) => L.cls(col[0], col[1], col[2]) === "dark";
+        const low = new Map();
+        for (const c of keep) { const x = c % p.w, y = (c / p.w) | 0; low.set(x, Math.max(low.get(x) ?? -1, y)); }
+        // (the longest straight run of lowest cells, at whatever row: the aviator cap's side flaps hang lower than its middle)
+        const xs = [...low.keys()].sort((u, v) => u - v);
+        let L0 = -1, best = [0, -1], yMax = -1;
+        for (let i = 0; i < xs.length; i++) {
+          const x = xs[i];
+          if (i > 0 && xs[i - 1] === x - 1 && low.get(x) === low.get(x - 1)) { if (x - L0 > best[1] - best[0]) { best = [L0, x]; yMax = low.get(x); } }
+          else L0 = x;
+        }
+        const [xL, xR] = best, run = xR - xL + 1, width = xs[xs.length - 1] - xs[0] + 1;
+        const flat = run >= width * 0.4 && [...Array(run)].filter((_, i) => !darkOf(colOf(yMax * p.w + xL + i))).length >= run * 0.4;
+        if (flat && yMax + 4 < p.h) {
+          const outline = (() => { const n = new Map(); for (const c of keep) { const col = colOf(c); if (darkOf(col)) { const k = col.join(","); n.set(k, (n.get(k) ?? 0) + 1); } } const k = [...n.entries()].sort((u, v) => v[1] - u[1])[0]?.[0]; return k ? k.split(",").map(Number) : [40, 30, 30]; })();
+          const depth = Math.min(5, Math.max(1, Math.round(run / 10)));
+          // (the run's main colour: a column of it is carried down as it is, its shading and texture with it; a detail of
+          // another colour (a buckle, a ribbon's tail) is not stretched, the main colour goes on under it)
+          const main = (() => { const n = new Map(); for (let x = xL; x <= xR; x++) { const col = colOf(yMax * p.w + x); if (!darkOf(col)) { const k = col.join(","); n.set(k, (n.get(k) ?? 0) + 1); } } const k = [...n.entries()].sort((u, v) => v[1] - u[1])[0]?.[0]; return k ? k.split(",").map(Number) : colOf(yMax * p.w + xL); })();
+          const near = (u, v) => Math.abs(u[0] - v[0]) + Math.abs(u[1] - v[1]) + Math.abs(u[2] - v[2]) < 60;
+          for (let x = xL; x <= xR; x++) {
+            const t = run > 1 ? (x - xL) / (run - 1) : 0.5, dip = Math.round(depth * 4 * t * (1 - t));
+            const own = colOf(yMax * p.w + x), top = near(own, main) ? own : main;
+            const shade = darkOf(top) ? top : top.map((v) => Math.round(v * 0.82));
+            for (let y = yMax + 1; y <= yMax + dip; y++) { const c = y * p.w + x; keep.add(c); fillCol.set(c, y === yMax + dip ? shade : top); }
+            const e = (yMax + dip + 1) * p.w + x; keep.add(e); fillCol.set(e, outline);
+          }
+          if (process.env.OUTLINE_DEBUG) console.log(`  ${id} back: closed a flat bottom of ${run} cells, ${depth} deep`);
+        }
+      }
       if (process.env.OUTLINE_DEBUG) console.log(`  ${id} ${p.v}: hat ${proper.size}, filled inside ${fillCol.size}`);
     }
     // (UNHEAD_DEBUG=<png>: the part as drawn, dimmed where it is not the thing; red what was taken as the head drawn again,

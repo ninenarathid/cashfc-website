@@ -190,7 +190,9 @@ picture:
    it every cell filled. His examples of what is wrong: a skin-coloured strip under a brim (the forehead drawn again: the
    top hat, the fedora, the newsboy cap, the aviator cap front and back, the ghost cap), a magenta slit inside a brim (the
    sun hat, front and back), a one-cell tail hanging below a brim (the top hat's back), hair showing through a striped gap
-   under a knit band (the bear hat's back), the ear's own outline left under a brim. `UNHEAD_DEBUG=<png>` before
+   under a knit band (the bear hat's back), the ear's own outline left under a brim, and a hat ending in a flat line from
+   behind, cut where the model's mask ended (the aviator cap, the newsboy cap, the sun hat, the bear hat, the ghost cap:
+   "เหมือนภาพหมวกโดนตัด"); a mask for a hat must reach well below where the hat ends, or the lay-back closes the edge. `UNHEAD_DEBUG=<png>` before
    `pl-doll.mjs unhead` shows, on the drawing itself, what the lay-back kept, took off as the head (red) and filled
    (green): look at it when a piece is wrong, to tell the drawing's fault from the pipeline's.
 3. **The drawing against the build** (`work/pl/<name>/image.png` or `work/out/<sheet>.png` beside the built piece, both
