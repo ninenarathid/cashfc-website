@@ -9,7 +9,12 @@ Admin desks: `/admin/aqua/casino` (TEST), `/admin/aqua/casino-live` (LIVE); the 
   admins walk in at any hour, may force any result, every spin is marked a test and never announced; the Aqua page's
   "ล้างผลทดสอบ" undoes them: coins, stock, Gil set aside, counts, prize rows with their threads and bells, wallet
   payments), `everyone` (members with a proved character, within the event's hours). `open` is kept equal to
-  `access = 'everyone'`. The door is read by each page as the town opens and every five minutes.
+  `access = 'everyone'`. The door is read by each page as the town opens, every minute it is in sight, and at a tap
+  on the door. A tester who withdrew trial Gil from the wallet: the wipe takes back only what came after the
+  withdrawal and says how much was withdrawn (that 'เงินสะสม' row is the admins' to settle).
+- **Told to the town** (the owner, 2026-10-27: "ถ้ามีคนได้ รางวัลใหญ่ ให้ประกาศทั้งเมืองเลย แต่ตอน admin test ยังไม่ต้องประกาศก็ได้"):
+  a win of a prize ticked "ประกาศ" at the desk is the town's banner and a line in its chat, as the reels stop; a test
+  win never is.
 - **Where a win goes:** a thing to hand over (physical) is a row of `prize_wins` (draw `casino`) with the winner's
   `prize_win` bell: they claim it and talk with the admins in the site's 1-1 prize thread (claim_prize, prize_messages,
   deliver_prize), and the admins see it on the Aqua page's list of winners and in /admin's prizes. Gil goes into the

@@ -69,6 +69,28 @@ end $fn$;
 drop trigger if exists notify_prize_message on public.prize_messages;
 create trigger notify_prize_message after insert on public.prize_messages for each row execute function public.notify_prize_message();
 grant execute on function public.claim_prize(bigint), public.deliver_prize(bigint) to authenticated;
+-- withdraw_wallet (v91): the whole balance out at once, a prize row of its own ('เงินสะสม', draw 'give') for the admins
+create or replace function public.withdraw_wallet() returns bigint language plpgsql security definer set search_path = public as $fn$
+declare me uuid := auth.uid(); sw public.wallet_switch; who public.profiles; took bigint; win bigint;
+begin
+  if me is null then raise exception 'not signed in'; end if;
+  select * into sw from public.wallet_switch where id = 1;
+  if sw.id is null or not sw.enabled then raise exception 'the wallet is not running'; end if;
+  select * into who from public.profiles where id = me;
+  if who.character_id is null or who.character_verified_at is null then raise exception 'verify your character first'; end if;
+  select w.balance into took from public.wallets w where w.profile_id = me for update;
+  if took is null or took < sw.threshold then raise exception 'not enough in the wallet yet'; end if;
+  update public.wallets set balance = balance - took, updated_at = now() where profile_id = me;
+  insert into public.prize_wins (prize_id, winner, character_id, prize_name, prize_name_en, prize_detail, prize_detail_en,
+    prize_icon, prize_color, prize_tier, draw, gil_amount, claimed_at, seen_winner)
+  values (null, me, who.character_id, 'เงินสะสม', 'Saved gil', null, null, null, '#d9a441', 'rare', 'give', took, now(), now())
+  returning id into win;
+  insert into public.notifications (recipient, kind, actor, actor_name, body)
+  select p.id, 'prize_claim', me, public.actor_name(), win::text from public.profiles p where p.is_admin and p.id <> me;
+  return took;
+end $fn$;
+grant execute on function public.withdraw_wallet() to authenticated;
+
 -- Supabase's Realtime, stood in for: what is sent is kept; a topic named to fail fails
 create schema if not exists realtime;
 create table if not exists realtime.sent (topic text, event text, payload jsonb, private boolean);

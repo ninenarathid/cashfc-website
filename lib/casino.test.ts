@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { draftOf, draftProblem, effectiveChance, prizeWithAmount, reelAt, spinRevealed, type CasinoState, type CasinoSpin } from './casino';
+import { draftOf, draftProblem, effectiveChance, prizeWithAmount, reelAt, spinRevealed, wipedWords, type CasinoState, type CasinoSpin } from './casino';
 const fixture = (): CasinoState => ({ user_id: 'tester', settings: { id: 1, revision: 1, title: 'Halloween', open: true, mode: 'weighted', price: 100, per_player: 100, budget: 100000000, reserved: 0, spins: 0, pool_size: 1800, pool_draws: 0, starts_at: null, ends_at: null, updated_at: '', updated_by: null }, prizes: [{ id: 'gold', name: 'Gil', kind: 'gil', amount: 1000000, chance: .4, stock: 20, issued: 0, announce: false, active: true }], account: { coins: 20000, spins: 0 }, spins: [], receipts: [], queue: [], server_now: '', paid_gil: 0 });
 describe('Casino presentation and settings', () => {
   it('shows depleted or unaffordable prizes as zero without redistributing odds', () => {
@@ -31,5 +31,10 @@ describe('Casino presentation and settings', () => {
     expect(reelAt(s, 3, 4599, true)).toBe('popoto');
     expect(spinRevealed(s, 4599)).toBe(false);
     expect(reelAt(s, 3, 4600, true)).toBe('seven'); expect(spinRevealed(s, 4600)).toBe(true);
+  });
+  it('says what of the trial was withdrawn already, when anything was (v299)', () => {
+    expect(wipedWords({ spins: 3, withdrawn: 0 })).toBe('ล้างผลทดสอบแล้ว');
+    expect(wipedWords(null)).toBe('ล้างผลทดสอบแล้ว');
+    expect(wipedWords({ spins: 3, withdrawn: 1000000 })).toContain('1,000,000');
   });
 });

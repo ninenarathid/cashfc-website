@@ -24,7 +24,10 @@
 --    written any more (the Event bag kept them; none was ever written live). Each spin keeps in `trail` what it wrote,
 --    so a test is wiped to the row.
 -- 4. `casino_live_wipe_tests()`: every test spin undone: the coins it took and paid back, the stock, the Gil set aside,
---    the counts, the prize row with its thread and bells, the wallet payment with its bells.
+--    the counts, the prize row with its thread and bells, the wallet payment with its bells. A wallet is emptied at each
+--    withdrawal (withdraw_wallet, v91), so trial Gil paid before a tester's last withdrawal is no longer in the wallet:
+--    only what came after it is taken back, and what was withdrawn is said in what the wipe returns (that cash-out is a
+--    'เงินสะสม' prize row of its own, for the admins to settle), never taken from Gil won since.
 -- 5. Every page in the casino used to read the whole casino again at each spin of anybody's (the change feed): forty
 --    players at five machines would be some fifty reads a second on the small database. Now a spin is told to the
 --    private channel 'casino-live' as it is written, with what a page draws of it, and a page reads again only for its
@@ -32,6 +35,10 @@
 --    feed. Pages no longer send on 'casino-live': its write policy goes.
 -- 6. The casino is a map of the town now (lib/town/casino-room), so it has a chat channel of its own: v297's helper and
 --    its two policies again, with the zone 'casino' in each list. Nothing else of them changes.
+-- 7. The owner, 2026-10-27: "ถ้ามีคนได้ รางวัลใหญ่ ให้ประกาศทั้งเมืองเลย แต่ตอน admin test ยังไม่ต้องประกาศก็ได้". A win of a prize
+--    marked to be told (`announce`, the desk's tick) is told to the whole town in the town's own banner and chat
+--    (town_announcements, v255), at the moment its reels stop; a win in the admins' trial never is. The old ticker table
+--    (town_casino_announcements, which nothing reads) is written no more.
 
 begin;
 set local statement_timeout = '60s';
@@ -43,6 +50,8 @@ do $$ begin
   if to_regprocedure('public.credit_wallet(uuid,integer,bigint,text,text,text,text,bigint)') is null then raise exception 'credit_wallet (v93) is missing'; end if;
   if to_regclass('public.prize_wins') is null or to_regclass('public.prize_messages') is null or to_regclass('public.notifications') is null
     or to_regclass('public.wallets') is null or to_regclass('public.wallet_drops') is null then raise exception 'the prize and wallet tables (v87, v91) are missing'; end if;
+  if to_regprocedure('public.town_announcements_v256(bigint,text)') is null and to_regprocedure('public.town_announcements_v299(bigint,text)') is null
+    then raise exception 'Run v256 before v299'; end if;
 end $$;
 
 -- ── 1. who may spin ─────────────────────────────────────────────────────────────────────────────────────────────────
@@ -233,9 +242,10 @@ begin
   update public.casino_live_settings set spins = spins + 1,
     pool_draws = pool_draws + case when mode = 'pool' then 1 else 0 end,
     reserved = reserved + case when won.kind = 'gil' then won.amount else 0 end where id = 1;
-  -- (a win in the admins' trial is never announced to the town)
+  -- A prize marked to be told is told to the whole town as the reels stop (7); a win in the admins' trial never is.
   if won.id is not null and won.announce and not test_ then
-    insert into public.town_casino_announcements (player_name, prize_name, created_at) values (name_, won.name, old.reveal_at);
+    perform town.announce(me, 'casino', won.name, 0, 'casino:' || p_request, false);
+    update public.town_announcements set at = old.reveal_at where event_key = 'casino:' || p_request;
   end if;
   perform casino.hint('spin', to_jsonb(old) - 'trail');
   return to_jsonb(old) - 'trail';
@@ -310,6 +320,7 @@ end $$;
 create or replace function public.casino_live_wipe_tests()
 returns jsonb language plpgsql security definer set search_path = '' as $$
 declare me uuid := casino.require_live_admin(); x record; purse_ jsonb; spins_ integer; wins_ bigint[]; drops_ bigint[]; notes_ bigint[];
+  out_ bigint := 0;
 begin
   perform 1 from public.casino_live_settings where id = 1 for update;
   select count(*) into spins_ from public.casino_live_spins where test;
@@ -340,16 +351,24 @@ begin
     or (kind in ('prize_win', 'prize_claim', 'prize_ask', 'prize_talk', 'prize_done') and body = any (select w::text from unnest(wins_) w));
   delete from public.prize_messages where win_id = any (wins_);
   delete from public.prize_wins where id = any (wins_);
-  for x in select profile_id, sum(amount)::bigint amount from public.wallet_drops where id = any (drops_) group by profile_id loop
-    update public.wallets set balance = greatest(0, balance - x.amount), earned = greatest(0, earned - x.amount), updated_at = now() where profile_id = x.profile_id;
+  -- (a withdrawal empties the wallet: what was paid before a tester's last one is gone already, and only what came after
+  -- it is taken back; what was withdrawn is said, never taken from Gil won since)
+  for x in select d.profile_id, sum(d.amount)::bigint amount,
+      coalesce(sum(d.amount) filter (where d.created_at <= w.out_at), 0)::bigint taken
+    from public.wallet_drops d
+    left join lateral (select max(o.claimed_at) out_at from public.prize_wins o
+      where o.winner = d.profile_id and o.draw = 'give' and o.prize_name = 'เงินสะสม' and o.gil_amount is not null) w on true
+    where d.id = any (drops_) group by d.profile_id loop
+    update public.wallets set balance = greatest(0, balance - (x.amount - x.taken)), earned = greatest(0, earned - x.amount), updated_at = now() where profile_id = x.profile_id;
+    out_ := out_ + x.taken;
   end loop;
   delete from public.wallet_drops where id = any (drops_);
   delete from public.casino_live_receipts where spin_id in (select id from public.casino_live_spins where test);
   delete from public.casino_live_spins where test;
   insert into public.casino_live_audit (actor, action, detail) values (me, 'wipe tests',
-    jsonb_build_object('spins', spins_, 'wins', cardinality(wins_), 'drops', cardinality(drops_)));
+    jsonb_build_object('spins', spins_, 'wins', cardinality(wins_), 'drops', cardinality(drops_), 'withdrawn', out_));
   perform casino.hint('changed', '{}'::jsonb);
-  return jsonb_build_object('spins', spins_, 'wins', cardinality(wins_), 'drops', cardinality(drops_));
+  return jsonb_build_object('spins', spins_, 'wins', cardinality(wins_), 'drops', cardinality(drops_), 'withdrawn', out_);
 end $$;
 
 revoke all on function public.casino_live_state(integer, boolean), public.casino_live_spin(uuid, integer, text, bigint),
@@ -405,12 +424,38 @@ create policy town_maps_send on realtime.messages
     )
   );
 
+-- ── 7. a big win told to the whole town ─────────────────────────────────────────────────────────────────────────────
+-- (v256's list, and the casino's)
+
+alter table public.town_announcements drop constraint if exists town_announcements_kind_check;
+alter table public.town_announcements add constraint town_announcements_kind_check
+  check (kind in ('forge', 'rank', 'legend', 'forest', 'recipe', 'cross', 'depth', 'bridge', 'lamps', 'admin', 'casino'));
+
+-- A page from before this one has no words for a casino win (its banner would break on one), so the reader it asks,
+-- v256's, leaves them out, as v256 did with the admin's own text for the pages before it: the reader with every kind is
+-- `town_announcements_v299` from here on, which this page asks first. v255's `town_announcements` asks v256's by name
+-- and so leaves out both.
+do $$ begin
+  if to_regprocedure('public.town_announcements_v299(bigint,text)') is null then
+    alter function public.town_announcements_v256(bigint, text) rename to town_announcements_v299;
+  end if;
+end $$;
+create or replace function public.town_announcements_v256(p_after bigint default null, p_look text default null) returns jsonb
+language sql security definer set search_path = '' as $$
+  select p.page || jsonb_build_object('events', coalesce((select jsonb_agg(e.value order by e.ord)
+    from jsonb_array_elements(p.page -> 'events') with ordinality e(value, ord) where e.value ->> 'kind' <> 'casino'), '[]'::jsonb))
+  from (select public.town_announcements_v299(p_after, p_look) as page) p
+$$;
+revoke all on function public.town_announcements_v256(bigint, text), public.town_announcements_v299(bigint, text) from public, anon, authenticated;
+grant execute on function public.town_announcements_v256(bigint, text), public.town_announcements_v299(bigint, text) to authenticated;
+
 notify pgrst, 'reload schema';
 commit;
 
 -- Reading it (the SQL editor):
 --   select access, open, revision, spins from public.casino_live_settings;            -- 'closed', false, … as before
 --   select id, name, kind, amount, chance, stock, active from public.casino_live_prizes order by id;   -- six rows
+--   select id, announce from public.casino_live_prizes where announce;                -- the prizes told to the town
 --   select public.town_zone_topic('casino') is not null;                              -- true when asked as a member
 --   select count(*) from pg_publication_tables where pubname = 'supabase_realtime' and tablename like 'casino_live_%';  -- 0
 -- To let the admins in, and everybody (or from the Aqua page):

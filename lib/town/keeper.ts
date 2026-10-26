@@ -873,11 +873,13 @@ export class DbKeeper implements Keeper {
   watchAnnouncements(fn: () => void) { this.announcementListeners.add(fn); return () => { this.announcementListeners.delete(fn); }; }
   async announcements(after: number | null, look: string | null) {
     const args = { p_after: after, p_look: look };
-    try {
-      try { return await this.rpc("town_announcements_v256", args) as unknown as import("./announcements").AnnouncementPage; }
-      catch { return await this.rpc("town_announcements", args) as unknown as import("./announcements").AnnouncementPage; }
+    // (v299's reader has every kind; v256's, which pages from before v299 ask, leaves out the casino's wins they have no
+    // words for; v255's leaves out the admin's text too. A database without the newer answers nothing: the next is asked)
+    for (const fn of ["town_announcements_v299", "town_announcements_v256", "town_announcements"]) {
+      const page = await this.rpc(fn, args).catch(() => null);
+      if (page && typeof page === "object" && "events" in page) return page as unknown as import("./announcements").AnnouncementPage;
     }
-    catch { return null; }
+    return null;
   }
   async warehouse(input: import("./warehouse").WarehouseInput, request?: string) {
     return await this.ask("town_warehouse", { p_input: input, p_request: request ?? null }) as unknown as import("./warehouse").WarehouseReply | null;

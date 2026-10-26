@@ -42,8 +42,9 @@ const uuid = (n) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 let request = 1;
 
 try {
-  // ── the bench: v297, v298 and the casino's own two files, as they ran ──
-  for (const f of ["v297_granny_twillas_shop_and_its_auction", "v298_two_chests_on_the_farm", "v204_casino_before_the_town_hall_opens", "v206_casino_when_the_doors_open"]) {
+  // ── the bench: v256 (with the account it asks for), v297, v298 and the casino's own two files, as they ran ──
+  await db.exec(readFileSync(join(ROOT, ".claude/skills/fc-cash-town/scripts/db/v256-stand-in.sql"), "utf8"));
+  for (const f of ["v256_ninenine_can_announce_in_town", "v297_granny_twillas_shop_and_its_auction", "v298_two_chests_on_the_farm", "v204_casino_before_the_town_hall_opens", "v206_casino_when_the_doors_open"]) {
     await db.exec(readFileSync(join(ROOT, `supabase/${f}.sql`), "utf8"));
   }
   // a second admin (the two who try the casino: claims reach the other)
@@ -121,7 +122,7 @@ try {
   const win1 = await one("select w.* from public.prize_wins w order by id desc limit 1");
   eq([win1?.winner, win1?.prize_name, win1?.draw, win1?.prize_tier, win1?.prize_id], [ADMIN, "Evercold", "casino", "ultra", null], "it is a prize row of the winner's, from the casino");
   ok(await one("select 1 r from public.notifications where recipient = $1 and kind = 'prize_win' and body = $2", [ADMIN, String(win1?.id)]), "the winner's bell rings");
-  eq((await one("select count(*)::int n from public.town_casino_announcements")).n, 0, "a test win is never announced");
+  eq((await one("select count(*)::int n from public.town_announcements where kind = 'casino'")).n, 0, "a test win is never announced");
   eq((await one("select count(*)::int n from public.casino_live_receipts")).n, 0, "no receipt is written any more");
   const hint = (await rows("select event, payload, private from realtime.sent where topic = 'casino-live'"));
   eq(hint.map((h) => h.event), ["spin"], "the spin is told, once, and nothing else");
@@ -187,7 +188,14 @@ try {
   const s4 = await spin(M1);
   ok(s4 && !s4.error && s4.test === false && s4.prize?.id === "seven", `a member spins and wins (${s4?.error ?? JSON.stringify(s4?.prize)})`);
   ok(await one("select 1 r from public.prize_wins where winner = $1 and draw = 'casino'", [M1]), "the member's prize row");
-  eq((await one("select count(*)::int n from public.town_casino_announcements")).n, 1, "a real win is announced");
+  const told = await rows("select member_id, subject, event_key, at from public.town_announcements where kind = 'casino'");
+  eq(told.map((t) => [t.member_id, t.subject, t.event_key]), [[M1, s4?.prize?.name, `casino:${s4?.id}`]], "a real win is told to the whole town, once");
+  eq(new Date(told[0]?.at).getTime(), new Date(s4?.reveal_at).getTime(), "as its reels stop");
+  eq((await one("select count(*)::int n from public.town_casino_announcements")).n, 0, "the old ticker is written no more");
+  const kinds = async (fn) => ((await as(M2, `select public.${fn}(null, null) r`))?.events ?? []).map((e) => e.kind);
+  ok((await kinds("town_announcements_v299")).includes("casino"), "v299's reader has the casino's win");
+  ok(!(await kinds("town_announcements_v256")).includes("casino"), "v256's, which pages from before ask, has not");
+  ok(!(await kinds("town_announcements")).includes("casino"), "nor v255's");
   ok(!(await state(M2)).error, "another member reads the casino");
   refused(await spin(UNVER), null, "an unproved account may not spin");
   // a hint that cannot be sent stops nothing
@@ -201,6 +209,21 @@ try {
   ok(!(await spin(ADMIN, "miss", 3)).error, "an admin tries it again among real spins");
   eq((await as(ADMIN, "select public.casino_live_wipe_tests() r")).spins, 1, "the one test spin wiped");
   eq((await one("select count(*)::int n from public.casino_live_spins where not test")).n, real, "real spins are never wiped");
+  // a tester who took the trial's Gil out of the wallet, then won Gil of the site's, then the trial's again: the wipe takes
+  // back only what came after the withdrawal, says what was withdrawn, and keeps the site's Gil
+  await db.exec(`update public.profiles set character_id = coalesce(character_id, 1001), character_verified_at = coalesce(character_verified_at, now()) where id = '${ADMIN}'`);
+  const gold = await save(ADMIN, {}, { seven: { active: false }, gold: { active: true, chance: 0.4, stock: 20 } });
+  ok(gold && !gold.error, `the gold on again (${gold?.error ?? "ok"})`);
+  const e0 = await one("select balance, earned from public.wallets where profile_id = $1", [ADMIN]);
+  ok((await spin(ADMIN, "gold"))?.prize?.kind === "gil", "a million of the trial's Gil");
+  const took = await as(ADMIN, "select public.withdraw_wallet() r");
+  eq(Number(took), Number(e0.balance) + 1000000, `the tester withdraws it all (${took?.error ?? ""})`);
+  await as(null, "select public.credit_wallet($1, 300000, null, 'Rare popoto', '#fff', 'rare', 'tier', null) r", [ADMIN], "postgres");
+  ok((await spin(ADMIN, "gold", 2))?.prize?.kind === "gil", "the trial's million again, after the withdrawal");
+  const out = await as(ADMIN, "select public.casino_live_wipe_tests() r");
+  eq([out?.spins, out?.drops, Number(out?.withdrawn)], [2, 2, 1000000], "the wipe says the million withdrawn");
+  eq(await one("select balance::bigint b, earned::bigint e from public.wallets where profile_id = $1", [ADMIN]), { b: 300000, e: Number(e0.earned) + 300000 }, "Gil won since is kept, the trial's taken back");
+  ok(await one("select 1 r from public.prize_wins where winner = $1 and prize_name = 'เงินสะสม'", [ADMIN]), "the withdrawal stays for the admins to settle");
   await as(ADMIN, "select public.casino_live_access('everyone') r");
 
   // ── the desk ──

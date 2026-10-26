@@ -135,3 +135,11 @@ export const CLAIM_LABEL = { pending: 'รอรับ', processing: 'กำล�
 export function whereItGoes(p: Pick<PrizeSnapshot, 'kind'>): string {
   return p.kind === 'gil' ? 'เข้ากระเป๋าเงิน Gil ในโปรไฟล์' : p.kind === 'coin' ? 'เข้ากระเป๋า Cash Town แล้ว' : 'อยู่ในกล่องรางวัล กดขอรับแล้วคุยกับแอดมินได้';
 }
+/**
+ * What the wipe of the admins' trial says it did (v299): and, when a tester had already withdrawn Gil won in the trial,
+ * that this much of their 'เงินสะสม' prize row is the trial's, not to be handed over.
+ */
+export function wipedWords(r: unknown): string {
+  const out = Number((r as { withdrawn?: number } | null)?.withdrawn ?? 0);
+  return out > 0 ? `ล้างผลทดสอบแล้ว แต่ Gil จากการทดสอบ ${money(out)} ถูกถอนออกไปแล้ว: ในรายการ "เงินสะสม" ของผู้ทดสอบ ส่วนนี้ไม่ต้องส่งมอบ` : 'ล้างผลทดสอบแล้ว';
+}

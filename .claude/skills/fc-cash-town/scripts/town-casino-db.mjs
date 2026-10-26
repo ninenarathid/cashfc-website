@@ -5,7 +5,8 @@
 // Shut, the kura is a storehouse like any other; let in, an admin sees "Popoto Casino" over its door, taps it, walks
 // in, taps a machine, sits at it, forces the evercold and wins it: a prize row of the site's, its bell, the sheet saying
 // where it went. A member is kept out while the admins try it, and let in once everybody is: walks in on a phone,
-// spins. Pictures at 1280x860, 384x730 and 360x640.
+// spins, wins a prize marked to be told, and the town's banner tells it, on the winner's page and on the admin's.
+// Pictures at 1280x860, 384x730 and 360x640.
 //
 //   node town-bench.mjs 3299   (BENCH_FROM=<the kept bench> BENCH_EXTRA=…, see scripts/db/README.md)
 //   node town-casino-db.mjs <base> <outdir> [bench]
@@ -133,9 +134,21 @@ try {
       await B.shot(`${OUT}/9-casino-room-${label}.png`);
       await sitAt(B, 2);
       await B.shot(`${OUT}/10-casino-sheet-${label}.png`);
+      // a prize marked to be told, all but sure
+      await sql(`update public.casino_live_prizes set active = false where id <> 'seven'`);
+      await sql(`update public.casino_live_prizes set active = true, chance = 100, stock = 10, issued = 0, announce = true, name = 'Lucky 7', kind = 'physical' where id = 'seven'`);
+      // (the prizes only: the settings revision the page holds stays good)
       await spin(B);
       const r = await resultOf(B);
       ok(`${label}: a member's spin comes back`, /ได้|ยังไม่ได้รางวัล/.test(r), r);
+      const told = (X) => X.evaluate(`[...document.querySelectorAll("[data-town-announcement]")].map((e) => e.innerText).join(" | ")`);
+      ok(`${label}: the whole town is told`, /Popoto Casino/.test(await until("the banner", async () => { const t = await told(B); return /Popoto Casino/.test(t) && t; }, 25000).catch(() => "") || ""),
+        await told(B));
+      await B.shot(`${OUT}/12-town-told-${label}.png`);
+      if (label === "384x730") {
+        ok("the admin's page in the casino is told too", /Popoto Casino/.test(await until("the admin's banner", async () => { const t = await told(A); return /Popoto Casino/.test(t) && t; }, 25000).catch(() => "") || ""));
+        await A.shot(`${OUT}/12-town-told-desktop.png`);
+      }
       ok(`${label}: no forced result for a member`, !(await B.evaluate(`!!document.querySelector('.casino-in-town select[aria-label="ผลที่จะออก"]')`)));
       await B.shot(`${OUT}/11-casino-spun-${label}.png`);
     } finally { await B.quit(); }

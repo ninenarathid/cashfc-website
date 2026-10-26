@@ -521,7 +521,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const [casinoSheet, setCasinoSheet] = useState(false);
   const casinoSheetRef = useRef(false);
   casinoSheetRef.current = casinoSheet;
-  /** Who may go down the kura's door (the database's, v299): read as the town opens, every five minutes, and at a tap on the door. */
+  /** Who may go down the kura's door (the database's, v299): read as the town opens, every minute the page is in sight, and at a tap on the door. */
   const { realAdmin } = useAdmin();
   const [casinoDoor, setCasinoDoorShown] = useState(false);
   /** `next dev`'s test room against the stand-in database (`&townDb=`): the casino's calls go there too, as this tester. */
@@ -552,7 +552,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       setCasinoDoorShown(open);
     };
     void read();
-    const every = setInterval(() => void read(), 5 * 60_000), again = () => void read();
+    const every = setInterval(() => { if (!document.hidden) void read(); }, 60_000), again = () => void read();
     window.addEventListener("cashtown:casino-door", again);
     return () => { gone = true; clearInterval(every); window.removeEventListener("cashtown:casino-door", again); };
   }, [realAdmin, casinoBench]);
@@ -606,7 +606,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const keeperBoxes = useRef<Array<{ id: Keeper["id"] | "smith"; x0: number; y0: number; x1: number; y1: number }>>([]);
   /** The clothes shop's notice board on the screen, for a tap that opens the week's auction (null while it is not drawn). */
   const shopBoardBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
-  const gateBoxes = useRef<Array<{ to: [number, number]; x0: number; y0: number; x1: number; y1: number }>>([]);
+  const gateBoxes = useRef<Array<{ to: [number, number]; x0: number; y0: number; x1: number; y1: number; casino?: boolean }>>([]);
   /** Whether the kura's door opens for me, for the frame (the state above, kept where the draw reads it). */
   const casinoDoorRef = useRef(false);
   casinoDoorRef.current = casinoDoor;
@@ -2610,7 +2610,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       if (g.leads === "casino" || g.from === "casino") {
         const th = words.current.th, inward = g.leads === "casino";
         if (inward && !casinoDoorRef.current) continue;
-        gateBoxes.current.push({ to: g.tiles[0], x0: c.x - (inward ? 26 : 40) * v.s, y0: c.y - (inward ? 64 : 24) * v.s, x1: c.x + (inward ? 26 : 40) * v.s, y1: c.y + (inward ? 4 : 18) * v.s });
+        gateBoxes.current.push({ to: g.tiles[0], x0: c.x - (inward ? 26 : 40) * v.s, y0: c.y - (inward ? 64 : 24) * v.s, x1: c.x + (inward ? 26 : 40) * v.s, y1: c.y + (inward ? 4 : 18) * v.s, casino: inward });
         signs.push(() => label(ctx, inward ? "Popoto Casino" : (th ? "กลับออกไปในเมือง" : "Back to town"), c.x, c.y + (inward ? -78 : 34) * v.s,
           "#e5cc80", "rgba(15,19,25,0.82)", popotoImg.current));
         continue;
@@ -4074,6 +4074,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const gate = gateBoxes.current.find((k) => x >= k.x0 && x <= k.x1 && y >= k.y0 && y <= k.y1);
     if (gate) {
       setPopover(null); setPeopleOpen(false);
+      // (the casino's door asks again on the way: shut since the last read, it is a storehouse's by the time I reach it)
+      if (gate.casino) window.dispatchEvent(new Event("cashtown:casino-door"));
       if (sessionRef.current?.walkTo({ x: gate.to[0], y: gate.to[1] })) cam.current.follow = true;
       return;
     }

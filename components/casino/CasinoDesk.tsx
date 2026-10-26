@@ -1,7 +1,7 @@
 "use client";
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { ACCESS_LABEL, CLAIM_LABEL, coinsBack, draftOf, draftProblem, effectiveChance, money, PRIZE_LABEL, prizeWithAmount, type CasinoAccess, type CasinoDraft, type CasinoReceipt } from '@/lib/casino';
+import { ACCESS_LABEL, CLAIM_LABEL, coinsBack, draftOf, draftProblem, effectiveChance, money, PRIZE_LABEL, prizeWithAmount, wipedWords, type CasinoAccess, type CasinoDraft, type CasinoReceipt } from '@/lib/casino';
 import CasinoWinners from './CasinoWinners';
 import { useCasino } from './useCasino';
 import './casino.css';
@@ -56,7 +56,7 @@ export default function CasinoDesk() {
     if (!client || busy) return;
     if (!window.confirm(`ล้างผลทดสอบของแอดมินทั้งหมด ${money(state.tests ?? 0)} ครั้ง? coin สต็อก งบ Gil รายการผู้โชคดี แชท และกระเป๋าเงินที่มาจากการทดสอบจะกลับเป็นเหมือนก่อนทดสอบ`)) return;
     setBusy(true); setError('');
-    try { const { error: failed } = await client.rpc('casino_live_wipe_tests'); if (failed) setError(failed.message); else { setMessage('ล้างผลทดสอบแล้ว'); await reload(); } }
+    try { const { data, error: failed } = await client.rpc('casino_live_wipe_tests'); if (failed) setError(failed.message); else { setMessage(wipedWords(data)); await reload(); } }
     finally { setBusy(false); }
   };
   return <main id="casino"><div className="casino-links"><Link href="/admin/aqua">กลับ Aqua</Link><Link href={live?"/town":"/town?map=casino-test"}>{live?"เข้า Cash Town (ประตูโรงเก็บของ kura)":"เข้าห้อง Casino TEST"} ↗</Link><Link href={live?"/admin/aqua/casino":"/admin/aqua/casino-live"}>ตั้งค่า {live?"TEST":"LIVE"} ↗</Link></div>

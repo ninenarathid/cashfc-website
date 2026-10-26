@@ -237,13 +237,17 @@ The test reads the applied SQL with `migration(179)`; the stand-in and HTTP benc
 evercold and the pair (coins back) as prizes five and six; a thing won becomes a row of `prize_wins` with its bell (the
 site's 1-1 prize thread), Gil goes into the wallet (`credit_wallet`); `casino_live_access(text)` (the Aqua page's
 switch) and `casino_live_wipe_tests()`; a spin told to the private channel `casino-live` instead of the change feed;
-the zone `casino` in the town's chat lists. Its dry run, `v299.test.mjs` (81 checks; `v299.mutations.mjs`, 17 of 17
-breaks caught), runs on the bench v297's dry run kept after v296 (`V299_BENCH=<tar>`), with the site's prize and wallet
-tables stood in for by `site-prize-stand-ins.sql` (their columns and functions as v87, v91 and v93 ran).
+the zone `casino` in the town's chat lists; a win of a prize marked `announce` told to the whole town (kind `casino` in
+`town_announcements`, dated when the reels stop; never a test), read by `town_announcements_v299`, v256's reader left
+for older pages without the casino's kind. The wipe takes back only trial Gil paid after a tester's last withdrawal
+and says what was withdrawn. Its dry run, `v299.test.mjs` (93 checks; `v299.mutations.mjs`, 22 of 22 breaks caught),
+runs on the bench v297's dry run kept after v296 (`V299_BENCH=<tar>`), v256 first with the account it asks for
+(`v256-stand-in.sql`: the kept benches never ran v256), with the site's prize and wallet tables stood in for by
+`site-prize-stand-ins.sql` (their columns and functions as v87, v91 and v93 ran, withdraw_wallet too).
 
 **The stand-in from a kept bench:** replaying every file no longer runs past v252 (later files were dry-run on kept
-benches). `BENCH_FROM=<tar> BENCH_EXTRA=<v297>,<v298>,<v204>,<v206>,site-prize-stand-ins.sql,<v299> node
+benches). `BENCH_FROM=<tar> BENCH_EXTRA=v256-stand-in.sql,<v256>,<v297>,<v298>,<v204>,<v206>,site-prize-stand-ins.sql,<v299> node
 town-bench.mjs 3299` loads the kept bench as it stands and runs the files after it; the stand-in now answers the
 casino's own calls (`casino_*`) too, and has a Realtime schema (messages, topic, a `send` that keeps what it is sent).
 In `next dev` the casino's sheet asks it when the test room has `&townDb=` (components/casino/CasinoSandbox's
-`benchClient`): `scripts/town-casino-db.mjs <base> <out> <bench>` walks in and plays (23 checks).
+`benchClient`): `scripts/town-casino-db.mjs <base> <out> <bench>` walks in and plays (26 checks, the town's banner too).

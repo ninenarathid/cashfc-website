@@ -12,14 +12,19 @@ function session(rpc = vi.fn().mockResolvedValue({ data: { ok: true, id: 12 }, e
   return { s, rpc, chat };
 }
 describe("production /announce command", () => {
-  it("reads custom announcements while keeping the older feed working before v256 runs", async () => {
+  it("reads every kind from v299's reader, and the older feeds before v299 or v256 have run", async () => {
     const page = { cursor: 12, events: [] };
-    const rpc = vi.fn().mockResolvedValueOnce(page).mockRejectedValueOnce(new Error("missing RPC")).mockResolvedValueOnce(page);
+    // (a reader missing: the database's error is answered as nothing, or the call fails)
+    const rpc = vi.fn().mockResolvedValueOnce(page)
+      .mockResolvedValueOnce(null).mockResolvedValueOnce(page)
+      .mockResolvedValueOnce(null).mockRejectedValueOnce(new Error("missing RPC")).mockResolvedValueOnce(page);
     const keeper: DbKeeper = Object.assign(Object.create(DbKeeper.prototype), { rpc });
     expect(await keeper.announcements(null, "51000000")).toBe(page);
-    expect(rpc).toHaveBeenNthCalledWith(1, "town_announcements_v256", { p_after: null, p_look: "51000000" });
+    expect(rpc).toHaveBeenNthCalledWith(1, "town_announcements_v299", { p_after: null, p_look: "51000000" });
     expect(await keeper.announcements(12, null)).toBe(page);
-    expect(rpc).toHaveBeenNthCalledWith(3, "town_announcements", { p_after: 12, p_look: null });
+    expect(rpc).toHaveBeenNthCalledWith(3, "town_announcements_v256", { p_after: 12, p_look: null });
+    expect(await keeper.announcements(12, null)).toBe(page);
+    expect(rpc).toHaveBeenNthCalledWith(6, "town_announcements", { p_after: 12, p_look: null });
   });
   it("publishes through the authenticated RPC and refreshes notices without sending player chat", async () => {
     const { s, rpc, chat } = session(), refreshed = vi.fn();
@@ -62,5 +67,10 @@ describe("production /announce command", () => {
     const event = { id: 1, at: 0, member: "owner", name: "Ninenine", kind: "admin" as const, subject: "คืนนี้เจอกัน <3", level: 0, portrait: { look: null, expression: "neutral" } };
     expect(announcementText(event, true)).toBe("Ninenine คืนนี้เจอกัน <3");
     expect(announcementText(event, false)).toBe(announcementText(event, true));
+  });
+  it("tells a casino win by the prize's own name (v299)", () => {
+    const event = { id: 2, at: 0, member: "m", name: "Mira", kind: "casino" as const, subject: "Evercold", level: 0, portrait: { look: null, expression: "neutral" } };
+    expect(announcementText(event, true)).toBe("Mira ได้รางวัล Evercold จาก Popoto Casino!");
+    expect(announcementText(event, false)).toBe("Mira won Evercold at the Popoto Casino!");
   });
 });

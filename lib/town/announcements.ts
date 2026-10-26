@@ -4,7 +4,7 @@ import type { Stack } from "./trade";
 
 export interface TownAnnouncement {
   id: number; at: number; member: string; name: string;
-  kind: "forge" | "rank" | "legend" | "forest" | "recipe" | "cross" | "depth" | "bridge" | "lamps" | "admin";
+  kind: "forge" | "rank" | "legend" | "forest" | "recipe" | "cross" | "depth" | "bridge" | "lamps" | "admin" | "casino";
   subject: string; level: number;
   portrait: { look: string | null; expression: string; held?: Stack | null; wet?: boolean };
 }
@@ -14,6 +14,8 @@ export function announcementText(event: TownAnnouncement, th: boolean): string {
   const item = event.subject in ITEMS ? ITEMS[event.subject as keyof typeof ITEMS].name[th ? "th" : "en"] : event.subject;
   switch (event.kind) {
     case "admin": return `${event.name} ${event.subject}`;
+    // (the subject is the prize's own name, as Aqua wrote it at the casino's desk: v299)
+    case "casino": return th ? `${event.name} ได้รางวัล ${event.subject} จาก Popoto Casino!` : `${event.name} won ${event.subject} at the Popoto Casino!`;
     case "forge": return th ? `${event.name} ตีบวก ${item} +${event.level} สำเร็จ!` : `${event.name} forged ${item} to +${event.level}!`;
     case "rank": { const line = LINES[event.subject as LineId]?.name; return th ? `${event.name} ถึงขั้น ${event.level} สาย${line?.th ?? item}!` : `${event.name} reached ${line?.en ?? item} rank ${event.level}!`; }
     case "legend": return th ? `${event.name} จับ ${item} เป็นคนแรกของเมือง!` : `${event.name} made the town's first catch of ${item}!`;

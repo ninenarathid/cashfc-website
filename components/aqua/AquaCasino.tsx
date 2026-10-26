@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { ACCESS_LABEL, accessOf, money, type CasinoAccess, type CasinoState } from "@/lib/casino";
+import { ACCESS_LABEL, accessOf, money, wipedWords, type CasinoAccess, type CasinoState } from "@/lib/casino";
 import CasinoWinners from "@/components/casino/CasinoWinners";
 import "@/components/casino/casino.css";
 
@@ -11,7 +11,8 @@ import "@/components/casino/casino.css";
  * The Popoto Casino on Aqua's page (the owner, 2026-10-26: "จะสามารถเปิดให้ใช้งานได้ใน page admin aqua"): who may go in
  * and spin (nobody, the admins trying it, everybody: v299's `casino_live_access`), the admins' trial wiped, the newest
  * winners with their 1-1 threads, and the way to the desk where the prizes and their odds are set. Members walk in by
- * the kura's door in the town; the door opens on their page within five minutes of a change here.
+ * the kura's door in the town; the door opens on their page within a minute of a change here. Read again every fifteen
+ * seconds while in sight, so that another admin's spins and switches show.
  */
 export default function AquaCasino({ supabase }: { supabase: SupabaseClient }) {
   const [state, setState] = useState<CasinoState | null>(null);
@@ -22,29 +23,36 @@ export default function AquaCasino({ supabase }: { supabase: SupabaseClient }) {
     const { data, error: failed } = await supabase.rpc("casino_live_state", { p_receipt_page: 0, p_history: false });
     if (failed) { setError(failed.code === "PGRST202" ? "ยังไม่ได้รัน SQL v206" : failed.message); return; }
     setState(data as CasinoState); setError("");
+    return data as CasinoState;
   }, [supabase]);
-  useEffect(() => { void read(); }, [read]);
+  useEffect(() => {
+    void read();
+    const every = setInterval(() => { if (!document.hidden) void read(); }, 15_000);
+    return () => clearInterval(every);
+  }, [read]);
   const ready = !!state && state.settings.access !== undefined;
   const access = state ? accessOf(state.settings) : "closed";
   const tests = state?.tests ?? 0;
   const set = async (to: CasinoAccess) => {
     if (busy || to === access) return;
-    if (to === "everyone" && tests > 0 && !window.confirm(`ยังมีผลทดสอบของแอดมิน ${money(tests)} ครั้ง เปิดให้ทุกคนโดยไม่ล้างก่อนไหม? (ล้างได้ที่ปุ่มด้านล่าง)`)) return;
+    // (the count as it stands: another admin may have spun since the last read)
+    const left = to === "everyone" ? (await read())?.tests ?? tests : tests;
+    if (to === "everyone" && left > 0 && !window.confirm(`ยังมีผลทดสอบของแอดมิน ${money(left)} ครั้ง เปิดให้ทุกคนโดยไม่ล้างก่อนไหม? (ล้างได้ที่ปุ่มด้านล่าง)`)) return;
     setBusy(true); setSaid("");
     const { error: failed } = await supabase.rpc("casino_live_access", { p_access: to });
     setBusy(false);
     if (failed) { setError(failed.message); return; }
-    setSaid(to === "everyone" ? "เปิดให้ทุกคนแล้ว ประตูในเมืองจะเปิดในหน้าของสมาชิกภายใน 5 นาที" : to === "admins" ? "เปิดให้แอดมินทดสอบแล้ว ทุกการหมุนเป็นการทดสอบ" : "ปิด Casino แล้ว");
+    setSaid(to === "everyone" ? "เปิดให้ทุกคนแล้ว ประตูในเมืองจะเปิดในหน้าของสมาชิกภายใน 1 นาที" : to === "admins" ? "เปิดให้แอดมินทดสอบแล้ว ทุกการหมุนเป็นการทดสอบ" : "ปิด Casino แล้ว");
     await read();
   };
   const wipe = async () => {
     if (busy || !tests) return;
     if (!window.confirm(`ล้างผลทดสอบของแอดมินทั้งหมด ${money(tests)} ครั้ง? coin สต็อก งบ Gil รายการผู้โชคดี แชท และกระเป๋าเงินที่มาจากการทดสอบจะกลับเป็นเหมือนก่อนทดสอบ`)) return;
     setBusy(true); setSaid("");
-    const { error: failed } = await supabase.rpc("casino_live_wipe_tests");
+    const { data, error: failed } = await supabase.rpc("casino_live_wipe_tests");
     setBusy(false);
     if (failed) { setError(failed.message); return; }
-    setSaid("ล้างผลทดสอบแล้ว"); await read();
+    setSaid(wipedWords(data)); await read();
   };
   return (
     <section id="casino" className="mt-5 rounded-xl border border-line bg-card p-4 sm:p-5" data-aqua-casino={access}>

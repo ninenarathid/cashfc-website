@@ -55,14 +55,20 @@ export default function TownAnnouncements({ keeper, session, th }: { keeper: Kee
   const language = useRef(th); language.current = th;
   useEffect(() => {
     let stopped = false, busy = false, again = false, cursor: number | null = null;
-    const seenIds = new Set<number>();
+    const seenIds = new Set<number>(), held = new Set<ReturnType<typeof setTimeout>>();
+    const show = (events: TownAnnouncement[], initial: boolean) => {
+      for (const event of events) session.townAnnouncement(event.id, announcementText(event, language.current), event.at, language.current ? "เมือง" : "Town");
+      if (!initial && events.length) setQueue(was => [...was, ...events]);
+    };
     const accept = (events: TownAnnouncement[], initial: boolean) => {
-      const fresh = events.filter(event => !seenIds.has(event.id));
-      for (const event of fresh) {
-        seenIds.add(event.id);
-        session.townAnnouncement(event.id, announcementText(event, language.current), event.at, language.current ? "เมือง" : "Town");
+      const fresh = events.filter(event => !seenIds.has(event.id)), now = Date.now();
+      for (const event of fresh) seenIds.add(event.id);
+      show(fresh.filter(event => event.at <= now), initial);
+      // (a casino win is written as the spin starts and dated when its reels stop: told then, not before the winner sees it)
+      for (const event of fresh.filter(event => event.at > now)) {
+        const timer = setTimeout(() => { held.delete(timer); if (!stopped) show([event], initial); }, Math.min(event.at - now, 10_000));
+        held.add(timer);
       }
-      if (!initial) setQueue(was => [...was, ...fresh]);
     };
     async function read() {
       if (document.hidden || !keeper.announcements || stopped) return;
@@ -79,7 +85,7 @@ export default function TownAnnouncements({ keeper, session, th }: { keeper: Kee
     const stopSent = session.watchAnnouncements(() => void read());
     const seen = () => { if (!document.hidden) void read(); }; document.addEventListener("visibilitychange", seen);
     if (process.env.NODE_ENV !== "production") (window as unknown as { __townAnnouncements?: unknown }).__townAnnouncements = { show: (event: TownAnnouncement) => accept([event], false) };
-    return () => { stopped = true; stopWatching?.(); stopSent(); clearInterval(timer); document.removeEventListener("visibilitychange", seen); if (process.env.NODE_ENV !== "production") delete (window as unknown as { __townAnnouncements?: unknown }).__townAnnouncements; };
+    return () => { stopped = true; stopWatching?.(); stopSent(); clearInterval(timer); for (const t of held) clearTimeout(t); document.removeEventListener("visibilitychange", seen); if (process.env.NODE_ENV !== "production") delete (window as unknown as { __townAnnouncements?: unknown }).__townAnnouncements; };
   }, [keeper, session]);
   const event = queue[0];
   useEffect(() => { if (!event) return; const timer = setTimeout(() => setQueue(was => was.slice(1)), 8000); return () => clearTimeout(timer); }, [event]);

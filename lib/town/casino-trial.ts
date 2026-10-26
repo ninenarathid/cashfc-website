@@ -18,6 +18,7 @@ export function newCasinoTrial(now = Date.now(), setup?: unknown): CasinoTrial {
   if (setup) try {
     const d=checkedDraft(t,setup);
     for(const k of SETUP_KEYS)(t.settings as Record<string,unknown>)[k]=d[k];
+    t.settings.access=d.access;
     t.prizes=t.prizes.map(old=>{const p=d.prizes.find(x=>x.id===old.id)!;return {id:old.id,name:p.name,kind:p.kind,amount:p.amount,chance:p.chance,stock:p.stock,issued:0,announce:p.announce,active:p.active};});
   } catch { /* the built-in prizes */ }
   return t;
@@ -26,7 +27,7 @@ const SETUP_KEYS = ['title','open','mode','price','per_player','budget','pool_si
 /** What a browser keeps of a room: its settings and prizes, not its coins, spins or receipts. */
 export function trialSetup(t: CasinoTrial): CasinoDraft {
   const d=Object.fromEntries(SETUP_KEYS.map(k=>[k,t.settings[k]])) as Omit<CasinoDraft,'prizes'>;
-  return {...d,access:'everyone',prizes:t.prizes.map(p=>({...p,issued:0}))};
+  return {...d,access:d.open?'everyone':'closed',prizes:t.prizes.map(p=>({...p,issued:0}))};
 }
 function checkedDraft(t: CasinoTrial, doc: unknown): CasinoDraft {
   const s=t.settings, d=structuredClone(doc) as CasinoDraft;
@@ -34,7 +35,8 @@ function checkedDraft(t: CasinoTrial, doc: unknown): CasinoDraft {
   // (a setup kept from before the evercold and the pair has the four symbols only: the two are added unused)
   const ids=d.prizes.map(p=>p.id);
   if(new Set(ids).size!==ids.length||!ids.every(id=>(PRIZE_IDS as readonly string[]).includes(id))||(ids.length!==PRIZE_IDS.length&&!(ids.length===4&&SYMBOLS.slice(0,4).every(id=>ids.includes(id)))))throw Error('ตั้งค่าไม่ครบ');
-  d.prizes=allPrizes(d.prizes);d.access='everyone';
+  // (the trial room has no admins' trial of its own: open is everybody, shut is nobody)
+  d.prizes=allPrizes(d.prizes);d.access=d.open?'everyone':'closed';
   for(const p of d.prizes){const current=t.prizes.find(x=>x.id===p.id);if(!current||!['gil','coin','physical'].includes(p.kind)||typeof p.active!=='boolean'||typeof p.announce!=='boolean')throw Error('รางวัลไม่ถูกต้อง');p.issued=current.issued;p.chance=Math.round(Number(p.chance)*1e6)/1e6;}
   const issue=draftProblem(d,s);if(issue)throw Error(issue);
   if([d.starts_at,d.ends_at].some(v=>v!==null&&!Number.isFinite(Date.parse(v))))throw Error('เวลาไม่ถูกต้อง');

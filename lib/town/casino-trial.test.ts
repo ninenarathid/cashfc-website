@@ -97,4 +97,10 @@ describe('the evercold and the pair (v299)',()=>{
   expect(()=>trialCommand(t,nine,'casino_lab_save',{p_revision:1,p_doc:doc},10000)).toThrow('Coin ที่ได้คืน');
   pair.kind='gil';expect(()=>trialCommand(t,nine,'casino_lab_save',{p_revision:1,p_doc:doc},10000)).toThrow('Coin');
  });
+ it('keeps who may come in as open says: shut is nobody, saved and kept',()=>{
+  const t=newCasinoTrial(10000);const doc=draftOf(trialState(t,nine));doc.open=false;
+  const shut=trialCommand(t,nine,'casino_lab_save',{p_revision:1,p_doc:doc},10000).trial;
+  expect(shut.settings.access).toBe('closed');expect(trialSetup(shut).access).toBe('closed');
+  expect(newCasinoTrial(20000,trialSetup(shut)).settings.access).toBe('closed');
+ });
 });
