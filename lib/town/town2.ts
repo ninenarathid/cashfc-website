@@ -230,6 +230,18 @@ export const T2_SHOP_DOOR = {
   out: { x: 75.5, y: Math.floor(TOWNHOUSE.box[3]) + 1.5 },
   at: { x: 75.3, y: TOWNHOUSE.box[3] },
 };
+/**
+ * The kura's door, the way down into the Popoto Casino (the owner, 2026-10-27: "โรงเก็บของ kura ก็ได้"; lib/town/casino-room):
+ * the arched doorway in the middle of its south-west face (x 66.8 to 69.5 along its front edge). As the townhouse's,
+ * `tile` is the kura's tile behind the door (its front row, the last it closes: its box reaches only 0.45 into the row
+ * before it), walked onto only to go in; `out` the ground before it; `at` its foot.
+ */
+const KURA = first(/^kura$/), KURA_FRONT = Math.floor(KURA.box[3] - 0.5);
+export const T2_CASINO_DOOR = {
+  tile: [68, KURA_FRONT] as [number, number],
+  out: { x: 68.5, y: KURA_FRONT + 1.5 },
+  at: { x: 68.2, y: KURA.box[3] },
+};
 
 /* ── the kitchen hall ───────────────────────────────────────────────────── */
 

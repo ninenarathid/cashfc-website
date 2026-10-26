@@ -53,7 +53,7 @@ export function reachNote(result: string, th: boolean): string | null {
 /** Which map a line came from, as its chip in the log says it. */
 export const CHAT_PLACE: Record<Place, [th: string, en: string]> = {
   town: ["เมือง", "Town"], farm: ["ฟาร์ม", "Farm"], forest: ["ป่า", "Forest"], mountain: ["ภูเขา", "Mountain"], cave: ["ถ้ำ", "Cave"],
-  shop: ["ร้านเสื้อผ้า", "Clothes shop"],
+  shop: ["ร้านเสื้อผ้า", "Clothes shop"], casino: ["Casino", "Casino"],
 };
 export function isPlace(raw: unknown): raw is Place {
   return typeof raw === "string" && Object.prototype.hasOwnProperty.call(CHAT_PLACE, raw);

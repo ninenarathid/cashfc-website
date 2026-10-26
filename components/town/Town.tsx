@@ -8,7 +8,7 @@ import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
   BENCHES, BEYOND_PROPS, BOARD, TRADE_BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_ALL, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SMITH, SPEED, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle, T2, liftAt,
-  atFire, atWell, wellBy, benchAt, bySmith, byStorebox, distance, fishFrom, fromIso, indoors as underRoof, isBuilt, isFar, setBridge, setBuilt, setFar, groundAt, hearing, inDiningYard, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
+  atFire, atWell, wellBy, benchAt, bySmith, byStorebox, distance, fishFrom, fromIso, indoors as underRoof, isBuilt, isFar, setBridge, setBuilt, setFar, setCasinoDoor, groundAt, hearing, inDiningYard, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
 import { bridgeSpans, bridgeWhole } from "@/lib/town/bridge";
 import { DECOR, FACES, artOf, carving, gateLook, ringAt } from "@/lib/town/decor";
@@ -19,6 +19,11 @@ import { T2_CHEST_OPEN, T2_CHEST_SHUT, T2_LAMP_LIGHT, T2_PROP_THING, T2_RINGS, T
 import { ShopRoomArt } from "@/lib/town/shop-room-art";
 import { SHOP_BOARD } from "@/lib/town/shop-room";
 import type { ShopWindowProps } from "./TownTailor";
+// ── the Popoto Casino ── (lib/town/casino-room: a room of its own down the kura's door; components/casino/CasinoInTown is its sheet)
+import { CasinoRoomArt } from "@/lib/town/casino-room-art";
+import { stoolAt } from "@/lib/town/casino-room";
+import { letIn, type CasinoSettings } from "@/lib/casino";
+import { useAdmin } from "@/lib/admin";
 import { BOUNDS, START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
 import { PACE, keepFps, keptFps, nap, paceOf, paced, wokenFor, type Fps } from "@/lib/town/pace";
 import { canvasDpr } from "@/lib/town/rendering";
@@ -196,6 +201,8 @@ const TownSmith = lazy(() => import("./TownSmith"));
 // ── Granny Twilla's clothes shop ── (her clothes, from a talk with her, and the weekly auction, from the board on her wall:
 // panel `tailor` and `auction`, each its own window, asked for only when opened)
 const TownTailor = lazy(() => import("./TownTailor"));
+// ── the Popoto Casino ── (its sheet, asked for only by whoever goes into it)
+const CasinoInTown = lazy(() => import("@/components/casino/CasinoInTown"));
 const TownAuction = lazy(() => import("./TownAuction"));
 /** The clothes shop's windows: Granny's clothes, and the week's auction. */
 export type ShopPanel = "tailor" | "auction";
@@ -504,6 +511,49 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // ── Granny Twilla's clothes shop ── (its pictures are asked for only once it comes near the view: the room's own art)
   const shopArtRef = useRef<ShopRoomArt | null>(null);
   if (T2 && !shopArtRef.current) shopArtRef.current = new ShopRoomArt();
+  // ── the Popoto Casino ── (its interior, drawn by the town's frame; what its reels show is the casino's page's to say)
+  const casinoArtRef = useRef<CasinoRoomArt | null>(null);
+  if (T2 && !casinoArtRef.current) casinoArtRef.current = new CasinoRoomArt();
+  /** Whether I am in the casino (its sheet is mounted while I am), and what a tap on a machine (1 to 5) or its counter (0) does there. */
+  const [inCasino, setInCasino] = useState(false);
+  const casinoTap = useRef<((n: number) => void) | null>(null);
+  /** Whether the casino's sheet is open (the stand-up button, under it on a phone, gives way to it: X still gets one up). */
+  const [casinoSheet, setCasinoSheet] = useState(false);
+  /** Who may go down the kura's door (the database's, v299): read as the town opens, every five minutes, and at a tap on the door. */
+  const { realAdmin } = useAdmin();
+  const [casinoDoor, setCasinoDoorShown] = useState(false);
+  /** `next dev`'s test room against the stand-in database (`&townDb=`): the casino's calls go there too, as this tester. */
+  const casinoBench = useMemo(() => {
+    if (process.env.NODE_ENV === "production" || !testTopic || typeof location === "undefined") return null;
+    const url = new URLSearchParams(location.search).get("townDb");
+    return url && /^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(url) ? { url, as: me.id } : null;
+  }, [testTopic, me.id]);
+  useEffect(() => {
+    if (!T2) return;
+    const client = createClient();
+    if (!client && !casinoBench) return;
+    let gone = false;
+    const read = async () => {
+      // (`*`: a database before v299 has no `access`, and the casino is then as `open` says: shut)
+      let s: Pick<CasinoSettings, "open" | "access" | "starts_at" | "ends_at"> | null = null, admin = realAdmin;
+      if (casinoBench) {
+        const r = await fetch(`${casinoBench.url}/rest/v1/rpc/casino_live_state`, { method: "POST", headers: { "content-type": "application/json", "x-town-as": casinoBench.as }, body: "{}" }).catch(() => null);
+        const got = r?.ok ? await r.json() as { settings?: CasinoSettings; admin?: boolean } : null;
+        s = got?.settings ?? null; admin = !!got?.admin;
+      } else if (client) s = (await client.from("casino_live_settings").select("*").eq("id", 1).maybeSingle()).data;
+      if (gone) return;
+      const now = Date.now();
+      const hours = (!s?.starts_at || now >= Date.parse(s.starts_at)) && (!s?.ends_at || now < Date.parse(s.ends_at));
+      // (the admins' trial is at any hour; everybody's within the event's)
+      const open = !!s && letIn(s, admin) && (s.access === "admins" || hours);
+      setCasinoDoor(open);
+      setCasinoDoorShown(open);
+    };
+    void read();
+    const every = setInterval(() => void read(), 5 * 60_000), again = () => void read();
+    window.addEventListener("cashtown:casino-door", again);
+    return () => { gone = true; clearInterval(every); window.removeEventListener("cashtown:casino-door", again); };
+  }, [realAdmin, casinoBench]);
   /** How far in the camera was outdoors when I went into the shop: put back when I come out (the room asks for closer). */
   const zoomOutdoors = useRef<number | null>(null);
   /** The roof as the last frame drew it (none at all where there is no house to draw), for the lights that follow it. */
@@ -555,6 +605,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   /** The clothes shop's notice board on the screen, for a tap that opens the week's auction (null while it is not drawn). */
   const shopBoardBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
   const gateBoxes = useRef<Array<{ to: [number, number]; x0: number; y0: number; x1: number; y1: number }>>([]);
+  /** Whether the kura's door opens for me, for the frame (the state above, kept where the draw reads it). */
+  const casinoDoorRef = useRef(false);
+  casinoDoorRef.current = casinoDoor;
   const boardNews = useRef(false);
   useEffect(() => {
     if (testTopic) return;
@@ -1855,7 +1908,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     for (const g of GATES) {
       const ring = gateLook(g).ring;
       // (the clothes shop's ring is its own picture, its door the townhouse's: lib/town/shop-room-art)
-      if (g.from !== placeRef.current || !scenery.has(ring) || (T2 && g.from === "town") || g.from === "shop") continue;
+      if (g.from !== placeRef.current || !scenery.has(ring) || (T2 && g.from === "town") || g.from === "shop" || g.from === "casino") continue;
       const c = project(ringAt(g));
       if (!onScreen(c)) continue;
       scenery.drawProp(ctx, ring, c.x, c.y, s, dpr);
@@ -1880,7 +1933,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     ctx.globalCompositeOperation = "lighter";
     const breath = still ? 0.9 : 0.8 + 0.2 * Math.sin(now / 1500);
     for (const g of GATES) {
-      if (g.from !== placeRef.current || !scenery.has(gateLook(g).ring) || (T2 && g.from === "town") || g.from === "shop") continue;
+      if (g.from !== placeRef.current || !scenery.has(gateLook(g).ring) || (T2 && g.from === "town") || g.from === "shop" || g.from === "casino") continue;
       const c = project(ringAt(g));
       if (!onScreen(c)) continue;
       const lit = (0.14 + 0.5 * lamps) * breath;
@@ -1987,7 +2040,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // (nor in the clothes shop, under its roof: its own warm light, whatever the hour, and its ring's glow)
     if (underRoof(placeRef.current)) {
       const v = cam.current;
-      shopArtRef.current?.light(ctx, (ix, iy) => toScreen(v, { x: ix, y: iy }, cw, ch), v.s, cw, ch, now, reducedRef.current);
+      const screen = (ix: number, iy: number) => toScreen(v, { x: ix, y: iy }, cw, ch);
+      if (placeRef.current === "casino") casinoArtRef.current?.light(ctx, screen, v.s, cw, ch, now, reducedRef.current);
+      else shopArtRef.current?.light(ctx, screen, v.s, cw, ch, now, reducedRef.current);
       return;
     }
     const day = skyNow();
@@ -2065,6 +2120,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       placeRef.current = place;
       // (the clothes shop is small, and its camera may not go as far out as the outdoors': the outdoors' zoom is put
       // back on coming out, and its windows are shut)
+      queueMicrotask(() => setInCasino(place === "casino"));
       if (underRoof(place) && !underRoof(was)) zoomOutdoors.current = v.s;
       else if (!underRoof(place) && underRoof(was)) {
         if (zoomOutdoors.current) v.s = zoomOutdoors.current;
@@ -2236,6 +2292,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (scenery && !underRoof(placeRef.current)) drawRiver(ctx, scenery, dpr);
     if (art2 && seen2) art2.drawFloor(ctx, seen2, iso2, v.s, dpr, reducedRef.current ? 0 : now, inHall);
     if (roomArt && seenShop) roomArt.drawFloor(ctx, seenShop, iso2, v.s, dpr);
+    // ── the Popoto Casino ── (its floor and walls, under everybody, while it is near the view)
+    const casinoArt = scenery ? casinoArtRef.current : null;
+    const seenCasino = !!casinoArt && casinoArt.near({ x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, now);
+    if (casinoArt && seenCasino) casinoArt.drawFloor(ctx, iso2, v.s);
     // A ring of light on the ground at each gate, under its gateway and whoever walks onto it.
     if (scenery) drawRings(ctx, scenery, dpr, now);
     /** Whether carved pumpkins are out (lib/town/decor), by the calendar or as `next dev` was asked. */
@@ -2322,6 +2382,23 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         shopBoardBox.current = bb;
         signs.push(() => label(ctx, words.current.th ? "ประมูลประจำสัปดาห์" : "Weekly auction", (bb.x0 + bb.x1) / 2, bb.y0 - 12 * v.s, "#e5cc80", "rgba(15,19,25,0.82)", null));
       }
+    }
+    // ── the Popoto Casino ── (its machines, stools and furniture back to front with everybody, the town's banker at its
+    // counter; and over every head the marquee of each machine that is played or sat at)
+    if (casinoArt && seenCasino) {
+      casinoArt.pushStanding(ctx, (depth, draw) => things.push({ depth, draw }), iso2, v.s, now, reducedRef.current,
+        (at, size) => {
+          if (!scenery?.has("bk_stand")) return;
+          scenery.drawProp(ctx, "bk_stand", at.x, at.y, size, dpr);
+          const [, tall] = scenery.anchorOf("bk_stand");
+          signs.push(() => label(ctx, words.current.th ? "พนักงาน Casino" : "Casino clerk", at.x, at.y - tall * size - 10, "#e5cc80", "rgba(15,19,25,0.82)"));
+        });
+      const sitter = (n: number) => {
+        const s = sessionRef.current;
+        if (s) for (const a of [s.self, ...s.avatars.values()]) if (sitting(a) && !a.path.length && stoolAt(a.pos) === n) return a.info.name;
+        return null;
+      };
+      signs.push(() => casinoArt.drawSigns(ctx, iso2, v.s, reducedRef.current, sitter, cw < 640));
     }
     for (const p of T2 ? [] : PROPS) {
       if (p.kind === "flowers") continue;
@@ -2519,6 +2596,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (scenery?.has("gateway")) for (const g of GATES) {
       const c = project(g.arch);
       if (!onScreen(c)) continue;
+      // ── the Popoto Casino ── (down by the kura's door: its name over the door and the door to tap, only while it opens
+      // for me (shut, the kura is a storehouse like any other); out by the carpet at the room's foot, its name under it)
+      if (g.leads === "casino" || g.from === "casino") {
+        const th = words.current.th, inward = g.leads === "casino";
+        if (inward && !casinoDoorRef.current) continue;
+        gateBoxes.current.push({ to: g.tiles[0], x0: c.x - (inward ? 26 : 40) * v.s, y0: c.y - (inward ? 64 : 24) * v.s, x1: c.x + (inward ? 26 : 40) * v.s, y1: c.y + (inward ? 4 : 18) * v.s });
+        signs.push(() => label(ctx, inward ? "Popoto Casino" : (th ? "กลับออกไปในเมือง" : "Back to town"), c.x, c.y + (inward ? -78 : 34) * v.s,
+          "#e5cc80", "rgba(15,19,25,0.82)", popotoImg.current));
+        continue;
+      }
       // ── Granny Twilla's clothes shop ── (in by the townhouse's door: its name over the door, and the door to tap; out by
       // the ring: its name under the ring, and the ring to tap. Both are the pictures' own, drawn with the rest)
       if (g.leads === "shop" || g.from === "shop") {
@@ -3128,6 +3215,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   /** On screen: the seat of the bench they sit on, or where they stand. */
   function spotOf(a: Avatar): Vec {
     if (mapRef.current) { const p = project(a.pos); return { x: p.x, y: p.y - (sitting(a) && Math.abs(a.pos.y - 3.5) < .1 ? 35 * cam.current.s : 0) }; }
+    // ── the Popoto Casino ── (up on a machine's stool)
+    if (sitting(a) && stoolAt(a.pos)) { const p = project(a.pos); return { x: p.x, y: p.y - 35 * cam.current.s }; }
     const place = tableSeatOf(a);
     if (place) return project(place.at);
     const b = seatOf(a);
@@ -3346,7 +3435,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   /** Which way somebody faces: the way they walk; after standing a while, towards you; with a rod out, towards their float. */
   function facingOf(a: Avatar, isMe: boolean, now: number): { view: View; mirror: boolean } {
     if (isMe && wardrobeOpenRef.current) return TURNS[((turn.current % TURNS.length) + TURNS.length) % TURNS.length];
-    if (mapRef.current && sitting(a) && Math.abs(a.pos.y - 3.5) < .1) return { view: "back", mirror: false };
+    if ((mapRef.current && sitting(a) && Math.abs(a.pos.y - 3.5) < .1) || (sitting(a) && stoolAt(a.pos))) return { view: "back", mirror: false };
     const rod = rodOf(a, isMe);
     if (rod) return facingFor(rod.float.x - a.pos.x, rod.float.y - a.pos.y);
     // (whoever sits and has turned to a side, lib/town/session's turnTo, faces that side, whatever their seat)
@@ -3945,6 +4034,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // the fountain: a wish (the game's: until it is open to me, the fountain is only a fountain)
     const fb = fountainBox.current;
     if (gameRef.current && fb && x >= fb.x0 && x <= fb.x1 && y >= fb.y0 && y <= fb.y1) { setPopover(null); openFountain(); return; }
+    // ── the Popoto Casino ── (a machine or its stool: walked to, sat at, and its sheet opened; the counter: the casino's desk)
+    const machine = placeRef.current === "casino" ? casinoArtRef.current?.hit(x, y) ?? null : null;
+    if (machine !== null && casinoTap.current) { setPopover(null); setPeopleOpen(false); casinoTap.current(machine); return; }
     // a shopkeeper: a talk; a gateway: walk to it, and through
     const keeper = keeperBoxes.current.find((k) => x >= k.x0 && x <= k.x1 && y >= k.y0 && y <= k.y1);
     if (keeper) { setPopover(null); openTalk(keeper.id); return; }
@@ -4226,6 +4318,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       /** The editor's town: which town this page has, and how much of its pictures it holds now (lib/town/town2-art). */
       town2: () => ({ on: T2, ...(town2Ref.current?.memory() ?? {}) }),
       gates: () => gateBoxes.current.map((k) => ({ ...k })),
+      // ── the Popoto Casino ── (which map I am on, whether the kura's door opens for me, and its machines' tap boxes on the screen)
+      casino: () => ({ place: placeRef.current, door: casinoDoorRef.current, boxes: (casinoArtRef.current?.boxes ?? []).map((b) => ({ ...b })) }),
       /** The popoto out now: what, and where. */
       outings: () => outingsNow(Date.now(), forcedPopoto.current).map((o) => ({ activity: o.activity, at: o.spots?.[0] ?? alongRoute(o, Date.now())?.pos })),
       /** The benches on the screen this frame, and what the mouse cursor shows now. */
@@ -4938,6 +5032,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
               onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
               onPointerLeave={() => { hover.current = null; if (mouse.current) mouse.current.inside = false; }} />
 
+      {/* ── the Popoto Casino ── (its slot sheet, the room's results and its desk, while I am in its room) */}
+      {!mapAddon && session && inCasino && casinoArtRef.current && (
+        <Suspense fallback={null}><CasinoInTown session={session} art={casinoArtRef.current} tap={casinoTap} bench={casinoBench} onSheet={setCasinoSheet} onCoins={() => keeper?.purseAgain?.()} /></Suspense>
+      )}
       {mapAddon?.render({ session, camera: mapAddon.camera, person: (x, y) => { const who = personAt(x, y); if (!who) return false; setPopover(null); setCard({ id: who.id, x: (who.x0 + who.x1) / 2, top: who.y0, bottom: who.y1 }); return true; }, view: (view, width, height) => { Object.assign(cam.current, view, { cw: width, ch: height, ready: true }); hits.current = []; }, avatar: (ctx, a, stamp, dpr) => { const names: Array<() => void> = []; drawAvatar(ctx, a, a.info.id === me.id, names, hits.current, false, Date.now(), stamp, dpr); for (const name of names) name(); } })}
       {/* The top of the map, one row: on the left where this is, whether we are connected and who is here (a tap lists
           them), on the right the buttons. One row, so that the left gives way to the right and neither lies on the
@@ -5368,7 +5466,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                 ด้านบนแชทนะครับ"): the chat's lines and its box are one thing. */}
             <div data-foot-hand className="flex w-full max-w-[26rem] flex-col items-start">
               <div ref={setFootSide} className={`flex flex-col items-start gap-2 pb-2 empty:hidden ${phone && chatOpen ? "hidden" : ""}`} />
-              {!mapAddon && satNow && !s.self.path.length && !talk && !trade && !boardOpen && !wardrobeOpen && !(phone && chatOpen) && (
+              {!mapAddon && satNow && !s.self.path.length && !talk && !trade && !boardOpen && !wardrobeOpen && !(phone && chatOpen) && !(inCasino && casinoSheet) && (
                 <button type="button" data-stand-up onClick={() => s.standUp()}
                         className="pop-in pressable tk tk-plate pointer-events-auto mb-2 flex min-h-12 max-w-full items-center gap-2 pl-3.5 pr-4 text-left text-ui font-semibold text-ink" data-state="open">
                   <TownIcon name="standUp" size={22} />

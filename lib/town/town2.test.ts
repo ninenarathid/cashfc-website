@@ -78,7 +78,7 @@ describe("the editor's town", () => {
   it("has each way out where its ring is, and every arrival on open ground", async () => {
     const w = await load();
     // (the clothes shop's door is a tile of the townhouse walked onto only to go in: lib/town/shop-room.test)
-    const town = w.GATES.filter((gt) => gt.from === "town" && gt.leads !== "shop");
+    const town = w.GATES.filter((gt) => gt.from === "town" && gt.leads !== "shop" && gt.leads !== "casino");
     expect(town.map((gt) => gt.leads).sort()).toEqual(["farm", "farm", "forest", "mountain"]);
     for (const gt of town) {
       expect(gt.tiles.length).toBeGreaterThan(0);

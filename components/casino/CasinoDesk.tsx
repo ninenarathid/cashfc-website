@@ -1,7 +1,8 @@
 "use client";
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { CLAIM_LABEL, draftOf, draftProblem, effectiveChance, money, prizeWithAmount, type CasinoDraft, type CasinoReceipt } from '@/lib/casino';
+import { ACCESS_LABEL, CLAIM_LABEL, coinsBack, draftOf, draftProblem, effectiveChance, money, PRIZE_LABEL, prizeWithAmount, type CasinoAccess, type CasinoDraft, type CasinoReceipt } from '@/lib/casino';
+import CasinoWinners from './CasinoWinners';
 import { useCasino } from './useCasino';
 import './casino.css';
 
@@ -50,9 +51,17 @@ export default function CasinoDesk() {
   const chance = state.prizes.reduce((n, p) => n + effectiveChance(p, settings, state.prizes), 0);
   const expected = state.prizes.reduce((n, p) => n + (p.kind === 'gil' ? p.amount * effectiveChance(p, settings, state.prizes) / 100 : 0), 0);
   const activeQueue = state.queue;
-  return <main id="casino"><div className="casino-links"><Link href="/admin/aqua">กลับ Aqua</Link><Link href={live?"/town?map=casino":"/town?map=casino-test"}>เข้าห้อง Casino {live?"LIVE":"TEST"} ↗</Link><Link href={live?"/admin/aqua/casino":"/admin/aqua/casino-live"}>ตั้งค่า {live?"TEST":"LIVE"} ↗</Link></div>
+  const back = coinsBack(draft, settings);
+  const wipe = async () => {
+    if (!client || busy) return;
+    if (!window.confirm(`ล้างผลทดสอบของแอดมินทั้งหมด ${money(state.tests ?? 0)} ครั้ง? coin สต็อก งบ Gil รายการผู้โชคดี แชท และกระเป๋าเงินที่มาจากการทดสอบจะกลับเป็นเหมือนก่อนทดสอบ`)) return;
+    setBusy(true); setError('');
+    try { const { error: failed } = await client.rpc('casino_live_wipe_tests'); if (failed) setError(failed.message); else { setMessage('ล้างผลทดสอบแล้ว'); await reload(); } }
+    finally { setBusy(false); }
+  };
+  return <main id="casino"><div className="casino-links"><Link href="/admin/aqua">กลับ Aqua</Link><Link href={live?"/town":"/town?map=casino-test"}>{live?"เข้า Cash Town (ประตูโรงเก็บของ kura)":"เข้าห้อง Casino TEST"} ↗</Link><Link href={live?"/admin/aqua/casino":"/admin/aqua/casino-live"}>ตั้งค่า {live?"TEST":"LIVE"} ↗</Link></div>
     <section className="casino-desk"><h2><span className="casino-test">{live?"LIVE":"TEST"}</span>Casino · โต๊ะ Aqua</h2>
-      <p>{live?"ค่าชุดนี้ใช้เงินจริงของ Cash Town และบันทึกรางวัลถาวร เปิดรับการหมุนเมื่อพร้อมเปิดตัว การเปลี่ยนค่ามีผลกับรอบใหม่ทันที":"ค่าชุดนี้ใช้กับห้องทดลอง Nine และ Aqua เท่านั้น ข้อมูลอยู่ในห้อง Realtime และไม่เขียนฐานข้อมูล ค่าที่บันทึกจำไว้ในเบราว์เซอร์นี้ เมื่อทุกหน้าของห้องถูกปิด Coin การหมุน และรางวัลทดลองจะเริ่มใหม่"}</p>
+      <p>{live?"ค่าชุดนี้ใช้เงินจริงของ Cash Town และบันทึกรางวัลถาวร เลือก \"ใครหมุนได้\" เป็นแอดมินทดสอบก่อน แล้วค่อยเปิดทุกคนเมื่อพร้อม (เปลี่ยนได้ที่หน้า Aqua ด้วย) การเปลี่ยนค่ามีผลกับรอบใหม่ทันที":"ค่าชุดนี้ใช้กับห้องทดลอง Nine และ Aqua เท่านั้น ข้อมูลอยู่ในห้อง Realtime และไม่เขียนฐานข้อมูล ค่าที่บันทึกจำไว้ในเบราว์เซอร์นี้ เมื่อทุกหน้าของห้องถูกปิด Coin การหมุน และรางวัลทดลองจะเริ่มใหม่"}</p>
       <p>{connected ? 'อัปเดตสด' : 'กำลังเชื่อมต่ออัปเดตสด'} · รุ่น {settings.revision} · หมุนแล้ว {money(settings.spins)} ครั้ง</p>
       {error && <p role="alert" className="casino-error">{error}</p>}
       {message && <p role="status">{message}</p>}
@@ -66,29 +75,36 @@ export default function CasinoDesk() {
         <label>สิทธิ์ในกองทั้งหมด<input type="number" disabled={draft.mode !== 'pool'} min={Math.max(1, settings.pool_draws)} max={1e7} value={draft.pool_size} onChange={e => edit('pool_size', Number(e.target.value))} /></label>
         <label>เริ่ม (เวลาบนอุปกรณ์)<input type="datetime-local" value={localTime(draft.starts_at)} onChange={e => edit('starts_at', e.target.value ? new Date(e.target.value).toISOString() : null)} /></label>
         <label>สิ้นสุด (เวลาบนอุปกรณ์)<input type="datetime-local" value={localTime(draft.ends_at)} onChange={e => edit('ends_at', e.target.value ? new Date(e.target.value).toISOString() : null)} /></label>
-        <label className="casino-check"><input type="checkbox" checked={draft.open} onChange={e => edit('open', e.target.checked)} />เปิดรับการหมุน</label>
+        {live ? <label>ใครหมุนได้<select value={draft.access} onChange={e => { const access = e.target.value as CasinoAccess; setDirty(true); setMessage(''); setDraft(d => d ? { ...d, access, open: access === 'everyone' } : d); }}>
+          {(['closed', 'admins', 'everyone'] as const).map(a => <option key={a} value={a}>{ACCESS_LABEL[a]}</option>)}</select></label>
+          : <label className="casino-check"><input type="checkbox" checked={draft.open} onChange={e => edit('open', e.target.checked)} />เปิดรับการหมุน</label>}
       </div>
       <div style={{ overflowX: 'auto' }}><table><thead><tr><th>เปิด</th><th>ชื่อรางวัล</th><th>ประเภท</th><th>จำนวน / มูลค่า</th><th>โอกาส %</th><th>สต็อกทั้งหมด</th><th>ออกแล้ว</th><th>ประกาศทั้ง Cash Town</th></tr></thead>
         <tbody>{draft.prizes.map((p, index) => {
           const change = (patch: Partial<typeof p>) => edit('prizes', draft.prizes.map((old, i) => i === index ? { ...old, ...patch } : old));
           const issued = state.prizes.find(q => q.id === p.id)?.issued ?? p.issued;
           return <tr key={p.id}><td><input aria-label={`เปิด ${p.id}`} type="checkbox" checked={p.active} onChange={e => change({ active: e.target.checked })} /></td>
-            <td><label><span>{p.id}</span><input aria-label={`ชื่อ ${p.id}`} value={p.name} maxLength={100} onChange={e => change({ name: e.target.value })} /></label></td>
-            <td><select aria-label={`ประเภท ${p.id}`} value={p.kind} onChange={e => change(prizeWithAmount(p, p.amount, e.target.value as typeof p.kind))}><option value="physical">ของนอกเกม</option><option value="gil">FFXIV Gil</option><option value="coin">Coin ในเกม</option></select></td>
+            <td><label><span>{PRIZE_LABEL[p.id] ?? p.id}</span><input aria-label={`ชื่อ ${p.id}`} value={p.name} maxLength={100} onChange={e => change({ name: e.target.value })} /></label></td>
+            <td><select aria-label={`ประเภท ${p.id}`} value={p.kind} disabled={p.id === 'pair'} onChange={e => change(prizeWithAmount(p, p.amount, e.target.value as typeof p.kind))}><option value="physical">ของนอกเกม</option><option value="gil">FFXIV Gil</option><option value="coin">Coin ในเกม</option></select></td>
             <td><input aria-label={`มูลค่า ${p.id}`} type="number" min={p.kind === 'physical' ? 0 : 1} max={1e9} value={p.amount} onChange={e => change(prizeWithAmount(p, Number(e.target.value)))} /></td>
             <td><input aria-label={`โอกาส ${p.id}`} type="number" min={0} max={100} step="0.000001" disabled={draft.mode === 'pool'} value={p.chance} onChange={e => change({ chance: Number(e.target.value) })} /></td>
             <td><input aria-label={`สต็อก ${p.id}`} type="number" min={issued} max={1e6} value={p.stock} onChange={e => change({ stock: Number(e.target.value) })} /></td><td>{money(issued)}</td>
             <td><label className="casino-check"><input type="checkbox" checked={p.announce} onChange={e => change({ announce: e.target.checked })} />ประกาศ</label></td></tr>;
         })}</tbody></table></div>
       <p>{draft.mode === 'pool' ? 'โอกาสคำนวณจากสต็อกที่เหลือ / สิทธิ์ที่เหลือในกอง ถ้าจับครบกอง รางวัลที่เปิดไว้จะออกครบ' : 'โอกาสเป็นของแต่ละครั้ง จำนวนรางวัลที่ออกจริงไม่รับประกัน เมื่อสต็อกหรืองบไม่พอ โอกาสส่วนนั้นจะเป็นรอบไม่ชนะ'}</p>
-      <p>ของนอกเกมและ Gil ออกเป็นสิทธิ์ในกระเป๋า Event ส่วน Coin เข้า{live?'กระเป๋า Cash Town':'บัญชีทดลอง'}ทันที การประกาศอิงค่าขณะรับการหมุน</p>
+      <p>{live ? 'ของนอกเกมเข้ากล่องรางวัลของผู้ชนะ (ผู้ชนะกดขอรับ แล้วคุยกับแอดมินในแชท 1-1) · Gil เข้ากระเป๋าเงินในโปรไฟล์ · Coin เข้ากระเป๋า Cash Town ทันที' : 'ของนอกเกมและ Gil ออกเป็นสิทธิ์ในกระเป๋า Event ส่วน Coin เข้าบัญชีทดลองทันที'} · สองช่องแรกตรงกันได้ Coin คืน · การประกาศอิงค่าขณะรับการหมุน</p>
+      <p>Coin ที่ได้คืนเฉลี่ย {back.toFixed(1)} ต่อการหมุน · ต้องน้อยกว่าราคาหมุน {money(draft.price)} เพื่อไม่ให้เหรียญในเมืองเฟ้อ</p>
       {issue && <p role="status">{issue}</p>}
       <div className="casino-actions"><button className="casino-save" disabled={busy || !dirty || !!issue || changed} onClick={() => void save()}>บันทึกทั้งชุด</button>
         <button disabled={busy} onClick={() => { setDirty(false); setMessage(''); void reload(); }}>โหลดค่าปัจจุบัน</button></div>
       <p className="casino-forecast">ค่าที่ใช้อยู่: โอกาสได้รางวัล {chance.toFixed(4)}% · Gil เฉลี่ยก่อนสต็อกเปลี่ยน {money(Math.round(expected))} ต่อครั้ง<br />
         งบ {money(settings.budget)} · จองสำหรับผู้ชนะแล้ว {money(settings.reserved)} · ส่งมอบแล้ว {money(state.paid_gil)} · ยังไม่ถูกจอง {money(settings.budget - settings.reserved)}<br />
         {settings.mode === 'pool' ? `กองเหลือ ${money(settings.pool_size - settings.pool_draws)} สิทธิ์` : 'ตัวเลขเฉลี่ยเป็นการประมาณ สต็อกและงบเป็นเพดานที่ระบบบังคับจริง'}</p>
-      <section className="casino-queue"><h2>คิวส่งมอบรางวัล {live?'LIVE':'TEST'} · {activeQueue.length}{activeQueue.length === 100 ? '+' : ''}</h2>
+      {live && <section className="casino-queue"><h2>ผลทดสอบของแอดมิน · {money(state.tests ?? 0)} ครั้ง</h2>
+        <p>ตอนเปิดให้แอดมินทดสอบ ทุกการหมุนจะติดป้ายทดสอบ ล้างแล้ว coin สต็อก งบ Gil รายการผู้โชคดี แชท และกระเป๋าเงินที่มาจากการทดสอบจะกลับเป็นเหมือนเดิม ควรล้างก่อนเปิดให้ทุกคน</p>
+        <div className="casino-actions"><button disabled={busy || !state.tests} onClick={() => void wipe()}>ล้างผลทดสอบทั้งหมด</button></div></section>}
+      {live && <CasinoWinners winners={state.winners ?? []} />}
+      {(!live || activeQueue.length > 0) && <section className="casino-queue"><h2>คิวส่งมอบรางวัล {live?'LIVE':'TEST'} · {activeQueue.length}{activeQueue.length === 100 ? '+' : ''}</h2>
         <p>รับรายการไว้ก่อนส่งมอบ อีกแอดมินจะทำรายการเดียวกันไม่ได้ หลังยืนยัน ไอเทมหายจากกระเป๋าที่รอรับ แต่ยังอยู่ในประวัติ</p>
         {activeQueue.length === 100 && <p>แสดง 100 รายการแรก เมื่อดำเนินการแล้ว รายการถัดไปจะเข้าคิวแสดง</p>}
         {!activeQueue.length && <p>ยังไม่มีสิทธิ์รอส่งมอบ</p>}
@@ -99,7 +115,7 @@ export default function CasinoDesk() {
               <button disabled={busy} onClick={() => void handle(r, 'fulfill')}>ยืนยันส่งมอบ {live?"LIVE":"TEST"} แล้ว</button><button disabled={busy} onClick={() => void handle(r, 'release')}>คืนคิว</button><button disabled={busy} onClick={() => void handle(r, 'cancel')}>ยกเลิกสิทธิ์พร้อมเหตุผล</button></>}</div>
             {confirming===r.id&&<div role="alert" className="casino-confirm"><p>ส่งมอบ {r.prize.name} ให้ {r.player_name} เรียบร้อยแล้วใช่ไหม?</p><button disabled={busy} onClick={()=>void handle(r,'fulfill')}>ยืนยันส่งมอบรางวัล</button><button disabled={busy} onClick={()=>setConfirming(null)}>กลับไปตรวจสอบ</button></div>}</>}
         </article>)}
-      </section>
+      </section>}
     </section>
   </main>;
 }

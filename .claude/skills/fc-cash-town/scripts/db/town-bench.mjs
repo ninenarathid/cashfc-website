@@ -32,34 +32,70 @@ alter table public.gallery_posts enable row level security;
 create table public.gallery_likes (post_id bigint not null references public.gallery_posts (id) on delete cascade, profile_id uuid not null references public.profiles (id) on delete cascade,
   created_at timestamptz not null default now(), primary key (post_id, profile_id));
 alter table public.gallery_likes enable row level security;
+-- (Supabase's Realtime, which the casino's files v204 and v206 and the town's v272 and v293 write policies on and send
+-- to: its messages table and topic, as v297's dry run makes them, and a send that keeps what it is given)
+create schema if not exists realtime;
+grant usage on schema realtime to anon, authenticated;
+create table if not exists realtime.messages (id bigint generated always as identity primary key, extension text not null default 'broadcast', topic text);
+alter table realtime.messages enable row level security;
+grant select, insert on realtime.messages to anon, authenticated;
+create or replace function realtime.topic() returns text language sql stable as $$ select current_setting('realtime.topic', true) $$;
+create table if not exists realtime.sent (topic text, event text, payload jsonb, private boolean, at timestamptz not null default now());
+create or replace function realtime.send(payload jsonb, event text, topic text, private boolean default true) returns void language sql as $$ insert into realtime.sent (topic, event, payload, private) values (topic, event, payload, private) $$;
 `;
-const t = await supabaseLike({ extra });
-// every file of the town's there is, in order: v104 to v122 have run and are read back from history (the harness's
-// migration() does that); what is in supabase/ after them is taken to be the town's, as it stands in the folder
-const RAN = 179;
-const pending = existsSync(`${repo}/supabase`) ? readdirSync(`${repo}/supabase`).map((f) => Number(/^v(\d+)_/.exec(f)?.[1])).filter((n) => n > RAN) : [];
-const newest = Math.max(RAN, ...pending);
-// (by number, but for one: v130 ran after v131, and both write the catalog's `items` over, whole. The row that stands
-// is the later one's, v130's, which has the water cart: so v130 is replayed after v131, as it ran.)
-// (and not every number is the town's: v136 is the party finder's polls and v157 the members' contacts, whose tables are not here)
-const OTHERS = [136, 157];
-// (and two ran late: v160, the bridge built by hand, and v163, the lamp relay, went out on 2026-10-09 after v166 had run, before the rounds numbered
-// between them. Both write `town.work_counts_of` and `town.deed_th` again; no file from v161 to v166 does, so the order changes no row and no rule:
-// they are replayed after v166 all the same, as they ran.)
-const LATE = [160, 163];
-// (and one later still: v164, the far side, is run after v168, though its number is lower. It writes the same two functions
-// again from their text as it stood after v163: replayed by its number, before v160 and v163, those two would undo its
-// blocks. It has run (2026-10-09), so it is in history and replayed after v168; a draft
-// of a later file comes in by BENCH_EXTRA after everything.)
-const AFTER_168 = [164];
-const numbers = Array.from({ length: newest - 103 }, (_, i) => 104 + i).filter((n) => n !== 130 && !OTHERS.includes(n) && !LATE.includes(n) && !AFTER_168.includes(n));
-numbers.splice(numbers.indexOf(131) + 1, 0, 130);
-numbers.splice(numbers.indexOf(166) + 1, 0, ...LATE);
-numbers.splice(numbers.indexOf(168) + 1, 0, ...AFTER_168);
-for (const n of numbers) {
-  let sql = null;
-  try { sql = migration(n); } catch { /* a number that was never a file */ }
-  if (sql) await t.run(sql, `v${n}`);
+// A bench a dry run has kept (`BENCH_FROM=<a .tar>`, as v297's and v299's keep the bench after v296): loaded as it
+// stands, and BENCH_EXTRA run on it. The replay below makes one afresh from every file, which no longer runs past v252
+// (the later files were dry-run on kept benches, not replayed from here).
+let t, newest = 0;
+if (process.env.BENCH_FROM) {
+  const { PGlite } = await import("@electric-sql/pglite");
+  const db = new PGlite({ loadDataDir: new Blob([readFileSync(process.env.BENCH_FROM)]) });
+  const as = async (who, sql, params = []) => {
+    const sub = who === "super" || who === "service" || who === "anon" ? "" : who;
+    const role = who === "anon" ? "anon" : who === "service" ? "service_role" : sub ? "authenticated" : "";
+    try {
+      await db.exec("reset role");
+      await db.query("select set_config('request.jwt.claim.sub', $1, false)", [sub]);
+      await db.query("select set_config('request.jwt.claim.role', $1, false)", [role]);
+      await db.query("select set_config('request.jwt.claims', $1, false)", [JSON.stringify(sub ? { sub, role: "authenticated" } : role ? { role } : {})]);
+      if (role) await db.exec("set role " + role);
+      if (params.length) { const r = await db.query(sql, params); return { rows: r.rows, affected: r.affectedRows ?? 0 }; }
+      const all = await db.exec(sql), last = all[all.length - 1] ?? { rows: [] };
+      return { rows: last.rows, affected: all.reduce((n, r) => n + (r.affectedRows ?? 0), 0) };
+    } catch (e) { return { error: e.message, code: e.code }; } finally { await db.exec("reset role"); }
+  };
+  // (several statements at once go by exec, as the harness's own does)
+  t = { sql: async (q, p) => (p?.length ? db.query(q, p) : (await db.exec(q)).at(-1) ?? { rows: [] }), as, run: async (sql, label) => { try { await db.exec(sql); console.log("  PASS " + label + " runs"); } catch (e) { throw new Error(label + " did not run: " + e.message); } } };
+  newest = Math.max(0, ...(process.env.BENCH_EXTRA ?? "").split(",").map((x) => Number(/v(\d+)_/.exec(x)?.[1] ?? 0)));
+} else {
+  t = await supabaseLike({ extra });
+  // every file of the town's there is, in order: v104 to v122 have run and are read back from history (the harness's
+  // migration() does that); what is in supabase/ after them is taken to be the town's, as it stands in the folder
+  const RAN = 179;
+  const pending = existsSync(`${repo}/supabase`) ? readdirSync(`${repo}/supabase`).map((f) => Number(/^v(\d+)_/.exec(f)?.[1])).filter((n) => n > RAN) : [];
+  newest = Math.max(RAN, ...pending);
+  // (by number, but for one: v130 ran after v131, and both write the catalog's `items` over, whole. The row that stands
+  // is the later one's, v130's, which has the water cart: so v130 is replayed after v131, as it ran.)
+  // (and not every number is the town's: v136 is the party finder's polls and v157 the members' contacts, whose tables are not here)
+  const OTHERS = [136, 157];
+  // (and two ran late: v160, the bridge built by hand, and v163, the lamp relay, went out on 2026-10-09 after v166 had run, before the rounds numbered
+  // between them. Both write `town.work_counts_of` and `town.deed_th` again; no file from v161 to v166 does, so the order changes no row and no rule:
+  // they are replayed after v166 all the same, as they ran.)
+  const LATE = [160, 163];
+  // (and one later still: v164, the far side, is run after v168, though its number is lower. It writes the same two functions
+  // again from their text as it stood after v163: replayed by its number, before v160 and v163, those two would undo its
+  // blocks. It has run (2026-10-09), so it is in history and replayed after v168; a draft
+  // of a later file comes in by BENCH_EXTRA after everything.)
+  const AFTER_168 = [164];
+  const numbers = Array.from({ length: newest - 103 }, (_, i) => 104 + i).filter((n) => n !== 130 && !OTHERS.includes(n) && !LATE.includes(n) && !AFTER_168.includes(n));
+  numbers.splice(numbers.indexOf(131) + 1, 0, 130);
+  numbers.splice(numbers.indexOf(166) + 1, 0, ...LATE);
+  numbers.splice(numbers.indexOf(168) + 1, 0, ...AFTER_168);
+  for (const n of numbers) {
+    let sql = null;
+    try { sql = migration(n); } catch { /* a number that was never a file */ }
+    if (sql) await t.run(sql, `v${n}`);
+  }
 }
 for (const draft of (process.env.BENCH_EXTRA ?? "").split(",").filter(Boolean)) await t.run(readFileSync(draft, "utf8"), draft.split(/[\\/]/).pop());
 // the stand-in's members are no admins: the game is open to them here (v115's knob, where there is one)
@@ -101,7 +137,7 @@ const fns = new Map();
 for (const r of (await t.sql(`
   select p.proname as name, p.proretset as many, p.proargnames as args,
          array(select format_type(x, null) from unnest(p.proargtypes) x) as types
-    from pg_proc p where p.pronamespace = 'public'::regnamespace and (p.proname like 'town\\_%' or p.proname like 'popoto\\_%')`)).rows) {
+    from pg_proc p where p.pronamespace = 'public'::regnamespace and (p.proname like 'town\\_%' or p.proname like 'popoto\\_%' or p.proname like 'casino\\_%')`)).rows) {
   fns.set(r.name, { many: r.many, types: Object.fromEntries((r.args ?? []).slice(0, r.types.length).map((a, i) => [a, r.types[i]])) });
 }
 

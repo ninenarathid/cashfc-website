@@ -15,9 +15,28 @@ const Mode = createContext(false);
 export const useCasinoClient = () => useContext(Context);
 export const useCasinoLive = () => useContext(Mode);
 
+/**
+ * `next dev`'s stand-in for the database (scripts/db/town-bench.mjs, the town's `&townDb=`): the casino's calls go to it as
+ * the tester `as`, and its channel never opens (the stand-in has no Realtime: the page reads again by its own clock).
+ */
+export type CasinoBench = { url: string; as: string };
+export function benchClient(bench: CasinoBench): SupabaseClient {
+  const quiet = { on() { return quiet; }, subscribe() { return quiet; }, unsubscribe() {}, send: async () => 'ok' };
+  return {
+    rpc: async (name: string, args: Record<string, unknown> = {}) => {
+      const clean = { ...args }; delete clean.player_name;
+      const r = await fetch(`${bench.url}/rest/v1/rpc/${name.replace('casino_lab_', 'casino_live_')}`, { method: 'POST', headers: { 'content-type': 'application/json', 'x-town-as': bench.as }, body: JSON.stringify(clean) });
+      const body = await r.json().catch(() => null);
+      return r.ok ? { data: body, error: null } : { data: null, error: { code: String(body?.code ?? r.status), message: String(body?.message ?? r.statusText) } };
+    },
+    from: () => ({ select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: null, error: null }) }) }) }),
+    channel: () => quiet, removeChannel: async () => 'ok', realtime: { setAuth: async () => {} },
+  } as unknown as SupabaseClient;
+}
 /** Persistent play uses server commands; it never accepts a client-generated result. */
-export function CasinoLive({children}:{children:ReactNode}) {
+export function CasinoLive({children,bench}:{children:ReactNode;bench?:CasinoBench|null}) {
   const [client]=useState(()=>{
+    if(bench&&process.env.NODE_ENV!=='production')return benchClient(bench);
     const real=createClient();if(!real)return null;
     return {
       from:real.from.bind(real),channel:real.channel.bind(real),removeChannel:real.removeChannel.bind(real),realtime:real.realtime,

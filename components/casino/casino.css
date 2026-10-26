@@ -156,3 +156,11 @@
  .casino-simulation-controls{gap:8px;margin-top:8px}
  .casino-simulation-controls label{gap:4px}
 }
+
+/* The casino as a room of the town (components/casino/CasinoInTown): the town's own canvas is under it, so this layer
+   is see-through and lets taps through to the map; only its sheet and its corner label take them. */
+.casino-town-layer.casino-in-town{background:transparent;pointer-events:none}
+.casino-in-town .casino-lower{pointer-events:auto}
+.casino-where{margin:0 0 8px;font-size:12px;line-height:1.5;color:var(--color-muted)}
+.casino-forced{display:flex;flex-direction:column;gap:4px;margin-top:12px;font-size:12px}
+.casino-forced select{min-height:40px}

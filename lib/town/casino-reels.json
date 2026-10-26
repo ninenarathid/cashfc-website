@@ -1,0 +1,46 @@
+{
+ "image": "/town/icons-465b2e7867.png",
+ "size": [
+  256,
+  41
+ ],
+ "icons": {
+  "reelEvercold": [
+   1,
+   1,
+   24,
+   39
+  ],
+  "reelCoins": [
+   110,
+   1,
+   28,
+   27
+  ],
+  "reelCherry": [
+   56,
+   1,
+   28,
+   34
+  ],
+  "reelGold": [
+   139,
+   1,
+   27,
+   20
+  ],
+  "reelPopoto": [
+   85,
+   1,
+   24,
+   34
+  ],
+  "reelEvercoldB": [
+   26,
+   1,
+   29,
+   37
+  ]
+ },
+ "cursor": {}
+}

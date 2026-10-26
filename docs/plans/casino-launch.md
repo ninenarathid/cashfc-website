@@ -1,7 +1,35 @@
 # Popoto Casino
 
-Entry routes: `/town?map=casino-test` (Nine and Aqua only), `/town?map=casino` (LIVE).
-Admin desks: `/admin/aqua/casino` (TEST), `/admin/aqua/casino-live` (LIVE).
+**Since 2026-10-27 (v299) the LIVE casino is a room of the town**, walked into by the kura's door in the editor's town
+(lib/town/casino-room, drawn by lib/town/casino-room-art, its sheet components/casino/CasinoInTown): no other address.
+`/town?map=casino` is the town. The TEST room keeps `/town?map=casino-test` (Nine and Aqua) for rehearsing settings.
+Admin desks: `/admin/aqua/casino` (TEST), `/admin/aqua/casino-live` (LIVE); the Aqua page has the casino's switch.
+
+- **Who may spin** (`casino_live_settings.access`): `closed` (the kura is a storehouse like any other), `admins` (the
+  admins walk in at any hour, may force any result, every spin is marked a test and never announced; the Aqua page's
+  "ล้างผลทดสอบ" undoes them: coins, stock, Gil set aside, counts, prize rows with their threads and bells, wallet
+  payments), `everyone` (members with a proved character, within the event's hours). `open` is kept equal to
+  `access = 'everyone'`. The door is read by each page as the town opens and every five minutes.
+- **Where a win goes:** a thing to hand over (physical) is a row of `prize_wins` (draw `casino`) with the winner's
+  `prize_win` bell: they claim it and talk with the admins in the site's 1-1 prize thread (claim_prize, prize_messages,
+  deliver_prize), and the admins see it on the Aqua page's list of winners and in /admin's prizes. Gil goes into the
+  winner's wallet (credit_wallet), as every Gil prize of the site does. Coins go into the town purse. No casino receipt
+  (Event bag) is written any more.
+- **Six prizes:** the four symbols, the `evercold` (a fifth symbol, an ice crystal: `icons-casino-a`, cut into the
+  casino's own small picture `public/town/casino/icons-*.png` + `lib/town/casino-reels.json`), and the `pair` (the
+  first two reels alike and neither of the others: coins back, a coin prize always). A miss never shows its first two
+  reels alike. Coins paid back must average under the price (the save refuses otherwise: the town must not inflate).
+- **Load:** a spin is told to the private channel `casino-live` as it is written (`casino.hint`), with what a page draws
+  of it; a page reads the whole state again only for its own spin, somebody's win, or a change of settings, spread over
+  a moment. The casino's tables left the change feed. Measured before: every spin made every page in the room read
+  everything again, some fifty reads a second at forty players and five machines.
+- **Tried:** `scripts/db/v299.test.mjs` (81 checks; 17 of 17 breaks), `scripts/town-casino-db.mjs` against the stand-in
+  started from the bench kept after v296 (`town-bench.mjs` with `BENCH_FROM`), at 1280x860, 384x730 and 360x640.
+
+What follows is the casino as it was built on 2026-10-11, as a map of its own; where it differs from the above, the
+above is now.
+
+Entry routes (until v299): `/town?map=casino-test` (Nine and Aqua only), `/town?map=casino` (LIVE).
 
 TEST shares a volatile ledger through the private `casino-lab` Realtime room. Authentication and profile checks read Supabase; gameplay, settings, credits, spins and receipts never call database mutation RPCs. Keep at least one TEST tab open to retain the rehearsal. Closing every tab starts a new room with 20,000 test coins per tester, from the last saved settings and prizes that browser saw (`casino-test-setup` in local storage; prizes unissued). TEST announcements are confined to the room.
 

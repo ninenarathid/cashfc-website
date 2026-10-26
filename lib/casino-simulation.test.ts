@@ -48,12 +48,15 @@ describe('casino event simulation', () => {
     expect(simulateCasino(draft, state.settings)).toMatchObject({ spins: 0, coinSpent: 0, poolRemaining: 0 });
   });
   it('uses unsaved draft values and rejects invalid counts and invalid configuration', () => {
-    const state = fixture(), draft = draftOf(state); draft.price = 7;
-    expect(simulateCasino(draft, state.settings, 1234, () => .99).coinSpent).toBe(8638);
+    const state = fixture(), draft = draftOf(state); draft.price = 13;
+    expect(simulateCasino(draft, state.settings, 1234, () => .99).coinSpent).toBe(16042);
     expect(simulateCasino(draft, state.settings, 10000, () => .99).spins).toBe(10000);
     for (const n of [0, -1, 1.5, 10001, NaN, Infinity]) expect(() => simulateCasino(draft, state.settings, n)).toThrow('จำนวนครั้ง');
     draft.prizes[0].chance = 100;
     expect(() => simulateCasino(draft, state.settings)).toThrow('โอกาสรวม');
+    // (coins paid back on average at or over the price would print the town's coins)
+    draft.prizes[0].chance = 50; draft.price = 12;
+    expect(() => simulateCasino(draft, state.settings)).toThrow('Coin ที่ได้คืน');
   });
   it('preserves probability boundaries in the same prize order as the live draw', () => {
     const state = fixture(), draft = draftOf(state);

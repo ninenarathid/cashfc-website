@@ -1,8 +1,11 @@
 "use client";
 import { useAdmin } from '@/lib/admin';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type MutableRefObject } from 'react';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import { CLAIM_LABEL, draftOf, effectiveChance, money, reelAt, spinRevealed, type CasinoSpin, type SymbolId } from '@/lib/casino';
+import { accessOf, CLAIM_LABEL, draftOf, effectiveChance, letIn, money, PRIZE_LABEL, reelAt, spinRevealed, whereItGoes, type CasinoSpin, type SymbolId } from '@/lib/casino';
+import type { TownSession } from '@/lib/town/session';
+import type { CasinoRoomArt } from '@/lib/town/casino-room-art';
+import { CASINO_EXIT, CASINO_ROOM } from '@/lib/town/casino-room';
 import { defaultLook, encodeLook, savedLook } from '@/lib/town/look';
 import CasinoMap, { MACHINE_X, SPAWN, type CasinoPeer } from './CasinoMap';
 import CasinoSymbol from './CasinoSymbol';
@@ -19,12 +22,23 @@ import {SIT_HERE} from '@/lib/town/world';
 import type { CasinoCameraControls } from '@/components/town/TownCasinoMap';
 
 type Pending = { id: string; machine: number; force: string | null; revision: number };
+/**
+ * The casino as a room of the town (components/casino/CasinoInTown): the town's own session walks and sits me, the
+ * town's frame draws the room (`art`, which this tells what the reels show), and a tap on a machine or the counter comes
+ * here (`tap`). Its tiles are the room's own moved into the tile space (lib/town/casino-room's CASINO_ROOM).
+ */
+export type CasinoInTown = { session: TownSession; art: CasinoRoomArt; tap: MutableRefObject<((n: number) => void) | null>; onSheet?: (open: boolean) => void;
+  /** The town's purse read again: a spin takes its price out of it, and the coins it wins back go in (the town's top bar shows them). */
+  onCoins?: () => void };
 const CHEERS = ['ลุ้นด้วย!', 'มาแล้ว ๆ!', 'อีกนิดเดียว!', 'ยินดีด้วย!'];
-export default function CasinoRoom({native}:{native?:TownMapRuntime}) {
+export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:CasinoInTown}) {
   const nativeRef=useRef(native);nativeRef.current=native;
+  // (where the room's own tiles are in the walker's: the town's tile space, or the casino map's own)
+  const origin=town?{x:CASINO_ROOM.x,y:CASINO_ROOM.y}:{x:0,y:0};
+  const walker=town?.session??native?.session??null,walkerRef=useRef(walker);walkerRef.current=walker;
   const [history, setHistory] = useState(false), [page, setPage] = useState(0);
   const { client, live, state, error, setError, connected, reload, now } = useCasino(history, page);
-  const {realAdmin}=useAdmin();
+  const {realAdmin:siteAdmin}=useAdmin();
   const roomName=live?'casino-live':'casino-lab';
   const label=live?'LIVE':'TEST';
   const [selected, setSelected] = useState(1), [force, setForce] = useState('');
@@ -78,7 +92,7 @@ export default function CasinoRoom({native}:{native?:TownMapRuntime}) {
     void client.from('profiles').select('character_name,display_name,discord_username').eq('id', uid).maybeSingle().then(({ data }) => {
       if (!gone && data) setSelf(s => ({ ...s, name: data.character_name ?? data.display_name ?? data.discord_username ?? 'Tester' }));
     });
-    if(nativeRef.current)return()=>{gone=true;};
+    if(nativeRef.current||walkerRef.current)return()=>{gone=true;};
     const ch = client.channel(roomName, { config: { private: true, presence: { key: uid }, broadcast: { self: false } } });
     presence.current = ch;
     ch.on('presence', { event: 'sync' }, () => {
@@ -113,12 +127,23 @@ export default function CasinoRoom({native}:{native?:TownMapRuntime}) {
       if (spinRevealed(spin, clock) && clock - Date.parse(spin.reveal_at) < 1200 && !sounds.current.has(spin.id)) { sounds.current.add(spin.id); play(!!spin.prize); }
     }
   }, [clock, sound, state, play]);
-  useEffect(()=>{const a=native?.session?.self;if(!a)return;setSelf(p=>({...p,id:a.info.id,name:a.info.name,look:a.info.look??p.look,x:a.info.x,y:a.info.y,seat:!a.path.length&&a.info.sit===SIT_HERE&&Math.abs(a.pos.y-3.5)<.1?MACHINE_X.findIndex(x=>Math.abs(x-a.pos.x)<.1)+1||null:null}));},[clock,native?.session]);
-  const select = (n: number) => { if(native?.session){const a=native.session.self;const here=!a.path.length&&Math.hypot(a.pos.x-MACHINE_X[n-1],a.pos.y-3.5)<.1;setSelected(n);setPane('slots');setArrived(here);native.session.walkTo({x:MACHINE_X[n-1],y:3.5});native.session.sitHere();return;} setSelected(n); setPane('slots'); setArrived(self.x===MACHINE_X[n-1]&&self.y===3.5); setSelf(p => ({ ...p, x: MACHINE_X[n - 1], y: 3.5, seat: n })); };
-  const move = (x: number, y: number) => { if(native?.session){setPane('none');native.session.walkTo({x,y});return;} if (!casinoWalkable({x,y})) return; setPane('none'); if(self.x!==x||self.y!==y)setArrived(false); setSelf(p => ({ ...p, x, y, seat: null })); };
+  useEffect(()=>{const a=walker?.self;if(!a)return;const seat=!a.path.length&&a.info.sit===SIT_HERE&&Math.abs(a.pos.y-origin.y-3.5)<.1?MACHINE_X.findIndex(x=>Math.abs(origin.x+x-a.pos.x)<.1)+1||null:null;
+    setSelf(p=>({...p,id:a.info.id,name:a.info.name,look:a.info.look??p.look,x:a.info.x,y:a.info.y,seat}));
+    // (in the town, whether I am at the open machine is mine to work out: the casino's own map told it)
+    if(town)setArrived(!a.path.length&&Math.hypot(a.pos.x-origin.x-MACHINE_X[selected-1],a.pos.y-origin.y-3.5)<.1);
+  },[clock,walker,town,origin.x,origin.y,selected]);
+  const select = (n: number) => { if(walker){const a=walker.self;const at={x:origin.x+MACHINE_X[n-1],y:origin.y+3.5};const here=!a.path.length&&Math.hypot(a.pos.x-at.x,a.pos.y-at.y)<.1;setSelected(n);setPane('slots');setArrived(here);walker.walkTo(at);walker.sitHere();return;} setSelected(n); setPane('slots'); setArrived(self.x===MACHINE_X[n-1]&&self.y===3.5); setSelf(p => ({ ...p, x: MACHINE_X[n - 1], y: 3.5, seat: n })); };
+  const move = (x: number, y: number) => { if(walker){setPane('none');walker.walkTo({x:origin.x+x,y:origin.y+y});return;} if (!casinoWalkable({x,y})) return; setPane('none'); if(self.x!==x||self.y!==y)setArrived(false); setSelf(p => ({ ...p, x, y, seat: null })); };
+  // ── in the town ── (the room's drawing is told what the reels show and which machine is open; a tap there comes here)
+  const selectRef=useRef(select);selectRef.current=select;
+  useEffect(()=>{if(!town)return;town.tap.current=n=>{if(n===0)setPane('desk');else selectRef.current(n);};return()=>{town.tap.current=null;};},[town]);
+  const onSheet=town?.onSheet;
+  useEffect(()=>{onSheet?.(pane!=='none');return()=>onSheet?.(false);},[onSheet,pane]);
   const spin = async (retry = false) => {
     if (!client || !state || busy) return;
-    const request: Pending = retry && pending.current ? pending.current : { id: crypto.randomUUID(), machine: selected, force: live || state.settings.mode === 'pool' ? null : force || null, revision: state.settings.revision };
+    // (a forced result: the TEST room's, and the admins' trial of the real one, weighted only)
+    const forcing = (!live || accessOf(state.settings) === 'admins') && state.settings.mode !== 'pool';
+    const request: Pending = retry && pending.current ? pending.current : { id: crypto.randomUUID(), machine: selected, force: forcing ? force || null : null, revision: state.settings.revision };
     pending.current = request;
     const key = `${roomName}:${state.room_epoch??'live'}:pending:${state.user_id}`;
     try { sessionStorage.setItem(key, JSON.stringify(request)); } catch { /* retry remains available in this tab */ }
@@ -132,7 +157,7 @@ export default function CasinoRoom({native}:{native?:TownMapRuntime}) {
         setError(uncertain ? 'การเชื่อมต่อขาดช่วง กดตรวจผลครั้งเดิม ระบบจะใช้รหัสเดิมเพื่อป้องกันหักเงินซ้ำ' : failed.message);
         return;
       }
-      setResult(data as CasinoSpin); setSelected(request.machine); pending.current = null; setRecover(false);
+      setResult(data as CasinoSpin); setSelected(request.machine); pending.current = null; setRecover(false); town?.onCoins?.();
       try { sessionStorage.removeItem(key); } catch { /* storage blocked */ }
       await reload();
     } catch { setRecover(true); setError('ยังยืนยันผลไม่ได้ กดตรวจผลครั้งเดิมเพื่อเรียกผลกลับมา'); }
@@ -151,24 +176,30 @@ export default function CasinoRoom({native}:{native?:TownMapRuntime}) {
   const sendCheer = (text: string) => {
     if (Date.now() - lastCheer.current < 2000) return; lastCheer.current = Date.now();
     setCheer(`${self.name}: ${text}`); clearTimeout(cheerTimer.current); cheerTimer.current = setTimeout(() => setCheer(''), 4000);
-    if(native?.session)native.session.sendChat(text);
+    if(walker)walker.sendChat(text);
     void presence.current?.send({ type: 'broadcast', event: 'cheer', payload: { name: self.name, text } });
   };
   if (!state) return <main className="py-10"><h1 className="font-display text-head">Casino ทดลอง</h1><p className="mt-4" role="status">{error || 'กำลังเปิดประตูชั้นใต้ดิน…'}</p>
     <button className="mt-4 text-accent" onClick={() => void reload()}>ลองเชื่อมต่ออีกครั้ง</button></main>;
   const s = state.settings;
+  // (what the page offers the admins goes by the database's word where it gives one, v299)
+  const realAdmin = state.admin ?? siteAdmin;
   const latest = state.spins.find(p => p.machine === selected) ?? (result?.machine === selected ? result : null);
   const rolling = !!latest && !spinRevealed(latest, clock);
   const ownRolling = state.spins.some(p => p.user_id === state.user_id && !spinRevealed(p, clock));
   const visible = state.spins.filter(p => spinRevealed(p, clock));
   const remaining = s.per_player - state.account.spins;
-  const closed = !s.open || (s.starts_at !== null && clock < Date.parse(s.starts_at)) || (s.ends_at !== null && clock >= Date.parse(s.ends_at));
+  // (the admins' trial is at any hour, for the admins; everybody's within the event's hours)
+  const trial = live && accessOf(s) === 'admins';
+  const closed = !letIn(s, realAdmin) || (!trial && ((s.starts_at !== null && clock < Date.parse(s.starts_at)) || (s.ends_at !== null && clock >= Date.parse(s.ends_at))));
   const reduced = typeof window !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  return <main className={native?"casino-town-layer":"casino-town-room"} data-pane={pane}>
+  if (town) { town.art.spins = () => state.spins; town.art.clock = now; town.art.selected = pane === 'slots' ? selected : 0; town.art.sheetOpen = pane !== 'none'; }
+  const myWin = latest && latest.user_id === state.user_id && latest.prize && !rolling ? latest.prize : null;
+  return <main className={town?"casino-town-layer casino-in-town":native?"casino-town-layer":"casino-town-room"} data-pane={pane}>
     <section className="casino-room" aria-label="Casino laboratory">
-      <CasinoMap native={native} self={self} peers={peers} spins={state.spins} selected={selected} clock={now} pane={pane} onMove={move} onSelect={select} onReception={()=>setPane('desk')} onDismiss={()=>setPane('none')} onReady={setArrived} onControls={setCamera} />
-      {!native && <CasinoTownHud coins={state.account.coins} remaining={Math.max(0, remaining)} allowance={s.per_player} people={peers.length + 1} connected={connected} live={live} admin={realAdmin} pane={pane} onPane={setPane} onChat={sendCheer} sound={sound} onSound={() => { if (!sound) { audio.current ??= new AudioContext(); void audio.current.resume(); } setSound(!sound); }} camera={camera} />}
-      {native&&<TownFoot rank="corner"><div className="casino-map-label tk tk-plate"><span>Casino {!live&&<small className="casino-test">TEST</small>}</span><button className="tk tk-slot" aria-label="ผลในห้อง" aria-expanded={pane==='feed'} onClick={()=>setPane(p=>p==='feed'?'none':'feed')}><TownIcon name="history" size={18}/></button></div></TownFoot>}
+      {!town && <CasinoMap native={native} self={self} peers={peers} spins={state.spins} selected={selected} clock={now} pane={pane} onMove={move} onSelect={select} onReception={()=>setPane('desk')} onDismiss={()=>setPane('none')} onReady={setArrived} onControls={setCamera} />}
+      {!native && !town && <CasinoTownHud coins={state.account.coins} remaining={Math.max(0, remaining)} allowance={s.per_player} people={peers.length + 1} connected={connected} live={live} admin={realAdmin} pane={pane} onPane={setPane} onChat={sendCheer} sound={sound} onSound={() => { if (!sound) { audio.current ??= new AudioContext(); void audio.current.resume(); } setSound(!sound); }} camera={camera} />}
+      {(native||town)&&<TownFoot rank="corner"><div className="casino-map-label tk tk-plate"><span>Casino {!live&&<small className="casino-test">TEST</small>}{trial&&<small className="casino-test">ทดสอบแอดมิน</small>}</span><button className="tk tk-slot" aria-label="ผลในห้อง" aria-expanded={pane==='feed'} onClick={()=>setPane(p=>p==='feed'?'none':'feed')}><TownIcon name="history" size={18}/></button></div></TownFoot>}
       {error && <p className="casino-error" role="alert">{error}</p>}
       <div className="casino-lower tk tk-window" data-simulation={pane === 'slots' && showSimulation && realAdmin} role="dialog" aria-label={pane === 'feed' ? 'ผลและเสียงเชียร์' : pane==='desk'?'พนักงาน Casino':`Slot เครื่อง ${selected}`}><button className="casino-panel-close pressable tk tk-slot" aria-label="ปิดหน้าต่าง" onClick={() => setPane('none')}>×</button>
         {pane === 'slots' && showSimulation && realAdmin && <h2 className="casino-play-heading">เครื่อง {selected}</h2>}
@@ -180,18 +211,20 @@ export default function CasinoRoom({native}:{native?:TownMapRuntime}) {
             <CasinoSymbol id={latest ? reelAt(latest, i, clock, reduced) : 'popoto'} /></div>)}
         </div>
         <div className="casino-result" role="status">{rolling ? `${latest!.player_name} กำลังลุ้น…` : latest ? latest.prize ? `${latest.player_name} ได้ ${latest.prize.name}!` : `${latest.player_name} · รอบนี้ยังไม่ได้รางวัล` : 'เลือกเครื่อง แล้วดึงคันโยกได้เลย'}</div>
+        {live && myWin && <p className="casino-where" role="status">{whereItGoes(myWin)}</p>}
         <div className="casino-play-actions">{recover ? <button className="casino-spin pressable tk tk-btn" disabled={busy} onClick={() => void spin(true)}>ตรวจผลครั้งเดิม</button> :
           <button className="casino-spin pressable tk tk-btn" disabled={busy || !arrived || !self.seat || ownRolling || rolling || closed || remaining <= 0 || state.account.coins < s.price} onClick={() => void spin()}>
             {!arrived ? 'กำลังเดินไปหน้าเครื่อง…' : busy || ownRolling ? 'กำลังเล่น…' : closed ? 'เครื่องพักอยู่' : `ปั่น · ${money(s.price)} coin`}</button>}
           {realAdmin && <button type="button" className="casino-simulate-toggle pressable tk tk-slot" aria-expanded={showSimulation} onClick={() => showSimulation ? closeSimulation() : setShowSimulation(true)}>จำลอง</button>}
         </div>
-        <details className="casino-prize-details"><summary>โอกาสและรางวัล</summary>{state.prizes.map(p => <p key={p.id}>{p.name}: {effectiveChance(p, s, state.prizes).toFixed(3)}% · เหลือ {p.stock - p.issued} ชิ้น</p>)}
-          <p>งบ Gil {live?"":"ทดลอง"}เหลือ {money(s.budget - s.reserved)} · ผลใช้การตั้งค่ารุ่น {s.revision}</p><p>{live?"ใบรับสิทธิ์รางวัลจริง · ยืนยันส่งมอบผ่าน Aqua":"เครดิตและใบรับสิทธิ์ในห้องนี้เป็น TEST · ปิดทุกหน้าจะเริ่มใหม่"}</p></details>
+        <details className="casino-prize-details"><summary>โอกาสและรางวัล</summary>{state.prizes.filter(p => p.active).map(p => <p key={p.id}><strong>{PRIZE_LABEL[p.id] ?? p.id}</strong> · {p.name}: {effectiveChance(p, s, state.prizes).toFixed(3)}% · เหลือ {money(p.stock - p.issued)}</p>)}
+          <p>งบ Gil {live?"":"ทดลอง"}เหลือ {money(s.budget - s.reserved)} · ผลใช้การตั้งค่ารุ่น {s.revision}</p><p>{live?"ของรางวัลเข้ากล่องรางวัลในเว็บ กดขอรับแล้วคุยกับแอดมินได้ · Gil เข้ากระเป๋าเงินในโปรไฟล์ · Coin เข้ากระเป๋า Cash Town":"เครดิตและใบรับสิทธิ์ในห้องนี้เป็น TEST · ปิดทุกหน้าจะเริ่มใหม่"}</p>{trial&&<p>ตอนนี้เปิดให้แอดมินทดสอบ ทุกการหมุนเป็นการทดสอบ ล้างได้ที่หน้า Aqua</p>}</details>
       </section>{realAdmin && <div ref={simulationPanel} className="casino-simulation-pane" hidden={pane !== 'slots' || !showSimulation}>
           <CasinoSimulation draft={draftOf(state)} settings={s} onClose={closeSimulation} />
-        </div>}</div><section className="casino-desk-in-room"><h2>พนักงาน Casino</h2><p>แตะตู้หรือเก้าอี้เพื่อเข้าเล่น · ใบรับสิทธิ์อยู่ในแท็บ Event ของกระเป๋า</p>
-        <div className="casino-actions"><button aria-pressed={sound} onClick={()=>{if(!sound){audio.current??=new AudioContext();void audio.current.resume();}setSound(!sound);}}>{sound?'ปิดเสียงสล็อต':'เปิดเสียงสล็อต'}</button><Link className="tk tk-slot" href="/town?map=town">กลับหมู่บ้าน</Link></div>
-        {realAdmin&&<><Link className="casino-aqua-link tk tk-btn" href={live?'/admin/aqua/casino-live':'/admin/aqua/casino'}>Aqua · ตั้งค่า {label}</Link>{!live&&<details className="casino-lab-tools"><summary>เครื่องมือห้องทดลอง</summary><div className="casino-actions"><button disabled={busy||ownRolling} onClick={()=>void credit(false)}>เติม 20,000 coin ทดลอง</button><button disabled={busy||ownRolling} onClick={()=>void credit(true)}>เริ่มกระเป๋าทดลองใหม่</button></div><label className="casino-forced">ผลทดสอบ<select aria-label="ผลสำหรับทดสอบ" value={force} disabled={s.mode==='pool'} onChange={e=>setForce(e.target.value)}><option value="">สุ่มจริง</option><option value="miss">พลาด</option>{state.prizes.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label></details>}</>}
+        </div>}</div><section className="casino-desk-in-room"><h2>พนักงาน Casino</h2><p>{town?'แตะตู้หรือเก้าอี้เพื่อเข้าเล่น · ของรางวัลเข้ากล่องรางวัลในเว็บ · Gil เข้ากระเป๋าเงิน · Coin เข้ากระเป๋า Cash Town':'แตะตู้หรือเก้าอี้เพื่อเข้าเล่น · ใบรับสิทธิ์อยู่ในแท็บ Event ของกระเป๋า'}</p>
+        <div className="casino-actions"><button aria-pressed={sound} onClick={()=>{if(!sound){audio.current??=new AudioContext();void audio.current.resume();}setSound(!sound);}}>{sound?'ปิดเสียงสล็อต':'เปิดเสียงสล็อต'}</button>{town?<button className="tk tk-slot" onClick={()=>{setPane('none');walker?.walkTo({x:CASINO_EXIT.tiles[0][0]+.5,y:CASINO_EXIT.tiles[0][1]+.5});}}>เดินออกไปในเมือง</button>:<Link className="tk tk-slot" href="/town?map=town">กลับหมู่บ้าน</Link>}</div>
+        {realAdmin&&<><Link className="casino-aqua-link tk tk-btn" href={live?'/admin/aqua/casino-live':'/admin/aqua/casino'}>Aqua · ตั้งค่า {label}</Link>{!live&&<details className="casino-lab-tools"><summary>เครื่องมือห้องทดลอง</summary><div className="casino-actions"><button disabled={busy||ownRolling} onClick={()=>void credit(false)}>เติม 20,000 coin ทดลอง</button><button disabled={busy||ownRolling} onClick={()=>void credit(true)}>เริ่มกระเป๋าทดลองใหม่</button></div><label className="casino-forced">ผลทดสอบ<select aria-label="ผลสำหรับทดสอบ" value={force} disabled={s.mode==='pool'} onChange={e=>setForce(e.target.value)}><option value="">สุ่มจริง</option><option value="miss">พลาด</option>{state.prizes.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label></details>}
+          {trial&&<label className="casino-forced">ผลที่จะออก (แอดมินทดสอบ)<select aria-label="ผลที่จะออก" value={force} disabled={s.mode==='pool'} onChange={e=>setForce(e.target.value)}><option value="">สุ่มจริง</option><option value="miss">พลาด</option>{state.prizes.filter(p=>p.active).map(p=><option key={p.id} value={p.id}>{PRIZE_LABEL[p.id]} · {p.name}</option>)}</select></label>}</>}
       </section><section className="casino-feed"><h2>เสียงจากหน้าเครื่อง</h2><div className="casino-cheers">{CHEERS.map(text => <button key={text} onClick={() => sendCheer(text)}>{text}</button>)}</div>
         <p className="casino-cheer-text" role="status">{cheer}</p><ol aria-label="ผลการปั่นในห้อง">{visible.slice(0, 14).map(p => <li key={p.id} className={p.prize ? 'casino-win' : 'casino-miss'}>
           <strong>{p.player_name}</strong> · เครื่อง {p.machine}<br />{p.prize ? `ได้ ${p.prize.name}` : 'ยังไม่ได้รางวัล · คนข้าง ๆ ช่วยลุ้นรอบต่อไปได้'}

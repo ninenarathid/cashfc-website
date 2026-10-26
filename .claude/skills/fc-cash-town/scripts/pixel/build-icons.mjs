@@ -440,6 +440,12 @@ const SHEETS = [
   // for when he comes, with icons-items-e for the reference; its four goods drawn only to hold the size. Cut on the
   // finer grid (5.54): on its coarser (10.9) the lenses came out square
   ["icons-wear-a", ["wearGlasses", "wearSunglasses", "_wearSauce", "_wearTub", "_wearGrowFert", "_wearGuardFert"], { range: [5.4, 5.65] }],
+  // ── the casino's reels (2026-10-27, v299: the evercold, Aqua's big prize, a symbol of its own; the pair's coins back),
+  // with scene-icons for the reference. Built alone into a small picture of the casino's own (ICONS_ONLY=icons-casino-a
+  // ICONS_PUB=<tree>/public/town/casino ICONS_JSON=<tree>/lib/town/casino-reels.json): the town's atlas is not touched.
+  // Cut on its finer grid (8.0): on its coarser (16.6) the crystals and the coins broke into pieces. The cherries, the
+  // gold bar and the potato are the code-drawn reel symbols drawn the town's way, for the owner to choose to take
+  ["icons-casino-a", ["reelEvercold", "reelCoins", "reelCherry", "reelGold", "reelPopoto", "reelEvercoldB"], { range: [7.9, 8.1] }],
   // ── the 24 more of the bag (v277, 2026-10-17: lib/town/wear-items), with icons-wear-a for the reference, each sheet cut
   // on the fine grid that gives the glasses' own size (on the coarser one, 8 to 16, they came out blocky). `f` drew
   // again the four that read as something else beside their neighbours: the apron (a bag), the pumpkin hat (the

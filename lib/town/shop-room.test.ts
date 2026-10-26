@@ -77,8 +77,8 @@ describe("the clothes shop", () => {
       expect(Math.hypot(x + 0.5 - w.SHOP_IN.x, y + 0.5 - w.SHOP_IN.y)).toBeLessThan(1.6);
     }
     expect(w.gateAt(w.T2_SHOP_DOOR.out.x, w.T2_SHOP_DOOR.out.y)).toBeNull();
-    // the gates of the other maps are where they were in the list, the shop's after them all
-    expect(w.GATES.slice(-2).map((q) => `${q.from}>${q.leads}`)).toEqual(["town>shop", "shop>town"]);
+    // the gates of the other maps are where they were in the list, the shop's after them all (and the casino's after the shop's)
+    expect(w.GATES.slice(-4, -2).map((q) => `${q.from}>${q.leads}`)).toEqual(["town>shop", "shop>town"]);
   });
 
   it("has Granny Twilla before her table in the east corner, on a tile of her own, reached from the floor beside her", async () => {

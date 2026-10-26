@@ -643,3 +643,22 @@ Every picture here is PixelLab editing the game's own native pixels, so the styl
   hairstyle compares pixel for pixel with the build he passed; the five back views changed (fox, bear, cat, bunny,
   horns). Looked at on all 35 hairstyles from the back (`work/shop-mock/sweep-*-z.png`) and in the dev game at desktop
   and phone size; the black cat ears behind the big spikes stay hard to see.
+
+## The casino's reels: the evercold (2026-10-27)
+
+Aqua's big prize, the evercold (the FC's name for the coming expansion: its poster's ice crystal), a fifth symbol on
+the casino's reels (v299). One call, $0.0191 (`gpt-image-2.5-sunburst`, low, 1536x1024, drawn once; the ledger then
+stood at 2,881 calls and $39.842 of $45). Prompt `prompts/icons/icons-casino-a.txt`, on the owner's ICON SHEET template
+with its closing sentence, `work/out/scene-icons.png` for the reference.
+
+- **`icons-casino-a`**: one tall ice crystal with the gold star of a rare thing (`reelEvercold`), a stack of coins with
+  one on its edge (`reelCoins`, the pair's coins back), cherries, a gold bar and a potato with a face (`reelCherry`,
+  `reelGold`, `reelPopoto`: the code-drawn reel symbols of lib/town/casino-symbol-art drawn the town's way, for the owner
+  to choose whether to take them), and a cluster of three ice crystals with the star (`reelEvercoldB`, the one the reels
+  use: at a reel's 16 to 40 screen pixels it reads better than the single crystal). Cut on its finer grid (8.0): on the
+  coarser (16.6, which `icon-pitch2` gives first) the crystals and the coins broke into pieces.
+- **Its own small picture**: `ICONS_ONLY=icons-casino-a ICONS_PUB=<tree>/public/town/casino ICONS_JSON=<tree>/lib/town/casino-reels.json
+  node build-icons.mjs` (256x41, 2.7 KB): the town's atlas is not touched, and only the casino's pages ask for it.
+- **Drawn with `NO_REVIEW`**: Codex's weekly limit was used up until 2026-10-27 13:32 (the reason is in the ledger).
+- In the game: the reels of the sheet, the cabinet windows and the marquee over a machine, 1280x860, 384x730, 360x640
+  (`scripts/town-casino-db.mjs`).

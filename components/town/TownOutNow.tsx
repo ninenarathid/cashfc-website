@@ -13,7 +13,7 @@ import TownNotebook, { type NotebookEntry } from "./TownNotebook";
 import TownIcon, { type IconName } from "./TownIcon";
 import { PLACE as HAUNT_PLACE } from "./TownBugBook";
 
-const MAP: Record<Place, [string, string]> = { town: ["ในเมือง", "Town"], farm: ["ฟาร์ม", "Farm"], forest: ["ป่า", "Forest"], mountain: ["ภูเขา", "Mountain"], cave: ["ถ้ำ", "Cave"], shop: ["ร้านเสื้อผ้า", "Clothes shop"] };
+const MAP: Record<Place, [string, string]> = { town: ["ในเมือง", "Town"], farm: ["ฟาร์ม", "Farm"], forest: ["ป่า", "Forest"], mountain: ["ภูเขา", "Mountain"], cave: ["ถ้ำ", "Cave"], shop: ["ร้านเสื้อผ้า", "Clothes shop"], casino: ["Casino", "Casino"] };
 const WATER: Record<FishingHabitat, [string, string]> = { town: ["แม่น้ำในเมือง", "The town river"], creek: ["ลำธารในป่า", "The forest creek"], pool: ["แอ่งน้ำ", "Pools"], headwater: ["ต้นน้ำ", "Headwaters"] };
 const RARITY: Record<Rarity, [string, string]> = { C: ["พบบ่อย", "Common"], U: ["ไม่บ่อย", "Uncommon"], R: ["หายาก", "Rare"], V: ["หายากมาก", "Very rare"] };
 const TIME: Record<TimeIcon, [IconName, string, string]> = { sun: ["noon", "ออกกลางวัน", "A day insect"], moon: ["night", "ออกกลางคืน", "A night insect"], mist: ["timeMist", "ออกในหมอกรุ่ง", "A dawn-mist insect"] };

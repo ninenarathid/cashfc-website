@@ -1,5 +1,5 @@
 import {describe,it,expect} from 'vitest';
-import {CASINO_TESTERS,casinoTrialLeader,newCasinoTrial,trialCommand,trialSetup,trialState} from './casino-trial';
+import {CASINO_TESTERS,casinoTrialLeader,newCasinoTrial,spinReels,trialCommand,trialSetup,trialState} from './casino-trial';
 import {casinoPath,casinoWalkable,CASINO_MACHINE_X,CASINO_SPAWN} from './casino-map';
 import {draftOf} from '@/lib/casino';
 const [nine,aqua]=CASINO_TESTERS;
@@ -66,5 +66,35 @@ describe('casino interior navigation',()=>{
  it('reaches all five seats through walkable floor tiles and rejects furniture',()=>{
   for(const x of CASINO_MACHINE_X){const path=casinoPath(CASINO_SPAWN,{x,y:3.5});expect(path.length).toBeGreaterThan(0);expect(path.every(casinoWalkable)).toBe(true);expect(path.at(-1)).toEqual({x,y:3.5});}
   expect(casinoPath(CASINO_SPAWN,{x:2.5,y:9.5})).toEqual([]);expect(casinoWalkable({x:-.5,y:5})).toBe(false);
+ });
+});
+describe('the evercold and the pair (v299)',()=>{
+ const rnd=(...xs:number[])=>{let i=0;return()=>xs[i++%xs.length];};
+ it('shows a symbol prize four alike, the pair as its first two alike and the third not, and a miss as its first two unlike',()=>{
+  for(const r of [0,.13,.37,.61,.99]){
+   expect(spinReels('evercold',rnd(r))).toEqual(['evercold','evercold','evercold','evercold']);
+   const pair=spinReels('pair',rnd(r,.5,.2));expect(pair[0]).toBe(pair[1]);expect(pair[2]).not.toBe(pair[0]);expect(pair[3]).not.toBe(pair[0]);
+   const miss=spinReels(null,rnd(r,.5,.2,.8));expect(miss[0]).not.toBe(miss[1]);
+  }
+ });
+ it('pays the pair in coins into the purse, and forces it in TEST',()=>{
+  let t=newCasinoTrial(10000);const doc=draftOf(trialState(t,nine));
+  const pair=doc.prizes.find(p=>p.id==='pair')!;pair.active=true;pair.chance=10;pair.amount=50;
+  t=trialCommand(t,nine,'casino_lab_save',{p_revision:1,p_doc:doc},10000).trial;
+  const r=trialCommand(t,nine,'casino_lab_spin',{...spinArgs('pair'),p_revision:2},10000);
+  const spin=r.data as {reels:string[];prize:{id:string}};expect(spin.prize.id).toBe('pair');expect(spin.reels[0]).toBe(spin.reels[1]);
+  expect(r.trial.accounts[nine].coins).toBe(20000-100+50);expect(r.trial.receipts).toEqual([]);
+ });
+ it('keeps a TEST setup saved with the four symbols, adding the evercold and the pair unused',()=>{
+  const four=JSON.parse(JSON.stringify(trialSetup(newCasinoTrial(10000))));four.prizes=four.prizes.slice(0,4);four.price=150;
+  const t=newCasinoTrial(20000,four);
+  expect(t.settings.price).toBe(150);expect(t.prizes.map(p=>p.id)).toEqual(['seven','cherry','gold','popoto','evercold','pair']);
+  expect(t.prizes.find(p=>p.id==='evercold')!.active).toBe(false);
+ });
+ it('refuses a draft whose coins back average the price or more',()=>{
+  const t=newCasinoTrial(10000);const doc=draftOf(trialState(t,nine));
+  const pair=doc.prizes.find(p=>p.id==='pair')!;pair.active=true;pair.chance=50;pair.amount=200;
+  expect(()=>trialCommand(t,nine,'casino_lab_save',{p_revision:1,p_doc:doc},10000)).toThrow('Coin ที่ได้คืน');
+  pair.kind='gil';expect(()=>trialCommand(t,nine,'casino_lab_save',{p_revision:1,p_doc:doc},10000)).toThrow('Coin');
  });
 });

@@ -28,6 +28,8 @@ import { T2 } from "./town-map";
 import * as town2 from "./town2";
 // ── Granny Twilla's clothes shop (2026-10-25): a room of its own, entered by the townhouse's door (lib/town/shop-room) ──
 import * as room from "./shop-room";
+// ── the Popoto Casino (2026-10-27): a room of its own, entered by the kura's door (lib/town/casino-room) ──
+import * as casino from "./casino-room";
 export { T2 };
 
 /** The town's columns: 64, or the editor's town's 80 (lib/town/town2). */
@@ -939,20 +941,23 @@ export type Place = "town" | "farm" | "forest"
   // to come (the preview, `next dev` only): the mountain's foot, and the cave under it, all of whose floors are the one place
   | "mountain" | "cave"
   // Granny Twilla's clothes shop (2026-10-25): a room, east of every other map (lib/town/shop-room's SHOP_ROOM)
-  | "shop";
+  | "shop"
+  // the Popoto Casino (2026-10-27): a room east of the shop (lib/town/casino-room's CASINO_ROOM)
+  | "casino";
 /** Which map a point is on, or null for nowhere. */
 export function placeOf(x: number, y: number): Place | null {
   if (x >= 0 && y >= 0 && x < COLS && y < (asWas && !T2 ? ROWS_FIRST : ROWS)) return "town";
   // ── to come ── (both lie below every other map in the tile space)
   if (PREVIEW && y >= MOUNTAIN.y) return within(x, y, MOUNTAIN) ? "mountain" : floorOf(x, y) ? "cave" : null;
   if (room.inShop(x, y)) return "shop";
+  if (casino.inCasino(x, y)) return "casino";
   return within(x, y, asWas ? FARM_FIRST : FARM_ALL) ? "farm" : within(x, y, FOREST) ? "forest" : null;
 }
 /**
  * Whether a map is a room, under a roof (the clothes shop): no sky, no weather and nothing of the outdoors there (no
  * insects' haunts, nothing a member lays on the ground, Town.tsx's clouds, critters and river), and its own light.
  */
-export const indoors = (place: Place | null | undefined) => place === "shop";
+export const indoors = (place: Place | null | undefined) => place === "shop" || place === "casino";
 /** How many quarters of beds the farm has down it (two of them the first half's), and how far apart they lie, in tiles: a quarter's two beds (15), and the grass and the lane between (6). */
 const QUARTERS = 4, QUARTER = 21;
 /** A farm tile's place in its quarter down the farm, counted from the farm's own corner: the quarter and the row in it, or null off the beds. */
@@ -1484,7 +1489,7 @@ export const BEYOND = {
 const NORTH_SEED = ARMS.find((a) => a.dir === "N")!.seed;
 /** Whether a point has ground to draw: it is on a map, or in the woods seen beyond a gate. */
 // (the clothes shop's floor is its own picture, lib/town/shop-room-art: the ground is not laid there)
-export const seenAt = (x: number, y: number) => (placeOf(x, y) !== null && !room.inShop(x, y)) || within(x, y, BEYOND.north) || within(x, y, BEYOND.south)
+export const seenAt = (x: number, y: number) => (placeOf(x, y) !== null && !room.inShop(x, y) && !casino.inCasino(x, y)) || within(x, y, BEYOND.north) || within(x, y, BEYOND.south)
   // (the editor's town's far banks)
   || (T2 && town2.inT2Banks(x, y))
   // ── to come ── (and what is seen beyond the town's west gate and beyond the mountain's map)
@@ -1659,6 +1664,10 @@ const T2_GATES = (): Gate[] => {
     // door. Last of all, so that each before it is found as it was. Neither puts anybody on a gate's tile.
     { from: "town", leads: "shop", tiles: [town2.T2_SHOP_DOOR.tile], to: room.SHOP_IN, arch: town2.T2_SHOP_DOOR.at },
     { from: "shop", leads: "town", tiles: room.SHOP_RING.tiles, to: town2.T2_SHOP_DOOR.out, arch: room.SHOP_RING.at },
+    // the Popoto Casino (the owner, 2026-10-27): in by the kura's door, which is shut to whoever may not go in yet
+    // (setCasinoDoor), to the carpet inside; out by the carpet at the room's foot, to the ground before the door
+    { from: "town", leads: "casino", tiles: [town2.T2_CASINO_DOOR.tile], to: casino.CASINO_IN, arch: town2.T2_CASINO_DOOR.at },
+    { from: "casino", leads: "town", tiles: casino.CASINO_EXIT.tiles, to: town2.T2_CASINO_DOOR.out, arch: casino.CASINO_EXIT.at },
   ];
 };
 export const GATES: Gate[] = T2 ? T2_GATES() : [
@@ -1721,12 +1730,22 @@ export const GATES: Gate[] = T2 ? T2_GATES() : [
     arch: { x: FARM.x + 1.5, y: FARM.y + 64 },
   },
 ];
+/**
+ * Whether the kura's door opens for this page (the Popoto Casino's, lib/town/casino-room): the database says who may go
+ * in (casino_live_settings.access: nobody, the admins, everybody), and the page sets it from that and from whether it is
+ * an admin's. Shut, the door leads nowhere and the page says why; the database refuses a spin all the same.
+ */
+let casinoDoor = false;
+export function setCasinoDoor(open: boolean) { casinoDoor = open; }
+export const casinoDoorOpen = () => casinoDoor;
 /** Where the gate under a point leads, or null when there is none there. */
 export function gateAt(x: number, y: number): Vec | null {
   const tx = Math.floor(x), ty = Math.floor(y);
   // ── to come ── (the mine's mouth and the cave's ladders; and the gate beyond the bridge, while the bridge is not open)
   if (PREVIEW) { const more = moreGate(tx, ty); if (more !== undefined) return more; }
-  return GATES.find((g) => g.tiles.some(([gx, gy]) => gx === tx && gy === ty))?.to ?? null;
+  const g = GATES.find((g) => g.tiles.some(([gx, gy]) => gx === tx && gy === ty));
+  // (the casino's door leads nowhere while it is shut to this page)
+  return g && (g.leads !== "casino" || casinoDoor) ? g.to : null;
 }
 
 /** What stands on a tile and stops a walker, if anything. */
@@ -1735,6 +1754,8 @@ export function thingAt(tx: number, ty: number): Building | "fountain" | "shop" 
   if (PREVIEW && ty >= MOUNTAIN.y) return moreShut(tx, ty) ? "prop" : null;
   // ── the clothes shop ── (its tiles as the export has them: lib/town/shop-room; and the tile Granny stands on)
   if (room.inShop(tx, ty)) return isKeeper(tx, ty) ? "keeper" : room.shopOpen(tx, ty) ? null : "prop";
+  // ── the Popoto Casino ── (its machines, sofa, counter and plants, as its interior has them)
+  if (casino.inCasino(tx, ty)) return casino.casinoOpen(tx, ty) ? null : "prop";
   // ── the pasture ── (its buildings, troughs, stall, fences and woods, and the pond)
   if (!asWas && inPasture(tx, ty)) return pastureThing(tx, ty);
   if (within(tx, ty, farmNow())) return (asWas ? farmSolidFirst : farmSolid).has(`${tx},${ty}`) ? "prop" : null;
@@ -1966,7 +1987,7 @@ export function groundAt(tx: number, ty: number): Ground {
   // drawn as is groundLook's to say)
   if (PREVIEW && ty >= MOUNTAIN.y) { const g = moreLook(tx + 0.5, ty + 0.5); return g === "road" || g === "stair" ? "road" : g === "grass" || g === "wood" ? g : "sand"; }
   // (the clothes shop's wooden floor: of the town's kinds, the plaza's, on which nothing grows or lies wet)
-  if (room.inShop(tx, ty)) return "plaza";
+  if (room.inShop(tx, ty) || casino.inCasino(tx, ty)) return "plaza";
   if (!asWas && inPasture(tx, ty)) return pastureGround(tx + 0.5, ty + 0.5);
   if (within(tx, ty, farmNow())) return farmGround(tx - FARM.x + 0.5, ty - FARM.y + 0.5);
   if (within(tx, ty, FOREST)) return forestGround(tx - FOREST.x + 0.5, ty - FOREST.y + 0.5);
@@ -1987,7 +2008,7 @@ export function groundLook(x: number, y: number): Ground | MoreGround | town2.T2
   // ── the editor's town ── (its own ground, in its own textures: lib/town/town2)
   if (T2 && town2.inT2(x, y)) return town2.t2Look(x, y);
   // (the clothes shop's floor, which is its own picture: the plaza's kind, as groundAt says)
-  if (room.inShop(x, y)) return "plaza";
+  if (room.inShop(x, y) || casino.inCasino(x, y)) return "plaza";
   // (and its far banks beyond the west and south edges, where its bridges come down)
   if (T2) { const bank = town2.t2BankLook(x, y); if (bank) return bank; }
   // ── to come ── (the mountain, the cave's floors, what is seen beyond them, and the earth at the bridge's two ends)
@@ -2026,7 +2047,7 @@ export function fromIso(ix: number, iy: number): Vec {
  * Walked onto by its one open side only, straight (a step onto it diagonally would clip the house's corner). Whether a
  * tile is walked on is otherwise untouched: nothing laid out from where one may walk (the insects' haunts) moves.
  */
-const DOORS = new Set(T2 ? [town2.T2_SHOP_DOOR.tile.join(",")] : []);
+const DOORS = new Set(T2 ? [town2.T2_SHOP_DOOR.tile.join(","), town2.T2_CASINO_DOOR.tile.join(",")] : []);
 const isDoor = (x: number, y: number) => DOORS.has(`${x},${y}`);
 
 const DIRS: Array<[number, number]> = [

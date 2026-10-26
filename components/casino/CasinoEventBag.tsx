@@ -18,7 +18,7 @@ export default function CasinoEventBag() {
     {error&&<p role="alert">{error}</p>}
     {!state?<p role="status">กำลังเปิดกระเป๋า…</p>:!state.receipts.length?<div className="casino-event-empty"><CasinoSymbol id="popoto"/><p>{history?'ยังไม่มีประวัติรับรางวัล':'ใบรับสิทธิ์จะอยู่ที่นี่เมื่อคุณได้รางวัล'}</p></div>:
       <div className="casino-receipts">{state.receipts.slice(0,20).map(r=><article className="casino-receipt" key={r.id}>
-        <CasinoSymbol id={r.prize.id}/><div><h3>{r.prize.name}</h3><p>{CLAIM_LABEL[r.status]}</p>
+        <CasinoSymbol id={r.prize.id==='pair'?'popoto':r.prize.id}/><div><h3>{r.prize.name}</h3><p>{CLAIM_LABEL[r.status]}</p>
           <details><summary>รายละเอียดใบรับสิทธิ์</summary><code>{r.id}</code><p>{new Date(r.created_at).toLocaleString('th-TH')}{r.note&&` · ${r.note}`}</p></details>
           {r.status==='pending'&&<button className="tk tk-btn" disabled={!!busy||!!r.requested_at} onClick={()=>void claim(r.id)}>{r.requested_at?'แจ้ง Aqua แล้ว':'ขอรับรางวัล'}</button>}</div></article>)}</div>}
     {(page>0||(state?.receipts.length??0)>20)&&<div className="casino-actions"><button disabled={!page} onClick={()=>setPage(p=>p-1)}>ก่อนหน้า</button><span>หน้า {page+1}</span><button disabled={(state?.receipts.length??0)<=20} onClick={()=>setPage(p=>p+1)}>ถัดไป</button></div>}

@@ -200,6 +200,8 @@ export interface Keeper {
   look(what: Looked): () => void;
   /** The room said something changed. */
   nudged(what: Looked): void;
+  /** My purse read again, after something outside the game's own calls changed it (the casino's spins, v299). */
+  purseAgain?(): void;
   /** Set by the map: told after a deed of mine that others will want to see (and, for a deal, who). */
   onDeed: ((what: Looked, to?: string) => void) | null;
   now(): number;
@@ -1416,6 +1418,7 @@ export class DbKeeper implements Keeper {
       if (l.n <= 0 && l.timer) { clearTimeout(l.timer); l.timer = null; }
     };
   }
+  purseAgain() { void this.refresh("town_me"); }
   nudged(what: Looked) {
     if(what==="boats"){void this.boatsLook(this.boatAt_);return;}
     // (somebody handed me water: it is in my purse, which is read again)

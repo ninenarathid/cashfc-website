@@ -46,21 +46,11 @@ export default function TownGate() {
 }
 function TownMapGate() {
   const params=useSearchParams(),active=useTownActive();
-  const map=params.get('map')??(active?.testTopic==='casino-lab'?'casino-test':active?.testTopic==='casino-live'?'casino':'town');
+  // (the LIVE casino is a room of the town since 2026-10-27, down the kura's door: its old address is the town; the
+  // volatile TEST room keeps its own, for Aqua's rehearsal of the settings)
+  const map=params.get('map')??(active?.testTopic==='casino-lab'?'casino-test':'town');
   if (map === 'casino-test') return <CasinoGate />;
-  if (map === 'casino') return <CasinoGate live />;
-  return <><VillageGate /><CasinoEntrance /></>;
-}
-/** The door appears only when Aqua opens LIVE. TEST remains a private direct link. */
-function CasinoEntrance(){
-  const {canEnterTown,realAdmin}=useAdmin();const [open,setOpen]=useState(false);
-  useEffect(()=>{if(!canEnterTown)return;const client=createClient();if(!client)return;let gone=false;
-    const read=async()=>{const {data}=await client.from('casino_live_settings').select('open,starts_at,ends_at').eq('id',1).maybeSingle();const now=Date.now();if(!gone)setOpen(!!data?.open&&(!data.starts_at||now>=Date.parse(data.starts_at))&&(!data.ends_at||now<Date.parse(data.ends_at)));};
-    // (read every half minute; it no longer listens to the change feed, whose poll of the database ran ten times a second while anybody listened, 2026-10-16)
-    void read();const timer=setInterval(()=>void read(),30000);
-    return()=>{gone=true;clearInterval(timer);};
-  },[canEnterTown]);
-  return open||realAdmin?<Link href={open?"/town?map=casino":"/town?map=casino-test"} className="fixed right-3 top-[calc(var(--nav-h)+4rem)] z-[44] rounded-lg border border-amber-300 bg-[#402a37] px-3 py-2 text-sm text-amber-100">เทศบาล Popoto · Casino ↗</Link>:null;
+  return <VillageGate />;
 }
 /**
  * Which main town the database says is the town now (`town_map()`, supabase v295: the owner's switch between the town of
