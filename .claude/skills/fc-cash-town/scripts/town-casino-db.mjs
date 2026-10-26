@@ -144,9 +144,11 @@ try {
       const told = (X) => X.evaluate(`[...document.querySelectorAll("[data-town-announcement]")].map((e) => e.innerText).join(" | ")`);
       ok(`${label}: the whole town is told`, /Popoto Casino/.test(await until("the banner", async () => { const t = await told(B); return /Popoto Casino/.test(t) && t; }, 25000).catch(() => "") || ""),
         await told(B));
+      await sleep(900); // (the banner's way in played out)
       await B.shot(`${OUT}/12-town-told-${label}.png`);
       if (label === "384x730") {
         ok("the admin's page in the casino is told too", /Popoto Casino/.test(await until("the admin's banner", async () => { const t = await told(A); return /Popoto Casino/.test(t) && t; }, 25000).catch(() => "") || ""));
+        await sleep(900);
         await A.shot(`${OUT}/12-town-told-desktop.png`);
       }
       ok(`${label}: no forced result for a member`, !(await B.evaluate(`!!document.querySelector('.casino-in-town select[aria-label="ผลที่จะออก"]')`)));
