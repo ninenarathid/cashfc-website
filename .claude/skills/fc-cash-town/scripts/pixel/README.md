@@ -654,11 +654,15 @@ with its closing sentence, `work/out/scene-icons.png` for the reference.
 - **`icons-casino-a`**: one tall ice crystal with the gold star of a rare thing (`reelEvercold`), a stack of coins with
   one on its edge (`reelCoins`, the pair's coins back), cherries, a gold bar and a potato with a face (`reelCherry`,
   `reelGold`, `reelPopoto`: the code-drawn reel symbols of lib/town/casino-symbol-art drawn the town's way, for the owner
-  to choose whether to take them), and a cluster of three ice crystals with the star (`reelEvercoldB`, the one the reels
-  use: at a reel's 16 to 40 screen pixels it reads better than the single crystal). Cut on its finer grid (8.0): on the
-  coarser (16.6, which `icon-pitch2` gives first) the crystals and the coins broke into pieces.
+  to choose whether to take them), and a cluster of three ice crystals with the star (`reelEvercoldB`). The reels use the
+  single crystal: the cluster was tried first and Codex's look in the game (2026-10-27) found its tips running together
+  at a marquee's and a cabinet window's 12 to 16 screen pixels, where the single crystal keeps its shape. Codex also
+  advised drawing the cherries, gold bar and potato from this sheet for one look (the seven stays code-drawn: the
+  template forbids numbers): the owner's to choose. Cut on its finer grid (8.0): on the coarser (16.6, which
+  `icon-pitch2` gives first) the crystals and the coins broke into pieces.
 - **Its own small picture**: `ICONS_ONLY=icons-casino-a ICONS_PUB=<tree>/public/town/casino ICONS_JSON=<tree>/lib/town/casino-reels.json
   node build-icons.mjs` (256x41, 2.7 KB): the town's atlas is not touched, and only the casino's pages ask for it.
-- **Drawn with `NO_REVIEW`**: Codex's weekly limit was used up until 2026-10-27 13:32 (the reason is in the ledger).
+- **Drawn with `NO_REVIEW`**: Codex's weekly limit was thought used up until 2026-10-27 13:32 (the reason is in the
+  ledger); Codex looked at the sheet in the game afterwards (above).
 - In the game: the reels of the sheet, the cabinet windows and the marquee over a machine, 1280x860, 384x730, 360x640
   (`scripts/town-casino-db.mjs`).
