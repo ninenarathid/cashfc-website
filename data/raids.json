@@ -77660,8 +77660,8 @@
     "cleared": true,
     "job_kills": {
      "Dragoon": {
-      "kills": 2,
-      "best": 34
+      "kills": 5,
+      "best": 53
      },
      "Paladin": {
       "kills": 12,
@@ -83195,7 +83195,17 @@
     "best": 93,
     "kills": 2,
     "job": "Viper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Viper": {
+      "kills": 1,
+      "best": 93
+     },
+     "Machinist": {
+      "kills": 1,
+      "best": 13
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -85839,7 +85849,17 @@
     "best": 20,
     "kills": 4,
     "job": "Pictomancer",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Pictomancer": {
+      "kills": 2,
+      "best": 20
+     },
+     "Bard": {
+      "kills": 2,
+      "best": 15
+     }
+    }
    },
    {
     "zone": "Trials III (Extreme)",

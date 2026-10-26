@@ -2,6 +2,20 @@
  "events": [
   {
    "date": "2026-10-26",
+   "type": "level_100",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-10-26",
+   "type": "level_100",
+   "id": 37061370,
+   "name": "Peonies Dunieres",
+   "text": "reached level 100 on Scholar!"
+  },
+  {
+   "date": "2026-10-26",
    "type": "rare_up",
    "id": 3968346,
    "name": "Panuz Chocobunny",
@@ -1385,20 +1399,6 @@
    "id": 29918255,
    "name": "Lyndanisse Vymmaith",
    "text": "earned Phantom of the Umbra: Codex Umbrae"
-  },
-  {
-   "date": "2026-10-14",
-   "type": "level_100",
-   "id": 60972300,
-   "name": "Mizuki Sekine",
-   "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-10-14",
-   "type": "level_100",
-   "id": 47218599,
-   "name": "Kawa Lynn",
-   "text": "reached level 100 on Gunbreaker!"
   }
  ]
 }

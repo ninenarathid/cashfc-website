@@ -2299,7 +2299,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 38,
+  "level": 44,
   "cc": [
    true,
    true,
@@ -3878,7 +3878,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 68,
-  "level": 100,
+  "level": 90,
   "cc": [
    true,
    true,
@@ -3981,7 +3981,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-25"
+  "chg": "2026-10-26"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -6886,7 +6886,7 @@
   "mounts": 60,
   "minions": 114,
   "rare": 4,
-  "level": 72,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6950,7 +6950,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 88,
+  "level": 65,
   "cc": [
    false,
    false,
@@ -7699,7 +7699,7 @@
   "mounts": 131,
   "minions": 271,
   "rare": 117,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8765,7 +8765,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 90,
+  "level": 91,
   "cc": [
    false,
    false,
