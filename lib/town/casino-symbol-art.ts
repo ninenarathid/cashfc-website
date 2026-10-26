@@ -11,9 +11,10 @@ const mini:Partial<Record<SymbolId,string[]>>={seven:['........','.orrrro.','.oh
 /**
  * A symbol drawn through the town's pipeline (gen.mjs, cut by build-icons.mjs into the casino's own small picture,
  * lib/town/casino-reels.json and public/town/casino): the evercold's, which came after the four above (a cluster of ice
- * crystals with the gold star of a rare thing). Drawn at the size asked, its pixels hard.
+ * crystal with the gold star of a rare thing: the single crystal, which keeps its shape at a marquee's and a cabinet
+ * window's size where the cluster's tips ran together, Codex's look of 2026-10-27). Drawn at the size asked, its pixels hard.
  */
-const DRAWN:Partial<Record<SymbolId,string>>={evercold:'reelEvercoldB'};
+const DRAWN:Partial<Record<SymbolId,string>>={evercold:'reelEvercold'};
 const ICONS=REELS as unknown as {image:string;icons:Record<string,[number,number,number,number]>};
 let sheet:HTMLImageElement|null=null;
 /** The casino's own picture, asked for once: resolves when it has come (a drawing made before then is made again by its caller). */

@@ -100,7 +100,7 @@ try {
     { shownBefore, after: await A.evaluate(`window.__townKeeper.purse().coins`), purseBefore });
   const won = await resultOf(A);
   ok("the evercold, forced, is won", won.includes("Evercold"), won);
-  ok("the sheet says where it went", await A.evaluate(`!!document.querySelector(".casino-in-town .casino-where")`));
+  ok("the sheet says where it went, on the result's own line", won.includes("กล่องรางวัล"), won);
   const rows = await sql(`select prize_name, draw from public.prize_wins where winner = $1`, [a]);
   ok("a prize row of the site's, from the casino", rows.some((r) => r.prize_name === "Evercold" && r.draw === "casino"), rows);
   ok("its bell", (await sql(`select count(*)::int n from public.notifications where recipient = $1 and kind = 'prize_win'`, [a]))[0].n === 1);

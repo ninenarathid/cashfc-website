@@ -21,7 +21,7 @@ import { SHOP_BOARD } from "@/lib/town/shop-room";
 import type { ShopWindowProps } from "./TownTailor";
 // ── the Popoto Casino ── (lib/town/casino-room: a room of its own down the kura's door; components/casino/CasinoInTown is its sheet)
 import { CasinoRoomArt } from "@/lib/town/casino-room-art";
-import { stoolAt } from "@/lib/town/casino-room";
+import { CASINO_ROOM, stoolAt } from "@/lib/town/casino-room";
 import { letIn, type CasinoSettings } from "@/lib/casino";
 import { useAdmin } from "@/lib/admin";
 import { BOUNDS, START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
@@ -519,6 +519,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const casinoTap = useRef<((n: number) => void) | null>(null);
   /** Whether the casino's sheet is open (the stand-up button, under it on a phone, gives way to it: X still gets one up). */
   const [casinoSheet, setCasinoSheet] = useState(false);
+  const casinoSheetRef = useRef(false);
+  casinoSheetRef.current = casinoSheet;
   /** Who may go down the kura's door (the database's, v299): read as the town opens, every five minutes, and at a tap on the door. */
   const { realAdmin } = useAdmin();
   const [casinoDoor, setCasinoDoorShown] = useState(false);
@@ -2148,7 +2150,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (v.follow && mine) {
       const iso = toIso(mine.pos.x, mine.pos.y);
       const f = focus.current ?? { x: cw / 2, y: ch / 2 };
-      const tx = iso.x - (f.x - cw / 2) / v.s, ty = iso.y - dollH(mine) * 0.45 - (f.y - ch / 2) / v.s;
+      let tx = iso.x - (f.x - cw / 2) / v.s;
+      const ty = iso.y - dollH(mine) * 0.45 - (f.y - ch / 2) / v.s;
+      // ── the Popoto Casino ── (on a wide screen the room nearly fits across: held at its middle, so that all five
+      // machines are in sight; with the slot sheet open at the right, I am kept left of it, as the casino's own map did)
+      if (placeRef.current === "casino" && cw >= 640) {
+        if (casinoSheetRef.current) tx = iso.x + 180 / v.s;
+        else if ((CASINO_ROOM.w + CASINO_ROOM.h) * (TILE_W / 2) * v.s <= cw + 160) tx = toIso(CASINO_ROOM.x + CASINO_ROOM.w / 2, CASINO_ROOM.y + CASINO_ROOM.h / 2).x;
+      }
       const ease = Math.min(1, dt * 7);
       setCam({ s: v.s, cx: v.cx + (tx - v.cx) * ease, cy: v.cy + (ty - v.cy) * ease });
     }
@@ -2398,7 +2407,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         if (s) for (const a of [s.self, ...s.avatars.values()]) if (sitting(a) && !a.path.length && stoolAt(a.pos) === n) return a.info.name;
         return null;
       };
-      signs.push(() => casinoArt.drawSigns(ctx, iso2, v.s, reducedRef.current, sitter, cw < 640));
+      signs.push(() => casinoArt.drawSigns(ctx, iso2, v.s, reducedRef.current, sitter, cw));
     }
     for (const p of T2 ? [] : PROPS) {
       if (p.kind === "flowers") continue;

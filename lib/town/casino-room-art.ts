@@ -155,17 +155,20 @@ export class CasinoRoomArt {
 
   /**
    * The marquee over each machine that is playing, has played, or is sat at: who is at it and what came of it, over
-   * every head. `sitter(n)` is who sits at machine n's stool. On a narrow screen with the sheet open, a marquee that
-   * would stand under the town's top bar is left out (the sheet shows that machine's reels large).
+   * every head. `sitter(n)` is who sits at machine n's stool. Left out: the open sheet's own machine (the sheet shows
+   * its reels large), one the screen's edge would cut, and on a narrow screen with the sheet open one that would stand
+   * under the town's top bar.
    */
-  drawSigns(ctx: CanvasRenderingContext2D, screen: Screen, s: number, reduced: boolean, sitter: (n: number) => string | null, narrow: boolean) {
+  drawSigns(ctx: CanvasRenderingContext2D, screen: Screen, s: number, reduced: boolean, sitter: (n: number) => string | null, cw: number) {
     const point = this.point(screen, s), spins = this.spins(), t = this.clock();
     for (let n = 1; n <= 5; n++) {
       const latest = spins.find((q) => q.machine === n), occupant = sitter(n);
       if (!latest && !occupant && this.selected !== n) continue;
-      const p = point(CASINO_MACHINE_X[n - 1], 2.5);
-      if (narrow && this.sheetOpen && p.y - 176 * s < 104) continue;
-      drawCasinoMarquee(ctx, n, latest, occupant ?? "พร้อมเล่น", t, p.x - 7 * s, p.y - 176 * s, s, reduced);
+      if (this.sheetOpen && this.selected === n) continue;
+      const p = point(CASINO_MACHINE_X[n - 1], 2.5), x = p.x - 7 * s;
+      if (x - 48 * s < 0 || x + 48 * s > cw) continue;
+      if (cw < 640 && this.sheetOpen && p.y - 176 * s < 104) continue;
+      drawCasinoMarquee(ctx, n, latest, occupant ?? "พร้อมเล่น", t, x, p.y - 176 * s, s, reduced);
     }
   }
 
