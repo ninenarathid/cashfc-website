@@ -6,7 +6,7 @@
   "mounts": 61,
   "minions": 227,
   "rare": null,
-  "level": 30,
+  "level": 33,
   "cc": [
    false,
    false,
@@ -27,7 +27,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-25"
+  "chg": "2026-10-26"
  },
  "15308846": {
   "name": "Aqua Eleison",
@@ -182,7 +182,7 @@
   "ult": 0,
   "mounts": 90,
   "minions": 272,
-  "rare": 71,
+  "rare": 72,
   "level": 100,
   "cc": [
    false,
@@ -229,6 +229,7 @@
    1853,
    1856,
    1857,
+   2030,
    2033,
    2034,
    2035,
@@ -275,7 +276,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-09-30"
+  "chg": "2026-10-26"
  },
  "14959902": {
   "name": "Notifire Sky",
@@ -1246,7 +1247,7 @@
   "ult": 5,
   "mounts": 131,
   "minions": 337,
-  "rare": 124,
+  "rare": 125,
   "level": 100,
   "cc": [
    true,
@@ -1381,7 +1382,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-10"
+  "chg": "2026-10-26"
  },
  "44970350": {
   "name": "Allen Crist",
@@ -2298,7 +2299,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 100,
+  "level": 38,
   "cc": [
    true,
    true,
@@ -2525,7 +2526,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 97,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -2744,6 +2745,7 @@
    3470,
    3471,
    3472,
+   3476,
    3617,
    3631,
    3667,
@@ -2783,7 +2785,6 @@
    4025,
    4026,
    4027,
-   4030,
    4031,
    4032,
    4033,
@@ -3194,6 +3195,7 @@
    2858,
    2862,
    2866,
+   2885,
    2886,
    2929,
    2930,
@@ -3225,8 +3227,7 @@
    3667,
    3668,
    3677,
-   3752,
-   3998
+   3752
   ],
   "tiers": {
    "gatherer": "expert",
@@ -3532,6 +3533,7 @@
    1311,
    1331,
    1429,
+   1458,
    1459,
    1585,
    1622,
@@ -3584,7 +3586,6 @@
    3925,
    3945,
    3979,
-   4028,
    4029,
    4030
   ],
@@ -3645,7 +3646,7 @@
   "mounts": 65,
   "minions": 131,
   "rare": 57,
-  "level": 66,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3727,7 +3728,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-10-25"
+  "chg": "2026-10-26"
  },
  "21620195": {
   "name": "Nefe'li Lucias",
@@ -4343,7 +4344,7 @@
   "ult": 3,
   "mounts": 265,
   "minions": 338,
-  "rare": 535,
+  "rare": 536,
   "level": 100,
   "cc": null,
   "rare_ids": [
@@ -4464,7 +4465,7 @@
    "The Omega Protocol",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-22"
+  "chg": "2026-10-26"
  },
  "29998658": {
   "name": "Shippei Astana",
@@ -4981,6 +4982,7 @@
    3736,
    3757,
    3758,
+   3762,
    3778,
    3784,
    3817,
@@ -4990,7 +4992,6 @@
    3846,
    3847,
    3848,
-   3849,
    3850,
    3851,
    3852,
@@ -5293,7 +5294,7 @@
   "mounts": 128,
   "minions": 320,
   "rare": 115,
-  "level": 97,
+  "level": 96,
   "cc": [
    false,
    false,
@@ -5677,7 +5678,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 99,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5799,7 +5800,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-10-25"
+  "chg": "2026-10-26"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -6885,7 +6886,7 @@
   "mounts": 60,
   "minions": 114,
   "rare": 4,
-  "level": 90,
+  "level": 72,
   "cc": [
    false,
    false,
@@ -6910,7 +6911,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-25"
+  "chg": "2026-10-26"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -6949,7 +6950,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 91,
+  "level": 88,
   "cc": [
    false,
    false,
@@ -6962,7 +6963,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-25"
+  "chg": "2026-10-26"
  },
  "53933347": {
   "name": "Little Alyss",
@@ -6993,7 +6994,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 75,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7334,7 +7335,7 @@
   "mounts": 70,
   "minions": 104,
   "rare": 57,
-  "level": 65,
+  "level": 66,
   "cc": [
    false,
    false,
@@ -7411,7 +7412,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-25"
+  "chg": "2026-10-26"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -7698,7 +7699,7 @@
   "mounts": 131,
   "minions": 271,
   "rare": 117,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -7825,7 +7826,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-08"
+  "chg": "2026-10-26"
  },
  "43116127": {
   "name": "Piyo Stellar",
@@ -8764,7 +8765,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 88,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -11349,7 +11350,7 @@
   "ult": 6,
   "mounts": 122,
   "minions": 276,
-  "rare": 59,
+  "rare": 60,
   "level": 100,
   "cc": [
    false,
@@ -11401,6 +11402,7 @@
    1746,
    1916,
    1993,
+   2030,
    2084,
    2103,
    2351,
@@ -11439,7 +11441,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-10"
+  "chg": "2026-10-26"
  },
  "15785511": {
   "name": "Eric Luminous",

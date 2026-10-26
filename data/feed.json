@@ -2,6 +2,76 @@
  "events": [
   {
    "date": "2026-10-26",
+   "type": "rare_up",
+   "id": 3968346,
+   "name": "Panuz Chocobunny",
+   "text": "earned I've Got It: Galatyn Anemos & Evalach Anemos"
+  },
+  {
+   "date": "2026-10-26",
+   "type": "level_100",
+   "id": 42948817,
+   "name": "Karuma Amamiya",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
+   "date": "2026-10-26",
+   "type": "rare_up",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "earned Mining Dawntrail"
+  },
+  {
+   "date": "2026-10-26",
+   "type": "rare_up",
+   "id": 22461237,
+   "name": "Metatron Vtretikh",
+   "text": "earned Annals of Liberation"
+  },
+  {
+   "date": "2026-10-26",
+   "type": "rare_up",
+   "id": 6173187,
+   "name": "Motochita Muses",
+   "text": "earned A Wolf in Green Tights II"
+  },
+  {
+   "date": "2026-10-26",
+   "type": "level_100",
+   "id": 36183541,
+   "name": "Nagi Amano",
+   "text": "reached level 100 on Samurai!"
+  },
+  {
+   "date": "2026-10-26",
+   "type": "rare_up",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "earned Phantom of the Umbra: Harp Bow Umbrae"
+  },
+  {
+   "date": "2026-10-26",
+   "type": "level_100",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-10-26",
+   "type": "level_100",
+   "id": 60852230,
+   "name": "Lucien Rhul",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
+   "date": "2026-10-26",
+   "type": "rare_up",
+   "id": 1643244,
+   "name": "Epicenter Eorzea",
+   "text": "earned I've Got It: Galatyn Anemos & Evalach Anemos"
+  },
+  {
+   "date": "2026-10-26",
    "type": "level_100",
    "id": 50821570,
    "name": "Haruki Mizumoto",
@@ -1329,76 +1399,6 @@
    "id": 47218599,
    "name": "Kawa Lynn",
    "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-10-13",
-   "type": "level_100",
-   "id": 60852230,
-   "name": "Lucien Rhul",
-   "text": "reached level 100 on Dark Knight!"
-  },
-  {
-   "date": "2026-10-13",
-   "type": "rare_up",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "earned A Show of Fork II — only 2.8% of players have it"
-  },
-  {
-   "date": "2026-10-13",
-   "type": "rare_up",
-   "id": 29152036,
-   "name": "Fluffy Tinytail",
-   "text": "earned Stranger than Fiction"
-  },
-  {
-   "date": "2026-10-13",
-   "type": "rare_up",
-   "id": 38152072,
-   "name": "Parker Thonhart",
-   "text": "earned Aetherpool Party: Gunblade — only 2.9% of players have it"
-  },
-  {
-   "date": "2026-10-13",
-   "type": "level_100",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "reached level 100 on Monk!"
-  },
-  {
-   "date": "2026-10-13",
-   "type": "level_100",
-   "id": 57375278,
-   "name": "Komi Kona",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-10-13",
-   "type": "rare_up",
-   "id": 43864764,
-   "name": "Shinonome Kamemaru",
-   "text": "earned An Ode to Botany — only 2.3% of players have it, and 1 more"
-  },
-  {
-   "date": "2026-10-13",
-   "type": "rare_up",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "earned R&D: Hyperalembic"
-  },
-  {
-   "date": "2026-10-13",
-   "type": "rare_up",
-   "id": 22425670,
-   "name": "Shizuna-pan Misurugi",
-   "text": "earned The Might Phantastick: Twinfangs Penumbrae"
-  },
-  {
-   "date": "2026-10-13",
-   "type": "rare_up",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "earned Mapping the Realm: The Occult Crescent: North Horn"
   }
  ]
 }
