@@ -21932,7 +21932,17 @@
       "best": 99,
       "median": 90,
       "kills": 12,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 11,
+        "best": 99
+       },
+       "Samurai": {
+        "kills": 1,
+        "best": 5
+       }
+      }
      },
      {
       "label": "M6S",
@@ -21941,7 +21951,13 @@
       "best": 93,
       "median": 69,
       "kills": 10,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 10,
+        "best": 93
+       }
+      }
      },
      {
       "label": "M7S",
@@ -21950,7 +21966,13 @@
       "best": 95,
       "median": 74,
       "kills": 10,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 10,
+        "best": 95
+       }
+      }
      },
      {
       "label": "M8S",
@@ -21959,7 +21981,13 @@
       "best": 76,
       "median": 52,
       "kills": 9,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 9,
+        "best": 76
+       }
+      }
      }
     ]
    },
@@ -80504,7 +80532,13 @@
       "best": 47,
       "median": 13,
       "kills": 8,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 8,
+        "best": 47
+       }
+      }
      },
      {
       "label": "M6S",
@@ -80513,7 +80547,13 @@
       "best": 12,
       "median": 3,
       "kills": 4,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 4,
+        "best": 12
+       }
+      }
      },
      {
       "label": "M7S",

@@ -1,6 +1,13 @@
 {
  "events": [
   {
+   "date": "2026-10-26",
+   "type": "level_100",
+   "id": 50821570,
+   "name": "Haruki Mizumoto",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
    "date": "2026-10-25",
    "type": "ex_clear",
    "id": 58199536,
@@ -1392,13 +1399,6 @@
    "id": 29918404,
    "name": "Zarass Gierlos",
    "text": "earned Mapping the Realm: The Occult Crescent: North Horn"
-  },
-  {
-   "date": "2026-10-13",
-   "type": "rare_up",
-   "id": 38488824,
-   "name": "Daffodil Amary",
-   "text": "earned R&D: Stellar Saw"
   }
  ]
 }

@@ -2298,7 +2298,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 99,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2345,7 +2345,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-25"
+  "chg": "2026-10-26"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -2525,7 +2525,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 94,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -2552,7 +2552,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-10-25"
+  "chg": "2026-10-26"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -5293,7 +5293,7 @@
   "mounts": 128,
   "minions": 320,
   "rare": 115,
-  "level": 95,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -5415,7 +5415,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-25"
+  "chg": "2026-10-26"
  },
  "8286372": {
   "name": "Aloha Banana",
@@ -6993,7 +6993,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 100,
+  "level": 75,
   "cc": [
    false,
    false,
@@ -7013,7 +7013,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-22"
+  "chg": "2026-10-26"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -8764,7 +8764,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 84,
+  "level": 88,
   "cc": [
    false,
    false,
@@ -8784,7 +8784,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-25"
+  "chg": "2026-10-26"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
