@@ -1728,8 +1728,8 @@ export function gateAt(x: number, y: number): Vec | null {
 export function thingAt(tx: number, ty: number): Building | "fountain" | "shop" | "board" | "pier" | "kitchen" | "keeper" | "roadworks" | "water" | "prop" | null {
   // ── to come ── (the mountain's foot and the cave: a cliff, the rim, rock, and what stands there)
   if (PREVIEW && ty >= MOUNTAIN.y) return moreShut(tx, ty) ? "prop" : null;
-  // ── the clothes shop ── (its tiles as the export has them: lib/town/shop-room)
-  if (room.inShop(tx, ty)) return room.shopOpen(tx, ty) ? null : "prop";
+  // ── the clothes shop ── (its tiles as the export has them: lib/town/shop-room; and the tile Granny stands on)
+  if (room.inShop(tx, ty)) return isKeeper(tx, ty) ? "keeper" : room.shopOpen(tx, ty) ? null : "prop";
   // ── the pasture ── (its buildings, troughs, stall, fences and woods, and the pond)
   if (!asWas && inPasture(tx, ty)) return pastureThing(tx, ty);
   if (within(tx, ty, farmNow())) return (asWas ? farmSolidFirst : farmSolid).has(`${tx},${ty}`) ? "prop" : null;

@@ -35,14 +35,16 @@ describe("the clothes shop", () => {
   it("is walked as the export says: its collision rows, and never across a wall", async () => {
     const w = await load();
     const { x: X, y: Y } = w.SHOP_ROOM;
-    for (let ty = 0; ty < MAP.rows; ty++) for (let tx = 0; tx < MAP.cols; tx++) expect(w.walkable(X + tx, Y + ty)).toBe(MAP.walk[ty][tx] === ".");
+    // (and the one tile Granny stands on, which the export has open)
+    const granny = (tx: number, ty: number) => w.SHOP_KEEPER.tiles.some(([gx, gy]) => gx === X + tx && gy === Y + ty);
+    for (let ty = 0; ty < MAP.rows; ty++) for (let tx = 0; tx < MAP.cols; tx++) expect(w.walkable(X + tx, Y + ty)).toBe(MAP.walk[ty][tx] === "." && !granny(tx, ty));
     // the west and north walls close their edges, straight and round their ends; inside the room nothing is walled
     expect(w.shopOverWall(X, Y + 2, X - 1, Y + 2)).toBe(true);
     expect(w.shopOverWall(X + 4, Y, X + 4, Y - 1)).toBe(true);
     expect(w.shopOverWall(X + 4, Y, X + 3, Y - 1)).toBe(true);
     expect(w.shopOverWall(X + 4, Y + 1, X + 5, Y + 1)).toBe(false);
     expect(w.shopOverWall(X + 4, Y + 1, X + 5, Y)).toBe(false);
-    // from the way in to the floor before Granny's counter, and to behind the middle counter, inside the room all along
+    // from the way in to the floor before the west counter, and to behind the middle counter, inside the room all along
     for (const goal of [{ x: X + 1.5, y: Y + 6.5 }, { x: X + 4.5, y: Y + 3.5 }, { x: X + 4.5, y: Y + 0.5 }]) {
       const path = w.findPath(w.SHOP_IN, goal);
       expect(path).not.toBeNull();
@@ -79,23 +81,25 @@ describe("the clothes shop", () => {
     expect(w.GATES.slice(-2).map((q) => `${q.from}>${q.leads}`)).toEqual(["town>shop", "shop>town"]);
   });
 
-  it("has Granny Twilla behind her counter, closing no tile, reached from the floor before it", async () => {
+  it("has Granny Twilla before her table in the east corner, on a tile of her own, reached from the floor beside her", async () => {
     const w = await load();
     const granny = w.KEEPERS.find((k) => k.id === "granny")!;
     expect(granny).toBeTruthy();
     expect(w.KEEPERS[0].id).toBe("uncle");
     expect(w.KEEPERS[1].id).toBe("banker");
-    expect(granny.tiles).toEqual([]);
+    expect(granny.tiles).toEqual([[Math.floor(granny.at.x), Math.floor(granny.at.y)]]);
+    expect(w.walkable(Math.floor(granny.at.x), Math.floor(granny.at.y))).toBe(false);
     expect(w.placeOf(granny.stand.x, granny.stand.y)).toBe("shop");
-    // the floor before her counter is open and reached from the way in
-    const before = { x: w.SHOP_ROOM.x + 1.5, y: Math.floor(granny.at.y) + 0.5 };
+    // the floor before her table (the owner moved her there, 2026-10-26) is open and reached from the way in
+    const table = w.SHOP_THINGS[w.SHOP_KEEPER.behind];
+    expect(table.name).toMatch(/^wrapping_table/);
+    const before = { x: Math.floor(granny.at.x) + 0.5, y: Math.floor(granny.at.y) + 1.5 };
     expect(w.walkable(Math.floor(before.x), Math.floor(before.y))).toBe(true);
     expect(w.findPath(w.SHOP_IN, before)).not.toBeNull();
-    // drawn just before that counter, after the walls
+    // drawn in front of her table, after the walls
     const { ShopRoomArt } = await import("./shop-room-art");
-    const art = new ShopRoomArt(), counter = art.things[w.SHOP_KEEPER.behind];
-    expect(art.keeperDepth).toBeLessThan(counter.d);
-    expect(counter.d - art.keeperDepth).toBeLessThan(0.05);
+    const art = new ShopRoomArt(), table2 = art.things[w.SHOP_KEEPER.behind];
+    expect(art.keeperDepth).toBeGreaterThan(table2.d);
     const walls = art.things.filter((t) => t.how === 2), rest = art.things.filter((t) => t.how === 1);
     expect(walls.length).toBe(MAP.walls.length);
     expect(Math.max(...walls.map((t) => t.d))).toBeLessThan(Math.min(...rest.map((t) => t.d), art.keeperDepth));

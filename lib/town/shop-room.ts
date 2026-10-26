@@ -103,14 +103,17 @@ const MANNEQUIN = first(/^empty_dress_form_mannequin/);
 export const SHOP_MANNEQUIN = { i: MANNEQUIN.i, at: MANNEQUIN.c };
 
 /**
- * Granny Twilla (ยายทวิลล่า), who sells clothes: where the owner's popoto stood behind the west counter (the export's
- * `keeper`), drawn just before that counter so that its top hides her from the waist down, as a keeper behind her
- * counter (lib/town/shop-room-art's `keeperDepth`). She closes no tile (she stands between the counter and the wall); one
- * talks to her by tapping her, from anywhere in the room.
+ * Granny Twilla (ยายทวิลล่า), who sells clothes: on the floor before the tailor's table in the east corner, between the
+ * mannequin and the kimono rack (the owner, 2026-10-26: "ช่วยย้าย npc ยาย มาอยู่ด้านขวาแทน"; the export had her behind the
+ * west counter, its `keeper`, which this takes the place of so that a new export does not move her back). Behind the
+ * table its tall frame of spools hid her, so she stands before it, whole, drawn in her place back to front as anybody
+ * is (lib/town/shop-room-art's `keeperDepth`), on a tile of her own that nobody walks through. One talks to her by
+ * tapping her, from anywhere in the room.
  */
-const KEEPER = MAP.keeper as { at: [number, number]; behind: number };
+const TAILOR_TABLE = first(/^wrapping_table_with_rolls_of_paper_spool$/);
+const KEEPER_TILE: [number, number] = [Math.floor((TAILOR_TABLE.box[0] + TAILOR_TABLE.box[2]) / 2), Math.floor(TAILOR_TABLE.box[3]) + 1];
 export const SHOP_KEEPER = {
-  id: "granny" as const, stand: SHOP_THINGS[KEEPER.behind].c, at: out(KEEPER.at[0], KEEPER.at[1]), tiles: [] as Array<[number, number]>,
-  /** The counter she stands behind (its number among the room's things). */
-  behind: KEEPER.behind,
+  id: "granny" as const, stand: TAILOR_TABLE.c, at: { x: KEEPER_TILE[0] + 0.5, y: KEEPER_TILE[1] + 0.5 }, tiles: [KEEPER_TILE],
+  /** The table she stands before (its number among the room's things). */
+  behind: TAILOR_TABLE.i,
 };

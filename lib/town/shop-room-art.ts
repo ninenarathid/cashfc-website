@@ -46,7 +46,7 @@ export class ShopRoomArt {
   private readonly floor: Sprite & { x: number; y: number };
   /** The room's whole box, in isometric pixels: its floor and everything that stands on it. */
   private readonly box: { x0: number; y0: number; x1: number; y1: number };
-  /** Where Granny is drawn back to front: just before the counter she stands behind (lib/town/shop-room's SHOP_KEEPER). */
+  /** Where Granny is drawn back to front: in her own place on the floor, as anybody standing there (lib/town/shop-room's SHOP_KEEPER). */
   readonly keeperDepth: number;
   /**
    * The week's auction outfits on the mannequin, once there is something to show (the auction's own code sets this):
@@ -67,7 +67,7 @@ export class ShopRoomArt {
     const xs = [this.floor.x, this.floor.x + fw], ys = [this.floor.y, this.floor.y + fh];
     for (const t of this.things) { const sp = this.sprites[t.s]; xs.push(t.x, t.x + sp.w * t.k); ys.push(t.y, t.y + sp.h * t.k); }
     this.box = { x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs), y1: Math.max(...ys) };
-    this.keeperDepth = DEPTH0 + (MAP.objects as number[][])[SHOP_KEEPER.behind][7] - 0.005;
+    this.keeperDepth = SHOP_KEEPER.at.x + SHOP_KEEPER.at.y;
   }
 
   /** How much is held now: pictures fetched, and what they come to decoded (bytes). */
