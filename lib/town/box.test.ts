@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { BOX, MORE_CHESTS, boxOffer, boxSorted, fits, moveBox, nearBox, newBox, roomyBox, sortBox, stow, unstow, upgradeBox, type Box } from "./box";
 import { ITEMS, type ItemId } from "./items";
 import { handOf, held, hold, newPurse, put, take, type Purse, type Stack } from "./trade";
-import { BENCHES, FARM, FARM_PROPS, FOUNTAIN, GATES, PLAZA, PROPS, PROPS_FIRST, STOREBOX, WELLS, bedOf, findPath, thingAt, walkable } from "./world";
+import { BENCHES, FARM, FARM_PROPS, FOUNTAIN, GATES, PLAZA, PROPS, PROPS_FIRST, STOREBOX, WELLS, bedOf, findPath, groundAt, thingAt, walkable } from "./world";
 
 const purseWith = (slots: number, ...items: Array<[ItemId, number]>): Purse => {
   const p = newPurse();
@@ -323,10 +323,15 @@ describe("where the box stands", () => {
 
 describe("the farm's two chests", () => {
   const chests = FARM_PROPS.filter((p) => p.kind === "storebox");
-  it("stand one in each half, by the lane near its well, nothing in front of them, and open the same box", () => {
-    expect(chests.map((p) => [p.x - FARM.x, p.y - FARM.y])).toEqual([[31, 26], [31, 68]]);
+  it("stand one in each half, where its lanes cross north of its well, nothing in front of them, and open the same box", () => {
+    expect(chests.map((p) => [p.x - FARM.x, p.y - FARM.y])).toEqual([[28, 20], [28, 62]]);
     expect(MORE_CHESTS.slice(-2)).toEqual(chests.map((p) => ({ x: p.x, y: p.y })));
-    WELLS.forEach((w, i) => { expect(chests[i].x - w.x).toBe(3); expect(chests[i].y - w.y).toBe(3); });
+    WELLS.forEach((w, i) => { expect(chests[i].x).toBe(w.x); expect(chests[i].y - w.y).toBe(-3); });
+    // (each in the corner of its two lanes, beside the hay)
+    for (const c of chests) {
+      expect([groundAt(c.x + 1, c.y), groundAt(c.x, c.y + 1), groundAt(c.x, c.y)]).toEqual(["road", "road", "grass"]);
+      expect(FARM_PROPS.some((p) => p.kind === "hay" && p.x === c.x - 1 && p.y === c.y)).toBe(true);
+    }
     // (nothing stands on the tiles in front of a chest or beside it on the screen, to hide it or crowd it)
     for (const c of chests) for (const [dx, dy] of [[1, 0], [0, 1], [1, 1], [1, -1], [-1, 1], [2, 1], [1, 2], [2, 2]]) {
       expect(FARM_PROPS.some((p) => p.x === c.x + dx && p.y === c.y + dy), `${c.x + dx},${c.y + dy}`).toBe(false);

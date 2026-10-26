@@ -311,7 +311,7 @@ describe("the cases the database's rules are held to for the far side's base", (
     // the chests: three beyond the plaza's (the mountain's foot's, and since 2026-10-26 the farm's two); each opens the
     // box from the twenty-four tiles within its reach and from no other, its own among those; a thing is put away and
     // taken out from beside each, and from none too far off
-    expect(MORE_CHESTS).toEqual([{ x: 67, y: 242 }, { x: 159, y: 26 }, { x: 159, y: 68 }]);
+    expect(MORE_CHESTS).toEqual([{ x: 67, y: 242 }, { x: 156, y: 20 }, { x: 156, y: 62 }]);
     const near = own.filter((v) => v.fn === "by_box" && v.want === true).map((v) => v.args as [number, number]);
     expect(near.length).toBe(4 * ((2 * BOX.reach + 1) ** 2 - 1));
     expect(near.filter(([x, y]) => Math.max(Math.abs(x - 67), Math.abs(y - 242)) <= BOX.reach).length).toBe(near.length / 4);
