@@ -19,7 +19,7 @@ import{lanternAction}from"./reward-lantern";
 import{arenaAction}from"./reward-arena";
 import{beginDragon}from"./reward-dragon";
 import { TAILOR, cannotBuy } from "./tailor";
-import { minBid, placeBid, ranked, winners, type AuctionBoard, type AuctionBoards, type AuctionRound, type Bid } from "./auction";
+import { leaveRound, minBid, placeBid, ranked, winners, type AuctionBoard, type AuctionBoards, type AuctionRound, type Bid } from "./auction";
 type TrialRound = AuctionRound & { bids: Bid[]; owners: AuctionBoard["owners"] };
 import { bangkokMinute } from "./daylight";
 // ── the pasture ── (lib/town/animal-act, docs/plans/animals)
@@ -625,16 +625,20 @@ export class Trial {
     this.write(AUCTIONS, all);
     return { now, auctions: all.map((r) => this.boardOf(r)), owners: all.flatMap((r) => r.owners.map((o) => ({ member: o.member, outfit: r.wearables[0], edition: o.edition, copies: r.copies, run: r.run }))) };
   }
-  /** (v297) A bid on a round (town_bid): paid and held at once; the one pushed out is paid back (a pretend rival's coins go nowhere). */
-  bid(auction: number, amount: number): { ok: true; pay: number; auction: AuctionBoard } | { ok: false; why: Refusal; least?: number; auction?: AuctionBoard } {
+  /**
+   * (v297) A bid on a round (town_bid): paid and held at once; the one pushed out is paid back (a pretend rival's coins go
+   * nowhere). My bid on another round still open moves here, what it holds counted towards this one (lib/town/auction).
+   */
+  bid(auction: number, amount: number): { ok: true; pay: number; auction: AuctionBoard; from?: AuctionBoard } | { ok: false; why: Refusal; least?: number; auction?: AuctionBoard } {
     this.auctions();
     const all = this.rounds(), r = all.find((x) => x.id === auction);
     if (!r) return { ok: false, why: "none" };
-    const purse = this.purse();
-    const did = placeBid(r, r.bids, { id: this.id, name: "คุณ", coins: purse.coins, owns: this.dressed().includes(r.wearables[0]) }, amount, this.now());
-    if (!did.ok) return { ok: false, why: did.why as Refusal, least: did.why === "low" ? minBid(r, r.bids, this.id) : undefined, auction: this.boardOf(r) };
-    const next = { ...r, bids: did.bids, closesAt: did.closesAt };
-    this.write(AUCTIONS, all.map((x) => (x.id === auction ? next : x)));
+    const purse = this.purse(), now = this.now();
+    const other = all.find((x) => x.id !== auction && !x.settledAt && x.bids.some((b) => b.member === this.id)), carried = other?.bids.find((b) => b.member === this.id)?.amount ?? 0;
+    const did = placeBid(r, r.bids, { id: this.id, name: "คุณ", coins: purse.coins, owns: this.dressed().includes(r.wearables[0]), carried }, amount, now);
+    if (!did.ok) return { ok: false, why: did.why as Refusal, least: did.why === "low" ? minBid(r, r.bids, this.id, carried) : undefined, auction: this.boardOf(r) };
+    const next = { ...r, bids: did.bids, closesAt: did.closesAt }, left = other ? { ...other, ...leaveRound(other, other.bids, this.id, now) } : null;
+    this.write(AUCTIONS, all.map((x) => (x.id === auction ? next : left && x.id === left.id ? left : x)));
     // (what I had in and was pushed out of comes back to me, and another tester's to them: their purse in this browser,
     // Codex's check; the pretend rival's coins go nowhere)
     const back = did.out.filter((b) => b.member === this.id).reduce((n, b) => n + b.amount, 0);
@@ -644,7 +648,7 @@ export class Trial {
       if (theirs) this.write(purseKey(b.member), { ...theirs, coins: theirs.coins + b.amount });
     }
     this.keep({ ok: true, purse: { ...purse, coins: purse.coins - did.pay + back } });
-    return { ok: true, pay: did.pay, auction: this.boardOf(next) };
+    return { ok: true, pay: did.pay, auction: this.boardOf(next), ...(left ? { from: this.boardOf(left) } : {}) };
   }
   /** Open what may hold something (an old boot, a bottle, a chest): says what was in it, if anything. */
   openThing(slot: number) { return this.keep(open(this.purse(), slot, [Math.random(), Math.random()])); }

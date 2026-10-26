@@ -329,11 +329,18 @@ $$;
 revoke all on function public.town_auctions() from public, anon;
 grant execute on function public.town_auctions() to authenticated;
 
+-- A bid. One design at a time (the owner, 2026-10-26: "ต้องเลือกประมูลได้แค่ทีละชิ้น 1 ผู้เล่นต่อ 1 ชุดเท่านั้น เปลี่ยนใจได้
+-- แต่ประวัติการประมูลจะถูกย้ายไปอีกชุด"): a member's bid stands on one round still open, never two. A bid on another
+-- round moves it there: what it holds is counted towards the new bid (it may stand at the same sum, paying nothing, or
+-- more, paying the difference), and the round it leaves has the member no more, its close moved as a bid there would
+-- move it when this is in its last five minutes (lib/town/auction's placeBid and leaveRound).
 create or replace function public.town_bid(p_auction bigint, p_amount integer, p_request uuid)
 returns jsonb language plpgsql security definer set search_path = '' as $$
 declare
   me uuid := town.member();
   a public.town_auctions%rowtype;
+  other public.town_auctions%rowtype;
+  carried integer := 0;
   receipt town.auction_receipts%rowtype;
   mine integer;
   others integer;
@@ -346,8 +353,15 @@ declare
 begin
   if p_auction is null or p_amount is null or p_request is null or p_amount <= 0 or p_amount > 100000000 then return town.answer(me, town.no('none')); end if;
   perform town.auctions_due();
-  -- the round's row first: every bid on it waits here, so the purses below are held in one order only
-  select * into a from public.town_auctions x where x.id = p_auction for update;
+  -- the rounds' rows first, this one and the one my bid stands on if it is another, in the order of their ids: every bid
+  -- on either waits here, so the purses below are held in one order only, and two moves the opposite ways never wait on
+  -- each other
+  perform 1 from public.town_auctions x
+   where x.id = p_auction
+      or x.id in (select b.auction_id from public.town_bids b join public.town_auctions y on y.id = b.auction_id
+                   where b.member_id = me and y.settled_at is null and b.auction_id <> p_auction)
+   order by x.id for update;
+  select * into a from public.town_auctions x where x.id = p_auction;
   if not found then return town.answer(me, town.no('none')); end if;
   select * into receipt from town.auction_receipts r where r.member_id = me and r.request = p_request;
   if found then
@@ -361,6 +375,15 @@ begin
   if exists (select 1 from public.town_dressed d where d.member_id = me and d.wearable = a.wearables[1]) then return town.answer(me, town.no('known')); end if;
   select b.amount into mine from public.town_bids b where b.auction_id = a.id and b.member_id = me;
   mine := coalesce(mine, 0);
+  -- (my bid on another round still open, read again under the lock; held as well, should it have moved since. Only
+  -- when I have none here: a raise here moves nothing)
+  select y.* into other from public.town_bids b join public.town_auctions y on y.id = b.auction_id
+   where b.member_id = me and y.settled_at is null and b.auction_id <> a.id order by b.auction_id limit 1;
+  if found and mine = 0 then
+    perform 1 from public.town_auctions x where x.id = other.id for update;
+    select b.amount into carried from public.town_bids b where b.auction_id = other.id and b.member_id = me;
+    carried := coalesce(carried, 0);
+  end if;
   select count(*) into others from public.town_bids b where b.auction_id = a.id and b.member_id <> me;
   if others < a.copies then
     least_ := a.start_price;
@@ -369,11 +392,11 @@ begin
       order by b.amount desc, b.at asc offset a.copies - 1 limit 1;
     least_ := cut + town.auction_step(cut, a.step_pct, a.step_min);
   end if;
-  least_ := greatest(least_, mine + 1);
+  least_ := case when mine > 0 then greatest(least_, mine + 1) else greatest(least_, carried) end;
   if p_amount < least_ then
     return town.answer(me, town.no('low') || jsonb_build_object('least', least_, 'auction', town.auction_board(me, p_auction)));
   end if;
-  pay := p_amount - mine;
+  pay := p_amount - case when mine > 0 then mine else carried end;
   -- the purses this bid touches (the bidder's, and the one it pushes out of the copies), held in the order of their ids
   for who in select x.m from (select me as m union select out_ where out_ is not null) x order by x.m loop
     perform town.purse_of(who, true);
@@ -389,9 +412,18 @@ begin
   if now() >= a.closes_at - interval '5 minutes' then
     update public.town_auctions x set closes_at = least(a.hard_close, greatest(a.closes_at, now() + interval '5 minutes')) where x.id = a.id;
   end if;
+  -- the round my bid came from has me no more (what it held is in this bid), and its close moves as a bid there would
+  if carried > 0 then
+    delete from public.town_bids b where b.auction_id = other.id and b.member_id = me;
+    if now() >= other.closes_at - interval '5 minutes' then
+      update public.town_auctions x set closes_at = least(other.hard_close, greatest(other.closes_at, now() + interval '5 minutes')) where x.id = other.id;
+    end if;
+    perform town.note(me, 'bid_moved', other.design, 1, 0, jsonb_build_object('from', other.id, 'to', a.id, 'amount', carried));
+  end if;
   insert into town.auction_receipts (member_id, request, auction_id, amount) values (me, p_request, a.id, p_amount);
   perform town.note(me, 'bid', a.design, 1, -pay, jsonb_build_object('auction', a.id, 'run', a.run, 'amount', p_amount));
-  return town.answer(me, jsonb_build_object('ok', true, 'pay', pay, 'auction', town.auction_board(me, p_auction)));
+  return town.answer(me, jsonb_build_object('ok', true, 'pay', pay, 'auction', town.auction_board(me, p_auction))
+    || case when carried > 0 then jsonb_build_object('from', town.auction_board(me, other.id)) else '{}'::jsonb end);
 end;
 $$;
 revoke all on function public.town_bid(bigint, integer, uuid) from public, anon;

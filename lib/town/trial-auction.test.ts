@@ -30,6 +30,26 @@ describe("the trial's auction with several testers", () => {
     expect([purse("A"), purse("B"), purse("D")]).toEqual([12000, 12000, 11500]);
   });
 
+  it("moves a tester's bid to the other design, coins and all, one design at a time (the owner, 2026-10-26)", () => {
+    const [a, b] = ["A", "B"].map((id) => new Trial(id));
+    expect(a.bid(1, 9000).ok).toBe(true);
+    expect(purse("A")).toBe(11000);
+    vi.advanceTimersByTime(1000);
+    expect(b.bid(1, 8000).ok).toBe(true);
+    // (the pumpkins have the pretend rival at 8,500 and a copy free: A's 9,000 moves there at its sum, paying nothing)
+    const moved = a.bid(2, 9000);
+    expect(moved).toMatchObject({ ok: true, pay: 0 });
+    expect(purse("A")).toBe(11000);
+    const boards = a.auctions().auctions;
+    expect(boards.find((r) => r.id === 1)!.bids.map((x) => x.mine)).toEqual([false]);
+    expect(boards.find((r) => r.id === 2)!.bids.find((x) => x.mine)?.amount).toBe(9000);
+    expect(moved.ok && moved.from?.id).toBe(1);
+    // (back again, raised: only the difference is taken)
+    expect(a.bid(1, 9500)).toMatchObject({ ok: true, pay: 500 });
+    expect(purse("A")).toBe(10500);
+    expect(a.auctions().auctions.find((r) => r.id === 2)!.bids.some((x) => x.mine)).toBe(false);
+  });
+
   it("gives every winner the set, whoever's look settles the round", () => {
     const [a, b] = ["A", "B"].map((id) => new Trial(id));
     expect(a.bid(1, 8000).ok).toBe(true);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { closeAfter, isOpen, LATE_MS, minBid, placeBid, ranked, stepOf, winners, type AuctionRound, type Bid } from "./auction";
+import { bidElsewhere, closeAfter, isOpen, LATE_MS, leaveRound, minBid, placeBid, ranked, stepOf, winners, type AuctionRound, type Bid } from "./auction";
 import { TAILOR, cannotBuy, inSeason } from "./tailor";
 
 const H = 3600_000;
@@ -40,6 +40,28 @@ describe("the limited auction (the owner, 2026-10-25)", () => {
     expect(closeAfter(round, 10 * H - 60_000)).toBe(10 * H - 60_000 + LATE_MS);
     expect(closeAfter({ ...round, closesAt: 11 * H - 60_000 }, 11 * H - 30_000)).toBe(11 * H);
     expect(isOpen(round, 10 * H - 1)).toBe(true);
+  });
+
+  it("moves a bid from another round: what it holds counts, at the same sum or more, and the round it leaves has it no more (the owner, 2026-10-26)", () => {
+    const other: Bid[] = [{ member: "a", name: "a", amount: 9000, at: 1 }, { member: "b", name: "b", amount: 8000, at: 2 }];
+    // (a round with a copy free: the start is less than what a carries, so a moves at its own sum and pays nothing)
+    expect(minBid(round, [], "a", 9000)).toBe(9000);
+    expect(placeBid(round, [], { ...me("a", 0), carried: 9000 }, 9000, 3)).toMatchObject({ ok: true, pay: 0 });
+    expect(placeBid(round, [], { ...me("a", 0), carried: 9000 }, 8999, 3)).toMatchObject({ ok: false, why: "low" });
+    expect(placeBid(round, [], { ...me("a", 500), carried: 9000 }, 9500, 3)).toMatchObject({ ok: true, pay: 500 });
+    // (a full round dearer than what a carries: a pays only the difference to the least there)
+    const full: Bid[] = [{ member: "x", name: "x", amount: 12000, at: 1 }, { member: "y", name: "y", amount: 11000, at: 1 }, { member: "z", name: "z", amount: 10000, at: 1 }];
+    expect(minBid(round, full, "a", 9000)).toBe(10500);
+    expect(placeBid(round, full, { ...me("a", 1500), carried: 9000 }, 10500, 3)).toMatchObject({ ok: true, pay: 1500, out: [{ member: "z" }] });
+    expect(placeBid(round, full, { ...me("a", 1499), carried: 9000 }, 10500, 3)).toMatchObject({ ok: false, why: "coins" });
+    // (the round left: a's bid goes, b's stays; the close moves only in its last five minutes)
+    expect(leaveRound(round, other, "a", 3)).toEqual({ bids: [other[1]], closesAt: round.closesAt });
+    expect(leaveRound(round, other, "a", round.closesAt - 60_000).closesAt).toBe(round.closesAt - 60_000 + LATE_MS);
+    expect(leaveRound(round, other, "c", round.closesAt - 60_000).closesAt).toBe(round.closesAt);
+    // (the page's boards: where my bid stands, never this round or one settled)
+    const boards = [{ id: 1, settledAt: null, bids: [{ amount: 9000, mine: true }] }, { id: 2, settledAt: null, bids: [] }, { id: 3, settledAt: 5, bids: [{ amount: 7000, mine: true }] }];
+    expect(bidElsewhere(boards, 2)).toMatchObject({ round: { id: 1 }, amount: 9000 });
+    expect(bidElsewhere(boards, 1)).toBeNull();
   });
 
   it("numbers the copies best first", () => {

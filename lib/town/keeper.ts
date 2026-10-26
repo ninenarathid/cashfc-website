@@ -145,7 +145,8 @@ export type Why = Refusal | TailorRefusal | FarmRefusal | ForestRefusal | BugRef
   | LampRefusal;
 export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why };
 /** A bid's answer: a refusal may carry the least that would do and the round as it stands (v297). */
-export type BidDid = ({ ok: true; pay: number; auction: AuctionBoard; repeated?: boolean }) | { ok: false; why: Why; least?: number; auction?: AuctionBoard };
+/** A bid's answer; `from` is the round my bid left for this one (one design at a time, lib/town/auction). */
+export type BidDid = ({ ok: true; pay: number; auction: AuctionBoard; from?: AuctionBoard; repeated?: boolean }) | { ok: false; why: Why; least?: number; auction?: AuctionBoard };
 // ── gifts: kitchen ── (what a deed with a gift of the kitchen's comes to: the kitchen has reasons of its own for a no)
 export type KitchenDid<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why | KitchenRefusal };
 /** What can be looked at, and what the room says has changed. */

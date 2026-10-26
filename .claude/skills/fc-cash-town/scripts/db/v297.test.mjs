@@ -188,6 +188,44 @@ try {
   await db.query("update public.town_auctions set closes_at = now() - interval '1 second', hard_close = now() - interval '1 second' where id = $1", [id2]);
   await asOf(m2)("select public.town_dressed() r");
   ok((await one("select settled_at from public.town_auctions where id = $1", [id2])).settled_at, "the wardrobe settles a round nobody looked at");
+  // ── one design at a time (the owner, 2026-10-26): a bid on another round moves it there, coins and all ──
+  // (designs of their own, which none of the three has won)
+  const roundOf = async (w) => Number((await one(`insert into public.town_auctions (design, wearables, run, copies, start_price, step_pct, step_min, opens_at, closes_at, hard_close)
+    values ($1, array[$1], 1, 2, 1000, 5, 500, now() - interval '1 hour', now() + interval '1 hour', now() + interval '2 hours') returning id`, [w])).id);
+  const ra = await roundOf("movea"), rb = await roundOf("moveb");
+  for (const m of [m1, m2, m3]) await setCoins(m, 20000);
+  const sum0 = (await coinsOf(m1)) + (await coinsOf(m2)) + (await coinsOf(m3));
+  const on = (rid) => async (who, amount, req) => asOf(who)("select public.town_bid($1, $2, $3) r", [rid, amount, req]);
+  const standOn = async (rid) => (await rows("select member_id, amount from public.town_bids where auction_id = $1 order by amount desc, at", [rid])).map((x) => [x.member_id, x.amount]);
+  r = await on(ra)(m1, 3000, uuid(50));
+  eq([r.ok, r.pay, await coinsOf(m1)], [true, 3000, 17000], "a bid on the first design");
+  r = await on(rb)(m1, 2999, uuid(51));
+  eq([r.ok, r.why, r.least, AU.minBid({ ...roundTs, copies: 2, start: 1000 }, [], m1, 3000)], [false, "low", 3000, 3000], "moving, the least is what the bid holds, the page's rule as the database's");
+  r = await on(rb)(m1, 3000, uuid(52));
+  eq([r.ok, r.pay, await coinsOf(m1), Number(r.from?.id)], [true, 0, 17000, ra], "moved at its sum: nothing more taken, the round it left told");
+  eq([await standOn(ra), await standOn(rb)], [[], [[m1, 3000]]], "the first design has m1 no more; the second has the bid");
+  eq((await rows("select what, thing, doc->>'amount' a from public.town_deeds where member_id = $1 and what = 'bid_moved'", [m1])).map((x) => [x.thing, Number(x.a)]).length, 1, "the move written down");
+  r = await on(ra)(m1, 3500, uuid(53));
+  eq([r.ok, r.pay, await coinsOf(m1), await standOn(rb)], [true, 500, 16500, []], "back to the first, raised: only the difference, and the second has m1 no more");
+  r = await on(rb)(m2, 2000, uuid(54));
+  r = await on(rb)(m3, 2500, uuid(55));
+  r = await on(rb)(m1, 3500, uuid(56));
+  eq([r.ok, r.pay, await standOn(ra), (await standOn(rb)).map(([m]) => m)], [true, 0, [], [m1, m3]], "moved into a full round at its sum: m2 pushed out");
+  eq(await coinsOf(m2), 20000, "the one pushed out paid back whole");
+  // (leaving a round in its last five minutes moves its close as a bid there would)
+  await db.query("update public.town_auctions set closes_at = now() + interval '2 minutes', hard_close = now() + interval '30 minutes' where id = $1", [rb]);
+  r = await on(ra)(m3, 2500, uuid(57));
+  const left_ = await one("select extract(epoch from closes_at - now())::int s from public.town_auctions where id = $1", [rb]);
+  eq([r.ok, left_.s >= 290 && left_.s <= 300, await standOn(rb)], [true, true, [[m1, 3500]]], "a bid moving away in the last minutes moves that round's close");
+  // (never two at once, and the coins add up: what left the purses is what both rounds hold)
+  eq((await rows("select member_id, count(*)::int n from public.town_bids where auction_id in ($1, $2) group by member_id having count(*) > 1", [ra, rb])).length, 0, "nobody's bid stands on two rounds");
+  const heldAB = Number((await one("select coalesce(sum(amount), 0)::int s from public.town_bids where auction_id in ($1, $2)", [ra, rb])).s);
+  eq((await coinsOf(m1)) + (await coinsOf(m2)) + (await coinsOf(m3)) + heldAB, sum0, "coins out of purses = coins held, through every move");
+  // (a round already closed is not where a bid comes from: settled first, the bid stays a win)
+  await db.query("update public.town_auctions set closes_at = now() - interval '1 second', hard_close = now() - interval '1 second' where id = $1", [rb]);
+  r = await on(ra)(m1, 4000, uuid(58));
+  eq([r.ok, r.pay, r.from], [true, 4000, undefined], "a closed round's bid is its win, not moved");
+  ok((await one("select count(*)::int n from public.town_dressed where member_id = $1 and how = 'auction' and wearable = 'moveb'", [m1])).n === 1, "and m1 has its copy");
   // anon and a stranger
   eq(await asOf(null, "anon")("select public.town_auctions() r").then((x) => !!x?.why?.startsWith("error")), true, "anon reads no board");
   eq(await asOf(uuid(999))("select public.town_bid(1, 9000, $1) r", [uuid(40)]).then((x) => x?.ok !== true), true, "a stranger cannot bid");

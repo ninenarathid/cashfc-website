@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { minBid, stepOf, type AuctionBoard, type Bid } from "@/lib/town/auction";
+import { bidElsewhere, minBid, stepOf, type AuctionBoard, type Bid } from "@/lib/town/auction";
 import type { Look } from "@/lib/town/look";
 import { FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS } from "@/lib/town/wear";
 import DollPreview from "./DollPreview";
@@ -28,7 +28,8 @@ const nameOf = (id: string) => SLOTS.flatMap(([, l]) => l as readonly { id: stri
  * and held at once, given back whole the moment it is pushed out, and is never taken back; a raise pays the difference.
  * Every round open, to come or closed of late is a lot here: the set on my own doll (a try puts it on my avatar in the
  * shop), its copies and round, the close and the time left, the bids by name, where I stand, and the bid. Codex's look
- * at the mock-ups: the close and what a bid takes plainly, the rules folded away, 44 px to press on a phone.
+ * at the mock-ups: the close and what a bid takes plainly, the rules folded away, 44 px to press on a phone. One design at
+ * a time (the owner, 2026-10-26): where my bid stands on another round, a lot says so and its bid moves it here.
  */
 export default function TownAuction(p: ShopWindowProps) {
   const { th, keeper, kit, look, coins, tryOn, onDressed, dressMannequin } = p;
@@ -69,22 +70,32 @@ export default function TownAuction(p: ShopWindowProps) {
   const when = (ms: number) => new Date(ms).toLocaleString(th ? "th-TH" : "en-GB", { timeZone: "Asia/Bangkok", weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 
   const bidsOf = (a: AuctionBoard): Bid[] => a.bids.map((b, i) => ({ member: b.mine ? "me" : `o${i}`, name: b.name, amount: b.amount, at: b.at }));
-  const leastOf = (a: AuctionBoard) => minBid(a, bidsOf(a), "me");
+  // (my bid on another round still open, which a bid here would move: none where I have one here)
+  const awayOf = (a: AuctionBoard) => (a.bids.some((b) => b.mine) ? null : bidElsewhere((boards ?? []).filter((x) => at < x.closesAt), a.id));
+  const heldOf = (a: AuctionBoard) => a.bids.find((b) => b.mine)?.amount ?? awayOf(a)?.amount ?? 0;
+  const leastOf = (a: AuctionBoard) => minBid(a, bidsOf(a), "me", awayOf(a)?.amount ?? 0);
   const amountOf = (a: AuctionBoard) => Math.max(amounts[a.id] ?? 0, leastOf(a));
 
   const place = async (a: AuctionBoard) => {
     if (!keeper || busy !== null) return;
-    const amount = amountOf(a), mine = a.bids.find((b) => b.mine)?.amount ?? 0;
+    const amount = amountOf(a), mine = heldOf(a), away = awayOf(a);
     if (amount - mine > coins) { setSaid((s) => ({ ...s, [a.id]: th ? "เหรียญไม่พอจ้ะ" : "Not enough coins." })); return; }
     const key = `${a.id}:${amount}`, req = requests.current.get(key) ?? crypto.randomUUID();
     requests.current.set(key, req);
     setBusy(a.id);
     const did = await keeper.bid(a.id, amount, req);
     setBusy(null);
-    const board = did.auction;
-    if (board) setBoards((bs) => bs?.map((x) => (x.id === board.id ? board : x)) ?? bs);
+    const board = did.auction, from = did.ok ? did.from : undefined;
+    if (board) setBoards((bs) => bs?.map((x) => (x.id === board.id ? board : from && x.id === from.id ? from : x)) ?? bs);
     // (a bid asked again after its answer was lost takes nothing more: said as placed, without a sum)
-    if (did.ok) { requests.current.delete(key); setSaid((s) => ({ ...s, [a.id]: did.repeated || typeof did.pay !== "number" ? (th ? "เสนอแล้ว" : "Bid placed") : th ? `เสนอแล้ว หัก ${fmt(did.pay)} เหรียญ` : `Bid placed: ${fmt(did.pay)} coins held` })); return; }
+    if (did.ok) {
+      requests.current.delete(key);
+      const moved = from ?? (away && !did.repeated ? away.round : undefined), was = moved ? t(nameOf(moved.wearables[0])) : "";
+      setSaid((s) => ({ ...s, [moved ? moved.id : -1]: "", [a.id]: did.repeated || typeof did.pay !== "number" ? (th ? "เสนอแล้ว" : "Bid placed")
+        : moved ? (th ? `ย้ายการประมูลจาก${was}มาแล้ว หักเพิ่ม ${fmt(did.pay)} เหรียญ` : `Bid moved here from ${was}: ${fmt(did.pay)} more coins held`)
+        : th ? `เสนอแล้ว หัก ${fmt(did.pay)} เหรียญ` : `Bid placed: ${fmt(did.pay)} coins held` }));
+      return;
+    }
     setSaid((s) => ({ ...s, [a.id]: did.why === "low" ? (th ? `ต่ำไปจ้ะ ขั้นต่ำตอนนี้ ${fmt(did.least ?? leastOf(a))}` : `Too low: at least ${fmt(did.least ?? leastOf(a))} now`)
       : did.why === "coins" ? (th ? "เหรียญไม่พอจ้ะ" : "Not enough coins.")
       : did.why === "closed" ? (th ? "ปิดประมูลแล้วจ้ะ" : "This round has closed.")
@@ -97,13 +108,14 @@ export default function TownAuction(p: ShopWindowProps) {
   return (
     <section aria-labelledby="town-auction-h" className="flex h-full flex-col">
       <ShopHead id="town-auction-h" {...p} panel="auction" />
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-6 pt-3">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-16 pt-3">
         <details className="mb-3 rounded-xl border border-[#4d3a1f] bg-[#241c12] px-3 py-1 text-meta text-[#f0cf95]">
           <summary className="min-h-11 cursor-pointer content-center font-semibold">{th ? "ประมูลลิมิเต็ด: แต่ละแบบมีไม่กี่ชุด · ดูกติกา" : "Limited auction: only a few copies · rules"}</summary>
           <ul className="mb-2 mt-1 list-disc space-y-1 pl-4 text-read">
             <li>{th ? "คนที่เสนอสูงสุดตามจำนวนชุดตอนปิดได้ชุด จ่ายเท่าที่ตัวเองเสนอ เท่ากันคนที่เสนอก่อนได้" : "The top bids at the close get the copies and pay what they bid; a tie goes to whoever bid first."}</li>
             <li>{th ? "เหรียญถูกหักและพักไว้ทันทีที่เสนอ ถ้าโดนแซงหลุดอันดับได้คืนครบทันที เพิ่มราคาจ่ายแค่ส่วนต่าง ถอนราคาไม่ได้" : "Coins are taken and held the moment you bid, given back in full the moment you are outbid; a raise pays the difference; a bid can't be withdrawn."}</li>
-            <li>{th ? "เสนอใน 5 นาทีสุดท้าย เวลาปิดเลื่อนออกไป 5 นาที แต่ไม่เกินเวลาปิดสุดท้าย" : "A bid in the last five minutes moves the close five minutes on, never past the final close."}</li>
+            <li>{th ? "ประมูลได้ทีละชุด เปลี่ยนใจได้: เสนอชุดอื่น = ย้ายการประมูลไปชุดนั้น เหรียญที่พักไว้ย้ายตามไป ชื่อคุณออกจากชุดเดิม" : "One design at a time; you may change your mind: a bid on another design moves yours there, the coins held go with it and your name leaves the first."}</li>
+            <li>{th ? "เสนอหรือย้ายออกใน 5 นาทีสุดท้าย เวลาปิดเลื่อนออกไป 5 นาที แต่ไม่เกินเวลาปิดสุดท้าย" : "A bid, or a bid moving away, in the last five minutes moves the close five minutes on, never past the final close."}</li>
             <li>{th ? "ชุดผูกกับตัว ขายหรือแลกไม่ได้ มีเลขประจำชุดและรอบ แบบเดิมอาจกลับมาประมูลรอบใหม่" : "A copy is yours for good (no trade), numbered with its round; a design may come back for a new round."}</li>
           </ul>
         </details>
@@ -113,7 +125,7 @@ export default function TownAuction(p: ShopWindowProps) {
             {lots.map((a) => {
               const open = !a.settledAt && at >= a.opensAt && at < a.closesAt, early = at < a.opensAt, done = !!a.settledAt || at >= a.closesAt;
               const ranked = [...a.bids].sort((x, y) => y.amount - x.amount || x.at - y.at), myRank = ranked.findIndex((b) => b.mine);
-              const mine = myRank >= 0 ? ranked[myRank].amount : 0, amount = amountOf(a), step = stepOf(Math.max(amount, a.start), a.stepPct, a.stepMin);
+              const away = awayOf(a), mine = heldOf(a), amount = amountOf(a), step = stepOf(Math.max(amount, a.start), a.stepPct, a.stepMin);
               const set = setLook(look, a.wearables), title = nameOf(a.wearables[0]);
               return (
                 <article key={a.id} className="rounded-2xl border border-[#4b3a6e] bg-gradient-to-b from-[#221a33] to-card p-3">
@@ -171,6 +183,13 @@ export default function TownAuction(p: ShopWindowProps) {
                   </p>
                   {open && !a.had && (
                     <>
+                      {/* (one design at a time: my bid stands on another, and a bid here moves it) */}
+                      {away && (
+                        <p className="mt-2 rounded-lg border border-[#6b5420] bg-[#2a2110] px-2.5 py-1.5 text-meta leading-snug text-[#f0cf95]">
+                          {th ? <>คุณประมูล<b>{t(nameOf(away.round.wearables[0]))}</b>อยู่ <b className="tabular-nums">{fmt(away.amount)}</b> · เสนอชุดนี้ = ย้ายการประมูลมา เหรียญย้ายตาม ชื่อออกจากชุดเดิม</>
+                            : <>Your bid of <b className="tabular-nums">{fmt(away.amount)}</b> is on <b>{t(nameOf(away.round.wearables[0]))}</b>. A bid here moves it, coins and all; your name leaves that one.</>}
+                        </p>
+                      )}
                       {/* (what a bid takes and when it comes back, right above the bid itself) */}
                       <p className="mt-2 text-meta leading-snug text-muted">
                         {th ? <>หักเพิ่ม <b className="text-gold">{fmt(Math.max(0, amount - mine))}</b> · ขั้นต่ำ {fmt(leastOf(a))} · คืนทันทีเมื่อหลุด {a.copies} อันดับ · ถอนไม่ได้</>
@@ -187,7 +206,7 @@ export default function TownAuction(p: ShopWindowProps) {
                                 className="pressable grid size-11 shrink-0 place-items-center rounded-xl border border-line-strong text-title text-ink">+</button>
                         <button type="button" disabled={busy !== null || amount - mine > coins} onClick={() => place(a)}
                                 className="pressable min-h-11 shrink-0 rounded-full bg-accent px-4 text-ui font-semibold text-bg disabled:opacity-40">
-                          {busy === a.id ? "…" : th ? "เสนอ" : "Bid"}
+                          {busy === a.id ? "…" : away ? (th ? "ย้ายมาชุดนี้" : "Move here") : th ? "เสนอ" : "Bid"}
                         </button>
                       </div>
                     </>
