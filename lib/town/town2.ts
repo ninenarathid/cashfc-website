@@ -151,6 +151,14 @@ export const T2_THINGS: T2Thing[] = (MAP.objects as number[][]).map((o, i) => ({
   i, name: MAP.names[o[0]], box: [o[8], o[9], o[10], o[11]], c: { x: (o[8] + o[10]) / 2, y: (o[9] + o[11]) / 2 },
 }));
 const named = (re: RegExp) => T2_THINGS.filter((t) => re.test(t.name));
+/** How narrow a strip of a wide thing is, in isometric pixels (lib/town/town2-art draws such a thing in upright strips). */
+export const T2_STRIP = 12;
+/**
+ * Where a strip of a wide thing stands back to front: its footprint's front edge under the strip's middle (an isometric
+ * x), the left side (y = by1) before its bottom corner, the right (x = bx1) after.
+ */
+export const t2StripDepth = ([bx0, by0, bx1, by1]: readonly number[], mid: number) =>
+  mid <= (bx1 - by1) * 32 ? Math.min(bx1, Math.max(bx0, mid / 32 + by1)) + by1 : bx1 + Math.min(by1, Math.max(by0, bx1 - mid / 32));
 /**
  * Things of the export that are not part of this town: the small ring and the road works laid in the shop's doorway
  * (where the uncle stands), the ring by the road works in the south-east (that road is closed: a ring there would be a
@@ -260,6 +268,13 @@ const beside = (tiles: Array<[number, number]>, open: (x: number, y: number) => 
  * sits to eat (the two long tables, three to a bench). Points of the picture are isometric pixels from `foot`, the
  * front door's threshold, as the yard's were from its picture's ground point.
  */
+/**
+ * The long tables' top in their picture (dining_table's own pixels, unmirrored): its front corner, nearest the viewer,
+ * and the corners at the other ends of its long edge and of its short edge from there.
+ */
+const TABLE_TOP = { front: [125, 197], long: [399, 57], short: [0, 142] } as const;
+/** How wide a pot on the feast table is drawn, in isometric pixels (TownCook's). */
+const POT_WIDE = 24;
 export const T2_KITCHEN = (() => {
   const foot = { x: 67, y: 54 };
   const iso = (p: Vec) => ({ x: (p.x - p.y) * 32, y: (p.x + p.y) * 16 });
@@ -294,18 +309,33 @@ export const T2_KITCHEN = (() => {
       return { at: p, px: q.x, py: q.y, back, table, stand, over: (MAP.objects as number[][])[b.i][7] + 0.01 };
     });
   }));
+  const tableThings = tables.map((t) => HALL_THINGS.find((q) => /^dining_table$/.test(q.name) && Math.floor(q.c.x) >= t[0][0] && Math.floor(q.c.x) <= t[t.length - 1][0])!);
   // (each top's second figure is where it stands back to front, as the yard's tops were: whoever sits behind the table is
-  // just before it, a pot on it just after; Town.tsx's depthOf and TownCook's feast table read it so)
-  const tops = tables.map((t) => {
-    const a = px({ x: t[0][0], y: t[0][1] }), b = px({ x: t[t.length - 1][0] + 1, y: t[0][1] + 1 });
-    const thing = HALL_THINGS.find((q) => /^dining_table$/.test(q.name) && Math.floor(q.c.x) >= t[0][0] && Math.floor(q.c.x) <= t[t.length - 1][0])!;
+  // just before it; Town.tsx's depthOf reads it so)
+  const tops = tables.map((t, table) => {
+    const a = px({ x: t[0][0], y: t[0][1] }), b = px({ x: t[t.length - 1][0] + 1, y: t[0][1] + 1 }), thing = tableThings[table];
     return [Math.min(a.x, b.x), (thing.c.x + thing.c.y - foot.x - foot.y - 0.025) * 16, Math.max(a.x, b.x), Math.max(a.y, b.y)] as [number, number, number, number];
   });
-  const served = [1, 2, 0, 3].flatMap((i) => tables.map((t, table) => {
-    const xs = t.map(([x]) => x), p = { x: Math.min(...xs) + 0.4 + (i * (xs.length + 0.2)) / 4, y: t[0][1] + 0.5 }, q = px(p);
-    return { px: Math.round(q.x), py: Math.round(q.y), at: p, table };
+  // A point of a long table's top, as its picture draws it (mirrored where the editor laid it so), in the hall's pixels:
+  // `along` its long edge from the front corner, `across` from the front edge to the back one (lib/town/town2-art)
+  const iFoot = iso(foot);
+  const onTop = (table: number, along: number, across: number) => {
+    const o = (MAP.objects as number[][])[tableThings[table].i], w = (MAP.sprites as Array<[string, number, number]>)[o[1]][1], { front, long, short } = TABLE_TOP;
+    const x = front[0] + along * (long[0] - front[0]) + across * (short[0] - front[0]), y = front[1] + along * (long[1] - front[1]) + across * (short[1] - front[1]);
+    return { x: Math.round(o[2] + (o[5] === 1 ? w - x : x) * o[4] - iFoot.x), y: Math.round(o[3] + y * o[4] - iFoot.y) };
+  };
+  // A pot on the feast table stands on a long table's top, along the middle of it, and is drawn after every strip of the
+  // table it is over (lib/town/town2-art draws the table in strips): they stood on the floor under the top and were drawn
+  // before the table's front, which hid them but for what showed between its legs (the owner, 2026-10-26: "อาหารลอยอยู่
+  // ใต้โต๊ะ"). `depth` is that place back to front, which TownCook reads before the tops'.
+  const served = [1, 2, 0, 3].flatMap((i) => tables.map((_, table) => {
+    const q = onTop(table, 0.14 + i * 0.24, 0.5), half = POT_WIDE / 2, thing = tableThings[table], o = (MAP.objects as number[][])[thing.i];
+    let depth = -Infinity;
+    for (let sx = o[2]; sx < o[2] + (MAP.sprites as Array<[string, number, number]>)[o[1]][1] * o[4]; sx += T2_STRIP) {
+      if (sx < q.x + iFoot.x + half && sx + T2_STRIP > q.x + iFoot.x - half) depth = Math.max(depth, t2StripDepth(thing.box, sx + T2_STRIP / 2));
+    }
+    return { px: q.x, py: q.y, at: at(q.x, q.y), table, depth: depth + 0.005 };
   }));
-  const middle = (t: Array<[number, number]>) => ({ x: (t[0][0] + t[t.length - 1][0] + 1) / 2, y: t[0][1] + 0.5 });
   const feastTile = floor.slice().sort((a, b) => Math.hypot(a[0] + 0.5 - 69.5, a[1] + 0.5 - 50.5) - Math.hypot(b[0] + 0.5 - 69.5, b[1] + 0.5 - 50.5))[0];
   const tiles: Array<[number, number]> = [];
   for (let y = 0; y < T2_ROWS; y++) for (let x = 0; x < T2_COLS; x++) if (WALK[y][x] === "h" && !t2InHall(x, y) && !doorOut.has(`${x},${y}`)) tiles.push([x, y]);
@@ -319,7 +349,9 @@ export const T2_KITCHEN = (() => {
     stands: [] as Array<{ kind: "stove" | "table" | "fire" | "dining" | "wash"; box: [number, number, number, number]; rise: number }>,
     posts: [] as Array<[number, number, number, number]>,
     places, wash, seats, tops,
-    feast: { served, over: tables.map((t) => middle(t)), door: { x: 66.9, y: 53.6 }, tile: feastTile },
+    // (the few words over each table over its top's back corner, clear of the pots on it and of whoever sits behind it:
+    // TownCook draws them 30 pixels up from here)
+    feast: { served, over: tables.map((_, table) => { const q = onTop(table, 1, 1); return at(q.x, q.y + 8); }), door: { x: 66.9, y: 53.6 }, tile: feastTile },
     lights: {
       fire: (stoveAt[0] ? [stoveAt[0].x, stoveAt[0].y - 6] : [0, 0]) as [number, number],
       mouths: stoveAt.map((s) => [s.x, s.y - 6] as [number, number]),

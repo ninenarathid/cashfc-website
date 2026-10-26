@@ -183,7 +183,9 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
           onTable.slice(0, KITCHEN.feast.served.length).forEach((pot, i) => {
             const place = KITCHEN.feast.served[i], at = project(place.at);
             if (!onScreen(at)) return;
-            things.push({ depth: KITCHEN.foot.x + KITCHEN.foot.y + KITCHEN.tops[place.table][1] / (TILE_H / 2) + 0.04, draw: () =>
+            // (the editor's town's hall: after the strips of the long table under it, lib/town/town2's T2_KITCHEN)
+            const depth = "depth" in place && typeof place.depth === "number" ? place.depth : KITCHEN.foot.x + KITCHEN.foot.y + KITCHEN.tops[place.table][1] / (TILE_H / 2) + 0.04;
+            things.push({ depth, draw: () =>
               blit(potIconOf(pot.dish), at.x, at.y + (still ? 0 : Math.sin(t / 520 + i) * 0.5 * s), 24 * s) });
           });
           KITCHEN.feast.over.forEach((over, table) => {

@@ -16,12 +16,10 @@
  */
 import MAP from "./town2-map.json";
 import { WATER_MS, waterFrames } from "./scenery";
-import { T2_CHEST_OPEN, T2_CHEST_SHUT, T2_HALL, T2_LEFT_OUT, T2_RING_MOVES, T2_STAGE, T2_STAGE_BASE, t2InHall } from "./town2";
+import { T2_CHEST_OPEN, T2_CHEST_SHUT, T2_HALL, T2_LEFT_OUT, T2_RING_MOVES, T2_STAGE, T2_STAGE_BASE, T2_STRIP as STRIP, t2InHall, t2StripDepth } from "./town2";
 import type { Vec } from "./world";
 
 const FLOOR = 0, STAND = 1, WIDE = 2;
-/** How narrow a strip of a wide thing is, in isometric pixels. */
-const STRIP = 12;
 /** The pumpkins and the carved ones, out only in their season (lib/town/decor's carving, 1 October to 2 November in Bangkok). */
 const SEASONAL = /^game_(pumpkin|jacko)/;
 /** Things whose water moves, as the old town's fountain's did: the plaza's fountain, the basin by the pond, the shrine's water pavilion. */
@@ -240,14 +238,8 @@ export class Town2Art {
       if (t.how === FLOOR) continue;
       if (t.i === T2_HALL.thing && inHall) continue;
       if (t.how === STAND) { push(t.d, () => this.paint(ctx, t, screen, s, px)); continue; }
-      const sp = this.sprites[t.s], [bx0, by0, bx1, by1] = t.box;
-      const xBottom = (bx1 - by1) * 32;
-      for (let x = t.x; x < t.x + sp.w * t.k; x += STRIP) {
-        const mid = x + STRIP / 2;
-        // the footprint's front edge under the strip's middle: the left side (y = by1) before its bottom corner, the right (x = bx1) after
-        const depth = mid <= xBottom ? Math.min(bx1, Math.max(bx0, mid / 32 + by1)) + by1 : bx1 + Math.min(by1, Math.max(by0, bx1 - mid / 32));
-        push(depth, () => this.paint(ctx, t, screen, s, px, [x, x + STRIP]));
-      }
+      const sp = this.sprites[t.s];
+      for (let x = t.x; x < t.x + sp.w * t.k; x += STRIP) push(t2StripDepth(t.box, x + STRIP / 2), () => this.paint(ctx, t, screen, s, px, [x, x + STRIP]));
     }
   }
 
