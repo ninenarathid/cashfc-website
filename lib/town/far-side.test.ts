@@ -45,7 +45,8 @@ describe("the far side's lists, for the database", () => {
     const { CATALOG_KEYS } = await import("./catalog");
     // (v164, v169 and v170 have run and name no row any more: nothing waits)
     expect(CATALOG_KEYS.v164).toBeUndefined();
-    expect(catalogOf().box.more).toEqual([[67, 242]]);
+    // (and after it the farm's two chests, 2026-10-26: v298)
+    expect(catalogOf().box.more).toEqual([[67, 242], [159, 26], [159, 68]]);
     expect([catalogOf().trees.wood.length, catalogOf().mining.rocks.length]).toEqual([213, 54]);
     // (a production build lays the mountain out too)
     vi.stubEnv("NODE_ENV", "production");

@@ -24,14 +24,19 @@ describe("the animal farm leaves the garden as it was, but for its two gates", (
     expect(hash(WELLS)).toBe("737090a3a5755e88");
   });
   it("takes off only the rim's trees by the two gates (thirteen), and carries the two roads through the rim", () => {
-    // (the garden's props after f66524c0, less the thirteen trees within eight rows of a gate's road)
-    expect(hash(FARM_PROPS)).toBe("0ce3e1b0c837bde7");
+    // (the garden's props after f66524c0, less the thirteen trees within eight rows of a gate's road; and, last, the two
+    // chests of 2026-10-26, lib/town/box.test's to hold)
+    expect(FARM_PROPS.slice(-2).map((p) => p.kind)).toEqual(["storebox", "storebox"]);
+    expect(hash(FARM_PROPS.slice(0, -2))).toBe("0ce3e1b0c837bde7");
     for (const p of FARM_PROPS) if (["tree", "pine", "bush"].includes(p.kind)) expect(nearFarmGate(p.x - FARM.x, p.y - FARM.y), `${p.kind} ${p.x},${p.y}`).toBe(false);
     for (const g of FARM_GATES) for (const y of [g.road, g.road + 1]) for (let x = FARM.x + FARM.w - 4; x < FARM.x + FARM.w; x++) expect(groundAt(x, y), `${x},${y}`).toBe("road");
   });
   it("keeps every other tile of the garden as it could be walked and as its ground was", () => {
+    // (but the two chests' own tiles, shut since 2026-10-26, and open before)
+    const chests = new Set(FARM_PROPS.filter((p) => p.kind === "storebox").map((p) => `${p.x},${p.y}`));
+    for (const k of chests) expect(walkable(...(k.split(",").map(Number) as [number, number])), k).toBe(false);
     const tiles: string[] = [];
-    for (let y = FARM.y; y < FARM.y + FARM.h; y++) { let s = ""; for (let x = FARM.x; x < FARM.x + FARM.w; x++) s += (walkable(x, y) ? "." : "#") + groundAt(x, y)[0]; tiles.push(s); }
+    for (let y = FARM.y; y < FARM.y + FARM.h; y++) { let s = ""; for (let x = FARM.x; x < FARM.x + FARM.w; x++) s += (walkable(x, y) || chests.has(`${x},${y}`) ? "." : "#") + groundAt(x, y)[0]; tiles.push(s); }
     expect(hash(tiles)).toBe("9f6106691dba2cbe");
   });
   it("is no part of the farm as built (what the haunts were laid out on)", () => {

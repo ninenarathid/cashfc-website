@@ -362,7 +362,7 @@ export function catalogOf() {
      * The storage box (lib/town/box): the slots a member's has for nothing, how near a chest one stands to use it, and
      * the tile the plaza's chest stands on. And, from v164, `more`: the tiles of the chests beyond the plaza's that
      * open the same box, each from as near (lib/town/box's MORE_CHESTS, which `nearBox` reads: the mountain's foot
-     * has one). The database's `town.by_box` reads both.
+     * has one, and from v298 the farm one in each half, after it). The database's `town.by_box` reads both.
      */
     box: { slots: BOX.slots, reach: BOX.reach, at: [STOREBOX.x, STOREBOX.y], more: MORE_CHESTS.map((c) => [c.x, c.y]) },
     box_upgrade: { max: BOX.max, upgrades: BOX.upgrades },
@@ -605,7 +605,8 @@ export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Ar
   v297: { keys: ["tailor"], over: [] } };
 // (v283, 2026-10-19, writes no whole row: `farming.costs.pick` and the farm pouch's `slots` by jsonb_set alone, so that
 // v284's beds in `farming.bedsAt` stand whichever runs first; v286 the same, `farming.pests.house` alone; v292 every
-// dish's `items.<id>.stack`, twenty, chosen by its kind: the blocks above follow the code, as the test asks)
+// dish's `items.<id>.stack`, twenty, chosen by its kind; v298 the farm's two chests onto `box.more`, never `box.at`, which
+// is the town map's (town.apply_map): the blocks above follow the code, as the test asks)
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

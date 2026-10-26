@@ -240,7 +240,7 @@ export function vectorsBase(): Vector[] {
     }
   }
 
-  /* ── the storage box's chests (lib/town/box's nearBox): the plaza's, and the one at the mountain's foot ── */
+  /* ── the storage box's chests (lib/town/box's nearBox): the plaza's, the one at the mountain's foot, and the farm's two (2026-10-26) ── */
   // every tile about each chest, the chest's own and those past its reach among them; and tiles far from both
   for (const chest of [STOREBOX, ...MORE_CHESTS]) for (let dx = -4; dx <= 4; dx++) for (let dy = -4; dy <= 4; dy++) add("by_box", [chest.x + dx, chest.y + dy], nearBox([chest.x + dx, chest.y + dy]));
   for (const tile of [[0, 0], [STOREBOX.x, MORE_CHESTS[0].y], [MORE_CHESTS[0].x, STOREBOX.y], [-3, 242], [200, 200]] as Array<[number, number]>) add("by_box", tile, nearBox(tile));
@@ -308,14 +308,15 @@ describe("the cases the database's rules are held to for the far side's base", (
       }
     }
     expect(all.length).toBeGreaterThan(14_000);
-    // the chests: one beyond the plaza's; each opens the box from the twenty-four tiles within its reach and from no
-    // other, its own among those; a thing is put away and taken out from beside either, and from neither too far off
-    expect(MORE_CHESTS).toEqual([{ x: 67, y: 242 }]);
+    // the chests: three beyond the plaza's (the mountain's foot's, and since 2026-10-26 the farm's two); each opens the
+    // box from the twenty-four tiles within its reach and from no other, its own among those; a thing is put away and
+    // taken out from beside each, and from none too far off
+    expect(MORE_CHESTS).toEqual([{ x: 67, y: 242 }, { x: 159, y: 26 }, { x: 159, y: 68 }]);
     const near = own.filter((v) => v.fn === "by_box" && v.want === true).map((v) => v.args as [number, number]);
-    expect(near.length).toBe(2 * ((2 * BOX.reach + 1) ** 2 - 1));
-    expect(near.filter(([x, y]) => Math.max(Math.abs(x - 67), Math.abs(y - 242)) <= BOX.reach).length).toBe(near.length / 2);
+    expect(near.length).toBe(4 * ((2 * BOX.reach + 1) ** 2 - 1));
+    expect(near.filter(([x, y]) => Math.max(Math.abs(x - 67), Math.abs(y - 242)) <= BOX.reach).length).toBe(near.length / 4);
     expect(own.filter((v) => v.fn === "by_box" && v.want === false).length).toBeGreaterThan(100);
-    for (const fn of ["stow", "unstow"]) expect(own.filter((v) => v.fn === fn).map((v) => (v.want as { ok: boolean; why?: string }).why ?? "ok")).toEqual(["ok", "ok", "far", "far", "ok", "ok", "far", "far"]);
+    for (const fn of ["stow", "unstow"]) expect(own.filter((v) => v.fn === fn).map((v) => (v.want as { ok: boolean; why?: string }).why ?? "ok")).toEqual(Array(4).fill(["ok", "ok", "far", "far"]).flat());
 
     const dir = process.env.TOWN_VECTORS;
     if (dir) {

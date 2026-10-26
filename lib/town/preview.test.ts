@@ -106,7 +106,11 @@ describe("the far side, in every build and reached only while it is open", () =>
     // (and the town's southern strip, with what stood on the lane down to it taken off it, 2026-10-19: no other tile of the town)
     const strip = inStrip(W);
     expect(turned().filter(strip).length).toBeGreaterThan(500);
-    const changed = (): string[] => turned().filter((k) => !southern(...(k.split(",").map(Number) as [number, number])) && !strip(k)).sort();
+    // (and the farm's two chests, 2026-10-26: their own tiles shut, no other; the southern half's is in no farm as built)
+    const chests = W.FARM_PROPS.filter((p) => p.kind === "storebox").map((p) => `${p.x},${p.y}`);
+    expect(chests.filter((k) => was.get(k)).length).toBe(1);
+    expect(chests.filter((k) => was.get(k)).every((k) => turned().includes(k))).toBe(true);
+    const changed = (): string[] => turned().filter((k) => !southern(...(k.split(",").map(Number) as [number, number])) && !strip(k) && !chests.includes(k)).sort();
     expect(changed()).toEqual([...water, ...smith].sort());
     // a bridge short of whole: only the blacksmith's
     W.setBridge(5, true);

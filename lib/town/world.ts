@@ -1096,7 +1096,12 @@ export const FARM_PROPS: Prop[] = (() => {
     placed++;
   }
   // (the southern half's woods as they were laid, but those by the animal farm's south gate)
-  return out.filter((p) => !["tree", "pine", "bush"].includes(p.kind) || !nearFarmGate(p.x - FARM.x, p.y - FARM.y));
+  return [...out.filter((p) => !["tree", "pine", "bush"].includes(p.kind) || !nearFarmGate(p.x - FARM.x, p.y - FARM.y)),
+    // a storage chest in each half (the owner, 2026-10-26: "ช่วยเพิ่มกล่องเก็บของให้ที่แปลงผัก สองฝั่งด้วย"), beside the lane
+    // from north to south three tiles on from where its lanes cross, by its well and the first of its beds, with nothing
+    // in front of it (the hay by the crossing hid half of one there): the same box as the plaza's (lib/town/box's
+    // MORE_CHESTS). Last, so that nothing laid before them moves
+    { kind: "storebox", x: FARM.x + 31, y: FARM.y + 26, solid: true }, { kind: "storebox", x: FARM.x + 31, y: FARM.y + 68, solid: true }];
 })();
 /** The farm's tiles that stop a walker: what stands on them, a fence's three, the shed's three, and the gateway's two posts either side of the lane. */
 const solidOf = (props: Prop[], pumpkins: Array<[number, number]>) => new Set([`${FARM.x + 1},${FARM.y + 20}`, `${FARM.x + 1},${FARM.y + 23}`, ...pumpkins.map(([u, v]) => `${FARM.x + u},${FARM.y + v}`), ...props.flatMap((p) => {

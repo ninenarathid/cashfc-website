@@ -852,11 +852,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   /**
    * The storage box in the plaza (lib/town/box): whether I stand still by it; where its picture is on the screen (a
    * tap on it walks up to it and opens it); whether such a tap is still being walked towards, and how many have been
-   * walked to their end; and whether my own panel of it is open (the chest is drawn with its lid up then).
+   * walked to their end; and whether my own panel of it is open (the chest is drawn with its lid up then). On the farm
+   * the picture is one of its two chests' (`at`, the nearer me when both are on the screen).
    */
   const [boxHere, setBoxHere] = useState(false);
   const boxHereRef = useRef(false);
-  const storeBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
+  const storeBox = useRef<{ x0: number; y0: number; x1: number; y1: number; at?: { x: number; y: number } } | null>(null);
   const boxWant = useRef(false);
   const [boxAsk, setBoxAsk] = useState(0);
   const boxShown = useRef(false);
@@ -2155,7 +2156,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       if (byWell !== wellRef.current) { wellRef.current = byWell; setWellHere(byWell); }
       const stopped = !mine.path.length;
       if (stopped !== stoppedRef.current) { stoppedRef.current = stopped; if (stopped) setStops((n) => n + 1); }
-      const byBox = !mine.path.length && (mine.info.sit ?? -1) === -1 && (byStorebox(tx, ty, BOX.reach) || /* mining: the foot yard's chest */ byMoreChest(tx, ty));
+      const byBox = !mine.path.length && (mine.info.sit ?? -1) === -1 && (byStorebox(tx, ty, BOX.reach) || /* mining: the foot yard's chest; the farm's two */ byMoreChest(tx, ty));
       if (byBox !== boxHereRef.current) { boxHereRef.current = byBox; setBoxHere(byBox); }
       // (the farm with its pasture, at negative y: lib/town/pasture)
       const farming = tx >= FARM_ALL.x - 2 && ty >= FARM_ALL.y - 2 && tx < FARM_ALL.x + FARM_ALL.w + 2 && ty < FARM_ALL.y + FARM_ALL.h + 2;
@@ -2600,6 +2601,18 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (scenery && placeRef.current === "farm") for (const p of FARM_PROPS) {
       const c = project({ x: p.x + 0.5, y: p.y + 0.62 });
       if (!onScreen(c) || !scenery.has(p.kind)) continue;
+      if (p.kind === "storebox") {
+        // a chest of the farm's (lib/town/box's MORE_CHESTS) drawn as the plaza's: its picture as big as my box, its lid
+        // up while my panel is open and I stand by this one; where it is on the screen, for taps (the one nearer me)
+        const k = v.s * (PROP_K.storebox ?? 1), near = (t: { x: number; y: number }) => (mine ? Math.hypot(t.x + 0.5 - mine.pos.x, t.y + 0.5 - mine.pos.y) : Infinity);
+        const closed = boxSprite(boxSlots.current), by = !!mine && Math.max(Math.abs(Math.floor(mine.pos.x) - p.x), Math.abs(Math.floor(mine.pos.y) - p.y)) <= BOX.reach;
+        const opened = boxShown.current && by, name = scenery.has(closed) ? (opened && scenery.has(boxSprite(boxSlots.current, true)) ? boxSprite(boxSlots.current, true) : closed)
+          : (opened && scenery.has("storeboxOpen") ? "storeboxOpen" : "storebox");
+        const hit = scenery.has(closed) ? closed : "storebox", [w, h] = scenery.sizeOf(hit), [ax, ay] = scenery.anchorOf(hit);
+        if (!storeBox.current?.at || near(p) < near(storeBox.current.at)) storeBox.current = { x0: c.x - ax * k, y0: c.y - ay * k, x1: c.x + (w - ax) * k, y1: c.y + (h - ay) * k, at: { x: p.x, y: p.y } };
+        things.push({ depth: p.x + p.y + 1, draw: () => scenery.drawProp(ctx, name, c.x, c.y, k, dpr) });
+        continue;
+      }
       const art = shown(scenery, p);
       things.push({ depth: p.x + p.y + 1, draw: () =>
         scenery.drawProp(ctx, art, c.x, c.y, v.s * (PROP_K[art] ?? 1), dpr, 0, false, swayOf(p, now)) });
@@ -3995,7 +4008,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // the storage box: walk up to it, and open it (until whoever keeps the game knows of one, the chest is only a
     // chest). Asked after the net, for the same reason, and after a thing lying before it, which is drawn over it.
     const sb = storeBox.current;
-    if (gameRef.current && sb && x >= sb.x0 && x <= sb.x1 && y >= sb.y0 && y <= sb.y1 && openBox()) return;
+    if (gameRef.current && sb && x >= sb.x0 && x <= sb.x1 && y >= sb.y0 && y <= sb.y1 && openBox(sb.at)) return;
     // a top of the yard's dining tables: the feast table's panel, from where I stand in the yard, or walked up to first
     // (a place at a bench was asked before this: its box is over the top's edge)
     const top = gameRef.current ? feastBoxes.current.find((k) => x >= k.x0 && x <= k.x1 && y >= k.y0 && y <= k.y1) : null;
@@ -4433,7 +4446,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
    * The storage box: open its panel if I stand by it; otherwise walk up to it (the nearest tile beside it that can
    * be stood on) and open it on arriving. False when there is no box to open.
    */
-  const openBox = (chest: { x: number; y: number } = STOREBOX): boolean => {   // (mining: or the chest in the mountain's foot yard, the same box's second door)
+  const openBox = (chest: { x: number; y: number } = STOREBOX): boolean => {   // (mining: or the chest in the mountain's foot yard, the same box's second door; or one of the farm's)
     const stay = sessionRef.current;
     if (!stay || !boxKnown()) return false;
     if (wardrobeOpenRef.current) closeWardrobe();

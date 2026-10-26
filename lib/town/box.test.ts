@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { BOX, boxOffer, boxSorted, fits, moveBox, nearBox, newBox, roomyBox, sortBox, stow, unstow, upgradeBox, type Box } from "./box";
+import { BOX, MORE_CHESTS, boxOffer, boxSorted, fits, moveBox, nearBox, newBox, roomyBox, sortBox, stow, unstow, upgradeBox, type Box } from "./box";
 import { ITEMS, type ItemId } from "./items";
 import { handOf, held, hold, newPurse, put, take, type Purse, type Stack } from "./trade";
-import { BENCHES, FOUNTAIN, PLAZA, PROPS, PROPS_FIRST, STOREBOX, findPath, thingAt, walkable } from "./world";
+import { BENCHES, FARM, FARM_PROPS, FOUNTAIN, GATES, PLAZA, PROPS, PROPS_FIRST, STOREBOX, WELLS, bedOf, findPath, thingAt, walkable } from "./world";
 
 const purseWith = (slots: number, ...items: Array<[ItemId, number]>): Purse => {
   const p = newPurse();
@@ -318,5 +318,42 @@ describe("where the box stands", () => {
       expect(nearBox([x, y])).toBe(true);
     }
     expect(stood).toBeGreaterThanOrEqual(16);
+  });
+});
+
+describe("the farm's two chests", () => {
+  const chests = FARM_PROPS.filter((p) => p.kind === "storebox");
+  it("stand one in each half, by the lane near its well, nothing in front of them, and open the same box", () => {
+    expect(chests.map((p) => [p.x - FARM.x, p.y - FARM.y])).toEqual([[31, 26], [31, 68]]);
+    expect(MORE_CHESTS.slice(-2)).toEqual(chests.map((p) => ({ x: p.x, y: p.y })));
+    WELLS.forEach((w, i) => { expect(chests[i].x - w.x).toBe(3); expect(chests[i].y - w.y).toBe(3); });
+    // (nothing stands on the tiles in front of a chest or beside it on the screen, to hide it or crowd it)
+    for (const c of chests) for (const [dx, dy] of [[1, 0], [0, 1], [1, 1], [1, -1], [-1, 1], [2, 1], [1, 2], [2, 2]]) {
+      expect(FARM_PROPS.some((p) => p.x === c.x + dx && p.y === c.y + dy), `${c.x + dx},${c.y + dy}`).toBe(false);
+    }
+    // (the last things laid out on the farm: nothing laid before them moved)
+    expect(FARM_PROPS.slice(-2)).toEqual(chests);
+  });
+
+  it("are not walked through, and each is opened from the lanes and the grass about it, walked to from its half's gate", () => {
+    for (const [i, c] of chests.entries()) {
+      expect(walkable(c.x, c.y)).toBe(false);
+      expect(nearBox([c.x, c.y])).toBe(false);
+      expect(bedOf(c.x, c.y)).toBe(-1);
+      const gate = GATES.filter((g) => g.leads === "farm")[i].to;
+      let stood = 0;
+      for (let x = c.x - BOX.reach - 1; x <= c.x + BOX.reach + 1; x++) for (let y = c.y - BOX.reach - 1; y <= c.y + BOX.reach + 1; y++) {
+        const within = Math.max(Math.abs(x - c.x), Math.abs(y - c.y)) <= BOX.reach;
+        if (!within) { expect(nearBox([x, y])).toBe(false); continue; }
+        if (!walkable(x, y)) continue;
+        stood++;
+        expect(nearBox([x, y])).toBe(true);
+        expect(findPath(gate, { x, y }), `a way to ${x},${y}`).not.toBeNull();
+      }
+      expect(stood).toBeGreaterThanOrEqual(18);
+      // a thing put away beside it is had at the plaza's
+      const kept = done(stow(purseWith(10, ["minnow", 3]), newBox(), 0, 3, [c.x - 1, c.y - 1]));
+      expect(done(unstow(kept.purse, kept.box, 0, 3, BY)).purse.bag[0]).toEqual({ item: "minnow", n: 3 });
+    }
   });
 });
