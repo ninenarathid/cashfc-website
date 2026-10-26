@@ -825,7 +825,7 @@
       "front": "a brown hairband with a pair of big round brown bear ears standing on top of her head, each ear a thick round shape with a lighter tan inside",
       "back": "the same brown hairband seen from behind, its two big round brown bear ears standing on top of her head",
       "top": true,
-      "key": "the bear-ear hairband, including both ears",
+      "key": "the bear-ear hairband, including the whole band and both ears, their outlines included",
       "solid": true
     },
     {
@@ -834,7 +834,7 @@
       "front": "an orange hairband with a pair of big pointed orange fox ears standing on top of her head, each ear with a fluffy cream inside and a dark brown tip",
       "back": "the same orange hairband seen from behind, its two big pointed orange fox ears with dark brown tips standing on top of her head",
       "top": true,
-      "key": "the fox-ear hairband, including both ears",
+      "key": "the fox-ear hairband, including the whole band and both ears, their outlines included",
       "solid": true
     },
     {
@@ -843,7 +843,7 @@
       "front": "a thick bright golden angel’s ring floating a little above the top of her head, seen at a slight angle as a wide flat oval with an empty middle, shaded with a darker gold underside",
       "back": "the same thick golden angel’s ring seen from behind, floating a little above the top of her head as a wide flat oval with an empty middle",
       "top": true,
-      "key": "the golden ring"
+      "key": "the rim of the golden ring only, its inner and outer outlines included, leaving its empty middle exactly as it is"
     },
     {
       "id": "antennae",
@@ -851,7 +851,7 @@
       "front": "a black hairband with two bee antennae standing on top of her head: thick black stalks curving up and outward, each ending in a big round yellow ball with one black stripe",
       "back": "the same black hairband seen from behind, its two thick curving bee antennae with their big round yellow balls standing on top of her head",
       "top": true,
-      "key": "the bee-antennae hairband, including both stalks and both balls"
+      "key": "the bee-antennae hairband, including the whole band, both stalks and both striped balls, their outlines included"
     },
     {
       "id": "cherry",
