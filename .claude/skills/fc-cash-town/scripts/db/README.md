@@ -239,8 +239,8 @@ site's 1-1 prize thread), Gil goes into the wallet (`credit_wallet`); `casino_li
 switch) and `casino_live_wipe_tests()`; a spin told to the private channel `casino-live` instead of the change feed;
 the zone `casino` in the town's chat lists; a win of a prize marked `announce` told to the whole town (kind `casino` in
 `town_announcements`, dated when the reels stop; never a test), read by `town_announcements_v299`, v256's reader left
-for older pages without the casino's kind. The wipe takes back only trial Gil paid after a tester's last withdrawal
-and says what was withdrawn. Its dry run, `v299.test.mjs` (93 checks; `v299.mutations.mjs`, 22 of 22 breaks caught),
+for older pages without the casino's kind. The wipe takes back only trial Gil with no withdrawal after it (by the withdrawal id each spin saw as it paid)
+and says what was withdrawn. Its dry run, `v299.test.mjs` (93 checks; `v299.mutations.mjs`, 23 of 23 breaks caught),
 runs on the bench v297's dry run kept after v296 (`V299_BENCH=<tar>`), v256 first with the account it asks for
 (`v256-stand-in.sql`: the kept benches never ran v256), with the site's prize and wallet tables stood in for by
 `site-prize-stand-ins.sql` (their columns and functions as v87, v91 and v93 ran, withdraw_wallet too).
