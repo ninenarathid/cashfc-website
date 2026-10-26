@@ -1891,8 +1891,15 @@
    "fflogs": "none",
    "lode_achv_public": false,
    "stats_seen": "2026-10-25"
+  },
+  "25854820": {
+   "name": "Lex Snow",
+   "world": "Tonberry",
+   "dc": "Elemental",
+   "fc": "Exousia",
+   "seen": "2026-10-26"
   }
  },
- "generated_at": "2026-10-26T21:13:10Z",
- "count": 15
+ "generated_at": "2026-10-26T22:36:45Z",
+ "count": 16
 }
