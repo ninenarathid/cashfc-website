@@ -822,34 +822,36 @@
     {
       "id": "bearears",
       "slot": "hair",
-      "src": "pixellab",
-      "front": "two big round solid brown bear ears, each about as big as an eye, with a lighter brown inner circle, standing on top of the head on a thick brown headband",
-      "back": "the two big round solid brown bear ears on their thick headband, seen from behind",
-      "top": true
+      "front": "a brown hairband with a pair of big round brown bear ears standing on top of her head, each ear a thick round shape with a lighter tan inside",
+      "back": "the same brown hairband seen from behind, its two big round brown bear ears standing on top of her head",
+      "top": true,
+      "key": "the bear-ear hairband, including both ears",
+      "solid": true
     },
     {
       "id": "foxears",
       "slot": "hair",
-      "src": "pixellab",
-      "front": "two tall orange fox ears with white tips on a thin headband on top of the head",
-      "back": "the two tall orange fox ears on their headband, seen from behind",
-      "top": true
+      "front": "an orange hairband with a pair of big pointed orange fox ears standing on top of her head, each ear with a fluffy cream inside and a dark brown tip",
+      "back": "the same orange hairband seen from behind, its two big pointed orange fox ears with dark brown tips standing on top of her head",
+      "top": true,
+      "key": "the fox-ear hairband, including both ears",
+      "solid": true
     },
     {
       "id": "halo",
       "slot": "hair",
-      "src": "pixellab",
-      "front": "a thin golden ring floating just above the top of the head, no glow",
-      "back": "the thin golden ring floating just above the head, seen from behind",
-      "top": true
+      "front": "a thick bright golden angel’s ring floating a little above the top of her head, seen at a slight angle as a wide flat oval with an empty middle, shaded with a darker gold underside",
+      "back": "the same thick golden angel’s ring seen from behind, floating a little above the top of her head as a wide flat oval with an empty middle",
+      "top": true,
+      "key": "the golden ring"
     },
     {
       "id": "antennae",
       "slot": "hair",
-      "src": "pixellab",
-      "front": "a black headband with two thin bee antennae ending in round yellow balls on top of the head",
-      "back": "the black headband and the two bee antennae, seen from behind",
-      "top": true
+      "front": "a black hairband with two bee antennae standing on top of her head: thick black stalks curving up and outward, each ending in a big round yellow ball with one black stripe",
+      "back": "the same black hairband seen from behind, its two thick curving bee antennae with their big round yellow balls standing on top of her head",
+      "top": true,
+      "key": "the bee-antennae hairband, including both stalks and both balls"
     },
     {
       "id": "cherry",
