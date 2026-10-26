@@ -619,3 +619,13 @@ Every picture here is PixelLab editing the game's own native pixels, so the styl
   cell larger: the fan pin's arc), reddish skin peeled in from the outside (never a hole inside a fox ear or a hibiscus);
   and in the lay-back, skin painted over the head's own outline. Left: the tiara's band shows a strip of skin inside it
   (an older item; closed inside the band, so peeling from outside does not reach it).
+- **Ears set onto the head** (the owner, 2026-10-26: "หูมันดู ลอยๆ ไม่ติดกับหัวตัวละคร ช่วยแก้ไขหน่อย ยกเว้น วงแหวนนางฟ้า"):
+  with the band cut away, each ear of an `ears: true` thing kept only what stood off the head, cut at the crown's
+  height, so the ears floated over a head that curves down at the sides. The builder's ears step now keeps each ear's
+  own shape (what stands off the head, the rows below it only where they are as wide as an ear and no lower than an ear
+  that round would reach: its top plus its width) and sets the whole ear down onto the head by the least gap between
+  its foot and the head's surface. Two tails this exposed went with it: the bear ears' band side under the left ear
+  (eight cells wide, it passed the wide-row test) and the bunny ears' band side right under the foot; and a lone cell
+  like none of its neighbours inside an ear takes their colour. The angel's ring is not an `ears` thing and floats as
+  drawn. Looked at on dolls with short, long and spiky hair, front, back and sitting (`work/shop-mock/ears-zoom9.png`),
+  alone at 6x, and in the dev game at desktop and phone size; hole check whole, `checks/hat-bald.mjs` 0 of 56.

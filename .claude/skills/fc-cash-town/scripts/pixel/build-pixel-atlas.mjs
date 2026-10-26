@@ -851,16 +851,41 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
       T = Math.max(T, 2);
       const seeds = new Set([...set].filter((i) => out(i) > T)), keep = new Set(), seen = new Set();
       if (process.env.EARS_DEBUG === key) { console.log(`  ${key}: band ${T} thick at x ${xm}, head top ${top}`); let col = ""; for (let y = Math.max(0, top - 25); y <= top + 2; y++) col += set.has(y * g.GW + xm) ? "S" : head(xm, y) ? "h" : "."; console.log("  column from top-25: " + col); }
-      const yCut = top + 1;
+      // (each ear down to the head's own surface in its column, under the band that hid it: the head curves down at the
+      // sides, and cut at the crown's height the ears floated over it, the owner, 2026-10-26: "หูมันดู ลอยๆ ไม่ติดกับหัว")
+      const ownTop = new Map();
+      for (const i of own) { const [x, y] = xy(i); if (y >= top && y < top + 30) ownTop.set(x, Math.min(ownTop.get(x) ?? 1e9, y)); }
+      const yCut = (x) => (ownTop.get(x) ?? ownTop.get(x - 1) ?? ownTop.get(x + 1) ?? top) + 1;
+      // (the head's width just under the band at the crown: the run of the head's own cells round its middle)
+      const rowW = top + T + 2; let headL = xm, headR = xm;
+      while (head(headL - 1, rowW) || head(headL - 2, rowW)) headL--;
+      while (head(headR + 1, rowW) || head(headR + 2, rowW)) headR++;
+      if (process.env.EARS_DEBUG === key) console.log(`  ${key}: T ${T} top ${top} xm ${xm} head ${headL}..${headR} at row ${rowW}`);
       for (const i0 of seeds) {
         if (seen.has(i0)) continue;
         const comp = [i0], st = [i0]; seen.add(i0);
         while (st.length) { const [x, y] = xy(st.pop()); for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const j = (y + dy) * g.GW + x + dx; if (seeds.has(j) && !seen.has(j)) { seen.add(j); comp.push(j); st.push(j); } } }
         if (comp.length < 6) continue;
+        // the ear's own shape: what stands off the head, and below it only rows as wide as an ear, and never lower than an
+        // ear that round would reach (its top and its width): the band's side runs on down beside the head as a strip, and
+        // under the bear's left ear, eight cells wide, and the bunny's, right under its foot, it hung as a tail
         const xs = comp.map((i) => xy(i)[0]), x0 = Math.min(...xs) - 1, x1 = Math.max(...xs) + 1;
-        const grow = [...comp];
-        for (const i of comp) keep.add(i);
-        while (grow.length) { const [x, y] = xy(grow.pop()); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const X = x + dx, Y = y + dy, j = Y * g.GW + X; if (X < x0 || X > x1 || Y > yCut || !set.has(j) || keep.has(j)) continue; keep.add(j); grow.push(j); } }
+        const seedLow = new Map(); for (const i of comp) { const [x, y] = xy(i); seedLow.set(x, Math.max(seedLow.get(x) ?? -1, y)); }
+        const lowest = Math.max(...seedLow.values()), earTop = Math.min(...comp.map((i) => xy(i)[1]));
+        const rows = new Map(); for (const i of comp) { const [x, y] = xy(i); const r = rows.get(y) ?? [x, x]; rows.set(y, [Math.min(r[0], x), Math.max(r[1], x)]); }
+        const earW = Math.max(...[...rows.values()].map(([l, r]) => r - l + 1)), earLow = Math.max(lowest + 1, earTop + earW - 1);
+        const run = (X, Y) => { let n = 1; for (let x = X - 1; set.has(Y * g.GW + x); x--) n++; for (let x = X + 1; set.has(Y * g.GW + x); x++) n++; return n; };
+        const body = new Set(comp), grow = [...comp];
+        while (grow.length) { const [x, y] = xy(grow.pop()); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const X = x + dx, Y = y + dy, j = Y * g.GW + X; if (X < x0 || X > x1 || !set.has(j) || body.has(j) || keep.has(j)) continue; if (Y > (seedLow.get(X) ?? lowest) + 1 && (run(X, Y) < 6 || Y > earLow)) continue; if (Y > yCut(X)) continue; body.add(j); grow.push(j); } }
+        // then the whole ear set down onto the head (the owner, 2026-10-26: "หูมันดู ลอยๆ ไม่ติดกับหัว"): by the least gap
+        // between its foot and the head's surface, over the head; its own shape kept, so it stands on the head as drawn
+        const foot = new Map(); for (const i of body) { const [x, y] = xy(i); foot.set(x, Math.max(foot.get(x) ?? -1, y)); }
+        const over = [...foot.keys()].filter((x) => x >= headL && x <= headR);
+        const gaps = (over.length ? over : [...foot.keys()]).map((x) => yCut(x) - 1 - foot.get(x));
+        const drop = Math.max(0, Math.min(...gaps));
+        const moved = [...body].map((i) => [i, [g.c[i * 4], g.c[i * 4 + 1], g.c[i * 4 + 2], g.c[i * 4 + 3]]]);
+        for (const [i, c] of moved) { const [x, y] = xy(i), j = (y + drop) * g.GW + x; if (y + drop >= g.GH) continue; g.c[j * 4] = c[0]; g.c[j * 4 + 1] = c[1]; g.c[j * 4 + 2] = c[2]; g.c[j * 4 + 3] = 255; keep.add(j); }
+        if (process.env.EARS_DEBUG === key) console.log(`    ear x ${x0}..${x1}: ${body.size} cells, set down ${drop}`);
       }
       if (keep.size) {
         let dark = null, dl = 1;
@@ -869,9 +894,15 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
         const cut = [...keep].filter((i) => { const [x, y] = xy(i); return [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => { const j = (y + dy) * g.GW + x + dx; return set.has(j) && !keep.has(j); }); });
         // (and each column's lowest cell, the foot itself: a speck of skin the key spilled there showed as a dot)
         for (const i of keep) { const [x, y] = xy(i); if (!keep.has((y + 1) * g.GW + x)) cut.push(i); }
-        // (and a skin-coloured cell on the ear's outer edge, never an inner patch: the key's spill)
-        for (const i of keep) { const [x, y] = xy(i); if (L.clsAt(g, x, y) === "skin" && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => !keep.has((y + dy) * g.GW + x + dx))) cut.push(i); }
+        // (and a skin-coloured cell on the ear's outer edge, never an inner patch: the key's spill; and any cell on that edge
+        // like none of its neighbours, the same spill a lighter orange than skin, at the cat ears' foot from the back)
+        const lone = (i) => { const [x, y] = xy(i); for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const j = (y + dy) * g.GW + x + dx; if ((dx || dy) && keep.has(j) && Math.hypot(g.c[j * 4] - g.c[i * 4], g.c[j * 4 + 1] - g.c[i * 4 + 1], g.c[j * 4 + 2] - g.c[i * 4 + 2]) < 60) return false; } return true; };
+        for (const i of keep) { const [x, y] = xy(i); if ((L.clsAt(g, x, y) === "skin" || lone(i)) && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => !keep.has((y + dy) * g.GW + x + dx))) cut.push(i); }
         for (const i of cut) { g.c[i * 4] = dark[0]; g.c[i * 4 + 1] = dark[1]; g.c[i * 4 + 2] = dark[2]; }
+        // (a lone cell inside, just within the outline, takes the colour most of its neighbours have)
+        for (const i of keep) { if (cut.includes(i) || !lone(i)) continue; const [x, y] = xy(i), n = new Map();
+          for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const j = (y + dy) * g.GW + x + dx; if ((dx || dy) && keep.has(j)) { const k = `${g.c[j * 4]},${g.c[j * 4 + 1]},${g.c[j * 4 + 2]}`; n.set(k, (n.get(k) ?? 0) + 1); } }
+          const [best] = [...n.entries()].sort((p, q) => q[1] - p[1])[0] ?? []; if (best) { const [r, gg, bb] = best.split(",").map(Number); g.c[i * 4] = r; g.c[i * 4 + 1] = gg; g.c[i * 4 + 2] = bb; } }
         // (a scrap of the band left apart from every ear goes: a tenth of the largest piece or less)
         const parts = [], seen2 = new Set();
         for (const i0 of keep) { if (seen2.has(i0)) continue; const part = [i0], st = [i0]; seen2.add(i0);
@@ -893,10 +924,10 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
         for (const i of drop) set.delete(i);
       }
       for (let pass = 0; pass < 3; pass++) {
-        const drop = [...set].filter((i) => { const [x, y] = xyH(i); if (L.clsAt(g, x, y) !== "skin" || L.hsl(g.c[i * 4], g.c[i * 4 + 1], g.c[i * 4 + 2])[0] > 26) return false; return !set.has((y + 1) * g.GW + x); });
-        if (!drop.length) break;
-        for (const i of drop) set.delete(i);
-      }
+        const drop = [...set].filter((i) => { const [x, y] = xyH(i); if (L.clsAt(g, x, y) !== "skin" || L.hsl(g.c[i * 4], g.c[i * 4 + 1], g.c[i * 4 + 2])[0] > 26) return false; return !set.has((y + 1) * g.GW + x); });
+        if (!drop.length) break;
+        for (const i of drop) set.delete(i);
+      }
       // (and the head's own skin showing through the thing from outside it, the tiara's band: skin's hue, never a pumpkin's
       // orange; peeled in from the outside only, so a warm shade inside a thing (a fox ear, a hibiscus) is never a hole)
       for (let pass = 0; pass < 6; pass++) {
