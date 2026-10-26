@@ -6,7 +6,7 @@
   "mounts": 61,
   "minions": 227,
   "rare": null,
-  "level": 56,
+  "level": 30,
   "cc": [
    false,
    false,
@@ -519,6 +519,7 @@
   },
   "jobs": {},
   "ex": [
+   "Doomtrain",
    "Enuo",
    "Valigarmanda",
    "Zoraal Ja"
@@ -2297,7 +2298,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 93,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2344,7 +2345,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-25"
+  "chg": "2026-10-26"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -2524,7 +2525,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 81,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -2551,7 +2552,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-10-25"
+  "chg": "2026-10-26"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -3644,7 +3645,7 @@
   "mounts": 65,
   "minions": 131,
   "rare": 57,
-  "level": 65,
+  "level": 66,
   "cc": [
    true,
    true,
@@ -3726,7 +3727,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-10-24"
+  "chg": "2026-10-25"
  },
  "21620195": {
   "name": "Nefe'li Lucias",
@@ -3876,7 +3877,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 68,
-  "level": 91,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3979,7 +3980,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-24"
+  "chg": "2026-10-25"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -5292,7 +5293,7 @@
   "mounts": 128,
   "minions": 320,
   "rare": 115,
-  "level": 92,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -5414,7 +5415,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-24"
+  "chg": "2026-10-26"
  },
  "8286372": {
   "name": "Aloha Banana",
@@ -5676,7 +5677,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 86,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -6884,7 +6885,7 @@
   "mounts": 60,
   "minions": 114,
   "rare": 4,
-  "level": 100,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -6948,7 +6949,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 89,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -6992,7 +6993,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 100,
+  "level": 75,
   "cc": [
    false,
    false,
@@ -7012,7 +7013,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-22"
+  "chg": "2026-10-26"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -7333,7 +7334,7 @@
   "mounts": 70,
   "minions": 104,
   "rare": 57,
-  "level": 63,
+  "level": 65,
   "cc": [
    false,
    false,
@@ -7410,7 +7411,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-24"
+  "chg": "2026-10-25"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -7565,7 +7566,7 @@
   "mounts": 178,
   "minions": 410,
   "rare": null,
-  "level": 38,
+  "level": 41,
   "cc": [
    false,
    false,
@@ -7578,7 +7579,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-24"
+  "chg": "2026-10-25"
  },
  "31831003": {
   "name": "North Nostafari",
@@ -8399,7 +8400,7 @@
   "mounts": 165,
   "minions": 364,
   "rare": null,
-  "level": 100,
+  "level": 41,
   "cc": [
    false,
    false,
@@ -8412,7 +8413,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-19"
+  "chg": "2026-10-25"
  },
  "31806535": {
   "name": "Viiska Howl",
@@ -8763,7 +8764,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 100,
+  "level": 88,
   "cc": [
    false,
    false,
@@ -8783,7 +8784,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-25"
+  "chg": "2026-10-26"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -8958,7 +8959,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 100,
+  "level": 69,
   "cc": [
    false,
    false,
@@ -8974,7 +8975,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-24"
+  "chg": "2026-10-25"
  },
  "29389419": {
   "name": "Osilit Bloodhood",

@@ -9416,11 +9416,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 59.48,
+    "pct": 43.92,
     "phase": 4,
-    "pulls": 51,
-    "last": "2026-10-17",
-    "last_ts": 1792256384
+    "pulls": 79,
+    "last": "2026-10-25",
+    "last_ts": 1792947777
    }
   ]
  },
@@ -10138,7 +10138,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 66,
-    "kills": 21,
+    "kills": 25,
     "job": "Sage",
     "cleared": true,
     "job_kills": {
@@ -10179,7 +10179,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 39,
-    "kills": 14,
+    "kills": 16,
     "job": "Sage",
     "cleared": true,
     "job_kills": {
@@ -11163,7 +11163,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 82,
-    "kills": 3,
+    "kills": 4,
     "job": "Viper",
     "cleared": true,
     "job_kills": {
@@ -13666,20 +13666,7 @@
     ]
    }
   ],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 1085,
-    "name": "Dancing Mad",
-    "kind": "ultimate",
-    "state": "cleared",
-    "pct": null,
-    "phase": 0,
-    "pulls": 10,
-    "last": "2026-10-14",
-    "last_ts": 1791989912
-   }
-  ]
+  "_status": "ok"
  },
  "15543487": {
   "current": {
@@ -21945,7 +21932,17 @@
       "best": 99,
       "median": 90,
       "kills": 12,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 11,
+        "best": 99
+       },
+       "Samurai": {
+        "kills": 1,
+        "best": 5
+       }
+      }
      },
      {
       "label": "M6S",
@@ -21954,7 +21951,13 @@
       "best": 93,
       "median": 69,
       "kills": 10,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 10,
+        "best": 93
+       }
+      }
      },
      {
       "label": "M7S",
@@ -21963,7 +21966,13 @@
       "best": 95,
       "median": 74,
       "kills": 10,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 10,
+        "best": 95
+       }
+      }
      },
      {
       "label": "M8S",
@@ -21972,7 +21981,13 @@
       "best": 76,
       "median": 52,
       "kills": 9,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 9,
+        "best": 76
+       }
+      }
      }
     ]
    },
@@ -25129,7 +25144,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 3,
-    "kills": 2,
+    "kills": 3,
     "job": "WhiteMage",
     "cleared": true,
     "job_kills": {
@@ -28853,7 +28868,7 @@
     "state": "learning",
     "pct": 14.65,
     "phase": 3,
-    "pulls": 54,
+    "pulls": 36,
     "last": "2026-10-18",
     "last_ts": 1792342200
    }
@@ -29884,7 +29899,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 54,
-    "kills": 3,
+    "kills": 4,
     "job": "BlackMage",
     "cleared": true,
     "job_kills": {
@@ -34093,8 +34108,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1085,
     "name": "Dancing Mad",
-    "best": 58,
-    "kills": 2,
+    "best": 69,
+    "kills": 3,
     "job": "Warrior",
     "cleared": true,
     "job_kills": {
@@ -35911,7 +35926,7 @@
     "state": "learning",
     "pct": 14.65,
     "phase": 3,
-    "pulls": 56,
+    "pulls": 38,
     "last": "2026-10-18",
     "last_ts": 1792342200
    }
@@ -36260,7 +36275,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 99,
-    "kills": 83,
+    "kills": 84,
     "job": "Dancer",
     "cleared": true,
     "job_kills": {
@@ -37036,7 +37051,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 66,
-    "kills": 3,
+    "kills": 4,
     "job": "Samurai",
     "cleared": true,
     "job_kills": {
@@ -42954,7 +42969,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 41,
-    "kills": 13,
+    "kills": 14,
     "job": "Warrior",
     "cleared": true,
     "job_kills": {
@@ -46694,7 +46709,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 27,
-    "kills": 3,
+    "kills": 4,
     "job": "Bard",
     "cleared": true,
     "job_kills": {
@@ -49239,8 +49254,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1085,
     "name": "Dancing Mad",
-    "best": 18,
-    "kills": 3,
+    "best": 25,
+    "kills": 4,
     "job": "WhiteMage",
     "cleared": true,
     "job_kills": {
@@ -66843,8 +66858,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1083,
     "name": "Doomtrain",
-    "best": 84,
-    "kills": 7,
+    "best": 97,
+    "kills": 11,
     "job": "Samurai",
     "cleared": true,
     "job_kills": {
@@ -66861,7 +66876,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 93,
-    "kills": 18,
+    "kills": 21,
     "job": "Samurai",
     "cleared": true,
     "job_kills": {
@@ -72098,8 +72113,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1083,
     "name": "Doomtrain",
-    "best": 24,
-    "kills": 1,
+    "best": 45,
+    "kills": 5,
     "job": "Machinist",
     "cleared": true
    },
@@ -72110,12 +72125,12 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 27,
-    "kills": 4,
+    "kills": 7,
     "job": "Machinist",
     "cleared": true,
     "job_kills": {
      "Machinist": {
-      "kills": 4,
+      "kills": 7,
       "best": 27
      }
     }
@@ -76404,6 +76419,7 @@
     "encounters": [
      {
       "label": "P5S",
+      "encounter_id": 83,
       "name": "Proto-Carbuncle",
       "best": 96,
       "median": 55,
@@ -76412,6 +76428,7 @@
      },
      {
       "label": "P6S",
+      "encounter_id": 84,
       "name": "Hegemone",
       "best": 96,
       "median": 77,
@@ -76420,6 +76437,7 @@
      },
      {
       "label": "P7S",
+      "encounter_id": 85,
       "name": "Agdistis",
       "best": 93,
       "median": 27,
@@ -76427,7 +76445,8 @@
       "job": "Samurai"
      },
      {
-      "label": "P8S-1",
+      "label": "P8S",
+      "encounter_id": 86,
       "name": "Hephaistos",
       "best": 91,
       "median": 39,
@@ -76435,7 +76454,8 @@
       "job": "Samurai"
      },
      {
-      "label": "P8S-2",
+      "label": null,
+      "encounter_id": 87,
       "name": "Hephaistos II",
       "best": 62,
       "median": 36,
@@ -77606,7 +77626,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 95,
-    "kills": 35,
+    "kills": 42,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -77635,7 +77655,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 92,
-    "kills": 33,
+    "kills": 39,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -77736,9 +77756,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1078,
     "name": "Queen Eternal",
-    "best": 79,
-    "kills": 18,
-    "job": "Paladin",
+    "best": 83,
+    "kills": 20,
+    "job": "Warrior",
     "cleared": true,
     "job_kills": {
      "Monk": {
@@ -77910,7 +77930,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 83,
-    "kills": 71,
+    "kills": 75,
     "job": "Bard",
     "cleared": true,
     "job_kills": {
@@ -77939,7 +77959,7 @@
       "best": 75
      },
      "Scholar": {
-      "kills": 14,
+      "kills": 18,
       "best": 67
      }
     }
@@ -77951,7 +77971,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 79,
-    "kills": 74,
+    "kills": 86,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -77964,7 +77984,7 @@
       "best": 26
      },
      "Astrologian": {
-      "kills": 42,
+      "kills": 43,
       "best": 79
      },
      "WhiteMage": {
@@ -77972,8 +77992,8 @@
       "best": 54
      },
      "Scholar": {
-      "kills": 17,
-      "best": 41
+      "kills": 28,
+      "best": 46
      }
     }
    },
@@ -78179,9 +78199,9 @@
     "name": "Red Hot and Deep Blue",
     "kind": "savage",
     "state": "learning",
-    "pct": 6.22,
+    "pct": 23.3,
     "phase": 0,
-    "pulls": 10,
+    "pulls": 4,
     "last": "2026-10-23",
     "last_ts": 1792745155
    }
@@ -80512,7 +80532,13 @@
       "best": 47,
       "median": 13,
       "kills": 8,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 8,
+        "best": 47
+       }
+      }
      },
      {
       "label": "M6S",
@@ -80521,7 +80547,13 @@
       "best": 12,
       "median": 3,
       "kills": 4,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 4,
+        "best": 12
+       }
+      }
      },
      {
       "label": "M7S",
@@ -82087,7 +82119,13 @@
     "best": 5,
     "kills": 2,
     "job": "Gunbreaker",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Gunbreaker": {
+      "kills": 2,
+      "best": 5
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -83154,9 +83192,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 13,
-    "kills": 1,
-    "job": "Machinist",
+    "best": 93,
+    "kills": 2,
+    "job": "Viper",
     "cleared": true
    },
    {
@@ -84562,7 +84600,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 74,
-    "kills": 6,
+    "kills": 10,
     "job": "Machinist",
     "cleared": true,
     "job_kills": {
@@ -84582,9 +84620,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 22,
-    "kills": 5,
-    "job": "Machinist",
+    "best": 36,
+    "kills": 7,
+    "job": "Monk",
     "cleared": true,
     "job_kills": {
      "Monk": {
@@ -85796,10 +85834,21 @@
     "zone": "Trials III (Extreme)",
     "zone_id": 72,
     "expansion": "Dawntrail",
+    "encounter_id": 1083,
+    "name": "Doomtrain",
+    "best": 20,
+    "kills": 4,
+    "job": "Pictomancer",
+    "cleared": true
+   },
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 8,
-    "kills": 2,
+    "best": 12,
+    "kills": 4,
     "job": "Pictomancer",
     "cleared": true,
     "job_kills": {
@@ -86980,13 +87029,17 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 7,
-    "kills": 11,
+    "kills": 12,
     "job": "DarkKnight",
     "cleared": true,
     "job_kills": {
      "DarkKnight": {
       "kills": 10,
       "best": 7
+     },
+     "Paladin": {
+      "kills": 1,
+      "best": 4
      },
      "Sage": {
       "kills": 1,
@@ -90835,7 +90888,7 @@
     "cleared": true,
     "job_kills": {
      "Scholar": {
-      "kills": 3,
+      "kills": 4,
       "best": 69
      }
     }
@@ -93079,7 +93132,7 @@
     "cleared": true,
     "job_kills": {
      "Ninja": {
-      "kills": 11,
+      "kills": 12,
       "best": 82
      }
     }
@@ -96164,7 +96217,13 @@
     "best": 5,
     "kills": 2,
     "job": "Reaper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Reaper": {
+      "kills": 2,
+      "best": 5
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
