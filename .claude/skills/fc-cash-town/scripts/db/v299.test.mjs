@@ -220,6 +220,8 @@ try {
   eq(Number(took), Number(e0.balance) + 1000000, `the tester withdraws it all (${took?.error ?? ""})`);
   await as(null, "select public.credit_wallet($1, 300000, null, 'Rare popoto', '#fff', 'rare', 'tier', null) r", [ADMIN], "postgres");
   ok((await spin(ADMIN, "gold", 2))?.prize?.kind === "gil", "the trial's million again, after the withdrawal");
+  // (dated as a spin that began before the withdrawal and waited behind it: it was paid after it all the same)
+  await db.exec("update public.wallet_drops set created_at = created_at - interval '1 hour' where id = (select max(id) from public.wallet_drops)");
   const out = await as(ADMIN, "select public.casino_live_wipe_tests() r");
   eq([out?.spins, out?.drops, Number(out?.withdrawn)], [2, 2, 1000000], "the wipe says the million withdrawn");
   eq(await one("select balance::bigint b, earned::bigint e from public.wallets where profile_id = $1", [ADMIN]), { b: 300000, e: Number(e0.earned) + 300000 }, "Gil won since is kept, the trial's taken back");

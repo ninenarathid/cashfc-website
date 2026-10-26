@@ -25,8 +25,8 @@
 --    so a test is wiped to the row.
 -- 4. `casino_live_wipe_tests()`: every test spin undone: the coins it took and paid back, the stock, the Gil set aside,
 --    the counts, the prize row with its thread and bells, the wallet payment with its bells. A wallet is emptied at each
---    withdrawal (withdraw_wallet, v91), so trial Gil paid before a tester's last withdrawal is no longer in the wallet:
---    only what came after it is taken back, and what was withdrawn is said in what the wipe returns (that cash-out is a
+--    withdrawal (withdraw_wallet, v91), so trial Gil with a withdrawal after it is no longer in the wallet (each spin's
+--    trail keeps the newest withdrawal it saw as it paid): only the rest is taken back, and what was withdrawn is said in what the wipe returns (that cash-out is a
 --    'เงินสะสม' prize row of its own, for the admins to settle), never taken from Gil won since.
 -- 5. Every page in the casino used to read the whole casino again at each spin of anybody's (the change feed): forty
 --    players at five machines would be some fifty reads a second on the small database. Now a spin is told to the
@@ -228,7 +228,12 @@ begin
     tier_ := case when won.amount >= 5000000 then 'ultra' when won.amount >= 1000000 then 'super' else 'rare' end;
     select coalesce(max(id), 0) into before_ from public.notifications where recipient = me;
     perform public.credit_wallet(me, won.amount::integer, null, won.name, '#d9a441', tier_, 'tier', null);
+    -- (`out`: the newest of the winner's withdrawals (withdraw_wallet, v91) seen once credit_wallet holds the wallet's row,
+    -- so every one before this payment and none after it: a later one is what took this Gil out, which the wipe asks.
+    -- Times will not do: a payment is dated when its spin began, maybe before a withdrawal it waited behind)
     trail_ := jsonb_build_object('drop', currval(pg_get_serial_sequence('public.wallet_drops', 'id')),
+      'out', (select coalesce(max(o.id), 0) from public.prize_wins o
+        where o.winner = me and o.draw = 'give' and o.prize_name = 'เงินสะสม' and o.gil_amount is not null),
       'notes', (select coalesce(jsonb_agg(id order by id), '[]') from public.notifications
         where recipient = me and id > before_ and kind in ('wallet_drop', 'wallet_full')));
   end if;
@@ -351,14 +356,13 @@ begin
     or (kind in ('prize_win', 'prize_claim', 'prize_ask', 'prize_talk', 'prize_done') and body = any (select w::text from unnest(wins_) w));
   delete from public.prize_messages where win_id = any (wins_);
   delete from public.prize_wins where id = any (wins_);
-  -- (a withdrawal empties the wallet: what was paid before a tester's last one is gone already, and only what came after
-  -- it is taken back; what was withdrawn is said, never taken from Gil won since)
-  for x in select d.profile_id, sum(d.amount)::bigint amount,
-      coalesce(sum(d.amount) filter (where d.created_at <= w.out_at), 0)::bigint taken
-    from public.wallet_drops d
-    left join lateral (select max(o.claimed_at) out_at from public.prize_wins o
-      where o.winner = d.profile_id and o.draw = 'give' and o.prize_name = 'เงินสะสม' and o.gil_amount is not null) w on true
-    where d.id = any (drops_) group by d.profile_id loop
+  -- (a withdrawal empties the wallet: a payment with a withdrawal after it (one newer than the spin's `out`) is gone
+  -- already, and only the rest is taken back; what was withdrawn is said, never taken from Gil won since)
+  for x in select t.profile_id, sum(t.amount)::bigint amount, coalesce(sum(t.amount) filter (where t.gone), 0)::bigint taken from (
+      select d.profile_id, d.amount, exists (select 1 from public.prize_wins o where o.winner = d.profile_id and o.draw = 'give'
+        and o.prize_name = 'เงินสะสม' and o.gil_amount is not null and o.id > coalesce((sp.trail ->> 'out')::bigint, 0)) gone
+      from public.casino_live_spins sp join public.wallet_drops d on d.id = (sp.trail ->> 'drop')::bigint
+      where sp.test and sp.trail ? 'drop') t group by t.profile_id loop
     update public.wallets set balance = greatest(0, balance - (x.amount - x.taken)), earned = greatest(0, earned - x.amount), updated_at = now() where profile_id = x.profile_id;
     out_ := out_ + x.taken;
   end loop;

@@ -50,6 +50,8 @@ function Portrait({ event }: { event: TownAnnouncement }) {
     <span aria-hidden className="pointer-events-none absolute inset-0 border-2 border-[#101c18]/35" />
   </div>;
 }
+/** How long a casino spin's reels turn (v299: reveal_at is 3.6 s after the spin). */
+const REELS_MS = 3600;
 export default function TownAnnouncements({ keeper, session, th }: { keeper: Keeper; session: TownSession; th: boolean }) {
   const { head } = useContext(TownFootContext), [queue, setQueue] = useState<TownAnnouncement[]>([]);
   const language = useRef(th); language.current = th;
@@ -63,10 +65,12 @@ export default function TownAnnouncements({ keeper, session, th }: { keeper: Kee
     const accept = (events: TownAnnouncement[], initial: boolean) => {
       const fresh = events.filter(event => !seenIds.has(event.id)), now = Date.now();
       for (const event of fresh) seenIds.add(event.id);
-      show(fresh.filter(event => event.at <= now), initial);
-      // (a casino win is written as the spin starts and dated when its reels stop: told then, not before the winner sees it)
-      for (const event of fresh.filter(event => event.at > now)) {
-        const timer = setTimeout(() => { held.delete(timer); if (!stopped) show([event], initial); }, Math.min(event.at - now, 10_000));
+      // (a casino win is written as the spin starts and dated when its reels stop, and this device's clock may run ahead of
+      // the database's: told no sooner than a whole spin after it is seen, so never before the winner sees it)
+      const wait = (event: TownAnnouncement) => event.kind === "casino" && !initial ? Math.min(Math.max(event.at - now, REELS_MS), 10_000) : 0;
+      show(fresh.filter(event => !wait(event)), initial);
+      for (const event of fresh.filter(event => wait(event))) {
+        const timer = setTimeout(() => { held.delete(timer); if (!stopped) show([event], initial); }, wait(event));
         held.add(timer);
       }
     };

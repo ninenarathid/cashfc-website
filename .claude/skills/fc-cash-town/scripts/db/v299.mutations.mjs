@@ -20,6 +20,7 @@ export default ({ swap }) => [
   ["the spin not told", swap("  perform casino.hint('spin', to_jsonb(old) - 'trail');\n", ""), ["the spin is told, once, and nothing else"]],
   ["the casino's zone left out", swap("        from unnest(array['town','farm','forest','mountain','cave','shop','casino']) as zones(zone)\n    )\n  );\n\ndrop policy if exists town_maps_send", "        from unnest(array['town','farm','forest','mountain','cave','shop']) as zones(zone)\n    )\n  );\n\ndrop policy if exists town_maps_send"), ["both map policies name the casino"]],
   ["the wipe takes Gil already withdrawn", swap("balance = greatest(0, balance - (x.amount - x.taken))", "balance = greatest(0, balance - x.amount)"), ["Gil won since is kept, the trial's taken back"]],
+  ["no mark of the withdrawals seen", swap("      'out', (select coalesce(max(o.id), 0) from public.prize_wins o\n        where o.winner = me and o.draw = 'give' and o.prize_name = 'เงินสะสม' and o.gil_amount is not null),\n", ""), ["Gil won since is kept, the trial's taken back"]],
   ["the withdrawal not said", swap("    out_ := out_ + x.taken;\n", ""), ["the wipe says the million withdrawn"]],
   ["the casino not in the town's list", swap("'lamps', 'admin', 'casino'));", "'lamps', 'admin'));"), ["a real win is told to the whole town, once"]],
   ["older pages read the casino's wins", swap("where e.value ->> 'kind' <> 'casino'", "where true"), ["v256's, which pages from before ask, has not"]],
