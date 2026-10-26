@@ -37,8 +37,11 @@ type G = "f" | "m";
 type Step = { body: string; hx: number; hy: number; chair?: boolean };
 /** An eating frame: a seated step, and (seen from the front) where its hands are from the feet, for the dish. */
 type EatStep = Step & { hand?: { x: number; y: number }; fingers?: string };
-/** A worn thing's piece per way (lib/town/wear); a hat also says where its brim comes down to in each column. */
-type Worn = Partial<Record<View, string>> & { clip?: Partial<Record<View, { x0: number; ys: number[] }>> };
+/**
+ * A worn thing's piece per way (lib/town/wear); a hat also says where its brim comes down to in each column, and ears
+ * their base, drawn before the hair so that the hair hides it but the gap above it (the atlas builder's ears step).
+ */
+type Worn = Partial<Record<View, string>> & { clip?: Partial<Record<View, { x0: number; ys: number[] }>>; under?: Partial<Record<View, string>> };
 type RGB = [number, number, number];
 
 interface AtlasJson {
@@ -62,6 +65,8 @@ interface AtlasJson {
   furKey?: boolean;
   /** Hair pieces per hairstyle and way. */
   hair: Record<string, Partial<Record<View, string>>>;
+  /** How far up ears seen from the back stand on a hairstyle that rises far over the head (the atlas builder's lift). */
+  lift?: Record<string, number>;
   /** A face's eyes, mouth and skin colour, in its own pixels; only faces that can blink. */
   faceData: Record<string, { eyes: Eye[]; mouth: { x: number; y: number } | null; skin: RGB }>;
   /** The skin ramp: every skin pixel is exactly one of these. */
@@ -504,12 +509,14 @@ export class PixelKit {
     const W = A.wear, hatId = wornId(HATS, look.hat), hat = hatId ? W?.hat?.[hatId] : undefined;
     const worn = (slot: "face" | "neck" | "hair", list: typeof HATS, i: number | undefined) => { const id = wornId(list, i); return id ? W?.[slot]?.[id]?.front : undefined; };
     const neck = worn("neck", NECK_WEAR, look.neck), glasses = worn("face", FACE_WEAR, look.faceWear), clip = hatId && onTop(look.hairWear) ? undefined : worn("hair", HAIR_WEAR, look.hairWear);
+    const clipId = clip ? wornId(HAIR_WEAR, look.hairWear) : null, base = clipId ? W?.hair?.[clipId]?.under?.front : undefined;
     const layers: Array<{ name: string; draw: () => CanvasImageSource }> = [];
     const plain = (name: string | undefined) => { if (name && A.frames[name]) layers.push({ name, draw: () => this.plain(name) }); };
     plain(neck);
     const shown = ex && !ex.keep ? ex.face : faceName;
     layers.push({ name: shown, draw: () => this.face(shown, look)[0] });
     if (ex?.keep) layers.push({ name: ex.face, draw: () => this.face(ex.face, look)[0] });
+    plain(base);
     if (hairName) {
       const cut = hat?.front ? hat.clip?.front : undefined;
       layers.push({ name: hairName, draw: () => (cut ? this.hairUnder(hairName, look, hatId!, "front", cut) : this.hair(hairName, look)) });
@@ -602,14 +609,17 @@ export class PixelKit {
     const [, , , , fox, foy] = A.frames[shown];
     ctx.drawImage(face, fox, foy);
     if (ex?.keep) { const [, , , , eox, eoy] = A.frames[ex.face]; ctx.drawImage(this.face(ex.face, look)[0], eox, eoy); }
+    // (a thing on top of the head is not worn under a hat: lib/town/wear's together; a look that says both shows the hat)
+    const onHead = hatId && onTop(look.hairWear) ? undefined : worn("hair", wornId(HAIR_WEAR, look.hairWear));
+    const base = onHead?.under?.[view];
+    if (base && A.frames[base]) { const [, , , , bx, by] = A.frames[base], lift = view === "back" ? A.lift?.[hairsOf(this.race)[look.hair]?.id ?? ""] ?? 0 : 0; ctx.drawImage(this.plain(base), bx, by - lift); }
     if (hairName) {
       const [, , , , hox, hoy] = A.frames[hairName];
       const clip = hat?.[view] ? hat.clip?.[view] : undefined;
       ctx.drawImage(clip ? this.hairUnder(hairName, look, hatId!, view, clip) : this.hair(hairName, look), hox, hoy);
     }
     lay(worn("face", wornId(FACE_WEAR, look.faceWear))?.[view]);
-    // (a thing on top of the head is not worn under a hat: lib/town/wear's together; a look that says both shows the hat)
-    if (!(hatId && onTop(look.hairWear))) lay(worn("hair", wornId(HAIR_WEAR, look.hairWear))?.[view]);
+    lay(onHead?.[view]);
     lay(hat?.[view]);
     ctx.restore();
   }

@@ -47,6 +47,8 @@ rows.forEach((cells, ri) => cells.forEach((cell, ci) => {
   const worn = (slot, id) => (id ? j.wear?.[slot]?.[id]?.[view] : null);
   blit(worn("neck", cell.neck), hx, hy);
   blit(view === "front" ? j.face[gg].round : j.face.back, hx, hy);
+  // (an ear's base before the hair, as lib/town/pixeldoll draws it)
+  blit(cell.hairWear ? j.wear?.hair?.[cell.hairWear]?.under?.[view] : null, hx, hy - (view === "back" ? j.lift?.[cell.hair] ?? 0 : 0));
   const clip = cell.hat ? j.wear.hat[cell.hat]?.clip?.[view] : null;
   const under = clip ? (x, y) => y > clip.ys[Math.min(clip.ys.length - 1, Math.max(0, x - clip.x0))] : () => true;
   if (j.hair[cell.hair]?.[view]) blit(j.hair[cell.hair][view], hx, hy, under);

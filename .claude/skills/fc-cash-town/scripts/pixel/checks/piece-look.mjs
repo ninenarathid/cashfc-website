@@ -11,14 +11,14 @@ const pic = await L.loadRaw(`${DIR}/${j.image}`), S = 6;
 const ids = list ? list.split(",") : Object.keys(j.wear?.[slot] ?? {});
 const tiles = [];
 for (const id of ids) for (const v of ["front", "back"]) {
-  const n = j.wear?.[slot]?.[id]?.[v]; if (!n) continue;
+  for (const n of [j.wear?.[slot]?.[id]?.[v], j.wear?.[slot]?.[id]?.under?.[v]]) { if (!n) continue;
   const [x, y, w, h] = j.frames[n], buf = Buffer.alloc(w * h * 4);
   for (let r = 0; r < h; r++) for (let c = 0; c < w; c++) {
     const si = ((y + r) * pic.W + x + c) * 4, di = (r * w + c) * 4;
     if (pic.data[si + 3]) pic.data.copy(buf, di, si, si + 4); else { buf[di] = 255; buf[di + 2] = 255; buf[di + 3] = 255; }
   }
   tiles.push({ img: await L.sharp(buf, { raw: { width: w, height: h, channels: 4 } }).resize(w * S, h * S, { kernel: "nearest" }).png().toBuffer(), w: w * S, h: h * S });
-}
+} }
 const cols = 6, cw = Math.max(...tiles.map((t) => t.w)) + 10, ch = Math.max(...tiles.map((t) => t.h)) + 10;
 await L.sharp({ create: { width: cols * cw, height: Math.ceil(tiles.length / cols) * ch, channels: 4, background: "#3a4050" } })
   .composite(tiles.map((t, i) => ({ input: t.img, left: (i % cols) * cw, top: Math.floor(i / cols) * ch }))).png().toFile(OUT);

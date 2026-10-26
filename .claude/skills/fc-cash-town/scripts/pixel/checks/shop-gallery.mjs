@@ -69,6 +69,7 @@ function doll(cell) {
   const worn = (slot, id) => (id ? j.wear?.[slot]?.[id]?.[view] : null);
   put(pieceOf(worn("neck", cell.neck), hx, hy));
   put(pieceOf(view === "front" ? j.face[gg].round : j.face.back, hx, hy));
+  put(pieceOf(cell.hairWear ? j.wear?.hair?.[cell.hairWear]?.under?.[view] : null, hx, hy - (view === "back" ? j.lift?.[cell.hair] ?? 0 : 0)));
   const clip = cell.hat ? j.wear.hat[cell.hat]?.clip?.[view] : null;
   const under = clip ? (x, y) => y > clip.ys[Math.min(clip.ys.length - 1, Math.max(0, x - clip.x0))] : () => true;
   if (j.hair[cell.hair]?.[view]) { const h = pieceOf(j.hair[cell.hair][view], hx, hy, under); paintHair(h, cell.color ?? "#3a2b28"); put(h); }

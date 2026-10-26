@@ -746,7 +746,8 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
   for (const [g0, id, t, slot, solid, laid] of WEAR) {
     const key = `${g0}-${id}-${t}`, base = baseOf(slot, t);
     if (!grids[key] || !base) continue;
-    const g = copyOf(grids[key]), F = figs[key][IDLE], band = bandOf(slot, t), set = new Set();
+    const g = copyOf(grids[key]), F = figs[key][IDLE], band = bandOf(slot, t), set = new Set(), under = new Map(), footOpen = new Set();
+    let behind = false;
     // the thing's key copy (dhk-, dak-: the thing alone painted magenta) says which cells are the thing; told apart from
     // the base by colour instead, a golden straw hat passed for skin and dark lenses for the eye's outline
     const mk = grids[`${g0}k-${id}-${t}`];
@@ -861,6 +862,7 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
       while (head(headL - 1, rowW) || head(headL - 2, rowW)) headL--;
       while (head(headR + 1, rowW) || head(headR + 2, rowW)) headR++;
       if (process.env.EARS_DEBUG === key) console.log(`  ${key}: T ${T} top ${top} xm ${xm} head ${headL}..${headR} at row ${rowW}`);
+      // (a hair stands a couple of cells over the bald head: an ear's base carried down stops there, on the hair)
       for (const i0 of seeds) {
         if (seen.has(i0)) continue;
         const comp = [i0], st = [i0]; seen.add(i0);
@@ -885,19 +887,48 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
         const drop = Math.max(0, Math.min(...gaps));
         const moved = [...body].map((i) => [i, [g.c[i * 4], g.c[i * 4 + 1], g.c[i * 4 + 2], g.c[i * 4 + 3]]]);
         for (const [i, c] of moved) { const [x, y] = xy(i), j = (y + drop) * g.GW + x; if (y + drop >= g.GH) continue; g.c[j * 4] = c[0]; g.c[j * 4 + 1] = c[1]; g.c[j * 4 + 2] = c[2]; g.c[j * 4 + 3] = 255; keep.add(j); }
+        // (and its base, under the hair: where its foot is flat and the head falls away under it, as the ears seen from the
+        // back sit on the crown, the band filled the gap, and without it they floated from behind (the owner, 2026-10-26:
+        // "ด้านหน้าผ่าน แต่ด้านหลังลอย"). The ear's own colour carried on down to the bald head the game draws, in each column
+        // over it, as a piece of its own drawn before the hair (`under`, lib/town/pixeldoll): every hairstyle hides what lies
+        // in it and leaves only the gap above it, so the ear stands in the hair whatever its height. Filled over the band,
+        // a base came to a point on round hair and hung as drips on flat hair. A column whose head is far below, beside the
+        // skull, keeps its foot. From the back only: from the front the ears' feet follow the head as drawn, he passed them.)
+        const baldTop = (X) => { for (let Y = Math.max(0, top - 12); Y < Math.min(base.GH, top + 16); Y++) if (base.c[(Y * base.GW + X) * 4 + 3]) return Y; return -1; };
+        const feet = new Map(); for (const [i] of moved) { const [x, y] = xy(i); if (y + drop < g.GH) feet.set(x, Math.max(feet.get(x) ?? -1, y + drop)); }
+        let deep = null, dl = 1; for (const [, c] of moved) { const l = L.hsl(c[0], c[1], c[2])[2]; if (l < dl) { dl = l; deep = c; } }
+        // (in each column the ear's own colour just above its foot, its outline aside: a stalk's black, a fox's orange; one
+        // colour for the whole ear gave the antennae yellow stalks and the cat ears a stray cell's skin)
+        const colourAt = (X, F) => { const tally = new Map(); for (const [i, c] of moved) { const [x, y] = xy(i); if (x !== X || y + drop < F - 3 || y + drop > F) continue; if (deep && c[0] === deep[0] && c[1] === deep[1] && c[2] === deep[2]) continue; const k = c.slice(0, 3).join(","); tally.set(k, (tally.get(k) ?? 0) + 1); }
+          const best = [...tally.entries()].sort((p, q) => q[1] - p[1])[0]; return best ? best[0].split(",").map(Number) : deep?.slice(0, 3); };
+        // (and only where the ear stands, its foot within two cells of its lowest: under an antenna's ball, or a bunny's
+        // bent tip, a base hung down as a strand)
+        // (and only an ear that floats, its foot more than two cells over the head somewhere: an antenna's stalk reaches
+        // the head already, and behind the hair a big hairstyle hid it and left its ball as if stuck on)
+        const mine = new Map(), stand = Math.max(...feet.values()) - 2;
+        const floats = t === "back" && [...feet].some(([X, F]) => { const H = baldTop(X); return F >= stand && H >= 0 && H - 1 - F > 2 && H - 1 - F <= 12; });
+        if (floats) behind = true;
+        for (const [X, F] of feet) { const H = baldTop(X), main = colourAt(X, F); if (!floats || !main || F < stand || H < 0 || H - 1 - F <= 0 || H - 1 - F > 12) continue;
+          // (the foot's own outline goes there, or a dark seam would cross the ear where it meets the hair)
+          const j0 = F * g.GW + X; g.c[j0 * 4] = main[0]; g.c[j0 * 4 + 1] = main[1]; g.c[j0 * 4 + 2] = main[2];
+          footOpen.add(j0);
+          // (on into the head a few cells, all under the hair: a lifted ear's base still reaches into it)
+          for (let Y = F + 1; Y < H + 4; Y++) mine.set(Y * g.GW + X, main); }
+        // (its sides, where they show between the ear and the hair, outlined as the ear is)
+        for (const [j, main] of mine) { const [x, y] = xy(j); const side = [-1, 1].some((dx) => { const k = y * g.GW + x + dx; return !mine.has(k) && !keep.has(k); }); under.set(j, side && deep ? deep.slice(0, 3) : main); }
         if (process.env.EARS_DEBUG === key) console.log(`    ear x ${x0}..${x1}: ${body.size} cells, set down ${drop}`);
       }
       if (keep.size) {
         let dark = null, dl = 1;
         for (const i of keep) { const l = L.hsl(g.c[i * 4], g.c[i * 4 + 1], g.c[i * 4 + 2])[2]; if (l < dl) { dl = l; dark = [g.c[i * 4], g.c[i * 4 + 1], g.c[i * 4 + 2]]; } }
         // (every edge where the band was cut off, the ear's foot and its sides, closed with the outline)
-        const cut = [...keep].filter((i) => { const [x, y] = xy(i); return [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => { const j = (y + dy) * g.GW + x + dx; return set.has(j) && !keep.has(j); }); });
+        const cut = [...keep].filter((i) => { const [x, y] = xy(i); return [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => { const j = (y + dy) * g.GW + x + dx; return set.has(j) && !keep.has(j) && !(dy === 1 && footOpen.has(i)); }); });
         // (and each column's lowest cell, the foot itself: a speck of skin the key spilled there showed as a dot)
-        for (const i of keep) { const [x, y] = xy(i); if (!keep.has((y + 1) * g.GW + x)) cut.push(i); }
+        for (const i of keep) { const [x, y] = xy(i); if (!keep.has((y + 1) * g.GW + x) && !footOpen.has(i)) cut.push(i); }
         // (and a skin-coloured cell on the ear's outer edge, never an inner patch: the key's spill; and any cell on that edge
         // like none of its neighbours, the same spill a lighter orange than skin, at the cat ears' foot from the back)
         const lone = (i) => { const [x, y] = xy(i); for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const j = (y + dy) * g.GW + x + dx; if ((dx || dy) && keep.has(j) && Math.hypot(g.c[j * 4] - g.c[i * 4], g.c[j * 4 + 1] - g.c[i * 4 + 1], g.c[j * 4 + 2] - g.c[i * 4 + 2]) < 60) return false; } return true; };
-        for (const i of keep) { const [x, y] = xy(i); if ((L.clsAt(g, x, y) === "skin" || lone(i)) && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => !keep.has((y + dy) * g.GW + x + dx))) cut.push(i); }
+        for (const i of keep) { const [x, y] = xy(i); if (!footOpen.has(i) && (L.clsAt(g, x, y) === "skin" || lone(i)) && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => !keep.has((y + dy) * g.GW + x + dx))) cut.push(i); }
         for (const i of cut) { g.c[i * 4] = dark[0]; g.c[i * 4 + 1] = dark[1]; g.c[i * 4 + 2] = dark[2]; }
         // (a lone cell inside, just within the outline, takes the colour most of its neighbours have)
         for (const i of keep) { if (cut.includes(i) || !lone(i)) continue; const [x, y] = xy(i), n = new Map();
@@ -915,7 +946,8 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
     }
     // ── a hair thing's edge (the owner's rule, 2026-10-26: no pixel bugs): a dark line one cell wide hanging off it is the
     // head's outline drawn again a cell larger (the fan pin's arc), and reddish skin along its lower edge is the head's
-    // rim (the tiara's strip): both go. A thing's own outline borders its colours, so it has more than two neighbours
+    // rim (the tiara's strip): both go. A thing's own outline borders its colours, so it has more than two neighbours.
+    // (Never an ear's foot that its base carries on below, under the hair: in an ear's colour, it was taken as skin)
     if (slot === "hair" && set.size) {
       const xyH = (i) => [i % g.GW, (i / g.GW) | 0];
       for (let pass = 0; pass < 40; pass++) {
@@ -924,14 +956,14 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
         for (const i of drop) set.delete(i);
       }
       for (let pass = 0; pass < 3; pass++) {
-        const drop = [...set].filter((i) => { const [x, y] = xyH(i); if (L.clsAt(g, x, y) !== "skin" || L.hsl(g.c[i * 4], g.c[i * 4 + 1], g.c[i * 4 + 2])[0] > 26) return false; return !set.has((y + 1) * g.GW + x); });
+        const drop = [...set].filter((i) => { const [x, y] = xyH(i); if (footOpen.has(i) || L.clsAt(g, x, y) !== "skin" || L.hsl(g.c[i * 4], g.c[i * 4 + 1], g.c[i * 4 + 2])[0] > 26) return false; return !set.has((y + 1) * g.GW + x); });
         if (!drop.length) break;
         for (const i of drop) set.delete(i);
       }
       // (and the head's own skin showing through the thing from outside it, the tiara's band: skin's hue, never a pumpkin's
       // orange; peeled in from the outside only, so a warm shade inside a thing (a fox ear, a hibiscus) is never a hole)
       for (let pass = 0; pass < 6; pass++) {
-        const drop = [...set].filter((i) => { const [x, y] = xyH(i); const [h, sat] = L.hsl(g.c[i * 4], g.c[i * 4 + 1], g.c[i * 4 + 2]); return L.clsAt(g, x, y) === "skin" && h <= 22 && sat < 0.75 && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => !set.has((y + dy) * g.GW + x + dx)); });
+        const drop = [...set].filter((i) => { const [x, y] = xyH(i); const [h, sat] = L.hsl(g.c[i * 4], g.c[i * 4 + 1], g.c[i * 4 + 2]); return !footOpen.has(i) && L.clsAt(g, x, y) === "skin" && h <= 22 && sat < 0.75 && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => !set.has((y + dy) * g.GW + x + dx)); });
         if (!drop.length) break;
         for (const i of drop) set.delete(i);
       }
@@ -945,12 +977,25 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
       if (process.env.EDGE_DEBUG === key) { const n = new Map(); for (const i of set) { const [x, y] = xyH(i); if (L.clsAt(g, x, y) === "skin") { const k = g.c[i * 4] + "," + g.c[i * 4 + 1] + "," + g.c[i * 4 + 2] + " h" + Math.round(L.hsl(g.c[i * 4], g.c[i * 4 + 1], g.c[i * 4 + 2])[0]); n.set(k, (n.get(k) ?? 0) + 1); } } console.log(key, [...n.entries()].slice(0, 12)); }
     }
     if (process.env.WEAR_DEBUG === id) console.log(`  ${key}: ${set.size} cells after the clumps, figure ${F.size}, key ${mk ? "yes" : "no"}${mk ? `, key shift ${keyShift.dx},${keyShift.dy}` : ""}`);
-    if (set.size < 6) { console.log(`  ${key}: nothing found`); continue; }
-    unclash(g, set);
-    const im = L.crop(g, set), name = `wear-${id}-${t}`;
-    pieces.push({ name, img: im, ox: im.x0 - REF[t].hx, oy: im.y0 - REF[t].cut });
+    // (ears seen from the back go before the hair whole, with their base: the hair is nearer than where they stand, and
+    // over it the ear's foot lay on a tall hair as a cut edge; under it each hairstyle's own outline crosses the ear
+    // where it comes out. From the front they stay over the hair as he passed them, 2026-10-26)
+    if (behind) { for (const i of set) under.set(i, [g.c[i * 4], g.c[i * 4 + 1], g.c[i * 4 + 2]]); set.clear(); }
+    if (set.size < 6 && !under.size) { console.log(`  ${key}: nothing found`); continue; }
     const entry = (meta.wear[slot][id] ??= {});
-    entry[t] = name;
+    if (set.size) {
+      unclash(g, set);
+      const im = L.crop(g, set), name = `wear-${id}-${t}`;
+      pieces.push({ name, img: im, ox: im.x0 - REF[t].hx, oy: im.y0 - REF[t].cut });
+      entry[t] = name;
+    }
+    // (an ear's base, drawn before the hair: the ears' step above)
+    if (under.size) {
+      const ug = copyOf(g); for (const [i, c] of under) { ug.c[i * 4] = c[0]; ug.c[i * 4 + 1] = c[1]; ug.c[i * 4 + 2] = c[2]; ug.c[i * 4 + 3] = 255; }
+      const ui = L.crop(ug, new Set(under.keys())), un = `wear-${id}-${t}-under`;
+      pieces.push({ name: un, img: ui, ox: ui.x0 - REF[t].hx, oy: ui.y0 - REF[t].cut });
+      (entry.under ??= {})[t] = un;
+    }
     if (slot === "hat") {
       // the brim: the lowest row of the hat in each of its columns, from the head's reference point
       const low = new Map();
@@ -1067,6 +1112,22 @@ for (const p of pieces) { const g = groupOf(p.name); if (!groups.has(g)) groups.
 const base = await packed(groups.get(""));
 meta.image = `pixel-${base.hash}.png`;
 meta.size = [W, base.H];
+// ── how far each hairstyle stands over the head from the back, where the ears stand: ears seen from the back go behind
+// the hair (the ears' step), and a hairstyle that rises far over the head (the big spikes, the pineapple) hid them. The
+// game lifts them by this (lib/town/pixeldoll): the hair's middle height over the skull in those columns less four
+// cells, what an ordinary hairstyle stands, at most eight
+{
+  const byN = new Map(pieces.map((p) => [p.name, p]));
+  const tops = (name) => { const p = byN.get(name); if (!p) return null; const m = new Map(); for (let c = 0; c < p.img.w; c++) for (let r = 0; r < p.img.h; r++) if (p.img.buf[(r * p.img.w + c) * 4 + 3]) { m.set(p.ox + c, p.oy + r); break; } return m; };
+  const skull = tops(meta.face.back), cols = new Set();
+  for (const w of Object.values(meta.wear.hair)) { const u = w.under?.back && byN.get(w.under.back); if (u) for (let c = 0; c < u.img.w; c++) if (skull?.has(u.ox + c)) cols.add(u.ox + c); }
+  meta.lift = {};
+  if (skull && cols.size) for (const [h, v] of Object.entries(meta.hair)) {
+    const t = v.back && tops(v.back); if (!t) continue;
+    const d = [...cols].filter((c) => t.has(c)).map((c) => skull.get(c) - t.get(c)).sort((x, y) => x - y);
+    const lift = d.length ? Math.min(8, Math.max(0, d[d.length >> 1] - 4)) : 0; if (lift) meta.lift[h] = lift;
+  }
+}
 meta.frames = Object.fromEntries(groups.get("").map(p => [p.name, [p.x, p.y, p.img.w, p.img.h, p.ox, p.oy]]));
 const written = [[meta.image, base.png]];
 if (groups.size > 1) meta.sheets = {};

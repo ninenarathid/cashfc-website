@@ -629,3 +629,17 @@ Every picture here is PixelLab editing the game's own native pixels, so the styl
   like none of its neighbours inside an ear takes their colour. The angel's ring is not an `ears` thing and floats as
   drawn. Looked at on dolls with short, long and spiky hair, front, back and sitting (`work/shop-mock/ears-zoom9.png`),
   alone at 6x, and in the dev game at desktop and phone size; hole check whole, `checks/hat-bald.mjs` 0 of 56.
+- **Ears from the back, into the hair** (the owner, 2026-10-26, a shot of the fox ears from the back: "ด้านหน้าผ่าน แต่
+  ด้านหลังลอย แบบนี้ไม่ได้"): from the back the ears are drawn with a flat foot on the crown, and the head curves away
+  under each ear's outer half (nine cells under the fox's): the band filled that gap. Filling it over the hair failed
+  twice (a base cut off at the scalp hung as drips; one stopped where a hair usually ends came to a point like a speech
+  bubble's tail), so an ear that floats from the back now goes **before the hair**, whole, with its base carried on down
+  into the head in its own colour column by column: a piece of its own, `under` in the atlas, drawn by
+  `lib/town/pixeldoll` after the face and before the hair. Each hairstyle's own outline then crosses the ear where it
+  comes out. A hairstyle that rises far over the head from the back (the pineapple, the big spikes) hid the ears, so the
+  atlas records each hairstyle's `lift` (its middle height over the skull under the ears, less four, at most eight) and
+  the game raises the back ears by it. Only floating ears do this: an antenna's stalk already reaches the head and stays
+  over the hair (behind a big hairstyle its ball looked stuck on). The front is untouched: every front piece, hat and
+  hairstyle compares pixel for pixel with the build he passed; the five back views changed (fox, bear, cat, bunny,
+  horns). Looked at on all 35 hairstyles from the back (`work/shop-mock/sweep-*-z.png`) and in the dev game at desktop
+  and phone size; the black cat ears behind the big spikes stay hard to see.
