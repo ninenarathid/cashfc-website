@@ -218,7 +218,10 @@ if (cmd === "unhead") {
     for (let i = 0; i < meta.W * meta.H; i++) if (b[i * 4 + 3] >= 128 && L.cls(b[i * 4], b[i * 4 + 1], b[i * 4 + 2]) === "skin") skins.push([b[i * 4], b[i * 4 + 1], b[i * 4 + 2]]);
     const skinLike = (o) => skins.some((s) => Math.abs(s[0] - a[o]) + Math.abs(s[1] - a[o + 1]) + Math.abs(s[2] - a[o + 2]) < 50);
     // (the head grows a cell or two past its old edge, no further: a bear ear's tan inside, well off the head, is the thing)
-    const byHead = (X, Y) => { for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) { const x = X + dx, y = Y + dy; if (x >= 0 && y >= 0 && x < meta.W && y < meta.H && b[(y * meta.W + x) * 4 + 3] >= 128) return true; } return false; };
+    // (a hair thing's back view: the model drew the back of the head a few cells larger, a rim of skin round it, the
+    // fan pin's arc: four cells there, and only skin's own reddish hue, never a gold tassel)
+    const R = meta.slot === "hair" ? 4 : 2;
+    const byHead = (X, Y) => { for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) { const x = X + dx, y = Y + dy; if (x >= 0 && y >= 0 && x < meta.W && y < meta.H && b[(y * meta.W + x) * 4 + 3] >= 128) return true; } return false; };
     for (let y = 0; y < p.h; y++) for (let x = 0; x < p.w; x++) {
       const o = ((p.oy + y) * meta.W + p.ox + x) * 4;
       const d = Math.abs(a[o] - b[o]) + Math.abs(a[o + 1] - b[o + 1]) + Math.abs(a[o + 2] - b[o + 2]);
@@ -233,9 +236,11 @@ if (cmd === "unhead") {
       const [ah, as_, al] = L.hsl(a[o], a[o + 1], a[o + 2]), [, bs, bl] = L.hsl(b[o], b[o + 1], b[o + 2]);
       const baseAgain = meta.slot === "neck" && a[o + 3] >= 128 && b[o + 3] >= 128 && ((as_ < 0.18 && bs < 0.18 && Math.abs(al - bl) < 0.14 && al > 0.25)
         || (L.cls(a[o], a[o + 1], a[o + 2]) === "skin" && L.cls(b[o], b[o + 1], b[o + 2]) === "skin" && ah <= 28));
-      const grown = a[o + 3] >= 128 && b[o + 3] < 128 && skinLike(o) && byHead(p.ox + x, p.oy + y);
+      const grown = a[o + 3] >= 128 && b[o + 3] < 128 && skinLike(o) && byHead(p.ox + x, p.oy + y) && (meta.slot !== "hair" || L.hsl(a[o], a[o + 1], a[o + 2])[0] <= 28);
+      // (and skin painted over the head's own outline, the head drawn a cell or two larger, is the head: a hair thing only)
+      const headAgain = meta.slot === "hair" && a[o + 3] >= 128 && b[o + 3] >= 128 && L.cls(a[o], a[o + 1], a[o + 2]) === "skin" && L.hsl(a[o], a[o + 1], a[o + 2])[0] <= 28;
       // (over the whole head nothing of it is left to tell apart: every changed cell is the thing)
-      if (!(d < 4 && (a[o + 3] >= 128) === (b[o + 3] >= 128)) && (meta.slot === "full" || ((!redrawn || (g0 === "dh" && L.cls(a[o], a[o + 1], a[o + 2]) !== "dark")) && (!grown || g0 === "dh") && !baseAgain))) changed.add(y * p.w + x);
+      if (!(d < 4 && (a[o + 3] >= 128) === (b[o + 3] >= 128)) && (meta.slot === "full" || ((!redrawn || (g0 === "dh" && L.cls(a[o], a[o + 1], a[o + 2]) !== "dark")) && (!grown || g0 === "dh") && !baseAgain && !headAgain))) changed.add(y * p.w + x);
     }
     // (the owner, 2026-10-26: "หมวกใหม่หลายใบยังมีบั๊คล่างหมวกอยู่": a strip of the head the model drew again under a hat lay
     // over the bangs, or over the hair behind, as a bare band. It is the skin-coloured part of the change that can be
@@ -246,7 +251,7 @@ if (cmd === "unhead") {
     // face left as it was (the eyes and cheeks under the hat, drawn exactly as the head is), and whatever changed cell of
     // those colours can be reached from them without crossing anything else. A straw, a tan, the hat's dark edge are other
     // colours, so a gap in the edge does not let it into the hat)
-    if (g0 === "dh") {
+    if (g0 === "dh" || meta.slot === "hair") {
       const at = (c) => ((p.oy + ((c / p.w) | 0)) * meta.W + p.ox + (c % p.w)) * 4;
       const n4 = (c) => { const x = c % p.w, y = (c / p.w) | 0; return [[1, 0], [-1, 0], [0, 1], [0, -1]].filter(([dx, dy]) => x + dx >= 0 && x + dx < p.w && y + dy >= 0 && y + dy < p.h).map(([dx, dy]) => (y + dy) * p.w + x + dx); };
       const face = (c) => { const o = at(c); return !changed.has(c) && a[o + 3] >= 128 && b[o + 3] >= 128 && L.cls(b[o], b[o + 1], b[o + 2]) === "skin" && Math.abs(a[o] - b[o]) + Math.abs(a[o + 1] - b[o + 1]) + Math.abs(a[o + 2] - b[o + 2]) < 4; };

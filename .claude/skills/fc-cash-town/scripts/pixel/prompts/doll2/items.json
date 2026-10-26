@@ -649,7 +649,8 @@
       "front": "a black hairband with a pair of black cat ears with pink insides standing on top of her head",
       "back": "the same black hairband seen from behind, its two black cat ears standing on top of her head",
       "key": "the cat-ear hairband, including both ears",
-      "solid": true
+      "solid": true,
+      "ears": true
     },
     {
       "id": "bunnyears",
@@ -657,7 +658,8 @@
       "front": "a white hairband with a pair of long upright white rabbit ears with pink insides on top of her head, the ear on the viewer's right bent over at its tip",
       "back": "the same white hairband seen from behind, its two long white rabbit ears standing on top of her head, one bent over at its tip",
       "key": "the rabbit-ear hairband, including both ears",
-      "solid": true
+      "solid": true,
+      "ears": true
     },
     {
       "id": "starclip",
@@ -689,7 +691,8 @@
       "front": "a pair of small curved dark red devil horns standing on top of her head",
       "back": "the same pair of small curved dark red horns seen from behind, standing on top of her head",
       "key": "both horns",
-      "solid": true
+      "solid": true,
+      "ears": true
     },
     {
       "id": "tiara",
@@ -826,7 +829,8 @@
       "back": "the same brown hairband seen from behind, its two big round brown bear ears standing on top of her head",
       "top": true,
       "key": "the bear-ear hairband, including the whole band and both ears, their outlines included",
-      "solid": true
+      "solid": true,
+      "ears": true
     },
     {
       "id": "foxears",
@@ -835,7 +839,8 @@
       "back": "the same orange hairband seen from behind, its two big pointed orange fox ears with dark brown tips standing on top of her head",
       "top": true,
       "key": "the fox-ear hairband, including the whole band and both ears, their outlines included",
-      "solid": true
+      "solid": true,
+      "ears": true
     },
     {
       "id": "halo",
@@ -851,7 +856,8 @@
       "front": "a black hairband with two bee antennae standing on top of her head: thick black stalks curving up and outward, each ending in a big round yellow ball with one black stripe",
       "back": "the same black hairband seen from behind, its two thick curving bee antennae with their big round yellow balls standing on top of her head",
       "top": true,
-      "key": "the bee-antennae hairband, including the whole band, both stalks and both striped balls, their outlines included"
+      "key": "the bee-antennae hairband, including the whole band, both stalks and both striped balls, their outlines included",
+      "ears": true
     },
     {
       "id": "cherry",

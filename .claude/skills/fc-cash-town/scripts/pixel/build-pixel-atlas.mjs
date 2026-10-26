@@ -816,8 +816,10 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
     }
     // a hat is one shape: what lies apart from its body (the key's spill on the eyes, a speck) goes, or the brim would be
     // taken as coming down to the eyes in those columns and the hair cut there in stripes (the owner, 2026-10-17: "หมวก
-    // บางอย่างใส่แล้ว ผมบั๊ค")
-    if (slot === "hat" && set.size) {
+    // บางอย่างใส่แล้ว ผมบั๊ค"). A thing on top of the head too: the key's spill on the eyes stayed with the cat ears, the
+    // bunny ears and the new ears as violet specks that showed whenever the doll blinked (the owner's rule, 2026-10-26:
+    // no pixel bugs). A piece a quarter of the largest or less goes; a pair of ears or horns are near one size
+    if ((slot === "hat" || slot === "hair") && set.size) {
       const comps = [], seen = new Set();
       for (const i of set) { if (seen.has(i)) continue;
         const st = [i], comp = []; seen.add(i);
@@ -826,6 +828,90 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
         comps.push(comp); }
       const big = Math.max(...comps.map((c) => c.length));
       for (const c of comps) if (c.length < big * 0.25) for (const q of c) set.delete(q);
+    }
+    // ── ears without their band (the owner, 2026-10-26: "ไอเทมที่เป็น band ที่คาดหัว ตอนใส่ไม่ต้องขึ้นมาเป็น band เลย ขึ้นมาแค่หู
+    // สัตว์ ก็พอ"): a thing marked `ears` keeps only what stands up off the head (the ears, the antennae), each down to a
+    // little inside the skull's edge in its own columns, where the hair is; the band round the head goes. Each ear's foot
+    // is closed with the piece's own outline, so it does not end in a cut.
+    if (slot === "hair" && ITEMS.accessories.find((x) => x.id === id)?.ears && set.size) {
+      // (measured from the drawing's own head, the figure's cells that are not the thing: the model drew the head a few
+      // cells off the bald sheet's; and the band's own thickness taken at the crown's middle, where no ear stands)
+      const own = new Set([...F].filter((i) => !set.has(i))), head = (x, y) => x >= 0 && y >= 0 && x < g.GW && y < g.GH && own.has(y * g.GW + x);
+      const xy = (i) => [i % g.GW, (i / g.GW) | 0];
+      const near = (x, y) => { for (let r = 1; r <= 20; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) { if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue; if (head(x + dx, y + dy)) return r; } return 21; };
+      const out = (i) => { const [x, y] = xy(i); return near(x, y); };
+      const sx = [...set].map((i) => xy(i)[0]), xm = Math.round((Math.min(...sx) + Math.max(...sx)) / 2);
+      let top = -1; for (let y = 0; y < g.GH; y++) if (head(xm, y)) { top = y; break; }
+      // (from the head's top to the band's top: a thin band can sit a cell or three above the drawn head)
+      let T = 0, y = top - 1;
+      while (y >= 0 && y > top - 4 && !set.has(y * g.GW + xm)) { y--; T++; }
+      while (y >= 0 && set.has(y * g.GW + xm)) { y--; T++; }
+      if (!set.has((top - T) * g.GW + xm) && T <= 3) T = 0;
+      // (and never under two: a thin band laid across the head, below its crown, is never more than two cells from it)
+      T = Math.max(T, 2);
+      const seeds = new Set([...set].filter((i) => out(i) > T)), keep = new Set(), seen = new Set();
+      if (process.env.EARS_DEBUG === key) { console.log(`  ${key}: band ${T} thick at x ${xm}, head top ${top}`); let col = ""; for (let y = Math.max(0, top - 25); y <= top + 2; y++) col += set.has(y * g.GW + xm) ? "S" : head(xm, y) ? "h" : "."; console.log("  column from top-25: " + col); }
+      const yCut = top + 1;
+      for (const i0 of seeds) {
+        if (seen.has(i0)) continue;
+        const comp = [i0], st = [i0]; seen.add(i0);
+        while (st.length) { const [x, y] = xy(st.pop()); for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const j = (y + dy) * g.GW + x + dx; if (seeds.has(j) && !seen.has(j)) { seen.add(j); comp.push(j); st.push(j); } } }
+        if (comp.length < 6) continue;
+        const xs = comp.map((i) => xy(i)[0]), x0 = Math.min(...xs) - 1, x1 = Math.max(...xs) + 1;
+        const grow = [...comp];
+        for (const i of comp) keep.add(i);
+        while (grow.length) { const [x, y] = xy(grow.pop()); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const X = x + dx, Y = y + dy, j = Y * g.GW + X; if (X < x0 || X > x1 || Y > yCut || !set.has(j) || keep.has(j)) continue; keep.add(j); grow.push(j); } }
+      }
+      if (keep.size) {
+        let dark = null, dl = 1;
+        for (const i of keep) { const l = L.hsl(g.c[i * 4], g.c[i * 4 + 1], g.c[i * 4 + 2])[2]; if (l < dl) { dl = l; dark = [g.c[i * 4], g.c[i * 4 + 1], g.c[i * 4 + 2]]; } }
+        // (every edge where the band was cut off, the ear's foot and its sides, closed with the outline)
+        const cut = [...keep].filter((i) => { const [x, y] = xy(i); return [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => { const j = (y + dy) * g.GW + x + dx; return set.has(j) && !keep.has(j); }); });
+        // (and each column's lowest cell, the foot itself: a speck of skin the key spilled there showed as a dot)
+        for (const i of keep) { const [x, y] = xy(i); if (!keep.has((y + 1) * g.GW + x)) cut.push(i); }
+        // (and a skin-coloured cell on the ear's outer edge, never an inner patch: the key's spill)
+        for (const i of keep) { const [x, y] = xy(i); if (L.clsAt(g, x, y) === "skin" && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => !keep.has((y + dy) * g.GW + x + dx))) cut.push(i); }
+        for (const i of cut) { g.c[i * 4] = dark[0]; g.c[i * 4 + 1] = dark[1]; g.c[i * 4 + 2] = dark[2]; }
+        // (a scrap of the band left apart from every ear goes: a tenth of the largest piece or less)
+        const parts = [], seen2 = new Set();
+        for (const i0 of keep) { if (seen2.has(i0)) continue; const part = [i0], st = [i0]; seen2.add(i0);
+          while (st.length) { const [x, y] = xy(st.pop()); for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const j = (y + dy) * g.GW + x + dx; if (keep.has(j) && !seen2.has(j)) { seen2.add(j); part.push(j); st.push(j); } } }
+          parts.push(part); }
+        const biggest = Math.max(...parts.map((q) => q.length));
+        set.clear();
+        for (const part of parts) if (part.length > biggest * 0.1) for (const i of part) set.add(i);
+      }
+    }
+    // ── a hair thing's edge (the owner's rule, 2026-10-26: no pixel bugs): a dark line one cell wide hanging off it is the
+    // head's outline drawn again a cell larger (the fan pin's arc), and reddish skin along its lower edge is the head's
+    // rim (the tiara's strip): both go. A thing's own outline borders its colours, so it has more than two neighbours
+    if (slot === "hair" && set.size) {
+      const xyH = (i) => [i % g.GW, (i / g.GW) | 0];
+      for (let pass = 0; pass < 40; pass++) {
+        const drop = [...set].filter((i) => { const [x, y] = xyH(i); if (L.clsAt(g, x, y) !== "dark") return false; let n = 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if ((dx || dy) && set.has((y + dy) * g.GW + x + dx)) n++; return n <= 2; });
+        if (!drop.length) break;
+        for (const i of drop) set.delete(i);
+      }
+      for (let pass = 0; pass < 3; pass++) {
+        const drop = [...set].filter((i) => { const [x, y] = xyH(i); if (L.clsAt(g, x, y) !== "skin" || L.hsl(g.c[i * 4], g.c[i * 4 + 1], g.c[i * 4 + 2])[0] > 26) return false; return !set.has((y + 1) * g.GW + x); });
+        if (!drop.length) break;
+        for (const i of drop) set.delete(i);
+      }
+      // (and the head's own skin showing through the thing from outside it, the tiara's band: skin's hue, never a pumpkin's
+      // orange; peeled in from the outside only, so a warm shade inside a thing (a fox ear, a hibiscus) is never a hole)
+      for (let pass = 0; pass < 6; pass++) {
+        const drop = [...set].filter((i) => { const [x, y] = xyH(i); const [h, sat] = L.hsl(g.c[i * 4], g.c[i * 4 + 1], g.c[i * 4 + 2]); return L.clsAt(g, x, y) === "skin" && h <= 22 && sat < 0.75 && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => !set.has((y + dy) * g.GW + x + dx)); });
+        if (!drop.length) break;
+        for (const i of drop) set.delete(i);
+      }
+      // (what those leave apart, a quarter of the largest piece or less, goes too)
+      const comps = [], seen = new Set();
+      for (const i of set) { if (seen.has(i)) continue; const comp = [i], st = [i]; seen.add(i);
+        while (st.length) { const [x, y] = xyH(st.pop()); for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const j = (y + dy) * g.GW + x + dx; if (set.has(j) && !seen.has(j)) { seen.add(j); comp.push(j); st.push(j); } } }
+        comps.push(comp); }
+      const big = Math.max(...comps.map((c) => c.length));
+      for (const c of comps) if (c.length < big * 0.25) for (const q of c) set.delete(q);
+      if (process.env.EDGE_DEBUG === key) { const n = new Map(); for (const i of set) { const [x, y] = xyH(i); if (L.clsAt(g, x, y) === "skin") { const k = g.c[i * 4] + "," + g.c[i * 4 + 1] + "," + g.c[i * 4 + 2] + " h" + Math.round(L.hsl(g.c[i * 4], g.c[i * 4 + 1], g.c[i * 4 + 2])[0]); n.set(k, (n.get(k) ?? 0) + 1); } } console.log(key, [...n.entries()].slice(0, 12)); }
     }
     if (process.env.WEAR_DEBUG === id) console.log(`  ${key}: ${set.size} cells after the clumps, figure ${F.size}, key ${mk ? "yes" : "no"}${mk ? `, key shift ${keyShift.dx},${keyShift.dy}` : ""}`);
     if (set.size < 6) { console.log(`  ${key}: nothing found`); continue; }

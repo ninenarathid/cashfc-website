@@ -607,3 +607,15 @@ Every picture here is PixelLab editing the game's own native pixels, so the styl
   `checks/hat-bald.mjs` 0, `hair-crown` clean, every hat and neck thing looked at alone and on dolls with short and long
   hair, front and back. Left, unseen in the game: a few cells under the chin in some neck pieces, which the face always
   covers.
+- **The ears and the ring drawn again, and no bands** (the owner, 2026-10-26: "ช่วยแก้ไข หูหมี หูจิ้งจอก ที่คาดผมหนวดผึ้ง วงแหวนเทวดา
+  แนะนำให้ gen รูป ออกแบบใหม่ดีกว่านี้", then "ไอเทมที่เป็น band ที่คาดหัว ตอนใส่ไม่ต้องขึ้นมาเป็น band เลย ขึ้นมาแค่หูสัตว์ ก็พอ"):
+  bear ears, fox ears, bee antennae and the angel's ring by gen.mjs on the cat and bunny ears' words, each read by Codex
+  (its words: a broad solid band, opaque to the outline; the ring a broad open oval with a gap above the head; never the
+  word "halo"), 16 calls, $0.29 (about $0.07 of the account's credit left). Then **items marked `ears` in items.json
+  (bear, fox, cat, bunny ears, the antennae, the horns) lose their band in the builder**: what stands farther from the
+  drawing's own head than the band's thickness at the crown's middle is an ear, each kept down to the head's top in its
+  own columns, its foot and cut sides closed with the piece's outline. Hair things also lost, in the builder: specks a
+  quarter of the largest piece or less (eye spill, which showed on a blink), one-cell dark lines (a head outline drawn a
+  cell larger: the fan pin's arc), reddish skin peeled in from the outside (never a hole inside a fox ear or a hibiscus);
+  and in the lay-back, skin painted over the head's own outline. Left: the tiara's band shows a strip of skin inside it
+  (an older item; closed inside the band, so peeling from outside does not reach it).
