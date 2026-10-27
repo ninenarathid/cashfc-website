@@ -1,0 +1,5 @@
+Use the attached sprite sheet only as the reference for the pixel art style, its colours and its chunky square pixel size. Draw one wide piece for a mini-game of the same cozy 2D game, in exactly the chunky square pixel size of the attached scene, seen straight from the side.
+
+A long white cotton sheet held stretched out level between two short wooden poles, one at each end, seen from the front and a little above so that its top shows as a flat white band sagging a little in the middle, with a few soft grey folds, as wide as two fifths of the canvas, lying across the middle of the canvas. It is the only thing in the picture; everything else on the canvas is empty and transparent.
+
+Crisp pixel art with hard square pixel edges, a thick dark outline on things, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients, no glow. No characters, no text, no letters, no numbers.

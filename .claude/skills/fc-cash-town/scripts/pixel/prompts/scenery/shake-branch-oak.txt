@@ -1,0 +1,5 @@
+Use the attached sprite sheet only as the reference for the pixel art style, its colours and its chunky square pixel size. Draw one wide piece for a mini-game of the same cozy 2D game, in exactly the chunky square pixel size of the attached scene, seen straight from the side.
+
+One long tree branch that grows out of the left edge of the canvas, where it is cut off flat and as thick as a wrist, and reaches across to the right, tapering, to about four fifths of the canvas's width, level with only a gentle upward curve, lying across the middle of the canvas. Rough brown bark with darker cracks and three short side twigs. Its bark grey-brown, with clusters of green lobed oak leaves and two small acorns along its upper side. It is the only thing in the picture; everything else on the canvas is empty and transparent.
+
+Crisp pixel art with hard square pixel edges, a thick dark outline on things, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients, no glow. No characters, no text, no letters, no numbers.

@@ -1,0 +1,8 @@
+Use the attached sprite sheet only as the reference for the pixel art style, its colours and its chunky square pixel size. Draw a new sprite sheet of parts for landing a huge fish of the same cozy 2D game, in exactly the chunky square pixel size of the attached scene, all seen from directly above.
+
+Three separate pieces in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping:
+1) a huge long eel seen from directly above under the water as a dark blue-grey shape with darker fins and a few slightly lighter scale marks, its head at the top, its head-to-tail length about a quarter of the canvas width, very slender, its body bent in a gentle curve to the left; 2) the same fish again, exactly the same size and body, only its body bent to the other side, bent to the right; 3) the tip of a dark wooden fishing rod seen from directly above, short, pointing up, with a small brass ring at its end.
+
+The two eels have their mouths at the same height and their heads and necks in matching positions relative to the centres of their respective columns. Their heads and necks match exactly; only the body behind the neck bends to the other side.
+
+Transparent background, no water, no ground, no shadows, no frames or boxes. Crisp pixel art with hard square pixel edges, a thick dark outline on things, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients, no glow. No characters, no text, no letters, no numbers.

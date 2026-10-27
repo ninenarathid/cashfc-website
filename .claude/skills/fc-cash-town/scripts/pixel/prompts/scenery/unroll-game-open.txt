@@ -1,0 +1,5 @@
+Use the attached full-size scene as the base for an in-place edit, preserving its pixel art style, its colours and its chunky square pixel size. Edit the attached picture: keep everything exactly where it is and exactly as it is, the leaves, the flowers, the twig and the light, and change only the big rolled leaf in the middle.
+
+The rolled leaf is now unrolled and lying open in exactly the same place and at exactly the same length: a broad flat green leaf seen from the front, its midrib running along the middle from the twig on the left to its tip on the right, its two long edges still curled up a little, its inner surface paler green with a small chewed hollow in its middle where something lived, and a few broken white silk threads hanging from its upper edge.
+
+Crisp pixel art with hard square pixel edges, a thick dark outline on things, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients, no glow. No characters, no text, no letters, no numbers.

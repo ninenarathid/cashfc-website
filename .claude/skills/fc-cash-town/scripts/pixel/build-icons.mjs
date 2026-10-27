@@ -463,6 +463,35 @@ const SHEETS = [
   // ICONS_PUB=<tree>/public/town/giant-pull ICONS_JSON=<tree>/lib/town/giant-pull-art.json). Cut on its finer grid (6.0,
   // the scene's own 5.8): on the coarser (12) the pieces would stand twice as coarse as the board they are thrown over
   ["icons-giant-pull-a", ["pullKnot", "pullClods", "pullRoot", "pullDust", "pullGloves", "pullPit"], { range: [5.9, 6.1] }],
+  // ── a giant fish landed together, the leaf roll and the shaken branch (2026-10-27, the owner's "OK แล้ว" to the species
+  // lists): the twenty giants (the fish book's, a call's and the landed board's: never bag items), the steak, the book's
+  // cover, the tied-off post and the boil, with icons-band-fish-a for the reference; the boards' twenty-one insects and
+  // their two map markers (the leaf roll on a bush, the twig on a tree) and the folded sheet, with icons-band-insects-a.
+  // The fish cut where they stand as the band fish do (37 to 50 wide); the insects where they stand as the band insects.
+  // icons-giant-fish-a was drawn twice: the first had no sail on the sailback (work/out/giant-fish-a-v1)
+  ["icons-giant-fish-a", ["sailbackCarp", "bronzeBuffalo", "lanternCatfish", "palePaddlefish", "glasswakeCarp", "giantSteak"], { range: [5.4, 5.7] }],
+  ["icons-giant-fish-b", ["reedbackBarbel", "copperLongfin", "rootjawCatfish", "ribbonEel", "mistveilBarbel", "fishBook"], { range: [5.75, 6.0] }],
+  ["icons-giant-fish-c", ["graniteMahseer", "torrentSalmon", "slateSturgeon", "snowfinTaimen", "dawncrestSturgeon", "giantPost"], { range: [5.2, 5.45] }],
+  ["icons-giant-fish-d", ["lotusGourami", "mirrorbackPerch", "velvetArowana", "pearlBichir", "moonthreadEel", "giantBoil"], { range: [5.95, 6.2] }],
+  ["icons-leafroll-a", ["crimsonRollerWeevil", "giraffeNeckWeevil", "jadeRollerWeevil", "hazelCigarWeevil", "mistrollWeevil", "leafRoll"], { range: [5.7, 5.9] }],
+  ["icons-leafroll-b", ["amberLeafroller", "rosefoldMoth", "silverfoldMoth", "copperfoldMoth", "inkspotLeaftier", "lanternfoldMoth"], { range: [4.7, 4.85] }],
+  ["icons-bark-bugs-a", ["checkeredBarkBeetle", "twigLacewing", "thornTreehopper", "barkAssassinBug", "mossStickInsect", "dewfoldMoth"], { range: [7.9, 8.1] }],
+  ["icons-bark-bugs-b", ["lanternWeevil", "cedarLonghorn", "blossomChafer", "ghostBarkMantis", "twigBugs", "beatSheet"], { range: [7.9, 8.1] }],
+  // the fight's pieces and what falls from a shaken branch: built alone into the boards' own small picture
+  // (ICONS_ONLY=giant-fish-pieces-a,…,icons-catch-falling-a ICONS_PUB=<tree>/public/town/catch ICONS_JSON=<tree>/lib/town/catch-art.json),
+  // each fish a pair of swim frames laid one on the other, cut near the town water's own grid (5.63) so that a piece's
+  // pixel is the scene's. The first four sheets, three a sheet (prompts/scenery/giant-fish-pieces-a…d), came out twice
+  // the size the board needs (a carp 123 of the scene's 181 rows): drawn again six a sheet on the ICON SHEET template
+  ["giant-fish-pieces-e", ["gfCarpA", "gfCarpB", "gfCatA", "gfCatB", "gfHoop", "gfBoulder"], { range: [5.5, 6.2], pairs: 2 }],
+  ["giant-fish-pieces-f", ["gfLongA", "gfLongB", "gfEelA", "gfEelB", "gfStones", "gfRodTip"], { range: [5.5, 6.2], pairs: 2 }],
+  ["icons-catch-falling-a", ["fallTwig", "fallLeaf", "fallPetals", "fallDryLeaf", "fallNeedles", "silkTuft"], { range: [7.9, 8.1] }],
+  // the shaken branch, one for each kind of tree the board stands under (it grows out of the trunk at the scene's left
+  // edge; the board bends it by whole-pixel columns), and the sheet held under it: each alone on its canvas, cut near
+  // the shake scene's own grid (6.14)
+  ["scene-shake-branch-cherry", ["shakeBranchCherry"], { range: [6.0, 6.3] }],
+  ["scene-shake-branch-cedar", ["shakeBranchCedar"], { range: [6.0, 6.3] }],
+  ["scene-shake-branch-oak", ["shakeBranchOak"], { range: [6.0, 6.3] }],
+  ["scene-shake-sheet", ["shakeSheet"], { range: [6.0, 6.8] }],
   // ── the giants as the farm's map draws them, over their whole 2x2 (2026-10-27, the owner: "ผักยักษ์ จะกินที่เท่าไหร่ ช่วย
   // ขยายภาพให้เต็มพื่นที่นั้นจริงๆ"). The bag's and the book's are cut on 8 above; at the 2x2's size their pixels would be
   // twice the farm's, so the map's are cut on the sheets' own grid, 4, from copies of the same drawings
@@ -551,7 +580,8 @@ for (const [sheet, names, opts] of SHEETS) {
   });
   // (`pairs`: two frames of one thing side by side, an insect's wings up and down: each pair is laid one on the other where
   // the most of their px agree, its body, and both are cut to the box of the two, so that the body stays still between them)
-  if (opts?.pairs) for (let k = 0; k + 1 < names.length; k += 2) {
+  // (`pairs: n`, a number: only the first n pairs are frames, the rest of the sheet is pieces of its own)
+  if (opts?.pairs) for (let k = 0; k + 1 < names.length && (opts.pairs === true || k / 2 < opts.pairs); k += 2) {
     const a = pieces.find((p) => p.name === names[k]), b = pieces.find((p) => p.name === names[k + 1]);
     if (!a || !b) continue;
     const A = a.img, B = b.img, px = (im, x, y) => (x < 0 || y < 0 || x >= im.w || y >= im.h ? null : im.buf[(y * im.w + x) * 4 + 3] ? im.buf.subarray((y * im.w + x) * 4, (y * im.w + x) * 4 + 3) : null);

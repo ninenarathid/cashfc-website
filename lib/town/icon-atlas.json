@@ -1,8 +1,8 @@
 {
-  "image": "/town/icons-05dfcf975503.png",
+  "image": "/town/icons-af4dc9c929a4.png",
   "size": [
     256,
-    20447
+    20823
   ],
   "icons": {
     "mic": [
@@ -10318,6 +10318,294 @@
       20383,
       32,
       62
+    ],
+    "sailbackCarp": [
+      51,
+      20571,
+      41,
+      42
+    ],
+    "bronzeBuffalo": [
+      186,
+      20619,
+      44,
+      37
+    ],
+    "lanternCatfish": [
+      25,
+      20736,
+      43,
+      31
+    ],
+    "palePaddlefish": [
+      193,
+      20770,
+      54,
+      24
+    ],
+    "glasswakeCarp": [
+      2,
+      20619,
+      44,
+      39
+    ],
+    "giantSteak": [
+      143,
+      20660,
+      44,
+      35
+    ],
+    "reedbackBarbel": [
+      139,
+      20736,
+      42,
+      29
+    ],
+    "copperLongfin": [
+      40,
+      20660,
+      42,
+      36
+    ],
+    "rootjawCatfish": [
+      116,
+      20699,
+      46,
+      32
+    ],
+    "ribbonEel": [
+      2,
+      20660,
+      36,
+      37
+    ],
+    "mistveilBarbel": [
+      189,
+      20660,
+      45,
+      35
+    ],
+    "fishBook": [
+      48,
+      20619,
+      44,
+      39
+    ],
+    "graniteMahseer": [
+      2,
+      20699,
+      44,
+      35
+    ],
+    "torrentSalmon": [
+      164,
+      20699,
+      42,
+      32
+    ],
+    "slateSturgeon": [
+      140,
+      20770,
+      51,
+      25
+    ],
+    "snowfinTaimen": [
+      183,
+      20736,
+      47,
+      29
+    ],
+    "dawncrestSturgeon": [
+      2,
+      20770,
+      52,
+      27
+    ],
+    "giantPost": [
+      94,
+      20619,
+      38,
+      38
+    ],
+    "lotusGourami": [
+      208,
+      20699,
+      31,
+      32
+    ],
+    "mirrorbackPerch": [
+      70,
+      20736,
+      37,
+      31
+    ],
+    "velvetArowana": [
+      56,
+      20770,
+      45,
+      26
+    ],
+    "pearlBichir": [
+      2,
+      20799,
+      41,
+      22
+    ],
+    "moonthreadEel": [
+      48,
+      20699,
+      38,
+      33
+    ],
+    "giantBoil": [
+      103,
+      20770,
+      35,
+      26
+    ],
+    "crimsonRollerWeevil": [
+      119,
+      20449,
+      35,
+      46
+    ],
+    "giraffeNeckWeevil": [
+      38,
+      20449,
+      32,
+      68
+    ],
+    "jadeRollerWeevil": [
+      156,
+      20449,
+      34,
+      46
+    ],
+    "hazelCigarWeevil": [
+      2,
+      20449,
+      34,
+      72
+    ],
+    "mistrollWeevil": [
+      192,
+      20449,
+      35,
+      46
+    ],
+    "leafRoll": [
+      72,
+      20449,
+      45,
+      53
+    ],
+    "amberLeafroller": [
+      2,
+      20523,
+      48,
+      46
+    ],
+    "rosefoldMoth": [
+      52,
+      20523,
+      48,
+      46
+    ],
+    "silverfoldMoth": [
+      102,
+      20523,
+      48,
+      46
+    ],
+    "copperfoldMoth": [
+      152,
+      20523,
+      48,
+      46
+    ],
+    "inkspotLeaftier": [
+      202,
+      20523,
+      48,
+      46
+    ],
+    "lanternfoldMoth": [
+      2,
+      20571,
+      47,
+      46
+    ],
+    "checkeredBarkBeetle": [
+      84,
+      20660,
+      25,
+      36
+    ],
+    "twigLacewing": [
+      94,
+      20571,
+      24,
+      42
+    ],
+    "thornTreehopper": [
+      134,
+      20619,
+      26,
+      38
+    ],
+    "barkAssassinBug": [
+      120,
+      20571,
+      26,
+      42
+    ],
+    "mossStickInsect": [
+      209,
+      20571,
+      32,
+      41
+    ],
+    "dewfoldMoth": [
+      111,
+      20660,
+      30,
+      36
+    ],
+    "lanternWeevil": [
+      2,
+      20736,
+      21,
+      32
+    ],
+    "cedarLonghorn": [
+      148,
+      20571,
+      29,
+      42
+    ],
+    "blossomChafer": [
+      88,
+      20699,
+      26,
+      33
+    ],
+    "ghostBarkMantis": [
+      179,
+      20571,
+      28,
+      42
+    ],
+    "twigBugs": [
+      162,
+      20619,
+      22,
+      38
+    ],
+    "beatSheet": [
+      109,
+      20736,
+      28,
+      30
     ]
   },
   "cursor": {

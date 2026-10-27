@@ -1,0 +1,8 @@
+Use the attached sprite sheet only as the reference for the pixel art style, its colours and its chunky square pixel size. Draw a new sprite sheet of parts for landing a huge fish of the same cozy 2D game, in exactly the chunky square pixel size of the attached scene, all seen from directly above.
+
+Three separate pieces in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping:
+1) a huge long sturgeon seen from directly above under the water as a dark blue-grey shape with darker fins and a few slightly lighter scale marks, its head at the top, its head-to-tail length about a quarter of the canvas width, slender with a pointed snout and a row of pale bony plates down its back, its tail swept to the left; 2) the same fish again, exactly the same size and body, only its tail swept to the other side, swept to the right; 3) two low flat grey stones close together seen from directly above, just breaking the water, with a thin ring of white foam round them.
+
+The two fish have their mouths at the same height and their upright body axes at the centres of their respective columns. Their heads, torsos, snouts, bony plates and fins match exactly; only the tails change position.
+
+Transparent background, no water, no ground, no shadows, no frames or boxes. Crisp pixel art with hard square pixel edges, a thick dark outline on things, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients, no glow. No characters, no text, no letters, no numbers.
