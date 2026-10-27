@@ -148,6 +148,7 @@ export interface MineDeed { what: string; thing: string | null; n: number; doc: 
 import { TREES as TREE_KNOBS, begin as fellBegin, braceGo, bracePay, fell, groveOf, newGrove, opened as fellOpened, rootBack, tidied as treesTidied, toldOf as treesTold, type FellLuck, type FellWent, type Grove, type TreeRefusal, type TreesTold } from "./trees";
 import type { FellDid } from "./keeper";
 import type { FellingAsk } from "./felling";
+import { giantFish, type GiantAction, type GiantDid, type GiantHook } from "./giant-fish";
 // ── end: felling ──
 // ── the bridge built by hand ──
 import { BRIDGE, drop as stoneDrop, laid as stoneLaid, lay as stoneLay, lift as stoneLift, luckFor, newWorks, pass as stonePass, told as worksTold, workOf, type BridgeRefusal, type WorksKept, type WorksTold } from "./bridge";
@@ -178,6 +179,8 @@ import { LAMPS, held as lampHeld, light as lampLight, lighted as lampLighted, li
  * compiles away.
  */
 
+/** The giants on lines, the browser's (lib/town/giant-fish). */
+const GIANT_HOOKS = "cashtown.trial.giants.1";
 const STALL = "cashtown.trial.stall.1", CLOCK = "cashtown.trial.clock.1", FARM = "cashtown.trial.farm.2";
 const WELL = "cashtown.trial.well.1", BEDS = "cashtown.trial.beds.1";
 /** The farm's second well (lib/town/world's WELLS): its water (its water's nature is the well's book's `southWater`). */
@@ -390,6 +393,19 @@ export class Trial {
     this.write(key,null);this.write(receiptsKey,{...receipts,[id]:"prep-end"});this.save(d.purse);
     this.counted({from:"play",what:"cooking",thing:d.made,n:d.n,won:d.mistakes===0,doc:{preparation:true}});
     return {ok:true as const,made:d.made,n:d.n,mistakes:d.mistakes};
+  }
+  /* ── a giant fish on a line (lib/town/giant-fish): one store for the browser, so that a tester in another tab can net it ── */
+  giants(): GiantHook[] { return this.read<GiantHook[]>(GIANT_HOOKS, () => [], Array.isArray).filter((h) => this.now() - (h.end || h.at) < 86_400_000); }
+  /** When this member last had a giant on the line. */
+  lastGiant(by: string): number | null { const mine = this.giants().filter((h) => h.by === by).map((h) => h.at); return mine.length ? Math.max(...mine) : null; }
+  giantHooked(h: GiantHook) { this.write(GIANT_HOOKS, [...this.giants().filter((x) => x.id !== h.id), h]); }
+  giantDo(action: GiantAction, id: string, me: string, myName: string, opts: { at?: [number, number]; text?: string } = {}): GiantDid {
+    const all = this.giants(), hook = all.find((h) => h.id === id) ?? null, purse = this.purse();
+    const did = giantFish(action, hook, me, myName, this.now(), { ...opts, bagFull: roomFor(purse.bag, "giantSteak") < 1 });
+    if (!did.ok) return did;
+    if (action !== "look" || did.hook.how !== hook?.how) this.write(GIANT_HOOKS, all.map((h) => (h.id === id ? did.hook : h)));
+    if (did.steak) this.save({ ...purse, bag: put(purse.bag, "giantSteak", 1) });
+    return did;
   }
   camps():FieldCamp[]{return this.read<FieldCamp[]>("cashtown.trial.camps.1",()=>[],Array.isArray).filter(c=>c.until>this.now());}
   campsLook(){this.tell();}

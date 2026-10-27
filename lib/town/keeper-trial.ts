@@ -32,10 +32,12 @@ import { rodFx } from "./forged";
 import type { OptionId } from "./tools";
 import type { Outcome } from "./forest";
 import { hastened, shadeOf, type Shade, type WishId } from "./fountain";
-import { type CatchId, FISH, ITEMS, type BaitId, type DishId, type FishId, type ItemId, type Sign } from "./items";
+import { type CatchId, BAIT_AS, FISH, ITEMS, type BaitId, type DishId, type FishId, type ItemId, type Sign } from "./items";
+import { FRESH_JUNK } from "./fishing";
+import { GIANT, giantChance, giantOf, settled, type GiantAction, type GiantHook } from "./giant-fish";
 import { harderFor, wearing, works } from "./gifts";
 import type { Mine } from "./insects";
-import type { CastHow, CastTold, Did, Hooked, Keeper, Landed, Looked, Struck, Timing, Water } from "./keeper";
+import type { CastHow, CastTold, Did, Hooked, Keeper, Landed, Looked, Struck, Timing, Water, Why } from "./keeper";
 // ── gifts: kitchen ──
 import type { Cooked, KitchenDid } from "./keeper";
 import type { Worn } from "./lines";
@@ -100,7 +102,7 @@ class TrialKeeper implements Keeper {
   /** The line that is out: what is on its way, and the bait it took. */
   // ── gifts: fishing ── (`again`: the otter has driven this line's fish back once; `two`: what is on the second line of a rod of two lines, while both are on)
   // (`bait`: none, of a stardust bait: nothing left the bag, and nothing comes back to it; `told`: the line told what was on its way; `hooked`: a strike has set the hook; `harder`: how many times as hard the deck's good fish are for whoever dropped it)
-  private out: { loadout: string; at: number; current?:Current;struckAt?:number;powers?:Array<{key:string;quiet:number;used?:boolean}>;cast: Cast; bait: BaitId | null; again?: boolean; hooks?: Array<{ what: CatchId; size: number }>; told?: boolean; hooked?: boolean; harder?: number } | null = null;
+  private out: { giant?: { id: import("./giant-fish").GiantId; size: number; weight: number }; tile?: [number, number]; water?: import("./river-items").FishingHabitat; loadout: string; at: number; current?:Current;struckAt?:number;powers?:Array<{key:string;quiet:number;used?:boolean}>;cast: Cast; bait: BaitId | null; again?: boolean; hooks?: Array<{ what: CatchId; size: number }>; told?: boolean; hooked?: boolean; harder?: number } | null = null;
   /** For scripts: what the next lines bring, whatever the odds (this keeper is `next dev`'s only). */
   private fated: CatchId[] = [];
   willBite(ids: CatchId[]) { this.fated = [...ids]; }
@@ -271,12 +273,18 @@ class TrialKeeper implements Keeper {
     const school=schoolWeights(dragon.purse,dragon.odds,star,now,pair);odds=school.odds;
     // (the time bands' newcomers, last of all: only in what is no fish's place, lib/town/fishing's freshOdds)
     if (!star) odds = freshOdds(odds, bait, under.hour, habitat, !place.deep, [...(pair ? PAIR.never : []), ...(isWary(p, now) ? WARY.tiers : [])]);
+    // (a giant on the line, lib/town/giant-fish: only in what is no fish's place, one an angler in twenty minutes;
+    // `&townGiant` hooks one on the next cast in any giant's water, for trying the board)
+    const total = odds.reduce((s, o) => s + o.p, 0) || 1, junk = odds.filter((o) => (FRESH_JUNK as readonly string[]).includes(o.what)).reduce((s, o) => s + o.p, 0) / total;
+    const forced = !pair && !star && typeof location !== "undefined" && new URLSearchParams(location.search).has("townGiant");
+    const giantP = forced ? 1 : pair ? 0 : giantChance(BAIT_AS[bait] ?? bait, habitat, under.hour, junk, this.trial.lastGiant(this.id), now, star);
     // (the line goes out: the bait has left the bag, or the stardust is counted)
     this.trial.fished(habitat !== "town" ? {...school.purse,fishingPattern:pattern} : school.purse);
     // (from the fourth rank of the deck, what is uncommon or better is bigger, and fights harder)
     const harder = harderFor("fishing", this.trial.lines().lines.fishing.points);
     const draw = () => { const fate = this.fated.shift(), c = castFrom(fate ? [{ what: fate, p: 1 }] : odds, rnd); return { ...c, size: biggerBy(c.size, harderOf(c.what, harder)) }; };
     const drawn = draw(), others = Array.from({ length: count - 1 }, draw);
+    const giant = giantP > 0 && (forced || (FRESH_JUNK as readonly string[]).includes(drawn.what)) && rnd() < giantP ? giantOf(habitat, under.hour, rnd(), rnd()) : null;
     // (the fountain's blessings: a bite that comes sooner, and water clear enough to see the shade of what is coming)
     const blessed = hasBuff(p, now, "swift") ? hastened(drawn) : drawn;
     // (and under an orb the bite comes sooner still)
@@ -286,7 +294,7 @@ class TrialKeeper implements Keeper {
     if (call) this.trial.fished(call);
     const cast = call ? calledCast(sooner) : haste > 0 ? hastened(sooner, haste) : sooner, told = wearing(p, "charmFloat");
     this.trial.boatFishingBusy(this.id,now+(cast.wait+180)*1000);
-    this.out = { cast, loadout: comboLoadout(p), at: now,current, bait: star ? null : bait, told, harder, ...(pair ? { hooks: [cast, ...others].map(({ what, size }) => ({ what, size })) } : {}) };
+    this.out = { ...(giant ? { giant, tile: place.tile, water: habitat } : {}), cast, loadout: comboLoadout(p), at: now,current, bait: star ? null : bait, told, harder, ...(pair ? { hooks: [cast, ...others].map(({ what, size }) => ({ what, size })) } : {}) };
     // (the trial's short wait: a fifth of it, never so short that the float cannot be watched)
     const k = quick ? 0.2 : 1, wait = Math.max(2, cast.wait * k);
     return { ok: true, wait, nibbles: cast.nibbles.map((n) => n * k).filter((n, i, all) => n >= 1 && wait - n >= 1.5 && (i === 0 || n - all[i - 1] >= 1.5)), lag: 0, ...(hasBuff(p, now, "clear") ? { shade: shadeOf(cast.what) } : {}), ...(told ? { coming: cast.what } : {}),
@@ -311,6 +319,15 @@ class TrialKeeper implements Keeper {
     if (!how) { this.out = null;this.trial.boatFishingBusy(this.id,null); this.letBy(o); return { ok: true, hooked: false, how: "early", what, size }; }
     o.hooked = true;
     o.struckAt=this.now();
+    // (a giant: no fight here, the line is tied to the post and the hold begins; the netter's tab finds it in the browser's store)
+    if (o.giant && o.tile && o.water) {
+      const now = this.trial.now(), hook: GiantHook = { id: `g${now.toString(36)}`, giant: o.giant.id, size: o.giant.size, weight: o.giant.weight, by: this.id, byName: this.id, tile: o.tile, water: o.water,
+        at: now, netter: null, netterName: null, go: 0, scoops: [], frays: [], calls: [], end: 0, how: "", claimed: [], seed: now % 2_147_483_647 };
+      this.trial.giantHooked(hook);
+      this.out = null; this.trial.boatFishingBusy(this.id, null);
+      this.onDeed?.("giants");
+      return { ok: true, hooked: true, what, size: 0, landed: false, giant: hook };
+    }
     const preparePowers=(n:number)=>{o.powers=Array.from({length:n},(_,i)=>{const key=`${o.at}:${i}`,bond=fishQuiet(this.purse(),key,'hook',o.current??'eddy',false,this.now(),o.loadout);if(bond)this.trial.fished(bond.purse);return {key,quiet:bond?.effect.quiet??0};});return o.powers;};
     // ── gifts: fishing ── (a rod of two lines: both are hooked by the one strike; what is no fish comes in at once, a fish's fight is paid for, each its own)
     if (o.hooks) {
@@ -384,6 +401,17 @@ class TrialKeeper implements Keeper {
 
   async bedGive(bed: number, to: string, name: string): Promise<Did<{ plants: number }>> { const did = this.trial.bedGive(bed, to, name); if (did.ok) this.onDeed?.("farm"); return did; }
   async bedLeave(bed: number): Promise<Did<{ plants: number }>> { const did = this.trial.bedLeave(bed); if (did.ok) this.onDeed?.("farm"); return did; }
+  // ── a giant fish on a line ── (lib/town/giant-fish on the browser's store: a tester in another tab nets it)
+  async giantFish(action: GiantAction, id: string, opts: { at?: [number, number]; text?: string; name?: string } = {}): Promise<Did<{ hook: GiantHook; steak?: boolean }>> {
+    const did = this.trial.giantDo(action, id, this.id, opts.name ?? this.id, opts);
+    if (!did.ok) return { ok: false, why: did.why as Why };
+    if (action !== "look" && action !== "claim") this.onDeed?.("giants");
+    return { ok: true, hook: did.hook, ...(did.steak ? { steak: true } : {}) };
+  }
+  async giantsNow(): Promise<GiantHook[]> {
+    const now = this.trial.now();
+    return this.trial.giants().map((h) => settled(h, now)).filter((h) => !h.how || (now - h.end < GIANT.after && (h.by === this.id || h.netter === this.id)));
+  }
   async giantPull(action: import("./giant-pull").PullAction, at: [number, number], hits: number[] = []): Promise<Did> { const did = this.trial.giantPull(action, at.join(","), hits); if (did.ok && action !== "look") this.onDeed?.("farm"); return did; }
   async farmDo(key: string, name: string, timing?: Timing, sure = false): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]>; also?: string[] }>> {
     const did = this.trial.farmDo(key, name, sure, timing?.rotation ?? 0);

@@ -1161,6 +1161,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     session.onNudge = (what) => {
       // ── the pasture ── (a spring wind called, a hay wagon set off: the whole town is told, and reads the pasture a while)
       if (what === "wind" || what === "wagon") { window.dispatchEvent(new CustomEvent("cashtown:pasture-word", { detail: what })); return; }
+      // (a giant fish hooked, joined, netted or gone: the boards and the map read the giants anew, lib/town/giant-fish)
+      if (what === "giants") { window.dispatchEvent(new CustomEvent("cashtown:giants")); return; }
       if (NUDGES.includes(what)) keeper.nudged(what as Looked);
     };
     // (to one person when they are in the room under that id; a stand-in's members are not, so the room is told)

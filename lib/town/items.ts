@@ -14,6 +14,7 @@ import { WOOD_DISHES, WOOD_ITEMS, WOOD_MAKES, WOOD_SCROLL_ITEMS, WOOD_SCROLLS, t
 import { ANIMAL_DISHES, ANIMAL_ITEMS, ANIMAL_MAKES, ANIMAL_SCROLL_ITEMS, ANIMAL_SCROLLS, BREED_SCROLL_ITEMS, type AnimalDishId } from "./animal-items";
 import { animalIcon } from "./animal-icons";
 import { FIND_ITEMS, NEW_FISH, NEW_FISH_ITEMS, NEW_INSECT_ITEMS, SMALL_FISH_BAITS, type NewFishId } from "./band-species";
+import { GIANT_ITEMS } from "./giant-fish";
 import { RIVER_DISHES, RIVER_FISH, RIVER_ITEMS, RIVER_MAKES, RIVER_SCROLL_ITEMS, RIVER_SCROLLS, type Current, type FishingHabitat, type RiverDishId, type RiverFishId } from "./river-items";
 
 /**
@@ -690,6 +691,8 @@ export const ITEMS = {
   ...NEW_INSECT_ITEMS,
   ...NEW_FISH_ITEMS,
   ...FIND_ITEMS,
+  // (a giant fish landed together, lib/town/giant-fish: the steak each of the two has)
+  ...GIANT_ITEMS,
 } satisfies Record<string, Item>;
 
 export type ItemId = keyof typeof ITEMS;

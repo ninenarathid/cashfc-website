@@ -154,6 +154,8 @@ export type BidDid = ({ ok: true; pay: number; auction: AuctionBoard; from?: Auc
 export type KitchenDid<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why | KitchenRefusal };
 /** What can be looked at, and what the room says has changed. */
 export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild" | "bugs" | "notices" | "line" | "ground" | "shop"
+  // (a giant fish on somebody's line: lib/town/giant-fish)
+  | "giants"
   // ── mining ── (the mountain's rocks and the cave)
   | "cave"
   // ── felling ── (the mountain's trees: who felled which is everybody's)
@@ -180,6 +182,8 @@ export interface Hooked { what: CatchId; size: number; landed: boolean; kept?: b
 /** (a strike's answer, of a rod of two lines: the two, in their order; and `harder`: how many times as hard the deck's good fish are for me, where they are: lib/town/gifts' harderFor) */
 export interface Struck { pair?: Hooked[]; harder?: number }
 export interface Struck { powers?:Array<{key:string;quiet:number}> }
+/** (a giant on the line, lib/town/giant-fish: no fight here, the line is tied to the post and the hold begins) */
+export interface Struck { giant?: import("./giant-fish").GiantHook }
 /** What a line dropped is told of: how long until the bite and when the float twitches; and, where it is told, a shade or the thing itself of what is on its way (`coming2`, `coming3`: of the second line's and the third's), and that two lines or more are out. */
 export type CastTold = { wait: number; nibbles: number[]; lag: number; shade?: Shade; coming?: CatchId; pair?: boolean; coming2?: CatchId; coming3?: CatchId; lines?: number };
 
@@ -355,6 +359,10 @@ export interface Keeper {
   farmDo(key: string, name: string, timing?: Timing, sure?: boolean): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]>; also?: string[] }>>;
   /** A giant pulled out together (lib/town/giant-pull): a call at its root, a join, a leave, the start, a report of the half-swings pulled well, a look. */
   giantPull(action: PullAction, at: [number, number], hits?: number[]): Promise<Did>;
+  /** A giant fish on a line (lib/town/giant-fish): a call to the town, a netter's join at the post, a scoop, a fray, letting it go, my steak, a look. `name` is mine, which the trial cannot know. */
+  giantFish?(action: import("./giant-fish").GiantAction, id: string, opts?: { at?: [number, number]; text?: string; name?: string }): Promise<Did<{ hook: import("./giant-fish").GiantHook; steak?: boolean }>>;
+  /** The giants on lines in the town now, and those of mine ended lately (a steak not yet had). */
+  giantsNow?(): Promise<import("./giant-fish").GiantHook[]>;
   /** My bed handed on to another member near me, or given up (lib/town/bed-hand): each the page asks twice before it is sent. */
   bedGive(bed: number, to: string, name: string): Promise<Did<{ plants: number }>>;
   bedLeave(bed: number): Promise<Did<{ plants: number }>>;
@@ -815,7 +823,8 @@ interface Turn { before?: () => boolean | void; after?: (a: Answer | null) => vo
 /** How often what others may change is asked for while it is looked at, in milliseconds. A nudge from the room asks at once. */
 const EVERY: Record<Looked, number> = { /* mining */ boats: 15000, cave: 60_000, stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000, fountain: 60_000, wild: 45_000, bugs: 45_000, notices: 30_000, line: 60_000, ground: 10_000, shop: 30_000, /* felling */ trees: 60_000, works: 45_000, lamps: 60_000,
   /* (a price moves only at a round's turn, twice a day) */ farmPrices: 5 * 60_000,
-  /* ── the pasture ── (read while on the farm: a step of mine or a word from the room reads it at once) */ animals: 30_000 };
+  /* ── the pasture ── (read while on the farm: a step of mine or a word from the room reads it at once) */ animals: 30_000,
+  /* (a giant fish: the boards read it themselves, lib/town/giant-fish; the room's word is passed to them by the page) */ giants: 15_000 };
 /**
  * The room's word that a thing changed is answered at once, and then no oftener than this for the things that are
  * dear to read (seen on the live database the evening the mountain opened, 2026-10-09: seven members in the cave,
@@ -878,9 +887,9 @@ export class DbKeeper implements Keeper {
   watchAnnouncements(fn: () => void) { this.announcementListeners.add(fn); return () => { this.announcementListeners.delete(fn); }; }
   async announcements(after: number | null, look: string | null) {
     const args = { p_after: after, p_look: look };
-    // (v299's reader has every kind; v256's, which pages from before v299 ask, leaves out the casino's wins they have no
+    // (v309's reader has every kind, a giant's call among them; v299's leaves the calls out; v256's, which pages from before v299 ask, leaves out the casino's wins they have no
     // words for; v255's leaves out the admin's text too. A database without the newer answers nothing: the next is asked)
-    for (const fn of ["town_announcements_v299", "town_announcements_v256", "town_announcements"]) {
+    for (const fn of ["town_announcements_v309", "town_announcements_v299", "town_announcements_v256", "town_announcements"]) {
       const page = await this.rpc(fn, args).catch(() => null);
       if (page && typeof page === "object" && "events" in page) return page as unknown as import("./announcements").AnnouncementPage;
     }
@@ -1487,6 +1496,7 @@ export class DbKeeper implements Keeper {
       : what === "lamps" ? this.refresh("town_lamps_read")
       : what === "boats" ? this.refresh("town_reward_boats",()=>({p_x:this.boatAt_[0],p_y:this.boatAt_[1]}))
       : what === "farmPrices" ? this.refresh("town_farm_prices")
+      : what === "giants" ? Promise.resolve(null)
       // ── the pasture ── (the whole world, everybody's animals for drawing; a database before v291 answers nothing, and no pasture is kept)
       : what === "animals" ? this.refresh("town_animals", () => ({ p_input: { action: "look" }, p_request: null })).then((a) => { if (a && a.ok !== false) this.animalsTold(a.world, true); return a; })
       : this.refresh("town_farm", () => ({ p_since: this.farmAt })).then((a) => { if (a && typeof a.now === "number") this.farmAt = a.now; return a; });
@@ -1809,7 +1819,9 @@ export class DbKeeper implements Keeper {
       landed: !!a.landed, kept: a.kept as boolean | undefined, record: false,
       ...(Array.isArray(a.powers)?{powers:a.powers as Array<{key:string;quiet:number}>}:{}),
       // ── gifts: fishing ──
-      ...(Array.isArray(a.pair) ? { pair: a.pair as Hooked[] } : {}), ...(typeof a.harder === "number" && a.harder > 1 ? { harder: a.harder } : {}) };
+      ...(Array.isArray(a.pair) ? { pair: a.pair as Hooked[] } : {}), ...(typeof a.harder === "number" && a.harder > 1 ? { harder: a.harder } : {}),
+      // (a giant on the line: v309)
+      ...(a.giant && typeof a.giant === "object" ? { giant: a.giant as unknown as import("./giant-fish").GiantHook } : {}) };
   }
   async missed(): Promise<{ what?: CatchId; size?: number }> {
     // Told when the database, too, counts the bite as gone: it gives a late strike a moment's grace, and one sent
@@ -1850,6 +1862,18 @@ export class DbKeeper implements Keeper {
     // (a call, a join, a leave, the start and the moment it comes out are told to the farm: every page reads the plot anew)
     if (did.ok && action !== "look" && (action !== "hits" || !!this.plots[at.join(",")]?.plant?.pull?.out)) this.onDeed?.("farm");
     return did;
+  }
+  // ── a giant fish on a line ── (v309's town_giant_fish: the hook comes back as it is kept; a call goes out as the town's news)
+  async giantFish(action: import("./giant-fish").GiantAction, id: string, opts: { at?: [number, number]; text?: string } = {}) {
+    const did = await this.deed<{ hook: import("./giant-fish").GiantHook; steak?: boolean }>("town_giant_fish", { p_action: action, p_id: id, p_x: opts.at?.[0] ?? null, p_y: opts.at?.[1] ?? null, p_text: opts.text ?? null });
+    // (a join, a scoop, a fray, the end and a call are told: every page near reads the giants anew, and a call is the town's news)
+    if (did.ok && action !== "look" && action !== "claim") this.onDeed?.("giants");
+    if (did.ok && action === "call") for (const fn of this.announcementListeners) fn();
+    return did;
+  }
+  async giantsNow() {
+    const a = await this.rpc("town_giants_now", {}).catch(() => null);
+    return Array.isArray(a) ? (a as unknown as import("./giant-fish").GiantHook[]) : [];
   }
   async bedLeave(bed: number): Promise<Did<{ plants: number }>> {
     const did = await this.deed<{ plants: number }>("town_bed_leave", { p_bed: bed });

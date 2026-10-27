@@ -99,6 +99,13 @@ export const MARKET = {
   cropAnchor: 3,
   cropCeil: 150,
   cropFall: 25,
+  /**
+   * Things with a band of their own, whatever the village's size: `usual` is how many a round, the whole village's.
+   * The giant steak (lib/town/giant-fish; both AIs, 2026-10-27, the owner's OK: "โอเคทั้งหมดครับ"): one kind for all
+   * twenty giants, five a round usual, paid 84 to 100 of its 120, so that netting a friend's giant always pays more
+   * than the minutes would have fished (15–20 coins a minute), and the village takes about 2,800–3,300 coins a day more.
+   */
+  fixed: { giantSteak: { usual: 5, floor: 84, ceil: 100 } } as Record<string, { usual: number; floor: number; ceil: number }>,
 };
 export type MarketKnobs = typeof MARKET;
 
@@ -138,6 +145,9 @@ export interface Thing { usual: number; floor: number; ceil: number; batch: numb
 export function thingOf(id: string, c: MarketFacts, k: MarketKnobs = MARKET): Thing | null {
   const it = c.items[id], coins = it ? k.usual[it.kind] : undefined;
   if (!it || !(it.pays > 0) || c.goods[id] || coins === undefined) return null;
+  // (a band of its own: so many a round for the whole village, never counted by heads)
+  const fixed = k.fixed[id];
+  if (fixed) return { usual: 0, floor: fixed.floor, ceil: fixed.ceil, batch: fixed.usual };
   // (an animal's produce and what is made of it fall when oversold, as a crop does: lib/town/animal-items ANIMAL_GRADED; v291 the same in town.market_things)
   const made = (it.kind === "dish" || it.kind === "goods" || it.kind === "staple") && !ANIMAL_GOODS.has(id);
   const floor = made ? k.made : Math.min(100, Math.max(k.floor, Math.ceil(costOf(id, c) * k.margin / it.pays)));
