@@ -251,3 +251,10 @@ town-bench.mjs 3299` loads the kept bench as it stands and runs the files after 
 casino's own calls (`casino_*`) too, and has a Realtime schema (messages, topic, a `send` that keeps what it is sent).
 In `next dev` the casino's sheet asks it when the test room has `&townDb=` (components/casino/CasinoSandbox's
 `benchClient`): `scripts/town-casino-db.mjs <base> <out> <bench>` walks in and plays (26 checks, the town's banner too).
+
+## v300, Ninenine can add coins (2026-10-27)
+
+`v300_ninenine_can_add_coins.sql`: `town_admin_coins(amount, request)`, the town chat's `/coins <amount>`: 1 to
+1,000,000 coins into Ninenine's own purse (his id and admin flag, as v256's /announce; nobody else), under the purse
+locking contract, each grant kept in `town_admin_coin_grants` with its request id (a retry adds nothing twice). Dry
+run `v300.test.mjs` (23 checks, on the bench kept after v296 with `v256-stand-in.sql`), `v300.mutations.mjs` 8 of 8.

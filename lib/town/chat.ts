@@ -46,6 +46,11 @@ export function reachNote(result: string, th: boolean): string | null {
     case "map-usage": return th ? "ใช้ /townmap town2, /townmap admins หรือ /townmap classic" : "Use /townmap town2, /townmap admins or /townmap classic.";
     case "map-forbidden": return th ? "คำสั่งนี้ใช้ได้เฉพาะแอดมิน" : "Only admins can change this.";
     case "map-unavailable": return th ? "สวิตช์เมืองยังไม่พร้อมใช้งาน (ยังไม่ได้รัน v295)" : "The town switch is not ready yet (v295 has not run).";
+    // `/coins` (v300's town_admin_coins: Ninenine's own purse)
+    case "coins-added": return th ? "เพิ่ม coin เข้ากระเป๋าแล้ว" : "Coins added to your purse.";
+    case "coins-usage": return th ? "ใช้ /coins ตามด้วยจำนวน 1–1,000,000" : "Use /coins followed by an amount from 1 to 1,000,000.";
+    case "coins-forbidden": return th ? "คำสั่งนี้ใช้ได้เฉพาะ Ninenine" : "Only Ninenine can use this.";
+    case "coins-unavailable": return th ? "คำสั่งเพิ่ม coin ยังไม่พร้อมใช้งาน (ยังไม่ได้รัน v300)" : "Adding coins is not ready yet (v300 has not run).";
     default: return null;
   }
 }

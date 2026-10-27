@@ -97,7 +97,9 @@ export type ChatResult = "sent" | "empty" | "slow" | "offline";
 /** What `/townchat` answered (lib/town/chat reachNote words it). */
 export type ReachResult = "reach-town" | "reach-map" | "reach-usage" | "reach-forbidden" | "reach-unavailable"
   // `/townmap` (v295): which main town it is
-  | "map-classic" | "map-admins" | "map-town2" | "map-usage" | "map-forbidden" | "map-unavailable";
+  | "map-classic" | "map-admins" | "map-town2" | "map-usage" | "map-forbidden" | "map-unavailable"
+  // `/coins` (v300): Ninenine's coins for trying things
+  | "coins-added" | "coins-usage" | "coins-forbidden" | "coins-unavailable";
 export type MessageResult = ChatResult | "forbidden" | "invalid" | "unavailable" | ReachResult;
 
 /** How long somebody the room stopped listing (without a goodbye) stays. */
@@ -246,6 +248,7 @@ export class TownSession {
   private chatKey = 0;
   private announcementBusy = false;
   private pendingAnnouncement: { text: string; request: string } | null = null;
+  private pendingCoins: { amount: number; request: string } | null = null;
   private readonly announcementListeners = new Set<() => void>();
   private lookTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly subs = new Set<() => void>();
@@ -908,6 +911,8 @@ export class TownSession {
     if (reach) return this.switchReach(reach[1]);
     const map = /^\/townmap(?:\s+(\S+))?\s*$/i.exec(raw.trim());
     if (map) return this.switchMap(map[1]);
+    const coins = /^\/coins(?:\s+(\S+))?\s*$/i.exec(raw.trim());
+    if (coins) return this.addCoins(coins[1]);
     const command = /^\/announce(?:\s|$)/i.exec(raw.trimStart());
     if (!command) return this.sendChat(raw);
     if (this.closed) return "offline";
@@ -928,6 +933,24 @@ export class TownSession {
       return "sent";
     } catch { return "offline"; }
     finally { this.announcementBusy = false; }
+  }
+
+  /**
+   * `/coins <amount>`: Ninenine adds coins to his own purse to try things with (v300's town_admin_coins, which lets
+   * nobody else). The request is kept until answered, so that a retry after a lost answer adds nothing twice.
+   */
+  private async addCoins(word: string | undefined): Promise<MessageResult> {
+    if (this.closed) return "offline";
+    const amount = Number((word ?? "").replace(/,/g, ""));
+    if (!Number.isInteger(amount) || amount < 1 || amount > 1_000_000) return "coins-usage";
+    if (this.pendingCoins?.amount !== amount) this.pendingCoins = { amount, request: crypto.randomUUID() };
+    try {
+      const { data, error } = await this.client.rpc("town_admin_coins", { p_amount: amount, p_request: this.pendingCoins.request });
+      if (error) return error.code === "PGRST202" || error.code === "42883" ? "coins-unavailable" : "offline";
+      if (data?.ok !== true) return data?.why === "forbidden" ? "coins-forbidden" : "coins-usage";
+      this.pendingCoins = null;
+      return "coins-added";
+    } catch { return "offline"; }
   }
 
   /** `/townchat town|map`: an admin sets who hears a line (v294); with no word, says how it is now. */

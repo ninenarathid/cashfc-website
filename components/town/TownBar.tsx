@@ -162,7 +162,7 @@ export default function TownBar() {
     else if (r === "unavailable") setNote(w.th ? "คำสั่งประกาศยังไม่พร้อมใช้งาน" : "Announcements are not available yet.");
     else {
       setNote(reachNote(r, w.th));
-      if (r === "reach-town" || r === "reach-map") setDraft(current => current === draft ? "" : current);
+      if (r === "reach-town" || r === "reach-map" || r === "coins-added") setDraft(current => current === draft ? "" : current);
     }
   };
 

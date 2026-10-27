@@ -1297,7 +1297,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     else if (r === "unavailable") setChatNote(w.th ? "คำสั่งประกาศยังไม่พร้อมใช้งาน" : "Announcements are not available yet.");
     else {
       setChatNote(reachNote(r, w.th));
-      if (r === "reach-town" || r === "reach-map") setDraft(current => current === draft ? "" : current);
+      if (r === "reach-town" || r === "reach-map" || r === "coins-added") setDraft(current => current === draft ? "" : current);
+      // (`/coins`: the purse as the database has it now, so the coins show at once)
+      if (r === "coins-added") keeper?.purseAgain?.();
     }
   };
 
