@@ -3,13 +3,15 @@
 -- runs, the pair pays its one amount as v303 does.
 --
 -- The owner, 2026-10-27, once the pair paid back the whole price (100 Casino Coin of a 100 spin), then half: "ไม่มีคืน
--- 100% ช่วยคืนมาแค่บางส่วน มีหลาย % ทำให้เหมือน slot machine จริง".
+-- 100% ช่วยคืนมาแค่บางส่วน มีหลาย % ทำให้เหมือน slot machine จริง", then "ช่วยเพิ่ม % ที่มีสิทธิ์ได้กำไรด้วย มากกว่า 100" and
+-- "แต่โดยรวมต้องทำให้ ผู้เล่นขาดทุนมากกว่ากำไร".
 --
 -- The pair (the first two reels alike, v299) stays the one knob for how often coins come back (its chance, the desk's).
 -- Which symbol makes the pair says how much, as a slot machine's paytable (`casino_live_settings.back_table`): each of
--- the five symbols a part of the price (1% to 99%: never all of it) and a share of the pair's wins. To begin with:
--- cherry 10% (40 in 100 pairs), popoto 20% (30), gold 30% (18), seven 50% (9), evercold 80% (3): small backs often, big
--- ones seldom, 22.3% of the price on average a pair. The desk edits the five rows; its save keeps the pair's own amount
+-- the five symbols a part of the price (1% to 1,000%: over 100 a profit) and a share of the pair's wins. To begin with:
+-- cherry 20% (50 in 100 pairs), popoto 50% (30), gold 150% (13), seven 200% (5), evercold 500% (2): small backs often,
+-- a profit on 4 spins in 100, 64.5% of the price on average a pair and 12.9% a spin: the players lose on the whole. The
+-- desk's save still refuses coins back averaging the price or more. The desk edits the five rows; its save keeps the pair's own amount
 -- at the table's average (what the sums of coins back read). A win's coins and name are written with the spin, so the
 -- wipe of the admins' trial takes back what each paid, as before. Nothing else of v303 changes.
 begin;
@@ -22,23 +24,28 @@ end $$;
 
 -- ── the paytable ────────────────────────────────────────────────────────────────────────────────────────────────────
 
-/** Five rows, one a symbol, each a part of the price (1 to 99 in 100) and a share of the pair's wins (0 to 1,000; some). */
+/** Five rows, one a symbol, each a part of the price (1 to 1,000 in 100) and a share of the pair's wins (0 to 1,000; some). */
 create or replace function casino.back_table_ok(t jsonb)
 returns boolean language sql immutable set search_path = '' as $$
   select coalesce(jsonb_typeof(t) = 'array' and jsonb_array_length(t) = 5
     and (select count(distinct e ->> 'sym') = 5 and bool_and(e ->> 'sym' in ('seven', 'cherry', 'gold', 'popoto', 'evercold'))
           and bool_and(jsonb_typeof(e -> 'pct') = 'number' and jsonb_typeof(e -> 'share') = 'number')
           and bool_and(case when jsonb_typeof(e -> 'pct') = 'number' and jsonb_typeof(e -> 'share') = 'number' then
-            (e ->> 'pct')::numeric = floor((e ->> 'pct')::numeric) and (e ->> 'pct')::numeric between 1 and 99
+            (e ->> 'pct')::numeric = floor((e ->> 'pct')::numeric) and (e ->> 'pct')::numeric between 1 and 1000
             and (e ->> 'share')::numeric = floor((e ->> 'share')::numeric) and (e ->> 'share')::numeric between 0 and 1000 else false end)
           and sum(case when jsonb_typeof(e -> 'share') = 'number' then (e ->> 'share')::numeric else 0 end) > 0
         from jsonb_array_elements(t) e), false)
 $$;
 
 alter table public.casino_live_settings add column if not exists back_table jsonb not null default
-  '[{"sym":"cherry","pct":10,"share":40},{"sym":"popoto","pct":20,"share":30},{"sym":"gold","pct":30,"share":18},{"sym":"seven","pct":50,"share":9},{"sym":"evercold","pct":80,"share":3}]';
+  '[{"sym":"cherry","pct":20,"share":50},{"sym":"popoto","pct":50,"share":30},{"sym":"gold","pct":150,"share":13},{"sym":"seven","pct":200,"share":5},{"sym":"evercold","pct":500,"share":2}]';
 alter table public.casino_live_settings drop constraint if exists casino_live_settings_back_table_check;
 alter table public.casino_live_settings add constraint casino_live_settings_back_table_check check (casino.back_table_ok(back_table));
+-- (at a spin price too low for the table's smallest part a row would pay nothing: the desk refuses it, and so does this)
+do $$ begin
+  if exists (select 1 from public.casino_live_settings s, jsonb_array_elements(s.back_table) e where floor(s.price * (e ->> 'pct')::numeric / 100) < 1)
+    then raise exception 'At this spin price a row of the coin back pays nothing: set the price to 5 or more in the desk first'; end if;
+end $$;
 
 /** A row of the paytable drawn by its share, and the Casino Coins it pays at this price, rounded down: { sym, pct, amount }. */
 create or replace function casino.back_of(t jsonb, p_price integer)
@@ -124,10 +131,10 @@ begin
     if won.issued >= won.stock then raise exception 'Prize stock exhausted'; end if;
     if won.kind = 'gil' and won.amount > s.budget - s.reserved then raise exception 'Prize exceeds remaining Gil budget'; end if;
     update public.casino_live_prizes set issued = issued + 1 where id = won.id;
-    -- (the pair: the paytable says which symbol and how much of the price comes back, never all of it)
+    -- (the pair: the paytable says which symbol and how much of the price comes back)
     if won.id = 'pair' then back_ := casino.back_of(s.back_table, s.price); won.name := (back_ ->> 'amount') || ' Casino Coin'; won.amount := (back_ ->> 'amount')::bigint; end if;
     prize_ := jsonb_build_object('id', won.id, 'name', won.name, 'kind', won.kind, 'amount', won.amount, 'announce', won.announce, 'test', test_);
-    -- (and which row of the paytable paid it, for the page to say: a part of the price come back, not a win of it)
+    -- (and which row of the paytable paid it, for the page to say: a part of the price come back, or more)
     if back_ is not null then prize_ := prize_ || jsonb_build_object('sym', back_ -> 'sym', 'pct', back_ -> 'pct'); end if;
   end if;
   -- The reels: a symbol's prize four of it; the pair its paytable symbol on the first two and neither of the others; a miss the first two unlike.
@@ -196,7 +203,7 @@ begin
   -- (a desk from before v304 sends no paytable: it stays as it is)
   table_ := coalesce(p_doc -> 'back_table', s.back_table);
   if not casino.back_table_ok(table_) then raise exception 'Invalid coin back table'; end if;
-  -- (every row pays at least a coin at this price, and never all of it: a part of the price, rounded down)
+  -- (every row pays at least a coin at this price: a part of the price, rounded down)
   if exists (select 1 from jsonb_array_elements(table_) e where floor((p_doc ->> 'price')::integer * (e ->> 'pct')::numeric / 100) < 1)
     then raise exception 'Every coin back must be at least 1 Casino Coin at this price'; end if;
   if not (p_doc ?& array['title', 'mode', 'price', 'per_player', 'budget', 'pool_size']) or access_ not in ('closed', 'admins', 'everyone') or
@@ -226,10 +233,10 @@ begin
   update public.casino_live_prizes set amount = greatest(1, round(casino.back_average(table_, (p_doc ->> 'price')::integer))) where id = 'pair';
   -- Coins paid back must average under the price: else the free coins alone would spin for ever.
   if p_doc ->> 'mode' = 'pool' then
-    select coalesce(sum((stock - issued)::numeric * amount), 0) / greatest(1, (p_doc ->> 'pool_size')::integer - s.pool_draws) into back_
+    select coalesce(sum((stock - issued)::numeric * case when id = 'pair' then casino.back_average(table_, (p_doc ->> 'price')::integer) else amount end), 0) / greatest(1, (p_doc ->> 'pool_size')::integer - s.pool_draws) into back_
       from public.casino_live_prizes where active and kind = 'coin';
   else
-    select coalesce(sum(chance / 100 * amount), 0) into back_ from public.casino_live_prizes where active and kind = 'coin';
+    select coalesce(sum(chance / 100 * case when id = 'pair' then casino.back_average(table_, (p_doc ->> 'price')::integer) else amount end), 0) into back_ from public.casino_live_prizes where active and kind = 'coin';
   end if;
   if back_ >= (p_doc ->> 'price')::integer then raise exception 'Coins paid back must average under the price'; end if;
   insert into public.casino_live_audit (actor, action, detail) values (me, 'settings', jsonb_build_object('before', to_jsonb(s), 'prizes', p_doc));

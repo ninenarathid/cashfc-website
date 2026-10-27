@@ -96,15 +96,18 @@ export default function CasinoDesk() {
             <td><input aria-label={`สต็อก ${p.id}`} type="number" min={issued} max={1e6} value={p.stock} onChange={e => change({ stock: Number(e.target.value) })} /></td><td>{money(issued)}</td>
             <td><label className="casino-check"><input type="checkbox" checked={p.announce} onChange={e => change({ announce: e.target.checked })} />ประกาศ</label></td></tr>;
         })}</tbody></table></div>
-      {draft.back_table && (() => { const pairRow = draft.prizes.find(p => p.id === 'pair'); const rows = backRows(draft.back_table, draft.price, pairRow?.active ? Number(pairRow.chance) : 0);
+      {draft.back_table && (() => { const pairRow = draft.prizes.find(p => p.id === 'pair');
+        // (how often a pair comes as the draft would have it: its chance, or in a pool its stock left over the draws left)
+        const pairChance = pairRow ? effectiveChance({ ...pairRow, issued: state.prizes.find(p => p.id === 'pair')?.issued ?? 0 }, { ...settings, mode: draft.mode, pool_size: draft.pool_size }, draft.prizes) : 0;
+        const rows = backRows(draft.back_table, draft.price, pairChance);
         const set = (i: number, patch: { pct?: number; share?: number }) => edit('back_table', draft.back_table!.map((old, j) => j === i ? { ...old, ...patch } : old));
         return <section className="casino-paytable-desk"><h3>ตาราง Coin คืน · สองช่องแรกตรงกัน</h3>
-          <p>สองช่องแรกเป็นรูปไหน คืนส่วนนั้นของราคาหมุน (1–99% ไม่คืนเต็ม) · สัดส่วนบอกว่ารูปนั้นออกบ่อยแค่ไหนในโอกาส {Number(pairRow?.chance ?? 0)}% ของ Coin คืน</p>
-          <div style={{ overflowX: 'auto' }}><table><thead><tr><th>รูป</th><th>คืน % ของราคา</th><th>สัดส่วน</th><th>ได้คืน</th><th>โอกาสต่อการหมุน</th></tr></thead>
+          <p>สองช่องแรกเป็นรูปไหน ได้ Casino Coin เท่านั้น % ของราคาหมุน (1–1,000% · เกิน 100% คือกำไร) · สัดส่วนบอกว่ารูปนั้นออกบ่อยแค่ไหนในโอกาส {pairChance.toFixed(2)}% ของ Coin คืน · รวมแล้ว Coin ที่ได้คืนเฉลี่ยต้องน้อยกว่าราคาหมุน ผู้เล่นจึงเสียมากกว่าได้</p>
+          <div style={{ overflowX: 'auto' }}><table><thead><tr><th>รูป</th><th>ได้ % ของราคา</th><th>สัดส่วน</th><th>ได้คืน</th><th>โอกาสต่อการหมุน</th></tr></thead>
             <tbody>{rows.map((row, i) => <tr key={row.sym}><td><span className="casino-paytable-pair"><CasinoSymbol id={row.sym} /><CasinoSymbol id={row.sym} /></span></td>
-              <td><input aria-label={`คืน % ${row.sym}`} type="number" min={1} max={99} value={row.pct} onChange={e => set(i, { pct: Number(e.target.value) })} /></td>
+              <td><input aria-label={`คืน % ${row.sym}`} type="number" min={1} max={1000} value={row.pct} onChange={e => set(i, { pct: Number(e.target.value) })} /></td>
               <td><input aria-label={`สัดส่วน ${row.sym}`} type="number" min={0} max={1000} value={row.share} onChange={e => set(i, { share: Number(e.target.value) })} /></td>
-              <td>{money(row.amount)} Casino Coin</td><td>{row.chance.toFixed(2)}%</td></tr>)}</tbody></table></div></section>; })()}
+              <td>{money(row.amount)} Casino Coin{row.pct > 100 ? ' · กำไร' : ''}</td><td>{row.chance.toFixed(2)}%</td></tr>)}</tbody></table></div></section>; })()}
       <p>{draft.mode === 'pool' ? 'โอกาสคำนวณจากสต็อกที่เหลือ / สิทธิ์ที่เหลือในกอง ถ้าจับครบกอง รางวัลที่เปิดไว้จะออกครบ' : 'โอกาสเป็นของแต่ละครั้ง จำนวนรางวัลที่ออกจริงไม่รับประกัน เมื่อสต็อกหรืองบไม่พอ โอกาสส่วนนั้นจะเป็นรอบไม่ชนะ'}</p>
       <p>{live ? 'ของนอกเกมเข้ากล่องรางวัลของผู้ชนะ (ผู้ชนะกดขอรับ แล้วคุยกับแอดมินในแชท 1-1) · Gil เข้ากระเป๋าเงินในโปรไฟล์ · ' + (chips ? 'Casino Coin เข้ายอด Casino Coin ทันที' : 'Coin เข้ากระเป๋า Cash Town ทันที') : 'ของนอกเกมและ Gil ออกเป็นสิทธิ์ในกระเป๋า Event ส่วน Coin เข้าบัญชีทดลองทันที'} · สองช่องแรกตรงกันได้ Coin คืน · การประกาศอิงค่าขณะรับการหมุน</p>
       <p>{unit} ที่ได้คืนเฉลี่ย {back.toFixed(1)} ต่อการหมุน · ต้องน้อยกว่าราคาหมุน {money(draft.price)} {chips ? 'ไม่ให้ Casino Coin ฟรีหมุนได้ไม่สิ้นสุด' : 'เพื่อไม่ให้เหรียญในเมืองเฟ้อ'}</p>

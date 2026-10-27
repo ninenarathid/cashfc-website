@@ -92,18 +92,21 @@ async function round(X, label, m, { admin }) {
   await until("back at the machine", () => X.evaluate(`document.querySelector(".casino-in-town")?.dataset.pane === "slots" && !document.querySelector(".casino-in-town .casino-spin")?.disabled`), 20000);
   ok(`${label}: the spin is paid in Casino Coins`, /ปั่น · 100 Casino Coin/.test(await text(X, ".casino-in-town .casino-spin")), await text(X, ".casino-in-town .casino-spin"));
   if (admin) ok(`${label}: the pair forced`, await pick(X, "pair"));
-  else await sql(`update public.casino_live_prizes set chance = case when id = 'pair' then 90 else 0 end`);
+  else await sql(`update public.casino_live_prizes set chance = case when id = 'pair' then 100 else 0 end`);
   const purse1 = await coinsOf(m);
   await click(X, ".casino-in-town .casino-spin"); await sleep(5600);
   const r = await text(X, ".casino-in-town .casino-result");
   // (v304: the pair pays a row of the paytable, a part of the price)
-  const back = /Casino Coin คืน (d+) ((d+)%)/.exec(r);
-  ok(`${label}: a part of the price comes back, said with its share`, !!back && Number(back[2]) < 100 && /หมุนต่อได้เลย/.test(r), r);
+  const back = /Casino Coin คืน (\d+) \((\d+)%\)|ได้ (\d+) Casino Coin \((\d+)%\) กำไร/.exec(r);
+  if (back && back[3]) { back[1] = back[3]; back[2] = back[4]; }
+  ok(`${label}: a row of the paytable paid, said with its share`, !!back && Number(back[1]) === Number(back[2]) && /หมุนต่อได้เลย/.test(r), r);
   ok(`${label}: the price taken and that part paid back in Casino Coins, the purse untouched`, !!back && (await chipsOf(m)) === 600 - 100 + Number(back[1]) && (await coinsOf(m)) === purse1, { chips: await chipsOf(m), coins: await coinsOf(m), back });
   await X.shot(`${OUT}/4-coins-back-${label}.png`);
   await X.evaluate(`document.querySelector(".casino-in-town .casino-prize-details").open = true`); await sleep(400);
   ok(`${label}: the machine shows its paytable, five rows`, (await X.evaluate(`document.querySelectorAll(".casino-in-town .casino-paytable-row").length`)) === 5);
-  await X.evaluate(`document.querySelector(".casino-in-town .casino-play-layout")?.scrollTo(0, 9999)`); await sleep(300);
+  const box = await X.evaluate(`(() => { const r = document.querySelector(".casino-in-town .casino-lower").getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`);
+  for (let k = 0; k < 6; k++) { await X.send("Input.dispatchMouseEvent", { type: "mouseWheel", x: box.x, y: box.y, deltaX: 0, deltaY: 120 }); await sleep(120); }
+  await sleep(400);
   await X.shot(`${OUT}/5-paytable-${label}.png`);
 }
 

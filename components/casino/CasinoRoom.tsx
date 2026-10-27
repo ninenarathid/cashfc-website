@@ -232,8 +232,8 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
         <details className="casino-prize-details"><summary>โอกาสและรางวัล</summary>{state.prizes.filter(p => p.active).map(p => p.id === 'pair' && s.back_table ?
           // (the pair as a slot machine's paytable, v304: which symbol on the first two, how much of the price comes back)
           <div key={p.id} className="casino-paytable"><p><strong>{PRIZE_LABEL.pair}</strong> · Casino Coin คืน: {effectiveChance(p, s, state.prizes).toFixed(1)}%</p>
-            {backRows(s.back_table, s.price, effectiveChance(p, s, state.prizes)).map(row => <p key={row.sym} className="casino-paytable-row"><span className="casino-paytable-pair"><CasinoSymbol id={row.sym} /><CasinoSymbol id={row.sym} /></span>
-              <span>คืน {money(row.amount)} ({row.pct}%)</span><span>{row.chance.toFixed(1)}%</span></p>)}</div> :
+            {backRows(s.back_table, s.price, effectiveChance(p, s, state.prizes)).map(row => <p key={row.sym} className={`casino-paytable-row${row.pct > 100 ? ' is-profit' : ''}`}><span className="casino-paytable-pair"><CasinoSymbol id={row.sym} /><CasinoSymbol id={row.sym} /></span>
+              <span>{row.pct > 100 ? `ได้ ${money(row.amount)} (${row.pct}%) กำไร` : `คืน ${money(row.amount)} (${row.pct}%)`}</span><span>{row.chance.toFixed(1)}%</span></p>)}</div> :
           <p key={p.id}><strong>{PRIZE_LABEL[p.id] ?? p.id}</strong> · {p.name}: {effectiveChance(p, s, state.prizes).toFixed(3)}% · เหลือ {money(p.stock - p.issued)}</p>)}
           <p>งบ Gil {live?"":"ทดลอง"}เหลือ {money(s.budget - s.reserved)} · ผลใช้การตั้งค่ารุ่น {s.revision}</p><p>{live?`ของรางวัลเข้ากล่องรางวัลในเว็บ กดขอรับแล้วคุยกับแอดมินได้ · Gil เข้ากระเป๋าเงินในโปรไฟล์ · ${chips === null ? 'Coin เข้ากระเป๋า Cash Town' : 'Casino Coin ที่ได้คืนเข้ายอด Casino Coin'}`:"เครดิตและใบรับสิทธิ์ในห้องนี้เป็น TEST · ปิดทุกหน้าจะเริ่มใหม่"}</p>{trial&&<p>ตอนนี้เปิดให้แอดมินทดสอบ ทุกการหมุนเป็นการทดสอบ ล้างได้ที่หน้า Aqua</p>}</details>
       </section></div><section className="casino-desk-in-room"><h2>พนักงาน Casino</h2>

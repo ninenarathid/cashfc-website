@@ -120,9 +120,9 @@ export function backRows(t: BackRow[], price: number, chance: number) {
   const shares = t.reduce((n, r) => n + r.share, 0);
   return t.map(r => ({ ...r, amount: backAmount(r, price), chance: shares > 0 ? chance * r.share / shares : 0 }));
 }
-/** What a win is said to be, after the winner's name: a pair of the paytable a part of the price come back. */
+/** What a win is said to be, after the winner's name: a pair of the paytable a part of the price come back, or more than it. */
 export const wonWords = (p: Pick<PrizeSnapshot, 'name' | 'amount' | 'pct'>) =>
-  p.pct !== undefined ? `ได้ Casino Coin คืน ${money(Number(p.amount))} (${p.pct}%)` : `ได้ ${p.name}`;
+  p.pct === undefined ? `ได้ ${p.name}` : p.pct > 100 ? `ได้ ${money(Number(p.amount))} Casino Coin (${p.pct}%) กำไร` : `ได้ Casino Coin คืน ${money(Number(p.amount))} (${p.pct}%)`;
 export function draftProblem(d: CasinoDraft, s: CasinoSettings): string | null {
   if (!d.title.trim() || d.title.length > 100) return 'ชื่อกิจกรรมต้องมี 1–100 ตัวอักษร';
   if (![d.price, d.per_player, d.budget, d.pool_size].every(Number.isSafeInteger) ||
@@ -133,8 +133,8 @@ export function draftProblem(d: CasinoDraft, s: CasinoSettings): string | null {
     !Number.isSafeInteger(d.free_chips) || d.free_chips! < 0 || d.free_chips! > 100000)) return 'อัตราแลกต้องเป็น 1–10,000 และ Casino Coin ฟรีต่อวัน 0–100,000';
   if (d.back_table !== undefined) {
     const t = d.back_table;
-    if (t.length !== 5 || new Set(t.map(r => r.sym)).size !== 5 || !t.every(r => SYMBOLS.includes(r.sym) && Number.isInteger(r.pct) && r.pct >= 1 && r.pct <= 99 &&
-      Number.isInteger(r.share) && r.share >= 0 && r.share <= 1000) || !t.some(r => r.share > 0)) return 'ตาราง Coin คืน: ส่วนที่คืน 1–99% และสัดส่วน 0–1,000 (มีอย่างน้อยหนึ่งแถว)';
+    if (t.length !== 5 || new Set(t.map(r => r.sym)).size !== 5 || !t.every(r => SYMBOLS.includes(r.sym) && Number.isInteger(r.pct) && r.pct >= 1 && r.pct <= 1000 &&
+      Number.isInteger(r.share) && r.share >= 0 && r.share <= 1000) || !t.some(r => r.share > 0)) return 'ตาราง Coin คืน: ได้คืน 1–1,000% ของราคา และสัดส่วน 0–1,000 (มีอย่างน้อยหนึ่งแถว)';
     if (t.some(r => backAmount(r, d.price) < 1)) return 'ตาราง Coin คืน: ทุกแถวต้องคืนอย่างน้อย 1 Casino Coin ที่ราคานี้';
   }
   for (const p of d.prizes) {
