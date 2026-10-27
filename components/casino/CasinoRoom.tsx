@@ -11,6 +11,7 @@ import CasinoMap, { MACHINE_X, SPAWN, type CasinoPeer } from './CasinoMap';
 import CasinoSymbol from './CasinoSymbol';
 import { useCasino } from './useCasino';
 import './casino.css';
+import { CasinoSounds, outcomeSound } from '@/lib/town/casino-sound';
 import { CASINO_MAP, casinoWalkable } from '@/lib/town/casino-map';
 import CasinoTownHud from './CasinoTownHud';
 import Link from 'next/link';
@@ -67,27 +68,22 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
   useEffect(() => () => onChips?.(null), [onChips]);
   const [self, setSelf] = useState<CasinoPeer>({ id: '', name: 'Tester', look: '', ...SPAWN, seat: null });
   const [peers, setPeers] = useState<CasinoPeer[]>([]), [cheer, setCheer] = useState('');
-  const [sound, setSound] = useState(false), [result, setResult] = useState<CasinoSpin | null>(null);
+  // (sound is on unless this browser turned it off: the owner's slot sounds, lib/town/casino-sound)
+  const [sound, setSound] = useState(() => { try { return localStorage.getItem('casino-sound') !== 'off'; } catch { return true; } }), [result, setResult] = useState<CasinoSpin | null>(null);
   const camera = useRef<CasinoCameraControls | null>(null);
   const setCamera = useCallback((controls: CasinoCameraControls | null) => { camera.current = controls; if(nativeRef.current)nativeRef.current.camera.current=controls; }, []);
   const presence = useRef<RealtimeChannel | null>(null), mine = useRef(self); mine.current = self;
   const pending = useRef<Pending | null>(null), lastCheer = useRef(0), cheerTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  const audio = useRef<AudioContext | null>(null), sounds = useRef(new Set<string>());
+  const sfx = useRef<CasinoSounds | null>(null), sounds = useRef(new Set<string>()), spun = useRef(new Set<string>());
+  if (!sfx.current) sfx.current = new CasinoSounds();
   const latestNow = useRef(now); latestNow.current = now;
   useEffect(() => {
     const tick = setInterval(() => { if (!document.hidden) setClock(latestNow.current()); }, 100);
-    return () => { clearInterval(tick); clearTimeout(cheerTimer.current); void audio.current?.close(); };
+    return () => { clearInterval(tick); clearTimeout(cheerTimer.current); sfx.current?.close(); };
   }, []);
-  const play = useCallback((win: boolean) => {
-    if (!audio.current) return;
-    const ctx = audio.current;
-    for (let i = 0; i < (win ? 4 : 2); i++) {
-      const o = ctx.createOscillator(), gain = ctx.createGain(), at = ctx.currentTime + i * .12;
-      o.type = 'sine'; o.frequency.value = win ? [523, 659, 784, 1046][i] : [294, 220][i];
-      gain.gain.setValueAtTime(.0001, at); gain.gain.exponentialRampToValueAtTime(.055, at + .02); gain.gain.exponentialRampToValueAtTime(.0001, at + .18);
-      o.connect(gain); gain.connect(ctx.destination); o.start(at); o.stop(at + .2);
-    }
-  }, []);
+  // (a tap anywhere makes the sounds ready: browsers start sound only from one)
+  useEffect(() => { if (!sound) return; const wake = () => sfx.current?.wake(); document.addEventListener('pointerdown', wake, true); return () => document.removeEventListener('pointerdown', wake, true); }, [sound]);
+  const toggleSound = () => { const on = !sound; if (on) sfx.current?.wake(); setSound(on); try { localStorage.setItem('casino-sound', on ? 'on' : 'off'); } catch { /* this tab only */ } };
   useEffect(() => {
     if (!client || !state?.user_id) return;
     let gone = false;
@@ -128,12 +124,19 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
     const t = setTimeout(() => { if (self.id && presence.current?.state === 'joined') void presence.current.track(self); }, 100);
     return () => clearTimeout(t);
   }, [self]);
+  // (the machine I play or look at: its reels as they turn, then what came of them; the other nine are quiet)
   useEffect(() => {
     if (!sound || !state) return;
+    if (pane !== 'slots' && self.seat !== selected) return;
     for (const spin of state.spins) {
-      if (spinRevealed(spin, clock) && clock - Date.parse(spin.reveal_at) < 1200 && !sounds.current.has(spin.id)) { sounds.current.add(spin.id); play(!!spin.prize); }
+      if (spin.machine !== selected) continue;
+      const left = Date.parse(spin.reveal_at) - clock;
+      if (left > 0 && left < 4000 && !spun.current.has(spin.id)) { spun.current.add(spin.id); sfx.current?.play('spin', left); }
+      if (spinRevealed(spin, clock) && clock - Date.parse(spin.reveal_at) < 1200 && !sounds.current.has(spin.id)) {
+        sounds.current.add(spin.id); const key = outcomeSound(spin); if (key) sfx.current?.play(key);
+      }
     }
-  }, [clock, sound, state, play]);
+  }, [clock, sound, state, pane, selected, self.seat]);
   useEffect(()=>{const a=walker?.self;if(!a)return;const seat=!a.path.length&&a.info.sit===SIT_HERE?stools.findIndex(p=>Math.abs(p.x-a.pos.x)<.1&&Math.abs(p.y-a.pos.y)<.1)+1||null:null;
     setSelf(p=>({...p,id:a.info.id,name:a.info.name,look:a.info.look??p.look,x:a.info.x,y:a.info.y,seat}));
     // (in the town, whether I am at the open machine is mine to work out: the casino's own map told it)
@@ -286,7 +289,7 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
   return <main className={town?"casino-town-layer casino-in-town":native?"casino-town-layer":"casino-town-room"} data-pane={pane}>
     <section className="casino-room" aria-label="Casino laboratory">
       {!town && <CasinoMap native={native} self={self} peers={peers} spins={state.spins} selected={selected} clock={now} pane={pane} onMove={move} onSelect={select} onReception={()=>setPane('desk')} onDismiss={()=>setPane('none')} onReady={setArrived} onControls={setCamera} />}
-      {!native && !town && <CasinoTownHud coins={state.account.coins} remaining={Math.max(0, remaining)} allowance={s.per_player} people={peers.length + 1} connected={connected} live={live} admin={realAdmin} pane={pane} onPane={setPane} onChat={sendCheer} sound={sound} onSound={() => { if (!sound) { audio.current ??= new AudioContext(); void audio.current.resume(); } setSound(!sound); }} camera={camera} />}
+      {!native && !town && <CasinoTownHud coins={state.account.coins} remaining={Math.max(0, remaining)} allowance={s.per_player} people={peers.length + 1} connected={connected} live={live} admin={realAdmin} pane={pane} onPane={setPane} onChat={sendCheer} sound={sound} onSound={toggleSound} camera={camera} />}
       {(native||town)&&<TownFoot rank="corner"><div className="casino-map-label tk tk-plate"><span>Casino {!live&&<small className="casino-test">TEST</small>}{trial&&<small className="casino-test">ทดสอบแอดมิน</small>}</span>{chips!==null&&<button className="tk tk-slot casino-chip-count" aria-label="แลกและรับ Casino Coin ที่เคาน์เตอร์" aria-expanded={pane==='desk'} onClick={()=>setPane(p=>p==='desk'?'none':'desk')}>แลก Coin</button>}<button className="tk tk-slot" aria-label="ผลในห้อง" aria-expanded={pane==='feed'} onClick={()=>setPane(p=>p==='feed'?'none':'feed')}><TownIcon name="history" size={18}/></button></div></TownFoot>}
       {error && <p className="casino-error" role="alert">{error}</p>}
       <div className="casino-lower tk tk-window" role="dialog" aria-label={pane === 'feed' ? 'ผลและเสียงเชียร์' : pane==='desk'?'พนักงาน Casino':`Slot เครื่อง ${selected}`}><button className="casino-panel-close pressable tk tk-slot" aria-label="ปิดหน้าต่าง" onClick={() => setPane('none')}>×</button>
@@ -331,7 +334,7 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
           <button className="casino-chips-back pressable tk tk-slot" onClick={() => void select(selected)}>ไปเล่นที่เครื่อง {selected}</button>
         </div>}
         <p>{town?`แตะตู้หรือเก้าอี้เพื่อเข้าเล่น · ของรางวัลเข้ากล่องรางวัลในเว็บ · Gil เข้ากระเป๋าเงิน${chips === null ? ' · Coin เข้ากระเป๋า Cash Town' : ''}`:'แตะตู้หรือเก้าอี้เพื่อเข้าเล่น · ใบรับสิทธิ์อยู่ในแท็บ Event ของกระเป๋า'}</p>
-        <div className="casino-actions"><button className="tk tk-slot" aria-pressed={sound} onClick={()=>{if(!sound){audio.current??=new AudioContext();void audio.current.resume();}setSound(!sound);}}>{sound?'ปิดเสียงสล็อต':'เปิดเสียงสล็อต'}</button>{town?<button className="tk tk-slot" onClick={()=>{setPane('none');walker?.walkTo({x:CASINO_EXIT.tiles[0][0]+.5,y:CASINO_EXIT.tiles[0][1]+.5});}}>เดินออกไปในเมือง</button>:<Link className="tk tk-slot" href="/town?map=town">กลับหมู่บ้าน</Link>}</div>
+        <div className="casino-actions"><button className="tk tk-slot" aria-pressed={sound} onClick={toggleSound}>{sound?'ปิดเสียงสล็อต':'เปิดเสียงสล็อต'}</button>{town?<button className="tk tk-slot" onClick={()=>{setPane('none');walker?.walkTo({x:CASINO_EXIT.tiles[0][0]+.5,y:CASINO_EXIT.tiles[0][1]+.5});}}>เดินออกไปในเมือง</button>:<Link className="tk tk-slot" href="/town?map=town">กลับหมู่บ้าน</Link>}</div>
         {realAdmin&&<><Link className="casino-aqua-link tk tk-btn" href={live?'/admin/aqua/casino-live':'/admin/aqua/casino'}>Aqua · ตั้งค่า {label}</Link>{!live&&<details className="casino-lab-tools"><summary>เครื่องมือห้องทดลอง</summary><div className="casino-actions"><button disabled={busy||ownRolling} onClick={()=>void credit(false)}>เติม 20,000 coin ทดลอง</button><button disabled={busy||ownRolling} onClick={()=>void credit(true)}>เริ่มกระเป๋าทดลองใหม่</button></div><label className="casino-forced">ผลทดสอบ<select aria-label="ผลสำหรับทดสอบ" value={force} disabled={s.mode==='pool'} onChange={e=>setForce(e.target.value)}><option value="">สุ่มจริง</option><option value="miss">พลาด</option>{state.prizes.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label></details>}
           {trial&&<label className="casino-forced">ผลที่จะออก (แอดมินทดสอบ)<select aria-label="ผลที่จะออก" value={force} disabled={s.mode==='pool'} onChange={e=>setForce(e.target.value)}><option value="">สุ่มจริง</option><option value="miss">พลาด</option>{state.prizes.filter(p=>p.active).map(p=><option key={p.id} value={p.id}>{PRIZE_LABEL[p.id]} · {p.name}</option>)}</select></label>}</>}
       </section><section className="casino-feed"><h2>เสียงจากหน้าเครื่อง</h2><div className="casino-cheers">{CHEERS.map(text => <button key={text} className="tk tk-slot" onClick={() => sendCheer(text)}>{text}</button>)}</div>
