@@ -66,6 +66,8 @@ describe('Casino presentation and settings', () => {
     const s = fixture(); s.settings.back_table = t; s.prizes.push({ id: 'pair', name: '50 Casino Coin', kind: 'coin', amount: 50, chance: 20, stock: 100000, issued: 0, announce: false, active: true });
     const d = draftOf(s);
     expect(coinsBack(d, s.settings)).toBeCloseTo(5.471, 2);
+    // (a pool pays one pair a draw: no second pair in its sum)
+    expect(coinsBack({ ...d, mode: 'pool', pool_size: 100, prizes: d.prizes.map(p => p.id === 'pair' ? { ...p, chance: 100, stock: 50 } : { ...p, active: false }) }, { pool_draws: 0 })).toBeCloseTo(0.5 * 22.3, 1);
     expect(draftProblem(d, s.settings)).toBe(null);
     expect(draftProblem({ ...d, back_table: t.map((r, i) => i ? r : { ...r, pct: 1001 }) }, s.settings)).toContain('ตาราง');
     expect(draftProblem({ ...d, back_table: t.map((r, i) => i ? r : { ...r, pct: 300 }) }, s.settings)).toBe(null);

@@ -15,7 +15,7 @@
 --
 -- Then, of 7 7 cherry cherry paying 200 alone: "แบบนี้ควรจะได้ 200 + 20 casino coin ไม่ใช่ แค่ 200 เพราะ ชนะ 2 pattern". So
 -- every pair a player sees is paid: a pair stands on the front two reels or the back two; as often as a pair comes
--- (its own chance) the other half is a pair of another symbol too, and both are paid; and where nothing is paid no two
+-- (its own chance; not in a pool, one pair a draw there) the other half is a pair of another symbol too, both paid; and where nothing is paid no two
 -- reels side by side are alike (a miss, and the half beside a lone pair). The desk edits the five rows; its save keeps the pair's own amount
 -- at the table's average (what the sums of coins back read). A win's coins and name are written with the spin, so the
 -- wipe of the admins' trial takes back what each paid, as before. Nothing else of v303 changes.
@@ -88,7 +88,7 @@ end $$;
 do $$ declare s public.casino_live_settings; back_ numeric; begin
   select * into s from public.casino_live_settings where id = 1;
   if s.mode = 'pool' then
-    select coalesce(sum((stock - issued)::numeric * case when id = 'pair' then casino.back_average(s.back_table, s.price, (stock - issued)::numeric / greatest(1, s.pool_size - s.pool_draws)) else amount end), 0)
+    select coalesce(sum((stock - issued)::numeric * case when id = 'pair' then casino.back_average(s.back_table, s.price, 0) else amount end), 0)
       / greatest(1, s.pool_size - s.pool_draws) into back_ from public.casino_live_prizes where active and kind = 'coin';
   else
     select coalesce(sum(chance / 100 * case when id = 'pair' then casino.back_average(s.back_table, s.price, chance / 100) else amount end), 0) into back_
@@ -165,7 +165,8 @@ begin
     if won.id = 'pair' then
       back_ := casino.back_of(s.back_table, s.price);
       -- (as often as a pair comes, the other half is a pair of another symbol too: both paid, as a player sees two)
-      c_ := case when s.mode = 'pool' then (won.stock - won.issued)::numeric / greatest(1, s.pool_size - s.pool_draws) else won.chance / 100 end;
+      -- (not in a pool: its pairs come one a draw, so what is left in it is what it pays, Codex's check)
+      c_ := case when s.mode = 'pool' then 0 else won.chance / 100 end;
       if casino.unit() < c_ then back2_ := casino.back_of(s.back_table, s.price, back_ ->> 'sym'); end if;
       won.amount := (back_ ->> 'amount')::bigint + coalesce((back2_ ->> 'amount')::bigint, 0);
       won.name := won.amount || ' Casino Coin';
@@ -282,7 +283,7 @@ begin
   update public.casino_live_prizes set amount = greatest(1, round(casino.back_average(table_, (p_doc ->> 'price')::integer, chance / 100))) where id = 'pair';
   -- Coins paid back must average under the price: else the free coins alone would spin for ever.
   if p_doc ->> 'mode' = 'pool' then
-    select coalesce(sum((stock - issued)::numeric * case when id = 'pair' then casino.back_average(table_, (p_doc ->> 'price')::integer, (stock - issued)::numeric / greatest(1, (p_doc ->> 'pool_size')::integer - s.pool_draws)) else amount end), 0) / greatest(1, (p_doc ->> 'pool_size')::integer - s.pool_draws) into back_
+    select coalesce(sum((stock - issued)::numeric * case when id = 'pair' then casino.back_average(table_, (p_doc ->> 'price')::integer, 0) else amount end), 0) / greatest(1, (p_doc ->> 'pool_size')::integer - s.pool_draws) into back_
       from public.casino_live_prizes where active and kind = 'coin';
   else
     select coalesce(sum(chance / 100 * case when id = 'pair' then casino.back_average(table_, (p_doc ->> 'price')::integer, chance / 100) else amount end), 0) into back_ from public.casino_live_prizes where active and kind = 'coin';

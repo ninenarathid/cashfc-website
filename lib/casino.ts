@@ -103,7 +103,8 @@ export function effectiveChance(p: CasinoPrize, s: CasinoSettings, all: CasinoPr
  */
 export function coinsBack(d: Pick<CasinoDraft, 'mode' | 'prizes' | 'pool_size'> & Partial<Pick<CasinoDraft, 'price' | 'back_table'>>, s: Pick<CasinoSettings, 'pool_draws'>): number {
   // (a pair paid by the paytable pays its average at the price, v304)
-  const amountOf = (p: CasinoPrize) => p.id === 'pair' && d.back_table && d.price ? backAverage(d.back_table, d.price, Number(p.chance) / 100) : p.amount;
+  // (its second pair as often as itself, but not in a pool, where pairs come one a draw)
+  const amountOf = (p: CasinoPrize) => p.id === 'pair' && d.back_table && d.price ? backAverage(d.back_table, d.price, d.mode === 'pool' ? 0 : Number(p.chance) / 100) : p.amount;
   const coins = d.prizes.filter(p => p.active && p.kind === 'coin');
   if (d.mode === 'pool') { const left = d.pool_size - s.pool_draws; return left > 0 ? coins.reduce((n, p) => n + (p.stock - p.issued) * amountOf(p), 0) / left : 0; }
   return coins.reduce((n, p) => n + Number(p.chance) / 100 * amountOf(p), 0);

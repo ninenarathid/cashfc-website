@@ -151,9 +151,17 @@ try {
   refused(await doc({ back_table: table.map((r) => ({ ...r, pct: r.pct * 8 > 1000 ? 1000 : r.pct * 8 })) }), "Coins paid back", "a table paying back the price or more on average is refused");
   await db.exec("update public.casino_live_prizes set kind = 'physical', amount = 0, chance = 0.04 where id = 'cherry'; update public.casino_live_prizes set chance = 20 where id = 'pair'");
 
+  // ── a pool pays one pair a draw: no second pair there ──
+  await db.exec("create temp table kept as select id, active, stock, issued from public.casino_live_prizes; update public.casino_live_prizes set active = (id = 'pair'); update public.casino_live_prizes set stock = issued + 1000 where id = 'pair'");
+  await db.exec("update public.casino_live_settings set mode = 'pool', pool_size = pool_draws + 1000");
+  const P = 40; let poolPairs = 0, poolDoubles = 0;
+  for (let i = 0; i < P; i++) { const r = await spin(ADMIN); if (r?.prize?.id === "pair") { poolPairs++; if ((r.prize.syms ?? []).length !== 1) poolDoubles++; } }
+  ok(poolPairs === P && poolDoubles === 0, `a pool pays one pair a draw (${poolPairs} pairs, ${poolDoubles} doubles)`);
+  await db.exec("update public.casino_live_settings set mode = 'weighted'; update public.casino_live_prizes p set active = k.active, stock = greatest(k.stock, p.issued) from kept k where k.id = p.id; drop table kept");
+
   // ── the wipe takes back what each pair paid ──
   const w = await as(ADMIN, "select public.casino_live_wipe_tests() r");
-  eq(Number(w?.spins), N + M + 1, "every spin of the trial wiped");
+  eq(Number(w?.spins), N + M + 1 + P, "every spin of the trial wiped");
   eq([await coins(ADMIN), await chips(ADMIN)], [100000, 0], "the Popoto coins back, the trial's Casino Coins gone");
   eq((await one("select issued from public.casino_live_prizes where id = 'pair'")).issued, 0, "and the pair's count");
 } finally {
