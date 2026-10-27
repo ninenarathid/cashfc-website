@@ -202,7 +202,7 @@ export function reelView(spin: CasinoSpin | null, reel: number, now: number, red
   if (!spin) return { faces: [{ face: near(1), y: -1 }, { face: 'popoto', y: 0 }, { face: near(2), y: 1 }], moving: false };
   const s = stripOf(spin, reel);
   // (with motion reduced the strip stands still, and shows nothing of the outcome before its stop)
-  if (reduced) return { faces: now >= s.stop ? [{ face: s.face(s.n + 1), y: -1 }, { face: s.face(s.n), y: 0 }, { face: s.face(s.n - 1), y: 1 }] : [{ face: near(1), y: -1 }, { face: SYMBOLS[reel], y: 0 }, { face: near(2), y: 1 }], moving: false };
+  if (reduced) return { faces: now >= s.stop ? [{ face: s.face(s.n + 1), y: -1 }, { face: s.face(s.n), y: 0 }, { face: s.face(s.n - 1), y: 1 }] : [{ face: near(1), y: -1 }, { face: SYMBOLS[reel], y: 0 }, { face: near(2), y: 1 }], moving: now < s.stop };
   let p = s.at(now);
   if (now > s.stop && now < s.stop + REEL_SETTLE) p += .12 * Math.sin(Math.PI * (now - s.stop) / REEL_SETTLE);
   const c = Math.floor(p), f = p - c;
@@ -233,13 +233,18 @@ export function whereItGoes(p: Pick<PrizeSnapshot, 'kind'>, chips = false): stri
 /** Whether the casino takes Casino Coins (v303), not the town purse's Popoto coins. */
 export const chipsOf = (s: Pick<CasinoState, 'account'>): number | null => typeof s.account.chips === 'number' ? Number(s.account.chips) : null;
 /**
- * My Casino Coins as the room shows them at `now`: the database adds what a spin brings back as it is spun, so while my
- * own reels still turn that is taken off again, or the count would tell the outcome before the reels do.
+ * My Casino Coins as the room shows them at `now`. The database adds what a spin brings back as it is spun, so while my
+ * own reels still turn the count would tell the outcome before the reels do. Then it is `steady`, the count before
+ * those spins, less what they cost; and with none (the page opened mid-spin, its account already holding the win), the
+ * count less what they bring back. A spin heard before the account has come back so is never counted twice.
  */
-export const chipsShown = (s: Pick<CasinoState, 'account' | 'spins' | 'user_id'>, now: number): number | null => {
+export const chipsShown = (s: Pick<CasinoState, 'account' | 'spins' | 'user_id'>, now: number, steady: number | null = null): number | null => {
   const chips = chipsOf(s);
   if (chips === null) return null;
-  return chips - s.spins.filter(p => p.user_id === s.user_id && !spinRevealed(p, now) && p.prize?.kind === 'coin').reduce((n, p) => n + Number(p.prize!.amount), 0);
+  const turning = s.spins.filter(p => p.user_id === s.user_id && !spinRevealed(p, now));
+  if (!turning.length) return chips;
+  if (steady !== null) return Math.max(0, steady - turning.reduce((n, p) => n + Number(p.price), 0));
+  return Math.max(0, chips - turning.reduce((n, p) => n + (p.prize?.kind === 'coin' ? Number(p.prize.amount) : 0), 0));
 };
 /** The changes the counter offers, in spins' worth: one, five, ten. */
 export const CHIP_PACKS = [1, 5, 10] as const;

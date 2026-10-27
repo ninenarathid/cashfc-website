@@ -89,6 +89,9 @@ describe('Casino Coins in the room', () => {
     s.spins = [spin('tester', 'coin', 150, 2000), spin('tester', 'gil', 1000000, 2000), spin('other', 'coin', 70, 2000), spin('tester', 'coin', 50, -1000)];
     expect(chipsShown(s, at)).toBe(100);
     expect(chipsShown(s, at + 2000)).toBe(250);
+    // (with the count from before my reels turned: that, less what the turning spins cost, whatever the account says yet)
+    expect(chipsShown(s, at, 300)).toBe(100);
+    expect(chipsShown(s, at + 2000, 300)).toBe(250);
     expect(chipsShown(fixture(), at)).toBe(null);
   });
 });

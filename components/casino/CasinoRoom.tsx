@@ -65,7 +65,10 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
   useEffect(()=>{const openNative=(e:PointerEvent)=>{if(e.target instanceof Element&&e.target.closest('button[aria-keyshortcuts="I"],button[data-town-lines-button]'))setPane('none');};document.addEventListener('pointerdown',openNative,true);return()=>document.removeEventListener('pointerdown',openNative,true);},[]);
   const [clock, setClock] = useState(Date.now());
   // (the town's status bar says my Casino Coins while I am here, what a spin brings back once its reels stop)
-  const chipsNow = live && state ? chipsShown(state, clock) : null, onChips = town?.onChips;
+  const steadyChips = useRef<number | null>(null);
+  const chipsNow = live && state ? chipsShown(state, clock, steadyChips.current) : null, onChips = town?.onChips;
+  // (the count before my own reels turn, kept for while they do)
+  if (live && state && !state.spins.some(p => p.user_id === state.user_id && !spinRevealed(p, clock))) steadyChips.current = chipsOf(state);
   useEffect(() => { onChips?.(chipsNow); }, [onChips, chipsNow]);
   useEffect(() => () => onChips?.(null), [onChips]);
   const [self, setSelf] = useState<CasinoPeer>({ id: '', name: 'Tester', look: '', ...SPAWN, seat: null });
@@ -309,7 +312,7 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
           <div className="casino-bulbs" aria-hidden>{Array.from({ length: 11 }, (_, i) => <i key={i} style={{ animationDelay: `${(i % 2) * 270}ms` }} />)}</div>
           <div className="casino-reels" aria-label={rolling ? 'กำลังหมุน' : latest ? latest.reels.join(', ') : 'พร้อมเล่น'}>
             {/* (each reel a strip turning past the line, the faces over and under it seen: lib/casino's reelView) */}
-            {[0, 1, 2, 3].map(i => <div key={i} className="casino-reel"><CasinoReel spin={latest} reel={i} reduced={reduced} /></div>)}
+            {[0, 1, 2, 3].map(i => <div key={i} className="casino-reel"><CasinoReel spin={latest} reel={i} reduced={reduced} now={latestNow} /></div>)}
           </div>
           <p className="casino-plate">ครั้งละ <b>{money(s.price)}</b> {chips === null ? 'coin' : 'Casino Coin'}</p></div>
           <CasinoLever className={leverOn ? 'casino-spin' : ''} ready={leverReady} dim={leverDim}

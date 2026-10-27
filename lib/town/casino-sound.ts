@@ -14,8 +14,8 @@ const FILES = {
   prize: "/town/casino/sfx/prize.mp3",
 } as const;
 export type CasinoSound = keyof typeof FILES;
-/** How loud each is (the reels under what comes of them). */
-const LOUD: Record<CasinoSound, number> = { spin: 0.45, small: 0.6, big: 0.6, prize: 0.55 };
+/** How loud each is (the reels under what comes of them; three fifths of the first, the owner: "ช่วยลดเสียงเครื่องให้เบาลงหน่อย"). */
+const LOUD: Record<CasinoSound, number> = { spin: 0.27, small: 0.36, big: 0.36, prize: 0.33 };
 
 /** What a spin's outcome sounds like: its prize's kind, coins back above the price louder; a miss nothing. */
 export function outcomeSound(spin: { price: number; prize: { kind: string; amount: number } | null }): CasinoSound | null {
