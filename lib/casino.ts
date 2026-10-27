@@ -18,7 +18,10 @@ export type CasinoPrize = {
   id: PrizeId; name: string; kind: 'gil' | 'physical' | 'coin'; amount: number;
   chance: number; stock: number; issued: number; announce: boolean; active: boolean;
 };
-export type PrizeSnapshot = Pick<CasinoPrize, 'id' | 'name' | 'kind' | 'amount' | 'announce'> & { test: boolean };
+/** v304's `sym` and `pct`: the paytable's row a pair paid, a part of the price come back. */
+export type PrizeSnapshot = Pick<CasinoPrize, 'id' | 'name' | 'kind' | 'amount' | 'announce'> & { test: boolean; sym?: SymbolId; pct?: number };
+/** A row of the coin back's paytable (v304): which symbol on the first two reels, what part of the price, its share of the pairs. */
+export type BackRow = { sym: SymbolId; pct: number; share: number };
 export type CasinoSettings = {
   id: number; revision: number; title: string; open: boolean; mode: 'weighted' | 'pool';
   price: number; per_player: number; budget: number; reserved: number; spins: number;
@@ -28,6 +31,8 @@ export type CasinoSettings = {
   access?: CasinoAccess;
   /** v303's: Popoto coins a Casino Coin, and the Casino Coins given free once a town day (0: none). */
   chip_rate?: number; free_chips?: number;
+  /** v304's: the pair's paytable, five rows. */
+  back_table?: BackRow[];
 };
 export type CasinoSpin = {
   id: string; user_id: string; player_name: string; machine: number; revision: number;
@@ -61,7 +66,7 @@ export type CasinoState = {
   admin?: boolean;
 };
 export type CasinoDraft = Pick<CasinoSettings,
-  'title' | 'open' | 'mode' | 'price' | 'per_player' | 'budget' | 'pool_size' | 'starts_at' | 'ends_at' | 'chip_rate' | 'free_chips'> & { access: CasinoAccess; prizes: CasinoPrize[] };
+  'title' | 'open' | 'mode' | 'price' | 'per_player' | 'budget' | 'pool_size' | 'starts_at' | 'ends_at' | 'chip_rate' | 'free_chips' | 'back_table'> & { access: CasinoAccess; prizes: CasinoPrize[] };
 /** Who may spin, from a database with v299 or one without. */
 export const accessOf = (s: Pick<CasinoSettings, 'open' | 'access'>): CasinoAccess => s.access ?? (s.open ? 'everyone' : 'closed');
 /** Whether this account may spin and walk in now (the hours aside): the database says so again at every spin. */
@@ -79,10 +84,11 @@ const UNUSED: Record<PrizeId, CasinoPrize> = {
   pair: { id: 'pair', name: '50 Coin', kind: 'coin', amount: 50, chance: 0, stock: 100000, issued: 0, announce: false, active: false },
 };
 export function draftOf(state: CasinoState): CasinoDraft {
-  const { title, open, mode, price, per_player, budget, pool_size, starts_at, ends_at, chip_rate, free_chips } = state.settings;
+  const { title, open, mode, price, per_player, budget, pool_size, starts_at, ends_at, chip_rate, free_chips, back_table } = state.settings;
   // (the rate and the free coins only from a database that has them, v303: a desk before it sends neither)
   return { title, open, access: accessOf(state.settings), mode, price, per_player, budget, pool_size, starts_at, ends_at,
-    ...(chip_rate === undefined ? {} : { chip_rate, free_chips }), prizes: state.prizes.map(p => ({ ...p })) };
+    ...(chip_rate === undefined ? {} : { chip_rate, free_chips }), ...(back_table === undefined ? {} : { back_table: back_table.map(r => ({ ...r })) }),
+    prizes: state.prizes.map(p => ({ ...p })) };
 }
 export function effectiveChance(p: CasinoPrize, s: CasinoSettings, all: CasinoPrize[]): number {
   if (!p.active || p.issued >= p.stock || (p.kind === 'gil' && p.amount > s.budget - s.reserved)) return 0;
@@ -95,11 +101,28 @@ export function effectiveChance(p: CasinoPrize, s: CasinoSettings, all: CasinoPr
  * the town must not inflate). Weighted: each coin prize's chance of its amount; a pool: every coin left in it over the
  * draws left.
  */
-export function coinsBack(d: Pick<CasinoDraft, 'mode' | 'prizes' | 'pool_size'>, s: Pick<CasinoSettings, 'pool_draws'>): number {
+export function coinsBack(d: Pick<CasinoDraft, 'mode' | 'prizes' | 'pool_size'> & Partial<Pick<CasinoDraft, 'price' | 'back_table'>>, s: Pick<CasinoSettings, 'pool_draws'>): number {
+  // (a pair paid by the paytable pays its average at the price, v304)
+  const amountOf = (p: CasinoPrize) => p.id === 'pair' && d.back_table && d.price ? backAverage(d.back_table, d.price) : p.amount;
   const coins = d.prizes.filter(p => p.active && p.kind === 'coin');
-  if (d.mode === 'pool') { const left = d.pool_size - s.pool_draws; return left > 0 ? coins.reduce((n, p) => n + (p.stock - p.issued) * p.amount, 0) / left : 0; }
-  return coins.reduce((n, p) => n + Number(p.chance) / 100 * p.amount, 0);
+  if (d.mode === 'pool') { const left = d.pool_size - s.pool_draws; return left > 0 ? coins.reduce((n, p) => n + (p.stock - p.issued) * amountOf(p), 0) / left : 0; }
+  return coins.reduce((n, p) => n + Number(p.chance) / 100 * amountOf(p), 0);
 }
+/** What a row of the paytable pays at this price: a part of it, rounded down, as the database pays it (v304). */
+export const backAmount = (r: Pick<BackRow, 'pct'>, price: number) => Math.floor(price * r.pct / 100);
+/** What a pair pays on average at this price. */
+export function backAverage(t: BackRow[], price: number): number {
+  const shares = t.reduce((n, r) => n + r.share, 0);
+  return shares > 0 ? t.reduce((n, r) => n + r.share * backAmount(r, price), 0) / shares : 0;
+}
+/** Each row of the paytable with what it pays and its chance a spin, the pair's chance shared out. */
+export function backRows(t: BackRow[], price: number, chance: number) {
+  const shares = t.reduce((n, r) => n + r.share, 0);
+  return t.map(r => ({ ...r, amount: backAmount(r, price), chance: shares > 0 ? chance * r.share / shares : 0 }));
+}
+/** What a win is said to be, after the winner's name: a pair of the paytable a part of the price come back. */
+export const wonWords = (p: Pick<PrizeSnapshot, 'name' | 'amount' | 'pct'>) =>
+  p.pct !== undefined ? `ได้ Casino Coin คืน ${money(Number(p.amount))} (${p.pct}%)` : `ได้ ${p.name}`;
 export function draftProblem(d: CasinoDraft, s: CasinoSettings): string | null {
   if (!d.title.trim() || d.title.length > 100) return 'ชื่อกิจกรรมต้องมี 1–100 ตัวอักษร';
   if (![d.price, d.per_player, d.budget, d.pool_size].every(Number.isSafeInteger) ||
@@ -108,6 +131,12 @@ export function draftProblem(d: CasinoDraft, s: CasinoSettings): string | null {
   if (d.starts_at && d.ends_at && Date.parse(d.ends_at) <= Date.parse(d.starts_at)) return 'เวลาจบต้องอยู่หลังเวลาเริ่ม';
   if (d.chip_rate !== undefined && (!Number.isSafeInteger(d.chip_rate) || d.chip_rate < 1 || d.chip_rate > 10000 ||
     !Number.isSafeInteger(d.free_chips) || d.free_chips! < 0 || d.free_chips! > 100000)) return 'อัตราแลกต้องเป็น 1–10,000 และ Casino Coin ฟรีต่อวัน 0–100,000';
+  if (d.back_table !== undefined) {
+    const t = d.back_table;
+    if (t.length !== 5 || new Set(t.map(r => r.sym)).size !== 5 || !t.every(r => SYMBOLS.includes(r.sym) && Number.isInteger(r.pct) && r.pct >= 1 && r.pct <= 99 &&
+      Number.isInteger(r.share) && r.share >= 0 && r.share <= 1000) || !t.some(r => r.share > 0)) return 'ตาราง Coin คืน: ส่วนที่คืน 1–99% และสัดส่วน 0–1,000 (มีอย่างน้อยหนึ่งแถว)';
+    if (t.some(r => backAmount(r, d.price) < 1)) return 'ตาราง Coin คืน: ทุกแถวต้องคืนอย่างน้อย 1 Casino Coin ที่ราคานี้';
+  }
   for (const p of d.prizes) {
     if (!p.name.trim() || p.name.length > 100 || !Number.isFinite(Number(p.chance)) || p.chance < 0 || p.chance > 100 ||
       !Number.isSafeInteger(p.stock) || p.stock < p.issued || p.stock > 1e6 ||

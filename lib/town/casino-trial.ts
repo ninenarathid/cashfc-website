@@ -26,7 +26,7 @@ export function newCasinoTrial(now = Date.now(), setup?: unknown): CasinoTrial {
 const SETUP_KEYS = ['title','open','mode','price','per_player','budget','pool_size','starts_at','ends_at'] as const;
 /** What a browser keeps of a room: its settings and prizes, not its coins, spins or receipts. */
 export function trialSetup(t: CasinoTrial): CasinoDraft {
-  const d=Object.fromEntries(SETUP_KEYS.map(k=>[k,t.settings[k]])) as Omit<CasinoDraft,'prizes'>;
+  const d=Object.fromEntries(SETUP_KEYS.map(k=>[k,t.settings[k]])) as unknown as Omit<CasinoDraft,'prizes'>;
   return {...d,access:d.open?'everyone':'closed',prizes:t.prizes.map(p=>({...p,issued:0}))};
 }
 function checkedDraft(t: CasinoTrial, doc: unknown): CasinoDraft {

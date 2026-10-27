@@ -1,8 +1,9 @@
 "use client";
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { ACCESS_LABEL, CLAIM_LABEL, coinsBack, draftOf, draftProblem, effectiveChance, money, PRIZE_LABEL, prizeWithAmount, wipedWords, type CasinoAccess, type CasinoDraft, type CasinoReceipt } from '@/lib/casino';
+import { ACCESS_LABEL, backRows, CLAIM_LABEL, coinsBack, draftOf, draftProblem, effectiveChance, money, PRIZE_LABEL, prizeWithAmount, wipedWords, type CasinoAccess, type CasinoDraft, type CasinoReceipt } from '@/lib/casino';
 import CasinoWinners from './CasinoWinners';
+import CasinoSymbol from './CasinoSymbol';
 import { useCasino } from './useCasino';
 import './casino.css';
 
@@ -90,11 +91,20 @@ export default function CasinoDesk() {
           return <tr key={p.id}><td><input aria-label={`เปิด ${p.id}`} type="checkbox" checked={p.active} onChange={e => change({ active: e.target.checked })} /></td>
             <td><label><span>{PRIZE_LABEL[p.id] ?? p.id}</span><input aria-label={`ชื่อ ${p.id}`} value={p.name} maxLength={100} onChange={e => change({ name: e.target.value })} /></label></td>
             <td><select aria-label={`ประเภท ${p.id}`} value={p.kind} disabled={p.id === 'pair'} onChange={e => change(prizeWithAmount(p, p.amount, e.target.value as typeof p.kind))}><option value="physical">ของนอกเกม</option><option value="gil">FFXIV Gil</option><option value="coin">{chips ? 'Casino Coin' : 'Coin ในเกม'}</option></select></td>
-            <td><input aria-label={`มูลค่า ${p.id}`} type="number" min={p.kind === 'physical' ? 0 : 1} max={1e9} value={p.amount} onChange={e => change(prizeWithAmount(p, Number(e.target.value)))} /></td>
+            <td>{p.id === 'pair' && draft.back_table ? <span title="ตามตาราง Coin คืนด้านล่าง">ตามตาราง</span> : <input aria-label={`มูลค่า ${p.id}`} type="number" min={p.kind === 'physical' ? 0 : 1} max={1e9} value={p.amount} onChange={e => change(prizeWithAmount(p, Number(e.target.value)))} />}</td>
             <td><input aria-label={`โอกาส ${p.id}`} type="number" min={0} max={100} step="0.000001" disabled={draft.mode === 'pool'} value={p.chance} onChange={e => change({ chance: Number(e.target.value) })} /></td>
             <td><input aria-label={`สต็อก ${p.id}`} type="number" min={issued} max={1e6} value={p.stock} onChange={e => change({ stock: Number(e.target.value) })} /></td><td>{money(issued)}</td>
             <td><label className="casino-check"><input type="checkbox" checked={p.announce} onChange={e => change({ announce: e.target.checked })} />ประกาศ</label></td></tr>;
         })}</tbody></table></div>
+      {draft.back_table && (() => { const pairRow = draft.prizes.find(p => p.id === 'pair'); const rows = backRows(draft.back_table, draft.price, pairRow?.active ? Number(pairRow.chance) : 0);
+        const set = (i: number, patch: { pct?: number; share?: number }) => edit('back_table', draft.back_table!.map((old, j) => j === i ? { ...old, ...patch } : old));
+        return <section className="casino-paytable-desk"><h3>ตาราง Coin คืน · สองช่องแรกตรงกัน</h3>
+          <p>สองช่องแรกเป็นรูปไหน คืนส่วนนั้นของราคาหมุน (1–99% ไม่คืนเต็ม) · สัดส่วนบอกว่ารูปนั้นออกบ่อยแค่ไหนในโอกาส {Number(pairRow?.chance ?? 0)}% ของ Coin คืน</p>
+          <div style={{ overflowX: 'auto' }}><table><thead><tr><th>รูป</th><th>คืน % ของราคา</th><th>สัดส่วน</th><th>ได้คืน</th><th>โอกาสต่อการหมุน</th></tr></thead>
+            <tbody>{rows.map((row, i) => <tr key={row.sym}><td><span className="casino-paytable-pair"><CasinoSymbol id={row.sym} /><CasinoSymbol id={row.sym} /></span></td>
+              <td><input aria-label={`คืน % ${row.sym}`} type="number" min={1} max={99} value={row.pct} onChange={e => set(i, { pct: Number(e.target.value) })} /></td>
+              <td><input aria-label={`สัดส่วน ${row.sym}`} type="number" min={0} max={1000} value={row.share} onChange={e => set(i, { share: Number(e.target.value) })} /></td>
+              <td>{money(row.amount)} Casino Coin</td><td>{row.chance.toFixed(2)}%</td></tr>)}</tbody></table></div></section>; })()}
       <p>{draft.mode === 'pool' ? 'โอกาสคำนวณจากสต็อกที่เหลือ / สิทธิ์ที่เหลือในกอง ถ้าจับครบกอง รางวัลที่เปิดไว้จะออกครบ' : 'โอกาสเป็นของแต่ละครั้ง จำนวนรางวัลที่ออกจริงไม่รับประกัน เมื่อสต็อกหรืองบไม่พอ โอกาสส่วนนั้นจะเป็นรอบไม่ชนะ'}</p>
       <p>{live ? 'ของนอกเกมเข้ากล่องรางวัลของผู้ชนะ (ผู้ชนะกดขอรับ แล้วคุยกับแอดมินในแชท 1-1) · Gil เข้ากระเป๋าเงินในโปรไฟล์ · ' + (chips ? 'Casino Coin เข้ายอด Casino Coin ทันที' : 'Coin เข้ากระเป๋า Cash Town ทันที') : 'ของนอกเกมและ Gil ออกเป็นสิทธิ์ในกระเป๋า Event ส่วน Coin เข้าบัญชีทดลองทันที'} · สองช่องแรกตรงกันได้ Coin คืน · การประกาศอิงค่าขณะรับการหมุน</p>
       <p>{unit} ที่ได้คืนเฉลี่ย {back.toFixed(1)} ต่อการหมุน · ต้องน้อยกว่าราคาหมุน {money(draft.price)} {chips ? 'ไม่ให้ Casino Coin ฟรีหมุนได้ไม่สิ้นสุด' : 'เพื่อไม่ให้เหรียญในเมืองเฟ้อ'}</p>

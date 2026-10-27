@@ -96,16 +96,22 @@ async function round(X, label, m, { admin }) {
   const purse1 = await coinsOf(m);
   await click(X, ".casino-in-town .casino-spin"); await sleep(5600);
   const r = await text(X, ".casino-in-town .casino-result");
-  ok(`${label}: coins back`, /100 Casino Coin/.test(r) && /หมุนต่อได้เลย/.test(r), r);
-  ok(`${label}: the price taken and paid back in Casino Coins, the purse untouched`, (await chipsOf(m)) === 600 && (await coinsOf(m)) === purse1, { chips: await chipsOf(m), coins: await coinsOf(m) });
+  // (v304: the pair pays a row of the paytable, a part of the price)
+  const back = /Casino Coin คืน (d+) ((d+)%)/.exec(r);
+  ok(`${label}: a part of the price comes back, said with its share`, !!back && Number(back[2]) < 100 && /หมุนต่อได้เลย/.test(r), r);
+  ok(`${label}: the price taken and that part paid back in Casino Coins, the purse untouched`, !!back && (await chipsOf(m)) === 600 - 100 + Number(back[1]) && (await coinsOf(m)) === purse1, { chips: await chipsOf(m), coins: await coinsOf(m), back });
   await X.shot(`${OUT}/4-coins-back-${label}.png`);
+  await X.evaluate(`document.querySelector(".casino-in-town .casino-prize-details").open = true`); await sleep(400);
+  ok(`${label}: the machine shows its paytable, five rows`, (await X.evaluate(`document.querySelectorAll(".casino-in-town .casino-paytable-row").length`)) === 5);
+  await X.evaluate(`document.querySelector(".casino-in-town .casino-play-layout")?.scrollTo(0, 9999)`); await sleep(300);
+  await X.shot(`${OUT}/5-paytable-${label}.png`);
 }
 
 // ── set up: the trial, the pair as v303 set it going, nobody's coins yet ──
 await sql(`update public.casino_live_settings set access = 'admins', open = false, chip_rate = 1, free_chips = 100 where id = 1`);
 await sql(`update public.casino_live_prizes set issued = 0`);
-// (the pair as the owner asked for it, set after v303 by the desk or the service key: 20% for 100 Casino Coin)
-await sql(`update public.casino_live_prizes set name = '100 Casino Coin', kind = 'coin', amount = 100, chance = 20, active = true where id = 'pair'`);
+// (the pair as live has it: 20%, paid by v304's paytable)
+await sql(`update public.casino_live_prizes set name = 'Casino Coin คืน', kind = 'coin', amount = 22, chance = 20, active = true where id = 'pair'`);
 await sql(`delete from public.casino_live_spins where true`); await sql(`delete from public.casino_live_chip_moves where true`); await sql(`update public.casino_live_accounts set chips = 0, spins = 0`);
 
 const A = await browser("chips-a", { width: 1280, height: 860 });
