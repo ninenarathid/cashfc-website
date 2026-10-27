@@ -44,9 +44,11 @@ export function GiantBed({ crop, bloom = false, children }: { crop: GiantCrop | 
  * width), so the database judges them as before; only what is seen is the garden's. A camp pennant's replay of the first
  * missed beat is kept (`retryFirst`).
  */
-export function GiantPlantingGame({ run, crop, th, retryFirst = false, onFinish }: {
+export function GiantPlantingGame({ run, crop, th, retryFirst = false, onFinish, aside }: {
   run: { id: string; seed: number }; crop: GiantCrop; th: boolean; retryFirst?: boolean;
   onFinish: (marks: number[], miss?: CampMiss) => void;
+  /** What stands beside the dig button (the stop): one row, so that a short phone keeps both in sight. */
+  aside?: ReactNode;
 }) {
   const WIDTH = 0.09;
   const cursor = useRef<HTMLSpanElement>(null), began = useRef(0), marks = useRef<number[]>([]), locked = useRef(false), retried = useRef<CampMiss | undefined>(undefined);
@@ -72,7 +74,7 @@ export function GiantPlantingGame({ run, crop, th, retryFirst = false, onFinish 
   return (
     <div className={s.game} data-giant-game>
       <div className={s.beats}>
-        <p className="text-ui">{th ? "ขุดตอนพลั่วอยู่เหนือจุดเรืองแสง" : "Dig while the trowel is over the glow"}</p>
+        <p className="text-ui">{th ? "ขุดตอนพลั่วอยู่เหนือจุดเรืองแสง · พักไว้ได้ ไม่เสียสิทธิ์" : "Dig while the trowel is over the glow · stopping keeps today’s planting"}</p>
         <span className="flex shrink-0 items-end gap-1" aria-label={`${step}/3`}>
           {[0, 1, 2].map((i) => <TownIcon key={i} name={i < step && done[i].hit ? "plotSprout" : "mound"} size={20} className={i < step ? "" : "opacity-35"} />)}
         </span>
@@ -89,10 +91,13 @@ export function GiantPlantingGame({ run, crop, th, retryFirst = false, onFinish 
         </div>
       </div>
       {retryNote && <p role="status" className={`${s.note} text-ui`}>{th ? "ธงค่ายให้ขุดจังหวะนี้ใหม่ได้หนึ่งครั้ง" : "The camp pennant lets you dig this beat again once."}</p>}
-      <button autoFocus type="button" data-giant-dig disabled={step >= 3} onClick={dig}
-              className="pressable tk tk-btn mt-2 flex min-h-12 w-full items-center justify-center gap-2 font-display text-ui font-semibold disabled:opacity-50">
-        <TownIcon name={seedIcon(crop)} size={20} />{th ? "ขุดปลูก" : "Dig and plant"}
-      </button>
+      <div className="mt-2 flex gap-2">
+        {aside}
+        <button autoFocus type="button" data-giant-dig disabled={step >= 3} onClick={dig}
+                className="pressable tk tk-btn flex min-h-12 flex-1 items-center justify-center gap-2 font-display text-ui font-semibold disabled:opacity-50">
+          <TownIcon name={seedIcon(crop)} size={20} />{th ? "ขุดปลูก" : "Dig and plant"}
+        </button>
+      </div>
     </div>
   );
 }
