@@ -1,4 +1,4 @@
-import{works,useGift}from'./gifts';import{held,take,put,roomFor,type Purse}from'./trade';import{CROPS,type CropId}from'./items';import{GARDEN_CROPS,type GardenCropId}from'./garden-items';import{GARDEN,syncGarden,gardenCross}from'./gardening';import{bedOf}from'./world';import{see,type Plot,type FarmSky}from'./farm';import{spend}from'./stamina';import{extractionMarks}from'./reward-actions';
+import{works,useGift,usesLeft}from'./gifts';import{held,take,put,roomFor,type Purse}from'./trade';import{CROPS,type CropId}from'./items';import{GARDEN_CROPS,type GardenCropId}from'./garden-items';import{GARDEN,syncGarden,gardenCross}from'./gardening';import{bedOf}from'./world';import{see,type Plot,type FarmSky}from'./farm';import{spend}from'./stamina';import{extractionMarks}from'./reward-actions';
 export const GIANT_CROPS=['pumpkin','cabbage','carrot','daikon','taro']as const;
 export interface GiantRun{id:string;key:string;crop:typeof GIANT_CROPS[number];seed:number;began:number;until:number}
 export interface PollenSample{id:string;key:string;crop:CropId;cells:string[];bed:number;identity:string;until:number}
@@ -11,13 +11,13 @@ export function gardenAction(p:Purse,c:GardenInput,id:string,t:number,seed:numbe
  if(c.action==='giantCancel')return{ok:true as const,purse:{...p,professionRewards:{...state,giant:null}},giant:null};
  if(c.action==='giantBegin'){
   const cells=giantCells(key);if(!works(p,'thingGiantSeeds')||!c.crop||!GIANT_CROPS.includes(c.crop)||owner!==me||!cells||cells.some(k=>plots[k]?.soil!=='tilled'||plots[k]?.plant)||held(p.bag,CROPS[c.crop].seed)<4||r&&r.until>t||!Number.isInteger(seed)||seed<0||seed>4294967295)return no('none');
-  const u=useGift(p,'thingGiantSeeds',t);if(!u.ok)return no('spent');const giant:GiantRun={id,key,crop:c.crop,seed,began:t,until:t+120000};return{ok:true as const,purse:{...u.purse,professionRewards:{...state,giant}},giant};
+  if(usesLeft(p,'thingGiantSeeds',t)<1)return no('spent');const giant:GiantRun={id,key,crop:c.crop,seed,began:t,until:t+120000};return{ok:true as const,purse:{...p,professionRewards:{...state,giant}},giant};
  }
  if(c.action==='giantEnd'){
   if(!r||r.id!==c.run||r.key!==key||r.until<t||t<r.began+2400||!works(p,'thingGiantSeeds')||owner!==me)return no('far');if(!c.marks||c.marks.length!==3||c.marks.some(n=>!Number.isFinite(n)||n<0||n>1))return no('none');const cells=giantCells(key);if(!cells||cells.some(k=>plots[k]?.soil!=='tilled'||plots[k]?.plant)||held(p.bag,CROPS[r.crop].seed)<4)return no('none');const pass=extractionMarks(r.seed).every((n,i)=>Math.abs(n-c.marks![i])<=.09),after={...spend(p,2,t),professionRewards:{...state,giant:null}};
-  if(!pass)return{ok:true as const,purse:after,giant:null,gardenPassed:false};
+  if(!pass)return{ok:true as const,purse:after,giant:null,gardenPassed:false};const u=useGift(after,'thingGiantSeeds',t);if(!u.ok)return no('spent');
   const plant:NonNullable<Plot['plant']>={by:me,crop:r.crop,sown:t,boost:0,watered:plots[key].damp?t:0,fed:0,guard:0,cured:0,picked:0,pickedAt:0,root:key,footprint:cells,giant:true,...(plots[key].damp?{moist:true}:{})},updated=Object.fromEntries(cells.map(k=>[k,{soil:'tilled' as const,plant:{...plant}}]));
-  return{ok:true as const,purse:{...after,bag:take(after.bag,CROPS[r.crop].seed,4)},giant:null,plots:updated,gardenPassed:true};
+  return{ok:true as const,purse:{...u.purse,bag:take(u.purse.bag,CROPS[r.crop].seed,4)},giant:null,plots:updated,gardenPassed:true};
  }
  if(!root||root.by!==me||root.root&&root.root!==key||!see(key,plot,t,sky).ripe||root.crossed)return no('none');
  if(c.action==='gardenBrush'){
