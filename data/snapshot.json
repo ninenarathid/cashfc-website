@@ -2299,7 +2299,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 44,
+  "level": 62,
   "cc": [
    true,
    true,
@@ -2346,7 +2346,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-26"
+  "chg": "2026-10-27"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -8765,7 +8765,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 91,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -8785,7 +8785,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-26"
+  "chg": "2026-10-27"
  },
  "60475540": {
   "name": "Joaline Auchefornei",

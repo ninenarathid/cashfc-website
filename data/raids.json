@@ -72116,7 +72116,13 @@
     "best": 45,
     "kills": 5,
     "job": "Machinist",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Machinist": {
+      "kills": 5,
+      "best": 45
+     }
+    }
    },
    {
     "zone": "Trials III (Extreme)",
@@ -76424,7 +76430,21 @@
       "best": 96,
       "median": 55,
       "kills": 16,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 12,
+        "best": 96
+       },
+       "Monk": {
+        "kills": 3,
+        "best": 64
+       },
+       "Summoner": {
+        "kills": 1,
+        "best": 18
+       }
+      }
      },
      {
       "label": "P6S",
@@ -76433,7 +76453,21 @@
       "best": 96,
       "median": 77,
       "kills": 17,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 15,
+        "best": 96
+       },
+       "Monk": {
+        "kills": 1,
+        "best": 52
+       },
+       "Summoner": {
+        "kills": 1,
+        "best": 25
+       }
+      }
      },
      {
       "label": "P7S",
@@ -76442,7 +76476,17 @@
       "best": 93,
       "median": 27,
       "kills": 15,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 14,
+        "best": 93
+       },
+       "Summoner": {
+        "kills": 1,
+        "best": 6
+       }
+      }
      },
      {
       "label": "P8S",
@@ -76451,7 +76495,17 @@
       "best": 91,
       "median": 39,
       "kills": 43,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 42,
+        "best": 91
+       },
+       "Monk": {
+        "kills": 1,
+        "best": 27
+       }
+      }
      },
      {
       "label": null,
@@ -76460,7 +76514,13 @@
       "best": 62,
       "median": 36,
       "kills": 13,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 13,
+        "best": 62
+       }
+      }
      }
     ]
    },
