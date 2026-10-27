@@ -98,8 +98,9 @@ try {
     if (syms.length === 2) doubles++;
     if (r.reels[0] === p.sym && r.reels[1] === p.sym) fronts++;
     const right = parts.length === syms.length && parts.every((a, k) => a === PCT[syms[k]]) && Number(p.amount) === parts.reduce((n, a) => n + a, 0)
-      && syms[0] === p.sym && p.pct === PCT[p.sym] && p.name === `${p.amount} Casino Coin` && r.reels[1] !== r.reels[2]
-      && JSON.stringify(seenPairs(r.reels).sort()) === JSON.stringify([...syms].sort()) && new Set(syms).size === syms.length;
+      && syms.includes(p.sym) && p.pct === PCT[p.sym] && p.name === `${p.amount} Casino Coin` && r.reels[1] !== r.reels[2]
+      // (and in the order they stand, left to right)
+      && JSON.stringify(seenPairs(r.reels)) === JSON.stringify(syms) && new Set(syms).size === syms.length;
     if (!right) bad.push(r);
   }
   eq(bad.length, 0, `every pair pays its row, and every pair seen is paid: no more, no less (${JSON.stringify(bad[0] ?? null)?.slice(0, 260)})`);

@@ -201,3 +201,4 @@
 .casino-town-layer .casino-prize-details{font-size:13px;color:var(--color-ink)}
 .casino-town-layer .casino-console>h2{min-height:44px;display:flex;align-items:center;margin-bottom:6px}
 .casino-desk-in-room .casino-actions :is(button,a){min-height:44px}
+.casino-town-layer .casino-result{flex-direction:column}

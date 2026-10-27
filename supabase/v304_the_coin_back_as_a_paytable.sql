@@ -186,6 +186,8 @@ begin
     else y_ := casino.reel_not(array[first_]); x_ := casino.reel_not(array[y_]);
     end if;
     reels_ := case when front_ then jsonb_build_array(first_, first_, x_, y_) else jsonb_build_array(x_, y_, first_, first_) end;
+    -- (two pairs said in the order they stand, left to right: 20 + 50 for cherry cherry popoto popoto)
+    if back2_ is not null and not front_ then prize_ := prize_ || jsonb_build_object('parts', jsonb_build_array(back2_ -> 'amount', back_ -> 'amount'), 'syms', jsonb_build_array(back2_ -> 'sym', back_ -> 'sym')); end if;
   else
     first_ := casino.reel(); x_ := casino.reel_not(array[first_]); y_ := casino.reel_not(array[x_]); z_ := casino.reel_not(array[y_]);
     reels_ := jsonb_build_array(first_, x_, y_, z_);
