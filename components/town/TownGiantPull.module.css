@@ -71,7 +71,9 @@
   display: flex; min-height: 64px; align-items: center; justify-content: center; gap: 6px;
   border: 2px solid var(--gold); border-radius: 10px;
   background: color-mix(in srgb, #f0c060 calc(var(--lit) * 62%), #3a2513);
-  color: color-mix(in srgb, #1a0e06 calc(var(--lit) * 100%), var(--cream));
+  /* (cream with a dark edge whatever the light under it: a colour mixed with the light went grey half-lit) */
+  color: var(--cream);
+  text-shadow: 0 1px 0 #1a0e06, 0 -1px 0 #1a0e06, 1px 0 0 #1a0e06, -1px 0 0 #1a0e06, 0 2px 0 #1a0e06;
   font-weight: 700; font-size: 16px;
   box-shadow: 0 4px 0 #1a0e06, 0 0 calc(var(--lit) * 22px) calc(var(--lit) * 4px) #f0c06088;
   transform: scale(calc(1 + var(--lit) * 0.035));
