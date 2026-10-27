@@ -446,6 +446,15 @@ const SHEETS = [
   // Cut on its finer grid (8.0): on its coarser (16.6) the crystals and the coins broke into pieces. The cherries, the
   // gold bar and the potato are the code-drawn reel symbols drawn the town's way, for the owner to choose to take
   ["icons-casino-a", ["reelEvercold", "reelCoins", "reelCherry", "reelGold", "reelPopoto", "reelEvercoldB"], { range: [7.9, 8.1] }],
+  // ── the giants as the farm's map draws them, over their whole 2x2 (2026-10-27, the owner: "ผักยักษ์ จะกินที่เท่าไหร่ ช่วย
+  // ขยายภาพให้เต็มพื่นที่นั้นจริงๆ"). The bag's and the book's are cut on 8 above; at the 2x2's size their pixels would be
+  // twice the farm's, so the map's are cut on the sheets' own grid, 4, from copies of the same drawings
+  // (work/out/icons-giantmap-a, -b, -c = icons-giantcrop-a, -b, icons-wide-e), and built alone into a picture of the
+  // farm's own (ICONS_ONLY=icons-giantmap-a,icons-giantmap-b,icons-giantmap-c ICONS_PUB=<tree>/public/town/giants
+  // ICONS_JSON=<tree>/lib/town/giant-map.json): the town's atlas is not touched, and only a farm with a giant fetches it
+  ["icons-giantmap-a", ["mapGiantPumpkinA", "mapGiantPumpkinB", "_mapCabbageA", "_mapCabbageB", "mapGiantCarrotA", "mapGiantCarrotB"], { range: [3.9, 4.1] }],
+  ["icons-giantmap-b", ["_mapTomato", "mapGiantDaikonA", "mapGiantDaikonB", "_mapTaroA", "_mapTaroB", "_mapBasil"], { range: [3.9, 4.1] }],
+  ["icons-giantmap-c", ["_mapOkraA", "_mapOkraB", "mapGiantCabbageA", "mapGiantCabbageB", "mapGiantTaroA", "mapGiantTaroB"], { range: [3.9, 4.1] }],
   // ── the 24 more of the bag (v277, 2026-10-17: lib/town/wear-items), with icons-wear-a for the reference, each sheet cut
   // on the fine grid that gives the glasses' own size (on the coarser one, 8 to 16, they came out blocky). `f` drew
   // again the four that read as something else beside their neighbours: the apron (a bag), the pumpkin hat (the

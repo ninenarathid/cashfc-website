@@ -11,6 +11,7 @@ import TownCampFlag from './TownCampFlag';
 import TownWaykeeper from './TownWaykeeper';
 import TownSkyBean from "./TownSkyBean";
 import { giantSprite } from "@/lib/town/wide-plants";
+import giantMap from "@/lib/town/giant-map.json";
 import TownGardenRewards from "./TownGardenRewards";
 import TownKitchenRewards from "./TownKitchenRewards";
 import TownPicnic from "./TownPicnic";
@@ -39,7 +40,7 @@ import { buffBy, isSpent } from "@/lib/town/stamina";
 import { handOf, heldStack } from "@/lib/town/trade";
 import { NATURE_NAMES, type Nature } from "@/lib/town/waters";
 import type { Keeper } from "@/lib/town/keeper";
-import { FARM, TILE_H, WELLS, bedCorner, bedOf, plotAt, wellBy, type Vec } from "@/lib/town/world";
+import { FARM, TILE_H, TILE_W, WELLS, bedCorner, bedOf, plotAt, wellBy, type Vec } from "@/lib/town/world";
 import { BedChip, BedHandPanel } from "./TownBedHand";
 import TownIcon, { ICON_ATLAS, petScale, type IconName } from "./TownIcon";
 import TownFoot from "./TownFoot";
@@ -173,6 +174,22 @@ const ROW_GIFT: Record<RowDeed, GiftId> = { clear: "charmHoe", till: "charmHoe",
 const GIFT_BTN = "pop-in pressable pointer-events-auto flex min-h-12 items-center gap-2 rounded-full border-2 border-[#f0c060] bg-[#3a2513]/95 py-1 pl-2 pr-4 text-ui font-semibold text-[#ffeccb] shadow-xl shadow-black/40";
 /** How big a plant is drawn: screen pixels to one of its picture's, at the map's own scale 1. */
 const PLANT = 0.62;
+/**
+ * The giants as the map draws them, over their whole 2x2 (the owner, 2026-10-27: "ผักยักษ์ จะกินที่เท่าไหร่ ช่วยขยายภาพให้
+ * เต็มพื่นที่นั้นจริงๆ"): a picture of their own, cut on their drawings' own grid so that drawn two tiles wide their pixels
+ * are the farm's (scripts/pixel/build-icons.mjs, icons-giantmap-*), fetched when a giant is first drawn. Each crop at the
+ * scale that spreads its ripe picture across the two tiles, no taller than GIANT_TALL (the taro's and the carrot's leaves
+ * stand high); its young picture at the same scale, so it grows into it. Its foot stands GIANT_FOOT in front of the 2x2's
+ * middle, its mound over the four plots.
+ */
+const GIANT_MAP = giantMap as { image: string; icons: Record<string, [number, number, number, number]> };
+const GIANT_WIDE = 2 * TILE_W * 0.97, GIANT_TALL = 150, GIANT_FOOT = 20;
+let giantSheet: HTMLImageElement | null = null;
+const giantImage = () => { if (!giantSheet) { giantSheet = new Image(); giantSheet.src = `/town/giants/${GIANT_MAP.image.split("/").pop()}`; } return giantSheet; };
+const giantK = (crop: string) => {
+  const ripe = GIANT_MAP.icons[`mapGiant${crop[0].toUpperCase()}${crop.slice(1)}B`];
+  return ripe ? Math.min(GIANT_WIDE / ripe[2], GIANT_TALL / ripe[3]) : PLANT;
+};
 
 /** Atlas crops were drawn at different resolutions. Size the visible plant,
  * keeping its aspect ratio and roots at the soil; seedlings use their original scale. */
@@ -500,9 +517,17 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       const giantDraw = (giant: { x: number; y: number; crop: string }, what: Seen): (() => void) | null => {
         if (what.dead) return null;
         const name = giantSprite(giant.crop, what.stage);
-        if (!name || !(name in ICON_ATLAS.icons)) return null;
-        const mid = project({ x: giant.x, y: giant.y });
-        return () => blit(name, { x: mid.x, y: mid.y + 7 * s });
+        if (!name) return null;
+        const mid = project({ x: giant.x, y: giant.y }), cell = GIANT_MAP.icons[`map${name[0].toUpperCase()}${name.slice(1)}`], sheet = giantImage();
+        const k = giantK(giant.crop) * s, foot = mid.y + GIANT_FOOT * s;
+        if (cell && sheet.complete && sheet.naturalWidth) {
+          const [x, y, w, h] = cell;
+          return () => { ctx.imageSmoothingEnabled = false; ctx.drawImage(sheet, x, y, w, h, Math.round(mid.x - (w * k) / 2), Math.round(foot - h * k), w * k, h * k); };
+        }
+        // (until its picture has come: the bag's, at the same size)
+        const small = ICON_ATLAS.icons[name as IconName];
+        if (!small) return null;
+        return () => blit(name, { x: mid.x, y: foot - 5 * s }, 0, cell ? (k * cell[2]) / small[2] : PLANT * s);
       };
       /**
        * One of an insect house's insects (the owner's ask, 2026-10-15): its own picture, in the air with its shadow under

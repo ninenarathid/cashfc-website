@@ -1,0 +1,70 @@
+{
+ "image": "/town/icons-42507394de.png",
+ "size": [
+  256,
+  1707
+ ],
+ "icons": {
+  "mapGiantPumpkinA": [
+   1,
+   1282,
+   156,
+   149
+  ],
+  "mapGiantPumpkinB": [
+   1,
+   954,
+   168,
+   163
+  ],
+  "mapGiantCarrotA": [
+   1,
+   1118,
+   134,
+   163
+  ],
+  "mapGiantCarrotB": [
+   1,
+   437,
+   146,
+   185
+  ],
+  "mapGiantDaikonA": [
+   1,
+   789,
+   170,
+   164
+  ],
+  "mapGiantDaikonB": [
+   1,
+   1,
+   188,
+   224
+  ],
+  "mapGiantCabbageA": [
+   1,
+   1571,
+   154,
+   135
+  ],
+  "mapGiantCabbageB": [
+   1,
+   1432,
+   147,
+   138
+  ],
+  "mapGiantTaroA": [
+   1,
+   623,
+   152,
+   165
+  ],
+  "mapGiantTaroB": [
+   1,
+   226,
+   153,
+   210
+  ]
+ },
+ "cursor": {}
+}

@@ -666,3 +666,16 @@ with its closing sentence, `work/out/scene-icons.png` for the reference.
   ledger); Codex looked at the sheet in the game afterwards (above).
 - In the game: the reels of the sheet, the cabinet windows and the marquee over a machine, 1280x860, 384x730, 360x640
   (`scripts/town-casino-db.mjs`).
+
+## The giants over their whole 2x2 on the map (2026-10-27)
+
+The owner: "ผักยักษ์ จะกินที่เท่าไหร่ ช่วยขยาย ภาพให้เต็มพื่นที่นั้นจริงๆ". The farm drew a giant at a plant's scale (0.62), 45 to 58
+map px across, where its 2x2 is 128. No call: the same drawings (`icons-giantcrop-a`, `-b`, `icons-wide-e`) are cut again on
+their own grid, 4, from copies named `icons-giantmap-a`, `-b`, `-c` in `work/out` (the bag's and the book's stay on 8), and
+built alone into a picture of the farm's own, `public/town/giants/icons-<hash>.png` + `lib/town/giant-map.json` (256x1707,
+89 KB, ten pictures 134 to 188 wide): `ICONS_ONLY=icons-giantmap-a,icons-giantmap-b,icons-giantmap-c
+ICONS_PUB=<tree>/public/town/giants ICONS_JSON=<tree>/lib/town/giant-map.json node build-icons.mjs`. TownFarm fetches it
+when a giant is first drawn (the bag's picture, at the same size, until then) and draws each crop at the scale that spreads
+its ripe picture across two tiles, no taller than 150 map px (`GIANT_WIDE`, `GIANT_TALL`, `GIANT_FOOT`): 0.65 to 0.85 map
+px to one of its own, the farm's own pixel size. In the game: the five ripe and three young, apart and side by side,
+1280x860 and 384x730, before and after.
