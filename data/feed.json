@@ -1,6 +1,27 @@
 {
  "events": [
   {
+   "date": "2026-10-27",
+   "type": "rare_up",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "earned A Beast in the Hand III"
+  },
+  {
+   "date": "2026-10-27",
+   "type": "level_100",
+   "id": 9444020,
+   "name": "Non Elemental",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-10-27",
+   "type": "level_100",
+   "id": 8836061,
+   "name": "Allusia Heartfilia",
+   "text": "reached level 100 on Scholar!"
+  },
+  {
    "date": "2026-10-26",
    "type": "level_100",
    "id": 47218599,
@@ -1378,27 +1399,6 @@
    "id": 29998658,
    "name": "Shippei Astana",
    "text": "earned Occult Enlightenment II"
-  },
-  {
-   "date": "2026-10-14",
-   "type": "rare_up",
-   "id": 22425670,
-   "name": "Shizuna-pan Misurugi",
-   "text": "earned R&D: Cosmic Raising Hammer"
-  },
-  {
-   "date": "2026-10-14",
-   "type": "rare_up",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "earned Tank You, Paladin IV"
-  },
-  {
-   "date": "2026-10-14",
-   "type": "rare_up",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "earned Phantom of the Umbra: Codex Umbrae"
   }
  ]
 }
