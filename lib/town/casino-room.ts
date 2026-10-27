@@ -29,13 +29,20 @@ export const CASINO_STOOLS: Vec[] = CASINO_MACHINE_X.map((x, i) => casinoOut({ x
 export const stoolAt = (p: Vec) => CASINO_STOOLS.findIndex((s) => Math.abs(s.x - p.x) < 0.1 && Math.abs(s.y - p.y) < 0.1) + 1;
 
 /**
- * The sofas' places (the owner, 2026-10-27: "ช่วยทำให้ โซฟาในแมพ คาซิโน นั่งได้จริงด้วย"): three a sofa, each sat from the floor
- * before it (`stand`, where the walker stops: the sofa itself is not walked on) and drawn on its cushion (`at`), facing
- * the room; `sofa` is the sofa's place among the furniture, `depth` where the sitter is drawn, just over the sofa.
+ * Where a sitter's feet are drawn on each cushion of the sofa's picture (public/town/casino/v2/sofa.png), in its own
+ * pixels from the foot of its middle: the picture is drawn turned, so the cushions step down to the right.
  */
-export const CASINO_SOFA_SEATS = CASINO_FURNITURE.flatMap((f, sofa) => f.kind !== "sofa" ? [] : [0, 1, 2].map((i) => ({
-  sofa, stand: casinoOut({ x: f.x + i + 0.5, y: f.y + f.h + 0.5 }), at: casinoOut({ x: f.x + i + 0.55, y: f.y + 1.2 }),
-  depth: CASINO_ROOM.x + CASINO_ROOM.y + f.x + f.y + f.w + f.h - 0.4,
+const CUSHIONS: Array<[number, number]> = [[-29, -33], [-4, -25], [22, -16]];
+/**
+ * The sofas' places (the owner, 2026-10-27: "ช่วยทำให้ โซฟาในแมพ คาซิโน นั่งได้จริงด้วย", then "นั่งได้สามคน"): three a sofa,
+ * one a cushion, each sat from the floor in front of its cushion (`stand`, where the walker stops: the sofa itself is
+ * not walked on) and drawn on it (`at`, the cushion's point in the tile space), facing the room; `sofa` is the sofa's
+ * place among the furniture, `depth` where the sitter is drawn, just over the sofa, the nearer cushion over the farther.
+ */
+export const CASINO_SOFA_SEATS = CASINO_FURNITURE.flatMap((f, sofa) => f.kind !== "sofa" ? [] : CUSHIONS.map(([px, py], i) => ({
+  sofa, stand: casinoOut({ x: f.x + i + 1.5, y: f.y + f.h + 0.5 }),
+  at: casinoOut({ x: f.x + f.w / 2 + (px / 32 + py / 16) / 2, y: f.y + f.h / 2 + (py / 16 - px / 32) / 2 }),
+  depth: CASINO_ROOM.x + CASINO_ROOM.y + f.x + f.y + f.w + f.h - 0.4 + i * 0.01,
 })));
 /** Which sofa place a point is the standing spot of (1 on), or 0. */
 export const sofaSeatAt = (p: Vec) => CASINO_SOFA_SEATS.findIndex((s) => Math.abs(s.stand.x - p.x) < 0.1 && Math.abs(s.stand.y - p.y) < 0.1) + 1;

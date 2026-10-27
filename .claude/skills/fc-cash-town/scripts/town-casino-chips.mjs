@@ -142,7 +142,7 @@ async function round(X, label, m, { admin }) {
   ok(`${label}: a sofa to tap`, !!sofa, (await casino(X)).boxes.map((b) => b.n));
   if (sofa) {
     await tap(X, ...middle(sofa));
-    const spots = [341.5, 342.5, 343.5, 367.5, 368.5, 369.5];
+    const spots = [342.5, 343.5, 344.5, 368.5, 369.5, 370.5];
     const seated = await until("on the sofa", async () => { const me = await X.evaluate("window.__cashTown.me()"); return me && me.sit === -2 && Math.abs(me.y - 122.5) < 0.1 && spots.some((x) => Math.abs(me.x - x) < 0.1) && me; }, 15000).catch(() => null);
     ok(`${label}: walks to a sofa's place and sits`, !!seated, await X.evaluate("window.__cashTown.me()"));
     await sleep(800);

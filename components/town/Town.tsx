@@ -3234,7 +3234,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // ── the Popoto Casino ── (up on a machine's stool)
     if (sitting(a) && stoolAt(a.pos)) { const p = project(a.pos); return { x: p.x, y: p.y - 35 * cam.current.s }; }
     // (on one of its sofas, on the cushion)
-    if (sitting(a) && !a.path.length && sofaSeatAt(a.pos)) { const p = project(CASINO_SOFA_SEATS[sofaSeatAt(a.pos) - 1].at); return { x: p.x, y: p.y - 20 * cam.current.s }; }
+    if (sitting(a) && !a.path.length && sofaSeatAt(a.pos)) return project(CASINO_SOFA_SEATS[sofaSeatAt(a.pos) - 1].at);
     const place = tableSeatOf(a);
     if (place) return project(place.at);
     const b = seatOf(a);
@@ -4177,9 +4177,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         hover.current = b;
         const bb = boardBox.current, t = tileAt(p.x, p.y);
         const someone = !!otherAt(p.x, p.y);
-        const seat = !someone && (benchUnder(p.x, p.y) >= 0 || benchAt(t.x, t.y) >= 0);
+        // ── the Popoto Casino ── (a sofa is sat on, as a bench is; a machine and the counter are clicked)
+        const casinoHit = placeRef.current === "casino" ? casinoArtRef.current?.hit(p.x, p.y) ?? null : null;
+        const seat = !someone && ((casinoHit !== null && casinoHit >= 100) || benchUnder(p.x, p.y) >= 0 || benchAt(t.x, t.y) >= 0);
         const sb = gameRef.current && boxKnown() ? storeBox.current : null;
-        const clickable = !!b || someone || (!!bb && p.x >= bb.x0 && p.x <= bb.x1 && p.y >= bb.y0 && p.y <= bb.y1)
+        const clickable = !!b || someone || casinoHit !== null || (!!bb && p.x >= bb.x0 && p.x <= bb.x1 && p.y >= bb.y0 && p.y <= bb.y1)
           || signBoxes.current.some((k) => p.x >= k.x0 && p.x <= k.x1 && p.y >= k.y0 && p.y <= k.y1)
           || (!!sb && p.x >= sb.x0 && p.x <= sb.x1 && p.y >= sb.y0 && p.y <= sb.y1)
           || (!!gameRef.current && !!keeper?.feast() && feastBoxes.current.some((k) => p.x >= k.x0 && p.x <= k.x1 && p.y >= k.y0 && p.y <= k.y1))
