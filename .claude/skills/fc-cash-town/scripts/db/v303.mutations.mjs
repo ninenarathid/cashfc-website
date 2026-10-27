@@ -16,9 +16,11 @@ export default ({ swap }) => [
   ["free coins never off", swap("  if s.free_chips < 1 then return jsonb_build_object('ok', false, 'why', 'off'); end if;\n", ""), ["free coins turned off"]],
   ["the desk drops the rate", swap("ends_at = nullif(p_doc ->> 'ends_at', '')::timestamptz, chip_rate = rate_, free_chips = free_,", "ends_at = nullif(p_doc ->> 'ends_at', '')::timestamptz,"), ["kept"]],
   ["any rate", swap("    rate_ not between 1 and 10000 or free_ not between 0 and 100000 or\n", ""), ["a rate of nothing is refused"]],
-  ["the wipe leaves the trial's coins", swap("      select user_id, coins::numeric, -chips::numeric, 0 from public.casino_live_chip_moves where test) t", "      select user_id, 0::numeric, 0::numeric, 0 from public.casino_live_chip_moves where false) t"), ["every Popoto coin back: the spin before v303 and the coins changed"]],
+  ["the wipe leaves the trial's coins", swap("        from public.casino_live_chip_moves where test) t", "        from public.casino_live_chip_moves where false) t"), ["every Popoto coin back: the spin before v303 and the coins changed"]],
   ["the wipe gives an old spin back in Casino Coins", swap("          case when trail ? 'chips' then 0 else price - case when prize ->> 'kind' = 'coin' then (prize ->> 'amount')::numeric else 0 end end coins,", "          0::numeric coins,"), ["every Popoto coin back: the spin before v303 and the coins changed"]],
   ["the wipe keeps the moves", swap("  delete from public.casino_live_chip_moves where test;\n", ""), ["the moves gone"]],
   ["anon may change coins", swap("public.casino_live_buy(uuid, integer), public.casino_live_free() from public, anon;", "public.casino_live_free() from public, anon;"), ["anon may not call casino_live_buy(uuid,integer)"]],
   ["the trial's coins not counted", swap(" + (select count(*) from public.casino_live_chip_moves where admin_ and test),", ","), ["the desk counts coins taken in the trial as something to wipe"]],
+  ["trial coins spent once open given back whole", swap("    if short_ > 0 and x.bought > 0 then refund_", "    if false then refund_"), ["200 given back, the 200 Casino Coins left taken away: the real spins paid for"]],
+  ["the free coins not spent first", swap("ceil(greatest(0, short_ - x.free) * x.paid", "ceil(short_ * x.paid"), ["the free ones spent first: the wipe says 100 Popoto coins kept"]],
 ];

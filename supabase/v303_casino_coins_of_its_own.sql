@@ -222,8 +222,9 @@ returns jsonb language plpgsql security definer set search_path = '' as $$
 declare me uuid := town.member(); s public.casino_live_settings; a public.casino_live_accounts; old public.casino_live_chip_moves;
   purse_ jsonb; cost_ bigint; coins_ numeric;
 begin
-  if p_request is null or p_chips is null or p_chips not between 1 and 100000 then return jsonb_build_object('ok', false, 'why', 'amount'); end if;
-  select * into s from public.casino_live_settings where id = 1;
+  if p_request is null or p_chips is null or p_chips not between 1 and 1000000 then return jsonb_build_object('ok', false, 'why', 'amount'); end if;
+  -- (the settings' row held as a spin holds it, shared: a wipe of the trial under way is waited for)
+  select * into s from public.casino_live_settings where id = 1 for share;
   -- (my account's row first, then the purse, as the wipe takes them: a retry of this request waits here and finds it)
   insert into public.casino_live_accounts (user_id) values (me) on conflict do nothing;
   select * into a from public.casino_live_accounts where user_id = me for update;
@@ -250,7 +251,8 @@ create or replace function public.casino_live_free()
 returns jsonb language plpgsql security definer set search_path = '' as $$
 declare me uuid := town.member(); s public.casino_live_settings; a public.casino_live_accounts; day_ integer := town.day_of(town.now_ms());
 begin
-  select * into s from public.casino_live_settings where id = 1;
+  -- (the settings' row held as a spin holds it, shared: a wipe of the trial under way is waited for)
+  select * into s from public.casino_live_settings where id = 1 for share;
   if not casino.chips_let_in(s) then return jsonb_build_object('ok', false, 'why', 'closed'); end if;
   if s.free_chips < 1 then return jsonb_build_object('ok', false, 'why', 'off'); end if;
   insert into public.casino_live_accounts (user_id) values (me) on conflict do nothing;
@@ -323,7 +325,7 @@ end $$;
 create or replace function public.casino_live_wipe_tests()
 returns jsonb language plpgsql security definer set search_path = '' as $$
 declare me uuid := casino.require_live_admin(); x record; purse_ jsonb; spins_ integer; moves_ integer; wins_ bigint[]; drops_ bigint[]; notes_ bigint[];
-  out_ bigint := 0;
+  out_ bigint := 0; have_ numeric; need_ numeric; short_ numeric; refund_ numeric; kept_ numeric := 0;
 begin
   perform 1 from public.casino_live_settings where id = 1 for update;
   select count(*) into spins_ from public.casino_live_spins where test;
@@ -332,30 +334,41 @@ begin
   -- (each tester's account first, then the purse: the order a change of coins takes them)
   perform 1 from public.casino_live_accounts where user_id in (select user_id from public.casino_live_spins where test
     union select user_id from public.casino_live_chip_moves where test) order by user_id for update;
-  -- what each tester spent and was paid back, put back: in Popoto coins for a spin from before v303 and for coins
-  -- changed in the trial; in Casino Coins for a spin since, less those changed and taken in the trial
-  for x in select t.user_id, sum(t.coins)::numeric coins, sum(t.chips)::numeric chips, sum(t.n)::integer n from (
+  -- what each tester spent and was paid back, put back: in Popoto coins for a spin from before v303, in Casino Coins
+  -- for one since; the Casino Coins changed and taken in the trial taken away, the Popoto coins changed given back.
+  -- Trial coins spent once the casino was open (it was opened before the wipe) are not there to take back: the free
+  -- ones count as spent first, and only what is left of those changed is given back in Popoto coins (kept_: the rest).
+  for x in select t.user_id, sum(t.coins)::numeric coins, sum(t.back)::numeric back, sum(t.bought)::numeric bought,
+      sum(t.paid)::numeric paid, sum(t.free)::numeric free, sum(t.n)::integer n from (
       select user_id,
           case when trail ? 'chips' then 0 else price - case when prize ->> 'kind' = 'coin' then (prize ->> 'amount')::numeric else 0 end end coins,
-          case when trail ? 'chips' then price - case when prize ->> 'kind' = 'coin' then (prize ->> 'amount')::numeric else 0 end else 0 end chips, 1 n
+          case when trail ? 'chips' then price - case when prize ->> 'kind' = 'coin' then (prize ->> 'amount')::numeric else 0 end else 0 end back,
+          0::numeric bought, 0::numeric paid, 0::numeric free, 1 n
         from public.casino_live_spins where test
       union all
-      select user_id, coins::numeric, -chips::numeric, 0 from public.casino_live_chip_moves where test) t
+      select user_id, 0, 0, case when kind = 'buy' then chips else 0 end, coins, case when kind = 'free' then chips else 0 end, 0
+        from public.casino_live_chip_moves where test) t
     group by t.user_id order by t.user_id loop
-    if x.coins <> 0 then
+    select chips into have_ from public.casino_live_accounts where user_id = x.user_id;
+    need_ := x.bought + x.free - x.back;
+    short_ := greatest(0, need_ - coalesce(have_, 0));
+    refund_ := x.paid;
+    if short_ > 0 and x.bought > 0 then refund_ := greatest(0, x.paid - ceil(greatest(0, short_ - x.free) * x.paid / x.bought)); end if;
+    kept_ := kept_ + x.paid - refund_;
+    if x.coins + refund_ <> 0 then
       perform town.purse_of(x.user_id, true);
       perform 1 from public.town_purses wallet_ where wallet_.member_id = x.user_id for update;
       purse_ := town.purse_of(x.user_id, true);
-      perform town.keep_purse(x.user_id, jsonb_set(purse_, '{coins}', to_jsonb(greatest(0, (purse_ ->> 'coins')::numeric + x.coins))));
+      perform town.keep_purse(x.user_id, jsonb_set(purse_, '{coins}', to_jsonb(greatest(0, (purse_ ->> 'coins')::numeric + x.coins + refund_))));
     end if;
-    update public.casino_live_accounts set spins = greatest(0, spins - x.n), chips = greatest(0, chips + x.chips), updated_at = clock_timestamp()
+    update public.casino_live_accounts set spins = greatest(0, spins - x.n), chips = greatest(0, chips - need_), updated_at = clock_timestamp()
       where user_id = x.user_id;
   end loop;
   delete from public.casino_live_chip_moves where test;
   if spins_ = 0 then
-    insert into public.casino_live_audit (actor, action, detail) values (me, 'wipe tests', jsonb_build_object('spins', 0, 'moves', moves_));
+    insert into public.casino_live_audit (actor, action, detail) values (me, 'wipe tests', jsonb_build_object('spins', 0, 'moves', moves_, 'kept', kept_));
     perform casino.hint('changed', '{}'::jsonb);
-    return jsonb_build_object('spins', 0, 'moves', moves_, 'wins', 0, 'drops', 0, 'withdrawn', 0);
+    return jsonb_build_object('spins', 0, 'moves', moves_, 'kept', kept_, 'wins', 0, 'drops', 0, 'withdrawn', 0);
   end if;
   -- the stock, the Gil set aside, the counts
   update public.casino_live_prizes p set issued = greatest(0, p.issued - c.n)
@@ -387,9 +400,9 @@ begin
   delete from public.casino_live_receipts where spin_id in (select id from public.casino_live_spins where test);
   delete from public.casino_live_spins where test;
   insert into public.casino_live_audit (actor, action, detail) values (me, 'wipe tests',
-    jsonb_build_object('spins', spins_, 'moves', moves_, 'wins', cardinality(wins_), 'drops', cardinality(drops_), 'withdrawn', out_));
+    jsonb_build_object('spins', spins_, 'moves', moves_, 'kept', kept_, 'wins', cardinality(wins_), 'drops', cardinality(drops_), 'withdrawn', out_));
   perform casino.hint('changed', '{}'::jsonb);
-  return jsonb_build_object('spins', spins_, 'moves', moves_, 'wins', cardinality(wins_), 'drops', cardinality(drops_), 'withdrawn', out_);
+  return jsonb_build_object('spins', spins_, 'moves', moves_, 'kept', kept_, 'wins', cardinality(wins_), 'drops', cardinality(drops_), 'withdrawn', out_);
 end $$;
 
 revoke all on function casino.chips_let_in(public.casino_live_settings) from public, anon, authenticated;

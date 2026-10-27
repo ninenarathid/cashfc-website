@@ -102,7 +102,7 @@ try {
   const again = await buy(ADMIN, 500, req);
   eq([again?.ok, Number(again?.chips), await coins(ADMIN)], [true, 500, 9400], "the same request again changes nothing");
   eq((await buy(ADMIN, 700, req))?.why, "amount", "the same request for another amount is refused");
-  for (const [n, what] of [[0, "nothing"], [100001, "over a hundred thousand"], [null, "no amount"]]) eq((await buy(ADMIN, n))?.why, "amount", `${what} is refused`);
+  for (const [n, what] of [[0, "nothing"], [1000001, "over a million"], [null, "no amount"]]) eq((await buy(ADMIN, n))?.why, "amount", `${what} is refused`);
   eq((await buy(ADMIN, 20000))?.why, "coins", "more than the purse holds is refused");
   eq([await chips(ADMIN), await coins(ADMIN)], [500, 9400], "and nothing moved");
   eq((await one("select kind, chips, coins::int, test from public.casino_live_chip_moves where request = $1", [req])), { kind: "buy", chips: 500, coins: 500, test: true }, "the change kept, a test");
@@ -167,6 +167,21 @@ try {
   eq(Number((await as(ADMIN, "select public.casino_live_state() r"))?.tests), 1, "the desk counts coins taken in the trial as something to wipe");
   eq((await as(ADMIN, "select public.casino_live_wipe_tests() r"))?.moves, 1, "a wipe of moves alone");
   eq(await chips(ADMIN), 0, "and its coins gone");
+
+  // ── coins changed in the trial and spent once the casino opened, before the wipe: only what is left is given back ──
+  await db.exec("update public.casino_live_settings set chip_rate = 1, free_chips = 100");
+  const p0 = await coins(ADMIN);
+  eq((await free(ADMIN))?.ok, true, "100 free in the trial");
+  eq((await buy(ADMIN, 300))?.ok, true, "and 300 changed");
+  await access("everyone");
+  await db.exec("create temp table held as select id, active from public.casino_live_prizes; update public.casino_live_prizes set active = false");
+  ok((await spin(ADMIN))?.id && (await spin(ADMIN))?.id, "200 of them spent on two real spins once open");
+  await db.exec("update public.casino_live_prizes p set active = h.active from held h where h.id = p.id; drop table held");
+  const w2 = await as(ADMIN, "select public.casino_live_wipe_tests() r");
+  eq([Number(w2?.moves), Number(w2?.kept)], [2, 100], "the free ones spent first: the wipe says 100 Popoto coins kept");
+  eq([await coins(ADMIN), await chips(ADMIN)], [p0 - 100, 0], "200 given back, the 200 Casino Coins left taken away: the real spins paid for");
+  await db.exec("update public.casino_live_settings set chip_rate = 3, free_chips = 100");
+  await access("admins");
 
   // ── open to everyone: nothing of it is a test ──
   await access("everyone");
