@@ -162,7 +162,7 @@
 .casino-town-layer.casino-in-town{background:transparent;pointer-events:none}
 .casino-in-town .casino-lower{pointer-events:auto}
 .casino-forced{display:flex;flex-direction:column;gap:4px;margin-top:12px;font-size:12px}
-.casino-forced select{min-height:40px}
+.casino-forced select{min-height:44px}
 /* Codex's look of 2026-10-27: every target in the town's casino at least 44 px, and the small words readable */
 .casino-map-label>button,.casino-town-layer .casino-map-label>button{width:44px;height:44px}
 .casino-town-layer .casino-panel-close{width:44px;height:44px;top:6px;right:6px}
@@ -174,11 +174,11 @@
 .casino-chips{display:grid;gap:8px;margin:0 0 12px;padding:10px;border:1px solid var(--color-line);border-radius:8px;background:var(--color-bg)}
 .casino-chips-balance{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin:0;font-size:13px}
 .casino-chips-balance strong{font:600 22px var(--font-data-face),sans-serif;font-variant-numeric:tabular-nums}
-.casino-chips-balance small{margin-left:auto;color:var(--color-muted);font-size:12px}
-.casino-chips-rate,.casino-chips-note{margin:0;font-size:12px;line-height:1.5}.casino-chips-rate{color:var(--color-muted)}
+.casino-chips-balance small{margin-left:auto;font-size:13px}
+.casino-chips-rate,.casino-chips-note,.casino-chips-taken{margin:0;font-size:13px;line-height:1.5}.casino-chips-taken{padding:10px;border:1px dashed var(--color-line-strong);border-radius:6px;text-align:center}
 .casino-chips-packs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
 .casino-chips-packs button{min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;line-height:1.25}
-.casino-chips-packs button small{font-size:11px;color:var(--color-muted);font-variant-numeric:tabular-nums}
+.casino-chips-packs button small{font-size:12px;font-variant-numeric:tabular-nums}
 .casino-chips-packs button[aria-checked=true]{outline:2px solid var(--color-accent);outline-offset:-2px}
 .casino-chips-free,.casino-chips-buy,.casino-chips-back{width:100%;min-height:44px;padding:8px;font-size:14px}
-.casino-map-label>button.casino-chip-count.tk-slot{width:auto;min-width:44px;padding:0 10px;display:flex;flex-direction:row;align-items:center;gap:5px;font:600 13px var(--font-data-face),sans-serif;font-variant-numeric:tabular-nums}
+.casino-map-label>button.casino-chip-count.tk-slot{width:auto;min-width:44px;padding:0 10px;display:flex;flex-direction:row;align-items:baseline;gap:5px;font:600 14px var(--font-data-face),sans-serif;font-variant-numeric:tabular-nums}.casino-chip-count small{font:500 11px var(--font-body-face),sans-serif}

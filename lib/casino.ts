@@ -140,7 +140,7 @@ export function prizeWithAmount<P extends Pick<CasinoPrize, 'name' | 'kind' | 'a
 export const CLAIM_LABEL = { pending: 'รอรับ', processing: 'กำลังส่งมอบ', fulfilled: 'ส่งมอบแล้ว', cancelled: 'ยกเลิก' };
 /** Where a prize goes once won, said to the winner: coins into the Casino Coins once the database has them (v303). */
 export function whereItGoes(p: Pick<PrizeSnapshot, 'kind'>, chips = false): string {
-  return p.kind === 'gil' ? 'เข้ากระเป๋าเงิน Gil ในโปรไฟล์' : p.kind === 'coin' ? (chips ? 'เข้า Casino Coin แล้ว' : 'เข้ากระเป๋า Cash Town แล้ว') : 'อยู่ในกล่องรางวัล กดขอรับแล้วคุยกับแอดมินได้';
+  return p.kind === 'gil' ? 'เข้ากระเป๋าเงิน Gil ในโปรไฟล์' : p.kind === 'coin' ? (chips ? 'หมุนต่อได้เลย' : 'เข้ากระเป๋า Cash Town แล้ว') : 'อยู่ในกล่องรางวัล กดขอรับแล้วคุยกับแอดมินได้';
 }
 /** Whether the casino takes Casino Coins (v303), not the town purse's Popoto coins. */
 export const chipsOf = (s: Pick<CasinoState, 'account'>): number | null => typeof s.account.chips === 'number' ? Number(s.account.chips) : null;

@@ -164,6 +164,7 @@ try {
   ok((await free(ADMIN))?.why === "off", "(free coins still off)");
   await db.exec("update public.casino_live_settings set free_chips = 100");
   eq((await free(ADMIN))?.ok, true, "the trial's free coins wiped, today's may be taken again");
+  eq(Number((await as(ADMIN, "select public.casino_live_state() r"))?.tests), 1, "the desk counts coins taken in the trial as something to wipe");
   eq((await as(ADMIN, "select public.casino_live_wipe_tests() r"))?.moves, 1, "a wipe of moves alone");
   eq(await chips(ADMIN), 0, "and its coins gone");
 

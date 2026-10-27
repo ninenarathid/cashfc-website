@@ -85,7 +85,8 @@ begin
         from public.casino_live_spins x left join public.prize_wins pw on pw.id = (x.trail ->> 'win')::bigint
         where admin_ and x.prize is not null and x.prize ->> 'kind' in ('gil', 'physical')
         order by x.created_at desc limit 50) w),
-    'tests', (select count(*) from public.casino_live_spins where admin_ and test),
+    -- (the trial's coins changed and taken are wiped with its spins: a trial of them alone is still something to wipe)
+    'tests', (select count(*) from public.casino_live_spins where admin_ and test) + (select count(*) from public.casino_live_chip_moves where admin_ and test),
     'server_now', clock_timestamp(),
     'paid_gil', (select coalesce(sum((prize ->> 'amount')::bigint) filter (where prize ->> 'kind' = 'gil'), 0)
       from public.casino_live_spins where admin_ and not test and prize is not null)

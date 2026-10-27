@@ -20,4 +20,5 @@ export default ({ swap }) => [
   ["the wipe gives an old spin back in Casino Coins", swap("          case when trail ? 'chips' then 0 else price - case when prize ->> 'kind' = 'coin' then (prize ->> 'amount')::numeric else 0 end end coins,", "          0::numeric coins,"), ["every Popoto coin back: the spin before v303 and the coins changed"]],
   ["the wipe keeps the moves", swap("  delete from public.casino_live_chip_moves where test;\n", ""), ["the moves gone"]],
   ["anon may change coins", swap("public.casino_live_buy(uuid, integer), public.casino_live_free() from public, anon;", "public.casino_live_free() from public, anon;"), ["anon may not call casino_live_buy(uuid,integer)"]],
+  ["the trial's coins not counted", swap(" + (select count(*) from public.casino_live_chip_moves where admin_ and test),", ","), ["the desk counts coins taken in the trial as something to wipe"]],
 ];

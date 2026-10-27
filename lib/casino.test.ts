@@ -52,7 +52,7 @@ describe('Casino presentation and settings', () => {
   it('names Casino Coins as Casino Coins, and says where they go', () => {
     expect(prizeWithAmount({ name: '100 Casino Coin', kind: 'coin' as const, amount: 100 }, 200).name).toBe('200 Casino Coin');
     expect(prizeWithAmount({ name: '50 Coin', kind: 'coin' as const, amount: 50 }, 80).name).toBe('80 Coin');
-    expect(whereItGoes({ kind: 'coin' }, true)).toBe('เข้า Casino Coin แล้ว');
+    expect(whereItGoes({ kind: 'coin' }, true)).toBe('หมุนต่อได้เลย');
     expect(whereItGoes({ kind: 'coin' })).toBe('เข้ากระเป๋า Cash Town แล้ว');
   });
 });

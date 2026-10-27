@@ -74,7 +74,7 @@ async function round(X, label, m, { admin }) {
   await click(X, ".casino-chips-free"); await sleep(1500);
   ok(`${label}: today's free coins taken`, (await chipsOf(m)) === 100, await chipsOf(m));
   ok(`${label}: and said`, /รับฟรี 100/.test(await text(X, ".casino-chips-note")), await text(X, ".casino-chips-note"));
-  ok(`${label}: once a day`, /รับฟรีวันนี้แล้ว/.test(await text(X, ".casino-chips-free")) && await X.evaluate(`document.querySelector(".casino-chips-free").disabled`));
+  ok(`${label}: once a day`, /รับฟรีวันนี้แล้ว/.test(await text(X, ".casino-chips-taken")) && !(await X.evaluate(`!!document.querySelector(".casino-chips-free")`)));
   const purse0 = await coinsOf(m), shown0 = await X.evaluate(`window.__townKeeper.purse().coins`);
   await click(X, ".casino-chips-packs button:nth-child(2)"); await sleep(300);
   ok(`${label}: five spins' worth chosen`, /แลก 500 Casino Coin · 500 Popoto coin/.test(await text(X, ".casino-chips-buy")), await text(X, ".casino-chips-buy"));
@@ -96,7 +96,7 @@ async function round(X, label, m, { admin }) {
   const purse1 = await coinsOf(m);
   await click(X, ".casino-in-town .casino-spin"); await sleep(5600);
   const r = await text(X, ".casino-in-town .casino-result");
-  ok(`${label}: coins back`, /100 Casino Coin/.test(r) && /เข้า Casino Coin แล้ว/.test(r), r);
+  ok(`${label}: coins back`, /100 Casino Coin/.test(r) && /หมุนต่อได้เลย/.test(r), r);
   ok(`${label}: the price taken and paid back in Casino Coins, the purse untouched`, (await chipsOf(m)) === 600 && (await coinsOf(m)) === purse1, { chips: await chipsOf(m), coins: await coinsOf(m) });
   await X.shot(`${OUT}/4-coins-back-${label}.png`);
 }
