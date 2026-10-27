@@ -88468,9 +88468,9 @@
     "state": "learning",
     "pct": 39.61,
     "phase": 4,
-    "pulls": 26,
-    "last": "2026-10-21",
-    "last_ts": 1792594328
+    "pulls": 29,
+    "last": "2026-10-26",
+    "last_ts": 1793026487
    }
   ]
  },
@@ -91950,7 +91950,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 100,
-    "kills": 64,
+    "kills": 66,
     "job": "Viper",
     "cleared": true,
     "job_kills": {
@@ -96606,6 +96606,216 @@
       "best": 45
      }
     }
+   }
+  ],
+  "legacy": [],
+  "_status": "ok"
+ },
+ "25854820": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "encounter_id": 101,
+     "name": "Vamp Fatale",
+     "best": 96,
+     "median": 96,
+     "kills": 11,
+     "job": "Warrior"
+    },
+    {
+     "label": "M10S",
+     "encounter_id": 102,
+     "name": "Red Hot and Deep Blue",
+     "best": 84,
+     "median": 64,
+     "kills": 9,
+     "job": "DarkKnight"
+    },
+    {
+     "label": "M11S",
+     "encounter_id": 103,
+     "name": "The Tyrant",
+     "best": 94,
+     "median": 64,
+     "kills": 8,
+     "job": "DarkKnight"
+    },
+    {
+     "label": "M12S-1",
+     "encounter_id": 104,
+     "name": "Lindwurm",
+     "best": 93,
+     "median": 44,
+     "kills": 15,
+     "job": "DarkKnight"
+    },
+    {
+     "label": "M12S-2",
+     "encounter_id": 105,
+     "name": "Lindwurm II",
+     "best": 89,
+     "median": 71,
+     "kills": 8,
+     "job": "DarkKnight"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Futures Rewritten",
+    "zone_id": 65,
+    "expansion": "Dawntrail",
+    "encounter_id": 1079,
+    "name": "Futures Rewritten",
+    "best": 90,
+    "kills": 7,
+    "job": "DarkKnight",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "encounter_id": 1075,
+    "name": "The Epic of Alexander",
+    "best": 22,
+    "kills": 1,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "encounter_id": 1062,
+    "name": "The Epic of Alexander",
+    "best": 96,
+    "kills": 8,
+    "job": "DarkKnight",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "encounter_id": 1060,
+    "name": "The Unending Coil of Bahamut",
+    "best": 26,
+    "kills": 2,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Stormblood)",
+    "zone_id": 30,
+    "expansion": "Shadowbringers",
+    "encounter_id": 1048,
+    "name": "The Weapon's Refrain",
+    "best": 69,
+    "kills": 5,
+    "job": "Gunbreaker",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1083,
+    "name": "Doomtrain",
+    "best": 92,
+    "kills": 2,
+    "job": "DarkKnight",
+    "cleared": true
+   },
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1084,
+    "name": "Enuo",
+    "best": 96,
+    "kills": 56,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1082,
+    "name": "Guardian Arkveld",
+    "best": 95,
+    "kills": 19,
+    "job": "DarkKnight",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1081,
+    "name": "Necron",
+    "best": 92,
+    "kills": 4,
+    "job": "Gunbreaker",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1080,
+    "name": "Zelenia",
+    "best": 99,
+    "kills": 9,
+    "job": "Gunbreaker",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1078,
+    "name": "Queen Eternal",
+    "best": 89,
+    "kills": 31,
+    "job": "Gunbreaker",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1071,
+    "name": "Valigarmanda",
+    "best": 100,
+    "kills": 92,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1072,
+    "name": "Zoraal Ja",
+    "best": 99,
+    "kills": 71,
+    "job": "Gunbreaker",
+    "cleared": true
    }
   ],
   "legacy": [],
