@@ -18,6 +18,9 @@ try{
  d=await both(d.purse,begin,6,t+6000,'begin after a miss');eq(d.ok,true);
  d=await both(d.purse,end(6,extractionMarks(123)),7,t+8400,'a pass');eq(d.gardenPassed,true);eq(usesLeft(d.purse,'thingGiantSeeds',t),0,'a pass spends the day');eq(held(d.purse.bag,'seedPumpkin'),0,'a pass spends four seeds');
  await clear();eq(await both({...d.purse,bag:p.bag},begin,8,t+9000,'no second giant the same day'),{ok:false,why:'spent'});
+ // A run begun under v238 had its day counted at its start: it still takes, and the day is not counted twice.
+ d=await both(p,begin,0,t,'a run begun just before v301');const v238=(await one("select town.gift_use($1::jsonb,'thingGiantSeeds',$2) u",[JSON.stringify(d.purse),t])).u.purse;eq(usesLeft(v238,'thingGiantSeeds',t),0,'its day counted at its start, as v238 did');
+ d=await both(v238,end(0,extractionMarks(123)),1,t+2400,'that run takes after v301');eq(d.gardenPassed,true);eq(d.purse.gifts.used.thingGiantSeeds.n,1,'and its day is not counted twice');
  eq((await one("select has_function_privilege('authenticated','town.reward_garden(jsonb,jsonb,uuid,bigint,bigint,uuid)','EXECUTE') a")).a,false,'members cannot call it directly');
  await db.exec("create or replace function town.reward_garden(p jsonb,c jsonb,request_ uuid,t bigint,seed_ bigint,me uuid) returns jsonb language sql as $$select '{}'::jsonb$$");await assert.rejects(db.exec(sql),/Definition moved/);checks++;
  console.log(`v301: ${checks} checks passed (database and page agree; cancel, run out and miss keep the day; a pass spends it; guard and rerun).`);

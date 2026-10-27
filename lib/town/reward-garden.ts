@@ -15,9 +15,9 @@ export function gardenAction(p:Purse,c:GardenInput,id:string,t:number,seed:numbe
  }
  if(c.action==='giantEnd'){
   if(!r||r.id!==c.run||r.key!==key||r.until<t||t<r.began+2400||!works(p,'thingGiantSeeds')||owner!==me)return no('far');if(!c.marks||c.marks.length!==3||c.marks.some(n=>!Number.isFinite(n)||n<0||n>1))return no('none');const cells=giantCells(key);if(!cells||cells.some(k=>plots[k]?.soil!=='tilled'||plots[k]?.plant)||held(p.bag,CROPS[r.crop].seed)<4)return no('none');const pass=extractionMarks(r.seed).every((n,i)=>Math.abs(n-c.marks![i])<=.09),after={...spend(p,2,t),professionRewards:{...state,giant:null}};
-  if(!pass)return{ok:true as const,purse:after,giant:null,gardenPassed:false};const u=useGift(after,'thingGiantSeeds',t);if(!u.ok)return no('spent');
+  if(!pass)return{ok:true as const,purse:after,giant:null,gardenPassed:false};const u=useGift(after,'thingGiantSeeds',t),counted=u.ok?u.purse:after;
   const plant:NonNullable<Plot['plant']>={by:me,crop:r.crop,sown:t,boost:0,watered:plots[key].damp?t:0,fed:0,guard:0,cured:0,picked:0,pickedAt:0,root:key,footprint:cells,giant:true,...(plots[key].damp?{moist:true}:{})},updated=Object.fromEntries(cells.map(k=>[k,{soil:'tilled' as const,plant:{...plant}}]));
-  return{ok:true as const,purse:{...u.purse,bag:take(u.purse.bag,CROPS[r.crop].seed,4)},giant:null,plots:updated,gardenPassed:true};
+  return{ok:true as const,purse:{...counted,bag:take(counted.bag,CROPS[r.crop].seed,4)},giant:null,plots:updated,gardenPassed:true};
  }
  if(!root||root.by!==me||root.root&&root.root!==key||!see(key,plot,t,sky).ripe||root.crossed)return no('none');
  if(c.action==='gardenBrush'){

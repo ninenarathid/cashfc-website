@@ -6,13 +6,14 @@
 -- use the moment a crop was chosen (giantBegin), so a cancel, a run left to run out (two minutes) and a miss all
 -- spent it. Now the day is counted only when the giant takes: giantBegin asks only that one is left, and a passed
 -- giantEnd spends it. A miss still costs its 2 stamina and keeps the seeds, as before, so failing stays possible
--- (the owner's rule for gifts) and each try has a price; the day still holds one giant.
+-- (the owner's rule for gifts) and each try has a price; the day still holds one giant. A run begun under v238, whose
+-- day was counted at its start, is not counted again when it takes.
 -- Only town.reward_garden changes, in those two places. Its inputs and replies keep their shape, so the page live
 -- now works with it, and the page that says so works with or without it. lib/town/reward-garden.ts is its twin.
 begin;
 set local statement_timeout='30s';set local lock_timeout='5s';
 do $guard$ begin
-if md5(replace(pg_get_functiondef('town.reward_garden(jsonb,jsonb,uuid,bigint,bigint,uuid)'::regprocedure),chr(13),'')) not in ('01c1bf52662177ff8f67e0cab5ec7410','90309bed4053e61db554d29c7abfeab1') then raise exception 'Definition moved: rebuild v301 (town.reward_garden)';end if;
+if md5(replace(pg_get_functiondef('town.reward_garden(jsonb,jsonb,uuid,bigint,bigint,uuid)'::regprocedure),chr(13),'')) not in ('01c1bf52662177ff8f67e0cab5ec7410','61ac8dfc6d93844e941b402fafd4106a') then raise exception 'Definition moved: rebuild v301 (town.reward_garden)';end if;
 end $guard$;
 create or replace function town.reward_garden(p jsonb,c jsonb,request_ uuid,t bigint,seed_ bigint,me uuid)
 returns jsonb language plpgsql volatile set search_path='' as $$
@@ -37,7 +38,7 @@ begin
   if jsonb_typeof(c->'marks') is distinct from 'array' or jsonb_array_length(c->'marks')<>3 or exists(select 1 from jsonb_array_elements(c->'marks') q(v) where jsonb_typeof(v)<>'number' or (v::text)::numeric not between 0 and 1) then return town.no('none');end if;
   z:=(r->>'seed')::bigint;for i in 0..2 loop z:=(z*1664525+1013904223)%4294967296;mark_:=.2+(z%61)::numeric/100;if abs(mark_-(c->'marks'->>i)::numeric)>.09 then pass_:=false;end if;end loop;
   after_:=town.spend(p,2::double precision,t)||jsonb_build_object('professionRewards',state_||jsonb_build_object('giant',null));if not pass_ then return jsonb_build_object('ok',true,'purse',after_,'giant',null,'gardenPassed',false);end if;
-  used_:=town.gift_use(after_,'thingGiantSeeds',t);if used_->'ok' is distinct from 'true'::jsonb then return used_;end if;after_:=used_->'purse';
+  used_:=town.gift_use(after_,'thingGiantSeeds',t);if used_->'ok'='true'::jsonb then after_:=used_->'purse';end if;
   plant_:=jsonb_build_object('by',me,'crop',crop_,'sown',t,'boost',0,'watered',case when plot_->'damp'='true'::jsonb then t else 0 end,'fed',0,'guard',0,'cured',0,'picked',0,'pickedAt',0,'root',key_,'footprint',cells_,'giant',true)||case when plot_->'damp'='true'::jsonb then '{"moist":true}'::jsonb else '{}'::jsonb end;
   for cell_ in select jsonb_array_elements_text(cells_) loop updated_:=updated_||jsonb_build_object(cell_,jsonb_build_object('soil','tilled','plant',plant_));end loop;
   after_:=after_||jsonb_build_object('bag',town.take(after_->'bag',seed_item,4));
@@ -68,6 +69,6 @@ notify pgrst,'reload schema';commit;
 
 -- What it should say afterwards (read only):
 -- select md5(replace(pg_get_functiondef('town.reward_garden(jsonb,jsonb,uuid,bigint,bigint,uuid)'::regprocedure),chr(13),''));
---   → 90309bed4053e61db554d29c7abfeab1
+--   → 61ac8dfc6d93844e941b402fafd4106a
 -- select has_function_privilege('authenticated','town.reward_garden(jsonb,jsonb,uuid,bigint,bigint,uuid)','EXECUTE');
 --   → false (members reach it only through public.town_reward, as before)
