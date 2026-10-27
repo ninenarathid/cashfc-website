@@ -5,7 +5,8 @@
   --rope: #c9a15a;
   --gold: #f0c060;
   --cream: #ffeccb;
-  width: min(440px, calc(100vw - 16px));
+  /* (the foot's wide board is thirty rem: the panel fills it, never past it) */
+  width: min(30rem, calc(100vw - 16px));
   max-height: min(78dvh, 680px);
   overflow-y: auto;
   overscroll-behavior: contain;

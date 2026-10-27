@@ -354,7 +354,7 @@ export default function TownGiantPull({ keeper, th, at, name, people, sayPull, h
     </li>;
   });
   const helped = pull?.helped ?? result?.helped ?? [];
-  return <TownFoot rank="board" icon="thingGiantSeeds" order={62}>
+  return <TownFoot rank="board" wide order={62}>
     <section className={`tk tk-plate pointer-events-auto ${s.panel}`} aria-label={th ? `ถอน${cropName}ยักษ์` : `Pulling the giant ${cropName}`} data-giant-pull={isOut ? "out" : isPulling ? (count ? "count" : "pull") : ranOut ? "ranout" : lapsed ? "lapsed" : "call"}>
       <header className={s.title}>
         <PullIcon name="pullKnot" size={26} />
