@@ -136,16 +136,18 @@ const pressedAt=(e:{nativeEvent:Event})=>{const at=e.nativeEvent.timeStamp,now=p
 /**
  * A beat's button, judged as the finger, the mouse or the key goes down. A click comes only as the finger lifts, a
  * tenth of a second later, and the line has gone on by then by as much as half the band: a press dead on the mark
- * was taken as a miss (a member, 2026-10-27: "กดมินิเกมถูกแล้วไม่โปรยให้"). A click with no press just before it (a
- * screen reader's, a script's) is judged when it comes.
+ * was taken as a miss (a member, 2026-10-27: "กดมินิเกมถูกแล้วไม่โปรยให้"). The click a finger or a mouse makes
+ * (`detail` 1 or more) was judged as it went down, however long it was held; a key's own click is held back, and
+ * should a browser send one all the same it is not judged twice. A click with no press behind it (a screen reader's,
+ * a script's: `detail` 0) is judged when it comes.
  */
 export function useBeatPress(beat:(at:number)=>void){
-  const pressed=useRef(-Infinity),press=(at:number)=>{pressed.current=performance.now();beat(at);};
+  const keyed=useRef(-Infinity),key=(e:KeyPress<HTMLButtonElement>)=>{if(e.key!==" "&&e.key!=="Enter")return false;e.preventDefault();keyed.current=performance.now();return true;};
   return {
-    onPointerDown:(e:Press<HTMLButtonElement>)=>{if(e.button===0&&!e.currentTarget.disabled)press(pressedAt(e));},
-    onKeyDown:(e:KeyPress<HTMLButtonElement>)=>{if(e.key!==" "&&e.key!=="Enter")return;e.preventDefault();if(!e.repeat)press(pressedAt(e));},
-    onKeyUp:(e:KeyPress<HTMLButtonElement>)=>{if(e.key===" ")e.preventDefault();},
-    onClick:(e:{nativeEvent:Event})=>{if(performance.now()-pressed.current>1000)beat(pressedAt(e));},
+    onPointerDown:(e:Press<HTMLButtonElement>)=>{if(e.button===0&&!e.currentTarget.disabled)beat(pressedAt(e));},
+    onKeyDown:(e:KeyPress<HTMLButtonElement>)=>{if(key(e)&&!e.repeat)beat(pressedAt(e));},
+    onKeyUp:(e:KeyPress<HTMLButtonElement>)=>{key(e);},
+    onClick:(e:{detail:number;nativeEvent:Event})=>{if(e.detail===0&&performance.now()-keyed.current>1000)beat(pressedAt(e));},
   };
 }
 export function ExtractionGame({run,onFinish,th,label,width=.09,retryFirst=false}:{run:Pick<ExtractionRun,"seed"|"id">;onFinish:(marks:number[],miss?:import('@/lib/town/reward-camp').CampMiss)=>void;th:boolean;label?:string;width?:number;retryFirst?:boolean}) {
