@@ -29,7 +29,11 @@ describe("a thing whose price moves", () => {
     for (const id of ["rod", "worm", "seedKangkong", "rice", "bowl", "scrollFriedMinnow", "oddDish"]) expect(moving.has(id)).toBe(false);
     for (const id of moving) expect(GOODS[id as keyof typeof GOODS]).toBeUndefined();
     // every one of them fetches something, and has room to move
-    for (const id of moving) { const t = thingOf(id, c)!; expect(ITEMS[id as keyof typeof ITEMS].pays).toBeGreaterThan(0); expect(t.floor).toBeLessThanOrEqual(100); expect(t.ceil).toBeGreaterThan(100); }
+    for (const id of moving) { if (id in MARKET.fixed) continue; const t = thingOf(id, c)!; expect(ITEMS[id as keyof typeof ITEMS].pays).toBeGreaterThan(0); expect(t.floor).toBeLessThanOrEqual(100); expect(t.ceil).toBeGreaterThan(100); }
+  });
+  it("gives a thing of a band of its own that band, five a round for the whole village: the giant steak, 84 to 100 of its 120 (lib/town/giant-fish)", () => {
+    expect(thingOf("giantSteak", c)).toEqual({ usual: 0, floor: 84, ceil: 100, batch: 5 });
+    expect(ITEMS.giantSteak.pays).toBe(120);
   });
   it("never falls under its cost and half as much again, nor under two fifths; what is cooked or made does not fall", () => {
     expect(thingOf("kangkong", c)).toEqual({ usual: 5, floor: 40, ceil: 150, batch: 5, fall: 25 });
@@ -46,7 +50,7 @@ describe("a thing whose price moves", () => {
     }
   });
   it("may rise the higher the plainer it is; a crop, whatever its tier, to its own ceiling (v285)", () => {
-    const by = (tier: number) => new Set(movingOf(c).filter((id) => ITEMS[id as keyof typeof ITEMS].tier === tier && ITEMS[id as keyof typeof ITEMS].kind !== "crop").map((id) => thingOf(id, c)!.ceil));
+    const by = (tier: number) => new Set(movingOf(c).filter((id) => ITEMS[id as keyof typeof ITEMS].tier === tier && ITEMS[id as keyof typeof ITEMS].kind !== "crop" && !(id in MARKET.fixed)).map((id) => thingOf(id, c)!.ceil));
     expect(new Set(movingOf(c).filter((id) => ITEMS[id as keyof typeof ITEMS].kind === "crop").map((id) => thingOf(id, c)!.ceil))).toEqual(new Set([MARKET.cropCeil]));
     expect(MARKET.cropCeil).toBe(150);
     expect([...by(1)]).toEqual([220]);

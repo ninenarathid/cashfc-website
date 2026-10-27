@@ -1171,7 +1171,8 @@ insert into public.town_catalog (key, data) values
     "mistMushroom": {"kind":"wild","tier":3,"stack":5,"pays":60},
     "queenPollen": {"kind":"wild","tier":3,"stack":10,"pays":45},
     "morningDew": {"kind":"wild","tier":2,"stack":20,"pays":6},
-    "batGuano": {"kind":"mineral","tier":2,"stack":20,"pays":8}
+    "batGuano": {"kind":"mineral","tier":2,"stack":20,"pays":8},
+    "giantSteak": {"kind":"catch","tier":3,"stack":10,"pays":120}
   }$town$::jsonb),
   ('makes', $town${
     "slatePowder": {"needs":[["slateLayer",2]],"in":[],"gives":2},

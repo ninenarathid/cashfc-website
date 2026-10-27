@@ -21,7 +21,7 @@ const TIER: Record<string, [string, string]> = { common: ["พบบ่อย", 
 /** The time bands a fish bites in, from its hours. */
 function bandsOf(hours: Array<[number, number]>): string[] {
   const on = (h: number) => hours.some(([a, b]) => h >= a && h < b);
-  return BANDS.filter((band) => { for (let h = band.from; h !== band.to; h = (h + 1) % 24) if (on(h)) return true; return false; }).map((b) => b.id);
+  return BANDS.filter((band) => { for (let h = band.from; h < band.to; h++) if (on(h % 24)) return true; return false; }).map((b) => b.id);
 }
 
 export default function TownFishBook({ book, giants, th }: { book: Partial<Record<FishId, FishBookLine>>; giants: GiantRecord[]; th: boolean }) {

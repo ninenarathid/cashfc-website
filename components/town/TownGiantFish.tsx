@@ -53,7 +53,8 @@ function CatchIcon({ name, size }: { name: Piece; size: number }) {
   return <span aria-hidden className="inline-block shrink-0 align-middle" style={{ width: w * k, height: h * k, backgroundImage: `url(${PIECES})`, backgroundPosition: `${-x * k}px ${-y * k}px`, backgroundSize: `${ART.size[0] * k}px ${ART.size[1] * k}px`, imageRendering: "pixelated" }} />;
 }
 /** What the two pages tell each other, by the room's letterboxes: the angler where the fish is, the netter where the hoop is, a scoop as it is made. */
-type Word = { gf: string; t?: number; x?: number; y?: number; vy?: number; run?: 1; cue?: 1; tip?: number; hx?: number; open?: 1; scoop?: number };
+/** (`run`, `cue` and `open` are always said, 1 or 0, so that a flag the other page has seen is put down again when it ends) */
+type Word = { gf: string; t?: number; x?: number; y?: number; vy?: number; run?: 0 | 1; cue?: 0 | 1; tip?: number; hx?: number; open?: 0 | 1; scoop?: number };
 /** The room's letterboxes as the board uses them (components/town/Town wires them, as it does the handing game's). */
 export interface GiantPairing { send: (to: string, data: Word) => void; hear: (fn: ((from: string, data: unknown) => void) | null) => void }
 const wordOf = (data: unknown, id: string): Word | null => (data && typeof data === "object" && (data as Word).gf === id ? (data as Word) : null);
@@ -83,7 +84,8 @@ export default function TownGiantFish({ me, myName, keeper, th, here, hour, pair
   const [busy, setBusy] = useState(false);
   const [said, setSaid] = useState<string | null>(null);
   const [text, setText] = useState("");
-  const [shut, setShut] = useState<string | null>(null);
+  // (every board I have closed: closing a second must not bring back the first, nor hide a join while it is shown)
+  const [shut, setShut] = useState<string[]>([]);
   const [steak, setSteak] = useState<string | null>(null);
   const [, tick] = useState(0);
   const lang = th ? 0 : 1, now = keeper.now(), pos = here(), at: [number, number] | null = pos ? [Math.floor(pos.x), Math.floor(pos.y)] : null;
@@ -100,7 +102,7 @@ export default function TownGiantFish({ me, myName, keeper, th, here, hour, pair
   useEffect(() => { const id = setInterval(() => tick((n) => n + 1), 500); return () => clearInterval(id); }, []);
 
   const live = giants.map((h) => settled(h, now));
-  const mine = live.find((h) => (h.by === me || h.netter === me) && h.id !== shut && (!h.how || now - h.end < GIANT.after)) ?? null;
+  const mine = live.find((h) => (h.by === me || h.netter === me) && !shut.includes(h.id) && (!h.how || now - h.end < GIANT.after)) ?? null;
   const role: "angler" | "netter" | null = mine ? (mine.by === me ? "angler" : "netter") : null;
   const waiting = live.filter((h) => holding(h, now) && h.by !== me);
   const near = waiting.find((h) => at && Math.max(Math.abs(at[0] - h.tile[0]), Math.abs(at[1] - h.tile[1])) <= GIANT.reach) ?? null;
@@ -186,7 +188,7 @@ export default function TownGiantFish({ me, myName, keeper, th, here, hour, pair
     return () => { delete w.__townGiant; };
   }, []);
 
-  const reportFray = useCallback(async (id: string) => { const did = await keeper.giantFish?.("fray", id, {}); if (did?.ok) setGiants((all) => all.map((h) => (h.id === id ? did.hook : h))); }, [keeper]);
+  const reportFray = useCallback(async (id: string) => { const did = await keeper.giantFish?.("fray", id, {}); if (did?.ok) setGiants((all) => all.map((h) => (h.id === id ? did.hook : h))); return !!did?.ok; }, [keeper]);
   const reportScoop = useCallback(async (id: string) => {
     const did = await keeper.giantFish?.("scoop", id, {});
     if (did?.ok) { setGiants((all) => all.map((h) => (h.id === id ? did.hook : h))); if (mine?.by) pairing?.send(mine.by, { gf: id, scoop: did.hook.scoops.length }); }
@@ -229,12 +231,13 @@ export default function TownGiantFish({ me, myName, keeper, th, here, hour, pair
         if (!h.how && t >= 0 && t <= GIANT.fight / 1000) {
           const step = stepFish(f.fish, t, dt, f.tip, tired, mine.seed, rocks, scooped);
           f.fish = step.fish;
-          if (step.frayed && f.told < GIANT.frays) { f.told++; f.flash.push({ at: pnow, x: f.fish.x, y: f.fish.y, kind: "fray" }); void reportFray(mine.id); }
+          // (a fray the keeper did not take, two reports too close by the network's jitter, is not counted here either: the line can still break)
+          if (step.frayed && f.told < GIANT.frays) { f.told++; f.flash.push({ at: pnow, x: f.fish.x, y: f.fish.y, kind: "fray" }); void reportFray(mine.id).then((ok) => { if (!ok && fight.current === f) f.told--; }); }
         }
-        if (mine.netter && pnow - f.sent > SEND_EVERY) { f.sent = pnow; pairing?.send(mine.netter, { gf: mine.id, t, x: Math.round(f.fish.x * 10) / 10, y: Math.round(f.fish.y * 10) / 10, vy: Math.round(f.fish.vy), tip: Math.round(f.tip), ...(f.fish.run ? { run: 1 as const } : {}), ...(cueing(f.fish, t) ? { cue: 1 as const } : {}) }); }
+        if (mine.netter && pnow - f.sent > SEND_EVERY) { f.sent = pnow; pairing?.send(mine.netter, { gf: mine.id, t, x: Math.round(f.fish.x * 10) / 10, y: Math.round(f.fish.y * 10) / 10, vy: Math.round(f.fish.vy), tip: Math.round(f.tip), run: f.fish.run ? 1 : 0, cue: cueing(f.fish, t) ? 1 : 0 }); }
         fish = { x: f.fish.x, y: f.fish.y, vy: f.fish.vy, run: !!f.fish.run, cue: cueing(f.fish, t) };
         tip = f.tip;
-        if (f.seen && typeof f.seen.hx === "number") hoop = { x: f.seen.hx, open: f.seen.open ? 0 : null };
+        if (f.seen && typeof f.seen.hx === "number") hoop = { x: f.seen.hx, open: f.seen.open === 1 ? 0 : null };
       } else {
         // the netter: the fish as the angler's page last said, eased towards it; my own hoop
         const dir = (f.keys.ArrowRight ? 1 : 0) - (f.keys.ArrowLeft ? 1 : 0);
@@ -244,14 +247,14 @@ export default function TownGiantFish({ me, myName, keeper, th, here, hour, pair
         const w = f.seen;
         if (w && typeof w.x === "number" && typeof w.y === "number") {
           f.fish = { ...f.fish, x: f.fish.x + (w.x - f.fish.x) * Math.min(1, dt * 10), y: f.fish.y + (w.y - f.fish.y) * Math.min(1, dt * 10), vy: w.vy ?? 0 };
-          fish = { x: f.fish.x, y: f.fish.y, vy: f.fish.vy, run: !!w.run, cue: !!w.cue };
+          fish = { x: f.fish.x, y: f.fish.y, vy: f.fish.vy, run: w.run === 1, cue: w.cue === 1 };
           tip = w.tip ?? tip;
           if (!h.how && scoops(f.hoop, f.fish, t) && pnow - scoopAsked > 1500) {
             scoopAsked = pnow; f.flash.push({ at: pnow, x: f.fish.x, y: f.fish.y, kind: "scoop" }); f.hoop = shutHoop(f.hoop, t);
             void reportScoop(mine.id);
           }
         }
-        if (pnow - f.sent > SEND_EVERY) { f.sent = pnow; pairing?.send(mine.by, { gf: mine.id, hx: Math.round(f.hoop.x), ...(f.hoop.open != null ? { open: 1 as const } : {}) }); }
+        if (pnow - f.sent > SEND_EVERY) { f.sent = pnow; pairing?.send(mine.by, { gf: mine.id, hx: Math.round(f.hoop.x), open: f.hoop.open != null ? 1 : 0 }); }
         hoop = f.hoop;
       }
       // the line, from the rod tip on the deck to the fish's mouth, and the tip itself
@@ -354,7 +357,7 @@ export default function TownGiantFish({ me, myName, keeper, th, here, hour, pair
       <header className={s.title}>
         <TownIcon name={mine.how === "landed" ? (mine.giant as IconName) : "giantBoil"} size={26} />
         <h3 className="font-display text-ui font-semibold">{mine.how === "landed" ? (th ? "ได้ปลายักษ์!" : "Landed!") : hold ? (th ? "ปลายักษ์ติดเบ็ด!" : "A giant on the line!") : ended ? (th ? "ปลายักษ์หลุดไป" : "The giant got away") : role === "angler" ? (th ? "ปลายักษ์ · พาเข้าสวิง" : "The giant · lead it in") : (th ? "ปลายักษ์ · ช้อน" : "The giant · net it")}</h3>
-        {ended && <button type="button" className={`${WOOD} grid min-w-11 place-items-center px-0`} aria-label={th ? "ปิด" : "Close"} onClick={() => { setShut(mine.id); setSteak(null); }}><TownIcon name="close" size={16} /></button>}
+        {ended && <button type="button" className={`${WOOD} grid min-w-11 place-items-center px-0`} aria-label={th ? "ปิด" : "Close"} onClick={() => { setShut((was) => [...was, mine.id]); setSteak(null); }}><TownIcon name="close" size={16} /></button>}
       </header>
       <div className={s.stage}>
         <canvas ref={canvas} width={W} height={H} className={`${s.canvas} ${g.scene}`} style={{ aspectRatio: `${W} / ${H}` }} />
