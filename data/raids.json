@@ -4322,6 +4322,17 @@
       "best": 63
      }
     }
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "encounter_id": 1060,
+    "name": "The Unending Coil of Bahamut",
+    "best": 43,
+    "kills": 4,
+    "job": "Machinist",
+    "cleared": true
    }
   ],
   "extremes": [
@@ -9416,11 +9427,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 43.92,
+    "pct": 34.03,
     "phase": 4,
-    "pulls": 79,
-    "last": "2026-10-25",
-    "last_ts": 1792947777
+    "pulls": 66,
+    "last": "2026-10-27",
+    "last_ts": 1793115270
    }
   ]
  },
@@ -28866,9 +28877,9 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 14.65,
+    "pct": 21.26,
     "phase": 3,
-    "pulls": 36,
+    "pulls": 21,
     "last": "2026-10-18",
     "last_ts": 1792342200
    }
@@ -35924,9 +35935,9 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 14.65,
+    "pct": 21.26,
     "phase": 3,
-    "pulls": 38,
+    "pulls": 23,
     "last": "2026-10-18",
     "last_ts": 1792342200
    }
@@ -77947,7 +77958,20 @@
    }
   ],
   "legacy": [],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 103,
+    "name": "The Tyrant",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 2,
+    "last": "2026-10-27",
+    "last_ts": 1793081900
+   }
+  ]
  },
  "42053180": {
   "current": {
