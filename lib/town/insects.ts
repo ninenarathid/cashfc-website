@@ -904,8 +904,8 @@ export const HABITS = {
   behind: { ahead: 3.3, back: 0.8, look: [3400, 6200] as const, tracks: [1900, 2600] as const, eyes: 7, hop: 7 },
   /** Hears anybody who moves within so far, and keeps quiet so long after; sings and rests in turn; off, it flies so fast. */
   sound: { notice: 3.2, still: 1200, hush: 4000, song: [3000, 4600] as const, rest: [2300, 3300] as const, grace: 400, fly: 6, lift: 0.75 },
-  /** Gives itself away by a twitch every so often; what glows shows only so long each time, drifting meanwhile. */
-  look: { tell: [2600, 4600] as const, twitch: 320, blink: [2100, 3400] as const, glow: 600, drift: 0.45, still: 2500, lift: 0.5 },
+  /** Gives itself away by a twitch every so often; what glows shows only so long each time, hangs so long after, and drifts in between. */
+  look: { tell: [2600, 4600] as const, twitch: 320, blink: [2100, 3400] as const, glow: 600, hang: 450, drift: 0.45, still: 2500, lift: 0.5 },
   /** Comes down to something sweet held still within so far, after so long; down in so long; back up so soon after it is gone. */
   lure: { reach: 1.9, patience: 3000, down: 1300, lost: 600, top: 2.3, low: 1 },
 };
@@ -1162,10 +1162,13 @@ export function poseOf(id: BugId, h: Haunt, seed: number, m: Mind, now: number):
     case "look": {
       const H = HABITS.look;
       if (!bug.like) {
-        // what only glows: it drifts its round in the dark, and shows a moment at a time
-        const { at, to } = onRound(h, seed, H.drift, now), every = mix(H.blink, roll("blink", seed)), lit = now > m.hush && (now + roll("lit", seed) * every) % every < H.glow;
+        // what only glows: it drifts its round in the dark, and shows a moment at a time; it hangs where it is from the
+        // start of each flash until `hang` after it dies, and drifts only in between (a net swung at the flash used to
+        // come down where it had been: a tired hand took 1 to 9 in 100 of them, read by a bot that swings where it saw one)
+        const every = mix(H.blink, roll("blink", seed)), t = now + roll("lit", seed) * every, rest = Math.min(every, H.glow + H.hang);
+        const { at, to } = onRound(h, seed, H.drift, Math.floor(t / every) * (every - rest) + Math.max(0, (t % every) - rest)), lit = now > m.hush && t % every < H.glow;
         // (its glow comes up fast and dies away while it is lit, as a firefly's flash does: never nothing while it shows)
-        const phase = ((now + roll("lit", seed) * every) % every) / H.glow, glow = phase < 0.18 ? phase / 0.18 : 1 - (0.75 * (phase - 0.18)) / 0.82;
+        const phase = (t % every) / H.glow, glow = phase < 0.18 ? phase / 0.18 : 1 - (0.75 * (phase - 0.18)) / 0.82;
         return { ...POSE, x: at.x, y: at.y, lift: H.lift + 0.1 * Math.sin(s * 1.7 + seed), right: side(at, to) > 0, seen: lit, glow: lit ? Math.max(0.25, glow) : 0, flying: true };
       }
       const every = mix(H.tell, roll("tell", seed, m.visit));

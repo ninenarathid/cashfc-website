@@ -439,6 +439,22 @@ describe("how each insect is caught", () => {
     expect(dark).toBeGreaterThan(lit);
   });
 
+  it("a firefly hangs where it is through its flash and a moment after, and drifts only in between", () => {
+    const h = hauntOf("water", "forest"), m = newMind("firefly", h, h.id, NIGHT), H = HABITS.look;
+    let flashes = 0, drifted = 0;
+    for (let t = NIGHT + 1; t < NIGHT + 30_000; t += 10) {
+      const p = at("firefly", h, m, t), was = at("firefly", h, m, t - 10);
+      if (!p.seen || was.seen) continue;
+      // (a flash begins: where it is now is where it stays until `hang` after the flash has died)
+      flashes++;
+      for (let k = 0; k < H.glow + H.hang - 20; k += 20) { const q = at("firefly", h, m, t + k); expect(Math.hypot(q.x - p.x, q.y - p.y), `${k} ms in`).toBeLessThan(1e-9); }
+      const after = at("firefly", h, m, t + H.glow + H.hang + 300);
+      if (Math.hypot(after.x - p.x, after.y - p.y) > 0.05) drifted++;
+    }
+    expect(flashes).toBeGreaterThan(5);
+    expect(drifted).toBe(flashes);
+  });
+
   it("a beetle comes down its tree only while somebody stands still under it with something sweet", () => {
     const h = hauntOf("tree"), trunk = h.perches[0], H = HABITS.lure;
     let m = newMind("rhinoBeetle", h, h.id, NIGHT);
