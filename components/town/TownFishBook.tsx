@@ -45,7 +45,7 @@ export default function TownFishBook({ book, giants, th }: { book: Partial<Recor
     <p>{g.look[lang]}</p>
     <p><small>{th ? "ที่" : "Where"}</small><br/>{WATER[g.water][lang]}</p>
     <p><small>{th ? "ตัวใหญ่สุดของหมู่บ้าน" : "The village's biggest"}</small><br/><b>{r.size} {th ? "ซม." : "cm"} · {r.weight} {th ? "กก." : "kg"}</b></p>
-    <p className="flex flex-wrap items-center gap-2"><TownIcon name="rodMaster" size={18}/>{r.angler} <span aria-hidden>·</span> <TownIcon name="netLong" size={18}/>{r.netter}</p>
+    <p className="flex flex-wrap items-center gap-2"><TownIcon name="rodMaster" size={18}/>{th ? "คนตก" : "Angler"} {r.angler} <span aria-hidden>·</span> <TownIcon name="netLong" size={18}/>{th ? "คนช้อน" : "Netter"} {r.netter}</p>
     <p><small>{th ? "ปลายักษ์ขึ้นคนเดียวไม่ได้: คนตกกับคนช้อนได้ชื่ออยู่ในสมุดด้วยกัน" : "No giant is landed alone: the angler and the netter share the page."}</small></p>
   </div> }; });
   return <div data-fish-book><TownNotebook title={th ? "สมุดปลาของหมู่บ้าน" : "The village's book of fish"} th={th} icon="fishBook" entries={[...big, ...fish]}/></div>;
