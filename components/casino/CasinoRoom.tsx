@@ -2,7 +2,7 @@
 import { useAdmin } from '@/lib/admin';
 import { useCallback, useEffect, useRef, useState, type MutableRefObject } from 'react';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import { accessOf, backRows, CHIP_PACKS, CHIP_WHY, chipsOf, CLAIM_LABEL, effectiveChance, letIn, money, PRIZE_LABEL, reelAt, spinRevealed, whereItGoes, wonWords, type CasinoSpin, type SymbolId } from '@/lib/casino';
+import { accessOf, backRows, CHIP_PACKS, CHIP_WHY, chipsOf, CLAIM_LABEL, letIn, money, PRIZE_LABEL, reelAt, spinRevealed, whereItGoes, wonWords, type CasinoSpin, type SymbolId } from '@/lib/casino';
 import type { TownSession } from '@/lib/town/session';
 import type { CasinoRoomArt } from '@/lib/town/casino-room-art';
 import { CASINO_EXIT, CASINO_ROOM } from '@/lib/town/casino-room';
@@ -222,20 +222,20 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
           {[0, 1, 2, 3].map(i => <div key={i} className={`casino-reel ${rolling && clock < Date.parse(latest!.reveal_at) - (3 - i) * 450 ? 'is-moving' : ''}`}>
             <CasinoSymbol id={latest ? reelAt(latest, i, clock, reduced) : 'popoto'} /></div>)}
         </div>
-        <div className="casino-result" role="status">{rolling ? `${latest!.player_name} กำลังลุ้น…` : latest ? latest.prize ? `${latest.player_name} ${wonWords(latest.prize)}!${live && myWin ? ` · ${whereItGoes(myWin, chips !== null)}` : ''}` : `${latest.player_name} · รอบนี้ยังไม่ได้รางวัล` : 'เลือกเครื่อง แล้วดึงคันโยกได้เลย'}</div>
+        <div className="casino-result" role="status">{rolling ? `${latest!.player_name} กำลังลุ้น…` : latest ? latest.prize ? <>{`${latest.player_name} ${wonWords(latest.prize)}!`}{live && myWin && <small className="casino-result-where">{whereItGoes(myWin, chips !== null)}</small>}</> : `${latest.player_name} · รอบนี้ยังไม่ได้รางวัล` : 'เลือกเครื่อง แล้วดึงคันโยกได้เลย'}</div>
         <div className="casino-play-actions">{recover ? <button className="casino-spin pressable tk tk-btn" disabled={busy} onClick={() => void spin(true)}>ตรวจผลครั้งเดิม</button> :
           // (too few Casino Coins: the button is the way to the counter, where they are changed and given)
           chips !== null && chips < s.price && !closed && remaining > 0 && !ownRolling ? <button className="casino-spin pressable tk tk-btn" onClick={() => setPane('desk')}>Casino Coin ไม่พอ · แลกที่เคาน์เตอร์</button> :
           <button className="casino-spin pressable tk tk-btn" disabled={busy || !arrived || !self.seat || ownRolling || rolling || closed || remaining <= 0 || purse < s.price} onClick={() => void spin()}>
             {!arrived ? 'กำลังเดินไปหน้าเครื่อง…' : busy || ownRolling ? 'กำลังเล่น…' : closed ? 'เครื่องพักอยู่' : `ปั่น · ${money(s.price)} ${chips === null ? 'coin' : 'Casino Coin'}`}</button>}
         </div>
-        <details className="casino-prize-details"><summary>โอกาสและรางวัล</summary>{state.prizes.filter(p => p.active).map(p => p.id === 'pair' && s.back_table ?
-          // (the pair as a slot machine's paytable, v304: which symbol on the first two, how much of the price comes back)
-          <div key={p.id} className="casino-paytable"><p><strong>{PRIZE_LABEL.pair}</strong> · Casino Coin คืน: {effectiveChance(p, s, state.prizes).toFixed(1)}%</p>
-            {backRows(s.back_table, s.price, effectiveChance(p, s, state.prizes)).map(row => <p key={row.sym} className={`casino-paytable-row${row.pct > 100 ? ' is-profit' : ''}`}><span className="casino-paytable-pair"><CasinoSymbol id={row.sym} /><CasinoSymbol id={row.sym} /></span>
-              <span>{row.pct > 100 ? `ได้ ${money(row.amount)} (${row.pct}%) กำไร` : `คืน ${money(row.amount)} (${row.pct}%)`}</span><span>{row.chance.toFixed(1)}%</span></p>)}</div> :
-          <p key={p.id}><strong>{PRIZE_LABEL[p.id] ?? p.id}</strong> · {p.name}: {effectiveChance(p, s, state.prizes).toFixed(3)}% · เหลือ {money(p.stock - p.issued)}</p>)}
-          <p>งบ Gil {live?"":"ทดลอง"}เหลือ {money(s.budget - s.reserved)} · ผลใช้การตั้งค่ารุ่น {s.revision}</p><p>{live?`ของรางวัลเข้ากล่องรางวัลในเว็บ กดขอรับแล้วคุยกับแอดมินได้ · Gil เข้ากระเป๋าเงินในโปรไฟล์ · ${chips === null ? 'Coin เข้ากระเป๋า Cash Town' : 'Casino Coin ที่ได้คืนเข้ายอด Casino Coin'}`:"เครดิตและใบรับสิทธิ์ในห้องนี้เป็น TEST · ปิดทุกหน้าจะเริ่มใหม่"}</p>{trial&&<p>ตอนนี้เปิดให้แอดมินทดสอบ ทุกการหมุนเป็นการทดสอบ ล้างได้ที่หน้า Aqua</p>}</details>
+        {/* the machine's paytable, as a player reads one: the symbols, what they win (the chances are the desk's) */}
+        <details className="casino-prize-details"><summary>ตารางรางวัล</summary><div className="casino-paytable">
+          {state.prizes.filter(p => p.active && p.id !== 'pair').map(p => <p key={p.id} className="casino-paytable-row is-prize"><span className="casino-paytable-pair">{[0, 1, 2, 3].map(i => <CasinoSymbol key={i} id={p.id as SymbolId} />)}</span><span>{p.name}</span></p>)}
+          {state.prizes.some(p => p.id === 'pair' && p.active) && (s.back_table ? backRows(s.back_table, s.price, 0).map(row => <p key={row.sym} className={`casino-paytable-row${row.amount > s.price ? ' is-profit' : ''}`}>
+            <span className="casino-paytable-pair"><CasinoSymbol id={row.sym} /><CasinoSymbol id={row.sym} /></span><span>{money(row.amount)} Casino Coin</span></p>) :
+            <p className="casino-paytable-row"><span>สองช่องแรกเหมือนกัน</span><span>{state.prizes.find(p => p.id === 'pair')?.name}</span></p>)}</div>
+          <p>{live ? 'ของรางวัลส่งเข้ากล่องรางวัลในเว็บ · Gil เข้ากระเป๋าเงินในโปรไฟล์' : 'ห้องนี้เป็น TEST · ปิดทุกหน้าจะเริ่มใหม่'}</p>{trial && <p>ตอนนี้แอดมินทดสอบอยู่ · ล้างผลได้ที่หน้า Aqua</p>}</details>
       </section></div><section className="casino-desk-in-room"><h2>พนักงาน Casino</h2>
         {chips !== null && <div className="casino-chips">
           <p className="casino-chips-balance"><span>Casino Coin</span><strong>{money(chips)}</strong><small>Popoto coin {money(state.account.coins)}</small></p>

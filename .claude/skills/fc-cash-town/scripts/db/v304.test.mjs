@@ -62,6 +62,11 @@ try {
   ok(await db.exec(sql).then(() => false, (e) => /pays nothing/.test(e.message)), "at a price of 4 it stops: a row would pay nothing");
   await db.exec("rollback");
   await db.exec("update public.casino_live_settings set price = 100");
+  // nor with coin prizes the table would tip over the price on average (110 coins at 80% and the table's 12.9)
+  await db.exec("update public.casino_live_prizes set kind = 'coin', amount = 110, chance = 80 where id = 'cherry'");
+  ok(await db.exec(sql).then(() => false, (e) => /the price or more/.test(e.message)), "with coin prizes it would tip over the price, it stops");
+  await db.exec("rollback");
+  await db.exec("update public.casino_live_prizes set kind = 'physical', amount = 0, chance = 0.04 where id = 'cherry'");
   await db.exec(sql.replace(/\n/g, "\r\n"));
   await db.exec(sql);
   const table = (await one("select back_table t from public.casino_live_settings")).t;

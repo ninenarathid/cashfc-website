@@ -184,13 +184,20 @@
 .casino-map-label>button.casino-chip-count.tk-slot{width:auto;min-width:44px;padding:0 10px;display:flex;flex-direction:row;align-items:center;gap:5px;font:600 14px var(--font-data-face),sans-serif;font-variant-numeric:tabular-nums}.casino-chip-count small{font:500 11px var(--font-body-face),sans-serif}
 /* the coin back's paytable (v304): a pair of the symbol, what part of the price comes back, how often */
 .casino-paytable{margin:7px 0}.casino-paytable>p{margin:0 0 4px}
-.casino-paytable-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;margin:2px 0!important;color:var(--color-ink)}
-.casino-paytable-row span:last-child{font-variant-numeric:tabular-nums;color:var(--color-muted)}
+.casino-paytable-row{display:grid;grid-template-columns:100px 1fr;align-items:center;gap:8px;margin:3px 0!important;color:var(--color-ink);font-size:13px}
+.casino-paytable-row span:last-child{font-variant-numeric:tabular-nums}
 .casino-paytable-pair{display:inline-flex;gap:2px}.casino-paytable-pair .casino-symbol{width:22px;height:22px}
 .casino-paytable-desk{margin-top:18px}.casino-paytable-desk h3{font-size:16px;margin:0 0 6px}.casino-paytable-desk table{min-width:560px}
 .casino-paytable-desk .casino-paytable-pair .casino-symbol{width:26px;height:26px}
-.casino-paytable-row.is-profit span:nth-child(2){font-weight:600;color:#8a5a12}
+.casino-paytable-row:is(.is-profit,.is-prize) span:nth-child(2){font-weight:600;color:#8a5a12}
 /* The sheet's frame is drawn by its ::before, which scrolls with whatever scrolls the sheet: the sheet holds still and
    the pane inside it scrolls, so a long pane (the paytable open) stays on its parchment */
-.casino-town-layer .casino-lower:not([data-simulation=true]){display:flex;flex-direction:column;overflow:hidden}
+/* (only while a pane is open: closed, the sheet is gone, as before) */
+.casino-town-layer:not([data-pane=none]):not([data-pane=bag]) .casino-lower{display:flex;flex-direction:column;overflow:hidden}
 .casino-town-layer .casino-lower>:is(.casino-play-layout,.casino-desk-in-room,.casino-feed){flex:0 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain}
+/* Codex's look at the paytable's screens: where a win went on a quieter line of its own; the odds list easier to read;
+   the close button clear of the machines' tabs on a phone; the counter's own buttons a fingertip high */
+.casino-result-where{display:block;font-weight:400;font-size:12px;color:var(--color-muted)}
+.casino-town-layer .casino-prize-details{font-size:13px;color:var(--color-ink)}
+.casino-town-layer .casino-console>h2{min-height:44px;display:flex;align-items:center;margin-bottom:6px}
+.casino-desk-in-room .casino-actions :is(button,a){min-height:44px}

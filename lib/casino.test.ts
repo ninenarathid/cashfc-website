@@ -71,8 +71,8 @@ describe('Casino presentation and settings', () => {
     expect(draftProblem({ ...d, back_table: t.map(r => ({ ...r, pct: 1000 })) }, s.settings)).toContain('น้อยกว่าราคาหมุน');
     expect(draftProblem({ ...d, back_table: t.map(r => ({ ...r, share: 0 })) }, s.settings)).toContain('ตาราง');
     expect(draftProblem({ ...d, price: 5 }, s.settings)).toContain('อย่างน้อย 1');
-    expect(wonWords({ name: '20 Casino Coin', amount: 20, pct: 20 })).toBe('ได้ Casino Coin คืน 20 (20%)');
+    expect(wonWords({ name: '20 Casino Coin', amount: 20, pct: 20 })).toBe('ได้ 20 Casino Coin');
     expect(wonWords({ name: '250,000 Gil', amount: 250000 })).toBe('ได้ 250,000 Gil');
-    expect(wonWords({ name: '150 Casino Coin', amount: 150, pct: 150 })).toBe('ได้ 150 Casino Coin (150%) กำไร');
+    expect(wonWords({ name: '150 Casino Coin', amount: 150, pct: 150 })).toBe('ได้ 150 Casino Coin');
   });
 });

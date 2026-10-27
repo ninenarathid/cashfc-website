@@ -120,9 +120,9 @@ export function backRows(t: BackRow[], price: number, chance: number) {
   const shares = t.reduce((n, r) => n + r.share, 0);
   return t.map(r => ({ ...r, amount: backAmount(r, price), chance: shares > 0 ? chance * r.share / shares : 0 }));
 }
-/** What a win is said to be, after the winner's name: a pair of the paytable a part of the price come back, or more than it. */
+/** What a win is said to be, after the winner's name (a pair of the paytable by its coins, as a player reads it). */
 export const wonWords = (p: Pick<PrizeSnapshot, 'name' | 'amount' | 'pct'>) =>
-  p.pct === undefined ? `ได้ ${p.name}` : p.pct > 100 ? `ได้ ${money(Number(p.amount))} Casino Coin (${p.pct}%) กำไร` : `ได้ Casino Coin คืน ${money(Number(p.amount))} (${p.pct}%)`;
+  p.pct === undefined ? `ได้ ${p.name}` : `ได้ ${money(Number(p.amount))} Casino Coin`;
 export function draftProblem(d: CasinoDraft, s: CasinoSettings): string | null {
   if (!d.title.trim() || d.title.length > 100) return 'ชื่อกิจกรรมต้องมี 1–100 ตัวอักษร';
   if (![d.price, d.per_player, d.budget, d.pool_size].every(Number.isSafeInteger) ||

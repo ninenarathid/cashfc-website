@@ -66,6 +66,18 @@ returns numeric language sql immutable set search_path = '' as $$
   select sum((e ->> 'share')::numeric * floor(p_price * (e ->> 'pct')::numeric / 100)) / nullif(sum((e ->> 'share')::numeric), 0)
     from jsonb_array_elements(t) e
 $$;
+-- (nor may the table make the coins back average the price or more with the coin prizes the desk has now: Codex's check)
+do $$ declare s public.casino_live_settings; back_ numeric; begin
+  select * into s from public.casino_live_settings where id = 1;
+  if s.mode = 'pool' then
+    select coalesce(sum((stock - issued)::numeric * case when id = 'pair' then casino.back_average(s.back_table, s.price) else amount end), 0)
+      / greatest(1, s.pool_size - s.pool_draws) into back_ from public.casino_live_prizes where active and kind = 'coin';
+  else
+    select coalesce(sum(chance / 100 * case when id = 'pair' then casino.back_average(s.back_table, s.price) else amount end), 0) into back_
+      from public.casino_live_prizes where active and kind = 'coin';
+  end if;
+  if back_ >= s.price then raise exception 'With this paytable the coins back would average % a spin, the price or more: lower the coin prizes in the desk first', round(back_, 1); end if;
+end $$;
 
 -- ── a spin: the pair paid by the paytable ───────────────────────────────────────────────────────────────────────────
 

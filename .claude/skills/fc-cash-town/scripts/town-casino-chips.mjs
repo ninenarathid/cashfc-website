@@ -85,6 +85,7 @@ async function round(X, label, m, { admin }) {
   await X.shot(`${OUT}/3-counter-after-${label}.png`);
   await click(X, ".casino-chip-count"); await sleep(500);
   ok(`${label}: the corner's count closes the counter again`, (await pane(X)) === "none");
+  ok(`${label}: and the sheet is gone from the screen`, await X.evaluate(`getComputedStyle(document.querySelector(".casino-in-town .casino-lower")).display === "none"`));
   await click(X, ".casino-chip-count"); await sleep(500);
   ok(`${label}: and opens it`, (await pane(X)) === "desk");
   ok(`${label}: the counter offers the way back to the machine`, (await text(X, ".casino-chips-back")).includes(String(admin ? 3 : 2)), await text(X, ".casino-chips-back"));
@@ -97,13 +98,15 @@ async function round(X, label, m, { admin }) {
   await click(X, ".casino-in-town .casino-spin"); await sleep(5600);
   const r = await text(X, ".casino-in-town .casino-result");
   // (v304: the pair pays a row of the paytable, a part of the price)
-  const back = /Casino Coin คืน (\d+) \((\d+)%\)|ได้ (\d+) Casino Coin \((\d+)%\) กำไร/.exec(r);
-  if (back && back[3]) { back[1] = back[3]; back[2] = back[4]; }
-  ok(`${label}: a row of the paytable paid, said with its share`, !!back && Number(back[1]) === Number(back[2]) && /หมุนต่อได้เลย/.test(r), r);
+  const back = /ได้ (\d+) Casino Coin!/.exec(r);
+  ok(`${label}: a row of the paytable paid, said by its coins alone`, !!back && [20, 50, 150, 200, 500].includes(Number(back[1])) && !/%/.test(r) && /หมุนต่อได้เลย/.test(r), r);
   ok(`${label}: the price taken and that part paid back in Casino Coins, the purse untouched`, !!back && (await chipsOf(m)) === 600 - 100 + Number(back[1]) && (await coinsOf(m)) === purse1, { chips: await chipsOf(m), coins: await coinsOf(m), back });
   await X.shot(`${OUT}/4-coins-back-${label}.png`);
   await X.evaluate(`document.querySelector(".casino-in-town .casino-prize-details").open = true`); await sleep(400);
-  ok(`${label}: the machine shows its paytable, five rows`, (await X.evaluate(`document.querySelectorAll(".casino-in-town .casino-paytable-row").length`)) === 5);
+  ok(`${label}: the machine shows its paytable, five rows of coins`, (await X.evaluate(`document.querySelectorAll(".casino-in-town .casino-paytable-row:not(.is-prize)").length`)) === 5);
+  // (a prize's own name may hold one, as the gold's purity does: what the list itself says has none)
+  const listed = await X.evaluate(`(() => { const d = document.querySelector(".casino-in-town .casino-prize-details").cloneNode(true); d.querySelectorAll(".is-prize span:last-child").forEach((e) => e.remove()); return d.textContent; })()`);
+  ok(`${label}: and no chance in it`, !listed.includes("%"), listed);
   const box = await X.evaluate(`(() => { const r = document.querySelector(".casino-in-town .casino-lower").getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`);
   for (let k = 0; k < 6; k++) { await X.send("Input.dispatchMouseEvent", { type: "mouseWheel", x: box.x, y: box.y, deltaX: 0, deltaY: 120 }); await sleep(120); }
   await sleep(400);

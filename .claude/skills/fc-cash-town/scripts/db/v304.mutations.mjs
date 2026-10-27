@@ -14,4 +14,5 @@ export default ({ swap }) => [
   ["anybody draws a row", swap("revoke all on function casino.back_of(jsonb, integer), casino.back_average(jsonb, integer) from public, anon, authenticated;", "grant execute on function casino.back_of(jsonb, integer) to authenticated;"), ["nobody calls casino.back_of"]],
   ["a low price let through", swap("    then raise exception 'At this spin price a row of the coin back pays nothing: set the price to 5 or more in the desk first'; end if;", "    then null; end if;"), ["at a price of 4 it stops"]],
   ["the coins back read rounded", swap("    select coalesce(sum(chance / 100 * case when id = 'pair' then casino.back_average(table_, (p_doc ->> 'price')::integer) else amount end), 0) into back_", "    select coalesce(sum(chance / 100 * amount), 0) into back_"), ["coins back of 100.004 a spin at a price of 100 are refused"]],
+  ["the table tips the coins back over", swap("  if back_ >= s.price then raise exception 'With this paytable", "  if false then raise exception 'With this paytable"), ["with coin prizes it would tip over the price, it stops"]],
 ];
