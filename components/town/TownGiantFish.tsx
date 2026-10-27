@@ -350,14 +350,14 @@ export default function TownGiantFish({ me, myName, keeper, th, here, hour, pair
   </ul>;
   const lostWords = mine.how === "broke" ? (th ? "สายขาด ปลายักษ์หลุดไปแล้ว" : "The line broke and the giant is gone") : mine.how === "freed" ? (th ? "ปล่อยปลายักษ์ไปแล้ว" : "You let the giant go") : mine.go === 0 ? (th ? "ไม่มีใครมาช้อนทัน ปลายักษ์ดิ้นหลุดไป" : "Nobody came to net it in time: it got away") : (th ? "หมดเวลา ปลายักษ์ดิ้นหลุดไป" : "Time ran out and the giant got away");
   return <TownFoot rank="board" wide order={62}>
-    <section className={`tk tk-plate pointer-events-auto ${s.panel}`} data-giant-fish={tag} aria-label={th ? "ปลายักษ์" : "A giant fish"}>
+    <section className={`tk tk-plate pointer-events-auto ${s.panel} ${g.fit}`} data-giant-fish={tag} aria-label={th ? "ปลายักษ์" : "A giant fish"}>
       <header className={s.title}>
         <TownIcon name={mine.how === "landed" ? (mine.giant as IconName) : "giantBoil"} size={26} />
         <h3 className="font-display text-ui font-semibold">{mine.how === "landed" ? (th ? "ได้ปลายักษ์!" : "Landed!") : hold ? (th ? "ปลายักษ์ติดเบ็ด!" : "A giant on the line!") : ended ? (th ? "ปลายักษ์หลุดไป" : "The giant got away") : role === "angler" ? (th ? "ปลายักษ์ · พาเข้าสวิง" : "The giant · lead it in") : (th ? "ปลายักษ์ · ช้อน" : "The giant · net it")}</h3>
         {ended && <button type="button" className={`${WOOD} grid min-w-11 place-items-center px-0`} aria-label={th ? "ปิด" : "Close"} onClick={() => { setShut(mine.id); setSteak(null); }}><TownIcon name="close" size={16} /></button>}
       </header>
       <div className={s.stage}>
-        <canvas ref={canvas} width={W} height={H} className={s.canvas} style={{ aspectRatio: `${W} / ${H}` }} />
+        <canvas ref={canvas} width={W} height={H} className={`${s.canvas} ${g.scene}`} style={{ aspectRatio: `${W} / ${H}` }} />
         {hold && <div className={g.tag}>{th ? "ผูกสายไว้กับเสา" : "Tied to the post"}</div>}
         {!hold && !ended && <><div className={g.tag}>{th ? `ช้อนแล้ว ${mine.scoops.length}/${GIANT.scoops}` : `Netted ${mine.scoops.length}/${GIANT.scoops}`}</div>
           <div className={g.tag} data-right data-tone={mine.frays.length ? "warn" : undefined}>{th ? "สายถลอก " : "Line "}{"●".repeat(mine.frays.length)}{"○".repeat(GIANT.frays - mine.frays.length)}</div></>}
@@ -365,11 +365,11 @@ export default function TownGiantFish({ me, myName, keeper, th, here, hour, pair
       </div>
       {crew}
       {hold && role === "angler" && <>
-        <p className={s.note}>{th ? "ขึ้นคนเดียวไม่ได้ ต้องมีเพื่อนมาช้อน" : "It can't be landed alone: a friend must net it"}</p>
+        <p className={`${s.note} ${g.roomy}`}>{th ? "ขึ้นคนเดียวไม่ได้ ต้องมีเพื่อนมาช้อน" : "It can't be landed alone: a friend must net it"}</p>
         <form className={g.call} onSubmit={(e) => { e.preventDefault(); void sendCall(text); }}>
           <label className={g.callHead} htmlFor="giant-call"><TownIcon name="chat" size={16} />{th ? "เรียกเพื่อนทั้งเมือง" : "Call the whole town"}</label>
           <div className={g.callRow}>
-            <input id="giant-call" className={g.input} value={text} maxLength={GIANT.callLen} placeholder={th ? `ปลายักษ์ติดเบ็ดที่${WATER[mine.water][0]}! มาช่วยช้อนหน่อย` : `A giant at ${WATER[mine.water][1]}! Come and net it`} onChange={(e) => setText(e.target.value)} disabled={callsLeft <= 0} />
+            <input id="giant-call" className={g.input} value={text} maxLength={GIANT.callLen} placeholder={th ? "พิมพ์เรียกเพื่อนมาช้อน" : "Call a friend to net it"} onChange={(e) => setText(e.target.value)} disabled={callsLeft <= 0} />
             <button type="submit" className={`${WOOD} min-w-16`} disabled={busy || callsLeft <= 0 || callWait > 0}>{th ? "ส่ง" : "Send"}</button>
           </div>
           <div className={g.chips}>{CHIPS.map((c) => <button key={c[0]} type="button" className={g.chip} disabled={busy || callsLeft <= 0 || callWait > 0} onClick={() => void sendCall(c[lang])}>{c[lang]}</button>)}</div>

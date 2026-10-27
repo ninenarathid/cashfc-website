@@ -753,3 +753,53 @@ the front and a little above, its round opening appearing as a low horizontal ov
   ICONS_JSON=<tree>/lib/town/giant-pull-art.json`, 256x40, 4.4 KB): the town's atlas is not touched.
 - In the game (the dev test room against the stand-in with v307, two windows: the grower at 1280x860, a helper on a
   phone at 384x730 and 360x640): the call, the join, the go, the pull and the giant out.
+
+## A giant fish landed together, the leaf roll and the shaken branch (2026-10-27)
+
+The owner's OK of 2026-10-27 to the boards' mocks and the species lists (members said fishing and insect catching were
+"not fun, not rich"). 28 calls, 42 pictures, $0.788 (`gpt-image-2.5-sunburst`, low; the ledger then stood at 2,913
+rows and $40.744 of $45). Every call read by Codex first (four batch reads, 2026-10-27-17-01-16, -17-12-02, -17-25-22),
+or drawn with `NO_REVIEW` giving the reason. Prompts in `prompts/icons/icons-giant-fish-*`, `icons-leafroll-*`,
+`icons-bark-bugs-*`, `icons-catch-falling-a`, `giant-fish-pieces-e`, `-f`, and `prompts/scenery/giant-fish-*`,
+`unroll-game*`, `shake-*` (the scratch writers were make-prompts*.mjs in the session's scratchpad: the owner's
+templates with their closing sentences).
+
+- **`icons-giant-fish-a` … `-d`** (with `icons-band-fish-a`): the twenty giants, five a water, each the sixth a thing of
+  the board (`giantSteak`, `fishBook`, `giantPost`, `giantBoil`). Codex's words taken: each giant keeps its own long,
+  slender or deep silhouette with a big head and old features. Not taken: a 48 by 32 grid in place of the template's
+  16 by 16 (ART_WORKFLOW forbids an asset's size in pixels; drawn with `NO_REVIEW` saying so). **`-a` was drawn three
+  times**: the sailback carp came with no sail and read as the bronze buffalo beside it, twice; the third (one
+  enormous triangular fin, "as tall as the fish's body is deep") is kept, the first in `work/out/giant-fish-a-v1/`.
+  Cut on 5.3 to 6.1: 31 to 54 wide, as the band fish.
+- **`icons-leafroll-a`, `-b`, `icons-bark-bugs-a`, `-b`** (with `icons-band-insects-a`): the boards' twenty-one insects,
+  the leaf roll and the twig with two beetles (the map's markers), the folded sheet. Codex's words taken for the
+  lacewing's and the dew moth's wings (solid pale cells: the cutter drops what is half see-through). Cut on their true
+  grids: the weevils 5.79 (35x46; the giraffe-neck and the hazel weevil 68 and 72 tall, neck and snout), the moths
+  4.78 (48x46), the bark insects 8.0 (21 to 32 wide).
+- **`icons-catch-falling-a`** (with `icons-items-bd`): a twig, a leaf, cherry petals, a dry leaf, cedar needles, a tuft
+  of silk, for what falls from a shaken branch.
+- **The fight's water, `scene-giant-fish-town`, `-creek`, `-headwater`, `-pool`** (N=3 each, `BG=opaque`, with
+  `scene-forest-game-mound` for a top-down board with a plain middle): Codex's words taken, ripples and edge things
+  kept to the outer tenth, no stones on the headwater's bed. Chosen with `checks/cut-look.mjs`: town 2 (its planks
+  across, the crispest, 81% of a cell one colour), creek 1 (the plainest middle; 2 had pebbles showing through),
+  headwater 3 (the crispest, 1 had foam specks), pool 2 (the cleanest foam band; 3 softer). 273x182 by
+  `build-mine-scene.mjs` (`SCENE=scene-giant-fish-<water> NAME=giant-fish-<water>`).
+- **`scene-unroll-game`** (N=3, with `scene-forest-game-floor`; 2 chosen, the finest grid, 5.0, near the water's 5.6)
+  and **`scene-unroll-game-open`**, an in-place edit of it (N=3; Codex: the full-size scene as the edit's base): 3
+  chosen, its background moved least (3.0 of 255 against 3.1 and 3.5). Its own grid gave 314x209 where the closed roll
+  is 306x204, so it is cut on the closed one's (`SIZE=306x204`, new in build-mine-scene) and nothing jumps when they swap.
+- **`scene-shake-game`** (N=3, with `scene-giant-pull-game`; 3 chosen: the narrowest trunk, the most open sky, 79%).
+  **`scene-shake-branch-cherry`, `-cedar`, `-oak`** and **`scene-shake-sheet`**: each one wide piece on nothing at the
+  scene's own grid (6.1), the branch growing out of the trunk at the left edge (the board bends it by whole-pixel
+  columns).
+- **The fight's pieces.** Drawn first three a sheet at the scene's pixel size (`prompts/scenery/giant-fish-pieces-a` …
+  `-d`): they came out twice the size the board needs (a carp 123 of the scene's 181 rows). **`giant-fish-pieces-e`,
+  `-f`** draw them again on the ICON SHEET template, six a sheet: the fish seen from above as swim pairs (tail one
+  way, the other; Codex's registration words and "fully opaque sprites"), the net, a boulder, two flat stones, the
+  rod's tip. Cut on 5.65 to 6.08 against the water's 5.63: carp and catfish 31x50, sturgeon 44x94, eel 31x86, hoop
+  40x43. `pairs: 2` (new in build-icons: only the first two pairs are frames).
+- **Built:** the icons onto the town's atlas (`ICONS_ONLY=… ICONS_APPEND=1`); the pieces, branches, sheet and falling
+  things into the boards' own picture, `public/town/catch/icons-<hash>.png` + `lib/town/catch-art.json`
+  (`ICONS_ONLY=giant-fish-pieces-e,giant-fish-pieces-f,icons-catch-falling-a,scene-shake-branch-cherry,…
+  ICONS_PUB=<tree>/public/town/catch ICONS_JSON=<tree>/lib/town/catch-art.json`).
+- In the game: the giant fish board in two tabs of the dev town (scratch `giant-run.mjs`), 1280x860, 384x730, 360x640.

@@ -3,7 +3,7 @@
 .tag { position: absolute; left: 8px; top: 8px; padding: 2px 6px; background: #1a0e06cc; color: #ffeccb; font-size: 12px; font-weight: 700; text-shadow: 0 1px 0 #1a0e06; pointer-events: none; }
 .tag[data-right] { left: auto; right: 8px; }
 .tag[data-tone="warn"] { color: #ffb08a; }
-.bar { position: absolute; left: 8px; right: 8px; bottom: 6px; display: flex; align-items: center; gap: 6px; color: #ffeccb; font-size: 11px; line-height: 1; text-shadow: 0 1px 0 #1a0e06; pointer-events: none; }
+.bar { position: absolute; left: 8px; right: 8px; bottom: 6px; display: flex; align-items: center; gap: 6px; color: #ffeccb; font-size: 13px; line-height: 1; text-shadow: 0 1px 0 #1a0e06; pointer-events: none; }
 .bar b { flex: none; padding: 2px 4px; background: #1a0e06cc; font-weight: 700; }
 .bar i { position: relative; flex: 1; height: 8px; background: #1a0e06cc; box-shadow: 0 0 0 2px #1a0e06; }
 .bar span { display: block; height: 100%; background: linear-gradient(#e8d6a8, #b98f52); }
@@ -16,7 +16,7 @@
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
 .chip { min-height: 44px; padding: 0 12px; border: 2px solid #987144; border-radius: 999px; background: #302a22; color: #f0dfb6; font-size: 13px; }
 .chip:disabled { opacity: 0.5; }
-.left { display: block; margin-top: 6px; color: #c9b08a; font-size: 12px; }
+.left { display: block; margin-top: 6px; color: #e2d2b8; font-size: 12px; }
 .drag { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 56px; border: 2px solid #c9a15a; border-radius: 10px; background: repeating-linear-gradient(90deg, #3a2513 0 14px, #33200f 14px 28px); color: #ffeccb; font-weight: 700; font-size: 15px; box-shadow: inset 0 2px 0 #ffffff14, 0 3px 0 #120a05; touch-action: none; user-select: none; cursor: ew-resize; }
 .duo { display: flex; gap: 8px; }
 .duo > * { flex: 1; }
@@ -32,6 +32,15 @@
 .crew { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin: 8px 0; padding: 0; list-style: none; }
 .mate { display: flex; min-height: 40px; flex-direction: column; justify-content: center; padding: 3px 8px; background: #24170c; color: #ffeccb; box-shadow: 0 0 0 2px #1a0e06, inset 0 -2px 0 #140c06; font-size: 13px; line-height: 1.25; }
 .mate b { display: flex; min-width: 0; align-items: center; gap: 4px; overflow: hidden; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
-.mate em { color: #c9a15a; font-size: 11px; font-style: normal; }
+.mate em { color: #d9b56a; font-size: 12px; font-style: normal; }
 .mate[data-me] { box-shadow: 0 0 0 2px #f0c060, inset 0 -2px 0 #140c06; }
 .mate[data-free] { background: #1a120a; color: #8b7356; }
+/* (no taller than the room between the HUD's top row and its bottom row: on a 360x640 phone the waiting board, with its
+   call box, reached up over the top row (Codex, 2026-10-28); it scrolls inside, as the giant pull's panel does) */
+/* (the foot's board slot sets max-height: 100% on its child, which reaches the HUD's box on a phone: this outranks it) */
+:global(.town-foot) section.fit { max-height: min(100%, 680px, calc(100dvh - 11rem)); }
+/* on a short screen the water is drawn a little smaller and the one-line note goes, so the call box is in view at once */
+@media (max-height: 44rem) {
+  section.fit .scene { width: auto; max-width: 100%; max-height: 30dvh; margin-inline: auto; }
+  section.fit .roomy { display: none; }
+}

@@ -95,13 +95,13 @@ export default function TownAnnouncements({ keeper, session, th }: { keeper: Kee
   useEffect(() => { if (!event) return; const timer = setTimeout(() => setQueue(was => was.slice(1)), 8000); return () => clearTimeout(timer); }, [event]);
   if (!head || !event) return null;
   const message=announcementText(event,th),prefix=event.name+" ";
-  return createPortal(<aside data-town-announcement={event.id} role="status" className="pop-in pointer-events-auto relative flex w-[min(32rem,calc(100vw-1.5rem))] items-center gap-3 rounded-lg border-2 border-[#c39a5b] bg-[#2b211a]/97 p-2 pr-9 text-[#f3e3c3] shadow-[inset_0_0_0_1px_#4e3e28,0_3px_0_#17120e,0_8px_24px_#0006]" data-state="open">
+  return createPortal(<aside data-town-announcement={event.id} role="status" className="pop-in pointer-events-auto relative flex w-[min(32rem,calc(100vw-1.5rem))] items-center gap-3 rounded-lg border-2 border-[#c39a5b] bg-[#2b211a]/97 p-2 pr-11 text-[#f3e3c3] shadow-[inset_0_0_0_1px_#4e3e28,0_3px_0_#17120e,0_8px_24px_#0006]" data-state="open">
     <Portrait event={event} /><div className="min-w-0 py-1">
       <p className="mb-1 line-clamp-2 text-[15px] font-semibold leading-snug text-[#fff0d1] [overflow-wrap:anywhere]" title={event.name}>{event.name}</p>
       <p className="text-[13px] leading-relaxed text-[#e2d2b8]">{message.startsWith(prefix)?message.slice(prefix.length):message}</p>
       {/* (a giant fish's call: the way to its water, components/town/TownGiantFish) */}
       {event.kind === "giant" && event.to && <button type="button" data-giant-go className="pressable tk tk-btn-wood mt-1.5 min-h-11 px-4 text-ui font-semibold" onClick={() => { window.dispatchEvent(new CustomEvent("cashtown:giant-go", { detail: event.to!.hook })); setQueue(was => was.slice(1)); }}>{th ? "ไปช่วย" : "Go and help"}</button>}
     </div>
-    <button type="button" aria-label={th ? "ปิดประกาศ" : "Dismiss announcement"} onClick={() => setQueue(was => was.slice(1))} className="absolute right-0 top-0 grid h-11 w-9 place-items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-[#f0ca83]"><TownIcon name="close" size={16}/></button>
+    <button type="button" aria-label={th ? "ปิดประกาศ" : "Dismiss announcement"} onClick={() => setQueue(was => was.slice(1))} className="absolute right-0 top-0 grid h-11 w-11 place-items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-[#f0ca83]"><TownIcon name="close" size={16}/></button>
   </aside>, head);
 }
