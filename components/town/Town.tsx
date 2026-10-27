@@ -5747,7 +5747,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                     people={standers} here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing && !signView ? standing?.tile ?? null : null}
                     at={wellHere ? standing?.tile ?? null : fishAt?.tile ?? null} near={onFarm}
                     water={talk || trade || boardOpen || wardrobeOpen || (phone && testOpen) ? null : wellHere ? "well" : fishAt ? "river" : null} sfx={sfxRef.current}
-                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerFarm} registerRelay={registerRelay} registerSprings={registerSprings} registerCrossings={registerCrossings} registerBoats={registerBoats} registerPicnic={registerPicnic} sayPull={sayPull} sitPicnic={()=>{if(s.self.path.length)return false;s.sitHere();return s.seated;}} walkTrail={(x,y)=>s.walkTo({x,y})} />
+                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerFarm} registerRelay={registerRelay} registerSprings={registerSprings} registerCrossings={registerCrossings} registerBoats={registerBoats} registerPicnic={registerPicnic} sayPull={sayPull} hour={forcedHour.current} sitPicnic={()=>{if(s.self.path.length)return false;s.sitHere();return s.seated;}} walkTrail={(x,y)=>s.walkTo({x,y})} />
         </Suspense>
       )}
       {/* The forest: what lies and grows there, and gathering what is at the place I stand by */}

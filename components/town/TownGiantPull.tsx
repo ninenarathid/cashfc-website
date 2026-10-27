@@ -5,8 +5,10 @@ import { deedFor, type Plot } from "@/lib/town/farm";
 import { handOf } from "@/lib/town/trade";
 import type { Stander } from "@/lib/town/line";
 import { ITEMS } from "@/lib/town/items";
+import { bedOf } from "@/lib/town/world";
 import { PULL, calling, goEnds, gripOf, judgePull, leanAt, peakAt, pullOf, pullable, pulling, sideOf, type GiantPull, type PullRefusal } from "@/lib/town/giant-pull";
 import ART from "@/lib/town/giant-pull-art.json";
+import { daylight, daylightAt } from "@/lib/town/daylight";
 import TownFoot from "./TownFoot";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import s from "./TownGiantPull.module.css";
@@ -74,8 +76,10 @@ const REFUSED: Record<PullRefusal, [string, string]> = {
 
 interface Bit { piece: Piece; sx: number; sy: number; sw: number; sh: number; x: number; y: number; vx: number; vy: number; born: number; life: number }
 
-export default function TownGiantPull({ keeper, th, at, name, people, sayPull }: {
+export default function TownGiantPull({ keeper, th, at, name, people, sayPull, hour = null }: {
   keeper: Keeper; th: boolean; at: [number, number] | null; name: string;
+  /** The hour the town is shown at in `next dev` (Town's forcedHour), else null: the board takes the town's light. */
+  hour?: number | null;
   people?: () => Stander[];
   /** Tell the room of the giant I help pull (lib/town/session's setPull). */
   sayPull?: (word: string) => void;
@@ -87,8 +91,8 @@ export default function TownGiantPull({ keeper, th, at, name, people, sayPull }:
   const [shut, setShut] = useState<string | null>(null);
   const [harvest, setHarvest] = useState<{ key: string; got: Array<[string, number]> | null; why?: string } | null>(null);
   // (the giant once out, kept here: its keeper's pick takes it off the plot, and the card stays till it is closed)
-  const [result, setResult] = useState<{ key: string; crop: string; by: string; helped: string[]; crew: string[]; out: number } | null>(null);
-  const lit = useRef<{ left: HTMLButtonElement | null; right: HTMLButtonElement | null; marker: HTMLSpanElement | null }>({ left: null, right: null, marker: null });
+  const [result, setResult] = useState<{ key: string; crop: string; by: string; helped: string[]; crew: string[]; out: number; hits: Record<string, number[]> } | null>(null);
+  const lit = useRef<{ left: HTMLButtonElement | null; right: HTMLButtonElement | null }>({ left: null, right: null });
   // (what I pulled well in this go, the half-swings I have pressed at, and how many of them the keeper has been told)
   const go = useRef<{ key: string; go: number; mine: Set<number>; used: Set<number>; told: number; flash: { side: 1 | -1; at: number; good: boolean } | null; bits: Bit[]; looked: number } | null>(null);
   const canvas = useRef<HTMLCanvasElement | null>(null);
@@ -116,7 +120,7 @@ export default function TownGiantPull({ keeper, th, at, name, people, sayPull }:
   const ranOut = !!pull && !pull.out && goAt > 0 && !isPulling;
   const isOut = !!pull?.out || (!!result && result.key === key && !pull);
   const lapsed = !!pull && !pull.out && goAt === 0 && !isCalling;
-  if (pull?.out && inCrew && key && (!result || result.key !== key || result.out !== pull.out)) setResult({ key, crop, by: pull.by, helped: pull.helped ?? [], crew: pull.crew, out: pull.out });
+  if (pull?.out && inCrew && key && (!result || result.key !== key || result.out !== pull.out)) setResult({ key, crop, by: pull.by, helped: pull.helped ?? [], crew: pull.crew, out: pull.out, hits: pull.hits });
   const mine = go.current && go.current.key === key && go.current.go === goAt ? go.current.mine : null;
 
   // ── the go's own book: begun afresh with each start ──
@@ -124,7 +128,7 @@ export default function TownGiantPull({ keeper, th, at, name, people, sayPull }:
     go.current = { key, go: goAt, mine: new Set(pull!.hits[me] ?? []), used: new Set(pull!.hits[me] ?? []), told: (pull!.hits[me] ?? []).length, flash: null, bits: [], looked: 0 };
   }
   // what the roots still hold: the keeper's count, my own pulls not told yet, and what the others say they have pulled
-  const stored = pull?.hits ?? {};
+  const stored = pull?.hits ?? result?.hits ?? {};
   let done = gripOf(mine ? { ...stored, [me]: [...mine] } : stored).done;
   if (pull && !isOut) for (const id of pull.crew) if (id !== me) {
     const w = wordOf(words.find((p) => p.id === id)?.pull, key!), have = stored[id]?.length ?? 0;
@@ -212,18 +216,33 @@ export default function TownGiantPull({ keeper, th, at, name, people, sayPull }:
     return () => window.removeEventListener("keydown", down);
   }, [isPulling, inCrew, press]);
 
+  // ── the moment it comes out: the earth thrown up from its pit ──
+  const burst = useRef<string | null>(null);
+  useEffect(() => {
+    const g = go.current, out = pull?.out ?? 0;
+    if (!key || !out || !g || g.key !== key || burst.current === `${key}:${out}`) return;
+    burst.current = `${key}:${out}`;
+    const [, , cw, ch] = ART.icons.pullClods, hw = Math.floor(cw / 2), hh = Math.floor(ch / 2), [, , rw, rh] = ART.icons.pullRoot, half = Math.floor(rw / 2), born = performance.now();
+    for (const side of [-1, 1]) [[0, 0], [hw, 0], [0, hh], [hw, hh]].forEach(([ox, oy], i) => g.bits.push({ piece: "pullClods", sx: ox, sy: oy, sw: cw - hw, sh: ch - hh, x: MID + side * 8, y: FOOT,
+      vx: side * (26 + i * 18), vy: -(110 + (i * 31) % 50), born: born + i * 30, life: 900 }));
+    g.bits.push({ piece: "pullRoot", sx: 0, sy: 0, sw: half, sh: rh, x: MID - 10, y: FOOT, vx: -55, vy: -95, born, life: 1000 });
+    g.bits.push({ piece: "pullRoot", sx: half, sy: 0, sw: rw - half, sh: rh, x: MID + 10, y: FOOT, vx: 55, vy: -95, born, life: 1000 });
+  }, [key, pull?.out]);
+
   // ── the grower's harvest, once it is out ──
   const picking = useRef<string | null>(null);
+  const [pickTry, setPickTry] = useState(0);
   useEffect(() => {
     if (!key || !pull?.out || pull.by !== me || picking.current === `${key}:${pull.out}`) return;
     picking.current = `${key}:${pull.out}`;
     void (async () => {
       // (only a pick: whatever is in the hand might make the same tap something else, compost on it or a hoe's digging)
-      if (deedFor(key, plot!, handOf(keeper.purse()), me, keeper.now(), me, keeper.rains()) !== "pick") { setHarvest({ key, got: null, why: "hand" }); return; }
+      const [kx, ky] = key.split(",").map(Number), owner = keeper.owners().get(bedOf(kx, ky))?.by ?? null;
+      if (deedFor(key, plot!, handOf(keeper.purse()), me, keeper.now(), owner, keeper.rains()) !== "pick") { setHarvest({ key, got: null, why: "hand" }); return; }
       const did = await keeper.farmDo(key, name);
       setHarvest(did.ok && did.deed === "pick" ? { key, got: did.got as Array<[string, number]> } : { key, got: null, why: did.ok ? "hand" : did.why });
     })();
-  }, [key, pull, plot, me, keeper, name]);
+  }, [key, pull, plot, me, keeper, name, pickTry]);
 
   // ── the board's picture ──
   useEffect(() => {
@@ -251,13 +270,10 @@ export default function TownGiantPull({ keeper, th, at, name, people, sayPull }:
         const [px, py, pw, ph] = ART.icons.pullPit;
         if (P.pieces.complete) ctx.drawImage(P.pieces, px, py, pw, ph, MID - Math.round(pw / 2), FOOT - ph + 6, pw, ph);
         if (cell && P.atlas.complete) {
-          // (up out of the ground and over onto its side: a quarter turn, whole pixels once it lies)
-          const [sx, sy, sw, sh] = cell, since = Math.min(1, (t - (pull?.out ?? result?.out ?? t)) / 700), fly = Math.sin(Math.PI * since);
-          ctx.save();
-          ctx.translate(Math.round(MID + 10 + (sh / 2 + 6) * since), Math.round(FOOT - sh / 2 - fly * 40 + (sh / 2 - sw / 2) * since));
-          ctx.rotate(since < 1 ? since * Math.PI / 2 : Math.PI / 2);
-          ctx.drawImage(P.atlas, sx, sy, sw, sh, Math.round(-sw / 2), Math.round(-sh / 2), sw, sh);
-          ctx.restore();
+          // (up out of the ground in an arc and set down upright on the soil beside its pit, whole pixels all the way)
+          const [sx, sy, sw, sh] = cell, since = Math.min(1, (t - (pull?.out ?? result?.out ?? t)) / 800), arc = Math.sin(Math.PI * since);
+          const x = Math.round(MID - sw / 2 + (sw / 2 + 22) * since), y = Math.round(FOOT + 4 - sh - arc * 34 - (1 - since) * 4);
+          ctx.drawImage(P.atlas, sx, sy, sw, sh, x, y, sw, sh);
         }
       } else if (cell && P.atlas.complete) {
         // standing: rocked on the shared clock (or stirring in the breeze while the crew gathers), more as the roots give
@@ -281,7 +297,6 @@ export default function TownGiantPull({ keeper, th, at, name, people, sayPull }:
         const u = (t - goAt - PULL.count) / PULL.swing, kk = Math.round(u - 0.5), on = u > 0 && kk < PULL.swings ? Math.max(0, 1 - Math.abs(t - peakAt(goAt, kk)) / (PULL.swing / 2)) : 0;
         L.left?.style.setProperty("--lit", (sideOf(kk) < 0 ? on : 0).toFixed(2));
         L.right?.style.setProperty("--lit", (sideOf(kk) > 0 ? on : 0).toFixed(2));
-        if (L.marker) L.marker.style.left = `${50 + leanAt(goAt, t) * 44}%`;
       }
       // what was torn up: each bit flung, falling, gone
       if (g && P.pieces.complete) {
@@ -293,14 +308,23 @@ export default function TownGiantPull({ keeper, th, at, name, people, sayPull }:
         }
         ctx.globalAlpha = 1;
       }
+      // the town's light, as the map is lit: everything drawn multiplied by the sky's tint (white at noon)
+      const sky = (hour !== null ? daylightAt(hour * 60) : daylight()).tint;
+      if (sky[0] + sky[1] + sky[2] < 765) {
+        ctx.globalCompositeOperation = "multiply";
+        ctx.fillStyle = `rgb(${sky[0]},${sky[1]},${sky[2]})`;
+        ctx.fillRect(0, 0, W, H);
+        ctx.globalCompositeOperation = "source-over";
+      }
     };
     raf = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(raf);
-  }, [show, key, crop, isOut, goAt, done, pull, result, keeper]);
+  }, [show, key, crop, isOut, goAt, done, pull, result, keeper, hour]);
 
   // ── what shows where ──
   const near = !!key && !!at && (() => { const [kx, ky] = key.split(",").map(Number); return Math.abs(at[0] - kx - 0.5) <= 2.5 && Math.abs(at[1] - ky - 0.5) <= 2.5; })();
-  const mayCall = !!key && !!plant && plant.by === me && pullable(key, plot, now, keeper.rains()) && !isCalling && !isPulling;
+  const keeperOf = key ? (() => { const [kx, ky] = key.split(",").map(Number); return keeper.owners().get(bedOf(kx, ky))?.by ?? null; })() : null;
+  const mayCall = !!key && !!plant && (keeperOf === null || keeperOf === me) && pullable(key, plot, now, keeper.rains()) && !isCalling && !isPulling;
   const mayJoin = !!key && isCalling && !inCrew && near && pull!.crew.length < PULL.crew;
   if (!show) {
     if (mayCall && near && !ranOut) return <TownFoot rank="main" order={58}>
@@ -323,7 +347,7 @@ export default function TownGiantPull({ keeper, th, at, name, people, sayPull }:
   const k = isPulling ? Math.floor((t - goAt - PULL.count) / PULL.swing) : -1, swingsLeft = Math.max(0, PULL.swings - Math.max(0, k));
   const live = isPulling && count === 0;
   const crewChips = crew.map((id) => {
-    const w = wordOf(words.find((p) => p.id === id)?.pull, key!), n = id === me ? mine?.size ?? 0 : Math.max(w && w.go === goAt ? w.n : 0, stored[id]?.length ?? 0);
+    const w = wordOf(words.find((p) => p.id === id)?.pull, key!), n = id === me ? Math.max(mine?.size ?? 0, stored[id]?.length ?? 0) : Math.max(w && w.go === goAt ? w.n : 0, stored[id]?.length ?? 0);
     return <li key={id} className={s.mate} data-me={id === me || undefined} data-grower={id === by || undefined}>
       <span className={s.mateName}>{id === by && <TownIcon name="thingGiantSeeds" size={12} />}{nameOf(id)}</span>
       {(isPulling || isOut) && <span className={s.pulls}>{n}</span>}
@@ -342,13 +366,15 @@ export default function TownGiantPull({ keeper, th, at, name, people, sayPull }:
         {count > 0 && <div className={s.count} key={count} aria-live="polite">{count}</div>}
         {isPulling && !count && t < goAt + PULL.count + 900 && <div className={s.count} data-go>{th ? "ดึง!" : "Pull!"}</div>}
         {g?.flash && performance.now() - g.flash.at < 450 && <div className={s.pop} data-side={g.flash.side} data-good={g.flash.good || undefined}>{g.flash.good ? (th ? "ฮึบ!" : "Heave!") : (th ? "หลุดจังหวะ" : "Slipped")}</div>}
-        {(isPulling || isOut) && <div className={s.grip} aria-label={th ? `รากยึดเหลือ ${left} จาก ${PULL.grip}` : `Roots hold ${left} of ${PULL.grip}`}><span style={{ width: `${(left / PULL.grip) * 100}%` }} /></div>}
+        {(isPulling || isOut) && <div className={s.grip} aria-label={th ? `รากยึดเหลือ ${left} จาก ${PULL.grip}` : `Roots hold ${left} of ${PULL.grip}`}>
+          <b>{th ? "รากยึด" : "Roots"}</b><i><span style={{ width: `${(left / PULL.grip) * 100}%` }} /></i>
+        </div>}
       </div>
       <ul className={s.crew} aria-label={th ? "ทีมดึง" : "The crew"}>{crewChips}{isCalling && Array.from({ length: PULL.crew - crew.length }, (_, i) => <li key={`free${i}`} className={s.mate} data-free><span className={s.mateName}>{th ? "ว่าง" : "Free"}</span></li>)}</ul>
 
       {isCalling && <>
-        <p className={s.note}>{th ? "ผักจะโยกซ้าย-ขวา กดเชือกฝั่งที่มันเอียงไป ตอนเอียงสุด · ดึงจังหวะเดียวกันหลายคน แรงเป็นสามเท่า" : "It rocks left and right: pull the rope on the side it leans to, as it leans farthest. Pull the same swing together for three times the strength."}</p>
-        <p className="mb-2 text-meta text-muted">{th ? `เพื่อนที่ยืนใกล้ ๆ กด “ช่วยดึง” ได้อีก ${PULL.crew - crew.length} คน · ทุกคนใช้แรง 1` : `${PULL.crew - crew.length} more nearby can tap “Help pull” · 1 stamina each`}</p>
+        <p className={s.note}>{th ? "ผักจะโยกซ้าย-ขวา ดึงเชือกฝั่งที่มันเอียงไปตอนเอียงสุด ดึงพร้อมกันได้แรงสามเท่า" : "It rocks left and right: pull the side it leans to, at its farthest. Together is three times the strength."}</p>
+        <p className="mb-2 text-meta text-muted">{th ? `คนใกล้ ๆ มาช่วยได้อีก ${PULL.crew - crew.length} คน · คนละแรง 1` : `${PULL.crew - crew.length} more can help · 1 stamina each`}</p>
         {grower ? <div className={s.row}>
           <button type="button" data-giant-pull-go className={`${GREEN} flex-1`} disabled={busy} onClick={() => void send("go")}><PullIcon name="pullGloves" size={22} />{th ? "เริ่มดึง!" : "Start pulling!"}</button>
           <button type="button" className={WOOD} disabled={busy} onClick={() => void send("leave")}>{th ? "ยกเลิก" : "Cancel"}</button>
@@ -362,11 +388,10 @@ export default function TownGiantPull({ keeper, th, at, name, people, sayPull }:
         <div className={s.pullRow}>
           {([-1, 1] as const).map((side) => <button key={side} ref={(el) => { lit.current[side < 0 ? "left" : "right"] = el; }} type="button" data-giant-pull-side={side < 0 ? "left" : "right"} className={s.rope}
             disabled={!live} onPointerDown={onPress(side)} aria-label={side < 0 ? (th ? "ดึงเชือกซ้าย" : "Pull the left rope") : (th ? "ดึงเชือกขวา" : "Pull the right rope")}>
-            {side < 0 && <span aria-hidden>◀</span>}<PullIcon name="pullGloves" size={30} /><span>{side < 0 ? (th ? "ดึงซ้าย" : "Left") : (th ? "ดึงขวา" : "Right")}</span>{side > 0 && <span aria-hidden>▶</span>}
+            <PullIcon name="pullGloves" size={30} /><span>{side < 0 ? (th ? "ดึงซ้าย" : "Left") : (th ? "ดึงขวา" : "Right")}</span>
           </button>)}
         </div>
-        <div className={s.leanBar} aria-hidden><i data-side="left" /><i data-side="right" /><span ref={(el) => { lit.current.marker = el; }} /></div>
-        <p className="mt-1 text-center text-meta text-muted">{th ? `อีก ${swingsLeft} จังหวะ · คีย์บอร์ด ← →` : `${swingsLeft} swings left · keys ← →`}</p>
+        <p className="mt-1 text-center text-meta text-muted">{th ? `อีก ${swingsLeft} จังหวะ` : `${swingsLeft} swings left`}<span className={s.keys}>{th ? " · คีย์บอร์ด ← →" : " · keys ← →"}</span></p>
       </>}
 
       {lapsed && <>
@@ -383,7 +408,7 @@ export default function TownGiantPull({ keeper, th, at, name, people, sayPull }:
         <p className={s.big}>{th ? "ถอนขึ้นมาแล้ว!" : "It's out!"}</p>
         {grower ? (harvest?.key === key ? (harvest.got ? <p>{th ? "ได้ " : "You got "}{harvest.got.map(([id, n]) => <span key={id} className={s.got}><TownIcon name={id as IconName} size={18} />{ITEMS[id as keyof typeof ITEMS]?.name[th ? "th" : "en"] ?? id} ×{n}</span>)}</p>
             : <><p>{harvest.why === "full" ? (th ? "กระเป๋าเต็ม ผักยักษ์วางอยู่ที่หลุม เก็บเมื่อมีที่ว่าง" : "Your bag is full: the giant lies by its pit until you make room") : (th ? "ยังเก็บไม่ได้ ลองวางของในมือแล้วกดเก็บ" : "Not picked yet: put down what you hold and pick it")}</p>
-              <button type="button" className={`${GREEN} w-full`} onClick={() => { picking.current = null; tick((n) => n + 1); }}>{th ? "เก็บผักยักษ์" : "Pick the giant"}</button></>)
+              <button type="button" className={`${GREEN} w-full`} onClick={() => { picking.current = null; setHarvest(null); setPickTry((n) => n + 1); }}>{th ? "เก็บผักยักษ์" : "Pick the giant"}</button></>)
           : <p className="text-meta text-muted">{th ? "กำลังเก็บ…" : "Picking…"}</p>)
           : <p>{helped.includes(me) ? (th ? `ช่วยดึงสำเร็จ +${PULL.points} แต้มสายผู้ช่วย` : `+${PULL.points} helpers' points`) : (th ? `ครั้งหน้าดึงให้ถูกจังหวะอย่างน้อย ${PULL.helpFrom} ครั้งเพื่อรับแต้ม` : `Pull well ${PULL.helpFrom} times next time for the points`)}</p>}
         {helped.length > 0 && <p className="text-meta text-muted">{th ? `ช่วยดึงโดย ${helped.map(nameOf).join(", ")} · เจ้าของแปลงได้ผลเพิ่ม ${helped.length}` : `Pulled with ${helped.map(nameOf).join(", ")} · ${helped.length} more for the grower`}</p>}

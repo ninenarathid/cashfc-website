@@ -39,9 +39,11 @@
 .pop[data-side="1"] { left: 78%; }
 .pop:not([data-good]) { color: #d5bb92; font-size: 14px; }
 .grip {
-  position: absolute; left: 8px; right: 8px; bottom: 6px; height: 8px;
-  background: #1a0e06cc; box-shadow: 0 0 0 2px #1a0e06;
+  position: absolute; left: 8px; right: 8px; bottom: 6px; display: flex; align-items: center; gap: 6px;
+  color: var(--cream); font-size: 11px; line-height: 1; text-shadow: 0 1px 0 #1a0e06;
 }
+.grip b { flex: none; padding: 2px 4px; background: #1a0e06cc; font-weight: 700; }
+.grip i { position: relative; flex: 1; height: 8px; background: #1a0e06cc; box-shadow: 0 0 0 2px #1a0e06; }
 .grip span { display: block; height: 100%; background: linear-gradient(#e8d6a8, #b98f52); transition: width 200ms ease-out; }
 
 /* The crew: who holds the ropes, and how many good pulls each */
@@ -77,11 +79,8 @@
 }
 .rope:active { translate: 0 3px; box-shadow: 0 1px 0 #1a0e06; }
 .rope:disabled { opacity: 0.55; }
-.leanBar { position: relative; height: 12px; margin: 10px 4px 0; background: #1a120a; box-shadow: 0 0 0 2px #1a0e06; }
-.leanBar i { position: absolute; top: 0; bottom: 0; width: 12%; background: #f0c06055; }
-.leanBar i[data-side="left"] { left: 0; }
-.leanBar i[data-side="right"] { right: 0; }
-.leanBar span { position: absolute; top: -3px; width: 8px; height: 18px; translate: -50% 0; left: 50%; background: var(--rope); box-shadow: 0 0 0 2px #1a0e06; }
+/* (the keys are a keyboard's: on a touch screen they say nothing) */
+@media (pointer: coarse) { .keys { display: none; } }
 
 /* Out */
 .done { margin-top: 4px; text-align: center; color: var(--cream); }
