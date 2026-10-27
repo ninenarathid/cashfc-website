@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { backAverage, backRows, chipsOf, coinsBack, draftOf, draftProblem, effectiveChance, prizeWithAmount, reelAt, spinRevealed, whereItGoes, wipedWords, wonWords, type CasinoState, type CasinoSpin } from './casino';
+import { backAverage, backRows, chipsOf, chipsShown, coinsBack, draftOf, draftProblem, effectiveChance, prizeWithAmount, reelAt, reelTeases, reelTeasing, reelView, spinRevealed, whereItGoes, wipedWords, wonWords, type CasinoState, type CasinoSpin } from './casino';
 const fixture = (): CasinoState => ({ user_id: 'tester', settings: { id: 1, revision: 1, title: 'Halloween', open: true, mode: 'weighted', price: 100, per_player: 100, budget: 100000000, reserved: 0, spins: 0, pool_size: 1800, pool_draws: 0, starts_at: null, ends_at: null, updated_at: '', updated_by: null }, prizes: [{ id: 'gold', name: 'Gil', kind: 'gil', amount: 1000000, chance: .4, stock: 20, issued: 0, announce: false, active: true }], account: { coins: 20000, spins: 0 }, spins: [], receipts: [], queue: [], server_now: '', paid_gil: 0 });
 describe('Casino presentation and settings', () => {
   it('shows depleted or unaffordable prizes as zero without redistributing odds', () => {
@@ -78,5 +78,57 @@ describe('Casino presentation and settings', () => {
     expect(wonWords({ name: '250,000 Gil', amount: 250000 })).toBe('ได้ 250,000 Gil');
     expect(wonWords({ name: '150 Casino Coin', amount: 150, pct: 150 })).toBe('ได้ 150 Casino Coin');
     expect(wonWords({ name: '220 Casino Coin', amount: 220, pct: 200, parts: [200, 20] })).toBe('ได้ 200 + 20 Casino Coin');
+  });
+});
+
+describe('Casino Coins in the room', () => {
+  it('keeps what my own spin brings back off the count until its reels stop (the lever, 2026-10-27)', () => {
+    const s = fixture(), at = Date.parse('2026-10-27T12:00:00Z');
+    s.account.chips = 250;
+    const spin = (user_id: string, kind: string, amount: number, revealIn: number) => ({ id: user_id + kind + amount, user_id, player_name: 'x', machine: 4, revision: 1, price: 100, reels: [], prize: { kind, amount }, forced: false, created_at: '', reveal_at: new Date(at + revealIn).toISOString() }) as unknown as CasinoSpin;
+    s.spins = [spin('tester', 'coin', 150, 2000), spin('tester', 'gil', 1000000, 2000), spin('other', 'coin', 70, 2000), spin('tester', 'coin', 50, -1000)];
+    expect(chipsShown(s, at)).toBe(100);
+    expect(chipsShown(s, at + 2000)).toBe(250);
+    expect(chipsShown(fixture(), at)).toBe(null);
+  });
+});
+
+describe('The reels as strips (2026-10-27)', () => {
+  const faces = ['seven', 'cherry', 'gold', 'popoto', 'evercold'] as const;
+  const spinOf = (k: number) => ({ id: 'spin-' + k, created_at: new Date(1000).toISOString(), reveal_at: new Date(4600).toISOString(), reels: [0, 1, 2, 3].map(i => faces[(k * 7 + i * (k % 3 + 1)) % 5]) }) as unknown as CasinoSpin;
+  const line = (spin: CasinoSpin, reel: number, now: number) => reelView(spin, reel, now).faces.reduce((a, b) => Math.abs(b.y) < Math.abs(a.y) ? b : a);
+  it('stops every reel on the spin’s own face, whatever the strip showed on the way', () => {
+    for (let k = 0; k < 300; k++) { const spin = spinOf(k); for (let r = 0; r < 4; r++) {
+      const stop = 4600 - (3 - r) * 450;
+      expect(reelAt(spin, r, stop)).toBe(spin.reels[r]);
+      const rest = reelView(spin, r, stop + 500);
+      expect(rest.moving).toBe(false);
+      expect(rest.faces.find(f => f.y === 0)?.face).toBe(spin.reels[r]);
+      expect(reelView(spin, r, stop - 100).moving).toBe(true);
+    } }
+  });
+  it('carries the face that would have made a pair slowly past the line before the stop, now and then', () => {
+    let teased = 0;
+    for (let k = 0; k < 300; k++) { const spin = spinOf(k);
+      for (const t of reelTeases(spin)) {
+        teased++;
+        expect(t.reel === 1 || t.reel === 3).toBe(true);
+        expect(spin.reels[t.reel - 1]).toBe(t.face);
+        expect(spin.reels[t.reel]).not.toBe(t.face);
+        const stop = 4600 - (3 - t.reel) * 450;
+        // (just under the line once stopped, and on it a little more than half a second before: the slowest of the slowing)
+        expect(reelView(spin, t.reel, stop + 500).faces.find(f => f.y === 1)?.face).toBe(t.face);
+        expect([550, 600, 650, 700].some(ms => line(spin, t.reel, stop - ms).face === t.face)).toBe(true);
+        expect(reelTeasing(spin, stop - 300)).toBe(true);
+      }
+      if (spin.reels[0] === spin.reels[1]) expect(reelTeases(spin).some(t => t.reel === 1)).toBe(false);
+    }
+    expect(teased).toBeGreaterThan(60); expect(teased).toBeLessThan(500);
+  });
+  it('with motion reduced shows nothing of the outcome before the stop', () => {
+    const spin = spinOf(4);
+    expect(reelView(spin, 3, 4500, true).faces.find(f => f.y === 0)?.face).toBe('popoto');
+    expect(reelView(spin, 3, 4600, true).faces.find(f => f.y === 0)?.face).toBe(spin.reels[3]);
+    expect(reelView(null, 0, 0).faces).toHaveLength(3);
   });
 });

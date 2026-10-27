@@ -1,45 +1,81 @@
 {
- "image": "/town/icons-465b2e7867.png",
+ "image": "/town/icons-9942748df4.png",
  "size": [
   256,
-  41
+  64
  ],
  "icons": {
   "reelEvercold": [
-   1,
+   16,
    1,
    24,
    39
   ],
   "reelCoins": [
-   110,
+   140,
    1,
    28,
    27
   ],
   "reelCherry": [
-   56,
+   86,
    1,
    28,
    34
   ],
   "reelGold": [
-   139,
    1,
+   43,
    27,
    20
   ],
   "reelPopoto": [
-   85,
+   115,
    1,
    24,
    34
   ],
   "reelEvercoldB": [
-   26,
+   56,
    1,
    29,
    37
+  ],
+  "leverMount": [
+   169,
+   1,
+   17,
+   26
+  ],
+  "leverUp": [
+   1,
+   1,
+   14,
+   41
+  ],
+  "leverTiltUp": [
+   210,
+   1,
+   20,
+   24
+  ],
+  "leverFront": [
+   29,
+   43,
+   14,
+   15
+  ],
+  "leverTiltDown": [
+   187,
+   1,
+   22,
+   26
+  ],
+  "leverDown": [
+   41,
+   1,
+   14,
+   38
   ]
  },
  "cursor": {}

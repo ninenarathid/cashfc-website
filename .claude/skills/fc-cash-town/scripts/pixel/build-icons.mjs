@@ -446,6 +446,12 @@ const SHEETS = [
   // Cut on its finer grid (8.0): on its coarser (16.6) the crystals and the coins broke into pieces. The cherries, the
   // gold bar and the potato are the code-drawn reel symbols drawn the town's way, for the owner to choose to take
   ["icons-casino-a", ["reelEvercold", "reelCoins", "reelCherry", "reelGold", "reelPopoto", "reelEvercoldB"], { range: [7.9, 8.1] }],
+  // the slot's lever (2026-10-27, the owner: "เปลี่ยนการกดปั่นเป็นการดึงคันโยก ให้เหมือน slot machine จริงๆ"), with
+  // icons-casino-a for the reference: its mount, and its arm in five poses from upright to hanging down, the brass cap at
+  // the arm's pivot (the tilted two lean left, the ball swinging in over the cabinet: not mirrored, so that the ball's
+  // shine stays at its upper left as in the other poses). Built with icons-casino-a into
+  // the casino's picture (ICONS_ONLY=icons-casino-a,icons-casino-lever). Cut on 8.42, the reels' size: on 16.8 blocky
+  ["icons-casino-lever", ["leverMount", "leverUp", "leverTiltUp", "leverFront", "leverTiltDown", "leverDown"], { range: [8.3, 8.5] }],
   // ── a giant pulled out together (2026-10-27): the knot where the ropes meet, soil clods, a snapped root, a dust puff
   // (thrown by the board as a pull lands or slips), the pull buttons' gloves on a rope, the pit left once it is out;
   // with icons-farm-d for the reference. Built alone into a small picture of the board's own (ICONS_ONLY=icons-giant-pull-a

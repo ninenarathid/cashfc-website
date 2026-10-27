@@ -108,7 +108,7 @@ async function round(X, label, m, { admin }) {
   ok(`${label}: the counter offers the way back to the machine`, (await text(X, ".casino-chips-back")).includes(String(at)), await text(X, ".casino-chips-back"));
   await click(X, ".casino-chips-back");
   await until("back at the machine", () => X.evaluate(`document.querySelector(".casino-in-town")?.dataset.pane === "slots" && !document.querySelector(".casino-in-town .casino-spin")?.disabled`), 20000);
-  ok(`${label}: the spin is paid in Casino Coins`, /ปั่น · 100 Casino Coin/.test(await text(X, ".casino-in-town .casino-spin")), await text(X, ".casino-in-town .casino-spin"));
+  { const lever = await X.evaluate(`document.querySelector(".casino-in-town .casino-spin")?.getAttribute("aria-label") ?? ""`); ok(`${label}: the lever is paid in Casino Coins`, /ดึงคันโยก · 100 Casino Coin/.test(lever), lever); }
   if (admin) ok(`${label}: the pair forced`, await pick(X, "pair"));
   else await sql(`update public.casino_live_prizes set chance = case when id = 'pair' then 100 else 0 end`);
   const purse1 = await coinsOf(m);

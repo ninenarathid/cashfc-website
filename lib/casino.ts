@@ -157,12 +157,66 @@ export function draftProblem(d: CasinoDraft, s: CasinoSettings): string | null {
   if (coinsBack(d, s) >= d.price) return 'Coin ที่ได้คืนเฉลี่ยต่อครั้งต้องน้อยกว่าราคาหมุน ไม่ให้หมุนฟรีได้ไม่สิ้นสุด';
   return null;
 }
+// ── the reels as strips (the owner, 2026-10-27: "ตอนหมุนอยากให้เห็นหน้าอื่นๆด้วย อยากให้มีความรู้สึกเหมือน เกือบถูกรางวัล") ──
+// What a spin pays is the database's alone: its four faces on the line. How the reels get there is the page's: each a
+// strip of faces turning down past the line, the faces over and under it seen, slowing to its stop. Where a reel could
+// have made a pair with the one before it and did not, it may slow for longer and carry that face slowly past the line
+// just before it stops.
+/** A strip's faces: the common ones often, the seven and the evercold now and then, so that they are seen go by. */
+const STRIP_MIX: SymbolId[] = ['popoto', 'popoto', 'popoto', 'cherry', 'cherry', 'cherry', 'gold', 'gold', 'seven', 'evercold'];
+/** Faces a second at full speed; how long a reel takes to slow to its stop, and a reel that teases; the knock as it stops. */
+const REEL_SPEED = 14, REEL_SLOW = 450, REEL_TEASE = 1150, REEL_SETTLE = 160;
+const seedOf = (text: string) => { let h = 2166136261; for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
+const randomOf = (seed: number) => () => { seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+/** When a reel stops: the last at the reveal, each before it 450 ms sooner. */
+const reelStop = (spin: Pick<CasinoSpin, 'reveal_at'>, reel: number) => Date.parse(spin.reveal_at) - (3 - reel) * 450;
+/**
+ * The reels that tease, each with the face it carries past the line: the second of a pair's two (reels 1 and 3) when
+ * the first's face is not on it, most often when that face is a big one. The same for every page that shows the spin.
+ */
+export function reelTeases(spin: Pick<CasinoSpin, 'id' | 'reels' | 'created_at'>): Array<{ reel: number; face: SymbolId }> {
+  const roll = randomOf(seedOf(`${spin.id ?? spin.created_at}:tease`)), out: Array<{ reel: number; face: SymbolId }> = [];
+  for (const [a, b] of [[0, 1], [2, 3]]) {
+    const face = spin.reels[a], r = roll();
+    if (face && face !== spin.reels[b] && r < (face === 'seven' || face === 'evercold' || face === 'gold' ? .7 : .35)) out.push({ reel: b, face });
+  }
+  return out;
+}
+/** A reel's strip: its face at each place (0 at the start, `n` the face it stops on) and how far it has turned at a time. */
+function stripOf(spin: CasinoSpin, reel: number) {
+  const t0 = Date.parse(spin.created_at), stop = reelStop(spin, reel), tease = reelTeases(spin).find(t => t.reel === reel);
+  const slow = Math.min(tease ? REEL_TEASE : REEL_SLOW, Math.max(1, stop - t0)), lin = Math.max(0, stop - t0 - slow);
+  const n = Math.max(3, Math.round(REEL_SPEED * (lin + slow / 3) / 1000)), v = n / (lin + slow / 3);
+  const roll = randomOf(seedOf(`${spin.id ?? spin.created_at}:${reel}`)), list = Array.from({ length: n + 4 }, () => STRIP_MIX[Math.floor(roll() * STRIP_MIX.length)]);
+  // (place k is list[k + 1]: from -1, under the line at the start, to n + 2, over it at the stop)
+  list[n + 1] = spin.reels[reel];
+  if (tease) list[n] = tease.face;
+  const face = (k: number) => list[Math.min(list.length - 1, Math.max(0, k + 1))];
+  // (full speed, then easing out to the stop at the speed it had: so many faces a second never jumps)
+  const at = (now: number) => now <= t0 ? 0 : now < t0 + lin ? v * (now - t0) : now < stop ? v * lin + (v * slow / 3) * (1 - (1 - (now - t0 - lin) / slow) ** 3) : n;
+  return { face, at, n, stop, tease: !!tease };
+}
+/** A reel as seen at `now`: its faces from the top down, each where it lies in cells from the line (0 on it, -1 over it). */
+export function reelView(spin: CasinoSpin | null, reel: number, now: number, reduced = false): { faces: Array<{ face: SymbolId; y: number }>; moving: boolean } {
+  const near = (k: number) => STRIP_MIX[(reel * 3 + k + 7) % STRIP_MIX.length];
+  if (!spin) return { faces: [{ face: near(1), y: -1 }, { face: 'popoto', y: 0 }, { face: near(2), y: 1 }], moving: false };
+  const s = stripOf(spin, reel);
+  // (with motion reduced the strip stands still, and shows nothing of the outcome before its stop)
+  if (reduced) return { faces: now >= s.stop ? [{ face: s.face(s.n + 1), y: -1 }, { face: s.face(s.n), y: 0 }, { face: s.face(s.n - 1), y: 1 }] : [{ face: near(1), y: -1 }, { face: SYMBOLS[reel], y: 0 }, { face: near(2), y: 1 }], moving: false };
+  let p = s.at(now);
+  if (now > s.stop && now < s.stop + REEL_SETTLE) p += .12 * Math.sin(Math.PI * (now - s.stop) / REEL_SETTLE);
+  const c = Math.floor(p), f = p - c;
+  return { faces: [2, 1, 0, -1].map(k => ({ face: s.face(c + k), y: f - k })), moving: now < s.stop + REEL_SETTLE };
+}
+/** Whether a reel of the spin is slowing to tease now (the machine's lights hurry). */
+export function reelTeasing(spin: CasinoSpin, now: number) {
+  return reelTeases(spin).some(t => now >= reelStop(spin, t.reel) - REEL_TEASE && now < reelStop(spin, t.reel));
+}
+/** The face on the line at `now`: the spin's own once the reel has stopped. */
 export function reelAt(spin: CasinoSpin, reel: number, now: number, reduced = false): SymbolId {
-  const start = Date.parse(spin.created_at), end = Date.parse(spin.reveal_at);
-  const stop = end - (3 - reel) * 450;
-  if (now >= stop) return spin.reels[reel];
+  if (now >= reelStop(spin, reel)) return spin.reels[reel];
   if (reduced) return SYMBOLS[reel];
-  return SYMBOLS[(Math.floor(Math.max(0, now - start) / 75) + reel * 3) % SYMBOLS.length];
+  return reelView(spin, reel, now).faces.reduce((a, b) => Math.abs(b.y) < Math.abs(a.y) ? b : a).face;
 }
 export function spinRevealed(spin: CasinoSpin, now: number) { return now >= Date.parse(spin.reveal_at); }
 export const money = (n: number) => n.toLocaleString('en-US');
@@ -178,6 +232,15 @@ export function whereItGoes(p: Pick<PrizeSnapshot, 'kind'>, chips = false): stri
 }
 /** Whether the casino takes Casino Coins (v303), not the town purse's Popoto coins. */
 export const chipsOf = (s: Pick<CasinoState, 'account'>): number | null => typeof s.account.chips === 'number' ? Number(s.account.chips) : null;
+/**
+ * My Casino Coins as the room shows them at `now`: the database adds what a spin brings back as it is spun, so while my
+ * own reels still turn that is taken off again, or the count would tell the outcome before the reels do.
+ */
+export const chipsShown = (s: Pick<CasinoState, 'account' | 'spins' | 'user_id'>, now: number): number | null => {
+  const chips = chipsOf(s);
+  if (chips === null) return null;
+  return chips - s.spins.filter(p => p.user_id === s.user_id && !spinRevealed(p, now) && p.prize?.kind === 'coin').reduce((n, p) => n + Number(p.prize!.amount), 0);
+};
 /** The changes the counter offers, in spins' worth: one, five, ten. */
 export const CHIP_PACKS = [1, 5, 10] as const;
 /** What the counter says of an answer of casino_live_buy / casino_live_free that took nothing (v303). */

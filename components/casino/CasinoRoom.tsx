@@ -2,13 +2,15 @@
 import { useAdmin } from '@/lib/admin';
 import { useCallback, useEffect, useRef, useState, type MutableRefObject } from 'react';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import { accessOf, backRows, CHIP_PACKS, CHIP_WHY, chipsOf, CLAIM_LABEL, letIn, money, PRIZE_LABEL, reelAt, spinRevealed, whereItGoes, wonWords, type CasinoSpin, type SymbolId } from '@/lib/casino';
+import { accessOf, backRows, CHIP_PACKS, CHIP_WHY, chipsOf, chipsShown, CLAIM_LABEL, letIn, money, PRIZE_LABEL, reelTeasing, spinRevealed, whereItGoes, wonWords, type CasinoSpin, type SymbolId } from '@/lib/casino';
 import type { TownSession } from '@/lib/town/session';
 import type { CasinoRoomArt } from '@/lib/town/casino-room-art';
 import { CASINO_EXIT, CASINO_ROOM, CASINO_SOFA_SEATS, CASINO_STOOLS } from '@/lib/town/casino-room';
 import { defaultLook, encodeLook, savedLook } from '@/lib/town/look';
 import CasinoMap, { MACHINE_X, SPAWN, type CasinoPeer } from './CasinoMap';
 import CasinoSymbol from './CasinoSymbol';
+import CasinoLever from './CasinoLever';
+import CasinoReel from './CasinoReel';
 import { useCasino } from './useCasino';
 import './casino.css';
 import { CasinoSounds, outcomeSound } from '@/lib/town/casino-sound';
@@ -62,8 +64,8 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
   useEffect(()=>{if(pane==='none')return;const close=(e:KeyboardEvent)=>{const field=e.target instanceof HTMLElement&&!!e.target.closest('input,select,textarea');if(e.key==='Escape'){e.preventDefault();e.stopPropagation();setPane('none');document.querySelector<HTMLCanvasElement>('.casino-town-canvas')?.focus();}else if(!field&&e.key.toLowerCase()==='i')setPane('none');};document.addEventListener('keydown',close,true);return()=>document.removeEventListener('keydown',close,true);},[pane]);
   useEffect(()=>{const openNative=(e:PointerEvent)=>{if(e.target instanceof Element&&e.target.closest('button[aria-keyshortcuts="I"],button[data-town-lines-button]'))setPane('none');};document.addEventListener('pointerdown',openNative,true);return()=>document.removeEventListener('pointerdown',openNative,true);},[]);
   const [clock, setClock] = useState(Date.now());
-  // (the town's status bar says my Casino Coins while I am here)
-  const chipsNow = live && state ? chipsOf(state) : null, onChips = town?.onChips;
+  // (the town's status bar says my Casino Coins while I am here, what a spin brings back once its reels stop)
+  const chipsNow = live && state ? chipsShown(state, clock) : null, onChips = town?.onChips;
   useEffect(() => { onChips?.(chipsNow); }, [onChips, chipsNow]);
   useEffect(() => () => onChips?.(null), [onChips]);
   const [self, setSelf] = useState<CasinoPeer>({ id: '', name: 'Tester', look: '', ...SPAWN, seat: null });
@@ -286,6 +288,12 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
   const reduced = typeof window !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (town) { town.art.spins = () => state.spins; town.art.clock = now; town.art.selected = pane === 'slots' ? selected : 0; town.art.sheetOpen = pane !== 'none'; }
   const myWin = latest && latest.user_id === state.user_id && latest.prize && !rolling ? latest.prize : null;
+  // (the lever plays unless the play is to look again at a spin, or to go and get Casino Coins: then a button says so)
+  const short = chips !== null && chips < s.price && !closed && !ownRolling, leverOn = !recover && !short;
+  const leverReady = leverOn && !(busy || !arrived || !self.seat || ownRolling || rolling || closed || purse < s.price);
+  // (grey while it cannot be pulled at all; while the reels turn it keeps its colour)
+  const leverDim = !leverOn || (!leverReady && !busy && !ownRolling && !rolling);
+  const leverWords = !arrived ? 'กำลังเดินไปหน้าเครื่อง…' : busy || ownRolling ? 'กำลังเล่น…' : closed ? 'เครื่องพักอยู่' : null;
   return <main className={town?"casino-town-layer casino-in-town":native?"casino-town-layer":"casino-town-room"} data-pane={pane}>
     <section className="casino-room" aria-label="Casino laboratory">
       {!town && <CasinoMap native={native} self={self} peers={peers} spins={state.spins} selected={selected} clock={now} pane={pane} onMove={move} onSelect={select} onReception={()=>setPane('desk')} onDismiss={()=>setPane('none')} onReady={setArrived} onControls={setCamera} />}
@@ -294,18 +302,23 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
       {error && <p className="casino-error" role="alert">{error}</p>}
       <div className="casino-lower tk tk-window" role="dialog" aria-label={pane === 'feed' ? 'ผลและเสียงเชียร์' : pane==='desk'?'พนักงาน Casino':`Slot เครื่อง ${selected}`}><button className="casino-panel-close pressable tk tk-slot" aria-label="ปิดหน้าต่าง" onClick={() => setPane('none')}>×</button>
         <div className="casino-play-layout"><section className="casino-console"><h2>เครื่อง {selected}</h2>
-        <p className="casino-allowance">{chips === null ? <>ครั้งละ {money(s.price)} coin</> : <>Casino Coin <strong>{money(chips)}</strong> · ครั้งละ {money(s.price)}</>}</p>
+        <p className="casino-allowance">{chips === null ? <>ครั้งละ {money(s.price)} coin</> : <>Casino Coin <strong>{money(chipsNow ?? chips)}</strong></>}</p>
         {idleLeft !== null && idleLeft < 15_000 && <p className="casino-afk" role="status">ไม่ได้หมุนนาน จะลุกจากเครื่องใน {Math.ceil(idleLeft / 1000)} วินาที</p>}
-        <div className="casino-reels" aria-label={rolling ? 'กำลังหมุน' : latest ? latest.reels.join(', ') : 'พร้อมเล่น'}>
-          {[0, 1, 2, 3].map(i => <div key={i} className={`casino-reel ${rolling && clock < Date.parse(latest!.reveal_at) - (3 - i) * 450 ? 'is-moving' : ''}`}>
-            <CasinoSymbol id={latest ? reelAt(latest, i, clock, reduced) : 'popoto'} /></div>)}
-        </div>
+        {/* the machine itself (the owner, 2026-10-27): its lights, its reels, its price under them, and its lever at the side */}
+        <div className={`casino-machine${rolling ? ' is-rolling' : ''}${rolling && !reduced && reelTeasing(latest!, clock) ? ' is-tease' : ''}`}><div className="casino-cabinet">
+          <div className="casino-bulbs" aria-hidden>{Array.from({ length: 11 }, (_, i) => <i key={i} style={{ animationDelay: `${(i % 2) * 270}ms` }} />)}</div>
+          <div className="casino-reels" aria-label={rolling ? 'กำลังหมุน' : latest ? latest.reels.join(', ') : 'พร้อมเล่น'}>
+            {/* (each reel a strip turning past the line, the faces over and under it seen: lib/casino's reelView) */}
+            {[0, 1, 2, 3].map(i => <div key={i} className="casino-reel"><CasinoReel spin={latest} reel={i} reduced={reduced} /></div>)}
+          </div>
+          <p className="casino-plate">ครั้งละ <b>{money(s.price)}</b> {chips === null ? 'coin' : 'Casino Coin'}</p></div>
+          <CasinoLever className={leverOn ? 'casino-spin' : ''} ready={leverReady} dim={leverDim}
+            label={leverWords ?? `ดึงคันโยก · ${money(s.price)} ${chips === null ? 'coin' : 'Casino Coin'}`} onPull={() => void spin()} /></div>
         <div className="casino-result" role="status">{rolling ? `${latest!.player_name} กำลังลุ้น…` : latest ? latest.prize ? <>{`${latest.player_name} ${wonWords(latest.prize)}!`}{live && myWin && <small className="casino-result-where">{whereItGoes(myWin, chips !== null)}</small>}</> : `${latest.player_name} · รอบนี้ยังไม่ได้รางวัล` : 'เลือกเครื่อง แล้วดึงคันโยกได้เลย'}</div>
         <div className="casino-play-actions">{recover ? <button className="casino-spin pressable tk tk-btn" disabled={busy} onClick={() => void spin(true)}>ตรวจผลครั้งเดิม</button> :
           // (too few Casino Coins: the button is the way to the counter, where they are changed and given)
-          chips !== null && chips < s.price && !closed && !ownRolling ? <button className="casino-spin pressable tk tk-btn" onClick={() => setPane('desk')}>Casino Coin ไม่พอ · แลกที่เคาน์เตอร์</button> :
-          <button className="casino-spin pressable tk tk-btn" disabled={busy || !arrived || !self.seat || ownRolling || rolling || closed || purse < s.price} onClick={() => void spin()}>
-            {!arrived ? 'กำลังเดินไปหน้าเครื่อง…' : busy || ownRolling ? 'กำลังเล่น…' : closed ? 'เครื่องพักอยู่' : `ปั่น · ${money(s.price)} ${chips === null ? 'coin' : 'Casino Coin'}`}</button>}
+          short ? <button className="casino-spin pressable tk tk-btn" onClick={() => setPane('desk')}>Casino Coin ไม่พอ · แลกที่เคาน์เตอร์</button> :
+          <p className="casino-lever-hint">{leverWords ?? 'ลากคันโยกลง หรือแตะคันโยก เพื่อหมุน'}</p>}
         </div>
         {/* the machine's paytable, as a player reads one: the symbols, what they win (the chances are the desk's) */}
         <details className="casino-prize-details"><summary>ตารางรางวัล</summary><div className="casino-paytable">
@@ -316,7 +329,7 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
           </details>
       </section></div><section className="casino-desk-in-room"><h2>พนักงาน Casino</h2>
         {chips !== null && <div className="casino-chips">
-          <p className="casino-chips-balance"><span>Casino Coin</span><strong>{money(chips)}</strong><small>Popoto coin {money(state.account.coins)}</small></p>
+          <p className="casino-chips-balance"><span>Casino Coin</span><strong>{money(chipsNow ?? chips)}</strong><small>Popoto coin {money(state.account.coins)}</small></p>
           {(s.free_chips ?? 0) > 0 && (state.account.free_today ? <p className="casino-chips-taken">รับฟรีวันนี้แล้ว · รับใหม่ได้หลัง 05:00</p> :
             <button className="casino-chips-free pressable tk tk-btn" disabled={busy || !letIn(s, realAdmin)} onClick={freeChips}>รับฟรีวันนี้ {money(s.free_chips ?? 0)} Casino Coin</button>)}
           <p className="casino-chips-rate">แลก {money(rate)} Popoto coin = 1 Casino Coin · แลกกลับไม่ได้</p>

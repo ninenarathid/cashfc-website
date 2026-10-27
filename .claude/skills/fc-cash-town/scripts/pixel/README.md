@@ -667,6 +667,31 @@ with its closing sentence, `work/out/scene-icons.png` for the reference.
 - In the game: the reels of the sheet, the cabinet windows and the marquee over a machine, 1280x860, 384x730, 360x640
   (`scripts/town-casino-db.mjs`).
 
+## The casino's lever (2026-10-27)
+
+The owner: "เปลี่ยนการกดปั่นเป็นการ ดึงคันโยกโดยเปลี่ยน UI ให้เหมือนเครื่อง slot machine จริงๆ", a mock passed ("ภาพโอเคแล้ว"). One call,
+$0.0194 (`gpt-image-2.5-sunburst`, low, 1536x1024, drawn once; the ledger then stood at 2,884 calls and $39.937 of $45). Prompt
+`prompts/icons/icons-casino-lever.txt`, on the owner's ICON SHEET template with its closing sentence, `icons-casino-a` for the
+reference (the casino's own line).
+
+- **`icons-casino-lever`**: the lever's brass mount with its socket (`leverMount`), and its arm in five poses, upright,
+  tilted towards the viewer, the ball face-on, tilted down, hanging down (`leverUp`, `leverTiltUp`, `leverFront`,
+  `leverTiltDown`, `leverDown`), each with its brass cap at the pivot. The tilted two lean left, so the ball swings in over
+  the cabinet: not mirrored, so that its shine stays at its upper left as in the other poses. Cut on 8.42 (the reels' 8.0
+  beside it; on 16.8 blocky): the upright arm 14x41, the mount 17x26. Built with `icons-casino-a` into the casino's own
+  picture (`ICONS_ONLY=icons-casino-a,icons-casino-lever`, 256x64, 4.6 KB). Each pose's pivot (its cap's middle) is read off
+  the cut piece and kept in components/casino/CasinoLever (`ARM`, `MOUNT`), which lays each arm by it on the mount's
+  socket at 2 screen px to one of its own.
+- **Codex's read** (fix): an arm on a 16 by 16 grid would be too small for a lever as tall as the cabinet, and the
+  poses might be drawn at different sizes. Its words for one pixel scale, the same ball and cap, the tilted ones
+  shorter not larger, were taken into the list; its 22 by 72 pixel frames in place of the template's grid were not
+  (ART_WORKFLOW forbids sizes in pixels), so the call was drawn with `NO_REVIEW` saying so. It came out at 41 tall,
+  82 screen px: enough beside a cabinet of about 140.
+- The cabinet round the reels, its lights and the strips the reels turn on are the code's (casino.css, CasinoReel,
+  lib/casino's `reelView`): lights are always code, and the faces on the strips are the reels' own pictures.
+- In the game: `scripts/town-casino-lever.mjs` (1280x860, 384x730, 360x640: dim with no Casino Coins, at rest, half
+  way, all the way down, the reels turning, after).
+
 ## The giants over their whole 2x2 on the map (2026-10-27)
 
 The owner: "ผักยักษ์ จะกินที่เท่าไหร่ ช่วยขยาย ภาพให้เต็มพื่นที่นั้นจริงๆ". The farm drew a giant at a plant's scale (0.62), 45 to 58
