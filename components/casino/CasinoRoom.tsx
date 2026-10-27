@@ -157,7 +157,9 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
   const selectRef=useRef(select);selectRef.current=select;
   // (a sofa, 100 and its place among the furniture: the free place on it nearest its middle, sat on from the floor before it)
   const sitSofa=(sofa:number)=>{const w=walkerRef.current;if(!w)return;const places=CASINO_SOFA_SEATS.filter(p=>p.sofa===sofa);
-    const taken=(p:{stand:{x:number;y:number}})=>w.people.some(a=>!a.path.length&&Math.abs(a.pos.x-p.stand.x)<.1&&Math.abs(a.pos.y-p.stand.y)<.1);
+    // (a place is had by whoever sits there or is on the way to it: Codex's check, two tapping one sofa at once)
+    const at=(v:{x:number;y:number},p:{stand:{x:number;y:number}})=>Math.abs(v.x-p.stand.x)<.1&&Math.abs(v.y-p.stand.y)<.1;
+    const taken=(p:{stand:{x:number;y:number}})=>w.people.some(a=>at(a.path.length?a.path[a.path.length-1]:a.pos,p));
     const free=[places[1],places[0],places[2]].find(p=>p&&!taken(p));if(!free)return;setPane('none');w.walkTo(free.stand);w.sitHere();};
   const sitSofaRef=useRef(sitSofa);sitSofaRef.current=sitSofa;
   useEffect(()=>{if(!town)return;town.tap.current=n=>{if(n===0)setPane('desk');else if(n>=100)sitSofaRef.current(n-100);else selectRef.current(n);};return()=>{town.tap.current=null;};},[town]);
