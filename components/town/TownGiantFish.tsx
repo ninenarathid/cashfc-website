@@ -249,7 +249,8 @@ export default function TownGiantFish({ me, myName, keeper, th, here, hour, pair
           f.fish = { ...f.fish, x: f.fish.x + (w.x - f.fish.x) * Math.min(1, dt * 10), y: f.fish.y + (w.y - f.fish.y) * Math.min(1, dt * 10), vy: w.vy ?? 0 };
           fish = { x: f.fish.x, y: f.fish.y, vy: f.fish.vy, run: w.run === 1, cue: w.cue === 1 };
           tip = w.tip ?? tip;
-          if (!h.how && scoops(f.hoop, f.fish, t) && pnow - scoopAsked > 1500) {
+          // (only on a fish the angler's page has said where it is lately: a page gone quiet leaves a fish nobody can net)
+          if (!h.how && pnow - f.seenAt < 600 && scoops(f.hoop, f.fish, t) && pnow - scoopAsked > 1500) {
             scoopAsked = pnow; f.flash.push({ at: pnow, x: f.fish.x, y: f.fish.y, kind: "scoop" }); f.hoop = shutHoop(f.hoop, t);
             void reportScoop(mine.id);
           }
@@ -325,6 +326,11 @@ export default function TownGiantFish({ me, myName, keeper, th, here, hour, pair
 
   // ── what shows ──
   if (!mine) {
+    // (a giant landed with me whose board I closed before my steak came, a full bag say: a way back to it)
+    const owed = live.find((h) => h.how === "landed" && (h.by === me || h.netter === me) && !h.claimed.includes(me) && shut.includes(h.id) && now - h.end < GIANT.after);
+    if (owed) return <TownFoot rank="chip" order={28}>
+      <button className={OPEN} data-giant-fish-owed onClick={() => setShut((was) => was.filter((id) => id !== owed.id))}><TownIcon name="giantSteak" size={26} />{th ? "รับสเต๊กปลายักษ์" : "Take your giant steak"}</button>
+    </TownFoot>;
     if (near) return <TownFoot rank="chip" order={28}>
       <button className={OPEN} data-giant-fish-join disabled={busy} onClick={() => void act("join", near.id)}><TownIcon name="netLong" size={26} />{th ? `ช่วย ${near.byName} ช้อนปลายักษ์` : `Help ${near.byName} net the giant`}</button>
       {said && <p role="status" className={s.said}>{said}</p>}
@@ -395,7 +401,7 @@ export default function TownGiantFish({ me, myName, keeper, th, here, hour, pair
         <p className={s.big}>{giant.th && th ? giant.th : giant.en} · {mine.size} {th ? "ซม." : "cm"} · {mine.weight} {th ? "กก." : "kg"}</p>
         <p>{steak === mine.id || mine.claimed.includes(me) ? <>{th ? "ได้ " : "You got "}<span className={s.got}><TownIcon name="giantSteak" size={18} />{th ? "สเต๊กปลายักษ์ ×1" : "Giant fish steak ×1"}</span>{th ? " ขายให้ลุงได้" : ", the uncle buys it"}</> : (th ? "กำลังรับสเต๊ก…" : "Taking your steak…")}</p>
         <p className="text-meta text-muted">{th ? "บันทึกลงสมุดปลา หน้า \"ปลายักษ์\" พร้อมชื่อทั้งสองคน" : "Written in the fish book's giants, with both names"}</p>
-        {said && !mine.claimed.includes(me) && <button type="button" className={`${GREEN} w-full`} disabled={busy} onClick={() => void act("claim", mine.id)}>{th ? "รับสเต๊กอีกครั้ง" : "Take it again"}</button>}
+        {!mine.claimed.includes(me) && steak !== mine.id && claimed.current === mine.id && !busy && <button type="button" className={`${GREEN} w-full`} onClick={() => void act("claim", mine.id)}>{th ? "รับสเต๊กอีกครั้ง" : "Take it again"}</button>}
       </div>}
       {ended && mine.how !== "landed" && <p role="status" className={s.note} data-tone="miss">{lostWords}</p>}
       {mine.go > 0 && !ended && t < 3000 && <p className={g.hint}>{th ? "เริ่ม! ปลาจะพุ่งหนีเป็นช่วง ๆ ดูวงน้ำก่อนมันพุ่ง" : "Go! It runs now and then: watch the rings before it runs"}</p>}
