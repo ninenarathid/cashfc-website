@@ -20,7 +20,8 @@ describe("/coins", () => {
   });
   it("refuses an amount it cannot add without asking", async () => {
     const { s, rpc, chat } = session();
-    for (const text of ["/coins", "/coins 0", "/coins -5", "/coins 1.5", "/coins 1000001", "/coins lots"]) expect(await s.sendMessage(text)).toBe("coins-usage");
+    for (const text of ["/coins", "/coins 0", "/coins -5", "/coins 1.5", "/coins 1000001", "/coins lots", "/coins 100 extra", "/coins 10 000", "/coins 1e3", "/coins 1,00"])
+      expect(await s.sendMessage(text)).toBe("coins-usage");
     expect(rpc).not.toHaveBeenCalled(); expect(chat).not.toHaveBeenCalled();
   });
   it("says what the database says to anybody but Ninenine, and before v300 has run", async () => {

@@ -911,8 +911,9 @@ export class TownSession {
     if (reach) return this.switchReach(reach[1]);
     const map = /^\/townmap(?:\s+(\S+))?\s*$/i.exec(raw.trim());
     if (map) return this.switchMap(map[1]);
-    const coins = /^\/coins(?:\s+(\S+))?\s*$/i.exec(raw.trim());
-    if (coins) return this.addCoins(coins[1]);
+    // (anything after `/coins` is the command's, a mistyped amount too: never said in chat)
+    const coins = /^\/coins(?:\s|$)/i.exec(raw.trim());
+    if (coins) return this.addCoins(raw.trim().slice(coins[0].length).trim());
     const command = /^\/announce(?:\s|$)/i.exec(raw.trimStart());
     if (!command) return this.sendChat(raw);
     if (this.closed) return "offline";
@@ -939,9 +940,9 @@ export class TownSession {
    * `/coins <amount>`: Ninenine adds coins to his own purse to try things with (v300's town_admin_coins, which lets
    * nobody else). The request is kept until answered, so that a retry after a lost answer adds nothing twice.
    */
-  private async addCoins(word: string | undefined): Promise<MessageResult> {
+  private async addCoins(word: string): Promise<MessageResult> {
     if (this.closed) return "offline";
-    const amount = Number((word ?? "").replace(/,/g, ""));
+    const amount = /^\d{1,3}(,\d{3})*$|^\d+$/.test(word) ? Number(word.replace(/,/g, "")) : NaN;
     if (!Number.isInteger(amount) || amount < 1 || amount > 1_000_000) return "coins-usage";
     if (this.pendingCoins?.amount !== amount) this.pendingCoins = { amount, request: crypto.randomUUID() };
     try {
