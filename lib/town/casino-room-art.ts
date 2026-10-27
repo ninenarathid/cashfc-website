@@ -141,8 +141,9 @@ export class CasinoRoomArt {
       });
       // the coins a big win pours out of the tray, over whoever sits at it, under whoever stands nearer (lib/town/casino-fountain)
       push(D + x + y + 1.6, () => {
-        const latest = spins.find((q) => q.machine === n);
-        if (!latest || !spinRevealed(latest, t)) return;
+        // (the newest spin of the machine whose reels have stopped: a spin pulled at once after a big win lets its coins finish)
+        const latest = spins.find((q) => q.machine === n && spinRevealed(q, t));
+        if (!latest) return;
         const p = at(x, y);
         drawFountain(ctx, latest, (t - Date.parse(latest.reveal_at)) / 1000, p.x - 10 * s, p.y - 25 * s, s, reduced);
       });

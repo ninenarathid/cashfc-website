@@ -200,7 +200,8 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
     } catch { setRecover(true); setError('ยังยืนยันผลไม่ได้ กดตรวจผลครั้งเดิมเพื่อเรียกผลกลับมา'); }
     finally { setBusy(false); }
   };
-  const chipCall = async (name: 'casino_live_buy' | 'casino_live_free' | 'casino_live_popoto', args: Record<string, unknown>, done: (r: { chips?: number; given?: number; got?: number }) => string) => {
+  // (`added`: the Casino Coins the call put in, counted at once into the count kept while my reels turn: Codex)
+  const chipCall = async (name: 'casino_live_buy' | 'casino_live_free' | 'casino_live_popoto', args: Record<string, unknown>, done: (r: { chips?: number; given?: number; got?: number }) => string, added: (r: { given?: number; got?: number }) => number) => {
     if (!client || busy) return;
     setBusy(true); setChipNote('');
     try {
@@ -209,20 +210,20 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
       const r = data as { ok?: boolean; why?: string; chips?: number; given?: number; got?: number };
       buying.current = null;
       setChipNote(r?.ok ? done(r) : CHIP_WHY[r?.why ?? ''] ?? 'ยังทำรายการไม่ได้');
-      if (r?.ok) town?.onCoins?.();
+      if (r?.ok) { town?.onCoins?.(); if (steadyChips.current !== null) steadyChips.current += Math.max(0, Number(added(r)) || 0); }
       await reload();
     } catch { setChipNote('การเชื่อมต่อขาดช่วง กดอีกครั้งได้ ระบบไม่หักซ้ำ'); }
     finally { setBusy(false); }
   };
   const buyChips = (n: number) => {
     if (buying.current?.n !== n) buying.current = { id: crypto.randomUUID(), n };
-    void chipCall('casino_live_buy', { p_request: buying.current.id, p_chips: n }, r => `ได้ ${money(n)} Casino Coin · มีอยู่ ${money(Number(r.chips ?? 0))}`);
+    void chipCall('casino_live_buy', { p_request: buying.current.id, p_chips: n }, r => `ได้ ${money(n)} Casino Coin · มีอยู่ ${money(Number(r.chips ?? 0))}`, () => n);
   };
-  const freeChips = () => void chipCall('casino_live_free', {}, r => `รับฟรี ${money(Number(r.given ?? 0))} Casino Coin แล้ว`);
+  const freeChips = () => void chipCall('casino_live_free', {}, r => `รับฟรี ${money(Number(r.given ?? 0))} Casino Coin แล้ว`, r => Number(r.given ?? 0));
   const changePopoto = (to: 'coins' | 'chips') => {
     if (changing.current?.n !== popotoN || changing.current?.to !== to) changing.current = { id: crypto.randomUUID(), n: popotoN, to };
     const req = changing.current;
-    void chipCall('casino_live_popoto', { p_request: req.id, p_popoto: req.n, p_to: to }, r => { changing.current = null; return `ได้ ${money(Number(r.got ?? 0))} ${to === 'coins' ? 'Popoto coin' : 'Casino Coin'}`; });
+    void chipCall('casino_live_popoto', { p_request: req.id, p_popoto: req.n, p_to: to }, r => { changing.current = null; return `ได้ ${money(Number(r.got ?? 0))} ${to === 'coins' ? 'Popoto coin' : 'Casino Coin'}`; }, r => to === 'chips' ? Number(r.got ?? 0) : 0);
   };
   const credit = async (reset: boolean) => {
     if (!client || busy) return; setBusy(true);
