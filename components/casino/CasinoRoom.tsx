@@ -2,7 +2,7 @@
 import { useAdmin } from '@/lib/admin';
 import { useCallback, useEffect, useRef, useState, type MutableRefObject } from 'react';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import { accessOf, backRows, CHIP_PACKS, CHIP_WHY, chipsOf, chipsShown, CLAIM_LABEL, letIn, money, PRIZE_LABEL, reelTeasing, spinRevealed, whereItGoes, wonWords, type CasinoSpin, type SymbolId } from '@/lib/casino';
+import { accessOf, backRows, CHIP_PACKS, CHIP_WHY, chipsOf, chipsShown, CLAIM_LABEL, letIn, mineOfRoom, money, PRIZE_LABEL, reelTeasing, spinRevealed, whereItGoes, wonWords, type CasinoMine, type CasinoSpin, type SymbolId } from '@/lib/casino';
 import type { TownSession } from '@/lib/town/session';
 import type { CasinoRoomArt } from '@/lib/town/casino-room-art';
 import { CASINO_EXIT, CASINO_ROOM, CASINO_SOFA_SEATS, CASINO_STOOLS } from '@/lib/town/casino-room';
@@ -54,7 +54,7 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
   const label=live?'LIVE':'TEST';
   const [selected, setSelected] = useState(1), [force, setForce] = useState('');
   const [busy, setBusy] = useState(false), [recover, setRecover] = useState(false);
-  const [pane, setPane] = useState<'none'|'slots'|'bag'|'feed'|'desk'>('none'), [arrived, setArrived] = useState(true);
+  const [pane, setPane] = useState<'none'|'slots'|'bag'|'feed'|'desk'|'mine'>('none'), [arrived, setArrived] = useState(true);
   // ── Casino Coins (v303): changed from Popoto coins at the counter, and free once a day ──
   const [pack, setPack] = useState<number>(CHIP_PACKS[0]), [chipNote, setChipNote] = useState(''), [popotoN, setPopotoN] = useState(10);
   /** A change of popoto asked and not yet answered: asked again with the same request, so it is never spent twice. */
@@ -71,6 +71,21 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
   if (live && state && !state.spins.some(p => p.user_id === state.user_id && !spinRevealed(p, clock))) steadyChips.current = chipsOf(state);
   useEffect(() => { onChips?.(chipsNow); }, [onChips, chipsNow]);
   useEffect(() => () => onChips?.(null), [onChips]);
+  // (a "+N" by the count when Casino Coins come in: a win as its reels stop, or what the counter gave)
+  const [plus, setPlus] = useState<{ n: number; key: number } | null>(null), lastChips = useRef<number | null>(null);
+  useEffect(() => { const was = lastChips.current; lastChips.current = chipsNow; if (was !== null && chipsNow !== null && chipsNow > was) setPlus({ n: chipsNow - was, key: Date.now() }); }, [chipsNow]);
+  useEffect(() => { if (!plus) return; const gone = setTimeout(() => setPlus(null), 1900); return () => clearTimeout(gone); }, [plus]);
+  // ── what I won (the owner, 2026-10-27: "ดูกระเป๋าตังค์ตัวเองยากว่าชนะอะไรไปแล้วบ้าง"): today's count, asked of the database
+  // (v308) when the pane opens and again as my reels stop; until v308 has run, the room's latest spins say it ──
+  const [myDay, setMyDay] = useState<CasinoMine | null>(null);
+  const mineTurning = !!state && state.spins.some(p => p.user_id === state.user_id && !spinRevealed(p, clock));
+  const loadMine = useCallback(async () => {
+    if (!client || !live) return;
+    const { data, error: failed } = await client.rpc('casino_live_mine');
+    const got = data as (Omit<CasinoMine, 'today'> & { ok?: boolean }) | null;
+    setMyDay(!failed && got?.ok ? { ...got, today: true } : null);
+  }, [client, live]);
+  useEffect(() => { if (pane === 'mine' && !mineTurning) void loadMine(); }, [pane, mineTurning, loadMine]);
   const [self, setSelf] = useState<CasinoPeer>({ id: '', name: 'Tester', look: '', ...SPAWN, seat: null });
   const [peers, setPeers] = useState<CasinoPeer[]>([]), [cheer, setCheer] = useState('');
   // (sound is on unless this browser turned it off: the owner's slot sounds, lib/town/casino-sound)
@@ -302,11 +317,11 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
     <section className="casino-room" aria-label="Casino laboratory">
       {!town && <CasinoMap native={native} self={self} peers={peers} spins={state.spins} selected={selected} clock={now} pane={pane} onMove={move} onSelect={select} onReception={()=>setPane('desk')} onDismiss={()=>setPane('none')} onReady={setArrived} onControls={setCamera} />}
       {!native && !town && <CasinoTownHud coins={state.account.coins} remaining={Math.max(0, remaining)} allowance={s.per_player} people={peers.length + 1} connected={connected} live={live} admin={realAdmin} pane={pane} onPane={setPane} onChat={sendCheer} sound={sound} onSound={toggleSound} camera={camera} />}
-      {(native||town)&&<TownFoot rank="corner"><div className="casino-map-label tk tk-plate"><span>Casino {!live&&<small className="casino-test">TEST</small>}{trial&&<small className="casino-test">ทดสอบแอดมิน</small>}</span>{chips!==null&&<button className="tk tk-slot casino-chip-count" aria-label="แลกและรับ Casino Coin ที่เคาน์เตอร์" aria-expanded={pane==='desk'} onClick={()=>setPane(p=>p==='desk'?'none':'desk')}>แลก Coin</button>}<button className="tk tk-slot" aria-label="ผลในห้อง" aria-expanded={pane==='feed'} onClick={()=>setPane(p=>p==='feed'?'none':'feed')}><TownIcon name="history" size={18}/></button></div></TownFoot>}
+      {(native||town)&&<TownFoot rank="corner"><div className="casino-map-label tk tk-plate"><span>Casino {!live&&<small className="casino-test">TEST</small>}{trial&&<small className="casino-test">ทดสอบแอดมิน</small>}</span>{chips!==null&&<button className="tk tk-slot casino-chip-count" aria-label="แลกและรับ Casino Coin ที่เคาน์เตอร์" aria-expanded={pane==='desk'} onClick={()=>setPane(p=>p==='desk'?'none':'desk')}>แลก Coin</button>}<button className="tk tk-slot casino-mine-button" aria-label="ของฉัน: วันนี้ได้อะไรไปบ้าง" aria-expanded={pane==='mine'} onClick={()=>setPane(p=>p==='mine'?'none':'mine')}>ของฉัน</button><button className="tk tk-slot" aria-label="ผลในห้อง" aria-expanded={pane==='feed'} onClick={()=>setPane(p=>p==='feed'?'none':'feed')}><TownIcon name="history" size={18}/></button></div></TownFoot>}
       {error && <p className="casino-error" role="alert">{error}</p>}
-      <div className="casino-lower tk tk-window" role="dialog" aria-label={pane === 'feed' ? 'ผลและเสียงเชียร์' : pane==='desk'?'พนักงาน Casino':`Slot เครื่อง ${selected}`}><button className="casino-panel-close pressable tk tk-slot" aria-label="ปิดหน้าต่าง" onClick={() => setPane('none')}>×</button>
+      <div className="casino-lower tk tk-window" role="dialog" aria-label={pane === 'feed' ? 'ผลและเสียงเชียร์' : pane==='desk'?'พนักงาน Casino':pane==='mine'?'ของฉัน':`Slot เครื่อง ${selected}`}><button className="casino-panel-close pressable tk tk-slot" aria-label="ปิดหน้าต่าง" onClick={() => setPane('none')}>×</button>
         <div className="casino-play-layout"><section className="casino-console"><h2>เครื่อง {selected}</h2>
-        <p className="casino-allowance">{chips === null ? <>ครั้งละ {money(s.price)} coin</> : <>Casino Coin <strong>{money(chipsNow ?? chips)}</strong></>}</p>
+        <p className="casino-allowance">{chips === null ? <>ครั้งละ {money(s.price)} coin</> : <>Casino Coin <span className="casino-count"><strong>{money(chipsNow ?? chips)}</strong>{plus && <span key={plus.key} className="casino-plus" aria-hidden>+{money(plus.n)}</span>}</span></>}</p>
         {idleLeft !== null && idleLeft < 15_000 && <p className="casino-afk" role="status">ไม่ได้หมุนนาน จะลุกจากเครื่องใน {Math.ceil(idleLeft / 1000)} วินาที</p>}
         {/* the machine itself (the owner, 2026-10-27): its lights, its reels, its price under them, and its lever at the side */}
         <div className={`casino-machine${rolling ? ' is-rolling' : ''}${rolling && !reduced && reelTeasing(latest!, clock) ? ' is-tease' : ''}`}><div className="casino-cabinet">
@@ -358,7 +373,17 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
         <p className="casino-cheer-text" role="status">{cheer}</p><ol aria-label="ผลการปั่นในห้อง">{visible.slice(0, 14).map(p => <li key={p.id} className={p.prize ? 'casino-win' : 'casino-miss'}>
           <strong>{p.player_name}</strong> · เครื่อง {p.machine}<br />{p.prize ? wonWords(p.prize) : 'ยังไม่ได้รางวัล · คนข้าง ๆ ช่วยลุ้นรอบต่อไปได้'}
           <small>{new Date(p.reveal_at).toLocaleTimeString('th-TH', { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit' })} · {label}{p.forced ? ' · กำหนดผลทดสอบ' : ''}</small></li>)}</ol>
-        {!visible.length && <p className="mt-4 text-sm">ผลทุกเครื่องจะปรากฏที่นี่หลังวงล้อหยุด</p>}</section></div>
+        {!visible.length && <p className="mt-4 text-sm">ผลทุกเครื่องจะปรากฏที่นี่หลังวงล้อหยุด</p>}</section>
+        {/* what I won today: how many spins, what they cost, what came back, and each win with its faces and where it went */}
+        <section className="casino-mine"><h2>ของฉัน</h2>{(() => { const m = myDay ?? mineOfRoom(state, clock); return <>
+          <p className="casino-mine-when">{m.today ? 'วันนี้ ตั้งแต่ 05:00' : 'รอบล่าสุดในห้อง'}</p>
+          <div className="casino-mine-stats"><p><b>{money(m.spins)}</b><span>ครั้งที่หมุน</span></p><p><b>{money(m.spent)}</b><span>Coin ที่ใช้ไป</span></p><p><b>+{money(m.back)}</b><span>Coin ที่ได้คืน</span></p></div>
+          <h3>ได้อะไรไปบ้าง{m.wins ? ` · ${money(m.wins)} ครั้ง` : ''}</h3>
+          {m.won.length ? <ol>{m.won.slice(0, 30).map(w => <li key={w.id}><span className="casino-mine-faces" aria-label={w.reels.join(', ')}>{w.reels.map((r, i) => <CasinoSymbol key={i} id={r} />)}</span>
+            <span className="casino-mine-what"><strong>{wonWords(w.prize)}</strong>{w.prize.kind !== 'coin' && <small>{whereItGoes(w.prize, chips !== null)}</small>}</span>
+            <small className="casino-mine-at">{new Date(w.at).toLocaleTimeString('th-TH', { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit' })} · เครื่อง {w.machine}</small></li>)}</ol>
+            : <p className="casino-mine-none">ยังไม่ได้รางวัล · หมุนต่อได้เลย</p>}
+        </>; })()}</section></div>
       <section className="casino-bag tk tk-window" role="dialog" aria-label="กระเป๋า Event"><button className="casino-panel-close pressable tk tk-slot" aria-label="ปิดหน้าต่าง" onClick={() => setPane('none')}>ปิด</button><div className="casino-bag-head"><h2>กระเป๋า Event <span className="casino-test">{label}</span></h2><button onClick={() => { setHistory(!history); setPage(0); }}>{history ? 'ดูใบที่รอรับ' : 'ดูประวัติรับรางวัล'}</button></div>
         <p className="text-sm text-muted">ใบรับสิทธิ์แยกจากกระเป๋าของทั่วไป เก็บประวัติไว้หลังส่งมอบ</p><div className="casino-receipts">{state.receipts.slice(0, 20).map(r => <article className="casino-receipt" key={r.id}>
           <h3>{r.prize.name}</h3><p>{label} · {CLAIM_LABEL[r.status]}</p><code>{r.id}</code>{r.note && <p>{r.note}</p>}

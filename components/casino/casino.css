@@ -249,3 +249,28 @@
 .casino-chips-back{position:sticky;bottom:0;z-index:1;box-shadow:0 -14px 10px -6px #f5dab7}
 .casino-play-actions .casino-lever-hint{font-size:13px}
 @media(max-width:639px){.casino-town-layer .casino-result{font-size:13px}}
+
+/* What I won (the owner, 2026-10-27: "ดูกระเป๋าตังค์ตัวเองยากว่าชนะอะไรไปแล้วบ้าง"): the "ของฉัน" pane, its corner button, and
+   the "+N" by a Casino Coin count as coins come in (the sheet's, and the town's status bar's under its count) */
+:is(.casino-town-room,.casino-town-layer):not([data-pane=mine]) .casino-mine{display:none}
+.casino-map-label>button.casino-mine-button.tk-slot{width:auto;min-width:44px;padding:0 10px;white-space:nowrap;font:600 13px var(--font-data-face),sans-serif}
+.casino-mine h2{font-family:var(--font-display-face),sans-serif;font-size:18px;margin:0 0 2px;padding-right:40px}
+.casino-mine-when{font-size:12px;color:var(--color-muted);margin:0 0 10px}
+.casino-mine-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:0 0 12px}
+.casino-mine-stats p{margin:0;background:#3b2412;border:2px solid #9c7648;color:#ffe9b8;padding:6px 4px;text-align:center}
+.casino-mine-stats b{display:block;font:700 18px/1.2 var(--font-data-face),sans-serif;color:#ffd36b;font-variant-numeric:tabular-nums}
+.casino-mine-stats span{display:block;font-size:11px;line-height:1.3}
+.casino-mine h3{font-size:13px;margin:10px 0 4px}
+.casino-mine ol{list-style:none;margin:0;padding:0}
+.casino-mine li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;border-bottom:1px solid var(--color-line);padding:7px 0;font-size:13px}
+.casino-mine-faces{display:flex;gap:1px}.casino-mine-faces .casino-symbol{width:16px;height:16px}
+.casino-mine-what strong{color:#7a4b10;font-weight:600}.casino-mine-what small{display:block;font-size:11px;line-height:1.4;color:var(--color-muted)}
+.casino-mine-at{font-size:11px;color:var(--color-muted);white-space:nowrap}
+.casino-mine-none{font-size:13px;color:var(--color-muted)}
+.casino-count{position:relative;display:inline-block}
+.casino-plus{position:absolute;left:100%;top:-6px;margin-left:5px;font:800 14px var(--font-data-face),sans-serif;color:#ffd36b;white-space:nowrap;pointer-events:none;
+  text-shadow:1px 1px 0 #3a160c,-1px -1px 0 #3a160c,1px -1px 0 #3a160c,-1px 1px 0 #3a160c;animation:casino-plus 1.8s ease-out forwards}
+.casino-plus.is-under{left:50%;top:100%;margin:2px 0 0;transform:translateX(-50%);animation-name:casino-plus-under}
+@keyframes casino-plus{0%{opacity:0;transform:translateY(6px)}15%{opacity:1;transform:translateY(0)}70%{opacity:1}100%{opacity:0;transform:translateY(-12px)}}
+@keyframes casino-plus-under{0%{opacity:0;transform:translate(-50%,-4px)}15%{opacity:1;transform:translate(-50%,0)}70%{opacity:1}100%{opacity:0;transform:translate(-50%,8px)}}
+@media(prefers-reduced-motion:reduce){.casino-plus{animation:none}.casino-plus.is-under{transform:translateX(-50%)}}

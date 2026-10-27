@@ -518,6 +518,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const [inCasino, setInCasino] = useState(false);
   /** My Casino Coins while I am in the casino (its sheet tells them), for the status bar: null elsewhere. */
   const [casinoChips, setCasinoChips] = useState<number | null>(null);
+  /** A "+N" under that count as Casino Coins come in (the owner, 2026-10-27: what was won seen at once), for a moment. */
+  const [casinoPlus, setCasinoPlus] = useState<{ n: number; key: number } | null>(null);
+  const casinoChipsWas = useRef<number | null>(null);
+  useEffect(() => { const was = casinoChipsWas.current; casinoChipsWas.current = casinoChips; if (was !== null && casinoChips !== null && casinoChips > was) setCasinoPlus({ n: casinoChips - was, key: Date.now() }); }, [casinoChips]);
+  useEffect(() => { if (!casinoPlus) return; const gone = setTimeout(() => setCasinoPlus(null), 1900); return () => clearTimeout(gone); }, [casinoPlus]);
   const casinoTap = useRef<((n: number) => void) | null>(null);
   /** Whether the casino's sheet is open (the stand-up button, under it on a phone, gives way to it: X still gets one up). */
   const [casinoSheet, setCasinoSheet] = useState(false);
@@ -5083,9 +5088,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
               <TownIcon name="coin" size={14} /><span data-coins title={purse.coins.toLocaleString(w.th ? "th-TH" : "en-US")} className="font-data text-meta font-semibold leading-none tabular-nums text-gold">{new Intl.NumberFormat(w.th ? "th-TH" : "en-US", { notation: "compact", maximumFractionDigits: 1 }).format(purse.coins)}</span>
               {/* In the casino, its own coins beside the purse's (the owner, 2026-10-27) */}
               {inCasino && casinoChips !== null && (
-                <span data-casino-chips className="ml-1 flex items-center gap-1 leading-none" title={`Casino Coin ${casinoChips.toLocaleString(w.th ? "th-TH" : "en-US")}`}>
+                <span data-casino-chips className="relative ml-1 flex items-center gap-1 leading-none" title={`Casino Coin ${casinoChips.toLocaleString(w.th ? "th-TH" : "en-US")}`}>
                   <span className="font-data text-label font-semibold leading-none text-muted">Casino</span>
                   <span className="font-data text-meta font-semibold leading-none tabular-nums text-ink">{new Intl.NumberFormat(w.th ? "th-TH" : "en-US", { notation: "compact", maximumFractionDigits: 1 }).format(casinoChips)}</span>
+                  {casinoPlus && <span key={casinoPlus.key} className="casino-plus is-under" aria-hidden>+{casinoPlus.n.toLocaleString("en-US")}</span>}
                 </span>
               )}
               {/* The meal I am at: how far through it I am */}

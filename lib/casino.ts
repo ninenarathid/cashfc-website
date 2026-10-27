@@ -246,6 +246,23 @@ export const chipsShown = (s: Pick<CasinoState, 'account' | 'spins' | 'user_id'>
   if (steady !== null) return Math.max(0, steady - turning.reduce((n, p) => n + Number(p.price), 0));
   return Math.max(0, chips - turning.reduce((n, p) => n + (p.prize?.kind === 'coin' ? Number(p.prize.amount) : 0), 0));
 };
+/**
+ * What I won (the owner, 2026-10-27: "ดูกระเป๋าตังค์ตัวเองยากว่าชนะอะไรไปแล้วบ้าง"): today's count of my own spins, from
+ * casino_live_mine (v308, `today`), or before v308 has run what the room's latest spins say of mine. Only spins whose
+ * reels have stopped.
+ */
+export type CasinoMine = {
+  today: boolean; spins: number; spent: number; back: number; wins: number;
+  won: Array<{ id: string; machine: number; reels: SymbolId[]; prize: PrizeSnapshot; at: string }>;
+};
+export function mineOfRoom(s: Pick<CasinoState, 'spins' | 'user_id'>, now: number): CasinoMine {
+  const mine = s.spins.filter(p => p.user_id === s.user_id && spinRevealed(p, now));
+  return {
+    today: false, spins: mine.length, spent: mine.reduce((n, p) => n + Number(p.price), 0),
+    back: mine.reduce((n, p) => n + (p.prize?.kind === 'coin' ? Number(p.prize.amount) : 0), 0), wins: mine.filter(p => p.prize).length,
+    won: mine.filter(p => p.prize).map(p => ({ id: p.id, machine: p.machine, reels: p.reels, prize: p.prize!, at: p.reveal_at })),
+  };
+}
 /** The changes the counter offers, in spins' worth: one, five, ten. */
 export const CHIP_PACKS = [1, 5, 10] as const;
 /** What the counter says of an answer of casino_live_buy / casino_live_free that took nothing (v303). */

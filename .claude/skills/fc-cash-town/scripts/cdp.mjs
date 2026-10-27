@@ -81,7 +81,8 @@ export async function browser(label, size = { width: 1280, height: 860 }, flags 
   const profile = mkdtempSync(join(tmpdir(), `town-${label}-`));
   const proc = spawn(CHROME, ["--headless=new", "--remote-debugging-port=0", `--user-data-dir=${profile}`,
     "--no-first-run", "--no-default-browser-check", "--use-fake-ui-for-media-stream",
-    "--use-fake-device-for-media-stream", "--autoplay-policy=no-user-gesture-required",
+    // (silent: a check never plays the town's music or the casino's sounds through the owner's speakers, 2026-10-27)
+    "--use-fake-device-for-media-stream", "--autoplay-policy=no-user-gesture-required", "--mute-audio",
     "--disable-background-timer-throttling", "--disable-backgrounding-occluded-windows", "--disable-renderer-backgrounding", ...flags, "about:blank"], { stdio: "ignore" });
   OPENED.add({ proc, profile });
   let port;

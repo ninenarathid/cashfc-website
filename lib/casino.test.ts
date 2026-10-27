@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { backAverage, backRows, chipsOf, chipsShown, coinsBack, draftOf, draftProblem, effectiveChance, prizeWithAmount, reelAt, reelTeases, reelTeasing, reelView, spinRevealed, whereItGoes, wipedWords, wonWords, type CasinoState, type CasinoSpin } from './casino';
+import { backAverage, backRows, chipsOf, chipsShown, mineOfRoom, coinsBack, draftOf, draftProblem, effectiveChance, prizeWithAmount, reelAt, reelTeases, reelTeasing, reelView, spinRevealed, whereItGoes, wipedWords, wonWords, type CasinoState, type CasinoSpin } from './casino';
 const fixture = (): CasinoState => ({ user_id: 'tester', settings: { id: 1, revision: 1, title: 'Halloween', open: true, mode: 'weighted', price: 100, per_player: 100, budget: 100000000, reserved: 0, spins: 0, pool_size: 1800, pool_draws: 0, starts_at: null, ends_at: null, updated_at: '', updated_by: null }, prizes: [{ id: 'gold', name: 'Gil', kind: 'gil', amount: 1000000, chance: .4, stock: 20, issued: 0, announce: false, active: true }], account: { coins: 20000, spins: 0 }, spins: [], receipts: [], queue: [], server_now: '', paid_gil: 0 });
 describe('Casino presentation and settings', () => {
   it('shows depleted or unaffordable prizes as zero without redistributing odds', () => {
@@ -133,5 +133,16 @@ describe('The reels as strips (2026-10-27)', () => {
     expect(reelView(spin, 3, 4500, true).faces.find(f => f.y === 0)?.face).toBe('popoto');
     expect(reelView(spin, 3, 4600, true).faces.find(f => f.y === 0)?.face).toBe(spin.reels[3]);
     expect(reelView(null, 0, 0).faces).toHaveLength(3);
+  });
+});
+
+describe('What I won, before v308 (2026-10-27)', () => {
+  it('counts my own stopped spins in the room: what they cost, what came back, the wins newest first', () => {
+    const s = fixture(), at = Date.parse('2026-10-27T12:00:00Z');
+    const spin = (id: string, user_id: string, prize: { kind: string; amount: number } | null, revealIn: number) => ({ id, user_id, player_name: 'x', machine: 3, revision: 1, price: 100, reels: ['seven', 'seven', 'gold', 'popoto'], prize, forced: false, created_at: '', reveal_at: new Date(at + revealIn).toISOString() }) as unknown as CasinoSpin;
+    s.spins = [spin('d', 'tester', { kind: 'coin', amount: 500 }, 1000), spin('c', 'tester', { kind: 'gil', amount: 1000000 }, -1000), spin('b', 'other', { kind: 'coin', amount: 70 }, -2000), spin('a', 'tester', { kind: 'coin', amount: 150 }, -3000), spin('z', 'tester', null, -4000)];
+    const m = mineOfRoom(s, at);
+    expect([m.today, m.spins, m.spent, m.back, m.wins]).toEqual([false, 3, 300, 150, 2]);
+    expect(m.won.map(w => w.id)).toEqual(['c', 'a']);
   });
 });
