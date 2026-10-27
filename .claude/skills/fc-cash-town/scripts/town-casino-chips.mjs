@@ -75,7 +75,7 @@ async function round(X, label, m, { admin }) {
   ok(`${label}: with no Casino Coins the button sends to the counter`, /แลกที่เคาน์เตอร์/.test(await text(X, ".casino-in-town .casino-spin")), await text(X, ".casino-in-town .casino-spin"));
   ok(`${label}: the machine says the coins held`, /Casino Coin\s*0/.test(await text(X, ".casino-in-town .casino-allowance")), await text(X, ".casino-in-town .casino-allowance"));
   ok(`${label}: no simulation button`, !(await X.evaluate(`!!document.querySelector(".casino-simulate-toggle")`)));
-  ok(`${label}: ten machines in the room`, new Set((await casino(X)).boxes.map((b) => b.n).filter((n) => n > 0)).size === 10, (await casino(X)).boxes.map((b) => b.n));
+  ok(`${label}: ten machines in the room`, new Set((await casino(X)).boxes.map((b) => b.n).filter((n) => n > 0 && n <= 10)).size === 10, (await casino(X)).boxes.map((b) => b.n));
   ok(`${label}: no row of machines to pick, the machine named`, !(await X.evaluate(`!!document.querySelector(".casino-in-town .casino-machines")`)) && /เครื่อง \d/.test(await text(X, ".casino-in-town .casino-console h2")));
   await X.shot(`${OUT}/1-machine-no-coins-${label}.png`);
   await click(X, ".casino-in-town .casino-spin"); await sleep(700);
@@ -135,6 +135,19 @@ async function round(X, label, m, { admin }) {
   for (const type of ["keyDown", "keyUp"]) await X.send("Input.dispatchKeyEvent", { type, key: "x", code: "KeyX", windowsVirtualKeyCode: 88, ...(type === "keyDown" ? { text: "x" } : {}) });
   await sleep(1500);
   ok(`${label}: standing up with X shuts the machine's sheet`, (await pane(X)) === "none", await pane(X));
+  // a sofa sat on (the owner, 2026-10-27: "ช่วยทำให้ โซฟาในแมพ คาซิโน นั่งได้จริงด้วย"): from the floor before it
+  // (the admin the left sofa, a member the right one: the admin may still sit on the left one)
+  await X.evaluate(`${V}.warp(${admin ? 346.5 : 365.5}, 120.5)`); await sleep(1500);
+  const sofa = (await casino(X)).boxes.find((b) => b.n === (admin ? 100 : 102));
+  ok(`${label}: a sofa to tap`, !!sofa, (await casino(X)).boxes.map((b) => b.n));
+  if (sofa) {
+    await tap(X, ...middle(sofa));
+    const spots = [341.5, 342.5, 343.5, 367.5, 368.5, 369.5];
+    const seated = await until("on the sofa", async () => { const me = await X.evaluate("window.__cashTown.me()"); return me && me.sit === -2 && Math.abs(me.y - 122.5) < 0.1 && spots.some((x) => Math.abs(me.x - x) < 0.1) && me; }, 15000).catch(() => null);
+    ok(`${label}: walks to a sofa's place and sits`, !!seated, await X.evaluate("window.__cashTown.me()"));
+    await sleep(800);
+    await X.shot(`${OUT}/6-sofa-${label}.png`);
+  }
 }
 
 // ── set up: the trial, the pair as v303 set it going, nobody's coins yet ──

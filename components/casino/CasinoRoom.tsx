@@ -5,7 +5,7 @@ import type { RealtimeChannel } from '@supabase/supabase-js';
 import { accessOf, backRows, CHIP_PACKS, CHIP_WHY, chipsOf, CLAIM_LABEL, letIn, money, PRIZE_LABEL, reelAt, spinRevealed, whereItGoes, wonWords, type CasinoSpin, type SymbolId } from '@/lib/casino';
 import type { TownSession } from '@/lib/town/session';
 import type { CasinoRoomArt } from '@/lib/town/casino-room-art';
-import { CASINO_EXIT, CASINO_ROOM, CASINO_STOOLS } from '@/lib/town/casino-room';
+import { CASINO_EXIT, CASINO_ROOM, CASINO_SOFA_SEATS, CASINO_STOOLS } from '@/lib/town/casino-room';
 import { defaultLook, encodeLook, savedLook } from '@/lib/town/look';
 import CasinoMap, { MACHINE_X, SPAWN, type CasinoPeer } from './CasinoMap';
 import CasinoSymbol from './CasinoSymbol';
@@ -155,7 +155,12 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
   const move = (x: number, y: number) => { if(walker){setPane('none');walker.walkTo({x:origin.x+x,y:origin.y+y});return;} if (!casinoWalkable({x,y})) return; setPane('none'); if(self.x!==x||self.y!==y)setArrived(false); setSelf(p => ({ ...p, x, y, seat: null })); };
   // ── in the town ── (the room's drawing is told what the reels show and which machine is open; a tap there comes here)
   const selectRef=useRef(select);selectRef.current=select;
-  useEffect(()=>{if(!town)return;town.tap.current=n=>{if(n===0)setPane('desk');else selectRef.current(n);};return()=>{town.tap.current=null;};},[town]);
+  // (a sofa, 100 and its place among the furniture: the free place on it nearest its middle, sat on from the floor before it)
+  const sitSofa=(sofa:number)=>{const w=walkerRef.current;if(!w)return;const places=CASINO_SOFA_SEATS.filter(p=>p.sofa===sofa);
+    const taken=(p:{stand:{x:number;y:number}})=>w.people.some(a=>!a.path.length&&Math.abs(a.pos.x-p.stand.x)<.1&&Math.abs(a.pos.y-p.stand.y)<.1);
+    const free=[places[1],places[0],places[2]].find(p=>p&&!taken(p));if(!free)return;setPane('none');w.walkTo(free.stand);w.sitHere();};
+  const sitSofaRef=useRef(sitSofa);sitSofaRef.current=sitSofa;
+  useEffect(()=>{if(!town)return;town.tap.current=n=>{if(n===0)setPane('desk');else if(n>=100)sitSofaRef.current(n-100);else selectRef.current(n);};return()=>{town.tap.current=null;};},[town]);
   const onSheet=town?.onSheet;
   useEffect(()=>{onSheet?.(pane!=='none');return()=>onSheet?.(false);},[onSheet,pane]);
   const spin = async (retry = false) => {

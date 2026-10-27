@@ -144,16 +144,18 @@ export class CasinoRoomArt {
         if (chair) { ctx.save(); ctx.imageSmoothingEnabled = false; ctx.drawImage(chair, Math.round(seat.x - 14 * k), Math.round(seat.y - 43 * k), 28 * k, 43 * k); ctx.restore(); }
       });
     }
-    for (const item of CASINO_FURNITURE) push(D + item.x + item.y + item.w + item.h - .5, () => this.furniture(ctx, item, at, s));
+    for (const [i, item] of CASINO_FURNITURE.entries()) push(D + item.x + item.y + item.w + item.h - .5, () => this.furniture(ctx, item, at, s, i));
     // the town's banker behind the counter, its front lip over his feet (his name is the town's to write, over every head)
     push(D + CASINO_COUNTER.x + CASINO_COUNTER.y + 1, () => banker(point(CASINO_COUNTER.x + 1.3, CASINO_COUNTER.y + .4, 28), .75 * s));
   }
 
-  private furniture(ctx: CanvasRenderingContext2D, item: CasinoFurniture, at: (x: number, y: number) => Vec, s: number) {
+  private furniture(ctx: CanvasRenderingContext2D, item: CasinoFurniture, at: (x: number, y: number) => Vec, s: number, index: number) {
     const p = at(item.x + item.w / 2, item.y + item.h / 2 + (item.kind === "counter" ? .8 : 0));
     const sprite = this.ready(item.kind === "plant" ? "planter" : item.kind === "sofa" ? "sofa" : "counter");
     if (sprite) { ctx.save(); ctx.imageSmoothingEnabled = false; ctx.drawImage(sprite, Math.round(p.x - sprite.naturalWidth * s / 2), Math.round(p.y - sprite.naturalHeight * s), sprite.naturalWidth * s, sprite.naturalHeight * s); ctx.restore(); }
     if (item.kind === "counter") this.boxes.push({ n: 0, x0: p.x - 65 * s, y0: p.y - 110 * s, x1: p.x + 65 * s, y1: p.y });
+    // (a sofa is sat on: its tap box is 100 and its place among the furniture)
+    if (item.kind === "sofa" && sprite) this.boxes.push({ n: 100 + index, x0: p.x - sprite.naturalWidth * s / 2, y0: p.y - sprite.naturalHeight * s, x1: p.x + sprite.naturalWidth * s / 2, y1: p.y });
   }
 
   /**

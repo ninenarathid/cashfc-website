@@ -10,6 +10,7 @@
  * the door shut to whoever may not (lib/town/world's setCasinoDoor), and every spin is asked of the database again.
  */
 import { CASINO_MACHINE_X, CASINO_MACHINE_Y, CASINO_MAP, CASINO_SPAWN, casinoWalkable } from "./casino-floor";
+import { CASINO_FURNITURE } from "./casino-scenery";
 import type { Vec } from "./world";
 
 /** Where the room lies in the tile space: east of the clothes shop (320 to 330), clear of every other map. */
@@ -26,6 +27,18 @@ export const casinoOpen = (tx: number, ty: number) => inCasino(tx, ty) && casino
 export const CASINO_STOOLS: Vec[] = CASINO_MACHINE_X.map((x, i) => casinoOut({ x, y: CASINO_MACHINE_Y[i] + 1 }));
 /** Which machine's stool a point is on (1 to 5), or 0. */
 export const stoolAt = (p: Vec) => CASINO_STOOLS.findIndex((s) => Math.abs(s.x - p.x) < 0.1 && Math.abs(s.y - p.y) < 0.1) + 1;
+
+/**
+ * The sofas' places (the owner, 2026-10-27: "ช่วยทำให้ โซฟาในแมพ คาซิโน นั่งได้จริงด้วย"): three a sofa, each sat from the floor
+ * before it (`stand`, where the walker stops: the sofa itself is not walked on) and drawn on its cushion (`at`), facing
+ * the room; `sofa` is the sofa's place among the furniture, `depth` where the sitter is drawn, just over the sofa.
+ */
+export const CASINO_SOFA_SEATS = CASINO_FURNITURE.flatMap((f, sofa) => f.kind !== "sofa" ? [] : [0, 1, 2].map((i) => ({
+  sofa, stand: casinoOut({ x: f.x + i + 0.5, y: f.y + f.h + 0.5 }), at: casinoOut({ x: f.x + i + 0.55, y: f.y + 1.2 }),
+  depth: CASINO_ROOM.x + CASINO_ROOM.y + f.x + f.y + f.w + f.h - 0.4,
+})));
+/** Which sofa place a point is the standing spot of (1 on), or 0. */
+export const sofaSeatAt = (p: Vec) => CASINO_SOFA_SEATS.findIndex((s) => Math.abs(s.stand.x - p.x) < 0.1 && Math.abs(s.stand.y - p.y) < 0.1) + 1;
 
 /** The way out: the carpet at the room's foot, where the steps were; stepping onto it takes one back to the kura's door. */
 export const CASINO_EXIT = { tiles: [[CASINO_ROOM.x + CASINO_MAP.width / 2, CASINO_ROOM.y + 11]] as Array<[number, number]>, at: casinoOut({ x: CASINO_MAP.width / 2 + .5, y: 11.7 }) };

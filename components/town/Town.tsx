@@ -21,7 +21,7 @@ import { SHOP_BOARD } from "@/lib/town/shop-room";
 import type { ShopWindowProps } from "./TownTailor";
 // ── the Popoto Casino ── (lib/town/casino-room: a room of its own down the kura's door; components/casino/CasinoInTown is its sheet)
 import { CasinoRoomArt } from "@/lib/town/casino-room-art";
-import { CASINO_ROOM, stoolAt } from "@/lib/town/casino-room";
+import { CASINO_ROOM, CASINO_SOFA_SEATS, sofaSeatAt, stoolAt } from "@/lib/town/casino-room";
 import { letIn, type CasinoSettings } from "@/lib/casino";
 import { useAdmin } from "@/lib/admin";
 import { BOUNDS, START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
@@ -3213,6 +3213,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   }
 
   function depthOf(a: Avatar): number {
+    // (on one of the casino's sofas: just over it)
+    const sofa = sitting(a) && !a.path.length ? sofaSeatAt(a.pos) : 0;
+    if (sofa) return CASINO_SOFA_SEATS[sofa - 1].depth;
     // at a table of the cooking yard: on its bench. On the far one that is behind the table's top, which is drawn
     // again over their legs (see where the yard is drawn)
     const place = tableSeatOf(a);
@@ -3230,6 +3233,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (mapRef.current) { const p = project(a.pos); return { x: p.x, y: p.y - (sitting(a) && Math.abs(a.pos.y - 3.5) < .1 ? 35 * cam.current.s : 0) }; }
     // ── the Popoto Casino ── (up on a machine's stool)
     if (sitting(a) && stoolAt(a.pos)) { const p = project(a.pos); return { x: p.x, y: p.y - 35 * cam.current.s }; }
+    // (on one of its sofas, on the cushion)
+    if (sitting(a) && !a.path.length && sofaSeatAt(a.pos)) { const p = project(CASINO_SOFA_SEATS[sofaSeatAt(a.pos) - 1].at); return { x: p.x, y: p.y - 20 * cam.current.s }; }
     const place = tableSeatOf(a);
     if (place) return project(place.at);
     const b = seatOf(a);
@@ -3449,6 +3454,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   function facingOf(a: Avatar, isMe: boolean, now: number): { view: View; mirror: boolean } {
     if (isMe && wardrobeOpenRef.current) return TURNS[((turn.current % TURNS.length) + TURNS.length) % TURNS.length];
     if ((mapRef.current && sitting(a) && Math.abs(a.pos.y - 3.5) < .1) || (sitting(a) && stoolAt(a.pos))) return { view: "back", mirror: false };
+    // (on a casino sofa: facing the room, the way the sofa faces)
+    if (sitting(a) && !a.path.length && sofaSeatAt(a.pos)) return facingFor(0, 1);
     const rod = rodOf(a, isMe);
     if (rod) return facingFor(rod.float.x - a.pos.x, rod.float.y - a.pos.y);
     // (whoever sits and has turned to a side, lib/town/session's turnTo, faces that side, whatever their seat)
