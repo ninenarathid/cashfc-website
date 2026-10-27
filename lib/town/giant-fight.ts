@@ -31,7 +31,7 @@ export const FIGHT_FEEL = {
   /** A net held open falls shut after so long, and is lifted again only after so long. */
   openFor: 0.9, lift: 0.8,
   /** The line on a rock: so long rubbing is a fray. */
-  rub: 0.6,
+  rub: 0.75,
   /** How fast the hoop is moved by the keys or held open (board px a second). */
   hoop: 90, hoopOpen: 45,
 } as const;
@@ -45,12 +45,12 @@ export interface FishState {
   rubbing: number; lastFray: number;
 }
 
-/** The rocks of a hook's water: three or four, in the middle of the water, never on the net's line. */
+/** The rocks of a hook's water: three or four, in the middle of the water, never on the net's line; a boulder (`kind` 0) or two flat stones (1), each as wide as its picture (catch-art's gfBoulder, gfStones) at the board's scale. */
 export function rocksOf(seed: number): Rock[] {
   const r = seeded(seed ^ 0x5bd1e995), n = 3 + (r() < 0.5 ? 1 : 0), out: Rock[] = [];
   for (let i = 0; i < 40 && out.length < n; i++) {
-    const x = BOARD.left + 14 + r() * (BOARD.right - BOARD.left - 28), y = 30 + r() * 46, rad = 7 + r() * 4;
-    if (out.every((o) => Math.hypot(o.x - x, o.y - y) > o.r + rad + 18)) out.push({ x: Math.round(x), y: Math.round(y), r: Math.round(rad), kind: r() < 0.5 ? 0 : 1 });
+    const kind: 0 | 1 = r() < 0.6 ? 0 : 1, x = BOARD.left + 14 + r() * (BOARD.right - BOARD.left - 28), y = 28 + r() * 40, rad = kind ? 10 : 13;
+    if (out.every((o) => Math.hypot(o.x - x, o.y - y) > o.r + rad + 18)) out.push({ x: Math.round(x), y: Math.round(y), r: rad, kind });
   }
   return out;
 }

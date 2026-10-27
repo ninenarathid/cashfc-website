@@ -4,8 +4,10 @@ import type { Stack } from "./trade";
 
 export interface TownAnnouncement {
   id: number; at: number; member: string; name: string;
-  kind: "forge" | "rank" | "legend" | "forest" | "recipe" | "cross" | "depth" | "bridge" | "lamps" | "admin" | "casino";
+  kind: "forge" | "rank" | "legend" | "forest" | "recipe" | "cross" | "depth" | "bridge" | "lamps" | "admin" | "casino" | "giant";
   subject: string; level: number;
+  /** (a giant fish's call, v309: the hook it calls to and where its float is, for the "ไปช่วย" chip) */
+  to?: { hook: string; x: number; y: number } | null;
   portrait: { look: string | null; expression: string; held?: Stack | null; wet?: boolean };
 }
 export interface AnnouncementPage { cursor: number; events: TownAnnouncement[] }
@@ -16,6 +18,8 @@ export function announcementText(event: TownAnnouncement, th: boolean): string {
     case "admin": return `${event.name} ${event.subject}`;
     // (the subject is the prize's own name, as Aqua wrote it at the casino's desk: v299)
     case "casino": return th ? `${event.name} ได้รางวัล ${event.subject} จาก Popoto Casino!` : `${event.name} won ${event.subject} at the Popoto Casino!`;
+    // (the subject is the angler's own words, lib/town/giant-fish's callWords: a call for a netter)
+    case "giant": return th ? `${event.name} ขอคนช่วยช้อนปลายักษ์: ${event.subject}` : `${event.name} needs a netter for a giant fish: ${event.subject}`;
     case "forge": return th ? `${event.name} ตีบวก ${item} +${event.level} สำเร็จ!` : `${event.name} forged ${item} to +${event.level}!`;
     case "rank": { const line = LINES[event.subject as LineId]?.name; return th ? `${event.name} ถึงขั้น ${event.level} สาย${line?.th ?? item}!` : `${event.name} reached ${line?.en ?? item} rank ${event.level}!`; }
     case "legend": return th ? `${event.name} จับ ${item} เป็นคนแรกของเมือง!` : `${event.name} made the town's first catch of ${item}!`;

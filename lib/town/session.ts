@@ -89,6 +89,8 @@ export interface ChatLine {
   at: number;
   mine: boolean;
   announcement?: number;
+  /** (a giant fish's call: the hook it calls to, for the chip that shows the way, components/town/TownGiantFish) */
+  goto?: string;
   /** The map it was said on (its chip in the log, when it is not mine). Announcements are everybody's. */
   area?: Place | null;
 }
@@ -894,9 +896,9 @@ export class TownSession {
   }
 
   /** Server announcements enter the local log without broadcasting a player chat message. */
-  townAnnouncement(id: number, text: string, at: number, name: string) {
+  townAnnouncement(id: number, text: string, at: number, name: string, goto?: string) {
     if (this.closed || this.chat.some(line => line.announcement === id)) return;
-    this.chat.push({ key: ++this.chatKey, from: "town", name, text, at, mine: false, announcement: id });
+    this.chat.push({ key: ++this.chatKey, from: "town", name, text, at, mine: false, announcement: id, ...(goto ? { goto } : {}) });
     this.chat.sort((a, b) => a.at - b.at || a.key - b.key);
     if (this.chat.length > LOG_MAX) this.chat.splice(0, this.chat.length - LOG_MAX);
     this.notify();

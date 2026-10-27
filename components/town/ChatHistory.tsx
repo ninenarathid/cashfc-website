@@ -89,6 +89,8 @@ export default function ChatHistory({ lines, th, className = "", note, here }: {
             <span className={`font-semibold ${l.announcement ? "font-semibold text-gold" : l.mine ? "text-gold" : "text-accent"}`}>{l.mine ? (th ? "คุณ" : "You") : l.name}</span>
             <span className="text-muted">: </span>
             <span className="text-ink">{l.text}</span>
+            {/* (a giant fish's call: the way to its water) */}
+            {l.goto && <button type="button" data-giant-go className="pressable tk tk-btn-wood ml-2 min-h-11 px-3 align-middle text-meta font-semibold" onClick={() => window.dispatchEvent(new CustomEvent("cashtown:giant-go", { detail: l.goto }))}>{th ? "ไปช่วย" : "Go and help"}</button>}
           </p>
         ))}
       </div>

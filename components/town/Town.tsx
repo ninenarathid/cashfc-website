@@ -173,6 +173,10 @@ const TownFarm = lazy(() => import("./TownFarm"));
 const TownForest = lazy(() => import("./TownForest"));
 const TownResourceBench = lazy(() => import("./TownRewardActions").then(m=>({default:m.TownResourceBench})));
 const TownBugs = lazy(() => import("./TownBugs"));
+// (a giant fish landed together: lib/town/giant-fish)
+const TownGiantFish = lazy(() => import("./TownGiantFish"));
+import type { GiantPairing } from "./TownGiantFish";
+import type { GiantHook } from "@/lib/town/giant-fish";
 // ── mining ── (the mountain's rocks and the cave: in every build, shown only while the far side is open to me)
 const TownMine = lazy(() => import("./TownMine"));
 const TownWell = lazy(() => import("./TownWell"));
@@ -1019,6 +1023,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const bugsDraw = useRef<FarmDraw | null>(null), bugsTap = useRef<((at: Vec, only?: boolean) => boolean) | null>(null);
   const registerBugs = useCallback((draw: FarmDraw | null) => { bugsDraw.current = draw; }, []);
   const registerBugsTap = useCallback((tap: ((at: Vec, only?: boolean) => boolean) | null) => { bugsTap.current = tap; }, []);
+  // A giant fish on somebody's line (TownGiantFish): its boil on the water; and the one just struck on mine, handed over by TownFish.
+  const giantDraw = useRef<FarmDraw | null>(null);
+  const registerGiant = useCallback((draw: FarmDraw | null) => { giantDraw.current = draw; }, []);
+  const [giantStruck, setGiantStruck] = useState<GiantHook | null>(null);
   // ── mining ── (components/town/TownMine: what it draws over the rocks, and what it asks of the map: where I am, to
   // stand me somewhere at once (the lift), to walk me to a tile, and to open my box at the foot yard's chest)
   const mineDraw = useRef<FarmDraw | null>(null);
@@ -1147,13 +1155,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // A game two play together (water handed on: lib/town/handing): what the two pages tell each other goes by the
   // room's letterboxes, from one to the other and to nobody else.
   // ── gifts: well ── (a drink held out goes by the same letterboxes: each of the two hears every word, and takes its own)
-  const pairHears = useRef<{ line: ((from: string, data: unknown) => void) | null; drink: ((from: string, data: unknown) => void) | null; ram: ((from: string, data: unknown) => void) | null }>({ line: null, drink: null, ram: null });
+  const pairHears = useRef<{ line: ((from: string, data: unknown) => void) | null; drink: ((from: string, data: unknown) => void) | null; ram: ((from: string, data: unknown) => void) | null; giant: ((from: string, data: unknown) => void) | null }>({ line: null, drink: null, ram: null, giant: null });
   const pairWire = useCallback((s: TownSession) => {
-    const { line, drink, ram } = pairHears.current;
-    s.onPair = line || drink || ram ? (from, data) => { pairHears.current.line?.(from, data); pairHears.current.drink?.(from, data); pairHears.current.ram?.(from, data); } : null;
+    const { line, drink, ram, giant } = pairHears.current;
+    s.onPair = line || drink || ram || giant ? (from, data) => { pairHears.current.line?.(from, data); pairHears.current.drink?.(from, data); pairHears.current.ram?.(from, data); pairHears.current.giant?.(from, data); } : null;
   }, []);
   const pairing = useMemo<Pairing | null>(() => (session ? { send: (to, told) => session.pair(to, told), hear: (fn) => { pairHears.current.line = fn; pairWire(session); } } : null), [session, pairWire]);
   const drinking = useMemo<DrinkPairing | null>(() => (session ? { send: (to, told) => session.pair(to, told), hear: (fn) => { pairHears.current.drink = fn; pairWire(session); } } : null), [session, pairWire]);
+  // (a giant fish's angler and netter: where the fish is, where the hoop is, a scoop; components/town/TownGiantFish)
+  const giantPairing = useMemo<GiantPairing | null>(() => (session ? { send: (to, told) => session.pair(to, told), hear: (fn) => { pairHears.current.giant = fn; pairWire(session); } } : null), [session, pairWire]);
   // The room says when something of the game's changed, and the keeper asks the database for it; my own deeds are
   // said the same way. Only the word for what: never the change.
   useEffect(() => {
@@ -2697,6 +2707,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       if (placeRef.current === "mountain") streamDraw.current?.(frame);
       fieldworkDraw.current?.(frame);
       bugsDraw.current?.(frame);
+      giantDraw.current?.(frame);
       mineDraw.current?.(frame);   // ── mining ── (cracks on a rock being struck, a swing, what a peek said)
       // the pots of food that stand about, wherever they were set down
       cookDraw.current?.(frame);
@@ -5749,7 +5760,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
           {fishing ? (
             <div className="pop-in pointer-events-auto w-full max-w-[30rem]" data-state="open">
               <Suspense fallback={null}>
-                <TownFish me={keeper.id} keeper={keeper} th={w.th} rain={raining} place={fishAt} reduced={reducedRef.current} sfx={sfxRef.current!} onClose={() => setFishing(false)} onLine={onLine} onLanded={onLanded} />
+                <TownFish me={keeper.id} keeper={keeper} th={w.th} rain={raining} place={fishAt} reduced={reducedRef.current} sfx={sfxRef.current!} onClose={() => setFishing(false)} onLine={onLine} onLanded={onLanded} onGiant={(hook) => { setGiantStruck(hook); setFishing(false); }} />
               </Suspense>
             </div>
           ) : (
@@ -5803,6 +5814,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         </Suspense>
       )}
       {/* The insects: out on every map, and caught with a net */}
+      {s && game && keeper && (
+        <Suspense fallback={null}>
+          <TownGiantFish me={keeper.id} myName={me.name} keeper={keeper} th={w.th} here={mineHere} hour={forcedHour.current} pairing={giantPairing} registerDraw={registerGiant} walkTo={walkToTile} struck={giantStruck} />
+        </Suspense>
+      )}
       {s && game && keeper && (
         <Suspense fallback={null}>
           <TownBugs keeper={keeper} th={w.th} name={me.name} sfx={sfxRef.current} busy={!!talk || !!trade || boardOpen || wardrobeOpen || fishing || (phone && testOpen)}

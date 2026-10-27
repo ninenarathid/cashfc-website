@@ -138,7 +138,7 @@ const bangkokHour = (now: number) => Math.floor((((now + 7 * HOUR) % (24 * HOUR)
  * when it lasted as long as one could. In `next dev`'s test room it is the
  * browser's trial, which plays the same part.
  */
-export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, onClose, onLine, onLanded }: {
+export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, onClose, onLine, onLanded, onGiant }: {
   me: string;
   keeper: Keeper;
   th: boolean;
@@ -154,6 +154,8 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   onLine: (state: LineState | null) => void;
   /** Told when something is landed, for the room to hear of it. */
   onLanded: () => void;
+  /** A giant on the line (lib/town/giant-fish): no fight here, its own board takes it (TownGiantFish). */
+  onGiant?: (hook: import("@/lib/town/giant-fish").GiantHook) => void;
 }) {
   // (the trial's own kit and short wait, in a branch a production build drops)
   const trial = process.env.NODE_ENV !== "production" ? keeper.trial : null;
@@ -415,6 +417,8 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
     sfx.play(golden ? "strike" : !hit ? "early" : hit === "perfect" ? "perfect" : "strike");
     setPhase({ at: "striking" });
     const did = await keeper.strike(reaction, hit);
+    // (a giant: the line is tied to the post, and the giant's board holds)
+    if (did.ok && did.hooked && did.giant) { afloat.current = false; sfx.play("strike"); onLine(null); onGiant?.(did.giant); return; }
     if (!did.ok || !did.hooked) {
       afloat.current = false;
       const how = did.ok && did.how === "missed" ? "missed" : "early";

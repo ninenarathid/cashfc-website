@@ -59,7 +59,7 @@ export default function TownAnnouncements({ keeper, session, th }: { keeper: Kee
     let stopped = false, busy = false, again = false, cursor: number | null = null;
     const seenIds = new Set<number>(), held = new Set<ReturnType<typeof setTimeout>>();
     const show = (events: TownAnnouncement[], initial: boolean) => {
-      for (const event of events) session.townAnnouncement(event.id, announcementText(event, language.current), event.at, language.current ? "เมือง" : "Town");
+      for (const event of events) session.townAnnouncement(event.id, announcementText(event, language.current), event.at, language.current ? "เมือง" : "Town", event.kind === "giant" ? event.to?.hook : undefined);
       if (!initial && events.length) setQueue(was => [...was, ...events]);
     };
     const accept = (events: TownAnnouncement[], initial: boolean) => {
@@ -99,6 +99,8 @@ export default function TownAnnouncements({ keeper, session, th }: { keeper: Kee
     <Portrait event={event} /><div className="min-w-0 py-1">
       <p className="mb-1 line-clamp-2 text-[15px] font-semibold leading-snug text-[#fff0d1] [overflow-wrap:anywhere]" title={event.name}>{event.name}</p>
       <p className="text-[13px] leading-relaxed text-[#e2d2b8]">{message.startsWith(prefix)?message.slice(prefix.length):message}</p>
+      {/* (a giant fish's call: the way to its water, components/town/TownGiantFish) */}
+      {event.kind === "giant" && event.to && <button type="button" data-giant-go className="pressable tk tk-btn-wood mt-1.5 min-h-11 px-4 text-ui font-semibold" onClick={() => { window.dispatchEvent(new CustomEvent("cashtown:giant-go", { detail: event.to!.hook })); setQueue(was => was.slice(1)); }}>{th ? "ไปช่วย" : "Go and help"}</button>}
     </div>
     <button type="button" aria-label={th ? "ปิดประกาศ" : "Dismiss announcement"} onClick={() => setQueue(was => was.slice(1))} className="absolute right-0 top-0 grid h-11 w-9 place-items-center rounded-sm focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-[#f0ca83]"><TownIcon name="close" size={16}/></button>
   </aside>, head);
