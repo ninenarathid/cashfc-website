@@ -11,7 +11,7 @@ import CasinoMap, { MACHINE_X, SPAWN, type CasinoPeer } from './CasinoMap';
 import CasinoSymbol from './CasinoSymbol';
 import { useCasino } from './useCasino';
 import './casino.css';
-import { casinoWalkable } from '@/lib/town/casino-map';
+import { CASINO_MAP, casinoWalkable } from '@/lib/town/casino-map';
 import CasinoTownHud from './CasinoTownHud';
 import Link from 'next/link';
 import TownFoot from '@/components/town/TownFoot';
@@ -108,7 +108,7 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
         if (id === uid) continue;
         const p = entries[entries.length - 1] as unknown as CasinoPeer;
         if (!p || typeof p.name !== 'string' || typeof p.look !== 'string' || !Number.isFinite(p.x) || !Number.isFinite(p.y)) continue;
-        list.push({ id, name: p.name.slice(0, 40), look: p.look.slice(0, 12), x: Math.max(.5, Math.min(15.5, p.x)), y: Math.max(1.5, Math.min(11.5, p.y)),
+        list.push({ id, name: p.name.slice(0, 40), look: p.look.slice(0, 12), x: Math.max(.5, Math.min(CASINO_MAP.width - .5, p.x)), y: Math.max(1.5, Math.min(11.5, p.y)),
           seat: Number.isInteger(p.seat) && p.seat! >= 1 && p.seat! <= 10 ? p.seat : null });
       }
       if (!gone) setPeers(list);
@@ -143,13 +143,14 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
   // and a minute without a spin stands one up for the next player, as the database lets another have it then)
   const lastPlay = useRef(0), heldSeat = useRef<number | null>(null);
   const select = async (n: number) => { if(walker){
-    resitting.current = true;
     if(live&&town&&client){
       const {data,error:failed}=await client.rpc('casino_live_seat',{p_machine:n});
       const r=data as {ok?:boolean;why?:string;name?:string}|null;
       if(!failed&&r&&!r.ok&&r.why==='taken'){setError(`เครื่อง ${n} มี ${r.name??'คนอื่น'} เล่นอยู่ เลือกเครื่องอื่นได้เลย`);return;}
       if(!failed&&r?.ok){heldSeat.current=n;lastPlay.current=latestNow.current();setError('');}
     }
+    // (from here till sat down, a moment's standing is the re-sit's, not a standing up: Codex's check, after a refusal above)
+    resitting.current = true;
     const a=walker.self;const at=stools[n-1];const here=!a.path.length&&Math.hypot(a.pos.x-at.x,a.pos.y-at.y)<.1;setSelected(n);setPane('slots');setArrived(here);walker.walkTo(at);walker.sitHere();return;} setSelected(n); setPane('slots'); setArrived(self.x===MACHINE_X[n-1]&&self.y===3.5); setSelf(p => ({ ...p, x: MACHINE_X[n - 1], y: 3.5, seat: n })); };
   const move = (x: number, y: number) => { if(walker){setPane('none');walker.walkTo({x:origin.x+x,y:origin.y+y});return;} if (!casinoWalkable({x,y})) return; setPane('none'); if(self.x!==x||self.y!==y)setArrived(false); setSelf(p => ({ ...p, x, y, seat: null })); };
   // ── in the town ── (the room's drawing is told what the reels show and which machine is open; a tap there comes here)
