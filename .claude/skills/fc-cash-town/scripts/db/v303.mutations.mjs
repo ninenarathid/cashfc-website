@@ -16,9 +16,6 @@ export default ({ swap }) => [
   ["free coins never off", swap("  if s.free_chips < 1 then return jsonb_build_object('ok', false, 'why', 'off'); end if;\n", ""), ["free coins turned off"]],
   ["the desk drops the rate", swap("ends_at = nullif(p_doc ->> 'ends_at', '')::timestamptz, chip_rate = rate_, free_chips = free_,", "ends_at = nullif(p_doc ->> 'ends_at', '')::timestamptz,"), ["kept"]],
   ["any rate", swap("    rate_ not between 1 and 10000 or free_ not between 0 and 100000 or\n", ""), ["a rate of nothing is refused"]],
-      and (select price from public.casino_live_settings where id = 1) > 20
-      and (select coalesce(sum(chance), 0) from public.casino_live_prizes where active) <= 80
-      and not exists (select 1 from public.casino_live_prizes where active and kind = 'coin');", "    where id = 'pair';"), ["the settings' revision moved once, not at the second run"]],
   ["the wipe leaves the trial's coins", swap("      select user_id, coins::numeric, -chips::numeric, 0 from public.casino_live_chip_moves where test) t", "      select user_id, 0::numeric, 0::numeric, 0 from public.casino_live_chip_moves where false) t"), ["every Popoto coin back: the spin before v303 and the coins changed"]],
   ["the wipe gives an old spin back in Casino Coins", swap("          case when trail ? 'chips' then 0 else price - case when prize ->> 'kind' = 'coin' then (prize ->> 'amount')::numeric else 0 end end coins,", "          0::numeric coins,"), ["every Popoto coin back: the spin before v303 and the coins changed"]],
   ["the wipe keeps the moves", swap("  delete from public.casino_live_chip_moves where test;\n", ""), ["the moves gone"]],

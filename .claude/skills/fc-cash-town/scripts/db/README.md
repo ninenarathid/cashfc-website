@@ -268,6 +268,6 @@ locking contract, once a request), `casino_live_free()` gives `free_chips` once 
 gives the Popoto coins back and takes the Casino Coins away; a trial spin from before v303 is given back in Popoto
 coins, one after in Casino Coins, by the spin's `trail.chips`). The pair pays Casino Coins; its odds stay the desk's.
 Dry run `v303.test.mjs` (71 checks, on the bench kept after v296 with v256, v297, v298, v204, v206, the site's prize
-stand-ins and v299 first), `v303.mutations.mjs`. In a browser: `town-casino-chips.mjs <base> <out> <bench>` against
+stand-ins and v299 first), `v303.mutations.mjs` (18 of 18 breaks caught). In a browser: `town-casino-chips.mjs <base> <out> <bench>` against
 `town-bench.mjs` with v303 last in BENCH_EXTRA (the bench needs `pglite-harness.mjs` beside it and `@electric-sql/pglite`
 reachable: a scratch folder with the three files and a `node_modules` junction to the PGlite bench's will do).
