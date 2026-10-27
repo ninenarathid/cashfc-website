@@ -35,6 +35,7 @@ import { hastened, shadeOf, type Shade, type WishId } from "./fountain";
 import { type CatchId, BAIT_AS, FISH, ITEMS, type BaitId, type DishId, type FishId, type ItemId, type Sign } from "./items";
 import { FRESH_JUNK } from "./fishing";
 import { GIANT, giantChance, giantOf, settled, type GiantAction, type GiantHook } from "./giant-fish";
+import { giantRecords } from "./fish-book";
 import { harderFor, wearing, works } from "./gifts";
 import type { Mine } from "./insects";
 import type { CastHow, CastTold, Did, Hooked, Keeper, Landed, Looked, Struck, Timing, Water, Why } from "./keeper";
@@ -408,6 +409,7 @@ class TrialKeeper implements Keeper {
     if (action !== "look" && action !== "claim") this.onDeed?.("giants");
     return { ok: true, hook: did.hook, ...(did.steak ? { steak: true } : {}) };
   }
+  async fishBook() { return { fish: this.trial.fishBook(), giants: giantRecords(this.trial.giants()) }; }
   async giantsNow(): Promise<GiantHook[]> {
     const now = this.trial.now();
     return this.trial.giants().map((h) => settled(h, now)).filter((h) => !h.how || (now - h.end < GIANT.after && (h.by === this.id || h.netter === this.id)));

@@ -363,6 +363,8 @@ export interface Keeper {
   giantFish?(action: import("./giant-fish").GiantAction, id: string, opts?: { at?: [number, number]; text?: string; name?: string }): Promise<Did<{ hook: import("./giant-fish").GiantHook; steak?: boolean }>>;
   /** The giants on lines in the town now, and those of mine ended lately (a steak not yet had). */
   giantsNow?(): Promise<import("./giant-fish").GiantHook[]>;
+  /** The village's book of fish (lib/town/fish-book): read when the bag is opened. */
+  fishBook?(): Promise<import("./fish-book").FishBook | null>;
   /** My bed handed on to another member near me, or given up (lib/town/bed-hand): each the page asks twice before it is sent. */
   bedGive(bed: number, to: string, name: string): Promise<Did<{ plants: number }>>;
   bedLeave(bed: number): Promise<Did<{ plants: number }>>;
@@ -1870,6 +1872,11 @@ export class DbKeeper implements Keeper {
     if (did.ok && action !== "look" && action !== "claim") this.onDeed?.("giants");
     if (did.ok && action === "call") for (const fn of this.announcementListeners) fn();
     return did;
+  }
+  // (v310's book of fish: a database before it answers nothing, and no book is shown)
+  async fishBook() {
+    const a = await this.rpc("town_fish_book", {}).catch(() => null);
+    return a && typeof a === "object" && "fish" in a ? (a as unknown as import("./fish-book").FishBook) : null;
   }
   async giantsNow() {
     const a = await this.rpc("town_giants_now", {}).catch(() => null);

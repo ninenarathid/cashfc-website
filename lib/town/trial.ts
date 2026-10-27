@@ -149,6 +149,7 @@ import { TREES as TREE_KNOBS, begin as fellBegin, braceGo, bracePay, fell, grove
 import type { FellDid } from "./keeper";
 import type { FellingAsk } from "./felling";
 import { giantFish, type GiantAction, type GiantDid, type GiantHook } from "./giant-fish";
+import { noteFish, type FishBook } from "./fish-book";
 // ── end: felling ──
 // ── the bridge built by hand ──
 import { BRIDGE, drop as stoneDrop, laid as stoneLaid, lay as stoneLay, lift as stoneLift, luckFor, newWorks, pass as stonePass, told as worksTold, workOf, type BridgeRefusal, type WorksKept, type WorksTold } from "./bridge";
@@ -179,8 +180,8 @@ import { LAMPS, held as lampHeld, light as lampLight, lighted as lampLighted, li
  * compiles away.
  */
 
-/** The giants on lines, the browser's (lib/town/giant-fish). */
-const GIANT_HOOKS = "cashtown.trial.giants.1";
+/** The giants on lines, the browser's (lib/town/giant-fish); its book of fish (lib/town/fish-book). */
+const GIANT_HOOKS = "cashtown.trial.giants.1", FISH_BOOK = "cashtown.trial.fishbook.1";
 const STALL = "cashtown.trial.stall.1", CLOCK = "cashtown.trial.clock.1", FARM = "cashtown.trial.farm.2";
 const WELL = "cashtown.trial.well.1", BEDS = "cashtown.trial.beds.1";
 /** The farm's second well (lib/town/world's WELLS): its water (its water's nature is the well's book's `southWater`). */
@@ -395,6 +396,7 @@ export class Trial {
     return {ok:true as const,made:d.made,n:d.n,mistakes:d.mistakes};
   }
   /* ── a giant fish on a line (lib/town/giant-fish): one store for the browser, so that a tester in another tab can net it ── */
+  fishBook(): FishBook["fish"] { return this.read<FishBook["fish"]>(FISH_BOOK, () => ({}), (v) => !!v && typeof v === "object" && !Array.isArray(v)); }
   giants(): GiantHook[] { return this.read<GiantHook[]>(GIANT_HOOKS, () => [], Array.isArray).filter((h) => this.now() - (h.end || h.at) < 86_400_000); }
   /** When this member last had a giant on the line. */
   lastGiant(by: string): number | null { const mine = this.giants().filter((h) => h.by === by).map((h) => h.at); return mine.length ? Math.max(...mine) : null; }
@@ -692,6 +694,8 @@ export class Trial {
   land(what: CatchId, size: number): { kept: boolean; record: boolean } {
     const { purse, kept, record } = landCatch(this.purse(), what, size);
     this.save(purse);
+    // (the village's book of fish, the browser's: lib/town/fish-book)
+    this.write(FISH_BOOK, noteFish(this.fishBook(), what, size, this.id));
     return { kept, record };
   }
   /* ── the farm: one for the browser, like the stall, so that two testers in two tabs tend the same plots ── */
