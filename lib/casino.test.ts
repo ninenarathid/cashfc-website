@@ -58,13 +58,14 @@ describe('Casino presentation and settings', () => {
   it('pays a pair by the paytable: a part of the price, rounded down, the pair chance shared out (v304)', () => {
     const t = [{ sym: 'cherry' as const, pct: 10, share: 40 }, { sym: 'popoto' as const, pct: 20, share: 30 }, { sym: 'gold' as const, pct: 30, share: 18 }, { sym: 'seven' as const, pct: 50, share: 9 }, { sym: 'evercold' as const, pct: 80, share: 3 }];
     expect(backAverage(t, 100)).toBeCloseTo(22.3);
+    expect(backAverage(t, 100, 0.2)).toBeCloseTo(27.354, 2);
     const rows = backRows(t, 100, 20);
     expect(rows.map(r => r.amount)).toEqual([10, 20, 30, 50, 80]);
     expect(rows.map(r => +r.chance.toFixed(2))).toEqual([8, 6, 3.6, 1.8, 0.6]);
     expect(backRows(t, 7, 20).map(r => r.amount)).toEqual([0, 1, 2, 3, 5]);
     const s = fixture(); s.settings.back_table = t; s.prizes.push({ id: 'pair', name: '50 Casino Coin', kind: 'coin', amount: 50, chance: 20, stock: 100000, issued: 0, announce: false, active: true });
     const d = draftOf(s);
-    expect(coinsBack(d, s.settings)).toBeCloseTo(4.46);
+    expect(coinsBack(d, s.settings)).toBeCloseTo(5.471, 2);
     expect(draftProblem(d, s.settings)).toBe(null);
     expect(draftProblem({ ...d, back_table: t.map((r, i) => i ? r : { ...r, pct: 1001 }) }, s.settings)).toContain('ตาราง');
     expect(draftProblem({ ...d, back_table: t.map((r, i) => i ? r : { ...r, pct: 300 }) }, s.settings)).toBe(null);
@@ -74,5 +75,6 @@ describe('Casino presentation and settings', () => {
     expect(wonWords({ name: '20 Casino Coin', amount: 20, pct: 20 })).toBe('ได้ 20 Casino Coin');
     expect(wonWords({ name: '250,000 Gil', amount: 250000 })).toBe('ได้ 250,000 Gil');
     expect(wonWords({ name: '150 Casino Coin', amount: 150, pct: 150 })).toBe('ได้ 150 Casino Coin');
+    expect(wonWords({ name: '220 Casino Coin', amount: 220, pct: 200, parts: [200, 20] })).toBe('ได้ 200 + 20 Casino Coin');
   });
 });

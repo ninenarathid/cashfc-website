@@ -67,6 +67,7 @@ async function round(X, label, m, { admin }) {
   ok(`${label}: with no Casino Coins the button sends to the counter`, /แลกที่เคาน์เตอร์/.test(await text(X, ".casino-in-town .casino-spin")), await text(X, ".casino-in-town .casino-spin"));
   ok(`${label}: the machine says the coins held`, /Casino Coin\s*0/.test(await text(X, ".casino-in-town .casino-allowance")), await text(X, ".casino-in-town .casino-allowance"));
   ok(`${label}: no simulation button`, !(await X.evaluate(`!!document.querySelector(".casino-simulate-toggle")`)));
+  ok(`${label}: no row of machines to pick, the machine named`, !(await X.evaluate(`!!document.querySelector(".casino-in-town .casino-machines")`)) && /เครื่อง \d/.test(await text(X, ".casino-in-town .casino-console h2")));
   await X.shot(`${OUT}/1-machine-no-coins-${label}.png`);
   await click(X, ".casino-in-town .casino-spin"); await sleep(700);
   ok(`${label}: and opens it`, (await pane(X)) === "desk");
@@ -98,8 +99,10 @@ async function round(X, label, m, { admin }) {
   await click(X, ".casino-in-town .casino-spin"); await sleep(5600);
   const r = await text(X, ".casino-in-town .casino-result");
   // (v304: the pair pays a row of the paytable, a part of the price)
-  const back = /ได้ (\d+) Casino Coin!/.exec(r);
-  ok(`${label}: a row of the paytable paid, said by its coins alone`, !!back && [20, 50, 150, 200, 500].includes(Number(back[1])) && !/%/.test(r) && /หมุนต่อได้เลย/.test(r), r);
+  // (one pair, or two: "200 + 20")
+  const said = /ได้ ([\d,]+(?: \+ [\d,]+)?) Casino Coin!/.exec(r), parts = said ? said[1].split(" + ").map((x) => Number(x.replace(/,/g, ""))) : [];
+  const back = said ? [null, String(parts.reduce((n, a) => n + a, 0))] : null;
+  ok(`${label}: the pairs of the paytable paid, said by their coins alone`, !!said && parts.every((a) => [20, 50, 150, 200, 500].includes(a)) && !/%/.test(r) && /หมุนต่อได้เลย/.test(r), r);
   ok(`${label}: the price taken and that part paid back in Casino Coins, the purse untouched`, !!back && (await chipsOf(m)) === 600 - 100 + Number(back[1]) && (await coinsOf(m)) === purse1, { chips: await chipsOf(m), coins: await coinsOf(m), back });
   await X.shot(`${OUT}/4-coins-back-${label}.png`);
   await X.evaluate(`document.querySelector(".casino-in-town .casino-prize-details").open = true`); await sleep(400);

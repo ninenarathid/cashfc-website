@@ -216,7 +216,6 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
       {error && <p className="casino-error" role="alert">{error}</p>}
       <div className="casino-lower tk tk-window" role="dialog" aria-label={pane === 'feed' ? 'ผลและเสียงเชียร์' : pane==='desk'?'พนักงาน Casino':`Slot เครื่อง ${selected}`}><button className="casino-panel-close pressable tk tk-slot" aria-label="ปิดหน้าต่าง" onClick={() => setPane('none')}>×</button>
         <div className="casino-play-layout"><section className="casino-console"><h2>เครื่อง {selected}</h2>
-        <nav className="casino-machines" aria-label="เลือกเครื่องสล็อต">{MACHINE_X.map((_, i) => <button key={i} className="casino-machine-tab pressable tk tk-slot" aria-label={`เครื่อง ${i + 1}`} aria-pressed={selected === i + 1} onClick={() => select(i + 1)}>{i + 1}</button>)}</nav>
         <p className="casino-allowance">{chips === null ? <>เหลือ {Math.max(0,remaining)} ครั้ง · ครั้งละ {money(s.price)} coin</> : <>Casino Coin <strong>{money(chips)}</strong> · ครั้งละ {money(s.price)} · เหลือ {Math.max(0,remaining)} ครั้ง</>}</p>
         <div className="casino-reels" aria-label={rolling ? 'กำลังหมุน' : latest ? latest.reels.join(', ') : 'พร้อมเล่น'}>
           {[0, 1, 2, 3].map(i => <div key={i} className={`casino-reel ${rolling && clock < Date.parse(latest!.reveal_at) - (3 - i) * 450 ? 'is-moving' : ''}`}>
@@ -235,7 +234,7 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
           {state.prizes.some(p => p.id === 'pair' && p.active) && (s.back_table ? backRows(s.back_table, s.price, 0).map(row => <p key={row.sym} className={`casino-paytable-row${row.amount > s.price ? ' is-profit' : ''}`}>
             <span className="casino-paytable-pair"><CasinoSymbol id={row.sym} /><CasinoSymbol id={row.sym} /></span><span>{money(row.amount)} Casino Coin</span></p>) :
             <p className="casino-paytable-row"><span>สองช่องแรกเหมือนกัน</span><span>{state.prizes.find(p => p.id === 'pair')?.name}</span></p>)}</div>
-          <p>{live ? 'ของรางวัลส่งเข้ากล่องรางวัลในเว็บ · Gil เข้ากระเป๋าเงินในโปรไฟล์' : 'ห้องนี้เป็น TEST · ปิดทุกหน้าจะเริ่มใหม่'}</p>{trial && <p>ตอนนี้แอดมินทดสอบอยู่ · ล้างผลได้ที่หน้า Aqua</p>}</details>
+          </details>
       </section></div><section className="casino-desk-in-room"><h2>พนักงาน Casino</h2>
         {chips !== null && <div className="casino-chips">
           <p className="casino-chips-balance"><span>Casino Coin</span><strong>{money(chips)}</strong><small>Popoto coin {money(state.account.coins)}</small></p>

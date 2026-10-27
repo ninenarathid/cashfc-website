@@ -11,7 +11,12 @@
 -- the five symbols a part of the price (1% to 1,000%: over 100 a profit) and a share of the pair's wins. To begin with:
 -- cherry 20% (50 in 100 pairs), popoto 50% (30), gold 150% (13), seven 200% (5), evercold 500% (2): small backs often,
 -- a profit on 4 spins in 100, 64.5% of the price on average a pair and 12.9% a spin: the players lose on the whole. The
--- desk's save still refuses coins back averaging the price or more. The desk edits the five rows; its save keeps the pair's own amount
+-- desk's save still refuses coins back averaging the price or more.
+--
+-- Then, of 7 7 cherry cherry paying 200 alone: "แบบนี้ควรจะได้ 200 + 20 casino coin ไม่ใช่ แค่ 200 เพราะ ชนะ 2 pattern". So
+-- every pair a player sees is paid: a pair stands on the front two reels or the back two; as often as a pair comes
+-- (its own chance) the other half is a pair of another symbol too, and both are paid; and where nothing is paid no two
+-- reels side by side are alike (a miss, and the half beside a lone pair). The desk edits the five rows; its save keeps the pair's own amount
 -- at the table's average (what the sums of coins back read). A win's coins and name are written with the spin, so the
 -- wipe of the admins' trial takes back what each paid, as before. Nothing else of v303 changes.
 begin;
@@ -47,33 +52,46 @@ do $$ begin
     then raise exception 'At this spin price a row of the coin back pays nothing: set the price to 5 or more in the desk first'; end if;
 end $$;
 
-/** A row of the paytable drawn by its share, and the Casino Coins it pays at this price, rounded down: { sym, pct, amount }. */
-create or replace function casino.back_of(t jsonb, p_price integer)
+/** A row of the paytable drawn by its share (another symbol's than `p_not`), and the Casino Coins it pays at this price,
+    rounded down: { sym, pct, amount }; none when no other row has a share. */
+create or replace function casino.back_of(t jsonb, p_price integer, p_not text default null)
 returns jsonb language plpgsql volatile set search_path = '' as $$
-declare e jsonb; x numeric; edge numeric := 0;
+declare e jsonb; x numeric; edge numeric := 0; total_ numeric;
 begin
-  x := casino.unit() * (select sum((r ->> 'share')::numeric) from jsonb_array_elements(t) r);
-  for e in select value from jsonb_array_elements(t) loop
+  select sum((r ->> 'share')::numeric) into total_ from jsonb_array_elements(t) r where r ->> 'sym' is distinct from p_not;
+  if coalesce(total_, 0) <= 0 then return null; end if;
+  x := casino.unit() * total_;
+  for e in select value from jsonb_array_elements(t) where value ->> 'sym' is distinct from p_not loop
     edge := edge + (e ->> 'share')::numeric;
     if x < edge then exit; end if;
   end loop;
   return jsonb_build_object('sym', e ->> 'sym', 'pct', (e ->> 'pct')::integer, 'amount', floor(p_price * (e ->> 'pct')::numeric / 100)::bigint);
 end $$;
 
-/** What a pair pays on average at this price. */
-create or replace function casino.back_average(t jsonb, p_price integer)
+/** What a pair pays on average at this price, with a second pair of another symbol as often as `c` (a pair's chance). */
+create or replace function casino.back_average(t jsonb, p_price integer, c numeric)
 returns numeric language sql immutable set search_path = '' as $$
-  select sum((e ->> 'share')::numeric * floor(p_price * (e ->> 'pct')::numeric / 100)) / nullif(sum((e ->> 'share')::numeric), 0)
-    from jsonb_array_elements(t) e
+  with r as (select (e ->> 'share')::numeric s, floor(p_price * (e ->> 'pct')::numeric / 100) a from jsonb_array_elements(t) e),
+    total as (select sum(s) s, sum(s * a) sa from r)
+  select sum(r.s / total.s * (r.a + coalesce(c, 0) * case when total.s > r.s then (total.sa - r.s * r.a) / (total.s - r.s) else 0 end))
+    from r, total where total.s > 0
 $$;
+/** A reel's symbol by chance, none of `p_not`. */
+create or replace function casino.reel_not(p_not text[])
+returns text language plpgsql volatile set search_path = '' as $$
+declare ids_ text[] := array['seven', 'cherry', 'gold', 'popoto', 'evercold']; x text;
+begin
+  foreach x in array coalesce(p_not, '{}') loop ids_ := array_remove(ids_, x); end loop;
+  return ids_[1 + floor(casino.unit() * array_length(ids_, 1))::integer];
+end $$;
 -- (nor may the table make the coins back average the price or more with the coin prizes the desk has now: Codex's check)
 do $$ declare s public.casino_live_settings; back_ numeric; begin
   select * into s from public.casino_live_settings where id = 1;
   if s.mode = 'pool' then
-    select coalesce(sum((stock - issued)::numeric * case when id = 'pair' then casino.back_average(s.back_table, s.price) else amount end), 0)
+    select coalesce(sum((stock - issued)::numeric * case when id = 'pair' then casino.back_average(s.back_table, s.price, (stock - issued)::numeric / greatest(1, s.pool_size - s.pool_draws)) else amount end), 0)
       / greatest(1, s.pool_size - s.pool_draws) into back_ from public.casino_live_prizes where active and kind = 'coin';
   else
-    select coalesce(sum(chance / 100 * case when id = 'pair' then casino.back_average(s.back_table, s.price) else amount end), 0) into back_
+    select coalesce(sum(chance / 100 * case when id = 'pair' then casino.back_average(s.back_table, s.price, chance / 100) else amount end), 0) into back_
       from public.casino_live_prizes where active and kind = 'coin';
   end if;
   if back_ >= s.price then raise exception 'With this paytable the coins back would average % a spin, the price or more: lower the coin prizes in the desk first', round(back_, 1); end if;
@@ -88,7 +106,7 @@ declare me uuid := town.member(); s public.casino_live_settings; a public.casino
   prize_ jsonb; reels_ jsonb; n numeric; edge numeric := 0; total_ integer; sample_ integer;
   now_ timestamptz := clock_timestamp(); name_ text; first_ text;
   admin_ boolean := casino.live_admin_allowed(); test_ boolean; trail_ jsonb := '{}'::jsonb;
-  win_ bigint; note_ bigint; char_ bigint; before_ bigint; tier_ text; back_ jsonb;
+  win_ bigint; note_ bigint; char_ bigint; before_ bigint; tier_ text; back_ jsonb; back2_ jsonb; c_ numeric; front_ boolean; x_ text; y_ text; z_ text;
 begin
   if p_request is null or p_machine is null or p_machine not between 1 and 5 or
     (p_force is not null and p_force not in ('miss', 'seven', 'cherry', 'gold', 'popoto', 'evercold', 'pair')) then raise exception 'Invalid spin'; end if;
@@ -144,16 +162,33 @@ begin
     if won.kind = 'gil' and won.amount > s.budget - s.reserved then raise exception 'Prize exceeds remaining Gil budget'; end if;
     update public.casino_live_prizes set issued = issued + 1 where id = won.id;
     -- (the pair: the paytable says which symbol and how much of the price comes back)
-    if won.id = 'pair' then back_ := casino.back_of(s.back_table, s.price); won.name := (back_ ->> 'amount') || ' Casino Coin'; won.amount := (back_ ->> 'amount')::bigint; end if;
+    if won.id = 'pair' then
+      back_ := casino.back_of(s.back_table, s.price);
+      -- (as often as a pair comes, the other half is a pair of another symbol too: both paid, as a player sees two)
+      c_ := case when s.mode = 'pool' then (won.stock - won.issued)::numeric / greatest(1, s.pool_size - s.pool_draws) else won.chance / 100 end;
+      if casino.unit() < c_ then back2_ := casino.back_of(s.back_table, s.price, back_ ->> 'sym'); end if;
+      won.amount := (back_ ->> 'amount')::bigint + coalesce((back2_ ->> 'amount')::bigint, 0);
+      won.name := won.amount || ' Casino Coin';
+    end if;
     prize_ := jsonb_build_object('id', won.id, 'name', won.name, 'kind', won.kind, 'amount', won.amount, 'announce', won.announce, 'test', test_);
     -- (and which row of the paytable paid it, for the page to say: a part of the price come back, or more)
-    if back_ is not null then prize_ := prize_ || jsonb_build_object('sym', back_ -> 'sym', 'pct', back_ -> 'pct'); end if;
+    if back_ is not null then prize_ := prize_ || jsonb_build_object('sym', back_ -> 'sym', 'pct', back_ -> 'pct',
+      'parts', jsonb_build_array(back_ -> 'amount') || case when back2_ is null then '[]'::jsonb else jsonb_build_array(back2_ -> 'amount') end,
+      'syms', jsonb_build_array(back_ -> 'sym') || case when back2_ is null then '[]'::jsonb else jsonb_build_array(back2_ -> 'sym') end); end if;
   end if;
-  -- The reels: a symbol's prize four of it; the pair its paytable symbol on the first two and neither of the others; a miss the first two unlike.
-  first_ := coalesce(back_ ->> 'sym', casino.reel());
+  -- The reels: a symbol's prize four of it; a pair its symbol on the front two or the back two, the other half its second
+  -- pair or two unlike; a miss no two side by side alike. Every pair a player sees is paid, and nothing else looks like one.
   if won.id is not null and won.id <> 'pair' then reels_ := jsonb_build_array(won.id, won.id, won.id, won.id);
-  elsif won.id = 'pair' then reels_ := jsonb_build_array(first_, first_, casino.reel(first_), casino.reel(first_));
-  else reels_ := jsonb_build_array(first_, casino.reel(first_), casino.reel(), casino.reel());
+  elsif won.id = 'pair' then
+    first_ := back_ ->> 'sym'; front_ := casino.unit() < 0.5;
+    if back2_ is not null then x_ := back2_ ->> 'sym'; y_ := x_;
+    elsif front_ then x_ := casino.reel_not(array[first_]); y_ := casino.reel_not(array[x_]);
+    else y_ := casino.reel_not(array[first_]); x_ := casino.reel_not(array[y_]);
+    end if;
+    reels_ := case when front_ then jsonb_build_array(first_, first_, x_, y_) else jsonb_build_array(x_, y_, first_, first_) end;
+  else
+    first_ := casino.reel(); x_ := casino.reel_not(array[first_]); y_ := casino.reel_not(array[x_]); z_ := casino.reel_not(array[y_]);
+    reels_ := jsonb_build_array(first_, x_, y_, z_);
   end if;
   select coalesce(character_name, display_name, discord_username, 'Tester'), character_id into name_, char_ from public.profiles where id = me;
 
@@ -242,13 +277,13 @@ begin
   if p_doc ->> 'mode' = 'pool' and (available_ > (p_doc ->> 'pool_size')::integer - s.pool_draws or
     future_ > (p_doc ->> 'budget')::bigint - s.reserved) then raise exception 'Pool exceeds remaining draws or Gil budget'; end if;
   -- (the pair's own amount is what its paytable pays on average at this price: what the desk and the sums read)
-  update public.casino_live_prizes set amount = greatest(1, round(casino.back_average(table_, (p_doc ->> 'price')::integer))) where id = 'pair';
+  update public.casino_live_prizes set amount = greatest(1, round(casino.back_average(table_, (p_doc ->> 'price')::integer, chance / 100))) where id = 'pair';
   -- Coins paid back must average under the price: else the free coins alone would spin for ever.
   if p_doc ->> 'mode' = 'pool' then
-    select coalesce(sum((stock - issued)::numeric * case when id = 'pair' then casino.back_average(table_, (p_doc ->> 'price')::integer) else amount end), 0) / greatest(1, (p_doc ->> 'pool_size')::integer - s.pool_draws) into back_
+    select coalesce(sum((stock - issued)::numeric * case when id = 'pair' then casino.back_average(table_, (p_doc ->> 'price')::integer, (stock - issued)::numeric / greatest(1, (p_doc ->> 'pool_size')::integer - s.pool_draws)) else amount end), 0) / greatest(1, (p_doc ->> 'pool_size')::integer - s.pool_draws) into back_
       from public.casino_live_prizes where active and kind = 'coin';
   else
-    select coalesce(sum(chance / 100 * case when id = 'pair' then casino.back_average(table_, (p_doc ->> 'price')::integer) else amount end), 0) into back_ from public.casino_live_prizes where active and kind = 'coin';
+    select coalesce(sum(chance / 100 * case when id = 'pair' then casino.back_average(table_, (p_doc ->> 'price')::integer, chance / 100) else amount end), 0) into back_ from public.casino_live_prizes where active and kind = 'coin';
   end if;
   if back_ >= (p_doc ->> 'price')::integer then raise exception 'Coins paid back must average under the price'; end if;
   insert into public.casino_live_audit (actor, action, detail) values (me, 'settings', jsonb_build_object('before', to_jsonb(s), 'prizes', p_doc));
@@ -262,7 +297,7 @@ begin
 end $$;
 
 -- (back_table_ok stays callable by all: it reads nothing, and the settings' check asks it of whoever writes the row)
-revoke all on function casino.back_of(jsonb, integer), casino.back_average(jsonb, integer) from public, anon, authenticated;
+revoke all on function casino.back_of(jsonb, integer, text), casino.back_average(jsonb, integer, numeric), casino.reel_not(text[]) from public, anon, authenticated;
 revoke all on function public.casino_live_spin(uuid, integer, text, bigint), public.casino_live_save(bigint, jsonb) from public, anon;
 grant execute on function public.casino_live_spin(uuid, integer, text, bigint), public.casino_live_save(bigint, jsonb) to authenticated;
 

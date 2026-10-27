@@ -81,22 +81,36 @@ try {
     ['[{"sym":"cherry","pct":10.5,"share":1},{"sym":"popoto","pct":20,"share":1},{"sym":"gold","pct":30,"share":1},{"sym":"seven","pct":50,"share":1},{"sym":"evercold","pct":80,"share":1}]', "a part not whole"],
     ['[{"sym":"cherry","pct":"10","share":1},{"sym":"popoto","pct":20,"share":1},{"sym":"gold","pct":30,"share":1},{"sym":"seven","pct":50,"share":1},{"sym":"evercold","pct":80,"share":1}]', "a part as words"],
   ]) await fails(`update public.casino_live_settings set back_table = '${bad}'`, `the settings refuse a table with ${what}`);
-  for (const f of ["casino.back_of(jsonb,integer)", "casino.back_average(jsonb,integer)"]) eq((await one(`select has_function_privilege('authenticated', '${f}', 'execute') r`)).r, false, `nobody calls ${f}`);
+  for (const f of ["casino.back_of(jsonb,integer,text)", "casino.back_average(jsonb,integer,numeric)", "casino.reel_not(text[])"]) eq((await one(`select has_function_privilege('authenticated', '${f}', 'execute') r`)).r, false, `nobody calls ${f}`);
 
   // ── pairs, forced in the trial, many ──
   await as(ADMIN, "select public.casino_live_buy($1, $2) r", [uuid(90000), 60000]);
   const c0 = await chips(ADMIN), N = 400, seen = {};
-  let paid = 0, bad = [];
+  let paid = 0, bad = [], doubles = 0, fronts = 0;
+  /** The pairs a player sees: the front two alike, the back two alike (never across the middle unless four alike). */
+  const seenPairs = (reels) => [reels[0] === reels[1] ? reels[0] : null, reels[2] === reels[3] ? reels[2] : null].filter(Boolean);
   for (let i = 0; i < N; i++) {
     const r = await spin(ADMIN, "pair");
     const p = r?.prize;
     if (!p) { bad.push(r); continue; }
     seen[p.sym] = (seen[p.sym] ?? 0) + 1; paid += Number(p.amount);
-    if (Number(p.amount) !== PCT[p.sym] || p.pct !== PCT[p.sym] || p.name !== `${PCT[p.sym]} Casino Coin` || r.reels[0] !== p.sym || r.reels[1] !== p.sym || r.reels[2] === p.sym || r.reels[3] === p.sym) bad.push(r);
+    const parts = (p.parts ?? []).map(Number), syms = p.syms ?? [];
+    if (syms.length === 2) doubles++;
+    if (r.reels[0] === p.sym && r.reels[1] === p.sym) fronts++;
+    const right = parts.length === syms.length && parts.every((a, k) => a === PCT[syms[k]]) && Number(p.amount) === parts.reduce((n, a) => n + a, 0)
+      && syms[0] === p.sym && p.pct === PCT[p.sym] && p.name === `${p.amount} Casino Coin` && r.reels[1] !== r.reels[2]
+      && JSON.stringify(seenPairs(r.reels).sort()) === JSON.stringify([...syms].sort()) && new Set(syms).size === syms.length;
+    if (!right) bad.push(r);
   }
-  eq(bad.length, 0, `every pair pays its row: a part of the price, its symbol on the first two, neither of the others (${JSON.stringify(bad[0] ?? null)?.slice(0, 200)})`);
+  eq(bad.length, 0, `every pair pays its row, and every pair seen is paid: no more, no less (${JSON.stringify(bad[0] ?? null)?.slice(0, 260)})`);
+  ok(doubles / N > 0.12 && doubles / N < 0.28, `a second pair about as often as a pair comes, 20 in 100 (${doubles / N})`);
+  ok(fronts / N > 0.38 && fronts / N < 0.62, `the pair on the front two about half the time (${fronts / N})`);
+  // a miss: no two side by side alike, so nothing looks paid that is not
+  const M = 60; let fake = 0;
+  for (let i = 0; i < M; i++) { const r = await spin(ADMIN, "miss"); paid += 0; if (r?.prize || r.reels[0] === r.reels[1] || r.reels[1] === r.reels[2] || r.reels[2] === r.reels[3]) fake++; }
+  eq(fake, 0, "no miss shows two alike side by side");
   ok((seen.gold ?? 0) + (seen.seven ?? 0) + (seen.evercold ?? 0) > 0, "some pairs pay more than the price");
-  eq(await chips(ADMIN), c0 - N * 100 + paid, "the account pays the price and gets back what the row says");
+  eq(await chips(ADMIN), c0 - (N + M) * 100 + paid, "the account pays the price and gets back what the rows say");
   const share = (s) => (seen[s] ?? 0) / N;
   ok(share("cherry") > 0.4 && share("cherry") < 0.6, `cherry about 50 in 100 (${share("cherry")})`);
   ok(share("popoto") > 0.2 && share("popoto") < 0.4, `popoto about 30 in 100 (${share("popoto")})`);
@@ -113,7 +127,10 @@ try {
   const t2 = [{ sym: "cherry", pct: 15, share: 50 }, { sym: "popoto", pct: 25, share: 25 }, { sym: "gold", pct: 35, share: 15 }, { sym: "seven", pct: 60, share: 8 }, { sym: "evercold", pct: 90, share: 2 }];
   ok((await doc({ back_table: t2 }))?.settings, "the desk saves a table");
   eq((await one("select back_table t from public.casino_live_settings")).t.map((r) => r.pct), [15, 25, 35, 60, 90], "kept");
-  eq((await one("select amount::int a from public.casino_live_prizes where id = 'pair'")).a, Math.round((50 * 15 + 25 * 25 + 15 * 35 + 8 * 60 + 2 * 90) / 100), "the pair's own amount is the table's average at the price");
+  /** What a pair pays on average with its second as often as c, as the database works it out. */
+  const backAvg = (t, price, c) => { const rows = t.map((r) => ({ s: r.share, a: Math.floor(price * r.pct / 100) })), S = rows.reduce((n, r) => n + r.s, 0), SA = rows.reduce((n, r) => n + r.s * r.a, 0);
+    return rows.reduce((n, r) => n + r.s / S * (r.a + c * (S > r.s ? (SA - r.s * r.a) / (S - r.s) : 0)), 0); };
+  eq((await one("select amount::int a from public.casino_live_prizes where id = 'pair'")).a, Math.round(backAvg(t2, 100, 0.2)), "the pair's own amount is the table's average at the price, its second pair in");
   ok((await doc({}, ["back_table"]))?.settings, "a desk from before v304 saves");
   eq((await one("select back_table t from public.casino_live_settings")).t.map((r) => r.pct), [15, 25, 35, 60, 90], "and leaves the table as it was");
   refused(await doc({ back_table: t2.map((r, i) => i ? r : { ...r, pct: 1001 }) }), "Invalid coin back table", "a part over 1,000% is refused at the desk");
@@ -122,19 +139,20 @@ try {
   refused(await doc({ price: 5 }), "at least 1 Casino Coin", "a price where a row pays nothing is refused");
   ok((await doc({ price: 7 }))?.settings, "a price where every row pays a coin saves");
   const p7 = await spin(ADMIN, "pair");
-  ok(Number(p7?.prize?.amount) >= 1 && Number(p7?.prize?.amount) < 7, `at 7 a pair pays 1 to 6 (${p7?.prize?.amount})`);
+  ok((p7?.prize?.parts ?? []).length > 0 && p7.prize.parts.every((a) => Number(a) >= 1 && Number(a) < 7), `at 7 each pair pays 1 to 6 (${JSON.stringify(p7?.prize?.parts)})`);
   ok((await doc({ price: 100, back_table: table }))?.settings, "back to the first table");
-  // the sum of coins back reads the pair at the table's exact average (22.3), not its rounded amount (22)
-  await db.exec("update public.casino_live_prizes set kind = 'coin', amount = 200, chance = 49.11 where id = 'cherry'; update public.casino_live_prizes set chance = 8 where id = 'pair'");
+  // the sum of coins back reads the pair at the table's exact average with its second (24.32 at 8%), not its rounded amount (24):
+  // 49.03% of 200 and 8% of 24.32 is 100.006, of 24 only 99.98
+  await db.exec("update public.casino_live_prizes set kind = 'coin', amount = 200, chance = 49.03 where id = 'cherry'; update public.casino_live_prizes set chance = 8 where id = 'pair'");
   const old = [{ sym: "cherry", pct: 10, share: 40 }, { sym: "popoto", pct: 20, share: 30 }, { sym: "gold", pct: 30, share: 18 }, { sym: "seven", pct: 50, share: 9 }, { sym: "evercold", pct: 80, share: 3 }];
-  refused(await doc({ back_table: old }), "Coins paid back", "coins back of 100.004 a spin at a price of 100 are refused");
+  refused(await doc({ back_table: old }), "Coins paid back", "coins back of 100.006 a spin at a price of 100 are refused");
   // (and the house is ahead on the table as it stands: 20% x 64.5 = 12.9 coins back of 100)
   refused(await doc({ back_table: table.map((r) => ({ ...r, pct: r.pct * 8 > 1000 ? 1000 : r.pct * 8 })) }), "Coins paid back", "a table paying back the price or more on average is refused");
   await db.exec("update public.casino_live_prizes set kind = 'physical', amount = 0, chance = 0.04 where id = 'cherry'; update public.casino_live_prizes set chance = 20 where id = 'pair'");
 
   // ── the wipe takes back what each pair paid ──
   const w = await as(ADMIN, "select public.casino_live_wipe_tests() r");
-  eq(Number(w?.spins), N + 1, "every pair of the trial wiped");
+  eq(Number(w?.spins), N + M + 1, "every spin of the trial wiped");
   eq([await coins(ADMIN), await chips(ADMIN)], [100000, 0], "the Popoto coins back, the trial's Casino Coins gone");
   eq((await one("select issued from public.casino_live_prizes where id = 'pair'")).issued, 0, "and the pair's count");
 } finally {

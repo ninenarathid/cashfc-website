@@ -18,8 +18,8 @@ export type CasinoPrize = {
   id: PrizeId; name: string; kind: 'gil' | 'physical' | 'coin'; amount: number;
   chance: number; stock: number; issued: number; announce: boolean; active: boolean;
 };
-/** v304's `sym` and `pct`: the paytable's row a pair paid, a part of the price come back. */
-export type PrizeSnapshot = Pick<CasinoPrize, 'id' | 'name' | 'kind' | 'amount' | 'announce'> & { test: boolean; sym?: SymbolId; pct?: number };
+/** v304's `sym` and `pct`: the paytable's row a pair paid; `parts` and `syms`: each pair seen and what it paid (two when two). */
+export type PrizeSnapshot = Pick<CasinoPrize, 'id' | 'name' | 'kind' | 'amount' | 'announce'> & { test: boolean; sym?: SymbolId; pct?: number; parts?: number[]; syms?: SymbolId[] };
 /** A row of the coin back's paytable (v304): which symbol on the first two reels, what part of the price, its share of the pairs. */
 export type BackRow = { sym: SymbolId; pct: number; share: number };
 export type CasinoSettings = {
@@ -103,26 +103,26 @@ export function effectiveChance(p: CasinoPrize, s: CasinoSettings, all: CasinoPr
  */
 export function coinsBack(d: Pick<CasinoDraft, 'mode' | 'prizes' | 'pool_size'> & Partial<Pick<CasinoDraft, 'price' | 'back_table'>>, s: Pick<CasinoSettings, 'pool_draws'>): number {
   // (a pair paid by the paytable pays its average at the price, v304)
-  const amountOf = (p: CasinoPrize) => p.id === 'pair' && d.back_table && d.price ? backAverage(d.back_table, d.price) : p.amount;
+  const amountOf = (p: CasinoPrize) => p.id === 'pair' && d.back_table && d.price ? backAverage(d.back_table, d.price, Number(p.chance) / 100) : p.amount;
   const coins = d.prizes.filter(p => p.active && p.kind === 'coin');
   if (d.mode === 'pool') { const left = d.pool_size - s.pool_draws; return left > 0 ? coins.reduce((n, p) => n + (p.stock - p.issued) * amountOf(p), 0) / left : 0; }
   return coins.reduce((n, p) => n + Number(p.chance) / 100 * amountOf(p), 0);
 }
 /** What a row of the paytable pays at this price: a part of it, rounded down, as the database pays it (v304). */
 export const backAmount = (r: Pick<BackRow, 'pct'>, price: number) => Math.floor(price * r.pct / 100);
-/** What a pair pays on average at this price. */
-export function backAverage(t: BackRow[], price: number): number {
-  const shares = t.reduce((n, r) => n + r.share, 0);
-  return shares > 0 ? t.reduce((n, r) => n + r.share * backAmount(r, price), 0) / shares : 0;
+/** What a pair pays on average at this price, with a second pair of another symbol as often as `c` (the pair's chance), as the database works it out. */
+export function backAverage(t: BackRow[], price: number, c = 0): number {
+  const shares = t.reduce((n, r) => n + r.share, 0), all = t.reduce((n, r) => n + r.share * backAmount(r, price), 0);
+  return shares > 0 ? t.reduce((n, r) => n + r.share / shares * (backAmount(r, price) + c * (shares > r.share ? (all - r.share * backAmount(r, price)) / (shares - r.share) : 0)), 0) : 0;
 }
 /** Each row of the paytable with what it pays and its chance a spin, the pair's chance shared out. */
 export function backRows(t: BackRow[], price: number, chance: number) {
   const shares = t.reduce((n, r) => n + r.share, 0);
   return t.map(r => ({ ...r, amount: backAmount(r, price), chance: shares > 0 ? chance * r.share / shares : 0 }));
 }
-/** What a win is said to be, after the winner's name (a pair of the paytable by its coins, as a player reads it). */
-export const wonWords = (p: Pick<PrizeSnapshot, 'name' | 'amount' | 'pct'>) =>
-  p.pct === undefined ? `ได้ ${p.name}` : `ได้ ${money(Number(p.amount))} Casino Coin`;
+/** What a win is said to be, after the winner's name (pairs of the paytable by their coins, as a player reads them: "200 + 20"). */
+export const wonWords = (p: Pick<PrizeSnapshot, 'name' | 'amount' | 'pct' | 'parts'>) =>
+  p.pct === undefined ? `ได้ ${p.name}` : `ได้ ${(p.parts?.length ? p.parts : [p.amount]).map(a => money(Number(a))).join(' + ')} Casino Coin`;
 export function draftProblem(d: CasinoDraft, s: CasinoSettings): string | null {
   if (!d.title.trim() || d.title.length > 100) return 'ชื่อกิจกรรมต้องมี 1–100 ตัวอักษร';
   if (![d.price, d.per_player, d.budget, d.pool_size].every(Number.isSafeInteger) ||
