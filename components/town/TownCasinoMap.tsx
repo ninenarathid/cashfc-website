@@ -9,11 +9,13 @@ import { SIT_HERE,SPEED,stepAlong,toIso,type Vec } from '@/lib/town/world';
 import {reelAt,spinRevealed,type CasinoSpin,type SymbolId} from '@/lib/casino';
 import {drawCasinoSymbol} from '@/lib/town/casino-symbol-art';
 import {drawCasinoMarquee} from '@/lib/town/casino-marquee';
-import {CASINO_FURNITURE,casinoScenery} from '@/lib/town/casino-scenery';
+import {CASINO_COUNTER,CASINO_FURNITURE,CASINO_SIZE,casinoScenery} from '@/lib/town/casino-scenery';
 export type CasinoPeer={id:string;name:string;look:string;x:number;y:number;seat:number|null};
 export type CasinoCameraControls=TownMapControls;
 /** (the TEST room's own map keeps the first five: the town's room has ten, lib/town/casino-floor) */
 export const MACHINE_X=CASINO_MACHINE_X.slice(0,5),SPAWN=CASINO_SPAWN;
+/** The floor's cached picture: the room's whole width and depth, as lib/town/casino-room-art makes it. */
+const BG_W=420+CASINO_SIZE.w*32+68,BG_H=140+(CASINO_SIZE.w+CASINO_SIZE.h)*16+62;
 type Walker={pos:Vec;path:Vec[];target:Vec;dx:number;dy:number};
 export default function TownCasinoMap({native,self,peers,spins,selected,clock,pane='none',onReception,onDismiss,onMove,onSelect,onReady,onControls}:{native?:TownMapRuntime;self:CasinoPeer;peers:CasinoPeer[];spins:CasinoSpin[];selected:number;clock:()=>number;pane?:string;onReception?:()=>void;onDismiss?:()=>void;onMove:(x:number,y:number)=>void;onSelect:(n:number)=>void;onReady:(ready:boolean)=>void;onControls:(controls:CasinoCameraControls|null)=>void}){
   const canvas=useRef<HTMLCanvasElement>(null),driver=useRef<((stamp:number)=>void)|null>(null),live=useRef({native,self,peers,spins,selected,clock,pane,onReception,onDismiss,onMove,onSelect,onReady});live.current={native,self,peers,spins,selected,clock,pane,onReception,onDismiss,onMove,onSelect,onReady};
@@ -71,18 +73,18 @@ export default function TownCasinoMap({native,self,peers,spins,selected,clock,pa
       const point=(x:number,y:number,z=0)=>{const p=xy(x,y);return {x:p.x,y:p.y-z*v.s};};
       const scenery=casinoScenery(ctx,point,v.s);
       if(!background.current){
-        const cached=document.createElement('canvas');cached.width=1000;cached.height=650;
+        const cached=document.createElement('canvas');cached.width=BG_W;cached.height=BG_H;
         const c=cached.getContext('2d')!;c.imageSmoothingEnabled=false;
         const project=(x:number,y:number,z=0)=>{const p=toIso(x,y);return{x:p.x+420,y:p.y+140-z};};
         casinoScenery(c,project,1).background();
         // Architecture shares the same native pixels as the furniture and dolls.
         const wall=art.current?.wall;
-        if(wall?.naturalWidth){for(let x=1;x<16;x+=2){const p=project(x,0);c.drawImage(wall,Math.round(p.x-46),Math.round(p.y-100),80,105);}
-          for(let y=1;y<12;y+=2){const p=project(0,y);c.save();c.translate(Math.round(p.x+46),Math.round(p.y-100));c.scale(-1,1);c.drawImage(wall,0,0,80,105);c.restore();}}
+        if(wall?.naturalWidth){for(let x=1;x<CASINO_SIZE.w;x+=2){const p=project(x,0);c.drawImage(wall,Math.round(p.x-46),Math.round(p.y-100),80,105);}
+          for(let y=1;y<CASINO_SIZE.h;y+=2){const p=project(0,y);c.save();c.translate(Math.round(p.x+46),Math.round(p.y-100));c.scale(-1,1);c.drawImage(wall,0,0,80,105);c.restore();}}
         background.current=cached;
       }
       const corner=toScreen(v,{x:-420,y:-140},cw,ch);
-      ctx.drawImage(background.current,Math.round(corner.x),Math.round(corner.y),1000*v.s,650*v.s);
+      ctx.drawImage(background.current,Math.round(corner.x),Math.round(corner.y),BG_W*v.s,BG_H*v.s);
       scenery.lights(stamp,reduced);
       // A lit tile marks the station under the pointer, in the same space as the doll.
       if(hover.current!==null&&hover.current>0)scenery.tile(MACHINE_X[hover.current-1]-.46,3.04,.92,.92,'#e3c37c30',1,'#d4b470');
@@ -135,10 +137,10 @@ export default function TownCasinoMap({native,self,peers,spins,selected,clock,pa
         if(item.kind==='counter')hits.current.push({n:0,x:p.x-65*k,y:p.y-110*k,w:130*k,h:110*k});
       }});
       // A native town banker stands behind the desk; its front lip occludes the feet.
-      objects.push({depth:20,paint:()=>{const p=point(13.3,7.4,28),k=.75*v.s;
+      objects.push({depth:20,paint:()=>{const p=point(CASINO_COUNTER.x+1.3,CASINO_COUNTER.y+.4,28),k=.75*v.s;
         if(bitmap?.npc.naturalWidth)ctx.drawImage(bitmap.npc,1,2773,62,78,Math.round(p.x-29*k),Math.round(p.y-77*k),62*k,78*k);
       }});
-      objects.push({depth:30,paint:()=>{const p=point(13.5,8.5,90);ctx.fillStyle='#ead6a8';ctx.font=(10*v.s)+'px sans-serif';ctx.textAlign='center';ctx.fillText('พนักงาน Casino',p.x,p.y);}});
+      objects.push({depth:30,paint:()=>{const p=point(CASINO_COUNTER.x+1.5,CASINO_COUNTER.y+1.5,90);ctx.fillStyle='#ead6a8';ctx.font=(10*v.s)+'px sans-serif';ctx.textAlign='center';ctx.fillText('พนักงาน Casino',p.x,p.y);}});
       for(const p of people){const a=walkers.current.get(p.id)!;objects.push({depth:a.pos.x+a.pos.y,paint:()=>{
         if(native){const avatar=avatars.find(a=>a.info.id===p.id);if(avatar)native.avatar(ctx,avatar,stamp,dpr);return;}
         const at=xy(a.pos.x,a.pos.y),look=decodeLook(p.look)??defaultLook(p.id),kit=kits.current.get(look.race),k=.85*v.s;

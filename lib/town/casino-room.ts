@@ -28,6 +28,6 @@ export const CASINO_STOOLS: Vec[] = CASINO_MACHINE_X.map((x, i) => casinoOut({ x
 export const stoolAt = (p: Vec) => CASINO_STOOLS.findIndex((s) => Math.abs(s.x - p.x) < 0.1 && Math.abs(s.y - p.y) < 0.1) + 1;
 
 /** The way out: the carpet at the room's foot, where the steps were; stepping onto it takes one back to the kura's door. */
-export const CASINO_EXIT = { tiles: [[CASINO_ROOM.x + 8, CASINO_ROOM.y + 11]] as Array<[number, number]>, at: casinoOut({ x: 8.5, y: 11.7 }) };
+export const CASINO_EXIT = { tiles: [[CASINO_ROOM.x + CASINO_MAP.width / 2, CASINO_ROOM.y + 11]] as Array<[number, number]>, at: casinoOut({ x: CASINO_MAP.width / 2 + .5, y: 11.7 }) };
 /** Where one comes in: the interior's own spawn, two rows up from the way out, on the carpet. */
 export const CASINO_IN: Vec = casinoOut(CASINO_SPAWN);

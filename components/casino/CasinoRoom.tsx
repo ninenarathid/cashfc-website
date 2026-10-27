@@ -28,7 +28,9 @@ type Pending = { id: string; machine: number; force: string | null; revision: nu
  */
 export type CasinoInTown = { session: TownSession; art: CasinoRoomArt; tap: MutableRefObject<((n: number) => void) | null>; onSheet?: (open: boolean) => void;
   /** The town's purse read again: a spin takes its price out of it, and the coins it wins back go in (the town's top bar shows them). */
-  onCoins?: () => void };
+  onCoins?: () => void;
+  /** The Casino Coins held, for the town's status bar while in the casino (v303; null: none to say) */
+  onChips?: (chips: number | null) => void };
 /** A minute sat at a machine without a spin, and one is stood up (the database lets another have it then, v305). */
 const AFK_MS = 60_000;
 /** The TEST room's own map: its five stools on one row, in its own tiles. */
@@ -59,6 +61,10 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
   useEffect(()=>{if(pane==='none')return;const close=(e:KeyboardEvent)=>{const field=e.target instanceof HTMLElement&&!!e.target.closest('input,select,textarea');if(e.key==='Escape'){e.preventDefault();e.stopPropagation();setPane('none');document.querySelector<HTMLCanvasElement>('.casino-town-canvas')?.focus();}else if(!field&&e.key.toLowerCase()==='i')setPane('none');};document.addEventListener('keydown',close,true);return()=>document.removeEventListener('keydown',close,true);},[pane]);
   useEffect(()=>{const openNative=(e:PointerEvent)=>{if(e.target instanceof Element&&e.target.closest('button[aria-keyshortcuts="I"],button[data-town-lines-button]'))setPane('none');};document.addEventListener('pointerdown',openNative,true);return()=>document.removeEventListener('pointerdown',openNative,true);},[]);
   const [clock, setClock] = useState(Date.now());
+  // (the town's status bar says my Casino Coins while I am here)
+  const chipsNow = live && state ? chipsOf(state) : null, onChips = town?.onChips;
+  useEffect(() => { onChips?.(chipsNow); }, [onChips, chipsNow]);
+  useEffect(() => () => onChips?.(null), [onChips]);
   const [self, setSelf] = useState<CasinoPeer>({ id: '', name: 'Tester', look: '', ...SPAWN, seat: null });
   const [peers, setPeers] = useState<CasinoPeer[]>([]), [cheer, setCheer] = useState('');
   const [sound, setSound] = useState(false), [result, setResult] = useState<CasinoSpin | null>(null);
@@ -137,6 +143,7 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
   // and a minute without a spin stands one up for the next player, as the database lets another have it then)
   const lastPlay = useRef(0), heldSeat = useRef<number | null>(null);
   const select = async (n: number) => { if(walker){
+    resitting.current = true;
     if(live&&town&&client){
       const {data,error:failed}=await client.rpc('casino_live_seat',{p_machine:n});
       const r=data as {ok?:boolean;why?:string;name?:string}|null;
@@ -233,6 +240,15 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
       setError('ไม่ได้หมุนเกิน 1 นาที ลุกจากเครื่องให้คนอื่นเล่นแล้ว');
     }
   }, [clock, self.seat, town, live, client, walker, stools, setError, busy, state]);
+  // (standing up from the machine whose sheet is open shuts the sheet; sitting down at another keeps it, for that one: the
+  // owner, 2026-10-27, "ตอนกด x เพื่อลุกออกจากเครื่อง ถ้าเปิด UI เครื่องนั้นอยู่ช่วยปิดด้วย")
+  // (not the moment of standing that sitting down again takes: `resitting` from a tap on a machine till one sits)
+  const wasSeat = useRef<number | null>(null), resitting = useRef(false);
+  useEffect(() => {
+    if (self.seat === selected) resitting.current = false;
+    if (wasSeat.current && !self.seat && selected === wasSeat.current && !resitting.current) setPane(p => p === 'slots' ? 'none' : p);
+    wasSeat.current = self.seat;
+  }, [self.seat, selected]);
   // (leaving the casino lets the machine go at once, not a minute on: Codex's check)
   useEffect(() => () => { if (heldSeat.current && client) void client.rpc('casino_live_seat', { p_machine: null }); }, [client]);
   const sendCheer = (text: string) => {
@@ -263,7 +279,7 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
     <section className="casino-room" aria-label="Casino laboratory">
       {!town && <CasinoMap native={native} self={self} peers={peers} spins={state.spins} selected={selected} clock={now} pane={pane} onMove={move} onSelect={select} onReception={()=>setPane('desk')} onDismiss={()=>setPane('none')} onReady={setArrived} onControls={setCamera} />}
       {!native && !town && <CasinoTownHud coins={state.account.coins} remaining={Math.max(0, remaining)} allowance={s.per_player} people={peers.length + 1} connected={connected} live={live} admin={realAdmin} pane={pane} onPane={setPane} onChat={sendCheer} sound={sound} onSound={() => { if (!sound) { audio.current ??= new AudioContext(); void audio.current.resume(); } setSound(!sound); }} camera={camera} />}
-      {(native||town)&&<TownFoot rank="corner"><div className="casino-map-label tk tk-plate"><span>Casino {!live&&<small className="casino-test">TEST</small>}{trial&&<small className="casino-test">ทดสอบแอดมิน</small>}</span>{chips!==null&&<button className="tk tk-slot casino-chip-count" aria-label={`Casino Coin ${money(chips)} · แลกและรับฟรีที่เคาน์เตอร์`} aria-expanded={pane==='desk'} onClick={()=>setPane(p=>p==='desk'?'none':'desk')}>{money(chips)}<small>Casino Coin</small></button>}<button className="tk tk-slot" aria-label="ผลในห้อง" aria-expanded={pane==='feed'} onClick={()=>setPane(p=>p==='feed'?'none':'feed')}><TownIcon name="history" size={18}/></button></div></TownFoot>}
+      {(native||town)&&<TownFoot rank="corner"><div className="casino-map-label tk tk-plate"><span>Casino {!live&&<small className="casino-test">TEST</small>}{trial&&<small className="casino-test">ทดสอบแอดมิน</small>}</span>{chips!==null&&<button className="tk tk-slot casino-chip-count" aria-label="แลกและรับ Casino Coin ที่เคาน์เตอร์" aria-expanded={pane==='desk'} onClick={()=>setPane(p=>p==='desk'?'none':'desk')}>แลก Coin</button>}<button className="tk tk-slot" aria-label="ผลในห้อง" aria-expanded={pane==='feed'} onClick={()=>setPane(p=>p==='feed'?'none':'feed')}><TownIcon name="history" size={18}/></button></div></TownFoot>}
       {error && <p className="casino-error" role="alert">{error}</p>}
       <div className="casino-lower tk tk-window" role="dialog" aria-label={pane === 'feed' ? 'ผลและเสียงเชียร์' : pane==='desk'?'พนักงาน Casino':`Slot เครื่อง ${selected}`}><button className="casino-panel-close pressable tk tk-slot" aria-label="ปิดหน้าต่าง" onClick={() => setPane('none')}>×</button>
         <div className="casino-play-layout"><section className="casino-console"><h2>เครื่อง {selected}</h2>

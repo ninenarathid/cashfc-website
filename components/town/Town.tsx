@@ -516,6 +516,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   if (T2 && !casinoArtRef.current) casinoArtRef.current = new CasinoRoomArt();
   /** Whether I am in the casino (its sheet is mounted while I am), and what a tap on a machine (1 to 10) or its counter (0) does there. */
   const [inCasino, setInCasino] = useState(false);
+  /** My Casino Coins while I am in the casino (its sheet tells them), for the status bar: null elsewhere. */
+  const [casinoChips, setCasinoChips] = useState<number | null>(null);
   const casinoTap = useRef<((n: number) => void) | null>(null);
   /** Whether the casino's sheet is open (the stand-up button, under it on a phone, gives way to it: X still gets one up). */
   const [casinoSheet, setCasinoSheet] = useState(false);
@@ -5047,7 +5049,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
 
       {/* ── the Popoto Casino ── (its slot sheet, the room's results and its desk, while I am in its room) */}
       {!mapAddon && session && inCasino && casinoArtRef.current && (
-        <Suspense fallback={null}><CasinoInTown session={session} art={casinoArtRef.current} tap={casinoTap} bench={casinoBench} onSheet={setCasinoSheet} onCoins={() => keeper?.purseAgain?.()} /></Suspense>
+        <Suspense fallback={null}><CasinoInTown session={session} art={casinoArtRef.current} tap={casinoTap} bench={casinoBench} onSheet={setCasinoSheet} onCoins={() => keeper?.purseAgain?.()} onChips={setCasinoChips} /></Suspense>
       )}
       {mapAddon?.render({ session, camera: mapAddon.camera, person: (x, y) => { const who = personAt(x, y); if (!who) return false; setPopover(null); setCard({ id: who.id, x: (who.x0 + who.x1) / 2, top: who.y0, bottom: who.y1 }); return true; }, view: (view, width, height) => { Object.assign(cam.current, view, { cw: width, ch: height, ready: true }); hits.current = []; }, avatar: (ctx, a, stamp, dpr) => { const names: Array<() => void> = []; drawAvatar(ctx, a, a.info.id === me.id, names, hits.current, false, Date.now(), stamp, dpr); for (const name of names) name(); } })}
       {/* The top of the map, one row: on the left where this is, whether we are connected and who is here (a tap lists
@@ -5068,6 +5070,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
             </span>
             <span className="flex items-center gap-1.5 leading-none">
               <TownIcon name="coin" size={14} /><span data-coins title={purse.coins.toLocaleString(w.th ? "th-TH" : "en-US")} className="font-data text-meta font-semibold leading-none tabular-nums text-gold">{new Intl.NumberFormat(w.th ? "th-TH" : "en-US", { notation: "compact", maximumFractionDigits: 1 }).format(purse.coins)}</span>
+              {/* In the casino, its own coins beside the purse's (the owner, 2026-10-27) */}
+              {inCasino && casinoChips !== null && (
+                <span data-casino-chips className="ml-1 flex items-center gap-1 leading-none" title={`Casino Coin ${casinoChips.toLocaleString(w.th ? "th-TH" : "en-US")}`}>
+                  <span className="font-data text-label font-semibold leading-none text-muted">Casino</span>
+                  <span className="font-data text-meta font-semibold leading-none tabular-nums text-ink">{new Intl.NumberFormat(w.th ? "th-TH" : "en-US", { notation: "compact", maximumFractionDigits: 1 }).format(casinoChips)}</span>
+                </span>
+              )}
               {/* The meal I am at: how far through it I am */}
               {purse.eating && (
                 <span data-town-meal className="ml-auto flex items-center gap-1">

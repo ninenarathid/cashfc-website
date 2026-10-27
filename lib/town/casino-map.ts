@@ -1,7 +1,7 @@
 import { fromIso, toIso, type Vec } from './world';
 import {CASINO_MACHINE_X,CASINO_MACHINE_Y,CASINO_MAP,CASINO_SPAWN,casinoWalkable} from './casino-floor';
 export {CASINO_MACHINE_X,CASINO_MACHINE_Y,CASINO_MAP,CASINO_SPAWN,casinoWalkable};
-export const CASINO_BOUNDS = { minX:toIso(0,12).x-30,maxX:toIso(16,0).x+30,minY:-140,maxY:toIso(16,12).y+70 };
+export const CASINO_BOUNDS = { minX:toIso(0,CASINO_MAP.height).x-30,maxX:toIso(CASINO_MAP.width,0).x+30,minY:-140,maxY:toIso(CASINO_MAP.width,CASINO_MAP.height).y+70 };
 /** The town's tile coordinates and stepAlong movement, with this interior's own collision grid. */
 export function casinoPath(start:Vec,end:Vec): Vec[] {
   if(!casinoWalkable(end))return [];

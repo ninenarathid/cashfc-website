@@ -46,13 +46,18 @@ async function walkIn(X) {
   await sleep(1500);
   return true;
 }
+/** Sit at machine n, or (the room is wide: a phone sees part of it) the machine nearest the screen's middle that is in sight; which one. */
 async function sitAt(X, n) {
   let box = null;
-  await until(`machine ${n} drawn`, async () => { box = (await casino(X)).boxes.find((b) => b.n === n); return !!box; }, 15000);
+  const size = await X.evaluate(`({ w: innerWidth, h: innerHeight })`);
+  await until(`machine ${n} drawn`, async () => {
+    const seen = (await casino(X)).boxes.filter((b) => b.n > 0 && middle(b)[0] > 20 && middle(b)[0] < size.w - 20 && middle(b)[1] > 90 && middle(b)[1] < size.h - 200);
+    box = seen.find((b) => b.n === n) ?? seen.sort((a, b) => Math.abs(middle(a)[0] - size.w / 2) - Math.abs(middle(b)[0] - size.w / 2))[0] ?? null; return !!box; }, 15000);
   await tap(X, ...middle(box));
   try { await until("the sheet is open", () => X.evaluate(`document.querySelector(".casino-in-town")?.dataset.pane === "slots"`), 10000); }
   catch (e) { await X.shot(`${OUT}/fail-sit.png`); console.log("  (sit failed: " + JSON.stringify({ box, error: await X.evaluate(`document.querySelector(".casino-error")?.innerText ?? null`), pane: await X.evaluate(`document.querySelector(".casino-in-town")?.dataset.pane`) }) + ")"); throw e; }
   await until("sat at the machine", () => X.evaluate(`!document.querySelector(".casino-in-town .casino-spin")?.disabled`), 20000);
+  return box.n;
 }
 const text = (X, sel) => X.evaluate(`document.querySelector(${JSON.stringify(sel)})?.innerText ?? ""`);
 const click = (X, sel) => X.evaluate(`(() => { const e = document.querySelector(${JSON.stringify(sel)}); if (!e || e.disabled) return false; e.click(); return true; })()`);
@@ -64,7 +69,9 @@ const pick = (X, value) => X.evaluate(`(() => { const s = document.querySelector
 
 /** The whole round: no coins at the machine, the counter, free coins, a change, a spin paid in them. */
 async function round(X, label, m, { admin }) {
-  await sitAt(X, admin ? 3 : 2);
+  // (walked up the room first, as a player would: the back wall is out of a phone's sight from the door)
+  await X.evaluate(`${V}.warp(356.5, 117.5)`); await sleep(1500);
+  const at = await sitAt(X, admin ? 5 : 6);
   ok(`${label}: with no Casino Coins the button sends to the counter`, /แลกที่เคาน์เตอร์/.test(await text(X, ".casino-in-town .casino-spin")), await text(X, ".casino-in-town .casino-spin"));
   ok(`${label}: the machine says the coins held`, /Casino Coin\s*0/.test(await text(X, ".casino-in-town .casino-allowance")), await text(X, ".casino-in-town .casino-allowance"));
   ok(`${label}: no simulation button`, !(await X.evaluate(`!!document.querySelector(".casino-simulate-toggle")`)));
@@ -84,7 +91,7 @@ async function round(X, label, m, { admin }) {
   await click(X, ".casino-chips-buy"); await sleep(1800);
   ok(`${label}: changed: 500 Popoto coins for 500 Casino Coins`, (await coinsOf(m)) === purse0 - 500 && (await chipsOf(m)) === 600, { coins: await coinsOf(m), chips: await chipsOf(m), purse0 });
   ok(`${label}: the town's own count of the purse follows`, (await X.evaluate(`window.__townKeeper.purse().coins`)) === shown0 - 500, { shown0, now: await X.evaluate(`window.__townKeeper.purse().coins`) });
-  ok(`${label}: the corner says the coins held`, /600/.test(await text(X, ".casino-chip-count")), await text(X, ".casino-chip-count"));
+  ok(`${label}: the town's status bar says the Casino Coins held`, /600/.test(await text(X, "[data-casino-chips]")), await text(X, "[data-casino-chips]"));
   // popoto changed at the counter, no week's limit (v305): ten popoto into fifty Popoto coins
   const popoto0 = Number((await sql(`select profile_left l from public.town_popoto_left($1)`, [m]))[0].l), coinsP = await coinsOf(m);
   ok(`${label}: the counter offers popoto`, /แลก popoto · มี/.test(await text(X, ".casino-popoto")), await text(X, ".casino-popoto"));
@@ -98,7 +105,7 @@ async function round(X, label, m, { admin }) {
   ok(`${label}: and the sheet is gone from the screen`, await X.evaluate(`getComputedStyle(document.querySelector(".casino-in-town .casino-lower")).display === "none"`));
   await click(X, ".casino-chip-count"); await sleep(500);
   ok(`${label}: and opens it`, (await pane(X)) === "desk");
-  ok(`${label}: the counter offers the way back to the machine`, (await text(X, ".casino-chips-back")).includes(String(admin ? 3 : 2)), await text(X, ".casino-chips-back"));
+  ok(`${label}: the counter offers the way back to the machine`, (await text(X, ".casino-chips-back")).includes(String(at)), await text(X, ".casino-chips-back"));
   await click(X, ".casino-chips-back");
   await until("back at the machine", () => X.evaluate(`document.querySelector(".casino-in-town")?.dataset.pane === "slots" && !document.querySelector(".casino-in-town .casino-spin")?.disabled`), 20000);
   ok(`${label}: the spin is paid in Casino Coins`, /ปั่น · 100 Casino Coin/.test(await text(X, ".casino-in-town .casino-spin")), await text(X, ".casino-in-town .casino-spin"));
@@ -123,6 +130,11 @@ async function round(X, label, m, { admin }) {
   for (let k = 0; k < 6; k++) { await X.send("Input.dispatchMouseEvent", { type: "mouseWheel", x: box.x, y: box.y, deltaX: 0, deltaY: 120 }); await sleep(120); }
   await sleep(400);
   await X.shot(`${OUT}/5-paytable-${label}.png`);
+  // standing up with X shuts the open machine's sheet (the owner, 2026-10-27)
+  await X.evaluate(`document.querySelector("canvas")?.focus()`);
+  for (const type of ["keyDown", "keyUp"]) await X.send("Input.dispatchKeyEvent", { type, key: "x", code: "KeyX", windowsVirtualKeyCode: 88, ...(type === "keyDown" ? { text: "x" } : {}) });
+  await sleep(1500);
+  ok(`${label}: standing up with X shuts the machine's sheet`, (await pane(X)) === "none", await pane(X));
 }
 
 // ── set up: the trial, the pair as v303 set it going, nobody's coins yet ──

@@ -9,7 +9,7 @@
  * the spins (`spins`) and its clock (`clock`), and which machine's sheet is open (`selected`).
  */
 import { reelAt, spinRevealed, type CasinoSpin, type SymbolId } from "../casino";
-import { CASINO_FURNITURE, casinoScenery, type CasinoFurniture } from "./casino-scenery";
+import { CASINO_COUNTER, CASINO_FURNITURE, CASINO_SIZE, casinoScenery, type CasinoFurniture } from "./casino-scenery";
 import { CASINO_MACHINE_X, CASINO_MACHINE_Y } from "./casino-floor";
 import { CASINO_ROOM } from "./casino-room";
 import { drawCasinoMarquee } from "./casino-marquee";
@@ -25,7 +25,7 @@ const LET_GO_MS = 10_000;
 /** The room's own isometric origin (its tile 0, 0) in the tile space's. */
 const ORIGIN = toIso(CASINO_ROOM.x, CASINO_ROOM.y);
 /** The cached floor's size and where the room's origin is in it (TownCasinoMap's own numbers). */
-const BG = { w: 1000, h: 650, ox: 420, oy: 140 };
+const BG = { w: 420 + CASINO_SIZE.w * 32 + 68, h: 140 + (CASINO_SIZE.w + CASINO_SIZE.h) * 16 + 62, ox: 420, oy: 140 };
 
 export class CasinoRoomArt {
   /** The spins the reels and the marquees show, newest first (the database's). */
@@ -74,8 +74,8 @@ export class CasinoRoomArt {
       // (the walls share the furniture's and the dolls' own pixels)
       const wall = this.ready("wall");
       if (wall) {
-        for (let x = 1; x < 16; x += 2) { const p = project(x, 0); c.drawImage(wall, Math.round(p.x - 46), Math.round(p.y - 100), 80, 105); }
-        for (let y = 1; y < 12; y += 2) { const p = project(0, y); c.save(); c.translate(Math.round(p.x + 46), Math.round(p.y - 100)); c.scale(-1, 1); c.drawImage(wall, 0, 0, 80, 105); c.restore(); }
+        for (let x = 1; x < CASINO_SIZE.w; x += 2) { const p = project(x, 0); c.drawImage(wall, Math.round(p.x - 46), Math.round(p.y - 100), 80, 105); }
+        for (let y = 1; y < CASINO_SIZE.h; y += 2) { const p = project(0, y); c.save(); c.translate(Math.round(p.x + 46), Math.round(p.y - 100)); c.scale(-1, 1); c.drawImage(wall, 0, 0, 80, 105); c.restore(); }
       }
       this.floor = cached;
     }
@@ -146,7 +146,7 @@ export class CasinoRoomArt {
     }
     for (const item of CASINO_FURNITURE) push(D + item.x + item.y + item.w + item.h - .5, () => this.furniture(ctx, item, at, s));
     // the town's banker behind the counter, its front lip over his feet (his name is the town's to write, over every head)
-    push(D + 20, () => banker(point(13.3, 7.4, 28), .75 * s));
+    push(D + CASINO_COUNTER.x + CASINO_COUNTER.y + 1, () => banker(point(CASINO_COUNTER.x + 1.3, CASINO_COUNTER.y + .4, 28), .75 * s));
   }
 
   private furniture(ctx: CanvasRenderingContext2D, item: CasinoFurniture, at: (x: number, y: number) => Vec, s: number) {

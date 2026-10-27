@@ -1,12 +1,18 @@
 import type {Vec} from './world';
 
+/** The room's size in tiles: thirty-two wide, so that ten machines stand in one row along the back wall (the owner, 2026-10-27: "ป้ายบัง เครื่องอื่น ช่วยทำแมพให้ใหญ่ขึ้นกว่านี้ด้วย"). */
+export const CASINO_SIZE = { w: 32, h: 12 } as const;
 /** Furniture footprints are shared by the renderer and the movement grid. */
 export const CASINO_FURNITURE = [
   {kind:'sofa',x:1,y:8,w:3,h:2},
-  {kind:'counter',x:12,y:7,w:3,h:2},
+  {kind:'counter',x:22,y:7,w:3,h:2},
+  {kind:'sofa',x:27,y:8,w:3,h:2},
   {kind:'plant',x:0,y:7,w:1,h:1},
-  {kind:'plant',x:15,y:8,w:1,h:1},
+  {kind:'plant',x:12,y:8,w:1,h:1},
+  {kind:'plant',x:31,y:8,w:1,h:1},
 ] as const;
+/** The counter, where the casino's man stands. */
+export const CASINO_COUNTER = CASINO_FURNITURE.find(f => f.kind === 'counter')!;
 export type CasinoFurniture = typeof CASINO_FURNITURE[number];
 type Point = (x:number,y:number,z?:number)=>Vec;
 
@@ -29,9 +35,10 @@ export function casinoScenery(ctx:CanvasRenderingContext2D,point:Point,scale:num
     const p=point(x,y,z);ctx.beginPath();ctx.ellipse(p.x,p.y,rx*scale,ry*scale,0,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();
   };
   const background=()=>{
-    block(0,0,16,12,-12,-1,['#3b383b','#30292b','#4a3a32']);
-    for(let y=0;y<12;y++)for(let x=0;x<16;x++){
-      const edge=x===0||x===15||y===0||y===11;
+    const {w:W,h:H}=CASINO_SIZE,mid=W/2-8;
+    block(0,0,W,H,-12,-1,['#3b383b','#30292b','#4a3a32']);
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+      const edge=x===0||x===W-1||y===0||y===H-1;
       tile(x,y,1,1,edge?'#59675c':(x+y)%2?'#707d6b':'#969981',0,'#4e574a');
       for(let i=0;i<16;i++){
         const a=((x*17+y*31+i*7)%11)/15+.1,b=((x*7+y*13+i*3)%11)/15+.1;
@@ -39,24 +46,25 @@ export function casinoScenery(ctx:CanvasRenderingContext2D,point:Point,scale:num
       }
       line([x+.04,y+.04,0],[x+.96,y+.04,0],'#c2bf9633');
     }
-    tile(1,1.1,14,3.15,'#49303b',.3,'#29222a');
-    tile(1.12,1.22,13.76,2.91,'#824b4a',.5,'#b79356');
-    tile(1.22,1.32,13.56,2.71,'#603a43',.6);
-    for(let y=1.4;y<4;y+=.22)for(let x=1.3;x<14.8;x+=.24){
+    tile(1,1.1,W-2,3.15,'#49303b',.3,'#29222a');
+    tile(1.12,1.22,W-2.24,2.91,'#824b4a',.5,'#b79356');
+    tile(1.22,1.32,W-2.44,2.71,'#603a43',.6);
+    for(let y=1.4;y<4;y+=.22)for(let x=1.3;x<W-1.2;x+=.24){
       const noise=(Math.floor(x*91)+Math.floor(y*113))%5;
       line([x,y,.7],[x+.035,y,.7],noise===0?'#8c566126':'#33233324');
     }
-    for(let x=1.35;x<14.7;x+=.55)line([x,4.02,.8],[x+.2,4.02,.8],'#bb985c',1.5);
-    tile(7.4,9,2.2,3,'#56353c',.5,'#b69258');
-    line([7.6,9,.8],[7.6,12,.8],'#cfaa67',2);line([9.4,9,.8],[9.4,12,.8],'#cfaa67',2);
+    for(let x=1.35;x<W-1.3;x+=.55)line([x,4.02,.8],[x+.2,4.02,.8],'#bb985c',1.5);
+    // (the way in, in the middle of the front wall)
+    tile(mid+7.4,9,2.2,3,'#56353c',.5,'#b69258');
+    line([mid+7.6,9,.8],[mid+7.6,12,.8],'#cfaa67',2);line([mid+9.4,9,.8],[mid+9.4,12,.8],'#cfaa67',2);
     // The entry has actual steps and depth; the carpet continues over their treads.
     for(let step=3;step>=0;step--){
       const y=12+step*.25,z=-4-step*5;
-      block(7.35,y,2.3,.25,z-5,z,['#674c37','#46312b','#392a26']);
-      tile(7.55,y,1.9,.25,'#743c47',z+.5,'#b48d51');
-      line([7.35,y,z],[9.65,y,z],'#c39a5b');
+      block(mid+7.35,y,2.3,.25,z-5,z,['#674c37','#46312b','#392a26']);
+      tile(mid+7.55,y,1.9,.25,'#743c47',z+.5,'#b48d51');
+      line([mid+7.35,y,z],[mid+9.65,y,z],'#c39a5b');
     }
-    for(const x of [7.25,9.75]){
+    for(const x of [mid+7.25,mid+9.75]){
       block(x-.15,11.75,.3,.3,0,38,['#b39058','#684630','#49362b']);
       block(x-.2,11.7,.4,.4,34,39,['#d8b97a','#a07a49','#6b4c35']);
       ellipse(x,11.9,43,4,5,'#d3ae65');
@@ -79,7 +87,8 @@ export function casinoScenery(ctx:CanvasRenderingContext2D,point:Point,scale:num
     }
   };
   const lights=(stamp:number,reduced:boolean)=>{
-    for(const [x,y] of [[1,0],[3,0],[5,0],[7,0],[9,0],[11,0],[13,0],[15,0],[0,1],[0,3],[0,5],[0,7],[0,9],[0,11]]){
+    const lamps=[...Array.from({length:CASINO_SIZE.w/2},(_,i)=>[2*i+1,0]),...Array.from({length:CASINO_SIZE.h/2},(_,i)=>[0,2*i+1])];
+    for(const [x,y] of lamps){
       const base=point(x,y,55),p={x:base.x+(x===0?39:-39)*scale,y:base.y},pulse=reduced?1:1+Math.sin(stamp/1700+x+y)*.025;
       const glow=ctx.createRadialGradient(p.x,p.y,2*scale,p.x,p.y,33*scale);
       glow.addColorStop(0,`rgba(244,195,98,${.2*pulse})`);glow.addColorStop(1,'rgba(244,195,98,0)');
