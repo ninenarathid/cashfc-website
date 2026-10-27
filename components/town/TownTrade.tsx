@@ -290,7 +290,7 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
 
   // (the village's book of fish, read when the bag is opened: lib/town/fish-book)
   const [fishBook, setFishBook] = useState<import("@/lib/town/fish-book").FishBook | null>(null);
-  useEffect(() => { let on = true; void keeper.fishBook?.().then((b) => { if (on) setFishBook(b); }); return () => { on = false; }; }, [keeper]);
+  useEffect(() => { if (view !== "bag") return; let on = true; void keeper.fishBook?.().then((b) => { if (on) setFishBook(b); }); return () => { on = false; }; }, [keeper, view]);
   const now = keeper.now(), purse = keeper.purse(), stall = keeper.stall();
   const due = waiting(purse, now), stamina = staminaOf(purse, now), buff = buffsOf(purse, now)[0] ?? null;
   const eating = purse.eating ? { dish: purse.eating.dish, progress: mealProgress(purse, now), from: purse.eating.from } : null, hand = handOf(purse), wet = !!carried(purse);
