@@ -194,7 +194,7 @@
    the pane inside it scrolls, so a long pane (the paytable open) stays on its parchment */
 /* (only while a pane is open: closed, the sheet is gone, as before) */
 .casino-town-layer:not([data-pane=none]):not([data-pane=bag]) .casino-lower{display:flex;flex-direction:column;overflow:hidden}
-.casino-town-layer .casino-lower>:is(.casino-play-layout,.casino-desk-in-room,.casino-feed){flex:0 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain}
+.casino-town-layer .casino-lower>:is(.casino-play-layout,.casino-desk-in-room,.casino-feed,.casino-mine){flex:0 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain}
 /* Codex's look at the paytable's screens: where a win went on a quieter line of its own; the odds list easier to read;
    the close button clear of the machines' tabs on a phone; the counter's own buttons a fingertip high */
 .casino-result-where{display:block;font-weight:400;font-size:12px;color:var(--color-muted)}
@@ -274,3 +274,7 @@
 @keyframes casino-plus{0%{opacity:0;transform:translateY(6px)}15%{opacity:1;transform:translateY(0)}70%{opacity:1}100%{opacity:0;transform:translateY(-12px)}}
 @keyframes casino-plus-under{0%{opacity:0;transform:translate(-50%,-4px)}15%{opacity:1;transform:translate(-50%,0)}70%{opacity:1}100%{opacity:0;transform:translate(-50%,8px)}}
 @media(prefers-reduced-motion:reduce){.casino-plus{animation:none}.casino-plus.is-under{transform:translateX(-50%)}}
+/* (Codex's look at "ของฉัน": the "+N" on the parchment solid dark brown, gold kept for the dark status bar; on a phone a
+   win's time and machine under its prize, clear of the parchment's edge) */
+.casino-allowance .casino-plus{color:#6b3a0c;text-shadow:none;font-size:15px}
+@media(max-width:639px){.casino-mine li{grid-template-columns:auto minmax(0,1fr)}.casino-mine-at{grid-column:2}}

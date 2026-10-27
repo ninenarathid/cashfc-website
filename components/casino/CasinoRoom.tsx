@@ -85,7 +85,9 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
     const got = data as (Omit<CasinoMine, 'today'> & { ok?: boolean }) | null;
     setMyDay(!failed && got?.ok ? { ...got, today: true } : null);
   }, [client, live]);
-  useEffect(() => { if (pane === 'mine' && !mineTurning) void loadMine(); }, [pane, mineTurning, loadMine]);
+  // (and again when a spin of mine comes in, from this tab or another, and when the town's day turns at 05:00 Bangkok: Codex)
+  const myLatest = state?.spins.find(p => p.user_id === state.user_id)?.id ?? '', townDay = Math.floor((clock + 7_200_000) / 86_400_000);
+  useEffect(() => { if (pane === 'mine' && !mineTurning) void loadMine(); }, [pane, mineTurning, loadMine, myLatest, townDay]);
   const [self, setSelf] = useState<CasinoPeer>({ id: '', name: 'Tester', look: '', ...SPAWN, seat: null });
   const [peers, setPeers] = useState<CasinoPeer[]>([]), [cheer, setCheer] = useState('');
   // (sound is on unless this browser turned it off: the owner's slot sounds, lib/town/casino-sound)
