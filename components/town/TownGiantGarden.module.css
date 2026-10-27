@@ -1,0 +1,100 @@
+/* The farming line's magic garden (ranks 7 to 9): a night bed of enchanted soil under glowing mushrooms, in the
+   town's own pixels (the atlas's giants, soil, sprouts and sparkles). Every light here is the code's, never drawn into
+   a picture (the pixel workflow's rule). */
+.panel {
+  --moss: #8fe39a;
+  --moss-deep: #2f7a4a;
+  --lilac: #c9a6ff;
+  --cream: #f7e7c9;
+  width: min(400px, calc(100vw - 24px));
+  max-height: min(68dvh, 620px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  padding: 12px;
+}
+/* (the button and the panel in one column: TownFoot holds a board's own children to its height, and the panel scrolls
+   inside what is left under the button rather than pushing the button off the top on a small phone) */
+.stack { display: flex; max-height: 100%; min-height: 0; flex-direction: column; align-items: center; }
+.stack > .panel { min-height: 0; flex: 0 1 auto; }
+.panel button { touch-action: manipulation; }
+.title { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.title h3 { flex: 1; min-width: 0; color: #ffe8a8; text-shadow: 0 2px 0 #1a0e06, 0 0 10px #8fe39a55; }
+.chip {
+  display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px;
+  background: #1d2a22; color: var(--moss); box-shadow: 0 0 0 2px #1a0e06, inset 0 -2px 0 #14201a;
+  font-size: var(--text-meta, 12px); white-space: nowrap;
+}
+.chip[data-spent] { color: #d5bb92; }
+
+/* The bed: night above, tilled soil below, the giant standing where the two meet */
+.bed {
+  position: relative; height: 148px; overflow: hidden; isolation: isolate;
+  border: 3px solid #1a0e06; border-radius: 4px;
+  background:
+    linear-gradient(#0f1a24 0 18%, #142430 18% 38%, #1a2f2f 38% 62%, transparent 62%),
+    repeating-linear-gradient(#4a2c17 0 9px, #3d2412 9px 14px) 0 62% / 100% 38% no-repeat,
+    #3d2412;
+  box-shadow: inset 0 0 0 2px #ffffff14, 0 3px 0 #120a05;
+}
+.bed::after {
+  /* the magic's breath over the soil: a band of light that rises and fades */
+  content: ""; position: absolute; inset: auto 0 0; height: 46%; z-index: -1; pointer-events: none;
+  background: radial-gradient(60% 70% at 50% 40%, #8fe39a33, transparent 70%);
+  animation: breathe 3.2s ease-in-out infinite;
+}
+.giant { position: absolute; left: 50%; bottom: 14px; translate: -50% 0; filter: drop-shadow(0 0 6px #8fe39a66) drop-shadow(0 3px 0 #1a0e06aa); animation: bob 2.8s ease-in-out infinite; }
+.giant[data-bloom] { animation: bloom 700ms cubic-bezier(.2, 1.6, .4, 1) both, bob 2.8s ease-in-out 700ms infinite; }
+.glowRing { position: absolute; left: 50%; bottom: 8px; width: 120px; height: 26px; translate: -50% 0; border-radius: 50%; background: radial-gradient(closest-side, #8fe39a66, #8fe39a00); pointer-events: none; }
+.glowRing[data-bloom] { animation: ring 900ms ease-out both; }
+.shroom { position: absolute; bottom: 6px; filter: drop-shadow(0 0 6px #5fe0ff88); }
+.shine { position: absolute; pointer-events: none; animation: twinkle 2.4s ease-in-out infinite; }
+.mote {
+  position: absolute; width: 3px; height: 3px; background: #fff3a0; pointer-events: none;
+  box-shadow: 0 0 4px 2px #ffe27a99; animation: drift 6s ease-in-out infinite;
+}
+.mote[data-tone="lilac"] { background: #efe0ff; box-shadow: 0 0 4px 2px #c9a6ff99; }
+
+/* The crops to choose from: a dark well each, the chosen one lit */
+.crops { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
+.crop { display: flex; min-height: 64px; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 6px 2px; font-size: var(--text-meta, 12px); line-height: 1.2; text-align: center; }
+.crop[aria-pressed="true"] { filter: drop-shadow(0 0 5px #8fe39a88); }
+.crop:disabled { opacity: .45; }
+.count { display: inline-flex; align-items: center; gap: 2px; color: var(--muted, #d5bb92); }
+.count[data-enough] { color: var(--moss); }
+
+/* The planting game: a soil row, the glowing spot to dig, the trowel going to and fro over it */
+.game { margin-top: 10px; }
+.beats { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.track { position: relative; height: 92px; overflow: hidden; border: 3px solid #1a0e06; border-radius: 4px; background: #142430; box-shadow: inset 0 0 0 2px #ffffff14; }
+.soil { position: absolute; inset: auto 0 0; display: flex; height: 44px; align-items: flex-end; overflow: hidden; }
+/* (the trowel's to and fro inside the row's ends, so that it is never cut off by the frame) */
+.lane { position: absolute; inset: 0 18px; }
+.spot {
+  position: absolute; bottom: 4px; height: 36px; border-radius: 50%;
+  background: radial-gradient(closest-side, #e2ffd9cc, #8fe39a77 55%, #8fe39a22);
+  box-shadow: 0 0 0 2px #c8ffc2cc, 0 0 12px 3px #8fe39a99; animation: pulse 1.1s ease-in-out infinite; pointer-events: none;
+}
+.spotShine { position: absolute; bottom: 40px; translate: -50% 0; animation: twinkle 1.6s ease-in-out infinite; pointer-events: none; }
+.planted { position: absolute; bottom: 8px; translate: -50% 0; pointer-events: none; animation: sprout 380ms cubic-bezier(.2, 1.5, .4, 1) both; }
+.cursor { position: absolute; top: 0; bottom: 0; width: 0; pointer-events: none; }
+.cursor::before { content: ""; position: absolute; top: 30px; bottom: 6px; left: -1px; width: 2px; background: #fff3c4; box-shadow: 0 0 6px #ffe27a; }
+.trowel { position: absolute; top: 2px; left: 0; translate: -3px 0; filter: drop-shadow(0 2px 0 #1a0e06); }
+.trowel[data-dig] { animation: dig 180ms ease-out; }
+.note { margin-top: 8px; padding: 6px 8px; background: #1d2a22; box-shadow: 0 0 0 2px #1a0e06; }
+.note[data-tone="miss"] { background: #2e1f14; }
+
+@keyframes breathe { 50% { opacity: .55; translate: 0 -4px; } }
+@keyframes bob { 50% { translate: -50% -2px; } }
+@keyframes bloom { from { scale: .2; opacity: 0; } to { scale: 1; opacity: 1; } }
+@keyframes ring { from { scale: .3; opacity: 1; } to { scale: 2.2; opacity: 0; } }
+@keyframes twinkle { 50% { opacity: .25; scale: .8; } }
+@keyframes drift { 25% { translate: 6px -10px; } 50% { translate: -4px -18px; opacity: .4; } 75% { translate: 5px -8px; } }
+@keyframes pulse { 50% { opacity: .7; } }
+@keyframes sprout { from { scale: .3 .1; opacity: 0; } to { scale: 1; opacity: 1; } }
+@keyframes dig { 50% { translate: -3px 10px; } }
+
+@media (max-width: 480px) { .bed { height: 124px; } .track { height: 84px; } }
+@media (prefers-reduced-motion: reduce) {
+  .bed::after, .giant, .giant[data-bloom], .glowRing[data-bloom], .shine, .mote, .spot, .spotShine, .planted, .trowel[data-dig] { animation: none; }
+}

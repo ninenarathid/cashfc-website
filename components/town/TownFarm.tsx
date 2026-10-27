@@ -182,7 +182,7 @@ const PLANT = 0.62;
  * stand high); its young picture at the same scale, so it grows into it. Its foot stands GIANT_FOOT in front of the 2x2's
  * middle, its mound over the four plots.
  */
-const GIANT_MAP = giantMap as { image: string; icons: Record<string, [number, number, number, number]> };
+const GIANT_MAP = giantMap as unknown as { image: string; icons: Record<string, [number, number, number, number]> };
 const GIANT_WIDE = 2 * TILE_W * 0.97, GIANT_TALL = 150, GIANT_FOOT = 20;
 let giantSheet: HTMLImageElement | null = null;
 const giantImage = () => { if (!giantSheet) { giantSheet = new Image(); giantSheet.src = `/town/giants/${GIANT_MAP.image.split("/").pop()}`; } return giantSheet; };
