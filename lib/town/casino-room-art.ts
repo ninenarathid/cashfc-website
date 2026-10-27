@@ -8,6 +8,7 @@
  * What the reels show is the database's: the page that keeps the casino (components/casino/CasinoInTown) hands this
  * the spins (`spins`) and its clock (`clock`), and which machine's sheet is open (`selected`).
  */
+import { drawFountain, winSize } from "./casino-fountain";
 import { reelAt, spinRevealed, type CasinoSpin, type SymbolId } from "../casino";
 import { CASINO_COUNTER, CASINO_FURNITURE, CASINO_SIZE, casinoScenery, type CasinoFurniture } from "./casino-scenery";
 import { CASINO_MACHINE_X, CASINO_MACHINE_Y } from "./casino-floor";
@@ -125,8 +126,8 @@ export class CasinoRoomArt {
           if (rolling || (latest?.prize && t < Date.parse(latest.reveal_at) + 2500)) {
             for (let light = 0; light < 6; light++) { if (rolling && !reduced && Math.floor(now / 150 + light) % 3 === 0) continue; ctx.fillStyle = rolling ? "#f2d58a" : "#b1d6a1"; ctx.fillRect(left + (13 + light * 5) * k, top + (16 + light * .9) * k, 2 * k, 2 * k); }
           }
-          // a win throws chips from the cabinet's window
-          if (latest?.prize && !rolling && !reduced) {
+          // a little win throws chips from the cabinet's window (a big one pours coins out of its tray: below)
+          if (latest?.prize && !rolling && !reduced && winSize(latest) === "none") {
             const sec = (t - Date.parse(latest.reveal_at)) / 1000;
             if (sec >= 0 && sec < 1.8) for (let chip = 0; chip < 14; chip++) {
               const spread = Math.sin(chip * 2.41), launch = 18 + (chip % 5) * 7;
@@ -137,6 +138,13 @@ export class CasinoRoomArt {
           }
           this.boxes.push({ n, x0: left, y0: top, x1: left + 72 * k, y1: top + 90 * k });
         }
+      });
+      // the coins a big win pours out of the tray, over whoever sits at it, under whoever stands nearer (lib/town/casino-fountain)
+      push(D + x + y + 1.6, () => {
+        const latest = spins.find((q) => q.machine === n);
+        if (!latest || !spinRevealed(latest, t)) return;
+        const p = at(x, y);
+        drawFountain(ctx, latest, (t - Date.parse(latest.reveal_at)) / 1000, p.x - 10 * s, p.y - 25 * s, s, reduced);
       });
       push(D + x + y + .95, () => {
         const seat = at(x, y + 1), k = s, chair = this.ready("chair");
