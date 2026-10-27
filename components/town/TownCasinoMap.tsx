@@ -12,7 +12,8 @@ import {drawCasinoMarquee} from '@/lib/town/casino-marquee';
 import {CASINO_FURNITURE,casinoScenery} from '@/lib/town/casino-scenery';
 export type CasinoPeer={id:string;name:string;look:string;x:number;y:number;seat:number|null};
 export type CasinoCameraControls=TownMapControls;
-export const MACHINE_X=CASINO_MACHINE_X,SPAWN=CASINO_SPAWN;
+/** (the TEST room's own map keeps the first five: the town's room has ten, lib/town/casino-floor) */
+export const MACHINE_X=CASINO_MACHINE_X.slice(0,5),SPAWN=CASINO_SPAWN;
 type Walker={pos:Vec;path:Vec[];target:Vec;dx:number;dy:number};
 export default function TownCasinoMap({native,self,peers,spins,selected,clock,pane='none',onReception,onDismiss,onMove,onSelect,onReady,onControls}:{native?:TownMapRuntime;self:CasinoPeer;peers:CasinoPeer[];spins:CasinoSpin[];selected:number;clock:()=>number;pane?:string;onReception?:()=>void;onDismiss?:()=>void;onMove:(x:number,y:number)=>void;onSelect:(n:number)=>void;onReady:(ready:boolean)=>void;onControls:(controls:CasinoCameraControls|null)=>void}){
   const canvas=useRef<HTMLCanvasElement>(null),driver=useRef<((stamp:number)=>void)|null>(null),live=useRef({native,self,peers,spins,selected,clock,pane,onReception,onDismiss,onMove,onSelect,onReady});live.current={native,self,peers,spins,selected,clock,pane,onReception,onDismiss,onMove,onSelect,onReady};

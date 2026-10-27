@@ -10,7 +10,7 @@
  */
 import { reelAt, spinRevealed, type CasinoSpin, type SymbolId } from "../casino";
 import { CASINO_FURNITURE, casinoScenery, type CasinoFurniture } from "./casino-scenery";
-import { CASINO_MACHINE_X } from "./casino-floor";
+import { CASINO_MACHINE_X, CASINO_MACHINE_Y } from "./casino-floor";
 import { CASINO_ROOM } from "./casino-room";
 import { drawCasinoMarquee } from "./casino-marquee";
 import { drawCasinoSymbol } from "./casino-symbol-art";
@@ -32,11 +32,11 @@ export class CasinoRoomArt {
   spins: () => CasinoSpin[] = () => [];
   /** The database's clock. */
   clock: () => number = () => Date.now();
-  /** The machine whose sheet is open (1 to 5), or 0. */
+  /** The machine whose sheet is open (1 to 10), or 0. */
   selected = 0;
   /** Whether the open sheet covers the machines on a phone (their marquees are then left out). */
   sheetOpen = false;
-  /** The tap boxes of this frame: a machine or its stool (1 to 5) and the counter (0). */
+  /** The tap boxes of this frame: a machine or its stool (1 to 10) and the counter (0). */
   boxes: Array<{ n: number; x0: number; y0: number; x1: number; y1: number }> = [];
   private art: Partial<Record<Sprite, HTMLImageElement>> = {};
   private floor: HTMLCanvasElement | null = null;
@@ -86,7 +86,7 @@ export class CasinoRoomArt {
     // the open sheet's machine, its stool's tile lit
     if (this.selected) {
       const point = this.point(screen, s);
-      casinoScenery(ctx, point, s).tile(CASINO_MACHINE_X[this.selected - 1] - .44, 3.06, .88, .88, "#dec18e16", .8, "#c9aa61");
+      casinoScenery(ctx, point, s).tile(CASINO_MACHINE_X[this.selected - 1] - .44, CASINO_MACHINE_Y[this.selected - 1] + .56, .88, .88, "#dec18e16", .8, "#c9aa61");
     }
     ctx.restore();
   }
@@ -106,10 +106,10 @@ export class CasinoRoomArt {
     const point = this.point(screen, s), at = (x: number, y: number) => point(x, y), spins = this.spins(), t = this.clock();
     const glyph = (id: SymbolId, x: number, y: number, size: number) => drawCasinoSymbol(ctx, id, x, y, size);
     const D = CASINO_ROOM.x + CASINO_ROOM.y;
-    for (let n = 1; n <= 5; n++) {
-      const x = CASINO_MACHINE_X[n - 1];
-      push(D + x + 2.5, () => {
-        const p = at(x, 2.5), k = s, latest = spins.find((q) => q.machine === n), rolling = !!latest && !spinRevealed(latest, t);
+    for (let n = 1; n <= CASINO_MACHINE_X.length; n++) {
+      const x = CASINO_MACHINE_X[n - 1], y = CASINO_MACHINE_Y[n - 1];
+      push(D + x + y, () => {
+        const p = at(x, y), k = s, latest = spins.find((q) => q.machine === n), rolling = !!latest && !spinRevealed(latest, t);
         const slot = this.ready("slot");
         if (slot) {
           const left = p.x - 40 * k, top = p.y - 85 * k;
@@ -135,8 +135,8 @@ export class CasinoRoomArt {
           this.boxes.push({ n, x0: left, y0: top, x1: left + 72 * k, y1: top + 90 * k });
         }
       });
-      push(D + x + 3.45, () => {
-        const seat = at(x, 3.5), k = s, chair = this.ready("chair");
+      push(D + x + y + .95, () => {
+        const seat = at(x, y + 1), k = s, chair = this.ready("chair");
         this.boxes.push({ n, x0: seat.x - 20 * k, y0: seat.y - 38 * k, x1: seat.x + 20 * k, y1: seat.y + 7 * k });
         if (chair) { ctx.save(); ctx.imageSmoothingEnabled = false; ctx.drawImage(chair, Math.round(seat.x - 14 * k), Math.round(seat.y - 43 * k), 28 * k, 43 * k); ctx.restore(); }
       });
@@ -161,11 +161,11 @@ export class CasinoRoomArt {
    */
   drawSigns(ctx: CanvasRenderingContext2D, screen: Screen, s: number, reduced: boolean, sitter: (n: number) => string | null, cw: number) {
     const point = this.point(screen, s), spins = this.spins(), t = this.clock();
-    for (let n = 1; n <= 5; n++) {
+    for (let n = 1; n <= CASINO_MACHINE_X.length; n++) {
       const latest = spins.find((q) => q.machine === n), occupant = sitter(n);
       if (!latest && !occupant && this.selected !== n) continue;
       if (this.sheetOpen && this.selected === n) continue;
-      const p = point(CASINO_MACHINE_X[n - 1], 2.5), x = p.x - 7 * s;
+      const p = point(CASINO_MACHINE_X[n - 1], CASINO_MACHINE_Y[n - 1]), x = p.x - 7 * s;
       if (x - 48 * s < 0 || x + 48 * s > cw) continue;
       if (cw < 640 && this.sheetOpen && p.y - 176 * s < 104) continue;
       drawCasinoMarquee(ctx, n, latest, occupant ?? "พร้อมเล่น", t, x, p.y - 176 * s, s, reduced);
@@ -182,7 +182,7 @@ export class CasinoRoomArt {
     casinoScenery(ctx, this.point(screen, s), s).lights(now, reduced);
   }
 
-  /** The machine (1 to 5), the counter (0) or nothing under a point of the screen, the one drawn last first. */
+  /** The machine (1 to 10), the counter (0) or nothing under a point of the screen, the one drawn last first. */
   hit(x: number, y: number): number | null {
     for (let i = this.boxes.length - 1; i >= 0; i--) { const b = this.boxes[i]; if (x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1) return b.n; }
     return null;

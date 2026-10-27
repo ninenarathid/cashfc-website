@@ -50,7 +50,8 @@ async function sitAt(X, n) {
   let box = null;
   await until(`machine ${n} drawn`, async () => { box = (await casino(X)).boxes.find((b) => b.n === n); return !!box; }, 15000);
   await tap(X, ...middle(box));
-  await until("the sheet is open", () => X.evaluate(`document.querySelector(".casino-in-town")?.dataset.pane === "slots"`), 10000);
+  try { await until("the sheet is open", () => X.evaluate(`document.querySelector(".casino-in-town")?.dataset.pane === "slots"`), 10000); }
+  catch (e) { await X.shot(`${OUT}/fail-sit.png`); console.log("  (sit failed: " + JSON.stringify({ box, error: await X.evaluate(`document.querySelector(".casino-error")?.innerText ?? null`), pane: await X.evaluate(`document.querySelector(".casino-in-town")?.dataset.pane`) }) + ")"); throw e; }
   await until("sat at the machine", () => X.evaluate(`!document.querySelector(".casino-in-town .casino-spin")?.disabled`), 20000);
 }
 const text = (X, sel) => X.evaluate(`document.querySelector(${JSON.stringify(sel)})?.innerText ?? ""`);
@@ -67,6 +68,7 @@ async function round(X, label, m, { admin }) {
   ok(`${label}: with no Casino Coins the button sends to the counter`, /แลกที่เคาน์เตอร์/.test(await text(X, ".casino-in-town .casino-spin")), await text(X, ".casino-in-town .casino-spin"));
   ok(`${label}: the machine says the coins held`, /Casino Coin\s*0/.test(await text(X, ".casino-in-town .casino-allowance")), await text(X, ".casino-in-town .casino-allowance"));
   ok(`${label}: no simulation button`, !(await X.evaluate(`!!document.querySelector(".casino-simulate-toggle")`)));
+  ok(`${label}: ten machines in the room`, new Set((await casino(X)).boxes.map((b) => b.n).filter((n) => n > 0)).size === 10, (await casino(X)).boxes.map((b) => b.n));
   ok(`${label}: no row of machines to pick, the machine named`, !(await X.evaluate(`!!document.querySelector(".casino-in-town .casino-machines")`)) && /เครื่อง \d/.test(await text(X, ".casino-in-town .casino-console h2")));
   await X.shot(`${OUT}/1-machine-no-coins-${label}.png`);
   await click(X, ".casino-in-town .casino-spin"); await sleep(700);
@@ -83,6 +85,13 @@ async function round(X, label, m, { admin }) {
   ok(`${label}: changed: 500 Popoto coins for 500 Casino Coins`, (await coinsOf(m)) === purse0 - 500 && (await chipsOf(m)) === 600, { coins: await coinsOf(m), chips: await chipsOf(m), purse0 });
   ok(`${label}: the town's own count of the purse follows`, (await X.evaluate(`window.__townKeeper.purse().coins`)) === shown0 - 500, { shown0, now: await X.evaluate(`window.__townKeeper.purse().coins`) });
   ok(`${label}: the corner says the coins held`, /600/.test(await text(X, ".casino-chip-count")), await text(X, ".casino-chip-count"));
+  // popoto changed at the counter, no week's limit (v305): ten popoto into fifty Popoto coins
+  const popoto0 = Number((await sql(`select profile_left l from public.town_popoto_left($1)`, [m]))[0].l), coinsP = await coinsOf(m);
+  ok(`${label}: the counter offers popoto`, /แลก popoto · มี/.test(await text(X, ".casino-popoto")), await text(X, ".casino-popoto"));
+  if (popoto0 >= 10) {
+    await click(X, ".casino-popoto-row button:nth-of-type(1)"); await sleep(1800);
+    ok(`${label}: ten popoto changed into fifty Popoto coins`, (await coinsOf(m)) === coinsP + 50 && Number((await sql(`select profile_left l from public.town_popoto_left($1)`, [m]))[0].l) === popoto0 - 10, { coins: await coinsOf(m), coinsP, popoto0 });
+  }
   await X.shot(`${OUT}/3-counter-after-${label}.png`);
   await click(X, ".casino-chip-count"); await sleep(500);
   ok(`${label}: the corner's count closes the counter again`, (await pane(X)) === "none");
@@ -121,7 +130,10 @@ await sql(`update public.casino_live_settings set access = 'admins', open = fals
 await sql(`update public.casino_live_prizes set issued = 0`);
 // (the pair as live has it: 20%, paid by v304's paytable)
 await sql(`update public.casino_live_prizes set name = 'Casino Coin คืน', kind = 'coin', amount = 22, chance = 20, active = true where id = 'pair'`);
-await sql(`delete from public.casino_live_spins where true`); await sql(`delete from public.casino_live_chip_moves where true`); await sql(`update public.casino_live_accounts set chips = 0, spins = 0`);
+await sql(`delete from public.casino_live_spins where true`);
+// (nobody holds a machine from a run before, v305)
+const freeSeats = () => sql(`do $f$ begin if to_regclass('public.casino_live_seats') is not null then delete from public.casino_live_seats; end if; end $f$`);
+await freeSeats(); await sql(`delete from public.casino_live_chip_moves where true`); await sql(`update public.casino_live_accounts set chips = 0, spins = 0`);
 
 const A = await browser("chips-a", { width: 1280, height: 860 });
 try {
@@ -140,6 +152,7 @@ try {
     try {
       await sql(`update public.casino_live_settings set access = 'everyone', open = true where id = 1`);
       await sql(`update public.casino_live_prizes set chance = case id when 'pair' then 20 when 'seven' then 0.02 when 'cherry' then 0.04 when 'gold' then 0.4 when 'popoto' then 6.4 else 0 end`);
+      await freeSeats();
       await enter(B, letter);
       const b = await memberOf(B);
       await sql(`select town.purse_of($1, true)`, [b]); await sql(`update public.town_purses set coins = 3000 where member_id = $1`, [b]);

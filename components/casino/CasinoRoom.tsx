@@ -5,7 +5,7 @@ import type { RealtimeChannel } from '@supabase/supabase-js';
 import { accessOf, backRows, CHIP_PACKS, CHIP_WHY, chipsOf, CLAIM_LABEL, letIn, money, PRIZE_LABEL, reelAt, spinRevealed, whereItGoes, wonWords, type CasinoSpin, type SymbolId } from '@/lib/casino';
 import type { TownSession } from '@/lib/town/session';
 import type { CasinoRoomArt } from '@/lib/town/casino-room-art';
-import { CASINO_EXIT, CASINO_ROOM } from '@/lib/town/casino-room';
+import { CASINO_EXIT, CASINO_ROOM, CASINO_STOOLS } from '@/lib/town/casino-room';
 import { defaultLook, encodeLook, savedLook } from '@/lib/town/look';
 import CasinoMap, { MACHINE_X, SPAWN, type CasinoPeer } from './CasinoMap';
 import CasinoSymbol from './CasinoSymbol';
@@ -29,11 +29,15 @@ type Pending = { id: string; machine: number; force: string | null; revision: nu
 export type CasinoInTown = { session: TownSession; art: CasinoRoomArt; tap: MutableRefObject<((n: number) => void) | null>; onSheet?: (open: boolean) => void;
   /** The town's purse read again: a spin takes its price out of it, and the coins it wins back go in (the town's top bar shows them). */
   onCoins?: () => void };
+/** A minute sat at a machine without a spin, and one is stood up (the database lets another have it then, v305). */
+const AFK_MS = 60_000;
 const CHEERS = ['ลุ้นด้วย!', 'มาแล้ว ๆ!', 'อีกนิดเดียว!', 'ยินดีด้วย!'];
 export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:CasinoInTown}) {
   const nativeRef=useRef(native);nativeRef.current=native;
   // (where the room's own tiles are in the walker's: the town's tile space, or the casino map's own)
   const origin=town?{x:CASINO_ROOM.x,y:CASINO_ROOM.y}:{x:0,y:0};
+  // (each machine's stool where the walker sits: the town's room has ten on two rows, the TEST room's own map five on one)
+  const stools=town?CASINO_STOOLS:MACHINE_X.map(x=>({x:origin.x+x,y:origin.y+3.5}));
   const walker=town?.session??native?.session??null,walkerRef=useRef(walker);walkerRef.current=walker;
   const [history, setHistory] = useState(false), [page, setPage] = useState(0);
   const { client, live, state, error, setError, connected, reload, now } = useCasino(history, page);
@@ -44,7 +48,9 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
   const [busy, setBusy] = useState(false), [recover, setRecover] = useState(false);
   const [pane, setPane] = useState<'none'|'slots'|'bag'|'feed'|'desk'>('none'), [arrived, setArrived] = useState(true);
   // ── Casino Coins (v303): changed from Popoto coins at the counter, and free once a day ──
-  const [pack, setPack] = useState<number>(CHIP_PACKS[0]), [chipNote, setChipNote] = useState('');
+  const [pack, setPack] = useState<number>(CHIP_PACKS[0]), [chipNote, setChipNote] = useState(''), [popotoN, setPopotoN] = useState(10);
+  /** A change of popoto asked and not yet answered: asked again with the same request, so it is never spent twice. */
+  const changing = useRef<{ id: string; n: number; to: string } | null>(null);
   /** A change asked and not yet answered: asked again with the same request, so it is never paid twice. */
   const buying = useRef<{ id: string; n: number } | null>(null);
   useEffect(()=>{if(pane==='none')return;const close=(e:KeyboardEvent)=>{const field=e.target instanceof HTMLElement&&!!e.target.closest('input,select,textarea');if(e.key==='Escape'){e.preventDefault();e.stopPropagation();setPane('none');document.querySelector<HTMLCanvasElement>('.casino-town-canvas')?.focus();}else if(!field&&e.key.toLowerCase()==='i')setPane('none');};document.addEventListener('keydown',close,true);return()=>document.removeEventListener('keydown',close,true);},[pane]);
@@ -94,7 +100,7 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
         const p = entries[entries.length - 1] as unknown as CasinoPeer;
         if (!p || typeof p.name !== 'string' || typeof p.look !== 'string' || !Number.isFinite(p.x) || !Number.isFinite(p.y)) continue;
         list.push({ id, name: p.name.slice(0, 40), look: p.look.slice(0, 12), x: Math.max(.5, Math.min(15.5, p.x)), y: Math.max(1.5, Math.min(11.5, p.y)),
-          seat: Number.isInteger(p.seat) && p.seat! >= 1 && p.seat! <= 5 ? p.seat : null });
+          seat: Number.isInteger(p.seat) && p.seat! >= 1 && p.seat! <= 10 ? p.seat : null });
       }
       if (!gone) setPeers(list);
     });
@@ -119,12 +125,22 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
       if (spinRevealed(spin, clock) && clock - Date.parse(spin.reveal_at) < 1200 && !sounds.current.has(spin.id)) { sounds.current.add(spin.id); play(!!spin.prize); }
     }
   }, [clock, sound, state, play]);
-  useEffect(()=>{const a=walker?.self;if(!a)return;const seat=!a.path.length&&a.info.sit===SIT_HERE&&Math.abs(a.pos.y-origin.y-3.5)<.1?MACHINE_X.findIndex(x=>Math.abs(origin.x+x-a.pos.x)<.1)+1||null:null;
+  useEffect(()=>{const a=walker?.self;if(!a)return;const seat=!a.path.length&&a.info.sit===SIT_HERE?stools.findIndex(p=>Math.abs(p.x-a.pos.x)<.1&&Math.abs(p.y-a.pos.y)<.1)+1||null:null;
     setSelf(p=>({...p,id:a.info.id,name:a.info.name,look:a.info.look??p.look,x:a.info.x,y:a.info.y,seat}));
     // (in the town, whether I am at the open machine is mine to work out: the casino's own map told it)
-    if(town)setArrived(!a.path.length&&Math.hypot(a.pos.x-origin.x-MACHINE_X[selected-1],a.pos.y-origin.y-3.5)<.1);
-  },[clock,walker,town,origin.x,origin.y,selected]);
-  const select = (n: number) => { if(walker){const a=walker.self;const at={x:origin.x+MACHINE_X[n-1],y:origin.y+3.5};const here=!a.path.length&&Math.hypot(a.pos.x-at.x,a.pos.y-at.y)<.1;setSelected(n);setPane('slots');setArrived(here);walker.walkTo(at);walker.sitHere();return;} setSelected(n); setPane('slots'); setArrived(self.x===MACHINE_X[n-1]&&self.y===3.5); setSelf(p => ({ ...p, x: MACHINE_X[n - 1], y: 3.5, seat: n })); };
+    if(town)setArrived(!a.path.length&&Math.hypot(a.pos.x-stools[selected-1].x,a.pos.y-stools[selected-1].y)<.1);
+  },[clock,walker,town,stools,selected]);
+  // ── one player a machine, and the idle stood up (v305) ── (sitting down holds the machine; it is let go on standing up,
+  // and a minute without a spin stands one up for the next player, as the database lets another have it then)
+  const lastPlay = useRef(0), heldSeat = useRef<number | null>(null);
+  const select = async (n: number) => { if(walker){
+    if(live&&town&&client){
+      const {data,error:failed}=await client.rpc('casino_live_seat',{p_machine:n});
+      const r=data as {ok?:boolean;why?:string;name?:string}|null;
+      if(!failed&&r&&!r.ok&&r.why==='taken'){setError(`เครื่อง ${n} มี ${r.name??'คนอื่น'} เล่นอยู่ เลือกเครื่องอื่นได้เลย`);return;}
+      if(!failed&&r?.ok){heldSeat.current=n;lastPlay.current=latestNow.current();setError('');}
+    }
+    const a=walker.self;const at=stools[n-1];const here=!a.path.length&&Math.hypot(a.pos.x-at.x,a.pos.y-at.y)<.1;setSelected(n);setPane('slots');setArrived(here);walker.walkTo(at);walker.sitHere();return;} setSelected(n); setPane('slots'); setArrived(self.x===MACHINE_X[n-1]&&self.y===3.5); setSelf(p => ({ ...p, x: MACHINE_X[n - 1], y: 3.5, seat: n })); };
   const move = (x: number, y: number) => { if(walker){setPane('none');walker.walkTo({x:origin.x+x,y:origin.y+y});return;} if (!casinoWalkable({x,y})) return; setPane('none'); if(self.x!==x||self.y!==y)setArrived(false); setSelf(p => ({ ...p, x, y, seat: null })); };
   // ── in the town ── (the room's drawing is told what the reels show and which machine is open; a tap there comes here)
   const selectRef=useRef(select);selectRef.current=select;
@@ -146,22 +162,23 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
         const uncertain = !failed.code || failed.message.includes('Failed to fetch');
         if (uncertain) setRecover(true); else { pending.current = null; try { sessionStorage.removeItem(key); } catch { /* storage blocked */ } setRecover(false); }
         await reload();
-        setError(uncertain ? 'การเชื่อมต่อขาดช่วง กดตรวจผลครั้งเดิม ระบบจะใช้รหัสเดิมเพื่อป้องกันหักเงินซ้ำ' : failed.message);
+        setError(uncertain ? 'การเชื่อมต่อขาดช่วง กดตรวจผลครั้งเดิม ระบบจะใช้รหัสเดิมเพื่อป้องกันหักเงินซ้ำ' : failed.message.includes('Machine taken') ? `เครื่อง ${request.machine} มีคนเล่นอยู่ เลือกเครื่องอื่นได้เลย` : failed.message);
         return;
       }
       setResult(data as CasinoSpin); setSelected(request.machine); pending.current = null; setRecover(false); town?.onCoins?.();
+      heldSeat.current = request.machine; lastPlay.current = latestNow.current();
       try { sessionStorage.removeItem(key); } catch { /* storage blocked */ }
       await reload();
     } catch { setRecover(true); setError('ยังยืนยันผลไม่ได้ กดตรวจผลครั้งเดิมเพื่อเรียกผลกลับมา'); }
     finally { setBusy(false); }
   };
-  const chipCall = async (name: 'casino_live_buy' | 'casino_live_free', args: Record<string, unknown>, done: (r: { chips?: number; given?: number }) => string) => {
+  const chipCall = async (name: 'casino_live_buy' | 'casino_live_free' | 'casino_live_popoto', args: Record<string, unknown>, done: (r: { chips?: number; given?: number; got?: number }) => string) => {
     if (!client || busy) return;
     setBusy(true); setChipNote('');
     try {
       const { data, error: failed } = await client.rpc(name, args);
       if (failed) { setChipNote(failed.code ? failed.message : 'การเชื่อมต่อขาดช่วง กดอีกครั้งได้ ระบบไม่หักซ้ำ'); if (failed.code) buying.current = null; return; }
-      const r = data as { ok?: boolean; why?: string; chips?: number; given?: number };
+      const r = data as { ok?: boolean; why?: string; chips?: number; given?: number; got?: number };
       buying.current = null;
       setChipNote(r?.ok ? done(r) : CHIP_WHY[r?.why ?? ''] ?? 'ยังทำรายการไม่ได้');
       if (r?.ok) town?.onCoins?.();
@@ -174,6 +191,11 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
     void chipCall('casino_live_buy', { p_request: buying.current.id, p_chips: n }, r => `ได้ ${money(n)} Casino Coin · มีอยู่ ${money(Number(r.chips ?? 0))}`);
   };
   const freeChips = () => void chipCall('casino_live_free', {}, r => `รับฟรี ${money(Number(r.given ?? 0))} Casino Coin แล้ว`);
+  const changePopoto = (to: 'coins' | 'chips') => {
+    if (changing.current?.n !== popotoN || changing.current?.to !== to) changing.current = { id: crypto.randomUUID(), n: popotoN, to };
+    const req = changing.current;
+    void chipCall('casino_live_popoto', { p_request: req.id, p_popoto: req.n, p_to: to }, r => { changing.current = null; return `ได้ ${money(Number(r.got ?? 0))} ${to === 'coins' ? 'Popoto coin' : 'Casino Coin'}`; });
+  };
   const credit = async (reset: boolean) => {
     if (!client || busy) return; setBusy(true);
     const { error } = await client.rpc('casino_lab_credit', { p_reset: reset });
@@ -184,6 +206,26 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
     const { error } = await client.rpc('casino_lab_receipt', { p_id: id, p_action: 'request', p_note: '' });
     if (error) setError(error.message); else await reload(); setBusy(false);
   };
+  // (standing up lets the held machine go; sat a minute without a spin, one is stood up for the next player: the owner,
+  // 2026-10-27, "ถ้ามีคน AFK ตอนเล่น slot machine อยู่ จะมีระบบ auto kick ให้")
+  const satAt = useRef<number | null>(null);
+  const idleLeft = town && live && heldSeat.current && self.seat === heldSeat.current ? Math.max(0, AFK_MS - (clock - lastPlay.current)) : null;
+  useEffect(() => {
+    if (!town || !live || !client || !walker) return;
+    const held = heldSeat.current;
+    if (held && self.seat === held) satAt.current = held;
+    else if (satAt.current && self.seat !== satAt.current) {
+      // (stood up: let it go, unless the machine walked to next is the one held now)
+      if (heldSeat.current === satAt.current) { heldSeat.current = null; void client.rpc('casino_live_seat', { p_machine: null }); }
+      satAt.current = null;
+    }
+    if (held && self.seat === held && clock - lastPlay.current > AFK_MS) {
+      heldSeat.current = null; satAt.current = null; setPane('none');
+      void client.rpc('casino_live_seat', { p_machine: null });
+      const stool = stools[held - 1]; walker.walkTo({ x: stool.x, y: stool.y + 1 });
+      setError('ไม่ได้หมุนเกิน 1 นาที ลุกจากเครื่องให้คนอื่นเล่นแล้ว');
+    }
+  }, [clock, self.seat, town, live, client, walker, stools, setError]);
   const sendCheer = (text: string) => {
     if (Date.now() - lastCheer.current < 2000) return; lastCheer.current = Date.now();
     setCheer(`${self.name}: ${text}`); clearTimeout(cheerTimer.current); cheerTimer.current = setTimeout(() => setCheer(''), 4000);
@@ -201,7 +243,7 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
   const visible = state.spins.filter(p => spinRevealed(p, clock));
   const remaining = s.per_player - state.account.spins;
   // (what a spin takes: Casino Coins once the database has them (v303), the town purse's Popoto coins before)
-  const chips = live ? chipsOf(state) : null, purse = chips ?? state.account.coins, rate = s.chip_rate ?? 1;
+  const chips = live ? chipsOf(state) : null, purse = chips ?? state.account.coins, rate = s.chip_rate ?? 1, bankRate = state.account.bank_rate ?? 5;
   // (the admins' trial is at any hour, for the admins; everybody's within the event's hours)
   const trial = live && accessOf(s) === 'admins';
   const closed = !letIn(s, realAdmin) || (!trial && ((s.starts_at !== null && clock < Date.parse(s.starts_at)) || (s.ends_at !== null && clock >= Date.parse(s.ends_at))));
@@ -217,6 +259,7 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
       <div className="casino-lower tk tk-window" role="dialog" aria-label={pane === 'feed' ? 'ผลและเสียงเชียร์' : pane==='desk'?'พนักงาน Casino':`Slot เครื่อง ${selected}`}><button className="casino-panel-close pressable tk tk-slot" aria-label="ปิดหน้าต่าง" onClick={() => setPane('none')}>×</button>
         <div className="casino-play-layout"><section className="casino-console"><h2>เครื่อง {selected}</h2>
         <p className="casino-allowance">{chips === null ? <>เหลือ {Math.max(0,remaining)} ครั้ง · ครั้งละ {money(s.price)} coin</> : <>Casino Coin <strong>{money(chips)}</strong> · ครั้งละ {money(s.price)} · เหลือ {Math.max(0,remaining)} ครั้ง</>}</p>
+        {idleLeft !== null && idleLeft < 15_000 && <p className="casino-afk" role="status">ไม่ได้หมุนนาน จะลุกจากเครื่องใน {Math.ceil(idleLeft / 1000)} วินาที</p>}
         <div className="casino-reels" aria-label={rolling ? 'กำลังหมุน' : latest ? latest.reels.join(', ') : 'พร้อมเล่น'}>
           {[0, 1, 2, 3].map(i => <div key={i} className={`casino-reel ${rolling && clock < Date.parse(latest!.reveal_at) - (3 - i) * 450 ? 'is-moving' : ''}`}>
             <CasinoSymbol id={latest ? reelAt(latest, i, clock, reduced) : 'popoto'} /></div>)}
@@ -244,8 +287,15 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
           <div className="casino-chips-packs" role="radiogroup" aria-label="จำนวนที่จะแลก">{CHIP_PACKS.map(k => <button key={k} role="radio" aria-checked={pack === k} className="pressable tk tk-slot" onClick={() => setPack(k)}>{k} ครั้ง<small>{money(k * s.price)}</small></button>)}</div>
           <button className="casino-chips-buy pressable tk tk-btn" disabled={busy || !letIn(s, realAdmin) || state.account.coins < pack * s.price * rate} onClick={() => buyChips(pack * s.price)}>
             {state.account.coins < pack * s.price * rate ? `Popoto coin ไม่พอ (ใช้ ${money(pack * s.price * rate)})` : `แลก ${money(pack * s.price)} Casino Coin · ${money(pack * s.price * rate)} Popoto coin`}</button>
+          {/* popoto changed here with no week's limit (v305: the owner, "NPC ใน casino สามารถแลก popoto เป็น popoto coin หรือ casino coin ได้แบบ ไม่มี limit") */}
+          {state.account.popoto_left !== undefined && <div className="casino-popoto">
+            <p className="casino-chips-rate">แลก popoto · มี {money(state.account.popoto_left)} · 1 popoto = {money(bankRate)} Popoto coin</p>
+            <div className="casino-popoto-row"><input aria-label="จำนวน popoto ที่จะแลก" type="number" inputMode="numeric" min={1} max={Math.max(1, Math.min(1000, state.account.popoto_left))} value={popotoN} onChange={e => setPopotoN(Math.max(1, Math.min(1000, Math.floor(Number(e.target.value) || 1))))} />
+              <button className="pressable tk tk-slot" disabled={busy || !letIn(s, realAdmin) || popotoN > state.account.popoto_left} onClick={() => changePopoto('coins')}>เป็น {money(popotoN * bankRate)} Popoto coin</button>
+              <button className="pressable tk tk-slot" disabled={busy || !letIn(s, realAdmin) || popotoN > state.account.popoto_left || Math.floor(popotoN * bankRate / rate) < 1} onClick={() => changePopoto('chips')}>เป็น {money(Math.floor(popotoN * bankRate / rate))} Casino Coin</button></div>
+          </div>}
           {chipNote && <p className="casino-chips-note" role="status">{chipNote}</p>}
-          <button className="casino-chips-back pressable tk tk-slot" onClick={() => select(selected)}>ไปเล่นที่เครื่อง {selected}</button>
+          <button className="casino-chips-back pressable tk tk-slot" onClick={() => void select(selected)}>ไปเล่นที่เครื่อง {selected}</button>
         </div>}
         <p>{town?`แตะตู้หรือเก้าอี้เพื่อเข้าเล่น · ของรางวัลเข้ากล่องรางวัลในเว็บ · Gil เข้ากระเป๋าเงิน${chips === null ? ' · Coin เข้ากระเป๋า Cash Town' : ''}`:'แตะตู้หรือเก้าอี้เพื่อเข้าเล่น · ใบรับสิทธิ์อยู่ในแท็บ Event ของกระเป๋า'}</p>
         <div className="casino-actions"><button className="tk tk-slot" aria-pressed={sound} onClick={()=>{if(!sound){audio.current??=new AudioContext();void audio.current.resume();}setSound(!sound);}}>{sound?'ปิดเสียงสล็อต':'เปิดเสียงสล็อต'}</button>{town?<button className="tk tk-slot" onClick={()=>{setPane('none');walker?.walkTo({x:CASINO_EXIT.tiles[0][0]+.5,y:CASINO_EXIT.tiles[0][1]+.5});}}>เดินออกไปในเมือง</button>:<Link className="tk tk-slot" href="/town?map=town">กลับหมู่บ้าน</Link>}</div>

@@ -202,3 +202,9 @@
 .casino-town-layer .casino-console>h2{min-height:44px;display:flex;align-items:center;margin-bottom:6px}
 .casino-desk-in-room .casino-actions :is(button,a){min-height:44px}
 .casino-town-layer .casino-result{flex-direction:column}
+/* v305: popoto changed at the counter; the warning before an idle player is stood up */
+.casino-popoto{display:grid;gap:6px;padding-top:8px;border-top:1px dashed var(--color-line)}
+.casino-popoto-row{display:grid;grid-template-columns:64px 1fr 1fr;gap:6px}
+.casino-popoto-row input{min-height:44px;min-width:0;padding:6px 8px;font-size:15px;background:var(--color-bg);color:var(--color-ink);border:1px solid var(--color-line-strong);border-radius:4px}
+.casino-popoto-row button{min-height:44px;padding:4px 6px;font-size:12px;line-height:1.3}
+.casino-afk{margin:4px 0;font-size:12px;font-weight:600;color:var(--color-chili)}

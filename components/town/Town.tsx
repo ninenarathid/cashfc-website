@@ -514,7 +514,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // ── the Popoto Casino ── (its interior, drawn by the town's frame; what its reels show is the casino's page's to say)
   const casinoArtRef = useRef<CasinoRoomArt | null>(null);
   if (T2 && !casinoArtRef.current) casinoArtRef.current = new CasinoRoomArt();
-  /** Whether I am in the casino (its sheet is mounted while I am), and what a tap on a machine (1 to 5) or its counter (0) does there. */
+  /** Whether I am in the casino (its sheet is mounted while I am), and what a tap on a machine (1 to 10) or its counter (0) does there. */
   const [inCasino, setInCasino] = useState(false);
   const casinoTap = useRef<((n: number) => void) | null>(null);
   /** Whether the casino's sheet is open (the stand-up button, under it on a phone, gives way to it: X still gets one up). */

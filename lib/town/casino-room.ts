@@ -9,7 +9,7 @@
  * Who may go in is the database's (casino_live_settings.access, v299): nobody, the admins, or everybody; the page keeps
  * the door shut to whoever may not (lib/town/world's setCasinoDoor), and every spin is asked of the database again.
  */
-import { CASINO_MACHINE_X, CASINO_MAP, CASINO_SPAWN, casinoWalkable } from "./casino-floor";
+import { CASINO_MACHINE_X, CASINO_MACHINE_Y, CASINO_MAP, CASINO_SPAWN, casinoWalkable } from "./casino-floor";
 import type { Vec } from "./world";
 
 /** Where the room lies in the tile space: east of the clothes shop (320 to 330), clear of every other map. */
@@ -23,7 +23,7 @@ export const casinoIn = (p: Vec): Vec => ({ x: p.x - CASINO_ROOM.x, y: p.y - CAS
 export const casinoOpen = (tx: number, ty: number) => inCasino(tx, ty) && casinoWalkable({ x: tx - CASINO_ROOM.x + 0.5, y: ty - CASINO_ROOM.y + 0.5 });
 
 /** The stool before each machine, where one sits to play it (machine 1 to 5, left to right). */
-export const CASINO_STOOLS: Vec[] = CASINO_MACHINE_X.map((x) => casinoOut({ x, y: 3.5 }));
+export const CASINO_STOOLS: Vec[] = CASINO_MACHINE_X.map((x, i) => casinoOut({ x, y: CASINO_MACHINE_Y[i] + 1 }));
 /** Which machine's stool a point is on (1 to 5), or 0. */
 export const stoolAt = (p: Vec) => CASINO_STOOLS.findIndex((s) => Math.abs(s.x - p.x) < 0.1 && Math.abs(s.y - p.y) < 0.1) + 1;
 
