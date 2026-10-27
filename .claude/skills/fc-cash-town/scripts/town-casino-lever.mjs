@@ -47,6 +47,8 @@ async function run(label, size, letter) {
     await tap(X, ...middle(gate));
     await until("in the casino", async () => (await casino(X)).place === "casino", 20000);
     await sleep(1500);
+    // (up to the machines first: on a small phone they stand under the town's bars from the door)
+    await X.evaluate(`${V}.warp(352, 117)`); await sleep(1500);
     const wide = await X.evaluate("innerWidth"), high = await X.evaluate("innerHeight");
     let box = null;
     await until("a machine", async () => { const seen = (await casino(X)).boxes.filter((b) => b.n > 0 && b.n < 100 && middle(b)[0] > 20 && middle(b)[0] < wide - 20 && middle(b)[1] > 90 && middle(b)[1] < high - 200); box = seen.sort((a, b) => Math.abs(middle(a)[0] - wide / 2) - Math.abs(middle(b)[0] - wide / 2))[0]; return !!box; }, 15000);
