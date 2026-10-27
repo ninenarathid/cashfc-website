@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import TownIcon, { type IconName } from "./TownIcon";
 import { extractionMarks } from "@/lib/town/reward-actions";
+import { useBeatPress } from "./TownRewardActions";
 import type { GIANT_CROPS } from "@/lib/town/reward-garden";
 import type { CampMiss } from "@/lib/town/reward-camp";
 import { CROPS } from "@/lib/town/items";
@@ -61,9 +62,9 @@ export function GiantPlantingGame({ run, crop, th, retryFirst = false, onFinish,
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
   }, [run.id]);
-  function dig() {
+  function dig(at: number) {
     if (locked.current) return;
-    const mark = (1 - Math.cos((performance.now() - began.current) / 500)) / 2, hit = Math.abs(mark - targets[marks.current.length]) <= WIDTH;
+    const mark = (1 - Math.cos((at - began.current) / 500)) / 2, hit = Math.abs(mark - targets[marks.current.length]) <= WIDTH;
     setDigs((n) => n + 1);
     if (retryFirst && !retried.current && !hit) { retried.current = { index: marks.current.length, mark }; began.current = performance.now(); setRetryNote(true); return; }
     marks.current.push(mark);
@@ -71,6 +72,8 @@ export function GiantPlantingGame({ run, crop, th, retryFirst = false, onFinish,
     setRetryNote(false);
     if (marks.current.length === 3) { locked.current = true; onFinish(marks.current, retried.current); }
   }
+  // (judged as the finger goes down, not as it lifts: TownRewardActions' useBeatPress)
+  const press = useBeatPress(dig);
   return (
     <div className={s.game} data-giant-game>
       <div className={s.beats}>
@@ -93,7 +96,7 @@ export function GiantPlantingGame({ run, crop, th, retryFirst = false, onFinish,
       {retryNote && <p role="status" className={`${s.note} text-ui`}>{th ? "ธงค่ายให้ขุดจังหวะนี้ใหม่ได้หนึ่งครั้ง" : "The camp pennant lets you dig this beat again once."}</p>}
       <div className="mt-2 flex gap-2">
         {aside}
-        <button autoFocus type="button" data-giant-dig disabled={step >= 3} onClick={dig}
+        <button autoFocus type="button" data-giant-dig disabled={step >= 3} {...press}
                 className="pressable tk tk-btn flex min-h-12 flex-1 items-center justify-center gap-2 font-display text-ui font-semibold disabled:opacity-50">
           <TownIcon name={seedIcon(crop)} size={20} />{th ? "ขุดปลูก" : "Dig and plant"}
         </button>

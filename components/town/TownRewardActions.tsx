@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent as KeyPress, type PointerEvent as Press } from "react";
 import type { Keeper, Did } from "@/lib/town/keeper";
 import { works, usesLeft } from "@/lib/town/gifts";
 import { mineralKnowledge, extractionMarks } from "@/lib/town/reward-actions";
@@ -131,17 +131,35 @@ export function TownOreCompass({keeper,th,at,floor}:Props & {floor:number}) {
       </section>}
   </TownFoot>;
 }
+/** A press's own moment, by the clock the line is drawn by (performance.now's): the event's, unless the browser gives none worth trusting. */
+const pressedAt=(e:{nativeEvent:Event})=>{const at=e.nativeEvent.timeStamp,now=performance.now();return at>0&&at<=now&&now-at<1000?at:now;};
+/**
+ * A beat's button, judged as the finger, the mouse or the key goes down. A click comes only as the finger lifts, a
+ * tenth of a second later, and the line has gone on by then by as much as half the band: a press dead on the mark
+ * was taken as a miss (a member, 2026-10-27: "กดมินิเกมถูกแล้วไม่โปรยให้"). A click with no press just before it (a
+ * screen reader's, a script's) is judged when it comes.
+ */
+export function useBeatPress(beat:(at:number)=>void){
+  const pressed=useRef(-Infinity),press=(at:number)=>{pressed.current=performance.now();beat(at);};
+  return {
+    onPointerDown:(e:Press<HTMLButtonElement>)=>{if(e.button===0&&!e.currentTarget.disabled)press(pressedAt(e));},
+    onKeyDown:(e:KeyPress<HTMLButtonElement>)=>{if(e.key!==" "&&e.key!=="Enter")return;e.preventDefault();if(!e.repeat)press(pressedAt(e));},
+    onKeyUp:(e:KeyPress<HTMLButtonElement>)=>{if(e.key===" ")e.preventDefault();},
+    onClick:(e:{nativeEvent:Event})=>{if(performance.now()-pressed.current>1000)beat(pressedAt(e));},
+  };
+}
 export function ExtractionGame({run,onFinish,th,label,width=.09,retryFirst=false}:{run:Pick<ExtractionRun,"seed"|"id">;onFinish:(marks:number[],miss?:import('@/lib/town/reward-camp').CampMiss)=>void;th:boolean;label?:string;width?:number;retryFirst?:boolean}) {
   const cursor=useRef<HTMLSpanElement>(null),began=useRef(0),marks=useRef<number[]>([]),locked=useRef(false);
   const [step,setStep]=useState(0),targets=extractionMarks(run.seed);
   const retried=useRef<import('@/lib/town/reward-camp').CampMiss|undefined>(undefined),[retryNote,setRetryNote]=useState(false);
   useEffect(()=>{let frame=0;began.current=performance.now();function tick(t:number){if(cursor.current)cursor.current.style.left=`${(1-Math.cos((t-began.current)/500))/2*100}%`;frame=requestAnimationFrame(tick);}frame=requestAnimationFrame(tick);return()=>cancelAnimationFrame(frame);},[run.id]);
-  function cut(){if(locked.current)return;const mark=(1-Math.cos((performance.now()-began.current)/500))/2;if(retryFirst&&!retried.current&&Math.abs(mark-targets[marks.current.length])>width){retried.current={index:marks.current.length,mark};began.current=performance.now();setRetryNote(true);return;}marks.current.push(mark);if(marks.current.length===3){locked.current=true;onFinish(marks.current,retried.current);}else{setStep(marks.current.length);setRetryNote(false);}}
+  function cut(at:number){if(locked.current)return;const mark=(1-Math.cos((at-began.current)/500))/2;if(retryFirst&&!retried.current&&Math.abs(mark-targets[marks.current.length])>width){retried.current={index:marks.current.length,mark};began.current=performance.now();setRetryNote(true);return;}marks.current.push(mark);if(marks.current.length===3){locked.current=true;onFinish(marks.current,retried.current);}else{setStep(marks.current.length);setRetryNote(false);}}
+  const press=useBeatPress(cut);
   return <div data-reward-extraction-game className="space-y-3">
     <p className="text-ui">{th?`กดเมื่อเส้นเข้าแถบสี · ${step+1}/3`:`Press when the line enters the coloured band · ${step+1}/3`}</p>
     {retryNote&&<p role="status" className="text-ui">{th?'ธงค่ายให้ลองจังหวะนี้ใหม่ได้หนึ่งครั้ง':'The camp pennant lets you replay this beat once.'}</p>}
     <div className="relative h-8 overflow-hidden rounded bg-ink/15" aria-hidden><span className="absolute inset-y-0 bg-accent/70" style={{left:`${(targets[step]-width)*100}%`,width:`${width*200}%`}}/><span ref={cursor} className="absolute inset-y-0 w-1 bg-ink"/></div>
-    <button autoFocus className={`${button} w-full`} onClick={cut}>{label??(th?"สกัด":"Extract")}</button>
+    <button autoFocus className={`${button} w-full`} {...press}>{label??(th?"สกัด":"Extract")}</button>
   </div>;
 }
 export function TownWoodExtraction({keeper,th,at}:Props) {
