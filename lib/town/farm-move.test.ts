@@ -191,8 +191,8 @@ describe("the mandrake sprout: every fruit of my own plants at the top of its ra
     const byDeed = done(tend(k(1, 1), corn(), MINE, 0, 0, me, "me", NOON));
     expect(byDeed.deed).toBe("pick");
     expect(held(byDeed.purse.bag, "corn", gradeOf(81))).toBe(byDeed.got[0][1]);
-    // a giant (picked at its root, six plots' worth)
-    const giant = ripe("pumpkin", { giant: true, root: k(1, 1), footprint: [k(1, 1), k(2, 1), k(1, 2), k(2, 2)] });
+    // a giant (picked at its root, six plots' worth, once it has been pulled out: lib/town/giant-pull)
+    const giant = ripe("pumpkin", { giant: true, root: k(1, 1), footprint: [k(1, 1), k(2, 1), k(1, 2), k(2, 2)], pull: { by: "me", at: 0, crew: ["me"], go: 1, hits: {}, paid: [], out: 1, bonus: 0, helped: [] } });
     const big = done(pick(k(1, 1), me, { soil: "tilled", plant: giant }, true, null, NOON, [], "me"));
     expect(big.fruits!.values.length).toBeGreaterThanOrEqual(6);
     expect(big.fruits!.values.every((v) => v === 81)).toBe(true);

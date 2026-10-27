@@ -1,0 +1,46 @@
+{
+ "image": "/town/icons-f6ec546f5f.png",
+ "size": [
+  256,
+  40
+ ],
+ "icons": {
+  "pullKnot": [
+   1,
+   1,
+   41,
+   38
+  ],
+  "pullClods": [
+   43,
+   1,
+   35,
+   36
+  ],
+  "pullRoot": [
+   107,
+   1,
+   37,
+   35
+  ],
+  "pullDust": [
+   79,
+   1,
+   27,
+   36
+  ],
+  "pullGloves": [
+   181,
+   1,
+   43,
+   28
+  ],
+  "pullPit": [
+   145,
+   1,
+   35,
+   30
+  ]
+ },
+ "cursor": {}
+}

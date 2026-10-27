@@ -10,6 +10,7 @@ import { optN, SIX } from "./tools";
 import { CROP_IDS, DISH_IDS, FISH_IDS, MAKE_IDS } from "./items";
 import { BRIDGE } from "./bridge";
 import { LAMPS } from "./lamps";
+import { PULL } from "./giant-pull";
 
 /**
  * What counts for the points of a line (lib/town/lines), read off what is written down anyway: a deed (the
@@ -31,6 +32,7 @@ import { LAMPS } from "./lamps";
  * - **The first of its kind** (a fish, a forest thing, an insect, a crop, a recipe) is ten more, once ever.
  * - **A stone laid for the bridge** (lib/town/bridge) is a helpers' point to everybody whose hands it went through.
  * - **A lamp post lit at dusk** (lib/town/lamps) is three helpers' points to everybody whose hands its flame went through.
+ * - **A giant pulled out together** (lib/town/giant-pull) is five helpers' points to each helper who pulled it well.
  * - **The well**: actual positive carrier deltas award XP subject to the daily bound. The old water book keeps raw statistics.
  *
  * The numbers are knobs (mine, to be set from what the members really do before the lines open). A day's bound is
@@ -246,6 +248,9 @@ export function countsOf(d: Done, doer: string): Counts[] {
     // lit it and each of the others, a line of the deeds for each; what it is worth is the lamps' own number)
     case "lamp_light": case "lamp_hand":
       return [{ to: null, line: "helpers", raw: LAMPS.point }];
+    // ── a giant pulled out together ── (lib/town/giant-pull: a line of the deeds for each helper who pulled it well)
+    case "giant_help":
+      return [{ to: null, line: "helpers", raw: PULL.points }];
     // ── felling ── (a tree felled: its kind is the deed's thing; and whoever braced its trunk, if anybody, has a point
     // of the helpers')
     case "fell": {

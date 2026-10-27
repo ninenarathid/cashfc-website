@@ -114,6 +114,12 @@ export interface Doing {
    */
   fell?: string;
   // ── end: felling ──
+  /**
+   * ── a giant pulled out together ── (lib/town/giant-pull's `pullWord`): the giant's root, the start as they know it
+   * (0 before), and how many half-swings they have pulled well, "134,6:0:0"; "" when in no crew; missing from a browser
+   * older than that. Every page of the crew shows each one's pulls by it, and starts when the caller's word says so.
+   */
+  pull?: string;
   /** What they carry in both hands that is no thing of the bag (a stone for the bridge: lib/town/bridge), "" when nothing; missing from a browser older than that. Whoever carries something walks slower, on every page that walks them (lib/town/carry). */
   carry?: string;
   /** The face they make for a moment (lib/town/expression: 0 none, else its place in the list plus one); missing from a browser older than faces. */
@@ -247,6 +253,7 @@ function readDoing(p: Record<string, unknown>): Partial<Doing> {
   // (the shape of lib/town/trees' `fellWord`, kept here too: that file is the mountain's, and no part of a page without it)
   if (typeof p.fell === "string" && /^(?:f\d{1,4}(?:\.\d{1,4}){0,3}|b\d{1,4})?$/.test(p.fell)) d.fell = p.fell;
   // ── end: felling ──
+  if (typeof p.pull === "string" && /^(?:\d{1,4},\d{1,4}:\d{1,15}:\d{1,2})?$/.test(p.pull)) d.pull = p.pull;
   if (typeof p.carry === "string" && /^[a-z]{0,24}$/.test(p.carry)) d.carry = p.carry;
   if (typeof p.flame === "number" && Number.isFinite(p.flame) && p.flame >= 0) d.flame = Math.floor(p.flame);
   if (isMood(p.mood)) d.mood = p.mood;

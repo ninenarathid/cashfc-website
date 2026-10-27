@@ -12,6 +12,7 @@ import{helpGarden}from './reward-help';
 import{rememberGardenMisses}from './help-checkpoints';
 import{beanAction}from "./reward-bean";
 import{gardenAction}from "./reward-garden";
+import { giantPull, type PullAction, type PullRefusal } from "./giant-pull";
 import{kitchenAction,kitchenCooked}from './reward-kitchen';
 import{picnicPlace,picnicEat}from"./reward-picnic";
 import{crownAction}from"./reward-crown";
@@ -751,6 +752,18 @@ export class Trial {
     this.write(BEDS, { ...beds, [bed]: { ...did.bed, name: name || to } });
     this.counted({ from: "deed", what: "bed_give", thing: null, n: plantsIn(bed, plots), doc: { bed, to } });
     return { ok: true, plants: plantsIn(bed, plots) };
+  }
+  /** A giant pulled out together (lib/town/giant-pull), here: whoever keeps the bed may call and start, as they may pick. */
+  giantPull(action: PullAction, key: string, hits: number[]): { ok: true } | { ok: false; why: PullRefusal } {
+    const now = this.now(), plots = this.farm(), [x, y] = key.split(",").map(Number), bed = bedOf(x, y);
+    const owner = ownerOf(this.beds()[bed], (this.plantedIn(plots).get(bed) ?? 0) > 0, now);
+    const before = this.purse(), did = giantPull(action, key, plots[key], this.id, owner === null || owner === this.id, before, now, hits, this.sky());
+    if (!did.ok) return did;
+    if (action === "look") return { ok: true };
+    this.write(FARM, { ...plots, [key]: did.plot });
+    if (did.purse !== before) this.save(did.purse);
+    if (did.helped.includes(this.id)) this.counted({ from: "deed", what: "giant_help", thing: did.plot.plant?.crop ?? null, n: 1, doc: { by: did.plot.plant?.pull?.by ?? "" } });
+    return { ok: true };
   }
   bedLeave(bed: number): { ok: true; plants: number } | { ok: false; why: BedRefusal } {
     const now = this.now(), beds = this.beds(), plots = this.farm();

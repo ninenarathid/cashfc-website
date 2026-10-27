@@ -104,6 +104,7 @@ export interface FellDid { felled: FellOne[]; got: Array<[ItemId, number]>; one:
 import { worksOf, type BridgeRefusal, type WorksTold } from "./bridge";
 // ── the lamp relay ──
 import { lampsOf, type LampMap, type LampRefusal, type LampsTold } from "./lamps";
+import type { PullAction, PullRefusal } from "./giant-pull";
 
 /**
  * Who keeps the game.
@@ -142,7 +143,9 @@ export type Why = Refusal | TailorRefusal | FarmRefusal | ForestRefusal | BugRef
   // ── the farm's insect house ──
   | import("./insect-house").HouseRefusal
   // ── the lamp relay ──
-  | LampRefusal;
+  | LampRefusal
+  // ── a giant pulled out together ──
+  | PullRefusal;
 export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why };
 /** A bid's answer: a refusal may carry the least that would do and the round as it stands (v297). */
 /** A bid's answer; `from` is the round my bid left for this one (one design at a time, lib/town/auction). */
@@ -350,6 +353,8 @@ export interface Keeper {
   /** `sure`: the page has asked a second time and been told that a living plant is meant to be dug out (lib/town/farm). */
   // (forging: `also`, the plots beside it that the tool in the hand did the same to, by their keys: lib/town/farm's beside)
   farmDo(key: string, name: string, timing?: Timing, sure?: boolean): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]>; also?: string[] }>>;
+  /** A giant pulled out together (lib/town/giant-pull): a call at its root, a join, a leave, the start, a report of the half-swings pulled well, a look. */
+  giantPull(action: PullAction, at: [number, number], hits?: number[]): Promise<Did>;
   /** My bed handed on to another member near me, or given up (lib/town/bed-hand): each the page asks twice before it is sent. */
   bedGive(bed: number, to: string, name: string): Promise<Did<{ plants: number }>>;
   bedLeave(bed: number): Promise<Did<{ plants: number }>>;
@@ -1837,6 +1842,13 @@ export class DbKeeper implements Keeper {
     const did = await this.deed<{ plants: number }>("town_bed_give", { p_bed: bed, p_to: to });
     // (the farm is told again by everybody, the taker above all: their page reads its beds anew)
     if (did.ok) this.onDeed?.("farm", to);
+    return did;
+  }
+  // ── a giant pulled out together ── (v307's town_giant_pull: the plot comes back with the call and its go on its plant)
+  async giantPull(action: PullAction, at: [number, number], hits: number[] = []): Promise<Did> {
+    const did = await this.deed("town_giant_pull", { p_action: action, p_x: at[0], p_y: at[1], p_hits: hits });
+    // (a call, a join, a leave, the start and the moment it comes out are told to the farm: every page reads the plot anew)
+    if (did.ok && action !== "look" && (action !== "hits" || !!this.plots[at.join(",")]?.plant?.pull?.out)) this.onDeed?.("farm");
     return did;
   }
   async bedLeave(bed: number): Promise<Did<{ plants: number }>> {

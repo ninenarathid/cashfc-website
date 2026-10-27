@@ -130,6 +130,8 @@ export interface Stander {
   id: string; name: string; x: number; y: number; moving: boolean; hold: ItemId | null; wet?: boolean;
   /** Whether they are looking at another page, and whether they have no stamina left (neither told by a page built before it was): what the game for two asks, lib/town/handing. */
   away?: boolean; spent?: boolean;
+  /** The giant they help pull and how it goes (lib/town/room's `pull`), "" or missing when none. */
+  pull?: string;
 }
 /** What somebody close by lacks to be handed water: they are walking, their bucket has water in it, or they hold no bucket. */
 export type Lack = "walking" | "full" | "bare";

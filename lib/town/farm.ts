@@ -18,6 +18,7 @@ import { DRY, rainingAt, wetMs, type Rain } from "./weather";
 import { HAND, bedGift, harvestOf, roundStart, settled } from "./quality-plant";
 import { NO_Q, QUALITY } from "./quality";
 import { bedOf } from "./world";
+import type { GiantPull } from "./giant-pull";
 import { heldIn, stow, stowHarvest, useUp } from "./pouches";
 import { BANGKOK, DAY, HOUR, forged, handOf, handSlot, held, heldStack, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
 
@@ -178,6 +179,8 @@ export interface Plant {
   /** One rescue of this original, unharvested root; never resets its identity. */
   revived?:boolean;
   giant?:boolean;crossChoice?:CropId;
+  /** A giant's call and go to pull it out together (lib/town/giant-pull): it is picked only once `out`. */
+  pull?: GiantPull;
   /** A released pollinator works once each time this plant bears. */
   pollenRound?: number;
   /** That pollinator's sky (lib/town/helper-items' POLLINATOR_SKY): which child a helper's crossing gives. */
@@ -649,7 +652,9 @@ export const isTree = (crop: CropId) => (CROPS[crop].picks ?? 1) >= TREE_PICKS;
 export function yieldOf(key: string, p: Plant, hand: ItemId | null = null): number {
   const [lo, hi] = CROPS[p.crop].yield;
   const plots = p.giant ? 6 : Math.max(1, p.oldPlots ?? p.footprint?.length ?? 1);
-  return (lo + Math.floor(roll(homeOf(key, p), p.sown, p.picked) * (hi - lo + 1))) * plots + (hand === (isTree(p.crop) ? BLADES.tree : BLADES.plant) ? 1 : 0);
+  return (lo + Math.floor(roll(homeOf(key, p), p.sown, p.picked) * (hi - lo + 1))) * plots + (hand === (isTree(p.crop) ? BLADES.tree : BLADES.plant) ? 1 : 0)
+    // (a giant pulled out together: a fruit more for each helper who pulled well, lib/town/giant-pull)
+    + (p.giant && p.pull?.out ? Math.max(0, Math.min(3, Math.floor(p.pull.bonus ?? 0))) : 0);
 }
 
 /**
@@ -689,6 +694,8 @@ export function pick(key: string, purse: Purse, plot: Plot, may: boolean, hand: 
   if (!p || seen.dead || (p.root && p.root !== key)) return not("soil");
   if (!may) return not("theirs");
   if (!seen.ripe) return not("unripe");
+  // (a giant comes out of the ground only by its pulling, lib/town/giant-pull)
+  if (p.giant && !p.pull?.out) return not("unripe");
   const n = yieldOf(key, p, hasInHand(purse, hand) ? hand : null);
   // (each fruit's Quality, lib/town/quality-plant: the farm's pouch and the bag must hold every grade the pick gives,
   // before anything is done; each grade onto its own stacks first, then the pouch's empty slots: lib/town/pouches' stowHarvest)
@@ -732,7 +739,8 @@ export function deedFor(key: string, plot: Plot, hand: ItemId | null, me: string
     if (kind === "feed" && !p.fed) return "feed";
     // (what keeps pests off is for a plant that has none: one that has is the cure's, and an insect's that eats them)
     if (kind === "guard" && p.guard <= now && (!seen.pest || FARMING.rids[hand!] !== undefined)) return "feed";
-    if (seen.ripe && mine) return "pick";
+    // (a giant is picked once it has been pulled out together: lib/town/giant-pull)
+    if (seen.ripe && mine && (!p.giant || !!p.pull?.out)) return "pick";
   }
   return null;
 }

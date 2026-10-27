@@ -13,6 +13,8 @@ import TownSkyBean from "./TownSkyBean";
 import { giantSprite } from "@/lib/town/wide-plants";
 import giantMap from "@/lib/town/giant-map.json";
 import TownGardenRewards from "./TownGardenRewards";
+import TownGiantPull from "./TownGiantPull";
+import { leanAt } from "@/lib/town/giant-pull";
 import TownKitchenRewards from "./TownKitchenRewards";
 import TownPicnic from "./TownPicnic";
 import TownWingCrown from "./TownWingCrown";
@@ -264,7 +266,7 @@ function weedsOf(tx: number, ty: number): Weed[] {
  * one farm for the whole town; in `next dev`'s test room the browser's trial,
  * one farm for the browser.
  */
-export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx, bottom, register, registerRelay, registerSprings, registerCrossings, registerBoats, registerPicnic, sitPicnic, walkTrail, here = null, people }: {
+export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx, bottom, register, registerRelay, registerSprings, registerCrossings, registerBoats, registerPicnic, sitPicnic, walkTrail, here = null, people, sayPull }: {
   keeper: Keeper;
   /** What I am called, for the name plate of a bed I take. */
   name: string;
@@ -292,6 +294,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   /** Where I stand still, anywhere in town (null while walking, or while something else is open); and everybody on the map now, as the map has them: for the ring of shared strength, which is for a friend standing near, wherever that is. */
   here?: [number, number] | null;
   people?: () => Stander[];
+  /** Tell the room of the giant I help pull (lib/town/session's setPull): a giant pulled out together, TownGiantPull. */
+  sayPull?: (word: string) => void;
 }) {
   const [, setTick] = useState(0);
   const reaction=useComboReaction(keeper);
@@ -363,7 +367,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
    * A giant (2x2, a reward), by its root: the middle of its plots on the map, the frontmost of them (it is drawn over
    * all their soil) and its crop.
    */
-  const giants = useRef(new Map<string, { x: number; y: number; front: number; crop: string }>());
+  const giants = useRef(new Map<string, { x: number; y: number; front: number; crop: string; go?: number }>());
   /**
    * The other plots of a plant sown over several before 2026-10-16 that is not a giant (a garden hybrid, a fig on its
    * 2x2): the plant stands small on its root, as its one-plot picture, and each of these shows a sprout, so that it is
@@ -376,7 +380,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       const p = plot.plant, cells = p?.root === k ? p.footprint ?? [] : [];
       if (!p?.giant || cells.length < 2) return [];
       const at = cells.map((c) => c.split(",").map(Number) as [number, number]);
-      return [[k, { x: at.reduce((n, [x]) => n + x + 0.5, 0) / at.length, y: at.reduce((n, [, y]) => n + y + 0.5, 0) / at.length, front: Math.max(...at.map(([x, y]) => x + y)), crop: p.crop }]];
+      return [[k, { x: at.reduce((n, [x]) => n + x + 0.5, 0) / at.length, y: at.reduce((n, [, y]) => n + y + 0.5, 0) / at.length, front: Math.max(...at.map(([x, y]) => x + y)), crop: p.crop,
+        // (being pulled out together: it rocks on the map as on the crew's board, lib/town/giant-pull)
+        go: p.pull && !p.pull.out ? p.pull.go : 0 }]];
     }));
     asidePlots.current = new Set(Object.entries(plots).flatMap(([k, plot]) => {
       const root = plot.plant?.root;
@@ -514,7 +520,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         ctx.restore();
       };
       /** How a giant is drawn once, from its root, standing on the middle of its four plots: its one picture, or null for one a plot while young. */
-      const giantDraw = (giant: { x: number; y: number; crop: string }, what: Seen): (() => void) | null => {
+      const giantDraw = (giant: { x: number; y: number; crop: string; go?: number }, what: Seen): (() => void) | null => {
         if (what.dead) return null;
         const name = giantSprite(giant.crop, what.stage);
         if (!name) return null;
@@ -522,6 +528,15 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         const k = giantK(giant.crop) * s, foot = mid.y + GIANT_FOOT * s;
         if (cell && sheet.complete && sheet.naturalWidth) {
           const [x, y, w, h] = cell;
+          const lean = giant.go ? leanAt(giant.go, keeper.now()) : 0;
+          if (lean) return () => {
+            // (rocked loose by its crew: drawn in bands, the top leaning most, its foot kept in the ground)
+            ctx.imageSmoothingEnabled = false;
+            for (let b = 0, n = 12; b < n; b++) {
+              const r0 = Math.floor((b * h) / n), r1 = Math.floor(((b + 1) * h) / n), shift = Math.round(lean * 7 * s * Math.pow(1 - r0 / h, 1.3));
+              ctx.drawImage(sheet, x, y + r0, w, r1 - r0, Math.round(mid.x - (w * k) / 2) + shift, Math.round(foot - h * k + r0 * k), w * k, Math.ceil((r1 - r0) * k));
+            }
+          };
           return () => { ctx.imageSmoothingEnabled = false; ctx.drawImage(sheet, x, y, w, h, Math.round(mid.x - (w * k) / 2), Math.round(foot - h * k), w * k, h * k); };
         }
         // (until its picture has come: the bag's, at the same size)
@@ -1315,7 +1330,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   /** The plant the asking is about, as it stands. */
   const asked = asking ? seen.current.get(asking.key) : undefined;
   return (
-    <>{reaction.notice&&<TownFoot rank="note" order={5}><TownComboFx cue={reaction.notice.cue} effect={{cue:reaction.notice.cue,fresh:reaction.notice.fresh}} th={th}/></TownFoot>}<TownRootExtraction keeper={keeper} th={th} at={here}/><TownRowContinuation keeper={keeper} th={th} at={here}/><TownGardenRetry keeper={keeper} th={th} at={tile}/><TownRainCare keeper={keeper} th={th} at={tile}/><TownWaykeeper keeper={keeper} th={th} at={here}/><TownCampFlag keeper={keeper} th={th} at={here}/><TownGardenHelp keeper={keeper} th={th} at={tile}/><TownSkyBean keeper={keeper} th={th} at={tile}/><TownGardenRewards keeper={keeper} th={th} at={tile}/><TownKitchenRewards keeper={keeper} th={th} at={here}/><TownPicnic keeper={keeper} th={th} at={here} register={registerPicnic} sit={sitPicnic}/>{keeper.purse().professionRewards?.trail?.kind==="dragon"&&<TownForestTrail keeper={keeper} th={th} at={()=>here} walk={walkTrail}/>}<TownWingCrown keeper={keeper} th={th} at={here}/><TownMoonLantern keeper={keeper} th={th} at={here}/><TownBeetleRing keeper={keeper} th={th} at={here}/><TownLotusBoat keeper={keeper} th={th} at={here} register={registerBoats}/><TownBeaverBridge keeper={keeper} th={th} at={here} register={registerCrossings}/><TownNursery keeper={keeper} th={th} at={here}/><TownCloud keeper={keeper} th={th} at={tile} people={people}/><TownSprings keeper={keeper} th={th} at={here} register={registerSprings}/><TownConduit keeper={keeper} th={th} at={tile} onWatered={keys=>{for(const key of keys){const [x,y]=key.split(",").map(Number);vfx.add("water",{x:x+.5,y:y+.5});}sfx?.work("pour");}}/><TownWaterRelay keeper={keeper} th={th} at={here} register={registerRelay}/>{news}{ringOffer}{inspectedHouse && <TownFoot rank="board" order={62}><HousePanel at={inspecting!} house={inspectedHouse} plots={plots} now={now} th={th} mine={inspectedHouse.by === keeper.id} onClose={() => setInspecting(null)} /></TownFoot>}{inspected && <TownFoot rank="board" order={62}>{bedView
+    <>{reaction.notice&&<TownFoot rank="note" order={5}><TownComboFx cue={reaction.notice.cue} effect={{cue:reaction.notice.cue,fresh:reaction.notice.fresh}} th={th}/></TownFoot>}<TownRootExtraction keeper={keeper} th={th} at={here}/><TownRowContinuation keeper={keeper} th={th} at={here}/><TownGardenRetry keeper={keeper} th={th} at={tile}/><TownRainCare keeper={keeper} th={th} at={tile}/><TownWaykeeper keeper={keeper} th={th} at={here}/><TownCampFlag keeper={keeper} th={th} at={here}/><TownGardenHelp keeper={keeper} th={th} at={tile}/><TownSkyBean keeper={keeper} th={th} at={tile}/><TownGardenRewards keeper={keeper} th={th} at={tile}/><TownGiantPull keeper={keeper} th={th} at={here ?? tile} name={name} people={people} sayPull={sayPull}/><TownKitchenRewards keeper={keeper} th={th} at={here}/><TownPicnic keeper={keeper} th={th} at={here} register={registerPicnic} sit={sitPicnic}/>{keeper.purse().professionRewards?.trail?.kind==="dragon"&&<TownForestTrail keeper={keeper} th={th} at={()=>here} walk={walkTrail}/>}<TownWingCrown keeper={keeper} th={th} at={here}/><TownMoonLantern keeper={keeper} th={th} at={here}/><TownBeetleRing keeper={keeper} th={th} at={here}/><TownLotusBoat keeper={keeper} th={th} at={here} register={registerBoats}/><TownBeaverBridge keeper={keeper} th={th} at={here} register={registerCrossings}/><TownNursery keeper={keeper} th={th} at={here}/><TownCloud keeper={keeper} th={th} at={tile} people={people}/><TownSprings keeper={keeper} th={th} at={here} register={registerSprings}/><TownConduit keeper={keeper} th={th} at={tile} onWatered={keys=>{for(const key of keys){const [x,y]=key.split(",").map(Number);vfx.add("water",{x:x+.5,y:y+.5});}sfx?.work("pour");}}/><TownWaterRelay keeper={keeper} th={th} at={here} register={registerRelay}/>{news}{ringOffer}{inspectedHouse && <TownFoot rank="board" order={62}><HousePanel at={inspecting!} house={inspectedHouse} plots={plots} now={now} th={th} mine={inspectedHouse.by === keeper.id} onClose={() => setInspecting(null)} /></TownFoot>}{inspected && <TownFoot rank="board" order={62}>{bedView
       ? <QualityBed at={inspecting!} plots={plots} now={now} rains={rains} th={th} onClose={() => setBedView(false)} />
       : chartView ? <FertChart th={th} onClose={() => setChartView(false)} />
       : bookView ? <div className="pointer-events-auto flex w-[min(440px,calc(100vw-16px))] flex-col gap-2" data-garden-notebook style={{ maxHeight: "min(46rem, calc(100dvh - 10rem))" }}>

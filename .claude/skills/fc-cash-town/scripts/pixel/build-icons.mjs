@@ -446,6 +446,12 @@ const SHEETS = [
   // Cut on its finer grid (8.0): on its coarser (16.6) the crystals and the coins broke into pieces. The cherries, the
   // gold bar and the potato are the code-drawn reel symbols drawn the town's way, for the owner to choose to take
   ["icons-casino-a", ["reelEvercold", "reelCoins", "reelCherry", "reelGold", "reelPopoto", "reelEvercoldB"], { range: [7.9, 8.1] }],
+  // ── a giant pulled out together (2026-10-27): the knot where the ropes meet, soil clods, a snapped root, a dust puff
+  // (thrown by the board as a pull lands or slips), the pull buttons' gloves on a rope, the pit left once it is out;
+  // with icons-farm-d for the reference. Built alone into a small picture of the board's own (ICONS_ONLY=icons-giant-pull-a
+  // ICONS_PUB=<tree>/public/town/giant-pull ICONS_JSON=<tree>/lib/town/giant-pull-art.json). Cut on its finer grid (6.0,
+  // the scene's own 5.8): on the coarser (12) the pieces would stand twice as coarse as the board they are thrown over
+  ["icons-giant-pull-a", ["pullKnot", "pullClods", "pullRoot", "pullDust", "pullGloves", "pullPit"], { range: [5.9, 6.1] }],
   // ── the giants as the farm's map draws them, over their whole 2x2 (2026-10-27, the owner: "ผักยักษ์ จะกินที่เท่าไหร่ ช่วย
   // ขยายภาพให้เต็มพื่นที่นั้นจริงๆ"). The bag's and the book's are cut on 8 above; at the 2x2's size their pixels would be
   // twice the farm's, so the map's are cut on the sheets' own grid, 4, from copies of the same drawings

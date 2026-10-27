@@ -976,10 +976,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const farmDraw = useRef<FarmDraw | null>(null);
   const registerFarm = useCallback((draw: FarmDraw | null) => { farmDraw.current = draw; }, []);
   /** Everybody on the map now, as this screen has them (the bucket line asks who stands within sight: lib/town/line). */
+  /** The giant I help pull, told to the room (a giant pulled out together: lib/town/giant-pull, TownGiantPull). */
+  const sayPull = useCallback((word: string) => { const stay = sessionRef.current; if (stay && !stay.closed) stay.setPull(word); }, []);
   const standers = useCallback((): Stander[] => {
     const stay = sessionRef.current && !sessionRef.current.closed ? sessionRef.current : null;
     return (stay ? [stay.self, ...stay.avatars.values()] : []).filter((a) => a.byeAt === undefined)
-      .map((a) => ({ id: a.info.id, name: a.info.name, x: a.pos.x, y: a.pos.y, moving: a.path.length > 0, hold: ((a.info.hold || null) as ItemId | null), wet: a.info.wet, away: a.info.away, spent: a.info.spent }));
+      .map((a) => ({ id: a.info.id, name: a.info.name, x: a.pos.x, y: a.pos.y, moving: a.path.length > 0, hold: ((a.info.hold || null) as ItemId | null), wet: a.info.wet, away: a.info.away, spent: a.info.spent, pull: a.info.pull }));
   }, []);
   /** Whether I am on the forest's map (what it has is looked at while I am), and its own way of drawing what lies and grows there. */
   const [onForest, setOnForest] = useState(false);
@@ -5745,7 +5747,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                     people={standers} here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing && !signView ? standing?.tile ?? null : null}
                     at={wellHere ? standing?.tile ?? null : fishAt?.tile ?? null} near={onFarm}
                     water={talk || trade || boardOpen || wardrobeOpen || (phone && testOpen) ? null : wellHere ? "well" : fishAt ? "river" : null} sfx={sfxRef.current}
-                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerFarm} registerRelay={registerRelay} registerSprings={registerSprings} registerCrossings={registerCrossings} registerBoats={registerBoats} registerPicnic={registerPicnic} sitPicnic={()=>{if(s.self.path.length)return false;s.sitHere();return s.seated;}} walkTrail={(x,y)=>s.walkTo({x,y})} />
+                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerFarm} registerRelay={registerRelay} registerSprings={registerSprings} registerCrossings={registerCrossings} registerBoats={registerBoats} registerPicnic={registerPicnic} sayPull={sayPull} sitPicnic={()=>{if(s.self.path.length)return false;s.sitHere();return s.seated;}} walkTrail={(x,y)=>s.walkTo({x,y})} />
         </Suspense>
       )}
       {/* The forest: what lies and grows there, and gathering what is at the place I stand by */}

@@ -679,3 +679,31 @@ when a giant is first drawn (the bag's picture, at the same size, until then) an
 its ripe picture across two tiles, no taller than 150 map px (`GIANT_WIDE`, `GIANT_TALL`, `GIANT_FOOT`): 0.65 to 0.85 map
 px to one of its own, the farm's own pixel size. In the game: the five ripe and three young, apart and side by side,
 1280x860 and 384x730, before and after.
+
+## A giant pulled out together (2026-10-27)
+
+The owner: "ทำให้มีมินิเกมเล่นหลายคน ช่วยกันดึงผัก ... ทำ UI gameplay ออกมาดีๆได้เลย" (he had topped up the OpenAI credit for it).
+Four pictures in two calls, $0.0749 (`gpt-image-2.5-sunburst`, low, 1536x1024, each prompt read by Codex first); the
+ledger then stood at 2,883 calls and $39.899 of $45. Prompts `prompts/scenery/giant-pull-game.txt` (the MINI-GAME SCENE
+template) and `prompts/icons/icons-giant-pull-a.txt` (the ICON SHEET template, with Codex's words for the pit: "seen from
+the front and a little above, its round opening appearing as a low horizontal oval").
+
+- **`scene-giant-pull-game`** (N=3, `BG=opaque`, with `pasture-game-shear` for the style): a vegetable garden seen from
+  the side and cut away, its lower third the bed's earth in layers with roots only at the edges, a low mound of loosened
+  soil in the middle of the ground line, a fence, crop rows and two bean poles behind, sky above, the middle above the
+  mound kept open for the giant. **The second is chosen** (`-1`..`-3` kept): its earth the plainest in the middle and
+  its mound the clearest, the space over the mound open; the third was the crispest (50% of its edges on the grid) but
+  speckled its earth with blue-grey dots, the first coarser (240x159) with stones under the middle. Cut to its true
+  pixels by `build-mine-scene.mjs` with `SCENE=scene-giant-pull-game NAME=giant-pull` (266x177, 30 KB):
+  `public/town/giant-pull-<hash>.png`, components/town/TownGiantPull's `SCENE`. The board draws the giant's own atlas
+  picture (`giant<Crop>B`, 73 to 94 wide) at one of its pixels to one of the scene's (both about 6 canvas px to a pixel
+  as drawn), its foot on the mound (y 112), and rocks it by shifting each row a whole pixel.
+- **`icons-giant-pull-a`** (with `icons-farm-d`): a loop knot of hemp rope (`pullKnot`, the board's and the buttons'
+  sign), four soil clods flying apart (`pullClods`: the board cuts the four lumps apart and throws each its own way), a
+  snapped pale root (`pullRoot`: its two halves fly apart), a dust puff (`pullDust`, a slip), a pair of work gloves on a
+  rope (`pullGloves`, on the pull buttons and the helper's offer), a pit in the earth (`pullPit`, where the giant stood
+  once out). Measured freely 12, cut on its half (6.0, the scene's own 5.8): 27 to 43 px. Built alone into a small
+  picture of the board's own (`ICONS_ONLY=icons-giant-pull-a ICONS_PUB=<tree>/public/town/giant-pull
+  ICONS_JSON=<tree>/lib/town/giant-pull-art.json`, 256x40, 4.4 KB): the town's atlas is not touched.
+- In the game (the dev test room against the stand-in with v307, two windows: the grower at 1280x860, a helper on a
+  phone at 384x730 and 360x640): the call, the join, the go, the pull and the giant out.
