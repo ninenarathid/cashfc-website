@@ -31,13 +31,16 @@ export type CasinoInTown = { session: TownSession; art: CasinoRoomArt; tap: Muta
   onCoins?: () => void };
 /** A minute sat at a machine without a spin, and one is stood up (the database lets another have it then, v305). */
 const AFK_MS = 60_000;
+/** The TEST room's own map: its five stools on one row, in its own tiles. */
+const TEST_STOOLS = MACHINE_X.map(x => ({ x, y: 3.5 }));
 const CHEERS = ['ลุ้นด้วย!', 'มาแล้ว ๆ!', 'อีกนิดเดียว!', 'ยินดีด้วย!'];
 export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:CasinoInTown}) {
   const nativeRef=useRef(native);nativeRef.current=native;
   // (where the room's own tiles are in the walker's: the town's tile space, or the casino map's own)
   const origin=town?{x:CASINO_ROOM.x,y:CASINO_ROOM.y}:{x:0,y:0};
   // (each machine's stool where the walker sits: the town's room has ten on two rows, the TEST room's own map five on one)
-  const stools=town?CASINO_STOOLS:MACHINE_X.map(x=>({x:origin.x+x,y:origin.y+3.5}));
+  // (one list each, made once: an effect follows it, and a new one every render would never let it rest: Codex's check)
+  const stools=town?CASINO_STOOLS:TEST_STOOLS;
   const walker=town?.session??native?.session??null,walkerRef=useRef(walker);walkerRef.current=walker;
   const [history, setHistory] = useState(false), [page, setPage] = useState(0);
   const { client, live, state, error, setError, connected, reload, now } = useCasino(history, page);
@@ -155,6 +158,8 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
     pending.current = request;
     const key = `${roomName}:${state.room_epoch??'live'}:pending:${state.user_id}`;
     try { sessionStorage.setItem(key, JSON.stringify(request)); } catch { /* retry remains available in this tab */ }
+    // (a spin pressed is play: the minute starts again now, not when its answer comes: Codex's check)
+    lastPlay.current = latestNow.current();
     setBusy(true); setError('');
     try {
       const { data, error: failed } = await client.rpc('casino_lab_spin', { p_request: request.id, p_machine: request.machine, p_force: request.force, p_revision: request.revision, player_name: self.name });
@@ -219,13 +224,17 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
       if (heldSeat.current === satAt.current) { heldSeat.current = null; void client.rpc('casino_live_seat', { p_machine: null }); }
       satAt.current = null;
     }
-    if (held && self.seat === held && clock - lastPlay.current > AFK_MS) {
+    // (never while a spin of mine is being asked or its reels still turn)
+    const turning = state?.spins.some(p => p.user_id === state.user_id && !spinRevealed(p, clock));
+    if (held && self.seat === held && !busy && !turning && clock - lastPlay.current > AFK_MS) {
       heldSeat.current = null; satAt.current = null; setPane('none');
       void client.rpc('casino_live_seat', { p_machine: null });
       const stool = stools[held - 1]; walker.walkTo({ x: stool.x, y: stool.y + 1 });
       setError('ไม่ได้หมุนเกิน 1 นาที ลุกจากเครื่องให้คนอื่นเล่นแล้ว');
     }
-  }, [clock, self.seat, town, live, client, walker, stools, setError]);
+  }, [clock, self.seat, town, live, client, walker, stools, setError, busy, state]);
+  // (leaving the casino lets the machine go at once, not a minute on: Codex's check)
+  useEffect(() => () => { if (heldSeat.current && client) void client.rpc('casino_live_seat', { p_machine: null }); }, [client]);
   const sendCheer = (text: string) => {
     if (Date.now() - lastCheer.current < 2000) return; lastCheer.current = Date.now();
     setCheer(`${self.name}: ${text}`); clearTimeout(cheerTimer.current); cheerTimer.current = setTimeout(() => setCheer(''), 4000);
@@ -289,10 +298,10 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
             {state.account.coins < pack * s.price * rate ? `Popoto coin ไม่พอ (ใช้ ${money(pack * s.price * rate)})` : `แลก ${money(pack * s.price)} Casino Coin · ${money(pack * s.price * rate)} Popoto coin`}</button>
           {/* popoto changed here with no week's limit (v305: the owner, "NPC ใน casino สามารถแลก popoto เป็น popoto coin หรือ casino coin ได้แบบ ไม่มี limit") */}
           {state.account.popoto_left !== undefined && <div className="casino-popoto">
-            <p className="casino-chips-rate">แลก popoto · มี {money(state.account.popoto_left)} · 1 popoto = {money(bankRate)} Popoto coin</p>
+            <p className="casino-chips-rate">แลก popoto · มี {money(state.account.popoto_left)} · {money(popotoN)} popoto = {money(popotoN * bankRate)} coin</p>
             <div className="casino-popoto-row"><input aria-label="จำนวน popoto ที่จะแลก" type="number" inputMode="numeric" min={1} max={Math.max(1, Math.min(1000, state.account.popoto_left))} value={popotoN} onChange={e => setPopotoN(Math.max(1, Math.min(1000, Math.floor(Number(e.target.value) || 1))))} />
-              <button className="pressable tk tk-slot" disabled={busy || !letIn(s, realAdmin) || popotoN > state.account.popoto_left} onClick={() => changePopoto('coins')}>เป็น {money(popotoN * bankRate)} Popoto coin</button>
-              <button className="pressable tk tk-slot" disabled={busy || !letIn(s, realAdmin) || popotoN > state.account.popoto_left || Math.floor(popotoN * bankRate / rate) < 1} onClick={() => changePopoto('chips')}>เป็น {money(Math.floor(popotoN * bankRate / rate))} Casino Coin</button></div>
+              <button className="pressable tk tk-slot" disabled={busy || !letIn(s, realAdmin) || popotoN > state.account.popoto_left} onClick={() => changePopoto('coins')}>เป็น Popoto coin</button>
+              <button className="pressable tk tk-slot" disabled={busy || !letIn(s, realAdmin) || popotoN > state.account.popoto_left || Math.floor(popotoN * bankRate / rate) < 1} onClick={() => changePopoto('chips')}>เป็น Casino Coin</button></div>
           </div>}
           {chipNote && <p className="casino-chips-note" role="status">{chipNote}</p>}
           <button className="casino-chips-back pressable tk tk-slot" onClick={() => void select(selected)}>ไปเล่นที่เครื่อง {selected}</button>

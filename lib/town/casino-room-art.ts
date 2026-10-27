@@ -118,7 +118,10 @@ export class CasinoRoomArt {
           ctx.restore();
           // four windows on the front face: the perspective follows the cabinet itself
           for (let r = 0; r < 4; r++) { ctx.save(); ctx.translate(left + (15 + r * 9) * k, top + (32 + r * 1.8) * k); ctx.transform(1, .21, 0, 1, 0, 0); glyph(latest ? reelAt(latest, r, t, reduced) : "popoto", 0, 0, 8 * k); ctx.restore(); }
-          ctx.fillStyle = this.selected === n ? "#ffdf9b" : "#c9ad80"; ctx.font = `bold ${10 * k}px sans-serif`; ctx.textAlign = "center"; ctx.fillText(String(n), p.x - 7 * k, p.y - 89 * k);
+          // (the number on a dark rim, so that ten of them read against the room: Codex's look at the ten)
+          ctx.font = `bold ${11 * k}px sans-serif`; ctx.textAlign = "center"; ctx.lineJoin = "round"; ctx.lineWidth = 3 * k; ctx.strokeStyle = "#2a1a12";
+          ctx.strokeText(String(n), p.x - 7 * k, p.y - 89 * k);
+          ctx.fillStyle = this.selected === n ? "#ffdf9b" : "#ead3a6"; ctx.fillText(String(n), p.x - 7 * k, p.y - 89 * k);
           if (rolling || (latest?.prize && t < Date.parse(latest.reveal_at) + 2500)) {
             for (let light = 0; light < 6; light++) { if (rolling && !reduced && Math.floor(now / 150 + light) % 3 === 0) continue; ctx.fillStyle = rolling ? "#f2d58a" : "#b1d6a1"; ctx.fillRect(left + (13 + light * 5) * k, top + (16 + light * .9) * k, 2 * k, 2 * k); }
           }
