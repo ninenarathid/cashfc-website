@@ -692,6 +692,27 @@ reference (the casino's own line).
 - In the game: `scripts/town-casino-lever.mjs` (1280x860, 384x730, 360x640: dim with no Casino Coins, at rest, half
   way, all the way down, the reels turning, after).
 
+## The casino's lucky seven and the Casino Coin (2026-10-27)
+
+The owner: "วาดไอคอน Casino Coin และวาดรูปบนวงล้อ 4 รูป (7, เชอร์รี่, ทองแท่ง, popoto) ใหม่ให้เป็น pixel art แบบเดียวกับเกม ทำเลย". One
+call, $0.0193 (`gpt-image-2.5-sunburst`, low, 1536x1024, drawn once; the ledger then stood at $39.956 of $45). Prompt
+`prompts/icons/icons-casino-b.txt`, on the owner's ICON SHEET template with its closing sentence, `icons-casino-a` for the
+reference.
+
+- **`icons-casino-b`**: the slot's lucky seven (`reelSeven`: red, a gold rim inside the outline), the Casino Coin's chip
+  (`casinoChip`: deep red, cream rim stripes, a gold ring, a potato face), a stack of three (`casinoChips`, not used yet),
+  and the cherries, the gold bar and the potato drawn again (`reelCherryB`, `reelGoldB`, `reelPopotoB`). Cut on 8.0, as
+  icons-casino-a (on 16.7 blocky): the seven 25x30, the chip 30x30. The reels now draw all five faces from these drawings
+  (lib/town/casino-symbol-art's `DRAWN`), the four from this sheet (drawn with the seven, at one size), the evercold from
+  icons-casino-a; below 16 px (the room's cabinet windows) the code's own 8x8 minis, which keep their shape there.
+  icons-casino-a's cherries, gold bar and potato stay in the picture as a second choice.
+- **Codex's read** (fix, "first try as written: likely"): the template's closing "no numbers" against the seven; its one
+  change rewrote that closing sentence, which ART_WORKFLOW keeps, so the call was drawn as written with `NO_REVIEW`
+  saying so. The seven came out whole.
+- Built with icons-casino-a and icons-casino-lever into the casino's own picture (`ICONS_ONLY=icons-casino-a,
+  icons-casino-lever,icons-casino-b`, 256x74, 7.9 KB). The picture before it is kept in public/town/casino for pages
+  opened before the push.
+
 ## The giants over their whole 2x2 on the map (2026-10-27)
 
 The owner: "ผักยักษ์ จะกินที่เท่าไหร่ ช่วยขยาย ภาพให้เต็มพื่นที่นั้นจริงๆ". The farm drew a giant at a plant's scale (0.62), 45 to 58

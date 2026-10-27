@@ -14,7 +14,7 @@ const mini:Partial<Record<SymbolId,string[]>>={seven:['........','.orrrro.','.oh
  * crystal with the gold star of a rare thing: the single crystal, which keeps its shape at a marquee's and a cabinet
  * window's size where the cluster's tips ran together, Codex's look of 2026-10-27). Drawn at the size asked, its pixels hard.
  */
-const DRAWN:Partial<Record<SymbolId,string>>={evercold:'reelEvercold'};
+const DRAWN:Partial<Record<SymbolId,string>>={evercold:'reelEvercold',seven:'reelSeven',cherry:'reelCherryB',gold:'reelGoldB',popoto:'reelPopotoB'};
 const ICONS=REELS as unknown as {image:string;icons:Record<string,[number,number,number,number]>};
 let sheet:HTMLImageElement|null=null;
 /** The casino's own picture, asked for once: resolves when it has come (a drawing made before then is made again by its caller). */
@@ -24,17 +24,22 @@ export function casinoSymbolsReady():Promise<void>{
   const img=sheet;
   return img.complete&&img.naturalWidth?Promise.resolve():new Promise(done=>{img.addEventListener('load',()=>done(),{once:true});img.addEventListener('error',()=>done(),{once:true});});
 }
-function drawnSymbol(ctx:CanvasRenderingContext2D,name:string,x:number,y:number,size:number){
-  const cell=ICONS.icons[name];if(!cell||typeof Image==='undefined')return;
+/** One of the casino's drawn pictures at a point, at a size; whether it could be (its picture had come). */
+function drawnSymbol(ctx:CanvasRenderingContext2D,name:string,x:number,y:number,size:number):boolean{
+  const cell=ICONS.icons[name];if(!cell||typeof Image==='undefined')return false;
   if(!sheet){sheet=new Image();sheet.src=`/town/casino/${ICONS.image.split('/').pop()}`;}
-  if(!sheet.complete||!sheet.naturalWidth)return;
+  if(!sheet.complete||!sheet.naturalWidth)return false;
   const [sx,sy,w,h]=cell,k=size/Math.max(w,h);
   ctx.save();ctx.imageSmoothingEnabled=false;ctx.drawImage(sheet,sx,sy,w,h,x-w*k/2,y-h*k/2,w*k,h*k);ctx.restore();
+  return true;
 }
 /** Shared native pixels: the cabinet and the UI show the same reel symbols. */
 export function drawCasinoSymbol(ctx:CanvasRenderingContext2D,id:SymbolId,x:number,y:number,size:number){
-  const pal=palette[id],big=patterns[id],small=mini[id];
-  if(!pal||!big||!small){const name=DRAWN[id];if(name)drawnSymbol(ctx,name,x,y,size);return;}
+  const pal=palette[id],big=patterns[id],small=mini[id],name=DRAWN[id];
+  // (the drawn one, the owner: "วาดรูปบนวงล้อ 4 รูป ใหม่ให้เป็น pixel art แบบเดียวกับเกม"; at a cabinet window's few pixels the
+  // code's own eight by eight, which keeps its shape there; and the code's until the picture has come)
+  if(name&&(size>=16||!small)&&drawnSymbol(ctx,name,x,y,size))return;
+  if(!pal||!big||!small)return;
   if(size<16){const step=size/8;for(let row=0;row<8;row++)for(let col=0;col<8;col++){const color=pal[small[row][col]];if(color){ctx.fillStyle=color;ctx.fillRect(x+(col-4)*step,y+(row-4)*step,step,step);}}return;}
   const step=size/16;for(let row=0;row<16;row++)for(let col=0;col<16;col++){
     const color=pal[big[row]?.[col]];if(!color)continue;

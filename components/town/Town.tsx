@@ -23,6 +23,8 @@ import type { ShopWindowProps } from "./TownTailor";
 import { CasinoRoomArt } from "@/lib/town/casino-room-art";
 import { CASINO_ROOM, CASINO_SOFA_SEATS, sofaSeatAt, stoolAt } from "@/lib/town/casino-room";
 import { letIn, type CasinoSettings } from "@/lib/casino";
+// (the Casino Coin's own chip beside its count in the status bar: the owner, 2026-10-27)
+import CasinoChipIcon from "@/components/casino/CasinoChipIcon";
 import { useAdmin } from "@/lib/admin";
 import { BOUNDS, START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
 import { PACE, keepFps, keptFps, nap, paceOf, paced, wokenFor, type Fps } from "@/lib/town/pace";
@@ -3089,6 +3091,28 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     return !!seatOf(a) || !!tableSeatOf(a) || ((a.info.sit ?? -1) === SIT_HERE && !a.path.length);
   }
 
+  /**
+   * On a casino sofa, how far a sitter's name and title go down to clear the plates of whoever sits to their left (the
+   * owner, 2026-10-27: three on one sofa, their names on one another): the plates step down the sofa, seat by seat.
+   */
+  function sofaDrop(a: Avatar): number {
+    const seat = sitting(a) && !a.path.length ? sofaSeatAt(a.pos) : 0;
+    if (!seat) return 0;
+    const live = sessionRef.current, sofa = CASINO_SOFA_SEATS[seat - 1].sofa, people = live ? [live.self, ...live.people] : [a];
+    let bottom = -Infinity;
+    for (let i = 0; i < seat; i++) {
+      if (CASINO_SOFA_SEATS[i].sofa !== sofa) continue;
+      const who = i === seat - 1 ? a : people.find((o) => sitting(o) && !o.path.length && sofaSeatAt(o.pos) === i + 1);
+      if (!who) continue;
+      // (a plate a line of 18 under the name's, as the drawing lays them; the name's own line where it would be)
+      const top = project(CASINO_SOFA_SEATS[i].at).y, at = Math.max(top, bottom);
+      if (i === seat - 1) return at - top;
+      const id = who === live?.self ? ranksRef.current.me : who.info.id;
+      bottom = at + (ranksRef.current.titles[id] || (ranksRef.current.ranks[id] ?? 0) > 0 ? 36 : 18);
+    }
+    return 0;
+  }
+
   /** Where somebody is drawn in the back-to-front order. */
   /**
    * Where somebody's familiar is now (lib/town/gifts: what the room was told follows them): it trails a little way
@@ -3712,15 +3736,17 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     {
       ctx.save();
       if (faded || away) ctx.globalAlpha = 0.6;
-      label(ctx, name, p.x, foot.y + 13, isMe ? "#e5cc80" : "#e3e8ef", "rgba(15,19,25,0.78)");
+      // (on a casino sofa, below the plates of whoever sits to the left)
+      const fy = foot.y + sofaDrop(a);
+      label(ctx, name, p.x, fy + 13, isMe ? "#e5cc80" : "#e3e8ef", "rgba(15,19,25,0.78)");
       // the title somebody chose to wear, under their name (lib/town/lines); and for whoever has chosen none, the
       // name the well has for those who carried enough water to it, as before there were lines
       const who = isMe ? ranksRef.current.me : a.info.id, worn = ranksRef.current.titles[who], title = worn ? titleOf(worn.line, worn.rank) : null;
       const rank = ranksRef.current.ranks[who] ?? 0;
-      if (title) drawTitlePlate(ctx, { text: words.current.th ? title.th : title.en, line: worn.line, rank: worn.rank, x: p.x, y: foot.y + 31, now, seed: seedOf(a.info.id), img: iconImg.current, font: fontRef.current, reduced: reducedRef.current });
-      else if (rank > 0) tag(ctx, RANK_TITLES[rank - 1][words.current.th ? 0 : 1], p.x, foot.y + 31, RANK_INK[rank - 1]);
+      if (title) drawTitlePlate(ctx, { text: words.current.th ? title.th : title.en, line: worn.line, rank: worn.rank, x: p.x, y: fy + 31, now, seed: seedOf(a.info.id), img: iconImg.current, font: fontRef.current, reduced: reducedRef.current });
+      else if (rank > 0) tag(ctx, RANK_TITLES[rank - 1][words.current.th ? 0 : 1], p.x, fy + 31, RANK_INK[rank - 1]);
       // (Granny Twilla's: a try is said to be one; a limited copy worn by its winner says its number)
-      const below = foot.y + (title || rank > 0 ? 49 : 31);
+      const below = fy + (title || rank > 0 ? 49 : 31);
       if (a.info.trying) tag(ctx, words.current.th ? "ลองชุด" : "Trying on", p.x, below, "#9fd0ff");
       else {
         const lim = limitedOwners.current.get(isMe ? me.id : a.info.id)?.find((o) => o.outfit === OUTFITS[look.outfit ?? 0]?.id);
@@ -5089,7 +5115,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
               {/* In the casino, its own coins beside the purse's (the owner, 2026-10-27) */}
               {inCasino && casinoChips !== null && (
                 <span data-casino-chips className="relative ml-1 flex items-center gap-1 leading-none" title={`Casino Coin ${casinoChips.toLocaleString(w.th ? "th-TH" : "en-US")}`}>
-                  <span className="font-data text-label font-semibold leading-none text-muted">Casino</span>
+                  <CasinoChipIcon size={16} /><span className="sr-only">Casino Coin</span>
                   <span className="font-data text-meta font-semibold leading-none tabular-nums text-ink">{new Intl.NumberFormat(w.th ? "th-TH" : "en-US", { notation: "compact", maximumFractionDigits: 1 }).format(casinoChips)}</span>
                   {casinoPlus && <span key={casinoPlus.key} className="casino-plus is-under" aria-hidden>+{casinoPlus.n.toLocaleString("en-US")}</span>}
                 </span>

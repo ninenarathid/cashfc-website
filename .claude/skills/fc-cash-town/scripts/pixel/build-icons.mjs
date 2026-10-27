@@ -452,6 +452,11 @@ const SHEETS = [
   // shine stays at its upper left as in the other poses). Built with icons-casino-a into
   // the casino's picture (ICONS_ONLY=icons-casino-a,icons-casino-lever). Cut on 8.42, the reels' size: on 16.8 blocky
   ["icons-casino-lever", ["leverMount", "leverUp", "leverTiltUp", "leverFront", "leverTiltDown", "leverDown"], { range: [8.3, 8.5] }],
+  // the reels' lucky seven and the Casino Coin (2026-10-27, the owner: "วาดไอคอน Casino Coin และวาดรูปบนวงล้อ 4 รูป (7, เชอร์รี่,
+  // ทองแท่ง, popoto) ใหม่ให้เป็น pixel art แบบเดียวกับเกม"), with icons-casino-a for the reference: the seven, the chip and a
+  // stack of chips, and the cherries, the gold bar and the potato drawn again beside them (the reels take these, drawn
+  // with the seven at one size; icons-casino-a's stay as a second choice). Cut on 8.0, icons-casino-a's own: on 16.7 blocky
+  ["icons-casino-b", ["reelSeven", "casinoChip", "casinoChips", "reelCherryB", "reelGoldB", "reelPopotoB"], { range: [7.9, 8.1] }],
   // ── a giant pulled out together (2026-10-27): the knot where the ropes meet, soil clods, a snapped root, a dust puff
   // (thrown by the board as a pull lands or slips), the pull buttons' gloves on a rope, the pit left once it is out;
   // with icons-farm-d for the reference. Built alone into a small picture of the board's own (ICONS_ONLY=icons-giant-pull-a

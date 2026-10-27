@@ -11,6 +11,7 @@ import CasinoMap, { MACHINE_X, SPAWN, type CasinoPeer } from './CasinoMap';
 import CasinoSymbol from './CasinoSymbol';
 import CasinoLever from './CasinoLever';
 import CasinoReel from './CasinoReel';
+import CasinoChipIcon from './CasinoChipIcon';
 import { useCasino } from './useCasino';
 import './casino.css';
 import { CasinoSounds, outcomeSound } from '@/lib/town/casino-sound';
@@ -323,7 +324,7 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
       {error && <p className="casino-error" role="alert">{error}</p>}
       <div className="casino-lower tk tk-window" role="dialog" aria-label={pane === 'feed' ? 'ผลและเสียงเชียร์' : pane==='desk'?'พนักงาน Casino':pane==='mine'?'ของฉัน':`Slot เครื่อง ${selected}`}><button className="casino-panel-close pressable tk tk-slot" aria-label="ปิดหน้าต่าง" onClick={() => setPane('none')}>×</button>
         <div className="casino-play-layout"><section className="casino-console"><h2>เครื่อง {selected}</h2>
-        <p className="casino-allowance">{chips === null ? <>ครั้งละ {money(s.price)} coin</> : <>Casino Coin <span className="casino-count"><strong>{money(chipsNow ?? chips)}</strong>{plus && <span key={plus.key} className="casino-plus" aria-hidden>+{money(plus.n)}</span>}</span></>}</p>
+        <p className="casino-allowance">{chips === null ? <>ครั้งละ {money(s.price)} coin</> : <><CasinoChipIcon size={16} className="casino-chip-icon" />Casino Coin <span className="casino-count"><strong>{money(chipsNow ?? chips)}</strong>{plus && <span key={plus.key} className="casino-plus" aria-hidden>+{money(plus.n)}</span>}</span></>}</p>
         {idleLeft !== null && idleLeft < 15_000 && <p className="casino-afk" role="status">ไม่ได้หมุนนาน จะลุกจากเครื่องใน {Math.ceil(idleLeft / 1000)} วินาที</p>}
         {/* the machine itself (the owner, 2026-10-27): its lights, its reels, its price under them, and its lever at the side */}
         <div className={`casino-machine${rolling ? ' is-rolling' : ''}${rolling && !reduced && reelTeasing(latest!, clock) ? ' is-tease' : ''}`}><div className="casino-cabinet">
@@ -350,7 +351,7 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
           </details>
       </section></div><section className="casino-desk-in-room"><h2>พนักงาน Casino</h2>
         {chips !== null && <div className="casino-chips">
-          <p className="casino-chips-balance"><span>Casino Coin</span><strong>{money(chipsNow ?? chips)}</strong><small>Popoto coin {money(state.account.coins)}</small></p>
+          <p className="casino-chips-balance"><span><CasinoChipIcon size={18} className="casino-chip-icon" />Casino Coin</span><strong>{money(chipsNow ?? chips)}</strong><small>Popoto coin {money(state.account.coins)}</small></p>
           {(s.free_chips ?? 0) > 0 && (state.account.free_today ? <p className="casino-chips-taken">รับฟรีวันนี้แล้ว · รับใหม่ได้หลัง 05:00</p> :
             <button className="casino-chips-free pressable tk tk-btn" disabled={busy || !letIn(s, realAdmin)} onClick={freeChips}>รับฟรีวันนี้ {money(s.free_chips ?? 0)} Casino Coin</button>)}
           <p className="casino-chips-rate">แลก {money(rate)} Popoto coin = 1 Casino Coin · แลกกลับไม่ได้</p>

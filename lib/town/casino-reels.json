@@ -1,8 +1,8 @@
 {
- "image": "/town/icons-9942748df4.png",
+ "image": "/town/icons-aeebb76a0b.png",
  "size": [
   256,
-  64
+  74
  ],
  "icons": {
   "reelEvercold": [
@@ -12,25 +12,25 @@
    39
   ],
   "reelCoins": [
-   140,
-   1,
+   32,
+   43,
    28,
    27
   ],
   "reelCherry": [
-   86,
+   117,
    1,
    28,
    34
   ],
   "reelGold": [
-   1,
+   153,
    43,
    27,
    20
   ],
   "reelPopoto": [
-   115,
+   146,
    1,
    24,
    34
@@ -42,8 +42,8 @@
    37
   ],
   "leverMount": [
-   169,
-   1,
+   61,
+   43,
    17,
    26
   ],
@@ -54,20 +54,20 @@
    41
   ],
   "leverTiltUp": [
-   210,
-   1,
+   102,
+   43,
    20,
    24
   ],
   "leverFront": [
-   29,
+   181,
    43,
    14,
    15
   ],
   "leverTiltDown": [
-   187,
-   1,
+   79,
+   43,
    22,
    26
   ],
@@ -76,6 +76,42 @@
    1,
    14,
    38
+  ],
+  "reelSeven": [
+   223,
+   1,
+   25,
+   30
+  ],
+  "casinoChip": [
+   1,
+   43,
+   30,
+   30
+  ],
+  "casinoChips": [
+   197,
+   1,
+   25,
+   31
+  ],
+  "reelCherryB": [
+   86,
+   1,
+   30,
+   35
+  ],
+  "reelGoldB": [
+   123,
+   43,
+   29,
+   22
+  ],
+  "reelPopotoB": [
+   171,
+   1,
+   25,
+   34
   ]
  },
  "cursor": {}

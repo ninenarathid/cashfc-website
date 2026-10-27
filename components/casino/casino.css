@@ -278,3 +278,6 @@
    win's time and machine under its prize, clear of the parchment's edge) */
 .casino-allowance .casino-plus{color:#6b3a0c;text-shadow:none;font-size:15px}
 @media(max-width:639px){.casino-mine li{grid-template-columns:auto minmax(0,1fr)}.casino-mine-at{grid-column:2}}
+
+/* the Casino Coin's chip beside its counts (the owner, 2026-10-27) */
+.casino-chip-icon{vertical-align:-3px;margin-right:4px}
