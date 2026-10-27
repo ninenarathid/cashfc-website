@@ -136,18 +136,21 @@ const pressedAt=(e:{nativeEvent:Event})=>{const at=e.nativeEvent.timeStamp,now=p
 /**
  * A beat's button, judged as the finger, the mouse or the key goes down. A click comes only as the finger lifts, a
  * tenth of a second later, and the line has gone on by then by as much as half the band: a press dead on the mark
- * was taken as a miss (a member, 2026-10-27: "กดมินิเกมถูกแล้วไม่โปรยให้"). The click a finger or a mouse makes
- * (`detail` 1 or more) was judged as it went down, however long it was held; a key's own click is held back, and
- * should a browser send one all the same it is not judged twice. A click with no press behind it (a screen reader's,
- * a script's: `detail` 0) is judged when it comes.
+ * was taken as a miss (a member, 2026-10-27: "กดมินิเกมถูกแล้วไม่โปรยให้"). So the moment a press goes down is kept,
+ * and the click that ends it is judged by that moment: one beat a press however long it is held, and none for a
+ * touch that turns into a scroll (it gives no click). A finger's or a mouse's click (`detail` 1 or more) takes a
+ * pointer's moment, a key's click (`detail` 0) a key's; a click with no press behind it (a screen reader's, a
+ * script's) is judged when it comes.
  */
 export function useBeatPress(beat:(at:number)=>void){
-  const keyed=useRef(-Infinity),key=(e:KeyPress<HTMLButtonElement>)=>{if(e.key!==" "&&e.key!=="Enter")return false;e.preventDefault();keyed.current=performance.now();return true;};
+  const down=useRef<{at:number;by:"pointer"|"key"}|null>(null);
   return {
-    onPointerDown:(e:Press<HTMLButtonElement>)=>{if(e.button===0&&!e.currentTarget.disabled)beat(pressedAt(e));},
-    onKeyDown:(e:KeyPress<HTMLButtonElement>)=>{if(key(e)&&!e.repeat)beat(pressedAt(e));},
-    onKeyUp:(e:KeyPress<HTMLButtonElement>)=>{key(e);},
-    onClick:(e:{detail:number;nativeEvent:Event})=>{if(e.detail===0&&performance.now()-keyed.current>1000)beat(pressedAt(e));},
+    onPointerDown:(e:Press<HTMLButtonElement>)=>{down.current=e.button===0?{at:pressedAt(e),by:"pointer"}:null;},
+    onPointerCancel:()=>{down.current=null;},
+    // (a held Enter clicks again with every repeat: those are held back; Space clicks only as it is let go)
+    onKeyDown:(e:KeyPress<HTMLButtonElement>)=>{if(e.key!==" "&&e.key!=="Enter")return;if(e.repeat){if(e.key==="Enter")e.preventDefault();return;}down.current={at:pressedAt(e),by:"key"};},
+    onBlur:()=>{down.current=null;},
+    onClick:(e:{detail:number;nativeEvent:Event})=>{const d=down.current;down.current=null;beat(d&&d.by===(e.detail>0?"pointer":"key")?d.at:pressedAt(e));},
   };
 }
 export function ExtractionGame({run,onFinish,th,label,width=.09,retryFirst=false}:{run:Pick<ExtractionRun,"seed"|"id">;onFinish:(marks:number[],miss?:import('@/lib/town/reward-camp').CampMiss)=>void;th:boolean;label?:string;width?:number;retryFirst?:boolean}) {
