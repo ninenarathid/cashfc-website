@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { draftOf, draftProblem, effectiveChance, prizeWithAmount, reelAt, spinRevealed, wipedWords, type CasinoState, type CasinoSpin } from './casino';
+import { chipsOf, draftOf, draftProblem, effectiveChance, prizeWithAmount, reelAt, spinRevealed, whereItGoes, wipedWords, type CasinoState, type CasinoSpin } from './casino';
 const fixture = (): CasinoState => ({ user_id: 'tester', settings: { id: 1, revision: 1, title: 'Halloween', open: true, mode: 'weighted', price: 100, per_player: 100, budget: 100000000, reserved: 0, spins: 0, pool_size: 1800, pool_draws: 0, starts_at: null, ends_at: null, updated_at: '', updated_by: null }, prizes: [{ id: 'gold', name: 'Gil', kind: 'gil', amount: 1000000, chance: .4, stock: 20, issued: 0, announce: false, active: true }], account: { coins: 20000, spins: 0 }, spins: [], receipts: [], queue: [], server_now: '', paid_gil: 0 });
 describe('Casino presentation and settings', () => {
   it('shows depleted or unaffordable prizes as zero without redistributing odds', () => {
@@ -36,5 +36,23 @@ describe('Casino presentation and settings', () => {
     expect(wipedWords({ spins: 3, withdrawn: 0 })).toBe('ล้างผลทดสอบแล้ว');
     expect(wipedWords(null)).toBe('ล้างผลทดสอบแล้ว');
     expect(wipedWords({ spins: 3, withdrawn: 1000000 })).toContain('1,000,000');
+  });
+  it('takes the rate and the free Casino Coins into the desk only from a database that has them (v303)', () => {
+    const s = fixture();
+    expect('chip_rate' in draftOf(s)).toBe(false);
+    expect(chipsOf(s)).toBe(null);
+    s.settings.chip_rate = 1; s.settings.free_chips = 100; s.account.chips = 250; s.account.free_today = true;
+    const d = draftOf(s);
+    expect([d.chip_rate, d.free_chips, chipsOf(s)]).toEqual([1, 100, 250]);
+    expect(draftProblem(d, s.settings)).toBe(null);
+    expect(draftProblem({ ...d, chip_rate: 0 }, s.settings)).toContain('อัตราแลก');
+    expect(draftProblem({ ...d, free_chips: 100001 }, s.settings)).toContain('อัตราแลก');
+    expect(draftProblem({ ...d, chip_rate: 1.5 }, s.settings)).toContain('อัตราแลก');
+  });
+  it('names Casino Coins as Casino Coins, and says where they go', () => {
+    expect(prizeWithAmount({ name: '100 Casino Coin', kind: 'coin' as const, amount: 100 }, 200).name).toBe('200 Casino Coin');
+    expect(prizeWithAmount({ name: '50 Coin', kind: 'coin' as const, amount: 50 }, 80).name).toBe('80 Coin');
+    expect(whereItGoes({ kind: 'coin' }, true)).toBe('เข้า Casino Coin แล้ว');
+    expect(whereItGoes({ kind: 'coin' })).toBe('เข้ากระเป๋า Cash Town แล้ว');
   });
 });

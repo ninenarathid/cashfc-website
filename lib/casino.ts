@@ -26,6 +26,8 @@ export type CasinoSettings = {
   updated_at: string; updated_by: string | null;
   /** v299's; a database before it has only `open` (accessOf). */
   access?: CasinoAccess;
+  /** v303's: Popoto coins a Casino Coin, and the Casino Coins given free once a town day (0: none). */
+  chip_rate?: number; free_chips?: number;
 };
 export type CasinoSpin = {
   id: string; user_id: string; player_name: string; machine: number; revision: number;
@@ -48,7 +50,8 @@ export type CasinoWinner = {
 export type CasinoState = {
   room_epoch?: string;
   user_id: string; settings: CasinoSettings; prizes: CasinoPrize[];
-  account: { coins: number; spins: number }; spins: CasinoSpin[];
+  /** `coins`: the town purse's Popoto coins. v303's `chips`: the Casino Coins a spin takes; `free_today`: today's free ones taken. */
+  account: { coins: number; spins: number; chips?: number; free_today?: boolean }; spins: CasinoSpin[];
   receipts: CasinoReceipt[]; queue: CasinoReceipt[]; server_now: string; paid_gil: number;
   /** The admins' list of who won what (v299). */
   winners?: CasinoWinner[];
@@ -58,7 +61,7 @@ export type CasinoState = {
   admin?: boolean;
 };
 export type CasinoDraft = Pick<CasinoSettings,
-  'title' | 'open' | 'mode' | 'price' | 'per_player' | 'budget' | 'pool_size' | 'starts_at' | 'ends_at'> & { access: CasinoAccess; prizes: CasinoPrize[] };
+  'title' | 'open' | 'mode' | 'price' | 'per_player' | 'budget' | 'pool_size' | 'starts_at' | 'ends_at' | 'chip_rate' | 'free_chips'> & { access: CasinoAccess; prizes: CasinoPrize[] };
 /** Who may spin, from a database with v299 or one without. */
 export const accessOf = (s: Pick<CasinoSettings, 'open' | 'access'>): CasinoAccess => s.access ?? (s.open ? 'everyone' : 'closed');
 /** Whether this account may spin and walk in now (the hours aside): the database says so again at every spin. */
@@ -76,8 +79,10 @@ const UNUSED: Record<PrizeId, CasinoPrize> = {
   pair: { id: 'pair', name: '50 Coin', kind: 'coin', amount: 50, chance: 0, stock: 100000, issued: 0, announce: false, active: false },
 };
 export function draftOf(state: CasinoState): CasinoDraft {
-  const { title, open, mode, price, per_player, budget, pool_size, starts_at, ends_at } = state.settings;
-  return { title, open, access: accessOf(state.settings), mode, price, per_player, budget, pool_size, starts_at, ends_at, prizes: state.prizes.map(p => ({ ...p })) };
+  const { title, open, mode, price, per_player, budget, pool_size, starts_at, ends_at, chip_rate, free_chips } = state.settings;
+  // (the rate and the free coins only from a database that has them, v303: a desk before it sends neither)
+  return { title, open, access: accessOf(state.settings), mode, price, per_player, budget, pool_size, starts_at, ends_at,
+    ...(chip_rate === undefined ? {} : { chip_rate, free_chips }), prizes: state.prizes.map(p => ({ ...p })) };
 }
 export function effectiveChance(p: CasinoPrize, s: CasinoSettings, all: CasinoPrize[]): number {
   if (!p.active || p.issued >= p.stock || (p.kind === 'gil' && p.amount > s.budget - s.reserved)) return 0;
@@ -101,6 +106,8 @@ export function draftProblem(d: CasinoDraft, s: CasinoSettings): string | null {
     d.price < 1 || d.price > 100000 || d.per_player < 1 || d.per_player > 10000 ||
     d.budget < s.reserved || d.budget > 1e12 || d.pool_size < Math.max(1, s.pool_draws) || d.pool_size > 1e7) return 'ตรวจสอบราคา โควตา และงบที่จองไว้แล้ว';
   if (d.starts_at && d.ends_at && Date.parse(d.ends_at) <= Date.parse(d.starts_at)) return 'เวลาจบต้องอยู่หลังเวลาเริ่ม';
+  if (d.chip_rate !== undefined && (!Number.isSafeInteger(d.chip_rate) || d.chip_rate < 1 || d.chip_rate > 10000 ||
+    !Number.isSafeInteger(d.free_chips) || d.free_chips! < 0 || d.free_chips! > 100000)) return 'อัตราแลกต้องเป็น 1–10,000 และ Casino Coin ฟรีต่อวัน 0–100,000';
   for (const p of d.prizes) {
     if (!p.name.trim() || p.name.length > 100 || !Number.isFinite(Number(p.chance)) || p.chance < 0 || p.chance > 100 ||
       !Number.isSafeInteger(p.stock) || p.stock < p.issued || p.stock > 1e6 ||
@@ -113,7 +120,7 @@ export function draftProblem(d: CasinoDraft, s: CasinoSettings): string | null {
     if (left.reduce((n, p) => n + p.stock - p.issued, 0) > d.pool_size - s.pool_draws) return 'รางวัลมากกว่าสิทธิ์ที่เหลือในกอง';
     if (left.reduce((n, p) => n + (p.kind === 'gil' ? (p.stock - p.issued) * p.amount : 0), 0) > d.budget - s.reserved) return 'งบไม่พอสำหรับรางวัล Gil ที่เหลือในกอง';
   }
-  if (coinsBack(d, s) >= d.price) return 'Coin ที่ได้คืนเฉลี่ยต่อครั้งต้องน้อยกว่าราคาหมุน ไม่ให้เหรียญในเมืองเฟ้อ';
+  if (coinsBack(d, s) >= d.price) return 'Coin ที่ได้คืนเฉลี่ยต่อครั้งต้องน้อยกว่าราคาหมุน ไม่ให้หมุนฟรีได้ไม่สิ้นสุด';
   return null;
 }
 export function reelAt(spin: CasinoSpin, reel: number, now: number, reduced = false): SymbolId {
@@ -127,14 +134,23 @@ export function spinRevealed(spin: CasinoSpin, now: number) { return now >= Date
 export const money = (n: number) => n.toLocaleString('en-US');
 /** A Gil or Coin prize named by its amount alone ("250,000 Gil") is renamed with it; any other name is the admin's own. */
 export function prizeWithAmount<P extends Pick<CasinoPrize, 'name' | 'kind' | 'amount'>>(p: P, amount: number, kind: CasinoPrize['kind'] = p.kind): P {
-  const label = kind === 'gil' ? `${money(amount)} Gil` : kind === 'coin' ? `${money(amount)} Coin` : null;
-  return { ...p, kind, amount, name: label && Number.isSafeInteger(amount) && /^\s*[\d,]+\s*(gil|coin)\s*$/i.test(p.name) ? label : p.name };
+  const label = kind === 'gil' ? `${money(amount)} Gil` : kind === 'coin' ? `${money(amount)} ${/casino/i.test(p.name) ? 'Casino Coin' : 'Coin'}` : null;
+  return { ...p, kind, amount, name: label && Number.isSafeInteger(amount) && /^\s*[\d,]+\s*(gil|casino coin|coin)\s*$/i.test(p.name) ? label : p.name };
 }
 export const CLAIM_LABEL = { pending: 'รอรับ', processing: 'กำลังส่งมอบ', fulfilled: 'ส่งมอบแล้ว', cancelled: 'ยกเลิก' };
-/** Where a prize goes once won, said to the winner. */
-export function whereItGoes(p: Pick<PrizeSnapshot, 'kind'>): string {
-  return p.kind === 'gil' ? 'เข้ากระเป๋าเงิน Gil ในโปรไฟล์' : p.kind === 'coin' ? 'เข้ากระเป๋า Cash Town แล้ว' : 'อยู่ในกล่องรางวัล กดขอรับแล้วคุยกับแอดมินได้';
+/** Where a prize goes once won, said to the winner: coins into the Casino Coins once the database has them (v303). */
+export function whereItGoes(p: Pick<PrizeSnapshot, 'kind'>, chips = false): string {
+  return p.kind === 'gil' ? 'เข้ากระเป๋าเงิน Gil ในโปรไฟล์' : p.kind === 'coin' ? (chips ? 'เข้า Casino Coin แล้ว' : 'เข้ากระเป๋า Cash Town แล้ว') : 'อยู่ในกล่องรางวัล กดขอรับแล้วคุยกับแอดมินได้';
 }
+/** Whether the casino takes Casino Coins (v303), not the town purse's Popoto coins. */
+export const chipsOf = (s: Pick<CasinoState, 'account'>): number | null => typeof s.account.chips === 'number' ? Number(s.account.chips) : null;
+/** The changes the counter offers, in spins' worth: one, five, ten. */
+export const CHIP_PACKS = [1, 5, 10] as const;
+/** What the counter says of an answer of casino_live_buy / casino_live_free that took nothing (v303). */
+export const CHIP_WHY: Record<string, string> = {
+  closed: 'ตอนนี้ Casino ยังไม่เปิด แลกหรือรับไม่ได้', coins: 'Popoto coin ไม่พอ', amount: 'จำนวนไม่ถูกต้อง ลองใหม่อีกครั้ง',
+  taken: 'วันนี้รับฟรีไปแล้ว รับใหม่ได้หลัง 05:00', off: 'ตอนนี้ไม่มีแจก Casino Coin ฟรี',
+};
 /**
  * What the wipe of the admins' trial says it did (v299): and, when a tester had already withdrawn Gil won in the trial,
  * that this much of their 'เงินสะสม' prize row is the trial's, not to be handed over.

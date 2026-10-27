@@ -52,6 +52,8 @@ export default function CasinoDesk() {
   const expected = state.prizes.reduce((n, p) => n + (p.kind === 'gil' ? p.amount * effectiveChance(p, settings, state.prizes) / 100 : 0), 0);
   const activeQueue = state.queue;
   const back = coinsBack(draft, settings);
+  // (a spin takes Casino Coins once the database has them, v303: the desk sets their rate and the free ones)
+  const chips = live && draft.chip_rate !== undefined, unit = chips ? 'Casino Coin' : 'Coin';
   const wipe = async () => {
     if (!client || busy) return;
     if (!window.confirm(`ล้างผลทดสอบของแอดมินทั้งหมด ${money(state.tests ?? 0)} ครั้ง? coin สต็อก งบ Gil รายการผู้โชคดี แชท และกระเป๋าเงินที่มาจากการทดสอบจะกลับเป็นเหมือนก่อนทดสอบ`)) return;
@@ -69,7 +71,9 @@ export default function CasinoDesk() {
       <div className="casino-desk-grid">
         <label>ชื่อกิจกรรม<input value={draft.title} maxLength={100} onChange={e => edit('title', e.target.value)} /></label>
         <label>วิธีสุ่ม<select value={draft.mode} onChange={e => edit('mode', e.target.value as CasinoDraft['mode'])}><option value="weighted">สุ่มตาม % · จำกัดสต็อก</option><option value="pool">กองรางวัลจำกัด · จับแล้วไม่คืน</option></select></label>
-        <label>Coin ต่อครั้ง<input type="number" min={1} max={100000} value={draft.price} onChange={e => edit('price', Number(e.target.value))} /></label>
+        <label>{unit} ต่อครั้ง<input type="number" min={1} max={100000} value={draft.price} onChange={e => edit('price', Number(e.target.value))} /></label>
+        {chips && <label>Popoto coin ต่อ 1 Casino Coin<input type="number" min={1} max={10000} value={draft.chip_rate} onChange={e => edit('chip_rate', Number(e.target.value))} /></label>}
+        {chips && <label>Casino Coin ฟรีต่อคนต่อวัน (0 = ปิด)<input type="number" min={0} max={100000} value={draft.free_chips} onChange={e => edit('free_chips', Number(e.target.value))} /></label>}
         <label>จำนวนครั้งต่อคน<input type="number" min={1} max={10000} value={draft.per_player} onChange={e => edit('per_player', Number(e.target.value))} /></label>
         <label>งบ Gil ทั้งหมด<input type="number" min={settings.reserved} max={1e12} value={draft.budget} onChange={e => edit('budget', Number(e.target.value))} /></label>
         <label>สิทธิ์ในกองทั้งหมด<input type="number" disabled={draft.mode !== 'pool'} min={Math.max(1, settings.pool_draws)} max={1e7} value={draft.pool_size} onChange={e => edit('pool_size', Number(e.target.value))} /></label>
@@ -85,15 +89,16 @@ export default function CasinoDesk() {
           const issued = state.prizes.find(q => q.id === p.id)?.issued ?? p.issued;
           return <tr key={p.id}><td><input aria-label={`เปิด ${p.id}`} type="checkbox" checked={p.active} onChange={e => change({ active: e.target.checked })} /></td>
             <td><label><span>{PRIZE_LABEL[p.id] ?? p.id}</span><input aria-label={`ชื่อ ${p.id}`} value={p.name} maxLength={100} onChange={e => change({ name: e.target.value })} /></label></td>
-            <td><select aria-label={`ประเภท ${p.id}`} value={p.kind} disabled={p.id === 'pair'} onChange={e => change(prizeWithAmount(p, p.amount, e.target.value as typeof p.kind))}><option value="physical">ของนอกเกม</option><option value="gil">FFXIV Gil</option><option value="coin">Coin ในเกม</option></select></td>
+            <td><select aria-label={`ประเภท ${p.id}`} value={p.kind} disabled={p.id === 'pair'} onChange={e => change(prizeWithAmount(p, p.amount, e.target.value as typeof p.kind))}><option value="physical">ของนอกเกม</option><option value="gil">FFXIV Gil</option><option value="coin">{chips ? 'Casino Coin' : 'Coin ในเกม'}</option></select></td>
             <td><input aria-label={`มูลค่า ${p.id}`} type="number" min={p.kind === 'physical' ? 0 : 1} max={1e9} value={p.amount} onChange={e => change(prizeWithAmount(p, Number(e.target.value)))} /></td>
             <td><input aria-label={`โอกาส ${p.id}`} type="number" min={0} max={100} step="0.000001" disabled={draft.mode === 'pool'} value={p.chance} onChange={e => change({ chance: Number(e.target.value) })} /></td>
             <td><input aria-label={`สต็อก ${p.id}`} type="number" min={issued} max={1e6} value={p.stock} onChange={e => change({ stock: Number(e.target.value) })} /></td><td>{money(issued)}</td>
             <td><label className="casino-check"><input type="checkbox" checked={p.announce} onChange={e => change({ announce: e.target.checked })} />ประกาศ</label></td></tr>;
         })}</tbody></table></div>
       <p>{draft.mode === 'pool' ? 'โอกาสคำนวณจากสต็อกที่เหลือ / สิทธิ์ที่เหลือในกอง ถ้าจับครบกอง รางวัลที่เปิดไว้จะออกครบ' : 'โอกาสเป็นของแต่ละครั้ง จำนวนรางวัลที่ออกจริงไม่รับประกัน เมื่อสต็อกหรืองบไม่พอ โอกาสส่วนนั้นจะเป็นรอบไม่ชนะ'}</p>
-      <p>{live ? 'ของนอกเกมเข้ากล่องรางวัลของผู้ชนะ (ผู้ชนะกดขอรับ แล้วคุยกับแอดมินในแชท 1-1) · Gil เข้ากระเป๋าเงินในโปรไฟล์ · Coin เข้ากระเป๋า Cash Town ทันที' : 'ของนอกเกมและ Gil ออกเป็นสิทธิ์ในกระเป๋า Event ส่วน Coin เข้าบัญชีทดลองทันที'} · สองช่องแรกตรงกันได้ Coin คืน · การประกาศอิงค่าขณะรับการหมุน</p>
-      <p>Coin ที่ได้คืนเฉลี่ย {back.toFixed(1)} ต่อการหมุน · ต้องน้อยกว่าราคาหมุน {money(draft.price)} เพื่อไม่ให้เหรียญในเมืองเฟ้อ</p>
+      <p>{live ? 'ของนอกเกมเข้ากล่องรางวัลของผู้ชนะ (ผู้ชนะกดขอรับ แล้วคุยกับแอดมินในแชท 1-1) · Gil เข้ากระเป๋าเงินในโปรไฟล์ · ' + (chips ? 'Casino Coin เข้ายอด Casino Coin ทันที' : 'Coin เข้ากระเป๋า Cash Town ทันที') : 'ของนอกเกมและ Gil ออกเป็นสิทธิ์ในกระเป๋า Event ส่วน Coin เข้าบัญชีทดลองทันที'} · สองช่องแรกตรงกันได้ Coin คืน · การประกาศอิงค่าขณะรับการหมุน</p>
+      <p>{unit} ที่ได้คืนเฉลี่ย {back.toFixed(1)} ต่อการหมุน · ต้องน้อยกว่าราคาหมุน {money(draft.price)} {chips ? 'ไม่ให้ Casino Coin ฟรีหมุนได้ไม่สิ้นสุด' : 'เพื่อไม่ให้เหรียญในเมืองเฟ้อ'}</p>
+      {chips && <p>ผู้เล่นแลก Popoto coin เป็น Casino Coin ที่เคาน์เตอร์ในห้อง (แลกกลับไม่ได้) และรับฟรีได้วันละครั้งหลัง 05:00 · ตอนแอดมินทดสอบ การแลกและรับฟรีนับเป็นการทดสอบ ล้างแล้วคืน Popoto coin และเอา Casino Coin ออก</p>}
       {issue && <p role="status">{issue}</p>}
       <div className="casino-actions"><button className="casino-save" disabled={busy || !dirty || !!issue || changed} onClick={() => void save()}>บันทึกทั้งชุด</button>
         <button disabled={busy} onClick={() => { setDirty(false); setMessage(''); void reload(); }}>โหลดค่าปัจจุบัน</button></div>
