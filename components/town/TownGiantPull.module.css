@@ -27,7 +27,7 @@
 .canvas { display: block; width: 100%; height: auto; aspect-ratio: 266 / 177; image-rendering: pixelated; }
 .count {
   position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none;
-  font: 700 clamp(44px, 14vw, 72px)/1 var(--font-display, inherit); color: var(--cream);
+  font-weight: 700; font-size: clamp(44px, 14vw, 72px); line-height: 1; font-family: var(--font-display, inherit); color: var(--cream);
   text-shadow: 0 4px 0 #1a0e06, 0 0 18px #f0c06099;
   animation: count 900ms ease-out both;
 }
@@ -87,7 +87,7 @@
 
 /* Out */
 .done { margin-top: 4px; text-align: center; color: var(--cream); }
-.big { margin: 2px 0 6px; font: 700 22px/1.2 var(--font-display, inherit); color: #fff3a0; text-shadow: 0 2px 0 #1a0e06; animation: pop-in 500ms cubic-bezier(.2, 1.6, .4, 1) both; }
+.big { margin: 2px 0 6px; font-weight: 700; font-size: 22px; line-height: 1.2; font-family: var(--font-display, inherit); color: #fff3a0; text-shadow: 0 2px 0 #1a0e06; animation: pop-in 500ms cubic-bezier(.2, 1.6, .4, 1) both; }
 .got { display: inline-flex; align-items: center; gap: 4px; margin: 0 4px; font-weight: 700; }
 
 @keyframes count { from { scale: 1.6; opacity: 0; } 30% { scale: 1; opacity: 1; } to { opacity: 0.85; } }

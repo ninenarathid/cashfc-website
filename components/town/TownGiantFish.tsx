@@ -5,7 +5,7 @@ import { isSpent } from "@/lib/town/stamina";
 import { walkable } from "@/lib/town/world";
 import { daylight, daylightAt } from "@/lib/town/daylight";
 import { GIANT, GIANTS, callWords, fighting, holding, settled, type GiantHook, type GiantRefusal } from "@/lib/town/giant-fish";
-import { BOARD, atNet, cueing, hoopNow, lineGap, moveHoop, openHoop, rocksOf, scoops, shutHoop, startFish, stepFish, type FishState, type Hoop } from "@/lib/town/giant-fight";
+import { BOARD, FIGHT_FEEL, atNet, cueing, hoopNow, lineGap, moveHoop, openHoop, rocksOf, scoops, shutHoop, startFish, stepFish, type FishState, type Hoop } from "@/lib/town/giant-fight";
 import ART from "@/lib/town/catch-art.json";
 import TownFoot from "./TownFoot";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
@@ -38,6 +38,8 @@ const WOOD = "pressable tk tk-btn-wood min-h-11 px-3 text-ui font-semibold disab
 const GREEN = "pressable tk tk-btn flex min-h-12 items-center justify-center gap-2 font-display text-ui font-semibold disabled:opacity-50";
 const OPEN = "pop-in pressable pointer-events-auto flex min-h-12 items-center gap-2 rounded-full border-2 border-[#f0c060] bg-[#3a2513]/95 py-1 pl-2 pr-4 text-ui font-semibold text-[#ffeccb] shadow-xl shadow-black/40";
 const SEND_EVERY = 120;
+/** The fight's count-in, seconds: the fish stays put and the rule is said. */
+const COUNT_IN = 3;
 const WATER: Record<GiantHook["water"], [string, string]> = { town: ["ท่าน้ำในเมือง", "the town's water"], creek: ["ลำธารในป่า", "the forest creek"], headwater: ["ต้นน้ำ", "the headwater"], pool: ["แอ่งน้ำตก", "the falls pool"] };
 const REFUSED: Partial<Record<GiantRefusal, [string, string]>> = {
   far: ["ต้องยืนใกล้เสาที่ผูกสายไว้", "Stand near the post the line is tied to"], taken: ["มีคนช้อนแล้ว", "Somebody is netting it already"],
@@ -228,7 +230,8 @@ export default function TownGiantFish({ me, myName, keeper, th, here, hour, pair
         f.tip = Math.max(BOARD.left, Math.min(BOARD.right, f.tip + dir * 120 * dt));
         const tired = isSpent(keeper.purse(), knowNow), scooped = f.heard > f.scoops;
         if (scooped) { f.scoops = f.heard; f.flash.push({ at: pnow, x: f.fish.x, y: f.fish.y, kind: "scoop" }); }
-        if (!h.how && t >= 0 && t <= GIANT.fight / 1000) {
+        // (a count-in first, the two of them ready: the fish stays put till it is over)
+        if (!h.how && t >= COUNT_IN && t <= GIANT.fight / 1000) {
           const step = stepFish(f.fish, t, dt, f.tip, tired, mine.seed, rocks, scooped);
           f.fish = step.fish;
           // (a fray the keeper did not take, two reports too close by the network's jitter, is not counted here either: the line can still break)
@@ -242,7 +245,8 @@ export default function TownGiantFish({ me, myName, keeper, th, here, hour, pair
         // the netter: the fish as the angler's page last said, eased towards it; my own hoop
         const dir = (f.keys.ArrowRight ? 1 : 0) - (f.keys.ArrowLeft ? 1 : 0);
         f.hoop = hoopNow(moveHoop(f.hoop, dir, dt), t);
-        if (f.keys[" "] && f.hoop.open == null) f.hoop = openHoop(f.hoop, t);
+        // (held open by a finger or by Space alike: dropped shut after a while, it is lifted again while still held)
+        if ((f.keys[" "] || f.keys.held) && f.hoop.open == null) f.hoop = openHoop(f.hoop, t);
         if (!f.keys[" "] && f.keys.held === false && f.hoop.open != null) f.hoop = shutHoop(f.hoop, t);
         const w = f.seen;
         if (w && typeof w.x === "number" && typeof w.y === "number") {
@@ -278,7 +282,11 @@ export default function TownGiantFish({ me, myName, keeper, th, here, hour, pair
       put(ctx, "gfRodTip", tx, ty + 6);
       // the hoop, along the net's line; held open, a ring of light round it
       if (hoop) {
+        // (being lifted again after it dropped shut: dimmed till it can be opened)
+        const lifting = hoop.open == null && hoop.fell != null && t - hoop.fell < FIGHT_FEEL.lift;
+        if (lifting) ctx.globalAlpha = 0.5;
         put(ctx, "gfHoop", hoop.x * KX, BOARD.net * KY + 6);
+        ctx.globalAlpha = 1;
         if (hoop.open != null) { ctx.fillStyle = "rgba(255,224,138,0.85)"; for (let q = 0; q < 32; q++) { const ang = (q / 32) * Math.PI * 2; ctx.fillRect(Math.round(hoop.x * KX + Math.cos(ang) * 24), Math.round(BOARD.net * KY + 6 + Math.sin(ang) * 24), 1, 1); } }
       }
       // what happened: white water where a scoop took it, sparks where the line rubbed
@@ -368,6 +376,7 @@ export default function TownGiantFish({ me, myName, keeper, th, here, hour, pair
       <div className={s.stage}>
         <canvas ref={canvas} width={W} height={H} className={`${s.canvas} ${g.scene}`} style={{ aspectRatio: `${W} / ${H}` }} />
         {hold && <div className={g.tag}>{th ? "ผูกสายไว้กับเสา" : "Tied to the post"}</div>}
+        {mine.go > 0 && !ended && t < COUNT_IN * 1000 && <div className={s.count} aria-live="polite">{Math.max(1, Math.ceil(COUNT_IN - t / 1000))}</div>}
         {!hold && !ended && <><div className={g.tag}>{th ? `ช้อนแล้ว ${mine.scoops.length}/${GIANT.scoops}` : `Netted ${mine.scoops.length}/${GIANT.scoops}`}</div>
           <div className={g.tag} data-right data-tone={mine.frays.length ? "warn" : undefined}>{th ? "สายถลอก " : "Line "}{"●".repeat(mine.frays.length)}{"○".repeat(GIANT.frays - mine.frays.length)}</div></>}
         {!ended && <div className={g.bar} data-tone={left < 30_000 ? "warn" : undefined}><b>{hold ? (th ? `รอเพื่อน ${clock(left)}` : `Waiting ${clock(left)}`) : clock(left)}</b><i><span style={{ width: `${Math.max(0, Math.min(100, (left / (hold ? GIANT.hold : GIANT.fight)) * 100))}%` }} /></i></div>}
@@ -404,7 +413,7 @@ export default function TownGiantFish({ me, myName, keeper, th, here, hour, pair
         {!mine.claimed.includes(me) && steak !== mine.id && claimed.current === mine.id && !busy && <button type="button" className={`${GREEN} w-full`} onClick={() => void act("claim", mine.id)}>{th ? "รับสเต๊กอีกครั้ง" : "Take it again"}</button>}
       </div>}
       {ended && mine.how !== "landed" && <p role="status" className={s.note} data-tone="miss">{lostWords}</p>}
-      {mine.go > 0 && !ended && t < 3000 && <p className={g.hint}>{th ? "เริ่ม! ปลาจะพุ่งหนีเป็นช่วง ๆ ดูวงน้ำก่อนมันพุ่ง" : "Go! It runs now and then: watch the rings before it runs"}</p>}
+      {mine.go > 0 && !ended && t < 8000 && <p className={g.hint}>{th ? "ช้อนให้ได้ 3 ครั้ง · สายถลอกครบ 3 ครั้งจะขาด · ดูวงน้ำก่อนปลาพุ่ง" : "Net it 3 times · the line breaks at 3 frays · watch the rings before it runs"}</p>}
       {said && <p role="status" className={s.said}>{said}</p>}
     </section>
   </TownFoot>;
