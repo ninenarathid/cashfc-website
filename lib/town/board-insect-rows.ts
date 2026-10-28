@@ -47,8 +47,12 @@ export const BOARD_IDS = ROWS.map((r) => r.id) as BoardInsectId[];
 /** How a common one weighs beside a rare one out at the same hour. */
 export const WEIGHT = { common: 3, rare: 1 };
 
-/** As lib/town/insects has its insects: never at a haunt (no `at`), their hours for the book; one stamina at the take, never refused for want of it (lib/town/board-insects). */
-export const BOARD_BUGS = Object.fromEntries(ROWS.map((r): [string, Bug] => [r.id, { habit: "look", at: [], weight: 0, n: [1, 1], cost: 1, size: 0.7, hours: r.hours }])) as Record<BoardInsectId, Bug>;
+/**
+ * As lib/town/insects has its insects: never at a haunt (no `at`), their hours for the book; one stamina at the take,
+ * never refused for want of it (lib/town/board-insects). Their weight is not a haunt's (they have none) but the
+ * insects' line reads it (lib/town/line-points' bugPoints): a common one is a way's worth (3), a rare one a rare's (8).
+ */
+export const BOARD_BUGS = Object.fromEntries(ROWS.map((r): [string, Bug] => [r.id, { habit: "look", at: [], weight: r.rare ? 5 : 60, n: [1, 1], cost: 1, size: 0.7, hours: r.hours }])) as Record<BoardInsectId, Bug>;
 export const BOARD_INSECT_ITEMS = Object.fromEntries(ROWS.map((r): [string, Item] => [r.id, {
   kind: "bug", tier: r.rare ? 3 : 2, name: { th: r.th, en: r.en }, about: { th: r.look[0], en: r.look[1] }, stack: r.rare ? 10 : 20, pays: r.pays,
 }])) as Record<BoardInsectId, Item>;

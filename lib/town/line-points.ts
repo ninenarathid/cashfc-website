@@ -11,6 +11,7 @@ import { CROP_IDS, DISH_IDS, FISH_IDS, MAKE_IDS } from "./items";
 import { BRIDGE } from "./bridge";
 import { LAMPS } from "./lamps";
 import { PULL } from "./giant-pull";
+import { GIANTS, GIANT_IDS, type GiantId } from "./giant-fish";
 
 /**
  * What counts for the points of a line (lib/town/lines), read off what is written down anyway: a deed (the
@@ -33,6 +34,10 @@ import { PULL } from "./giant-pull";
  * - **A stone laid for the bridge** (lib/town/bridge) is a helpers' point to everybody whose hands it went through.
  * - **A lamp post lit at dusk** (lib/town/lamps) is three helpers' points to everybody whose hands its flame went through.
  * - **A giant pulled out together** (lib/town/giant-pull) is five helpers' points to each helper who pulled it well.
+ * - **A giant fish landed together** (lib/town/giant-fish) is a rare fish's worth on the fishing line to each of the two
+ *   who landed it, the angler and the netter, and a legend's for the rare one before dawn; the first of each giant ten
+ *   more (the owner, 2026-10-28: "ควรได้แต้มทั้งคู่"). The leaf roll's and the shaken branch's insects (lib/town/board-insects)
+ *   are a net's insects: the same deed, the same worth.
  * - **The well**: actual positive carrier deltas award XP subject to the daily bound. The old water book keeps raw statistics.
  *
  * The numbers are knobs (mine, to be set from what the members really do before the lines open). A day's bound is
@@ -48,6 +53,8 @@ export const POINTS = {
   forest: { pick: 1, choose: 2, shake: 2, dig: 3, rare: 10 } as Record<string, number>,
   /** Encounter effort, not selling prices, determines insect experience. */
   insects: { plain: 1, way: 3, rare: 8 },
+  /** A giant fish landed together, to each of the two: a rare fish's, a legend's for the dawn's rare one. */
+  giant: { plain: 8, rare: 30 },
   farming: { every: 12, minimum: 2, establishment: 72, establishmentMax: 4, care: 2, giantCells: 4 },
   // ── felling ── (a tree felled, by its kind: lib/town/trees' kindOf; the ancient tree its own; and, on the helpers'
   // line, a trunk braced for somebody else's go)
@@ -80,6 +87,7 @@ export function linesRow() {
     forest: { how: { pick: POINTS.forest.pick, choose: POINTS.forest.choose, shake: POINTS.forest.shake, dig: POINTS.forest.dig }, rare: POINTS.forest.rare, rares: [...RARE_WILD].sort(),
       kinds: Object.fromEntries(Object.entries(SECRET_KINDS).map(([id, k]) => [id, POINTS.forest[k.how] + POINTS.forest[k.then]])), parts: [...FOREST_PART_ITEMS].sort(), part: 2 },
     insects,
+    giants: Object.fromEntries(GIANT_IDS.map((id) => [id, giantPoints(id)])),
     farming: Object.fromEntries(CROP_IDS.map((id) => [id, farmPoints(id)])),
     farmingAgain: Object.fromEntries(CROP_IDS.map((id) => [id, farmPoints(id, 1)])),
     farmingCells: Object.fromEntries(CROP_IDS.map((id) => [id, cropCells(id)])),
@@ -147,6 +155,8 @@ export function fishPoints(id: FishId): number {
   return fish ? (POINTS.fishing[fish.tier] ?? 0) + (fish.needs?.length ? Math.min(2, fish.needs.length) : 0) : 0;
 }
 const miningDepth = (floor: unknown) => typeof floor === "number" && Number.isInteger(floor) ? floor >= 21 ? 3 : floor >= 11 ? 2 : 1 : 1;
+/** What a giant fish landed together is worth to each of the two who landed it. */
+export const giantPoints = (id: string): number => (id in GIANTS ? (GIANTS[id as GiantId].rare ? POINTS.giant.rare : POINTS.giant.plain) : 0);
 /** What an insect is worth, by effort and encounter scarcity. */
 export function bugPoints(id: string): number {
   const b = BUGS[id as keyof typeof BUGS];
@@ -210,6 +220,11 @@ export function countsOf(d: Done, doer: string): Counts[] {
     case "net": {
       const raw = bugPoints(thing);
       return raw ? [{ to: null, line: "insects", raw, first: `insects:${thing}` }] : [];
+    }
+    // (a giant fish landed together: written down for each of the two, lib/town/giant-fish)
+    case "giant": {
+      const raw = giantPoints(thing);
+      return raw ? [{ to: null, line: "fishing", raw, first: `fishing:${thing}` }] : [];
     }
     // ── mining ── (lib/town/mining: a deed for each rock broken, with the fragments it left if it left any; one for a
     // vein played out, with the ore and the gem it gave; one for a way down found; one for the crystal rock. A vein's

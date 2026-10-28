@@ -124,3 +124,12 @@ describe("the fight, played", () => {
     expect(FIGHT_FEEL.reach).toBeGreaterThan(8);
   });
 });
+
+describe("the points of a giant", () => {
+  it("are a rare fish's on the fishing line for each of the two, a legend's for the dawn's rare one, the first of each ten more", async () => {
+    const { countsOf, POINTS } = await import("./line-points");
+    expect(countsOf({ from: "deed", what: "giant", thing: "sailbackCarp", n: 1, doc: {} }, "me")).toEqual([{ to: null, line: "fishing", raw: POINTS.fishing.rare, first: "fishing:sailbackCarp" }]);
+    expect(countsOf({ from: "deed", what: "giant", thing: "glasswakeCarp", n: 1, doc: {} }, "me")[0].raw).toBe(POINTS.fishing.legend);
+    expect(countsOf({ from: "deed", what: "giant", thing: "nothing", n: 1, doc: {} }, "me")).toEqual([]);
+  });
+});

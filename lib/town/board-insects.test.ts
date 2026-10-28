@@ -116,3 +116,11 @@ describe("shaking a branch over a sheet", () => {
     expect(callShake(spot, s, "me", "Me", at, now + 20_000, "s2").ok).toBe(true);
   });
 });
+
+describe("the points of the two boards' insects", () => {
+  it("are a net's: a common one a way's worth, a rare one a rare's", async () => {
+    const { countsOf, POINTS } = await import("./line-points");
+    expect(countsOf({ from: "deed", what: "net", thing: "crimsonRollerWeevil", n: 1, doc: {} }, "me")).toEqual([{ to: null, line: "insects", raw: POINTS.insects.way, first: "insects:crimsonRollerWeevil" }]);
+    for (const id of ["dewfoldMoth", "mistrollWeevil", "ghostBarkMantis"]) expect(countsOf({ from: "deed", what: "net", thing: id, n: 1, doc: {} }, "me")[0].raw).toBe(POINTS.insects.rare);
+  });
+});

@@ -404,7 +404,7 @@ export class Trial {
     return { turns: b.turns.filter((t) => t.turn >= turn - 1), shakes: (b.shakes ?? []).filter((s) => s.turn >= turn - 1) };
   }
   /** An insect into my bag from a board, and its one stamina (never refused for want of it). */
-  private boardGot(id: string) { const p = this.purse(); this.save(spend({ ...p, bag: put(p.bag, id as ItemId, 1) }, 1, this.now())); }
+  private boardGot(id: string) { const p = this.purse(); this.save(spend({ ...p, bag: put(p.bag, id as ItemId, 1) }, 1, this.now())); this.counted({ from: "deed", what: "net", thing: id, n: 1, doc: {} }); }
   boardRoll(action: "open" | "take", spotId: number, me: string, at: [number, number] | null): BoardDid<{ turn: SpotTurn; held?: string; got?: string }> {
     const b = this.boards(), spot = BOARD_SPOTS[spotId], kept = b.turns.find((t) => t.spot === spotId && t.turn === boardTurn(this.now())) ?? null;
     const did = action === "open" ? openRoll(spot, kept, me, at, this.now()) : takeRoll(spot, kept, me, at, this.now(), roomFor(this.purse().bag, (heldAt(spot, boardTurn(this.now()))[0] ?? "crimsonRollerWeevil") as ItemId) < 1);
@@ -442,7 +442,8 @@ export class Trial {
     const did = giantFish(action, hook, me, myName, this.now(), { ...opts, bagFull: roomFor(purse.bag, "giantSteak") < 1 });
     if (!did.ok) return did;
     if (action !== "look" || did.hook.how !== hook?.how) this.write(GIANT_HOOKS, all.map((h) => (h.id === id ? did.hook : h)));
-    if (did.steak) this.save({ ...purse, bag: put(purse.bag, "giantSteak", 1) });
+    // (the steak, and the giant on the fishing line: written down for each of the two as each takes theirs)
+    if (did.steak) { this.save({ ...purse, bag: put(purse.bag, "giantSteak", 1) }); this.counted({ from: "deed", what: "giant", thing: did.hook.giant, n: 1, doc: {} }); }
     return did;
   }
   camps():FieldCamp[]{return this.read<FieldCamp[]>("cashtown.trial.camps.1",()=>[],Array.isArray).filter(c=>c.until>this.now());}

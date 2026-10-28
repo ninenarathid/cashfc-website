@@ -109,7 +109,8 @@ describe("insects (the owner: \"จับแมลง ในทุกแมพ�
   it("pay no more than the forest does for a point of stamina, the common ones", () => {
     for (const id of BUG_IDS) {
       const b = BUGS[id];
-      if (b.day || b.moon || b.weight < 40) continue;
+      // (nor the two boards' own: paid as the owner agreed for a board's work, 3-5 and 4-6, not a haunt's tap)
+      if (b.day || b.moon || b.weight < 40 || id in BOARD_BUGS) continue;
       const pays = (ITEMS[id].pays * (b.n[0] + b.n[1])) / 2 / b.cost;
       expect(pays, id).toBeGreaterThanOrEqual(1);
       expect(pays, id).toBeLessThanOrEqual(4);
