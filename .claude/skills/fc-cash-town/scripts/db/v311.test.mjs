@@ -191,7 +191,7 @@ try {
   await setNow(opened + B.BOARD.unrollMin - 1);
   eq(why(await rollDo(M1, "take", spot.id, at, "a take too soon")), "soon", "not before four seconds");
   await setNow(opened + B.BOARD.unrollMin);
-  eq(why(await rollDo(M2, "take", spot.id, at, "a take by one who never opened it")), "soon", "nor by one who has not opened it");
+  eq(why(await rollDo(M2, "take", spot.id, at, "a take by one who never opened it")), "busy", "nor by one who has not opened it, while the opener's hold runs");
   eq(why(await rollDo(M1, "take", spot.id, [spot.x + 3, spot.y], "a take from afar")), "far", "near the bush");
   await setBag(M1, ...Array.from({ length: 10 }, () => ROD));
   eq(why(await rollDo(M1, "take", spot.id, at, "a take into a full bag")), "full", "no room, no insect");
@@ -233,6 +233,7 @@ try {
   eq(why(await rollDo(M3, "open", spot.id, far2, "a second opener once the hold is over")), "ok", "two at one roll, one after the other");
   await setNow(T2 + B.BOARD.hold + 10);
   eq(why(await rollDo(M2, "open", spot.id, at, "the first opener again while the second's hold runs")), "busy", "nor the first again while the second's runs");
+  eq(why(await rollDo(M2, "take", spot.id, at, "the first opener's take while the second's hold runs")), "busy", "nor takes it while the second's runs (Codex's check)");
   await setNow(T2 + 2 * B.BOARD.hold);
   r = await rollDo(M2, "open", spot.id, at, "a re-open after both holds");
   eq([why(r), r.turn?.opened?.[M2]], ["ok", T2], "a re-open keeps the first opening's time");

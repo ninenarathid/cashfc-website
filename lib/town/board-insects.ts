@@ -146,6 +146,8 @@ export function takeRoll(spot: BoardSpot | undefined, t: SpotTurn | null, me: st
   if (!held || !t || t.spot !== spot.id || !(t.turn === turn || (t.turn === turn - 1 && t.opened[me] !== undefined && now - t.opened[me] < BOARD.hold))) return { ok: false, why: "none" };
   if (t.taken) return { ok: false, why: "taken" };
   if (!nearSpot(spot, at)) return { ok: false, why: "far" };
+  // (while another's hold runs, the leaf is theirs: an earlier opener whose own hold ran out waits it out too)
+  if (Object.entries(t.opened).some(([who, at]) => who !== me && now - at < BOARD.hold)) return { ok: false, why: "busy" };
   const opened = t.opened[me];
   if (opened === undefined || now - opened < BOARD.unrollMin) return { ok: false, why: "soon" };
   if (bagFull) return { ok: false, why: "full" };

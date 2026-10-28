@@ -274,6 +274,10 @@ begin
   end if;
   if t->>'taken' is not null then return town.answer(me, town.no('taken')); end if;
   if not town.board_near(s, p_x, p_y) then return town.answer(me, town.no('far')); end if;
+  -- (while another's hold runs, the leaf is theirs: an earlier opener whose own hold ran out waits it out too)
+  if exists (select 1 from jsonb_each_text(t->'opened') o where o.key <> me_ and now_ - o.value::bigint < hold_) then
+    return town.answer(me, town.no('busy'));
+  end if;
   opened_ := (t->'opened'->>me_)::bigint;
   if opened_ is null or now_ - opened_ < (b->>'unrollMin')::bigint then return town.answer(me, town.no('soon')); end if;
   if town.room(purse_->'bag', held_) < 1 then return town.answer(me, town.no('full')); end if;

@@ -69,7 +69,7 @@ describe("unrolling a leaf", () => {
     expect(openRoll(spot, null, "me", [spot.x + 9, spot.y], now)).toEqual({ ok: false, why: "far" });
     const o = ok(openRoll(spot, null, "me", at, now));
     expect(takeRoll(spot, o.turn, "me", at, now + BOARD.unrollMin - 1)).toEqual({ ok: false, why: "soon" });
-    expect(takeRoll(spot, o.turn, "you", at, now + BOARD.unrollMin)).toEqual({ ok: false, why: "soon" });
+    expect(takeRoll(spot, o.turn, "you", at, now + BOARD.unrollMin)).toEqual({ ok: false, why: "busy" });
     expect(takeRoll(spot, o.turn, "me", at, now + BOARD.unrollMin, true)).toEqual({ ok: false, why: "full" });
     const got = ok(takeRoll(spot, o.turn, "me", at, now + BOARD.unrollMin));
     expect(got.got).toBe(heldAt(spot, turn)[0]);
@@ -87,6 +87,9 @@ describe("unrolling a leaf", () => {
     const again = ok(openRoll(spot, both.turn, "me", at, now + 2 * BOARD.hold));
     expect(again.turn.opened.me).toBe(now);
     expect(openRoll(spot, again.turn, "them", at, now + 2 * BOARD.hold + 10).ok).toBe(true);
+    // (and a take waits out another's hold: mine ran out, yours runs; after it, the first take has it)
+    expect(takeRoll(spot, both.turn, "me", at, now + BOARD.hold + 10)).toEqual({ ok: false, why: "busy" });
+    expect(ok(takeRoll(spot, both.turn, "me", at, now + 2 * BOARD.hold)).got).toBe(heldAt(spot, turn)[0]);
     // opened just before its turn's end: the take after the turn is over gives what that turn held, within the hold
     const late = (turn + 1) * BOARD.turn - 5_000, l = ok(openRoll(spot, null, "me", at, late));
     expect(rollTurnOf([l.turn], spot.id, "me", late + 6_000)).toBe(l.turn);

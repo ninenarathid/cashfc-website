@@ -169,7 +169,7 @@ export default function TownBoardInsects({ me, myName, keeper, th, here, hour, p
     try {
       const did = await keeper.boardRoll?.("take", roll.spot, at);
       if (!did) return;
-      if (!did.ok) { say(did.why as BoardRefusal); if (did.why === "taken" || did.why === "none") setRoll(null); return; }
+      if (!did.ok) { if (did.why === "busy") setSaid(th ? "มีคนกำลังแกะใบนี้อยู่ รอสักครู่" : "Somebody is unrolling this one: a moment"); else say(did.why as BoardRefusal); if (did.why === "taken" || did.why === "none") setRoll(null); return; }
       setRoll({ ...roll, got: did.got }); void read();
     } finally { setBusy(false); }
   };
