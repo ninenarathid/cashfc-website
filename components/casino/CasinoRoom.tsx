@@ -358,6 +358,7 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
       </section></div><section className="casino-desk-in-room"><h2>พนักงาน Casino</h2>
         {chips !== null && <div className="casino-chips">
           <p className="casino-chips-balance"><span><CasinoChipIcon size={18} className="casino-chip-icon" />Casino Coin</span><strong>{money(chipsNow ?? chips)}</strong><small>Popoto coin {money(state.account.coins)}</small></p>
+          <button className="casino-chips-back pressable tk tk-slot" onClick={() => void select(selected)}>ไปเล่นที่เครื่อง {selected}</button>
           {(s.free_chips ?? 0) > 0 && (state.account.free_today ? <p className="casino-chips-taken">รับฟรีวันนี้แล้ว · รับใหม่ได้หลัง 05:00</p> :
             <button className="casino-chips-free pressable tk tk-btn" disabled={busy || !letIn(s, realAdmin)} onClick={freeChips}>รับฟรีวันนี้ {money(s.free_chips ?? 0)} Casino Coin</button>)}
           <p className="casino-chips-rate">แลก {money(rate)} Popoto coin = 1 Casino Coin</p>
@@ -372,16 +373,15 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
               <button className="pressable tk tk-slot" disabled={busy || !letIn(s, realAdmin) || popotoN > state.account.popoto_left || Math.floor(popotoN * bankRate / rate) < 1} onClick={() => changePopoto('chips')}>เป็น Casino Coin</button></div>
           </div>}
           {/* back into Popoto coins (v312, the owner, 2026-10-28): ten for nine, the free ones still unspent kept for spinning */}
-          {state.account.free_left !== undefined && (() => { const can = cashableOf(state), n = Math.min(Math.max(10, cashN), Math.max(10, can)), free = Math.min(Number(state.account.free_left), chips); return <div className="casino-cashout">
-            <p className="casino-chips-rate">แลกคืนเป็น Popoto coin · แลก 10 Casino Coin ได้ {money(cashBackOf(10, rate))} Popoto coin</p>
-            <p className="casino-cashout-can">แลกคืนได้ <strong>{money(can)}</strong>{free > 0 && <> · เหรียญฟรีที่เหลือ {money(free)} แลกคืนไม่ได้ ใช้หมุนก่อน</>}</p>
-            {mineTurning ? <p className="casino-cashout-can">รอวงล้อหยุดก่อนค่อยแลก</p> : can >= 10 && <div className="casino-popoto-row">
+          {state.account.free_left !== undefined && (() => { const can = Math.min(cashableOf(state), 1_000_000), n = Math.min(Math.max(10, cashN), Math.max(10, can)), free = Math.min(Number(state.account.free_left), chips); return <div className="casino-cashout">
+            <p className="casino-chips-rate">แลกคืนเป็น Popoto coin · 10 Casino Coin ได้ {money(cashBackOf(10, rate))} Popoto coin</p>
+            <p className="casino-cashout-can">แลกคืนได้ <strong>{money(can)}</strong>{free > 0 && <> · เหรียญฟรี {money(free)} ใช้หมุนก่อน แลกคืนไม่ได้</>}</p>
+            {mineTurning ? <p className="casino-cashout-can">รอวงล้อหยุดก่อนค่อยแลก</p> : can >= 10 && <><p className="casino-cashout-label">จำนวน Casino Coin · ทีละ 10</p><div className="casino-popoto-row">
               <input aria-label="จำนวน Casino Coin ที่จะแลกคืน" type="number" inputMode="numeric" step={10} min={10} max={can} value={n} onChange={e => setCashN(Math.max(10, Math.floor((Number(e.target.value) || 10) / 10) * 10))} />
               <button className="pressable tk tk-slot" disabled={busy || n > can} onClick={() => setCashN(can)}>ทั้งหมด</button>
-              <button className="casino-cashout-go pressable tk tk-slot" disabled={busy || n > can} onClick={() => cashOut(n)}>แลกคืน · ได้ {money(cashBackOf(n, rate))}</button></div>}
+              <button className="casino-cashout-go pressable tk tk-slot" disabled={busy || n > can} onClick={() => cashOut(n)}>แลกคืน · ได้ {money(cashBackOf(n, rate))} Popoto coin</button></div></>}
           </div>; })()}
           {chipNote && <p className="casino-chips-note" role="status">{chipNote}</p>}
-          <button className="casino-chips-back pressable tk tk-slot" onClick={() => void select(selected)}>ไปเล่นที่เครื่อง {selected}</button>
         </div>}
         <p>{town?`แตะตู้หรือเก้าอี้เพื่อเข้าเล่น · ของรางวัลเข้ากล่องรางวัลในเว็บ · Gil เข้ากระเป๋าเงิน${chips === null ? ' · Coin เข้ากระเป๋า Cash Town' : ''}`:'แตะตู้หรือเก้าอี้เพื่อเข้าเล่น · ใบรับสิทธิ์อยู่ในแท็บ Event ของกระเป๋า'}</p>
         <div className="casino-actions"><button className="tk tk-slot" aria-pressed={sound} onClick={toggleSound}>{sound?'ปิดเสียงสล็อต':'เปิดเสียงสล็อต'}</button>{town?<button className="tk tk-slot" onClick={()=>{setPane('none');walker?.walkTo({x:CASINO_EXIT.tiles[0][0]+.5,y:CASINO_EXIT.tiles[0][1]+.5});}}>เดินออกไปในเมือง</button>:<Link className="tk tk-slot" href="/town?map=town">กลับหมู่บ้าน</Link>}</div>

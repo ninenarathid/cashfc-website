@@ -2,8 +2,6 @@
 // ten for nine; the free ones still unspent kept for spinning (spent first); not while a spin turns, nor with the
 // admins' trial still to wipe; a retry pays nothing twice; nobody signed out. The worked-out count for the coins there
 // before v312 too (its block run again on a history laid down here). node town-casino-cashout-db.mjs
-import { readFileSync } from "node:fs";
-
 const B = "http://127.0.0.1:3299";
 let pass = 0, fail = 0;
 const ok = (n, c, d = "") => { c ? pass++ : fail++; console.log(`  ${c ? "PASS" : "FAIL"} ${n}${c ? "" : "  " + JSON.stringify(d).slice(0, 400)}`); };
@@ -27,9 +25,7 @@ for (const id of [a, y, adm]) {
 
 // ── the count worked out for coins there before v312: free in, a spin, free in again, as v312's own block does ──
 {
-  const file = readFileSync(new URL("../../../../supabase/v312_casino_coins_back_to_popoto_coins.sql", import.meta.url), "utf8").split("\r\n").join("\n");
-  const start = file.indexOf("do $$\ndeclare acc record;"), end = file.indexOf("\nend $$;", start) + "\nend $$;".length;
-  const block = file.slice(start, end).replace("  if exists (select 1 from public.casino_live_chip_moves where kind = 'cashout') then return; end if;\n", "");
+  const block = `update public.casino_live_accounts a set free_left = least(casino.free_left_of(a.user_id), greatest(a.chips, 0))::integer where a.user_id = '${y}'`;
   const at = (min) => `now() - interval '${min} minutes'`;
   await sql(`insert into public.casino_live_chip_moves (request, user_id, kind, chips, day, test, at) values (gen_random_uuid(), $1, 'free', 100, 1, false, ${at(30)})`, [y]);
   await sql(`insert into public.casino_live_spins (id, user_id, player_name, machine, revision, price, reels, prize, forced, created_at, reveal_at, trail)
@@ -104,6 +100,32 @@ r = await rpc("casino_live_wipe_tests", {}, "v312-adm");
 ok("the wipe takes them back", r[0] === 200, r);
 const after = await account(adm);
 ok("and the free ones unspent never more than the coins left", after.free_left <= after.chips && after.chips === 0, after);
+
+// ── Codex's two: a trial's free coins on bought ones, and a trial's spin of real free ones, both undone by the wipe ──
+const b1 = await who('v312-b1'), b2 = await who('v312-b2');
+for (const id of [b1, b2]) {
+  await sql(`delete from public.casino_live_spins where user_id = $1`, [id]); await sql(`delete from public.casino_live_chip_moves where user_id = $1`, [id]);
+  await sql(`insert into public.casino_live_accounts (user_id) values ($1) on conflict do nothing`, [id]);
+  await sql(`update public.casino_live_accounts set chips = 0, free_left = 0, available_at = now() - interval '1 minute' where user_id = $1`, [id]);
+  await sql(`select town.purse_of($1, true)`, [id]); await sql(`update public.town_purses set coins = 5000 where member_id = $1`, [id]);
+  await sql(`update public.profiles set is_admin = true where id = $1`, [id]);
+}
+await sql(`update public.casino_live_settings set access = 'everyone', open = true where id = 1`);
+await rpc('casino_live_buy', { p_request: uuid(), p_chips: 100 }, 'v312-b1');
+await rpc('casino_live_free', {}, 'v312-b2');
+await sql(`update public.casino_live_settings set access = 'admins', open = false where id = 1`);
+await rpc('casino_live_free', {}, 'v312-b1');
+const rev2 = Number((await sql(`select revision from public.casino_live_settings where id = 1`))[0].revision);
+r = await rpc('casino_live_spin', { p_request: uuid(), p_machine: 5, p_force: 'miss', p_revision: rev2 }, 'v312-b2');
+ok('a trial spin of the real free hundred', r[0] === 200, r);
+await sleep(3900);
+r = await rpc('casino_live_wipe_tests', {}, 'v312-b1');
+ok('wiped', r[0] === 200, r);
+await sql(`update public.casino_live_settings set access = 'everyone', open = true where id = 1`);
+ok('bought hundred, trial free hundred wiped: all of it may go back', JSON.stringify(await account(b1)) === JSON.stringify({ chips: 100, free_left: 0 }), await account(b1));
+ok('real free hundred, its trial spin wiped: still free, not going back', JSON.stringify(await account(b2)) === JSON.stringify({ chips: 100, free_left: 100 }), await account(b2));
+r = await rpc('casino_live_cashout', { p_request: uuid(), p_chips: 10 }, 'v312-b2');
+ok('and refused', r[1]?.ok === false && r[1].why === 'chips', r);
 
 await sql(`update public.casino_live_settings set access = 'everyone', open = true where id = 1`);
 console.log(`${pass} passed, ${fail} failed`);

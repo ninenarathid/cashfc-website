@@ -56,8 +56,8 @@ async function run(label, size, letter) {
     await click(X, ".casino-chips-buy"); await sleep(2000);
     ok(`${label}: 600 held, 100 of them free`, JSON.stringify(await account(me)) === JSON.stringify({ chips: 600, free_left: 100 }), await account(me));
     const can = await text(X, ".casino-cashout");
-    ok(`${label}: ten for nine, said`, /แลก 10 Casino Coin ได้ 9 Popoto coin/.test(can), can);
-    ok(`${label}: 500 may go back, the free hundred kept for spinning`, /แลกคืนได้ 500/.test(can) && /เหรียญฟรีที่เหลือ 100 แลกคืนไม่ได้ ใช้หมุนก่อน/.test(can), can);
+    ok(`${label}: ten for nine, said`, /10 Casino Coin ได้ 9 Popoto coin/.test(can), can);
+    ok(`${label}: 500 may go back, the free hundred kept for spinning`, /แลกคืนได้ 500/.test(can) && /เหรียญฟรี 100 ใช้หมุนก่อน แลกคืนไม่ได้/.test(can), can);
     await X.evaluate(`(() => { const i = document.querySelector('.casino-cashout input'); const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set; set.call(i, '120'); i.dispatchEvent(new Event('input', { bubbles: true })); })()`);
     await sleep(300);
     ok(`${label}: 120 shows what it gives`, /ได้ 108/.test(await text(X, ".casino-cashout-go")), await text(X, ".casino-cashout-go"));

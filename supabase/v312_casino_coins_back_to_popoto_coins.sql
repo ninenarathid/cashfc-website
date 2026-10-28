@@ -15,7 +15,8 @@
 --   * Each change kept in casino_live_chip_moves (kind 'cashout', its Casino Coins and the Popoto coins given), by its
 --     request, so a retry gives nothing twice.
 -- `free_left` is worked out for the coins there now as if it had always been kept: each member's free coins and spins
--- since the Casino Coin (v303) in their order, the free ones spent first; never more than the coins held.
+-- since the Casino Coin (v303) in their order, the free ones spent first, the admins' trial's left out
+-- (casino.free_left_of); never more than the coins held. The trial's wipe works it out again the same way.
 -- The four functions it touches (the free coins, the spin, the state, the trial's wipe) are changed by their live text,
 -- as v307 did.
 begin;
@@ -39,25 +40,27 @@ end $$;
 alter table public.casino_live_chip_moves drop constraint if exists casino_live_chip_moves_kind_check;
 alter table public.casino_live_chip_moves add constraint casino_live_chip_moves_kind_check check (kind in ('buy', 'free', 'cashout'));
 
--- (worked out once, for the coins there now: free claims and spins paid in Casino Coins, in their order, the free ones
--- spent first; the trial's are left to its wipe)
-do $$
-declare acc record; ev record; pool bigint;
+-- (an account's free coins still unspent, worked out from what it did: its free claims and its spins paid in Casino
+-- Coins, in their order, the free ones spent first; the trial's left out, as its wipe takes them back. A change back
+-- never touches them (only what is not free goes back), so this is what the free claim and the spin keep as they go)
+create or replace function casino.free_left_of(p_user uuid)
+returns bigint language plpgsql stable security definer set search_path = '' as $$
+declare ev record; pool bigint := 0;
 begin
-  if exists (select 1 from public.casino_live_chip_moves where kind = 'cashout') then return; end if;
-  for acc in select a.user_id, a.chips from public.casino_live_accounts a order by a.user_id for update loop
-    pool := 0;
-    for ev in
-      select m.at, 0 as o, m.chips::bigint as free, 0::bigint as spent from public.casino_live_chip_moves m where m.user_id = acc.user_id and m.kind = 'free' and not m.test
-      union all
-      select s.created_at, 1, 0, s.price::bigint from public.casino_live_spins s where s.user_id = acc.user_id and not s.test and s.trail ? 'chips'
-      order by 1, 2
-    loop
-      pool := greatest(0, pool + ev.free - ev.spent);
-    end loop;
-    update public.casino_live_accounts set free_left = least(pool, greatest(acc.chips, 0))::integer where user_id = acc.user_id;
+  for ev in
+    select m.at, 0 as o, m.chips::bigint as free, 0::bigint as spent from public.casino_live_chip_moves m where m.user_id = p_user and m.kind = 'free' and not m.test
+    union all
+    select x.created_at, 1, 0, x.price::bigint from public.casino_live_spins x where x.user_id = p_user and not x.test and x.trail ? 'chips'
+    order by 1, 2
+  loop
+    pool := greatest(0, pool + ev.free - ev.spent);
   end loop;
+  return pool;
 end $$;
+revoke all on function casino.free_left_of(uuid) from public, anon, authenticated;
+
+-- (for the coins there now; never more than the coins held. Run again it gives the same)
+update public.casino_live_accounts a set free_left = least(casino.free_left_of(a.user_id), greatest(a.chips, 0))::integer;
 
 -- ── 2. The free coins, the spin, the state and the wipe keep it: their live text, but for these lines ──
 do $$
@@ -79,7 +82,9 @@ begin
       ''free_left'', coalesce((select least(a.free_left, a.chips) from public.casino_live_accounts a where a.user_id = me), 0),', '1'],
     ['public.casino_live_wipe_tests()',
      'chips = greatest(0, chips - need_), updated_at = clock_timestamp()',
-     'chips = greatest(0, chips - need_), free_left = least(free_left, greatest(0, chips - need_)), updated_at = clock_timestamp()', '1']] loop
+     -- (v312: worked out again from what is left once the trial's are gone: Codex's check, a trial's free coins or spins
+     -- would otherwise be taken as the member's own)
+     'chips = greatest(0, chips - need_), free_left = least(casino.free_left_of(x.user_id), greatest(0, chips - need_)), updated_at = clock_timestamp()', '1']] loop
     d := replace(pg_get_functiondef(c[1]::regprocedure), chr(13), '');
     -- (the file may come with CR at its line ends: the texts compared without them)
     o := replace(c[2], chr(13), ''); nw := replace(c[3], chr(13), '');
