@@ -30,6 +30,10 @@
 --     claims a giant steak (`giantSteak`, refused when the bag has no room). The row is held while a deed is judged,
 --     so that two joins or two scoops cannot both be taken. public.town_giants_now: every giant still held or fought,
 --     and those of mine ended in the last ten minutes (a steak a page missed is still there to claim).
+--   * Points for both (the owner, 2026-10-28: "ควรได้แต้มทั้งคู่"): as each of the two takes their steak, a `giant` deed is
+--     written in their name, and the deeds' trigger counts it on their fishing line (town.work_counts_of, lib/town/
+--     line-points' countsOf): a rare fish's worth (8), a legend's for the rare one before dawn (30), the work row's
+--     `giants`, and the first of each giant ten more, as every line's first is.
 --   * The giant steak: in the catalog (kind catch, tier 3, ten to a slot, paid 120), and in the market with a band of
 --     its own (lib/town/market's MARKET.fixed): five a round usual for the whole village, never counted by heads,
 --     84 to 100 of its 120.
@@ -59,6 +63,10 @@ begin
      or to_regprocedure('town.announce(uuid,text,text,integer,text,boolean)') is null then
     raise exception 'v309: the bag''s and the announcements'' functions (v255, v260) are missing';
   end if;
+  if to_regprocedure('town.work_counts_of(jsonb,text)') is null or to_regprocedure('town.note(uuid,text,text,numeric,numeric,jsonb)') is null
+     or not exists (select 1 from public.town_catalog c where c.key = 'work') then
+    raise exception 'v309: the lines'' points (v153, v307) are missing';
+  end if;
   -- (each function written whole here, as the database has it from the files before: its text without CR, or this file's)
   foreach f slice 1 in array array[
     ['public.town_cast(text,integer,integer,boolean,text,text)', '11761cbd182181c3aecbbbe3843c0138', 'v264 and v281'],
@@ -78,6 +86,39 @@ end $guard$;
 update public.town_catalog c
    set data = jsonb_set(c.data, '{giantSteak}', '{"kind": "catch", "tier": 3, "stack": 10, "pays": 120}'::jsonb), updated_at = now()
  where c.key = 'items' and c.data->'giantSteak' is distinct from '{"kind": "catch", "tier": 3, "stack": 10, "pays": 120}'::jsonb;
+
+-- ── 1b. A giant on the fishing line ───────────────────────────────────────────────────────────────────────────────────
+-- (the owner, 2026-10-28: "ควรได้แต้มทั้งคู่". lib/town/line-points' POINTS.giant and giantPoints: to each of the two who
+-- landed it, a rare fish's worth, a legend's for the dawn's rare one, as linesRow writes them into the work row's
+-- `giants`, entry by entry; the first of each giant ten more, as every line's first is)
+update public.town_catalog c
+   set data = jsonb_set(c.data, '{giants}', coalesce(c.data->'giants', '{}'::jsonb) || m.v), updated_at = now()
+  from (select '{"sailbackCarp": 8, "bronzeBuffalo": 8, "lanternCatfish": 8, "palePaddlefish": 8, "glasswakeCarp": 30, "reedbackBarbel": 8,
+    "copperLongfin": 8, "rootjawCatfish": 8, "ribbonEel": 8, "mistveilBarbel": 30, "graniteMahseer": 8, "torrentSalmon": 8, "slateSturgeon": 8,
+    "snowfinTaimen": 8, "dawncrestSturgeon": 30, "lotusGourami": 8, "mirrorbackPerch": 8, "velvetArowana": 8, "pearlBichir": 8,
+    "moonthreadEel": 30}'::jsonb as v) m
+ where c.key = 'work' and coalesce(c.data->'giants', '{}'::jsonb) || m.v is distinct from c.data->'giants';
+-- (countsOf's `giant`: the deed a steak taken writes, counted on the fishing line by the giant's worth; its live text,
+-- this case added before the net's, as v307 added the giant pull's)
+do $$
+declare d text; o text; nw text; n integer;
+begin
+  d := replace(pg_get_functiondef('town.work_counts_of(jsonb,text)'::regprocedure), chr(13), '');
+  o := '  if what = ''net'' then';
+  nw := '  -- ── v309: a giant fish landed together, on the fishing line of each of the two (lib/town/line-points: giantPoints) ──
+  if what = ''giant'' then
+    if coalesce((l->''giants''->>thing)::double precision, 0) > 0 then
+      return jsonb_build_array(jsonb_build_object(''to'', null, ''line'', ''fishing'', ''raw'', l->''giants''->thing, ''first'', ''fishing:'' || thing));
+    end if;
+    return ''[]''::jsonb;
+  end if;
+  if what = ''net'' then';
+  if position('v309: a giant fish landed together' in d) = 0 then
+    n := (length(d) - length(replace(d, o, ''))) / length(o);
+    if n <> 1 then raise exception 'v309: town.work_counts_of has % of [%], not one: rebuild v309', n, o; end if;
+    execute replace(d, o, nw);
+  end if;
+end $$;
 
 -- ── 2. The hooks ──────────────────────────────────────────────────────────────────────────────────────────────────────
 -- One row a giant hooked: `doc` is the GiantHook as the page reads it; `by_id` and `at` (its doc's `by` and `at`) are
@@ -473,6 +514,9 @@ begin
     if town.room(purse_->'bag', 'giantSteak') < 1 then return town.answer(me, town.no('full')); end if;
     h := h || jsonb_build_object('claimed', coalesce(h->'claimed', '[]'::jsonb) || to_jsonb(me_));
     perform town.keep_purse(me, purse_ || jsonb_build_object('bag', town.put(purse_->'bag', 'giantSteak', 1)));
+    -- (and the giant on my fishing line, as each of the two takes their steak: a `giant` deed, counted by the deeds'
+    -- trigger through town.work_counts_of as lib/town/line-points' countsOf counts it)
+    perform town.note(me, 'giant', h->>'giant', 1, 0, jsonb_build_object('hook', p_id, 'size', h->'size', 'weight', h->'weight'));
     steak_ := true;
   elsif coalesce(h->>'how', '') <> '' then
     return town.answer(me, town.no('gone'));
@@ -668,4 +712,7 @@ commit;
 --                                -- false, false, true, false
 --   select pg_get_constraintdef(oid) from pg_constraint where conname = 'town_announcements_kind_check';
 --                                -- … 'casino'::text, 'giant'::text])))
+--   select town.work_counts_of('{"from": "deed", "what": "giant", "thing": "glasswakeCarp", "n": 1, "doc": {}}'::jsonb, 'x');
+--                                -- [{"to": null, "raw": 30, "line": "fishing", "first": "fishing:glasswakeCarp"}]
 --   (a day on) select doc->>'how' how, count(*) from public.town_giant_hooks group by 1;
+--              select thing, count(*) from public.town_deeds where what = 'giant' group by 1;   -- two a giant landed

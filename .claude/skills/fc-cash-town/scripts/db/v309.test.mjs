@@ -20,6 +20,8 @@ const GF = await import("@/lib/town/giant-fish");
 const { BAIT_AS } = await import("@/lib/town/items");
 const { FRESH_JUNK } = await import("@/lib/town/fishing");
 const MK = await import("@/lib/town/market");
+const LP = await import("@/lib/town/line-points");
+const { catalogOf } = await import("@/lib/town/catalog");
 
 const ROOT = process.env.FC_REPO ?? process.cwd();
 const FILE = process.env.MIGRATION_FILE ?? join(ROOT, "supabase/v309_a_giant_fish_landed_together.sql");
@@ -80,6 +82,12 @@ try {
     await db.exec("begin;\n" + v299.slice(v299.indexOf("-- ── 7. a big win told"), v299.indexOf("notify pgrst")) + "commit;");
   }
   await db.exec("update public.town_knobs set value = 1 where key = 'game_open'");
+  // (the database's clock, the test's: a night hour, 01:43 in Bangkok, when the town's water with dough has enough of
+  // what is no fish for a giant; what a cast brings up is the hour's, and a test of it must not hang on when it is run.
+  // town.now_ms reads `test.now`; every time of a hook is moved by goBack, as before)
+  await db.exec(`create or replace function town.now_ms() returns bigint language sql stable as
+    $$ select coalesce(nullif(current_setting('test.now', true), '')::bigint, floor(extract(epoch from now()) * 1000)::bigint) $$`);
+  await db.query("select set_config('test.now', $1, false)", [String(1_793_124_209_631)]);
   // a rod and dough for each angler, and a bag for each netter
   const bagOf = (...things) => JSON.stringify([...things, ...Array(10 - things.length).fill(null)]);
   for (const m of [M1, M2, M3]) await db.query("select town.keep_purse($1, town.purse_of($1, true) || jsonb_build_object('bag', $2::jsonb))", [m, bagOf({ item: "rod", n: 1 }, { item: "dough", n: 20 })]);
@@ -93,9 +101,11 @@ try {
   const sql = readFileSync(FILE, "utf8").replace(/\r\n/g, "\n");
   ok(await db.exec(sql.replace(/\n/g, "\r\n")).then(() => true, (e) => { console.log(`  (${e.message} ${e.where ?? ""})`); return false; }), "the file runs (CR at its line ends)");
   ok(await db.exec(sql).then(() => true, (e) => { console.log(`  (${e.message})`); return false; }), "and runs again (as written)");
-  const after = await fnsOf();
+  const after = await fnsOf(), catOf = async () => (await rows("select key, data from public.town_catalog order by key")).map((x) => x.key + JSON.stringify(x.data)).join();
+  const catAfter = await catOf();
   await db.exec(sql);
   eq(await fnsOf(), after, "a second run changes no function");
+  eq(await catOf(), catAfter, "nor a catalog row");
 
   // ── what it should say afterwards ──
   eq((await one("select data->'giantSteak' r from public.town_catalog where key = 'items'")).r, { kind: "catch", pays: 120, tier: 3, stack: 10 }, "the steak in the catalog");
@@ -322,6 +332,17 @@ try {
   // steaks
   eq(why(await did(M3, "claim", id, {}, "a stranger's claim")), "theirs", "a steak for the two only");
   const held = async (m) => (await one("select town.held(town.purse_of($1, false)->'bag', 'giantSteak') n", [m])).n;
+  // (each steak taken is the giant on its taker's fishing line, as lib/town/line-points counts it)
+  const fishing = async (m) => (await one("select kept from public.town_work where member_id = $1 and line = 'fishing'", [m]))?.kept ?? { points: 0, firsts: [] };
+  const giantDeed = (thing) => ({ from: "deed", what: "giant", thing, n: 1, doc: {} });
+  eq((await one("select town.work_counts_of($1::jsonb, 'x') r", [JSON.stringify(giantDeed(G.giant))])).r, LP.countsOf(giantDeed(G.giant), "x"), "a giant's deed counts as countsOf has it");
+  eq((await one("select town.work_counts_of($1::jsonb, 'x') r", [JSON.stringify(giantDeed("notAGiant"))])).r, LP.countsOf(giantDeed("notAGiant"), "x"), "and nothing that is no giant");
+  eq((await one("select town.work_counts_of($1::jsonb, 'x') r", [JSON.stringify(giantDeed("glasswakeCarp"))])).r, [{ to: null, raw: 30, line: "fishing", first: "fishing:glasswakeCarp" }], "what it should say afterwards: the rare one a legend's");
+  eq(LP.countsOf(giantDeed("glasswakeCarp"), "x"), [{ to: null, raw: 30, line: "fishing", first: "fishing:glasswakeCarp" }], "as countsOf has it");
+  eq((await one("select data->'giants' r from public.town_catalog where key = 'work'")).r, JSON.parse(JSON.stringify(catalogOf().work.giants)), "each giant's worth, as linesRow writes it");
+  const worth = LP.giantPoints(G.giant), FIRST = Number((await one("select data->>'first' r from public.town_catalog where key = 'work'")).r);
+  const pointsOf = async (m) => Number((await fishing(m)).points ?? 0);
+  const before1 = await pointsOf(M1), before2 = await pointsOf(M2);
   r = await did(M1, "claim", id, {}, "the angler's claim");
   eq([why(r), r.steak, await held(M1), r.purse?.bag?.some((s) => s?.item === "giantSteak")], ["ok", true, 1, true], "the angler's steak, and the purse that has it");
   eq(why(await did(M1, "claim", id, {}, "a second claim")), "taken", "once each");
@@ -330,6 +351,9 @@ try {
   await db.query("select town.keep_purse($1, town.purse_of($1, true) || jsonb_build_object('bag', $2::jsonb))", [M2, bagOf({ item: "rod", n: 1 }, { item: "dough", n: 20 })]);
   r = await did(M2, "claim", id, {}, "the netter's claim");
   eq([why(r), await held(M2), r.hook?.claimed], ["ok", 1, [M1, M2]], "the netter's steak");
+  eq([await pointsOf(M1) - before1, await pointsOf(M2) - before2], [worth + FIRST, worth + FIRST], "each of the two: the giant's worth on the fishing line, and its first");
+  eq([(await fishing(M1)).firsts.includes(`fishing:${G.giant}`), (await fishing(M2)).firsts.includes(`fishing:${G.giant}`)], [true, true], "the first of it noted for each");
+  eq((await rows("select member_id, thing from public.town_deeds where what = 'giant' order by id")).map((d) => [d.member_id, d.thing]), [[M1, G.giant], [M2, G.giant]], "a deed each, once");
   // the board: mine ended lately; somebody else's not
   const now = async (m) => (await asOf(m)("select public.town_giants_now() r")) ?? null;
   eq((await now(M1)).map((h) => h.id), [id], "the angler sees the landed one lately");
@@ -337,6 +361,17 @@ try {
   eq((await now(M3)).map((h) => h.id), [], "nobody else: it is over");
   await goBack(id, GF.GIANT.after);
   eq((await now(M1)).map((h) => h.id), [], "ten minutes on, not even the angler");
+  // the same giant landed again by the two: its worth again, no first
+  const strikeAgain = async (m) => { await onTime(m); return (await strike(m, 80))?.giant?.id; };
+  const idA = await strikeAgain(M1);
+  await did(M2, "join", idA, { at: AT }, "a second giant's join");
+  for (let k = 0; k < GF.GIANT.scoops; k++) { await goBack(idA, GF.GIANT.scoopGap); await did(M2, "scoop", idA, {}, `a second giant's scoop ${k + 1}`); }
+  eq((await hookOf(idA)).how, "landed", "the same giant landed again");
+  const again1 = await pointsOf(M1), again2 = await pointsOf(M2);
+  await did(M2, "claim", idA, {}, "the netter's second claim");
+  await did(M1, "claim", idA, {}, "the angler's second claim");
+  eq([await pointsOf(M1) - again1, await pointsOf(M2) - again2], [worth, worth], "the same giant again: its worth, no first");
+  await goBack(idA, GF.GIANT.after);
 
   // a second giant: held, frayed till it breaks
   const another = async (m) => { await onTime(m); return (await strike(m, 80))?.giant?.id; };

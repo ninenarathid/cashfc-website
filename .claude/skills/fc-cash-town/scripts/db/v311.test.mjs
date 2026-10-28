@@ -17,6 +17,7 @@ import { rewardDB } from "./reward-db.mjs";
 import { CHAIN } from "./build-v275.mjs";
 await import("./repo-ts-town.mjs");
 const B = await import("@/lib/town/board-insects");
+const LP = await import("@/lib/town/line-points");
 const { catalogOf } = await import("@/lib/town/catalog");
 
 const ROOT = process.env.FC_REPO ?? process.cwd();
@@ -195,8 +196,20 @@ try {
   await setBag(M1, ROD);
   const stamina = async (m) => Number((await one("select town.stamina_of(town.purse_of($1, false), town.now_ms()) s", [m])).s);
   const held = async (m, id) => Number((await one("select town.held(town.purse_of($1, false)->'bag', $2) n", [m, id])).n);
-  const s0 = await stamina(M1), got = B.heldAt(spot, rt)[0];
+  // (an insect had from a board is a net's insect on the insects' line, as lib/town/line-points counts it)
+  const netDeed = (thing) => ({ from: "deed", what: "net", thing, n: 1, doc: {} });
+  const countsDb = (await one("select jsonb_agg(town.work_counts_of(d, 'x') order by n) r from jsonb_array_elements($1::jsonb) with ordinality x(d, n)", [JSON.stringify(B.BOARD_IDS.map(netDeed))])).r;
+  eq(countsDb, B.BOARD_IDS.map((id) => LP.countsOf(netDeed(id), "x")), "each of the twenty-one's net deed counts as countsOf has it");
+  eq(B.BOARD_IDS.map((id) => LP.countsOf(netDeed(id), "x")[0]?.raw), B.BOARD_IDS.map((id) => (B.boardRow(id).rare ? 8 : 3)), "a common one 3, a rare one 8");
+  const FIRST = Number(cat.work.first);
+  const insectPoints = async (m) => Number((await one("select kept->>'points' p from public.town_work where member_id = $1 and line = 'insects'", [m]))?.p ?? 0);
+  const firstsOf = async (m) => (await one("select kept->'firsts' f from public.town_work where member_id = $1 and line = 'insects'", [m]))?.f ?? [];
+  const gain = async (m, id) => LP.countsOf(netDeed(id), m)[0].raw + ((await firstsOf(m)).includes(`insects:${id}`) ? 0 : FIRST);
+  const s0 = await stamina(M1), got = B.heldAt(spot, rt)[0], p0 = await insectPoints(M1), want0 = await gain(M1, got);
   r = await rollDo(M1, "take", spot.id, at, "the take");
+  eq(await insectPoints(M1) - p0, want0, "the take on the insects' line: its worth and its first");
+  eq([want0, await gain(M1, got)], [LP.countsOf(netDeed(got), M1)[0].raw + FIRST, LP.countsOf(netDeed(got), M1)[0].raw], "its first once: the next of its kind is its worth alone");
+  eq((await rows("select thing, doc->>'board' board from public.town_deeds where what = 'net' and member_id = $1", [M1])).map((d) => [d.thing, d.board]), [[got, "roll"]], "a net's deed, the roll's");
   eq([why(r), r.got, r.turn?.taken, await held(M1, got), r.purse?.bag?.some((x) => x?.item === got)], ["ok", got, M1, 1, true], "taken: in my bag, and the purse that has it");
   eq(await stamina(M1), Math.max(0, s0 - 1), "one stamina");
   const book = async () => (await one("select town.thing('bugs', false) b")).b ?? {};
@@ -212,9 +225,10 @@ try {
   await setNow(rt2 * B.BOARD.turn + 10 + B.BOARD.unrollMin);
   await db.query("select town.keep_purse($1, town.purse_of($1, true) || jsonb_build_object('stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 0)))", [M3]);
   eq(await stamina(M3), 0, "no stamina left");
-  const got2 = B.heldAt(spot, rt2)[0], firstBy = (await book())[got2]?.by;
+  const got2 = B.heldAt(spot, rt2)[0], firstBy = (await book())[got2]?.by, p3 = await insectPoints(M3), want3 = await gain(M3, got2);
   r = await rollDo(M3, "take", spot.id, [spot.x - 2, spot.y + 2], "a take with no stamina left");
   eq([why(r), await held(M3, got2), await stamina(M3)], ["ok", 1, 0], "had all the same, with none left to spend");
+  eq(await insectPoints(M3) - p3, want3, "and its points, stamina or none");
   eq(why(await rollDo(M2, "take", spot.id, at, "the other's take")), "taken", "of two, one has it");
   eq((await book())[got2]?.by, firstBy ?? M3, "the book keeps who had a kind first");
 
@@ -285,14 +299,20 @@ try {
   // each one
   const hs = B.heldAt(cherry, st);
   eq(why(await shakeDo(M3, "claim", cherry.id, { id: id1 }, "a stranger's claim")), "theirs", "for the two only");
+  const q1 = await insectPoints(M1), w1 = await gain(M1, hs[0]);
   s = await shakeDo(M1, "claim", cherry.id, { id: id1 }, "the shaker's claim");
   eq([why(s), s.got, await held(M1, hs[0]) >= 1], ["ok", hs[0], true], "the shaker's, the first");
+  eq(await insectPoints(M1) - q1, w1, "the shaker's insect on the insects' line");
   eq(why(await shakeDo(M1, "claim", cherry.id, { id: id1 }, "a second claim")), "taken", "once each");
   await setBag(M2, ...Array.from({ length: 10 }, () => ROD));
   eq(why(await shakeDo(M2, "claim", cherry.id, { id: id1 }, "a claim into a full bag")), "full", "no room, no insect");
   await setBag(M2, ROD);
+  const q2 = await insectPoints(M2), w2 = await gain(M2, hs[1]);
   s = await shakeDo(M2, "claim", cherry.id, { id: id1 }, "the holder's claim");
   eq([why(s), s.got, await held(M2, hs[1]), s.shake?.claimed], ["ok", hs[1], 1, [M1, M2]], "the holder's, the second");
+  eq(await insectPoints(M2) - q2, w2, "and the holder's");
+  eq((await rows("select member_id, thing, doc->>'board' board, doc->>'shake' shake from public.town_deeds where what = 'net' and doc->>'shake' = $1 order by id", [id1])).map((d) => [d.member_id, d.thing, d.board]),
+    [[M1, hs[0], "shake"], [M2, hs[1], "shake"]], "a net's deed each, the shake's, once");
   eq(why(await shakeDo(M3, "call", cherry.id, { at: near }, "a call after the catch")), "taken", "its insects had this turn");
   eq(why(await shakeDo(M3, "call", cherry.id, { id: "s000000000000000", at: near }, "a call with a made-up id after the catch")), "taken", "nor with a made-up id");
   eq(why(await shakeDo(M3, "call", cherry.id, { id: id1, at: near }, "a call naming the shake that gave")), "taken", "nor naming the shake itself");

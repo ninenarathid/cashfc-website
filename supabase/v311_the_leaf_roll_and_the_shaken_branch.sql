@@ -22,8 +22,10 @@
 --     `to` the shake and the tree; callForHolder), the sheet held (joinShake), the catch said by the holder
 --     (endShake), and each of the two has one of what it caught (claimShake).
 --   * An insect had so is in the bag at once, with its one stamina (spent as v307's giant pull spends it: never
---     refused for want of it), refused only when the bag has no room for it; and the first of its kind is written in
---     the village's insect book as a net's catch is (town_net: the `bugs` thing).
+--     refused for want of it), refused only when the bag has no room for it; it is a net's insect on the insects'
+--     line (the owner, 2026-10-28: "ควรได้แต้มทั้งคู่": the 'net' deed town_net writes, the same rule: a common one 3, a
+--     rare one 8, the work row's `insects`, and the first of each kind ten more); and the first of its kind is written
+--     in the village's insect book as a net's catch is (town_net: the `bugs` thing).
 --   * public.town_boards_now: the spots' turns and the shakes of this turn and the one before.
 --   * The announcements' reader of the pages from before v309 (town_announcements_v299) leaves out the shakes' calls
 --     as it leaves out the giants'.
@@ -82,8 +84,8 @@ revoke all on function town.list_with(jsonb, jsonb) from public, anon, authentic
 -- (the twenty-one, as lib/town/catalog's catalogOf() has them in each row)
 with v as (select
   '{"crimsonRollerWeevil":{"kind":"bug","tier":2,"stack":20,"pays":3},"giraffeNeckWeevil":{"kind":"bug","tier":2,"stack":20,"pays":5},"jadeRollerWeevil":{"kind":"bug","tier":2,"stack":20,"pays":3},"hazelCigarWeevil":{"kind":"bug","tier":2,"stack":20,"pays":4},"amberLeafroller":{"kind":"bug","tier":2,"stack":20,"pays":3},"rosefoldMoth":{"kind":"bug","tier":2,"stack":20,"pays":4},"silverfoldMoth":{"kind":"bug","tier":2,"stack":20,"pays":3},"copperfoldMoth":{"kind":"bug","tier":2,"stack":20,"pays":4},"inkspotLeaftier":{"kind":"bug","tier":2,"stack":20,"pays":5},"lanternfoldMoth":{"kind":"bug","tier":2,"stack":20,"pays":5},"dewfoldMoth":{"kind":"bug","tier":3,"stack":10,"pays":8},"mistrollWeevil":{"kind":"bug","tier":3,"stack":10,"pays":8},"checkeredBarkBeetle":{"kind":"bug","tier":2,"stack":20,"pays":4},"twigLacewing":{"kind":"bug","tier":2,"stack":20,"pays":4},"blossomChafer":{"kind":"bug","tier":2,"stack":20,"pays":5},"thornTreehopper":{"kind":"bug","tier":2,"stack":20,"pays":4},"cedarLonghorn":{"kind":"bug","tier":2,"stack":20,"pays":5},"barkAssassinBug":{"kind":"bug","tier":2,"stack":20,"pays":5},"mossStickInsect":{"kind":"bug","tier":2,"stack":20,"pays":5},"lanternWeevil":{"kind":"bug","tier":2,"stack":20,"pays":5},"ghostBarkMantis":{"kind":"bug","tier":3,"stack":10,"pays":6}}'::jsonb as items,
-  '{"crimsonRollerWeevil":8,"giraffeNeckWeevil":8,"jadeRollerWeevil":8,"hazelCigarWeevil":8,"amberLeafroller":8,"rosefoldMoth":8,"silverfoldMoth":8,"copperfoldMoth":8,"inkspotLeaftier":8,"lanternfoldMoth":8,"dewfoldMoth":8,"mistrollWeevil":8,"checkeredBarkBeetle":8,"twigLacewing":8,"blossomChafer":8,"thornTreehopper":8,"cedarLonghorn":8,"barkAssassinBug":8,"mossStickInsect":8,"lanternWeevil":8,"ghostBarkMantis":8}'::jsonb as work,
-  '{"crimsonRollerWeevil":{"habit":"look","at":[],"weight":0,"n":[1,1],"cost":1,"hours":[[5,13]]},"giraffeNeckWeevil":{"habit":"look","at":[],"weight":0,"n":[1,1],"cost":1,"hours":[[7,16]]},"jadeRollerWeevil":{"habit":"look","at":[],"weight":0,"n":[1,1],"cost":1,"hours":[[11,19]]},"hazelCigarWeevil":{"habit":"look","at":[],"weight":0,"n":[1,1],"cost":1,"hours":[[13,19]]},"amberLeafroller":{"habit":"look","at":[],"weight":0,"n":[1,1],"cost":1,"hours":[[16,23]]},"rosefoldMoth":{"habit":"look","at":[],"weight":0,"n":[1,1],"cost":1,"hours":[[16,23]]},"silverfoldMoth":{"habit":"look","at":[],"weight":0,"n":[1,1],"cost":1,"hours":[[19,24],[0,3]]},"copperfoldMoth":{"habit":"look","at":[],"weight":0,"n":[1,1],"cost":1,"hours":[[19,24],[0,3]]},"inkspotLeaftier":{"habit":"look","at":[],"weight":0,"n":[1,1],"cost":1,"hours":[[23,24],[0,5]]},"lanternfoldMoth":{"habit":"look","at":[],"weight":0,"n":[1,1],"cost":1,"hours":[[23,24],[0,7]]},"dewfoldMoth":{"habit":"look","at":[],"weight":0,"n":[1,1],"cost":1,"hours":[[3,7]]},"mistrollWeevil":{"habit":"look","at":[],"weight":0,"n":[1,1],"cost":1,"hours":[[3,7]]},"checkeredBarkBeetle":{"habit":"look","at":[],"weight":0,"n":[1,1],"cost":1,"hours":[[16,21]]},"twigLacewing":{"habit":"look","at":[],"weight":0,"n":[1,1],"cost":1,"hours":[[16,21]]},"blossomChafer":{"habit":"look","at":[],"weight":0,"n":[1,1],"cost":1,"hours":[[16,19]]},"thornTreehopper":{"habit":"look","at":[],"weight":0,"n":[1,1],"cost":1,"hours":[[16,23]]},"cedarLonghorn":{"habit":"look","at":[],"weight":0,"n":[1,1],"cost":1,"hours":[[16,23]]},"barkAssassinBug":{"habit":"look","at":[],"weight":0,"n":[1,1],"cost":1,"hours":[[19,24],[0,1]]},"mossStickInsect":{"habit":"look","at":[],"weight":0,"n":[1,1],"cost":1,"hours":[[19,24],[0,3]]},"lanternWeevil":{"habit":"look","at":[],"weight":0,"n":[1,1],"cost":1,"hours":[[21,24],[0,3]]},"ghostBarkMantis":{"habit":"look","at":[],"weight":0,"n":[1,1],"cost":1,"hours":[[23,24],[0,3]]}}'::jsonb as bugs,
+  '{"crimsonRollerWeevil":3,"giraffeNeckWeevil":3,"jadeRollerWeevil":3,"hazelCigarWeevil":3,"amberLeafroller":3,"rosefoldMoth":3,"silverfoldMoth":3,"copperfoldMoth":3,"inkspotLeaftier":3,"lanternfoldMoth":3,"dewfoldMoth":8,"mistrollWeevil":8,"checkeredBarkBeetle":3,"twigLacewing":3,"blossomChafer":3,"thornTreehopper":3,"cedarLonghorn":3,"barkAssassinBug":3,"mossStickInsect":3,"lanternWeevil":3,"ghostBarkMantis":8}'::jsonb as work,
+  '{"crimsonRollerWeevil":{"habit":"look","at":[],"weight":60,"n":[1,1],"cost":1,"hours":[[5,13]]},"giraffeNeckWeevil":{"habit":"look","at":[],"weight":60,"n":[1,1],"cost":1,"hours":[[7,16]]},"jadeRollerWeevil":{"habit":"look","at":[],"weight":60,"n":[1,1],"cost":1,"hours":[[11,19]]},"hazelCigarWeevil":{"habit":"look","at":[],"weight":60,"n":[1,1],"cost":1,"hours":[[13,19]]},"amberLeafroller":{"habit":"look","at":[],"weight":60,"n":[1,1],"cost":1,"hours":[[16,23]]},"rosefoldMoth":{"habit":"look","at":[],"weight":60,"n":[1,1],"cost":1,"hours":[[16,23]]},"silverfoldMoth":{"habit":"look","at":[],"weight":60,"n":[1,1],"cost":1,"hours":[[19,24],[0,3]]},"copperfoldMoth":{"habit":"look","at":[],"weight":60,"n":[1,1],"cost":1,"hours":[[19,24],[0,3]]},"inkspotLeaftier":{"habit":"look","at":[],"weight":60,"n":[1,1],"cost":1,"hours":[[23,24],[0,5]]},"lanternfoldMoth":{"habit":"look","at":[],"weight":60,"n":[1,1],"cost":1,"hours":[[23,24],[0,7]]},"dewfoldMoth":{"habit":"look","at":[],"weight":5,"n":[1,1],"cost":1,"hours":[[3,7]]},"mistrollWeevil":{"habit":"look","at":[],"weight":5,"n":[1,1],"cost":1,"hours":[[3,7]]},"checkeredBarkBeetle":{"habit":"look","at":[],"weight":60,"n":[1,1],"cost":1,"hours":[[16,21]]},"twigLacewing":{"habit":"look","at":[],"weight":60,"n":[1,1],"cost":1,"hours":[[16,21]]},"blossomChafer":{"habit":"look","at":[],"weight":60,"n":[1,1],"cost":1,"hours":[[16,19]]},"thornTreehopper":{"habit":"look","at":[],"weight":60,"n":[1,1],"cost":1,"hours":[[16,23]]},"cedarLonghorn":{"habit":"look","at":[],"weight":60,"n":[1,1],"cost":1,"hours":[[16,23]]},"barkAssassinBug":{"habit":"look","at":[],"weight":60,"n":[1,1],"cost":1,"hours":[[19,24],[0,1]]},"mossStickInsect":{"habit":"look","at":[],"weight":60,"n":[1,1],"cost":1,"hours":[[19,24],[0,3]]},"lanternWeevil":{"habit":"look","at":[],"weight":60,"n":[1,1],"cost":1,"hours":[[21,24],[0,3]]},"ghostBarkMantis":{"habit":"look","at":[],"weight":5,"n":[1,1],"cost":1,"hours":[[23,24],[0,3]]}}'::jsonb as bugs,
   '["crimsonRollerWeevil","giraffeNeckWeevil","jadeRollerWeevil","hazelCigarWeevil","amberLeafroller","rosefoldMoth","silverfoldMoth","copperfoldMoth","inkspotLeaftier","lanternfoldMoth","dewfoldMoth","mistrollWeevil","checkeredBarkBeetle","twigLacewing","blossomChafer","thornTreehopper","cedarLonghorn","barkAssassinBug","mossStickInsect","lanternWeevil","ghostBarkMantis"]'::jsonb as ord,
   '["crimsonRollerWeevil","giraffeNeckWeevil","jadeRollerWeevil","hazelCigarWeevil","amberLeafroller","rosefoldMoth","silverfoldMoth","copperfoldMoth","inkspotLeaftier","lanternfoldMoth","dewfoldMoth","mistrollWeevil","checkeredBarkBeetle","twigLacewing","blossomChafer","thornTreehopper","cedarLonghorn","barkAssassinBug","mossStickInsect","lanternWeevil","ghostBarkMantis"]'::jsonb as visitors,
   '["amberLeafroller","rosefoldMoth","silverfoldMoth","copperfoldMoth","inkspotLeaftier","lanternfoldMoth","dewfoldMoth","blossomChafer","thornTreehopper"]'::jsonb as pollinators,
@@ -158,20 +160,23 @@ returns boolean language sql stable set search_path = '' as $$
 $$;
 
 -- An insect had from a board: into my bag with its one stamina (lib/town/trial's boardGot: never refused for want of
--- it), and the first of its kind written in the village's insect book as a net's catch writes it (town_net)
-create or replace function town.board_got(p_member uuid, p_purse jsonb, p_bug text, p_now bigint)
+-- it); a net's insect on the insects' line (the 'net' deed town_net writes, counted by the deeds' trigger through
+-- town.work_counts_of by the work row's `insects`: a common one 3, a rare one 8, the first of each kind ten more); and
+-- the first of its kind written in the village's insect book as a net's catch writes it (town_net)
+create or replace function town.board_got(p_member uuid, p_purse jsonb, p_bug text, p_now bigint, p_doc jsonb default '{}'::jsonb)
 returns void language plpgsql set search_path = '' as $$
 declare
   book jsonb;
 begin
   perform town.keep_purse(p_member, town.spend(p_purse || jsonb_build_object('bag', town.put(p_purse->'bag', p_bug, 1)), 1::double precision, p_now));
+  perform town.note(p_member, 'net', p_bug, 1, 0, coalesce(p_doc, '{}'::jsonb));
   book := town.thing('bugs', true);
   if not book ? p_bug then
     perform town.keep_thing('bugs', book || jsonb_build_object(p_bug, jsonb_build_object('by', p_member, 'at', p_now, 'name',
       (select coalesce(p.character_name, p.display_name, p.discord_username, '') from public.profiles p where p.id = p_member))));
   end if;
 end $$;
-revoke all on function town.board_held(integer, bigint), town.board_near(jsonb, integer, integer), town.board_got(uuid, jsonb, text, bigint) from public, anon, authenticated;
+revoke all on function town.board_held(integer, bigint), town.board_near(jsonb, integer, integer), town.board_got(uuid, jsonb, text, bigint, jsonb) from public, anon, authenticated;
 
 -- ── 3. The turns and the shakes ───────────────────────────────────────────────────────────────────────────────────────
 -- (a spot's turn as it is kept, SpotTurn: who opened its roll when, each their own, and who took what it held)
@@ -243,7 +248,7 @@ begin
   if town.room(purse_->'bag', held_) < 1 then return town.answer(me, town.no('full')); end if;
   t := t || jsonb_build_object('taken', me_);
   update public.town_board_turns bt set taken = me where bt.spot = p_spot and bt.turn = turn_;
-  perform town.board_got(me, purse_, held_, now_);
+  perform town.board_got(me, purse_, held_, now_, jsonb_build_object('board', 'roll', 'spot', p_spot, 'turn', turn_));
   return town.answer(me, jsonb_build_object('ok', true, 'turn', t, 'got', held_));
 end $$;
 revoke all on function public.town_board_roll(text, integer, integer, integer) from public, anon, authenticated;
@@ -343,7 +348,7 @@ begin
     if got_ is null then return town.answer(me, town.no('none')); end if;
     if town.room(purse_->'bag', got_) < 1 then return town.answer(me, town.no('full')); end if;
     sh := live || jsonb_build_object('claimed', live->'claimed' || to_jsonb(me_));
-    perform town.board_got(me, purse_, got_, now_);
+    perform town.board_got(me, purse_, got_, now_, jsonb_build_object('board', 'shake', 'spot', p_spot, 'shake', live->>'id'));
   end if;
 
   update public.town_board_shakes bs set doc = sh, updated_at = now() where bs.id = live->>'id';
