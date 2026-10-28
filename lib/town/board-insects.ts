@@ -22,9 +22,13 @@ export * from "./board-insect-rows";
  * Every spot has turns of `BOARD.turn`; in a turn a spot holds an insect at `BOARD.occupied`, which, and the shake's two,
  * by `roll` (lib/town/farm: the database's own), the place, the tree and the Bangkok hour. Whoever unrolls a leaf or
  * shakes a tree first in its turn has what it held: the spot is empty till the next turn. The database's twin is v311.
+ *
+ * The owner, 2026-10-28, to Codex's play runs ("ก–จ เอา"): turns of fifteen minutes, not thirty; a leaf opened is the
+ * opener's for `BOARD.hold`, and its take counts in the turn it was opened in though the next has begun; a sheet that
+ * caught both insects gives each of the two both; a shake's call may be answered after its turn has ended.
  */
 export const BOARD = {
-  turn: 30 * 60_000,
+  turn: 15 * 60_000,
   occupied: 0.25,
   /** How near a spot one must stand (tiles). */
   reach: 2,
@@ -33,12 +37,14 @@ export const BOARD = {
   startle: 1_500,
   /** At the least so long from opening a roll to cupping what was in it (the database's bound on a quick hand). */
   unrollMin: 4_000,
+  /** A leaf opened is the opener's so long: nobody else may open it, and its take may finish in the next turn. */
+  hold: 30_000,
   /** A shake's call stands so long for somebody to hold the sheet; the shake itself is over in so long. */
   call: 180_000,
   shake: 30_000,
   /** At the least so long from the start to the end of a shake. */
   shakeMin: 5_000,
-  /** How many insects a shaken branch drops (each of the two has one, the holder catching them). */
+  /** How many insects a shaken branch drops: one caught, each of the two has one; both caught, each has both. */
   drops: 2,
 } as const;
 
@@ -121,14 +127,23 @@ export function openRoll(spot: BoardSpot | undefined, t: SpotTurn | null, me: st
   if (!held) return { ok: false, why: "none" };
   const kept: SpotTurn = t && t.turn === turn ? t : { spot: spot.id, turn, opened: {}, taken: null };
   if (kept.taken) return { ok: false, why: "taken" };
+  if (Object.entries(kept.opened).some(([who, at]) => who !== me && now - at < BOARD.hold)) return { ok: false, why: "busy" };
   if (!nearSpot(spot, at)) return { ok: false, why: "far" };
+  // (a re-open keeps my first opening's time: opened again and again, a leaf would be nobody else's all turn)
   return { ok: true, turn: { ...kept, opened: { ...kept.opened, [me]: kept.opened[me] ?? now } }, held };
 }
-/** What was in the roll, cupped: mine if nobody had it first this turn, not sooner than `BOARD.unrollMin` after I opened it. */
+/** Of a spot's turns kept, the one my take is weighed in: this turn's if I opened its roll, else the turn before's while my
+ *  hold on it runs (an opening finishes across the turn's end). */
+export function rollTurnOf(turns: readonly SpotTurn[], spot: number, me: string, now: number): SpotTurn | null {
+  const turn = turnOf(now), mine = (t: SpotTurn) => t.spot === spot && t.opened[me] !== undefined;
+  return turns.find((t) => t.turn === turn && mine(t)) ?? turns.find((t) => t.turn === turn - 1 && mine(t) && now - t.opened[me] < BOARD.hold) ?? turns.find((t) => t.spot === spot && t.turn === turn) ?? null;
+}
+/** What was in the roll, cupped: mine if nobody had it first in its turn, not sooner than `BOARD.unrollMin` after I opened
+ *  it; in the turn I opened it, or the next while my hold runs. */
 export function takeRoll(spot: BoardSpot | undefined, t: SpotTurn | null, me: string, at: [number, number] | null, now: number, bagFull = false): BoardDid<{ turn: SpotTurn; got: BoardInsectId }> {
   if (!spot || spot.board !== "roll") return { ok: false, why: "none" };
-  const turn = turnOf(now), held = heldAt(spot, turn)[0];
-  if (!held || !t || t.turn !== turn) return { ok: false, why: "none" };
+  const turn = turnOf(now), held = t ? heldAt(spot, t.turn)[0] : undefined;
+  if (!held || !t || t.spot !== spot.id || !(t.turn === turn || (t.turn === turn - 1 && t.opened[me] !== undefined && now - t.opened[me] < BOARD.hold))) return { ok: false, why: "none" };
   if (t.taken) return { ok: false, why: "taken" };
   if (!nearSpot(spot, at)) return { ok: false, why: "far" };
   const opened = t.opened[me];
@@ -160,7 +175,7 @@ export function callForHolder(s: Shake | null, me: string, text: unknown, now: n
 }
 /** The sheet held by another standing near the tree, while the call stands: the shake begins. */
 export function joinShake(spot: BoardSpot | undefined, s: Shake | null, me: string, myName: string, at: [number, number] | null, now: number): BoardDid<{ shake: Shake }> {
-  if (!spot || !s || s.end || s.go || now >= s.at + BOARD.call || turnOf(now) !== s.turn) return { ok: false, why: "late" };
+  if (!spot || !s || s.spot !== spot.id || s.end || s.go || now >= s.at + BOARD.call) return { ok: false, why: "late" };
   if (s.by === me) return { ok: false, why: "self" };
   if (!nearSpot(spot, at)) return { ok: false, why: "far" };
   return { ok: true, shake: { ...s, holder: me, holderName: myName, go: now } };
@@ -173,13 +188,15 @@ export function endShake(s: Shake | null, me: string, caught: number, now: numbe
   if (now > s.go + BOARD.shake + 5_000) return { ok: false, why: "late" };
   return { ok: true, shake: { ...s, end: now, caught: Math.max(0, Math.min(BOARD.drops, Math.floor(caught) || 0)) } };
 }
-/** Each of the two has one insect of what the sheet caught: the shaker the first, the holder the second (the first, if it caught one). */
-export function claimShake(spot: BoardSpot | undefined, s: Shake | null, me: string, bagFull = false): BoardDid<{ shake: Shake; got: BoardInsectId }> {
+/** Each of the two has one insect of what the sheet caught: the shaker the first, the holder the second (the first, if it
+ *  caught one); and the sheet that caught both gives each the other as well (`more`). */
+export function claimShake(spot: BoardSpot | undefined, s: Shake | null, me: string, bagFull = false): BoardDid<{ shake: Shake; got: BoardInsectId; more: BoardInsectId | null }> {
   if (!spot || !s || !s.end || s.caught < 1) return { ok: false, why: "none" };
   if (me !== s.by && me !== s.holder) return { ok: false, why: "theirs" };
   if (s.claimed.includes(me)) return { ok: false, why: "taken" };
   if (bagFull) return { ok: false, why: "full" };
   const held = heldAt(spot, s.turn);
   const got = me === s.by ? held[0] : held[Math.min(s.caught, held.length) - 1];
-  return { ok: true, shake: { ...s, claimed: [...s.claimed, me] }, got };
+  const more = s.caught >= BOARD.drops && held.length >= 2 ? (me === s.by ? held[1] : held[0]) : null;
+  return { ok: true, shake: { ...s, claimed: [...s.claimed, me] }, got, more };
 }

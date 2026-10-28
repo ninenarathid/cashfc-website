@@ -366,7 +366,7 @@ export interface Keeper {
   /** The leaf roll (lib/town/board-insects): opened at a bush near me, then what was in it cupped. */
   boardRoll?(action: "open" | "take", spot: number, at: [number, number] | null): Promise<Did<{ turn: import("./board-insects").SpotTurn; held?: string; got?: string }>>;
   /** The shaken branch: a call at a tree, the town's call for a holder, the holder's join, the holder's word of the catch, each one's insect. */
-  boardShake?(action: "call" | "text" | "join" | "end" | "claim", spot: number, opts: { id?: string; at?: [number, number] | null; caught?: number; text?: string; name?: string }): Promise<Did<{ shake: import("./board-insects").Shake; got?: string }>>;
+  boardShake?(action: "call" | "text" | "join" | "end" | "claim", spot: number, opts: { id?: string; at?: [number, number] | null; caught?: number; text?: string; name?: string }): Promise<Did<{ shake: import("./board-insects").Shake; got?: string; more?: string | null }>>;
   /** The spots' turns had this turn, and the shakes under way or lately over. */
   boardsNow?(): Promise<{ turns: import("./board-insects").SpotTurn[]; shakes: import("./board-insects").Shake[] }>;
   /** The village's book of fish (lib/town/fish-book): read when the bag is opened. */
@@ -1887,7 +1887,7 @@ export class DbKeeper implements Keeper {
     return did;
   }
   async boardShake(action: "call" | "text" | "join" | "end" | "claim", spot: number, opts: { id?: string; at?: [number, number] | null; caught?: number; text?: string } = {}) {
-    const did = await this.deed<{ shake: import("./board-insects").Shake; got?: string }>("town_board_shake", { p_action: action, p_spot: spot, p_id: opts.id ?? null, p_x: opts.at?.[0] ?? null, p_y: opts.at?.[1] ?? null, p_caught: opts.caught ?? null, p_text: opts.text ?? null });
+    const did = await this.deed<{ shake: import("./board-insects").Shake; got?: string; more?: string | null }>("town_board_shake", { p_action: action, p_spot: spot, p_id: opts.id ?? null, p_x: opts.at?.[0] ?? null, p_y: opts.at?.[1] ?? null, p_caught: opts.caught ?? null, p_text: opts.text ?? null });
     if (did.ok && action !== "claim") this.onDeed?.("boards");
     if (did.ok && action === "text") for (const fn of this.announcementListeners) fn();
     return did;

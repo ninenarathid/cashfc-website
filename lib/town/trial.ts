@@ -150,7 +150,7 @@ import type { FellDid } from "./keeper";
 import type { FellingAsk } from "./felling";
 import { giantFish, type GiantAction, type GiantDid, type GiantHook } from "./giant-fish";
 import { noteFish, type FishBook } from "./fish-book";
-import { BOARD_SPOTS, callForHolder, callShake, claimShake, endShake, heldAt, joinShake, openRoll, takeRoll, turnOf as boardTurn, type BoardDid, type Shake, type SpotTurn } from "./board-insects";
+import { BOARD_SPOTS, callForHolder, callShake, claimShake, endShake, heldAt, joinShake, openRoll, rollTurnOf, takeRoll, turnOf as boardTurn, type BoardDid, type Shake, type SpotTurn } from "./board-insects";
 // ── end: felling ──
 // ── the bridge built by hand ──
 import { BRIDGE, drop as stoneDrop, laid as stoneLaid, lay as stoneLay, lift as stoneLift, luckFor, newWorks, pass as stonePass, told as worksTold, workOf, type BridgeRefusal, type WorksKept, type WorksTold } from "./bridge";
@@ -403,25 +403,34 @@ export class Trial {
     const turn = boardTurn(this.now());
     return { turns: b.turns.filter((t) => t.turn >= turn - 1), shakes: (b.shakes ?? []).filter((s) => s.turn >= turn - 1) };
   }
-  /** An insect into my bag from a board, and its one stamina (never refused for want of it). */
-  private boardGot(id: string) { const p = this.purse(); this.save(spend({ ...p, bag: put(p.bag, id as ItemId, 1) }, 1, this.now())); this.counted({ from: "deed", what: "net", thing: id, n: 1, doc: {} }); }
+  /** An insect into my bag from a board, and its one stamina (never refused for want of it); the second of a full sheet's
+   *  comes with the claim's, its stamina already spent. */
+  private boardGot(id: string, stamina = 1) { const p = this.purse(); this.save(spend({ ...p, bag: put(p.bag, id as ItemId, 1) }, stamina, this.now())); this.counted({ from: "deed", what: "net", thing: id, n: 1, doc: {} }); }
   boardRoll(action: "open" | "take", spotId: number, me: string, at: [number, number] | null): BoardDid<{ turn: SpotTurn; held?: string; got?: string }> {
-    const b = this.boards(), spot = BOARD_SPOTS[spotId], kept = b.turns.find((t) => t.spot === spotId && t.turn === boardTurn(this.now())) ?? null;
-    const did = action === "open" ? openRoll(spot, kept, me, at, this.now()) : takeRoll(spot, kept, me, at, this.now(), roomFor(this.purse().bag, (heldAt(spot, boardTurn(this.now()))[0] ?? "crimsonRollerWeevil") as ItemId) < 1);
+    // (a take is weighed in the turn I opened the roll in, the turn before while my hold runs)
+    const b = this.boards(), spot = BOARD_SPOTS[spotId], now = this.now(), kept = action === "open" ? b.turns.find((t) => t.spot === spotId && t.turn === boardTurn(now)) ?? null : rollTurnOf(b.turns, spotId, me, now);
+    const did = action === "open" ? openRoll(spot, kept, me, at, now) : takeRoll(spot, kept, me, at, now, roomFor(this.purse().bag, (heldAt(spot, kept?.turn ?? boardTurn(now))[0] ?? "crimsonRollerWeevil") as ItemId) < 1);
     if (!did.ok) return did;
     this.write(BOARDS, { ...b, turns: [...b.turns.filter((t) => !(t.spot === spotId && t.turn === did.turn.turn)), did.turn] });
     if ("got" in did) this.boardGot(did.got);
     return did;
   }
-  boardShake(action: "call" | "text" | "join" | "end" | "claim", spotId: number, me: string, myName: string, opts: { id?: string; at?: [number, number] | null; caught?: number; text?: string }): BoardDid<{ shake: Shake; got?: string; words?: string }> {
+  boardShake(action: "call" | "text" | "join" | "end" | "claim", spotId: number, me: string, myName: string, opts: { id?: string; at?: [number, number] | null; caught?: number; text?: string }): BoardDid<{ shake: Shake; got?: string; more?: string | null; words?: string }> {
     const b = this.boards(), spot = BOARD_SPOTS[spotId], now = this.now(), turn = boardTurn(now);
     // (a shake found by its id must be at this tree, as the database has it: never a sheet held from another tree)
     // (a call is always weighed against the tree's own latest shake of the turn, whatever id came with it: an unknown
     // id must not make a tree that gave its insects give again)
     const latest = b.shakes.filter((s) => s.spot === spotId && s.turn === turn).sort((x, y) => y.at - x.at)[0] ?? null;
     const live = action === "call" ? latest : (opts.id ? b.shakes.find((s) => s.id === opts.id && s.spot === spotId) : latest) ?? null;
-    // (room for the very insect I am due: the holder's is the second of two when the sheet caught both)
-    const full = () => { const held = heldAt(spot, live?.turn ?? turn), due = live && me !== live.by ? held[Math.min(live.caught, held.length) - 1] : held[0]; return roomFor(this.purse().bag, (due ?? "checkeredBarkBeetle") as ItemId) < 1; };
+    // (room for the very insects I am due: the holder's is the second of two when the sheet caught both, and then each
+    // of the two has both: room for the two of them, one slot or two)
+    const full = () => {
+      const held = heldAt(spot, live?.turn ?? turn), due = live && me !== live.by ? held[Math.min(live.caught, held.length) - 1] : held[0];
+      const both = !!live && live.caught >= 2 && held.length >= 2, bag = this.purse().bag;
+      if (!both) return roomFor(bag, (due ?? "checkeredBarkBeetle") as ItemId) < 1;
+      if (held[0] === held[1]) return roomFor(bag, held[0] as ItemId) < 2;
+      return roomFor(bag, held[0] as ItemId) < 1 || roomFor(put(bag, held[0] as ItemId, 1), held[1] as ItemId) < 1;
+    };
     const did = action === "call" ? callShake(spot, live, me, myName, opts.at ?? null, now, `s${now.toString(36)}`)
       : action === "text" ? callForHolder(live, me, opts.text, now)
       : action === "join" ? joinShake(spot, live, me, myName, opts.at ?? null, now)
@@ -430,6 +439,7 @@ export class Trial {
     if (!did.ok) return did;
     this.write(BOARDS, { ...b, shakes: [...b.shakes.filter((s) => s.id !== did.shake.id), did.shake] });
     if ("got" in did && typeof did.got === "string") this.boardGot(did.got);
+    if ("more" in did && typeof did.more === "string") this.boardGot(did.more, 0);
     return did;
   }
   fishBook(): FishBook["fish"] { return this.read<FishBook["fish"]>(FISH_BOOK, () => ({}), (v) => !!v && typeof v === "object" && !Array.isArray(v)); }

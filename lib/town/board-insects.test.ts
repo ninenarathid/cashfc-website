@@ -5,7 +5,7 @@ import { INSECT_GARDEN } from "./insect-garden";
 import { POLLINATOR_SKY } from "./helper-items";
 import { SOIL_WORKERS } from "./insect-house";
 import { walkable } from "./world";
-import { BOARD, BOARD_IDS, BOARD_SPOTS, boardRow, callShake, claimShake, endShake, heldAt, joinShake, openRoll, outAt, takeRoll, turnOf, type Shake } from "./board-insects";
+import { BOARD, BOARD_IDS, BOARD_SPOTS, boardRow, callShake, claimShake, endShake, heldAt, joinShake, openRoll, rollTurnOf, outAt, takeRoll, turnOf, type Shake } from "./board-insects";
 
 const t0 = Date.UTC(2026, 9, 28, 11, 0); // 18:00 in Bangkok: the shake's hours begin at 16
 const ok = <T,>(d: { ok: boolean; why?: string } & T) => { if (!d.ok) throw new Error(d.why); return d as T & { ok: true }; };
@@ -78,6 +78,24 @@ describe("unrolling a leaf", () => {
     const next = (() => { for (let k = 1; ; k++) if (heldAt(spot, turn + k).length) return turn + k; })();
     expect(openRoll(spot, got.turn, "you", at, next * BOARD.turn + 10).ok).toBe(true);
   });
+  it("is the opener's while their hold runs: nobody else opens it; their take finishes in the next turn", () => {
+    const o = ok(openRoll(spot, null, "me", at, now));
+    expect(openRoll(spot, o.turn, "you", at, now + BOARD.hold - 1)).toEqual({ ok: false, why: "busy" });
+    const both = ok(openRoll(spot, o.turn, "you", at, now + BOARD.hold));
+    // (nor I while yours runs; after it, a re-open keeps my first time: a hold is never made longer by opening again)
+    expect(openRoll(spot, both.turn, "me", at, now + BOARD.hold + 10)).toEqual({ ok: false, why: "busy" });
+    const again = ok(openRoll(spot, both.turn, "me", at, now + 2 * BOARD.hold));
+    expect(again.turn.opened.me).toBe(now);
+    expect(openRoll(spot, again.turn, "them", at, now + 2 * BOARD.hold + 10).ok).toBe(true);
+    // opened just before its turn's end: the take after the turn is over gives what that turn held, within the hold
+    const late = (turn + 1) * BOARD.turn - 5_000, l = ok(openRoll(spot, null, "me", at, late));
+    expect(rollTurnOf([l.turn], spot.id, "me", late + 6_000)).toBe(l.turn);
+    expect(ok(takeRoll(spot, l.turn, "me", at, late + 6_000)).got).toBe(heldAt(spot, turn)[0]);
+    expect(rollTurnOf([l.turn], spot.id, "me", late + BOARD.hold)).toBe(null);
+    expect(takeRoll(spot, l.turn, "me", at, late + BOARD.hold)).toEqual({ ok: false, why: "none" });
+    // (and another's opening of the turn before is no way to the insect after it)
+    expect(rollTurnOf([l.turn], spot.id, "you", late + 6_000)).toBe(null);
+  });
 });
 
 describe("shaking a branch over a sheet", () => {
@@ -96,9 +114,11 @@ describe("shaking a branch over a sheet", () => {
     expect(s.caught).toBe(BOARD.drops);
     const held = heldAt(spot, turn);
     const mine = ok(claimShake(spot, s, "me"));
-    expect(mine.got).toBe(held[0]);
+    // (the sheet caught both: each of the two has both)
+    expect([mine.got, mine.more]).toEqual([held[0], held[1]]);
     expect(claimShake(spot, mine.shake, "me")).toEqual({ ok: false, why: "taken" });
-    expect(ok(claimShake(spot, mine.shake, "you")).got).toBe(held[1]);
+    const yours = ok(claimShake(spot, mine.shake, "you"));
+    expect([yours.got, yours.more]).toEqual([held[1], held[0]]);
     expect(claimShake(spot, mine.shake, "them")).toEqual({ ok: false, why: "theirs" });
     expect(callShake(spot, mine.shake, "them", "Them", at, now + 60_000, "s3")).toEqual({ ok: false, why: "taken" });
   });
@@ -114,6 +134,20 @@ describe("shaking a branch over a sheet", () => {
     s = ok(endShake(s, "you", 0, now + 1000 + BOARD.shakeMin)).shake;
     expect(claimShake(spot, s, "me")).toEqual({ ok: false, why: "none" });
     expect(callShake(spot, s, "me", "Me", at, now + 20_000, "s2").ok).toBe(true);
+  });
+  it("gives one each, the same one, when the sheet caught one", () => {
+    let s: Shake = ok(callShake(spot, null, "me", "Me", at, now, "s1")).shake;
+    s = ok(joinShake(spot, s, "you", "You", at, now + 1000)).shake;
+    s = ok(endShake(s, "you", 1, now + 1000 + BOARD.shakeMin)).shake;
+    const a = ok(claimShake(spot, s, "me")), b = ok(claimShake(spot, a.shake, "you"));
+    expect([a.got, a.more, b.got, b.more]).toEqual([heldAt(spot, turn)[0], null, heldAt(spot, turn)[0], null]);
+  });
+  it("may be answered while its call stands, though its turn has ended", () => {
+    const late = (turn + 1) * BOARD.turn - 10_000;
+    const s: Shake = ok(callShake(spot, null, "me", "Me", at, late, "s1")).shake;
+    expect(s.turn).toBe(turn);
+    expect(ok(joinShake(spot, s, "you", "You", at, late + 20_000)).shake.go).toBe(late + 20_000);
+    expect(joinShake(spot, s, "you", "You", at, late + BOARD.call)).toEqual({ ok: false, why: "late" });
   });
 });
 

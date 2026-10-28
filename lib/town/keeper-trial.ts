@@ -416,7 +416,7 @@ class TrialKeeper implements Keeper {
     if (action === "take") this.onDeed?.("boards");
     return did;
   }
-  async boardShake(action: "call" | "text" | "join" | "end" | "claim", spot: number, opts: { id?: string; at?: [number, number] | null; caught?: number; text?: string; name?: string } = {}): Promise<Did<{ shake: import("./board-insects").Shake; got?: string }>> {
+  async boardShake(action: "call" | "text" | "join" | "end" | "claim", spot: number, opts: { id?: string; at?: [number, number] | null; caught?: number; text?: string; name?: string } = {}): Promise<Did<{ shake: import("./board-insects").Shake; got?: string; more?: string | null }>> {
     const did = this.trial.boardShake(action, spot, this.id, opts.name ?? this.id, opts);
     if (!did.ok) return { ok: false, why: did.why as Why };
     if (action !== "claim") this.onDeed?.("boards");

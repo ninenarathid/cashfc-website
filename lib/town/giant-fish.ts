@@ -28,7 +28,8 @@ export const GIANT = {
   chance: 0.02,
   /** One giant an angler at most so often. */
   every: 20 * 60_000,
-  hold: 240_000,
+  /** The hold: ten minutes (the owner, 2026-10-28, to Codex's play run: a dawn netter came in time about half the time in four). */
+  hold: 600_000,
   fight: 90_000,
   scoops: 3,
   frays: 3,
