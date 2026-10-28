@@ -182,7 +182,7 @@
   "ult": 0,
   "mounts": 90,
   "minions": 272,
-  "rare": 71,
+  "rare": 72,
   "level": 100,
   "cc": [
    false,
@@ -229,6 +229,7 @@
    1853,
    1856,
    1857,
+   2030,
    2033,
    2034,
    2035,
@@ -275,7 +276,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-10-27"
+  "chg": "2026-10-28"
  },
  "14959902": {
   "name": "Notifire Sky",
@@ -1246,7 +1247,7 @@
   "ult": 5,
   "mounts": 131,
   "minions": 337,
-  "rare": 124,
+  "rare": 125,
   "level": 100,
   "cc": [
    true,
@@ -1381,7 +1382,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-27"
+  "chg": "2026-10-28"
  },
  "44970350": {
   "name": "Allen Crist",
@@ -2219,7 +2220,7 @@
   "mounts": 174,
   "minions": 271,
   "rare": null,
-  "level": 74,
+  "level": 75,
   "cc": [
    true,
    true,
@@ -2250,7 +2251,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-27"
+  "chg": "2026-10-28"
  },
  "12478532": {
   "name": "Hakuryu Flare",
@@ -2298,7 +2299,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 67,
+  "level": 71,
   "cc": [
    true,
    true,
@@ -2688,6 +2689,7 @@
    true
   ],
   "rare_ids": [
+   1319,
    1329,
    1330,
    1335,
@@ -2783,7 +2785,6 @@
    4025,
    4026,
    4027,
-   4030,
    4031,
    4032,
    4033,
@@ -4255,6 +4256,7 @@
    1865,
    1866,
    1869,
+   2148,
    2166,
    2357,
    2358,
@@ -4316,7 +4318,6 @@
    3539,
    3547,
    3714,
-   3945,
    3951,
    3964,
    4035,
@@ -4343,7 +4344,7 @@
   "ult": 3,
   "mounts": 265,
   "minions": 338,
-  "rare": 535,
+  "rare": 536,
   "level": 100,
   "cc": null,
   "rare_ids": [
@@ -4464,7 +4465,7 @@
    "The Omega Protocol",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-27"
+  "chg": "2026-10-28"
  },
  "29998658": {
   "name": "Shippei Astana",
@@ -5677,7 +5678,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 90,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -5799,7 +5800,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-10-27"
+  "chg": "2026-10-28"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -6347,7 +6348,7 @@
   "mounts": 130,
   "minions": 208,
   "rare": 48,
-  "level": 94,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -6421,7 +6422,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-27"
+  "chg": "2026-10-28"
  },
  "29795820": {
   "name": "Elle Lauren",
@@ -6882,10 +6883,10 @@
   "name": "Kawa Lynn",
   "parse": 72,
   "ult": 1,
-  "mounts": 60,
-  "minions": 114,
-  "rare": 4,
-  "level": 41,
+  "mounts": 61,
+  "minions": 116,
+  "rare": 5,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6895,6 +6896,7 @@
   ],
   "rare_ids": [
    631,
+   3641,
    3943,
    3945,
    3979
@@ -6910,7 +6912,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-27"
+  "chg": "2026-10-28"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -6949,7 +6951,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 69,
+  "level": 70,
   "cc": [
    false,
    false,
@@ -6993,7 +6995,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 100,
+  "level": 79,
   "cc": [
    false,
    false,
@@ -7013,7 +7015,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-27"
+  "chg": "2026-10-28"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -7255,6 +7257,7 @@
    3860,
    3861,
    3862,
+   3885,
    3886,
    3887,
    3914,
@@ -7301,7 +7304,6 @@
    4017,
    4018,
    4027,
-   4031,
    4034,
    4035,
    4043,
@@ -11349,7 +11351,7 @@
   "ult": 6,
   "mounts": 122,
   "minions": 276,
-  "rare": 59,
+  "rare": 60,
   "level": 100,
   "cc": [
    false,
@@ -11401,6 +11403,7 @@
    1746,
    1916,
    1993,
+   2030,
    2084,
    2103,
    2351,
@@ -11439,7 +11442,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-27"
+  "chg": "2026-10-28"
  },
  "15785511": {
   "name": "Eric Luminous",

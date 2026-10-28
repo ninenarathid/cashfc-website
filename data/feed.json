@@ -1,6 +1,62 @@
 {
  "events": [
   {
+   "date": "2026-10-28",
+   "type": "rare_up",
+   "id": 3968346,
+   "name": "Panuz Chocobunny",
+   "text": "earned I've Got It: Galatyn Anemos & Evalach Anemos"
+  },
+  {
+   "date": "2026-10-28",
+   "type": "rare_up",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "earned An Eye for Detail: Alchemist IV"
+  },
+  {
+   "date": "2026-10-28",
+   "type": "rare_up",
+   "id": 44133352,
+   "name": "Seville Beoulve",
+   "text": "earned I've Got It: Pyros Knives — only 3.0% of players have it"
+  },
+  {
+   "date": "2026-10-28",
+   "type": "level_100",
+   "id": 39959181,
+   "name": "El Blung",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-10-28",
+   "type": "rare_up",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "earned The Might Phantastick: Bayonet Penumbrae"
+  },
+  {
+   "date": "2026-10-28",
+   "type": "level_100",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
+   "date": "2026-10-28",
+   "type": "rare_up",
+   "id": 29918255,
+   "name": "Lyndanisse Vymmaith",
+   "text": "earned R&D: Hyperpickaxe"
+  },
+  {
+   "date": "2026-10-28",
+   "type": "rare_up",
+   "id": 1643244,
+   "name": "Epicenter Eorzea",
+   "text": "earned I've Got It: Galatyn Anemos & Evalach Anemos"
+  },
+  {
    "date": "2026-10-27",
    "type": "level_100",
    "id": 50821570,
@@ -1343,62 +1399,6 @@
    "id": 60852230,
    "name": "Lucien Rhul",
    "text": "set a new best parse: 15 on Valigarmanda as Dar\u0001 \u0002night"
-  },
-  {
-   "date": "2026-10-15",
-   "type": "level_100",
-   "id": 60429500,
-   "name": "Jin Theape",
-   "text": "reached level 100 on Dancer!"
-  },
-  {
-   "date": "2026-10-15",
-   "type": "ex_clear",
-   "id": 24228478,
-   "name": "Pyrozus Helison",
-   "text": "cleared Valigarmanda (Extreme)"
-  },
-  {
-   "date": "2026-10-15",
-   "type": "ult_clear",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "cleared Dancing Mad 🏆"
-  },
-  {
-   "date": "2026-10-15",
-   "type": "level_100",
-   "id": 57375278,
-   "name": "Komi Kona",
-   "text": "reached level 100 on Carpenter!"
-  },
-  {
-   "date": "2026-10-15",
-   "type": "job_up",
-   "id": 42053180,
-   "name": "Chu'ny On-duty",
-   "text": "is now a Master White Mage"
-  },
-  {
-   "date": "2026-10-14",
-   "type": "job_up",
-   "id": 12478532,
-   "name": "Hakuryu Flare",
-   "text": "is now a Master Viper"
-  },
-  {
-   "date": "2026-10-14",
-   "type": "job_up",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "is now a Expert Warrior"
-  },
-  {
-   "date": "2026-10-14",
-   "type": "level_100",
-   "id": 24228478,
-   "name": "Pyrozus Helison",
-   "text": "reached level 100 on Sage!"
   }
  ]
 }
