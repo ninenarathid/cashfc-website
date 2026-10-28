@@ -299,14 +299,16 @@ try {
   await setNow(clock + 1000);
   await shakeDo(M3, "join", cherry.id, { id: id2, at: near }, "a join");
   const g2 = clock;
+  // (a shake under way keeps its tree till its time is up; begun and never ended, it frees the tree once past it)
+  await setNow(g2 + B.BOARD.shake);
+  eq(why(await shakeDo(M3, "call", cherry.id, { at: near }, "a call while a shake is under way")), "busy", "a shake under way keeps its tree");
+  await setNow(g2 + B.BOARD.shake + 5000);
+  eq(why(await shakeDo(M3, "call", cherry.id, { at: near }, "a call at the last moment of its grace")), "busy", "to the end of its grace");
   await setNow(g2 + B.BOARD.shake + 5001);
   eq(why(await shakeDo(M3, "end", cherry.id, { id: id2, caught: 1 }, "an end long after")), "late", "the shake is over in thirty seconds and five");
-  // (a shake held and never ended keeps its tree till its turn is over, as callShake has it)
-  eq(why(await shakeDo(M3, "call", cherry.id, { at: near }, "a call after a shake that never ended")), "busy", "a shake held and never ended keeps the tree its turn");
-  const st2b = holding(cherry, st2 + 1, (t) => hourOf(t) >= 16 && hourOf(t) < 23);
-  await setNow(st2b * B.BOARD.turn + 1000);
-  const id3 = (await shakeDo(M3, "call", cherry.id, { at: near }, "a call the turn after"))?.shake?.id;
-  ok(id3, "the turn after, the tree is anybody's");
+  const id3 = (await shakeDo(M3, "call", cherry.id, { at: near }, "a call after a shake that never ended"))?.shake?.id;
+  ok(id3, "past its time, a shake begun and never ended frees its tree");
+  eq(why(await shakeDo(M1, "call", cherry.id, { at: near }, "a call while the new one stands")), "busy", "and the new call holds it");
   await setNow(clock + 1000);
   await shakeDo(M2, "join", cherry.id, { id: id3, at: near }, "a join");
   await setNow(clock + B.BOARD.shakeMin);
@@ -319,7 +321,7 @@ try {
   await setNow(clock + B.BOARD.call);
   eq(why(await shakeDo(M2, "join", cherry.id, { id: id4, at: near }, "a join after the call ran out")), "late", "the call stands three minutes");
   // a call near the turn's end, its join in the next turn
-  const st3 = holding(cherry, st2b + 1, (t) => hourOf(t) >= 16 && hourOf(t) < 22 && B.heldAt(cherry, t + 1).length > 0);
+  const st3 = holding(cherry, st2 + 1, (t) => hourOf(t) >= 16 && hourOf(t) < 22 && B.heldAt(cherry, t + 1).length > 0);
   await setNow((st3 + 1) * B.BOARD.turn - 5000);
   const id5 = (await shakeDo(M1, "call", cherry.id, { at: near }, "a call at a turn's end"))?.shake?.id;
   await setNow((st3 + 1) * B.BOARD.turn + 1000);

@@ -288,8 +288,11 @@ begin
 
   if p_action = 'call' then
     if s is null or jsonb_array_length(town.board_held(p_spot, turn_)) = 0 then return town.answer(me, town.no('none')); end if;
+    -- (a shake under way keeps the tree till its time is up, a call till it runs out: one begun and never ended, its
+    -- page gone, frees the tree again)
     if live is not null and (live->>'turn')::bigint = turn_ and ((live->>'caught')::integer > 0
-         or ((live->>'end')::bigint = 0 and ((live->>'go')::bigint > 0 or now_ < (live->>'at')::bigint + (b->>'call')::bigint))) then
+         or ((live->>'end')::bigint = 0 and case when (live->>'go')::bigint > 0 then now_ <= (live->>'go')::bigint + (b->>'shake')::bigint + 5000
+                                                 else now_ < (live->>'at')::bigint + (b->>'call')::bigint end)) then
       return town.answer(me, town.no(case when (live->>'caught')::integer > 0 then 'taken' else 'busy' end));
     end if;
     if not town.board_near(s, p_x, p_y) then return town.answer(me, town.no('far')); end if;
