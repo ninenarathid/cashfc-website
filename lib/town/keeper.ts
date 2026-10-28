@@ -28,7 +28,7 @@ import type { JarThing, JarTold } from "./jar";
 import { carried, type PassRefusal } from "./line";
 import { reachOf } from "./ditch";
 import { hotAt } from "./heat";
-import { DISHES, ITEMS, type BaitId, type CatchId, type DishId, type ItemId } from "./items";
+import { DISHES, ITEMS, MAKES, type BaitId, type CatchId, type DishId, type ItemId } from "./items";
 import { NO_PRICES, type MarketQuote, type PricesTold } from "./market";
 import type { NoticeRefusal, PinboardTold } from "./notices";
 import { shelfOf, sourcesAt, type Order } from "./orders";
@@ -1622,7 +1622,8 @@ export class DbKeeper implements Keeper {
   madeBefore(id: ItemId): boolean { return hasMade(this.mine, id); }
   triesAt(id: ItemId): number { return this.mine.tries?.[id] ?? 0; }
   known(): DishId[] { return [...new Set<ItemId>([...this.mine.recipes, ...this.found_])].filter((id): id is DishId => id in DISHES); }
-  knownMakes(): ItemId[] { return [...new Set<ItemId>([...(this.mine.made ?? []), ...this.mine.recipes, ...this.found_])].filter((id) => !(id in DISHES)); }
+  // (`recipes` holds more than recipes: a breeding scroll read is kept there as well, and is no make)
+  knownMakes(): ItemId[] { return [...new Set<ItemId>([...(this.mine.made ?? []), ...this.mine.recipes, ...this.found_])].filter((id) => !!MAKES[id]); }
   cookTry(things: Array<[ItemId, number]>, crew: Array<ItemId | null>): Refusal | null {
     const did = cook(this.mine, things, crew, 0, this.now());
     return did.ok ? null : did.why;
