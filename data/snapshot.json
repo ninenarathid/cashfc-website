@@ -2298,7 +2298,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 100,
+  "level": 67,
   "cc": [
    true,
    true,
@@ -2345,7 +2345,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-27"
+  "chg": "2026-10-28"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -6949,7 +6949,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 68,
+  "level": 69,
   "cc": [
    false,
    false,
@@ -6962,7 +6962,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-27"
+  "chg": "2026-10-28"
  },
  "53933347": {
   "name": "Little Alyss",
