@@ -175,6 +175,9 @@ const TownResourceBench = lazy(() => import("./TownRewardActions").then(m=>({def
 const TownBugs = lazy(() => import("./TownBugs"));
 // (a giant fish landed together: lib/town/giant-fish)
 const TownGiantFish = lazy(() => import("./TownGiantFish"));
+// (insects found two new ways: lib/town/board-insects)
+const TownBoardInsects = lazy(() => import("./TownBoardInsects"));
+import type { ShakePairing } from "./TownBoardInsects";
 import type { GiantPairing } from "./TownGiantFish";
 import type { GiantHook } from "@/lib/town/giant-fish";
 // ── mining ── (the mountain's rocks and the cave: in every build, shown only while the far side is open to me)
@@ -1026,6 +1029,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // A giant fish on somebody's line (TownGiantFish): its boil on the water; and the one just struck on mine, handed over by TownFish.
   const giantDraw = useRef<FarmDraw | null>(null);
   const registerGiant = useCallback((draw: FarmDraw | null) => { giantDraw.current = draw; }, []);
+  // The leaf rolls and the branches that hold something this turn (TownBoardInsects).
+  const boardDraw = useRef<FarmDraw | null>(null);
+  const registerBoards = useCallback((draw: FarmDraw | null) => { boardDraw.current = draw; }, []);
   const [giantStruck, setGiantStruck] = useState<GiantHook | null>(null);
   // ── mining ── (components/town/TownMine: what it draws over the rocks, and what it asks of the map: where I am, to
   // stand me somewhere at once (the lift), to walk me to a tile, and to open my box at the foot yard's chest)
@@ -1155,15 +1161,17 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // A game two play together (water handed on: lib/town/handing): what the two pages tell each other goes by the
   // room's letterboxes, from one to the other and to nobody else.
   // ── gifts: well ── (a drink held out goes by the same letterboxes: each of the two hears every word, and takes its own)
-  const pairHears = useRef<{ line: ((from: string, data: unknown) => void) | null; drink: ((from: string, data: unknown) => void) | null; ram: ((from: string, data: unknown) => void) | null; giant: ((from: string, data: unknown) => void) | null }>({ line: null, drink: null, ram: null, giant: null });
+  const pairHears = useRef<{ line: ((from: string, data: unknown) => void) | null; drink: ((from: string, data: unknown) => void) | null; ram: ((from: string, data: unknown) => void) | null; giant: ((from: string, data: unknown) => void) | null; shake: ((from: string, data: unknown) => void) | null }>({ line: null, drink: null, ram: null, giant: null, shake: null });
   const pairWire = useCallback((s: TownSession) => {
-    const { line, drink, ram, giant } = pairHears.current;
-    s.onPair = line || drink || ram || giant ? (from, data) => { pairHears.current.line?.(from, data); pairHears.current.drink?.(from, data); pairHears.current.ram?.(from, data); pairHears.current.giant?.(from, data); } : null;
+    const { line, drink, ram, giant, shake } = pairHears.current;
+    s.onPair = line || drink || ram || giant || shake ? (from, data) => { pairHears.current.line?.(from, data); pairHears.current.drink?.(from, data); pairHears.current.ram?.(from, data); pairHears.current.giant?.(from, data); pairHears.current.shake?.(from, data); } : null;
   }, []);
   const pairing = useMemo<Pairing | null>(() => (session ? { send: (to, told) => session.pair(to, told), hear: (fn) => { pairHears.current.line = fn; pairWire(session); } } : null), [session, pairWire]);
   const drinking = useMemo<DrinkPairing | null>(() => (session ? { send: (to, told) => session.pair(to, told), hear: (fn) => { pairHears.current.drink = fn; pairWire(session); } } : null), [session, pairWire]);
   // (a giant fish's angler and netter: where the fish is, where the hoop is, a scoop; components/town/TownGiantFish)
   const giantPairing = useMemo<GiantPairing | null>(() => (session ? { send: (to, told) => session.pair(to, told), hear: (fn) => { pairHears.current.giant = fn; pairWire(session); } } : null), [session, pairWire]);
+  // (a shaken branch's two: how far it is bent, what falls and runs on the sheet, a tap; components/town/TownBoardInsects)
+  const shakePairing = useMemo<ShakePairing | null>(() => (session ? { send: (to, told) => session.pair(to, told), hear: (fn) => { pairHears.current.shake = fn; pairWire(session); } } : null), [session, pairWire]);
   // The room says when something of the game's changed, and the keeper asks the database for it; my own deeds are
   // said the same way. Only the word for what: never the change.
   useEffect(() => {
@@ -2710,6 +2718,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       fieldworkDraw.current?.(frame);
       bugsDraw.current?.(frame);
       giantDraw.current?.(frame);
+      boardDraw.current?.(frame);
       mineDraw.current?.(frame);   // ── mining ── (cracks on a rock being struck, a swing, what a peek said)
       // the pots of food that stand about, wherever they were set down
       cookDraw.current?.(frame);
@@ -5819,6 +5828,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       {s && game && keeper && (
         <Suspense fallback={null}>
           <TownGiantFish me={keeper.id} myName={me.name} keeper={keeper} th={w.th} here={mineHere} hour={forcedHour.current} pairing={giantPairing} registerDraw={registerGiant} walkTo={walkToTile} struck={giantStruck} />
+          <TownBoardInsects me={keeper.id} myName={me.name} keeper={keeper} th={w.th} here={mineHere} hour={forcedHour.current} pairing={shakePairing} registerDraw={registerBoards} walkTo={walkToTile} />
         </Suspense>
       )}
       {s && game && keeper && (
