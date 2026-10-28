@@ -93,7 +93,7 @@ export const GIANTS = Object.fromEntries((GIANT_ROWS as readonly GiantRow[]).map
 export const GIANT_IDS = GIANT_ROWS.map((r) => r.id) as GiantId[];
 /** What a giant gives each of the two who landed it: one kind for all twenty, sold to the uncle in a band of its own (lib/town/market's `fixed`). */
 export const GIANT_ITEMS = {
-  giantSteak: { kind: "catch", tier: 3, name: { th: "สเต๊กปลายักษ์", en: "Giant fish steak" }, about: { th: "ชิ้นเนื้อปลาหนาสีชมพูอ่อนจากปลายักษ์ ขอบหนังสีเงิน ได้จากการช่วยกันขึ้นปลายักษ์", en: "A thick pink steak cut across a giant fish, ringed with silver skin: had by landing a giant together" }, stack: 10, pays: 120 },
+  giantSteak: { kind: "catch", tier: 3, name: { th: "สเต๊กปลายักษ์", en: "Giant fish steak" }, about: { th: "ชิ้นเนื้อปลาหนาสีชมพูอ่อน ตัดขวางจากปลายักษ์ ขอบหนังสีเงิน", en: "A thick pink steak cut across a giant fish, ringed with silver skin" }, stack: 10, pays: 120 },
 } satisfies Record<string, Item>;
 /** Each water's bait (lib/town/items' BAIT_AS gives what stands for one). */
 export const GIANT_BAIT: Record<FishingHabitat, BaitId> = { town: "dough", creek: "worm", headwater: "minnow", pool: "cricket" };

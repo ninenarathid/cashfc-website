@@ -1,6 +1,7 @@
 import { goesIn, isCookware, needsOf } from "./cooking";
 import { WATER, toolOf } from "./farm";
 import { ALL_SIGNS, oddsOf } from "./fishing";
+import { GIANT_BAIT } from "./giant-fish";
 import { FORAGING, KINDS, SPOT_KINDS } from "./forest";
 import { BUGS, BUG_IDS, LURES, NETS } from "./insects";
 import { CARRIES, COOK_EASE, FIELD, KITCHEN_GEAR, RODS, TACKLE } from "./gear";
@@ -122,6 +123,8 @@ export function sources(shelf: ItemId[] = Object.keys(GOODS) as ItemId[], wild =
       }
       // Exploration catches can be hinted at, while the uncle's daily orders retain their town-only pool.
       if (wild) for (const id of FISH_IDS) if (FISH[id].habitat && Object.keys(FISH[id].baits).some(b => has(b as ItemId))) add(id,"river");
+      // (a giant fish landed together gives its steak, on a water's own bait: lib/town/giant-fish)
+      if (wild && Object.values(GIANT_BAIT).some((b) => has(b))) add("giantSteak", "river");
     }
     // and what is inside what the river brings up: the scrolls nobody sells. (A seed in a fish's belly is not
     // counted on: it is luck, and what the uncle may ask for is worked out from this, lib/town/orders.)
