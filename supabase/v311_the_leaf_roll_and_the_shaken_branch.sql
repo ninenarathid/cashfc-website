@@ -8,19 +8,25 @@
 -- What changes:
 --   * The catalog: a `boards` row (BOARD, the spots, the rows and their weights, as lib/town/catalog writes it), and the
 --     twenty-one merged into the rows they belong to, entry by entry and never a row written over: `items` (each a bag
---     item), `insects` (`bugs`, with no haunt and no weight, and `order`), `work` (`insects`, their points),
+--     item), `insects` (`bugs`, with no haunt, the weight the insects' line reads, and `order`), `work` (`insects`, their points),
 --     `insect_garden` (visitors, pollinators, predators), `quality` (the pollinators' `skies`, the soil workers of the
 --     insect house). A good garden draws what the `insects` row's `garden.draws` says, which has none of them, so it
 --     still draws none of them (town.bug_at: v267's good garden is unchanged).
---   * What a spot holds in a turn (town.board_held, lib/town/board-insects' heldAt): turns of half an hour; a quarter of
---     them hold an insect, by town.roll (lib/town/farm's roll), the place, the tree and the Bangkok hour of the turn's
---     first moment, a common one weighing three times a rare one; a branch drops two.
+--   * What a spot holds in a turn (town.board_held, lib/town/board-insects' heldAt): turns of fifteen minutes (the
+--     owner, 2026-10-28, to Codex's play runs: "ก–จ เอา"); a quarter of them hold an insect, by town.roll (lib/town/
+--     farm's roll), the place, the tree and the Bangkok hour of the turn's first moment, a common one weighing three
+--     times a rare one; a branch drops two.
 --   * The leaf roll (public.town_board_roll): opened near its bush (openRoll), and what was in it cupped by whoever is
---     first in its turn, not sooner than four seconds after opening it (takeRoll).
+--     first in its turn, not sooner than four seconds after opening it (takeRoll). A leaf opened is its opener's for
+--     thirty seconds (BOARD.hold): nobody else opens it meanwhile (a re-open keeps the first opening's time), and the
+--     opener's take is weighed in the turn it was opened in, though the next has begun, while the hold runs
+--     (rollTurnOf): what that turn held is what is had.
 --   * The shaken branch (public.town_board_shake): called at a tree (callShake), the town called for somebody to hold
 --     the sheet (three calls, a minute apart, 120 letters, each the town's news: town_announcements' kind 'shake', its
---     `to` the shake and the tree; callForHolder), the sheet held (joinShake), the catch said by the holder
---     (endShake), and each of the two has one of what it caught (claimShake).
+--     `to` the shake and the tree; callForHolder), the sheet held while the call stands, though its turn has ended
+--     (joinShake), the catch said by the holder (endShake), and each of the two has one of what it caught; a sheet
+--     that caught both gives each of the two both (claimShake's `more`), with room in the bag for both or neither,
+--     one stamina for the claim and a net's deed for each insect.
 --   * An insect had so is in the bag at once, with its one stamina (spent as v307's giant pull spends it: never
 --     refused for want of it), refused only when the bag has no room for it; it is a net's insect on the insects'
 --     line (the owner, 2026-10-28: "ควรได้แต้มทั้งคู่": the 'net' deed town_net writes, the same rule: a common one 3, a
@@ -56,12 +62,13 @@ end $guard$;
 -- <catalog:v311> written from lib/town/catalog.ts (npm test checks it; TOWN_WRITE=1 npx vitest run lib/town/catalog.test.ts writes it)
 insert into public.town_catalog (key, data) values
   ('boards', $town${
-    "turn": 1800000,
+    "turn": 900000,
     "occupied": 0.25,
     "reach": 2,
     "seams": 4,
     "startle": 1500,
     "unrollMin": 4000,
+    "hold": 30000,
     "call": 180000,
     "shake": 30000,
     "shakeMin": 5000,
@@ -160,23 +167,25 @@ returns boolean language sql stable set search_path = '' as $$
 $$;
 
 -- An insect had from a board: into my bag with its one stamina (lib/town/trial's boardGot: never refused for want of
--- it); a net's insect on the insects' line (the 'net' deed town_net writes, counted by the deeds' trigger through
+-- it; the second of a full sheet's comes with the claim's, its stamina spent already: `p_stamina` 0); a net's insect on the insects' line (the 'net' deed town_net writes, counted by the deeds' trigger through
 -- town.work_counts_of by the work row's `insects`: a common one 3, a rare one 8, the first of each kind ten more); and
 -- the first of its kind written in the village's insect book as a net's catch writes it (town_net)
-create or replace function town.board_got(p_member uuid, p_purse jsonb, p_bug text, p_now bigint, p_doc jsonb default '{}'::jsonb)
-returns void language plpgsql set search_path = '' as $$
+create or replace function town.board_got(p_member uuid, p_purse jsonb, p_bug text, p_now bigint, p_doc jsonb default '{}'::jsonb, p_stamina double precision default 1)
+returns jsonb language plpgsql set search_path = '' as $$
 declare
   book jsonb;
+  purse_ jsonb := town.spend(p_purse || jsonb_build_object('bag', town.put(p_purse->'bag', p_bug, 1)), coalesce(p_stamina, 1), p_now);
 begin
-  perform town.keep_purse(p_member, town.spend(p_purse || jsonb_build_object('bag', town.put(p_purse->'bag', p_bug, 1)), 1::double precision, p_now));
+  perform town.keep_purse(p_member, purse_);
   perform town.note(p_member, 'net', p_bug, 1, 0, coalesce(p_doc, '{}'::jsonb));
   book := town.thing('bugs', true);
   if not book ? p_bug then
     perform town.keep_thing('bugs', book || jsonb_build_object(p_bug, jsonb_build_object('by', p_member, 'at', p_now, 'name',
       (select coalesce(p.character_name, p.display_name, p.discord_username, '') from public.profiles p where p.id = p_member))));
   end if;
+  return purse_;
 end $$;
-revoke all on function town.board_held(integer, bigint), town.board_near(jsonb, integer, integer), town.board_got(uuid, jsonb, text, bigint, jsonb) from public, anon, authenticated;
+revoke all on function town.board_held(integer, bigint), town.board_near(jsonb, integer, integer), town.board_got(uuid, jsonb, text, bigint, jsonb, double precision) from public, anon, authenticated;
 
 -- ── 3. The turns and the shakes ───────────────────────────────────────────────────────────────────────────────────────
 -- (a spot's turn as it is kept, SpotTurn: who opened its roll when, each their own, and who took what it held)
@@ -218,6 +227,8 @@ declare
   t jsonb;
   purse_ jsonb;
   opened_ bigint;
+  hold_ bigint := (b->>'hold')::bigint;
+  of_ bigint;
 begin
   if p_action is null or p_action not in ('open', 'take') then return town.answer(me, town.no('none')); end if;
   s := case when p_spot is not null and p_spot >= 0 then b->'spots'->p_spot end;
@@ -226,29 +237,49 @@ begin
   if p_action = 'take' then purse_ := town.purse_of(me, true); end if;
   perform pg_advisory_xact_lock(hashtext('town.board'), p_spot);
   turn_ := now_ / (b->>'turn')::bigint;
-  held_ := town.board_held(p_spot, turn_)->>0;
-  select jsonb_build_object('spot', bt.spot, 'turn', bt.turn, 'opened', bt.opened, 'taken', bt.taken) into t
-    from public.town_board_turns bt where bt.spot = p_spot and bt.turn = turn_;
   if p_action = 'open' then
+    held_ := town.board_held(p_spot, turn_)->>0;
+    select jsonb_build_object('spot', bt.spot, 'turn', bt.turn, 'opened', bt.opened, 'taken', bt.taken) into t
+      from public.town_board_turns bt where bt.spot = p_spot and bt.turn = turn_;
     if held_ is null then return town.answer(me, town.no('none')); end if;
     t := coalesce(t, jsonb_build_object('spot', p_spot, 'turn', turn_, 'opened', '{}'::jsonb, 'taken', null));
     if t->>'taken' is not null then return town.answer(me, town.no('taken')); end if;
+    -- (a leaf opened is its opener's while their hold runs: nobody else opens it meanwhile)
+    if exists (select 1 from jsonb_each_text(t->'opened') o where o.key <> me_ and now_ - o.value::bigint < hold_) then
+      return town.answer(me, town.no('busy'));
+    end if;
     if not town.board_near(s, p_x, p_y) then return town.answer(me, town.no('far')); end if;
+    -- (a re-open keeps my first opening's time: opened again and again, a leaf would be nobody else's all turn)
     t := t || jsonb_build_object('opened', (t->'opened') || jsonb_build_object(me_, coalesce(t->'opened'->me_, to_jsonb(now_))));
     insert into public.town_board_turns as bt (spot, turn, opened) values (p_spot, turn_, t->'opened')
       on conflict (spot, turn) do update set opened = excluded.opened;
     return town.answer(me, jsonb_build_object('ok', true, 'turn', t, 'held', held_));
   end if;
-  -- take
-  if held_ is null or t is null then return town.answer(me, town.no('none')); end if;
+  -- take, weighed in the turn rollTurnOf picks: this turn's if I opened its roll, else the turn before's while my hold
+  -- on it runs (an opening finishes across the turn's end), else this turn's; what is had is what that turn held
+  select jsonb_build_object('spot', bt.spot, 'turn', bt.turn, 'opened', bt.opened, 'taken', bt.taken) into t
+    from public.town_board_turns bt where bt.spot = p_spot and bt.turn = turn_ and bt.opened ? me_;
+  if t is null then
+    select jsonb_build_object('spot', bt.spot, 'turn', bt.turn, 'opened', bt.opened, 'taken', bt.taken) into t
+      from public.town_board_turns bt where bt.spot = p_spot and bt.turn = turn_ - 1 and bt.opened ? me_ and now_ - (bt.opened->>me_)::bigint < hold_;
+  end if;
+  if t is null then
+    select jsonb_build_object('spot', bt.spot, 'turn', bt.turn, 'opened', bt.opened, 'taken', bt.taken) into t
+      from public.town_board_turns bt where bt.spot = p_spot and bt.turn = turn_;
+  end if;
+  of_ := (t->>'turn')::bigint;
+  held_ := case when t is not null then town.board_held(p_spot, of_)->>0 end;
+  if held_ is null or t is null or not (of_ = turn_ or (of_ = turn_ - 1 and t->'opened' ? me_ and now_ - (t->'opened'->>me_)::bigint < hold_)) then
+    return town.answer(me, town.no('none'));
+  end if;
   if t->>'taken' is not null then return town.answer(me, town.no('taken')); end if;
   if not town.board_near(s, p_x, p_y) then return town.answer(me, town.no('far')); end if;
   opened_ := (t->'opened'->>me_)::bigint;
   if opened_ is null or now_ - opened_ < (b->>'unrollMin')::bigint then return town.answer(me, town.no('soon')); end if;
   if town.room(purse_->'bag', held_) < 1 then return town.answer(me, town.no('full')); end if;
   t := t || jsonb_build_object('taken', me_);
-  update public.town_board_turns bt set taken = me where bt.spot = p_spot and bt.turn = turn_;
-  perform town.board_got(me, purse_, held_, now_, jsonb_build_object('board', 'roll', 'spot', p_spot, 'turn', turn_));
+  update public.town_board_turns bt set taken = me where bt.spot = p_spot and bt.turn = of_;
+  perform town.board_got(me, purse_, held_, now_, jsonb_build_object('board', 'roll', 'spot', p_spot, 'turn', of_));
   return town.answer(me, jsonb_build_object('ok', true, 'turn', t, 'got', held_));
 end $$;
 revoke all on function public.town_board_roll(text, integer, integer, integer) from public, anon, authenticated;
@@ -272,6 +303,8 @@ declare
   purse_ jsonb;
   held_ jsonb;
   got_ text;
+  more_ text;
+  bag_ jsonb;
   words_ text;
   id_ text;
   key_ text;
@@ -324,8 +357,9 @@ begin
     perform town.announce(me, 'shake', words_, 0, key_, false);
     update public.town_announcements a set toward = jsonb_build_object('hook', live->>'id', 'x', s->'x', 'y', s->'y') where a.event_key = key_;
   elsif p_action = 'join' then
-    if s is null or live is null or (live->>'end')::bigint > 0 or (live->>'go')::bigint > 0
-       or now_ >= (live->>'at')::bigint + (b->>'call')::bigint or turn_ <> (live->>'turn')::bigint then
+    -- (while the call stands, though its turn has ended; the shake is the tree's, found at it)
+    if s is null or live is null or (live->>'spot')::integer is distinct from p_spot or (live->>'end')::bigint > 0
+       or (live->>'go')::bigint > 0 or now_ >= (live->>'at')::bigint + (b->>'call')::bigint then
       return town.answer(me, town.no('late'));
     end if;
     if live->>'by' = me_ then return town.answer(me, town.no('self')); end if;
@@ -339,22 +373,36 @@ begin
     sh := live || jsonb_build_object('end', now_, 'caught', case when p_caught is null or p_caught = 'NaN'::numeric then 0
       else greatest(0::numeric, least((b->>'drops')::numeric, floor(p_caught)))::integer end);
   else
-    -- claim: each of the two, one of what the sheet caught (the shaker the first, the holder the second, or the first)
+    -- claim: each of the two, one of what the sheet caught (the shaker the first, the holder the second, or the first);
+    -- a sheet that caught both gives each the other as well (`more`): room for both or for neither
     if s is null or live is null or (live->>'end')::bigint = 0 or (live->>'caught')::integer < 1 then return town.answer(me, town.no('none')); end if;
     if me_ is distinct from live->>'by' and me_ is distinct from live->>'holder' then return town.answer(me, town.no('theirs')); end if;
     if live->'claimed' ? me_ then return town.answer(me, town.no('taken')); end if;
     held_ := town.board_held((live->>'spot')::integer, (live->>'turn')::bigint);
     got_ := case when me_ = live->>'by' then held_->>0 else held_->>(least((live->>'caught')::integer, jsonb_array_length(held_)) - 1) end;
     if got_ is null then return town.answer(me, town.no('none')); end if;
-    if town.room(purse_->'bag', got_) < 1 then return town.answer(me, town.no('full')); end if;
+    more_ := case when (live->>'caught')::integer >= (b->>'drops')::integer and jsonb_array_length(held_) >= 2
+      then case when me_ = live->>'by' then held_->>1 else held_->>0 end end;
+    bag_ := purse_->'bag';
+    if more_ is null then
+      if town.room(bag_, got_) < 1 then return town.answer(me, town.no('full')); end if;
+    elsif held_->>0 = held_->>1 then
+      if town.room(bag_, held_->>0) < 2 then return town.answer(me, town.no('full')); end if;
+    elsif town.room(bag_, held_->>0) < 1 or town.room(town.put(bag_, held_->>0, 1), held_->>1) < 1 then
+      return town.answer(me, town.no('full'));
+    end if;
     sh := live || jsonb_build_object('claimed', live->'claimed' || to_jsonb(me_));
-    perform town.board_got(me, purse_, got_, now_, jsonb_build_object('board', 'shake', 'spot', p_spot, 'shake', live->>'id'));
+    purse_ := town.board_got(me, purse_, got_, now_, jsonb_build_object('board', 'shake', 'spot', p_spot, 'shake', live->>'id'));
+    -- (the second of a full sheet's: its own net's deed, its stamina spent with the claim's)
+    if more_ is not null then
+      perform town.board_got(me, purse_, more_, now_, jsonb_build_object('board', 'shake', 'spot', p_spot, 'shake', live->>'id'), 0);
+    end if;
   end if;
 
   update public.town_board_shakes bs set doc = sh, updated_at = now() where bs.id = live->>'id';
   return town.answer(me, jsonb_build_object('ok', true, 'shake', sh)
     || case when words_ is not null then jsonb_build_object('words', words_) else '{}'::jsonb end
-    || case when got_ is not null then jsonb_build_object('got', got_) else '{}'::jsonb end);
+    || case when got_ is not null then jsonb_build_object('got', got_, 'more', more_) else '{}'::jsonb end);
 end $$;
 revoke all on function public.town_board_shake(text, integer, text, integer, integer, numeric, text) from public, anon, authenticated;
 grant execute on function public.town_board_shake(text, integer, text, integer, integer, numeric, text) to authenticated;
@@ -400,7 +448,7 @@ commit;
 --   select count(*) from public.town_catalog c, jsonb_each(c.data) e where c.key = 'items' and e.key in
 --     (select r->>'id' from public.town_catalog b, jsonb_array_elements(b.data->'rows') r where b.key = 'boards');
 --                                -- 21
---   select town.board_held(0, (extract(epoch from now()) * 1000)::bigint / 1800000);
+--   select town.board_held(0, (extract(epoch from now()) * 1000)::bigint / 900000);
 --                                -- [] most turns, or the insect in the roll
 --   select has_function_privilege('anon', 'public.town_board_roll(text,integer,integer,integer)', 'EXECUTE') as anon_roll,
 --          has_function_privilege('anon', 'public.town_board_shake(text,integer,text,integer,integer,numeric,text)', 'EXECUTE') as anon_shake,

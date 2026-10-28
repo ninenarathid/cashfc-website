@@ -159,7 +159,9 @@ try {
   const turnRow = async (spot, turn) => (await one("select jsonb_build_object('spot', spot, 'turn', turn, 'opened', opened, 'taken', taken) r from public.town_board_turns where spot = $1 and turn = $2", [spot, turn]))?.r ?? null;
   const fullFor = async (m, id) => (await one("select town.room(town.purse_of($1, false)->'bag', $2) < 1 r", [m, id])).r;
   const rollDo = async (who, action, spotId, at, what) => {
-    const sp = B.BOARD_SPOTS[spotId], turn = B.turnOf(clock), t = await turnRow(spotId, turn), held = sp ? B.heldAt(sp, turn)[0] : undefined;
+    // (as lib/town/trial's boardRoll: an open is weighed in this turn's record, a take in the one rollTurnOf picks)
+    const sp = B.BOARD_SPOTS[spotId], turn = B.turnOf(clock), kept = (await Promise.all([turn - 1, turn].map((k) => turnRow(spotId, k)))).filter(Boolean);
+    const t = action === "open" ? kept.find((x) => x.turn === turn) ?? null : B.rollTurnOf(kept, spotId, who, clock), held = sp ? B.heldAt(sp, t?.turn ?? turn)[0] : undefined;
     const bagFull = action === "take" && held ? await fullFor(who, held) : false;
     const a = await asOf(who)("select public.town_board_roll($1, $2, $3, $4) r", [action, spotId, at?.[0] ?? null, at?.[1] ?? null]);
     const twin = action === "open" ? B.openRoll(sp, t, who, at, clock) : B.takeRoll(sp, t, who, at, clock, bagFull);
@@ -221,8 +223,20 @@ try {
   const rt2 = holding(spot, rt + 1);
   await setNow(rt2 * B.BOARD.turn + 10);
   eq(why(await rollDo(M2, "open", spot.id, at, "the next turn's open")), "ok", "anybody's again the next turn");
-  eq(why(await rollDo(M3, "open", spot.id, [spot.x - 2, spot.y + 2], "a second opener")), "ok", "two at one roll");
-  await setNow(rt2 * B.BOARD.turn + 10 + B.BOARD.unrollMin);
+  // (a leaf opened is its opener's while their hold runs: nobody else opens it; a re-open keeps the first time)
+  const T2 = clock, far2 = [spot.x - 2, spot.y + 2];
+  await setNow(T2 + 10);
+  eq(why(await rollDo(M3, "open", spot.id, far2, "another's open while the hold runs")), "busy", "nobody else opens it while its opener's hold runs");
+  await setNow(T2 + B.BOARD.hold - 1);
+  eq(why(await rollDo(M3, "open", spot.id, far2, "another's open at the hold's last moment")), "busy", "to its last moment");
+  await setNow(T2 + B.BOARD.hold);
+  eq(why(await rollDo(M3, "open", spot.id, far2, "a second opener once the hold is over")), "ok", "two at one roll, one after the other");
+  await setNow(T2 + B.BOARD.hold + 10);
+  eq(why(await rollDo(M2, "open", spot.id, at, "the first opener again while the second's hold runs")), "busy", "nor the first again while the second's runs");
+  await setNow(T2 + 2 * B.BOARD.hold);
+  r = await rollDo(M2, "open", spot.id, at, "a re-open after both holds");
+  eq([why(r), r.turn?.opened?.[M2]], ["ok", T2], "a re-open keeps the first opening's time");
+  await setNow(T2 + 2 * B.BOARD.hold + 10);
   await db.query("select town.keep_purse($1, town.purse_of($1, true) || jsonb_build_object('stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 0)))", [M3]);
   eq(await stamina(M3), 0, "no stamina left");
   const got2 = B.heldAt(spot, rt2)[0], firstBy = (await book())[got2]?.by, p3 = await insectPoints(M3), want3 = await gain(M3, got2);
@@ -231,6 +245,22 @@ try {
   eq(await insectPoints(M3) - p3, want3, "and its points, stamina or none");
   eq(why(await rollDo(M2, "take", spot.id, at, "the other's take")), "taken", "of two, one has it");
   eq((await book())[got2]?.by, firstBy ?? M3, "the book keeps who had a kind first");
+  // a leaf opened just before its turn's end: its take after the turn is over gives what that turn held, within the hold
+  const lt = holding(spot, rt2 + 1), late = (lt + 1) * B.BOARD.turn - 5_000;
+  await setNow(late);
+  r = await rollDo(M1, "open", spot.id, at, "an open at the turn's end");
+  eq([why(r), r.turn?.turn], ["ok", lt], "opened in its turn");
+  await setNow(late + 6_000);
+  eq(why(await rollDo(M2, "take", spot.id, at, "another's take after the turn of my open")), "none", "another's opening of the turn before is no way in");
+  r = await rollDo(M1, "take", spot.id, at, "the take after the turn's end");
+  eq([why(r), r.got, r.turn?.turn, r.turn?.taken], ["ok", B.heldAt(spot, lt)[0], lt, M1], "the take after the turn's end: what that turn held");
+  eq((await turnRow(spot.id, lt))?.taken, M1, "taken in the turn it was opened in");
+  const lt2 = holding(spot, lt + 2), late2 = (lt2 + 1) * B.BOARD.turn - 5_000;
+  await setNow(late2);
+  eq(why(await rollDo(M1, "open", spot.id, at, "another open at a turn's end")), "ok", "opened");
+  await setNow(late2 + B.BOARD.hold);
+  eq(why(await rollDo(M1, "take", spot.id, at, "a take once the hold is over")), "none", "once the hold is over, the turn before's leaf is gone");
+  eq((await turnRow(spot.id, lt2))?.taken, null, "and nobody has it");
 
   // ── the shaken branch ──
   const shakeOf = async (id) => (await one("select doc from public.town_board_shakes where id = $1", [id]))?.doc ?? null;
@@ -243,8 +273,14 @@ try {
     if (live && live.spot !== spotId) live = null;
     let bagFull = false;
     if (action === "claim" && live && sp) {
+      // (room for both of a full sheet's, one slot or two; else for the one due)
       const h = B.heldAt(sp, live.turn), g = who === live.by ? h[0] : h[Math.min(live.caught, h.length) - 1];
-      if (g) bagFull = await fullFor(who, g);
+      const both = live.caught >= 2 && h.length >= 2;
+      const roomOf = async (bag, id) => Number((await one("select town.room($1::jsonb, $2) r", [JSON.stringify(bag), id])).r);
+      const bag = (await one("select town.purse_of($1, false)->'bag' b", [who])).b;
+      if (!both) { if (g) bagFull = await fullFor(who, g); }
+      else if (h[0] === h[1]) bagFull = (await roomOf(bag, h[0])) < 2;
+      else bagFull = (await roomOf(bag, h[0])) < 1 || (await roomOf((await one("select town.put($1::jsonb, $2, 1) b", [JSON.stringify(bag), h[0]])).b, h[1])) < 1;
     }
     const a = await asOf(who)("select public.town_board_shake($1, $2, $3, $4, $5, $6, $7) r", [action, spotId, o.id ?? null, o.at?.[0] ?? null, o.at?.[1] ?? null, o.caught ?? null, o.text ?? null]);
     const twin = action === "call" ? B.callShake(sp, live, who, NAME[who], o.at ?? null, clock, a?.shake?.id ?? "s")
@@ -252,7 +288,7 @@ try {
       : action === "join" ? B.joinShake(sp, live, who, NAME[who], o.at ?? null, clock)
       : action === "end" ? B.endShake(live, who, o.caught ?? 0, clock)
       : B.claimShake(sp, live, who, bagFull);
-    eq(a?.ok ? { ok: true, shake: a.shake, ...("words" in a ? { words: a.words } : {}), ...("got" in a ? { got: a.got } : {}) } : { ok: false, why: a?.why }, twin, `${what}: as board-insects has it`);
+    eq(a?.ok ? { ok: true, shake: a.shake, ...("words" in a ? { words: a.words } : {}), ...("got" in a ? { got: a.got } : {}), ...("more" in a ? { more: a.more } : {}) } : { ok: false, why: a?.why }, twin, `${what}: as board-insects has it`);
     return a;
   };
   const cherry = B.BOARD_SPOTS.find((s) => s.board === "shake" && s.tree === "cherry");
@@ -299,26 +335,60 @@ try {
   // each one
   const hs = B.heldAt(cherry, st);
   eq(why(await shakeDo(M3, "claim", cherry.id, { id: id1 }, "a stranger's claim")), "theirs", "for the two only");
-  const q1 = await insectPoints(M1), w1 = await gain(M1, hs[0]);
-  s = await shakeDo(M1, "claim", cherry.id, { id: id1 }, "the shaker's claim");
-  eq([why(s), s.got, await held(M1, hs[0]) >= 1], ["ok", hs[0], true], "the shaker's, the first");
-  eq(await insectPoints(M1) - q1, w1, "the shaker's insect on the insects' line");
+  // (what two insects earn one after the other: each its worth, and the first of each kind once)
+  const gains = async (m, ids) => { const had = new Set(await firstsOf(m)); let n = 0; for (const id of ids) { n += LP.countsOf(netDeed(id), m)[0].raw + (had.has(`insects:${id}`) ? 0 : FIRST); had.add(`insects:${id}`); } return n; };
+  const heldBoth = async (m) => hs[0] === hs[1] ? [await held(m, hs[0])] : [await held(m, hs[0]), await held(m, hs[1])];
+  for (const m of [M1, M2]) await db.query("select town.keep_purse($1, town.purse_of($1, true) || jsonb_build_object('stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 20)))", [m]);
+  const q1 = await insectPoints(M1), w1 = await gains(M1, [hs[0], hs[1]]), sm1 = await stamina(M1);
+  s = await shakeDo(M1, "claim", cherry.id, { id: id1 }, "the shaker's claim of a full sheet");
+  eq([why(s), s.got, s.more], ["ok", hs[0], hs[1]], "the sheet caught both: the shaker has both, the first and the other");
+  eq(await heldBoth(M1), hs[0] === hs[1] ? [2] : [1, 1], "both in the shaker's bag");
+  eq(await insectPoints(M1) - q1, w1, "each on the insects' line, each its own");
+  eq(sm1 - (await stamina(M1)), 1, "one stamina for the claim");
   eq(why(await shakeDo(M1, "claim", cherry.id, { id: id1 }, "a second claim")), "taken", "once each");
   await setBag(M2, ...Array.from({ length: 10 }, () => ROD));
   eq(why(await shakeDo(M2, "claim", cherry.id, { id: id1 }, "a claim into a full bag")), "full", "no room, no insect");
+  // (room for one of the two only, the one I am due first: nothing at all, and nothing changed. Of one kind, a stack
+  // with one place left; of two kinds, one empty slot, where the first fits and the other not)
+  const stackOf = Number((await one("select (town.cat('items')->$1->>'stack')::int n", [hs[0]])).n);
+  if (hs[0] === hs[1]) await setBag(M2, ...Array.from({ length: 9 }, () => ROD), { item: hs[0], n: stackOf - 1 });
+  else await setBag(M2, ...Array.from({ length: 9 }, () => ROD));
+  ok(!(await fullFor(M2, hs[1])), "the one I am due first would fit");
+  const bagWas = (await one("select town.purse_of($1, false) p", [M2])).p, deedsWas = (await one("select count(*)::int n from public.town_deeds where member_id = $1", [M2])).n;
+  eq(why(await shakeDo(M2, "claim", cherry.id, { id: id1 }, "a claim with room for one of the two")), "full", "room for one of the two only: full");
+  const bagNow = (await one("select town.purse_of($1, false) p", [M2])).p;
+  eq([bagNow.bag, bagNow.stamina, (await one("select count(*)::int n from public.town_deeds where member_id = $1", [M2])).n, (await shakeOf(id1)).claimed],
+    [bagWas.bag, bagWas.stamina, deedsWas, [M1]], "and nothing changed: the bag, the stamina, the deeds, who has claimed");
   await setBag(M2, ROD);
-  const q2 = await insectPoints(M2), w2 = await gain(M2, hs[1]);
-  s = await shakeDo(M2, "claim", cherry.id, { id: id1 }, "the holder's claim");
-  eq([why(s), s.got, await held(M2, hs[1]), s.shake?.claimed], ["ok", hs[1], 1, [M1, M2]], "the holder's, the second");
-  eq(await insectPoints(M2) - q2, w2, "and the holder's");
+  const q2 = await insectPoints(M2), w2 = await gains(M2, [hs[1], hs[0]]), sm2 = await stamina(M2);
+  s = await shakeDo(M2, "claim", cherry.id, { id: id1 }, "the holder's claim of a full sheet");
+  eq([why(s), s.got, s.more, s.shake?.claimed], ["ok", hs[1], hs[0], [M1, M2]], "the holder has both too, the second and the first");
+  eq(await heldBoth(M2), hs[0] === hs[1] ? [2] : [1, 1], "both in the holder's bag");
+  eq(await insectPoints(M2) - q2, w2, "and the holder's, each its own");
+  eq(sm2 - (await stamina(M2)), 1, "one stamina");
   eq((await rows("select member_id, thing, doc->>'board' board, doc->>'shake' shake from public.town_deeds where what = 'net' and doc->>'shake' = $1 order by id", [id1])).map((d) => [d.member_id, d.thing, d.board]),
-    [[M1, hs[0], "shake"], [M2, hs[1], "shake"]], "a net's deed each, the shake's, once");
+    [[M1, hs[0], "shake"], [M1, hs[1], "shake"], [M2, hs[1], "shake"], [M2, hs[0], "shake"]], "a net's deed for each insect, two each, once");
   eq(why(await shakeDo(M3, "call", cherry.id, { at: near }, "a call after the catch")), "taken", "its insects had this turn");
   eq(why(await shakeDo(M3, "call", cherry.id, { id: "s000000000000000", at: near }, "a call with a made-up id after the catch")), "taken", "nor with a made-up id");
   eq(why(await shakeDo(M3, "call", cherry.id, { id: id1, at: near }, "a call naming the shake that gave")), "taken", "nor naming the shake itself");
   eq((await rows("select count(*)::int n from public.town_board_shakes where spot = $1 and turn = $2", [cherry.id, st]))[0].n, 1, "one shake at the tree this turn");
+  // one caught: one each, the same one
+  const st1 = holding(cherry, st + 1, (t) => hourOf(t) >= 16 && hourOf(t) < 23);
+  await setNow(st1 * B.BOARD.turn + 1000);
+  const idOne = (await shakeDo(M1, "call", cherry.id, { at: near }, "a call (one to be caught)"))?.shake?.id;
+  await setNow(clock + 1000);
+  await shakeDo(M2, "join", cherry.id, { id: idOne, at: near }, "a join (one to be caught)");
+  await setNow(clock + B.BOARD.shakeMin);
+  eq((await shakeDo(M2, "end", cherry.id, { id: idOne, caught: 1 }, "an end with one caught"))?.shake?.caught, 1, "the sheet caught one");
+  for (const m of [M1, M2]) await setBag(m, ROD);
+  const h1 = B.heldAt(cherry, st1);
+  const one1 = await shakeDo(M1, "claim", cherry.id, { id: idOne }, "the shaker's claim of one");
+  const one2 = await shakeDo(M2, "claim", cherry.id, { id: idOne }, "the holder's claim of one");
+  eq([one1.got, one1.more, one2.got, one2.more], [h1[0], null, h1[0], null], "one each, the same one, and no more");
+  eq((await rows("select member_id, thing from public.town_deeds where what = 'net' and doc->>'shake' = $1 order by id", [idOne])).map((d) => [d.member_id, d.thing]),
+    [[M1, h1[0]], [M2, h1[0]]], "a net's deed each");
   // nothing caught: nothing to claim, and the tree shaken again
-  const st2 = holding(cherry, st + 1, (t) => hourOf(t) >= 16 && hourOf(t) < 23);
+  const st2 = holding(cherry, st1 + 1, (t) => hourOf(t) >= 16 && hourOf(t) < 23);
   await setNow(st2 * B.BOARD.turn + 1000);
   const id2 = (await shakeDo(M1, "call", cherry.id, { at: near }, "a call"))?.shake?.id;
   await setNow(clock + 1000);
@@ -347,20 +417,26 @@ try {
   ok(id4, "the tree shaken again in its turn");
   await setNow(clock + B.BOARD.call);
   eq(why(await shakeDo(M2, "join", cherry.id, { id: id4, at: near }, "a join after the call ran out")), "late", "the call stands three minutes");
-  // a call near the turn's end, its join in the next turn
+  // a call near the turn's end: answered after it, while the call stands
   const st3 = holding(cherry, st2 + 1, (t) => hourOf(t) >= 16 && hourOf(t) < 22 && B.heldAt(cherry, t + 1).length > 0);
-  await setNow((st3 + 1) * B.BOARD.turn - 5000);
+  const callAt = (st3 + 1) * B.BOARD.turn - 10_000;
+  await setNow(callAt);
   const id5 = (await shakeDo(M1, "call", cherry.id, { at: near }, "a call at a turn's end"))?.shake?.id;
-  await setNow((st3 + 1) * B.BOARD.turn + 1000);
-  eq(why(await shakeDo(M2, "join", cherry.id, { id: id5, at: near }, "a join in the next turn")), "late", "a shake is its turn's");
+  await setNow(callAt + B.BOARD.call);
+  eq(why(await shakeDo(M2, "join", cherry.id, { id: id5, at: near }, "a join once the call has run out")), "late", "not once its call has run out");
+  await setNow(callAt + 20_000);
+  const other = B.BOARD_SPOTS.find((x) => x.board === "shake" && x.id !== cherry.id);
+  eq(why(await shakeDo(M3, "join", other.id, { id: id5, at: [other.x + 1, other.y] }, "a join at another tree")), "late", "a shake is its own tree's");
+  s = await shakeDo(M2, "join", cherry.id, { id: id5, at: near }, "a join after the turn's end");
+  eq([why(s), s.shake?.turn, s.shake?.go], ["ok", st3, callAt + 20_000], "a join after the turn's end, while the call stands");
 
   // ── the boards now ──
   const now = await asOf(M3)("select public.town_boards_now() r");
   eq([now.turns.length >= 0, now.shakes.map((x) => x.id).includes(id5), now.shakes.every((x) => x.turn >= B.turnOf(clock) - 1)], [true, true, true], "this turn's shakes and the one before's");
   await setNow(rt2 * B.BOARD.turn + 20_000);
-  eq((await asOf(M3)("select public.town_boards_now() r")).turns.filter((t) => t.spot === spot.id).map((t) => [t.turn, t.taken]),
+  eq((await asOf(M3)("select public.town_boards_now() r")).turns.filter((t) => t.spot === spot.id && t.turn <= rt2).map((t) => [t.turn, t.taken]),
     [...(rt >= rt2 - 1 ? [[rt, M1]] : []), [rt2, M3]], "the spots' turns of this turn and the one before, who took each");
-  await setNow((st3 + 10) * B.BOARD.turn);
+  await setNow((Math.max(st3, lt2) + 10) * B.BOARD.turn);
   eq(await asOf(M3)("select public.town_boards_now() r"), { turns: [], shakes: [] }, "nothing of turns long gone");
 
   // ── who may ──

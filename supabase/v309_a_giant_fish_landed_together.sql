@@ -25,8 +25,9 @@
 --   * The rest of it (public.town_giant_fish): the angler calls the town (three calls, a minute apart, 120 letters,
 --     each one the town's news: town_announcements' kind 'giant', its `to` the hook and the post), lets the giant go,
 --     or frays the line on the rocks (the third breaks it); a netter joins within six tiles of the post while it
---     holds (four minutes), and the fight runs ninety seconds on the database's clock (five of grace for a late
---     report): the third scoop, six seconds apart and the first six after the join, lands it. Each of the two then
+--     holds (ten minutes: the owner, 2026-10-28, to Codex's play runs, where a dawn netter came in time about half the
+--     time in four), and the fight runs ninety seconds on the database's clock (five of grace for a late report): the
+--     third scoop, six seconds apart and the first six after the join, lands it. Each of the two then
 --     claims a giant steak (`giantSteak`, refused when the bag has no room). The row is held while a deed is judged,
 --     so that two joins or two scoops cannot both be taken. public.town_giants_now: every giant still held or fought,
 --     and those of mine ended in the last ten minutes (a steak a page missed is still there to claim).
@@ -140,7 +141,7 @@ revoke all on public.town_giant_hooks from public, anon, authenticated;
 -- FRESH_JUNK, and the twenty giants with the hours of their bands (lib/town/band-species' hoursOf).
 create or replace function town.giant_rules()
 returns jsonb language sql immutable set search_path = '' as $$
-  select '{"chance": 0.02, "every": 1200000, "hold": 240000, "fight": 90000, "scoops": 3, "frays": 3, "calls": 3, "callGap": 60000,
+  select '{"chance": 0.02, "every": 1200000, "hold": 600000, "fight": 90000, "scoops": 3, "frays": 3, "calls": 3, "callGap": 60000,
     "callLen": 120, "scoopGap": 6000, "frayGap": 2000, "grace": 5000, "reach": 6, "after": 600000, "rareWeight": 0.5,
     "bait": {"town": "dough", "creek": "worm", "headwater": "minnow", "pool": "cricket"},
     "baitAs": {"caterpillar": "worm", "moth": "dough", "dragonfly": "minnow", "grasshopper": "cricket", "forktailBlueEye": "minnow",

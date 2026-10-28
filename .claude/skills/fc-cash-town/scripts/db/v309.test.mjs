@@ -388,9 +388,13 @@ try {
   eq([why(r), r.hook?.how], ["ok", "broke"], "the third breaks the line");
   eq(why(await did(M3, "claim", id2, {}, "a claim of a broken line")), "gone", "no steak of one that got away");
   await goBack(id2, GF.GIANT.after);
-  // a third: the hold runs out
+  // a third: the hold runs out (ten minutes, the owner's of 2026-10-28; four minutes before)
+  eq(GF.GIANT.hold, 600_000, "the hold is ten minutes");
   const id3 = await another(M3);
-  await goBack(id3, GF.GIANT.hold - 1000);
+  await goBack(id3, 240_000);
+  eq((await did(M2, "look", id3, {}, "a look at four minutes")).hook?.how, "", "still held at four minutes");
+  eq((await asOf(M2)("select public.town_giants_now() r")).map((h) => h.id).includes(id3), true, "and on everybody's board");
+  await goBack(id3, GF.GIANT.hold - 240_000 - 1000);
   eq(why(await did(M2, "look", id3, {}, "a look before the hold is over")), "ok", "still held");
   eq((await hookOf(id3)).how, "", "and kept so");
   await goBack(id3, 1000);
