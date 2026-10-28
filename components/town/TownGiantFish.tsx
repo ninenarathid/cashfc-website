@@ -376,7 +376,7 @@ export default function TownGiantFish({ me, myName, keeper, th, here, hour, pair
       <div className={s.stage}>
         <canvas ref={canvas} width={W} height={H} className={`${s.canvas} ${g.scene}`} style={{ aspectRatio: `${W} / ${H}` }} />
         {hold && <div className={g.tag}>{th ? "ผูกสายไว้กับเสา" : "Tied to the post"}</div>}
-        {mine.go > 0 && !ended && t < COUNT_IN * 1000 && <div className={s.count} aria-live="polite">{Math.max(1, Math.ceil(COUNT_IN - t / 1000))}</div>}
+        {mine.go > 0 && !ended && t < COUNT_IN * 1000 && <div className={`${s.count} ${g.countUp}`} style={startFish(mine.seed).x < BOARD.w / 2 ? { left: "50%" } : { right: "50%" }} aria-live="polite">{Math.max(1, Math.ceil(COUNT_IN - t / 1000))}</div>}
         {!hold && !ended && <><div className={g.tag}>{th ? `ช้อนแล้ว ${mine.scoops.length}/${GIANT.scoops}` : `Netted ${mine.scoops.length}/${GIANT.scoops}`}</div>
           <div className={g.tag} data-right data-tone={mine.frays.length ? "warn" : undefined}>{th ? "สายถลอก " : "Line "}{"●".repeat(mine.frays.length)}{"○".repeat(GIANT.frays - mine.frays.length)}</div></>}
         {!ended && <div className={g.bar} data-tone={left < 30_000 ? "warn" : undefined}><b>{hold ? (th ? `รอเพื่อน ${clock(left)}` : `Waiting ${clock(left)}`) : clock(left)}</b><i><span style={{ width: `${Math.max(0, Math.min(100, (left / (hold ? GIANT.hold : GIANT.fight)) * 100))}%` }} /></i></div>}
