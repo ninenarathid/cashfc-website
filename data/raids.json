@@ -4332,7 +4332,13 @@
     "best": 43,
     "kills": 4,
     "job": "Machinist",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Machinist": {
+      "kills": 4,
+      "best": 43
+     }
+    }
    }
   ],
   "extremes": [
