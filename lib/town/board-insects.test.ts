@@ -102,6 +102,12 @@ describe("shaking a branch over a sheet", () => {
     expect(claimShake(spot, mine.shake, "them")).toEqual({ ok: false, why: "theirs" });
     expect(callShake(spot, mine.shake, "them", "Them", at, now + 60_000, "s3")).toEqual({ ok: false, why: "taken" });
   });
+  it("frees its tree once a shake begun and never ended is past its time", () => {
+    let s: Shake = ok(callShake(spot, null, "me", "Me", at, now, "s1")).shake;
+    s = ok(joinShake(spot, s, "you", "You", at, now + 1000)).shake;
+    expect(callShake(spot, s, "them", "Them", at, now + 1000 + BOARD.shake, "s2")).toEqual({ ok: false, why: "busy" });
+    expect(callShake(spot, s, "them", "Them", at, now + 1000 + BOARD.shake + 5_001, "s2").ok).toBe(true);
+  });
   it("gives nothing when the sheet caught nothing, and the tree may be shaken again in its turn", () => {
     let s: Shake = ok(callShake(spot, null, "me", "Me", at, now, "s1")).shake;
     s = ok(joinShake(spot, s, "you", "You", at, now + 1000)).shake;

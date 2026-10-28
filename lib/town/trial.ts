@@ -415,8 +415,10 @@ export class Trial {
   }
   boardShake(action: "call" | "text" | "join" | "end" | "claim", spotId: number, me: string, myName: string, opts: { id?: string; at?: [number, number] | null; caught?: number; text?: string }): BoardDid<{ shake: Shake; got?: string; words?: string }> {
     const b = this.boards(), spot = BOARD_SPOTS[spotId], now = this.now(), turn = boardTurn(now);
-    const live = (opts.id ? b.shakes.find((s) => s.id === opts.id) : b.shakes.filter((s) => s.spot === spotId && s.turn === turn).sort((x, y) => y.at - x.at)[0]) ?? null;
-    const full = () => roomFor(this.purse().bag, (heldAt(spot, live?.turn ?? turn)[0] ?? "checkeredBarkBeetle") as ItemId) < 1;
+    // (a shake found by its id must be at this tree, as the database has it: never a sheet held from another tree)
+    const live = (opts.id ? b.shakes.find((s) => s.id === opts.id && s.spot === spotId) : b.shakes.filter((s) => s.spot === spotId && s.turn === turn).sort((x, y) => y.at - x.at)[0]) ?? null;
+    // (room for the very insect I am due: the holder's is the second of two when the sheet caught both)
+    const full = () => { const held = heldAt(spot, live?.turn ?? turn), due = live && me !== live.by ? held[Math.min(live.caught, held.length) - 1] : held[0]; return roomFor(this.purse().bag, (due ?? "checkeredBarkBeetle") as ItemId) < 1; };
     const did = action === "call" ? callShake(spot, live, me, myName, opts.at ?? null, now, `s${now.toString(36)}`)
       : action === "text" ? callForHolder(live, me, opts.text, now)
       : action === "join" ? joinShake(spot, live, me, myName, opts.at ?? null, now)

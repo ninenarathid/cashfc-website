@@ -142,7 +142,9 @@ export function callShake(spot: BoardSpot | undefined, live: Shake | null, me: s
   if (!spot || spot.board !== "shake") return { ok: false, why: "none" };
   const turn = turnOf(now);
   if (!heldAt(spot, turn).length) return { ok: false, why: "none" };
-  if (live && live.turn === turn && (live.caught > 0 || (!live.end && (live.go > 0 || now < live.at + BOARD.call)))) return { ok: false, why: live.caught > 0 ? "taken" : "busy" };
+  // (a shake under way keeps the tree till its time is up, a call till it runs out: one begun and never ended, its page
+  // gone, frees the tree again)
+  if (live && live.turn === turn && (live.caught > 0 || (!live.end && (live.go > 0 ? now <= live.go + BOARD.shake + 5_000 : now < live.at + BOARD.call)))) return { ok: false, why: live.caught > 0 ? "taken" : "busy" };
   if (!nearSpot(spot, at)) return { ok: false, why: "far" };
   return { ok: true, shake: { id, spot: spot.id, turn, by: me, byName: myName, at: now, holder: null, holderName: null, go: 0, end: 0, caught: 0, claimed: [], calls: [] } };
 }
