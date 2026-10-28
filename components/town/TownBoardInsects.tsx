@@ -292,7 +292,8 @@ export default function TownBoardInsects({ me, myName, keeper, th, here, hour, p
         // all that dropped is down, cupped or gone: the catch is told
         const bugs = p.falls.filter((f) => f.kind === "bug");
         // (or the shake's time is up, nothing let fall at its full bend: what was cupped is told all the same)
-        if (!p.done && ((bugs.length && bugs.every((f) => f.gone || f.cupped)) || keeper.now() > mine.go + BOARD.shake)) { p.done = true; void shakeDo("end", spot, { id: mine.id, caught: p.cups }).then(() => void read()); }
+        // (not before the keeper takes an end, BOARD.shakeMin after the start; refused, it is tried again)
+        if (!p.done && keeper.now() - mine.go >= BOARD.shakeMin && ((bugs.length && bugs.every((f) => f.gone || f.cupped)) || keeper.now() > mine.go + BOARD.shake)) { p.done = true; void shakeDo("end", spot, { id: mine.id, caught: p.cups }).then((did) => { if (!did && play.current === p) p.done = false; void read(); }); }
       } else {
         if (pnow - p.sent > 120) { p.sent = pnow; pairing?.send(mine.holder ?? "", { sk: mine.id, bend: Math.round(p.bend * 100) / 100, drop: p.drops }); }
       }
@@ -399,6 +400,8 @@ export default function TownBoardInsects({ me, myName, keeper, th, here, hour, p
         </>}
         {ended && <div role="status" className={s.done}>
           {mine.caught > 0 ? <p>{mine.claimed.includes(me) ? (th ? "ได้แมลงคนละ 1 ตัวแล้ว" : "One insect each") : (th ? "กำลังรับแมลง…" : "Taking yours…")}</p> : <p>{th ? "ลองใหม่ได้ ถ้าต้นนี้ยังมีแมลง" : "Try again while the tree still has some"}</p>}
+          {/* (refused, a full bag say: taken again by hand once there is room) */}
+          {mine.caught > 0 && !mine.claimed.includes(me) && claimedRef.current === mine.id && !busy && <button type="button" className={`${GREEN} w-full`} onClick={() => void shakeDo("claim", spot, { id: mine.id })}>{th ? "รับแมลงอีกครั้ง" : "Take it again"}</button>}
         </div>}
         {said && <p role="status" className={s.said}>{said}</p>}
       </section>
