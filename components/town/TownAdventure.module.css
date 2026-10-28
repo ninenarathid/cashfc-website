@@ -119,36 +119,39 @@
 .cover::after { content: ''; position: absolute; width: 13px; height: 34px; background: #bc894d; right: 20px; top: -2px; clip-path: polygon(0 0,100% 0,100% 100%,50% 80%,0 100%); }
 .cover:hover { background: #49614e; }
 .coverTitle { font-size: 15px; font-weight: 600; display: block; line-height: 1.5; }
-.coverHint { display: block; font-size: 12px; color: #dfd5b9; margin-top: 4px; }
+.coverHint { display: block; font-size: 13px; color: #dfd5b9; margin-top: 4px; }
 .binding { background: #59472f; border: 2px solid #33291d; padding: 5px 5px 9px 11px; border-radius: 3px 7px 7px 3px; box-shadow: 2px 3px 0 #dacda6, 4px 6px 0 #4b3c29, 0 12px 20px #1d1c1730; }
 .bookHeader { display: flex; align-items: center; gap: 8px; padding: 8px 10px; color: #f4e8c8; }
 .bookHeader h3 { flex: 1; min-width: 0; font-size: 15px; font-weight: 600; text-wrap: balance; }
-.bookHeader button { min-height: 44px; padding: 4px 10px; font-size: 12px; }
+.bookHeader button { min-height: 44px; padding: 4px 10px; font-size: 13px; }
 .bookCategories { display: flex; flex-wrap: wrap; gap: 5px; padding: 0 8px 10px; }
-.bookCategories button { min-height: 44px; padding: 6px 9px; color: #e9dbb9; font-size: 12px; background: #3e3224; border: 1px solid #af976d; }
+.bookCategories button { min-height: 44px; padding: 6px 9px; color: #e9dbb9; font-size: 13px; background: #3e3224; border: 1px solid #af976d; }
 .bookCategories button[aria-pressed='true'] { background: #ede1bd; color: #382c1d; }
 .bookCategories span { margin-left: 5px; font-variant-numeric: tabular-nums; opacity: .8; }
 .spread { display: grid; background: #f3e9cb; position: relative; }
 .index { padding: 10px; display: flex; gap: 6px; overflow-x: auto; overscroll-behavior: contain; border-bottom: 1px solid #c8b58e; scrollbar-width: thin; background: #e8d9b5; }
-.index button { min-width: 90px; flex-shrink: 0; max-width: 180px; min-height: 44px; display: flex; align-items: center; gap: 6px; text-align: left; padding: 7px; border: 1px solid #baa67e; color: #4a3b29; background: #f4ebd1; font-size: 12px; line-height: 1.5; }
+.index button { min-width: 90px; flex-shrink: 0; max-width: 180px; min-height: 44px; display: flex; align-items: center; gap: 6px; text-align: left; padding: 7px; border: 1px solid #baa67e; color: #4a3b29; background: #f4ebd1; font-size: 13px; line-height: 1.5; }
 .index button[aria-pressed='true'] { border-color: #456147; background: #456147; color: #faf2d6; }
 .leaf { padding: 20px 20px 12px 26px; min-height: 260px; position: relative; background: repeating-linear-gradient(0deg, transparent, transparent 27px,#9b926917 27px,#9b926917 28px); }
 .leaf::before { content: ''; position: absolute; top: 0; bottom: 0; left: 12px; border-left: 1px solid #b7786240; }
 .leafHeading { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 2px solid #b8a27c; }
 .leafHeading h4 { font-size: 16px; font-weight: 600; line-height: 1.6; }
-.leafBody { font-size: 13px; line-height: 1.9; overflow-wrap: anywhere; }
+.leafBody { font-size: 14px; line-height: 1.9; overflow-wrap: anywhere; }
+/* (a body's own small print, a label over a line: 13 px, as the book's others; Codex's look, 2026-10-28) */
+.leafBody small { font-size: 13px; }
 .leafBody p + p { margin-top: 12px; }
-.leafBody h5 { margin: 18px 0 8px; font-size: 13px; font-weight: 600; }
-.bookSearch { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: #e6d8ae; color: #4a3b29; font-size: 12px; }
+.leafBody h5 { margin: 18px 0 8px; font-size: 14px; font-weight: 600; }
+.bookSearch { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: #e6d8ae; color: #4a3b29; font-size: 13px; }
 .bookSearch input { min-width: 0; flex: 1; min-height: 44px; padding: 6px 10px; background: #f6edd6; border: 1px solid #ab966d; color: #302a20; }
-.indexPager { display: flex; flex-shrink: 0; min-width: 150px; gap: 6px; align-items: center; justify-content: space-between; font-size: 11px; padding-top: 8px; }
+.indexPager { display: flex; flex-shrink: 0; min-width: 150px; gap: 6px; align-items: center; justify-content: space-between; font-size: 12px; padding-top: 8px; }
 .index .indexPager button { min-width: 44px; width: 44px; }
 .indexPager button:disabled { opacity: .4; }
 .leafBody small { font-size: 12px; color: #69553b; }
-.bookFoot { display: flex; gap: 8px; align-items: center; justify-content: space-between; margin-top: 20px; padding-top: 10px; border-top: 1px solid #c8b58e; }
-.bookFoot button { padding: 6px 8px; min-height: 44px; font-size: 12px; color: #4a3b29; border: 1px solid #b8a27c; background: #f4ebd1; }
+/* (kept in sight at the foot of the book as a long page is scrolled: Codex's look, 2026-10-28) */
+.bookFoot { position: sticky; bottom: -9px; z-index: 1; display: flex; gap: 8px; align-items: center; justify-content: space-between; margin-top: 20px; padding: 10px 0 8px; border-top: 1px solid #c8b58e; background: #f3e9cb; }
+.bookFoot button { padding: 6px 8px; min-height: 44px; font-size: 13px; color: #4a3b29; border: 1px solid #b8a27c; background: #f4ebd1; }
 .bookFoot button:disabled { opacity: .4; }
-.bookFoot span { font-size: 12px; font-variant-numeric: tabular-nums; color: #69553b; }
+.bookFoot span { font-size: 13px; font-variant-numeric: tabular-nums; color: #69553b; }
 .turn { animation: town-leaf-turn 180ms ease-out; transform-origin: left center; }
 @keyframes town-leaf-turn { from { opacity: .5; transform: perspective(700px) rotateY(-7deg); } to { opacity: 1; transform: none; } }
 @container town-book (min-width: 460px) {

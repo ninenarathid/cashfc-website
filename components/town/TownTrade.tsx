@@ -344,7 +344,7 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
         <h2 id="town-trade-h" className="min-w-0 truncate font-display text-title font-semibold text-ink">{title}</h2>
         <Coins n={purse.coins} th={th} className="ml-auto" />
         <button type="button" onClick={() => onView(null)}
-                className="pressable rounded-full bg-accent px-4 py-1.5 text-ui font-semibold text-bg">
+                className="pressable min-h-11 rounded-full bg-accent px-4 py-1.5 text-ui font-semibold text-bg">
           {th ? "ปิด" : "Close"}
         </button>
       </div>
@@ -848,15 +848,15 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book
               ) : <span className="min-w-0 flex-1 truncate">{th ? "ของในกระเป๋า" : "In the bag"}</span>}
               {mayMove && moving !== null && (
                 <button type="button" onClick={() => setMoving(null)}
-                        className="pressable min-h-8 shrink-0 rounded-full border border-[#6b4a2a] px-2.5 text-meta normal-case tracking-normal text-[#f3e3c3] hover:border-gold">{th ? "ยกเลิก" : "Cancel"}</button>
+                        className="pressable min-h-11 shrink-0 rounded-full border border-[#6b4a2a] px-3 text-meta normal-case tracking-normal text-[#f3e3c3] hover:border-gold">{th ? "ยกเลิก" : "Cancel"}</button>
               )}
               {mayMove && moving === null && slot !== null && (
                 <button type="button" onClick={() => setMoving(slot)} data-bag-move
-                        className="pressable min-h-8 shrink-0 rounded-full border border-[#6b4a2a] px-2.5 text-meta normal-case tracking-normal text-[#f3e3c3] hover:border-gold">{th ? "ย้าย" : "Move"}</button>
+                        className="pressable min-h-11 shrink-0 rounded-full border border-[#6b4a2a] px-3 text-meta normal-case tracking-normal text-[#f3e3c3] hover:border-gold">{th ? "ย้าย" : "Move"}</button>
               )}
               {tidy && onSort && moving === null && (
                 <button type="button" onClick={onSort} disabled={sorted(purse)} data-bag-sort
-                        className="pressable min-h-8 shrink-0 rounded-full border border-[#6b4a2a] px-2.5 text-meta normal-case tracking-normal text-[#f3e3c3] hover:border-gold disabled:opacity-40">{th ? "จัดเรียง" : "Sort"}</button>
+                        className="pressable min-h-11 shrink-0 rounded-full border border-[#6b4a2a] px-3 text-meta normal-case tracking-normal text-[#f3e3c3] hover:border-gold disabled:opacity-40">{th ? "จัดเรียง" : "Sort"}</button>
               )}
               <span className="shrink-0 tabular-nums">{full} / {purse.bag.length}</span>
             </div>
