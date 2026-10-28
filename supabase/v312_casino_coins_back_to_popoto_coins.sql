@@ -16,7 +16,8 @@
 --     request, so a retry gives nothing twice.
 -- `free_left` is worked out for the coins there now as if it had always been kept: each member's free coins and spins
 -- since the Casino Coin (v303) in their order, the free ones spent first, the admins' trial's left out
--- (casino.free_left_of); never more than the coins held. The trial's wipe works it out again the same way.
+-- (casino.free_left_of); never more than the coins held. From then on the free claim adds to it and a spin takes from
+-- it, the admins' trial's neither (its wipe puts its coins back, and holds it to the coins left).
 -- The four functions it touches (the free coins, the spin, the state, the trial's wipe) are changed by their live text,
 -- as v307 did.
 begin;
@@ -69,12 +70,12 @@ begin
   foreach c slice 1 in array array[
     ['public.casino_live_free()',
      'update public.casino_live_accounts set chips = chips + s.free_chips, updated_at = clock_timestamp() where user_id = me;',
-     'update public.casino_live_accounts set chips = chips + s.free_chips, free_left = free_left + s.free_chips, updated_at = clock_timestamp() where user_id = me;', '1'],
+     'update public.casino_live_accounts set chips = chips + s.free_chips, free_left = free_left + case when s.access = ''admins'' then 0 else s.free_chips end, updated_at = clock_timestamp() where user_id = me;', '1'],
     ['public.casino_live_spin(uuid,integer,text,bigint)',
      'chips = chips - s.price + case when won.kind = ''coin'' then won.amount else 0 end where user_id = me;',
      'chips = chips - s.price + case when won.kind = ''coin'' then won.amount else 0 end,
-    -- (v312: the free Casino Coins spent first)
-    free_left = greatest(0, free_left - s.price) where user_id = me;', '1'],
+    -- (v312: the free Casino Coins spent first; the admins'' trial leaves them be, its wipe puts its coins back)
+    free_left = case when test_ then free_left else greatest(0, free_left - s.price) end where user_id = me;', '1'],
     ['public.casino_live_state(integer,boolean)',
      '''chips'', coalesce((select a.chips from public.casino_live_accounts a where a.user_id = me), 0),',
      '''chips'', coalesce((select a.chips from public.casino_live_accounts a where a.user_id = me), 0),
@@ -82,9 +83,8 @@ begin
       ''free_left'', coalesce((select least(a.free_left, a.chips) from public.casino_live_accounts a where a.user_id = me), 0),', '1'],
     ['public.casino_live_wipe_tests()',
      'chips = greatest(0, chips - need_), updated_at = clock_timestamp()',
-     -- (v312: worked out again from what is left once the trial's are gone: Codex's check, a trial's free coins or spins
-     -- would otherwise be taken as the member's own)
-     'chips = greatest(0, chips - need_), free_left = least(casino.free_left_of(x.user_id), greatest(0, chips - need_)), updated_at = clock_timestamp()', '1']] loop
+     -- (v312: the trial never touched them, so never more than the coins left: Codex's checks)
+     'chips = greatest(0, chips - need_), free_left = least(free_left, greatest(0, chips - need_)), updated_at = clock_timestamp()', '1']] loop
     d := replace(pg_get_functiondef(c[1]::regprocedure), chr(13), '');
     -- (the file may come with CR at its line ends: the texts compared without them)
     o := replace(c[2], chr(13), ''); nw := replace(c[3], chr(13), '');

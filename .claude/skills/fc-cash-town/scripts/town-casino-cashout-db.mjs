@@ -95,7 +95,8 @@ ok("an admin buys in the trial", r[1]?.ok, r);
 r = await rpc("casino_live_cashout", { p_request: uuid(), p_chips: 100 }, "v312-adm");
 ok("trial coins are not changed back", r[1]?.ok === false && r[1].why === "trial", r);
 r = await rpc("casino_live_free", {}, "v312-adm");
-ok("trial free coins counted", r[1]?.ok && (await account(adm)).free_left === 100, { r, acc: await account(adm) });
+// (the trial never touches the free count: its wipe puts its coins back and holds the count to what is left)
+ok("trial free coins are the wipe's, not counted", r[1]?.ok && (await account(adm)).free_left === 0, { r, acc: await account(adm) });
 r = await rpc("casino_live_wipe_tests", {}, "v312-adm");
 ok("the wipe takes them back", r[0] === 200, r);
 const after = await account(adm);
