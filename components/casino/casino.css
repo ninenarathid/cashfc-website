@@ -281,3 +281,9 @@
 
 /* the Casino Coin's chip beside its counts (the owner, 2026-10-27) */
 .casino-chip-icon{vertical-align:-3px;margin-right:4px}
+
+/* Casino Coins back into Popoto coins at the counter (v312, the owner, 2026-10-28) */
+.casino-cashout{border-top:1px dashed var(--color-line);margin-top:10px;padding-top:8px}
+.casino-cashout-can{font-size:12px;line-height:1.6;color:var(--color-muted);margin:2px 0 6px}
+.casino-cashout-can strong{color:var(--color-ink)}
+.casino-cashout .casino-popoto-row{grid-template-columns:72px 1fr 1.4fr}

@@ -57,6 +57,8 @@ export type CasinoState = {
   user_id: string; settings: CasinoSettings; prizes: CasinoPrize[];
   /** `coins`: the town purse's Popoto coins. v303's `chips`: the Casino Coins a spin takes; `free_today`: today's free ones taken. */
   account: { coins: number; spins: number; chips?: number; free_today?: boolean;
+    /** v312's: the free Casino Coins still unspent (spent first, never changed back). */
+    free_left?: number;
     /** v305's: the profile's popoto I may change at the counter, and the bank's rate (Popoto coins a popoto). */
     popoto_left?: number; bank_rate?: number }; spins: CasinoSpin[];
   /** v305's: who holds which machine (a minute from their last spin or sitting down). */
@@ -263,12 +265,24 @@ export function mineOfRoom(s: Pick<CasinoState, 'spins' | 'user_id'>, now: numbe
     won: mine.filter(p => p.prize).map(p => ({ id: p.id, machine: p.machine, reels: p.reels, prize: p.prize!, at: p.reveal_at })),
   };
 }
+/**
+ * Casino Coins changed back into Popoto coins (v312, the owner, 2026-10-28): nine tenths of what they cost at the
+ * counter's rate, in tens; the free ones still unspent are not changed back.
+ */
+export const cashBackOf = (chips: number, rate: number) => Math.floor(chips * rate * 9 / 10);
+export function cashableOf(s: Pick<CasinoState, 'account'>): number {
+  const chips = chipsOf(s);
+  if (chips === null) return 0;
+  return Math.floor((chips - Math.min(Number(s.account.free_left ?? 0), chips)) / 10) * 10;
+}
 /** The changes the counter offers, in spins' worth: one, five, ten. */
 export const CHIP_PACKS = [1, 5, 10] as const;
 /** What the counter says of an answer of casino_live_buy / casino_live_free that took nothing (v303). */
 export const CHIP_WHY: Record<string, string> = {
   closed: 'ตอนนี้ Casino ยังไม่เปิด แลกหรือรับไม่ได้', coins: 'Popoto coin ไม่พอ', amount: 'จำนวนไม่ถูกต้อง ลองใหม่อีกครั้ง',
-  taken: 'วันนี้รับฟรีไปแล้ว รับใหม่ได้หลัง 05:00', off: 'ตอนนี้ไม่มีแจก Casino Coin ฟรี', popoto: 'popoto ไม่พอ',
+  taken: 'วันนี้รับฟรีไปแล้ว รับใหม่ได้หลัง 05:00',
+  trial: 'ช่วงทดสอบของแอดมิน แลกคืนได้หลังล้างผลทดสอบ', turning: 'รอวงล้อหยุดก่อนค่อยแลก',
+  chips: 'Casino Coin ที่แลกคืนได้ไม่พอ', off: 'ตอนนี้ไม่มีแจก Casino Coin ฟรี', popoto: 'popoto ไม่พอ',
 };
 /**
  * What the wipe of the admins' trial says it did (v299): and, when a tester had already withdrawn Gil won in the trial,

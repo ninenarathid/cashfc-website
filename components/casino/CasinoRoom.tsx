@@ -2,7 +2,7 @@
 import { useAdmin } from '@/lib/admin';
 import { useCallback, useEffect, useRef, useState, type MutableRefObject } from 'react';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import { accessOf, backRows, CHIP_PACKS, CHIP_WHY, chipsOf, chipsShown, CLAIM_LABEL, letIn, mineOfRoom, money, PRIZE_LABEL, reelTeasing, spinRevealed, whereItGoes, wonWords, type CasinoMine, type CasinoSpin, type SymbolId } from '@/lib/casino';
+import { accessOf, backRows, CHIP_PACKS, CHIP_WHY, chipsOf, chipsShown, cashableOf, cashBackOf, CLAIM_LABEL, letIn, mineOfRoom, money, PRIZE_LABEL, reelTeasing, spinRevealed, whereItGoes, wonWords, type CasinoMine, type CasinoSpin, type SymbolId } from '@/lib/casino';
 import type { TownSession } from '@/lib/town/session';
 import type { CasinoRoomArt } from '@/lib/town/casino-room-art';
 import { CASINO_EXIT, CASINO_ROOM, CASINO_SOFA_SEATS, CASINO_STOOLS } from '@/lib/town/casino-room';
@@ -219,7 +219,7 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
     finally { setBusy(false); }
   };
   // (`added`: the Casino Coins the call put in, counted at once into the count kept while my reels turn: Codex)
-  const chipCall = async (name: 'casino_live_buy' | 'casino_live_free' | 'casino_live_popoto', args: Record<string, unknown>, done: (r: { chips?: number; given?: number; got?: number }) => string, added: (r: { given?: number; got?: number }) => number) => {
+  const chipCall = async (name: 'casino_live_buy' | 'casino_live_free' | 'casino_live_popoto' | 'casino_live_cashout', args: Record<string, unknown>, done: (r: { chips?: number; given?: number; got?: number }) => string, added: (r: { given?: number; got?: number }) => number) => {
     if (!client || busy) return;
     setBusy(true); setChipNote('');
     try {
@@ -236,6 +236,12 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
   const buyChips = (n: number) => {
     if (buying.current?.n !== n) buying.current = { id: crypto.randomUUID(), n };
     void chipCall('casino_live_buy', { p_request: buying.current.id, p_chips: n }, r => `ได้ ${money(n)} Casino Coin · มีอยู่ ${money(Number(r.chips ?? 0))}`, () => n);
+  };
+  // (Casino Coins back into Popoto coins, v312: the same request again until it is answered, so it is never paid twice)
+  const [cashN, setCashN] = useState(10), cashing = useRef<{ id: string; n: number } | null>(null);
+  const cashOut = (n: number) => {
+    if (cashing.current?.n !== n) cashing.current = { id: crypto.randomUUID(), n };
+    void chipCall('casino_live_cashout', { p_request: cashing.current.id, p_chips: n }, r => { cashing.current = null; return `แลกคืน ${money(n)} Casino Coin ได้ ${money(Number(r.got ?? 0))} Popoto coin`; }, () => 0);
   };
   const freeChips = () => void chipCall('casino_live_free', {}, r => `รับฟรี ${money(Number(r.given ?? 0))} Casino Coin แล้ว`, r => Number(r.given ?? 0));
   const changePopoto = (to: 'coins' | 'chips') => {
@@ -354,7 +360,7 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
           <p className="casino-chips-balance"><span><CasinoChipIcon size={18} className="casino-chip-icon" />Casino Coin</span><strong>{money(chipsNow ?? chips)}</strong><small>Popoto coin {money(state.account.coins)}</small></p>
           {(s.free_chips ?? 0) > 0 && (state.account.free_today ? <p className="casino-chips-taken">รับฟรีวันนี้แล้ว · รับใหม่ได้หลัง 05:00</p> :
             <button className="casino-chips-free pressable tk tk-btn" disabled={busy || !letIn(s, realAdmin)} onClick={freeChips}>รับฟรีวันนี้ {money(s.free_chips ?? 0)} Casino Coin</button>)}
-          <p className="casino-chips-rate">แลก {money(rate)} Popoto coin = 1 Casino Coin · แลกกลับไม่ได้</p>
+          <p className="casino-chips-rate">แลก {money(rate)} Popoto coin = 1 Casino Coin</p>
           <div className="casino-chips-packs" role="radiogroup" aria-label="จำนวนที่จะแลก">{CHIP_PACKS.map(k => <button key={k} role="radio" aria-checked={pack === k} className="pressable tk tk-slot" onClick={() => setPack(k)}>{k} ครั้ง<small>{money(k * s.price)}</small></button>)}</div>
           <button className="casino-chips-buy pressable tk tk-btn" disabled={busy || !letIn(s, realAdmin) || state.account.coins < pack * s.price * rate} onClick={() => buyChips(pack * s.price)}>
             {state.account.coins < pack * s.price * rate ? `Popoto coin ไม่พอ (ใช้ ${money(pack * s.price * rate)})` : `แลก ${money(pack * s.price)} Casino Coin · ${money(pack * s.price * rate)} Popoto coin`}</button>
@@ -365,6 +371,15 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
               <button className="pressable tk tk-slot" disabled={busy || !letIn(s, realAdmin) || popotoN > state.account.popoto_left} onClick={() => changePopoto('coins')}>เป็น Popoto coin</button>
               <button className="pressable tk tk-slot" disabled={busy || !letIn(s, realAdmin) || popotoN > state.account.popoto_left || Math.floor(popotoN * bankRate / rate) < 1} onClick={() => changePopoto('chips')}>เป็น Casino Coin</button></div>
           </div>}
+          {/* back into Popoto coins (v312, the owner, 2026-10-28): ten for nine, the free ones still unspent kept for spinning */}
+          {state.account.free_left !== undefined && (() => { const can = cashableOf(state), n = Math.min(Math.max(10, cashN), Math.max(10, can)), free = Math.min(Number(state.account.free_left), chips); return <div className="casino-cashout">
+            <p className="casino-chips-rate">แลกคืนเป็น Popoto coin · แลก 10 Casino Coin ได้ {money(cashBackOf(10, rate))} Popoto coin</p>
+            <p className="casino-cashout-can">แลกคืนได้ <strong>{money(can)}</strong>{free > 0 && <> · เหรียญฟรีที่เหลือ {money(free)} แลกคืนไม่ได้ ใช้หมุนก่อน</>}</p>
+            {mineTurning ? <p className="casino-cashout-can">รอวงล้อหยุดก่อนค่อยแลก</p> : can >= 10 && <div className="casino-popoto-row">
+              <input aria-label="จำนวน Casino Coin ที่จะแลกคืน" type="number" inputMode="numeric" step={10} min={10} max={can} value={n} onChange={e => setCashN(Math.max(10, Math.floor((Number(e.target.value) || 10) / 10) * 10))} />
+              <button className="pressable tk tk-slot" disabled={busy || n > can} onClick={() => setCashN(can)}>ทั้งหมด</button>
+              <button className="casino-cashout-go pressable tk tk-slot" disabled={busy || n > can} onClick={() => cashOut(n)}>แลกคืน · ได้ {money(cashBackOf(n, rate))}</button></div>}
+          </div>; })()}
           {chipNote && <p className="casino-chips-note" role="status">{chipNote}</p>}
           <button className="casino-chips-back pressable tk tk-slot" onClick={() => void select(selected)}>ไปเล่นที่เครื่อง {selected}</button>
         </div>}
