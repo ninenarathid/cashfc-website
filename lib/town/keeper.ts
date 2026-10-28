@@ -154,8 +154,8 @@ export type BidDid = ({ ok: true; pay: number; auction: AuctionBoard; from?: Auc
 export type KitchenDid<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why | KitchenRefusal };
 /** What can be looked at, and what the room says has changed. */
 export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild" | "bugs" | "notices" | "line" | "ground" | "shop"
-  // (a giant fish on somebody's line: lib/town/giant-fish)
-  | "giants"
+  // (a giant fish on somebody's line: lib/town/giant-fish; a leaf roll had, a branch shaken: lib/town/board-insects)
+  | "giants" | "boards"
   // ── mining ── (the mountain's rocks and the cave)
   | "cave"
   // ── felling ── (the mountain's trees: who felled which is everybody's)
@@ -363,6 +363,12 @@ export interface Keeper {
   giantFish?(action: import("./giant-fish").GiantAction, id: string, opts?: { at?: [number, number]; text?: string; name?: string }): Promise<Did<{ hook: import("./giant-fish").GiantHook; steak?: boolean }>>;
   /** The giants on lines in the town now, and those of mine ended lately (a steak not yet had). */
   giantsNow?(): Promise<import("./giant-fish").GiantHook[]>;
+  /** The leaf roll (lib/town/board-insects): opened at a bush near me, then what was in it cupped. */
+  boardRoll?(action: "open" | "take", spot: number, at: [number, number] | null): Promise<Did<{ turn: import("./board-insects").SpotTurn; held?: string; got?: string }>>;
+  /** The shaken branch: a call at a tree, the town's call for a holder, the holder's join, the holder's word of the catch, each one's insect. */
+  boardShake?(action: "call" | "text" | "join" | "end" | "claim", spot: number, opts: { id?: string; at?: [number, number] | null; caught?: number; text?: string; name?: string }): Promise<Did<{ shake: import("./board-insects").Shake; got?: string }>>;
+  /** The spots' turns had this turn, and the shakes under way or lately over. */
+  boardsNow?(): Promise<{ turns: import("./board-insects").SpotTurn[]; shakes: import("./board-insects").Shake[] }>;
   /** The village's book of fish (lib/town/fish-book): read when the bag is opened. */
   fishBook?(): Promise<import("./fish-book").FishBook | null>;
   /** My bed handed on to another member near me, or given up (lib/town/bed-hand): each the page asks twice before it is sent. */
@@ -826,7 +832,8 @@ interface Turn { before?: () => boolean | void; after?: (a: Answer | null) => vo
 const EVERY: Record<Looked, number> = { /* mining */ boats: 15000, cave: 60_000, stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000, fountain: 60_000, wild: 45_000, bugs: 45_000, notices: 30_000, line: 60_000, ground: 10_000, shop: 30_000, /* felling */ trees: 60_000, works: 45_000, lamps: 60_000,
   /* (a price moves only at a round's turn, twice a day) */ farmPrices: 5 * 60_000,
   /* ── the pasture ── (read while on the farm: a step of mine or a word from the room reads it at once) */ animals: 30_000,
-  /* (a giant fish: the boards read it themselves, lib/town/giant-fish; the room's word is passed to them by the page) */ giants: 15_000 };
+  /* (a giant fish: the boards read it themselves, lib/town/giant-fish; the room's word is passed to them by the page) */ giants: 15_000,
+  /* (the leaf roll and the shaken branch, the same) */ boards: 15_000 };
 /**
  * The room's word that a thing changed is answered at once, and then no oftener than this for the things that are
  * dear to read (seen on the live database the evening the mountain opened, 2026-10-09: seven members in the cave,
@@ -1498,7 +1505,7 @@ export class DbKeeper implements Keeper {
       : what === "lamps" ? this.refresh("town_lamps_read")
       : what === "boats" ? this.refresh("town_reward_boats",()=>({p_x:this.boatAt_[0],p_y:this.boatAt_[1]}))
       : what === "farmPrices" ? this.refresh("town_farm_prices")
-      : what === "giants" ? Promise.resolve(null)
+      : what === "giants" || what === "boards" ? Promise.resolve(null)
       // ── the pasture ── (the whole world, everybody's animals for drawing; a database before v291 answers nothing, and no pasture is kept)
       : what === "animals" ? this.refresh("town_animals", () => ({ p_input: { action: "look" }, p_request: null })).then((a) => { if (a && a.ok !== false) this.animalsTold(a.world, true); return a; })
       : this.refresh("town_farm", () => ({ p_since: this.farmAt })).then((a) => { if (a && typeof a.now === "number") this.farmAt = a.now; return a; });
@@ -1872,6 +1879,22 @@ export class DbKeeper implements Keeper {
     if (did.ok && action !== "look" && action !== "claim") this.onDeed?.("giants");
     if (did.ok && action === "call") for (const fn of this.announcementListeners) fn();
     return did;
+  }
+  // ── the leaf roll and the shaken branch ── (v311: what a spot held is the same roll on both sides; who had it is the database's)
+  async boardRoll(action: "open" | "take", spot: number, at: [number, number] | null) {
+    const did = await this.deed<{ turn: import("./board-insects").SpotTurn; held?: string; got?: string }>("town_board_roll", { p_action: action, p_spot: spot, p_x: at?.[0] ?? null, p_y: at?.[1] ?? null });
+    if (did.ok && action === "take") this.onDeed?.("boards");
+    return did;
+  }
+  async boardShake(action: "call" | "text" | "join" | "end" | "claim", spot: number, opts: { id?: string; at?: [number, number] | null; caught?: number; text?: string } = {}) {
+    const did = await this.deed<{ shake: import("./board-insects").Shake; got?: string }>("town_board_shake", { p_action: action, p_spot: spot, p_id: opts.id ?? null, p_x: opts.at?.[0] ?? null, p_y: opts.at?.[1] ?? null, p_caught: opts.caught ?? null, p_text: opts.text ?? null });
+    if (did.ok && action !== "claim") this.onDeed?.("boards");
+    if (did.ok && action === "text") for (const fn of this.announcementListeners) fn();
+    return did;
+  }
+  async boardsNow() {
+    const a = await this.rpc("town_boards_now", {}).catch(() => null);
+    return a && typeof a === "object" && "turns" in a ? (a as unknown as { turns: import("./board-insects").SpotTurn[]; shakes: import("./board-insects").Shake[] }) : { turns: [], shakes: [] };
   }
   // (v310's book of fish: a database before it answers nothing, and no book is shown)
   async fishBook() {

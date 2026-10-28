@@ -150,6 +150,7 @@ import type { FellDid } from "./keeper";
 import type { FellingAsk } from "./felling";
 import { giantFish, type GiantAction, type GiantDid, type GiantHook } from "./giant-fish";
 import { noteFish, type FishBook } from "./fish-book";
+import { BOARD_SPOTS, callForHolder, callShake, claimShake, endShake, heldAt, joinShake, openRoll, takeRoll, turnOf as boardTurn, type BoardDid, type Shake, type SpotTurn } from "./board-insects";
 // ── end: felling ──
 // ── the bridge built by hand ──
 import { BRIDGE, drop as stoneDrop, laid as stoneLaid, lay as stoneLay, lift as stoneLift, luckFor, newWorks, pass as stonePass, told as worksTold, workOf, type BridgeRefusal, type WorksKept, type WorksTold } from "./bridge";
@@ -180,8 +181,8 @@ import { LAMPS, held as lampHeld, light as lampLight, lighted as lampLighted, li
  * compiles away.
  */
 
-/** The giants on lines, the browser's (lib/town/giant-fish); its book of fish (lib/town/fish-book). */
-const GIANT_HOOKS = "cashtown.trial.giants.1", FISH_BOOK = "cashtown.trial.fishbook.1";
+/** The giants on lines, the browser's (lib/town/giant-fish); its book of fish (lib/town/fish-book); the two boards' spots and shakes (lib/town/board-insects). */
+const GIANT_HOOKS = "cashtown.trial.giants.1", FISH_BOOK = "cashtown.trial.fishbook.1", BOARDS = "cashtown.trial.boards.1";
 const STALL = "cashtown.trial.stall.1", CLOCK = "cashtown.trial.clock.1", FARM = "cashtown.trial.farm.2";
 const WELL = "cashtown.trial.well.1", BEDS = "cashtown.trial.beds.1";
 /** The farm's second well (lib/town/world's WELLS): its water (its water's nature is the well's book's `southWater`). */
@@ -396,6 +397,36 @@ export class Trial {
     return {ok:true as const,made:d.made,n:d.n,mistakes:d.mistakes};
   }
   /* ── a giant fish on a line (lib/town/giant-fish): one store for the browser, so that a tester in another tab can net it ── */
+  /* ── the leaf roll and the shaken branch (lib/town/board-insects): one store for the browser, a second tab holds the sheet ── */
+  boards(): { turns: SpotTurn[]; shakes: Shake[] } {
+    const b = this.read<{ turns: SpotTurn[]; shakes: Shake[] }>(BOARDS, () => ({ turns: [], shakes: [] }), (v) => !!v && typeof v === "object" && Array.isArray((v as { turns?: unknown }).turns));
+    const turn = boardTurn(this.now());
+    return { turns: b.turns.filter((t) => t.turn >= turn - 1), shakes: (b.shakes ?? []).filter((s) => s.turn >= turn - 1) };
+  }
+  /** An insect into my bag from a board, and its one stamina (never refused for want of it). */
+  private boardGot(id: string) { const p = this.purse(); this.save(spend({ ...p, bag: put(p.bag, id as ItemId, 1) }, 1, this.now())); }
+  boardRoll(action: "open" | "take", spotId: number, me: string, at: [number, number] | null): BoardDid<{ turn: SpotTurn; held?: string; got?: string }> {
+    const b = this.boards(), spot = BOARD_SPOTS[spotId], kept = b.turns.find((t) => t.spot === spotId && t.turn === boardTurn(this.now())) ?? null;
+    const did = action === "open" ? openRoll(spot, kept, me, at, this.now()) : takeRoll(spot, kept, me, at, this.now(), roomFor(this.purse().bag, (heldAt(spot, boardTurn(this.now()))[0] ?? "crimsonRollerWeevil") as ItemId) < 1);
+    if (!did.ok) return did;
+    this.write(BOARDS, { ...b, turns: [...b.turns.filter((t) => !(t.spot === spotId && t.turn === did.turn.turn)), did.turn] });
+    if ("got" in did) this.boardGot(did.got);
+    return did;
+  }
+  boardShake(action: "call" | "text" | "join" | "end" | "claim", spotId: number, me: string, myName: string, opts: { id?: string; at?: [number, number] | null; caught?: number; text?: string }): BoardDid<{ shake: Shake; got?: string; words?: string }> {
+    const b = this.boards(), spot = BOARD_SPOTS[spotId], now = this.now(), turn = boardTurn(now);
+    const live = (opts.id ? b.shakes.find((s) => s.id === opts.id) : b.shakes.filter((s) => s.spot === spotId && s.turn === turn).sort((x, y) => y.at - x.at)[0]) ?? null;
+    const full = () => roomFor(this.purse().bag, (heldAt(spot, live?.turn ?? turn)[0] ?? "checkeredBarkBeetle") as ItemId) < 1;
+    const did = action === "call" ? callShake(spot, live, me, myName, opts.at ?? null, now, `s${now.toString(36)}`)
+      : action === "text" ? callForHolder(live, me, opts.text, now)
+      : action === "join" ? joinShake(spot, live, me, myName, opts.at ?? null, now)
+      : action === "end" ? endShake(live, me, opts.caught ?? 0, now)
+      : claimShake(spot, live, me, full());
+    if (!did.ok) return did;
+    this.write(BOARDS, { ...b, shakes: [...b.shakes.filter((s) => s.id !== did.shake.id), did.shake] });
+    if ("got" in did && typeof did.got === "string") this.boardGot(did.got);
+    return did;
+  }
   fishBook(): FishBook["fish"] { return this.read<FishBook["fish"]>(FISH_BOOK, () => ({}), (v) => !!v && typeof v === "object" && !Array.isArray(v)); }
   giants(): GiantHook[] { return this.read<GiantHook[]>(GIANT_HOOKS, () => [], Array.isArray).filter((h) => this.now() - (h.end || h.at) < 86_400_000); }
   /** When this member last had a giant on the line. */

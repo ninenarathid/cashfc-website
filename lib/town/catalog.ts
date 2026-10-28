@@ -4,6 +4,7 @@ import { animalsRow } from "./animal-catalog";
 import { DRESS_ITEMS, wearDropsRow } from "./wear";
 import { GARDEN } from "./gardening";
 import { INSECT_GARDEN } from "./insect-garden";
+import { BOARD, BOARD_ROWS, BOARD_SPOTS, WEIGHT } from "./board-insects";
 import { FORAGE_PARTS } from "./foraging-parts";
 import { STREAM_WORK } from "./stream-work";
 import { PREPARATION } from "./preparation";
@@ -117,6 +118,8 @@ export function catalogOf() {
     stream_work: STREAM_WORK,
     preparation: PREPARATION,
     camps: CAMPS,
+    // (v311: the leaf roll and the shaken branch, lib/town/board-insects: their numbers, their eighteen spots and their twenty-one, as the database rolls what a spot holds)
+    boards: { ...BOARD, spots: BOARD_SPOTS, rows: BOARD_ROWS.map((r) => ({ id: r.id, board: r.board, place: "place" in r ? r.place : null, trees: "trees" in r ? r.trees : null, hours: r.hours, rare: "rare" in r && !!r.rare })), weight: WEIGHT },
     /** Every thing: its kind, its tier, how many stack in a slot, what the uncle's relatives pay. */
     items: Object.fromEntries(ITEM_IDS.map((id) => [id, { kind: ITEMS[id].kind, tier: ITEMS[id].tier, stack: ITEMS[id].stack, pays: ITEMS[id].pays }])),
     /** What the stall sells: its price, its stock a round for the village, how many one person may buy a round. */
@@ -602,7 +605,9 @@ export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Ar
   // scripts/db/build-v291.mjs, entry by entry, so that nothing another file wrote of those rows is written over)
   v291: { keys: ["animals"], over: [] },
   // (v297: Granny Twilla's shop, the price of each of her forty and the four sold only in the pumpkins' season)
-  v297: { keys: ["tailor"], over: [] } };
+  v297: { keys: ["tailor"], over: [] },
+  // (v311: the leaf roll's and the shaken branch's own row; their insects, families and skies are merged into the rows they belong to, entry by entry)
+  v311: { keys: ["boards"], over: [] } };
 // (v283, 2026-10-19, writes no whole row: `farming.costs.pick` and the farm pouch's `slots` by jsonb_set alone, so that
 // v284's beds in `farming.bedsAt` stand whichever runs first; v286 the same, `farming.pests.house` alone; v292 every
 // dish's `items.<id>.stack`, twenty, chosen by its kind; v298 the farm's two chests onto `box.more`, never `box.at`, which

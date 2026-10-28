@@ -3,6 +3,7 @@ import { roll } from "./farm";
 import { FOREST, FOREST_PROPS, zoneAt, type Place } from "./world";
 import { T2_THINGS } from "./town2";
 import { ROWS, WEIGHT, type BoardInsectId, type Tree } from "./board-insect-rows";
+import { GIANT, callWords } from "./giant-fish";
 export * from "./board-insect-rows";
 
 /**
@@ -107,8 +108,10 @@ export interface Shake {
   holder: string | null; holderName: string | null; go: number;
   /** Over: how many insects the sheet caught (0 to BOARD.drops), when, who has had theirs. */
   end: number; caught: number; claimed: string[];
+  /** The shaker's calls to the town, when each was sent. */
+  calls: number[];
 }
-export type BoardRefusal = "none" | "taken" | "far" | "soon" | "late" | "theirs" | "self" | "busy" | "full";
+export type BoardRefusal = "none" | "taken" | "far" | "soon" | "late" | "theirs" | "self" | "busy" | "full" | "many" | "long" | "empty";
 export type BoardDid<T> = ({ ok: true } & T) | { ok: false; why: BoardRefusal };
 
 /** A roll opened: its seams to cut from now (the take is not before `BOARD.unrollMin`). */
@@ -141,7 +144,17 @@ export function callShake(spot: BoardSpot | undefined, live: Shake | null, me: s
   if (!heldAt(spot, turn).length) return { ok: false, why: "none" };
   if (live && live.turn === turn && (live.caught > 0 || (!live.end && (live.go > 0 || now < live.at + BOARD.call)))) return { ok: false, why: live.caught > 0 ? "taken" : "busy" };
   if (!nearSpot(spot, at)) return { ok: false, why: "far" };
-  return { ok: true, shake: { id, spot: spot.id, turn, by: me, byName: myName, at: now, holder: null, holderName: null, go: 0, end: 0, caught: 0, claimed: [] } };
+  return { ok: true, shake: { id, spot: spot.id, turn, by: me, byName: myName, at: now, holder: null, holderName: null, go: 0, end: 0, caught: 0, claimed: [], calls: [] } };
+}
+/** A call to the town for somebody to hold the sheet, as a giant fish's is (lib/town/giant-fish's numbers and words). */
+export function callForHolder(s: Shake | null, me: string, text: unknown, now: number): BoardDid<{ shake: Shake; words: string }> {
+  if (!s || s.go || s.end || now >= s.at + BOARD.call) return { ok: false, why: "late" };
+  if (me !== s.by) return { ok: false, why: "theirs" };
+  if (s.calls.length >= GIANT.calls) return { ok: false, why: "many" };
+  if (s.calls.length && now - s.calls[s.calls.length - 1] < GIANT.callGap) return { ok: false, why: "soon" };
+  const words = callWords(text);
+  if (words == null) return { ok: false, why: typeof text === "string" && text.trim() ? "long" : "empty" };
+  return { ok: true, shake: { ...s, calls: [...s.calls, now] }, words };
 }
 /** The sheet held by another standing near the tree, while the call stands: the shake begins. */
 export function joinShake(spot: BoardSpot | undefined, s: Shake | null, me: string, myName: string, at: [number, number] | null, now: number): BoardDid<{ shake: Shake }> {

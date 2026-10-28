@@ -409,6 +409,20 @@ class TrialKeeper implements Keeper {
     if (action !== "look" && action !== "claim") this.onDeed?.("giants");
     return { ok: true, hook: did.hook, ...(did.steak ? { steak: true } : {}) };
   }
+  // ── the leaf roll and the shaken branch ── (lib/town/board-insects on the browser's store)
+  async boardRoll(action: "open" | "take", spot: number, at: [number, number] | null): Promise<Did<{ turn: import("./board-insects").SpotTurn; held?: string; got?: string }>> {
+    const did = this.trial.boardRoll(action, spot, this.id, at);
+    if (!did.ok) return { ok: false, why: did.why as Why };
+    if (action === "take") this.onDeed?.("boards");
+    return did;
+  }
+  async boardShake(action: "call" | "text" | "join" | "end" | "claim", spot: number, opts: { id?: string; at?: [number, number] | null; caught?: number; text?: string; name?: string } = {}): Promise<Did<{ shake: import("./board-insects").Shake; got?: string }>> {
+    const did = this.trial.boardShake(action, spot, this.id, opts.name ?? this.id, opts);
+    if (!did.ok) return { ok: false, why: did.why as Why };
+    if (action !== "claim") this.onDeed?.("boards");
+    return did;
+  }
+  async boardsNow() { return this.trial.boards(); }
   async fishBook() { return { fish: this.trial.fishBook(), giants: giantRecords(this.trial.giants()) }; }
   async giantsNow(): Promise<GiantHook[]> {
     const now = this.trial.now();
