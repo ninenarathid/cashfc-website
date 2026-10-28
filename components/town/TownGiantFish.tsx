@@ -346,7 +346,7 @@ export default function TownGiantFish({ me, myName, keeper, th, here, hour, pair
     </TownFoot>;
     if (near) return <TownFoot rank="chip" order={28}>
       <button className={OPEN} data-giant-fish-join disabled={busy} onClick={() => void act("join", near.id)}><TownIcon name="netLong" size={26} />{th ? `ช่วย ${near.byName} ช้อนปลายักษ์` : `Help ${near.byName} net the giant`}</button>
-      {said && <p role="status" className={s.said}>{said}</p>}
+      {said && <p role="status" className={`${s.said} ${g.onMap}`}>{said}</p>}
     </TownFoot>;
     if (far) {
       const dx = far.tile[0] - (at?.[0] ?? far.tile[0]), dy = far.tile[1] - (at?.[1] ?? far.tile[1]), deg = Math.round((Math.atan2(dx + dy, dx - dy) * 180) / Math.PI);
@@ -355,7 +355,7 @@ export default function TownGiantFish({ me, myName, keeper, th, here, hour, pair
           <TownIcon name="giantBoil" size={26} /><span>{th ? `${far.byName} ติดปลายักษ์` : `${far.byName} has a giant`}<small> · {Math.round(dist(far))} {th ? "ช่อง" : "tiles"}</small></span>
           <span className={g.arrow} style={{ rotate: `${deg}deg` }} aria-hidden>➜</span>
         </button>
-        {said && <p role="status" className={s.said}>{said}</p>}
+        {said && <p role="status" className={`${s.said} ${g.onMap}`}>{said}</p>}
       </TownFoot>;
     }
     return null;

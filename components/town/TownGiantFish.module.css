@@ -19,6 +19,10 @@ div.countUp { font-size: clamp(32px, 9vw, 44px); }
 .chip { min-height: 44px; padding: 0 12px; border: 2px solid #987144; border-radius: 999px; background: #302a22; color: #f0dfb6; font-size: 13px; }
 .chip:disabled { opacity: 0.5; }
 .left { display: block; margin-top: 6px; color: #e2d2b8; font-size: 12px; }
+/* when the boards' spots hold new insects, under a catch: two short lines, not one cramped one */
+.turnLine { margin: 6px 0; color: #e2d2b8; font-size: 13px; line-height: 1.4; text-align: center; }
+/* a word said under a chip on the map: on a dark backing, readable over any ground */
+.onMap { justify-self: center; width: fit-content; max-width: 100%; margin: 6px auto 0; padding: 4px 10px; border-radius: 8px; background: #1a120aeb; color: #ffe2a8; font-size: 13px; box-shadow: 0 0 0 2px #1a0e06, 0 4px 12px #0007; }
 .drag { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 56px; border: 2px solid #c9a15a; border-radius: 10px; background: repeating-linear-gradient(90deg, #3a2513 0 14px, #33200f 14px 28px); color: #ffeccb; font-weight: 700; font-size: 15px; box-shadow: inset 0 2px 0 #ffffff14, 0 3px 0 #120a05; touch-action: none; user-select: none; cursor: ew-resize; }
 .duo { display: flex; gap: 8px; }
 .duo > * { flex: 1; }
