@@ -15,6 +15,7 @@ import { ANIMAL_DISHES, ANIMAL_ITEMS, ANIMAL_MAKES, ANIMAL_SCROLL_ITEMS, ANIMAL_
 import { animalIcon } from "./animal-icons";
 import { FIND_ITEMS, NEW_FISH, NEW_FISH_ITEMS, NEW_INSECT_ITEMS, SMALL_FISH_BAITS, type NewFishId } from "./band-species";
 import { GIANT_ITEMS } from "./giant-fish";
+import { BOARD_INSECT_ITEMS } from "./board-insect-rows";
 import { RIVER_DISHES, RIVER_FISH, RIVER_ITEMS, RIVER_MAKES, RIVER_SCROLL_ITEMS, RIVER_SCROLLS, type Current, type FishingHabitat, type RiverDishId, type RiverFishId } from "./river-items";
 
 /**
@@ -693,6 +694,8 @@ export const ITEMS = {
   ...FIND_ITEMS,
   // (a giant fish landed together, lib/town/giant-fish: the steak each of the two has)
   ...GIANT_ITEMS,
+  // (the insects of the leaf roll and the shaken branch, lib/town/board-insects)
+  ...BOARD_INSECT_ITEMS,
 } satisfies Record<string, Item>;
 
 export type ItemId = keyof typeof ITEMS;

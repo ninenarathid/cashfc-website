@@ -4,6 +4,7 @@ import { FARMING, roll, see, type FarmSky, type Plot } from "./farm";
 import { INSECT_SPECIES, type InsectSpeciesId } from "./insect-items";
 import { INSECT_GARDEN, scentMods } from "./insect-garden";
 import { NEW_BUGS, QUIET, inHours, type NewInsectId } from "./band-species";
+import { BOARD_BUGS, type BoardInsectId } from "./board-insect-rows";
 import { SPOTS, fullMoon, isDayOf } from "./forest";
 import { luckOf, netFx, partOf, slowPartOf } from "./forged";
 import { toolPaid } from "./forged-keep";
@@ -73,7 +74,9 @@ export type BugId = InsectSpeciesId
   | "butterflyWhite" | "monarch" | "morpho" | "dragonfly" | "damselfly" | "glassDragonfly" | "grasshopper" | "mantis" | "cricket" | "cicada"
   | "stickInsect" | "leafInsect" | "firefly" | "orchidMantis" | "moth" | "lunaMoth" | "hawkMoth"
   | "rhinoBeetle" | "stagBeetle" | "jewelBeetle" | "herculesBeetle" | "ladybird" | "scarab" | "caterpillar"
-  | NewInsectId;
+  | NewInsectId
+  // (found only by unrolling a leaf or shaking a branch: lib/town/board-insects)
+  | BoardInsectId;
 
 /** An insect: its habit, where it keeps, how often beside the others there, and what has to hold for it to be out at all. */
 export interface Bug {
@@ -164,6 +167,8 @@ export const BUGS: Record<BugId, Bug> = {
   ...INSECT_SPECIES,
   // (the time bands' newcomers, last: lib/town/band-species. Each keeps to haunts of its own kinds, so no old haunt weighs one)
   ...NEW_BUGS,
+  // (the two boards' own, never at a haunt: their `at` is none)
+  ...BOARD_BUGS,
 };
 export const BUG_IDS = Object.keys(BUGS) as BugId[];
 export const isBug = (id: string | null | undefined): id is BugId => !!id && id in BUGS;
@@ -511,7 +516,8 @@ const weightAt = (id: BugId, at: number) => { const b = BUGS[id]; return b.peak 
 /** What a good garden draws and what each weighs there (`GOOD_GARDEN`), in the order the insects are weighed. */
 export function gardenDraws(g: GardenNow | null | undefined): Partial<Record<BugId, number>> {
   const out: Partial<Record<BugId, number>> = {};
-  if (g?.good) for (const id of BUG_IDS) { const t = id in POLLINATOR_SKY ? tierOf(id) : "common"; if (t !== "common") out[id] = GOOD_GARDEN.weights[t]; }
+  // (never the two boards' own: they are found only so, lib/town/board-insects)
+  if (g?.good) for (const id of BUG_IDS) { if (id in BOARD_BUGS) continue; const t = id in POLLINATOR_SKY ? tierOf(id) : "common"; if (t !== "common") out[id] = GOOD_GARDEN.weights[t]; }
   if (g?.milkweed) out[GOOD_GARDEN.milkweed[0]] = GOOD_GARDEN.milkweed[1];
   return out;
 }

@@ -1,5 +1,6 @@
 import type { Crop, Item } from "./items";
 import { NEW_POLLINATOR_SKY } from "./band-species";
+import { BOARD_POLLINATOR_SKY } from "./board-insect-rows";
 
 /**
  * The twenty helper plants of the farm's Quality (the owner took the design, 2026-10-15; the artifact
@@ -127,6 +128,8 @@ export const POLLINATOR_SKY: Readonly<Record<string, "sun" | "moon" | "mist">> =
   silkMoth: "moon", moth: "moon", lunaMoth: "moon", hawkMoth: "moon",
   // (the time bands' newcomer pollinators, by their time icon: the two dawn bees are the mist's, whose crossing is piece 5's)
   ...NEW_POLLINATOR_SKY,
+  // (the leaf roll's and the shaken branch's pollinators, lib/town/board-insects)
+  ...BOARD_POLLINATOR_SKY,
 };
 
 /**

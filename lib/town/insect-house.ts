@@ -21,6 +21,7 @@ import { spend } from "./stamina";
 import { held, no, put, roomFor, take, type Done, type Purse, type Refusal } from "./trade";
 import { bedOf } from "./world";
 import { DECOMPOSERS } from "./band-species";
+import { BOARD_FAMILY } from "./board-insect-rows";
 
 export const HOUSE = {
   /** The plots each way the house reaches (5×5 about it). */
@@ -68,15 +69,15 @@ export const FAVOURITES: Partial<Record<ItemId, CompanionId>> = {
   earwig: "marigold", roseChafer: "borage", oilBeetle: "dill", superworm: "rhubarb", bessBeetle: "fig",
 };
 
-/** The insects that work the soil: the decomposers of the time bands' newcomers (lib/town/band-species). */
-export { DECOMPOSERS as SOIL_WORKERS } from "./band-species";
+/** The insects that work the soil: the decomposers of the time bands' newcomers (lib/town/band-species) and of the two boards' (lib/town/board-insects). */
+export const SOIL_WORKERS: readonly string[] = [...DECOMPOSERS, ...BOARD_FAMILY("decomposer")];
 
 /** What an insect does in a house: its role, or null for one that has no room there. */
 export function houseRoleOf(id: ItemId | null | undefined): Role | null {
   if (!id) return null;
   if (INSECT_GARDEN.pollinators.includes(id)) return "pollen";
   if (INSECT_GARDEN.predators.includes(id)) return "guard";
-  return (DECOMPOSERS as readonly string[]).includes(id) ? "soil" : null;
+  return SOIL_WORKERS.includes(id) ? "soil" : null;
 }
 /** How often a hunter in a room keeps off a pest that would strike (`HOUSE.keeps`, else `HOUSE.keep`). */
 export const keepOf = (id: ItemId): number => HOUSE.keeps[id] ?? HOUSE.keep;

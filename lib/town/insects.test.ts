@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 import { INSECT_SPECIES } from "./insect-items";
 import { INSECT_GARDEN } from "./insect-garden";
 import { SMALL_FISH_BAITS } from "./band-species";
+import { BOARD_BUGS, BOARD_IDS } from "./board-insect-rows";
+/** The insects of the haunts: not the two boards' own, found only by unrolling a leaf or shaking a branch (lib/town/board-insects). */
+const HAUNTED = () => BUG_IDS.filter((id) => !(id in BOARD_BUGS));
 import { FARMING, PUT_ON, see, type Plant, type Plot } from "./farm";
 import { oddsOf } from "./fishing";
 import {
@@ -35,8 +38,10 @@ function outOver(salt: string, from: number, days: number, rains = DRY): Map<Bug
 
 describe("insects (the owner: \"จับแมลง ในทุกแมพในเกม แมพกลางเมือง ฟาร์ม ป่า จะมีแมลงออกมา\")", () => {
   it("are twenty-four, of eight habits, each an item of its own and none of one country alone", () => {
-    // (and the time bands' twenty-four newcomers, band-species)
-    expect(BUG_IDS).toHaveLength(32 + 24);
+    // (and the time bands' twenty-four newcomers, band-species; and the two boards' twenty-one, never at a haunt)
+    expect(BUG_IDS).toHaveLength(32 + 24 + 21);
+    expect(BOARD_IDS).toHaveLength(21);
+    for (const id of BOARD_IDS) expect(BUGS[id].at, id).toEqual([]);
     expect(new Set(BUG_IDS.map((id) => BUGS[id].habit)).size).toBe(8);
     for (const id of BUG_IDS) {
       expect(ITEMS[id], id).toBeDefined();
@@ -60,8 +65,8 @@ describe("insects (the owner: \"จับแมลง ในทุกแมพ�
         expect(near, `haunt ${h.id}`).toBe(true);
       }
     }
-    // every insect has somewhere to be
-    for (const id of BUG_IDS) {
+    // every insect of the haunts has somewhere to be
+    for (const id of HAUNTED()) {
       const b = BUGS[id];
       expect(HAUNTS.some((h) => b.at.includes(h.kind) && (!b.places || b.places.includes(h.place)) && (!b.zones || (!!h.zone && b.zones.includes(h.zone)))), id).toBe(true);
     }
@@ -80,7 +85,9 @@ describe("insects (the owner: \"จับแมลง ในทุกแมพ�
 
   it("keep to their hours, their sky and their days: every one of them is out some time in a month, the rare ones seldom", () => {
     const month = outOver("check", NOON, 30);
-    for (const id of BUG_IDS) expect(month.get(id) ?? 0, id).toBeGreaterThan(0);
+    for (const id of HAUNTED()) expect(month.get(id) ?? 0, id).toBeGreaterThan(0);
+    // (and none of the two boards' own ever comes to a haunt)
+    for (const id of BOARD_IDS) expect(month.get(id) ?? 0, id).toBe(0);
     // by day no cricket and no moth; by night no butterfly
     for (const h of HAUNTS) for (let i = 0; i < 12; i++) {
       const day = swarmAt("check", h, NOON + i * 10 * MINUTE), night = swarmAt("check", h, NIGHT + i * 10 * MINUTE);
