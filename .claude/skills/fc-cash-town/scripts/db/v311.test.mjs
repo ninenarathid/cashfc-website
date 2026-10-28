@@ -223,7 +223,9 @@ try {
   const latest = async (spotId, turn) => (await one("select doc from public.town_board_shakes where spot = $1 and turn = $2 order by at desc, id desc limit 1", [spotId, turn]))?.doc ?? null;
   const shakeDo = async (who, action, spotId, o = {}, what) => {
     const sp = B.BOARD_SPOTS[spotId];
-    let live = o.id ? await shakeOf(o.id) : await latest(spotId, B.turnOf(clock));
+    // (as lib/town/trial's boardShake: a call is weighed against the tree's latest shake of the turn, whatever id came
+    // with it; any other deed's shake by its id, at its own tree)
+    let live = o.id && action !== "call" ? await shakeOf(o.id) : await latest(spotId, B.turnOf(clock));
     if (live && live.spot !== spotId) live = null;
     let bagFull = false;
     if (action === "claim" && live && sp) {
@@ -292,6 +294,9 @@ try {
   s = await shakeDo(M2, "claim", cherry.id, { id: id1 }, "the holder's claim");
   eq([why(s), s.got, await held(M2, hs[1]), s.shake?.claimed], ["ok", hs[1], 1, [M1, M2]], "the holder's, the second");
   eq(why(await shakeDo(M3, "call", cherry.id, { at: near }, "a call after the catch")), "taken", "its insects had this turn");
+  eq(why(await shakeDo(M3, "call", cherry.id, { id: "s000000000000000", at: near }, "a call with a made-up id after the catch")), "taken", "nor with a made-up id");
+  eq(why(await shakeDo(M3, "call", cherry.id, { id: id1, at: near }, "a call naming the shake that gave")), "taken", "nor naming the shake itself");
+  eq((await rows("select count(*)::int n from public.town_board_shakes where spot = $1 and turn = $2", [cherry.id, st]))[0].n, 1, "one shake at the tree this turn");
   // nothing caught: nothing to claim, and the tree shaken again
   const st2 = holding(cherry, st + 1, (t) => hourOf(t) >= 16 && hourOf(t) < 23);
   await setNow(st2 * B.BOARD.turn + 1000);
@@ -309,6 +314,8 @@ try {
   const id3 = (await shakeDo(M3, "call", cherry.id, { at: near }, "a call after a shake that never ended"))?.shake?.id;
   ok(id3, "past its time, a shake begun and never ended frees its tree");
   eq(why(await shakeDo(M1, "call", cherry.id, { at: near }, "a call while the new one stands")), "busy", "and the new call holds it");
+  eq(why(await shakeDo(M1, "call", cherry.id, { id: "sffffffffffffff0", at: near }, "a call with a made-up id while one stands")), "busy", "a made-up id makes no second call");
+  eq(why(await shakeDo(M1, "call", cherry.id, { id: id2, at: near }, "a call naming the old shake")), "busy", "nor an old shake's id");
   await setNow(clock + 1000);
   await shakeDo(M2, "join", cherry.id, { id: id3, at: near }, "a join");
   await setNow(clock + B.BOARD.shakeMin);

@@ -279,7 +279,9 @@ begin
   perform pg_advisory_xact_lock(hashtext('town.board'), coalesce(p_spot, -1));
   turn_ := now_ / (b->>'turn')::bigint;
   if s is not null then
-    if p_id is not null then
+    -- (a call is weighed against the tree's own latest shake of the turn, whatever id came with it: an unknown id must
+    -- not make a tree that gave its insects give again)
+    if p_id is not null and p_action <> 'call' then
       select bs.doc into live from public.town_board_shakes bs where bs.id = p_id and bs.spot = p_spot for update;
     else
       select bs.doc into live from public.town_board_shakes bs where bs.spot = p_spot and bs.turn = turn_ order by bs.at desc, bs.id desc limit 1 for update;
