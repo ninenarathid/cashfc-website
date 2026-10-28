@@ -195,7 +195,7 @@ export default function TownBoardInsects({ me, myName, keeper, th, here, hour, p
         SEAMS.forEach((m, i) => {
           if (r.cut[i]) { if (P.pieces.complete) put(ctx, P.pieces, "silkTuft", m.a.x + 4, m.a.y - 6); return; }
           const n = Math.ceil(Math.hypot(m.b.x - m.a.x, m.b.y - m.a.y));
-          for (let k = 0; k <= n; k++) { const u = k / n, x = Math.round(m.a.x + (m.b.x - m.a.x) * u), y = Math.round(m.a.y + (m.b.y - m.a.y) * u); ctx.fillStyle = "#3a4a2a"; ctx.fillRect(x + 1, y, 1, 1); ctx.fillStyle = k % 3 ? "#f6f6ee" : "#ffffff"; ctx.fillRect(x, y, 1, 1); }
+          for (let k = 0; k <= n; k++) { const u = k / n, x = Math.round(m.a.x + (m.b.x - m.a.x) * u), y = Math.round(m.a.y + (m.b.y - m.a.y) * u); ctx.fillStyle = "#1e2a16"; ctx.fillRect(x - 1, y, 1, 1); ctx.fillRect(x + 2, y, 1, 1); ctx.fillStyle = k % 3 ? "#f6f6ee" : "#ffffff"; ctx.fillRect(x, y, 2, 1); }
         });
         // startled: the roll shudders, and a stroke of the drag that cut across it shows where
         if (pnow - r.startled < BOARD.startle) { ctx.fillStyle = "rgba(255,180,120,0.8)"; for (const p of stroke.current) ctx.fillRect(Math.round(p.x), Math.round(p.y), 1, 1); }
@@ -214,8 +214,13 @@ export default function TownBoardInsects({ me, myName, keeper, th, here, hour, p
     if (phase === "move") { if (stroke.current.length) stroke.current.push(toScene(e, RW, RH)); return; }
     const path = stroke.current; stroke.current = [];
     if (path.length < 3) return;
-    // a stroke along a seam: most of it near the seam and reaching both its ends; one across the leaf's middle startles
-    const i = SEAMS.findIndex((m, k) => !r.cut[k] && path.filter((p) => dist(p, m.a, m.b) < 7).length >= path.length * 0.6 && path.some((p) => Math.hypot(p.x - m.a.x, p.y - m.a.y) < 9) && path.some((p) => Math.hypot(p.x - m.b.x, p.y - m.b.y) < 9));
+    // a stroke along a seam: most of it within a finger's width of it (about 44 css px across, measured on the screen as
+    // drawn) and running along most of its length, the nearest uncut seam taken; one across the leaf's middle startles
+    const box = (e.currentTarget as HTMLElement).getBoundingClientRect(), near = (22 * RW) / Math.max(1, box.width);
+    const along = (m: (typeof SEAMS)[number]) => { const dx = m.b.x - m.a.x, dy = m.b.y - m.a.y, l2 = dx * dx + dy * dy, us = path.map((p) => ((p.x - m.a.x) * dx + (p.y - m.a.y) * dy) / l2); return Math.min(1, Math.max(...us)) - Math.max(0, Math.min(...us)); };
+    const fits = SEAMS.map((m, k) => ({ k, d: path.reduce((t, p) => t + dist(p, m.a, m.b), 0) / path.length, inside: path.filter((p) => dist(p, m.a, m.b) < near).length / path.length, along: along(m) }))
+      .filter((f) => !r.cut[f.k] && f.inside >= 0.6 && f.along >= 0.6).sort((a, b) => a.d - b.d);
+    const i = fits.length ? fits[0].k : -1;
     if (i >= 0) { setRoll({ ...r, cut: r.cut.map((c, k) => c || k === i) }); setSaid(null); return; }
     if (path.some((p) => p.y > 100 && p.y < 118 && p.x > 60 && p.x < 268)) { stroke.current = path; setRoll({ ...r, startled: performance.now() }); setSaid(th ? "ลากขวางใบ ตัวข้างในตกใจ รอแป๊บ" : "Across the leaf: what is inside is startled. Wait a moment"); }
   };
@@ -286,7 +291,8 @@ export default function TownBoardInsects({ me, myName, keeper, th, here, hour, p
         if (mine.holder && pnow - p.sent > 120) { p.sent = pnow; pairing?.send(mine.by, { sk: mine.id, sheet: Math.round(p.sheet), cups: p.cups, falls: p.falls.filter((f) => pnow >= f.at && !f.gone && !f.cupped).map((f) => [Math.round(f.x), Math.round(f.y), f.kind === "bug" ? 1 : 0]) }); }
         // all that dropped is down, cupped or gone: the catch is told
         const bugs = p.falls.filter((f) => f.kind === "bug");
-        if (!p.done && bugs.length && bugs.every((f) => f.gone || f.cupped)) { p.done = true; void shakeDo("end", spot, { id: mine.id, caught: p.cups }).then(() => void read()); }
+        // (or the shake's time is up, nothing let fall at its full bend: what was cupped is told all the same)
+        if (!p.done && ((bugs.length && bugs.every((f) => f.gone || f.cupped)) || keeper.now() > mine.go + BOARD.shake)) { p.done = true; void shakeDo("end", spot, { id: mine.id, caught: p.cups }).then(() => void read()); }
       } else {
         if (pnow - p.sent > 120) { p.sent = pnow; pairing?.send(mine.holder ?? "", { sk: mine.id, bend: Math.round(p.bend * 100) / 100, drop: p.drops }); }
       }
@@ -350,7 +356,7 @@ export default function TownBoardInsects({ me, myName, keeper, th, here, hour, p
         {roll.got ? <div role="status" className={s.done}><p className={s.big}>{th ? "ได้ " : "Got "}<span className={s.got}><TownIcon name={roll.got as IconName} size={22} />{nameOf(roll.got, th)}</span></p>
             <button type="button" className={`${WOOD} w-full`} onClick={() => setRoll(null)}>{th ? "ปิด" : "Close"}</button></div>
           : open ? <div className={s.row}><button type="button" data-board-cup className={`${GREEN} flex-1`} disabled={busy || wait > 0} onClick={() => void cupRoll()}><TownIcon name="jar" size={22} />{wait > 0 ? (th ? "ค่อยๆ ครอบ…" : "Gently…") : th ? `ครอบ${nameOf(roll.held, th)}` : `Cup the ${nameOf(roll.held, th).toLowerCase()}`}</button></div>
-          : <p className={`${g.hint} ${g.roomy}`}>{th ? "ลากตามใยสีขาวทีละเส้นเพื่อตัด (ลากขวางใบ ตัวข้างในจะตกใจ)" : "Drag along each white seam to cut it (across the leaf startles what is inside)"}</p>}
+          : !said && <p className={g.hint}>{th ? "ลากตามใยสีขาวทีละเส้นเพื่อตัด (ลากขวางใบ ตัวข้างในจะตกใจ)" : "Drag along each white seam to cut it (across the leaf startles what is inside)"}</p>}
         {said && <p role="status" className={s.said}>{said}</p>}
       </section>
     </TownFoot>;
@@ -362,7 +368,7 @@ export default function TownBoardInsects({ me, myName, keeper, th, here, hour, p
       <li className={g.mate} data-me={mine.by === me || undefined}><b><TownIcon name="knottedWood" size={14} />{mine.by === me ? (th ? "คุณ" : "You") : mine.byName}</b><em>{th ? "เขย่า" : "Shaker"}</em></li>
       <li className={g.mate} data-me={mine.holder === me || undefined} data-free={!mine.holder || undefined}><b><TownIcon name="beatSheet" size={14} />{mine.holder ? (mine.holder === me ? (th ? "คุณ" : "You") : mine.holderName) : (th ? "ว่าง" : "Free")}</b><em>{th ? "ถือผ้า" : "Sheet"}</em></li>
     </ul>;
-    const ended = !!mine.end;
+    const ended = !!mine.end || (mine.go > 0 && now > mine.go + BOARD.shake + 5_000), shakeLeft = mine.go > 0 ? mine.go + BOARD.shake - now : 0;
     return <TownFoot rank="board" wide order={62}>
       <section className={`tk tk-plate pointer-events-auto ${s.panel} ${g.fit}`} data-board-insects={calling ? "call" : ended ? "over" : role} aria-label={th ? "เขย่ากิ่ง" : "Shaking a branch"}>
         <header className={s.title}><TownIcon name="twigBugs" size={26} /><h3 className="font-display text-ui font-semibold">{ended ? (mine.caught ? (th ? "ได้แมลง!" : "Caught!") : (th ? "แมลงหนีไปหมด" : "They all got away")) : role === "holder" ? (th ? "เขย่ากิ่ง · ถือผ้า" : "Shaking · the sheet") : (th ? "เขย่ากิ่ง" : "Shaking a branch")}</h3>
@@ -370,10 +376,11 @@ export default function TownBoardInsects({ me, myName, keeper, th, here, hour, p
         {!calling && <div className={s.stage}>
           <canvas ref={shakeCanvas} width={SW} height={SH} className={`${s.canvas} ${g.scene}`} style={{ aspectRatio: `${SW} / ${SH}`, touchAction: "none" }} onPointerDown={onTap} />
           {!ended && (() => { const n = role === "holder" ? play.current?.cups ?? 0 : play.current?.seen?.cups ?? 0; return <div className={g.tag}>{th ? `ครอบแล้ว ${n}` : `Cupped ${n}`}</div>; })()}
+          {!ended && <div className={g.bar} data-tone={shakeLeft < 10_000 ? "warn" : undefined}><b>{Math.max(0, Math.ceil(shakeLeft / 1000))}</b><i><span style={{ width: `${Math.max(0, Math.min(100, (shakeLeft / BOARD.shake) * 100))}%` }} /></i></div>}
         </div>}
         {crew}
         {calling && role === "shaker" && <>
-          <p className={`${s.note} ${g.roomy}`}>{th ? "ต้องมีอีกคนถือผ้ารองใต้กิ่ง" : "Somebody must hold the sheet under the branch"}</p>
+          <p className={s.note}>{th ? "ต้องมีอีกคนถือผ้ารองใต้กิ่ง" : "Somebody must hold the sheet under the branch"}</p>
           <form className={g.call} onSubmit={(e) => { e.preventDefault(); void sendCall(text); }}>
             <label className={g.callHead} htmlFor="shake-call"><TownIcon name="chat" size={16} />{th ? "เรียกเพื่อนทั้งเมือง" : "Call the whole town"}</label>
             <div className={g.callRow}><input id="shake-call" className={g.input} value={text} maxLength={GIANT.callLen} placeholder={th ? "พิมพ์เรียกเพื่อนมาถือผ้า" : "Call a friend to hold the sheet"} onChange={(e) => setText(e.target.value)} disabled={callsLeft <= 0} />
