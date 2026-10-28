@@ -6,7 +6,7 @@
   "mounts": 61,
   "minions": 227,
   "rare": null,
-  "level": 98,
+  "level": 70,
   "cc": [
    false,
    false,
@@ -2298,7 +2298,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 66,
+  "level": 67,
   "cc": [
    true,
    true,
@@ -2345,7 +2345,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-27"
+  "chg": "2026-10-28"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -3645,7 +3645,7 @@
   "mounts": 65,
   "minions": 131,
   "rare": 57,
-  "level": 67,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3848,9 +3848,9 @@
    "Gunbreaker": "expert",
    "Ninja": "expert",
    "Reaper": "legendary",
+   "Machinist": "legendary",
    "Bard": "expert",
-   "Dancer": "expert",
-   "Machinist": "legendary"
+   "Dancer": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -3877,7 +3877,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 68,
-  "level": 100,
+  "level": 91,
   "cc": [
    true,
    true,
@@ -5677,7 +5677,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 100,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -5799,7 +5799,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-10-26"
+  "chg": "2026-10-27"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -6885,7 +6885,7 @@
   "mounts": 60,
   "minions": 114,
   "rare": 4,
-  "level": 92,
+  "level": 41,
   "cc": [
    false,
    false,
@@ -6949,7 +6949,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 65,
+  "level": 69,
   "cc": [
    false,
    false,
@@ -6962,7 +6962,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-26"
+  "chg": "2026-10-28"
  },
  "53933347": {
   "name": "Little Alyss",
@@ -6993,7 +6993,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 77,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7334,7 +7334,7 @@
   "mounts": 70,
   "minions": 104,
   "rare": 57,
-  "level": 56,
+  "level": 68,
   "cc": [
    false,
    false,
@@ -8764,7 +8764,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 97,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -8910,7 +8910,7 @@
   "mounts": 4,
   "minions": 7,
   "rare": null,
-  "level": 73,
+  "level": 74,
   "cc": [
    false,
    false,
@@ -8923,7 +8923,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-24"
+  "chg": "2026-10-27"
  },
  "44085912": {
   "name": "Mayu Ferguson",

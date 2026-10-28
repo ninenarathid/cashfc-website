@@ -12,6 +12,7 @@ import { newPurse, put, type Purse } from "./trade";
 import { dayStart, newHerd, type Animal } from "./animals";
 import type { ItemId } from "./items";
 import type { WagonRun } from "./animal-act";
+import { toldOf } from "./hints";
 
 const NOW = dayStart(20_380) + 3 * 3_600_000;
 const animal = (over: Partial<Animal> = {}): Animal => ({
@@ -100,6 +101,15 @@ describe("the trial's pasture", () => {
     expect(given.home).toBe("barn");
     t.animalWagon();
     expect(t.animalWorld().wagons).toHaveLength(1);
+  });
+  it("keeps a breed's scroll read among the purse's recipes, and out of the cook's book", () => {
+    const t = new Trial(`tester-${Math.random()}`, { memoryOnly: true });
+    t.fished({ ...t.purse(), bag: put(t.purse().bag, "scrollBreedChickenC" as ItemId, 1) });
+    expect(t.animals({ action: "read", item: "scrollBreedChickenC" }).ok).toBe(true);
+    expect(t.purse().recipes).toContain("scrollBreedChickenC");
+    expect(t.knownMakes()).not.toContain("scrollBreedChickenC");
+    // (the kitchen and the workbench tell every recipe of the book as they open: one that is no recipe broke them)
+    expect(() => [...t.known(), ...t.knownMakes()].map((id) => toldOf(id))).not.toThrow();
   });
 });
 

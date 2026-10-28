@@ -76,7 +76,7 @@ import * as Shops from "./shop";
 import { buyHint, hintPrice, hintsLeft } from "./hints";
 import * as Notices from "./notices";
 import { MARKET, counted, factorOf, factsOf, farmPricesOf, newMarket, pricesTold, rolled, type Logged, type Market, type MarketQuote, type PricesTold } from "./market";
-import { CROPS, CROP_IDS, DISHES, ITEMS, STAGES, STAGE_AT, type BaitId, type CatchId, type DishId, type ItemId } from "./items";
+import { CROPS, CROP_IDS, DISHES, ITEMS, MAKES, STAGES, STAGE_AT, type BaitId, type CatchId, type DishId, type ItemId } from "./items";
 import { UNLOCKS, give, newVillage, orderOf, shelfOf, sourcesAt, type Order, type Village } from "./orders";
 import { count, keep, newTally, type Play, type Tally } from "./plays";
 import { open } from "./scrolls";
@@ -1665,7 +1665,7 @@ export class Trial {
     const p = this.purse();
     return [...new Set<ItemId>([...p.recipes, ...this.found()])].filter((id): id is DishId => id in DISHES);
   }
-  knownMakes(): ItemId[] { const p = this.purse(); return [...new Set<ItemId>([...(p.made ?? []), ...p.recipes, ...this.found()])].filter((id) => !(id in DISHES)); }
+  knownMakes(): ItemId[] { const p = this.purse(); return [...new Set<ItemId>([...(p.made ?? []), ...p.recipes, ...this.found()])].filter((id) => !!MAKES[id]); }
   /** Whether putting some things together would be refused, and why (nothing is done). */
   cookTry(things: Array<[ItemId, number]>, crew: Array<ItemId | null>): Refusal | null {
     const did = cook(this.purse(), things, crew, 0, this.now());
