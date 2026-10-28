@@ -45,6 +45,7 @@ const REFUSED: Partial<Record<BoardRefusal, [string, string]>> = {
   many: ["เรียกครบ 3 ครั้งแล้ว", "Three calls already"], long: ["ยาวเกิน 120 ตัวอักษร", "Longer than 120 letters"], empty: ["พิมพ์ข้อความก่อน", "Type something first"], none: ["ตอนนี้ไม่มีแมลงที่นี่", "Nothing here now"],
 };
 const CHIPS: Array<[string, string]> = [["มาด่วน!", "Quick!"], ["ขอคนถือผ้า 1 คน", "One to hold the sheet, please"]];
+const clock = (ms: number) => { const sec = Math.max(0, Math.ceil(ms / 1000)); return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`; };
 
 function put(ctx: CanvasRenderingContext2D, img: HTMLImageElement, name: Piece, cx: number, cy: number) {
   const [x, y, w, h] = ART.icons[name];
@@ -85,9 +86,14 @@ export default function TownBoardInsects({ me, myName, keeper, th, here, hour, p
   const [busy, setBusy] = useState(false);
   const [said, setSaid] = useState<string | null>(null);
   const [text, setText] = useState("");
+  // (the shaker's call folded to a pill while it waits for a holder: the owner's "ข เอา", 2026-10-28)
+  const [small, setSmall] = useState<string | null>(null);
   const [, tick] = useState(0);
   const lang = th ? 0 : 1, now = keeper.now(), turn = turnOf(now), pos = here(), at: [number, number] | null = pos ? [Math.floor(pos.x), Math.floor(pos.y)] : null;
-  const say = (why: BoardRefusal) => setSaid(REFUSED[why]?.[lang] ?? (th ? "ทำไม่ได้ตอนนี้" : "Not now"));
+  // (when the spots hold something new: every refusal of a spot had or empty says it, so the turns can be learnt)
+  const nextIn = clock(BOARD.turn - (((now % BOARD.turn) + BOARD.turn) % BOARD.turn));
+  const say = (why: BoardRefusal) => setSaid((REFUSED[why]?.[lang] ?? (th ? "ทำไม่ได้ตอนนี้" : "Not now")) + (why === "taken" || why === "none" ? (th ? ` · รอบใหม่ใน ${nextIn}` : ` · new ones in ${nextIn}`) : ""));
+  const turnWords = th ? `แมลงในใบม้วนและบนกิ่งเปลี่ยนทุก 15 นาที · รอบใหม่ใน ${nextIn}` : `Leaves and branches hold new insects every 15 minutes · next in ${nextIn}`;
 
   const read = useCallback(async () => { const b = await keeper.boardsNow?.(); if (b) { setTurns(b.turns); setShakes(b.shakes); } }, [keeper]);
   useEffect(() => {
@@ -104,6 +110,9 @@ export default function TownBoardInsects({ me, myName, keeper, th, here, hour, p
   const holds = (spot: BoardSpot) => heldAt(spot, turn).length > 0 && (spot.board === "roll" ? !taken(spot) : !spent(spot));
   const mine = shakes.find((x) => (x.by === me || x.holder === me) && !shut.includes(x.id) && (!x.end || (x.caught > 0 && !x.claimed.includes(me)) || now - x.end < 8_000) && (x.go > 0 || now < x.at + BOARD.call)) ?? null;
   const role: "shaker" | "holder" | null = mine ? (mine.by === me ? "shaker" : "holder") : null;
+  // (while my call waits, read the trees every two seconds as well as at the room's word: the holder's join starts the shake)
+  const callingMine = mine && role === "shaker" && mine.go === 0 && !mine.end ? mine.id : null;
+  useEffect(() => { if (!callingMine) return; const id = setInterval(() => void read(), 2_000); return () => clearInterval(id); }, [callingMine, read]);
 
   // ── the map: a rolled leaf on a bush, a twig with beetles on a tree, where one holds something this turn ──
   const marks = useRef({ turns, shakes }); marks.current = { turns, shakes };
@@ -151,7 +160,7 @@ export default function TownBoardInsects({ me, myName, keeper, th, here, hour, p
     try {
       const did = await keeper.boardRoll?.("open", spot.id, at);
       if (!did) return;
-      if (!did.ok) { say(did.why as BoardRefusal); return; }
+      if (!did.ok) { if (did.why === "busy") setSaid(th ? "มีคนกำลังแกะใบนี้อยู่ รอสักครู่" : "Somebody is unrolling this one: a moment"); else say(did.why as BoardRefusal); return; }
       setRoll({ spot: spot.id, turn: did.turn, held: did.held ?? heldAt(spot, turn)[0], cut: SEAMS.map(() => false), opened: keeper.now(), startled: 0 });
     } finally { setBusy(false); }
   };
@@ -357,6 +366,7 @@ export default function TownBoardInsects({ me, myName, keeper, th, here, hour, p
           {!open && <div className={g.tag}>{th ? `ตัดใยแล้ว ${SEAMS.length - left}/${SEAMS.length}` : `Seams cut ${SEAMS.length - left}/${SEAMS.length}`}</div>}
         </div>
         {roll.got ? <div role="status" className={s.done}><p className={s.big}>{th ? "ได้ " : "Got "}<span className={s.got}><TownIcon name={roll.got as IconName} size={22} />{nameOf(roll.got, th)}</span></p>
+            <p className={g.left}>{turnWords}</p>
             <button type="button" className={`${WOOD} w-full`} onClick={() => setRoll(null)}>{th ? "ปิด" : "Close"}</button></div>
           : open ? <div className={s.row}><button type="button" data-board-cup className={`${GREEN} flex-1`} disabled={busy || wait > 0} onClick={() => void cupRoll()}><TownIcon name="jar" size={22} />{wait > 0 ? (th ? "ค่อยๆ ครอบ…" : "Gently…") : th ? `ครอบ${nameOf(roll.held, th)}` : `Cup the ${nameOf(roll.held, th).toLowerCase()}`}</button></div>
           : <p className={g.hint}>{th ? "ลากตามใยสีขาวทีละเส้นเพื่อตัด (ลากขวางใบ ตัวข้างในจะตกใจ)" : "Drag along each white seam to cut it (across the leaf startles what is inside)"}</p>}
@@ -372,9 +382,16 @@ export default function TownBoardInsects({ me, myName, keeper, th, here, hour, p
       <li className={g.mate} data-me={mine.holder === me || undefined} data-free={!mine.holder || undefined}><b><TownIcon name="beatSheet" size={14} />{mine.holder ? (mine.holder === me ? (th ? "คุณ" : "You") : mine.holderName) : (th ? "ว่าง" : "Free")}</b><em>{th ? "ถือผ้า" : "Sheet"}</em></li>
     </ul>;
     const ended = !!mine.end || (mine.go > 0 && now > mine.go + BOARD.shake + 5_000), shakeLeft = mine.go > 0 ? mine.go + BOARD.shake - now : 0;
+    if (calling && role === "shaker" && small === mine.id) return <TownFoot rank="chip" order={28}>
+      <button className={`${OPEN} ${g.pill}`} data-board-small onClick={() => setSmall(null)} aria-label={th ? "เปิดกระดานเขย่ากิ่ง" : "Open the shake's board"}>
+        <TownIcon name="twigBugs" size={26} /><span>{th ? "รอคนถือผ้า" : "Waiting for a sheet holder"}<small> · {clock(mine.at + BOARD.call - now)}</small></span>
+        <TownIcon name="chevron" size={12} className="rotate-180" />
+      </button>
+    </TownFoot>;
     return <TownFoot rank="board" wide order={62}>
       <section className={`tk tk-plate pointer-events-auto ${s.panel} ${g.fit}`} data-board-insects={calling ? "call" : ended ? "over" : role} aria-label={th ? "เขย่ากิ่ง" : "Shaking a branch"}>
         <header className={s.title}><TownIcon name="twigBugs" size={26} /><h3 className="font-display text-ui font-semibold">{ended ? (mine.caught ? (th ? "ได้แมลง!" : "Caught!") : (th ? "แมลงหนีไปหมด" : "They all got away")) : role === "holder" ? (th ? "เขย่ากิ่ง · ถือผ้า" : "Shaking · the sheet") : (th ? "เขย่ากิ่ง" : "Shaking a branch")}</h3>
+          {calling && role === "shaker" && <button type="button" className={`${WOOD} ml-auto flex items-center gap-1.5`} data-board-fold onClick={() => setSmall(mine.id)}>{th ? "พับเก็บ" : "Fold away"}<TownIcon name="chevron" size={12} /></button>}
           {(ended || calling) && <button type="button" className={`${WOOD} grid min-w-11 place-items-center px-0`} aria-label={th ? "ปิด" : "Close"} onClick={() => setShut((was) => [...was, mine.id])}><TownIcon name="close" size={16} /></button>}</header>
         {!calling && <div className={s.stage}>
           <canvas ref={shakeCanvas} width={SW} height={SH} className={`${s.canvas} ${g.scene}`} style={{ aspectRatio: `${SW} / ${SH}`, touchAction: "none" }} onPointerDown={onTap} />
@@ -401,7 +418,8 @@ export default function TownBoardInsects({ me, myName, keeper, th, here, hour, p
           <p className={g.hint}>{th ? "รับแมลงที่ร่วงลงมา เพื่อนจะแตะครอบตัวที่วิ่งบนผ้า" : "Catch what falls; your friend cups what runs on the sheet"}<span className={g.keys}> · ← →</span></p>
         </>}
         {ended && <div role="status" className={s.done}>
-          {mine.caught > 0 ? <p>{mine.claimed.includes(me) ? (th ? "ได้แมลงคนละ 1 ตัวแล้ว" : "One insect each") : (th ? "กำลังรับแมลง…" : "Taking yours…")}</p> : <p>{th ? "ลองใหม่ได้ ถ้าต้นนี้ยังมีแมลง" : "Try again while the tree still has some"}</p>}
+          {mine.caught > 0 ? <p>{!mine.claimed.includes(me) ? (th ? "กำลังรับแมลง…" : "Taking yours…") : mine.caught >= BOARD.drops ? (th ? "รับได้ครบ 2 ตัว ได้แมลงคนละ 2 ตัว!" : "Both caught: two insects each!") : (th ? "ได้แมลงคนละ 1 ตัวแล้ว · รับครบ 2 ตัวจะได้คนละ 2" : "One insect each · catch both for two each")}</p> : <p>{th ? "ลองใหม่ได้ ถ้าต้นนี้ยังมีแมลง" : "Try again while the tree still has some"}</p>}
+          <p className={g.left}>{turnWords}</p>
           {/* (refused, a full bag say: taken again by hand once there is room) */}
           {mine.caught > 0 && !mine.claimed.includes(me) && claimedRef.current === mine.id && !busy && <button type="button" className={`${GREEN} w-full`} onClick={() => void shakeDo("claim", spot, { id: mine.id })}>{th ? "รับแมลงอีกครั้ง" : "Take it again"}</button>}
         </div>}

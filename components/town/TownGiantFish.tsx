@@ -89,6 +89,8 @@ export default function TownGiantFish({ me, myName, keeper, th, here, hour, pair
   // (every board I have closed: closing a second must not bring back the first, nor hide a join while it is shown)
   const [shut, setShut] = useState<string[]>([]);
   const [steak, setSteak] = useState<string | null>(null);
+  // (the waiting board folded to a pill: the owner's "ข เอา", 2026-10-28; it opens itself when the netter joins)
+  const [small, setSmall] = useState<string | null>(null);
   const [, tick] = useState(0);
   const lang = th ? 0 : 1, now = keeper.now(), pos = here(), at: [number, number] | null = pos ? [Math.floor(pos.x), Math.floor(pos.y)] : null;
 
@@ -106,6 +108,9 @@ export default function TownGiantFish({ me, myName, keeper, th, here, hour, pair
   const live = giants.map((h) => settled(h, now));
   const mine = live.find((h) => (h.by === me || h.netter === me) && !shut.includes(h.id) && (!h.how || now - h.end < GIANT.after)) ?? null;
   const role: "angler" | "netter" | null = mine ? (mine.by === me ? "angler" : "netter") : null;
+  // (while my giant waits, read it every two seconds as well as at the room's word: the fight's count-in is three)
+  const waitingMine = !!mine && role === "angler" && holding(mine, now) ? mine.id : null;
+  useEffect(() => { if (!waitingMine) return; const id = setInterval(() => void read(), 2_000); return () => clearInterval(id); }, [waitingMine, read]);
   const waiting = live.filter((h) => holding(h, now) && h.by !== me);
   const near = waiting.find((h) => at && Math.max(Math.abs(at[0] - h.tile[0]), Math.abs(at[1] - h.tile[1])) <= GIANT.reach) ?? null;
   const far = !mine && !near ? waiting.slice().sort((a, b) => dist(a) - dist(b))[0] ?? null : null;
@@ -366,11 +371,18 @@ export default function TownGiantFish({ me, myName, keeper, th, here, hour, pair
     <li className={g.mate} data-me={mine.netter === me || undefined} data-free={!mine.netter || undefined}><b><TownIcon name="netLong" size={14} />{mine.netter ? (mine.netter === me ? (th ? "คุณ" : "You") : mine.netterName) : (th ? "ว่าง" : "Free")}</b><em>{th ? "คนช้อน" : "Netter"}</em></li>
   </ul>;
   const lostWords = mine.how === "broke" ? (th ? "สายขาด ปลายักษ์หลุดไปแล้ว" : "The line broke and the giant is gone") : mine.how === "freed" ? (th ? "ปล่อยปลายักษ์ไปแล้ว" : "You let the giant go") : mine.go === 0 ? (th ? "ไม่มีใครมาช้อนทัน ปลายักษ์ดิ้นหลุดไป" : "Nobody came to net it in time: it got away") : (th ? "หมดเวลา ปลายักษ์ดิ้นหลุดไป" : "Time ran out and the giant got away");
+  if (hold && role === "angler" && small === mine.id) return <TownFoot rank="chip" order={28}>
+    <button className={`${OPEN} ${g.pill}`} data-giant-fish-small onClick={() => setSmall(null)} aria-label={th ? "เปิดกระดานปลายักษ์" : "Open the giant's board"}>
+      <TownIcon name="giantBoil" size={26} /><span>{th ? "ปลายักษ์รอเพื่อน" : "Your giant waits"}<small> · {clock(left)}</small></span>
+      <TownIcon name="chevron" size={12} className="rotate-180" />
+    </button>
+  </TownFoot>;
   return <TownFoot rank="board" wide order={62}>
     <section className={`tk tk-plate pointer-events-auto ${s.panel} ${g.fit}`} data-giant-fish={tag} aria-label={th ? "ปลายักษ์" : "A giant fish"}>
       <header className={s.title}>
         <TownIcon name={mine.how === "landed" ? (mine.giant as IconName) : "giantBoil"} size={26} />
         <h3 className="font-display text-ui font-semibold">{mine.how === "landed" ? (th ? "ได้ปลายักษ์!" : "Landed!") : hold ? (th ? "ปลายักษ์ติดเบ็ด!" : "A giant on the line!") : ended ? (th ? "ปลายักษ์หลุดไป" : "The giant got away") : role === "angler" ? (th ? "ปลายักษ์ · พาเข้าสวิง" : "The giant · lead it in") : (th ? "ปลายักษ์ · ช้อน" : "The giant · net it")}</h3>
+        {hold && role === "angler" && <button type="button" className={`${WOOD} ml-auto flex items-center gap-1.5`} data-giant-fish-fold onClick={() => setSmall(mine.id)}>{th ? "พับเก็บ" : "Fold away"}<TownIcon name="chevron" size={12} /></button>}
         {ended && <button type="button" className={`${WOOD} grid min-w-11 place-items-center px-0`} aria-label={th ? "ปิด" : "Close"} onClick={() => { setShut((was) => [...was, mine.id]); setSteak(null); }}><TownIcon name="close" size={16} /></button>}
       </header>
       <div className={s.stage}>
