@@ -222,7 +222,9 @@ export default function TownBoardInsects({ me, myName, keeper, th, here, hour, p
       .filter((f) => !r.cut[f.k] && f.inside >= 0.6 && f.along >= 0.6).sort((a, b) => a.d - b.d);
     const i = fits.length ? fits[0].k : -1;
     if (i >= 0) { setRoll({ ...r, cut: r.cut.map((c, k) => c || k === i) }); setSaid(null); return; }
-    if (path.some((p) => p.y > 100 && p.y < 118 && p.x > 60 && p.x < 268)) { stroke.current = path; setRoll({ ...r, startled: performance.now() }); setSaid(th ? "ลากขวางใบ ตัวข้างในตกใจ รอแป๊บ" : "Across the leaf: what is inside is startled. Wait a moment"); }
+    if (path.some((p) => p.y > 100 && p.y < 118 && p.x > 60 && p.x < 268)) { stroke.current = path; setRoll({ ...r, startled: performance.now() }); setSaid(th ? "ลากขวางใบ ตัวข้างในตกใจ รอแป๊บ" : "Across the leaf: what is inside is startled. Wait a moment"); return; }
+    // (a stroke that cut nothing is said, not let pass in silence: Codex's play look)
+    setSaid(th ? "ยังไม่ขาด ลากให้ทับใยสีขาว ยาวเกือบสุดเส้น" : "Not cut: follow a white seam along most of its length");
   };
 
   // ── the shake: the holder's page keeps what falls; the shaker's bends and taps ──
@@ -357,7 +359,7 @@ export default function TownBoardInsects({ me, myName, keeper, th, here, hour, p
         {roll.got ? <div role="status" className={s.done}><p className={s.big}>{th ? "ได้ " : "Got "}<span className={s.got}><TownIcon name={roll.got as IconName} size={22} />{nameOf(roll.got, th)}</span></p>
             <button type="button" className={`${WOOD} w-full`} onClick={() => setRoll(null)}>{th ? "ปิด" : "Close"}</button></div>
           : open ? <div className={s.row}><button type="button" data-board-cup className={`${GREEN} flex-1`} disabled={busy || wait > 0} onClick={() => void cupRoll()}><TownIcon name="jar" size={22} />{wait > 0 ? (th ? "ค่อยๆ ครอบ…" : "Gently…") : th ? `ครอบ${nameOf(roll.held, th)}` : `Cup the ${nameOf(roll.held, th).toLowerCase()}`}</button></div>
-          : !said && <p className={g.hint}>{th ? "ลากตามใยสีขาวทีละเส้นเพื่อตัด (ลากขวางใบ ตัวข้างในจะตกใจ)" : "Drag along each white seam to cut it (across the leaf startles what is inside)"}</p>}
+          : <p className={g.hint}>{th ? "ลากตามใยสีขาวทีละเส้นเพื่อตัด (ลากขวางใบ ตัวข้างในจะตกใจ)" : "Drag along each white seam to cut it (across the leaf startles what is inside)"}</p>}
         {said && <p role="status" className={s.said}>{said}</p>}
       </section>
     </TownFoot>;
