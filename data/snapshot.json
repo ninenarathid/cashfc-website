@@ -35,7 +35,7 @@
   "ult": 5,
   "mounts": 285,
   "minions": 487,
-  "rare": 500,
+  "rare": 499,
   "level": 100,
   "cc": [
    true,
@@ -174,7 +174,7 @@
    "The Epic of Alexander",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-10-15"
+  "chg": "2026-10-29"
  },
  "3968346": {
   "name": "Panuz Chocobunny",
@@ -674,7 +674,6 @@
    3763,
    3765,
    3766,
-   3767,
    3770,
    3771,
    3778,
@@ -714,6 +713,7 @@
    3885,
    3886,
    3887,
+   3898,
    3899,
    3921,
    3922,
@@ -1064,13 +1064,13 @@
    3960,
    3961,
    3964,
-   3966,
    3967,
    3968,
    3969,
    3997,
    4000,
    4005,
+   4007,
    4008,
    4015,
    4018,
@@ -1247,7 +1247,7 @@
   "ult": 5,
   "mounts": 131,
   "minions": 337,
-  "rare": 125,
+  "rare": 124,
   "level": 100,
   "cc": [
    true,
@@ -1382,7 +1382,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-28"
+  "chg": "2026-10-29"
  },
  "44970350": {
   "name": "Allen Crist",
@@ -2299,7 +2299,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 80,
+  "level": 90,
   "cc": [
    true,
    true,
@@ -2620,7 +2620,7 @@
   "ult": 3,
   "mounts": 77,
   "minions": 137,
-  "rare": 16,
+  "rare": 15,
   "level": 100,
   "cc": [
    true,
@@ -2630,7 +2630,6 @@
    true
   ],
   "rare_ids": [
-   1659,
    1660,
    1952,
    2054,
@@ -2671,7 +2670,7 @@
    "The Epic of Alexander",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-09-10"
+  "chg": "2026-10-29"
  },
  "30864049": {
   "name": "Lay Stardust",
@@ -2679,7 +2678,7 @@
   "ult": 7,
   "mounts": 205,
   "minions": 254,
-  "rare": 222,
+  "rare": 221,
   "level": 100,
   "cc": [
    true,
@@ -2824,7 +2823,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-08"
+  "chg": "2026-10-29"
  },
  "34509521": {
   "name": "Liliya Quintilis",
@@ -4344,7 +4343,7 @@
   "ult": 3,
   "mounts": 265,
   "minions": 338,
-  "rare": 536,
+  "rare": 535,
   "level": 100,
   "cc": null,
   "rare_ids": [
@@ -4372,6 +4371,7 @@
    2356,
    2515,
    2518,
+   2524,
    2525,
    2526,
    2754,
@@ -4437,7 +4437,6 @@
    3833,
    3834,
    3835,
-   3952,
    3962,
    3963,
    4000,
@@ -4465,7 +4464,7 @@
    "The Omega Protocol",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-28"
+  "chg": "2026-10-29"
  },
  "29998658": {
   "name": "Shippei Astana",
@@ -4491,6 +4490,7 @@
    2393,
    2766,
    2862,
+   2865,
    2991,
    3049,
    3050,
@@ -4565,7 +4565,6 @@
    3922,
    3923,
    3924,
-   3925,
    3937,
    3938,
    3939,
@@ -6886,7 +6885,7 @@
   "mounts": 61,
   "minions": 116,
   "rare": 5,
-  "level": 100,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -6912,7 +6911,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-28"
+  "chg": "2026-10-29"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -6951,7 +6950,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 71,
+  "level": 60,
   "cc": [
    false,
    false,
@@ -7336,7 +7335,7 @@
   "mounts": 70,
   "minions": 104,
   "rare": 57,
-  "level": 68,
+  "level": 76,
   "cc": [
    false,
    false,
@@ -7413,7 +7412,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-27"
+  "chg": "2026-10-29"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -7909,7 +7908,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 97,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -7954,7 +7953,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-27"
+  "chg": "2026-10-29"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -8380,7 +8379,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 100,
+  "level": 83,
   "cc": [
    false,
    false,
@@ -8393,7 +8392,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-25"
+  "chg": "2026-10-29"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -8912,7 +8911,7 @@
   "mounts": 4,
   "minions": 7,
   "rare": null,
-  "level": 74,
+  "level": 75,
   "cc": [
    false,
    false,
@@ -8925,7 +8924,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-27"
+  "chg": "2026-10-29"
  },
  "44085912": {
   "name": "Mayu Ferguson",
@@ -8961,7 +8960,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 69,
+  "level": 59,
   "cc": [
    false,
    false,
@@ -8977,7 +8976,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-25"
+  "chg": "2026-10-29"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -10071,8 +10070,8 @@
   "name": "Baron Master",
   "parse": 85,
   "ult": 0,
-  "mounts": 65,
-  "minions": 154,
+  "mounts": null,
+  "minions": null,
   "rare": 13,
   "level": 100,
   "cc": [

@@ -1,6 +1,34 @@
 {
  "events": [
   {
+   "date": "2026-10-29",
+   "type": "rare_up",
+   "id": 29152036,
+   "name": "Fluffy Tinytail",
+   "text": "earned Stranger than Fiction"
+  },
+  {
+   "date": "2026-10-29",
+   "type": "rare_up",
+   "id": 38152072,
+   "name": "Parker Thonhart",
+   "text": "earned A Show of Fork II — only 2.9% of players have it"
+  },
+  {
+   "date": "2026-10-29",
+   "type": "rare_up",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "earned Handking of the World — only 2.4% of players have it"
+  },
+  {
+   "date": "2026-10-29",
+   "type": "rare_up",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "earned Fit for a Queen: Blade's Muse"
+  },
+  {
    "date": "2026-10-28",
    "type": "rare_up",
    "id": 3968346,
@@ -1371,34 +1399,6 @@
    "id": 38488824,
    "name": "Daffodil Amary",
    "text": "cleared Valigarmanda (Extreme)"
-  },
-  {
-   "date": "2026-10-15",
-   "type": "ex_clear",
-   "id": 38488824,
-   "name": "Daffodil Amary",
-   "text": "cleared Zoraal Ja (Extreme)"
-  },
-  {
-   "date": "2026-10-15",
-   "type": "ex_clear",
-   "id": 47218599,
-   "name": "Kawa Lynn",
-   "text": "cleared Valigarmanda (Extreme)"
-  },
-  {
-   "date": "2026-10-15",
-   "type": "level_100",
-   "id": 47218599,
-   "name": "Kawa Lynn",
-   "text": "reached level 100 on Dark Knight!"
-  },
-  {
-   "date": "2026-10-15",
-   "type": "parse_up",
-   "id": 60852230,
-   "name": "Lucien Rhul",
-   "text": "set a new best parse: 15 on Valigarmanda as Dar\u0001 \u0002night"
   }
  ]
 }
