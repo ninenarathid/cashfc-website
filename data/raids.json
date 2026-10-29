@@ -28883,11 +28883,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 21.26,
+    "pct": 17.57,
     "phase": 3,
-    "pulls": 21,
-    "last": "2026-10-18",
-    "last_ts": 1792342200
+    "pulls": 30,
+    "last": "2026-10-29",
+    "last_ts": 1793293541
    }
   ]
  },
@@ -35941,11 +35941,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 21.26,
+    "pct": 17.57,
     "phase": 3,
-    "pulls": 23,
-    "last": "2026-10-18",
-    "last_ts": 1792342200
+    "pulls": 30,
+    "last": "2026-10-29",
+    "last_ts": 1793293541
    }
   ]
  },
@@ -36872,7 +36872,20 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 1085,
+    "name": "Dancing Mad",
+    "kind": "ultimate",
+    "state": "learning",
+    "pct": 60.4,
+    "phase": 1,
+    "pulls": 2,
+    "last": "2026-10-28",
+    "last_ts": 1793197089
+   }
+  ]
  },
  "29162543": {
   "current": {

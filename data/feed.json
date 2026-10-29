@@ -2,6 +2,20 @@
  "events": [
   {
    "date": "2026-10-29",
+   "type": "level_100",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-10-29",
+   "type": "level_100",
+   "id": 60852230,
+   "name": "Lucien Rhul",
+   "text": "reached level 100 on Sage!"
+  },
+  {
+   "date": "2026-10-29",
    "type": "rare_up",
    "id": 29152036,
    "name": "Fluffy Tinytail",
@@ -1385,20 +1399,6 @@
    "id": 44085912,
    "name": "Mayu Ferguson",
    "text": "set a new best parse: 22 on Zoraal Ja as Reaper"
-  },
-  {
-   "date": "2026-10-15",
-   "type": "parse_up",
-   "id": 38488824,
-   "name": "Daffodil Amary",
-   "text": "set a new best parse: 43 on Zoraal Ja as Machinist"
-  },
-  {
-   "date": "2026-10-15",
-   "type": "ex_clear",
-   "id": 38488824,
-   "name": "Daffodil Amary",
-   "text": "cleared Valigarmanda (Extreme)"
   }
  ]
 }
