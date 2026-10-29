@@ -226,7 +226,7 @@
    "world": "Tonberry",
    "dc": "Elemental",
    "fc": "Fat Cat",
-   "seen": "2026-10-22",
+   "seen": "2026-10-29",
    "mounts": 100,
    "minions": 170,
    "rare_achv": 140,
@@ -1627,7 +1627,7 @@
    "world": "Tonberry",
    "dc": "Elemental",
    "fc": "Eidolons",
-   "seen": "2026-10-22",
+   "seen": "2026-10-29",
    "mounts": 134,
    "minions": 170,
    "rare_achv": null,
@@ -1983,6 +1983,6 @@
    "stats_seen": "2026-10-29"
   }
  },
- "generated_at": "2026-10-28T22:30:37Z",
+ "generated_at": "2026-10-29T06:19:18Z",
  "count": 16
 }
