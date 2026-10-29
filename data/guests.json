@@ -77,9 +77,9 @@
     "state": "learning",
     "pct": 27.79,
     "phase": 4,
-    "pulls": 53,
-    "last": "2026-10-27",
-    "last_ts": 1793112998
+    "pulls": 68,
+    "last": "2026-10-28",
+    "last_ts": 1793199765
    },
    "progress_all": [
     {
@@ -89,9 +89,9 @@
      "state": "learning",
      "pct": 27.79,
      "phase": 4,
-     "pulls": 53,
-     "last": "2026-10-27",
-     "last_ts": 1793112998
+     "pulls": 68,
+     "last": "2026-10-28",
+     "last_ts": 1793199765
     }
    ],
    "job_top": {
@@ -218,7 +218,7 @@
     }
    },
    "fflogs": "ok",
-   "stats_seen": "2026-10-28",
+   "stats_seen": "2026-10-29",
    "lode_achv_public": true
   },
   "31441339": {
@@ -453,7 +453,7 @@
     }
    },
    "fflogs": "ok",
-   "stats_seen": "2026-10-28",
+   "stats_seen": "2026-10-29",
    "lode_achv_public": true
   },
   "42349146": {
@@ -569,7 +569,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-10-28"
+   "stats_seen": "2026-10-29"
   },
   "27788858": {
    "name": "Stole Your'cat",
@@ -636,7 +636,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-10-28"
+   "stats_seen": "2026-10-29"
   },
   "49339655": {
    "name": "Kaozuai Xino",
@@ -724,7 +724,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-10-28"
+   "stats_seen": "2026-10-29"
   },
   "48097900": {
    "name": "Neyrah's Yvaine",
@@ -956,7 +956,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-10-28"
+   "stats_seen": "2026-10-29"
   },
   "31445625": {
    "name": "Empress Killer",
@@ -1127,7 +1127,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-10-28"
+   "stats_seen": "2026-10-29"
   },
   "58744659": {
    "name": "Laira Thalor",
@@ -1212,7 +1212,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-10-28"
+   "stats_seen": "2026-10-29"
   },
   "43284378": {
    "name": "Busy Party",
@@ -1360,7 +1360,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-10-28",
+   "stats_seen": "2026-10-29",
    "mounts": 114,
    "minions": 328,
    "rare_achv": 122,
@@ -1435,7 +1435,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": false,
-   "stats_seen": "2026-10-28",
+   "stats_seen": "2026-10-29",
    "mounts": 63,
    "minions": 125,
    "rare_achv": null,
@@ -1522,7 +1522,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-10-28"
+   "stats_seen": "2026-10-29"
   },
   "35413272": {
    "name": "Poppy Lydian",
@@ -1620,7 +1620,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-10-28"
+   "stats_seen": "2026-10-29"
   },
   "22590312": {
    "name": "Siegcross Avalontear",
@@ -1653,7 +1653,7 @@
    ],
    "ult_achv": [],
    "ult_achv_only": [],
-   "legacy_clears": 14,
+   "legacy_clears": 18,
    "ex_cleared": [
     "Doomtrain",
     "Enuo",
@@ -1702,11 +1702,11 @@
      "hardest": "ultimate"
     },
     "Paladin": {
-     "fights": 13,
-     "kills": 100,
-     "parse": 88.2,
-     "score": 88.2,
-     "tier": "master",
+     "fights": 17,
+     "kills": 146,
+     "parse": 92.0,
+     "score": 92.0,
+     "tier": "legendary",
      "hardest": "ultimate"
     },
     "BlackMage": {
@@ -1736,7 +1736,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": false,
-   "stats_seen": "2026-10-28"
+   "stats_seen": "2026-10-29"
   },
   "10769690": {
    "name": "Monkey Pub",
@@ -1768,7 +1768,7 @@
    ],
    "ult_achv": [],
    "ult_achv_only": [],
-   "legacy_clears": 14,
+   "legacy_clears": 18,
    "ex_cleared": [
     "Doomtrain",
     "Enuo",
@@ -1790,19 +1790,19 @@
    "progress_all": null,
    "job_top": {
     "job": "Dancer",
-    "fights": 27,
-    "kills": 191,
-    "parse": 81.7,
-    "score": 81.7,
+    "fights": 31,
+    "kills": 231,
+    "parse": 79.6,
+    "score": 79.6,
     "tier": "master",
     "hardest": "ultimate"
    },
    "job_scores": {
     "Dancer": {
-     "fights": 27,
-     "kills": 191,
-     "parse": 81.7,
-     "score": 81.7,
+     "fights": 31,
+     "kills": 231,
+     "parse": 79.6,
+     "score": 79.6,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -1849,7 +1849,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": false,
-   "stats_seen": "2026-10-28"
+   "stats_seen": "2026-10-29"
   },
   "61997211": {
    "name": "Punipi Puni",
@@ -1890,7 +1890,7 @@
    "job_scores": {},
    "fflogs": "none",
    "lode_achv_public": false,
-   "stats_seen": "2026-10-28"
+   "stats_seen": "2026-10-29"
   },
   "25854820": {
    "name": "Lex Snow",
@@ -1921,7 +1921,7 @@
    ],
    "ult_achv": [],
    "ult_achv_only": [],
-   "legacy_clears": 0,
+   "legacy_clears": 4,
    "ex_cleared": [
     "Doomtrain",
     "Enuo",
@@ -1944,11 +1944,11 @@
    "progress": null,
    "progress_all": null,
    "job_top": {
-    "job": "DarkKnight",
-    "fights": 8,
-    "kills": 76,
-    "parse": 99.2,
-    "score": 99.2,
+    "job": "Gunbreaker",
+    "fights": 9,
+    "kills": 196,
+    "parse": 99.9,
+    "score": 99.9,
     "tier": "legendary",
     "hardest": "ultimate"
    },
@@ -1970,17 +1970,17 @@
      "hardest": "ultimate"
     },
     "Gunbreaker": {
-     "fights": 5,
-     "kills": 120,
-     "parse": 98.7,
-     "score": 98.7,
+     "fights": 9,
+     "kills": 196,
+     "parse": 99.9,
+     "score": 99.9,
      "tier": "legendary",
      "hardest": "ultimate"
     }
    },
    "fflogs": "ok",
    "lode_achv_public": false,
-   "stats_seen": "2026-10-28"
+   "stats_seen": "2026-10-29"
   }
  },
  "generated_at": "2026-10-28T22:30:37Z",
