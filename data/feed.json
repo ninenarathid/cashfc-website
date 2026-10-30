@@ -2,6 +2,41 @@
  "events": [
   {
    "date": "2026-10-30",
+   "type": "rare_up",
+   "id": 29152036,
+   "name": "Fluffy Tinytail",
+   "text": "earned Phantom of the Umbra: War Scythe Umbrae"
+  },
+  {
+   "date": "2026-10-30",
+   "type": "rare_up",
+   "id": 38152072,
+   "name": "Parker Thonhart",
+   "text": "earned Behind Enemy Lines II — only 3.0% of players have it"
+  },
+  {
+   "date": "2026-10-30",
+   "type": "rare_up",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "earned Resplendent: Brilliant Saw"
+  },
+  {
+   "date": "2026-10-30",
+   "type": "level_100",
+   "id": 9444020,
+   "name": "Non Elemental",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-10-30",
+   "type": "rare_up",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "earned Clare Obscurum: Twinfangs Obscurum"
+  },
+  {
+   "date": "2026-10-30",
    "type": "level_100",
    "id": 28120733,
    "name": "Fukurou Under",
@@ -1364,41 +1399,6 @@
    "id": 29152036,
    "name": "Fluffy Tinytail",
    "text": "earned Phantom of the Umbra: War Scythe Umbrae"
-  },
-  {
-   "date": "2026-10-15",
-   "type": "rare_up",
-   "id": 44133352,
-   "name": "Seville Beoulve",
-   "text": "earned Crucible Checkmate III — only 2.3% of players have it"
-  },
-  {
-   "date": "2026-10-15",
-   "type": "parse_up",
-   "id": 34874723,
-   "name": "Allen Fliegen",
-   "text": "set a new best parse: 41 on Zoraal Ja as Samurai"
-  },
-  {
-   "date": "2026-10-15",
-   "type": "ex_clear",
-   "id": 34874723,
-   "name": "Allen Fliegen",
-   "text": "cleared Queen Eternal (Extreme)"
-  },
-  {
-   "date": "2026-10-15",
-   "type": "ex_clear",
-   "id": 34874723,
-   "name": "Allen Fliegen",
-   "text": "cleared Zoraal Ja (Extreme)"
-  },
-  {
-   "date": "2026-10-15",
-   "type": "ex_clear",
-   "id": 57519259,
-   "name": "Kertia Cruz",
-   "text": "cleared Queen Eternal (Extreme)"
   }
  ]
 }
