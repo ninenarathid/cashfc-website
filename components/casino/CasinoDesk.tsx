@@ -75,6 +75,7 @@ export default function CasinoDesk() {
         <label>{unit} ต่อครั้ง<input type="number" min={1} max={100000} value={draft.price} onChange={e => edit('price', Number(e.target.value))} /></label>
         {chips && <label>Popoto coin ต่อ 1 Casino Coin<input type="number" min={1} max={10000} value={draft.chip_rate} onChange={e => edit('chip_rate', Number(e.target.value))} /></label>}
         {chips && <label>Casino Coin ฟรีต่อคนต่อวัน (0 = ปิด)<input type="number" min={0} max={100000} value={draft.free_chips} onChange={e => edit('free_chips', Number(e.target.value))} /></label>}
+        {chips && state.settings.free_event_until && Date.now() < Date.parse(state.settings.free_event_until) && <p className="casino-chips-rate">ช่วงกิจกรรมแจกฟรี {(state.settings.free_event_chips ?? 0).toLocaleString('en-US')} ถึง {new Date(state.settings.free_event_until).toLocaleString('th-TH', { timeZone: 'Asia/Bangkok', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })} น. ช่องด้านบนคือวันปกติ</p>}
         {/* (no limit a player on how many spins: the owner, 2026-10-27, "หมุนกี่ครั้งก็ได้ ไม่จำกัด"; the live one is kept at its most) */}
         <label>งบ Gil ทั้งหมด<input type="number" min={settings.reserved} max={1e12} value={draft.budget} onChange={e => edit('budget', Number(e.target.value))} /></label>
         <label>สิทธิ์ในกองทั้งหมด<input type="number" disabled={draft.mode !== 'pool'} min={Math.max(1, settings.pool_draws)} max={1e7} value={draft.pool_size} onChange={e => edit('pool_size', Number(e.target.value))} /></label>

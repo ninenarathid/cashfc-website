@@ -186,6 +186,7 @@
 .casino-paytable{margin:7px 0}.casino-paytable>p{margin:0 0 4px}
 .casino-paytable-row{display:grid;grid-template-columns:100px 1fr;align-items:center;gap:8px;margin:3px 0!important;color:var(--color-ink);font-size:13px}
 .casino-paytable-row span:last-child{font-variant-numeric:tabular-nums}
+.casino-paytable-row.is-gone{opacity:.55}
 .casino-paytable-pair{display:inline-flex;gap:2px}.casino-paytable-pair .casino-symbol{width:22px;height:22px}
 .casino-paytable-desk{margin-top:18px}.casino-paytable-desk h3{font-size:16px;margin:0 0 6px}.casino-paytable-desk table{min-width:560px}
 .casino-paytable-desk .casino-paytable-pair .casino-symbol{width:26px;height:26px}

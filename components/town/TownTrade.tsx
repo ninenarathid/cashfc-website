@@ -3,7 +3,8 @@ import { DRESS_ITEMS } from "@/lib/town/wear";
 import {useMapBag} from '@/lib/town/map-bag';
 import {useTownEphemeral} from "@/lib/town/ephemeral";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { CasinoBench } from "@/components/casino/CasinoSandbox";
 import { createPortal } from "react-dom";
 import { sorted, whatOf } from "@/lib/town/bag";
 import { WATER, cropOf } from "@/lib/town/farm";
@@ -41,8 +42,10 @@ import TownBasket, { takesSpice } from "./TownBasket";
 import { hasThing, usesLeft } from "@/lib/town/gifts";
 import { Delta, PriceGraph, PriceNow, farmPriceOf } from "./TownPrice";
 
+const CasinoBank = lazy(() => import("@/components/casino/CasinoBank"));
+
 /** What of the trade is open on the screen: the uncle's stall (buying, leaving things to be sold, or the notice board beside it, where members sell to one another), the bank, or my own bag. */
-export type TradeView = "buy" | "sell" | "board" | "bank" | "bag";
+export type TradeView = "buy" | "sell" | "board" | "bank" | "casinoBack" | "bag";
 /** What the map needs to know of me without opening anything: my coins, the money waiting with the uncle, my stamina, the buff a meal left, the meal I am at, and what I hold in my hand (and whether it is a bucket with water in it). */
 export interface TradeSummary {
   hand: ItemId | null;
@@ -242,9 +245,11 @@ export function SeedTime({ id, th, className = "", price }: { id: ItemId; th: bo
  * it, and tells the map my coins, my stamina and what I am eating. It draws a
  * panel only when one is open.
  */
-export default function TownTrade({ keeper, view, th, art, seated, company, where, onView, onSummary, onScroll }: {
+export default function TownTrade({ keeper, view, th, art, seated, company, where, casinoBench, onView, onSummary, onScroll }: {
   /** Who keeps my purse. */
   keeper: Keeper;
+  /** The stand-in the casino's calls go to in a dev check (Town.tsx). */
+  casinoBench?: CasinoBench | null;
   view: TradeView | null;
   th: boolean;
   /** The town's own pixel art for a picture's name, once the scenery has come. */
@@ -336,7 +341,7 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
   if (!view) return null;
   // (the board stands on its own in the plaza since 2026-10-15: the uncle's tabs are his buying and selling only)
   const uncle = view === "buy" || view === "sell", order = keeper.order(), board = keeper.notices();
-  const title = view === "board" ? (th ? "บอร์ดซื้อขายกลางเมือง" : "The town's trade board") : uncle ? (th ? "แผงของลุง" : "The uncle's stall") : view === "bank" ? (th ? "ธนาคาร Popoto" : "The Popoto Bank") : (th ? "กระเป๋าของฉัน" : "My bag");
+  const title = view === "board" ? (th ? "บอร์ดซื้อขายกลางเมือง" : "The town's trade board") : uncle ? (th ? "แผงของลุง" : "The uncle's stall") : view === "bank" || view === "casinoBack" ? (th ? "ธนาคาร Popoto" : "The Popoto Bank") : (th ? "กระเป๋าของฉัน" : "My bag");
   return (
     <section aria-labelledby="town-trade-h" className="flex h-full flex-col">
       <div className="flex items-center gap-2 border-b border-line px-4 py-3">
@@ -385,6 +390,8 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
                                   onBack={(at) => tried(keeper.takeBack(at), ["เอาคืนไปได้เลย", "Here, have it back."])}
                                   onCollect={() => tried(keeper.collect(), ["นี่เงินของหลาน นับดูได้เลย", "Here's your money. Count it if you like."])} />}
         {view === "board" && board && <TownNotices keeper={keeper} board={board} purse={purse} prices={keeper.prices()} now={now} th={th} say={say} />}
+        {/* ── the Popoto Casino ── (its coins back into Popoto coins, at the banker) */}
+        {view === "casinoBack" && <Suspense fallback={null}><CasinoBank bench={casinoBench} onCoins={() => keeper.purseAgain?.()} /></Suspense>}
         {view === "bank" && <Bank purse={purse} now={now} th={th}
                                   onChange={(kind, n) => tried(keeper.change(kind, n), ["เรียบร้อยครับ ผมจดลงสมุดแล้ว", "All done. It is written in my ledger."])} />}
         {view === "bag" && !(eventBag && mapBag) && <Bag seedPrice={seedPrice} rodHook={<TownRodHook keeper={keeper} purse={purse} th={th} />} pouches={<TownPouches keeper={keeper} th={th} />} purse={purse} held={keeper.handSlot()} now={now} th={th} seated={seated} company={company} helpings={keeper.helpings()} recipeBook={<TownRecipeBook keeper={keeper} purse={purse} th={th}/>} book={keeper.bugBook()} fishBook={fishBook}

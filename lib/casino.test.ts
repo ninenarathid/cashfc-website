@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { backAverage, backRows, chipsOf, chipsShown, mineOfRoom, coinsBack, draftOf, draftProblem, effectiveChance, prizeWithAmount, reelAt, reelTeases, reelTeasing, reelView, spinRevealed, whereItGoes, wipedWords, wonWords, type CasinoState, type CasinoSpin } from './casino';
+import { backAverage, backRows, chipsOf, chipsShown, freeChipsNow, mineOfRoom, prizeGone, coinsBack, draftOf, draftProblem, effectiveChance, prizeWithAmount, reelAt, reelTeases, reelTeasing, reelView, spinRevealed, whereItGoes, wipedWords, wonWords, type CasinoState, type CasinoSpin } from './casino';
 const fixture = (): CasinoState => ({ user_id: 'tester', settings: { id: 1, revision: 1, title: 'Halloween', open: true, mode: 'weighted', price: 100, per_player: 100, budget: 100000000, reserved: 0, spins: 0, pool_size: 1800, pool_draws: 0, starts_at: null, ends_at: null, updated_at: '', updated_by: null }, prizes: [{ id: 'gold', name: 'Gil', kind: 'gil', amount: 1000000, chance: .4, stock: 20, issued: 0, announce: false, active: true }], account: { coins: 20000, spins: 0 }, spins: [], receipts: [], queue: [], server_now: '', paid_gil: 0 });
 describe('Casino presentation and settings', () => {
   it('shows depleted or unaffordable prizes as zero without redistributing odds', () => {
@@ -144,5 +144,23 @@ describe('What I won, before v308 (2026-10-27)', () => {
     const m = mineOfRoom(s, at);
     expect([m.today, m.spins, m.spent, m.back, m.wins]).toEqual([false, 3, 300, 150, 2]);
     expect(m.won.map(w => w.id)).toEqual(['c', 'a']);
+  });
+});
+
+describe('The event of 2026-10-31 (v314)', () => {
+  const at = Date.parse('2026-10-31T12:00:00Z');
+  it("gives the event's free coins until it ends, then the everyday's by itself", () => {
+    const s = { free_chips: 100, free_event_chips: 1000, free_event_until: '2026-10-31T22:00:00Z' };
+    expect(freeChipsNow(s, at)).toBe(1000);
+    expect(freeChipsNow(s, Date.parse('2026-10-31T22:00:00Z'))).toBe(100);
+    expect(freeChipsNow({ free_chips: 100 }, at)).toBe(100);
+    expect(freeChipsNow({}, at)).toBe(0);
+  });
+  it('says a prize is gone when its stock is out, or its Gil is more than is left', () => {
+    const s = { budget: 1000, reserved: 900 };
+    expect(prizeGone({ kind: 'physical', amount: 0, issued: 1, stock: 1 }, s)).toBe(true);
+    expect(prizeGone({ kind: 'physical', amount: 0, issued: 0, stock: 1 }, s)).toBe(false);
+    expect(prizeGone({ kind: 'gil', amount: 101, issued: 0, stock: 5 }, s)).toBe(true);
+    expect(prizeGone({ kind: 'gil', amount: 100, issued: 0, stock: 5 }, s)).toBe(false);
   });
 });

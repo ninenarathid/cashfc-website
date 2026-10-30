@@ -14,7 +14,7 @@ import { bridgeSpans, bridgeWhole } from "@/lib/town/bridge";
 import { DECOR, FACES, artOf, carving, gateLook, ringAt } from "@/lib/town/decor";
 // ── the editor's town ── (lib/town/town2: drawn from its own pictures, fetched as they come near the view)
 import { Town2Art } from "@/lib/town/town2-art";
-import { T2_CHEST_OPEN, T2_CHEST_SHUT, T2_LAMP_LIGHT, T2_PROP_THING, T2_RINGS, T2_THINGS, t2RiverPoint } from "@/lib/town/town2";
+import { T2_CASINO_DOOR, T2_CHEST_OPEN, T2_CHEST_SHUT, T2_LAMP_LIGHT, T2_PROP_THING, T2_RINGS, T2_THINGS, t2RiverPoint } from "@/lib/town/town2";
 // ── Granny Twilla's clothes shop ── (lib/town/shop-room: a room of its own, drawn from its own pictures as it comes near)
 import { ShopRoomArt } from "@/lib/town/shop-room-art";
 import { SHOP_BOARD } from "@/lib/town/shop-room";
@@ -524,7 +524,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const casinoArtRef = useRef<CasinoRoomArt | null>(null);
   if (T2 && !casinoArtRef.current) casinoArtRef.current = new CasinoRoomArt();
   /** Whether I am in the casino (its sheet is mounted while I am), and what a tap on a machine (1 to 10) or its counter (0) does there. */
-  const [inCasino, setInCasino] = useState(false);
+  const [inCasino, setInCasino] = useState(false), [inTownPlace, setInTownPlace] = useState(true);
   /** My Casino Coins while I am in the casino (its sheet tells them), for the status bar: null elsewhere. */
   const [casinoChips, setCasinoChips] = useState<number | null>(null);
   /** A "+N" under that count as Casino Coins come in (the owner, 2026-10-27: what was won seen at once), for a moment. */
@@ -2157,7 +2157,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       placeRef.current = place;
       // (the clothes shop is small, and its camera may not go as far out as the outdoors': the outdoors' zoom is put
       // back on coming out, and its windows are shut)
-      queueMicrotask(() => setInCasino(place === "casino"));
+      queueMicrotask(() => { setInCasino(place === "casino"); setInTownPlace(place === "town"); });
       if (underRoof(place) && !underRoof(was)) zoomOutdoors.current = v.s;
       else if (!underRoof(place) && underRoof(was)) {
         if (zoomOutdoors.current) v.s = zoomOutdoors.current;
@@ -4764,7 +4764,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const board: TalkChoice[] = [];
     void pinned;
     const choices: TalkChoice[] = who === "banker"
-      ? [{ id: "bank", label: th ? "แลก popoto" : "Exchange popoto" }, chat]
+      ? [{ id: "bank", label: th ? "แลก popoto" : "Exchange popoto" }, { id: "casinoBack", label: th ? "แลก Casino Coin เป็น Popoto coin" : "Casino Coins into Popoto coins" }, chat]
       : purse.waiting > 0
         ? [{ id: "sell", label: th ? "รับเงิน" : "Collect", note: String(purse.waiting) }, buy, ...board, order, chat]
         : [buy, { id: "sell", label: th ? "ฝากขาย" : "Sell" }, ...board, order, chat];
@@ -4888,6 +4888,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const mine = standers().find((p) => p.id === me.id), board = document.querySelector('[data-foot="board"] [data-town-game]');
     return { at: mine ? ([Math.floor(mine.x), Math.floor(mine.y)] as [number, number]) : null, playing: !!board && !board.closest('[aria-labelledby="town-fish-h"]') };
   }, [standers, me.id]);
+  // ── the Popoto Casino ── (from anywhere in the town to its door, as a tap on the door does)
+  const goToCasino = () => {
+    const sess = sessionRef.current;
+    if (!sess) return;
+    setPopover(null); setPeopleOpen(false);
+    window.dispatchEvent(new Event("cashtown:casino-door"));
+    if (sess.seated) sess.standUp();
+    if (sess.walkTo({ x: T2_CASINO_DOOR.tile[0], y: T2_CASINO_DOOR.tile[1] })) cam.current.follow = true;
+  };
   const pickTalk = (who: Speaker | "smith" | "popoto", id: string) => {
     // ── forging ── (the blacksmith's choices are his screen's leaves)
     if (who === "smith") { openSmith(id as SmithView); return; }
@@ -5883,6 +5892,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
           <TownSign keeper={game ? keeper : null} session={s} th={w.th} phone={phone} tabbar={tabbar} view={signView} onView={setSignView} where={whereAmI} sfx={sfxRef.current}
                     hidden={!!talk || !!trade || boardOpen || wardrobeOpen || fishing || (phone && testOpen)}
                     bottom={phone && tabbar ? "calc(8.25rem + env(safe-area-inset-bottom))" : "4.25rem"} />
+          {/* ── the Popoto Casino ── (the way to its door while it opens for me: from the fountain nothing shows where it is. The owner, 2026-10-31) */}
+          {T2 && casinoDoor && inTownPlace && !talk && !trade && !boardOpen && !wardrobeOpen && !fishing && !(phone && (testOpen || !!signView || chatOpen)) && (
+            <TownFoot rank="corner">
+              <button type="button" onClick={goToCasino} data-town-casino-way className="pop-in pressable pointer-events-auto flex min-h-11 max-w-full items-center gap-2 border-2 border-[#2a1b12] bg-[#c8975a] px-3 text-ui font-bold text-[#2b1a0c] shadow-[inset_0_2px_0_#e9c78b,inset_0_-3px_0_#a47238]">
+                <CasinoChipIcon size={20} /><span className="truncate">{w.th ? "ไป Popoto Casino" : "To the Popoto Casino"}</span>
+              </button>
+            </TownFoot>
+          )}
           <TownCircle session={s} th={w.th} phone={phone} tabbar={tabbar} hidden={!!talk || !!trade || boardOpen || wardrobeOpen || fishing || (phone && (testOpen || !!signView || chatOpen))} />
         </Suspense>
       )}
@@ -5998,7 +6015,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
              data-state="open">
           <Suspense fallback={null}>
             <TownTrade keeper={keeper} view={trade} th={w.th} art={boardArt} seated={(s.self.info.sit ?? -1) !== -1} company={company} where={whereAmI}
-                       onView={setTrade} onSummary={setPurse} onScroll={setScroll} />
+                       casinoBench={casinoBench} onView={setTrade} onSummary={setPurse} onScroll={setScroll} />
           </Suspense>
         </div>
       )}

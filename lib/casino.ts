@@ -31,6 +31,8 @@ export type CasinoSettings = {
   access?: CasinoAccess;
   /** v303's: Popoto coins a Casino Coin, and the Casino Coins given free once a town day (0: none). */
   chip_rate?: number; free_chips?: number;
+  /** v314: a machine's turn and the rest after it, in seconds, while all ten are taken (0: no turns); an event's free coins, until when. */
+  seat_turn_s?: number; seat_rest_s?: number; free_event_chips?: number; free_event_until?: string | null;
   /** v304's: the pair's paytable, five rows. */
   back_table?: BackRow[];
 };
@@ -270,6 +272,12 @@ export function mineOfRoom(s: Pick<CasinoState, 'spins' | 'user_id'>, now: numbe
  * counter's rate, in tens; the free ones still unspent are not changed back.
  */
 export const cashBackOf = (chips: number, rate: number) => Math.floor(chips * rate * 9 / 10);
+/** What the counter gives free today: an event's coins while it lasts (v314), else the everyday's. */
+export const freeChipsNow = (s: Pick<CasinoSettings, 'free_chips' | 'free_event_chips' | 'free_event_until'>, now: number) =>
+  s.free_event_until && now < Date.parse(s.free_event_until) ? Number(s.free_event_chips ?? 0) : Number(s.free_chips ?? 0);
+/** A prize no spin can bring any more: its stock gone, or more Gil than is left in the budget. */
+export const prizeGone = (p: Pick<CasinoPrize, 'kind' | 'amount' | 'issued' | 'stock'>, s: Pick<CasinoSettings, 'budget' | 'reserved'>) =>
+  p.issued >= p.stock || (p.kind === 'gil' && p.amount > s.budget - s.reserved);
 export function cashableOf(s: Pick<CasinoState, 'account'>): number {
   const chips = chipsOf(s);
   if (chips === null) return 0;
