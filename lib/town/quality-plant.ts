@@ -10,7 +10,7 @@
  * fertiliser, the cure, moon water) until it runs out; a released pollinator until its `pollenUntil`.
  */
 import { CROPS } from "./items";
-import { FARMING, encoreHours, grown, homeOf, quickMs, roll, type FarmSky, type Plant, type Plot } from "./farm";
+import { FARMING, encoreHours, grown, homeOf, quickMs, regrowMs, roll, type FarmSky, type Plant, type Plot } from "./farm";
 import { HOUR } from "./trade";
 import { DRY, type Rain } from "./weather";
 import { COMPANIONS, NO_Q, PARTNERS, QUALITY, ROLES, accrue, barsOfQ, ceilingOf, chancesOf, coveredShare, gradeOf, narrowingOfQ, rangeOf, rollOne, type BedGift, type CompanionId, type Cover, type Grade, type NarrowCover, type Penalty, type PlantQ, type Range, type Role } from "./quality";
@@ -38,9 +38,9 @@ export const roundStart = (p: Plant): number => (p.picked > 0 ? p.pickedAt : p.s
 export function progressOf(p: Plant, rains: FarmSky = DRY): (t: number) => number {
   const c = CROPS[p.crop];
   if (p.picked === 0) return (t) => Math.min(1, Math.max(0, grown(p, t, rains) / c.hours));
-  // (a bearing after the first waits the crop's own while; one the mandrake sang to, the same: encoreHours)
+  // (a bearing after the first waits the crop's own while, less what water has added since; one the mandrake sang to, the same: encoreHours)
   const wait = encoreHours(p.crop);
-  return (t) => Math.min(1, Math.max(0, (t - p.pickedAt + quickMs(p, p.pickedAt, t)) / HOUR / wait));
+  return (t) => Math.min(1, Math.max(0, (t - p.pickedAt + quickMs(p, p.pickedAt, t) + regrowMs(p, t, rains)) / HOUR / wait));
 }
 
 /**

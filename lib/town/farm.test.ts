@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
-  BEDS, FARMING, PUT_ON, WATER, WILD, chore, choreFor, cropOf, cure, cureWords, deedFor, feed, grown, hitsFor, hoe, inPestHours, isTree, ownerOf, pestAt, pestChance, pestHour, pick, ridCameOf, ridLuck, ridWords, see, sow, tend, toolOf, uproot, water, waterIn, yieldOf,
+  BEDS, FARMING, PUT_ON, WATER, WILD, chore, choreFor, cropOf, cure, cureWords, deedFor, feed, grown, growing, hitsFor, hoe, inPestHours, isTree, ownerOf, pestAt, pestChance, pestHour, pick, regrowMs, ridCameOf, ridLuck, ridWords, see, sow, tend, toolOf, uproot, water, waterIn, yieldOf,
   type Bed, type FarmSky, type Plant, type Plot, type Swarms,
 } from "./farm";
 import atlas from "./icon-atlas.json";
 import { CROPS, CROP_IDS, FISH, ITEMS, STAGES, growIconOf, type ItemId } from "./items";
-import { staminaOf } from "./stamina";
+import { progressOf } from "./quality-plant";
+import { dayOf, staminaOf } from "./stamina";
 import { GOODS, held, hold, newPurse, put, type Purse } from "./trade";
 import { ALWAYS_RAIN, SLOT_MS, rainsOf, slotOf, type Rain } from "./weather";
 import { BEDS_IN_FARM, FARM, WELL, WELLS, atWell, bedCorner, bedOf, plotAt, walkable, wellBy, wellNear, wellOf } from "./world";
@@ -991,5 +992,51 @@ describe("digging a plant out (the owner, 2026-10-04: \"ใช้จอบ ข�
     expect(tend("1,1", WILD, bed, 0, 0, digger(), "me", NIGHT, [], true)).toEqual(tend("1,1", WILD, bed, 0, 0, digger(), "me", NIGHT));
     const ripeAt = NIGHT + CROPS.kangkong.hours * HOUR;
     expect(tend("1,1", sown(), bed, 0, 0, newPurse(), "me", ripeAt, [], true)).toEqual(tend("1,1", sown(), bed, 0, 0, newPurse(), "me", ripeAt));
+  });
+});
+
+describe("a plant's later rounds count what water adds", () => {
+  const T0 = Date.UTC(2026, 9, 1, 3), H = 3_600_000;
+  // (kangkong: 6 hours to its first picking, then 12 between pickings)
+  const later = (boost = 0, boostAt: number | null = 0): Plant => ({ by: "me", crop: "kangkong", sown: T0 - 6 * H, boost, watered: 0, fed: 0, guard: 0, cured: 0, picked: 1, pickedAt: T0, ...(boostAt === null ? {} : { boostAt }) });
+  it("counts what was added since the picking, and nothing from before it", () => {
+    expect(regrowMs(later(0, 0), T0 + 2 * H)).toBe(0);
+    expect(regrowMs(later(H, 0), T0 + 2 * H)).toBe(H);
+    expect(regrowMs(later(3 * H, 2 * H), T0 + 2 * H)).toBe(H);
+  });
+  it("a watering shortens the wait, by the same sum for a plain can and a dark one", () => {
+    expect(growing(later(), T0 + 11 * H).ripe).toBe(false);
+    expect(growing(later(H), T0 + 11 * H).ripe).toBe(true);
+    expect(progressOf(later(H))(T0 + 3 * H)).toBeCloseTo(4 / 12, 12);
+  });
+  it("rain counts since the picking at a watering's rate, and not what fell before it", () => {
+    const rains: Array<[number, number]> = [[T0 - 4 * H, T0 - 2 * H], [T0 + H, T0 + 3 * H]];
+    expect(regrowMs(later(), T0 + 4 * H, rains)).toBe(H);
+    expect(regrowMs({ ...later(), moist: true }, T0 + 4 * H)).toBe(2 * H);
+  });
+  it("is never more than the cap's worth of the time since the picking, and the rest comes as the hours go", () => {
+    const piled = later(100 * H);
+    expect(regrowMs(piled, T0)).toBe(0);
+    expect(regrowMs(piled, T0 + H)).toBe(2 * H);
+    expect(growing(piled, T0 + 3.9 * H).ripe).toBe(false);
+    expect(growing(piled, T0 + 4 * H).ripe).toBe(true);
+  });
+  it("a plant with no boostAt waits by the clock, as it did: it is safe before the database has it", () => {
+    expect(regrowMs(later(100 * H, null), T0 + 5 * H, [[T0, T0 + 5 * H]])).toBe(0);
+    expect(growing(later(100 * H, null), T0 + 11 * H).ripe).toBe(false);
+    expect(growing(later(100 * H, null), T0 + 12 * H).ripe).toBe(true);
+  });
+  it("a first round is as it was", () => {
+    const first: Plant = { ...later(H, 0), picked: 0, pickedAt: 0, sown: T0 };
+    expect(regrowMs(first, T0 + 2 * H)).toBe(0);
+    expect(grown(first, T0 + 2 * H)).toBe(3);
+  });
+  it("a picking keeps the boost as it stood", () => {
+    const p: Plant = { ...later(5 * H, 0), crop: "kangkong", picked: 1, pickedAt: T0 };
+    const did = pick("3,3", { ...newPurse(), stamina: { day: dayOf(T0 + 13 * H), left: 100 } }, { soil: "tilled", plant: p }, true, null, T0 + 13 * H);
+    if (!did.ok) throw new Error(did.why);
+    expect(did.plot.plant?.boostAt).toBe(5 * H);
+    expect(did.plot.plant?.boost).toBe(5 * H);
+    expect(regrowMs(did.plot.plant!, T0 + 14 * H)).toBe(0);
   });
 });

@@ -4,7 +4,7 @@ import { darkSoil } from "./gem-soil";
 import { canFx, hoeFx, luckOf } from "./forged";
 import { toolPaid } from "./forged-keep";
 import { mayPower, powerLeft, powerUsed, usePower } from "./powers";
-import { optN } from "./tools";
+import { FORGE, optN } from "./tools";
 import { FIELD } from "./gear";
 import { GARDEN_CROPS } from "./garden-items";
 import { gardenHarvest } from "./gardening";
@@ -208,6 +208,8 @@ export interface Plant {
   /** How many times it has been picked, and when last. */
   picked: number;
   pickedAt: number;
+  /** Its `boost` at its last picking: what has been added since shortens its wait for the next bearing (`regrowMs`). A plant with none waits by the clock alone. */
+  boostAt?: number;
   /** How many bearings more than its kind has: one, of a plant the mandrake sang to as it was picked for what would have been the last time (lib/town/gifts' famMandrake, until 2026-10-16: kept by those it sang to). Missing from every other plant. */
   more?: number;
   /**
@@ -374,9 +376,9 @@ export function quickUntil(p: Plant | null | undefined, now: number): number | n
 }
 
 /** Local clouds contribute only dry time, so natural rain and permanent moistness never double it. */
-export function localRainMs(p:Plant,now:number,rains:FarmSky=DRY):number {
+export function localRainMs(p:Plant,now:number,rains:FarmSky=DRY,since=p.sown):number {
  const rain=p.localRain;if(!rain||p.moist)return 0;
- const from=Math.max(p.sown,rain.from),to=Math.min(now,rain.until);
+ const from=Math.max(since,rain.from),to=Math.min(now,rain.until);
  return Math.max(0,to-from-wetMs(rainsIn(rains),from,to));
 }
 /** The hours a plant has grown by a moment: the clock's, faster once it is fed, what watering added, what the rain did, and what an hourglass turned over its bed did. */
@@ -388,6 +390,20 @@ export function grown(p: Plant, now: number, rains: FarmSky = DRY): number {
   return (Math.max(0, now - p.sown) + fed + p.boost + rained + quickMs(p, p.sown, now)) / HOUR;
 }
 /**
+ * What watering and rain have added to a plant since its last picking, in milliseconds: they shorten its wait for the
+ * next bearing as they shorten its first growing (the owner, 2026-10-30, of a watering in a plant's later rounds:
+ * "ควรเร่งโตด้วย"). Whatever adds to `boost` counts, and rain as in `grown`, or a plant would be slower in the rain, when
+ * it cannot be watered, than on a dry day. Fertiliser does not; the hourglass has its own place in `growing`. Never
+ * more than the cap's worth of the time since the picking ("มากสุดแค่ x3 พอ"), so that no pile of powers bears a crop
+ * again at once: what is over is not lost, the plant has it as the hours go by.
+ */
+export function regrowMs(p: Plant, now: number, rains: FarmSky = DRY): number {
+  if (p.picked <= 0 || typeof p.boostAt !== "number") return 0;
+  const wet = rainsIn(rains), since = Math.max(0, now - p.pickedAt), wetTime = p.moist ? since : wet.length ? wetMs(wet, p.pickedAt, now) : 0;
+  const added = p.boost - p.boostAt + (wetTime + localRainMs(p, now, rains, p.pickedAt)) * FARMING.water.adds / FARMING.water.every;
+  return Math.min((FORGE.cap - 1) * since, Math.max(0, added));
+}
+/**
  * The mandrake's song (lib/town/gifts' famMandrake, the farming line's sixth rank, until 2026-10-16: a plant it sang to
  * then keeps its bearing more): what part of its hours a crop that is picked only once takes to bear the once more (one
  * that bears again takes its own while, as ever).
@@ -397,9 +413,9 @@ export const ENCORE = 0.5;
 export const moreOf = (p: Plant): number => (typeof p.more === "number" && p.more > 0 ? Math.floor(p.more) : 0);
 /** The hours a plant waits to bear its one more: its kind's own while between two pickings, or, of a kind that is picked once, a part of its hours. */
 export const encoreHours = (crop: CropId): number => CROPS[crop].again ?? CROPS[crop].hours * ENCORE;
-/** Where a plant is in its growing, pests left out. (One that was picked and bears again waits by the clock, and by the hourglass with it; one the mandrake sang to has a bearing more than its kind, and waits for it the same way.) */
+/** Where a plant is in its growing, pests left out. (One that was picked and bears again waits by the clock, by the hourglass with it, and by what water has added since, `regrowMs`; one the mandrake sang to has a bearing more than its kind, and waits for it the same way.) */
 export function growing(p: Plant, now: number, rains: FarmSky = DRY): ReturnType<typeof growth> {
-  const since = (now - p.pickedAt + (p.picked > 0 ? quickMs(p, p.pickedAt, now) : 0)) / HOUR, picks = CROPS[p.crop].picks ?? 1, more = moreOf(p);
+  const since = (now - p.pickedAt + (p.picked > 0 ? quickMs(p, p.pickedAt, now) + regrowMs(p, now, rains) : 0)) / HOUR, picks = CROPS[p.crop].picks ?? 1, more = moreOf(p);
   if (more > 0 && p.picked >= picks && p.picked < picks + more) { const ripe = since >= encoreHours(p.crop); return { stage: ripe ? 5 : 4, ripe, spent: false }; }
   return growth(p.crop, grown(p, now, rains), p.picked, since);
 }
@@ -706,7 +722,7 @@ export function pick(key: string, purse: Purse, plot: Plot, may: boolean, hand: 
   const picked = p.picked + 1, spent = picked >= (CROPS[p.crop].picks ?? 1) + moreOf(p);
   return {
     ok: true, got: [[p.crop, n]], fruits: { range: fruits.range, values: fruits.values },
-    plot: spent ? { soil: "cleared", plant: null } : { ...plot, plant: { ...p, picked, pickedAt: now, watered: 0 } },
+    plot: spent ? { soil: "cleared", plant: null } : { ...plot, plant: { ...p, picked, pickedAt: now, watered: 0, boostAt: p.boost } },
     purse: spend(room, FARMING.costs.pick, now),
   };
 }

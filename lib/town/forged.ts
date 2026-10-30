@@ -55,7 +55,7 @@ export function luckOf(word: string, ...n: number[]): number {
 const COUNT = [1, 2, 3, 4];
 /**
  * What each element does in the old tools, at its levels 1 to 4 (`cook`: the pot, the pan and the grill alike).
- * - fire, the work is over sooner: the fish has so much less line to be won; a plot takes so many hits fewer; a
+ * - fire, the work is over sooner: the fish has so much less line to be won; a plot takes so many hits fewer (it wants 3, so a gem at +7 has it down to 1), and from +10 the fire spreads, so often the nearest plot of the row wanting the same is done too; a
  *   filling is so many waterings more; the net's swing lands so much sooner; a pot wants so much fewer stirs.
  * - water, forgiving: first misses are not counted and clean work also saves stamina.
  * - ice, what moves is so much slower: the fish's stretch, the hoe's marker and the weeding's gusts, the pour's
@@ -73,7 +73,7 @@ const COUNT = [1, 2, 3, 4];
  *   Successful tilling can also yield compost within the member's daily allowance.
  */
 export const OLD_FX = {
-  fire: { rod: { tires: BALANCE.fire }, hoe: { fewer: BALANCE.fireHoe }, can: { more: BALANCE.fireCan }, bugNet: { sooner: BALANCE.fire }, cook: { shorter: BALANCE.fire } },
+  fire: { rod: { tires: BALANCE.fire }, hoe: { fewer: BALANCE.fireHoe, spread: [0, 0.15, 0.25, 0.35] }, can: { more: BALANCE.fireCan }, bugNet: { sooner: BALANCE.fire }, cook: { shorter: BALANCE.fire } },
   water: { spared: COUNT, stamina: BALANCE.waterStamina },
   ice: { slow: BALANCE.ice },
   earth: { stamina: BALANCE.earth },
@@ -81,7 +81,7 @@ export const OLD_FX = {
   wind: { quick: BALANCE.windQuick, reach: BALANCE.windReach },
   light: { band: BALANCE.lightBand, rod: { early: BALANCE.lightEarly }, hoe: { stones: [1,2,3,4] }, cook: { band: BALANCE.lightBand }, can: { glint: [7, 10, 14, ALL] }, bugNet: { seen: [5, 8, 12, 16] } },
   dark: {
-    rod: { rare: BALANCE.darkRare, fiercer: 0.1 }, hoe: { worm: [0.35, 0.5, 0.65, 0.8], faster: 0.1, soil: BALANCE.darkSoil, daily: BALANCE.darkSoilDaily }, can: { more: [0.35, 0.55, 0.75, 0.85], uses: 1 },
+    rod: { rare: BALANCE.darkRare, fiercer: 0.1 }, hoe: { worm: [0.35, 0.5, 0.65, 0.8], faster: 0.1, soil: BALANCE.darkSoil, daily: BALANCE.darkSoilDaily }, can: { more: [1.5, 1.75, 2, 2], uses: 1 },
     bugNet: { rare: BALANCE.darkRare, smaller: 0.1 }, cook: { helping: BALANCE.darkYield, harder: 0.1 },
   },
 } as const;
@@ -193,7 +193,7 @@ export const PLAIN_HOE: HoeFx = { band: 1, pace: 1, fewer: 0, spared: 0, stones:
 export function hoeFx(stack: Held): HoeFx {
   const s = of(stack, "hoe");
   if (!s) return PLAIN_HOE;
-  const l = levelOf(s), worm = gemBy(s, "dark", OLD_FX.dark.hoe.worm);
+  const l = levelOf(s), worm = gemBy(s, "dark", OLD_FX.dark.hoe.worm), lightning = gemBy(s, "lightning", OLD_FX.lightning.chance), spread = gemBy(s, "fire", OLD_FX.fire.hoe.spread);
   return {
     band: LEVELS.hoe.band[l] * (has(s, "hoLight") ? optN("hoLight", "band", s) || 1 : 1) * (1 + gemBy(s, "light", OLD_FX.light.band)),
     pace: (1 - LEVELS.hoe.slow[l]) * (1 - gemBy(s, "ice", OLD_FX.ice.slow)) * (worm > 0 ? 1 + OLD_FX.dark.hoe.faster : 1),
@@ -204,7 +204,7 @@ export function hoeFx(stack: Held): HoeFx {
     glow: gemBy(s, "light", COUNT) > 0,
     stamina: gemStamina(s),
     fresh: has(s, "hoFresh"),
-    next: gemBy(s, "lightning", OLD_FX.lightning.chance),
+    next: spread > 0 ? 1 - (1 - lightning) * (1 - spread) : lightning,
     worm,
     grip: has(s, "hoGrip"),
     both: has(s, "hoBoth"),

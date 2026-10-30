@@ -19,6 +19,8 @@ import { Delta } from "./TownPrice";
  * the four bars and what covers each now, and what has narrowed the range). Rules: lib/town/quality and quality-plant.
  */
 
+/** What part of its round a plant has grown, as a percent floored to one place: so that one watering of a long crop moves it, and it never reads 100 before it is ripe. */
+const shownGrowth = (part: number): string => (Math.floor(part * 1000) / 10).toFixed(1);
 const ZONE: Record<Grade, string> = { 0: "#8a7a64", 1: "#c3ced8", 2: "#f0c060", 3: "#d2a6ff" };
 const ROLE: Record<Role, { icon: IconName; th: string; en: string; light: string; dark: string }> = {
   soil: { icon: "compost", th: "ดิน", en: "Soil", light: "#e0a764", dark: "#b07a3e" },
@@ -144,7 +146,7 @@ export function QualityInspector({ plant, now, rains, th, onClose, onBed, onChar
       <header className="flex items-center gap-2">
         <TownIcon name={plant.crop as IconName} size={30} />
         <h2 className="min-w-0 flex-1 font-display text-title font-semibold">{name}</h2>
-        <span className="text-meta text-muted">{ripe ? (th ? "สุกแล้ว" : "Ripe") : th ? `โต ${Math.floor(seen.grown * 100)}%` : `${Math.floor(seen.grown * 100)}% grown`}</span>
+        <span className="text-meta text-muted">{ripe ? (th ? "สุกแล้ว" : "Ripe") : th ? `โต ${shownGrowth(seen.grown)}%` : `${shownGrowth(seen.grown)}% grown`}</span>
         <button ref={close} type="button" onClick={onClose} aria-label={th ? "ปิด" : "Close"} className="pressable tk tk-btn-wood grid size-11 shrink-0 place-items-center"><TownIcon name="close" size={16} /></button>
       </header>
       <div className="flex flex-wrap items-baseline justify-between gap-x-2">

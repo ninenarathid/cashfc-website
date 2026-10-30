@@ -6,6 +6,7 @@ import {
   COOK_KINDS, OLD_FX, PLAIN_CAN, PLAIN_COOK, PLAIN_HOE, PLAIN_NET, PLAIN_ROD, canFx, cookFx, easedBy, hitsWith, hoeFx, luckOf, missesWith, netFx, partOf, rodFx, slowPartOf, slowedBy, stirsWith,
 } from "./forged";
 import { toolOwed, toolPaid } from "./forged-keep";
+import { gemDoes } from "./tool-words";
 import { PLAIN, RODS, gearOf, rodStack } from "./gear";
 import { HAUNTS, NET, againMs, aimAt, fledBy, net, ringOf, swingMs, taken, type Swarm } from "./insects";
 import { FISH, FISH_IDS, type ItemId } from "./items";
@@ -284,6 +285,17 @@ describe("a forged hoe", () => {
     expect([p.misses, p.spare]).toEqual([0, 0]);
     expect(touch(p, 0.2, patchAt(p, 0.2).cells.findIndex((c) => c?.kind === "stone")).misses).toBe(1);
   });
+  it("with fire spreads from +10, by lightning's own rule, and says what it does", () => {
+    expect(hoeFx(tool("hoe", 7, [], ["fire"])).next).toBe(0);
+    expect(hoeFx(tool("hoe", 10, [], ["fire"])).next).toBeCloseTo(0.15, 12);
+    expect(hoeFx(tool("hoe", 10, [], ["fire", "fire"])).next).toBeCloseTo(0.25, 12);
+    // (with lightning beside it each has its own chance; lightning by itself is what it was, to the last digit)
+    expect(hoeFx(tool("hoe", 10, [], ["fire", "lightning"])).next).toBeCloseTo(1 - 0.85 * 0.65, 12);
+    expect(hoeFx(tool("hoe", 10, [], ["lightning"])).next).toBe(OLD_FX.lightning.chance[1]);
+    expect(gemDoes("hoe", "fire", 1)?.th).toBe("แต่ละแปลงเหลือตี 1 ครั้ง");
+    expect(gemDoes("hoe", "fire", 2)?.th).toBe("แต่ละแปลงเหลือตี 1 ครั้ง และ 15% ที่ไฟลามไปทำแปลงถัดไปในแถวด้วย");
+    expect(gemDoes("can", "dark", 1)?.th).toBe("รดครั้งหนึ่งต้นโต 75 นาที (ปกติ 30 นาที)");
+  });
   it("with fire takes a hit fewer a plot, never under one; with dark its marker is quicker", () => {
     expect(hitsWith(FARMING.swings.till, hoeFx(tool("hoe", 1, [], ["fire"])))).toBe(1);
     expect(hitsWith(FARMING.swings.clear, hoeFx(tool("hoe", 10, [], ["fire"])))).toBe(1);
@@ -337,8 +349,11 @@ describe("a forged can", () => {
   it("dark rewards watering without consuming twice the water", () => {
     const plain = done(water("1,1", purseOf({ ...tool("can"), water: 5 }), sown(), "can", NOW)), base = plain.plot.plant!.boost;
     const dark = done(water("1,1", purseOf({ ...tool("can", 1, [], ["dark"]), water: 5 }), sown(), "can", NOW));
-    expect(dark.plot.plant!.boost).toBeCloseTo(base * 1.35, 6);
+    expect(dark.plot.plant!.boost).toBeCloseTo(base * 2.5, 6);
     expect(dark.purse.bag[0]?.water).toBe(4);
+    // (what a member can have: a gem at +7, at +10, a matching pair at +10; the pair is the cap, three times a plain can)
+    const mins = (s: Stack) => done(water("1,1", purseOf({ ...s, water: 5 }), sown(), "can", NOW)).plot.plant!.boost / 60_000;
+    expect([mins(tool("can", 7, [], ["dark"])), mins(tool("can", 10, [], ["dark"])), mins(tool("can", 10, [], ["dark", "dark"]))]).toEqual([75, 82.5, 90]);
     expect(done(water("1,1", purseOf({ ...tool("can", 10, [], ["dark"]), water: 1 }), sown(), "can", NOW)).purse.bag[0]?.water).toBe(0);
     expect(plain.purse.bag[0]?.water).toBe(4);
     expect(base).toBe(FARMING.water.adds * 60_000);

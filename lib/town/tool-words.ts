@@ -1,4 +1,5 @@
-import { OLD_FX, canFx, cookFx, hoeFx, netFx, rodFx } from "./forged";
+import { FARMING } from "./farm";
+import { OLD_FX, canFx, cookFx, hitsWith, hoeFx, netFx, rodFx } from "./forged";
 import {
   ALL, FORGE, GEM_FX, LEVELS, OPTIONS, ROCKS, WIND_WALK, axeAhead, axeBarSlow, axeChops, levelOf, optN, pickSwings, toolKindOf, veinStrikes,
   type Element, type OptionId, type ToolKind,
@@ -140,7 +141,7 @@ function oldToolGem(kind: ToolKind, element: Element, level: number): Words | nu
   switch (element) {
     case "fire":
       if (fam === "rod") { const p = pct(step(F.fire.rod.tires, level)); return w(`ปลาหมดแรงเร็วขึ้น ${p}%`, `The fish tires ${p}% sooner`); }
-      if (fam === "hoe") { const n = step(F.fire.hoe.fewer, level); return w(`แต่ละแปลงตีน้อยลง ${n} ครั้ง`, `${n} ${plural(n, "hit", "hits")} fewer a plot`); }
+      if (fam === "hoe") { const n = hitsWith(FARMING.swings.till, { fewer: step(F.fire.hoe.fewer, level) }), p = pct(step(F.fire.hoe.spread, level)); return p > 0 ? w(`แต่ละแปลงเหลือตี ${n} ครั้ง และ ${p}% ที่ไฟลามไปทำแปลงถัดไปในแถวด้วย`, `Each plot takes ${n} ${plural(n, "hit", "hits")}, and ${p}% that the fire spreads to the next plot of the row`) : w(`แต่ละแปลงเหลือตี ${n} ครั้ง`, `Each plot takes ${n} ${plural(n, "hit", "hits")}`); }
       if (fam === "can") { const n = step(F.fire.can.more, level); return w(`เติมน้ำครั้งหนึ่งรดได้เพิ่ม ${n} ครั้ง`, `${n} more ${plural(n, "watering", "waterings")} a filling`); }
       if (fam === "bugNet") { const p = pct(step(F.fire.bugNet.sooner, level)); return w(`สวิงลงถึงตัวเร็วขึ้น ${p}%`, `The swing lands ${p}% sooner`); }
       { const p = pct(step(F.fire.cook.shorter, level)); return w(`คนน้อยลง ${p}%`, `${p}% fewer stirs a pot`); }
@@ -183,7 +184,7 @@ function oldToolGem(kind: ToolKind, element: Element, level: number): Words | nu
     case "dark":
       if (fam === "rod") { const x = step(F.dark.rod.rare, level), f = pct(F.dark.rod.fiercer); return w(`ปลาหายากมาบ่อยขึ้น ${x} เท่า แต่ปลาทุกตัวดึงแรงขึ้น ${f}%`, `Rare fish ${x} times as often; every fish pulls ${f}% harder`); }
       if (fam === "hoe") { const p = pct(step(F.dark.hoe.worm, level)), f = pct(F.dark.hoe.faster); return w(`${p}% ที่พรวนแล้วเจอไส้เดือน แต่ตัวชี้เร็วขึ้น ${f}%`, `${p}% that a tilled plot turns up a worm; the marker ${f}% faster`); }
-      if (fam === "can") { const p = pct(step(F.dark.can.more, level)), k = F.dark.can.uses; return w(`รดครั้งหนึ่งต้นโตเพิ่ม ${p}% แต่ใช้น้ำ ${k} ครั้ง`, `A watering adds ${p}% more growth, and uses ${k}`); }
+      if (fam === "can") { const a = FARMING.water.adds, m = a * (1 + step(F.dark.can.more, level)); return w(`รดครั้งหนึ่งต้นโต ${m} นาที (ปกติ ${a} นาที)`, `A watering adds ${m} minutes of growth (${a} from a plain can)`); }
       if (fam === "bugNet") { const x = step(F.dark.bugNet.rare, level), f = pct(F.dark.bugNet.smaller); return w(`แมลงที่กลับมาหลังเราจับได้ เป็นตัวหายากบ่อยขึ้น ${x} เท่า แต่วงสวิงเล็กลง ${f}%`, `The insect that comes back after your catch is a rare one ${x} times as often; the ring ${f}% smaller`); }
       { const p = pct(step(F.dark.cook.helping, level)), f = pct(F.dark.cook.harder); return w(`${p}% ที่หม้อได้เพิ่ม 2 ที่ แต่จังหวะที่ดีแคบลง ${f}%`, `${p}% that a pot has two more helpings; its good pace ${f}% narrower`); }
   }
