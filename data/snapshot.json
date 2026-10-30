@@ -2299,7 +2299,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 28,
+  "level": 38,
   "cc": [
    true,
    true,
@@ -2526,7 +2526,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 79,
+  "level": 81,
   "cc": [
    false,
    false,
@@ -2832,7 +2832,7 @@
   "mounts": 197,
   "minions": 416,
   "rare": 165,
-  "level": 100,
+  "level": 80,
   "cc": [
    true,
    true,
@@ -2971,7 +2971,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-08"
+  "chg": "2026-10-30"
  },
  "37056222": {
   "name": "Lucine Nokomis",
@@ -6950,7 +6950,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 72,
+  "level": 76,
   "cc": [
    false,
    false,
@@ -7335,7 +7335,7 @@
   "mounts": 70,
   "minions": 104,
   "rare": 57,
-  "level": 76,
+  "level": 89,
   "cc": [
    false,
    false,
@@ -7412,7 +7412,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-29"
+  "chg": "2026-10-30"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -8379,7 +8379,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 84,
+  "level": 86,
   "cc": [
    false,
    false,
@@ -8392,7 +8392,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-29"
+  "chg": "2026-10-30"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -8960,7 +8960,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 69,
+  "level": 70,
   "cc": [
    false,
    false,
@@ -9006,6 +9006,22 @@
    "The Weapon's Refrain"
   ],
   "chg": "2026-08-29"
+ },
+ "42019777": {
+  "name": "Peace Violet",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null,
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-10-30"
  },
  "61748681": {
   "name": "Qzarel Lumina",

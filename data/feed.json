@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-10-30",
+   "type": "new_member",
+   "id": 42019777,
+   "name": "Peace Violet",
+   "text": "joined the FC — welcome!"
+  },
+  {
+   "date": "2026-10-30",
    "type": "rare_up",
    "id": 29152036,
    "name": "Fluffy Tinytail",
@@ -1392,13 +1399,6 @@
    "id": 42021700,
    "name": "Josuke Mizumoto",
    "text": "is now a Legendary Paladin"
-  },
-  {
-   "date": "2026-10-15",
-   "type": "rare_up",
-   "id": 29152036,
-   "name": "Fluffy Tinytail",
-   "text": "earned Phantom of the Umbra: War Scythe Umbrae"
   }
  ]
 }

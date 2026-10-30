@@ -1992,7 +1992,7 @@
   },
   {
    "date": "2026-10-30",
-   "total": 510,
+   "total": 511,
    "tags": {
     "veteran": 156,
     "extreme": 150,
@@ -2009,14 +2009,15 @@
     "private": 222,
     "casual": 30,
     "prog": 24,
+    "unknown": 1,
     "oldtimer": 1
    },
    "raider": 66,
    "ultimate": 119,
    "extreme": 150,
-   "unknown": 0,
+   "unknown": 1,
    "final_boss": 42,
-   "active": 168,
+   "active": 169,
    "vacation": 342,
    "guests": 16
   }
