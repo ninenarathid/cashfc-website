@@ -41,7 +41,9 @@ const AFK_MS = 60_000;
 const TEST_STOOLS = MACHINE_X.map(x => ({ x, y: 3.5 }));
 const CHEERS = ['ลุ้นด้วย!', 'มาแล้ว ๆ!', 'อีกนิดเดียว!', 'ยินดีด้วย!'];
 /** Lets my machine go. (Chained: the client sends a call only when it is awaited or chained, and a bare `void` of one sends nothing: Codex's check, 2026-10-31.) */
-const letSeatGo = (client: ReturnType<typeof useCasino>['client']) => { void client?.rpc('casino_live_seat', { p_machine: null }).then(() => {}, () => {}); };
+// (and a seat asked for next waits for it: arriving after, it would take the new seat away. Codex's second check)
+let seatLetGo: PromiseLike<unknown> = Promise.resolve();
+const letSeatGo = (client: ReturnType<typeof useCasino>['client']) => { if (client) seatLetGo = client.rpc('casino_live_seat', { p_machine: null }).then(() => {}, () => {}); };
 
 export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:CasinoInTown}) {
   const nativeRef=useRef(native);nativeRef.current=native;
@@ -173,6 +175,7 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
   const lastPlay = useRef(0), heldSeat = useRef<number | null>(null);
   const select = async (n: number) => { if(walker){
     if(live&&town&&client){
+      await seatLetGo;
       const {data,error:failed}=await client.rpc('casino_live_seat',{p_machine:n});
       const r=data as {ok?:boolean;why?:string;name?:string;full?:boolean;seconds?:number}|null;
       // (all ten taken, and a rest after a whole turn with all ten taken: v314)
