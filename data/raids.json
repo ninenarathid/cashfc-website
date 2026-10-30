@@ -97050,6 +97050,58 @@
       "job": "Gunbreaker"
      }
     ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 97,
+      "median": 85,
+      "kills": 13,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 97,
+      "median": 90,
+      "kills": 18,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 95,
+      "median": 80,
+      "kills": 23,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 95,
+      "median": 72,
+      "kills": 30,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 99,
+      "median": 87,
+      "kills": 13,
+      "job": "Gunbreaker"
+     }
+    ]
    }
   ],
   "_status": "ok"
