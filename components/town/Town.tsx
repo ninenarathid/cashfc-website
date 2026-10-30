@@ -4764,7 +4764,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const board: TalkChoice[] = [];
     void pinned;
     const choices: TalkChoice[] = who === "banker"
-      ? [{ id: "bank", label: th ? "แลก popoto" : "Exchange popoto" }, { id: "casinoBack", label: th ? "แลก Casino Coin เป็น Popoto coin" : "Casino Coins into Popoto coins" }, chat]
+      ? [{ id: "bank", label: th ? "แลก popoto" : "Exchange popoto" }, { id: "casinoBack", label: th ? "แลก Casino Coin" : "Change Casino Coins" }, chat]
       : purse.waiting > 0
         ? [{ id: "sell", label: th ? "รับเงิน" : "Collect", note: String(purse.waiting) }, buy, ...board, order, chat]
         : [buy, { id: "sell", label: th ? "ฝากขาย" : "Sell" }, ...board, order, chat];

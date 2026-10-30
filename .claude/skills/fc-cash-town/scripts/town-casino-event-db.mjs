@@ -108,6 +108,13 @@ ok("the tenth sits", (await seat(names[9], 10)).body?.ok === true);
   await settle();
   await seat(names[4], null);
   ok("and letting go gives no rest", (await sql(`select seat_rest_until r from public.casino_live_accounts where user_id = $1`, [ids[4]]))[0].r === null);
+  // (off is off: a rest begun before it was turned off holds nobody: Codex's check)
+  await sql(`update public.casino_live_accounts set seat_rest_until = now() + interval '1 minute' where user_id = $1`, [ids[4]]);
+  ok("a rest in force does not stop sitting", (await seat(names[4], 5)).body?.ok === true);
+  const r2 = await spin(names[4], 5);
+  ok("nor a pull", r2.status === 200 && !!r2.body?.id, r2);
+  await settle();
+  await sql(`update public.casino_live_accounts set seat_rest_until = null where user_id = $1`, [ids[4]]);
   await sql(`update public.casino_live_settings set seat_turn_s = 300 where id = 1`);
 }
 

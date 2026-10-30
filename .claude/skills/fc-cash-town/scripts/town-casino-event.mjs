@@ -138,10 +138,10 @@ async function run(label, size, letter) {
       for (const type of ["keyDown", "keyUp"]) await X.send("Input.dispatchKeyEvent", { type, key: "Enter", code: "Enter", windowsVirtualKeyCode: 13 });
       await sleep(250);
     }
-    await until("the banker's choices", async () => (await X.evaluate(`${TALK}?.innerText ?? ""`)).includes("แลก Casino Coin เป็น Popoto coin"), 8000);
+    await until("the banker's choices", async () => (await X.evaluate(`${TALK}?.innerText ?? ""`)).includes("แลก Casino Coin"), 8000);
     ok(`${label}: the banker offers it`, true);
     await X.shot(`${OUT}/event-5-talk-${label}.png`);
-    await clickText(X, "แลก Casino Coin เป็น Popoto coin");
+    await clickText(X, "แลก Casino Coin");
     await until("the teller", () => X.evaluate(`!!document.querySelector("[data-bank-casino]")`), 15000);
     await sleep(800);
     const said = await text(X, "[data-bank-casino]");

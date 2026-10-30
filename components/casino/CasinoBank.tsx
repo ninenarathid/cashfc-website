@@ -36,12 +36,12 @@ function Teller({ onCoins }: { onCoins?: () => void }) {
     finally { setBusy(false); }
   };
   return <>
-    <p className="mb-2 text-meta text-muted">10 Casino Coin ได้ {money(cashBackOf(10, rate))} Popoto coin · แลกทีละ 10</p>
+    <p className="mb-2 text-ui text-muted">แลกเป็น Popoto coin · 10 Casino Coin ได้ {money(cashBackOf(10, rate))} Popoto coin · แลกทีละ 10</p>
     <div className="flex min-h-11 items-center gap-2 rounded-xl border border-line-strong px-3 py-2" data-bank-casino>
       <span className="min-w-0 flex-1 text-ui font-semibold text-ink">Casino Coin ที่แลกได้</span>
       <span className="font-data text-title tabular-nums text-ink">{money(can)}</span>
     </div>
-    {free > 0 && <p className="mt-1.5 text-meta text-muted">เหรียญฟรี {money(free)} แลกไม่ได้ ใช้หมุนที่ Casino เท่านั้น</p>}
+    {free > 0 && <p className="mt-1.5 text-ui text-muted">เหรียญฟรี {money(free)} แลกไม่ได้ ใช้หมุนที่ Casino เท่านั้น</p>}
     {can >= 10 ? <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-line bg-card/60 px-3 py-2.5">
       <div className="flex items-center gap-1">
         <button type="button" disabled={take <= 10} onClick={() => setN(take - 10)} aria-label="ลดลง"
@@ -52,8 +52,8 @@ function Teller({ onCoins }: { onCoins?: () => void }) {
         {can > 10 && <button type="button" onClick={() => setN(can)} className="pressable ml-1 min-h-11 rounded-full border border-line-strong px-3 text-ui text-ink hover:border-accent">ทั้งหมด</button>}
       </div>
       <button type="button" disabled={busy || take > can} onClick={() => void change()} data-bank-casino-go
-              className="pressable ml-auto min-h-11 rounded-full bg-accent px-5 text-ui font-semibold text-bg disabled:opacity-40">แลก · ได้ {money(cashBackOf(take, rate))}</button>
-    </div> : <p className="mt-3 text-meta text-muted">{chips > 0 ? 'ยังมี Casino Coin ที่แลกได้ไม่ถึง 10' : 'ยังไม่มี Casino Coin'}</p>}
-    {note && <p className="mt-2 text-meta text-ink" role="status" data-bank-casino-note>{note}</p>}
+              className="pressable ml-auto min-h-11 rounded-full bg-accent px-5 text-ui font-semibold text-bg disabled:opacity-40">แลก · ได้ {money(cashBackOf(take, rate))} Popoto coin</button>
+    </div> : <p className="mt-3 text-ui text-muted">{chips > 0 ? 'ยังมี Casino Coin ที่แลกได้ไม่ถึง 10' : 'ยังไม่มี Casino Coin'}</p>}
+    {note && <p className="mt-2 text-ui font-semibold text-ink" role="status" data-bank-casino-note>{note}</p>}
   </>;
 }

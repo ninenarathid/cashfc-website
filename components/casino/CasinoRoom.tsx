@@ -40,6 +40,9 @@ const AFK_MS = 60_000;
 /** The TEST room's own map: its five stools on one row, in its own tiles. */
 const TEST_STOOLS = MACHINE_X.map(x => ({ x, y: 3.5 }));
 const CHEERS = ['ลุ้นด้วย!', 'มาแล้ว ๆ!', 'อีกนิดเดียว!', 'ยินดีด้วย!'];
+/** Lets my machine go. (Chained: the client sends a call only when it is awaited or chained, and a bare `void` of one sends nothing: Codex's check, 2026-10-31.) */
+const letSeatGo = (client: ReturnType<typeof useCasino>['client']) => { void client?.rpc('casino_live_seat', { p_machine: null }).then(() => {}, () => {}); };
+
 export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:CasinoInTown}) {
   const nativeRef=useRef(native);nativeRef.current=native;
   // (where the room's own tiles are in the walker's: the town's tile space, or the casino map's own)
@@ -173,7 +176,7 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
       const {data,error:failed}=await client.rpc('casino_live_seat',{p_machine:n});
       const r=data as {ok?:boolean;why?:string;name?:string;full?:boolean;seconds?:number}|null;
       // (all ten taken, and a rest after a whole turn with all ten taken: v314)
-      if(!failed&&r&&!r.ok&&r.why==='taken'&&r.full){const turn=state?.settings.seat_turn_s??0;setError(`เครื่องเต็มทุกตัว รอสักครู่${turn>0?` คนที่เล่นครบ ${Math.round(turn/60)} นาทีจะลุกให้`:''}`);return;}
+      if(!failed&&r&&!r.ok&&r.why==='taken'&&r.full){const turn=state?.settings.seat_turn_s??0;setError(`เครื่องเต็มทุกตัว รอสักครู่${turn>0?` คนที่เล่นครบ ${Math.round(turn/60)} นาทีจะต้องลุกให้คนอื่น`:''}`);return;}
       if(!failed&&r&&!r.ok&&r.why==='rest'){setError(`พักอีก ${r.seconds??60} วินาทีค่อยนั่งใหม่`);return;}
       if(!failed&&r&&!r.ok&&r.why==='taken'){setError(`เครื่อง ${n} มี ${r.name??'คนอื่น'} เล่นอยู่ เลือกเครื่องอื่นได้เลย`);return;}
       if(!failed&&r?.ok){heldSeat.current=n;lastPlay.current=latestNow.current();setError('');}
@@ -270,7 +273,7 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
   // (up from the machine, and it let go)
   const leaveMachine = (machine: number) => {
     heldSeat.current = null; satAt.current = null; setPane('none');
-    void client?.rpc('casino_live_seat', { p_machine: null });
+    letSeatGo(client);
     const stool = stools[machine - 1]; walker?.walkTo({ x: stool.x, y: stool.y + 1 });
   };
   const idleLeft = town && live && heldSeat.current && self.seat === heldSeat.current ? Math.max(0, AFK_MS - (clock - lastPlay.current)) : null;
@@ -280,7 +283,7 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
     if (held && self.seat === held) satAt.current = held;
     else if (satAt.current && self.seat !== satAt.current) {
       // (stood up: let it go, unless the machine walked to next is the one held now)
-      if (heldSeat.current === satAt.current) { heldSeat.current = null; void client.rpc('casino_live_seat', { p_machine: null }); }
+      if (heldSeat.current === satAt.current) { heldSeat.current = null; letSeatGo(client); }
       satAt.current = null;
     }
     // (never while a spin of mine is being asked or its reels still turn)
@@ -300,7 +303,7 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
     wasSeat.current = self.seat;
   }, [self.seat, selected]);
   // (leaving the casino lets the machine go at once, not a minute on: Codex's check)
-  useEffect(() => () => { if (heldSeat.current && client) void client.rpc('casino_live_seat', { p_machine: null }); }, [client]);
+  useEffect(() => () => { if (heldSeat.current) letSeatGo(client); }, [client]);
   const sendCheer = (text: string) => {
     if (Date.now() - lastCheer.current < 2000) return; lastCheer.current = Date.now();
     setCheer(`${self.name}: ${text}`); clearTimeout(cheerTimer.current); cheerTimer.current = setTimeout(() => setCheer(''), 4000);

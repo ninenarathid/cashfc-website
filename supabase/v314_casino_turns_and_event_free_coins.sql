@@ -72,7 +72,7 @@ begin
   -- first's machine go)
   insert into public.casino_live_accounts (user_id) values (me) on conflict do nothing;
   select a.seat_rest_until into rest_ from public.casino_live_accounts a where a.user_id = me for update;
-  if rest_ > now_ then return jsonb_build_object('ok', false, 'why', 'rest', 'seconds', ceil(extract(epoch from rest_ - now_))::integer); end if;
+  if s.seat_turn_s > 0 and rest_ > now_ then return jsonb_build_object('ok', false, 'why', 'rest', 'seconds', ceil(extract(epoch from rest_ - now_))::integer); end if;
   -- (two sitting down at one machine at once: the second waits here, then finds it held)
   perform pg_advisory_xact_lock(hashtext('casino_live_seat'), p_machine);
   select * into seat_ from public.casino_live_seats where machine = p_machine;
@@ -107,7 +107,7 @@ begin
   -- (v314: a whole turn with all ten taken: up at this pull, nothing taken; the page lets the machine go, which begins the rest)
   if found and seat_.user_id = me and seat_.at > now_ - interval ''60 seconds'' and s.seat_turn_s > 0
      and seat_.since <= now_ - make_interval(secs => s.seat_turn_s) and casino.machines_full(now_) then raise exception ''Turn over''; end if;
-  if a.seat_rest_until > now_ then raise exception ''Resting''; end if;'],
+  if s.seat_turn_s > 0 and a.seat_rest_until > now_ then raise exception ''Resting''; end if;'],
     ['public.casino_live_spin(uuid,integer,text,bigint)',
      'insert into public.casino_live_seats (machine, user_id, at) values (p_machine, me, now_)
     on conflict (machine) do update set user_id = excluded.user_id, at = excluded.at;',

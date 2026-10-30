@@ -23,12 +23,13 @@ export type CasinoBench = { url: string; as: string };
 export function benchClient(bench: CasinoBench): SupabaseClient {
   const quiet = { on() { return quiet; }, subscribe() { return quiet; }, unsubscribe() {}, send: async () => 'ok' };
   return {
-    rpc: async (name: string, args: Record<string, unknown> = {}) => {
+    // (as the real client's: nothing is sent until it is awaited or chained)
+    rpc: (name: string, args: Record<string, unknown> = {}) => ({ then: (done: (r: unknown) => unknown, failed?: (e: unknown) => unknown) => (async () => {
       const clean = { ...args }; delete clean.player_name;
       const r = await fetch(`${bench.url}/rest/v1/rpc/${name.replace('casino_lab_', 'casino_live_')}`, { method: 'POST', headers: { 'content-type': 'application/json', 'x-town-as': bench.as }, body: JSON.stringify(clean) });
       const body = await r.json().catch(() => null);
       return r.ok ? { data: body, error: null } : { data: null, error: { code: String(body?.code ?? r.status), message: String(body?.message ?? r.statusText) } };
-    },
+    })().then(done, failed) }),
     from: () => ({ select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: null, error: null }) }) }) }),
     channel: () => quiet, removeChannel: async () => 'ok', realtime: { setAuth: async () => {} },
   } as unknown as SupabaseClient;
