@@ -1,6 +1,13 @@
 {
  "events": [
   {
+   "date": "2026-10-30",
+   "type": "level_100",
+   "id": 28120733,
+   "name": "Fukurou Under",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
    "date": "2026-10-29",
    "type": "level_100",
    "id": 47218599,
@@ -1392,13 +1399,6 @@
    "id": 57519259,
    "name": "Kertia Cruz",
    "text": "cleared Queen Eternal (Extreme)"
-  },
-  {
-   "date": "2026-10-15",
-   "type": "parse_up",
-   "id": 44085912,
-   "name": "Mayu Ferguson",
-   "text": "set a new best parse: 22 on Zoraal Ja as Reaper"
   }
  ]
 }
