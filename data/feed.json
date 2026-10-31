@@ -2,6 +2,34 @@
  "events": [
   {
    "date": "2026-10-31",
+   "type": "rare_up",
+   "id": 44970350,
+   "name": "Allen Crist",
+   "text": "earned Hiding in Plain Sight: Exemplar — only 4.3% of players have it"
+  },
+  {
+   "date": "2026-10-31",
+   "type": "rare_up",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "earned R&D: Stellar Alembic"
+  },
+  {
+   "date": "2026-10-31",
+   "type": "rare_up",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "earned Phantom Physicking I"
+  },
+  {
+   "date": "2026-10-31",
+   "type": "rare_up",
+   "id": 29918255,
+   "name": "Lyndanisse Vymmaith",
+   "text": "earned On the Payroll VI"
+  },
+  {
+   "date": "2026-10-31",
    "type": "level_100",
    "id": 8286372,
    "name": "Aloha Banana",
@@ -1371,34 +1399,6 @@
    "id": 43864764,
    "name": "Shinonome Kamemaru",
    "text": "reached level 100 on Pictomancer!"
-  },
-  {
-   "date": "2026-10-16",
-   "type": "level_100",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "reached level 100 on Black Mage!"
-  },
-  {
-   "date": "2026-10-16",
-   "type": "level_100",
-   "id": 47218599,
-   "name": "Kawa Lynn",
-   "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-10-16",
-   "type": "level_100",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "reached level 100 on Monk!"
-  },
-  {
-   "date": "2026-10-16",
-   "type": "level_100",
-   "id": 58202955,
-   "name": "Trevas Aka",
-   "text": "reached level 100 on Astrologian!"
   }
  ]
 }
