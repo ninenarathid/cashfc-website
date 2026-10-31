@@ -37,7 +37,7 @@ export const WHO: Record<Speaker, { name: Line; job: Line; art: [quiet: string, 
   // clothes, trying them on, and the week's auction on her board (lib/town/shop-room). Of no country's own customs.
   granny: {
     name: { th: "ยายทวิลล่า", en: "Granny Twilla" },
-    job: { th: "ร้านเสื้อผ้า · ประมูลชุดประจำสัปดาห์", en: "Clothes, and the weekly auction" },
+    job: { th: "ร้านเสื้อผ้า · ประมูลชุดลิมิเต็ด", en: "Clothes, and the limited auction" },
     art: ["tk_granny", "tk_granny_o"],
   },
 };
@@ -120,7 +120,7 @@ export const TALKS: Record<Speaker, Line[][]> = {
       { th: "ระหว่างนี้เดินดูไปก่อน จับได้ ลองทาบตัวได้ แต่อย่าทำยับนะ", en: "Have a look round meanwhile. Hold things up to you all you like, just don't crumple them!" },
     ],
     [
-      { th: "เห็นหุ่นตรงนั้นไหมหลาน ทุกสัปดาห์ยายจะเอาชุดพิเศษมาใส่ให้ดู", en: "See the dress form over there? Each week I dress it in something special." },
+      { th: "เห็นหุ่นตรงนั้นไหมหลาน แต่ละรอบยายจะเอาชุดพิเศษมาใส่ให้ดู", en: "See the dress form over there? Each round I dress it in something special." },
       { th: "ชุดพวกนั้นมีแค่ไม่กี่ตัว ยายไม่ขายหน้าเคาน์เตอร์หรอก ต้องประมูลกันบนบอร์ด", en: "Those come only a few at a time. Not over the counter: they go to auction on my board." },
       { th: "ใครให้มากที่สุดตอนปิดประมูลก็ได้ไป ใจเย็นๆ คิดดีๆ ก่อนยกมือนะ", en: "Whoever bids the most at the close takes it home. Keep a cool head before you raise a hand." },
     ],
@@ -230,14 +230,14 @@ export const CHATS: Record<Speaker, Line[][]> = {
   ],
   granny: [
     [
-      { th: "บอร์ดบนผนังนั่น ยายติดรายการประมูลของสัปดาห์นี้ไว้", en: "The board on the wall has this week's auction pinned up." },
-      { th: "ชุดประมูลมีไม่กี่ตัว ดูให้ดีว่าสัปดาห์นี้มีอะไร แล้วค่อยตัดสินใจ", en: "Auction pieces are few. Look well at what's up this week, then make up your mind." },
+      { th: "บอร์ดบนผนังนั่น ยายติดรายการประมูลรอบนี้ไว้", en: "The board on the wall has this round's auction pinned up." },
+      { th: "ชุดประมูลมีไม่กี่ตัว ดูให้ดีว่ารอบนี้มีอะไร แล้วค่อยตัดสินใจ", en: "Auction pieces are few. Look well at what's up this round, then make up your mind." },
       { th: "อย่าลืมแวะมาดูก่อนปิดประมูลนะ ยายไม่อยากให้หลานพลาด", en: "Do pop back before it closes. I'd hate for you to miss out." },
     ],
     [
       { th: "ชุดที่ใส่หุ่นไว้ก็คือของประมูลนั่นแหละ ยายแต่งให้ดูว่าใส่จริงแล้วเป็นยังไง", en: "What's on the dress form is up for auction. I dress it so you can see it worn." },
       { th: "ลองนึกภาพตัวเองใส่ดูก่อน ถ้ายิ้มออกมาเองก็แปลว่าใช่", en: "Picture yourself in it first. If you catch yourself smiling, that's the one." },
-      { th: "แต่ถ้ายืนทำหน้าเฉยๆ นานๆ ยายว่าข้ามไปเถอะ ไว้รอสัปดาห์หน้า", en: "If you just stand there frowning, skip it, dearie. There's always next week." },
+      { th: "แต่ถ้ายืนทำหน้าเฉยๆ นานๆ ยายว่าข้ามไปเถอะ ไว้รอรอบหน้า", en: "If you just stand there frowning, skip it, dearie. There's always next round." },
     ],
     [
       { th: "หลานยืนเลือกนานจัง ยายว่าใส่ได้ทุกตัวแหละ หน้าตาดีแบบนี้", en: "You've been choosing forever! Honestly, with a face like that, anything works." },

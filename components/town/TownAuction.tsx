@@ -120,7 +120,7 @@ export default function TownAuction(p: ShopWindowProps) {
           </ul>
         </details>
         {!boards ? <p className="text-meta text-muted">{th ? "กำลังโหลด…" : "Loading…"}</p>
-          : !lots.length ? <p className="text-meta text-muted">{th ? "ยายยังไม่ได้ติดรายการประมูลสัปดาห์นี้จ้ะ" : "Nothing is up for auction this week yet."}</p> : (
+          : !lots.length ? <p className="text-meta text-muted">{th ? "ยายยังไม่ได้ติดรายการประมูลรอบนี้จ้ะ" : "Nothing is up for auction yet."}</p> : (
           <div className="grid grid-cols-1 gap-3">
             {lots.map((a) => {
               const open = !a.settledAt && at >= a.opensAt && at < a.closesAt, early = at < a.opensAt, done = !!a.settledAt || at >= a.closesAt;

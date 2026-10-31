@@ -2441,7 +2441,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       const bb = seenShop.some((t) => t.i === SHOP_BOARD) ? roomArt.boxOf(SHOP_BOARD, iso2, v.s) : null;
       if (bb) {
         shopBoardBox.current = bb;
-        signs.push(() => label(ctx, words.current.th ? "ประมูลประจำสัปดาห์" : "Weekly auction", (bb.x0 + bb.x1) / 2, bb.y0 - 12 * v.s, "#e5cc80", "rgba(15,19,25,0.82)", null));
+        signs.push(() => label(ctx, words.current.th ? "ประมูลลิมิเต็ด" : "Limited auction", (bb.x0 + bb.x1) / 2, bb.y0 - 12 * v.s, "#e5cc80", "rgba(15,19,25,0.82)", null));
       }
     }
     // ── the Popoto Casino ── (its machines, stools and furniture back to front with everybody, the town's banker at its
@@ -4823,7 +4823,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (who === "granny") {
       setTalk({ who, n, lines: askFor(who, hour), choices: [
         { id: "tailor", label: th ? "ดูเสื้อผ้า" : "Browse the clothes" },
-        { id: "auction", label: th ? "ประมูลประจำสัปดาห์" : "This week's auction" },
+        { id: "auction", label: th ? "ประมูลลิมิเต็ด" : "The limited auction" },
         chat,
       ] });
       return;
