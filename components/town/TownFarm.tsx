@@ -631,7 +631,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           const trace = (path: Array<{ x: number; y: number }>) => { ctx.moveTo(path[0].x, path[0].y); for (const q of path.slice(1)) ctx.lineTo(q.x, q.y); ctx.closePath(); };
           const strips = Math.max(4, n * 2), stripW = (wide + 4) / strips;
           // (it presses on the ground: a flat dark shape under its belly, the game's, not the picture's)
-          const shadow = { depth: giant.x + giant.y - n, draw: () => { ctx.save(); ctx.fillStyle = "rgba(34,22,10,0.34)"; ctx.beginPath(); ctx.ellipse(centre.x, centre.y + n * TILE_H * 0.14 * s, wide * 0.5, n * TILE_H * 0.42 * s, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore(); if (look && full && !xray) goldGround(ctx, centre.x, centre.y + n * TILE_H * 0.14 * s, wide * 0.68, n * TILE_H * 0.62 * s, clock); if (since < BURST_MS) burstGround(ctx, centre.x, centre.y + n * TILE_H * 0.14 * s, n * TILE_W * s, n * TILE_H * s, since); } };
+          const shadow = { depth: giant.x + giant.y - n, draw: () => { ctx.save(); ctx.fillStyle = "rgba(34,22,10,0.34)"; ctx.beginPath(); ctx.ellipse(centre.x, centre.y + n * TILE_H * 0.14 * s, wide * 0.5, n * TILE_H * 0.42 * s, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore(); if (look && full && !xray) goldGround(ctx, centre.x, centre.y + n * TILE_H * 0.14 * s, wide * 0.68, n * TILE_H * 0.62 * s, clock); if (since < BURST_MS) burstGround(ctx, centre.x, centre.y + n * TILE_H * 0.14 * s, n * TILE_W * s, n * TILE_H * s, since, s, giant.x * 7 + giant.y); } };
           return [shadow, ...Array.from({ length: strips }, (_, i) => ({
             depth: edge(giant.x - giant.y + (((dx - 2 + (i + 0.5) * stripW) - centre.x) / (TILE_W * s)) * 2) + BELLY,
             draw: () => {

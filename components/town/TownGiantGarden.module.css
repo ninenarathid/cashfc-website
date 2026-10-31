@@ -21,7 +21,7 @@
 .scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding: 6px 6px 52px; }
 @media (min-width: 640px) { .scroll { padding-bottom: 6px; } }
 .panel button { touch-action: manipulation; }
-.title { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.title { position: sticky; top: -6px; z-index: 2; display: flex; align-items: center; gap: 8px; margin-bottom: 10px; background: #5f3b1d; }
 .title h3 { flex: 1; min-width: 0; color: #ffe8a8; text-shadow: 0 2px 0 #1a0e06, 0 0 10px #8fe39a55; }
 .chip {
   display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px;

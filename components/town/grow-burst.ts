@@ -21,45 +21,56 @@ export function burstScale(since: number): number {
 /** A little hash: where each clod goes is the same on every frame, and on every page. */
 const mix = (a: number, b: number) => { const v = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return v - Math.floor(v); };
 
-/** On the ground, under the plant: the square heaving and the ring of its breaking running out across the soil. */
-export function burstGround(ctx: CanvasRenderingContext2D, x: number, y: number, wide: number, high: number, since: number): void {
-  const t = since / BURST_MS, heave = Math.max(0, 1 - since / 420), ring = Math.min(1, since / 620);
+/** On the ground, under the plant: the square heaving, and the soil breaking in a broken ring of whole pixels that runs out across it. */
+export function burstGround(ctx: CanvasRenderingContext2D, x: number, y: number, wide: number, high: number, since: number, s: number, salt: number): void {
+  const heave = Math.max(0, 1 - since / 420), ring = Math.min(1, since / 620), unit = Math.max(1, Math.round(2 * s));
   ctx.save();
   if (heave > 0) { ctx.fillStyle = `rgba(28,16,6,${0.5 * heave})`; ctx.beginPath(); ctx.ellipse(x, y, wide * 0.4, high * 0.4, 0, 0, Math.PI * 2); ctx.fill(); }
-  if (t < 0.6) {
-    ctx.globalCompositeOperation = "lighter";
-    ctx.strokeStyle = `rgba(255,214,120,${0.55 * (1 - ring)})`;
-    ctx.lineWidth = Math.max(1, (high / 14) * (1 - ring) + 1);
-    ctx.beginPath(); ctx.ellipse(x, y, wide * (0.32 + 0.42 * ring), high * (0.32 + 0.42 * ring), 0, 0, Math.PI * 2); ctx.stroke();
+  if (ring < 1) {
+    const pieces = Math.round(wide / (unit * 3)), r = 0.34 + 0.4 * ring;
+    for (let i = 0; i < pieces; i++) {
+      // (broken, not a line: some of it is not there, and each piece has its own place about the ring)
+      if (mix(salt + 11, i) < 0.28) continue;
+      const a = (i / pieces) * Math.PI * 2, off = 1 + (mix(salt + 12, i) - 0.5) * 0.09, size = unit * (1 + Math.floor(mix(salt + 13, i) * 2));
+      const gold = mix(salt + 14, i) < 0.14;
+      ctx.fillStyle = gold ? GOLD[i % GOLD.length] : EARTH[Math.floor(mix(salt + 15, i) * EARTH.length)];
+      ctx.globalAlpha = (gold ? 0.95 : 0.9) * (1 - ring * ring);
+      ctx.fillRect(Math.round(x + Math.cos(a) * wide * r * off), Math.round(y + Math.sin(a) * high * r * off), size, size);
+    }
   }
   ctx.restore();
 }
 
-/** Over everything: the clods and the dust of its square thrown out, and the gold going up off it. */
+/** Over everything: the clods and the dust of its square thrown out where it meets the ground, and the gold going up off it. */
 export function burstEarth(ctx: CanvasRenderingContext2D, x: number, y: number, foot: number, wide: number, n: number, since: number, s: number, salt: number): void {
-  const unit = Math.max(1, Math.round(2 * s)), high = wide / 2;
+  const unit = Math.max(1, Math.round(2 * s)), high = wide / 2, gy = y + high * 0.56;
   ctx.save();
   ctx.imageSmoothingEnabled = false;
-  // (the earth: thrown from the rim of the square as the plant pushes up, falling back on it)
-  const clods = Math.min(44, 10 + n * 5);
+  // (the earth: thrown as the plant pushes up, most of it toward the eye where its edge meets the ground, falling back on it)
+  const clods = Math.min(72, 16 + n * 8);
   for (let i = 0; i < clods; i++) {
-    const a = mix(salt, i) * Math.PI * 2, delay = HELD + mix(i, salt) * 160, time = (since - delay) / 1000;
+    const a = (i % 4 ? mix(salt, i) * Math.PI : mix(salt, i) * Math.PI * 2), delay = HELD + mix(i, salt) * 260, time = (since - delay) / 1000;
     const life = 0.55 + mix(salt + 1, i) * 0.35;
     if (time <= 0 || time > life) continue;
-    const speed = (40 + mix(salt + 2, i) * 70) * s * (0.8 + n * 0.1), lift = (90 + mix(salt + 3, i) * 90) * s * (0.8 + n * 0.08);
-    const px = x + Math.cos(a) * (wide * 0.8 + speed * time), py = y + Math.sin(a) * (high * 0.8 + (speed * time) / 2) - lift * time + 320 * s * time * time;
+    const speed = (40 + mix(salt + 2, i) * 80) * s * (0.8 + n * 0.1), lift = (90 + mix(salt + 3, i) * 110) * s * (0.8 + n * 0.08);
+    // (from where its edge has reached by then)
+    const rim = 0.45 + 0.45 * Math.min(1, burstScale(delay));
+    const px = x + Math.cos(a) * (wide * rim + speed * time), py = gy + Math.sin(a) * (high * rim + (speed * time) / 2) - lift * time + 320 * s * time * time;
     const size = unit * (1 + Math.floor(mix(salt + 4, i) * 3));
     ctx.fillStyle = EARTH[Math.floor(mix(salt + 5, i) * EARTH.length)];
     ctx.globalAlpha = Math.min(1, (life - time) / 0.12);
     ctx.fillRect(Math.round(px), Math.round(py), size, size);
   }
-  // (the dust: pale blocks spreading low along the rim, thinning)
-  const puffs = Math.min(18, 6 + n * 2), dustEnd = 1000;
-  if (since < dustEnd) for (let i = 0; i < puffs; i++) {
-    const a = (i / puffs) * Math.PI * 2 + mix(salt + 6, i), t = Math.max(0, since - 90) / (dustEnd - 90), r = 0.86 + 0.36 * t;
-    const px = x + Math.cos(a) * wide * r, py = y + Math.sin(a) * high * r - 6 * s * t, size = Math.round(unit * (3 + 3 * t));
-    ctx.fillStyle = "#cdb48c"; ctx.globalAlpha = 0.5 * (1 - t);
-    ctx.fillRect(Math.round(px - size / 2), Math.round(py - size / 2), size, size);
+  // (the dust: pale clumps rolling low off its front edge, thinning)
+  const puffs = Math.min(22, 8 + n * 2), dustEnd = 1050;
+  if (since > HELD && since < dustEnd) for (let i = 0; i < puffs; i++) {
+    const a = (i / puffs) * Math.PI * 1.25 - Math.PI * 0.125 + mix(salt + 6, i) * 0.3, t = (since - HELD) / (dustEnd - HELD), r = 0.74 + 0.42 * t;
+    const px = x + Math.cos(a) * wide * r, py = gy + Math.sin(a) * high * r - 7 * s * t;
+    ctx.fillStyle = i % 3 ? "#cdb48c" : "#a98f68"; ctx.globalAlpha = 0.62 * (1 - t) * (1 - t);
+    for (let b = 0; b < 4; b++) {
+      const size = Math.round(unit * (2 + 2 * t + mix(salt + 16 + b, i) * 2));
+      ctx.fillRect(Math.round(px + (mix(salt + 20 + b, i) - 0.5) * unit * 7 - size / 2), Math.round(py + (mix(salt + 24 + b, i) - 0.5) * unit * 4 - size / 2), size, size);
+    }
   }
   // (the seeds' gold: motes going up off the plant, late, twinkling out)
   ctx.globalCompositeOperation = "lighter";

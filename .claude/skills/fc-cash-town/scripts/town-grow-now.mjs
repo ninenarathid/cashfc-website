@@ -107,6 +107,16 @@ for (const label of ONLY === "all" ? Object.keys(SIZES) : [ONLY]) {
     await X.evaluate(`(() => { const d = document.querySelector("[data-giant] details"); if (d) { d.open = true; d.scrollIntoView({ block: "center" }); } })()`); await sleep(300);
     ok(`${label}: the magic garden tells both uses`, await X.evaluate(`document.querySelector("[data-giant] details")?.textContent.includes("โตทันที")`));
     await shot("magic-garden-words");
+    // ── planting a giant is still there, by the same game, a new day's use ──
+    await X.evaluate(`(() => { const q = ${T}.purse(); ${T}.fished({ ...q, gifts: { ...q.gifts, used: {} } }); ${T}.grant("seedPumpkin", 4); })()`); await sleep(500);
+    await click("[data-garden-rewards]"); await sleep(300); await click("[data-garden-rewards]"); await sleep(500);
+    await until("plant button", () => X.evaluate(`document.querySelector("[data-giant-begin]")?.disabled === false`), 15000);
+    await click("[data-giant-begin]");
+    await until("the planting game", () => has("[data-giant-game]"), 15000); await sleep(300);
+    await play(true);
+    await until("a giant planted", async () => !!(await farm())["133,5"]?.plant?.giant, 15000).then(() => ok(`${label}: a giant is still planted, no Quality asked`, true)).catch(() => ok(`${label}: a giant is still planted, no Quality asked`, false));
+    const sown = (await farm())["133,5"]?.plant;
+    ok(`${label}: on its two by two, with no size`, sown?.footprint?.length === 4 && !sown?.size, JSON.stringify(sown?.size));
     console.log(label, "errors", JSON.stringify((await X.errors?.()) ?? []).slice(0, 400));
   } finally { X.close(); }
 }
