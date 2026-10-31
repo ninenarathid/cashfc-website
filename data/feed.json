@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-10-31",
+   "type": "level_100",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "reached level 100 on Ninja!"
+  },
+  {
+   "date": "2026-10-31",
    "type": "ult_clear",
    "id": 29152036,
    "name": "Fluffy Tinytail",
@@ -1392,13 +1399,6 @@
    "id": 60852230,
    "name": "Lucien Rhul",
    "text": "set a new best parse: 22 on Zoraal Ja as Dar\u0001 \u0002night"
-  },
-  {
-   "date": "2026-10-16",
-   "type": "ex_clear",
-   "id": 46243891,
-   "name": "Marin Elysium",
-   "text": "cleared Zoraal Ja (Extreme)"
   }
  ]
 }

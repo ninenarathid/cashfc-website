@@ -34144,7 +34144,7 @@
     "cleared": true,
     "job_kills": {
      "Warrior": {
-      "kills": 3,
+      "kills": 4,
       "best": 69
      }
     }
@@ -78098,7 +78098,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 79,
-    "kills": 86,
+    "kills": 88,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
