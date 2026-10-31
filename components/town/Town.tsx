@@ -1398,7 +1398,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
 
     const resize = () => {
       const r = stage.getBoundingClientRect();
-      // Keep a large window's view, with at most a Full HD image to repaint.
+      // Keep a large window's view, with at most a 2560×1440 image to repaint.
       // Phones retain their dense pixels; camera and input remain in CSS pixels.
       const dpr = canvasDpr(r.width, r.height, window.devicePixelRatio);
       canvas.width = Math.round(r.width * dpr);
