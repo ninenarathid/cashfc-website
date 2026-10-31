@@ -958,14 +958,16 @@
       "slot": "face",
       "shapes": "Every colour has three or four hard-edged tones, with a bright lit edge and a deep shade, and each metal part catches one bright pixel. Every shape stays big enough to read at this size, with no speckle. Each solid shape is fully opaque up to its dark outline, with no interior transparent cells or stray pixels outside it. No glow, bloom, halo or cast light.",
       "front": "a thin gold masquerade half-mask over both eyes and the top of the nose, a small pale-cream crescent moon rising past one temple, midnight-indigo trim along its edge, with two almond eye holes the eyes show through",
-      "key": "the half-mask, including its crescent moon and trim"
+      "key": "the half-mask, including its crescent moon and trim",
+      "clear": true
     },
     {
       "id": "maplemask",
       "slot": "face",
       "shapes": "Every colour has three or four hard-edged tones, with a bright lit edge and a deep shade, and each metal part catches one bright pixel. Every shape stays big enough to read at this size, with no speckle. Each solid shape is fully opaque up to its dark outline, with no interior transparent cells or stray pixels outside it. No glow, bloom, halo or cast light.",
       "front": "a bronze masquerade half-mask over both eyes and the top of the nose, shaped like two maple leaves meeting at the nose, their points spreading out past the temples, darker copper veins along each leaf, with two almond eye holes the eyes show through",
-      "key": "the half-mask, including both maple leaves and their veins"
+      "key": "the half-mask, including both maple leaves and their veins",
+      "clear": true
     }
   ],
   "starter": {
