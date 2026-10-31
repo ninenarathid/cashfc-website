@@ -29,6 +29,7 @@ import { useAdmin } from "@/lib/admin";
 import { BOUNDS, START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
 import { PACE, keepFps, keptFps, nap, paceOf, paced, wokenFor, type Fps } from "@/lib/town/pace";
 import { canvasDpr } from "@/lib/town/rendering";
+import { SaidLayer } from "@/lib/town/said-layer";
 import { PUDDLE_SIZES, RING_MS, Rain, ageOf, drawPicture, puddleRing, puddleRingsFor, puddlesFor, ringsFor, type Pictures } from "@/lib/town/rain";
 import { keepMotion, keptMotion } from "@/lib/town/motion";
 import { SHOP as STALL_RULES } from "@/lib/town/shop";
@@ -444,6 +445,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   words.current = w;
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  /** Over the canvas, at the screen's own pixels: what is said over heads, and the cursor above that. */
+  const saidRootRef = useRef<HTMLDivElement>(null), saidLayer = useRef<SaidLayer | null>(null), cursorRef = useRef<HTMLDivElement>(null);
   const cam = useRef({ s: 1, cx: 0, cy: 0, cw: 0, ch: 0, ready: false, follow: true, dpr: 1 });
   /** Which map I am on (lib/town/world's places): the camera stays inside it. And when I last went through a gate: the other map comes up out of the dark. */
   const placeRef = useRef<Place>("town");
@@ -1238,6 +1241,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
 
   useEffect(() => {
     fontRef.current = getComputedStyle(document.body).getPropertyValue("--font-body-face").trim() || "sans-serif";
+    saidLayer.current = saidRootRef.current && new SaidLayer(saidRootRef.current);
+    return () => { saidLayer.current = null; };
   }, []);
 
   // The dolls: one picture, fetched once per tab.
@@ -1621,24 +1626,26 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   }
 
   /** The mouse cursor, over everything (and the sky's tint): see `mouse`. */
-  function drawCursor(ctx: CanvasRenderingContext2D, now: number, dpr: number) {
-    const m = mouse.current, img = iconImg.current;
-    if (!m?.inside || !img?.complete || !img.naturalWidth) return;
+  function placeCursor(now: number) {
+    const m = mouse.current, img = iconImg.current, el = cursorRef.current;
+    if (!el) return;
+    if (!m?.inside || !img?.complete || !img.naturalWidth) { el.style.display = "none"; return; }
     const t = reducedRef.current ? 0 : now, pressed = now - m.pressAt < 170;
     const name: IconName = m.mode === "grab" ? "grab"
       : m.mode === "sit" ? (pressed ? "sit3" : (["sit1", "sit2"] as const)[Math.floor(t / 300) % 2])
       : m.mode === "hand" ? (pressed ? "hand2" : (["hand1", "hand1", "hand3", "hand1"] as const)[Math.floor(t / 260) % 4])
       : pressed ? "cur1" : (["cur1", "cur2", "cur3", "cur2", "cur1", "cur4"] as const)[Math.floor(t / 150) % 6];
     const [x, y, w, h] = ICON_ATLAS.icons[name], [hx, hy] = ICON_ATLAS.cursor[name] ?? [0, 0];
-    // two CSS pixels to a picture pixel (the owner's call: "Cursor ขอขนาดใหญ่กว่านี้"), crisp on any screen
-    const k = 2;
-    ctx.save();
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.globalAlpha = 1;
-    ctx.globalCompositeOperation = "source-over";
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(img, x, y, w, h, Math.round((m.x - hx * k) * dpr) / dpr, Math.round((m.y - hy * k) * dpr) / dpr, w * k, h * k);
-    ctx.restore();
+    // two CSS pixels to a picture pixel (the owner's call: "Cursor ขอขนาดใหญ่กว่านี้"), crisp on any screen; on the page
+    // and not the canvas, so that it stays over what is said (lib/town/said-layer)
+    const k = 2, ratio = window.devicePixelRatio || 1, style = el.style;
+    style.display = "block";
+    style.width = `${w * k}px`;
+    style.height = `${h * k}px`;
+    style.backgroundImage = `url("${img.src}")`;
+    style.backgroundSize = `${img.naturalWidth * k}px ${img.naturalHeight * k}px`;
+    style.backgroundPosition = `${-x * k}px ${-y * k}px`;
+    style.transform = `translate(${Math.round((m.x - hx * k) * ratio) / ratio}px,${Math.round((m.y - hy * k) * ratio) / ratio}px)`;
   }
 
   /** How far a tree, a pine or a bush leans in the wind now: a steady lean and a sway of its own. */
@@ -3026,17 +3033,21 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // ── to come ── (the preview's own lights, after the sky has had its say)
     if (more && moreFrame) more.lights(moreFrame);
     for (const sign of signs) sign();
+    saidLayer.current?.begin();
     for (const n of names) n();
+    saidLayer.current?.end();
     // ── to come ── (and the cave's dark, over everything: names too)
     if (more && moreFrame) more.darkness(moreFrame);
     hits.current = boxes;
     // Through a gate: the other map comes up out of the dark.
-    const since = now - warpedAt.current;
-    if (since < 450 && !reducedRef.current) {
+    const since = now - warpedAt.current, coming = since < 450 && !reducedRef.current;
+    if (coming) {
       ctx.fillStyle = `rgba(10,13,18,${(1 - since / 450).toFixed(3)})`;
       ctx.fillRect(0, 0, cw, ch);
     }
-    drawCursor(ctx, now, dpr);
+    // (what is said on the page comes up with it)
+    if (saidRootRef.current) saidRootRef.current.style.opacity = coming ? (since / 450).toFixed(3) : "";
+    placeCursor(now);
   }
 
   function drawBuilding(ctx: CanvasRenderingContext2D, b: Building, signs: Array<() => void>) {
@@ -3798,8 +3809,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       // Their try at the forge (lib/town/forge-show): a plate over their head, the knocks, and what came of it.
       const over = a.forged ? drawForged(ctx, iconImg.current, a.forged, p.x, board - 2, wall, { reduced: reducedRef.current, font: fontRef.current, th: words.current.th }) : board;
       // What they just typed, over their head; it fades in its last moment.
-      if (said) bubble(ctx, said.text, p.x, over - 2, Math.min(1, (BUBBLE_MS - (wall - said.at)) / 800));
-      else if (typing) dots(ctx, p.x, over - 2, now);
+      if (said) bubble(ctx, a.info.id, said.text, p.x, over - 2, Math.min(1, (BUBBLE_MS - (wall - said.at)) / 800));
+      else if (typing) dots(ctx, a.info.id, p.x, over - 2, now);
     });
   }
 
@@ -3899,7 +3910,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   }
 
   /** "…" over somebody typing: a small bubble, its three dots rising one after another. */
-  function dots(ctx: CanvasRenderingContext2D, x: number, bottom: number, now: number) {
+  function dots(ctx: CanvasRenderingContext2D, id: string, x: number, bottom: number, now: number) {
+    const page = saidOn(ctx);
+    if (page) {
+      page.typing(id, x, bottom, (i) => reducedRef.current ? 0 : Math.max(0, Math.sin(now / 160 - i * 0.9)) * 3);
+      return;
+    }
     const w = 38, h = 20, top = bottom - h - 6;
     ctx.save();
     ctx.fillStyle = "rgba(227,232,239,0.96)";
@@ -3921,7 +3937,17 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     ctx.restore();
   }
 
-  function bubble(ctx: CanvasRenderingContext2D, text: string, x: number, bottom: number, alpha: number) {
+  /** What is said goes on the page, sharp on any window (lib/town/said-layer); but on a test map's own canvas there, and in the cave, whose dark falls over everything on its map, this too. */
+  function saidOn(ctx: CanvasRenderingContext2D) {
+    return ctx.canvas === canvasRef.current && placeRef.current !== "cave" ? saidLayer.current : null;
+  }
+
+  function bubble(ctx: CanvasRenderingContext2D, id: string, text: string, x: number, bottom: number, alpha: number) {
+    const page = saidOn(ctx);
+    if (page) {
+      page.said(id, text, x, bottom, alpha, fontRef.current, (t, width, measure) => wrapLines(t, width, measure, 3), cam.current.cw);
+      return;
+    }
     ctx.save();
     ctx.globalAlpha = alpha;
     ctx.font = `500 12px ${fontRef.current}`;
@@ -5135,6 +5161,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
               onPointerDown={onPointerDown} onPointerMove={onPointerMove}
               onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
               onPointerLeave={() => { hover.current = null; if (mouse.current) mouse.current.inside = false; }} />
+      <div aria-hidden className="pointer-events-none absolute inset-0 isolate overflow-hidden">
+        <div ref={saidRootRef} className="absolute inset-0 isolate" />
+        <div ref={cursorRef} className="absolute left-0 top-0 hidden [image-rendering:pixelated] [will-change:transform]" />
+      </div>
 
       {/* ── the Popoto Casino ── (its slot sheet, the room's results and its desk, while I am in its room) */}
       {!mapAddon && session && inCasino && casinoArtRef.current && (
