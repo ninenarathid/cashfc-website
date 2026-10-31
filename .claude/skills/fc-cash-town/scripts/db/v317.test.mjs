@@ -403,11 +403,15 @@ try {
   rowPlots[k(1, 3)] = { soil: "tilled", plant: ripe({ sown: nowMs - (CROPS.pumpkin.hours + 3) * H }) };
   rowPlots[k(5, 3)] = { soil: "tilled", plant: ripe({ sown: nowMs - (CROPS.pumpkin.hours + 4) * H }) };
   rowPlots[k(6, 3)] = { soil: "tilled", plant: ripe({ sown: nowMs - (CROPS.pumpkin.hours + 5) * H }) };
-  const rowKeys = Object.keys(rowPlots), wearer = { ...(await purseOf(m1)), hand: null, wears: ["charmSickle"], gifts: { had: ["charmSickle"], used: {} } };
+  const rowKeys = Object.keys(rowPlots), wearer = { ...(await purseOf(m1)), hand: null, gifts: { had: ["charmSickle"], charms: ["charmSickle"] } };
   const rowAt = async (at_) => (await one("select town.row_for($1, $2::jsonb, $3::jsonb, $4::jsonb, $5, $6::bigint, $5) r", [at_, JSON.stringify(rowKeys), JSON.stringify(rowPlots), JSON.stringify(wearer), m1, nowMs])).r;
   eq(await rowAt(ROOT), null, "not begun at one grown");
   const fromNext = await rowAt(k(1, 3));
-  eq(fromNext === null || !fromNext.plots.includes(ROOT), true, "nor reached from the next plant");
+  eq(fromNext?.deed, "pick", "a sickle still takes ordinary plants along a row");
+  eq(fromNext?.plots.includes(k(5, 3)) && fromNext?.plots.includes(k(6, 3)), true, "all of them");
+  eq(fromNext?.plots.includes(ROOT), false, "and passes by the one grown");
+  const page = F.rowFor(k(1, 3), rowKeys, rowPlots, wearer, m1, nowMs, m1);
+  eq(page && { deed: page.deed, plots: [...page.plots].sort() }, fromNext && { deed: fromNext.deed, plots: [...fromNext.plots].sort() }, "as the page says");
 
   // ── a function whose text has moved stops the file, with nothing done ──
   const was = (await one("select pg_get_functiondef('town.twice_wanted(text,jsonb,bigint)'::regprocedure) d")).d;

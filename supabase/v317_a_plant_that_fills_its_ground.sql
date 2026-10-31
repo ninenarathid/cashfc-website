@@ -71,7 +71,7 @@ begin
      'if p->''giant''=''true''::jsonb then n:=n+case when p->''size''->''plain''=''true''::jsonb then 0 else 5*town.yield_of(p_key,p,null) end+greatest(0,least(3,coalesce((p->''pull''->>''bonus'')::integer,0)));end if;'],
     ['town.pick(text,jsonb,jsonb,boolean,text,bigint,text)', '  last_ := picked >= (town.cat(''crops'')->(p->>''crop'')->>''picks'')::int + town.more_of(p);',
      '  -- (v317: one grown over its ground is sold whole, once)
-  last_ := picked >= (town.cat(''crops'')->(p->>''crop'')->>''picks'')::int + town.more_of(p) or jsonb_typeof(p->''size'') = ''object'';'],
+  last_ := picked >= (town.cat(''crops'')->(p->>''crop'')->>''picks'')::int + town.more_of(p) or jsonb_typeof(p->''size'') is not distinct from ''object'';'],
     ['town.pick(text,jsonb,jsonb,boolean,text,bigint,text)', '''purse'', town.spend(room_, (f->''costs''->>''pick'')::double precision, p_now)),p_now,top_);',
      '''purse'', town.sold_whole(town.spend(room_, (f->''costs''->>''pick'')::double precision, p_now), p_key, p, p_now)),p_now,top_);'],
     ['town.quality_harvest(text,jsonb,integer,bigint,text,integer,boolean)', ' vals integer[] := ''{}''; counts integer[] := array[0,0,0,0];',
@@ -90,10 +90,11 @@ begin
     ['town.row_for(text,jsonb,jsonb,jsonb,text,bigint,text)', '  if not hoes and not sows and not reaps then return null; end if;',
      '  if not hoes and not sows and not reaps then return null; end if;
   -- (v317: one grown over its ground is sold whole, picked by itself and never in a row)
-  if reaps and jsonb_typeof(p_plots->p_at->''plant''->''size'') = ''object'' then return null; end if;'],
+  if reaps and jsonb_typeof(p_plots->p_at->''plant''->''size'') is not distinct from ''object'' then return null; end if;'],
     ['town.row_for(text,jsonb,jsonb,jsonb,text,bigint,text)', '       where town.deed_for(k.key_, coalesce(p_plots->k.key_, wild), hand, p_me, p_now, p_owner) = deed',
      '       where town.deed_for(k.key_, coalesce(p_plots->k.key_, wild), hand, p_me, p_now, p_owner) = deed
-         and not (reaps and jsonb_typeof(p_plots->k.key_->''plant''->''size'') = ''object'')'],
+         -- (`is not distinct`: an ordinary plant has no size, and a NULL here would leave it out of every row)
+         and not (reaps and jsonb_typeof(p_plots->k.key_->''plant''->''size'') is not distinct from ''object'')'],
     ['public.town_tend(integer,integer,jsonb,boolean)', 'case when did->>''deed'' = ''pick'' then (did->''got''->0->>1)::numeric else 1 end, 0,',
      'case when did->>''deed'' = ''pick'' then (did->''got''->0->>1)::numeric else 1 end,
       -- (v317: what the relatives paid for one sold whole)
