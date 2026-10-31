@@ -2,6 +2,55 @@
  "events": [
   {
    "date": "2026-10-31",
+   "type": "ult_clear",
+   "id": 29152036,
+   "name": "Fluffy Tinytail",
+   "text": "cleared Dancing Mad 🏆"
+  },
+  {
+   "date": "2026-10-31",
+   "type": "level_100",
+   "id": 42948817,
+   "name": "Karuma Amamiya",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
+   "date": "2026-10-31",
+   "type": "level_100",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-10-31",
+   "type": "level_100",
+   "id": 36183541,
+   "name": "Nagi Amano",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
+   "date": "2026-10-31",
+   "type": "level_100",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-10-31",
+   "type": "level_100",
+   "id": 30596644,
+   "name": "Noelle Eisner",
+   "text": "reached level 100 on Pictomancer!"
+  },
+  {
+   "date": "2026-10-31",
+   "type": "level_100",
+   "id": 33608576,
+   "name": "Verles Eisner",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
+   "date": "2026-10-31",
    "type": "rare_up",
    "id": 44970350,
    "name": "Allen Crist",
@@ -1350,55 +1399,6 @@
    "id": 46243891,
    "name": "Marin Elysium",
    "text": "cleared Zoraal Ja (Extreme)"
-  },
-  {
-   "date": "2026-10-16",
-   "type": "parse_up",
-   "id": 24228478,
-   "name": "Pyrozus Helison",
-   "text": "set a new best parse: 20 on Zoraal Ja as Sage"
-  },
-  {
-   "date": "2026-10-16",
-   "type": "ex_clear",
-   "id": 24228478,
-   "name": "Pyrozus Helison",
-   "text": "cleared Zoraal Ja (Extreme)"
-  },
-  {
-   "date": "2026-10-16",
-   "type": "ex_clear",
-   "id": 58199536,
-   "name": "Areeya Lovekin",
-   "text": "cleared Enuo (Extreme)"
-  },
-  {
-   "date": "2026-10-16",
-   "type": "ex_clear",
-   "id": 36130968,
-   "name": "Chu Celestial",
-   "text": "cleared Zoraal Ja (Extreme)"
-  },
-  {
-   "date": "2026-10-16",
-   "type": "level_100",
-   "id": 24228478,
-   "name": "Pyrozus Helison",
-   "text": "reached level 100 on Summoner!"
-  },
-  {
-   "date": "2026-10-16",
-   "type": "rare_up",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "earned Dire, Dire Deepcroft — only 0.2% of players have it, and 4 more"
-  },
-  {
-   "date": "2026-10-16",
-   "type": "level_100",
-   "id": 43864764,
-   "name": "Shinonome Kamemaru",
-   "text": "reached level 100 on Pictomancer!"
   }
  ]
 }
