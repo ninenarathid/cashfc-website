@@ -438,10 +438,11 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         void keeper.plantGold(k.split(",").map(Number) as [number, number]);
       }
     };
+    // (when the farm's plots change, and now and then for what ripens as it stands)
     look();
     const again = setInterval(look, 30_000);
     return () => clearInterval(again);
-  }, [keeper]);
+  }, [keeper, plots]);
   /** With a fertiliser in the hand: what it would add to each of my plants it may go on (lib/town/quality-plant's fertGain), drawn over each. */
   const fertGains = useRef(new Map<string, number>());
   const fertWorked = useRef<{ held: string; bucket: number; plants: Plant[]; gains: Map<string, number> } | null>(null);
@@ -586,7 +587,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         const name = giantSprite(giant.crop, what.stage);
         if (!name) return null;
         // (a plant grown over its square: one drawing a crop, drawn across its whole square by the code; lib/town/giant-sizes)
-        const n = giant.n ?? 2, cropName = `${giant.crop[0].toUpperCase()}${giant.crop.slice(1)}`, big = bigPieces(), young = (giant.until ?? 0) > keeper.now() && !!big?.props[`big${cropName}7A`], bigName = `big${cropName}7${young ? "A" : "B"}`, piece = big?.props[bigName];
+        const n = giant.n ?? 2, cropName = `${giant.crop[0].toUpperCase()}${giant.crop.slice(1)}`, big = bigPieces(), young = !what.ripe && !!big?.props[`big${cropName}7A`], bigName = `big${cropName}7${young ? "A" : "B"}`, piece = big?.props[bigName];
         if (big && piece && big.image.complete && big.image.naturalWidth) {
           const [x, y, w, h] = piece, centre = project({ x: giant.x, y: giant.y }), k = (n * TILE_W * 1.02 * (giant.fit ?? 1) * s) / w, foot = centre.y + n * TILE_H * 0.52 * s, lean = giant.go ? leanAt(giant.go, keeper.now()) : 0;
           const dx = Math.round(centre.x - (w * k) / 2), dy = Math.round(foot - h * k), wide = w * k, tall = h * k;

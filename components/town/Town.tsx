@@ -1030,14 +1030,24 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       .map((a) => ({ id: a.info.id, name: a.info.name, x: a.pos.x, y: a.pos.y, moving: a.path.length > 0, fell: a.info.fell ?? "" }));
   }, []);
   const walkToTile = useCallback((x: number, y: number) => { const ok = sessionRef.current?.walkTo({ x, y }) ?? false; if (ok) cam.current.follow = true; return ok; }, []);
-  // (a "ไปช่วย" chip in the town's news or the chat, for a plant grown over its ground: the way to its root)
+  // (a "ไปช่วย" chip in the town's news or the chat, for a plant grown over its ground: the way to its root; from the town
+  // that is first through the farm's nearest gate, which no path crosses, and on from where it lands)
   useEffect(() => {
+    let on: ReturnType<typeof setInterval> | undefined;
     const go = (e: Event) => {
       const [x, y] = (e as CustomEvent<string>).detail.split(",").map(Number);
-      for (let r = 0; r <= 6; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) if (Math.max(Math.abs(dx), Math.abs(dy)) === r && walkToTile(x + dx, y + dy)) return;
+      const there = () => { for (let r = 0; r <= 6; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) if (Math.max(Math.abs(dx), Math.abs(dy)) === r && walkToTile(x + dx, y + dy)) return true; return false; };
+      clearInterval(on);
+      if (there()) return;
+      const self = sessionRef.current?.self.pos;
+      if (!self) return;
+      const gate = GATES.filter((g) => g.leads === "farm" && g.from === "town").sort((a, b) => Math.hypot(a.tiles[0][0] - self.x, a.tiles[0][1] - self.y) - Math.hypot(b.tiles[0][0] - self.x, b.tiles[0][1] - self.y))[0];
+      if (!gate || !walkToTile(gate.tiles[0][0], gate.tiles[0][1])) return;
+      // (once it has stopped, whether through the gate or turned aside: on from there if it can, and that is all)
+      on = setInterval(() => { if (sessionRef.current?.self.path.length) return; clearInterval(on); there(); }, 500);
     };
     window.addEventListener("cashtown:pull-go", go);
-    return () => window.removeEventListener("cashtown:pull-go", go);
+    return () => { clearInterval(on); window.removeEventListener("cashtown:pull-go", go); };
   }, [walkToTile]);
   // ── end: felling ──
   // The insects (TownBugs): drawn on every map, and a tap is asked of the net before it is a step.
