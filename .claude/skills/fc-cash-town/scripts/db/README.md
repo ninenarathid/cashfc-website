@@ -271,3 +271,5 @@ Dry run `v303.test.mjs` (77 checks, on the bench kept after v296 with v256, v297
 stand-ins and v299 first), `v303.mutations.mjs` (21 of 21 breaks caught). In a browser: `town-casino-chips.mjs <base> <out> <bench>` against
 `town-bench.mjs` with v303 last in BENCH_EXTRA (the bench needs `pglite-harness.mjs` beside it and `@electric-sql/pglite`
 reachable: a scratch folder with the three files and a `node_modules` junction to the PGlite bench's will do).
+
+**v317, a plant that fills its ground (2026-10-31).** Dry run `v317.test.mjs` on a bench through v316 (`V317_BENCH=<a cache>`, built by `dump-fns`'s steps; 2720 checks, the twins included). In a browser: `town-grow.mjs` plays it in the trial at the three sizes; `town-grow-db.mjs <base> <out> <bench>` plays it in three tabs against `town-bench.mjs 3299` with `BENCH_FROM=<that cache>` and `BENCH_EXTRA=<a reader of the news with its way there, as v309 made it, which does not replay there>,<v317>`.
