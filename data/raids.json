@@ -88571,9 +88571,9 @@
     "state": "learning",
     "pct": 27.79,
     "phase": 4,
-    "pulls": 68,
-    "last": "2026-10-28",
-    "last_ts": 1793199765
+    "pulls": 82,
+    "last": "2026-10-30",
+    "last_ts": 1793371624
    }
   ]
  },
@@ -90411,8 +90411,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1085,
     "name": "Dancing Mad",
-    "best": 20,
-    "kills": 2,
+    "best": 26,
+    "kills": 3,
     "job": "DarkKnight",
     "cleared": true,
     "job_kills": {
@@ -91006,7 +91006,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 69,
-    "kills": 4,
+    "kills": 5,
     "job": "Scholar",
     "cleared": true,
     "job_kills": {
