@@ -16,7 +16,7 @@ import { createHash } from "node:crypto";
 
 const HERE = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Z]:)/, "$1");
 const ENV = "E:/NinenineProject/fcnext/.env.local";
-const BUDGET = 45; // US dollars; refuse to call past this (10, then 15 for the other races, then 25 when the owner added credit, 2026-10-02, then 35 when he added ten for the mountain and the cave, 2026-10-08, then 45 for Doll 2's 46 wearables, 2026-10-17: "อย่าไปคิดเรื่องต้นทุนรูป")
+const BUDGET = 55; // US dollars; refuse to call past this (10, then 15 for the other races, then 25 when the owner added credit, 2026-10-02, then 35 when he added ten for the mountain and the cave, 2026-10-08, then 45 for Doll 2's 46 wearables, 2026-10-17: "อย่าไปคิดเรื่องต้นทุนรูป", then 55 for the next auction's two sets, 2026-10-31)
 // gpt-image-2 / 2.5 token rates, per 1M (checked 2026-10-02)
 const RATE = { text: 5, image: 8, out: 30 };
 
