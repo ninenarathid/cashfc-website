@@ -135,6 +135,38 @@ ok("the tenth sits", (await seat(names[9], 10)).body?.ok === true);
   await sql(`update public.casino_live_settings set free_event_chips = 0, free_event_until = null where id = 1`);
 }
 
+// ── the file wipes the admins' trial, as the admin who last saved the desk, and nothing else ──
+{
+  const adm = await (await fetch(`${B}/bench/who?as=v314-adm&admin=1`)).json().then((r) => r.id);
+  await sql(`update public.profiles set is_admin = true where id = $1`, [adm]);
+  await sql(`select town.purse_of($1, true)`, [adm]); await sql(`update public.town_purses set coins = 1000 where member_id = $1`, [adm]);
+  await sql(`insert into public.casino_live_accounts (user_id) values ($1) on conflict do nothing`, [adm]);
+  await sql(`update public.casino_live_accounts set chips = 0, free_left = 0, spins = 0, available_at = now() - interval '1 minute', seat_rest_until = null where user_id = $1`, [adm]);
+  await sql(`delete from public.casino_live_chip_moves where user_id = $1`, [adm]);
+  await sql(`delete from public.casino_live_seats`);
+  await sql(`update public.casino_live_settings set access = 'admins', updated_by = $1 where id = 1`, [adm]);
+  const real = Number((await sql(`select count(*) n from public.casino_live_spins where not test`))[0].n);
+  ok("the trial: an admin buys", (await rpc("casino_live_buy", { p_request: crypto.randomUUID(), p_chips: 300 }, "v314-adm")).body?.ok === true);
+  const t = await spin("v314-adm", 2);
+  ok("and spins", t.status === 200 && t.body?.test === true, t);
+  await settle();
+  const file = readFileSync(new URL("../../../../supabase/v314_casino_turns_and_event_free_coins.sql", import.meta.url), "utf8");
+  const run = await fetch(`${B}/bench/sql`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sql: file }) });
+  ok("the file runs", run.status === 200, await run.text());
+  ok("the trial's spins gone", Number((await sql(`select count(*) n from public.casino_live_spins where test`))[0].n) === 0);
+  ok("the trial's moves gone", Number((await sql(`select count(*) n from public.casino_live_chip_moves where test`))[0].n) === 0);
+  ok("the real spins left", Number((await sql(`select count(*) n from public.casino_live_spins where not test`))[0].n) === real);
+  ok("the admin's Popoto coins back", Number((await sql(`select coins from public.town_purses where member_id = $1`, [adm]))[0].coins) === 1000, (await sql(`select coins from public.town_purses where member_id = $1`, [adm]))[0]);
+  ok("the audit row carries the admin's name", (await sql(`select actor from public.casino_live_audit where action = 'wipe tests' order by id desc limit 1`))[0]?.actor === adm);
+  const run2 = await fetch(`${B}/bench/sql`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sql: file }) });
+  ok("again: nothing to do, no error", run2.status === 200, await run2.text());
+  // (nobody to run it as: the file still stands)
+  await sql(`update public.casino_live_settings set updated_by = null where id = 1`);
+  const run3 = await fetch(`${B}/bench/sql`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sql: file }) });
+  ok("no admin to run it as: the file still runs", run3.status === 200, await run3.text());
+  await sql(`update public.casino_live_settings set access = 'everyone' where id = 1`);
+}
+
 // ── who may ──
 {
   ok("signed out: the seat refused", (await seat(null, 1)).status >= 400);

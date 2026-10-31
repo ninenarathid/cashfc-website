@@ -126,6 +126,22 @@ begin
   end loop;
 end $$;
 
+-- ── 4. The admins' trial wiped, on the owner's word ("ล้างผลทดสอบ ให้ด้วย") ──
+-- The wipe asks for an admin and the SQL editor is nobody, so it runs as the admin who last saved the desk, whose name its
+-- audit row carries. It touches only the trial's rows (`test`), so running this file again finds nothing to do. Should it
+-- fail, the rest of this file still stands and the button on Aqua's page does the same.
+do $$
+declare admin_ uuid;
+begin
+  select s.updated_by into admin_ from public.casino_live_settings s join public.profiles p on p.id = s.updated_by and p.is_admin where s.id = 1;
+  if admin_ is null then raise warning 'v314: the trial not wiped: no admin to run it as; use the button on Aqua''s page'; return; end if;
+  perform set_config('request.jwt.claims', json_build_object('sub', admin_, 'role', 'authenticated')::text, true);
+  perform public.casino_live_wipe_tests();
+  perform set_config('request.jwt.claims', '', true);
+exception when others then
+  raise warning 'v314: the trial not wiped: %; use the button on Aqua''s page', sqlerrm;
+end $$;
+
 notify pgrst, 'reload schema';
 commit;
 
@@ -137,3 +153,5 @@ commit;
 --          position('free_chips_now' in pg_get_functiondef('public.casino_live_free()'::regprocedure)) > 0 as free,
 --          position('seat_rest_until' in pg_get_functiondef('public.casino_live_seat(integer)'::regprocedure)) > 0 as seat;
 --   → true, true, true, true
+--   select count(*) from public.casino_live_spins where test;
+--   → 0
