@@ -3725,7 +3725,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       if (lim && wonIt) {
         const st = limitedAuras.current.get(a.info.id) ?? auraState();
         limitedAuras.current.set(a.info.id, st);
-        wearer = { id: a.info.id, kind: lim.look.kind, dye: lim.dye, x: p.x, y: p.y, cell: k * DOLL_PX, s: k * DOLL_PX * 1.8, step, sat: sitting(a) || perched, night: skyNow().lamps, now, state: st };
+        wearer = { id: a.info.id, kind: lim.look.kind, dye: lim.dye, x: p.x, y: p.y, cell: k * DOLL_PX, s: k * DOLL_PX * 1.8, step, sat: sitting(a) || perched, ground: a.pos, screen: (at) => toScreen(cam.current, at, cam.current.cw, cam.current.ch), night: skyNow().lamps, now, state: st };
         auraBehind(ctx, wearer);
       }
       kit.draw(ctx, look, face.view, face.mirror, p.x, p.y, k, { step, blink, talk, expr, eat: eatPose, sit: sitting(a) || perched, perch: !!tableSeatOf(a)?.back }, dpr);
@@ -3736,7 +3736,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       if (wearer) {
         auraFront(ctx, wearer);
         if (wearer.night > 0.2) {
-          auraDark.current.push(wearer);
+          if (auraDark.current.length < 24) auraDark.current.push(wearer);
           if (toolLights.current.length < 110) for (const l of auraLights(wearer)) toolLights.current.push({ ...l, flat: 1 });
         }
       }
@@ -3828,7 +3828,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
           const plate: LimitedTitle = { text: words.current.th ? worn.look.title.th : worn.look.title.en, number: `#${lim.edition}/${lim.copies}`, kind: worn.look.kind, dye: worn.dye, x: p.x, y: below, now, seed: seedOf(a.info.id), font: fontRef.current, reduced: reducedRef.current };
           drawLimitedTitle(ctx, plate);
           // (after dark it shines through, as a lamp does)
-          if (skyNow().lamps >= 0.2) auraPlates.current.push(plate);
+          if (skyNow().lamps >= 0.2 && auraPlates.current.length < 24) auraPlates.current.push(plate);
         } else if (lim) tag(ctx, `LIMITED #${lim.edition}/${lim.copies}`, p.x, below, "#e9c6ff");
       }
       ctx.restore();

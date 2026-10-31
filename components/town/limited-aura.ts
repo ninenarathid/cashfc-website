@@ -16,8 +16,8 @@ const ART = AURA_ART as unknown as Art;
 type Name = "auraPumpkinA" | "auraPumpkinB" | "auraBatA" | "auraBatB" | "auraLeafA" | "auraLeafB";
 
 export type AuraState = {
-  /** Where this wearer's feet last came down. */
-  steps: Array<{ x: number; y: number; at: number; side: number }>;
+  /** Where this wearer's feet last came down, on the ground: what is left there stays there as the camera moves. */
+  steps: Array<{ gx: number; gy: number; at: number; side: number }>;
   lastStep: number;
 };
 export type Wearer = {
@@ -32,6 +32,9 @@ export type Wearer = {
   s: number;
   step: number | undefined;
   sat: boolean;
+  /** Where the wearer stands on the ground, and where a point of the ground is on the screen. */
+  ground: { x: number; y: number };
+  screen: (at: { x: number; y: number }) => { x: number; y: number };
   /** How dark the hour is, 0 to 1. */
   night: number;
   now: number;
@@ -137,12 +140,18 @@ function noteSteps(w: Wearer) {
     const n = Math.floor(w.step / 2);
     if (n !== st.lastStep) {
       st.lastStep = n;
-      st.steps.push({ x: w.x + (n % 2 ? 1 : -1) * 3 * w.s, y: w.y, at: w.now, side: n % 2 ? 1 : -1 });
+      st.steps.push({ gx: w.ground.x, gy: w.ground.y, at: w.now, side: n % 2 ? 1 : -1 });
       if (st.steps.length > 8) st.steps.shift();
     }
   }
   while (st.steps.length && w.now - st.steps[0].at > 1400) st.steps.shift();
 }
+
+/** Each footfall left, where it now is on the screen. */
+const footfalls = (w: Wearer) => w.state.steps.map((f) => {
+  const p = w.screen({ x: f.gx, y: f.gy });
+  return { x: p.x + f.side * 3 * w.s, y: p.y, at: f.at, side: f.side };
+});
 
 // ── the pumpkin: spirits that circle, ghost fire at the feet, flames left in each footprint ──
 const SPIRITS = 3;
@@ -211,7 +220,7 @@ function pumpkinFront(ctx: CanvasRenderingContext2D, w: Wearer) {
     dot(ctx, x, y, t < 0.6 ? 1.5 : 1, w.s);
   }
   // what each footfall left: a footprint that burns out
-  for (const f of w.state.steps) {
+  for (const f of footfalls(w)) {
     const t = (w.now - f.at) / 1400;
     ctx.globalAlpha = 1 - t;
     for (let i = -1; i <= 1; i++) tongue(ctx, ramp, f.x + i * 3 * w.s, f.y + Math.abs(i) * w.s, Math.round((1 - t) * 6) + 1 - Math.abs(i), w.s);
@@ -267,7 +276,7 @@ function batsFront(ctx: CanvasRenderingContext2D, w: Wearer) {
     ctx.fillStyle = ramp[2];
     dot(ctx, w.x + Math.sin(i * 5.1 + t * 2) * 16 * w.s, w.y - (10 + t * 38) * w.s, 1, w.s);
   }
-  for (const f of w.state.steps) {
+  for (const f of footfalls(w)) {
     const t = (w.now - f.at) / 1400;
     ctx.globalAlpha = (1 - t) * 0.9;
     ctx.fillStyle = ramp[1];
@@ -294,7 +303,7 @@ function moonFront(ctx: CanvasRenderingContext2D, w: Wearer) {
     ctx.fillStyle = ramp[i % 2 ? 3 : 2];
     dot(ctx, w.x + Math.sin(i * 3.7 + t * 4) * (8 + i * 1.6) * w.s, w.y - (6 + t * 56) * w.s, i % 3 ? 1 : 1.5, w.s);
   }
-  for (const f of w.state.steps) {
+  for (const f of footfalls(w)) {
     const t = (w.now - f.at) / 1400;
     ctx.globalAlpha = 1 - t;
     ctx.fillStyle = ramp[3];
@@ -325,7 +334,7 @@ function leavesFront(ctx: CanvasRenderingContext2D, w: Wearer) {
     const y = w.y - (44 - t * 44) * w.s;
     leaf(ctx, w, x, y, t, t > 0.85 ? (1 - t) / 0.15 : 1, i);
   }
-  for (const f of w.state.steps) {
+  for (const f of footfalls(w)) {
     const t = (w.now - f.at) / 1400;
     for (let i = 0; i < 2; i++) {
       const dir = (i ? 1 : -1) * (f.side || 1);
