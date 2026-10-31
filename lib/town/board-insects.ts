@@ -53,7 +53,7 @@ export const BOARD = {
 export interface BoardSpot { id: number; board: "roll" | "shake"; x: number; y: number; place: Place; tree?: Tree }
 /** The things of the town's map the spots are on, by the tile under their middle (their names in town2-map.json). */
 const TOWN_ROLLS: Array<[RegExp, number, number]> = [
-  [/^azalea/, 62, 7], [/^game_bush$/, 27, 16], [/^hydrangea/, 44, 30], [/^hydrangea/, 60, 7],
+  [/^azalea/, 62, 7], [/^game_bush$/, 27, 16], [/^hydrangea/, 44, 31], [/^hydrangea/, 60, 7],
   [/^purple_hydrangea/, 56, 72], [/^purple_hydrangea/, 42, 64], [/^game_bush$/, 6, 13], [/^game_bush$/, 46, 17],
   // (and a cherry's low leaves, as the species lists said: "the town's azalea, hydrangea and cherry")
   [/^deep_pink_double_cherry/, 25, 43],

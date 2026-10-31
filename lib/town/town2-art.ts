@@ -8,11 +8,12 @@
  * old town's one 12 MB sheet). `memory()` says what is held now.
  *
  * How a thing stands among the walkers (town2-map.json's own word for it, from the builder):
- * - on the floor, under everybody (the rings, stepping stones, the decks people walk on); the hall's inside, while I am
- *   in it, and the stage stand in strips at their back edges (pushAtBack);
+ * - on the floor, under everybody (the rings, the decks people walk on); the hall's inside, while I am in it, and the
+ *   stage stand in strips at their back edges (pushAtBack);
  * - in the order of its middle, as the editor draws it (most things);
  * - in upright strips (a building, the water wheel: anything too wide for one place in that order), each strip as far
- *   forward as the footprint's front edge below it, so that somebody beside a house is before or behind it as they stand.
+ *   forward as the footprint's front edge below it, so that somebody beside a house is before or behind it as they stand
+ *   (less where something the editor draws over it stands inside that edge: the builder's `strips`).
  */
 import MAP from "./town2-map.json";
 import { WATER_MS, waterFrames } from "./scenery";
@@ -37,6 +38,8 @@ interface Thing {
   rings?: Array<[number, number, string]>;
   /** What of it glows at night (its lanterns, its fire): isometric pixels and how big. */
   lights?: Array<[number, number, number]>;
+  /** A wide thing's strips, each's place back to front, where the editor's order has moved any from its footprint's front edge. */
+  strips?: number[];
 }
 interface Sprite { src: string; w: number; h: number; img: HTMLImageElement | null; ready: boolean; seen: number }
 
@@ -61,10 +64,11 @@ export class Town2Art {
   constructor() {
     const rings = MAP.rings as unknown as Record<string, Array<[number, number, string]>>;
     const lights = MAP.lights as unknown as Record<string, Array<[number, number, number]>>;
+    const strips = MAP.strips as unknown as Record<string, number[]>;
     this.sprites = (MAP.sprites as Array<[string, number, number]>).map(([src, w, h]) => ({ src: `/town/town2/${src}`, w, h, img: null, ready: false, seen: 0 }));
     this.things = (MAP.objects as number[][]).map((o, i) => ({
       i, name: MAP.names[o[0]], s: o[1], x: o[2], y: o[3], k: o[4], flip: o[5] === 1, how: o[6], d: o[7],
-      box: [o[8], o[9], o[10], o[11]] as [number, number, number, number], rings: rings[i], lights: lights[i],
+      box: [o[8], o[9], o[10], o[11]] as [number, number, number, number], rings: rings[i], lights: lights[i], strips: strips[i],
     })).filter((t) => !T2_LEFT_OUT.has(t.i));
     // the chest's open picture stood where the closed one is (the editor laid it two tiles off: the owner, 2026-10-22, "ตอน
     // เปิด มันไม่ขยับออกจากตำแหน่งเดิม"): the same bottom, the same middle, the same place back to front
@@ -239,7 +243,7 @@ export class Town2Art {
       if (t.i === T2_HALL.thing && inHall) continue;
       if (t.how === STAND) { push(t.d, () => this.paint(ctx, t, screen, s, px)); continue; }
       const sp = this.sprites[t.s];
-      for (let x = t.x; x < t.x + sp.w * t.k; x += STRIP) push(t2StripDepth(t.box, x + STRIP / 2), () => this.paint(ctx, t, screen, s, px, [x, x + STRIP]));
+      for (let x = t.x, n = 0; x < t.x + sp.w * t.k; x += STRIP, n++) push(t.strips?.[n] ?? t2StripDepth(t.box, x + STRIP / 2), () => this.paint(ctx, t, screen, s, px, [x, x + STRIP]));
     }
   }
 

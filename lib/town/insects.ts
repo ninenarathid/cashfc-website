@@ -17,7 +17,7 @@ import { DRY, wetMs, type Rain } from "./weather";
 import { BEDS_IN_FARM, CAMP, COLS, FARM_ALL, FARM_FIRST, FARM_PROPS_FIRST, FOREST, FOREST_PROPS, GATES, PROPS_FIRST, ROWS, T2, WATERFALL, WELL, asBuilt, bedCorner, groundAt, placeOf, plotAt, walkable, zoneAt, type Place, type Vec, type Zone } from "./world";
 // ── the editor's town ── (the haunts as the old town laid them out, kept: lib/town/town2.test.ts holds them to it)
 import CLASSIC_HAUNTS from "./haunts-classic.json";
-import { t2OnStage } from "./town2";
+import TOWN2_HAUNTS from "./haunts-town2.json";
 import { POLLINATOR_SKY } from "./helper-items";
 
 /**
@@ -416,72 +416,14 @@ export const HAUNTS: Haunt[] = T2 ? town2Haunts() : asBuilt(() => {
 
 /**
  * The haunts with the editor's town for the town (the owner, 2026-10-22: "เปลี่ยนตำแหน่ง ... แมลงในเมืองทั้งหมดเลย"): every
- * haunt the old town had keeps its number and its kind, and is laid anew in the editor's town as the old town's were
- * (flowers on its flowers, a lamp at a lantern, the water at its shores and the petals by its flowers, each kind as far
- * apart as before); every haunt of the farm and the forest is as it was, to the last perch. The database's row is
- * rewritten to match by supabase v295, and back again by the switch to the old town.
+ * haunt the old town had keeps its number and its kind, and has its place in the editor's town; every haunt of the farm
+ * and the forest is as it was, to the last perch. The town's were laid out once by chance (supabase v295) and are kept
+ * from then on (haunts-town2.json), so that a new export of the map, with a flower moved a little, does not send every
+ * insect in town somewhere else.
  */
 function town2Haunts(): Haunt[] {
-  const classic = CLASSIC_HAUNTS as unknown as Haunt[];
-  let a = 20261022;
-  const rnd = () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
-  const open = new Set<string>();
-  const start = GATES.find((g) => g.leads === "town")!.to, first: [number, number] = [Math.floor(start.x), Math.floor(start.y)], queue = [first];
-  open.add(first.join(","));
-  while (queue.length) {
-    const [x, y] = queue.pop()!;
-    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-      const k = `${x + dx},${y + dy}`;
-      // (the ground only: not up on the stage, which is walked on but is no shore and no bed of flowers)
-      if (!open.has(k) && placeOf(x + dx, y + dy) === "town" && walkable(x + dx, y + dy) && !t2OnStage(x + dx, y + dy)) { open.add(k); queue.push([x + dx, y + dy]); }
-    }
-  }
-  const stands = (x: number, y: number) => open.has(`${x},${y}`);
-  const by = (p: Vec) => { for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) if (stands(Math.floor(p.x) + dx, Math.floor(p.y) + dy)) return true; return false; };
-  const wet = (x: number, y: number) => groundAt(x, y) === "water";
-  const shore = (x: number, y: number) => [[1, 0], [-1, 0], [0, 1], [0, -1], [2, 0], [-2, 0], [0, 2], [0, -2]].some(([dx, dy]) => wet(x + dx, y + dy));
-  const laid: Array<{ x: number; y: number }> = [];
-  const clear = (x: number, y: number, apart: number) => laid.every((h) => Math.hypot(h.x - x - 0.5, h.y - y - 0.5) >= apart);
-  const about = (x: number, y: number, kind: HauntKind, n = 5, reach = 2.4): Vec[] => {
-    const c = { x: x + 0.5, y: y + 0.5 }, ps: Vec[] = [];
-    for (let tries = 0; ps.length < n && tries < 90; tries++) {
-      const ang = rnd() * Math.PI * 2, r = 0.8 + rnd() * (reach - 0.8), p = { x: Math.round((c.x + Math.cos(ang) * r) * 100) / 100, y: Math.round((c.y + Math.sin(ang) * r) * 100) / 100 };
-      const tx = Math.floor(p.x), ty = Math.floor(p.y);
-      if (placeOf(tx, ty) !== "town" || !by(p) || (kind !== "water" && wet(tx, ty)) || ps.some((q) => far(p, q) < 1)) continue;
-      ps.push(p);
-    }
-    return ps.sort((p, q) => Math.atan2(p.y - c.y, p.x - c.x) - Math.atan2(q.y - c.y, q.x - c.x));
-  };
-  const flowers = PROPS_FIRST.filter((p) => (p.kind === "flowers" || p.kind === "flowerbed") && placeOf(p.x, p.y) === "town").map((p): [number, number] => [p.x, p.y]);
-  const lamps = PROPS_FIRST.filter((p) => p.kind === "lamp" && placeOf(p.x, p.y) === "town" && by({ x: p.x + 0.5, y: p.y + 0.5 }));
-  const shores: Array<[number, number]> = [];
-  for (let y = 1; y < ROWS - 1; y++) for (let x = 1; x < COLS - 1; x++) if (stands(x, y) && shore(x, y)) shores.push([x, y]);
-  const APART: Partial<Record<HauntKind, number>> = { blooms: 6, lamp: 7, water: 8, petals: 5 };
-  /** One haunt of a kind in the editor's town: a tile of its kind's, apart from those laid (less apart if none is left). */
-  const one = (kind: HauntKind): { x: number; y: number; perches: Vec[] } => {
-    for (const apart of [APART[kind] ?? 6, (APART[kind] ?? 6) / 2, 0]) {
-      if (kind === "lamp") {
-        const p = lamps.find((q) => clear(q.x, q.y, apart));
-        if (p) return { x: p.x + 0.5, y: p.y + 0.5, perches: [{ x: p.x + 0.5, y: p.y + 0.5 }] };
-        continue;
-      }
-      const tiles = kind === "water" ? shores : flowers;
-      for (let tries = 0; tries < 400 && tiles.length; tries++) {
-        const [x, y] = tiles[Math.floor(rnd() * tiles.length)];
-        if (!clear(x, y, apart)) continue;
-        const ps = about(x, y, kind);
-        if (ps.length < 4) continue;
-        return { x: x + 0.5, y: y + 0.5, perches: ps };
-      }
-    }
-    throw new Error(`the editor's town has no room for a haunt of ${kind}`);
-  };
-  return classic.map((h) => {
-    if (h.place !== "town") return h;
-    const n = one(h.kind);
-    laid.push(n);
-    return { ...h, x: n.x, y: n.y, perches: n.perches };
-  });
+  const laid = new Map((TOWN2_HAUNTS as unknown as Array<Pick<Haunt, "id" | "x" | "y" | "perches">>).map((h) => [h.id, h]));
+  return (CLASSIC_HAUNTS as unknown as Haunt[]).map((h) => (h.place === "town" ? { ...h, ...laid.get(h.id)! } : h));
 }
 
 /* ── what a haunt has ───────────────────────────────────────────────────── */

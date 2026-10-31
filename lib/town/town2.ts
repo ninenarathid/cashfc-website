@@ -2,7 +2,8 @@
  * The second main town (the owner, 2026-10-22): "oatto2-cash80x80v2", an 80 × 80 town of the Cashtown map editor, in
  * place of the town laid out since 2026-10-02 ("เปลี่ยนทั้งเมือง เปลี่ยนตำแหน่ง NPC แมลงในเมืองทั้งหมดเลย"; the bridge
  * game is not in it, "ข้ามได้เลย"). lib/town/world asks here for everything of the town while lib/town/town-map says
- * this is the town; the farm, the forest, the mountain and the cave are as they were.
+ * this is the town; the farm, the forest, the mountain and the cave are as they were. Since 2026-10-31 it is the
+ * author's later export of it, "oato-v3", with things attached to what they stand on and its footprints set to the grid.
  *
  * What is here was made from the editor's export by .claude/skills/fc-cash-town/scripts/pixel/build-town2.mjs
  * (town2-map.json: the ground at an eighth of a tile, every placed thing, and where may be walked), and given its

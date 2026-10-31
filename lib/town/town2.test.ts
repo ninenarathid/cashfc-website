@@ -179,4 +179,78 @@ describe("the editor's town", () => {
     });
     expect(HAUNTS.filter((h) => h.place === "town").length).toBe(old.filter((h) => h.place === "town").length);
   });
+
+  it("keeps the town's haunts within reach of somebody standing, wherever a new export closes a tile", async () => {
+    const { HAUNTS, walkable } = await load();
+    for (const h of HAUNTS.filter((q) => q.place === "town")) {
+      const near = h.perches.filter((p) => [-1, 0, 1].some((dx) => [-1, 0, 1].some((dy) => walkable(Math.floor(p.x) + dx, Math.floor(p.y) + dy))));
+      expect(near.length, `haunt ${h.id}`).toBe(h.perches.length);
+    }
+  });
+
+  // (makoto's feedback on the map, 2026-10-31: what covers what among things that stand still is the editor's)
+  describe("draws what stands still as the editor does", () => {
+    type O = number[];
+    const MAP = JSON.parse(fs.readFileSync(path.join(__dirname, "town2-map.json"), "utf8")) as { names: string[]; objects: O[]; strips: Record<string, number[]>; sprites: Array<[string, number, number]> };
+    const of = (re: RegExp, x0: number, y0: number, x1: number, y1: number) => MAP.objects.filter((o) => {
+      const cx = (o[8] + o[10]) / 2, cy = (o[9] + o[11]) / 2;
+      return re.test(MAP.names[o[0]]) && cx >= x0 && cx <= x1 && cy >= y0 && cy <= y1;
+    });
+    /** Whether two things' pictures share a part of the screen. */
+    const meet = (a: O, b: O) => {
+      const [aw, ah] = [MAP.sprites[a[1]][1] * a[4], MAP.sprites[a[1]][2] * a[4]], [bw, bh] = [MAP.sprites[b[1]][1] * b[4], MAP.sprites[b[1]][2] * b[4]];
+      return a[2] < b[2] + bw && b[2] < a[2] + aw && a[3] < b[3] + bh && b[3] < a[3] + ah;
+    };
+    const STONE = /stepping_stones/;
+
+    it("has every stepping stone standing among the walkers, and nothing but rings, decks and the hall's inside on the floor", () => {
+      expect(new Set(MAP.objects.filter((o) => o[6] === 0).map((o) => MAP.names[o[0]]))).toEqual(
+        new Set(["bridge", "fishing_pier", "game_ring", "kitchen_house_inside_cloud", "pier_of_mossy_stone_pillars_holding_a_wo"]));
+      for (const o of MAP.objects.filter((q) => STONE.test(MAP.names[q[0]]))) expect(o[6]).toBe(1);
+    });
+
+    it("has the stones before the flower square over its tulips, and its hydrangeas over the stones below them", () => {
+      const tulips = of(/tulips/, 28, 56, 37, 64), hydrangeas = of(/purple_hydrangea/, 33, 61, 46, 72);
+      const stones = of(STONE, 32, 59, 40, 67);
+      // (the two rows are told apart by their place across the square: x + y about 97 for the upper, 101 and more for the lower)
+      const across = (o: O) => (o[8] + o[10] + o[9] + o[11]) / 2;
+      const upper = stones.filter((o) => across(o) < 99), lower = stones.filter((o) => across(o) >= 99);
+      expect(upper.length).toBeGreaterThan(8);
+      expect(lower.length).toBeGreaterThan(8);
+      for (const s of upper) for (const t of tulips) if (meet(s, t)) expect(s[7]).toBeGreaterThan(t[7]);
+      for (const s of lower) for (const h of hydrangeas) if (meet(s, h)) expect(h[7]).toBeGreaterThan(s[7]);
+    });
+
+    it("has the shrine's flower beds over its foot", () => {
+      const shrine = MAP.objects.findIndex((o) => MAP.names[o[0]] === "shrine_hall"), strips = MAP.strips[shrine], o = MAP.objects[shrine];
+      expect(strips.length).toBe(Math.ceil((MAP.sprites[o[1]][1] * o[4]) / 12));
+      // (those in front of its long east side: the strip at the middle of each stands behind it; checks/town2-order.mjs goes by the pixels)
+      for (const f of of(/azalea|hydrangea_bush/, 70, 2, 73, 9)) {
+        const n = Math.floor((f[2] + (MAP.sprites[f[1]][1] * f[4]) / 2 - o[2]) / 12);
+        if (strips[n] !== undefined) expect(f[7]).toBeGreaterThan(strips[n]);
+      }
+    });
+
+    it("has whoever stands on a stepping stone over it", () => {
+      for (const s of MAP.objects.filter((q) => STONE.test(MAP.names[q[0]]))) {
+        const cx = (s[8] + s[10]) / 2, cy = (s[9] + s[11]) / 2;
+        expect(s[7]).toBeLessThanOrEqual(cx + cy - 0.4);
+      }
+    });
+
+    it("has the foxes on their rocks, and the stage's pumpkins on it among those walking up there", async () => {
+      for (const [fx, rx] of [[61.85, 62.49], [68.85, 69.49]]) {
+        const fox = of(/kitsune_fox/, fx - 0.5, 9, fx + 0.5, 11)[0], rock = of(/sacred_rock/, rx - 0.5, 10, rx + 0.5, 11)[0];
+        expect(fox[7]).toBeGreaterThan(rock[7]);
+      }
+      await load();
+      const { T2_STAGE_BASE, T2_STAGE_UP } = await import("./town2");
+      const { x, y, r } = T2_STAGE_BASE;
+      const big = of(/^game_pumpkin2$/, 4, 43, 5, 45)[0], cx = (big[8] + big[10]) / 2, cy = (big[9] + big[11]) / 2;
+      // (its place on the stage's top, and past the stage's back edge at its column, so not behind the stage)
+      expect(big[7]).toBeCloseTo(cx + cy + T2_STAGE_UP / 16, 2);
+      expect(big[7]).toBeGreaterThan(x + y - Math.sqrt(2 * r * r - (cx - cy - (x - y)) ** 2));
+      expect(big[6]).toBe(1);
+    });
+  });
 });

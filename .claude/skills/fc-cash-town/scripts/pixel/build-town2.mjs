@@ -4,7 +4,7 @@
 //
 //   node build-town2.mjs [--src <export dir>] [--out <public dir>] [--json <file>] [--debug <png>]
 //
-//   --src    the editor's export (default: the shared tree's git-ignored work/oatto2, where its pictures stay)
+//   --src    the editor's export (default: the shared tree's git-ignored work/oato-v3, where its pictures stay)
 //   --out    where the pictures go (default: <this repo>/public/town/town2): one lossless webp a picture, cut to what
 //            is drawn of it and named by its content, so a page fetches only those it comes near (lib/town/town2-art)
 //   --json   the map for the game (default: <this repo>/lib/town/town2-map.json): its ground at an eighth of a tile,
@@ -19,7 +19,7 @@ import crypto from "node:crypto";
 import { REPO, exportReader, sharp, spriteWriter, toIso } from "./editor-export.mjs";
 
 const arg = (name, fallback) => { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : fallback; };
-const SRC = arg("--src", "E:/NinenineProject/fcnext/.claude/skills/fc-cash-town/scripts/pixel/work/oatto2");
+const SRC = arg("--src", "E:/NinenineProject/fcnext/.claude/skills/fc-cash-town/scripts/pixel/work/oato-v3");
 const OUT = arg("--out", path.join(REPO, "public/town/town2"));
 const JSON_OUT = arg("--json", path.join(REPO, "lib/town/town2-map.json"));
 const DEBUG = arg("--debug", "");
@@ -146,6 +146,8 @@ for (const { o, pl } of placed) {
 for (const { o, pl } of placed) {
   const how = walkOf(o.asset);
   if (how === "flat" || how === "ring" || how === "deck" || how === "inside") continue;
+  // (what is attached to something blocks nothing: what it is on does, README's Attached objects)
+  if (o.on) continue;
   if (how === "trunk") { set(Math.floor(pl.cx), Math.floor(pl.cy), "#"); continue; }
   const tiles = o.tiles?.length ? o.tiles : [[Math.floor(pl.cx), Math.floor(pl.cy)]];
   if (how === "through") {
@@ -166,14 +168,95 @@ const { sprites, sprite } = spriteWriter(OUT, picture);
 
 /**
  * How each thing is drawn among the walkers (lib/town/town2-art):
- * 0 `floor`: on the ground under everybody (a ring, stepping stones, the inside of the kitchen hall, a deck walked on);
+ * 0 `floor`: on the ground under everybody (a ring, the inside of the kitchen hall, a deck walked on);
  * 1 `stand`: back to front with the walkers, by its middle (README's order);
  * 2 `wide`: a thing too wide for one place in that order (a building, the water wheel): drawn in narrow upright strips,
  *   each as far forward as its footprint's front edge below it, so that whoever stands beside it is in front or behind
- *   as they should be. The editor's "overhead" (its way of putting a few things over their neighbours) is not kept:
- *   the strips do that job, and a walker is never under a bush they stand in front of.
+ *   as they should be.
+ * The editor's layers are its way of ordering things that stand still, and its order is the author's say over what covers
+ * what (below). They are not taken as they are for whoever walks: its "decal" shrine would lie under everybody, and a
+ * walker is never under the "overhead" bush they stand in front of.
  */
 const DRAW = { floor: 0, stand: 1, wide: 2 };
+const STRIP = 12; // (lib/town/town2's T2_STRIP)
+/** Where a strip of a wide thing stands back to front (lib/town/town2's t2StripDepth). */
+const stripDepth = ([bx0, by0, bx1, by1], mid) =>
+  mid <= (bx1 - by1) * 32 ? Math.min(bx1, Math.max(bx0, mid / 32 + by1)) + by1 : bx1 + Math.min(by1, Math.max(by0, bx1 - mid / 32));
+const isStage = (o) => /^oval_wooden_festival_stage/.test(o.asset);
+/** How high the stage's top stands, in isometric pixels (lib/town/town2's T2_STAGE_UP). */
+const STAGE_UP = 70;
+const byId = new Map(map.objects.map((o) => [o.id, o]));
+/** What a thing attached in the editor (`on`) finally stands on (README, Attached objects). */
+const rootOf = (o) => { const seen = new Set(); while (o.on && byId.has(o.on) && !seen.has(o.id)) { seen.add(o.id); o = byId.get(o.on); } return o; };
+/** What lies low: drawn over the ground, covering so little of a walker that it may go further back to keep the editor's order. */
+const isLow = (o) => walkOf(o.asset) === "flat" || /hydrangea|azalea|^game_bush$|^game_flowerbed$/.test(o.asset);
+const howDrawn = (o, pl) => {
+  const how = walkOf(o.asset);
+  if (how === "ring" || how === "deck" || how === "inside") return DRAW.floor;
+  // (a pumpkin, however big, is one round thing)
+  return pl.w + pl.h >= 4 && how !== "trunk" && !/^game_(pumpkin|jacko)/.test(o.asset) ? DRAW.wide : DRAW.stand;
+};
+/**
+ * Its place back to front, as a walker is compared with it: its middle's, with its `z`, but for
+ * - a stepping stone: its back corner, so that whoever stands on any of it is over it (they lay under everybody and under
+ *   every flower: makoto's feedback, 2026-10-31, "อยากให้ หินบังทิวลิป");
+ * - what stands on the stage: its place on the stage's top, among those walking up there, who are drawn STAGE_UP higher.
+ *   The editor's `z` says only "after the stage", which would put a pumpkin at the back of the stage over them all.
+ */
+const placeBackToFront = (o, pl) => {
+  if (/stepping_stones/.test(o.asset)) return pl.cx + pl.cy - (pl.w + pl.h) / 2;
+  if (o.on && isStage(rootOf(o))) return pl.cx + pl.cy + STAGE_UP / 16;
+  return pl.cx + pl.cy + (o.z ?? 0);
+};
+/**
+ * The editor's order among things that stand still, kept (makoto's feedback, 2026-10-31: "หินบังทิวลิป", "ดอกไฮเดรเยีย บังหิน",
+ * and the shrine's flower beds in front of its foot): where two pictures overlap and the game would draw them the other
+ * way round from `draw_index`, the one the editor draws first goes back, just far enough, a strip at a time if it is wide.
+ * Going back only ever shows more of whoever walks there. A tree is not moved: it is tall, and whoever is behind its trunk
+ * stays behind it, even where the editor's "overhead" laid stones over its crown. Rings, decks and the hall's inside lie
+ * under all this, and the road works are mostly left out of the town (lib/town/town2's T2_LEFT_OUT).
+ */
+function keepEditorOrder(all) {
+  const CELL = 3, cells = new Map(), mine = all.map(() => []);
+  const ordered = (t) => t.draw !== DRAW.floor && !/^game_roadworks$/.test(t.o.asset);
+  all.forEach((t, i) => {
+    if (!ordered(t)) return;
+    const { pl } = t, W = pl.p.pw * pl.k, H = pl.p.ph * pl.k;
+    for (let iy = Math.floor(pl.top / CELL) * CELL; iy < pl.top + H; iy += CELL) for (let ix = Math.floor(pl.left / CELL) * CELL; ix < pl.left + W; ix += CELL) {
+      if (!drawnAt(pl, ix + CELL / 2, iy + CELL / 2)) continue;
+      const k = `${ix},${iy}`;
+      let at = cells.get(k);
+      if (!at) cells.set(k, (at = { ix: ix + CELL / 2, things: [] }));
+      at.things.push(i);
+      mine[i].push(at);
+    }
+  });
+  const stage = all.find((t) => isStage(t.o));
+  const [sx, sy, sr] = [(stage.box[0] + stage.box[2]) / 2, (stage.box[1] + stage.box[3]) / 2, (stage.box[2] - stage.box[0] + stage.box[3] - stage.box[1]) / 4];
+  /** A thing's place back to front at a column (the stage stands at its round foot's back edge: lib/town/town2-art). */
+  const placeAt = (t, ix) => {
+    if (t === stage) return sx + sy - Math.sqrt(Math.max(0, 2 * sr * sr - (ix / 32 - (sx - sy)) ** 2));
+    if (t.strips) return t.strips[Math.floor((ix - t.left) / STRIP)] ?? t.d;
+    return t.d;
+  };
+  // (the last the editor draws first: what covers a thing has its final place by the time the thing is come to)
+  const moved = [];
+  for (const i of all.map((_, n) => n).sort((a, b) => all[b].o.draw_index - all[a].o.draw_index)) {
+    const t = all[i];
+    if (!ordered(t) || t === stage || (t.draw === DRAW.stand && !isLow(t.o))) continue;
+    const was = t.d, wasStrips = t.strips?.slice();
+    for (const { ix, things } of mine[i]) for (const j of things) {
+      const b = all[j];
+      if (j === i || b.o.draw_index <= t.o.draw_index) continue;
+      const limit = placeAt(b, ix) - 0.001;
+      if (t.strips) { const n = Math.floor((ix - t.left) / STRIP); if (t.strips[n] > limit) t.strips[n] = limit; }
+      else if (t.d > limit) t.d = limit;
+    }
+    if (t.d < was) moved.push([t.o.id, +(was - t.d).toFixed(2)]);
+    if (t.strips && t.strips.some((v, n) => v < wasStrips[n])) { t.stripsMoved = true; moved.push([t.o.id, +Math.max(...t.strips.map((v, n) => wasStrips[n] - v)).toFixed(2)]); }
+  }
+  return moved;
+}
 /**
  * The things whose lanterns or fire glow at night, and how many of their brightest warm spots: found in the picture
  * (looked at for each, 2026-10-22: the hall's paper lanterns, the shop's, the stall's, the forge's fire, the bathhouse's
@@ -196,17 +279,24 @@ function warmSpots(p, n) {
   return out.sort((a, b) => b[2] - a[2]).slice(0, n);
 }
 const names = [], nameOf = (n) => { let i = names.indexOf(n); if (i < 0) i = names.push(n) - 1; return i; };
-const objects = [], rings = {}, lights = {};
+const objects = [], rings = {}, lights = {}, strips = {};
+const standing = [];
 for (const { o, pl } of placed) {
   const s = await sprite(pl.file), sp = sprites[s], [x0, y0, pw] = sp.cut;
   // the cut picture's own top-left, where the whole one's was drawn (mirrored, the cut's left is measured from the right)
-  const left = pl.left + (pl.flip ? pw - x0 - sp.w : x0) * pl.k, top = pl.top + y0 * pl.k;
-  const how = walkOf(o.asset), layer = o.layer ?? ((o.kind ?? pl.a.kind) === "decal" ? "decal" : "main");
-  const draw = layer === "decal" || how === "ring" || how === "deck" || how === "inside" || /stepping_stones/.test(o.asset) ? DRAW.floor
-    : pl.w + pl.h >= 4 && how !== "trunk" ? DRAW.wide : DRAW.stand;
+  const left = +(pl.left + (pl.flip ? pw - x0 - sp.w : x0) * pl.k).toFixed(2), top = +(pl.top + y0 * pl.k).toFixed(2);
+  const draw = howDrawn(o, pl), box = [+(pl.cx - pl.w / 2).toFixed(3), +(pl.cy - pl.h / 2).toFixed(3), +(pl.cx + pl.w / 2).toFixed(3), +(pl.cy + pl.h / 2).toFixed(3)];
+  const t = { o, pl, s, draw, box, left, top, d: placeBackToFront(o, pl) };
+  if (draw === DRAW.wide) t.strips = Array.from({ length: Math.ceil((sp.w * pl.k) / STRIP) }, (_, n) => stripDepth(box, left + n * STRIP + STRIP / 2));
+  standing.push(t);
+}
+const moved = keepEditorOrder(standing);
+for (const t of standing) {
+  const { o, pl, s, draw, box, left, top } = t;
   // [name, picture, left, top, scale, mirrored, how drawn, order, footprint x0 y0 x1 y1]
-  objects.push([nameOf(o.asset.replace(/~.*$/, "")), s, +left.toFixed(2), +top.toFixed(2), +pl.k.toFixed(5), pl.flip ? 1 : 0, draw,
-    +(pl.cx + pl.cy + (o.z ?? 0)).toFixed(3), +(pl.cx - pl.w / 2).toFixed(3), +(pl.cy - pl.h / 2).toFixed(3), +(pl.cx + pl.w / 2).toFixed(3), +(pl.cy + pl.h / 2).toFixed(3)]);
+  objects.push([nameOf(o.asset.replace(/~.*$/, "")), s, left, top, +pl.k.toFixed(5), pl.flip ? 1 : 0, draw, +t.d.toFixed(3), ...box]);
+  // (a wide thing's strips, where the editor's order has moved any of them from their footprint's front edge)
+  if (t.stripsMoved) strips[objects.length - 1] = t.strips.map((v) => +v.toFixed(3));
   // what of it glows at night: its lanterns' and its fire's brightest warm spots, in isometric pixels (LIGHTS below)
   const glow = LIGHTS.find(([re]) => re.test(o.asset));
   if (glow) lights[objects.length - 1] = warmSpots(pl.p, glow[1]).map(([x, y, n]) =>
@@ -249,18 +339,20 @@ for (const [name, t] of Object.entries(map.ground_textures)) {
 /* ── written ─────────────────────────────────────────────────────────────────────────────────────────────────────── */
 
 const out = {
-  v: 1, cols: COLS, rows: ROWS, from: `oatto2-cash80x80v2, exported ${map.exported}`,
+  v: 1, cols: COLS, rows: ROWS, from: `${path.basename(SRC)}, exported ${map.exported}`,
   legend: map.ground_legend, textures,
   wobble: { all: map.ground_edges?.wobble ?? 0.35, kinds: map.ground_edges?.kinds ?? {} },
   ground: map.ground, fine: fineRows,
   walk: walk.map((r) => r.join("")),
   sprites: sprites.map(({ src, w, h }) => [src, w, h]),
-  names, objects, rings, lights, ripples,
+  names, objects, rings, lights, strips, ripples,
 };
 fs.writeFileSync(JSON_OUT, JSON.stringify(out));
 const count = (c) => out.walk.join("").split(c).length - 1;
 console.log(`town2: ${objects.length} things, ${sprites.length} pictures, ${(fs.statSync(JSON_OUT).size / 1024).toFixed(0)} KB of map;`,
   `tiles: ground ${count(".")}, water ${count("~")}, closed ${count("#")}, deck ${count("=")}, hall ${count("h")}`);
+console.log(`moved back to keep the editor's order: ${moved.length}, the furthest ${moved.reduce((m, [, n]) => Math.max(m, n), 0)}:`,
+  moved.filter(([, n]) => n >= 0.75).map(([id, n]) => `${id.replace(/_.*@/, "@")} ${n}`).join(", "));
 
 /* ── a look at the rules ─────────────────────────────────────────────────────────────────────────────────────────── */
 
