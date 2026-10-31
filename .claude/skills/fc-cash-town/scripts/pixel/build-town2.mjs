@@ -211,10 +211,13 @@ const placeBackToFront = (o, pl) => {
 /**
  * The editor's order among things that stand still, kept (makoto's feedback, 2026-10-31: "หินบังทิวลิป", "ดอกไฮเดรเยีย บังหิน",
  * and the shrine's flower beds in front of its foot): where two pictures overlap and the game would draw them the other
- * way round from `draw_index`, the one the editor draws first goes back, just far enough, a strip at a time if it is wide.
- * Going back only ever shows more of whoever walks there. A tree is not moved: it is tall, and whoever is behind its trunk
- * stays behind it, even where the editor's "overhead" laid stones over its crown. Rings, decks and the hall's inside lie
- * under all this, and the road works are mostly left out of the town (lib/town/town2's T2_LEFT_OUT).
+ * way round from `draw_index`, the one the editor draws first goes back, just far enough. Going back only ever shows more
+ * of whoever walks there, so it is for what lies low, and for the strips of a wide thing the editor lays under everything
+ * ("decal": the shrine, whose foot the beds stand before, with nobody between). No other wide thing moves: a strip is the
+ * thing's whole height, and moving a fence's strip behind the bush before it puts whoever stands behind the fence over it.
+ * A tree is not moved either: it is tall, and whoever is behind its trunk stays behind it, even where the editor's
+ * "overhead" laid stones over its crown. Rings, decks and the hall's inside lie under all this, and the road works are
+ * mostly left out of the town (lib/town/town2's T2_LEFT_OUT).
  */
 function keepEditorOrder(all) {
   const CELL = 3, cells = new Map(), mine = all.map(() => []);
@@ -243,7 +246,7 @@ function keepEditorOrder(all) {
   const moved = [];
   for (const i of all.map((_, n) => n).sort((a, b) => all[b].o.draw_index - all[a].o.draw_index)) {
     const t = all[i];
-    if (!ordered(t) || t === stage || (t.draw === DRAW.stand && !isLow(t.o))) continue;
+    if (!ordered(t) || t === stage || !(t.strips ? t.o.layer === "decal" : isLow(t.o))) continue;
     const was = t.d, wasStrips = t.strips?.slice();
     for (const { ix, things } of mine[i]) for (const j of things) {
       const b = all[j];
