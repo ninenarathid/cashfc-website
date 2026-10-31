@@ -11185,7 +11185,7 @@
     "cleared": true,
     "job_kills": {
      "Viper": {
-      "kills": 4,
+      "kills": 5,
       "best": 82
      }
     }
@@ -11240,7 +11240,7 @@
       "best": 94
      },
      "Reaper": {
-      "kills": 4,
+      "kills": 6,
       "best": 90
      },
      "Samurai": {
@@ -29921,7 +29921,7 @@
     "cleared": true,
     "job_kills": {
      "BlackMage": {
-      "kills": 3,
+      "kills": 4,
       "best": 54
      },
      "Summoner": {
@@ -36349,7 +36349,7 @@
       "best": 24
      },
      "Sage": {
-      "kills": 12,
+      "kills": 14,
       "best": 47
      }
     }
@@ -74806,6 +74806,17 @@
     }
    },
    {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1080,
+    "name": "Zelenia",
+    "best": 18,
+    "kills": 1,
+    "job": "Gunbreaker",
+    "cleared": true
+   },
+   {
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
@@ -77778,7 +77789,7 @@
       "best": 53
      },
      "Paladin": {
-      "kills": 12,
+      "kills": 16,
       "best": 92
      },
      "Warrior": {
@@ -85999,13 +86010,13 @@
     "job": "Bard",
     "cleared": true,
     "job_kills": {
+     "Bard": {
+      "kills": 3,
+      "best": 19
+     },
      "Pictomancer": {
       "kills": 3,
       "best": 12
-     },
-     "Bard": {
-      "kills": 1,
-      "best": 5
      }
     }
    },
@@ -87175,8 +87186,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 7,
-    "kills": 12,
+    "best": 9,
+    "kills": 14,
     "job": "DarkKnight",
     "cleared": true,
     "job_kills": {

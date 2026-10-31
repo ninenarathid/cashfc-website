@@ -6415,7 +6415,8 @@
    "Enuo",
    "Guardian Arkveld",
    "Queen Eternal",
-   "Valigarmanda"
+   "Valigarmanda",
+   "Zelenia"
   ],
   "ults": [
    "The Epic of Alexander",
@@ -6886,7 +6887,7 @@
   "mounts": 61,
   "minions": 116,
   "rare": 5,
-  "level": 100,
+  "level": 64,
   "cc": [
    false,
    false,
@@ -8766,7 +8767,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 91,
+  "level": 93,
   "cc": [
    false,
    false,

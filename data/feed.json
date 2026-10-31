@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-10-31",
+   "type": "ex_clear",
+   "id": 39959181,
+   "name": "El Blung",
+   "text": "cleared Zelenia (Extreme)"
+  },
+  {
+   "date": "2026-10-31",
    "type": "level_100",
    "id": 47218599,
    "name": "Kawa Lynn",
@@ -1392,13 +1399,6 @@
    "id": 38488824,
    "name": "Daffodil Amary",
    "text": "cleared Enuo (Extreme)"
-  },
-  {
-   "date": "2026-10-16",
-   "type": "parse_up",
-   "id": 60852230,
-   "name": "Lucien Rhul",
-   "text": "set a new best parse: 22 on Zoraal Ja as Dar\u0001 \u0002night"
   }
  ]
 }
