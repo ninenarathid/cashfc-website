@@ -67,7 +67,8 @@ export default function CasinoWinners({ winners, few, client }: { winners: Casin
     {!shown.length && <p>ยังไม่มีผู้โชคดี</p>}
     {all ? <div className="casino-winners-all slim-bar" data-casino-winners-all>{shown.map(row)}</div> : shown.map(row)}
     {error && <p role="alert" className="mt-2 text-meta text-chili">{error}</p>}
-    {client && winners.length > 0 && <div className="mt-3 flex flex-wrap items-center gap-2">
+    {/* (opened, and the trial wiped under it: the way back stays) */}
+    {client && (winners.length > 0 || all) && <div className="mt-3 flex flex-wrap items-center gap-2">
       {!all && <button type="button" className={button} disabled={busy} data-casino-winners-open onClick={() => void read(null)}>{busy ? 'กำลังโหลด…' : 'ดูทั้งหมด'}</button>}
       {all && more && <button type="button" className={button} disabled={busy} data-casino-winners-more onClick={() => void read(all[all.length - 1]?.created_at ?? null)}>{busy ? 'กำลังโหลด…' : 'โหลดเพิ่ม'}</button>}
       {all && <button type="button" className={button} disabled={busy} data-casino-winners-close onClick={() => { setAll(null); setError(''); }}>ย่อกลับ</button>}
