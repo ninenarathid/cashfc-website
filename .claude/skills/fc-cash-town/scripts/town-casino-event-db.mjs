@@ -7,6 +7,7 @@ let pass = 0, fail = 0;
 const ok = (n, c, d = "") => { c ? pass++ : fail++; console.log(`  ${c ? "PASS" : "FAIL"} ${n}${c ? "" : "  " + JSON.stringify(d).slice(0, 400)}`); };
 const sql = async (q, p = []) => { const r = await (await fetch(`${B}/bench/sql`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sql: q, params: p }) })).json(); if (!r.rows) throw new Error(`${q.slice(0, 80)}: ${JSON.stringify(r).slice(0, 300)}`); return r.rows; };
 const rpc = async (name, args, as) => { const r = await fetch(`${B}/rest/v1/rpc/${name}`, { method: "POST", headers: { "content-type": "application/json", ...(as ? { "x-town-as": as } : {}) }, body: JSON.stringify(args ?? {}) }); const b = await r.json().catch(() => null); return { status: r.status, body: b }; };
+const twenty = async () => (await fetch(`${B}/bench/sql`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sql: readFileSync(new URL("../../../../supabase/v318_twenty_machines.sql", import.meta.url), "utf8").replaceAll("\r", ""), params: [] }) })).status === 200;
 const who = async (as) => (await (await fetch(`${B}/bench/who?as=${as}`)).json()).id;
 const seat = (as, n) => rpc("casino_live_seat", { p_machine: n }, as);
 const revision = async () => Number((await sql(`select revision from public.casino_live_settings where id = 1`))[0].revision);
@@ -18,7 +19,7 @@ const back = (id, secs) => sql(`update public.casino_live_seats set since = now(
 
 await sql(`update public.casino_live_settings set access = 'everyone', open = true, chip_rate = 1, free_chips = 100, seat_turn_s = 300, seat_rest_s = 60, free_event_chips = 0, free_event_until = null where id = 1`);
 await sql(`delete from public.casino_live_seats`);
-const names = Array.from({ length: 11 }, (_, i) => `v314-${i + 1}`), ids = [];
+const MACHINES = 20, names = Array.from({ length: MACHINES + 1 }, (_, i) => `v314-${i + 1}`), ids = [];
 for (const n of names) {
   const id = await who(n); ids.push(id);
   await sql(`delete from public.casino_live_spins where user_id = $1`, [id]);
@@ -31,12 +32,16 @@ for (const n of names) {
 {
   const r = await fetch(`${B}/bench/sql`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sql: readFileSync(new URL("../../../../supabase/v314_casino_turns_and_event_free_coins.sql", import.meta.url), "utf8") }) });
   ok("v314 run again", r.status === 200, await r.text());
+  // (v314 writes the seat and "all taken" whole, with ten: v318 goes back on after it, and twice changes nothing)
+  ok("v318 run", await twenty(), "");
+  ok("v318 run again", await twenty(), "");
   const d = (await sql(`select pg_get_functiondef('public.casino_live_spin(uuid,integer,text,bigint)'::regprocedure) f`))[0].f;
   ok("the spin has 'Turn over' once", d.split("Turn over").length === 2);
 }
 
 // ── with a machine free, nobody is moved, however long they have sat ──
-for (let i = 0; i < 9; i++) ok(`sits at ${i + 1}`, (await seat(names[i], i + 1)).body?.ok === true);
+for (let i = 0; i < MACHINES - 1; i++) ok(`sits at ${i + 1}`, (await seat(names[i], i + 1)).body?.ok === true);
+ok("no machine past the last", (await seat(names[MACHINES], MACHINES + 1)).body?.why === "machine");
 await back(ids[0], 3600);
 {
   const before = await chipsOf(ids[0]), r = await spin(names[0], 1);
@@ -53,9 +58,9 @@ ok("nine taken: letting go after an hour gives no rest", (await sql(`select seat
 ok("and I may sit again", (await seat(names[1], 2)).body?.ok === true);
 
 // ── all ten taken ──
-ok("the tenth sits", (await seat(names[9], 10)).body?.ok === true);
+ok("the last sits", (await seat(names[MACHINES - 1], MACHINES)).body?.ok === true);
 {
-  const r = await seat(names[10], 1);
+  const r = await seat(names[MACHINES], 1);
   ok("an eleventh is told it is taken, and that all are", r.body?.why === "taken" && r.body?.full === true, r);
   await back(ids[0], 299);
   const fresh = await spin(names[0], 1);
@@ -75,8 +80,8 @@ ok("the tenth sits", (await seat(names[9], 10)).body?.ok === true);
   const again = await seat(names[0], 1);
   ok("sitting again is refused, with the seconds", again.body?.why === "rest" && again.body?.seconds > 0 && again.body?.seconds <= 60, again);
   ok("a pull at a free machine is refused too", /Resting/.test(JSON.stringify((await spin(names[0], 1)).body)));
-  ok("the eleventh takes the machine", (await seat(names[10], 1)).body?.ok === true);
-  const s = await seatOf(ids[10]);
+  ok("the eleventh takes the machine", (await seat(names[MACHINES], 1)).body?.ok === true);
+  const s = await seatOf(ids[MACHINES]);
   ok("with a new turn", Date.now() - Date.parse(s.since) < 5e3, s);
   await sql(`update public.casino_live_accounts set seat_rest_until = now() - interval '1 second' where user_id = $1`, [ids[0]]);
   ok("the rest over, it is simply taken again", (await seat(names[0], 1)).body?.why === "taken");
@@ -160,6 +165,7 @@ ok("the tenth sits", (await seat(names[9], 10)).body?.ok === true);
   ok("the audit row carries the admin's name", (await sql(`select actor from public.casino_live_audit where action = 'wipe tests' order by id desc limit 1`))[0]?.actor === adm);
   const run2 = await fetch(`${B}/bench/sql`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sql: file }) });
   ok("again: nothing to do, no error", run2.status === 200, await run2.text());
+  ok("v318 back on after it", await twenty(), "");
   // (nobody to run it as: the file still stands)
   await sql(`update public.casino_live_settings set updated_by = null where id = 1`);
   const run3 = await fetch(`${B}/bench/sql`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ sql: file }) });
@@ -174,5 +180,7 @@ ok("the tenth sits", (await seat(names[9], 10)).body?.ok === true);
   ok("the helpers are nobody's to call", p.a === false && p.b === false, p);
 }
 await sql(`delete from public.casino_live_seats`);
+// (the file was run again above: the stand-in left with twenty, for the browser check after this)
+ok("v318 on at the end", await twenty(), "");
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -10,7 +10,7 @@
  */
 import { drawFountain, winSize } from "./casino-fountain";
 import { reelAt, spinRevealed, type CasinoSpin, type SymbolId } from "../casino";
-import { CASINO_COUNTER, CASINO_FURNITURE, CASINO_SIZE, casinoScenery, type CasinoFurniture } from "./casino-scenery";
+import { CASINO_BG as BG, CASINO_COUNTER, CASINO_FURNITURE, CASINO_SIZE, casinoScenery, type CasinoFurniture } from "./casino-scenery";
 import { CASINO_MACHINE_X, CASINO_MACHINE_Y } from "./casino-floor";
 import { CASINO_ROOM } from "./casino-room";
 import { drawCasinoMarquee } from "./casino-marquee";
@@ -25,19 +25,17 @@ type Sprite = "slot" | "chair" | "planter" | "counter" | "sofa" | "wall";
 const LET_GO_MS = 10_000;
 /** The room's own isometric origin (its tile 0, 0) in the tile space's. */
 const ORIGIN = toIso(CASINO_ROOM.x, CASINO_ROOM.y);
-/** The cached floor's size and where the room's origin is in it (TownCasinoMap's own numbers). */
-const BG = { w: 420 + CASINO_SIZE.w * 32 + 68, h: 140 + (CASINO_SIZE.w + CASINO_SIZE.h) * 16 + 62, ox: 420, oy: 140 };
 
 export class CasinoRoomArt {
   /** The spins the reels and the marquees show, newest first (the database's). */
   spins: () => CasinoSpin[] = () => [];
   /** The database's clock. */
   clock: () => number = () => Date.now();
-  /** The machine whose sheet is open (1 to 10), or 0. */
+  /** The machine whose sheet is open (1 to 20), or 0. */
   selected = 0;
   /** Whether the open sheet covers the machines on a phone (their marquees are then left out). */
   sheetOpen = false;
-  /** The tap boxes of this frame: a machine or its stool (1 to 10) and the counter (0). */
+  /** The tap boxes of this frame: a machine or its stool (1 to 20) and the counter (0). */
   boxes: Array<{ n: number; x0: number; y0: number; x1: number; y1: number }> = [];
   private art: Partial<Record<Sprite, HTMLImageElement>> = {};
   private floor: HTMLCanvasElement | null = null;
@@ -196,7 +194,7 @@ export class CasinoRoomArt {
     casinoScenery(ctx, this.point(screen, s), s).lights(now, reduced);
   }
 
-  /** The machine (1 to 10), the counter (0) or nothing under a point of the screen, the one drawn last first. */
+  /** The machine (1 to 20), the counter (0) or nothing under a point of the screen, the one drawn last first. */
   hit(x: number, y: number): number | null {
     for (let i = this.boxes.length - 1; i >= 0; i--) { const b = this.boxes[i]; if (x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1) return b.n; }
     return null;

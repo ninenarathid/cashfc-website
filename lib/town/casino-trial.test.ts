@@ -65,7 +65,7 @@ describe('volatile casino room',()=>{
 describe('casino interior navigation',()=>{
  it('reaches all five seats through walkable floor tiles and rejects furniture',()=>{
   for(const x of CASINO_MACHINE_X){const path=casinoPath(CASINO_SPAWN,{x,y:3.5});expect(path.length).toBeGreaterThan(0);expect(path.every(casinoWalkable)).toBe(true);expect(path.at(-1)).toEqual({x,y:3.5});}
-  expect(casinoPath(CASINO_SPAWN,{x:2.5,y:9.5})).toEqual([]);expect(casinoWalkable({x:-.5,y:5})).toBe(false);
+  expect(casinoPath(CASINO_SPAWN,{x:2.5,y:15.5})).toEqual([]);expect(casinoWalkable({x:-.5,y:5})).toBe(false);
  });
 });
 describe('the evercold and the pair (v299)',()=>{

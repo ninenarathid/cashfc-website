@@ -9,13 +9,13 @@ import { SIT_HERE,SPEED,stepAlong,toIso,type Vec } from '@/lib/town/world';
 import {reelAt,spinRevealed,type CasinoSpin,type SymbolId} from '@/lib/casino';
 import {drawCasinoSymbol} from '@/lib/town/casino-symbol-art';
 import {drawCasinoMarquee} from '@/lib/town/casino-marquee';
-import {CASINO_COUNTER,CASINO_FURNITURE,CASINO_SIZE,casinoScenery} from '@/lib/town/casino-scenery';
+import {CASINO_BG,CASINO_COUNTER,CASINO_FURNITURE,CASINO_SIZE,casinoScenery} from '@/lib/town/casino-scenery';
 export type CasinoPeer={id:string;name:string;look:string;x:number;y:number;seat:number|null};
 export type CasinoCameraControls=TownMapControls;
 /** (the TEST room's own map keeps the first five: the town's room has ten, lib/town/casino-floor) */
 export const MACHINE_X=CASINO_MACHINE_X.slice(0,5),SPAWN=CASINO_SPAWN;
 /** The floor's cached picture: the room's whole width and depth, as lib/town/casino-room-art makes it. */
-const BG_W=420+CASINO_SIZE.w*32+68,BG_H=140+(CASINO_SIZE.w+CASINO_SIZE.h)*16+62;
+const BG_W=CASINO_BG.w,BG_H=CASINO_BG.h;
 type Walker={pos:Vec;path:Vec[];target:Vec;dx:number;dy:number};
 export default function TownCasinoMap({native,self,peers,spins,selected,clock,pane='none',onReception,onDismiss,onMove,onSelect,onReady,onControls}:{native?:TownMapRuntime;self:CasinoPeer;peers:CasinoPeer[];spins:CasinoSpin[];selected:number;clock:()=>number;pane?:string;onReception?:()=>void;onDismiss?:()=>void;onMove:(x:number,y:number)=>void;onSelect:(n:number)=>void;onReady:(ready:boolean)=>void;onControls:(controls:CasinoCameraControls|null)=>void}){
   const canvas=useRef<HTMLCanvasElement>(null),driver=useRef<((stamp:number)=>void)|null>(null),live=useRef({native,self,peers,spins,selected,clock,pane,onReception,onDismiss,onMove,onSelect,onReady});live.current={native,self,peers,spins,selected,clock,pane,onReception,onDismiss,onMove,onSelect,onReady};
@@ -75,7 +75,7 @@ export default function TownCasinoMap({native,self,peers,spins,selected,clock,pa
       if(!background.current){
         const cached=document.createElement('canvas');cached.width=BG_W;cached.height=BG_H;
         const c=cached.getContext('2d')!;c.imageSmoothingEnabled=false;
-        const project=(x:number,y:number,z=0)=>{const p=toIso(x,y);return{x:p.x+420,y:p.y+140-z};};
+        const project=(x:number,y:number,z=0)=>{const p=toIso(x,y);return{x:p.x+CASINO_BG.ox,y:p.y+CASINO_BG.oy-z};};
         casinoScenery(c,project,1).background();
         // Architecture shares the same native pixels as the furniture and dolls.
         const wall=art.current?.wall;
@@ -83,7 +83,7 @@ export default function TownCasinoMap({native,self,peers,spins,selected,clock,pa
           for(let y=1;y<CASINO_SIZE.h;y+=2){const p=project(0,y);c.save();c.translate(Math.round(p.x+46),Math.round(p.y-100));c.scale(-1,1);c.drawImage(wall,0,0,80,105);c.restore();}}
         background.current=cached;
       }
-      const corner=toScreen(v,{x:-420,y:-140},cw,ch);
+      const corner=toScreen(v,{x:-CASINO_BG.ox,y:-CASINO_BG.oy},cw,ch);
       ctx.drawImage(background.current,Math.round(corner.x),Math.round(corner.y),BG_W*v.s,BG_H*v.s);
       scenery.lights(stamp,reduced);
       // A lit tile marks the station under the pointer, in the same space as the doll.

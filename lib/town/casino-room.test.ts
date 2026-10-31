@@ -45,6 +45,13 @@ describe("the Popoto Casino in the town", () => {
       expect(w.stoolAt(stool)).toBe(i + 1);
     }
     expect(w.stoolAt(w.CASINO_IN)).toBe(0);
+    // twenty, on two rows, the first ten where they stood before the room went back (the owner, 2026-10-31)
+    expect(w.CASINO_STOOLS).toHaveLength(20);
+    expect(new Set(w.CASINO_STOOLS.map((s) => `${s.x},${s.y}`)).size).toBe(20);
+    expect(w.CASINO_STOOLS[0]).toEqual({ x: 342.5, y: 115.5 });
+    expect(w.CASINO_STOOLS[9]).toEqual({ x: 369.5, y: 115.5 });
+    expect(w.CASINO_STOOLS[10]).toEqual({ x: 342.5, y: 109.5 });
+    expect(w.CASINO_IN).toEqual({ x: 356.5, y: 121.5 });
   });
 
   it("is gone into by the kura's door only while it opens for this page, and out by the carpet always", async () => {

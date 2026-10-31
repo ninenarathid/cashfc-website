@@ -49,7 +49,7 @@ export default function CasinoRoom({native,town}:{native?:TownMapRuntime;town?:C
   const nativeRef=useRef(native);nativeRef.current=native;
   // (where the room's own tiles are in the walker's: the town's tile space, or the casino map's own)
   const origin=town?{x:CASINO_ROOM.x,y:CASINO_ROOM.y}:{x:0,y:0};
-  // (each machine's stool where the walker sits: the town's room has ten on two rows, the TEST room's own map five on one)
+  // (each machine's stool where the walker sits: the town's room has twenty on two rows, the TEST room's own map five on one)
   // (one list each, made once: an effect follows it, and a new one every render would never let it rest: Codex's check)
   const stools=town?CASINO_STOOLS:TEST_STOOLS;
   const walker=town?.session??native?.session??null,walkerRef=useRef(walker);walkerRef.current=walker;

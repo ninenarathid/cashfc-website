@@ -1,15 +1,19 @@
 import type {Vec} from './world';
 
 /** The room's size in tiles: thirty-two wide, so that ten machines stand in one row along the back wall (the owner, 2026-10-27: "ป้ายบัง เครื่องอื่น ช่วยทำแมพให้ใหญ่ขึ้นกว่านี้ด้วย"). */
-export const CASINO_SIZE = { w: 32, h: 12 } as const;
+/** How far the room goes back behind where its back wall stood, for the second row (the owner, 2026-10-31: "เพิ่มตอนนี้เลยเป็น 20 เครื่อง โดยขยายเพิ่มด้านลึก"): deep enough that a first-row marquee covers nobody behind it. */
+export const CASINO_DEPTH = 6;
+export const CASINO_SIZE = { w: 32, h: 12 + CASINO_DEPTH } as const;
+/** The cached floor's size and where the room's tile 0, 0 is in it: wide enough for its deepest corner, tall enough for the back wall. */
+export const CASINO_BG = { ox: 36 + CASINO_SIZE.h * 32, oy: 140, w: 36 + CASINO_SIZE.h * 32 + CASINO_SIZE.w * 32 + 68, h: 140 + (CASINO_SIZE.w + CASINO_SIZE.h) * 16 + 62 } as const;
 /** Furniture footprints are shared by the renderer and the movement grid. */
 export const CASINO_FURNITURE = [
-  {kind:'sofa',x:1,y:8,w:3,h:2},
-  {kind:'counter',x:22,y:7,w:3,h:2},
-  {kind:'sofa',x:27,y:8,w:3,h:2},
-  {kind:'plant',x:0,y:7,w:1,h:1},
-  {kind:'plant',x:12,y:8,w:1,h:1},
-  {kind:'plant',x:31,y:8,w:1,h:1},
+  {kind:'sofa',x:1,y:8+CASINO_DEPTH,w:3,h:2},
+  {kind:'counter',x:22,y:7+CASINO_DEPTH,w:3,h:2},
+  {kind:'sofa',x:27,y:8+CASINO_DEPTH,w:3,h:2},
+  {kind:'plant',x:0,y:7+CASINO_DEPTH,w:1,h:1},
+  {kind:'plant',x:12,y:8+CASINO_DEPTH,w:1,h:1},
+  {kind:'plant',x:31,y:8+CASINO_DEPTH,w:1,h:1},
 ] as const;
 /** The counter, where the casino's man stands. */
 export const CASINO_COUNTER = CASINO_FURNITURE.find(f => f.kind === 'counter')!;
@@ -35,7 +39,7 @@ export function casinoScenery(ctx:CanvasRenderingContext2D,point:Point,scale:num
     const p=point(x,y,z);ctx.beginPath();ctx.ellipse(p.x,p.y,rx*scale,ry*scale,0,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();
   };
   const background=()=>{
-    const {w:W,h:H}=CASINO_SIZE,mid=W/2-8;
+    const {w:W,h:H}=CASINO_SIZE,mid=W/2-8,B=CASINO_DEPTH;
     block(0,0,W,H,-12,-1,['#3b383b','#30292b','#4a3a32']);
     for(let y=0;y<H;y++)for(let x=0;x<W;x++){
       const edge=x===0||x===W-1||y===0||y===H-1;
@@ -46,28 +50,31 @@ export function casinoScenery(ctx:CanvasRenderingContext2D,point:Point,scale:num
       }
       line([x+.04,y+.04,0],[x+.96,y+.04,0],'#c2bf9633');
     }
-    tile(1,1.1,W-2,3.15,'#49303b',.3,'#29222a');
-    tile(1.12,1.22,W-2.24,2.91,'#824b4a',.5,'#b79356');
-    tile(1.22,1.32,W-2.44,2.71,'#603a43',.6);
-    for(let y=1.4;y<4;y+=.22)for(let x=1.3;x<W-1.2;x+=.24){
-      const noise=(Math.floor(x*91)+Math.floor(y*113))%5;
-      line([x,y,.7],[x+.035,y,.7],noise===0?'#8c566126':'#33233324');
+    // (a carpet under each row of machines: the back row's along the wall, the first row's where the wall stood)
+    for(const r of [0,B]){
+      tile(1,r+1.1,W-2,3.15,'#49303b',.3,'#29222a');
+      tile(1.12,r+1.22,W-2.24,2.91,'#824b4a',.5,'#b79356');
+      tile(1.22,r+1.32,W-2.44,2.71,'#603a43',.6);
+      for(let y=r+1.4;y<r+4;y+=.22)for(let x=1.3;x<W-1.2;x+=.24){
+        const noise=(Math.floor(x*91)+Math.floor(y*113))%5;
+        line([x,y,.7],[x+.035,y,.7],noise===0?'#8c566126':'#33233324');
+      }
+      for(let x=1.35;x<W-1.3;x+=.55)line([x,r+4.02,.8],[x+.2,r+4.02,.8],'#bb985c',1.5);
     }
-    for(let x=1.35;x<W-1.3;x+=.55)line([x,4.02,.8],[x+.2,4.02,.8],'#bb985c',1.5);
     // (the way in, in the middle of the front wall)
-    tile(mid+7.4,9,2.2,3,'#56353c',.5,'#b69258');
-    line([mid+7.6,9,.8],[mid+7.6,12,.8],'#cfaa67',2);line([mid+9.4,9,.8],[mid+9.4,12,.8],'#cfaa67',2);
+    tile(mid+7.4,H-3,2.2,3,'#56353c',.5,'#b69258');
+    line([mid+7.6,H-3,.8],[mid+7.6,H,.8],'#cfaa67',2);line([mid+9.4,H-3,.8],[mid+9.4,H,.8],'#cfaa67',2);
     // The entry has actual steps and depth; the carpet continues over their treads.
     for(let step=3;step>=0;step--){
-      const y=12+step*.25,z=-4-step*5;
+      const y=H+step*.25,z=-4-step*5;
       block(mid+7.35,y,2.3,.25,z-5,z,['#674c37','#46312b','#392a26']);
       tile(mid+7.55,y,1.9,.25,'#743c47',z+.5,'#b48d51');
       line([mid+7.35,y,z],[mid+9.65,y,z],'#c39a5b');
     }
     for(const x of [mid+7.25,mid+9.75]){
-      block(x-.15,11.75,.3,.3,0,38,['#b39058','#684630','#49362b']);
-      block(x-.2,11.7,.4,.4,34,39,['#d8b97a','#a07a49','#6b4c35']);
-      ellipse(x,11.9,43,4,5,'#d3ae65');
+      block(x-.15,H-.25,.3,.3,0,38,['#b39058','#684630','#49362b']);
+      block(x-.2,H-.3,.4,.4,34,39,['#d8b97a','#a07a49','#6b4c35']);
+      ellipse(x,H-.1,43,4,5,'#d3ae65');
     }
 
   };

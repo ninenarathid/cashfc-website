@@ -37,7 +37,7 @@ const machineOnScreen = async (X) => {
   return box;
 };
 
-const others = []; for (let i = 1; i <= 10; i++) others.push(await who(`EVENT${i}`));
+const others = []; for (let i = 1; i <= 20; i++) others.push(await who(`EVENT${i}`));
 
 async function run(label, size, letter) {
   await sql(`delete from public.casino_live_seats`);
@@ -82,7 +82,7 @@ async function run(label, size, letter) {
     // ── 6: all ten taken ──
     await X.evaluate(`${V}.warp(352, 117)`); await sleep(1500);
     const m = await machineOnScreen(X);
-    await seats([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], others);
+    await seats(others.map((_, i) => i + 1), others);
     await tap(X, ...middle(m)); await sleep(1200);
     ok(`${label}: all ten taken says so`, /เครื่องเต็มทุกตัว/.test(await alert(X)) && /5 นาที/.test(await alert(X)), await alert(X));
     await X.shot(`${OUT}/event-2-full-${label}.png`);

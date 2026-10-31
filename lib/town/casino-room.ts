@@ -10,11 +10,12 @@
  * the door shut to whoever may not (lib/town/world's setCasinoDoor), and every spin is asked of the database again.
  */
 import { CASINO_MACHINE_X, CASINO_MACHINE_Y, CASINO_MAP, CASINO_SPAWN, casinoWalkable } from "./casino-floor";
+import { CASINO_DEPTH } from "./casino-scenery";
 import { CASINO_FURNITURE } from "./casino-scenery";
 import type { Vec } from "./world";
 
 /** Where the room lies in the tile space: east of the clothes shop (320 to 330), clear of every other map. */
-export const CASINO_ROOM = { x: 340, y: 112, w: CASINO_MAP.width, h: CASINO_MAP.height };
+export const CASINO_ROOM = { x: 340, y: 112 - CASINO_DEPTH, w: CASINO_MAP.width, h: CASINO_MAP.height };
 /** Whether a point is in the room. */
 export const inCasino = (x: number, y: number) => x >= CASINO_ROOM.x && y >= CASINO_ROOM.y && x < CASINO_ROOM.x + CASINO_ROOM.w && y < CASINO_ROOM.y + CASINO_ROOM.h;
 /** A point of the room's own (lib/town/casino-map's tiles) in the tile space, and back. */
@@ -23,9 +24,9 @@ export const casinoIn = (p: Vec): Vec => ({ x: p.x - CASINO_ROOM.x, y: p.y - CAS
 /** Whether a tile of the room is open to stand on (the interior's own collision: the machines, the sofa, the counter, the plants). */
 export const casinoOpen = (tx: number, ty: number) => inCasino(tx, ty) && casinoWalkable({ x: tx - CASINO_ROOM.x + 0.5, y: ty - CASINO_ROOM.y + 0.5 });
 
-/** The stool before each machine, where one sits to play it (machine 1 to 5, left to right). */
+/** The stool before each machine, where one sits to play it. */
 export const CASINO_STOOLS: Vec[] = CASINO_MACHINE_X.map((x, i) => casinoOut({ x, y: CASINO_MACHINE_Y[i] + 1 }));
-/** Which machine's stool a point is on (1 to 5), or 0. */
+/** Which machine's stool a point is on (1 to 20), or 0. */
 export const stoolAt = (p: Vec) => CASINO_STOOLS.findIndex((s) => Math.abs(s.x - p.x) < 0.1 && Math.abs(s.y - p.y) < 0.1) + 1;
 
 /**
@@ -48,6 +49,6 @@ export const CASINO_SOFA_SEATS = CASINO_FURNITURE.flatMap((f, sofa) => f.kind !=
 export const sofaSeatAt = (p: Vec) => CASINO_SOFA_SEATS.findIndex((s) => Math.abs(s.stand.x - p.x) < 0.1 && Math.abs(s.stand.y - p.y) < 0.1) + 1;
 
 /** The way out: the carpet at the room's foot, where the steps were; stepping onto it takes one back to the kura's door. */
-export const CASINO_EXIT = { tiles: [[CASINO_ROOM.x + CASINO_MAP.width / 2, CASINO_ROOM.y + 11]] as Array<[number, number]>, at: casinoOut({ x: CASINO_MAP.width / 2 + .5, y: 11.7 }) };
+export const CASINO_EXIT = { tiles: [[CASINO_ROOM.x + CASINO_MAP.width / 2, CASINO_ROOM.y + CASINO_MAP.height - 1]] as Array<[number, number]>, at: casinoOut({ x: CASINO_MAP.width / 2 + .5, y: CASINO_MAP.height - .3 }) };
 /** Where one comes in: the interior's own spawn, two rows up from the way out, on the carpet. */
 export const CASINO_IN: Vec = casinoOut(CASINO_SPAWN);

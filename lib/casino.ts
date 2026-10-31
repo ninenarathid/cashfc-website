@@ -31,7 +31,7 @@ export type CasinoSettings = {
   access?: CasinoAccess;
   /** v303's: Popoto coins a Casino Coin, and the Casino Coins given free once a town day (0: none). */
   chip_rate?: number; free_chips?: number;
-  /** v314: a machine's turn and the rest after it, in seconds, while all ten are taken (0: no turns); an event's free coins, until when. */
+  /** v314: a machine's turn and the rest after it, in seconds, while all are taken (0: no turns); an event's free coins, until when. */
   seat_turn_s?: number; seat_rest_s?: number; free_event_chips?: number; free_event_until?: string | null;
   /** v304's: the pair's paytable, five rows. */
   back_table?: BackRow[];
