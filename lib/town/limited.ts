@@ -70,7 +70,7 @@ export const LIMITED_LOOKS: Record<string, LimitedLook> = {
   },
   mapleregent: {
     kind: "leaves",
-    title: { th: "ผู้ครองใบไม้ร่วง", en: "Regent of Falling Leaves" },
+    title: { th: "เจ้าแห่งฤดูใบไม้ร่วง", en: "Sovereign of Autumn" },
     dyes: [
       { th: "ปลายใบไม้ร่วง", en: "Autumn", swatch: "#d9651e", bands: [], aura: ["#5e230c", "#c9531a", "#ef8f2c", "#ffd479"] },
       { th: "ซากุระ", en: "Spring blossom", swatch: "#f08bb0", bands: [{ ...LEAF, h: 338, s: 0.8, l: 0.1 }, { ...BURGUNDY, h: 325, s: 0.7, l: 0.02 }], aura: ["#7a2750", "#df6c9c", "#f9a8c8", "#ffe3ee"] },

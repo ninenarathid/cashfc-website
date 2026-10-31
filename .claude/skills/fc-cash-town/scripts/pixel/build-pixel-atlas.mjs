@@ -792,6 +792,20 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
       const d = Math.abs(base.c[bi] - g.c[i * 4]) + Math.abs(base.c[bi + 1] - g.c[i * 4 + 1]) + Math.abs(base.c[bi + 2] - g.c[i * 4 + 2]);
       if (d > 80 || (c !== L.clsAt(base, x, y) && d > 40)) set.add(i);
     }
+    // a mask with open eye holes (`holes` in items.json): what is at the eyes is the wearer's own, in the wearer's own colour.
+    // The drawing keeps the eyes as they were, and a key cannot tell them from the mask's own rim, so they go by where the
+    // base has them (the owner's rule, 2026-10-26: no pixel bugs; a mask carrying violet eyes over green ones would be one)
+    if (slot === "face" && ITEMS.accessories.find((x) => x.id === id)?.holes && set.size) {
+      for (const i of [...set]) {
+        const x = i % g.GW, y = (i / g.GW) | 0;
+        let eye = false;
+        for (let dy = -1; dy <= 1 && !eye; dy++) for (let dx = -1; dx <= 1 && !eye; dx++) {
+          const bx = x + dx, by = y + dy;
+          if (bx >= 0 && by >= 0 && bx < base.GW && by < base.GH && base.c[(by * base.GW + bx) * 4 + 3] && L.clsAt(base, bx, by).startsWith("violet")) eye = true;
+        }
+        if (eye) set.delete(i);
+      }
+    }
     {
       // a solid thing (a hat, dark lenses, a scarf) is whole inside its outline: what is closed in by it is it
       if (solid && set.size) {
