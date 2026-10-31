@@ -462,6 +462,9 @@ const SHEETS = [
   // with icons-farm-d for the reference. Built alone into a small picture of the board's own (ICONS_ONLY=icons-giant-pull-a
   // ICONS_PUB=<tree>/public/town/giant-pull ICONS_JSON=<tree>/lib/town/giant-pull-art.json). Cut on its finer grid (6.0,
   // the scene's own 5.8): on the coarser (12) the pieces would stand twice as coarse as the board they are thrown over
+  // (the drifting things of a limited outfit's aura, components/town/limited-aura: a small picture of their own,
+  // ICONS_ONLY=icons-limited-aura-a ICONS_PUB=<tree>/public/town/limited ICONS_JSON=<tree>/lib/town/limited-aura-art.json)
+  ["icons-limited-aura-a", ["auraPumpkinA", "auraPumpkinB", "auraBatA", "auraBatB", "auraLeafA", "auraLeafB"], { range: [7.6, 8.2] }],
   ["icons-giant-pull-a", ["pullKnot", "pullClods", "pullRoot", "pullDust", "pullGloves", "pullPit"], { range: [5.9, 6.1] }],
   // ── a giant fish landed together, the leaf roll and the shaken branch (2026-10-27, the owner's "OK แล้ว" to the species
   // lists): the twenty giants (the fish book's, a call's and the landed board's: never bag items), the steak, the book's

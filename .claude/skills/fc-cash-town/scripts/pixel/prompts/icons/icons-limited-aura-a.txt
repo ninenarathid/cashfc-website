@@ -1,0 +1,11 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D town game. Draw a new sprite sheet of small icons for the little things that drift around a limited costume's wearer in that game, in the same pixel art style.
+
+Each icon is drawn on its own 16 by 16 pixel grid, scaled up big so every pixel of the icon is a large crisp square, all icons the same size, simple and bold so they read clearly when shown small, with a thick dark outline and two or three tones per colour. Six icons in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping:
+1) a small round carved pumpkin spirit floating with no stalk below it, orange with darker ribs, a short green stem, a jagged smiling face with two triangle eyes, the eyes and mouth filled with solid pale teal-green;
+2) the same pumpkin spirit, the same size and shape, with the eyes and mouth filled with a lighter teal-green;
+3) a tiny dark bat seen from the front with both wings raised high, two small crimson eyes;
+4) the same tiny dark bat with both wings lowered;
+5) one maple leaf with five clear points in orange with a darker centre vein, lying flat;
+6) the same maple leaf turned edge-on as it falls, narrower, in orange with a darker centre vein.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no frames or boxes around the icons, no shadows, no text, no letters, no numbers.

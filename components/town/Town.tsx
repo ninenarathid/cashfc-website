@@ -37,6 +37,8 @@ import { SIGN, decodeSign, inReach, type Sign } from "@/lib/town/sign";
 import { askFor, chatFor, talkFor, type Line, type Speaker } from "@/lib/town/talk";
 import { DOLL_PX, WALK_FPS, facingFor, loadPixelKit, type PixelKit, type View } from "@/lib/town/pixeldoll";
 import LIMITED_FX from "@/lib/town/limited-fx.json";
+import { drawLimitedTitle, type LimitedTitle } from "./limited-title";
+import { auraBehind, auraFront, auraLights, auraOverDark, auraState, type AuraState, type Wearer } from "./limited-aura";
 import { loadBoxes, loadForest, loadScenery, type SceneryKit } from "@/lib/town/scenery";
 import { boxSprite } from "@/lib/town/box-art";
 import { personHitAt } from "@/lib/town/person-hit";
@@ -98,7 +100,7 @@ import SignIcon from "./SignIcon";
 import type { SignView } from "./TownSign";
 import { TownFaces } from "./TownFaces";
 import { EXPRESSION_MS, expressionOf } from "@/lib/town/expression";
-import { FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS, WEAR_ALL_EVENT, onlyOwned, wearAllHere } from "@/lib/town/wear";
+import { FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS, WEAR_ALL_EVENT, limitedOf, onlyOwned, outfitBaseId, wearAllHere } from "@/lib/town/wear";
 import type { Stuck } from "@/lib/town/session";
 import type { Standing } from "./TownCook";
 import type { Pairing, Stander } from "./TownLine";
@@ -2081,8 +2083,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
 
   function drawDaylight(ctx: CanvasRenderingContext2D, cw: number, ch: number, now: number) {
     // (the lights of the gems in the tools held this frame: taken up here, whatever the place)
-    const held = toolLights.current;
+    const held = toolLights.current, auraLit = auraDark.current, platesLit = auraPlates.current;
     toolLights.current = [];
+    auraDark.current = [];
+    auraPlates.current = [];
     // ── to come ── (nor any sky: the cave's dark is its own, laid by the preview's module)
     if (placeRef.current === "cave") return;
     // (nor in the clothes shop, under its roof: its own warm light, whatever the hour, and its ring's glow)
@@ -2105,6 +2109,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       ctx.restore();
     }
     drawYardLights(ctx, day.lamps, now);
+    for (const w of auraLit) auraOverDark(ctx, w);
+    for (const plate of platesLit) drawLimitedTitle(ctx, plate);
     drawCampLight(ctx, day.lamps, now);
     drawLampLight(ctx, day.lamps, now);
     drawDecorLights(ctx, day.lamps, now);
@@ -3710,11 +3716,30 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       const mood = a.info.mood ?? 0, seen = moodSeen.current.get(a.info.id);
       if (!seen || seen.mood !== mood) moodSeen.current.set(a.info.id, { mood, at: now });
       const expr = mood && now - (moodSeen.current.get(a.info.id)?.at ?? now) < EXPRESSION_MS + 1500 ? expressionOf(mood) : null;
+      // ── a limited outfit's aura (lib/town/limited, components/town/limited-aura): what it is made of about its wearer, at
+      // rest and walking; what circles passes behind the doll and before it
+      // (only on a copy really won, never on a try in the shop: the owner, 2026-10-31, "ตอนลองชุดในร้าน ไม่เห็น vfx พิเศษ")
+      const lim = reducedRef.current ? null : limitedOf(look.outfit);
+      const wonIt = !!lim && !a.info.trying && !!limitedOwners.current.get(isMe ? me.id : a.info.id)?.some((o) => o.outfit === lim.base);
+      let wearer: Wearer | null = null;
+      if (lim && wonIt) {
+        const st = limitedAuras.current.get(a.info.id) ?? auraState();
+        limitedAuras.current.set(a.info.id, st);
+        wearer = { id: a.info.id, kind: lim.look.kind, dye: lim.dye, x: p.x, y: p.y, cell: k * DOLL_PX, s: k * DOLL_PX * 1.8, step, sat: sitting(a) || perched, night: skyNow().lamps, now, state: st };
+        auraBehind(ctx, wearer);
+      }
       kit.draw(ctx, look, face.view, face.mirror, p.x, p.y, k, { step, blink, talk, expr, eat: eatPose, sit: sitting(a) || perched, perch: !!tableSeatOf(a)?.back }, dpr);
       // ── Granny Twilla's limited outfits ── (now and then what the outfit is made of shows: bats slip out of the
       // count's cape, the pumpkin's ghost flames flicker off; a one-shot of PixelLab's, in the doll's own pixels)
-      const design = OUTFITS[look.outfit ?? 0]?.id;
+      const design = outfitBaseId(look.outfit);
       if (design && design in LIMITED_FX && !reducedRef.current) limitedFx(ctx, a.info.id, design as keyof typeof LIMITED_FX, p.x, p.y, k, face.mirror, now, sitting(a) || perched);
+      if (wearer) {
+        auraFront(ctx, wearer);
+        if (wearer.night > 0.2) {
+          auraDark.current.push(wearer);
+          if (toolLights.current.length < 110) for (const l of auraLights(wearer)) toolLights.current.push({ ...l, flat: 1 });
+        }
+      }
     } else {
       // Until the dolls arrive: a simple figure.
       ctx.fillStyle = "#6aa9e0";
@@ -3798,8 +3823,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       const below = fy + (title || rank > 0 ? 49 : 31);
       if (a.info.trying) tag(ctx, words.current.th ? "ลองชุด" : "Trying on", p.x, below, "#9fd0ff");
       else {
-        const lim = limitedOwners.current.get(isMe ? me.id : a.info.id)?.find((o) => o.outfit === OUTFITS[look.outfit ?? 0]?.id);
-        if (lim) tag(ctx, `LIMITED #${lim.edition}/${lim.copies}`, p.x, below, "#e9c6ff");
+        const lim = limitedOwners.current.get(isMe ? me.id : a.info.id)?.find((o) => o.outfit === outfitBaseId(look.outfit)), worn = limitedOf(look.outfit);
+        if (lim && worn) {
+          const plate: LimitedTitle = { text: words.current.th ? worn.look.title.th : worn.look.title.en, number: `#${lim.edition}/${lim.copies}`, kind: worn.look.kind, dye: worn.dye, x: p.x, y: below, now, seed: seedOf(a.info.id), font: fontRef.current, reduced: reducedRef.current };
+          drawLimitedTitle(ctx, plate);
+          // (after dark it shines through, as a lamp does)
+          if (skyNow().lamps >= 0.2) auraPlates.current.push(plate);
+        } else if (lim) tag(ctx, `LIMITED #${lim.edition}/${lim.copies}`, p.x, below, "#e9c6ff");
       }
       ctx.restore();
     }
@@ -4399,6 +4429,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       },
       cam: () => ({ s: cam.current.s, cx: cam.current.cx, cy: cam.current.cy, follow: cam.current.follow }),
       /** So many more of my own doll about me, each holding `hold` with a tool's word (lib/town/tools' toolWord: "2", "2fff2"), walking or not; 0 for none. To look at many forged tools at once. */
+      /** This page's own doll as the winner of a limited outfit (its aura's shots). */
+      won: (outfit: string) => { limitedOwners.current.set(me.id, [{ outfit, edition: 1, copies: 3 }]); },
       crowd: (n: number, hold = "pick", word = "2", walk = false) => { crowd.current = n > 0 ? { n: Math.min(60, Math.floor(n)), hold, word, walk } : null; return crowd.current?.n ?? 0; },
       /** A title plate drawn where asked, into any canvas (components/town/title-plate): to look at every rank and line at once. */
       plate: (ctx: CanvasRenderingContext2D, text: string, line: Worn["line"], rank: number, x: number, y: number, now: number, seed = 1, reduced = false) =>
@@ -4610,6 +4642,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // the auction's rounds as the town opens, every ten minutes, and as the shop's windows shut)
   const limitedAt = useRef(new Map<string, { next: number; start: number | null }>());
   const limitedImgs = useRef<Record<string, HTMLImageElement>>({});
+  const limitedAuras = useRef(new Map<string, AuraState>());
+  const auraDark = useRef<Wearer[]>([]);
+  const auraPlates = useRef<LimitedTitle[]>([]);
   const limitedOwners = useRef(new Map<string, Array<{ outfit: string; edition: number; copies: number }>>());
   useEffect(() => {
     if (!keeper || shopPanel) return;

@@ -20,6 +20,7 @@
  * A look writes each slot as an index into its list (lib/town/look), so only ever add at the end. The first of every
  * list but the outfits is nothing worn. Pure.
  */
+import { LIMITED_LOOKS, limitedLook, type LimitedDye, type LimitedLook } from "./limited";
 import type { Named } from "./look";
 import type { ItemId } from "./items";
 import { rankOf, type LineId } from "./lines";
@@ -43,13 +44,17 @@ export type Source =
  */
 export interface Drop { drop: LineId; chance: number; what?: readonly string[]; things?: readonly string[]; hours?: readonly [number, number]; rain?: true; knob?: string; how?: { th: string; en: string } }
 /** `top`: a hair thing worn on top of the head (ears, horns, a tiara, a crown, a big bow), which a hat would sit on. */
-export type Wearable = Named & { from?: Source; top?: true };
+/** `dyeOf`, `dye`: one of a limited design's other colours (lib/town/limited): owned with its base, shown as a colour of it. */
+export type Wearable = Named & { from?: Source; top?: true; dyeOf?: string; dye?: number; dyeSet?: string };
 
 const NONE: Wearable = { id: "none", th: "ไม่ใส่", en: "None" };
 const at = (rank: number, ...lines: LineId[]): Source => ({ lines, rank });
 const isRank = (s: Source): s is { lines: LineId[]; rank: number } => "lines" in s;
 const CRAFT: Source = { craft: true }, UNCLE: Source = { shop: "uncle" }, TAILOR: Source = { tailor: true };
 const AUCTION = (design: string): Source => ({ auction: design });
+/** A limited thing's four other colours, the design's own (`set`: its outfit, whose colours it takes), each chosen apart. */
+const dyesOf = (base: string, design: string, set = base, top?: true): Wearable[] =>
+  LIMITED_LOOKS[set].dyes.slice(1).map((d, i) => ({ id: `${base}dye${"abcd"[i]}`, th: d.th, en: d.en, from: AUCTION(design), dyeOf: base, dye: i + 1, dyeSet: set, ...(top ? { top } : {}) }));
 const drop = (line: LineId, chance: number, more: Omit<Drop, "drop" | "chance"> = {}): Drop => ({ drop: line, chance, ...more });
 // (the builder's two: helping somebody else's work, as the bridge was built together: a rock somebody else struck
 // broken with my swings, the bellows worked for somebody's piece at the smith, a tree somebody else fells braced; the
@@ -93,6 +98,11 @@ export const OUTFITS: Wearable[] = [
   { id: "ranch", th: "ชุดคาวบอย", en: "Ranch rider", from: TAILOR },
   { id: "bard", th: "ชุดนักดนตรีพเนจร", en: "Wandering bard", from: TAILOR },
   { id: "skeleton", th: "ชุดโครงกระดูก", en: "Skeleton suit", from: TAILOR },
+  // (the limited auction's next round: the owner, 2026-10-31, "ลองออกแบบ ชุดที่แนะนำ")
+  { id: "moonkeeper", th: "ชุดผู้ปล่อยโคมจันทรา", en: "Moon Lantern Keeper", from: AUCTION("moonkeeper") },
+  { id: "mapleregent", th: "ชุดผู้สำเร็จราชการใบเมเปิล", en: "Maple Regent", from: AUCTION("mapleregent") },
+  // (each limited design's four other colours: the same pictures, moved hue by hue, lib/town/limited)
+  ...dyesOf("count", "count"), ...dyesOf("pumpkinmonarch", "pumpkin"), ...dyesOf("moonkeeper", "moonkeeper"), ...dyesOf("mapleregent", "mapleregent"),
 ];
 
 export const HATS: Wearable[] = [
@@ -129,6 +139,9 @@ export const HATS: Wearable[] = [
   { id: "ghostcap", th: "หมวกผีน้อย", en: "Little ghost cap", from: TAILOR },
   // (the pumpkin set's: the owner, 2026-10-25, "costome ฟักทอง ช่วยออกแบบหมวกให้ปิดทั้งหัวเลยก็ได้": over the whole head)
   { id: "pumpkinhead", th: "หัวฟักทองแจ็ก", en: "Jack-o'-lantern head", from: AUCTION("pumpkin") },
+  { id: "moonlanternhat", th: "หมวกผู้ถือโคม", en: "Lantern keeper's hat", from: AUCTION("moonkeeper") },
+  { id: "maplehat", th: "หมวกสามมุมใบเมเปิล", en: "Maple tricorn", from: AUCTION("mapleregent") },
+  ...dyesOf("counthat", "count", "count"), ...dyesOf("pumpkinhead", "pumpkin", "pumpkinmonarch"), ...dyesOf("moonlanternhat", "moonkeeper", "moonkeeper"), ...dyesOf("maplehat", "mapleregent", "mapleregent"),
 ];
 
 /** Worn on the face, over the eyes. */
@@ -155,6 +168,9 @@ export const FACE_WEAR: Wearable[] = [
   // (the auction sets' own, the owner, 2026-10-25: "ชุดประมูลช่วยเพิ่มหมวก หรือ ส่วนของแว่นตา ที่เข้ากับชุด")
   { id: "batmask", th: "หน้ากากค้างคาว", en: "Bat-wing mask", from: AUCTION("count") },
   { id: "pumpkinglasses", th: "แว่นฟักทอง", en: "Pumpkin glasses", from: AUCTION("pumpkin") },
+  { id: "moonmask", th: "หน้ากากเสี้ยวจันทร์", en: "Crescent half-mask", from: AUCTION("moonkeeper") },
+  { id: "maplemask", th: "หน้ากากใบเมเปิล", en: "Maple half-mask", from: AUCTION("mapleregent") },
+  ...dyesOf("batmask", "count", "count"), ...dyesOf("pumpkinglasses", "pumpkin", "pumpkinmonarch"), ...dyesOf("moonmask", "moonkeeper", "moonkeeper"), ...dyesOf("maplemask", "mapleregent", "mapleregent"),
 ];
 
 /** Worn at the neck. */
@@ -211,6 +227,9 @@ export const HAIR_WEAR: Wearable[] = [
   { id: "batclip", th: "กิ๊บค้างคาว", en: "Bat clip", from: TAILOR },
   // (the countess's, for whoever would not wear the count's top hat)
   { id: "rosefascinator", th: "หมวกลูกไม้กุหลาบ", en: "Rose fascinator", from: AUCTION("count"), top: true },
+  { id: "lanternpin", th: "ปิ่นโคมกระดาษ", en: "Paper lantern pin", from: AUCTION("moonkeeper") },
+  { id: "maplecomb", th: "หวีใบเมเปิล", en: "Maple comb", from: AUCTION("mapleregent") },
+  ...dyesOf("rosefascinator", "count", "count", true), ...dyesOf("pumpkincrown", "pumpkin", "pumpkinmonarch", true), ...dyesOf("lanternpin", "moonkeeper", "moonkeeper"), ...dyesOf("maplecomb", "mapleregent", "mapleregent"),
 ];
 
 /** Whether a look's hair thing is worn on top of the head (where a hat goes). */
@@ -266,8 +285,34 @@ export const owns = (item: Wearable | undefined, points: Partial<Record<LineId, 
   if (!item) return false;
   const from = item.from;
   if (!from) return true;
-  return isRank(from) ? from.lines.some((line) => rankOf(line, points[line] ?? 0) >= from.rank) : had.has(item.id);
+  return isRank(from) ? from.lines.some((line) => rankOf(line, points[line] ?? 0) >= from.rank) : had.has(item.dyeOf ?? item.id);
 };
+
+/** The outfit a look's index is, whatever colour it is in. */
+export const outfitBaseId = (i: number | undefined): string | null => {
+  const o = OUTFITS[i ?? 0];
+  return o ? o.dyeOf ?? o.id : null;
+};
+/** What is limited about the outfit at an index, and the colour it is in; null for every other outfit. */
+export function limitedOf(i: number | undefined): { base: string; look: LimitedLook; dye: LimitedDye; design: string } | null {
+  const o = OUTFITS[i ?? 0], base = outfitBaseId(i), look = limitedLook(base);
+  if (!o || !base || !look || !o.from || !("auction" in o.from)) return null;
+  return { base, look, dye: look.dyes[o.dye ?? 0], design: o.from.auction };
+}
+/** The design a limited thing's colours are taken from, and so whether it has any. */
+const AUCTION_SETS: Record<string, string> = { count: "count", pumpkin: "pumpkinmonarch", moonkeeper: "moonkeeper", mapleregent: "mapleregent" };
+const setOf = (item: Wearable | undefined) => (item?.from && "auction" in item.from ? item.dyeSet ?? AUCTION_SETS[item.from.auction] : undefined);
+/** A worn thing's colour: each limited thing has its own, chosen apart from the rest (the owner, 2026-10-31). */
+export const dyeOfWorn = (item: Wearable | undefined): LimitedDye | undefined => {
+  const look = limitedLook(setOf(item));
+  return look && item ? look.dyes[item.dye ?? 0] : undefined;
+};
+/** The five indexes of a limited thing in its list, as drawn first, from any of them; empty for everything else. */
+export function dyeChoices(list: readonly Wearable[], i: number | undefined): number[] {
+  const item = list[i ?? 0], base = item?.dyeOf ?? item?.id;
+  if (!item || !dyeOfWorn(item)) return [];
+  return list.flatMap((o, n) => (o.id === base || o.dyeOf === base ? [n] : []));
+}
 
 /** What a rank of a line gives to wear (the lines' page lists it: the owner, 2026-10-17, "เพิ่มข้อมูลของ ของแต่งตัวที่จะได้ ในหน้า อาชีพ ด้วย"). */
 export const wearAt = (line: LineId, rank: number): Wearable[] =>
@@ -311,7 +356,7 @@ export function dressFrom(purse: Purse, slot: number, had: readonly string[]): D
 }
 
 /** The id worn in a slot, or null for nothing (or an index this page does not know). */
-export const wornId = (list: readonly Named[], i: number | undefined): string | null => {
-  const id = list[i ?? 0]?.id;
+export const wornId = (list: readonly Wearable[], i: number | undefined): string | null => {
+  const item = list[i ?? 0], id = item?.dyeOf ?? item?.id;
   return id && id !== "none" ? id : null;
 };

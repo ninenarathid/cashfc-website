@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { LINES, type LineId } from "@/lib/town/lines";
 import type { PixelKit } from "@/lib/town/pixeldoll";
-import { FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS, owns, together, type Wearable } from "@/lib/town/wear";
+import { dyeChoices, dyeOfWorn, FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS, owns, together, type Wearable } from "@/lib/town/wear";
 import {
   EYES, EYE_COLORS, GENDERS, HAIR_COLORS, ONE_MODEL, RACES, hairForGender, hairsFor, hairsOf, lookAsRace, skinsOf,
   type Look, type Named, type Swatch,
@@ -92,10 +92,17 @@ export default function Wardrobe({ look, kit, points, had, fresh = new Set(), no
       {note && <p role="status" className="border-b border-line bg-accent/10 px-4 py-2 text-ui text-ink">{note}</p>}
       <div role="tabpanel" className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4 pt-2">
         {tab === "outfit" && (
-          <Cards label={th ? "ชุด" : "Outfits"} items={OUTFITS} value={look.outfit ?? 0} th={th} points={points} had={had} fresh={fresh} kit={kit}
-                 lookFor={(outfit) => ({ ...look, outfit })} body onPick={(outfit) => set({ outfit })} />
+          <>
+            {/* (a limited outfit's five colours: the owner, 2026-10-31, "เปลี่ยนสีได้หลายเวอร์ชั่น เลือกได้ซัก 5 แบบ") */}
+            <DyeRow label={th ? "สีชุด" : "Outfit colour"} list={OUTFITS} value={look.outfit ?? 0} kit={kit} th={th} body lookFor={(outfit) => ({ ...look, outfit })} onPick={(outfit) => set({ outfit })} />
+            <Cards label={th ? "ชุด" : "Outfits"} items={OUTFITS} value={look.outfit ?? 0} th={th} points={points} had={had} fresh={fresh} kit={kit}
+                   lookFor={(outfit) => ({ ...look, outfit })} body onPick={(outfit) => set({ outfit })} />
+          </>
         )}
         {tab === "wear" && <>
+          <DyeRow label={th ? "สีหมวก" : "Hat colour"} list={HATS} value={look.hat ?? 0} kit={kit} th={th} lookFor={(hat) => ({ ...look, hat })} onPick={(hat) => set({ hat })} />
+          <DyeRow label={th ? "สีแว่นหรือหน้ากาก" : "Glasses or mask colour"} list={FACE_WEAR} value={look.faceWear ?? 0} kit={kit} th={th} lookFor={(faceWear) => ({ ...look, faceWear })} onPick={(faceWear) => set({ faceWear })} />
+          <DyeRow label={th ? "สีเครื่องประดับผม" : "Hair piece colour"} list={HAIR_WEAR} value={look.hairWear ?? 0} kit={kit} th={th} lookFor={(hairWear) => ({ ...look, hairWear })} onPick={(hairWear) => set({ hairWear })} />
           <Cards label={th ? "หมวก" : "Hats"} items={HATS} value={look.hat ?? 0} th={th} points={points} had={had} fresh={fresh} kit={kit}
                  lookFor={(hat) => ({ ...look, hat })} onPick={(hat) => set(together(look, { hat }))} />
           <Cards label={th ? "แว่นตา" : "Glasses"} items={FACE_WEAR} value={look.faceWear ?? 0} th={th} points={points} had={had} fresh={fresh} kit={kit}
@@ -141,6 +148,40 @@ export default function Wardrobe({ look, kit, points, had, fresh = new Set(), no
         </>}
       </div>
     </section>
+  );
+}
+
+/**
+ * A limited thing's five colours, shown only while it is worn; each thing has a row of its own, so that a hat, a mask and
+ * an outfit may each be in another (the owner, 2026-10-31: "สามารถเลือกสีที่แตกต่างกันได้ ในหมวก เครื่องประดับ และเสื้อผ้า").
+ */
+function DyeRow({ label, list, value, kit, th, body, lookFor, onPick }: {
+  label: string; list: readonly Wearable[]; value: number; kit: PixelKit | null; th: boolean; body?: boolean;
+  lookFor: (i: number) => Look; onPick: (i: number) => void;
+}) {
+  const choices = dyeChoices(list, value);
+  if (!choices.length) return null;
+  return (
+    <Group label={label}>
+      <div role="group" aria-label={label} data-dye-row className="grid grid-cols-5 gap-1.5">
+        {choices.map((i) => {
+          const dye = dyeOfWorn(list[i])!, on = i === value, l = lookFor(i);
+          return (
+            <button key={i} type="button" aria-pressed={on} title={th ? dye.th : dye.en} onClick={() => onPick(i)}
+                    className={`pressable flex min-h-11 flex-col items-center gap-0.5 rounded-xl border px-0.5 pb-1 pt-1 text-center transition-colors ${on ? "border-accent bg-accent/15 text-accent" : "border-line-strong text-ink hover:border-accent"}`}>
+              <DollPreview w={44} h={body ? 58 : 44} deps={[kit, JSON.stringify(l)]}
+                       draw={(ctx, W, H) => {
+                         if (!kit) return;
+                         if (body) { kit.draw(ctx, l, "front", false, W / 2, H - 2, (H * 0.92) / (kit.heightOf(l) ?? 52), {}, 1); return; }
+                         const { w, h } = kit.headSize(l), k = Math.min(W / w, H / h);
+                         kit.drawHead(ctx, l, Math.round((W - w * k) / 2), Math.round((H - h * k) / 2), k);
+                       }} />
+              <span className="line-clamp-2 text-[11px] leading-tight">{th ? dye.th : dye.en}</span>
+            </button>
+          );
+        })}
+      </div>
+    </Group>
   );
 }
 
@@ -279,7 +320,9 @@ ${f.how ? (th ? f.how.th : f.how.en) : line(f.drop)}${hours}${rain}`;
       {/* (three to a row on the narrowest phones, where four squeezed the names: Codex's look, 2026-10-17) */}
       <div role="group" aria-label={label} className="grid grid-cols-3 gap-2 min-[380px]:grid-cols-4">
         {items.map((item, i) => {
-          const had = owns(item, points, bought), on = had && i === value;
+          // (a limited design's other colours are not cards of their own: its colour row is above)
+          if (item.dyeOf) return null;
+          const had = owns(item, points, bought), on = had && item.id === (items[value]?.dyeOf ?? items[value]?.id);
           if (!had && item.from && ("tailor" in item.from || "auction" in item.from)) return null;
           return (
             <button key={item.id} type="button" aria-pressed={on} disabled={!had} onClick={() => onPick(i)}
@@ -287,10 +330,10 @@ ${f.how ? (th ? f.how.th : f.how.en) : line(f.drop)}${hours}${rain}`;
                     className={`pressable flex min-h-11 flex-col items-center gap-1 rounded-xl border px-1 pb-1.5 pt-1 text-center transition-colors ${on
                       ? "border-accent bg-accent/15 text-accent" : had ? "border-line-strong text-ink hover:border-accent" : "cursor-not-allowed border-dashed border-line-strong text-ink"}`}>
               <span className={`relative rounded-lg ${had ? "" : "bg-line-strong/35"}`}>
-                <DollPreview w={56} h={body ? 72 : 56} deps={[kit, JSON.stringify(lookFor(i)), had]}
+                <DollPreview w={56} h={body ? 72 : 56} deps={[kit, JSON.stringify(lookFor(on ? value : i)), had]}
                          draw={(ctx, W, H) => {
                            if (!kit) return;
-                           const l = lookFor(i);
+                           const l = lookFor(on ? value : i);
                            if (body) {
                              const s = (H * 0.92) / (kit.heightOf(l) ?? 52);
                              kit.draw(ctx, l, "front", false, W / 2, H - Math.round(H * 0.04), s, {}, 1);

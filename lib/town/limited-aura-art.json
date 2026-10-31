@@ -1,0 +1,46 @@
+{
+ "image": "/town/icons-f2c1e6be4b.png",
+ "size": [
+  256,
+  30
+ ],
+ "icons": {
+  "auraPumpkinA": [
+   41,
+   1,
+   25,
+   26
+  ],
+  "auraPumpkinB": [
+   67,
+   1,
+   25,
+   26
+  ],
+  "auraBatA": [
+   93,
+   1,
+   26,
+   22
+  ],
+  "auraBatB": [
+   120,
+   1,
+   32,
+   16
+  ],
+  "auraLeafA": [
+   1,
+   1,
+   24,
+   28
+  ],
+  "auraLeafB": [
+   26,
+   1,
+   14,
+   28
+  ]
+ },
+ "cursor": {}
+}

@@ -1,7 +1,8 @@
 "use client";
 
 import { EYES, EYE_COLORS, GENDERS, HAIR_COLORS, RACES, hairsOf, raceOf, skinsOf, type Look } from "./look";
-import { FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS, onTop, wornId } from "./wear";
+import { FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS, onTop, wornId, dyeOfWorn, limitedOf, outfitBaseId, type Wearable } from "./wear";
+import { dyedHsl, type HueBand } from "./limited";
 
 /**
  * Drawing a Cash Town avatar: a pixel character of one of the game's races.
@@ -212,6 +213,15 @@ export function paintKeys(d: Uint8ClampedArray, to: { skin?: Map<string, RGB>; e
   if (to.fur) recolour(d, fur, to.fur);
 }
 
+/** A picture's colours moved by a limited outfit's colour (lib/town/limited). Skin, by the ramp's keys, never moves. */
+function dyeImage(d: Uint8ClampedArray, bands: readonly HueBand[], skin: Map<string, RGB>) {
+  for (let i = 0; i < d.length; i += 4) {
+    if (!d[i + 3] || skin.has(`${d[i]},${d[i + 1]},${d[i + 2]}`)) continue;
+    const [h, s, l] = hsl(d[i], d[i + 1], d[i + 2]), to = dyedHsl(h, s, l, bands);
+    if (to) [d[i], d[i + 1], d[i + 2]] = rgb(to[0], to[1], to[2]);
+  }
+}
+
 /* ── the kit ────────────────────────────────────────────────────────────── */
 
 const canvasOf = (img: ImageData) => {
@@ -307,9 +317,12 @@ export class PixelKit {
   }
 
   private body(name: string, look: Look) {
-    return this.keep(`${name}|${look.skin}|${this.atlas.furKey ? look.hairColor : ""}`, () => {
-      const img = this.read(name);
-      paintKeys(img.data, { skin: this.skinTo(this.skinHex(look)), fur: this.atlas.furKey ? HAIR_COLORS[look.hairColor].hex : undefined });
+    // (a limited outfit's colour, on its own pictures only: the starter's body stands in while they are on their way)
+    const lim = limitedOf(look.outfit), bands = lim?.dye.bands.length && this.outfitOf(look) ? lim.dye.bands : undefined;
+    return this.keep(`${name}|${look.skin}|${this.atlas.furKey ? look.hairColor : ""}|${bands ? lim!.dye.en : ""}`, () => {
+      const img = this.read(name), skin = this.skinTo(this.skinHex(look));
+      if (bands) dyeImage(img.data, bands, skin);
+      paintKeys(img.data, { skin, fur: this.atlas.furKey ? HAIR_COLORS[look.hairColor].hex : undefined });
       return [canvasOf(img)];
     })[0];
   }
@@ -371,7 +384,7 @@ export class PixelKit {
   }
   /** Which of the atlas's outfits a look wears (`<id>_f` for a woman where there is one), or none for the starter's body. */
   private outfitKey(look: Look): string | undefined {
-    const id = wornId(OUTFITS, look.outfit) ?? "starter";
+    const id = (wornId(OUTFITS, look.outfit) && outfitBaseId(look.outfit)) || "starter";
     if (GENDERS[look.gender]?.id === "f" && this.atlas.outfits?.[`${id}_f`]) return `${id}_f`;
     return id !== "starter" && this.atlas.outfits?.[id] ? id : undefined;
   }
@@ -420,6 +433,17 @@ export class PixelKit {
   /** A worn thing's piece as drawn (it is not recoloured). */
   private plain(name: string) {
     return this.keep(`${name}|plain`, () => [canvasOf(this.read(name))])[0];
+  }
+
+  /** A head thing as it is, or in the colour chosen for it, if it is limited. */
+  private wornPiece(name: string, item: Wearable | undefined, look: Look) {
+    const dye = dyeOfWorn(item);
+    if (!dye?.bands.length) return this.plain(name);
+    return this.keep(`${name}|dye|${dye.en}`, () => {
+      const img = this.read(name);
+      dyeImage(img.data, dye.bands, this.skinTo(this.skinHex(look)));
+      return [canvasOf(img)];
+    })[0];
   }
 
   /** A hairstyle under a hat: its hair above the hat's brim taken away, column by column, so none shows through. */
@@ -511,7 +535,7 @@ export class PixelKit {
     const neck = worn("neck", NECK_WEAR, look.neck), glasses = worn("face", FACE_WEAR, look.faceWear), clip = hatId && onTop(look.hairWear) ? undefined : worn("hair", HAIR_WEAR, look.hairWear);
     const clipId = clip ? wornId(HAIR_WEAR, look.hairWear) : null, base = clipId ? W?.hair?.[clipId]?.under?.front : undefined;
     const layers: Array<{ name: string; draw: () => CanvasImageSource }> = [];
-    const plain = (name: string | undefined) => { if (name && A.frames[name]) layers.push({ name, draw: () => this.plain(name) }); };
+    const plain = (name: string | undefined, item?: Wearable) => { if (name && A.frames[name]) layers.push({ name, draw: () => this.wornPiece(name, item, look) }); };
     plain(neck);
     const shown = ex && !ex.keep ? ex.face : faceName;
     layers.push({ name: shown, draw: () => this.face(shown, look)[0] });
@@ -521,7 +545,7 @@ export class PixelKit {
       const cut = hat?.front ? hat.clip?.front : undefined;
       layers.push({ name: hairName, draw: () => (cut ? this.hairUnder(hairName, look, hatId!, "front", cut) : this.hair(hairName, look)) });
     }
-    plain(glasses); plain(clip); plain(hat?.front);
+    plain(glasses, FACE_WEAR[look.faceWear ?? 0]); plain(clip, HAIR_WEAR[look.hairWear ?? 0]); plain(hat?.front, HATS[look.hat ?? 0]);
     const [, , w, h, ox, oy] = A.frames[faceName];
     let x0 = ox, y0 = oy, x1 = ox + w, y1 = oy + h;
     if (hairName) { const [, , hw, , hox, hoy] = A.frames[hairName]; x0 = Math.min(x0, hox); x1 = Math.max(x1, hox + hw); y0 = Math.max(oy - 5, Math.min(y0, hoy)); }
@@ -604,7 +628,7 @@ export class PixelKit {
     // owner, 2026-10-17, "แว่นกันแดดยังไม่ดี"); the hair under a hat is cut at its brim
     const W = A.wear, worn = (slot: "hat" | "face" | "neck" | "hair", id: string | null) => (id ? W?.[slot]?.[id] : undefined);
     const hatId = wornId(HATS, look.hat), hat = worn("hat", hatId);
-    const lay = (name: string | undefined) => { if (!name || !A.frames[name]) return; const [, , , , ox, oy] = A.frames[name]; ctx.drawImage(this.plain(name), ox, oy); };
+    const lay = (name: string | undefined, item?: Wearable) => { if (!name || !A.frames[name]) return; const [, , , , ox, oy] = A.frames[name]; ctx.drawImage(this.wornPiece(name, item, look), ox, oy); };
     lay(worn("neck", wornId(NECK_WEAR, look.neck))?.[view]);
     const [, , , , fox, foy] = A.frames[shown];
     ctx.drawImage(face, fox, foy);
@@ -618,9 +642,9 @@ export class PixelKit {
       const clip = hat?.[view] ? hat.clip?.[view] : undefined;
       ctx.drawImage(clip ? this.hairUnder(hairName, look, hatId!, view, clip) : this.hair(hairName, look), hox, hoy);
     }
-    lay(worn("face", wornId(FACE_WEAR, look.faceWear))?.[view]);
-    lay(onHead?.[view]);
-    lay(hat?.[view]);
+    lay(worn("face", wornId(FACE_WEAR, look.faceWear))?.[view], FACE_WEAR[look.faceWear ?? 0]);
+    lay(onHead?.[view], HAIR_WEAR[look.hairWear ?? 0]);
+    lay(hat?.[view], HATS[look.hat ?? 0]);
     ctx.restore();
   }
 }
