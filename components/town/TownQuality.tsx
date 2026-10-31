@@ -10,6 +10,8 @@ import { ITEMS, type ItemId } from "@/lib/town/items";
 import { FERTS, type Fert } from "@/lib/town/fertilisers";
 import type { PriceTold } from "@/lib/town/market";
 import { gradePays } from "@/lib/town/trade";
+import { GROW_CROPS, SIZES, growFrame, saleOf, seedsFor, sizeFor, waitOf } from "@/lib/town/giant-sizes";
+import { gradeOf } from "@/lib/town/quality";
 import TownIcon, { type IconName } from "./TownIcon";
 import { Delta } from "./TownPrice";
 
@@ -125,7 +127,7 @@ export function QualityChip({ plant, now, rains, th, onOpen, gain, top }: { plan
 }
 
 /** The plant inspector: the range, the four bars and what covers them, and what has narrowed the range. */
-export function QualityInspector({ plant, now, rains, th, onClose, onBed, onChart, notes, onBook, book, price }: { plant: Plant; now: number; rains: FarmSky; th: boolean; onClose: () => void; onBed?: () => void; onChart?: () => void;
+export function QualityInspector({ plant, now, rains, th, onClose, onBed, onGrow, onChart, notes, onBook, book, price }: { plant: Plant; now: number; rains: FarmSky; th: boolean; onClose: () => void; onBed?: () => void; onGrow?: () => void; onChart?: () => void;
   /** (what the plant's place tells besides: an insect in the bag that could help, a crossing the pollen matches; the owner, 2026-10-16, one panel) */
   notes?: string[]; onBook?: () => void; book?: number;
   /** (its crop's price this round, v283: none where the database tells no farm prices yet) */
@@ -179,6 +181,11 @@ export function QualityInspector({ plant, now, rains, th, onClose, onBed, onChar
         })}
         {onChart && <button type="button" onClick={onChart} data-quality-chart-open className="pressable tk tk-btn-wood min-h-11 px-3 font-display text-meta">{th ? "ตารางปุ๋ย" : "Fertiliser chart"}</button>}
       </div>
+      {onGrow && (GROW_CROPS as readonly string[]).includes(plant.crop) && (() => {
+        const top = sizeFor(seen.range.hi), name = top ? `${top.n}×${top.n}` : "", stands = plant.footprint?.length ?? 1;
+        if (ripe && top && top.n * top.n > stands) return <button type="button" onClick={onGrow} data-quality-grow-open className="pressable tk tk-btn min-h-11 px-4 font-display text-ui">{th ? `ปล่อยให้โต: ได้ถึง ${name}` : `Let it grow: up to ${name}`}</button>;
+        return <p className="text-meta text-[#ead9b4]" data-quality-grow-note>{top ? (th ? `สุกแล้วปล่อยให้โตได้ถึง ${name} ถ้าเว้นที่ว่างรอบต้นไว้` : `Once ripe it can grow to ${name}, if the ground around it is free`) : th ? "ถึงคุณภาพ 70 ตอนสุก จะปล่อยให้โตเป็น 2×2 ได้" : "At Quality 70 when ripe it can grow to 2×2"}</p>;
+      })()}
       {onBed && <button type="button" onClick={onBed} data-quality-bed-open className="pressable tk tk-btn-wood min-h-11 px-4 font-display text-ui">{th ? "ภาพรวมแปลง: ใครช่วยต้นไหน" : "The bed: who helps which plant"}</button>}
       <div className="flex flex-col gap-1.5" data-quality-narrowing>
         <p className="text-meta font-semibold text-[#ffd27a]">{th ? `ช่วงแคบลง ${seen.narrowing} (ยกต่ำสุด รวมไม่เกิน ${QUALITY.narrowest})` : `Narrowed by ${seen.narrowing} (floor raised, ${QUALITY.narrowest} at most)`}</p>
@@ -269,6 +276,80 @@ export function QualityBed({ at, plots, now, rains, th, onClose }: { at: string;
         <b>{name(mine.crop)} · {th ? `คุณภาพ ${seenMine.range.lo}–${seenMine.range.hi}` : `Quality ${seenMine.range.lo}–${seenMine.range.hi}`}</b><br />
         {helpers.length ? helpers.map((h, i) => `${"①②③④⑤⑥⑦⑧"[i]} ${th ? ROLE[h.role].th : ROLE[h.role].en} ← ${name(h.crop)}`).join(" · ") : th ? "ยังไม่มีพืชช่วยต้นนี้ ▸ ปลูกพืชช่วยข้าง ๆ" : "No helper reaches it yet ▸ plant one beside it"}
       </div>}
+    </section>
+  );
+}
+
+/**
+ * "Let it grow" (the owner, 2026-10-31: "จะกดปล่อยให้โตได้ ต้องมีพื้นที่รองรับก่อน เขียนอธิบายให้ผู้เล่นเข้าใจง่ายๆด้วย โดยใช้แผนที่แปลงที่มีอยู่ในเกม
+ * อยู่แล้ว"): the bed's own map (as QualityBed lays it) with the square the plant would take in gold, each plot of it green
+ * when ready and red when not, and in plain words what is still in the way. Rules: lib/town/giant-sizes.
+ */
+export function QualityGrow({ at, plots, now, rains, th, onClose }: { at: string; plots: Readonly<Record<string, Plot>>; now: number; rains: FarmSky; th: boolean; onClose: () => void }) {
+  const plant = plots[at]?.plant ?? null, seen = plant ? qualityNow(plant, now, rains) : null, ceiling = seen?.range.hi ?? 0, top = sizeFor(ceiling), stands = plant?.footprint?.length ?? 1;
+  const [x0, y0] = at.split(",").map(Number), [cx, cy] = bedCorner(bedOf(x0, y0));
+  const [chosen, setChosen] = useState<number>(top?.n ?? 2), frame = growFrame(at, chosen, plots), size = SIZES.find((s) => s.n === chosen)!;
+  const grid = useRef<HTMLDivElement>(null), [box, setBox] = useState<number>(0);
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => { if (e.key === "Escape") { e.preventDefault(); onClose(); } };
+    window.addEventListener("keydown", down);
+    return () => window.removeEventListener("keydown", down);
+  }, [onClose]);
+  useEffect(() => { const g = grid.current; if (g) setBox(g.offsetWidth); }, []);
+  if (!plant || !seen) return null;
+  const side = 7, cells = Array.from({ length: side * side }, (_, i) => `${cx + (i % side)},${cy + Math.floor(i / side)}`), own = new Set(plant.footprint?.length ? plant.footprint : [at]);
+  const inFrame = new Set(frame?.cells ?? []), blocked = frame?.blocked ?? new Map<string, string>(), withPlant = [...blocked.values()].filter((w) => w === "plant").length, unready = blocked.size - withPlant;
+  const allowed = ceiling >= size.from, ready = allowed && !!frame && blocked.size === 0, crop = plant.crop;
+  const name = ITEMS[crop as ItemId]?.name[th ? "th" : "en"] ?? crop;
+  const hours = waitOf(crop, chosen), lo = saleOf(crop, chosen, gradeOf(seen.range.lo)), hi = saleOf(crop, chosen, gradeOf(seen.range.hi));
+  const cell = box ? (box - 12 - 3 * (side - 1)) / side : 0;
+  const facts: Array<[string, string]> = [[th ? "เมล็ดเพิ่ม" : "Seeds", `${seedsFor(chosen, Math.round(Math.sqrt(stands)))}`], [th ? "รออีก" : "Wait", hours >= 48 ? (th ? `${Math.round(hours / 24)} วัน` : `${Math.round(hours / 24)} d`) : th ? `${hours} ชม.` : `${hours} h`], [th ? "คนถอน" : "Hands", `${size.hands}`], [th ? "ขายได้" : "Sells for", lo === hi ? lo.toLocaleString() : `${lo.toLocaleString()}–${hi.toLocaleString()}`]];
+  return (
+    <section data-quality-grow className="tk tk-plate pointer-events-auto flex w-[min(440px,calc(100vw-16px))] flex-col gap-2 overflow-y-auto overscroll-contain p-3 text-ui text-ink sm:p-4"
+             style={{ maxHeight: "min(46rem, calc(100dvh - 10rem))" }} aria-label={th ? "ปล่อยให้โต" : "Let it grow"}>
+      <header className="flex items-center gap-2">
+        <TownIcon name={crop as IconName} size={30} />
+        <h2 className="min-w-0 flex-1 font-display text-title font-semibold">{th ? "ปล่อยให้โต" : "Let it grow"}</h2>
+        <button type="button" onClick={onClose} aria-label={th ? "ปิด" : "Close"} className="pressable tk tk-btn-wood grid size-11 shrink-0 place-items-center"><TownIcon name="close" size={16} /></button>
+      </header>
+      <p className="text-meta" data-quality-grow-top>{th ? `${name} คุณภาพสูงสุด ${ceiling}${top ? ` โตได้ถึง ${top.n}×${top.n}` : " ต้องถึง 70 จึงจะโตได้"}` : `${name}, ceiling ${ceiling}${top ? `: can grow to ${top.n}×${top.n}` : ": needs 70 to grow"}`}</p>
+      <div className="grid grid-cols-6 gap-1" role="group" aria-label={th ? "เลือกขนาด" : "Choose a size"}>
+        {SIZES.map((s) => {
+          const can = ceiling >= s.from, here = s.n * s.n <= stands;
+          return <button key={s.n} type="button" disabled={here} aria-pressed={chosen === s.n} onClick={() => setChosen(s.n)} data-quality-grow-size={s.n}
+            className={`pressable tk ${chosen === s.n ? "tk-btn" : "tk-btn-wood"} flex min-h-11 flex-col items-center justify-center px-0.5 leading-tight ${can && !here ? "" : "opacity-75"}`}>
+            <b className="font-data text-meta">{s.n}×{s.n}</b>
+            <span className="text-[11px]">{here ? (th ? "ตอนนี้" : "now") : can ? (th ? "ถึงแล้ว" : "reached") : th ? `ต้อง ${s.from}` : `needs ${s.from}`}</span>
+          </button>;
+        })}
+      </div>
+      <div className="relative mx-auto w-full" style={{ maxWidth: "min(280px, max(136px, calc(100dvh - 33rem)))" }}>
+        <div ref={grid} className="grid gap-[3px] rounded border-2 border-[#22150a] bg-[#2c1e12] p-1" style={{ gridTemplateColumns: `repeat(${side},minmax(0,1fr))` }}>
+          {cells.map((k) => {
+            const on = plots[k], isOwn = own.has(k), inside = inFrame.has(k), why = blocked.get(k), standing = on?.plant ? on.plant.root ?? k : null;
+            const bg = isOwn ? "#7a5a1e" : inside ? (why ? "#9c3226" : "#3f7f35") : standing ? "#4b3827" : "#332416";
+            return <div key={k} data-grow-cell={k} data-grow-state={isOwn ? "own" : inside ? (why ? "blocked" : "ready") : "out"} className="relative grid aspect-square min-h-0 place-items-center rounded-[3px] border-2 border-[#3a2817]" style={{ background: bg, opacity: inside || isOwn ? 1 : 0.62 }}>
+              {on?.plant && standing === k && <TownIcon name={(ITEMS[on.plant.crop as ItemId] ? on.plant.crop : "mystery") as IconName} size={18} />}
+              {inside && !isOwn && why === "soil" && <b aria-hidden className="font-data text-meta text-[#ffd9cf]">×</b>}
+            </div>;
+          })}
+        </div>
+        {frame && cell > 0 && <div aria-hidden className="pointer-events-none absolute rounded-[4px] border-[3px] border-[#ffd34d] shadow-[0_0_0_1.5px_#1a0e06]" style={{ left: 6 + (frame.x0 - cx) * (cell + 3) - 3, top: 6 + (frame.y0 - cy) * (cell + 3) - 3, width: frame.n * cell + (frame.n - 1) * 3 + 6, height: frame.n * cell + (frame.n - 1) * 3 + 6 }} />}
+      </div>
+      <ul className="flex flex-wrap justify-center gap-x-3 gap-y-0.5 text-label text-[#ead9b4]" aria-label={th ? "ความหมายของสี" : "What the colours mean"}>
+        <li className="flex items-center gap-1"><i aria-hidden className="size-3 rounded-[2px] border-2 border-[#ffd34d]" />{th ? "โตเต็มกรอบนี้" : "Fills this frame"}</li>
+        <li className="flex items-center gap-1"><i aria-hidden className="size-3 rounded-[2px] bg-[#3f7f35]" />{th ? "พร้อม" : "Ready"}</li>
+        <li className="flex items-center gap-1"><i aria-hidden className="size-3 rounded-[2px] bg-[#9c3226]" />{th ? "ยังไม่พร้อม" : "Not ready"}</li>
+      </ul>
+      <p className="tk tk-window px-3 py-2 text-meta text-[#3b2412]" data-quality-grow-status={ready ? "ready" : "blocked"}>
+        {!allowed ? (th ? `ต้นนี้คุณภาพยังไม่ถึง ${size.from} จึงโตเป็น ${chosen}×${chosen} ไม่ได้` : `Its ceiling has not reached ${size.from}, so it cannot grow to ${chosen}×${chosen}`)
+          : !frame ? (th ? "ขนาดนี้ไม่พอดีกับแปลง" : "This size does not fit the bed")
+          : ready ? (th ? "ที่ว่างครบแล้ว กดปล่อยให้โตได้เลย" : "The ground is ready") : th ? `ก่อนกด ต้อง${withPlant ? `ขุดต้นไม้ออก ${withPlant} ช่อง` : ""}${withPlant && unready ? " และ" : ""}${unready ? `พรวนดินอีก ${unready} ช่อง` : ""}${withPlant ? " (ต้นนี้สุกแล้ว ขุดต้นอื่นออกคุณภาพไม่ลด)" : ""}` : `First ${withPlant ? `dig out ${withPlant} plants` : ""}${withPlant && unready ? " and " : ""}${unready ? `till ${unready} plots` : ""}`}
+      </p>
+      <dl className="grid grid-cols-[1fr_1fr_1fr_1.7fr] gap-1 text-center text-label" data-quality-grow-facts>
+        {facts.map(([label, value]) => <div key={label} className="tk tk-slot flex flex-col justify-center px-1 py-1"><dt className="text-[#ead9b4]">{label}</dt><dd className="font-data font-semibold text-ink">{value}</dd></div>)}
+      </dl>
+      <div className="sticky -bottom-3 z-10 -mx-1 bg-[#5f3b1d] px-1 pb-1 pl-12 pt-1 sm:-bottom-4 sm:pl-1"><button type="button" disabled={!ready} data-quality-grow-go className={`pressable tk ${ready ? "tk-btn" : "tk-btn-wood opacity-70"} min-h-11 w-full px-3 font-display text-ui`}>{ready ? (th ? `ปล่อยให้โตเป็น ${chosen}×${chosen}` : `Grow to ${chosen}×${chosen}`) : th ? "ยังปล่อยให้โตไม่ได้" : "Not ready yet"}</button></div>
     </section>
   );
 }

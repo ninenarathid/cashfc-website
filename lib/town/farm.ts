@@ -179,6 +179,10 @@ export interface Plant {
   /** One rescue of this original, unharvested root; never resets its identity. */
   revived?:boolean;
   giant?:boolean;crossChoice?:CropId;
+  /** Turned gold as it ripened (lib/town/giant-sizes; the owner's mutation, 2026-10-31). */
+  gold?: boolean;
+  /** How large it is drawn within its square (lib/town/giant-sizes' fitOf). */
+  fit?: number;
   /** A giant's call and go to pull it out together (lib/town/giant-pull): it is picked only once `out`. */
   pull?: GiantPull;
   /** A released pollinator works once each time this plant bears. */

@@ -825,3 +825,15 @@ templates with their closing sentences).
   (`ICONS_ONLY=giant-fish-pieces-e,giant-fish-pieces-f,icons-catch-falling-a,scene-shake-branch-cherry,…
   ICONS_PUB=<tree>/public/town/catch ICONS_JSON=<tree>/lib/town/catch-art.json`).
 - In the game: the giant fish board in two tabs of the dev town (scratch `giant-run.mjs`), 1280x860, 384x730, 360x640.
+
+## Plants that fill their ground, and the gold mutation (2026-10-31)
+
+The owner, a mock for the plan: Quality makes a crop fill its square of plots at checkpoints (2x2, 3x3, 5x5, 7x7), one single plant, "ขนาดเท่าแปลงปลูกผักเลย ไม่เอาดีไซน์ที่ มีพืชเขียวๆออกมาคลุมให้ครบ แต่เป็นต้นเดียว ทั้งแปลง ของจริง", the small differences by code. 16 ledger rows, $2.185 (`gpt-image-2.5-sunburst`, low, N=3 for each large sheet). Prompts `prompts/scenery/giant-*`.
+
+- **Kept:** `giant-pumpkin-7d` (the first of three: the squattest, its belly lowest, so that it covers the bed's corners; 90% of a cell one colour), `giant-carrot-7d` (first: 84% of its edges on the grid, the second try of the carrot's words after 7, 7b and 7c read as a pumpkin or lay flat), `giant-daikon-7d` (first: 82%), `giant-cabbage-7d` (third: 94%), `giant-taro-7d` (first: 92%). All on 3456x2304, true grid 8, 396 to 420 wide. `node build-scenery.mjs --set giants --out <tree>/public/town`: `giants.json`, 199 KB, fetched when such a plant is first drawn.
+- **Not kept:** `giant-pumpkin-7`, `-5`, `-3`, `-7b`, `-5b`, `-3b`, `giant-carrot-7`, `-7b`, `-7c` (a pumpkin among spreading leaves and vines: the owner turned the leaves down) and `giant-pumpkin-5d`, `-3d` (own drawings of the smaller squares: one drawing a crop scaled by the code looked as good).
+- **Read by Codex:** the first prompt (run 2026-10-31-07-13-00-art-9964). Its look words taken; an asset size in true pixels and a rewrite of the closing sentence not taken (ART_WORKFLOW). The rest drawn with `NO_REVIEW` giving that the template was read and only the plant differs.
+- **On the map:** a picture is drawn as vertical strips, each at the depth of the square's near edge in its column, so that a member beyond an edge stands in front of it. A member behind its body is seen through a round window. Taps fall on the ground: 9 of 9 plots hidden behind a whole-bed plant reached at 1280x860, all those on the screen on the phones.
+- **Gold** (components/town/gold-plant.ts): a metal ramp over each pixel's lightness, soil kept by a flood from the picture's foot; shine, stars, a flash, motes and a warm ground light are code. CPU not measured yet.
+- **Steps** (his word, the same day): 1×1 to 7×7 one side at a time, one drawing a crop scaled by the code, a little larger inside a step by Quality and never as large as the next (lib/town/giant-sizes.test.ts). Outlines passed by him as they are.
+- **In the game:** `scripts/town-size-mock.mjs` (`PANELS=1`, `MAP=1`, `FILM=<dir>`). Codex on the sheets: the vegetables' thick outlines and larger pixels than the grass read as enlarged illustrations, the taro most; shown to the owner, not redrawn (he asked for it exaggerated).

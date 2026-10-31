@@ -419,7 +419,11 @@ export default function TownPasture(props: PastureProps) {
           const f = Math.min(1, (bellNow.till - clock) > 15_000 ? (20_000 - (bellNow.till - clock)) / 5000 : 1), ang = ((a.id.charCodeAt(0) % 8) / 8) * Math.PI * 2;
           spot = { ...spot, x: spot.x + (bellNow.at.x + Math.cos(ang) * 1.3 - spot.x) * f, y: spot.y + (bellNow.at.y + Math.sin(ang) * 1.3 - spot.y) * f, pose: f < 1 ? "walk" : "idle" };
         }
-        if (process.env.NODE_ENV !== "production") lastSpots.current.set(a.id, { x: spot.x, y: spot.y, inside: spot.inside, owner: a.owner, species: a.species });
+        if (process.env.NODE_ENV !== "production") {
+          const stood = (window as unknown as { __townAnimalRow?: Record<string, [number, number, string?]> }).__townAnimalRow?.[a.id];
+          if (stood) spot = { ...spot, x: stood[0], y: stood[1], pose: (stood[2] ?? "idle") as typeof spot.pose, right: true, back: false, inside: -1 };
+          lastSpots.current.set(a.id, { x: spot.x, y: spot.y, inside: spot.inside, owner: a.owner, species: a.species });
+        }
         // (inside a barn whose roof is on for me: not seen)
         if (spot.inside >= 0 && roofOf(spot.inside) >= 0.5) continue;
         const c = project({ x: spot.x, y: spot.y });
@@ -430,7 +434,7 @@ export default function TownPasture(props: PastureProps) {
         // (a sheep after its shearing looks shorn until half its fleece has grown again)
         const shorn = a.species === "sheep" && st === "adult" && v.ready === 0 && v.round < 0.5;
         const look = { species: a.species, breed: a.breed, stage: st, sex: a.sex };
-        things.push({ depth: spot.x + spot.y, draw: () => drawAnimal(ctx, k, { ...look, pose: spot.pose, right: spot.right, back: spot.back, shorn, seed: hashStr(a.id) % 10_000 }, c, s, px, tick, still) });
+        things.push({ depth: spot.x + spot.y, draw: () => drawAnimal(ctx, k, { ...look, pose: spot.pose, right: spot.right, back: spot.back, shorn, seed: hashStr(a.id) % 10_000, body: spot.inside >= 0 ? Math.min(a.body ?? 1, 1.35) : a.body, gold: a.gold }, c, s, px, tick, still) });
         const box = animalSize(k, look);
         const care = !mine && mayCare(holder, me);
         if (mine || care) out.push({ kind: "animal", id: a.id, x0: c.x - (box.w / 2 + 6) * s, y0: c.y - (box.h + 8) * s, x1: c.x + (box.w / 2 + 6) * s, y1: c.y + 6 * s });

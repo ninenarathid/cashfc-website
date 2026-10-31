@@ -339,6 +339,10 @@ export interface Animal {
   narrow: number;
   /** A parent rests until then. */
   rest: number;
+  /** Its body's size, set once when it is grown (the owner, 2026-10-31: "ตัวใหญ่เล็กไม่เท่ากัน"): one factor over every pose. */
+  body?: number;
+  /** Turned gold as it grew up. */
+  gold?: boolean;
   /** Whom it is lent to for a cross (a friend's ask its owner accepted), with which of theirs, until when. */
   lent: { to: string; until: number; with?: string } | null;
   /** Eggs it laid out on the meadow, waiting for its owner: each a spot and how many. */

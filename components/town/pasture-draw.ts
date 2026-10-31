@@ -3,6 +3,7 @@ import { drawIcon, type IconName } from "./TownIcon";
 import type { Vec } from "@/lib/town/world";
 import { BUILDING_FIT, PASTURE_ART, POPOTO_FRAMES, PROP_K, TROUGH_ART, TROUGH_FIT, animalFrame, pastureScale, type AnimalFrame, type ArtAction, type ArtStage, type Facing } from "@/lib/town/pasture-art";
 import { TROUGH, troughOf } from "@/lib/town/pasture";
+import { goldFx, goldGround, goldLook, goldNow, goldRing, goldTrail } from "./gold-plant";
 
 /**
  * The pasture drawn on the map: each thing by its picture in the pasture's sheet when the art piece has made it
@@ -36,6 +37,8 @@ export interface AnimalLook {
   /** A grown male (a rooster, a drake, a ram, a bull) has pictures of his own. */ sex?: "m" | "f";
   /** Its back to the viewer (going up the screen). */ back?: boolean;
   /** Its own offset of the loops' clock (from its id), so that a herd does not step as one. */ seed?: number;
+  /** Its body's size by how it was raised, one factor over every pose (lib/town/animals): 1 when not said. */ body?: number;
+  /** Turned gold as it grew up. */ gold?: boolean;
 }
 /**
  * How large each kind's pictures are drawn: map pixels to one of the picture's own. Near the dolls' own (two thirds of
@@ -67,7 +70,24 @@ export function drawAnimal(ctx: CanvasRenderingContext2D, kit: SceneryKit | null
   const action: ArtAction = a.pose === "walk" ? "walk" : a.pose;
   const pic = animalPicture(kit, a, action, still ? 0 : now + (a.seed ?? 0));
   if (pic && kit) {
-    const k = s * animalK(a.species, pic.name), [w, h] = kit.sizeOf(pic.name);
+    const k = s * animalK(a.species, pic.name) * (a.body ?? 1), [w, h] = kit.sizeOf(pic.name), great = (a.body ?? 1) >= 2;
+    // (the top of its line stands in a turning ring of light; the owner: "ถ้าเลี้ยงดี ตัวใหญ่ กลายพันธ์ขอ Epic กว่านี้")
+    if (great && a.pose !== "swim") goldRing(ctx, at.x, at.y - 2 * s, w * k * 0.62, w * k * 0.26, now, s, still);
+    const piece = a.gold && a.pose !== "swim" ? kit.pieceOf(pic.name) : null;
+    if (piece) {
+      goldGround(ctx, at.x, at.y - 2 * s, w * k * 0.62, w * k * 0.26, now, 0.55);
+      if (a.pose === "walk" && !still) goldTrail(ctx, at.x, at.y, pic.mirror ? -1 : 1, w * k, now, s);
+      const look = goldLook(`animal:${pic.name}`, piece.img, piece.x, piece.y, piece.w, piece.h, false), side = pic.mirror ? -1 : 1;
+      ctx.save();
+      ctx.imageSmoothingEnabled = k * px < 1;
+      ctx.translate(Math.round(at.x), Math.round(at.y));
+      ctx.scale(side * k, k);
+      ctx.drawImage(goldNow(look, now, still), -piece.ax, -piece.ay);
+      ctx.restore();
+      goldFx(ctx, look, a.seed ?? 1, at.x - side * piece.ax * k, at.y - piece.ay * k, side * piece.w * k, piece.h * k, (a.body ?? 1) >= 1.7 ? 5 : 3, now, s, still);
+      if (a.pose === "sleep" && !still) sleepZ(ctx, at, s, now, h * k / s);
+      return;
+    }
     if (a.pose === "swim" && !pic.name.endsWith("_swim")) {
       // swimming with no picture of it: the animal standing, sunk to its middle (its feet under the water), and the
       // water's ring about it

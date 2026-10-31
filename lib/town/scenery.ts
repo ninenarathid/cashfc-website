@@ -377,6 +377,12 @@ export class SceneryKit {
   }
 
   /** A prop's size in picture pixels: [width, height]. */
+  /** Where a piece is in which picture, for whoever draws it their own way. */
+  pieceOf(name: string): { img: HTMLImageElement; x: number; y: number; w: number; h: number; ax: number; ay: number } | null {
+    const at = this.piece(name);
+    return at ? { img: at.img, x: at.p[0], y: at.p[1], w: at.p[2], h: at.p[3], ax: at.p[4] ?? 0, ay: at.p[5] ?? 0 } : null;
+  }
+
   sizeOf(name: string): [number, number] {
     const p = this.piece(name)?.p;
     return p ? [p[2], p[3]] : [0, 0];

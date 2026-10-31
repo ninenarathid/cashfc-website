@@ -50,7 +50,7 @@ const SET = argSet > 0 ? process.argv[argSet + 1] : "scenery";
 // (the pasture's animals are a picture a species, `pasture-<species>`: every look in two views with its loops is too
 // large for one picture a phone draws from)
 const ANIMAL_SETS = ["pasture-chicken", "pasture-duck", "pasture-sheep", "pasture-cow"];
-if (!["scenery", "forest", "kitchen", "mountain", "cave", /* felling */ "felling", "works", "lamps", "pasture", "stag", ...ANIMAL_SETS].includes(SET)) throw new Error(`no such set: ${SET}`);
+if (!["scenery", "forest", "kitchen", "mountain", "cave", /* felling */ "felling", "works", "lamps", "pasture", "stag", "giants", ...ANIMAL_SETS].includes(SET)) throw new Error(`no such set: ${SET}`);
 
 // [sheet, names, how]: "whole" keeps every shape on the sheet as one piece (the shop site and its
 // heaps); "hat" stands frames on their feet under the middle of their yellow hard hat, so a
@@ -263,6 +263,15 @@ const STAG = [
   ["stag-run-NE", STAG_FRAMES("NE", "run"), "moss", null, [4.8, 5.2]],
   ["stag-walk-NE", STAG_FRAMES("NE", "walk"), "moss", null, [4.8, 5.2]],
 ];
+// ── the plants grown over their beds ── (the owner, 2026-10-31: "ทั้งแปลงเป้นผักต้นเดียว"): one plant a sheet on a 3840
+// canvas, its true pixels 8 of the canvas, fetched the first time such a plant is drawn (lib/town/giant-sizes).
+const GIANTS = [
+  ["giant-pumpkin-7d", ["bigPumpkin7B"], "whole", null, [7.9, 8.1]],
+  ["giant-carrot-7d", ["bigCarrot7B"], "whole", null, [7.9, 8.1]],
+  ["giant-daikon-7d", ["bigDaikon7B"], "whole", null, [7.9, 8.1]],
+  ["giant-cabbage-7d", ["bigCabbage7B"], "whole", null, [7.9, 8.1]],
+  ["giant-taro-7d", ["bigTaro7B"], "whole", null, [7.9, 8.1]],
+];
 // ── pasture ── The animal line's own (docs/plans/animals/ART-NEEDED.md; lib/town/pasture-art.ts names every piece): a
 // picture of its own, fetched only by whoever comes onto the farm. The animals are not here: their frames are
 // pasture-frames.mjs's (a gen.mjs base and PixelLab's frames of it), laid in after these.
@@ -461,7 +470,7 @@ const isWater = (r, g, b) => { const mx = Math.max(r, g, b), mn = Math.min(r, g,
   return (b > r + 25 && b >= g && (mx - mn) / 255 > 0.18) || (l > 0.82 && b >= r && b >= g - 4); };
 // (the mountain's own ground: bare stony earth, a cliff's face seen from the front, snow, and the forest's floor under its
 // pines; the cave's: its floor, the top of its rock, and the same face for its walls)
-const TEXTURES = ANIMAL_SETS.includes(SET) ? [] : { forest: ["wood"], kitchen: [], felling: [], works: [], lamps: [], pasture: [], stag: [], mountain: ["rock", "cliff", "snow", "wood"], cave: ["cavefloor", "cavewall", "cliff"] }[SET]
+const TEXTURES = ANIMAL_SETS.includes(SET) ? [] : { forest: ["wood"], kitchen: [], felling: [], works: [], lamps: [], pasture: [], stag: [], giants: [], mountain: ["rock", "cliff", "snow", "wood"], cave: ["cavefloor", "cavewall", "cliff"] }[SET]
   ?? ["grass", "plaza", "road", "water", "sand", "field"];
 
 const pieces = [];
@@ -484,7 +493,7 @@ function moveOnto(g, ref, refSet) {
   }
   return { ...best, of: low.length };
 }
-for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: KITCHEN, mountain: MOUNTAIN, cave: CAVE, felling: FELLING, works: WORKS, lamps: LAMPS, pasture: PASTURE, stag: STAG }[SET] ?? (ANIMAL_SETS.includes(SET) ? [] : SHEETS)) {
+for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: KITCHEN, mountain: MOUNTAIN, cave: CAVE, felling: FELLING, works: WORKS, lamps: LAMPS, pasture: PASTURE, stag: STAG, giants: GIANTS }[SET] ?? (ANIMAL_SETS.includes(SET) ? [] : SHEETS)) {
   if (!fs.existsSync(path.join(OUT, `${sheet}.png`))) { console.log(`no ${sheet}`); continue; }
   const raw = await L.loadRaw(path.join(OUT, `${sheet}.png`));
   // the characters' own pixel size (about 5.3–6.2): a double period scores as well and halves every prop
