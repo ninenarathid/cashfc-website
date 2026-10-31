@@ -271,6 +271,11 @@ const GIANTS = [
   ["giant-daikon-7d", ["bigDaikon7B"], "whole", null, [7.9, 8.1]],
   ["giant-cabbage-7d", ["bigCabbage7B"], "whole", null, [7.9, 8.1]],
   ["giant-taro-7d", ["bigTaro7B"], "whole", null, [7.9, 8.1]],
+  ["giant-pumpkin-7a", ["bigPumpkin7A"], "whole", null, [7.9, 8.1]],
+  ["giant-carrot-7a", ["bigCarrot7A"], "whole", null, [7.9, 8.1]],
+  ["giant-daikon-7a", ["bigDaikon7A"], "whole", null, [7.9, 8.1]],
+  ["giant-cabbage-7a", ["bigCabbage7A"], "whole", null, [7.9, 8.1]],
+  ["giant-taro-7a", ["bigTaro7A"], "whole", null, [7.9, 8.1]],
 ];
 // ── pasture ── The animal line's own (docs/plans/animals/ART-NEEDED.md; lib/town/pasture-art.ts names every piece): a
 // picture of its own, fetched only by whoever comes onto the farm. The animals are not here: their frames are

@@ -4,13 +4,16 @@ import { useEffect, useRef, useState } from "react";
 import { useCloses } from "./useCloses";
 import { COMPANIONS, GRADES, PARTNERS, QUALITY, ROLES, coverOffsets, type CompanionId, type Grade, type Range, type Role } from "@/lib/town/quality";
 import { coveringNow, qualityNow, roundStart } from "@/lib/town/quality-plant";
-import type { FarmSky, Plant, Plot } from "@/lib/town/farm";
+import { see, type FarmSky, type Plant, type Plot } from "@/lib/town/farm";
 import { bedCorner, bedOf } from "@/lib/town/world";
-import { ITEMS, type ItemId } from "@/lib/town/items";
+import { CROPS, ITEMS, type ItemId } from "@/lib/town/items";
 import { FERTS, type Fert } from "@/lib/town/fertilisers";
 import type { PriceTold } from "@/lib/town/market";
 import { gradePays } from "@/lib/town/trade";
-import { GROW_CROPS, SIZES, growFrame, saleOf, seedsFor, sizeFor, waitOf } from "@/lib/town/giant-sizes";
+import { GROW_CROPS, SIZES, growFrame, saleOf, seedsFor, sideOf, sizeFor, waitOf } from "@/lib/town/giant-sizes";
+import { needsOf } from "@/lib/town/giant-pull";
+import { heldIn } from "@/lib/town/pouches";
+import type { Purse } from "@/lib/town/trade";
 import { gradeOf } from "@/lib/town/quality";
 import TownIcon, { type IconName } from "./TownIcon";
 import { Delta } from "./TownPrice";
@@ -134,7 +137,7 @@ export function QualityInspector({ plant, now, rains, th, onClose, onBed, onGrow
   price?: PriceTold }) {
   const seen = qualityNow(plant, now, rains), cover = coveringNow(plant, now, rains), close = useRef<HTMLButtonElement>(null);
   useCloses(onClose, close);
-  const ripe = seen.grown >= 1, base = Math.max(0, seen.range.hi - QUALITY.spread);
+  const ripe = seen.grown >= 1, base = Math.max(0, seen.range.hi - QUALITY.spread), swelling = (plant.size?.until ?? 0) > now;
   const weakest = ROLES.reduce((w, r) => (seen.bars[r] < seen.bars[w] ? r : w), ROLES[0]);
   const partner = PARTNERS[plant.crop], partnerName = partner ? (partner in COMPANIONS ? COMPANIONS[partner as keyof typeof COMPANIONS][th ? "th" : "en"] : ITEMS[partner as ItemId]?.name[th ? "th" : "en"]) : null;
   const brushed = typeof plant.brushed === "number" && plant.brushed >= roundStart(plant);
@@ -148,7 +151,7 @@ export function QualityInspector({ plant, now, rains, th, onClose, onBed, onGrow
       <header className="flex items-center gap-2">
         <TownIcon name={plant.crop as IconName} size={30} />
         <h2 className="min-w-0 flex-1 font-display text-title font-semibold">{name}</h2>
-        <span className="text-meta text-muted">{ripe ? (th ? "สุกแล้ว" : "Ripe") : th ? `โต ${shownGrowth(seen.grown)}%` : `${shownGrowth(seen.grown)}% grown`}</span>
+        <span className="text-meta text-muted" data-quality-state>{swelling ? (th ? `กำลังโตเป็น ${plant.size!.n}×${plant.size!.n}` : `Growing to ${plant.size!.n}×${plant.size!.n}`) : ripe ? (th ? "สุกแล้ว" : "Ripe") : th ? `โต ${shownGrowth(seen.grown)}%` : `${shownGrowth(seen.grown)}% grown`}</span>
         <button ref={close} type="button" onClick={onClose} aria-label={th ? "ปิด" : "Close"} className="pressable tk tk-btn-wood grid size-11 shrink-0 place-items-center"><TownIcon name="close" size={16} /></button>
       </header>
       <div className="flex flex-wrap items-baseline justify-between gap-x-2">
@@ -181,7 +184,12 @@ export function QualityInspector({ plant, now, rains, th, onClose, onBed, onGrow
         })}
         {onChart && <button type="button" onClick={onChart} data-quality-chart-open className="pressable tk tk-btn-wood min-h-11 px-3 font-display text-meta">{th ? "ตารางปุ๋ย" : "Fertiliser chart"}</button>}
       </div>
-      {onGrow && (GROW_CROPS as readonly string[]).includes(plant.crop) && (() => {
+      {swelling && (() => {
+        const hours = Math.max(1, Math.ceil((plant.size!.until - now) / 3_600_000));
+        return <p className="tk tk-window px-3 py-2 text-meta text-[#3b2412]" data-quality-swelling>{th ? `กำลังโตเต็มพื้นที่ อีก ${hours >= 48 ? `${Math.ceil(hours / 24)} วัน` : `${hours} ชม.`} ไม่ต้องรดน้ำหรือดูแลอะไร แปลงนี้จะไม่หลุดมือระหว่างรอ โตเต็มแล้วต้องใช้คนถอน ${needsOf(plant).hands} คน` : `Filling its ground: ${hours >= 48 ? `${Math.ceil(hours / 24)} days` : `${hours} hours`} more. It wants no care and the bed stays yours. Once grown it takes ${needsOf(plant).hands} people to pull.`}</p>;
+      })()}
+      {!swelling && plant.size && !plant.pull?.out && ripe && <p className="tk tk-window px-3 py-2 text-meta text-[#3b2412]" data-quality-swollen>{th ? `โตเต็มแล้ว ต้องใช้คนถอน ${needsOf(plant).hands} คน ขายให้ญาติได้ทั้งต้นตอนเก็บ` : `Fully grown: it takes ${needsOf(plant).hands} people to pull, and the relatives buy it whole when you pick it.`}</p>}
+      {!swelling && !plant.pull?.out && onGrow && (GROW_CROPS as readonly string[]).includes(plant.crop) && (() => {
         const top = sizeFor(seen.range.hi), name = top ? `${top.n}×${top.n}` : "", stands = plant.footprint?.length ?? 1;
         if (ripe && top && top.n * top.n > stands) return <button type="button" onClick={onGrow} data-quality-grow-open className="pressable tk tk-btn min-h-11 px-4 font-display text-ui">{th ? `ปล่อยให้โต: ได้ถึง ${name}` : `Let it grow: up to ${name}`}</button>;
         return <p className="text-meta text-[#ead9b4]" data-quality-grow-note>{top ? (th ? `สุกแล้วปล่อยให้โตได้ถึง ${name} ถ้าเว้นที่ว่างรอบต้นไว้` : `Once ripe it can grow to ${name}, if the ground around it is free`) : th ? "ถึงคุณภาพ 70 ตอนสุก จะปล่อยให้โตเป็น 2×2 ได้" : "At Quality 70 when ripe it can grow to 2×2"}</p>;
@@ -280,13 +288,26 @@ export function QualityBed({ at, plots, now, rains, th, onClose }: { at: string;
   );
 }
 
+const GROW_REFUSED: Record<string, [string, string]> = {
+  none: ["ปล่อยให้โตตอนนี้ไม่ได้", "It cannot grow now"],
+  theirs: ["แปลงนี้ไม่ใช่ของคุณแล้ว", "This bed is no longer yours"],
+  unripe: ["ต้นนี้ยังไม่สุก", "It is not ripe"],
+  pest: ["ต้นนี้มีแมลงอยู่ รักษาให้หายก่อน", "It has a pest: cure it first"],
+  quality: ["คุณภาพยังไม่ถึงขนาดนี้", "Its ceiling has not reached this size"],
+  room: ["พื้นที่เปลี่ยนไปแล้ว ดูแผนที่อีกครั้ง", "The ground has changed: look at the map again"],
+  seeds: ["เมล็ดไม่พอ", "Not enough seeds"],
+  busy: ["มีคนกำลังดึงต้นนี้อยู่", "Someone is pulling it"],
+};
 /**
  * "Let it grow" (the owner, 2026-10-31: "จะกดปล่อยให้โตได้ ต้องมีพื้นที่รองรับก่อน เขียนอธิบายให้ผู้เล่นเข้าใจง่ายๆด้วย โดยใช้แผนที่แปลงที่มีอยู่ในเกม
  * อยู่แล้ว"): the bed's own map (as QualityBed lays it) with the square the plant would take in gold, each plot of it green
  * when ready and red when not, and in plain words what is still in the way. Rules: lib/town/giant-sizes.
  */
-export function QualityGrow({ at, plots, now, rains, th, onClose }: { at: string; plots: Readonly<Record<string, Plot>>; now: number; rains: FarmSky; th: boolean; onClose: () => void }) {
+export function QualityGrow({ at, plots, now, rains, th, purse, onClose, onGo }: { at: string; plots: Readonly<Record<string, Plot>>; now: number; rains: FarmSky; th: boolean; purse: Purse; onClose: () => void;
+  /** Asks the game; a refusal's reason, or null when it has begun. */
+  onGo: (n: number) => Promise<string | null> }) {
   const plant = plots[at]?.plant ?? null, seen = plant ? qualityNow(plant, now, rains) : null, ceiling = seen?.range.hi ?? 0, top = sizeFor(ceiling), stands = plant?.footprint?.length ?? 1;
+  const [busy, setBusy] = useState(false), [said, setSaid] = useState<string | null>(null);
   const [x0, y0] = at.split(",").map(Number), [cx, cy] = bedCorner(bedOf(x0, y0));
   const [chosen, setChosen] = useState<number>(top?.n ?? 2), frame = growFrame(at, chosen, plots), size = SIZES.find((s) => s.n === chosen)!;
   const grid = useRef<HTMLDivElement>(null), [box, setBox] = useState<number>(0);
@@ -299,11 +320,12 @@ export function QualityGrow({ at, plots, now, rains, th, onClose }: { at: string
   if (!plant || !seen) return null;
   const side = 7, cells = Array.from({ length: side * side }, (_, i) => `${cx + (i % side)},${cy + Math.floor(i / side)}`), own = new Set(plant.footprint?.length ? plant.footprint : [at]);
   const inFrame = new Set(frame?.cells ?? []), blocked = frame?.blocked ?? new Map<string, string>(), withPlant = [...blocked.values()].filter((w) => w === "plant").length, unready = blocked.size - withPlant;
-  const allowed = ceiling >= size.from, ready = allowed && !!frame && blocked.size === 0, crop = plant.crop;
+  const crop = plant.crop, seedsNeed = seedsFor(chosen, sideOf(plant)), seedsHave = heldIn(purse, CROPS[crop].seed), pest = see(at, plots[at], now, rains).pest;
+  const allowed = ceiling >= size.from, groundReady = allowed && !!frame && blocked.size === 0, ready = groundReady && seedsHave >= seedsNeed && !pest;
   const name = ITEMS[crop as ItemId]?.name[th ? "th" : "en"] ?? crop;
   const hours = waitOf(crop, chosen), lo = saleOf(crop, chosen, gradeOf(seen.range.lo)), hi = saleOf(crop, chosen, gradeOf(seen.range.hi));
   const cell = box ? (box - 12 - 3 * (side - 1)) / side : 0;
-  const facts: Array<[string, string]> = [[th ? "เมล็ดเพิ่ม" : "Seeds", `${seedsFor(chosen, Math.round(Math.sqrt(stands)))}`], [th ? "รออีก" : "Wait", hours >= 48 ? (th ? `${Math.round(hours / 24)} วัน` : `${Math.round(hours / 24)} d`) : th ? `${hours} ชม.` : `${hours} h`], [th ? "คนถอน" : "Hands", `${size.hands}`], [th ? "ขายได้" : "Sells for", lo === hi ? lo.toLocaleString() : `${lo.toLocaleString()}–${hi.toLocaleString()}`]];
+  const facts: Array<[string, string]> = [[th ? "เมล็ดเพิ่ม" : "Seeds", `${seedsNeed} / ${seedsHave}`], [th ? "รออีก" : "Wait", hours >= 48 ? (th ? `${Math.round(hours / 24)} วัน` : `${Math.round(hours / 24)} d`) : th ? `${hours} ชม.` : `${hours} h`], [th ? "คนถอน" : "Hands", `${size.hands}`], [th ? "ขายได้" : "Sells for", lo === hi ? lo.toLocaleString() : `${lo.toLocaleString()}–${hi.toLocaleString()}`]];
   return (
     <section data-quality-grow className="tk tk-plate pointer-events-auto flex w-[min(440px,calc(100vw-16px))] flex-col gap-2 overflow-y-auto overscroll-contain p-3 text-ui text-ink sm:p-4"
              style={{ maxHeight: "min(46rem, calc(100dvh - 10rem))" }} aria-label={th ? "ปล่อยให้โต" : "Let it grow"}>
@@ -344,12 +366,15 @@ export function QualityGrow({ at, plots, now, rains, th, onClose }: { at: string
       <p className="tk tk-window px-3 py-2 text-meta text-[#3b2412]" data-quality-grow-status={ready ? "ready" : "blocked"}>
         {!allowed ? (th ? `ต้นนี้คุณภาพยังไม่ถึง ${size.from} จึงโตเป็น ${chosen}×${chosen} ไม่ได้` : `Its ceiling has not reached ${size.from}, so it cannot grow to ${chosen}×${chosen}`)
           : !frame ? (th ? "ขนาดนี้ไม่พอดีกับแปลง" : "This size does not fit the bed")
+          : pest ? (th ? "ต้นนี้มีแมลงอยู่ รักษาให้หายก่อนจึงปล่อยให้โตได้" : "It has a pest: cure it first")
+          : groundReady && !ready ? (th ? `ต้องมีเมล็ด${name} ${seedsNeed} เมล็ด ตอนนี้มี ${seedsHave}` : `It takes ${seedsNeed} ${name} seeds; you have ${seedsHave}`)
           : ready ? (th ? "ที่ว่างครบแล้ว กดปล่อยให้โตได้เลย" : "The ground is ready") : th ? `ก่อนกด ต้อง${withPlant ? `ขุดต้นไม้ออก ${withPlant} ช่อง` : ""}${withPlant && unready ? " และ" : ""}${unready ? `พรวนดินอีก ${unready} ช่อง` : ""}${withPlant ? " (ต้นนี้สุกแล้ว ขุดต้นอื่นออกคุณภาพไม่ลด)" : ""}` : `First ${withPlant ? `dig out ${withPlant} plants` : ""}${withPlant && unready ? " and " : ""}${unready ? `till ${unready} plots` : ""}`}
       </p>
       <dl className="grid grid-cols-[1fr_1fr_1fr_1.7fr] gap-1 text-center text-label" data-quality-grow-facts>
         {facts.map(([label, value]) => <div key={label} className="tk tk-slot flex flex-col justify-center px-1 py-1"><dt className="text-[#ead9b4]">{label}</dt><dd className="font-data font-semibold text-ink">{value}</dd></div>)}
       </dl>
-      <div className="sticky -bottom-3 z-10 -mx-1 bg-[#5f3b1d] px-1 pb-1 pl-12 pt-1 sm:-bottom-4 sm:pl-1"><button type="button" disabled={!ready} data-quality-grow-go className={`pressable tk ${ready ? "tk-btn" : "tk-btn-wood opacity-70"} min-h-11 w-full px-3 font-display text-ui`}>{ready ? (th ? `ปล่อยให้โตเป็น ${chosen}×${chosen}` : `Grow to ${chosen}×${chosen}`) : th ? "ยังปล่อยให้โตไม่ได้" : "Not ready yet"}</button></div>
+      {said && <p role="status" className="text-meta font-semibold text-[#ffd27a]" data-quality-grow-said>{said}</p>}
+      <div className="sticky -bottom-3 z-10 -mx-1 bg-[#5f3b1d] px-1 pb-1 pl-12 pt-1 sm:-bottom-4 sm:pl-1"><button type="button" disabled={!ready || busy} data-quality-grow-go onClick={() => { setBusy(true); setSaid(null); void onGo(chosen).then((why) => { setBusy(false); if (why) setSaid((GROW_REFUSED[why] ?? GROW_REFUSED.none)[th ? 0 : 1]); else onClose(); }); }} className={`pressable tk ${ready ? "tk-btn" : "tk-btn-wood opacity-70"} min-h-11 w-full px-3 font-display text-ui`}>{ready ? (th ? `ปล่อยให้โตเป็น ${chosen}×${chosen}` : `Grow to ${chosen}×${chosen}`) : th ? "ยังปล่อยให้โตไม่ได้" : "Not ready yet"}</button></div>
     </section>
   );
 }

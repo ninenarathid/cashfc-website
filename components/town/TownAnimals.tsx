@@ -5,8 +5,7 @@ import type { Keeper } from "@/lib/town/keeper";
 import {
   ANIMALS, BREEDS, DAWN_BOOSTS, GRAPH, LETTERS, OFFERINGS, OFFERING_KINDS, SPECIES, SPECIES_IDS, STAT_IDS, adultAt, breedAt, breedOf, careOf, childRange, crossOf, feeOf,
   dayOf, freeHome, gives, kindOf, knowsOffering, mayCare, nextStage, scrollOf, sellBackOf, stageOf, statOf, stepKey, stepsOf, untendedOf, usedOf,
-  type Animal, type Herd, type Sex, type SpeciesId, type Stats,
-} from "@/lib/town/animals";
+  type Animal, type Herd, type Sex, type SpeciesId, type Stats, bodyOf, rearRange } from "@/lib/town/animals";
 import { ANIMAL_GIFTS, POPOTO_SHOP, RENAME_TAG, TOOL_OF, bookOf, feedHours, growFor, viewOf, type AnimalInput, type AnimalReply, type AnimalWhy, type AnimalWorld } from "@/lib/town/animal-act";
 import { ANIMAL_SCROLL_ITEMS } from "@/lib/town/animal-items";
 import { BARNS, LANE_ROWS } from "@/lib/town/pasture";
@@ -706,8 +705,19 @@ function Card({ a, th, purse, world, now, kit, busy, act, open, onOpen, onCollec
             <div className="mt-2" data-growth={Math.round(v.grown * 100)}>
               <p className="mb-1 flex justify-between text-meta"><span className="text-ink">{t(stage === "baby" ? "โตเป็นวัยรุ่น" : "โตเต็มวัย", stage === "baby" ? "To young" : "To grown")}</span><span className="text-muted">{t(`อีกราว ${hrs(v.adultIn / speed, true)} (เมื่อกินอิ่ม)`, `about ${hrs(v.adultIn / speed, false)} more while fed`)}</span></p>
               <Bar value={v.grown} label={t(`โตแล้ว ${Math.round(v.grown * 100)}%`, `${Math.round(v.grown * 100)}% grown`)} />
+              {(() => {
+                // (how it is being raised is what its size will be: lib/town/animals' BODY)
+                const r = s.rearing, days = r?.days ?? 0, range = rearRange(r, s.narrow), top = bodyOf(a.species, 100);
+                return <div className="mt-1.5" data-rearing={days}>
+                  <p className="text-label text-muted">{days > 0 ? t(`เลี้ยงแบบนี้ต่อไป ตอนโตตัวใหญ่ ×${bodyOf(a.species, range.lo).toFixed(1)}–×${bodyOf(a.species, range.hi).toFixed(1)} (สูงสุด ×${top.toFixed(1)})`, `Raised like this it grows to ×${bodyOf(a.species, range.lo).toFixed(1)}–×${bodyOf(a.species, range.hi).toFixed(1)} (×${top.toFixed(1)} at most)`) : t(`ลูบ ให้ขนม พาออกทุ่ง และให้อิ่มทุกวันจนโต ตัวจะใหญ่ได้ถึง ×${top.toFixed(1)}`, `Pet, treat, let out and keep fed every day until grown, and it can reach ×${top.toFixed(1)}`)}</p>
+                  {days > 0 && <ul className="mt-0.5 grid grid-cols-4 gap-1 text-center text-label" aria-label={t("วันที่ดูแล", "Days of care")}>
+                    {([[t("ลูบ", "Pet"), r!.pet], [t("ขนม", "Treat"), r!.treat], [t("ออกทุ่ง", "Out"), r!.out], [t("อิ่ม", "Fed"), r!.fed]] as Array<[string, number]>).map(([word, n]) => <li key={word} className="tk tk-slot px-1 py-0.5">{word} <b className="font-data">{n}/{days}</b></li>)}
+                  </ul>}
+                </div>;
+              })()}
             </div>
           )}
+          {stage === "adult" && s.body !== undefined && <p className="mt-2 text-meta text-ink" data-body={s.body}>{t(`ขนาดตัว ×${s.body.toFixed(2)}`, `Body size ×${s.body.toFixed(2)}`)}{s.gold ? t(" · กลายพันธุ์สีทองคำ", " · turned gold") : ""}</p>}
           {stage === "adult" && yields && !inPen && (
             <div className="mt-2" data-round={v.ready}>
               <p className="mb-1 flex justify-between text-meta"><span className="text-ink">{t(`ผลผลิตรอบต่อไป · พร้อมเก็บ ${v.ready}/${sp.bank}`, `Next round · ${v.ready}/${sp.bank} ready`)}</span><span className="text-muted">{v.ready >= sp.bank ? t("เต็มแล้ว หยุดรอเก็บ", "full: waiting") : t(`อีก ${hrs((1 - v.round) * sp.cycle, true)} ที่อิ่ม`, `${hrs((1 - v.round) * sp.cycle, false)} fed`)}</span></p>

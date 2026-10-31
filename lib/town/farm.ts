@@ -185,6 +185,8 @@ export interface Plant {
   sealed?: number;
   /** Grown past its first plots after ripening (lib/town/giant-sizes). It is `giant` from then, pulled out together. */
   size?: PlantSize;
+  /** When a call to pull it was last the town's news (v317's town_giant_pull). */
+  called?: number;
   /** A giant's call and go to pull it out together (lib/town/giant-pull): it is picked only once `out`. */
   pull?: GiantPull;
   /** A released pollinator works once each time this plant bears. */

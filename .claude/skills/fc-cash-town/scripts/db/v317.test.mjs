@@ -82,6 +82,9 @@ try {
   await putAnimal(animal(A.calf, "cow", { grown: 10 }));
   await putAnimal(animal(A.penned, "duck", { grown: 80, hearts: 100, home: "pen" }));
 
+  // (what v309 and v311 made, which do not replay on this bench: the column, and a reader for the older reader to ask)
+  await db.exec(`alter table public.town_announcements add column if not exists toward jsonb;
+    create or replace function public.town_announcements_v309(p_after bigint default null, p_look text default null) returns jsonb language sql as $$ select '{"events":[]}'::jsonb $$;`);
   const sql = readFileSync(FILE, "utf8").replace(/\r\n/g, "\n");
   await db.exec(sql.replace(/\n/g, "\r\n"));
   await db.exec(sql);
@@ -209,6 +212,7 @@ try {
   const keepingOf = async () => one("select member_id, tended, empty from public.town_beds where bed = $1", [bed]);
   const pull = (who, action, hits = []) => asOf(who)("select public.town_giant_pull($1, $2, $3, $4::jsonb) r", [action, rx, ry, JSON.stringify(hits)]);
   const tend = (who, x = rx, y = ry) => asOf(who)("select public.town_tend($1, $2) r", [x, y]);
+  const plotNow = async () => plotAt(rx, ry), plotNow0 = plotNow;
 
   await tilledAll(); await seeds(m1, 9); await set(rx, ry, ripe());
   eq(why(await asOf(null, "anon")("select public.town_grow(1, 1, 2) r")), "error 42501", "anon refused");
@@ -274,13 +278,20 @@ try {
   r = await pull(m1, "open");
   eq(why(r), "ok", "called");
   eq(why(await pull(m1, "go")), "hands", "not started short of hands");
+  const news = await rows("select kind, subject, toward, event_key from public.town_announcements where kind = 'pull' order by id");
+  eq([news.length, news[0]?.subject, news[0]?.toward], [1, "ฟักทองยักษ์ 4×4", { hook: ROOT, x: rx, y: ry }], "the call is the town's news, with its way there");
+  eq(typeof (await plotNow0()).plant.called, "number", "and the plant remembers when");
   eq(why(await pull(m2, "join")), "ok", "a helper"); eq(why(await pull(m1, "go")), "hands", "still short");
   eq(why(await pull(m3, "join")), "ok", "the third");
   eq(why(await pull(m2, "go")), "theirs", "started by the caller only");
   eq(why(await pull(m1, "go")), "ok", "three hands start a 4x4");
-  const plotNow = async () => plotAt(rx, ry);
+  // (a go's reports write nothing but its root)
+  const satBefore = await one("select changed, plant from public.town_plots where x = $1 and y = $2", [rx + 1, ry]);
   const goBack = async (ms) => { const p = (await plotNow()).plant; p.pull.go = Date.now() - ms; await db.query("update public.town_plots set plant = $3 where x = $1 and y = $2", [rx, ry, JSON.stringify(p)]); };
   await goBack(GP.PULL.count + 30 * GP.PULL.swing);
+  await pull(m1, "hits", [0]);
+  const satAfter = await one("select changed, plant from public.town_plots where x = $1 and y = $2", [rx + 1, ry]);
+  eq([satAfter.changed, satAfter.plant.pull], [satBefore.changed, satBefore.plant.pull], "a report writes no other plot of its square");
   const swings = Array.from({ length: 11 }, (_, i) => i);
   r = await pull(m1, "hits", swings); eq(r.plots[ROOT].plant.pull.out, 0, "one pair of hands is not enough: 11 of 32");
   r = await pull(m2, "hits", swings); eq(r.plots[ROOT].plant.pull.out > 0, true, "two together on 11 half-swings: 33 of 32");
@@ -309,6 +320,9 @@ try {
   await tilledAll();
   await db.query("update public.town_plots set plant = $1, changed = $2 where x = $3 and y = $4", [JSON.stringify(big(7)), nowMs, rx, ry]);
   await pull(m1, "open");
+  eq((await rows("select count(*)::int c from public.town_announcements where kind = 'pull'"))[0].c, 2, "another plant's call is told too");
+  await pull(m1, "leave"); await pull(m1, "open");
+  eq((await rows("select count(*)::int c from public.town_announcements where kind = 'pull'"))[0].c, 2, "but the same plant's not again within ten minutes");
   const crew7 = (await plotNow()).plant.pull.crew;
   eq(crew7, [m1], "called");
   eq(why(await pull(m1, "go")), "hands", "a whole bed will not start with one");

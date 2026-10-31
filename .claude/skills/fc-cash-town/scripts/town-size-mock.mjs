@@ -1,6 +1,6 @@
-// The mock of a plant grown over its bed, gold, the "let it grow" panel on the bed's map, and animals of four sizes: laid
-// in the dev test room and photographed at desktop, phone and a small phone. Nothing here plays the rules: the plants are
-// laid as they would stand (lib/town/giant-sizes).
+// Plants grown over their beds, gold, the "let it grow" panel on the bed's map, and animals of four sizes: laid in the dev
+// test room and photographed at desktop, phone and a small phone. Nothing here plays the rules: the plants are laid as they
+// would stand (lib/town/giant-sizes); town-grow.mjs plays them.
 //   node .claude/skills/fc-cash-town/scripts/town-size-mock.mjs http://localhost:<port> <outdir> [desktop|phone|small|all]
 const { browser, sleep, status, until } = await import(new URL("./cdp.mjs", import.meta.url).href);
 const [BASE = "http://localhost:3231", OUT = ".", ONLY = "all"] = process.argv.slice(2);
@@ -9,10 +9,10 @@ const SIZES = { desktop: { width: 1280, height: 860 }, phone: { width: 384, heig
 
 const lay = (plan, friends = false) => `(() => {
   const H = 3600000, now = Date.now(), me = ${T}.id, farm = {};
-  const q = (ceil, nar) => { const a = Math.min(1, ceil / 100 + 1e-6); return { at: now, span: 1, area: [a, a, a, a], nar: [nar >= 10 ? 1 : 0, nar >= 20 ? 1 : 0, 0] }; };
+  const q = (ceil, nar) => ({ at: now + 9000 * H, span: 100, area: [ceil, ceil, ceil, ceil], nar: [nar * 5, nar * 5, 0] });
   const put = (x, y, crop, n = 1, more = {}) => {
     const root = x + "," + y, keys = []; for (let v = 0; v < n; v++) for (let u = 0; u < n; u++) keys.push((x + u) + "," + (y + v));
-    const p = { by: me, crop, sown: now - 2000 * H, boost: 0, watered: now - H, fed: 0, guard: now + 99 * H, cured: 0, picked: 0, pickedAt: 0, ...(n > 1 ? { root, footprint: keys, rotation: 0, giant: true } : {}), ...more };
+    const { gold, fit: _fit, ...rest } = more, p = { by: me, crop, sown: now - 2000 * H, boost: 0, watered: now - H, fed: 0, guard: now + 99 * H, cured: 0, picked: 0, pickedAt: 0, q: { at: now + 9000 * H, span: 100, area: [100, 100, 100, 100], nar: [0, 0, 0] }, ...(n > 1 ? { root, footprint: keys, rotation: 0, giant: true, size: { n, at: now - H, until: now - 1000, plain: true } } : {}), ...(gold ? { gold: 0, sealed: 0 } : {}), ...rest };
     for (const k of keys) farm[k] = { soil: "tilled", plant: { ...p } };
   };
   const till = (x, y, w, h) => { for (let v = 0; v < h; v++) for (let u = 0; u < w; u++) { const k = (x + u) + "," + (y + v); if (!farm[k]) farm[k] = { soil: "tilled", plant: null }; } };
@@ -68,10 +68,8 @@ for (const label of ONLY === "all" ? Object.keys(SIZES) : [ONLY]) {
       if (!process.env.EPIC) {
       await X.evaluate(lay(busy, true)); await enter(); await sleep(1500);
       await zoom(phone ? 0.62 : 0.85);
-      await go(143.5, 7.5, 3000); await X.evaluate("(window.__townCalmOff = true)"); await sleep(1800); await shot("busy-before");
-      await X.evaluate("(window.__townCalmOff = false)"); await sleep(1500); await shot("busy-after");
+      await go(143.5, 7.5, 3000); await shot("busy-after");
       await go(144.5, 21.5, 2600); await shot("busy-lane");
-      await X.evaluate("(window.__townCalmOff = true)"); await sleep(1800); await shot("busy-lane-before"); await X.evaluate("(window.__townCalmOff = false)");
       }
       // epic animals
       await X.evaluate(`${T}.animalFriends()`); await sleep(400);
@@ -106,7 +104,7 @@ for (const label of ONLY === "all" ? Object.keys(SIZES) : [ONLY]) {
     if (!process.env.PANELS) {
     await X.evaluate(lay(ladder)); await enter(); await sleep(1500);
     await zoom(phone ? 0.62 : 0.95); await go(130.5, 21.5, 2600); await X.evaluate(`${V}.lookAt(${phone ? 143 : 142.5}, 12)`); await sleep(1500); await shot("ladder");
-    if (process.env.HERO) { await X.evaluate("(window.__townCalmOff = true)"); await zoom(phone ? 1 : 1.5); await go(129.5, 37.5, 2200); await X.evaluate(`${V}.lookAt(135.5, 36)`); await sleep(1500); await shot("breakpoint"); console.log(label, "errors", JSON.stringify(X.errors?.() ?? []).slice(0, 300)); continue; }
+    if (process.env.HERO) { await zoom(phone ? 1 : 1.5); await go(129.5, 37.5, 2200); await X.evaluate(`${V}.lookAt(135.5, 36)`); await sleep(1500); await shot("breakpoint"); console.log(label, "errors", JSON.stringify(X.errors?.() ?? []).slice(0, 300)); continue; }
     await go(151, 11, 2000); await shot("whole");
     await zoom(phone ? 0.62 : 0.95); await go(144.5, 22.5, 2500); await shot("gold-ladder");
     await go(151, 19, 2000); await shot("gold-whole");

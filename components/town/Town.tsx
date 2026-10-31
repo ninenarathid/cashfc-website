@@ -1030,6 +1030,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       .map((a) => ({ id: a.info.id, name: a.info.name, x: a.pos.x, y: a.pos.y, moving: a.path.length > 0, fell: a.info.fell ?? "" }));
   }, []);
   const walkToTile = useCallback((x: number, y: number) => { const ok = sessionRef.current?.walkTo({ x, y }) ?? false; if (ok) cam.current.follow = true; return ok; }, []);
+  // (a "ไปช่วย" chip in the town's news or the chat, for a plant grown over its ground: the way to its root)
+  useEffect(() => {
+    const go = (e: Event) => {
+      const [x, y] = (e as CustomEvent<string>).detail.split(",").map(Number);
+      for (let r = 0; r <= 6; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) if (Math.max(Math.abs(dx), Math.abs(dy)) === r && walkToTile(x + dx, y + dy)) return;
+    };
+    window.addEventListener("cashtown:pull-go", go);
+    return () => window.removeEventListener("cashtown:pull-go", go);
+  }, [walkToTile]);
   // ── end: felling ──
   // The insects (TownBugs): drawn on every map, and a tap is asked of the net before it is a step.
   const bugsDraw = useRef<FarmDraw | null>(null), bugsTap = useRef<((at: Vec, only?: boolean) => boolean) | null>(null);

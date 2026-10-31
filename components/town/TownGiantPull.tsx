@@ -6,7 +6,7 @@ import { handOf } from "@/lib/town/trade";
 import type { Stander } from "@/lib/town/line";
 import { ITEMS } from "@/lib/town/items";
 import { bedOf } from "@/lib/town/world";
-import { PULL, calling, goEnds, gripOf, judgePull, leanAt, peakAt, pullOf, pullable, pulling, sideOf, type GiantPull, type PullRefusal } from "@/lib/town/giant-pull";
+import { PULL, calling, goEnds, gripOf, judgePull, leanAt, needsOf, peakAt, pullOf, pullable, pulling, sideOf, type GiantPull, type PullRefusal } from "@/lib/town/giant-pull";
 import ART from "@/lib/town/giant-pull-art.json";
 import { daylight, daylightAt } from "@/lib/town/daylight";
 import TownFoot from "./TownFoot";
@@ -67,11 +67,12 @@ const REFUSED: Record<PullRefusal, [string, string]> = {
   theirs: ["เจ้าของแปลงเท่านั้นที่เรียกดึงและเริ่มดึงได้", "Only the bed's keeper calls and starts the pull"],
   busy: ["มีคนกำลังดึงต้นนี้อยู่", "Someone is already pulling this giant"],
   shut: ["หมดเวลาเรียกคนแล้ว", "The call is over"],
-  full: ["ทีมดึงเต็มแล้ว (4 คน)", "The crew is full (four)"],
+  full: ["ทีมดึงเต็มแล้ว", "The crew is full"],
   in: ["อยู่ในทีมดึงแล้ว", "You are in the crew"],
   crew: ["ไม่ได้อยู่ในทีมดึงต้นนี้", "You are not in this crew"],
   late: ["หมดจังหวะดึงแล้ว", "The pull is over"],
   done: ["ต้นนี้ถูกถอนขึ้นมาแล้ว", "This giant is already out"],
+  hands: ["คนยังไม่ครบ เริ่มดึงไม่ได้", "Not enough hands to start"],
 };
 
 interface Bit { piece: Piece; sx: number; sy: number; sw: number; sh: number; x: number; y: number; vx: number; vy: number; born: number; life: number }
@@ -89,7 +90,9 @@ export default function TownGiantPull({ keeper, th, at, name, people, sayPull, h
   const [busy, setBusy] = useState(false);
   const [said, setSaid] = useState<string | null>(null);
   const [shut, setShut] = useState<string | null>(null);
-  const [harvest, setHarvest] = useState<{ key: string; got: Array<[string, number]> | null; why?: string } | null>(null);
+  const [harvest, setHarvest] = useState<{ key: string; got: Array<[string, number]> | null; why?: string; sale?: number } | null>(null);
+  // (dug out alone: pressed twice, for it gives up the sale)
+  const [digging, setDigging] = useState(false);
   // (the giant once out, kept here: its keeper's pick takes it off the plot, and the card stays till it is closed)
   const [result, setResult] = useState<{ key: string; crop: string; by: string; helped: string[]; crew: string[]; out: number; hits: Record<string, number[]> } | null>(null);
   const lit = useRef<{ left: HTMLButtonElement | null; right: HTMLButtonElement | null }>({ left: null, right: null });
@@ -106,7 +109,7 @@ export default function TownGiantPull({ keeper, th, at, name, people, sayPull, h
 
   const now = keeper.now(), plots = keeper.farm();
   const found = giantOf(plots, me, at, now), key = found ?? result?.key ?? null;
-  const plot = key ? plots[key] : undefined, plant = plot?.plant ?? null, pull = pullOf(plot);
+  const plot = key ? plots[key] : undefined, plant = plot?.plant ?? null, pull = pullOf(plot), needs = needsOf(plant);
   // (a board closed stays closed for that call: a later call at the same giant is another)
   const tag = key ? `${key}:${pull?.at ?? result?.out ?? 0}` : null;
   const crop = plant?.crop ?? result?.crop ?? "pumpkin", cropName = ITEMS[crop as keyof typeof ITEMS]?.name[th ? "th" : "en"] ?? crop;
@@ -129,13 +132,13 @@ export default function TownGiantPull({ keeper, th, at, name, people, sayPull, h
   }
   // what the roots still hold: the keeper's count, my own pulls not told yet, and what the others say they have pulled
   const stored = pull?.hits ?? result?.hits ?? {};
-  let done = gripOf(mine ? { ...stored, [me]: [...mine] } : stored).done;
+  let done = gripOf(mine ? { ...stored, [me]: [...mine] } : stored, needs).done;
   if (pull && !isOut) for (const id of pull.crew) if (id !== me) {
     const w = wordOf(words.find((p) => p.id === id)?.pull, key!), have = stored[id]?.length ?? 0;
     if (w && w.go === goAt && w.n > have) done += w.n - have;
   }
-  if (isOut) done = PULL.grip;
-  const left = Math.max(0, PULL.grip - done);
+  if (isOut) done = needs.grip;
+  const left = Math.max(0, needs.grip - done);
 
   // ── what I say to the room: the giant, the start, my good pulls ──
   const word = key && inCrew && (isCalling || isPulling) ? `${key}:${goAt}:${mine?.size ?? 0}` : "";
@@ -153,6 +156,17 @@ export default function TownGiantPull({ keeper, th, at, name, people, sayPull, h
       else setShut(null);
     } finally { setBusy(false); }
   }, [key, tag, busy, keeper, th]);
+
+  const digAlone = useCallback(async () => {
+    if (!key || busy) return;
+    const [x, y] = key.split(",").map(Number);
+    setBusy(true); setSaid(null);
+    try {
+      const left_ = await keeper.giantPull("leave", [x, y]);
+      const did = left_.ok ? await keeper.giantPull("dig", [x, y]) : left_;
+      if (!did.ok) setSaid(REFUSED[did.why as PullRefusal]?.[th ? 0 : 1] ?? (th ? "ทำไม่ได้ตอนนี้" : "Not now"));
+    } finally { setBusy(false); setDigging(false); }
+  }, [key, busy, keeper, th]);
 
   // ── reporting what I pulled well: every few good pulls, when the roots look loose, and when the go is over ──
   const report = useCallback(async (force = false) => {
@@ -239,8 +253,8 @@ export default function TownGiantPull({ keeper, th, at, name, people, sayPull, h
       // (only a pick: whatever is in the hand might make the same tap something else, compost on it or a hoe's digging)
       const [kx, ky] = key.split(",").map(Number), owner = keeper.owners().get(bedOf(kx, ky))?.by ?? null;
       if (deedFor(key, plot!, handOf(keeper.purse()), me, keeper.now(), owner, keeper.rains()) !== "pick") { setHarvest({ key, got: null, why: "hand" }); return; }
-      const did = await keeper.farmDo(key, name);
-      setHarvest(did.ok && did.deed === "pick" ? { key, got: did.got as Array<[string, number]> } : { key, got: null, why: did.ok ? "hand" : did.why });
+      const coins = keeper.purse().coins, did = await keeper.farmDo(key, name);
+      setHarvest(did.ok && did.deed === "pick" ? { key, got: did.got as Array<[string, number]>, sale: keeper.purse().coins - coins } : { key, got: null, why: did.ok ? "hand" : did.why });
     })();
   }, [key, pull, plot, me, keeper, name, pickTry]);
 
@@ -322,10 +336,10 @@ export default function TownGiantPull({ keeper, th, at, name, people, sayPull, h
   }, [show, key, crop, isOut, goAt, done, pull, result, keeper, hour]);
 
   // ── what shows where ──
-  const near = !!key && !!at && (() => { const [kx, ky] = key.split(",").map(Number); return Math.abs(at[0] - kx - 0.5) <= 2.5 && Math.abs(at[1] - ky - 0.5) <= 2.5; })();
+  const near = !!key && !!at && (() => { const cells = (plant?.footprint?.length ? plant.footprint : [key]).map((c) => c.split(",").map(Number)), xs = cells.map(([x]) => x), ys = cells.map(([, y]) => y); return at[0] >= Math.min(...xs) - 2 && at[0] <= Math.max(...xs) + 2 && at[1] >= Math.min(...ys) - 2 && at[1] <= Math.max(...ys) + 2; })();
   const keeperOf = key ? (() => { const [kx, ky] = key.split(",").map(Number); return keeper.owners().get(bedOf(kx, ky))?.by ?? null; })() : null;
   const mayCall = !!key && !!plant && (keeperOf === null || keeperOf === me) && pullable(key, plot, now, keeper.rains()) && !isCalling && !isPulling;
-  const mayJoin = !!key && isCalling && !inCrew && near && pull!.crew.length < PULL.crew;
+  const mayJoin = !!key && isCalling && !inCrew && near && pull!.crew.length < needs.crew;
   if (!show) {
     if (mayCall && near && !ranOut) return <TownFoot rank="main" order={58}>
       <button className={OPEN} data-giant-pull-open disabled={busy} onClick={() => void send("open")}><PullIcon name="pullKnot" size={26} />{th ? `ถอน${cropName}ยักษ์` : `Pull the giant ${cropName.toLowerCase()}`}</button>
@@ -341,7 +355,7 @@ export default function TownGiantPull({ keeper, th, at, name, people, sayPull, h
     return null;
   }
 
-  const crew = pull?.crew ?? result?.crew ?? [], by = pull?.by ?? result?.by ?? "";
+  const crew = pull?.crew ?? result?.crew ?? [], by = pull?.by ?? result?.by ?? "", short = Math.max(0, needs.hands - crew.length);
   const grower = by === me, g = go.current && go.current.key === key ? go.current : null;
   const t = now, count = isPulling && t < goAt + PULL.count ? Math.ceil((goAt + PULL.count - t) / 1000) : 0;
   const k = isPulling ? Math.floor((t - goAt - PULL.count) / PULL.swing) : -1, swingsLeft = Math.max(0, PULL.swings - Math.max(0, k));
@@ -366,23 +380,25 @@ export default function TownGiantPull({ keeper, th, at, name, people, sayPull, h
         {count > 0 && <div className={s.count} key={count} aria-live="polite">{count}</div>}
         {isPulling && !count && t < goAt + PULL.count + 900 && <div className={s.count} data-go>{th ? "ดึง!" : "Pull!"}</div>}
         {g?.flash && performance.now() - g.flash.at < 450 && <div className={s.pop} data-side={g.flash.side} data-good={g.flash.good || undefined}>{g.flash.good ? (th ? "ฮึบ!" : "Heave!") : (th ? "หลุดจังหวะ" : "Slipped")}</div>}
-        {(isPulling || isOut) && <div className={s.grip} aria-label={th ? `รากยึดเหลือ ${left} จาก ${PULL.grip}` : `Roots hold ${left} of ${PULL.grip}`}>
-          <b>{th ? "รากยึด" : "Roots"}</b><i><span style={{ width: `${(left / PULL.grip) * 100}%` }} /></i>
+        {(isPulling || isOut) && <div className={s.grip} aria-label={th ? `รากยึดเหลือ ${left} จาก ${needs.grip}` : `Roots hold ${left} of ${needs.grip}`}>
+          <b>{th ? "รากยึด" : "Roots"}</b><i><span style={{ width: `${(left / needs.grip) * 100}%` }} /></i>
         </div>}
       </div>
-      <ul className={s.crew} aria-label={th ? "ทีมดึง" : "The crew"}>{crewChips}{isCalling && Array.from({ length: PULL.crew - crew.length }, (_, i) => <li key={`free${i}`} className={s.mate} data-free><span className={s.mateName}>{th ? "ว่าง" : "Free"}</span></li>)}</ul>
+      <ul className={s.crew} aria-label={th ? "ทีมดึง" : "The crew"}>{crewChips}{isCalling && Array.from({ length: needs.crew - crew.length }, (_, i) => <li key={`free${i}`} className={s.mate} data-free><span className={s.mateName}>{th ? "ว่าง" : "Free"}</span></li>)}</ul>
 
       {isCalling && <>
         <p className={s.note}>{th ? "ผักจะโยกซ้าย-ขวา ดึงเชือกฝั่งที่มันเอียงไปตอนเอียงสุด ดึงพร้อมกันได้แรงสามเท่า" : "It rocks left and right: pull the side it leans to, at its farthest. Together is three times the strength."}</p>
-        <p className="mb-2 text-meta text-muted">{th ? `คนใกล้ ๆ มาช่วยได้อีก ${PULL.crew - crew.length} คน · คนละแรง 1` : `${PULL.crew - crew.length} more can help · 1 stamina each`}</p>
+        <p className="mb-2 text-meta text-muted" data-giant-pull-hands={needs.hands}>{short > 0 ? (th ? `ต้องมีคนอย่างน้อย ${needs.hands} คน ขาดอีก ${short} คน` : `It takes at least ${needs.hands}: ${short} more`) : needs.crew <= crew.length ? (th ? "ทีมเต็มแล้ว · คนละแรง 1" : "The crew is full · 1 stamina each") : th ? `คนใกล้ ๆ มาช่วยได้อีก ${needs.crew - crew.length} คน · คนละแรง 1` : `${needs.crew - crew.length} more can help · 1 stamina each`}</p>
         {grower ? <div className={s.row}>
-          <button type="button" data-giant-pull-go className={`${GREEN} flex-1`} disabled={busy} onClick={() => void send("go")}><PullIcon name="pullGloves" size={22} />{th ? "เริ่มดึง!" : "Start pulling!"}</button>
+          <button type="button" data-giant-pull-go className={`${short > 0 ? WOOD : GREEN} flex-1`} disabled={busy || short > 0} onClick={() => void send("go")}><PullIcon name="pullGloves" size={22} />{short > 0 ? (th ? "รอคนครบ" : "Waiting for hands") : th ? "เริ่มดึง!" : "Start pulling!"}</button>
           <button type="button" className={WOOD} disabled={busy} onClick={() => void send("leave")}>{th ? "ยกเลิก" : "Cancel"}</button>
         </div> : <div className={s.row}>
           <p className={`${s.wait} flex-1`}>{th ? `รอ${nameOf(by)}เริ่มดึง…` : `Waiting for ${nameOf(by)} to start…`}</p>
           <button type="button" className={WOOD} disabled={busy} onClick={() => void send("leave")}>{th ? "ออก" : "Leave"}</button>
         </div>}
       </>}
+
+      {isCalling && grower && plant?.size && crew.length === 1 && <button type="button" data-giant-pull-dig className={`${WOOD} mt-1 w-full pl-12 sm:pl-3`} disabled={busy} onClick={() => { if (digging) void digAlone(); else setDigging(true); }}>{digging ? (th ? "กดอีกครั้ง: ได้แค่ผลผัก ไม่ได้ค่าขายทั้งต้น" : "Press again: its fruits only, no sale") : th ? "หาคนไม่ได้? ขุดคนเดียว" : "Nobody about? Dig it alone"}</button>}
 
       {isPulling && <>
         <div className={s.pullRow}>
@@ -411,7 +427,8 @@ export default function TownGiantPull({ keeper, th, at, name, people, sayPull, h
               <button type="button" className={`${GREEN} w-full`} onClick={() => { picking.current = null; setHarvest(null); setPickTry((n) => n + 1); }}>{th ? "เก็บผักยักษ์" : "Pick the giant"}</button></>)
           : <p className="text-meta text-muted">{th ? "กำลังเก็บ…" : "Picking…"}</p>)
           : <p>{helped.includes(me) ? (th ? `ช่วยดึงสำเร็จ +${PULL.points} แต้มสายผู้ช่วย` : `+${PULL.points} helpers' points`) : (th ? `ครั้งหน้าดึงให้ถูกจังหวะอย่างน้อย ${PULL.helpFrom} ครั้งเพื่อรับแต้ม` : `Pull well ${PULL.helpFrom} times next time for the points`)}</p>}
-        {helped.length > 0 && <p className="text-meta text-muted">{th ? `ช่วยดึงโดย ${helped.map(nameOf).join(", ")} · เจ้าของแปลงได้ผลเพิ่ม ${helped.length}` : `Pulled with ${helped.map(nameOf).join(", ")} · ${helped.length} more for the grower`}</p>}
+        {grower && harvest?.key === key && !!harvest.sale && harvest.sale > 0 && <p className={s.big} data-giant-pull-sale>{th ? `ญาติซื้อไปทั้งต้น +${harvest.sale.toLocaleString()} เหรียญ` : `The relatives bought it whole: +${harvest.sale.toLocaleString()} coins`}</p>}
+        {helped.length > 0 && <p className="pl-10 text-meta text-muted sm:pl-0">{th ? `ช่วยดึงโดย ${helped.map(nameOf).join(", ")} · เจ้าของแปลงได้ผลเพิ่ม ${helped.length}` : `Pulled with ${helped.map(nameOf).join(", ")} · ${helped.length} more for the grower`}</p>}
       </div>}
       {said && <p role="status" className={s.said}>{said}</p>}
     </section>

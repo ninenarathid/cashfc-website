@@ -4,9 +4,9 @@ import type { Stack } from "./trade";
 
 export interface TownAnnouncement {
   id: number; at: number; member: string; name: string;
-  kind: "forge" | "rank" | "legend" | "forest" | "recipe" | "cross" | "depth" | "bridge" | "lamps" | "admin" | "casino" | "giant" | "shake";
+  kind: "forge" | "rank" | "legend" | "forest" | "recipe" | "cross" | "depth" | "bridge" | "lamps" | "admin" | "casino" | "giant" | "shake" | "pull";
   subject: string; level: number;
-  /** (a giant fish's call, v309, and a shaken branch's, v311: the hook or the shake it calls to and where, for the "ไปช่วย" chip) */
+  /** (a giant fish's call, v309, a shaken branch's, v311, and a plant grown over its ground, v317: what it calls to and where, for the "ไปช่วย" chip) */
   to?: { hook: string; x: number; y: number } | null;
   portrait: { look: string | null; expression: string; held?: Stack | null; wet?: boolean };
 }
@@ -22,6 +22,8 @@ export function announcementText(event: TownAnnouncement, th: boolean): string {
     case "giant": return th ? `${event.name} ขอคนช่วยช้อนปลายักษ์: ${event.subject}` : `${event.name} needs a netter for a giant fish: ${event.subject}`;
     // (a shaken branch's call, v311: somebody to hold the sheet under it)
     case "shake": return th ? `${event.name} ขอคนช่วยถือผ้ารองแมลง: ${event.subject}` : `${event.name} needs someone to hold the sheet: ${event.subject}`;
+    // (a call to pull a plant grown over its ground, v317: the subject says which and how large)
+    case "pull": return th ? `${event.name} ขอคนช่วยถอน${event.subject}` : `${event.name} needs hands to pull a giant plant: ${event.subject}`;
     // (a kind this page has no words for, from a later one: its own words, never nothing)
     default: return `${event.name} ${event.subject}`;
     case "forge": return th ? `${event.name} ตีบวก ${item} +${event.level} สำเร็จ!` : `${event.name} forged ${item} to +${event.level}!`;

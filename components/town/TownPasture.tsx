@@ -259,6 +259,7 @@ export default function TownPasture(props: PastureProps) {
   const fontRef = useRef("");
   /** Each animal's view (settled, its stage, hunger, rounds), worked out once a second, not every frame. */
   const views = useRef(new Map<string, { at: number; key: string; v: ReturnType<typeof viewOf> }>());
+  const bodiesKnown = useRef(new Map<string, number | undefined>()), swelled = useRef(new Map<string, number>());
   /** (`next dev`: where each animal was last drawn, for the scripts that look for one) */
   const lastSpots = useRef(new Map<string, { x: number; y: number; inside: number; owner: string; species: string }>());
   useEffect(() => {
@@ -434,8 +435,14 @@ export default function TownPasture(props: PastureProps) {
         // (a sheep after its shearing looks shorn until half its fleece has grown again)
         const shorn = a.species === "sheep" && st === "adult" && v.ready === 0 && v.round < 0.5;
         const look = { species: a.species, breed: a.breed, stage: st, sex: a.sex };
-        things.push({ depth: spot.x + spot.y, draw: () => drawAnimal(ctx, k, { ...look, pose: spot.pose, right: spot.right, back: spot.back, shorn, seed: hashStr(a.id) % 10_000, body: spot.inside >= 0 ? Math.min(a.body ?? 1, 1.35) : a.body, gold: a.gold }, c, s, px, tick, still) });
-        const box = animalSize(k, look);
+        // (its size, a cramped one inside a barn; the moment it is told of it, it swells to it with a ring of light, and only on a page that saw it without)
+        const fullBody = spot.inside >= 0 ? Math.min(a.body ?? 1, 1.35) : a.body ?? 1;
+        if (a.body !== undefined && bodiesKnown.current.has(a.id) && bodiesKnown.current.get(a.id) === undefined) swelled.current.set(a.id, clock);
+        bodiesKnown.current.set(a.id, a.body);
+        const since = clock - (swelled.current.get(a.id) ?? -1e9), swelling_ = !still && since < 1600, u = Math.min(1, since / 900), ease = 1 + 2.2 * (u - 1) ** 3 + 1.2 * (u - 1) ** 2, shownBody = swelling_ ? 1 + (fullBody - 1) * ease : fullBody;
+        if (swelling_) things.push({ depth: spot.x + spot.y - 0.01, draw: () => { const f = Math.min(1, since / 1600), r = (18 + 34 * fullBody * f) * s; ctx.save(); ctx.globalAlpha = (1 - f) * 0.8; ctx.strokeStyle = a.gold ? "#ffe07a" : "#fff3c4"; ctx.lineWidth = Math.max(1, 3 * s * (1 - f)); ctx.beginPath(); ctx.ellipse(c.x, c.y, r, r * 0.5, 0, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); } });
+        things.push({ depth: spot.x + spot.y, draw: () => drawAnimal(ctx, k, { ...look, pose: spot.pose, right: spot.right, back: spot.back, shorn, seed: hashStr(a.id) % 10_000, body: shownBody, gold: a.gold }, c, s, px, tick, still) });
+        const box0 = animalSize(k, look), box = { w: box0.w * fullBody, h: box0.h * fullBody };
         const care = !mine && mayCare(holder, me);
         if (mine || care) out.push({ kind: "animal", id: a.id, x0: c.x - (box.w / 2 + 6) * s, y0: c.y - (box.h + 8) * s, x1: c.x + (box.w / 2 + 6) * s, y1: c.y + 6 * s });
         // bubbles over mine and those I may care for; a name over mine

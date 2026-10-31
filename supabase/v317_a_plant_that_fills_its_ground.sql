@@ -13,6 +13,9 @@
 --     is set ahead to the plant's end, and a trigger on town_beds keeps it there against every other deed's "now".
 --   * public.town_giant_pull: as v307, with `dig` (its keeper alone, no sale) and, by the plant's size, the hands it
 --     needs before it can start, the most in its crew, how many pulling one half-swing are worth the 3, and its roots' hold.
+--     A call at one grown is the town's news, once in ten minutes for a plant, as a giant fish's is (the kind `pull`,
+--     with its "ไปช่วย"), for a crew of six is not found by standing there. Only its root's copy holds a call and a go:
+--     town.garden_spread no longer writes every plot of the square for each report of a go.
 --   * town.pick: one grown is sold whole on the spot, once (town.sale_now, the coins written on its pick's deed), and
 --     town.row_for leaves it out of a sickle's row, so that every such sale goes through town_tend. One that began on
 --     one plot gives its own fruits; a rank-7 one keeps its six times.
@@ -31,7 +34,9 @@ do $guard$ begin
      or to_regprocedure('town.pick(text,jsonb,jsonb,boolean,text,bigint,text)') is null or to_regprocedure('town.row_for(text,jsonb,jsonb,jsonb,text,bigint,text)') is null
      or to_regprocedure('town.twice_wanted(text,jsonb,bigint)') is null or to_regprocedure('public.town_tend(integer,integer,jsonb,boolean)') is null
      or to_regprocedure('town.deed_th(text)') is null or to_regprocedure('town.animal_settle(jsonb,double precision,jsonb,boolean,jsonb)') is null
-    then raise exception 'v317: run the farm''s migrations, v291 and v307 first'; end if;
+     or to_regprocedure('town.garden_spread()') is null or to_regprocedure('public.town_announcements_v309(bigint,text)') is null
+     or to_regprocedure('town.announce(uuid,text,text,integer,text,boolean)') is null
+    then raise exception 'v317: run the farm''s migrations, v291, v307 and v311 first'; end if;
 end $guard$;
 
 -- ── 1. The steps: lib/town/giant-sizes' SIZES and lib/town/giant-pull's needsOf ──
@@ -93,6 +98,11 @@ begin
      'case when did->>''deed'' = ''pick'' then (did->''got''->0->>1)::numeric else 1 end,
       -- (v317: what the relatives paid for one sold whole)
       case when did->>''deed'' = ''pick'' and jsonb_typeof(plot->''plant''->''size'') = ''object'' then greatest(0, (after->>''coins'')::numeric - (purse->>''coins'')::numeric) else 0 end,'],
+    ['town.garden_spread()', ' if tg_op=''UPDATE'' then before_:=old.plant; end if;',
+     ' if tg_op=''UPDATE'' then before_:=old.plant; end if;
+ -- (v317: a call, a go and what quality_keep settles with them are read at its root alone: no plot of its square is written for them)
+ if tg_op=''UPDATE'' and new.soil is not distinct from old.soil and new.damp is not distinct from old.damp and new.plant is not null and before_ is not null
+    and (new.plant - ''pull'' - ''q'' - ''hg'' - ''hs'' - ''called'') = (before_ - ''pull'' - ''q'' - ''hg'' - ''hs'' - ''called'') then return new; end if;'],
     ['town.deed_th(text)', 'when ''giant_help'' then', 'when ''plant_grow'' then ''ปล่อยผักให้โตเต็มพื้นที่'' when ''plant_gold'' then ''ผักกลายพันธุ์เป็นทองคำ'' when ''giant_help'' then'],
     ['town.animal_settle(jsonb,double precision,jsonb,boolean,jsonb)', '  g jsonb; out_ boolean; day_end double precision;',
      '  rear_ jsonb := case when jsonb_typeof(p_a->''rearing'') = ''object'' then p_a->''rearing'' end; fin_ jsonb := ''{}''::jsonb;
@@ -122,6 +132,22 @@ begin
     else raise exception 'v317: % has % of [%], not 1: rebuild v317', c[1], n, left(c[2], 60); end if;
   end loop;
 end $$;
+
+-- ── The town's news of a call: a new kind, with its way there; the pages from before v309 have no words for it ──
+alter table public.town_announcements drop constraint if exists town_announcements_kind_check;
+alter table public.town_announcements add constraint town_announcements_kind_check
+  check (kind in ('forge', 'rank', 'legend', 'forest', 'recipe', 'cross', 'depth', 'bridge', 'lamps', 'admin', 'casino', 'giant', 'shake', 'pull'));
+alter table public.town_announcements drop constraint if exists town_announcements_toward_check;
+alter table public.town_announcements add constraint town_announcements_toward_check
+  check (toward is null or (kind in ('giant', 'shake', 'pull') and jsonb_typeof(toward) = 'object'));
+create or replace function public.town_announcements_v299(p_after bigint default null, p_look text default null) returns jsonb
+language sql security definer set search_path = '' as $$
+  select p.page || jsonb_build_object('events', coalesce((select jsonb_agg(e.value order by e.ord)
+    from jsonb_array_elements(p.page -> 'events') with ordinality e(value, ord) where e.value ->> 'kind' not in ('giant', 'shake', 'pull')), '[]'::jsonb))
+  from (select public.town_announcements_v309(p_after, p_look) as page) p
+$$;
+revoke all on function public.town_announcements_v299(bigint, text) from public, anon, authenticated;
+grant execute on function public.town_announcements_v299(bigint, text) to authenticated;
 
 -- ── 3. What it comes to: lib/town/giant-sizes' saleNow, and the purse it goes into ──
 create or replace function town.sale_now(p_key text, p_plant jsonb, p_now bigint, p_salt text)
@@ -325,6 +351,7 @@ declare
   mine_ jsonb;
   helped_ jsonb;
   needs_ jsonb;
+  event_ text;
   owner_ text;
   go_ bigint;
   ends_ bigint;
@@ -374,6 +401,14 @@ begin
     pull_ := jsonb_build_object('by', me::text, 'at', now_,
       'crew', case when pull_ is not null and go_ > 0 and pull_->>'by' = me::text and now_ <= ends_ + 180000 then crew_ else jsonb_build_array(me::text) end,
       'go', 0, 'hits', '{}'::jsonb, 'paid', '[]'::jsonb, 'out', 0, 'bonus', 0, 'helped', '[]'::jsonb);
+    -- (one grown: the town's news, once in ten minutes for a plant, in its own words and with its way there)
+    if jsonb_typeof(p_->'size') = 'object' and now_ - coalesce((p_->>'called')::bigint, 0) >= 600000 then
+      event_ := 'pull:' || key_ || ':' || now_;
+      perform town.announce(me, 'pull', (case p_->>'crop' when 'pumpkin' then 'ฟักทอง' when 'carrot' then 'แครอท' when 'daikon' then 'หัวไชเท้า' when 'cabbage' then 'ผักกาดขาว' when 'taro' then 'เผือก' else p_->>'crop' end)
+        || 'ยักษ์ ' || (p_->'size'->>'n') || '×' || (p_->'size'->>'n'), 0, event_, false);
+      update public.town_announcements a set toward = jsonb_build_object('hook', key_, 'x', p_x, 'y', p_y) where a.event_key = event_;
+      p_ := p_ || jsonb_build_object('called', now_);
+    end if;
   elsif p_action = 'dig' then
     -- (only one grown over its ground, whose crew cannot be found: its fruits as any plant's, no sale; a rank-7 giant is pulled alone as ever)
     if not may_ then return town.answer(me, town.no('theirs')); end if;
