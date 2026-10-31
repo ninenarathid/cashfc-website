@@ -2220,7 +2220,7 @@
   "mounts": 174,
   "minions": 271,
   "rare": null,
-  "level": 76,
+  "level": 80,
   "cc": [
    true,
    true,
@@ -2251,7 +2251,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-30"
+  "chg": "2026-10-31"
  },
  "12478532": {
   "name": "Hakuryu Flare",
@@ -2299,7 +2299,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 38,
+  "level": 26,
   "cc": [
    true,
    true,
@@ -2346,7 +2346,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-30"
+  "chg": "2026-10-31"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -2526,7 +2526,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 82,
+  "level": 75,
   "cc": [
    false,
    false,
@@ -2553,7 +2553,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-10-30"
+  "chg": "2026-10-31"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -5424,7 +5424,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5448,7 +5448,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-30"
+  "chg": "2026-10-31"
  },
  "29090821": {
   "name": "Amber Levana",
@@ -8379,7 +8379,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 86,
+  "level": 88,
   "cc": [
    false,
    false,
@@ -8392,7 +8392,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-30"
+  "chg": "2026-10-31"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -8765,7 +8765,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 84,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8785,7 +8785,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-30"
+  "chg": "2026-10-31"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -9011,8 +9011,8 @@
   "name": "Peace Violet",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 30,
+  "minions": 66,
   "rare": null,
   "level": 100,
   "cc": null,
@@ -9021,7 +9021,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-30"
+  "chg": "2026-10-31"
  },
  "61748681": {
   "name": "Qzarel Lumina",

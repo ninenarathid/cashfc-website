@@ -1,6 +1,20 @@
 {
  "events": [
   {
+   "date": "2026-10-31",
+   "type": "level_100",
+   "id": 8286372,
+   "name": "Aloha Banana",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-10-31",
+   "type": "level_100",
+   "id": 60429500,
+   "name": "Janna Minerva",
+   "text": "reached level 100 on Pictomancer!"
+  },
+  {
    "date": "2026-10-30",
    "type": "new_member",
    "id": 42019777,
@@ -1385,20 +1399,6 @@
    "id": 58202955,
    "name": "Trevas Aka",
    "text": "reached level 100 on Astrologian!"
-  },
-  {
-   "date": "2026-10-16",
-   "type": "level_100",
-   "id": 60972300,
-   "name": "Mizuki Sekine",
-   "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-10-16",
-   "type": "job_up",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "is now a Legendary Paladin"
   }
  ]
 }
