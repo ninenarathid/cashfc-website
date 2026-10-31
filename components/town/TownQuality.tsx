@@ -146,9 +146,10 @@ export function QualityInspector({ plant, now, rains, th, onClose, onBed, onGrow
   return (
     // (never taller than the room under the HUD's top plaque: on a short phone it scrolls rather than cover the clock)
     <section data-quality-inspector style={{ maxHeight: "min(46rem, calc(100dvh - 10rem))" }}
-             className="tk tk-plate pointer-events-auto flex w-[min(440px,calc(100vw-16px))] flex-col gap-2 overflow-y-auto overscroll-contain p-3 text-ui text-ink sm:gap-2.5 sm:p-4"
+             className="tk tk-plate pointer-events-auto flex w-[min(440px,calc(100vw-16px))] flex-col overflow-hidden p-1.5 text-ui text-ink"
              aria-label={th ? `Quality ของ${name}` : `${name}'s Quality`}>
-      <header className="flex items-center gap-2">
+      <div className="flex min-h-0 flex-col gap-2 sm:gap-2.5 overflow-y-auto overscroll-contain p-1.5 sm:p-2.5">
+      <header className="sticky -top-1.5 z-10 -mx-1 flex items-center gap-2 bg-[#5f3b1d] px-1 sm:-top-2.5">
         <TownIcon name={plant.crop as IconName} size={30} />
         <h2 className="min-w-0 flex-1 font-display text-title font-semibold">{name}</h2>
         <span className="text-meta text-muted" data-quality-state>{swelling ? (th ? `กำลังโตเป็น ${plant.size!.n}×${plant.size!.n}` : `Growing to ${plant.size!.n}×${plant.size!.n}`) : ripe ? (th ? "สุกแล้ว" : "Ripe") : th ? `โต ${shownGrowth(seen.grown)}%` : `${shownGrowth(seen.grown)}% grown`}</span>
@@ -208,6 +209,7 @@ export function QualityInspector({ plant, now, rains, th, onClose, onBed, onGrow
       </div>
       {notes?.map((n) => <p key={n} className="rounded-md border border-[#a8c583]/60 bg-[#304323]/60 px-3 py-1.5 text-meta text-[#e1f1c9]" data-quality-note>{n}</p>)}
       {onBook && book ? <button type="button" onClick={onBook} data-quality-book className="pressable tk tk-btn-wood flex min-h-11 items-center gap-2 px-3 text-meta font-semibold"><TownIcon name="gardenNotebook" size={18} />{th ? `สมุดทดลองสวน · ${book} เรื่อง` : `Garden experiments · ${book}`}</button> : null}
+      </div>
     </section>
   );
 }
@@ -244,9 +246,10 @@ export function QualityBed({ at, plots, now, rains, th, onClose }: { at: string;
   const name = (crop: string) => ITEMS[crop as ItemId]?.name[th ? "th" : "en"] ?? crop;
   const seenMine = mine ? seen.get(pick) : null;
   return (
-    <section data-quality-bed className="tk tk-plate pointer-events-auto flex w-[min(440px,calc(100vw-16px))] flex-col gap-2 overflow-y-auto overscroll-contain p-3 text-ui text-ink sm:p-4"
+    <section data-quality-bed className="tk tk-plate pointer-events-auto flex w-[min(440px,calc(100vw-16px))] flex-col overflow-hidden p-1.5 text-ui text-ink"
              style={{ maxHeight: "min(46rem, calc(100dvh - 10rem))" }} aria-label={th ? "ภาพรวมแปลง" : "The bed at a glance"}>
-      <header className="flex items-center gap-2">
+      <div className="flex min-h-0 flex-col gap-2 overflow-y-auto overscroll-contain p-1.5 sm:p-2.5">
+      <header className="sticky -top-1.5 z-10 -mx-1 flex items-center gap-2 bg-[#5f3b1d] px-1 sm:-top-2.5">
         <h2 className="min-w-0 flex-1 font-display text-title font-semibold">{th ? "ภาพรวมแปลง" : "The bed"}</h2>
         <button type="button" onClick={onClose} aria-label={th ? "ปิด" : "Close"} className="pressable tk tk-btn-wood grid size-11 shrink-0 place-items-center"><TownIcon name="close" size={16} /></button>
       </header>
@@ -284,6 +287,7 @@ export function QualityBed({ at, plots, now, rains, th, onClose }: { at: string;
         <b>{name(mine.crop)} · {th ? `คุณภาพ ${seenMine.range.lo}–${seenMine.range.hi}` : `Quality ${seenMine.range.lo}–${seenMine.range.hi}`}</b><br />
         {helpers.length ? helpers.map((h, i) => `${"①②③④⑤⑥⑦⑧"[i]} ${th ? ROLE[h.role].th : ROLE[h.role].en} ← ${name(h.crop)}`).join(" · ") : th ? "ยังไม่มีพืชช่วยต้นนี้ ▸ ปลูกพืชช่วยข้าง ๆ" : "No helper reaches it yet ▸ plant one beside it"}
       </div>}
+      </div>
     </section>
   );
 }
@@ -327,9 +331,10 @@ export function QualityGrow({ at, plots, now, rains, th, purse, onClose, onGo }:
   const cell = box ? (box - 12 - 3 * (side - 1)) / side : 0;
   const facts: Array<[string, string]> = [[th ? "เมล็ดเพิ่ม" : "Seeds", `${seedsNeed} / ${seedsHave}`], [th ? "รออีก" : "Wait", hours >= 48 ? (th ? `${Math.round(hours / 24)} วัน` : `${Math.round(hours / 24)} d`) : th ? `${hours} ชม.` : `${hours} h`], [th ? "คนถอน" : "Hands", `${size.hands}`], [th ? "ขายได้" : "Sells for", lo === hi ? lo.toLocaleString() : `${lo.toLocaleString()}–${hi.toLocaleString()}`]];
   return (
-    <section data-quality-grow className="tk tk-plate pointer-events-auto flex w-[min(440px,calc(100vw-16px))] flex-col gap-2 overflow-y-auto overscroll-contain p-3 text-ui text-ink sm:p-4"
+    <section data-quality-grow className="tk tk-plate pointer-events-auto flex w-[min(440px,calc(100vw-16px))] flex-col overflow-hidden p-1.5 text-ui text-ink"
              style={{ maxHeight: "min(46rem, calc(100dvh - 10rem))" }} aria-label={th ? "ปล่อยให้โต" : "Let it grow"}>
-      <header className="flex items-center gap-2">
+      <div className="flex min-h-0 flex-col gap-2 overflow-y-auto overscroll-contain p-1.5 sm:p-2.5">
+      <header className="sticky -top-1.5 z-10 -mx-1 flex items-center gap-2 bg-[#5f3b1d] px-1 sm:-top-2.5">
         <TownIcon name={crop as IconName} size={30} />
         <h2 className="min-w-0 flex-1 font-display text-title font-semibold">{th ? "ปล่อยให้โต" : "Let it grow"}</h2>
         <button type="button" onClick={onClose} aria-label={th ? "ปิด" : "Close"} className="pressable tk tk-btn-wood grid size-11 shrink-0 place-items-center"><TownIcon name="close" size={16} /></button>
@@ -374,7 +379,8 @@ export function QualityGrow({ at, plots, now, rains, th, purse, onClose, onGo }:
         {facts.map(([label, value]) => <div key={label} className="tk tk-slot flex flex-col justify-center px-1 py-1"><dt className="text-[#ead9b4]">{label}</dt><dd className="font-data font-semibold text-ink">{value}</dd></div>)}
       </dl>
       {said && <p role="status" className="text-meta font-semibold text-[#ffd27a]" data-quality-grow-said>{said}</p>}
-      <div className="sticky -bottom-3 z-10 -mx-1 bg-[#5f3b1d] px-1 pb-1 pl-12 pt-1 sm:-bottom-4 sm:pl-1"><button type="button" disabled={!ready || busy} data-quality-grow-go onClick={() => { setBusy(true); setSaid(null); void onGo(chosen).then((why) => { setBusy(false); if (why) setSaid((GROW_REFUSED[why] ?? GROW_REFUSED.none)[th ? 0 : 1]); else onClose(); }); }} className={`pressable tk ${ready ? "tk-btn" : "tk-btn-wood opacity-70"} min-h-11 w-full px-3 font-display text-ui`}>{ready ? (th ? `ปล่อยให้โตเป็น ${chosen}×${chosen}` : `Grow to ${chosen}×${chosen}`) : th ? "ยังปล่อยให้โตไม่ได้" : "Not ready yet"}</button></div>
+      <div className="sticky -bottom-1.5 z-10 -mx-1 bg-[#5f3b1d] px-1 pb-1 pl-12 pt-1 sm:-bottom-2.5 sm:pl-1"><button type="button" disabled={!ready || busy} data-quality-grow-go onClick={() => { setBusy(true); setSaid(null); void onGo(chosen).then((why) => { setBusy(false); if (why) setSaid((GROW_REFUSED[why] ?? GROW_REFUSED.none)[th ? 0 : 1]); else onClose(); }); }} className={`pressable tk ${ready ? "tk-btn" : "tk-btn-wood opacity-70"} min-h-11 w-full px-3 font-display text-ui`}>{ready ? (th ? `ปล่อยให้โตเป็น ${chosen}×${chosen}` : `Grow to ${chosen}×${chosen}`) : th ? "ยังปล่อยให้โตไม่ได้" : "Not ready yet"}</button></div>
+      </div>
     </section>
   );
 }
@@ -394,9 +400,10 @@ export function FertChart({ th, onClose }: { th: boolean; onClose: () => void })
   });
   return (
     <section data-fert-chart style={{ maxHeight: "min(46rem, calc(100dvh - 10rem))" }}
-             className="tk tk-plate pointer-events-auto flex w-[min(520px,calc(100vw-16px))] flex-col gap-2 overflow-y-auto overscroll-contain p-3 text-ui text-ink sm:p-4"
+             className="tk tk-plate pointer-events-auto flex w-[min(520px,calc(100vw-16px))] flex-col overflow-hidden p-1.5 text-ui text-ink"
              aria-label={th ? "ตารางปุ๋ย" : "Fertiliser chart"}>
-      <header className="flex items-center gap-2">
+      <div className="flex min-h-0 flex-col gap-2 overflow-y-auto overscroll-contain p-1.5 sm:p-2.5">
+      <header className="sticky -top-1.5 z-10 -mx-1 flex items-center gap-2 bg-[#5f3b1d] px-1 sm:-top-2.5">
         <h2 className="min-w-0 flex-1 font-display text-title font-semibold">{th ? "ตารางปุ๋ย" : "Fertiliser chart"}</h2>
         <button ref={close} type="button" onClick={onClose} aria-label={th ? "ปิด" : "Close"} className="pressable tk tk-btn-wood grid size-11 shrink-0 place-items-center"><TownIcon name="close" size={16} /></button>
       </header>
@@ -443,6 +450,7 @@ export function FertChart({ th, onClose }: { th: boolean; onClose: () => void })
           </li>
         ))}
       </ul>
+      </div>
     </section>
   );
 }

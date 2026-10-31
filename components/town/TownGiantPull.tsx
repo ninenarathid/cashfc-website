@@ -389,7 +389,7 @@ export default function TownGiantPull({ keeper, th, at, name, people, sayPull, h
       {isCalling && <>
         <p className={s.note}>{th ? "ผักจะโยกซ้าย-ขวา ดึงเชือกฝั่งที่มันเอียงไปตอนเอียงสุด ดึงพร้อมกันได้แรงสามเท่า" : "It rocks left and right: pull the side it leans to, at its farthest. Together is three times the strength."}</p>
         <p className="mb-2 text-meta text-muted" data-giant-pull-hands={needs.hands}>{short > 0 ? (th ? `ต้องมีคนอย่างน้อย ${needs.hands} คน ขาดอีก ${short} คน` : `It takes at least ${needs.hands}: ${short} more`) : needs.crew <= crew.length ? (th ? "ทีมเต็มแล้ว · คนละแรง 1" : "The crew is full · 1 stamina each") : th ? `คนใกล้ ๆ มาช่วยได้อีก ${needs.crew - crew.length} คน · คนละแรง 1` : `${needs.crew - crew.length} more can help · 1 stamina each`}</p>
-        {grower ? <div className={s.row}>
+        {grower ? <div className={`${s.row} pl-11 sm:pl-0`}>
           <button type="button" data-giant-pull-go className={`${short > 0 ? WOOD : GREEN} flex-1`} disabled={busy || short > 0} onClick={() => void send("go")}><PullIcon name="pullGloves" size={22} />{short > 0 ? (th ? "รอคนครบ" : "Waiting for hands") : th ? "เริ่มดึง!" : "Start pulling!"}</button>
           <button type="button" className={WOOD} disabled={busy} onClick={() => void send("leave")}>{th ? "ยกเลิก" : "Cancel"}</button>
         </div> : <div className={s.row}>
