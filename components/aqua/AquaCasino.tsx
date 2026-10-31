@@ -10,7 +10,7 @@ import "@/components/casino/casino.css";
 /**
  * The Popoto Casino on Aqua's page (the owner, 2026-10-26: "จะสามารถเปิดให้ใช้งานได้ใน page admin aqua"): who may go in
  * and spin (nobody, the admins trying it, everybody: v299's `casino_live_access`), the admins' trial wiped, the newest
- * winners with their 1-1 threads, and the way to the desk where the prizes and their odds are set. Members walk in by
+ * winners with their 1-1 threads (and every one before them, read back on asking), and the way to the desk where the prizes and their odds are set. Members walk in by
  * the kura's door in the town; the door opens on their page within a minute of a change here. Read again every fifteen
  * seconds while in sight, so that another admin's spins and switches show.
  */
@@ -82,7 +82,7 @@ export default function AquaCasino({ supabase }: { supabase: SupabaseClient }) {
                   className="pressable min-h-11 rounded-lg border border-line bg-card px-3 text-ui text-ink disabled:opacity-50">ล้างผลทดสอบ</button>
         </div>
         {said && <p role="status" className="mt-2 text-meta text-jade">{said}</p>}
-        <CasinoWinners winners={state!.winners ?? []} few={5} />
+        <CasinoWinners winners={state!.winners ?? []} few={5} client={supabase} />
       </>}
       <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-ui">
         <Link href="/admin/aqua/casino-live" className="text-accent">ตั้งค่ารางวัล โอกาส และงบ ↗</Link>

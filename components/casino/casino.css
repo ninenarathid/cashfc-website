@@ -295,3 +295,5 @@
 .casino-town-layer :is(.casino-console,.casino-feed,.casino-desk-in-room,.casino-mine)>h2{position:sticky;top:0;z-index:2;background:#f5dab7;min-height:40px;padding:6px 44px 6px 0;margin-top:-6px}
 .casino-cashout-label{font-size:11px;color:var(--color-muted);margin:0 0 4px}
 .casino-town-layer .casino-lower>.casino-panel-close{z-index:3}
+/* every win read back on Aqua's page: a box of its own, so that the page does not go on for ever */
+.casino-winners-all{max-height:min(60vh,560px);overflow-y:auto;overscroll-behavior:contain}
