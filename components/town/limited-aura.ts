@@ -294,7 +294,7 @@ function moonBehind(ctx: CanvasRenderingContext2D, w: Wearer) {
 
 function moonFront(ctx: CanvasRenderingContext2D, w: Wearer) {
   const ramp = w.dye.aura, breath = 0.8 + Math.sin(w.now * 0.0017) * 0.12, hipX = w.x - 9 * w.s, hipY = w.y - (w.sat ? 8 : 15) * w.s;
-  glow(ctx, ramp[2], hipX, hipY, 42 * w.s, 42 * w.s, breath * (0.28 + w.night * 0.6));
+  glow(ctx, ramp[1], hipX, hipY, 42 * w.s, 42 * w.s, breath * (0.26 + w.night * 0.34));
   ctx.save();
   ctx.globalCompositeOperation = "lighter";
   for (let i = 0; i < 8; i++) {
@@ -323,11 +323,11 @@ function leaf(ctx: CanvasRenderingContext2D, w: Wearer, x: number, y: number, t:
 }
 
 function leavesBehind(ctx: CanvasRenderingContext2D, w: Wearer) {
-  glow(ctx, w.dye.aura[1], w.x, w.y - 2 * w.s, 52 * w.s, 16 * w.s, 0.28 + w.night * 0.3);
+  glow(ctx, w.dye.aura[2], w.x, w.y - 2 * w.s, 60 * w.s, 20 * w.s, 0.34 + w.night * 0.42);
 }
 
 function leavesFront(ctx: CanvasRenderingContext2D, w: Wearer) {
-  const seed = seedOf(w.id), count = w.sat ? 2 : 4;
+  const seed = seedOf(w.id), count = w.sat ? 3 : 6;
   for (let i = 0; i < count; i++) {
     const t = frac(w.now / 3400 + i / count + seed);
     const x = w.x + Math.sin(i * 4.2) * 18 * w.s + Math.sin(t * Math.PI * 3 + i) * 9 * w.s;
@@ -336,9 +336,9 @@ function leavesFront(ctx: CanvasRenderingContext2D, w: Wearer) {
   }
   for (const f of footfalls(w)) {
     const t = (w.now - f.at) / 1400;
-    for (let i = 0; i < 2; i++) {
-      const dir = (i ? 1 : -1) * (f.side || 1);
-      leaf(ctx, w, f.x + dir * t * 14 * w.s, f.y - Math.sin(t * Math.PI) * 12 * w.s, t, 1 - t, i);
+    for (let i = 0; i < 3; i++) {
+      const dir = (i - 1 || 0.4) * (f.side || 1);
+      leaf(ctx, w, f.x + dir * t * 14 * w.s, f.y - Math.sin(t * Math.PI) * (12 + i * 3) * w.s, t, 1 - t, i);
     }
   }
 }
@@ -349,7 +349,7 @@ export const auraState = (): AuraState => ({ steps: [], lastStep: -1 });
 export function auraLights(w: Wearer): Array<{ x: number; y: number; rgb: string; reach: number; strong: number }> {
   const rgb = hexRgb(w.dye.aura[2]), breath = 0.85 + Math.sin(w.now * 0.002) * 0.15;
   if (w.kind === "spirits") return [{ x: w.x, y: w.y - 14 * w.s, rgb, reach: 78, strong: breath }, { x: w.x, y: w.y, rgb, reach: 44, strong: 0.7 }];
-  if (w.kind === "moon") return [{ x: w.x - 9 * w.s, y: w.y - (w.sat ? 8 : 15) * w.s, rgb, reach: 70, strong: breath }];
+  if (w.kind === "moon") return [{ x: w.x - 9 * w.s, y: w.y - (w.sat ? 8 : 15) * w.s, rgb, reach: 70, strong: 0.65 * breath }];
   return [{ x: w.x, y: w.y - 12 * w.s, rgb, reach: 42, strong: 0.5 * breath }];
 }
 

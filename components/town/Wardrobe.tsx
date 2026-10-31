@@ -176,7 +176,7 @@ function DyeRow({ label, list, value, kit, th, body, lookFor, onPick }: {
                          const { w, h } = kit.headSize(l), k = Math.min(W / w, H / h);
                          kit.drawHead(ctx, l, Math.round((W - w * k) / 2), Math.round((H - h * k) / 2), k);
                        }} />
-              <span className="line-clamp-2 text-[11px] leading-tight">{th ? dye.th : dye.en}</span>
+              <span className="text-meta leading-tight">{th ? dye.th : dye.en}</span>
             </button>
           );
         })}
