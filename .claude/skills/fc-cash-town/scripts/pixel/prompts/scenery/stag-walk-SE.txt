@@ -1,0 +1,11 @@
+The attached picture is a sprite sheet of six frames in one row from a cozy 2D town game: a moss stag at a gallop. Redraw the same sheet with every frame in the same column on the canvas, at the same size and on the same ground line, with the same chunky pixel size, the same thick dark outline and the same cute style. The stag keeps exactly its head, face, eyes, antlers, the flowers and moss on them, its green moss saddle with the two pink flowers, its tail, its colours, its markings and its body proportions in every frame, turned three-quarters towards the viewer and facing the lower right, head on the right. Each frame stays inside its own column, with clear fully transparent gaps between neighbouring frames and nothing clipped at the canvas edges.
+
+Change only this: instead of galloping, the stag walks calmly and then stands. The moss saddle stays level and at the same height in every frame, its belly never lower than in the first frame of the attached picture, its neck held upright, and only the legs and the tail move, except for the head and ears in frame 6:
+1) walking, the near front leg stepping forward and straight, the near hind leg stretched back, the far legs passing under the body, all hooves on or just above the ground;
+2) walking, the near legs coming together under the body, the far front leg lifted a little and bent;
+3) walking, the far front leg stepping forward and straight, the far hind leg stretched back, the near legs passing under the body;
+4) walking, the far legs coming together under the body, the near front leg lifted a little and bent;
+5) standing still on four straight, uncrossed legs, all hooves planted, its tail down;
+6) standing still exactly as in the fifth frame, its head a little higher, both ears pricked up, its tail lifted a little.
+
+All six frames in one row, evenly spaced, not overlapping, with clear empty space between them, standing on the same ground line. Use the same pixel size as the attached picture: do not make the pixels smaller or larger. Crisp pixel art with hard square pixel edges, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground, no shadows, no text, no labels.

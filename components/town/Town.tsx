@@ -89,7 +89,8 @@ import type { PastureHooks } from "./TownPasture";
 import type { AnimalsView } from "./TownAnimals";
 import { POPOTO_ASK, POPOTO_BARN, POPOTO_SOON, POPOTO_WHO, popotoChat, popotoHello } from "@/lib/town/pasture-talk";
 import { POPOTO_TALK, loadPastureArt } from "@/lib/town/pasture-art";
-import { RAM, riderOf, runOf } from "@/lib/town/riding";
+import { STAG_SEAT, drawStag, loadStagArt, riderLift } from "@/lib/town/stag-art";
+import { RAM, STAG, riderOf, runOf } from "@/lib/town/riding";
 import { drawRam } from "./pasture-draw";
 import { wagonPlace, wagonRun } from "@/lib/town/seats";
 import SignIcon from "./SignIcon";
@@ -494,6 +495,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // ── the pasture ── (the cloud ram's pictures are the pasture's sheets: fetched the first time a ram is drawn, on any map)
   const ramArt = useRef<SceneryKit | null | undefined>(undefined);
   const ramKit = () => { if (ramArt.current === undefined) { ramArt.current = null; void loadPastureArt().then((k) => { ramArt.current = k; }); } return ramArt.current; };
+  // ── gifts: forest ── (the moss stag's pictures: a sheet of their own, fetched the first time a stag is drawn, on any map; its icon stands in until then)
+  const stagArt = useRef<SceneryKit | null | undefined>(undefined);
+  const stagKit = () => { if (stagArt.current === undefined) { stagArt.current = null; void loadStagArt().then((k) => { stagArt.current = k; }); } return stagArt.current; };
   /** The site's own popoto (components/ui/PopotoIcon), for signs drawn on the map. */
   const popotoImg = useRef<HTMLImageElement | null>(null);
   useEffect(() => { const i = new Image(); i.src = popotoArt.src; popotoImg.current = i; }, []);
@@ -3143,7 +3147,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
    * behind its member, catches up when they stand, and is beside them at once after a gate. Nothing of the game hangs
    * on where it is: each page walks the familiars it draws by itself.
    */
-  function petOf(a: Avatar, dt: number): { at: Vec; right: boolean; moving: boolean; name: IconName; swims?: boolean; perched?: boolean } | null {
+  function petOf(a: Avatar, dt: number): { at: Vec; right: boolean; moving: boolean; name: IconName; swims?: boolean; perched?: boolean; back?: boolean } | null {
     const name = a.info.pet;
     if (!name || !name.startsWith("fam") || (!(name in ICON_ATLAS.icons) && name !== RAM) || a.byeAt !== undefined) { pets.current.delete(a.info.id); return null; }
     // ── gifts: forest ── (a moss stag is ridden: it is under its member and drawn with them, see drawAvatar; here only
@@ -3177,7 +3181,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     }
     const sent = a.info.id === me.id && petErrand.current && performance.now() < petErrand.current.until ? petErrand.current : null;
     const goal = sent ?? a.pos;
-    const dx = goal.x - p.x, dy = goal.y - p.y, d = Math.hypot(dx, dy), gap = sent ? 0.08 : 0.72;
+    const dx = goal.x - p.x, dy = goal.y - p.y, d = Math.hypot(dx, dy), gap = sent ? 0.08 : name === STAG ? 1.15 : 0.72;
     if (sent && d <= gap + 0.05) sent.until = Math.min(sent.until, performance.now() + 160);
     let moving = false;
     if (d > gap) {
@@ -3187,13 +3191,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       // (which way it looks: the way it goes across the screen)
       if (Math.abs(dx - dy) > 0.05) p.right = dx - dy > 0;
     }
-    return { at: { x: p.x, y: p.y }, right: p.right, moving, name: name as IconName };
+    return { at: { x: p.x, y: p.y }, right: p.right, moving, name: name as IconName, ...(name === STAG ? { back: facings.current.get(a.info.id)?.view === "back" } : {}) };
   }
   /** A familiar at its place: its picture out of the icons', turned the way it goes, hopping as it runs (a butterfly flies and never lands). */
-  function drawPet(ctx: CanvasRenderingContext2D, pet: { at: Vec; right: boolean; moving: boolean; name: IconName; swims?: boolean; perched?: boolean }, now: number) {
+  function drawPet(ctx: CanvasRenderingContext2D, pet: { at: Vec; right: boolean; moving: boolean; name: IconName; swims?: boolean; perched?: boolean; back?: boolean }, now: number) {
     const img = iconImg.current;
     // ── the pasture ── (a cloud ram not ridden, its rider sat down: at their heels, smaller; its stand-in only while its picture comes)
     if ((pet.name as string) === RAM) { const c = project({ x: pet.at.x + 0.5, y: pet.at.y + 0.5 }); if (onScreen(c)) drawRam(ctx, ramKit(), c, cam.current.s * 0.6, pet.right, 0, now, pet.moving && !reducedRef.current); return; }
+    // ── gifts: forest ── (a moss stag walked beside: the same stag at the same size as under its rider, walking at their pace)
+    const stag = pet.name === STAG ? stagKit() : null;
+    if (stag) { const c = project({ x: pet.at.x + 0.5, y: pet.at.y + 0.5 }); if (onScreen(c)) drawStag(ctx, stag, c, cam.current.s, pet.right, pet.moving && !reducedRef.current ? "walk" : "idle", reducedRef.current ? 0 : now, !!pet.back); return; }
     if (!img?.complete || !img.naturalWidth) return;
     const c = project({ x: pet.at.x + 0.5, y: pet.at.y + 0.5 });
     if (!onScreen(c)) return;
@@ -3248,10 +3255,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   function rainGathers(a: Avatar): boolean { return isBucket(a.info.hold) && !a.info.wet && SKIES.raining(); }
 
   // ── gifts: forest ──
-  /** A moss stag under its rider (lib/town/riding): its picture out of the icons', bigger than at the heels, turned the way they go, stepping as it runs. */
-  function drawSteed(ctx: CanvasRenderingContext2D, a: Avatar, at: Vec, hop: number) {
+  /** Whose stride it is: two stags side by side do not step as one. */
+  const stagClock = (a: Avatar, now: number) => now + a.info.id.charCodeAt(0) * 37;
+  /** A moss stag under its rider (lib/town/riding): its gallop while they go, standing while they stop, turned the way they go; its picture out of the icons' only while its own sheet comes. */
+  function drawSteed(ctx: CanvasRenderingContext2D, a: Avatar, at: Vec, hop: number, now: number) {
     // ── the pasture ── (a cloud ram: its own picture; the stand-in only while the pasture's sheets come, components/town/pasture-draw)
     if (a.info.pet === RAM) { drawRam(ctx, ramKit(), at, cam.current.s * 1.05, pets.current.get(a.info.id)?.right ?? true, hop, performance.now(), a.path.length > 0 && !reducedRef.current, 1, facings.current.get(a.info.id)?.view === "back"); return; }
+    const stag = stagKit();
+    if (stag) { const still = reducedRef.current; drawStag(ctx, stag, at, cam.current.s, pets.current.get(a.info.id)?.right ?? true, a.path.length > 0 && !still ? "run" : "idle", still ? 0 : stagClock(a, now), facings.current.get(a.info.id)?.view === "back"); return; }
     const img = iconImg.current, cell = ICON_ATLAS.icons["famStag" as IconName];
     if (!img?.complete || !img.naturalWidth || !cell) return;
     const [x, y, w, h] = cell, sc = cam.current.s, k = STEED.k * sc, right = pets.current.get(a.info.id)?.right ?? true;
@@ -3558,9 +3569,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const behindOf = riderOf(a.info.seat), wagonOf = runOf(a.info.seat), ram = a.info.pet === RAM;
     const foot = mapRef.current ? project(a.pos) : spotOf(a), riding = rides(a.info.pet, sitting(a), a.info.afoot) && (ram || "famStag" in ICON_ATLAS.icons);
     const perched = riding || !!behindOf || !!wagonOf;
-    const ride = riding ? (ram ? RAM_LIFT : STEED.lift) * k : behindOf ? RAM_LIFT * k : wagonOf ? WAGON_LIFT * k : 0;
+    const stag = riding && !ram ? stagKit() : null;
+    const ride = riding ? (ram ? RAM_LIFT : stag ? STAG_SEAT : STEED.lift) * k : behindOf ? RAM_LIFT * k : wagonOf ? WAGON_LIFT * k : 0;
     const carrier = behindOf ? (behindOf === sessionRef.current?.self.info.id ? sessionRef.current?.self : sessionRef.current?.avatars.get(behindOf)) : null;
-    const hop = (riding ? a.path.length > 0 : !!carrier?.path.length) && !reducedRef.current ? Math.abs(Math.sin(now / 105)) * 2.5 * k : 0;
+    const stepping = (riding ? a.path.length > 0 : !!carrier?.path.length) && !reducedRef.current;
+    // (on a stag, with its stride: the rider stays on its moss in every frame)
+    const hop = !stepping ? 0 : stag ? riderLift(stagClock(a, now)) * k : Math.abs(Math.sin(now / 105)) * 2.5 * k;
     // (behind the rider, the way they face; on the wagon's bed, each in their place along it)
     const run = wagonOf ? wagonRun(wagonOf) : null, place = run ? wagonPlace(run, a.info.id) : 0;
     const shift = behindOf ? ((pets.current.get(behindOf)?.right ?? true) ? -11 : 11) * k : run ? ((place % 4) - 1.5) * 9 * k : 0;
@@ -3582,7 +3596,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     else if (away) ctx.globalAlpha = 0.6;
 
     // A shadow (not on a bench: the bench has the ground), and a ring at the feet while they speak.
-    if (riding) drawSteed(ctx, a, foot, hop);
+    if (riding) drawSteed(ctx, a, foot, hop, now);
     else if (mapRef.current?.shadows !== false && !seatOf(a) && !tableSeatOf(a) && !behindOf && !wagonOf) {
       ctx.fillStyle = "rgba(0,0,0,0.32)";
       ctx.beginPath();

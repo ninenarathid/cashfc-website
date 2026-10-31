@@ -18,6 +18,9 @@
 //   node build-scenery.mjs --set pasture        the animal line's pasture (pasture-<hash>.png + pasture.json): its animals'
 //                                               frames (pasture-frames.mjs), buildings, things, Uncle Popoto and the
 //                                               three games' scenes and pieces, by lib/town/pasture-art.ts's names
+//   node build-scenery.mjs --set stag           the moss stag's own (stag-<hash>.png + stag.json): its gallop, walk and
+//                                               standing in two views, every frame stood on its moss saddle's middle, so
+//                                               that a rider laid there stays put (lib/town/stag-art.ts)
 //   node build-scenery.mjs --work <dir>         the sheets are another tree's (a worktree has no work folder of its own)
 //   node build-scenery.mjs --own-ground         the ground in the model's own textures, not the drawn ones (READY_TEX)
 //
@@ -47,7 +50,7 @@ const SET = argSet > 0 ? process.argv[argSet + 1] : "scenery";
 // (the pasture's animals are a picture a species, `pasture-<species>`: every look in two views with its loops is too
 // large for one picture a phone draws from)
 const ANIMAL_SETS = ["pasture-chicken", "pasture-duck", "pasture-sheep", "pasture-cow"];
-if (!["scenery", "forest", "kitchen", "mountain", "cave", /* felling */ "felling", "works", "lamps", "pasture", ...ANIMAL_SETS].includes(SET)) throw new Error(`no such set: ${SET}`);
+if (!["scenery", "forest", "kitchen", "mountain", "cave", /* felling */ "felling", "works", "lamps", "pasture", "stag", ...ANIMAL_SETS].includes(SET)) throw new Error(`no such set: ${SET}`);
 
 // [sheet, names, how]: "whole" keeps every shape on the sheet as one piece (the shop site and its
 // heaps); "hat" stands frames on their feet under the middle of their yellow hard hat, so a
@@ -250,6 +253,16 @@ const LAMPS = [
   ["scene-lamps-night", ["bloomShut", "bloomOpen", "shroom", "shroomGlow", "shroomOne", "wisp"]],
   ["scene-lamps-fete", ["feteString", "feteLantern", "twinkle"]],
 ];
+// ── the moss stag ── (the owner, 2026-10-31: "Gen ภาพมาใหม่ให้ดูดีขึ้น ภาพตอนวิ่ง หลายเฟรม"): six frames a sheet on a
+// 3840 canvas, cut at about 5 of the canvas to a pixel, finer than the model drew its outline, so that at the dolls' own
+// 0.67 a frame is the length a rider needs. "moss": the piece's point is the middle of the moss bed on its back.
+const STAG_FRAMES = (view, action) => action === "run" ? [0, 1, 2, 3, 4, 5].map((i) => `stag_${view}_run_${i}`) : [0, 1, 2, 3].map((i) => `stag_${view}_walk_${i}`).concat([`stag_${view}_idle_0`, `stag_${view}_idle_1`]);
+const STAG = [
+  ["stag-run-SE", STAG_FRAMES("SE", "run"), "moss", null, [4.8, 5.2]],
+  ["stag-walk-SE", STAG_FRAMES("SE", "walk"), "moss", null, [4.8, 5.2]],
+  ["stag-run-NE", STAG_FRAMES("NE", "run"), "moss", null, [4.8, 5.2]],
+  ["stag-walk-NE", STAG_FRAMES("NE", "walk"), "moss", null, [4.8, 5.2]],
+];
 // ── pasture ── The animal line's own (docs/plans/animals/ART-NEEDED.md; lib/town/pasture-art.ts names every piece): a
 // picture of its own, fetched only by whoever comes onto the farm. The animals are not here: their frames are
 // pasture-frames.mjs's (a gen.mjs base and PixelLab's frames of it), laid in after these.
@@ -387,6 +400,33 @@ function graded(src, own, share = 1) {
   }
   return { buf: out, gain };
 }
+/**
+ * A see-through speck inside a figure (the owner's rule: "ข้างในถมสีให้เต็ม"): an empty patch the figure closes in on every
+ * side, of `most` cells or fewer, takes the colour most of what surrounds it has. A real gap, between two legs, is larger.
+ */
+function closeSmallHoles(g, set, most = 8) {
+  const seen = new Set(), inside = (i) => i >= 0 && i < g.GW * g.GH;
+  const b = L.bbox(g, set);
+  for (let y = b.y0; y <= b.y1; y++) for (let x = b.x0; x <= b.x1; x++) {
+    const start = y * g.GW + x;
+    if (set.has(start) || seen.has(start)) continue;
+    const patch = [start]; let open = false;
+    seen.add(start);
+    for (let n = 0; n < patch.length; n++) {
+      const i = patch[n], px = i % g.GW, py = (i / g.GW) | 0;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const X = px + dx, Y = py + dy, j = Y * g.GW + X;
+        if (X < b.x0 || X > b.x1 || Y < b.y0 || Y > b.y1 || !inside(j)) { open = true; continue; }
+        if (!set.has(j) && !seen.has(j)) { seen.add(j); patch.push(j); }
+      }
+    }
+    if (open || patch.length > most) continue;
+    const near = new Map();
+    for (const i of patch) for (const j of [i - 1, i + 1, i - g.GW, i + g.GW]) if (set.has(j)) { const k = [g.c[j * 4], g.c[j * 4 + 1], g.c[j * 4 + 2]].join(); near.set(k, (near.get(k) ?? 0) + 1); }
+    const [r, gr, bl] = [...near].sort((p, q) => q[1] - p[1])[0][0].split(",").map(Number);
+    for (const i of patch) { g.c.set([r, gr, bl, 255], i * 4); set.add(i); }
+  }
+}
 /** A drawn thing as true pixels: one from each block of its own pixel's size, the colour most of the block has. */
 function trueCells(raw, p, drop = [], greys = false) {
   const GW = Math.floor(raw.W / p), GH = Math.floor(raw.H / p), c = new Uint8Array(GW * GH * 4), gone = new Set(drop);
@@ -421,7 +461,7 @@ const isWater = (r, g, b) => { const mx = Math.max(r, g, b), mn = Math.min(r, g,
   return (b > r + 25 && b >= g && (mx - mn) / 255 > 0.18) || (l > 0.82 && b >= r && b >= g - 4); };
 // (the mountain's own ground: bare stony earth, a cliff's face seen from the front, snow, and the forest's floor under its
 // pines; the cave's: its floor, the top of its rock, and the same face for its walls)
-const TEXTURES = ANIMAL_SETS.includes(SET) ? [] : { forest: ["wood"], kitchen: [], felling: [], works: [], lamps: [], pasture: [], mountain: ["rock", "cliff", "snow", "wood"], cave: ["cavefloor", "cavewall", "cliff"] }[SET]
+const TEXTURES = ANIMAL_SETS.includes(SET) ? [] : { forest: ["wood"], kitchen: [], felling: [], works: [], lamps: [], pasture: [], stag: [], mountain: ["rock", "cliff", "snow", "wood"], cave: ["cavefloor", "cavewall", "cliff"] }[SET]
   ?? ["grass", "plaza", "road", "water", "sand", "field"];
 
 const pieces = [];
@@ -444,7 +484,7 @@ function moveOnto(g, ref, refSet) {
   }
   return { ...best, of: low.length };
 }
-for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: KITCHEN, mountain: MOUNTAIN, cave: CAVE, felling: FELLING, works: WORKS, lamps: LAMPS, pasture: PASTURE }[SET] ?? (ANIMAL_SETS.includes(SET) ? [] : SHEETS)) {
+for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: KITCHEN, mountain: MOUNTAIN, cave: CAVE, felling: FELLING, works: WORKS, lamps: LAMPS, pasture: PASTURE, stag: STAG }[SET] ?? (ANIMAL_SETS.includes(SET) ? [] : SHEETS)) {
   if (!fs.existsSync(path.join(OUT, `${sheet}.png`))) { console.log(`no ${sheet}`); continue; }
   const raw = await L.loadRaw(path.join(OUT, `${sheet}.png`));
   // the characters' own pixel size (about 5.3–6.2): a double period scores as well and halves every prop
@@ -461,7 +501,9 @@ for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: 
     : L.figures(g, L.spansOf(g, names.length));
   names.forEach((name, k) => {
     if (name.startsWith("_")) return;
-    const set = figs[k], b = L.bbox(g, set), im = L.crop(g, set);
+    const set = figs[k];
+    if (how === "moss") closeSmallHoles(g, set);
+    const b = L.bbox(g, set), im = L.crop(g, set);
     // the ground point: the bottom middle (props stand on it)
     let ax = Math.round((b.x0 + b.x1) / 2);
     if (how === "hat") {
@@ -475,6 +517,21 @@ for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: 
       if (n > 20) ax = Math.round(sx / n);
     }
     let ay = b.y1;
+    if (how === "moss") {
+      // (the largest patch of green: the tufts on the antlers are green too; a frame's pink flowers lie in it and move nothing)
+      const green = new Set([...set].filter((i) => { const [h, s2] = L.hsl(g.c[i * 4], g.c[i * 4 + 1], g.c[i * 4 + 2]); return h >= 65 && h <= 150 && s2 > 0.18; }));
+      let bed = [];
+      for (const start of green) {
+        if (!green.has(start)) continue;
+        const patch = [start]; green.delete(start);
+        for (let n = 0; n < patch.length; n++) for (const j of [patch[n] - 1, patch[n] + 1, patch[n] - g.GW, patch[n] + g.GW]) if (green.has(j)) { green.delete(j); patch.push(j); }
+        if (patch.length > bed.length) bed = patch;
+      }
+      if (bed.length < 80) throw new Error(`${name}: no moss bed found (${bed.length} cells)`);
+      const box = L.bbox(g, new Set(bed));
+      ax = Math.round((box.x0 + box.x1) / 2); ay = Math.round((box.y0 + box.y1) / 2);
+      console.log(`  ${name}: bed ${box.x1 - box.x0 + 1}x${box.y1 - box.y0 + 1}, its middle ${b.y1 - ay} above the lowest hoof`);
+    }
     if (how === "whole") {
       const ref = wholes.get(like);
       if (ref) {
