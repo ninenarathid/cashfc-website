@@ -272,4 +272,6 @@ stand-ins and v299 first), `v303.mutations.mjs` (21 of 21 breaks caught). In a b
 `town-bench.mjs` with v303 last in BENCH_EXTRA (the bench needs `pglite-harness.mjs` beside it and `@electric-sql/pglite`
 reachable: a scratch folder with the three files and a `node_modules` junction to the PGlite bench's will do).
 
+**v317 and the giant seeds (2026-11-01).** `town.reward_grow` grows a plant at once through `town_reward`; on a bench it needs the knob `far_open` set, or the member is refused. Checked in the page by `town-grow-now.mjs` (trial, three sizes) and `town-grow-now-db.mjs` (stand-in, two tabs).
+
 **v317, a plant that fills its ground (2026-10-31).** Dry run `v317.test.mjs` on a bench through v316 (`V317_BENCH=<a cache>`, built by `dump-fns`'s steps; 2720 checks, the twins included). In a browser: `town-grow.mjs` plays it in the trial at the three sizes; `town-grow-db.mjs <base> <out> <bench>` plays it in three tabs against `town-bench.mjs 3299` with `BENCH_FROM=<that cache>` and `BENCH_EXTRA=<a reader of the news with its way there, as v309 made it, which does not replay there>,<v317>`.

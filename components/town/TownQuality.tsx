@@ -292,7 +292,7 @@ export function QualityBed({ at, plots, now, rains, th, onClose }: { at: string;
   );
 }
 
-const GROW_REFUSED: Record<string, [string, string]> = {
+export const GROW_REFUSED: Record<string, [string, string]> = {
   none: ["ปล่อยให้โตตอนนี้ไม่ได้", "It cannot grow now"],
   theirs: ["แปลงนี้ไม่ใช่ของคุณแล้ว", "This bed is no longer yours"],
   unripe: ["ต้นนี้ยังไม่สุก", "It is not ripe"],
@@ -301,15 +301,19 @@ const GROW_REFUSED: Record<string, [string, string]> = {
   room: ["พื้นที่เปลี่ยนไปแล้ว ดูแผนที่อีกครั้ง", "The ground has changed: look at the map again"],
   seeds: ["เมล็ดไม่พอ", "Not enough seeds"],
   busy: ["มีคนกำลังดึงต้นนี้อยู่", "Someone is pulling it"],
+  spent: ["วันนี้ใช้ถุงเมล็ดแล้ว พรุ่งนี้มาใหม่", "The seeds are used for today"],
+  far: ["รอบนี้จบไปแล้ว ลองใหม่ได้เลย", "That go has ended: try again"],
 };
 /**
  * "Let it grow" (the owner, 2026-10-31: "จะกดปล่อยให้โตได้ ต้องมีพื้นที่รองรับก่อน เขียนอธิบายให้ผู้เล่นเข้าใจง่ายๆด้วย โดยใช้แผนที่แปลงที่มีอยู่ในเกม
  * อยู่แล้ว"): the bed's own map (as QualityBed lays it) with the square the plant would take in gold, each plot of it green
  * when ready and red when not, and in plain words what is still in the way. Rules: lib/town/giant-sizes.
  */
-export function QualityGrow({ at, plots, now, rains, th, purse, onClose, onGo }: { at: string; plots: Readonly<Record<string, Plot>>; now: number; rains: FarmSky; th: boolean; purse: Purse; onClose: () => void;
+export function QualityGrow({ at, plots, now, rains, th, purse, onClose, onGo, atOnce }: { at: string; plots: Readonly<Record<string, Plot>>; now: number; rains: FarmSky; th: boolean; purse: Purse; onClose: () => void;
   /** Asks the game; a refusal's reason, or null when it has begun. */
-  onGo: (n: number) => Promise<string | null> }) {
+  onGo: (n: number) => Promise<string | null>;
+  /** The farming line's seventh rank, for whoever has it: its uses left today, and going on to its game (TownGrowAtOnce). */
+  atOnce?: { left: number; onGo: (n: number) => void } }) {
   const plant = plots[at]?.plant ?? null, seen = plant ? qualityNow(plant, now, rains) : null, ceiling = seen?.range.hi ?? 0, top = sizeFor(ceiling), stands = plant?.footprint?.length ?? 1;
   const [busy, setBusy] = useState(false), [said, setSaid] = useState<string | null>(null);
   const [x0, y0] = at.split(",").map(Number), [cx, cy] = bedCorner(bedOf(x0, y0));
@@ -379,7 +383,8 @@ export function QualityGrow({ at, plots, now, rains, th, purse, onClose, onGo }:
         {facts.map(([label, value]) => <div key={label} className="tk tk-slot flex flex-col justify-center px-1 py-1"><dt className="text-[#ead9b4]">{label}</dt><dd className="font-data font-semibold text-ink">{value}</dd></div>)}
       </dl>
       {said && <p role="status" className="text-meta font-semibold text-[#ffd27a]" data-quality-grow-said>{said}</p>}
-      <div className="sticky -bottom-1.5 z-10 -mx-1 bg-[#5f3b1d] px-1 pb-1 pl-12 pt-1 sm:-bottom-2.5 sm:pl-1"><button type="button" disabled={!ready || busy} data-quality-grow-go onClick={() => { setBusy(true); setSaid(null); void onGo(chosen).then((why) => { setBusy(false); if (why) setSaid((GROW_REFUSED[why] ?? GROW_REFUSED.none)[th ? 0 : 1]); else onClose(); }); }} className={`pressable tk ${ready ? "tk-btn" : "tk-btn-wood opacity-70"} min-h-11 w-full px-3 font-display text-ui`}>{ready ? (th ? `ปล่อยให้โตเป็น ${chosen}×${chosen}` : `Grow to ${chosen}×${chosen}`) : th ? "ยังปล่อยให้โตไม่ได้" : "Not ready yet"}</button></div>
+      {atOnce && <p className="text-meta text-[#ead9b4]" data-quality-grow-atonce-note>{atOnce.left > 0 ? (th ? "ถุงเมล็ดผักยักษ์: ผ่านเกมปลูกสามจังหวะ แล้วโตเต็มขนาดทันที วันนี้เหลือ 1 ครั้ง" : "Giant seeds: pass the three planting beats and it is full size at once. One use left today.") : (th ? "ถุงเมล็ดผักยักษ์: วันนี้ใช้แล้ว พรุ่งนี้มาใหม่" : "Giant seeds: used for today, come back tomorrow.")}</p>}
+      <div className="sticky -bottom-1.5 z-10 -mx-1 flex gap-1.5 bg-[#5f3b1d] px-1 pb-1 pl-12 pt-1 sm:-bottom-2.5 sm:pl-1">{atOnce && <button type="button" disabled={!ready || busy || atOnce.left < 1} data-quality-grow-atonce onClick={() => atOnce.onGo(chosen)} className={`pressable tk ${ready && atOnce.left > 0 ? "tk-btn" : "tk-btn-wood opacity-70"} flex min-h-11 flex-1 items-center justify-center gap-1.5 px-2 font-display text-ui`}><TownIcon name="thingGiantSeeds" size={20} />{th ? "โตทันที" : "Grow at once"}</button>}<button type="button" disabled={!ready || busy} data-quality-grow-go onClick={() => { setBusy(true); setSaid(null); void onGo(chosen).then((why) => { setBusy(false); if (why) setSaid((GROW_REFUSED[why] ?? GROW_REFUSED.none)[th ? 0 : 1]); else onClose(); }); }} className={`pressable tk ${ready && !atOnce ? "tk-btn" : "tk-btn-wood"} ${ready ? "" : "opacity-70"} min-h-11 flex-1 px-2 font-display text-ui`}>{ready ? (th ? `${atOnce ? "รอโต" : "ปล่อยให้โตเป็น"} ${chosen}×${chosen}` : `${atOnce ? "Wait for" : "Grow to"} ${chosen}×${chosen}`) : th ? "ยังปล่อยให้โตไม่ได้" : "Not ready yet"}</button></div>
       </div>
     </section>
   );

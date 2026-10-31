@@ -57,7 +57,7 @@ import TownLongPour from "./TownLongPour";
 import { AnkletRun, HelpNews, RingOffer } from "./TownHelping";
 import type { Stander } from "@/lib/town/line";
 import type { Aid } from "@/lib/town/helping";
-import { usesLeft, wearing } from "@/lib/town/gifts";
+import { usesLeft, wearing, works } from "@/lib/town/gifts";
 import { powerLeft } from "@/lib/town/powers";
 import { HELPING, dustUntil, runOf } from "@/lib/town/helping";
 import TownTiming from "./TownTiming";
@@ -70,6 +70,8 @@ import TownGardenPlacement from "./TownGardenPlacement";
 import TownMovePlant from "./TownMovePlant";
 import { FertChart, QualityBed, QualityGrow, QualityChip, QualityInspector } from "./TownQuality";
 import { goldFx, goldGround, goldLook, goldNow } from "./gold-plant";
+import { BURST_MS, burstEarth, burstGround, burstScale } from "./grow-burst";
+import TownGrowAtOnce from "./TownGrowAtOnce";
 import { farmPriceOf } from "./TownPrice";
 import { HouseChip, HousePanel } from "./TownInsectHouse";
 import { houseRoleOf, plantsInReach, type HouseDeed, type InsectHouse } from "@/lib/town/insect-house";
@@ -338,6 +340,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const [bedView, setBedView] = useState(false);
   /** Whether "let it grow" is open from the inspector (components/town/TownQuality's QualityGrow). */
   const [growView, setGrowView] = useState(false);
+  /** The size being grown at once, by the farming line's seventh rank, while its game is up. */
+  const [growNow, setGrowNow] = useState<number | null>(null);
   /** The fertiliser chart open from the inspector (lib/town/fertilisers). */
   const [chartView, setChartView] = useState(false);
   const [bookView, setBookView] = useState(false);
@@ -393,6 +397,18 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const plantFits = useRef(new Map<string, number>());
   /** A ripe plant's size within its step, once a planting: its ceiling is frozen by then. One not ripe is drawn as it is. */
   const fits = useRef(new Map<string, number>());
+  /** When each plant grown at once came to this page: the map plays its bursting from then, on every page that sees it new. */
+  const bursts = useRef(new Map<string, number>());
+  const burstOf = (k: string, p: Plant) => {
+    const z = p.size;
+    if (!z || z.at !== z.until) return 0;
+    const id = `${k}|${p.sown}|${z.n}`, had = bursts.current.get(id);
+    if (had !== undefined) return had;
+    // (one that grew a good while ago has burst already: seen from afar, or coming back to the farm)
+    const start = keeper.now() - z.at < 20_000 ? performance.now() : 0;
+    bursts.current.set(id, start);
+    return start;
+  };
   const fitNow = (k: string, p: Plant) => {
     const id = `${k}|${p.sown}|${p.picked}|${sideOf(p)}`, had = fits.current.get(id);
     if (had !== undefined) return had;
@@ -408,7 +424,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       const p = plot.plant, cells = p?.root === k ? p.footprint ?? [] : [];
       if (!p?.giant || cells.length < 2) return [];
       const at = cells.map((c) => c.split(",").map(Number) as [number, number]);
-      return [[k, { x: at.reduce((n, [x]) => n + x + 0.5, 0) / at.length, y: at.reduce((n, [, y]) => n + y + 0.5, 0) / at.length, front: Math.max(...at.map(([x, y]) => x + y)), crop: p.crop, n: Math.round(Math.sqrt(cells.length)), gold: turnedGold(p), fit: fitNow(k, p), until: p.size?.until ?? 0,
+      return [[k, { x: at.reduce((n, [x]) => n + x + 0.5, 0) / at.length, y: at.reduce((n, [, y]) => n + y + 0.5, 0) / at.length, front: Math.max(...at.map(([x, y]) => x + y)), crop: p.crop, n: Math.round(Math.sqrt(cells.length)), gold: turnedGold(p), fit: fitNow(k, p), until: p.size?.until ?? 0, burst: burstOf(k, p),
         // (being pulled out together: it rocks on the map as on the crew's board, lib/town/giant-pull)
         go: p.pull && !p.pull.out ? p.pull.go : 0 }]];
     }));
@@ -582,14 +598,14 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       const calmAt = (tx: number, ty: number) => !!meAt && Math.max(Math.abs(tx + 0.5 - meAt.x), Math.abs(ty + 0.5 - meAt.y)) > 7 && !myBeds.has(bedOf(tx, ty));
       // (the gold in full only on the two nearest, within reach of the eye; the rest gold and still, with a stray twinkle)
       const goldFull = new Set([...giants.current.values()].filter((g) => g.gold).map((g) => ({ g, d: meAt ? Math.hypot(g.x - meAt.x, g.y - meAt.y) : 0 })).filter(({ d }) => d <= 14).sort((a, b) => a.d - b.d).slice(0, 2).map(({ g }) => g));
-      const giantDraw = (giant: { x: number; y: number; crop: string; go?: number; n?: number; gold?: boolean; fit?: number; until?: number }, what: Seen): (() => void) | Array<{ depth: number; draw: () => void }> | null => {
+      const giantDraw = (giant: { x: number; y: number; crop: string; go?: number; n?: number; gold?: boolean; fit?: number; until?: number; burst?: number }, what: Seen): (() => void) | Array<{ depth: number; draw: () => void }> | null => {
         if (what.dead) return null;
         const name = giantSprite(giant.crop, what.stage);
         if (!name) return null;
         // (a plant grown over its square: one drawing a crop, drawn across its whole square by the code; lib/town/giant-sizes)
         const n = giant.n ?? 2, cropName = `${giant.crop[0].toUpperCase()}${giant.crop.slice(1)}`, big = bigPieces(), young = !what.ripe && !!big?.props[`big${cropName}7A`], bigName = `big${cropName}7${young ? "A" : "B"}`, piece = big?.props[bigName];
         if (big && piece && big.image.complete && big.image.naturalWidth) {
-          const [x, y, w, h] = piece, centre = project({ x: giant.x, y: giant.y }), k = (n * TILE_W * 1.02 * (giant.fit ?? 1) * s) / w, foot = centre.y + n * TILE_H * 0.52 * s, lean = giant.go ? leanAt(giant.go, keeper.now()) : 0;
+          const since = giant.burst && !still ? performance.now() - giant.burst : BURST_MS, [x, y, w, h] = piece, centre = project({ x: giant.x, y: giant.y }), k = (n * TILE_W * 1.02 * (giant.fit ?? 1) * s * burstScale(since)) / w, foot = centre.y + n * TILE_H * 0.52 * s * burstScale(since), lean = giant.go ? leanAt(giant.go, keeper.now()) : 0;
           const dx = Math.round(centre.x - (w * k) / 2), dy = Math.round(foot - h * k), wide = w * k, tall = h * k;
           // (the square's near edge in a column of the screen: whoever stands beyond it is in front of the plant there)
           const x1 = giant.x + n / 2, y1 = giant.y + n / 2, edge = (d: number) => (d <= x1 - y1 ? d + 2 * y1 : 2 * x1 - d);
@@ -615,7 +631,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           const trace = (path: Array<{ x: number; y: number }>) => { ctx.moveTo(path[0].x, path[0].y); for (const q of path.slice(1)) ctx.lineTo(q.x, q.y); ctx.closePath(); };
           const strips = Math.max(4, n * 2), stripW = (wide + 4) / strips;
           // (it presses on the ground: a flat dark shape under its belly, the game's, not the picture's)
-          const shadow = { depth: giant.x + giant.y - n, draw: () => { ctx.save(); ctx.fillStyle = "rgba(34,22,10,0.34)"; ctx.beginPath(); ctx.ellipse(centre.x, centre.y + n * TILE_H * 0.14 * s, wide * 0.5, n * TILE_H * 0.42 * s, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore(); if (look && full && !xray) goldGround(ctx, centre.x, centre.y + n * TILE_H * 0.14 * s, wide * 0.68, n * TILE_H * 0.62 * s, clock); } };
+          const shadow = { depth: giant.x + giant.y - n, draw: () => { ctx.save(); ctx.fillStyle = "rgba(34,22,10,0.34)"; ctx.beginPath(); ctx.ellipse(centre.x, centre.y + n * TILE_H * 0.14 * s, wide * 0.5, n * TILE_H * 0.42 * s, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore(); if (look && full && !xray) goldGround(ctx, centre.x, centre.y + n * TILE_H * 0.14 * s, wide * 0.68, n * TILE_H * 0.62 * s, clock); if (since < BURST_MS) burstGround(ctx, centre.x, centre.y + n * TILE_H * 0.14 * s, n * TILE_W * s, n * TILE_H * s, since); } };
           return [shadow, ...Array.from({ length: strips }, (_, i) => ({
             depth: edge(giant.x - giant.y + (((dx - 2 + (i + 0.5) * stripW) - centre.x) / (TILE_W * s)) * 2) + BELLY,
             draw: () => {
@@ -631,6 +647,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
               ctx.restore();
               // (the window's edge, so that it reads as a window on my bed)
               if (xray && i === strips >> 1) { const path = xray, edgeOf = () => { ctx.save(); ctx.beginPath(); trace(path); ctx.lineWidth = Math.max(1, 1.5 * s); ctx.strokeStyle = "rgba(255,233,168,0.85)"; ctx.stroke(); ctx.restore(); }; if (frame.over) frame.over(edgeOf); else edgeOf(); }
+              if (since < BURST_MS && i === strips >> 1) { const fx = () => burstEarth(ctx, centre.x, centre.y, foot, (n * TILE_W * s) / 2, n, since, s, giant.x * 7 + giant.y); if (frame.over) frame.over(fx); else fx(); }
               if (look && !hole && i === strips >> 1) { const fx = () => goldFx(ctx, look, giant.x * 7 + giant.y, dx, dy, wide, tall, n, clock, s, still, !full || !!xray); if (frame.over) frame.over(fx); else fx(); }
             },
           }))];
@@ -1340,7 +1357,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   useEffect(() => { if (asking && (asking.key !== key || asking.deed !== (asking.deed === "lift" ? houseDeed : deed))) setAsking(null); }, [asking, key, deed, houseDeed]);
   useEffect(() => { if (inspecting && inspecting !== key) setInspecting(null); }, [inspecting, key]);
   useEffect(() => { if (moving && moving !== key) setMoving(null); }, [moving, key]);
-  useEffect(() => { if (!inspecting) { setBedView(false); setGrowView(false); setChartView(false); setBookView(false); } }, [inspecting]);
+  useEffect(() => { if (!inspecting) { setBedView(false); setGrowView(false); setGrowNow(null); setChartView(false); setBookView(false); } }, [inspecting]);
   // The asking opens with "leave it" under the keys: Space or Enter, pressed once too often, digs nothing out. Escape leaves it too.
   useEffect(() => {
     if (!asking) return;
@@ -1451,7 +1468,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const asked = asking ? seen.current.get(asking.key) : undefined;
   return (
     <>{reaction.notice&&<TownFoot rank="note" order={5}><TownComboFx cue={reaction.notice.cue} effect={{cue:reaction.notice.cue,fresh:reaction.notice.fresh}} th={th}/></TownFoot>}<TownRootExtraction keeper={keeper} th={th} at={here}/><TownRowContinuation keeper={keeper} th={th} at={here}/><TownGardenRetry keeper={keeper} th={th} at={tile}/><TownRainCare keeper={keeper} th={th} at={tile}/><TownWaykeeper keeper={keeper} th={th} at={here}/><TownCampFlag keeper={keeper} th={th} at={here}/><TownGardenHelp keeper={keeper} th={th} at={tile}/><TownSkyBean keeper={keeper} th={th} at={tile}/><TownGardenRewards keeper={keeper} th={th} at={tile}/><TownGiantPull keeper={keeper} th={th} at={here ?? tile} name={name} people={people} sayPull={sayPull} hour={hour}/><TownKitchenRewards keeper={keeper} th={th} at={here}/><TownPicnic keeper={keeper} th={th} at={here} register={registerPicnic} sit={sitPicnic}/>{keeper.purse().professionRewards?.trail?.kind==="dragon"&&<TownForestTrail keeper={keeper} th={th} at={()=>here} walk={walkTrail}/>}<TownWingCrown keeper={keeper} th={th} at={here}/><TownMoonLantern keeper={keeper} th={th} at={here}/><TownBeetleRing keeper={keeper} th={th} at={here}/><TownLotusBoat keeper={keeper} th={th} at={here} register={registerBoats}/><TownBeaverBridge keeper={keeper} th={th} at={here} register={registerCrossings}/><TownNursery keeper={keeper} th={th} at={here}/><TownCloud keeper={keeper} th={th} at={tile} people={people}/><TownSprings keeper={keeper} th={th} at={here} register={registerSprings}/><TownConduit keeper={keeper} th={th} at={tile} onWatered={keys=>{for(const key of keys){const [x,y]=key.split(",").map(Number);vfx.add("water",{x:x+.5,y:y+.5});}sfx?.work("pour");}}/><TownWaterRelay keeper={keeper} th={th} at={here} register={registerRelay}/>{news}{ringOffer}{inspectedHouse && <TownFoot rank="board" order={62}><HousePanel at={inspecting!} house={inspectedHouse} plots={plots} now={now} th={th} mine={inspectedHouse.by === keeper.id} onClose={() => setInspecting(null)} /></TownFoot>}{inspected && <TownFoot rank="board" order={62}>{growView
-      ? <QualityGrow at={inspecting!} plots={plots} now={now} rains={rains} th={th} purse={keeper.purse()} onClose={() => setGrowView(false)} onGo={async (n) => { const [gx, gy] = inspecting!.split(",").map(Number), did = await keeper.growPlant([gx, gy], n); return did.ok ? null : did.why; }} />
+      ? (growNow ? <TownGrowAtOnce keeper={keeper} th={th} at={inspecting!} n={growNow} onBack={() => setGrowNow(null)} onDone={() => setInspecting(null)} />
+        : <QualityGrow at={inspecting!} plots={plots} now={now} rains={rains} th={th} purse={keeper.purse()} onClose={() => setGrowView(false)} onGo={async (n) => { const [gx, gy] = inspecting!.split(",").map(Number), did = await keeper.growPlant([gx, gy], n); return did.ok ? null : did.why; }}
+            atOnce={works(keeper.purse(), "thingGiantSeeds") ? { left: usesLeft(keeper.purse(), "thingGiantSeeds", now), onGo: setGrowNow } : undefined} />)
       : bedView
       ? <QualityBed at={inspecting!} plots={plots} now={now} rains={rains} th={th} onClose={() => setBedView(false)} />
       : chartView ? <FertChart th={th} onClose={() => setChartView(false)} />

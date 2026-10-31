@@ -24,7 +24,11 @@ import { bedCorner, bedOf } from "./world";
  *   picked by its keeper once: its own fruits as ever, a rank-7 one's six times as before, and the relatives pay for it
  *   whole on the spot (`saleNow`): no cap on that, the owner's word ("ปล่อยเฟ้่อได้").
  *
- * The database's twin is v317's `public.town_grow`.
+ * The farming line's seventh rank may spare it the wait, once a day, by its planting game (lib/town/reward-garden, the owner,
+ * 2026-11-01: "คนที่เล่นสายนี้คาดหวังแรงค์ 7 ให้เป็นของที่ดีมากๆ"): `atOnce` here. All else it asks stays. The sale keeps its `wait`
+ * on purpose: being paid for a wait not sat through is the gift.
+ *
+ * The database's twin is v317's `town.grow_make`.
  */
 export interface GiantSize {
   /** How many plots a side. */
@@ -152,7 +156,7 @@ export type GrowDid = { ok: true; plots: Record<string, Plot>; purse: Purse; bed
  * Ask a ripe plant at its root (`key`) to grow to `n` a side. `plots`: its bed's, `bed`: the bed's keeping, as lib/town/farm's
  * `ownerOf` has made it `owner`. The plots come back as they should be kept: the plant on every one of the square.
  */
-export function growPlant(key: string, plots: Readonly<Record<string, Plot>>, n: number, me: string, owner: string | null, bed: Bed | undefined, purse: Purse, now: number, rains: FarmSky = DRY, launch: number = QUALITY.launch): GrowDid {
+export function growPlant(key: string, plots: Readonly<Record<string, Plot>>, n: number, me: string, owner: string | null, bed: Bed | undefined, purse: Purse, now: number, rains: FarmSky = DRY, launch: number = QUALITY.launch, atOnce = false): GrowDid {
   const plot = plots[key], p = plot?.plant, size = sizeOf(n);
   if (!plot || !p || !size || (p.root && p.root !== key) || !(GROW_CROPS as readonly string[]).includes(p.crop)) return { ok: false, why: "none" };
   if (owner !== me || !bed) return { ok: false, why: "theirs" };
@@ -168,7 +172,7 @@ export function growPlant(key: string, plots: Readonly<Record<string, Plot>>, n:
   if (!frame || frame.blocked.size > 0) return { ok: false, why: "room" };
   const seeds = seedsFor(n, side), seed = CROPS[p.crop].seed;
   if (heldIn(purse, seed) < seeds) return { ok: false, why: "seeds" };
-  const { pull: _, ...rest } = p, until = now + waitOf(p.crop, n) * HOUR;
+  const { pull: _, ...rest } = p, until = atOnce ? now : now + waitOf(p.crop, n) * HOUR;
   const plant: NonNullable<Plot["plant"]> = { ...rest, giant: true, root: key, footprint: frame.cells, size: { n, at: now, until, plain: p.size ? p.size.plain : !p.giant } };
   return {
     ok: true,

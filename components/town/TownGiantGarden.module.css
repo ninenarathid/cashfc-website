@@ -8,15 +8,18 @@
   --cream: #f7e7c9;
   width: min(400px, calc(100vw - 24px));
   max-height: min(68dvh, 620px);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: thin;
-  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 6px;
 }
 /* (the button and the panel in one column: TownFoot holds a board's own children to its height, and the panel scrolls
    inside what is left under the button rather than pushing the button off the top on a small phone) */
 .stack { display: flex; max-height: 100%; min-height: 0; flex-direction: column; align-items: center; }
 .stack > .panel { min-height: 0; flex: 0 1 auto; }
+/* What moves inside the plate, so that the plate's wood stays round it; past the phone's chat button at the foot */
+.scroll { min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; padding: 6px 6px 52px; }
+@media (min-width: 640px) { .scroll { padding-bottom: 6px; } }
 .panel button { touch-action: manipulation; }
 .title { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
 .title h3 { flex: 1; min-width: 0; color: #ffe8a8; text-shadow: 0 2px 0 #1a0e06, 0 0 10px #8fe39a55; }

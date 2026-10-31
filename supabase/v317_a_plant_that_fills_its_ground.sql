@@ -22,6 +22,11 @@
 --   * Gold: town.quality_harvest draws it once a round, with the salt no browser sees: past 10 of the floor raised,
 --     half a percent a point. Its fruits come a grade up, its sale twice. public.town_plant_gold writes a ripe plant's
 --     draw on it for its grower's page to show.
+--   * The farming line's seventh rank, the giant seeds (the owner, 2026-11-01: "คนที่เล่นสายนี้คาดหวังแรงค์ 7 ให้เป็นของที่ดีมากๆ"; of
+--     keeping its 2x2 too, "เก็บ"): town.reward_garden's giantBegin and giantEnd, given `grow`, play the same game for a ripe plant
+--     to be grown at once (town.reward_grow): it asks everything town_grow asks, and the swell takes no time. The day's one use
+--     is shared with planting a giant, and is counted only when it takes; a miss costs its 2 stamina and leaves the plant, the
+--     seeds and the day. The sale keeps its `wait` on purpose: being paid for a wait not sat through is the gift.
 --   * Animals: town.animal_settle counts the days a young one grew with each of the four cares (`rearing`), and on the
 --     settle that finds it grown rolls its body's size and its gold, once. Adults of today have theirs from their hearts.
 begin;
@@ -36,6 +41,7 @@ do $guard$ begin
      or to_regprocedure('town.deed_th(text)') is null or to_regprocedure('town.animal_settle(jsonb,double precision,jsonb,boolean,jsonb)') is null
      or to_regprocedure('town.garden_spread()') is null or to_regprocedure('public.town_announcements_v309(bigint,text)') is null
      or to_regprocedure('town.announce(uuid,text,text,integer,text,boolean)') is null
+     or to_regprocedure('town.reward_garden(jsonb,jsonb,uuid,bigint,bigint,uuid)') is null
     then raise exception 'v317: run the farm''s migrations, v291, v307 and v311 first'; end if;
 end $guard$;
 
@@ -120,6 +126,12 @@ begin
     fin_ := jsonb_build_object(''rearing'', rear_);
   end if;
   return (p_a - ''rearing'') || jsonb_build_object(''at'', p_now, ''food'', food,'],
+    ['town.reward_garden(jsonb,jsonb,uuid,bigint,bigint,uuid)', ' if a in (''giantBegin'',''giantEnd'') then
+  cells_:=jsonb_build_array(key_,',
+     ' -- (v317: a go at growing a ripe plant at once: town.reward_grow)
+ if (a=''giantBegin'' and c?''grow'') or (a=''giantEnd'' and coalesce(r?''grow'',false)) then return town.reward_grow(p,c,request_,t,seed_,me,owner_);end if;
+ if a in (''giantBegin'',''giantEnd'') then
+  cells_:=jsonb_build_array(key_,'],
     ['town.animal_settle(jsonb,double precision,jsonb,boolean,jsonb)', '''streak'', streak, ''outBands'', bands, ''today'', today);',
      '''streak'', streak, ''outBands'', bands, ''today'', today) || fin_;']
   ] loop
@@ -229,72 +241,139 @@ begin
 end $$;
 
 -- ── 6. Asking it to grow ──
-create or replace function public.town_grow(p_x integer, p_y integer, p_n integer)
-returns jsonb language plpgsql security definer set search_path = '' as $$
+-- (what is refused and what it would come to, for a keeper's plain asking and the seventh rank's alike: lib/town/giant-sizes'
+-- growPlant. It writes nothing. Whoever calls it holds the purse and the bed.)
+create or replace function town.grow_make(p_x integer, p_y integer, p_n integer, me uuid, now_ bigint, purse_ jsonb, at_once boolean)
+returns jsonb language plpgsql volatile set search_path = '' as $$
 declare
-  me uuid := town.member();
-  now_ bigint := town.now_ms();
   key_ text := p_x::text || ',' || p_y::text;
   size_ jsonb := town.giant_size(p_n);
-  bed_n integer;
-  purse_ jsonb; plots_ jsonb; plot_ jsonb; p_ jsonb; seen_ jsonb; keeping_ jsonb; pull_ jsonb; frame_ jsonb; plant_ jsonb; crop_ jsonb; told_ jsonb;
+  bed_n integer := town.bed_of(p_x, p_y);
+  plots_ jsonb; plot_ jsonb; p_ jsonb; seen_ jsonb; keeping_ jsonb; pull_ jsonb; frame_ jsonb; plant_ jsonb; crop_ jsonb;
   side_ integer; seeds_ integer; go_ bigint; until_ bigint; seed_ text;
 begin
-  if p_x is null or p_y is null or size_ is null then return town.answer(me, town.no('none')); end if;
-  bed_n := town.bed_of(p_x, p_y);
-  if bed_n is null or bed_n < 0 then return town.answer(me, town.no('none')); end if;
-  -- (my purse held first, then the bed, as a tend holds them)
-  purse_ := town.purse_of(me, true);
-  perform pg_advisory_xact_lock(hashtext('town.bed'), bed_n);
+  if size_ is null or bed_n is null or bed_n < 0 then return town.no('none'); end if;
   select coalesce(jsonb_object_agg(q.x::text || ',' || q.y::text, jsonb_build_object('soil', q.soil, 'plant', coalesce(q.plant, 'null'::jsonb))), '{}'::jsonb) into plots_
     from public.town_plots q where q.bed = bed_n;
   plot_ := plots_->key_;
   p_ := coalesce(plot_->'plant', 'null'::jsonb);
   if plot_ is null or jsonb_typeof(p_) is distinct from 'object' or coalesce(p_->>'root', key_) <> key_
      or not (p_->>'crop' = any (array['pumpkin', 'carrot', 'daikon', 'cabbage', 'taro'])) then
-    return town.answer(me, town.no('none'));
+    return town.no('none');
   end if;
   select jsonb_build_object('by', b.member_id, 'tended', b.tended, 'empty', b.empty) into keeping_ from public.town_beds b where b.bed = bed_n;
-  if keeping_ is null or town.owner_of(keeping_, true, now_) is distinct from me::text then return town.answer(me, town.no('theirs')); end if;
+  if keeping_ is null or town.owner_of(keeping_, true, now_) is distinct from me::text then return town.no('theirs'); end if;
   seen_ := town.see(key_, plot_, now_);
-  if (seen_->>'dead')::boolean then return town.answer(me, town.no('none')); end if;
-  if not (seen_->>'ripe')::boolean then return town.answer(me, town.no('unripe')); end if;
-  if (seen_->>'pest')::boolean then return town.answer(me, town.no('pest')); end if;
+  if (seen_->>'dead')::boolean then return town.no('none'); end if;
+  if not (seen_->>'ripe')::boolean then return town.no('unripe'); end if;
+  if (seen_->>'pest')::boolean then return town.no('pest'); end if;
   -- (a call or a go under way, or pulled out already, as lib/town/giant-pull's calling and pulling read them)
   pull_ := case when jsonb_typeof(p_->'pull') = 'object' then p_->'pull' end;
   go_ := coalesce((pull_->>'go')::bigint, 0);
   if pull_ is not null and (coalesce((pull_->>'out')::bigint, 0) > 0
      or (go_ = 0 and coalesce((pull_->>'at')::bigint, 0) + 180000 > now_)
      or (go_ > 0 and now_ <= go_ + 3000 + 44 * 1300 + 650 + 220 + 5000)) then
-    return town.answer(me, town.no('busy'));
+    return town.no('busy');
   end if;
   side_ := coalesce((p_->'size'->>'n')::integer, case when p_->'giant' = 'true'::jsonb then 2 else 1 end);
-  if p_n <= side_ then return town.answer(me, town.no('none')); end if;
+  if p_n <= side_ then return town.no('none'); end if;
   if (town.quality_harvest(key_, p_, 0, now_, (select s.salt from town.quality_salt s where s.one), 0, false)->'range'->>'hi')::integer < (size_->>'from')::integer then
-    return town.answer(me, town.no('quality'));
+    return town.no('quality');
   end if;
   frame_ := town.grow_frame(key_, p_n, plots_);
-  if frame_ is null or (frame_->>'blocked')::integer > 0 then return town.answer(me, town.no('room')); end if;
+  if frame_ is null or (frame_->>'blocked')::integer > 0 then return town.no('room'); end if;
   crop_ := town.cat('crops')->(p_->>'crop');
   seed_ := crop_->>'seed';
   seeds_ := p_n - side_;
-  if town.held_in(purse_, seed_) < seeds_ then return town.answer(me, town.no('seeds')); end if;
-  until_ := now_ + ((crop_->>'hours')::double precision * (size_->>'wait')::double precision * 3600000)::bigint;
+  if town.held_in(purse_, seed_) < seeds_ then return town.no('seeds'); end if;
+  until_ := case when at_once then now_ else now_ + ((crop_->>'hours')::double precision * (size_->>'wait')::double precision * 3600000)::bigint end;
   plant_ := (p_ - 'pull') || jsonb_build_object('giant', true, 'root', key_, 'footprint', frame_->'cells',
     'size', jsonb_build_object('n', p_n, 'at', now_, 'until', until_,
       'plain', case when jsonb_typeof(p_->'size') = 'object' then p_->'size'->'plain' else to_jsonb(p_->'giant' is distinct from 'true'::jsonb) end));
-  purse_ := town.use_up(town.spend(purse_, (town.cat('farming')->'costs'->>'sow')::double precision * seeds_, now_), seed_, seeds_);
-  perform town.keep_purse(me, purse_);
-  -- (the rest of its square is written by the farm's own trigger, town.garden_spread)
-  update public.town_plots q set plant = plant_, changed = now_ where q.x = p_x and q.y = p_y;
-  update public.town_beds b set tended = greatest(b.tended, until_), empty = 0 where b.bed = bed_n;
-  perform town.note(me, 'plant_grow', p_->>'crop', p_n, 0, jsonb_build_object('tile', jsonb_build_array(p_x, p_y), 'seeds', seeds_, 'until', until_));
+  return jsonb_build_object('ok', true, 'purse', town.use_up(town.spend(purse_, (town.cat('farming')->'costs'->>'sow')::double precision * seeds_, now_), seed_, seeds_),
+    'plant', plant_, 'until', until_, 'seeds', seeds_, 'crop', p_->'crop',
+    -- (lib/town/reward-garden's growRoot: the very plant and round a go was begun for)
+    'root', key_ || ':' || (p_->>'by') || ':' || (p_->>'crop') || ':' || (p_->>'sown') || ':' || (p_->>'picked'));
+end $$;
+revoke all on function town.grow_make(integer, integer, integer, uuid, bigint, jsonb, boolean) from public, anon, authenticated;
+
+-- (what it comes to, written: the rest of its square by the farm's own trigger, town.garden_spread; what the page is told comes back)
+create or replace function town.grow_keep(p_x integer, p_y integer, me uuid, now_ bigint, made_ jsonb, at_once boolean)
+returns jsonb language plpgsql volatile set search_path = '' as $$
+declare bed_n integer := town.bed_of(p_x, p_y); told_ jsonb;
+begin
+  update public.town_plots q set plant = made_->'plant', changed = now_ where q.x = p_x and q.y = p_y;
+  update public.town_beds b set tended = greatest(b.tended, (made_->>'until')::bigint), empty = 0 where b.bed = bed_n;
+  perform town.note(me, 'plant_grow', made_->>'crop', (made_->'plant'->'size'->>'n')::integer, 0, jsonb_build_object('tile', jsonb_build_array(p_x, p_y), 'seeds', made_->'seeds', 'until', made_->'until')
+    || case when at_once then '{"atOnce": true}'::jsonb else '{}'::jsonb end);
   select jsonb_object_agg(q.x::text || ',' || q.y::text, jsonb_build_object('soil', q.soil, 'plant', q.plant)) into told_
-    from public.town_plots q where q.bed = bed_n and frame_->'cells' ? (q.x::text || ',' || q.y::text);
+    from public.town_plots q where q.bed = bed_n and made_->'plant'->'footprint' ? (q.x::text || ',' || q.y::text);
+  return told_;
+end $$;
+revoke all on function town.grow_keep(integer, integer, uuid, bigint, jsonb, boolean) from public, anon, authenticated;
+
+create or replace function public.town_grow(p_x integer, p_y integer, p_n integer)
+returns jsonb language plpgsql security definer set search_path = '' as $$
+declare
+  me uuid := town.member();
+  now_ bigint := town.now_ms();
+  bed_n integer;
+  purse_ jsonb; made_ jsonb; told_ jsonb;
+begin
+  if p_x is null or p_y is null or town.giant_size(p_n) is null then return town.answer(me, town.no('none')); end if;
+  bed_n := town.bed_of(p_x, p_y);
+  if bed_n is null or bed_n < 0 then return town.answer(me, town.no('none')); end if;
+  -- (my purse held first, then the bed, as a tend holds them)
+  purse_ := town.purse_of(me, true);
+  perform pg_advisory_xact_lock(hashtext('town.bed'), bed_n);
+  made_ := town.grow_make(p_x, p_y, p_n, me, now_, purse_, false);
+  if made_->'ok' is distinct from 'true'::jsonb then return town.answer(me, made_); end if;
+  perform town.keep_purse(me, made_->'purse');
+  told_ := town.grow_keep(p_x, p_y, me, now_, made_, false);
   return town.answer(me, jsonb_build_object('ok', true, 'plots', told_, 'bed', town.bed_told(bed_n)));
 end $$;
 revoke all on function public.town_grow(integer, integer, integer) from public, anon, authenticated;
 grant execute on function public.town_grow(integer, integer, integer) to authenticated;
+
+-- (the seventh rank's go at it: lib/town/reward-garden's gardenAction, by way of town.reward_garden, purse and bed held)
+create or replace function town.reward_grow(p jsonb, c jsonb, request_ uuid, t bigint, seed_ bigint, me uuid, owner_ text)
+returns jsonb language plpgsql volatile set search_path = '' as $$
+declare
+  a text := c->>'action';
+  x_ integer := (c->'at'->>0)::integer; y_ integer := (c->'at'->>1)::integer; key_ text := x_::text || ',' || y_::text;
+  state_ jsonb := coalesce(p->'professionRewards', '{}'::jsonb); r jsonb := state_->'giant';
+  n_ integer; p_ jsonb; made_ jsonb; used_ jsonb; after_ jsonb; told_ jsonb; z bigint; i integer; mark_ numeric; pass_ boolean := true;
+begin
+  if a = 'giantBegin' then
+    n_ := case when jsonb_typeof(c->'grow') = 'number' and c->>'grow' ~ '^[0-9]{1,2}$' then (c->>'grow')::integer end;
+    if not town.gift_works(p, 'thingGiantSeeds') or n_ is null or coalesce((r->>'until')::bigint, 0) > t or seed_ not between 0 and 4294967295 then return town.no('none'); end if;
+    if town.used_of(p, 'thingGiantSeeds', t) >= coalesce((town.cat('gifts')->'uses'->'thingGiantSeeds'->>'n')::integer, 0) then return town.no('spent'); end if;
+    made_ := town.grow_make(x_, y_, n_, me, t, p, true);
+    if made_->'ok' is distinct from 'true'::jsonb then return made_; end if;
+    r := jsonb_build_object('id', request_, 'key', key_, 'crop', made_->'crop', 'seed', seed_, 'began', t, 'until', t + 120000, 'grow', n_, 'root', made_->'root');
+    return jsonb_build_object('ok', true, 'purse', p || jsonb_build_object('professionRewards', state_ || jsonb_build_object('giant', r)), 'giant', r);
+  end if;
+  n_ := (r->>'grow')::integer;
+  if r->>'id' is distinct from c->>'run' or r->>'key' is distinct from key_ or (r->>'until')::bigint < t or t < (r->>'began')::bigint + 2400
+     or not town.gift_works(p, 'thingGiantSeeds') or owner_ is distinct from me::text then return town.no('far'); end if;
+  if jsonb_typeof(c->'marks') is distinct from 'array' or jsonb_array_length(c->'marks') <> 3 or exists(select 1 from jsonb_array_elements(c->'marks') q(v) where jsonb_typeof(v) <> 'number' or (v::text)::numeric not between 0 and 1) then return town.no('none'); end if;
+  -- (the same plant and round it was begun for: one dug out and sown again is not it)
+  select q.plant into p_ from public.town_plots q where q.x = x_ and q.y = y_;
+  if jsonb_typeof(p_) is distinct from 'object' or key_ || ':' || (p_->>'by') || ':' || (p_->>'crop') || ':' || (p_->>'sown') || ':' || (p_->>'picked') is distinct from r->>'root' then return town.no('none'); end if;
+  made_ := town.grow_make(x_, y_, n_, me, t, p, true);
+  if made_->'ok' is distinct from 'true'::jsonb then return made_; end if;
+  z := (r->>'seed')::bigint;
+  for i in 0..2 loop z := (z * 1664525 + 1013904223) % 4294967296; mark_ := .2 + (z % 61)::numeric / 100; if abs(mark_ - (c->'marks'->>i)::numeric) > .09 then pass_ := false; end if; end loop;
+  after_ := town.spend(p, 2::double precision, t) || jsonb_build_object('professionRewards', state_ || jsonb_build_object('giant', null));
+  if not pass_ then return jsonb_build_object('ok', true, 'purse', after_, 'giant', null, 'gardenPassed', false); end if;
+  used_ := town.gift_use(after_, 'thingGiantSeeds', t);
+  if used_->'ok' is distinct from 'true'::jsonb then return town.no('spent'); end if;
+  made_ := town.grow_make(x_, y_, n_, me, t, used_->'purse', true);
+  if made_->'ok' is distinct from 'true'::jsonb then return made_; end if;
+  told_ := town.grow_keep(x_, y_, me, t, made_, true);
+  return jsonb_build_object('ok', true, 'purse', made_->'purse', 'plots', told_, 'giant', null, 'gardenPassed', true);
+end $$;
+revoke all on function town.reward_grow(jsonb, jsonb, uuid, bigint, bigint, uuid, text) from public, anon, authenticated;
 
 -- ── 7. A ripe plant's gold told on it: by its grower, once a round ──
 create or replace function public.town_plant_gold(p_x integer, p_y integer)
@@ -548,9 +627,10 @@ commit;
 --          position('sold_whole' in pg_get_functiondef('town.pick(text,jsonb,jsonb,boolean,text,bigint,text)'::regprocedure)) > 0 as sold,
 --          position('''alone''' in pg_get_functiondef('public.town_giant_pull(text,integer,integer,jsonb)'::regprocedure)) > 0 as dug,
 --          position('animal_body' in pg_get_functiondef('town.animal_settle(jsonb,double precision,jsonb,boolean,jsonb)'::regprocedure)) > 0 as bodies,
+--          position('reward_grow' in pg_get_functiondef('town.reward_garden(jsonb,jsonb,uuid,bigint,bigint,uuid)'::regprocedure)) > 0 as at_once,
 --          has_function_privilege('anon', 'public.town_grow(integer,integer,integer)', 'EXECUTE') as anon_grow,
 --          has_function_privilege('anon', 'public.town_plant_gold(integer,integer)', 'EXECUTE') as anon_gold;
---   → true, true, true, true, false, false
+--   → true, true, true, true, true, false, false
 --   select town.deed_th('plant_grow'), town.deed_th('plant_gold');   → ปล่อยผักให้โตเต็มพื้นที่, ผักกลายพันธุ์เป็นทองคำ
 --   select count(*) as adults_with_no_size from public.town_animals x, (select town.cat('animals') k) c
 --    where x.a->'body' is null and (x.a->>'grown')::double precision

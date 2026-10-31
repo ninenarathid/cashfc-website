@@ -77,7 +77,7 @@ export function GiantPlantingGame({ run, crop, th, retryFirst = false, onFinish,
   return (
     <div className={s.game} data-giant-game>
       <div className={s.beats}>
-        <p className="text-ui">{th ? "ขุดตอนพลั่วอยู่เหนือจุดเรืองแสง · พักไว้ได้ ไม่เสียสิทธิ์" : "Dig while the trowel is over the glow · stopping keeps today’s planting"}</p>
+        <p className="text-ui">{th ? "ขุดตอนพลั่วอยู่เหนือจุดเรืองแสง · พักไว้ได้ ไม่เสียสิทธิ์" : "Dig while the trowel is over the glow · stopping keeps today’s use"}</p>
         <span className="flex shrink-0 items-end gap-1" aria-label={`${step}/3`}>
           {[0, 1, 2].map((i) => <TownIcon key={i} name={i < step && done[i].hit ? "plotSprout" : "mound"} size={20} className={i < step ? "" : "opacity-35"} />)}
         </span>

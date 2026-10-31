@@ -6,6 +6,11 @@ import { CROPS } from "./items";
 import { heldIn } from "./pouches";
 import { GRADES, gradeOf } from "./quality";
 import { GOLD, goldChance, goldOf, harvestOf, qualityNow, turnedGold, wholeQuality } from "./quality-plant";
+import { gardenAction, growRoot } from "./reward-garden";
+import { extractionMarks } from "./reward-actions";
+import { usesLeft } from "./gifts";
+import { staminaOf } from "./stamina";
+import { BURST_MS, burstScale } from "../../components/town/grow-burst";
 import { HOUR, newPurse, type Purse } from "./trade";
 import { bedCorner, bedOf } from "./world";
 
@@ -211,5 +216,91 @@ describe("the gold mutation", () => {
     }
     expect(turned).toBeGreaterThan(20);
     expect(turned).toBeLessThan(90);
+  });
+});
+
+describe("grown at once by the seventh rank's seeds", () => {
+  const at = ROOT.split(",").map(Number) as [number, number], bed: Bed = { by: "me", tended: NOON, empty: 0 };
+  const holder = (n = 9): Purse => ({ ...seeds(n), gifts: { had: ["thingGiantSeeds"], charms: [] } } as Purse);
+  const ask = (q: Purse, c: object, plots = bedWith(), id = "run", t = NOON, owner: string | null = "me") => gardenAction(q, { at, ...c } as never, id, t, 123, "me", plots, owner, [], bed);
+  const begun = (q: Purse, n = 7, plots = bedWith()) => { const b = ask(q, { action: "giantBegin", grow: n, crop: "pumpkin" }, plots); if (!b.ok) throw Error(b.why); return b.purse; };
+  const end = (q: Purse, marks = extractionMarks(123), plots = bedWith(), t = NOON + 2400) => ask(q, { action: "giantEnd", run: "run", marks }, plots, "end", t);
+  const wrong = extractionMarks(123).map((n) => (n > 0.5 ? n - 0.3 : n + 0.3));
+
+  it("begins only for what could grow, and counts nothing yet", () => {
+    expect(ask(seeds(9), { action: "giantBegin", grow: 7, crop: "pumpkin" })).toEqual({ ok: false, why: "none" });
+    expect(ask(holder(), { action: "giantBegin", grow: 2.5, crop: "pumpkin" })).toEqual({ ok: false, why: "none" });
+    expect(ask(holder(), { action: "giantBegin", grow: 9, crop: "pumpkin" })).toEqual({ ok: false, why: "none" });
+    expect(ask(holder(), { action: "giantBegin", grow: 7, crop: "pumpkin" }, bedWith(ripe({ q: round(90) })))).toEqual({ ok: false, why: "quality" });
+    expect(ask(holder(), { action: "giantBegin", grow: 7, crop: "pumpkin" }, { ...bedWith(), [k(0, 0)]: { soil: "cleared", plant: null } })).toEqual({ ok: false, why: "room" });
+    expect(ask(holder(5), { action: "giantBegin", grow: 7, crop: "pumpkin" })).toEqual({ ok: false, why: "seeds" });
+    expect(ask(holder(), { action: "giantBegin", grow: 7, crop: "pumpkin" }, bedWith(), "run", NOON, "them")).toEqual({ ok: false, why: "theirs" });
+    const q = begun(holder());
+    expect(q.professionRewards?.giant).toMatchObject({ grow: 7, crop: "pumpkin", key: ROOT, root: growRoot(ROOT, ripe()) });
+    expect(usesLeft(q, "thingGiantSeeds", NOON)).toBe(1);
+    expect(heldIn(q, "seedPumpkin")).toBe(9);
+  });
+  it("a miss leaves the plant, the seeds and the day, and costs its stamina", () => {
+    const q = begun(holder()), d = end(q, wrong);
+    if (!d.ok) throw Error(d.why);
+    expect(d.gardenPassed).toBe(false);
+    expect(d.plots).toBeUndefined();
+    expect(usesLeft(d.purse, "thingGiantSeeds", NOON)).toBe(1);
+    expect(heldIn(d.purse, "seedPumpkin")).toBe(9);
+    expect(staminaOf(d.purse, NOON)).toBe(staminaOf(q, NOON) - 2);
+    expect(d.purse.professionRewards?.giant).toBeNull();
+  });
+  it("passed, it is its full size and ripe at that moment, paid as if it had waited, and the bed is not kept ahead", () => {
+    const d = end(begun(holder()));
+    if (!d.ok || !d.plots || !d.bed) throw Error("end");
+    const t = NOON + 2400, p = d.plots[ROOT].plant!;
+    expect(d.gardenPassed).toBe(true);
+    expect(Object.keys(d.plots)).toHaveLength(49);
+    expect(p.size).toEqual({ n: 7, at: t, until: t, plain: true });
+    expect(see(ROOT, d.plots[ROOT], t, []).ripe).toBe(true);
+    expect(swellOf(p, t)).toBe(1);
+    expect(needsOf(p).hands).toBe(6);
+    expect(saleNow(ROOT, p, t, [])).toBe(saleOf("pumpkin", 7, gradeOf(wholeQuality(ROOT, p, t, []))));
+    expect(saleNow(ROOT, p, t, [])).toBeGreaterThanOrEqual(saleOf("pumpkin", 7, 2));
+    expect(heldIn(d.purse, "seedPumpkin")).toBe(3);
+    expect(usesLeft(d.purse, "thingGiantSeeds", t)).toBe(0);
+    expect(d.bed.tended).toBe(t);
+  });
+  it("shares the day's one use with planting a giant, both ways", () => {
+    const d = end(begun(holder()));
+    if (!d.ok) throw Error(d.why);
+    const bare = Object.fromEntries(whole().map((c) => [c, { soil: "tilled", plant: null } as Plot]));
+    expect(ask({ ...d.purse, bag: holder().bag }, { action: "giantBegin", crop: "pumpkin" }, bare, "two", NOON + 3000)).toEqual({ ok: false, why: "spent" });
+    const planting = ask(holder(), { action: "giantBegin", crop: "pumpkin" }, bare, "run");
+    if (!planting.ok) throw Error(planting.why);
+    const took = ask(planting.purse, { action: "giantEnd", run: "run", marks: extractionMarks(123) }, bare, "end", NOON + 2400);
+    if (!took.ok) throw Error(took.why);
+    expect(ask({ ...took.purse, bag: holder().bag }, { action: "giantBegin", grow: 7, crop: "pumpkin" }, bedWith(), "three", NOON + 3000)).toEqual({ ok: false, why: "spent" });
+  });
+  it("is for the very plant and round it was begun for, and only after the game's least time", () => {
+    const q = begun(holder());
+    expect(end(q, extractionMarks(123), bedWith(), NOON + 2399)).toEqual({ ok: false, why: "far" });
+    expect(end(q, extractionMarks(123), bedWith(ripe({ sown: NOON - CROPS.pumpkin.hours * HOUR - 1000 })))).toEqual({ ok: false, why: "none" });
+    expect(end(q, extractionMarks(123), bedWith(ripe({ picked: 1 })))).toEqual({ ok: false, why: "none" });
+    // (ground taken since it began: nothing spent on a game that could not take)
+    expect(end(q, extractionMarks(123), { ...bedWith(), [k(0, 0)]: { soil: "cleared", plant: null } })).toEqual({ ok: false, why: "room" });
+    // (it begins nothing while a go is open, and an old plain planting run still plants)
+    expect(ask(q, { action: "giantBegin", grow: 3, crop: "pumpkin" }, bedWith(), "again", NOON + 100)).toEqual({ ok: false, why: "none" });
+  });
+  it("a rank-7 giant grown at once keeps its six times", () => {
+    const seven = ripe({ giant: true, root: ROOT, footprint: [ROOT, k(4, 3), k(3, 4), k(4, 4)] });
+    const plots = { ...bedWith(seven), [k(4, 3)]: { soil: "tilled", plant: seven }, [k(3, 4)]: { soil: "tilled", plant: seven }, [k(4, 4)]: { soil: "tilled", plant: seven } } as Record<string, Plot>;
+    const d = end(begun(holder(), 3, plots), extractionMarks(123), plots);
+    if (!d.ok || !d.plots) throw Error("end");
+    expect(d.plots[ROOT].plant!.size).toMatchObject({ n: 3, plain: false });
+    expect(heldIn(d.purse, "seedPumpkin")).toBe(8);
+  });
+  it("the map's bursting comes up from small, past itself, and ends at exactly its size", () => {
+    expect(burstScale(0)).toBeLessThan(0.3);
+    const seen = Array.from({ length: 80 }, (_, i) => burstScale(i * 20));
+    expect(Math.max(...seen)).toBeGreaterThan(1);
+    expect(Math.max(...seen)).toBeLessThan(1.15);
+    expect(burstScale(BURST_MS)).toBe(1);
+    expect(burstScale(1000)).toBe(1);
   });
 });

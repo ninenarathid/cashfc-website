@@ -4,7 +4,8 @@
 // member, and a stranger, another member, too few seeds, ground not ready, a plant not good enough and the same call twice
 // are refused; the bed is kept while it swells, against other deeds, and let go when it is dug; it is pulled by as many
 // hands as its size asks, sold once at the pick with the coins on the deed, and dug alone for no sale; a rank-7 giant grows
-// on; gold is told only of a ripe plant, by its grower, once a round; the grown animals of today have their size from
+// on; the seventh rank's seeds grow one at once by their game, sharing the day's use with planting a giant, the page's twin;
+// gold is told only of a ripe plant, by its grower, once a round; the grown animals of today have their size from
 // their hearts; and a function whose text has moved stops the file with nothing done.
 //   cd <the tree> && FC_REPO=<the tree> V317_BENCH=<a scratch file> node .claude/skills/fc-cash-town/scripts/db/v317.test.mjs
 import assert from "node:assert/strict";
@@ -22,6 +23,8 @@ const GP = await import("@/lib/town/giant-pull");
 const QP = await import("@/lib/town/quality-plant");
 const F = await import("@/lib/town/farm");
 const AN = await import("@/lib/town/animals");
+const RG = await import("@/lib/town/reward-garden");
+const { extractionMarks } = await import("@/lib/town/reward-actions");
 const { CROPS } = await import("@/lib/town/items");
 
 const FILE = process.env.MIGRATION_FILE ?? "supabase/v317_a_plant_that_fills_its_ground.sql", BASE = "5568ab2b";
@@ -105,7 +108,7 @@ try {
   eq((await one(`select count(*)::int c from public.town_animals x, (select town.cat('animals') k) c
      where x.a->'body' is null and (x.a->>'grown')::double precision >= (c.k->'species'->(x.a->>'species')->'grow'->>0)::double precision + (c.k->'species'->(x.a->>'species')->'grow'->>1)::double precision`)).c, 0, "no grown animal has no size");
 
-  eq((await bareWrites((q) => rows(q))).filter((w) => /town_grow|town_plant_gold|town_giant_pull|bed_kept|sold_whole|sale_now|grow_frame|animal_body|animal_rear/.test(JSON.stringify(w))), [], "none of its functions writes with no WHERE");
+  eq((await bareWrites((q) => rows(q))).filter((w) => /town_grow|grow_make|grow_keep|reward_grow|town_plant_gold|town_giant_pull|bed_kept|sold_whole|sale_now|grow_frame|animal_body|animal_rear/.test(JSON.stringify(w))), [], "none of its functions writes with no WHERE");
 
   // ── animals of today ──
   const kept = Object.fromEntries(animalsAfter.map((r) => [r.id, r.a]));
@@ -336,6 +339,119 @@ try {
   eq(why(r), "ok", "and picked");
   eq(r.got[0][1], F.yieldOf(ROOT, { ...big(7) }), "its own fruits");
   eq((await purseOf(m1)).coins, coinsDug, "no sale");
+
+  // ── grown at once, by the seventh rank's seeds ──
+  // (the far side is open live: town_reward asks it of a member)
+  await db.query("insert into public.town_knobs (key, value) values ('far_open', 1) on conflict (key) do update set value = 1");
+  const HOLD = { gifts: { had: ["thingGiantSeeds"], charms: [] } };
+  const reward = (who, input, request = crypto.randomUUID()) => asOf(who)("select public.town_reward($1::uuid, $2::jsonb) r", [request, JSON.stringify(input)]);
+  const here = [rx, ry], askGrow = (n) => ({ action: "giantBegin", grow: n, crop: "pumpkin", at: here });
+  // (the game's least time, as if played: the run begun that much earlier)
+  const played = async (m) => { const q = await purseOf(m); q.professionRewards.giant.began -= 3000; await db.query("select town.keep_purse($1, $2::jsonb)", [m, JSON.stringify(q)]); return q.professionRewards.giant; };
+  await tilledAll(); await seeds(m1, 9); await set(rx, ry, ripe());
+  eq(why(await reward(m1, askGrow(3))), "none", "not without the gift");
+  await seeds(m1, 9, HOLD);
+  await set(rx, ry, ripe({ q: round(69) }));
+  eq(why(await reward(m1, askGrow(2))), "quality", "the gift spares no Quality");
+  await set(rx, ry, ripe());
+  await set(cx, cy, null, "cleared");
+  eq(why(await reward(m1, askGrow(7))), "room", "nor the ground");
+  await set(cx, cy, null);
+  await seeds(m1, 1, HOLD);
+  eq(why(await reward(m1, askGrow(3))), "seeds", "nor the seeds");
+  await seeds(m1, 9, HOLD);
+  eq(why(await reward(m1, { ...askGrow(3), grow: "3" })), "none", "a size that is no number");
+  eq(why(await reward(m1, { ...askGrow(3), grow: null })), "none", "nor none");
+  eq(why(await reward(m2, askGrow(3))), "none", "nor another member, with no gift");
+  let go = await reward(m1, askGrow(3));
+  eq(why(go), "ok", "begun");
+  eq([go.giant.grow, go.giant.crop, go.giant.key, go.giant.root], [3, "pumpkin", ROOT, `${ROOT}:${m1}:pumpkin:${(await plotNow()).plant.sown}:0`], "the go, for that very plant");
+  eq((await plotNow()).plant.size, undefined, "nothing has grown yet");
+  eq(why(await reward(m1, askGrow(3))), "none", "one go at a time");
+  const tooSoon = await reward(m1, { action: "giantEnd", run: go.giant.id, marks: extractionMarks(go.giant.seed), at: here });
+  eq(why(tooSoon), "far", "not before the game's least time");
+  // (a miss)
+  await played(m1);
+  const wrongOf = (seed) => extractionMarks(seed).map((n) => (n > 0.5 ? n - 0.3 : n + 0.3));
+  const before = await purseOf(m1);
+  let ended = await reward(m1, { action: "giantEnd", run: go.giant.id, marks: wrongOf(go.giant.seed), at: here });
+  eq([why(ended), ended.gardenPassed], ["ok", false], "a miss");
+  eq((await plotNow()).plant.size, undefined, "the plant as it was");
+  eq((await purseOf(m1)).bag[0], before.bag[0], "the seeds as they were");
+  eq((await purseOf(m1)).gifts.used?.thingGiantSeeds, undefined, "the day as it was");
+  // (one dug out and sown again since it began is not the plant it was for)
+  go = await reward(m1, askGrow(3)); await played(m1);
+  await set(rx, ry, ripe({ sown: nowMs - (CROPS.pumpkin.hours + 3) * H }));
+  eq(why(await reward(m1, { action: "giantEnd", run: go.giant.id, marks: extractionMarks(go.giant.seed), at: here })), "none", "not another plant");
+  eq(why(await reward(m1, { action: "giantCancel", at: here })), "ok", "put down");
+  await set(rx, ry, ripe());
+  // (ground taken since it began: nothing spent on a game that could not take)
+  go = await reward(m1, askGrow(3)); await played(m1);
+  for (const [x, y] of [[rx - 1, ry], [rx + 1, ry], [rx, ry - 1], [rx, ry + 1]]) await set(x, y, null, "cleared");
+  const noRoom = await reward(m1, { action: "giantEnd", run: go.giant.id, marks: extractionMarks(go.giant.seed), at: here });
+  eq(why(noRoom), "room", "ground taken since it began is told");
+  eq((await purseOf(m1)).gifts.used?.thingGiantSeeds, undefined, "and costs no use");
+  eq(why(await reward(m1, { action: "giantCancel", at: here })), "ok", "put down too");
+  await tilledAll(); await seeds(m1, 9, HOLD); await set(rx, ry, ripe());
+  // (taken: its size at once, ripe, its day spent, its seeds, written down, and the bed not kept ahead)
+  go = await reward(m1, askGrow(3)); await played(m1);
+  ended = await reward(m1, { action: "giantEnd", run: go.giant.id, marks: extractionMarks(go.giant.seed), at: here });
+  eq([why(ended), ended.gardenPassed], ["ok", true], "passed");
+  const burst = await plotNow();
+  eq(Object.keys(ended.plots).sort(), [...burst.plant.footprint].sort(), "its whole square comes back");
+  eq([burst.plant.size.n, burst.plant.size.at === burst.plant.size.until, burst.plant.giant, burst.plant.size.plain], [3, true, true, true], "its size at once");
+  eq((await plotAt(burst.plant.footprint.find((c) => c !== ROOT).split(",")[0] * 1, burst.plant.footprint.find((c) => c !== ROOT).split(",")[1] * 1)).plant.root, ROOT, "the rest of its square by the farm's own trigger");
+  const nowT = Number((await one("select town.now_ms() n")).n);
+  eq((await one("select (town.see($1, jsonb_build_object('soil', 'tilled', 'plant', $2::jsonb), $3)->>'ripe')::boolean r", [ROOT, JSON.stringify(burst.plant), nowT])).r, true, "ripe at once");
+  const salt = (await one("select s.salt from town.quality_salt s where s.one")).salt;
+  eq(Number((await one("select town.sale_now($1, $2::jsonb, $3, $4) s", [ROOT, JSON.stringify(burst.plant), nowT, salt])).s), GS.saleNow(ROOT, burst.plant, nowT, [], undefined, salt), "paid as the page reckons it, its wait in it");
+  const afterIt = await purseOf(m1);
+  eq([afterIt.bag[0], afterIt.gifts.used.thingGiantSeeds.n], [{ item: "seedPumpkin", n: 7 }, 1], "a seed a row, and the day's use");
+  eq(Number((await keepingOf()).tended) <= nowT + 1000, true, "the bed is not kept ahead for what has done");
+  eq((await rows("select thing, n, doc->'atOnce' a from public.town_deeds where what = 'plant_grow' order by at desc limit 1"))[0], { thing: "pumpkin", n: "3", a: true }, "written down as at once");
+  eq(why(await pull(m1, "open")), "ok", "and it may be called for hands straight away");
+  // (the same day's other use is spent, planting a giant included; a replay of the same request changes nothing)
+  eq(why(await reward(m1, { action: "giantBegin", crop: "pumpkin", at: [cx, cy] })), "spent", "no giant to plant the same day");
+  await db.query("delete from public.town_plots where bed = $1", [bed]); await tilledAll(); await set(rx, ry, ripe());
+  eq(why(await reward(m1, askGrow(2))), "spent", "and no second at once");
+  // (and the other way about)
+  await seeds(m1, 9, HOLD);
+  const plain = await reward(m1, { action: "giantBegin", crop: "pumpkin", at: [cx, cy] });
+  eq(why(plain), "ok", "a giant is still planted with the same seeds");
+  eq(plain.giant.grow, undefined, "as a plain go");
+  await played(m1);
+  const sprouted = await reward(m1, { action: "giantEnd", run: plain.giant.id, marks: extractionMarks(plain.giant.seed), at: [cx, cy] });
+  eq([why(sprouted), sprouted.gardenPassed], ["ok", true], "planted");
+  eq((await plotAt(cx, cy)).plant.footprint.length, 4, "on its two by two, no Quality asked");
+  eq(why(await reward(m1, askGrow(2))), "spent", "and that was the day's use");
+  // (the database and the page's twin say the same, step by step)
+  await tilledAll();
+  const plotsNow = async () => Object.fromEntries((await rows("select x, y, soil, plant from public.town_plots where bed = " + bed)).map((q) => [`${q.x},${q.y}`, { soil: q.soil, plant: q.plant }]));
+  const sameAsPage = async (q, c, id, t) => {
+    const keep = await keepingOf(), page = RG.gardenAction(q, c, id, t, 123, m1, await plotsNow(), m1, [], { by: m1, tended: Number(keep.tended), empty: Number(keep.empty) });
+    await db.exec("begin");
+    const d = (await one("select town.reward_garden($1::jsonb, $2::jsonb, $3::uuid, $4, 123, $5::uuid) r", [JSON.stringify(q), JSON.stringify(c), id, t, m1])).r;
+    await db.exec("rollback");
+    return { page, d };
+  };
+  await seeds(m1, 9, HOLD); await set(rx, ry, ripe());
+  const q0 = await purseOf(m1), id0 = "00000000-0000-4000-8000-0000000000a1";
+  for (const [c, what] of [[askGrow(3), "begin"], [askGrow(1), "a step that is none"], [askGrow(8), "one too large"], [{ ...askGrow(3), at: [cx, cy] }, "bare ground"]]) {
+    const { page, d } = await sameAsPage(q0, c, id0, nowT);
+    eq(d.ok, page.ok, `${what}: both say the same`);
+    if (!page.ok) eq(d.why, page.why, `${what}: for the same reason`);
+    else eq(d.giant, page.giant, `${what}: the same go`);
+  }
+  const running = (await sameAsPage(q0, askGrow(3), id0, nowT)).page.purse;
+  const twinPass = await sameAsPage(running, { action: "giantEnd", run: id0, marks: extractionMarks(123), at: here }, id0, nowT + 2400);
+  eq(twinPass.d.gardenPassed, twinPass.page.gardenPassed, "a pass: both");
+  eq(twinPass.d.plots[ROOT].plant.size, twinPass.page.plots[ROOT].plant.size, "the same size");
+  eq(twinPass.d.purse.bag[0], twinPass.page.purse.bag[0], "the same seeds");
+  eq(twinPass.d.purse.gifts.used, twinPass.page.purse.gifts.used, "the same count");
+  const twinMiss = await sameAsPage(running, { action: "giantEnd", run: id0, marks: wrongOf(123), at: here }, id0, nowT + 2400);
+  eq(twinMiss.d.gardenPassed, twinMiss.page.gardenPassed, "a miss: both");
+  eq(twinMiss.d.purse.professionRewards.giant, null, "and the go is over");
+  await seeds(m1, 9, { gifts: { had: [], charms: [] }, professionRewards: {} });
 
   // ── a rank-7 giant ──
   await tilledAll(); await seeds(m1, 9);
