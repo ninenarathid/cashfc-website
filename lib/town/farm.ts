@@ -19,6 +19,7 @@ import { HAND, bedGift, harvestOf, roundStart, settled } from "./quality-plant";
 import { NO_Q, QUALITY } from "./quality";
 import { bedOf } from "./world";
 import type { GiantPull } from "./giant-pull";
+import { saleNow, type PlantSize } from "./giant-sizes";
 import { heldIn, stow, stowHarvest, useUp } from "./pouches";
 import { BANGKOK, DAY, HOUR, forged, handOf, handSlot, held, heldStack, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
 
@@ -179,10 +180,11 @@ export interface Plant {
   /** One rescue of this original, unharvested root; never resets its identity. */
   revived?:boolean;
   giant?:boolean;crossChoice?:CropId;
-  /** Turned gold as it ripened (lib/town/giant-sizes; the owner's mutation, 2026-10-31). */
-  gold?: boolean;
-  /** How large it is drawn within its square (lib/town/giant-sizes' fitOf). */
-  fit?: number;
+  /** The round (`picked`) it turned gold in, and the round its draw was last told for (lib/town/quality-plant's `GOLD`). */
+  gold?: number;
+  sealed?: number;
+  /** Grown past its first plots after ripening (lib/town/giant-sizes). It is `giant` from then, pulled out together. */
+  size?: PlantSize;
   /** A giant's call and go to pull it out together (lib/town/giant-pull): it is picked only once `out`. */
   pull?: GiantPull;
   /** A released pollinator works once each time this plant bears. */
@@ -485,8 +487,10 @@ export function see(key: string, plot: Plot, now: number, rains: FarmSky = DRY):
   const struck = pestAt(key, p, now, rains), end = struck === null ? 0 : diesAt(p, struck, FARMING.pests.kills * HOUR), dead = struck !== null && now > end;
   // (a dead plant stays as it was when it died)
   const g = growing(p, dead ? end : now, rains);
+  // (one swelling over its ground is not ripe until it has done: lib/town/giant-sizes)
+  const swelling = (p.size?.until ?? 0) > now;
   return {
-    soil: plot.soil, crop: p.crop, by: p.by, stage: g.stage, ripe: g.ripe && !dead, pest: struck !== null && !dead, dead,
+    soil: plot.soil, crop: p.crop, by: p.by, stage: swelling ? 4 : g.stage, ripe: g.ripe && !dead && !swelling, pest: struck !== null && !dead, dead,
     wet: !!p.moist || !!p.wetUntil&&now<p.wetUntil || now - p.watered < FARMING.water.every * 60_000 || rainingAt(rainsIn(rains), now) || !!(p.localRain && p.localRain.from<=now && now<p.localRain.until),
   };
 }
@@ -671,7 +675,8 @@ export const isTree = (crop: CropId) => (CROPS[crop].picks ?? 1) >= TREE_PICKS;
  */
 export function yieldOf(key: string, p: Plant, hand: ItemId | null = null): number {
   const [lo, hi] = CROPS[p.crop].yield;
-  const plots = p.giant ? 6 : Math.max(1, p.oldPlots ?? p.footprint?.length ?? 1);
+  // (one that began on one plot and grew gives its own fruits: what its size is worth is its sale, lib/town/giant-sizes)
+  const plots = p.giant ? (p.size?.plain ? 1 : 6) : Math.max(1, p.oldPlots ?? p.footprint?.length ?? 1);
   return (lo + Math.floor(roll(homeOf(key, p), p.sown, p.picked) * (hi - lo + 1))) * plots + (hand === (isTree(p.crop) ? BLADES.tree : BLADES.plant) ? 1 : 0)
     // (a giant pulled out together: a fruit more for each helper who pulled well, lib/town/giant-pull)
     + (p.giant && p.pull?.out ? Math.max(0, Math.min(3, Math.floor(p.pull.bonus ?? 0))) : 0);
@@ -722,12 +727,13 @@ export function pick(key: string, purse: Purse, plot: Plot, may: boolean, hand: 
   const fruits = harvestOf(key, p, n, now, rains, QUALITY.launch, "", 0, atTop(purse, p, me));
   const room = stowHarvest(purse, p.crop, fruits.groups);
   if (!room) return no("full");
-  // (a plant the mandrake sang to, before its song was changed, has its bearing more still: `moreOf`)
-  const picked = p.picked + 1, spent = picked >= (CROPS[p.crop].picks ?? 1) + moreOf(p);
+  // (a plant the mandrake sang to, before its song was changed, has its bearing more still: `moreOf`; one grown over its ground is sold whole, once)
+  const picked = p.picked + 1, spent = picked >= (CROPS[p.crop].picks ?? 1) + moreOf(p) || !!p.size;
+  const paid = spend(room, FARMING.costs.pick, now), sale = saleNow(key, p, now, rains);
   return {
     ok: true, got: [[p.crop, n]], fruits: { range: fruits.range, values: fruits.values },
     plot: spent ? { soil: "cleared", plant: null } : { ...plot, plant: { ...p, picked, pickedAt: now, watered: 0, boostAt: p.boost } },
-    purse: spend(room, FARMING.costs.pick, now),
+    purse: sale > 0 ? { ...paid, coins: paid.coins + sale } : paid,
   };
 }
 
@@ -748,6 +754,8 @@ export function deedFor(key: string, plot: Plot, hand: ItemId | null, me: string
   const seen = see(key, plot, now, rains), kind = toolOf(hand), p = plot.plant, mine = owner === null || owner === me;
   if (kind === "hoe") return p ? (!mine ? null : seen.dead ? "pull" : "uproot") : plot.soil === "wild" ? "clear" : plot.soil === "cleared" ? "till" : null;
   if (kind === "seed") return mine && plot.soil === "tilled" && !p ? "sow" : null;
+  // (one swelling over its ground wants nothing but time: lib/town/giant-sizes)
+  if ((p?.size?.until ?? 0) > now) return null;
   if (p && !seen.dead) {
     // (the farm's own care, on one's own plant in one's own bed: compost once a planting, the brush once a round before it is ripe)
     if (hand === "compost" && mine && p.by === me && typeof p.compost !== "number") return "compost";
@@ -810,7 +818,8 @@ function tendUntrained(key: string, plot: Plot, bed: Bed | undefined, others: nu
   const planted = others > 0 || !!did.plot.plant;
   let next: Bed | undefined = owner === null ? undefined : bed;
   if (deed === "sow" && owner === null) next = { by: me, tended: now, empty: 0 };
-  else if (next && owner === me) next = { ...next, tended: now, empty: planted ? 0 : next.empty || now };
+  // (a bed is kept for as long as what swells in it, lib/town/giant-sizes: `tended` set ahead stays, while the plant does)
+  else if (next && owner === me) next = { ...next, tended: others > 0 || !!did.plot.plant ? Math.max(next.tended, now) : now, empty: planted ? 0 : next.empty || now };
   // ── forging: old tools ── (a plot tilled with a hoe that carries as much turns up a worm so often, where the bag has room for it)
   const worm = tilled && luckOf(`worm|${key}`, now) < hfx.worm && roomFor(paid.bag, WORM) > 0;
   const withWorm = worm ? { ...paid, bag: put(paid.bag, WORM, 1) } : paid;
@@ -967,7 +976,9 @@ export function rowFor(at: string, keys: readonly string[], plots: Readonly<Reco
   // (the sickle is for its wearer's own beds: not somebody else's, nor one that is nobody's)
   const reaps = deed === "pick" && owner === me && wearing(purse, "charmSickle");
   if (!hoes && !sows && !reaps) return null;
-  const x0 = xOf(at), all = keys.filter((key) => want(key) === deed).sort((a, b) => Math.abs(xOf(a) - x0) - Math.abs(xOf(b) - x0) || xOf(a) - xOf(b));
+  // (one grown over its ground is sold whole, picked by itself and never in a row)
+  if (reaps && plots[at]?.plant?.size) return null;
+  const x0 = xOf(at), all = keys.filter((key) => want(key) === deed && !(reaps && plots[key]?.plant?.size)).sort((a, b) => Math.abs(xOf(a) - x0) - Math.abs(xOf(b) - x0) || xOf(a) - xOf(b));
   // (the pouch sows as many plots as the seeds in the bag reach, the nearest first)
   const row = sows ? all.slice(0, pouchPlots(heldIn(purse, hand!), keys.length)) : all;
   return row.length > 1 ? { deed: deed as RowDeed, plots: row } : null;

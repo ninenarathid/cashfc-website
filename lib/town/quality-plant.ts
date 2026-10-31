@@ -242,6 +242,30 @@ export function coveringNow(p: Plant, now: number, rains: FarmSky = DRY): Partia
 }
 
 /**
+ * **The gold mutation** (the owner, 2026-10-31: "ถ้ามี quality ด้านอื่น สามารถ ทำให้ ผักที่ Display กลายพันธุ์ กลายเป้นสีทองคำได้"). The other kind of
+ * Quality is how far a plant's floor is raised, as the ceiling is its size: past `from`, each point of it gives `each` of a
+ * chance, 5% at the top. Drawn once a round, as the fruits are: the same every time it is asked, by the salt no browser
+ * sees, so that nobody can sow again and again for it; the mandrake that tops the fruits does not touch it. Its fruits come
+ * a grade up, and one grown over its ground sells for twice (lib/town/giant-sizes' `saleNow`). A ripe plant's draw is
+ * shown on it when its grower's page asks (public.town_plant_gold: `Plant.gold`), for nothing changes it by then.
+ */
+export const GOLD = { from: 10, each: 0.005, draw: 900, sale: 901 } as const;
+export const goldChance = (narrowing: number) => Math.max(0, narrowing - GOLD.from) * GOLD.each;
+/** The least Quality of the next grade up, for what is under it. */
+const gradeUp = (v: number) => (v < 40 ? 40 : v < 70 ? 70 : v < 95 ? 95 : v);
+/** Whether a plant has come out gold this round; what its Quality comes to when sold whole, by a draw of its own and no grade up. */
+export function goldOf(key: string, p: Plant, now: number, rains: FarmSky = DRY, launch: number = QUALITY.launch, salt = ""): boolean {
+  const narrowing = narrowingOfQ(settled(p, now, rains, launch), typeof p.brushed === "number" && p.brushed >= roundStart(p));
+  return roll(`quality|${salt}|${homeOf(key, p)}`, p.sown, p.picked, GOLD.draw) < goldChance(narrowing);
+}
+export function wholeQuality(key: string, p: Plant, now: number, rains: FarmSky = DRY, launch: number = QUALITY.launch, salt = ""): number {
+  const q = settled(p, now, rains, launch), brushed = typeof p.brushed === "number" && p.brushed >= roundStart(p);
+  return rollOne(rangeOf(ceilingOf(barsOfQ(q)), narrowingOfQ(q, brushed)), () => roll(`quality|${salt}|${homeOf(key, p)}`, p.sown, p.picked, GOLD.sale));
+}
+/** Whether a plant is shown gold: its draw has been told, and of this round. */
+export const turnedGold = (p: Pick<Plant, "gold" | "picked"> | null | undefined) => !!p && p.gold === p.picked;
+
+/**
  * A pick's fruits: the round's range as it stands (ripe, so frozen), and one even roll a fruit. The draws are the same
  * for the same plant, picking and fruit (a retry with a full bag gives the same fruits, never a new roll). The database
  * draws with md5 over a salt of its own that no browser sees; with an empty salt (the trial, the bench) it draws as here.
@@ -252,9 +276,14 @@ export function coveringNow(p: Plant, now: number, rains: FarmSky = DRY): Partia
 export function harvestOf(key: string, p: Plant, n: number, now: number, rains: FarmSky = DRY, launch: number = QUALITY.launch, salt = "", from = 0, top = false):
   { range: Range; values: number[]; groups: Array<[Grade, number]> } {
   const q = settled(p, now, rains, launch), brushed = typeof p.brushed === "number" && p.brushed >= roundStart(p);
-  const range = rangeOf(ceilingOf(barsOfQ(q)), narrowingOfQ(q, brushed)), home = homeOf(key, p);
+  const narrowing = narrowingOfQ(q, brushed), range = rangeOf(ceilingOf(barsOfQ(q)), narrowing), home = homeOf(key, p), draw = `quality|${salt}|${home}`;
+  // (a plant turned gold: every fruit of it a grade up, Excellent the last: `GOLD`)
+  const gold = roll(draw, p.sown, p.picked, GOLD.draw) < goldChance(narrowing);
   // (fruits after the pick's own, the garden twine's and the sickle's, are drawn as the fruits that follow: `from` on)
-  const values = Array.from({ length: n }, (_, i) => (top ? range.hi : rollOne(range, () => roll(`quality|${salt}|${home}`, p.sown, p.picked, from + i))));
+  const values = Array.from({ length: n }, (_, i) => {
+    const v = top ? range.hi : rollOne(range, () => roll(draw, p.sown, p.picked, from + i));
+    return gold ? gradeUp(v) : v;
+  });
   const count = [0, 0, 0, 0];
   for (const v of values) count[gradeOf(v)]++;
   return { range, values, groups: ([0, 1, 2, 3] as const).filter((g) => count[g] > 0).map((g) => [g, count[g]] as [Grade, number]) };

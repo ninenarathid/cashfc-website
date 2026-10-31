@@ -1,4 +1,4 @@
-import { see, type FarmSky, type Plot } from "./farm";
+import { see, type FarmSky, type Plant, type Plot } from "./farm";
 import { spend } from "./stamina";
 import type { Purse } from "./trade";
 
@@ -24,7 +24,12 @@ import type { Purse } from "./trade";
  * - **Never quicker hands for the tired:** the rules are the same with no stamina.
  *
  * The page judges a press at the press (components/town/TownGiantPull) and reports the half-swings it pulled well,
- * every few half-swings; whoever keeps the game counts them (the database's twin: v307's `public.town_giant_pull`).
+ * every few half-swings; whoever keeps the game counts them (the database's twin: v317's `public.town_giant_pull`).
+ *
+ * **One grown over its ground** (lib/town/giant-sizes; the owner, 2026-10-31: "ใช้คนในการช่วยกันถอนมากขึ้น"): its size says how many
+ * hands must stand at it before it can start (`needs`), how many more may join, how many pulling one half-swing make it
+ * worth the 3, and how fast its roots hold. With no such crew about, its keeper may dig it out alone (`dig`): its fruits as
+ * any plant's, and no sale. A rank-7 giant that has not grown on is as it always was: alone it may be pulled.
  */
 export const PULL = {
   crew: 4,
@@ -49,6 +54,8 @@ export const PULL = {
 
 /** A call and its go, kept on the giant's root plant. Times are the database's milliseconds; `hits` the half-swings each pulled well. */
 export interface GiantPull {
+  /** Dug out alone (`dig`): no sale for it. */
+  alone?: boolean;
   by: string;
   at: number;
   crew: string[];
@@ -60,8 +67,20 @@ export interface GiantPull {
   helped: string[];
 }
 
-export type PullAction = "open" | "join" | "leave" | "go" | "hits" | "look";
-export type PullRefusal = "none" | "theirs" | "busy" | "shut" | "full" | "in" | "crew" | "late" | "done";
+export type PullAction = "open" | "join" | "leave" | "go" | "hits" | "look" | "dig";
+export type PullRefusal = "none" | "theirs" | "busy" | "shut" | "full" | "in" | "crew" | "late" | "done" | "hands";
+
+/** What pulling it takes, by its size: hands before it can start, how many may be in the crew, how many in one half-swing make it worth the most, and how fast the roots hold. */
+export interface PullNeeds { hands: number; crew: number; together: number; grip: number }
+const NEEDS: Readonly<Record<number, PullNeeds>> = {
+  2: { hands: 2, crew: 4, together: 2, grip: 24 },
+  3: { hands: 3, crew: 5, together: 2, grip: 28 },
+  4: { hands: 3, crew: 5, together: 2, grip: 32 },
+  5: { hands: 4, crew: 6, together: 3, grip: 36 },
+  6: { hands: 5, crew: 7, together: 3, grip: 42 },
+  7: { hands: 6, crew: 8, together: 4, grip: 48 },
+};
+export const needsOf = (p: Pick<Plant, "size"> | null | undefined): PullNeeds => (p?.size && NEEDS[p.size.n]) || { hands: 1, crew: PULL.crew, together: 2, grip: PULL.grip };
 export type PullDid = { ok: true; plot: Plot; purse: Purse; helped: string[] } | { ok: false; why: PullRefusal };
 
 /** The moment half-swing `k` leans farthest; `sideOf(k)` which way (1 right, −1 left). */
@@ -89,10 +108,10 @@ export function pullsBySwing(hits: Readonly<Record<string, readonly number[]>>):
   return by;
 }
 /** The half-swings' worth so far, and what the roots still hold. */
-export function gripOf(hits: Readonly<Record<string, readonly number[]>>): { done: number; left: number } {
+export function gripOf(hits: Readonly<Record<string, readonly number[]>>, needs: Pick<PullNeeds, "together" | "grip"> = { together: 2, grip: PULL.grip }): { done: number; left: number } {
   let done = 0;
-  for (const n of pullsBySwing(hits).values()) done += worthOf(n);
-  return { done, left: Math.max(0, PULL.grip - done) };
+  for (const n of pullsBySwing(hits).values()) done += worthOf(n >= needs.together ? 2 : Math.min(n, 1));
+  return { done, left: Math.max(0, needs.grip - done) };
 }
 export const pullOf = (plot: Plot | undefined): GiantPull | null => (plot?.plant?.giant && plot.plant.pull ? plot.plant.pull : null);
 /** A call that can still be joined or started. */
@@ -123,7 +142,7 @@ export function cleanHits(go: number, hits: unknown, now: number): number[] | nu
  * `pick`). The plot comes back as it should be kept; `helped`, when this report pulled it out, the helpers to credit.
  */
 export function giantPull(action: PullAction, key: string, plot: Plot | undefined, me: string, may: boolean, purse: Purse, now: number, hits: unknown = [], sky?: FarmSky): PullDid {
-  const p = plot?.plant, pull = pullOf(plot);
+  const p = plot?.plant, pull = pullOf(plot), needs = needsOf(p);
   if (!plot || !p?.giant || (p.root && p.root !== key)) return { ok: false, why: "none" };
   const keep = (next: GiantPull | null, purse_ = purse, helped: string[] = []): PullDid => {
     const { pull: _, ...rest } = p;
@@ -139,10 +158,17 @@ export function giantPull(action: PullAction, key: string, plot: Plot | undefine
     const crew = pull && pull.go > 0 && pull.by === me && now <= goEnds(pull.go) + PULL.call ? pull.crew : [me];
     return keep({ by: me, at: now, crew, go: 0, hits: {}, paid: [], out: 0, bonus: 0, helped: [] });
   }
+  // (dug out alone: only one grown over its ground, whose crew cannot be found; a giant of rank 7 is pulled alone as ever)
+  if (action === "dig") {
+    if (!may) return { ok: false, why: "theirs" };
+    if (!p.size || !pullable(key, plot, now, sky)) return { ok: false, why: "none" };
+    if (calling(pull, now) || pulling(pull, now)) return { ok: false, why: "busy" };
+    return keep({ by: me, at: now, crew: [me], go: 0, hits: {}, paid: [], out: now, bonus: 0, helped: [], alone: true });
+  }
   if (action === "join") {
     if (!calling(pull, now)) return { ok: false, why: "shut" };
     if (pull!.crew.includes(me)) return { ok: false, why: "in" };
-    if (pull!.crew.length >= PULL.crew) return { ok: false, why: "full" };
+    if (pull!.crew.length >= needs.crew) return { ok: false, why: "full" };
     return keep({ ...pull!, crew: [...pull!.crew, me] });
   }
   if (action === "leave") {
@@ -153,6 +179,7 @@ export function giantPull(action: PullAction, key: string, plot: Plot | undefine
     if (!calling(pull, now)) return { ok: false, why: "shut" };
     if (pull!.by !== me) return { ok: false, why: "theirs" };
     if (!pullable(key, plot, now, sky)) return { ok: false, why: "none" };
+    if (pull!.crew.length < needs.hands) return { ok: false, why: "hands" };
     return keep({ ...pull!, go: now });
   }
   // hits: my report of the half-swings I pulled well so far
@@ -164,7 +191,7 @@ export function giantPull(action: PullAction, key: string, plot: Plot | undefine
   const merged = { ...pull.hits, [me]: [...new Set([...(pull.hits[me] ?? []), ...mine])].sort((a, b) => a - b) };
   const paid = pull.paid.includes(me) ? pull.paid : [...pull.paid, me];
   const purse_ = pull.paid.includes(me) ? purse : spend(purse, 1, now);
-  if (gripOf(merged).left > 0) return keep({ ...pull, hits: merged, paid }, purse_);
+  if (gripOf(merged, needs).left > 0) return keep({ ...pull, hits: merged, paid }, purse_);
   const helped = pull.crew.filter((id) => id !== pull.by && (merged[id]?.length ?? 0) >= PULL.helpFrom);
   return keep({ ...pull, hits: merged, paid, out: now, bonus: helped.length, helped }, purse_, helped);
 }

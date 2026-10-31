@@ -429,6 +429,8 @@ class TrialKeeper implements Keeper {
     return this.trial.giants().map((h) => settled(h, now)).filter((h) => !h.how || (now - h.end < GIANT.after && (h.by === this.id || h.netter === this.id)));
   }
   async giantPull(action: import("./giant-pull").PullAction, at: [number, number], hits: number[] = []): Promise<Did> { const did = this.trial.giantPull(action, at.join(","), hits); if (did.ok && action !== "look") this.onDeed?.("farm"); return did; }
+  async growPlant(at: [number, number], n: number): Promise<Did> { const did = this.trial.growPlant(at.join(","), n); if (did.ok) this.onDeed?.("farm"); return did; }
+  async plantGold(at: [number, number]): Promise<Did> { const did = this.trial.plantGold(at.join(",")); if (did.ok) this.onDeed?.("farm"); return did; }
   async farmDo(key: string, name: string, timing?: Timing, sure = false): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]>; also?: string[] }>> {
     const did = this.trial.farmDo(key, name, sure, timing?.rotation ?? 0);
     // every miss of the hoe is a little more stamina gone

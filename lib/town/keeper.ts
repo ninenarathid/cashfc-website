@@ -105,6 +105,7 @@ import { worksOf, type BridgeRefusal, type WorksTold } from "./bridge";
 // ── the lamp relay ──
 import { lampsOf, type LampMap, type LampRefusal, type LampsTold } from "./lamps";
 import type { PullAction, PullRefusal } from "./giant-pull";
+import type { GrowRefusal } from "./giant-sizes";
 
 /**
  * Who keeps the game.
@@ -145,7 +146,7 @@ export type Why = Refusal | TailorRefusal | FarmRefusal | ForestRefusal | BugRef
   // ── the lamp relay ──
   | LampRefusal
   // ── a giant pulled out together ──
-  | PullRefusal;
+  | PullRefusal | GrowRefusal;
 export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why };
 /** A bid's answer: a refusal may carry the least that would do and the round as it stands (v297). */
 /** A bid's answer; `from` is the round my bid left for this one (one design at a time, lib/town/auction). */
@@ -359,6 +360,9 @@ export interface Keeper {
   farmDo(key: string, name: string, timing?: Timing, sure?: boolean): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]>; also?: string[] }>>;
   /** A giant pulled out together (lib/town/giant-pull): a call at its root, a join, a leave, the start, a report of the half-swings pulled well, a look. */
   giantPull(action: PullAction, at: [number, number], hits?: number[]): Promise<Did>;
+  /** A ripe plant asked to grow over its ground (lib/town/giant-sizes); and a ripe plant's gold told on it (lib/town/quality-plant's `GOLD`). */
+  growPlant(at: [number, number], n: number): Promise<Did>;
+  plantGold(at: [number, number]): Promise<Did>;
   /** A giant fish on a line (lib/town/giant-fish): a call to the town, a netter's join at the post, a scoop, a fray, letting it go, my steak, a look. `name` is mine, which the trial cannot know. */
   giantFish?(action: import("./giant-fish").GiantAction, id: string, opts?: { at?: [number, number]; text?: string; name?: string }): Promise<Did<{ hook: import("./giant-fish").GiantHook; steak?: boolean }>>;
   /** The giants on lines in the town now, and those of mine ended lately (a steak not yet had). */
@@ -1871,6 +1875,17 @@ export class DbKeeper implements Keeper {
     const did = await this.deed("town_giant_pull", { p_action: action, p_x: at[0], p_y: at[1], p_hits: hits });
     // (a call, a join, a leave, the start and the moment it comes out are told to the farm: every page reads the plot anew)
     if (did.ok && action !== "look" && (action !== "hits" || !!this.plots[at.join(",")]?.plant?.pull?.out)) this.onDeed?.("farm");
+    return did;
+  }
+  // ── a plant grown over its ground ── (v317's town_grow: every plot of its square comes back as it is kept; v317's town_plant_gold: its gold told on it)
+  async growPlant(at: [number, number], n: number): Promise<Did> {
+    const did = await this.deed("town_grow", { p_x: at[0], p_y: at[1], p_n: n });
+    if (did.ok) this.onDeed?.("farm");
+    return did;
+  }
+  async plantGold(at: [number, number]): Promise<Did> {
+    const did = await this.deed("town_plant_gold", { p_x: at[0], p_y: at[1] });
+    if (did.ok) this.onDeed?.("farm");
     return did;
   }
   // ── a giant fish on a line ── (v309's town_giant_fish: the hook comes back as it is kept; a call goes out as the town's news)

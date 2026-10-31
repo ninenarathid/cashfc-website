@@ -13,6 +13,7 @@ import{rememberGardenMisses}from './help-checkpoints';
 import{beanAction}from "./reward-bean";
 import{gardenAction}from "./reward-garden";
 import { giantPull, type PullAction, type PullRefusal } from "./giant-pull";
+import { growPlant, type GrowRefusal } from "./giant-sizes";
 import{kitchenAction,kitchenCooked}from './reward-kitchen';
 import{picnicPlace,picnicEat}from"./reward-picnic";
 import{crownAction}from"./reward-crown";
@@ -51,7 +52,7 @@ import { startSchool,type FishPool } from "./reward-fishing";
 import {portableLift} from "./reward-lift";
 import type { RewardInput, RewardReply } from "./reward-types";
 import { gardenTend, syncGarden } from "./gardening";
-import { syncQuality } from "./quality-plant";
+import { goldOf, syncQuality } from "./quality-plant";
 import { insectCare, type InsectCare } from "./insect-garden";
 import { boxOffer, moveBox, newBox, roomyBox, sortBox, stow, unstow, upgradeBox, type Box, type BoxRefusal } from "./box";
 import { craft, type CraftId } from "./crafting";
@@ -60,7 +61,7 @@ import { preparationReady, prepare, PREPARATION, type PrepId, type PrepRun, type
 import { makeCamp, campBenefit, type FieldCamp } from "./camps";
 import { fitHook } from "./rod-hook";
 import { cook, feastEat, hasMade, isFind, ladle, mayLeave, serve, setDown, takeUp, tidied, type Pot, type Taste } from "./cooking";
-import { WATER, WILD, chore, choreFor, deedFor, inPestHours, ownerOf, pestHour, tend, type Bed, type Chore, type Deed, type FarmRefusal, type FarmSky, type Plot, type Swarms } from "./farm";
+import { WATER, WILD, chore, choreFor, deedFor, inPestHours, ownerOf, pestHour, see, tend, type Bed, type Chore, type Deed, type FarmRefusal, type FarmSky, type Plot, type Swarms } from "./farm";
 import { agree, lay, newDeal, sideOf, swap, type Deal, type Give } from "./deal";
 import { backBait, hookBait, landCatch, loseBait } from "./fishing";
 import { gather, holds, lanternLit, placeAt, ruleOf, sights, turnOf, type ForestRefusal, type Outcome, type Sight } from "./forest";
@@ -832,6 +833,29 @@ export class Trial {
     if (did.helped.includes(this.id)) this.counted({ from: "deed", what: "giant_help", thing: did.plot.plant?.crop ?? null, n: 1, doc: { by: did.plot.plant?.pull?.by ?? "" } });
     return { ok: true };
   }
+  /** A ripe plant asked to grow over its ground (lib/town/giant-sizes), as the database's public.town_grow does it. */
+  growPlant(key: string, n: number): { ok: true } | { ok: false; why: GrowRefusal } {
+    const now = this.now(), plots = this.farm(), [x, y] = key.split(",").map(Number), bed = bedOf(x, y), beds = this.beds();
+    const owner = ownerOf(beds[bed], (this.plantedIn(plots).get(bed) ?? 0) > 0, now);
+    const before = this.purse(), did = growPlant(key, plots, n, this.id, owner, beds[bed], before, now, this.sky());
+    if (!did.ok) return did;
+    this.write(FARM, { ...plots, ...did.plots });
+    this.write(BEDS, { ...beds, [bed]: did.bed });
+    this.save(did.purse);
+    this.counted({ from: "deed", what: "plant_grow", thing: plots[key]?.plant?.crop ?? null, n, doc: {} });
+    return { ok: true };
+  }
+  /** A ripe plant's gold told on it: one way or the other, once a round. */
+  plantGold(key: string): { ok: true } | { ok: false; why: "none" } {
+    const now = this.now(), plots = this.farm(), plot = plots[key], p = plot?.plant;
+    if (!plot || !p || p.by !== this.id || (p.root && p.root !== key)) return { ok: false, why: "none" };
+    const seen = see(key, plot, now, this.sky());
+    if (seen.dead || !(seen.ripe || (p.size?.until ?? 0) > now)) return { ok: false, why: "none" };
+    if (p.sealed === p.picked) return { ok: true };
+    const gold = goldOf(key, p, now, this.sky());
+    this.write(FARM, { ...plots, [key]: { ...plot, plant: { ...p, sealed: p.picked, ...(gold ? { gold: p.picked } : {}) } } });
+    return { ok: true };
+  }
   bedLeave(bed: number): { ok: true; plants: number } | { ok: false; why: BedRefusal } {
     const now = this.now(), beds = this.beds(), plots = this.farm();
     const did = leaveBed(bed, beds[bed], plots, this.purse(), this.id, now);
@@ -1116,7 +1140,7 @@ export class Trial {
     this.write(FARM, next);
     // (its owner's every deed in a bed counts as tending it)
     const beds = this.beds(), bed = String(bedOf(x, y));
-    if (beds[bed] && ownerOf(beds[bed], true, now) === this.id) this.write(BEDS, { ...beds, [bed]: { ...beds[bed], tended: now } });
+    if (beds[bed] && ownerOf(beds[bed], true, now) === this.id) this.write(BEDS, { ...beds, [bed]: { ...beds[bed], tended: Math.max(beds[bed].tended, now) } });
     // (the well's book: the pourer's own water on each plant it reached, each a watering)
     this.wellSeen({ by: this.id, at: now, what: "ditch", n: did.used, plants: did.watered.length, can: hand });
     for (const k of did.watered) {
@@ -2402,7 +2426,7 @@ export class Trial {
         if(c.used)this.wellSeen({by:this.id,at:now,what:"ditch",n:c.used,plants:c.watered!.length,can:hand});
         for(const key of c.watered??[]){const [x,y]=key.split(',').map(Number),was=plots[key];next[key]=keptAs(was,c.plots[key],now,SKIES.sky(now),this.natureNow(now,wellOfKey(key)));this.wellSeen({by:this.id,at:now,what:"water",can:hand,tile:[x,y],...(was?.plant?.by!==this.id?{whose:was?.plant?.by}:{})});}
         this.write(FARM,next);
-        const beds=this.beds();if(beds[bed]&&ownerOf(beds[bed],true,now)===this.id)this.write(BEDS,{...beds,[bed]:{...beds[bed],tended:now}});
+        const beds=this.beds();if(beds[bed]&&ownerOf(beds[bed],true,now)===this.id)this.write(BEDS,{...beds,[bed]:{...beds[bed],tended:Math.max(beds[bed].tended,now)}});
       }
       const {plots:_,cooldown:__,...out}=c;did=out;
     }else if(input.action==="relayPlace"||input.action==="relaySend"||input.action==="relayTake"){

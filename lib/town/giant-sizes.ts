@@ -1,24 +1,37 @@
+import { FARMING, see, type Bed, type FarmSky, type Plot } from "./farm";
+import { calling, pulling } from "./giant-pull";
 import { CROPS, ITEMS, type CropId, type ItemId } from "./items";
-import { GRADES, type Grade } from "./quality";
+import { heldIn, useUp } from "./pouches";
+import { GRADES, QUALITY, gradeOf, type Grade } from "./quality";
+import { goldOf, qualityNow, wholeQuality } from "./quality-plant";
+import { spend } from "./stamina";
+import { HOUR, type Purse } from "./trade";
+import { DRY } from "./weather";
 import { bedCorner, bedOf } from "./world";
-import type { Plot } from "./farm";
 
 /**
  * **A plant grown over its bed** (the owner, 2026-10-31: "ยิ่ง quality เยอะยิ่งใหญ่ สุงสุดได้ คือ ทั้งแปลงเป้นผักต้นเดียว ใช้คนในการ
  * ช่วยกันถอนมากขึ้น ได้ราคาสูง ขึ้น ให้คุ้มกันพื้นที่ๆกินไป", and "จะกดปล่อยให้โตได้ ต้องมีพื้นที่รองรับก่อน").
  *
- * A ripe plant's ceiling (the four bars, frozen) says how large it may grow; the ground must be ready before it is
- * asked to: every plot of the square is tilled and has nothing on it. The square holds the root, and all of it lies in
- * the plant's bed. A giant already on 2x2 (rank 7's) counts as that size and grows on the same way.
+ * - **What it asks.** A ripe plant's ceiling (the four bars, frozen) says how large it may grow. Its keeper asks for a
+ *   step when the ground is ready: every plot of the square is tilled and has nothing on it, the square holds what it
+ *   stands on now, and all of it lies in the plant's bed. A seed of its own crop a row it grows by. A rank-7 giant counts
+ *   as 2x2 and grows on the same way ("ต้นไม่ยักษ์ในเกมตอนนี้จะถือว่าเป็น 2x2 สามารถ พัฒนาต่อได้"), as may one grown already.
+ * - **The wait.** It takes the square at once and swells over it for `wait` times the crop's own hours, wanting nothing
+ *   and open to nothing, for a ripe plant meets no pest. Its bed is kept for it till then (`Bed.tended` set ahead:
+ *   public.town_grow), for a keeper with nothing to do there would otherwise lose it in four days.
+ * - **The end.** Grown, it is `giant`: pulled out together (lib/town/giant-pull), how many hands by its size, and then
+ *   picked by its keeper once: its own fruits as ever, a rank-7 one's six times as before, and the relatives pay for it
+ *   whole on the spot (`saleNow`): no cap on that, the owner's word ("ปล่อยเฟ้่อได้").
  *
- * Plan only as yet: the first look of the rules, for the owner's mock pictures. Numbers are the two AIs' first figures.
+ * The database's twin is v317's `public.town_grow`.
  */
 export interface GiantSize {
   /** How many plots a side. */
   n: 2 | 3 | 4 | 5 | 6 | 7;
   /** The ceiling it asks for. */
   from: number;
-  /** How many hands it takes to pull out, its grower too. */
+  /** How many hands it takes to pull out, its grower too (lib/town/giant-pull's `needsOf`). */
   hands: number;
   /** The further wait, in times the crop's own hours; also what a plot pays for. */
   wait: number;
@@ -33,11 +46,20 @@ export const SIZES: readonly GiantSize[] = [
   { n: 6, from: 95, hands: 5, wait: 2.5, th: "มหาศาล", en: "Vast" },
   { n: 7, from: 100, hands: 6, wait: 3, th: "เต็มแปลง", en: "Whole bed" },
 ];
+/** What a plant keeps of its growing. `plain`: it began on one plot (a rank-7 one keeps its six times the fruits). */
+export interface PlantSize {
+  n: number;
+  at: number;
+  until: number;
+  plain: boolean;
+}
 /** The crops that may grow so, for now: those that have their pictures. */
 export const GROW_CROPS = ["pumpkin", "carrot", "daikon", "cabbage", "taro"] as const;
 /** The largest size a ceiling allows, if any. */
 export const sizeFor = (ceiling: number): GiantSize | null => SIZES.filter((s) => ceiling >= s.from).at(-1) ?? null;
 export const sizeOf = (n: number): GiantSize | undefined => SIZES.find((s) => s.n === n);
+/** The side of the square a plant stands on: its size's, a rank-7 giant's 2, or one plot. */
+export const sideOf = (p: { size?: PlantSize; giant?: boolean }): number => p.size?.n ?? (p.giant ? 2 : 1);
 
 /**
  * How large it is drawn within its step (the owner, 2026-10-31: "1x1 2x2 3x3 4x4 ขั้นตามนั้น แต่มี เล็กใหญ่ต่างกันตาม stat ที่ต่างกันได้เล็กน้อย แต่ต้อง
@@ -50,6 +72,11 @@ export const FIT_TOP: Readonly<Record<number, number>> = { 1: 1.2, 2: 1.12, 3: 1
 export function fitOf(quality: number, n: number): number {
   const i = SIZES.findIndex((s) => s.n === n), from = n === 1 ? 0 : (SIZES[i]?.from ?? 100), next = n === 1 ? SIZES[0].from : (SIZES[i + 1]?.from ?? 101);
   return FIT_LOW + ((FIT_TOP[n] ?? 1.06) - FIT_LOW) * Math.max(0, Math.min(1, (quality - from) / (next - from)));
+}
+/** How far along its swelling a plant is, 0 to 1 (1 for one that is not swelling). */
+export function swellOf(p: { size?: PlantSize }, now: number): number {
+  const s = p.size;
+  return s && s.until > now ? Math.max(0, (now - s.at) / Math.max(1, s.until - s.at)) : 1;
 }
 
 /** Why a plot of the square is not ready: something stands on it, or it is not tilled. */
@@ -105,7 +132,48 @@ export function saleOf(crop: CropId, n: number, grade: Grade): number {
   if (!size || !it) return 0;
   return Math.floor(n * n * ((c.yield[0] + c.yield[1]) / 2) * it.pays * size.wait * GRADES[grade].pays);
 }
+/**
+ * What it comes to when picked: nothing for one that has not grown, or was dug out alone; its grade by a draw of its own,
+ * twice for one that turned gold (lib/town/quality-plant's `GOLD`). The mandrake's top is for fruits: this is not one.
+ */
+export function saleNow(key: string, p: NonNullable<Plot["plant"]>, now: number, rains: FarmSky = DRY, launch: number = QUALITY.launch, salt = ""): number {
+  if (!p.size || p.pull?.alone) return 0;
+  const sale = saleOf(p.crop, p.size.n, gradeOf(wholeQuality(key, p, now, rains, launch, salt)));
+  return goldOf(key, p, now, rains, launch, salt) ? sale * 2 : sale;
+}
 /** How many more hours it takes. */
 export const waitOf = (crop: CropId, n: number) => CROPS[crop].hours * (sizeOf(n)?.wait ?? 0);
 /** How many more seeds: one for each row it grows by (the owner, 2026-10-31, to one a plot's twelve days of the uncle's pumpkin seeds). `side`: the side of the square it stands on now. */
 export const seedsFor = (n: number, side = 1) => Math.max(0, n - side);
+
+export type GrowRefusal = "none" | "theirs" | "unripe" | "pest" | "quality" | "room" | "seeds" | "busy";
+export type GrowDid = { ok: true; plots: Record<string, Plot>; purse: Purse; bed: Bed } | { ok: false; why: GrowRefusal };
+/**
+ * Ask a ripe plant at its root (`key`) to grow to `n` a side. `plots`: its bed's, `bed`: the bed's keeping, as lib/town/farm's
+ * `ownerOf` has made it `owner`. The plots come back as they should be kept: the plant on every one of the square.
+ */
+export function growPlant(key: string, plots: Readonly<Record<string, Plot>>, n: number, me: string, owner: string | null, bed: Bed | undefined, purse: Purse, now: number, rains: FarmSky = DRY, launch: number = QUALITY.launch): GrowDid {
+  const plot = plots[key], p = plot?.plant, size = sizeOf(n);
+  if (!plot || !p || !size || (p.root && p.root !== key) || !(GROW_CROPS as readonly string[]).includes(p.crop)) return { ok: false, why: "none" };
+  if (owner !== me || !bed) return { ok: false, why: "theirs" };
+  const seen = see(key, plot, now, rains);
+  if (seen.dead) return { ok: false, why: "none" };
+  if (!seen.ripe) return { ok: false, why: "unripe" };
+  if (seen.pest) return { ok: false, why: "pest" };
+  if (p.pull?.out || calling(p.pull ?? null, now) || pulling(p.pull ?? null, now)) return { ok: false, why: "busy" };
+  const side = sideOf(p);
+  if (n <= side) return { ok: false, why: "none" };
+  if (qualityNow(p, now, rains, launch).range.hi < size.from) return { ok: false, why: "quality" };
+  const frame = growFrame(key, n, plots);
+  if (!frame || frame.blocked.size > 0) return { ok: false, why: "room" };
+  const seeds = seedsFor(n, side), seed = CROPS[p.crop].seed;
+  if (heldIn(purse, seed) < seeds) return { ok: false, why: "seeds" };
+  const { pull: _, ...rest } = p, until = now + waitOf(p.crop, n) * HOUR;
+  const plant: NonNullable<Plot["plant"]> = { ...rest, giant: true, root: key, footprint: frame.cells, size: { n, at: now, until, plain: p.size ? p.size.plain : !p.giant } };
+  return {
+    ok: true,
+    plots: Object.fromEntries(frame.cells.map((k) => [k, { soil: "tilled" as const, plant: { ...plant } }])),
+    purse: useUp(spend(purse, FARMING.costs.sow * seeds, now), seed, seeds),
+    bed: { ...bed, tended: Math.max(bed.tended, until), empty: 0 },
+  };
+}

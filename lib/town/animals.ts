@@ -339,7 +339,9 @@ export interface Animal {
   narrow: number;
   /** A parent rests until then. */
   rest: number;
-  /** Its body's size, set once when it is grown (the owner, 2026-10-31: "ตัวใหญ่เล็กไม่เท่ากัน"): one factor over every pose. */
+  /** While it grows: the days it grew, and on how many of them it had each of the four cares (`rearDay`). */
+  rearing?: Rearing;
+  /** Its body's size, rolled once when it is found grown (the owner, 2026-10-31: "ตัวใหญ่เล็กไม่เท่ากัน"): one factor over every pose. */
   body?: number;
   /** Turned gold as it grew up. */
   gold?: boolean;
@@ -379,6 +381,47 @@ export interface Ctx {
   bottle?: boolean;
   /** The owner's barn door. */
   door: GateLog;
+  /** Whoever keeps the game rolls a grown animal's size (`bodyFrom`), by a draw of its own; a page, which has none, only reads what is told. */
+  draw?: (a: Pick<Animal, "id" | "born">, i: number) => number;
+}
+
+/**
+ * **An animal's size** (the owner, 2026-10-31: "การเลี้ยงสัตว์จะมี quality ต้องทำเหมือนปลูกผักเช่นกัน จะมีผลให้ตัวใหญ่เล็กไม่เท่ากัน", and of its
+ * look "ถ้าเลี้ยงดี ตัวใหญ่ กลายพันธ์ขอ Epic กว่านี้ได้ไหม"; "คิดว่าดีแล้ว" of its giving no more produce). As a plant's Quality: four bars while it
+ * grows, a day counting for each care it had (a pet, a treat, an outing, food in its trough at the day's end), a ceiling
+ * of their sum, the floor 30 under raised by its best graded feed (`narrow`), and one roll when it is found grown, kept
+ * from then on. The four grades make its size, a little more within each, never as far as the next. Its best feed
+ * past 10 gives it its chance of gold, one percent a point. Grown ones of before had theirs from their hearts (v317).
+ */
+export const BODY = {
+  /** A day counts when it grew so many fed hours since the last that counted: a few minutes' day before 05:00 is not held against it. */
+  dayFrom: 4,
+  bar: 25,
+  steps: { cow: [1, 1.4, 1.9, 2.5], sheep: [1, 1.5, 2.1, 2.8], chicken: [1, 1.6, 2.2, 3], duck: [1, 1.6, 2.2, 3] } as Record<SpeciesId, readonly number[]>,
+  /** How much larger the top of a grade is than its foot. */
+  within: 0.06,
+} as const;
+export interface Rearing { was: number; days: number; pet: number; treat: number; out: number; fed: number }
+/** A day that closes, or the one it is found grown in. */
+export function rearDay(r: Rearing | undefined, today: Today, grown: number, food: number): Rearing | undefined {
+  if (grown - (r?.was ?? 0) < BODY.dayFrom) return r;
+  const was = r ?? { was: 0, days: 0, pet: 0, treat: 0, out: 0, fed: 0 };
+  return { was: grown, days: was.days + 1, pet: was.pet + (today.pet ? 1 : 0), treat: was.treat + (today.treat ? 1 : 0), out: was.out + (today.out ? 1 : 0), fed: was.fed + (food > 1e-9 ? 1 : 0) };
+}
+/** The size a value of Quality makes of a species. */
+export function bodyOf(species: SpeciesId, v: number): number {
+  const g = v >= 95 ? 3 : v >= 70 ? 2 : v >= 40 ? 1 : 0, lo = [0, 40, 70, 95][g], hi = [39, 69, 94, 100][g];
+  return Math.floor(BODY.steps[species][g] * (1 + (BODY.within * (v - lo)) / (hi - lo)) * 100 + 0.5) / 100;
+}
+/** The range its rearing gives: what the inspector shows while it grows, and what is rolled in. */
+export function rearRange(r: Rearing | undefined, narrow: number): { lo: number; hi: number } {
+  const days = r?.days ?? 0, bar = (n: number) => (days > 0 ? Math.min(BODY.bar, Math.floor((BODY.bar * n) / days + 1e-9)) : 0);
+  const hi = r ? bar(r.pet) + bar(r.treat) + bar(r.out) + bar(r.fed) : 0;
+  return { lo: Math.max(0, hi - ANIMALS.quality.spread + Math.min(ANIMALS.quality.narrowest, narrow)), hi };
+}
+function bodyFrom(a: Animal, r: Rearing | undefined, draw: NonNullable<Ctx["draw"]>): Pick<Animal, "body" | "gold"> {
+  const { lo, hi } = rearRange(r, a.narrow), span = Math.max(0, hi - lo);
+  return { body: bodyOf(a.species, lo + Math.min(span, Math.floor(draw(a, 0) * (span + 1)))), gold: draw(a, 1) < Math.max(0, a.narrow - 10) * 0.01 };
 }
 
 export const adultAt = (sp: SpeciesId) => SPECIES[sp].grow[0] + SPECIES[sp].grow[1];
@@ -482,10 +525,16 @@ export function settle(a0: Animal, now: number, ctx: Ctx): Animal {
       // the day it closes: fed throughout, a heart's worth and a day more of its streak; hungry, the streak begins again
       if (!a.today.hungry && !a.today.fed) a.hearts = Math.min(MAX_HEARTS, a.hearts + ANIMALS.heart.fed);
       a.streak = a.today.hungry ? 0 : Math.min(ANIMALS.streakCap, (a.streak ?? 0) + 1);
+      if (a.body === undefined) a.rearing = rearDay(a.rearing, a.today, a.grown, a.food);
       a.today = { day: dayOf(t) };
     }
   }
   a.at = now;
+  // (found grown, by whoever keeps the game: its size and its gold, once; a page leaves it to be told)
+  if (a.body === undefined && a.grown >= adultAt(a.species) && ctx.draw) {
+    const { rearing: _, ...rest } = a;
+    return { ...rest, ...bodyFrom(a, rearDay(a.rearing, a.today, a.grown, a.food), ctx.draw) };
+  }
   return a;
 }
 

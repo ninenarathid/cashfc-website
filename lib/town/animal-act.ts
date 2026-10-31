@@ -14,6 +14,7 @@ import {
   barnsOf, untendedOf, usedOf, gives, heartsPlus, nextStage, stagesPaid,
   type Animal, type Book, type Ctx, type GateLog, type Herd, type Home, type Play, type Sex, type SpeciesId, type Stats,
 } from "./animals";
+import { roll } from "./farm";
 import { put, roomFor, take, held, type Purse } from "./trade";
 import { dayOf, spend, staminaOf } from "./stamina";
 import { HOUR } from "./trade";
@@ -202,7 +203,8 @@ export function animalAction(world0: AnimalWorld, purse: Purse, input: AnimalInp
   const no = (why: AnimalWhy): AnimalReply => ({ ok: false, why, world, purse, notes: [] });
   const yes = (w: AnimalWorld, p: Purse, got?: AnimalReply["got"]): AnimalReply => ({ ok: true, world: w, purse: p, notes, got });
   const ownerPurse = (owner: string) => (owner === me ? purse : purses[owner] ?? null);
-  const settled = (a: Animal) => settle(a, now, ctxFor(world, a.owner, ownerPurse(a.owner)));
+  // (the trial keeps the game here, so a grown animal's size is rolled here, as v317's town.animal_settle rolls it: with no salt)
+  const settled = (a: Animal) => settle(a, now, { ...ctxFor(world, a.owner, ownerPurse(a.owner)), draw: (x, i) => roll(`quality||animal|${x.id}`, Math.floor(x.born), 0, i) });
   /** My herd with my care written down now (the untended rule reads it). */
   const cared = (w: AnimalWorld) => withHerd(w, { ...herdOf(w, me), lastCare: now });
   const find = (id: string) => world.animals.find((a) => a.id === id) ?? null;
