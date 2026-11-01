@@ -35,6 +35,8 @@ export type Wearer = {
   /** Where the wearer stands on the ground, and where a point of the ground is on the screen. */
   ground: { x: number; y: number };
   screen: (at: { x: number; y: number }) => { x: number; y: number };
+  /** The least of it: by the viewer's own switch in the town's settings, or by the wearer's in the wardrobe. */
+  minimal: boolean;
   /** How dark the hour is, 0 to 1. */
   night: number;
   now: number;
@@ -345,9 +347,27 @@ function leavesFront(ctx: CanvasRenderingContext2D, w: Wearer) {
 
 export const auraState = (): AuraState => ({ steps: [], lastStep: -1 });
 
+// ── the least of it: a faint pool at the feet and three motes, whichever the outfit ──
+function minimalBehind(ctx: CanvasRenderingContext2D, w: Wearer) {
+  glow(ctx, w.dye.aura[1], w.x, w.y - 2 * w.s, 44 * w.s, 14 * w.s, 0.22 + w.night * 0.22);
+}
+
+function minimalFront(ctx: CanvasRenderingContext2D, w: Wearer) {
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+  for (let i = 0; i < 3; i++) {
+    const t = frac(w.now / 3200 + i / 3 + seedOf(w.id));
+    ctx.globalAlpha = Math.sin(t * Math.PI) * 0.8;
+    ctx.fillStyle = w.dye.aura[i % 2 ? 3 : 2];
+    dot(ctx, w.x + Math.sin(i * 4.1 + t * 2) * 12 * w.s, w.y - (8 + t * 34) * w.s, 1, w.s);
+  }
+  ctx.restore();
+}
+
 /** What of the aura gives light, for the map's lights over the night's dark. */
 export function auraLights(w: Wearer): Array<{ x: number; y: number; rgb: string; reach: number; strong: number }> {
   const rgb = hexRgb(w.dye.aura[2]), breath = 0.85 + Math.sin(w.now * 0.002) * 0.15;
+  if (w.minimal) return [{ x: w.x, y: w.y - 10 * w.s, rgb, reach: 26, strong: 0.35 }];
   if (w.kind === "spirits") return [{ x: w.x, y: w.y - 14 * w.s, rgb, reach: 78, strong: breath }, { x: w.x, y: w.y, rgb, reach: 44, strong: 0.7 }];
   if (w.kind === "moon") return [{ x: w.x - 9 * w.s, y: w.y - (w.sat ? 8 : 15) * w.s, rgb, reach: 70, strong: 0.65 * breath }];
   return [{ x: w.x, y: w.y - 12 * w.s, rgb, reach: 42, strong: 0.5 * breath }];
@@ -363,6 +383,7 @@ export function auraOverDark(ctx: CanvasRenderingContext2D, w: Wearer) {
   ctx.beginPath();
   ctx.rect(w.x - 120 * w.s, w.y - 120 * w.s, 240 * w.s, 120 * w.s);
   ctx.clip();
+  if (w.minimal) { minimalFront(ctx, w); ctx.restore(); return; }
   if (w.kind === "spirits") {
     const ramp = w.dye.aura, n = w.step !== undefined ? 6 : 8;
     ctx.save();
@@ -378,6 +399,7 @@ export function auraOverDark(ctx: CanvasRenderingContext2D, w: Wearer) {
 }
 
 export function auraBehind(ctx: CanvasRenderingContext2D, w: Wearer) {
+  if (w.minimal) { minimalBehind(ctx, w); return; }
   noteSteps(w);
   if (w.kind === "spirits") pumpkinBehind(ctx, w);
   else if (w.kind === "bats") batsBehind(ctx, w);
@@ -386,6 +408,7 @@ export function auraBehind(ctx: CanvasRenderingContext2D, w: Wearer) {
 }
 
 export function auraFront(ctx: CanvasRenderingContext2D, w: Wearer) {
+  if (w.minimal) { minimalFront(ctx, w); return; }
   if (w.kind === "spirits") pumpkinFront(ctx, w);
   else if (w.kind === "bats") batsFront(ctx, w);
   else if (w.kind === "moon") moonFront(ctx, w);

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { keepMotion, keptMotion, movesOf } from "./motion";
+import { keepMotion, keptMotion, limitedMinimalOf, movesOf } from "./motion";
 
 describe("whether the town moves (the owner, 2026-10-04: \"ทำไมบาง browser ไม่เห็นฝน หรือ ลม ที่พัดมาใน cash town\")", () => {
   afterEach(() => vi.unstubAllGlobals());
@@ -29,5 +29,13 @@ describe("whether the town moves (the owner, 2026-10-04: \"ทำไมบาง
     vi.stubGlobal("localStorage", { getItem: () => { throw new Error("no"); }, setItem: () => { throw new Error("no"); } });
     expect(keptMotion()).toBe(true);
     expect(() => keepMotion(false)).not.toThrow();
+  });
+});
+
+describe("a limited outfit's effects, kept to the least on this device (the owner, 2026-11-01)", () => {
+  it("are whole for everybody until somebody turns the least on", () => {
+    expect(limitedMinimalOf(null)).toBe(false);
+    expect(limitedMinimalOf("off")).toBe(false);
+    expect(limitedMinimalOf("on")).toBe(true);
   });
 });

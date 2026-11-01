@@ -31,7 +31,7 @@ import { PACE, keepFps, keptFps, nap, paceOf, paced, wokenFor, type Fps } from "
 import { canvasDpr } from "@/lib/town/rendering";
 import { SaidLayer } from "@/lib/town/said-layer";
 import { PUDDLE_SIZES, RING_MS, Rain, ageOf, drawPicture, puddleRing, puddleRingsFor, puddlesFor, ringsFor, type Pictures } from "@/lib/town/rain";
-import { keepMotion, keptMotion } from "@/lib/town/motion";
+import { keepLimitedMinimal, keepMotion, keptLimitedMinimal, keptMotion } from "@/lib/town/motion";
 import { SHOP as STALL_RULES } from "@/lib/town/shop";
 import { SIGN, decodeSign, inReach, type Sign } from "@/lib/town/sign";
 import { askFor, chatFor, talkFor, type Line, type Speaker } from "@/lib/town/talk";
@@ -764,6 +764,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const [moving, setMoving] = useState(true);
   useEffect(() => { const kept = keptMotion(); stillAt.current = Date.now(); reducedRef.current = !kept; setMoving(kept); }, []);
   const chooseMoving = (on: boolean) => { stillAt.current = Date.now(); reducedRef.current = !on; setMoving(on); if (!ephemeral) keepMotion(on); };
+  // (limited outfits' effects kept to the least on this device, whoever wears them: lib/town/motion)
+  const [limitedMinimal, setLimitedMinimal] = useState(false);
+  const limitedMinimalRef = useRef(false);
+  useEffect(() => { const kept = keptLimitedMinimal(); limitedMinimalRef.current = kept; setLimitedMinimal(kept); }, []);
+  const chooseLimitedMinimal = (on: boolean) => { limitedMinimalRef.current = on; setLimitedMinimal(on); if (!ephemeral) keepLimitedMinimal(on); };
   const [wardrobeOpen, setWardrobeOpen] = useState(false);
   /** The emote window: what my avatar can do where it stands (sit, for now). */
   const [emoteOpen, setEmoteOpen] = useState(false);
@@ -3744,14 +3749,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       if (lim && wonIt) {
         const st = limitedAuras.current.get(a.info.id) ?? auraState();
         limitedAuras.current.set(a.info.id, st);
-        wearer = { id: a.info.id, kind: lim.look.kind, dye: lim.dye, x: p.x, y: p.y, cell: k * DOLL_PX, s: k * DOLL_PX * 1.8, step, sat: sitting(a) || perched, ground: a.pos, screen: (at) => toScreen(cam.current, at, cam.current.cw, cam.current.ch), night: skyNow().lamps, now, state: st };
+        wearer = { id: a.info.id, kind: lim.look.kind, dye: lim.dye, x: p.x, y: p.y, cell: k * DOLL_PX, s: k * DOLL_PX * 1.8, step, sat: sitting(a) || perched, ground: a.pos, screen: (at) => toScreen(cam.current, at, cam.current.cw, cam.current.ch), minimal: limitedMinimalRef.current || lim.quiet, night: skyNow().lamps, now, state: st };
         auraBehind(ctx, wearer);
       }
       kit.draw(ctx, look, face.view, face.mirror, p.x, p.y, k, { step, blink, talk, expr, eat: eatPose, sit: sitting(a) || perched, perch: !!tableSeatOf(a)?.back }, dpr);
       // ── Granny Twilla's limited outfits ── (now and then what the outfit is made of shows: bats slip out of the
       // count's cape, the pumpkin's ghost flames flicker off; a one-shot of PixelLab's, in the doll's own pixels)
       const design = outfitBaseId(look.outfit);
-      if (design && design in LIMITED_FX && !reducedRef.current) limitedFx(ctx, a.info.id, design as keyof typeof LIMITED_FX, p.x, p.y, k, face.mirror, now, sitting(a) || perched);
+      if (design && design in LIMITED_FX && !reducedRef.current && !limitedMinimalRef.current && !limitedOf(look.outfit)?.quiet) limitedFx(ctx, a.info.id, design as keyof typeof LIMITED_FX, p.x, p.y, k, face.mirror, now, sitting(a) || perched);
       if (wearer) {
         auraFront(ctx, wearer);
         if (wearer.night > 0.2) {
@@ -3844,7 +3849,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       else {
         const lim = limitedOwners.current.get(isMe ? me.id : a.info.id)?.find((o) => o.outfit === outfitBaseId(look.outfit)), worn = limitedOf(look.outfit);
         if (lim && worn) {
-          const plate: LimitedTitle = { text: words.current.th ? worn.look.title.th : worn.look.title.en, number: `#${lim.edition}/${lim.copies}`, kind: worn.look.kind, dye: worn.dye, x: p.x, y: below, now, seed: seedOf(a.info.id), font: fontRef.current, reduced: reducedRef.current };
+          const plate: LimitedTitle = { text: words.current.th ? worn.look.title.th : worn.look.title.en, number: `#${lim.edition}/${lim.copies}`, kind: worn.look.kind, dye: worn.dye, x: p.x, y: below, now, seed: seedOf(a.info.id), font: fontRef.current, reduced: reducedRef.current || limitedMinimalRef.current || worn.quiet };
           drawLimitedTitle(ctx, plate);
           // (after dark it shines through, as a lamp does)
           if (skyNow().lamps >= 0.2 && auraPlates.current.length < 24) auraPlates.current.push(plate);
@@ -5316,7 +5321,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                    <TownIcon name="wardrobe" size={20} /><span className="sr-only">{w.wardrobe}</span>
                  </button>)}
                {menuTile(w.th ? "เพลง" : "Music", <TownMusicButton th={w.th} hour={forcedHour.current} under className={hudBtn} />)}
-               {menuTile(w.th ? "ตั้งค่า" : "Settings", <TownSettingsButton th={w.th} pace={pace} onPace={choosePace} drawn={fpsRef} onShown={settingsShown} moving={moving} onMoving={chooseMoving} under className={hudBtn} />)}
+               {menuTile(w.th ? "ตั้งค่า" : "Settings", <TownSettingsButton th={w.th} pace={pace} onPace={choosePace} drawn={fpsRef} onShown={settingsShown} moving={moving} onMoving={chooseMoving} limitedMinimal={limitedMinimal} onLimitedMinimal={chooseLimitedMinimal} under className={hudBtn} />)}
                {menuTile(immersive ? w.exitFullscreen : w.fullscreen,
                  <button type="button" onClick={() => void toggleImmersive()} aria-pressed={immersive} title={immersive ? w.exitFullscreen : w.fullscreen} className={hudBtn}>
                    <TownIcon name={immersive ? "exitFullscreen" : "fullscreen"} size={18} /><span className="sr-only">{immersive ? w.exitFullscreen : w.fullscreen}</span>

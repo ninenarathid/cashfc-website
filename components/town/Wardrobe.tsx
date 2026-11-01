@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { LINES, type LineId } from "@/lib/town/lines";
 import type { PixelKit } from "@/lib/town/pixeldoll";
-import { dyeChoices, dyeOfWorn, FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS, owns, together, type Wearable } from "@/lib/town/wear";
+import { dyeChoices, dyeOfWorn, FACE_WEAR, HAIR_WEAR, HATS, NECK_WEAR, OUTFITS, owns, quietTwin, together, type Wearable } from "@/lib/town/wear";
 import {
   EYES, EYE_COLORS, GENDERS, HAIR_COLORS, ONE_MODEL, RACES, hairForGender, hairsFor, hairsOf, lookAsRace, skinsOf,
   type Look, type Named, type Swatch,
@@ -95,6 +95,20 @@ export default function Wardrobe({ look, kit, points, had, fresh = new Set(), no
           <>
             {/* (a limited outfit's five colours: the owner, 2026-10-31, "เปลี่ยนสีได้หลายเวอร์ชั่น เลือกได้ซัก 5 แบบ") */}
             <DyeRow label={th ? "สีชุด" : "Outfit colour"} list={OUTFITS} value={look.outfit ?? 0} kit={kit} th={th} body lookFor={(outfit) => ({ ...look, outfit })} onPick={(outfit) => set({ outfit })} />
+            {/* (the wearer's own say over the outfit's effects: everybody sees it so; the owner, 2026-11-01, "ฝั่งเจ้าของชุดเอง") */}
+            {dyeChoices(OUTFITS, look.outfit).length > 0 && (
+              <div className="mb-3 flex items-center gap-3 rounded-xl border border-line-strong px-3 py-2">
+                <div className="min-w-0 flex-1">
+                  <p id="wardrobe-quiet" className="text-ui font-semibold text-ink">{th ? "VFX ชุดนี้แบบน้อย" : "This outfit's VFX, minimal"}</p>
+                  <p className="text-label leading-relaxed text-muted">{th ? "ทุกคนจะเห็นแบบนี้ตอนคุณใส่" : "Everybody sees it so while you wear it."}</p>
+                </div>
+                <button type="button" role="switch" aria-checked={!!OUTFITS[look.outfit ?? 0]?.quiet} aria-labelledby="wardrobe-quiet" data-wardrobe-quiet={OUTFITS[look.outfit ?? 0]?.quiet ? "on" : "off"}
+                        onClick={() => set({ outfit: quietTwin(look.outfit, !OUTFITS[look.outfit ?? 0]?.quiet) })}
+                        className={`pressable min-h-11 shrink-0 rounded-full px-3 text-ui font-semibold ${OUTFITS[look.outfit ?? 0]?.quiet ? "bg-accent text-bg" : "border border-line-strong text-ink hover:border-accent"}`}>
+                  {OUTFITS[look.outfit ?? 0]?.quiet ? (th ? "เปิดอยู่" : "On") : (th ? "ปิดอยู่" : "Off")}
+                </button>
+              </div>
+            )}
             <Cards label={th ? "ชุด" : "Outfits"} items={OUTFITS} value={look.outfit ?? 0} th={th} points={points} had={had} fresh={fresh} kit={kit}
                    lookFor={(outfit) => ({ ...look, outfit })} body onPick={(outfit) => set({ outfit })} />
           </>

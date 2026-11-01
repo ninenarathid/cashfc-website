@@ -8,10 +8,11 @@ import TownIcon from "./TownIcon";
  * The town's settings: a cog in the corner that opens a small panel, like the music's beside it. What it holds is
  * how often the map is drawn (lib/town/pace): 60 frames a second at the most, or 30 for a machine that still runs
  * hot (the owner, 2026-10-04: "ทำ setting ที่ขวาบนหน้าจอเพื่อใช้ปรับส่วนนี้เลยก็ได้"); and whether the town moves at all
- * (lib/town/motion): it does for everybody, and whoever the rain and the leaves make dizzy turns it off here. The
- * choices are the town's page's to keep and to draw by; this shows them, and what the map is drawing at now, and asks.
+ * (lib/town/motion): it does for everybody, and whoever the rain and the leaves make dizzy turns it off here; and how much
+ * of limited outfits' effects this device shows (the owner, 2026-11-01). The choices are the town's page's to keep and to
+ * draw by; this shows them, and what the map is drawing at now, and asks.
  */
-export default function TownSettingsButton({ th, pace, onPace, drawn, onShown, moving, onMoving, low = false, under = false, className }: {
+export default function TownSettingsButton({ th, pace, onPace, drawn, onShown, moving, onMoving, limitedMinimal, onLimitedMinimal, low = false, under = false, className }: {
   /** In the map's menu: the panel hangs under the menu, not under this button. */
   under?: boolean;
   th: boolean;
@@ -28,6 +29,9 @@ export default function TownSettingsButton({ th, pace, onPace, drawn, onShown, m
   /** Whether the town moves: the rain, the leaves, the river, the trees. */
   moving: boolean;
   onMoving: (moving: boolean) => void;
+  /** Whether limited outfits' effects are kept to the least on this device. */
+  limitedMinimal: boolean;
+  onLimitedMinimal: (on: boolean) => void;
   /**
    * At the foot of a phone's screen, where the cog sits beside the chat: the panel opens upwards, from the left edge
    * of whatever positioned box the cog is in.
@@ -66,6 +70,7 @@ export default function TownSettingsButton({ th, pace, onPace, drawn, onShown, m
   const label = th ? "ตั้งค่า" : "Settings";
   const head = th ? "ความลื่นของภาพ" : "Frame rate";
   const motion = th ? "ภาพเคลื่อนไหว" : "Motion";
+  const least = th ? "VFX ชุดลิมิเต็ดแบบน้อย" : "Minimal limited outfit VFX";
   return (
     <div ref={box} className={low || under ? "" : "relative"}>
       <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} title={label} className={className} data-town-settings>
@@ -117,6 +122,20 @@ export default function TownSettingsButton({ th, pace, onPace, drawn, onShown, m
           <div className="mt-2 space-y-0.5 text-label leading-relaxed text-muted">
             <p>{th ? "ฝน ใบไม้ปลิว สายน้ำ และต้นไม้ที่ไหว" : "The rain, leaves on the wind, the river, the trees swaying."}</p>
             <p>{th ? "ถ้าดูแล้วเวียนหัว ปิดได้ ภาพในเมืองจะนิ่ง" : "If it makes you dizzy, turn it off: the town stands still."}</p>
+          </div>
+          {/* (limited outfits' effects: the whole of them for everybody, until the least is turned on here) */}
+          <div className="mt-3 flex items-center gap-2 border-t border-line pt-3">
+            <TownIcon name="wardrobe" size={18} />
+            <span id={`${id}-least`} className="min-w-0 text-ui font-semibold text-ink">{least}</span>
+            <button type="button" role="switch" aria-checked={limitedMinimal} id={`${id}-least-switch`} aria-labelledby={`${id}-least ${id}-least-switch`}
+                    data-town-limited-minimal={limitedMinimal ? "on" : "off"} onClick={() => onLimitedMinimal(!limitedMinimal)}
+                    className={`pressable ml-auto shrink-0 rounded-full px-3 py-1 text-ui font-semibold ${limitedMinimal ? "bg-accent text-bg" : "border border-line-strong text-ink hover:border-accent"}`}>
+              {limitedMinimal ? (th ? "เปิดอยู่" : "On") : (th ? "ปิดอยู่" : "Off")}
+            </button>
+          </div>
+          <div className="mt-2 space-y-0.5 text-label leading-relaxed text-muted">
+            <p>{th ? "ออร่าเหลือเบาๆ ฉายายังอยู่แต่ไม่ขยับ" : "Auras stay faint; titles stay but hold still."}</p>
+            <p>{th ? "มีผลกับชุดลิมิเต็ดทุกคนบนจอเครื่องนี้" : "For every limited outfit on this screen."}</p>
             <p>{th ? "ค่าเหล่านี้จำไว้เฉพาะเครื่องนี้" : "Kept on this device only."}</p>
           </div>
         </div>

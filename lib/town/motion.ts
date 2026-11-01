@@ -29,3 +29,22 @@ export function keptMotion(): boolean {
 export function keepMotion(moving: boolean): void {
   try { localStorage.setItem(KEY, moving ? "on" : "off"); } catch { /* private mode: it just won't be remembered */ }
 }
+
+/**
+ * Whether limited outfits' effects are kept to the least on this device (the owner, 2026-11-01: "ช่วยเพิ่ม option เปิด ปิด
+ * minimal VFX สำหรับชุดพิเศษให้ด้วย"): what one sees of everybody's, one's own too; nobody else's screen changes by it.
+ */
+const LIMITED_KEY = "cashTown:limitedMinimal";
+
+/** What was chosen, from what was kept: the full effects for everybody until somebody says otherwise. */
+export function limitedMinimalOf(kept: unknown): boolean {
+  return kept === "on";
+}
+
+export function keptLimitedMinimal(): boolean {
+  try { return limitedMinimalOf(localStorage.getItem(LIMITED_KEY)); } catch { return false; }
+}
+
+export function keepLimitedMinimal(on: boolean): void {
+  try { localStorage.setItem(LIMITED_KEY, on ? "on" : "off"); } catch { /* private mode: it just won't be remembered */ }
+}

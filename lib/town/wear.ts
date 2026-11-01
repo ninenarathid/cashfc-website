@@ -45,13 +45,19 @@ export type Source =
 export interface Drop { drop: LineId; chance: number; what?: readonly string[]; things?: readonly string[]; hours?: readonly [number, number]; rain?: true; knob?: string; how?: { th: string; en: string } }
 /** `top`: a hair thing worn on top of the head (ears, horns, a tiara, a crown, a big bow), which a hat would sit on. */
 /** `dyeOf`, `dye`: one of a limited design's other colours (lib/town/limited): owned with its base, shown as a colour of it. */
-export type Wearable = Named & { from?: Source; top?: true; dyeOf?: string; dye?: number; dyeSet?: string };
+export type Wearable = Named & { from?: Source; top?: true; dyeOf?: string; dye?: number; dyeSet?: string; quiet?: true };
 
 const NONE: Wearable = { id: "none", th: "ไม่ใส่", en: "None" };
 const at = (rank: number, ...lines: LineId[]): Source => ({ lines, rank });
 const isRank = (s: Source): s is { lines: LineId[]; rank: number } => "lines" in s;
 const CRAFT: Source = { craft: true }, UNCLE: Source = { shop: "uncle" }, TAILOR: Source = { tailor: true };
 const AUCTION = (design: string): Source => ({ auction: design });
+/**
+ * A limited outfit in each of its colours with the least of its effects, by its wearer's choice, seen so by everybody (the
+ * owner, 2026-11-01: "ฝั่งเจ้าของชุดเอง"). Entries of the list, as a colour is, so a look carries it to every page and device.
+ */
+const quietsOf = (base: string, design: string): Wearable[] =>
+  LIMITED_LOOKS[base].dyes.map((d, i) => ({ id: `${base}min${"abcde"[i]}`, th: d.th, en: d.en, from: AUCTION(design), dyeOf: base, dye: i, dyeSet: base, quiet: true }));
 /** A limited thing's four other colours, the design's own (`set`: its outfit, whose colours it takes), each chosen apart. */
 const dyesOf = (base: string, design: string, set = base, top?: true): Wearable[] =>
   LIMITED_LOOKS[set].dyes.slice(1).map((d, i) => ({ id: `${base}dye${"abcd"[i]}`, th: d.th, en: d.en, from: AUCTION(design), dyeOf: base, dye: i + 1, dyeSet: set, ...(top ? { top } : {}) }));
@@ -103,6 +109,7 @@ export const OUTFITS: Wearable[] = [
   { id: "mapleregent", th: "ชุดผู้สำเร็จราชการใบเมเปิล", en: "Maple Regent", from: AUCTION("mapleregent") },
   // (each limited design's four other colours: the same pictures, moved hue by hue, lib/town/limited)
   ...dyesOf("count", "count"), ...dyesOf("pumpkinmonarch", "pumpkin"), ...dyesOf("moonkeeper", "moonkeeper"), ...dyesOf("mapleregent", "mapleregent"),
+  ...quietsOf("count", "count"), ...quietsOf("pumpkinmonarch", "pumpkin"), ...quietsOf("moonkeeper", "moonkeeper"), ...quietsOf("mapleregent", "mapleregent"),
 ];
 
 export const HATS: Wearable[] = [
@@ -294,10 +301,10 @@ export const outfitBaseId = (i: number | undefined): string | null => {
   return o ? o.dyeOf ?? o.id : null;
 };
 /** What is limited about the outfit at an index, and the colour it is in; null for every other outfit. */
-export function limitedOf(i: number | undefined): { base: string; look: LimitedLook; dye: LimitedDye; design: string } | null {
+export function limitedOf(i: number | undefined): { base: string; look: LimitedLook; dye: LimitedDye; design: string; quiet: boolean } | null {
   const o = OUTFITS[i ?? 0], base = outfitBaseId(i), look = limitedLook(base);
   if (!o || !base || !look || !o.from || !("auction" in o.from)) return null;
-  return { base, look, dye: look.dyes[o.dye ?? 0], design: o.from.auction };
+  return { base, look, dye: look.dyes[o.dye ?? 0], design: o.from.auction, quiet: !!o.quiet };
 }
 /** The design a limited thing's colours are taken from, and so whether it has any. */
 const AUCTION_SETS: Record<string, string> = { count: "count", pumpkin: "pumpkinmonarch", moonkeeper: "moonkeeper", mapleregent: "mapleregent" };
@@ -311,7 +318,13 @@ export const dyeOfWorn = (item: Wearable | undefined): LimitedDye | undefined =>
 export function dyeChoices(list: readonly Wearable[], i: number | undefined): number[] {
   const item = list[i ?? 0], base = item?.dyeOf ?? item?.id;
   if (!item || !dyeOfWorn(item)) return [];
-  return list.flatMap((o, n) => (o.id === base || o.dyeOf === base ? [n] : []));
+  return list.flatMap((o, n) => ((o.id === base || o.dyeOf === base) && !!o.quiet === !!item.quiet ? [n] : []));
+}
+/** The same limited outfit in the same colour, with its effects whole or at their least. */
+export function quietTwin(i: number | undefined, quiet: boolean): number {
+  const item = OUTFITS[i ?? 0], base = item?.dyeOf ?? item?.id;
+  const n = OUTFITS.findIndex((o) => (o.id === base || o.dyeOf === base) && !!o.quiet === quiet && (o.dye ?? 0) === (item?.dye ?? 0));
+  return n < 0 ? i ?? 0 : n;
 }
 
 /** What a rank of a line gives to wear (the lines' page lists it: the owner, 2026-10-17, "เพิ่มข้อมูลของ ของแต่งตัวที่จะได้ ในหน้า อาชีพ ด้วย"). */
