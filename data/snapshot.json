@@ -1144,7 +1144,7 @@
   "mounts": 75,
   "minions": 144,
   "rare": 40,
-  "level": 93,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -1218,7 +1218,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-31"
+  "chg": "2026-11-01"
  },
  "43037186": {
   "name": "Wind-up Whitefrost",
@@ -1361,7 +1361,7 @@
   ],
   "tiers": {
    "gatherer": "expert",
-   "relic": "expert"
+   "relic": "master"
   },
   "jobs": {
    "RedMage": "legendary",
@@ -2221,7 +2221,7 @@
   "mounts": 174,
   "minions": 271,
   "rare": null,
-  "level": 82,
+  "level": 91,
   "cc": [
    true,
    true,
@@ -2261,7 +2261,7 @@
   "mounts": 49,
   "minions": 115,
   "rare": null,
-  "level": 89,
+  "level": 90,
   "cc": [
    true,
    true,
@@ -2291,7 +2291,7 @@
    "Dancing Mad",
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-10-31"
+  "chg": "2026-11-01"
  },
  "50821570": {
   "name": "Haruki Mizumoto",
@@ -2300,7 +2300,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 28,
+  "level": 34,
   "cc": [
    true,
    true,
@@ -2347,7 +2347,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-31"
+  "chg": "2026-11-01"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -3646,7 +3646,7 @@
   "mounts": 65,
   "minions": 131,
   "rare": 57,
-  "level": 100,
+  "level": 71,
   "cc": [
    true,
    true,
@@ -3728,7 +3728,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-10-31"
+  "chg": "2026-11-01"
  },
  "21620195": {
   "name": "Nefe'li Lucias",
@@ -4375,6 +4375,7 @@
    2524,
    2525,
    2526,
+   2686,
    2754,
    2755,
    2758,
@@ -4440,7 +4441,6 @@
    3835,
    3962,
    3963,
-   4000,
    4005,
    4010,
    4011,
@@ -5228,7 +5228,7 @@
   "mounts": 119,
   "minions": 243,
   "rare": null,
-  "level": 60,
+  "level": 61,
   "cc": [
    false,
    false,
@@ -5241,7 +5241,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-13"
+  "chg": "2026-11-01"
  },
  "38802422": {
   "name": "Aimday Yeji",
@@ -5678,7 +5678,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 100,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -5800,7 +5800,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-10-31"
+  "chg": "2026-11-01"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -6887,7 +6887,7 @@
   "mounts": 61,
   "minions": 116,
   "rare": 5,
-  "level": 65,
+  "level": 66,
   "cc": [
    false,
    false,
@@ -6952,7 +6952,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 91,
+  "level": 79,
   "cc": [
    false,
    false,
@@ -7910,7 +7910,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 91,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -7955,7 +7955,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-30"
+  "chg": "2026-11-01"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -8231,7 +8231,7 @@
   "mounts": 43,
   "minions": 114,
   "rare": null,
-  "level": 100,
+  "level": 70,
   "cc": [
    false,
    false,
@@ -8246,7 +8246,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-11-01"
  },
  "37648492": {
   "name": "Sunshine Eveningfall",
@@ -8767,7 +8767,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 98,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -9054,7 +9054,7 @@
   "mounts": 7,
   "minions": 20,
   "rare": null,
-  "level": 86,
+  "level": 87,
   "cc": [
    false,
    false,
@@ -9067,7 +9067,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-19"
+  "chg": "2026-11-01"
  },
  "31685121": {
   "name": "Squid Girls",
