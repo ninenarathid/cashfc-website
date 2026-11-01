@@ -79,7 +79,7 @@ export default function TownSettingsButton({ th, pace, onPace, drawn, onShown, m
       {open && (
         <div data-state="open" data-town-settings-panel
              className={`pop-in absolute z-30 ${under
-               ? "tk tk-window right-0 top-[7.75rem] w-full p-4 text-left"
+               ? "tk tk-window right-0 top-[7.75rem] max-h-[calc(100dvh-8.75rem)] w-full overflow-y-auto overscroll-contain p-4 text-left"
                : `rounded-2xl border border-line-lit bg-surface/97 p-3 shadow-xl shadow-black/40 backdrop-blur-sm ${low ? "bottom-12 left-0 w-[min(18rem,calc(100vw-1.5rem))]" : "right-0 top-12 w-72"}`}`}>
           <div className="flex items-center gap-2">
             <TownIcon name="gauge" size={18} />
@@ -115,7 +115,7 @@ export default function TownSettingsButton({ th, pace, onPace, drawn, onShown, m
             <span id={`${id}-motion`} className="text-ui font-semibold text-ink">{motion}</span>
             <button type="button" role="switch" aria-checked={moving} id={`${id}-switch`} aria-labelledby={`${id}-motion ${id}-switch`}
                     data-town-motion={moving ? "on" : "off"} onClick={() => onMoving(!moving)}
-                    className={`pressable ml-auto rounded-full px-3 py-1 text-ui font-semibold ${moving ? "bg-accent text-bg" : "border border-line-strong text-ink hover:border-accent"}`}>
+                    className={`pressable ml-auto min-h-11 shrink-0 rounded-full px-3 text-ui font-semibold ${moving ? "bg-accent text-bg" : "border border-line-strong text-ink hover:border-accent"}`}>
               {moving ? (th ? "เปิดอยู่" : "On") : (th ? "ปิดอยู่" : "Off")}
             </button>
           </div>
@@ -129,7 +129,7 @@ export default function TownSettingsButton({ th, pace, onPace, drawn, onShown, m
             <span id={`${id}-least`} className="min-w-0 text-ui font-semibold text-ink">{least}</span>
             <button type="button" role="switch" aria-checked={limitedMinimal} id={`${id}-least-switch`} aria-labelledby={`${id}-least ${id}-least-switch`}
                     data-town-limited-minimal={limitedMinimal ? "on" : "off"} onClick={() => onLimitedMinimal(!limitedMinimal)}
-                    className={`pressable ml-auto shrink-0 rounded-full px-3 py-1 text-ui font-semibold ${limitedMinimal ? "bg-accent text-bg" : "border border-line-strong text-ink hover:border-accent"}`}>
+                    className={`pressable ml-auto min-h-11 shrink-0 rounded-full px-3 text-ui font-semibold ${limitedMinimal ? "bg-accent text-bg" : "border border-line-strong text-ink hover:border-accent"}`}>
               {limitedMinimal ? (th ? "เปิดอยู่" : "On") : (th ? "ปิดอยู่" : "Off")}
             </button>
           </div>

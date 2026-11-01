@@ -31,7 +31,7 @@ async function open(X, hour, base, head, gender, minimal) {
 // ── each design with the least of its effects ──
 const X = await browser("limited-min", { width: 1280, height: 860 });
 try {
-  for (const [hour, when] of [[12, "day"], [21, "night"]]) for (const [base, head, gender] of SETS) {
+  for (const [hour, when] of process.env.PANEL_ONLY ? [] : [[12, "day"], [21, "night"]]) for (const [base, head, gender] of SETS) {
     await open(X, hour, base, head, gender, true);
     // (out from behind the fountain, where a doll first stands, and stopped)
     await X.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: 900, y: 600 });
@@ -64,7 +64,7 @@ for (const [label, size] of [["desk", { width: 1280, height: 860 }], ["phone", {
     await sleep(900);
     await P.shot(`${OUT}/panel-${label}-off.png`);
     const sw = await boxOf(P, "[data-town-limited-minimal]");
-    ok(`${label} the switch is on screen and about 44 px wide`, !!sw && sw.bottom <= sw.vh && sw.w >= 40, sw);
+    ok(`${label} the switch is on screen and about 44 px tall`, !!sw && sw.bottom <= sw.vh && sw.h >= 44, sw);
     const panel = await P.evaluate(`(() => { const r = document.querySelector("[data-town-settings-panel]")?.getBoundingClientRect(); return r ? { top: Math.round(r.top), bottom: Math.round(r.bottom), vh: innerHeight } : null; })()`);
     ok(`${label} the panel fits the screen`, !!panel && panel.bottom <= panel.vh && panel.top >= 0, panel);
     if (sw) await pressAt(P, sw.x, sw.y);
