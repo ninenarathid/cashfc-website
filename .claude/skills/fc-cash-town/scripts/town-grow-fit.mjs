@@ -11,7 +11,7 @@ const SCENE = `
   const small = ["kangkong", "scallion", "chili", "borage", "marigold", "basil", "lavender", "gardenStrawberry"];
   const grown = (x, y, crop, n, more = {}) => put(x, y, crop, n, { ...more });
   // (the bed in his picture: three giants of two a side among small plants)
-  put(133, 6, "pumpkin", 2, { size: undefined, sown: now - 2 * H });
+  put(133, 6, "pumpkin", 2, { size: undefined, sown: now - 110 * H });
   put(135, 4, "cabbage", 2, { size: undefined });
   put(137, 8, "carrot", 2, { size: undefined });
   for (let v = 0; v < 7; v++) for (let u = 0; u < 7; u++) { const x = 132 + u, y = 4 + v, k = x + "," + y; if (!farm[k]) put(x, y, small[(u * 3 + v * 5) % small.length], 1, { sown: now - (u + v) * 3 * H }); }
