@@ -48,6 +48,8 @@ describe("the steps of a plant grown over its ground", () => {
     expect(fitOf(78, 3)).toBeCloseTo(FIT_LOW);
     expect(fitOf(84, 3)).toBeGreaterThan(fitOf(80, 3));
     expect(fitOf(100, 7)).toBeLessThanOrEqual(FIT_TOP[7]);
+    // (never past its own square: "ตรงตามพื้นที่ของตัวเองแบบเป๊ะๆ")
+    for (let n = 2; n <= 7; n++) for (let q = 0; q <= 100; q++) expect(fitOf(q, n)).toBeLessThanOrEqual(1);
   });
   it("takes one seed a row", () => {
     expect(seedsFor(7)).toBe(6);

@@ -78,7 +78,7 @@ import { houseRoleOf, plantsInReach, type HouseDeed, type InsectHouse } from "@/
 import { insectPose, type HouseFlight, type InsectPose } from "./houseInsects";
 import { FERTS, isFert } from "@/lib/town/fertilisers";
 import { GOLD, fertGain, qualityNow, turnedGold } from "@/lib/town/quality-plant";
-import { fitOf, sideOf } from "@/lib/town/giant-sizes";
+import { fitOf, sideOf, GROWN_LIFT, FIT_LOW } from "@/lib/town/giant-sizes";
 import { COMPANIONS } from "@/lib/town/quality";
 import { heldIn } from "@/lib/town/pouches";
 import { GRADES } from "@/lib/town/quality";
@@ -413,7 +413,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     const id = `${k}|${p.sown}|${p.picked}|${sideOf(p)}`, had = fits.current.get(id);
     if (had !== undefined) return had;
     const at = keeper.now(), sky = keeper.rains();
-    if (!growing(p, at, sky).ripe) return 1;
+    if (!growing(p, at, sky).ripe) return sideOf(p) > 1 ? FIT_LOW : 1;
     if (fits.current.size > 4000) fits.current.clear();
     const fit = fitOf(qualityNow(p, at, sky).range.hi, sideOf(p));
     fits.current.set(id, fit);
@@ -605,11 +605,11 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         // (a plant grown over its square: one drawing a crop, drawn across its whole square by the code; lib/town/giant-sizes)
         const n = giant.n ?? 2, cropName = `${giant.crop[0].toUpperCase()}${giant.crop.slice(1)}`, big = bigPieces(), young = !what.ripe && !!big?.props[`big${cropName}7A`], bigName = `big${cropName}7${young ? "A" : "B"}`, piece = big?.props[bigName];
         if (big && piece && big.image.complete && big.image.naturalWidth) {
-          const since = giant.burst && !still ? performance.now() - giant.burst : BURST_MS, [x, y, w, h] = piece, centre = project({ x: giant.x, y: giant.y }), k = (n * TILE_W * 1.02 * (giant.fit ?? 1) * s * burstScale(since)) / w, foot = centre.y + n * TILE_H * 0.52 * s * burstScale(since), lean = giant.go ? leanAt(giant.go, keeper.now()) : 0;
+          const since = giant.burst && !still ? performance.now() - giant.burst : BURST_MS, [x, y, w, h] = piece, centre = project({ x: giant.x, y: giant.y }), grown = burstScale(since), fit = giant.fit ?? 1, k = (n * TILE_W * fit * s * grown) / w, foot = centre.y + (n * TILE_H * 0.5 - (n * TILE_W * 0.5) * (GROWN_LIFT[giant.crop] ?? 0.25) * fit) * s * grown, lean = giant.go ? leanAt(giant.go, keeper.now()) : 0;
           const dx = Math.round(centre.x - (w * k) / 2), dy = Math.round(foot - h * k), wide = w * k, tall = h * k;
           // (the square's near edge in a column of the screen: whoever stands beyond it is in front of the plant there)
           const x1 = giant.x + n / 2, y1 = giant.y + n / 2, edge = (d: number) => (d <= x1 - y1 ? d + 2 * y1 : 2 * x1 - d);
-          const BELLY = 1.8, me = frame.self, seen = me ? project(me) : null;
+          const BELLY = 0.2, me = frame.self, seen = me ? project(me) : null;
           // (somebody behind its body shows through it: it never hides who walks there)
           const hidden = !!me && !!seen && me.x + me.y < edge(me.x - me.y) + BELLY && ((seen.x - (dx + wide / 2)) / (wide / 2)) ** 2 + ((seen.y - 14 * s - (dy + tall * 0.6)) / (tall * 0.46)) ** 2 < 1;
           const full = goldFull.has(giant as never), clock = performance.now(), look = giant.gold ? goldLook(bigName, big.image, x, y, w, h) : null, src: CanvasImageSource = look ? goldNow(look, clock, still || !full) : big.image, [sx, sy] = look ? [0, 0] : [x, y];
@@ -630,8 +630,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           };
           const trace = (path: Array<{ x: number; y: number }>) => { ctx.moveTo(path[0].x, path[0].y); for (const q of path.slice(1)) ctx.lineTo(q.x, q.y); ctx.closePath(); };
           const strips = Math.max(4, n * 2), stripW = (wide + 4) / strips;
-          // (it presses on the ground: a flat dark shape under its belly, the game's, not the picture's)
-          const shadow = { depth: giant.x + giant.y - n, draw: () => { ctx.save(); ctx.fillStyle = "rgba(34,22,10,0.34)"; ctx.beginPath(); ctx.ellipse(centre.x, centre.y + n * TILE_H * 0.14 * s, wide * 0.5, n * TILE_H * 0.42 * s, 0, 0, Math.PI * 2); ctx.fill(); ctx.restore(); if (look && full && !xray) goldGround(ctx, centre.x, centre.y + n * TILE_H * 0.14 * s, wide * 0.68, n * TILE_H * 0.62 * s, clock); if (since < BURST_MS) burstGround(ctx, centre.x, centre.y + n * TILE_H * 0.14 * s, n * TILE_W * s, n * TILE_H * s, since, s, giant.x * 7 + giant.y); } };
+          // (it presses on its own square: that square darkened, exactly, the game's and not the picture's)
+          const shadow = { depth: giant.x + giant.y - n, draw: () => { ctx.save(); ctx.fillStyle = "rgba(34,22,10,0.34)"; ctx.beginPath(); ctx.moveTo(centre.x, centre.y - n * TILE_H * 0.5 * s); ctx.lineTo(centre.x + n * TILE_W * 0.5 * s, centre.y); ctx.lineTo(centre.x, centre.y + n * TILE_H * 0.5 * s); ctx.lineTo(centre.x - n * TILE_W * 0.5 * s, centre.y); ctx.closePath(); ctx.fill(); ctx.restore(); if (look && full && !xray) goldGround(ctx, centre.x, centre.y, n * TILE_W * 0.5 * s, n * TILE_H * 0.5 * s, clock); if (since < BURST_MS) burstGround(ctx, centre.x, centre.y, n * TILE_W * s, n * TILE_H * s, since, s, giant.x * 7 + giant.y); } };
           return [shadow, ...Array.from({ length: strips }, (_, i) => ({
             depth: edge(giant.x - giant.y + (((dx - 2 + (i + 0.5) * stripW) - centre.x) / (TILE_W * s)) * 2) + BELLY,
             draw: () => {

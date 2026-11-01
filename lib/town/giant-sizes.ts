@@ -68,14 +68,23 @@ export const sideOf = (p: { size?: PlantSize; giant?: boolean }): number => p.si
 /**
  * How large it is drawn within its step (the owner, 2026-10-31: "1x1 2x2 3x3 4x4 ขั้นตามนั้น แต่มี เล็กใหญ่ต่างกันตาม stat ที่ต่างกันได้เล็กน้อย แต่ต้อง
  * ไม่ใหญ่ไปกว่า break point ต่อไป"): at each step it fills its square; the Quality past that step's mark makes it a little
- * larger, up to `FIT_TOP` of its square just under the next mark. n = 1 is a plant of one plot. The largest of a step stays
- * under the smallest of the next (lib/town/giant-sizes.test.ts holds them to it).
+ * larger, up to `FIT_TOP` just under the next mark: exactly its square, and never past it. n = 1 is a plant of one plot. The
+ * largest of a step stays under the smallest of the next (lib/town/giant-sizes.test.ts holds them to it).
  */
-export const FIT_LOW = 0.97;
-export const FIT_TOP: Readonly<Record<number, number>> = { 1: 1.2, 2: 1.12, 3: 1.08, 4: 1.08, 5: 1.08, 6: 1.08, 7: 1.06 };
+export const FIT_LOW = 0.95;
+export const FIT_TOP: Readonly<Record<number, number>> = { 1: 1.2, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1 };
+/**
+ * Where a plant grown over its square stands (the owner, 2026-11-01: "ตรงตามพื้นที่ของตัวเองแบบเป๊ะๆ"): how far the bottom of each
+ * drawing is lifted above the square's front corner, as a share of the square's half-width. Measured on the drawings' own pixels:
+ * at the height of the square's left and right corners a drawing is as wide as the square, and with this lift no pixel below
+ * them lies outside the two front edges. At FIT_TOP it fills its square; smaller it stays inside, for the edges meet at that
+ * corner and it is scaled from there.
+ */
+export const GROWN_LIFT: Readonly<Record<string, number>> = { pumpkin: 0.24, carrot: 0.31, daikon: 0.29, cabbage: 0.26, taro: 0.285 };
 export function fitOf(quality: number, n: number): number {
   const i = SIZES.findIndex((s) => s.n === n), from = n === 1 ? 0 : (SIZES[i]?.from ?? 100), next = n === 1 ? SIZES[0].from : (SIZES[i + 1]?.from ?? 101);
-  return FIT_LOW + ((FIT_TOP[n] ?? 1.06) - FIT_LOW) * Math.max(0, Math.min(1, (quality - from) / (next - from)));
+  const low = n === 1 ? 0.97 : FIT_LOW;
+  return low + ((FIT_TOP[n] ?? 1) - low) * Math.max(0, Math.min(1, (quality - from) / (next - from)));
 }
 /** How far along its swelling a plant is, 0 to 1 (1 for one that is not swelling). */
 export function swellOf(p: { size?: PlantSize }, now: number): number {
