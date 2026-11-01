@@ -90452,8 +90452,8 @@
     "cleared": true,
     "job_kills": {
      "DarkKnight": {
-      "kills": 2,
-      "best": 20
+      "kills": 3,
+      "best": 26
      }
     }
    },
@@ -91046,7 +91046,7 @@
     "cleared": true,
     "job_kills": {
      "Scholar": {
-      "kills": 4,
+      "kills": 5,
       "best": 69
      }
     }
@@ -92093,7 +92093,7 @@
     "cleared": true,
     "job_kills": {
      "Viper": {
-      "kills": 37,
+      "kills": 38,
       "best": 100
      },
      "Machinist": {
@@ -93290,7 +93290,7 @@
     "cleared": true,
     "job_kills": {
      "Ninja": {
-      "kills": 12,
+      "kills": 14,
       "best": 82
      }
     }
@@ -95541,7 +95541,17 @@
       "best": 95,
       "median": 73,
       "kills": 9,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 8,
+        "best": 95
+       },
+       "Warrior": {
+        "kills": 1,
+        "best": 78
+       }
+      }
      },
      {
       "label": "M2S",
@@ -95550,7 +95560,13 @@
       "best": 90,
       "median": 86,
       "kills": 11,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 11,
+        "best": 90
+       }
+      }
      },
      {
       "label": "M3S",
@@ -95559,7 +95575,17 @@
       "best": 85,
       "median": 78,
       "kills": 12,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 11,
+        "best": 85
+       },
+       "Warrior": {
+        "kills": 1,
+        "best": 73
+       }
+      }
      },
      {
       "label": "M4S",
@@ -95568,7 +95594,13 @@
       "best": 83,
       "median": 76,
       "kills": 14,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 14,
+        "best": 83
+       }
+      }
      }
     ]
    },
@@ -96132,7 +96164,17 @@
       "best": 61,
       "median": 18,
       "kills": 8,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 7,
+        "best": 61
+       },
+       "Bard": {
+        "kills": 1,
+        "best": 28
+       }
+      }
      },
      {
       "label": "M2S",
@@ -96141,7 +96183,17 @@
       "best": 45,
       "median": 33,
       "kills": 11,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 10,
+        "best": 45
+       },
+       "Bard": {
+        "kills": 1,
+        "best": 2
+       }
+      }
      },
      {
       "label": "M3S",
@@ -96150,7 +96202,17 @@
       "best": 61,
       "median": 24,
       "kills": 11,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 10,
+        "best": 61
+       },
+       "Bard": {
+        "kills": 1,
+        "best": 10
+       }
+      }
      },
      {
       "label": "M4S",
@@ -96159,7 +96221,13 @@
       "best": 42,
       "median": 23,
       "kills": 10,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 10,
+        "best": 42
+       }
+      }
      }
     ]
    },
@@ -96860,7 +96928,17 @@
      "best": 96,
      "median": 96,
      "kills": 11,
-     "job": "Warrior"
+     "job": "Warrior",
+     "job_kills": {
+      "Warrior": {
+       "kills": 1,
+       "best": 96
+      },
+      "DarkKnight": {
+       "kills": 10,
+       "best": 92
+      }
+     }
     },
     {
      "label": "M10S",
@@ -96869,7 +96947,13 @@
      "best": 84,
      "median": 64,
      "kills": 9,
-     "job": "DarkKnight"
+     "job": "DarkKnight",
+     "job_kills": {
+      "DarkKnight": {
+       "kills": 9,
+       "best": 84
+      }
+     }
     },
     {
      "label": "M11S",
@@ -96878,7 +96962,13 @@
      "best": 94,
      "median": 64,
      "kills": 8,
-     "job": "DarkKnight"
+     "job": "DarkKnight",
+     "job_kills": {
+      "DarkKnight": {
+       "kills": 8,
+       "best": 94
+      }
+     }
     },
     {
      "label": "M12S-1",
@@ -96887,7 +96977,17 @@
      "best": 93,
      "median": 44,
      "kills": 15,
-     "job": "DarkKnight"
+     "job": "DarkKnight",
+     "job_kills": {
+      "DarkKnight": {
+       "kills": 14,
+       "best": 93
+      },
+      "Paladin": {
+       "kills": 1,
+       "best": 2
+      }
+     }
     },
     {
      "label": "M12S-2",
@@ -96896,7 +96996,17 @@
      "best": 89,
      "median": 71,
      "kills": 8,
-     "job": "DarkKnight"
+     "job": "DarkKnight",
+     "job_kills": {
+      "DarkKnight": {
+       "kills": 7,
+       "best": 89
+      },
+      "Paladin": {
+       "kills": 1,
+       "best": 37
+      }
+     }
     }
    ],
    "clears": [
@@ -96917,7 +97027,17 @@
     "best": 90,
     "kills": 7,
     "job": "DarkKnight",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "DarkKnight": {
+      "kills": 1,
+      "best": 90
+     },
+     "Warrior": {
+      "kills": 6,
+      "best": 85
+     }
+    }
    },
    {
     "zone": "Ultimates (Legacy)",
@@ -96939,7 +97059,21 @@
     "best": 96,
     "kills": 8,
     "job": "DarkKnight",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "DarkKnight": {
+      "kills": 4,
+      "best": 96
+     },
+     "Warrior": {
+      "kills": 1,
+      "best": 79
+     },
+     "Gunbreaker": {
+      "kills": 3,
+      "best": 81
+     }
+    }
    },
    {
     "zone": "Ultimates (Legacy)",
@@ -96950,7 +97084,17 @@
     "best": 26,
     "kills": 2,
     "job": "Warrior",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Warrior": {
+      "kills": 1,
+      "best": 26
+     },
+     "Gunbreaker": {
+      "kills": 1,
+      "best": 3
+     }
+    }
    },
    {
     "zone": "Ultimates (Stormblood)",
@@ -96961,7 +97105,13 @@
     "best": 69,
     "kills": 5,
     "job": "Gunbreaker",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Gunbreaker": {
+      "kills": 5,
+      "best": 69
+     }
+    }
    }
   ],
   "extremes": [
@@ -96974,7 +97124,13 @@
     "best": 92,
     "kills": 2,
     "job": "DarkKnight",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "DarkKnight": {
+      "kills": 2,
+      "best": 92
+     }
+    }
    },
    {
     "zone": "Trials III (Extreme)",
@@ -96985,7 +97141,25 @@
     "best": 96,
     "kills": 56,
     "job": "Warrior",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Viper": {
+      "kills": 9,
+      "best": 53
+     },
+     "Warrior": {
+      "kills": 16,
+      "best": 96
+     },
+     "DarkKnight": {
+      "kills": 12,
+      "best": 95
+     },
+     "Gunbreaker": {
+      "kills": 19,
+      "best": 91
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -96996,7 +97170,13 @@
     "best": 95,
     "kills": 19,
     "job": "DarkKnight",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "DarkKnight": {
+      "kills": 19,
+      "best": 95
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -97007,7 +97187,13 @@
     "best": 92,
     "kills": 4,
     "job": "Gunbreaker",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Gunbreaker": {
+      "kills": 4,
+      "best": 92
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -97018,7 +97204,17 @@
     "best": 99,
     "kills": 9,
     "job": "Gunbreaker",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Gunbreaker": {
+      "kills": 8,
+      "best": 99
+     },
+     "DarkKnight": {
+      "kills": 1,
+      "best": 41
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -97029,7 +97225,29 @@
     "best": 89,
     "kills": 31,
     "job": "Gunbreaker",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Reaper": {
+      "kills": 4,
+      "best": 85
+     },
+     "Gunbreaker": {
+      "kills": 9,
+      "best": 89
+     },
+     "Warrior": {
+      "kills": 8,
+      "best": 89
+     },
+     "DarkKnight": {
+      "kills": 2,
+      "best": 67
+     },
+     "Paladin": {
+      "kills": 8,
+      "best": 81
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -97040,7 +97258,33 @@
     "best": 100,
     "kills": 92,
     "job": "Warrior",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Reaper": {
+      "kills": 25,
+      "best": 94
+     },
+     "Viper": {
+      "kills": 13,
+      "best": 69
+     },
+     "Gunbreaker": {
+      "kills": 17,
+      "best": 99
+     },
+     "Warrior": {
+      "kills": 18,
+      "best": 100
+     },
+     "DarkKnight": {
+      "kills": 12,
+      "best": 94
+     },
+     "Paladin": {
+      "kills": 7,
+      "best": 93
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -97051,7 +97295,29 @@
     "best": 99,
     "kills": 71,
     "job": "Gunbreaker",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Viper": {
+      "kills": 2,
+      "best": 53
+     },
+     "Paladin": {
+      "kills": 4,
+      "best": 95
+     },
+     "Gunbreaker": {
+      "kills": 20,
+      "best": 99
+     },
+     "DarkKnight": {
+      "kills": 19,
+      "best": 97
+     },
+     "Warrior": {
+      "kills": 26,
+      "best": 98
+     }
+    }
    }
   ],
   "legacy": [
@@ -97067,7 +97333,25 @@
       "best": 100,
       "median": 97,
       "kills": 21,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 12,
+        "best": 100
+       },
+       "Warrior": {
+        "kills": 6,
+        "best": 90
+       },
+       "Paladin": {
+        "kills": 2,
+        "best": 75
+       },
+       "DarkKnight": {
+        "kills": 1,
+        "best": 91
+       }
+      }
      },
      {
       "label": "M2S",
@@ -97076,7 +97360,25 @@
       "best": 100,
       "median": 98,
       "kills": 19,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 13,
+        "best": 100
+       },
+       "Paladin": {
+        "kills": 4,
+        "best": 98
+       },
+       "DarkKnight": {
+        "kills": 1,
+        "best": 95
+       },
+       "Warrior": {
+        "kills": 1,
+        "best": 47
+       }
+      }
      },
      {
       "label": "M3S",
@@ -97085,7 +97387,25 @@
       "best": 99,
       "median": 91,
       "kills": 16,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 11,
+        "best": 99
+       },
+       "Paladin": {
+        "kills": 3,
+        "best": 89
+       },
+       "DarkKnight": {
+        "kills": 1,
+        "best": 87
+       },
+       "Warrior": {
+        "kills": 1,
+        "best": 5
+       }
+      }
      },
      {
       "label": "M4S",
@@ -97094,7 +97414,25 @@
       "best": 99,
       "median": 91,
       "kills": 20,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 8,
+        "best": 99
+       },
+       "Warrior": {
+        "kills": 6,
+        "best": 93
+       },
+       "Paladin": {
+        "kills": 5,
+        "best": 76
+       },
+       "DarkKnight": {
+        "kills": 1,
+        "best": 24
+       }
+      }
      }
     ]
    },
@@ -97110,7 +97448,17 @@
       "best": 97,
       "median": 85,
       "kills": 13,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 8,
+        "best": 97
+       },
+       "DarkKnight": {
+        "kills": 5,
+        "best": 84
+       }
+      }
      },
      {
       "label": "E10S",
@@ -97119,7 +97467,17 @@
       "best": 97,
       "median": 90,
       "kills": 18,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 14,
+        "best": 97
+       },
+       "DarkKnight": {
+        "kills": 4,
+        "best": 87
+       }
+      }
      },
      {
       "label": "E11S",
@@ -97128,7 +97486,17 @@
       "best": 95,
       "median": 80,
       "kills": 23,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 19,
+        "best": 95
+       },
+       "DarkKnight": {
+        "kills": 4,
+        "best": 81
+       }
+      }
      },
      {
       "label": "E12S",
@@ -97137,7 +97505,17 @@
       "best": 95,
       "median": 72,
       "kills": 30,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 22,
+        "best": 95
+       },
+       "DarkKnight": {
+        "kills": 8,
+        "best": 79
+       }
+      }
      },
      {
       "label": null,
@@ -97146,7 +97524,17 @@
       "best": 99,
       "median": 87,
       "kills": 13,
-      "job": "Gunbreaker"
+      "job": "Gunbreaker",
+      "job_kills": {
+       "Gunbreaker": {
+        "kills": 10,
+        "best": 99
+       },
+       "DarkKnight": {
+        "kills": 3,
+        "best": 92
+       }
+      }
      }
     ]
    }
