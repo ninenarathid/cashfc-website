@@ -196,6 +196,8 @@ const bigPieces = () => {
 };
 const GIANT_MAP = giantMap as unknown as { image: string; icons: Record<string, [number, number, number, number]> };
 const GIANT_WIDE = 2 * TILE_W * 0.97, GIANT_TALL = 150, GIANT_FOOT = 20;
+/** A plant seen through over the bed I am at, from the window's edge inward: how far in each band starts, and how much of the plant it leaves. */
+const SEE_THROUGH: Array<[number, number]> = [[1, 0.8], [0.96, 0.6], [0.92, 0.4], [0.88, 0.2]];
 let giantSheet: HTMLImageElement | null = null;
 const giantImage = () => { if (!giantSheet) { giantSheet = new Image(); giantSheet.src = `/town/giants/${GIANT_MAP.image.split("/").pop()}`; } return giantSheet; };
 const giantK = (crop: string) => {
@@ -629,6 +631,10 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
             }
           };
           const trace = (path: Array<{ x: number; y: number }>) => { ctx.moveTo(path[0].x, path[0].y); for (const q of path.slice(1)) ctx.lineTo(q.x, q.y); ctx.closePath(); };
+          const seenFrom = xray ?? [], mx = seenFrom.reduce((sum, q) => sum + q.x, 0) / seenFrom.length, my = seenFrom.reduce((sum, q) => sum + q.y, 0) / seenFrom.length;
+          const rings = SEE_THROUGH.map(([by, alpha]) => ({ alpha, path: seenFrom.map((q) => ({ x: mx + (q.x - mx) * by, y: my + (q.y - my) * by })) }));
+          // (only the strips of the plant that come up to the window are drawn in bands: it is the dearest thing on the farm, and most of a plant never does)
+          const [wl, , wr, wn] = seenFrom, reaches = (l: number, r: number) => { if (r <= wl.x || l >= wr.x) return false; const at = Math.min(r, Math.max(l, wn.x)), from = at <= wn.x ? wl : wr; return dy < from.y + ((at - from.x) * (wn.y - from.y)) / (wn.x - from.x); };
           const strips = Math.max(4, n * 2), stripW = (wide + 4) / strips;
           // (it presses on its own square: dark under its belly and gone by the corners, none past the edges; the game's, not the picture's)
           const shadow = { depth: giant.x + giant.y - n, draw: () => { ctx.save(); ctx.beginPath(); ctx.moveTo(centre.x, centre.y - n * TILE_H * 0.5 * s); ctx.lineTo(centre.x + n * TILE_W * 0.5 * s, centre.y); ctx.lineTo(centre.x, centre.y + n * TILE_H * 0.5 * s); ctx.lineTo(centre.x - n * TILE_W * 0.5 * s, centre.y); ctx.closePath(); ctx.clip(); ctx.translate(centre.x, centre.y); ctx.scale(1, TILE_H / TILE_W); const dark = ctx.createRadialGradient(0, 0, 0, 0, 0, n * TILE_W * 0.5 * s); dark.addColorStop(0, "rgba(34,22,10,0.5)"); dark.addColorStop(0.62, "rgba(34,22,10,0.42)"); dark.addColorStop(1, "rgba(34,22,10,0)"); ctx.fillStyle = dark; ctx.fillRect(-n * TILE_W * s, -n * TILE_W * s, n * TILE_W * 2 * s, n * TILE_W * 2 * s); ctx.restore(); if (look && full && !xray) goldGround(ctx, centre.x, centre.y, n * TILE_W * 0.5 * s, n * TILE_H * 0.5 * s, clock); if (since < BURST_MS) burstGround(ctx, centre.x, centre.y, n * TILE_W * s, n * TILE_H * s, since, s, giant.x * 7 + giant.y); } };
@@ -637,16 +643,15 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
             draw: () => {
               const left = Math.round(dx - 2 + i * stripW), right = Math.round(dx - 2 + (i + 1) * stripW), H = ctx.canvas.height;
               ctx.save(); ctx.beginPath(); ctx.rect(left, 0, right - left, H); ctx.clip();
-              if (xray) {
+              if (xray && reaches(left, right)) {
                 ctx.save(); ctx.beginPath(); ctx.rect(left, 0, right - left, H); trace(xray); ctx.clip("evenodd"); paint(); ctx.restore();
-                ctx.save(); ctx.beginPath(); trace(xray); ctx.clip(); ctx.globalAlpha = 0.2; paint(); ctx.restore();
-              } else if (hole) {
+                // (it thins over a band inward, so that no line runs across the plant)
+                for (const [j, ring] of rings.entries()) { ctx.save(); ctx.beginPath(); trace(ring.path); if (rings[j + 1]) trace(rings[j + 1].path); ctx.clip("evenodd"); ctx.globalAlpha = ring.alpha; paint(); ctx.restore(); }
+              } else if (hole && !xray) {
                 ctx.save(); ctx.beginPath(); ctx.rect(left, 0, right - left, H); ctx.arc(hole.x, hole.y, hole.r, 0, Math.PI * 2); ctx.clip("evenodd"); paint(); ctx.restore();
                 ctx.save(); ctx.beginPath(); ctx.arc(hole.x, hole.y, hole.r, 0, Math.PI * 2); ctx.clip(); ctx.globalAlpha = 0.22; paint(); ctx.restore();
               } else paint();
               ctx.restore();
-              // (the window's edge, so that it reads as a window on my bed)
-              if (xray && i === strips >> 1) { const path = xray, edgeOf = () => { ctx.save(); ctx.beginPath(); trace(path); ctx.lineWidth = Math.max(1, 1.5 * s); ctx.strokeStyle = "rgba(255,233,168,0.85)"; ctx.stroke(); ctx.restore(); }; if (frame.over) frame.over(edgeOf); else edgeOf(); }
               if (since < BURST_MS && i === strips >> 1) { const fx = () => burstEarth(ctx, centre.x, centre.y, foot, (n * TILE_W * s) / 2, n, since, s, giant.x * 7 + giant.y); if (frame.over) frame.over(fx); else fx(); }
               if (look && !hole && i === strips >> 1) { const fx = () => goldFx(ctx, look, giant.x * 7 + giant.y, dx, dy, wide, tall, n, clock, s, still, !full || !!xray); if (frame.over) frame.over(fx); else fx(); }
             },
