@@ -3,6 +3,20 @@
   {
    "date": "2026-11-01",
    "type": "level_100",
+   "id": 36183541,
+   "name": "Nagi Amano",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-11-01",
+   "type": "level_100",
+   "id": 49929911,
+   "name": "Sun Prism",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-11-01",
+   "type": "level_100",
    "id": 31236337,
    "name": "Whitefrost Marionette",
    "text": "reached level 100 on Pictomancer!"
@@ -1385,20 +1399,6 @@
    "id": 42021700,
    "name": "Josuke Mizumoto",
    "text": "reached level 100 on Paladin!"
-  },
-  {
-   "date": "2026-10-17",
-   "type": "level_100",
-   "id": 60972300,
-   "name": "Mizuki Sekine",
-   "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-10-16",
-   "type": "parse_up",
-   "id": 42976317,
-   "name": "Zeadz Stellar",
-   "text": "set a new best parse: 97 on Zoraal Ja as Whit\u0001 \u0002age"
   }
  ]
 }

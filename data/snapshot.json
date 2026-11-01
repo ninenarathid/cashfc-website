@@ -2221,7 +2221,7 @@
   "mounts": 174,
   "minions": 271,
   "rare": null,
-  "level": 91,
+  "level": 92,
   "cc": [
    true,
    true,
@@ -2300,7 +2300,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 34,
+  "level": 64,
   "cc": [
    true,
    true,
@@ -3646,7 +3646,7 @@
   "mounts": 65,
   "minions": 131,
   "rare": 57,
-  "level": 71,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3878,7 +3878,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 68,
-  "level": 100,
+  "level": 94,
   "cc": [
    true,
    true,
@@ -3981,7 +3981,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-30"
+  "chg": "2026-11-01"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -6952,7 +6952,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 79,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -7910,7 +7910,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 92,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -8231,7 +8231,7 @@
   "mounts": 43,
   "minions": 114,
   "rare": null,
-  "level": 70,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8381,7 +8381,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 88,
+  "level": 89,
   "cc": [
    false,
    false,
@@ -8394,7 +8394,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-31"
+  "chg": "2026-11-01"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -8767,7 +8767,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 100,
+  "level": 80,
   "cc": [
    false,
    false,
