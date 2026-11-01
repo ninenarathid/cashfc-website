@@ -2221,7 +2221,7 @@
   "mounts": 174,
   "minions": 271,
   "rare": null,
-  "level": 80,
+  "level": 82,
   "cc": [
    true,
    true,
@@ -2252,7 +2252,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-31"
+  "chg": "2026-11-01"
  },
  "12478532": {
   "name": "Hakuryu Flare",
@@ -6887,7 +6887,7 @@
   "mounts": 61,
   "minions": 116,
   "rare": 5,
-  "level": 64,
+  "level": 65,
   "cc": [
    false,
    false,
@@ -6913,7 +6913,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-31"
+  "chg": "2026-11-01"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -6952,7 +6952,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 79,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -6965,7 +6965,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-31"
+  "chg": "2026-11-01"
  },
  "53933347": {
   "name": "Little Alyss",
@@ -8767,7 +8767,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 93,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -8787,7 +8787,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-31"
+  "chg": "2026-11-01"
  },
  "60475540": {
   "name": "Joaline Auchefornei",

@@ -10200,9 +10200,13 @@
     "job": "Sage",
     "cleared": true,
     "job_kills": {
+     "BlackMage": {
+      "kills": 1,
+      "best": 22
+     },
      "RedMage": {
-      "kills": 3,
-      "best": 14
+      "kills": 5,
+      "best": 24
      },
      "Sage": {
       "kills": 7,
@@ -66939,8 +66943,8 @@
       "best": 93
      },
      "Viper": {
-      "kills": 2,
-      "best": 58
+      "kills": 4,
+      "best": 68
      }
     }
    },
@@ -78117,16 +78121,20 @@
       "kills": 6,
       "best": 64
      },
+     "Ninja": {
+      "kills": 1,
+      "best": 15
+     },
      "Dancer": {
       "kills": 1,
       "best": 26
      },
      "Astrologian": {
-      "kills": 43,
+      "kills": 44,
       "best": 79
      },
      "WhiteMage": {
-      "kills": 8,
+      "kills": 9,
       "best": 54
      },
      "Scholar": {
@@ -87192,8 +87200,8 @@
     "cleared": true,
     "job_kills": {
      "DarkKnight": {
-      "kills": 10,
-      "best": 7
+      "kills": 13,
+      "best": 9
      },
      "Paladin": {
       "kills": 1,
