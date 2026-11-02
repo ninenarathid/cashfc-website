@@ -88614,7 +88614,7 @@
     "state": "learning",
     "pct": 27.79,
     "phase": 4,
-    "pulls": 82,
+    "pulls": 66,
     "last": "2026-10-30",
     "last_ts": 1793371624
    }
@@ -95699,6 +95699,58 @@
     ]
    },
    {
+    "zone": "Abyssos",
+    "zone_id": 49,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P5S",
+      "encounter_id": 83,
+      "name": "Proto-Carbuncle",
+      "best": 98,
+      "median": 87,
+      "kills": 34,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P6S",
+      "encounter_id": 84,
+      "name": "Hegemone",
+      "best": 99,
+      "median": 96,
+      "kills": 34,
+      "job": "Paladin"
+     },
+     {
+      "label": "P7S",
+      "encounter_id": 85,
+      "name": "Agdistis",
+      "best": 100,
+      "median": 90,
+      "kills": 30,
+      "job": "Paladin"
+     },
+     {
+      "label": "P8S",
+      "encounter_id": 86,
+      "name": "Hephaistos",
+      "best": 98,
+      "median": 70,
+      "kills": 51,
+      "job": "DarkKnight"
+     },
+     {
+      "label": null,
+      "encounter_id": 87,
+      "name": "Hephaistos II",
+      "best": 93,
+      "median": 81,
+      "kills": 31,
+      "job": "Paladin"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Promise",
     "zone_id": 38,
     "expansion": "Shadowbringers",
@@ -96305,6 +96357,58 @@
       "best": 23,
       "median": 23,
       "kills": 1,
+      "job": "Dancer"
+     }
+    ]
+   },
+   {
+    "zone": "Abyssos",
+    "zone_id": 49,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P5S",
+      "encounter_id": 83,
+      "name": "Proto-Carbuncle",
+      "best": 59,
+      "median": 51,
+      "kills": 10,
+      "job": "Dancer"
+     },
+     {
+      "label": "P6S",
+      "encounter_id": 84,
+      "name": "Hegemone",
+      "best": 77,
+      "median": 46,
+      "kills": 10,
+      "job": "Dancer"
+     },
+     {
+      "label": "P7S",
+      "encounter_id": 85,
+      "name": "Agdistis",
+      "best": 36,
+      "median": 35,
+      "kills": 11,
+      "job": "Dancer"
+     },
+     {
+      "label": "P8S",
+      "encounter_id": 86,
+      "name": "Hephaistos",
+      "best": 25,
+      "median": 8,
+      "kills": 16,
+      "job": "Dancer"
+     },
+     {
+      "label": null,
+      "encounter_id": 87,
+      "name": "Hephaistos II",
+      "best": 20,
+      "median": 6,
+      "kills": 7,
       "job": "Dancer"
      }
     ]
@@ -97441,6 +97545,58 @@
         "best": 24
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "Abyssos",
+    "zone_id": 49,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P5S",
+      "encounter_id": 83,
+      "name": "Proto-Carbuncle",
+      "best": 99,
+      "median": 86,
+      "kills": 47,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "P6S",
+      "encounter_id": 84,
+      "name": "Hegemone",
+      "best": 100,
+      "median": 80,
+      "kills": 42,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P7S",
+      "encounter_id": 85,
+      "name": "Agdistis",
+      "best": 100,
+      "median": 79,
+      "kills": 51,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "P8S",
+      "encounter_id": 86,
+      "name": "Hephaistos",
+      "best": 100,
+      "median": 62,
+      "kills": 64,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": null,
+      "encounter_id": 87,
+      "name": "Hephaistos II",
+      "best": 99,
+      "median": 69,
+      "kills": 34,
+      "job": "Gunbreaker"
      }
     ]
    },
