@@ -1743,7 +1743,7 @@
    "world": "Tonberry",
    "dc": "Elemental",
    "fc": "Cat Aggro",
-   "seen": "2026-10-26",
+   "seen": "2026-11-02",
    "mounts": 164,
    "minions": 377,
    "rare_achv": null,
@@ -1856,7 +1856,7 @@
    "world": "Tonberry",
    "dc": "Elemental",
    "fc": null,
-   "seen": "2026-10-26",
+   "seen": "2026-11-02",
    "mounts": 4,
    "minions": 14,
    "rare_achv": null,
@@ -1897,7 +1897,7 @@
    "world": "Tonberry",
    "dc": "Elemental",
    "fc": "Exousia",
-   "seen": "2026-10-26",
+   "seen": "2026-11-02",
    "mounts": 76,
    "minions": 119,
    "rare_achv": null,
@@ -2007,6 +2007,6 @@
    "stats_seen": "2026-11-02"
   }
  },
- "generated_at": "2026-11-01T21:59:33Z",
+ "generated_at": "2026-11-02T06:41:15Z",
  "count": 16
 }
