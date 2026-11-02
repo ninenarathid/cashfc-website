@@ -2005,8 +2005,15 @@
    "fflogs": "ok",
    "lode_achv_public": false,
    "stats_seen": "2026-11-02"
+  },
+  "39850923": {
+   "name": "Hiro Hikari",
+   "world": "Tonberry",
+   "dc": "Elemental",
+   "fc": null,
+   "seen": "2026-11-02"
   }
  },
- "generated_at": "2026-11-02T06:41:15Z",
- "count": 16
+ "generated_at": "2026-11-02T19:08:01Z",
+ "count": 17
 }

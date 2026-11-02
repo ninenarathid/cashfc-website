@@ -11240,7 +11240,7 @@
     "cleared": true,
     "job_kills": {
      "Viper": {
-      "kills": 4,
+      "kills": 5,
       "best": 94
      },
      "Reaper": {
@@ -29925,7 +29925,7 @@
     "cleared": true,
     "job_kills": {
      "BlackMage": {
-      "kills": 4,
+      "kills": 5,
       "best": 54
      },
      "Summoner": {
@@ -36355,6 +36355,10 @@
      "Sage": {
       "kills": 14,
       "best": 47
+     },
+     "Scholar": {
+      "kills": 1,
+      "best": 19
      }
     }
    },
@@ -49318,8 +49322,8 @@
     "cleared": true,
     "job_kills": {
      "WhiteMage": {
-      "kills": 4,
-      "best": 25
+      "kills": 5,
+      "best": 31
      }
     }
    },
@@ -77793,7 +77797,7 @@
       "best": 53
      },
      "Paladin": {
-      "kills": 16,
+      "kills": 17,
       "best": 92
      },
      "Warrior": {
@@ -86019,7 +86023,7 @@
     "cleared": true,
     "job_kills": {
      "Bard": {
-      "kills": 3,
+      "kills": 4,
       "best": 19
      },
      "Pictomancer": {

@@ -1,6 +1,83 @@
 {
  "events": [
   {
+   "date": "2026-11-02",
+   "type": "rare_up",
+   "id": 47221226,
+   "name": "Destiny Marjory",
+   "text": "earned Cut Above the Rest: Revolver Occultum — only 2.3% of players have it, and 7 more"
+  },
+  {
+   "date": "2026-11-02",
+   "type": "level_100",
+   "id": 50821570,
+   "name": "Haruki Mizumoto",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
+   "date": "2026-11-02",
+   "type": "rare_up",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "earned Mightier than the Dragon"
+  },
+  {
+   "date": "2026-11-02",
+   "type": "rare_up",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "earned Resplendent: Brilliant Saw"
+  },
+  {
+   "date": "2026-11-02",
+   "type": "grade_up",
+   "id": 9444020,
+   "name": "Non Elemental",
+   "text": "is now a Expert Explorer ✨"
+  },
+  {
+   "date": "2026-11-02",
+   "type": "rare_up",
+   "id": 44133352,
+   "name": "Seville Beoulve",
+   "text": "earned Masterstroke I — only 2.3% of players have it, and 1 more"
+  },
+  {
+   "date": "2026-11-02",
+   "type": "grade_up",
+   "id": 22425670,
+   "name": "Shizuna-pan Misurugi",
+   "text": "is now a Expert Explorer ✨"
+  },
+  {
+   "date": "2026-11-02",
+   "type": "level_100",
+   "id": 58202955,
+   "name": "Trevas Aka",
+   "text": "reached level 100 on Astrologian!"
+  },
+  {
+   "date": "2026-11-02",
+   "type": "level_100",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "reached level 100 on Reaper!"
+  },
+  {
+   "date": "2026-11-02",
+   "type": "level_100",
+   "id": 60429500,
+   "name": "Janna Minerva",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-11-02",
+   "type": "grade_up",
+   "id": 34597671,
+   "name": "Valkyries Zearaskia",
+   "text": "is now a Expert Gold Saucer collector ✨"
+  },
+  {
    "date": "2026-11-01",
    "type": "level_100",
    "id": 36183541,
@@ -1322,83 +1399,6 @@
    "id": 12478532,
    "name": "Hakuryu Flare",
    "text": "is now a Expert Reaper"
-  },
-  {
-   "date": "2026-10-17",
-   "type": "level_100",
-   "id": 57375278,
-   "name": "Komi Kona",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-10-17",
-   "type": "grade_up",
-   "id": 22461237,
-   "name": "Metatron Vtretikh",
-   "text": "is now a Master Explorer ✨"
-  },
-  {
-   "date": "2026-10-17",
-   "type": "level_100",
-   "id": 5644067,
-   "name": "Ninenine Everdark",
-   "text": "reached level 100 on Sage!"
-  },
-  {
-   "date": "2026-10-17",
-   "type": "rare_up",
-   "id": 44133352,
-   "name": "Seville Beoulve",
-   "text": "earned I've Got It: Pyros Knives — only 3.0% of players have it"
-  },
-  {
-   "date": "2026-10-17",
-   "type": "rare_up",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "earned Phantom of the Umbra: Staff Umbrae"
-  },
-  {
-   "date": "2026-10-17",
-   "type": "level_100",
-   "id": 58202955,
-   "name": "Trevas Aka",
-   "text": "reached level 100 on Astrologian!"
-  },
-  {
-   "date": "2026-10-17",
-   "type": "level_100",
-   "id": 60429500,
-   "name": "Jin Theape",
-   "text": "reached level 100 on Reaper!"
-  },
-  {
-   "date": "2026-10-17",
-   "type": "level_100",
-   "id": 12478532,
-   "name": "Hakuryu Flare",
-   "text": "reached level 100 on Reaper!"
-  },
-  {
-   "date": "2026-10-17",
-   "type": "level_100",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "reached level 100 on Machinist!"
-  },
-  {
-   "date": "2026-10-17",
-   "type": "level_100",
-   "id": 47218599,
-   "name": "Kawa Lynn",
-   "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-10-17",
-   "type": "level_100",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "reached level 100 on Paladin!"
   }
  ]
 }
