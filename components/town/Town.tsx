@@ -122,7 +122,7 @@ import { SKIN_CSS } from "./TownSkin";
 import { HUD_CSS, hudTierFor } from "./TownHud";
 import { STAMINA } from "@/lib/town/stamina";
 import TownIcon, { ICON_ATLAS, drawIcon, petScale, type IconName } from "./TownIcon";
-import { BOAT_ROUTES, boatDrawShift, ridingBoat } from "@/lib/town/lotus-boats";
+import { BOAT_ROUTES, boatDrawShift, boatFishing, boatHolds, ridingBoat } from "@/lib/town/lotus-boats";
 import { BOAT_LIFT, boatBob } from "@/lib/town/boat-art";
 import { drawTitlePlate } from "./title-plate";
 import { FORGED_BEATS, drawForged } from "./TownForged";
@@ -2276,7 +2276,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // page only when they change.
     if (gameRef.current && mine) {
       const tx = Math.floor(mine.pos.x), ty = Math.floor(mine.pos.y);
-      const can = mine.path.length || (mine.info.sit ?? -1) !== -1 ? null : fishFrom(tx, ty), was = fishAtRef.current;
+      // (aboard a lotus boat, my own cast is only the boat's at its anchor, never the bank's from its dock: the database
+      // refuses those. Only mine: others' lines on that dock are drawn as ever, Codex's check 2026-11-04)
+      const can = mine.path.length || (mine.info.sit ?? -1) !== -1 ? null : boatHolds(tx, ty) ? boatFishing(tx, ty) : fishFrom(tx, ty), was = fishAtRef.current;
       if (can ? !was || was.tile[0] !== tx || was.tile[1] !== ty : !!was) {
         fishAtRef.current = can ? { ...can, tile: [tx, ty] } : null;
         setFishAt(fishAtRef.current);

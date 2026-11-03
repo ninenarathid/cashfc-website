@@ -1,5 +1,5 @@
 import {temporaryFloor} from "./temporary-crossings";
-import {boatFishing,boatHolds} from './lotus-boats';
+import {boatFishing} from './lotus-boats';
 /**
  * Cash Town's ground: the map, where you can walk, how to get there, and how
  * loud somebody is from where you stand.
@@ -1898,8 +1898,7 @@ export function asBuilt<T>(make: () => T): T {
  *   all along the river. The line lands a little way out; the shallows.
  */
 export function fishFrom(tx: number, ty: number): Fishing | null {
-  // (aboard a lotus boat: only the boat's own cast at its anchor, never the bank's from its dock: the database refuses those)
-  const boat=boatFishing(tx,ty);if(boat)return boat;if(boatHolds(tx,ty))return null;
+  const boat=boatFishing(tx,ty);if(boat)return boat;
   const key = `${tx},${ty}`, known = fishing.get(key);
   if (known !== undefined) return known;
   let found: Fishing | null = null;

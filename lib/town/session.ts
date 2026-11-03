@@ -363,7 +363,8 @@ export class TownSession {
     if (this.steppedAt && now - this.steppedAt > 1000) dt = (now - this.steppedAt) / 1000;
     this.steppedAt = now;
     if(!this.options.terrain){const bank=crossingExit(this.self.pos);if(bank)this.warpTo(bank);else if(this.self.path.some(p=>crossingExit(p))){this.self.path=[];this.announceMove();this.notify();}}
-    if(!this.options.terrain&&!ridingBoat(this.self.info.id)){const bank=boatRecovery(this.self.pos);if(bank)this.warpTo(bank);}
+    // (and the boat gone from under me, as a trip back ends at the bank: the room is told where I am, once, or it keeps me at the anchor)
+    if(!this.options.terrain&&!ridingBoat(this.self.info.id)){const bank=boatRecovery(this.self.pos);if(bank)this.warpTo(bank);if(this.boatMark){this.boatMark='';if(!bank){this.self.info={...this.self.info,x:this.self.pos.x,y:this.self.pos.y};this.announceMove();this.notify();}}}
     const all = [this.self, ...this.avatars.values()];
     for (const a of all) {
       // ── the lotus boat ── (aboard: where the boat is, on every page, before any seat; I get off a steed and out of a ram's

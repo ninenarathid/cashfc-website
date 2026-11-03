@@ -95,6 +95,9 @@ try {
   const home = await self(X), friend = await self(Y);
   ok("the owner stands on the dock", Math.floor(home.x) === DOCK[0] && Math.floor(home.y) === DOCK[1], home);
   ok("…and so does the friend", Math.floor(friend.x) === DOCK[0] && Math.floor(friend.y) === DOCK[1], friend);
+  // (what the room was told, as a page with no list of the boats or one come in later reads it: Codex's check, 2026-11-04)
+  const told = await X.evaluate(`(() => { const m = window.__cashTown.me(); return { x: m.x, y: m.y }; })()`);
+  ok("the room is told the owner is back on the dock, not at the anchor", !!told && Math.floor(told.x) === DOCK[0] && Math.floor(told.y) === DOCK[1], told);
   await shot(X, "7-back");
 } catch (e) {
   fail++; console.log("  FAIL", e?.message ?? e);
