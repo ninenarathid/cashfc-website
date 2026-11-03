@@ -2230,7 +2230,7 @@
   "mounts": 174,
   "minions": 271,
   "rare": null,
-  "level": 93,
+  "level": 94,
   "cc": [
    true,
    true,
@@ -2261,7 +2261,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-02"
+  "chg": "2026-11-03"
  },
  "12478532": {
   "name": "Hakuryu Flare",
@@ -2309,7 +2309,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 100,
+  "level": 95,
   "cc": [
    true,
    true,
@@ -2356,7 +2356,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-02"
+  "chg": "2026-11-03"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -5437,7 +5437,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5461,7 +5461,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-02"
+  "chg": "2026-11-03"
  },
  "29090821": {
   "name": "Amber Levana",
@@ -6784,7 +6784,7 @@
   "mounts": 48,
   "minions": 177,
   "rare": null,
-  "level": 100,
+  "level": 8,
   "cc": [
    false,
    false,
@@ -6797,7 +6797,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-11-03"
  },
  "47218599": {
   "name": "Kawa Lynn",
@@ -6915,7 +6915,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 84,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8301,7 +8301,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 92,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -8314,7 +8314,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-02"
+  "chg": "2026-11-03"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -8687,7 +8687,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 95,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -8937,7 +8937,13 @@
   "minions": 66,
   "rare": null,
   "level": 80,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
