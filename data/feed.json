@@ -3,6 +3,20 @@
   {
    "date": "2026-11-03",
    "type": "ult_clear",
+   "id": 39959181,
+   "name": "El Blung",
+   "text": "cleared Futures Rewritten 🏆"
+  },
+  {
+   "date": "2026-11-03",
+   "type": "ex_clear",
+   "id": 37061370,
+   "name": "Peonies Dunieres",
+   "text": "cleared Enuo (Extreme)"
+  },
+  {
+   "date": "2026-11-03",
+   "type": "ult_clear",
    "id": 28579232,
    "name": "Dessiny Valkyrie",
    "text": "cleared Dancing Mad 🏆"
@@ -1385,20 +1399,6 @@
    "id": 29152036,
    "name": "Fluffy Tinytail",
    "text": "is now a Expert Summoner"
-  },
-  {
-   "date": "2026-10-17",
-   "type": "rare_up",
-   "id": 38152072,
-   "name": "Parker Thonhart",
-   "text": "earned Skyward Knife II — only 2.9% of players have it"
-  },
-  {
-   "date": "2026-10-17",
-   "type": "rare_up",
-   "id": 44970350,
-   "name": "Allen Crist",
-   "text": "earned Denizens of the Sirensong Sea — only 4.2% of players have it"
   }
  ]
 }

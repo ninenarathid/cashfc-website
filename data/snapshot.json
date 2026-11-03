@@ -6225,7 +6225,7 @@
  "39959181": {
   "name": "El Blung",
   "parse": 97,
-  "ult": 3,
+  "ult": 4,
   "mounts": 130,
   "minions": 208,
   "rare": 48,
@@ -6300,11 +6300,12 @@
    "Zelenia"
   ],
   "ults": [
+   "Futures Rewritten",
    "The Epic of Alexander",
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-28"
+  "chg": "2026-11-03"
  },
  "29795820": {
   "name": "Elle Lauren",
@@ -7739,6 +7740,7 @@
   },
   "ex": [
    "Doomtrain",
+   "Enuo",
    "Guardian Arkveld",
    "Queen Eternal",
    "Valigarmanda",
@@ -8685,7 +8687,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 93,
+  "level": 95,
   "cc": [
    false,
    false,

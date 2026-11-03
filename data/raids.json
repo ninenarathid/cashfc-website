@@ -39039,7 +39039,7 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "none"
  },
  "29351667": {
   "current": {
@@ -70085,6 +70085,17 @@
     "cleared": true
    },
    {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1084,
+    "name": "Enuo",
+    "best": 8,
+    "kills": 1,
+    "job": "WhiteMage",
+    "cleared": true
+   },
+   {
     "zone": "Trials II (Extreme)",
     "zone_id": 67,
     "expansion": "Dawntrail",
@@ -74693,6 +74704,17 @@
   },
   "ultimates": [
    {
+    "zone": "Futures Rewritten",
+    "zone_id": 65,
+    "expansion": "Dawntrail",
+    "encounter_id": 1079,
+    "name": "Futures Rewritten",
+    "best": 25,
+    "kills": 1,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
     "expansion": "Endwalker",
@@ -75319,7 +75341,20 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 1079,
+    "name": "Futures Rewritten",
+    "kind": "ultimate",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 4,
+    "last": "2026-11-01",
+    "last_ts": 1793552909
+   }
+  ]
  },
  "39961214": {
   "current": {
@@ -78115,7 +78150,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 79,
-    "kills": 88,
+    "kills": 89,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -78340,20 +78375,7 @@
    }
   ],
   "legacy": [],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 102,
-    "name": "Red Hot and Deep Blue",
-    "kind": "savage",
-    "state": "learning",
-    "pct": 23.3,
-    "phase": 0,
-    "pulls": 4,
-    "last": "2026-10-23",
-    "last_ts": 1792745155
-   }
-  ]
+  "_status": "ok"
  },
  "42053451": {
   "current": {
@@ -87197,7 +87219,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 9,
-    "kills": 14,
+    "kills": 15,
     "job": "DarkKnight",
     "cleared": true,
     "job_kills": {
