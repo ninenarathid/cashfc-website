@@ -24,7 +24,7 @@ try {
   await until("the trial is there", () => X.evaluate(`!!${T}`), 20000);
   await X.evaluate(`(${T}.reset(), ${T}.forget(), ${T}.setGifts(["famCloudRam", "famGardenMender", "famDwarf", "famRiverDragon", "famSquirrel"]), ${T}.setStamina(100), ${T}.grant("worm", 6), ${T}.grant("rod", 1))`);
   await sleep(500);
-  await X.evaluate(`${V}.warp(40, 40)`);
+  await X.evaluate(`${V}.warp(46, 47)`);
   // (something to put away: whatever the trial's bag holds)
   const wear = (id) => X.evaluate(`${K}.familiarWear(${JSON.stringify(id)})`);
   ok("the cloud ram is put on", (await wear("famCloudRam")).ok === true);
@@ -32,6 +32,9 @@ try {
   ok("with the ram on, the pack's button is there", await has(X, '[data-ram-pack="closed"]'));
   await sleep(600);
   await shot(X, "1-button");
+  await X.evaluate(`${V}.walk(49, 47)`); await sleep(450); await shot(X, "1-ram-walking");
+  await X.evaluate(`window.dispatchEvent(new KeyboardEvent("keydown", { code: "KeyR", key: "r", bubbles: true }))`); await sleep(500); await X.evaluate(`${V}.walk(46, 47)`); await sleep(450); await shot(X, "1-ram-ridden");
+  await X.evaluate(`window.dispatchEvent(new KeyboardEvent("keydown", { code: "KeyR", key: "r", bubbles: true }))`); await sleep(400);
   await press(X, '[data-ram-pack="closed"]');
   await until("the pack open", () => has(X, '[data-ram-pack="open"]'), 4000).catch(() => null);
   ok("it opens", await has(X, '[data-ram-pack="open"]'));
@@ -49,11 +52,11 @@ try {
   ok("with another familiar the pack's button is gone", !(await has(X, "[data-ram-pack]")));
   ok("…and what is in the pack stays", (await X.evaluate(`${K}.pack().things.filter(Boolean).length`)) === 1);
   // the fairy following: walk a little and shoot her in flight
-  await X.evaluate(`${V}.walk(44, 40)`);
+  await X.evaluate(`${V}.walk(49, 47)`);
   await sleep(700);
   await shot(X, "3-fairy");
   for (const id of ["famDwarf", "famRiverDragon", "famSquirrel"]) {
-    await wear(id); await X.evaluate(`${V}.walk(40, 40)`); await sleep(650); await shot(X, `4-${id}`); await X.evaluate(`${V}.walk(44, 40)`); await sleep(400);
+    await wear(id); await X.evaluate(`${V}.walk(46, 47)`); await sleep(650); await shot(X, `4-${id}`); await X.evaluate(`${V}.walk(49, 47)`); await sleep(400);
   }
   // back to the ram: it comes out again
   await wear("famCloudRam");
