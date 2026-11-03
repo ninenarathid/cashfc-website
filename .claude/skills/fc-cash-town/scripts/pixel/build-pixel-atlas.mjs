@@ -792,19 +792,63 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
       const d = Math.abs(base.c[bi] - g.c[i * 4]) + Math.abs(base.c[bi + 1] - g.c[i * 4 + 1]) + Math.abs(base.c[bi + 2] - g.c[i * 4 + 2]);
       if (d > 80 || (c !== L.clsAt(base, x, y) && d > 40)) set.add(i);
     }
-    // a mask with open eye holes (`holes` in items.json): what is at the eyes is the wearer's own, in the wearer's own colour.
-    // The drawing keeps the eyes as they were, and a key cannot tell them from the mask's own rim, so they go by where the
-    // base has them (the owner's rule, 2026-10-26: no pixel bugs; a mask carrying violet eyes over green ones would be one)
-    if (slot === "face" && ITEMS.accessories.find((x) => x.id === id)?.holes && set.size) {
-      for (const i of [...set]) {
-        const x = i % g.GW, y = (i / g.GW) | 0;
-        let eye = false;
-        for (let dy = -1; dy <= 1 && !eye; dy++) for (let dx = -1; dx <= 1 && !eye; dx++) {
-          const bx = x + dx, by = y + dy;
-          if (bx >= 0 && by >= 0 && bx < base.GW && by < base.GH && base.c[(by * base.GW + bx) * 4 + 3] && L.clsAt(base, bx, by).startsWith("violet")) eye = true;
-        }
-        if (eye) set.delete(i);
-      }
+    // a mask with open eye holes (`holes` in items.json): what is at the eyes is the wearer's own, in the wearer's own colour
+    // (the owner's rule, 2026-10-26: no pixel bugs; a mask carrying violet eyes over green ones would be one). The key is
+    // drawn apart and its holes lie a few cells off the drawing's, and a gold or bronze mask reads as skin to the rules
+    // above; cut by them (and by dropping all within a cell of the eyes) both masks came out in pieces (the owner,
+    // 2026-11-04: "แว่นของ costume ใหม่ทั้งสองชุด ... ดูบั๊คแปลกๆ"). The drawing is the base face edited in place, so the
+    // mask is what it changed, near where the key says, closed in. The holes are then grown from the base's eyes through
+    // what is eye or face in the drawing (its own eyes lie a cell off), the face left unchanged on the mask's outer edge
+    // is peeled off, and each hole's edge is drawn in the mask's own outline.
+    const holed = slot === "face" && !!ITEMS.accessories.find((x) => x.id === id)?.holes;
+    const eyeHole = new Set();
+    if (holed && set.size) {
+      const xy = (i) => [i % g.GW, (i / g.GW) | 0], N4 = [1, -1, g.GW, -g.GW];
+      const diff = (i) => { const [x, y] = xy(i), bi = (y * base.GW + x) * 4; if (x >= base.GW || y >= base.GH || !base.c[bi + 3]) return 999;
+        return Math.abs(base.c[bi] - g.c[i * 4]) + Math.abs(base.c[bi + 1] - g.c[i * 4 + 1]) + Math.abs(base.c[bi + 2] - g.c[i * 4 + 2]); };
+      const violetAt = (x, y) => x >= 0 && y >= 0 && x < base.GW && y < base.GH && !!base.c[(y * base.GW + x) * 4 + 3] && L.clsAt(base, x, y).startsWith("violet");
+      const eyeDist = (x, y) => { for (let r = 0; r <= 3; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) if (violetAt(x + dx, y + dy)) return r; return 9; };
+      const region = new Set();
+      for (const i of set) { const [x, y] = xy(i); for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) region.add((y + dy) * g.GW + x + dx); }
+      for (const i of region) if (F.has(i) && !set.has(i) && diff(i) > 60) set.add(i);
+      const b = L.bbox(g, set), W2 = b.x1 - b.x0 + 3, H2 = b.y1 - b.y0 + 3, out = new Uint8Array(W2 * H2), st = [0];
+      const at = (x, y) => (y - b.y0 + 1) * W2 + (x - b.x0 + 1);
+      out[0] = 1;
+      while (st.length) { const q = st.pop(), x = (q % W2) + b.x0 - 1, y = ((q / W2) | 0) + b.y0 - 1;
+        for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const X = x + dx, Y = y + dy; if (X < b.x0 - 1 || Y < b.y0 - 1 || X > b.x1 + 1 || Y > b.y1 + 1) continue; const j = at(X, Y); if (out[j] || set.has(Y * g.GW + X)) continue; out[j] = 1; st.push(j); } }
+      for (let y = b.y0; y <= b.y1; y++) for (let x = b.x0; x <= b.x1; x++) { const i = y * g.GW + x; if (!out[at(x, y)] && !set.has(i) && F.has(i)) set.add(i); }
+      // (eye or face: the eye's violet, its whites and lids, or skin as the base has it)
+      const skins = [];
+      for (const i of idleOf(base)) if (L.clsAt(base, i % base.GW, (i / base.GW) | 0) === "skin") skins.push([base.c[i * 4], base.c[i * 4 + 1], base.c[i * 4 + 2]]);
+      const eyeOrFace = (i) => { const [x, y] = xy(i), c = L.clsAt(g, x, y), l = L.hsl(g.c[i * 4], g.c[i * 4 + 1], g.c[i * 4 + 2])[2];
+        return c.startsWith("violet") || c === "dark" || l > 0.78 || diff(i) <= 60 || skins.some(([r, gg, bb]) => Math.abs(r - g.c[i * 4]) + Math.abs(gg - g.c[i * 4 + 1]) + Math.abs(bb - g.c[i * 4 + 2]) <= 24); };
+      const grow = [];
+      for (let y = b.y0 - 1; y <= b.y1 + 1; y++) for (let x = b.x0 - 1; x <= b.x1 + 1; x++) if (violetAt(x, y)) { const i = y * g.GW + x; eyeHole.add(i); grow.push(i); }
+      while (grow.length) { const i = grow.pop(); for (const d of N4) { const j = i + d, [x, y] = xy(j); if (eyeHole.has(j) || eyeDist(x, y) > 2 || !eyeOrFace(j)) continue; eyeHole.add(j); grow.push(j); } }
+      for (const i of eyeHole) set.delete(i);
+      // The face below the brow, where the mask meets the cheeks: what the drawing left as the base has it, on the mask's
+      // edge, is the wearer's own (peeled off); any cell as the base has it, wherever; and a little patch in the face's
+      // own skin on the edge is the face shaded under the mask. Each would show peach on any other skin. (Never above the
+      // brow: a gold or bronze highlight is close to skin, and the maple's leaves came out full of holes.)
+      const brow = Math.min(...[...eyeHole].map((i) => xy(i)[1])) - 1, cheek = (i) => xy(i)[1] >= brow;
+      for (let pass = 0; pass < 3; pass++) for (const i of [...set]) if (cheek(i) && diff(i) <= 60 && N4.some((d) => !set.has(i + d) && !eyeHole.has(i + d))) set.delete(i);
+      for (const i of [...set]) if (cheek(i) && diff(i) <= 30) set.delete(i);
+      const skinLike = (i) => L.clsAt(g, ...xy(i)) === "skin" && skins.some(([r, gg, bb]) => Math.abs(r - g.c[i * 4]) + Math.abs(gg - g.c[i * 4 + 1]) + Math.abs(bb - g.c[i * 4 + 2]) <= 24);
+      const looked = new Set();
+      for (const i of [...set]) { if (looked.has(i) || !skinLike(i)) continue;
+        const st = [i], comp = []; looked.add(i);
+        while (st.length) { const q = st.pop(); comp.push(q); for (const d of N4) { const j = q + d; if (set.has(j) && !looked.has(j) && skinLike(j)) { looked.add(j); st.push(j); } } }
+        if (comp.length <= (comp.some(cheek) ? 12 : 3) && comp.some((q) => N4.some((d) => !set.has(q + d) && !eyeHole.has(q + d)))) for (const q of comp) set.delete(q); }
+      // (the hole's edge in the deepest shade of the mask's own colour, so a dye moves it with the rest: in black it read
+      // as a goggle's rim, and in a brown off the gold's hue it stayed brown on the silver mask)
+      const tally = new Map(), hues = [];
+      for (const i of set) { const c = L.clsAt(g, ...xy(i)); if (c === "dark" || c.startsWith("violet")) continue; const k = (g.c[i * 4] << 16) | (g.c[i * 4 + 1] << 8) | g.c[i * 4 + 2]; tally.set(k, (tally.get(k) ?? 0) + 1);
+        const [h, sat] = L.hsl(g.c[i * 4], g.c[i * 4 + 1], g.c[i * 4 + 2]); if (sat >= 0.35) hues.push(h); }
+      const hue = hues.sort((p, q) => p - q)[hues.length >> 1] ?? 0, lum = (k) => 0.3 * (k >> 16) + 0.59 * ((k >> 8) & 255) + 0.11 * (k & 255);
+      const near = (k) => { const [h, sat] = L.hsl(k >> 16, (k >> 8) & 255, k & 255); return sat >= 0.35 && Math.abs(h - hue) <= 10; };
+      const ink = [...tally].filter(([k, n]) => n >= 3 && near(k)).sort((p, q) => lum(p[0]) - lum(q[0]))[0]?.[0];
+      if (ink !== undefined) for (const i of set) { const [x, y] = xy(i);
+        if (L.clsAt(g, x, y) !== "dark" && N4.some((d) => eyeHole.has(i + d))) { g.c[i * 4] = ink >> 16; g.c[i * 4 + 1] = (ink >> 8) & 255; g.c[i * 4 + 2] = ink & 255; } }
     }
     {
       // a solid thing (a hat, dark lenses, a scarf) is whole inside its outline: what is closed in by it is it
@@ -827,7 +871,7 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
     for (let pass = 0; pass < 2; pass++) for (const i of F) {
       if (set.has(i)) continue;
       const n = [1, -1, g.GW, -g.GW].filter(d => set.has(i + d)).length;
-      if (n >= 3 && L.clsAt(g, i % g.GW, (i / g.GW) | 0) !== "skin") set.add(i);
+      if (n >= 3 && L.clsAt(g, i % g.GW, (i / g.GW) | 0) !== "skin" && !eyeHole.has(i)) set.add(i);
     }
     // a hat is one shape: what lies apart from its body (the key's spill on the eyes, a speck) goes, or the brim would be
     // taken as coming down to the eyes in those columns and the hair cut there in stripes (the owner, 2026-10-17: "หมวก
