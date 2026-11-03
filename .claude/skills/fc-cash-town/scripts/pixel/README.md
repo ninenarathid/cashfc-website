@@ -845,3 +845,43 @@ The owner, a mock for the plan: Quality makes a crop fill its square of plots at
 ## A plant grown over its ground stands on its square (2026-11-01)
 
 The owner: "ตรงตามพื้นที่ของตัวเองแบบเป๊ะๆ", and "Gen รูปใหม่ก็ได้ถ้าจำเป็น". No new picture was drawn: the same `big<Crop>7*` are lifted off the square's front corner by `GROWN_LIFT` (lib/town/giant-sizes), measured on their own pixels, and drawn as wide as the square at most. `node checks/grown-fit.mjs <tree>` reads every drawing and says whether it stands inside; run it after any new drawing of these. They cover 78 to 83 in 100 of the square: a round thing leaves a wedge at the front corner. Only a drawing whose underside follows the two front edges would fill that.
+
+## The lotus-leaf boat, the familiars that move, the cloud ram's saddlebag (2026-11-04)
+
+The owner: "ช่วยแก้บั๊คของสิ่งนี้ ให้ใช้งานได้จริง Gen ภาพใหม่ ให้ UI ดีขึ้นด้วย" (the fishing line's lotus-leaf boat, and with it
+the familiars that hopped as one still icon), "นางฟ้าของสายช่วยเหลือ Gen ภาพให้มันดีๆ ใช้หลายเฟรมได้", and a pack on the
+cloud ram (his reference: a pack sheep loaded with bags). Nine calls, $0.173 (`gpt-image-2.5-sunburst`, low, each drawn
+once); the ledger then stood at $44.881 of $55. Codex read all eight of the first batch in one run
+(2026-11-03-18-01-29-art-38268): three `send`, five `fix` (its words copied over three prompts; for `icons-fam-pairs-b`
+and `-e` its batch words were applied at the source and the two drawn with `NO_REVIEW` saying so), and the ram's edit
+alone (2026-11-03-18-34-48-art-44188, `send`). No PixelLab (1.3 generations left).
+
+- **`lotus-boat`** (PROPS ON THE MAP, 3840x2160 on Codex's word: a sign three characters tall does not fit 1280; with
+  `d2-starter-front` for the scale and `scene-pier-2` for the wood): the dock's signpost, the boat at rest (a round lotus
+  leaf, its rim curled, a petal sail furled on a bamboo mast, a lotus bud lantern), the same boat with the sail open,
+  the jetty, three lotus pads, a lotus. `node build-scenery.mjs --set boat --out <tree>/public/town` (`boat.json`,
+  24 KB, grid 5.25; lib/town/boat-art.ts fetches it). **The sail's leaf came out a few pixels narrower** than at rest:
+  `BOAT_SAIL` in build-scenery makes `boatLeafSail` the resting hull with only its top 89 rows (sail and mast, the
+  masts in the same columns) from its own drawing, so nothing jumps as it sets off. Codex's look in the game: fits the
+  map's scale and palette, riders inside the leaf; worth fixing, the leaf's broad smooth shading against the map's
+  textured pixels (shown to the owner, not drawn again).
+- **`icons-lotus-boat`** (`scene-icons` for the reference; 8.0): the boat's bag icon in place of the code-drawn one
+  (`ICONS_REPLACE`), the ram's pack (`ramPack`), and the boat panel's step icons (`boatDock`, `boatOar`, `boatAnchor`,
+  `lotusBloom`).
+- **`icons-fairy-a`** (`icons-familiars-a`): the helpers' garden fairy (famGardenMender) in six frames, four wing beats
+  and two of her mending, cut on the finer grid (6.58: on 12.5 her eyes ran together) and laid on each other by her body
+  (`frames: 6`, new in build-icons: `pairs` for longer loops); `also` makes `famGardenMender` itself her first frame, so
+  the bag and the book show her in place of the code-drawn one.
+- **`icons-fam-pairs-a` … `-e`**: two frames for fifteen familiars (`<id>A`, `<id>B`, `pairs`), `a` to `c` with a strip
+  of their own atlas icons for the reference (`work/out/ref-fam-pairs-*.png`), `d` and `e` drawing the five reward
+  familiars anew (dwarf, beaver, forest guardian, water spirit, river dragon; `also` replaces their code-drawn icons).
+  Codex: keep the head and torso the same in both, only limbs and appendages move. Cut on 9.48 (a), 5.44 (b: on 11 the
+  mandrake's and frog's eyes went), 4.61 (c: on 9.5 the bat's), 8.0 (d, e). The map plays them (Town.tsx `petLoop`).
+- **`ram-pack-edit`**: an in-place edit of the ram's two base frames at 6x (`work/out/ref-ram-pack.png`) with a leather
+  saddlebag on the near flank and the far one's edge from behind, nothing on or behind the saddle (it seats two).
+  **`node pasture-ram-pack.mjs <tree>/public/town --look <png>`** finds where the edit lies, keeps the cells that
+  turned into leather, brass and their outline (pieces of eight or more) and lays them on each of the eight walking
+  frames where that frame's saddle is, then writes the sheep's picture again (the frames themselves are PixelLab's and
+  are not drawn again). A first cut skipped every cell that had been saddle leather and lost the bag's top: it does not.
+- In the game: `scripts/town-boat.mjs` (1280x860, 384x730, 360x640), `scripts/town-ram-pack.mjs` (the pack, the ram
+  beside and ridden, the fairy and three others following).
