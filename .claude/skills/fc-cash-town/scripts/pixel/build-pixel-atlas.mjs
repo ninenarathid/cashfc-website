@@ -839,6 +839,20 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
         const st = [i], comp = []; looked.add(i);
         while (st.length) { const q = st.pop(); comp.push(q); for (const d of N4) { const j = q + d; if (set.has(j) && !looked.has(j) && skinLike(j)) { looked.add(j); st.push(j); } } }
         if (comp.length <= (comp.some(cheek) ? 12 : 3) && comp.some((q) => N4.some((d) => !set.has(q + d) && !eyeHole.has(q + d)))) for (const q of comp) set.delete(q); }
+      // (one piece: a bit of rim left apart from the mask, or a lone cell sticking out of its edge, is a speck; Codex's
+      // look, 2026-11-04: a piece held on by a corner alone reads as apart. The maple's two leaves are one size, so a piece
+      // a fifth of the largest stays)
+      // (and a rim a cell thin that the cut has broken leaves a tail a cell wide hanging off the mask)
+      // (each in turn, twice: a piece gone leaves a tail, and a tail gone a piece)
+      for (let round = 0; round < 2; round++) {
+        for (let pass = 0; pass < 3; pass++) for (const i of [...set]) if ([...N4, g.GW + 1, g.GW - 1, -g.GW + 1, -g.GW - 1].filter((d) => set.has(i + d)).length <= 1) set.delete(i);
+        const seen = new Set(), comps = [];
+        for (const i of set) { if (seen.has(i)) continue; const st = [i], comp = []; seen.add(i);
+          while (st.length) { const q = st.pop(); comp.push(q); for (const d of N4) { const j = q + d; if (set.has(j) && !seen.has(j)) { seen.add(j); st.push(j); } } }
+          comps.push(comp); }
+        const big = Math.max(...comps.map((c) => c.length));
+        for (const c of comps) if (c.length < big / 5) for (const q of c) set.delete(q);
+      }
       // (the hole's edge in the deepest shade of the mask's own colour, so a dye moves it with the rest: in black it read
       // as a goggle's rim, and in a brown off the gold's hue it stayed brown on the silver mask)
       const tally = new Map(), hues = [];
@@ -849,6 +863,11 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
       const ink = [...tally].filter(([k, n]) => n >= 3 && near(k)).sort((p, q) => lum(p[0]) - lum(q[0]))[0]?.[0];
       if (ink !== undefined) for (const i of set) { const [x, y] = xy(i);
         if (L.clsAt(g, x, y) !== "dark" && N4.some((d) => eyeHole.has(i + d))) { g.c[i * 4] = ink >> 16; g.c[i * 4 + 1] = (ink >> 8) & 255; g.c[i * 4 + 2] = ink & 255; } }
+      // (and its shading drawn a little redder than its own hue, a brown under the gold, brought into that hue: a colour's
+      // hue band passed it by, and the silver moon mask kept brown spots)
+      for (const i of set) { const [h, sat, l] = L.hsl(g.c[i * 4], g.c[i * 4 + 1], g.c[i * 4 + 2]);
+        if (sat < 0.35 || l < 0.08 || h >= hue - 12 || h < hue - 30) continue;
+        const [r, gg, bb] = L.rgb(hue - 12, sat, l); g.c[i * 4] = r; g.c[i * 4 + 1] = gg; g.c[i * 4 + 2] = bb; }
     }
     {
       // a solid thing (a hat, dark lenses, a scarf) is whole inside its outline: what is closed in by it is it
