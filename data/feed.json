@@ -2,6 +2,62 @@
  "events": [
   {
    "date": "2026-11-03",
+   "type": "rare_up",
+   "id": 44970350,
+   "name": "Allen Crist",
+   "text": "earned R&D: Raising Hammer of Stars — only 4.3% of players have it"
+  },
+  {
+   "date": "2026-11-03",
+   "type": "level_100",
+   "id": 50821570,
+   "name": "Haruki Mizumoto",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
+   "date": "2026-11-03",
+   "type": "rare_up",
+   "id": 6173187,
+   "name": "Motochita Muses",
+   "text": "earned Roll the Dice II"
+  },
+  {
+   "date": "2026-11-03",
+   "type": "level_100",
+   "id": 9444020,
+   "name": "Non Elemental",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-11-03",
+   "type": "rare_up",
+   "id": 44133352,
+   "name": "Seville Beoulve",
+   "text": "earned Masterstroke II — only 1.0% of players have it"
+  },
+  {
+   "date": "2026-11-03",
+   "type": "level_100",
+   "id": 29339718,
+   "name": "Gabriel Winford",
+   "text": "reached level 100 on Leatherworker!"
+  },
+  {
+   "date": "2026-11-03",
+   "type": "new_member",
+   "id": 62507897,
+   "name": "De Viljho",
+   "text": "joined the FC — welcome!"
+  },
+  {
+   "date": "2026-11-03",
+   "type": "level_100",
+   "id": 32857279,
+   "name": "Harp Abel",
+   "text": "reached level 100 on Scholar!"
+  },
+  {
+   "date": "2026-11-03",
    "type": "level_100",
    "id": 8286372,
    "name": "Aloha Banana",
@@ -1343,62 +1399,6 @@
    "id": 47218599,
    "name": "Kawa Lynn",
    "text": "earned Dire, Dire Deepcroft — only 0.9% of players have it"
-  },
-  {
-   "date": "2026-10-18",
-   "type": "ex_clear",
-   "id": 60852230,
-   "name": "Lucien Rhul",
-   "text": "cleared Necron (Extreme)"
-  },
-  {
-   "date": "2026-10-18",
-   "type": "rare_up",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "earned R&D: Hyperpickaxe"
-  },
-  {
-   "date": "2026-10-18",
-   "type": "level_100",
-   "id": 29991345,
-   "name": "Transparent Crystal",
-   "text": "reached level 100 on Samurai!"
-  },
-  {
-   "date": "2026-10-18",
-   "type": "parse_up",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "set a new best parse: 89 on Necron as Machinist"
-  },
-  {
-   "date": "2026-10-18",
-   "type": "ex_clear",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "cleared Necron (Extreme)"
-  },
-  {
-   "date": "2026-10-18",
-   "type": "job_up",
-   "id": 5644067,
-   "name": "Ninenine Everdark",
-   "text": "is now a Expert Ninja"
-  },
-  {
-   "date": "2026-10-18",
-   "type": "rare_up",
-   "id": 11950156,
-   "name": "Rothe Happer",
-   "text": "earned Son of a... — only 0.7% of players have it, and 51 more"
-  },
-  {
-   "date": "2026-10-17",
-   "type": "level_100",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "reached level 100 on Black Mage!"
   }
  ]
 }
