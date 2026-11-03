@@ -121,7 +121,7 @@ export function fits(into: Array<Stack | null>, s: Stack): number {
 }
 
 /** Move so many of what is in a slot of some slots into others. Null when there is nothing of the kind to move, the number is no number of them, or they do not fit. */
-function move(out: Array<Stack | null>, slot: number, n: number, into: Array<Stack | null>, full: "packed" | "full"):
+export function move(out: Array<Stack | null>, slot: number, n: number, into: Array<Stack | null>, full: "packed" | "full"):
   { ok: true; out: Array<Stack | null>; into: Array<Stack | null>; item: ItemId; n: number } | { ok: false; why: "none" | "amount" | "packed" | "full" } {
   const s = Number.isInteger(slot) && slot >= 0 ? out[slot] : null;
   if (!s) return { ok: false, why: "none" };

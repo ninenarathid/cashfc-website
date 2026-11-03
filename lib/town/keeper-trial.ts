@@ -589,6 +589,10 @@ class TrialKeeper implements Keeper {
 
   box() { return this.trial.box(); }
   async boxLook() { /* the box is in this browser already */ }
+  pack() { return this.trial.pack(); }
+  async packLook() { /* the pack is in this browser already */ }
+  async packPut(slot: number, n: number): Promise<Did<{ item: ItemId; n: number }>> { return this.trial.packPut(slot, n); }
+  async packTake(slot: number, n: number): Promise<Did<{ item: ItemId; n: number }>> { return this.trial.packTake(slot, n); }
   async boxPut(slot: number, n: number, at: [number, number]): Promise<Did<{ item: ItemId; n: number }>> { return this.trial.boxPut(slot, n, at); }
   async boxTake(slot: number, n: number, at: [number, number]): Promise<Did<{ item: ItemId; n: number }>> { return this.trial.boxTake(slot, n, at); }
   boxOffer() { return this.trial.boxOffer(); }

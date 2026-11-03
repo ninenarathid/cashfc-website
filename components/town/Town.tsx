@@ -117,6 +117,7 @@ import TownMusicButton from "./TownMusicButton";
 import TownSettingsButton from "./TownSettingsButton";
 import TownFoot, { FOOT_CSS, TownFootContext, type FootPlaces } from "./TownFoot";
 import TownRide from "./TownRide";
+import TownRamPack from "./TownRamPack";
 import { SKIN_CSS } from "./TownSkin";
 import { HUD_CSS, hudTierFor } from "./TownHud";
 import { STAMINA } from "@/lib/town/stamina";
@@ -6109,6 +6110,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         <TownRide pet={s.self.info.pet ?? null} afoot={s.self.info.afoot ?? true} sitting={(s.self.info.sit ?? -1) !== -1} seat={s.self.info.seat ?? ""}
                   th={w.th} phone={phone} onRide={(afoot) => sessionRef.current?.setAfoot(afoot)} />
       )}
+      {/* ── the pasture ── the cloud ram's pack, beside the ride button while the ram follows (lib/town/ram-pack) */}
+      {s && game && keeper && !talk && !wardrobeOpen && <TownRamPack keeper={keeper} th={w.th} />}
       {/* Thanks: for whoever helped the plant in the plot of mine I stand on; and being told when I am thanked */}
       {s && game && keeper && (
         <Suspense fallback={null}>

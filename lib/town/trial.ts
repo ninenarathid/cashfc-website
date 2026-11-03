@@ -55,6 +55,7 @@ import { gardenTend, syncGarden } from "./gardening";
 import { goldOf, syncQuality } from "./quality-plant";
 import { insectCare, type InsectCare } from "./insect-garden";
 import { boxOffer, moveBox, newBox, roomyBox, sortBox, stow, unstow, upgradeBox, type Box, type BoxRefusal } from "./box";
+import { newPack, packPut, packTake, roomyPack, type Pack } from "./ram-pack";
 import { craft, type CraftId } from "./crafting";
 import { streamWork, type StreamAction, type StreamGate } from "./stream-work";
 import { preparationReady, prepare, PREPARATION, type PrepId, type PrepRun, type PrepAnswers } from "./preparation";
@@ -249,6 +250,7 @@ const limitedKey = (id: string) => `cashtown.trial.limited.1.${id}`;
 const playsKey = (id: string) => `cashtown.trial.plays.1.${id}`, tallyKey = (id: string) => `cashtown.trial.tally.1.${id}`;
 /** What a tester keeps in the plaza's storage box (lib/town/box): each tester's own, like a purse. */
 const boxKey = (id: string) => `cashtown.trial.box.1.${id}`;
+const packKey = (id: string) => `cashtown.trial.pack.1.${id}`;
 /** The popoto a trial's member has to change: what a verified member held on 2026-10-03, about (profile), and a share of pictures'. */
 const SAMPLE = { profile: 247, gallery: 31 };
 
@@ -596,6 +598,18 @@ export class Trial {
     this.save(did.purse);
     return did;
   }
+  /* ── the cloud ram's pack (lib/town/ram-pack): each tester's own ── */
+  pack(): Pack { return roomyPack(this.read<Pack>(packKey(this.id), newPack, (v) => !!v && Array.isArray((v as Partial<Pack>).things))); }
+  private packed<T extends { purse: Purse; pack: Pack; item: ItemId }>(did: ({ ok: true } & T) | { ok: false; why: string }) {
+    if (!did.ok) return did as { ok: false; why: Refusal };
+    const met = this.read<ItemId[]>(SEEN, () => [], Array.isArray);
+    if (!met.includes(did.item)) this.write(SEEN, [...met, did.item]);
+    this.write(packKey(this.id), did.pack);
+    this.save(did.purse);
+    return did;
+  }
+  packPut(slot: number, n: number) { return this.packed(packPut(this.purse(), this.pack(), slot, n)); }
+  packTake(slot: number, n: number) { return this.packed(packTake(this.purse(), this.pack(), slot, n)); }
   /** Put so many of what is in a slot of my bag away in my box; take so many of what is in a slot of the box out. */
   boxPut(slot: number, n: number, at: [number, number]) { return this.boxed(stow(this.purse(), this.box(), slot, n, at)); }
   boxTake(slot: number, n: number, at: [number, number]) { return this.boxed(unstow(this.purse(), this.box(), slot, n, at)); }

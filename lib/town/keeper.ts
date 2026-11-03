@@ -8,6 +8,7 @@ import type { AnimalInput, AnimalReply, AnimalWhy, AnimalWorld } from "./animal-
 import { EMPTY_WORLD, mergeAnimals } from "./animal-world";
 import type { InsectCare } from "./insect-garden";
 import type { Box, BoxRefusal, BoxUpgrade } from "./box";
+import type { Pack } from "./ram-pack";
 import type { RewardInput, RewardReply } from "./reward-types";
 import type { CraftId } from "./crafting";
 import type { Current } from "./river-items";
@@ -573,6 +574,14 @@ export interface Keeper {
   boxUpgrade(slots: number, at: [number, number]): Promise<Did<BoxUpgrade>>;
   /** Whether the server supports persistent layout changes (v179). */
   boxTidy(): boolean;
+  // ── the pasture ── (the cloud ram's pack, lib/town/ram-pack: v319)
+  /** My cloud ram's pack, as last told; null until it has been read, and for as long as whoever keeps the game knows of none. */
+  pack?(): Pack | null;
+  /** Read it again. */
+  packLook?(): Promise<void>;
+  /** Put so many of what is in a slot of my bag into the pack, and take so many out: only while the cloud ram follows me. */
+  packPut?(slot: number, n: number): Promise<Did<{ item: ItemId; n: number }>>;
+  packTake?(slot: number, n: number): Promise<Did<{ item: ItemId; n: number }>>;
   boxMove(from: number, to: number, at: [number, number], expected: Box["things"]): Promise<Did>;
   boxSort(at: [number, number], expected: Box["things"]): Promise<Did>;
 
@@ -1004,6 +1013,7 @@ export class DbKeeper implements Keeper {
   private stream_: StreamGate | null = null;
   private camps_:FieldCamp[]=[];
   private box_: Box | null = null;
+  private pack_: Pack | null = null;
   private boxTidy_ = false;
   private boxOffer_: BoxUpgrade | null = null;
   /** Whether the database lets a bag be put in order (it says so when asked, from v165 on). */
@@ -1348,6 +1358,7 @@ export class DbKeeper implements Keeper {
     if ("wellWater" in a) { this.waters_ = true; const w = a.wellWater && typeof a.wellWater === "object" ? (a.wellWater as WellWater) : null; this.water_ = WELLS.map(() => w); }
     if (Array.isArray(a.wellWaters)) { this.waters_ = true; this.water_ = WELLS.map((_, i) => { const w = (a.wellWaters as unknown[])[i]; return w && typeof w === "object" ? (w as WellWater) : null; }); }
     if (a.box && typeof a.box === "object" && Array.isArray((a.box as Box).things)) this.box_ = a.box as Box;
+    if (a.pack && typeof a.pack === "object" && Array.isArray((a.pack as Pack).things)) this.pack_ = a.pack as Pack;
     if (a.boxTidy === true) this.boxTidy_ = true;
     if ("boxOffer" in a) this.boxOffer_ = a.boxOffer as BoxUpgrade | null;
     if (a.tidy === true && !this.tidy_) this.tidy_ = true;
@@ -2202,6 +2213,10 @@ export class DbKeeper implements Keeper {
   // ── end: mining ──
 
   box(): Box | null { return this.box_; }
+  pack(): Pack | null { return this.pack_; }
+  async packLook() { await this.ask("town_pack"); }
+  packPut(slot: number, n: number) { return this.deed<{ item: ItemId; n: number }>("town_pack_put", { p_slot: slot, p_n: n }); }
+  packTake(slot: number, n: number) { return this.deed<{ item: ItemId; n: number }>("town_pack_take", { p_slot: slot, p_n: n }); }
   async boxLook() { await this.ask("town_box"); }
   boxPut(slot: number, n: number, at: [number, number]) { return this.deed<{ item: ItemId; n: number }>("town_box_put", { p_slot: slot, p_n: n, p_x: at[0], p_y: at[1] }); }
   boxTake(slot: number, n: number, at: [number, number]) { return this.deed<{ item: ItemId; n: number }>("town_box_take", { p_slot: slot, p_n: n, p_x: at[0], p_y: at[1] }); }

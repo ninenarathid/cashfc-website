@@ -311,7 +311,7 @@ export default function TownBox({ keeper, th, at, ask, phone, tabbar, bottom, ar
 }
 
 /** Some slots, five to a row: what is in each, and how many. A thing's card shows over it; a tap moves it across. */
-function Slots({ slots, th, label, act, onPick }: { slots: Array<Stack | null>; th: boolean; label: string; act: string; onPick: (slot: number) => void }) {
+export function Slots({ slots, th, label, act, onPick }: { slots: Array<Stack | null>; th: boolean; label: string; act: string; onPick: (slot: number) => void }) {
   return (
     <ul className="grid grid-cols-5 gap-1.5" aria-label={label}>
       {slots.map((s, i) => {
