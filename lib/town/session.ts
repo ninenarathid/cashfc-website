@@ -19,7 +19,7 @@ import { CART, cartPace } from "./cart";
 import { KNOCKS_MS, SHOW, readTold as readForged, toldOf, type ForgeShow } from "./forge-show";
 import { carryPace } from "./carry";
 import { readTold } from "./handing";
-import { paceOf } from "./riding";
+import { paceOf, rides } from "./riding";
 // ── the pasture ── (a seat on a cloud ram behind its rider, or on the hay wagon: lib/town/seats)
 import { seatSpot } from "./seats";
 import { walkPace } from "./tools";
@@ -366,6 +366,10 @@ export class TownSession {
     if(!this.options.terrain&&!ridingBoat(this.self.info.id)){const bank=boatRecovery(this.self.pos);if(bank)this.warpTo(bank);}
     const all = [this.self, ...this.avatars.values()];
     for (const a of all) {
+      // ── the lotus boat ── (aboard: where the boat is, on every page, before any seat; I get off a steed and out of a ram's
+      // seat as I board, and the room is told where I am each time the boat sets out or stops, so a page that has no list
+      // of the boats, or comes in later, finds me on the water and not on the bank I left)
+      if(!this.options.terrain){const pos=boatMotion(a.info.id);if(pos){a.pos=pos;a.path=[];if(a===this.self){this.sitWhenThere=null;if(this.self.info.seat)this.tell({seat:''});if(this.self.info.sit!==-1)this.tell({sit:-1});if(rides(this.self.info.pet,false,this.self.info.afoot))this.tell({afoot:true});const boat=ridingBoat(a.info.id)!,stamp=`${boat.owner}:${boat.trip?.at??0}:${boatMoving(boat)?0:1}`;if(stamp!==this.boatMark){this.boatMark=stamp;a.info={...a.info,x:pos.x,y:pos.y};this.announceMove();this.notify();}}continue;}}
       // ── the pasture ── (sat behind a ram's rider or on the hay wagon: where the seat is, on every page; mine lost, I am let down where I am)
       if (!this.options.terrain && a.info.seat) {
         const at = seatSpot(a.info.seat, Date.now(), (id) => (id === this.self.info.id ? this.self : this.avatars.get(id)));
@@ -380,7 +384,6 @@ export class TownSession {
         }
         if (a === this.self) this.getDown();
       }
-      if(!this.options.terrain){const pos=boatMotion(a.info.id);if(pos){a.pos=pos;a.path=[];if(a===this.self){this.sitWhenThere=null;if(this.self.info.sit!==-1)this.tell({sit:-1});const boat=ridingBoat(a.info.id)!,stamp=`${boat.owner}:${boat.trip?.at??0}:${boatMoving(boat)?0:1}`;if(stamp!==this.boatMark){this.boatMark=stamp;this.announceMove();this.notify();}}continue;}}
       if (!a.path.length) continue;
       // (a water cart is heavy for one, and goes as fast as anybody with somebody beside it: lib/town/cart)
       // ── gifts: forest ── (and whoever has a moss stag to ride goes twice as fast, on every page that walks them: lib/town/riding; a cart is pushed on foot)

@@ -21,6 +21,8 @@
 //   node build-scenery.mjs --set stag           the moss stag's own (stag-<hash>.png + stag.json): its gallop, walk and
 //                                               standing in two views, every frame stood on its moss saddle's middle, so
 //                                               that a rider laid there stays put (lib/town/stag-art.ts)
+//   node build-scenery.mjs --set boat           the fishing line's lotus-leaf boat (boat-<hash>.png + boat.json): the boat at
+//                                               rest and under sail, the dock's jetty and sign, lotus pads (lib/town/boat-art.ts)
 //   node build-scenery.mjs --work <dir>         the sheets are another tree's (a worktree has no work folder of its own)
 //   node build-scenery.mjs --own-ground         the ground in the model's own textures, not the drawn ones (READY_TEX)
 //
@@ -50,7 +52,7 @@ const SET = argSet > 0 ? process.argv[argSet + 1] : "scenery";
 // (the pasture's animals are a picture a species, `pasture-<species>`: every look in two views with its loops is too
 // large for one picture a phone draws from)
 const ANIMAL_SETS = ["pasture-chicken", "pasture-duck", "pasture-sheep", "pasture-cow"];
-if (!["scenery", "forest", "kitchen", "mountain", "cave", /* felling */ "felling", "works", "lamps", "pasture", "stag", "giants", ...ANIMAL_SETS].includes(SET)) throw new Error(`no such set: ${SET}`);
+if (!["scenery", "forest", "kitchen", "mountain", "cave", /* felling */ "felling", "works", "lamps", "pasture", "stag", "giants", "boat", ...ANIMAL_SETS].includes(SET)) throw new Error(`no such set: ${SET}`);
 
 // [sheet, names, how]: "whole" keeps every shape on the sheet as one piece (the shop site and its
 // heaps); "hat" stands frames on their feet under the middle of their yellow hard hat, so a
@@ -263,6 +265,14 @@ const STAG = [
   ["stag-run-NE", STAG_FRAMES("NE", "run"), "moss", null, [4.8, 5.2]],
   ["stag-walk-NE", STAG_FRAMES("NE", "walk"), "moss", null, [4.8, 5.2]],
 ];
+// ── the lotus-leaf boat ── (the owner, 2026-11-04: "Gen ภาพใหม่"): six props in one row on a 3840x2160 canvas with a
+// character sheet for the scale, each standing on its own lowest row (the boat on its leaf's front rim)
+const BOAT = [
+  ["lotus-boat", ["boatSign", "boatLeaf", "boatLeafSail", "boatJetty", "boatPads", "boatLotus"], null, null, null],
+];
+// (the boat under sail came out with its leaf a few pixels narrower than at rest: it is the resting boat with only the rows
+// above the leaf's far rim, the open sail and the mast, taken from its own drawing; the two masts stand in the same columns)
+const BOAT_SAIL = { piece: "boatLeafSail", base: "boatLeaf", rows: 89 };
 // ── the plants grown over their beds ── (the owner, 2026-10-31: "ทั้งแปลงเป้นผักต้นเดียว"): one plant a sheet on a 3840
 // canvas, its true pixels 8 of the canvas, fetched the first time such a plant is drawn (lib/town/giant-sizes).
 const GIANTS = [
@@ -475,7 +485,7 @@ const isWater = (r, g, b) => { const mx = Math.max(r, g, b), mn = Math.min(r, g,
   return (b > r + 25 && b >= g && (mx - mn) / 255 > 0.18) || (l > 0.82 && b >= r && b >= g - 4); };
 // (the mountain's own ground: bare stony earth, a cliff's face seen from the front, snow, and the forest's floor under its
 // pines; the cave's: its floor, the top of its rock, and the same face for its walls)
-const TEXTURES = ANIMAL_SETS.includes(SET) ? [] : { forest: ["wood"], kitchen: [], felling: [], works: [], lamps: [], pasture: [], stag: [], giants: [], mountain: ["rock", "cliff", "snow", "wood"], cave: ["cavefloor", "cavewall", "cliff"] }[SET]
+const TEXTURES = ANIMAL_SETS.includes(SET) ? [] : { forest: ["wood"], kitchen: [], felling: [], works: [], lamps: [], pasture: [], stag: [], giants: [], boat: [], mountain: ["rock", "cliff", "snow", "wood"], cave: ["cavefloor", "cavewall", "cliff"] }[SET]
   ?? ["grass", "plaza", "road", "water", "sand", "field"];
 
 const pieces = [];
@@ -498,7 +508,7 @@ function moveOnto(g, ref, refSet) {
   }
   return { ...best, of: low.length };
 }
-for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: KITCHEN, mountain: MOUNTAIN, cave: CAVE, felling: FELLING, works: WORKS, lamps: LAMPS, pasture: PASTURE, stag: STAG, giants: GIANTS }[SET] ?? (ANIMAL_SETS.includes(SET) ? [] : SHEETS)) {
+for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: KITCHEN, mountain: MOUNTAIN, cave: CAVE, felling: FELLING, works: WORKS, lamps: LAMPS, pasture: PASTURE, stag: STAG, giants: GIANTS, boat: BOAT }[SET] ?? (ANIMAL_SETS.includes(SET) ? [] : SHEETS)) {
   if (!fs.existsSync(path.join(OUT, `${sheet}.png`))) { console.log(`no ${sheet}`); continue; }
   const raw = await L.loadRaw(path.join(OUT, `${sheet}.png`));
   // the characters' own pixel size (about 5.3–6.2): a double period scores as well and halves every prop
@@ -700,6 +710,17 @@ for (const t of TEXTURES) {
   }
   textures.push({ name: t, img: { buf, w: n, h: n } });
   console.log(`tex ${t.padEnd(6)} ${n}x${n}  (grid ${grid.p.toFixed(2)})`);
+}
+
+if (SET === "boat") {
+  const sail = pieces.find((p) => p.name === BOAT_SAIL.piece), base = pieces.find((p) => p.name === BOAT_SAIL.base);
+  if (sail && base) {
+    const { w, h } = base.img, buf = Buffer.from(base.img.buf);
+    buf.fill(0, 0, BOAT_SAIL.rows * w * 4);
+    for (let y = 0; y < BOAT_SAIL.rows && y < sail.img.h; y++) sail.img.buf.copy(buf, y * w * 4, y * sail.img.w * 4, y * sail.img.w * 4 + Math.min(w, sail.img.w) * 4);
+    sail.img = { ...base.img, buf, w, h }; sail.ax = base.ax; sail.ay = base.ay;
+    console.log(`${BOAT_SAIL.piece}: the resting leaf with its top ${BOAT_SAIL.rows} rows from its own drawing, ${w}x${h}`);
+  }
 }
 
 // pack

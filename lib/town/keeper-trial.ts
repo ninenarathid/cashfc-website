@@ -23,6 +23,7 @@ import type { PrepAnswers, PrepId } from "./preparation";
 import type { Current } from "./river-items";
 import { castPattern, currentAt, patternOdds } from "./river-fishing";
 import { fishFrom } from "./world";
+import { boatFishing, ridingBoat } from "./lotus-boats";
 import type { Give } from "./deal";
 import type { Chore, Deed } from "./farm";
 import { ALL_SIGNS, PAIR, SIGNS, WARY, biggerBy, castFrom, driveBack, freshOdds, harderOf, hookBaits, hookStar, isWary, lightOrb, linesOf, oddsOf, orbHaste, orbOf, seeded, sift, signsOf, starOdds, tookUp, underOrb, type Cast, type Strike } from "./fishing";
@@ -110,7 +111,9 @@ class TrialKeeper implements Keeper {
   /** The slot the thing in the hand was taken up from, on this page. */
   private taken: number | null = null;
 
-  constructor(readonly id: string, readonly trial: Trial) {}
+  // (a line is this page's own and none is out when it opens: a lotus boat's "line out" left from before a reload would
+  // hold the boat at its anchor for minutes)
+  constructor(readonly id: string, readonly trial: Trial) { trial.boatFishingBusy(id, null); }
 
   ready() { return true; }
   open() { return true; }
@@ -241,6 +244,8 @@ class TrialKeeper implements Keeper {
 
   async cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean, quick = false, how?: CastHow, chosen?: Current): Promise<Did<CastTold>> {
     // ── gifts: fishing ── (a rod of two lines is its owner's to drop, and takes two of the bait; a stardust bait is its owner's too, and takes none)
+    // (aboard a lotus boat only its own cast at the anchor, as the database has it: never from the bank by its dock)
+    if (ridingBoat(this.id) && !boatFishing(place.tile[0], place.tile[1])) return { ok: false, why: "none" };
     const pair = how === "pair", star = how === "star", now = this.trial.now(), kept = this.trial.purse();
     const count = pair ? linesOf(kept, this.handSlot()) : 1;
     if ((pair && count < 2) || (star && !works(kept, "thingBait"))) return { ok: false, why: "none" };

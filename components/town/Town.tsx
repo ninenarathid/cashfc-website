@@ -121,6 +121,8 @@ import { SKIN_CSS } from "./TownSkin";
 import { HUD_CSS, hudTierFor } from "./TownHud";
 import { STAMINA } from "@/lib/town/stamina";
 import TownIcon, { ICON_ATLAS, drawIcon, petScale, type IconName } from "./TownIcon";
+import { BOAT_ROUTES, boatDrawShift, ridingBoat } from "@/lib/town/lotus-boats";
+import { BOAT_LIFT, boatBob } from "@/lib/town/boat-art";
 import { drawTitlePlate } from "./title-plate";
 import { FORGED_BEATS, drawForged } from "./TownForged";
 // ── to come ── (the preview of the mountain and the cave: only its types here; the module itself is asked for in `next dev` alone)
@@ -438,6 +440,21 @@ function useWords() {
 type Card = { id: string; x: number; top: number; bottom: number };
 
 /** `cap` is for tests (TownGate's dev-only test room); everybody else gets ROOM_CAP. */
+/** Familiars that float rather than walk (the reward ranks'): drawn up off the ground with a shadow, as the flyers are. */
+const FLOATERS = new Set<string>(["famGardenMender", "famRiverDragon", "famWaterRelay"]);
+/** Every familiar that goes by air: these keep by a member out on a lotus boat, the others wait on its dock. */
+const FLIERS = new Set<string>([...FLOATERS, "famButterfly", "famBat", "famWoodpecker"]);
+/** A familiar's frames, when the atlas has them: `<id>A`/`<id>B` (two steps or wing beats), or the fairy's `F1`..`F4` and `M1`, `M2`. */
+const PET_LOOPS = new Map<string, { go: IconName[]; mend?: IconName[] } | null>();
+function petLoop(name: string): { go: IconName[]; mend?: IconName[] } | null {
+  if (!PET_LOOPS.has(name)) {
+    const has = (n: string) => n in ICON_ATLAS.icons, f = [1, 2, 3, 4].map((i) => `${name}F${i}`);
+    PET_LOOPS.set(name, f.every(has) ? { go: f as IconName[], ...(has(`${name}M1`) && has(`${name}M2`) ? { mend: [`${name}M1`, `${name}M2`] as string[] as IconName[] } : {}) }
+      : has(`${name}A`) && has(`${name}B`) ? { go: [`${name}A`, `${name}B`] as IconName[] } : null);
+  }
+  return PET_LOOPS.get(name)!;
+}
+
 export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: TownMe; testTopic?: string; cap?: number; mapAddon?: TownMapAddon }) {
   const mapRef = useRef(mapAddon); mapRef.current = mapAddon;
   const ephemeral = mapAddon?.mode === "test" || testTopic === "casino-lab";
@@ -3221,7 +3238,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       return { at: { x: p.x, y: p.y }, right: far > 0.12 ? p.right : false, moving: far > 0.12, name: name as IconName, perched: far <= 0.12 };
     }
     const sent = a.info.id === me.id && petErrand.current && performance.now() < petErrand.current.until ? petErrand.current : null;
-    const goal = sent ?? a.pos;
+    // ── the lotus boat ── (its member aboard: a familiar that cannot fly waits on the dock; one that flies keeps by them over the water)
+    const boat = ridingBoat(a.info.id), wait = boat && !FLIERS.has(name) ? BOAT_ROUTES[boat.site]?.dock : null;
+    const goal = sent ?? (wait ? { x: wait[0] + 0.5, y: wait[1] + 0.5 } : a.pos);
     const dx = goal.x - p.x, dy = goal.y - p.y, d = Math.hypot(dx, dy), gap = sent ? 0.08 : name === STAG ? 1.15 : 0.72;
     if (sent && d <= gap + 0.05) sent.until = Math.min(sent.until, performance.now() + 160);
     let moving = false;
@@ -3234,6 +3253,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     }
     return { at: { x: p.x, y: p.y }, right: p.right, moving, name: name as IconName, ...(name === STAG ? { back: facings.current.get(a.info.id)?.view === "back" } : {}) };
   }
+  /** When the helpers' fairy last mended a beat on this screen (TownGardenHelp says so): she waves her wand a moment. */
+  const mendAt = useRef(-1e9);
+  useEffect(() => { const on = () => { mendAt.current = performance.now(); }; window.addEventListener("town:fairy-mend", on); return () => window.removeEventListener("town:fairy-mend", on); }, []);
   /** A familiar at its place: its picture out of the icons', turned the way it goes, hopping as it runs (a butterfly flies and never lands). */
   function drawPet(ctx: CanvasRenderingContext2D, pet: { at: Vec; right: boolean; moving: boolean; name: IconName; swims?: boolean; perched?: boolean; back?: boolean }, now: number) {
     const img = iconImg.current;
@@ -3245,7 +3267,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (!img?.complete || !img.naturalWidth) return;
     const c = project({ x: pet.at.x + 0.5, y: pet.at.y + 0.5 });
     if (!onScreen(c)) return;
-    const [x, y, w, h] = ICON_ATLAS.icons[pet.name], sc = cam.current.s, k = petScale(pet.name) * sc, flies = pet.name === "famButterfly" || /* mining */ pet.name === "famBat" || /* felling: a woodpecker flies too */ pet.name === "famWoodpecker", still = reducedRef.current;
+    const [x, y, w, h] = ICON_ATLAS.icons[pet.name], sc = cam.current.s, k = petScale(pet.name) * sc, flies = pet.name === "famButterfly" || /* mining */ pet.name === "famBat" || /* felling: a woodpecker flies too */ pet.name === "famWoodpecker" || FLOATERS.has(pet.name), still = reducedRef.current;
     // ── gifts: fishing ── in the water (the otter by a float): no shadow, a ring going out on the water about it, and
     // only what is above the water drawn, rocking a little
     if (pet.swims) {
@@ -3263,7 +3285,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       ctx.restore();
       return;
     }
-    const bob = still ? 0 : flies ? Math.sin(now / 260) * 3 * sc : pet.moving ? Math.abs(Math.sin(now / 95)) * 3.5 * sc : 0;
+    // (a familiar with frames of its own walks or beats its wings by them, and hops less: icons-fam-pairs-*; the helpers'
+    // fairy flies by four and, a moment after she mends a beat on my screen, waves her wand by two: icons-fairy-a)
+    const loop = petLoop(pet.name), mending = !!loop?.mend && now - mendAt.current < 1300;
+    const frame = loop ? (mending ? loop.mend![Math.floor((now - mendAt.current) / 330) % 2] : (flies || pet.moving) && !still ? loop.go[Math.floor(now / (flies ? 110 : 160)) % loop.go.length] : loop.go[0]) : null;
+    const bob = still ? 0 : flies ? Math.sin(now / 260) * 3 * sc : pet.moving ? Math.abs(Math.sin(now / 95)) * (loop ? 1.5 : 3.5) * sc : 0;
     // ── gifts: well ── (a frog hops: long hops as it follows, a small glad one in the rain; components/town/frog-art)
     const frog = pet.name === "famFrog", hop = frog && !still ? frogHop(now, pet.moving, SKIES.raining()) * sc : null;
     // ── felling ── (a woodpecker on a trunk: up it, with no shadow under it, knocking at the bark now and then)
@@ -3278,16 +3304,17 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       return;
     }
     const lift = (flies ? 14 * sc : 0) + (hop ?? bob);
+    const [fx, fy, fw, fh] = frame ? ICON_ATLAS.icons[frame] : [x, y, w, h], fk = frame ? petScale(loop!.go[0]) * sc : k;
     ctx.fillStyle = "rgba(0,0,0,0.2)";
     ctx.beginPath();
     // (its shadow as wide as it is drawn)
-    ctx.ellipse(c.x, c.y, w * k * (flies ? 0.22 : 0.32), w * k * (flies ? 0.09 : 0.13), 0, 0, Math.PI * 2);
+    ctx.ellipse(c.x, c.y, fw * fk * (flies ? 0.22 : 0.32), fw * fk * (flies ? 0.09 : 0.13), 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.save();
     ctx.imageSmoothingEnabled = false;
     ctx.translate(Math.round(c.x), Math.round(c.y - lift));
     if (!pet.right) ctx.scale(-1, 1);
-    ctx.drawImage(img, x, y, w, h, -Math.round((w * k) / 2), -Math.round(h * k), Math.round(w * k), Math.round(h * k));
+    ctx.drawImage(img, fx, fy, fw, fh, -Math.round((fw * fk) / 2), -Math.round(fh * fk), Math.round(fw * fk), Math.round(fh * fk));
     ctx.restore();
     // ── gifts: well ── (…and it croaks in the quarter hour before rain, by this page's own sky: for everybody who sees it)
     if (frog && croaksAt(SKIES.now(), (ms) => SKIES.sky(ms))) drawCroak(ctx, { x: c.x, y: c.y - lift }, sc, now, still, pet.right, Math.round(h * k), Math.round(pet.at.x * 7 + pet.at.y * 3));
@@ -3333,6 +3360,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     return !!carrier && facingOf(carrier, carrier === sessionRef.current?.self, performance.now()).view === "back";
   }
   function depthOf(a: Avatar): number {
+    // ── the lotus boat ── (aboard: where the boat is drawn, a little way out from where they are, just over its leaf)
+    const afloat = !mapRef.current ? boatDrawShift(a.info.id) : null;
+    if (afloat) return a.pos.x + afloat.x + a.pos.y + afloat.y;
     // (on one of the casino's sofas: just over it)
     const sofa = sitting(a) && !a.path.length ? sofaSeatAt(a.pos) : 0;
     if (sofa) return CASINO_SOFA_SEATS[sofa - 1].depth;
@@ -3638,7 +3668,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // (behind the rider, the way they face; on the wagon's bed, each in their place along it)
     const run = wagonOf ? wagonRun(wagonOf) : null, place = run ? wagonPlace(run, a.info.id) : 0;
     const shift = behindOf ? ((pets.current.get(behindOf)?.right ?? true) ? -11 : 11) * k : run ? ((place % 4) - 1.5) * 9 * k : 0;
-    const p = mapRef.current ? spotOf(a) : perched ? { x: foot.x + shift, y: foot.y - ride - hop - (run ? Math.floor(place / 4) * 4 * k : 0) + (backSeat ? 5 * k : 0) } : foot;
+    // ── the lotus boat ── (aboard: standing on the leaf, rising and falling with it: components/town/boat-draw)
+    const afloat = !mapRef.current && !perched && !!ridingBoat(a.info.id);
+    const p = mapRef.current ? spotOf(a) : perched ? { x: foot.x + shift, y: foot.y - ride - hop - (run ? Math.floor(place / 4) * 4 * k : 0) + (backSeat ? 5 * k : 0) } : afloat ? (() => { const sh = boatDrawShift(a.info.id) ?? { x: 0, y: 0 }, at = project({ x: a.pos.x + sh.x, y: a.pos.y + sh.y }); return { x: at.x, y: at.y - (BOAT_LIFT + boatBob(Date.now(), reducedRef.current)) * cam.current.s }; })() : foot;
     const look = lookOf(a);
     const kit = kitFor(look.race);
     // sitting, the name and the tap box come down with the head
