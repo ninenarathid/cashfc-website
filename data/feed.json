@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-11-03",
+   "type": "level_100",
+   "id": 60852230,
+   "name": "Lucien Rhul",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
+   "date": "2026-11-03",
    "type": "rare_up",
    "id": 44970350,
    "name": "Allen Crist",
@@ -1392,13 +1399,6 @@
    "id": 47218599,
    "name": "Kawa Lynn",
    "text": "cleared Doomtrain (Extreme)"
-  },
-  {
-   "date": "2026-10-18",
-   "type": "rare_up",
-   "id": 47218599,
-   "name": "Kawa Lynn",
-   "text": "earned Dire, Dire Deepcroft — only 0.9% of players have it"
   }
  ]
 }
