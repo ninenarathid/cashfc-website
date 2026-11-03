@@ -155,7 +155,7 @@
    "pvp": "legendary"
   },
   "jobs": {
-   "Warrior": "legendary",
+   "Warrior": "master",
    "Ninja": "master"
   },
   "ex": [
@@ -1834,7 +1834,7 @@
  "28579232": {
   "name": "Dessiny Valkyrie",
   "parse": 97,
-  "ult": 5,
+  "ult": 6,
   "mounts": 106,
   "minions": 136,
   "rare": 59,
@@ -1927,13 +1927,14 @@
    "Zoraal Ja"
   ],
   "ults": [
+   "Dancing Mad",
    "Dragonsong's Reprise",
    "Futures Rewritten",
    "The Epic of Alexander",
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-25"
+  "chg": "2026-11-03"
  },
  "47221226": {
   "name": "Destiny Marjory",
@@ -6913,7 +6914,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 100,
+  "level": 84,
   "cc": [
    false,
    false,
@@ -6933,7 +6934,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-29"
+  "chg": "2026-11-03"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -8684,7 +8685,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 100,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -8704,7 +8705,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-02"
+  "chg": "2026-11-03"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -8933,14 +8934,14 @@
   "mounts": 30,
   "minions": 66,
   "rare": null,
-  "level": 79,
+  "level": 80,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-02"
+  "chg": "2026-11-03"
  },
  "61748681": {
   "name": "Qzarel Lumina",

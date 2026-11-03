@@ -1,6 +1,13 @@
 {
  "events": [
   {
+   "date": "2026-11-03",
+   "type": "ult_clear",
+   "id": 28579232,
+   "name": "Dessiny Valkyrie",
+   "text": "cleared Dancing Mad 🏆"
+  },
+  {
    "date": "2026-11-02",
    "type": "rare_up",
    "id": 47221226,
@@ -1392,13 +1399,6 @@
    "id": 44970350,
    "name": "Allen Crist",
    "text": "earned Denizens of the Sirensong Sea — only 4.2% of players have it"
-  },
-  {
-   "date": "2026-10-17",
-   "type": "job_up",
-   "id": 12478532,
-   "name": "Hakuryu Flare",
-   "text": "is now a Expert Reaper"
   }
  ]
 }

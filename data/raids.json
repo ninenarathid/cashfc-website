@@ -9435,9 +9435,9 @@
     "state": "learning",
     "pct": 34.03,
     "phase": 4,
-    "pulls": 79,
-    "last": "2026-10-31",
-    "last_ts": 1793465951
+    "pulls": 90,
+    "last": "2026-11-02",
+    "last_ts": 1793637411
    }
   ]
  },
@@ -10196,7 +10196,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 39,
-    "kills": 18,
+    "kills": 19,
     "job": "Sage",
     "cleared": true,
     "job_kills": {
@@ -11235,7 +11235,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 94,
-    "kills": 16,
+    "kills": 17,
     "job": "Viper",
     "cleared": true,
     "job_kills": {
@@ -12950,7 +12950,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 65,
-    "kills": 1,
+    "kills": 2,
     "job": "Warrior",
     "cleared": true
    },
@@ -29920,7 +29920,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 54,
-    "kills": 5,
+    "kills": 6,
     "job": "BlackMage",
     "cleared": true,
     "job_kills": {
@@ -32932,6 +32932,17 @@
   },
   "ultimates": [
    {
+    "zone": "Dancing Mad",
+    "zone_id": 76,
+    "expansion": "Dawntrail",
+    "encounter_id": 1085,
+    "name": "Dancing Mad",
+    "best": 10,
+    "kills": 1,
+    "job": "Viper",
+    "cleared": true
+   },
+   {
     "zone": "Futures Rewritten",
     "zone_id": 65,
     "expansion": "Dawntrail",
@@ -33997,12 +34008,12 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "kind": "ultimate",
-    "state": "learning",
-    "pct": 44.51,
-    "phase": 4,
-    "pulls": 9,
-    "last": "2026-10-30",
-    "last_ts": 1793373035
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 48,
+    "last": "2026-11-02",
+    "last_ts": 1793634516
    }
   ]
  },
@@ -36320,7 +36331,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 99,
-    "kills": 86,
+    "kills": 87,
     "job": "Dancer",
     "cleared": true,
     "job_kills": {
@@ -37113,12 +37124,12 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 66,
-    "kills": 5,
+    "kills": 6,
     "job": "Samurai",
     "cleared": true,
     "job_kills": {
      "Samurai": {
-      "kills": 5,
+      "kills": 6,
       "best": 66
      }
     }
@@ -46771,12 +46782,12 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 27,
-    "kills": 5,
+    "kills": 6,
     "job": "Bard",
     "cleared": true,
     "job_kills": {
      "Bard": {
-      "kills": 5,
+      "kills": 6,
       "best": 27
      }
     }
@@ -49316,8 +49327,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1085,
     "name": "Dancing Mad",
-    "best": 25,
-    "kills": 4,
+    "best": 31,
+    "kills": 5,
     "job": "WhiteMage",
     "cleared": true,
     "job_kills": {
@@ -77788,7 +77799,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 92,
-    "kills": 43,
+    "kills": 44,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -78020,20 +78031,7 @@
    }
   ],
   "legacy": [],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 103,
-    "name": "The Tyrant",
-    "kind": "savage",
-    "state": "cleared",
-    "pct": null,
-    "phase": 0,
-    "pulls": 1,
-    "last": "2026-10-27",
-    "last_ts": 1793081900
-   }
-  ]
+  "_status": "ok"
  },
  "42053180": {
   "current": {
@@ -86018,7 +86016,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 19,
-    "kills": 6,
+    "kills": 7,
     "job": "Bard",
     "cleared": true,
     "job_kills": {
