@@ -8697,7 +8697,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 82,
+  "level": 84,
   "cc": [
    false,
    false,
@@ -8717,7 +8717,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-03"
+  "chg": "2026-11-04"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
