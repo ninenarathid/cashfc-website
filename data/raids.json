@@ -9433,11 +9433,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 34.03,
+    "pct": 25.24,
     "phase": 4,
-    "pulls": 90,
-    "last": "2026-11-02",
-    "last_ts": 1793637411
+    "pulls": 91,
+    "last": "2026-11-03",
+    "last_ts": 1793725810
    }
   ]
  },
@@ -28887,11 +28887,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 17.57,
+    "pct": 10.51,
     "phase": 3,
-    "pulls": 30,
-    "last": "2026-10-29",
-    "last_ts": 1793293541
+    "pulls": 49,
+    "last": "2026-11-03",
+    "last_ts": 1793723461
    }
   ]
  },
@@ -35969,11 +35969,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 17.57,
+    "pct": 10.51,
     "phase": 3,
-    "pulls": 30,
-    "last": "2026-10-29",
-    "last_ts": 1793293541
+    "pulls": 49,
+    "last": "2026-11-03",
+    "last_ts": 1793723461
    }
   ]
  },
