@@ -1804,7 +1804,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 100,
+  "level": 22,
   "cc": [
    true,
    true,
@@ -1828,7 +1828,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-11"
+  "chg": "2026-11-04"
  },
  "28579232": {
   "name": "Dessiny Valkyrie",
@@ -2228,7 +2228,7 @@
   "mounts": 174,
   "minions": 271,
   "rare": null,
-  "level": 96,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2259,7 +2259,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-03"
+  "chg": "2026-11-04"
  },
  "12478532": {
   "name": "Hakuryu Flare",
@@ -2307,7 +2307,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 100,
+  "level": 88,
   "cc": [
    true,
    true,
@@ -2354,7 +2354,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-03"
+  "chg": "2026-11-04"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -6800,7 +6800,7 @@
   "mounts": 61,
   "minions": 116,
   "rare": 5,
-  "level": 67,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6826,7 +6826,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-03"
+  "chg": "2026-11-04"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -8697,7 +8697,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 84,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -8946,7 +8946,7 @@
   "mounts": 30,
   "minions": 66,
   "rare": null,
-  "level": 83,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8959,7 +8959,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-03"
+  "chg": "2026-11-04"
  },
  "61748681": {
   "name": "Qzarel Lumina",
@@ -12072,7 +12072,7 @@
   "mounts": 32,
   "minions": 95,
   "rare": null,
-  "level": 100,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -12085,7 +12085,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-03"
+  "chg": "2026-11-04"
  },
  "16173247": {
   "name": "Haru Luminous",

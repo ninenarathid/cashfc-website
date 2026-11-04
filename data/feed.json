@@ -1,6 +1,27 @@
 {
  "events": [
   {
+   "date": "2026-11-04",
+   "type": "level_100",
+   "id": 28120733,
+   "name": "Fukurou Under",
+   "text": "reached level 100 on Dragoon!"
+  },
+  {
+   "date": "2026-11-04",
+   "type": "level_100",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-11-04",
+   "type": "level_100",
+   "id": 42019777,
+   "name": "Peace Violet",
+   "text": "reached level 100 on Paladin!"
+  },
+  {
    "date": "2026-11-03",
    "type": "level_100",
    "id": 60852230,
@@ -1378,27 +1399,6 @@
    "id": 29998658,
    "name": "Shippei Astana",
    "text": "earned Guardiansbane"
-  },
-  {
-   "date": "2026-10-18",
-   "type": "rare_up",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "earned Gathering in Spaaace"
-  },
-  {
-   "date": "2026-10-18",
-   "type": "ex_clear",
-   "id": 38488824,
-   "name": "Daffodil Amary",
-   "text": "cleared Doomtrain (Extreme)"
-  },
-  {
-   "date": "2026-10-18",
-   "type": "ex_clear",
-   "id": 47218599,
-   "name": "Kawa Lynn",
-   "text": "cleared Doomtrain (Extreme)"
   }
  ]
 }
