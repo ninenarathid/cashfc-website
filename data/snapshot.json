@@ -674,6 +674,7 @@
    3763,
    3765,
    3766,
+   3767,
    3770,
    3771,
    3778,
@@ -734,7 +735,6 @@
    3969,
    3999,
    4000,
-   4003,
    4004,
    4006,
    4007,
@@ -1143,7 +1143,7 @@
   "mounts": 75,
   "minions": 144,
   "rare": 40,
-  "level": 94,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -1217,7 +1217,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-02"
+  "chg": "2026-11-04"
  },
  "43037186": {
   "name": "Wind-up Whitefrost",
@@ -1804,7 +1804,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 22,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -1837,7 +1837,7 @@
   "mounts": 106,
   "minions": 136,
   "rare": 59,
-  "level": 80,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -1933,7 +1933,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-03"
+  "chg": "2026-11-04"
  },
  "47221226": {
   "name": "Destiny Marjory",
@@ -2268,7 +2268,7 @@
   "mounts": 49,
   "minions": 115,
   "rare": null,
-  "level": 91,
+  "level": 92,
   "cc": [
    true,
    true,
@@ -2298,7 +2298,7 @@
    "Dancing Mad",
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-11-03"
+  "chg": "2026-11-04"
  },
  "50821570": {
   "name": "Haruki Mizumoto",
@@ -2307,7 +2307,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 88,
+  "level": 57,
   "cc": [
    true,
    true,
@@ -3540,6 +3540,7 @@
    1311,
    1331,
    1429,
+   1458,
    1459,
    1585,
    1622,
@@ -3551,7 +3552,6 @@
    1746,
    1858,
    1904,
-   1933,
    1934,
    1938,
    2079,
@@ -4309,6 +4309,7 @@
    2946,
    2947,
    2948,
+   2949,
    2951,
    3260,
    3480,
@@ -4330,7 +4331,6 @@
    4035,
    4043,
    4045,
-   4070,
    4071
   ],
   "tiers": {
@@ -4960,6 +4960,7 @@
   "rare_ids": [
    752,
    935,
+   945,
    1077,
    1227,
    1328,
@@ -4989,7 +4990,6 @@
    3703,
    3726,
    3729,
-   3736,
    3757,
    3758,
    3778,
@@ -6501,7 +6501,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 96,
-  "level": 100,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -6622,7 +6622,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-03"
+  "chg": "2026-11-04"
  },
  "60619924": {
   "name": "Gotnogod Soluna",
@@ -6800,7 +6800,7 @@
   "mounts": 61,
   "minions": 116,
   "rare": 5,
-  "level": 100,
+  "level": 68,
   "cc": [
    false,
    false,
@@ -6865,7 +6865,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 88,
+  "level": 83,
   "cc": [
    false,
    false,
@@ -6878,7 +6878,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-03"
+  "chg": "2026-11-04"
  },
  "53933347": {
   "name": "Little Alyss",
@@ -7589,7 +7589,7 @@
   "mounts": 55,
   "minions": 177,
   "rare": null,
-  "level": 65,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7605,7 +7605,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-18"
+  "chg": "2026-11-04"
  },
  "37061370": {
   "name": "Peonies Dunieres",
@@ -8295,7 +8295,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 96,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -8308,7 +8308,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-03"
+  "chg": "2026-11-04"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -8569,8 +8569,8 @@
   "name": "De Viljho",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 17,
+  "minions": 42,
   "rare": null,
   "level": 100,
   "cc": null,
@@ -8579,7 +8579,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-03"
+  "chg": "2026-11-04"
  },
  "49053650": {
   "name": "Eniluna Gelatoneii",
@@ -8697,7 +8697,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 80,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -8954,6 +8954,22 @@
    false,
    false
   ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-11-04"
+ },
+ "61489984": {
+  "name": "Poly Umami",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},

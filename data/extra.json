@@ -2578,7 +2578,7 @@
  },
  "pipeline": {
   "legacy_cursor": 1,
-  "zone_cursor": 12,
+  "zone_cursor": 13,
   "fflogs_cycle": [
    "10638899",
    "10807425",
@@ -3074,6 +3074,7 @@
    "60972300",
    "60994518",
    "61014734",
+   "61489984",
    "6173187",
    "61748681",
    "61758559",
@@ -3092,18 +3093,18 @@
    "9155192",
    "9444020"
   ],
-  "collect_at": 1793735591.159108,
-  "lala_at": 1793736625.8366613,
+  "collect_at": 1793822758.913491,
+  "lala_at": 1793823697.8217225,
   "collect_v": 7,
   "bucket_max": {
-   "goldsaucer": 153.96,
-   "explorer": 324.26,
-   "relic": 592.71,
-   "seasonal": 289.9,
-   "crafter": 891.97,
+   "goldsaucer": 151.88,
+   "explorer": 323.33,
+   "relic": 591.13,
+   "seasonal": 289.8,
+   "crafter": 891.12,
    "gatherer": 716.5,
-   "pvp": 396.03,
-   "treasure": 362.01,
+   "pvp": 395.09,
+   "treasure": 361.92,
    "oldtimer": 844.31
   },
   "bucket_max_v": 2,
@@ -3608,6 +3609,7 @@
    "60972300",
    "60994518",
    "61014734",
+   "61489984",
    "6173187",
    "61748681",
    "61758559",
@@ -3872,189 +3874,189 @@
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": null,
-   "at": 1793735591.736354
+   "at": 1793822759.6490173
   },
   "15308846": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Female",
    "title": "The Hand of Creation",
-   "at": 1793735593.632443
+   "at": 1793822761.5979354
   },
   "3968346": {
    "race": "Viera",
    "clan": "Rava",
    "gender": "Female",
    "title": "Sky Pirate",
-   "at": 1793735595.6219645
+   "at": 1793822763.501058
   },
   "14959902": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": "Lightbringer",
-   "at": 1793735597.5382638
+   "at": 1793822765.4886494
   },
   "28789661": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Male",
    "title": "Garo",
-   "at": 1793735599.4679034
+   "at": 1793822767.4133453
   },
   "31628293": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": null,
-   "at": 1793735601.3603973
+   "at": 1793822769.3935914
   },
   "57885671": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "Icebreaker",
-   "at": 1793735603.2856135
+   "at": 1793822771.5261283
   },
   "58199536": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "The White",
-   "at": 1793735605.2068596
+   "at": 1793822773.8997376
   },
   "24186600": {
    "race": "Viera",
    "clan": "Veena",
    "gender": "Male",
    "title": null,
-   "at": 1793735607.187916
+   "at": 1793822776.8406842
   },
   "29152036": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "Moonwalker",
-   "at": 1793735609.1734004
+   "at": 1793822779.428158
   },
   "38041221": {
    "race": "Au Ra",
    "clan": "Xaela",
    "gender": "Female",
    "title": "Khloe's Best Friend",
-   "at": 1793735611.0625274
+   "at": 1793822782.0301118
   },
   "35634484": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": null,
-   "at": 1793735612.939234
+   "at": 1793822784.3950737
   },
   "22767255": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "The Red",
-   "at": 1793735614.831869
+   "at": 1793822786.319676
   },
   "29511615": {
    "race": "Hrothgar",
    "clan": "The Lost",
    "gender": "Female",
    "title": "The Fae-touched",
-   "at": 1793735618.5904746
+   "at": 1793822790.0067363
   },
   "31236337": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Male",
    "title": "Force of Nature",
-   "at": 1793735620.482392
+   "at": 1793822791.8384333
   },
   "13533056": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": null,
-   "at": 1793735625.023142
+   "at": 1793822795.5787563
   },
   "44970350": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": "Starlighter",
-   "at": 1793735626.9275336
+   "at": 1793822797.4748125
   },
   "19827594": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Female",
    "title": "The Hand of Mercy",
-   "at": 1793735628.9890094
+   "at": 1793822799.4146857
   },
   "45938803": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": "Ijin Traveler",
-   "at": 1793735630.858234
+   "at": 1793822801.3021417
   },
   "36248712": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Male",
    "title": "The Heavens' Legend",
-   "at": 1793735632.7587996
+   "at": 1793822803.2427466
   },
   "26699926": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Sweet Dreamer",
-   "at": 1793735634.644949
+   "at": 1793822805.1217146
   },
   "32147756": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "The Darkest Shadow",
-   "at": 1793735636.6368246
+   "at": 1793822807.0152476
   },
   "36261473": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Female",
    "title": "Distant Stargazer",
-   "at": 1793735638.5383103
+   "at": 1793822808.8973317
   },
   "36130968": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": "Monster Hunter",
-   "at": 1793735640.4653125
+   "at": 1793822810.8147042
   },
   "28579232": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Female",
    "title": "Genesis of Legends",
-   "at": 1793735642.3622577
+   "at": 1793822812.6909566
   },
   "47221226": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Cruel Legend",
-   "at": 1793735644.2524805
+   "at": 1793822814.5126905
   },
   "39199441": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "Practically Pelupelu",
-   "at": 1793735646.1678195
+   "at": 1793822816.5588765
   },
   "40389196": {
    "race": "Hyur",
@@ -4068,35 +4070,35 @@
    "clan": "Plainsfolk",
    "gender": "Female",
    "title": "Myth Breaker",
-   "at": 1793735648.0852869
+   "at": 1793822818.470099
   },
   "28950119": {
    "race": "Viera",
    "clan": "Rava",
    "gender": "Female",
    "title": "Trailblazer",
-   "at": 1793735649.9606125
+   "at": 1793822820.4210284
   },
   "28120733": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Male",
    "title": null,
-   "at": 1793735652.0046628
+   "at": 1793822822.2826421
   },
   "12478532": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "Echo of a Fallen Star",
-   "at": 1793735653.9000866
+   "at": 1793822824.1416216
   },
   "50821570": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Male",
    "title": "Gembreaker",
-   "at": 1793735656.221779
+   "at": 1793822826.0314763
   },
   "42349146": {
    "race": "Au Ra",
@@ -4110,35 +4112,35 @@
    "clan": "Hellsguard",
    "gender": "Male",
    "title": "The Meat Shield",
-   "at": 1793735658.36189
+   "at": 1793822828.0310311
   },
   "42948817": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Far-wanderer",
-   "at": 1793735662.4018533
+   "at": 1793822831.7969108
   },
   "57375278": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": null,
-   "at": 1793735664.279304
+   "at": 1793822833.6464517
   },
   "25506828": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Male",
    "title": "Genesis of Legends",
-   "at": 1793735666.1576612
+   "at": 1793822835.5104892
   },
   "38808156": {
    "race": "Au Ra",
    "clan": "Xaela",
    "gender": "Female",
    "title": "The Necromancer",
-   "at": 1793735668.0145783
+   "at": 1793822837.3972855
   },
   "31902843": {
    "race": "Au Ra",
@@ -4152,126 +4154,126 @@
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "Cruel Legend",
-   "at": 1793735669.925181
+   "at": 1793822839.2934637
   },
   "34509521": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": "The Seventh Dawn",
-   "at": 1793735671.952939
+   "at": 1793822841.1654718
   },
   "37056222": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Female",
    "title": "Queen Bean",
-   "at": 1793735673.8495066
+   "at": 1793822843.0460615
   },
   "22461237": {
    "race": "Viera",
    "clan": "Rava",
    "gender": "Male",
    "title": "Doom of the Deep",
-   "at": 1793735675.7645566
+   "at": 1793822844.9566414
   },
   "5294880": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Gentlewoman",
-   "at": 1793735677.6166198
+   "at": 1793822846.815697
   },
   "5435582": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "Genesis of Legends",
-   "at": 1793735679.5300627
+   "at": 1793822848.6617808
   },
   "26268800": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": null,
-   "at": 1793735681.4211369
+   "at": 1793822850.5757
   },
   "6173187": {
    "race": "Hyur",
    "clan": "Highlander",
    "gender": "Male",
    "title": "Shark Hunter",
-   "at": 1793735683.5977676
+   "at": 1793822852.4244957
   },
   "51922514": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": null,
-   "at": 1793735685.4829257
+   "at": 1793822854.672616
   },
   "36183541": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "The Fae-touched",
-   "at": 1793735687.3738515
+   "at": 1793822856.6022751
   },
   "21620195": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Male",
    "title": "Phantom Salvation",
-   "at": 1793735689.293829
+   "at": 1793822858.4882653
   },
   "5644067": {
    "race": "Lalafell",
    "clan": "Plainsfolk",
    "gender": "Male",
    "title": "The Alpha Legend",
-   "at": 1793735691.2775078
+   "at": 1793822860.4079266
   },
   "9444020": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Female",
    "title": "The Alpha Legend",
-   "at": 1793735693.889141
+   "at": 1793822862.372078
   },
   "22425670": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": null,
-   "at": 1793735724.1825798
+   "at": 1793822877.7498338
   },
   "15912826": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Female",
    "title": "The Enlightened",
-   "at": 1793735696.1470857
+   "at": 1793822864.3482428
   },
   "11950156": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": null,
-   "at": 1793735698.575844
+   "at": 1793822866.2281299
   },
   "30667251": {
    "race": "Hrothgar",
    "clan": "The Lost",
    "gender": "Male",
    "title": "The Professional",
-   "at": 1793735701.3997052
+   "at": 1793822868.0829015
   },
   "29325838": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": "Cruel Legend",
-   "at": 1793735705.7000654
+   "at": 1793822870.0748096
   },
   "58455997": {
    "race": "Lalafell",
@@ -4285,21 +4287,21 @@
    "clan": "Raen",
    "gender": "Female",
    "title": "Makai Red Mage",
-   "at": 1793735711.0338078
+   "at": 1793822872.042829
   },
   "43864764": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "Bug Girl",
-   "at": 1793735716.5234122
+   "at": 1793822873.922628
   },
   "29998658": {
    "race": "Hrothgar",
    "clan": "Helions",
    "gender": "Male",
    "title": "Trailblazer",
-   "at": 1793735720.9014933
+   "at": 1793822875.8010573
   },
   "44141004": {
    "race": "Hyur",
@@ -4320,112 +4322,112 @@
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "Featherfall's Finest Weaver",
-   "at": 1793735726.7536006
+   "at": 1793822879.722154
   },
   "58202955": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": "Barista at the End of the Universe",
-   "at": 1793735729.2450242
+   "at": 1793822881.7287827
   },
   "26298391": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": null,
-   "at": 1793735731.2529712
+   "at": 1793822883.9663243
   },
   "29918404": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": null,
-   "at": 1793735733.6958263
+   "at": 1793822886.112816
   },
   "42976317": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Zhloe's Friend",
-   "at": 1793735735.6339753
+   "at": 1793822888.2653244
   },
   "24123541": {
    "race": "Viera",
    "clan": "Veena",
    "gender": "Female",
    "title": null,
-   "at": 1793735737.5724635
+   "at": 1793822890.1987896
   },
   "12058921": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Kyubi Tamer",
-   "at": 1793735739.5860522
+   "at": 1793822892.5825517
   },
   "38335568": {
    "race": "Au Ra",
    "clan": "Xaela",
    "gender": "Female",
    "title": null,
-   "at": 1793735741.4680035
+   "at": 1793822894.5527563
   },
   "6951533": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": null,
-   "at": 1793735743.429432
+   "at": 1793822896.4624693
   },
   "38802422": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Female",
    "title": null,
-   "at": 1793735745.324761
+   "at": 1793822898.386629
   },
   "56108574": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "The Red",
-   "at": 1793735747.3689113
+   "at": 1793822900.2918103
   },
   "8836061": {
    "race": "Au Ra",
    "clan": "Raen",
    "gender": "Female",
    "title": "Gambler",
-   "at": 1793735749.2916255
+   "at": 1793822902.2515397
   },
   "8286372": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": null,
-   "at": 1793735751.2620087
+   "at": 1793822904.0977032
   },
   "29090821": {
    "race": "Au Ra",
    "clan": "Xaela",
    "gender": "Female",
    "title": "Annihilator",
-   "at": 1793735753.6749349
+   "at": 1793822905.9569175
   },
   "34434658": {
    "race": "Lalafell",
    "clan": "Dunesfolk",
    "gender": "Male",
    "title": "The Ultimate Legend",
-   "at": 1793735755.617284
+   "at": 1793822907.826068
   },
   "14476396": {
    "race": "Miqo'te",
    "clan": "Keeper of the Moon",
    "gender": "Male",
    "title": "Z",
-   "at": 1793735757.4905434
+   "at": 1793822909.8071375
   },
   "29339718": {
    "race": "Miqo'te",
@@ -4439,21 +4441,21 @@
    "clan": "Midlander",
    "gender": "Female",
    "title": "Kingsglaive",
-   "at": 1793735759.3661425
+   "at": 1793822911.6704535
   },
   "42215186": {
    "race": "Miqo'te",
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Echo of a Fallen Star",
-   "at": 1793735761.284183
+   "at": 1793822913.5581357
   },
   "2957360": {
    "race": "Hyur",
    "clan": "Midlander",
    "gender": "Male",
    "title": null,
-   "at": 1793735763.2707474
+   "at": 1793822915.4472115
   },
   "4026627": {
    "race": "Hyur",
@@ -4600,7 +4602,7 @@
    "clan": "Seeker of the Sun",
    "gender": "Female",
    "title": "Flame Puppy",
-   "at": 1793735660.2787735
+   "at": 1793822829.895098
   },
   "24114157": {
    "race": "Lalafell",
@@ -7190,7 +7192,7 @@
    "clan": "Dunesfolk",
    "gender": "Female",
    "title": null,
-   "at": 1793735622.8940861
+   "at": 1793822793.7056773
   },
   "29853808": {
    "race": "Lalafell",
@@ -7976,8 +7978,8 @@
    "minions": 104,
    "achievements": 0,
    "achv_private": true,
-   "mount_rank": "6179",
-   "minion_rank": "6631",
+   "mount_rank": "6185",
+   "minion_rank": "6636",
    "achv_rank": null,
    "race": null,
    "tribe": null,
@@ -8146,8 +8148,8 @@
    "minions": 107,
    "achievements": 0,
    "achv_private": true,
-   "mount_rank": "5188",
-   "minion_rank": "6762",
+   "mount_rank": "5189",
+   "minion_rank": "6763",
    "achv_rank": null,
    "race": "Hrothgar",
    "tribe": "Helions",
@@ -8181,8 +8183,8 @@
    "achievements": 1814,
    "achv_private": false,
    "mount_rank": "384",
-   "minion_rank": "3056",
-   "achv_rank": "761",
+   "minion_rank": "3058",
+   "achv_rank": "763",
    "race": null,
    "tribe": null,
    "synced": 1778736578,
@@ -8367,8 +8369,8 @@
    "minions": 231,
    "achievements": 0,
    "achv_private": true,
-   "mount_rank": "3653",
-   "minion_rank": "3563",
+   "mount_rank": "3655",
+   "minion_rank": "3565",
    "achv_rank": null,
    "race": "Lalafell",
    "tribe": "Dunesfolk",
@@ -8741,9 +8743,9 @@
    "minions": 248,
    "achievements": 1458,
    "achv_private": false,
-   "mount_rank": "2821",
-   "minion_rank": "2853",
-   "achv_rank": "1675",
+   "mount_rank": "2825",
+   "minion_rank": "2857",
+   "achv_rank": "1679",
    "race": null,
    "tribe": null,
    "synced": 1776010981,
@@ -8811,7 +8813,7 @@
     "The Epic of Alexander",
     "The Unending Coil of Bahamut"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -8840,10 +8842,10 @@
     3819,
     1321,
     1323,
-    1326,
     1952,
     3407,
     3704,
+    1326,
     3406,
     3715,
     2548,
@@ -8878,11 +8880,11 @@
     2534,
     2879,
     3703,
-    3959,
     2525,
     2526,
     2528,
     2803,
+    3959,
     1317,
     2527,
     1603,
@@ -8916,8 +8918,8 @@
     2509,
     2512,
     3377,
-    4043,
     2757,
+    4043,
     1855,
     2502,
     2811
@@ -8926,7 +8928,7 @@
     "crafter": {
      "n": 147,
      "min": 1.1,
-     "score": 512.4
+     "score": 511.55
     },
     "gatherer": {
      "n": 74,
@@ -8936,7 +8938,7 @@
     "pvp": {
      "n": 23,
      "min": 0.1,
-     "score": 224.55
+     "score": 224.56
     },
     "goldsaucer": {
      "n": 14,
@@ -8955,13 +8957,13 @@
     },
     "relic": {
      "n": 107,
-     "min": 1.8,
-     "score": 169.03
+     "min": 1.9,
+     "score": 168.39
     },
     "explorer": {
      "n": 31,
      "min": 1.6,
-     "score": 76.82
+     "score": 76.52
     }
    },
    "rare_mounts": [
@@ -8996,9 +8998,9 @@
     535,
     537,
     578,
-    581,
     585,
     495,
+    581,
     396,
     562,
     540,
@@ -9029,7 +9031,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.3",
     "done_name": "In Memoriam",
@@ -9105,7 +9107,7 @@
     "relic": {
      "n": 13,
      "min": 2.8,
-     "score": 24.76
+     "score": 24.78
     },
     "treasure": {
      "n": 3,
@@ -9300,15 +9302,14 @@
     411,
     435,
     371,
-    436,
-    414
+    436
    ],
    "rare_minions": [
     502,
     537,
     578,
-    581,
     585,
+    581,
     562,
     540,
     541,
@@ -9353,7 +9354,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/3dc9125badc78221a0e8e18b371b696d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788779415",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -9380,9 +9381,9 @@
     1382,
     1339,
     2138,
-    4008,
     3556,
     3680,
+    4008,
     3269,
     3539,
     2650,
@@ -9399,10 +9400,10 @@
     2654,
     2655,
     3686,
-    3955,
     4018,
     3533,
     3954,
+    3955,
     3997,
     1077,
     2529,
@@ -9441,11 +9442,11 @@
     2352,
     2503,
     2565,
-    3969,
     2500,
     2506,
     3674,
     3961,
+    3969,
     2491,
     2494,
     2497,
@@ -9468,7 +9469,7 @@
     "crafter": {
      "n": 61,
      "min": 1.5,
-     "score": 226.47
+     "score": 226.43
     },
     "pvp": {
      "n": 56,
@@ -9478,7 +9479,7 @@
     "treasure": {
      "n": 32,
      "min": 1.2,
-     "score": 83.13
+     "score": 83.04
     },
     "goldsaucer": {
      "n": 8,
@@ -9488,7 +9489,7 @@
     "relic": {
      "n": 161,
      "min": 1.4,
-     "score": 332.02
+     "score": 330.88
     },
     "gatherer": {
      "n": 16,
@@ -9498,7 +9499,7 @@
     "explorer": {
      "n": 30,
      "min": 0.2,
-     "score": 151.25
+     "score": 150.39
     },
     "seasonal": {
      "n": 1,
@@ -9579,7 +9580,7 @@
     "The Epic of Alexander",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.55",
     "done_name": "Tomorrows Unknown",
@@ -9680,11 +9681,11 @@
     2671,
     2857,
     2995,
-    3198,
     2562,
-    1453,
+    3198,
     2775,
     3194,
+    1453,
     1676,
     2555,
     2661,
@@ -9704,12 +9705,12 @@
     "pvp": {
      "n": 5,
      "min": 3.1,
-     "score": 8.46
+     "score": 8.44
     },
     "relic": {
      "n": 58,
      "min": 5.7,
-     "score": 71.52
+     "score": 71.51
     },
     "gatherer": {
      "n": 15,
@@ -9739,7 +9740,7 @@
    "ult_achv": [
     "The Epic of Alexander"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.5",
     "done_name": "For Others to Follow",
@@ -9786,7 +9787,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/3d2407d7f87f553f69f479a3834e7591_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1732919271",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.0",
     "done_name": "In the Glow of a New Dawn",
@@ -9847,7 +9848,7 @@
    "ult_achv": [
     "The Epic of Alexander"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.5",
     "done_name": "For Others to Follow",
@@ -9911,7 +9912,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.0",
     "done_name": "In the Glow of a New Dawn",
@@ -9974,7 +9975,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/b9b6001d2b753084e83bb5ffe6db506c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1791433017",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -9988,19 +9989,19 @@
     1200,
     3834,
     3944,
-    946,
     3833,
+    946,
     3407,
     3406,
     1199,
     1077,
-    3959,
     3527,
     3814,
+    3959,
     4015,
     3957,
-    3963,
     3962,
+    3963,
     3965,
     3817,
     3960,
@@ -10008,16 +10009,16 @@
     3958,
     4000,
     3405,
-    3969,
     3961,
+    3969,
     3956,
     3216,
     1201,
-    3966,
     4007,
-    3949,
+    3966,
     935,
     2990,
+    3949,
     2066,
     2481,
     1370,
@@ -10026,16 +10027,16 @@
     3852,
     3784,
     3938,
-    3853,
     3856,
     3850,
+    3853,
     3855,
     3857,
     3858,
-    3937,
     3851,
-    4004,
+    3937,
     3845,
+    4004,
     4006,
     3854,
     3862,
@@ -10047,25 +10048,25 @@
     4014,
     945,
     3762,
-    4074,
     3859,
+    4074,
     1132,
     3760,
-    3763,
     3766,
     3842,
+    3763,
     3823,
     3843,
     3883,
     3765,
     3884,
-    4003,
     1198,
     1463,
     3761,
     3767,
     3768,
     3877,
+    4003,
     846,
     2094,
     1439,
@@ -10089,7 +10090,7 @@
     "pvp": {
      "n": 28,
      "min": 0.3,
-     "score": 139.22
+     "score": 138.33
     },
     "goldsaucer": {
      "n": 4,
@@ -10098,8 +10099,8 @@
     },
     "relic": {
      "n": 69,
-     "min": 1.8,
-     "score": 144.62
+     "min": 1.9,
+     "score": 143.63
     },
     "gatherer": {
      "n": 1,
@@ -10109,17 +10110,17 @@
     "treasure": {
      "n": 7,
      "min": 2.9,
-     "score": 11.36
+     "score": 11.35
     },
     "explorer": {
      "n": 16,
      "min": 1.9,
-     "score": 33.55
+     "score": 33.43
     },
     "crafter": {
      "n": 2,
      "min": 9.8,
-     "score": 2.04
+     "score": 2.03
     },
     "seasonal": {
      "n": 1,
@@ -10136,12 +10137,11 @@
     399,
     403,
     435,
-    407,
-    414
+    407
    ],
    "rare_minions": [
-    581,
     585,
+    581,
     586,
     566,
     593,
@@ -10164,7 +10164,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.4",
     "done_name": "Into the Mist",
@@ -10194,9 +10194,9 @@
     2229,
     2455,
     2938,
-    1316,
     2930,
     3185,
+    1316,
     1328,
     3266,
     1314,
@@ -10259,9 +10259,9 @@
     761,
     1856,
     2933,
-    755,
     1304,
     2886,
+    755,
     3467,
     2866,
     3642,
@@ -10279,7 +10279,7 @@
     "crafter": {
      "n": 41,
      "min": 1.2,
-     "score": 91.64
+     "score": 91.48
     },
     "gatherer": {
      "n": 19,
@@ -10299,7 +10299,7 @@
     "explorer": {
      "n": 19,
      "min": 1.4,
-     "score": 39.67
+     "score": 39.66
     },
     "treasure": {
      "n": 2,
@@ -10339,7 +10339,7 @@
    "ult_achv": [
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.4",
     "done_name": "Into the Mist",
@@ -10380,7 +10380,6 @@
     3256,
     1732,
     2588,
-    3945,
     1728,
     2547,
     2832,
@@ -10388,6 +10387,7 @@
     3921,
     262,
     2290,
+    3945,
     274,
     1633,
     2486,
@@ -10432,9 +10432,9 @@
     1015,
     1062,
     3306,
-    4030,
     3370,
     3376,
+    4030,
     1079,
     3372,
     3581,
@@ -10448,7 +10448,7 @@
     880,
     918,
     4029,
-    1933
+    1458
    ],
    "achv_buckets": {
     "gatherer": {
@@ -10464,7 +10464,7 @@
     "seasonal": {
      "n": 18,
      "min": 3.4,
-     "score": 30.12
+     "score": 30.02
     },
     "treasure": {
      "n": 6,
@@ -10474,7 +10474,7 @@
     "pvp": {
      "n": 6,
      "min": 3.8,
-     "score": 10.17
+     "score": 10.18
     },
     "goldsaucer": {
      "n": 2,
@@ -10489,12 +10489,10 @@
     "relic": {
      "n": 15,
      "min": 4.5,
-     "score": 21.59
+     "score": 21.58
     }
    },
-   "rare_mounts": [
-    414
-   ],
+   "rare_mounts": [],
    "rare_minions": [
     452,
     583,
@@ -10510,7 +10508,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/f28cff515c92ec7b0b57239b0594e705_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1789987006",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -10522,8 +10520,8 @@
    "rare_ids": [
     4048,
     4049,
-    4046,
     4037,
+    4046,
     4047,
     3997,
     4044,
@@ -10534,14 +10532,14 @@
     2876,
     2882,
     4035,
-    4043,
     3956,
+    4043,
     4007,
     3950,
     4032,
-    4034,
     1586,
     3938,
+    4034,
     3850,
     3937,
     4004,
@@ -10551,10 +10549,10 @@
     3999,
     3832,
     3849,
-    4074,
     4031,
-    4026,
+    4074,
     3760,
+    4026,
     4033,
     3843,
     4003,
@@ -10587,12 +10585,12 @@
     "relic": {
      "n": 12,
      "min": 2.1,
-     "score": 26.44
+     "score": 26.36
     },
     "explorer": {
      "n": 15,
      "min": 1.7,
-     "score": 34.92
+     "score": 34.82
     }
    },
    "rare_mounts": [
@@ -10612,7 +10610,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6ce984d46d9d1bf6284f767a5985281f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1765032874",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.3",
     "done_name": "In Memoriam",
@@ -10634,8 +10632,8 @@
     3469,
     3667,
     1335,
-    3757,
     3758,
+    3757,
     3762,
     3770,
     3771,
@@ -10645,8 +10643,8 @@
     3362,
     3472,
     3760,
-    3763,
     3766,
+    3763,
     3369,
     3802,
     3823,
@@ -10694,8 +10692,8 @@
     3792,
     3312,
     3752,
-    3769,
     1333,
+    3769,
     1320,
     3475,
     3651,
@@ -10712,13 +10710,13 @@
     3650,
     3641,
     3658,
-    3673,
     3700,
     2693,
     2765,
+    3673,
     2671,
-    3640,
     3695,
+    3640,
     3194,
     3699,
     3693
@@ -10732,12 +10730,12 @@
     "explorer": {
      "n": 14,
      "min": 1.0,
-     "score": 36.73
+     "score": 36.72
     },
     "relic": {
      "n": 76,
      "min": 4.9,
-     "score": 106.2
+     "score": 106.09
     },
     "gatherer": {
      "n": 3,
@@ -10746,8 +10744,8 @@
     },
     "treasure": {
      "n": 1,
-     "min": 9.6,
-     "score": 1.04
+     "min": 9.7,
+     "score": 1.03
     }
    },
    "rare_mounts": [],
@@ -10780,7 +10778,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/d8a0ed94d93290089d93b481ec490f76_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1793709613",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.56",
     "done_name": "Onward and Upward",
@@ -10791,12 +10789,12 @@
    },
    "rare_ids": [
     607,
-    4071,
     545,
     549,
     553,
     1382,
     2800,
+    4071,
     552,
     3539,
     544,
@@ -10874,7 +10872,6 @@
     3547,
     3714,
     4035,
-    4070,
     1343,
     1352,
     1859,
@@ -10883,13 +10880,14 @@
     2494,
     2509,
     3951,
-    4043,
     142,
+    4043,
     152,
     1381,
     1512,
     2502,
-    2811
+    2811,
+    2949
    ],
    "achv_buckets": {
     "crafter": {
@@ -10905,7 +10903,7 @@
     "treasure": {
      "n": 15,
      "min": 2.6,
-     "score": 28.68
+     "score": 28.62
     },
     "pvp": {
      "n": 9,
@@ -10914,28 +10912,27 @@
     },
     "goldsaucer": {
      "n": 21,
-     "min": 1.0,
-     "score": 68.9
+     "min": 1.1,
+     "score": 66.83
     },
     "relic": {
      "n": 127,
      "min": 1.4,
-     "score": 199.36
+     "score": 199.16
     },
     "explorer": {
      "n": 7,
      "min": 6.6,
-     "score": 8.75
+     "score": 8.73
     },
     "seasonal": {
      "n": 2,
-     "min": 4.4,
-     "score": 3.32
+     "min": 4.6,
+     "score": 3.22
     }
    },
    "rare_mounts": [
-    434,
-    414
+    434
    ],
    "rare_minions": [
     163,
@@ -10959,7 +10956,7 @@
     "The Omega Protocol",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -11051,7 +11048,6 @@
     2755,
     2878,
     3659,
-    3963,
     847,
     1440,
     2217,
@@ -11060,6 +11056,7 @@
     2998,
     3350,
     3962,
+    3963,
     852,
     1445,
     2354,
@@ -11074,7 +11071,7 @@
     "relic": {
      "n": 206,
      "min": 1.9,
-     "score": 351.72
+     "score": 351.29
     },
     "pvp": {
      "n": 55,
@@ -11084,7 +11081,7 @@
     "treasure": {
      "n": 25,
      "min": 0.6,
-     "score": 130.88
+     "score": 130.85
     },
     "goldsaucer": {
      "n": 5,
@@ -11099,12 +11096,12 @@
     "explorer": {
      "n": 49,
      "min": 0.1,
-     "score": 426.25
+     "score": 425.96
     },
     "crafter": {
      "n": 88,
      "min": 0.8,
-     "score": 366.69
+     "score": 366.65
     },
     "seasonal": {
      "n": 1,
@@ -11127,7 +11124,8 @@
     437,
     435,
     436,
-    337
+    337,
+    360
    ],
    "rare_minions": [
     527,
@@ -11144,10 +11142,10 @@
     591,
     376,
     552,
-    584,
     589,
     462,
     551,
+    584,
     569
    ]
   },
@@ -11166,7 +11164,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -11196,13 +11194,13 @@
     3668,
     3674,
     3051,
+    1469,
     3949,
     4017,
-    1469,
-    3950,
     3185,
     3705,
     3924,
+    3950,
     3847,
     3923,
     1582,
@@ -11212,12 +11210,12 @@
     3050,
     3726,
     3846,
-    3918,
     3938,
     3339,
     3667,
     3702,
     3856,
+    3918,
     3162,
     3253,
     3617,
@@ -11229,45 +11227,45 @@
     3869,
     3915,
     3921,
-    3937,
     3349,
     3851,
     3914,
-    4004,
+    3937,
     2213,
     3845,
+    4004,
     4006,
     3338,
     3939,
-    3757,
     3758,
     3887,
+    3757,
     3999,
     1583,
     3348,
     3886,
     3049,
-    3736,
     3832,
     3844,
     4014,
+    3736,
     3762,
     3770,
     3885,
     3771,
     3868,
-    4074,
     3631,
     3859,
+    4074,
     3756,
     3881,
     2862,
     3760,
-    3763,
     3766,
     3842,
-    3879,
     2092,
+    3763,
+    3879,
     3880,
     3882,
     3802,
@@ -11281,22 +11279,22 @@
     "relic": {
      "n": 150,
      "min": 1.7,
-     "score": 237.61
+     "score": 237.23
     },
     "pvp": {
      "n": 16,
      "min": 2.8,
-     "score": 27.31
+     "score": 27.3
     },
     "explorer": {
      "n": 32,
      "min": 0.7,
-     "score": 101.5
+     "score": 101.3
     },
     "crafter": {
      "n": 8,
      "min": 3.5,
-     "score": 14.4
+     "score": 14.37
     },
     "gatherer": {
      "n": 1,
@@ -11305,8 +11303,8 @@
     },
     "treasure": {
      "n": 1,
-     "min": 9.6,
-     "score": 1.04
+     "min": 9.7,
+     "score": 1.03
     }
    },
    "rare_mounts": [
@@ -11315,6 +11313,7 @@
     399,
     437,
     435,
+    360,
     407
    ],
    "rare_minions": [
@@ -11332,7 +11331,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/f4e3bdfe96f220aed972927474bf792f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1777728935",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -11352,8 +11351,8 @@
     1938,
     1934,
     3886,
-    3736,
     945,
+    3736,
     3885,
     3881,
     3472,
@@ -11383,19 +11382,19 @@
     3793,
     3799,
     3792,
+    1458,
     1933,
     3616,
     3701,
     572,
-    1458,
     2764,
     560,
     3700,
     2765,
     3598,
-    3640,
     3695,
     1124,
+    3640,
     3699,
     3693,
     944,
@@ -11409,16 +11408,16 @@
     2870,
     3692,
     3697,
-    3698,
     2699,
     2768,
-    3691
+    3691,
+    3698
    ],
    "achv_buckets": {
     "pvp": {
      "n": 9,
      "min": 5.0,
-     "score": 13.66
+     "score": 13.67
     },
     "goldsaucer": {
      "n": 1,
@@ -11428,12 +11427,12 @@
     "relic": {
      "n": 41,
      "min": 4.0,
-     "score": 58.37
+     "score": 58.33
     },
     "crafter": {
      "n": 7,
      "min": 1.5,
-     "score": 19.09
+     "score": 19.06
     },
     "explorer": {
      "n": 2,
@@ -11458,7 +11457,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2c720b66754800ca6fa7ef80130c8a86_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788898115",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -11471,8 +11470,8 @@
     3684,
     4005,
     1339,
-    4008,
     3680,
+    4008,
     1604,
     3529,
     4018,
@@ -11497,16 +11496,16 @@
     3951,
     3956,
     4007,
-    3949,
     3991,
-    4017,
     935,
     1475,
+    3949,
+    4017,
     2066,
     2481,
-    3950,
     3729,
     3924,
+    3950,
     1328,
     1370,
     2137,
@@ -11523,14 +11522,14 @@
     3784,
     3555,
     3846,
-    3918,
     3938,
     3667,
     3683,
     3702,
-    3853,
     3856,
+    3918,
     3850,
+    3853,
     3916,
     3917,
     3919,
@@ -11542,38 +11541,38 @@
     3858,
     3915,
     3921,
-    3937,
     3851,
     3914,
+    3937,
+    3845,
     3941,
     4004,
-    3778,
-    3845,
     4006,
+    3778,
     3854,
-    3862,
     3939,
-    3757,
     3758,
+    3862,
     3887,
     3935,
     752,
     2559,
+    3757,
     3999,
     3600,
     3886,
     2387,
-    3736,
     3832,
     3844,
     3849,
-    4014
+    4014,
+    945
    ],
    "achv_buckets": {
     "crafter": {
      "n": 11,
      "min": 1.8,
-     "score": 22.59
+     "score": 22.56
     },
     "pvp": {
      "n": 17,
@@ -11583,12 +11582,12 @@
     "treasure": {
      "n": 10,
      "min": 3.6,
-     "score": 16.57
+     "score": 16.51
     },
     "relic": {
      "n": 145,
      "min": 1.7,
-     "score": 266.28
+     "score": 265.66
     },
     "gatherer": {
      "n": 7,
@@ -11598,7 +11597,7 @@
     "explorer": {
      "n": 30,
      "min": 0.6,
-     "score": 105.82
+     "score": 104.95
     },
     "goldsaucer": {
      "n": 1,
@@ -11616,7 +11615,8 @@
     409,
     399,
     403,
-    437
+    437,
+    360
    ],
    "rare_minions": [
     586,
@@ -11659,7 +11659,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.4",
     "done_name": "You Win or You Dais",
@@ -11741,8 +11741,8 @@
     1500,
     1407,
     2281,
-    2864,
     1458,
+    2864,
     1717,
     1681,
     1704,
@@ -11764,10 +11764,10 @@
     126,
     136,
     162,
-    1453,
     2775,
     3194,
     138,
+    1453,
     1676
    ],
    "achv_buckets": {
@@ -11784,7 +11784,7 @@
     "pvp": {
      "n": 9,
      "min": 3.1,
-     "score": 15.04
+     "score": 15.05
     },
     "seasonal": {
      "n": 10,
@@ -11819,7 +11819,7 @@
    "ult_achv": [
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.55",
     "done_name": "Tomorrows Unknown",
@@ -11868,7 +11868,7 @@
    "ult_achv": [
     "The Epic of Alexander"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.4",
     "done_name": "Into the Mist",
@@ -11924,8 +11924,8 @@
     3792,
     2789,
     3312,
-    3769,
     1333,
+    3769,
     1320,
     2281,
     2790,
@@ -11947,8 +11947,8 @@
     2793,
     2845,
     3598,
-    3198,
     3695,
+    3198,
     3194,
     2661,
     2663,
@@ -11965,26 +11965,26 @@
     2662,
     2931,
     3317,
-    3473,
     3474,
     3692,
     3697,
     3068,
-    3698,
+    3473,
     2444,
     2928,
-    3691
+    3691,
+    3698
    ],
    "achv_buckets": {
     "crafter": {
      "n": 14,
      "min": 3.5,
-     "score": 21.53
+     "score": 21.52
     },
     "relic": {
      "n": 68,
      "min": 4.0,
-     "score": 92.52
+     "score": 92.49
     }
    },
    "rare_mounts": [],
@@ -11999,7 +11999,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/0340f34a708ad44df16184ba378ceaa4_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788417607",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -12017,19 +12017,19 @@
     3650,
     3640,
     2770,
-    3782,
-    3548
+    3548,
+    3782
    ],
    "achv_buckets": {
     "relic": {
      "n": 6,
      "min": 5.2,
-     "score": 8.24
+     "score": 8.23
     },
     "treasure": {
      "n": 3,
      "min": 4.0,
-     "score": 4.57
+     "score": 4.56
     }
    },
    "rare_mounts": [],
@@ -12090,7 +12090,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.56",
     "done_name": "Onward and Upward",
@@ -12131,11 +12131,11 @@
     4002,
     3647,
     3988,
-    4028,
     1993,
     3650,
-    3673,
+    4028,
     4023,
+    3673,
     3001,
     3987,
     1444,
@@ -12152,17 +12152,17 @@
     "pvp": {
      "n": 8,
      "min": 3.1,
-     "score": 13.94
+     "score": 13.95
     },
     "relic": {
      "n": 10,
      "min": 1.4,
-     "score": 21.69
+     "score": 21.67
     },
     "explorer": {
      "n": 5,
-     "min": 5.4,
-     "score": 6.52
+     "min": 5.5,
+     "score": 6.48
     },
     "seasonal": {
      "n": 1,
@@ -12191,7 +12191,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/1ca364eba596951d9ee115a598810501_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788416372",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.1",
     "done_name": "Crossroads",
@@ -12229,7 +12229,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/39deab8bac4b2a23c0e5dd0c80154f99_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1749238345",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.2",
     "done_name": "Seekers of Eternity",
@@ -12259,7 +12259,7 @@
     "pvp": {
      "n": 4,
      "min": 6.2,
-     "score": 4.99
+     "score": 5.0
     },
     "goldsaucer": {
      "n": 1,
@@ -12289,7 +12289,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/87dbd30585808fc1e07bb71baf6de7e1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1789985938",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -12343,7 +12343,7 @@
     "The Omega Protocol",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.2",
     "done_name": "Seekers of Eternity",
@@ -12507,7 +12507,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/3d9b441ad00a49892f80ef85e6fb589b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1789756808",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -12528,26 +12528,26 @@
     4045,
     4000,
     3961,
-    3966,
     4007,
+    3966,
     3949,
     4017,
-    3950,
     3705,
+    3950,
     3784,
-    4034,
     2224,
     3555,
     3938,
+    4034,
     3683,
     3702,
     3855,
     3915,
-    3937,
     3914,
+    3937,
     4004,
-    3778,
     4006,
+    3778,
     3854,
     3935,
     4027,
@@ -12556,21 +12556,21 @@
     2759,
     4014,
     2155,
-    4074,
     3859,
     4031,
-    4026,
+    4074,
     3842,
+    4026,
     4033,
     3823,
     3843,
     3765,
     3878,
     3925,
-    4003,
     3768,
     3877,
     3896,
+    4003,
     2094,
     3764,
     3735,
@@ -12578,12 +12578,12 @@
     3897,
     3677,
     4025,
-    3990,
     3656,
     3754,
     3890,
-    4030,
+    3990,
     3467,
+    4030,
     2873,
     3811,
     2480,
@@ -12607,16 +12607,16 @@
     4002,
     3654,
     3988,
-    4028,
     3650,
+    4028,
     1562,
     3658,
-    3673,
     4023,
+    3673,
     3001,
     3895,
-    3640,
-    2562
+    2562,
+    3640
    ],
    "achv_buckets": {
     "pvp": {
@@ -12627,7 +12627,7 @@
     "relic": {
      "n": 43,
      "min": 2.2,
-     "score": 74.39
+     "score": 74.11
     },
     "gatherer": {
      "n": 3,
@@ -12642,12 +12642,12 @@
     "treasure": {
      "n": 6,
      "min": 4.0,
-     "score": 10.23
+     "score": 10.17
     },
     "explorer": {
      "n": 21,
      "min": 0.6,
-     "score": 83.67
+     "score": 82.79
     }
    },
    "rare_mounts": [
@@ -12666,9 +12666,9 @@
     591,
     552,
     568,
-    584,
     589,
     551,
+    584,
     582
    ]
   },
@@ -12679,7 +12679,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/930ea37f90bbe277dc0530864ef33dbf_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701594430",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.0",
     "done_name": "That Its Chorus Might Ring for All",
@@ -12744,7 +12744,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.5",
     "done_name": "For Others to Follow",
@@ -12767,8 +12767,8 @@
     2765,
     3001,
     950,
-    1453,
     2775,
+    1453,
     1676,
     2794,
     1614,
@@ -12780,7 +12780,7 @@
     "pvp": {
      "n": 7,
      "min": 4.5,
-     "score": 9.94
+     "score": 9.93
     },
     "relic": {
      "n": 10,
@@ -12826,7 +12826,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/ac7dc32e221d492b58e750f21ba4d6c3_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788418553",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.2",
     "done_name": "Seekers of Eternity",
@@ -12866,7 +12866,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/8f17aa186b22e25118b38c79132b48ae_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1778600107",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "2.0",
     "done_name": "Leaving Limsa Lominsa",
@@ -12929,7 +12929,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/a11139bf5f4316dc13b69b56e28b1efc_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703129642",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.5",
     "done_name": "For Others to Follow",
@@ -13000,7 +13000,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.4",
     "done_name": "You Win or You Dais",
@@ -13027,9 +13027,9 @@
     1091,
     1475,
     2511,
-    1316,
     2930,
     764,
+    1316,
     3002,
     2716,
     1854,
@@ -13096,7 +13096,7 @@
     "crafter": {
      "n": 37,
      "min": 1.0,
-     "score": 97.46
+     "score": 97.39
     },
     "goldsaucer": {
      "n": 4,
@@ -13169,7 +13169,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/7663d112cd640b3742b69dcae9ffaef8_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703865848",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.5",
     "done_name": "For Others to Follow",
@@ -13230,7 +13230,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/18e6c7bc63ee5dd425013a5f12c7666a_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704031274",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.1",
     "done_name": "Newfound Adventure",
@@ -13320,7 +13320,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/a48e439fdb4d1991f727cf526fa6ea5c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788787122",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.1",
     "done_name": "Crossroads",
@@ -13342,8 +13342,8 @@
     2765,
     3001,
     2562,
-    1453,
     3194,
+    1453,
     1676,
     2555,
     2794,
@@ -13358,8 +13358,8 @@
    "achv_buckets": {
     "pvp": {
      "n": 1,
-     "min": 9.2,
-     "score": 1.09
+     "min": 9.3,
+     "score": 1.07
     },
     "relic": {
      "n": 9,
@@ -13397,7 +13397,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/f7410b6dfe82577726d12ffa13933a6c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1793712069",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "4.0",
     "done_name": "The Measure of His Reach",
@@ -13472,7 +13472,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/b4bef559b5012b3fa3c6be99688d23dc_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703389003",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.2",
     "done_name": "Into the Light",
@@ -13501,7 +13501,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.3",
     "done_name": "Hallowed and Harrowed",
@@ -13528,8 +13528,8 @@
     876,
     1082,
     877,
-    990,
     1743,
+    990,
     812,
     1380,
     1448,
@@ -13580,8 +13580,8 @@
     },
     "treasure": {
      "n": 5,
-     "min": 5.2,
-     "score": 6.24
+     "min": 5.3,
+     "score": 6.21
     },
     "goldsaucer": {
      "n": 2,
@@ -13616,7 +13616,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/8b9e09d031bf30a8f0bb8739cc435a0f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788416340",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.0",
     "done_name": "That Its Chorus Might Ring for All",
@@ -13637,7 +13637,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/60822ca9387221b2624115fb247e1b72_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1716470189",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "5.55",
     "done_name": "Under the Darkened Moon",
@@ -13700,7 +13700,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/0c4844de389cacdf864bbc34add04daa_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788563753",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -13735,7 +13735,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/3e60e109d718755ac3f503d6dee9c348_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1744478373",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.0",
     "done_name": "That Its Chorus Might Ring for All",
@@ -13837,7 +13837,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6dd404c36e4859dff8175166a0c643ae_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1736399680",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.1",
     "done_name": "Newfound Adventure",
@@ -13886,7 +13886,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/56717a9302e7f2d12879619cc44c79dc_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701599820",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.2",
     "done_name": "Into the Light",
@@ -13950,7 +13950,9 @@
    "msq": null,
    "rare_ids": [],
    "achv_buckets": {},
-   "rare_mounts": [],
+   "rare_mounts": [
+    360
+   ],
    "rare_minions": [
     376
    ]
@@ -13992,7 +13994,7 @@
    "ult_achv": [
     "The Epic of Alexander"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.3",
     "done_name": "Hallowed and Harrowed",
@@ -14071,7 +14073,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/9dd47d5004832f478f876dcb039f7029_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1704038000",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.4",
     "done_name": "You Win or You Dais",
@@ -14144,7 +14146,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.5",
     "done_name": "For Others to Follow",
@@ -14289,7 +14291,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.55",
     "done_name": "Tomorrows Unknown",
@@ -14414,7 +14416,7 @@
     "The Omega Protocol",
     "The Unending Coil of Bahamut"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -14474,14 +14476,14 @@
     1993,
     2283,
     1907,
-    1453,
     3554,
+    1453,
     944,
     1444,
     2286,
     2637,
-    3782,
     3548,
+    3782,
     2931,
     3474,
     1192,
@@ -14501,7 +14503,7 @@
     "pvp": {
      "n": 9,
      "min": 3.1,
-     "score": 14.24
+     "score": 14.23
     },
     "seasonal": {
      "n": 4,
@@ -14516,7 +14518,7 @@
     "treasure": {
      "n": 3,
      "min": 9.2,
-     "score": 3.16
+     "score": 3.15
     }
    },
    "rare_mounts": [
@@ -14534,7 +14536,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/1ed1b03b9af8dadf730da149667674f5_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1791428935",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -14544,16 +14546,16 @@
     "expansion": "7.0"
    },
    "rare_ids": [
+    4062,
     4052,
     4054,
-    4062,
     4050,
     4048,
     4051,
     4053,
     4049,
-    4046,
     4037,
+    4046,
     4047,
     4044,
     4036,
@@ -14562,8 +14564,8 @@
     3961,
     4035,
     3538,
-    4043,
     3956,
+    4043,
     4032,
     3784,
     4034,
@@ -14576,8 +14578,8 @@
     3849,
     4031,
     4026,
-    3763,
     4033,
+    3763,
     3823,
     3761,
     3764,
@@ -14592,10 +14594,10 @@
     3653,
     3647,
     3805,
-    4028,
     3650,
-    3673,
+    4028,
     4023,
+    3673,
     2775,
     3645,
     3875,
@@ -14611,17 +14613,17 @@
     "relic": {
      "n": 20,
      "min": 2.4,
-     "score": 39.69
+     "score": 39.66
     },
     "explorer": {
      "n": 1,
-     "min": 8.7,
-     "score": 1.15
+     "min": 8.8,
+     "score": 1.14
     },
     "treasure": {
      "n": 2,
      "min": 4.0,
-     "score": 3.54
+     "score": 3.53
     },
     "pvp": {
      "n": 1,
@@ -14659,7 +14661,7 @@
     "The Epic of Alexander",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -14678,13 +14680,13 @@
     4070,
     3847,
     3846,
-    3853,
     3856,
     3617,
     3850,
+    3853,
     634,
-    3945,
     3869,
+    3945,
     3757,
     3844,
     3771,
@@ -14692,8 +14694,8 @@
     3631,
     3756,
     3760,
-    3763,
     3766,
+    3763,
     3369,
     3823,
     3843,
@@ -14721,12 +14723,12 @@
     3616,
     3753,
     3215,
-    4028,
     3650,
+    4028,
     3641,
     3658,
-    3673,
     4023,
+    3673,
     3895,
     3640,
     3243,
@@ -14742,22 +14744,22 @@
     "relic": {
      "n": 35,
      "min": 1.7,
-     "score": 67.84
+     "score": 67.69
     },
     "explorer": {
      "n": 3,
      "min": 6.6,
-     "score": 4.09
+     "score": 4.08
     },
     "seasonal": {
      "n": 1,
-     "min": 4.4,
-     "score": 2.27
+     "min": 4.6,
+     "score": 2.17
     },
     "goldsaucer": {
      "n": 1,
-     "min": 2.6,
-     "score": 3.85
+     "min": 2.9,
+     "score": 3.45
     }
    },
    "rare_mounts": [
@@ -14778,7 +14780,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/f7afd8bb4508eec2fe6757b021a41b60_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787750835",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -14826,13 +14828,13 @@
     3630,
     147,
     1856,
-    755,
     811,
     1304,
+    2035,
     3648,
     3754,
+    755,
     1857,
-    2035,
     1310,
     2038,
     1003,
@@ -14864,7 +14866,7 @@
     "crafter": {
      "n": 14,
      "min": 2.4,
-     "score": 27.01
+     "score": 26.99
     },
     "gatherer": {
      "n": 10,
@@ -14879,7 +14881,7 @@
     "relic": {
      "n": 31,
      "min": 2.9,
-     "score": 44.55
+     "score": 44.52
     }
    },
    "rare_mounts": [
@@ -14941,7 +14943,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/bc199f5e21a698e6949869bdab10c508_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788417154",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.55",
     "done_name": "Tomorrows Unknown",
@@ -14976,7 +14978,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/d6d18fea85944c4b807aa6d90e56a3dd_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788272234",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -14986,22 +14988,22 @@
     "expansion": "7.0"
    },
    "rare_ids": [
-    3955,
     3954,
-    3959,
+    3955,
     3968,
+    3959,
     3967,
     3953,
     3957,
-    3963,
     3962,
+    3963,
     3965,
     3960,
     3964,
     3952,
     3958,
-    3969,
     3961,
+    3969,
     3951,
     3956,
     3966,
@@ -15013,10 +15015,10 @@
     3860,
     3861,
     3846,
-    3918,
-    3853,
     3856,
+    3918,
     3850,
+    3853,
     3916,
     3917,
     3919,
@@ -15030,9 +15032,9 @@
     3914,
     3845,
     3854,
+    3758,
     3862,
     3757,
-    3758,
     3844,
     3849,
     3762,
@@ -15042,9 +15044,9 @@
     3756,
     3881,
     3760,
-    3763,
     3766,
     3842,
+    3763,
     3879,
     3880,
     3882,
@@ -15090,8 +15092,8 @@
    "achv_buckets": {
     "relic": {
      "n": 119,
-     "min": 1.6,
-     "score": 257.69
+     "min": 1.7,
+     "score": 256.08
     },
     "crafter": {
      "n": 2,
@@ -15123,9 +15125,9 @@
     513,
     583,
     568,
-    584,
     589,
     567,
+    584,
     582,
     569,
     572
@@ -15140,7 +15142,7 @@
    "ult_achv": [
     "Futures Rewritten"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -15153,20 +15155,20 @@
     3899,
     3785,
     3968,
-    3963,
     3962,
+    3963,
     3965,
     3817,
     3964,
     3958,
     4000,
-    3969,
     3961,
-    3966,
+    3969,
     4007,
+    3966,
+    2543,
     3949,
     4017,
-    2543,
     3729,
     3732,
     3924,
@@ -15185,30 +15187,30 @@
     3938,
     2473,
     3667,
-    3853,
     3856,
     3617,
     3850,
+    3853,
     1335,
     3855,
     3857,
     3858,
     3869,
     3921,
-    3937,
     2292,
     3851,
-    4004,
+    3937,
     2545,
-    3778,
+    4004,
     4006,
     2474,
     2542,
+    3778,
     3854,
-    3862,
     2095,
     2463,
     3758,
+    3862,
     3887,
     3935,
     1938,
@@ -15216,10 +15218,10 @@
     1934,
     2471,
     3886,
-    3736,
     3844,
     3849,
     4014,
+    3736,
     3762,
     3770,
     3885,
@@ -15227,16 +15229,16 @@
     2713,
     3771,
     3868,
-    4074,
     3631,
     3859,
+    4074,
     3881,
     3760,
-    3763,
     3766,
     3842,
-    3879,
     2462,
+    3763,
+    3879,
     3880,
     3882,
     3802,
@@ -15248,14 +15250,14 @@
     3925,
     3884,
     3898,
-    4003,
-    3761
+    3761,
+    3767
    ],
    "achv_buckets": {
     "crafter": {
      "n": 9,
-     "min": 5.2,
-     "score": 12.33
+     "min": 5.3,
+     "score": 12.29
     },
     "pvp": {
      "n": 3,
@@ -15265,7 +15267,7 @@
     "relic": {
      "n": 122,
      "min": 1.8,
-     "score": 217.99
+     "score": 217.23
     },
     "gatherer": {
      "n": 7,
@@ -15275,12 +15277,12 @@
     "explorer": {
      "n": 20,
      "min": 2.4,
-     "score": 37.38
+     "score": 37.17
     },
     "treasure": {
      "n": 6,
      "min": 1.5,
-     "score": 14.46
+     "score": 14.4
     }
    },
    "rare_mounts": [
@@ -15290,6 +15292,7 @@
     399,
     403,
     435,
+    360,
     407
    ],
    "rare_minions": [
@@ -15297,10 +15300,10 @@
     591,
     552,
     568,
-    584,
     589,
     551,
-    567
+    567,
+    584
    ]
   },
   "35634484": {
@@ -15334,7 +15337,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -15376,9 +15379,9 @@
     2764,
     1993,
     1907,
-    3673,
     2693,
     2765,
+    3673,
     3154,
     2286,
     2637,
@@ -15399,7 +15402,7 @@
     "explorer": {
      "n": 9,
      "min": 1.4,
-     "score": 20.93
+     "score": 20.92
     }
    },
    "rare_mounts": [],
@@ -15426,7 +15429,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/19bfd54db5888e69b8341514580cbb70_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1790596247",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.56",
     "done_name": "Onward and Upward",
@@ -15467,10 +15470,10 @@
     3912,
     3971,
     3704,
-    4008,
     3556,
     3680,
     3715,
+    4008,
     3730,
     3709,
     3712,
@@ -15493,31 +15496,31 @@
     3965,
     3960,
     4000,
-    3969,
     3674,
     3714,
     3961,
+    3969,
     3951,
-    4043,
     3259,
     3956,
+    4043,
     3708,
     3711,
     3717,
-    3966,
     4007,
     2940,
+    3966,
+    3258,
     3949,
     4017,
-    3258,
     3257,
     3720,
     3723,
-    3950,
     3705,
     3729,
     3732,
     3924,
+    3950,
     1328,
     3266,
     3847,
@@ -15526,14 +15529,14 @@
     3469,
     3726,
     3784,
-    4034,
     3555,
     3846,
-    3918,
     3938,
+    4034,
     3256,
     3683,
     3702,
+    3918,
     3853,
     3916
    ],
@@ -15546,7 +15549,7 @@
     "crafter": {
      "n": 52,
      "min": 0.8,
-     "score": 313.46
+     "score": 313.42
     },
     "gatherer": {
      "n": 30,
@@ -15556,17 +15559,17 @@
     "relic": {
      "n": 95,
      "min": 1.7,
-     "score": 185.87
+     "score": 185.12
     },
     "treasure": {
      "n": 8,
      "min": 1.3,
-     "score": 19.37
+     "score": 19.31
     },
     "explorer": {
      "n": 24,
      "min": 0.6,
-     "score": 91.92
+     "score": 91.05
     },
     "seasonal": {
      "n": 1,
@@ -15597,10 +15600,10 @@
     591,
     552,
     568,
-    584,
     589,
     551,
     567,
+    584,
     582,
     531,
     569,
@@ -15667,7 +15670,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -15720,7 +15723,7 @@
     "Futures Rewritten",
     "The Epic of Alexander"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.4",
     "done_name": "Into the Mist",
@@ -15776,7 +15779,7 @@
     "crafter": {
      "n": 12,
      "min": 4.0,
-     "score": 19.3
+     "score": 19.29
     },
     "pvp": {
      "n": 4,
@@ -15872,7 +15875,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -15981,7 +15984,7 @@
     "The Epic of Alexander",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.4",
     "done_name": "Into the Mist",
@@ -16006,8 +16009,8 @@
     951,
     3832,
     3868,
-    4026,
     1132,
+    4026,
     4033,
     3823,
     3074,
@@ -16016,8 +16019,8 @@
     169,
     139,
     1750,
-    4025,
     3532,
+    4025,
     224,
     2886,
     4030,
@@ -16032,8 +16035,8 @@
     2885,
     4029,
     1458,
-    4028,
     2772,
+    4028,
     3641,
     2033,
     4023,
@@ -16064,7 +16067,7 @@
     "pvp": {
      "n": 15,
      "min": 1.0,
-     "score": 30.8
+     "score": 30.81
     },
     "relic": {
      "n": 16,
@@ -16104,7 +16107,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.4",
     "done_name": "Into the Mist",
@@ -16158,8 +16161,8 @@
     3113,
     564,
     2885,
-    2864,
     1458,
+    2864,
     2777,
     3805,
     2859,
@@ -16171,9 +16174,9 @@
     3001,
     136,
     950,
-    1453,
     2093,
     2775,
+    1453,
     1444,
     1473,
     2770,
@@ -16250,6 +16253,7 @@
    "rare_mounts": [
     372,
     399,
+    360,
     407
    ],
    "rare_minions": [
@@ -16258,8 +16262,8 @@
     541,
     542,
     552,
-    584,
-    551
+    551,
+    584
    ]
   },
   "12478532": {
@@ -16286,7 +16290,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/dc29e74dd4627633c44becf5714a17b6_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788416447",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -16304,16 +16308,16 @@
     3683,
     3853,
     3855,
-    3937,
     3851,
+    3937,
     4004,
     4006,
     3999,
     4074,
     3763,
     3765,
-    4003,
     3761,
+    4003,
     3979,
     3649,
     3651,
@@ -16325,12 +16329,12 @@
     "relic": {
      "n": 11,
      "min": 2.2,
-     "score": 24.58
+     "score": 24.49
     },
     "explorer": {
      "n": 10,
-     "min": 1.2,
-     "score": 26.31
+     "min": 1.3,
+     "score": 25.57
     }
    },
    "rare_mounts": [
@@ -16338,9 +16342,9 @@
    ],
    "rare_minions": [
     568,
-    584,
     589,
-    567
+    567,
+    584
    ]
   },
   "42349146": {
@@ -16397,7 +16401,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/5e473ebb30b60b798355664ba794d153_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1793059881",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.56",
     "done_name": "Onward and Upward",
@@ -16411,9 +16415,9 @@
     4005,
     3944,
     4008,
-    3955,
     4018,
     3954,
+    3955,
     3959,
     3967,
     3953,
@@ -16434,24 +16438,24 @@
     2393,
     3852,
     3860,
-    4034,
     3846,
     3938,
+    4034,
     3509,
     3683,
     3856,
-    3945,
     3857,
-    3937,
     3851,
+    3937,
+    3945,
+    3845,
     3941,
     4004,
-    3845,
     4006,
-    3862,
-    3757,
     3758,
+    3862,
     4027,
+    3757,
     3999,
     3832,
     3844,
@@ -16460,16 +16464,16 @@
     3770,
     4074,
     3756,
-    4026,
     3766,
     3842,
+    4026,
     4033,
     3823,
     3843,
     1448,
-    4003,
     3761,
     3767,
+    4003,
     2388,
     3755,
     3979,
@@ -16483,8 +16487,8 @@
     3754,
     3811,
     3642,
-    3943,
     3652,
+    3943,
     3752,
     4024,
     4029,
@@ -16513,18 +16517,18 @@
     },
     "relic": {
      "n": 51,
-     "min": 1.6,
-     "score": 126.01
+     "min": 1.7,
+     "score": 124.69
     },
     "explorer": {
      "n": 17,
      "min": 0.3,
-     "score": 90.95
+     "score": 90.1
     },
     "seasonal": {
      "n": 2,
-     "min": 4.4,
-     "score": 3.32
+     "min": 4.6,
+     "score": 3.22
     }
    },
    "rare_mounts": [
@@ -16533,8 +16537,7 @@
     444,
     434,
     435,
-    407,
-    414
+    407
    ],
    "rare_minions": [
     581,
@@ -16542,9 +16545,9 @@
     483,
     559,
     568,
-    584,
     589,
     567,
+    584,
     582
    ]
   },
@@ -16597,7 +16600,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.56",
     "done_name": "Onward and Upward",
@@ -16622,8 +16625,8 @@
     3674,
     2219,
     2996,
-    3966,
     4007,
+    3966,
     4017,
     2930,
     4032,
@@ -16634,8 +16637,8 @@
     3861,
     2156,
     2472,
-    4034,
     3938,
+    4034,
     2473,
     3667,
     3162,
@@ -16644,10 +16647,10 @@
     3471,
     2089,
     3869,
-    3937,
     3349,
-    4004,
+    3937,
     2932,
+    4004,
     4006,
     1329,
     2474,
@@ -16678,10 +16681,10 @@
     4031,
     2513,
     3368,
-    4026,
     3362,
     3472,
     3842,
+    4026,
     4033,
     2092,
     2462,
@@ -16694,8 +16697,8 @@
     3074,
     3884,
     3898,
-    4003,
     1463,
+    4003,
     1468,
     3309,
     3468,
@@ -16712,7 +16715,7 @@
     "crafter": {
      "n": 23,
      "min": 3.5,
-     "score": 33.42
+     "score": 33.39
     },
     "gatherer": {
      "n": 6,
@@ -16726,8 +16729,8 @@
     },
     "relic": {
      "n": 92,
-     "min": 1.8,
-     "score": 140.61
+     "min": 1.9,
+     "score": 140.16
     },
     "treasure": {
      "n": 4,
@@ -16737,7 +16740,7 @@
     "explorer": {
      "n": 26,
      "min": 1.4,
-     "score": 63.89
+     "score": 63.7
     },
     "seasonal": {
      "n": 1,
@@ -16751,6 +16754,7 @@
     372,
     399,
     411,
+    360,
     407
    ],
    "rare_minions": [
@@ -16782,7 +16786,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -16827,15 +16831,15 @@
     3471,
     3855,
     3869,
-    3937,
     3349,
+    3937,
     2932,
     4006,
     3338,
-    3862,
     2095,
-    3757,
+    3862,
     3366,
+    3757,
     3999,
     3348,
     3364,
@@ -16897,22 +16901,22 @@
     "crafter": {
      "n": 22,
      "min": 3.5,
-     "score": 37.77
+     "score": 37.76
     },
     "pvp": {
      "n": 2,
      "min": 6.2,
-     "score": 2.85
+     "score": 2.86
     },
     "relic": {
      "n": 74,
      "min": 3.6,
-     "score": 115.32
+     "score": 115.22
     },
     "explorer": {
      "n": 18,
      "min": 0.8,
-     "score": 51.25
+     "score": 51.23
     },
     "gatherer": {
      "n": 1,
@@ -16948,11 +16952,11 @@
     583,
     552,
     568,
-    584,
     589,
     462,
     551,
     567,
+    584,
     582,
     531,
     569,
@@ -16968,7 +16972,7 @@
    "ult_achv": [
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.1",
     "done_name": "Crossroads",
@@ -17062,7 +17066,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -17086,23 +17090,23 @@
     3683,
     3617,
     3869,
-    3937,
     3349,
+    3937,
     4004,
     4006,
-    3757,
     3758,
+    3757,
     3999,
     3348,
     4014,
     3771,
     3868,
-    4074,
     812,
     3631,
+    4074,
     3760,
-    3763,
     2053,
+    3763,
     3074,
     4003,
     2872,
@@ -17159,12 +17163,12 @@
     "explorer": {
      "n": 20,
      "min": 0.8,
-     "score": 54.28
+     "score": 54.08
     },
     "relic": {
      "n": 31,
      "min": 2.9,
-     "score": 50.81
+     "score": 50.74
     },
     "treasure": {
      "n": 2,
@@ -17179,7 +17183,8 @@
    },
    "rare_mounts": [
     372,
-    437
+    437,
+    360
    ],
    "rare_minions": [
     417,
@@ -17221,9 +17226,9 @@
     593,
     591,
     552,
-    584,
     589,
     551,
+    584,
     569,
     572
    ]
@@ -17242,7 +17247,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.56",
     "done_name": "Onward and Upward",
@@ -17267,23 +17272,23 @@
     3855,
     3858,
     3869,
-    3937,
     3349,
+    3937,
     4004,
     4006,
     3999,
     3348,
     1337,
     3868,
-    4074,
     3631,
+    4074,
     3823,
     3765,
     3074,
     3898,
-    4003,
     3768,
     3896,
+    4003,
     1057,
     3979,
     3897,
@@ -17293,9 +17298,9 @@
     3890,
     2868,
     3811,
-    3943,
     3318,
     3577,
+    3943,
     576,
     3113,
     3651,
@@ -17340,12 +17345,12 @@
     "crafter": {
      "n": 2,
      "min": 9.8,
-     "score": 2.04
+     "score": 2.03
     },
     "explorer": {
      "n": 14,
      "min": 3.0,
-     "score": 24.24
+     "score": 24.12
     },
     "treasure": {
      "n": 1,
@@ -17371,7 +17376,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.56",
     "done_name": "Onward and Upward",
@@ -17467,8 +17472,7 @@
     }
    },
    "rare_mounts": [
-    444,
-    414
+    444
    ],
    "rare_minions": [
     581,
@@ -17512,6 +17516,7 @@
     359,
     399,
     411,
+    360,
     407
    ],
    "rare_minions": [
@@ -17586,7 +17591,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/a8df6ab092e4c1be1685c9049b7ff5ff_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788418154",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -17608,7 +17613,7 @@
     "relic": {
      "n": 3,
      "min": 7.4,
-     "score": 3.45
+     "score": 3.44
     }
    },
    "rare_mounts": [
@@ -17647,7 +17652,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6b9ae3e083d257de30148980d3084e0b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1791742648",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.56",
     "done_name": "Onward and Upward",
@@ -17672,8 +17677,8 @@
     4031,
     4026,
     4033,
-    4003,
     3768,
+    4003,
     3979,
     3772,
     4025,
@@ -17691,8 +17696,8 @@
     3654,
     3805,
     3988,
-    4028,
     560,
+    4028,
     3658,
     4023,
     3987,
@@ -17710,17 +17715,17 @@
     "relic": {
      "n": 15,
      "min": 2.2,
-     "score": 32.74
+     "score": 32.42
     },
     "treasure": {
      "n": 1,
-     "min": 9.6,
-     "score": 1.04
+     "min": 9.7,
+     "score": 1.03
     },
     "explorer": {
      "n": 4,
      "min": 5.2,
-     "score": 6.04
+     "score": 6.01
     }
    },
    "rare_mounts": [
@@ -17798,7 +17803,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/25d2613da13295bdb3c2aabe908b812e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788022055",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "3.56",
     "done_name": "Five Minutes of Fate",
@@ -17850,11 +17855,11 @@
     409,
     552,
     568,
-    584,
     589,
     462,
     551,
     567,
+    584,
     582
    ]
   },
@@ -17865,7 +17870,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6c87700c515bd9621ba07abc8c3badc9_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751776",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -17900,9 +17905,9 @@
     2845,
     2857,
     3001,
-    1453,
     2775,
     3554,
+    1453,
     3609,
     3824,
     1473,
@@ -17919,8 +17924,8 @@
    "achv_buckets": {
     "pvp": {
      "n": 1,
-     "min": 9.2,
-     "score": 1.09
+     "min": 9.3,
+     "score": 1.07
     },
     "relic": {
      "n": 11,
@@ -17956,7 +17961,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/42f42fd37c584833ba761dbb8fccb35c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1790466592",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -17977,8 +17982,8 @@
     2686,
     3952,
     4000,
-    3969,
     2684,
+    3969,
     2225,
     3956,
     4007,
@@ -17997,12 +18002,12 @@
     3857,
     3869,
     3937,
+    3845,
     3941,
     4004,
-    3845,
     4006,
-    3862,
     2095,
+    3862,
     3999,
     3849,
     4014,
@@ -18012,8 +18017,8 @@
     1132,
     3843,
     3898,
-    4003,
     3767,
+    4003,
     1581,
     3755,
     3979,
@@ -18049,7 +18054,7 @@
     "relic": {
      "n": 28,
      "min": 2.3,
-     "score": 59.45
+     "score": 59.18
     },
     "seasonal": {
      "n": 1,
@@ -18059,7 +18064,7 @@
     "explorer": {
      "n": 26,
      "min": 0.7,
-     "score": 82.87
+     "score": 82.59
     }
    },
    "rare_mounts": [
@@ -18085,7 +18090,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6d9e3f70133de9016ea094a3a43422d4_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753796",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -18151,7 +18156,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/8b3874b3495247a0d04cfff075481ca1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752497",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -18184,9 +18189,9 @@
     3920,
     3915,
     3921,
-    3937,
     2292,
     3914,
+    3937,
     4004,
     4006,
     3887,
@@ -18196,24 +18201,24 @@
     3999,
     3364,
     3886,
-    990,
     1868,
     3365,
-    3736,
     3832,
     4014,
+    990,
     3367,
+    3736,
     3885,
-    4074,
     3363,
     3859,
+    4074,
     3368,
     3881,
     3362,
     3472,
+    3534,
     3763,
     3879,
-    3534,
     3880,
     3882,
     3369,
@@ -18222,8 +18227,8 @@
     3878,
     3925,
     3884,
-    4003,
     3877,
+    4003,
     846,
     3309,
     3468,
@@ -18266,27 +18271,27 @@
     "pvp": {
      "n": 8,
      "min": 3.8,
-     "score": 12.68
+     "score": 12.69
     },
     "treasure": {
      "n": 11,
      "min": 2.8,
-     "score": 19.25
+     "score": 19.22
     },
     "relic": {
      "n": 91,
      "min": 3.5,
-     "score": 140.3
+     "score": 140.1
     },
     "explorer": {
      "n": 12,
      "min": 1.7,
-     "score": 25.68
+     "score": 25.58
     },
     "crafter": {
      "n": 15,
      "min": 3.0,
-     "score": 25.8
+     "score": 25.75
     },
     "gatherer": {
      "n": 5,
@@ -18317,8 +18322,8 @@
     583,
     591,
     568,
-    584,
     567,
+    584,
     582,
     569,
     572
@@ -18331,7 +18336,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/910426c38442447d0653ae92d2da3a71_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753650",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.2",
     "done_name": "Seekers of Eternity",
@@ -18386,7 +18391,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/e958e294dda8461009c3cc9afad7bd88_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788416114",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -18399,8 +18404,8 @@
     3968,
     3967,
     4000,
-    3966,
     4007,
+    3966,
     4017,
     3860,
     3861,
@@ -18428,12 +18433,12 @@
     "relic": {
      "n": 11,
      "min": 1.8,
-     "score": 28.99
+     "score": 28.87
     },
     "explorer": {
      "n": 12,
      "min": 2.4,
-     "score": 25.68
+     "score": 25.48
     },
     "seasonal": {
      "n": 1,
@@ -18531,7 +18536,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/e09aa30945afb320f326d8205c9a893e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788416683",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "5.1",
     "done_name": "Black and White",
@@ -18695,8 +18700,8 @@
    "rare_mounts": [],
    "rare_minions": [
     591,
-    584,
-    589
+    589,
+    584
    ]
   },
   "31155521": {
@@ -18748,7 +18753,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/16ffcd6df461e6e2ff138ac3cff57039_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788416844",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -18797,7 +18802,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/7b5c1502b7f130f73fb0880f2bcc9430_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1790052304",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -18815,31 +18820,31 @@
     3936,
     3954,
     4044,
-    3959,
     3968,
+    3959,
     3967,
     3953,
     3957,
-    3963,
     3962,
+    3963,
     3965,
     3817,
     3964,
     4045,
     4000,
-    3969,
     3961,
+    3969,
     4035,
-    4043,
     3956,
+    4043,
     1201,
     3717,
-    3966,
     4007,
-    3949,
+    3966,
     3991,
-    4017,
     935,
+    3949,
+    4017,
     2066,
     2481,
     3602,
@@ -18858,13 +18863,13 @@
     3601,
     3726,
     3784,
-    4034,
     3555,
     3846,
-    3918,
     3938,
+    4034,
     3683,
     3856,
+    3918,
     3850,
     3916,
     3917,
@@ -18875,34 +18880,34 @@
     3858,
     3915,
     3921,
-    3937,
     3851,
     3914,
+    3937,
+    3845,
     3941,
     4004,
-    3778,
-    3845,
     4006,
+    3778,
     3854,
-    3862,
     3939,
     2095,
-    3757,
     3758,
+    3862,
     3887,
     3935,
     4027,
     2559,
+    3757,
     3999,
     2759,
     3600,
     3886,
-    3736,
     3832,
     3844,
     3849,
     4014,
     1474,
+    3736,
     3762,
     3770,
     3885,
@@ -18917,12 +18922,12 @@
     "crafter": {
      "n": 9,
      "min": 3.0,
-     "score": 17.76
+     "score": 17.73
     },
     "relic": {
      "n": 143,
      "min": 1.7,
-     "score": 277.77
+     "score": 276.67
     },
     "gatherer": {
      "n": 8,
@@ -18932,12 +18937,12 @@
     "explorer": {
      "n": 22,
      "min": 0.3,
-     "score": 84.29
+     "score": 83.43
     },
     "treasure": {
      "n": 8,
      "min": 4.0,
-     "score": 12.48
+     "score": 12.42
     },
     "seasonal": {
      "n": 1,
@@ -18953,7 +18958,8 @@
     434,
     437,
     435,
-    371
+    371,
+    360
    ],
    "rare_minions": [
     527,
@@ -18968,11 +18974,11 @@
     591,
     552,
     568,
-    584,
     589,
     462,
     551,
     567,
+    584,
     582,
     531,
     569,
@@ -19004,7 +19010,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/75bbc832c72af70bcb5ce16e6f1804ec_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788416415",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.2",
     "done_name": "Seekers of Eternity",
@@ -19046,8 +19052,8 @@
     583,
     591,
     568,
-    584,
     567,
+    584,
     569
    ]
   },
@@ -19074,7 +19080,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/20521876a6fdb2e53eaba078b8435fbd_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787751683",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -19214,7 +19220,7 @@
     "Futures Rewritten",
     "The Epic of Alexander"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.56",
     "done_name": "Onward and Upward",
@@ -19231,8 +19237,8 @@
     3870,
     3958,
     4035,
-    4043,
     3956,
+    4043,
     3720,
     3732,
     3924,
@@ -19248,16 +19254,16 @@
     4027,
     951,
     2759,
-    3736,
     3849,
+    3736,
     3885,
     3868,
     3631,
     4031,
     3368,
-    4026,
     2862,
     3018,
+    4026,
     4033,
     3369,
     3802,
@@ -19275,15 +19281,15 @@
     3371,
     3630,
     4025,
-    4030,
     3311,
     3370,
+    4030,
     3372,
     3759,
     3798,
     3646,
-    3943,
     3577,
+    3943,
     3312,
     4024,
     3113,
@@ -19299,41 +19305,41 @@
     3647,
     3805,
     3215,
-    4028,
     3313,
+    4028,
     4023,
     3001,
     2995,
     2562,
     950,
-    1453,
     2775,
     3699,
+    1453,
     3645,
     3199,
     3741,
     3875,
     3243,
-    3782,
     2870,
-    3473,
+    3782,
     3697,
     1916,
-    3698,
+    3473,
     2444,
     2699,
-    3252
+    3252,
+    3698
    ],
    "achv_buckets": {
     "pvp": {
      "n": 4,
      "min": 5.1,
-     "score": 5.75
+     "score": 5.73
     },
     "treasure": {
      "n": 6,
      "min": 5.7,
-     "score": 7.16
+     "score": 7.15
     },
     "gatherer": {
      "n": 5,
@@ -19343,12 +19349,12 @@
     "relic": {
      "n": 42,
      "min": 2.4,
-     "score": 67.77
+     "score": 67.76
     },
     "crafter": {
      "n": 6,
      "min": 3.3,
-     "score": 10.2
+     "score": 10.16
     },
     "seasonal": {
      "n": 1,
@@ -19365,6 +19371,7 @@
     420,
     444,
     434,
+    360,
     407
    ],
    "rare_minions": [
@@ -19498,8 +19505,8 @@
     563,
     583,
     591,
-    584,
     589,
+    584,
     569
    ]
   },
@@ -19512,7 +19519,7 @@
    "ult_achv": [
     "The Epic of Alexander"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.56",
     "done_name": "Onward and Upward",
@@ -19525,8 +19532,8 @@
     3868,
     3823,
     4030,
-    3943,
     3652,
+    3943,
     4024,
     4029,
     3616,
@@ -19545,7 +19552,7 @@
     "relic": {
      "n": 3,
      "min": 7.5,
-     "score": 3.5
+     "score": 3.49
     },
     "seasonal": {
      "n": 1,
@@ -19568,7 +19575,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/609df477c4312dfbe11758a996c7900f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1790728905",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.4",
     "done_name": "Into the Mist",
@@ -19641,7 +19648,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/c270197a35577868ee1a22d4e96323ad_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788416446",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -19680,8 +19687,8 @@
     },
     "explorer": {
      "n": 6,
-     "min": 4.6,
-     "score": 10.42
+     "min": 4.7,
+     "score": 10.35
     }
    },
    "rare_mounts": [
@@ -19728,7 +19735,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/ed53d3f6e131b03c708cdc930772de80_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1790207413",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.56",
     "done_name": "Onward and Upward",
@@ -20226,7 +20233,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/f3fb8840b377d8bcddf2d81bfeeb1fd9_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752713",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "5.1",
     "done_name": "Black and White",
@@ -20711,7 +20718,9 @@
    "msq": null,
    "rare_ids": [],
    "achv_buckets": {},
-   "rare_mounts": [],
+   "rare_mounts": [
+    360
+   ],
    "rare_minions": []
   },
   "30172592": {
@@ -21051,7 +21060,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/de6b91dec987e0812f07c75718a4285f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755205",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "5.55",
     "done_name": "Under the Darkened Moon",
@@ -21101,6 +21110,7 @@
    "achv_buckets": {},
    "rare_mounts": [
     372,
+    360,
     407
    ],
    "rare_minions": []
@@ -21133,8 +21143,8 @@
    "rare_mounts": [],
    "rare_minions": [
     552,
-    584,
-    551
+    551,
+    584
    ]
   },
   "25661865": {
@@ -21202,7 +21212,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/18612c4e2e3549912194b2b4ee33d619_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753897",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "4.5",
     "done_name": "Swan Song",
@@ -21286,7 +21296,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/578f8e6890ae70f80f4367a2a5738e53_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753854",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "5.55",
     "done_name": "Under the Darkened Moon",
@@ -21602,7 +21612,7 @@
    "ult_achv": [
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.56",
     "done_name": "Onward and Upward",
@@ -21626,8 +21636,8 @@
     },
     "seasonal": {
      "n": 1,
-     "min": 4.4,
-     "score": 2.27
+     "min": 4.6,
+     "score": 2.17
     }
    },
    "rare_mounts": [
@@ -21644,7 +21654,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/932bad7c0c2115522eaae3d1b8143d1b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753730",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.1",
     "done_name": "Crossroads",
@@ -21735,7 +21745,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/e39993c216d738e46ac956ef8a6cffb2_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753766",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.3",
     "done_name": "Hallowed and Harrowed",
@@ -21784,7 +21794,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/a4adc54e9c800c0fe169a728567d0d08_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753602",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.0",
     "done_name": "That Its Chorus Might Ring for All",
@@ -21967,7 +21977,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/c0c7c416e3167bce67eb169d89545869_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754805",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.0",
     "done_name": "In the Glow of a New Dawn",
@@ -22009,9 +22019,9 @@
     2794,
     718,
     2931,
-    3473,
     3474,
-    2795
+    2795,
+    3473
    ],
    "achv_buckets": {
     "gatherer": {
@@ -22022,7 +22032,7 @@
     "crafter": {
      "n": 15,
      "min": 3.2,
-     "score": 25.35
+     "score": 25.34
     },
     "relic": {
      "n": 12,
@@ -22068,7 +22078,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/18f4375049bf126c72270428ebe46c5e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754030",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.4",
     "done_name": "You Win or You Dais",
@@ -22119,7 +22129,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2bb5cbe5ce3cd8d6d2d91fdb94df1d6d_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754621",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.1",
     "done_name": "Newfound Adventure",
@@ -22494,7 +22504,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/4af03ca7db92184417e6f1cb56099a1c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752618",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.4",
     "done_name": "Into the Mist",
@@ -22564,7 +22574,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/9e6201a2d0aac9960d0d8f8c0e24babc_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753721",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.2",
     "done_name": "Into the Light",
@@ -22709,7 +22719,7 @@
    "ult_achv": [
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -22742,8 +22752,8 @@
     },
     "crafter": {
      "n": 1,
-     "min": 9.8,
-     "score": 1.02
+     "min": 9.9,
+     "score": 1.01
     }
    },
    "rare_mounts": [],
@@ -22770,7 +22780,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/018660522ea2d1ca799090f72d76985b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752524",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.5",
     "done_name": "Trail to the Heavens",
@@ -22785,8 +22795,8 @@
    "achv_buckets": {
     "crafter": {
      "n": 1,
-     "min": 9.8,
-     "score": 1.02
+     "min": 9.9,
+     "score": 1.01
     }
    },
    "rare_mounts": [],
@@ -22931,7 +22941,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6c6d206b51be86e6f52f61f62041caae_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755309",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.55",
     "done_name": "Tomorrows Unknown",
@@ -22987,7 +22997,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2ba80d30167b738c23c907f3f9114c2e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755332",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.2",
     "done_name": "Into the Light",
@@ -23067,7 +23077,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/13c06ca572d2fd64138ec35532a04f0f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754592",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.55",
     "done_name": "Tomorrows Unknown",
@@ -23136,7 +23146,7 @@
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.3",
     "done_name": "In Memoriam",
@@ -23166,9 +23176,9 @@
     2780,
     1320,
     3113,
+    1458,
     3616,
     572,
-    1458,
     560,
     1993,
     2769,
@@ -23187,8 +23197,8 @@
     },
     "pvp": {
      "n": 1,
-     "min": 8.1,
-     "score": 1.24
+     "min": 8.0,
+     "score": 1.25
     },
     "explorer": {
      "n": 4,
@@ -23300,7 +23310,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/58571ff1b07d10cfa2a728b107d382f5_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753052",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.0",
     "done_name": "In the Glow of a New Dawn",
@@ -23325,8 +23335,8 @@
     2775,
     3645,
     2770,
-    3782,
-    3638
+    3638,
+    3782
    ],
    "achv_buckets": {
     "oldtimer": {
@@ -23352,7 +23362,7 @@
     "treasure": {
      "n": 2,
      "min": 4.0,
-     "score": 3.54
+     "score": 3.53
     }
    },
    "rare_mounts": [],
@@ -23612,7 +23622,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/cbf42b07c96c7ae36db1aa08db8c6601_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1790122569",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.55",
     "done_name": "Tomorrows Unknown",
@@ -23665,7 +23675,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/d37ab6da6b55b12fa2b107f59774315b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787753046",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.55",
     "done_name": "Tomorrows Unknown",
@@ -23714,7 +23724,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/ad9a89a9030602f90553d384943f34ec_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755568",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "3.56",
     "done_name": "Five Minutes of Fate",
@@ -24061,7 +24071,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/dbb36bf852b84d9d891926486e0b2931_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787755308",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.3",
     "done_name": "Hallowed and Harrowed",
@@ -24084,7 +24094,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/d7e6be0a1f840a06573af31d9b281670_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754211",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "4.5",
     "done_name": "Swan Song",
@@ -24276,7 +24286,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/057ce0c62db68d391690fd93e2065a33_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787754756",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.0",
     "done_name": "That Its Chorus Might Ring for All",
@@ -24639,7 +24649,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2f357d100cc10c159ed82f84d6618864_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1790258868",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.56",
     "done_name": "Onward and Upward",
@@ -24658,8 +24668,8 @@
     4029,
     4028,
     4023,
-    3782,
-    3638
+    3638,
+    3782
    ],
    "achv_buckets": {
     "relic": {
@@ -24670,7 +24680,7 @@
     "treasure": {
      "n": 2,
      "min": 4.0,
-     "score": 3.54
+     "score": 3.53
     }
    },
    "rare_mounts": [],
@@ -25508,7 +25518,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/7226f322b81eecd7e5a9526c559d172f_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788912423",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "3.56",
     "done_name": "Five Minutes of Fate",
@@ -26376,7 +26386,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/e68a60d64607ae6ea723c974837faa18_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1790121841",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "5.55",
     "done_name": "Under the Darkened Moon",
@@ -26413,7 +26423,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2f51fdaa4e542a947148fb445074d044_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1792918772",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "7.56",
     "done_name": "Onward and Upward",
@@ -26443,8 +26453,8 @@
     },
     "seasonal": {
      "n": 2,
-     "min": 4.4,
-     "score": 3.32
+     "min": 4.6,
+     "score": 3.22
     }
    },
    "rare_mounts": [],
@@ -26591,7 +26601,7 @@
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/44b60100a20d4f572973fe74fe6ef8ee_72c48f093f2278ac3243962d3eb6a8d7fl0_640x873.jpg?1708706157",
    "ult_achv": [],
-   "achv_seen_at": "2026-11-03",
+   "achv_seen_at": "2026-11-04",
    "msq": {
     "done": "6.55",
     "done_name": "Tomorrows Unknown",
@@ -26624,8 +26634,8 @@
     },
     "pvp": {
      "n": 2,
-     "min": 8.1,
-     "score": 2.28
+     "min": 8.0,
+     "score": 2.29
     },
     "treasure": {
      "n": 1,
@@ -26668,6 +26678,22 @@
    "achv_buckets": {},
    "rare_mounts": [],
    "rare_minions": []
+  },
+  "62507897": {
+   "mounts": 17,
+   "minions": 42,
+   "rare_achv": null,
+   "ach_public": false,
+   "portrait": "https://img2.finalfantasyxiv.com/f/7db08afb29370635640673dfa6476ff4_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1793755158",
+   "ult_achv": [],
+   "achv_seen_at": null,
+   "msq": null,
+   "rare_ids": [],
+   "achv_buckets": {},
+   "rare_mounts": [],
+   "rare_minions": [
+    581
+   ]
   }
  },
  "job_icons": {
