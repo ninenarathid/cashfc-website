@@ -2,6 +2,76 @@
  "events": [
   {
    "date": "2026-11-05",
+   "type": "rare_up",
+   "id": 42021700,
+   "name": "Josuke Mizumoto",
+   "text": "earned Masterstroke II — only 1.3% of players have it, and 2 more"
+  },
+  {
+   "date": "2026-11-05",
+   "type": "rare_up",
+   "id": 6173187,
+   "name": "Motochita Muses",
+   "text": "earned Roll the Dice II"
+  },
+  {
+   "date": "2026-11-05",
+   "type": "level_100",
+   "id": 30667251,
+   "name": "Roxas Akatsuki",
+   "text": "reached level 100 on Culinarian!"
+  },
+  {
+   "date": "2026-11-05",
+   "type": "rare_up",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "earned R&D: Cross-pein Hyperhammer"
+  },
+  {
+   "date": "2026-11-05",
+   "type": "rare_up",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "earned I Hope Mentor Will Notice Me III, and 1 more"
+  },
+  {
+   "date": "2026-11-05",
+   "type": "rare_up",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "earned Masterstroke I — only 3.1% of players have it, and 2 more"
+  },
+  {
+   "date": "2026-11-05",
+   "type": "level_100",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-11-05",
+   "type": "rare_up",
+   "id": 29918255,
+   "name": "Lyndanisse Vymmaith",
+   "text": "earned Phantom of the Umbra: Star Globe Umbrae"
+  },
+  {
+   "date": "2026-11-05",
+   "type": "level_100",
+   "id": 29991345,
+   "name": "Transparent Crystal",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
+   "date": "2026-11-05",
+   "type": "level_100",
+   "id": 42845691,
+   "name": "Yuukizuz Akino",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-11-05",
    "type": "level_100",
    "id": 32857279,
    "name": "Harp Abel",
@@ -1329,76 +1399,6 @@
    "id": 60972300,
    "name": "Mizuki Sekine",
    "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-10-19",
-   "type": "job_up",
-   "id": 29659200,
-   "name": "Kleenex Tissue",
-   "text": "is now a Expert Reaper"
-  },
-  {
-   "date": "2026-10-19",
-   "type": "job_up",
-   "id": 34510497,
-   "name": "Leonest Lionheart",
-   "text": "is now a Master Gunbreaker"
-  },
-  {
-   "date": "2026-10-19",
-   "type": "job_up",
-   "id": 34510497,
-   "name": "Leonest Lionheart",
-   "text": "is now a Master Monk"
-  },
-  {
-   "date": "2026-10-19",
-   "type": "job_up",
-   "id": 28127069,
-   "name": "Jim Carried",
-   "text": "is now a Expert Summoner"
-  },
-  {
-   "date": "2026-10-19",
-   "type": "job_up",
-   "id": 34184163,
-   "name": "Moji Momiji",
-   "text": "is now a Master Machinist"
-  },
-  {
-   "date": "2026-10-18",
-   "type": "level_100",
-   "id": 46243891,
-   "name": "Marin Elysium",
-   "text": "reached level 100 on Sage!"
-  },
-  {
-   "date": "2026-10-18",
-   "type": "level_100",
-   "id": 38041221,
-   "name": "Kori Kona",
-   "text": "reached level 100 on Alchemist!"
-  },
-  {
-   "date": "2026-10-18",
-   "type": "level_100",
-   "id": 36248712,
-   "name": "Boom Astraea",
-   "text": "reached level 100 on Sage!"
-  },
-  {
-   "date": "2026-10-18",
-   "type": "level_100",
-   "id": 12478532,
-   "name": "Hakuryu Flare",
-   "text": "reached level 100 on Reaper!"
-  },
-  {
-   "date": "2026-10-18",
-   "type": "level_100",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "reached level 100 on White Mage!"
   }
  ]
 }

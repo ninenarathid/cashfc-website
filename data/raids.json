@@ -74899,6 +74899,14 @@
     "job": "Warrior",
     "cleared": true,
     "job_kills": {
+     "Bard": {
+      "kills": 2,
+      "best": 54
+     },
+     "Gunbreaker": {
+      "kills": 3,
+      "best": 36
+     },
      "Warrior": {
       "kills": 2,
       "best": 53

@@ -2360,9 +2360,9 @@
   "name": "Josuke Mizumoto",
   "parse": 95,
   "ult": 0,
-  "mounts": 113,
-  "minions": 227,
-  "rare": 97,
+  "mounts": 115,
+  "minions": 230,
+  "rare": 100,
   "level": 100,
   "cc": [
    true,
@@ -2373,6 +2373,7 @@
   ],
   "rare_ids": [
    1448,
+   2387,
    2388,
    2393,
    2972,
@@ -2468,6 +2469,8 @@
    4033,
    4034,
    4035,
+   4070,
+   4071,
    4074
   ],
   "tiers": {
@@ -2490,7 +2493,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-27"
+  "chg": "2026-11-05"
  },
  "36183378": {
   "name": "K' Potassium",
@@ -3552,6 +3555,7 @@
    1746,
    1858,
    1904,
+   1933,
    1934,
    1938,
    2079,
@@ -3593,7 +3597,6 @@
    3925,
    3945,
    3979,
-   4029,
    4030
   ],
   "tiers": {
@@ -3885,7 +3888,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 68,
-  "level": 100,
+  "level": 90,
   "cc": [
    true,
    true,
@@ -3990,7 +3993,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-03"
+  "chg": "2026-11-05"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -4137,7 +4140,7 @@
   "mounts": 79,
   "minions": 70,
   "rare": null,
-  "level": 92,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4555,11 +4558,11 @@
    3868,
    3869,
    3870,
+   3878,
    3879,
    3880,
    3881,
    3882,
-   3883,
    3885,
    3886,
    3887,
@@ -4967,6 +4970,7 @@
    1335,
    1339,
    1370,
+   1474,
    1475,
    1603,
    1604,
@@ -4990,6 +4994,7 @@
    3703,
    3726,
    3729,
+   3736,
    3757,
    3758,
    3778,
@@ -5001,7 +5006,6 @@
    3846,
    3847,
    3848,
-   3849,
    3850,
    3851,
    3852,
@@ -5053,7 +5057,6 @@
    4006,
    4007,
    4008,
-   4014,
    4015,
    4017,
    4018,
@@ -5744,7 +5747,7 @@
   "mounts": 147,
   "minions": 420,
   "rare": null,
-  "level": 100,
+  "level": 30,
   "cc": [
    false,
    false,
@@ -5757,7 +5760,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-09"
+  "chg": "2026-11-05"
  },
  "44143115": {
   "name": "Chapton Lola",
@@ -6797,10 +6800,10 @@
   "name": "Kawa Lynn",
   "parse": 72,
   "ult": 1,
-  "mounts": 61,
-  "minions": 116,
-  "rare": 5,
-  "level": 68,
+  "mounts": 67,
+  "minions": 120,
+  "rare": 8,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6811,9 +6814,12 @@
   "rare_ids": [
    631,
    3641,
+   3651,
+   3941,
    3943,
    3945,
-   3979
+   3979,
+   4070
   ],
   "tiers": {},
   "jobs": {},
@@ -6826,7 +6832,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-04"
+  "chg": "2026-11-05"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -6865,7 +6871,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 83,
+  "level": 87,
   "cc": [
    false,
    false,
@@ -6878,7 +6884,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-04"
+  "chg": "2026-11-05"
  },
  "53933347": {
   "name": "Little Alyss",
@@ -7150,6 +7156,7 @@
    3758,
    3762,
    3770,
+   3771,
    3778,
    3784,
    3817,
@@ -7171,7 +7178,6 @@
    3860,
    3861,
    3862,
-   3885,
    3886,
    3887,
    3914,
@@ -7482,7 +7488,7 @@
   "mounts": 178,
   "minions": 410,
   "rare": null,
-  "level": 100,
+  "level": 41,
   "cc": [
    false,
    false,
@@ -7495,7 +7501,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-31"
+  "chg": "2026-11-05"
  },
  "31831003": {
   "name": "North Nostafari",
@@ -8295,7 +8301,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 97,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8308,7 +8314,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-04"
+  "chg": "2026-11-05"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -8395,7 +8401,7 @@
   "mounts": 81,
   "minions": 158,
   "rare": 18,
-  "level": 65,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -8659,7 +8665,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 100,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -8672,7 +8678,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-09"
+  "chg": "2026-11-05"
  },
  "45513833": {
   "name": "Isildur One",
@@ -8703,7 +8709,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 91,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -8898,7 +8904,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 58,
+  "level": 72,
   "cc": [
    false,
    false,
@@ -8914,7 +8920,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-03"
+  "chg": "2026-11-05"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -8971,10 +8977,10 @@
   "name": "Poly Umami",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 85,
+  "minions": 178,
   "rare": null,
-  "level": 72,
+  "level": 96,
   "cc": [
    false,
    false,
@@ -9018,7 +9024,7 @@
   "mounts": 7,
   "minions": 20,
   "rare": null,
-  "level": 73,
+  "level": 76,
   "cc": [
    false,
    false,
@@ -9031,7 +9037,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-03"
+  "chg": "2026-11-05"
  },
  "31685121": {
   "name": "Squid Girls",
