@@ -13,6 +13,7 @@ import AquaControls from "@/components/aqua/AquaControls";
 import AquaQueue from "@/components/aqua/AquaQueue";
 import AquaContacts, { type ContactPerson } from "@/components/aqua/AquaContacts";
 import ContestDesk from "@/components/contest/ContestDesk";
+import PfEventCard from "@/components/aqua/PfEventCard";
 import { fmtGil } from "@/lib/wallet";
 import { EVENT_FROM, EVENT_OPENS, EVENT_SHUTS, EVENT_TO } from "@/lib/evercold";
 import {
@@ -300,6 +301,8 @@ export default function AquaView(
       {/* Hers to run as well, so the way in is here and not only on the admin
           panel. Above the gil, which has a figure standing out of its top. */}
       <ContestDesk supabase={supabase} />
+      {/* The party finder event (v320): its pictures wait for her here. */}
+      <PfEventCard supabase={supabase} />
 
       {/* ── How much, right now ──────────────────────────────────────────── */}
       <section className="relative mt-14 sm:mt-20">
