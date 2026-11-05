@@ -1,6 +1,13 @@
 {
  "events": [
   {
+   "date": "2026-11-05",
+   "type": "level_100",
+   "id": 32857279,
+   "name": "Harp Abel",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
    "date": "2026-11-04",
    "type": "rare_up",
    "id": 29152036,
@@ -1392,13 +1399,6 @@
    "id": 29339718,
    "name": "Ashe Fantine",
    "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-10-18",
-   "type": "level_100",
-   "id": 38488824,
-   "name": "Daffodil Amary",
-   "text": "reached level 100 on Machinist!"
   }
  ]
 }

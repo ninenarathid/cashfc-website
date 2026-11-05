@@ -4137,7 +4137,7 @@
   "mounts": 79,
   "minions": 70,
   "rare": null,
-  "level": 100,
+  "level": 92,
   "cc": [
    true,
    true,
@@ -4163,7 +4163,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-10"
+  "chg": "2026-11-05"
  },
  "29325838": {
   "name": "Ryuu Dawnblade",
@@ -6778,7 +6778,7 @@
   "mounts": 48,
   "minions": 177,
   "rare": null,
-  "level": 8,
+  "level": 10,
   "cc": [
    false,
    false,
@@ -6791,7 +6791,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-03"
+  "chg": "2026-11-05"
  },
  "47218599": {
   "name": "Kawa Lynn",
@@ -8395,7 +8395,7 @@
   "mounts": 81,
   "minions": 158,
   "rare": 18,
-  "level": 100,
+  "level": 65,
   "cc": [
    true,
    true,
@@ -8435,7 +8435,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-10-08"
+  "chg": "2026-11-05"
  },
  "15932791": {
   "name": "Yuziris Andra'nov",
@@ -8703,7 +8703,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 90,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -8723,7 +8723,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-04"
+  "chg": "2026-11-05"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -8974,14 +8974,20 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 93,
-  "cc": null,
+  "level": 72,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-04"
+  "chg": "2026-11-05"
  },
  "61748681": {
   "name": "Qzarel Lumina",
@@ -12094,7 +12100,7 @@
   "mounts": 32,
   "minions": 95,
   "rare": null,
-  "level": 92,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -12107,7 +12113,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-04"
+  "chg": "2026-11-05"
  },
  "16173247": {
   "name": "Haru Luminous",
