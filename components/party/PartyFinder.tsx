@@ -6,6 +6,7 @@ import type { PersonOption } from "@/lib/people";
 import type { ContentSeed } from "@/lib/party";
 import type { DutyArt } from "@/lib/duty";
 import PartyBoard from "@/components/party/PartyBoard";
+import PfEventStrip from "@/components/party/PfEventStrip";
 import type { SuggestRow } from "@/lib/suggest";
 
 /**
@@ -68,5 +69,11 @@ export default function PartyFinder(
   // Drawn straight away, for everybody. Waiting on the session before drawing
   // anything made the whole board flash "Checking…" for a reader who was only
   // ever going to look at it.
-  return <PartyBoard {...props} me={me} userId={userId} />;
+  return (
+    <>
+      {/* The party finder event (v320), while one runs. */}
+      <PfEventStrip />
+      <PartyBoard {...props} me={me} userId={userId} />
+    </>
+  );
 }

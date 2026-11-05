@@ -1,7 +1,8 @@
 -- v320 — a party finder event, scored from the board
 --
 -- Run this once in the Supabase SQL editor, after v319. Running it again is
--- safe.
+-- safe, and is how an earlier copy of this file (without drafts) is brought up
+-- to date.
 --
 -- The owner asked (2026-11-05) for the "CASH PARTY FINDER" event: members put
 -- up a party on the finder, go, and prove it with a picture (the last room,
@@ -17,9 +18,16 @@
 -- whether a picture proves anything. That is Aqua's to say, and this is where
 -- she says it, with the settings of the event beside it.
 --
--- Two tables, admins only, every command. Nothing here is a member's to read
--- or write: the points are worked out on Aqua's page from what the board
--- already lets an admin read, so a member's run is never stored twice.
+-- Two tables, written by admins only. The points are worked out in the
+-- browser from what the board already shows anybody, so a member's run is
+-- never stored twice.
+--
+-- Drafts (the owner, 2026-11-05: "Draft ได้ เห็นแค่ Admin ก่อนจะ public"): an
+-- event is a draft until an admin sets published_at. A draft is read by
+-- admins alone; a published event, and Aqua's ok/no on its parties, by
+-- anybody, signed in or not, as the party finder itself is. Never readable by
+-- anybody: which admin made it or judged a party (created_by, reviewed_by),
+-- and a review's note. Admins read those with the service key if ever.
 --
 --   pf_events          one row an event: its window, which kinds of party
 --                      count, the caps, the new-player list and the draw.
@@ -66,6 +74,10 @@ create table if not exists public.pf_events (
   constraint pf_events_draw_size check (draw is null or pg_column_size(draw) <= 65536)
 );
 
+-- Null while it is a draft. Its own line so a copy of the table made by the
+-- first version of this file gains it.
+alter table public.pf_events add column if not exists published_at timestamptz;
+
 create index if not exists pf_events_newest on public.pf_events (starts_at desc);
 
 /* ── Aqua's word on each party ───────────────────────────────────────────── */
@@ -87,9 +99,11 @@ create index if not exists pf_event_reviews_party on public.pf_event_reviews (pa
 alter table public.pf_events        enable row level security;
 alter table public.pf_event_reviews enable row level security;
 
+-- A draft is the admins'; a published event is everybody's to read.
 drop policy if exists pf_events_read on public.pf_events;
 create policy pf_events_read on public.pf_events
-  for select to authenticated using ((select public.is_admin()));
+  for select to anon, authenticated
+  using (published_at is not null or (select public.is_admin()));
 drop policy if exists pf_events_add on public.pf_events;
 create policy pf_events_add on public.pf_events
   for insert to authenticated with check ((select public.is_admin()));
@@ -101,9 +115,15 @@ drop policy if exists pf_events_drop on public.pf_events;
 create policy pf_events_drop on public.pf_events
   for delete to authenticated using ((select public.is_admin()));
 
+-- Aqua's word goes public with its event, and not before.
 drop policy if exists pf_event_reviews_read on public.pf_event_reviews;
 create policy pf_event_reviews_read on public.pf_event_reviews
-  for select to authenticated using ((select public.is_admin()));
+  for select to anon, authenticated
+  using (
+    (select public.is_admin())
+    or exists (select 1 from public.pf_events e
+                where e.id = pf_event_reviews.event_id and e.published_at is not null)
+  );
 drop policy if exists pf_event_reviews_add on public.pf_event_reviews;
 create policy pf_event_reviews_add on public.pf_event_reviews
   for insert to authenticated with check ((select public.is_admin()));
@@ -148,14 +168,24 @@ create policy pf_event_reviews_named_drop on public.pf_event_reviews
 -- Supabase gave anon and authenticated ALL on both tables when they were made.
 revoke all on public.pf_events        from anon, authenticated;
 revoke all on public.pf_event_reviews from anon, authenticated;
-grant select, delete on public.pf_events to authenticated;
+-- Reading is by column, so who made what never leaves the database; the
+-- policies above decide which rows.
+grant select (id, title, starts_at, ends_at, kinds, daily_cap, helper_points,
+              unsync_min_level, practice_minutes, fc_only, newbies, draw_count,
+              draw, published_at, updated_at)
+  on public.pf_events to anon, authenticated;
+grant delete on public.pf_events to authenticated;
 grant insert (title, starts_at, ends_at, kinds, daily_cap, helper_points,
-              unsync_min_level, practice_minutes, fc_only, newbies, draw_count, draw)
+              unsync_min_level, practice_minutes, fc_only, newbies, draw_count, draw,
+              published_at)
   on public.pf_events to authenticated;
 grant update (title, starts_at, ends_at, kinds, daily_cap, helper_points,
-              unsync_min_level, practice_minutes, fc_only, newbies, draw_count, draw)
+              unsync_min_level, practice_minutes, fc_only, newbies, draw_count, draw,
+              published_at)
   on public.pf_events to authenticated;
-grant select, delete on public.pf_event_reviews to authenticated;
+grant select (event_id, party_id, verdict, reviewed_at)
+  on public.pf_event_reviews to anon, authenticated;
+grant delete on public.pf_event_reviews to authenticated;
 grant insert (event_id, party_id, verdict, note) on public.pf_event_reviews to authenticated;
 -- event_id and party_id too, because an upsert sets every column it sends;
 -- the trigger below puts them back, so a review never moves.
@@ -228,9 +258,14 @@ select grantee, table_name, privilege_type
    and grantee in ('anon', 'authenticated')
  order by 1, 2, 3;
 --  authenticated | pf_event_reviews | DELETE
---  authenticated | pf_event_reviews | SELECT
 --  authenticated | pf_events        | DELETE
---  authenticated | pf_events        | SELECT
---  (insert and update are column grants, which this view does not list)
+--  (select, insert and update are column grants, which this view does not list)
+
+select column_name from information_schema.columns
+ where table_schema = 'public' and table_name = 'pf_events' and column_name = 'published_at';
+--  published_at
+
+select count(*) from public.pf_events where published_at is not null;
+--  0   (nothing is public until Aqua presses publish)
 
 ──────────────────────────────────────────────────────────────────────────── */

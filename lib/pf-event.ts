@@ -62,6 +62,8 @@ export interface PfEvent {
   newbies: number[];
   drawCount: number;
   draw: PfDraw | null;
+  /** Null while a draft, which only admins can read (v320). */
+  publishedAt: string | null;
 }
 
 /** One content key, named. Built on the server from the board's catalogue. */
@@ -323,13 +325,13 @@ function cryptoBelow(below: number): number {
 /* ── reading and writing ─────────────────────────────────────────────────── */
 
 const EVENT_COLS = "id, title, starts_at, ends_at, kinds, daily_cap, helper_points,"
-  + " unsync_min_level, practice_minutes, fc_only, newbies, draw_count, draw";
+  + " unsync_min_level, practice_minutes, fc_only, newbies, draw_count, draw, published_at";
 
 interface EventRow {
   id: number; title: string; starts_at: string; ends_at: string; kinds: string[];
   daily_cap: number; helper_points: number; unsync_min_level: number;
   practice_minutes: number; fc_only: boolean; newbies: (number | string)[];
-  draw_count: number; draw: PfDraw | null;
+  draw_count: number; draw: PfDraw | null; published_at: string | null;
 }
 
 const eventOf = (r: EventRow): PfEvent => ({
@@ -338,12 +340,16 @@ const eventOf = (r: EventRow): PfEvent => ({
   dailyCap: r.daily_cap, helperPoints: r.helper_points,
   unsyncMinLevel: r.unsync_min_level, practiceMinutes: r.practice_minutes,
   fcOnly: r.fc_only, newbies: (r.newbies ?? []).map(Number),
-  drawCount: r.draw_count, draw: r.draw ?? null,
+  drawCount: r.draw_count, draw: r.draw ?? null, publishedAt: r.published_at ?? null,
 });
 
-/** A table PostgREST has never heard of: v320 has not run. */
+/**
+ * A table PostgREST has never heard of, or the first copy of v320 without
+ * published_at (42703): either way, v320 as it stands has not run.
+ */
 const missing = (e: { code?: string; message?: string } | null) =>
-  !!e && (e.code === "42P01" || e.code === "PGRST205" || /pf_event/.test(e.message ?? "") && /exist|find/.test(e.message ?? ""));
+  !!e && (e.code === "42P01" || e.code === "PGRST205" || e.code === "42703" || e.code === "PGRST204"
+    || /published_at|pf_event/.test(e.message ?? "") && /exist|find/.test(e.message ?? ""));
 
 export type LoadedEvent =
   | { state: "missing" }
@@ -351,7 +357,12 @@ export type LoadedEvent =
   | { state: "error"; error: string }
   | { state: "ok"; event: PfEvent; reviews: Map<string, Review> };
 
-/** The newest event and Aqua's verdicts on it. */
+/**
+ * The newest event and Aqua's verdicts on it.
+ *
+ * The same question from an admin and a member: the database answers an
+ * admin with drafts too, and everybody else with published events only.
+ */
 export async function loadPfEvent(supabase: SupabaseClient): Promise<LoadedEvent> {
   const { data, error } = await supabase.from("pf_events").select(EVENT_COLS)
     .order("starts_at", { ascending: false }).limit(1);
@@ -360,14 +371,24 @@ export async function loadPfEvent(supabase: SupabaseClient): Promise<LoadedEvent
   const row = (data as unknown as EventRow[] | null)?.[0];
   if (!row) return { state: "none" };
   const event = eventOf(row);
+  // Not the note, which nobody reads through the API (v320).
   const { data: rv, error: rvError } = await supabase.from("pf_event_reviews")
-    .select("party_id, verdict, note").eq("event_id", event.id);
+    .select("party_id, verdict").eq("event_id", event.id);
   if (rvError) return { state: "error", error: rvError.message };
   const reviews = new Map<string, Review>();
-  for (const r of (rv ?? []) as { party_id: number; verdict: Verdict; note: string | null }[]) {
-    reviews.set(String(r.party_id), { verdict: r.verdict, note: r.note });
+  for (const r of (rv ?? []) as { party_id: number; verdict: Verdict }[]) {
+    reviews.set(String(r.party_id), { verdict: r.verdict, note: null });
   }
   return { state: "ok", event, reviews };
+}
+
+/** Only the newest event's row, for a strip that links to it. Null when none or v320 is not in. */
+export async function peekPfEvent(supabase: SupabaseClient): Promise<PfEvent | null> {
+  const { data, error } = await supabase.from("pf_events").select(EVENT_COLS)
+    .order("starts_at", { ascending: false }).limit(1);
+  if (error) return null;
+  const row = (data as unknown as EventRow[] | null)?.[0];
+  return row ? eventOf(row) : null;
 }
 
 /** Every party the event's window holds, with its people and its pictures. */
@@ -421,7 +442,7 @@ export async function loadPfParties(supabase: SupabaseClient, ev: PfEvent): Prom
   }));
 }
 
-export type EventDraft = Omit<PfEvent, "id" | "draw">;
+export type EventDraft = Omit<PfEvent, "id" | "draw" | "publishedAt">;
 
 /** Make the event, or change it. Returns the event as the database has it. */
 export async function savePfEvent(
@@ -453,6 +474,15 @@ export async function savePfReview(
     : await supabase.from("pf_event_reviews").delete()
       .eq("event_id", eventId).eq("party_id", Number(partyId));
   return error ? { error: error.message } : {};
+}
+
+/** Out of draft for everybody to read, or back into it. */
+export async function savePfPublish(
+  supabase: SupabaseClient, eventId: number, on: boolean,
+): Promise<{ publishedAt?: string | null; error?: string }> {
+  const publishedAt = on ? new Date().toISOString() : null;
+  const { error } = await supabase.from("pf_events").update({ published_at: publishedAt }).eq("id", eventId);
+  return error ? { error: error.message } : { publishedAt };
 }
 
 export async function savePfDraw(

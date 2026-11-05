@@ -9,6 +9,7 @@ const ev: PfEvent = {
   startsAt: "2026-11-06T00:00:00+07:00", endsAt: "2026-12-01T00:00:00+07:00",
   kinds: DEFAULT_KINDS, dailyCap: 10, helperPoints: 2, unsyncMinLevel: 80,
   practiceMinutes: 15, fcOnly: true, newbies: [9], drawCount: 10, draw: null,
+  publishedAt: null,
 };
 
 const content: Record<string, ContentInfo> = {
