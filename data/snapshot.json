@@ -8573,13 +8573,19 @@
   "minions": 42,
   "rare": null,
   "level": 100,
-  "cc": null,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-04"
+  "chg": "2026-11-05"
  },
  "49053650": {
   "name": "Eniluna Gelatoneii",

@@ -12952,7 +12952,13 @@
     "best": 65,
     "kills": 2,
     "job": "Warrior",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Warrior": {
+      "kills": 2,
+      "best": 65
+     }
+    }
    },
    {
     "zone": "Futures Rewritten",
@@ -39039,7 +39045,7 @@
     ]
    }
   ],
-  "_status": "none"
+  "_status": "ok"
  },
  "29351667": {
   "current": {
@@ -98015,7 +98021,23 @@
   "legacy": []
  },
  "62507897": {
-  "_status": "none"
+  "_status": "none",
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": []
  },
  "61489984": {
   "_status": "none"
