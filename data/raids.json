@@ -10229,7 +10229,7 @@
     "encounter_id": 1082,
     "name": "Guardian Arkveld",
     "best": 82,
-    "kills": 94,
+    "kills": 96,
     "job": "Sage",
     "cleared": true,
     "job_kills": {
@@ -36337,7 +36337,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 99,
-    "kills": 87,
+    "kills": 89,
     "job": "Dancer",
     "cleared": true,
     "job_kills": {
@@ -36370,12 +36370,12 @@
       "best": 24
      },
      "Sage": {
-      "kills": 14,
-      "best": 47
+      "kills": 15,
+      "best": 52
      },
      "Scholar": {
-      "kills": 1,
-      "best": 19
+      "kills": 2,
+      "best": 27
      }
     }
    },
@@ -66955,7 +66955,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 93,
-    "kills": 23,
+    "kills": 24,
     "job": "Samurai",
     "cleared": true,
     "job_kills": {
@@ -77848,7 +77848,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 92,
-    "kills": 44,
+    "kills": 46,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -77857,7 +77857,7 @@
       "best": 53
      },
      "Paladin": {
-      "kills": 17,
+      "kills": 19,
       "best": 92
      },
      "Warrior": {
@@ -86052,12 +86052,12 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 19,
-    "kills": 7,
+    "kills": 9,
     "job": "Bard",
     "cleared": true,
     "job_kills": {
      "Bard": {
-      "kills": 4,
+      "kills": 6,
       "best": 19
      },
      "Pictomancer": {
