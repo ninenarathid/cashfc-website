@@ -3,6 +3,20 @@
   {
    "date": "2026-11-06",
    "type": "level_100",
+   "id": 24228478,
+   "name": "Pyrozus Helison",
+   "text": "reached level 100 on Scholar!"
+  },
+  {
+   "date": "2026-11-06",
+   "type": "level_100",
+   "id": 2957360,
+   "name": "Break Darkflame",
+   "text": "reached level 100 on Reaper!"
+  },
+  {
+   "date": "2026-11-06",
+   "type": "level_100",
    "id": 60429500,
    "name": "Janna Minerva",
    "text": "reached level 100 on Dark Knight!"
@@ -1385,20 +1399,6 @@
    "id": 43864764,
    "name": "Shinonome Kamemaru",
    "text": "earned Cut Above the Rest: Fans Occultum — only 2.3% of players have it"
-  },
-  {
-   "date": "2026-10-19",
-   "type": "level_100",
-   "id": 43864764,
-   "name": "Shinonome Kamemaru",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-10-19",
-   "type": "rare_up",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "earned R&D: Cross-pein Hyperhammer"
   }
  ]
 }

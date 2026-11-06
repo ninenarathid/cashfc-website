@@ -6,7 +6,7 @@
   "mounts": 61,
   "minions": 227,
   "rare": null,
-  "level": 99,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -27,7 +27,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-03"
+  "chg": "2026-11-06"
  },
  "15308846": {
   "name": "Aqua Eleison",
@@ -2683,6 +2683,72 @@
   ],
   "chg": "2026-10-29"
  },
+ "31902843": {
+  "name": "Lapista Scholares",
+  "parse": 100,
+  "ult": 6,
+  "mounts": 113,
+  "minions": 177,
+  "rare": 20,
+  "level": 100,
+  "cc": [
+   true,
+   true,
+   true,
+   true,
+   true
+  ],
+  "rare_ids": [
+   1993,
+   2388,
+   2444,
+   2750,
+   2764,
+   2768,
+   2770,
+   2775,
+   2780,
+   2857,
+   2859,
+   2864,
+   2869,
+   2870,
+   2991,
+   3074,
+   3113,
+   3162,
+   3215,
+   3252
+  ],
+  "tiers": {},
+  "jobs": {
+   "Paladin": "legendary",
+   "DarkKnight": "master",
+   "Warrior": "legendary",
+   "Summoner": "expert",
+   "Gunbreaker": "master",
+   "Samurai": "legendary"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Dragonsong's Reprise",
+   "Futures Rewritten",
+   "The Epic of Alexander",
+   "The Omega Protocol",
+   "The Unending Coil of Bahamut",
+   "The Weapon's Refrain"
+  ],
+  "chg": "2026-10-08"
+ },
  "30864049": {
   "name": "Lay Stardust",
   "parse": 100,
@@ -4140,7 +4206,7 @@
   "mounts": 79,
   "minions": 70,
   "rare": null,
-  "level": 93,
+  "level": 85,
   "cc": [
    true,
    true,
@@ -4357,7 +4423,7 @@
   "mounts": 265,
   "minions": 338,
   "rare": 535,
-  "level": 100,
+  "level": 50,
   "cc": null,
   "rare_ids": [
    847,
@@ -4477,7 +4543,7 @@
    "The Omega Protocol",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-29"
+  "chg": "2026-11-06"
  },
  "29998658": {
   "name": "Shippei Astana",
@@ -5747,7 +5813,7 @@
   "mounts": 147,
   "minions": 420,
   "rare": null,
-  "level": 30,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5760,7 +5826,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-05"
+  "chg": "2026-11-06"
  },
  "44143115": {
   "name": "Chapton Lola",
@@ -6504,7 +6570,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 96,
-  "level": 92,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -6625,7 +6691,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-04"
+  "chg": "2026-11-06"
  },
  "60619924": {
   "name": "Gotnogod Soluna",
@@ -8665,7 +8731,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 95,
+  "level": 96,
   "cc": [
    false,
    false,
@@ -8678,7 +8744,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-05"
+  "chg": "2026-11-06"
  },
  "45513833": {
   "name": "Isildur One",
@@ -8904,7 +8970,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 100,
+  "level": 73,
   "cc": [
    false,
    false,
@@ -8958,7 +9024,7 @@
   "mounts": 30,
   "minions": 66,
   "rare": null,
-  "level": 91,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -8980,7 +9046,7 @@
   "mounts": 85,
   "minions": 178,
   "rare": null,
-  "level": 82,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -10220,7 +10286,7 @@
   "mounts": 40,
   "minions": 59,
   "rare": null,
-  "level": 93,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -10241,7 +10307,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-03"
+  "chg": "2026-11-06"
  },
  "58199756": {
   "name": "Billy Najah",
@@ -13102,72 +13168,6 @@
   "ex": [],
   "ults": [],
   "chg": "2026-08-30"
- },
- "31902843": {
-  "name": "Lapista Scholares",
-  "parse": 100,
-  "ult": 6,
-  "mounts": 113,
-  "minions": 177,
-  "rare": 20,
-  "level": 100,
-  "cc": [
-   true,
-   true,
-   true,
-   true,
-   true
-  ],
-  "rare_ids": [
-   1993,
-   2388,
-   2444,
-   2750,
-   2764,
-   2768,
-   2770,
-   2775,
-   2780,
-   2857,
-   2859,
-   2864,
-   2869,
-   2870,
-   2991,
-   3074,
-   3113,
-   3162,
-   3215,
-   3252
-  ],
-  "tiers": {},
-  "jobs": {
-   "Paladin": "legendary",
-   "DarkKnight": "master",
-   "Warrior": "legendary",
-   "Summoner": "expert",
-   "Gunbreaker": "master",
-   "Samurai": "legendary"
-  },
-  "ex": [
-   "Doomtrain",
-   "Enuo",
-   "Guardian Arkveld",
-   "Necron",
-   "Queen Eternal",
-   "Valigarmanda",
-   "Zelenia",
-   "Zoraal Ja"
-  ],
-  "ults": [
-   "Dragonsong's Reprise",
-   "Futures Rewritten",
-   "The Epic of Alexander",
-   "The Omega Protocol",
-   "The Unending Coil of Bahamut",
-   "The Weapon's Refrain"
-  ],
-  "chg": "2026-10-08"
  },
  "5761905": {
   "name": "Laura Nessonier",
