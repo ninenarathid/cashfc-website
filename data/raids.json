@@ -88650,11 +88650,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 27.79,
-    "phase": 4,
-    "pulls": 66,
-    "last": "2026-10-30",
-    "last_ts": 1793371624
+    "pct": 87.65,
+    "phase": 5,
+    "pulls": 52,
+    "last": "2026-11-03",
+    "last_ts": 1793718150
    }
   ]
  },
@@ -91087,7 +91087,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 69,
-    "kills": 5,
+    "kills": 6,
     "job": "Scholar",
     "cleared": true,
     "job_kills": {
@@ -92134,7 +92134,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 100,
-    "kills": 66,
+    "kills": 70,
     "job": "Viper",
     "cleared": true,
     "job_kills": {
@@ -93207,7 +93207,20 @@
    }
   ],
   "legacy": [],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 1085,
+    "name": "Dancing Mad",
+    "kind": "ultimate",
+    "state": "learning",
+    "pct": 22.67,
+    "phase": 1,
+    "pulls": 78,
+    "last": "2026-11-04",
+    "last_ts": 1793807417
+   }
+  ]
  },
  "43284378": {
   "current": {
@@ -94737,9 +94750,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1078,
     "name": "Queen Eternal",
-    "best": 70,
-    "kills": 6,
-    "job": "Viper",
+    "best": 97,
+    "kills": 7,
+    "job": "Paladin",
     "cleared": true
    },
    {
