@@ -35,7 +35,7 @@
   "ult": 5,
   "mounts": 285,
   "minions": 487,
-  "rare": 498,
+  "rare": 497,
   "level": 100,
   "cc": [
    true,
@@ -174,7 +174,7 @@
    "The Epic of Alexander",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-11-03"
+  "chg": "2026-11-06"
  },
  "3968346": {
   "name": "Panuz Chocobunny",
@@ -631,7 +631,7 @@
   "ult": 2,
   "mounts": 178,
   "minions": 290,
-  "rare": 205,
+  "rare": 204,
   "level": 100,
   "cc": [
    true,
@@ -765,7 +765,7 @@
    "Dancing Mad",
    "Futures Rewritten"
   ],
-  "chg": "2026-11-03"
+  "chg": "2026-11-06"
  },
  "38041221": {
   "name": "Kori Kona",
@@ -965,7 +965,7 @@
   "ult": 0,
   "mounts": 264,
   "minions": 487,
-  "rare": 413,
+  "rare": 412,
   "level": 100,
   "cc": [
    false,
@@ -1096,7 +1096,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-03"
+  "chg": "2026-11-06"
  },
  "29511615": {
   "name": "Whitefang Dimmoon",
@@ -1390,7 +1390,7 @@
   "ult": 0,
   "mounts": 139,
   "minions": 378,
-  "rare": 243,
+  "rare": 242,
   "level": 100,
   "cc": [
    false,
@@ -1514,7 +1514,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-03"
+  "chg": "2026-11-06"
  },
  "19827594": {
   "name": "Aylufa Regolith",
@@ -2501,7 +2501,7 @@
   "ult": 0,
   "mounts": 48,
   "minions": 163,
-  "rare": 10,
+  "rare": 9,
   "level": 100,
   "cc": [
    true,
@@ -2517,7 +2517,6 @@
    3765,
    3855,
    3962,
-   3986,
    3987,
    3998,
    4002
@@ -2528,7 +2527,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-28"
+  "chg": "2026-11-06"
  },
  "42948817": {
   "name": "Karuma Amamiya",
@@ -2908,7 +2907,7 @@
   "ult": 6,
   "mounts": 197,
   "minions": 416,
-  "rare": 164,
+  "rare": 163,
   "level": 100,
   "cc": [
    true,
@@ -3048,7 +3047,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-03"
+  "chg": "2026-11-06"
  },
  "37056222": {
   "name": "Lucine Nokomis",
@@ -3554,7 +3553,7 @@
   "ult": 1,
   "mounts": 189,
   "minions": 436,
-  "rare": 142,
+  "rare": 141,
   "level": 100,
   "cc": [
    true,
@@ -3682,7 +3681,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-25"
+  "chg": "2026-11-06"
  },
  "51922514": {
   "name": "Mumu Nene",
@@ -3719,9 +3718,9 @@
   "name": "Nagi Amano",
   "parse": 100,
   "ult": 0,
-  "mounts": 65,
-  "minions": 131,
-  "rare": 57,
+  "mounts": 70,
+  "minions": 133,
+  "rare": 71,
   "level": 100,
   "cc": [
    true,
@@ -3732,31 +3731,43 @@
   ],
   "rare_ids": [
    944,
+   945,
    1586,
    2469,
    2671,
+   2675,
    2876,
    2882,
    2885,
    2886,
+   3616,
    3645,
    3646,
    3677,
    3753,
    3759,
    3760,
+   3769,
    3805,
+   3823,
    3832,
+   3833,
    3843,
    3849,
    3850,
    3937,
    3938,
    3939,
+   3944,
+   3945,
    3950,
    3956,
    3957,
    3979,
+   3987,
+   3988,
+   3989,
+   3990,
    3997,
    3998,
    3999,
@@ -3787,6 +3798,8 @@
    4047,
    4048,
    4049,
+   4070,
+   4071,
    4074
   ],
   "tiers": {
@@ -3804,7 +3817,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-11-01"
+  "chg": "2026-11-06"
  },
  "21620195": {
   "name": "Nefe'li Lucias",
@@ -4206,7 +4219,7 @@
   "mounts": 79,
   "minions": 70,
   "rare": null,
-  "level": 85,
+  "level": 96,
   "cc": [
    true,
    true,
@@ -4291,7 +4304,7 @@
   "ult": 0,
   "mounts": 176,
   "minions": 418,
-  "rare": 445,
+  "rare": 444,
   "level": 100,
   "cc": [
    false,
@@ -4414,7 +4427,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-11-02"
+  "chg": "2026-11-06"
  },
  "43864764": {
   "name": "Shinonome Kamemaru",
@@ -4423,7 +4436,7 @@
   "mounts": 265,
   "minions": 338,
   "rare": 535,
-  "level": 50,
+  "level": 100,
   "cc": null,
   "rare_ids": [
    847,
@@ -4551,7 +4564,7 @@
   "ult": 7,
   "mounts": 201,
   "minions": 382,
-  "rare": 262,
+  "rare": 261,
   "level": 100,
   "cc": [
    true,
@@ -4694,7 +4707,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-03"
+  "chg": "2026-11-06"
  },
  "22425670": {
   "name": "Shizuna-pan Misurugi",
@@ -5017,7 +5030,7 @@
   "ult": 0,
   "mounts": 206,
   "minions": 416,
-  "rare": 288,
+  "rare": 287,
   "level": 100,
   "cc": [
    false,
@@ -5148,7 +5161,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-03"
+  "chg": "2026-11-06"
  },
  "42976317": {
   "name": "Zeadz Stellar",
@@ -5156,7 +5169,7 @@
   "ult": 0,
   "mounts": 56,
   "minions": 129,
-  "rare": 43,
+  "rare": 42,
   "level": 100,
   "cc": [
    true,
@@ -5189,7 +5202,6 @@
    3966,
    3969,
    3979,
-   3986,
    3987,
    3988,
    3989,
@@ -5224,7 +5236,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-03"
+  "chg": "2026-11-06"
  },
  "24123541": {
   "name": "Zeren Dragonia",
@@ -5306,7 +5318,7 @@
   "mounts": 119,
   "minions": 243,
   "rare": null,
-  "level": 65,
+  "level": 66,
   "cc": [
    false,
    false,
@@ -5319,7 +5331,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-03"
+  "chg": "2026-11-06"
  },
  "38802422": {
   "name": "Aimday Yeji",
@@ -5948,7 +5960,7 @@
   "ult": 0,
   "mounts": 175,
   "minions": 358,
-  "rare": 157,
+  "rare": 156,
   "level": 100,
   "cc": [
    false,
@@ -5963,6 +5975,7 @@
    846,
    939,
    990,
+   1350,
    1351,
    1439,
    1459,
@@ -6049,7 +6062,6 @@
    3925,
    3935,
    3937,
-   3989,
    3997,
    3999,
    4003,
@@ -6071,7 +6083,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-03"
+  "chg": "2026-11-06"
  },
  "34546216": {
   "name": "Dekkapi Kung",
@@ -6213,7 +6225,9 @@
    3412,
    3805
   ],
-  "tiers": {},
+  "tiers": {
+   "goldsaucer": "master"
+  },
   "jobs": {
    "DarkKnight": "expert",
    "Samurai": "legendary",
@@ -6293,7 +6307,7 @@
   "ult": 4,
   "mounts": 130,
   "minions": 208,
-  "rare": 47,
+  "rare": 46,
   "level": 100,
   "cc": [
    true,
@@ -6338,7 +6352,6 @@
    3941,
    3943,
    3979,
-   3986,
    3987,
    3988,
    3989,
@@ -6369,7 +6382,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-03"
+  "chg": "2026-11-06"
  },
  "29795820": {
   "name": "Elle Lauren",
@@ -7185,7 +7198,7 @@
   "ult": 0,
   "mounts": 198,
   "minions": 420,
-  "rare": 267,
+  "rare": 266,
   "level": 100,
   "cc": [
    false,
@@ -7313,7 +7326,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-03"
+  "chg": "2026-11-06"
  },
  "46243891": {
   "name": "Marin Elysium",
@@ -7685,7 +7698,7 @@
   "ult": 0,
   "mounts": 131,
   "minions": 271,
-  "rare": 116,
+  "rare": 115,
   "level": 100,
   "cc": [
    false,
@@ -7814,7 +7827,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-03"
+  "chg": "2026-11-06"
  },
  "43116127": {
   "name": "Piyo Stellar",
@@ -8467,7 +8480,7 @@
   "mounts": 81,
   "minions": 158,
   "rare": 18,
-  "level": 100,
+  "level": 67,
   "cc": [
    true,
    true,
@@ -8507,7 +8520,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-05"
+  "chg": "2026-11-06"
  },
  "15932791": {
   "name": "Yuziris Andra'nov",
@@ -8731,7 +8744,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 96,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -8775,7 +8788,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 100,
+  "level": 83,
   "cc": [
    false,
    false,
@@ -9024,7 +9037,7 @@
   "mounts": 30,
   "minions": 66,
   "rare": null,
-  "level": 93,
+  "level": 78,
   "cc": [
    false,
    false,
@@ -9046,7 +9059,7 @@
   "mounts": 85,
   "minions": 178,
   "rare": null,
-  "level": 95,
+  "level": 86,
   "cc": [
    false,
    false,
@@ -9090,7 +9103,7 @@
   "mounts": 7,
   "minions": 20,
   "rare": null,
-  "level": 76,
+  "level": 78,
   "cc": [
    false,
    false,
@@ -9103,7 +9116,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-05"
+  "chg": "2026-11-06"
  },
  "31685121": {
   "name": "Squid Girls",
@@ -12172,7 +12185,7 @@
   "mounts": 32,
   "minions": 95,
   "rare": null,
-  "level": 100,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -12185,7 +12198,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-05"
+  "chg": "2026-11-06"
  },
  "16173247": {
   "name": "Haru Luminous",

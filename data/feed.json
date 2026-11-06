@@ -2,6 +2,34 @@
  "events": [
   {
    "date": "2026-11-06",
+   "type": "rare_up",
+   "id": 36183541,
+   "name": "Nagi Amano",
+   "text": "earned Worqor and Peace III — only 1.0% of players have it, and 13 more"
+  },
+  {
+   "date": "2026-11-06",
+   "type": "level_100",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-11-06",
+   "type": "rare_up",
+   "id": 38488824,
+   "name": "Daffodil Amary",
+   "text": "earned With Pick in Hand IV"
+  },
+  {
+   "date": "2026-11-06",
+   "type": "grade_up",
+   "id": 40389196,
+   "name": "Dontae Luciano",
+   "text": "is now a Master Gold Saucer collector ✨"
+  },
+  {
+   "date": "2026-11-06",
    "type": "level_100",
    "id": 24228478,
    "name": "Pyrozus Helison",
@@ -1371,34 +1399,6 @@
    "id": 44970350,
    "name": "Allen Crist",
    "text": "earned Clare Obscurum: Longpole Obscurum — only 4.2% of players have it"
-  },
-  {
-   "date": "2026-10-19",
-   "type": "rare_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "earned R&D: Stellar Alembic"
-  },
-  {
-   "date": "2026-10-19",
-   "type": "rare_up",
-   "id": 22461237,
-   "name": "Metatron Vtretikh",
-   "text": "earned Savage Gaze of the Abyss III"
-  },
-  {
-   "date": "2026-10-19",
-   "type": "rare_up",
-   "id": 6173187,
-   "name": "Motochita Muses",
-   "text": "earned A Wolf in Green Tights II"
-  },
-  {
-   "date": "2026-10-19",
-   "type": "rare_up",
-   "id": 43864764,
-   "name": "Shinonome Kamemaru",
-   "text": "earned Cut Above the Rest: Fans Occultum — only 2.3% of players have it"
   }
  ]
 }
