@@ -119,57 +119,24 @@ no letters, no numbers."
 - ภาพที่สร้างด้วย built-in image_gen: กล่องเก็บของ 4 ระดับ (prompts/box-tiers.json),
   ของในคาสิโน (docs/plans/casino-art-prompts.json) และ atlas VFX ธาตุ (.codex/element-vfx-refinement)
 
-## PixelLab (the owner, 2026-10-19)
+## PixelLab: no longer used (the owner, 2026-11-06)
 
-The owner bought PixelLab Tier 1 (2,000 generations a month) after the trial of 2026-10-18/19 and asked: "เพิ่มใน
-work flow ส่วนที่คุณคิดว่าต้องใช้ Pixellab". The trial's figures are in README.md, "PixelLab". PixelLab is used only for
-the four jobs below; everything in sections 1–5 stays as it is.
+"Pixellab จะไม่ใช้แล้ว ตัดออกจาก workflow ได้เลย". PixelLab was the generator for four jobs from 2026-10-19 (Tier 1,
+"เพิ่มใน work flow ส่วนที่คุณคิดว่าต้องใช้ Pixellab"); that has ended.
 
-**The tool.** `node pl.mjs <out-name> <endpoint> <body.json>` from this folder. The key is `PIXELLAB_API_KEY` in
-fcnext/.env.local and is never printed. Results go to `work/pl/<name>/`, and every call to the same `work/ledger.jsonl`
-with `cost: 0` (the subscription pays, so gen.mjs's dollar total is unchanged) and `gens`. Before a call or a batch,
-Codex reads the body and its pictures (`codex-ask.mjs find` or `plan` with `--see`), then `REVIEW="<its run folder>"`;
-`NO_REVIEW="<why>"` and `CALLS=<file>` work as with gen.mjs. Never call PixelLab through its MCP or a script of the
-moment: the gate and the ledger must hold for it as for OpenAI.
-
-**What PixelLab is for:**
-
-1. **Doll action frames** (DOLL2.md's action families): `/animate-with-skeleton-v3`.
-   - One pose set per family per view, designed once: 18-joint keypoints, starting from `/estimate-skeleton` (0.1
-     generation) of the mannequin's standing frame. Keep it in `poses/<family>-<view>.json`.
-   - Every outfit is animated from its own standing frame with that same pose set. The same keypoints give the same
-     pose, measured on the trial at 94–96% overlap front and 90–92% back, which is as close as the two standing
-     frames themselves.
-   - The builder then lays the shared head, takes the hands from the keypoints, takes arm-over-head order from the
-     keypoints' z, and snaps to the palette. It refuses a frame by per-frame material masks (skin, cloth), not by
-     overlap alone: overlap can pass a broken hand and fail a skirt (Codex).
-   - Never `/animate-with-text-*` for doll frames. It turns the body to face front, adds a tool of its own, closes
-     eyes, and gives each outfit another pose (77–89%).
-   - Cost: 7–8 frames = 3 generations, 15 frames = 4.
-2. **Expressions and small edits of existing pixel art** (a face, a hair piece under a hat, a detail on an outfit):
-   `/inpaint-image-pro-flash`, 5 generations.
-   - The mask covers only what changes: pure black and white, the same size as the picture. Send the whole doll
-     frame as `context_image` with its `bounding_box`.
-   - Nothing outside the mask changes (measured: 0 pixels), so the part is the changed cells, including the erased
-     old features.
-   - Not plain `/inpaint`: its faces come out off-style.
-3. **One-shot event VFX** (a hit, a catch, a rank-up, a rare find, a craft or forge result): `/vfx`.
-   - `artist: "lite"` (1 generation) for small frequent effects, `"pro"` (about 8) for big rare moments.
-   - Send the tool or the doll as `sprite` at its own pixel size. `game_pack: true` gives the layers behind and in
-     front of the sprite.
-   - Code places, tints and times them; frequent ones last 250–450 ms.
-   - Continuous effects, element mixes and anything driven by a number stay procedural code.
-4. **A new view of an existing sprite**: `/generate-8-rotations-v3`, 1 generation. Only when the owner asks for a new
-   facing. The town stays at 4 diagonal facings from 2 drawn views (every hair, face, hat and outfit would be ×2.5).
-
-**What stays with gen.mjs:** icon sheets, props, scenery, large scenes, textures, the UI kit, and the base sheets of a
-new outfit, hat or hair (in-place edits of the mannequin, as DOLL2.md says).
-
-**After a PixelLab job,** as after a gen.mjs one:
-- the existing builders, and the pixel scale checked against native art;
-- one contact sheet, then the game at desktop and phone size;
-- the body JSON and pose sets kept in `prompts/pixellab/`;
-- a line in README.md: what was made, how many calls, how many generations.
+- **Do not call PixelLab**: not `pl.mjs` (it now refuses), not `pasture-looks.mjs` or `pl-items.mjs`, which go
+  through it, not its MCP, not a script of the moment. Every Cash Town picture is made as sections 1–5 say.
+- **What it made stays live**: the doll action frames and faces, the pasture animals' frames and views, Granny
+  Twilla's outfits, hairstyles and head things, the VFX sheets. Redrawing any of it needs the owner's word.
+- **The jobs it held go back to gen.mjs**: doll action frames, expressions and small edits of existing pixel art,
+  one-shot event VFX sheets, a new view of a sprite. Use in-place edits of the existing sheet with the existing art
+  attached, as DOLL2.md says for a new outfit's base sheets. The trial's lesson still holds: OpenAI redraws the whole
+  picture, so a pose, a head or a face can drift from one outfit to the next. Check each frame against the mannequin
+  and the frames already live, and show the owner a pilot before a batch of doll frames. Light on effects stays in
+  code (`held.ts`, `vfx.ts`), as section 3 says.
+- **The record stays**: README.md "PixelLab" (what each endpoint gave and cost), `prompts/pixellab/`, `work/pl/`,
+  and the ledger rows with `cost: 0` and `gens`. `pl-doll.mjs unhead` and the other builders still read what PixelLab
+  drew and are used by the checks below.
 
 ## No pixel bugs (the owner, 2026-10-26)
 

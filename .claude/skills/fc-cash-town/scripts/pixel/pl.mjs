@@ -1,7 +1,7 @@
 // One PixelLab call (https://api.pixellab.ai/v2), logged to work/ledger.jsonl beside gen.mjs's OpenAI calls.
 // node pl.mjs <out-name> <endpoint> <body.json>
 // The key is PIXELLAB_API_KEY in fcnext/.env.local and is never printed. Tier 1 since 2026-10-19 (2,000 generations
-// a month). What PixelLab is used for, and what stays with gen.mjs, is ART_WORKFLOW.md's "PixelLab" section.
+// a month). Not used since 2026-11-06: ART_WORKFLOW.md, "PixelLab: no longer used".
 //
 // The body is the endpoint's JSON as its docs give it (https://api.pixellab.ai/v2/llms.txt). Any string "@<file.png>"
 // in it, at any depth, is sent as a base64 image ({ type: "base64", base64, format: "png" }).
@@ -20,6 +20,10 @@ import { createHash } from "node:crypto";
 const HERE = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Z]:)/, "$1");
 const ENV = "E:/NinenineProject/fcnext/.env.local";
 const API = "https://api.pixellab.ai/v2";
+
+// The owner, 2026-11-06: "Pixellab จะไม่ใช้แล้ว ตัดออกจาก workflow ได้เลย". Kept as the record of how its pictures were made.
+console.log("PixelLab is no longer used (the owner, 2026-11-06). Make the picture with gen.mjs: ART_WORKFLOW.md, \"PixelLab: no longer used\".");
+process.exit(1);
 
 const [outName, given, bodyFile] = process.argv.slice(2);
 // "estimate-skeleton" or "/estimate-skeleton"; Git Bash turns the second into "C:/Program Files/Git/estimate-skeleton"

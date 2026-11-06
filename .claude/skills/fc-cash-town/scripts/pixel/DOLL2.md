@@ -98,8 +98,10 @@ pout and shy.
   - The compositing cache is bounded in bytes, not entries: a cache miss costs CPU (Codex).
 - **Each new action family later adds (its frames × 2) to every outfit already made.**
   Lock the families before the catalogue grows.
-- **The action frames are made with PixelLab** (the owner, 2026-10-19; ART_WORKFLOW.md, "PixelLab"). The OpenAI
-  estimate above is what this replaced: OpenAI redraws a whole sheet, so each outfit came back in its own pose.
+- **The action frames were made with PixelLab** from 2026-10-19 until the owner dropped it on 2026-11-06
+  (ART_WORKFLOW.md, "PixelLab: no longer used"). The frames made then stay. New frames go back to gen.mjs, the OpenAI
+  estimate above, with its known fault: OpenAI redraws a whole sheet, so each outfit can come back in its own pose.
+  Check every frame against the mannequin and show the owner a pilot before a batch. How PixelLab's were made:
   - One skeleton pose set per family per view, designed once, used for every outfit from its own standing frame.
   - The same keypoints gave the same pose across outfits on the trial.
   - About 12–28 generations an outfit for the 16 frames × 2 views, of Tier 1's 2,000 a month.

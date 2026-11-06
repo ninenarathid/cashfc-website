@@ -29,7 +29,7 @@ Spike demo: [Pixel Lalafell Spike](https://claude.ai/artifact/Uetw3Y3U1iCnDn4Z9q
 | File | What it does |
 |---|---|
 | `gen.mjs` | One API call: `node gen.mjs <name> <model> <quality> <size> <prompt.txt> [ref.png ...]`. It draws only a call Codex has read (see "Codex reads a prompt before it is drawn") |
-| `pl.mjs` | One PixelLab call: `node pl.mjs <name> <endpoint> <body.json>`, for the four jobs of ART_WORKFLOW.md's "PixelLab" only; `REVIEW=` or `NO_REVIEW=` as with gen.mjs; the same ledger (see "PixelLab") |
+| `pl.mjs` | **Not used since 2026-11-06** (the owner dropped PixelLab; ART_WORKFLOW.md, "PixelLab: no longer used"). It refuses to run; kept as the record of how PixelLab's pictures were made (see "PixelLab") |
 | `gen-hairs.sh` | Hairstyle sheets as in-place edits: `./gen-hairs.sh <g> <hair> [<g> <hair> ...]` |
 | `build-scenery.mjs` | The town's scenery; `--set forest` the forest's own sheet; `--set kitchen` the cooking screen's (`public/town/kitchen.json`). In a worktree pass `--out <tree>/public/town` (the default writes into fcnext's), and link `work` to fcnext's so that the ledger is the one ledger (`mklink /J work …cnext…pixelwork`) |
 | `build-pixel-atlas.mjs` | `work/out` → `public/town` (`--out <dir>` to try elsewhere; `--poses` adds sit, sleep and wave) |
@@ -456,11 +456,13 @@ The owner: "ช่วยปรับ กวางที่ขี่ได้ Gen
 - **`stag-run-SE`**: six frames of a gallop in one row, with `d2-starter-front` for the pixel size and `pasture-cow-a` for the animals' look. **`stag-walk-SE`**: four steps and two standing, an in-place edit of the run. **`stag-run-NE`**: the gallop from behind, an in-place edit; the first draw's head was a flat brown blob (kept as `stag-run-NE.first.png`), and it took a rounded skull, a lit cheek, a neck narrower than the head and a dark stripe of mane in words. **`stag-walk-NE`**: the walk from behind, with the front walk and the back run as references.
 - **`node build-scenery.mjs --set stag --out <tree>/public/town`** cuts them at about 5 of the canvas to a pixel (`stag.json`, `stag-<hash>.png`, 131 KB, fetched the first time a stag is drawn: lib/town/stag-art.ts). Its how "moss" stands every frame on the middle of the moss bed, not its feet, so the body does not jump between frames and a rider laid on that point stays put. `closeSmallHoles` fills a see-through patch of up to 8 cells that the figure closes in on; what stays open is real gaps between legs.
 - **Drawn at 0.56**, a little finer than the dolls' 0.67, as the other animals are; a frame is about 60 map pixels long and 75 tall, the gallop's stretch 75 long. The back view's first gallop frame came out with its legs in a tangle: the loop plays its last in its place (`BACK_RUN`).
-- Not done: the rider's legs are the doll's sitting pose and do not straddle the flank. A riding pose would be a doll action family on PixelLab (ART_WORKFLOW.md, job 1).
+- Not done: the rider's legs are the doll's sitting pose and do not straddle the flank. A riding pose would be a doll action family (PixelLab's job then; gen.mjs since the owner dropped PixelLab on 2026-11-06, ART_WORKFLOW.md).
 
 ## PixelLab (2026-10-18/19)
 
-Tried on the real Doll 2 mannequin and starter outfit with the free trial (40 generations), then bought by the owner as Tier 1 (2,000 generations a month, 2026-10-19). What it is used for is ART_WORKFLOW.md's "PixelLab"; `pl.mjs` makes the calls. The trial's pictures were in a private page (https://claude.ai/artifact/CuXtn4dKKMLRLXz5VAHWjW); its scripts were throwaway.
+**No longer used** (the owner, 2026-11-06: "Pixellab จะไม่ใช้แล้ว ตัดออกจาก workflow ได้เลย"). This section and the PixelLab lines further down are the record of what it made and cost; ART_WORKFLOW.md says what takes its jobs.
+
+Tried on the real Doll 2 mannequin and starter outfit with the free trial (40 generations), then bought by the owner as Tier 1 (2,000 generations a month, 2026-10-19). What it was used for was ART_WORKFLOW.md's "PixelLab"; `pl.mjs` made the calls. The trial's pictures were in a private page (https://claude.ai/artifact/CuXtn4dKKMLRLXz5VAHWjW); its scripts were throwaway.
 
 What each tool cost and gave, measured on the trial (frames padded to 64×96, 96×112 or 128×128):
 
