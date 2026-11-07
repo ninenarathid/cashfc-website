@@ -887,3 +887,10 @@ alone (2026-11-03-18-34-48-art-44188, `send`). No PixelLab (1.3 generations left
   are not drawn again). A first cut skipped every cell that had been saddle leather and lost the bag's top: it does not.
 - In the game: `scripts/town-boat.mjs` (1280x860, 384x730, 360x640), `scripts/town-ram-pack.mjs` (the pack, the ram
   beside and ridden, the fairy and three others following).
+
+## The farming line's gift icons drawn (2026-11-07)
+
+The owner: "พู่กันช่วยทำ icon ใหม่ ให้ดูดีขึ้น" (the rank-8 cross-pairing brush, one of add-reward-icons.mjs's code-drawn icons: a flat stick with three green squares, no outline). One call, $0.0198 (`gpt-image-2.5-sunburst`, low, 1536x1024, drawn once); the ledger then stood at 3,027 rows and $44.901 of $55. Prompt `prompts/icons/icons-farm-gifts-a.txt`, on the owner's ICON SHEET template with its closing sentence, `work/out/icons-mining-a.png` for the reference (the drawn gifts: the miner's lamp, the bat, the sack).
+
+- **`icons-farm-gifts-a`**: three designs of the brush, the giant seeds (rank 7) and the pollen seal (rank 9) drawn again, and the reference's sack to hold the size. **The third brush is packed as `thingCrossBrush`** (`ICONS_ONLY=icons-farm-gifts-a ICONS_APPEND=1 ICONS_REPLACE=1`, the worktree's `ICONS_PUB`/`ICONS_JSON`): a slim brush with a golden pollen tip standing between a pink and a sky-blue flower whose stems cross behind it, what the gift does and still a brush at 22 px. The first (a diagonal brush, its tip golden with pink and blue) is the other choice; the second (a round brush half pink, half blue) read as an ice cream at 22 px. The seeds and the seal are `_` names: offered to the owner, not packed (the code-drawn ones stay until he says). Cut on its finer grid (5.65; the brush 39x52): on 11.6 the pixels were blocky and the seal's flower a blob.
+- **Codex read the prompt first** (run 2026-11-07-07-28-42-art-23204, `fix`): its words taken, the first brush's flowers as pink and blue patches on its bristles (two flower heads would widen the tip into a bouquet at 22 px), the third's bow removed and its brush in front of the flowers.

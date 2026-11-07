@@ -1,8 +1,8 @@
 {
-  "image": "/town/icons-9a21243e88ca.png",
+  "image": "/town/icons-6f99c0f44b3c.png",
   "size": [
     256,
-    21160
+    21216
   ],
   "icons": {
     "mic": [
@@ -7704,10 +7704,10 @@
       32
     ],
     "thingCrossBrush": [
-      69,
-      10876,
-      32,
-      32
+      2,
+      21162,
+      39,
+      52
     ],
     "thingPollenSeal": [
       103,
