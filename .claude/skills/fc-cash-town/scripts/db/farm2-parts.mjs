@@ -32,8 +32,9 @@ const parts = {
   cloudCorners: c.farming.bedsAt,
   nurseryFarm: [R.x, R.y, R.w, R.h],
   springFarm: SPRINGS.sites[1],
-  // (for moving things: each barn's corner, and the farm's walking rows)
+  // (for moving things: each barn's corner, where its first gate from the town puts one, and the farm's walking rows)
   barns: BARNS.map((b) => [b.x, b.y]),
+  arrive: (() => { const to = W.GATES.find((g) => g.leads === "farm").to; return [Math.floor(to.x), Math.floor(to.y)]; })(),
   walk,
 };
 for (const [k, v] of Object.entries(parts)) if (v === undefined) throw new Error(`no ${k}`);
