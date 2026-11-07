@@ -8,7 +8,8 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
-const REPO = process.env.FC_REPO ?? process.cwd();
+// (the tree, with forward slashes: the loader of its TypeScript compares paths so)
+const REPO = (process.env.FC_REPO ?? process.cwd()).split(String.fromCharCode(92)).join("/");
 const PG = process.env.PGLITE ?? "E:/NinenineProject/fcnext-codex-bench";
 const { PGlite } = await import(pathToFileURL(`${PG}/node_modules/@electric-sql/pglite/dist/index.js`).href);
 let pass = 0, fail = 0;
@@ -43,7 +44,8 @@ create function town.bed_of(p_x integer, p_y integer) returns integer language s
   select (b.o - 1)::integer from jsonb_array_elements(town.cat('farming')->'bedsAt') with ordinality b(c, o)
    where p_x >= (b.c->>0)::integer and p_x < (b.c->>0)::integer + (town.cat('farming')->>'side')::integer
      and p_y >= (b.c->>1)::integer and p_y < (b.c->>1)::integer + (town.cat('farming')->>'side')::integer limit 1 $$;
-create table public.town_plots (x integer not null, y integer not null, bed integer, soil text, plant jsonb, damp boolean, house jsonb, changed bigint, primary key (x, y));
+-- (a plot's x and y are smallints, as v110 made them)
+create table public.town_plots (x smallint not null, y smallint not null, bed integer, soil text, plant jsonb, damp boolean, house jsonb, changed bigint, primary key (x, y));
 create table public.town_purses (member_id uuid primary key, doc jsonb not null);
 create table public.town_pots (id bigint primary key, x integer not null, y integer not null, feast boolean not null default false);
 create table public.town_ground (id bigint primary key, x integer not null, y integer not null);
@@ -79,7 +81,10 @@ const pk = (bed, i, j) => `${C.bedsAt[bed][0] + i},${C.bedsAt[bed][1] + j}`;
 const purses = {
   [M[0]]: { coins: 5, professionRewards: { pollen: [{ key: pk(0, 1, 1), cells: [pk(0, 1, 1), pk(0, 2, 1)], identity: `pollen:${pk(0, 1, 1)}:1700000000000`, until: 99 }], giant: { key: root, root: `giant:${root}` },
     relay: { at: [C.wellAt[0] + 2, C.wellAt[1] + 1], from: [C.wellAt[0] + 2, C.wellAt[1] + 1] }, rowStart: { key: pk(23, 0, 3) } }, aided: [{ key: pk(47, 6, 6), at: 7 }] },
-  [M[1]]: { coins: 9, professionRewards: { nursery: { at: [C.barns[3][0] + 2, C.barns[3][1] + 5] }, bean: { at: [C.bedsAt[24][0] + 3, C.bedsAt[24][1] + 3] } }, lured: { x: C.bedsAt[6][0] + 2.4, y: C.bedsAt[6][1] + 3.7, bug: "ant" }, toast: { at: [999, 999] } },
+  [M[1]]: { coins: 9, professionRewards: { nursery: { at: [C.barns[3][0] + 2, C.barns[3][1] + 5] }, bean: { at: [C.bedsAt[24][0] + 3, C.bedsAt[24][1] + 3] },
+    // (a banquet begun at a farm tile, and the rescue ticket that holds copies of it: lib/town/reward-rescue)
+    kitchen: { kind: "banquet", at: C.bedsAt[0], stage: 2, serves: 5 },
+    rescueTicket: { id: "t1", kind: "kitchen", at: C.bedsAt[0], stage: 2, until: 9, ask: false, snapshot: { kind: "banquet", at: C.bedsAt[0], stage: 2, serves: 5 }, live: { kind: "banquet", at: C.bedsAt[0], stage: 2, serves: 5 } } }, lured: { x: C.bedsAt[6][0] + 2.4, y: C.bedsAt[6][1] + 3.7, bug: "ant" }, toast: { at: [999, 999] } },
   [M[2]]: { coins: 1, gardenBook: ["x"] },
 };
 for (const [m, doc] of Object.entries(purses)) await db.query("insert into public.town_purses (member_id, doc) values ($1, $2)", [m, doc]);
@@ -146,6 +151,8 @@ ok("a relay and a nursery at farm tiles moved onto tiles one may stand on", open
 ok("the nursery by a barn is by the same barn", Math.abs(pb.professionRewards.nursery.at[0] - (F.barns[3][0] + 2)) <= 2 && Math.abs(pb.professionRewards.nursery.at[1] - (F.barns[3][1] + 5)) <= 2, pb.professionRewards.nursery);
 ok("a bean on a plot moved with its bed; a lured insect kept its place in its tile; a tile of no farm untouched", JSON.stringify(pb.professionRewards.bean.at) === JSON.stringify([F.bedsAt[24][0] + 3, F.bedsAt[24][1] + 3])
   && Math.abs(pb.lured.x - (F.bedsAt[6][0] + 2.4)) < 1e-9 && Math.abs(pb.lured.y - (F.bedsAt[6][1] + 3.7)) < 1e-9 && pb.lured.bug === "ant" && JSON.stringify(pb.toast.at) === "[999,999]", pb);
+ok("a banquet and its rescue ticket moved together: the ticket still matches it", J(pb.professionRewards.kitchen) === J(pb.professionRewards.rescueTicket.live)
+  && J(pb.professionRewards.kitchen.at) === J(F.bedsAt[0]) && J(pb.professionRewards.rescueTicket.at) === J(F.bedsAt[0]) && J(pb.professionRewards.rescueTicket.snapshot.at) === J(F.bedsAt[0]), pb.professionRewards);
 ok("a purse with nothing on the farm is not written", J(await purse(M[2])) === J(purses[M[2]]));
 const eggs = (await one("select a from public.town_animals")).a.outside;
 ok("eggs laid out are at the same egg spots", JSON.stringify(eggs.map((e) => e.at)) === JSON.stringify([F.eggSpots[3], F.eggSpots[20]]) && eggs[0].n === 2, eggs);
@@ -156,11 +163,21 @@ ok("the triggers are back on after it", (await tryQ("update public.town_plots se
 await db.query("delete from public.fired");
 
 // ── a page left on the old farm is refused; one on the new is not; a request with no farm is not held to it ──
-const asPage = async (farm, sql) => { await db.query("select set_config('request.headers', $1, false)", [farm === null ? "" : JSON.stringify({ "x-town-farm": farm })]); const e = await tryQ(sql); await db.query("select set_config('request.headers', '', false)"); return e; };
+// (a request as PostgREST hands it on: its headers, and who asks; \`farm\` undefined: no request at all)
+const asPage = async (farm, sql, role = "authenticated") => {
+  await db.query("select set_config('request.headers', $1, false), set_config('request.jwt.claims', $2, false)", [farm === undefined ? "" : JSON.stringify(farm === null ? { "user-agent": "x" } : { "x-town-farm": farm }), JSON.stringify({ role })]);
+  const e = await tryQ(sql);
+  await db.query("select set_config('request.headers', '', false), set_config('request.jwt.claims', '', false)");
+  return e;
+};
 ok("a page with the old farm cannot write a plot", /farm-moved/.test((await asPage("classic", "update public.town_plots set damp = not damp where bed = 0")) ?? ""));
 ok("nor a purse, nor a pot", /farm-moved/.test((await asPage("classic", `update public.town_purses set doc = doc where member_id = '${M[2]}'`)) ?? "") && /farm-moved/.test((await asPage("classic", "update public.town_pots set x = x where id = 2")) ?? ""));
-ok("a page with the editor's farm can", (await asPage("farm2", "update public.town_plots set damp = not damp where bed = 0")) === null);
-ok("a request that says no farm can", (await asPage(null, "update public.town_plots set damp = not damp where bed = 0")) === null);
+ok("a page with the editor's farm can", (await asPage("farm2", "update public.town_plots set soil = soil where bed = 0")) === null);
+ok("a member's page from before the deploy, which says no farm, cannot write a plot, a pot or a thing on the ground", /farm-moved/.test((await asPage(null, "update public.town_plots set damp = not damp where bed = 0")) ?? "")
+  && /farm-moved/.test((await asPage(null, "update public.town_pots set x = x where id = 2")) ?? ""));
+ok("but writes a purse, as a page without the town does", (await asPage(null, `update public.town_purses set doc = doc where member_id = '${M[2]}'`)) === null);
+ok("the site's server, saying no farm, writes a plot", (await asPage(null, "update public.town_plots set soil = soil where bed = 0", "service_role")) === null);
+ok("so does what is no request (the SQL editor, a job of the database's)", (await asPage(undefined, "update public.town_plots set soil = soil where bed = 0")) === null);
 
 // ── a switch back, at once ──
 const back = await one("select town.apply_farm('classic') r");

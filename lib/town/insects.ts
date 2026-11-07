@@ -301,7 +301,9 @@ const far = (a: Vec, b: Vec) => Math.hypot(a.x - b.x, a.y - b.y);
 
 // (laid out with the deck and the yard finished, as the database's row of them was: lib/town/world's asBuilt; in the editor's
 // town, its own town haunts in the old town's places in the row: town2Haunts)
-export const HAUNTS: Haunt[] = farm2Haunts(T2 ? town2Haunts() : asBuilt(() => {
+// (with the editor's farm and the old town, the old town's and the forest's from their copy: laid out afresh they would be
+// laid on the editor's farm, by other draws of the same seed, and move)
+export const HAUNTS: Haunt[] = farm2Haunts(T2 ? town2Haunts() : F2 ? (CLASSIC_HAUNTS as unknown as Haunt[]) : asBuilt(() => {
   let a = 20261007;
   const rnd = () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
   // what can be walked to on each map, from where its gate puts somebody

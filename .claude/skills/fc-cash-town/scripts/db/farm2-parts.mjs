@@ -3,6 +3,8 @@
 //   cd <the tree> && FC_REPO=<the tree> FARM_MAP=classic|farm2 node .claude/skills/fc-cash-town/scripts/db/farm2-parts.mjs
 // (the town is the editor's, as it is live: TOWN_MAP=town2)
 process.env.TOWN_MAP ??= "town2";
+// (this tree's own code, never another's: the loader reads FC_REPO, with forward slashes)
+process.env.FC_REPO = (process.env.FC_REPO ?? process.cwd()).split(String.fromCharCode(92)).join("/");
 await import("./repo-ts-town.mjs");
 const { catalogOf } = await import("@/lib/town/catalog");
 const W = await import("@/lib/town/world");

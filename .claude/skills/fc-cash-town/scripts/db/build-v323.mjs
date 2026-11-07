@@ -4,7 +4,8 @@
 import { execFileSync } from "node:child_process";
 import { writeFileSync } from "node:fs";
 
-const REPO = process.env.FC_REPO ?? process.cwd();
+// (the tree, with forward slashes: the loader of its TypeScript compares paths so)
+const REPO = (process.env.FC_REPO ?? process.cwd()).split(String.fromCharCode(92)).join("/");
 const partsOf = (map) => execFileSync(process.execPath, [".claude/skills/fc-cash-town/scripts/db/farm2-parts.mjs"],
   { cwd: REPO, env: { ...process.env, FC_REPO: REPO, FARM_MAP: map, TOWN_MAP: "town2" }, encoding: "utf8", maxBuffer: 1 << 26 });
 const farm2 = partsOf("farm2"), classic = partsOf("classic");
@@ -266,17 +267,12 @@ revoke all on function town.farm_corner(jsonb), town.farm_space(jsonb), town.cat
   town.farm_key(jsonb, jsonb, text), town.farm_at(jsonb, jsonb, jsonb), town.farm_ident(jsonb, jsonb, text), town.farm_json(jsonb, jsonb, jsonb, text) from public, anon, authenticated;
 
 -- ── 5. Members' things, moved from one farm to the other ─────────────────────────────────────────────────────────────
--- The professionRewards' entries that hold a farm tile (lib/town/reward-*), and those of the purse's own.
+-- Every entry of the professionRewards (lib/town/reward-*: pollen, a giant, a banquet begun at a tile and its rescue
+-- ticket's copies of it, a relay, a nursery, …; a town's or the forest's tile is outside the farm's box and stays), and the
+-- purse's own that hold a farm tile.
 create or replace function town.farm_purse(f jsonb, t jsonb, doc jsonb) returns jsonb language plpgsql immutable set search_path = '' as $$
-declare k text; r jsonb := doc->'professionRewards';
 begin
-  if jsonb_typeof(r) = 'object' then
-    for k in select unnest(array['pollen', 'giant', 'conduit', 'cloud', 'relay', 'nursery', 'rowStart', 'rowContinuation', 'failedGarden', 'gardenRetry',
-                                 'rainCare', 'revive', 'bean', 'rescue', 'rescueTicket', 'bugApproach']) loop
-      if r ? k and r->k <> 'null'::jsonb then r := jsonb_set(r, array[k], town.farm_json(f, t, r->k, null)); end if;
-    end loop;
-    doc := jsonb_set(doc, '{professionRewards}', r);
-  end if;
+  if jsonb_typeof(doc->'professionRewards') = 'object' then doc := jsonb_set(doc, '{professionRewards}', town.farm_json(f, t, doc->'professionRewards', null)); end if;
   if doc ? 'toast' and doc->'toast' <> 'null'::jsonb then doc := jsonb_set(doc, '{toast}', town.farm_json(f, t, doc->'toast', null)); end if;
   if doc ? 'lured' and doc->'lured' <> 'null'::jsonb then doc := jsonb_set(doc, '{lured}', town.farm_json(f, t, doc->'lured', 'lured')); end if;
   if doc ? 'follower' and doc->'follower' <> 'null'::jsonb then doc := jsonb_set(doc, '{follower}', town.farm_json(f, t, doc->'follower', null)); end if;
@@ -292,22 +288,22 @@ begin
   select count(*) into stray from public.town_plots p where town.farm_in(f, p.x, p.y) and town.farm_bed(f, p.x, p.y) is null;
   if stray > 0 then raise exception 'v323: % plots of the farm on no bed of it: nothing is moved', stray; end if;
   -- the plots, with their beds (out of the way first: a bed's new tiles are some other bed's old ones)
-  update public.town_plots set x = x + 100000 where town.farm_in(f, x, y);
+  -- (a plot's x and y are smallints, v110: out of the way is below nought, -x - 1)
+  update public.town_plots set x = -x - 1 where town.farm_in(f, x, y);
   update public.town_plots p set x = n[1], y = n[2],
       plant = case when jsonb_typeof(p.plant) <> 'object' then p.plant
         -- (a plant's rolls go by the plot it was sown at: one that had not been moved keeps this one's key)
-        else town.farm_json(f, t, p.plant, null) || case when p.plant ? 'home' or (p.plant ? 'root' and p.plant->>'root' <> (p.x - 100000) || ',' || p.y) then '{}'::jsonb
-          else jsonb_build_object('home', (p.x - 100000) || ',' || p.y) end end
-    from (select q.x qx, q.y qy, town.farm_point(f, t, q.x - 100000, q.y) n from public.town_plots q where q.x >= 100000) m
+        else town.farm_json(f, t, p.plant, null) || case when p.plant ? 'home' or (p.plant ? 'root' and p.plant->>'root' <> (-p.x - 1) || ',' || p.y) then '{}'::jsonb
+          else jsonb_build_object('home', (-p.x - 1) || ',' || p.y) end end
+    from (select q.x qx, q.y qy, town.farm_point(f, t, -q.x - 1, q.y) n from public.town_plots q where q.x < 0) m
    where p.x = m.qx and p.y = m.qy;
   get diagnostics plots = row_count;
-  if exists (select 1 from public.town_plots where x >= 100000) then raise exception 'v323: a plot was left unmoved'; end if;
+  if exists (select 1 from public.town_plots where x < 0) then raise exception 'v323: a plot was left unmoved'; end if;
   -- (the plant's own name for its home is untouched: it is a seed, not a place. A part of a giant names its root, moved)
   -- what members have waiting
-  update public.town_purses pp set doc = town.farm_purse(f, t, pp.doc)
-   where pp.doc->'professionRewards' ?| array['pollen', 'giant', 'conduit', 'cloud', 'relay', 'nursery', 'rowStart', 'rowContinuation', 'failedGarden', 'gardenRetry',
-                                              'rainCare', 'revive', 'bean', 'rescue', 'rescueTicket', 'bugApproach']
-      or pp.doc ?| array['toast', 'lured', 'follower', 'aided'];
+  update public.town_purses pp set doc = m.doc from (select q.member_id, town.farm_purse(f, t, q.doc) doc from public.town_purses q
+      where jsonb_typeof(q.doc->'professionRewards') = 'object' or q.doc ?| array['toast', 'lured', 'follower', 'aided']) m
+   where pp.member_id = m.member_id and m.doc is distinct from pp.doc;
   get diagnostics purses = row_count;
   -- eggs and the like an animal left out
   update public.town_animals a set a = jsonb_set(a.a, '{outside}', (select coalesce(jsonb_agg(o || jsonb_build_object('at', town.farm_at(f, t, o->'at')) order by n), '[]'::jsonb)
@@ -330,14 +326,22 @@ end $$;
 revoke all on function town.move_farm(jsonb, jsonb) from public, anon, authenticated;
 
 -- ── 6. A page with the other farm is refused a write ─────────────────────────────────────────────────────────────────
--- (every request of a page that has the town says which farm it has, \`x-town-farm\`, lib/supabase/client; a request
--- without it, the SQL editor or a page without the town, is not held to it; nor is the switch's own moving)
+-- (every request of a page that has the town says which farm it has, \`x-town-farm\`, lib/supabase/client. One that says
+-- none: the SQL editor and the database's own jobs (no request), the site's server (not a member) and a page without the
+-- town, which writes no plot, pot or thing on the ground, are not held to it; a member's request to the farm's own tables
+-- that says none is a page of the town from before this file's deploy, which has the old farm. The switch's own moving
+-- is not held to it either)
 create or replace function town.farm_page_guard() returns trigger language plpgsql set search_path = '' as $$
-declare h text; cat text;
+declare hs jsonb; h text; cat text;
 begin
   if current_setting('town.farm_moving', true) = 'on' then return coalesce(new, old); end if;
-  begin h := nullif(current_setting('request.headers', true), '')::jsonb->>'x-town-farm'; exception when others then h := null; end;
-  if h is null then return coalesce(new, old); end if;
+  begin hs := nullif(current_setting('request.headers', true), '')::jsonb; exception when others then hs := null; end;
+  if hs is null then return coalesce(new, old); end if;
+  h := hs->>'x-town-farm';
+  if h is null then
+    if tg_table_name = 'town_purses' or coalesce(nullif(current_setting('request.jwt.claims', true), '')::jsonb->>'role', '') <> 'authenticated' then return coalesce(new, old); end if;
+    h := 'classic';
+  end if;
   select s.catalog into cat from public.town_farm_switch s where s.one;
   if h is distinct from coalesce(cat, 'classic') then
     raise exception 'farm-moved' using errcode = 'P0001', hint = 'the farm was changed since this page was loaded: load it again';

@@ -8,7 +8,8 @@
 //   cd <the tree> && FC_REPO=<the tree> node .claude/skills/fc-cash-town/scripts/db/haunts-farm2.mjs
 import { writeFileSync, readFileSync } from "node:fs";
 
-const REPO = process.env.FC_REPO ?? process.cwd();
+// (the tree, with forward slashes: the loader of its TypeScript compares paths so)
+const REPO = (process.env.FC_REPO ?? process.cwd()).split(String.fromCharCode(92)).join("/");
 process.env.FC_REPO = REPO;
 process.env.FARM_MAP = "farm2";
 process.env.TOWN_MAP = "town2";
