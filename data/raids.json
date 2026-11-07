@@ -96904,8 +96904,8 @@
     "cleared": true,
     "job_kills": {
      "Reaper": {
-      "kills": 2,
-      "best": 5
+      "kills": 4,
+      "best": 15
      }
     }
    },
@@ -97056,7 +97056,13 @@
     "best": 21,
     "kills": 2,
     "job": "Samurai",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Samurai": {
+      "kills": 2,
+      "best": 21
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",

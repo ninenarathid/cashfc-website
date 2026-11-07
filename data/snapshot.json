@@ -669,7 +669,6 @@
    3736,
    3758,
    3760,
-   3761,
    3762,
    3763,
    3765,
@@ -703,6 +702,7 @@
    3862,
    3868,
    3869,
+   3877,
    3878,
    3879,
    3880,
@@ -2268,7 +2268,7 @@
   "mounts": 49,
   "minions": 115,
   "rare": null,
-  "level": 92,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2298,7 +2298,7 @@
    "Dancing Mad",
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-11-04"
+  "chg": "2026-11-07"
  },
  "50821570": {
   "name": "Haruki Mizumoto",
@@ -2502,7 +2502,7 @@
   "mounts": 48,
   "minions": 163,
   "rare": 9,
-  "level": 100,
+  "level": 90,
   "cc": [
    true,
    true,
@@ -2527,7 +2527,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-11-06"
+  "chg": "2026-11-07"
  },
  "42948817": {
   "name": "Karuma Amamiya",
@@ -3093,11 +3093,11 @@
    3406,
    3407,
    3527,
+   3646,
    3648,
    3677,
    3754,
    3755,
-   3759,
    3760,
    3761,
    3762,
@@ -3608,7 +3608,6 @@
    1311,
    1331,
    1429,
-   1458,
    1459,
    1585,
    1622,
@@ -3644,6 +3643,7 @@
    3256,
    3257,
    3306,
+   3314,
    3363,
    3370,
    3371,
@@ -3967,7 +3967,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 68,
-  "level": 90,
+  "level": 91,
   "cc": [
    true,
    true,
@@ -4072,7 +4072,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-05"
+  "chg": "2026-11-07"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -4219,7 +4219,7 @@
   "mounts": 79,
   "minions": 70,
   "rare": null,
-  "level": 94,
+  "level": 98,
   "cc": [
    true,
    true,
@@ -4637,11 +4637,11 @@
    3868,
    3869,
    3870,
-   3878,
    3879,
    3880,
    3881,
    3882,
+   3883,
    3885,
    3886,
    3887,
@@ -6883,7 +6883,7 @@
   "mounts": 67,
   "minions": 120,
   "rare": 8,
-  "level": 100,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -6912,7 +6912,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-05"
+  "chg": "2026-11-07"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -7568,7 +7568,7 @@
   "mounts": 178,
   "minions": 410,
   "rare": null,
-  "level": 100,
+  "level": 42,
   "cc": [
    false,
    false,
@@ -8403,7 +8403,7 @@
   "mounts": 165,
   "minions": 364,
   "rare": null,
-  "level": 100,
+  "level": 42,
   "cc": [
    false,
    false,
@@ -8416,7 +8416,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-31"
+  "chg": "2026-11-07"
  },
  "31806535": {
   "name": "Viiska Howl",
@@ -8481,7 +8481,7 @@
   "mounts": 81,
   "minions": 158,
   "rare": 18,
-  "level": 100,
+  "level": 68,
   "cc": [
    true,
    true,
@@ -8659,7 +8659,7 @@
   "mounts": 17,
   "minions": 42,
   "rare": null,
-  "level": 100,
+  "level": 65,
   "cc": [
    false,
    false,
@@ -8672,7 +8672,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-05"
+  "chg": "2026-11-07"
  },
  "49053650": {
   "name": "Eniluna Gelatoneii",
@@ -8746,7 +8746,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 98,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -8790,7 +8790,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 80,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -8936,7 +8936,7 @@
   "mounts": 4,
   "minions": 7,
   "rare": null,
-  "level": 78,
+  "level": 79,
   "cc": [
    false,
    false,
@@ -9061,7 +9061,7 @@
   "mounts": 85,
   "minions": 178,
   "rare": null,
-  "level": 73,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -9105,7 +9105,7 @@
   "mounts": 7,
   "minions": 20,
   "rare": null,
-  "level": 79,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -10029,7 +10029,7 @@
   "mounts": 25,
   "minions": 115,
   "rare": null,
-  "level": 80,
+  "level": 63,
   "cc": [
    false,
    false,
@@ -16125,7 +16125,7 @@
   "mounts": 25,
   "minions": 69,
   "rare": null,
-  "level": 100,
+  "level": 64,
   "cc": [
    true,
    true,
