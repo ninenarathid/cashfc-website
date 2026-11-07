@@ -1939,6 +1939,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
 
   /** How much of each of the editor's farm's scarecrows is drawn now (lib/town/farm2's F2_SCARECROWS). */
   const scareSeen = useRef(new Map<number, number>());
+  /** The tile under the mouse, hovering (a scarecrow over it is seen through). */
+  const pointerTile = useRef<Vec | null>(null);
   /**
    * How much of a scarecrow of the editor's farm is drawn: faded to see through while I stand at the beds behind it, up
    * the screen from it (the owner, 2026-11-07: "เอากลับมาแต่ทำให้ถ้าบังแปลงผัก ยังสามารถ interact กับแปลงผักข้างหลังได้"),
@@ -1947,8 +1949,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   function scarecrowSeen(i: number, at: Vec | null): number {
     const sc = F2_SCARECROWS.find((q) => q.thing === i);
     if (!sc) return 1;
-    const dx = at ? at.x - (sc.x + 0.5) : 99, dy = at ? at.y - (sc.y + 0.5) : 99;
-    const want = dx + dy < 0.5 && dx > -7 && dx < 4 && dy > -13 && dy < 4 ? 0.3 : 1;
+    // (a point is under its picture: up the screen from its foot, within its width; the picture is some 11 tiles of x + y tall
+    // and two of x - y either side)
+    const under = (p: Vec | null) => { if (!p) return false; const dx = p.x - (sc.x + 0.5), dy = p.y - (sc.y + 0.5); return Math.abs(dx - dy) <= 2.2 && dx + dy < 0.3 && dx + dy > -11.5; };
+    const want = under(at) || under(pointerTile.current) ? 0.3 : 1;
     const was = scareSeen.current.get(i) ?? 1, now = reducedRef.current ? want : was + (want - was) * 0.12;
     scareSeen.current.set(i, now);
     return now;
@@ -4424,6 +4428,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         const b = otherAt(p.x, p.y) ? null : buildingAt(p.x, p.y);
         hover.current = b;
         const bb = boardBox.current, t = tileAt(p.x, p.y);
+        pointerTile.current = { x: t.x + 0.5, y: t.y + 0.5 };
         const someone = !!otherAt(p.x, p.y);
         // ── the Popoto Casino ── (a sofa is sat on, as a bench is; a machine and the counter are clicked)
         const casinoHit = placeRef.current === "casino" ? casinoArtRef.current?.hit(p.x, p.y) ?? null : null;

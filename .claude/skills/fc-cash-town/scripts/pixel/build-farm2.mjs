@@ -133,7 +133,9 @@ const howDrawn = ({ o, pl }) => {
   if (o.kind === "wall") return DRAW.edge;
   if (isDesign(o) || TRAY.test(base(o)) || base(o) === "chest_open" || (FIREBOWL.test(base(o)) && pl.p === LIT_BOWL)) return DRAW.role;
   if (o.kind === "ring" || o.kind === "pen") return DRAW.floor;
-  return pl.w + pl.h >= 4 && o.kind !== "tree" ? DRAW.wide : DRAW.stand;
+  // (a thing of two tiles by two or less, a fire bowl, a well, a chest, is one place back to front: in strips its front
+  // edge stood in front of what the game draws in it, the bowl's flames)
+  return pl.w + pl.h > 4 && o.kind !== "tree" ? DRAW.wide : DRAW.stand;
 };
 
 const names = [], nameOf = (n) => { let i = names.indexOf(n); if (i < 0) i = names.push(n) - 1; return i; };

@@ -135,6 +135,15 @@ export class Farm2Art {
     ctx.imageSmoothingEnabled = k * px < 1;
     ctx.imageSmoothingQuality = "high";
     const X = Math.round(a.x * px) / px, Y = Math.round(a.y * px) / px;
+    if (strip) {
+      // (a strip is cut on the screen, its edges on whole device pixels, and drawn from a little more of the picture than
+      // it shows: strips side by side then meet with neither a gap nor an overlap, and no seam shows down a building)
+      const e0 = Math.round(screen(strip[0], t.y + dy).x * px) / px, e1 = Math.round(screen(strip[1], t.y + dy).x * px) / px;
+      ctx.beginPath();
+      ctx.rect(e0, Y - 1, e1 - e0, sp.h * k + 2);
+      ctx.clip();
+      sx0 = Math.max(0, sx0 - 2); sx1 = Math.min(sp.w, sx1 + 2);
+    }
     if (t.flip) {
       ctx.translate(X + sp.w * k, Y);
       ctx.scale(-1, 1);

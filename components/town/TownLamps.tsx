@@ -550,7 +550,12 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
           // the logs in the bowl, never a still picture of a lit one; the bowl is the place to tap)
           const a = isoScreen(pic.x, pic.y), mouth = isoScreen(pic.x + pic.w / 2, pic.y + pic.h * BOWL_MOUTH);
           if (inSight(a, 80 * s, 120 * s)) boxes.current.fires.push([at, { x0: a.x, y0: a.y, x1: a.x + pic.w * s, y1: a.y + pic.h * s }, { name: "", x: a.x, y: a.y, z: s, own: true }]);
-          if (isNight && inSight(mouth, 80 * s, 120 * s)) things.push({ depth: (bowl.box[0] + bowl.box[2]) / 2 + (bowl.box[1] + bowl.box[3]) / 2 + 0.02, draw: () => drawPixelFlames(ctx, mouth.x, mouth.y, s * BOWL_FLAME, still ? 0 : t) });
+          if (isNight && inSight(mouth, 80 * s, 120 * s)) {
+            const flames = () => drawPixelFlames(ctx, mouth.x, mouth.y, s * BOWL_FLAME, still ? 0 : t);
+            things.push({ depth: (bowl.box[0] + bowl.box[2]) / 2 + (bowl.box[1] + bowl.box[3]) / 2 + 0.02, draw: flames });
+            // (and the same flames over the night's dark, added to it: a fire burns bright, the dark does not dull it)
+            over(() => { ctx.save(); ctx.globalCompositeOperation = "lighter"; ctx.globalAlpha = 0.55 * lum * breath; flames(); ctx.restore(); });
+          }
         } else if (map === "farm" && k.has("brazier") && inSight(fire, 80 * s, 120 * s)) {
           const name = isNight && k.has("brazierLit") ? "brazierLit" : "brazier", z = s * FIRE_K;
           boxes.current.fires.push([at, boxOf(name, fire, z, 4), { name, x: fire.x, y: fire.y, z }]);
@@ -1182,7 +1187,7 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
 
 interface Box { x0: number; y0: number; x1: number; y1: number }
 /** Where a fire bowl of the editor's farm burns, as a share of its picture's height from the top (its logs), and how big its flames are to the camp fire's. */
-const BOWL_MOUTH = 0.4, BOWL_FLAME = 0.8;
+const BOWL_MOUTH = 0.4, BOWL_FLAME = 1.05;
 /** Where a picture of the lamps' was drawn: its name, its foot on the screen and its scale (for a tap on its pixels only). */
 interface Art { name: string; x: number; y: number; z: number; lantern?: Vec; foot?: Vec;
   /** The editor's farm's own picture (lib/town/farm2-art), not the lamps' sheet's: its box is the place to tap. */
