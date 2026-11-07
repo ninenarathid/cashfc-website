@@ -38,10 +38,11 @@ describe("the village's farm book", () => {
     const shut = page(none, "basil");
     expect(shut.makes).toEqual([]);
     const all = BOOK_CROSSES.filter((x) => x.a === "basil" || x.b === "basil").length;
-    expect(shut.hidden).toBe(all);
+    expect(shut.hidden).toBe(BOOK_CROSSES.filter((x) => x.a === "basil").length);
     const one = page(new Set(["teaBush"]), "basil");
     expect(one.makes.map((x) => x.child)).toEqual(["teaBush"]);
-    expect(one.hidden).toBe(all - 1);
+    expect(one.hidden).toBe(BOOK_CROSSES.filter((x) => x.a === "basil" && x.child !== "teaBush").length);
+    expect(all).toBeGreaterThan(one.hidden);
   });
 
   it("never gives the whole pair of a child not found yet, whatever pages are put together", () => {
@@ -52,6 +53,22 @@ describe("the village's farm book", () => {
         expect(told).toBe(false);
         expect(book.find((p) => p.id === x.child)!.hint).toBe(x.a);
       }
+    }
+  });
+
+  it("never shows an unfound partner by name, and counts the still-to-find only on the parent the hint names", () => {
+    const sweet = page(none, "sweetPotato");
+    expect(sweet.partner).toBe("peanut");
+    expect(sweet.partnerOpen).toBe(false);
+    expect(page(new Set(["peanut"]), "sweetPotato").partnerOpen).toBe(true);
+    // every child found but the tea bush: only basil, its hinted parent, has anything left to find, never lemongrass
+    const allButTea = new Set(BOOK_CROSSES.map((x) => x.child).filter((c) => c !== "teaBush"));
+    const left = farmBook(allButTea).filter((p) => p.hidden > 0).map((p) => p.id);
+    expect(left).toEqual(["basil"]);
+    for (const found of [none, allButTea, new Set(["teaBush", "lavender", "peanut"])]) {
+      const book = farmBook(found);
+      for (const p of book) for (const x of BOOK_CROSSES.filter((c) => !isOpen(c.child, found) && (c.a === p.id || c.b === p.id)))
+        if (x.a !== p.id) expect(p.hidden).toBe(BOOK_CROSSES.filter((c) => !isOpen(c.child, found) && c.a === p.id).length);
     }
   });
 

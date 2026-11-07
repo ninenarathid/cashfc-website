@@ -43,9 +43,12 @@ export interface BookPage {
   from: BookCross[];
   /** The crossings it is a parent of whose child is open. */
   makes: BookCross[];
-  /** How many of its crossings have a child not found yet. */
+  /** How many children not found yet name it as their one parent (a shut page's `hint`: never the other parent, or the
+   *  last one left would give the pair away, Codex's check of 2026-11-07). */
   hidden: number;
   partner?: CropId;
+  /** Whether its partner's own page is open (one not found yet is shown in shadow, unnamed). */
+  partnerOpen?: boolean;
   role?: Role;
   shape?: Shape;
   giant: boolean;
@@ -70,8 +73,8 @@ export function farmBook(found: ReadonlySet<string>): BookPage[] {
       ...base,
       from: BOOK_CROSSES.filter((x) => x.child === id),
       makes: mine.filter((x) => isOpen(x.child, found)),
-      hidden: mine.filter((x) => !isOpen(x.child, found)).length,
-      ...(PARTNERS[id] && PARTNERS[id] in CROPS ? { partner: PARTNERS[id] as CropId } : {}),
+      hidden: mine.filter((x) => !isOpen(x.child, found) && x.a === id).length,
+      ...(PARTNERS[id] && PARTNERS[id] in CROPS ? { partner: PARTNERS[id] as CropId, partnerOpen: isOpen(PARTNERS[id], found) } : {}),
       ...(helper ? { role: helper.role, shape: helper.shape } : {}),
     };
   });
