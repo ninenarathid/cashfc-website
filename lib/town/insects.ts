@@ -18,6 +18,8 @@ import { BEDS_IN_FARM, CAMP, COLS, FARM_ALL, FARM_FIRST, FARM_PROPS_FIRST, FORES
 // ── the editor's town ── (the haunts as the old town laid them out, kept: lib/town/town2.test.ts holds them to it)
 import CLASSIC_HAUNTS from "./haunts-classic.json";
 import TOWN2_HAUNTS from "./haunts-town2.json";
+import FARM2_HAUNTS from "./haunts-farm2.json";
+import { F2 } from "./farm-map";
 import { POLLINATOR_SKY } from "./helper-items";
 
 /**
@@ -299,7 +301,7 @@ const far = (a: Vec, b: Vec) => Math.hypot(a.x - b.x, a.y - b.y);
 
 // (laid out with the deck and the yard finished, as the database's row of them was: lib/town/world's asBuilt; in the editor's
 // town, its own town haunts in the old town's places in the row: town2Haunts)
-export const HAUNTS: Haunt[] = T2 ? town2Haunts() : asBuilt(() => {
+export const HAUNTS: Haunt[] = farm2Haunts(T2 ? town2Haunts() : asBuilt(() => {
   let a = 20261007;
   const rnd = () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
   // what can be walked to on each map, from where its gate puts somebody
@@ -412,7 +414,18 @@ export const HAUNTS: Haunt[] = T2 ? town2Haunts() : asBuilt(() => {
       perches: [[1.5, 1.5], [3.5, 1], [5.5, 1.5], [6, 3.5], [5.5, 5.5], [3.5, 6], [1.5, 5.5], [1, 3.5]].map(([u, v]) => ({ x: bx + u, y: by + v })) });
   }
   return out;
-});
+}));
+
+/**
+ * The haunts with the editor's farm for the farm (lib/town/farm2, 2026-11-07): every haunt the old farm had keeps its number
+ * and its kind, and has its place in the editor's farm, laid once by its kind's rule and kept (haunts-farm2.json, written by
+ * .claude/skills/fc-cash-town/scripts/db/haunts-farm2.mjs); the town's and the forest's are as they are.
+ */
+function farm2Haunts(hs: Haunt[]): Haunt[] {
+  if (!F2) return hs;
+  const laid = new Map((FARM2_HAUNTS as unknown as Array<Pick<Haunt, "id" | "x" | "y" | "perches">>).map((h) => [h.id, h]));
+  return hs.map((h) => (h.place === "farm" ? { ...h, ...laid.get(h.id)! } : h));
+}
 
 /**
  * The haunts with the editor's town for the town (the owner, 2026-10-22: "เปลี่ยนตำแหน่ง ... แมลงในเมืองทั้งหมดเลย"): every
