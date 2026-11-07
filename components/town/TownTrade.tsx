@@ -246,7 +246,9 @@ export function SeedTime({ id, th, className = "", price }: { id: ItemId; th: bo
  * it, and tells the map my coins, my stamina and what I am eating. It draws a
  * panel only when one is open.
  */
-export default function TownTrade({ keeper, view, th, art, seated, company, where, casinoBench, onView, onSummary, onScroll }: {
+export default function TownTrade({ keeper, view, th, art, seated, company, where, casinoBench, atFarm, onView, onSummary, onScroll }: {
+  /** Whether the board is opened on the farm (its vending machines, lib/town/farm2's F2_TRADE_BOARDS): then it is not called the town centre's. */
+  atFarm?: boolean;
   /** Who keeps my purse. */
   keeper: Keeper;
   /** The stand-in the casino's calls go to in a dev check (Town.tsx). */
@@ -345,7 +347,8 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
   if (!view) return null;
   // (the board stands on its own in the plaza since 2026-10-15: the uncle's tabs are his buying and selling only)
   const uncle = view === "buy" || view === "sell", order = keeper.order(), board = keeper.notices();
-  const title = view === "board" ? (th ? "บอร์ดซื้อขายกลางเมือง" : "The town's trade board") : uncle ? (th ? "แผงของลุง" : "The uncle's stall") : view === "bank" || view === "casinoBack" ? (th ? "ธนาคาร Popoto" : "The Popoto Bank") : (th ? "กระเป๋าของฉัน" : "My bag");
+  // (on the farm, its own name: the owner, 2026-11-07, "เปลี่ยนเป็น บอร์ดซื้อขาย")
+  const title = view === "board" ? (atFarm ? (th ? "บอร์ดซื้อขาย" : "Trade board") : th ? "บอร์ดซื้อขายกลางเมือง" : "The town's trade board") : uncle ? (th ? "แผงของลุง" : "The uncle's stall") : view === "bank" || view === "casinoBack" ? (th ? "ธนาคาร Popoto" : "The Popoto Bank") : (th ? "กระเป๋าของฉัน" : "My bag");
   return (
     <section aria-labelledby="town-trade-h" className="flex h-full flex-col">
       <div className="flex items-center gap-2 border-b border-line px-4 py-3">

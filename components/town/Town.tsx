@@ -6244,7 +6244,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
              data-state="open">
           <Suspense fallback={null}>
             <TownTrade keeper={keeper} view={trade} th={w.th} art={boardArt} seated={(s.self.info.sit ?? -1) !== -1} company={company} where={whereAmI}
-                       casinoBench={casinoBench} onView={setTrade} onSummary={setPurse} onScroll={setScroll} />
+                       casinoBench={casinoBench} atFarm={placeRef.current === "farm"} onView={setTrade} onSummary={setPurse} onScroll={setScroll} />
           </Suspense>
         </div>
       )}
