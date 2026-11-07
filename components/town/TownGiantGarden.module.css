@@ -66,6 +66,22 @@
 .count { display: inline-flex; align-items: center; gap: 2px; color: var(--muted, #d5bb92); }
 .count[data-enough] { color: var(--moss); }
 
+/* What the seeds ask and give, as icon chips (no paragraphs: the owner, 2026-11-07) */
+.facts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.fact {
+  display: inline-flex; align-items: center; gap: 4px; min-height: 28px; padding: 2px 8px;
+  background: #1d2a22; color: var(--cream); box-shadow: 0 0 0 2px #1a0e06, inset 0 -2px 0 #14201a;
+  font-size: var(--text-meta, 12px); white-space: nowrap;
+}
+.fact[data-tone="soft"] { background: #2b1d12; color: #d5bb92; }
+/* The brush's pairs: one wooden row each, the partner and the child as pictures */
+.pair { display: flex; width: 100%; min-height: 48px; align-items: center; justify-content: flex-start; gap: 6px; text-align: left; }
+.pair[data-on] { box-shadow: 0 0 0 2px #f0c060, 0 0 8px #f0c06088; }
+.pairName { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.arrow { color: #f0c060; padding: 0 2px; }
+/* A child not found yet: its shape in shadow, as the books show what is still to find; never its name */
+.unknown { filter: brightness(0) drop-shadow(0 0 1px #f0c06099); opacity: .7; }
+
 /* The planting game: a soil row, the glowing spot to dig, the trowel going to and fro over it */
 .game { margin-top: 10px; }
 .beats { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
