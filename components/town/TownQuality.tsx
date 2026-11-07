@@ -130,7 +130,7 @@ export function QualityChip({ plant, now, rains, th, onOpen, gain, top }: { plan
 }
 
 /** The plant inspector: the range, the four bars and what covers them, and what has narrowed the range. */
-export function QualityInspector({ plant, now, rains, th, onClose, onBed, onGrow, onChart, notes, onBook, book, price }: { plant: Plant; now: number; rains: FarmSky; th: boolean; onClose: () => void; onBed?: () => void; onGrow?: () => void; onChart?: () => void;
+export function QualityInspector({ plant, now, rains, th, onClose, onBed, onGrow, onChart, notes, onBook, price }: { plant: Plant; now: number; rains: FarmSky; th: boolean; onClose: () => void; onBed?: () => void; onGrow?: () => void; onChart?: () => void;
   /** (what the plant's place tells besides: an insect in the bag that could help, a crossing the pollen matches; the owner, 2026-10-16, one panel) */
   notes?: string[]; onBook?: () => void; book?: number;
   /** (its crop's price this round, v283: none where the database tells no farm prices yet) */
@@ -208,7 +208,7 @@ export function QualityInspector({ plant, now, rains, th, onClose, onBed, onGrow
         </div>
       </div>
       {notes?.map((n) => <p key={n} className="rounded-md border border-[#a8c583]/60 bg-[#304323]/60 px-3 py-1.5 text-meta text-[#e1f1c9]" data-quality-note>{n}</p>)}
-      {onBook && book ? <button type="button" onClick={onBook} data-quality-book className="pressable tk tk-btn-wood flex min-h-11 items-center gap-2 px-3 text-meta font-semibold"><TownIcon name="gardenNotebook" size={18} />{th ? `สมุดทดลองสวน · ${book} เรื่อง` : `Garden experiments · ${book}`}</button> : null}
+      {onBook ? <button type="button" onClick={onBook} data-quality-book className="pressable tk tk-btn-wood flex min-h-11 items-center gap-2 px-3 text-meta font-semibold"><TownIcon name="gardenNotebook" size={18} />{th ? "สมุดปลูกผัก" : "Farm book"}</button> : null}
       </div>
     </section>
   );

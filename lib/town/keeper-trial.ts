@@ -429,6 +429,8 @@ class TrialKeeper implements Keeper {
   }
   async boardsNow() { return this.trial.boards(); }
   async fishBook() { return { fish: this.trial.fishBook(), giants: giantRecords(this.trial.giants()) }; }
+  // (the trial is a village of one: what I have found is what the village has)
+  async gardenFinds() { return Object.fromEntries((this.trial.purse().gardenBook ?? []).map((c) => [c, ""])); }
   async giantsNow(): Promise<GiantHook[]> {
     const now = this.trial.now();
     return this.trial.giants().map((h) => settled(h, now)).filter((h) => !h.how || (now - h.end < GIANT.after && (h.by === this.id || h.netter === this.id)));

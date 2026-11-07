@@ -376,6 +376,8 @@ export interface Keeper {
   boardsNow?(): Promise<{ turns: import("./board-insects").SpotTurn[]; shakes: import("./board-insects").Shake[] }>;
   /** The village's book of fish (lib/town/fish-book): read when the bag is opened. */
   fishBook?(): Promise<import("./fish-book").FishBook | null>;
+  /** The village's farm book (lib/town/farm-book): each crossing's child somebody has found, and who first ("" not known). */
+  gardenFinds?(): Promise<Record<string, string> | null>;
   /** My bed handed on to another member near me, or given up (lib/town/bed-hand): each the page asks twice before it is sent. */
   bedGive(bed: number, to: string, name: string): Promise<Did<{ plants: number }>>;
   bedLeave(bed: number): Promise<Did<{ plants: number }>>;
@@ -1927,6 +1929,11 @@ export class DbKeeper implements Keeper {
   async fishBook() {
     const a = await this.rpc("town_fish_book", {}).catch(() => null);
     return a && typeof a === "object" && "fish" in a ? (a as unknown as import("./fish-book").FishBook) : null;
+  }
+  // (v322's farm book: a database before it answers nothing, and the page counts my own finds alone)
+  async gardenFinds() {
+    const a = await this.rpc("town_garden_book", {}).catch(() => null);
+    return a && typeof a === "object" && !Array.isArray(a) ? (a as Record<string, string>) : null;
   }
   async giantsNow() {
     const a = await this.rpc("town_giants_now", {}).catch(() => null);

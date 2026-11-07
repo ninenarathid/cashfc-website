@@ -34,6 +34,7 @@ import TownPouches from "./TownPouches";   // ── mining ──
 import TownRodHook from "./TownRodHook";
 import TownBugBook from "./TownBugBook";
 import TownFishBook from "./TownFishBook";
+import TownFarmBook from "./TownFarmBook";
 import TownRecipeBook from "./TownRecipeBook";
 import TownIcon, { type IconName } from "./TownIcon";
 import TownNotices from "./TownNotices";
@@ -296,6 +297,9 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
   // (the village's book of fish, read when the bag is opened: lib/town/fish-book)
   const [fishBook, setFishBook] = useState<import("@/lib/town/fish-book").FishBook | null>(null);
   useEffect(() => { if (view !== "bag") return; let on = true; void keeper.fishBook?.().then((b) => { if (on) setFishBook(b); }); return () => { on = false; }; }, [keeper, view]);
+  // (the village's farm book, v322: read when the bag is opened, as the fish book is)
+  const [gardenFinds, setGardenFinds] = useState<Record<string, string> | null>(null);
+  useEffect(() => { if (view !== "bag") return; let on = true; void keeper.gardenFinds?.().then((b) => { if (on) setGardenFinds(b ?? null); }); return () => { on = false; }; }, [keeper, view]);
   const now = keeper.now(), purse = keeper.purse(), stall = keeper.stall();
   const due = waiting(purse, now), stamina = staminaOf(purse, now), buff = buffsOf(purse, now)[0] ?? null;
   const eating = purse.eating ? { dish: purse.eating.dish, progress: mealProgress(purse, now), from: purse.eating.from } : null, hand = handOf(purse), wet = !!carried(purse);
@@ -394,7 +398,7 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
         {view === "casinoBack" && <Suspense fallback={null}><CasinoBank bench={casinoBench} onCoins={() => keeper.purseAgain?.()} /></Suspense>}
         {view === "bank" && <Bank purse={purse} now={now} th={th}
                                   onChange={(kind, n) => tried(keeper.change(kind, n), ["เรียบร้อยครับ ผมจดลงสมุดแล้ว", "All done. It is written in my ledger."])} />}
-        {view === "bag" && !(eventBag && mapBag) && <Bag seedPrice={seedPrice} rodHook={<TownRodHook keeper={keeper} purse={purse} th={th} />} pouches={<TownPouches keeper={keeper} th={th} />} purse={purse} held={keeper.handSlot()} now={now} th={th} seated={seated} company={company} helpings={keeper.helpings()} recipeBook={<TownRecipeBook keeper={keeper} purse={purse} th={th}/>} book={keeper.bugBook()} fishBook={fishBook}
+        {view === "bag" && !(eventBag && mapBag) && <Bag seedPrice={seedPrice} rodHook={<TownRodHook keeper={keeper} purse={purse} th={th} />} pouches={<TownPouches keeper={keeper} th={th} />} purse={purse} held={keeper.handSlot()} now={now} th={th} seated={seated} company={company} helpings={keeper.helpings()} recipeBook={<TownRecipeBook keeper={keeper} purse={purse} th={th}/>} book={keeper.bugBook()} fishBook={fishBook} gardenFinds={gardenFinds}
                                 // ── gifts: kitchen ── (the kitchen's gifts that are used from the bag: components/town/TownBasket)
                                 kitchen={<TownBasket keeper={keeper} purse={purse} now={now} th={th} seated={seated} helpings={keeper.helpings()} say={say} spice={spiceOn} onSpice={setSpiceOn}
                                                      onStove={() => { onView(null); window.dispatchEvent(new CustomEvent("cashtown:stove")); }} />}
@@ -721,7 +725,7 @@ function Bank({ purse, now, th, onChange }: { purse: Purse; now: number; th: boo
 }
 
 /** My bag, and how I am: my stamina and the day's meals, what a meal left, the bag itself, opened, and the recipes I know. */
-function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book, fishBook, dropsAll, lying, onEat, onGetUp, onRead, onDress, onHold, onDrop, onWear, onTakeOff, onServe, onOpen, kitchen, sprinkles, tidy = false, onMove, onSort, pouches, rodHook, seedPrice }: {
+function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book, fishBook, gardenFinds, dropsAll, lying, onEat, onGetUp, onRead, onDress, onHold, onDrop, onWear, onTakeOff, onServe, onOpen, kitchen, sprinkles, tidy = false, onMove, onSort, pouches, rodHook, seedPrice }: {
   rodHook?: React.ReactNode;
   /** What a seed's crop fetches this round, as the farm is told it (v283). */
   seedPrice?: (seed: ItemId) => PriceTold | undefined;
@@ -743,6 +747,7 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book
   /** The village's book of insects: who first caught each kind that has been caught. */
   /** The village's book of fish (lib/town/fish-book), when it has been read. */
   fishBook: import("@/lib/town/fish-book").FishBook | null;
+  gardenFinds: Record<string, string> | null;
   book: Record<string, string>;
   onEat: (slot: number) => void; onGetUp: () => void; onRead: (slot: number) => void;
   /** (v276) Wear a thing of the bag into the wardrobe (lib/town/wear's DRESS_ITEMS). */
@@ -978,6 +983,8 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book
       <TownBugBook book={book} th={th}/>
       {/* the village's book of fish: the kinds somebody has landed, the first and the biggest, and the giants landed together (lib/town/fish-book) */}
       {fishBook && <TownFishBook book={fishBook.fish} giants={fishBook.giants} th={th}/>}
+      {/* the village's farm book: every crop, the crossings somebody has found and who first (lib/town/farm-book, v322) */}
+      <TownFarmBook finds={gardenFinds} mine={purse.gardenBook ?? []} th={th}/>
     </>
   );
 }

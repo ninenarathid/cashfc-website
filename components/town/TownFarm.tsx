@@ -30,7 +30,8 @@ import TownConduit from "./TownConduit";
 import TownWaterRelay from "./TownWaterRelay";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import TownNotebook, { type NotebookEntry } from "./TownNotebook";
+import { type NotebookEntry } from "./TownNotebook";
+import TownFarmBook from "./TownFarmBook";
 import { BEDS, BLADES, FARMING, WATER, WILD, atTop, cropOf, gameFor, guardBy, hardFor, hardIn, hitsFor, moreOf, theirsAt, tiredAt, plotKey, pouchSeeds, quickUntil, ridCameOf, roll, see, toolOf, growing, type Chore, type Deed, type Plant, type RowDeed, type Seen } from "@/lib/town/farm";
 import { canFx, hitsWith, hoeFx } from "@/lib/town/forged";
 import { FIELD } from "@/lib/town/gear";
@@ -347,6 +348,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   /** The fertiliser chart open from the inspector (lib/town/fertilisers). */
   const [chartView, setChartView] = useState(false);
   const [bookView, setBookView] = useState(false);
+  // (the village's farm book, read each time it is opened: v322's town_garden_book; null until it answers)
+  const [gardenFinds, setGardenFinds] = useState<Record<string, string> | null>(null);
+  useEffect(() => { if (!bookView) return; let on = true; void keeper.gardenFinds?.().then((b) => { if (on) setGardenFinds(b ?? null); }); return () => { on = false; }; }, [bookView, keeper]);
   const leaveIt = useRef<HTMLButtonElement>(null);
   const [note, setNote] = useState<string | null>(null);
   useEffect(() => { if (!note) return; const t = setTimeout(() => setNote(null), 2600); return () => clearTimeout(t); }, [note]);
@@ -1463,7 +1467,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   ];
   const bookCount = (purse.gardenBook?.length ?? 0) + (purse.insectGardenBook?.length ?? 0);
   const bookEntries: NotebookEntry[] = [
-    ...(purse.gardenBook??[]).map(id=>({key:id,title:ITEMS[id].name[th?"th":"en"],icon:id as IconName,category:th?"เมล็ดจากต้นข้างกัน":"Neighbouring seeds",body:<p>{th?`เคยได้เมล็ด${ITEMS[id].name.th}จากต้นข้างกัน ดูแลต้นและเก็บผลที่จุดเมล็ดเพื่อทดลองต่อ`:`Discovered ${ITEMS[id].name.en} seeds from neighbouring plants. Tend and harvest at the seed plot to experiment further.`}</p>})),
+    // (the crossings' seeds: the village's farm book, TownFarmBook; my insect visitors stay, pages of my own)
     ...(purse.insectGardenBook??[]).flatMap((entry):NotebookEntry[]=>{const[bug,crop,mode]=entry.split(":");return bug in ITEMS&&crop in ITEMS?[{key:entry,title:ITEMS[bug as ItemId].name[th?"th":"en"],icon:bug as IconName,category:th?"แมลงดูแลสวน":"Insect visitors",body:<><p>{ITEMS[crop as ItemId].name[th?"th":"en"]}</p><p>{mode==="guard"?th?"ปล่อยแมลงไปกำจัดศัตรูพืชบนต้นนี้":"Released an insect to remove pests on this plant.":th?"ปล่อยแมลงไปช่วยเกสรบนต้นนี้":"Released an insect to help pollination on this plant."}</p></>}]:[];}),
   ];
   const inspected = inspecting && inspecting === key ? plots[inspecting]?.plant ?? null : null;
@@ -1481,7 +1485,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       : chartView ? <FertChart th={th} onClose={() => setChartView(false)} />
       : bookView ? <div className="pointer-events-auto flex w-[min(440px,calc(100vw-16px))] flex-col gap-2" data-garden-notebook style={{ maxHeight: "min(46rem, calc(100dvh - 10rem))" }}>
           <button type="button" onClick={() => setBookView(false)} className="pressable tk tk-btn-wood flex min-h-11 items-center gap-2 self-start px-3 text-meta font-semibold"><TownIcon name="close" size={14} />{th ? "กลับไปที่ต้นนี้" : "Back to the plant"}</button>
-          <div className="min-h-0 overflow-y-auto"><TownNotebook initiallyOpen onClose={() => setBookView(false)} icon="gardenNotebook" title={th ? "สมุดทดลองสวนของฉัน" : "My garden experiments"} th={th} entries={bookEntries}/></div>
+          <div className="min-h-0 overflow-y-auto"><TownFarmBook initiallyOpen onClose={() => setBookView(false)} finds={gardenFinds} mine={purse.gardenBook ?? []} th={th} first={inspected?.crop ?? null} extra={bookEntries}/></div>
         </div>
       : <QualityInspector plant={inspected} now={now} rains={rains} th={th} onClose={() => setInspecting(null)} onBed={() => setBedView(true)} onGrow={keeper.owners().get(bedOf(...(inspecting!.split(",").map(Number) as [number, number])))?.by === keeper.id ? () => setGrowView(true) : undefined} onChart={() => setChartView(true)} notes={panelNotes} onBook={() => setBookView(true)} book={bookCount} price={farmPriceOf(keeper, inspected.crop)} />}</TownFoot>}{bare ? null : (
     <TownFoot rank={placement || moving || working || asking || (bedOpen && myBed) ? "board" : "main"} order={62}>
