@@ -175,7 +175,9 @@ ok("nor a purse, nor a pot", /farm-moved/.test((await asPage("classic", `update 
 ok("a page with the editor's farm can", (await asPage("farm2", "update public.town_plots set soil = soil where bed = 0")) === null);
 ok("a member's page from before the deploy, which says no farm, cannot write a plot, a pot or a thing on the ground", /farm-moved/.test((await asPage(null, "update public.town_plots set damp = not damp where bed = 0")) ?? "")
   && /farm-moved/.test((await asPage(null, "update public.town_pots set x = x where id = 2")) ?? ""));
-ok("but writes a purse, as a page without the town does", (await asPage(null, `update public.town_purses set doc = doc where member_id = '${M[2]}'`)) === null);
+ok("but writes a purse, as a page without the town does", (await asPage(null, `update public.town_purses set doc = jsonb_set(doc, '{coins}', '2') where member_id = '${M[2]}'`)) === null);
+ok("not what of a purse holds a farm tile: a banquet begun from a page from before the deploy is refused", /farm-moved/.test((await asPage(null,
+  `update public.town_purses set doc = jsonb_set(doc, '{professionRewards}', '{"kitchen": {"kind": "banquet", "at": [132, 4], "stage": 0}}') where member_id = '${M[2]}'`)) ?? ""));
 ok("the site's server, saying no farm, writes a plot", (await asPage(null, "update public.town_plots set soil = soil where bed = 0", "service_role")) === null);
 ok("so does what is no request (the SQL editor, a job of the database's)", (await asPage(undefined, "update public.town_plots set soil = soil where bed = 0")) === null);
 

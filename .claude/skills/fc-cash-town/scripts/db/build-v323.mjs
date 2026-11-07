@@ -328,9 +328,9 @@ revoke all on function town.move_farm(jsonb, jsonb) from public, anon, authentic
 -- ── 6. A page with the other farm is refused a write ─────────────────────────────────────────────────────────────────
 -- (every request of a page that has the town says which farm it has, \`x-town-farm\`, lib/supabase/client. One that says
 -- none: the SQL editor and the database's own jobs (no request), the site's server (not a member) and a page without the
--- town, which writes no plot, pot or thing on the ground, are not held to it; a member's request to the farm's own tables
--- that says none is a page of the town from before this file's deploy, which has the old farm. The switch's own moving
--- is not held to it either)
+-- town, which writes no plot, pot or thing on the ground nor anything of a purse that holds a farm tile, are not held to
+-- it; a member's request that says none and writes those is a page of the town from before this file's deploy, which has
+-- the old farm. The switch's own moving is not held to it either)
 create or replace function town.farm_page_guard() returns trigger language plpgsql set search_path = '' as $$
 declare hs jsonb; h text; cat text;
 begin
@@ -339,7 +339,16 @@ begin
   if hs is null then return coalesce(new, old); end if;
   h := hs->>'x-town-farm';
   if h is null then
-    if tg_table_name = 'town_purses' or coalesce(nullif(current_setting('request.jwt.claims', true), '')::jsonb->>'role', '') <> 'authenticated' then return coalesce(new, old); end if;
+    if coalesce(nullif(current_setting('request.jwt.claims', true), '')::jsonb->>'role', '') <> 'authenticated' then return coalesce(new, old); end if;
+    -- (a page without the town writes purses too, never what in one holds a farm tile: only a change to that is held to it,
+    -- so that a page of the town from before the deploy reserves nothing it could not finish, a banquet's portions above all)
+    -- (each its own if: a plot's row has no doc to read)
+    if tg_table_name = 'town_purses' then
+      if tg_op = 'INSERT' then return new; end if;
+      if new.doc->'professionRewards' is not distinct from old.doc->'professionRewards' and new.doc->'toast' is not distinct from old.doc->'toast'
+         and new.doc->'lured' is not distinct from old.doc->'lured' and new.doc->'follower' is not distinct from old.doc->'follower'
+         and new.doc->'aided' is not distinct from old.doc->'aided' then return new; end if;
+    end if;
     h := 'classic';
   end if;
   select s.catalog into cat from public.town_farm_switch s where s.one;
