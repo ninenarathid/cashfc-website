@@ -11,9 +11,10 @@ import { boxSprite } from "@/lib/town/box-art";
 import { SMITH_CLOSED, SMITH_WHO, smithAsk, smithTalk } from "@/lib/town/smith";
 import type { Line } from "@/lib/town/talk";
 import {
-  BEYOND_MORE_PROPS, BRIDGE, CAVE, CAVE_SEATS, GATES, MOUNTAIN, MOUNTAIN_AT, MOUNTAIN_PROPS, PEAKS, SMITH, T2, TILE_H, TILE_W,
+  BEYOND_MORE_PROPS, BRIDGE, CAVE, CAVE_SEATS, F2, GATES, MOUNTAIN, MOUNTAIN_AT, MOUNTAIN_PROPS, PEAKS, SMITH, T2, TILE_H, TILE_W,
   caveRocks, caveSpots, caveToday, caveWay, floorCorner, floorOf, mountainOpen, setBridge, setCaveDay, setCaveWay, walkable, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
+import { F2_PASTURE } from "@/lib/town/farm2";
 
 /**
  * What is to come, drawn: the bridge over the river and the blacksmith in the town, the mountain's foot, and the
@@ -299,6 +300,13 @@ export class MountainArt {
       summit: [M.x + 9, M.y + 30], lookout: [MOUNTAIN_AT.lookout.x + 3, MOUNTAIN_AT.lookout.y + 1],
     };
     for (const n of CAVE.laid) out[`cave${n}`] = caveSpots(n).arrive;
+    // (and the farm, for a look at it: inside its first gate; the editor's farm's first barns, north and south)
+    const farm = GATES.find((g) => g.from === "town" && g.leads === "farm")?.to;
+    if (farm) out.farm = [Math.floor(farm.x), Math.floor(farm.y)];
+    if (F2) {
+      out.barns = [F2_PASTURE.barnCols[0] + 4, F2_PASTURE.laneRows[0] + 1];
+      out.barns2 = [F2_PASTURE.barnCols[0] + 4, F2_PASTURE.laneRows[3] + 1];
+    }
     return out;
   }
   private go(name: string): boolean {

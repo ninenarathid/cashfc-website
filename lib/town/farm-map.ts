@@ -42,9 +42,12 @@ export const FARM_MAP: FarmMap = picked();
 export const F2 = FARM_MAP === "farm2";
 (globalThis as { __cashTownFarmUsed?: FarmMap }).__cashTownFarmUsed = FARM_MAP;
 
+/** Whether `next dev`'s test link says the farm: then the database's word changes nothing on this page (no reload, which would only read the link again). */
+const ASKED = process.env.NODE_ENV !== "production" && typeof location !== "undefined" && isFarmMap(new URLSearchParams(location.search).get("farmMap"));
+
 /** Remember what the database said, for the next page. Whether this page was read with something else (then it has to load again). */
 export function heardFarmMap(m: string | null | undefined): boolean {
   if (!isFarmMap(m)) return false;
   try { localStorage.setItem(FARM_MAP_KEY, m); } catch { /* the next page asks again */ }
-  return m !== FARM_MAP;
+  return m !== FARM_MAP && !ASKED;
 }
