@@ -49,13 +49,39 @@ export function gardenMods(purse: Purse, now: number) {
     boost: held(carriedBag(purse), "soilScoop") > 0, seed: held(carriedBag(purse), "seedTray") > 0,
     extra: held(carriedBag(purse), "gardenTwine") > 0 };
 }
-/** One root can record a cross only once, even when it bears again. */
+/** Whether two plants stand beside each other in one bed, side by side or corner to corner (the crossing's touch). */
+const besideIn = (cells: readonly string[], theirs: readonly string[]): boolean =>
+  cells.some(c => { const [x, y] = c.split(",").map(Number); return theirs.some(d => { const [u, v] = d.split(",").map(Number); return bedOf(x, y) === bedOf(u, v) && Math.max(Math.abs(x - u), Math.abs(y - v)) === 1; }); });
+/**
+ * The children the cross-pairing brush may choose for a root (lib/town/reward-garden's `gardenBrush`; v321's
+ * town.brush_choices): those of the ordinary crosses whose other parent, the brusher's own and alive, stands beside it
+ * now, at any stage, found already or not (the owner, 2026-11-07: "ช่วยแก้ให้มันใช้ง่ายกว่านี้หน่อย"). In the crosses'
+ * order, each once. Nothing for a root that is not the brusher's, has crossed, or is dead.
+ */
+export function brushChoices(key: string, plots: Readonly<Record<string, Plot>>, me: string, now: number, sky: FarmSky): GardenCropId[] {
+  const root = plots[key]?.plant;
+  if (!root || root.by !== me || root.crossed || (root.root && root.root !== key) || see(key, plots[key], now, sky).dead) return [];
+  const cells = root.footprint ?? [key], out: GardenCropId[] = [];
+  for (const [a, b, child] of GARDEN.crosses) {
+    const other = root.crop === a ? b : root.crop === b ? a : null;
+    if (!other || out.includes(child)) continue;
+    for (const [k, plot] of Object.entries(plots)) {
+      const p = plot.plant;
+      if (!p || p.by !== me || p.crop !== other || (p.root && p.root !== k) || see(k, plot, now, sky).dead) continue;
+      if (besideIn(cells, p.footprint ?? [k])) { out.push(child); break; }
+    }
+  }
+  return out;
+}
+/**
+ * One root can record a cross only once, even when it bears again. A root the brush has chosen for (`crossChoice`) tries
+ * that pair first, and failing it crosses as it would have unbrushed (v321: before, it crossed with no other).
+ */
 export function gardenCross(key: string, plots: Readonly<Record<string, Plot>>, me: string, now: number, sky: FarmSky): CropId | null {
   const root = plots[key]?.plant;
   if (!root || root.by !== me || root.crossed || !see(key, plots[key], now, sky).ripe) return null;
   const cells = root.footprint ?? [key];
-  for (const [a, b, child] of GARDEN.crosses) {
-    if(root.crossChoice&&child!==root.crossChoice)continue;
+  for (const [a, b, child] of [...GARDEN.crosses.filter(c => c[2] === root.crossChoice), ...GARDEN.crosses]) {
     const other = root.crop === a ? b : root.crop === b ? a : null;
     if (!other) continue;
     for (const [k, plot] of Object.entries(plots)) {

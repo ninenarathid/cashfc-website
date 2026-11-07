@@ -1,4 +1,4 @@
-import{works,useGift,usesLeft}from'./gifts';import{held,take,put,roomFor,type Purse}from'./trade';import{CROPS,type CropId}from'./items';import{GARDEN_CROPS,type GardenCropId}from'./garden-items';import{GARDEN,syncGarden,gardenCross}from'./gardening';import{bedOf}from'./world';import{see,type Bed,type Plot,type FarmSky}from'./farm';import{growPlant,type GrowRefusal}from'./giant-sizes';import{QUALITY}from'./quality';import{spend}from'./stamina';import{extractionMarks}from'./reward-actions';
+import{works,useGift,usesLeft}from'./gifts';import{held,take,put,roomFor,type Purse}from'./trade';import{CROPS,type CropId}from'./items';import{GARDEN_CROPS,type GardenCropId}from'./garden-items';import{GARDEN,syncGarden,brushChoices}from'./gardening';import{bedOf}from'./world';import{see,type Bed,type Plot,type FarmSky}from'./farm';import{growPlant,type GrowRefusal}from'./giant-sizes';import{QUALITY}from'./quality';import{spend}from'./stamina';import{extractionMarks}from'./reward-actions';
 export const GIANT_CROPS=['pumpkin','cabbage','carrot','daikon','taro']as const;
 /** A go at the planting game. `grow`: for growing a ripe plant at once to so many a side (lib/town/giant-sizes), `root` the very plant it was begun for. */
 export interface GiantRun{id:string;key:string;crop:typeof GIANT_CROPS[number];seed:number;began:number;until:number;grow?:number;root?:string}
@@ -34,10 +34,14 @@ export function gardenAction(p:Purse,c:GardenInput,id:string,t:number,seed:numbe
   const plant:NonNullable<Plot['plant']>={by:me,crop:r.crop,sown:t,boost:0,watered:plots[key].damp?t:0,fed:0,guard:0,cured:0,picked:0,pickedAt:0,root:key,footprint:cells,giant:true,...(plots[key].damp?{moist:true}:{})},updated=Object.fromEntries(cells.map(k=>[k,{soil:'tilled' as const,plant:{...plant}}]));
   return{ok:true as const,purse:{...counted,bag:take(counted.bag,CROPS[r.crop].seed,4)},giant:null,plots:updated,gardenPassed:true};
  }
- if(!root||root.by!==me||root.root&&root.root!==key||!see(key,plot,t,sky).ripe||root.crossed)return no('none');
+ // (v321, the owner: "ช่วยแก้ให้มันใช้ง่ายกว่านี้หน่อย": the brush at any stage of a living root, among two or more children of
+ // the parents beside it now, found or not; the same child again is refused and costs nothing; another is a use; a pair
+ // gone by the picking leaves the root to cross as it would have unbrushed: gardening's brushChoices and gardenCross)
  if(c.action==='gardenBrush'){
-  if(!works(p,'thingCrossBrush')||!c.child||(p.gardenBook??[]).indexOf(c.child)<0||root.crossChoice||gardenCross(key,{...plots,[key]:{...plot,plant:{...root,crossChoice:c.child}}},me,t,sky)!==c.child)return no('none');const u=useGift(p,'thingCrossBrush',t);if(!u.ok)return no('spent');return{ok:true as const,purse:u.purse,plots:{[key]:{...plot,plant:{...root,crossChoice:c.child}}}};
+  const choices=brushChoices(key,plots,me,t,sky);
+  if(!works(p,'thingCrossBrush')||!c.child||choices.length<2||!choices.includes(c.child)||root?.crossChoice===c.child)return no('none');const u=useGift(p,'thingCrossBrush',t);if(!u.ok)return no('spent');return{ok:true as const,purse:u.purse,plots:{[key]:{...plot,plant:{...root!,crossChoice:c.child}}}};
  }
+ if(!root||root.by!==me||root.root&&root.root!==key||!see(key,plot,t,sky).ripe||root.crossed)return no('none');
  if(c.action==='pollenCollect'){
   if(!works(p,'thingPollenSeal')||samples.length>=3)return no('none');const u=useGift(p,'thingPollenSeal',t);if(!u.ok)return no('spent');const sample:PollenSample={id,key,crop:root.crop,cells:root.footprint??[key],bed:bedOf(...c.at),identity:rootIdentity(key,root),until:t+86400000};return{ok:true as const,purse:{...u.purse,professionRewards:{...state,pollen:[...samples,sample]}},plots:{[key]:{...plot,plant:{...root,crossed:true}}}};
  }

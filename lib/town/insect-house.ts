@@ -105,13 +105,16 @@ export function houseOfBed(bed: number, plots: Readonly<Record<string, Plot>>): 
   return Object.keys(plots).sort().find((k) => !!plots[k]?.house && bedOf(...at(k)) === bed) ?? null;
 }
 
-/** What the house of its bed gives a plant on `cells`: each room's cover, by the share of its plots in reach. */
+/**
+ * What the house of its bed gives a plant on `cells`: each room's cover, whole when the house reaches any plot of it (v321,
+ * as a helper does: lib/town/quality's `coveredShare`; before, by the share of its plots in reach).
+ */
 export function houseCovers(cells: readonly string[], plots: Readonly<Record<string, Plot>>): HouseCover[] {
   const out: HouseCover[] = [];
   for (const key of Object.keys(plots).sort()) {
     const house = plots[key]?.house;
     if (!house) continue;
-    const s = cells.filter((c) => inReach(key, c)).length / cells.length;
+    const s = cells.some((c) => inReach(key, c)) ? 1 : 0;
     if (!(s > 0)) continue;
     for (const room of house.rooms) {
       const r = room ? houseRoleOf(room.bug) : null;

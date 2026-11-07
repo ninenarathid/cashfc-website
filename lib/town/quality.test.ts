@@ -104,8 +104,10 @@ describe("the farm's Quality", () => {
     expect(turned.has("2,0") || turned.has("0,0") || turned.has("-1,1")).toBe(false);
   });
 
-  it("covers a plant on several cells by its share of them, and never itself", () => {
-    expect(coveredShare(["3,3", "4,3"], "2,3", "plus")).toBe(0.5);
+  it("covers a plant on several cells whole when it reaches any of them (v321), and never itself", () => {
+    expect(coveredShare(["3,3", "4,3"], "2,3", "plus")).toBe(1);
+    expect(coveredShare(["3,3", "4,3", "3,4", "4,4"], "2,2", "x")).toBe(1);
+    expect(coveredShare(["3,3", "4,3", "3,4", "4,4"], "6,3", "plus")).toBe(0);
     expect(coveredShare(["3,3", "4,3"], "3,4", "ring")).toBe(1);
     expect(coveredShare(["5,5"], "5,5", "ring", 0, ["5,5"])).toBe(0);
   });

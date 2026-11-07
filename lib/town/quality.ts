@@ -274,13 +274,18 @@ export function coverOffsets(shape: Shape, rotation = 0): number[][] {
   }
 }
 
-/** The share of a plant's cells (a garden crop may stand on several) that a helper covers. */
+/**
+ * Whether a helper covers a plant: 1 when its reach takes in any plot of it, else 0. A plant on several plots (a giant, or
+ * one grown over its square) is helped whole by a helper that reaches any of them (the owner, 2026-11-07, passing on a
+ * member: "ผักยักษ์มันใช้แค่ผักบัพอย่างเดียวไม่ได้ ... ได้มาแค่ครึ่งหลอด"; v321's town.quality_share): it asks what a plant of one
+ * plot asks, a helper of each role touching it. Before v321 it was the share of its plots in reach, and a giant could take
+ * no more than half a bar from helpers.
+ */
 export function coveredShare(plantCells: readonly string[], helperAt: string, shape: Shape, rotation = 0, helperCells: readonly string[] = [helperAt]): number {
   const [x, y] = helperAt.split(",").map(Number);
   const reach = new Set(coverOffsets(shape, rotation).map(([u, v]) => `${x + u},${y + v}`));
   // a helper never covers itself
-  const cells = plantCells.filter((c) => !helperCells.includes(c));
-  return plantCells.length ? cells.filter((c) => reach.has(c)).length / plantCells.length : 0;
+  return plantCells.some((c) => !helperCells.includes(c) && reach.has(c)) ? 1 : 0;
 }
 
 /* ── partners ── */
