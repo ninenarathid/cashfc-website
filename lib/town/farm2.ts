@@ -165,6 +165,14 @@ export const F2_STALL = { thing: R.stall.thing, tiles: tilesOf(R.stall.tiles as 
 export const F2_TABLE = { thing: R.table.thing, tiles: tilesOf(R.table.tiles as Array<[number, number]>) };
 /** The village's water trough by the pen. */
 export const F2_WATER_TROUGH = { thing: R.waterTrough.thing, tiles: tilesOf(R.waterTrough.tiles as Array<[number, number]>) };
+/**
+ * The farm's trade boards: the map's two vegetable vending machines, at the garden's crossroads, north and south (makoto,
+ * the map's author, 2026-11-07, by the owner: "ตรงตู้กดน้ำ(ผัก) ที่โอ๊ตวงกลมสีแดงไว้ คืออยากให้คุณไนน์ทำเป็นบอร์ดซื้อขาย
+ * เหมือนในเมืองอ่ะ แค่รูปร่างมันเป็นตู้ขายผัก ส่วนตรงกากบาทแค่ตกแต่ง"): a tap on one opens the town's trade board, the same
+ * notices. The other vendors on the map (the overgrown drink vendors, the carts) are only for the look. Each: its picture, its middle.
+ */
+export const F2_TRADE_BOARDS = (MAP.objects as number[][]).flatMap((o, i) =>
+  /^pixel_art_drink_vending_machine/.test(MAP.names[o[0]]) ? [{ thing: i, x: (o[8] + o[10]) / 2, y: (o[9] + o[11]) / 2 }] : []);
 /** Uncle Popoto's pen: the ground inside its fence. */
 export const F2_PEN = { x: R.pen.x, y: R.pen.y, w: R.pen.w, h: R.pen.h };
 /** The duck pond: the middle of its water and how far it goes each way. */

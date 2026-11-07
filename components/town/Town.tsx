@@ -16,7 +16,7 @@ import { DECOR, FACES, artOf, carving, gateLook, ringAt } from "@/lib/town/decor
 import { Town2Art } from "@/lib/town/town2-art";
 import { farm2Art } from "@/lib/town/farm2-art";
 import { drawPixelFlames } from "./flames";
-import { F2_BENCH_OF, F2_CHESTS, F2_SCARECROWS } from "@/lib/town/farm2";
+import { F2_BENCH_OF, F2_CHESTS, F2_SCARECROWS, F2_TRADE_BOARDS } from "@/lib/town/farm2";
 import { T2_CASINO_DOOR, T2_CHEST_OPEN, T2_CHEST_SHUT, T2_LAMP_LIGHT, T2_PROP_THING, T2_RINGS, T2_THINGS, t2RiverPoint } from "@/lib/town/town2";
 // ── Granny Twilla's clothes shop ── (lib/town/shop-room: a room of its own, drawn from its own pictures as it comes near)
 import { ShopRoomArt } from "@/lib/town/shop-room-art";
@@ -654,6 +654,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const boardBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
   /** Where the trade board stands on the screen (the members' notices, lib/town/world's TRADE_BOARD). */
   const tradeBoardBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
+  /** Where the editor's farm's vending machines that are trade boards stand on the screen (lib/town/farm2's F2_TRADE_BOARDS). */
+  const farmTradeBoxes = useRef<Array<{ x0: number; y0: number; x1: number; y1: number }>>([]);
   /** Where the fountain's picture is on the screen: a tap on it opens the wishing panel, once the game is open. */
   const fountainBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
   /** The shopkeepers and the gateways on the screen this frame, for taps and the cursor: who, or the tile a gateway leads to. */
@@ -2986,6 +2988,20 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       const y = feet.y - (h + 12) * v.s, due = keeper?.notices()?.due ?? 0;
       signs.push(() => label(ctx, words.current.th ? `บอร์ดซื้อขาย${due > 0 ? ` · ${due}` : ""}` : `Trade board${due > 0 ? ` · ${due}` : ""}`, feet.x, y, "#bfe3a0", "rgba(15,19,25,0.82)", null));
     }
+    // The editor's farm's two vegetable vending machines are the same board (makoto's word: lib/town/farm2's
+    // F2_TRADE_BOARDS): its name over each that is on the screen, and where it is for a tap (its picture, at least a
+    // finger's width across)
+    farmTradeBoxes.current = [];
+    if (artF) {
+      const due = keeper?.notices()?.due ?? 0, name = words.current.th ? `บอร์ดซื้อขาย${due > 0 ? ` · ${due}` : ""}` : `Trade board${due > 0 ? ` · ${due}` : ""}`;
+      for (const b of F2_TRADE_BOARDS) {
+        const box = artF.boxOf(b.thing, iso2, v.s);
+        if (!box || box.x1 < 0 || box.x0 > cw || box.y1 < 0 || box.y0 > ch) continue;
+        const mid = (box.x0 + box.x1) / 2, half = Math.max(22, (box.x1 - box.x0) / 2);
+        farmTradeBoxes.current.push({ x0: mid - half, y0: Math.min(box.y0, box.y1 - 44), x1: mid + half, y1: box.y1 });
+        signs.push(() => label(ctx, name, mid, box.y0 - 12 * v.s, "#bfe3a0", "rgba(15,19,25,0.82)", null));
+      }
+    }
     // The Popoto Board: the town's news and its vote, standing north of the fountain.
     boardBox.current = null;
     const popo2 = T2 ? board2(/^kosatsu_board_cloud$/) : null;
@@ -4302,6 +4318,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // the trade board: the members' notices, opened as the Popoto Board is (where the game is open to me)
     const tb = tradeBoardBox.current;
     if (gameRef.current && tb && x >= tb.x0 && x <= tb.x1 && y >= tb.y0 && y <= tb.y1) { setPopover(null); openTrade("board"); return; }
+    // (and the editor's farm's two vegetable vending machines, the same board: lib/town/farm2's F2_TRADE_BOARDS)
+    if (gameRef.current && farmTradeBoxes.current.some((f) => x >= f.x0 && x <= f.x1 && y >= f.y0 && y <= f.y1)) { setPopover(null); openTrade("board"); return; }
     // ── Granny Twilla's clothes shop ── (the notice board on her wall: the week's auction)
     const sbb = shopBoardBox.current;
     if (sbb && x >= sbb.x0 && x <= sbb.x1 && y >= sbb.y0 && y <= sbb.y1) { setPopover(null); openShopPanel("auction"); return; }
@@ -4589,6 +4607,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       keepers: () => keeperBoxes.current.map((k) => ({ ...k })),
       // (where the trade board stands on the screen, for a script that taps it)
       tradeBoard: () => (tradeBoardBox.current ? { ...tradeBoardBox.current } : null),
+      /** The editor's farm's vending machines that are trade boards, on the screen this frame. */
+      farmTradeBoards: () => farmTradeBoxes.current.map((f) => ({ ...f })),
       /** The place to fish from that I stand at, if it is one: its tile, where its float lands, and whether that is deep water. */
       fishAt: () => fishAtRef.current,
       // ── gifts: fishing ── where each familiar this page draws is now, by its member (the otter by a float)
