@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-11-07",
+   "type": "level_100",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-11-07",
    "type": "rare_up",
    "id": 29152036,
    "name": "Fluffy Tinytail",
@@ -1392,13 +1399,6 @@
    "id": 43864764,
    "name": "Shinonome Kamemaru",
    "text": "reached level 100 on Sage!"
-  },
-  {
-   "date": "2026-10-20",
-   "type": "level_100",
-   "id": 39850923,
-   "name": "Hiro Hikari",
-   "text": "reached level 100 on Paladin!"
   }
  ]
 }
