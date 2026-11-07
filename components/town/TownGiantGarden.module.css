@@ -80,7 +80,7 @@
 .pairName { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .arrow { color: #f0c060; padding: 0 2px; }
 /* A child not found yet: its shape in shadow, as the books show what is still to find; never its name */
-.unknown { filter: brightness(0) drop-shadow(0 0 1px #f0c06099); opacity: .7; }
+.unknown { filter: brightness(0) invert(.88) sepia(.35) drop-shadow(0 0 1px #1a0e06); opacity: .55; }
 
 /* The planting game: a soil row, the glowing spot to dig, the trowel going to and fro over it */
 .game { margin-top: 10px; }
