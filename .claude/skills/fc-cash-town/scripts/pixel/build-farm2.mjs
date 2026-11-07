@@ -316,6 +316,12 @@ for (const [x, y] of added) {
   lanterns.push({ tile: G([x, y]), thing: objects.length - 1, head: headOf(q), added: true });
 }
 
+// (ground nobody can walk to, inside Uncle Popoto's pen or a corner the fences close, is closed: a tap there is refused at
+// once, rather than looked for over the whole farm)
+let shut = 0;
+for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) if (walk[y][x] === "." && !reach.has(`${x},${y}`)) { walk[y][x] = "#"; shut++; }
+console.log(`closed, as nobody can walk to them: ${shut} tiles`);
+
 /* ── the ripples ─────────────────────────────────────────────────────────────────────────────────────────────────── */
 
 const ripples = { frames: map.ripples?.frames ?? 2, fps: map.ripples?.fps ?? 1, src: "", sizes: {} };

@@ -256,4 +256,10 @@ export const F2_PASTURE = {
   /** The meadows: the strip north of the pen and the pond, and the wide grass south of the last row of barns. */
   meadow: { x: 93 + OX, y: 45 + OY, w: 40, h: 3 },
   southMeadow: { x: 93 + OX, y: 93 + OY, w: 44, h: 10 },
+  /**
+   * The patches of them an animal out grazes, each all open grass (the strip's trees and lamps and the pond's rocks left
+   * out): the strip's entered from the lane above it (the third row of barns'), the south meadow's from the last lane.
+   */
+  meadowPatches: [[94, 45, 5, 3], [99, 45, 5, 3], [104, 45, 5, 3], [116, 45, 6, 2], [124, 45, 7, 2]].map(([x, y, w, h]) => ({ x: x + OX, y: y + OY, w, h })),
+  southPatches: [[95, 95, 6, 5], [101, 92, 6, 8], [108, 92, 6, 10], [114, 92, 5, 10], [120, 92, 6, 10], [126, 92, 6, 9]].map(([x, y, w, h]) => ({ x: x + OX, y: y + OY, w, h })),
 };

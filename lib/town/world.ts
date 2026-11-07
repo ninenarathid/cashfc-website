@@ -872,9 +872,7 @@ export const PROPS: Prop[] = T2 ? PROPS_FIRST : (() => {
  * always were; the logs round the forest camp's fire are added after them, where the forest is laid out (the owner,
  * 2026-10-05: "ท่อนไม้แถว กองไฟ ช่วยทำให้นั่งได้ด้วย เหมือนเก้าอี้").
  */
-export const BENCHES: Prop[] = [...PROPS.filter((p) => p.kind === "bench"),
-  // (the editor's farm's, after the town's: lib/town/farm2, each place on its benches as the map has it)
-  ...(F2 ? farm2.F2_BENCHES : [])];
+export const BENCHES: Prop[] = PROPS.filter((p) => p.kind === "bench");
 
 /**
  * Sitting on the ground where you stand (the emote window, the owner's call, 2026-10-02), told to the room in
@@ -1318,6 +1316,9 @@ const forestSolid = (() => {
 const isForestWater = (tx: number, ty: number) => inStream(tx - FOREST.x + 0.5, ty - FOREST.y + 0.5);
 // (the camp's logs are benches: sat on like the town's, told to the room by their place in the same list)
 BENCHES.push(...FOREST_PROPS.filter((p) => p.kind === "logseat"));
+// (the editor's farm's, after the forest's logs, so that every bench before them keeps its number: lib/town/farm2, each place
+// on its benches as the map has it)
+if (F2) BENCHES.push(...farm2.F2_BENCHES);
 
 /* ── the far side: the mountain's foot, and the cave under it ── */
 

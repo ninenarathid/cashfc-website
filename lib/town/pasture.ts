@@ -185,16 +185,17 @@ function seeded(seed: number) { let a = seed; return () => { a = (a + 0x6d2b79f5
 function f2Spots(n: number, which: number, clear: ReadonlyArray<readonly [number, number]> = []): Array<[number, number]> {
   const rnd = seeded(20261107 + which), out: Array<[number, number]> = [];
   const taken = (x: number, y: number) => [...out, ...clear].some(([a, b]) => Math.max(Math.abs(a - x), Math.abs(b - y)) < 2);
-  const ok = (x: number, y: number) => farm2.f2Open(x, y) && farm2.f2TileGround(x, y) === "grass"
-    && [[1, 0], [-1, 0], [0, 1], [0, -1]].every(([dx, dy]) => farm2.f2Open(x + dx, y + dy) && farm2.f2TileGround(x + dx, y + dy) === "grass");
-  for (const [r, m] of [[F2P.meadow, Math.floor(n / 3)], [F2P.southMeadow, n - Math.floor(n / 3)]] as const) {
-    for (let tries = 0, put = 0; put < m && tries < 4000; tries++) {
-      const x = r.x + Math.floor(rnd() * r.w), y = r.y + Math.floor(rnd() * r.h);
-      if (!ok(x, y) || taken(x, y)) continue;
-      out.push([x, y]); put++;
+  // (open grass, in a patch an animal grazes, with open ground all round it)
+  const tilesOf = (rs: ReadonlyArray<Rect>) => rs.flatMap((r) => Array.from({ length: r.w * r.h }, (_, i): [number, number] => [r.x + (i % r.w), r.y + Math.floor(i / r.w)]))
+    .filter(([x, y]) => farm2.f2Open(x, y) && farm2.f2TileGround(x, y) === "grass" && [[1, 0], [-1, 0], [0, 1], [0, -1]].every(([dx, dy]) => farm2.f2Open(x + dx, y + dy)));
+  const strip = tilesOf(F2P.meadowPatches), south = tilesOf(F2P.southPatches);
+  for (const [list, m] of [[strip, Math.floor(n / 3)], [south, n], [[...strip, ...south], n]] as const) {
+    for (let tries = 0; out.length < m && tries < 4000; tries++) {
+      const [x, y] = list[Math.floor(rnd() * list.length)];
+      if (!taken(x, y)) out.push([x, y]);
     }
   }
-  return out;
+  return out.slice(0, n);
 }
 
 /** The meadow (between the third and fourth rows of barns, west of the pond) and the south meadow (below the last row). */
@@ -368,17 +369,18 @@ function nearestOn(a: P, b: P, p: P): P {
 interface Patch { kind: "meadow" | "pond" | "garden"; area: Rect; /** Where it is entered: a point on the lanes, and the point in it the way comes to. */ entry: P; anchor: P }
 const PATCHES: readonly Patch[] = (() => {
   const out: Patch[] = [];
-  // (the editor's farm: its meadow a strip of three rows north of the pen and the pond, one row of patches along it)
-  if (F2) for (let x = MEADOW.x; x < MEADOW.x + MEADOW.w; x += 5) {
-    const w = Math.min(5, MEADOW.x + MEADOW.w - x), cx = x + w / 2;
-    out.push({ kind: "meadow", area: { x, y: MEADOW.y, w, h: MEADOW.h }, entry: { x: cx, y: laneY(2) }, anchor: { x: cx, y: MEADOW.y + 0.6 } });
+  // (the editor's farm: its meadows' patches of open grass, lib/town/farm2: the strip's from the lane above it, the south
+  // meadow's from the last lane)
+  if (F2) {
+    for (const area of F2P.meadowPatches) out.push({ kind: "meadow", area, entry: { x: area.x + area.w / 2, y: laneY(2) }, anchor: { x: area.x + area.w / 2, y: area.y + 0.6 } });
+    for (const area of F2P.southPatches) out.push({ kind: "meadow", area, entry: { x: area.x + area.w / 2, y: laneY(5) }, anchor: { x: area.x + area.w / 2, y: area.y + 0.6 } });
   }
   else for (let x = MEADOW.x; x < MEADOW.x + MEADOW.w; x += 5) {
     const w = Math.min(5, MEADOW.x + MEADOW.w - x), cx = x + w / 2;
     out.push({ kind: "meadow", area: { x, y: MEADOW.y, w, h: 5 }, entry: { x: cx, y: laneY(2) }, anchor: { x: cx, y: MEADOW.y + 0.6 } });
     out.push({ kind: "meadow", area: { x, y: MEADOW.y + 5, w, h: MEADOW.h - 5 }, entry: { x: cx, y: laneY(2) }, anchor: { x: cx, y: MEADOW.y + 5.5 } });
   }
-  for (let x = SOUTH_MEADOW.x; x < SOUTH_MEADOW.x + SOUTH_MEADOW.w; x += 6) {
+  if (!F2) for (let x = SOUTH_MEADOW.x; x < SOUTH_MEADOW.x + SOUTH_MEADOW.w; x += 6) {
     const w = Math.min(6, SOUTH_MEADOW.x + SOUTH_MEADOW.w - x), cx = x + w / 2;
     out.push({ kind: "meadow", area: { x, y: SOUTH_MEADOW.y, w, h: SOUTH_MEADOW.h }, entry: { x: cx, y: laneY(5) }, anchor: { x: cx, y: SOUTH_MEADOW.y + 0.6 } });
   }
