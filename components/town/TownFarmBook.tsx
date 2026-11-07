@@ -40,7 +40,7 @@ function CrossRow({ x, th }: { x: BookCross; th: boolean }) {
   return <li className="flex flex-wrap items-center gap-1.5" data-book-cross={x.child}
     aria-label={`${name(x.a, th)} + ${name(x.b, th)}${x.sky ? ` · ${th ? SKY[x.sky].th : SKY[x.sky].en}` : ""} → ${name(x.child, th)}`}>
     <Icon id={x.a} /><span aria-hidden>+</span><Icon id={x.b} />
-    {x.sky && <span className={CHIP} title={th ? SKY[x.sky].th : SKY[x.sky].en}><TownIcon name={SKY[x.sky].icon} size={16} /></span>}
+    {x.sky && <span className={CHIP}><TownIcon name={SKY[x.sky].icon} size={16} />{th ? SKY[x.sky].th : SKY[x.sky].en}</span>}
     <span aria-hidden className="text-[#a8792a]">→</span><Icon id={x.child} /><span className="text-meta font-semibold">{name(x.child, th)}</span>
   </li>;
 }
@@ -54,11 +54,11 @@ function Page({ p, finder, found, all, th }: { p: BookPage; finder?: string; fou
     <p className="flex flex-wrap gap-1.5">
       <span className={CHIP}><TownIcon name="plotSprout" size={16} />{p.hours} {th ? "ชม." : "h"}</span>
       <span className={CHIP}><TownIcon name="basket" size={16} />{p.yield[0] === p.yield[1] ? p.yield[0] : `${p.yield[0]}–${p.yield[1]}`}</span>
-      {p.again && <span className={CHIP}>↻ {p.again} {th ? "ชม." : "h"} ×{p.picks ?? 1}</span>}
+      {p.again && <span className={CHIP}>↻ {p.again} {th ? "ชม." : "h"} · {p.picks ?? 1} {th ? "ครั้ง" : "times"}</span>}
       {p.giant && <span className={CHIP}><TownIcon name="giantPumpkinB" size={16} />{th ? "โตยักษ์ได้" : "Grows giant"}</span>}
     </p>
-    {p.partner && <p className="flex items-center gap-1.5" data-book-partner={p.partnerOpen ? p.partner : "?"}><span className={CHIP}><TownIcon name="handshake" size={16} />{th ? "คู่หู" : "Partner"}</span><Icon id={p.partner} shade={!p.partnerOpen} /><span className="text-meta font-semibold">{p.partnerOpen ? name(p.partner, th) : "?"}</span></p>}
-    {p.role && p.shape && <p className="flex items-center gap-2"><span className={CHIP}><TownIcon name={ROLE[p.role].icon} size={16} />{th ? ROLE[p.role].th : ROLE[p.role].en}</span><Reach shape={p.shape} role={p.role} /></p>}
+    {p.partner && <p className="flex items-center gap-1.5" data-book-partner={p.partnerOpen ? p.partner : "?"}><span className={CHIP}><TownIcon name="handshake" size={16} />{th ? "คู่หูคุณภาพ" : "Quality partner"}</span><Icon id={p.partner} shade={!p.partnerOpen} /><span className="text-meta font-semibold">{p.partnerOpen ? name(p.partner, th) : "?"}</span></p>}
+    {p.role && p.shape && <p className="flex items-center gap-2"><span className={CHIP}><TownIcon name={ROLE[p.role].icon} size={16} />{th ? ROLE[p.role].th : ROLE[p.role].en}</span><span className="text-label text-[#7a6040]">{th ? "ระยะ" : "Reach"}</span><Reach shape={p.shape} role={p.role} /></p>}
     {p.from.length > 0 && <div><p className="text-label text-[#7a6040]">{th ? "เกิดจาก" : "Comes from"}</p><ul className="mt-1 space-y-1.5">{p.from.map((x) => <CrossRow key={`${x.a}${x.b}${x.sky ?? ""}`} x={x} th={th} />)}</ul></div>}
     {(p.makes.length > 0 || p.hidden > 0) && <div><p className="text-label text-[#7a6040]">{th ? "ผสมกับ" : "Crosses"}</p><ul className="mt-1 space-y-1.5">
       {p.makes.map((x) => <CrossRow key={`${x.a}${x.b}${x.child}`} x={x} th={th} />)}

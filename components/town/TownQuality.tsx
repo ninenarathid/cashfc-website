@@ -153,6 +153,7 @@ export function QualityInspector({ plant, now, rains, th, onClose, onBed, onGrow
         <TownIcon name={plant.crop as IconName} size={30} />
         <h2 className="min-w-0 flex-1 font-display text-title font-semibold">{name}</h2>
         <span className="text-meta text-muted" data-quality-state>{swelling ? (th ? `กำลังโตเป็น ${plant.size!.n}×${plant.size!.n}` : `Growing to ${plant.size!.n}×${plant.size!.n}`) : ripe ? (th ? "สุกแล้ว" : "Ripe") : th ? `โต ${shownGrowth(seen.grown)}%` : `${shownGrowth(seen.grown)}% grown`}</span>
+        {onBook && <button type="button" onClick={onBook} data-quality-book aria-label={th ? "สมุดปลูกผัก" : "Farm book"} title={th ? "สมุดปลูกผัก" : "Farm book"} className="pressable tk tk-btn-wood grid size-11 shrink-0 place-items-center"><TownIcon name="gardenNotebook" size={22} /></button>}
         <button ref={close} type="button" onClick={onClose} aria-label={th ? "ปิด" : "Close"} className="pressable tk tk-btn-wood grid size-11 shrink-0 place-items-center"><TownIcon name="close" size={16} /></button>
       </header>
       <div className="flex flex-wrap items-baseline justify-between gap-x-2">
@@ -208,7 +209,7 @@ export function QualityInspector({ plant, now, rains, th, onClose, onBed, onGrow
         </div>
       </div>
       {notes?.map((n) => <p key={n} className="rounded-md border border-[#a8c583]/60 bg-[#304323]/60 px-3 py-1.5 text-meta text-[#e1f1c9]" data-quality-note>{n}</p>)}
-      {onBook ? <button type="button" onClick={onBook} data-quality-book className="pressable tk tk-btn-wood flex min-h-11 items-center gap-2 px-3 text-meta font-semibold"><TownIcon name="gardenNotebook" size={18} />{th ? "สมุดปลูกผัก" : "Farm book"}</button> : null}
+      {/* (the farm book: the button in the header, beside the close) */}
       </div>
     </section>
   );
