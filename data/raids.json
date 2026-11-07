@@ -88650,11 +88650,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 87.65,
+    "pct": 85.33,
     "phase": 5,
-    "pulls": 52,
-    "last": "2026-11-03",
-    "last_ts": 1793718150
+    "pulls": 63,
+    "last": "2026-11-06",
+    "last_ts": 1793977191
    }
   ]
  },
@@ -96796,6 +96796,49 @@
       }
      }
     ]
+   },
+   {
+    "zone": "Eden's Gate",
+    "zone_id": 29,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E1S",
+      "encounter_id": 65,
+      "name": "Eden Prime",
+      "best": 84,
+      "median": 63,
+      "kills": 19,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E2S",
+      "encounter_id": 66,
+      "name": "Voidwalker",
+      "best": 82,
+      "median": 62,
+      "kills": 17,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E3S",
+      "encounter_id": 67,
+      "name": "Leviathan",
+      "best": 65,
+      "median": 36,
+      "kills": 22,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E4S",
+      "encounter_id": 68,
+      "name": "Titan",
+      "best": 72,
+      "median": 39,
+      "kills": 22,
+      "job": "WhiteMage"
+     }
+    ]
    }
   ],
   "_status": "ok"
@@ -98016,6 +98059,49 @@
         "best": 92
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Gate",
+    "zone_id": 29,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E1S",
+      "encounter_id": 65,
+      "name": "Eden Prime",
+      "best": 96,
+      "median": 67,
+      "kills": 21,
+      "job": "Gunbreaker"
+     },
+     {
+      "label": "E2S",
+      "encounter_id": 66,
+      "name": "Voidwalker",
+      "best": 90,
+      "median": 22,
+      "kills": 19,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "E3S",
+      "encounter_id": 67,
+      "name": "Leviathan",
+      "best": 86,
+      "median": 58,
+      "kills": 13,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "E4S",
+      "encounter_id": 68,
+      "name": "Titan",
+      "best": 89,
+      "median": 64,
+      "kills": 12,
+      "job": "DarkKnight"
      }
     ]
    }
