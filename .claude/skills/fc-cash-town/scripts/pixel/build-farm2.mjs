@@ -219,6 +219,24 @@ const benches = map.objects.filter((o) => o.sit?.length && indexOf.has(o.id)).ma
   thing: idx(o),
   seats: o.sit.map((s) => ({ tile: G(s.tile), facing: s.facing, point: [r2(s.point[0] + ISO.x), r2(s.point[1] + ISO.y)], view: s.view, mirror: !!s.mirror, draw: s.draw })),
 }));
+// (a bench whose back is on a fence's line is drawn a little in front of it, with its seats: the owner, 2026-11-07, of one
+// such: "ช่วยทำให้ไม้ของรั้วไม่ซ้อนกับเก้าอี้แบบนี้". The map puts sixteen of them so, their backs on the fence, its rails
+// and posts cutting into the seat; the four a tile off it are left as they are. Its tiles, and so where one stands to
+// sit, are the map's.)
+const OFF_FENCE = 0.45;
+let benchesMoved = 0;
+{
+  const fence = new Set(edges.map(([x, y, s]) => `${x},${y},${s}`));
+  for (const b of benches) {
+    const f = b.seats[0].facing, [fx, fy, side] = f === "SE" ? [1, 0, "w"] : f === "SW" ? [0, 1, "n"] : [0, 0, ""];
+    if (!side || !b.seats.every((s) => fence.has(`${s.tile[0]},${s.tile[1]},${side}`))) continue;
+    const q = objects[b.thing], dx = (fx - fy) * 32 * OFF_FENCE, dy = (fx + fy) * 16 * OFF_FENCE;
+    q[2] = r2(q[2] + dx); q[3] = r2(q[3] + dy); q[7] = +(q[7] + OFF_FENCE).toFixed(3);
+    q[8] += fx * OFF_FENCE; q[10] += fx * OFF_FENCE; q[9] += fy * OFF_FENCE; q[11] += fy * OFF_FENCE;
+    for (const s of b.seats) s.point = [r2(s.point[0] + dx), r2(s.point[1] + dy)];
+    benchesMoved++;
+  }
+}
 const scarecrows = byAsset(SCARECROW).map((o) => ({ thing: idx(o), tile: G([Math.floor(centre(o)[0] - OX), Math.floor(centre(o)[1] - OY)]) }));
 const one = (re) => { const o = byAsset(re)[0]; if (!o) throw new Error(`no ${re}`); return o; };
 const stall = one(/^livestock_supply_stall_/), table = one(/^wood_counter_with_cheese_maker/), waterTrough = one(/^create_water_trough_/);
@@ -367,7 +385,7 @@ const count = (c) => out.walk.join("").split(c).length - 1;
 console.log(`farm2: ${objects.length} things, ${sprites.length} pictures, ${(fs.statSync(JSON_OUT).size / 1024).toFixed(0)} KB of map;`,
   `tiles: ground ${count(".")}, water ${count("~")}, closed ${count("#")}, seats ${count("s")}; edges ${edges.length}; walked to ${reach.size}`);
 console.log(`roles: ${designs.length} barn looks, fires ${fires.length} (lit pictures ${fires.filter((f) => f.lit !== null).length}), chests ${chests.length}, wells ${wells.length},`,
-  `lamps ${lanterns.length} (${added.length} added), benches ${benches.length} (${benches.reduce((n, b) => n + b.seats.length, 0)} seats), scarecrows ${scarecrows.length},`,
+  `lamps ${lanterns.length} (${added.length} added), benches ${benches.length} (${benches.reduce((n, b) => n + b.seats.length, 0)} seats, ${benchesMoved} moved off a fence), scarecrows ${scarecrows.length},`,
   `pen ${JSON.stringify(pen)}, pond ${JSON.stringify(pond)}`);
 const fine = sprites.map((s, i) => [s.src, s.f]).filter(([, f]) => f < 1);
 console.log(`written finer than drawn, at ${FINEST} world px a pixel: ${fine.map(([s, f]) => `${s} ×${f.toFixed(2)}`).join(", ") || "none"}`);
