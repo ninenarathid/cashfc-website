@@ -70104,8 +70104,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 8,
-    "kills": 1,
+    "best": 34,
+    "kills": 3,
     "job": "WhiteMage",
     "cleared": true
    },
@@ -74726,7 +74726,13 @@
     "best": 25,
     "kills": 2,
     "job": "Dancer",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Dancer": {
+      "kills": 2,
+      "best": 25
+     }
+    }
    },
    {
     "zone": "Ultimates (Legacy)",
@@ -74923,8 +74929,8 @@
       "best": 54
      },
      "Gunbreaker": {
-      "kills": 3,
-      "best": 36
+      "kills": 5,
+      "best": 41
      },
      "Warrior": {
       "kills": 2,
@@ -82311,6 +82317,10 @@
     "job": "BlackMage",
     "cleared": true,
     "job_kills": {
+     "BlackMage": {
+      "kills": 1,
+      "best": 13
+     },
      "Gunbreaker": {
       "kills": 2,
       "best": 5
@@ -87244,7 +87254,7 @@
     "cleared": true,
     "job_kills": {
      "DarkKnight": {
-      "kills": 13,
+      "kills": 15,
       "best": 9
      },
      "Paladin": {
@@ -96888,8 +96898,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 5,
-    "kills": 2,
+    "best": 15,
+    "kills": 4,
     "job": "Reaper",
     "cleared": true,
     "job_kills": {
@@ -97036,6 +97046,17 @@
       "best": 41
      }
     }
+   },
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1084,
+    "name": "Enuo",
+    "best": 21,
+    "kills": 2,
+    "job": "Samurai",
+    "cleared": true
    },
    {
     "zone": "Trials II (Extreme)",

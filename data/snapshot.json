@@ -3857,7 +3857,7 @@
   "mounts": 76,
   "minions": 137,
   "rare": 62,
-  "level": 100,
+  "level": 87,
   "cc": [
    true,
    true,
@@ -3958,7 +3958,7 @@
    "The Omega Protocol",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-10-17"
+  "chg": "2026-11-07"
  },
  "9444020": {
   "name": "Non Elemental",
@@ -4219,7 +4219,7 @@
   "mounts": 79,
   "minions": 70,
   "rare": null,
-  "level": 99,
+  "level": 94,
   "cc": [
    true,
    true,
@@ -6584,7 +6584,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 96,
-  "level": 89,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7568,7 +7568,7 @@
   "mounts": 178,
   "minions": 410,
   "rare": null,
-  "level": 41,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7581,7 +7581,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-05"
+  "chg": "2026-11-07"
  },
  "31831003": {
   "name": "North Nostafari",
@@ -8481,7 +8481,7 @@
   "mounts": 81,
   "minions": 158,
   "rare": 18,
-  "level": 67,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -8521,7 +8521,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-06"
+  "chg": "2026-11-07"
  },
  "15932791": {
   "name": "Yuziris Andra'nov",
@@ -8619,6 +8619,7 @@
   "jobs": {},
   "ex": [
    "Doomtrain",
+   "Enuo",
    "Queen Eternal",
    "Valigarmanda",
    "Zelenia",
@@ -8935,7 +8936,7 @@
   "mounts": 4,
   "minions": 7,
   "rare": null,
-  "level": 77,
+  "level": 78,
   "cc": [
    false,
    false,
@@ -8948,7 +8949,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-02"
+  "chg": "2026-11-07"
  },
  "44085912": {
   "name": "Mayu Ferguson",
@@ -8984,7 +8985,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 73,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -9000,7 +9001,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-06"
+  "chg": "2026-11-07"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -9060,7 +9061,7 @@
   "mounts": 85,
   "minions": 178,
   "rare": null,
-  "level": 94,
+  "level": 73,
   "cc": [
    false,
    false,
@@ -9104,7 +9105,7 @@
   "mounts": 7,
   "minions": 20,
   "rare": null,
-  "level": 78,
+  "level": 79,
   "cc": [
    false,
    false,
@@ -9117,7 +9118,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-06"
+  "chg": "2026-11-07"
  },
  "31685121": {
   "name": "Squid Girls",
@@ -10028,7 +10029,7 @@
   "mounts": 25,
   "minions": 115,
   "rare": null,
-  "level": 75,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -10300,7 +10301,7 @@
   "mounts": 40,
   "minions": 59,
   "rare": null,
-  "level": 95,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -10321,7 +10322,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-06"
+  "chg": "2026-11-07"
  },
  "58199756": {
   "name": "Billy Najah",
@@ -12186,7 +12187,7 @@
   "mounts": 32,
   "minions": 95,
   "rare": null,
-  "level": 95,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -12199,7 +12200,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-06"
+  "chg": "2026-11-07"
  },
  "16173247": {
   "name": "Haru Luminous",
@@ -16124,7 +16125,7 @@
   "mounts": 25,
   "minions": 69,
   "rare": null,
-  "level": 61,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -16141,7 +16142,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-08-29"
+  "chg": "2026-11-07"
  },
  "29864090": {
   "name": "Scylla Melfrey",

@@ -2,6 +2,55 @@
  "events": [
   {
    "date": "2026-11-07",
+   "type": "level_100",
+   "id": 29339718,
+   "name": "Gabriel Winford",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-11-07",
+   "type": "level_100",
+   "id": 30596644,
+   "name": "Noelle Eisner",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
+   "date": "2026-11-07",
+   "type": "level_100",
+   "id": 42845691,
+   "name": "Yuukizuz Akino",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-11-07",
+   "type": "ex_clear",
+   "id": 34874723,
+   "name": "Allen Fliegen",
+   "text": "cleared Enuo (Extreme)"
+  },
+  {
+   "date": "2026-11-07",
+   "type": "level_100",
+   "id": 60972300,
+   "name": "Mizuki Sekine",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
+   "date": "2026-11-07",
+   "type": "level_100",
+   "id": 17473430,
+   "name": "Bigon Truesilver",
+   "text": "reached level 100 on Samurai!"
+  },
+  {
+   "date": "2026-11-07",
+   "type": "level_100",
+   "id": 47548993,
+   "name": "Sanya Polaali",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
+   "date": "2026-11-07",
    "type": "ex_clear",
    "id": 39959181,
    "name": "El Blung",
@@ -1350,55 +1399,6 @@
    "id": 34874723,
    "name": "Allen Fliegen",
    "text": "cleared Doomtrain (Extreme)"
-  },
-  {
-   "date": "2026-10-20",
-   "type": "ex_clear",
-   "id": 57519259,
-   "name": "Kertia Cruz",
-   "text": "cleared Doomtrain (Extreme)"
-  },
-  {
-   "date": "2026-10-20",
-   "type": "level_100",
-   "id": 39850923,
-   "name": "Hiro Hikari",
-   "text": "reached level 100 on Bard!"
-  },
-  {
-   "date": "2026-10-19",
-   "type": "level_100",
-   "id": 42948817,
-   "name": "Karuma Amamiya",
-   "text": "reached level 100 on Dancer!"
-  },
-  {
-   "date": "2026-10-19",
-   "type": "level_100",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "reached level 100 on Black Mage!"
-  },
-  {
-   "date": "2026-10-19",
-   "type": "level_100",
-   "id": 39959181,
-   "name": "El Blung",
-   "text": "reached level 100 on Dancer!"
-  },
-  {
-   "date": "2026-10-19",
-   "type": "level_100",
-   "id": 39850923,
-   "name": "Hiro Hikari",
-   "text": "reached level 100 on Paladin!"
-  },
-  {
-   "date": "2026-10-19",
-   "type": "level_100",
-   "id": 60429500,
-   "name": "Jin Theape",
-   "text": "reached level 100 on Dancer!"
   }
  ]
 }
