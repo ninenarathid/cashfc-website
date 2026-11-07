@@ -1510,7 +1510,20 @@ export const BEYOND = {
 const NORTH_SEED = ARMS.find((a) => a.dir === "N")!.seed;
 /** Whether a point has ground to draw: it is on a map, or in the woods seen beyond a gate. */
 // (the clothes shop's floor is its own picture, lib/town/shop-room-art: the ground is not laid there)
-export const seenAt = (x: number, y: number) => (placeOf(x, y) !== null && !room.inShop(x, y) && !casino.inCasino(x, y)) || within(x, y, BEYOND.north) || within(x, y, BEYOND.south)
+/**
+ * The map whose ground this page shows now (Town.tsx, as I go from map to map). The editor's farm reaches to two rows of the
+ * forest (lib/town/farm2): from either, the other's ground is not shown beyond its edge, as nothing is beyond the old
+ * farm's. Whether the ground laid so far has to be laid again (it showed the other).
+ */
+let groundOf: Place | null = null;
+export function showGroundOf(p: Place | null): boolean {
+  const was = groundOf, near = (q: Place | null) => q === "farm" || q === "forest";
+  groundOf = p;
+  return F2 && was !== p && (near(was) || near(p));
+}
+const hiddenGround = (p: Place | null) => F2 && ((groundOf === "farm" && p === "forest") || (groundOf === "forest" && p === "farm"));
+const onMap = (x: number, y: number) => { const p = placeOf(x, y); return p !== null && !hiddenGround(p) && !room.inShop(x, y) && !casino.inCasino(x, y); };
+export const seenAt = (x: number, y: number) => onMap(x, y) || within(x, y, BEYOND.north) || within(x, y, BEYOND.south)
   // (the editor's town's far banks)
   || (T2 && town2.inT2Banks(x, y))
   // ── to come ── (and what is seen beyond the town's west gate and beyond the mountain's map)

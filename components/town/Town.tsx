@@ -7,7 +7,7 @@ import type { TownMapAddon } from "@/lib/town/map-addon";
 import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
-  BENCHES, BEYOND_PROPS, BOARD, TRADE_BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_ALL, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SMITH, SPEED, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle, T2, F2, liftAt,
+  BENCHES, BEYOND_PROPS, BOARD, TRADE_BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_ALL, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SMITH, SPEED, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle, T2, F2, liftAt, showGroundOf,
   atFire, atWell, wellBy, benchAt, bySmith, byStorebox, distance, fishFrom, fromIso, indoors as underRoof, isBuilt, isFar, setBridge, setBuilt, setFar, setCasinoDoor, groundAt, hearing, inDiningYard, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
 import { bridgeSpans, bridgeWhole } from "@/lib/town/bridge";
@@ -2233,6 +2233,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (place !== placeRef.current) {
       const was = placeRef.current;
       placeRef.current = place;
+      // (the editor's farm is beside the forest: the one's ground is not shown from the other, lib/town/world)
+      if (showGroundOf(place)) sceneryRef.current?.forgetGround();
       // (the clothes shop is small, and its camera may not go as far out as the outdoors': the outdoors' zoom is put
       // back on coming out, and its windows are shut)
       queueMicrotask(() => { setInCasino(place === "casino"); setInTownPlace(place === "town"); });

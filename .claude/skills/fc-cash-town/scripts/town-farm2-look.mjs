@@ -15,7 +15,7 @@ const V = "window.__townView";
 /** Where to stand for each look (the game's tiles). */
 const SPOTS = {
   gate: [146, 27], beds: [158, 22], behind: [158, 47], well: [176, 27], fire: [178, 32], scarecrow: [158, 55], benches: [207, 48],
-  barns: [226, 22], barns2: [248, 33], uncle: [218, 54], pen: [232, 46], pond: [250, 45], south: [240, 92],
+  barns: [226, 22], barns2: [248, 33], southedge: [206, 104], eastedge: [272, 60], uncle: [218, 54], pen: [232, 46], pond: [250, 45], south: [240, 92],
 };
 const SIZES = (process.env.SIZES ?? "desktop,phone").split(",");
 for (const [label, size] of [["desktop", { width: 1280, height: 860 }], ["phone", { width: 384, height: 730, mobile: true }]]) {
