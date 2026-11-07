@@ -2506,7 +2506,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         if (p.kind !== "bench" && p.kind !== "storebox") continue;
         const box = art2.boxOf(T2_PROP_THING.get(p) ?? -1, iso2, v.s);
         if (!box) continue;
-        if (p.kind === "storebox") { storeBox.current = box; continue; }
+        // (the plaza's chest, unless one of the editor's farm's was found first: I am on the farm, and that one is the one tapped)
+        if (p.kind === "storebox") { if (!storeBox.current?.at) storeBox.current = box; continue; }
         // (a long bench's picture shared between its two places, left and right as they are on the screen)
         const xs = BENCHES.filter((q) => q.of !== undefined && q.of === p.of && q.seat).map((q) => project(q.seat!).x).sort((a, b) => a - b);
         const sx = p.seat ? project(p.seat).x : 0, k = xs.indexOf(sx);
@@ -2579,7 +2580,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
           scenery.drawProp(ctx, name, c.x, c.y, k, dpr);
           const hit = scenery.has(closed) ? closed : "storebox";
           const [w, h] = scenery.sizeOf(hit), [ax, ay] = scenery.anchorOf(hit);
-          storeBox.current = { x0: c.x - ax * k, y0: c.y - ay * k, x1: c.x + (w - ax) * k, y1: c.y + (h - ay) * k };
+          if (!storeBox.current?.at) storeBox.current = { x0: c.x - ax * k, y0: c.y - ay * k, x1: c.x + (w - ax) * k, y1: c.y + (h - ay) * k };
         } else if (scenery?.has(p.kind)) {
           const art = shown(scenery, p);
           scenery.drawProp(ctx, art, c.x, c.y, v.s * (PROP_K[art] ?? 1), dpr, 0, false, swayOf(p, now));
