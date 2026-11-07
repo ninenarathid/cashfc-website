@@ -104,7 +104,8 @@ export const LAMPS = {
    */
   maps: {
     // (the editor's farm, lib/town/farm2: its four fire bowls, the garden's two by its wells and two by the barn gates, in
-    // the old farm's order, and its 92 lamps, the map's 59 lanterns in the garden and 33 put on the barns' side)
+    // the old farm's order, and its 76 lamps, the map's own lanterns: 59 in the garden and, from its second export, 17
+    // along the barns' lanes, placed by its author)
     farm: F2 ? {
       fire: [F2_FIRES[0].x, F2_FIRES[0].y] as [number, number],
       fires: F2_FIRES.map((f): [number, number] => [f.x, f.y]),

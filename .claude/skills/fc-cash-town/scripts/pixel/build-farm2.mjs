@@ -31,7 +31,8 @@ import crypto from "node:crypto";
 import { REPO, exportReader, sharp, spriteWriter, toIso } from "./editor-export.mjs";
 
 const arg = (name, fallback) => { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : fallback; };
-const SRC = arg("--src", "E:/NinenineProject/fcnext/.claude/skills/fc-cash-town/scripts/pixel/work/oatto-farmv2");
+// (the second export, "oatto-farmv2 (1)", 2026-11-07: the first is kept beside it, work/oatto-farmv2)
+const SRC = arg("--src", "E:/NinenineProject/fcnext/.claude/skills/fc-cash-town/scripts/pixel/work/oatto-farmv2-1");
 const OUT = arg("--out", path.join(REPO, "public/town/farm2"));
 const JSON_OUT = arg("--json", path.join(REPO, "lib/town/farm2-map.json"));
 const DEBUG = arg("--debug", "");
@@ -270,14 +271,16 @@ const pond = (() => {
   return { cx: r2((x0 + x1) / 2 + OX), cy: r2((y0 + y1) / 2 + OY), rx: r2((x1 - x0) / 2 + 0.5), ry: r2((y1 - y0) / 2 + 0.5), tiles: wet.length };
 })();
 
-/* ── the lamps: the map's lanterns, and as many again on the barns' side ─────────────────────────────────────────── */
+/* ── the lamps: the map's lanterns (and, on a map with none on the barns' side, more put there) ───────────────────── */
 
-// (the owner, 2026-11-07, of the barns' side, where the map has none: "เราเพิ่มเองได้เลย เอาตามความเหมาะสม". The game's
-// farm has 92 lamp posts; the map's 59 stand in the garden, so 33 more are put on the barns' side, the map's own lantern
-// placed again: each, one at a time, on the free tile nearest the darkest ground that can be walked to there, seven
-// tiles or more from every lamp and fire, never on a road, in a barn or the pen, by the water, in front of a barn's door
-// or with a barn in front of it, until they are all put)
-const POSTS = 92, EAST = 84;
+// (the owner, 2026-11-07, of the barns' side, where the first export had none: "เราเพิ่มเองได้เลย เอาตามความเหมาะสม". The
+// game's farm had 92 lamp posts; that map's 59 stood in the garden, so 33 more were put on the barns' side, the map's own
+// lantern placed again: each, one at a time, on the free tile nearest the darkest ground that can be walked to there,
+// seven tiles or more from every lamp and fire, never on a road, in a barn or the pen, by the water, in front of a
+// barn's door or with a barn in front of it, until they were all put. The second export, the same evening, "oatto-farmv2
+// (1)", has the map's author's own 17 along the barns' lanes, and the owner: "ช่วยดู oatto-farmv2 (1) เรื่องโคมไฟ": his are
+// the lamps there, and none is added: 76 posts.)
+const EAST = 84, POSTS = lanterns.some((l) => l.tile[0] - OX >= EAST) ? lanterns.length : 92;
 const lampTiles = [...lanterns.map((l) => [l.tile[0] - OX, l.tile[1] - OY]), ...fires.map((f) => [f.tile[0] - OX, f.tile[1] - OY])];
 const barnTile = (x, y) => barnPlots.some((b) => x >= b.x - 1 && x <= b.x + b.w && y >= b.y - 1 && y <= b.y + b.h + 2);
 const isRoad = (x, y) => map.ground[y][x] === "r";
