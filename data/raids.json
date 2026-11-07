@@ -10233,8 +10233,12 @@
     "job": "Sage",
     "cleared": true,
     "job_kills": {
+     "Samurai": {
+      "kills": 3,
+      "best": 64
+     },
      "BlackMage": {
-      "kills": 23,
+      "kills": 25,
       "best": 39
      },
      "Dragoon": {
@@ -10249,29 +10253,33 @@
       "kills": 1,
       "best": 28
      },
-     "Samurai": {
-      "kills": 1,
-      "best": 26
+     "Sage": {
+      "kills": 21,
+      "best": 82
      },
      "DarkKnight": {
-      "kills": 15,
-      "best": 20
+      "kills": 20,
+      "best": 28
+     },
+     "Gunbreaker": {
+      "kills": 1,
+      "best": 19
+     },
+     "Astrologian": {
+      "kills": 1,
+      "best": 62
+     },
+     "Scholar": {
+      "kills": 5,
+      "best": 59
      },
      "Warrior": {
       "kills": 7,
       "best": 23
      },
-     "Sage": {
-      "kills": 15,
-      "best": 82
-     },
      "WhiteMage": {
       "kills": 20,
       "best": 67
-     },
-     "Scholar": {
-      "kills": 4,
-      "best": 52
      }
     }
    },
@@ -66964,7 +66972,7 @@
       "best": 93
      },
      "Viper": {
-      "kills": 4,
+      "kills": 5,
       "best": 68
      }
     }
@@ -74716,7 +74724,7 @@
     "encounter_id": 1079,
     "name": "Futures Rewritten",
     "best": 25,
-    "kills": 1,
+    "kills": 2,
     "job": "Dancer",
     "cleared": true
    },
@@ -74856,6 +74864,17 @@
     "zone": "Trials II (Extreme)",
     "zone_id": 67,
     "expansion": "Dawntrail",
+    "encounter_id": 1081,
+    "name": "Necron",
+    "best": 8,
+    "kills": 1,
+    "job": "Sage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
     "encounter_id": 1080,
     "name": "Zelenia",
     "best": 18,
@@ -74894,9 +74913,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1071,
     "name": "Valigarmanda",
-    "best": 53,
-    "kills": 29,
-    "job": "Warrior",
+    "best": 54,
+    "kills": 34,
+    "job": "Bard",
     "cleared": true,
     "job_kills": {
      "Bard": {
@@ -75355,20 +75374,7 @@
     ]
    }
   ],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 1079,
-    "name": "Futures Rewritten",
-    "kind": "ultimate",
-    "state": "cleared",
-    "pct": null,
-    "phase": 0,
-    "pulls": 4,
-    "last": "2026-11-01",
-    "last_ts": 1793552909
-   }
-  ]
+  "_status": "ok"
  },
  "39961214": {
   "current": {
@@ -82300,9 +82306,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 5,
-    "kills": 2,
-    "job": "Gunbreaker",
+    "best": 13,
+    "kills": 3,
+    "job": "BlackMage",
     "cleared": true,
     "job_kills": {
      "Gunbreaker": {
@@ -87233,7 +87239,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 9,
-    "kills": 15,
+    "kills": 17,
     "job": "DarkKnight",
     "cleared": true,
     "job_kills": {

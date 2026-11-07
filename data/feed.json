@@ -1,6 +1,20 @@
 {
  "events": [
   {
+   "date": "2026-11-07",
+   "type": "ex_clear",
+   "id": 39959181,
+   "name": "El Blung",
+   "text": "cleared Necron (Extreme)"
+  },
+  {
+   "date": "2026-11-07",
+   "type": "level_100",
+   "id": 42019777,
+   "name": "Peace Violet",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
    "date": "2026-11-06",
    "type": "rare_up",
    "id": 36183541,
@@ -1385,20 +1399,6 @@
    "id": 60429500,
    "name": "Jin Theape",
    "text": "reached level 100 on Dancer!"
-  },
-  {
-   "date": "2026-10-19",
-   "type": "rare_up",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "earned An Eye for Detail: Weaver IV — only 2.9% of players have it"
-  },
-  {
-   "date": "2026-10-19",
-   "type": "rare_up",
-   "id": 44970350,
-   "name": "Allen Crist",
-   "text": "earned Clare Obscurum: Longpole Obscurum — only 4.2% of players have it"
   }
  ]
 }
