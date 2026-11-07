@@ -20,7 +20,8 @@ import { isSpent } from "@/lib/town/stamina";
 import { ITEMS } from "@/lib/town/items";
 import { GRADES } from "@/lib/town/quality";
 import { animalIcon } from "@/lib/town/animal-icons";
-import { placeOf, type Vec } from "@/lib/town/world";
+import { F2, placeOf, type Vec } from "@/lib/town/world";
+import { farm2Art } from "@/lib/town/farm2-art";
 import { createClient } from "@/lib/supabase/client";
 import type { FarmFrame } from "./TownFarm";
 import TownFoot from "./TownFoot";
@@ -265,6 +266,8 @@ export default function TownPasture(props: PastureProps) {
   useEffect(() => {
     const draw = (frame: FarmFrame) => {
       const { ctx, things, project, onScreen, s, now: tick, still, self, over } = frame;
+      // (an isometric point on the screen: the editor's farm's pictures are placed in isometric pixels)
+      const isoScreen = (ix: number, iy: number) => project({ x: (ix / 32 + iy / 16) / 2, y: (iy / 16 - ix / 32) / 2 });
       const P = propsRef.current, w = worldRef.current, k = kit.current, sc = scenery.current, clock = keeper.now();
       const px = Math.abs(ctx.getTransform().a) || 1;
       const out: Hit[] = [];
@@ -307,7 +310,8 @@ export default function TownPasture(props: PastureProps) {
       if (map !== "farm") return;
 
       // ── Uncle Popoto's stall and himself, the making table, the village trough
-      { const r = { x: POPOTO.tiles[0][0], y: POPOTO.tiles[0][1], w: 3, h: 1 }, c = project({ x: r.x + 1.5, y: r.y + 0.5 }); if (onScreen(c)) {
+      // (the editor's farm draws its stall, its making table, its trough, its fences and the pen's: lib/town/farm2-art)
+      if (!F2) { const r = { x: POPOTO.tiles[0][0], y: POPOTO.tiles[0][1], w: 3, h: 1 }, c = project({ x: r.x + 1.5, y: r.y + 0.5 }); if (onScreen(c)) {
         things.push({ depth: r.x + r.y + 2, draw: () => { if (!drawPastureProp(ctx, k, PASTURE_ART.stall, c.x, c.y + 10 * s, s, px)) drawBlock(ctx, project, { x: r.x + 0.1, y: r.y + 0.1, w: 2.8, h: 0.9 }, "#8a5a2a", "#c89050", 16, s); } });
       } }
       { const at = project(POPOTO.at); if (onScreen(at)) {
@@ -317,14 +321,14 @@ export default function TownPasture(props: PastureProps) {
         if (s >= 0.6) tag(t("ลุง Popoto", "Uncle Popoto"), at.x, at.y - 74 * s, "#e5cc80");
       } }
       { const c = project({ x: TABLE[0] + 1, y: TABLE[1] + 0.5 }); if (onScreen(c)) {
-        things.push({ depth: TABLE[0] + TABLE[1] + 1.5, draw: () => { if (!drawPastureProp(ctx, k, PASTURE_ART.table, c.x, c.y + 6 * s, s, px)) drawBlock(ctx, project, { x: TABLE[0] + 0.1, y: TABLE[1] + 0.2, w: 1.8, h: 0.6 }, "#8a6a40", "#b89060", 14, s); } });
+        if (!F2) things.push({ depth: TABLE[0] + TABLE[1] + 1.5, draw: () => { if (!drawPastureProp(ctx, k, PASTURE_ART.table, c.x, c.y + 6 * s, s, px)) drawBlock(ctx, project, { x: TABLE[0] + 0.1, y: TABLE[1] + 0.2, w: 1.8, h: 0.6 }, "#8a6a40", "#b89060", 14, s); } });
         out.push({ kind: "table", x0: c.x - 30 * s, y0: c.y - 26 * s, x1: c.x + 30 * s, y1: c.y + 8 * s });
       } }
-      { const [tx, ty] = TROUGHS.village, c = project({ x: tx + 1, y: ty + 0.5 }); if (onScreen(c)) things.push({ depth: tx + ty + 1.5, draw: () => { if (!drawPastureProp(ctx, k, PASTURE_ART.villageTrough, c.x, c.y + 6 * s, s, px, true)) drawBlock(ctx, project, { x: tx + 0.1, y: ty + 0.25, w: 1.8, h: 0.5 }, "#7a5432", "#6aa8d8", 9, s); } }); }
+      if (!F2) { const [tx, ty] = TROUGHS.village, c = project({ x: tx + 1, y: ty + 0.5 }); if (onScreen(c)) things.push({ depth: tx + ty + 1.5, draw: () => { if (!drawPastureProp(ctx, k, PASTURE_ART.villageTrough, c.x, c.y + 6 * s, s, px, true)) drawBlock(ctx, project, { x: tx + 0.1, y: ty + 0.25, w: 1.8, h: 0.5 }, "#7a5432", "#6aa8d8", 9, s); } }); }
       // ── the fence down the west edge, its two wide gates, the hay and the rim's woods
       for (const g of FARM_GATES) {
-        for (const y of [g.rows[0] - 0.05, g.rows[1] + 1.05]) { const c = project({ x: FENCE_X + 0.5, y }); if (onScreen(c)) things.push({ depth: FENCE_X + 0.5 + y, draw: () => drawGateSide(ctx, project, FENCE_X, y, s, k, px) }); }
-        const c = project({ x: FENCE_X + 0.5, y: g.road + 1 });
+        if (!F2) for (const y of [g.rows[0] - 0.05, g.rows[1] + 1.05]) { const c = project({ x: FENCE_X + 0.5, y }); if (onScreen(c)) things.push({ depth: FENCE_X + 0.5 + y, draw: () => drawGateSide(ctx, project, FENCE_X, y, s, k, px) }); }
+        const c = project({ x: ("x" in g ? (g.x as number) : FENCE_X) + 0.5, y: g.road + 1 });
         // (from afar Uncle Popoto's own name says it: the gate's sign only close to)
         if (onScreen(c) && s >= 0.9) tag(g.name === "north" ? t("ฟาร์มเลี้ยงสัตว์ · ลุง Popoto", "Animal farm · Uncle Popoto") : t("ฟาร์มเลี้ยงสัตว์", "Animal farm"), c.x, c.y - 62 * s, "#e5cc80");
       }
@@ -336,8 +340,8 @@ export default function TownPasture(props: PastureProps) {
       }
       // ── Uncle Popoto's pen: its fence about whatever waits in it
       { const c = project({ x: PEN.x + PEN.w / 2, y: PEN.y + PEN.h / 2 }); if (onScreen(c)) {
-        things.push({ depth: PEN.x + PEN.y + 0.2, draw: () => drawPenFence(ctx, project, PEN, s, "back", k, px) });
-        things.push({ depth: PEN.x + PEN.w + PEN.y + PEN.h - 0.2, draw: () => drawPenFence(ctx, project, PEN, s, "front", k, px) });
+        if (!F2) things.push({ depth: PEN.x + PEN.y + 0.2, draw: () => drawPenFence(ctx, project, PEN, s, "back", k, px) });
+        if (!F2) things.push({ depth: PEN.x + PEN.w + PEN.y + PEN.h - 0.2, draw: () => drawPenFence(ctx, project, PEN, s, "front", k, px) });
         out.push({ kind: "pen", x0: c.x - 70 * s, y0: c.y - 40 * s, x1: c.x + 70 * s, y1: c.y + 30 * s });
         if (s >= 0.9) tag(t("คอกฝากของลุง", "Uncle's pen"), c.x, c.y - 52 * s, "#e5cc80");
       } }
@@ -354,13 +358,26 @@ export default function TownPasture(props: PastureProps) {
         const holder = herdOf.get(b.i) ?? null, mine = !!holder && holder.owner === me, roof = roofOf(b.i);
         const open = !!holder && doorOpenAt(holder.door, clock).open;
         const art = PASTURE_ART.barnFront[holder?.facade ?? 0] ?? PASTURE_ART.barn;
-        if (roof > 0) things.push({ depth: roof < 1 ? b.x + b.y + b.w + b.h - 0.4 : b.x + b.y + (b.w + b.h) / 2, draw: () => drawBarnOutside(ctx, k, project, b, art, s, px, open, roof) });
+        // ── the editor's farm ── (its four barn looks, the game's four fronts in the order they are bought, plainest first:
+        // shut, open, or from inside for whoever is in it, lib/town/farm2-art; a barn nobody holds is the plainest)
+        const f2 = F2 ? farm2Art() : null, look = holder?.facade ?? 0, push = (depth: number, draw: () => void) => things.push({ depth, draw });
+        if (f2 && roof > 0) f2.pushBarn(ctx, push, isoScreen, s, px, b, look, open ? "open" : "shut", roof);
+        else if (roof > 0) things.push({ depth: roof < 1 ? b.x + b.y + b.w + b.h - 0.4 : b.x + b.y + (b.w + b.h) / 2, draw: () => drawBarnOutside(ctx, k, project, b, art, s, px, open, roof) });
         if (roof < 1) {
           // (the trough's slots: each the animal of that place's, its feed and how full; a free barn's two, empty)
           const inside = (w?.animals ?? []).filter((a) => holder && a.owner === holder.owner && a.home !== "pen" && a.born <= clock).sort((x, y) => (x.id < y.id ? -1 : 1));
           const room = holder?.room ?? ANIMALS.barns.stages[0].room;
           const slots = Array.from({ length: troughOf(b, room).slots.length }, (_, i) => { const a = inside[i]; return a ? { species: a.species, food: views.current.get(a.id)?.v.food ?? a.food } : null; });
-          drawBarnInside(things, ctx, k, sc, project, b, s, px, { slots, eggs: holder ? coming(holder.owner) : 0, open, alpha: 1 - roof });
+          drawBarnInside(things, ctx, k, sc, project, b, s, px, { slots, eggs: holder ? coming(holder.owner) : 0, open, alpha: 1 - roof, bare: !!f2 });
+          if (f2) {
+            // its inside, and a tray for each place along the back wall: full while that place's animal has food in it (the
+            // owner, 2026-11-07, of the map's trays against the one long trough: "เอาแบบใหม่")
+            f2.pushBarn(ctx, push, isoScreen, s, px, b, look, "inside", 1 - roof);
+            troughOf(b, room).slots.forEach((slot, i) => {
+              const at = { x: (slot.x0 + slot.x1) / 2, y: b.y + 0.5 };
+              f2.pushTray(ctx, push, isoScreen, s, px, at, (slots[i]?.food ?? 0) > 0.02, at.x + at.y, 1 - roof);
+            });
+          }
           // (what is tapped inside: the trough and the nest)
           const tr = troughOf(b, room), tr0 = project({ x: tr.x0, y: b.y + 0.3 }), tr1 = project({ x: tr.x1, y: b.y + 0.3 });
           out.push({ kind: "trough", barn: b.i, x0: Math.min(tr0.x, tr1.x) - 8 * s, y0: Math.min(tr0.y, tr1.y) - 30 * s, x1: Math.max(tr0.x, tr1.x) + 8 * s, y1: Math.max(tr0.y, tr1.y) + 10 * s });
@@ -382,7 +399,8 @@ export default function TownPasture(props: PastureProps) {
         // its sign over the roof: whose it is, or free (mine gold); none from inside it
         if (roof >= 0.5 && s >= 0.5) {
           // (over the middle of the roof's ridge: measured on the barn's picture, its own pixels from the walls' front corner)
-          const kk = s * ((b.w + b.h) * 32) / 458, top = { x: C.x - 71 * kk, y: C.y - 300 * kk - 6 };
+          const kk = s * ((b.w + b.h) * 32) / 458, pic = f2?.barnBox(b, look, "shut", isoScreen, s) ?? null;
+          const top = pic ? { x: (pic.x0 + pic.x1) / 2, y: pic.y0 - 4 } : { x: C.x - 71 * kk, y: C.y - 300 * kk - 6 };
           const text = holder ? (mine ? t(`โรงของฉัน · ${b.i + 1}`, `My barn · ${b.i + 1}`) : `${nameOf(holder.owner).slice(0, 14)} · ${b.i + 1}`) : `${barnName(b.i, th)} · ${t("ว่าง", "free")}`;
           tag(text, top.x, top.y, mine ? "#ffd772" : holder ? "#f3e3c3" : "#a8f0c0");
           out.push({ kind: "barn", barn: b.i, x0: top.x - 60, y0: top.y - 10, x1: top.x + 60, y1: top.y + 10 });

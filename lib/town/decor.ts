@@ -1,4 +1,4 @@
-import { FARM, FARM_PUMPKINS, KEEPERS, NORTH_WOOD, T2, TOWN, placeOf, type Place, type Prop } from "./world";
+import { F2, FARM, FARM_PUMPKINS, KEEPERS, NORTH_WOOD, T2, TOWN, placeOf, type Place, type Prop } from "./world";
 
 /**
  * What Cash Town has only to look at, from pixel art that came drawn (the
@@ -90,8 +90,9 @@ export const DECOR: Decor[] = [
     { art: "jacko", x: KEEPERS[0].tiles[1][0] + 0.8, y: KEEPERS[0].tiles[1][1] + 0.85, carved: true },
     { art: "jacko2", x: KEEPERS[1].tiles[1][0] + 0.8, y: KEEPERS[1].tiles[1][1] + 0.85, carved: true, mirror: true },
   ] as Decor[]),
-  ...FARM_PUMPKINS.map(([u, v], i): Decor => ({ art: i % 2 ? "pumpkin2" : "pumpkin", x: FARM.x + u + 0.55, y: FARM.y + v + 0.6, mirror: i > 1 })),
-  ...([[3, 20], [2, 24]] as const).map(([u, v], i): Decor => ({ art: i % 2 ? "pumpkin" : "pumpkin2", x: FARM.x + u + 0.88, y: FARM.y + v + 0.86 })),
+  // (the old farm's great pumpkins and the two by its gate: the editor's farm has its own things, lib/town/farm2)
+  ...(F2 ? [] : FARM_PUMPKINS.map(([u, v], i): Decor => ({ art: i % 2 ? "pumpkin2" : "pumpkin", x: FARM.x + u + 0.55, y: FARM.y + v + 0.6, mirror: i > 1 }))),
+  ...(F2 ? [] : ([[3, 20], [2, 24]] as const).map(([u, v], i): Decor => ({ art: i % 2 ? "pumpkin" : "pumpkin2", x: FARM.x + u + 0.88, y: FARM.y + v + 0.86 }))),
 ];
 
 /** Whether carved pumpkins are out: from the first of October to the second of November, by Bangkok's calendar. */

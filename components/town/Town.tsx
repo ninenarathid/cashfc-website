@@ -7,13 +7,16 @@ import type { TownMapAddon } from "@/lib/town/map-addon";
 import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
-  BENCHES, BEYOND_PROPS, BOARD, TRADE_BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_ALL, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SMITH, SPEED, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle, T2, liftAt,
+  BENCHES, BEYOND_PROPS, BOARD, TRADE_BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_ALL, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SMITH, SPEED, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle, T2, F2, liftAt,
   atFire, atWell, wellBy, benchAt, bySmith, byStorebox, distance, fishFrom, fromIso, indoors as underRoof, isBuilt, isFar, setBridge, setBuilt, setFar, setCasinoDoor, groundAt, hearing, inDiningYard, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
 import { bridgeSpans, bridgeWhole } from "@/lib/town/bridge";
 import { DECOR, FACES, artOf, carving, gateLook, ringAt } from "@/lib/town/decor";
 // ── the editor's town ── (lib/town/town2: drawn from its own pictures, fetched as they come near the view)
 import { Town2Art } from "@/lib/town/town2-art";
+import { farm2Art } from "@/lib/town/farm2-art";
+import { drawPixelFlames } from "./flames";
+import { F2_BENCH_OF, F2_CHESTS, F2_SCARECROWS } from "@/lib/town/farm2";
 import { T2_CASINO_DOOR, T2_CHEST_OPEN, T2_CHEST_SHUT, T2_LAMP_LIGHT, T2_PROP_THING, T2_RINGS, T2_THINGS, t2RiverPoint } from "@/lib/town/town2";
 // ── Granny Twilla's clothes shop ── (lib/town/shop-room: a room of its own, drawn from its own pictures as it comes near)
 import { ShopRoomArt } from "@/lib/town/shop-room-art";
@@ -341,6 +344,14 @@ const KEYS: Record<string, [number, number]> = {
 };
 
 /** How far above a bench's ground point its seat is (a picture pixel is a unit). */
+/** The farm was switched (v323) since this page was read: it loads again, once, after a moment (a deed in hand is let go). */
+let farmMoving = false;
+function farmMoved() {
+  if (farmMoving || typeof window === "undefined") return;
+  farmMoving = true;
+  try { localStorage.removeItem("cashtown:farm"); } catch { /* asked again on loading */ }
+  window.setTimeout(() => window.location.reload(), 1200);
+}
 const SEAT_LIFT = 12;
 /** A log by the forest camp's fire is lower than a bench. */
 const LOG_LIFT = 7;
@@ -863,6 +874,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       if (supabase) {
         made = new DbKeeper(me.id, async (fn, args) => {
           const { data, error } = await supabase.rpc(fn, args ?? {});
+          // (the farm was switched since this page was read, v323: the page loads again, with the farm as it is now)
+          if (error?.message?.includes("farm-moved")) { farmMoved(); return null; }
           // (refused outright: not signed in, no proved character, or the game not open to them yet)
           if (error) return error.code === "42501" ? { denied: true } : null;
           return data;
@@ -1924,28 +1937,29 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     ctx.restore();
   }
 
+  /** How much of each of the editor's farm's scarecrows is drawn now (lib/town/farm2's F2_SCARECROWS). */
+  const scareSeen = useRef(new Map<number, number>());
+  /**
+   * How much of a scarecrow of the editor's farm is drawn: faded to see through while I stand at the beds behind it, up
+   * the screen from it (the owner, 2026-11-07: "เอากลับมาแต่ทำให้ถ้าบังแปลงผัก ยังสามารถ interact กับแปลงผักข้างหลังได้"),
+   * eased in and out. A tap goes through it to the ground in any case: it is no place to tap.
+   */
+  function scarecrowSeen(i: number, at: Vec | null): number {
+    const sc = F2_SCARECROWS.find((q) => q.thing === i);
+    if (!sc) return 1;
+    const dx = at ? at.x - (sc.x + 0.5) : 99, dy = at ? at.y - (sc.y + 0.5) : 99;
+    const want = dx + dy < 0.5 && dx > -7 && dx < 4 && dy > -13 && dy < 4 ? 0.3 : 1;
+    const was = scareSeen.current.get(i) ?? 1, now = reducedRef.current ? want : was + (want - was) * 0.12;
+    scareSeen.current.set(i, now);
+    return now;
+  }
+
   /**
    * The camp fire's flames (the owner, 2026-10-03: "ไฟตรงกลางลานอาหาร ช่วยทำให้มี อนิเมชัน"): three tongues of square pixels,
    * one inside the next, licking and leaning by the clock, and a few sparks going up. (x, y) is the fire's foot.
    */
   function drawFlames(ctx: CanvasRenderingContext2D, x: number, y: number, k: number, now: number) {
-    const t = reducedRef.current ? 0 : now, px = 2 * k;
-    const tongues: Array<[string, number, number, number]> = [["#d9481c", 13, 15, 0], ["#f58a1f", 9, 12, 1.7], ["#ffd24a", 5, 8, 3.1]];
-    for (const [colour, wide, tall, beat] of tongues) {
-      ctx.fillStyle = colour;
-      for (let r = 0; r < tall; r++) {
-        const up = r / tall;
-        const w = Math.max(1, Math.round(wide * (1 - up) ** 0.75 * (0.82 + 0.18 * Math.sin(t / 110 + r * 0.9 + beat))));
-        const lean = Math.round((Math.sin(t / 170 + r * 0.45 + beat) * 1.6 + Math.sin(t / 61 + beat) * 0.7) * up);
-        ctx.fillRect(Math.round(x + (lean - w / 2) * px), Math.round(y - (r + 1) * px), Math.ceil(w * px), Math.ceil(px));
-      }
-    }
-    if (reducedRef.current) return;
-    for (let i = 0; i < 5; i++) {
-      const life = (t / 1500 + i * 0.211) % 1;
-      ctx.fillStyle = `rgba(255,${Math.round(205 - life * 90)},90,${(1 - life) * 0.9})`;
-      ctx.fillRect(Math.round(x + (Math.sin(i * 12.9) * 9 + Math.sin(life * 6 + i) * 4) * k), Math.round(y - (26 + life * 52) * k), Math.ceil(px * 0.75), Math.ceil(px * 0.75));
-    }
+    drawPixelFlames(ctx, x, y, k, reducedRef.current ? 0 : now);
   }
 
   /** A soft round light at a point of the screen, added to what is there. */
@@ -2003,7 +2017,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       if (g.from !== placeRef.current || !scenery.has(ring) || (T2 && g.from === "town") || g.from === "shop" || g.from === "casino") continue;
       const c = project(ringAt(g));
       if (!onScreen(c)) continue;
-      scenery.drawProp(ctx, ring, c.x, c.y, s, dpr);
+      // (the editor's farm's rings are its own pictures, drawn with its floor: only their motes here)
+      if (!(F2 && g.from === "farm")) scenery.drawProp(ctx, ring, c.x, c.y, s, dpr);
       if (reducedRef.current) continue;
       for (let i = 0; i < 6; i++) {
         const life = (now / 2800 + i * 0.173) % 1, turn = i * 2.4 + 0.7, out = 8 + ((i * 37) % 19);
@@ -2389,6 +2404,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const iso2 = (ix: number, iy: number) => toScreen(v, { x: ix, y: iy }, cw, ch);
     if (art2) art2.carving = forcedCarving.current ?? carving(Date.now());
     const seen2 = art2 ? art2.visible({ x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, now) : null;
+    // ── the editor's farm ── (lib/town/farm2-art: what of it is near the view, while I am on the farm)
+    const artF = scenery && F2 && placeRef.current === "farm" ? farm2Art() : null;
+    const seenF = artF ? artF.visible({ x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, now) : null;
     // ── Granny Twilla's clothes shop ── (lib/town/shop-room-art: nothing of it is fetched until it is near the view)
     const roomArt = scenery ? shopArtRef.current : null;
     const seenShop = roomArt ? roomArt.visible({ x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, now) : null;
@@ -2396,6 +2414,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // seen from a room.)
     if (scenery && !underRoof(placeRef.current)) drawRiver(ctx, scenery, dpr);
     if (art2 && seen2) art2.drawFloor(ctx, seen2, iso2, v.s, dpr, reducedRef.current ? 0 : now, inHall);
+    if (artF && seenF) artF.drawFloor(ctx, seenF, iso2, v.s, dpr, reducedRef.current ? 0 : now);
     if (roomArt && seenShop) roomArt.drawFloor(ctx, seenShop, iso2, v.s, dpr);
     // ── the Popoto Casino ── (its floor and walls, under everybody, while it is near the view)
     const casinoArt = scenery ? casinoArtRef.current : null;
@@ -2449,6 +2468,29 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     for (const b of BUILDINGS) things.push({ depth: b.x + b.y + (b.w + b.h) / 2, draw: () => drawBuilding(ctx, b, signs) });
     // ── the editor's town ── (its things back to front with everybody: the chest open while my panel of it is; and where
     // its benches, its chest and its boards are on the screen, for taps)
+    // ── the editor's farm ── (its things back to front with everybody: a chest's lid up while my panel is open and I stand
+    // by it; a scarecrow see-through while I am at the beds behind it; where its chests and benches are, for taps)
+    if (artF && seenF) {
+      const at = mine?.pos ?? null, near = (t: { x: number; y: number }) => (at ? Math.hypot(t.x + 1 - at.x, t.y + 0.5 - at.y) : Infinity);
+      const openChest = boxShown.current && at ? F2_CHESTS.find((c) => c.open !== null && c.tiles.some(([x, y]) => Math.max(Math.abs(Math.floor(at.x) - x), Math.abs(Math.floor(at.y) - y)) <= BOX.reach)) : undefined;
+      const push = (depth: number, draw: () => void) => things.push({ depth, draw });
+      artF.pushStanding(ctx, openChest ? seenF.filter((t) => t.i !== openChest.shut) : seenF, push, iso2, v.s, dpr, (i) => scarecrowSeen(i, at));
+      if (openChest?.open != null) artF.pushThing(ctx, push, openChest.open, iso2, v.s, dpr);
+      for (const c of F2_CHESTS) {
+        const box = artF.boxOf(c.shut, iso2, v.s);
+        if (box && (!storeBox.current?.at || near(c) < near(storeBox.current.at))) storeBox.current = { ...box, at: { x: c.x, y: c.y } };
+      }
+      for (const p of BENCHES) {
+        if (p.of === undefined || p.of < F2_BENCH_OF) continue;
+        const box = artF.boxOf(p.of - F2_BENCH_OF, iso2, v.s);
+        if (!box) continue;
+        // (a bench's picture shared between its places, left and right as they are on the screen)
+        const xs = BENCHES.filter((q) => q.of === p.of && q.seat).map((q) => project(q.seat!).x).sort((a, b) => a - b);
+        const sx = p.seat ? project(p.seat).x : 0, k = xs.indexOf(sx);
+        const x0 = k > 0 ? (xs[k - 1] + sx) / 2 : box.x0, x1 = k >= 0 && k < xs.length - 1 ? (sx + xs[k + 1]) / 2 : box.x1;
+        benchBoxes.current.push({ i: benchIndex.get(p) ?? -1, ...box, x0, x1, depth: p.x + p.y });
+      }
+    }
     if (art2 && seen2) {
       const hide = new Set([boxShown.current ? T2_CHEST_SHUT : T2_CHEST_OPEN]);
       art2.pushStanding(ctx, seen2.filter((t) => !hide.has(t.i)), (depth, draw) => things.push({ depth, draw }), iso2, v.s, dpr, inHall);
@@ -2722,9 +2764,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         continue;
       }
       // (the editor's town's gateways are its own pictures, drawn with the rest of it: only their names and taps here)
-      if (T2 && g.from === "town") {
+      if ((T2 && g.from === "town") || (F2 && g.from === "farm")) {
         const th = words.current.th, more = moreArt.current?.gateName(g, th) ?? null;
-        const leads = more ?? (g.leads === "farm" ? (th ? "ไปแปลงผัก" : "To the farm") : g.leads === "forest" ? (th ? "ไปป่า" : "To the forest") : (th ? "ไปภูเขา" : "To the mountain"));
+        const leads = more ?? (g.leads === "farm" ? (th ? "ไปแปลงผัก" : "To the farm") : g.leads === "forest" ? (th ? "ไปป่า" : "To the forest")
+          : g.leads === "town" ? (th ? "กลับเข้าเมือง" : "Back to town") : (th ? "ไปภูเขา" : "To the mountain"));
         gateBoxes.current.push({ to: g.tiles[0], x0: c.x - 70 * v.s, y0: c.y - 150 * v.s, x1: c.x + 70 * v.s, y1: c.y + 10 * v.s });
         signs.push(() => label(ctx, leads, c.x, c.y - 150 * v.s, "#e5cc80", "rgba(15,19,25,0.82)", popotoImg.current));
         continue;
@@ -2792,7 +2835,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       // ── the pasture ── (its buildings, animals, eggs, Uncle Popoto, the gate; and the hay wagon on whichever map it is)
       pastureHooks.current?.draw(frame);
     }
-    if (scenery && placeRef.current === "farm") for (const p of FARM_PROPS) {
+    if (scenery && placeRef.current === "farm" && !F2) for (const p of FARM_PROPS) {
       const c = project({ x: p.x + 0.5, y: p.y + 0.62 });
       if (!onScreen(c) || !scenery.has(p.kind)) continue;
       if (p.kind === "storebox") {

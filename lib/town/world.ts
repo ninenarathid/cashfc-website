@@ -26,11 +26,13 @@ import { ANCIENT as CEDAR, GATE_ROWS, LOOKOUT as LOOKOUT_AT, MOUNTAIN_H, MOUNTAI
 // ── the second main town (2026-10-22): which town this page has (lib/town/town-map), and the editor's town's own parts ──
 import { T2 } from "./town-map";
 import * as town2 from "./town2";
+import { F2 } from "./farm-map";
+import * as farm2 from "./farm2";
 // ── Granny Twilla's clothes shop (2026-10-25): a room of its own, entered by the townhouse's door (lib/town/shop-room) ──
 import * as room from "./shop-room";
 // ── the Popoto Casino (2026-10-27): a room of its own, entered by the kura's door (lib/town/casino-room) ──
 import * as casino from "./casino-room";
-export { T2 };
+export { T2, F2 };
 
 /** The town's columns: 64, or the editor's town's 80 (lib/town/town2). */
 export const COLS = T2 ? town2.T2_COLS : 64;
@@ -870,7 +872,9 @@ export const PROPS: Prop[] = T2 ? PROPS_FIRST : (() => {
  * always were; the logs round the forest camp's fire are added after them, where the forest is laid out (the owner,
  * 2026-10-05: "ท่อนไม้แถว กองไฟ ช่วยทำให้นั่งได้ด้วย เหมือนเก้าอี้").
  */
-export const BENCHES: Prop[] = PROPS.filter((p) => p.kind === "bench");
+export const BENCHES: Prop[] = [...PROPS.filter((p) => p.kind === "bench"),
+  // (the editor's farm's, after the town's: lib/town/farm2, each place on its benches as the map has it)
+  ...(F2 ? farm2.F2_BENCHES : [])];
 
 /**
  * Sitting on the ground where you stand (the emote window, the owner's call, 2026-10-02), told to the room in
@@ -913,7 +917,10 @@ const solidFirst = new Set(PROPS_FIRST.filter((p) => p.solid).map((p) => `${p.x}
  * pointing past the south rim): as many beds again, laid as the first half is, beyond the old rim's trees, with the
  * north–south lane running on down to them and a lane of its own across. Its beds are numbered after the first 24.
  */
-export const FARM = { x: 128, y: 0, w: 60, h: 86 };
+export const FARM: { x: number; y: number; w: number; h: number } = F2
+  // (the editor's farm, 2026-11-07: one map of 150 x 110, garden and barns together, lib/town/farm2; its corner the same)
+  ? { x: farm2.F2_RECT.x, y: farm2.F2_RECT.y, w: farm2.F2_RECT.w, h: farm2.F2_RECT.h }
+  : { x: 128, y: 0, w: 60, h: 86 };
 /**
  * The farm as it was before its southern half: what the insects' haunts were laid out on (asBuilt), which the
  * database keeps a copy of. Nothing of it moved when the half came; the trees of its south rim stand where they stood,
@@ -972,11 +979,13 @@ function isPlot(u: number, v: number): boolean {
   return a >= 0 && a % 8 !== 7 && quarterOf(v) !== null;
 }
 /** Whether a tile is one of the farm's plots. */
-export const plotAt = (tx: number, ty: number) => within(tx, ty, farmNow()) && isPlot(tx - FARM.x, ty - FARM.y);
+export const plotAt = (tx: number, ty: number) => (F2 ? farm2.f2BedOf(tx, ty) >= 0 : within(tx, ty, farmNow()) && isPlot(tx - FARM.x, ty - FARM.y));
 /** How many beds the farm has: six across, eight down (four of them the southern half's, beds 24 to 47). */
 export const BEDS_IN_FARM = 48;
 /** Which of the farm's beds a plot is in, counted along the rows from the north-west corner; −1 for a tile that is not a plot. */
 export function bedOf(tx: number, ty: number): number {
+  // (the editor's farm: its beds, numbered as the game's, where the map has them)
+  if (F2) return farm2.f2BedOf(tx, ty);
   if (!plotAt(tx, ty)) return -1;
   const u = tx - FARM.x, { q, b } = quarterOf(ty - FARM.y)!;
   const a = u < 27 ? u - 4 : u - 33;
@@ -998,6 +1007,7 @@ export function plotsOfBed(tx: number, ty: number): Array<[number, number]> {
 }
 /** A bed's corner tile nearest the top of the screen (its smallest x and y). */
 export function bedCorner(bed: number): [number, number] {
+  if (F2) return farm2.f2BedCorner(bed);
   const col = bed % 6, row = Math.floor(bed / 6);
   return [FARM.x + (col < 3 ? 4 : 33) + (col % 3) * 8, FARM.y + 4 + Math.floor(row / 2) * QUARTER + (row % 2) * 8];
 }
@@ -1007,7 +1017,7 @@ export function bedCorner(bed: number): [number, number] {
  * filled by buckets carried from the town's river. Somebody on a tile beside
  * it is at it.
  */
-export const WELL = { x: FARM.x + 28, y: FARM.y + 23 };
+export const WELL: { x: number; y: number } = F2 ? { x: farm2.F2_WELLS[0].x, y: farm2.F2_WELLS[0].y } : { x: FARM.x + 28, y: FARM.y + 23 };
 /**
  * The farm's wells: the first, and since its southern half a second where that half's lanes cross (the owner,
  * 2026-10-19: "บ่อน้ำเพิ่มเติมด้วยก็ได้"). **Each keeps its own water** (the same day: "ช่วยทำให้ น้ำแต่ละบ่อ มีน้ำแยกกัน"):
@@ -1015,9 +1025,15 @@ export const WELL = { x: FARM.x + 28, y: FARM.y + 23 };
  * a plant watered takes from the well nearest it (`wellOf`: the first half's the first well's, the southern half's the
  * second's; and of the waters, "แยกตามบ่อ"). The well's book of who carried what, the jar and the gifts are the farm's.
  */
-export const WELLS: ReadonlyArray<{ x: number; y: number }> = [WELL, { x: FARM.x + 28, y: FARM.y + 65 }];
+export const WELLS: ReadonlyArray<{ x: number; y: number }> = F2 ? farm2.F2_WELLS.map((w) => ({ x: w.x, y: w.y })) : [WELL, { x: FARM.x + 28, y: FARM.y + 65 }];
+/**
+ * How many tiles across and down a well is: the old farm's one, the editor's farm's two (its stone well, lib/town/farm2),
+ * named by its west-most tile; beside it is a tile next to it, the corners too (the catalog's `farming.wellSize`).
+ */
+export const WELL_SIZE = F2 ? 2 : 1;
 /** Which well a tile stands beside (one of the eight about it), by its number in WELLS; −1 for none. */
-export const wellBy = (tx: number, ty: number) => WELLS.findIndex((w) => Math.max(Math.abs(tx - w.x), Math.abs(ty - w.y)) === 1);
+export const wellBy = (tx: number, ty: number) => WELLS.findIndex((w) => tx >= w.x - 1 && tx <= w.x + WELL_SIZE && ty >= w.y - 1 && ty <= w.y + WELL_SIZE
+  && !(tx >= w.x && tx < w.x + WELL_SIZE && ty >= w.y && ty < w.y + WELL_SIZE));
 export const atWell = (tx: number, ty: number) => wellBy(tx, ty) >= 0;
 /** The well nearest a point, by its number in WELLS (the first of two as near): whose water's nature a plant there takes. */
 export const wellOf = (x: number, y: number) => WELLS.reduce((best, w, i) => ((x - w.x) ** 2 + (y - w.y) ** 2 < (x - WELLS[best].x) ** 2 + (y - WELLS[best].y) ** 2 ? i : best), 0);
@@ -1077,7 +1093,11 @@ export const FARM_PROPS_FIRST: Prop[] = (() => {
  * the owner, 2026-10-19, "ช่วยลบต้นไม้ตรงกลาง ระหว่าง ฟาร์มเก่า ใหม่ ออกด้วย", every one), and the southern half's: the
  * fence on down the west edge, hay where its lanes cross, and woods along its east and south.
  */
-export const FARM_PROPS: Prop[] = (() => {
+export const FARM_PROPS: Prop[] = F2
+  // (the editor's farm: its things are the map's, drawn by lib/town/farm2-art; of them the game's props are only its two
+  // storage chests, each on the west of its two tiles, for lib/town/box's MORE_CHESTS)
+  ? farm2.F2_CHESTS.map((c): Prop => ({ kind: "storebox", x: c.x, y: c.y, solid: true }))
+  : (() => {
   // (and, the owner, 2026-10-20, of the animal farm's two gates in the east rim: "ลบต้นไม้แถวๆประตูออกให้หมดด้วย")
   const gap = (p: Prop) => (p.y - FARM.y >= 41 && p.x - FARM.x < 57) || nearFarmGate(p.x - FARM.x, p.y - FARM.y);
   const out = FARM_PROPS_FIRST.filter((p) => !["tree", "pine", "bush"].includes(p.kind) || (farmGround(p.x - FARM.x + 0.5, p.y - FARM.y + 0.5, false) === "grass" && !gap(p)));
@@ -1646,19 +1666,30 @@ type Gate = { from: Place; leads: Place; tiles: Array<[number, number]>; to: Vec
  * to the farm (the first and the second, side by side), and the far ends of the two west bridges to the mountain; the other
  * maps' gates back are as they were, but where they put you in this town. In the same order as the old town's.
  */
+/**
+ * The farm's ways in from the town and out to it, north and south: where one arrives, the tiles that take one back, and
+ * where the gateway stands. The old farm's: its west edge, where its two lanes come in. The editor's farm's: its two
+ * rings of light under the village gateways on its west roads (lib/town/farm2), one arriving a little east of the ring.
+ */
+const FARM_WAYS: Array<{ to: Vec; tiles: Array<[number, number]>; arch: Vec }> = F2
+  ? farm2.F2_RINGS.map((r) => {
+    const x0 = Math.floor(r.x - 0.5), y0 = Math.floor(r.y - 0.5);
+    return { to: { x: x0 + 3.5, y: y0 + 0.5 }, tiles: [[x0, y0], [x0 + 1, y0], [x0, y0 + 1], [x0 + 1, y0 + 1]], arch: { x: r.x, y: r.y } };
+  })
+  : [21, 63].map((v) => ({ to: { x: FARM.x + 2.5, y: FARM.y + v + 0.5 }, tiles: [[FARM.x, FARM.y + v], [FARM.x, FARM.y + v + 1]], arch: { x: FARM.x + 1.5, y: FARM.y + v + 1 } }));
 const T2_GATES = (): Gate[] => {
   const G = town2.T2_GATES;
   return [
-    { from: "town", leads: "farm", tiles: G.farm.tiles, to: { x: FARM.x + 2.5, y: FARM.y + 21.5 }, arch: G.farm.arch },
-    { from: "farm", leads: "town", tiles: [[FARM.x, FARM.y + 21], [FARM.x, FARM.y + 22]], to: G.farm.back, arch: { x: FARM.x + 1.5, y: FARM.y + 22 } },
+    { from: "town", leads: "farm", tiles: G.farm.tiles, to: FARM_WAYS[0].to, arch: G.farm.arch },
+    { from: "farm", leads: "town", tiles: FARM_WAYS[0].tiles, to: G.farm.back, arch: FARM_WAYS[0].arch },
     { from: "town", leads: "forest", tiles: G.forest.tiles, to: { x: FOREST.x + 48.5, y: FOREST.y + 76.5 }, arch: G.forest.arch, across: true },
     { from: "forest", leads: "town", tiles: [[FOREST.x + 47, FOREST.y + 79], [FOREST.x + 48, FOREST.y + 79]], to: G.forest.back, arch: { x: FOREST.x + 48, y: FOREST.y + 78.5 }, across: true },
     ...(MT ? [
       { from: "town" as const, leads: "mountain" as const, tiles: G.mountain.tiles, to: { x: MOUNTAIN.x + MOUNTAIN.w - 3.5, y: MOUNTAIN.y + MT.GATE_ROWS[0] + 0.5 }, arch: G.mountain.arch },
       { from: "mountain" as const, leads: "town" as const, tiles: MT.GATE_ROWS.map((v): [number, number] => [MOUNTAIN.x + MOUNTAIN.w - 1, MOUNTAIN.y + v]), to: G.mountain.back, arch: { x: MOUNTAIN.x + MOUNTAIN.w - 1.5, y: MOUNTAIN.y + MT.GATE_ROWS[1] } },
     ] : []),
-    { from: "town", leads: "farm", tiles: G.farm2.tiles, to: { x: FARM.x + 2.5, y: FARM.y + 63.5 }, arch: G.farm2.arch },
-    { from: "farm", leads: "town", tiles: [[FARM.x, FARM.y + 63], [FARM.x, FARM.y + 64]], to: G.farm2.back, arch: { x: FARM.x + 1.5, y: FARM.y + 64 } },
+    { from: "town", leads: "farm", tiles: G.farm2.tiles, to: FARM_WAYS[1].to, arch: G.farm2.arch },
+    { from: "farm", leads: "town", tiles: FARM_WAYS[1].tiles, to: G.farm2.back, arch: FARM_WAYS[1].arch },
     // Granny Twilla's clothes shop (the owner, 2026-10-25): in by the townhouse's door (its threshold, a tile of the house
     // walked onto only to go in: findPath's DOORS), to the floor by the ring; out by the ring, to the street before the
     // door. Last of all, so that each before it is found as it was. Neither puts anybody on a gate's tile.
@@ -1674,14 +1705,14 @@ export const GATES: Gate[] = T2 ? T2_GATES() : [
   {
     from: "town", leads: "farm",
     tiles: [COLS - 2, COLS - 1].flatMap((x) => [...Array(ROWS_FIRST).keys()].filter((y) => isRoad(x, y)).map((y): [number, number] => [x, y])),
-    to: { x: FARM.x + 2.5, y: FARM.y + 21.5 },
+    to: FARM_WAYS[0].to,
     arch: { x: COLS - 1.5, y: pathMiddle(COLS - 1.5, COLS - 1.5 - PLAZA.x - PLAZA.w, EAST.seed) },
   },
   {
     from: "farm", leads: "town",
-    tiles: [[FARM.x, FARM.y + 21], [FARM.x, FARM.y + 22]],
+    tiles: FARM_WAYS[0].tiles,
     to: { x: COLS - 3.5, y: eastRow(COLS - 4) + 0.5 },
-    arch: { x: FARM.x + 1.5, y: FARM.y + 22 },
+    arch: FARM_WAYS[0].arch,
   },
   {
     from: "town", leads: "forest", across: true,
@@ -1756,6 +1787,8 @@ export function thingAt(tx: number, ty: number): Building | "fountain" | "shop" 
   if (room.inShop(tx, ty)) return isKeeper(tx, ty) ? "keeper" : room.shopOpen(tx, ty) ? null : "prop";
   // ── the Popoto Casino ── (its machines, sofa, counter and plants, as its interior has them)
   if (casino.inCasino(tx, ty)) return casino.casinoOpen(tx, ty) ? null : "prop";
+  // ── the editor's farm ── (its tiles as built: lib/town/farm2; a bench's seat is sat on from beside it)
+  if (F2 && farm2.inF2(tx, ty)) { const c = farm2.f2Tile(tx, ty); return c === "." ? null : c === "~" ? "water" : "prop"; }
   // ── the pasture ── (its buildings, troughs, stall, fences and woods, and the pond)
   if (!asWas && inPasture(tx, ty)) return pastureThing(tx, ty);
   if (within(tx, ty, farmNow())) return (asWas ? farmSolidFirst : farmSolid).has(`${tx},${ty}`) ? "prop" : null;
@@ -1988,6 +2021,7 @@ export function groundAt(tx: number, ty: number): Ground {
   if (PREVIEW && ty >= MOUNTAIN.y) { const g = moreLook(tx + 0.5, ty + 0.5); return g === "road" || g === "stair" ? "road" : g === "grass" || g === "wood" ? g : "sand"; }
   // (the clothes shop's wooden floor: of the town's kinds, the plaza's, on which nothing grows or lies wet)
   if (room.inShop(tx, ty) || casino.inCasino(tx, ty)) return "plaza";
+  if (F2 && farm2.inF2(tx, ty)) return farm2.f2TileGround(tx, ty);
   if (!asWas && inPasture(tx, ty)) return pastureGround(tx + 0.5, ty + 0.5);
   if (within(tx, ty, farmNow())) return farmGround(tx - FARM.x + 0.5, ty - FARM.y + 0.5);
   if (within(tx, ty, FOREST)) return forestGround(tx - FOREST.x + 0.5, ty - FOREST.y + 0.5);
@@ -2013,6 +2047,7 @@ export function groundLook(x: number, y: number): Ground | MoreGround | town2.T2
   if (T2) { const bank = town2.t2BankLook(x, y); if (bank) return bank; }
   // ── to come ── (the mountain, the cave's floors, what is seen beyond them, and the earth at the bridge's two ends)
   if (PREVIEW) { const more = moreLook(x, y); if (more) return more; }
+  if (F2 && farm2.inF2(x, y)) return farm2.f2Ground(x, y);
   if (!asWas && inPasture(x, y)) return pastureGround(x, y);
   if (within(x, y, farmNow())) return farmGround(x - FARM.x, y - FARM.y);
   if (within(x, y, FOREST)) return forestGround(x - FOREST.x, y - FOREST.y);
@@ -2111,6 +2146,8 @@ export function findPath(from: Vec, to: Vec): Vec[] | null {
       if (overKerb(cur.x, cur.y, nx, ny)) continue;
       // ── the pasture ── (into a barn and out of it only by its door, straight through it)
       if (!asWas && barnWall(cur.x, cur.y, nx, ny)) continue;
+      // ── the editor's farm ── (over none of its fences, through no barn's wall: lib/town/farm2's edges)
+      if (F2 && farm2.f2OverEdge(cur.x, cur.y, nx, ny)) continue;
       // Diagonals only where both sides are open, so nobody clips a corner. (But across the finished yard's floor
       // they are straight up, down and across the screen, which is how its furniture stands: there they are free.)
       if (dx && dy && (!walkable(cur.x + dx, cur.y) || !walkable(cur.x, cur.y + dy)) && !(onYard(cur.x, cur.y) && onYard(nx, ny))) continue;

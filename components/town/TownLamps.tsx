@@ -12,7 +12,10 @@ import type { SceneryKit, Sprite } from "@/lib/town/scenery";
 import type { FishSfx } from "@/lib/town/sfx";
 import { isSpent } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
-import { FARM, FARM_PUMPKINS, FOREST, GREAT_TREE, TILE_W, WATERFALL, WELLS, findPath, groundAt, placeOf, plotAt, walkable, type Vec } from "@/lib/town/world";
+import { F2, FARM, FARM_PUMPKINS, FOREST, GREAT_TREE, TILE_W, WATERFALL, WELLS, findPath, groundAt, placeOf, plotAt, walkable, type Vec } from "@/lib/town/world";
+import { F2_FIRES, F2_LAMPS } from "@/lib/town/farm2";
+import { farm2Art } from "@/lib/town/farm2-art";
+import { drawPixelFlames } from "./flames";
 import type { FarmFrame } from "./TownFarm";
 import TownFoot from "./TownFoot";
 
@@ -536,9 +539,19 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
       const soft = (rgb: string) => lightPicture(rgb);
 
       // ── the fire: the farm's braziers (the forest's is the camp's own, which the map draws), and the board by the first
+      // (an isometric point on the screen: the editor's farm's pictures are placed in isometric pixels)
+      const isoScreen = (ix: number, iy: number) => project({ x: (ix / 32 + iy / 16) / 2, y: (iy / 16 - ix / 32) / 2 });
+      const f2 = F2 && map === "farm" ? farm2Art() : null;
       for (const at of LAMPS.maps[map].fires) {
         const [fx, fy] = at, fire = tile(fx, fy);
-        if (map === "farm" && k.has("brazier") && inSight(fire, 80 * s, 120 * s)) {
+        const bowl = f2 ? F2_FIRES.find((f) => f.x === fx && f.y === fy) ?? null : null, pic = bowl && f2 ? f2.pictureOf(bowl.unlit) : null;
+        if (bowl && pic) {
+          // ── the editor's farm ── (its fire bowls are the map's own, lib/town/farm2-art: by night the game's flames rise from
+          // the logs in the bowl, never a still picture of a lit one; the bowl is the place to tap)
+          const a = isoScreen(pic.x, pic.y), mouth = isoScreen(pic.x + pic.w / 2, pic.y + pic.h * BOWL_MOUTH);
+          if (inSight(a, 80 * s, 120 * s)) boxes.current.fires.push([at, { x0: a.x, y0: a.y, x1: a.x + pic.w * s, y1: a.y + pic.h * s }, { name: "", x: a.x, y: a.y, z: s, own: true }]);
+          if (isNight && inSight(mouth, 80 * s, 120 * s)) things.push({ depth: (bowl.box[0] + bowl.box[2]) / 2 + (bowl.box[1] + bowl.box[3]) / 2 + 0.02, draw: () => drawPixelFlames(ctx, mouth.x, mouth.y, s * BOWL_FLAME, still ? 0 : t) });
+        } else if (map === "farm" && k.has("brazier") && inSight(fire, 80 * s, 120 * s)) {
           const name = isNight && k.has("brazierLit") ? "brazierLit" : "brazier", z = s * FIRE_K;
           boxes.current.fires.push([at, boxOf(name, fire, z, 4), { name, x: fire.x, y: fire.y, z }]);
           things.push({ depth: fx + fy + 1, draw: () => k.drawProp(ctx, name, fire.x, fire.y, z, px) });
@@ -568,15 +581,20 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
         if (!inSight(at, ringX, ringY + 90 * s)) return;
         const rise = !l ? 0 : still ? 1 : Math.max(0, Math.min(1, (clock - l.at) / RISE_MS));
         // (the post's own foot is on the tile's point: its picture has the lantern hanging out to one side of it)
-        const [pw] = k.sizeOf("lampPost"), dx = (pw / 2 - POST.foot) * z, lantern = { x: at.x + (POST.lantern - POST.foot) * z, y: at.y - POST.up * z };
+        const [pw] = k.sizeOf("lampPost"), dx = (pw / 2 - POST.foot) * z;
+        // (the editor's farm's lamps are its lanterns, which the map draws: their light at their own lantern, lib/town/farm2)
+        const own = f2 ? F2_LAMPS[i] ?? null : null;
+        const lantern = own ? isoScreen(own.head.x, own.head.y) : { x: at.x + (POST.lantern - POST.foot) * z, y: at.y - POST.up * z };
         const name = l && rise > 0.12 && k.has("lampPostLit") ? "lampPostLit" : "lampPost";
-        if (k.has(name)) {
+        const ownBox = own && f2 ? f2.boxOf(own.thing, isoScreen, s) : null;
+        if (ownBox) boxes.current.posts.push([i, ownBox, { name: "", x: at.x, y: at.y, z: s, lantern, foot: at, own: true }]);
+        else if (k.has(name)) {
           boxes.current.posts.push([i, boxOf(name, at, z, 4, dx), { name, x: at.x + dx, y: at.y, z, lantern, foot: at }]);
           things.push({ depth: x + y + 1, draw: () => k.drawProp(ctx, name, at.x + dx, at.y, z, px) });
         }
         // (what grows round it: shut and plain by day and by a dark post, open and glowing by a lit one)
         const grown = l && rise > 0.55 ? round[1] : round[0];
-        if (k.has(grown)) for (const [j, [ox, oy]] of ROUND.entries()) {
+        if (k.has(grown) && !own) for (const [j, [ox, oy]] of ROUND.entries()) {
           if (map === "forest" && j === 2) continue;
           const c = project({ x: x + 0.5 + ox, y: y + 0.62 + oy });
           things.push({ depth: x + ox + y + oy + 1, draw: () => k.drawProp(ctx, grown, c.x, c.y, s * round[2], px, 0, j === 1) });
@@ -777,7 +795,7 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
       const hit = (b: Box | null) => !!b && x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1;
       const b = boxes.current, at = hereRef.current, map = placeRef.current, told = lampsRef.current;
       // (a picture of the lamps' is tapped only where it is drawn, give or take a few of its pixels: past it is the ground)
-      const sk = kit.current, drawn = (a?: Art) => !a || !sk || sk.opaqueAt(a.name, (x - a.x) / a.z + sk.anchorOf(a.name)[0], (y - a.y) / a.z + sk.anchorOf(a.name)[1], 3);
+      const sk = kit.current, drawn = (a?: Art) => !a || !!a.own || !sk || sk.opaqueAt(a.name, (x - a.x) / a.z + sk.anchorOf(a.name)[0], (y - a.y) / a.z + sk.anchorOf(a.name)[1], 3);
 
       if (!map || !told) return null;
       const far = (t: Vec) => (at ? Math.hypot(t.x - at[0], t.y - at[1]) : 0);
@@ -1163,5 +1181,9 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
 }
 
 interface Box { x0: number; y0: number; x1: number; y1: number }
+/** Where a fire bowl of the editor's farm burns, as a share of its picture's height from the top (its logs), and how big its flames are to the camp fire's. */
+const BOWL_MOUTH = 0.4, BOWL_FLAME = 0.8;
 /** Where a picture of the lamps' was drawn: its name, its foot on the screen and its scale (for a tap on its pixels only). */
-interface Art { name: string; x: number; y: number; z: number; lantern?: Vec; foot?: Vec }
+interface Art { name: string; x: number; y: number; z: number; lantern?: Vec; foot?: Vec;
+  /** The editor's farm's own picture (lib/town/farm2-art), not the lamps' sheet's: its box is the place to tap. */
+  own?: boolean }

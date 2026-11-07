@@ -432,7 +432,9 @@ export function drawBarnOutside(ctx: CanvasRenderingContext2D, kit: SceneryKit |
  * ART: every part but the nest and the hay is a stand-in until the next art round's pa_barnInside and trough pieces.
  */
 export function drawBarnInside(things: Array<{ depth: number; draw: () => void }>, ctx: CanvasRenderingContext2D, kit: SceneryKit | null, scenery: SceneryKit | null, project: Project,
-  b: Box & { nest: readonly [number, number]; hay: readonly [number, number] }, s: number, px: number, opts: { slots: Array<{ species: string; food: number } | null>; eggs: number; open: boolean; alpha: number }) {
+  b: Box & { nest: readonly [number, number]; hay: readonly [number, number] }, s: number, px: number, opts: { slots: Array<{ species: string; food: number } | null>; eggs: number; open: boolean; alpha: number;
+    /** Only the nest and the hay: the editor's farm draws the barn's inside and its trays from its own pictures (lib/town/farm2-art). */
+    bare?: boolean }) {
   const { x, y, w, h } = b, base = x + y, WALL = 64;
   const P = (u: number, v: number) => project({ x: x + u, y: y + v });
   const up = (p: Vec, k: number) => ({ x: p.x, y: p.y - k * s });
@@ -440,8 +442,8 @@ export function drawBarnInside(things: Array<{ depth: number; draw: () => void }
   const fade = (draw: () => void) => () => { ctx.save(); ctx.globalAlpha *= opts.alpha; draw(); ctx.restore(); };
   // (drawn: pa_barnInside, its floor, back walls and the low front sill in one picture, under whoever stands inside;
   // the stand-ins below are drawn only while the sheet has none)
-  const drawn = !!kit?.has(PASTURE_ART.barnInside);
-  if (drawn) things.push({ depth: base - 1, draw: fade(() => { drawBuilding(ctx, kit, project, b, PASTURE_ART.barnInside, s, px); }) });
+  const drawn = !!opts.bare || !!kit?.has(PASTURE_ART.barnInside);
+  if (drawn && !opts.bare) things.push({ depth: base - 1, draw: fade(() => { drawBuilding(ctx, kit, project, b, PASTURE_ART.barnInside, s, px); }) });
   // the floor: boards along the barn, straw strewn in the stalls, the daylight through the door when it is open
   if (!drawn) things.push({ depth: base - 1, draw: fade(() => {
     poly([P(0, 0), P(w, 0), P(w, h), P(0, h)], BARN_INK.floor, BARN_INK.line);
@@ -464,7 +466,7 @@ export function drawBarnInside(things: Array<{ depth: number; draw: () => void }
     poly([up(w0, 30), up(w1, 30), up(w1, 50), up(w0, 50)], "#f6d98a", BARN_INK.trim, 2);
   }) });
   // the one trough along the back wall: its two ends and a slot for each place, each slot its animal's feed and level
-  {
+  if (!opts.bare) {
     const tr = troughOf(b, opts.slots.length), u0 = tr.x0 - x, u1 = tr.x1 - x, V0 = 0.06, V1 = V0 + TROUGH.depth, H = 13;
     // (behind whatever stands on the floor: it is against the back wall)
     things.push({ depth: base + 0.5, draw: fade(() => {

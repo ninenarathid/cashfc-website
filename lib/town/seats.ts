@@ -2,7 +2,7 @@ import { ANIMALS } from "./animals";
 import type { WagonRun } from "./animal-act";
 import { WAGON_STOPS } from "./pasture";
 import { RAM, riderOf, runOf } from "./riding";
-import { FARM, GATES, findPath, type Vec } from "./world";
+import { GATES, findPath, type Vec } from "./world";
 
 /**
  * Seats that are no seat of one's own (lib/town/room's `seat`): behind a cloud ram's rider, and on the hay wagon.
@@ -20,7 +20,8 @@ import { FARM, GATES, findPath, type Vec } from "./world";
 export const WAGON_LEG = { arrive: 0.15, stand: 0.45 } as const;
 /** Where each map's stop is, and the gates it comes in by and goes out by (to the next map of the tour). */
 const MAP_WAYS: Record<string, { in?: Vec; out?: Vec }> = {
-  farm: { out: { x: FARM.x + 0.5, y: FARM.y + 21.5 } },
+  // (out by the farm's first way back to the town: the old farm's west edge, the editor's farm's north ring)
+  farm: { out: { x: GATES[1].tiles[0][0] + 0.5, y: GATES[1].tiles[0][1] + 0.5 } },
   town: { in: GATES[1].to, out: { x: GATES[2].tiles[0][0] + 0.5, y: GATES[2].tiles[0][1] + 0.5 } },
   forest: { in: GATES[2].to },
 };

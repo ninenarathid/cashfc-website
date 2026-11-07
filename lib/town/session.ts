@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import { rememberTown, setTownActive } from "./active";
 import { Flood, LOG_MAX, REACH_DEFAULT, REACH_EVERY_MS, chatEvery, cleanChat, readReach, type ChatReach } from "./chat";
 import { TOWN_MAP, heardTownMap } from "./town-map";
+import { heardFarmMap } from "./farm-map";
 import { admit, fromRoom, hears, listed, newCircle, readWord, without, type Circle, type CircleWord } from "./circle";
 import { decodeLook, defaultLook, encodeLook, saveLook, savedLook, type Look } from "./look";
 import { joinTown, townClient, type Doing, type Identity, type Room, type RoomStatus } from "./room";
@@ -1004,7 +1005,10 @@ export class TownSession {
     if (this.closed || this.testTopic) return;
     try {
       const { data, error } = await this.client.rpc("town_map");
-      if (!error && heardTownMap(typeof data === "string" ? data : null) && typeof window !== "undefined") window.setTimeout(() => window.location.reload(), 1500);
+      if (!error && heardTownMap(typeof data === "string" ? data : null) && typeof window !== "undefined") { window.setTimeout(() => window.location.reload(), 1500); return; }
+      // (and the farm, v323's town_farm_map: none before it)
+      const farm = await this.client.rpc("town_farm_map");
+      if (!farm.error && heardFarmMap(typeof farm.data === "string" ? farm.data : null) && typeof window !== "undefined") window.setTimeout(() => window.location.reload(), 1500);
     } catch { /* asked again with the chat's switch */ }
   }
 

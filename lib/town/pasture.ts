@@ -21,14 +21,19 @@
  * Nothing here imports world.ts (world.ts imports this): everything is in global tiles and plain numbers.
  */
 import { gateAt, type GateLog } from "./animals";
+import { F2 } from "./farm-map";
+import * as farm2 from "./farm2";
+/** The editor's farm's barns' side (lib/town/farm2), when this page has it: the rest of this file lays its animals' ways from it. */
+const F2P = farm2.F2_PASTURE;
 
 /** The farm's map with the animal farm: the garden's x 128..187 and the animal farm's 188..239, rows 0..85. */
 export const PASTURE = {
   origin: [128, 0] as const,
-  rect: [128, 0, 112, 86] as const,
+  // (the editor's farm: its 150 x 110 tiles, lib/town/farm2)
+  rect: (F2 ? [farm2.F2_RECT.x, farm2.F2_RECT.y, farm2.F2_RECT.w, farm2.F2_RECT.h] : [128, 0, 112, 86]) as readonly [number, number, number, number],
 } as const;
 /** The animal farm's own tiles, in global tiles. */
-export const PASTURE_AREA = { x: 188, y: 0, w: 52, h: 86 } as const;
+export const PASTURE_AREA: { readonly x: number; readonly y: number; readonly w: number; readonly h: number } = F2 ? F2P.area : { x: 188, y: 0, w: 52, h: 86 };
 type Rect = { x: number; y: number; w: number; h: number };
 const inRect = (x: number, y: number, r: Rect) => x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h;
 /** Whether a tile (or a point) is in the animal farm. */
@@ -37,22 +42,24 @@ export const inPasture = (x: number, y: number) => inRect(x, y, PASTURE_AREA);
 /* ── the lanes ── */
 
 /** The top row of each row of barns' lane (a lane is two rows), north to south; the second and the fifth are the garden's two roads carried on. */
-export const LANE_ROWS: readonly number[] = [10, 21, 32, 52, 63, 74];
+export const LANE_ROWS: readonly number[] = F2 ? F2P.laneRows : [10, 21, 32, 52, 63, 74];
 /** The middle of a lane's two rows. */
 export const laneY = (row: number) => LANE_ROWS[row] + 1;
 /** The two north-south lanes: the west one (columns 193-194, rows 10..75) and the middle one (columns 214-215, rows 2..83). */
-export const NS_LANES = { west: { x: 193, y0: 10, y1: 75 }, mid: { x: 214, y0: 2, y1: 83 } } as const;
+export const NS_LANES: { readonly west: { x: number; y0: number; y1: number }; readonly mid: { x: number; y0: number; y1: number } } = F2 ? F2P.nsLanes : { west: { x: 193, y0: 10, y1: 75 }, mid: { x: 214, y0: 2, y1: 83 } };
 /** How far east the lanes run (their last column). */
-const LANE_END = 233;
+const LANE_END = F2 ? F2P.laneEnd : 233;
 /** The fence down the west edge, and the two gates in it: the rows each gate leaves open (six, the road's two in the middle) and the road through it. */
-export const FENCE_X = 188;
-export const FARM_GATES: ReadonlyArray<{ name: "north" | "south"; rows: readonly [number, number]; road: number }> = [
+export const FENCE_X = F2 ? F2P.gates[0].x : 188;
+export const FARM_GATES: ReadonlyArray<{ name: "north" | "south"; rows: readonly [number, number]; road: number }> = F2 ? F2P.gates : [
   { name: "north", rows: [19, 24], road: 21 },
   { name: "south", rows: [61, 66], road: 63 },
 ];
 /** Whether a tile is a lane of the animal farm: a lane a row of barns faces (the two roads from the gates on west to the fence), or a north-south one. */
 export function onLane(x: number, y: number): boolean {
   if (!inPasture(x, y)) return false;
+  // (the editor's farm: its roads, as it painted them)
+  if (F2) return farm2.f2TileGround(Math.floor(x), Math.floor(y)) === "road";
   for (const r of LANE_ROWS) if (y === r || y === r + 1) {
     if (x >= NS_LANES.west.x && x <= LANE_END) return true;
     if ((r === 21 || r === 63) && x >= FENCE_X) return true;
@@ -67,7 +74,7 @@ export function onLane(x: number, y: number): boolean {
 /** A barn's footprint (its walls' foot), in tiles along x and along y. */
 export const BARN_SIZE = { w: 8, h: 4 } as const;
 /** The west column of each of a row's four barns. */
-export const BARN_COLS: readonly number[] = [196, 205, 217, 226];
+export const BARN_COLS: readonly number[] = F2 ? F2P.barnCols : [196, 205, 217, 226];
 export interface BarnPlace extends Rect {
   /** Its number (0..23): the four of the first row west to east, then the next row's. */
   i: number;
@@ -83,6 +90,9 @@ export interface BarnPlace extends Rect {
 /** The 24 barns, by number. */
 export const BARNS: readonly BarnPlace[] = Array.from({ length: 24 }, (_, i) => {
   const row = Math.floor(i / 4), col = i % 4, x = BARN_COLS[col], y = LANE_ROWS[row] - 5, { w, h } = BARN_SIZE;
+  // (the editor's farm: its barn plots' own door, step, hay and nest, README section 9, where they are as the game's)
+  const p = F2 ? farm2.F2_BARN_PLOTS[i] : null;
+  if (p) return { i, row, col, x: p.x, y: p.y, w, h, door: p.door, step: p.step, nest: p.nest, hay: p.hay };
   return {
     i, row, col, x, y, w, h,
     door: [[x + 3, y + h - 1], [x + 4, y + h - 1]], step: [[x + 3, y + h], [x + 4, y + h]],
@@ -117,9 +127,15 @@ export function barnWall(ax: number, ay: number, bx: number, by: number): boolea
  * eats at its own slot. It stops nobody (it is against the wall).
  */
 export const TROUGH = { slot: 1, end: 0.5, depth: 0.45 } as const;
+/** The editor's farm: the middle of a barn's row of trays, from its west wall (the map's two are on its tiles 4 and 5). */
+const TRAY_MID = F2 ? farm2.F2_TRAYS.full.from[0] + 1 : 4;
 export function troughOf(barn: Pick<BarnPlace, "x" | "y" | "w">, room: number) {
   // (never longer than the wall: past seven places, they share slots)
-  const n = Math.max(1, Math.min(barn.w - 1, Math.floor(room))), len = n * TROUGH.slot + 2 * TROUGH.end, x0 = barn.x + (barn.w - len) / 2;
+  const n = Math.max(1, Math.min(barn.w - 1, Math.floor(room)));
+  // (the editor's farm: a tray to each place, side by side along the back wall, about where the map has its two (the
+  // owner, 2026-11-07, of trays or the one long trough: "เอาแบบใหม่"); no ends)
+  if (F2) { const x0 = barn.x + TRAY_MID - n / 2; return { x0, x1: x0 + n, y: barn.y, slots: Array.from({ length: n }, (_, k) => ({ x0: x0 + k, x1: x0 + k + 1 })) }; }
+  const len = n * TROUGH.slot + 2 * TROUGH.end, x0 = barn.x + (barn.w - len) / 2;
   return { x0, x1: x0 + len, y: barn.y, slots: Array.from({ length: n }, (_, k) => ({ x0: x0 + TROUGH.end + k * TROUGH.slot, x1: x0 + TROUGH.end + (k + 1) * TROUGH.slot })) };
 }
 /** Where an animal of a barn eats: before its slot of the trough (its place among the barn's animals, past the room they share). */
@@ -135,31 +151,57 @@ export const isDoor = (x: number, y: number) => { const i = barnAt(x, y); return
 /* ── Uncle Popoto's corner, by the north gate ── */
 
 /** Uncle Popoto's stall (what he stands at, where he stands, the tiles it takes), just inside the north gate. */
-export const POPOTO = { stand: { x: 191.5, y: 17.4 }, at: { x: 191.1, y: 18.55 }, tiles: [[190, 17], [191, 17], [192, 17], [191, 18]] as ReadonlyArray<readonly [number, number]> } as const;
+export const POPOTO: { readonly stand: { x: number; y: number }; readonly at: { x: number; y: number }; readonly tiles: ReadonlyArray<readonly [number, number]> } = F2
+  // (the editor's farm: the map's livestock stall, which the map draws; he stands before its counter)
+  ? { stand: farm2.F2_STALL.at, at: { x: farm2.F2_STALL.at.x - 0.2, y: farm2.F2_STALL.at.y + 1.95 }, tiles: farm2.F2_STALL.tiles }
+  : { stand: { x: 191.5, y: 17.4 }, at: { x: 191.1, y: 18.55 }, tiles: [[190, 17], [191, 17], [192, 17], [191, 18]] };
 /** The making table (two tiles, its west one named), behind the stall. */
-export const TABLE = [189, 14] as const;
+export const TABLE: readonly [number, number] = F2 ? farm2.F2_TABLE.tiles[0] : [189, 14];
 /** Uncle Popoto's pen, a paddock south of the north road: whatever waits in it is drawn in it. */
-export const PEN: Rect = { x: 189, y: 26, w: 4, h: 6 };
+export const PEN: Rect = F2 ? farm2.F2_PEN : { x: 189, y: 26, w: 4, h: 6 };
 /** The village's water trough (two tiles, its west one named), by the pen. */
-export const TROUGHS = { village: [189, 33] as const };
+export const TROUGHS: { readonly village: readonly [number, number] } = { village: F2 ? farm2.F2_WATER_TROUGH.tiles[0] : [189, 33] };
 /** The duck pond, an ellipse (global tiles), at the meadow's east end. */
-export const POND = { cx: 229.5, cy: 40.5, rx: 3.6, ry: 2.8 } as const;
+export const POND: { readonly cx: number; readonly cy: number; readonly rx: number; readonly ry: number } = F2 ? farm2.F2_POND : { cx: 229.5, cy: 40.5, rx: 3.6, ry: 2.8 };
 const inPond = (x: number, y: number, more = 0) => (((x + 0.5 - POND.cx) / (POND.rx + more)) ** 2 + ((y + 0.5 - POND.cy) / (POND.ry + more)) ** 2) < 1;
 
 /** The hay wagon's stops: one by each map's gate (a new map adds one here and nothing else). The farm's by the animal farm's north gate. */
 export const WAGON_STOPS: Readonly<Record<string, readonly [number, number]>> = {
-  farm: [191, 24],
+  farm: F2 ? F2P.wagon : [191, 24],
   town: [57, 32],
   forest: [190, 186],
 };
 
 /* ── the spots the database knows ── */
 
+/** A seeded random number, as the town's layouts draw them. */
+function seeded(seed: number) { let a = seed; return () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+/**
+ * The editor's farm's spots in its meadows (lib/town/farm2): so many open grass tiles of the two, two or more tiles from
+ * one another and with nothing but grass about them, picked by a fixed seed (`which`: the eggs' 0, the forage's 1, clear
+ * of the eggs'), a third in the strip north of the pen and the rest in the wide south meadow; the same on every page and
+ * in the catalog (lib/town/animal-catalog).
+ */
+function f2Spots(n: number, which: number, clear: ReadonlyArray<readonly [number, number]> = []): Array<[number, number]> {
+  const rnd = seeded(20261107 + which), out: Array<[number, number]> = [];
+  const taken = (x: number, y: number) => [...out, ...clear].some(([a, b]) => Math.max(Math.abs(a - x), Math.abs(b - y)) < 2);
+  const ok = (x: number, y: number) => farm2.f2Open(x, y) && farm2.f2TileGround(x, y) === "grass"
+    && [[1, 0], [-1, 0], [0, 1], [0, -1]].every(([dx, dy]) => farm2.f2Open(x + dx, y + dy) && farm2.f2TileGround(x + dx, y + dy) === "grass");
+  for (const [r, m] of [[F2P.meadow, Math.floor(n / 3)], [F2P.southMeadow, n - Math.floor(n / 3)]] as const) {
+    for (let tries = 0, put = 0; put < m && tries < 4000; tries++) {
+      const x = r.x + Math.floor(rnd() * r.w), y = r.y + Math.floor(rnd() * r.h);
+      if (!ok(x, y) || taken(x, y)) continue;
+      out.push([x, y]); put++;
+    }
+  }
+  return out;
+}
+
 /** The meadow (between the third and fourth rows of barns, west of the pond) and the south meadow (below the last row). */
-export const MEADOW: Rect = { x: 196, y: 35, w: 29, h: 11 };
-export const SOUTH_MEADOW: Rect = { x: 196, y: 77, w: 38, h: 6 };
+export const MEADOW: Rect = F2 ? F2P.meadow : { x: 196, y: 35, w: 29, h: 11 };
+export const SOUTH_MEADOW: Rect = F2 ? F2P.southMeadow : { x: 196, y: 77, w: 38, h: 6 };
 /** Spots of the meadows where a bird out may lay (global tiles); `SpotOf` picks one by a seed. */
-export const EGG_SPOTS: ReadonlyArray<readonly [number, number]> = [
+export const EGG_SPOTS: ReadonlyArray<readonly [number, number]> = F2 ? f2Spots(24, 0) : [
   [198, 36], [203, 39], [207, 35], [211, 42], [217, 37], [220, 44], [223, 39], [200, 44], [209, 38], [218, 41], [205, 45], [212, 36],
   [197, 78], [202, 81], [206, 77], [210, 80], [217, 78], [220, 82], [224, 79], [228, 77], [231, 81], [200, 82], [212, 79], [226, 82],
 ];
@@ -168,7 +210,7 @@ export const spotOf = (seed: number): [number, number] => {
   return [s[0], s[1]];
 };
 /** The meadows' twelve forage spots (lib/town/animals' MEADOW), in their order. */
-export const MEADOW_SPOTS: ReadonlyArray<readonly [number, number]> = [
+export const MEADOW_SPOTS: ReadonlyArray<readonly [number, number]> = F2 ? f2Spots(12, 1, EGG_SPOTS) : [
   [199, 41], [206, 43], [213, 39], [219, 35], [222, 42], [204, 37], [230, 35], [235, 30], [235, 50], [199, 80], [219, 80], [233, 79],
 ];
 // (the woods are laid clear of every spot)
@@ -177,8 +219,6 @@ const SPOT_SET: ReadonlySet<string> = new Set([...EGG_SPOTS, ...MEADOW_SPOTS].ma
 /* ── what stands about ── */
 
 export type PastureProp = { kind: "tree" | "pine" | "bush" | "fence" | "hay"; x: number; y: number; solid: boolean; across?: boolean };
-/** A seeded random number, as the town's layouts draw them. */
-const seeded = (seed: number) => { let a = seed; return () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; };
 const barnTile = (x: number, y: number) => barnAt(x, y) >= 0;
 const stallAt = (x: number, y: number) => POPOTO.tiles.some(([tx, ty]) => tx === x && ty === y) || (y === TABLE[1] && (x === TABLE[0] || x === TABLE[0] + 1));
 const troughAt = (x: number, y: number) => Object.values(TROUGHS).some(([tx, ty]) => y === ty && (x === tx || x === tx + 1));
@@ -190,6 +230,8 @@ const fenceTile = (x: number, y: number) => x === FENCE_X && FENCE_RUNS.some(([a
 /** The fence (each length's middle tile), a few hay bales, and the woods along the far rims. */
 export const PASTURE_PROPS: PastureProp[] = (() => {
   const out: PastureProp[] = [];
+  // (the editor's farm draws all of its own: lib/town/farm2-art)
+  if (F2) return out;
   for (const [a, b] of FENCE_RUNS) for (let y = a + 1; y < b; y += 3) out.push({ kind: "fence", x: FENCE_X, y, solid: true });
   // the fence's two corners: low bushes
   out.push({ kind: "bush", x: FENCE_X, y: 0, solid: true }, { kind: "bush", x: FENCE_X, y: 85, solid: true });
@@ -215,6 +257,7 @@ const solidSet: ReadonlySet<string> = new Set(PASTURE_PROPS.filter((p) => p.soli
 export type PastureGround = "grass" | "road" | "sand" | "water";
 export function pastureGround(x: number, y: number): PastureGround {
   const tx = Math.floor(x), ty = Math.floor(y);
+  if (F2) { const g = farm2.f2Ground(x, y); return g === "road" || g === "sand" || g === "water" ? g : "grass"; }
   // (the pond's edge drawn round, a little ragged)
   if (((x - POND.cx) / POND.rx) ** 2 + ((y - POND.cy) / POND.ry) ** 2 < 1 + 0.06 * Math.sin(x * 2.1) * Math.sin(y * 1.7)) return "water";
   if (onLane(tx, ty)) return "road";
@@ -225,6 +268,8 @@ export function pastureGround(x: number, y: number): PastureGround {
 /** What stands on an animal-farm tile and stops a walker: the fence, a stall, the pen, a trough, a barn's nest or hay, a tree; "water" for the pond. */
 export function pastureThing(x: number, y: number): "prop" | "water" | null {
   if (!inPasture(x, y)) return null;
+  // (the editor's farm: what its builder left on the tile, lib/town/farm2)
+  if (F2) { const c = farm2.f2Tile(x, y); return c === "~" ? "water" : c === "." ? null : "prop"; }
   if (inPond(x, y)) return "water";
   if (fenceTile(x, y) || stallAt(x, y) || troughAt(x, y) || inRect(x, y, PEN)) return "prop";
   const b = barnAt(x, y);
@@ -259,7 +304,7 @@ function along(pts: readonly P[], d: number): { at: P; right: boolean; back: boo
 }
 
 /* The lanes as a network: nodes where lanes meet or end, and the lengths between them (worked out once). */
-const NODES: Record<string, P> = (() => {
+const NODES: Record<string, P> = F2 ? F2P.nodes : (() => {
   const n: Record<string, P> = {};
   LANE_ROWS.forEach((_, k) => { n[`W${k}`] = { x: NS_LANES.west.x + 1, y: laneY(k) }; n[`C${k}`] = { x: NS_LANES.mid.x + 1, y: laneY(k) }; n[`E${k}`] = { x: LANE_END, y: laneY(k) }; });
   n.CN = { x: NS_LANES.mid.x + 1, y: NS_LANES.mid.y0 + 1 }; n.CS = { x: NS_LANES.mid.x + 1, y: NS_LANES.mid.y1 };
@@ -269,7 +314,7 @@ const NODES: Record<string, P> = (() => {
   n.N0 = { x: 158, y: 5 }; n.N1 = { x: 158, y: 80 };
   return n;
 })();
-const EDGES: ReadonlyArray<readonly [string, string]> = [
+const EDGES: ReadonlyArray<readonly [string, string]> = F2 ? F2P.edges : [
   ...LANE_ROWS.flatMap((_, k) => [[`W${k}`, `C${k}`], [`C${k}`, `E${k}`]] as Array<[string, string]>),
   ...LANE_ROWS.slice(1).map((_, k) => [`W${k}`, `W${k + 1}`] as [string, string]),
   ["CN", "C0"], ...LANE_ROWS.slice(1).map((_, k) => [`C${k}`, `C${k + 1}`] as [string, string]), ["C5", "CS"],
@@ -309,7 +354,7 @@ function laneWay(from: P, to: P): P[] {
 }
 
 /** The garden's blocks an animal roams (x and y spans), and its lanes they are entered from (its two roads and its north-south lane). */
-const GARDEN = {
+const GARDEN: { xs: ReadonlyArray<readonly [number, number]>; ys: ReadonlyArray<readonly [number, number]>; lanes: ReadonlyArray<readonly [P, P]> } = F2 ? F2P.garden : {
   xs: [[129, 143], [143, 157], [159, 173], [173, 187]] as const,
   ys: [[3, 12], [12, 21], [23, 33], [33, 43], [43, 53], [53, 63], [65, 74], [74, 83]] as const,
   lanes: [[{ x: 134, y: laneY(1) }, { x: FENCE_X, y: laneY(1) }], [{ x: 134, y: laneY(4) }, { x: FENCE_X, y: laneY(4) }], [{ x: 158, y: 5 }, { x: 158, y: 80 }]] as ReadonlyArray<readonly [P, P]>,
@@ -323,7 +368,12 @@ function nearestOn(a: P, b: P, p: P): P {
 interface Patch { kind: "meadow" | "pond" | "garden"; area: Rect; /** Where it is entered: a point on the lanes, and the point in it the way comes to. */ entry: P; anchor: P }
 const PATCHES: readonly Patch[] = (() => {
   const out: Patch[] = [];
-  for (let x = MEADOW.x; x < MEADOW.x + MEADOW.w; x += 5) {
+  // (the editor's farm: its meadow a strip of three rows north of the pen and the pond, one row of patches along it)
+  if (F2) for (let x = MEADOW.x; x < MEADOW.x + MEADOW.w; x += 5) {
+    const w = Math.min(5, MEADOW.x + MEADOW.w - x), cx = x + w / 2;
+    out.push({ kind: "meadow", area: { x, y: MEADOW.y, w, h: MEADOW.h }, entry: { x: cx, y: laneY(2) }, anchor: { x: cx, y: MEADOW.y + 0.6 } });
+  }
+  else for (let x = MEADOW.x; x < MEADOW.x + MEADOW.w; x += 5) {
     const w = Math.min(5, MEADOW.x + MEADOW.w - x), cx = x + w / 2;
     out.push({ kind: "meadow", area: { x, y: MEADOW.y, w, h: 5 }, entry: { x: cx, y: laneY(2) }, anchor: { x: cx, y: MEADOW.y + 0.6 } });
     out.push({ kind: "meadow", area: { x, y: MEADOW.y + 5, w, h: MEADOW.h - 5 }, entry: { x: cx, y: laneY(2) }, anchor: { x: cx, y: MEADOW.y + 5.5 } });

@@ -84,8 +84,40 @@ function useTownMap(): boolean {
   return ready;
 }
 
+/**
+ * Which farm the database says is the farm now (`town_farm_map()`, supabase v323: the owner's switch between the old farm
+ * and the editor's, lib/town/farm-map), told to the town before it is loaded, as the town's is (useTownMap). Before v323
+ * there is no such function: the old farm. In `next dev`, `?farmMap=farm2` (or `classic`) says it instead.
+ */
+function useFarmMap(): boolean {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    let settled = false;
+    const done = (m: unknown) => {
+      if (settled) return;
+      settled = true;
+      if (m === "classic" || m === "farm2") {
+        try { localStorage.setItem("cashtown:farm", m); } catch { /* asked again next time */ }
+        const g = globalThis as { __cashTownFarm?: string; __cashTownFarmUsed?: string };
+        g.__cashTownFarm = m;
+        if (g.__cashTownFarmUsed && g.__cashTownFarmUsed !== m) { window.location.reload(); return; }
+      }
+      setReady(true);
+    };
+    const asked = process.env.NODE_ENV !== "production" ? new URLSearchParams(window.location.search).get("farmMap") : null;
+    if (asked) { done(asked); return; }
+    const supabase = createClient();
+    if (!supabase) { done(null); return; }
+    const late = setTimeout(() => done(null), 2500);
+    // (before v323 there is no such function: the old farm, as this browser was last told nothing else)
+    void Promise.resolve(supabase.rpc("town_farm_map")).then(({ data, error }) => done(error ? "classic" : data)).catch(() => done(null));
+    return () => { settled = true; clearTimeout(late); };
+  }, []);
+  return ready;
+}
+
 function VillageGate() {
-  const mapReady = useTownMap();
+  const townReady = useTownMap(), farmReady = useFarmMap(), mapReady = townReady && farmReady;
   const { lang } = useLang();
   const th = lang === "th";
   const { realAdmin, ready } = useAdmin();

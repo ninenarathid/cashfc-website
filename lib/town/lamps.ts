@@ -1,7 +1,8 @@
 import { between } from "./line";
 import { isSpent, spend } from "./stamina";
 import { handOf, type Purse } from "./trade";
-import { CAMP, FARM, FOREST, type Vec } from "./world";
+import { CAMP, F2, FARM, FOREST, type Vec } from "./world";
+import { F2_FIRES, F2_LAMPS } from "./farm2";
 
 /**
  * The lamp relay at dusk (the owner, 2026-10-08, of three games like the bucket line, "เอา 1 2 3", and then of this
@@ -102,7 +103,13 @@ export const LAMPS = {
    * tiles or more from a lamp. Written the nearest to a brazier first; the furthest is some thirty-six tiles of path.
    */
   maps: {
-    farm: {
+    // (the editor's farm, lib/town/farm2: its four fire bowls, the garden's two by its wells and two by the barn gates, in
+    // the old farm's order, and its 92 lamps, the map's 59 lanterns in the garden and 33 put on the barns' side)
+    farm: F2 ? {
+      fire: [F2_FIRES[0].x, F2_FIRES[0].y] as [number, number],
+      fires: F2_FIRES.map((f): [number, number] => [f.x, f.y]),
+      posts: F2_LAMPS.map((l): [number, number] => [l.x, l.y]),
+    } : {
       fire: F(27, 24),
       // (where a flame is taken: the brazier by the well, and since the southern half a second by its own well, where
       // its lanes cross (the owner, 2026-10-19: "เพิ่มจุดเริ่มอีกจุด ใน area ใหม่"); `fire` is the first, as it was)
@@ -148,9 +155,10 @@ export const isLampMap = (v: unknown): v is LampMap => v === "farm" || v === "fo
  * goes along the way between two lit posts goes by these; the posts off the ways are on no arm). An arm goes out from
  * the fire nearest its first post (`fireNear`): the farm's southern half's four from its own brazier.
  */
-export const BOARD_AT: Record<LampMap, [number, number]> = { farm: F(27, 26), forest: W(51, 48) };
+export const BOARD_AT: Record<LampMap, [number, number]> = { farm: F2 ? [F2_FIRES[0].x + 1, F2_FIRES[0].y + 2] : F(27, 26), forest: W(51, 48) };
 export const ARMS: Record<LampMap, number[][]> = {
-  farm: [[0, 1, 2], [3, 4, 5, 6], [7, 8, 9], [10, 11], [29, 31, 37], [28, 33], [30, 34, 44], [32, 43, 47]],
+  // (the editor's farm's lamps stand about its beds and barns, not in rows out from its fires: no arms)
+  farm: F2 ? [] : [[0, 1, 2], [3, 4, 5, 6], [7, 8, 9], [10, 11], [29, 31, 37], [28, 33], [30, 34, 44], [32, 43, 47]],
   forest: [[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]],
 };
 
