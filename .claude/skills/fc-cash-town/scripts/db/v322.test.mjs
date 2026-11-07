@@ -38,13 +38,18 @@ try {
     [who, JSON.stringify({ gardenBook })]);
   const seed = (await one("select town.cat('crops')->'teaBush'->>'seed' s")).s;
   // before the file: A and B both hold the tea bush, B held its seed first; C holds the red okra with no deed; a stray name
-  await put(A, ["teaBush"]); await put(B, ["teaBush", "notACrop"]); await put(C, ["redOkra"]);
+  await put(A, ["teaBush", "blueCorn"]); await put(B, ["teaBush", "notACrop"]); await put(C, ["redOkra"]);
+  // (the town news told the blue corn's first finder, C, though only A holds it now; and a deed of A's seed came later)
+  await db.query("delete from public.town_announcements where kind = 'cross'");
+  await db.query("insert into public.town_announcements (event_key, member_id, kind, subject, level, name, portrait, at) values ('cross:blueCorn', $1, 'cross', 'blueCorn', 0, 'Told Finder', '{}', now() - interval '3 days')", [C]);
+  await db.query("insert into public.town_deeds (member_id, at, what, thing, n, doc) values ($1, now() - interval '1 hour', 'hold', 'seedBlueCorn', 1, '{}')", [A]);
   await db.query("insert into public.town_deeds (member_id, at, what, thing, n, doc) values ($1, now() - interval '2 days', 'hold', $2, 1, '{}'), ($3, now() - interval '1 day', 'hold', $2, 1, '{}')", [B, seed, A]);
 
   const sql = readFileSync(FILE, "utf8").replace(/\r\n/g, "\n");
   await db.exec(sql.replace(/\n/g, "\r\n"));
   const first = await book();
-  eq(Object.keys(first).sort(), ["redOkra", "teaBush"], "what the purses hold is in the book, and nothing that is not a crop");
+  eq(Object.keys(first).sort(), ["blueCorn", "redOkra", "teaBush"], "what the purses hold is in the book, and nothing that is not a crop");
+  eq(first.blueCorn, ["Told Finder", C], "the one the town news told is the finder, before any deed");
   eq(first.teaBush, [await name(B), B], "the first to have had its seed is its finder");
   eq(first.redOkra, ["", null], "one with no deed is the book's somebody");
   const f1 = await fns();
@@ -58,14 +63,14 @@ try {
   await db.query("update public.town_purses set doc = jsonb_set(doc, '{gardenBook}', $2) where member_id = $1", [A, JSON.stringify(["teaBush", "rowBean"])]);
   eq((await book()).rowBean, [await name(C), C], "a second finder does not move the first");
   await db.query("update public.town_purses set doc = doc || '{\"coins\": 5}' where member_id = $1", [B]);
-  eq(Object.keys(await book()).length, 3, "a purse write that leaves its garden book alone notes nothing");
+  eq(Object.keys(await book()).length, 4, "a purse write that leaves its garden book alone notes nothing");
   await db.query("update public.town_purses set doc = jsonb_set(doc, '{gardenBook}', $2) where member_id = $1", [B, JSON.stringify(["teaBush", "notACrop", "alsoNot"])]);
-  eq(Object.keys(await book()).length, 3, "a name that is not a crop is never noted");
+  eq(Object.keys(await book()).length, 4, "a name that is not a crop is never noted");
   eq((await rows("select tgname from pg_trigger where tgrelid = 'public.town_purses'::regclass and tgname like 'town_purses_garden_book%' order by 1")).map((r) => r.tgname), ["town_purses_garden_book", "town_purses_garden_book_new"], "two triggers, once each");
 
   // the reader and the walls
   const read = await as(A, "select public.town_garden_book() b");
-  eq(read.row?.b, { teaBush: await name(B), redOkra: "", rowBean: await name(C) }, "a member reads { crop: first finder }");
+  eq(read.row?.b, { teaBush: await name(B), redOkra: "", rowBean: await name(C), blueCorn: "Told Finder" }, "a member reads { crop: first finder }");
   eq(!!(await as("anon", "select public.town_garden_book() b")).error, true, "anon may not read it");
   for (const who of ["anon", A]) {
     eq(!!(await as(who, "select * from public.town_garden_book")).error, true, `${who === "anon" ? "anon" : "a member"} may not read the table`);

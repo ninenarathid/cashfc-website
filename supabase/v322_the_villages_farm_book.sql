@@ -11,9 +11,10 @@
 --   * A trigger on public.town_purses notes a child the first time any member's `gardenBook` holds it (every way a child is
 --     found adds it there: the pick's crossing, the helpers' skies), on an update of the purse whose `gardenBook` changed, or
 --     a purse made with one. Only a crop of the catalog is noted.
---   * What was found before: every child some purse holds now. Who found it first was never written down: the first member
---     of those who hold it to have had its seed or the crop in a deed (a hybrid's seed comes from its crossing alone) is
---     taken for the finder, at that deed's time; one with no such deed is the book's "somebody" (name ''), at this run.
+--   * What was found before: every child some purse holds now. Its finder: the one v255's town news told (kind 'cross',
+--     every garden crossing's first since v255); failing that, the first member of those who hold it to have had its seed
+--     or the crop in a deed (a hybrid's seed comes from its crossing alone), at that deed's time; failing that, the book's
+--     "somebody" (name ''), at this run.
 --   * public.town_garden_book(): { crop: first finder's name } for members.
 begin;
 set local statement_timeout = '120s';
@@ -21,6 +22,7 @@ set local lock_timeout = '5s';
 do $guard$ begin
   if to_regprocedure('town.giant_name(uuid)') is null then raise exception 'Run v309 before v322'; end if;
   if to_regclass('public.town_purses') is null or to_regclass('public.town_deeds') is null then raise exception 'v322 needs town_purses and town_deeds'; end if;
+  if to_regclass('public.town_announcements') is null then raise exception 'Run v255 before v322'; end if;
 end $guard$;
 
 -- ── 1. The book ───────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -79,9 +81,17 @@ firsts as (
     from known k
    cross join crops
     join public.town_deeds d on d.member_id = k.member_id and d.thing in (k.crop, crops.c->k.crop->>'seed')
-   order by k.crop, d.at)
-select k.crop, f.member_id, case when f.member_id is null then '' else coalesce(town.giant_name(f.member_id), '') end, coalesce(f.at, now())
-  from (select distinct crop from known) k left join firsts f on f.crop = k.crop
+   order by k.crop, d.at),
+-- (v255's town news told every garden crossing's first finder by name since it was installed: that comes first)
+told as (
+  select distinct on (a.subject) a.subject as crop, a.member_id, a.name, a.at
+    from public.town_announcements a
+   where a.kind = 'cross'
+   order by a.subject, a.at, a.id)
+select k.crop, coalesce(t.member_id, f.member_id),
+       case when t.crop is not null then t.name when f.member_id is not null then coalesce(town.giant_name(f.member_id), '') else '' end,
+       coalesce(t.at, f.at, now())
+  from (select distinct crop from known) k left join told t on t.crop = k.crop left join firsts f on f.crop = k.crop
 on conflict (crop) do nothing;
 
 -- ── 4. The book, as the page reads it ─────────────────────────────────────────────────────────────────────────────────
