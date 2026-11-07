@@ -477,11 +477,11 @@ const SHEETS = [
   ["icons-fam-pairs-d", ["famSpriteA", "famSpriteB", "famDwarfA", "famDwarfB", "famBeaverA", "famBeaverB"], { range: [7.85, 8.15], pairs: true, also: { famDwarfA: ["famDwarf"], famBeaverA: ["famBeaver"] } }],
   ["icons-fam-pairs-e", ["famForestGuardianA", "famForestGuardianB", "famWaterRelayA", "famWaterRelayB", "famRiverDragonA", "famRiverDragonB"], { range: [7.85, 8.15], pairs: true, also: { famForestGuardianA: ["famForestGuardian"], famWaterRelayA: ["famWaterRelay"], famRiverDragonA: ["famRiverDragon"] } }],
   // ── the farming line's rank gifts, drawn (2026-11-07, the owner: "พู่กันช่วยทำ icon ใหม่ ให้ดูดีขึ้น"): three designs of the
-  // cross-pairing brush, the giant seeds and the pollen seal drawn again (offered, not packed until he says), the reference's
+  // cross-pairing brush, the giant seeds and the pollen seal drawn again (packed on his word, 2026-11-07: "เอา"), the reference's
   // sack holding the size; with icons-mining-a for the reference. The third design is packed (a brush between a pink and a blue
   // flower: what the gift does, and still a brush at 22 px; the first, a diagonal brush, is the other choice; the second read
   // as an ice cream small). Cut on its finer grid (5.65): on 11.6 blocky, the seal a blob
-  ["icons-farm-gifts-a", ["_thingCrossBrushA", "_thingCrossBrushB", "thingCrossBrush", "_thingGiantSeeds", "_thingPollenSeal", "_sackFiller"], { range: [5.55, 5.75] }],
+  ["icons-farm-gifts-a", ["_thingCrossBrushA", "_thingCrossBrushB", "thingCrossBrush", "thingGiantSeeds", "thingPollenSeal", "_sackFiller"], { range: [5.55, 5.75] }],
   ["icons-giant-pull-a", ["pullKnot", "pullClods", "pullRoot", "pullDust", "pullGloves", "pullPit"], { range: [5.9, 6.1] }],
   // ── a giant fish landed together, the leaf roll and the shaken branch (2026-10-27, the owner's "OK แล้ว" to the species
   // lists): the twenty giants (the fish book's, a call's and the landed board's: never bag items), the steak, the book's

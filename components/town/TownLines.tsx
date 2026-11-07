@@ -83,11 +83,11 @@ export default function TownLines({ keeper, told, gifts, gifting, given, leaf, t
             <div role="tablist" aria-label={th ? "หน้า" : "Leaves"} className="flex gap-1">
               {([["lines", th ? "สายอาชีพ" : "Lines of work"], ["me", th ? "ตัวฉัน" : "Me"]] as const).map(([id, name]) => (
                 <button key={id} type="button" role="tab" aria-selected={at === id} onClick={() => setAt(id)} data-lines-leaf={id}
-                        className={`pressable min-h-9 rounded-md border-2 px-3 font-display text-ui font-semibold ${at === id ? "border-[#f0c060] bg-[#5a3a1c]" : "border-[#2a190d] bg-[#4a2f18] hover:bg-[#523520]"}`} style={{ color: CREAM }}>{name}</button>
+                        className={`pressable min-h-11 rounded-md border-2 px-3 font-display text-ui font-semibold ${at === id ? "border-[#f0c060] bg-[#5a3a1c]" : "border-[#2a190d] bg-[#4a2f18] hover:bg-[#523520]"}`} style={{ color: CREAM }}>{name}</button>
               ))}
             </div>
           )}
-          <button type="button" onClick={onClose} className="pressable ml-auto min-h-9 shrink-0 rounded-md border-2 border-[#2a190d] bg-[#4a2f18] px-3 text-meta hover:bg-[#5a3a1c]" style={{ color: CREAM }}>{th ? "ปิด" : "Close"}</button>
+          <button type="button" onClick={onClose} className="pressable ml-auto min-h-11 shrink-0 rounded-md border-2 border-[#2a190d] bg-[#4a2f18] px-3 text-meta hover:bg-[#5a3a1c]" style={{ color: CREAM }}>{th ? "ปิด" : "Close"}</button>
         </header>
 
         {/* the title worn: as it will read under my name */}
