@@ -16,7 +16,15 @@ for (const [label, size] of [["desktop", { width: 1280, height: 860 }], ["phone"
     // held by made-up members, each in a look (0..3), the second's door open; and four of the fourth row, one each again
     await X.goto(`${BASE}/`);
     const herds = [0, 1, 2, 3, 12, 13, 14, 15].map((barn, i) => ({ owner: `look-${i}`, barn, room: i % 2 ? 4 : 2, door: i === 1 || i === 5 ? [[Date.now() - 60_000, null]] : [], credit: 0, lastCare: Date.now(), facade: i % 4, care: "named", carers: [] }));
-    await X.evaluate(`localStorage.setItem("cashtown.trial.animals.2", ${JSON.stringify(JSON.stringify({ animals: [], herds, found: {}, spells: [], wagons: [], offers: [], asks: [] }))})`);
+    // (two grown animals in each, the first fed and the second not: a full tray and an empty one; four in a barn of four places)
+    const SP = [["chicken", "barnHen"], ["duck", "puddleDuck"], ["sheep", "meadowSheep"], ["cow", "dairyCow"]];
+    const animals = herds.flatMap((h, i) => Array.from({ length: h.room }, (_, k) => {
+      const [species, breed] = SP[(i + k) % 4];
+      return { id: `look-${i}-${k}`, owner: h.owner, species, breed, name: `${species} ${k}`, born: 0, bought: true, home: "barn", sex: k % 2 ? "m" : "f",
+        stats: { thrift: 3, gentle: 3, vigor: 3 }, streak: 0, at: Date.now(), food: k % 2 ? 0 : 20, grown: 100, made: 0, banked: 0, hearts: 0, today: { day: 0 },
+        speedUntil: 0, windUntil: 0, narrow: 0, rest: 0, lent: null, outside: [], outBands: 0 };
+    }));
+    await X.evaluate(`localStorage.setItem("cashtown.trial.animals.2", ${JSON.stringify(JSON.stringify({ animals, herds, found: {}, spells: [], wagons: [], offers: [], asks: [] }))})`);
     await X.goto(`${BASE}/town?townTest=L&townRoom=farm2barns&townMap=town2&farmMap=farm2&townHour=${process.env.HOUR ?? 11}&townWeather=clear`);
     await until("ready", async () => (await status(X)) === "ready", 240000);
     await until("the pasture", () => X.evaluate(`!!${P}?.world()`), 60000);
