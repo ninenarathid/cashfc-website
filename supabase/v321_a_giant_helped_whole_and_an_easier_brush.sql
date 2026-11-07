@@ -245,11 +245,12 @@ do $$
 declare
  beds_ integer[]; b integer; o record; okey text; plots_ jsonb; gift jsonb; q jsonb; kept_ jsonb; now_ bigint := town.now_ms(); n_ integer := 0;
 begin
+ -- every bed under its lock first, as a tend takes it, in one order: a giant set down meanwhile in any bed is then seen
+ -- here (and one set down after waits for this file's functions)
+ for b in select generate_series(0, jsonb_array_length(town.cat('farming')->'bedsAt') - 1) loop perform pg_advisory_xact_lock(hashtext('town.bed'), b); end loop;
  select coalesce(array_agg(distinct t.bed order by t.bed), '{}') into beds_ from public.town_plots t
   where jsonb_typeof(t.plant) = 'object' and jsonb_typeof(t.plant->'footprint') = 'array' and jsonb_array_length(t.plant->'footprint') > 1
     and t.plant->>'root' = t.x::text || ',' || t.y::text;
- -- each bed under its lock, as a tend takes it, in one order
- foreach b in array beds_ loop perform pg_advisory_xact_lock(hashtext('town.bed'), b); end loop;
  foreach b in array beds_ loop
   select coalesce(jsonb_object_agg(t.x::text || ',' || t.y::text, jsonb_build_object('soil', t.soil, 'plant', t.plant)
       || case when t.house is not null then jsonb_build_object('house', t.house) else '{}'::jsonb end), '{}'::jsonb)

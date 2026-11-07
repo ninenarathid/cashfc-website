@@ -37,7 +37,8 @@ const as = async (who, q, a = []) => {
 
 const ME = "11111111-1111-4111-8111-111111111111", YOU = "22222222-2222-4222-8222-222222222222";
 const [bx, by] = bedCorner(0), K = (x, y) => `${bx + x},${by + y}`, now = Number((await one("select town.now_ms() t")).t);
-const plant = (crop, o = {}) => ({ by: ME, crop, sown: now - CROPS[crop].hours * 3600000 - 60000, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0, ...o });
+const plant = (crop, o = {}) => ({ by: ME, crop, sown: now - CROPS[crop].hours * 3600000 - 60000, boost: 0, watered: 0, fed: 0, guard: now + 86400000, cured: 0, picked: 0, pickedAt: 0, ...o });
+// (guarded, as the repo's own tests have them: an unguarded plant may meet a pest by the hour's roll, and die)
 const young = (crop, o = {}) => plant(crop, { sown: now - 60000, ...o });
 const put = async (plots) => { for (const [k, p] of Object.entries(plots)) { const [x, y] = k.split(",").map(Number); await db.query("insert into public.town_plots(x,y,bed,soil,plant,changed) values($1,$2,0,'tilled',$3,$4) on conflict(x,y) do update set soil='tilled',plant=excluded.plant,changed=excluded.changed", [x, y, p ? JSON.stringify(p) : null, now]); } };
 const clear = () => db.query("delete from public.town_plots where bed = 0");
