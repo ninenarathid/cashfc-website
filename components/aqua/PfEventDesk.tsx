@@ -669,13 +669,27 @@ function Settings(
           )}
         </fieldset>
 
+        {/* Said where it is decided: a new event is nobody's but the admins' until
+            somebody presses Publish on the desk (v320). */}
+        {ev ? (
+          <p className={`rounded-lg border px-3 py-2.5 text-ui leading-relaxed ${ev.publishedAt ? "border-jade/40 bg-jade/10 text-jade" : "border-gold/40 bg-gold/10 text-gold"}`}>
+            {ev.publishedAt
+              ? "กิจกรรมนี้เผยแพร่แล้ว — สิ่งที่แก้จะเห็นทุกคนทันทีที่บันทึก"
+              : "กิจกรรมนี้ยังเป็นฉบับร่าง (Draft) — เห็นเฉพาะแอดมิน"}
+          </p>
+        ) : (
+          <p className="rounded-lg border border-gold/40 bg-gold/10 px-3 py-2.5 text-ui leading-relaxed text-gold">
+            <b>บันทึกแล้วจะเป็นฉบับร่าง (Draft) อัตโนมัติ</b> — เห็นเฉพาะแอดมิน สมาชิกยังไม่เห็น
+            ลองตรวจและดูหน้าสมาชิกได้ก่อน พร้อมแล้วค่อยกด “เผยแพร่” ที่หัวหน้านี้
+          </p>
+        )}
         {err && <p className="rounded-lg border border-chili/40 bg-chili/10 p-2.5 text-ui text-chili">{err}</p>}
         <div className="flex gap-2">
           <button type="button" onClick={onClose}
                   className="min-h-11 flex-1 rounded-lg border border-line text-ui text-muted hover:text-ink">ยกเลิก</button>
           <button type="button" disabled={busy} onClick={() => void save()}
                   className="min-h-11 flex-1 rounded-lg border border-accent bg-accent/20 text-ui font-medium text-accent hover:bg-accent/30 disabled:opacity-50">
-            {busy ? "กำลังบันทึก…" : "บันทึก"}
+            {busy ? "กำลังบันทึก…" : ev ? "บันทึก" : "บันทึกเป็นฉบับร่าง"}
           </button>
         </div>
       </div>
