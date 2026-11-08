@@ -774,7 +774,7 @@
   "mounts": 187,
   "minions": 454,
   "rare": 430,
-  "level": 100,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -897,7 +897,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-10-18"
+  "chg": "2026-11-08"
  },
  "35634484": {
   "name": "Little Eevee",
@@ -1502,7 +1502,7 @@
    4043
   ],
   "tiers": {
-   "gatherer": "legendary",
+   "gatherer": "master",
    "crafter": "legendary",
    "relic": "legendary",
    "explorer": "legendary",
@@ -3857,7 +3857,7 @@
   "mounts": 76,
   "minions": 137,
   "rare": 62,
-  "level": 88,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3967,7 +3967,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 68,
-  "level": 100,
+  "level": 55,
   "cc": [
    true,
    true,
@@ -4124,7 +4124,7 @@
  },
  "11950156": {
   "name": "Rothe Happer",
-  "parse": 83,
+  "parse": 86,
   "ult": 4,
   "mounts": 61,
   "minions": 143,
@@ -4210,7 +4210,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-18"
+  "chg": "2026-11-08"
  },
  "30667251": {
   "name": "Roxas Akatsuki",
@@ -4219,7 +4219,7 @@
   "mounts": 79,
   "minions": 70,
   "rare": null,
-  "level": 97,
+  "level": 95,
   "cc": [
    true,
    true,
@@ -4532,13 +4532,13 @@
    3835,
    3962,
    3963,
+   4000,
    4005,
    4010,
    4011,
    4012,
    4013,
-   4018,
-   4045
+   4018
   ],
   "tiers": {
    "gatherer": "master",
@@ -5318,7 +5318,7 @@
   "mounts": 119,
   "minions": 243,
   "rare": null,
-  "level": 67,
+  "level": 68,
   "cc": [
    false,
    false,
@@ -6883,7 +6883,7 @@
   "mounts": 67,
   "minions": 120,
   "rare": 8,
-  "level": 100,
+  "level": 70,
   "cc": [
    false,
    false,
@@ -6912,7 +6912,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-07"
+  "chg": "2026-11-08"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -7568,7 +7568,7 @@
   "mounts": 178,
   "minions": 410,
   "rare": null,
-  "level": 100,
+  "level": 45,
   "cc": [
    false,
    false,
@@ -8403,7 +8403,7 @@
   "mounts": 165,
   "minions": 364,
   "rare": null,
-  "level": 100,
+  "level": 45,
   "cc": [
    false,
    false,
@@ -8481,7 +8481,7 @@
   "mounts": 81,
   "minions": 158,
   "rare": 18,
-  "level": 68,
+  "level": 70,
   "cc": [
    true,
    true,
@@ -8521,7 +8521,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-07"
+  "chg": "2026-11-08"
  },
  "15932791": {
   "name": "Yuziris Andra'nov",
@@ -8746,7 +8746,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 100,
+  "level": 62,
   "cc": [
    false,
    false,
@@ -9039,7 +9039,7 @@
   "mounts": 30,
   "minions": 66,
   "rare": null,
-  "level": 94,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -10029,7 +10029,7 @@
   "mounts": 25,
   "minions": 115,
   "rare": null,
-  "level": 66,
+  "level": 67,
   "cc": [
    false,
    false,
@@ -16125,7 +16125,7 @@
   "mounts": 25,
   "minions": 69,
   "rare": null,
-  "level": 100,
+  "level": 66,
   "cc": [
    true,
    true,

@@ -10195,11 +10195,19 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 39,
-    "kills": 19,
-    "job": "Sage",
+    "best": 44,
+    "kills": 21,
+    "job": "Samurai",
     "cleared": true,
     "job_kills": {
+     "Samurai": {
+      "kills": 1,
+      "best": 44
+     },
+     "Dragoon": {
+      "kills": 1,
+      "best": 27
+     },
      "BlackMage": {
       "kills": 1,
       "best": 22
@@ -10228,14 +10236,18 @@
     "expansion": "Dawntrail",
     "encounter_id": 1082,
     "name": "Guardian Arkveld",
-    "best": 82,
-    "kills": 96,
-    "job": "Sage",
+    "best": 86,
+    "kills": 118,
+    "job": "Scholar",
     "cleared": true,
     "job_kills": {
      "Samurai": {
-      "kills": 3,
+      "kills": 4,
       "best": 64
+     },
+     "Monk": {
+      "kills": 6,
+      "best": 59
      },
      "BlackMage": {
       "kills": 25,
@@ -10244,10 +10256,6 @@
      "Dragoon": {
       "kills": 3,
       "best": 47
-     },
-     "Monk": {
-      "kills": 5,
-      "best": 42
      },
      "Ninja": {
       "kills": 1,
@@ -10261,6 +10269,10 @@
       "kills": 20,
       "best": 28
      },
+     "Scholar": {
+      "kills": 9,
+      "best": 86
+     },
      "Gunbreaker": {
       "kills": 1,
       "best": 19
@@ -10268,10 +10280,6 @@
      "Astrologian": {
       "kills": 1,
       "best": 62
-     },
-     "Scholar": {
-      "kills": 5,
-      "best": 59
      },
      "Warrior": {
       "kills": 7,
@@ -28903,7 +28911,7 @@
     "state": "learning",
     "pct": 10.51,
     "phase": 3,
-    "pulls": 49,
+    "pulls": 19,
     "last": "2026-11-03",
     "last_ts": 1793723461
    }
@@ -35985,7 +35993,7 @@
     "state": "learning",
     "pct": 10.51,
     "phase": 3,
-    "pulls": 49,
+    "pulls": 19,
     "last": "2026-11-03",
     "last_ts": 1793723461
    }
@@ -36938,7 +36946,7 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 3,
+    "pulls": 1,
     "last": "2026-10-30",
     "last_ts": 1793368595
    }
@@ -43056,12 +43064,12 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 41,
-    "kills": 14,
+    "kills": 15,
     "job": "Warrior",
     "cleared": true,
     "job_kills": {
      "Warrior": {
-      "kills": 14,
+      "kills": 15,
       "best": 41
      }
     }
@@ -77860,7 +77868,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 92,
-    "kills": 46,
+    "kills": 50,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -77896,9 +77904,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1082,
     "name": "Guardian Arkveld",
-    "best": 1,
-    "kills": 1,
-    "job": "DarkKnight",
+    "best": 56,
+    "kills": 5,
+    "job": "Warrior",
     "cleared": true
    },
    {

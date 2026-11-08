@@ -3,6 +3,34 @@
   {
    "date": "2026-11-08",
    "type": "level_100",
+   "id": 5644067,
+   "name": "Ninenine Everdark",
+   "text": "reached level 100 on Dragoon!"
+  },
+  {
+   "date": "2026-11-08",
+   "type": "parse_up",
+   "id": 11950156,
+   "name": "Rothe Happer",
+   "text": "set a new best parse: 86 on Guardian Arkveld as Scholar"
+  },
+  {
+   "date": "2026-11-08",
+   "type": "rare_up",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "earned Critical Analysis III — only 2.4% of players have it"
+  },
+  {
+   "date": "2026-11-08",
+   "type": "level_100",
+   "id": 42019777,
+   "name": "Peace Violet",
+   "text": "reached level 100 on Paladin!"
+  },
+  {
+   "date": "2026-11-08",
+   "type": "level_100",
    "id": 36183378,
    "name": "K' Potassium",
    "text": "reached level 100 on Black Mage!"
@@ -1371,34 +1399,6 @@
    "id": 58199536,
    "name": "Areeya Lovekin",
    "text": "reached level 100 on Bard!"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "rare_up",
-   "id": 29152036,
-   "name": "Fluffy Tinytail",
-   "text": "earned Phantom of the Umbra: Rapier Umbrae"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "rare_up",
-   "id": 38152072,
-   "name": "Parker Thonhart",
-   "text": "earned Cut Above the Rest: Sword & Shield Occultum — only 2.9% of players have it"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "level_100",
-   "id": 12478532,
-   "name": "Hakuryu Flare",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "rare_up",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "earned Quick to Judge: Law's Order Composite Bow"
   }
  ]
 }
