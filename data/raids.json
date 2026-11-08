@@ -88668,7 +88668,7 @@
     "state": "learning",
     "pct": 85.33,
     "phase": 5,
-    "pulls": 63,
+    "pulls": 48,
     "last": "2026-11-06",
     "last_ts": 1793977191
    }
@@ -92150,7 +92150,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 100,
-    "kills": 70,
+    "kills": 73,
     "job": "Viper",
     "cleared": true,
     "job_kills": {
