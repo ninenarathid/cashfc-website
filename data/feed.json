@@ -3,6 +3,69 @@
   {
    "date": "2026-11-08",
    "type": "level_100",
+   "id": 36183378,
+   "name": "K' Potassium",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-11-08",
+   "type": "level_100",
+   "id": 9444020,
+   "name": "Non Elemental",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-11-08",
+   "type": "level_100",
+   "id": 30596644,
+   "name": "Noelle Eisner",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-11-08",
+   "type": "level_100",
+   "id": 29991345,
+   "name": "Transparent Crystal",
+   "text": "reached level 100 on Dragoon!"
+  },
+  {
+   "date": "2026-11-08",
+   "type": "level_100",
+   "id": 33608576,
+   "name": "Verles Eisner",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
+   "date": "2026-11-08",
+   "type": "level_100",
+   "id": 61014734,
+   "name": "Hanna Doss",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-11-08",
+   "type": "level_100",
+   "id": 60429500,
+   "name": "Janna Minerva",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
+   "date": "2026-11-08",
+   "type": "level_100",
+   "id": 61489984,
+   "name": "Poly Umami",
+   "text": "reached level 100 on Sage!"
+  },
+  {
+   "date": "2026-11-08",
+   "type": "level_100",
+   "id": 47548993,
+   "name": "Sanya Polaali",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
+   "date": "2026-11-08",
+   "type": "level_100",
    "id": 62507897,
    "name": "De Viljho",
    "text": "reached level 100 on Reaper!"
@@ -1336,69 +1399,6 @@
    "id": 30864049,
    "name": "Lay Stardust",
    "text": "earned Quick to Judge: Law's Order Composite Bow"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "rare_up",
-   "id": 44133352,
-   "name": "Seville Beoulve",
-   "text": "earned Dire, Dire Deepcroft — only 1.9% of players have it"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "level_100",
-   "id": 12058921,
-   "name": "Heidi Fox",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "rare_up",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "earned I Hope Mentor Will Notice Me III"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "rare_up",
-   "id": 37061370,
-   "name": "Peonies Dunieres",
-   "text": "earned No More Fish in the Sea III"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "level_100",
-   "id": 51060767,
-   "name": "Yatchy Concreategirls",
-   "text": "reached level 100 on Reaper!"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "new_member",
-   "id": 49053650,
-   "name": "Eniluna Gelatoneii",
-   "text": "joined the FC — welcome!"
-  },
-  {
-   "date": "2026-10-21",
-   "type": "level_100",
-   "id": 8286372,
-   "name": "Aloha Banana",
-   "text": "reached level 100 on Summoner!"
-  },
-  {
-   "date": "2026-10-21",
-   "type": "level_100",
-   "id": 60429500,
-   "name": "Jin Theape",
-   "text": "reached level 100 on Samurai!"
-  },
-  {
-   "date": "2026-10-20",
-   "type": "level_100",
-   "id": 24228478,
-   "name": "Pyrozus Helison",
-   "text": "reached level 100 on Sage!"
   }
  ]
 }

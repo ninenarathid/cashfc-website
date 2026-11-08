@@ -6,7 +6,7 @@
   "mounts": 61,
   "minions": 227,
   "rare": null,
-  "level": 100,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -27,7 +27,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-06"
+  "chg": "2026-11-08"
  },
  "15308846": {
   "name": "Aqua Eleison",
@@ -1804,7 +1804,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 100,
+  "level": 40,
   "cc": [
    true,
    true,
@@ -1828,7 +1828,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-04"
+  "chg": "2026-11-08"
  },
  "28579232": {
   "name": "Dessiny Valkyrie",
@@ -2268,7 +2268,7 @@
   "mounts": 49,
   "minions": 115,
   "rare": null,
-  "level": 100,
+  "level": 93,
   "cc": [
    true,
    true,
@@ -2298,7 +2298,7 @@
    "Dancing Mad",
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-11-07"
+  "chg": "2026-11-08"
  },
  "50821570": {
   "name": "Haruki Mizumoto",
@@ -2502,7 +2502,7 @@
   "mounts": 48,
   "minions": 163,
   "rare": 9,
-  "level": 90,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2527,7 +2527,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-11-07"
+  "chg": "2026-11-08"
  },
  "42948817": {
   "name": "Karuma Amamiya",
@@ -3857,7 +3857,7 @@
   "mounts": 76,
   "minions": 137,
   "rare": 62,
-  "level": 87,
+  "level": 88,
   "cc": [
    true,
    true,
@@ -3958,7 +3958,7 @@
    "The Omega Protocol",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-11-07"
+  "chg": "2026-11-08"
  },
  "9444020": {
   "name": "Non Elemental",
@@ -3967,7 +3967,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 68,
-  "level": 91,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4072,7 +4072,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-07"
+  "chg": "2026-11-08"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -4219,7 +4219,7 @@
   "mounts": 79,
   "minions": 70,
   "rare": null,
-  "level": 95,
+  "level": 97,
   "cc": [
    true,
    true,
@@ -5318,7 +5318,7 @@
   "mounts": 119,
   "minions": 243,
   "rare": null,
-  "level": 66,
+  "level": 67,
   "cc": [
    false,
    false,
@@ -5331,7 +5331,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-06"
+  "chg": "2026-11-08"
  },
  "38802422": {
   "name": "Aimday Yeji",
@@ -6951,7 +6951,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 60,
+  "level": 64,
   "cc": [
    false,
    false,
@@ -7568,7 +7568,7 @@
   "mounts": 178,
   "minions": 410,
   "rare": null,
-  "level": 42,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7581,7 +7581,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-07"
+  "chg": "2026-11-08"
  },
  "31831003": {
   "name": "North Nostafari",
@@ -8381,7 +8381,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 98,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8403,7 +8403,7 @@
   "mounts": 165,
   "minions": 364,
   "rare": null,
-  "level": 42,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8416,7 +8416,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-07"
+  "chg": "2026-11-08"
  },
  "31806535": {
   "name": "Viiska Howl",
@@ -8659,7 +8659,7 @@
   "mounts": 17,
   "minions": 42,
   "rare": null,
-  "level": 100,
+  "level": 30,
   "cc": [
    false,
    false,
@@ -8746,7 +8746,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 60,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8790,7 +8790,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 99,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -9039,6 +9039,28 @@
   "mounts": 30,
   "minions": 66,
   "rare": null,
+  "level": 94,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-11-08"
+ },
+ "61489984": {
+  "name": "Poly Umami",
+  "parse": null,
+  "ult": 0,
+  "mounts": 85,
+  "minions": 178,
+  "rare": null,
   "level": 100,
   "cc": [
    false,
@@ -9052,29 +9074,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-07"
- },
- "61489984": {
-  "name": "Poly Umami",
-  "parse": null,
-  "ult": 0,
-  "mounts": 85,
-  "minions": 178,
-  "rare": null,
-  "level": 98,
-  "cc": [
-   false,
-   false,
-   false,
-   false,
-   false
-  ],
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {},
-  "ex": [],
-  "ults": [],
-  "chg": "2026-11-07"
+  "chg": "2026-11-08"
  },
  "61748681": {
   "name": "Qzarel Lumina",
@@ -9105,7 +9105,7 @@
   "mounts": 7,
   "minions": 24,
   "rare": 0,
-  "level": 80,
+  "level": 82,
   "cc": [
    false,
    false,
@@ -10029,7 +10029,7 @@
   "mounts": 25,
   "minions": 115,
   "rare": null,
-  "level": 63,
+  "level": 66,
   "cc": [
    false,
    false,
@@ -10045,7 +10045,7 @@
   },
   "ex": [],
   "ults": [],
-  "chg": "2026-11-07"
+  "chg": "2026-11-08"
  },
  "30863840": {
   "name": "Aui Aye",
@@ -16125,7 +16125,7 @@
   "mounts": 25,
   "minions": 69,
   "rare": null,
-  "level": 64,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -16142,7 +16142,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-07"
+  "chg": "2026-11-08"
  },
  "29864090": {
   "name": "Scylla Melfrey",

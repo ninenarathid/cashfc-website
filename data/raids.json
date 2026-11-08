@@ -77868,12 +77868,16 @@
       "kills": 5,
       "best": 53
      },
+     "Dancer": {
+      "kills": 2,
+      "best": 13
+     },
      "Paladin": {
       "kills": 19,
       "best": 92
      },
      "Warrior": {
-      "kills": 10,
+      "kills": 12,
       "best": 83
      },
      "DarkKnight": {
