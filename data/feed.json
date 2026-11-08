@@ -3,6 +3,13 @@
   {
    "date": "2026-11-08",
    "type": "level_100",
+   "id": 62507897,
+   "name": "De Viljho",
+   "text": "reached level 100 on Reaper!"
+  },
+  {
+   "date": "2026-11-08",
+   "type": "level_100",
    "id": 5644067,
    "name": "Ninenine Everdark",
    "text": "reached level 100 on Dragoon!"
@@ -1392,13 +1399,6 @@
    "id": 15308846,
    "name": "Aqua Eleison",
    "text": "earned An Ode to Leathercraft — only 2.9% of players have it"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "level_100",
-   "id": 58199536,
-   "name": "Areeya Lovekin",
-   "text": "reached level 100 on Bard!"
   }
  ]
 }

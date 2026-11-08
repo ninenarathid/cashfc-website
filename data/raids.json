@@ -70115,7 +70115,13 @@
     "best": 34,
     "kills": 3,
     "job": "WhiteMage",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "WhiteMage": {
+      "kills": 3,
+      "best": 34
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -74928,7 +74934,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 54,
-    "kills": 34,
+    "kills": 36,
     "job": "Bard",
     "cleared": true,
     "job_kills": {
@@ -87260,14 +87266,14 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 9,
-    "kills": 17,
+    "best": 11,
+    "kills": 19,
     "job": "DarkKnight",
     "cleared": true,
     "job_kills": {
      "DarkKnight": {
-      "kills": 15,
-      "best": 9
+      "kills": 17,
+      "best": 11
      },
      "Paladin": {
       "kills": 1,
