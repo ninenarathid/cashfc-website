@@ -4219,7 +4219,7 @@
   "mounts": 79,
   "minions": 70,
   "rare": null,
-  "level": 98,
+  "level": 95,
   "cc": [
    true,
    true,
@@ -4245,7 +4245,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-07"
+  "chg": "2026-11-08"
  },
  "29325838": {
   "name": "Ryuu Dawnblade",
@@ -6951,7 +6951,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 87,
+  "level": 60,
   "cc": [
    false,
    false,
@@ -6964,7 +6964,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-05"
+  "chg": "2026-11-08"
  },
  "53933347": {
   "name": "Little Alyss",
@@ -8381,7 +8381,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 100,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -8394,7 +8394,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-05"
+  "chg": "2026-11-08"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -8659,7 +8659,7 @@
   "mounts": 17,
   "minions": 42,
   "rare": null,
-  "level": 65,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8672,7 +8672,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-07"
+  "chg": "2026-11-08"
  },
  "49053650": {
   "name": "Eniluna Gelatoneii",
@@ -8746,7 +8746,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 99,
+  "level": 60,
   "cc": [
    false,
    false,
@@ -8759,7 +8759,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-07"
+  "chg": "2026-11-08"
  },
  "45513833": {
   "name": "Isildur One",
@@ -8790,7 +8790,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 96,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -8810,7 +8810,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-07"
+  "chg": "2026-11-08"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -9103,8 +9103,8 @@
   "parse": null,
   "ult": 0,
   "mounts": 7,
-  "minions": 20,
-  "rare": null,
+  "minions": 24,
+  "rare": 0,
   "level": 80,
   "cc": [
    false,
@@ -9118,7 +9118,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-07"
+  "chg": "2026-11-08"
  },
  "31685121": {
   "name": "Squid Girls",

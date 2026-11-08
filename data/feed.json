@@ -1,6 +1,13 @@
 {
  "events": [
   {
+   "date": "2026-11-08",
+   "type": "level_100",
+   "id": 62507897,
+   "name": "De Viljho",
+   "text": "reached level 100 on Reaper!"
+  },
+  {
    "date": "2026-11-07",
    "type": "level_100",
    "id": 47218599,
@@ -1391,13 +1398,6 @@
    "type": "level_100",
    "id": 24228478,
    "name": "Pyrozus Helison",
-   "text": "reached level 100 on Sage!"
-  },
-  {
-   "date": "2026-10-20",
-   "type": "level_100",
-   "id": 43864764,
-   "name": "Shinonome Kamemaru",
    "text": "reached level 100 on Sage!"
   }
  ]
