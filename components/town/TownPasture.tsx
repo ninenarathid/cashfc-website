@@ -574,6 +574,13 @@ export default function TownPasture(props: PastureProps) {
   useEffect(() => { if (!(full || theirsFull) || fullPic) return; void loadFlockArt().then((k) => setFullPic(k?.sprite("fl_full") ?? k?.sprite("fl_lamb_w_SE_stand") ?? null)); }, [full, theirsFull, fullPic]);
   useEffect(() => { const on = () => say(t("ฝูงแกะเต็มแล้ว", "The flock is full.")); window.addEventListener("town:flock-full", on); return () => window.removeEventListener("town:flock-full", on); }, [say]); // eslint-disable-line react-hooks/exhaustive-deps
   const letDown = flock.length ? flock[flock.length - 1].id : passenger;
+  // (a ninth who got on as the eighth did is let down by their own page; one on a browser older than the flock never
+  // does, and is let down from mine by the word every browser knows: once each)
+  const pastEight = flock.slice(FLOCK_MAX).map((b) => b.id).join(","), toldOff = useRef(new Set<string>());
+  useEffect(() => {
+    for (const id of pastEight ? pastEight.split(",") : []) if (!toldOff.current.has(id)) { toldOff.current.add(id); props.pairSend(id, { k: "ram", m: "off" }); }
+    for (const id of [...toldOff.current]) if (!flock.some((b) => b.id === id)) toldOff.current.delete(id);
+  }, [pastEight]); // eslint-disable-line react-hooks/exhaustive-deps
   const riding = props.pet === RAM && !props.afoot && !props.sitting && !props.seat;
   const nearby = riding ? props.people().filter((p) => !p.seat && (p.sit ?? -1) === -1 && p.pet !== RAM && (() => { const a = props.self(); return !!a && Math.hypot(p.x - a.x, p.y - a.y) <= RAM_REACH; })()).slice(0, 2) : [];
   const behind = riderOf(props.seat);

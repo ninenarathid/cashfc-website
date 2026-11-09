@@ -55,6 +55,8 @@ describe("the cloud ram's flock: the same on every screen", () => {
     expect(flockOrder(heard).map((b) => b.id)).toEqual(want);
     expect(flockOrder([...heard].reverse()).map((b) => b.id)).toEqual(want);
     expect(heard[0].id).toBe("d"); // (the list heard is left as it was)
+    // (a moment of 0 is no moment: it does not jump the line)
+    expect(flockOrder([{ id: "z", at: 0 }, { id: "y", at: 5 }]).map((b) => b.id)).toEqual(["y", "z"]);
   });
 
   it("at most eight ride: a ninth who got on with the eighth is past the last place, and a full flock has no room", () => {
@@ -187,7 +189,7 @@ describe("a flock on a page", () => {
   });
 
   it("when one in the middle gets down, its lamb jumps home and those behind move up", () => {
-    const f = new Flocks(), riders = ["a", "b", "c", "d"].map((id, i) => ({ id, at: i }));
+    const f = new Flocks(), riders = ["a", "b", "c", "d"].map((id, i) => ({ id, at: i + 1 }));
     // walking right, a long way, so the line is out behind
     for (let i = 0; i <= 120; i++) f.tick(i * 16, 0.016, [ride(riders, { at: { x: i * 4, y: 0 }, moving: true })]);
     const before = { c: { ...f.lamb("c")!.at }, b: { ...f.lamb("b")!.at } };
@@ -224,7 +226,7 @@ describe("a flock on a page", () => {
   });
 
   it("stood still a moment, they crowd round the big ram; a stop between two taps is no stop", () => {
-    const f = new Flocks(), riders = ["a", "b", "c"].map((id, i) => ({ id, at: i }));
+    const f = new Flocks(), riders = ["a", "b", "c"].map((id, i) => ({ id, at: i + 1 }));
     for (let i = 0; i <= 60; i++) f.tick(i * 16, 0.016, [ride(riders, { at: { x: i * 4, y: 0 }, moving: true })]);
     const walking = { ...f.lamb("a")!.at };
     f.tick(61 * 16 + 300, 0.016, [ride(riders, { at: { x: 240, y: 0 } })]);

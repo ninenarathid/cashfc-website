@@ -3132,7 +3132,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // ── the cloud ram's flock ── (lambs jumping back into the fleece, a cloud puffing away, as their riders get down; and,
     // in `next dev`, passengers who are not there: __townView.flock)
     for (const g of flockGhosts.current) if (g.info.seat) things.push({ depth: depthOf(g), draw: () => drawAvatar(ctx, g, false, names, boxes, false, wall, now, dpr) });
-    { const kit = flockKit();
+    // (only once the sheet is here: asking for it from here would fetch it for every page, ridden or not)
+    { const kit = flockArt.current;
       if (kit && !mapRef.current) for (const g of flocks.current.leaving) {
         // (a cloud's puff where it floated, not on the ground)
         const part = popFrame(g.start, now), at = g.cloud ? { x: g.from.x, y: g.from.y - CLOUD_PUFF } : homeAt(g.from, g.to, part);
@@ -3310,7 +3311,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (!name || !name.startsWith("fam") || (!(name in ICON_ATLAS.icons) && name !== RAM) || a.byeAt !== undefined) { pets.current.delete(a.info.id); return null; }
     // ── gifts: forest ── (a moss stag is ridden: it is under its member and drawn with them, see drawAvatar; here only
     // which way it goes is kept. Sat down, or got down to walk beside it, it follows like any familiar)
-    if (rides(name, sitting(a), a.info.afoot)) {
+    if (rides(name, sitting(a) || !!a.info.seat, a.info.afoot)) {
       const at = pets.current.get(a.info.id) ?? { x: a.pos.x, y: a.pos.y, right: true }, mx = a.pos.x - at.x, my = a.pos.y - at.y;
       if (Math.abs(mx - my) > 0.01) at.right = mx - my > 0;
       at.x = a.pos.x; at.y = a.pos.y;
@@ -3827,7 +3828,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // ── the cloud ram's flock ── (a passenger on a lamb or a cloud of their own behind the big ram; not drawn till it has puffed out of the fleece)
     const mount = behindOf && !mapRef.current ? lambMount(ctx, a, now, dpr) : null;
     if (mount?.hidden) { mount.draw(); return; }
-    const foot = mount ? mount.foot : mapRef.current ? project(a.pos) : spotOf(a), riding = rides(a.info.pet, sitting(a), a.info.afoot) && (ram || "famStag" in ICON_ATLAS.icons);
+    // (sat on somebody's ram or on the wagon, a steed of their own is got off, as on a bench: their stag is not drawn under their lamb)
+    const foot = mount ? mount.foot : mapRef.current ? project(a.pos) : spotOf(a), riding = !behindOf && !wagonOf && rides(a.info.pet, sitting(a), a.info.afoot) && (ram || "famStag" in ICON_ATLAS.icons);
     // (…and the owner on the big ram's saddle, rising and falling with its steps)
     const big = riding && ram && !mapRef.current ? bigMount(ctx, a, foot, now, dpr) : null;
     const perched = riding || !!behindOf || !!wagonOf;

@@ -44,7 +44,8 @@ export const onCloud = (owner: string, rider: string, at?: number): boolean => s
 export interface Boarded { id: string; at?: number }
 /** The line, in the order they got on (who told no moment after those who did; ties by id): the same on every page. */
 export function flockOrder<T extends Boarded>(seated: readonly T[]): T[] {
-  const when = (b: Boarded) => (typeof b.at === "number" && Number.isFinite(b.at) ? b.at : Infinity);
+  // (0 is what a page says when it tells no moment: it lines up with those who told none)
+  const when = (b: Boarded) => (typeof b.at === "number" && Number.isFinite(b.at) && b.at > 0 ? b.at : Infinity);
   return [...seated].sort((a, b) => when(a) - when(b) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
 }
 /** Whether somebody is past the flock's last place (got on as the eighth did, and later by the line's order). */
