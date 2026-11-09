@@ -89134,7 +89134,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 99,
-    "kills": 18,
+    "kills": 21,
     "job": "Scholar",
     "cleared": true,
     "job_kills": {
@@ -89150,13 +89150,13 @@
       "kills": 3,
       "best": 98
      },
-     "Scholar": {
-      "kills": 10,
-      "best": 99
-     },
      "Sage": {
-      "kills": 2,
-      "best": 82
+      "kills": 3,
+      "best": 96
+     },
+     "Scholar": {
+      "kills": 12,
+      "best": 99
      }
     }
    },
@@ -90652,7 +90652,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 38,
-    "kills": 1,
+    "kills": 3,
     "job": "Warrior",
     "cleared": true
    },
