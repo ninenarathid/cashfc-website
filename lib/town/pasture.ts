@@ -21,6 +21,7 @@
  * Nothing here imports world.ts (world.ts imports this): everything is in global tiles and plain numbers.
  */
 import { gateAt, type GateLog } from "./animals";
+import { hashStr, mix, patchKind, stretchOf } from "./roam";
 import { F2 } from "./farm-map";
 import * as farm2 from "./farm2";
 /** The editor's farm's barns' side (lib/town/farm2), when this page has it: the rest of this file lays its animals' ways from it. */
@@ -289,8 +290,8 @@ export interface AnimalSpot { x: number; y: number; right: boolean; /** Its back
 const awayOf = (from: { x: number; y: number }, to: { x: number; y: number }) => to.x + to.y < from.x + from.y - 1e-6;
 type P = { x: number; y: number };
 
-export const hashStr = (s: string) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
-const mix = (...n: number[]) => { let h = 0x9e3779b9; for (const k of n) { h ^= k + 0x7f4a7c15 + (h << 6) + (h >>> 2); h = Math.imul(h ^ (h >>> 15), 0x85ebca6b) >>> 0; } return (h >>> 0) / 4294967296; };
+// (the seed, the hash and the kind of place a stretch is at: lib/town/roam, which the round strip of a collection reads too)
+export { hashStr };
 const dist = (a: P, b: P) => Math.hypot(b.x - a.x, b.y - a.y);
 const lenOf = (pts: readonly P[]) => pts.slice(1).reduce((n, p, i) => n + dist(pts[i], p), 0);
 /** A point a distance along a list of points, and which way it goes across the screen there. */
@@ -397,11 +398,10 @@ const PATCHES: readonly Patch[] = (() => {
  * Which patch an animal is at in a stretch of time: the garden a little more often than the meadows (the owner,
  * 2026-10-22: "ช่วยทำให้ สัตว์เดินออกไปที่แปลงผักมากขึ้น"), a duck the pond a third of the time.
  */
-const GARDEN_SHARE = 0.55, POND_SHARE = 0.3;
 function patchOf(seed: number, species: string, k: number): number {
-  const r = mix(seed, k, 21), garden = PATCHES.map((p, i) => [p, i] as const).filter(([p]) => p.kind === "garden"), meadow = PATCHES.map((p, i) => [p, i] as const).filter(([p]) => p.kind === "meadow");
-  if (species === "duck" && r < POND_SHARE) return PATCHES.findIndex((p) => p.kind === "pond");
-  const list = mix(seed, k, 22) < GARDEN_SHARE ? garden : meadow;
+  const kind = patchKind(seed, species, k);
+  if (kind === "pond") return PATCHES.findIndex((p) => p.kind === "pond");
+  const list = PATCHES.map((p, i) => [p, i] as const).filter(([p]) => p.kind === kind);
   return list[Math.floor(mix(seed, k, 23) * list.length) % list.length][1];
 }
 /** A point in a patch for a wander's step. */
@@ -462,8 +462,6 @@ function roamOf(pi: number, seed: number, k: number, n: number): P[] {
 /** How fast each kind walks, tiles a second (on the lanes a little faster, at a trot). */
 const PACE: Record<string, number> = { cow: 0.55, sheep: 0.7, chicken: 1.3, duck: 0.9 };
 const TROT = 1.4;
-/** How long a stretch out in one patch lasts before an animal moves on. */
-const STRETCH = 10 * 60_000;
 
 /** Where an animal of a barn rests when nothing else is going on: a place of the floor by its slot (its place among the barn's animals). */
 export function restOf(barn: BarnPlace, slot: number): P {
@@ -495,10 +493,6 @@ type Out = { at: P; right: boolean; back?: boolean; pose: Pose; way?: { pts: P[]
 
 interface Who { id: string; species: string; young: boolean }
 const paceOf = (a: Who) => (PACE[a.species] ?? 0.8) * (a.young ? 0.85 : 1);
-const stretchOf = (seed: number) => {
-  const off = seed % STRETCH;
-  return { period: (tt: number) => Math.floor((tt + off) / STRETCH), start: (k: number) => k * STRETCH - off };
-};
 /** The first way out after a door opened: when it sets off, the stretch it goes to (this one's patch, or the next's if it would get there after this one is over), the way, and when it is there. */
 function firstOut(a: Who, barn: BarnPlace, slot: number, opened: number) {
   const seed = hashStr(a.id), lane = paceOf(a) * TROT, { period, start } = stretchOf(seed);

@@ -9,6 +9,7 @@ import {
 import { ANIMAL_GIFTS, POPOTO_SHOP, TOOL_OF } from "./animal-act";
 import { ANIMAL_GRADED, FAMILY, FARM_FAMILY, FORAGE_BANDS } from "./animal-items";
 import { EGG_SPOTS, WAGON_STOPS } from "./pasture";
+import { specialsRow } from "./specials";
 
 export function animalsRow() {
   return {
@@ -40,5 +41,7 @@ export function animalsRow() {
     graded: ANIMAL_GRADED,
     family: FAMILY,
     farmFamily: FARM_FAMILY,
+    // (v324: the bred breeds' specials and the care score: lib/town/specials)
+    specials: specialsRow(),
   };
 }

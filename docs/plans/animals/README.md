@@ -295,3 +295,28 @@ Kept up to date as the build goes; newest last.
   spots and the wagon's stops have their values (farm [151,-3], town [57,32], forest [190,186]); line-points counts
   `animal_*` deeds by `doc.pts` (animal_care on the helpers' line); the page reads the purse's `animalCare`,
   `animalBook`, `meadow`, `animalRode`.
+
+## Special produce and care (2026-11-10, branch `specials`, v324): the idea patch's stage 2
+
+The owner, 2026-11-09: "สัตว์ที่ผสมพันธ์เป็น แบบพิเศษมีโอกาสให้ผลผลิตแบบพิเศษ … ที่เลี้ยงมาดี จะให้ผลผลิต quality สูงด้วย … น่าค้นหา";
+of the idea patch, "นอกนั้นเห็นด้วยกับ claude" and "ทำทั้งหมดได้เลย". The rules are lib/town/specials (with lib/town/animals'
+CARE and lib/town/roam); the database's are v324's.
+
+- **28 specials**, one a bred breed (`SPECIALS`), each a thing of the bag (`SPECIAL_ITEMS`: its produce's tier and pays,
+  graded). At a collection each round collected in the coop, the milking or the shearing may turn one unit into it, of
+  that unit's grade; eggs laid out on the meadow roll none. Chance a round at full care: a day's 0.20 / 0.28 / 0.40 (real,
+  fantasy, legend) by the species' cycle, times (0.5 + 0.5 x care / 10), x2 on the breed's habit, x1.5 a gold coat, 50 % at most.
+- **The habit**, six kinds, a breed's own (the doc's table but one: the strawberry cow eats **mist vetch** (03-05), the doc's
+  dew clover being no cow's food; the coordinator's word, 2026-11-10). A round is the stretch since the last collection;
+  its weather, places and company are looked at over 72 hours at most. Strong wind is its speed and half its gusts 30 km/h
+  or more, or a storm (`SPECIAL.wind`, ours).
+- **The round strip** (`stripOf`): kept on the animal, its last three; on a card after each collection (TownPasture's
+  `Harvest`) and on the animal's card (TownAnimals' `Rounds`), components/town/TownRound.
+- **Care score** 0-10 (`careScore`): the body's size 0 / 2 / 3 / 5 and the fed streak to 5; it lifts the floor with the
+  graded feed, 25 together at most (`rangeOf`). At every rank it sets the chance; after the star collar only that.
+- **The book** (`BookSpecial`): each breed's special a shadow until the village finds it, its habit's kind, the first
+  finder (`town_pasture.specials`, the world's `specials`), my finds (`purse.animalSpecials`), the habit told at three.
+- **For stage 3**: a special's `line` (real: stands in and carries its breed's second buff; fantasy: a new dish's secret;
+  legend: the feast's centrepiece; wool: the tailor, the farm and the feast table) and `family` (egg, milk, wool, paper,
+  horn, seed). Nothing uses them yet: no recipe takes them (they are in no `FAMILY`).
+- **Fixed on the way**: the coop's eggs never none (`unitsOf`, `town.animal_units`).

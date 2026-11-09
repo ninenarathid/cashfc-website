@@ -21,6 +21,7 @@ import { PREP_TOOLS } from "./preparation-items";
 import { CAMP_TOOLS, CAMP_CRAFTS } from "./camp-items";
 import { WOOD_RAW, WOOD_TOOL_IDS } from "./wood-items";
 import { BREEDS } from "./animals";
+import { SPECIALS } from "./specials";
 import { FORAGE_BANDS } from "./animal-items";
 import { POPOTO_SHOP, TOOL_OF } from "./animal-act";
 import { BREED_SCROLL_ITEMS } from "./animal-items";
@@ -155,6 +156,8 @@ export function sources(shelf: ItemId[] = Object.keys(GOODS) as ItemId[], wild =
     if (wild) {
       for (const id of Object.keys(POPOTO_SHOP) as ItemId[]) add(id, "pasture");
       for (const b of BREEDS) add(b.produce, "pasture");
+      // (v324: a bred breed's special, in place of a unit of its produce)
+      for (const x of SPECIALS) add(x.id as ItemId, "pasture");
       for (const id of Object.keys(FORAGE_BANDS) as ItemId[]) add(id, "pasture");
       // (a breed's scroll: written out by whoever first bred it, lib/town/animal-act's 'scroll')
       for (const id of Object.keys(BREED_SCROLL_ITEMS) as ItemId[]) add(id, "pasture");

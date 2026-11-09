@@ -17,6 +17,10 @@ import { Coins, ItemIcon, Pic } from "./TownTrade";
 import { QualityRange } from "./TownQuality";
 import { animalK, animalPicture, animalSize, drawAnimal } from "./pasture-draw";
 import type { Sprite } from "@/lib/town/scenery";
+import { CARE, SPECIAL, careScore, knowsHabit, sizeGrade, specialOf } from "@/lib/town/specials";
+import { specialsFoundOf } from "@/lib/town/animal-act";
+import { HabitTold, KIND_ICON, KIND_WORD, RoundStrip } from "./TownRound";
+import TownIcon from "./TownIcon";
 
 /*
  * Uncle Popoto's panel (docs/plans/animals/README.md, "Round 6"): the barns' plan to buy one of (one a member, none a
@@ -730,6 +734,8 @@ function Card({ a, th, purse, world, now, kit, busy, act, open, onOpen, onCollec
             <p className="mb-1 text-label text-muted">{t("หัวใจเพิ่มคุณภาพสูงสุด · อาหารเกรดดีเพิ่มคุณภาพขั้นต่ำ", "Hearts raise the best it can be · graded feed raises the least")}</p>
             <QualityRange range={{ lo: v.range.floor, hi: v.range.ceiling }} base={Math.max(0, v.range.ceiling - ANIMALS.quality.spread)} th={th} odds={false} />
           </div>}
+          {yields && stage === "adult" && <CareScore a={s} th={th} />}
+          {specialOf(a.breed) && <Rounds a={s} th={th} purse={purse} world={world} />}
           {mine && (
             <div className="mt-2 grid grid-cols-2 gap-2" data-animal-actions>
               <button type="button" className={button} disabled={busy || stage === "coming" || inPen} onClick={() => setPicker(picker === "feed" ? null : "feed")} aria-expanded={picker === "feed"}>{t("ให้อาหาร", "Feed")}</button>
@@ -1131,7 +1137,73 @@ function Book({ th, purse, world, kit, nameOf, me, busy, act }: Common) {
           );
         })}
       </ul>
+      {/* (each bred breed's special, a row of the whole width: lib/town/specials) */}
+      <H3>{t("ของพิเศษ · นิสัย", "Specials · habits")}</H3>
+      <ul className="grid gap-1.5" data-book-specials>
+        {LETTERS.filter((L) => L !== "A").map((L) => <BookSpecial key={L} breed={breedAt(sp, L).id} th={th} purse={purse} world={world} nameOf={nameOf} />)}
+      </ul>
       <p className="mt-2 text-label text-muted">{t(`อักษร A–H คือขั้นของพันธุ์ (A พันธุ์เริ่มต้นจากร้านลุง) สูตร "B + C + ดอกไม้" คือผสมพันธุ์ขั้น B กับขั้น C ใส่ดอกไม้เป็นของเซ่น · ${SPECIES[sp].name.th}โตเต็มวัยเมื่อกินอิ่มครบ ${adultAt(sp)} ชม.`, `A–H are a breed's steps (A the starter from the stall): "B + C + a flower" is a step-B and a step-C parent with a flower offered · a ${SPECIES[sp].name.en.toLowerCase()} is grown after ${adultAt(sp)} fed hours`)}</p>
     </div>
+  );
+}
+
+/* ── care and specials (lib/town/specials, the idea patch of 2026-11-09) ── */
+/** A special not found yet: its shape in a pale grey, seen on the dark well (a black shade there is lost). */
+const SHADE = "[filter:brightness(0)_invert(0.62)] opacity-55";
+const SIZE_WORD: Array<[string, string]> = [["เล็ก", "small"], ["กลาง", "medium"], ["ใหญ่", "large"], ["ใหญ่มาก", "very large"]];
+/** The care score, 0 to 10: its size's points and its fed streak's, ten pips. */
+function CareScore({ a, th }: { a: Animal; th: boolean }) {
+  const t = (x: string, y: string) => (th ? x : y);
+  const n = careScore(a), g = sizeGrade(a.species, a.body), size = CARE.size[g], fed = Math.min(CARE.fed, a.streak ?? 0);
+  return (
+    <div className="mt-2 flex items-center gap-3" data-care-score={n}>
+      <span className="shrink-0 text-center leading-tight">
+        <span className="block text-label text-muted">{t("เลี้ยงดี", "Care")}</span>
+        <span className="block font-data text-title font-semibold tabular-nums text-gold">{n}<span className="text-meta font-normal text-muted">/{CARE.most}</span></span>
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="flex gap-0.5" role="img" aria-label={t(`เลี้ยงดี ${n} จาก ${CARE.most}`, `care ${n} of ${CARE.most}`)}>
+          {Array.from({ length: CARE.most }, (_, i) => <span key={i} className={`h-2.5 flex-1 rounded-sm ${i < n ? "bg-gold" : "bg-bg/80 ring-1 ring-inset ring-line-strong"}`} />)}
+        </span>
+        <span className="mt-1 block truncate text-label text-muted">{t(`ตัว${SIZE_WORD[g][0]} +${size} · อิ่มต่อเนื่อง +${fed}`, `${SIZE_WORD[g][1]} +${size} · fed through +${fed}`)}</span>
+      </span>
+    </div>
+  );
+}
+/** A bred breed's special and its habit's kind, and its last rounds' strips, newest first. */
+function Rounds({ a, th, purse, world }: { a: Animal; th: boolean; purse: Purse; world: AnimalWorld }) {
+  const t = (x: string, y: string) => (th ? x : y);
+  const sp = specialOf(a.breed)!, seen = !!world.specials?.[a.breed], strips = [...(a.strips ?? [])].reverse();
+  return (
+    <div className="mt-2" data-rounds={strips.length}>
+      <p className="mb-1 flex items-center gap-1.5 text-meta text-ink">
+        <span className="tk tk-slot grid size-10 shrink-0 place-items-center" title={seen ? ITEMS[sp.id].name[th ? "th" : "en"] : "???"}><ItemIcon id={sp.id} size={26} className={seen ? "" : SHADE} /></span>
+        <TownIcon name={KIND_ICON[sp.habit.kind]} size={22} />
+        <span className="min-w-0 flex-1 truncate">{knowsHabit(specialsFoundOf(purse), a.breed) ? <HabitTold habit={sp.habit} th={th} /> : t(`นิสัย: ${KIND_WORD[sp.habit.kind][0]}`, `Habit: ${KIND_WORD[sp.habit.kind][1].toLowerCase()}`)}</span>
+      </p>
+      {strips.length ? <ul className="grid gap-1.5">{strips.map((s) => <li key={s.at}><RoundStrip strip={s} th={th} at={clock(s.at)} /></li>)}</ul>
+        : <p className="text-label text-muted">{t("เก็บผลผลิตแล้วจะเห็นว่ารอบนั้นมีอะไร", "Collect to see what each round had")}</p>}
+    </div>
+  );
+}
+/** A breed's page's special: a shadow until somebody in the village finds it, its habit's kind from the start, its first finder, my finds, and its habit to whoever has found it three times. */
+function BookSpecial({ breed, th, purse, world, nameOf }: { breed: string; th: boolean; purse: Purse; world: AnimalWorld; nameOf: (id: string) => string }) {
+  const t = (x: string, y: string) => (th ? x : y);
+  const sp = specialOf(breed);
+  if (!sp) return null;
+  const first = world.specials?.[breed], mineN = specialsFoundOf(purse)[breed] ?? 0;
+  const b = breedOf(breed)!;
+  return (
+    <li className="flex items-center gap-2 rounded-xl border border-line bg-bg/50 p-2" data-book-special={sp.id} data-seen={!!first} data-mine={mineN}>
+      <span className="w-4 shrink-0 text-center font-data text-label text-muted">{b.letter}</span>
+      <span className="tk tk-slot grid size-12 shrink-0 place-items-center"><ItemIcon id={sp.id} size={32} className={first ? "" : SHADE} /></span>
+      <span className="tk tk-slot grid size-12 shrink-0 place-items-center" title={KIND_WORD[sp.habit.kind][th ? 0 : 1]} aria-label={KIND_WORD[sp.habit.kind][th ? 0 : 1]}><TownIcon name={KIND_ICON[sp.habit.kind]} size={28} /></span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-ui font-semibold text-ink">{first ? ITEMS[sp.id].name[th ? "th" : "en"] : "???"}</span>
+        {first && <span className="block truncate text-label text-gold">{t(`พบคนแรก ${nameOf(first.by)}`, `First found by ${nameOf(first.by)}`)}</span>}
+        {knowsHabit(specialsFoundOf(purse), breed) && <span className="mt-0.5 block" data-habit-known><HabitTold habit={sp.habit} th={th} /></span>}
+      </span>
+      {mineN > 0 && <span className="shrink-0 rounded-full border border-line bg-bg/60 px-2 py-0.5 font-data text-label tabular-nums text-ink" data-mine-n>{Math.min(mineN, SPECIAL.reveal)}/{SPECIAL.reveal}</span>}
+    </li>
   );
 }

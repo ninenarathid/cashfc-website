@@ -59,12 +59,14 @@ describe("three times the things (the owner: \"ช่วยเพิ่ม ไ�
     // (+ 69: the pasture's, of the second tier: 41 things apart from its tools, and the 28 breed scrolls)
     // (+ 1: the pasture's rename tag, 2026-10-20)
     // (+ 18: the leaf roll's and the shaken branch's common insects, 2026-10-28)
-    expect(by(2).length).toBe(72 + 13 + 1 + 2 + 3 + 1 + 23 - 2 + 2 + 2 + 1 + 1 + 17 + 5 + 20 + 69 + 1 + 18);
+    // (+ 12: the specials of the real breeds, B to D of the four species, 2026-11-10, lib/town/specials)
+    expect(by(2).length).toBe(72 + 13 + 1 + 2 + 3 + 1 + 23 - 2 + 2 + 2 + 1 + 1 + 17 + 5 + 20 + 69 + 1 + 18 + 12);
     // (+ 16: the eight mist children of the helpers' crossings, their rare produce and their seeds)
     // (+ 60: the pasture's, of the third: 43 things and the 17 dishes' scrolls)
     // (+ 4: their three rare ones and the giant steak, 2026-10-28)
-    expect(by(3).length).toBe(72 + 12 + 2 + 1 - 1 + 24 + 3 + 16 + 60 + 4);
-    expect(by(2).length + by(3).length).toBe(72 * 2 + 25 + 1 + 4 + 4 + 47 - 2 + 4 + 1 + 1 + 17 + 8 + 16 + 20 + 69 + 60 + 1 + 22);
+    // (+ 16: the specials of the fantasy and legend breeds, E to H, 2026-11-10)
+    expect(by(3).length).toBe(72 + 12 + 2 + 1 - 1 + 24 + 3 + 16 + 60 + 4 + 16);
+    expect(by(2).length + by(3).length).toBe(72 * 2 + 25 + 1 + 4 + 4 + 47 - 2 + 4 + 1 + 1 + 17 + 8 + 16 + 20 + 69 + 60 + 1 + 22 + 28);
     // what was there before is still the early game, and still what the uncle sells
     for (const id of ["rod", "hoe", "pot", "worm", "minnow", "koi", "shabu", "scrollGrilledFish"] as const) expect(tierOf(id)).toBe(1);
     for (const id of ["rod", "hoe", "can", "pot", "pan", "grill", "worm", "dough", "rice", "salt", "riceBox", "seedKangkong", "scrollFriedMinnow"] as const) expect(GOODS[id]).toBeDefined();

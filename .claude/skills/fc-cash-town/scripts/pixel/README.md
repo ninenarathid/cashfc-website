@@ -917,3 +917,16 @@ The owner: "พู่กันช่วยทำ icon ใหม่ ให้ด�
 
 - **`icons-farm-gifts-a`**: three designs of the brush, the giant seeds (rank 7) and the pollen seal (rank 9) drawn again, and the reference's sack to hold the size. **The third brush is packed as `thingCrossBrush`** (`ICONS_ONLY=icons-farm-gifts-a ICONS_APPEND=1 ICONS_REPLACE=1`, the worktree's `ICONS_PUB`/`ICONS_JSON`): a slim brush with a golden pollen tip standing between a pink and a sky-blue flower whose stems cross behind it, what the gift does and still a brush at 22 px. The first (a diagonal brush, its tip golden with pink and blue) is the other choice; the second (a round brush half pink, half blue) read as an ice cream at 22 px. The seeds and the seal were `_` names at first, offered; **packed on his word the same day** ("เอา", 2026-11-07) as `thingGiantSeeds` and `thingPollenSeal` in place of add-reward-icons.mjs's code-drawn two (43x50, 39x46; a plump pale seed with a sprout beside a small pouch; a jar of golden pollen under a red wax seal). Cut on its finer grid (5.65; the brush 39x52): on 11.6 the pixels were blocky and the seal's flower a blob.
 - **Codex read the prompt first** (run 2026-11-07-07-28-42-art-23204, `fix`): its words taken, the first brush's flowers as pink and blue patches on its bristles (two flower heads would widen the tip into a bouquet at 22 px), the third's bow removed and its brush in front of the flowers.
+
+## The specials in the town's atlas (2026-11-10, branch `specials`)
+
+The 28 special products and the six habit kinds, drawn as previews on branch `specials-art` (2026-11-09, its README entries
+above this one there) and accepted by the owner ("นอกนั้นเห็นด้วยกับ claude"; the round-2 dandelion and whole fleece "ผ่าน"),
+built under the atlas with no new picture: `ICONS_ONLY=icons-special-a,icons-special-b,icons-special-c,icons-special-d,icons-special-e,icons-special-fix-a,icons-special-habit-a ICONS_APPEND=1`,
+with the worktree's `ICONS_PUB`/`ICONS_JSON` and the shared `work/out` as `ICONS_SHEETS`. Sizes as the previews': eggs 28x35,
+duck eggs 22x27, locks 28-30x31, the cows' 23-31 x 31-44, the legends 25-27 x 37-39, the round-2 dandelion 34x42 and fleece
+33x39, the habit signs 25-33 x 24-29. **`-c` is cut by a new `spans` option of build-icons.mjs** (each cell given to the span
+of its own column, pxlib's `spansOf`: its dandelion touches the rainbow lock by a corner); its dandelion and `-e`'s fleece are
+`_` there, `-fix-a`'s round 2 taking their names. No call, no cost. The round strip borrows the atlas's own for what is not
+a habit sign: the sky's band icons, `plotSprout` (the garden), `sweetTimothy` (the meadow), `lotusBloom` (the pond),
+`sheepFeed` (in the barn all round), `waterRain` (rain) and `fxLeaves` (strong wind).

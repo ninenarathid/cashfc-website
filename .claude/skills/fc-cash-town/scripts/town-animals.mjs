@@ -6,7 +6,7 @@
 // night: driven in a real browser on the dev test room (the trial keeper, no database). Screenshots of every state at
 // desktop, phone and a small phone; PASS/FAIL lines for what can be read.
 //
-//   node town-animals.mjs <base> <outdir> [desktop|phone|small|all|ram]
+//   node town-animals.mjs <base> <outdir> [desktop|phone|small|all|ram|specials]
 import { browser, sleep, status, until } from "./cdp.mjs";
 
 const [BASE = "http://localhost:3194", OUT = ".", ONLY = "all"] = process.argv.slice(2);
@@ -379,6 +379,87 @@ async function ramSeat() {
     await P.shot(`${OUT}/phone-28-friend-inside.png`);
     ok("ram: no page errors", X.errors().length === 0 && P.errors().length === 0, [...X.errors(), ...P.errors()]);
   } finally { X.close(); }
+}
+
+/**
+ * The bred breeds' specials (lib/town/specials, 2026-11-10): a collection that brings one (the card of what it gave, the
+ * special glowing, the round's strip), one that brings none, the animal's card (its care score and last three strips, a
+ * well tapped and said), the book (a breed's special in shadow and its habit's kind, the first finder, my finds, the habit
+ * told after three). The trial's chance is held by `setSpecialLuck`.
+ */
+async function specials(label) {
+  const X = await browser(`animals-specials-${label}`, SIZES[label]);
+  const shot = (name) => X.shot(`${OUT}/${label}-s${name}.png`);
+  const phone = label !== "desktop";
+  try {
+    await enter(X, 9, `P${label[0].toUpperCase()}${Date.now() % 10000}`);
+    await until("the pasture's own code", () => X.evaluate(`!!${S}`), 40000);
+    const H = 3_600_000;
+    const id = await X.evaluate(`(() => { const t = ${T}, now = t.now(); t.animalsClear();
+      t.animalHerd({ barn: 9, room: 4, door: [[now - 4 * ${H}, now - 2 * ${H}]] });
+      const a = t.animalGive("silkie", "adult", 10, "f"); t.grant("eggBasket", 1); t.grant("meadowOats", 3);
+      t.animalSet(a.id, { name: "โมจิ", banked: 2, body: 3, streak: 6, outBands: 4, at: now, today: { ...a.today, pet: true, treat: true }, round: { since: now - 5 * ${H}, ate: ["chickFeed", "meadowOats"] } });
+      t.setSpecialLuck(0); return a.id; })()`);
+    await warp(X, 205, 36);
+    await X.evaluate(`${S}.collect(${JSON.stringify(id)}, { hits: 4, misses: 0, secs: 5 }, 0)`);
+    await until("the harvest card", () => X.evaluate(`!!document.querySelector("[data-harvest]")`), 15000).catch(() => {});
+    ok(`${label}: a collection that brings the special shows it glowing`, await X.evaluate(`document.querySelector("[data-harvest]")?.dataset.harvest === "silkieTwinEgg" && !!document.querySelector("[data-harvest-special]")`));
+    ok(`${label}: with the village's first`, /คนแรกของหมู่บ้าน/.test(await X.evaluate(`document.querySelector("[data-harvest-first]")?.innerText ?? ""`)));
+    ok(`${label}: and its round's strip, six wells`, await X.evaluate(`document.querySelectorAll("[data-harvest] [data-round-strip] [data-well]").length === 6`));
+    ok(`${label}: the strip lit where the round had it (out, where, what it ate, a full heart)`, await X.evaluate(`["time", "place", "food", "heart"].every((k) => document.querySelector('[data-harvest] [data-well="' + k + '"]')?.hasAttribute("data-on")) && !document.querySelector('[data-harvest] [data-well="company"]')?.hasAttribute("data-on")`));
+    // (a hen out may lay a round on the meadow, which rolls none: what was collected in the coop is all the special)
+    const laidOut = await X.evaluate(`(${S}.world().animals.find((a) => a.id === ${JSON.stringify(id)})?.outside ?? []).reduce((n, o) => n + o.n, 0)`);
+    ok(`${label}: a special for every unit of the coop, no plain egg`, (await held(X, "silkieTwinEgg")) === 2 - laidOut && (await held(X, "silkieEgg")) === 0, [await held(X, "silkieTwinEgg"), await held(X, "silkieEgg"), laidOut]);
+    const card = await X.evaluate(`(() => { const r = document.querySelector("[data-harvest]")?.getBoundingClientRect(); return r ? [r.left, r.top, r.right, r.bottom, innerWidth, innerHeight] : null; })()`);
+    ok(`${label}: the card is within the screen`, !!card && card[0] >= 0 && card[1] >= 0 && card[2] <= card[4] + 0.5 && card[3] <= card[5] + 0.5, card);
+    await X.evaluate(`document.querySelector('[data-harvest] [data-well="place"]')?.click()`); await sleep(300);
+    ok(`${label}: a well tapped says what it was`, (await X.evaluate(`document.querySelector("[data-harvest] [data-strip-said]")?.innerText ?? ""`)).length > 0);
+    await shot("1-harvest-special");
+    if (phone) ok(`${label}: the card's buttons a finger's size`, (await X.evaluate(`[...document.querySelectorAll("[data-harvest] button")].filter((b) => b.getBoundingClientRect().height < 43.5).length`)) === 0);
+    // one that brings none
+    await X.evaluate(`(() => { const t = ${T}; t.setSpecialLuck(1); t.animalSet(${JSON.stringify(id)}, { banked: 2, at: t.now() }); })()`);
+    await X.evaluate(`${S}.collect(${JSON.stringify(id)}, { hits: 3, misses: 1, secs: 5 }, 1)`);
+    await sleep(900);
+    ok(`${label}: a collection that brings none shows its strip and no special`, await X.evaluate(`!document.querySelector("[data-harvest-special]") && !!document.querySelector("[data-harvest] [data-round-strip]")`));
+    await shot("2-harvest-plain");
+    await X.evaluate(`document.querySelector("[data-harvest-close]")?.click()`); await sleep(300);
+    ok(`${label}: the card closes`, !(await X.evaluate(`!!document.querySelector("[data-harvest]")`)));
+    // a third, with the special again
+    await X.evaluate(`(() => { const t = ${T}; t.setSpecialLuck(0); t.animalSet(${JSON.stringify(id)}, { banked: 1, at: t.now() }); })()`);
+    await X.evaluate(`${S}.collect(${JSON.stringify(id)}, { hits: 4, misses: 0, secs: 5 }, 0)`);
+    await sleep(900);
+    await X.evaluate(`document.querySelector("[data-harvest-close]")?.click()`);
+    // the card: care and the last three strips
+    await X.evaluate(`${S}.open("mine", ${JSON.stringify(id)})`); await sleep(900);
+    ok(`${label}: the card's care score, ten of ten`, await X.evaluate(`document.querySelector("[data-care-score]")?.dataset.careScore === "10"`));
+    ok(`${label}: and its last three rounds`, await X.evaluate(`document.querySelector("[data-rounds]")?.dataset.rounds === "3" && document.querySelectorAll("[data-rounds] [data-strip-special]").length === 2`));
+    await scrollPanel(X, "[data-care-score]"); await sleep(300);
+    await shot("3-card-care");
+    await scrollPanel(X, "[data-rounds]"); await sleep(300);
+    // (the oldest round, the last of the three, is the one it was fed meadow oats in)
+    await X.evaluate(`[...document.querySelectorAll('[data-rounds] [data-well="food"]')].at(-1)?.click()`); await sleep(300);
+    ok(`${label}: a well tapped on the card says what it ate`, /ข้าวโอ๊ตทุ่ง/.test(await X.evaluate(`[...document.querySelectorAll("[data-rounds] [data-strip-said]")].at(-1)?.innerText ?? ""`)));
+    await shot("4-card-rounds");
+    if (phone) ok(`${label}: every control a finger's size`, (await small(X)).length === 0, await small(X));
+    // the book
+    await click(X, '[data-animals-tab="book"]'); await sleep(600);
+    ok(`${label}: the book shows a breed's special found, its first finder and my finds`, await X.evaluate(`(() => { const e = document.querySelector('[data-book-special="silkieTwinEgg"]'); return !!e && e.dataset.seen === "true" && e.dataset.mine === "2" && /พบคนแรก/.test(e.innerText); })()`));
+    ok(`${label}: another breed's special a shadow, with its habit's kind`, await X.evaluate(`(() => { const e = document.querySelector('[data-book-special="dawnBlueEgg"]'); return !!e && e.dataset.seen === "false" && e.innerText.includes("???") && !!e.querySelector("[aria-label]"); })()`));
+    ok(`${label}: the habit not told before three finds`, !(await X.evaluate(`!!document.querySelector('[data-book-special="silkieTwinEgg"] [data-habit-known]')`)));
+    await scrollPanel(X, '[data-book-special="silkieTwinEgg"]'); await sleep(300);
+    await shot("5-book");
+    await X.evaluate(`(() => { const t = ${T}; t.fished({ ...t.purse(), animalSpecials: { silkie: 3 } }); })()`);
+    await click(X, '[data-animals-tab="mine"]'); await sleep(300); await click(X, '[data-animals-tab="book"]'); await sleep(600);
+    ok(`${label}: after three finds the book tells the habit`, await X.evaluate(`!!document.querySelector('[data-book-special="silkieTwinEgg"] [data-habit-known]')?.innerText.includes("10 หัวใจ")`));
+    await scrollPanel(X, '[data-book-special="silkieTwinEgg"]'); await sleep(300);
+    await shot("6-book-habit");
+    ok(`${label}: specials: no page errors`, X.errors().length === 0, X.errors());
+  } finally { X.close(); }
+}
+if (ONLY === "specials") {
+  for (const label of ["desktop", "phone", "small"]) { console.log(`— specials ${label}`); await specials(label).catch((e) => { fail++; console.log(`  FAIL specials ${label}: ${e.message}`); }); }
+  console.log(`\n${pass} passed, ${fail} failed`);
+  process.exit(fail ? 1 : 0);
 }
 
 if (ONLY === "all" || ONLY === "ram") { console.log("— ram"); await ramSeat().catch((e) => { fail++; console.log(`  FAIL ram: ${e.message}`); }); }

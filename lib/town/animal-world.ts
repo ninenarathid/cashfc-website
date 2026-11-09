@@ -11,7 +11,7 @@ import { ANIMALS, BREED } from "./animals";
  * found, offers, asks }`. Whatever a part leaves out is kept as it was. An animal of a breed this page was built before
  * is left out: it could not be drawn.
  */
-export const EMPTY_WORLD: AnimalWorld = { animals: [], herds: [], found: {}, spells: [], wagons: [], offers: [], asks: [] };
+export const EMPTY_WORLD: AnimalWorld = { animals: [], herds: [], found: {}, spells: [], wagons: [], offers: [], asks: [], specials: {} };
 
 const isAnimal = (a: unknown): a is Animal => !!a && typeof a === "object" && typeof (a as Animal).id === "string" && typeof (a as Animal).owner === "string" && BREED.has((a as Animal).breed);
 const isHerd = (h: unknown): h is Herd => !!h && typeof h === "object" && typeof (h as Herd).owner === "string";
@@ -49,5 +49,7 @@ export function mergeAnimals(held: AnimalWorld | null, told: Record<string, unkn
     wagons: Array.isArray(told.wagons) ? (told.wagons as WagonRun[]) : base.wagons,
     offers: Array.isArray(told.offers) ? (told.offers as Offer[]) : base.offers ?? [],
     asks: Array.isArray(told.asks) ? (told.asks as Ask[]) : base.asks ?? [],
+    // (v324: who first found each breed's special; a database before it tells none)
+    specials: told.specials && typeof told.specials === "object" && !Array.isArray(told.specials) ? (told.specials as NonNullable<AnimalWorld["specials"]>) : base.specials ?? {},
   };
 }

@@ -27,7 +27,7 @@ import { bangkokMinute } from "./daylight";
 // ── the pasture ── (lib/town/animal-act, docs/plans/animals)
 import { animalAction, newAnimal, type AnimalInput, type AnimalWorld, type Spell, type WagonRun } from "./animal-act";
 import { EMPTY_WORLD } from "./animal-world";
-import { ANIMALS as ANIMAL_RULES, BREED as ANIMAL_BREEDS, SPECIES as ANIMAL_SPECIES, dayOf as animalDay, newHerd as newAnimalHerd, freeHome as freeAnimalHome, boughtStats as boughtAnimalStats, type Animal, type Stage as AnimalStage } from "./animals";
+import { ANIMALS as ANIMAL_RULES, BREED as ANIMAL_BREEDS, SPECIES as ANIMAL_SPECIES, dayOf as animalDay, newHerd as newAnimalHerd, freeHome as freeAnimalHome, boughtStats as boughtAnimalStats, type Animal, type Herd, type Stage as AnimalStage } from "./animals";
 import { spotOf as pastureSpot } from "./pasture";
 import { dressFrom, dropsFor } from "./wear";
 import {boatAction} from './reward-boat';
@@ -83,6 +83,7 @@ import { UNLOCKS, give, newVillage, orderOf, shelfOf, sourcesAt, type Order, typ
 import { count, keep, newTally, type Play, type Tally } from "./plays";
 import { open } from "./scrolls";
 import { SKIES } from "./skies";
+import { SPECIAL } from "./specials";
 import { STAMINA, bowlsBack, chew, dayOf, getUp, readScroll, sitDown, spend } from "./stamina";
 import { moveSlot, sortBag } from "./bag";
 import {
@@ -2709,7 +2710,7 @@ export class Trial {
   /** One step of the line, as the database's town_animals takes it: the world and my purse after it, and what it earned counted on its line. */
   animals(input: AnimalInput) {
     const world = this.animalWorld(), now = this.now();
-    const r = animalAction(world, this.purse(), input, { me: this.id, now, rand: Math.random, newId: () => crypto.randomUUID(), spot: pastureSpot, onFarm: true }, this.animalPurses(world));
+    const r = animalAction(world, this.purse(), input, { me: this.id, now, rand: Math.random, newId: () => crypto.randomUUID(), spot: pastureSpot, onFarm: true, sky: (from, to) => SKIES.spell(from, to, SPECIAL.wind), ...(this.specialLuck !== null ? { specialRoll: () => this.specialLuck! } : {}) }, this.animalPurses(world));
     // (a world the step changed is kept even on a look or a refusal: the warm bottle's moment is written so, as the database writes it)
     if (r.world !== world) this.write(ANIMALS_AT, r.world);
     if (r.ok && input.action !== "look") {
@@ -2739,6 +2740,9 @@ export class Trial {
     this.tell();
     return a;
   }
+  /** For trying things out: every round's special rolled as this number (0: each brings one; 1: none), or by chance again (null). */
+  private specialLuck: number | null = null;
+  setSpecialLuck(r: number | null) { this.specialLuck = r; }
   /** For trying things out: a change laid straight onto one of the animals (rounds ready, hearts, food). */
   animalSet(id: string, patch: Partial<Animal>) {
     const world = this.animalWorld();
@@ -2760,14 +2764,14 @@ export class Trial {
     this.tell();
   }
   /** For trying things out: my herd as asked: a barn (a number, or the first free), how many it houses, its last care so many days ago. */
-  animalHerd(patch: { barn?: number | null; room?: number; untendedDays?: number }) {
+  animalHerd(patch: { barn?: number | null; room?: number; untendedDays?: number; door?: Herd["door"] }) {
     const world = this.animalWorld(), now = this.now(), held = world.herds.find((h) => h.owner === this.id) ?? newAnimalHerd(this.id);
     const taken = new Set(world.herds.filter((h) => h.owner !== this.id).map((h) => h.barn));
     let barn = held.barn;
     if (patch.barn === null) barn = null;
     else if (patch.barn !== undefined && !taken.has(patch.barn)) barn = patch.barn;
     else if (patch.barn === undefined && barn === null) barn = Array.from({ length: ANIMAL_RULES.barns.count }, (_, i) => i).find((i) => !taken.has(i)) ?? null;
-    const herd = { ...held, barn, room: patch.room ?? held.room, lastCare: patch.untendedDays !== undefined ? now - patch.untendedDays * 24 * 3_600_000 : barn !== held.barn ? now : held.lastCare };
+    const herd = { ...held, barn, room: patch.room ?? held.room, lastCare: patch.untendedDays !== undefined ? now - patch.untendedDays * 24 * 3_600_000 : barn !== held.barn ? now : held.lastCare, ...(patch.door ? { door: patch.door } : {}) };
     this.write(ANIMALS_AT, { ...world, herds: [...world.herds.filter((h) => h.owner !== this.id), herd] });
     this.tell();
     return herd;

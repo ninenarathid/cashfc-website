@@ -1,4 +1,4 @@
-import { ALWAYS_RAIN, DRY, FINE, SLOT_MS, effectsAt, effectsOf, isWet, rainingAt, rainsOf, slotOf, type Effects, type Rain, type Sky, type Weather } from "./weather";
+import { ALWAYS_RAIN, DRY, FINE, SLOT_MS, effectsAt, effectsOf, isWet, rainingAt, rainsOf, slotOf, wetMs, type Effects, type Rain, type Sky, type Weather } from "./weather";
 
 /**
  * The town's weather as this page has it (lib/town/weather: "the weather as
@@ -95,6 +95,17 @@ export class Skies {
   rains(): readonly Rain[] { return this.rains_; }
   /** Whether it rains at a moment, as the database has it. */
   raining(ms = this.now()): boolean { return rainingAt(this.rains_, ms); }
+  /**
+   * Whether a stretch of time had some rain, and some wind at least `windAt` (its speed and half its gusts, km/h; a storm
+   * always), as known here: a round's strip (lib/town/specials; v324's town.special_sky the same of the database's).
+   */
+  spell(from: number, to: number, windAt: number): { rain: boolean; wind: boolean } {
+    const strong = (w: Weather) => w.sky === "storm" || w.wind + w.gust / 2 >= windAt;
+    if (this.one) return { rain: isWet(this.one.sky), wind: strong(this.one) };
+    let wind = false;
+    for (const [slot, w] of this.slots) if (slot >= slotOf(from) && slot <= slotOf(to) && strong(w)) { wind = true; break; }
+    return { rain: wetMs(this.rains_, from, to) > 0, wind };
+  }
 }
 
 /** The page's own. */

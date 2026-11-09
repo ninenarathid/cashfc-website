@@ -21,6 +21,7 @@ import { HOUR } from "./trade";
 import type { ItemId } from "./items";
 import { FORAGE_BANDS, POPOTO_SCROLL_PRICES } from "./animal-items";
 import { useGift, works, hasThing, wearing, type CharmId, type ThingId } from "./gifts";
+import { ateNote, caredNote, chanceOf, habitMet, specialOf, stripOf, withStrip, type SkyOf, type SpecialsFound, type Strip } from "./specials";
 
 /** The gifts of the line, by rank (lib/town/gifts' MORE_ lists hold them). */
 export const ANIMAL_GIFTS = {
@@ -47,6 +48,8 @@ export interface AnimalWorld {
   wagons: WagonRun[];
   offers: Offer[];
   asks: Ask[];
+  /** Who first found each bred breed's special, and when (lib/town/specials; v324). */
+  specials?: Record<string, { by: string; at: number }>;
 }
 
 export type AnimalInput =
@@ -103,7 +106,9 @@ export interface AnimalReply {
   purse: Purse;
   notes: AnimalNote[];
   /** What a collection, a cross or the cradle came to, for the page to tell. */
-  got?: { find?: ItemId | null; item?: ItemId; n?: number; grades?: number[]; whole?: boolean; child?: string; first?: boolean; right?: boolean; clue?: boolean; spot?: [number, number]; sex?: Sex; stats?: Stats; id?: string };
+  got?: { find?: ItemId | null; item?: ItemId; n?: number; grades?: number[]; whole?: boolean; child?: string; first?: boolean; right?: boolean; clue?: boolean; spot?: [number, number]; sex?: Sex; stats?: Stats; id?: string;
+    /** A collection's special (in place of so many units of its produce, of their grades), its round's strip, and whether it was the village's first. */
+    special?: { item: string; n: number; grades: number[] } | null; strip?: Strip | null; firstSpecial?: boolean };
 }
 
 /** Where eggs laid out on the meadow lie: a spot of the pasture, picked from the animal and the round (the page's world.ts puts the pasture's tiles in order). */
@@ -120,6 +125,10 @@ export interface Env {
   spot: SpotOf;
   /** Whether I stand on the farm map now (spring wind's hour asks it of those who come in it). */
   onFarm?: boolean;
+  /** The weather a stretch of time had (a round's strip: lib/town/specials); none, and no round met rain or wind. */
+  sky?: SkyOf;
+  /** The roll of a round's special, where it is not `rand`'s: the trial's scripts hold it. */
+  specialRoll?: () => number;
 }
 
 const herdOf = (w: AnimalWorld, owner: string): Herd => w.herds.find((h) => h.owner === owner) ?? newHerd(owner);
@@ -151,6 +160,11 @@ export const bookOf = (p: Purse): Book => {
   return { misses: b && typeof b.misses === "object" ? { ...b.misses } : {} };
 };
 const withBook = (p: Purse, book: Book): Purse => ({ ...p, animalBook: book } as Purse);
+/** A purse's count of each breed's special found (collections that brought one: lib/town/specials), made sound. */
+export const specialsFoundOf = (p: Purse): SpecialsFound => {
+  const f = (p as Purse & { animalSpecials?: SpecialsFound }).animalSpecials;
+  return f && typeof f === "object" && !Array.isArray(f) ? Object.fromEntries(Object.entries(f).filter(([, n]) => typeof n === "number" && n > 0)) : {};
+};
 /** Helpers points from animal care counted today, for the 30 a day. */
 const careDone = (p: Purse, now: number) => {
   const c = (p as Purse & { animalCare?: { day: number; n: number } }).animalCare;
@@ -421,7 +435,8 @@ export function animalAction(world0: AnimalWorld, purse: Purse, input: AnimalInp
         const cap = input.item === "packedRation" ? ANIMALS.packed : ANIMALS.trough;
         if (a.food >= cap - 0.01) return no("full");
         const add = Math.min(hours, cap - a.food);
-        b = { ...a, food: a.food + add, narrow: Math.max(a.narrow, ANIMALS.quality.narrowBy[grade] ?? 0) };
+        // (what went into its trough is its round's to tell, and a friend's food is company: lib/town/specials)
+        b = { ...a, food: a.food + add, narrow: Math.max(a.narrow, ANIMALS.quality.narrowBy[grade] ?? 0), round: { ...ateNote(a.round, input.item), ...(helper ? { friend: true } : {}) } };
         if (helper) {
           const left = ANIMALS.care.cap - careDone(purse, now), pts = Math.min(left, Math.floor(add / ANIMALS.care.foodHours));
           if (pts > 0) { purse = withCare(purse, now, careDone(purse, now) + pts); notes.push({ what: "animal_care", n: 1, line: "helpers", pts, doc: { id: a.id, owner: a.owner, food: add } }); }
@@ -454,6 +469,8 @@ export function animalAction(world0: AnimalWorld, purse: Purse, input: AnimalInp
       }
       // (a gentle animal takes it more to heart)
       let b: Animal = { ...a, hearts: heartsPlus(a, ANIMALS.heart[k]), today: { ...a.today, [k]: true } };
+      // (a friend's care is company, and a heart full today is its round's: lib/town/specials)
+      b = { ...b, round: caredNote(b, helper) };
       if (helper) {
         const left = ANIMALS.care.cap - careDone(p, now), pts = Math.min(left, ANIMALS.care[k]);
         if (pts > 0) { p = withCare(p, now, careDone(p, now) + pts); notes.push({ what: "animal_care", n: 1, line: "helpers", pts, doc: { id: a.id, owner: a.owner, [k]: true } }); }
@@ -487,24 +504,49 @@ export function animalAction(world0: AnimalWorld, purse: Purse, input: AnimalInp
       const breed = breedOf(a.breed)!;
       const r = rangeOf(a), collar = wearing(purse, ANIMAL_GIFTS.collar as CharmId);
       const grades = Array.from({ length: units }, () => rollOf(r, env.rand(), collar));
+      // a round it was out in may bring a find back with it (lib/town/animals FINDS)
+      const find = findOf(a.species, a.outBands, env.rand(), env.rand());
+      // a bred breed's special (lib/town/specials): each round collected here may turn one unit into it, of that unit's
+      // grade; the rounds laid out on the meadow roll none. Its round's strip is kept, and the round begins anew.
+      const spc = specialOf(a.breed);
+      let strip: Strip | null = null, sn = 0;
+      if (spc) {
+        const s0 = stripOf(a, now, herdOf(world, me).door, env.sky, world.herds, world.animals), chance = chanceOf(a, habitMet(spc.habit, s0));
+        const roll = env.specialRoll ?? env.rand;
+        for (let i = 0; i < banked; i++) if (roll() < chance) sn++;
+        sn = Math.min(sn, units);
+        strip = { ...s0, special: sn ? spc.id : null, n: sn };
+      }
+      const plain = grades.slice(0, units - sn), odd = grades.slice(units - sn);
       let p = spend(purse, st, now), bag = p.bag;
-      const byGrade = [0, 0, 0, 0];
-      for (const q of grades) byGrade[q >= 95 ? 3 : q >= 70 ? 2 : q >= 40 ? 1 : 0] += 1;
+      const byGrade = [0, 0, 0, 0], oddByGrade = [0, 0, 0, 0];
+      for (const q of plain) byGrade[q >= 95 ? 3 : q >= 70 ? 2 : q >= 40 ? 1 : 0] += 1;
+      for (const q of odd) oddByGrade[q >= 95 ? 3 : q >= 70 ? 2 : q >= 40 ? 1 : 0] += 1;
       // (room asked of the bag as it fills, grade by grade, as the database does: Codex, 2026-10-20)
       for (let g = 0; g < 4; g++) {
         if (!byGrade[g]) continue;
         if (roomFor(bag, breed.produce, g as 0 | 1 | 2 | 3) < byGrade[g]) return no("room");
         bag = put(bag, breed.produce, byGrade[g], g as 0 | 1 | 2 | 3);
       }
+      for (let g = 0; g < 4; g++) {
+        if (!oddByGrade[g] || !spc) continue;
+        if (roomFor(bag, spc.id as ItemId, g as 0 | 1 | 2 | 3) < oddByGrade[g]) return no("room");
+        bag = put(bag, spc.id as ItemId, oddByGrade[g], g as 0 | 1 | 2 | 3);
+      }
       // a day's manure, at the first collection of the day
       if (!a.today.manure && roomFor(bag, "manure" as ItemId) > 0) bag = put(bag, "manure" as ItemId, 1);
-      // a round it was out in may bring a find back with it (lib/town/animals FINDS)
-      const find = findOf(a.species, a.outBands, env.rand(), env.rand());
       if (find && roomFor(bag, find) > 0) bag = put(bag, find, 1);
       p = { ...p, bag };
-      const b: Animal = { ...a, banked: 0, narrow: 0, outside, outBands: 0, today: { ...a.today, manure: true } };
-      notes.push({ what: "animal_collect", n: units, line: "animals", pts: units * ANIMALS.points.unit, doc: { id: a.id, breed: a.breed, item: breed.produce, grades: byGrade, whole, score: play ? scoreOf(play) : null } });
-      return yes(cared(withAnimal(world, b)), p, { item: breed.produce, n: units, grades, whole, find });
+      // (the book: a member's count of the breed's special found, and the village's first finder)
+      let w = world, firstSpecial = false;
+      if (spc && sn) {
+        const found = specialsFoundOf(p);
+        p = { ...p, animalSpecials: { ...found, [a.breed]: (found[a.breed] ?? 0) + 1 } } as Purse;
+        if (!w.specials?.[a.breed]) { firstSpecial = true; w = { ...w, specials: { ...(w.specials ?? {}), [a.breed]: { by: me, at: now } } }; }
+      }
+      const b: Animal = { ...a, banked: 0, narrow: 0, outside, outBands: 0, today: { ...a.today, manure: true }, round: { since: now }, ...(strip ? { strips: withStrip(a.strips, strip) } : {}) };
+      notes.push({ what: "animal_collect", n: units, line: "animals", pts: units * ANIMALS.points.unit, doc: { id: a.id, breed: a.breed, item: breed.produce, grades: byGrade, whole, score: play ? scoreOf(play) : null, ...(sn ? { special: spc!.id, sn, sgrades: oddByGrade } : {}) } });
+      return yes(cared(withAnimal(w, b)), p, { item: breed.produce, n: units - sn, grades: plain, whole, find, special: sn ? { item: spc!.id, n: sn, grades: odd } : null, strip, firstSpecial });
     }
 
     case "pick": {
@@ -614,7 +656,8 @@ export function animalAction(world0: AnimalWorld, purse: Purse, input: AnimalInp
           for (const a0 of mine) {
             const a = settled(a0);
             if (stageOf(a, now) === "coming" || a.today.pet) continue;
-            w = withAnimal(w, { ...a, hearts: heartsPlus(a, ANIMALS.heart.pet), today: { ...a.today, pet: true } });
+            const b: Animal = { ...a, hearts: heartsPlus(a, ANIMALS.heart.pet), today: { ...a.today, pet: true } };
+            w = withAnimal(w, { ...b, round: caredNote(b, false) });
           }
         }
       }

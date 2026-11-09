@@ -557,6 +557,18 @@ const SHEETS = [
   ["icons-pasture-pots-a", ["potCustard", "potPancakes", "potCheesecake", "potButterCookies", "potQuiche", "potLanternCustard"], { range: [5.8, 6.05] }],
   ["icons-pasture-pots-b", ["potCloudSouffle", "potGoldenOmelette", "potEmberBakedEggs", "potRainBroth", "potMoonPudding", "potPaperFish"], { range: [6.05, 6.35] }],
   ["icons-pasture-pots-c", ["potLeviathanEggCup", "potStrawberryShake", "potHotCocoa", "potFlowerLatte", "potStarPudding", "_potCustard"], { range: [6.1, 6.35] }],
+  // ── the bred breeds' specials (2026-11-10, lib/town/specials; drawn as previews on branch specials-art, 2026-11-09, and
+  // accepted by the owner): the 28 in the bag, a breed's habit's six kinds. Built under the atlas (ICONS_ONLY of these with
+  // ICONS_APPEND). `-c`'s dandelion touches the rainbow lock by a corner and its head's middle falls in the lock's column:
+  // cut by `spans` (each cell to the span of its own column), and its dandelion is `-fix-a`'s round 2, as is the whole
+  // golden fleece of `-e` (the owner: "ผ่าน", round 2)
+  ["icons-special-a", ["silkieTwinEgg", "dawnBlueEgg", "cocoaShellEgg", "fireflyEgg", "swirlCloudEgg", "luckySevenEgg"], { range: [7.5, 7.8] }],
+  ["icons-special-b", ["windRunnerEgg", "emeraldShellEgg", "brushPaintedEgg", "firstRainEgg", "moonShadowEgg", "blankRecipePaper"], { range: [9.7, 10.1] }],
+  ["icons-special-c", ["rareShadeLock", "spiralShedHorn", "cloudFluffTuft", "_goldenDandelionSeed", "rainbowArcLock", "shootingStarLock"], { range: [8.0, 8.35], spans: true }],
+  ["icons-special-d", ["goldenCreamTop", "warmShaggyMilk", "agedCheeseStarter", "wildBerryCream", "cocoaCreamTop", "pollenCream"], { range: [7.85, 8.15] }],
+  ["icons-special-e", ["rebirthFlameEgg", "blackDeepPearlEgg", "_wholeGoldenFleece", "cometMilkCrystal", "_emberEgg", "_goldenWool"], { range: [8.15, 8.45] }],
+  ["icons-special-fix-a", ["goldenDandelionSeed", "wholeGoldenFleece", "_moonSesamePudding", "_buffAroma", "_wool", "_custard"], { range: [7.0, 7.3] }],
+  ["icons-special-habit-a", ["habitTime", "habitPlace", "habitFood", "habitWeather", "habitCompany", "habitHeart"], { range: [7.85, 8.15] }],
 ];
 
 const ONLY = process.env.ICONS_ONLY?.split(",").map((s) => s.trim()).filter(Boolean);
@@ -578,13 +590,19 @@ for (const [sheet, names, opts] of SHEETS) {
   const xs = parts.flatMap((c) => c.mem.map((i) => i % g.GW));
   const x0 = Math.min(...xs), x1 = Math.max(...xs) + 1, col = (x1 - x0) / names.length;
   const figs = names.map(() => new Set());
+  // (`spans`: two drawn touching that are not one piece, each cell given to the span of its own column, the scenery
+  // builder's spans split at the emptiest columns: a dandelion's seed touching a lock by a corner, 2026-11-10)
+  if (opts?.spans) {
+    const spans = L.spansOf(g, names.length);
+    for (const c of parts) for (const i of c.mem) { const k = spans.findIndex(([a, b]) => i % g.GW >= a && i % g.GW <= b); if (k >= 0) figs[k].add(i); }
+  }
   // (with `near`, a small piece goes with the big piece it is nearest to, whichever column its own middle is in:
   // seeds spilt out of a pouch towards its neighbour are the pouch's)
   const most = Math.max(...parts.map((c) => c.mem.length));
   const big = opts?.near ? parts.filter((c) => c.mem.length >= most * 0.15) : [];
   const midOf = (c) => c.mem.reduce((t, i) => t + (i % g.GW), 0) / c.mem.length;
   const gap = (a, b) => { let d = Infinity; for (const i of a.mem) for (const j of b.mem) { const dx = (i % g.GW) - (j % g.GW), dy = Math.floor(i / g.GW) - Math.floor(j / g.GW); if (dx * dx + dy * dy < d) d = dx * dx + dy * dy; } return d; };
-  for (const c of parts) {
+  for (const c of opts?.spans ? [] : parts) {
     const home = big.length && c.mem.length < most * 0.15 ? big.map((o) => [gap(c, o), o]).sort((a, b) => a[0] - b[0])[0][1] : c;
     const mid = midOf(home);
     // (two that were drawn touching are one piece: with `split`, each cell goes to its own column instead)

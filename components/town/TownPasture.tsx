@@ -30,6 +30,9 @@ import TownFoot from "./TownFoot";
 import type { IconName } from "./TownIcon";
 import TownAnimals, { barnName, why, type AnimalsView } from "./TownAnimals";
 import { EggsGame, MilkGame, ShearGame } from "./TownAnimalGames";
+import { RoundStrip } from "./TownRound";
+import { ItemIcon } from "./TownTrade";
+import type { ItemId } from "@/lib/town/items";
 import { animalSize, drawAnimal, drawBarnInside, drawBarnOutside, drawBlock, drawBubble, drawEggOut, drawForage, drawGateSide, drawPastureProp, drawPenFence, drawPopoto, drawWagon } from "./pasture-draw";
 import type { Play } from "@/lib/town/animals";
 // (the garden's ground the animals roam, laid into lib/town/pasture)
@@ -189,18 +192,27 @@ export default function TownPasture(props: PastureProps) {
   const open = useCallback((v: AnimalsView, f: string | null = null) => { setGame(null); setFocus(f); setView(v); }, []);
   const harpFor = !!world?.spells.some((x) => x.kind === "harp" && x.from <= now && now < x.until && (x.who ?? []).includes(me));
   const ease = { tired: isSpent(purse, now), harp: harpFor };
+  // (a bred breed's collection: what it gave, the special glowing, and its round's strip, on a card a while: lib/town/specials)
+  const [harvest, setHarvest] = useState<{ got: NonNullable<AnimalReply["got"]>; name: string } | null>(null);
+  const harvestTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const showHarvest = useCallback((got: NonNullable<AnimalReply["got"]>, name: string) => {
+    setHarvest({ got, name });
+    if (harvestTimer.current) clearTimeout(harvestTimer.current);
+    harvestTimer.current = setTimeout(() => setHarvest(null), 15_000);
+  }, []);
   const collected = useCallback(async (a: Animal, play: Play, cracked?: number) => {
     const r = await keeper.animals({ action: "collect", id: a.id, play, ...(cracked !== undefined ? { cracked } : {}) }, crypto.randomUUID());
     setGame(null);
     if (!r.ok) { say(why(r.why, th)); return; }
     const g = r.got;
+    if (g?.strip) { showHarvest(g, a.name || breedOf(a.breed)?.name[th ? "th" : "en"] || ""); return; }
     if (g?.item && g.n) {
       const by = [0, 0, 0, 0];
       for (const q of g.grades ?? []) by[gradeOf(q)]++;
       const grades = by.map((n, i) => (n ? `${GRADES[i][th ? "th" : "en"].replace(/^★+ /, "")} ${n}` : "")).filter(Boolean).join(", ");
       say(`${t("ได้", "Got")} ${ITEMS[g.item]?.name[th ? "th" : "en"]} ×${g.n}${grades ? ` (${grades})` : ""}${g.whole ? t(" · ขนเต็มผืน!", " · a whole fleece!") : ""}${g.find ? ` + ${ITEMS[g.find]?.name[th ? "th" : "en"]}` : ""}`);
     } else say(t("เก็บแล้ว", "Collected."));
-  }, [keeper, say, th]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [keeper, say, th, showHarvest]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── names: mine, whoever is here, and the site's members (asked for once the panel is open, or for the barns' signs)
   const [profiles, setProfiles] = useState<Array<{ id: string; name: string }>>([]);
@@ -626,6 +638,11 @@ export default function TownPasture(props: PastureProps) {
   const G = game ? SPECIES[game.species].game : null;
   return (
     <>
+      {harvest && !view && !game && (
+        <TownFoot rank="note" order={13}>
+          <Harvest got={harvest.got} name={harvest.name} th={th} onClose={() => setHarvest(null)} />
+        </TownFoot>
+      )}
       {note && !view && (
         <TownFoot rank="note" order={12}>
           <p className="pop-in max-w-full rounded-full bg-bg/90 px-4 py-1.5 text-center text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite" data-pasture-note>{note}</p>
@@ -686,5 +703,40 @@ function FullFlock({ sprite, n, label }: { sprite: Sprite | null; n: number; lab
       </span>
       <span aria-hidden className="tabular-nums">{n}/{FLOCK_MAX}</span>
     </button>
+  );
+}
+
+/** What a bred breed's collection gave: its produce by grade, the special glowing (the village's first, if so), what it found, and the round's strip. */
+function Harvest({ got, name, th, onClose }: { got: NonNullable<AnimalReply["got"]>; name: string; th: boolean; onClose: () => void }) {
+  const t = (a: string, b: string) => (th ? a : b);
+  const by = [0, 0, 0, 0];
+  for (const q of got.grades ?? []) by[gradeOf(q)]++;
+  const sby = [0, 0, 0, 0];
+  for (const q of got.special?.grades ?? []) sby[gradeOf(q)]++;
+  const stars = (b: number[]) => b.map((n, i) => (n ? `${"★".repeat(i) || "·"}${n}` : "")).filter(Boolean).join(" ");
+  return (
+    <div className="pop-in pointer-events-auto w-[min(21.5rem,calc(100vw-1.5rem))] rounded-2xl border border-line-lit bg-surface/95 p-3 shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite" data-harvest={got.special?.item ?? ""}>
+      <div className="flex items-center gap-2">
+        <p className="min-w-0 flex-1 truncate text-ui font-semibold text-ink">{t(`เก็บจาก ${name}`, `From ${name}`)}</p>
+        <button type="button" onClick={onClose} className="pressable -my-1 -mr-1 grid size-11 shrink-0 place-items-center rounded-full border border-line-strong bg-bg/60 text-title leading-none text-ink hover:border-accent" aria-label={t("ปิด", "Close")} data-harvest-close>✕</button>
+      </div>
+      {got.special && (
+        <div className="mt-1.5 flex items-center gap-2.5" data-harvest-special>
+          <span className="relative grid size-14 shrink-0 place-items-center rounded-2xl ring-2 ring-gold/80">
+            <span aria-hidden className="absolute inset-0 rounded-2xl bg-gold/20 motion-safe:animate-pulse" />
+            <span className="relative"><ItemIcon id={got.special.item as ItemId} size={40} /></span>
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-ui font-semibold text-gold" data-harvest-words>{ITEMS[got.special.item as ItemId]?.name[th ? "th" : "en"]} ×{got.special.n} <span className="text-label font-normal">{stars(sby)}</span></span>
+            {got.firstSpecial && <span className="mt-0.5 inline-block rounded-full bg-gold px-2 py-0.5 text-label font-semibold text-bg" data-harvest-first>{t("คนแรกของหมู่บ้าน!", "The village's first!")}</span>}
+          </span>
+        </div>
+      )}
+      <div className="mt-1.5 flex flex-wrap items-center gap-2">
+        {got.item && (got.n ?? 0) > 0 && <span className="flex items-center gap-1 rounded-full border border-line bg-bg/60 py-0.5 pl-1 pr-2 text-meta text-ink" data-harvest-produce><ItemIcon id={got.item} size={22} />×{got.n}<span className="text-label text-muted">{stars(by)}</span></span>}
+        {got.find && <span className="flex items-center gap-1 rounded-full border border-line bg-bg/60 py-0.5 pl-1 pr-2 text-meta text-ink" data-harvest-find><ItemIcon id={got.find} size={22} />+1</span>}
+      </div>
+      {got.strip && <div className="mt-2"><RoundStrip strip={got.strip} th={th} special={false} /></div>}
+    </div>
   );
 }

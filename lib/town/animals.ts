@@ -351,6 +351,10 @@ export interface Animal {
   outside: Array<{ at: [number, number]; n: number }>;
   /** Bands it was out in during the round in hand (a bit a band, lib/town/bands' order), for its finds. */
   outBands: number;
+  /** What the round in hand keeps of itself for its strip (lib/town/specials): since when, what was fed, a friend's care, a full heart. */
+  round?: { since?: number; ate?: string[]; friend?: boolean; heart?: boolean };
+  /** Its last rounds' strips, newest last (lib/town/specials' Strip). */
+  strips?: Array<{ at: number; bands: number; places: Array<"garden" | "meadow" | "pond" | "barn">; ate: string[]; rain: boolean; wind: boolean; company: boolean; heart: boolean; special: string | null; n: number }>;
 }
 
 /** A door's log: when it was opened and closed, newest last (an open one's close is null). */
@@ -407,6 +411,27 @@ export function rearDay(r: Rearing | undefined, today: Today, grown: number, foo
   if (grown - (r?.was ?? 0) < BODY.dayFrom) return r;
   const was = r ?? { was: 0, days: 0, pet: 0, treat: 0, out: 0, fed: 0 };
   return { was: grown, days: was.days + 1, pet: was.pet + (today.pet ? 1 : 0), treat: was.treat + (today.treat ? 1 : 0), out: was.out + (today.out ? 1 : 0), fed: was.fed + (food > 1e-9 ? 1 : 0) };
+}
+/**
+ * **The care score** (the idea patch of 2026-11-09, "เลี้ยงดีได้ Quality สูง", the owner's "นอกนั้นเห็นด้วยกับ claude"): 0 to 10,
+ * its body's size as it grew up (small 0, medium 2, large 3, very large 5) and the days in a row it was fed through (a
+ * point a day, five at most; a day its trough ran empty begins it again). It lifts the floor of its produce's Quality
+ * with the graded feed, the two together `lift` at most (the feed alone keeps `quality.narrowest`); and it sets the
+ * chance of a bred breed's special (lib/town/specials). Never more units.
+ */
+export const CARE = { size: [0, 2, 3, 5] as readonly number[], fed: 5, most: 10, lift: 25 } as const;
+/** A body's size as one of four grades (`bodyOf`: each grade's step, a little more within it); none while it grows. */
+export function sizeGrade(species: SpeciesId, body: number | undefined): 0 | 1 | 2 | 3 {
+  if (typeof body !== "number" || !Number.isFinite(body)) return 0;
+  const steps = BODY.steps[species];
+  let g = 0;
+  for (let i = 1; i < steps.length; i++) if (body >= steps[i] - 0.005) g = i;
+  return g as 0 | 1 | 2 | 3;
+}
+/** The care score, 0 to 10. */
+export function careScore(a: Partial<Pick<Animal, "species" | "body" | "streak">>): number {
+  const size = a.species && SPECIES[a.species] ? CARE.size[sizeGrade(a.species, a.body)] : 0;
+  return Math.min(CARE.most, size + Math.min(CARE.fed, Math.max(0, Math.floor(Number(a.streak) || 0))));
 }
 /** The size a value of Quality makes of a species. */
 export function bodyOf(species: SpeciesId, v: number): number {
@@ -582,10 +607,10 @@ export function forageAt(bands: Readonly<Record<string, readonly number[]>>, day
 
 /* ── Quality of what it gives ── */
 
-/** The range a unit of its produce is rolled in: the ceiling from its hearts, the floor 30 under it raised by graded feed. */
-export function rangeOf(a: Pick<Animal, "hearts" | "narrow">): { floor: number; ceiling: number } {
+/** The range a unit of its produce is rolled in: the ceiling from its hearts, the floor 30 under it raised by graded feed and its care score (`CARE.lift` together at most). */
+export function rangeOf(a: Pick<Animal, "hearts" | "narrow"> & Partial<Pick<Animal, "species" | "body" | "streak">>): { floor: number; ceiling: number } {
   const ceiling = Math.min(100, ANIMALS.quality.base + ANIMALS.quality.perHeart * heartsOf(a));
-  const floor = Math.max(0, ceiling - ANIMALS.quality.spread + Math.min(ANIMALS.quality.narrowest, a.narrow));
+  const floor = Math.max(0, ceiling - ANIMALS.quality.spread + Math.min(CARE.lift, Math.min(ANIMALS.quality.narrowest, a.narrow) + careScore(a)));
   return { floor, ceiling };
 }
 /** One unit's Quality, from a roll in [0, 1); the rank-4 star collar takes the top. */
@@ -602,13 +627,13 @@ export const LEAST_SECS: Record<Game, number> = { eggs: 3, shear: 6, milk: 6 };
 
 /**
  * What a collection gives, units of its breed's produce: the coop's eggs are the banked rounds less what cracked
- * (`cracked` from the game); a fleece is 3 to 5 tufts by the score and two more traced whole; a milking 2 to 5 bottles
- * a banked round by the score.
+ * (`cracked` from the game), never none ("fewer on a miss, never none": Codex found the coop could give 0, 2026-11-09);
+ * a fleece is 3 to 5 tufts by the score and two more traced whole; a milking 2 to 5 bottles a banked round by the score.
  */
 export function unitsOf(game: Game, banked: number, play: Play | null, cracked = 0): { units: number; whole: boolean } {
   if (banked <= 0) return { units: 0, whole: false };
   const sc = play ? scoreOf(play) : 0;
-  if (game === "eggs") return { units: Math.max(0, banked - Math.max(0, Math.min(banked, cracked))), whole: false };
+  if (game === "eggs") return { units: Math.max(1, banked - Math.max(0, Math.min(banked, cracked))), whole: false };
   if (game === "shear") { const whole = sc >= 0.95; return { units: 3 + Math.round(2 * sc) + (whole ? 2 : 0), whole }; }
   return { units: banked * (2 + Math.round(3 * sc)), whole: false };
 }

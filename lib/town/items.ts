@@ -11,7 +11,7 @@ import { WEAR_ITEMS } from "./wear-items";
 import { FERT_ITEMS, FERT_MAKES } from "./fertilisers";
 import { GEOLOGY_DISHES, GEOLOGY_ITEMS, GEOLOGY_MAKES, GEOLOGY_SCROLL_ITEMS, GEOLOGY_SCROLLS, type GeologyDishId } from "./geology-items";
 import { WOOD_DISHES, WOOD_ITEMS, WOOD_MAKES, WOOD_SCROLL_ITEMS, WOOD_SCROLLS, type WoodDishId } from "./wood-items";
-import { ANIMAL_DISHES, ANIMAL_ITEMS, ANIMAL_MAKES, ANIMAL_SCROLL_ITEMS, ANIMAL_SCROLLS, BREED_SCROLL_ITEMS, type AnimalDishId } from "./animal-items";
+import { ANIMAL_DISHES, ANIMAL_ITEMS, ANIMAL_MAKES, ANIMAL_SCROLL_ITEMS, ANIMAL_SCROLLS, BREED_SCROLL_ITEMS, SPECIAL_ITEMS, type AnimalDishId } from "./animal-items";
 import { animalIcon } from "./animal-icons";
 import { FIND_ITEMS, NEW_FISH, NEW_FISH_ITEMS, NEW_INSECT_ITEMS, SMALL_FISH_BAITS, type NewFishId } from "./band-species";
 import { GIANT_ITEMS } from "./giant-fish";
@@ -672,6 +672,8 @@ export const ITEMS = {
   ...INSECT_SCROLL_ITEMS,
   ...WOOD_ITEMS,
   ...ANIMAL_ITEMS,
+  // (v324: the bred breeds' specials, lib/town/specials)
+  ...SPECIAL_ITEMS,
   ...GARDEN_ITEMS,
   ...GARDEN_SEED_ITEMS,
   // (the farm's Quality: the twenty helper plants and their seeds, lib/town/helper-items)

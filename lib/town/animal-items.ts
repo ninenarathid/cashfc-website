@@ -1,5 +1,6 @@
 import type { Dish, Item, Make } from "./items";
-import { BREEDS, GRAPH, SPECIES_IDS, scrollOf } from "./animals";
+import { BREEDS, GRAPH, SPECIES_IDS, breedOf, scrollOf } from "./animals";
+import { SPECIALS, type SpecialId } from "./specials";
 
 /**
  * The pasture's things (lib/town/animals, docs/plans/animals/README.md): what the 32 breeds give, what is made of it,
@@ -120,6 +121,50 @@ export const ANIMAL_ITEMS = {
 } as const satisfies Record<string, Item>;
 export type AnimalItemId = keyof typeof ANIMAL_ITEMS;
 
+/**
+ * The bred breeds' specials (lib/town/specials, the idea patch of 2026-11-09): one a breed, B to H. A special takes the
+ * place of a unit of its breed's produce and fetches what that unit would (its `pays` and tier are the produce's, and it
+ * carries a grade as the produce does). What each is used for is the next stage's (new dishes, buffs, the feast, the
+ * tailor's wool): nothing reads them yet but the bag, a deal, the board, a stall and the uncle. Their words say what
+ * each looks like, never what it is for.
+ */
+const SPECIAL_WORDS: Record<SpecialId, [th: string, en: string, lookTh: string, lookEn: string]> = {
+  silkieTwinEgg: ["ไข่แดงคู่ซิลกี้", "Silkie twin-yolk egg", "ไข่สีครีมที่เห็นไข่แดงสีส้มนวลสองวงเรียงกันอยู่ข้างใน มีขนอ่อนสีขาวติดเปลือก", "A cream egg with two soft orange yolks showing side by side, a tuft of white down stuck to it"],
+  dawnBlueEgg: ["ไข่ฟ้าอรุณ", "Dawn-blue egg", "ไข่สีฟ้าอ่อน มีแถบสีชมพูทองเหมือนฟ้ายามรุ่งที่ท้ายฟอง", "A pale sky-blue egg with a band of pink and gold dawn across its foot"],
+  cocoaShellEgg: ["ไข่เปลือกโกโก้เข้ม", "Dark cocoa-shell egg", "ไข่เปลือกสีโกโก้เข้มเกือบดำ เงาวาวเรียบ", "A very dark cocoa-brown egg, smooth and glossy"],
+  fireflyEgg: ["ไข่หิ่งห้อย", "Firefly egg", "ไข่สีอำพันที่มีจุดแสงเขียวเหลืองเล็กๆ ลอยวนอยู่ข้างใน", "An amber egg with tiny yellow-green lights drifting inside"],
+  swirlCloudEgg: ["ไข่เมฆหมุน", "Swirling-cloud egg", "ไข่สีขาวนมที่มีเมฆก้อนเล็กสีเทาฟ้าหมุนวนอยู่ข้างใน", "A milk-white egg with a little grey-blue cloud curling inside"],
+  luckySevenEgg: ["ไข่โชคเจ็ดจุด", "Seven-spot lucky egg", "ไข่เปลือกทองมีจุดกลมสีแดงเจ็ดจุดเหมือนเต่าทอง", "A gold-shelled egg with seven round red spots like a ladybird"],
+  rebirthFlameEgg: ["ไข่ไฟคืนชีพ", "Rebirth flame egg", "ไข่สีแดงทองมีรอยแตกลายถ่านเรืองแสง เปลวไฟเล็กๆ ตั้งอยู่บนยอด", "A crimson and gold egg crackled like glowing embers, a small flame standing on its top"],
+  windRunnerEgg: ["ไข่เปลือกบางวิ่งลม", "Wind-runner egg", "ไข่เปลือกบางสีขาว มีริ้วสีเทาฟ้าพาดเหมือนลมพัด", "A thin white egg with grey-blue streaks swept across it like wind"],
+  emeraldShellEgg: ["ไข่เปลือกมรกต", "Emerald-shell egg", "ไข่สีเขียวเข้มเหลือบเงาเหมือนมรกตเปียกน้ำ", "A dark green egg with a wet emerald sheen"],
+  brushPaintedEgg: ["ไข่ลายพู่กัน", "Brush-painted egg", "ไข่สีครีมมีรอยพู่กันสีส้มและสีเขียวน้ำทะเลปาดเป็นสองเส้น", "A cream egg painted with two bold strokes, one orange and one teal"],
+  firstRainEgg: ["ไข่ฝนแรก", "First-rain egg", "ไข่สีฟ้าน้ำที่มีเมฆขาวก้อนเล็กกับหยดฝนสามเม็ดอยู่บนเปลือก", "A pale water-blue egg with a little white cloud and three raindrops on its shell"],
+  moonShadowEgg: ["ไข่เงาจันทร์", "Moon-shadow egg", "ไข่เปลือกดำเงา มีเสี้ยวจันทร์สีเงินที่ดูเหมือนเลื่อนไปมา", "A glossy black egg with a silver crescent moon that seems to drift"],
+  blankRecipePaper: ["กระดาษสูตรเปล่า", "Blank recipe paper", "กระดาษสีครีมแผ่นเล็กพับเป็นเรือ ขอบนุ่มเหมือนขนนก ยังไม่มีตัวหนังสือ", "A small cream paper folded like a boat, its edges soft as down, nothing written on it"],
+  blackDeepPearlEgg: ["ไข่มุกดำทะเลลึก", "Black deep-sea pearl egg", "ไข่มุกสีดำเงาเหลือบเขียวน้ำทะเลลึก มีลายเกล็ดจางๆ", "A glossy black pearl of an egg with a deep-sea teal sheen and faint scales"],
+  rareShadeLock: ["ปอยขนสีหายาก", "Rare-shade lock", "ปอยขนแกะที่ไล่สีชมพูหม่น น้ำตาลกุหลาบ และน้ำตาลมอคค่า", "A tuft of wool banded dusty rose, rose-brown and mocha"],
+  spiralShedHorn: ["เขาเกลียวผลัด", "Shed spiral horn", "เขาแกะที่ผลัดหลุดออกมา ม้วนเป็นเกลียวแน่น สีงาช้างมีวงปีสีน้ำตาล", "A shed sheep's horn curled in a tight spiral, ivory with brown rings"],
+  cloudFluffTuft: ["ปุยขนเมฆ", "Cloud-fluff tuft", "ปุยขนสีขาวบริสุทธิ์ฟูกลมเหมือนก้อนเมฆ", "A big round puff of pure white fleece, fluffy as a cloud"],
+  goldenDandelionSeed: ["เมล็ดแดนดิไลออนทอง", "Golden dandelion seed", "ลูกกลมของเมล็ดแดนดิไลออนสีทอง มีเมล็ดร่มชูชีพเล็กๆ ลอยออกไป", "A round golden dandelion clock, two little seeds drifting off it"],
+  rainbowArcLock: ["ปอยขนรุ้งกินน้ำ", "Rainbow-arc lock", "ปอยขนแกะสีขาวที่มีรุ้งเส้นโค้งพาดอยู่", "A white tuft of wool with a small rainbow arcing across it"],
+  shootingStarLock: ["ปอยขนดาวตก", "Shooting-star lock", "ปอยขนสีน้ำเงินเข้มที่มีดาวตกสีเหลืองนวลพาดผ่าน", "A navy tuft of wool crossed by a pale yellow shooting star"],
+  wholeGoldenFleece: ["ขนทองคำทั้งผืน", "Whole golden fleece", "ขนแกะสีทองทั้งผืนเหมือนหนังแกะที่แผ่ออก เต็มไปด้วยลอนทองเปล่งประกาย", "A whole golden pelt laid flat, covered in shining golden curls"],
+  goldenCreamTop: ["ครีมหัวนมสีทอง", "Golden cream top", "ขวดแก้วใส่นมที่มีชั้นครีมสีเหลืองทองหนาลอยอยู่ด้านบน ปิดผ้า", "A glass jar of milk with a thick golden layer of cream on top, cloth-tied"],
+  warmShaggyMilk: ["นมอุ่นขนยาว", "Warm shaggy milk", "กระป๋องนมห่อปลอกขนยาวสีขิง มีไอขาวลอยขึ้นจากฝา", "A small milk can in a shaggy ginger cosy, a curl of steam from its lid"],
+  agedCheeseStarter: ["หัวเชื้อชีสบ่ม", "Aged cheese starter", "ห่อผ้าขาวบางผูกเชือกน้ำตาล ด้านหน้ามีครั่งสีแดงประทับ", "A bundle of cheesecloth tied with string, a red wax seal on its front"],
+  wildBerryCream: ["ครีมเบอร์รี่ป่า", "Wild-berry cream", "หม้อดินเผาใบเล็กใส่ครีมสีชมพูข้น มีเบอร์รี่ป่าสีแดงม่วงอยู่ด้านบน", "A small clay pot of thick pink cream topped with red and purple wild berries"],
+  cocoaCreamTop: ["ครีมโกโก้ลอยหน้า", "Cocoa cream top", "ถ้วยโกโก้สีเข้มที่มีฟองครีมโกโก้ลอยหนาอยู่ด้านบน", "A cup of dark cocoa with a thick crown of cocoa cream floating on top"],
+  pollenCream: ["ครีมเกสรดอกไม้", "Pollen cream", "โถเซรามิกใบเตี้ยใส่ครีมสีเหลืองอ่อนโรยเกสรสีทอง มีดอกไม้ขาวเล็กๆ อยู่บนยอด", "A squat jar of pale yellow cream dusted with golden pollen, a tiny white flower on top"],
+  cometMilkCrystal: ["ผลึกนมดาวหาง", "Comet milk crystal", "ผลึกสีขาวนมที่มีแกนสีกรมท่า ประกายเล็กๆ ลากหางออกไปเหมือนดาวหาง", "A milky-white crystal with a navy core, a trail of tiny sparkles streaming off like a comet"],
+};
+/** The specials as things of the bag: each with its breed's produce's tier and what it fetches. */
+export const SPECIAL_ITEMS = Object.fromEntries(SPECIALS.map((x) => {
+  const produce = ANIMAL_ITEMS[breedOf(x.breed)!.produce as AnimalItemId];
+  const [th, en, lookTh, lookEn] = SPECIAL_WORDS[x.id];
+  return [x.id, goods(th, en, lookTh, lookEn, produce.pays, produce.tier as 2 | 3)];
+})) as Record<SpecialId, Item>;
+
 /** The family a thing belongs to in a recipe that asks for the family's own (lib/town/cooking's madeOf, its second look). */
 export const FAMILY: Readonly<Record<string, string>> = {
   ...Object.fromEntries(BREEDS.filter((b) => b.species === "chicken" || b.species === "duck").map((b) => [b.produce, "egg"])),
@@ -128,7 +173,9 @@ export const FAMILY: Readonly<Record<string, string>> = {
   farmCheese: "cheese",
 };
 /** What carries a grade among the pasture's things: everything an animal gives, and what is made of it; each pays by its grade when sold (lib/town/trade gradePays), and falls when oversold (lib/town/market). */
-export const ANIMAL_GRADED: readonly string[] = [...BREEDS.map((b) => b.produce), "cream", "butter", "farmCheese", "yarn", "woolScarf", "rainbowScarf", "starScarf", "goldenScarf"];
+export const ANIMAL_GRADED: readonly string[] = [...BREEDS.map((b) => b.produce), "cream", "butter", "farmCheese", "yarn", "woolScarf", "rainbowScarf", "starScarf", "goldenScarf",
+  // (v324: the specials, each of the grade of the unit it took the place of)
+  ...SPECIALS.map((x) => x.id)];
 
 export type AnimalDishId = "custard" | "pancakes" | "cheesecake" | "butterCookies" | "quiche" | "lanternCustard" | "cloudSouffle" | "goldenOmelette"
   | "emberBakedEggs" | "rainBroth" | "moonPudding" | "paperFish" | "leviathanEggCup" | "strawberryShake" | "hotCocoa" | "flowerLatte" | "starPudding";
