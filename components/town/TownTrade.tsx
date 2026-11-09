@@ -914,9 +914,10 @@ function Bag({ paper, purse, held, now, th, seated, company, helpings, recipeBoo
             {pouches}
             <div className="mt-2.5 min-h-[4.25rem] rounded-xl border border-[#4a341f] bg-[#2a1e13]/80 px-2.5 py-2" aria-live="polite">
               {inHand && it ? (
-                <div className="flex items-center gap-2.5">
+                <div className="flex flex-wrap items-center gap-2.5">
                   <StackIcon stack={inHand} size={38} className="shrink-0" />
-                  <div className="min-w-0 flex-1">
+                  {/* (its words keep a width of their own; on a narrow bag the buttons go under them rather than squeeze them to a word a line) */}
+                  <div className="min-w-[10rem] flex-1">
                     <p className="truncate text-ui font-semibold text-[#f3e3c3]">{inHand.of ? (th ? `หม้อ${ITEMS[inHand.of.dish].name.th}` : `A pot of ${ITEMS[inHand.of.dish].name.en.toLowerCase()}`) : th ? it.name.th : it.name.en} {it.stack > 1 && <span className="font-data text-[#c9a877]">×{inHand.n}</span>}</p>
                     <p className="text-meta text-[#c9a877]">{th ? it.about.th : it.about.en}</p>
                     {equipmentEffect(inHand.item, th) && <>
@@ -995,10 +996,10 @@ function Bag({ paper, purse, held, now, th, seated, company, helpings, recipeBoo
               {paper && writing && inHand?.item === SPECIAL_USE.paper && (
                 <div className="mt-2 flex flex-wrap gap-1.5 border-t border-[#4a341f] pt-2" data-bag-write-list>
                   {paper.can.length ? paper.can.map((id) => (
-                    <button key={id} type="button" title={th ? ITEMS[id].name.th : ITEMS[id].name.en} aria-label={th ? `เขียน ${ITEMS[id].name.th}` : `Write ${ITEMS[id].name.en}`}
+                    <button key={id} type="button" aria-label={th ? `เขียน ${ITEMS[id].name.th}` : `Write ${ITEMS[id].name.en}`}
                             onClick={() => { setWriting(false); paper.onWrite(id); }} data-bag-write-recipe={id}
-                            className="pressable grid size-11 place-items-center rounded-lg border border-[#6b4a2a] bg-[#3a2a1a] hover:border-gold">
-                      <ItemIcon id={id} size={30} />
+                            className="pressable flex min-h-11 max-w-full items-center gap-1.5 rounded-lg border border-[#6b4a2a] bg-[#3a2a1a] py-1 pl-1.5 pr-3 text-left text-meta font-semibold text-[#f0dfb6] hover:border-gold">
+                      <ItemIcon id={id} size={28} /><span className="min-w-0 truncate">{th ? ITEMS[id].name.th : ITEMS[id].name.en}</span>
                     </button>
                   )) : <span className="flex items-center gap-1.5 text-meta text-[#a88a5e]"><TownIcon name={"mystery" as IconName} size={18} />{th ? "ยังไม่เคยทำอาหาร" : "Nothing cooked yet"}</span>}
                 </div>

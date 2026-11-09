@@ -189,8 +189,13 @@ try {
   const d1 = d1x.row?.r;
   eq([d1?.ok, d1?.dress?.cloth?.until - d1?.dress?.cloth?.at], [true, 24 * HOUR], "the golden cloth laid for a day");
   eq(held((await kept(A)).bag, "wholeGoldenFleece"), 0, "the fleece used up");
+  const told = await rows("select a.kind, a.member_id::text m, a.subject from public.town_announcements a where a.kind = 'cloth'");
+  eq([told.length, told[0]?.m, told[0]?.subject?.length > 0], [1, A, true], "the golden cloth told to the whole town, once, as its layer's");
+  const page = (await as(B, "select public.town_announcements_v309(null, null) r")).row?.r;
+  eq((page?.events ?? []).filter((e) => e.kind === "cloth").length, 1, "and read by another member's page among the town's news");
   eq((await as(A, "select public.town_feast_dress('cloth', $1, $2) r", [yard.x, yard.y])).row?.r?.why, "none", "no more fleece: refused");
   eq((await as(A, "select public.town_feast_dress('cushions', $1, $2) r", [yard.x, yard.y])).row?.r?.ok, true, "the cushions laid");
+  eq(Number((await one("select count(*) n from public.town_announcements where kind = 'cloth'")).n), 1, "the cushions told to nobody, the refused cloth neither");
   eq((await as(A, "select public.town_uses_read() r")).row?.r?.uses?.dress?.cushions?.until > NOW, true, "and told to whoever asks");
   const Q = await potRow("custard", 3);
   eq((await as(A, "select public.town_pot_cover($1, $2, $3) r", [Q, yard.x, yard.y])).row?.r?.pot?.cover, true, "a pot covered");
@@ -265,6 +270,10 @@ try {
   eq(await one(`select (select count(*)::int from jsonb_object_keys(data->'carry')) as carry, jsonb_array_length(data->'legend') as legend from public.town_catalog where key = 'uses'`), { carry: 9, legend: LEGEND_DISHES.length }, "afterwards: the uses row");
   eq(await one(`select town.matched_odds(10, 10, 20, 70) as legend, town.matched_odds(60, 0, 20, 70) as capped, town.carry_of('[["milk",1],["silkieTwinEgg",2],["sugar",1]]'::jsonb, 'custard') as carry`),
     { legend: 30, capped: 70, carry: { carry: "gentle" } }, "afterwards: the rules");
+  eq(await one(`select pg_get_constraintdef(c.oid) like '%''cloth''%' as cloth_told from pg_constraint c
+    where c.conrelid = 'public.town_announcements'::regclass and c.conname = 'town_announcements_kind_check'`), { cloth_told: true }, "afterwards: the cloth is one of the town's news");
+  const forge = await db.query("select town.announce($1, 'forge', 'axe', 3, 'v325-check-forge', false)", [A]).then(() => null, (e) => e.message);
+  eq(forge, null, "and the kinds before it still are (a forging told)");
 } catch (e) { failed++; console.log("  THREW", e.message, e.query?.slice?.(0, 300)); }
 console.log(`v325: ${checks} passed, ${failed} failed`);
 await db.close();

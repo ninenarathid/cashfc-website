@@ -491,7 +491,6 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     sfx?.wake();
     sfx?.work("down");
     setFeastSaid(kind === "cloth" ? (th ? "ปูผ้าทองคำแล้ว ทั้งเมืองรู้แล้ว" : "The golden cloth is laid. The whole town knows.") : kind === "cushions" ? (th ? "วางเบาะนุ่มแล้ว" : "The cushions are laid") : (th ? "คลุมหม้อแล้ว" : "The pot is covered"));
-    if (kind === "cloth") window.dispatchEvent(new CustomEvent("cashtown:feast-cloth", { detail: { mine: true } }));
   }, [yard, feastBusy, keeper, wordsOf, sfx, th]);
   /** A helping of a pot on the table, out of the table's own bowl: the map finds me a place to sit, and the keeper is asked once I am sat. */
   const feastEat = useCallback((pot: Pot) => { setFeastOpen(false); sfx?.wake(); onFeastEat?.(pot.dish, pot.id); }, [onFeastEat, sfx]);

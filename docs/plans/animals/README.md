@@ -344,7 +344,8 @@ lib/town/special-uses and lib/town/special-dishes; the database's are v325's (`b
 - **The legend feast eaten together**: three or more who begin a helping of the same legend pot at the table within five
   minutes each have its buff a level more at the helping's end (`togetherAt`; the database's `town_feast_began`).
 - **The wool**: cushions (24 h, a companion more at the table), the golden tablecloth (24 h, every pot on the table a
-  meal's hours more, the town told), a star-wool cover (one pot a meal's hours more); drawn over the hall's tables and
+  meal's hours more, the town told by its own news, `town.announce` kind `cloth`: the banner and the chat's line; toasts
+  are silenced in the town), a star-wool cover (one pot a meal's hours more); drawn over the hall's tables and
   benches while they last. At Granny Twilla's the three wools take off a piece what that wool would fetch (12 / 12 / 18,
   at its grade). The golden dandelion's seed sows a rare flower (48 h, 1-2 flowers at 30), a page of the farm book shut
   until somebody grows one. The first-rain egg thrown onto the farm waters the nine plots about it once.

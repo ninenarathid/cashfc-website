@@ -145,7 +145,8 @@ const sql = String.raw`-- v325 — what the specials are for: ten dishes, five b
 --     at its end, three or more who began a helping of it within five minutes of each other each have its buff a level more
 --     (town.eaten_together, town.chew).
 --   * The wool at the feast table (town_things 'feast_dress'): cushions (24 h; a companion more for whoever eats there), the
---     golden tablecloth (24 h; every pot on the table a meal's hours more; the whole town is told), a star-wool cover over a
+--     golden tablecloth (24 h; every pot on the table a meal's hours more; the whole town is told: town.announce, a kind
+--     'cloth' more in the announcements' check), a star-wool cover over a
 --     pot (a meal's hours more): public.town_feast_dress, public.town_pot_cover, town.table_ends, town.pots_tidy.
 --   * At Granny Twilla's the three wools take a piece's price down by what that wool would fetch (public.town_tailor_buy with
 --     p_wool); the first-rain egg thrown onto the farm waters the nine plots about it once (public.town_rain_egg); a blank recipe
@@ -153,7 +154,8 @@ const sql = String.raw`-- v325 — what the specials are for: ten dishes, five b
 --     a rare page of the village's farm book (town.garden_harvest).
 --   * public.town_uses_read(): whether the specials have their uses, and what is laid on the feast table.
 --
--- What it writes: the catalog's 'uses' row whole, and in eleven rows only the entries above; a table (town_feast_began, closed);
+-- What it writes: the catalog's 'uses' row whole, and in eleven rows only the entries above; a table (town_feast_began, closed); one kind more
+-- ('cloth') in town_announcements' kind check;
 -- town.pot_marks, town.feast_eat, town.pots_tidy, public.town_feast_eat and the two-word public.town_tailor_buy written again
 -- whole; town.chew, town.cook_v205, town.garden_harvest, public.town_animals, public.town_kitchen and town.deed_th from their
 -- live text but for the lines below; new rules and calls as listed. A page from before v325 is told nothing new and offers
@@ -185,6 +187,23 @@ create index if not exists town_feast_began_pot on public.town_feast_began (pot,
 alter table public.town_feast_began enable row level security;
 revoke all on public.town_feast_began from public, anon, authenticated;
 insert into public.town_things (key, doc) values ('feast_dress', '{}'::jsonb) on conflict (key) do nothing;
+-- The golden tablecloth is told to the whole town as its other news is (town.announce: the banner and the chat's line): one
+-- kind more for the announcements, the kinds already allowed read from the check as it stands, so none is lost.
+do $kinds$
+declare d text; kinds text[];
+begin
+  select pg_get_constraintdef(c.oid) into d from pg_constraint c
+   where c.conrelid = 'public.town_announcements'::regclass and c.conname = 'town_announcements_kind_check';
+  if d is null then raise exception 'v325: the announcements have no kind check to add the golden cloth to'; end if;
+  if d like '%''cloth''%' then return; end if;
+  select array_agg(m[1] order by n) into kinds from regexp_matches(d, '''([a-z_]+)''', 'g') with ordinality as r(m, n);
+  if kinds is null or not ('forge' = any (kinds)) or not ('casino' = any (kinds)) then
+    raise exception 'v325: the announcements kind check reads %, not as v299 left it', d; end if;
+  alter table public.town_announcements drop constraint town_announcements_kind_check;
+  -- (written as an array of quoted words, as it was, so that a run again reads it the same way)
+  execute format('alter table public.town_announcements add constraint town_announcements_kind_check check (kind = any (array[%s]))',
+                 (select string_agg(quote_literal(k), ', ' order by n) from unnest(array_append(kinds, 'cloth')) with ordinality as u(k, n)));
+end $kinds$;
 
 -- ── 3. The rules (lib/town/special-uses) ──────────────────────────────────────────────────────────────────────────────
 -- The second buff a recipe's pot carries: the first real breed's special in it by its id, never the dish's own; none else.
@@ -385,10 +404,15 @@ begin
   until_ := greatest(now_ + (hours * 3600000)::bigint, coalesce((was->>'until')::bigint, 0));
   at_ := coalesce((was->>'at')::bigint, now_);
   dress_ := dress_ || jsonb_build_object(p_kind, jsonb_build_object('at', at_, 'until', until_,
-    'by', coalesce((select coalesce(p.character_name, p.display_name, p.discord_username, '') from public.profiles p where p.id = me), '')));
+    'by', coalesce((select coalesce(nullif(p.character_name, ''), nullif(p.display_name, ''), nullif(p.discord_username, ''), '')
+                    from public.profiles p where p.id = me), '')));
   update public.town_things t set doc = dress_, updated_at = now() where t.key = 'feast_dress';
   perform town.keep_purse(me, purse || jsonb_build_object('bag', town.take(purse->'bag', item, 1)));
   perform town.note(me, 'feast_dress', item, 1, 0, jsonb_build_object('kind', p_kind, 'until', until_));
+  -- (the golden tablecloth, each laying, is the whole town's news; its subject is a page's words for it from before v325)
+  if p_kind = 'cloth' then
+    perform town.announce(me, 'cloth', 'ปูผ้าทองคำบนโต๊ะเลี้ยง ทุกหม้อบนโต๊ะอยู่ได้อีกหนึ่งมื้อ!', 0, 'cloth:' || me::text || ':' || now_::text, false);
+  end if;
   return town.answer(me, jsonb_build_object('ok', true, 'dress', dress_));
 end $$;
 
@@ -588,6 +612,10 @@ commit;
 --          (select count(*) from pg_proc p where p.pronamespace = 'town'::regnamespace
 --            and (has_function_privilege('anon', p.oid, 'execute') or has_function_privilege('authenticated', p.oid, 'execute'))) as open;
 --   -- true | false | 0
+--
+--   select pg_get_constraintdef(c.oid) like '%''cloth''%' as cloth_told from pg_constraint c
+--    where c.conrelid = 'public.town_announcements'::regclass and c.conname = 'town_announcements_kind_check';
+--   -- true
 --
 -- ─── Reading it ──────────────────────────────────────────────────────────
 --

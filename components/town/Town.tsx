@@ -60,7 +60,7 @@ import { resumable } from "@/lib/town/active";
 import { BUBBLE_MS, reachNote, wrapLines } from "@/lib/town/chat";
 import { ROOM_CAP, openSession, type Avatar, type TownSession } from "@/lib/town/session";
 import { DbKeeper, type Ask, type Keeper as GameKeeper, type Looked } from "@/lib/town/keeper";
-import { SPECIAL_USE, laid, type Dress } from "@/lib/town/special-uses";
+import { laid, type Dress } from "@/lib/town/special-uses";
 import ChatHistory, { ChatPlace } from "./ChatHistory";
 import Wardrobe from "./Wardrobe";
 import { TownElementProvider } from "./TownElementFx";
@@ -230,8 +230,6 @@ const TownAuction = lazy(() => import("./TownAuction"));
 /** The clothes shop's windows: Granny's clothes, and the week's auction. */
 export type ShopPanel = "tailor" | "auction";
 /** What a nudge from the room may be about (lib/town/keeper's Looked). */
-/** (v325) The golden tablecloth laid: told to every page that hears of it within so long of its laying, for so long. */
-const CLOTH_NEWS_MS = 10 * 60_000, CLOTH_SHOW_MS = 9000;
 const NUDGES: readonly string[] = ["boats","stall", "farm", "kitchen", "deal", "fountain", "notices", "bugs", "line", "ground", "shop", /* mining */ "cave", /* felling */ "trees", /* the bridge and the lamps */ "works", "lamps", /* the pasture */ "animals"];
 /** The colour a carrier's rank is written in under their name (lib/town/well): wood, silver, gold. */
 const RANK_INK = ["#e0a66a", "#d5dce3", "#f2c94c"];
@@ -5195,21 +5193,6 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   moonRef.current = purse.moon ?? 0;
   // (v325: what is laid on the feast table, and how far the keeper's clock is from the wall's: the hall's tables drawn with it)
   dressRef.current = keeper?.specialUses() ? { dress: keeper.tableDress(), skew: keeper.now() - Date.now() } : null;
-  // (v325: the golden tablecloth newly laid, or laid again, is told to the whole town, once a page, for a while: by when it
-  // now lies until, so that a laying over one that lies still is told too; one laid long before the page came, not at all)
-  const clothUntil = dressRef.current?.dress.cloth?.until ?? 0, clothBy = dressRef.current?.dress.cloth?.by ?? "";
-  const [clothNews, setClothNews] = useState<string | null>(null);
-  const clothSeen = useRef<number | null>(null);
-  useEffect(() => {
-    if (!clothUntil) return;
-    const seen = clothSeen.current;
-    clothSeen.current = clothUntil;
-    if (seen !== null && clothUntil <= seen) return;
-    if (Date.now() + (dressRef.current?.skew ?? 0) - (clothUntil - SPECIAL_USE.cloth.hours * 3_600_000) > CLOTH_NEWS_MS) return;
-    setClothNews(clothBy);
-    const t = setTimeout(() => setClothNews(null), CLOTH_SHOW_MS);
-    return () => clearTimeout(t);
-  }, [clothUntil, clothBy]);
   // (v325: my featherlight's level: everybody's page walks me so much faster on foot, lib/town/special-uses)
   useEffect(() => { sessionRef.current?.setFleet(purse.fleet ?? 0); }, [purse.fleet, session]);
   // (and which familiar follows me, lib/town/gifts: everybody's page draws it at my heels)
@@ -6265,15 +6248,6 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
           <TownDrink keeper={keeper} me={keeper.id} th={w.th} people={standers} pair={drinking} where={whereAmI} spot={headSpot} register={registerDrink} sfx={sfxRef.current} reduced={!moving}
                      here={!fishing && !signView ? standing?.tile ?? null : null} hidden={!!talk || !!trade || boardOpen || wardrobeOpen || (phone && testOpen)} />
         </Suspense>
-      )}
-      {/* (v325: the golden tablecloth laid on the feast table, told to the whole town for a while: its picture and a few words) */}
-      {s && clothNews !== null && (
-        <TownFoot rank="toast" order={3}>
-          <p role="status" data-cloth-news className="pop-in flex min-h-10 items-center gap-2 rounded-full border border-gold/70 bg-surface/95 px-4 text-ui font-semibold text-ink shadow-lg shadow-black/40 backdrop-blur-sm">
-            <TownIcon name={"wholeGoldenFleece" as IconName} size={24} />
-            {w.th ? `ผ้าปูโต๊ะทองคำ ณ ห้องอาหาร${clothNews ? ` · โดย ${clothNews}` : ""}` : `A golden cloth on the feast table${clothNews ? ` · by ${clothNews}` : ""}`}
-          </p>
-        </TownFoot>
       )}
       {/* Why a tap did not walk me: I hold a sign up, am in a chat room, or look at a stall. Among what is told at the
           head: that is over every sheet, and a stall's panel is one */}

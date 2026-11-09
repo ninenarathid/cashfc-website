@@ -4,7 +4,7 @@ import type { Stack } from "./trade";
 
 export interface TownAnnouncement {
   id: number; at: number; member: string; name: string;
-  kind: "forge" | "rank" | "legend" | "forest" | "recipe" | "cross" | "depth" | "bridge" | "lamps" | "admin" | "casino" | "giant" | "shake" | "pull";
+  kind: "forge" | "rank" | "legend" | "forest" | "recipe" | "cross" | "depth" | "bridge" | "lamps" | "admin" | "casino" | "giant" | "shake" | "pull" | "cloth";
   subject: string; level: number;
   /** (a giant fish's call, v309, a shaken branch's, v311, and a plant grown over its ground, v317: what it calls to and where, for the "ไปช่วย" chip) */
   to?: { hook: string; x: number; y: number } | null;
@@ -24,6 +24,9 @@ export function announcementText(event: TownAnnouncement, th: boolean): string {
     case "shake": return th ? `${event.name} ขอคนช่วยถือผ้ารองแมลง: ${event.subject}` : `${event.name} needs someone to hold the sheet: ${event.subject}`;
     // (a call to pull a plant grown over its ground, v317: the subject says which and how large)
     case "pull": return th ? `${event.name} ขอคนช่วยถอน${event.subject}` : `${event.name} needs hands to pull a giant plant: ${event.subject}`;
+    // (the golden tablecloth laid on the feast table, v325: every pot on it a meal's hours more for a day. Its subject is
+    // the same said in Thai, for a page from before it that has no words of its own for it)
+    case "cloth": return th ? `${event.name} ปูผ้าทองคำบนโต๊ะเลี้ยง ทุกหม้อบนโต๊ะอยู่ได้อีกหนึ่งมื้อ!` : `${event.name} laid the golden cloth on the feast table: every pot on it lasts a meal longer!`;
     // (a kind this page has no words for, from a later one: its own words, never nothing)
     default: return `${event.name} ${event.subject}`;
     case "forge": return th ? `${event.name} ตีบวก ${item} +${event.level} สำเร็จ!` : `${event.name} forged ${item} to +${event.level}!`;

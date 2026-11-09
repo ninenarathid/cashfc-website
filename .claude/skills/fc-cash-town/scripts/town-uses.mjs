@@ -1,7 +1,7 @@
 // What the specials are for (v325, lib/town/special-uses), in a real browser on the dev test room kept by the trial:
 // the recipe book's ten shadows and the first maker of one cooked; the five buffs' chips; the feast table with a legend
 // pot (eaten together), a pot with a carried buff, a covered pot, the golden cloth and the cushions laid (the panel, the
-// hall's tables drawn with them, the town told); a blank recipe paper written; the first-rain egg offered on the farm;
+// hall's tables drawn with them, the town's news of the cloth); a blank recipe paper written; the first-rain egg offered on the farm;
 // Granny's wool chips; moon sight's light at night. At 1280x860, 384x730 and 360x640, each scene photographed.
 //   node town-uses.mjs <base> <outdir> [sizes: desk,phone,small]
 import { mkdirSync } from "node:fs";
@@ -50,6 +50,11 @@ for (const size of SIZES.split(",")) {
     const shadows = await X.evaluate(`[...document.querySelectorAll("button")].filter((e) => e.textContent.trim() === "???").length`);
     ok(`${size}: the book has the nine other dishes as shadows`, shadows >= 9, shadows);
     await shot("book");
+    // a shadow's own page: its silhouette and its secret thing's clue
+    await tap(X, `([...document.querySelectorAll("dialog[open] button")].find((b) => b.textContent.trim() === "???"))`);
+    await sleep(500);
+    ok(`${size}: a shadow's page tells its secret thing's clue`, await X.evaluate(`!!document.querySelector("dialog[open] [data-recipe-shadow] [data-secret]")`));
+    await shot("shadow");
     const closeBook = () => tap(X, `([...document.querySelectorAll("dialog[open] button")].find((b) => /ปิดสมุด|Close book/.test(b.textContent)))`);
     await closeBook(); await sleep(400); await key(X, "KeyI", "i"); await sleep(400);
 
@@ -106,7 +111,6 @@ for (const size of SIZES.split(",")) {
     ok(`${size}: the legend pot says it is eaten together`, await X.evaluate(`!!document.querySelector("[data-dish=phoenixBake] [data-feast-together]")`));
     ok(`${size}: the custard says what it carries`, await X.evaluate(`document.querySelector("[data-dish=custard] [data-feast-carry]")?.dataset.feastCarry === "gentle"`));
     ok(`${size}: a pot is covered`, await X.evaluate(`!!document.querySelector("[data-feast-covered]")`));
-    ok(`${size}: the town is told of the golden cloth`, await X.evaluate(`!!document.querySelector("[data-cloth-news]")`));
     await shot("feast");
     // a helping of the legend pot at the table, sitting
     await X.evaluate(`window.__townCook?.feastShow(false)`);
@@ -114,6 +118,13 @@ for (const size of SIZES.split(",")) {
     await X.evaluate(`window.__townView.zoom?.(3)`);
     await sleep(1500);
     await shot("hall");
+    // the town's news of it, as the database's keeper tells it (the trial has no news of its own: the banner, by its handle)
+    await X.evaluate(`window.__townAnnouncements?.show({ id: 9325, at: Date.now(), member: "test-cloth", name: "Mira", kind: "cloth", subject: "", level: 0, portrait: { look: null, expression: "neutral" } })`);
+    await sleep(1500);
+    ok(`${size}: the town is told of the golden cloth, in its own words`, await X.evaluate(`/ผ้าทองคำ|golden cloth/.test(document.querySelector("[data-town-announcement]")?.textContent ?? "")`));
+    await shot("news");
+    await tap(X, "[data-town-announcement] > button:last-child");
+    ok(`${size}: and its banner put away by its own button`, await X.evaluate(`!document.querySelector("[data-town-announcement]")`));
 
     // ── the first-rain egg on the farm ──
     await X.evaluate(`${T}.empty(); ${T}.showGarden("Tester")`);
