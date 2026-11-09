@@ -137,31 +137,52 @@ export function rainSquare(x: number, y: number, reach = SPECIAL_USE.rain.reach)
 export const scrollFor = (id: ItemId): ItemId | null => (Object.keys(SCROLLS) as ItemId[]).find((s) => SCROLLS[s] === id) ?? null;
 /** What a cook may write on a blank recipe paper: whatever they have made that has a scroll, in the order they made it. */
 export const writable = (purse: Pick<Purse, "made">): ItemId[] => (purse.made ?? []).filter((id) => id in ITEMS && !!scrollFor(id));
-/** Write a recipe one has made onto a blank recipe paper: the paper is used up and the recipe's scroll is in the bag. */
+/**
+ * The ink a recipe's writing costs: the coins its scroll fetches at the uncle's over what the blank paper fetches, none
+ * where it fetches no more. Writing turns knowledge into something to trade, never coins into more coins (Codex,
+ * 2026-11-10: a 15-coin paper written as the star pudding's scroll would fetch 120).
+ */
+export const inkOf = (id: ItemId) => { const s = scrollFor(id); return s ? Math.max(0, (ITEMS[s].pays ?? 0) - (ITEMS[SPECIAL_USE.paper].pays ?? 0)) : 0; };
+/** Write a recipe one has made onto a blank recipe paper: the paper and the ink's coins are used up and the recipe's scroll is in the bag. */
 export function writeScroll(purse: Purse, id: ItemId): Done<{ purse: Purse; scroll: ItemId }> {
   if (held(purse.bag, SPECIAL_USE.paper) < 1) return no("none");
   const scroll = scrollFor(id);
   if (!scroll || !(purse.made ?? []).includes(id)) return no("known");
+  const ink = inkOf(id);
+  if (purse.coins < ink) return no("coins");
   const bag = take(purse.bag, SPECIAL_USE.paper, 1);
   if (roomFor(bag, scroll) < 1) return no("full");
-  return { ok: true, scroll, purse: { ...purse, bag: put(bag, scroll, 1) } };
+  return { ok: true, scroll, purse: { ...purse, coins: purse.coins - ink, bag: put(bag, scroll, 1) } };
 }
 
 /* ── the feast table's wool ── */
 
 /** What is laid on the feast table now: cushions and the golden tablecloth, each from when, until when, and by whom (a name). */
-export interface Dress { cushions?: { at: number; until: number; by: string } | null; cloth?: { at: number; until: number; by: string } | null }
+export interface Dress {
+  cushions?: { at: number; until: number; by: string } | null; cloth?: { at: number; until: number; by: string } | null;
+  /**
+   * The golden cloth laid before the one on the table now, when that one was laid after it had gone: the pots whose time
+   * fell while it lay keep their meal's hours (Codex, 2026-11-10). One is enough: a third cloth comes a day after the
+   * second at the soonest, and a pot is never kept more than two meals' hours past its time.
+   */
+  clothWas?: { at: number; until: number; by: string } | null;
+}
 export type DressKind = "cushions" | "cloth";
 export const DRESS_ITEM: Record<DressKind, ItemId> = { cushions: SPECIAL_USE.cushion.item, cloth: SPECIAL_USE.cloth.item };
 /** Whether something is laid on the table at a moment. */
-export const laid = (d: Dress | null | undefined, kind: DressKind, now: number) => { const x = d?.[kind]; return !!x && x.at <= now && now < x.until; };
+export const laid = (d: Dress | null | undefined, kind: DressKind, now: number): boolean => {
+  const on = (x: { at: number; until: number } | null | undefined) => !!x && x.at <= now && now < x.until;
+  return on(d?.[kind]) || (kind === "cloth" && on(d?.clothWas));
+};
 /** Lay cushions or the golden tablecloth on the feast table: the wool is used up; laid again, the time runs from now (never shorter). */
 export function layDress(purse: Purse, d: Dress | null | undefined, kind: DressKind, by: string, now: number): Done<{ purse: Purse; dress: Dress }> {
   const item = DRESS_ITEM[kind];
   if (held(purse.bag, item) < 1) return no("none");
   const hours = kind === "cushions" ? SPECIAL_USE.cushion.hours : SPECIAL_USE.cloth.hours, was = d?.[kind];
   const until = Math.max(now + hours * HOUR, was && was.until > now ? was.until : 0);
-  return { ok: true, dress: { ...(d ?? {}), [kind]: { at: was && was.until > now ? was.at : now, until, by } }, purse: { ...purse, bag: take(purse.bag, item, 1) } };
+  // (a cloth laid after the last had gone: that one is kept beside it, for the pots whose time fell while it lay)
+  const kept = kind === "cloth" && was && was.until <= now ? { clothWas: was } : {};
+  return { ok: true, dress: { ...(d ?? {}), ...kept, [kind]: { at: was && was.until > now ? was.at : now, until, by } }, purse: { ...purse, bag: take(purse.bag, item, 1) } };
 }
 /** How many more companions a helping eaten at the table has for its cushions. */
 export const cushionCompany = (d: Dress | null | undefined, now: number) => (laid(d, "cushions", now) ? SPECIAL_USE.cushion.company : 0);

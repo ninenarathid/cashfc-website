@@ -68,12 +68,15 @@ for (const size of SIZES.split(",")) {
 
     // ── a blank recipe paper written ──
     await X.evaluate(`${T}.grant("blankRecipePaper", 1)`);
+    // (and a dish whose scroll fetches more than the paper: its ink is shown, lib/town/special-uses' inkOf)
+    await X.evaluate(`(() => { const p = ${K}.purse(); ${T}.fished({ ...p, made: [...new Set([...(p.made ?? []), "starPudding"])] }); })()`);
     await sleep(400);
     const paperAt = await X.evaluate(`${K}.purse().bag.findIndex((s) => s?.item === "blankRecipePaper")`);
     await tap(X, `[data-bag-slot="${paperAt}"] button`);
     await tap(X, "[data-bag-write]");
     await sleep(500);
     ok(`${size}: the paper offers the dish made`, await X.evaluate(`!!document.querySelector("[data-bag-write-recipe=fireflyCustard]")`));
+    ok(`${size}: a richer scroll says its ink`, await X.evaluate(`Number(document.querySelector("[data-bag-write-recipe=starPudding]")?.dataset.ink) > 0 && /[0-9]/.test(document.querySelector("[data-bag-write-recipe=starPudding]")?.textContent ?? "")`));
     await shot("paper");
     await tap(X, "[data-bag-write-recipe=fireflyCustard]");
     await sleep(700);

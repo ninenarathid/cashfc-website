@@ -23,7 +23,7 @@ import { GRADES, asGrade, buffFloorOf } from "@/lib/town/quality";
 import { gradePays } from "@/lib/town/trade";
 import { carried } from "@/lib/town/line";
 import { historicalPrice, type MarketQuote, type PriceTold, type PricesTold } from "@/lib/town/market";
-import { SPECIAL_USE, moonTiles, writable } from "@/lib/town/special-uses";
+import { SPECIAL_USE, inkOf, moonTiles, writable } from "@/lib/town/special-uses";
 import { MEALS, STAMINA, bowlsToday, buffsOf, levelOf, mayEat as mayEatNow, mealBuffs, mealOf, mealProgress, nextMealAt, staminaOf } from "@/lib/town/stamina";
 import {
   GOODS, RULES, SHELF, forged, handOf, leftOf, lotWorth, mayBuy, mayChange, nextRoundAt, onShelf, waiting,
@@ -437,7 +437,7 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
                                 }}
                                 // (the bag put in order, where whoever keeps the game lets it be: lib/town/bag. A move that comes off says nothing: the thing is where it was put)
                                 tidy={keeper.bagTidy()}
-                                paper={keeper.specialUses() ? { can: writable(purse), onWrite: (id) => { void keeper.writeScroll(id).then((did) => { if (did.ok) say(`เขียน${ITEMS[did.scroll].name.th}แล้ว`, `Written: ${ITEMS[did.scroll].name.en.toLowerCase()}`); else say(...why(did.why)); }); } } : undefined}
+                                paper={keeper.specialUses() ? { can: writable(purse), coins: purse.coins, onWrite: (id) => { void keeper.writeScroll(id).then((did) => { if (did.ok) say(`เขียน${ITEMS[did.scroll].name.th}แล้ว`, `Written: ${ITEMS[did.scroll].name.en.toLowerCase()}`); else say(...why(did.why)); }); } } : undefined}
                                 onMove={(from, to) => { void keeper.bagMove(from, to).then((did) => { if (!did.ok) say(...why(did.why)); }); }}
                                 onSort={() => tried(keeper.bagSort(), ["จัดเรียงกระเป๋าแล้ว", "Your bag is in order."])}
                                 dropsAll={keeper.ground() !== null}
@@ -773,7 +773,7 @@ function Bag({ paper, purse, held, now, th, seated, company, helpings, recipeBoo
    */
   tidy?: boolean; onMove?: (from: number, to: number) => void; onSort?: () => void;
   /** (v325) A blank recipe paper written with a recipe I have made: what I may write, and writing it (lib/town/special-uses); none where whoever keeps the game has no such thing. */
-  paper?: { can: ItemId[]; onWrite: (id: ItemId) => void };
+  paper?: { can: ItemId[]; coins: number; onWrite: (id: ItemId) => void };
 }) {
   const stamina = Math.round(staminaOf(purse, now)), meal = mealOf(now), bowls = bowlsToday(purse, now);
   // Every buff I have, each with its level and the minutes it has left: what meals left (a level each, the owner,
@@ -995,13 +995,16 @@ function Bag({ paper, purse, held, now, th, seated, company, helpings, recipeBoo
               {/* (v325: the recipes I have made, a picture each, to write one onto the paper; none made yet, a shadow and nothing to tap) */}
               {paper && writing && inHand?.item === SPECIAL_USE.paper && (
                 <div className="mt-2 flex flex-wrap gap-1.5 border-t border-[#4a341f] pt-2" data-bag-write-list>
-                  {paper.can.length ? paper.can.map((id) => (
-                    <button key={id} type="button" aria-label={th ? `เขียน ${ITEMS[id].name.th}` : `Write ${ITEMS[id].name.en}`}
-                            onClick={() => { setWriting(false); paper.onWrite(id); }} data-bag-write-recipe={id}
-                            className="pressable flex min-h-11 max-w-full items-center gap-1.5 rounded-lg border border-[#6b4a2a] bg-[#3a2a1a] py-1 pl-1.5 pr-3 text-left text-meta font-semibold text-[#f0dfb6] hover:border-gold">
+                  {paper.can.length ? paper.can.map((id) => { const ink = inkOf(id); return (
+                    <button key={id} type="button" disabled={paper.coins < ink}
+                            aria-label={th ? `เขียน ${ITEMS[id].name.th}${ink ? ` ค่าหมึก ${ink} เหรียญ` : ""}` : `Write ${ITEMS[id].name.en}${ink ? `, ink ${ink} coins` : ""}`}
+                            onClick={() => { setWriting(false); paper.onWrite(id); }} data-bag-write-recipe={id} data-ink={ink}
+                            className="pressable flex min-h-11 max-w-full items-center gap-1.5 rounded-lg border border-[#6b4a2a] bg-[#3a2a1a] py-1 pl-1.5 pr-3 text-left text-meta font-semibold text-[#f0dfb6] hover:border-gold disabled:opacity-45">
                       <ItemIcon id={id} size={28} /><span className="min-w-0 truncate">{th ? ITEMS[id].name.th : ITEMS[id].name.en}</span>
+                      {/* (the ink: what its scroll fetches over the paper, lib/town/special-uses' inkOf) */}
+                      {ink > 0 && <span className="flex shrink-0 items-center gap-0.5 font-data tabular-nums text-gold"><TownIcon name="coin" size={13} />{ink}</span>}
                     </button>
-                  )) : <span className="flex items-center gap-1.5 text-meta text-[#a88a5e]"><TownIcon name={"mystery" as IconName} size={18} />{th ? "ยังไม่เคยทำอาหาร" : "Nothing cooked yet"}</span>}
+                  ); }) : <span className="flex items-center gap-1.5 text-meta text-[#a88a5e]"><TownIcon name={"mystery" as IconName} size={18} />{th ? "ยังไม่เคยทำอาหาร" : "Nothing cooked yet"}</span>}
                 </div>
               )}
             </div>

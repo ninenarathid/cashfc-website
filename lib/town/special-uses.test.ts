@@ -7,12 +7,12 @@ import { cook, feastEat, madeOf, potNow, tableEnds, feastEnds, type Pot } from "
 import { rainAt, rainEgg } from "./ditch";
 import { farmBook, isOpen } from "./farm-book";
 import { HINT_IDS, toldOf } from "./hints";
-import { BUFFS, BUFF_HOURS, BUFF_STEPS, CROPS, DISHES, ITEMS, byOf, type DishId, type ItemId, type MealBuffId } from "./items";
+import { BUFFS, BUFF_HOURS, BUFF_STEPS, CROPS, DISHES, ITEMS, SCROLLS, byOf, type DishId, type ItemId, type MealBuffId } from "./items";
 import { foundScrolls } from "./scrolls";
 import { LEGEND_DISHES, SPECIAL_DISHES, SPECIAL_DISH_IDS, SPECIAL_DISH_SCROLLS } from "./special-dishes";
 import {
   CARRY, SPECIAL_USE, carryOf, cushionCompany, fleetPace, gentleHearts, hazardLead, hazardNear, isLegend, laid, layDress, matchOdds, mealsMore,
-  moonTiles, rainSquare, togetherAt, woolOff, woolWorth, writable, writeScroll, type Dress,
+  inkOf, moonTiles, rainSquare, togetherAt, woolOff, woolWorth, writable, writeScroll, type Dress,
 } from "./special-uses";
 import { SPECIALS } from "./specials";
 import { chew, levelOf, mealBuffs, nextMealAt } from "./stamina";
@@ -255,6 +255,30 @@ describe("the sheep's wool at the feast table", () => {
     expect(two.dress.cloth!.until).toBe(NOW + 34 * H);
     expect(layDress(purseWith(["rice", 1]), null, "cushions", "A", NOW).ok).toBe(false);
   });
+
+  it("a cloth laid after the last had gone keeps the meal of the pots whose time fell while that one lay", () => {
+    // a pot set late in the first cloth's day: its time falls while it lies, so it stays a meal's hours more
+    const first = done(layDress(purseWith(["wholeGoldenFleece", 2]), null, "cloth", "A", NOW));
+    // (the latest set-down whose time falls while the first cloth lies and whose meal runs past it)
+    const set = Array.from({ length: 48 }, (_, i) => NOW + (47 - i) * 30 * MIN)
+      .find((t) => laid(first.dress, "cloth", feastEnds(t)) && nextMealAt(feastEnds(t)) > first.dress.cloth!.until + 30 * MIN)!;
+    expect(set).toBeDefined();
+    const end = feastEnds(set);
+    const kept = tableEnds({}, set, first.dress);
+    expect(kept).toBe(nextMealAt(end));
+    // the first cloth gone, another laid before the pot's meal is over: the pot keeps it
+    const at = Math.max(first.dress.cloth!.until, end) + 30 * MIN;
+    expect(at).toBeLessThan(kept);
+    const second = done(layDress(first.purse, first.dress, "cloth", "B", at));
+    expect(second.dress.cloth).toEqual({ at, until: at + 24 * H, by: "B" });
+    expect(second.dress.clothWas).toEqual(first.dress.cloth);
+    expect(tableEnds({}, set, second.dress)).toBe(kept);
+    // (and what is drawn, and the panel, are of the cloth on the table now)
+    expect(laid(second.dress, "cloth", at - MIN)).toBe(false);
+    // laid again while it lies: one cloth, its time longer, nothing kept beside it
+    const again = done(layDress(purseWith(["wholeGoldenFleece", 1]), first.dress, "cloth", "C", NOW + H));
+    expect(again.dress.clothWas).toBeUndefined();
+  });
 });
 
 describe("the other uses", () => {
@@ -287,6 +311,22 @@ describe("the other uses", () => {
     expect(writeScroll({ ...p, bag: newPurse().bag }, "fireflyCustard")).toEqual({ ok: false, why: "none" });
     // a written scroll fetches no more than the paper did
     expect(ITEMS["scrollFireflyCustard" as ItemId].pays).toBe(ITEMS.blankRecipePaper.pays);
+    expect(inkOf("fireflyCustard")).toBe(0);
+    expect(w.purse.coins).toBe(p.coins);
+  });
+
+  it("writing a scroll that fetches more than the paper costs its ink: never coins out of nothing", () => {
+    const rich = ITEMS["scrollStarPudding" as ItemId].pays - ITEMS.blankRecipePaper.pays;
+    expect(rich).toBeGreaterThan(0);
+    expect(inkOf("starPudding" as ItemId)).toBe(rich);
+    const p = { ...purseWith(["blankRecipePaper", 1]), made: ["starPudding"] as ItemId[] };
+    expect(writeScroll({ ...p, coins: rich - 1 }, "starPudding" as ItemId)).toEqual({ ok: false, why: "coins" });
+    const w = done(writeScroll({ ...p, coins: rich + 5 }, "starPudding" as ItemId));
+    expect(w.purse.coins).toBe(5);
+    // the paper and the ink together are what the scroll fetches: nothing made
+    expect(ITEMS.blankRecipePaper.pays + rich).toBe(ITEMS["scrollStarPudding" as ItemId].pays);
+    // over every recipe that has a scroll
+    for (const [s, dish] of Object.entries(SCROLLS)) expect(ITEMS.blankRecipePaper.pays + inkOf(dish as ItemId)).toBeGreaterThanOrEqual(ITEMS[s as ItemId].pays ?? 0);
   });
 
   it("Granny takes the three wools off a piece, each kind once, by what the wool would fetch", () => {

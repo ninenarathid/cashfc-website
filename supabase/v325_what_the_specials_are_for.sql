@@ -19,12 +19,14 @@
 --     at its end, three or more who began a helping of it within five minutes of each other each have its buff a level more
 --     (town.eaten_together, town.chew).
 --   * The wool at the feast table (town_things 'feast_dress'): cushions (24 h; a companion more for whoever eats there), the
---     golden tablecloth (24 h; every pot on the table a meal's hours more; the whole town is told: town.announce, a kind
+--     golden tablecloth (24 h; every pot on the table a meal's hours more, the one before kept beside it for its pots
+--     when it is laid after that one had gone; the whole town is told: town.announce, a kind
 --     'cloth' more in the announcements' check), a star-wool cover over a
 --     pot (a meal's hours more): public.town_feast_dress, public.town_pot_cover, town.table_ends, town.pots_tidy.
 --   * At Granny Twilla's the three wools take a piece's price down by what that wool would fetch (public.town_tailor_buy with
 --     p_wool); the first-rain egg thrown onto the farm waters the nine plots about it once (public.town_rain_egg); a blank recipe
---     paper is written with a dish its cook has made (public.town_write_scroll); the golden dandelion is a crop of its seed and
+--     paper is written with a dish its cook has made, for the ink (the coins its scroll fetches over the paper's own, none
+--     for about half) (public.town_write_scroll); the golden dandelion is a crop of its seed and
 --     a rare page of the village's farm book (town.garden_harvest).
 --   * public.town_uses_read(): whether the specials have their uses, and what is laid on the feast table.
 --
@@ -128,8 +130,12 @@ $$;
 create or replace function town.dress_now() returns jsonb language sql stable set search_path = '' as $$
   select coalesce((select t.doc from public.town_things t where t.key = 'feast_dress'), '{}'::jsonb)
 $$;
+-- (the golden cloth laid before the one on the table now, when that one came after it had gone, still counts for the
+-- moments it lay: the pots whose time fell then keep their meal's hours. lib/town/special-uses' laid)
 create or replace function town.dress_laid(p_dress jsonb, p_kind text, p_at bigint) returns boolean language sql immutable set search_path = '' as $$
   select coalesce(jsonb_typeof(p_dress->p_kind) = 'object' and (p_dress->p_kind->>'at')::bigint <= p_at and p_at < (p_dress->p_kind->>'until')::bigint, false)
+      or (p_kind = 'cloth' and coalesce(jsonb_typeof(p_dress->'clothWas') = 'object' and (p_dress->'clothWas'->>'at')::bigint <= p_at
+          and p_at < (p_dress->'clothWas'->>'until')::bigint, false))
 $$;
 -- When a pot that came to the table at a moment is cleared: a meal's hours more for its cover, one more if the golden cloth lies there then.
 create or replace function town.table_ends(p_from bigint, p_cover boolean, p_dress jsonb) returns bigint language plpgsql stable set search_path = '' as $$
@@ -303,6 +309,10 @@ begin
   select t.doc into dress_ from public.town_things t where t.key = 'feast_dress' for update;
   dress_ := coalesce(dress_, '{}'::jsonb);
   was := case when jsonb_typeof(dress_->p_kind) = 'object' and (dress_->p_kind->>'until')::bigint > now_ then dress_->p_kind end;
+  -- (a cloth laid after the last had gone: that one is kept beside it, for the pots whose time fell while it lay)
+  if p_kind = 'cloth' and was is null and jsonb_typeof(dress_->'cloth') = 'object' then
+    dress_ := dress_ || jsonb_build_object('clothWas', dress_->'cloth');
+  end if;
   until_ := greatest(now_ + (hours * 3600000)::bigint, coalesce((was->>'until')::bigint, 0));
   at_ := coalesce((was->>'at')::bigint, now_);
   dress_ := dress_ || jsonb_build_object(p_kind, jsonb_build_object('at', at_, 'until', until_,
@@ -342,7 +352,7 @@ begin
   return town.answer(me, jsonb_build_object('ok', true, 'pot', town.pot_doc(p_id)));
 end $$;
 
--- Write a recipe I have made onto a blank recipe paper of my bag: its scroll.
+-- Write a recipe I have made onto a blank recipe paper of my bag: its scroll, for its ink.
 create or replace function public.town_write_scroll(p_id text) returns jsonb
 language plpgsql security definer set search_path to 'public' as $$
 declare
@@ -351,15 +361,20 @@ declare
   paper text := town.cat('uses')->>'paper';
   scroll text;
   bag jsonb;
+  items jsonb := town.cat('items');
+  ink integer;
 begin
   if p_id is null or p_id !~ '^[A-Za-z]{1,40}$' then return town.answer(me, town.no('none')); end if;
   if town.held(purse->'bag', paper) < 1 then return town.answer(me, town.no('none')); end if;
   select s.key into scroll from jsonb_each_text(town.cat('scrolls')) s where s.value = p_id order by s.key limit 1;
   if scroll is null or not coalesce(purse->'made', '[]'::jsonb) ? p_id then return town.answer(me, town.no('known')); end if;
+  -- (the ink: what the scroll fetches over the paper, none where no more; writing never makes coins: special-uses' inkOf)
+  ink := greatest(0, coalesce((items->scroll->>'pays')::integer, 0) - coalesce((items->paper->>'pays')::integer, 0));
+  if coalesce((purse->>'coins')::numeric, 0) < ink then return town.answer(me, town.no('coins')); end if;
   bag := town.take(purse->'bag', paper, 1);
   if town.room_g(bag, scroll, 0) < 1 then return town.answer(me, town.no('full')); end if;
-  perform town.keep_purse(me, purse || jsonb_build_object('bag', town.put_g(bag, scroll, 1, 0)));
-  perform town.note(me, 'paper_write', scroll, 1, 0, jsonb_build_object('of', p_id));
+  perform town.keep_purse(me, purse || jsonb_build_object('bag', town.put_g(bag, scroll, 1, 0), 'coins', (purse->>'coins')::numeric - ink));
+  perform town.note(me, 'paper_write', scroll, 1, -ink, jsonb_build_object('of', p_id) || case when ink > 0 then jsonb_build_object('ink', ink) else '{}'::jsonb end);
   return town.answer(me, jsonb_build_object('ok', true, 'scroll', scroll));
 end $$;
 

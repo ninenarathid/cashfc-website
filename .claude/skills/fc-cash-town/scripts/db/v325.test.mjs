@@ -101,6 +101,8 @@ try {
   for (let i = 0; i < 80; i++) {
     const from = NOW - Math.floor(rnd() * 30) * HOUR, cover = rnd() < 0.5;
     const dress = rnd() < 0.3 ? {} : { cloth: { at: from - Math.floor(rnd() * 20) * HOUR, until: from + Math.floor(rnd() * 40) * HOUR, by: "A" } };
+    // (and the cloth before the one on the table, kept beside it)
+    if (dress.cloth && rnd() < 0.5) dress.clothWas = { at: dress.cloth.at - Math.floor(10 + rnd() * 30) * HOUR, until: dress.cloth.at - Math.floor(rnd() * 8) * HOUR, by: "B" };
     eq(Number((await one("select town.table_ends($1, $2, $3::jsonb) e", [from, cover, JSON.stringify(dress)])).e), tableEnds({ cover }, from, dress), `table_ends ${i}`);
   }
   for (let i = 0; i < 120; i++) {
@@ -215,6 +217,26 @@ try {
   eq([w?.ok, w?.scroll], [true, "scrollFireflyCustard"], "written with a dish made");
   eq([held((await kept(A)).bag, "blankRecipePaper"), held((await kept(A)).bag, "scrollFireflyCustard")], [0, 1], "the paper is the scroll now");
   eq((await as(A, "select public.town_write_scroll('fireflyCustard') r")).row?.r?.why, "none", "no paper left: refused");
+  const ink = U.inkOf("starPudding");
+  eq(ink > 0, true, "a scroll that fetches more than the paper has ink to pay");
+  await purse(A, [{ item: "blankRecipePaper", n: 1 }], { made: ["starPudding"], coins: ink - 1 });
+  eq((await as(A, "select public.town_write_scroll('starPudding') r")).row?.r?.why, "coins", "too few coins for its ink: refused");
+  eq(held((await kept(A)).bag, "blankRecipePaper"), 1, "and the paper kept");
+  await purse(A, [{ item: "blankRecipePaper", n: 1 }], { made: ["starPudding"], coins: ink + 5 });
+  eq((await as(A, "select public.town_write_scroll('starPudding') r")).row?.r?.ok, true, "written for its ink");
+  eq([(await kept(A)).coins, held((await kept(A)).bag, "scrollStarPudding")], [5, 1], "the ink paid, as the page has it: writing makes no coins");
+
+  // a golden cloth laid after the last had gone: the last kept beside it, for its pots
+  const gone = { at: NOW - 30 * HOUR, until: NOW - 6 * HOUR, by: "Old" };
+  await db.query("update public.town_things set doc = $1::jsonb where key = 'feast_dress'", [JSON.stringify({ cloth: gone })]);
+  await purse(A, [{ item: "wholeGoldenFleece", n: 1 }]);
+  eq((await as(A, "select public.town_feast_dress('cloth', $1, $2) r", [yard.x, yard.y])).row?.r?.ok, true, "a cloth laid after the last had gone");
+  const relaid = (await one("select town.dress_now() d")).d;
+  eq([relaid.clothWas, relaid.cloth?.at >= NOW], [gone, true], "the last kept beside it, the new one from now");
+  for (let k = 0; k <= 12; k++) {
+    const from = NOW - 32 * HOUR + k * 2 * HOUR;
+    eq(Number((await one("select town.table_ends($1, false, town.dress_now()) e", [from])).e), tableEnds({}, from, relaid), `a pot set ${k * 2} h into the last cloth's day keeps its meal, as the page has it`);
+  }
 
   // Granny's wool
   await purse(A, [{ item: "rareShadeLock", n: 2 }, { item: "spiralShedHorn", n: 1, grade: 2 }, { item: "rainbowArcLock", n: 1 }], { coins: 5000 });
