@@ -1,0 +1,5 @@
+Use the attached sprite sheet only as the reference for the pixel art style, its colours and its chunky square pixel size. Draw one wide piece for a mini-game of the same cozy 2D game, in exactly the chunky square pixel size of the attached scene, seen straight down from directly above.
+
+A wide rectangular bamboo sushi rolling mat laid flat in the middle of the canvas: thin pale green-gold bamboo slats running from left to right side by side, bound with dark threads near both ends, and on its middle a sheet of dark green seaweed covered with an even layer of white rice, leaving a narrow dark-green seaweed border visible around the rice. The rice is plain, matte and of one even colour, because the game shades it where it is pressed. The mat has about the same width and height as the sheet of dough in the attached scene. It is the only thing in the picture; everything else on the canvas is empty and transparent.
+
+Crisp pixel art with hard square pixel edges, a thick dark outline on things, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients, no glow. No characters, no text, no letters, no numbers.

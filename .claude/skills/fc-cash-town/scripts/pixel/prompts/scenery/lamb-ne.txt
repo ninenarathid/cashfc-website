@@ -1,0 +1,12 @@
+Edit the first attached picture. On its left it shows a fluffy white cloud ram from a cozy 2D town game, drawn in large square pixels, seen from behind: turned three-quarters away from the viewer and facing the upper right, its head with curled pale gold horns at the upper right, its round fluffy tail at the lower left. Keep that ram exactly as it is and exactly where it is.
+
+The second attached picture shows the same ram from the front beside its little cloud lamb in seven frames, standing and a six-step walk. In the empty space to the right of the ram in the first picture, draw that lamb seen from behind exactly as the ram on the left is, turned three-quarters away from the viewer and facing the upper right, never from the front, as seven frames in one row: in each frame the lamb is about two thirds as long and two thirds as tall as the ram on the left, in exactly the same large square pixel size. It keeps its round soft body of white cloud fleece with pale blue shading, the back of its head with two tiny pale gold horn buds and small grey ears, its short stubby dark grey legs, its round fluffy tail nearest the viewer at the lower left, and its small round blue cloth on its back seen from behind; its body and cloth stay level and at the same height in every frame, and only the legs and the tail move:
+1) standing still on four short straight legs, all hooves planted;
+2) walking, its near front leg and its far hind leg reaching forward, the other two legs stretched back;
+3) walking, the two forward legs planted under the body, the two back legs lifting off the ground;
+4) walking, the legs passing under the body, the far front leg lifted a little and bent;
+5) walking, its far front leg and its near hind leg reaching forward, the other two legs stretched back;
+6) walking, the two forward legs planted under the body, the two back legs lifting off the ground;
+7) walking, the legs passing under the body, the near front leg lifted a little and bent.
+
+The ram on the left and the seven frames stand in one row on the same ground line, evenly spaced, not overlapping, with clear empty space between them. Use the same pixel size as the first attached picture: do not make the pixels smaller or larger. Crisp pixel art with hard square pixel edges, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground, no shadows, no text, no labels.

@@ -1,0 +1,7 @@
+Use the attached sprite sheet only as the reference for the pixel art style, its colours and its chunky square pixel size. Draw one scene that fills the whole canvas from edge to edge, with no border and no frame, for a mini-game of the same cozy 2D game.
+
+The game crops this picture to a centered 4:3 board, removing about 6% from each side. Keep every distinctive prop and any side fence between 8% and 92% of the canvas width. References below to the left or right edge mean these safe positions; extend only the surrounding wall, ground or sky through the expendable side strips.
+
+A farm cheese room seen flat and straight from the front: dark oak shelves only in the upper corners of the back wall holding rows of round cheeses, a stone floor along the bottom, a lantern at the upper left. In the lower middle of the picture a low, sturdy wooden bench; on it a wide, shallow, round wooden cheese mould bound with iron hoops, about two fifths of the picture wide and empty, standing in a wide metal drip tray with a small spout at the front. Nothing stands above the mould: the whole wall above it, up to the top of the picture, is plain, quiet dark planks, because the game stacks the curd, the pressing board and the weights there. The light comes from the lantern at the upper left.
+
+Crisp pixel art with hard square pixel edges, a thick dark outline on things, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients, no glow. No characters, no text, no letters, no numbers.

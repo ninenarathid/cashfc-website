@@ -1,0 +1,5 @@
+{
+ "note": "Feast-hall overlays, round 4 (2026-11-10). Each is the size of the editor sprite it lies on, in that sprite's own unmirrored pixels: draw it with the sprite's own transform (left, top, scale, and mirrored when the sprite is), straight after the sprite and before what stands on it (the pots on a table, the sitters on a bench).",
+ "feastGoldenCloth": { "file": "feastGoldenCloth.png", "on": "dining-table-f556de1691.webp", "size": [400, 284], "special": "wholeGoldenFleece", "lasts": "24 h", "tableTop": { "front": [125, 197], "long": [399, 57], "short": [0, 142] } },
+ "feastCushions": { "file": "feastCushions.png", "on": "kitchen-bench-e21a6eaf50.webp", "size": [368, 239], "special": "cloudFluffTuft", "seats": 3 }
+}

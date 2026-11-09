@@ -1,0 +1,5 @@
+Use the attached sprite sheet only as the reference for the pixel art style, its colours and its chunky square pixel size. Draw one wide piece for a mini-game of the same cozy 2D game, in exactly the chunky square pixel size of the attached scene.
+
+A big round-bottomed black iron wok seen from the front and a little above, matching the view of the stove in the attached scene, its elliptical opening showing its empty cooking surface, its long wooden handle reaching out to the left, about two fifths as wide as the stove in the attached scene, empty. It is the only thing in the picture; everything else on the canvas is empty and transparent.
+
+Crisp pixel art with hard square pixel edges, a thick dark outline on things, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients, no glow. No characters, no text, no letters, no numbers.

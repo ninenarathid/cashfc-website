@@ -1,0 +1,1574 @@
+{
+ "note": "Town px are the map's pixels at zoom 1. Frame px: x, y from the frame's top-left, the kit's frames (kit.json beside it). A rider is laid with the seated doll's hips on the seat point: hips are (-6, -7) of the doll's own pixels from its anchor seen from the front, (3, -5) from the back. Draw: the mount, then its rider, then (front views) the mount's head picture over the rider. SW and NW: mirror x.",
+ "sheepPx": 0.503475,
+ "dollPx": 0.67,
+ "hips": {
+  "front": [
+   -6,
+   -7
+  ],
+  "back": [
+   3,
+   -5
+  ]
+ },
+ "mounts": {
+  "bigram-SE": {
+   "stand": {
+    "file": "bigram-SE/stand.png",
+    "anchor": [
+     81,
+     132
+    ],
+    "seat": [
+     71,
+     38
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "bigram-SE/stand-head.png"
+    ]
+   },
+   "w1": {
+    "file": "bigram-SE/w1.png",
+    "anchor": [
+     84,
+     126
+    ],
+    "seat": [
+     71,
+     35
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "bigram-SE/w1-head.png"
+    ]
+   },
+   "w2": {
+    "file": "bigram-SE/w2.png",
+    "anchor": [
+     86,
+     134
+    ],
+    "seat": [
+     72,
+     36
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "bigram-SE/w2-head.png"
+    ]
+   },
+   "w3": {
+    "file": "bigram-SE/w3.png",
+    "anchor": [
+     85,
+     133
+    ],
+    "seat": [
+     68,
+     35
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "bigram-SE/w3-head.png"
+    ]
+   },
+   "w4": {
+    "file": "bigram-SE/w4.png",
+    "anchor": [
+     85,
+     130
+    ],
+    "seat": [
+     72,
+     35
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "bigram-SE/w4-head.png"
+    ]
+   },
+   "w5": {
+    "file": "bigram-SE/w5.png",
+    "anchor": [
+     86,
+     134
+    ],
+    "seat": [
+     72,
+     36
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "bigram-SE/w5-head.png"
+    ]
+   },
+   "w6": {
+    "file": "bigram-SE/w6.png",
+    "anchor": [
+     87,
+     133
+    ],
+    "seat": [
+     77,
+     40
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "bigram-SE/w6-head.png"
+    ]
+   }
+  },
+  "bigram-NE": {
+   "stand": {
+    "file": "bigram-NE/stand.png",
+    "anchor": [
+     75,
+     165
+    ],
+    "seat": [
+     53,
+     47
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "w1": {
+    "file": "bigram-NE/w1.png",
+    "anchor": [
+     86,
+     160
+    ],
+    "seat": [
+     62,
+     46
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "w2": {
+    "file": "bigram-NE/w2.png",
+    "anchor": [
+     81,
+     160
+    ],
+    "seat": [
+     61,
+     47
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "w3": {
+    "file": "bigram-NE/w3.png",
+    "anchor": [
+     78,
+     164
+    ],
+    "seat": [
+     56,
+     47
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "w4": {
+    "file": "bigram-NE/w4.png",
+    "anchor": [
+     88,
+     162
+    ],
+    "seat": [
+     64,
+     47
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "w5": {
+    "file": "bigram-NE/w5.png",
+    "anchor": [
+     81,
+     160
+    ],
+    "seat": [
+     59,
+     46
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "w6": {
+    "file": "bigram-NE/w6.png",
+    "anchor": [
+     79,
+     162
+    ],
+    "seat": [
+     58,
+     47
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   }
+  },
+  "lamb-SE-white": {
+   "stand": {
+    "file": "lamb-SE-white/stand.png",
+    "anchor": [
+     41,
+     66
+    ],
+    "seat": [
+     35,
+     3
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "lamb-SE-white/stand-head.png"
+    ]
+   },
+   "w1": {
+    "file": "lamb-SE-white/w1.png",
+    "anchor": [
+     42,
+     65
+    ],
+    "seat": [
+     36,
+     5
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "lamb-SE-white/w1-head.png"
+    ]
+   },
+   "w2": {
+    "file": "lamb-SE-white/w2.png",
+    "anchor": [
+     41,
+     65
+    ],
+    "seat": [
+     35,
+     5
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "lamb-SE-white/w2-head.png"
+    ]
+   },
+   "w3": {
+    "file": "lamb-SE-white/w3.png",
+    "anchor": [
+     42,
+     65
+    ],
+    "seat": [
+     36,
+     5
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "lamb-SE-white/w3-head.png"
+    ]
+   },
+   "w4": {
+    "file": "lamb-SE-white/w4.png",
+    "anchor": [
+     43,
+     67
+    ],
+    "seat": [
+     37,
+     5
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "lamb-SE-white/w4-head.png"
+    ]
+   },
+   "w5": {
+    "file": "lamb-SE-white/w5.png",
+    "anchor": [
+     43,
+     69
+    ],
+    "seat": [
+     37,
+     5
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "lamb-SE-white/w5-head.png"
+    ]
+   },
+   "w6": {
+    "file": "lamb-SE-white/w6.png",
+    "anchor": [
+     42,
+     67
+    ],
+    "seat": [
+     37,
+     4
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "lamb-SE-white/w6-head.png"
+    ]
+   },
+   "graze": {
+    "file": "lamb-SE-white/graze.png",
+    "anchor": [
+     36,
+     49
+    ],
+    "seat": [
+     31,
+     1
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "lamb-SE-white/graze-head.png"
+    ]
+   }
+  },
+  "lamb-SE-cream": {
+   "stand": {
+    "file": "lamb-SE-cream/stand.png",
+    "anchor": [
+     41,
+     66
+    ],
+    "seat": [
+     37,
+     5
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "lamb-SE-cream/stand-head.png"
+    ]
+   },
+   "w1": {
+    "file": "lamb-SE-cream/w1.png",
+    "anchor": [
+     43,
+     66
+    ],
+    "seat": [
+     38,
+     6
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "lamb-SE-cream/w1-head.png"
+    ]
+   },
+   "w2": {
+    "file": "lamb-SE-cream/w2.png",
+    "anchor": [
+     41,
+     68
+    ],
+    "seat": [
+     36,
+     7
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "lamb-SE-cream/w2-head.png"
+    ]
+   },
+   "w3": {
+    "file": "lamb-SE-cream/w3.png",
+    "anchor": [
+     41,
+     67
+    ],
+    "seat": [
+     37,
+     6
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "lamb-SE-cream/w3-head.png"
+    ]
+   },
+   "w4": {
+    "file": "lamb-SE-cream/w4.png",
+    "anchor": [
+     43,
+     70
+    ],
+    "seat": [
+     38,
+     6
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "lamb-SE-cream/w4-head.png"
+    ]
+   },
+   "w5": {
+    "file": "lamb-SE-cream/w5.png",
+    "anchor": [
+     44,
+     70
+    ],
+    "seat": [
+     38,
+     5
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "lamb-SE-cream/w5-head.png"
+    ]
+   },
+   "w6": {
+    "file": "lamb-SE-cream/w6.png",
+    "anchor": [
+     42,
+     68
+    ],
+    "seat": [
+     38,
+     5
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "lamb-SE-cream/w6-head.png"
+    ]
+   },
+   "graze": {
+    "file": "lamb-SE-cream/graze.png",
+    "anchor": [
+     35,
+     49
+    ],
+    "seat": [
+     32,
+     2
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "lamb-SE-cream/graze-head.png"
+    ]
+   }
+  },
+  "lamb-SE-pink": {
+   "stand": {
+    "file": "lamb-SE-pink/stand.png",
+    "anchor": [
+     41,
+     65
+    ],
+    "seat": [
+     34,
+     5
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "lamb-SE-pink/stand-head.png"
+    ]
+   },
+   "w1": {
+    "file": "lamb-SE-pink/w1.png",
+    "anchor": [
+     44,
+     66
+    ],
+    "seat": [
+     37,
+     6
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "lamb-SE-pink/w1-head.png"
+    ]
+   },
+   "w2": {
+    "file": "lamb-SE-pink/w2.png",
+    "anchor": [
+     42,
+     67
+    ],
+    "seat": [
+     36,
+     6
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "lamb-SE-pink/w2-head.png"
+    ]
+   },
+   "w3": {
+    "file": "lamb-SE-pink/w3.png",
+    "anchor": [
+     43,
+     68
+    ],
+    "seat": [
+     36,
+     6
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "lamb-SE-pink/w3-head.png"
+    ]
+   },
+   "w4": {
+    "file": "lamb-SE-pink/w4.png",
+    "anchor": [
+     44,
+     69
+    ],
+    "seat": [
+     38,
+     6
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "lamb-SE-pink/w4-head.png"
+    ]
+   },
+   "w5": {
+    "file": "lamb-SE-pink/w5.png",
+    "anchor": [
+     45,
+     71
+    ],
+    "seat": [
+     39,
+     6
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "lamb-SE-pink/w5-head.png"
+    ]
+   },
+   "w6": {
+    "file": "lamb-SE-pink/w6.png",
+    "anchor": [
+     44,
+     69
+    ],
+    "seat": [
+     39,
+     5
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "lamb-SE-pink/w6-head.png"
+    ]
+   },
+   "graze": {
+    "file": "lamb-SE-pink/graze.png",
+    "anchor": [
+     37,
+     49
+    ],
+    "seat": [
+     32,
+     2
+    ],
+    "order": [
+     "mount",
+     "rider",
+     "lamb-SE-pink/graze-head.png"
+    ]
+   }
+  },
+  "lamb-NE-white": {
+   "stand": {
+    "file": "lamb-NE-white/stand.png",
+    "anchor": [
+     40,
+     76
+    ],
+    "seat": [
+     39,
+     14
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "w1": {
+    "file": "lamb-NE-white/w1.png",
+    "anchor": [
+     40,
+     74
+    ],
+    "seat": [
+     39,
+     15
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "w2": {
+    "file": "lamb-NE-white/w2.png",
+    "anchor": [
+     40,
+     77
+    ],
+    "seat": [
+     40,
+     16
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "w3": {
+    "file": "lamb-NE-white/w3.png",
+    "anchor": [
+     40,
+     77
+    ],
+    "seat": [
+     39,
+     16
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "w4": {
+    "file": "lamb-NE-white/w4.png",
+    "anchor": [
+     40,
+     74
+    ],
+    "seat": [
+     38,
+     15
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "w5": {
+    "file": "lamb-NE-white/w5.png",
+    "anchor": [
+     40,
+     77
+    ],
+    "seat": [
+     39,
+     16
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "w6": {
+    "file": "lamb-NE-white/w6.png",
+    "anchor": [
+     40,
+     76
+    ],
+    "seat": [
+     38,
+     15
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "graze": {
+    "file": "lamb-NE-white/graze.png",
+    "anchor": [
+     36,
+     57
+    ],
+    "seat": [
+     35,
+     3
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   }
+  },
+  "lamb-NE-cream": {
+   "stand": {
+    "file": "lamb-NE-cream/stand.png",
+    "anchor": [
+     40,
+     78
+    ],
+    "seat": [
+     40,
+     16
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "w1": {
+    "file": "lamb-NE-cream/w1.png",
+    "anchor": [
+     40,
+     75
+    ],
+    "seat": [
+     40,
+     16
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "w2": {
+    "file": "lamb-NE-cream/w2.png",
+    "anchor": [
+     40,
+     78
+    ],
+    "seat": [
+     41,
+     16
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "w3": {
+    "file": "lamb-NE-cream/w3.png",
+    "anchor": [
+     39,
+     78
+    ],
+    "seat": [
+     40,
+     16
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "w4": {
+    "file": "lamb-NE-cream/w4.png",
+    "anchor": [
+     40,
+     75
+    ],
+    "seat": [
+     39,
+     17
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "w5": {
+    "file": "lamb-NE-cream/w5.png",
+    "anchor": [
+     40,
+     78
+    ],
+    "seat": [
+     40,
+     16
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "w6": {
+    "file": "lamb-NE-cream/w6.png",
+    "anchor": [
+     40,
+     78
+    ],
+    "seat": [
+     40,
+     16
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "graze": {
+    "file": "lamb-NE-cream/graze.png",
+    "anchor": [
+     37,
+     57
+    ],
+    "seat": [
+     35,
+     3
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   }
+  },
+  "lamb-NE-pink": {
+   "stand": {
+    "file": "lamb-NE-pink/stand.png",
+    "anchor": [
+     40,
+     78
+    ],
+    "seat": [
+     38,
+     16
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "w1": {
+    "file": "lamb-NE-pink/w1.png",
+    "anchor": [
+     41,
+     75
+    ],
+    "seat": [
+     40,
+     16
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "w2": {
+    "file": "lamb-NE-pink/w2.png",
+    "anchor": [
+     41,
+     78
+    ],
+    "seat": [
+     40,
+     16
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "w3": {
+    "file": "lamb-NE-pink/w3.png",
+    "anchor": [
+     41,
+     78
+    ],
+    "seat": [
+     41,
+     15
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "w4": {
+    "file": "lamb-NE-pink/w4.png",
+    "anchor": [
+     41,
+     75
+    ],
+    "seat": [
+     40,
+     16
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "w5": {
+    "file": "lamb-NE-pink/w5.png",
+    "anchor": [
+     40,
+     79
+    ],
+    "seat": [
+     38,
+     17
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "w6": {
+    "file": "lamb-NE-pink/w6.png",
+    "anchor": [
+     41,
+     78
+    ],
+    "seat": [
+     40,
+     15
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "graze": {
+    "file": "lamb-NE-pink/graze.png",
+    "anchor": [
+     37,
+     57
+    ],
+    "seat": [
+     34,
+     3
+    ],
+    "order": [
+     "mount",
+     "rider"
+    ]
+   }
+  },
+  "cloud-SE": {
+   "f1": {
+    "file": "cloud-SE/f1.png",
+    "anchor": [
+     55,
+     114
+    ],
+    "seat": [
+     58,
+     13
+    ],
+    "lift": 12,
+    "liftDrawn": 35,
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "f2": {
+    "file": "cloud-SE/f2.png",
+    "anchor": [
+     47,
+     123
+    ],
+    "seat": [
+     41,
+     10
+    ],
+    "lift": 13,
+    "liftDrawn": 40,
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "f3": {
+    "file": "cloud-SE/f3.png",
+    "anchor": [
+     41,
+     143
+    ],
+    "seat": [
+     41,
+     10
+    ],
+    "lift": 20,
+    "liftDrawn": 65,
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "f4": {
+    "file": "cloud-SE/f4.png",
+    "anchor": [
+     67,
+     135
+    ],
+    "seat": [
+     77,
+     20
+    ],
+    "lift": 16,
+    "liftDrawn": 49,
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "f5": {
+    "file": "cloud-SE/f5.png",
+    "anchor": [
+     48,
+     118
+    ],
+    "seat": [
+     45,
+     11
+    ],
+    "lift": 12,
+    "liftDrawn": 36,
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "f6": {
+    "file": "cloud-SE/f6.png",
+    "anchor": [
+     61,
+     131
+    ],
+    "seat": [
+     50,
+     24
+    ],
+    "lift": 15,
+    "liftDrawn": 45,
+    "order": [
+     "mount",
+     "rider"
+    ]
+   }
+  },
+  "cloud-NE": {
+   "f1": {
+    "file": "cloud-NE/f1.png",
+    "anchor": [
+     51,
+     133
+    ],
+    "seat": [
+     44,
+     17
+    ],
+    "lift": 12,
+    "liftDrawn": 46,
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "f2": {
+    "file": "cloud-NE/f2.png",
+    "anchor": [
+     53,
+     141
+    ],
+    "seat": [
+     54,
+     11
+    ],
+    "lift": 15,
+    "liftDrawn": 58,
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "f3": {
+    "file": "cloud-NE/f3.png",
+    "anchor": [
+     55,
+     152
+    ],
+    "seat": [
+     44,
+     15
+    ],
+    "lift": 18,
+    "liftDrawn": 71,
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "f4": {
+    "file": "cloud-NE/f4.png",
+    "anchor": [
+     54,
+     138
+    ],
+    "seat": [
+     49,
+     19
+    ],
+    "lift": 13,
+    "liftDrawn": 51,
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "f5": {
+    "file": "cloud-NE/f5.png",
+    "anchor": [
+     52,
+     134
+    ],
+    "seat": [
+     46,
+     18
+    ],
+    "lift": 12,
+    "liftDrawn": 47,
+    "order": [
+     "mount",
+     "rider"
+    ]
+   },
+   "f6": {
+    "file": "cloud-NE/f6.png",
+    "anchor": [
+     53,
+     133
+    ],
+    "seat": [
+     43,
+     14
+    ],
+    "lift": 13,
+    "liftDrawn": 49,
+    "order": [
+     "mount",
+     "rider"
+    ]
+   }
+  }
+ },
+ "slots": {
+  "SE": {
+   "walk": [
+    {
+     "slot": 1,
+     "at": [
+      -37.6,
+      -41.1
+     ],
+     "uv": [
+      -52,
+      -20
+     ]
+    },
+    {
+     "slot": 2,
+     "at": [
+      -67.1,
+      -4.5
+     ],
+     "uv": [
+      -62,
+      26
+     ]
+    },
+    {
+     "slot": 3,
+     "at": [
+      -93,
+      -37.6
+     ],
+     "uv": [
+      -100,
+      8
+     ]
+    },
+    {
+     "slot": 4,
+     "at": [
+      -123.4,
+      18.8
+     ],
+     "uv": [
+      -102,
+      72
+     ]
+    },
+    {
+     "slot": 5,
+     "at": [
+      -120.7,
+      -93.9
+     ],
+     "uv": [
+      -150,
+      -30
+     ]
+    },
+    {
+     "slot": 6,
+     "at": [
+      -152.5,
+      -28.2
+     ],
+     "uv": [
+      -149,
+      43
+     ]
+    },
+    {
+     "slot": 7,
+     "at": [
+      -176.6,
+      -78.3
+     ],
+     "uv": [
+      -193,
+      9
+     ]
+    },
+    {
+     "slot": 8,
+     "at": [
+      -187.8,
+      -4.5
+     ],
+     "uv": [
+      -170,
+      80
+     ]
+    }
+   ],
+   "rest": [
+    {
+     "slot": 1,
+     "at": [
+      -27.7,
+      -42.9
+     ],
+     "uv": [
+      -44,
+      -26
+     ]
+    },
+    {
+     "slot": 2,
+     "at": [
+      -56.3,
+      0.9
+     ],
+     "uv": [
+      -50,
+      26
+     ]
+    },
+    {
+     "slot": 3,
+     "at": [
+      16.5,
+      -39.8
+     ],
+     "uv": [
+      -3,
+      -43
+     ]
+    },
+    {
+     "slot": 4,
+     "at": [
+      -30.4,
+      51.9
+     ],
+     "uv": [
+      -4,
+      60
+     ]
+    },
+    {
+     "slot": 5,
+     "at": [
+      49.6,
+      -12.1
+     ],
+     "uv": [
+      39,
+      -33
+     ]
+    },
+    {
+     "slot": 6,
+     "at": [
+      11.6,
+      43.8
+     ],
+     "uv": [
+      30,
+      34
+     ]
+    },
+    {
+     "slot": 7,
+     "at": [
+      -83.2,
+      -39.4
+     ],
+     "uv": [
+      -92,
+      2
+     ]
+    },
+    {
+     "slot": 8,
+     "at": [
+      -114.5,
+      14.3
+     ],
+     "uv": [
+      -96,
+      64
+     ]
+    }
+   ]
+  },
+  "NE": {
+   "walk": [
+    {
+     "slot": 1,
+     "at": [
+      -55.5,
+      5.4
+     ],
+     "uv": [
+      -52,
+      -20
+     ]
+    },
+    {
+     "slot": 2,
+     "at": [
+      -26.4,
+      65.7
+     ],
+     "uv": [
+      -53,
+      47
+     ]
+    },
+    {
+     "slot": 3,
+     "at": [
+      -83.2,
+      34.9
+     ],
+     "uv": [
+      -90,
+      -6
+     ]
+    },
+    {
+     "slot": 4,
+     "at": [
+      -51,
+      94.8
+     ],
+     "uv": [
+      -88,
+      62
+     ]
+    },
+    {
+     "slot": 5,
+     "at": [
+      -118.5,
+      33.5
+     ],
+     "uv": [
+      -121,
+      -23
+     ]
+    },
+    {
+     "slot": 6,
+     "at": [
+      -93.9,
+      102.9
+     ],
+     "uv": [
+      -130,
+      50
+     ]
+    },
+    {
+     "slot": 7,
+     "at": [
+      -144,
+      65.3
+     ],
+     "uv": [
+      -158,
+      -6
+     ]
+    },
+    {
+     "slot": 8,
+     "at": [
+      -122.5,
+      135.1
+     ],
+     "uv": [
+      -170,
+      66
+     ]
+    }
+   ],
+   "rest": [
+    {
+     "slot": 1,
+     "at": [
+      -51,
+      -3.6
+     ],
+     "uv": [
+      -44,
+      -26
+     ]
+    },
+    {
+     "slot": 2,
+     "at": [
+      -20.6,
+      52.8
+     ],
+     "uv": [
+      -42,
+      38
+     ]
+    },
+    {
+     "slot": 3,
+     "at": [
+      -23.3,
+      -33.1
+     ],
+     "uv": [
+      -6,
+      -40
+     ]
+    },
+    {
+     "slot": 4,
+     "at": [
+      20.1,
+      38
+     ],
+     "uv": [
+      1,
+      43
+     ]
+    },
+    {
+     "slot": 5,
+     "at": [
+      12.5,
+      -55.5
+     ],
+     "uv": [
+      36,
+      -44
+     ]
+    },
+    {
+     "slot": 6,
+     "at": [
+      47,
+      11.2
+     ],
+     "uv": [
+      37,
+      31
+     ]
+    },
+    {
+     "slot": 7,
+     "at": [
+      -75.1,
+      33.1
+     ],
+     "uv": [
+      -82,
+      -4
+     ]
+    },
+    {
+     "slot": 8,
+     "at": [
+      -45.2,
+      95.3
+     ],
+     "uv": [
+      -83,
+      65
+     ]
+    }
+   ]
+  },
+  "note": "at: town px from the big ram's feet on the screen (x right, y down); uv: u along the way the ram goes (minus is behind), v across (+ to its right). Each slot was pushed back (walking) or out (at rest) from a two-by-two pattern until nothing nearer covers a farther rider's head, the seat being a lamb or the cloud at its highest."
+ },
+ "cloudLift": {
+  "note": "the cloud's lift in its own pixels: drawn 35 to 65 over the ground line; used: a gap of 12 and the drawn bob times 0.25",
+  "gap": 12,
+  "bob": 0.25
+ }
+}

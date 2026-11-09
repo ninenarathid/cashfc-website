@@ -612,6 +612,20 @@ for (const [sheet, names, opts] of SHEETS) {
     if (name.startsWith("_")) return;
     const set = figs[k];
     if (!set || !set.size) { console.log(`  ${name}: nothing found`); return; }
+    // (`fill`: a see-through speck the figure closes in on, of 8 cells or fewer, takes the colour most of what surrounds it
+    // has, build-scenery's closeSmallHoles: the owner's "ข้างในถมสีให้เต็ม"; a real gap, between two stems, is larger)
+    if (opts?.fill) {
+      const xs = [...set].map((i) => i % g.GW), ys = [...set].map((i) => (i / g.GW) | 0), bx0 = Math.min(...xs), bx1 = Math.max(...xs), by0 = Math.min(...ys), by1 = Math.max(...ys), seen = new Set();
+      for (let y = by0; y <= by1; y++) for (let x = bx0; x <= bx1; x++) {
+        const s0 = y * g.GW + x; if (set.has(s0) || seen.has(s0)) continue;
+        const patch = [s0]; let open = false; seen.add(s0);
+        for (let n = 0; n < patch.length; n++) { const i = patch[n], px = i % g.GW, py = (i / g.GW) | 0; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const X = px + dx, Y = py + dy, j = Y * g.GW + X; if (X < bx0 || X > bx1 || Y < by0 || Y > by1) { open = true; continue; } if (!set.has(j) && !seen.has(j)) { seen.add(j); patch.push(j); } } }
+        if (open || patch.length > 8) continue;
+        const near = new Map(); for (const i of patch) for (const j of [i - 1, i + 1, i - g.GW, i + g.GW]) if (set.has(j)) { const k = Array.from(g.c.subarray(j * 4, j * 4 + 4)).join(); near.set(k, (near.get(k) ?? 0) + 1); }
+        const k = [...near].sort((p, q) => q[1] - p[1])[0][0].split(",").map(Number); for (const i of patch) { g.c.set(k, i * 4); set.add(i); }
+        console.log(`  ${name}: filled a speck of ${patch.length}`);
+      }
+    }
     const im = L.crop(g, set);
     pieces.push({ name, img: im, ...(opts?.also?.[name] ? { also: opts.also[name] } : {}) });
     console.log(`${name.padEnd(15)} ${im.w}x${im.h}  (grid ${grid.p.toFixed(2)})`);

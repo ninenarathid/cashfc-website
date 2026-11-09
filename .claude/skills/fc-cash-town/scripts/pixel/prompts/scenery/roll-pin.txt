@@ -1,0 +1,5 @@
+Use the attached sprite sheet only as the reference for the pixel art style, its colours and its chunky square pixel size. Draw one wide piece for a mini-game of the same cozy 2D game, in exactly the chunky square pixel size of the attached scene, seen straight down from directly above.
+
+A wooden rolling pin lying level from left to right across the middle of the canvas: a long smooth pale honey-coloured wooden roller, a little lighter along its upper edge where the light from the upper left falls, with a short, narrower, darker wooden handle at each end, the whole pin as long as the sheet of dough in the attached scene is wide. It is the only thing in the picture; everything else on the canvas is empty and transparent.
+
+Crisp pixel art with hard square pixel edges, a thick dark outline on things, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients, no glow. No characters, no text, no letters, no numbers.

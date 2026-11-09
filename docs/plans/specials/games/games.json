@@ -1,0 +1,858 @@
+{
+ "g01": {
+  "name": "cleaver",
+  "scene": {
+   "file": "g01-cleaver/scene.png",
+   "from": "work/out/scene-g01-cut.png"
+  },
+  "sheets": {
+   "g01-pieces": {
+    "from": "work/out/g01-pieces.png",
+    "grid": 8,
+    "pieces": {
+     "cutFish": [
+      68,
+      39
+     ],
+     "cutDaikon": [
+      87,
+      37
+     ],
+     "cutTaro": [
+      52,
+      39
+     ],
+     "cutCleaver": [
+      76,
+      37
+     ],
+     "cutFace": [
+      35,
+      37
+     ],
+     "cutTrail": [
+      86,
+      14
+     ]
+    }
+   }
+  }
+ },
+ "g02": {
+  "name": "steamer",
+  "scene": {
+   "file": "g02-steamer/scene.png",
+   "from": "work/out/scene-g02-steam2.png"
+  },
+  "sheets": {
+   "g02-tiers2": {
+    "from": "work/out/g02-tiers2.png",
+    "grid": 8,
+    "pieces": {
+     "steamTierMetal": [
+      79,
+      37
+     ],
+     "steamTierBamboo": [
+      80,
+      38
+     ],
+     "steamLidMetal": [
+      76,
+      40
+     ],
+     "steamLidBamboo": [
+      76,
+      40
+     ],
+     "steamPuffBig": [
+      48,
+      51
+     ],
+     "steamPuffSmall": [
+      27,
+      31
+     ]
+    }
+   },
+   "g02-buns": {
+    "from": "work/out/g02-buns.png",
+    "grid": 12,
+    "pieces": {
+     "bunRaw": [
+      17,
+      17
+     ],
+     "bunDone": [
+      18,
+      17
+     ],
+     "bunOver": [
+      18,
+      17
+     ],
+     "dumplingRaw": [
+      18,
+      17
+     ],
+     "dumplingDone": [
+      18,
+      17
+     ],
+     "dumplingOver": [
+      18,
+      17
+     ]
+    }
+   }
+  }
+ },
+ "g03": {
+  "name": "oven",
+  "scene": {
+   "file": "g03-oven/scene.png",
+   "from": "work/out/scene-g03-oven.png"
+  },
+  "sheets": {
+   "g03-tray": {
+    "from": "work/out/g03-tray.png",
+    "grid": 7.88,
+    "pieces": {
+     "g03-tray": [
+      188,
+      54
+     ]
+    }
+   },
+   "g03-pastries-a": {
+    "from": "work/out/g03-pastries-a.png",
+    "grid": 6.96,
+    "pieces": {
+     "rollRaw": [
+      26,
+      25
+     ],
+     "rollBaked": [
+      26,
+      25
+     ],
+     "rollBurnt": [
+      25,
+      25
+     ],
+     "plaitRaw": [
+      33,
+      37
+     ],
+     "plaitBaked": [
+      33,
+      37
+     ],
+     "plaitBurnt": [
+      36,
+      39
+     ]
+    }
+   },
+   "g03-pastries-b": {
+    "from": "work/out/g03-pastries-b.png",
+    "grid": 6.69,
+    "pieces": {
+     "loafRaw": [
+      36,
+      35
+     ],
+     "loafBaked": [
+      36,
+      36
+     ],
+     "loafBurnt": [
+      35,
+      36
+     ],
+     "ovenSmoke": [
+      25,
+      38
+     ],
+     "ovenCrumbs": [
+      27,
+      31
+     ],
+     "ovenMitt": [
+      35,
+      42
+     ]
+    }
+   }
+  }
+ },
+ "g04": {
+  "name": "stove",
+  "scene": {
+   "file": "g04-stove/scene.png",
+   "from": "work/out/scene-g04-fire.png"
+  },
+  "sheets": {
+   "g04-logs": {
+    "from": "work/out/g04-logs.png",
+    "grid": 8,
+    "pieces": {
+     "logSplit": [
+      58,
+      34
+     ],
+     "logRound": [
+      62,
+      37
+     ],
+     "logThin": [
+      58,
+      28
+     ],
+     "logFork": [
+      67,
+      44
+     ],
+     "logKnot": [
+      63,
+      42
+     ],
+     "logSlab": [
+      74,
+      33
+     ]
+    }
+   },
+   "g04-flames": {
+    "from": "work/out/g04-flames.png",
+    "grid": 8.2,
+    "pieces": {
+     "flameSmall": [
+      16,
+      22
+     ],
+     "flameMid": [
+      22,
+      31
+     ],
+     "flameBig": [
+      31,
+      40
+     ],
+     "embers": [
+      28,
+      15
+     ],
+     "smokeDark": [
+      29,
+      33
+     ],
+     "smokeLight": [
+      19,
+      33
+     ]
+    }
+   }
+  }
+ },
+ "g05": {
+  "name": "pan",
+  "scene": {
+   "file": "g05-pan/scene.png",
+   "from": "work/out/scene-g05-pan.png"
+  },
+  "sheets": {
+   "g05-cakes": {
+    "from": "work/out/g05-cakes.png",
+    "grid": 12,
+    "pieces": {
+     "cakeBatter": [
+      43,
+      43
+     ],
+     "cakeBubbles": [
+      43,
+      43
+     ],
+     "cakePopped": [
+      43,
+      43
+     ],
+     "cakeGolden": [
+      43,
+      43
+     ],
+     "cakePale": [
+      43,
+      43
+     ],
+     "cakeBurnt": [
+      44,
+      43
+     ]
+    }
+   },
+   "g05-brass": {
+    "from": "work/out/g05-brass.png",
+    "grid": 5.85,
+    "pieces": {
+     "g05-brass": [
+      194,
+      168
+     ]
+    }
+   }
+  }
+ },
+ "g06": {
+  "name": "hotpot",
+  "scene": {
+   "file": "g06-hotpot/scene.png",
+   "from": "work/out/scene-g06-pot.png"
+  },
+  "sheets": {
+   "g06-pot-a": {
+    "from": "work/out/g06-pot-a.png",
+    "grid": 7.84,
+    "pieces": {
+     "scumSmall": [
+      21,
+      16
+     ],
+     "scumMid": [
+      26,
+      25
+     ],
+     "scumBig": [
+      38,
+      34
+     ],
+     "fishBall": [
+      25,
+      25
+     ],
+     "tofu": [
+      25,
+      25
+     ],
+     "herbs": [
+      30,
+      34
+     ]
+    }
+   },
+   "g06-pot-b": {
+    "from": "work/out/g06-pot-b.png",
+    "grid": 6.01,
+    "pieces": {
+     "skimLadle": [
+      32,
+      67
+     ],
+     "skimLadleFull": [
+      32,
+      67
+     ],
+     "simmerRing": [
+      32,
+      34
+     ],
+     "mushroom": [
+      36,
+      36
+     ],
+     "springOnion": [
+      31,
+      37
+     ],
+     "chilliSlice": [
+      32,
+      36
+     ]
+    }
+   }
+  }
+ },
+ "g07": {
+  "name": "grill",
+  "scene": {
+   "file": "g07-grill/scene.png",
+   "from": "work/out/scene-g07-grill.png"
+  },
+  "sheets": {
+   "g07-grill": {
+    "from": "work/out/g07-grill.png",
+    "grid": 8,
+    "pieces": {
+     "smokeS": [
+      16,
+      19
+     ],
+     "smokeM": [
+      25,
+      30
+     ],
+     "smokeL": [
+      34,
+      40
+     ],
+     "fan": [
+      29,
+      35
+     ],
+     "skewerClean": [
+      26,
+      41
+     ],
+     "skewerSooty": [
+      26,
+      41
+     ]
+    }
+   }
+  }
+ },
+ "g08": {
+  "name": "stoneBowl",
+  "scene": {
+   "file": "g08-stoneBowl/scene.png",
+   "from": "work/out/scene-g08-mix.png"
+  },
+  "sheets": {
+   "g08-bowls": {
+    "from": "work/out/g08-bowls.png",
+    "grid": 8,
+    "pieces": {
+     "bowlPlain": [
+      80,
+      83
+     ],
+     "bowlMixed": [
+      82,
+      83
+     ],
+     "bowlCrisp": [
+      84,
+      83
+     ],
+     "mixSpoon": [
+      26,
+      102
+     ],
+     "riceLump": [
+      35,
+      32
+     ],
+     "sauceDab": [
+      23,
+      21
+     ]
+    }
+   }
+  }
+ },
+ "g09": {
+  "name": "jar",
+  "scene": {
+   "file": "g09-jar/scene.png",
+   "from": "work/out/scene-g09-jar.png"
+  },
+  "sheets": {
+   "g09-veg": {
+    "from": "work/out/g09-veg.png",
+    "grid": 7.4,
+    "pieces": {
+     "vegCabbage": [
+      30,
+      33
+     ],
+     "vegRadish": [
+      26,
+      28
+     ],
+     "vegChilli": [
+      28,
+      39
+     ],
+     "vegCucumber": [
+      27,
+      26
+     ],
+     "airPocket": [
+      26,
+      27
+     ],
+     "brineBubble": [
+      26,
+      27
+     ]
+    }
+   },
+   "g09-crock2": {
+    "from": "work/out/g09-crock2.png",
+    "grid": 6.98,
+    "pieces": {
+     "g09-crock2": [
+      96,
+      137
+     ]
+    }
+   }
+  }
+ },
+ "g10": {
+  "name": "wok",
+  "scene": {
+   "file": "g10-wok/scene.png",
+   "from": "work/out/scene-g10-wok.png"
+  },
+  "sheets": {
+   "g10-wok": {
+    "from": "work/out/g10-wok.png",
+    "grid": 8,
+    "pieces": {
+     "g10-wok": [
+      174,
+      64
+     ]
+    }
+   },
+   "g10-food": {
+    "from": "work/out/g10-food.png",
+    "grid": 7.75,
+    "pieces": {
+     "wokShrimp": [
+      25,
+      28
+     ],
+     "wokGreens": [
+      26,
+      32
+     ],
+     "wokRice": [
+      30,
+      27
+     ],
+     "wokRiceBurnt": [
+      31,
+      27
+     ],
+     "arcDot": [
+      15,
+      15
+     ],
+     "wokFlare": [
+      30,
+      32
+     ]
+    }
+   }
+  }
+ },
+ "g11": {
+  "name": "pet",
+  "scene": {
+   "file": "g11-pet/scene.png",
+   "from": "work/out/scene-g11-pet.png"
+  },
+  "sheets": {
+   "g11-animals": {
+    "from": "work/out/g11-animals.png",
+    "grid": 8,
+    "pieces": {
+     "petSheepNeutral": [
+      74,
+      63
+     ],
+     "petSheepLean": [
+      72,
+      62
+     ],
+     "petSheepBliss": [
+      69,
+      63
+     ],
+     "petCowNeutral": [
+      71,
+      68
+     ],
+     "petCowLean": [
+      67,
+      68
+     ],
+     "petCowBliss": [
+      70,
+      68
+     ]
+    }
+   },
+   "g11-hand": {
+    "from": "work/out/g11-hand.png",
+    "grid": 8,
+    "pieces": {
+     "handOpen": [
+      23,
+      28
+     ],
+     "handScratch": [
+      21,
+      25
+     ],
+     "petHeart": [
+      21,
+      19
+     ],
+     "petStar": [
+      23,
+      24
+     ],
+     "petTuft": [
+      22,
+      23
+     ],
+     "petSpot": [
+      26,
+      26
+     ]
+    }
+   }
+  }
+ },
+ "g12": {
+  "name": "herd",
+  "scene": {
+   "file": "g12-herd/scene.png",
+   "from": "work/out/scene-g12-herd.png"
+  },
+  "sheets": {
+   "g12-herd": {
+    "from": "work/out/g12-herd.png",
+    "grid": 8,
+    "pieces": {
+     "herdSheepA": [
+      26,
+      23
+     ],
+     "herdSheepB": [
+      26,
+      23
+     ],
+     "herdCowA": [
+      32,
+      26
+     ],
+     "herdCowB": [
+      32,
+      26
+     ],
+     "herderA": [
+      22,
+      29
+     ],
+     "herderB": [
+      24,
+      28
+     ]
+    }
+   }
+  }
+ },
+ "g13": {
+  "name": "churn",
+  "scene": {
+   "file": "g13-churn/scene.png",
+   "from": "work/out/scene-g13-churn.png"
+  },
+  "sheets": {
+   "g13-churns": {
+    "from": "work/out/g13-churns.png",
+    "grid": 8,
+    "pieces": {
+     "churnSlosh": [
+      54,
+      115
+     ],
+     "churnWhipped": [
+      55,
+      115
+     ],
+     "churnGrains": [
+      55,
+      115
+     ],
+     "churnButter": [
+      55,
+      115
+     ],
+     "churnDasher": [
+      41,
+      118
+     ],
+     "churnSplash": [
+      63,
+      56
+     ]
+    }
+   }
+  }
+ },
+ "g14": {
+  "name": "cheesePress",
+  "scene": {
+   "file": "g14-cheesePress/scene.png",
+   "from": "work/out/scene-g14-press2.png"
+  },
+  "sheets": {
+   "g14-pressparts2": {
+    "from": "work/out/g14-pressparts2.png",
+    "grid": 8,
+    "pieces": {
+     "pressBoard": [
+      57,
+      26
+     ],
+     "curdLevel": [
+      58,
+      38
+     ],
+     "curdTilt": [
+      61,
+      34
+     ],
+     "weightSmall": [
+      26,
+      30
+     ],
+     "weightMid": [
+      40,
+      36
+     ],
+     "weightBig": [
+      54,
+      46
+     ],
+     "wheyJet": [
+      44,
+      30
+     ]
+    }
+   }
+  }
+ },
+ "g15": {
+  "name": "spindle",
+  "scene": {
+   "file": "g15-spindle/scene.png",
+   "from": "work/out/scene-g15-spin.png"
+  },
+  "sheets": {
+   "g15-strands": {
+    "from": "work/out/g15-strands.png",
+    "grid": 8,
+    "pieces": {
+     "fleeceFan": [
+      53,
+      85
+     ],
+     "strandEven": [
+      14,
+      79
+     ],
+     "strandLumpy": [
+      24,
+      86
+     ],
+     "strandThin": [
+      13,
+      86
+     ],
+     "strandBroken": [
+      19,
+      83
+     ],
+     "spindleA": [
+      42,
+      87
+     ],
+     "spindleB": [
+      43,
+      88
+     ],
+     "spindleC": [
+      42,
+      88
+     ]
+    }
+   }
+  }
+ },
+ "g16": {
+  "name": "knitting",
+  "scene": {
+   "file": "g16-knitting/scene.png",
+   "from": "work/out/scene-g16-knit.png"
+  },
+  "sheets": {
+   "g16-needles": {
+    "from": "work/out/g16-needles.png",
+    "grid": 12,
+    "pieces": {
+     "needles": [
+      61,
+      40
+     ],
+     "ladder": [
+      33,
+      43
+     ],
+     "scarfWhite": [
+      39,
+      41
+     ],
+     "scarfPink": [
+      39,
+      41
+     ],
+     "scarfGold": [
+      40,
+      41
+     ],
+     "scarfRainbow": [
+      40,
+      41
+     ]
+    }
+   },
+   "g16-stitches": {
+    "from": "work/out/g16-stitches.png",
+    "grid": 8.36,
+    "pieces": {
+     "stitchWhite": [
+      56,
+      66
+     ],
+     "stitchCream": [
+      57,
+      66
+     ],
+     "stitchPink": [
+      56,
+      66
+     ],
+     "stitchSky": [
+      57,
+      66
+     ],
+     "stitchGold": [
+      57,
+      66
+     ],
+     "stitchRainbow": [
+      57,
+      66
+     ]
+    }
+   }
+  }
+ }
+}

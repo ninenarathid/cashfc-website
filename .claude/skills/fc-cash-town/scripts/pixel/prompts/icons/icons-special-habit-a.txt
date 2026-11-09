@@ -1,0 +1,6 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D town game. Draw a new sprite sheet of small icons for the signs of a farm animal's habits of that game, in the same pixel art style.
+
+Each icon is drawn on its own 16 by 16 pixel grid, scaled up big so every pixel of the icon is a large crisp square, all icons the same size, simple and bold so they read clearly when shown small, with a thick dark outline and two or three tones per colour. Six icons in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping:
+1) a round disc, its left half a yellow sun with short rays and its right half dark blue with a pale crescent moon; 2) a small wooden signpost with two arrow-shaped boards pointing left and right; 3) a sprig of green meadow grass with a small seed head; 4) a grey-white cloud with three blue raindrops under it and a white curl of wind beside it; 5) two little farm animals side by side, a white lamb and a yellow chick, simple round shapes; 6) a red heart with a cream paw print on it.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no frames or boxes around the icons, no shadows, no text, no letters, no numbers.

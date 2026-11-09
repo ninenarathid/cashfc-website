@@ -1,0 +1,7 @@
+Use the attached sprite sheet only as the reference for the pixel art style, its colours and its chunky square pixel size. Draw one scene that fills the whole canvas from edge to edge, with no border and no frame, for a mini-game of the same cozy 2D game.
+
+The game crops this picture to a centered 4:3 board, removing about 6% from each side. Keep every distinctive prop and any side fence between 8% and 92% of the canvas width. References below to the left or right edge mean these safe positions; extend only the surrounding wall, ground or sky through the expendable side strips.
+
+A soft close view of a meadow's edge on a warm evening, seen flat and straight. Along the bottom tall grass and clover flowers in the foreground; far behind, a low dry-stone wall and a wooden gate post; above, a peach and gold evening sky with a few soft clouds. The whole middle of the picture is plain and quiet, because the game draws one farm animal there, large and close. The light comes from the low sun at the right.
+
+Crisp pixel art with hard square pixel edges, a thick dark outline on things, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients, no glow. No characters, no text, no letters, no numbers.

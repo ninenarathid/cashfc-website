@@ -930,3 +930,242 @@ of its own column, pxlib's `spansOf`: its dandelion touches the rainbow lock by 
 `_` there, `-fix-a`'s round 2 taking their names. No call, no cost. The round strip borrows the atlas's own for what is not
 a habit sign: the sky's band icons, `plotSprout` (the garden), `sweetTimothy` (the meadow), `lotusBloom` (the pond),
 `sheepFeed` (in the barn all round), `waterRain` (rain) and `fxLeaves` (strong wind).
+## Previews: special produce, its dishes, new buffs, the pounding and rolling boards, the stretchy cloud ram (2026-11-09)
+
+The owner, of a design idea patch: "ช่วยลองทำรูปของแต่ละอย่างขึ้นมาก่อน ผมจะยืนยันให้ทำอีกที แต่ขอดูรูปก่อน". **Previews only:** nothing is in
+the town's atlas, `public/` or the game; the icons were cut into a scratch atlas (`ICONS_ONLY=… ICONS_PUB=work/specials/pub
+ICONS_JSON=work/specials/pub/atlas.json`), the scenes by `build-mine-scene.mjs work/specials/scenes`. 23 calls, 29 pictures,
+$0.557 (`gpt-image-2.5-sunburst`, low; each read by Codex first); the ledger then stood at 3,050 rows and $45.458 of $55. The
+sheets for the owner are `docs/plans/specials/previews/` (branch `specials-art`, not committed: contact sheets and mocks).
+The scratch scripts that cut, checked and laid them out are in `work/specials/js/` (`make-specials-prompts.mjs` wrote the
+prompts on the owner's templates with their closing sentences).
+
+- **`icons-special-a` … `-e`** (ICON SHEET, each with the pasture sheet of its family for the reference: eggs-a, eggs-c,
+  wool-a, milk-a, eggs-b): the 28 special products, hens', ducks' (with the blank recipe paper), sheep's, cows', and `-e` the
+  four legends with the star beside the live ember egg and golden wool as `_` fillers. Every egg keeps the family's one
+  silhouette (Codex's rule of 2026-10-20), so the brief's long wind-runner egg and drop-shaped first-rain egg are markings on
+  it. Cut at 7.64, 9.90, 8.17, 8.00, 8.29: eggs 28x35 (b's 22x27, beside rainEgg's 21x27). **`-c` cannot be cut by even
+  columns**: the dandelion's drifting seed touches the rainbow lock by one corner, and its head's middle falls in the lock's
+  column (`split` sliced the cloud tuft onto the horn; `near` left the dandelion empty): for the preview it was cut by the
+  scenery builder's spans, each cell to the span of its own column (`work/specials/js/cutc.mjs`). A real build needs that
+  sheet's two drawn apart, or the builder taught spans.
+- **`icons-special-dish-a`, `-b`** (eggs' dishes, `icons-pasture-dish-a` and `-c` for the reference): ten dishes, the three
+  legend feast dishes with the star; `-b` was the trial. Cut at 8.0.
+- **`icons-special-buff-a`, `icons-special-habit-a`** (`icons-items-m`, buffCalm and buffKeen, for the reference): five buffs
+  and the cooking-together seal; six habit kinds. Cut at 7.73 and 8.01.
+- **`scene-pound-game`, `scene-roll-game`** (MINI-GAME SCENE, N=3, `BG=opaque`, `scene-town-game-worktable` for the
+  kitchen's palette, the words top-down): **pound 2 chosen** (the crispest, 68% of its edges on the grid; the whole rim and
+  the widest plain bowl inside the board's 4:3; 245x163 at 6.24), **roll 3** (the whole board inside the 4:3, the dough the
+  plainest; its 6.45 matches the mortar's; 2 was crisper, 5.27, but its board runs off the 4:3 sides). The others kept.
+- **The boards' pieces**: `icons-pound-a2` (chillies and garlic at three stages; **`icons-pound-a` drew each in its own
+  little stone bowl**, which cannot lie in the drawn mortar: drawn again saying the ingredient alone), `-b` (lemongrass,
+  shallots), `-c` (the hard lump, a splash, the pestle, the finished blend), all cut at 8.0; `icons-roll-a` (two tears drawn
+  as the opening only, flour puffs, a sprinkle) at 7.10, with the chosen roll scene for the reference; **`scene-roll-pin`**
+  and **`scene-roll-mat`** (one wide piece each, the scene for the reference; the mat N=3 on Codex's word, 1 chosen: the
+  crispest, an even rice face and a clear nori border, 202x129 at 5.56). The pin came out twice the dough's width (255 at its
+  own grid 5.89): **cut on twice its grid** (11.97) it is 125x20, the dough's width at the board's pixel size, still crisp.
+- **The stretchy cloud ram** (`ramkit-*`, 3840x1280, each an in-place edit of a canvas that keeps the live ram's own base
+  frame at 6x on the left, from `ref-ram-pack.png`, as the scale's check): the kept ram cut back to 131x108 against its
+  native 130x104 at 6.00. A front piece (head, shoulders, a seat), three middle lengths each on its own legs with a seat,
+  a rear piece (tail), each whole with its outline closed, laid back to front with a sixth overlapping (SE: tail to head,
+  NE: head to tail), so any length is the same pieces. **`ramkit-se-a` drew the middles from behind** (a row of sheep rumps
+  behind a side-on head, the front without a seat, the tail on the wrong end): kept, drawn again as **`-se-a2`** with every
+  piece's side view in words. `-se-b` the other step of the walk (edit of `-a2`), `-se-face` the front piece alone (cropped
+  at its drawn size) with surprised-proud and determined (tongue out, ears flopped) beside it: drawn at 8 to the pixel, cut
+  there its kept piece is 108x115 against 105x107; `-ne-a` the kit from behind (the live NE frame kept, `-a2` the second
+  reference). The mocks seat the real Doll 2 sitting frames as Town.tsx seats a ram's riders (RAM_LIFT, the doll at 0.67, the
+  ram at 1.05 x 0.5 x 0.959 map px to its pixel), one rider a seat, the face by the load (1-2 content, 3-5 surprised, 6+
+  determined), at game zoom 2 and 4.
+- **Codex's reads**: run 2026-11-09-12-06-01-art-49048 (the first fourteen: nine `send`; `fix` taken for `-special-c`, the
+  dish sheet's legends simplified, the seal's emblem; `-e` fixed at the source and read again, -12-08-18-art-38340, `send`);
+  the first ram kit -12-09-54-art-41596 (`fix`: its sizes in the asset's pixels said relatively instead, ART_WORKFLOW, read
+  again -12-11-11-art-15520, `send`); -12-15-55-art-41292 (the bowl-less sheet, pin, roll pieces `send`; the mat and the ram's
+  second try `fix`, taken); -12-21-40-art-12448 (the walk step `fix` taken, the faces and the back view `send`).
+- **Checks**: every cut piece over magenta at 8x with enclosed clear cells marked (`work/specials/js/bugcheck.mjs`,
+  `holelook.mjs`): no half-clear cell; what is apart is the legends' stars, the moon over the lucky hearts, flour dots and the
+  dandelion's seed; enclosed clear cells are drawn gaps (handle loops, between blades, raindrops, two chillies, the splash's
+  drops, a ram's legs).
+- **Codex's look at the sheets** (find runs -12-36-09-find-24400 for A, -12-36-47-find-28228 for B to E): must-fix, by its
+  word, the paper (a boat, as asked), the dandelion (a sunflower), the whole fleece (bread rolls), the sesame pudding (a
+  rock), the cake's height, the aroma sign (a flame), the food habit (crops), the smooth pastes (sweets), the mortar mock's
+  pieces as icons, and the long ram's repeated saddles and legs (joined sheep rather than one fleece); left for the owner to
+  judge before any redraw (his rule).
+
+### Round 2: the flock, and the redraws he accepted (2026-11-09, the same day)
+
+The owner, of round 1: the stretchy ram is dropped ("เอางี้ดีกว่า แกะของเจ้าของตัวใหญ่ขึ้น คนที่มาขี่ ได้นั่งแกะตัวเล็กๆ พอมีคนนั่งเยอะๆ มัน
+จะเป็นฝูงแกะ น่ารักๆ", with a walk of several frames), then "และบางคน สุ่ม จะได้นั่งบนก้อนเมฆแกะ เหมือนเป็นเวทมนของแกะวิเศษ"; and four of
+Codex's must-fixes redrawn, with the mortar's stage pieces. 20 calls, $0.412 (each read by Codex first); the ledger then
+stood at 3,070 rows and $45.869 of $55. Previews only, as round 1 (`-r2` files beside round 1's).
+
+- **The live ram kept on the canvas as the ruler.** `bigram-se-a` (the live SE base frame at 4x as the reference, "one and
+  a third times as large") came out right in design but 216x177 at its grid (4.00), 1.66x: kept as the other choice.
+  **`bigram-se-a2`** is an in-place edit of a 3840x1280 canvas with that frame kept on the left: the ruler cut back to
+  127x101, the big ram 161-168 x 126-136, 1.3x at the live ram's own pixel size. Every sheet after it keeps a ruler: the big
+  ram from behind (`bigram-ne-a`, the live NE frame kept, 150-165 x 160-165), the lamb (`lamb-se`, `lamb-ne`, the live ram
+  kept, "two thirds as long": 79-86 x 65-79), the cloud sheep (`cloudsheep-se`, `-ne`), and the pops' second tries
+  (`lamb-pop-out-2`, `-in-2`, the walking lamb kept: the first tries drew the lamb 120x98, 1.47x, and are kept).
+- **Six-step walks**: the big ram's stand and steps 1-3 on one sheet, steps 4-6 an in-place edit of it with the legs swapped
+  (`bigram-se-b`, `bigram-ne-b`), as stag-walk was made; a lamb's stand and six steps on one sheet. **The lamb's cream and
+  pink** are in-place edits of the white sheets (`lamb-se-cream`, `-pink`, `lamb-ne-cream`, `-pink`), the tufts and tails
+  in the new colour on Codex's word; on the back view Codex asked to turn the heads away (it read muzzles), not taken: cut and
+  enlarged no eye shows, and turned heads on two colours only would not match the white; read again with that reason, `send`.
+- **`cloudsheep-se`, `-ne`**: the magic ram's spell, a sheep-shaped cloud a rider sits on, a six-frame bob loop of smooth
+  lavender-shaded lobes, a closed happy eye, puffy ears, wisps for legs and two sparkles (its shadow is code).
+- **`icons-special-fix-a`** (with `icons-special-c`): the dandelion as a seed ball, the whole fleece as a pelt with the star,
+  the sesame pudding glossy on a plate, the aroma as steam from a cup; cut at 7.15. **`icons-pound-d`, `-e`** (with the chosen
+  mortar board for the reference): the twelve stages flatter, a one-pixel outline, lit from the upper left like the bowl, the
+  pastes wet smears with grit; Codex's 32 by 32 grid and containment sentence taken, its "about six canvas pixels per art
+  pixel" not (ART_WORKFLOW), read again, `send`. Cut at 5.33 (the third of 16 fits at 0.78): 34-40 x 45-54, the board's own
+  pixel size, four clusters to the bowl.
+- **Checks**: two walk frames had enclosed see-through cells (1 under the big ram's belly, NE step 5; a 4-cell slit by the
+  pink lamb's far ear, SE step 4) and six mortar pieces 1 to 9 cells where two bulbs or chunks meet: closed by
+  build-scenery's own rule (`closeSmallHoles`, patches of up to 8 cells take the commonest colour round them;
+  `work/specials/js/fillholes.mjs`, `fillatlas.mjs`); what stands apart is the cloud sheep's sparkles and the pops' cloud bits.
+- **The flock stills** (`work/specials/js/flock-mock.mjs`): the owner on the big ram, the passengers two by two behind it
+  with a seeded jitter, each lamb on its own walk frame, one cloud seat at 3 passengers and two at 6 and 8; a seat placed so
+  that anything nearer covers a farther rider's head is pushed back until a gap of 3 map px clears it.
+- **Codex's look at the sheets** (find run -13-26-48-find-40844): resolved, the fleece and the aroma; partly, the pudding (a
+  dark hat on a saucer still); not, the dandelion (a golden flower still); must fix, the lemongrass and shallot pastes (soft
+  patties) and the paste's perimeter in the mock (a sticker); the ram, lambs, cloud sheep and flock no must-fix (worth fixing:
+  the cloud sheep without its float reads as a smooth sheep, mid-pop silhouettes, the owner's seat near the neck). Shown to
+  the owner before any redraw.
+
+### Round 3, part A: the flock made ready for the build (2026-11-09, the same day)
+
+The owner, of round 2's flock: "อยากให้คนชิดกันกว่านี้ คนที่เป็นคนนั่งตัวใหญ่ นั่งไม่ตรงอาน" (the riders closer together; the owner
+sat on the big ram's neck, not its saddle), and a fluffier, higher cloud sheep; the flock builder asked for a grazing frame
+and a flock icon. 8 calls, $0.168 (each read by Codex first); the ledger then stood at 3,078 rows and $46.037 of $55.
+
+- **The kit** (`docs/plans/specials/kit/`, committed: `kit.json` and every frame at its native pixels;
+  `work/specials/js/kit-r3.mjs` writes it): the big ram SE/NE (stand, w1-w6), the lambs SE/NE in white, cream and pink
+  (stand, w1-w6, graze), the cloud sheep SE/NE (f1-f6), the pops out and in SE/NE (f1-f6). Cut the scenery builder's way
+  (the sheet's grid, 64 colours, figures by spans, `closeSmallHoles`). Each frame has its **anchor** (the pixel on the ground
+  point: across, laid on the stand by the body so it does not jump sideways; up and down, its own hooves on the ground, so
+  the body and saddle bob), its **seat** (the big ram: the dip of the saddle's top between cantle and pommel, on the seat's
+  own columns, a strap down the flank being no part of it; a lamb: the top of its cloth; the cloud: its top's middle), and in
+  front views a **head** picture to draw over the rider. Every frame checked: no hole, no half-clear cell; what stands apart
+  is the cloud's sparkles and puffs and the pops' cloud bits.
+- **`docs/plans/specials/previews/flock-seats.json`** (committed): every mount frame's anchor, seat, lift and draw order
+  (mount, rider, head), the seated doll's hip point (front (-6, -7), back (3, -5) of its own pixels from its anchor, measured
+  on its shorts), and the eight walking and eight resting places per facing in town px from the big ram's feet. Each place
+  was solved (`work/specials/js/flock-r3.mjs`): from a two-by-two pattern right behind the ram (at rest round it), a seat
+  steps back, outward or both, whichever covers fewest faces, until nothing nearer covers more than 4 town px of a farther
+  rider's face (the head's eye and mouth rows, not the hair), the seat tried as a lamb and as the cloud's every frame at once
+  (an envelope). The cloud as drawn floats 35 to 65 of its pixels over its ground line, a bob of 30: the data gives a gap of
+  12 and a quarter of the drawn bob ("a gap of a few pixels plus a gentle bob"), the drawn lift beside it.
+- **`cloudsheep-se-2`, `-ne-2`**: in-place edits of the cloud sheep's sheets, fluffier (a scalloped edge of small billows,
+  loose puffs) and lifted. Codex's words taken, its lift in sprite-grid pixels said relatively (ART_WORKFLOW).
+- **`lamb-pop-out-ne`, `lamb-pop-in-ne`**: the pops from behind, the back-view lamb kept as the ruler. The pop-out showed
+  the lamb's face from frame 3; **`lamb-pop-out-ne2`** corrects it in place (Codex stopped a full redraw and gave that way).
+- **`lamb-graze-se`, `-ne`**: the three stands on one canvas, each lowered to graze in place. **The model drew the lambs at a
+  coarser pitch than the ruler beside them**: cut at 4 they were a fifth larger than their stands; cut on their own grid
+  (5.4) they match, and that is what the kit holds.
+- **`icons-flock-a`** (with `icons-pasture-gift-a`, the live ram's icon): the whole flock, the ram with three lambs, a
+  lamb's head, the cloud sheep, a lamb popping out; cut at 6.32 (on 12.5 the faces went), `docs/plans/specials/kit/icons/`.
+- Previews: `E-flock-r3-1x.png`, `-2x.png`, `E-owner-saddle-r3.png`, `E-parts-r3.png`. One face edge is still touched in the
+  front-view rest (a passing cloud frame).
+
+### Round 3, part B: the sixteen new mini-games, backdrops, pieces and mocks (2026-11-09/10)
+
+The owner wanted to see the new game scenes before they are built (brief `brief-art-r3.md`, part B): for each game a
+backdrop (N=3, one chosen), a sheet of its moving pieces (once), and a desktop 1280x860 and phone 384x730 mock at a moment
+mid-play, the one input shown by a drawn hint and a miss as the game would draw it. **46 calls, $1.499** (every prompt read
+by Codex first): 18 backdrop calls of three draws, $0.983 (16 games, and two redrawn below), and 28 piece sheets,
+$0.516. The ledger then stood at 3,124 rows and **$47.536 of $55**.
+
+- **Backdrops** (`prompts/scenery/g01-cut` … `g16-knit`, on the owner's MINI-GAME SCENE template, an existing board of the
+  line as the reference; batch 1 (g01-g08) adds the 4:3 crop sentence to the opening paragraph, batch 2 (g09-g16) its own
+  crop paragraph; g01, g07, g09, g10, g14 are Codex's texts). Chosen with `compare3` (cut-look's numbers: grid, cells, one
+  colour a cell, edges on the grid): g01 draw 2 (crispest, 74% on the grid, the block whole in the window), g02 draw 2
+  (later replaced), g03 2 (dome and mouth framed, the counter clear), g04 3 (crispest, 56%, the biggest firebox), g05 2
+  (crispest, 73%, the largest pan, its handle in the window), g06 2 (centred; draw 1 too fine, draw 3 coarse), g07 3
+  (crispest, 60%, the grill whole, open sky), g08 2 (**the call returned two images, not three**, charged $0.037; draw 1
+  crisper but off-centre), g09 2 (the jar centred), g10 3 (crispest, 64%, the burner centred, a plain wall), g11 2 (the gate
+  inside the window), g12 2 (the barn gate centred, the fences framing), g13 1 (crispest, 59%, the widest plain middle),
+  g14 1 (later replaced), g15 3 (crispest, 60%), g16 3 (crispest, 57%, armchair and fireplace framing). The other draws are
+  kept as `-1/-2/-3` in work/out.
+- **Pieces** (`prompts/scenery/g01-pieces`, `g02-tiers`, `g03-tray`, `g04-logs`, `g05-cakes`, `g05-brass`, `g08-bowls`,
+  `g09-crock`, `g10-wok`, `g11-animals`, `g13-churns`, `g14-pressparts`, `g15-strands`, `g16-needles` on a 3840x1280 row
+  with the chosen backdrop as the reference; `prompts/icons/g02-buns`, `g03-pastries-a/-b`, `g04-flames`, `g06-pot-a/-b`,
+  `g07-grill`, `g09-veg`, `g10-food`, `g11-hand`, `g12-herd`, `g16-loops` on the ICON SHEET template). Cut by
+  `work/specials/js/cut-pieces.mjs`: the sheet's grid (icon-pitch2's rule; a grid over 9 is taken at its half when that fits
+  at all, the boards' scenes being 5 to 6.5), 64 colours, figures by spans, `closeSmallHoles`. Codex's fixes that gave
+  sizes in the asset's pixels were said relatively and read again (ART_WORKFLOW).
+- **A slip of mine, caught by the gate**: the pieces writer first wrote `g13-churn`, `g14-press`, `g15-spin`, `g16-knit`
+  over the scene prompts of the same names. The pieces were renamed (`g13-churns`, `g14-pressparts`, `g15-strands`,
+  `g16-needles`), the scene prompts restored (their stamps matched the passed reads) and g14-g16's scenes drawn then.
+- **Two redraws, found by laying the pieces on their boards**: the steamer's tiers came out 80x46 board pixels, and the pot
+  sat 88 pixels from the top, so three tiers and a lid could not stack: **`g02-tiers2`** (flat, Codex's own fix: a fifth as
+  tall as wide, the lid's knob counted) came out 80x37, still too tall, so **`scene-g02-steam2`** puts a narrower pot low
+  (draw 1 chosen: crispest, 63%, the pot nearest the tiers' width; the stack's lid now touches the board's top). The cheese
+  press drew a screw press whose crossbeam left 33 pixels over a 50-wide mould: **`scene-g14-press2`** is a wide mould on a
+  bench with plain wall above (draw 3: crispest, 52%, a grid like the other boards'; draws 1-2 cut at 7.3) and
+  **`g14-pressparts2`** fits it (weights a quarter, a third and a half of the mould).
+- **Checks**: every piece used, `bugcheck`: no stray cell, no hole that is a bug; what is flagged is drawn (a weight's ring,
+  a loop's eye, the shrimp's curl, the brass pan's hanging hole) or loose by design (crumbs, smoke wisps, bubbles, the
+  splash's drops, the broken strand's two ends, the pet's dotted ring).
+- **Cut-ready art**: `docs/plans/specials/games/<gNN-name>/` (committed): `scene.png` at its true pixels and every piece at
+  its native pixels; `games.json` gives each sheet's source, grid and piece sizes. Not in it: `g02-tiers` and
+  `g14-pressparts` (replaced). `g09-crock` (the fermentCrock) is drawn larger than the board's jar (135x203 on a 192-high
+  board); `g05-brass` matches the board's iron pan and can lie over it.
+- **Mocks** (`work/specials/js/mock-games.mjs`, not committed, `docs/plans/specials/previews/G-<n>-<name>-desktop.png`,
+  `-phone.png`, `G-all-phone.png`, `G-all-desktop.png` by `contact-g.mjs`): the round-2 frame (title chip with the tool's
+  atlas icon, close, the 4:3 board, a progress bar and result slots, one button for the oven's turn, a chip for the
+  cleaver's portions); hints from the live icon atlas (hand1, hand2, hand3, grab, chevron turned), at the board's pixel.
+  Codex read each contact sheet once (`find --see`, medium). The phone sheet: 5 games passed, 11 fixes about readability
+  (a separated wedge, darker buns, the tray's hot ends and landing gap, chevrons beside the pancake, food kept off the
+  scum, the hint on a plain wedge, chevrons at the chilli, a snort at the cow's wrong spot, the stray at the far fence,
+  chevrons by the churn's handle, the curd low under the heavy weight with the whey from that edge), all made. The desktop
+  sheet after them: 10 passed; of the 6 fixes, 8 (an unmixed rice lump), 9 (a dotted drop line under the chilli), 12 (the
+  stray's dust) were made; 11 (the desktop sheep shows the found spot, the phone cow the miss), 15 (the twist direction)
+  and 16 (the next loop, the dropped stitch) are left for the owner's eye.
+
+### Round 4: the new dishes' pots (2026-11-10)
+
+The owner passed round 3 whole ("ผ่านหมดครบ Push เลย"). The stage-3 build wants a pot for each of the ten new dishes,
+the way the kitchen and the feast table show a dish. **`icons-special-pots-a`, `-b`** on the pasture pots' template
+(`icons-pots-p` for the reference, the same clay pot, only the food differs), the food as the accepted dish icons have it
+(the sesame pudding as its accepted redraw). The doc names three legend feast dishes, the 4-cook village dishes of the H
+specials (phoenixBake, pearlBroth, milkyWayCake), so sheet b's pots 2-4 are those centrepieces: richer colours, more
+highlight pixels and the rare pots' small golden sparkle star; its last two are `potCustard` and `potStarPudding` redrawn
+only to hold the style, thrown away. 2 calls, $0.039, each read by Codex first (both sent as written). Cut on 5.84 like
+the pasture pots (43 of their pixels wide, as the live ones); sheet b's pots were drawn handle to handle, so it is cut with
+`split` (each cell to its own column). The three steam puffs and the sparkle star stand apart as on the live pots; no hole,
+no half-clear cell. The firefly custard's fireflies came out as two faint yellow-green marks.
+- **`g09-crock2`** (the jar-packing game's fermenting crock): the first came out 135x203 on a 192-high board, as "about
+  as tall as the jar". Said now as the jar's share of the canvas (two thirds of its height, a third of its width), it
+  cut to 96x137 on its grid (6.98), the scene's jar being about 95x132. The phone mock `G-09-jar-phone.png` lays it where
+  the jar stands (one of the jar's ears still peeks out at its right: the crock board wants its own backdrop or the jar
+  taken out of it).
+- **`g16-stitches`** (the knitting game's live stitches, on the pieces template with the knitting scene for the reference;
+  the round-3 `g16-loops` icons read as pink sausages): one strand of yarn over a needle stub, the needle through the
+  loop, the legs crossed once; white, cream, pink, sky, gold, rainbow. Cut on 8.36 (its own pitch: only 18% of its 2x2
+  blocks are one colour), 56-57x66, larger than the fifth of the scene asked for and than the old 37x40: on the board two
+  stitches to a needle. The ply twist asked for did not come out; the eye of each loop is a drawn gap. In the kit in
+  place of the loops; `G-16-knitting-*.png` re-made with them.
+- 2 calls, $0.036, both read by Codex first and sent as written.
+- **`icons-golden-dandelion-a`, `-a2`** (the coordinator: the builder sows `goldenDandelionSeed` as a rare flower): on
+  the helper plants' grow template (`icons-farm-d`), the young plant with buds, the plant in bloom with seed clocks and
+  the picked flower, the marigold's three redrawn beside them as anchors (cut, they come out the live marigold's size,
+  so the scale is the crops'). The first drew the seed clocks cream; **-a2** is that sheet edited in place to golden
+  clocks, as the seed is (Codex's fix to the edit: "no ground other than the existing soil mounds"). Cut on 5.26:
+  `growGoldenDandelionA` 41x51, `growGoldenDandelionB` 49x67, `goldenDandelion` 32x51. **build-icons.mjs gains
+  `fill`**: build-scenery's closeSmallHoles for an icon sheet (a see-through speck of 8 cells or fewer that the figure
+  closes in on takes the commonest colour round it); three specks of 1-2 cells were filled here.
+- **Feast-table overlays** (`docs/plans/specials/feast/`, committed, with `feast.json`): `feastGoldenCloth`
+  (wholeGoldenFleece laid as the cloth for 24 h) and `feastCushions` (cloudFluffTuft, one cushion a seat, three a bench),
+  each the size of the editor sprite it lies on, drawn with that sprite's transform. Made as in-place edits of the hall's
+  `dining-table` and `kitchen-bench` art themselves (`prompts/scenery/feast-golden-cloth`, `feast-cloud-cushions`; the
+  sprite laid x3 and x4 by nearest on the canvas, `work/out/ref-dining-table-x3.png`, `ref-kitchen-bench-x4.png`) and cut
+  out by `work/specials/js/overlay-cut.mjs`: each k x k block read back to one of the sprite's pixels, laid where the
+  unchanged legs agree most (shift -1,0 and 0,0), the overlay what changed in the new thing's colours with the outline
+  touching it, specks under 12 gone, see-through patches it closes in on filled from the edit's own pixels. Codex fixed
+  the cushions to a quarter of the seat with bare wood between. `feastlook.mjs` lays a table and its benches as the map
+  does.
+- **Codex's look at the round** (`docs/plans/specials/previews/F-round4.png`, not committed): the pots, the young and
+  picked dandelion, the cushions and the crock's size pass. Fixes it asks, **for the owner to see first, not redrawn**:
+  the stitches still read as thick tubes (narrower strand, fibre shading, over and under at the needle), the fleece reads
+  as quilted padding (irregular curls, quieter areas, deeper shadow under the hanging edge), and the golden seed clocks
+  read as solid yellow flowers (fine radial seeds round a darker centre).
+- Round 4 in all: 8 calls, $0.150; the ledger then stood at 3,132 rows and $47.687 of $55.

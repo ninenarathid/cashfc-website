@@ -1,0 +1,9 @@
+The attached picture is a sprite sheet of seven figures in one row from a cozy 2D town game: on the left a fluffy white cloud ram, and to its right a magic cloud shaped like a little sheep, seen from behind, turned three-quarters away from the viewer and facing the upper right, in six frames of a gentle floating loop with a few small sparkles. Edit the attached sheet on the same canvas, with every figure in the same column and at the same horizontal position and size, with the same large square pixel size, the same thick dark outline and the same cute style. Only the six cloud sheep move upward as specified below. The ram on the left stays exactly as it is.
+
+Change only the cloud sheep, in all six frames:
+- make it fluffier and lighter: its edge a soft scalloped cloud edge of many small round billows in place of a few big smooth lobes, still pale sky white with soft pale lavender-blue shading underneath and no wool curls;
+- add two or three small loose round cloud puffs drifting close beside it, each a solid round cluster of pixels kept within its own frame;
+- lift each cloud sheep higher than it is now, by about the height of one of its ears, so that a clear empty gap shows between its lowest wisp and the ground line on which the ram on the left stands, preserving the existing gentle rise and fall between frames. Keep every loose puff above the lowest point of its cloud sheep, leaving that gap clear.
+Its shape as a little sheep, the back of its head, its ears, its tail, its wisps, its colours and its sparkles stay as they are.
+
+All seven figures remain in one row, in their original columns, not overlapping, with clear empty space between them. Use the same pixel size as the attached picture: do not make the pixels smaller or larger. Crisp pixel art with hard square pixel edges, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground, no shadows, no text, no labels.

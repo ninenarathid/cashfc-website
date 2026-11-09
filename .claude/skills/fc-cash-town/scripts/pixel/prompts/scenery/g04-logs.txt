@@ -1,0 +1,6 @@
+Use the attached sprite sheet only as the reference for the pixel art style, its colours and its chunky square pixel size. Draw 6 separate pieces for that mini-game of the same cozy 2D game, in exactly the chunky square pixel size of the attached scene, seen from the front as they lie in that firebox, each at the size it would have in that scene:
+1) a split log with a pale wedge-shaped split face, about a third as long as the firebox is wide; 2) a round log with brown bark, about a third as long as the firebox is wide; 3) a bundle of three thin sticks tied with twine, about a quarter as long as the firebox is wide; 4) a forked branch with grey bark; 5) a short thick knotty chunk of wood; 6) a flat slab of bark-edged wood.
+
+All 6 pieces in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping; every small loose bit is a solid cluster of pixels kept close to its own piece. Everything else on the canvas is empty and transparent.
+
+Crisp pixel art with hard square pixel edges, a thick dark outline on things, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients, no glow. No characters, no text, no letters, no numbers.
