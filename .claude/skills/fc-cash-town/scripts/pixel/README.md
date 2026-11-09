@@ -1110,3 +1110,27 @@ no half-clear cell. The firefly custard's fireflies came out as two faint yellow
   stitches to a needle. The ply twist asked for did not come out; the eye of each loop is a drawn gap. In the kit in
   place of the loops; `G-16-knitting-*.png` re-made with them.
 - 2 calls, $0.036, both read by Codex first and sent as written.
+- **`icons-golden-dandelion-a`, `-a2`** (the coordinator: the builder sows `goldenDandelionSeed` as a rare flower): on
+  the helper plants' grow template (`icons-farm-d`), the young plant with buds, the plant in bloom with seed clocks and
+  the picked flower, the marigold's three redrawn beside them as anchors (cut, they come out the live marigold's size,
+  so the scale is the crops'). The first drew the seed clocks cream; **-a2** is that sheet edited in place to golden
+  clocks, as the seed is (Codex's fix to the edit: "no ground other than the existing soil mounds"). Cut on 5.26:
+  `growGoldenDandelionA` 41x51, `growGoldenDandelionB` 49x67, `goldenDandelion` 32x51. **build-icons.mjs gains
+  `fill`**: build-scenery's closeSmallHoles for an icon sheet (a see-through speck of 8 cells or fewer that the figure
+  closes in on takes the commonest colour round it); three specks of 1-2 cells were filled here.
+- **Feast-table overlays** (`docs/plans/specials/feast/`, committed, with `feast.json`): `feastGoldenCloth`
+  (wholeGoldenFleece laid as the cloth for 24 h) and `feastCushions` (cloudFluffTuft, one cushion a seat, three a bench),
+  each the size of the editor sprite it lies on, drawn with that sprite's transform. Made as in-place edits of the hall's
+  `dining-table` and `kitchen-bench` art themselves (`prompts/scenery/feast-golden-cloth`, `feast-cloud-cushions`; the
+  sprite laid x3 and x4 by nearest on the canvas, `work/out/ref-dining-table-x3.png`, `ref-kitchen-bench-x4.png`) and cut
+  out by `work/specials/js/overlay-cut.mjs`: each k x k block read back to one of the sprite's pixels, laid where the
+  unchanged legs agree most (shift -1,0 and 0,0), the overlay what changed in the new thing's colours with the outline
+  touching it, specks under 12 gone, see-through patches it closes in on filled from the edit's own pixels. Codex fixed
+  the cushions to a quarter of the seat with bare wood between. `feastlook.mjs` lays a table and its benches as the map
+  does.
+- **Codex's look at the round** (`docs/plans/specials/previews/F-round4.png`, not committed): the pots, the young and
+  picked dandelion, the cushions and the crock's size pass. Fixes it asks, **for the owner to see first, not redrawn**:
+  the stitches still read as thick tubes (narrower strand, fibre shading, over and under at the needle), the fleece reads
+  as quilted padding (irregular curls, quieter areas, deeper shadow under the hanging edge), and the golden seed clocks
+  read as solid yellow flowers (fine radial seeds round a darker centre).
+- Round 4 in all: 8 calls, $0.150; the ledger then stood at 3,132 rows and $47.687 of $55.

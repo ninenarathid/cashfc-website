@@ -1,0 +1,6 @@
+The attached picture is a long wooden dining table from a cozy 2D town game, drawn in pixel art and seen from above at an isometric angle. Redraw the same picture with the table in exactly the same place on the canvas, at the same size and at the same angle, with the same large square pixel size, the same thick dark outline and the same light from the upper left. The table's legs, its frame and the wood showing below its top stay exactly as they are.
+
+Change only this: a whole golden fleece is spread over the table's top as a tablecloth: a thick sheepskin of shining golden wool curls covering the whole top, lying flat and following its long shape and angle, its edges hanging a little way down over the near long side and the near short end in soft folds. A few bright highlight pixels on the curls; the shading darker on the hanging edges that face away from the light. Nothing stands on the cloth. Everything else on the canvas stays empty and transparent.
+
+Use the same pixel size as the attached picture: do not make the pixels smaller or larger. Crisp pixel art with hard square pixel edges, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground, no shadows, no text, no labels.
+
