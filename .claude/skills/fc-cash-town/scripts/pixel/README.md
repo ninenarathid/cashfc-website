@@ -1098,3 +1098,15 @@ only to hold the style, thrown away. 2 calls, $0.039, each read by Codex first (
 the pasture pots (43 of their pixels wide, as the live ones); sheet b's pots were drawn handle to handle, so it is cut with
 `split` (each cell to its own column). The three steam puffs and the sparkle star stand apart as on the live pots; no hole,
 no half-clear cell. The firefly custard's fireflies came out as two faint yellow-green marks.
+- **`g09-crock2`** (the jar-packing game's fermenting crock): the first came out 135x203 on a 192-high board, as "about
+  as tall as the jar". Said now as the jar's share of the canvas (two thirds of its height, a third of its width), it
+  cut to 96x137 on its grid (6.98), the scene's jar being about 95x132. The phone mock `G-09-jar-phone.png` lays it where
+  the jar stands (one of the jar's ears still peeks out at its right: the crock board wants its own backdrop or the jar
+  taken out of it).
+- **`g16-stitches`** (the knitting game's live stitches, on the pieces template with the knitting scene for the reference;
+  the round-3 `g16-loops` icons read as pink sausages): one strand of yarn over a needle stub, the needle through the
+  loop, the legs crossed once; white, cream, pink, sky, gold, rainbow. Cut on 8.36 (its own pitch: only 18% of its 2x2
+  blocks are one colour), 56-57x66, larger than the fifth of the scene asked for and than the old 37x40: on the board two
+  stitches to a needle. The ply twist asked for did not come out; the eye of each loop is a drawn gap. In the kit in
+  place of the loops; `G-16-knitting-*.png` re-made with them.
+- 2 calls, $0.036, both read by Codex first and sent as written.

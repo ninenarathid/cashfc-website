@@ -1,0 +1,5 @@
+Use the attached sprite sheet only as the reference for the pixel art style, its colours and its chunky square pixel size. Draw one wide piece for a mini-game of the same cozy 2D game, in exactly the chunky square pixel size of the attached scene.
+
+A tall straight-sided stoneware fermenting crock, pale grey glazed with a blue band at its top, standing on the floor and seen flat from the front, its front cut away from top to bottom to show its inside, plain, dark and empty. It is exactly as big as the brown jar in the attached scene, and takes the same share of the canvas as that jar takes of the scene: about two thirds of the canvas height and about a third of its width. It is the only thing in the picture; everything else on the canvas is empty and transparent.
+
+Crisp pixel art with hard square pixel edges, a thick dark outline on things, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients, no glow. No characters, no text, no letters, no numbers.

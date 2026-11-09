@@ -488,13 +488,13 @@
      ]
     }
    },
-   "g09-crock": {
-    "from": "work/out/g09-crock.png",
-    "grid": 4.61,
+   "g09-crock2": {
+    "from": "work/out/g09-crock2.png",
+    "grid": 6.98,
     "pieces": {
-     "g09-crock": [
-      135,
-      203
+     "g09-crock2": [
+      96,
+      137
      ]
     }
    }
@@ -823,33 +823,33 @@
      ]
     }
    },
-   "g16-loops": {
-    "from": "work/out/g16-loops.png",
-    "grid": 6.26,
+   "g16-stitches": {
+    "from": "work/out/g16-stitches.png",
+    "grid": 8.36,
     "pieces": {
-     "loopWhite": [
-      37,
-      40
+     "stitchWhite": [
+      56,
+      66
      ],
-     "loopCream": [
-      37,
-      40
+     "stitchCream": [
+      57,
+      66
      ],
-     "loopPink": [
-      37,
-      40
+     "stitchPink": [
+      56,
+      66
      ],
-     "loopSky": [
-      37,
-      40
+     "stitchSky": [
+      57,
+      66
      ],
-     "loopGold": [
-      37,
-      40
+     "stitchGold": [
+      57,
+      66
      ],
-     "loopRainbow": [
-      37,
-      40
+     "stitchRainbow": [
+      57,
+      66
      ]
     }
    }
