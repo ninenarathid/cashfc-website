@@ -1,6 +1,20 @@
 {
  "events": [
   {
+   "date": "2026-11-09",
+   "type": "level_100",
+   "id": 38041221,
+   "name": "Kori Kona",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
+   "date": "2026-11-09",
+   "type": "level_100",
+   "id": 61014734,
+   "name": "Hanna Doss",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
    "date": "2026-11-08",
    "type": "level_100",
    "id": 62507897,
@@ -1385,20 +1399,6 @@
    "id": 8286372,
    "name": "Aloha Banana",
    "text": "reached level 100 on Summoner!"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "level_100",
-   "id": 47218599,
-   "name": "Kawa Lynn",
-   "text": "reached level 100 on Black Mage!"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "rare_up",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "earned An Ode to Leathercraft — only 2.9% of players have it"
   }
  ]
 }

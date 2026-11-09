@@ -774,7 +774,7 @@
   "mounts": 187,
   "minions": 454,
   "rare": 430,
-  "level": 80,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -897,7 +897,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-11-08"
+  "chg": "2026-11-09"
  },
  "35634484": {
   "name": "Little Eevee",
@@ -2536,7 +2536,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 100,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -2563,7 +2563,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-10-31"
+  "chg": "2026-11-09"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -3857,7 +3857,7 @@
   "mounts": 76,
   "minions": 137,
   "rare": 62,
-  "level": 100,
+  "level": 88,
   "cc": [
    true,
    true,
@@ -3958,7 +3958,7 @@
    "The Omega Protocol",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-11-08"
+  "chg": "2026-11-09"
  },
  "9444020": {
   "name": "Non Elemental",
@@ -8746,7 +8746,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 62,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8759,7 +8759,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-08"
+  "chg": "2026-11-09"
  },
  "45513833": {
   "name": "Isildur One",
@@ -8790,7 +8790,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 100,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -8810,7 +8810,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-08"
+  "chg": "2026-11-09"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -9039,7 +9039,7 @@
   "mounts": 30,
   "minions": 66,
   "rare": null,
-  "level": 100,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -9052,7 +9052,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-08"
+  "chg": "2026-11-09"
  },
  "61489984": {
   "name": "Poly Umami",
@@ -9061,7 +9061,7 @@
   "mounts": 85,
   "minions": 178,
   "rare": null,
-  "level": 100,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -9074,7 +9074,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-08"
+  "chg": "2026-11-09"
  },
  "61748681": {
   "name": "Qzarel Lumina",
