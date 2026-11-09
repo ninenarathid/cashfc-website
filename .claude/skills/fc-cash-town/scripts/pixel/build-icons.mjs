@@ -557,6 +557,22 @@ const SHEETS = [
   ["icons-pasture-pots-a", ["potCustard", "potPancakes", "potCheesecake", "potButterCookies", "potQuiche", "potLanternCustard"], { range: [5.8, 6.05] }],
   ["icons-pasture-pots-b", ["potCloudSouffle", "potGoldenOmelette", "potEmberBakedEggs", "potRainBroth", "potMoonPudding", "potPaperFish"], { range: [6.05, 6.35] }],
   ["icons-pasture-pots-c", ["potLeviathanEggCup", "potStrawberryShake", "potHotCocoa", "potFlowerLatte", "potStarPudding", "_potCustard"], { range: [6.1, 6.35] }],
+  // (the special produce, its dishes, the new buffs and habit signs, the pounding and rolling games' pieces: PREVIEWS for
+  // the owner, 2026-11-09, "ช่วยลองทำรูปของแต่ละอย่างขึ้นมาก่อน ผมจะยืนยันให้ทำอีกที"; built only into a scratch atlas,
+  // ICONS_ONLY with ICONS_PUB and ICONS_JSON in work/specials, never the town's)
+  ["icons-special-a", ["silkieTwinEgg", "dawnBlueEgg", "cocoaShellEgg", "fireflyEgg", "swirlCloudEgg", "luckySevenEgg"], { range: [7.5, 7.8] }],
+  ["icons-special-b", ["windRunnerEgg", "emeraldShellEgg", "brushPaintedEgg", "firstRainEgg", "moonShadowEgg", "blankRecipePaper"], { range: [9.7, 10.1] }],
+  ["icons-special-c", ["rareShadeLock", "spiralShedHorn", "cloudFluffTuft", "goldenDandelionSeed", "rainbowArcLock", "shootingStarLock"], { range: [8.0, 8.35] }],
+  ["icons-special-d", ["goldenCreamTop", "warmShaggyMilk", "agedCheeseStarter", "wildBerryCream", "cocoaCreamTop", "pollenCream"], { range: [7.85, 8.15] }],
+  ["icons-special-e", ["rebirthFlameEgg", "blackDeepPearlEgg", "wholeGoldenFleece", "cometMilkCrystal", "_emberEgg", "_goldenWool"], { range: [8.15, 8.45] }],
+  ["icons-special-dish-a", ["fireflyCustard", "cloudPancake", "luckyFriedRice", "moonSesamePudding", "berryCreamScones", "cocoaMousse"], { range: [7.85, 8.15] }],
+  ["icons-special-dish-b", ["pollenTart", "phoenixBake", "pearlBroth", "milkyWayCake", "_custard", "_cloudSouffle"], { range: [7.85, 8.15] }],
+  ["icons-special-buff-a", ["buffGentle", "buffAroma", "buffFeatherlight", "buffMoonSight", "buffLuckyMatch", "sealTogether"], { range: [7.6, 7.9] }],
+  ["icons-special-habit-a", ["habitTime", "habitPlace", "habitFood", "habitWeather", "habitCompany", "habitHeart"], { range: [7.85, 8.15] }],
+  ["icons-pound-a2", ["poundChiliA", "poundChiliB", "poundChiliC", "poundGarlicA", "poundGarlicB", "poundGarlicC"], { range: [7.85, 8.15] }],
+  ["icons-pound-b", ["poundLemongrassA", "poundLemongrassB", "poundLemongrassC", "poundShallotA", "poundShallotB", "poundShallotC"], { range: [7.85, 8.15] }],
+  ["icons-pound-c", ["poundLump", "poundSplash", "poundPestle", "poundBlend", "_poundSalt", "_poundLime"], { range: [7.85, 8.15] }],
+  ["icons-roll-a", ["rollTearSmall", "rollTearLong", "rollFlourPuff", "rollFlourPuffSmall", "rollFlourSprinkle", "_rollFlourBowl"], { range: [6.95, 7.25] }],
 ];
 
 const ONLY = process.env.ICONS_ONLY?.split(",").map((s) => s.trim()).filter(Boolean);

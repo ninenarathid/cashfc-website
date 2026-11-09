@@ -1,0 +1,14 @@
+Edit the attached picture. On its left it shows one fluffy white cloud ram from a cozy 2D town game, drawn in large square pixels, turned three-quarters towards the viewer and facing the lower right, head on the right, with a brown leather saddle on a blue cloth on its back. Keep that ram exactly as it is and exactly where it is.
+
+In the empty space to its right, draw five pieces of the same ram in a row: a kit that lets the ram grow longer, like a fluffy caterpillar, so that more riders fit on its back, funny but cute. Every piece has exactly the ram's white fleece with pale blue shading, its dark grey legs, its colours, its thick dark outline, its large square pixel size and its body-puff height and leg length, seen from the same three-quarter view and facing the same way, and each piece is whole on its own, its outline closed all round. Each new piece is about half as wide as the ram on the left:
+1) the front piece: the ram's head with its grey face, round shiny dark eye, pale pink nose, curled pale gold horns and grey ears, on one round fleece puff with the two front legs under it, content and gently smiling, and a small brown leather seat on a blue cloth on the puff's top behind the head;
+2) a middle piece: one round fleece puff of the body, as tall as the ram's body, a little wider than it is tall, standing on its own pair of short stubby dark grey legs, with the same small seat on its top for one rider;
+3) the same middle piece, its fleece in a slightly different pattern of round curls, with one tall curl sticking up in front of its seat;
+4) the same middle piece, a little plumper, with its curls a little bigger;
+5) the rear piece: one round fleece puff of the body with the ram's two back legs under it and its round fluffy tail at its left end, with the same small seat on its top.
+
+Design the pieces to join later by overlapping by about a sixth of their width, with the piece nearer the head drawn over the piece nearer the tail. The front's left end, both ends of every middle, and the rear's right end have matching rounded fleece joins at the same height and depth. These overlap margins contain only fleece; keep every seat, leg, head and tail clear of the joining margins. The covering puff must hide the covered end's dark outline so the assembled body reads as continuous fleece. Keep the middle variants' joining margins identical; their curls and plumpness vary between the joins. Show the pieces separately here.
+
+The ram and the five pieces stand in one row on the same ground line, evenly spaced with clear empty space between them, not touching, not overlapping. Use the same pixel size as the attached picture: do not make the pixels smaller or larger.
+
+Crisp pixel art with hard square pixel edges, the same thick dark outline, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground under them, no shadows, no text, no labels.

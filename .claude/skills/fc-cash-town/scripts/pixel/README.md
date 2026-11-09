@@ -894,3 +894,64 @@ The owner: "พู่กันช่วยทำ icon ใหม่ ให้ด�
 
 - **`icons-farm-gifts-a`**: three designs of the brush, the giant seeds (rank 7) and the pollen seal (rank 9) drawn again, and the reference's sack to hold the size. **The third brush is packed as `thingCrossBrush`** (`ICONS_ONLY=icons-farm-gifts-a ICONS_APPEND=1 ICONS_REPLACE=1`, the worktree's `ICONS_PUB`/`ICONS_JSON`): a slim brush with a golden pollen tip standing between a pink and a sky-blue flower whose stems cross behind it, what the gift does and still a brush at 22 px. The first (a diagonal brush, its tip golden with pink and blue) is the other choice; the second (a round brush half pink, half blue) read as an ice cream at 22 px. The seeds and the seal were `_` names at first, offered; **packed on his word the same day** ("เอา", 2026-11-07) as `thingGiantSeeds` and `thingPollenSeal` in place of add-reward-icons.mjs's code-drawn two (43x50, 39x46; a plump pale seed with a sprout beside a small pouch; a jar of golden pollen under a red wax seal). Cut on its finer grid (5.65; the brush 39x52): on 11.6 the pixels were blocky and the seal's flower a blob.
 - **Codex read the prompt first** (run 2026-11-07-07-28-42-art-23204, `fix`): its words taken, the first brush's flowers as pink and blue patches on its bristles (two flower heads would widen the tip into a bouquet at 22 px), the third's bow removed and its brush in front of the flowers.
+
+## Previews: special produce, its dishes, new buffs, the pounding and rolling boards, the stretchy cloud ram (2026-11-09)
+
+The owner, of a design idea patch: "ช่วยลองทำรูปของแต่ละอย่างขึ้นมาก่อน ผมจะยืนยันให้ทำอีกที แต่ขอดูรูปก่อน". **Previews only:** nothing is in
+the town's atlas, `public/` or the game; the icons were cut into a scratch atlas (`ICONS_ONLY=… ICONS_PUB=work/specials/pub
+ICONS_JSON=work/specials/pub/atlas.json`), the scenes by `build-mine-scene.mjs work/specials/scenes`. 23 calls, 29 pictures,
+$0.557 (`gpt-image-2.5-sunburst`, low; each read by Codex first); the ledger then stood at 3,050 rows and $45.458 of $55. The
+sheets for the owner are `docs/plans/specials/previews/` (branch `specials-art`, not committed: contact sheets and mocks).
+The scratch scripts that cut, checked and laid them out are in `work/specials/js/` (`make-specials-prompts.mjs` wrote the
+prompts on the owner's templates with their closing sentences).
+
+- **`icons-special-a` … `-e`** (ICON SHEET, each with the pasture sheet of its family for the reference: eggs-a, eggs-c,
+  wool-a, milk-a, eggs-b): the 28 special products, hens', ducks' (with the blank recipe paper), sheep's, cows', and `-e` the
+  four legends with the star beside the live ember egg and golden wool as `_` fillers. Every egg keeps the family's one
+  silhouette (Codex's rule of 2026-10-20), so the brief's long wind-runner egg and drop-shaped first-rain egg are markings on
+  it. Cut at 7.64, 9.90, 8.17, 8.00, 8.29: eggs 28x35 (b's 22x27, beside rainEgg's 21x27). **`-c` cannot be cut by even
+  columns**: the dandelion's drifting seed touches the rainbow lock by one corner, and its head's middle falls in the lock's
+  column (`split` sliced the cloud tuft onto the horn; `near` left the dandelion empty): for the preview it was cut by the
+  scenery builder's spans, each cell to the span of its own column (`work/specials/js/cutc.mjs`). A real build needs that
+  sheet's two drawn apart, or the builder taught spans.
+- **`icons-special-dish-a`, `-b`** (eggs' dishes, `icons-pasture-dish-a` and `-c` for the reference): ten dishes, the three
+  legend feast dishes with the star; `-b` was the trial. Cut at 8.0.
+- **`icons-special-buff-a`, `icons-special-habit-a`** (`icons-items-m`, buffCalm and buffKeen, for the reference): five buffs
+  and the cooking-together seal; six habit kinds. Cut at 7.73 and 8.01.
+- **`scene-pound-game`, `scene-roll-game`** (MINI-GAME SCENE, N=3, `BG=opaque`, `scene-town-game-worktable` for the
+  kitchen's palette, the words top-down): **pound 2 chosen** (the crispest, 68% of its edges on the grid; the whole rim and
+  the widest plain bowl inside the board's 4:3; 245x163 at 6.24), **roll 3** (the whole board inside the 4:3, the dough the
+  plainest; its 6.45 matches the mortar's; 2 was crisper, 5.27, but its board runs off the 4:3 sides). The others kept.
+- **The boards' pieces**: `icons-pound-a2` (chillies and garlic at three stages; **`icons-pound-a` drew each in its own
+  little stone bowl**, which cannot lie in the drawn mortar: drawn again saying the ingredient alone), `-b` (lemongrass,
+  shallots), `-c` (the hard lump, a splash, the pestle, the finished blend), all cut at 8.0; `icons-roll-a` (two tears drawn
+  as the opening only, flour puffs, a sprinkle) at 7.10, with the chosen roll scene for the reference; **`scene-roll-pin`**
+  and **`scene-roll-mat`** (one wide piece each, the scene for the reference; the mat N=3 on Codex's word, 1 chosen: the
+  crispest, an even rice face and a clear nori border, 202x129 at 5.56). The pin came out twice the dough's width (255 at its
+  own grid 5.89): **cut on twice its grid** (11.97) it is 125x20, the dough's width at the board's pixel size, still crisp.
+- **The stretchy cloud ram** (`ramkit-*`, 3840x1280, each an in-place edit of a canvas that keeps the live ram's own base
+  frame at 6x on the left, from `ref-ram-pack.png`, as the scale's check): the kept ram cut back to 131x108 against its
+  native 130x104 at 6.00. A front piece (head, shoulders, a seat), three middle lengths each on its own legs with a seat,
+  a rear piece (tail), each whole with its outline closed, laid back to front with a sixth overlapping (SE: tail to head,
+  NE: head to tail), so any length is the same pieces. **`ramkit-se-a` drew the middles from behind** (a row of sheep rumps
+  behind a side-on head, the front without a seat, the tail on the wrong end): kept, drawn again as **`-se-a2`** with every
+  piece's side view in words. `-se-b` the other step of the walk (edit of `-a2`), `-se-face` the front piece alone (cropped
+  at its drawn size) with surprised-proud and determined (tongue out, ears flopped) beside it: drawn at 8 to the pixel, cut
+  there its kept piece is 108x115 against 105x107; `-ne-a` the kit from behind (the live NE frame kept, `-a2` the second
+  reference). The mocks seat the real Doll 2 sitting frames as Town.tsx seats a ram's riders (RAM_LIFT, the doll at 0.67, the
+  ram at 1.05 x 0.5 x 0.959 map px to its pixel), one rider a seat, the face by the load (1-2 content, 3-5 surprised, 6+
+  determined), at game zoom 2 and 4.
+- **Codex's reads**: run 2026-11-09-12-06-01-art-49048 (the first fourteen: nine `send`; `fix` taken for `-special-c`, the
+  dish sheet's legends simplified, the seal's emblem; `-e` fixed at the source and read again, -12-08-18-art-38340, `send`);
+  the first ram kit -12-09-54-art-41596 (`fix`: its sizes in the asset's pixels said relatively instead, ART_WORKFLOW, read
+  again -12-11-11-art-15520, `send`); -12-15-55-art-41292 (the bowl-less sheet, pin, roll pieces `send`; the mat and the ram's
+  second try `fix`, taken); -12-21-40-art-12448 (the walk step `fix` taken, the faces and the back view `send`).
+- **Checks**: every cut piece over magenta at 8x with enclosed clear cells marked (`work/specials/js/bugcheck.mjs`,
+  `holelook.mjs`): no half-clear cell; what is apart is the legends' stars, the moon over the lucky hearts, flour dots and the
+  dandelion's seed; enclosed clear cells are drawn gaps (handle loops, between blades, raindrops, two chillies, the splash's
+  drops, a ram's legs).
+- **Codex's look at the sheets** (find runs -12-36-09-find-24400 for A, -12-36-47-find-28228 for B to E): must-fix, by its
+  word, the paper (a boat, as asked), the dandelion (a sunflower), the whole fleece (bread rolls), the sesame pudding (a
+  rock), the cake's height, the aroma sign (a flame), the food habit (crops), the smooth pastes (sweets), the mortar mock's
+  pieces as icons, and the long ram's repeated saddles and legs (joined sheep rather than one fleece); left for the owner to
+  judge before any redraw (his rule).

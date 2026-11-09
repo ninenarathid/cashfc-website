@@ -1,0 +1,9 @@
+Edit the attached picture. On its left it shows the front piece of a fluffy white cloud ram from a cozy 2D town game, drawn in large square pixels: its head with a grey face, a round shiny dark eye, a pale pink nose, curled pale gold horns and grey ears, its fleecy shoulders with a small brown leather seat on a blue cloth, and its two front legs, turned three-quarters towards the viewer and facing the lower right. Keep it exactly as it is and exactly where it is.
+
+In the empty space to its right, draw the same piece twice more in a row, each exactly the same in size, outline, fleece, horns, seat, legs, colours and large square pixels, with only its face and ears changed, funny but cute:
+1) surprised and proud: its eye opened wide and round with a bigger white shine, its brow raised high above it, its mouth a small open round shape, a small pink blush on its cheek, and both ears pricked straight up;
+2) determined and straining: its eye squeezed into a firm flat line under a lowered brow, its pink tongue sticking out of the side of its mouth, and both ears flopped down limp beside its head.
+
+All three stand in one row on the same ground line, evenly spaced with clear empty space between them, not touching, not overlapping. Use the same pixel size as the attached picture: do not make the pixels smaller or larger.
+
+Crisp pixel art with hard square pixel edges, the same thick dark outline, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground under them, no shadows, no text, no labels.
