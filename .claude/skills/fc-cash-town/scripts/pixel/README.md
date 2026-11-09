@@ -888,6 +888,29 @@ alone (2026-11-03-18-34-48-art-44188, `send`). No PixelLab (1.3 generations left
 - In the game: `scripts/town-boat.mjs` (1280x860, 384x730, 360x640), `scripts/town-ram-pack.mjs` (the pack, the ram
   beside and ridden, the fairy and three others following).
 
+## The cloud ram's flock in the game (2026-11-09)
+
+The owner: more than two on a cloud ram is a bug the members like, keep it, "แกะของเจ้าของตัวใหญ่ขึ้น คนที่มาขี่ ได้นั่งแกะตัวเล็กๆ
+พอมีคนนั่งเยอะๆ มันจะเป็นฝูงแกะ น่ารักๆ", "บางคน สุ่ม จะได้นั่งบนก้อนเมฆแกะ เหมือนเป็นเวทมนของแกะวิเศษ", then of the mock pictures
+"อยากให้คนชิดกันกว่านี้ คนที่เป็นคนนั่งตัวใหญ่ นั่งไม่ตรงอาน", and "ทำทั้งหมดได้เลย". No picture drawn for it here (0 calls): every
+frame is the specials previews' kit (branch `specials-art`, b1fed6c6 and the places re-solved in ffb4fd00; their prompts and
+costs are in that branch's entries for rounds 2 and 3).
+
+- **`node build-scenery.mjs --set flock --out <tree>/public/town [--flock <kit dir>] [--seats <flock-seats.json>]`**
+  (flock-frames.mjs; by default `docs/plans/specials/kit` and `docs/plans/specials/previews/flock-seats.json`): `flock.json`,
+  `flock-<hash>.png` (1024x1340, 443 KB, fetched the first time a ram is ridden: lib/town/flock-art.ts). The big ram
+  (`fl_big_<SE|NE>_stand`, `_walk_<0-5>`), the lambs in white, cream and pink (`fl_lamb_<w|c|p>_<SE|NE>_stand`, `_walk_<0-5>`,
+  `_graze`), the cloud sheep (`fl_cloud_<SE|NE>_<0-5>`), the pops (`fl_pop_<SE|NE>_<out|in>_<0-5>`), each front view's head
+  again (`<frame>_head`, laid over its rider so the legs go behind it) and the full flock's icon (`fl_full`, the kit's
+  `icons/flockFull.png`, for the control that cannot be pressed). Every piece stands on the kit's anchor (its feet), and the
+  json's `seat` is where its rider's hips go against that, frame by frame; the game lays a sitting doll by its hips (front
+  (-6, -7), back (3, -5) of its own pixels). The cloud is stood at the seats' `lift` (12 and a quarter of its drawn bob),
+  not the 35 to 65 it was drawn floating.
+- The places (eight walking, eight at rest, each facing) are written into lib/town/flock.ts from flock-seats.json.
+- In the game: `scripts/town-flock.mjs` (1280x860, 384x730, 360x640; a real friend asked on, passengers who are not there for
+  3, 6 and 8, the full flock both ways, the ninth let down); `town-animals.mjs ram` and `town-ram-pack.mjs` count 1, 3, 6
+  and 8 riders.
+
 ## The farming line's gift icons drawn (2026-11-07)
 
 The owner: "พู่กันช่วยทำ icon ใหม่ ให้ดูดีขึ้น" (the rank-8 cross-pairing brush, one of add-reward-icons.mjs's code-drawn icons: a flat stick with three green squares, no outline). One call, $0.0198 (`gpt-image-2.5-sunburst`, low, 1536x1024, drawn once); the ledger then stood at 3,027 rows and $44.901 of $55. Prompt `prompts/icons/icons-farm-gifts-a.txt`, on the owner's ICON SHEET template with its closing sentence, `work/out/icons-mining-a.png` for the reference (the drawn gifts: the miner's lamp, the bat, the sack).

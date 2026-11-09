@@ -34,6 +34,14 @@ try {
   await shot(X, "1-button");
   await X.evaluate(`${V}.walk(49, 47)`); await sleep(450); await shot(X, "1-ram-walking");
   await X.evaluate(`window.dispatchEvent(new KeyboardEvent("keydown", { code: "KeyR", key: "r", bubbles: true }))`); await sleep(500); await X.evaluate(`${V}.walk(46, 47)`); await sleep(450); await shot(X, "1-ram-ridden");
+  // ── the cloud ram's flock ── (1, 3, 6 and 8 riding behind on lambs of their own: passengers who are not there,
+  // `__townView.flock`; the pack's button stays beside the ride's, and the big ram is ridden on)
+  for (const n of [1, 3, 6, 8]) {
+    await X.evaluate(`${V}.flock(${n})`); await sleep(1300);
+    ok(`${n} riding: a lamb or a cloud each, and the pack's button still there`, (await X.evaluate(`${V}.flockAt().length`)) === n && await has(X, '[data-ram-pack="closed"]'));
+  }
+  await X.evaluate(`${V}.walk(49, 47)`); await sleep(500); await shot(X, "1-ram-flock-8");
+  await X.evaluate(`${V}.flock(0)`); await sleep(1700);
   await X.evaluate(`window.dispatchEvent(new KeyboardEvent("keydown", { code: "KeyR", key: "r", bubbles: true }))`); await sleep(400);
   await press(X, '[data-ram-pack="closed"]');
   await until("the pack open", () => has(X, '[data-ram-pack="open"]'), 4000).catch(() => null);

@@ -21,6 +21,11 @@
 //   node build-scenery.mjs --set stag           the moss stag's own (stag-<hash>.png + stag.json): its gallop, walk and
 //                                               standing in two views, every frame stood on its moss saddle's middle, so
 //                                               that a rider laid there stays put (lib/town/stag-art.ts)
+//   node build-scenery.mjs --set flock          the cloud ram's flock (flock-<hash>.png + flock.json): the owner's big ram, the
+//                                               passengers' lambs in three colours, the floating cloud sheep and the pops
+//                                               out of the fleece and back, each mount on its feet with its rider's seat
+//                                               (flock-frames.mjs: the kit of docs/plans/specials/kit, or --flock <dir>, and
+//                                               its flock-seats.json, or --seats <file>) (lib/town/flock-art.ts)
 //   node build-scenery.mjs --set boat           the fishing line's lotus-leaf boat (boat-<hash>.png + boat.json): the boat at
 //                                               rest and under sail, the dock's jetty and sign, lotus pads (lib/town/boat-art.ts)
 //   node build-scenery.mjs --work <dir>         the sheets are another tree's (a worktree has no work folder of its own)
@@ -38,6 +43,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 import * as L from "./pxlib.mjs";
 import { lookFrames, pastureFrames, troughPieces } from "./pasture-frames.mjs";
+import { flockPieces } from "./flock-frames.mjs";
 
 const HERE = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Z]:)/, "$1");
 const argWork = process.argv.indexOf("--work");
@@ -52,7 +58,7 @@ const SET = argSet > 0 ? process.argv[argSet + 1] : "scenery";
 // (the pasture's animals are a picture a species, `pasture-<species>`: every look in two views with its loops is too
 // large for one picture a phone draws from)
 const ANIMAL_SETS = ["pasture-chicken", "pasture-duck", "pasture-sheep", "pasture-cow"];
-if (!["scenery", "forest", "kitchen", "mountain", "cave", /* felling */ "felling", "works", "lamps", "pasture", "stag", "giants", "boat", ...ANIMAL_SETS].includes(SET)) throw new Error(`no such set: ${SET}`);
+if (!["scenery", "forest", "kitchen", "mountain", "cave", /* felling */ "felling", "works", "lamps", "pasture", "stag", "giants", "boat", "flock", ...ANIMAL_SETS].includes(SET)) throw new Error(`no such set: ${SET}`);
 
 // [sheet, names, how]: "whole" keeps every shape on the sheet as one piece (the shop site and its
 // heaps); "hat" stands frames on their feet under the middle of their yellow hard hat, so a
@@ -485,7 +491,7 @@ const isWater = (r, g, b) => { const mx = Math.max(r, g, b), mn = Math.min(r, g,
   return (b > r + 25 && b >= g && (mx - mn) / 255 > 0.18) || (l > 0.82 && b >= r && b >= g - 4); };
 // (the mountain's own ground: bare stony earth, a cliff's face seen from the front, snow, and the forest's floor under its
 // pines; the cave's: its floor, the top of its rock, and the same face for its walls)
-const TEXTURES = ANIMAL_SETS.includes(SET) ? [] : { forest: ["wood"], kitchen: [], felling: [], works: [], lamps: [], pasture: [], stag: [], giants: [], boat: [], mountain: ["rock", "cliff", "snow", "wood"], cave: ["cavefloor", "cavewall", "cliff"] }[SET]
+const TEXTURES = ANIMAL_SETS.includes(SET) ? [] : { forest: ["wood"], kitchen: [], felling: [], works: [], lamps: [], pasture: [], stag: [], giants: [], boat: [], flock: [], mountain: ["rock", "cliff", "snow", "wood"], cave: ["cavefloor", "cavewall", "cliff"] }[SET]
   ?? ["grass", "plaza", "road", "water", "sand", "field"];
 
 const pieces = [];
@@ -508,7 +514,7 @@ function moveOnto(g, ref, refSet) {
   }
   return { ...best, of: low.length };
 }
-for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: KITCHEN, mountain: MOUNTAIN, cave: CAVE, felling: FELLING, works: WORKS, lamps: LAMPS, pasture: PASTURE, stag: STAG, giants: GIANTS, boat: BOAT }[SET] ?? (ANIMAL_SETS.includes(SET) ? [] : SHEETS)) {
+for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: KITCHEN, mountain: MOUNTAIN, cave: CAVE, felling: FELLING, works: WORKS, lamps: LAMPS, pasture: PASTURE, stag: STAG, giants: GIANTS, boat: BOAT, flock: [] }[SET] ?? (ANIMAL_SETS.includes(SET) ? [] : SHEETS)) {
   if (!fs.existsSync(path.join(OUT, `${sheet}.png`))) { console.log(`no ${sheet}`); continue; }
   const raw = await L.loadRaw(path.join(OUT, `${sheet}.png`));
   // the characters' own pixel size (about 5.3–6.2): a double period scores as well and halves every prop
@@ -684,6 +690,14 @@ if (SET === "pasture") {
   }
 }
 
+// the cloud ram's flock: frames that came cut, each mount on its seat (flock-frames.mjs)
+if (SET === "flock") {
+  const at = (flag) => { const i = process.argv.indexOf(flag); return i > 0 ? process.argv[i + 1] : null; };
+  const got = await flockPieces(at("--flock") ?? undefined, at("--seats") ?? undefined);
+  for (const p of got) console.log(`${p.name.padEnd(24)} ${p.img.w}x${p.img.h}${p.seat ? `  hips at ${p.seat[0]},${p.seat[1]} from its feet` : ""}`);
+  pieces.push(...got);
+}
+
 // a species' looks: each in two views, its walk and idle loops (pasture-frames.mjs's lookFrames)
 if (ANIMAL_SETS.includes(SET)) pieces.push(...(await lookFrames(SET.slice("pasture-".length))).pieces);
 
@@ -745,6 +759,8 @@ const meta = {
   props: Object.fromEntries(pieces.flatMap(p => [p.name, ...(p.also ?? [])].map(n => [n, [p.x, p.y, p.img.w, p.img.h, p.ax, p.ay]]))),
   textures: Object.fromEntries(textures.map(p => [p.name, [p.x, p.y, p.img.w, p.img.h]])),
   // (the pasture's: how much larger than its kind's own a piece is drawn, where not 1: pasture-frames.mjs)
+  // (the flock's: where a rider is laid against a mount's point, in its own pixels: flock-frames.mjs)
+  ...(pieces.some(p => p.seat) ? { seat: Object.fromEntries(pieces.filter(p => p.seat).map(p => [p.name, p.seat])) } : {}),
   ...(pieces.some(p => p.k && p.k !== 1) ? { scale: Object.fromEntries(pieces.filter(p => p.k && p.k !== 1).flatMap(p => [p.name, ...(p.also ?? [])].map(n => [n, p.k]))) } : {}),
 };
 for (const f of fs.readdirSync(PUB)) if (f.startsWith(`${SET}-`) && /^-[0-9a-f]{10}\.png$/.test(f.slice(SET.length)) && f !== meta.image) fs.unlinkSync(path.join(PUB, f));

@@ -132,6 +132,12 @@ export interface Doing {
    * Every page puts them there, and walks them no more while they sit.
    */
   seat?: string;
+  /**
+   * ── the cloud ram's flock ── When they got onto a ram's seat, in ms of their own clock (lib/town/flock): every page
+   * lines the flock up by it and rolls the magic ram's cloud from it, so the line and the clouds are the same on every
+   * screen. 0 when on no ram's seat; missing from a browser older than the flock.
+   */
+  seatAt?: number;
 }
 
 /**
@@ -217,7 +223,7 @@ const num = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? v : u
 const bool = (v: unknown) => (typeof v === "boolean" ? v : undefined);
 
 /** Only the fields we know, of the types we expect: these come from other browsers. */
-function readDoing(p: Record<string, unknown>): Partial<Doing> {
+export function readDoing(p: Record<string, unknown>): Partial<Doing> {
   const d: Partial<Doing> = {};
   const x = num(p.x), y = num(p.y), voice = bool(p.voice), muted = bool(p.muted), away = bool(p.away);
   if (x !== undefined && y !== undefined) { d.x = x; d.y = y; }
@@ -259,6 +265,7 @@ function readDoing(p: Record<string, unknown>): Partial<Doing> {
   if (isMood(p.mood)) d.mood = p.mood;
   // ── the pasture ── (behind a cloud ram's rider, or on the hay wagon: "r:" or "w:" and an id; "" for neither)
   if (typeof p.seat === "string" && /^(?:[rw]:[A-Za-z0-9_-]{1,64})?$/.test(p.seat)) d.seat = p.seat;
+  if (typeof p.seatAt === "number" && Number.isFinite(p.seatAt) && p.seatAt >= 0) d.seatAt = Math.floor(p.seatAt);
   return d;
 }
 

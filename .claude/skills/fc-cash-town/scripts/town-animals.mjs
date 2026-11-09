@@ -318,7 +318,7 @@ async function run(label) {
   } finally { N.close(); }
 }
 
-/** The cloud ram's second seat; and whoever is inside a barn is out of sight from outside it. */
+/** The cloud ram's seats (a flock of up to eight since 2026-11-09); and whoever is inside a barn is out of sight from outside it. */
 async function ramSeat() {
   const X = await browser("animals-ram", SIZES.desktop);
   try {
@@ -348,6 +348,17 @@ async function ramSeat() {
     await sleep(5000);
     const [a, b] = [await X.evaluate(`${S}.self()`), await P.evaluate(`${S}.self()`)];
     ok("ram: carried along where the rider goes", !!a && !!b && Math.hypot(a.x - b.x, a.y - b.y) < 1.2, { a, b });
+    // ── the cloud ram's flock ── (the friend on a lamb of their own; then 3, 6 and 8 riding with passengers who are not
+    // there, `__townView.flock`: a lamb each, and nobody more offered at eight. town-flock.mjs tries the flock whole)
+    ok("ram: the friend rides a lamb of their own", (await X.evaluate(`window.__townView.flockAt().length`)) === 1);
+    for (const n of [3, 6, 8]) {
+      await X.evaluate(`window.__townView.flock(${n - 1})`); await sleep(1500);
+      const got = await X.evaluate(`window.__townView.flockAt().length`);
+      ok(`ram: ${n} ride, a lamb or a cloud each`, got === n, got);
+    }
+    ok("ram: eight riding, nobody more is offered", !(await X.evaluate(`!!document.querySelector("[data-ram-ask]")`)));
+    await X.shot(`${OUT}/desktop-27b-ram-flock-8.png`);
+    await X.evaluate(`window.__townView.flock(0)`); await sleep(800);
     await P.evaluate(`document.querySelector("[data-ram-off]")?.click()`);
     await sleep(1200);
     ok("ram: got down", !(await P.evaluate(`${S}.seat()`)));

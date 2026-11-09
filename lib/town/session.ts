@@ -20,7 +20,8 @@ import { CART, cartPace } from "./cart";
 import { KNOCKS_MS, SHOW, readTold as readForged, toldOf, type ForgeShow } from "./forge-show";
 import { carryPace } from "./carry";
 import { readTold } from "./handing";
-import { paceOf, rides } from "./riding";
+import { paceOf, rides, riderOf } from "./riding";
+import { flockOrder, pastFull } from "./flock";
 // ── the pasture ── (a seat on a cloud ram behind its rider, or on the hay wagon: lib/town/seats)
 import { seatSpot } from "./seats";
 import { walkPace } from "./tools";
@@ -331,7 +332,8 @@ export class TownSession {
       // (a giant pulled out together: said only by somebody who has been in a crew, and from then on)
       ...(i.pull !== undefined ? { pull: i.pull } : {}),
       // (the pasture: said only by somebody who has sat on a ram or a wagon, and from then on, so that getting down is heard)
-      ...(i.seat !== undefined ? { seat: i.seat } : {}),
+      // (and when they got on a ram's: the flock's line and its clouds, lib/town/flock)
+      ...(i.seat !== undefined ? { seat: i.seat, seatAt: i.seatAt ?? 0 } : {}),
       // (forging: said only by somebody who has held a tool with something to tell, and from then on, so that it is heard to be put away; a room where nobody has one hears nothing new)
       ...(i.tool !== undefined ? { tool: i.tool } : {}) };
   }
@@ -379,6 +381,9 @@ export class TownSession {
           a.pos = { x: at.x, y: at.y }; a.path = [];
           if (a === this.self) {
             this.sitWhenThere = null;
+            // ── the cloud ram's flock ── (a ninth on a ram, who got on as the eighth did: down again, on this page of theirs)
+            const carrier = riderOf(a.info.seat);
+            if (carrier && pastFull(flockOrder([...all, ...(this.flockGhosts?.() ?? [])].filter((o) => o.byeAt === undefined && riderOf(o.info.seat) === carrier).map((o) => ({ id: o.info.id, at: o.info.seatAt }))), a.info.id)) { this.getDown(); this.onFlockFull?.(); continue; }
             const stamp = `${placeOf(at.x, at.y)}:${Math.floor(Date.now() / 3000)}`;
             if (stamp !== this.seatMark) { this.seatMark = stamp; a.info = { ...a.info, x: at.x, y: at.y }; this.announceMove(); this.notify(); }
           }
@@ -1263,7 +1268,8 @@ export class TownSession {
         a.placed = true;
       } else if (d.x !== a.info.x || d.y !== a.info.y) {
         // To the other map there is no walking: they went through a gate, and stand there now.
-        if (placeOf(d.x, d.y) !== placeOf(a.pos.x, a.pos.y)) { a.pos = { x: d.x, y: d.y }; a.path = []; }
+        // (nor off a lamb of a ram's flock: they stand where their lamb was)
+        if (placeOf(d.x, d.y) !== placeOf(a.pos.x, a.pos.y) || (d.seat === "" && riderOf(a.info.seat))) { a.pos = { x: d.x, y: d.y }; a.path = []; }
         else a.path = this.options.terrain ? this.options.terrain.path(a.pos, { x: d.x, y: d.y }) ?? [] : findPath(a.pos, { x: d.x, y: d.y }) ?? [{ x: d.x, y: d.y }];
       }
     }
@@ -1418,17 +1424,27 @@ export class TownSession {
     if (this.closed || this.self.info.seat === seat) return;
     this.sitWhenThere = null;
     this.self.path = [];
-    this.tell({ seat, ...((this.self.info.sit ?? -1) !== -1 ? { sit: -1 } : {}) });
+    // (on a ram's: when, for the flock's line and its cloud, lib/town/flock)
+    this.tell({ seat, seatAt: riderOf(seat) ? Date.now() : 0, ...((this.self.info.sit ?? -1) !== -1 ? { sit: -1 } : {}) });
   }
+  /** ── the cloud ram's flock ── Where I am drawn on my lamb, for getting down there (components/town/Town.tsx says it). */
+  dropSpot: (() => Vec | null) | null = null;
+  /** Told when I got down again because the flock was full as I got on. */
+  onFlockFull: (() => void) | null = null;
+  /** `next dev` only: passengers who are not there (components/town/Town.tsx's __townView.flock), counted in the flock as if they were. */
+  flockGhosts: (() => Avatar[]) | null = null;
   /** Get down from a seat that is no seat of my own, where I am now (on a tile I can stand on: the nearest, if this is none). */
   getDown() {
     if (this.closed || !this.self.info.seat) return;
-    const a = this.self, tx = Math.floor(a.pos.x), ty = Math.floor(a.pos.y);
+    // (off a lamb of a ram's flock: where the lamb is, on the same map)
+    const drawn = riderOf(this.self.info.seat) ? this.dropSpot?.() ?? null : null;
+    const from = drawn && placeOf(drawn.x, drawn.y) === placeOf(this.self.pos.x, this.self.pos.y) ? drawn : this.self.pos;
+    const a = this.self, tx = Math.floor(from.x), ty = Math.floor(from.y);
     let at = { x: tx + 0.5, y: ty + 0.5 };
     if (!walkable(tx, ty)) for (let r = 1; r <= 4 && !walkable(Math.floor(at.x), Math.floor(at.y)); r++) for (const [dx, dy] of [[r, 0], [-r, 0], [0, r], [0, -r], [r, r], [-r, -r], [r, -r], [-r, r]]) if (walkable(tx + dx, ty + dy)) { at = { x: tx + dx + 0.5, y: ty + dy + 0.5 }; break; }
     a.pos = at; a.path = [];
     a.info = { ...a.info, x: at.x, y: at.y };
-    this.tell({ seat: "" });
+    this.tell({ seat: "", seatAt: 0 });
     this.announceMove();
   }
   private tell(patch: Partial<Doing>) {

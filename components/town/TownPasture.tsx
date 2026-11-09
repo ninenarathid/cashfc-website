@@ -15,6 +15,8 @@ import { loadScenery, type SceneryKit, type Sprite } from "@/lib/town/scenery";
 import { artOf } from "@/lib/town/decor";
 import { knowWagons, wagonSpot } from "@/lib/town/seats";
 import { RAM, ramSeat, riderOf, runOf, wagonSeat } from "@/lib/town/riding";
+import { FLOCK_MAX, flockOrder, hasRoom } from "@/lib/town/flock";
+import { loadFlockArt } from "@/lib/town/flock-art";
 import { hasThing, usesLeft, wearing, type CharmId, type ThingId } from "@/lib/town/gifts";
 import { isSpent } from "@/lib/town/stamina";
 import { ITEMS } from "@/lib/town/items";
@@ -66,7 +68,7 @@ export interface PastureProps {
   self: () => Vec | null;
   myName: string;
   /** Everybody else on my page: where, what follows them, where they sit. */
-  people: () => Array<{ id: string; name: string; x: number; y: number; pet?: string; seat?: string; sit?: number }>;
+  people: () => Array<{ id: string; name: string; x: number; y: number; pet?: string; seat?: string; seatAt?: number; sit?: number }>;
   /** My familiar, whether I walk beside it, whether I sit, and my seat that is no seat of mine (lib/town/riding). */
   pet: string | null;
   afoot: boolean;
@@ -565,10 +567,20 @@ export default function TownPasture(props: PastureProps) {
     });
     return () => props.pairHear(null);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // ── the cloud ram's flock ── (up to eight behind me, in the order they got on; and the flock of whoever asks me, when it is full)
+  const flock = flockOrder(props.people().filter((p) => riderOf(p.seat) === me).map((p) => ({ id: p.id, at: p.seatAt })));
+  const full = !hasRoom(flock.length), theirsFull = !!invite && !hasRoom(props.people().filter((p) => riderOf(p.seat) === invite.from).length);
+  const [fullPic, setFullPic] = useState<Sprite | null>(null);
+  useEffect(() => { if (!(full || theirsFull) || fullPic) return; void loadFlockArt().then((k) => setFullPic(k?.sprite("fl_full") ?? k?.sprite("fl_lamb_w_SE_stand") ?? null)); }, [full, theirsFull, fullPic]);
+  useEffect(() => { const on = () => say(t("ฝูงแกะเต็มแล้ว", "The flock is full.")); window.addEventListener("town:flock-full", on); return () => window.removeEventListener("town:flock-full", on); }, [say]); // eslint-disable-line react-hooks/exhaustive-deps
+  const letDown = flock.length ? flock[flock.length - 1].id : passenger;
   const riding = props.pet === RAM && !props.afoot && !props.sitting && !props.seat;
   const nearby = riding ? props.people().filter((p) => !p.seat && (p.sit ?? -1) === -1 && p.pet !== RAM && (() => { const a = props.self(); return !!a && Math.hypot(p.x - a.x, p.y - a.y) <= RAM_REACH; })()).slice(0, 2) : [];
   const behind = riderOf(props.seat);
-  useEffect(() => { if (passenger && !props.people().some((p) => p.id === passenger && riderOf(p.seat) === me)) { const t0 = setTimeout(() => setPassenger((x) => (x === passenger && !propsRef.current.people().some((p) => p.id === passenger && riderOf(p.seat) === me) ? null : x)), 4000); return () => clearTimeout(t0); } });
+  // (who said yes is forgotten a few seconds after they are off my ram, or never got on: they can be asked again. A
+  // timer set again on every render never ran out, and whoever had got down once could not be asked again)
+  const passengerOn = !!passenger && props.people().some((p) => p.id === passenger && riderOf(p.seat) === me);
+  useEffect(() => { if (!passenger || passengerOn) return; const t0 = setTimeout(() => setPassenger((x) => (x === passenger && !propsRef.current.people().some((p) => p.id === passenger && riderOf(p.seat) === me) ? null : x)), 4000); return () => clearTimeout(t0); }, [passenger, passengerOn]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── the gifts' buttons, where they apply: the bell, the harp, the wind and the wagon (on the farm)
   const gives = (id: string) => (keeper as { gives?: (id: string) => boolean }).gives?.(id) !== false;
@@ -619,7 +631,7 @@ export default function TownPasture(props: PastureProps) {
               : <ShearGame animal={game} ease={ease} th={th} kit={kitNow} reduced={reduced} onDone={(p) => void collected(game, p)} onQuit={() => setGame(null)} />}
         </TownFoot>
       )}
-      {!view && !game && (byDoor || boardable || myRun || behind || invite || nearby.length > 0 || passenger) && (
+      {!view && !game && (byDoor || boardable || myRun || behind || invite || nearby.length > 0 || letDown) && (
         <TownFoot rank="chip" order={33}>
           <div className="pointer-events-auto flex max-w-full flex-wrap items-center justify-center gap-2" data-pasture-chips>
             {byDoor && <button type="button" className="pressable min-h-11 rounded-full border border-line-lit bg-surface/92 px-4 text-ui font-semibold text-ink shadow-lg shadow-black/30 backdrop-blur-sm" onClick={() => void toggleDoor()} data-door={doorOpen ? "open" : "shut"}>{doorOpen ? t("ปิดประตูโรง", "Shut the barn door") : t("เปิดประตูโรง", "Open the barn door")}</button>}
@@ -628,11 +640,13 @@ export default function TownPasture(props: PastureProps) {
             {behind && <button type="button" className="pressable min-h-11 rounded-full border border-line-lit bg-surface/92 px-4 text-ui text-ink shadow-lg" onClick={() => props.getDown()} data-ram-off>{t("ลงจากหลังแกะ", "Get down")}</button>}
             {invite && <span className="flex items-center gap-2 rounded-full border border-gold/60 bg-surface/95 py-1 pl-4 pr-1 text-ui text-ink shadow-lg" data-ram-invite={invite.from}>
               {t(`${invite.name} ชวนขี่แกะปุยเมฆด้วยกัน`, `${invite.name} asks you onto the cloud ram`)}
-              <button type="button" className="pressable min-h-11 rounded-full bg-accent px-3 font-semibold text-bg" onClick={() => { props.takeSeat(ramSeat(invite.from)); props.pairSend(invite.from, { k: "ram", m: "yes" }); setInvite(null); }}>{t("ขึ้นเลย", "Hop on")}</button>
+              {theirsFull ? <FullFlock sprite={fullPic} n={FLOCK_MAX} label={t("ฝูงแกะเต็มแล้ว", "The flock is full")} />
+                : <button type="button" className="pressable min-h-11 rounded-full bg-accent px-3 font-semibold text-bg" onClick={() => { props.takeSeat(ramSeat(invite.from)); props.pairSend(invite.from, { k: "ram", m: "yes" }); setInvite(null); }}>{t("ขึ้นเลย", "Hop on")}</button>}
               <button type="button" className="pressable min-h-11 rounded-full border border-line-strong px-3 text-ink" onClick={() => { props.pairSend(invite.from, { k: "ram", m: "no" }); setInvite(null); }}>{t("ไม่เป็นไร", "No thanks")}</button>
             </span>}
-            {nearby.filter((p) => p.id !== passenger).map((p) => <button key={p.id} type="button" className="pressable min-h-11 rounded-full border border-line-lit bg-surface/92 px-4 text-ui text-ink shadow-lg" onClick={() => { props.pairSend(p.id, { k: "ram", m: "ask", n: props.myName }); say(t(`ชวน ${p.name} แล้ว รอตอบ`, `Asked ${p.name}.`)); }} data-ram-ask={p.id}>{t(`ชวน ${p.name} ขี่ด้วย`, `Ask ${p.name} to ride`)}</button>)}
-            {passenger && <button type="button" className="pressable min-h-11 rounded-full border border-line-lit bg-surface/92 px-4 text-ui text-ink shadow-lg" onClick={() => { props.pairSend(passenger, { k: "ram", m: "off" }); setPassenger(null); }} data-ram-let-down>{t("ให้เพื่อนลง", "Let your friend down")}</button>}
+            {riding && full && nearby.length > 0 && <FullFlock sprite={fullPic} n={flock.length} label={t("ฝูงแกะเต็มแล้ว", "The flock is full")} />}
+            {!full && nearby.filter((p) => p.id !== passenger).map((p) => <button key={p.id} type="button" className="pressable min-h-11 rounded-full border border-line-lit bg-surface/92 px-4 text-ui text-ink shadow-lg" onClick={() => { props.pairSend(p.id, { k: "ram", m: "ask", n: props.myName }); say(t(`ชวน ${p.name} แล้ว รอตอบ`, `Asked ${p.name}.`)); }} data-ram-ask={p.id}>{t(`ชวน ${p.name} ขี่ด้วย`, `Ask ${p.name} to ride`)}</button>)}
+            {letDown && <button type="button" className="pressable min-h-11 rounded-full border border-line-lit bg-surface/92 px-4 text-ui text-ink shadow-lg" onClick={() => { props.pairSend(letDown, { k: "ram", m: "off" }); setPassenger((x) => (x === letDown ? null : x)); }} data-ram-let-down={letDown}>{t("ให้เพื่อนลง", "Let your friend down")}</button>}
           </div>
         </TownFoot>
       )}
@@ -648,5 +662,22 @@ export default function TownPasture(props: PastureProps) {
         </div>
       )}
     </>
+  );
+}
+
+/**
+ * ── the cloud ram's flock ── The control that cannot be pressed while eight ride (the owner, 2026-11-09: a small
+ * picture, not words): a lamb of the flock's own sheet and how many ride, the words only for a screen reader.
+ */
+function FullFlock({ sprite, n, label }: { sprite: Sprite | null; n: number; label: string }) {
+  const box = 30, at = sprite?.at, k = at ? box / Math.max(at[2], at[3]) : 1;
+  return (
+    <button type="button" disabled aria-label={`${label} (${n}/${FLOCK_MAX})`} title={label}
+            className="flex min-h-11 cursor-not-allowed items-center gap-1.5 rounded-full border border-line-lit bg-surface/92 py-1 pl-2 pr-3 text-ui font-semibold text-ink-dim shadow-lg shadow-black/30 backdrop-blur-sm" data-ram-full>
+      <span aria-hidden className="grid shrink-0 place-items-center" style={{ width: box, height: box }}>
+        {sprite && at && <span style={{ width: at[2] * k, height: at[3] * k, backgroundImage: `url(${sprite.src})`, backgroundSize: `${sprite.sheet[0] * k}px ${sprite.sheet[1] * k}px`, backgroundPosition: `${-at[0] * k}px ${-at[1] * k}px`, imageRendering: "pixelated" }} />}
+      </span>
+      <span aria-hidden className="tabular-nums">{n}/{FLOCK_MAX}</span>
+    </button>
   );
 }

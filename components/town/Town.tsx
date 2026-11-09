@@ -96,8 +96,11 @@ import type { AnimalsView } from "./TownAnimals";
 import { POPOTO_ASK, POPOTO_BARN, POPOTO_SOON, POPOTO_WHO, popotoChat, popotoHello } from "@/lib/town/pasture-talk";
 import { POPOTO_TALK, loadPastureArt } from "@/lib/town/pasture-art";
 import { STAG_SEAT, drawStag, loadStagArt, riderLift } from "@/lib/town/stag-art";
-import { RAM, STAG, riderOf, runOf } from "@/lib/town/riding";
+import { RAM, RAM_PACE, STAG, ramSeat, riderOf, runOf } from "@/lib/town/riding";
 import { drawRam } from "./pasture-draw";
+// ── the cloud ram's flock ──
+import { Flocks, POP_SEATED, grazing, homeAt, onCloud, popAt, popPart, type Boarded, type FlockIn } from "@/lib/town/flock";
+import { FLOCK_K, bigPicture, cloudPicture as cloudSheepPicture, drawHead, drawMount, flockHas, lambPicture, loadFlockArt, popFrame, popPicture, riderOn } from "@/lib/town/flock-art";
 import { wagonPlace, wagonRun } from "@/lib/town/seats";
 import SignIcon from "./SignIcon";
 import type { SignView } from "./TownSign";
@@ -529,6 +532,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // ── the pasture ── (the cloud ram's pictures are the pasture's sheets: fetched the first time a ram is drawn, on any map)
   const ramArt = useRef<SceneryKit | null | undefined>(undefined);
   const ramKit = () => { if (ramArt.current === undefined) { ramArt.current = null; void loadPastureArt().then((k) => { ramArt.current = k; }); } return ramArt.current; };
+  // ── the cloud ram's flock ── (the big ram, the lambs, the cloud and the pops: a sheet of their own, fetched the first time a ram is ridden; the ram it was stands in until then)
+  const flockArt = useRef<SceneryKit | null | undefined>(undefined);
+  const flockKit = () => { if (flockArt.current === undefined) { flockArt.current = null; void loadFlockArt().then((k) => { flockArt.current = k; }); } return flockArt.current; };
+  /** Every flock this page draws (lib/town/flock): where each lamb is, and the lambs jumping home. */
+  const flocks = useRef(new Flocks());
+  /** `next dev` only: passengers who are not there, sat on somebody's ram, to look at a flock of many on one page (__townView.flock). */
+  const flockGhosts = useRef<Avatar[]>([]);
   // ── gifts: forest ── (the moss stag's pictures: a sheet of their own, fetched the first time a stag is drawn, on any map; its icon stands in until then)
   const stagArt = useRef<SceneryKit | null | undefined>(undefined);
   const stagKit = () => { if (stagArt.current === undefined) { stagArt.current = null; void loadStagArt().then((k) => { stagArt.current = k; }); } return stagArt.current; };
@@ -1269,6 +1279,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       later(FORGED_BEATS.result, () => sfxRef.current?.work(told.out === "taken" ? told.from === 9 ? "forgeTop" : "forgeTaken" : told.out === "down" ? "forgeDown" : "forgeStays", loud));
     };
     return () => { session.onForged = null; for (const t of due) clearTimeout(t); };
+  }, [session]);
+  // ── the cloud ram's flock ── (got down from my lamb: where it is drawn; got down again because the flock was full: said, by the pasture's own note)
+  useEffect(() => {
+    if (!session) return;
+    session.dropSpot = () => { const l = flocks.current.lamb(session.self.info.id); return l ? fromIso(l.at.x, l.at.y) : null; };
+    session.onFlockFull = () => window.dispatchEvent(new CustomEvent("town:flock-full"));
+    if (process.env.NODE_ENV !== "production") session.flockGhosts = () => flockGhosts.current;
+    return () => { session.dropSpot = null; session.onFlockFull = null; session.flockGhosts = null; };
   }, [session]);
   /** How far the forest walker's lamp lights about me, in tiles, while I wear it (lib/town/gifts): none without it. And where I stand, for its light. */
   const lampRef = useRef(0), lampAt = useRef<Vec | null>(null);
@@ -3094,6 +3112,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       } else drawFountain(ctx, now);
     } });
     gathering.current.clear();   // ── gifts: well ──
+    // ── the cloud ram's flock ── (where every lamb is this frame, before anybody is put in order to be drawn)
+    if (stay && !mapRef.current) tickFlocks(stay, now, dt);
     if (stay) {
       // (whoever is under the cooking yard's roof is not seen from outside it, nor their name)
       const roofOn = KITCHEN.stage === 2 && (T2 || !!scenery?.has("kitchenHouse")) && roofRef.current >= 1;
@@ -3109,6 +3129,17 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       }
     }
     if (mine) things.push({ depth: depthOf(mine), draw: () => drawAvatar(ctx, mine, true, names, boxes, false, wall, now, dpr) });
+    // ── the cloud ram's flock ── (lambs jumping back into the fleece, a cloud puffing away, as their riders get down; and,
+    // in `next dev`, passengers who are not there: __townView.flock)
+    for (const g of flockGhosts.current) if (g.info.seat) things.push({ depth: depthOf(g), draw: () => drawAvatar(ctx, g, false, names, boxes, false, wall, now, dpr) });
+    { const kit = flockKit();
+      if (kit && !mapRef.current) for (const g of flocks.current.leaving) {
+        // (a cloud's puff where it floated, not on the ground)
+        const part = popFrame(g.start, now), at = g.cloud ? { x: g.from.x, y: g.from.y - CLOUD_PUFF } : homeAt(g.from, g.to, part);
+        // (a cloud leaves as the end of a jump home: the puff it goes into, shrinking)
+        const name = popPicture("in", g.back, g.cloud ? 4 / 6 + part * (2 / 6) : part);
+        things.push({ depth: at.y / (TILE_H / 2), draw: () => { const c = toScreen(cam.current, at, cam.current.cw, cam.current.ch); kit.drawProp(ctx, name, c.x, c.y, FLOCK_K * cam.current.s, dpr, 0, !g.right); } });
+      } }
     // (`next dev`: a crowd of my own doll, each with a tool, in rows before me: __townView.crowd)
     if (process.env.NODE_ENV !== "production" && mine && crowd.current) {
       const c = crowd.current;
@@ -3415,6 +3446,67 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     ctx.restore();
   }
 
+  // ── the cloud ram's flock ──
+  /** How high a cloud's puff is drawn over the ground, where the cloud floats (map pixels). */
+  const CLOUD_PUFF = 14;
+  /** Every ram ridden here and who is on it, told to the flocks once a frame (lib/town/flock). */
+  function tickFlocks(stay: TownSession, now: number, dt: number) {
+    // (the flock's sheet is fetched only once somebody here rides a ram: nobody else pays for it)
+    if (flockArt.current === undefined && ![stay.self, ...stay.avatars.values()].some((o) => o.info.pet === RAM && rides(o.info.pet, sitting(o), o.info.afoot))) return;
+    if (!flockKit()) return;
+    // (`next dev`: the ghosts sit where a passenger is put, on their rider's point)
+    for (const g of flockGhosts.current) { const c = carrierOf(g); if (c && c.info.pet === RAM && rides(c.info.pet, sitting(c), c.info.afoot)) g.pos = { x: c.pos.x - 0.04, y: c.pos.y - 0.04 }; else g.info = { ...g.info, seat: "" }; }
+    flockGhosts.current = flockGhosts.current.filter((g) => g.info.seat);
+    const all = [stay.self, ...stay.avatars.values(), ...flockGhosts.current].filter((a) => a.byeAt === undefined);
+    const seated = new Map<string, Boarded[]>();
+    for (const a of all) { const r = riderOf(a.info.seat); if (r && r !== a.info.id) seated.set(r, [...(seated.get(r) ?? []), { id: a.info.id, at: a.info.seatAt }]); }
+    const ins: FlockIn[] = [];
+    for (const o of all) {
+      if (o.info.pet !== RAM || riderOf(o.info.seat) || !rides(o.info.pet, sitting(o), o.info.afoot)) continue;
+      const face = facingOf(o, o === stay.self, now);
+      ins.push({ owner: o.info.id, at: toIso(o.pos.x, o.pos.y), moving: o.path.length > 0, back: face.view === "back", right: pets.current.get(o.info.id)?.right ?? true,
+        pace: SPEED * RAM_PACE * (TILE_W * 0.7), riders: seated.get(o.info.id) ?? [] });
+    }
+    flocks.current.tick(now, dt, ins);
+  }
+  /**
+   * A passenger's own mount on the screen (a lamb, or the magic ram's cloud): its point, where they sit on it, how to draw
+   * it and (a lamb seen from the front) its head over their legs; `hidden` while it is still puffing out of the big
+   * ram's fleece, with nobody on it yet.
+   */
+  function lambMount(ctx: CanvasRenderingContext2D, a: Avatar, now: number, dpr: number): { foot: Vec; p: Vec; draw: () => void; head?: () => void; hidden: boolean } | null {
+    const kit = flockKit(), l = flocks.current.lamb(a.info.id);
+    if (!kit || !l) return null;
+    const v = cam.current, s = v.s, t = reducedRef.current ? 0 : now, scr = (q: Vec) => toScreen(v, q, v.cw, v.ch);
+    const at = scr(l.at), part = reducedRef.current ? 1 : popPart(l, now);
+    const pop = (name: string, where: Vec) => () => kit.drawProp(ctx, name, where.x, where.y, FLOCK_K * s, dpr, 0, !l.right);
+    const on = (name: string) => riderOn(name, at, s, l.right, l.back, !l.right);
+    if (l.cloud) {
+      // (the spell: a puff where they are, and the cloud is under them)
+      if (part < 2 / 6) return { foot: at, p: at, hidden: true, draw: pop(popPicture("out", l.back, part), { x: at.x, y: at.y - CLOUD_PUFF * s }) };
+      const name = cloudSheepPicture(l.back, t, l.beat);
+      return { foot: at, p: on(name), hidden: false, draw: () => drawMount(ctx, kit, name, at, s, l.right, dpr, [13, 4, 0.16]) };
+    }
+    if (part < 1) {
+      const from = flocks.current.fleece(l.owner, l.at) ?? l.at, name = popPicture("out", l.back, part);
+      if (part < POP_SEATED) return { foot: at, p: at, hidden: true, draw: pop(name, scr(popAt(from, l.at, part))) };
+      // (landed, the last puffs about it: they are on it)
+      return { foot: at, p: on(lambPicture(l.colour, l.back, false, false, 0, 0)), hidden: false, draw: pop(name, at) };
+    }
+    const name = lambPicture(l.colour, l.back, l.moving && !reducedRef.current, !reducedRef.current && grazing(l, now), t, l.beat);
+    return { foot: at, p: on(name), hidden: false, draw: () => drawMount(ctx, kit, name, at, s, l.right, dpr, [15, 5, 0.26]), head: () => drawHead(ctx, kit, name, at, s, l.right, dpr) };
+  }
+  /** The owner's big ram under them, their hips in its saddle frame by frame, its head over their legs; null while its sheet comes (the ram it was stands in). */
+  function bigMount(ctx: CanvasRenderingContext2D, a: Avatar, foot: Vec, now: number, dpr: number): { p: Vec; draw: () => void; head: () => void } | null {
+    const kit = flockKit();
+    if (!kit) return null;
+    const face = facingOf(a, a === sessionRef.current?.self, now), back = face.view === "back", right = pets.current.get(a.info.id)?.right ?? true;
+    const name = bigPicture(back, a.path.length > 0 && !reducedRef.current, reducedRef.current ? 0 : now);
+    if (!flockHas(name)) return null;
+    const s = cam.current.s;
+    return { p: riderOn(name, foot, s, right, back, face.mirror), draw: () => drawMount(ctx, kit, name, foot, s, right, dpr, [27, 9, 0.3]), head: () => drawHead(ctx, kit, name, foot, s, right, dpr) };
+  }
+
   /** The cloud ram's rider whose second seat somebody sits in, if they are here. */
   function carrierOf(a: Avatar): Avatar | null {
     const id = riderOf(a.info.seat);
@@ -3437,6 +3529,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (sofa) return CASINO_SOFA_SEATS[sofa - 1].depth;
     // ── the pasture ── (behind a ram's rider: their seat is a little behind the rider's point (lib/town/seats), so they
     // are drawn first; going up the screen the seat behind is the nearer, and they are drawn after)
+    // ── the cloud ram's flock ── (on a lamb of their own: where the lamb is)
+    const lamb = riderOf(a.info.seat) && !mapRef.current ? flocks.current.lamb(a.info.id) : undefined;
+    if (lamb) return lamb.at.y / (TILE_H / 2) + 0.01;
     if (pillionAway(a)) return a.pos.x + a.pos.y + 0.1;
     // at a table of the cooking yard: on its bench. On the far one that is behind the table's top, which is drawn
     // again over their legs (see where the yard is drawn)
@@ -3677,6 +3772,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (isMe && wardrobeOpenRef.current) return TURNS[((turn.current % TURNS.length) + TURNS.length) % TURNS.length];
     // ── the pasture ── (behind a cloud ram's rider: facing the way the rider faces)
     const carrier = carrierOf(a);
+    // (── the cloud ram's flock ── on a lamb of their own: the way the lamb faces)
+    const lamb = carrier && !mapRef.current ? flocks.current.lamb(a.info.id) : undefined;
+    if (lamb) return { view: lamb.back ? "back" : "front", mirror: !lamb.right };
     if (carrier) return facingOf(carrier, carrier === sessionRef.current?.self, now);
     if ((mapRef.current && sitting(a) && Math.abs(a.pos.y - 3.5) < .1) || (sitting(a) && stoolAt(a.pos))) return { view: "back", mirror: false };
     // (on a casino sofa: facing the room, the way the sofa faces)
@@ -3726,7 +3824,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // ── gifts: forest ── (on a moss stag's back, lib/town/riding: lifted onto it, sat, and stepping with it; the stag is drawn under them)
     // ── the pasture ── (on a cloud ram's back, x1.5 and lower than a stag's; behind its rider in its second seat; or sat on the hay wagon's bed)
     const behindOf = riderOf(a.info.seat), wagonOf = runOf(a.info.seat), ram = a.info.pet === RAM;
-    const foot = mapRef.current ? project(a.pos) : spotOf(a), riding = rides(a.info.pet, sitting(a), a.info.afoot) && (ram || "famStag" in ICON_ATLAS.icons);
+    // ── the cloud ram's flock ── (a passenger on a lamb or a cloud of their own behind the big ram; not drawn till it has puffed out of the fleece)
+    const mount = behindOf && !mapRef.current ? lambMount(ctx, a, now, dpr) : null;
+    if (mount?.hidden) { mount.draw(); return; }
+    const foot = mount ? mount.foot : mapRef.current ? project(a.pos) : spotOf(a), riding = rides(a.info.pet, sitting(a), a.info.afoot) && (ram || "famStag" in ICON_ATLAS.icons);
+    // (…and the owner on the big ram's saddle, rising and falling with its steps)
+    const big = riding && ram && !mapRef.current ? bigMount(ctx, a, foot, now, dpr) : null;
     const perched = riding || !!behindOf || !!wagonOf;
     const stag = riding && !ram ? stagKit() : null;
     const ride = riding ? (ram ? RAM_LIFT : stag ? STAG_SEAT : STEED.lift) * k : behindOf ? RAM_LIFT * k : wagonOf ? WAGON_LIFT * k : 0;
@@ -3739,7 +3842,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const shift = behindOf ? ((pets.current.get(behindOf)?.right ?? true) ? -11 : 11) * k : run ? ((place % 4) - 1.5) * 9 * k : 0;
     // ── the lotus boat ── (aboard: standing on the leaf, rising and falling with it: components/town/boat-draw)
     const afloat = !mapRef.current && !perched && !!ridingBoat(a.info.id);
-    const p = mapRef.current ? spotOf(a) : perched ? { x: foot.x + shift, y: foot.y - ride - hop - (run ? Math.floor(place / 4) * 4 * k : 0) + (backSeat ? 5 * k : 0) } : afloat ? (() => { const sh = boatDrawShift(a.info.id) ?? { x: 0, y: 0 }, at = project({ x: a.pos.x + sh.x, y: a.pos.y + sh.y }); return { x: at.x, y: at.y - (BOAT_LIFT + boatBob(Date.now(), reducedRef.current)) * cam.current.s }; })() : foot;
+    const p = mapRef.current ? spotOf(a) : mount ? mount.p : big ? big.p : perched ? { x: foot.x + shift, y: foot.y - ride - hop - (run ? Math.floor(place / 4) * 4 * k : 0) + (backSeat ? 5 * k : 0) } : afloat ? (() => { const sh = boatDrawShift(a.info.id) ?? { x: 0, y: 0 }, at = project({ x: a.pos.x + sh.x, y: a.pos.y + sh.y }); return { x: at.x, y: at.y - (BOAT_LIFT + boatBob(Date.now(), reducedRef.current)) * cam.current.s }; })() : foot;
     const look = lookOf(a);
     const kit = kitFor(look.race);
     // sitting, the name and the tap box come down with the head
@@ -3757,7 +3860,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     else if (away) ctx.globalAlpha = 0.6;
 
     // A shadow (not on a bench: the bench has the ground), and a ring at the feet while they speak.
-    if (riding) drawSteed(ctx, a, foot, hop, now);
+    if (riding) { if (big) big.draw(); else drawSteed(ctx, a, foot, hop, now); }
+    else if (mount) mount.draw();
     else if (mapRef.current?.shadows !== false && !seatOf(a) && !tableSeatOf(a) && !behindOf && !wagonOf) {
       ctx.fillStyle = "rgba(0,0,0,0.32)";
       ctx.beginPath();
@@ -3873,6 +3977,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         auraBehind(ctx, wearer);
       }
       kit.draw(ctx, look, face.view, face.mirror, p.x, p.y, k, { step, blink, talk, expr, eat: eatPose, sit: sitting(a) || perched, perch: !!tableSeatOf(a)?.back }, dpr);
+      // ── the cloud ram's flock ── (a mount seen from the front: its head over the rider's legs)
+      if (big) big.head(); else mount?.head?.();
       // ── Granny Twilla's limited outfits ── (now and then what the outfit is made of shows: bats slip out of the
       // count's cape, the pumpkin's ghost flames flicker off; a one-shot of PixelLab's, in the doll's own pixels)
       const design = outfitBaseId(look.outfit);
@@ -3951,7 +4057,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const typing = !said && (isMe ? !!a.info.typing : !!sessionRef.current?.isTyping(a));
     const sign = signOf(a.info.sign);
     // Nameplates share their owner's depth: a character in front covers the plate behind.
-    {
+    // (── the cloud ram's flock ── a passenger's plate rests while the flock walks: eight plates bobbing in a crowd of
+    // lambs hide the lambs; they are back as it stops)
+    if (!(mount && carrier?.path.length)) {
       ctx.save();
       if (faded || away) ctx.globalAlpha = 0.6;
       // (on a casino sofa, below the plates of whoever sits to the left)
@@ -4578,6 +4686,25 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       /** So many more of my own doll about me, each holding `hold` with a tool's word (lib/town/tools' toolWord: "2", "2fff2"), walking or not; 0 for none. To look at many forged tools at once. */
       /** This page's own doll as the winner of a limited outfit (its aura's shots). */
       won: (outfit: string) => { limitedOwners.current.set(me.id, [{ outfit, edition: 1, copies: 3 }]); },
+      /**
+       * ── the cloud ram's flock ── `n` passengers who are not there, sat on `owner`'s ram (mine by default), in the order
+       * they got on; `clouds` the places that ride the magic ram's cloud (their moments of getting on chosen to roll so);
+       * 0 for none; `since`, the moment the first got on (the rest a second apart). `flockOff(i)` lets the i-th of them
+       * down (the line moves up, its lamb jumps home).
+       */
+      flock: (n: number, owner?: string, clouds: number[] = [1, 5], since?: number) => {
+        const who = owner ?? sessionRef.current?.self.info.id ?? "", base = since ?? Date.now();
+        flockGhosts.current = Array.from({ length: Math.max(0, Math.min(12, Math.floor(n))) }, (_, i) => {
+          const id = `flockghost${i}`;
+          let at = base + i * 1000;
+          while (onCloud(who, id, at) !== clouds.includes(i)) at++;
+          return { info: { id, name: `Lamb ${i + 1}`, seat: ramSeat(who), seatAt: at, sit: -1, x: 0, y: 0 }, pos: { x: 0, y: 0 }, path: [], img: null, placed: true } as unknown as Avatar;
+        });
+        return flockGhosts.current.map((g) => ({ id: g.info.id, cloud: onCloud(who, g.info.id, g.info.seatAt) }));
+      },
+      flockOff: (i: number) => { const g = flockGhosts.current[i]; if (g) g.info = { ...g.info, seat: "" }; return !!g; },
+      /** Where each lamb of the flocks is drawn now, and what rides it (for the checks). */
+      flockAt: () => [...(sessionRef.current ? [sessionRef.current.self, ...sessionRef.current.avatars.values(), ...flockGhosts.current] : [])].map((a) => { const l = flocks.current.lamb(a.info.id); return l ? { id: a.info.id, owner: l.owner, ...fromIso(l.at.x, l.at.y), cloud: l.cloud, colour: l.colour, moving: l.moving, back: l.back, right: l.right } : null; }).filter(Boolean),
       crowd: (n: number, hold = "pick", word = "2", walk = false) => { crowd.current = n > 0 ? { n: Math.min(60, Math.floor(n)), hold, word, walk } : null; return crowd.current?.n ?? 0; },
       /** A title plate drawn where asked, into any canvas (components/town/title-plate): to look at every rank and line at once. */
       plate: (ctx: CanvasRenderingContext2D, text: string, line: Worn["line"], rank: number, x: number, y: number, now: number, seed = 1, reduced = false) =>
@@ -6169,7 +6296,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                        place={onFarm ? "farm" : onForest ? "forest" : onMountain ? "mountain" : "town"}
                        here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing && !signView ? standing?.tile ?? null : null}
                        self={() => { const m = sessionRef.current?.self; return m ? { x: m.pos.x, y: m.pos.y } : null; }}
-                       people={() => [...(sessionRef.current?.avatars.values() ?? [])].filter((a) => a.byeAt === undefined).map((a) => ({ id: a.info.id, name: a.info.name, x: a.pos.x, y: a.pos.y, pet: a.info.pet, seat: a.info.seat, sit: a.info.sit }))}
+                       people={() => [...(sessionRef.current?.avatars.values() ?? []), ...flockGhosts.current].filter((a) => a.byeAt === undefined).map((a) => ({ id: a.info.id, name: a.info.name, x: a.pos.x, y: a.pos.y, pet: a.info.pet, seat: a.info.seat, seatAt: a.info.seatAt, sit: a.info.sit }))}
                        pet={s.self.info.pet ?? null} afoot={s.self.info.afoot ?? true} sitting={(s.self.info.sit ?? -1) !== -1} seat={s.self.info.seat ?? ""}
                        takeSeat={(seat) => sessionRef.current?.takeSeat(seat)} getDown={() => sessionRef.current?.getDown()}
                        walkTo={(tile) => { const ok = sessionRef.current?.walkTo(tile) ?? false; if (ok) cam.current.follow = true; return ok; }}
