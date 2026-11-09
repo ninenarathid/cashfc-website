@@ -580,6 +580,11 @@ const SHEETS = [
   // (round 3: the flock's icons for buttons and the bag, asked for by the flock build)
   ["icons-flock-a", ["flockFull", "flockFew", "flockLambHead", "flockCloud", "flockPop", "_famCloudRam"], { range: [6.2, 6.45] }],
   ["icons-roll-a", ["rollTearSmall", "rollTearLong", "rollFlourPuff", "rollFlourPuffSmall", "rollFlourSprinkle", "_rollFlourBowl"], { range: [6.95, 7.25] }],
+  // (round 4: the ten new dishes' pots, as the pasture pots were drawn (icons-pots-p for the reference, the pot about 43
+  // of its pixels wide, as they are); sheet b's three are the legend feast's centrepieces, the 4-cook dishes of the H
+  // specials, and its last two existing pots redrawn only to hold the style, thrown away)
+  ["icons-special-pots-a", ["potFireflyCustard", "potCloudPancake", "potLuckyFriedRice", "potMoonSesamePudding", "potBerryCreamScones", "potCocoaMousse"], { range: [5.7, 5.95] }],
+  ["icons-special-pots-b", ["potPollenTart", "potPhoenixBake", "potPearlBroth", "potMilkyWayCake", "_potCustard", "_potStarPudding"], { range: [5.7, 5.95], split: true }],
 ];
 
 const ONLY = process.env.ICONS_ONLY?.split(",").map((s) => s.trim()).filter(Boolean);

@@ -1085,3 +1085,16 @@ $0.516. The ledger then stood at 3,124 rows and **$47.536 of $55**.
   sheet after them: 10 passed; of the 6 fixes, 8 (an unmixed rice lump), 9 (a dotted drop line under the chilli), 12 (the
   stray's dust) were made; 11 (the desktop sheep shows the found spot, the phone cow the miss), 15 (the twist direction)
   and 16 (the next loop, the dropped stitch) are left for the owner's eye.
+
+### Round 4: the new dishes' pots (2026-11-10)
+
+The owner passed round 3 whole ("ผ่านหมดครบ Push เลย"). The stage-3 build wants a pot for each of the ten new dishes,
+the way the kitchen and the feast table show a dish. **`icons-special-pots-a`, `-b`** on the pasture pots' template
+(`icons-pots-p` for the reference, the same clay pot, only the food differs), the food as the accepted dish icons have it
+(the sesame pudding as its accepted redraw). The doc names three legend feast dishes, the 4-cook village dishes of the H
+specials (phoenixBake, pearlBroth, milkyWayCake), so sheet b's pots 2-4 are those centrepieces: richer colours, more
+highlight pixels and the rare pots' small golden sparkle star; its last two are `potCustard` and `potStarPudding` redrawn
+only to hold the style, thrown away. 2 calls, $0.039, each read by Codex first (both sent as written). Cut on 5.84 like
+the pasture pots (43 of their pixels wide, as the live ones); sheet b's pots were drawn handle to handle, so it is cut with
+`split` (each cell to its own column). The three steam puffs and the sparkle star stand apart as on the live pots; no hole,
+no half-clear cell. The firefly custard's fireflies came out as two faint yellow-green marks.
