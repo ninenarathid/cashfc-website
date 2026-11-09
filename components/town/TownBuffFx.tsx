@@ -28,13 +28,15 @@ export const BURST: Record<WishId, IconName> = {
   calm: "fxRipple", keen: "fxSpark3", lucky: "fxClover", hearty: "fxHeart", green: "fxLeaves",
   swift: "fxRipple", clear: "fxRing2", spring: "fxDrops", sprout: "fxLeaves", feast: "fxSteam",
   carry: "fxDrops", forage: "fxLeaves", net: "fxSpark3",
+  // (the specials' five: lib/town/special-uses)
+  gentle: "fxHeart", aroma: "fxSteam", featherlight: "fxRipple", moonSight: "fxSpark3", luckyMatch: "fxHeart",
 };
 /** The sparkle's frames, as it twinkles: small, grown, at its biggest, gone to a few lights. */
 export const SPARKS: IconName[] = ["fxSpark1", "fxSpark2", "fxSpark3", "fxSpark4"];
 
 /** The buffs that have a hand in a line dropped and fought, in the work of the farm, and at the pot. */
 export const AT_THE_LINE: WishId[] = ["calm", "keen", "lucky", "swift", "clear", "hearty", "current"];
-export const AT_THE_POT: WishId[] = ["feast", "hearty"];
+export const AT_THE_POT: WishId[] = ["feast", "hearty", "aroma"];
 const AT_A_PLOT: Partial<Record<Deed | "draw" | "pour" | "fill", WishId[]>> = { water: ["green", "spring"], sow: ["sprout"], draw: ["carry"] };
 /** Which of somebody's buffs have a hand in a piece of the farm's work (every piece costs stamina, so a hearty one always). */
 export const atPlot = (work: string, purse: Purse, now: number): WishId[] =>

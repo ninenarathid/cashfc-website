@@ -6,7 +6,11 @@ import { BOWL, DISHES, ITEMS, potIconOf, type DishId, type ItemId } from "@/lib/
 import { STAMINA, bowlsToday, helpingGives, mealOf } from "@/lib/town/stamina";
 import { held, type Purse } from "@/lib/town/trade";
 import TownIcon, { type IconName } from "./TownIcon";
-import { GradeBadge } from "./TownTrade";
+import { GradeBadge, ItemIcon } from "./TownTrade";
+import { DRESS_ITEM, SPECIAL_USE, isLegend, laid, type Dress, type DressKind } from "@/lib/town/special-uses";
+import { WISH } from "@/lib/town/fountain";
+
+const DRESS_KINDS: DressKind[] = ["cloth", "cushions"];
 import { buffFloorOf } from "@/lib/town/quality";
 
 /** An hour and its minutes by Bangkok's clock, as the town's own clock writes them. */
@@ -32,7 +36,7 @@ export const clockOf = (ms: number) => {
  * What is kept is the keeper's (lib/town/keeper); TownCook asks it. A keeper
  * that knows of no feast table (the database before v159) is offered none.
  */
-export default function TownFeast({ th, phone, tabbar, me, pots, purse, now, most, feast, said, busy, folk, onEat, onLadle, onTake, onSet, onClose }: {
+export default function TownFeast({ th, phone, tabbar, me, pots, purse, now, most, feast, said, busy, folk, dress = null, onDress, onCover, onEat, onLadle, onTake, onSet, onClose }: {
   th: boolean;
   phone: boolean;
   tabbar: boolean;
@@ -54,6 +58,10 @@ export default function TownFeast({ th, phone, tabbar, me, pots, purse, now, mos
   onTake: (pot: Pot) => void;
   /** Set the pot of food in a slot of my bag on the table. */
   onSet: (slot: number) => void;
+  /** (v325) What is laid on the table (null where whoever keeps the game has no such thing), laying cushions or the golden tablecloth from my bag, a star-wool cover over a pot: lib/town/special-uses. */
+  dress?: Dress | null;
+  onDress?: (kind: DressKind) => void;
+  onCover?: (pot: Pot) => void;
   onClose: () => void;
 }) {
   const close = useRef<HTMLButtonElement>(null);
@@ -65,7 +73,7 @@ export default function TownFeast({ th, phone, tabbar, me, pots, purse, now, mos
   }, [onClose]);
   const name = (id: ItemId) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
   // what goes soonest is read first; of two that go together, the one that came first
-  const lines = pots.map((pot) => ({ pot, until: potNow(pot, now, feast.ground)?.until ?? Infinity })).sort((a, b) => a.until - b.until || Number(a.pot.id) - Number(b.pot.id));
+  const lines = pots.map((pot) => ({ pot, until: potNow(pot, now, feast.ground, dress)?.until ?? Infinity })).sort((a, b) => a.until - b.until || Number(a.pot.id) - Number(b.pot.id));
   const eaten = bowlsToday(purse, now)[mealOf(now)], bowls = held(purse.bag, BOWL);
   const mayEat = !purse.eating && eaten < most;
   const mine = purse.bag.map((s, slot) => ({ s, slot })).filter(({ s }) => s?.item === "potFull" && !!s.of);
@@ -110,6 +118,27 @@ export default function TownFeast({ th, phone, tabbar, me, pots, purse, now, mos
               : (th ? `กินพร้อมคนอื่นในห้องอาหาร ได้ stamina เพิ่มคนละ ${each}% (นับสูงสุด ${STAMINA.company} คน)` : `Each other person eating in the yard adds ${each}% stamina (up to ${STAMINA.company})`)}
           </p>
 
+          {/* (v325: what is laid on the table, by whom and until when; and the wool of my bag to lay, a picture each) */}
+          {dress && DRESS_KINDS.some((k) => laid(dress, k, now) || held(purse.bag, DRESS_ITEM[k]) > 0) && (
+            <div className="mt-2 flex flex-wrap items-center gap-1.5" data-feast-dress>
+              {DRESS_KINDS.map((k) => {
+                const on = dress[k];
+                if (on && laid(dress, k, now)) return (
+                  <span key={k} className="flex min-h-9 items-center gap-1.5 rounded-full border border-gold/60 bg-gold/10 px-2.5 text-meta text-ink" data-feast-laid={k}>
+                    <ItemIcon id={DRESS_ITEM[k]} size={22} />
+                    <span className="font-semibold">{k === "cloth" ? (th ? "ผ้าทอง · หม้อ +1 มื้อ" : "Gold cloth · pots +1 meal") : (th ? "เบาะ · กินด้วยกัน +1" : "Cushions · +1 company")}</span>
+                    <span className="font-data tabular-nums text-muted">{th ? `ถึง ${clockOf(on.until)}` : `to ${clockOf(on.until)}`}{on.by ? ` · ${on.by}` : ""}</span>
+                  </span>
+                );
+                return held(purse.bag, DRESS_ITEM[k]) > 0 && onDress ? (
+                  <button key={k} type="button" disabled={busy} onClick={() => onDress(k)} data-feast-lay={k} className={`${chip} border border-line-lit bg-surface text-ink`}>
+                    <ItemIcon id={DRESS_ITEM[k]} size={22} />{k === "cloth" ? (th ? "ปูผ้าทอง" : "Lay the gold cloth") : (th ? "วางเบาะ" : "Lay cushions")}
+                  </button>
+                ) : null;
+              })}
+            </div>
+          )}
+
           {/* the pots of food in my bag, each set on the table with a tap */}
           {mine.length > 0 && (
             <div className="mt-3 rounded-xl border border-line bg-bg/40 p-2.5" data-feast-mine>
@@ -148,6 +177,14 @@ export default function TownFeast({ th, phone, tabbar, me, pots, purse, now, mos
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-ui font-semibold text-ink">{name(pot.dish)} <span className="font-data font-normal tabular-nums text-muted">×{pot.left}</span><GradeBadge grade={pot.grade} th={th} inline /></p>
                         {/* ── forging: old tools ── what this pot has from the cookware it was cooked in, for whoever eats out of it here: a state of the pot */}
+                        {/* (v325: a legend pot eaten together, a level more; a real breed's buff carried in; a star-wool cover: each a picture and two words) */}
+                        {(isLegend(pot.dish) || !!pot.carry || !!pot.cover) && (
+                          <p className="mt-0.5 flex flex-wrap gap-1 text-label text-ink" data-feast-uses>
+                            {isLegend(pot.dish) && <span className="flex items-center gap-1 rounded-full border border-gold/60 bg-gold/10 px-1.5 py-px" data-feast-together><TownIcon name="people" size={14} />{th ? `กิน ${SPECIAL_USE.together.people} คนพร้อมกัน · บัพ +1 ขั้น` : `${SPECIAL_USE.together.people} eat together · buff +1`}</span>}
+                            {!!pot.carry && <span className="flex items-center gap-1 rounded-full border border-line px-1.5 py-px" data-feast-carry={pot.carry}><TownIcon name={WISH[pot.carry].icon as IconName} size={14} />{th ? `+ ${WISH[pot.carry].name.th}` : `+ ${WISH[pot.carry].name.en}`}</span>}
+                            {!!pot.cover && <span className="flex items-center gap-1 rounded-full border border-line px-1.5 py-px" data-feast-covered><ItemIcon id={SPECIAL_USE.cover.item} size={14} />{th ? "คลุมแล้ว +1 มื้อ" : "Covered · +1 meal"}</span>}
+                          </p>
+                        )}
                         {(!!pot.scent || !!pot.warm) && (
                           <p className="mt-0.5 flex flex-wrap gap-1 text-label text-gold" data-feast-marks>
                             {!!pot.scent && <span className="rounded-full border border-line px-1.5 py-px font-data tabular-nums" data-feast-scent={pot.scent}>{th ? `หอมทั้งลาน · stamina +${pot.scent}` : `Fragrant · +${pot.scent} stamina`}</span>}
@@ -159,6 +196,12 @@ export default function TownFeast({ th, phone, tabbar, me, pots, purse, now, mos
                           {Number.isFinite(until) && <span className="font-data tabular-nums">{own || pot.name ? " · " : ""}{th ? `ถึง ${clockOf(until)} น.` : `until ${clockOf(until)}`}</span>}
                         </p>
                       </div>
+                      {dress && onCover && !pot.cover && held(purse.bag, SPECIAL_USE.cover.item) > 0 && (
+                        <button type="button" disabled={busy} onClick={() => onCover(pot)} data-feast-cover aria-label={th ? "คลุมหม้อ" : "Cover the pot"}
+                                className="pressable flex min-h-11 shrink-0 items-center gap-1 rounded-full border border-line px-2.5 py-1.5 text-meta font-semibold text-ink disabled:opacity-45">
+                          <ItemIcon id={SPECIAL_USE.cover.item} size={18} />{th ? "คลุม" : "Cover"}
+                        </button>
+                      )}
                       {own && (
                         <button type="button" disabled={busy} onClick={() => onTake(pot)} data-feast-take className="pressable min-h-11 shrink-0 rounded-full border border-line px-3 py-1.5 text-meta font-semibold text-muted disabled:opacity-45">
                           {th ? "เก็บคืน" : "Take back"}

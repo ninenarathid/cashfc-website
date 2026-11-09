@@ -121,10 +121,12 @@ export type FarmDraw = (frame: FarmFrame) => void;
 
 /** A piece of the farm's work: a deed to a plot, a chore with water, or a bucket poured over a bed (lib/town/ditch). */
 // (and the insect house's own deeds: set it down, fill a room, lift it, lib/town/insect-house)
-type Work = Deed | Chore | "ditch" | HouseDeed;
+// (and the first-rain egg thrown onto the farm: lib/town/ditch, v325)
+type Work = Deed | Chore | "ditch" | "rain" | HouseDeed;
 /** The word on the button for each deed, and for each chore with water. */
 const VERB: Record<Work, [th: string, en: string]> = {
   ditch: ["เทน้ำรดทั้งแปลง", "Pour it over the bed"],
+  rain: ["โยนไข่ฝนแรก", "Throw the first-rain egg"],
   clear: ["ถางหญ้า", "Clear the weeds"], till: ["พรวนดิน", "Till the soil"], pull: ["ถอนทิ้ง", "Pull it up"], uproot: ["ขุดออก", "Dig it out"], sow: ["หว่านเมล็ด", "Sow"],
   water: ["รดน้ำ", "Water"], feed: ["ใส่ปุ๋ย", "Feed"], cure: ["ไล่แมลง", "Drive the pest off"], pick: ["เก็บ", "Pick"],
   compost: ["ใส่ปุ๋ยหมัก", "Put compost on"], brush: ["ปัดเกสรด้วยพู่กัน", "Brush the pollen"],
@@ -1081,6 +1083,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   /** With a bucket of water in the hand and nothing else to do here: the plots of this bed it would water, poured from where I stand (lib/town/ditch). */
   const flood = key && !deed && !chore ? keeper.ditchAt(key) : [];
   const pours = flood.length > 0;
+  /** With the first-rain egg in the hand: the plots about this one it would water, thrown here (lib/town/ditch, v325). */
+  const rainy = key && !deed && !chore && !pours ? keeper.rainAt(key) : [];
+  const rains_ = rainy.length > 0;
   const nameOf = (id: ItemId) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
   const say = useCallback((why: string) => { const w = WHY_FARM[why] ?? WHY[why as keyof typeof WHY]; setNote(w ? (th ? w[0] : w[1]) : null); }, [th]);
 
@@ -1188,9 +1193,20 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     vfx.element(tool, null, { lift: 12 });
     setNote(th ? `รดไป ${did.watered.length} ต้น` : `${did.watered.length} plants watered`);
   }, [keeper, sfx, th, say, vfx]);
+  /** Throw the first-rain egg onto the plot I stand on: no game, no stamina; water over every plant it reached. */
+  const throwRain = useCallback(async (k: string) => {
+    const did = await keeper.rainDo(k);
+    if (!did.ok) { say(did.why); return; }
+    sfx?.wake();
+    sfx?.work("pour");
+    for (const plot of did.watered) { const [x, y] = plot.split(",").map(Number); vfx.add("water", { x: x + 0.5, y: y + 0.5 }); }
+    vfx.add("splash", null);
+    setNote(th ? `ฝนตกลงมา ${did.watered.length} ต้น` : `Rain fell on ${did.watered.length} plants`);
+  }, [keeper, sfx, th, say, vfx]);
   const begin = useCallback(() => {
-    const work: Work | null = key && houseDeed ? houseDeed : key && deed ? deed : chore ?? (key && pours ? "ditch" : null);
+    const work: Work | null = key && houseDeed ? houseDeed : key && deed ? deed : chore ?? (key && pours ? "ditch" : key && rains_ ? "rain" : null);
     if (!work) return;
+    if (work === "rain") { void throwRain(key!); return; }
     if (key && houseDeed) { if (houseDeed === "lift") setAsking({ key, deed: "lift" }); else void doHouse(key); return; }
     const planting = cropOf(handOf(keeper.purse()));
     // (a sprawling crop, and every helper plant of the farm's Quality: placed where what it covers can be seen first)
@@ -1210,7 +1226,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     if (need) setWorking({ key: key && deed ? key : null, work, need });
     else if (key && deed) void act(key);
     else void carry();
-  }, [key, deed, houseDeed, chore, pours, act, carry, pourOver, keeper, th, tiredOn, doHouse]);
+  }, [key, deed, houseDeed, chore, pours, rains_, throwRain, act, carry, pourOver, keeper, th, tiredOn, doHouse]);
   /** A row's deed, done whole by whoever keeps the game: what flies up over each plot it did, and a word of how many those were. */
   const doRow = useCallback(async (k: string, marks: Record<string, boolean>, timing: GameResult | null) => {
     // (the plots as they stand, and my purse: which plants the mandrake sings over is read from each as it was)
@@ -1384,7 +1400,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     void act(k, undefined, what === "uproot");
   }, [asking, act, doHouse]);
   const hoeing = working?.work === "clear" || working?.work === "till";
-  const offer: Work | null = houseDeed ?? deed ?? chore ?? (pours ? "ditch" : null);
+  const offer: Work | null = houseDeed ?? deed ?? chore ?? (pours ? "ditch" : rains_ ? "rain" : null);
 
   // The space bar is the button (while the timing game is up it is the game's).
   useEffect(() => {

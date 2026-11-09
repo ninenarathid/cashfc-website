@@ -13,7 +13,7 @@ import TownIcon, { type IconName } from "./TownIcon";
  * own `gardenBook`, which counts as found while the village's is not read yet. `extra`: pages of my own to add (the farm's
  * insect visitors).
  */
-const KIND: Record<BookKind, [string, string]> = { uncle: ["ผักของลุง", "The uncle's crops"], helper: ["ผักช่วย", "Helper plants"], hybrid: ["ลูกผสม", "Hybrids"], mist: ["พันธุ์หมอก", "Mist forms"] };
+const KIND: Record<BookKind, [string, string]> = { uncle: ["ผักของลุง", "The uncle's crops"], helper: ["ผักช่วย", "Helper plants"], hybrid: ["ลูกผสม", "Hybrids"], mist: ["พันธุ์หมอก", "Mist forms"], rare: ["ดอกไม้หายาก", "Rare flowers"] };
 const ROLE: Record<Role, { icon: IconName; th: string; en: string; dark: string }> = {
   soil: { icon: "compost", th: "ดิน", en: "Soil", dark: "#b07a3e" }, water: { icon: "can", th: "น้ำ", en: "Water", dark: "#4a9be0" },
   pollen: { icon: "pollenBrush", th: "เกสร", en: "Pollen", dark: "#e3b23c" }, guard: { icon: "guardFert", th: "ป้องกัน", en: "Guard", dark: "#d65a48" },
@@ -47,7 +47,8 @@ function CrossRow({ x, th }: { x: BookCross; th: boolean }) {
 
 function Page({ p, finder, found, all, th }: { p: BookPage; finder?: string; found: number; all: number; th: boolean }): ReactNode {
   if (!p.open) return <div className="space-y-3" data-farm-page={p.id} data-shut>
-    <p className="flex flex-wrap items-center gap-1.5" data-book-hint><Icon id={p.hint!} /><span className="text-meta font-semibold">{name(p.hint!, th)}</span><span aria-hidden>+</span><span className={CHIP}>?</span></p>
+    {/* (a rare flower: the seed it grows of, and what comes of it unknown) */}
+    <p className="flex flex-wrap items-center gap-1.5" data-book-hint><Icon id={p.hint!} /><span className="text-meta font-semibold">{name(p.hint!, th)}</span><span aria-hidden>{p.kind === "rare" ? "→" : "+"}</span><span className={CHIP}>?</span></p>
     <p className="text-label text-[#7a6040]">{th ? `ยังไม่มีใครในหมู่บ้านพบ · พบแล้ว ${found}/${all}` : `Nobody in the village has found it yet · ${found}/${all} found`}</p>
   </div>;
   return <div className="space-y-3" data-farm-page={p.id}>
@@ -77,7 +78,7 @@ export default function TownFarmBook({ finds, mine, th, extra = [], initiallyOpe
   const entries: NotebookEntry[] = [...pages.map((p): NotebookEntry => ({
     key: p.id, title: p.open ? name(p.id, th) : (th ? "ยังไม่พบ" : "Not found yet"), icon: p.id as IconName, shade: !p.open,
     category: KIND[p.kind][th ? 0 : 1], ...(p.open ? { searchText: `${ITEMS[p.id as keyof typeof ITEMS]?.name.th ?? ""} ${ITEMS[p.id as keyof typeof ITEMS]?.name.en ?? ""}` } : {}),
-    body: <Page p={p} finder={p.open && p.from.length ? (finds?.[p.id] ?? (mine.includes(p.id) ? "" : undefined)) : undefined} found={foundKids} all={kids.length} th={th} />,
+    body: <Page p={p} finder={p.open && (p.from.length || p.kind === "rare") ? (finds?.[p.id] ?? (mine.includes(p.id) ? "" : undefined)) : undefined} found={foundKids} all={kids.length} th={th} />,
   })), ...extra];
   return <div data-farm-book><TownNotebook title={th ? "สมุดปลูกผักของหมู่บ้าน" : "The village's farm book"} th={th} icon="gardenNotebook" entries={entries}
     initiallyOpen={initiallyOpen} first={first} onClose={onClose} /></div>;

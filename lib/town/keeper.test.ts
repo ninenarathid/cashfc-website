@@ -91,7 +91,7 @@ describe("the database's keeper", () => {
     // whether things can be dropped on the ground, with what lies about; whether the village has works, with what I
     // carry in my hands; whether the far side is open to me (`town_far`, asked past the line); whether the farm and the forest have lamps, with the flame I bear; and everybody's rank at
     // the well, for the names over heads. The mountain's trees are NOT asked for: the far side has not said it is open to me)
-    expect(db.asked).toEqual(["town_is_open", "town_me", "town_far", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_works_read", "town_lamps_read", "town_well_ranks", "town_work"]);
+    expect(db.asked).toEqual(["town_is_open", "town_me", "town_far", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_works_read", "town_lamps_read", "town_uses_read", "town_well_ranks", "town_work"]);
     expect(k.ready()).toBe(true);
     expect(k.open()).toBe(true);
     expect(k.purse().coins).toBe(7);
@@ -117,14 +117,14 @@ describe("the database's keeper", () => {
     open = true;
     await vi.advanceTimersByTimeAsync(5 * 60_000 + 100);
     await settle();
-    expect(db.asked).toEqual(["town_is_open", "town_is_open", "town_is_open", "town_me", "town_far", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_works_read", "town_lamps_read", "town_well_ranks", "town_work"]);
+    expect(db.asked).toEqual(["town_is_open", "town_is_open", "town_is_open", "town_me", "town_far", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_works_read", "town_lamps_read", "town_uses_read", "town_well_ranks", "town_work"]);
     expect(k.open()).toBe(true);
     expect(k.ready()).toBe(true);
     expect(told).toBeGreaterThan(1);
     k.close();
     // closed, it asks no more
     await vi.advanceTimersByTimeAsync(20 * 60_000);
-    expect(db.asked).toHaveLength(14);
+    expect(db.asked).toHaveLength(15);
   });
 
   it("refused the purse by a database that has not heard the question, says the game is not open", async () => {
@@ -620,7 +620,7 @@ describe("the database's keeper", () => {
     const waits: Record<string, number> = { a: 300, b: 10, c: 100 };
     const done: string[] = [];
     const ask: Ask = (fn, args = {}) => new Promise((answer) => {
-      if (fn !== "town_buy") { answer(fn === "town_is_open" ? true : fn === "town_far" ? false : fn === "town_well_ranks" ? { now: NOW, ranks: {} } : fn === "town_notices" || fn === "town_box" || fn === "town_bag" || fn === "town_ground" || fn === "town_shop" || fn === "town_trees" || fn === "town_works_read" || fn === "town_lamps_read" || fn === "town_work" ? { now: NOW } : { now: NOW, purse: purse() }); return; }
+      if (fn !== "town_buy") { answer(fn === "town_is_open" ? true : fn === "town_far" ? false : fn === "town_well_ranks" ? { now: NOW, ranks: {} } : fn === "town_notices" || fn === "town_box" || fn === "town_bag" || fn === "town_ground" || fn === "town_shop" || fn === "town_trees" || fn === "town_works_read" || fn === "town_lamps_read" || fn === "town_uses_read" || fn === "town_work" ? { now: NOW } : { now: NOW, purse: purse() }); return; }
       setTimeout(() => { done.push(String(args.p_item)); answer({ ok: true, now: NOW, purse: purse({ coins: done.length }) }); }, waits[String(args.p_item)]);
     });
     const k = new DbKeeper("me", ask);

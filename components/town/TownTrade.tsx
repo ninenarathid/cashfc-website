@@ -23,6 +23,7 @@ import { GRADES, asGrade, buffFloorOf } from "@/lib/town/quality";
 import { gradePays } from "@/lib/town/trade";
 import { carried } from "@/lib/town/line";
 import { historicalPrice, type MarketQuote, type PriceTold, type PricesTold } from "@/lib/town/market";
+import { SPECIAL_USE, moonTiles, writable } from "@/lib/town/special-uses";
 import { MEALS, STAMINA, bowlsToday, buffsOf, levelOf, mayEat as mayEatNow, mealBuffs, mealOf, mealProgress, nextMealAt, staminaOf } from "@/lib/town/stamina";
 import {
   GOODS, RULES, SHELF, forged, handOf, leftOf, lotWorth, mayBuy, mayChange, nextRoundAt, onShelf, waiting,
@@ -61,6 +62,8 @@ export interface TradeSummary {
   tool?: string;
   /** How many of the bag's slots are taken, and how many it has (the bag's button on the map says so). */
   slots: [taken: number, all: number];
+  /** (v325) My featherlight buff's level, and how many tiles my moon sight lifts the dark round me now (0 by day or with none): the room is told the one, the map lights the dark by the other (lib/town/special-uses). */
+  fleet?: number; moon?: number;
 }
 
 type Kind = keyof Purse["popoto"];
@@ -308,10 +311,11 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
   // (forging: what the tool in my hand carries, for the room)
   const heldAt = keeper.handSlot(), tool = toolWord(heldAt >= 0 ? purse.bag[heldAt] : null);
   const taken = purse.bag.filter(Boolean).length, slots = purse.bag.length;
+  const fleet = levelOf(purse, now, "featherlight"), moon = moonTiles(levelOf(purse, now, "moonSight"), now);
   useEffect(() => {
-    onSummary({ hand, wet, coins: purse.coins, waiting: due.coins, stamina: Math.round(stamina), buff, eating, tool, slots: [taken, slots] });
+    onSummary({ hand, wet, coins: purse.coins, waiting: due.coins, stamina: Math.round(stamina), buff, eating, tool, slots: [taken, slots], fleet, moon });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the meal is told by its dish and how far through it is
-  }, [onSummary, hand, wet, purse.coins, due.coins, Math.round(stamina), buff, eating?.dish, eating?.from, eating && Math.round(eating.progress * 100), tool, taken, slots]);
+  }, [onSummary, hand, wet, purse.coins, due.coins, Math.round(stamina), buff, eating?.dish, eating?.from, eating && Math.round(eating.progress * 100), tool, taken, slots, fleet, moon]);
 
   // A meal is counted on every second while I sit at it; getting up leaves it.
   const sitting = useRef(seated), beside = useRef(company);
@@ -433,6 +437,7 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
                                 }}
                                 // (the bag put in order, where whoever keeps the game lets it be: lib/town/bag. A move that comes off says nothing: the thing is where it was put)
                                 tidy={keeper.bagTidy()}
+                                paper={keeper.specialUses() ? { can: writable(purse), onWrite: (id) => { void keeper.writeScroll(id).then((did) => { if (did.ok) say(`เขียน${ITEMS[did.scroll].name.th}แล้ว`, `Written: ${ITEMS[did.scroll].name.en.toLowerCase()}`); else say(...why(did.why)); }); } } : undefined}
                                 onMove={(from, to) => { void keeper.bagMove(from, to).then((did) => { if (!did.ok) say(...why(did.why)); }); }}
                                 onSort={() => tried(keeper.bagSort(), ["จัดเรียงกระเป๋าแล้ว", "Your bag is in order."])}
                                 dropsAll={keeper.ground() !== null}
@@ -728,7 +733,7 @@ function Bank({ purse, now, th, onChange }: { purse: Purse; now: number; th: boo
 }
 
 /** My bag, and how I am: my stamina and the day's meals, what a meal left, the bag itself, opened, and the recipes I know. */
-function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book, fishBook, gardenFinds, dropsAll, lying, onEat, onGetUp, onRead, onDress, onHold, onDrop, onWear, onTakeOff, onServe, onOpen, kitchen, sprinkles, tidy = false, onMove, onSort, pouches, rodHook, seedPrice }: {
+function Bag({ paper, purse, held, now, th, seated, company, helpings, recipeBook, book, fishBook, gardenFinds, dropsAll, lying, onEat, onGetUp, onRead, onDress, onHold, onDrop, onWear, onTakeOff, onServe, onOpen, kitchen, sprinkles, tidy = false, onMove, onSort, pouches, rodHook, seedPrice }: {
   rodHook?: React.ReactNode;
   /** What a seed's crop fetches this round, as the farm is told it (v283). */
   seedPrice?: (seed: ItemId) => PriceTold | undefined;
@@ -767,6 +772,8 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book
    * keeps the game lets it be, a thing moved from one slot to another, and the whole of it sorted.
    */
   tidy?: boolean; onMove?: (from: number, to: number) => void; onSort?: () => void;
+  /** (v325) A blank recipe paper written with a recipe I have made: what I may write, and writing it (lib/town/special-uses); none where whoever keeps the game has no such thing. */
+  paper?: { can: ItemId[]; onWrite: (id: ItemId) => void };
 }) {
   const stamina = Math.round(staminaOf(purse, now)), meal = mealOf(now), bowls = bowlsToday(purse, now);
   // Every buff I have, each with its level and the minutes it has left: what meals left (a level each, the owner,
@@ -784,6 +791,9 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book
   /** The slot whose thing is being placed by taps: the way to move a thing with no dragging (the thing taken up, "move", then the slot it goes to). */
   const [moving, setMoving] = useState<number | null>(null);
   useEffect(() => { if (moving !== null && moving !== slot) setMoving(null); }, [moving, slot]);
+  /** (v325) Whether the recipes to write onto a blank paper are laid out. */
+  const [writing, setWriting] = useState(false);
+  useEffect(() => { setWriting(false); }, [slot]);
   const mayMove = tidy && !!onMove;
   /** A thing moved, by a drag or by taps: what is taken up to look at goes with it. */
   const move = (from: number, to: number) => {
@@ -963,6 +973,12 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book
                       {th ? "เปิดดู" : "Open"}
                     </button>
                   )}
+                  {paper && inHand.item === SPECIAL_USE.paper && (
+                    <button type="button" aria-expanded={writing} onClick={() => setWriting((w) => !w)} data-bag-write
+                            className="pressable min-h-11 shrink-0 rounded-full bg-accent px-4 text-ui font-semibold text-bg">
+                      {th ? "เขียนสูตร" : "Write"}
+                    </button>
+                  )}
                   {(dropsAll || (!it.pays && !scroll && it.kind === "catch")) && (
                     <button type="button" onClick={() => onDrop(slot!)}
                             className="pressable min-h-11 shrink-0 rounded-full border border-[#6b4a2a] px-3 text-ui text-[#f3e3c3] hover:border-chili">
@@ -974,6 +990,18 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book
                 <p className="grid min-h-[3.25rem] place-items-center text-center text-meta text-[#a88a5e]">
                   {full ? "" : (th ? "กระเป๋ายังว่างอยู่" : "Your bag is empty.")}
                 </p>
+              )}
+              {/* (v325: the recipes I have made, a picture each, to write one onto the paper; none made yet, a shadow and nothing to tap) */}
+              {paper && writing && inHand?.item === SPECIAL_USE.paper && (
+                <div className="mt-2 flex flex-wrap gap-1.5 border-t border-[#4a341f] pt-2" data-bag-write-list>
+                  {paper.can.length ? paper.can.map((id) => (
+                    <button key={id} type="button" title={th ? ITEMS[id].name.th : ITEMS[id].name.en} aria-label={th ? `เขียน ${ITEMS[id].name.th}` : `Write ${ITEMS[id].name.en}`}
+                            onClick={() => { setWriting(false); paper.onWrite(id); }} data-bag-write-recipe={id}
+                            className="pressable grid size-11 place-items-center rounded-lg border border-[#6b4a2a] bg-[#3a2a1a] hover:border-gold">
+                      <ItemIcon id={id} size={30} />
+                    </button>
+                  )) : <span className="flex items-center gap-1.5 text-meta text-[#a88a5e]"><TownIcon name={"mystery" as IconName} size={18} />{th ? "ยังไม่เคยทำอาหาร" : "Nothing cooked yet"}</span>}
+                </div>
               )}
             </div>
           </div>

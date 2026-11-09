@@ -61,7 +61,8 @@ describe("everything there is", () => {
       const c = CROPS[id];
       // (three helpers grow what the forest's edge gives, the same things: lib/town/helper-items' ForestHerb)
       expect(ITEMS[id].kind).toBe(["mint", "chamomile", "lavender"].includes(id) ? "wild" : "crop");
-      expect(ITEMS[c.seed].kind).toBe("seed");
+      // (the golden dandelion's seed is the dandelion lamb's special, v325)
+      expect(ITEMS[c.seed].kind).toBe(id === "goldenDandelion" ? "goods" : "seed");
       // six hours to six or seven days in the early game; a later tier's tree takes up to twelve
       expect(c.hours).toBeGreaterThanOrEqual(6);
       expect(c.hours).toBeLessThanOrEqual((ITEMS[id].tier === 1 ? 7 : 12) * 24);

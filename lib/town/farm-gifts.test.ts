@@ -359,7 +359,8 @@ describe("good things are harder for the skilled on the farm: a crop of the seco
     const marks = LINES.farming.marks, tiers = CROP_IDS.filter((c) => !(c in HELPER_CROPS)).map((c) => ITEMS[c].tier);
     expect(tiers.filter((t) => t === 1).length).toBe(12);
     expect(tiers.filter((t) => t === 2).length).toBe(12);
-    expect(tiers.filter((t) => t === 3).length).toBe(10);
+    // (+ 1: the golden dandelion, the rare flower of the dandelion lamb's seed, v325)
+    expect(tiers.filter((t) => t === 3).length).toBe(11);
     for (const crop of CROP_IDS) {
       expect(hardFor(crop, 0)).toBe(1);
       expect(hardFor(crop, marks[2])).toBe(1);

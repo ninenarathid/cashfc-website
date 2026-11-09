@@ -1,3 +1,4 @@
+import { SPECIAL_DISHES } from "./special-dishes";
 import { HELPER_CROSSES } from "./helper-items";
 import { describe, expect, it } from "vitest";
 import { GARDEN } from "./gardening";
@@ -120,7 +121,8 @@ describe("everything in the game (the owner: \"make sure ว่า recipe ขอ
     // nothing that is caught, grown or cooked is on the uncle's shelf (but the plain meal, and the pot's things)
     for (const id of Object.keys(GOODS) as ItemId[]) expect(["fish", "catch", "crop"]).not.toContain(ITEMS[id].kind);
     // Established seeds are sold; the new seeds are discovered through neighboring crosses.
-    for (const c of CROP_IDS) expect(!!GOODS[CROPS[c].seed] || GARDEN.crosses.some(([, , child]) => child === c) || HELPER_CROSSES.some(([, , sun, moon, mist]) => sun === c || moon === c || mist === c), c).toBe(true);
+    // (and the golden dandelion grows of the dandelion lamb's special, v325)
+    for (const c of CROP_IDS) expect(!!GOODS[CROPS[c].seed] || GARDEN.crosses.some(([, , child]) => child === c) || HELPER_CROSSES.some(([, , sun, moon, mist]) => sun === c || moon === c || mist === c) || c === "goldenDandelion", c).toBe(true);
   });
 
   it("woodcutting and mining: an axe and a pick from the uncle bring everything of the mountain, and the smith smelts the rest", () => {
@@ -151,7 +153,8 @@ describe("everything in the game (the owner: \"make sure ว่า recipe ขอ
   });
 
   it("can be found: there is a hint for every dish that is cooked and everything that is made", () => {
-    const cooked = DISH_IDS.filter((id) => DISHES[id].recipe);
+    // (the specials' ten are never hinted: their shadows in the book and their secrets are for finding, v325)
+    const cooked = DISH_IDS.filter((id) => DISHES[id].recipe && !(id in SPECIAL_DISHES));
     expect(HINT_IDS.length).toBe(cooked.length + MAKE_IDS.length);
     expect(new Set(HINT_IDS).size).toBe(HINT_IDS.length);
     for (const id of [...cooked, ...MAKE_IDS]) {
@@ -192,7 +195,8 @@ describe("everything in the game (the owner: \"make sure ว่า recipe ขอ
     expect(HINT_PRICE[2]).toBeLessThan(HINT_PRICE[3]);
     // a scroll tells as much, and there is one for every dish that is cooked: six the uncle sells, the rest found;
     // and one of the cure for pests, which he sells too
-    expect(Object.values(SCROLLS).sort()).toEqual([...cooked, "pestCure"].sort());
+    // (and the specials' ten, written on a blank recipe paper, v325)
+    expect(Object.values(SCROLLS).sort()).toEqual([...cooked, ...Object.keys(SPECIAL_DISHES), "pestCure"].sort());
     expect(Object.keys(SCROLLS).filter((s) => GOODS[s as ItemId]).length).toBe(7);
   });
 

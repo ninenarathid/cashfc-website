@@ -14,6 +14,7 @@ import type { TimingMods } from "./timing";
 import { carriesGrade, gradeIn, held, heldStack, no, put, roomFor, take, usedGrade, type BasketEntry, type Done, type Purse, type Refusal, type Stack } from "./trade";
 import { asGrade } from "./quality";
 import { FAMILY, FARM_FAMILY } from "./animal-items";
+import { carryOf, isLegend, mealsMore, type Dress } from "./special-uses";
 
 /**
  * Cooking and serving, as rules (the owner, 2026-10-03, and the bowls of 2026-10-04).
@@ -362,7 +363,9 @@ function cookUntrained(purse: Purse, things: Array<[ItemId, number]>, crew: Arra
     if (scent?.ok) spent = scent.purse;
     // (piece 2.4: the pot's grade is the lowest of the graded things that went into it, the batches too; none for normal)
     const grade = usedGrade(purse.bag, bag, all.map(([id]) => id)) ?? 0;
-    const marks = potMarks({ warm: warm?.ok ? cookFx(mine).warm : 0, scent: scent?.ok ? cookFx(mine).scent : 0, ...(grade ? { grade } : {}) });
+    // (v325: a real breed's special in the pot carries its breed's second buff, one a pot: lib/town/special-uses)
+    const carry = made ? carryOf(all, dish) : null;
+    const marks = potMarks({ warm: warm?.ok ? cookFx(mine).warm : 0, scent: scent?.ok ? cookFx(mine).scent : 0, ...(grade ? { grade } : {}), ...(carry ? { carry } : {}) });
     return { ok: true, made: dish, n: left, ...(near ? { taste: near.taste } : {}), purse: { ...spent, bag: bag.map((s, i) => (i === pot ? { item: "potFull" as ItemId, n: 1, of: { dish, left }, ...marks } : s)) } };
   }
   // put together with bare hands, things that make nothing are lost
@@ -389,6 +392,8 @@ export interface Pot {
   warm?: number; scent?: number;
   /** (piece 2.4) The grade of what is in it: every helping out of it has it. None for normal. */
   grade?: 1 | 2 | 3;
+  /** (v325) The second buff a real breed's special carried in (whoever eats of it at the table has it), and a star-wool cover over it (a meal's hours more on the table): lib/town/special-uses. */
+  carry?: import("./items").MealBuffId; cover?: boolean;
 }
 // ── forging: old tools ──
 /**
@@ -396,7 +401,7 @@ export interface Pot {
  * says nothing. (piece 2.4) And its grade, which goes wherever the pot goes and into every helping eaten out of it.
  */
 export const potMarks = (from: import("./reward-kitchen").FoodMarks): import("./reward-kitchen").FoodMarks =>
-  ({ ...(from.secondary?{secondary:from.secondary}:{}),...(from.cookedBy?{cookedBy:from.cookedBy}:{}),...(from.cookId?{cookId:from.cookId}:{}),...(typeof from.warm === "number" && from.warm > 0 ? { warm: from.warm } : {}), ...(typeof from.scent === "number" && from.scent > 0 ? { scent: from.scent } : {}), ...(asGrade(from.grade) ? { grade: asGrade(from.grade) as 1 | 2 | 3 } : {}) });
+  ({ ...(from.carry ? { carry: from.carry } : {}), ...(from.cover ? { cover: true } : {}), ...(from.secondary?{secondary:from.secondary}:{}),...(from.cookedBy?{cookedBy:from.cookedBy}:{}),...(from.cookId?{cookId:from.cookId}:{}),...(typeof from.warm === "number" && from.warm > 0 ? { warm: from.warm } : {}), ...(typeof from.scent === "number" && from.scent > 0 ? { scent: from.scent } : {}), ...(asGrade(from.grade) ? { grade: asGrade(from.grade) as 1 | 2 | 3 } : {}) });
 /** How near one has to stand to a pot on the ground to ladle from it. */
 export const reachOf = (pot: Pot) => (pot.tok ? COOKING.tok : COOKING.reach);
 /** Whether somebody standing on a tile reaches a pot: beside it, for one on the ground; anywhere on the yard's floor (`yard`: whether their tile is of it), for one on the feast table. */
@@ -406,27 +411,37 @@ export const reaches = (pot: Pot, at: [number, number], yard: boolean) =>
 /** When what came to the feast table at a moment is cleared away: as the meal's hours after the ones it came in end. */
 export const feastEnds = (from: number) => nextMealAt(nextMealAt(from));
 /**
+ * (v325) When a pot that came to the feast table at a moment is cleared away: as `feastEnds`, and a meal's hours more for
+ * its star-wool cover and one more if the golden tablecloth lies on the table as that time comes (lib/town/special-uses).
+ */
+export function tableEnds(pot: Pick<Pot, "cover">, from: number, dress: Dress | null = null): number {
+  let end = feastEnds(from);
+  for (let i = mealsMore(pot, dress, end); i > 0; i--) end = nextMealAt(end);
+  return end;
+}
+/**
  * Where a pot is at a moment, and until when: on the ground where it was set, for its hour; then on the feast table,
  * as if it had been set there as that hour ended (never the odd dish, which is gone with its hour); nowhere (null)
  * once the table has been cleared of it. One that has no `set` stands as it was told, for good. (`ground`: the
  * minutes of that hour, as whoever keeps the game counts them.)
  */
-export function potNow(pot: Pot, now: number, ground = COOKING.feast.ground): { feast: boolean; from: number; until: number } | null {
+export function potNow(pot: Pot, now: number, ground = COOKING.feast.ground, dress: Dress | null = null): { feast: boolean; from: number; until: number } | null {
   if (pot.set === undefined) return { feast: !!pot.feast, from: 0, until: Infinity };
-  if (pot.feast) return now < feastEnds(pot.set) ? { feast: true, from: pot.set, until: feastEnds(pot.set) } : null;
+  if (pot.feast) { const end = tableEnds(pot, pot.set, dress); return now < end ? { feast: true, from: pot.set, until: end } : null; }
   const moved = pot.set + ground * 60_000;
   if (now < moved) return { feast: false, from: pot.set, until: moved };
-  return pot.dish !== ODD && now < feastEnds(moved) ? { feast: true, from: moved, until: feastEnds(moved) } : null;
+  const end = tableEnds(pot, moved, dress);
+  return pot.dish !== ODD && now < end ? { feast: true, from: moved, until: end } : null;
 }
 /**
  * The pots as they stand at a moment (whoever keeps them does this before anything is asked of them): those whose
  * time is up are gone, and those whose hour on the ground is up are on the feast table, said to stand on `tile`,
  * on no rattan table of anybody's.
  */
-export function tidied(pots: Pot[], now: number, tile: [number, number], ground = COOKING.feast.ground): { pots: Pot[]; gone: Pot[] } {
+export function tidied(pots: Pot[], now: number, tile: [number, number], ground = COOKING.feast.ground, dress: Dress | null = null): { pots: Pot[]; gone: Pot[] } {
   const out: Pot[] = [], gone: Pot[] = [];
   for (const pot of pots) {
-    const is = potNow(pot, now, ground);
+    const is = potNow(pot, now, ground, dress);
     if (!is) { gone.push(pot); continue; }
     if (!is.feast || pot.feast) { out.push(pot); continue; }
     const { tok: _, ...rest } = pot;
@@ -460,13 +475,17 @@ export function setDown(purse: Purse, slot: number, me: string, at: [number, num
  * never in the bag: nothing of the table's is carried off, and no bowl comes back when it is eaten (`lent`). Gives
  * the pot as it is afterwards: null when that was its last helping.
  */
-export function feastEat(purse: Purse, pot: Pot, seated: boolean, now: number, most = STAMINA.bowls): Done<{ purse: Purse; pot: Pot | null; dish: DishId }> {
+export function feastEat(purse: Purse, pot: Pot, seated: boolean, now: number, most = STAMINA.bowls, cushions = false): Done<{ purse: Purse; pot: Pot | null; dish: DishId }> {
   if (!pot.feast || pot.left < 1) return no("none");
   if (!seated) return no("stand");
   if (!mayEat(purse, now, most)) return no("meal");
   const meal = begun(purse, pot.dish, now);
   // ── forging: old tools ── (and what the pot carries from its cookware goes with the helping: lib/town/stamina's chew gives it)
-  return { ok: true, dish: pot.dish, pot: pot.left > 1 ? { ...pot, left: pot.left - 1 } : null, purse: { ...purse, ...meal, eating: { ...meal.eating!, lent: true, ...potMarks(pot) } } };
+  // (v325: and of a legend pot, which pot, so that its end can tell whether it was eaten together; the cushions laid on the
+  // table, a companion more: lib/town/special-uses. A pot's cover stays with the pot)
+  const { cover: _c, ...marks } = potMarks(pot);
+  return { ok: true, dish: pot.dish, pot: pot.left > 1 ? { ...pot, left: pot.left - 1 } : null,
+    purse: { ...purse, ...meal, eating: { ...meal.eating!, lent: true, ...marks, ...(isLegend(pot.dish) ? { pot: pot.id } : {}), ...(cushions ? { cushion: true } : {}) } } };
 }
 /**
  * Ladle a helping out of a pot that is set down, into a bowl of one's own: the bowl leaves the bag, and the helping

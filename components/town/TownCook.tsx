@@ -9,7 +9,8 @@ import { BOWL, DISHES, ITEMS, potIconOf, type DishId, type ItemId } from "@/lib/
 import { TASTE_WORD, keepNote, readNotes, type Note } from "@/lib/town/kitchen";
 import type { Sprite } from "@/lib/town/scenery";
 import type { FishSfx } from "@/lib/town/sfx";
-import { buffBy, hasBuff, isSpent, mayEat } from "@/lib/town/stamina";
+import { buffBy, hasBuff, isSpent, levelOf, mayEat } from "@/lib/town/stamina";
+import { hazardLead, type DressKind } from "@/lib/town/special-uses";
 import { cookFx, stirsWith } from "@/lib/town/forged";
 import { handOf, held, heldStack } from "@/lib/town/trade";
 import type { Keeper } from "@/lib/town/keeper";
@@ -480,6 +481,18 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
       : what === "take" ? (th ? "เก็บหม้อคืนเข้ากระเป๋าแล้ว" : "The pot is back in your bag")
       : (set?.ok ? stood(set.pot) : null) ?? (th ? "วางบนโต๊ะแล้ว" : "Set on the table"));
   }, [yard, feastBusy, keeper, wordsOf, sfx, th, name, stood]);
+  /** (v325) Cushions or the golden tablecloth laid on the table from my bag, or a star-wool cover put over a pot (lib/town/special-uses). */
+  const dressDo = useCallback(async (kind: DressKind | null, pot: Pot | null) => {
+    if (!yard || feastBusy) return;
+    setFeastBusy(true);
+    const did = kind ? await keeper.feastDress(kind, yard) : await keeper.potCover(pot!.id, yard);
+    setFeastBusy(false);
+    if (!did.ok) { setFeastSaid(wordsOf(did.why)); return; }
+    sfx?.wake();
+    sfx?.work("down");
+    setFeastSaid(kind === "cloth" ? (th ? "ปูผ้าทองคำแล้ว ทั้งเมืองรู้แล้ว" : "The golden cloth is laid. The whole town knows.") : kind === "cushions" ? (th ? "วางเบาะนุ่มแล้ว" : "The cushions are laid") : (th ? "คลุมหม้อแล้ว" : "The pot is covered"));
+    if (kind === "cloth") window.dispatchEvent(new CustomEvent("cashtown:feast-cloth", { detail: { mine: true } }));
+  }, [yard, feastBusy, keeper, wordsOf, sfx, th]);
   /** A helping of a pot on the table, out of the table's own bowl: the map finds me a place to sit, and the keeper is asked once I am sat. */
   const feastEat = useCallback((pot: Pot) => { setFeastOpen(false); sfx?.wake(); onFeastEat?.(pot.dish, pot.id); }, [onFeastEat, sfx]);
   // (what the keeper refused once I was sat: the map asked it, and says so here)
@@ -625,6 +638,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     )}
     {feastOpen && feast && inYard && !open && !stirring && (
       <TownFeast th={th} phone={phone} tabbar={tabbar} me={me} pots={served} purse={purse} now={now} most={keeper.helpings()} feast={feast} said={feastSaid} busy={feastBusy} folk={folk}
+                 dress={keeper.specialUses() ? keeper.tableDress() : null} onDress={(kind) => void dressDo(kind, null)} onCover={(pot) => void dressDo(null, pot)}
                  onEat={feastEat} onLadle={(pot) => void feastDo("ladle", pot)} onTake={(pot) => void feastDo("take", pot)} onSet={(slot) => void feastDo("set", null, slot)} onClose={() => setFeastOpen(false)} />
     )}
     <TownFoot rank={stirring ? "board" : "main"}>
@@ -634,7 +648,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
           <BuffAura ids={AT_THE_POT.filter((id) => hasBuff(purse, now, id))} th={th} className="mb-1 justify-end rounded-md bg-[#2a190d]/70 px-2 py-1" />
           {/* what is cooked on a stick is roasted over the fire, a game of its own; everything else is stirred */}
           {stirring.crew[0] === "skewer" ? (
-            <TownRoasting th={th} title={th ? "ย่างไฟ" : "Roasting"} spent={spent} calm={(1 + buffBy(purse, now, "calm"))} harder={harder} scene={art?.("gameFire") ?? null}
+            <TownRoasting th={th} title={th ? "ย่างไฟ" : "Roasting"} spent={spent} calm={(1 + buffBy(purse, now, "calm"))} lead={hazardLead(levelOf(purse, now, "aroma"))} harder={harder} scene={art?.("gameFire") ?? null}
                           onMissRetry={stirring.warmJob?rainRetry:undefined}
                           onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "sizzle" : "charred"); if (hit) { vfx.add("smoke", null, { lift: 22 }); vfx.element(heldStack(purse, keeper.handSlot()), null, { lift: 22 }); } }}
                           onTurn={() => { sfx?.wake(); sfx?.work("turn", 0.7); }} onFlare={() => { sfx?.wake(); sfx?.work("crackle"); }}

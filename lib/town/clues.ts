@@ -13,6 +13,7 @@ import { PREP_MAKES } from "./preparation-items";
 import { PREPARATION, type PrepId } from "./preparation";
 import type { Zone } from "./world";
 import { BREEDS } from "./animals";
+import { SPECIAL_ITEM } from "./specials";
 
 /**
  * What a recipe's hidden thing is told by (the owner, 2026-10-06: "อยากให้ใบ้ง่ายขึ้น เพราะมี่คนเจอ ของป่าอะไรซักอย่าง แล้ว
@@ -241,6 +242,10 @@ const FEED_FOR: Record<string, Clue> = {
 };
 function pastureClue(id: ItemId): Clue | null {
   if (Object.hasOwn(FEED_FOR, id)) return FEED_FOR[id];
+  // (v325: a special, the secret of the specials' dishes: the animal it comes from, and that it is a bred breed's rare find, never which)
+  const sp = SPECIAL_ITEM.get(id);
+  if (sp) return { sort: SPECIES_SORT[sp.species], from: sp.tier === "legend" ? line("ของหายากของพันธุ์ในตำนาน", "a rare find of a breed of legend")
+    : sp.tier === "fantasy" ? line("ของหายากของพันธุ์แฟนตาซี", "a rare find of a fantasy breed") : line("ของหายากของพันธุ์แท้", "a rare find of a real breed") };
   const b = PRODUCE_OF.get(id);
   if (!b) return null;
   const rare = b.letter === "A" ? line("จากพันธุ์เริ่มต้น", "from the plain starter breed")

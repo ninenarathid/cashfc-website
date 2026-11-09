@@ -16,6 +16,7 @@ import type { StreamAction, StreamGate } from "./stream-work";
 import type { PrepAnswers, PrepId, PrepRun } from "./preparation";
 import type { FieldCamp } from "./camps";
 import { cook, hasMade, tidied, type FeastTold, type Pot, type Taste } from "./cooking";
+import type { Dress, DressKind } from "./special-uses";
 import type { Give } from "./deal";
 import { WILD, choreFor, deedFor, ownerOf, type Chore, type Deed, type FarmRefusal, type FarmSky, type Plot, type Swarms } from "./farm";
 import type { FishRefusal, Strike } from "./fishing";
@@ -27,7 +28,7 @@ import type { Dropped, GroundRefusal } from "./ground";
 import { hintPrice } from "./hints";
 import type { JarThing, JarTold } from "./jar";
 import { carried, type PassRefusal } from "./line";
-import { reachOf } from "./ditch";
+import { rainAt, reachOf } from "./ditch";
 import { hotAt } from "./heat";
 import { DISHES, ITEMS, MAKES, type BaitId, type CatchId, type DishId, type ItemId } from "./items";
 import { NO_PRICES, type MarketQuote, type PricesTold } from "./market";
@@ -299,7 +300,8 @@ export interface Keeper {
   /** (v276) What I have to wear for good, bought or found (none, from a database before v276). */
   dressed(): Promise<string[]>;
   /** (v297) Buy a thing to wear at Granny Twilla's (lib/town/tailor): coins out, the thing into the wardrobe for good. */
-  tailorBuy(wearable: string, request: string): Promise<Did<{ wearable: string; price: number; dressed: string[] }>>;
+  /** (v325: `wool`, slots of my bag of the special wool Granny takes, each kind once: so much off the piece, lib/town/special-uses) */
+  tailorBuy(wearable: string, request: string, wool?: number[]): Promise<Did<{ wearable: string; price: number; dressed: string[] }>>;
   /** (v297) The limited auction's rounds as I see them (null from a database before v297, or the town away). */
   auctions(): Promise<AuctionBoards | null>;
   /** (v297) A bid on a round, paid and held at once (lib/town/auction); a refusal says the least that would do, and the round as it stands. */
@@ -538,6 +540,9 @@ export interface Keeper {
    */
   ditchAt(key: string): string[];
   ditchDo(key: string): Promise<Did<{ used: number; watered: string[] }>>;
+  /** (v325) The first-rain egg held, thrown onto a plot (lib/town/ditch): the plots it would water there, and throwing it. */
+  rainAt(key: string): string[];
+  rainDo(key: string): Promise<Did<{ watered: string[] }>>;
   /**
    * The cooking yard's water jar (lib/town/yard): the bucketfuls in it (null until it is known, and for as long as
    * whoever keeps the game knows of no jar), whether the bucket in my hand can be poured in, and pouring it from
@@ -627,6 +632,17 @@ export interface Keeper {
   feast(): FeastTold | null;
   /** Eat a helping of a pot on the feast table out of one of the table's own bowls: sitting down in the yard, with no bowl of mine, and nothing carried off. */
   feastEat(id: string, at: [number, number] | null, seated: boolean): Promise<Did<{ dish: DishId }>>;
+  // ── the specials' uses (v325, lib/town/special-uses) ──
+  /** Whether whoever keeps the game has the specials' uses: a database that has not had v325 has none, and the page offers none of them. */
+  specialUses(): boolean;
+  /** What is laid on the feast table now: cushions and the golden tablecloth, each until when and by whom. */
+  tableDress(): Dress;
+  /** Lay cushions or the golden tablecloth on the feast table from my bag (standing on the yard's floor). */
+  feastDress(kind: DressKind, at: [number, number] | null): Promise<Did<{ dress: Dress }>>;
+  /** Put a star-wool cover over a pot on the feast table: a meal's hours more there, once a pot. */
+  potCover(id: string, at: [number, number] | null): Promise<Did<{ pot: Pot }>>;
+  /** Write a recipe I have made onto a blank recipe paper of my bag: its scroll. */
+  writeScroll(id: ItemId): Promise<Did<{ scroll: ItemId }>>;
   // ── gifts: kitchen ──
   /**
    * The dimension basket (lib/town/cooking): so many helpings of the dish in a slot of my bag put into it; so many of
@@ -972,6 +988,9 @@ export class DbKeeper implements Keeper {
   private farmAt = 0;
   private pots_: Pot[] = [];
   private feast_: FeastTold | null = null;
+  // ── the specials' uses (v325): whether the database has them, and what is laid on the feast table ──
+  private uses_ = false;
+  private dress_: Dress = {};
   private deal_: KeptDeal | null = null;
   private fountain_: FountainTold | null = null;
   private notices_: PinboardTold | null = null;
@@ -1094,6 +1113,9 @@ export class DbKeeper implements Keeper {
     // ── the lamp relay ── (and whether the farm and the forest have lamps, with the flame I bear: asked once as the
     // game begins; a database without them answers nothing, and nothing of them is shown)
     if (this.read && !this.shut) void this.ask("town_lamps_read");
+    // (and whether the specials have their uses, with what is laid on the feast table: asked once as the game begins; a
+    // database without v325 answers nothing, and nothing of them is offered)
+    if (this.read && !this.shut) void this.ask("town_uses_read");
     // Everybody's rank at the well, for the names over heads: asked once the game is mine, and again now and then.
     // (A database that has no such book yet answers nothing, and nobody has a rank.)
     if (this.read && !this.shut && !this.ranksAgain) {
@@ -1314,6 +1336,8 @@ export class DbKeeper implements Keeper {
     if (Array.isArray(a.pots)) this.pots_ = a.pots as Pot[];
     // (told with the pots by a database that has a feast table)
     if (a.feast && typeof a.feast === "object" && Array.isArray((a.feast as FeastTold).tile)) this.feast_ = a.feast as FeastTold;
+    // (v325: told by a database that has the specials' uses, with what is laid on the feast table)
+    if (a.uses && typeof a.uses === "object") { this.uses_ = true; const d = (a.uses as { dress?: unknown }).dress; if (d && typeof d === "object") this.dress_ = d as Dress; }
     if (a.fountain && typeof a.fountain === "object") this.fountain_ = a.fountain as FountainTold;
     if (a.notices && typeof a.notices === "object" && Array.isArray((a.notices as PinboardTold).notices)) this.notices_ = a.notices as PinboardTold;
     // (a thing or an insect this page was built before is left out: it could not be drawn)
@@ -1470,6 +1494,9 @@ export class DbKeeper implements Keeper {
       if (this.smith_ && smithView(this.smith_.smithy, this.now()).now) void this.refresh("town_smith");
       return;
     }
+    // (v325: something was done at the feast table: what lies on it is read again wherever I am, so that the golden
+    // tablecloth is told to the whole town; not of a database without the specials' uses)
+    if (what === "kitchen" && this.uses_) void this.refresh("town_uses_read");
     // (somebody dropped a thing, or picked one up: asked for, wherever I am in town; not of a database with no ground)
     if (what === "ground") { if (this.ground_) void this.refresh("town_ground"); return; }
     // (somebody bought at a stall or brought to one: mine is read again with my purse, and so is the one I am looking at)
@@ -1651,8 +1678,23 @@ export class DbKeeper implements Keeper {
   giftUse(id: string) { return this.deed<{ left: number }>("town_gift_use", { p_id: id }); }
   comboPrepare(context: import("./combo-types").ComboContext, input: Record<string, unknown> = {}) { return this.deed<import("./combo-types").ComboReply>("town_combo", { p_context: context, p_input: input }); }
   // (as they stand at this moment: between two tellings a pot's hour on the ground may end, or the table be cleared of it)
-  pots(): Pot[] { return this.feast_ ? tidied(this.pots_, this.now(), this.feast_.tile, this.feast_.ground).pots : this.pots_; }
+  pots(): Pot[] { return this.feast_ ? tidied(this.pots_, this.now(), this.feast_.tile, this.feast_.ground, this.dress_).pots : this.pots_; }
   feast(): FeastTold | null { return this.feast_; }
+  // ── the specials' uses (v325) ──
+  specialUses(): boolean { return this.uses_; }
+  tableDress(): Dress { return this.dress_; }
+  async feastDress(kind: DressKind, at: [number, number] | null): Promise<Did<{ dress: Dress }>> {
+    const did = await this.deed<{ dress: Dress }>("town_feast_dress", { p_kind: kind, p_x: at?.[0] ?? null, p_y: at?.[1] ?? null });
+    if (did.ok) { this.dress_ = did.dress ?? {}; this.tell(); this.onDeed?.("kitchen"); }
+    return did;
+  }
+  async potCover(id: string, at: [number, number] | null): Promise<Did<{ pot: Pot }>> {
+    const did = await this.deed<{ pot: Pot }>("town_pot_cover", { p_id: id, p_x: at?.[0] ?? null, p_y: at?.[1] ?? null });
+    if (did.ok) { this.pots_ = this.pots_.map((o) => (o.id === id ? did.pot : o)); this.tell(); this.onDeed?.("kitchen"); }
+    else if (did.why === "gone") { this.pots_ = this.pots_.filter((o) => o.id !== id); this.tell(); }
+    return did;
+  }
+  writeScroll(id: ItemId) { return this.deed<{ scroll: ItemId }>("town_write_scroll", { p_id: id }); }
   found(): ItemId[] { return this.found_; }
   finder(id: ItemId): string | null { return this.finders_[id] ?? null; }
   madeBefore(id: ItemId): boolean { return hasMade(this.mine, id); }
@@ -1757,7 +1799,7 @@ export class DbKeeper implements Keeper {
     const a = await this.ask("town_dressed").catch(() => null);
     return Array.isArray(a?.dressed) ? (a.dressed as unknown[]).filter((x): x is string => typeof x === "string") : [];
   }
-  tailorBuy(wearable: string, request: string) { return this.deed<{ wearable: string; price: number; dressed: string[] }>("town_tailor_buy", { p_wearable: wearable, p_request: request }); }
+  tailorBuy(wearable: string, request: string, wool: number[] = []) { return this.deed<{ wearable: string; price: number; dressed: string[] }>("town_tailor_buy", { p_wearable: wearable, p_request: request, ...(wool.length && this.uses_ ? { p_wool: wool } : {}) }); }
   async auctions() {
     const a = await this.ask("town_auctions").catch(() => null);
     return a && Array.isArray(a.auctions) ? (a as unknown as AuctionBoards) : null;
@@ -2245,6 +2287,17 @@ export class DbKeeper implements Keeper {
     if (bed < 0) return [];
     const plots = Object.fromEntries(Object.entries(this.plots).filter(([k]) => { const [u, v] = k.split(",").map(Number); return bedOf(u, v) === bed; }));
     return reachOf(this.mine, plots, [x, y], this.now(), this.rains());
+  }
+  rainAt(key: string): string[] {
+    if (!this.uses_) return [];
+    const [x, y] = key.split(",").map(Number);
+    return rainAt(this.mine, this.plots, [x, y], this.now(), this.rains());
+  }
+  async rainDo(key: string): Promise<Did<{ watered: string[] }>> {
+    const [x, y] = key.split(",").map(Number);
+    const did = await this.deed<{ watered: string[] }>("town_rain_egg", { p_x: x, p_y: y });
+    if (did.ok) this.onDeed?.("farm");
+    return did;
   }
   async ditchDo(key: string): Promise<Did<{ used: number; watered: string[] }>> {
     const [x, y] = key.split(",").map(Number);

@@ -16,7 +16,8 @@ import {
 } from "./animals";
 import { roll } from "./farm";
 import { put, roomFor, take, held, type Purse } from "./trade";
-import { dayOf, spend, staminaOf } from "./stamina";
+import { dayOf, levelOf, spend, staminaOf } from "./stamina";
+import { gentleHearts, matchPoints } from "./special-uses";
 import { HOUR } from "./trade";
 import type { ItemId } from "./items";
 import { FORAGE_BANDS, POPOTO_SCROLL_PRICES } from "./animal-items";
@@ -468,7 +469,8 @@ export function animalAction(world0: AnimalWorld, purse: Purse, input: AnimalInp
         p = { ...p, bag: take(p.bag, item as ItemId, 1) };
       }
       // (a gentle animal takes it more to heart)
-      let b: Animal = { ...a, hearts: heartsPlus(a, ANIMALS.heart[k]), today: { ...a.today, [k]: true } };
+      // (v325: and more under the carer's gentle buff, lib/town/special-uses)
+      let b: Animal = { ...a, hearts: heartsPlus(a, gentleHearts(ANIMALS.heart[k], levelOf(p, now, "gentle"))), today: { ...a.today, [k]: true } };
       // (a friend's care is company, and a heart full today is its round's: lib/town/specials)
       b = { ...b, round: caredNote(b, helper) };
       if (helper) {
@@ -582,7 +584,7 @@ export function animalAction(world0: AnimalWorld, purse: Purse, input: AnimalInp
       const offering = input.offering ?? null, dawn = input.dawn && DAWN_BOOSTS.includes(input.dawn as ItemId) ? input.dawn : null;
       if (offering && held(purse.bag, offering as ItemId) < 1) return no("offering");
       if (dawn && held(purse.bag, dawn as ItemId) < (dawn === offering ? 2 : 1)) return no("offering");
-      const x = crossOf(ba, bb, offering, !!dawn), fee = feeOf(x.target, ba, bb);
+      const x = crossOf(ba, bb, offering, !!dawn, matchPoints(levelOf(purse, now, "luckyMatch"))), fee = feeOf(x.target, ba, bb);
       if (purse.coins < fee) return no("coins");
       const home = freeHome(herdOf(world, me), world.animals);
       if (!home) return no("places");

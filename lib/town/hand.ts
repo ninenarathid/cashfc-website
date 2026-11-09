@@ -19,7 +19,8 @@ export const HANDY_MOST = 9;
 /** Whether a thing is one of those the bar offers. */
 export function handy(id: ItemId): boolean {
   const kind = ITEMS[id]?.kind;
-  return kind === "tool" || kind === "seed" || id in PUT_ON || LURES.includes(id);
+  // (v325: and the first-rain egg, thrown onto the farm: lib/town/ditch)
+  return kind === "tool" || kind === "seed" || id in PUT_ON || LURES.includes(id) || id === "firstRainEgg";
 }
 
 /**

@@ -197,6 +197,13 @@ export function vectorsKitchen(): Vector[] {
     add("cook_with",[p,things,[null],0,NOON,{}],cookWith(p,things,[null],0,NOON,{}));
     add("cook_with",[p,things,[null],0,NOON,{sprite:true}],cookWith(p,things,[null],0,NOON,{sprite:true}));
   }
+  // (and each pot the checks below look for, cooked by the sprite at once, whole after three misses: not left to a draw, which
+  // more recipes moved, v325)
+  for (const id of ["tomYum", "friedMinnow", "crabCurry", "fishSauce", "compost"] as ItemId[]) {
+    const things = needsOf(id), t = takes(id), crew: Array<ItemId | null> = t.in.length ? [...t.in, ...Array<null>(Math.max(0, t.cooks - t.in.length)).fill(null)] : [null];
+    const p = { ...newPurse(), stamina: { day: dayOf(NOON), left: 100 }, made: [id], recipes: [], gifts: { had: ["famSprite"], charms: [], familiar: "famSprite" }, bag: things.reduce((bag, [x, n]) => put(bag, x, n), Array<null>(12).fill(null) as Purse["bag"]) } as Purse;
+    add("cook_with", [p, things, crew, 3, NOON, { sprite: true }], cookWith(p, things, crew, 3, NOON, { sprite: true }));
+  }
   // (a bag with no slot for the pot once the things are out of it: each of them one more than the recipe takes, and nothing else free)
   for (const how of [{ sprite: true }, { flame: true }, {}]) for (const slots of [4, 5]) {
     const needs = needsOf("tomYum");

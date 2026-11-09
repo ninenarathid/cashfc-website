@@ -13,6 +13,7 @@ import { GEOLOGY_DISHES, GEOLOGY_ITEMS, GEOLOGY_MAKES, GEOLOGY_SCROLL_ITEMS, GEO
 import { WOOD_DISHES, WOOD_ITEMS, WOOD_MAKES, WOOD_SCROLL_ITEMS, WOOD_SCROLLS, type WoodDishId } from "./wood-items";
 import { ANIMAL_DISHES, ANIMAL_ITEMS, ANIMAL_MAKES, ANIMAL_SCROLL_ITEMS, ANIMAL_SCROLLS, BREED_SCROLL_ITEMS, SPECIAL_ITEMS, type AnimalDishId } from "./animal-items";
 import { animalIcon } from "./animal-icons";
+import { SPECIAL_DISHES, SPECIAL_DISH_ITEMS, SPECIAL_DISH_SCROLL_ITEMS, SPECIAL_DISH_SCROLLS, type SpecialDishId } from "./special-dishes";
 import { FIND_ITEMS, NEW_FISH, NEW_FISH_ITEMS, NEW_INSECT_ITEMS, SMALL_FISH_BAITS, type NewFishId } from "./band-species";
 import { GIANT_ITEMS } from "./giant-fish";
 import { BOARD_INSECT_ITEMS } from "./board-insect-rows";
@@ -674,6 +675,11 @@ export const ITEMS = {
   ...ANIMAL_ITEMS,
   // (v324: the bred breeds' specials, lib/town/specials)
   ...SPECIAL_ITEMS,
+  // (v325: the golden dandelion picked, a rare flower: lib/town/special-uses)
+  goldenDandelion: it("crop", "ดอกแดนดิไลออนทอง", "Golden dandelion", "ดอกแดนดิไลออนสีทองอร่าม ปุยเมล็ดเรืองแสงอ่อนๆ", "A dandelion of shining gold, its seed puffs softly aglow", 10, 30, 3),
+  // (v325: the specials' ten dishes and their written scrolls, lib/town/special-dishes)
+  ...SPECIAL_DISH_ITEMS,
+  ...SPECIAL_DISH_SCROLL_ITEMS,
   ...GARDEN_ITEMS,
   ...GARDEN_SEED_ITEMS,
   // (the farm's Quality: the twenty helper plants and their seeds, lib/town/helper-items)
@@ -716,6 +722,8 @@ export const SCROLLS: Partial<Record<ItemId, ItemId>> = {
   ...REGIONAL_SCROLLS,
   ...WOOD_SCROLLS,
   ...ANIMAL_SCROLLS,
+  // (v325: written on a blank recipe paper only: lib/town/special-dishes)
+  ...SPECIAL_DISH_SCROLLS,
   ...INSECT_SCROLLS,
   ...FORAGE_SCROLLS,
   ...STREAM_SCROLLS,
@@ -1007,7 +1015,9 @@ export type CropId =
   | HelperCropId
   | "kangkong" | "scallion" | "cabbage" | "carrot" | "daikon" | "corn" | "chili" | "tomato" | "basil" | "sweetPotato" | "garlic" | "pumpkin"
   | "eggplant" | "cucumber" | "longBean" | "lemongrass" | "galangal" | "lime" | "papaya"
-  | "mango" | "banana" | "coconut" | "ginger" | "turmeric" | "taro" | "watermelon";
+  | "mango" | "banana" | "coconut" | "ginger" | "turmeric" | "taro" | "watermelon"
+  // (v325: the dandelion lamb's special sown, a rare flower of the farm book: lib/town/special-uses)
+  | "goldenDandelion";
 
 /**
  * How a vegetable grows (the owner, 2026-10-03): through five stages. What was
@@ -1064,6 +1074,8 @@ export const CROPS: Record<CropId, Crop> = {
   turmeric: { seed: "seedTurmeric", hours: 120, yield: [2, 4] },
   taro: { seed: "seedTaro", hours: 168, yield: [2, 4] },
   watermelon: { seed: "seedWatermelon", hours: 144, yield: [2, 2] },
+  // (v325: the golden dandelion, sown of the dandelion lamb's special and nothing else: two days, a flower or two, no seed back)
+  goldenDandelion: { seed: "goldenDandelionSeed", hours: 48, yield: [1, 2] },
 };
 export const CROP_IDS = Object.keys(CROPS) as CropId[];
 /**
@@ -1119,7 +1131,9 @@ export const growIconOf = (crop: CropId, stage: number): string =>
 
 /* ── dishes ─────────────────────────────────────────────────────────────── */
 
-export type BuffId = "calm" | "keen" | "lucky" | "hearty" | "green" | "current" | "grain" | "layers" | "pollen" | "scent" | "traces" | "waterProperty" | "seasoning" | "campPreparation";
+export type BuffId = "calm" | "keen" | "lucky" | "hearty" | "green" | "current" | "grain" | "layers" | "pollen" | "scent" | "traces" | "waterProperty" | "seasoning" | "campPreparation"
+  // (the specials' five: lib/town/special-uses)
+  | "gentle" | "aroma" | "featherlight" | "moonSight" | "luckyMatch";
 /** What a meal may leave: one of the five, or one of the forest's two (lib/town/forest-eye), which the fountain blesses with as well. */
 export type MealBuffId = BuffId | "forage" | "net";
 /**
@@ -1128,6 +1142,12 @@ export type MealBuffId = BuffId | "forage" | "net";
  * that reads it understands it.
  */
 export const BUFFS: Record<BuffId, { name: Line; about: Line; icon: string; by: number }> = {
+  // ── the specials' five (the idea patch's "บัพใหม่", 2026-11-09; lib/town/special-uses): 3 hours, 4 levels, never past x3, none that removes failing ──
+  gentle: { name: { th: "อ่อนโยน", en: "Gentle" }, about: { th: "ลูบหรือให้ของว่าง สัตว์ได้หัวใจเพิ่ม", en: "A pet or a treat gives an animal more hearts" }, icon: "buffGentle", by: 0.2 },
+  aroma: { name: { th: "กลิ่นนำ", en: "Aroma" }, about: { th: "เกมครัวบอกอันตรายถัดไปก่อนถึง", en: "Kitchen games show the next hazard before it comes" }, icon: "buffAroma", by: 0.3 },
+  featherlight: { name: { th: "ตัวเบา", en: "Featherlight" }, about: { th: "เดินเท้าเร็วขึ้น (ไม่รวมสัตว์ขี่)", en: "Walk faster on foot (not riding)" }, icon: "buffFeatherlight", by: 0.05 },
+  moonSight: { name: { th: "ตาจันทร์", en: "Moon sight" }, about: { th: "กลางคืนมองเห็นรอบตัวไกลขึ้น ของเรืองแสงเห็นได้ไกลขึ้น", en: "At night you see farther round you, and glowing things from farther off" }, icon: "buffMoonSight", by: 1 },
+  luckyMatch: { name: { th: "ฤกษ์ผสม", en: "Lucky match" }, about: { th: "ผสมพันธุ์ตามสูตร โอกาสได้พันธุ์ใหม่สูงขึ้น", en: "A breeding by its recipe is likelier to bring the new breed" }, icon: "buffLuckyMatch", by: 5 },
   seasoning:{name:{th:"ชิมแล้วปรับ",en:"Taste and adjust"},about:{th:"แก้การเตรียมอาหารได้หนึ่งครั้งต่อรอบ",en:"Correct a preparation once per round"},icon:"buffSeasoning",by:1},
   campPreparation:{name:{th:"เตรียมตัวที่ค่าย",en:"Camp preparation"},about:{th:"ประโยชน์ที่เลือกจากค่ายอยู่ได้นานขึ้น",en:"A chosen camp benefit lasts longer"},icon:"buffCampPreparation",by:1.5},
   waterProperty: { name: { th: "รักษาคุณน้ำ", en: "Preserve water properties" }, about: { th: "น้ำที่เตรียมไว้คงคุณสมบัติในบ่อได้นานขึ้น", en: "Prepared water keeps its nature in the well longer" }, icon: "buffWaterProperty", by: 1.5 },
@@ -1157,6 +1177,8 @@ export const BUFF_HOURS = 3;
 export const BUFF_LEVELS = 4;
 export const BUFF_STEPS: Record<MealBuffId, [number, number, number, number]> = {
   seasoning:[1,1,1,1],campPreparation:[1.5,1.75,2,2],
+  // (the specials' five, the doc's numbers: hearts +20..80%, the hazard 0.3..1 s early, walking +5..20%, a tile to four farther at night, the recipe's odds +5..20 points under the 70% cap)
+  gentle: [0.2, 0.4, 0.6, 0.8], aroma: [0.3, 0.5, 0.7, 1], featherlight: [0.05, 0.1, 0.15, 0.2], moonSight: [1, 2, 3, 4], luckyMatch: [5, 10, 15, 20],
   waterProperty: [1.5, 1.75, 2, 2],
   traces: [1,1,1,1],
   scent: [0.15, 0.2, 0.25, 0.3],
@@ -1170,7 +1192,7 @@ export const BUFF_STEPS: Record<MealBuffId, [number, number, number, number]> = 
 /** How much a buff does at a level: nothing at none, and no more past the fourth. */
 export const byOf = (id: MealBuffId, level: number): number => (level >= 1 ? BUFF_STEPS[id][Math.min(BUFF_LEVELS, Math.floor(level)) - 1] : 0);
 
-export type DishId = AnimalDishId | RegionalDishId | PrepDishId | CampDishId | ForageDishId | RiverDishId | WoodDishId | GeologyDishId | GardenDishId | InsectDishId | StreamDishId
+export type DishId = AnimalDishId | SpecialDishId | RegionalDishId | PrepDishId | CampDishId | ForageDishId | RiverDishId | WoodDishId | GeologyDishId | GardenDishId | InsectDishId | StreamDishId
   | "riceBox" | "oddDish" | "friedMinnow" | "grilledFish" | "grilledCorn" | "roastSweetPotato" | "stirKangkong" | "basilCatfish" | "tomYum" | "sourCurry" | "friedPerch" | "fishCake" | "spicyEel" | "grilledPrawn" | "steamedGoby" | "pumpkinSoup" | "shabu"
   | "somTam" | "grilledEggplant" | "tomKha" | "friedGourami" | "crabCurry" | "steamedSheatfish" | "friedFrog" | "laab" | "omelette" | "snailCurry" | "candiedPumpkin" | "friedRice"
   | "greenCurry" | "khanomJeen" | "hoMok" | "mangoStickyRice" | "bananaInCoconut" | "taroPudding" | "steamedCroaker" | "gingerFish" | "turmericFish" | "jungleCurry" | "megaLaab" | "watermelonSlices" | "khantoke" | "naamPrik"
@@ -1334,6 +1356,8 @@ export const DISHES: Record<DishId, Dish> = {
   mushroomOmelette: { stamina: 30, buff: "forage", recipe: { needs: [["egg", 2], ["salt", 1], ["chanterelle", 1]], in: ["pan"], serves: 2, cooks: 1 } },
   ...RIVER_DISHES,
   ...REGIONAL_DISHES,
+  // (v325: the specials' ten, last, so that what came before is named in the order it was: lib/town/special-dishes)
+  ...SPECIAL_DISHES,
 };
 export const DISH_IDS = Object.keys(DISHES) as DishId[];
 export const isDish = (id: ItemId): id is DishId => id in DISHES;

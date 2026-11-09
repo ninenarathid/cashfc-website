@@ -28,6 +28,9 @@ const FLOWING = /wishing_basin|temizuya/;
 /** Let a picture go once it has been out of view this long (ms). */
 const LET_GO_MS = 10_000;
 
+/** (v325) The feast hall's own things: what its tables' cloth and benches' cushions are laid on. */
+const HALL_THINGS: ReadonlySet<number> = new Set(T2_HALL.things);
+
 interface Thing {
   i: number; name: string; s: number;
   /** Where its picture's top-left is drawn, in isometric pixels, and how many of them a picture pixel is. */
@@ -59,6 +62,30 @@ export class Town2Art {
   private now = 0;
   /** Whether the pumpkins are out (the calendar's, or as `next dev` was asked). */
   carving = false;
+  /**
+   * (v325) What lies on the feast hall's tables and benches now (lib/town/special-uses): the golden tablecloth over every
+   * dining table of the hall, cushions on every bench of it. Each overlay is its sprite's size, in its own unmirrored
+   * pixels, drawn with the sprite's own strips, place and mirroring straight after it (so before the pots on a table and
+   * whoever sits on a bench). Set by the map each frame.
+   */
+  dressed: { cloth: boolean; cushions: boolean } = { cloth: false, cushions: false };
+  private readonly dressPics = {
+    cloth: { src: "/town/town2/feast-golden-cloth-bd41b020.png", on: /^dining-table/, img: null as HTMLImageElement | null, ready: false },
+    cushions: { src: "/town/town2/feast-cushions-01f9578f.png", on: /^kitchen-bench/, img: null as HTMLImageElement | null, ready: false },
+  };
+  /** The overlay a thing has now, if any (asked for the first time it is wanted). */
+  private dressOf(t: Thing): HTMLImageElement | null {
+    if (!this.dressed.cloth && !this.dressed.cushions) return null;
+    if (!HALL_THINGS.has(t.i)) return null;
+    const src = this.sprites[t.s].src.replace(/^\/town\/town2\//, "");
+    for (const kind of ["cloth", "cushions"] as const) {
+      const d = this.dressPics[kind];
+      if (!this.dressed[kind] || !d.on.test(src)) continue;
+      if (!d.img) { const img = new Image(); img.onload = () => { d.ready = true; }; img.src = d.src; d.img = img; }
+      return d.ready ? d.img : null;
+    }
+    return null;
+  }
   private ripplesReady = false;
 
   constructor() {
@@ -176,12 +203,18 @@ export class Town2Art {
     ctx.imageSmoothingEnabled = k * px < 1;
     ctx.imageSmoothingQuality = "high";
     const dx = Math.round(a.x * px) / px, dy = Math.round(a.y * px) / px;
+    // (v325: and what lies on it now, the same strip of it in the same place: the golden cloth, the cushions)
+    const over = this.dressOf(t);
     if (t.flip) {
       ctx.translate(dx + sp.w * k, dy);
       ctx.scale(-1, 1);
       // (mirrored, picture column c lands at w − c from the left: the columns' own place in the mirrored frame is c itself)
       ctx.drawImage(pic, sx0, 0, sx1 - sx0, sp.h, sx0 * k, 0, (sx1 - sx0) * k, sp.h * k);
-    } else ctx.drawImage(pic, sx0, 0, sx1 - sx0, sp.h, dx + sx0 * k, dy, (sx1 - sx0) * k, sp.h * k);
+      if (over) ctx.drawImage(over, sx0, 0, sx1 - sx0, sp.h, sx0 * k, 0, (sx1 - sx0) * k, sp.h * k);
+    } else {
+      ctx.drawImage(pic, sx0, 0, sx1 - sx0, sp.h, dx + sx0 * k, dy, (sx1 - sx0) * k, sp.h * k);
+      if (over) ctx.drawImage(over, sx0, 0, sx1 - sx0, sp.h, dx + sx0 * k, dy, (sx1 - sx0) * k, sp.h * k);
+    }
     ctx.restore();
   }
 

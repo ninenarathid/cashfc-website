@@ -1,7 +1,8 @@
 import { FARMING, WATER, deedFor, see, type FarmRefusal, type FarmSky, type Plot } from "./farm";
 import type { ItemId } from "./items";
 import { spend } from "./stamina";
-import { handOf, type Done, type Purse } from "./trade";
+import { handOf, take as takeOne, type Done, type Purse } from "./trade";
+import { SPECIAL_USE, rainSquare } from "./special-uses";
 import { DRY } from "./weather";
 
 /**
@@ -90,4 +91,32 @@ export function ditch(purse: Purse, bed: Record<string, Plot>, tile: [number, nu
     ok: true, plots, used, watered,
     purse: { ...spend(purse, DITCH.cost * used, now), bag: purse.bag.map((s, i) => (i === mine.slot ? (left > 0 ? { item: mine.hand, n: 1, water: left } : { item: mine.hand, n: 1 }) : s)) },
   };
+}
+
+// ── the specials' uses (v325, lib/town/special-uses) ──
+/**
+ * The first-rain egg (the raindrop duck's special): held, and thrown onto a plot of the farm, it waters every plant of
+ * the nine plots about it (`rainSquare`) that a can could water now, anybody's, with plain water, once: the egg is gone.
+ * No stamina: the egg is what it costs. Which plots it would water from a plot, the plot's own first, then by the map.
+ */
+export function rainAt(purse: Purse, plots: Record<string, Plot>, tile: [number, number], now: number, rains: FarmSky = DRY): string[] {
+  if (handOf(purse) !== SPECIAL_USE.rain.item) return [];
+  return rainSquare(tile[0], tile[1]).map(([x, y]) => `${x},${y}`).filter((key) => !!plots[key] && thirsty(key, plots[key], now, rains));
+}
+/** Throw it: the purse as it is afterwards (one egg fewer), the plots watered as they now are. Refused with none in the hand (`hand`), or nothing thirsty there (`wet` / `soil`). */
+export function rainEgg(purse: Purse, plots: Record<string, Plot>, tile: [number, number], now: number, rains: FarmSky = DRY):
+  Done<{ purse: Purse; plots: Record<string, Plot>; watered: string[] }> | { ok: false; why: FarmRefusal } {
+  if (handOf(purse) !== SPECIAL_USE.rain.item) return { ok: false, why: "hand" };
+  const watered = rainAt(purse, plots, tile, now, rains);
+  if (!watered.length) {
+    const near = rainSquare(tile[0], tile[1]).map(([x, y]) => `${x},${y}`).filter((k) => !!plots[k]);
+    const wet = near.some((key) => { const s = see(key, plots[key], now, rains); return !!plots[key].plant && !s.dead && s.wet; });
+    return { ok: false, why: wet ? "wet" : "soil" };
+  }
+  const out: Record<string, Plot> = {};
+  for (const key of watered) {
+    const p = plots[key].plant!;
+    out[key] = { ...plots[key], plant: { ...p, watered: now, boost: p.boost + FARMING.water.adds * 60_000 } };
+  }
+  return { ok: true, plots: out, watered, purse: { ...purse, bag: takeOne(purse.bag, SPECIAL_USE.rain.item, 1) } };
 }

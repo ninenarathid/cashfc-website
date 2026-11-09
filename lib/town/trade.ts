@@ -180,6 +180,8 @@ export interface Stack {
    * when it is set down and taken up; a helping ladled into a bowl is a plain helping.
    */
   secondary?: import("./items").MealBuffId; cookedBy?:string; cookId?:string;
+  /** (v325) A pot of food's second buff from a real breed's special, and its star-wool cover (lib/town/special-uses). */
+  carry?: import("./items").MealBuffId; cover?: boolean;
   warm?: number;
   scent?: number;
   /**
@@ -287,7 +289,7 @@ export interface Purse {
    * (lib/town/cooking's feastEat), so no bowl comes back to the bag when it ends.
    */
   lastMeal?:{cookedBy:string;cookId:string;at:number;buffs?:string[];extended?:boolean};
-  eating: { secondary?:import("./items").MealBuffId;cookedBy?:string;cookId?:string;picnic?:boolean; dish: DishId; meal: 0 | 1 | 2 | 3; from: number; till: number; got: number; lent?: boolean; /* (forging: what the pot it came out of gave it, lib/town/cooking's feastEat) */ warm?: number; scent?: number; /* (piece 2.4: the grade of the helping, lib/town/stamina's chew) */ grade?: 1 | 2 | 3 } | null;
+  eating: { secondary?:import("./items").MealBuffId;cookedBy?:string;cookId?:string;picnic?:boolean; /* (v325: the pot's carried buff; the legend pot it is of; the table's cushions under it) */ carry?: import("./items").MealBuffId; pot?: string; cushion?: boolean; dish: DishId; meal: 0 | 1 | 2 | 3; from: number; till: number; got: number; lent?: boolean; /* (forging: what the pot it came out of gave it, lib/town/cooking's feastEat) */ warm?: number; scent?: number; /* (piece 2.4: the grade of the helping, lib/town/stamina's chew) */ grade?: 1 | 2 | 3 } | null;
   /** The buff of the last helping eaten, as it was kept before buffs had levels: still written, for a page that knows no better. */
   buff: { id: BuffId; until: number } | null;
   /** What meals have left, each while it lasts: held together, each at its level (lib/town/stamina's mealBuffs reads them; a purse from before has only `buff`). */

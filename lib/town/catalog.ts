@@ -1,4 +1,6 @@
 import { BOX, MORE_CHESTS } from "./box";
+import { CARRY, RARE_FLOWERS, SPECIAL_USE } from "./special-uses";
+import { LEGEND_DISHES, WRITTEN_PAYS } from "./special-dishes";
 import { TAILOR } from "./tailor";
 import { animalsRow } from "./animal-catalog";
 import { DRESS_ITEMS, wearDropsRow } from "./wear";
@@ -100,6 +102,10 @@ function bedSide(): number {
 }
 
 /** The whole catalog, a document to a key. */
+/** (v325) The specials' uses as the database reads them (lib/town/special-uses, lib/town/special-dishes). */
+function usesRow() {
+  return { ...SPECIAL_USE, carry: CARRY, legend: [...LEGEND_DISHES], rareFlowers: [...RARE_FLOWERS], paperPays: WRITTEN_PAYS };
+}
 export function catalogOf() {
   return {
     workshop: craftRow(),
@@ -380,6 +386,8 @@ export function catalogOf() {
     ground: { lasts: GROUND.lasts, reach: GROUND.reach, maps: GROUND_MAPS },
     // (v291: the pasture, lib/town/animal-catalog)
     animals: animalsRow(),
+    // (v325: what the specials are for, lib/town/special-uses: the numbers, the real breeds' second buffs, the legend's dishes, the rare flowers)
+    uses: usesRow(),
     // ── forging ──
     /** The blacksmith (lib/town/forge, lib/town/tools): the kinds of tool that are forged, the table of tries, his knobs, the options and what is built of them, the gems, and what is smelted of what (lib/town/forge-row says each part). */
     forge: forgeRow(),

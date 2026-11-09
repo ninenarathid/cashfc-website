@@ -304,4 +304,6 @@ export const PARTNERS: Record<string, string> = {
   sunflowerPatch: "milkweed", redOkra: "garlicChives", lotusRootBed: "kangkong",
   // the sisters' bean, one of the helpers
   runnerBean: "corn",
+  // (v325: the golden dandelion, the rare flower of the dandelion lamb's seed, with the marigold: lib/town/special-uses)
+  goldenDandelion: "marigold",
 };

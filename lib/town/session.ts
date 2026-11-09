@@ -1,5 +1,6 @@
 // CASINO_NATIVE_MAP: native Town runtime, private admin rehearsal.
 "use client";
+import { fleetPace } from "./special-uses";
 import { EXPRESSION_MS, isMood } from "./expression";
 import {crossingExit} from "./temporary-crossings";
 import {boatMotion,boatRecovery,ridingBoat,boatMoving} from './lotus-boats';
@@ -326,7 +327,7 @@ export class TownSession {
   /** What I am doing, as the room is told. */
   doing(): Doing {
     const i = this.self.info;
-    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, turn: i.turn ?? 0, typing: i.typing ?? false, ...(i.trying !== undefined ? { trying: i.trying } : {}), eat: i.eat ?? "", hold: i.hold ?? "", wet: i.wet ?? false, spent: i.spent ?? false, pet: i.pet ?? "", afoot: i.afoot ?? true, fish: i.fish ?? 0, sign: i.sign ?? "", circle: i.circle ?? "", carry: i.carry ?? "", flame: i.flame ?? 0, mood: i.mood ?? 0, /* mining */ ...(i.lit ? { lit: i.lit } : {}),
+    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, turn: i.turn ?? 0, typing: i.typing ?? false, ...(i.trying !== undefined ? { trying: i.trying } : {}), eat: i.eat ?? "", hold: i.hold ?? "", wet: i.wet ?? false, spent: i.spent ?? false, ...(i.fleet ? { fleet: i.fleet } : {}), pet: i.pet ?? "", afoot: i.afoot ?? true, fish: i.fish ?? 0, sign: i.sign ?? "", circle: i.circle ?? "", carry: i.carry ?? "", flame: i.flame ?? 0, mood: i.mood ?? 0, /* mining */ ...(i.lit ? { lit: i.lit } : {}),
       // (felling: said only by somebody who has had a board up at a tree or braced a trunk, and from then on, so that it is heard to be over; a room where nobody has hears nothing new)
       ...(i.fell !== undefined ? { fell: i.fell } : {}),
       // (a giant pulled out together: said only by somebody who has been in a crew, and from then on)
@@ -396,7 +397,8 @@ export class TownSession {
       // ── gifts: forest ── (and whoever has a moss stag to ride goes twice as fast, on every page that walks them: lib/town/riding; a cart is pushed on foot)
       // ── forging ── (and whoever holds a tool with the wind in it walks faster, by what the room was told of the tool: lib/town/tools)
       // ── the bridge built by hand ── (and whoever carries a stone in both hands goes at half the pace, a quarter with no stamina left, and on foot: lib/town/carry)
-      const pace = a.info.carry ? carryPace(a.info.carry, a.info.spent) : a.info.hold === CART.item ? cartPace(a.info.hold, a.pos, all.filter((o) => o !== a).map((o) => o.pos)) : paceOf(a.info.pet, a.info.afoot) * (a.info.hold ? walkPace(a.info.tool) : 1);
+      // ── the specials' uses ── (v325: and whoever has featherlight walks faster on foot, by the level the room was told: lib/town/special-uses)
+      const pace = a.info.carry ? carryPace(a.info.carry, a.info.spent) : a.info.hold === CART.item ? cartPace(a.info.hold, a.pos, all.filter((o) => o !== a).map((o) => o.pos)) : paceOf(a.info.pet, a.info.afoot) * (a.info.hold ? walkPace(a.info.tool) : 1) * fleetPace(a.info.fleet ?? 0, paceOf(a.info.pet, a.info.afoot) > 1);
       Object.assign(a, stepAlong(a.pos, a.path, SPEED * pace * dt));
     }
     // Stopped on a gate: through it, to the other map.
@@ -1235,7 +1237,7 @@ export class TownSession {
           // (everything heard of them before the room listed them: what they hold, eat and do with a rod too, which
           // others' games hang on: who cooks with me, whether a beetle comes down its tree, lib/town/insects)
           info: { ...p, x: spot.x, y: spot.y, voice: d.voice ?? false, muted: d.muted ?? false, away: d.away ?? false, look: d.look, sit: d.sit ?? -1,
-            ...(d.hold !== undefined ? { hold: d.hold } : {}), ...(d.wet !== undefined ? { wet: d.wet } : {}), ...(d.spent !== undefined ? { spent: d.spent } : {}), ...(d.pet !== undefined ? { pet: d.pet } : {}), ...(d.afoot !== undefined ? { afoot: d.afoot } : {}), ...(d.eat !== undefined ? { eat: d.eat } : {}), ...(d.fish !== undefined ? { fish: d.fish } : {}),
+            ...(d.hold !== undefined ? { hold: d.hold } : {}), ...(d.wet !== undefined ? { wet: d.wet } : {}), ...(d.spent !== undefined ? { spent: d.spent } : {}), ...(d.fleet !== undefined ? { fleet: d.fleet } : {}), ...(d.pet !== undefined ? { pet: d.pet } : {}), ...(d.afoot !== undefined ? { afoot: d.afoot } : {}), ...(d.eat !== undefined ? { eat: d.eat } : {}), ...(d.fish !== undefined ? { fish: d.fish } : {}),
             ...(d.sign !== undefined ? { sign: d.sign } : {}), ...(d.pull !== undefined ? { pull: d.pull } : {}), ...(d.circle !== undefined ? { circle: d.circle } : {}), ...(d.tool !== undefined ? { tool: d.tool } : {}), ...(d.carry !== undefined ? { carry: d.carry } : {}), ...(d.flame !== undefined ? { flame: d.flame } : {}), /* mining */ ...(d.lit !== undefined ? { lit: d.lit } : {}), /* felling */ ...(d.fell !== undefined ? { fell: d.fell } : {}), /* the pasture */ ...(d.seat !== undefined ? { seat: d.seat } : {}), ...(d.seatAt !== undefined ? { seatAt: d.seatAt } : {}) },
           pos: { ...spot }, path: [], img: loadFace(p.face), placed: d.x !== undefined, sat: ++this.sittings,
         });
@@ -1373,6 +1375,11 @@ export class TownSession {
   /** Tell the room whether I have no stamina left: handing water on is a game only where somebody has none (lib/town/handing). */
   setSpent(spent: boolean) {
     if ((this.self.info.spent ?? false) !== spent) this.tell({ spent });
+  }
+  /** (v325) Tell the room my featherlight buff's level (0 with none): every page walks me so much faster on foot (lib/town/special-uses). */
+  setFleet(level: number) {
+    const fleet = Math.max(0, Math.min(4, Math.floor(level)));
+    if ((this.self.info.fleet ?? 0) !== fleet) this.tell({ fleet });
   }
   /** (forging) Tell the room what the tool in my hand carries (lib/town/tools' toolWord), or "" for a plain one or an empty hand. */
   setTool(word: string) {

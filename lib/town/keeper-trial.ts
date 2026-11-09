@@ -6,6 +6,7 @@ import{bugApproach}from'./bug-approach';
 import{matchesCombo,commitCombo}from'./trial-combos';
 import{bedOf}from'./world';
 // CASINO_NATIVE_MAP: native Town runtime, private admin rehearsal.
+import type { Dress, DressKind } from "./special-uses";
 import { comboCue, comboLoadout, prepareCombo, rescueCombo,resourceCorrection,dominoPreview } from "./trial-combos";
 import {schoolWeights,type FishPool} from "./reward-fishing";
 import {fishQuiet} from './trial-combos';
@@ -15,7 +16,7 @@ import type { ComboContext, ComboReply } from "./combo-types";
 import type { RockChoice } from "./geology";
 import type { MarketQuote } from "./market";
 import type { InsectCare } from "./insect-garden";
-import { COOKING, type Taste } from "./cooking";
+import { COOKING, type Pot, type Taste } from "./cooking";
 import type { CraftId } from "./crafting";
 import type { RewardInput, RewardReply } from "./reward-types";
 import type { StreamAction } from "./stream-work";
@@ -193,7 +194,7 @@ class TrialKeeper implements Keeper {
   async readScroll(slot: number): Promise<Did<{ dish: ItemId }>> { return this.trial.readScroll(slot); }
   async dress(slot: number) { return this.trial.dress(slot); }
   async dressed() { return this.trial.dressed(); }
-  async tailorBuy(wearable: string) { return this.trial.tailorBuy(wearable) as Awaited<ReturnType<Keeper["tailorBuy"]>>; }
+  async tailorBuy(wearable: string, _request?: string, wool: number[] = []) { return this.trial.tailorBuy(wearable, wool) as Awaited<ReturnType<Keeper["tailorBuy"]>>; }
   async auctions() { return this.trial.auctions(); }
   async bid(auction: number, amount: number) { return this.trial.bid(auction, amount) as BidDid; }
   async limited() { return this.trial.limited(); }
@@ -647,6 +648,14 @@ class TrialKeeper implements Keeper {
   async potLadle(id: string) { return this.trial.potLadle(id); }
   async potTake(id: string): Promise<Did> { return this.trial.potTake(id); }
   async feastEat(id: string, _at: [number, number] | null, seated: boolean): Promise<Did<{ dish: DishId }>> { return this.trial.feastEat(id, seated); }
+  // ── the specials' uses (v325) ──
+  specialUses() { return true; }
+  rainAt(key: string) { return this.trial.rainAt(key); }
+  async rainDo(key: string): Promise<Did<{ watered: string[] }>> { return this.trial.rainDo(key); }
+  tableDress(): Dress { return this.trial.tableDress(); }
+  async feastDress(kind: DressKind, at: [number, number] | null): Promise<Did<{ dress: Dress }>> { return this.trial.feastDress(kind, at); }
+  async potCover(id: string, at: [number, number] | null): Promise<Did<{ pot: Pot }>> { return this.trial.potCover(id, at); }
+  async writeScroll(id: ItemId): Promise<Did<{ scroll: ItemId }>> { return this.trial.writeScroll(id); }
   // ── gifts: kitchen ──
   async basketPut(slot: number, n: number): Promise<KitchenDid<{ dish: DishId; n: number }>> { return this.trial.basketPut(slot, n); }
   async basketTake(dish: DishId, n: number): Promise<KitchenDid<{ dish: DishId; n: number }>> { return this.trial.basketTake(dish, n); }

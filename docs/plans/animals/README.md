@@ -322,3 +322,31 @@ CARE and lib/town/roam); the database's are v324's.
 - **At the uncle's** a special is priced at its produce's price of the round and counted among its produce's sales
   (`priceAs`, lib/town/market; `town.price_as`): it fetches what the unit it replaced would, whatever the round.
 - **Fixed on the way**: the coop's eggs never none (`unitsOf`, `town.animal_units`).
+
+## What the specials are for (2026-11-10, branch `specials-uses`, v325): the idea patch's stage 3
+
+The owner, 2026-11-09: "ทำทั้งหมดได้เลย", and the rule that every new thing has a real use. The rules are
+lib/town/special-uses and lib/town/special-dishes; the database's are v325's (`build-v325.mjs`).
+
+- **Ten dishes** (`SPECIAL_DISHES`), each a fantasy or legend special as its secret, last thing (the recipe book shows them
+  as shadows with that thing's clue until somebody makes one; the uncle sells no hint of them): fireflyCustard (moon
+  sight), cloudPancake (featherlight), luckyFriedRice (lucky), moonSesamePudding (lucky match), berryCreamScones (gentle,
+  2 cooks), cocoaMousse (aroma, 2 cooks, the cloud hen's egg with the cocoa cow's cream), pollenTart (scent, 2 cooks); the
+  legend feast's phoenixBake (hearty), pearlBroth (lucky), milkyWayCake (featherlight, the moon duck's eggs with the
+  Milky Way cow's crystal): 4 cooks, 20 helpings. Pays sit with their peers', the feasts' lowered by Codex (70/80/90).
+  Their scrolls are written only, on a blank recipe paper.
+- **Five buffs** (3 h, 4 levels): gentle (+20..80% hearts at a pet or a treat), aroma (the kitchen's next hazard
+  0.3..1 s early: `hazardLead`/`hazardNear`, the roast's flare today), featherlight (+5..20% walking on foot, told to the
+  room as `Doing.fleet`), moon sight (19-05, the dark lifted 1..4 tiles round oneself, the forest's glints that far),
+  lucky match (+5..20 points to a breeding's odds, never past three times the breed's own nor the 70% cap).
+- **The real breeds' specials** stand in for an egg or milk (FAMILY) and carry their breed's second buff into a recipe's
+  pot (`CARRY`, one a pot), to whoever eats of it at the feast table, as a meal's buff.
+- **The legend feast eaten together**: three or more who begin a helping of the same legend pot at the table within five
+  minutes each have its buff a level more at the helping's end (`togetherAt`; the database's `town_feast_began`).
+- **The wool**: cushions (24 h, a companion more at the table), the golden tablecloth (24 h, every pot on the table a
+  meal's hours more, the town told), a star-wool cover (one pot a meal's hours more); drawn over the hall's tables and
+  benches while they last. At Granny Twilla's the three wools take off a piece what that wool would fetch (12 / 12 / 18,
+  at its grade). The golden dandelion's seed sows a rare flower (48 h, 1-2 flowers at 30), a page of the farm book shut
+  until somebody grows one. The first-rain egg thrown onto the farm waters the nine plots about it once.
+- **Left for stage 4**: every cook of a multi-cook dish plays (today the starter plays and the others hold their
+  cookware); the seal "together" is in the atlas (`sealTogether`), unused.

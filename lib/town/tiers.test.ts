@@ -65,8 +65,9 @@ describe("three times the things (the owner: \"ช่วยเพิ่ม ไ�
     // (+ 60: the pasture's, of the third: 43 things and the 17 dishes' scrolls)
     // (+ 4: their three rare ones and the giant steak, 2026-10-28)
     // (+ 16: the specials of the fantasy and legend breeds, E to H, 2026-11-10)
-    expect(by(3).length).toBe(72 + 12 + 2 + 1 - 1 + 24 + 3 + 16 + 60 + 4 + 16);
-    expect(by(2).length + by(3).length).toBe(72 * 2 + 25 + 1 + 4 + 4 + 47 - 2 + 4 + 1 + 1 + 17 + 8 + 16 + 20 + 69 + 60 + 1 + 22 + 28);
+    // (+ 21: the specials' ten dishes, their ten written scrolls and the golden dandelion, v325)
+    expect(by(3).length).toBe(72 + 12 + 2 + 1 - 1 + 24 + 3 + 16 + 60 + 4 + 16 + 21);
+    expect(by(2).length + by(3).length).toBe(72 * 2 + 25 + 1 + 4 + 4 + 47 - 2 + 4 + 1 + 1 + 17 + 8 + 16 + 20 + 69 + 60 + 1 + 22 + 28 + 21);
     // what was there before is still the early game, and still what the uncle sells
     for (const id of ["rod", "hoe", "pot", "worm", "minnow", "koi", "shabu", "scrollGrilledFish"] as const) expect(tierOf(id)).toBe(1);
     for (const id of ["rod", "hoe", "can", "pot", "pan", "grill", "worm", "dough", "rice", "salt", "riceBox", "seedKangkong", "scrollFriedMinnow"] as const) expect(GOODS[id]).toBeDefined();
@@ -138,7 +139,8 @@ describe("three times the things (the owner: \"ช่วยเพิ่ม ไ�
       const c = CROPS[id];
       // (a crop, or one of the three herbs the forest gives and the garden grows as well)
       expect(["crop", "wild"]).toContain(ITEMS[id].kind);
-      expect(ITEMS[c.seed].kind).toBe("seed");
+      // (the golden dandelion's seed is the dandelion lamb's special, v325)
+      expect(ITEMS[c.seed].kind).toBe(id === "goldenDandelion" ? "goods" : "seed");
       expect(tierOf(c.seed)).toBe(tierOf(id));
     }
     const slowest = (t: 1 | 2 | 3) => Math.max(...CROP_IDS.filter((id) => tierOf(id) === t).map((id) => CROPS[id].hours));

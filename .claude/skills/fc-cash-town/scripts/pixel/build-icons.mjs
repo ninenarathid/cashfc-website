@@ -567,8 +567,20 @@ const SHEETS = [
   ["icons-special-c", ["rareShadeLock", "spiralShedHorn", "cloudFluffTuft", "_goldenDandelionSeed", "rainbowArcLock", "shootingStarLock"], { range: [8.0, 8.35], spans: true }],
   ["icons-special-d", ["goldenCreamTop", "warmShaggyMilk", "agedCheeseStarter", "wildBerryCream", "cocoaCreamTop", "pollenCream"], { range: [7.85, 8.15] }],
   ["icons-special-e", ["rebirthFlameEgg", "blackDeepPearlEgg", "_wholeGoldenFleece", "cometMilkCrystal", "_emberEgg", "_goldenWool"], { range: [8.15, 8.45] }],
-  ["icons-special-fix-a", ["goldenDandelionSeed", "wholeGoldenFleece", "_moonSesamePudding", "_buffAroma", "_wool", "_custard"], { range: [7.0, 7.3] }],
+  ["icons-special-fix-a", ["goldenDandelionSeed", "wholeGoldenFleece", "moonSesamePudding", "buffAroma", "_wool", "_custard"], { range: [7.0, 7.3] }],
   ["icons-special-habit-a", ["habitTime", "habitPlace", "habitFood", "habitWeather", "habitCompany", "habitHeart"], { range: [7.85, 8.15] }],
+  // ── what the specials are for (2026-11-10, stage 3: lib/town/special-uses): the ten new dishes, the five new buffs (and the
+  // "together" seal stage 4 is to show), their pots. Drawn on branch specials-art (dishes and buffs 2026-11-09, accepted as
+  // they are; the sesame pudding and the aroma buff are `-fix-a`'s round 2, which the owner passed), the pots 2026-11-10
+  // (as the pasture pots were drawn; `-pots-b`'s last two are existing pots redrawn only to hold the style, thrown away).
+  ["icons-special-dish-a", ["fireflyCustard", "cloudPancake", "luckyFriedRice", "_moonSesamePudding", "berryCreamScones", "cocoaMousse"], { range: [7.85, 8.15] }],
+  ["icons-special-dish-b", ["pollenTart", "phoenixBake", "pearlBroth", "milkyWayCake", "_custard", "_cloudSouffle"], { range: [7.85, 8.15] }],
+  ["icons-special-buff-a", ["buffGentle", "_buffAroma", "buffFeatherlight", "buffMoonSight", "buffLuckyMatch", "sealTogether"], { range: [7.6, 7.9] }],
+  ["icons-special-pots-a", ["potFireflyCustard", "potCloudPancake", "potLuckyFriedRice", "potMoonSesamePudding", "potBerryCreamScones", "potCocoaMousse"], { range: [5.7, 5.95] }],
+  ["icons-special-pots-b", ["potPollenTart", "potPhoenixBake", "potPearlBroth", "potMilkyWayCake", "_potCustard", "_potStarPudding"], { range: [5.7, 5.95], split: true }],
+  // (the golden dandelion, the dandelion lamb's seed sown: its two looks growing and the flower picked, at a crop's size; `a2`, the
+  // round the owner passed; `fill` closes three see-through specks of 1 to 2 cells)
+  ["icons-golden-dandelion-a2", ["growGoldenDandelionA", "growGoldenDandelionB", "goldenDandelion", "_growMarigoldA", "_growMarigoldB", "_marigold"], { range: [5.15, 5.45], fill: true }],
 ];
 
 const ONLY = process.env.ICONS_ONLY?.split(",").map((s) => s.trim()).filter(Boolean);

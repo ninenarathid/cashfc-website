@@ -8,6 +8,8 @@ import { DISHES, ITEMS, MAKES, iconOf, type DishId, type ItemId } from "@/lib/to
 import type { Keeper } from "@/lib/town/keeper";
 import type { Purse } from "@/lib/town/trade";
 import { recipeCategory } from "@/lib/town/recipe-category";
+import { SPECIAL_DISH_IDS } from "@/lib/town/special-dishes";
+import { isLegend } from "@/lib/town/special-uses";
 import TownNotebook from "./TownNotebook";
 import TownIcon, { type IconName } from "./TownIcon";
 import { ItemIcon } from "./TownTrade";
@@ -18,8 +20,10 @@ export default function TownRecipeBook({ keeper, purse, th }: { keeper: Keeper; 
   const known = [...keeper.known(), ...keeper.knownMakes()];
   const whispers = whispersOf(purse), lang = th ? "th" : "en";
   const name = (id: ItemId) => ITEMS[id].name[lang];
-  if (!known.length) return null;
-  return <div data-recipe-book><TownNotebook title={th ? "สมุดสูตรอาหาร" : "The recipe notebook"} icon="recipes" th={th} entries={known.map(id => {
+  // (v325: the specials' dishes nobody has made yet, each a shadow with its secret thing's clue, the existing rule's: lib/town/special-dishes)
+  const shadows = keeper.specialUses() ? SPECIAL_DISH_IDS.filter((id) => !known.includes(id)) : [];
+  if (!known.length && !shadows.length) return null;
+  return <div data-recipe-book><TownNotebook title={th ? "สมุดสูตรอาหาร" : "The recipe notebook"} icon="recipes" th={th} entries={[...known.map(id => {
     const dish = id in DISHES ? DISHES[id as DishId] : null;
     const hasRecipe = !!dish?.recipe || !!MAKES[id];
     const recipe = hasRecipe ? toldOf(id, keeper.madeBefore(id) || whispers.includes(id), keeper.triesAt(id)) : null;
@@ -39,5 +43,11 @@ export default function TownRecipeBook({ keeper, purse, th }: { keeper: Keeper; 
       {does && <p><strong>{th ? "สรรพคุณ" : "What it does"}</strong><br/>{does[lang]}</p>}
       {first && <p><small>{th ? "ทำได้คนแรก" : "First made by"}</small><br/>{first}</p>}
     </div> };
-  })}/></div>;
+  }), ...shadows.map((id) => {
+    const told = toldOf(id), legend = isLegend(id);
+    return { key: id, title: "???", searchText: "???", icon: iconOf(id) as IconName, shade: true, category: recipeCategory(id, th), body: <div data-recipe-page={id} data-recipe-shadow>
+      <ul className="flex flex-col gap-2">{told.last && <Secret hidden={told.last} th={th}/>}</ul>
+      <p className="flex items-center gap-2"><TownIcon name={(legend ? "people" : "mystery") as IconName} size={20}/><small>{legend ? (th ? `ช่วยกัน ${told.cooks} คน · ${told.gives} ที่` : `${told.cooks} cooks · ${told.gives} helpings`) : th ? "ยังไม่มีใครทำได้" : "Nobody has made it yet"}</small></p>
+    </div> };
+  })]}/></div>;
 }

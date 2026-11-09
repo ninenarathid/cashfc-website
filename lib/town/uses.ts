@@ -22,6 +22,7 @@ import { CAMP_TOOLS, CAMP_CRAFTS } from "./camp-items";
 import { WOOD_RAW, WOOD_TOOL_IDS } from "./wood-items";
 import { BREEDS } from "./animals";
 import { SPECIALS } from "./specials";
+import { SPECIAL_DISH_SCROLLS } from "./special-dishes";
 import { FORAGE_BANDS } from "./animal-items";
 import { POPOTO_SHOP, TOOL_OF } from "./animal-act";
 import { BREED_SCROLL_ITEMS } from "./animal-items";
@@ -130,6 +131,8 @@ export function sources(shelf: ItemId[] = Object.keys(GOODS) as ItemId[], wild =
     // and what is inside what the river brings up: the scrolls nobody sells. (A seed in a fish's belly is not
     // counted on: it is luck, and what the uncle may ask for is worked out from this, lib/town/orders.)
     for (const thing of Object.keys(INSIDE) as ItemId[]) if (has(thing) && INSIDE[thing]!.tiers) for (const scroll of foundScrolls(INSIDE[thing]!.tiers!)) add(scroll, "river");
+    // (v325: a scroll of the specials' dishes, written on a blank recipe paper by whoever has made the dish: lib/town/special-uses)
+    if (has("blankRecipePaper")) for (const [scroll, dish] of Object.entries(SPECIAL_DISH_SCROLLS) as Array<[ItemId, ItemId]>) if (has(dish)) add(scroll, "pasture");
     // the farm: with a hoe, what a seed one has grows; and a plant that dies leaves compost
     const hoe = ITEM_IDS.some((id) => toolOf(id) === "hoe" && has(id));
     if (hoe) {

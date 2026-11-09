@@ -1,5 +1,8 @@
 "use client";
 
+import { SPECIAL_USE, woolWorth } from "@/lib/town/special-uses";
+import { ITEMS } from "@/lib/town/items";
+import { ItemIcon } from "./TownTrade";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Keeper } from "@/lib/town/keeper";
 import type { LineId } from "@/lib/town/lines";
@@ -101,7 +104,13 @@ export default function TownTailor(p: ShopWindowProps) {
   const isOn = (g: Good) => (trying as Record<string, number | undefined>)[g.rail] === g.index;
   const isHad = (g: Good) => had.has(g.sold) || (g.rail !== "hair" && owns(LISTS[g.rail][g.index], points, had));
   const toBuy = goods.filter((g) => isOn(g) && !isHad(g));
-  const total = toBuy.reduce((n, g) => n + g.price, 0);
+  // (v325: the special wool Granny takes towards the first piece bought, each kind once: so much off, lib/town/special-uses)
+  const bag = keeper?.purse().bag ?? [];
+  const woolHeld = SPECIAL_USE.tailor.map((id) => ({ id, slot: bag.findIndex((s) => s?.item === id) })).filter((w) => w.slot >= 0 && keeper?.specialUses());
+  const [woolOn, setWoolOn] = useState<string[]>([]);
+  const woolUsed = woolHeld.filter((w) => woolOn.includes(w.id));
+  const woolTakes = toBuy.length ? Math.min(toBuy[0].price, woolUsed.reduce((n, w) => n + woolWorth(bag[w.slot]!), 0)) : 0;
+  const total = toBuy.reduce((n, g) => n + g.price, 0) - woolTakes;
   const count = Object.keys(trying).length;
 
   // my avatar wears what is tried (and puts it back when the window goes, unless it was bought and kept on)
@@ -128,11 +137,11 @@ export default function TownTailor(p: ShopWindowProps) {
     setBusy(true); setSaid(null);
     let got = 0;
     const bought: string[] = [];
-    for (const g of toBuy) {
+    for (const [i, g] of toBuy.entries()) {
       const req = requests.current.get(g.sold) ?? crypto.randomUUID();
       requests.current.set(g.sold, req);
-      const did = await keeper.tailorBuy(g.sold, req);
-      if (did.ok) { got++; bought.push(g.sold); requests.current.delete(g.sold); continue; }
+      const did = await keeper.tailorBuy(g.sold, req, i === 0 ? woolUsed.map((w) => w.slot) : []);
+      if (did.ok) { got++; bought.push(g.sold); requests.current.delete(g.sold); if (i === 0) setWoolOn([]); continue; }
       const why = did.why;
       setSaid(why === "coins" ? (th ? "เหรียญไม่พอจ้ะ" : "Not enough coins, dearie.")
         : why === "season" ? (th ? `${g.th} หมดฤดูแล้วจ้ะ` : `${g.en} is out of season.`)
@@ -209,6 +218,21 @@ export default function TownTailor(p: ShopWindowProps) {
       </div>
       <div className="border-t border-line bg-bg/40 px-3 pb-3 pt-2">
         {said && <p role="status" className="mb-1.5 text-meta text-ink">{said}</p>}
+        {/* (v325: the special wool of my bag, a chip each, taken towards the first piece: its picture and what it takes off) */}
+        {woolHeld.length > 0 && toBuy.length > 0 && (
+          <div className="mb-1.5 flex flex-wrap items-center gap-1.5" data-tailor-wool>
+            {woolHeld.map((w) => {
+              const on = woolOn.includes(w.id);
+              return (
+                <button key={w.id} type="button" aria-pressed={on} title={th ? ITEMS[w.id].name.th : ITEMS[w.id].name.en} data-tailor-wool-chip={w.id}
+                        onClick={() => setWoolOn((o) => (on ? o.filter((x) => x !== w.id) : [...o, w.id]))}
+                        className={`pressable flex min-h-11 items-center gap-1 rounded-full border px-2.5 text-meta font-semibold tabular-nums ${on ? "border-accent bg-accent/15 text-accent" : "border-line-strong text-ink"}`}>
+                  <ItemIcon id={w.id} size={22} />−{fmt(woolWorth(bag[w.slot]!))}
+                </button>
+              );
+            })}
+          </div>
+        )}
         <div className="flex items-center gap-2">
           <p className="min-w-0 flex-1 text-meta text-muted">
             {th ? "ลองอยู่ " : "Trying "}<b className="text-ink">{count}</b>{th ? " ชิ้น" : ""}

@@ -1,3 +1,4 @@
+import { SPECIAL_DISHES } from "./special-dishes";
 import { CLUES, KIND_WORD, clueOf } from "./clues";
 import { DISHES, DISH_IDS, ITEMS, LATER_MADE, MAKES, MAKE_IDS, type Cookware, type DishId, type ItemId, type ItemKind } from "./items";
 import type { Line } from "./talk";
@@ -53,7 +54,8 @@ export const HINT_PRICE: Record<1 | 2 | 3, number> = { 1: 15, 2: 40, 3: 90 };
  * by which a number of chance is turned into one of them, and it is left as it was so that the row need not be
  * written over.
  */
-export const HINT_IDS: ItemId[] = [...DISH_IDS.filter((id) => DISHES[id].recipe), ...MAKE_IDS]
+// (the specials' ten dishes are never hinted: a shadow in the book and their secrets are theirs to find, lib/town/special-dishes)
+export const HINT_IDS: ItemId[] = [...DISH_IDS.filter((id) => DISHES[id].recipe && !(id in SPECIAL_DISHES)), ...MAKE_IDS]
   .map((id, i) => ({ id: id as ItemId, i: i + (LATER_MADE.includes(id as ItemId) ? 1000 : 0) })).sort((a, b) => ITEMS[a.id].tier - ITEMS[b.id].tier || a.i - b.i).map((x) => x.id);
 
 /** What a thing's recipe is: what goes in, in what, how many come of it, and by how many. */

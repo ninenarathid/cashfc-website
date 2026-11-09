@@ -15,6 +15,8 @@
  *
  * Pure: a roast is what it is at a moment, and the next is worked out from it.
  */
+import { hazardNear } from "./special-uses";
+
 export const ROASTING = {
   faces: 4,
   /** How much of a face cooks in a second by an ordinary fire; and the share of that the two faces beside it get. */
@@ -34,7 +36,9 @@ export const ROASTING = {
 };
 
 /** A roast: how far each face is cooked, which face is turned to the fire, the moment it stands at, when the fire flares, and whether hands are tired. */
-export interface Roast { faces: number[]; down: number; t: number; flares: number[]; spent: boolean; turns: number; hard?: number }
+export interface Roast { faces: number[]; down: number; t: number; flares: number[]; spent: boolean; turns: number; hard?: number;
+  /** (v325) Aroma's lead: the crackle comes so many seconds earlier than its own (lib/town/special-uses' hazardLead). */
+  lead?: number }
 
 function draw(seed: number): [number, number] {
   const a = (seed + 0x6d2b79f5) | 0;
@@ -49,18 +53,18 @@ function draw(seed: number): [number, number] {
  * good dishes, for those far up its line; 1 for everybody else): the fire flares so many times oftener, and the
  * stretch between a face done and a face burnt is so many times narrower (kept in the roast as `hard`).
  */
-export function startRoast(spent: boolean, seed: number, calm = 1, harder = 1): Roast {
+export function startRoast(spent: boolean, seed: number, calm = 1, harder = 1, lead = 0): Roast {
   const hard = Math.max(1, harder);
   const [lo, hi] = (spent ? ROASTING.tiredEvery : ROASTING.flare.every).map((s) => (s * Math.max(1, calm)) / hard), flares: number[] = [];
   let s = seed | 0;
   for (let at = 0; at < ROASTING.longest;) { const [r, s1] = draw(s); s = s1; at += lo + r * (hi - lo); flares.push(Math.round(at * 100) / 100); }
-  return { faces: Array<number>(ROASTING.faces).fill(0), down: 0, t: 0, flares, spent, turns: 0, ...(hard > 1 ? { hard } : {}) };
+  return { faces: Array<number>(ROASTING.faces).fill(0), down: 0, t: 0, flares, spent, turns: 0, ...(hard > 1 ? { hard } : {}), ...(lead > 0 ? { lead } : {}) };
 }
 
 /** The fire at a moment: how many times an ordinary fire it cooks, whether it is flaring, and whether it is about to. */
 export function fireAt(r: Roast, t: number): { by: number; flaring: boolean; crackling: boolean } {
   const F = ROASTING.flare;
-  const flaring = r.flares.some((f) => t >= f && t < f + F.lasts), crackling = !flaring && r.flares.some((f) => t >= f - F.warns && t < f);
+  const flaring = r.flares.some((f) => t >= f && t < f + F.lasts), crackling = !flaring && hazardNear(r.flares, t, F.warns, r.lead ?? 0);
   return { by: flaring ? F.by : 1, flaring, crackling };
 }
 

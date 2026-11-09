@@ -1,3 +1,4 @@
+import { SPECIAL_DISH_SCROLLS } from "./special-dishes";
 import { ITEMS, SCROLLS, type ItemId } from "./items";
 import { GOODS, no, put, type Done, type Purse } from "./trade";
 
@@ -37,7 +38,8 @@ export const INSIDE: Partial<Record<ItemId, { chance: number; tiers?: Array<1 | 
 /** The scroll of each thing that has one: a dish, or the cure for pests. */
 export const SCROLL_OF = Object.fromEntries((Object.keys(SCROLLS) as ItemId[]).map((scroll) => [SCROLLS[scroll], scroll])) as Partial<Record<ItemId, ItemId>>;
 /** The scrolls that are only found, of dishes of some tiers: every one the uncle does not sell, in the order the things are listed. */
-export const foundScrolls = (tiers: Array<1 | 2 | 3>): ItemId[] => (Object.keys(SCROLLS) as ItemId[]).filter((s) => !GOODS[s] && tiers.includes(ITEMS[s].tier));
+// (never a scroll of the specials' dishes: only a cook who has made one writes it, on a blank recipe paper)
+export const foundScrolls = (tiers: Array<1 | 2 | 3>): ItemId[] => (Object.keys(SCROLLS) as ItemId[]).filter((s) => !GOODS[s] && tiers.includes(ITEMS[s].tier) && !(s in SPECIAL_DISH_SCROLLS));
 /** What may be inside a thing that opens, in the order one is drawn from: the scrolls of its tiers that are only found, or the things it names. */
 export const insideOf = (id: ItemId): ItemId[] => { const x = INSIDE[id]; return !x ? [] : x.things ?? foundScrolls(x.tiers ?? []); };
 /** Whether a thing can be opened. */

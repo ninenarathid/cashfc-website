@@ -48,4 +48,6 @@ export function kitchenCooked<T extends {ok:boolean;purse?:Purse;made?:ItemId|nu
  return {...d,n:(d.n??0)+extra,purse:{...d.purse,bag,professionRewards}};
 }
 /** What a pot of food carries beyond its dish and helpings (lib/town/cooking's potMarks); since piece 2.4 its grade too. */
-export type FoodMarks={warm?:number;scent?:number;secondary?:MealBuffId;cookedBy?:string;cookId?:string;grade?:1|2|3};
+export type FoodMarks={warm?:number;scent?:number;secondary?:MealBuffId;cookedBy?:string;cookId?:string;grade?:1|2|3;
+  /** (v325) The second buff a real breed's special carried into the pot (lib/town/special-uses' CARRY), and whether the pot is under a star-wool cover. */
+  carry?:MealBuffId;cover?:boolean};

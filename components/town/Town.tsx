@@ -60,6 +60,7 @@ import { resumable } from "@/lib/town/active";
 import { BUBBLE_MS, reachNote, wrapLines } from "@/lib/town/chat";
 import { ROOM_CAP, openSession, type Avatar, type TownSession } from "@/lib/town/session";
 import { DbKeeper, type Ask, type Keeper as GameKeeper, type Looked } from "@/lib/town/keeper";
+import { SPECIAL_USE, laid, type Dress } from "@/lib/town/special-uses";
 import ChatHistory, { ChatPlace } from "./ChatHistory";
 import Wardrobe from "./Wardrobe";
 import { TownElementProvider } from "./TownElementFx";
@@ -229,6 +230,8 @@ const TownAuction = lazy(() => import("./TownAuction"));
 /** The clothes shop's windows: Granny's clothes, and the week's auction. */
 export type ShopPanel = "tailor" | "auction";
 /** What a nudge from the room may be about (lib/town/keeper's Looked). */
+/** (v325) The golden tablecloth laid: told to every page that hears of it within so long of its laying, for so long. */
+const CLOTH_NEWS_MS = 10 * 60_000, CLOTH_SHOW_MS = 9000;
 const NUDGES: readonly string[] = ["boats","stall", "farm", "kitchen", "deal", "fountain", "notices", "bugs", "line", "ground", "shop", /* mining */ "cave", /* felling */ "trees", /* the bridge and the lamps */ "works", "lamps", /* the pasture */ "animals"];
 /** The colour a carrier's rank is written in under their name (lib/town/well): wood, silver, gold. */
 const RANK_INK = ["#e0a66a", "#d5dce3", "#f2c94c"];
@@ -1290,6 +1293,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   }, [session]);
   /** How far the forest walker's lamp lights about me, in tiles, while I wear it (lib/town/gifts): none without it. And where I stand, for its light. */
   const lampRef = useRef(0), lampAt = useRef<Vec | null>(null);
+  // (v325: my moon sight's level: at night the dark round me is lifted so many tiles farther, on every map; lib/town/special-uses)
+  const moonRef = useRef(0);
+  const dressRef = useRef<{ dress: Dress; skew: number } | null>(null);
   /** Where each familiar drawn is, by whom it follows: this page's own (lib/town/gifts). */
   const pets = useRef(new Map<string, { x: number; y: number; right: boolean }>());
   // ── gifts: forest ──
@@ -2017,15 +2023,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
    * far as the lamp reaches, and a small warm core at the hand.
    */
   function drawLampLight(ctx: CanvasRenderingContext2D, lamps: number, now: number) {
-    const reach = lampRef.current, me = lampAt.current;
-    if (placeRef.current !== "forest" || reach <= 0 || !me || lamps < 0.02) return;
+    // (v325: moon sight reaches so many tiles farther at night, the lamp's or, on any map with none, a cool pale light of its own: lib/town/special-uses)
+    const lamp = placeRef.current === "forest" ? lampRef.current : 0, moon = moonRef.current, reach = lamp + moon, me = lampAt.current;
+    if (reach <= 0 || !me || lamps < 0.02) return;
     const at = project({ x: me.x + 0.5, y: me.y + 0.5 }), s = cam.current.s;
     const lit = lamps * (reducedRef.current ? 0.95 : 0.93 + 0.05 * Math.sin(now / 900) + 0.02 * Math.sin(now / 370 + 0.8));
     ctx.save();
     ctx.globalCompositeOperation = "lighter";
     // (a light's picture fades to nothing at its rim: drawn half as wide again as the lamp reaches, so that what is in reach is lit)
-    glowAt(ctx, at.x, at.y - 4 * s, reach * (TILE_W / 2) * 1.5 * s, "255,214,150", 0.5 * lit, 0.55);
-    glowAt(ctx, at.x, at.y - 30 * s, 64 * s, "255,196,120", 0.34 * lit);
+    glowAt(ctx, at.x, at.y - 4 * s, reach * (TILE_W / 2) * 1.5 * s, lamp > 0 ? "255,214,150" : "196,214,255", (lamp > 0 ? 0.5 : 0.42) * lit, 0.55);
+    if (lamp > 0) glowAt(ctx, at.x, at.y - 30 * s, 64 * s, "255,196,120", 0.34 * lit);
     ctx.restore();
   }
 
@@ -2429,6 +2436,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const art2 = scenery ? town2Ref.current : null, inHall = T2 && roofRef.current < 1;
     const iso2 = (ix: number, iy: number) => toScreen(v, { x: ix, y: iy }, cw, ch);
     if (art2) art2.carving = forcedCarving.current ?? carving(Date.now());
+    // (v325: the golden cloth on the hall's tables and cushions on its benches, while they last by the keeper's clock: lib/town/special-uses)
+    if (art2) { const d = dressRef.current, t = Date.now() + (d?.skew ?? 0); art2.dressed = { cloth: !!d && laid(d.dress, "cloth", t), cushions: !!d && laid(d.dress, "cushions", t) }; }
     const seen2 = art2 ? art2.visible({ x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, now) : null;
     // ── the editor's farm ── (lib/town/farm2-art: what of it is near the view, while I am on the farm)
     const artF = scenery && F2 && placeRef.current === "farm" ? farm2Art() : null;
@@ -4721,6 +4730,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         stay.setLook({ ...was, race, gender, hair: hairsFor(gender, race)[0] ?? 0, skin: Math.min(was.skin, skinsOf(race).length - 1) });
         return true;
       },
+      /** (v325) Open Granny Twilla's window as her talk's choice does, for checks of her rails. */
+      shop: (panel: "tailor" | "auction") => openShopPanel(panel),
       /** Look at a tile without walking there (the camera stops following me). */
       lookAt: (x: number, y: number) => { const p = toIso(x, y); cam.current.follow = false; setCam({ s: cam.current.s, cx: p.x, cy: p.y }); },
       /** Stand at a tile of either map at once, without walking to a gate. */
@@ -5180,6 +5191,27 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // (whether I have no stamina left: handing water on is a game only where somebody has none, lib/town/handing)
   const spentNow = purse.stamina <= 0;
   useEffect(() => { sessionRef.current?.setSpent(spentNow); }, [spentNow]);
+  // (v325: how many tiles farther my moon sight lifts the dark round me now, none by day: drawLampLight)
+  moonRef.current = purse.moon ?? 0;
+  // (v325: what is laid on the feast table, and how far the keeper's clock is from the wall's: the hall's tables drawn with it)
+  dressRef.current = keeper?.specialUses() ? { dress: keeper.tableDress(), skew: keeper.now() - Date.now() } : null;
+  // (v325: the golden tablecloth newly laid, or laid again, is told to the whole town, once a page, for a while: by when it
+  // now lies until, so that a laying over one that lies still is told too; one laid long before the page came, not at all)
+  const clothUntil = dressRef.current?.dress.cloth?.until ?? 0, clothBy = dressRef.current?.dress.cloth?.by ?? "";
+  const [clothNews, setClothNews] = useState<string | null>(null);
+  const clothSeen = useRef<number | null>(null);
+  useEffect(() => {
+    if (!clothUntil) return;
+    const seen = clothSeen.current;
+    clothSeen.current = clothUntil;
+    if (seen !== null && clothUntil <= seen) return;
+    if (Date.now() + (dressRef.current?.skew ?? 0) - (clothUntil - SPECIAL_USE.cloth.hours * 3_600_000) > CLOTH_NEWS_MS) return;
+    setClothNews(clothBy);
+    const t = setTimeout(() => setClothNews(null), CLOTH_SHOW_MS);
+    return () => clearTimeout(t);
+  }, [clothUntil, clothBy]);
+  // (v325: my featherlight's level: everybody's page walks me so much faster on foot, lib/town/special-uses)
+  useEffect(() => { sessionRef.current?.setFleet(purse.fleet ?? 0); }, [purse.fleet, session]);
   // (and which familiar follows me, lib/town/gifts: everybody's page draws it at my heels)
   useEffect(() => { sessionRef.current?.setPet(giftsTold.gifts.familiar); }, [giftsTold.gifts.familiar, session]);
   const landedAt = useRef(0);
@@ -6233,6 +6265,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
           <TownDrink keeper={keeper} me={keeper.id} th={w.th} people={standers} pair={drinking} where={whereAmI} spot={headSpot} register={registerDrink} sfx={sfxRef.current} reduced={!moving}
                      here={!fishing && !signView ? standing?.tile ?? null : null} hidden={!!talk || !!trade || boardOpen || wardrobeOpen || (phone && testOpen)} />
         </Suspense>
+      )}
+      {/* (v325: the golden tablecloth laid on the feast table, told to the whole town for a while: its picture and a few words) */}
+      {s && clothNews !== null && (
+        <TownFoot rank="toast" order={3}>
+          <p role="status" data-cloth-news className="pop-in flex min-h-10 items-center gap-2 rounded-full border border-gold/70 bg-surface/95 px-4 text-ui font-semibold text-ink shadow-lg shadow-black/40 backdrop-blur-sm">
+            <TownIcon name={"wholeGoldenFleece" as IconName} size={24} />
+            {w.th ? `ผ้าปูโต๊ะทองคำ ณ ห้องอาหาร${clothNews ? ` · โดย ${clothNews}` : ""}` : `A golden cloth on the feast table${clothNews ? ` · by ${clothNews}` : ""}`}
+          </p>
+        </TownFoot>
       )}
       {/* Why a tap did not walk me: I hold a sign up, am in a chat room, or look at a stall. Among what is told at the
           head: that is over every sheet, and a stall's panel is one */}

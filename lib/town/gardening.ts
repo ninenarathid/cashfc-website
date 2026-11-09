@@ -1,4 +1,5 @@
 import { carriedBag } from "./passive-equipment";
+import { RARE_FLOWERS } from "./special-uses";
 import { GARDEN_CROPS, type GardenCropId } from "./garden-items";
 import { CROPS, type CropId, type ItemId } from "./items";
 import { WILD, atTop, see, tend, type Bed, type FarmSky, type Plot } from "./farm";
@@ -137,6 +138,8 @@ export function gardenHarvest<T extends { purse: Purse; plot: Plot; got: Array<[
   const stowed = stowAll(after, extras);
   if (!stowed) return no("full");
   after = stowed;
+  // (v325: a rare flower grown, the golden dandelion, is in the village's farm book as a crossing's child is: lib/town/farm-book)
+  if (RARE_FLOWERS.has(plant.crop) && !(after.gardenBook ?? []).includes(plant.crop)) after = { ...after, gardenBook: [...(after.gardenBook ?? []), plant.crop] };
   if (child) {
     after = { ...after, gardenBook: [...new Set([...(after.gardenBook ?? []), child])] };
     if (updated.plant) updated = { ...updated, plant: { ...updated.plant, crossed: true } };

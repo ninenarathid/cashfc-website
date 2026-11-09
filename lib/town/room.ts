@@ -83,6 +83,8 @@ export interface Doing {
   wet?: boolean;
   /** Whether they have no stamina left; missing from a browser older than that, and then nothing is known of it. (Water handed on is a game only where somebody has none: lib/town/handing.) */
   spent?: boolean;
+  /** (v325) Their featherlight buff's level, 1 to 4 (lib/town/special-uses: every page walks them so much faster on foot); 0 or missing with none. */
+  fleet?: number;
   /** The familiar that follows them (its name in lib/town/gifts), "" when none; missing from a browser older than familiars. Drawn at their heels by everybody's page; it does nothing here. */
   pet?: string;
   /**
@@ -245,6 +247,7 @@ export function readDoing(p: Record<string, unknown>): Partial<Doing> {
   if (wet !== undefined) d.wet = wet;
   const spent = bool(p.spent);
   if (spent !== undefined) d.spent = spent;
+  if (typeof p.fleet === "number" && Number.isInteger(p.fleet) && p.fleet >= 0 && p.fleet <= 4) d.fleet = p.fleet;
   if (typeof p.pet === "string" && /^[A-Za-z]{0,24}$/.test(p.pet)) d.pet = p.pet;
   const afoot = bool(p.afoot);
   if (afoot !== undefined) d.afoot = afoot;

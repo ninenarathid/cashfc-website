@@ -2,6 +2,7 @@ import { BOWL, BUFF_STEPS, BUFFS, BUFF_HOURS, BUFF_LEVELS, DISHES, SCROLLS, byOf
 import type { WishId } from "./fountain";
 import { BANGKOK, DAY, HOUR, gradeIn, no, put, roomFor, type Done, type Purse } from "./trade";
 import { buffFloorOf, restoresOf } from "./quality";
+import { SPECIAL_USE, isLegend } from "./special-uses";
 
 /**
  * Stamina, meals and what a meal leaves behind (the owner, 2026-10-03).
@@ -256,8 +257,10 @@ export function warmed(up: Pick<Purse, "buff" | "buffs">, id: MealBuffId, hours:
  * for the minutes since it was last counted, and, when its time is up, its end:
  * the dish's buff, if it has one, and its bowl back in the bag.
  */
-export function chew(purse: Purse, company: number, now: number): { purse: Purse; done: boolean } {
+export function chew(purse: Purse, company: number, now: number, together = false): { purse: Purse; done: boolean } {
   const e = purse.eating;
+  // (v325: the feast table's cushions are a companion more, within the most there may be: lib/town/special-uses)
+  if (e?.cushion) company = Math.min(STAMINA.company, Math.max(0, Math.floor(company)) + SPECIAL_USE.cushion.company);
   if (!e) return { purse, done: false };
   const whole = mealDuration(purse), end = e.from + whole, till = Math.min(now, end);
   const dish = DISHES[e.dish];
@@ -274,6 +277,12 @@ export function chew(purse: Purse, company: number, now: number): { purse: Purse
     // (piece 2.4: an excellent helping's own buff is at the second level at once at the least; one more than that, as ever)
     ...(done && dish.buff ? warmed(raised(purse, dish.buff, now, Math.max(spiceOf(purse), buffFloorOf(e.grade))), dish.buff, typeof e.warm === "number" ? e.warm : 0, now, purse.buff) : {}),
   };
+  if (done) {
+    // (v325: a legend pot eaten together, its buff a level more; and the second buff a real breed's special carried into the
+    // pot, as a meal's: lib/town/special-uses)
+    if (together && dish.buff && isLegend(e.dish) && e.pot) Object.assign(after, raised(after, dish.buff, now));
+    if (e.carry && e.carry in BUFF_STEPS && e.carry !== dish.buff) Object.assign(after, raised(after, e.carry, now));
+  }
   if(done){
     if(e.secondary&&e.secondary in BUFF_STEPS&&e.secondary!==dish.buff){const live=mealBuffs(after,now),had=live.find(b=>b.id===e.secondary);after.buffs=had?live.map(b=>b===had?{...b,level:Math.max(1,b.level),until:Math.max(b.until,now+1800000)}:b):[...live,{id:e.secondary,level:1,until:now+1800000}];}
     if(e.cookedBy&&e.cookId)after.lastMeal={cookedBy:e.cookedBy,cookId:e.cookId,at:now,buffs:[dish.buff,e.secondary].filter((b):b is MealBuffId=>!!b)};
@@ -289,10 +298,10 @@ export function chew(purse: Purse, company: number, now: number): { purse: Purse
  * came back to look. A purse with no meal, or one still being eaten, is as it
  * was, but for a bowl it was owed and now has room for.
  */
-export function settle(purse: Purse, now: number): Purse {
+export function settle(purse: Purse, now: number, together = false): Purse {
   if (!purse.eating) return bowlsBack(purse);
   const end = purse.eating.from + mealDuration(purse);
-  return now >= end ? chew(purse, 0, end).purse : bowlsBack(purse);
+  return now >= end ? chew(purse, 0, end, together).purse : bowlsBack(purse);
 }
 
 /** Get up from a meal before it is finished: what was eaten stays, the rest and the buff are forfeit. Its bowl comes back all the same. */

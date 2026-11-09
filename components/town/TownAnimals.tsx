@@ -12,6 +12,8 @@ import { BARNS, LANE_ROWS } from "@/lib/town/pasture";
 import { hasThing, usesLeft, type ThingId } from "@/lib/town/gifts";
 import { ITEMS, type ItemId } from "@/lib/town/items";
 import { held, type Purse } from "@/lib/town/trade";
+import { levelOf } from "@/lib/town/stamina";
+import { matchPoints } from "@/lib/town/special-uses";
 import type { SceneryKit } from "@/lib/town/scenery";
 import { Coins, ItemIcon, Pic } from "./TownTrade";
 import { QualityRange } from "./TownQuality";
@@ -902,7 +904,7 @@ function Nest({ th, purse, world, now, kit, busy, act, me, nameOf, mine, asksIn,
   const steps = ba && bb ? stepsOf(ba, bb) : [];
   const offerings = purse.bag.map((x) => x?.item).filter((id): id is ItemId => !!id && kindOf(id) !== null).filter((id, i, all) => all.indexOf(id) === i);
   const dawns = purse.bag.map((x) => x?.item).filter((id): id is ItemId => !!id && DAWN_BOOSTS.includes(id)).filter((id, i, all) => all.indexOf(id) === i);
-  const x = ba && bb ? crossOf(ba, bb, offering || null, !!dawn) : null;
+  const x = ba && bb ? crossOf(ba, bb, offering || null, !!dawn, matchPoints(levelOf(purse, now, "luckyMatch"))) : null;
   const fee = ba && bb && x ? feeOf(x.target, ba, bb) : 0;
   const ready = (a: Animal) => a.hearts >= ANIMALS.breedHearts && a.rest <= now;
   const coming = mine.filter((a) => a.born > now);

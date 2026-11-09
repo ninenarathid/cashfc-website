@@ -10,6 +10,7 @@
  * the other parent of one not found (or a shut page's hint and a parent's page together would give the whole pair).
  */
 import { CROPS, type CropId } from "./items";
+import { RARE_FLOWERS } from "./special-uses";
 import { GARDEN } from "./gardening";
 import { COMPANIONS, PARTNERS, type CompanionId, type Role, type Shape } from "./quality";
 import { HELPER_CROSSES, MIST_PLANTS } from "./helper-items";
@@ -25,13 +26,15 @@ export const BOOK_CROSSES: readonly BookCross[] = [
   ]),
 ];
 const CHILDREN: ReadonlySet<string> = new Set(BOOK_CROSSES.map((c) => c.child));
+/** (v325) The rare flowers (lib/town/special-uses): shut until somebody in the village has grown one. */
+export { RARE_FLOWERS };
 const HYBRIDS: ReadonlySet<string> = new Set(GARDEN.crosses.map((c) => c[2]));
 
-export type BookKind = "uncle" | "helper" | "hybrid" | "mist";
+export type BookKind = "uncle" | "helper" | "hybrid" | "mist" | "rare";
 export const kindOf = (id: CropId): BookKind =>
-  HYBRIDS.has(id) ? "hybrid" : id in MIST_PLANTS ? "mist" : id in COMPANIONS ? "helper" : "uncle";
-/** Whether a crop's page is open: one nobody has to find (no crossing makes it), or a child the village has found. */
-export const isOpen = (id: string, found: ReadonlySet<string>): boolean => !CHILDREN.has(id) || found.has(id);
+  RARE_FLOWERS.has(id) ? "rare" : HYBRIDS.has(id) ? "hybrid" : id in MIST_PLANTS ? "mist" : id in COMPANIONS ? "helper" : "uncle";
+/** Whether a crop's page is open: one nobody has to find (no crossing makes it, no rare flower), or one the village has found. */
+export const isOpen = (id: string, found: ReadonlySet<string>): boolean => (!CHILDREN.has(id) && !RARE_FLOWERS.has(id)) || found.has(id);
 
 export interface BookPage {
   id: CropId;
@@ -58,7 +61,7 @@ export interface BookPage {
   picks?: number;
 }
 
-const ORDER: Record<BookKind, number> = { uncle: 0, helper: 1, hybrid: 2, mist: 3 };
+const ORDER: Record<BookKind, number> = { uncle: 0, helper: 1, hybrid: 2, mist: 3, rare: 4 };
 
 /** Every crop's page, in the book's order: the uncle's, the helpers, the hybrids, the mist forms. */
 export function farmBook(found: ReadonlySet<string>): BookPage[] {
@@ -68,7 +71,8 @@ export function farmBook(found: ReadonlySet<string>): BookPage[] {
     const mine = BOOK_CROSSES.filter((x) => x.a === id || x.b === id);
     const base = { id, kind: kindOf(id), open, giant: (GROW_CROPS as readonly string[]).includes(id), hours: c.hours, yield: c.yield,
       ...(c.again ? { again: c.again, picks: c.picks } : {}) };
-    if (!open) return { ...base, hint: BOOK_CROSSES.find((x) => x.child === id)!.a, from: [], makes: [], hidden: 0 };
+    // (a rare flower shut: told by the seed it grows of, never what it is)
+    if (!open) return { ...base, hint: RARE_FLOWERS.has(id) ? c.seed as CropId : BOOK_CROSSES.find((x) => x.child === id)!.a, from: [], makes: [], hidden: 0 };
     return {
       ...base,
       from: BOOK_CROSSES.filter((x) => x.child === id),

@@ -1,4 +1,5 @@
 "use client";
+import { moonTiles } from "@/lib/town/special-uses";
 import { TownForestTrail,TownResourceBench } from "./TownRewardActions";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -274,7 +275,8 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
   const eye = byOf(WILD_WISHES.forest, levelOf(purse, keeper.now(), WILD_WISHES.forest as WishId));
   // (the forest walker's lamp worn as a charm: how far its light reaches about me, in tiles; none without it. lib/town/gifts)
   const lamp = useRef(0), glints = useRef(0);
-  lamp.current = charmBy(purse, "charmLamp", 0);
+  // (v325: and moon sight at night, so many tiles farther, lamp or none: lib/town/special-uses)
+  lamp.current = charmBy(purse, "charmLamp", 0) + moonTiles(levelOf(purse, keeper.now(), "moonSight"), keeper.now());
   // (the firefly lantern worn: what every place holds is seen at any hour, the buried things and the secret places too)
   const lit = near && lanternLit(purse), lantern = useRef(false), fliesOver = useRef(0), stillNow = useRef(false);
   lantern.current = lit;

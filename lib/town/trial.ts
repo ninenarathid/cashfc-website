@@ -62,6 +62,7 @@ import { preparationReady, prepare, PREPARATION, type PrepId, type PrepRun, type
 import { makeCamp, campBenefit, type FieldCamp } from "./camps";
 import { fitHook } from "./rod-hook";
 import { cook, feastEat, hasMade, isFind, ladle, mayLeave, serve, setDown, takeUp, tidied, type Pot, type Taste } from "./cooking";
+import { DRESS_ITEM, SPECIAL_USE, woolOff, cushionCompany, isLegend, keepBegan, layDress, togetherAt, writeScroll, type Began, type Dress, type DressKind } from "./special-uses";
 import { WATER, WILD, chore, choreFor, deedFor, inPestHours, ownerOf, pestHour, see, tend, type Bed, type Chore, type Deed, type FarmRefusal, type FarmSky, type Plot, type Swarms } from "./farm";
 import { agree, lay, newDeal, sideOf, swap, type Deal, type Give } from "./deal";
 import { backBait, hookBait, landCatch, loseBait } from "./fishing";
@@ -87,7 +88,7 @@ import { SPECIAL } from "./specials";
 import { STAMINA, bowlsBack, chew, dayOf, getUp, readScroll, sitDown, spend } from "./stamina";
 import { moveSlot, sortBag } from "./bag";
 import {
-  RULES, buy, change, collect, handOf, hold, leave, letGo, newPurse, newStall, nextRoundAt, no, put, roomFor, roomy, roundOf, takeBack, takeOff, wear,
+  RULES, buy, change, collect, handOf, held, hold, leave, letGo, newPurse, newStall, nextRoundAt, no, put, roomFor, roomy, roundOf, take, takeBack, takeOff, wear,
   type Done, type Purse, type Refusal, type Stall,
 } from "./trade";
 import { giveBed, leaveBed, plantsIn, type BedRefusal } from "./bed-hand";
@@ -97,7 +98,7 @@ import { boardOf, thank, toThank, type Helper, type Thanks, type ThanksBoard } f
 // ── gifts: kitchen ──
 import { basketEat, basketPut, basketTake, cookWith, spiceEat, spoon, type CookHow, type Gifted } from "./cooking";
 import { bookOf, newLog, ranksOf, seen, takeGift, type WaterDeed, type WellBook, type WellLog } from "./well";
-import { ditch, reachOf } from "./ditch";
+import { ditch, rainAt, rainEgg, reachOf } from "./ditch";
 import { hotAt } from "./heat";
 import { canPour, freshen, pourIn } from "./yard";
 import { carried, pass, type PassRefusal } from "./line";
@@ -231,6 +232,8 @@ const GROUND_AT = "cashtown.trial.ground.1";
 const TREES_AT = "cashtown.trial.trees.1";
 // ── the pasture ── (everybody's animals, the herds, the gate, the gifts' hours and the wagons: the whole browser's, so that one tester cares for another's animals)
 const ANIMALS_AT = "cashtown.trial.animals.2";
+// (v325: what is laid on the feast table, and the beginnings of helpings of legend pots: lib/town/special-uses)
+const DRESS = "cashtown.trial.dress.1", BEGAN = "cashtown.trial.began.1";
 const POTS = "cashtown.trial.pots.1", FOUND = "cashtown.trial.found.1", FINDERS = "cashtown.trial.finders.1", DEALS = "cashtown.trial.deals.1", VILLAGE = "cashtown.trial.village.1";
 /** The beds the test window plants as a show garden: the four round the well. */
 const SHOW_BEDS = [8, 9, 14, 15];
@@ -642,7 +645,7 @@ export class Trial {
   chew(company: number): boolean {
     const before = this.purse();
     if (!before.eating) return false;
-    const { purse, done } = chew(before, company, this.now());
+    const { purse, done } = chew(before, company, this.now(), this.together(before));
     this.save(purse);
     return done;
   }
@@ -660,13 +663,17 @@ export class Trial {
     return { ...did, dressed };
   }
   /** (v297) Buy a thing to wear at Granny Twilla's (town_tailor_buy): coins out, into the wardrobe for good. */
-  tailorBuy(wearable: string): Done<{ purse: Purse; wearable: string; price: number; dressed: string[] }> {
+  tailorBuy(wearable: string, wool: number[] = []): Done<{ purse: Purse; wearable: string; price: number; dressed: string[] }> {
     const had = this.dressed(), purse = this.purse();
-    const why = cannotBuy(wearable, purse.coins, new Set(had), this.now());
+    // (v325: the special wool handed to Granny takes so much off the piece, each kind once: lib/town/special-uses)
+    const w = woolOff(purse, wool);
+    if (!w.ok) return w;
+    const off = Math.min(TAILOR[wearable]?.price ?? 0, w.off);
+    const why = cannotBuy(wearable, purse.coins + off, new Set(had), this.now());
     if (why) return { ok: false, why: why as Refusal };
-    const price = TAILOR[wearable].price, dressed = [...had, wearable];
+    const price = TAILOR[wearable].price - off, dressed = [...had, wearable];
     this.write(dressedKey(this.id), dressed);
-    return this.keep({ ok: true, purse: { ...purse, coins: purse.coins - price }, wearable, price, dressed });
+    return this.keep({ ok: true, purse: { ...purse, bag: w.bag, coins: purse.coins - price }, wearable, price, dressed });
   }
   /** (v297) Which of my things are limited, as town_dressed says: a wearable, its round and its number. */
   limited(): Record<string, [number, number]> { return this.read<Record<string, [number, number]>>(limitedKey(this.id), () => ({}), (v) => !!v && typeof v === "object"); }
@@ -1143,6 +1150,24 @@ export class Trial {
   ditchAt(key: string): string[] {
     const [x, y] = key.split(",").map(Number);
     return bedOf(x, y) < 0 ? [] : reachOf(this.purse(), this.bedAt(x, y), [x, y], this.now(), this.sky());
+  }
+  // ── the specials' uses (v325) ──
+  /** The plots the first-rain egg in my hand would water, thrown onto a plot (lib/town/ditch). */
+  rainAt(key: string): string[] {
+    const [x, y] = key.split(",").map(Number);
+    return rainAt(this.purse(), this.farm(), [x, y], this.now(), this.sky());
+  }
+  /** Throw it. */
+  rainDo(key: string): { ok: true; watered: string[] } | { ok: false; why: Refusal | FarmRefusal } {
+    const [x, y] = key.split(",").map(Number), p = this.purse(), now = this.now(), plots = this.farm();
+    const did = rainEgg(p, plots, [x, y], now, this.sky());
+    if (!did.ok) return did;
+    const next = { ...plots }, sky = SKIES.sky(now);
+    for (const [k, plot] of Object.entries(did.plots)) next[k] = keptAs(plots[k], plot, now, sky, this.natureNow(now, wellOfKey(k)));
+    this.write(FARM, next);
+    for (const k of did.watered) { const by = plots[k].plant!.by; this.counted({ from: "deed", what: "rain_egg", thing: "firstRainEgg", n: 1, doc: { plot: k, ...(by !== this.id ? { whose: by } : {}) } }); }
+    this.save(did.purse);
+    return { ok: true, watered: did.watered };
   }
   /** Pour it. */
   ditchDo(key: string): { ok: true; used: number; watered: string[] } | { ok: false; why: Refusal | FarmRefusal } {
@@ -1689,7 +1714,46 @@ export class Trial {
 
   /* ── the kitchen: the pots set down and what has been found are the browser's, like the farm ── */
   /** The pots of food that stand about, for anybody with a bowl: as they stand now (lib/town/cooking's tidied: an hour on the ground, then the feast table, then gone). */
-  pots(): Pot[] { return tidied(this.read<Pot[]>(POTS, () => [], Array.isArray), this.now(), KITCHEN.feast.tile).pots; }
+  pots(): Pot[] { return tidied(this.read<Pot[]>(POTS, () => [], Array.isArray), this.now(), KITCHEN.feast.tile, undefined, this.tableDress()).pots; }
+  // ── the specials' uses (v325, lib/town/special-uses) ──
+  /** What is laid on the feast table: cushions, the golden tablecloth. */
+  tableDress(): Dress { return this.read<Dress>(DRESS, () => ({}), (v) => !!v && typeof v === "object" && !Array.isArray(v)); }
+  /** The beginnings of helpings of legend pots at the table (pot: who, when). */
+  private began(): Record<string, Began[]> { return this.read<Record<string, Began[]>>(BEGAN, () => ({}), (v) => !!v && typeof v === "object" && !Array.isArray(v)); }
+  /** Whether my helping in hand (of a legend pot, begun at the table) is eaten together. */
+  private together(p: Purse): boolean { const e = p.eating; return !!e?.pot && isLegend(e.dish) && togetherAt(this.began()[e.pot] ?? [], this.id, e.from); }
+  /** Lay cushions or the golden tablecloth on the feast table (standing on the yard's floor). */
+  feastDress(kind: DressKind, at: [number, number] | null): Done<{ purse: Purse; dress: Dress }> {
+    if (!at || !yardFloor(at[0], at[1])) return no("none");
+    const did = layDress(this.purse(), this.tableDress(), kind, this.nameOf()(this.id), this.now());
+    if (!did.ok) return did;
+    this.write(DRESS, did.dress);
+    this.save(did.purse);
+    this.counted({ from: "deed", what: "feast_dress", thing: DRESS_ITEM[kind], n: 1, doc: { kind } });
+    return did;
+  }
+  /** Put a star-wool cover over a pot on the feast table (whoever's): a meal's hours more there; once a pot. */
+  potCover(id: string, at: [number, number] | null): Done<{ purse: Purse; pot: Pot }> {
+    const pots = this.pots(), pot = pots.find((o) => o.id === id), p = this.purse();
+    if (!pot) return no("gone");
+    if (!pot.feast || !at || !yardFloor(at[0], at[1])) return no("none");
+    if (pot.cover) return no("taken");
+    if (held(p.bag, SPECIAL_USE.cover.item) < 1) return no("tool");
+    const covered: Pot = { ...pot, cover: true };
+    this.write(POTS, pots.map((o) => (o.id === id ? covered : o)));
+    const purse = { ...p, bag: take(p.bag, SPECIAL_USE.cover.item, 1) };
+    this.save(purse);
+    this.counted({ from: "deed", what: "pot_cover", thing: pot.dish, n: 1, doc: { pot: id, ...(pot.by !== this.id ? { whose: pot.by } : {}) } });
+    return { ok: true, purse, pot: covered };
+  }
+  /** Write a recipe I have made onto a blank recipe paper: its scroll, to trade. */
+  writeScroll(id: ItemId): Done<{ purse: Purse; scroll: ItemId }> {
+    const did = writeScroll(this.purse(), id);
+    if (!did.ok) return did;
+    this.save(did.purse);
+    this.counted({ from: "deed", what: "paper_write", thing: did.scroll, n: 1, doc: { of: id } });
+    return did;
+  }
   /** Everything anybody in this browser has made at least once: a find is everybody's (the owner: "เจอ 1 คน เท่ากับ ทุกคนรู้สูตร"). */
   found(): ItemId[] { return this.read<ItemId[]>(FOUND, () => [], Array.isArray); }
   /** Who found each of them first, as they were called then. */
@@ -1764,8 +1828,10 @@ export class Trial {
   feastEat(id: string, seated: boolean): Done<{ purse: Purse; pot: Pot | null; dish: DishId }> {
     const pots = this.pots(), pot = pots.find((o) => o.id === id);
     if (!pot) return no("gone");
-    const did = feastEat(this.purse(), pot, seated, this.now());
+    const now = this.now(), did = feastEat(this.purse(), pot, seated, now, undefined, cushionCompany(this.tableDress(), now) > 0);
     if (!did.ok) return did;
+    // (v325: a helping of a legend pot is written down as begun, for whoever's own end of it asks whether it was eaten together)
+    if (isLegend(pot.dish)) { const all = this.began(); this.write(BEGAN, { ...Object.fromEntries(Object.entries(all).map(([k, v]) => [k, keepBegan(v, null, now)]).filter(([, v]) => v.length)), [id]: keepBegan(all[id] ?? [], { by: this.id, at: now }, now) }); }
     const left = did.pot;
     this.write(POTS, left ? pots.map((o) => (o.id === id ? left : o)) : pots.filter((o) => o.id !== id));
     this.save(did.purse);

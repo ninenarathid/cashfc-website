@@ -727,12 +727,22 @@ export const knowsOffering = (book: Book, recipes: readonly string[], species: S
 export const scrollOf = (species: SpeciesId, child: Letter) => `scrollBreed${species[0].toUpperCase()}${species.slice(1)}${child}`;
 
 /** What two parents and an offering come to: the step (if any), its breed, the odds in hundredths. */
-export function crossOf(a: Breed, b: Breed, offering: string | null, dawn: boolean) {
+/**
+ * (v325) A breeding's odds, in hundredths, with so many points more for the breeder's lucky match (lib/town/special-uses'
+ * matchOdds reads the buff's level into points): never past three times the breed's own odds (Codex: the buff's "never
+ * past x3") nor the cap, and never less than it has without them.
+ */
+export function matchedOdds(base: number, dawn: number, points: number, cap: number): number {
+  const plain = Math.min(cap, base + dawn);
+  return points > 0 ? Math.max(plain, Math.min(cap, 3 * base, base + dawn + points)) : plain;
+}
+export function crossOf(a: Breed, b: Breed, offering: string | null, dawn: boolean, match = 0) {
   const kind = kindOf(offering);
   const step = stepFor(a, b, kind);
   const target = step ? breedAt(a.species, step.child) : null;
   const right = !!(step && offering && OFFERINGS[a.species][step.child] === offering);
-  const odds = right && target ? Math.min(ANIMALS.oddsCap, ANIMALS.odds[target.tier as "real" | "fantasy" | "legend"] + (dawn ? ANIMALS.dawnBoost : 0)) : 0;
+  // (v325: `match`, the points of the breeder's lucky match: lib/town/special-uses)
+  const odds = right && target ? matchedOdds(ANIMALS.odds[target.tier as "real" | "fantasy" | "legend"], dawn ? ANIMALS.dawnBoost : 0, match, ANIMALS.oddsCap) : 0;
   return { step, target, right, odds };
 }
 export const feeOf = (target: Breed | null, a: Breed, b: Breed) => {

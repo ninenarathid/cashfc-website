@@ -1,3 +1,4 @@
+import { SPECIAL_DISH_SCROLLS } from "./special-dishes";
 import { describe, expect, it } from "vitest";
 import { FISH_IDS, FLOTSAM_IDS, DISHES, DISH_IDS, ITEMS, SCROLLS, type ItemId } from "./items";
 import { INSIDE, SCROLL_OF, foundScrolls, insideOf, open, opens } from "./scrolls";
@@ -27,8 +28,12 @@ describe("the scrolls nobody sells (the owner: \"อาหารมีหลา�
     const sold = (Object.keys(SCROLLS) as ItemId[]).filter((s) => GOODS[s]), found = foundScrolls([1, 2, 3]);
     expect(sold.length).toBe(7);
     expect(sold).toContain("scrollPestCure");
-    expect(found.length).toBe(cooked.length - 6);
-    expect(new Set([...sold, ...found]).size).toBe(cooked.length + 1);
+    // (the specials' ten are neither sold nor found: a cook who has made one writes it on a blank recipe paper, v325)
+    const written = Object.keys(SPECIAL_DISH_SCROLLS);
+    expect(written.length).toBe(10);
+    expect(found.filter((s) => written.includes(s))).toEqual([]);
+    expect(found.length).toBe(cooked.length - 6 - written.length);
+    expect(new Set([...sold, ...found, ...written]).size).toBe(cooked.length + 1);
     // each tier's are in something: the early game's in a boot or a bottle, the last tier's in a chest
     for (const tier of [1, 2, 3] as const) expect((Object.keys(INSIDE) as ItemId[]).some((thing) => INSIDE[thing]!.tiers?.includes(tier))).toBe(true);
     for (const scroll of found) expect((Object.keys(INSIDE) as ItemId[]).some((thing) => insideOf(thing).includes(scroll))).toBe(true);
@@ -43,7 +48,8 @@ describe("the scrolls nobody sells (the owner: \"อาหารมีหลา�
     expect(opens(null)).toBe(false);
     // so every scroll can be had
     const from = sources();
-    for (const scroll of Object.keys(SCROLLS) as ItemId[]) expect(from.get(scroll)).toBe(GOODS[scroll] ? "shop" : "river");
+    // (the specials' dishes' are written, by whoever keeps the pasture's paperboat duck: v325)
+    for (const scroll of Object.keys(SCROLLS) as ItemId[]) expect(from.get(scroll)).toBe(GOODS[scroll] ? "shop" : scroll in SPECIAL_DISH_SCROLLS ? "pasture" : "river");
   });
 
   it("opens a boot, a bottle, a chest: the thing is gone, and what was in it is in the bag", () => {

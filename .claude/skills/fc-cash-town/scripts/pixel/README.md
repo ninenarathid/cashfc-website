@@ -1169,3 +1169,12 @@ no half-clear cell. The firefly custard's fireflies came out as two faint yellow
   as quilted padding (irregular curls, quieter areas, deeper shadow under the hanging edge), and the golden seed clocks
   read as solid yellow flowers (fine radial seeds round a darker centre).
 - Round 4 in all: 8 calls, $0.150; the ledger then stood at 3,132 rows and $47.687 of $55.
+
+### Stage 3 built into the atlas (2026-11-10, branch `specials-uses`)
+
+No picture drawn: the round's sheets cut into the atlas with ICONS_ONLY and ICONS_APPEND (ICONS_SHEETS at the shared
+work/out): `icons-special-dish-a`, `-dish-b` (the ten dishes; the sesame pudding is `-fix-a`'s round 2),
+`icons-special-buff-a` (the five buffs and `sealTogether`; the aroma buff is `-fix-a`'s round 2), `icons-special-pots-a`,
+`-pots-b` (`split`), and `icons-golden-dandelion-a2` (`fill`): 29 icons. The feast overlays are served as
+`public/town/town2/feast-golden-cloth-bd41b020.png` and `feast-cushions-01f9578f.png` (the hashes their content's), drawn
+by lib/town/town2-art with the hall's dining tables' and benches' own strips while laid.

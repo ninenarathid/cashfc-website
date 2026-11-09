@@ -171,6 +171,9 @@ export const FAMILY: Readonly<Record<string, string>> = {
   ...Object.fromEntries(BREEDS.filter((b) => b.species === "cow").map((b) => [b.produce, "milk"])),
   ...Object.fromEntries(BREEDS.filter((b) => b.species === "sheep" && b.produce !== "wool").map((b) => [b.produce, "wool"])),
   farmCheese: "cheese",
+  // (v325: the real breeds' specials stand in for an egg or milk in every recipe, and carry their breed's second buff into the
+  // pot: lib/town/special-uses' CARRY. The fantasy and legend breeds' are their dishes' own, never an egg or milk of any recipe)
+  ...Object.fromEntries(SPECIALS.filter((x) => x.tier === "real" && (x.family === "egg" || x.family === "milk")).map((x) => [x.id, x.family])),
 };
 /** What carries a grade among the pasture's things: everything an animal gives, and what is made of it; each pays by its grade when sold (lib/town/trade gradePays), and falls when oversold (lib/town/market). */
 export const ANIMAL_GRADED: readonly string[] = [...BREEDS.map((b) => b.produce), "cream", "butter", "farmCheese", "yarn", "woolScarf", "rainbowScarf", "starScarf", "goldenScarf",
@@ -218,7 +221,11 @@ export const BREED_SCROLL_ITEMS: Record<string, Item> = Object.fromEntries(SPECI
  * for it (lib/town/cooking's madeOf, its third look), never the uncle's own milk (he sells it at 9: a churn would turn it
  * into butter worth 73). A kitchen dish still takes any milk.
  */
-export const FARM_FAMILY: Readonly<Record<string, string>> = Object.fromEntries(BREEDS.filter((b) => b.species === "cow" && b.produce !== "farmMilk").map((b) => [b.produce, "farmMilk"]));
+export const FARM_FAMILY: Readonly<Record<string, string>> = {
+  ...Object.fromEntries(BREEDS.filter((b) => b.species === "cow" && b.produce !== "farmMilk").map((b) => [b.produce, "farmMilk"])),
+  // (v325: a real breed's milk special is a cow's milk for the barn's makings too)
+  ...Object.fromEntries(SPECIALS.filter((x) => x.tier === "real" && x.family === "milk").map((x) => [x.id, "farmMilk"])),
+};
 export const ANIMAL_MAKES: Partial<Record<string, Make>> = {
   cream: { needs: [["farmMilk", 2]], in: ["churn"], gives: 1 },
   butter: { needs: [["cream", 2]], in: ["churn"], gives: 1 },

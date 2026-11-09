@@ -21,19 +21,21 @@ function colourOf(f: number, done: number): string {
  * about it that fills as each face does and is notched where a face is done. A touch anywhere, or the space bar,
  * turns the stick a quarter. The fire's flames are drawn here, so that they can crackle and flare.
  */
-export default function TownRoasting({ th, title, spent, calm = 1, harder = 1, scene, onDone, onCancel, onHit, onTurn, onFlare, onMissRetry }: GameProps & {
+export default function TownRoasting({ th, title, spent, calm = 1, harder = 1, lead = 0, scene, onDone, onCancel, onHit, onTurn, onFlare, onMissRetry }: GameProps & {
   onMissRetry?:(result:{hits:number;misses:number;secs:number})=>Promise<boolean>;
   spent: boolean;
   /** How many times harder this roast is for whoever turns it (lib/town/cooking's harderCook): nothing of it is shown but the game itself. */
   harder?: number;
   /** Steady hands (a meal's buff): so many times as long between the fire's flares. */
   calm?: number;
+  /** (v325) Aroma (a meal's buff): the crackle comes so many seconds earlier (lib/town/special-uses' hazardLead). */
+  lead?: number;
   scene: Sprite | null;
   /** Told when the stick is turned, and when the fire crackles before it flares: for their sounds. */
   onTurn?: () => void;
   onFlare?: () => void;
 }) {
-  const roast = useRef<Roast>(startRoast(spent, Math.floor(Math.random() * 2 ** 31), calm, harder));
+  const roast = useRef<Roast>(startRoast(spent, Math.floor(Math.random() * 2 ** 31), calm, harder, lead));
   const from = useRef(0), ended = useRef(false), turned = useRef(0);
   const checkpoint=useRef<Roast|null>(null),paused=useRef(false),asked=useRef(false);
   const[retry,setRetry]=useState<{before:Roast;after:Roast}|null>(null);
