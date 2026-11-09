@@ -10,7 +10,8 @@
 --   * Every bred breed (B to H, 28 of them) has one special; the starters have none. At a collection each round
 --     collected in the coop, the milking or the shearing may turn ONE unit of the produce into the breed's special, of
 --     that unit's grade: never more units, and it fetches from the uncle what the unit would (its `pays` is the
---     produce's and it carries a grade, the catalog's `animals.graded`). Eggs laid out on the meadow roll none.
+--     produce's, it carries a grade, the catalog's `animals.graded`, and the uncle prices it at its produce's price of
+--     the round and counts it among its produce's sales: town.price_as). Eggs laid out on the meadow roll none.
 --   * A round's chance at full care is a day's share by the species' cycle (Codex: 0.20 / 0.28 / 0.40 a day for real,
 --     fantasy and legend breeds, every species alike: a hen's round 5 / 7 / 10 %, a sheep's 20 / 28 / 40 %), times
 --     (0.5 + 0.5 x care / 10), twice when the round met the breed's habit, half as much again for a gold coat, 50 % at most.
@@ -28,9 +29,10 @@
 --
 -- What it writes: the catalog's `animals` row gains `specials` and a longer `graded` (no other key of it: the farm switch
 -- of v323 keeps its egg spots and wagon stop there); the 28 things are merged into `items` entry by entry; a column of
--- `town_pasture`; eleven new rules (town.roam_*, town.animal_care_score, town.special_*); town.animal_range,
--- town.animal_units and town.animal_world written again whole; public.town_animals from its live text but for the lines
--- below (each must be there exactly once, or the file stops and changes nothing).
+-- `town_pasture`; fifteen new rules (town.roam_*, town.animal_care_score, town.special_*, town.price_as); town.animal_range,
+-- town.animal_units, town.animal_world, town.factor_of (stable now: it reads the catalog), town.market_count and
+-- town.prices_told written again whole; public.town_animals and public.town_leave_quote from their live text but for the
+-- lines below (each must be there exactly once, or the file stops and changes nothing).
 
 begin;
 set local statement_timeout = '60s';
@@ -41,12 +43,14 @@ do $guard$ begin
      or to_regprocedure('town.animal_units(text,integer,jsonb,integer)') is null or to_regprocedure('town.animal_world(uuid)') is null
      or to_regclass('public.town_pasture') is null or to_regclass('public.town_weather') is null
     then raise exception 'v324: run v291 (the pasture) and v118 (the weather) first'; end if;
+  if to_regprocedure('public.town_leave_quote(integer,integer,text,integer,integer,numeric)') is null or to_regprocedure('town.market_demand(text,integer)') is null
+    then raise exception 'v324: run v253 (the market''s quotes) first'; end if;
   if to_regclass('public.town_farm_switch') is null then raise exception 'v324: run v323 first'; end if;
 end $guard$;
 
 -- ── 1. The catalog: the specials, the care score and the 28 things ──────────────────────────────────────────────────
 update public.town_catalog set data = data || jsonb_build_object(
-    'specials', $v324${"knobs":{"perDay":{"real":0.2,"fantasy":0.28,"legend":0.4},"cap":0.5,"habit":2,"gold":1.5,"lookBack":72,"reveal":3,"strips":3,"wind":30},"care":{"size":[0,2,3,5],"fed":5,"most":10,"lift":25},"steps":{"cow":[1,1.4,1.9,2.5],"sheep":[1,1.5,2.1,2.8],"chicken":[1,1.6,2.2,3],"duck":[1,1.6,2.2,3]},"breeds":{"silkie":{"item":"silkieTwinEgg","habit":{"kind":"heart"}},"araucana":{"item":"dawnBlueEgg","habit":{"kind":"time","band":1}},"marans":{"item":"cocoaShellEgg","habit":{"kind":"food","item":"meadowOats"}},"lanternHen":{"item":"fireflyEgg","habit":{"kind":"time","band":6}},"cloudHen":{"item":"swirlCloudEgg","habit":{"kind":"weather","sky":"wind"}},"goldenHen":{"item":"luckySevenEgg","habit":{"kind":"company"}},"pocketPhoenix":{"item":"rebirthFlameEgg","habit":{"kind":"time","band":0}},"runner":{"item":"windRunnerEgg","habit":{"kind":"place","place":"garden"}},"cayuga":{"item":"emeraldShellEgg","habit":{"kind":"weather","sky":"rain"}},"mandarin":{"item":"brushPaintedEgg","habit":{"kind":"company"}},"raindropDuck":{"item":"firstRainEgg","habit":{"kind":"food","item":"nightDuckweed"}},"moonDuck":{"item":"moonShadowEgg","habit":{"kind":"time","band":7}},"paperboatDuck":{"item":"blankRecipePaper","habit":{"kind":"food","item":"ghostReed"}},"littleLeviathan":{"item":"blackDeepPearlEgg","habit":{"kind":"place","place":"pond"}},"shetland":{"item":"rareShadeLock","habit":{"kind":"food","item":"sweetTimothy"}},"jacob":{"item":"spiralShedHorn","habit":{"kind":"company"}},"valais":{"item":"cloudFluffTuft","habit":{"kind":"heart"}},"dandelionLamb":{"item":"goldenDandelionSeed","habit":{"kind":"weather","sky":"wind"}},"rainbowSheep":{"item":"rainbowArcLock","habit":{"kind":"weather","sky":"rain"}},"starFleece":{"item":"shootingStarLock","habit":{"kind":"time","band":6}},"goldenFleece":{"item":"wholeGoldenFleece","habit":{"kind":"heart"}},"jersey":{"item":"goldenCreamTop","habit":{"kind":"food","item":"sunAlfalfa"}},"highland":{"item":"warmShaggyMilk","habit":{"kind":"place","place":"meadow"}},"brownSwiss":{"item":"agedCheeseStarter","habit":{"kind":"place","place":"barn"}},"strawberryCow":{"item":"wildBerryCream","habit":{"kind":"food","item":"mistVetch"}},"cocoaCow":{"item":"cocoaCreamTop","habit":{"kind":"time","band":5}},"flowerCow":{"item":"pollenCream","habit":{"kind":"place","place":"garden"}},"milkyWayCow":{"item":"cometMilkCrystal","habit":{"kind":"time","band":7}}}}$v324$::jsonb,
+    'specials', $v324${"knobs":{"perDay":{"real":0.2,"fantasy":0.28,"legend":0.4},"cap":0.5,"habit":2,"gold":1.5,"lookBack":72,"reveal":3,"strips":3,"wind":30},"care":{"size":[0,2,3,5],"fed":5,"most":10,"lift":25},"steps":{"cow":[1,1.4,1.9,2.5],"sheep":[1,1.5,2.1,2.8],"chicken":[1,1.6,2.2,3],"duck":[1,1.6,2.2,3]},"breeds":{"silkie":{"item":"silkieTwinEgg","habit":{"kind":"heart"}},"araucana":{"item":"dawnBlueEgg","habit":{"kind":"time","band":1}},"marans":{"item":"cocoaShellEgg","habit":{"kind":"food","item":"meadowOats"}},"lanternHen":{"item":"fireflyEgg","habit":{"kind":"time","band":6}},"cloudHen":{"item":"swirlCloudEgg","habit":{"kind":"weather","sky":"wind"}},"goldenHen":{"item":"luckySevenEgg","habit":{"kind":"company"}},"pocketPhoenix":{"item":"rebirthFlameEgg","habit":{"kind":"time","band":0}},"runner":{"item":"windRunnerEgg","habit":{"kind":"place","place":"garden"}},"cayuga":{"item":"emeraldShellEgg","habit":{"kind":"weather","sky":"rain"}},"mandarin":{"item":"brushPaintedEgg","habit":{"kind":"company"}},"raindropDuck":{"item":"firstRainEgg","habit":{"kind":"food","item":"nightDuckweed"}},"moonDuck":{"item":"moonShadowEgg","habit":{"kind":"time","band":7}},"paperboatDuck":{"item":"blankRecipePaper","habit":{"kind":"food","item":"ghostReed"}},"littleLeviathan":{"item":"blackDeepPearlEgg","habit":{"kind":"place","place":"pond"}},"shetland":{"item":"rareShadeLock","habit":{"kind":"food","item":"sweetTimothy"}},"jacob":{"item":"spiralShedHorn","habit":{"kind":"company"}},"valais":{"item":"cloudFluffTuft","habit":{"kind":"heart"}},"dandelionLamb":{"item":"goldenDandelionSeed","habit":{"kind":"weather","sky":"wind"}},"rainbowSheep":{"item":"rainbowArcLock","habit":{"kind":"weather","sky":"rain"}},"starFleece":{"item":"shootingStarLock","habit":{"kind":"time","band":6}},"goldenFleece":{"item":"wholeGoldenFleece","habit":{"kind":"heart"}},"jersey":{"item":"goldenCreamTop","habit":{"kind":"food","item":"sunAlfalfa"}},"highland":{"item":"warmShaggyMilk","habit":{"kind":"place","place":"meadow"}},"brownSwiss":{"item":"agedCheeseStarter","habit":{"kind":"place","place":"barn"}},"strawberryCow":{"item":"wildBerryCream","habit":{"kind":"food","item":"mistVetch"}},"cocoaCow":{"item":"cocoaCreamTop","habit":{"kind":"time","band":5}},"flowerCow":{"item":"pollenCream","habit":{"kind":"place","place":"garden"}},"milkyWayCow":{"item":"cometMilkCrystal","habit":{"kind":"time","band":7}}},"priceAs":{"silkieTwinEgg":"silkieEgg","dawnBlueEgg":"blueEgg","cocoaShellEgg":"chocolateEgg","fireflyEgg":"lanternEgg","swirlCloudEgg":"cloudEgg","luckySevenEgg":"goldenEgg","rebirthFlameEgg":"emberEgg","windRunnerEgg":"runnerEgg","emeraldShellEgg":"cayugaEgg","brushPaintedEgg":"mandarinEgg","firstRainEgg":"rainEgg","moonShadowEgg":"moonEgg","blankRecipePaper":"paperEgg","blackDeepPearlEgg":"leviathanEgg","rareShadeLock":"shetlandWool","spiralShedHorn":"jacobWool","cloudFluffTuft":"valaisWool","goldenDandelionSeed":"dandelionWool","rainbowArcLock":"rainbowWool","shootingStarLock":"starWool","wholeGoldenFleece":"goldenWool","goldenCreamTop":"jerseyMilk","warmShaggyMilk":"highlandMilk","agedCheeseStarter":"swissMilk","wildBerryCream":"strawberryMilk","cocoaCreamTop":"cocoaMilk","pollenCream":"flowerMilk","cometMilkCrystal":"starMilk"}}$v324$::jsonb,
     'graded', $v324$["farmEgg","silkieEgg","blueEgg","chocolateEgg","lanternEgg","cloudEgg","goldenEgg","emberEgg","duckEgg","runnerEgg","cayugaEgg","mandarinEgg","rainEgg","moonEgg","paperEgg","leviathanEgg","wool","shetlandWool","jacobWool","valaisWool","dandelionWool","rainbowWool","starWool","goldenWool","farmMilk","jerseyMilk","highlandMilk","swissMilk","strawberryMilk","cocoaMilk","flowerMilk","starMilk","cream","butter","farmCheese","yarn","woolScarf","rainbowScarf","starScarf","goldenScarf","silkieTwinEgg","dawnBlueEgg","cocoaShellEgg","fireflyEgg","swirlCloudEgg","luckySevenEgg","rebirthFlameEgg","windRunnerEgg","emeraldShellEgg","brushPaintedEgg","firstRainEgg","moonShadowEgg","blankRecipePaper","blackDeepPearlEgg","rareShadeLock","spiralShedHorn","cloudFluffTuft","goldenDandelionSeed","rainbowArcLock","shootingStarLock","wholeGoldenFleece","goldenCreamTop","warmShaggyMilk","agedCheeseStarter","wildBerryCream","cocoaCreamTop","pollenCream","cometMilkCrystal"]$v324$::jsonb), updated_at = now()
   where key = 'animals';
 update public.town_catalog set data = data || $v324${
@@ -239,7 +243,52 @@ create or replace function town.special_strips(p_strips jsonb, p_strip jsonb, p_
    where o > jsonb_array_length(coalesce(case when jsonb_typeof(p_strips) = 'array' then p_strips end, '[]'::jsonb)) + 1 - (p_k->'specials'->'knobs'->>'strips')::integer
 $$;
 
--- ── 6. The world told with the specials' first finders ──────────────────────────────────────────────────────────────
+-- ── 6. A special at the uncle's: its produce's price, and its sales counted as its produce's (one counter) ────────────
+-- (lib/town/specials' priceAs and lib/town/market's factorOf, counted and pricesTold: what it fetches is what the unit it
+-- replaced would, whatever the round; town.factor_of was immutable and reads the catalog now)
+create or replace function town.price_as(p_item text) returns text language sql stable set search_path = '' as $$
+  select coalesce(town.cat('animals')->'specials'->'priceAs'->>p_item, p_item)
+$$;
+create or replace function town.factor_of(p_market jsonb, p_item text) returns integer language sql stable set search_path = '' as $$
+  select coalesce((p_market->'at'->town.price_as(p_item)->>'f')::int, 100)
+$$;
+create or replace function town.market_count(p_item text, p_n integer) returns void language plpgsql set search_path to 'public' as $$
+declare
+  market jsonb; id_ text := town.price_as(p_item);
+begin
+  perform town.market_now();
+  select t.doc into market from public.town_things t where t.key = 'market' for update;
+  perform town.keep_thing('market', market || jsonb_build_object('sold',
+    market->'sold' || jsonb_build_object(id_, greatest(0, coalesce((market->'sold'->>id_)::int, 0) + coalesce(p_n, 0)))));
+end;
+$$;
+create or replace function town.prices_told(p_me uuid) returns jsonb language plpgsql set search_path to 'public' as $$
+-- v253: selling or holding with buyer interest and truthful history. (v324: a special told its produce's: h.p)
+declare
+  market jsonb := town.market_now();
+  cur integer := (market->>'round')::int;
+  k jsonb := town.market_knobs();
+  things jsonb := town.market_things(k);
+  purse jsonb := town.purse_kept(p_me, false);
+  told jsonb;
+begin
+  select coalesce(jsonb_object_agg(h.id, jsonb_build_object(
+      'f', town.factor_of(market, h.id), 'floor', (things->h.p->>1)::int, 'ceil', (things->h.p->>2)::int,
+      'base', (things->h.p->>4)::numeric, 'demand', town.market_demand(h.p, cur),
+      'demandTrend', sign(town.market_demand(h.p, cur)-town.market_demand(h.p, cur-1))::int,
+      'was', coalesce((select jsonb_agg(jsonb_build_array(l.round, coalesce((l.doc->h.p->>0)::int, 100), coalesce((l.doc->h.p->>1)::numeric, 0), l.doc->h.p->2) order by l.round)
+                         from public.town_market_log l where l.round >= cur - (k->>'lately')::int and l.round < cur), '[]'::jsonb))), '{}'::jsonb)
+    into told
+    from (select distinct x.id, town.price_as(x.id) as p from (
+            select s.v->>'item' as id from jsonb_array_elements(coalesce(purse->'bag', '[]'::jsonb)) s(v) where s.v <> 'null'::jsonb
+            union all
+            select l.v->>'item' from jsonb_array_elements(coalesce(purse->'left', '[]'::jsonb)) l(v)) x
+           where things ? town.price_as(x.id)) h;
+  return jsonb_build_object('round', cur, 'things', told);
+end;
+$$;
+
+-- ── 7. The world told with the specials' first finders ──────────────────────────────────────────────────────────────
 create or replace function town.animal_world(p_me uuid) returns jsonb language sql stable set search_path = '' as $$
   select jsonb_build_object(
     'animals', coalesce((select jsonb_agg(a.a order by a.id) from public.town_animals a), '[]'::jsonb),
@@ -250,7 +299,7 @@ create or replace function town.animal_world(p_me uuid) returns jsonb language s
     from public.town_pasture p where p.one
 $$;
 
--- ── 7. public.town_animals: its live text, but for these ────────────────────────────────────────────────────────────
+-- ── 8. public.town_animals and public.town_leave_quote: their live text, but for these ────────────────────────────────────────────────────────────
 do $$
 declare c text[]; d text; n integer; o text; nw text;
 begin
@@ -339,7 +388,11 @@ begin'],
      '        an := an || jsonb_build_object(''hearts'', town.animal_hearts_plus(an, (kn->''heart''->>''pet'')::double precision, k), ''today'', (an->''today'') || ''{"pet": true}''::jsonb);
         an := town.special_cared(an, k, false);'],
     ['public.town_animals(jsonb,text)', '      ''found'', pas.found, ''spells'', pas.spells, ''wagons'', pas.wagons,',
-     '      ''found'', pas.found, ''specials'', pas.specials, ''spells'', pas.spells, ''wagons'', pas.wagons,']
+     '      ''found'', pas.found, ''specials'', pas.specials, ''spells'', pas.spells, ''wagons'', pas.wagons,'],
+    ['public.town_leave_quote(integer,integer,text,integer,integer,numeric)', 'coalesce(market->''sold'',''{}''::jsonb)||jsonb_build_object(item_,
+    greatest(0,coalesce((market->''sold''->>item_)::integer,0)+p_n))));',
+     'coalesce(market->''sold'',''{}''::jsonb)||jsonb_build_object(town.price_as(item_),
+    greatest(0,coalesce((market->''sold''->>town.price_as(item_))::integer,0)+p_n))));']
   ] loop
     d := replace(pg_get_functiondef(c[1]::regprocedure), chr(13), '');
     -- (the file may come with CR at its line ends: the texts compared without them)
@@ -352,7 +405,7 @@ begin'],
   end loop;
 end $$;
 
--- ── 8. Who may call what: the rules are no browser's ─────────────────────────────────────────────────────────────────
+-- ── 9. Who may call what: the rules are no browser's ─────────────────────────────────────────────────────────────────
 revoke execute on all functions in schema town from public, anon, authenticated;
 revoke execute on function public.town_animals(jsonb, text) from public, anon;
 grant execute on function public.town_animals(jsonb, text) to authenticated;

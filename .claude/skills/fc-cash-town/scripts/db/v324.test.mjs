@@ -142,7 +142,7 @@ try {
   const purse = async (who, bag, extra = {}) => {
     await db.query("insert into public.town_purses (member_id, coins, doc) values ($1, 0, '{}'::jsonb) on conflict (member_id) do nothing", [who]);
     const p = (await one("select town.purse_of($1, false) p", [who])).p;
-    await db.query("select town.keep_purse($1, $2::jsonb)", [who, JSON.stringify({ ...p, bag: [...bag, ...Array(Math.max(0, (p.bag?.length ?? 10) - bag.length)).fill(null)], ...extra })]);
+    await db.query("select town.keep_purse($1, $2::jsonb)", [who, JSON.stringify({ ...p, left: p.left ?? [], bag: [...bag, ...Array(Math.max(0, (p.bag?.length ?? 10) - bag.length)).fill(null)], ...extra })]);
   };
   const herd = (who, barn, door, care = "named", carers = []) => db.query("insert into public.town_herds (owner, h, changed) values ($1, $2, 0) on conflict (owner) do update set h = excluded.h",
     [who, JSON.stringify({ owner: who, barn, room: 4, door, credit: 0, lastCare: now, facade: 0, care, carers })]);
@@ -239,6 +239,22 @@ try {
 
   // the world told whole has the first finders
   eq((await call(A, { action: "look" }))?.world?.specials?.silkie?.by, A, "a look tells the specials' first finders");
+
+  // ── at the uncle's: a special at its produce's price of the round, counted among its produce's sales ──
+  const { factorOf, counted } = await import("@/lib/town/market");
+  const mk = (await one("select town.market_now() m")).m, withF = { ...mk, at: { ...(mk.at ?? {}), silkieEgg: { f: 80, m: 1 } } };
+  eq((await one("select town.factor_of($1, 'silkieTwinEgg') a, town.factor_of($1, 'silkieEgg') b, town.factor_of($1, 'farmEgg') c", [JSON.stringify(withF)])), { a: 80, b: 80, c: factorOf(withF, "farmEgg") }, "a special is priced at its produce's price, the produce as it was");
+  eq(factorOf(withF, "silkieTwinEgg"), 80, "the page's price of it the same");
+  eq(counted({ round: 1, at: {}, sold: {} }, "silkieTwinEgg", 3).sold, { silkieEgg: 3 }, "the page counts it as its produce");
+  await db.query(`update public.town_things set doc = jsonb_set(jsonb_set(doc, '{sold}', '{}'), '{at,silkieEgg}', '{"f": 80, "m": 1}') where key = 'market'`);
+  await db.query("select town.market_count('silkieTwinEgg', 3)");
+  eq((await one("select doc->'sold' s from public.town_things where key = 'market'")).s, { silkieEgg: 3 }, "a special left counts among its produce's sales, not its own");
+  const slotA = ((await bagOf(A)).bag ?? []).findIndex((s) => s?.item === "silkieTwinEgg");
+  const lv = (await as(A, "select public.town_leave($1, 1) r", [slotA])).row?.r;
+  const lot = (lv?.purse?.left ?? []).find((l) => l.item === "silkieTwinEgg");
+  eq([lv?.ok, lot?.f, lot?.pays], [true, 80, 5], "a member leaves one at the uncle's at its produce's price");
+  eq(lv?.prices?.things?.silkieTwinEgg?.f, 80, "and is told its produce's price");
+  eq((await one("select doc->'sold' s from public.town_things where key = 'market'")).s, { silkieEgg: 4 }, "and it is counted as its produce");
 
   // ── the walls ──
   eq((await one(`select has_function_privilege('authenticated', 'public.town_animals(jsonb, text)', 'execute') as member, has_function_privilege('anon', 'public.town_animals(jsonb, text)', 'execute') as anon,

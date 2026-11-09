@@ -8,6 +8,8 @@ import { SPECIAL, SPECIALS, chanceOf, habitMet, knowsHabit, outTogether, placesO
 import { put, held, gradeIn, gradePays, newPurse, type Purse } from "./trade";
 import { animalIcon } from "./animal-icons";
 import atlas from "./icon-atlas.json";
+import { counted, factorOf, factsOf, pricesTold } from "./market";
+import { priceAs } from "./specials";
 
 const H = 3_600_000;
 const T0 = dayStart(20_380) + 2 * H; // 07:00 Bangkok
@@ -195,5 +197,17 @@ describe("the round's notes", () => {
     const mine = world([hen({ hearts: 200, today: { day: dayOf(T0), pet: true } })]);
     const treat = animalAction(mine, purseWith([["cricket", 1]]), { action: "treat", id: "a1", item: "cricket" }, env(T0));
     expect(treat.world.animals[0].round?.heart).toBe(true);
+  });
+});
+
+describe("at the uncle's", () => {
+  it("prices a special at its produce's price of the round and counts it among its produce's sales", () => {
+    const market = { round: 9, at: { silkieEgg: { f: 80, m: 1 } }, sold: {} };
+    expect(priceAs("silkieTwinEgg")).toBe("silkieEgg");
+    expect(priceAs("farmEgg")).toBe("farmEgg");
+    expect(factorOf(market, "silkieTwinEgg")).toBe(80);
+    expect(counted(market, "silkieTwinEgg", 3).sold).toEqual({ silkieEgg: 3 });
+    const told = pricesTold(market, [], ["silkieTwinEgg"], factsOf());
+    expect(told.things.silkieTwinEgg?.f).toBe(80);
   });
 });

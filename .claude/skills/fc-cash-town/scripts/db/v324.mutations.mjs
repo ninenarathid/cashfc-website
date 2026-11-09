@@ -40,4 +40,10 @@ export default ({ swap }) => [
   ["a starter brings a special",
     swap("spc := k->''specials''->''breeds''->(an->>''breed''); strip_ := null; sn := 0;", "spc := k->''specials''->''breeds''->''silkie''; strip_ := null; sn := 0;"),
     ["a starter brings none"]],
+  ["a special priced on its own",
+    swap("select coalesce((p_market->'at'->town.price_as(p_item)->>'f')::int, 100)", "select coalesce((p_market->'at'->p_item->>'f')::int, 100)"),
+    ["a special is priced at its produce's price", "a member leaves one at the uncle's at its produce's price"]],
+  ["a special's sales counted on their own",
+    swap("market jsonb; id_ text := town.price_as(p_item);", "market jsonb; id_ text := p_item;"),
+    ["a special left counts among its produce's sales"]],
 ];

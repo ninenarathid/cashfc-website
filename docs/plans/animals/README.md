@@ -319,4 +319,6 @@ CARE and lib/town/roam); the database's are v324's.
 - **For stage 3**: a special's `line` (real: stands in and carries its breed's second buff; fantasy: a new dish's secret;
   legend: the feast's centrepiece; wool: the tailor, the farm and the feast table) and `family` (egg, milk, wool, paper,
   horn, seed). Nothing uses them yet: no recipe takes them (they are in no `FAMILY`).
+- **At the uncle's** a special is priced at its produce's price of the round and counted among its produce's sales
+  (`priceAs`, lib/town/market; `town.price_as`): it fetches what the unit it replaced would, whatever the round.
 - **Fixed on the way**: the coop's eggs never none (`unitsOf`, `town.animal_units`).

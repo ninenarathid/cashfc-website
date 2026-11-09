@@ -3,6 +3,8 @@ import { ANIMAL_GRADED } from "./animal-items";
 // (an animal's produce and what is made of it fall when oversold, as a crop does)
 const ANIMAL_GOODS = new Set<string>(ANIMAL_GRADED);
 import { GOODS } from "./trade";
+// (a special fetches its produce's price and is counted as its produce: lib/town/specials)
+import { priceAs } from "./specials";
 
 /**
  * What the uncle's relatives pay: a price that moves with how much of a thing
@@ -229,10 +231,10 @@ export function rolled(market: Market, round: number, heads: number, c: MarketFa
 }
 
 /** The price of a thing now, in hundredths of its usual one: 100 for a thing with one price, and for one nobody has sold yet. */
-export const factorOf = (market: Market, id: string): number => market.at[id]?.f ?? 100;
+export const factorOf = (market: Market, id: string): number => market.at[priceAs(id)]?.f ?? 100;
 /** So many more of a thing left to be sold this round (fewer, when some are taken back). */
-export function counted(market: Market, id: string, n: number): Market {
-  const left = Math.max(0, (market.sold[id] ?? 0) + n);
+export function counted(market: Market, id0: string, n: number): Market {
+  const id = priceAs(id0), left = Math.max(0, (market.sold[id] ?? 0) + n);
   return { ...market, sold: { ...market.sold, [id]: left } };
 }
 /** What so many of a thing fetch at a price: whole coins, the odd part lost. */
@@ -258,10 +260,11 @@ export function pricesTold(market: Market, log: Logged[], held: string[], c: Mar
   const lately = log.filter(([round]) => round >= market.round - k.lately && round < market.round).sort((a, b) => a[0] - b[0]);
   const things: PricesTold["things"] = {};
   for (const id of new Set(held)) {
-    const t = thingOf(id, c, k);
-    if (t) things[id] = { f: factorOf(market, id), floor: t.floor, ceil: t.ceil, base: c.items[id].pays,
-      demand: marketDemand(id, market.round), demandTrend: Math.sign(marketDemand(id, market.round) - marketDemand(id, market.round - 1)),
-      was: lately.map(([round, doc]) => [round, doc[id]?.[0] ?? 100, doc[id]?.[1] ?? 0, doc[id]?.[2] ?? null]) };
+    // (a special is told its produce's price, band and days gone by: lib/town/specials' priceAs)
+    const p = priceAs(id), t = c.items[p] ? thingOf(p, c, k) : null;
+    if (t) things[id] = { f: factorOf(market, id), floor: t.floor, ceil: t.ceil, base: c.items[id]?.pays ?? c.items[p].pays,
+      demand: marketDemand(p, market.round), demandTrend: Math.sign(marketDemand(p, market.round) - marketDemand(p, market.round - 1)),
+      was: lately.map(([round, doc]) => [round, doc[p]?.[0] ?? 100, doc[p]?.[1] ?? 0, doc[p]?.[2] ?? null]) };
   }
   return { round: market.round, things };
 }

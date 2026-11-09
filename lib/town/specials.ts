@@ -248,7 +248,14 @@ export function specialsRow() {
     care: CARE,
     steps: BODY.steps,
     breeds: Object.fromEntries(SPECIALS.map((x) => [x.breed, { item: x.id, habit: x.habit }])),
+    priceAs: Object.fromEntries(SPECIALS.map((x) => [x.id, priceAs(x.id)])),
   };
 }
+/**
+ * The thing whose price a thing fetches at the uncle's: a special its breed's produce's, so that it fetches what the unit it
+ * replaced would and its sales count as that unit's (one counter; lib/town/market's factorOf and counted, v324's
+ * town.price_as); anything else its own.
+ */
+export const priceAs = (id: string): string => { const x = SPECIAL_ITEM.get(id); return x ? breedOf(x.breed)!.produce : id; };
 /** Every starter has none, every bred breed one: held by a test. */
 export const BRED = BREEDS.filter((b) => b.letter !== "A");
