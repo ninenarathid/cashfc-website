@@ -188,12 +188,14 @@ export function placesOf(a: Pick<Animal, "id" | "species">, door: GateLog, from:
   }
   return PLACES.filter((p) => kinds.has(p));
 }
-/** Whether another member's grown animal of its kind was out while it was (their door and mine open at once in the span). */
+/**
+ * Whether another member's animal of its kind was out while it was (their door and mine open at once in the span), of any
+ * age ("ออกไปพร้อมสัตว์ชนิดเดียวกันของคนอื่น": a kept growth is no measure of what another's animal is now, Codex).
+ */
 export function outTogether(a: Pick<Animal, "owner" | "species">, door: GateLog, from: number, to: number, herds: readonly Herd[], animals: readonly Animal[], now: number): boolean {
   const mine = openIn(door, from, to);
   if (!mine.length) return false;
-  const grown = SPECIES[a.species].grow[0] + SPECIES[a.species].grow[1];
-  const owners = new Set(animals.filter((x) => x.owner !== a.owner && x.species === a.species && x.home !== "pen" && x.born <= now && x.grown >= grown).map((x) => x.owner));
+  const owners = new Set(animals.filter((x) => x.owner !== a.owner && x.species === a.species && x.home !== "pen" && x.born <= now).map((x) => x.owner));
   for (const h of herds) {
     if (!owners.has(h.owner)) continue;
     for (const [x, y] of openIn(h.door, from, to)) if (mine.some(([p, q]) => Math.max(p, x) < Math.min(q, y))) return true;

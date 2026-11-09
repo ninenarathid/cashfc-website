@@ -46,4 +46,13 @@ export default ({ swap }) => [
   ["a special's sales counted on their own",
     swap("market jsonb; id_ text := town.price_as(p_item);", "market jsonb; id_ text := p_item;"),
     ["a special left counts among its produce's sales"]],
+  ["a heart full when its day closed forgotten (Codex)",
+    swap("then heart_day := true; end if;", "then heart_day := false; end if;"),
+    ["a heart full before the day closed is kept for its round", "settled"]],
+  ["a young companion no company (Codex)",
+    swap("and (t.a->>'born')::double precision <= p_now)", "and (t.a->>'born')::double precision <= p_now and (t.a->>'grown')::double precision >= 100)"),
+    ["a friend's young duck out at once is company too"]],
+  ["room checked for what was rolled alone (Codex)",
+    swap("if byg[i + 1] + obyg[i + 1] > 0 and town.room_g(bag, breed->>''produce'', i) < byg[i + 1] + obyg[i + 1] then return town.answer(me, town.no(''room'')); end if;", ""),
+    ["a full bag but the special's stacks is refused"]],
 ];

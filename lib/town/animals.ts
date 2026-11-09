@@ -507,6 +507,8 @@ export function settle(a0: Animal, now: number, ctx: Ctx): Animal {
   // (in Uncle Popoto's pen it is frozen: no food eaten, nothing grows, nothing is given, no day counts)
   if (now <= t || a.home === "pen") return { ...a, at: Math.max(a.at, now) };
   a.today = todayFor(a.today, dayOf(t));
+  // (a day that closes with its heart full, ten hearts, a pet and a treat, is its round's: lib/town/specials, Codex)
+  let heartDay = false;
   let guard = 0;
   while (t < now && guard++ < 10_000) {
     const gate = gateAt(ctx.door, t);
@@ -551,10 +553,12 @@ export function settle(a0: Animal, now: number, ctx: Ctx): Animal {
       if (!a.today.hungry && !a.today.fed) a.hearts = Math.min(MAX_HEARTS, a.hearts + ANIMALS.heart.fed);
       a.streak = a.today.hungry ? 0 : Math.min(ANIMALS.streakCap, (a.streak ?? 0) + 1);
       if (a.body === undefined) a.rearing = rearDay(a.rearing, a.today, a.grown, a.food);
+      if (heartsOf(a) >= ANIMALS.hearts && a.today.pet && a.today.treat) heartDay = true;
       a.today = { day: dayOf(t) };
     }
   }
   a.at = now;
+  if (heartDay) a.round = { ...(a.round ?? {}), heart: true };
   // (found grown, by whoever keeps the game: its size and its gold, once; a page leaves it to be told)
   if (a.body === undefined && a.grown >= adultAt(a.species) && ctx.draw) {
     const { rearing: _, ...rest } = a;

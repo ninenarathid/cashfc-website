@@ -20,7 +20,20 @@ for (const t of [JSON.stringify(specials), JSON.stringify(graded), JSON.stringif
 /** One replacement in a function's live text: [its signature, the old text, the new text]. */
 const R = (sig, o, n) => [sig, o, n];
 const ANIMALS_FN = "public.town_animals(jsonb,text)", QUOTE_FN = "public.town_leave_quote(integer,integer,text,integer,integer,numeric)";
+const SETTLE_FN = "town.animal_settle(jsonb,double precision,jsonb,boolean,jsonb)";
 const edits = [
+  // the settling: a day that closes with its heart full (ten hearts, a pet and a treat) is its round's (lib/town/animals' settle)
+  R(SETTLE_FN, `  rear_ jsonb := case when jsonb_typeof(p_a->'rearing') = 'object' then p_a->'rearing' end; fin_ jsonb := '{}'::jsonb;`,
+  `  rear_ jsonb := case when jsonb_typeof(p_a->'rearing') = 'object' then p_a->'rearing' end; fin_ jsonb := '{}'::jsonb;
+  heart_day boolean := false;  -- (v324: a day that closed with its heart full)`),
+  R(SETTLE_FN, `      if p_a->'body' is null then rear_ := town.animal_rear_day(rear_, today, grown, food); end if;
+      today := jsonb_build_object('day', town.day_of(floor(t)::bigint));`,
+  `      if p_a->'body' is null then rear_ := town.animal_rear_day(rear_, today, grown, food); end if;
+      if hearts >= most and coalesce((today->>'pet')::boolean, false) and coalesce((today->>'treat')::boolean, false) then heart_day := true; end if;
+      today := jsonb_build_object('day', town.day_of(floor(t)::bigint));`),
+  R(SETTLE_FN, `'streak', streak, 'outBands', bands, 'today', today) || fin_;`,
+  `'streak', streak, 'outBands', bands, 'today', today) || fin_
+    || case when heart_day then jsonb_build_object('round', coalesce(case when jsonb_typeof(p_a->'round') = 'object' then p_a->'round' end, '{}'::jsonb) || '{"heart": true}'::jsonb) else '{}'::jsonb end;`),
   R(ANIMALS_FN, `  ans jsonb;
 begin`, `  ans jsonb;
   -- (v324: a round's special and its strip)
@@ -62,6 +75,11 @@ begin`),
       end loop;
       purse := town.spend(purse, (kn->'stamina'->>(sp->>'game'))::double precision, now_::bigint);
       bag := purse->'bag';
+      -- (room asked as if every unit were its produce, before a special takes a place: a bag too full for the collection is
+      -- refused whatever the special's roll, so that a retry cannot fish for one)
+      for i in 0..3 loop
+        if byg[i + 1] + obyg[i + 1] > 0 and town.room_g(bag, breed->>'produce', i) < byg[i + 1] + obyg[i + 1] then return town.answer(me, town.no('room')); end if;
+      end loop;
       for i in 0..3 loop
         if byg[i + 1] > 0 and town.room_g(bag, breed->>'produce', i) < byg[i + 1] then return town.answer(me, town.no('room')); end if;
         if byg[i + 1] > 0 then bag := town.put_g(bag, breed->>'produce', byg[i + 1], i); end if;
@@ -151,7 +169,8 @@ const sql = String.raw`-- v324 — special produce of the bred breeds, and care 
 -- of v323 keeps its egg spots and wagon stop there); the 28 things are merged into \`items\` entry by entry; a column of
 -- \`town_pasture\`; fifteen new rules (town.roam_*, town.animal_care_score, town.special_*, town.price_as); town.animal_range,
 -- town.animal_units, town.animal_world, town.factor_of (stable now: it reads the catalog), town.market_count and
--- town.prices_told written again whole; public.town_animals and public.town_leave_quote from their live text but for the
+-- town.prices_told written again whole; public.town_animals, town.animal_settle (a day that closes with a full heart is
+-- its round's) and public.town_leave_quote from their live text but for the
 -- lines below (each must be there exactly once, or the file stops and changes nothing).
 
 begin;
@@ -161,6 +180,7 @@ set local lock_timeout = '5s';
 do $guard$ begin
   if to_regprocedure('public.town_animals(jsonb,text)') is null or to_regprocedure('town.animal_range(jsonb,jsonb)') is null
      or to_regprocedure('town.animal_units(text,integer,jsonb,integer)') is null or to_regprocedure('town.animal_world(uuid)') is null
+     or to_regprocedure('town.animal_settle(jsonb,double precision,jsonb,boolean,jsonb)') is null
      or to_regclass('public.town_pasture') is null or to_regclass('public.town_weather') is null
     then raise exception 'v324: run v291 (the pasture) and v118 (the weather) first'; end if;
   if to_regprocedure('public.town_leave_quote(integer,integer,text,integer,integer,numeric)') is null or to_regprocedure('town.market_demand(text,integer)') is null
@@ -282,16 +302,17 @@ begin
   end loop;
   return (select coalesce(jsonb_agg(p order by o), '[]'::jsonb) from unnest(array['garden', 'meadow', 'pond', 'barn']) with ordinality u(p, o) where p = any(kinds));
 end $$;
--- (whether another member's grown animal of its kind was out while it was: their door and mine open at once in the span)
+-- (whether another member's animal of its kind, of any age, was out while it was: their door and mine open at once in
+-- the span; a kept growth is no measure of what another's animal is now)
 create or replace function town.special_together(p_a jsonb, p_door jsonb, p_from double precision, p_to double precision, p_now double precision, p_k jsonb) returns boolean language sql stable set search_path = '' as $$
   with mine as (
     select greatest((e->>0)::double precision, p_from) x, least(coalesce((e->>1)::double precision, p_to), p_to) y from jsonb_array_elements(coalesce(p_door, '[]'::jsonb)) e
-  ), grown as (select ((p_k->'species'->(p_a->>'species')->'grow'->>0)::double precision + (p_k->'species'->(p_a->>'species')->'grow'->>1)::double precision) g)
+  )
   select exists (
-    select 1 from public.town_herds h, grown
+    select 1 from public.town_herds h
      where h.owner::text <> p_a->>'owner'
        and exists (select 1 from public.town_animals t where t.owner = h.owner and t.a->>'species' = p_a->>'species' and coalesce(t.a->>'home', 'barn') <> 'pen'
-         and (t.a->>'born')::double precision <= p_now and (t.a->>'grown')::double precision >= grown.g)
+         and (t.a->>'born')::double precision <= p_now)
        and exists (select 1 from jsonb_array_elements(coalesce(h.h->'door', '[]'::jsonb)) e, mine m
          where m.y > m.x and greatest(m.x, (e->>0)::double precision) < least(m.y, coalesce((e->>1)::double precision, p_to), p_to)))
 $$;
@@ -390,7 +411,7 @@ create or replace function town.animal_world(p_me uuid) returns jsonb language s
     from public.town_pasture p where p.one
 $$;
 
--- ── 8. public.town_animals and public.town_leave_quote: their live text, but for these ────────────────────────────────────────────────────────────
+-- ── 8. public.town_animals, town.animal_settle and public.town_leave_quote: their live text, but for these ──────────────
 do $$
 declare c text[]; d text; n integer; o text; nw text;
 begin

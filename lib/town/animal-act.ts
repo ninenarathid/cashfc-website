@@ -522,6 +522,9 @@ export function animalAction(world0: AnimalWorld, purse: Purse, input: AnimalInp
       const byGrade = [0, 0, 0, 0], oddByGrade = [0, 0, 0, 0];
       for (const q of plain) byGrade[q >= 95 ? 3 : q >= 70 ? 2 : q >= 40 ? 1 : 0] += 1;
       for (const q of odd) oddByGrade[q >= 95 ? 3 : q >= 70 ? 2 : q >= 40 ? 1 : 0] += 1;
+      // (room asked as if every unit were its produce, before a special takes a place: a bag too full for the collection
+      // is refused whatever the special's roll, so that a retry cannot fish for one; Codex)
+      for (let g = 0; g < 4; g++) if (byGrade[g] + oddByGrade[g] && roomFor(bag, breed.produce, g as 0 | 1 | 2 | 3) < byGrade[g] + oddByGrade[g]) return no("room");
       // (room asked of the bag as it fills, grade by grade, as the database does: Codex, 2026-10-20)
       for (let g = 0; g < 4; g++) {
         if (!byGrade[g]) continue;

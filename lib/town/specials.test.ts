@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BODY, BREEDS, SPECIES, SPECIES_IDS, adultAt, bodyOf, breedOf, careScore, dayOf, dayStart, newHerd, rangeOf, sizeGrade, unitsOf, type Animal } from "./animals";
+import { BODY, BREEDS, SPECIES, SPECIES_IDS, adultAt, bodyOf, breedOf, careScore, dayOf, dayStart, newHerd, rangeOf, settle, sizeGrade, unitsOf, type Animal } from "./animals";
 import { animalAction, specialsFoundOf, type AnimalWorld, type Env } from "./animal-act";
 import { ANIMAL_GRADED } from "./animal-items";
 import { ITEMS, type ItemId } from "./items";
@@ -129,10 +129,13 @@ describe("a round's strip and its habit", () => {
     const night0 = dayStart(20_380) - 9 * H + 60_000, night = placesOf(a, [[night0, night0 + 8 * H]], night0 - H, night0 + 9 * H, 128);
     expect(night).toEqual([patchKind(seed, "duck", period(night0))]);
   });
-  it("finds company in another member's grown animal of its kind out at once, and not at another time", () => {
+  it("finds company in another member's animal of its kind out at once, of any age, and not at another time", () => {
     const mine = hen({ outBands: 4 }), theirs = hen({ id: "b1", owner: "pal" });
     const herds = [{ ...newHerd("pal"), barn: 1, door: [[T0 - 2 * H, T0 - H] as const] }];
     expect(outTogether(mine, [[T0 - 3 * H, T0 - 1.5 * H]], T0 - 5 * H, T0, herds, [theirs], T0)).toBe(true);
+    // (a chick whose kept growth is short of grown, though it may have grown since: company all the same; Codex)
+    expect(outTogether(mine, [[T0 - 3 * H, T0 - 1.5 * H]], T0 - 5 * H, T0, herds, [{ ...theirs, grown: 47, born: T0 - 30 * H }], T0)).toBe(true);
+    expect(outTogether(mine, [[T0 - 3 * H, T0 - 1.5 * H]], T0 - 5 * H, T0, herds, [{ ...theirs, born: T0 + H }], T0)).toBe(false);
     expect(outTogether(mine, [[T0 - 4 * H, T0 - 3 * H]], T0 - 5 * H, T0, herds, [theirs], T0)).toBe(false);
     expect(outTogether(mine, [[T0 - 3 * H, T0 - 1.5 * H]], T0 - 5 * H, T0, herds, [{ ...theirs, species: "duck" }], T0)).toBe(false);
   });
@@ -176,6 +179,20 @@ describe("a collection", () => {
     const out = animalAction(world([hen({ banked: 4, outBands: 4 })], [[T0 - 3 * H, T0 - H]]), purseWith([["eggBasket", 1]]), { action: "collect", id: "a1", cracked: 0 }, env(T0, "me", 0));
     expect([out.got?.special?.n, out.got?.n]).toEqual([3, 0]);
   });
+  it("is refused for room as its produce would be, whatever is rolled, and keeps its rounds (no retry until a special comes; Codex)", () => {
+    // (every slot full but two stacks of the special, of the two grades its care gives (80 to 100), with room in them: the produce has none)
+    let p = purseWith([["eggBasket", 1]]);
+    const odd = [{ item: "silkieTwinEgg" as ItemId, n: 1, grade: 2 as const }, { item: "silkieTwinEgg" as ItemId, n: 1, grade: 3 as const }];
+    p = { ...p, bag: p.bag.map((x) => x ?? odd.shift() ?? { item: "corn" as ItemId, n: ITEMS.corn.stack }) };
+    const a = hen({ body: 3, streak: 6, today: { day: dayOf(T0), pet: true, treat: true } });
+    for (const roll of [0, 0.99]) {
+      const r = animalAction(world([a]), p, { action: "collect", id: "a1", cracked: 0 }, env(T0, "me", roll));
+      expect([r.ok, r.why]).toEqual([false, "room"]);
+    }
+    // (and with a slot free it goes in, all specials at a roll of 0)
+    const free = { ...p, bag: p.bag.map((x, i) => (i === p.bag.length - 1 ? null : x)) };
+    expect(animalAction(world([a]), free, { action: "collect", id: "a1", cracked: 0 }, env(T0, "me", 0)).got?.special?.n).toBe(2);
+  });
   it("gives eggs fewer on a miss, never none", () => {
     expect(unitsOf("eggs", 2, null, 2).units).toBe(1);
     const r = animalAction(world([hen({ breed: "barnHen", banked: 1 })]), purseWith([["eggBasket", 1]]), { action: "collect", id: "a1", cracked: 5 }, env(T0));
@@ -197,6 +214,16 @@ describe("the round's notes", () => {
     const mine = world([hen({ hearts: 200, today: { day: dayOf(T0), pet: true } })]);
     const treat = animalAction(mine, purseWith([["cricket", 1]]), { action: "treat", id: "a1", item: "cricket" }, env(T0));
     expect(treat.world.animals[0].round?.heart).toBe(true);
+  });
+  it("keep a heart that came full in a day that closed before the collection (Codex)", () => {
+    // (04:00: 198 points, a pet and a treat; out at 04:10 it comes to 200; the day closes at 05:00 and its pet and treat with it)
+    const end = dayStart(dayOf(T0) + 1), at = end - H;
+    const a = hen({ at, hearts: 198, body: 3, today: { day: dayOf(at), pet: true, treat: true } });
+    const s = settle(a, end + H, { door: [[at + 10 * 60_000, null]] });
+    expect([s.hearts, s.today.pet ?? false, s.round?.heart]).toEqual([200, false, true]);
+    // (no treat that day: not full, though the day's food lifts it to 200)
+    const s2 = settle({ ...a, today: { day: dayOf(at), pet: true } }, end + H, { door: [[at + 10 * 60_000, null]] });
+    expect([s2.hearts, s2.round?.heart]).toEqual([200, undefined]);
   });
 });
 

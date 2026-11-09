@@ -5,7 +5,9 @@
 // lib/town/specials); then as members through public.town_animals: a collection that brings specials (the chance forced
 // to 1 on the bench), of their units' grades, with its strip, the book and the first finder; the same call again; a
 // second collection with nothing ready; a second finder; a stranger, an unproved member and another member's animal; a
-// friend's food and a full heart in the round; rain in the round; the cap; the replaced unit's price; a starter.
+// friend's food and a full heart in the round; rain in the round; the cap; the replaced unit's price; a starter. And
+// Codex's three: a heart that came full in a day closed by settling (town.animal_settle against the page's settle), a
+// young companion, and a bag with room for the special alone (refused as the produce would be, so no retry finds one).
 //   cd <the tree> && FC_REPO=<the tree> V324_BENCH=<a bench through v323, scratch bench323.mjs> node .claude/skills/fc-cash-town/scripts/db/v324.test.mjs
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -15,7 +17,7 @@ import { pathToFileURL } from "node:url";
 process.env.FC_REPO = (process.env.FC_REPO ?? process.cwd()).split(String.fromCharCode(92)).join("/");
 await import("./repo-ts-town.mjs");
 const { hashStr, mix, patchKind } = await import("@/lib/town/roam");
-const { careScore, rangeOf, unitsOf, bodyOf, SPECIES_IDS, BREEDS, ANIMALS } = await import("@/lib/town/animals");
+const { careScore, rangeOf, unitsOf, bodyOf, settle, dayOf, dayStart, SPECIES_IDS, BREEDS, ANIMALS } = await import("@/lib/town/animals");
 const SP = await import("@/lib/town/specials");
 const { catalogOf } = await import("@/lib/town/catalog");
 const { ANIMAL_GRADED } = await import("@/lib/town/animal-items");
@@ -42,7 +44,7 @@ const J = (v) => JSON.parse(JSON.stringify(v));
 // (a seeded run of numbers, so that a failure comes again)
 let seed = 324_000;
 const rnd = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
-const pick = (list) => list[Math.floor(rnd() * list.length)];
+const pick = (list) => list[Math.floor(rnd() * list.length)], pick0 = pick;
 const HOUR = 3_600_000;
 
 try {
@@ -108,6 +110,28 @@ try {
     const r = rnd() < 0.3 ? undefined : { ate: Array.from({ length: Math.floor(rnd() * 9) }, () => pick(["corn", "meadowOats", "chickFeed", "dawnOats", "reedSeed", "x1", "x2", "x3", "x4"])) };
     const item = pick(["corn", "meadowOats", "packedRation", "x5"]);
     eq((await one("select town.special_ate($1, $2) r", [r ? JSON.stringify(r) : null, item])).r, J(SP.ateNote(r, item)), `ate ${item}`);
+  }
+  // a day that closes with its heart full is its round's, settled across the day's end as the page settles it
+  {
+    const k = (await one("select town.cat('animals') k")).k, end = dayStart(dayOf(Date.UTC(2026, 10, 9, 3, 0, 0)) + 1);
+    const pick = (a) => J({ hearts: a.hearts, today: a.today, streak: a.streak, round: a.round ?? null, outBands: a.outBands, banked: a.banked, food: Math.round(a.food * 1e6) });
+    for (let i = 0; i < 160; i++) {
+      const species = pick0(SPECIES_IDS), breed = pick0(BREEDS.filter((b) => b.species === species)), at = end - Math.floor(rnd() * 30) * HOUR - Math.floor(rnd() * 60) * 60_000;
+      const a = { id: `s${i}`, owner: "o", species, breed: breed.id, name: "", born: at - 20 * 24 * HOUR, bought: false, home: "barn", sex: "f", stats: { thrift: 1, gentle: 1, vigor: 1 },
+        streak: Math.floor(rnd() * 9), at, food: rnd() < 0.2 ? 0.5 : Math.floor(rnd() * 25), grown: 500, made: 0, banked: 0, hearts: 160 + Math.floor(rnd() * 41), body: 2,
+        today: { day: dayOf(at), pet: rnd() < 0.7, treat: rnd() < 0.7 }, speedUntil: 0, windUntil: 0, narrow: 0, rest: 0, lent: null, outside: [], outBands: 0,
+        ...(rnd() < 0.5 ? { round: rnd() < 0.5 ? { since: at - HOUR } : { since: at - HOUR, ate: ["corn"], friend: true } } : {}) };
+      const door = rnd() < 0.3 ? [] : [[at + Math.floor(rnd() * 3 * HOUR), rnd() < 0.5 ? null : at + Math.floor((3 + rnd() * 20) * HOUR)]];
+      const now = at + Math.floor((1 + rnd() * 40) * HOUR);
+      const db_ = (await one("select town.animal_settle($1::jsonb, $2::double precision, $3::jsonb, false, $4::jsonb) r", [JSON.stringify(a), now, JSON.stringify(door), JSON.stringify(k)])).r;
+      eq(pick(db_), pick(settle(a, now, { door, bottle: false })), `settled ${species} ${a.hearts} pet ${a.today.pet} treat ${a.today.treat} ${(now - at) / HOUR} h`);
+    }
+    // Codex's case: 04:00, 198 points, a pet and a treat; out at 04:10 it comes to 200; the day closes at 05:00
+    const a = { id: "s-codex", owner: "o", species: "chicken", breed: "silkie", name: "", born: end - 20 * 24 * HOUR, bought: false, home: "barn", sex: "f", stats: { thrift: 1, gentle: 1, vigor: 1 },
+      streak: 3, at: end - HOUR, food: 20, grown: 500, made: 0, banked: 0, hearts: 198, body: 2, today: { day: dayOf(end - HOUR), pet: true, treat: true }, speedUntil: 0, windUntil: 0,
+      narrow: 0, rest: 0, lent: null, outside: [], outBands: 0, round: { since: end - 5 * HOUR } };
+    const r = (await one("select town.animal_settle($1::jsonb, $2::double precision, $3::jsonb, false, $4::jsonb) r", [JSON.stringify(a), end + HOUR, JSON.stringify([[end - 50 * 60_000, null]]), JSON.stringify(k)])).r;
+    eq([r.hearts, r.today?.pet ?? false, r.round], [200, false, { since: end - 5 * HOUR, heart: true }], "a heart full before the day closed is kept for its round");
   }
   const T0 = Date.UTC(2026, 10, 9, 3, 0, 0);
   for (let i = 0; i < 150; i++) {
@@ -211,6 +235,22 @@ try {
   eq((await call(B, { action: "collect", id: SILKIE, cracked: 0 }))?.why, "theirs", "another member's animal is not collected");
   eq((await call(C, { action: "feed", id: SILKIE, item: "corn" }))?.why, "theirs", "nor fed by one she has not named");
 
+  // a bag with room for the special alone, never for the produce: refused as the produce would be, whatever is rolled, the rounds kept
+  {
+    const corn = (await one("select (town.cat('items')->'corn'->>'stack')::int s")).s;
+    const bag = [{ item: "eggBasket", n: 1 }, { item: "silkieTwinEgg", n: 1, grade: 2 }, { item: "silkieTwinEgg", n: 1, grade: 3 }];
+    const size = ((await bagOf(A)).bag ?? []).length;
+    await purse(A, [...bag, ...Array(size - bag.length).fill({ item: "corn", n: corn })]);
+    await animal(SILKIE, A, "silkie", "chicken", { round: { since: now - 5 * HOUR } });
+    const before = J((await bagOf(A)).bag);
+    for (let i = 0; i < 3; i++) eq((await call(A, { action: "collect", id: SILKIE, cracked: 0 }))?.why, "room", `a full bag but the special's stacks is refused (${i + 1})`);
+    eq((await one("select a->'banked' b from public.town_animals where id = $1", [SILKIE])).b, 2, "its rounds kept");
+    eq(J((await bagOf(A)).bag), before, "the bag as it was");
+    await purse(A, [...bag, ...Array(size - bag.length - 1).fill({ item: "corn", n: corn })]);
+    const ok = await call(A, { action: "collect", id: SILKIE, cracked: 0 });
+    eq([ok?.ok, ok?.got?.special?.n], [true, 2], "with a slot free it is collected, both specials (the chance forced to 1)");
+  }
+
   // a friend's food and a full heart in the round
   await purse(C, [{ item: "corn", n: 5 }]);
   await herd(A, 0, [[now - 3 * HOUR, now - 2 * HOUR]], "anybody");
@@ -234,6 +274,9 @@ try {
   await herd(B, 1, [[now - 3.5 * HOUR, now - 2.5 * HOUR]]);
   await animal("66666666-6666-6666-6666-666666666666", B, "puddleDuck", "duck", {});
   eq((await one("select town.special_strip(a, $2, $3, town.cat('animals')) s from public.town_animals where id = $1", [CAYUGA, JSON.stringify([[now - 4 * HOUR, now - 3 * HOUR]]), now])).s.company, true, "a friend's duck out at once is company");
+  // (a duckling whose kept growth is short of grown, though it may have grown since: company all the same; Codex)
+  await animal("66666666-6666-6666-6666-666666666666", B, "puddleDuck", "duck", { grown: 47, body: undefined, born: now - 30 * HOUR });
+  eq((await one("select town.special_strip(a, $2, $3, town.cat('animals')) s from public.town_animals where id = $1", [CAYUGA, JSON.stringify([[now - 4 * HOUR, now - 3 * HOUR]]), now])).s.company, true, "a friend's young duck out at once is company too");
   await herd(B, 1, [[now - 2 * HOUR, now - HOUR]]);
   eq((await one("select town.special_strip(a, $2, $3, town.cat('animals')) s from public.town_animals where id = $1", [CAYUGA, JSON.stringify([[now - 4 * HOUR, now - 3 * HOUR]]), now])).s.company, false, "out at another time is not");
 
