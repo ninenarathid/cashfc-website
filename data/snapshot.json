@@ -35,7 +35,7 @@
   "ult": 5,
   "mounts": 285,
   "minions": 487,
-  "rare": 497,
+  "rare": 496,
   "level": 100,
   "cc": [
    true,
@@ -174,7 +174,7 @@
    "The Epic of Alexander",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-11-06"
+  "chg": "2026-11-09"
  },
  "3968346": {
   "name": "Panuz Chocobunny",
@@ -182,7 +182,7 @@
   "ult": 0,
   "mounts": 90,
   "minions": 272,
-  "rare": 71,
+  "rare": 70,
   "level": 100,
   "cc": [
    false,
@@ -238,7 +238,6 @@
    2039,
    2043,
    2044,
-   2193,
    2389,
    3630,
    3638,
@@ -275,7 +274,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-11-03"
+  "chg": "2026-11-09"
  },
  "14959902": {
   "name": "Notifire Sky",
@@ -965,7 +964,7 @@
   "ult": 0,
   "mounts": 264,
   "minions": 487,
-  "rare": 412,
+  "rare": 411,
   "level": 100,
   "cc": [
    false,
@@ -1096,7 +1095,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-06"
+  "chg": "2026-11-09"
  },
  "29511615": {
   "name": "Whitefang Dimmoon",
@@ -1247,7 +1246,7 @@
   "ult": 5,
   "mounts": 131,
   "minions": 337,
-  "rare": 124,
+  "rare": 123,
   "level": 100,
   "cc": [
    true,
@@ -1382,7 +1381,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-29"
+  "chg": "2026-11-09"
  },
  "44970350": {
   "name": "Allen Crist",
@@ -2536,7 +2535,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 97,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -3553,7 +3552,7 @@
   "ult": 1,
   "mounts": 189,
   "minions": 436,
-  "rare": 141,
+  "rare": 140,
   "level": 100,
   "cc": [
    true,
@@ -3681,7 +3680,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-06"
+  "chg": "2026-11-09"
  },
  "51922514": {
   "name": "Mumu Nene",
@@ -4304,7 +4303,7 @@
   "ult": 0,
   "mounts": 176,
   "minions": 418,
-  "rare": 444,
+  "rare": 443,
   "level": 100,
   "cc": [
    false,
@@ -4427,7 +4426,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-11-06"
+  "chg": "2026-11-09"
  },
  "43864764": {
   "name": "Shinonome Kamemaru",
@@ -4435,7 +4434,7 @@
   "ult": 3,
   "mounts": 265,
   "minions": 338,
-  "rare": 535,
+  "rare": 534,
   "level": 100,
   "cc": null,
   "rare_ids": [
@@ -4556,7 +4555,7 @@
    "The Omega Protocol",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-06"
+  "chg": "2026-11-09"
  },
  "29998658": {
   "name": "Shippei Astana",
@@ -5030,7 +5029,7 @@
   "ult": 0,
   "mounts": 206,
   "minions": 416,
-  "rare": 287,
+  "rare": 286,
   "level": 100,
   "cc": [
    false,
@@ -5076,10 +5075,10 @@
    3736,
    3757,
    3758,
+   3762,
    3778,
    3784,
    3817,
-   3832,
    3844,
    3845,
    3846,
@@ -5161,7 +5160,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-06"
+  "chg": "2026-11-09"
  },
  "42976317": {
   "name": "Zeadz Stellar",
@@ -5383,7 +5382,7 @@
   "ult": 4,
   "mounts": 128,
   "minions": 320,
-  "rare": 115,
+  "rare": 114,
   "level": 100,
   "cc": [
    false,
@@ -5506,7 +5505,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-27"
+  "chg": "2026-11-09"
  },
  "8286372": {
   "name": "Aloha Banana",
@@ -5547,7 +5546,7 @@
   "ult": 0,
   "mounts": 163,
   "minions": 367,
-  "rare": 40,
+  "rare": 39,
   "level": 19,
   "cc": [
    false,
@@ -5567,7 +5566,6 @@
    2033,
    2077,
    2137,
-   2193,
    2387,
    2633,
    2745,
@@ -5610,7 +5608,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-08"
+  "chg": "2026-11-09"
  },
  "34434658": {
   "name": "Araiva Leonhart",
@@ -5984,6 +5982,7 @@
    1919,
    2292,
    2780,
+   2858,
    2868,
    2873,
    2933,
@@ -6023,7 +6022,6 @@
    3735,
    3736,
    3763,
-   3792,
    3793,
    3794,
    3795,
@@ -8746,7 +8744,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 100,
+  "level": 65,
   "cc": [
    false,
    false,
@@ -8790,7 +8788,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 80,
+  "level": 96,
   "cc": [
    false,
    false,
@@ -9039,7 +9037,7 @@
   "mounts": 30,
   "minions": 66,
   "rare": null,
-  "level": 97,
+  "level": 25,
   "cc": [
    false,
    false,
@@ -9778,7 +9776,7 @@
   "ult": 2,
   "mounts": 116,
   "minions": 293,
-  "rare": 81,
+  "rare": 80,
   "level": 90,
   "cc": [
    false,
@@ -9832,7 +9830,6 @@
    2093,
    2103,
    2154,
-   2193,
    2281,
    2282,
    2283,
@@ -9882,7 +9879,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-10"
+  "chg": "2026-11-09"
  },
  "31334257": {
   "name": "Arichii Marilouay",
@@ -17084,7 +17081,7 @@
   "ult": 2,
   "mounts": 114,
   "minions": 233,
-  "rare": 30,
+  "rare": 29,
   "level": 100,
   "cc": [
    false,
@@ -17113,7 +17110,6 @@
    1993,
    2077,
    2180,
-   2193,
    2283,
    2417,
    2633,
@@ -17139,7 +17135,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-10"
+  "chg": "2026-11-09"
  },
  "41073949": {
   "name": "Vanir Arkwright",
