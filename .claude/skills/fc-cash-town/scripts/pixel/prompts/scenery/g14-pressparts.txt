@@ -1,0 +1,6 @@
+Use the attached sprite sheet only as the reference for the pixel art style, its colours and its chunky square pixel size. Draw 7 separate pieces for that mini-game of the same cozy 2D game, in exactly the chunky square pixel size of the attached scene, seen flat and straight from the front like the press in that scene, each at the size it would have in that scene:
+1) a round wooden pressing board that fits the mould, seen from the front as a thick disc; 2) a round block of pale curd standing level, as wide as the mould; 3) the same block of curd squashed lower on one side and tilted; 4) a small round iron weight with a ring handle; 5) a medium round iron weight with a ring handle; 6) a big round iron weight with a ring handle; 7) a jet of pale yellow-white whey squirting sideways in a short arc of solid drops.
+
+All 7 pieces in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping; every small loose bit is a solid cluster of pixels kept close to its own piece. Everything else on the canvas is empty and transparent.
+
+Crisp pixel art with hard square pixel edges, a thick dark outline on things, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients, no glow. No characters, no text, no letters, no numbers.

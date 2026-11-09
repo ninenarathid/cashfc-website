@@ -1,0 +1,6 @@
+Use the attached sprite sheet only as the reference for the pixel art style, its colours and its chunky square pixel size. Draw 6 separate pieces for that mini-game of the same cozy 2D game, in exactly the chunky square pixel size of the attached scene, seen flat and straight from the front, each at the size it would have in that scene:
+1) two long wooden knitting needles lying across in a shallow X, about three quarters as wide as the scene; 2) a dropped stitch running down a strip of knitting as a ladder of loose bars; 3) the bottom edge of a knitted white scarf with a fringe; 4) the same scarf edge in pale pink; 5) the same scarf edge in shining golden yarn; 6) the same scarf edge striped in rainbow colours.
+
+All 6 pieces in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping; every small loose bit is a solid cluster of pixels kept close to its own piece. Everything else on the canvas is empty and transparent.
+
+Crisp pixel art with hard square pixel edges, a thick dark outline on things, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients, no glow. No characters, no text, no letters, no numbers.

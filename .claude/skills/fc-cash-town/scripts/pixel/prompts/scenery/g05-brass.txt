@@ -1,0 +1,5 @@
+Edit the attached picture to make one separate piece for a mini-game of the same cozy 2D game, keeping exactly its chunky square pixel size. Keep the iron pan's position, size, outer silhouette, rim shape and handle position exactly where they are. Change only the pan's material to brass, and remove everything outside the pan to full transparency.
+
+A brass frying pan seen straight down from directly above, the same size and shape as the iron pan in the attached scene, its long handle reaching towards the lower right: a polished golden-brown rim, a flat warm brass cooking surface, plain and empty. It is the only thing in the picture; everything else on the canvas is empty and transparent.
+
+Crisp pixel art with hard square pixel edges, a thick dark outline on things, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients, no glow. No characters, no text, no letters, no numbers.

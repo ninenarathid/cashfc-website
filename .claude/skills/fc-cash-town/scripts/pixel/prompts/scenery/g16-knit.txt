@@ -1,0 +1,7 @@
+Use the attached sprite sheet only as the reference for the pixel art style, its colours and its chunky square pixel size. Draw one scene that fills the whole canvas from edge to edge, with no border and no frame, for a mini-game of the same cozy 2D game.
+
+The game crops this picture to a centered 4:3 board, removing about 6% from each side. Keep every distinctive prop and any side fence between 8% and 92% of the canvas width. References below to the left or right edge mean these safe positions; extend only the surrounding wall, ground or sky through the expendable side strips.
+
+A warm fireside knitting nook seen flat and straight from the front: the patterned arm of an armchair at the far left, a small stone fireplace with a low warm fire at the far right, a woven rug along the bottom, a basket of balls of yarn in many soft colours at the lower left. The middle of the picture is a plain, quiet wall of soft dark wood, because the game draws the needles, the stitches and the scarf there, large. The light comes from the fire at the right.
+
+Crisp pixel art with hard square pixel edges, a thick dark outline on things, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients, no glow. No characters, no text, no letters, no numbers.

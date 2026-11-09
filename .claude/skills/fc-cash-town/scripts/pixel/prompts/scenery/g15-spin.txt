@@ -1,0 +1,7 @@
+Use the attached sprite sheet only as the reference for the pixel art style, its colours and its chunky square pixel size. Draw one scene that fills the whole canvas from edge to edge, with no border and no frame, for a mini-game of the same cozy 2D game.
+
+The game crops this picture to a centered 4:3 board, removing about 6% from each side. Keep every distinctive prop and any side fence between 8% and 92% of the canvas width. References below to the left or right edge mean these safe positions; extend only the surrounding wall, ground or sky through the expendable side strips.
+
+A cosy spinning corner seen flat and straight from the front: a wooden wall with a window of soft morning light at the upper right, a big basket of raw white fleece on the floor at the lower left, skeins of yarn hanging on wooden pegs at the upper left. The middle of the picture, from top to bottom, is plain and quiet, because the game draws the fleece, the thread and the spinning spindle there. The light comes from the window at the upper right.
+
+Crisp pixel art with hard square pixel edges, a thick dark outline on things, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients, no glow. No characters, no text, no letters, no numbers.

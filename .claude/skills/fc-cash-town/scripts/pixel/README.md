@@ -1030,3 +1030,58 @@ and a flock icon. 8 calls, $0.168 (each read by Codex first); the ledger then st
   lamb's head, the cloud sheep, a lamb popping out; cut at 6.32 (on 12.5 the faces went), `docs/plans/specials/kit/icons/`.
 - Previews: `E-flock-r3-1x.png`, `-2x.png`, `E-owner-saddle-r3.png`, `E-parts-r3.png`. One face edge is still touched in the
   front-view rest (a passing cloud frame).
+
+### Round 3, part B: the sixteen new mini-games, backdrops, pieces and mocks (2026-11-09/10)
+
+The owner wanted to see the new game scenes before they are built (brief `brief-art-r3.md`, part B): for each game a
+backdrop (N=3, one chosen), a sheet of its moving pieces (once), and a desktop 1280x860 and phone 384x730 mock at a moment
+mid-play, the one input shown by a drawn hint and a miss as the game would draw it. **46 calls, $1.499** (every prompt read
+by Codex first): 18 backdrop calls of three draws, $0.983 (16 games, and two redrawn below), and 28 piece sheets,
+$0.516. The ledger then stood at 3,124 rows and **$47.536 of $55**.
+
+- **Backdrops** (`prompts/scenery/g01-cut` … `g16-knit`, on the owner's MINI-GAME SCENE template, an existing board of the
+  line as the reference; batch 1 (g01-g08) adds the 4:3 crop sentence to the opening paragraph, batch 2 (g09-g16) its own
+  crop paragraph; g01, g07, g09, g10, g14 are Codex's texts). Chosen with `compare3` (cut-look's numbers: grid, cells, one
+  colour a cell, edges on the grid): g01 draw 2 (crispest, 74% on the grid, the block whole in the window), g02 draw 2
+  (later replaced), g03 2 (dome and mouth framed, the counter clear), g04 3 (crispest, 56%, the biggest firebox), g05 2
+  (crispest, 73%, the largest pan, its handle in the window), g06 2 (centred; draw 1 too fine, draw 3 coarse), g07 3
+  (crispest, 60%, the grill whole, open sky), g08 2 (**the call returned two images, not three**, charged $0.037; draw 1
+  crisper but off-centre), g09 2 (the jar centred), g10 3 (crispest, 64%, the burner centred, a plain wall), g11 2 (the gate
+  inside the window), g12 2 (the barn gate centred, the fences framing), g13 1 (crispest, 59%, the widest plain middle),
+  g14 1 (later replaced), g15 3 (crispest, 60%), g16 3 (crispest, 57%, armchair and fireplace framing). The other draws are
+  kept as `-1/-2/-3` in work/out.
+- **Pieces** (`prompts/scenery/g01-pieces`, `g02-tiers`, `g03-tray`, `g04-logs`, `g05-cakes`, `g05-brass`, `g08-bowls`,
+  `g09-crock`, `g10-wok`, `g11-animals`, `g13-churns`, `g14-pressparts`, `g15-strands`, `g16-needles` on a 3840x1280 row
+  with the chosen backdrop as the reference; `prompts/icons/g02-buns`, `g03-pastries-a/-b`, `g04-flames`, `g06-pot-a/-b`,
+  `g07-grill`, `g09-veg`, `g10-food`, `g11-hand`, `g12-herd`, `g16-loops` on the ICON SHEET template). Cut by
+  `work/specials/js/cut-pieces.mjs`: the sheet's grid (icon-pitch2's rule; a grid over 9 is taken at its half when that fits
+  at all, the boards' scenes being 5 to 6.5), 64 colours, figures by spans, `closeSmallHoles`. Codex's fixes that gave
+  sizes in the asset's pixels were said relatively and read again (ART_WORKFLOW).
+- **A slip of mine, caught by the gate**: the pieces writer first wrote `g13-churn`, `g14-press`, `g15-spin`, `g16-knit`
+  over the scene prompts of the same names. The pieces were renamed (`g13-churns`, `g14-pressparts`, `g15-strands`,
+  `g16-needles`), the scene prompts restored (their stamps matched the passed reads) and g14-g16's scenes drawn then.
+- **Two redraws, found by laying the pieces on their boards**: the steamer's tiers came out 80x46 board pixels, and the pot
+  sat 88 pixels from the top, so three tiers and a lid could not stack: **`g02-tiers2`** (flat, Codex's own fix: a fifth as
+  tall as wide, the lid's knob counted) came out 80x37, still too tall, so **`scene-g02-steam2`** puts a narrower pot low
+  (draw 1 chosen: crispest, 63%, the pot nearest the tiers' width; the stack's lid now touches the board's top). The cheese
+  press drew a screw press whose crossbeam left 33 pixels over a 50-wide mould: **`scene-g14-press2`** is a wide mould on a
+  bench with plain wall above (draw 3: crispest, 52%, a grid like the other boards'; draws 1-2 cut at 7.3) and
+  **`g14-pressparts2`** fits it (weights a quarter, a third and a half of the mould).
+- **Checks**: every piece used, `bugcheck`: no stray cell, no hole that is a bug; what is flagged is drawn (a weight's ring,
+  a loop's eye, the shrimp's curl, the brass pan's hanging hole) or loose by design (crumbs, smoke wisps, bubbles, the
+  splash's drops, the broken strand's two ends, the pet's dotted ring).
+- **Cut-ready art**: `docs/plans/specials/games/<gNN-name>/` (committed): `scene.png` at its true pixels and every piece at
+  its native pixels; `games.json` gives each sheet's source, grid and piece sizes. Not in it: `g02-tiers` and
+  `g14-pressparts` (replaced). `g09-crock` (the fermentCrock) is drawn larger than the board's jar (135x203 on a 192-high
+  board); `g05-brass` matches the board's iron pan and can lie over it.
+- **Mocks** (`work/specials/js/mock-games.mjs`, not committed, `docs/plans/specials/previews/G-<n>-<name>-desktop.png`,
+  `-phone.png`, `G-all-phone.png`, `G-all-desktop.png` by `contact-g.mjs`): the round-2 frame (title chip with the tool's
+  atlas icon, close, the 4:3 board, a progress bar and result slots, one button for the oven's turn, a chip for the
+  cleaver's portions); hints from the live icon atlas (hand1, hand2, hand3, grab, chevron turned), at the board's pixel.
+  Codex read each contact sheet once (`find --see`, medium). The phone sheet: 5 games passed, 11 fixes about readability
+  (a separated wedge, darker buns, the tray's hot ends and landing gap, chevrons beside the pancake, food kept off the
+  scum, the hint on a plain wedge, chevrons at the chilli, a snort at the cow's wrong spot, the stray at the far fence,
+  chevrons by the churn's handle, the curd low under the heavy weight with the whey from that edge), all made. The desktop
+  sheet after them: 10 passed; of the 6 fixes, 8 (an unmixed rice lump), 9 (a dotted drop line under the chilli), 12 (the
+  stray's dust) were made; 11 (the desktop sheep shows the found spot, the phone cow the miss), 15 (the twist direction)
+  and 16 (the next loop, the dropped stitch) are left for the owner's eye.

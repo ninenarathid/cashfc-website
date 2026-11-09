@@ -1,0 +1,5 @@
+Use the attached sprite sheet only as the reference for the pixel art style, its colours and its chunky square pixel size. Draw one scene that fills the whole canvas from edge to edge, with no border and no frame, for a mini-game of the same cozy 2D game. Compose for a centered 4:3 crop: the outer one eighteenth of the canvas width on each side will be cut off. Keep the complete working area and identifying props inside that crop; extend only expendable background into the cropped strips.
+
+A dark wooden dining table seen straight down from directly above. In the middle of the picture a round woven straw trivet, empty, large enough for a big bowl, because the game sets a hot stone bowl on it. Only at the edges: a small dish of red pickles at the upper left, a long metal spoon and chopsticks at the right, a bowl of clear soup at the lower left, a little dish of sesame seeds at the lower right. The light comes from the upper left.
+
+Crisp pixel art with hard square pixel edges, a thick dark outline on things, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients, no glow. No characters, no text, no letters, no numbers.
