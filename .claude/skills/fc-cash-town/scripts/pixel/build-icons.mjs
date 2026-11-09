@@ -577,6 +577,8 @@ const SHEETS = [
   ["icons-special-fix-a", ["goldenDandelionSeedR2", "wholeGoldenFleeceR2", "moonSesamePuddingR2", "buffAromaR2", "_wool", "_custard"], { range: [7.0, 7.3] }],
   ["icons-pound-d", ["poundChiliAR2", "poundChiliBR2", "poundChiliCR2", "poundGarlicAR2", "poundGarlicBR2", "poundGarlicCR2"], { range: [5.2, 5.45] }],
   ["icons-pound-e", ["poundLemongrassAR2", "poundLemongrassBR2", "poundLemongrassCR2", "poundShallotAR2", "poundShallotBR2", "poundShallotCR2"], { range: [5.2, 5.45] }],
+  // (round 3: the flock's icons for buttons and the bag, asked for by the flock build)
+  ["icons-flock-a", ["flockFull", "flockFew", "flockLambHead", "flockCloud", "flockPop", "_famCloudRam"], { range: [6.2, 6.45] }],
   ["icons-roll-a", ["rollTearSmall", "rollTearLong", "rollFlourPuff", "rollFlourPuffSmall", "rollFlourSprinkle", "_rollFlourBowl"], { range: [6.95, 7.25] }],
 ];
 

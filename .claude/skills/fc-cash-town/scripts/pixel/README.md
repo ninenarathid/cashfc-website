@@ -995,3 +995,38 @@ stood at 3,070 rows and $45.869 of $55. Previews only, as round 1 (`-r2` files b
   patties) and the paste's perimeter in the mock (a sticker); the ram, lambs, cloud sheep and flock no must-fix (worth fixing:
   the cloud sheep without its float reads as a smooth sheep, mid-pop silhouettes, the owner's seat near the neck). Shown to
   the owner before any redraw.
+
+### Round 3, part A: the flock made ready for the build (2026-11-09, the same day)
+
+The owner, of round 2's flock: "อยากให้คนชิดกันกว่านี้ คนที่เป็นคนนั่งตัวใหญ่ นั่งไม่ตรงอาน" (the riders closer together; the owner
+sat on the big ram's neck, not its saddle), and a fluffier, higher cloud sheep; the flock builder asked for a grazing frame
+and a flock icon. 8 calls, $0.168 (each read by Codex first); the ledger then stood at 3,078 rows and $46.037 of $55.
+
+- **The kit** (`docs/plans/specials/kit/`, committed: `kit.json` and every frame at its native pixels;
+  `work/specials/js/kit-r3.mjs` writes it): the big ram SE/NE (stand, w1-w6), the lambs SE/NE in white, cream and pink
+  (stand, w1-w6, graze), the cloud sheep SE/NE (f1-f6), the pops out and in SE/NE (f1-f6). Cut the scenery builder's way
+  (the sheet's grid, 64 colours, figures by spans, `closeSmallHoles`). Each frame has its **anchor** (the pixel on the ground
+  point: across, laid on the stand by the body so it does not jump sideways; up and down, its own hooves on the ground, so
+  the body and saddle bob), its **seat** (the big ram: the dip of the saddle's top between cantle and pommel, on the seat's
+  own columns, a strap down the flank being no part of it; a lamb: the top of its cloth; the cloud: its top's middle), and in
+  front views a **head** picture to draw over the rider. Every frame checked: no hole, no half-clear cell; what stands apart
+  is the cloud's sparkles and puffs and the pops' cloud bits.
+- **`docs/plans/specials/previews/flock-seats.json`** (committed): every mount frame's anchor, seat, lift and draw order
+  (mount, rider, head), the seated doll's hip point (front (-6, -7), back (3, -5) of its own pixels from its anchor, measured
+  on its shorts), and the eight walking and eight resting places per facing in town px from the big ram's feet. Each place
+  was solved (`work/specials/js/flock-r3.mjs`): from a two-by-two pattern right behind the ram (at rest round it), a seat
+  steps back, outward or both, whichever covers fewest faces, until nothing nearer covers more than 4 town px of a farther
+  rider's face (the head's eye and mouth rows, not the hair), the seat tried as a lamb and as the cloud's every frame at once
+  (an envelope). The cloud as drawn floats 35 to 65 of its pixels over its ground line, a bob of 30: the data gives a gap of
+  12 and a quarter of the drawn bob ("a gap of a few pixels plus a gentle bob"), the drawn lift beside it.
+- **`cloudsheep-se-2`, `-ne-2`**: in-place edits of the cloud sheep's sheets, fluffier (a scalloped edge of small billows,
+  loose puffs) and lifted. Codex's words taken, its lift in sprite-grid pixels said relatively (ART_WORKFLOW).
+- **`lamb-pop-out-ne`, `lamb-pop-in-ne`**: the pops from behind, the back-view lamb kept as the ruler. The pop-out showed
+  the lamb's face from frame 3; **`lamb-pop-out-ne2`** corrects it in place (Codex stopped a full redraw and gave that way).
+- **`lamb-graze-se`, `-ne`**: the three stands on one canvas, each lowered to graze in place. **The model drew the lambs at a
+  coarser pitch than the ruler beside them**: cut at 4 they were a fifth larger than their stands; cut on their own grid
+  (5.4) they match, and that is what the kit holds.
+- **`icons-flock-a`** (with `icons-pasture-gift-a`, the live ram's icon): the whole flock, the ram with three lambs, a
+  lamb's head, the cloud sheep, a lamb popping out; cut at 6.32 (on 12.5 the faces went), `docs/plans/specials/kit/icons/`.
+- Previews: `E-flock-r3-1x.png`, `-2x.png`, `E-owner-saddle-r3.png`, `E-parts-r3.png`. One face edge is still touched in the
+  front-view rest (a passing cloud frame).

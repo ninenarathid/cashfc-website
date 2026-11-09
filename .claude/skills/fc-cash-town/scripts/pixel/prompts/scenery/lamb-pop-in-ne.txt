@@ -1,0 +1,11 @@
+Edit the first attached picture. On its left it shows a little fluffy white cloud lamb from a cozy 2D town game, drawn in large square pixels, seen from behind: turned three-quarters away from the viewer and facing the upper right, with a small blue cloth on its back and its round tail nearest the viewer. Keep that lamb exactly as it is and exactly where it is.
+
+The second attached picture shows the same lamb from the front hopping back into a puff of the ram's cloud fleece in six frames. In the empty space to the right of the lamb in the first picture, draw the same six frames seen from behind, the lamb in every frame turned three-quarters away from the viewer and facing the upper right like the lamb on the left, never from the front, and exactly as large as the lamb on the left, never larger, in exactly the same large square pixel size. The cloud is the ram's own white cloud fleece with pale blue shading: big solid round puffs with the same thick dark outline, nothing see-through, and every small flying bit a solid round cluster of pixels:
+1) the lamb crouching, ready to hop;
+2) the lamb hopping up into the air, its legs tucked;
+3) the lamb diving head first into a round cloud puff, only its back half showing;
+4) only its back legs and its round tail sticking out of the puff;
+5) the puff closing over it, a small tuft on top and two small round cloud bits;
+6) a small round puff shrinking, one small round cloud bit beside it.
+
+The lamb on the left and the six frames stand in one row, evenly spaced, not overlapping, with clear empty space between them. Use one shared invisible ground line and the same puff origin relative to each frame's centre and that line; its crouching hooves meet the line and its airborne body rises above it. Keep each frame's flying bits close to its own puff or lamb, with the empty gaps between complete frames wider than any gap within a frame. Use the same pixel size as the first attached picture: do not make the pixels smaller or larger. Crisp pixel art with hard square pixel edges, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground, no shadows, no text, no labels.
