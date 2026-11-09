@@ -1,0 +1,9 @@
+The attached picture shows a big fluffy white cloud ram from a cozy 2D town game and its little cloud lamb in several frames, drawn in large square pixels. Draw a new sheet of six frames in one row of that same little lamb popping out of a puff of the ram's cloud fleece, funny and cute, at exactly the lamb's size and in exactly the attached picture's large square pixel size, the lamb turned three-quarters towards the viewer and facing the lower right as it is there. The cloud is the ram's own white cloud fleece with pale blue shading: big solid round puffs with the same thick dark outline, nothing see-through, and every small flying bit a solid round cluster of pixels:
+1) a small round puff of cloud fleece bulging up, a little tuft on top;
+2) the puff swelling into a round cloud burst, a few small round cloud bits flying out of it;
+3) the lamb's head and front legs bursting out of the top of the cloud burst, its eyes wide;
+4) the lamb jumping clear, the burst breaking into round cloud bits around it;
+5) the lamb landing on its four legs, a few small round cloud bits drifting beside it;
+6) the lamb standing happily, two small round cloud bits left by its feet.
+
+All six frames in one row, evenly spaced, not overlapping, with clear empty space between them. Use one shared invisible ground line and the same puff origin relative to each frame's centre and that line; the jumping lamb rises above it, and its hooves meet it when landing and standing. Do not bottom-align the airborne lamb to the standing lamb. Keep each frame's flying bits close to its own puff or lamb, with the empty gaps between complete frames wider than any gap within a frame. Use the same pixel size as the attached picture: do not make the pixels smaller or larger. Crisp pixel art with hard square pixel edges, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground, no shadows, no text, no labels.

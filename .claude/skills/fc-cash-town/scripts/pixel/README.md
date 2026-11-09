@@ -955,3 +955,43 @@ prompts on the owner's templates with their closing sentences).
   rock), the cake's height, the aroma sign (a flame), the food habit (crops), the smooth pastes (sweets), the mortar mock's
   pieces as icons, and the long ram's repeated saddles and legs (joined sheep rather than one fleece); left for the owner to
   judge before any redraw (his rule).
+
+### Round 2: the flock, and the redraws he accepted (2026-11-09, the same day)
+
+The owner, of round 1: the stretchy ram is dropped ("เอางี้ดีกว่า แกะของเจ้าของตัวใหญ่ขึ้น คนที่มาขี่ ได้นั่งแกะตัวเล็กๆ พอมีคนนั่งเยอะๆ มัน
+จะเป็นฝูงแกะ น่ารักๆ", with a walk of several frames), then "และบางคน สุ่ม จะได้นั่งบนก้อนเมฆแกะ เหมือนเป็นเวทมนของแกะวิเศษ"; and four of
+Codex's must-fixes redrawn, with the mortar's stage pieces. 20 calls, $0.412 (each read by Codex first); the ledger then
+stood at 3,070 rows and $45.869 of $55. Previews only, as round 1 (`-r2` files beside round 1's).
+
+- **The live ram kept on the canvas as the ruler.** `bigram-se-a` (the live SE base frame at 4x as the reference, "one and
+  a third times as large") came out right in design but 216x177 at its grid (4.00), 1.66x: kept as the other choice.
+  **`bigram-se-a2`** is an in-place edit of a 3840x1280 canvas with that frame kept on the left: the ruler cut back to
+  127x101, the big ram 161-168 x 126-136, 1.3x at the live ram's own pixel size. Every sheet after it keeps a ruler: the big
+  ram from behind (`bigram-ne-a`, the live NE frame kept, 150-165 x 160-165), the lamb (`lamb-se`, `lamb-ne`, the live ram
+  kept, "two thirds as long": 79-86 x 65-79), the cloud sheep (`cloudsheep-se`, `-ne`), and the pops' second tries
+  (`lamb-pop-out-2`, `-in-2`, the walking lamb kept: the first tries drew the lamb 120x98, 1.47x, and are kept).
+- **Six-step walks**: the big ram's stand and steps 1-3 on one sheet, steps 4-6 an in-place edit of it with the legs swapped
+  (`bigram-se-b`, `bigram-ne-b`), as stag-walk was made; a lamb's stand and six steps on one sheet. **The lamb's cream and
+  pink** are in-place edits of the white sheets (`lamb-se-cream`, `-pink`, `lamb-ne-cream`, `-pink`), the tufts and tails
+  in the new colour on Codex's word; on the back view Codex asked to turn the heads away (it read muzzles), not taken: cut and
+  enlarged no eye shows, and turned heads on two colours only would not match the white; read again with that reason, `send`.
+- **`cloudsheep-se`, `-ne`**: the magic ram's spell, a sheep-shaped cloud a rider sits on, a six-frame bob loop of smooth
+  lavender-shaded lobes, a closed happy eye, puffy ears, wisps for legs and two sparkles (its shadow is code).
+- **`icons-special-fix-a`** (with `icons-special-c`): the dandelion as a seed ball, the whole fleece as a pelt with the star,
+  the sesame pudding glossy on a plate, the aroma as steam from a cup; cut at 7.15. **`icons-pound-d`, `-e`** (with the chosen
+  mortar board for the reference): the twelve stages flatter, a one-pixel outline, lit from the upper left like the bowl, the
+  pastes wet smears with grit; Codex's 32 by 32 grid and containment sentence taken, its "about six canvas pixels per art
+  pixel" not (ART_WORKFLOW), read again, `send`. Cut at 5.33 (the third of 16 fits at 0.78): 34-40 x 45-54, the board's own
+  pixel size, four clusters to the bowl.
+- **Checks**: two walk frames had enclosed see-through cells (1 under the big ram's belly, NE step 5; a 4-cell slit by the
+  pink lamb's far ear, SE step 4) and six mortar pieces 1 to 9 cells where two bulbs or chunks meet: closed by
+  build-scenery's own rule (`closeSmallHoles`, patches of up to 8 cells take the commonest colour round them;
+  `work/specials/js/fillholes.mjs`, `fillatlas.mjs`); what stands apart is the cloud sheep's sparkles and the pops' cloud bits.
+- **The flock stills** (`work/specials/js/flock-mock.mjs`): the owner on the big ram, the passengers two by two behind it
+  with a seeded jitter, each lamb on its own walk frame, one cloud seat at 3 passengers and two at 6 and 8; a seat placed so
+  that anything nearer covers a farther rider's head is pushed back until a gap of 3 map px clears it.
+- **Codex's look at the sheets** (find run -13-26-48-find-40844): resolved, the fleece and the aroma; partly, the pudding (a
+  dark hat on a saucer still); not, the dandelion (a golden flower still); must fix, the lemongrass and shallot pastes (soft
+  patties) and the paste's perimeter in the mock (a sticker); the ram, lambs, cloud sheep and flock no must-fix (worth fixing:
+  the cloud sheep without its float reads as a smooth sheep, mid-pop silhouettes, the owner's seat near the neck). Shown to
+  the owner before any redraw.

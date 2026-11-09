@@ -1,0 +1,12 @@
+Edit the first attached picture. On its left it shows a fluffy white cloud ram from a cozy 2D town game, drawn in large square pixels, turned three-quarters towards the viewer and facing the lower right, head on the right. Keep that ram exactly as it is and exactly where it is.
+
+The second attached picture shows the ram's little cloud lambs. In the empty space to the right of the ram in the first picture, draw a magic cloud that the ram's spell has shaped into a little sheep, so that a small rider can sit on it, as six frames of it floating gently up and down in one row: in each frame it is about as large as one of those lambs, two thirds as long as the ram on the left, in exactly the same large square pixel size. It is plainly a cloud, not wool: one soft billowing body of a few big smooth rounded cloud lobes, pale sky white with soft pale lavender-blue shading on its underside and no curls, its bottom a little flatter like a cloud's. It is plainly one of the flock: a lamb's shape, a rounded head on the right with a hint of a face, a small closed happy eye and a tiny pale pink nose, two small puffy cloud ears, a little round cloud tail, a flat soft top where a rider can sit, and under its body three or four short rounded wisps instead of legs. Two or three small pale yellow four-pointed sparkles float beside it, each a solid cluster of pixels. It is turned three-quarters towards the viewer and facing the lower right, like the ram, and it floats a little above the ground line in every frame:
+1) at its middle height, its wisps hanging straight down;
+2) a little higher, its wisps trailing a little back;
+3) at its highest, its body a little taller and narrower;
+4) coming down, its wisps trailing a little back;
+5) at its lowest, its body a little wider and flatter, still clear of the ground line;
+6) rising again, its wisps hanging straight down.
+Its design, colours, face and ears are the same in every frame; only its height, the slight body squash and stretch described above, its wisps and where the sparkles are change.
+
+The ram on the left and the six frames stand in one row, evenly spaced, not overlapping, with clear empty space between them. Use the same pixel size as the first attached picture: do not make the pixels smaller or larger. Crisp pixel art with hard square pixel edges, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground, no shadows, no text, no labels.

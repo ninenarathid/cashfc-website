@@ -1,0 +1,12 @@
+Edit the attached picture. On its left it shows a fluffy white cloud ram from a cozy 2D town game, drawn in large square pixels, turned three-quarters towards the viewer and facing the lower right, head on the right. Keep that ram exactly as it is and exactly where it is.
+
+In the empty space to its right, draw its little lamb, a fluffy cloud lamb that one small rider can sit on, as seven frames in one row: in each frame the lamb is about two thirds as long and two thirds as tall as the ram on the left, in exactly the same large square pixel size. The same kind of sheep as the ram, but a lamb: a rounder, softer body of white cloud fleece with pale blue shading, a bigger head for its size, a small grey face with a big round shiny dark eye and a pale pink nose, two tiny pale gold horn buds, small grey ears, short stubby dark grey legs, a round fluffy tail, and a small round blue cloth on its back for a rider, cute and soft. In every frame it is turned three-quarters towards the viewer and facing the lower right, head on the right; its body and cloth stay level and at the same height in every frame, and only the legs and the tail move:
+1) standing still on four short straight legs, all hooves planted;
+2) walking, its near front leg and its far hind leg reaching forward, the other two legs stretched back;
+3) walking, the two forward legs planted under the body, the two back legs lifting off the ground;
+4) walking, the legs passing under the body, the far front leg lifted a little and bent;
+5) walking, its far front leg and its near hind leg reaching forward, the other two legs stretched back;
+6) walking, the two forward legs planted under the body, the two back legs lifting off the ground;
+7) walking, the legs passing under the body, the near front leg lifted a little and bent.
+
+The ram on the left and the seven frames stand in one row on the same ground line, evenly spaced, not overlapping, with clear empty space between them. Use the same pixel size as the attached picture: do not make the pixels smaller or larger. Crisp pixel art with hard square pixel edges, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground, no shadows, no text, no labels.

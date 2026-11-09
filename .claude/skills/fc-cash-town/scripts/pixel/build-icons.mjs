@@ -572,6 +572,11 @@ const SHEETS = [
   ["icons-pound-a2", ["poundChiliA", "poundChiliB", "poundChiliC", "poundGarlicA", "poundGarlicB", "poundGarlicC"], { range: [7.85, 8.15] }],
   ["icons-pound-b", ["poundLemongrassA", "poundLemongrassB", "poundLemongrassC", "poundShallotA", "poundShallotB", "poundShallotC"], { range: [7.85, 8.15] }],
   ["icons-pound-c", ["poundLump", "poundSplash", "poundPestle", "poundBlend", "_poundSalt", "_poundLime"], { range: [7.85, 8.15] }],
+  // (round 2 of the previews, 2026-11-09: the redraws the owner accepted, and the mortar pieces flatter, thin-lined, lit like
+  // the board; "R2" names so that the scratch atlas holds both rounds side by side)
+  ["icons-special-fix-a", ["goldenDandelionSeedR2", "wholeGoldenFleeceR2", "moonSesamePuddingR2", "buffAromaR2", "_wool", "_custard"], { range: [7.0, 7.3] }],
+  ["icons-pound-d", ["poundChiliAR2", "poundChiliBR2", "poundChiliCR2", "poundGarlicAR2", "poundGarlicBR2", "poundGarlicCR2"], { range: [5.2, 5.45] }],
+  ["icons-pound-e", ["poundLemongrassAR2", "poundLemongrassBR2", "poundLemongrassCR2", "poundShallotAR2", "poundShallotBR2", "poundShallotCR2"], { range: [5.2, 5.45] }],
   ["icons-roll-a", ["rollTearSmall", "rollTearLong", "rollFlourPuff", "rollFlourPuffSmall", "rollFlourSprinkle", "_rollFlourBowl"], { range: [6.95, 7.25] }],
 ];
 
