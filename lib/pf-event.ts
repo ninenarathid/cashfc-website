@@ -33,8 +33,24 @@ export const DEFAULT_KINDS: ContentKind[] = [
 ];
 
 /** Fights where a night of practice without a clear still counts (15 min+). */
-const PRACTICE_KINDS = new Set<ContentKind>(
+export const PRACTICE_KINDS = new Set<ContentKind>(
   ["extreme", "savage", "ultimate", "chaotic", "criterion"]);
+
+/**
+ * What a room of each kind is worth, cleared (v331; the owner, 2026-11-10):
+ * a run of Duty Roulette earning what a cleared Extreme earns made no sense.
+ * Kinds not named are worth 1. The event carries its own copy, which Aqua edits.
+ */
+export const DEFAULT_KIND_POINTS: Partial<Record<ContentKind, number>> = {
+  alliance: 2, criterion: 2, extreme: 3, chaotic: 3, savage: 4, ultimate: 6,
+};
+
+/** v331's other defaults, used too while v331 has not run. */
+export const POINT_DEFAULTS = { easyCap: 3, practicePoints: 1, practiceCap: 1, helperBonus: 1 } as const;
+
+/** A cleared room's points by its kind. */
+export const pointsOf = (ev: Pick<PfEvent, "kindPoints">, kind: ContentKind | null): number =>
+  (kind && ev.kindPoints[kind]) ?? 1;
 
 /** The owner's prizes, as he wrote them. */
 export const PRIZES = {
@@ -64,6 +80,17 @@ export interface PfEvent {
   draw: PfDraw | null;
   /** Null while a draft, which only admins can read (v320). */
   publishedAt: string | null;
+  /** v331: a cleared room's points by kind; kinds left out are worth 1. */
+  kindPoints: Partial<Record<ContentKind, number>>;
+  /** v331: rooms worth 1 point counted per person per day. */
+  easyCap: number;
+  /** v331: a practice room's points, and how many count per person per day. */
+  practicePoints: number;
+  practiceCap: number;
+  /** v331: what a helper of a listed new player gets on top of the room. */
+  helperBonus: number;
+  /** Whether the database has v331's columns; until it does, defaults and no practice verdict. */
+  hasPoints: boolean;
 }
 
 /** One content key, named. Built on the server from the board's catalogue. */
@@ -89,7 +116,8 @@ export interface PfParty {
   shots: string[];
 }
 
-export type Verdict = "ok" | "no";
+/** ok is a pass, and on a hard room a clear; practice is a hard room's 15 minutes and more (v331). */
+export type Verdict = "ok" | "practice" | "no";
 export interface Review { verdict: Verdict; note: string | null }
 
 /**
@@ -135,8 +163,14 @@ export interface PfRun {
     /** People on the list without an account, who cannot score. */
     nameOnly: number;
   };
-  /** characterId -> points this run gave, after the day's cap. ok runs only. */
+  /** Passed as practice rather than cleared. */
+  practice: boolean;
+  /** What it is worth to somebody who is not a helper: cleared, or as practice. */
+  worth: number;
+  /** characterId -> points this run gave, after the day's quotas and cap. Passed runs only. */
   gave: Map<number, number>;
+  /** characterId -> why it gave less than it was worth. */
+  short: Map<number, "easy" | "practice" | "day">;
 }
 
 export interface PfPerson {
@@ -221,8 +255,11 @@ export function scoreEvent(
     runs.push({
       party, kind, level, endsAt,
       name: nameOf(party.contentKey, content),
-      state: Date.parse(endsAt) > now ? "open" : review ? review.verdict : proof ? "pending" : "bare",
+      state: Date.parse(endsAt) > now ? "open"
+        : review ? (review.verdict === "no" ? "no" : "ok") : proof ? "pending" : "bare",
       verdict: review?.verdict ?? null,
+      practice: review?.verdict === "practice",
+      worth: review?.verdict === "practice" ? ev.practicePoints : pointsOf(ev, kind),
       note: review?.note ?? null,
       flags: {
         lowLevel: level != null && level < ev.unsyncMinLevel,
@@ -232,6 +269,7 @@ export function scoreEvent(
         nameOnly: party.members.filter((m) => m.characterId == null).length,
       },
       gave: new Map(),
+      short: new Map(),
     });
   }
   runs.sort((a, b) => Date.parse(a.endsAt) - Date.parse(b.endsAt)
@@ -254,20 +292,37 @@ export function scoreEvent(
     return p;
   };
 
+  /*
+   * Per person and Bangkok day: the points so far, how many rooms worth one
+   * point have counted, and how many practice rooms. A room past its quota
+   * gives nothing; past the day's cap, what is left of it.
+   */
   const used = new Map<string, number>();
+  const easy = new Map<string, number>();
+  const tried = new Map<string, number>();
   for (const run of runs) {
     if (run.state !== "ok") continue;
     const day = dayKey(run.endsAt);
+    const isEasy = !run.practice && run.worth <= 1;
     const seen = new Set<number>();
     for (const m of run.party.members) {
       if (m.characterId == null || seen.has(m.characterId)) continue;
       seen.add(m.characterId);
       const p = person(m.characterId, m.name, m.avatar);
       const helper = run.flags.newbie && !newbies.has(m.characterId);
-      const worth = helper ? ev.helperPoints : 1;
+      const worth = run.worth + (helper ? ev.helperBonus : 0);
       const key = `${m.characterId}|${day}`;
-      const room = Math.max(0, ev.dailyCap - (used.get(key) ?? 0));
-      const got = Math.min(worth, room);
+      let got: number;
+      if (run.practice && (tried.get(key) ?? 0) >= ev.practiceCap) {
+        got = 0; run.short.set(m.characterId, "practice");
+      } else if (isEasy && (easy.get(key) ?? 0) >= ev.easyCap) {
+        got = 0; run.short.set(m.characterId, "easy");
+      } else {
+        if (run.practice) tried.set(key, (tried.get(key) ?? 0) + 1);
+        if (isEasy) easy.set(key, (easy.get(key) ?? 0) + 1);
+        got = Math.min(worth, Math.max(0, ev.dailyCap - (used.get(key) ?? 0)));
+        if (got < worth) run.short.set(m.characterId, "day");
+      }
       used.set(key, (used.get(key) ?? 0) + got);
       run.gave.set(m.characterId, got);
       p.points += got; p.raw += worth; p.runs += 1;
@@ -342,14 +397,34 @@ function cryptoBelow(below: number): number {
 
 /* ── reading and writing ─────────────────────────────────────────────────── */
 
-const EVENT_COLS = "id, title, starts_at, ends_at, kinds, daily_cap, helper_points,"
+const BASE_COLS = "id, title, starts_at, ends_at, kinds, daily_cap, helper_points,"
   + " unsync_min_level, practice_minutes, fc_only, newbies, draw_count, draw, published_at";
+const POINT_COLS = "kind_points, easy_cap, practice_points, practice_cap, helper_bonus";
+const EVENT_COLS = `${BASE_COLS}, ${POINT_COLS}`;
+
+/** v331's columns asked for and not there: the event is read without them. */
+const noPoints = (e: { code?: string; message?: string } | null) =>
+  !!e && /kind_points|easy_cap|practice_points|practice_cap|helper_bonus/.test(e.message ?? "");
+
+/**
+ * The newest event's row, with v331's columns where the database has them.
+ * Asked for with them first and without them if that fails, so the desk
+ * keeps working on the day this code lands before v331 is run.
+ */
+async function newestEvent(supabase: SupabaseClient) {
+  const ask = (cols: string) => supabase.from("pf_events").select(cols)
+    .order("starts_at", { ascending: false }).limit(1);
+  const full = await ask(EVENT_COLS);
+  return noPoints(full.error) ? ask(BASE_COLS) : full;
+}
 
 interface EventRow {
   id: number; title: string; starts_at: string; ends_at: string; kinds: string[];
   daily_cap: number; helper_points: number; unsync_min_level: number;
   practice_minutes: number; fc_only: boolean; newbies: (number | string)[];
   draw_count: number; draw: PfDraw | null; published_at: string | null;
+  kind_points?: Record<string, number> | null; easy_cap?: number; practice_points?: number;
+  practice_cap?: number; helper_bonus?: number;
 }
 
 const eventOf = (r: EventRow): PfEvent => ({
@@ -359,6 +434,14 @@ const eventOf = (r: EventRow): PfEvent => ({
   unsyncMinLevel: r.unsync_min_level, practiceMinutes: r.practice_minutes,
   fcOnly: r.fc_only, newbies: (r.newbies ?? []).map(Number),
   drawCount: r.draw_count, draw: r.draw ?? null, publishedAt: r.published_at ?? null,
+  hasPoints: r.easy_cap !== undefined,
+  kindPoints: Object.fromEntries(Object.entries(r.kind_points ?? DEFAULT_KIND_POINTS)
+    .filter(([k, v]) => (PF_KINDS as string[]).includes(k) && Number.isFinite(Number(v)))
+    .map(([k, v]) => [k, Number(v)])) as Partial<Record<ContentKind, number>>,
+  easyCap: r.easy_cap ?? POINT_DEFAULTS.easyCap,
+  practicePoints: r.practice_points ?? POINT_DEFAULTS.practicePoints,
+  practiceCap: r.practice_cap ?? POINT_DEFAULTS.practiceCap,
+  helperBonus: r.helper_bonus ?? POINT_DEFAULTS.helperBonus,
 });
 
 /**
@@ -382,8 +465,7 @@ export type LoadedEvent =
  * admin with drafts too, and everybody else with published events only.
  */
 export async function loadPfEvent(supabase: SupabaseClient): Promise<LoadedEvent> {
-  const { data, error } = await supabase.from("pf_events").select(EVENT_COLS)
-    .order("starts_at", { ascending: false }).limit(1);
+  const { data, error } = await newestEvent(supabase);
   if (missing(error)) return { state: "missing" };
   if (error) return { state: "error", error: error.message };
   const row = (data as unknown as EventRow[] | null)?.[0];
@@ -402,8 +484,7 @@ export async function loadPfEvent(supabase: SupabaseClient): Promise<LoadedEvent
 
 /** Only the newest event's row, for a strip that links to it. Null when none or v320 is not in. */
 export async function peekPfEvent(supabase: SupabaseClient): Promise<PfEvent | null> {
-  const { data, error } = await supabase.from("pf_events").select(EVENT_COLS)
-    .order("starts_at", { ascending: false }).limit(1);
+  const { data, error } = await newestEvent(supabase);
   if (error) return null;
   const row = (data as unknown as EventRow[] | null)?.[0];
   return row ? eventOf(row) : null;
@@ -460,21 +541,36 @@ export async function loadPfParties(supabase: SupabaseClient, ev: PfEvent): Prom
   }));
 }
 
-export type EventDraft = Omit<PfEvent, "id" | "draw" | "publishedAt">;
+export type EventDraft = Omit<PfEvent, "id" | "draw" | "publishedAt" | "hasPoints">;
 
 /** Make the event, or change it. Returns the event as the database has it. */
 export async function savePfEvent(
-  supabase: SupabaseClient, draft: EventDraft, id?: number,
+  supabase: SupabaseClient, draft: EventDraft, id?: number, withPoints = true,
+): Promise<{ event?: PfEvent; error?: string }> {
+  const first = await writeEvent(supabase, draft, id, withPoints);
+  // A database without v331 refuses its columns: the rest is saved without them.
+  return withPoints && first.error && noPoints({ message: first.error })
+    ? writeEvent(supabase, draft, id, false) : first;
+}
+
+async function writeEvent(
+  supabase: SupabaseClient, draft: EventDraft, id: number | undefined, withPoints: boolean,
 ): Promise<{ event?: PfEvent; error?: string }> {
   const row = {
     title: draft.title.trim(), starts_at: draft.startsAt, ends_at: draft.endsAt,
     kinds: draft.kinds, daily_cap: draft.dailyCap, helper_points: draft.helperPoints,
     unsync_min_level: draft.unsyncMinLevel, practice_minutes: draft.practiceMinutes,
     fc_only: draft.fcOnly, newbies: draft.newbies, draw_count: draft.drawCount,
+    // v331's, sent only where the database has them.
+    ...(withPoints ? {
+      kind_points: draft.kindPoints, easy_cap: draft.easyCap, practice_points: draft.practicePoints,
+      practice_cap: draft.practiceCap, helper_bonus: draft.helperBonus,
+    } : {}),
   };
+  const cols = withPoints ? EVENT_COLS : BASE_COLS;
   const q = id
-    ? supabase.from("pf_events").update(row).eq("id", id).select(EVENT_COLS).single()
-    : supabase.from("pf_events").insert(row).select(EVENT_COLS).single();
+    ? supabase.from("pf_events").update(row).eq("id", id).select(cols).single()
+    : supabase.from("pf_events").insert(row).select(cols).single();
   const { data, error } = await q;
   if (error) return { error: error.message };
   return { event: eventOf(data as unknown as EventRow) };

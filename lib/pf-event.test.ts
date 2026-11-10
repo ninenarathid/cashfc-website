@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { dayKey as dayKeyOf } from "@/lib/party";
 import {
-  DEFAULT_KINDS, drawWinners, fmtM, scoreEvent, steadyEach,
+  DEFAULT_KINDS, DEFAULT_KIND_POINTS, drawWinners, pointsOf, fmtM, scoreEvent, steadyEach,
   type ContentInfo, type PfEvent, type PfParty, type Review,
 } from "@/lib/pf-event";
 
@@ -11,6 +11,8 @@ const ev: PfEvent = {
   kinds: DEFAULT_KINDS, dailyCap: 10, helperPoints: 2, unsyncMinLevel: 80,
   practiceMinutes: 15, fcOnly: true, newbies: [9], drawCount: 10, draw: null,
   publishedAt: null,
+  // v331, loose here so the older tests keep testing what they were written for.
+  kindPoints: {}, easyCap: 50, practicePoints: 1, practiceCap: 50, helperBonus: 1, hasPoints: true,
 };
 
 const content: Record<string, ContentInfo> = {
@@ -141,6 +143,60 @@ describe("end time (the owner, 2026-11-10)", () => {
     const late = party({ who: [1], startsAt: "2026-11-07T23:30:00+07:00", lengthMinutes: 60 });
     const s = scoreEvent(ev, [late], ok(late), content, fc);
     expect(dayKeyOf(s.runs[0].endsAt)).toBe("2026-11-08");
+  });
+});
+
+describe("points by how hard (v331, the owner 2026-11-10)", () => {
+  const hard: PfEvent = { ...ev, kindPoints: { extreme: 3, savage: 4, ultimate: 6, alliance: 2 }, easyCap: 3, practicePoints: 1, practiceCap: 1 };
+  const at = (h: number, o: Partial<PfParty> & { who?: (number | null)[] } = {}) =>
+    party({ who: [1], startsAt: `2026-11-07T${String(h).padStart(2, "0")}:00:00+07:00`, lengthMinutes: 30, ...o });
+
+  it("a cleared room is worth its kind's points, a practice room its own", () => {
+    const ex = at(10, { contentKey: "ex:Zelenia" });
+    const ul = at(12, { contentKey: "ult:x" });
+    const s = scoreEvent(hard, [ex, ul], new Map<string, Review>([
+      [ex.id, { verdict: "ok", note: null }], [ul.id, { verdict: "practice", note: null }]]), content, fc);
+    expect(s.runs.map((r) => [r.worth, r.practice])).toEqual([[3, false], [1, true]]);
+    expect(s.people[0].points).toBe(4);
+  });
+
+  it("counts three rooms worth one point a day, and the fourth gives nothing", () => {
+    const rooms = [10, 11, 12, 13].map((h) => at(h));
+    const s = scoreEvent(hard, rooms, ok(...rooms), content, fc);
+    expect(s.runs.map((r) => r.gave.get(1))).toEqual([1, 1, 1, 0]);
+    expect(s.runs[3].short.get(1)).toBe("easy");
+    expect(s.people[0]).toMatchObject({ points: 3, days: 1 });
+  });
+
+  it("a hard clear is not held by the easy quota", () => {
+    const rooms = [10, 11, 12].map((h) => at(h));
+    const ex = at(13, { contentKey: "ex:Zelenia" });
+    const s = scoreEvent(hard, [...rooms, ex], ok(...rooms, ex), content, fc);
+    expect(s.people[0].points).toBe(6);
+  });
+
+  it("one practice room a day counts", () => {
+    const a = at(10, { contentKey: "ex:Zelenia" }), b = at(11, { contentKey: "ex:Zelenia" });
+    const s = scoreEvent(hard, [a, b], new Map<string, Review>([
+      [a.id, { verdict: "practice", note: null }], [b.id, { verdict: "practice", note: null }]]), content, fc);
+    expect(s.runs.map((r) => r.gave.get(1))).toEqual([1, 0]);
+    expect(s.runs[1].short.get(1)).toBe("practice");
+  });
+
+  it("a helper gets the room's points and the bonus, within the day's cap", () => {
+    const ul = at(10, { contentKey: "ult:x", who: [1, 9] });
+    const s = scoreEvent({ ...hard, dailyCap: 10 }, [ul], ok(ul), content, fc);
+    expect(s.runs[0].gave.get(1)).toBe(7);
+    expect(s.runs[0].gave.get(9)).toBe(6);
+    const two = [at(10, { contentKey: "ult:x" }), at(11, { contentKey: "ult:x" })];
+    const capped = scoreEvent(hard, two, ok(...two), content, fc);
+    expect(capped.runs.map((r) => r.gave.get(1))).toEqual([6, 4]);
+    expect(capped.runs[1].short.get(1)).toBe("day");
+  });
+
+  it("an event read before v331 scores as the defaults", () => {
+    expect(pointsOf({ kindPoints: DEFAULT_KIND_POINTS }, "ultimate")).toBe(6);
+    expect(pointsOf({ kindPoints: DEFAULT_KIND_POINTS }, "roulette")).toBe(1);
   });
 });
 

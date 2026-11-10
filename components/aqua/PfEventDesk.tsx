@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useAdmin } from "@/lib/admin";
 import { KIND_COLOR, KIND_LABEL, type ContentKind } from "@/lib/party";
 import {
-  DEFAULT_KINDS, PF_KINDS, bkkMidnight, fmtShortDay, fmtWhen,
+  DEFAULT_KINDS, DEFAULT_KIND_POINTS, PF_KINDS, POINT_DEFAULTS, PRACTICE_KINDS, bkkMidnight, pointsOf, fmtShortDay, fmtWhen,
   loadPfEvent, loadPfParties, phaseOf, savePfDraw, savePfEvent, savePfPublish, savePfReview, scoreEvent,
   type ContentInfo, type EventDraft, type PfEvent, type PfRun, type Review,
   type RunState, type Verdict,
@@ -34,6 +34,8 @@ type Tab = "review" | "board" | "all";
 const STATE_LABEL: Record<RunState, string> = {
   open: "ยังไม่จบ", ok: "ผ่าน", no: "ไม่ผ่าน", pending: "รอตรวจ", bare: "ยังไม่มีรูป",
 };
+const VERDICT_LABEL: Record<Verdict, string> = { ok: "ผ่าน", practice: "ฝึก", no: "ไม่ผ่าน" };
+const SHORT_LABEL = { easy: "ห้องทั่วไปครบโควต้าวันนี้", practice: "ห้องฝึกครบโควต้าวันนี้", day: "เต็มเพดานแต้มวันนี้" } as const;
 const STATE_TONE: Record<RunState, string> = {
   open: "border-accent/50 bg-accent/10 text-accent",
   ok: "border-jade/60 bg-jade/15 text-jade",
@@ -327,6 +329,14 @@ function ReviewList(
   );
 }
 
+/** "Extreme 3 · Savage 4 · … · อื่นๆ 1", the counted kinds worth more than 1, highest last. */
+export function pointsLine(ev: PfEvent): string {
+  const more = ev.kinds.filter((k) => pointsOf(ev, k) !== 1)
+    .sort((a, b) => pointsOf(ev, a) - pointsOf(ev, b))
+    .map((k) => `${KIND_LABEL[k]} ${pointsOf(ev, k)}`);
+  return [...more, "อื่นๆ 1"].join(" · ");
+}
+
 function Rules({ ev }: { ev: PfEvent }) {
   return (
     <details className="rounded-xl border border-line bg-card/60 px-4 py-2.5 text-ui text-muted">
@@ -334,9 +344,11 @@ function Rules({ ev }: { ev: PfEvent }) {
       <ul className="mt-1 list-disc space-y-1 pb-1 pl-5">
         <li>รูปห้องสุดท้าย / รับหีบสมบัติ / หรือห้องฝึกที่อยู่ในห้องเกิน {ev.practiceMinutes} นาที</li>
         <li>ดันที่เลเวลต่ำกว่า {ev.unsyncMinLevel} ต้องลงแบบ sync (unsync ไม่นับ)</li>
-        <li>ผ่าน 1 ห้อง = 1 แต้มทุกคนในปาร์ตี้ · สูงสุด {ev.dailyCap} แต้ม/คน/วัน (เวลาไทย)</li>
+        <li>แต้มต่อห้อง (ทุกคนในปาร์ตี้): {pointsLine(ev)}</li>
+        <li>ห้องฝึก (เนื้อหายาก ไม่เคลียร์ อยู่เกิน {ev.practiceMinutes} นาที) = {ev.practicePoints} แต้ม · นับ {ev.practiceCap} ห้อง/คน/วัน</li>
+        <li>ห้อง 1 แต้มนับได้ {ev.easyCap} ห้อง/คน/วัน · รวมไม่เกิน {ev.dailyCap} แต้ม/คน/วัน (เวลาไทย)</li>
         <li>นับวันตาม<b>เวลาจบห้อง</b> และห้องขึ้นให้ตรวจหลังเวลาจบเท่านั้น (หัวห้องกดจบ/สำเร็จ = จบเวลานั้น ไม่งั้นใช้เวลาเริ่ม + ระยะเวลาที่ตั้งไว้)</li>
-        <li>มีผู้เล่นใหม่ตามรายชื่อในปาร์ตี้ → คนอื่นในปาร์ตี้ (Helper) ได้ {ev.helperPoints} แต้ม</li>
+        <li>มีผู้เล่นใหม่ตามรายชื่อในปาร์ตี้ → คนอื่นในปาร์ตี้ (Helper) ได้ +{ev.helperBonus} แต้ม</li>
         <li>นับประเภท: {ev.kinds.map((k) => KIND_LABEL[k]).join(", ")}</li>
       </ul>
     </details>
@@ -359,6 +371,9 @@ function RunCard(
   const newbie = new Set(newbies);
   const color = run.kind ? KIND_COLOR[run.kind] : "var(--color-line)";
   const per = run.state === "ok" ? Math.max(0, ...run.gave.values()) : null;
+  const hard = !!run.kind && PRACTICE_KINDS.has(run.kind);
+  const clear = pointsOf(ev, run.kind);
+  const shorts = [...new Set(run.short.values())];
 
   const act = async (v: Verdict | null) => { setBusy(true); await onJudge(run, v); setBusy(false); };
 
@@ -374,6 +389,9 @@ function RunCard(
             <span className="text-meta text-muted">
               {run.kind ? KIND_LABEL[run.kind] : "?"}{run.level ? ` · Lv${run.level}` : ""}
             </span>
+            <span className="rounded border border-gold/40 px-1.5 font-data text-meta text-gold">
+              {hard ? `เคลียร์ ${clear} · ฝึก ${ev.practicePoints}` : `${clear} แต้ม`}
+            </span>
           </div>
           <div className="mt-0.5 text-meta text-muted">
             {fmtWhen(p.startsAt)} – จบ {fmtWhen(run.endsAt)}{p.endedAt ? " (หัวห้องกดจบ)" : ""} · หัวห้อง {lead?.name ?? p.members[0]?.name ?? "?"}
@@ -381,7 +399,7 @@ function RunCard(
           </div>
         </div>
         <span className={`shrink-0 rounded-full border px-2.5 py-0.5 text-meta font-medium ${STATE_TONE[run.state]}`}>
-          {STATE_LABEL[run.state]}{per != null && per > 0 ? ` · +${per}` : ""}
+          {run.state === "ok" && hard ? (run.practice ? "ฝึก" : "เคลียร์") : STATE_LABEL[run.state]}{per != null && per > 0 ? ` · +${per}` : ""}
         </span>
       </div>
 
@@ -391,7 +409,7 @@ function RunCard(
             <Flag tone="gold">⚠ Lv{run.level} ต่ำกว่า {ev.unsyncMinLevel} — ต้อง sync{run.flags.few ? ` · มี ${p.members.length} คน` : ""}</Flag>
           )}
           {run.flags.practice && <Flag tone="accent">ห้องฝึก — ดูว่าเกิน {ev.practiceMinutes} นาที</Flag>}
-          {run.flags.newbie && <Flag tone="jade">🌱 มีผู้เล่นใหม่ — Helper ได้ {ev.helperPoints} แต้ม</Flag>}
+          {run.flags.newbie && <Flag tone="jade">🌱 มีผู้เล่นใหม่ — Helper +{ev.helperBonus} แต้ม</Flag>}
           {run.flags.nameOnly > 0 && <Flag tone="muted">ไม่มีบัญชีในเว็บ {run.flags.nameOnly} คน (ไม่ได้แต้ม)</Flag>}
         </div>
       )}
@@ -408,10 +426,18 @@ function RunCard(
               <span className="max-w-[9rem] truncate">{m.name}</span>
               {id != null && newbie.has(id) && <span aria-label="ผู้เล่นใหม่">🌱</span>}
               {out && <span className="text-[10px] uppercase tracking-wide">นอก FC</span>}
-              {pts != null && <span className="font-data text-jade">+{pts}</span>}
+              {pts != null && (
+                <span className={`font-data ${pts > 0 ? "text-jade" : "text-muted"}`}
+                      title={id != null && run.short.has(id) ? SHORT_LABEL[run.short.get(id)!] : undefined}>
+                  +{pts}
+                </span>
+              )}
             </span>
           );
         })}
+        {shorts.length > 0 && (
+          <span className="w-full text-meta text-muted">บางคนได้น้อยลง: {shorts.map((k) => SHORT_LABEL[k]).join(" · ")}</span>
+        )}
         {!everyone && p.members.length > ROSTER && (
           <button type="button" onClick={() => setEveryone(true)}
                   className="rounded-full border border-line px-2.5 py-0.5 text-meta text-muted hover:text-ink">
@@ -445,7 +471,7 @@ function RunCard(
           <>
             <span className="text-meta text-muted">
               ตรวจได้หลังห้องจบ ({fmtWhen(run.endsAt)})
-              {run.verdict ? ` · ตัดสินไว้แล้ว: ${STATE_LABEL[run.verdict]} — จะนับเมื่อห้องจบ` : ""}
+              {run.verdict ? ` · ตัดสินไว้แล้ว: ${VERDICT_LABEL[run.verdict]} — จะนับเมื่อห้องจบ` : ""}
             </span>
             {compact && pics.length > 0 && (
               <button type="button" onClick={() => setZoom(0)}
@@ -456,7 +482,7 @@ function RunCard(
           </>
         ) : run.state === "ok" || run.state === "no" ? (
           <>
-            <span className="text-meta text-muted">ตัดสินแล้ว</span>
+            <span className="text-meta text-muted">ตัดสินแล้ว{run.verdict ? `: ${hard && run.verdict === "ok" ? "เคลียร์" : VERDICT_LABEL[run.verdict]}` : ""}</span>
             <button type="button" disabled={busy} onClick={() => void act(null)}
                     className="min-h-11 rounded-lg border border-line px-3 text-ui text-muted hover:text-ink">
               เปลี่ยนเป็นรอตรวจ
@@ -472,8 +498,14 @@ function RunCard(
           <>
             <button type="button" disabled={busy} onClick={() => void act("ok")}
                     className="min-h-11 flex-1 rounded-lg border border-jade bg-jade/20 px-4 text-ui font-medium text-jade hover:bg-jade/30 sm:flex-none">
-              ✓ ผ่าน
+              {hard ? `✓ เคลียร์ +${clear}` : `✓ ผ่าน +${clear}`}
             </button>
+            {hard && ev.hasPoints && (
+              <button type="button" disabled={busy} onClick={() => void act("practice")}
+                      className="min-h-11 flex-1 rounded-lg border border-accent bg-accent/15 px-4 text-ui font-medium text-accent hover:bg-accent/25 sm:flex-none">
+                ✓ ฝึก {ev.practiceMinutes} นาที+ +{ev.practicePoints}
+              </button>
+            )}
             <button type="button" disabled={busy} onClick={() => void act("no")}
                     className="min-h-11 flex-1 rounded-lg border border-chili/60 bg-chili/10 px-4 text-ui font-medium text-chili hover:bg-chili/20 sm:flex-none">
               ✕ ไม่ผ่าน
@@ -565,7 +597,12 @@ function Settings(
     : new Date(Date.parse(today) + 29 * 864e5).toISOString()));
   const [kinds, setKinds] = useState<ContentKind[]>(ev?.kinds ?? DEFAULT_KINDS);
   const [cap, setCap] = useState(ev?.dailyCap ?? 10);
-  const [helper, setHelper] = useState(ev?.helperPoints ?? 2);
+  const [helper] = useState(ev?.helperPoints ?? 2);
+  const [bonus, setBonus] = useState(ev?.helperBonus ?? POINT_DEFAULTS.helperBonus);
+  const [points, setPoints] = useState<Partial<Record<ContentKind, number>>>(ev?.kindPoints ?? DEFAULT_KIND_POINTS);
+  const [easyCap, setEasyCap] = useState(ev?.easyCap ?? POINT_DEFAULTS.easyCap);
+  const [pracPts, setPracPts] = useState(ev?.practicePoints ?? POINT_DEFAULTS.practicePoints);
+  const [pracCap, setPracCap] = useState(ev?.practiceCap ?? POINT_DEFAULTS.practiceCap);
   const [minLv, setMinLv] = useState(ev?.unsyncMinLevel ?? 80);
   const [mins, setMins] = useState(ev?.practiceMinutes ?? 15);
   const [fcOnly, setFcOnly] = useState(ev?.fcOnly ?? true);
@@ -592,6 +629,9 @@ function Settings(
     setBusy(true);
     const e = await onSave({
       title, startsAt, endsAt, kinds, dailyCap: cap, helperPoints: helper,
+      // Only the counted kinds that are not worth the plain 1, so the row stays small.
+      kindPoints: Object.fromEntries(kinds.map((k) => [k, points[k] ?? 1]).filter(([, v]) => v !== 1)),
+      easyCap, practicePoints: pracPts, practiceCap: pracCap, helperBonus: bonus,
       unsyncMinLevel: minLv, practiceMinutes: mins, fcOnly, newbies, drawCount: drawN,
     });
     setBusy(false);
@@ -603,7 +643,7 @@ function Settings(
     <label className="block text-ui text-muted">
       {label}
       <input type="number" inputMode="numeric" min={min} max={max} value={v}
-             onChange={(e) => set(Math.max(min, Math.min(max, Number(e.target.value) || min)))}
+             onChange={(e) => set(Math.max(min, Math.min(max, Number(e.target.value) || 0)))}
              className={field} />
     </label>
   );
@@ -640,9 +680,31 @@ function Settings(
           </div>
         </fieldset>
 
+        <fieldset className="rounded-lg border border-line p-3">
+          <legend className="px-1 text-ui text-muted">แต้มต่อห้อง (เคลียร์ / ผ่าน)</legend>
+          {ev && !ev.hasPoints && (
+            <p className="mb-2 text-meta text-gold">ต้องรัน v331 ก่อน ค่าในส่วนนี้ถึงจะบันทึกได้</p>
+          )}
+          <div className="grid grid-cols-2 gap-x-3 gap-y-2 sm:grid-cols-3">
+            {kinds.map((k) => (
+              <label key={k} className="flex min-h-11 items-center justify-between gap-2 rounded-lg border border-line bg-bg px-2.5 text-ui text-ink">
+                <span className="min-w-0 truncate">{KIND_LABEL[k]}</span>
+                <input type="number" inputMode="numeric" min={0} max={20} value={points[k] ?? 1}
+                       onChange={(e) => setPoints({ ...points, [k]: Math.max(0, Math.min(20, Number(e.target.value) || 0)) })}
+                       className="w-14 rounded border border-line bg-surface px-1.5 py-1 text-right font-data text-ink outline-none focus:border-accent" />
+              </label>
+            ))}
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {num(easyCap, setEasyCap, 0, 50, "จำนวนห้อง 1 แต้มที่นับ/คน/วัน")}
+            {num(pracPts, setPracPts, 0, 20, "แต้มของห้องฝึก")}
+            {num(pracCap, setPracCap, 0, 50, "จำนวนห้องฝึกที่นับ/คน/วัน")}
+          </div>
+        </fieldset>
+
         <div className="grid grid-cols-2 gap-3">
           {num(cap, setCap, 1, 100, "แต้มสูงสุด/คน/วัน")}
-          {num(helper, setHelper, 1, 10, "แต้ม Helper")}
+          {num(bonus, setBonus, 0, 10, "Helper ได้เพิ่ม (+แต้ม)")}
           {num(minLv, setMinLv, 1, 200, "unsync นับตั้งแต่ Lv")}
           {num(mins, setMins, 1, 600, "ห้องฝึกขั้นต่ำ (นาที)")}
           {num(drawN, setDrawN, 1, 100, "Lucky Draw กี่คน")}
@@ -653,7 +715,7 @@ function Settings(
         </div>
 
         <fieldset>
-          <legend className="text-ui text-muted">ผู้เล่นใหม่ใน FC (Helper ได้ {helper} แต้ม) · {newbies.length} คน</legend>
+          <legend className="text-ui text-muted">ผู้เล่นใหม่ใน FC (Helper +{bonus} แต้ม) · {newbies.length} คน</legend>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
             {newbies.map((id) => {
               const p = byId.get(id);

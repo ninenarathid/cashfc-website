@@ -190,7 +190,7 @@ export function Board({ s, ev }: { s: NonNullable<ReturnType<typeof scoreEvent>>
                       <div className="hidden text-meta text-muted sm:block">
                         {p.helped > 0 ? `ช่วยมือใหม่ ${p.helped} ห้อง` : ""}
                         {p.helped > 0 && p.raw > p.points ? " · " : ""}
-                        {p.raw > p.points ? `เกินเพดานวัน ${p.raw - p.points} แต้ม` : ""}
+                        {p.raw > p.points ? `เกินโควต้า/เพดาน ${p.raw - p.points} แต้ม` : ""}
                       </div>
                     )}
                   </div>
@@ -207,7 +207,7 @@ export function Board({ s, ev }: { s: NonNullable<ReturnType<typeof scoreEvent>>
         </ol>
       )}
       <p className="mt-2 text-meta text-muted">
-        แต้มนับเฉพาะห้องที่ “ผ่าน” · สูงสุด {ev.dailyCap} แต้ม/คน/วัน · {ev.fcOnly ? "คนนอก FC แสดงไว้ดูแต่ไม่รับรางวัล" : "คนนอก FC รับรางวัลได้"}
+        แต้มนับเฉพาะห้องที่ “ผ่าน” · ห้องยากได้มากกว่า · สูงสุด {ev.dailyCap} แต้ม/คน/วัน · {ev.fcOnly ? "คนนอก FC แสดงไว้ดูแต่ไม่รับรางวัล" : "คนนอก FC รับรางวัลได้"}
       </p>
     </div>
   );

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { KIND_LABEL } from "@/lib/party";
 import {
+  pointsOf,
   fmtShortDay, fmtWhen, loadPfEvent, loadPfParties, phaseOf, scoreEvent,
   type ContentInfo, type PfEvent, type PfParty, type Review, type RunState,
 } from "@/lib/pf-event";
@@ -20,6 +21,8 @@ import { Board, Face, Prizes } from "@/components/aqua/PfEventParts";
  */
 
 interface Person { id: number; name: string; face: string | null; fc: boolean }
+
+const SHORT = { easy: "ห้องทั่วไปครบโควต้าวันนั้น", practice: "ห้องฝึกครบโควต้าวันนั้น", day: "เต็มเพดานแต้มวันนั้น" } as const;
 
 const MINE: Record<RunState, { label: string; tone: string }> = {
   open: { label: "ยังไม่ถึงเวลาจบห้อง", tone: "border-accent/50 bg-accent/10 text-accent" },
@@ -147,10 +150,30 @@ export default function PfEventPublic(
         </ol>
         <ul className="mt-4 space-y-1 border-t border-line pt-3 text-ui text-muted">
           <li>⏱ เล่นจบแล้วหัวห้องกด “สำเร็จ” หรือจบห้องเลย ห้องจะขึ้นให้ตรวจทันที ถ้าไม่กด ต้องรอถึงเวลาจบที่ตั้งไว้</li>
-          <li>🌱 ลงกับผู้เล่นใหม่ใน FC ตามรายชื่อด้านล่าง คนที่ช่วย (Helper) ได้ {ev.helperPoints} แต้ม</li>
+          <li>🌱 ลงกับผู้เล่นใหม่ใน FC ตามรายชื่อด้านล่าง คนที่ช่วย (Helper) ได้เพิ่ม +{ev.helperBonus} แต้ม</li>
           <li>⚠ ดันเลเวลต่ำกว่า {ev.unsyncMinLevel} ต้องลงแบบปรับเลเวลลง (sync) ถ้าลงเลเวลเต็ม (unsync) นับเฉพาะดันเลเวล {ev.unsyncMinLevel} ขึ้นไป</li>
           <li>นับประเภท: {ev.kinds.map((k) => KIND_LABEL[k]).join(", ")}</li>
           <li>{ev.fcOnly ? "รางวัลเฉพาะสมาชิกใน FC (คนนอก FC ยังเห็นแต้มของตัวเอง)" : "ทุกคนรับรางวัลได้ ทั้งใน FC และนอก FC"}</li>
+        </ul>
+      </section>
+
+      <section className="mt-4 rounded-xl border border-gold/40 bg-card p-4 sm:p-5">
+        <h2 className="font-display text-title font-semibold text-ink">แต้มต่อห้อง</h2>
+        <p className="mt-0.5 text-ui text-muted">ห้องยากได้แต้มมากกว่า ทุกคนในปาร์ตี้ได้เท่ากัน</p>
+        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {[...ev.kinds].sort((a, b) => pointsOf(ev, b) - pointsOf(ev, a)).map((k) => (
+            <div key={k} className="flex min-h-11 items-center justify-between gap-2 rounded-lg border border-line bg-bg/40 px-3">
+              <span className="min-w-0 truncate text-ui text-ink">{KIND_LABEL[k]}</span>
+              <span className="shrink-0 font-data text-read font-semibold text-gold">
+                {pointsOf(ev, k)}
+              </span>
+            </div>
+          ))}
+        </div>
+        <ul className="mt-3 space-y-1 text-ui text-muted">
+          <li>• ห้อง 1 แต้ม นับได้ <b className="text-ink">{ev.easyCap} ห้อง/คน/วัน</b></li>
+          <li>• ห้องฝึก (เนื้อหายาก ยังไม่เคลียร์ อยู่ในห้องเกิน {ev.practiceMinutes} นาที) = {ev.practicePoints} แต้ม นับได้ <b className="text-ink">{ev.practiceCap} ห้อง/คน/วัน</b></li>
+          <li>• ช่วยผู้เล่นใหม่ 🌱 ได้เพิ่ม <b className="text-ink">+{ev.helperBonus}</b> · รวมไม่เกิน <b className="text-ink">{ev.dailyCap} แต้ม/คน/วัน</b></li>
         </ul>
       </section>
 
@@ -238,7 +261,8 @@ function Mine(
                   <span className="block text-meta text-muted">{fmtWhen(r.party.startsAt)}</span>
                 </span>
                 <span className={`shrink-0 rounded-full border px-2.5 py-0.5 text-meta ${MINE[r.state].tone}`}>
-                  {MINE[r.state].label}{r.state === "ok" && r.gave.get(me) ? ` · +${r.gave.get(me)}` : ""}
+                  {MINE[r.state].label}{r.state === "ok" ? ` · +${r.gave.get(me) ?? 0}` : ""}
+                  {r.state === "ok" && r.short.has(me) ? ` (${SHORT[r.short.get(me)!]})` : ""}
                 </span>
               </Link>
             </li>
