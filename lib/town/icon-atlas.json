@@ -1,8 +1,8 @@
 {
-  "image": "/town/icons-f3f325afa462.png",
+  "image": "/town/icons-4edae8d22bcc.png",
   "size": [
     256,
-    21720
+    21773
   ],
   "icons": {
     "mic": [
@@ -11230,6 +11230,12 @@
       21651,
       32,
       51
+    ],
+    "animalBook": [
+      2,
+      21722,
+      41,
+      49
     ]
   },
   "cursor": {

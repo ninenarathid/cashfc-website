@@ -1178,3 +1178,36 @@ work/out): `icons-special-dish-a`, `-dish-b` (the ten dishes; the sesame pudding
 `-pots-b` (`split`), and `icons-golden-dandelion-a2` (`fill`): 29 icons. The feast overlays are served as
 `public/town/town2/feast-golden-cloth-bd41b020.png` and `feast-cushions-01f9578f.png` (the hashes their content's), drawn
 by lib/town/town2-art with the hall's dining tables' and benches' own strips while laid.
+
+## The animal book's cover (2026-11-10, branch `animal-book`)
+
+The owner, of the village's animal book in the bag (its cover was the line's `cowBell`, out of place beside the drawn
+books): "วาดปกใหม่". One call, $0.0194 (`gpt-image-2.5-sunburst`, low, 1536x1024, drawn once); the ledger then stood at
+3,133 rows and $47.706 of $55. Prompt `prompts/icons/icons-animal-book-a.txt`, on the owner's ICON SHEET template with its
+closing sentence.
+
+- **The reference** is `work/out/ref-animal-book.png`: `fishBook` and `gardenNotebook` cut from the town's atlas and laid at
+  6x on a 1536x1024 canvas (scratch code), the barbel's sparkle star that `fishBook`'s cut carries left out. The prompt asks
+  every icon to be one thick closed book at those two books' three-quarter angle, spine at the left, page edges along the
+  lower and right sides, lit from the upper left, as large as they are.
+- **`icons-animal-book-a`**: four designs and the reference's two books drawn the same only to hold the size (`_` names):
+  a barn red cloth book with gold corners, a gold cow's head stamped on it and a small brass cow bell on a strap below it
+  (**packed as `animalBook`**); a cowhide book with a brown leather spine; a red book with a gold horseshoe and a feather
+  in its pages; a red book with a hoof print (it read as a coffee bean). The first was taken because it is the fish book's
+  own kind of cover (cloth, gold corners, a gold stamp of the line's animal) and keeps the line's cow bell; at the bag's
+  38 px its head and horns read, at the open book's 24 px it is a red book with a gold mark beside the blue fish book. The
+  cowhide is the plainest "animal" at the smallest sizes and the other choice (rename it in `build-icons.mjs`).
+- **Codex read the prompt first** (run 2026-11-10-05-00-16-art-37420): `send`, first try as written likely; its word for
+  after: compare the candidates at 22 and 38 px on the card's dark green, the book body as large as the fish and flower
+  books despite the bell.
+- **Which grid.** Measured freely 15.97 with its third fitting (5.32): cut on 5.33 (`range: [5.25, 5.4]`), crisp; on 8 the
+  outline went jagged. `animalBook` is 41x49 (the bell adds the lower rows); the bag draws its longer side at 38, so the
+  book body stands about 32 px, between the fish book's and the farm book's.
+- **Into the atlas** with `ICONS_ONLY=icons-animal-book-a ICONS_APPEND=1` and the worktree's `ICONS_PUB`/`ICONS_JSON`;
+  `components/town/TownAnimalBook` passes `icon="animalBook"`.
+- **Checks**: `work/specials/js/bugcheck.mjs` on all four designs: one piece each, no hole, no half-clear cell. It also
+  found two faults in the covers already live, not touched here: `fishBook` carries the mistveil barbel's sparkle star as a
+  37-cell piece apart at its upper left (its sheet's fifth icon cut into its column), and `gardenNotebook` (from
+  `icons-garden.png`, drawn outside gen.mjs) has 838 half-clear cells and a one-cell hole.
+- **In the game**: `scripts/town-animal-book.mjs` (51 PASS) at 1280x860, 384x730 and 360x640, the bag's books and the open
+  book's header, with the covers at 1x and 4x as the bag draws them.

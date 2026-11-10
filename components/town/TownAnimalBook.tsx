@@ -128,5 +128,5 @@ export default function TownAnimalBook({ world, purse, me, th }: { world: Pick<A
     ...(p.seen ? { searchText: `${p.breed.name.th} ${p.breed.name.en}` } : {}),
     body: <Page p={p} me={me} ids={ids} found={found} all={all} th={th} />,
   }));
-  return <div data-animal-book><TownNotebook title={th ? "สมุดเลี้ยงสัตว์ของหมู่บ้าน" : "The village's animal book"} th={th} icon="cowBell" entries={entries} /></div>;
+  return <div data-animal-book><TownNotebook title={th ? "สมุดเลี้ยงสัตว์ของหมู่บ้าน" : "The village's animal book"} th={th} icon="animalBook" entries={entries} /></div>;
 }

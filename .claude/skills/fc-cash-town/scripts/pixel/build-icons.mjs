@@ -581,6 +581,11 @@ const SHEETS = [
   // (the golden dandelion, the dandelion lamb's seed sown: its two looks growing and the flower picked, at a crop's size; `a2`, the
   // round the owner passed; `fill` closes three see-through specks of 1 to 2 cells)
   ["icons-golden-dandelion-a2", ["growGoldenDandelionA", "growGoldenDandelionB", "goldenDandelion", "_growMarigoldA", "_growMarigoldB", "_marigold"], { range: [5.15, 5.45], fill: true }],
+  // (the village's animal book's cover in the bag, 2026-11-10, the owner: "วาดปกใหม่" to sit beside the farm and fish books:
+  // four designs drawn with the fish and flower books for the reference, the first packed (a barn red cloth, a gold cow's
+  // head stamped, a small brass cow bell on a strap); the cowhide, horseshoe and hoof print are the other choices, and the
+  // last two are the reference's books drawn only to hold the size. Cut on its own grid, 5.33: on 8 jagged)
+  ["icons-animal-book-a", ["animalBook", "_animalBookHide", "_animalBookShoe", "_animalBookHoof", "_fishBook", "_gardenNotebook"], { range: [5.25, 5.4] }],
 ];
 
 const ONLY = process.env.ICONS_ONLY?.split(",").map((s) => s.trim()).filter(Boolean);
