@@ -382,7 +382,9 @@ animals past four live, "ข ดีกว่า ทำเลย": the barn keeps
   open, and back. Its fence is a wall to the walking (`barnWall`); nothing stands in a built yard (its bushes, behind
   barns 6, 7, 9, 10, 11, 17, 19, 21, 22 and 23, are not drawn and their tiles are open while it stands). No pinned thing
   is in any yard at 16 (eggs, forage, lamps, benches, wells, chests, fires); one haunt of the insects (30, behind barn 14)
-  has perches there, reached by the gate (lib/town/barn-yard.test).
+  has perches there, reached by the gate (lib/town/barn-yard.test). The first farm (the backup) has no yards: it has
+  no fence of the map's to draw one with, and Codex found the walls would stand unseen; its barns past four house them
+  on the floor, two rows of four, sharing past eight.
 - **Where they stand** (`barnSpots`, `floorOf`): up to 4 on the floor as before; at 8, the floor's 4 and the yard's 4 in
   one row; at 16, the floor's 8 in two rows and the yard's 8 in two rows; in the six short barns at 16 the yard keeps
   its one row of 4 and the floor houses 12 in three rows (two rows in a yard two deep looked crowded in the shots, and

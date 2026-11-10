@@ -25,8 +25,8 @@ for (const map of ["farm2", "classic"] as const) {
 
     it("is two rows deep at 8 and as deep as the ground behind allows at 16, the six short barns two", () => {
       expect(P.yardRowsOf(5, 4)).toBe(0);
-      expect(P.yardRowsOf(5, 8)).toBe(2);
-      expect(P.yardRowsOf(5, 16)).toBe(4);
+      expect(P.yardRowsOf(5, 8)).toBe(map === "farm2" ? 2 : 0);
+      expect(P.yardRowsOf(5, 16)).toBe(map === "farm2" ? 4 : 0);
       for (const i of [0, 1, 2, 3, 14, 15]) expect(P.yardRowsOf(i, 16), `barn ${i + 1}`).toBe(map === "farm2" ? 2 : P.YARD_MOST[i]);
       if (map !== "farm2") return;
       // (the table is the map's: every row of a yard at its most is ground of the pasture, not a lane; past it, for the six
@@ -43,6 +43,8 @@ for (const map of ["farm2", "classic"] as const) {
     });
 
     it("is walked into only through its gate, from the strip beside the barn, and the barn's back wall stays a wall", () => {
+      // (the first farm has none: no fence of the map's to draw one with, so no wall nobody sees)
+      if (map !== "farm2") { P.setYards(all16()); expect(P.yardsNow().size).toBe(0); expect(P.barnWall(P.BARNS[5].x - 1, P.BARNS[5].y - 1, P.BARNS[5].x, P.BARNS[5].y - 1)).toBe(false); P.setYards([]); return; }
       P.setYards(all16());
       try {
         for (const b of P.BARNS) {
@@ -80,9 +82,10 @@ for (const map of ["farm2", "classic"] as const) {
       for (const b of P.BARNS) for (const room of [2, 4, 8, 16]) {
         const spots = P.barnSpots(b, room), rows = P.yardRowsOf(b.i, room);
         P.setYards([{ barn: b.i, room }]);
-        expect(spots.length).toBe(room);
+        // (on the first farm, no yard: the floor's eight places, shared past eight)
+        expect(spots.length).toBe(map === "farm2" ? room : Math.min(room, 8));
         expect(spots.filter((p) => !p.yard).length).toBe(P.floorOf(b.i, room));
-        expect(spots.filter((p) => p.yard).length).toBe(room <= 4 ? 0 : room === 8 || rows < 4 ? 4 : 8);
+        expect(spots.filter((p) => p.yard).length).toBe(room <= 4 || map !== "farm2" ? 0 : room === 8 || rows < 4 ? 4 : 8);
         for (const [i, p] of spots.entries()) {
           if (p.yard) { expect(P.yardAt(p.at.x, p.at.y), `barn ${b.i + 1} at ${room}: place ${i}`).toBe(b.i); expect(P.yardAt(p.tray.x, p.tray.y)).toBe(b.i); expect(p.at.y).toBeGreaterThan(b.y - rows); }
           else { expect(P.barnAt(p.at.x, p.at.y)).toBe(b.i); expect(p.trayYard ? P.yardAt(p.tray.x, p.tray.y) : P.barnAt(p.tray.x, p.tray.y)).toBe(b.i); }
@@ -102,7 +105,7 @@ for (const map of ["farm2", "classic"] as const) {
       try {
         for (const b of P.BARNS.filter((_, i) => i % 5 === 0)) for (let slot = 0; slot < 16; slot++) for (const now of [T, night]) {
           const s = P.animalSpot({ id: `cow-${b.i}-${slot}`, species: "cow", young: false }, b.i, slot, door, now, undefined, 16);
-          const yard = P.barnSpots(b, 16)[slot].yard;
+          const sp = P.barnSpots(b, 16), yard = sp[slot % sp.length].yard;
           expect(yard ? P.yardAt(s.x, s.y) : P.barnAt(s.x, s.y), `barn ${b.i + 1} slot ${slot}`).toBe(b.i);
           expect(s.inside).toBe(yard ? -1 : b.i);
         }

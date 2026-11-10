@@ -142,8 +142,9 @@ export function barnWall(ax: number, ay: number, bx: number, by: number): boolea
  */
 export const YARD_MOST: readonly number[] = F2
   ? [2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4]
-  // (the first map: four rows behind every row but the first, which has the rim's trees, and the fourth, which has the meadow)
-  : [2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4];
+  // (the first farm, the backup, has no yards: it has no fence of the map's to draw one with, and a fence nobody sees
+  // would be a wall nobody sees (Codex); its barns past four house them on their floor, two rows, sharing past eight)
+  : Array.from({ length: 24 }, () => 0);
 /** How many rows deep a barn's yard is at a room: none to four, two at eight, all it may at sixteen. */
 export const yardRowsOf = (barn: number, room: number) => (room >= 16 ? YARD_MOST[barn] ?? 0 : room >= 8 ? Math.min(2, YARD_MOST[barn] ?? 0) : 0);
 /** The yards built now, barn to rows deep: laid from the herds (`setYards`) by whoever draws the farm, read by the walking. */
@@ -204,7 +205,7 @@ const places = new Map<string, BarnSpot[]>();
  */
 export const floorOf = (barn: number, room: number) => {
   const rows = yardRowsOf(barn, room);
-  if (!rows) return Math.min(4, Math.max(1, room));
+  if (!rows) return room <= 4 ? Math.max(1, room) : 8;
   return room >= 16 ? (rows < 4 ? 12 : 8) : 4;
 };
 export function barnSpots(barn: BarnPlace, room: number): BarnSpot[] {
@@ -230,7 +231,7 @@ export function barnSpots(barn: BarnPlace, room: number): BarnSpot[] {
         tray: row < 2 ? tray(barn.x + 0.5 + c * 2 + row, barn.y + 0.5) : tray(barn.x + 1.5 + c * 2, barn.y - rows + 0.5), yard: false, near: row === 0, trayYard: row >= 2 });
     }
   }
-  const inYard = room - onFloor, y0 = barn.y - rows, two = inYard > 4;
+  const inYard = rows > 0 ? room - onFloor : 0, y0 = barn.y - rows, two = inYard > 4;
   for (let k = 0; k < inYard; k++) {
     // (the row nearer the barn, by its back wall, keeps clear of the gate's tile in the yard's east corner: it stands a
     // little to the west, the back row a little to the east; a row a tile from the back fence, the next nearer the barn,
@@ -798,7 +799,7 @@ export const allWays = () => [
   ...PATCHES.flatMap((_, a) => PATCHES.map((__, b) => (a === b ? null : patchToPatch(a, b))).filter((w): w is P[] => !!w)),
 ];
 /** For the tests: every way out of a barn of so many to each patch, by its place (the floor's through the door, the yard's through its gate). */
-export const waysOut = (room: number) => BARNS.flatMap((b) => Array.from({ length: room }, (_, s) => ({ barn: b.i, slot: s, yard: barnSpots(b, room)[s].yard, pts: PATCHES.map((_, p) => stallToPatch(b, s, p, room)) })));
+export const waysOut = (room: number) => BARNS.flatMap((b) => { const sp = barnSpots(b, room); return Array.from({ length: room }, (_, s) => ({ barn: b.i, slot: s, yard: sp[s % sp.length].yard, pts: PATCHES.map((_, p) => stallToPatch(b, s, p, room)) })); });
 export const PATCH_AREAS = () => PATCHES.map((p) => ({ kind: p.kind, area: p.area, anchor: p.anchor }));
 /** For the tests: the roams of the garden's blocks for so many animals and stretches, each from its anchor and back to it. */
 export const gardenRoams = (seeds: readonly number[], ks: readonly number[], n = 50) =>
