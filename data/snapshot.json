@@ -2267,7 +2267,7 @@
   "mounts": 49,
   "minions": 115,
   "rare": null,
-  "level": 93,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2297,7 +2297,7 @@
    "Dancing Mad",
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-11-08"
+  "chg": "2026-11-10"
  },
  "50821570": {
   "name": "Haruki Mizumoto",
@@ -2306,7 +2306,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 60,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2353,7 +2353,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-04"
+  "chg": "2026-11-10"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -3856,7 +3856,7 @@
   "mounts": 76,
   "minions": 137,
   "rare": 62,
-  "level": 88,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3957,7 +3957,7 @@
    "The Omega Protocol",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-11-09"
+  "chg": "2026-11-10"
  },
  "9444020": {
   "name": "Non Elemental",
@@ -6582,7 +6582,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 96,
-  "level": 100,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -6703,7 +6703,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-07"
+  "chg": "2026-11-10"
  },
  "60619924": {
   "name": "Gotnogod Soluna",
@@ -6881,7 +6881,7 @@
   "mounts": 67,
   "minions": 120,
   "rare": 8,
-  "level": 70,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6910,7 +6910,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-08"
+  "chg": "2026-11-10"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -6949,7 +6949,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 64,
+  "level": 65,
   "cc": [
    false,
    false,
@@ -6962,7 +6962,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-08"
+  "chg": "2026-11-10"
  },
  "53933347": {
   "name": "Little Alyss",
@@ -8479,7 +8479,7 @@
   "mounts": 81,
   "minions": 158,
   "rare": 18,
-  "level": 70,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -8519,7 +8519,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-08"
+  "chg": "2026-11-10"
  },
  "15932791": {
   "name": "Yuziris Andra'nov",
@@ -8657,7 +8657,7 @@
   "mounts": 17,
   "minions": 42,
   "rare": null,
-  "level": 100,
+  "level": 68,
   "cc": [
    false,
    false,
@@ -8670,7 +8670,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-08"
+  "chg": "2026-11-10"
  },
  "49053650": {
   "name": "Eniluna Gelatoneii",
@@ -8744,7 +8744,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 65,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8757,7 +8757,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-09"
+  "chg": "2026-11-10"
  },
  "45513833": {
   "name": "Isildur One",
@@ -8788,7 +8788,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 96,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -8808,7 +8808,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-09"
+  "chg": "2026-11-10"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -8983,7 +8983,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 100,
+  "level": 62,
   "cc": [
    false,
    false,
@@ -8999,7 +8999,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-07"
+  "chg": "2026-11-10"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -9037,7 +9037,7 @@
   "mounts": 30,
   "minions": 66,
   "rare": null,
-  "level": 25,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -9050,7 +9050,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-09"
+  "chg": "2026-11-10"
  },
  "61489984": {
   "name": "Poly Umami",
@@ -9059,7 +9059,7 @@
   "mounts": 85,
   "minions": 178,
   "rare": null,
-  "level": 78,
+  "level": 81,
   "cc": [
    false,
    false,
@@ -9103,7 +9103,7 @@
   "mounts": 7,
   "minions": 24,
   "rare": 0,
-  "level": 82,
+  "level": 83,
   "cc": [
    false,
    false,
@@ -9116,7 +9116,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-08"
+  "chg": "2026-11-10"
  },
  "31685121": {
   "name": "Squid Girls",
@@ -10026,7 +10026,7 @@
   "mounts": 25,
   "minions": 115,
   "rare": null,
-  "level": 67,
+  "level": 68,
   "cc": [
    false,
    false,
@@ -10042,7 +10042,7 @@
   },
   "ex": [],
   "ults": [],
-  "chg": "2026-11-08"
+  "chg": "2026-11-10"
  },
  "30863840": {
   "name": "Aui Aye",
@@ -12184,7 +12184,7 @@
   "mounts": 32,
   "minions": 95,
   "rare": null,
-  "level": 97,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -12197,7 +12197,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-07"
+  "chg": "2026-11-10"
  },
  "16173247": {
   "name": "Haru Luminous",
@@ -16122,7 +16122,7 @@
   "mounts": 25,
   "minions": 69,
   "rare": null,
-  "level": 66,
+  "level": 68,
   "cc": [
    true,
    true,
@@ -16139,7 +16139,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-08"
+  "chg": "2026-11-10"
  },
  "29864090": {
   "name": "Scylla Melfrey",

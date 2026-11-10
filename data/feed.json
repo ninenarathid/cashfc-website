@@ -1,6 +1,48 @@
 {
  "events": [
   {
+   "date": "2026-11-10",
+   "type": "level_100",
+   "id": 12478532,
+   "name": "Hakuryu Flare",
+   "text": "reached level 100 on Reaper!"
+  },
+  {
+   "date": "2026-11-10",
+   "type": "level_100",
+   "id": 50821570,
+   "name": "Haruki Mizumoto",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
+   "date": "2026-11-10",
+   "type": "level_100",
+   "id": 5644067,
+   "name": "Ninenine Everdark",
+   "text": "reached level 100 on Ninja!"
+  },
+  {
+   "date": "2026-11-10",
+   "type": "level_100",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-11-10",
+   "type": "level_100",
+   "id": 42845691,
+   "name": "Yuukizuz Akino",
+   "text": "reached level 100 on Pictomancer!"
+  },
+  {
+   "date": "2026-11-10",
+   "type": "level_100",
+   "id": 61014734,
+   "name": "Hanna Doss",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
    "date": "2026-11-09",
    "type": "level_100",
    "id": 42948817,
@@ -1357,48 +1399,6 @@
    "id": 36248712,
    "name": "Boom Astraea",
    "text": "is now a Master White Mage"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "job_up",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "is now a Master Gunbreaker"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "job_up",
-   "id": 47221226,
-   "name": "Destiny Marjory",
-   "text": "is now a Legendary Samurai"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "parse_up",
-   "id": 39199441,
-   "name": "Dodoco Chocodoco",
-   "text": "set a new best parse: 92 on Honey B. Lovely as Dragoon"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "level_100",
-   "id": 28120733,
-   "name": "Fukurou Under",
-   "text": "reached level 100 on Warrior!"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "job_up",
-   "id": 12478532,
-   "name": "Hakuryu Flare",
-   "text": "is now a Legendary Monk"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "job_up",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "is now a Master Summoner"
   }
  ]
 }
