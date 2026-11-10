@@ -22,7 +22,8 @@ const SKY: Record<Sky, { icon: IconName; th: string; en: string }> = {
   sun: { icon: "noon", th: "แมลงกลางวัน", en: "a day pollinator" }, moon: { icon: "night", th: "แมลงกลางคืน", en: "a night pollinator" },
   mist: { icon: "timeMist", th: "แมลงในหมอกรุ่ง", en: "a dawn-mist pollinator" },
 };
-const CHIP = "inline-flex min-h-7 items-center gap-1 rounded border border-[#bda578] bg-[#f0dfb6] px-2 text-meta text-[#4a3520]";
+/** A word in a little parchment box, as every village book has it (the animal book takes it too). */
+export const CHIP = "inline-flex min-h-7 items-center gap-1 rounded border border-[#bda578] bg-[#f0dfb6] px-2 text-meta text-[#4a3520]";
 const name = (id: string, th: boolean) => ITEMS[id as keyof typeof ITEMS]?.name[th ? "th" : "en"] ?? id;
 const Icon = ({ id, size = 24, shade = false }: { id: string; size?: number; shade?: boolean }) =>
   <TownIcon name={id as IconName} size={size} className={shade ? "brightness-0 opacity-50" : ""} />;

@@ -26,8 +26,8 @@ export const PLACE_WORD: Record<Place, [string, string]> = { garden: ["แปล
 const SKY_ICON = { rain: "waterRain", wind: "fxLeaves" } as Record<"rain" | "wind", IconName>;
 const SKY_WORD = { rain: ["ฝน", "rain"], wind: ["ลมแรง", "strong wind"] } as const;
 
-/** A habit in a picture and a few words: what the book tells whoever has found its special three times. */
-export function HabitTold({ habit, th }: { habit: Habit; th: boolean }) {
+/** A habit in a picture and a few words: what the book tells whoever has found its special three times. `ink`: its words' colour (gold on the panels' dark; the bag's notebook, of parchment, gives its own). */
+export function HabitTold({ habit, th, ink = "text-gold" }: { habit: Habit; th: boolean; ink?: string }) {
   const t = (a: string, b: string) => (th ? a : b);
   const [icon, words]: [IconName | ItemId, string] = habit.kind === "time" ? [bandOfIndex(habit.band).icon as IconName, t(`ออกนอกโรงช่วง ${hours(habit.band)}`, `out ${hours(habit.band)}`)]
     : habit.kind === "place" ? [PLACE_ICON[habit.place], habit.place === "barn" ? t("อยู่ในโรงทั้งรอบ", "in the barn all round") : t(`ไป${PLACE_WORD[habit.place][0]}`, `goes to ${PLACE_WORD[habit.place][1]}`)]
@@ -38,7 +38,7 @@ export function HabitTold({ habit, th }: { habit: Habit; th: boolean }) {
   return (
     <span className="inline-flex items-center gap-1.5" data-habit-told={habit.kind}>
       {habit.kind === "food" ? <ItemIcon id={icon as ItemId} size={20} /> : <TownIcon name={icon as IconName} size={20} />}
-      <span className="text-label text-gold">{words}</span>
+      <span className={`text-label ${ink}`}>{words}</span>
     </span>
   );
 }

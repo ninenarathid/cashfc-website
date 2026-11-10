@@ -7,7 +7,9 @@ import styles from "./TownAdventure.module.css";
 
 export interface NotebookEntry { key: string; title: string; searchText?: string; icon?: IconName; category?: string; body: ReactNode;
   /** Its picture as a dark silhouette (something not found yet). */
-  shade?: boolean }
+  shade?: boolean;
+  /** A picture of its own in place of `icon`, drawn at the size asked (the animal book's breeds, which are no icons). */
+  picture?: (size: number) => ReactNode }
 
 /** Only supplied discoveries are rendered; this component never imports hidden rules. */
 export default function TownNotebook({ title, entries, th, icon = "wellBook", initiallyOpen = false, first, onClose, compact = false, cover: withCover = true }: {
@@ -51,13 +53,13 @@ export default function TownNotebook({ title, entries, th, icon = "wellBook", in
       <div className={styles.spread}>
         <nav className={styles.index} aria-label={th ? "สารบัญสมุด" : "Notebook contents"}>
           {shown.slice(indexStart, indexStart + 10).map((e, i) => <button key={e.key} type="button" aria-pressed={current === indexStart + i} onClick={() => setPage(indexStart + i)}>
-            {e.icon && <TownIcon name={e.icon} size={22} className={shadeCls(e)}/>}<span>{e.title}</span>
+            {e.picture ? e.picture(22) : e.icon && <TownIcon name={e.icon} size={22} className={shadeCls(e)}/>}<span>{e.title}</span>
           </button>)}
           {shown.length > 10 && <div className={styles.indexPager}><button type="button" disabled={!indexStart} onClick={() => setPage(indexStart - 10)} aria-label={th ? "สารบัญหน้าก่อน" : "Previous contents page"}>←</button><span>{indexStart + 1}–{Math.min(indexStart + 10, shown.length)} / {shown.length}</span><button type="button" disabled={indexStart + 10 >= shown.length} onClick={() => setPage(indexStart + 10)} aria-label={th ? "สารบัญหน้าถัดไป" : "Next contents page"}>→</button></div>}
         </nav>
         <article className={styles.leaf}>
           <div key={entry?.key ?? "empty"} className={styles.turn} data-notebook-page={entry?.key}>
-            <div className={styles.leafHeading}>{entry?.icon && <TownIcon name={entry.icon} size={48} className={shadeCls(entry)}/>}<h4 className="font-display">{entry?.title ?? (search ? th ? "ไม่พบรายการที่ค้นหา" : "No matching entries" : th ? "หน้าที่ยังว่าง" : "An unwritten page")}</h4></div>
+            <div className={styles.leafHeading}>{entry?.picture ? entry.picture(48) : entry?.icon && <TownIcon name={entry.icon} size={48} className={shadeCls(entry)}/>}<h4 className="font-display">{entry?.title ?? (search ? th ? "ไม่พบรายการที่ค้นหา" : "No matching entries" : th ? "หน้าที่ยังว่าง" : "An unwritten page")}</h4></div>
             <div className={styles.leafBody}>{entry?.body ?? <p>{search ? th ? "ลองเปลี่ยนคำค้นหรือเลือกหมวดอื่น" : "Try another search or category." : th ? "สิ่งที่พบระหว่างเดินทางจะถูกจดไว้ในสมุดนี้" : "Discoveries along your journey will be written here."}</p>}</div>
           </div>
           <footer className={styles.bookFoot}>

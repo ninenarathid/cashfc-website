@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import type { Keeper } from "@/lib/town/keeper";
 import {
-  ANIMALS, BREEDS, DAWN_BOOSTS, GRAPH, LETTERS, OFFERINGS, OFFERING_KINDS, SPECIES, SPECIES_IDS, STAT_IDS, adultAt, breedAt, breedOf, careOf, childRange, crossOf, feeOf,
+  ANIMALS, DAWN_BOOSTS, GRAPH, OFFERINGS, OFFERING_KINDS, SPECIES, SPECIES_IDS, STAT_IDS, adultAt, breedAt, breedOf, careOf, childRange, crossOf, feeOf,
   dayOf, freeHome, gives, kindOf, knowsOffering, mayCare, nextStage, scrollOf, sellBackOf, stageOf, statOf, stepKey, stepsOf, untendedOf, usedOf,
   type Animal, type Herd, type Sex, type SpeciesId, type Stats, bodyOf, rearRange } from "@/lib/town/animals";
 import { ANIMAL_GIFTS, POPOTO_SHOP, RENAME_TAG, TOOL_OF, bookOf, feedHours, growFor, viewOf, type AnimalInput, type AnimalReply, type AnimalWhy, type AnimalWorld } from "@/lib/town/animal-act";
@@ -17,10 +17,10 @@ import { matchPoints } from "@/lib/town/special-uses";
 import type { SceneryKit } from "@/lib/town/scenery";
 import { Coins, ItemIcon, Pic } from "./TownTrade";
 import { QualityRange } from "./TownQuality";
-import { animalK, animalPicture, animalSize, drawAnimal } from "./pasture-draw";
+import { AnimalPic } from "./AnimalPic";
 import type { Sprite } from "@/lib/town/scenery";
-import { CARE, SPECIAL, careScore, knowsHabit, sizeGrade, specialOf } from "@/lib/town/specials";
-import { specialsFoundOf } from "@/lib/town/animal-act";
+import { CARE, SPECIAL, careScore, sizeGrade, specialOf } from "@/lib/town/specials";
+import { breedsFound, specialPage, speciesPages, towardsHabit, type SpecialPage } from "@/lib/town/animal-book";
 import { HabitTold, KIND_ICON, KIND_WORD, RoundStrip } from "./TownRound";
 import TownIcon from "./TownIcon";
 
@@ -90,32 +90,8 @@ const ctxOf = (world: AnimalWorld, owner: string, purse: Purse, me: string) => {
 };
 const artStage = (a: Animal, now: number) => { const st = stageOf(a, now); return (st === "coming" ? "baby" : st) as "baby" | "young" | "adult"; };
 
-/** A little picture of an animal: its own (the pasture's sheet), or its stand-in drawn the same as on the map. */
-export function AnimalPic({ species, breed, stage, size = 48, kit, dark = false, pose = "idle", sex }: { species: SpeciesId; breed: string; stage: "baby" | "young" | "adult"; size?: number; kit: SceneryKit | null; dark?: boolean; pose?: "idle" | "sleep"; sex?: Sex }) {
-  const ref = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    const cv = ref.current;
-    if (!cv) return;
-    const dpr = typeof window === "undefined" ? 1 : window.devicePixelRatio || 1;
-    cv.width = Math.round(size * dpr); cv.height = Math.round(size * dpr);
-    const ctx = cv.getContext("2d");
-    if (!ctx) return;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, size, size);
-    ctx.imageSmoothingEnabled = false;
-    // (sized to the box by its longer side: a picture at a whole number of the screen's pixels to one of its own where it
-    // fits, so its pixels stay square; a stand-in as before)
-    const box = animalSize(kit, { species, breed, stage, sex });
-    const art = animalPicture(kit, { species, breed, stage, right: true, sex }, pose), k = art ? animalK(species, art.name) : 0.6;
-    let s = Math.min(2.6, (size * 0.8) / Math.max(18, box.w * 1.15));
-    if (art && kit) { const [w, h] = kit.sizeOf(art.name), fit = (size * 0.88) / Math.max(w, h); s = (fit >= 1 ? Math.min(3, Math.floor(fit)) : fit) / k; }
-    drawAnimal(ctx, kit, { species, breed, stage, pose, right: true, sex }, { x: size / 2, y: size * 0.93 }, s, dpr, 0, true);
-    // (a breed not found yet: a solid silhouette, its outline alone and nothing of its look; the owner, 2026-10-20,
-    // "ถ้ายังไม่ปลดล็อคช่วยทำเป็นเงาทึบไว้ก่อน ไม่บอกหน้าตา")
-    if (dark) { ctx.globalCompositeOperation = "source-atop"; ctx.fillStyle = "#3a4256"; ctx.fillRect(0, 0, size, size); ctx.globalCompositeOperation = "source-over"; }
-  }, [species, breed, stage, size, kit, dark, pose, sex]);
-  return <canvas ref={ref} aria-hidden className="shrink-0" style={{ width: size, height: size, imageRendering: "pixelated" }} />;
-}
+/** A little picture of an animal (its own file, so that the bag's animal book draws it too). */
+export { AnimalPic };
 
 function Heart({ on, size = 14 }: { on: boolean; size?: number }) {
   return (
@@ -1105,16 +1081,17 @@ function Book({ th, purse, world, kit, nameOf, me, busy, act }: Common) {
   // (a breed's scroll is known once it is read, as the database has it: holding one is not reading it)
   const book = bookOf(purse), recipes = purse.recipes as string[];
   const [sp, setSp] = useState<SpeciesId>("chicken");
-  const found = Object.keys(world.found).length;
+  // (the pages, and how many breeds the village has: lib/town/animal-book, which the bag's book reads too)
+  const { found, all } = breedsFound(world), pages = speciesPages(world, purse, sp);
   return (
     <div data-animals-book>
-      <p className="text-meta text-muted">{t(`หมู่บ้านพบแล้ว ${found + SPECIES_IDS.length}/${BREEDS.length} พันธุ์ · ทุกชนิดใช้สูตรเดียวกัน แต่ของเซ่นต่างกัน`, `The village has found ${found + SPECIES_IDS.length}/${BREEDS.length} breeds · one ladder for every kind, its own offerings`)}</p>
+      <p className="text-meta text-muted">{t(`หมู่บ้านพบแล้ว ${found}/${all} พันธุ์ · ทุกชนิดใช้สูตรเดียวกัน แต่ของเซ่นต่างกัน`, `The village has found ${found}/${all} breeds · one ladder for every kind, its own offerings`)}</p>
       <div role="tablist" className="mt-2 flex flex-wrap gap-1.5">
         {SPECIES_IDS.map((s) => <button key={s} type="button" role="tab" aria-selected={sp === s} onClick={() => setSp(s)} className={`pressable min-h-11 rounded-full border px-3 text-ui ${sp === s ? "border-accent bg-accent/15 font-semibold text-accent" : "border-line-strong text-ink"}`}>{SPECIES[s].name[th ? "th" : "en"]}</button>)}
       </div>
       <ul className="mt-3 grid grid-cols-2 gap-2">
-        {LETTERS.map((L) => {
-          const b = breedAt(sp, L), f = world.found[b.id], seen = L === "A" || !!f, g = GRAPH.find((x) => x.child === L);
+        {pages.map(({ breed: b, seen, first: f }) => {
+          const L = b.letter, g = GRAPH.find((x) => x.child === L);
           const known = g ? knowsOffering(book, recipes, sp, L) : false, misses = book.misses[stepKey(sp, L)] ?? 0;
           return (
             <li key={L} className="rounded-xl border border-line bg-bg/50 p-2" data-book={b.id} data-found={seen}>
@@ -1142,7 +1119,7 @@ function Book({ th, purse, world, kit, nameOf, me, busy, act }: Common) {
       {/* (each bred breed's special, a row of the whole width: lib/town/specials) */}
       <H3>{t("ของพิเศษ · นิสัย", "Specials · habits")}</H3>
       <ul className="grid gap-1.5" data-book-specials>
-        {LETTERS.filter((L) => L !== "A").map((L) => <BookSpecial key={L} breed={breedAt(sp, L).id} th={th} purse={purse} world={world} nameOf={nameOf} />)}
+        {pages.map((p) => p.special && <BookSpecial key={p.breed.id} letter={p.breed.letter} page={p.special} th={th} nameOf={nameOf} />)}
       </ul>
       <p className="mt-2 text-label text-muted">{t(`อักษร A–H คือขั้นของพันธุ์ (A พันธุ์เริ่มต้นจากร้านลุง) สูตร "B + C + ดอกไม้" คือผสมพันธุ์ขั้น B กับขั้น C ใส่ดอกไม้เป็นของเซ่น · ${SPECIES[sp].name.th}โตเต็มวัยเมื่อกินอิ่มครบ ${adultAt(sp)} ชม.`, `A–H are a breed's steps (A the starter from the stall): "B + C + a flower" is a step-B and a step-C parent with a flower offered · a ${SPECIES[sp].name.en.toLowerCase()} is grown after ${adultAt(sp)} fed hours`)}</p>
     </div>
@@ -1175,13 +1152,13 @@ function CareScore({ a, th }: { a: Animal; th: boolean }) {
 /** A bred breed's special and its habit's kind, and its last rounds' strips, newest first. */
 function Rounds({ a, th, purse, world }: { a: Animal; th: boolean; purse: Purse; world: AnimalWorld }) {
   const t = (x: string, y: string) => (th ? x : y);
-  const sp = specialOf(a.breed)!, seen = !!world.specials?.[a.breed], strips = [...(a.strips ?? [])].reverse();
+  const page = specialPage(world, purse, a.breed)!, sp = page.special, seen = !!page.first, strips = [...(a.strips ?? [])].reverse();
   return (
     <div className="mt-2" data-rounds={strips.length}>
       <p className="mb-1 flex items-center gap-1.5 text-meta text-ink">
         <span className="tk tk-slot grid size-10 shrink-0 place-items-center" title={seen ? ITEMS[sp.id].name[th ? "th" : "en"] : "???"}><ItemIcon id={sp.id} size={26} className={seen ? "" : SHADE} /></span>
         <TownIcon name={KIND_ICON[sp.habit.kind]} size={22} />
-        <span className="min-w-0 flex-1 truncate">{knowsHabit(specialsFoundOf(purse), a.breed) ? <HabitTold habit={sp.habit} th={th} /> : t(`นิสัย: ${KIND_WORD[sp.habit.kind][0]}`, `Habit: ${KIND_WORD[sp.habit.kind][1].toLowerCase()}`)}</span>
+        <span className="min-w-0 flex-1 truncate">{page.habit ? <HabitTold habit={page.habit} th={th} /> : t(`นิสัย: ${KIND_WORD[sp.habit.kind][0]}`, `Habit: ${KIND_WORD[sp.habit.kind][1].toLowerCase()}`)}</span>
       </p>
       {strips.length ? <ul className="grid gap-1.5">{strips.map((s) => <li key={s.at}><RoundStrip strip={s} th={th} at={clock(s.at)} /></li>)}</ul>
         : <p className="text-label text-muted">{t("เก็บผลผลิตแล้วจะเห็นว่ารอบนั้นมีอะไร", "Collect to see what each round had")}</p>}
@@ -1189,23 +1166,20 @@ function Rounds({ a, th, purse, world }: { a: Animal; th: boolean; purse: Purse;
   );
 }
 /** A breed's page's special: a shadow until somebody in the village finds it, its habit's kind from the start, its first finder, my finds, and its habit to whoever has found it three times. */
-function BookSpecial({ breed, th, purse, world, nameOf }: { breed: string; th: boolean; purse: Purse; world: AnimalWorld; nameOf: (id: string) => string }) {
+function BookSpecial({ letter, page, th, nameOf }: { letter: string; page: SpecialPage; th: boolean; nameOf: (id: string) => string }) {
   const t = (x: string, y: string) => (th ? x : y);
-  const sp = specialOf(breed);
-  if (!sp) return null;
-  const first = world.specials?.[breed], mineN = specialsFoundOf(purse)[breed] ?? 0;
-  const b = breedOf(breed)!;
+  const { special: sp, first, mine: mineN } = page;
   return (
     <li className="flex items-center gap-2 rounded-xl border border-line bg-bg/50 p-2" data-book-special={sp.id} data-seen={!!first} data-mine={mineN}>
-      <span className="w-4 shrink-0 text-center font-data text-label text-muted">{b.letter}</span>
+      <span className="w-4 shrink-0 text-center font-data text-label text-muted">{letter}</span>
       <span className="tk tk-slot grid size-12 shrink-0 place-items-center"><ItemIcon id={sp.id} size={32} className={first ? "" : SHADE} /></span>
       <span className="tk tk-slot grid size-12 shrink-0 place-items-center" title={KIND_WORD[sp.habit.kind][th ? 0 : 1]} aria-label={KIND_WORD[sp.habit.kind][th ? 0 : 1]}><TownIcon name={KIND_ICON[sp.habit.kind]} size={28} /></span>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-ui font-semibold text-ink">{first ? ITEMS[sp.id].name[th ? "th" : "en"] : "???"}</span>
         {first && <span className="block truncate text-label text-gold">{t(`พบคนแรก ${nameOf(first.by)}`, `First found by ${nameOf(first.by)}`)}</span>}
-        {knowsHabit(specialsFoundOf(purse), breed) && <span className="mt-0.5 block" data-habit-known><HabitTold habit={sp.habit} th={th} /></span>}
+        {page.habit && <span className="mt-0.5 block" data-habit-known><HabitTold habit={page.habit} th={th} /></span>}
       </span>
-      {mineN > 0 && <span className="shrink-0 rounded-full border border-line bg-bg/60 px-2 py-0.5 font-data text-label tabular-nums text-ink" data-mine-n>{Math.min(mineN, SPECIAL.reveal)}/{SPECIAL.reveal}</span>}
+      {mineN > 0 && <span className="shrink-0 rounded-full border border-line bg-bg/60 px-2 py-0.5 font-data text-label tabular-nums text-ink" data-mine-n>{towardsHabit(page)}/{SPECIAL.reveal}</span>}
     </li>
   );
 }
