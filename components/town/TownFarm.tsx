@@ -32,7 +32,7 @@ import TownWaterRelay from "./TownWaterRelay";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type NotebookEntry } from "./TownNotebook";
 import TownFarmBook from "./TownFarmBook";
-import { BEDS, BLADES, FARMING, WATER, WILD, atTop, cropOf, gameFor, guardBy, hardFor, hardIn, hitsFor, moreOf, theirsAt, tiredAt, plotKey, pouchSeeds, quickUntil, ridCameOf, roll, see, toolOf, growing, type Chore, type Deed, type Plant, type RowDeed, type Seen } from "@/lib/town/farm";
+import { BEDS, BLADES, FARMING, WATER, WILD, atTop, cropOf, gameFor, guardBy, hardFor, hardIn, hitsFor, mayTwice, moreOf, theirsAt, tiredAt, plotKey, pouchSeeds, quickUntil, ridCameOf, roll, see, toolOf, growing, type Chore, type Deed, type Plant, type RowDeed, type Seen } from "@/lib/town/farm";
 import { canFx, hitsWith, hoeFx } from "@/lib/town/forged";
 import { FIELD } from "@/lib/town/gear";
 import { ITEMS, growIconOf, iconOf, type CropId, type ItemId } from "@/lib/town/items";
@@ -480,7 +480,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       const mine = Object.entries(plots).filter(([k, pl]) => pl.plant && pl.plant.by === keeper.id && (!pl.plant.root || pl.plant.root === k));
       const bucket = Math.floor(now / 15_000), was = fertWorked.current;
       if (!was || was.held !== held || was.bucket !== bucket || was.plants.length !== mine.length || mine.some(([, pl], i) => was.plants[i] !== pl.plant)) {
-        const gains = new Map(mine.flatMap(([k, pl]) => (keeper.deedAt(k) === "fert" ? [[k, fertGain(pl.plant!, held, now, rains)] as [string, number]] : [])));
+        const deeds = keeper.deedsAt(mine.map(([k]) => k));
+        const gains = new Map(mine.flatMap(([k, pl]) => (deeds.get(k) === "fert" ? [[k, fertGain(pl.plant!, held, now, rains)] as [string, number]] : [])));
         fertWorked.current = { held, bucket, plants: mine.map(([, pl]) => pl.plant!), gains };
       }
       fertGains.current = fertWorked.current!.gains;
@@ -505,12 +506,18 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   // ── forging: old tools ── (a can with light in it: the plants that could be watered now, and within how many tiles of me one of them glints: lib/town/forged)
   const glintOf = canFx(heldStack(keeper.purse(), keeper.handSlot())).glint;
   const thirsty = useRef<{ reach: number; keys: Set<string> }>({ reach: 0, keys: new Set() });
-  // (again when the farm, my purse (the can in my hand and whether it may water twice), or the five seconds change)
-  const thirstyOf = useRef<{ plots: unknown; purse: unknown; bucket: number } | null>(null);
+  // (again when the farm, the can in my hand and whether it may water twice, or the five seconds change: told by what
+  // they are, not by my purse's object, which is a new one at every read while I eat; and every plot's deed in one go,
+  // whose every bed is read once, not once a plot: "ถือบัวรดน้ำอันนี้แล้ว แลค", 2026-11-10)
+  const thirstyOf = useRef<{ plots: unknown; hand: string; bucket: number } | null>(null);
   if (glintOf <= 0) { thirsty.current = { reach: 0, keys: new Set() }; thirstyOf.current = null; }
-  else if (!thirstyOf.current || thirstyOf.current.plots !== plots || thirstyOf.current.purse !== keeper.purse() || thirstyOf.current.bucket !== Math.floor(now / 5000)) {
-    thirsty.current = { reach: glintOf, keys: new Set(Object.keys(plots).filter((key) => keeper.deedAt(key) === "water")) };
-    thirstyOf.current = { plots, purse: keeper.purse(), bucket: Math.floor(now / 5000) };
+  else {
+    const hand = `${handOf(keeper.purse())}|${mayTwice(keeper.purse(), now)}|${glintOf}`, bucket = Math.floor(now / 5000);
+    if (!thirstyOf.current || thirstyOf.current.plots !== plots || thirstyOf.current.hand !== hand || thirstyOf.current.bucket !== bucket) {
+      const deeds = keeper.deedsAt(Object.keys(plots));
+      thirsty.current = { reach: glintOf, keys: new Set([...deeds].flatMap(([key, deed]) => (deed === "water" ? [key] : []))) };
+      thirstyOf.current = { plots, hand, bucket };
+    }
   }
   const owners = useRef(keeper.owners());
   owners.current = keeper.owners();

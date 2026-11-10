@@ -823,10 +823,17 @@ export class Trial {
   /** What the farm's rules are read under here: the rain, and the hours counted. */
   sky(): FarmSky { return { rains: SKIES.rains(), swarms: this.swarms() }; }
   /** What the thing in my hand can do to a plot now, if anything. */
-  deedAt(key: string): Deed | null {
-    const [x, y] = key.split(",").map(Number);
+  deedAt(key: string): Deed | null { return this.deedsAt([key]).get(key) ?? null; }
+  /** The same of many plots: the farm, the beds, my purse, the clock and the sky read once for them all. */
+  deedsAt(keys: readonly string[]): Map<string, Deed | null> {
+    const plots = this.farm(), purse = this.purse(), now = this.now(), owners = this.owners(), hand = handOf(purse), sky = this.sky(), out = new Map<string, Deed | null>();
     // (forging: a can that waters twice in an hour is offered a plant that is wet from one watering)
-    return deedFor(key, this.farm()[key] ?? WILD, handOf(this.purse()), this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null, this.sky(), mayTwice(this.purse(), this.now()));
+    const twice = mayTwice(purse, now);
+    for (const key of keys) {
+      const [x, y] = key.split(",").map(Number);
+      out.set(key, deedFor(key, plots[key] ?? WILD, hand, this.id, now, owners.get(bedOf(x, y))?.by ?? null, sky, twice));
+    }
+    return out;
   }
   /** Do to a plot what the thing in my hand does: clear it, till it, dig its plant out (a living one only when it is `sure`), sow it, water it, feed it, cure it, pick it. Says what was done and what came of it, or why not. */
   /**

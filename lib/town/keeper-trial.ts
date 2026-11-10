@@ -140,6 +140,7 @@ class TrialKeeper implements Keeper {
   well(i = 0) { return this.trial.well(i); }
   owners() { return this.trial.owners(); }
   deedAt(key: string) { return this.trial.deedAt(key); }
+  deedsAt(keys: readonly string[]) { return this.trial.deedsAt(keys); }
   rains() { return this.trial.sky(); }
   choreAt(where: Water, at?: readonly [number, number] | null) { return this.trial.choreAt(where, at); }
   pots() { return this.trial.pots(); }

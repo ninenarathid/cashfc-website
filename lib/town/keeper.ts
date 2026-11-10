@@ -246,6 +246,12 @@ export interface Keeper {
   well(i?: number): number;
   owners(): Map<number, { by: string; name: string }>;
   deedAt(key: string): Deed | null;
+  /**
+   * `deedAt` of many plots at once, by their keys: whose every bed is (a read of the whole farm) is worked out once for
+   * them all. What asks it of the whole farm asks this (a light can's glint: `deedAt` on every plot read every plot
+   * again for each, some seconds of a frozen map on a full farm: "ถือบัวรดน้ำอันนี้แล้ว แลค", 2026-11-10).
+   */
+  deedsAt(keys: readonly string[]): Map<string, Deed | null>;
   /** The stretches of rain the plots have had (lib/town/weather), and the hours the farm was counted with insects on it (lib/town/farm's Swarms): what the farm's rules are read with. */
   rains(): FarmSky;
   /** What the thing in my hand does with water where I stand: `at`, the tile, says which well. */
@@ -1591,10 +1597,17 @@ export class DbKeeper implements Keeper {
     }
     return out;
   }
-  deedAt(key: string): Deed | null {
-    const [x, y] = key.split(",").map(Number);
+  deedAt(key: string): Deed | null { return this.deedsAt([key]).get(key) ?? null; }
+  deedsAt(keys: readonly string[]): Map<string, Deed | null> {
+    // (whose every bed is, what is in my hand, the clock and the rain: once for them all, not once a plot)
+    const now = this.now(), owners = this.owners(), hand = handOf(this.mine), sky = this.rains(), out = new Map<string, Deed | null>();
     // (forging: a can that waters twice in an hour is offered a plant that is wet from one watering; whether it takes is the database's)
-    return deedFor(key, this.plots[key] ?? WILD, handOf(this.mine), this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null, this.rains(), mayTwice(this.mine, this.now()));
+    const twice = mayTwice(this.mine, now);
+    for (const key of keys) {
+      const [x, y] = key.split(",").map(Number);
+      out.set(key, deedFor(key, this.plots[key] ?? WILD, hand, this.id, now, owners.get(bedOf(x, y))?.by ?? null, sky, twice));
+    }
+    return out;
   }
   /**
    * The hours the farm was counted with insects on it, as the database tells them with the farm (v147; none from a
