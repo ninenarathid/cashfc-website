@@ -354,3 +354,45 @@ lib/town/special-uses and lib/town/special-dishes; the database's are v325's (`b
   (`inkOf`; none for the ten new scrolls and about half the others, 105 at most, for the star pudding's), so writing never makes coins.
 - **Left for stage 4**: every cook of a multi-cook dish plays (today the starter plays and the others hold their
   cookware); the seal "together" is in the atlas (`sealTogether`), unused.
+
+## Barns of 8 and 16, and the yard behind (2026-11-10, branch `barn-yard`, v326)
+
+The owner, 2026-11-10: "ช่วยเพิ่มการอัพเกรด คอกสัตว์ จาก max 4 ตัว เพิ่มเป็น 8 และ 16 … ใช้ของเยอะระดับนึงด้วย คนจะได้ทำกันยากหน่อย";
+Codex's prices, which he agreed; no upkeep (measured two weeks after release); and of two ways mocked for where the
+animals past four live, "ข ดีกว่า ทำเลย": the barn keeps its look and a yard fenced on three sides stands behind it.
+
+- **Four stages** (`ANIMALS.barns.stages`, each a room, its coins and `needs`, the things it takes): 2 (500 coins, 20 logs,
+  8 stone tiles) and 4 (1,000, 40, 12) as they were, paid at once from the bag; 8 (3,000 coins, 200 logs, 100 timber, 40
+  stone tiles, 30 iron) and 16 (15,000, 400 logs, 200 timber, 100 stone tiles, 60 iron, 40 yarn), `parts`.
+- **Handed over in parts** ("ส่งของ", the step `deliver`): stage 16's things take 22 of a bag's 25 slots, so a stage paid
+  in parts takes whatever the bag holds of each thing still owed, and the coins still owed (the herd's credit first,
+  then the purse), the barn growing the moment the last part is in. What was handed over is the herd's (`herd.parts`, by
+  the stage's room), never lost: a barn taken back keeps every built stage paid in parts as handed over (its coins go to
+  the credit as every stage's do), so a barn had again grows back to it for the coins alone, stage by stage; nothing is
+  ever skipped. `enlarge` refuses such a stage (`stage`). Told to its owner alone (as the credit).
+  *Mine, the owner's to change*: the delivery (he did not answer). Paying from the storage box as well (the farm's two
+  chests open each member's box: 10 slots, 20 to 40 bought) was weighed and not taken: it would ask a member to empty bag
+  and box of everything else and to stand at a chest, and a member with the plain box and bag (20 to 35 slots) would
+  still be short of 16's 22 slots plus what they carry; a delivery asks neither: one button in the barn's panel, as often as it takes.
+- **The yard** (lib/town/pasture): `YARD_MOST`, a table by barn of how many rows behind it a yard may take (the editor's
+  farm: two behind the first row of barns and behind barns 15 and 16, the lane right behind; four elsewhere); two rows at
+  8, all it may at 16 (`yardRowsOf`). Its fence is the map's own fence pieces on three sides (farm2-art's `pushFence`), a
+  gap for its **gate** in the east fence by the barn's back wall (`yardGate`), onto the strip beside the barn that runs
+  down to the lane in front: the member walks in there, and the yard's animals go out there to graze when the door is
+  open, and back. Its fence is a wall to the walking (`barnWall`); nothing stands in a built yard (its bushes, behind
+  barns 6, 7, 9, 10, 11, 17, 19, 21, 22 and 23, are not drawn and their tiles are open while it stands). No pinned thing
+  is in any yard at 16 (eggs, forage, lamps, benches, wells, chests, fires); one haunt of the insects (30, behind barn 14)
+  has perches there, reached by the gate (lib/town/barn-yard.test).
+- **Where they stand** (`barnSpots`): up to 4 on the floor as before; at 8, the floor's 4 and the yard's 4 in one row; at
+  16, the floor's 8 in two rows and the yard's 8 in two rows (a short barn's yard of two rows holds its two rows a tile
+  apart). Each place its tray (the map's own tray, full or empty): the floor's along the back wall, the yard's along its
+  back fence. At rest each keeps to its place and steps to its tray now and then; no heap.
+- **On the map**: the barn faint (0.18) while I stand in its yard; its sign says how many it houses past 4 ("· 16 ตัว");
+  in a barn of more than 4 the names are not drawn at rest (the card's, on a tap); a body in a yard is held to the barn's
+  1.35, as inside.
+- **The panel**: the four stages as a ladder (now, next), the next one's coins and things as pictures, handed over of what
+  it takes, what the bag would add, the short ones marked; one button, "ส่งของ". A database before v326 knows only 2 and 4
+  (lib/town/animal-world holds a page to them until a look says `stages`).
+- **The look** (v326): takes no lock and writes nothing (the warm bottle's moment aside); another member's animals that I
+  may not care for come without their round strips, round and rearing. Made-up pastures (every animal with three
+  strips): today's 104 animals 145k characters → 63k; 24 barns of 16 and every pen full (576) 790k → 336k.

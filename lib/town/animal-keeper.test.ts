@@ -9,7 +9,7 @@ import { seatSpot, wagonSpot, knowWagons, WAGON_LEG } from "./seats";
 import { WAGON_STOPS } from "./pasture";
 import { placeOf, walkable } from "./world";
 import { newPurse, put, type Purse } from "./trade";
-import { dayStart, newHerd, type Animal } from "./animals";
+import { ANIMALS, dayStart, newHerd, type Animal } from "./animals";
 import type { ItemId } from "./items";
 import type { WagonRun } from "./animal-act";
 import { toldOf } from "./hints";
@@ -34,7 +34,15 @@ describe("the pasture's world as the page holds it", () => {
     expect(mergeAnimals(null, { animals: [{ ...animal(), home: undefined, sex: undefined, stats: undefined }], herds: [{ owner: "me" }] })).toMatchObject({ animals: [{ home: "barn", sex: "f", stats: { thrift: 1 } }], herds: [{ barn: null, room: 2, door: [] }] });
     // (an animal of a breed this page does not know is left out: it could not be drawn)
     expect(mergeAnimals(null, { animals: [animal({ breed: "dodo" })] }).animals).toEqual([]);
-    expect(mergeAnimals(null, {})).toEqual(EMPTY_WORLD);
+    // (the barn's stages: a database before v326 tells none, and is held to the two paid at once; one from v326 tells them,
+    // and a step's part keeps what the look told)
+    const before = ANIMALS.barns.stages.filter((s) => !s.parts);
+    expect(mergeAnimals(null, {})).toEqual({ ...EMPTY_WORLD, stages: before });
+    expect(mergeAnimals(null, {}).stages!.map((s) => s.room)).toEqual([2, 4]);
+    const told = mergeAnimals(null, { stages: JSON.parse(JSON.stringify(ANIMALS.barns.stages)) });
+    expect(told.stages).toEqual(ANIMALS.barns.stages);
+    expect(mergeAnimals(told, { herds: [] }).stages).toEqual(ANIMALS.barns.stages);
+    expect(mergeAnimals(null, { stages: [{ room: "8" }] }).stages).toEqual(before);
   });
   it("counts the line's points from a step's deed (`doc.pts`), and care of a friend's animal on the helpers' line", () => {
     expect(countsOf({ from: "deed", what: "animal_feed", thing: null, n: 1, doc: { pts: 15 } }, "me")).toEqual([{ to: null, line: "animals", raw: 15 }]);

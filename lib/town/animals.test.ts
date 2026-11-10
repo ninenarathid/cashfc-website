@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   ANIMALS, BREEDS, OFFERINGS, SPECIES, SPECIES_IDS, adultAt, breedAt, crossOf, dayOf, dayStart, gateAt, heartsOf, rangeOf,
   rollOf, settle, stageOf, starterOf, unitsOf, barnsOf, untendedOf, newHerd, heartGain, stagesPaid, childStats, childRange, careOf,
-  type Animal, type Ctx,
+  type Animal, type Ctx, type Herd,
 } from "./animals";
 import { dayOf as staminaDayOf } from "./stamina";
 import { ITEMS, MAKES, type ItemId } from "./items";
@@ -142,12 +142,13 @@ describe("the barns", () => {
     expect(r.ok).toBe(true);
     const [S1, S2] = ANIMALS.barns.stages;
     expect(r.purse.coins).toBe(20_000 - S1.coins);
-    expect([held(r.purse.bag, "log" as ItemId), held(r.purse.bag, "stoneTile" as ItemId)]).toEqual([100 - S1.logs, 30 - S1.stone]);
+    expect(S1.needs).toEqual([["log", 20], ["stoneTile", 8]]);
+    expect([held(r.purse.bag, "log" as ItemId), held(r.purse.bag, "stoneTile" as ItemId)]).toEqual([100 - 20, 30 - 8]);
     expect(r.world.herds[0]).toMatchObject({ owner: "me", barn: 3, room: S1.room, lastCare: T0 });
-    // (enlarged to its next stage, and no further)
+    // (enlarged to its next stage at once; the one after is handed over in parts, never bought at once)
     const big = animalAction(r.world, r.purse, { action: "enlarge" }, env(T0));
     expect([big.ok, big.world.herds[0].room, big.purse.coins]).toEqual([true, S2.room, 20_000 - S1.coins - S2.coins]);
-    expect(animalAction(big.world, big.purse, { action: "enlarge" }, env(T0)).why).toBe("full");
+    expect(animalAction(big.world, big.purse, { action: "enlarge" }, env(T0)).why).toBe("stage");
     expect(animalAction(w0, rich(), { action: "enlarge" }, env(T0)).why).toBe("barn");
     expect(animalAction(r.world, purseWith(20_000), { action: "enlarge" }, env(T0)).why).toBe("nothing");
     expect(animalAction(r.world, rich(), { action: "barn", index: 4 }, env(T0)).why).toBe("had");
@@ -179,6 +180,115 @@ describe("the barns", () => {
     const back = animalAction({ ...r.world, herds: r.world.herds.filter((h) => h.owner !== "m9") }, rich(0), { action: "barn", index: 9 }, env(later, "m5"));
     expect(back.ok).toBe(true);
     expect(back.world.herds.find((h) => h.owner === "m5")).toMatchObject({ barn: 9, credit: 0 });
+  });
+});
+
+describe("barns of 8 and 16: handed over in parts", () => {
+  // (a bag big enough for what is asked of it: stage 4's things take 22 slots of the bag's 25 at the most)
+  const bagOf = (coins: number, things: Array<[string, number]> = []): Purse => {
+    let p: Purse = { ...newPurse(), coins, bag: Array.from({ length: 60 }, () => null) };
+    for (const [id, k] of things) p = { ...p, bag: put(p.bag, id as ItemId, k) };
+    return p;
+  };
+  const [, , S3, S4] = ANIMALS.barns.stages;
+  const at = (room: number, more: Partial<Herd> = {}): AnimalWorld => ({ ...world(), herds: [{ ...newHerd("me"), barn: 2, room, ...more }] });
+  const herd = (w: AnimalWorld, who = "me") => w.herds.find((h) => h.owner === who)!;
+
+  it("are the owner's four stages: 2 and 4 paid at once, 8 and 16 in parts, each of its own things", () => {
+    expect(ANIMALS.barns.stages.map((s) => [s.room, s.coins, !!s.parts])).toEqual([[2, 500, false], [4, 1000, false], [8, 3000, true], [16, 15000, true]]);
+    expect(S3.needs).toEqual([["log", 200], ["timber", 100], ["stoneTile", 40], ["oreIron", 30]]);
+    expect(S4.needs).toEqual([["log", 400], ["timber", 200], ["stoneTile", 100], ["oreIron", 60], ["yarn", 40]]);
+    for (const s of ANIMALS.barns.stages) for (const [id] of s.needs) expect(ITEMS[id as ItemId], id).toBeTruthy();
+    // (stage 4's things, whole, would take 22 of the bag's slots: why it is handed over in parts)
+    expect(S4.needs.reduce((n, [id, k]) => n + Math.ceil(k / ITEMS[id as ItemId].stack), 0)).toBe(22);
+    expect(stagesPaid(16)).toBe(500 + 1000 + 3000 + 15000);
+  });
+
+  it("hands over what the bag holds of what is still owed, coins too (credit first), and grows the barn with the last part", () => {
+    expect(animalAction(at(2), bagOf(9000, [["log", 300]]), { action: "deliver" }, env(T0)).why).toBe("stage");
+    expect(animalAction(at(4), bagOf(0), { action: "deliver" }, env(T0)).why).toBe("nothing");
+    expect(animalAction({ ...world(), herds: [{ ...newHerd("me") }] }, bagOf(9000, [["log", 300]]), { action: "deliver" }, env(T0)).why).toBe("barn");
+    expect(animalAction(at(4), bagOf(9000, [["log", 300]]), { action: "enlarge" }, env(T0)).why).toBe("stage");
+    // a part: 150 logs and 25 tiles, 1,000 coins of which 400 the credit's
+    const r1 = animalAction(at(4, { credit: 400 }), bagOf(600, [["log", 150], ["stoneTile", 25], ["salt", 3]]), { action: "deliver" }, env(T0));
+    expect(r1.ok).toBe(true);
+    expect(herd(r1.world)).toMatchObject({ room: 4, credit: 0, parts: { "8": { coins: 1000, log: 150, stoneTile: 25 } } });
+    expect([r1.purse.coins, held(r1.purse.bag, "log" as ItemId), held(r1.purse.bag, "stoneTile" as ItemId), held(r1.purse.bag, "salt" as ItemId)]).toEqual([0, 0, 0, 3]);
+    expect(r1.got).toEqual({ gave: { coins: 1000, log: 150, stoneTile: 25 } });
+    expect(r1.notes.map((x) => x.what)).toEqual(["animal_deliver"]);
+    // nothing more of it in the bag: refused, nothing written
+    expect(animalAction(r1.world, r1.purse, { action: "deliver" }, env(T0)).why).toBe("nothing");
+    // more than is owed in the bag: only what is owed goes; the rest stays
+    const r2 = animalAction(r1.world, bagOf(5000, [["log", 500], ["timber", 100], ["stoneTile", 20], ["oreIron", 30]]), { action: "deliver" }, env(T0));
+    expect(r2.ok).toBe(true);
+    expect(herd(r2.world).room).toBe(8);
+    expect(herd(r2.world).parts).toBeUndefined();
+    expect(r2.got).toEqual({ gave: { coins: 2000, log: 50, timber: 100, stoneTile: 15, oreIron: 30 }, grew: 8 });
+    expect([r2.purse.coins, held(r2.purse.bag, "log" as ItemId), held(r2.purse.bag, "stoneTile" as ItemId)]).toEqual([3000, 450, 5]);
+    expect(r2.notes.map((x) => x.what)).toEqual(["animal_deliver", "animal_enlarge"]);
+    // the next stage begins from nothing, and the top is the top
+    const r3 = animalAction(r2.world, bagOf(20_000, S4.needs.map(([id, k]) => [id, k] as [string, number])), { action: "deliver" }, env(T0));
+    expect([r3.ok, herd(r3.world).room, r3.got?.grew, r3.purse.coins]).toEqual([true, 16, 16, 5000]);
+    expect(animalAction(r3.world, r3.purse, { action: "deliver" }, env(T0)).why).toBe("full");
+    expect(animalAction(r3.world, r3.purse, { action: "enlarge" }, env(T0)).why).toBe("full");
+  });
+
+  it("delivers coins alone, and never more coins than are owed or than the purse and credit hold", () => {
+    const r = animalAction(at(4, { parts: { "8": { log: 200, timber: 100, stoneTile: 40, oreIron: 30, coins: 2500 } } }), bagOf(10_000), { action: "deliver" }, env(T0));
+    expect([r.ok, herd(r.world).room, r.purse.coins, r.got?.gave]).toEqual([true, 8, 9500, { coins: 500 }]);
+    const poor = animalAction(at(4), bagOf(120), { action: "deliver" }, env(T0));
+    expect([poor.ok, poor.purse.coins, herd(poor.world).parts]).toEqual([true, 0, { "8": { coins: 120 } }]);
+  });
+
+  it("keeps what was handed over with the herd when the barn is taken back, built or not, and skips no stage", () => {
+    const D = 24 * H, later = T0 + 29 * D;
+    // a member at 16 with sixteen animals, untended a month, every barn taken
+    const herds = Array.from({ length: ANIMALS.barns.count }, (_, i) => ({ ...newHerd(`m${i}`), barn: i, lastCare: later }));
+    herds[5] = { ...herds[5], room: 16, lastCare: T0 };
+    const sixteen = Array.from({ length: 16 }, (_, i) => chick({ id: `x${String(i).padStart(2, "0")}`, owner: "m5" }));
+    const w: AnimalWorld = { ...world(sixteen), herds };
+    const r = animalAction(w, bagOf(20_000, [["log", 100], ["stoneTile", 30]]), { action: "barn", index: 5 }, env(later));
+    expect(r.ok).toBe(true);
+    const left = herd(r.world, "m5");
+    expect(left).toMatchObject({ barn: null, room: 16, credit: stagesPaid(16) });
+    expect(left.parts).toEqual({ "8": Object.fromEntries(S3.needs), "16": Object.fromEntries(S4.needs) });
+    // all sixteen in the pen, past its eight; nothing more is bought or born into it
+    expect(r.world.animals.filter((a) => a.owner === "m5").every((a) => a.home === "pen")).toBe(true);
+    // a barn had again: its coins from the credit, its stages back as the coins allow, the things already handed over
+    const free: AnimalWorld = { ...r.world, herds: r.world.herds.filter((h) => h.owner !== "m9") };
+    let x = animalAction(free, bagOf(0, [["log", 100], ["stoneTile", 30]]), { action: "barn", index: 9 }, env(later, "m5"));
+    expect([x.ok, herd(x.world, "m5").room, herd(x.world, "m5").credit]).toEqual([true, 2, stagesPaid(16) - 500]);
+    {
+      // (the barn's two places take two more; the pen past its eight takes none)
+      let y = x, rich_ = { ...x.purse, coins: 5000 };
+      for (let i = 0; i < 2; i++) { y = animalAction(y.world, rich_, { action: "buy", species: "chicken", sex: "f" }, env(later, "m5")); expect(y.ok).toBe(true); rich_ = y.purse; }
+      expect(animalAction(y.world, rich_, { action: "buy", species: "chicken", sex: "f" }, env(later, "m5")).why).toBe("places");
+    }
+    x = animalAction(x.world, x.purse, { action: "enlarge" }, env(later, "m5"));
+    expect([x.ok, herd(x.world, "m5").room]).toEqual([true, 4]);
+    // (the 16's parts wait while the 8 comes first: no stage is skipped)
+    x = animalAction(x.world, x.purse, { action: "deliver" }, env(later, "m5"));
+    expect([x.ok, herd(x.world, "m5").room, x.got?.grew, x.purse.coins]).toEqual([true, 8, 8, 0]);
+    expect(herd(x.world, "m5").parts).toEqual({ "16": Object.fromEntries(S4.needs) });
+    x = animalAction(x.world, x.purse, { action: "deliver" }, env(later, "m5"));
+    expect([x.ok, herd(x.world, "m5").room, herd(x.world, "m5").credit, herd(x.world, "m5").parts]).toEqual([true, 16, 0, undefined]);
+  });
+
+  it("keeps a part handed over towards 16 when a barn of 8 is taken back", () => {
+    const D = 24 * H, later = T0 + 29 * D;
+    const herds = Array.from({ length: ANIMALS.barns.count }, (_, i) => ({ ...newHerd(`m${i}`), barn: i, lastCare: later }));
+    herds[5] = { ...herds[5], room: 8, lastCare: T0, parts: { "16": { log: 120, coins: 900 } } };
+    const r = animalAction({ ...world(), herds }, bagOf(20_000, [["log", 100], ["stoneTile", 30]]), { action: "barn", index: 5 }, env(later));
+    expect(herd(r.world, "m5").parts).toEqual({ "8": Object.fromEntries(S3.needs), "16": { log: 120, coins: 900 } });
+    expect(herd(r.world, "m5").credit).toBe(stagesPaid(8));
+  });
+
+  it("houses so many in the barn at its room, through buying and the pen", () => {
+    let w = at(16), p = bagOf(100_000);
+    for (let i = 0; i < 16; i++) { const r = animalAction(w, p, { action: "buy", species: "cow", sex: "f" }, env(T0)); expect(r.ok).toBe(true); w = r.world; p = r.purse; }
+    expect(w.animals.every((a) => a.home === "barn")).toBe(true);
+    const r = animalAction(w, p, { action: "buy", species: "cow", sex: "f" }, env(T0));
+    expect(r.world.animals.at(-1)?.home).toBe("pen");
   });
 });
 

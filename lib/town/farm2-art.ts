@@ -17,6 +17,7 @@
  */
 import MAP from "./farm2-map.json";
 import { F2_DESIGNS, F2_SCARECROWS, F2_TRAYS } from "./farm2";
+import { yardAt } from "./pasture";
 import type { Vec } from "./world";
 
 const FLOOR = 0, STAND = 1, WIDE = 2, EDGE = 3, ROLE = 4;
@@ -109,6 +110,8 @@ export class Farm2Art {
     this.now = now;
     const w = view.x1 - view.x0, h = view.y1 - view.y0, out: Thing[] = [];
     for (const t of this.things) {
+      // (what stands where a barn's yard is built now, a bush, is taken off: the yard's ground is clear, lib/town/pasture)
+      if (t.how === STAND && yardAt((t.box[0] + t.box[2]) / 2, (t.box[1] + t.box[3]) / 2) >= 0) continue;
       const sp = this.sprites[t.s], x1 = t.x + sp.w * t.k, y1 = t.y + sp.h * t.k;
       if (x1 < view.x0 - w / 2 || t.x > view.x1 + w / 2 || y1 < view.y0 - h / 2 || t.y > view.y1 + h / 2) continue;
       const near = !(x1 < view.x0 || t.x > view.x1 || y1 < view.y0 || t.y > view.y1);
@@ -239,6 +242,30 @@ export class Farm2Art {
     if (!t || !this.ready(t.i)) return;
     const c = iso(at.x, at.y), dx = c.x + tr.at[0] - t.x, dy = c.y + tr.at[1] - t.y;
     push(depth, () => this.paint(ctx, t, screen, s, px, undefined, dx, dy, alpha));
+  }
+
+  /**
+   * A length of the map's own fence on a tile's edge the map has none on (a barn's yard, lib/town/pasture): its north
+   * edge (n) or its west (w), the picture the map stands on such an edge moved there, in strips at the edge's line as
+   * the map's own fences are, so that whoever stands on its near side is in front of it.
+   */
+  pushFence(ctx: CanvasRenderingContext2D, push: Push, screen: Screen, s: number, px: number, x: number, y: number, side: "n" | "w", alpha = 1) {
+    const f = this.fenceOf(side);
+    if (!f || alpha <= 0.01 || !this.ready(f.t.i)) return;
+    const c = iso(x, y), dx = c.x - f.c.x, dy = c.y - f.c.y, sp = this.sprites[f.t.s], wall: [number, number, string] = [x, y, side];
+    for (let sx = f.t.x + dx; sx < f.t.x + dx + sp.w * f.t.k; sx += STRIP) {
+      const mid = sx + STRIP / 2;
+      push(edgeDepth(wall, mid), () => this.paint(ctx, f.t, screen, s, px, [sx, sx + STRIP], dx, dy, alpha));
+    }
+  }
+  private fences: Partial<Record<"n" | "w", { t: Thing; c: { x: number; y: number } } | null>> = {};
+  /** The map's first fence on an edge of a side, and its tile's corner in isometric pixels. */
+  private fenceOf(side: "n" | "w") {
+    if (this.fences[side] === undefined) {
+      const t = this.byIndex.find((x) => x.how === EDGE && x.wall && x.wall[2] === side) ?? null;
+      this.fences[side] = t ? { t, c: iso(t.wall![0], t.wall![1]) } : null;
+    }
+    return this.fences[side];
   }
 
   /** A thing the game draws in its own turn, where the map has it (a chest open), back to front at its own place. */

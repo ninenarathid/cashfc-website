@@ -1,4 +1,4 @@
-import type { Animal, Herd } from "./animals";
+import type { Animal, BarnStage, Herd } from "./animals";
 import type { Ask, AnimalWorld, Offer, Spell, WagonRun } from "./animal-act";
 import { ANIMALS, BREED } from "./animals";
 
@@ -51,5 +51,17 @@ export function mergeAnimals(held: AnimalWorld | null, told: Record<string, unkn
     asks: Array.isArray(told.asks) ? (told.asks as Ask[]) : base.asks ?? [],
     // (v324: who first found each breed's special; a database before it tells none)
     specials: told.specials && typeof told.specials === "object" && !Array.isArray(told.specials) ? (told.specials as NonNullable<AnimalWorld["specials"]>) : base.specials ?? {},
+    // (v326: the barn's stages it knows, told on a look; a database before it tells none and knows only the two paid at
+    // once, so that nothing is offered that it would refuse)
+    stages: stagesTold(told.stages) ?? base.stages ?? BEFORE_V326,
   };
+}
+/** The stages a database before v326 knows: those paid at once. */
+const BEFORE_V326: ReadonlyArray<BarnStage> = ANIMALS.barns.stages.filter((s) => !s.parts);
+/** Stages as told, made sound (or none, when what was told is not a list of them). */
+function stagesTold(v: unknown): ReadonlyArray<BarnStage> | null {
+  if (!Array.isArray(v) || !v.length) return null;
+  const ok = v.every((s) => !!s && typeof s === "object" && Number.isFinite((s as BarnStage).room) && Number.isFinite((s as BarnStage).coins) && Array.isArray((s as BarnStage).needs)
+    && (s as BarnStage).needs.every((x) => Array.isArray(x) && typeof x[0] === "string" && Number.isFinite(x[1])));
+  return ok ? (v as BarnStage[]).map((s) => ({ room: s.room, coins: s.coins, needs: s.needs.map(([id, n]) => [id, n] as const), ...(s.parts ? { parts: true } : {}) })) : null;
 }

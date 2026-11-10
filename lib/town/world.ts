@@ -20,7 +20,7 @@ import { CAVE_SIZE, caveFloor, depthOf, hollowAt, type CaveFloor } from "./cave"
 import type { Current, FishingHabitat } from "./river-items";
 import { mountainWater } from "./mountain-water";
 // ── the pasture (lib/town/pasture: the farm's rows at negative y, laid out there; docs/plans/animals) ──
-import { PASTURE, barnWall, inPasture, nearFarmGate, pastureGround, pastureThing } from "./pasture";
+import { PASTURE, barnWall, inPasture, nearFarmGate, pastureGround, pastureThing, yardAt as barnYardAt } from "./pasture";
 import { mountainRiverBed, mountainRiverGround } from "./river-landscape";
 import { ANCIENT as CEDAR, GATE_ROWS, LOOKOUT as LOOKOUT_AT, MOUNTAIN_H, MOUNTAIN_W, MOUTH as MINE_MOUTH, MOUTH_AT, cliffAt, closedOf, layMountain, mountainGround } from "./mountain";
 // ── the second main town (2026-10-22): which town this page has (lib/town/town-map), and the editor's town's own parts ──
@@ -1801,6 +1801,8 @@ export function thingAt(tx: number, ty: number): Building | "fountain" | "shop" 
   if (room.inShop(tx, ty)) return isKeeper(tx, ty) ? "keeper" : room.shopOpen(tx, ty) ? null : "prop";
   // ── the Popoto Casino ── (its machines, sofa, counter and plants, as its interior has them)
   if (casino.inCasino(tx, ty)) return casino.casinoOpen(tx, ty) ? null : "prop";
+  // ── the pasture's yards ── (a barn's yard as built now: nothing stands in it, lib/town/pasture; never in a layout made as it was)
+  if (!asWas && barnYardAt(tx, ty) >= 0) return null;
   // ── the editor's farm ── (its tiles as built: lib/town/farm2; a bench's seat is sat on from beside it)
   if (F2 && farm2.inF2(tx, ty)) { const c = farm2.f2Tile(tx, ty); return c === "." ? null : c === "~" ? "water" : "prop"; }
   // ── the pasture ── (its buildings, troughs, stall, fences and woods, and the pond)

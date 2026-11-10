@@ -4,8 +4,8 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import type { Keeper } from "@/lib/town/keeper";
 import {
   ANIMALS, DAWN_BOOSTS, GRAPH, OFFERINGS, OFFERING_KINDS, SPECIES, SPECIES_IDS, STAT_IDS, adultAt, breedAt, breedOf, careOf, childRange, crossOf, feeOf,
-  dayOf, freeHome, gives, kindOf, knowsOffering, mayCare, nextStage, scrollOf, sellBackOf, stageOf, statOf, stepKey, stepsOf, untendedOf, usedOf,
-  type Animal, type Herd, type Sex, type SpeciesId, type Stats, bodyOf, rearRange } from "@/lib/town/animals";
+  dayOf, freeHome, gives, kindOf, knowsOffering, mayCare, nextStage, partsOf, scrollOf, sellBackOf, stageOf, stagesOf, statOf, stepKey, stepsOf, untendedOf, usedOf,
+  type Animal, type BarnStage, type Herd, type Sex, type SpeciesId, type Stats, bodyOf, rearRange } from "@/lib/town/animals";
 import { ANIMAL_GIFTS, POPOTO_SHOP, RENAME_TAG, TOOL_OF, bookOf, feedHours, growFor, viewOf, type AnimalInput, type AnimalReply, type AnimalWhy, type AnimalWorld } from "@/lib/town/animal-act";
 import { ANIMAL_SCROLL_ITEMS } from "@/lib/town/animal-items";
 import { BARNS, LANE_ROWS } from "@/lib/town/pasture";
@@ -294,22 +294,102 @@ function NamePrompt({ a, th, now, busy, onName, onLater }: { a: Animal; th: bool
     </form>
   );
 }
-/** Logs and stone tiles a barn's stage asks, against what is in the bag: a line of chips. */
-function Needs({ th, purse, coins, logs, stone, credit = 0 }: { th: boolean; purse: Purse; coins: number; logs: number; stone: number; credit?: number }) {
+/** The things a barn's stage paid at once asks, against what is in the bag: a line of chips, a short one marked. */
+function Needs({ th, purse, stage, credit = 0 }: { th: boolean; purse: Purse; stage: BarnStage; credit?: number }) {
   const t = (a: string, b: string) => (th ? a : b);
   const have = (id: string) => held(purse.bag, id as ItemId);
-  const need = (id: string, n: number, word: [string, string]) => (
-    <span className={`flex items-center gap-1 ${chip} ${have(id) < n ? "border-[#ff7a93]/60 text-[#ffb3c1]" : ""}`} data-need={id} data-short={have(id) < n}>
-      <ItemIcon id={id as ItemId} size={18} />{th ? word[0] : word[1]} {n}<span className="text-muted">({t("มี", "have")} {have(id)})</span>
-    </span>
-  );
-  const pay = Math.max(0, coins - credit);
+  const pay = Math.max(0, stage.coins - credit);
   return (
     <p className="flex flex-wrap items-center gap-1.5 text-meta" data-needs>
-      <span className={`flex items-center gap-1 ${chip} ${purse.coins < pay ? "border-[#ff7a93]/60 text-[#ffb3c1]" : ""}`}><Coins n={pay} th={th} small />{credit > 0 && <span className="text-muted">{t(`(หักเครดิต ${Math.min(credit, coins)})`, `(${Math.min(credit, coins)} credit off)`)}</span>}</span>
-      {need("log", logs, ["ไม้ซุง", "logs"])}
-      {need("stoneTile", stone, ["แผ่นหิน", "stone tiles"])}
+      <span className={`flex items-center gap-1 ${chip} ${purse.coins < pay ? "border-[#ff7a93]/60 text-[#ffb3c1]" : ""}`}><Coins n={pay} th={th} small />{credit > 0 && <span className="text-muted">{t(`(หักเครดิต ${Math.min(credit, stage.coins)})`, `(${Math.min(credit, stage.coins)} credit off)`)}</span>}</span>
+      {stage.needs.map(([id, n]) => (
+        <span key={id} className={`flex items-center gap-1 ${chip} ${have(id) < n ? "border-[#ff7a93]/60 text-[#ffb3c1]" : ""}`} data-need={id} data-short={have(id) < n} title={ITEMS[id as ItemId]?.name[th ? "th" : "en"]}>
+          <ItemIcon id={id as ItemId} size={18} />{ITEMS[id as ItemId]?.name[th ? "th" : "en"]} {n}<span className="text-muted">({t("มี", "have")} {have(id)})</span>
+        </span>
+      ))}
     </p>
+  );
+}
+
+/**
+ * A barn's four stages as a ladder (the owner's barns of 8 and 16: "ข", a yard behind), the one it has and the next
+ * marked; and the next one's price. A stage paid at once is bought as it always was; one paid in parts shows each thing
+ * as handed over of what it takes, with what the bag would add, the short ones marked, and one button that hands over
+ * whatever the bag holds of what is still owed ("ส่งของ"). Pictures and numbers; the words are few.
+ */
+function BarnStages({ th, purse, herd, stages, busy, act }: { th: boolean; purse: Purse; herd: Herd; stages: ReadonlyArray<BarnStage>; busy: boolean; act: Common["act"] }) {
+  const t = (a: string, b: string) => (th ? a : b);
+  const next = nextStage(herd.room, stages);
+  const ladder = (
+    <ol className="flex items-center gap-1" aria-label={t("ขั้นของโรง", "The barn's stages")} data-barn-ladder>
+      {ANIMALS.barns.stages.map((st, i) => {
+        const on = st.room === herd.room, done = st.room < herd.room, nx = next?.room === st.room, known = stages.some((s) => s.room === st.room);
+        return (
+          <li key={st.room} className="flex min-w-0 flex-1 items-center gap-1">
+            {i > 0 && <span aria-hidden className={`h-0.5 w-2 shrink-0 rounded-full ${done || on ? "bg-gold/70" : "bg-line"}`} />}
+            <span className={`flex min-h-11 flex-1 flex-col items-center justify-center rounded-lg border px-1 leading-tight ${on ? "border-gold/80 bg-gold/15 text-gold" : nx ? "border-accent/70 bg-accent/10 text-ink" : done ? "border-line text-muted" : "border-dashed border-line text-muted"} ${known ? "" : "opacity-50"}`}
+                  data-stage={st.room} data-stage-state={on ? "now" : nx ? "next" : done ? "done" : "later"} aria-label={t(`${st.room} ตัว`, `houses ${st.room}`) + (on ? t(" · ตอนนี้", " · now") : nx ? t(" · ถัดไป", " · next") : "")}>
+              <span className="flex items-center gap-1 font-data text-ui font-semibold tabular-nums"><TownIcon name="cowBell" size={14} />{st.room}</span>
+              {(on || nx) && <span className="text-label">{on ? t("ตอนนี้", "now") : t("ถัดไป", "next")}</span>}
+            </span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+  if (!next) return <div className="mt-2 border-t border-line pt-2">{ladder}<p className="mt-2 text-label text-muted">{t("โรงขยายเต็มที่แล้ว", "Your barn is as large as it goes.")}</p></div>;
+  const yard = next.room > 4;
+  const head = (
+    <p className="mt-2 flex flex-wrap items-baseline gap-x-1.5 text-ui font-semibold text-ink">
+      {t(`ขยายเป็น ${next.room} ตัว`, `Enlarge to ${next.room}`)}
+      {yard && <span className="text-label font-normal text-muted">· {t("ลานล้อมรั้วหลังโรง", "a fenced yard behind")}</span>}
+    </p>
+  );
+  if (!next.parts) {
+    const short = purse.coins < Math.max(0, next.coins - herd.credit) || next.needs.some(([id, n]) => held(purse.bag, id as ItemId) < n);
+    return (
+      <div className="mt-2 border-t border-line pt-2" data-enlarge={next.room}>
+        {ladder}{head}
+        <Needs th={th} purse={purse} stage={next} credit={herd.credit} />
+        <button type="button" className={`${button} mt-1.5 w-full`} disabled={busy || short}
+                onClick={() => void act({ action: "enlarge" }, ["ลุงต่อเติมโรงให้แล้ว เลี้ยงได้เพิ่มขึ้น", "Built on: room for more."], undefined, { nothing: ["ของไม่ครบ", "Not everything it takes is in your bag."], full: ["โรงขยายเต็มที่แล้ว", "It's as large as it goes."] })} data-enlarge-buy>{t("ขยายโรงเลี้ยง", "Enlarge the barn")}</button>
+      </div>
+    );
+  }
+  // a stage paid in parts: each thing handed over of what it takes, and what the bag would add now
+  const got = partsOf(herd, next.room), credit = Math.max(0, herd.credit);
+  const cells: Array<{ id: string; icon: ReactNode; label: string; got: number; need: number; add: number }> = [
+    { id: "coins", icon: <TownIcon name="coin" size={22} />, label: t("เหรียญ", "coins"), got: got.coins ?? 0, need: next.coins, add: Math.min(Math.max(0, next.coins - (got.coins ?? 0)), credit + Math.max(0, purse.coins)) },
+    ...next.needs.map(([id, n]) => ({ id, icon: <ItemIcon id={id as ItemId} size={26} />, label: ITEMS[id as ItemId]?.name[th ? "th" : "en"] ?? id, got: got[id] ?? 0, need: n, add: Math.min(Math.max(0, n - (got[id] ?? 0)), held(purse.bag, id as ItemId)) })),
+  ];
+  const short = cells.filter((c) => c.got + c.add < c.need).length, gives = cells.some((c) => c.add > 0 && c.got < c.need);
+  return (
+    <div className="mt-2 border-t border-line pt-2" data-enlarge={next.room} data-parts>
+      {ladder}{head}
+      <ul className="mt-1.5 grid grid-cols-3 gap-1.5" data-parts-list>
+        {cells.map((c) => {
+          const done = c.got >= c.need, fills = !done && c.got + c.add >= c.need, lacks = !done && !fills;
+          return (
+            <li key={c.id} title={c.label} aria-label={`${c.label} ${c.got.toLocaleString()}/${c.need.toLocaleString()}${c.add > 0 && !done ? ` (+${c.add.toLocaleString()})` : ""}`}
+                data-part={c.id} data-part-state={done ? "done" : fills ? "fills" : "short"}
+                className={`flex min-h-11 items-center gap-1.5 rounded-lg border px-1.5 py-1 ${done ? "border-jade/50 bg-jade/10" : fills ? "border-accent/60 bg-accent/10" : "border-[#ff7a93]/60 bg-[#ff7a93]/10"}`}>
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center">{c.icon}</span>
+              <span className="min-w-0 font-data text-ui font-semibold leading-tight tabular-nums">
+                <span className={done ? "text-jade" : lacks ? "text-[#ffb3c1]" : "text-ink"}>{c.got.toLocaleString()}</span><span className="font-normal text-muted">/{c.need.toLocaleString()}</span>
+                {c.add > 0 && !done && <span className="block text-label font-normal text-accent">+{c.add.toLocaleString()}</span>}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+      <p className={`mt-1.5 text-ui font-semibold ${short ? "text-[#ffb3c1]" : "text-jade"}`} data-parts-short={short}>
+        {short ? t(`ยังขาด ${short} อย่าง · ส่งทีละส่วนได้`, `${short} still short · hand them over in parts`) : t("ส่งครั้งนี้ครบ โรงขยายทันที", "This completes it: the barn grows at once")}
+      </p>
+      <button type="button" className={`${gives ? main : button} mt-1.5 w-full`} disabled={busy || !gives} data-deliver
+              onClick={() => void act({ action: "deliver" }, (r) => r.got?.grew ? [`โรงขยายเป็น ${r.got.grew} ตัวแล้ว! ลานหลังโรงพร้อม`, `The barn houses ${r.got.grew} now! Its yard is ready.`] : ["ส่งของแล้ว ลุงเก็บไว้ให้", "Handed over: Uncle keeps it for your barn."], undefined, { nothing: ["ไม่มีของที่ยังขาดในกระเป๋า", "Nothing still owed is in your bag."], stage: ["ขั้นนี้จ่ายครั้งเดียว", "This stage is paid at once."] })}>
+        {t("ส่งของ", "Hand over")}
+      </button>
+    </div>
   );
 }
 
@@ -342,7 +422,7 @@ function BarnPicker({ th, purse, world, now, busy, act, me, nameOf, onView, focu
   const lane = () => <div aria-hidden className="my-0.5 ml-11 h-2 rounded-full bg-[#4a4033]" />;
   const sel = pick !== null ? BARNS[pick] : null, st = pick !== null ? stateOf(pick) : null, h = pick !== null ? holders.get(pick) : undefined;
   const credit = herd?.credit ?? 0, pay = Math.max(0, S.coins - credit);
-  const short = !!sel && (purse.coins < pay || held(purse.bag, "log" as ItemId) < S.logs || held(purse.bag, "stoneTile" as ItemId) < S.stone);
+  const short = !!sel && (purse.coins < pay || S.needs.some(([id, n]) => held(purse.bag, id as ItemId) < n));
   const can = !!sel && (st === "free" || st === "left") && !(herd && herd.barn !== null) && !short;
   return (
     <div data-animals-barns>
@@ -376,7 +456,7 @@ function BarnPicker({ th, purse, world, now, busy, act, me, nameOf, onView, focu
           {holders.size > 0 && st === "taken" && untendedOf(h!, now).level === 3 && anyFree && <p className="mt-1 text-label text-muted">{t("โรงร้างจองได้เมื่อไม่มีโรงว่างเหลือเท่านั้น", "A left barn is only taken when none stands free.")}</p>}
           {(st === "free" || st === "left") && !(herd && herd.barn !== null) && (<>
             <p className="mt-2 text-meta text-ink">{t(`ราคาโรง (เลี้ยงได้ ${S.room} ตัว)`, `The barn (houses ${S.room})`)}</p>
-            <Needs th={th} purse={purse} coins={S.coins} logs={S.logs} stone={S.stone} credit={credit} />
+            <Needs th={th} purse={purse} stage={S} credit={credit} />
             <button type="button" className={`${main} mt-2 w-full`} disabled={busy || !can} data-barn-buy={sel.i}
                     onClick={() => void act({ action: "barn", index: sel.i }, ["ได้โรงแล้ว! ลุงทำความสะอาดรอไว้ ไปรับลูกสัตว์ที่ร้านลุงได้เลย", "It's yours! Swept and ready: take a young one home from the stall."], (r) => { if (r.ok) onView("mine"); },
                       { nothing: ["ไม้ซุงหรือแผ่นหินไม่พอ (หาได้จากสายตัดไม้และเหมือง)", "Not enough logs or stone tiles (from felling and the mine)."] })}>
@@ -402,7 +482,7 @@ function BarnHead({ th, purse, world, now, busy, act, me, onView, mine }: Common
     </div>
   );
   const open = herd.door.length > 0 && herd.door[herd.door.length - 1][1] === null;
-  const used = usedOf(world.animals, me), next = nextStage(herd.room), u = untendedOf(herd, now);
+  const used = usedOf(world.animals, me), u = untendedOf(herd, now);
   return (
     <div className="rounded-xl border border-line bg-bg/50 p-3" data-barn-head={herd.barn} data-door={open ? "open" : "shut"}>
       <div className="flex items-center gap-2">
@@ -414,14 +494,7 @@ function BarnHead({ th, purse, world, now, busy, act, me, onView, mine }: Common
       </div>
       <p className="mt-1.5 text-label text-muted">{open ? t("สัตว์ออกไปกินหญ้าในทุ่งและเดินเล่นถึงสวนผัก กินอาหารช้าลงครึ่งหนึ่ง", "They graze the meadows and wander the garden's lanes, eating half as fast.") : t("สัตว์อยู่ในโรง เปิดประตูตอนเช้าให้ออกไปกินหญ้าได้ (ได้หัวใจวันละครั้ง)", "They're inside: open the door of a morning to let them graze (a heart once a day).")}</p>
       {u.level >= 1 && u.level < 3 && <div className="mt-2"><Warn bad={u.level === 2} data-untended={u.level}>{t(`ไม่ได้ดูแลสัตว์ในโรงมา ${u.days} วันแล้ว หากครบ ${ANIMALS.untended.reclaim} วัน ผู้เล่นที่รอโรงว่างอาจจองโรงนี้ได้ (สัตว์จะไปอยู่คอกลุง)`, `Your barn has gone ${u.days} days without care. At ${ANIMALS.untended.reclaim} days somebody waiting may take it (your animals would go to Uncle's pen).`)}</Warn></div>}
-      {next ? (
-        <div className="mt-2 border-t border-line pt-2" data-enlarge={next.room}>
-          <p className="text-meta text-ink">{t(`ขยายโรงเลี้ยงเป็น ${next.room} ตัว`, `Enlarge the barn to house ${next.room}`)}</p>
-          <Needs th={th} purse={purse} coins={next.coins} logs={next.logs} stone={next.stone} credit={herd.credit} />
-          <button type="button" className={`${button} mt-1.5 w-full`} disabled={busy || purse.coins < Math.max(0, next.coins - herd.credit) || held(purse.bag, "log" as ItemId) < next.logs || held(purse.bag, "stoneTile" as ItemId) < next.stone}
-                  onClick={() => void act({ action: "enlarge" }, ["ลุงต่อเติมโรงให้แล้ว เลี้ยงได้เพิ่มขึ้น", "Built on: room for more."], undefined, { nothing: ["ไม้ซุงหรือแผ่นหินไม่พอ", "Not enough logs or stone tiles."], full: ["โรงขยายเต็มที่แล้ว", "It's as large as it goes."] })} data-enlarge-buy>{t("ขยายโรงเลี้ยง", "Enlarge the barn")}</button>
-        </div>
-      ) : <p className="mt-2 text-label text-muted">{t("โรงขยายเต็มที่แล้ว", "Your barn is as large as it goes.")}</p>}
+      <BarnStages th={th} purse={purse} herd={herd} stages={stagesOf(world)} busy={busy} act={act} />
       <div className="mt-2 grid grid-cols-2 gap-2">
         <button type="button" className={button} onClick={() => onView("trough", String(herd.barn))} data-open-trough>{t("รางอาหาร", "The trough")}</button>
         <button type="button" className={button} onClick={() => onView("barn", String(herd.barn))} data-open-barns>{t("ผังโรงทั้งหมด", "The barns' plan")}</button>

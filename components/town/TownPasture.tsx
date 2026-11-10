@@ -5,7 +5,8 @@ import type { Keeper } from "@/lib/town/keeper";
 import { ANIMALS, SPECIES, breedOf, gateAt as doorOpenAt, mayCare, stageOf, untendedOf, type Animal, type Herd } from "@/lib/town/animals";
 import { ANIMAL_GIFTS, viewOf, wagonAt, wagonEnds, type AnimalInput, type AnimalReply, type AnimalWorld } from "@/lib/town/animal-act";
 import {
-  BARNS, FARM_GATES, FENCE_X, MEADOW_SPOTS, PASTURE_PROPS, PEN, POPOTO, TABLE, TROUGHS, WAGON_STOPS, animalSpot, barnAt, doorOf, hashStr, penSpot, troughOf,
+  BARNS, FARM_GATES, FENCE_X, MEADOW_SPOTS, PASTURE_PROPS, PEN, POPOTO, TABLE, TROUGHS, WAGON_STOPS, animalSpot, barnAt, barnSpots, doorOf, floorOf, hashStr, penSpot,
+  setYards, troughOf, yardAt, yardGate, yardRowsOf, yardsNow,
   type BarnPlace,
 } from "@/lib/town/pasture";
 import { forageAt, bandOf, dayOf } from "@/lib/town/animals";
@@ -346,7 +347,15 @@ export default function TownPasture(props: PastureProps) {
         // (from afar Uncle Popoto's own name says it: the gate's sign only close to)
         if (onScreen(c) && s >= 0.9) tag(g.name === "north" ? t("ฟาร์มเลี้ยงสัตว์ · ลุง Popoto", "Animal farm · Uncle Popoto") : t("ฟาร์มเลี้ยงสัตว์", "Animal farm"), c.x, c.y - 62 * s, "#e5cc80");
       }
+      // (the yards built now, from who holds which barn at what room: the walking reads them too)
+      setYards(w?.herds ?? []);
+      // (each member's animals out of the pen and born, in their order: a barn's places, its trays and slots read it)
+      const ownBy = new Map<string, Animal[]>();
+      for (const a of w?.animals ?? []) if (a.home !== "pen" && a.born <= clock) { const l = ownBy.get(a.owner); if (l) l.push(a); else ownBy.set(a.owner, [a]); }
+      for (const l of ownBy.values()) l.sort((x, y) => (x.id < y.id ? -1 : 1));
       if (sc) for (const p of PASTURE_PROPS) {
+        // (nothing stands in a barn's yard: its ground is cleared)
+        if (yardAt(p.x + 0.5, p.y + 0.5) >= 0) continue;
         const c = project({ x: p.x + 0.5, y: p.y + 0.62 });
         if (!onScreen(c)) continue;
         const art = p.kind === "fence" || p.kind === "hay" ? p.kind : (() => { const a = artOf({ kind: p.kind, x: p.x, y: p.y }); return sc.has(a) ? a : p.kind; })();
@@ -375,25 +384,44 @@ export default function TownPasture(props: PastureProps) {
         // ── the editor's farm ── (its four barn looks, the game's four fronts in the order they are bought, plainest first:
         // shut, open, or from inside for whoever is in it, lib/town/farm2-art; a barn nobody holds is the plainest)
         const f2 = F2 ? farm2Art() : null, look = holder?.facade ?? 0, push = (depth: number, draw: () => void) => things.push({ depth, draw });
-        if (f2 && roof > 0) f2.pushBarn(ctx, push, isoScreen, s, px, b, look, open ? "open" : "shut", roof);
-        else if (roof > 0) things.push({ depth: roof < 1 ? b.x + b.y + b.w + b.h - 0.4 : b.x + b.y + (b.w + b.h) / 2, draw: () => drawBarnOutside(ctx, k, project, b, art, s, px, open, roof) });
+        // ── its yard, behind it (a barn of 8 or 16: the owner's "ข"): the map's fence on three sides with its gate, a tray a
+        // place along its back fence, full while that place's animal has food in it; seen from outside, and the barn itself
+        // faint while I stand in the yard, so that the yard is seen
+        const rooms = holder?.room ?? ANIMALS.barns.stages[0].room, yardRows = holder ? yardRowsOf(b.i, rooms) : 0;
+        const own = holder ? ownBy.get(holder.owner) ?? [] : [];
+        const fed = (i: number) => { const a = own[i]; return !!a && (views.current.get(a.id)?.v.food ?? a.food) > 0.02; };
+        const inYard = !!yardRows && !!self && map === "farm" && yardAt(self.x, self.y) === b.i;
+        const faint = inYard ? 0.18 : 1;
+        if (yardRows && f2) {
+          const y0 = b.y - yardRows, g = yardGate(b);
+          for (let x = b.x; x < b.x + b.w; x++) f2.pushFence(ctx, push, isoScreen, s, px, x, y0, "n");
+          for (let y = y0; y < b.y; y++) {
+            f2.pushFence(ctx, push, isoScreen, s, px, b.x, y, "w");
+            // (the gate: a gap in the east fence by the barn's back wall)
+            if (y !== g.outside[1]) f2.pushFence(ctx, push, isoScreen, s, px, b.x + b.w, y, "w");
+          }
+          const spots = barnSpots(b, rooms);
+          spots.forEach((p, i) => { if (p.yard) f2.pushTray(ctx, push, isoScreen, s, px, p.tray, fed(i), p.tray.x + p.tray.y); });
+          // (its trays a tap too, for the trough's panel; and, close to, a word at the gate)
+          const tr = spots.filter((p) => p.yard).map((p) => project(p.tray));
+          if (tr.length) out.push({ kind: "trough", barn: b.i, x0: Math.min(...tr.map((p) => p.x)) - 16 * s, y0: Math.min(...tr.map((p) => p.y)) - 30 * s, x1: Math.max(...tr.map((p) => p.x)) + 16 * s, y1: Math.max(...tr.map((p) => p.y)) + 8 * s });
+          if (mine && s >= 0.8) { const gc = project({ x: g.outside[0] + 0.5, y: g.outside[1] + 0.5 }); if (onScreen(gc)) tag(t("ประตูลาน", "Yard gate"), gc.x, gc.y - 30 * s, "#ffd772"); }
+        }
+        if (f2 && roof > 0) f2.pushBarn(ctx, push, isoScreen, s, px, b, look, open ? "open" : "shut", roof * faint);
+        else if (roof > 0) things.push({ depth: roof < 1 ? b.x + b.y + b.w + b.h - 0.4 : b.x + b.y + (b.w + b.h) / 2, draw: () => drawBarnOutside(ctx, k, project, b, art, s, px, open, roof * faint) });
         if (roof < 1) {
-          // (the trough's slots: each the animal of that place's, its feed and how full; a free barn's two, empty)
-          const inside = (w?.animals ?? []).filter((a) => holder && a.owner === holder.owner && a.home !== "pen" && a.born <= clock).sort((x, y) => (x.id < y.id ? -1 : 1));
-          const room = holder?.room ?? ANIMALS.barns.stages[0].room;
-          const slots = Array.from({ length: troughOf(b, room).slots.length }, (_, i) => { const a = inside[i]; return a ? { species: a.species, food: views.current.get(a.id)?.v.food ?? a.food } : null; });
+          // (the trough's slots: each the animal of that place's on the floor, its feed and how full; a free barn's two, empty)
+          const room = rooms, onFloor = floorOf(b.i, room), floor = barnSpots(b, room).filter((p) => !p.yard);
+          const slots = Array.from({ length: Math.min(onFloor, troughOf(b, onFloor).slots.length) }, (_, i) => { const a = own[i]; return a ? { species: a.species, food: views.current.get(a.id)?.v.food ?? a.food } : null; });
           drawBarnInside(things, ctx, k, sc, project, b, s, px, { slots, eggs: holder ? coming(holder.owner) : 0, open, alpha: 1 - roof, bare: !!f2 });
           if (f2) {
-            // its inside, and a tray for each place along the back wall: full while that place's animal has food in it (the
-            // owner, 2026-11-07, of the map's trays against the one long trough: "เอาแบบใหม่")
+            // its inside, and a tray for each place on its floor along the back wall: full while that place's animal has food
+            // in it (the owner, 2026-11-07, of the map's trays against the one long trough: "เอาแบบใหม่")
             f2.pushBarn(ctx, push, isoScreen, s, px, b, look, "inside", 1 - roof);
-            troughOf(b, room).slots.forEach((slot, i) => {
-              const at = { x: (slot.x0 + slot.x1) / 2, y: b.y + 0.5 };
-              f2.pushTray(ctx, push, isoScreen, s, px, at, (slots[i]?.food ?? 0) > 0.02, at.x + at.y, 1 - roof);
-            });
+            floor.forEach((p, i) => f2.pushTray(ctx, push, isoScreen, s, px, p.tray, fed(i), p.tray.x + p.tray.y, 1 - roof));
           }
           // (what is tapped inside: the trough and the nest)
-          const tr = troughOf(b, room), tr0 = project({ x: tr.x0, y: b.y + 0.3 }), tr1 = project({ x: tr.x1, y: b.y + 0.3 });
+          const xs = floor.map((p) => p.tray.x), tr = { x0: Math.min(...xs) - 0.5, x1: Math.max(...xs) + 0.5 }, tr0 = project({ x: tr.x0, y: b.y + 0.3 }), tr1 = project({ x: tr.x1, y: b.y + 0.3 });
           out.push({ kind: "trough", barn: b.i, x0: Math.min(tr0.x, tr1.x) - 8 * s, y0: Math.min(tr0.y, tr1.y) - 30 * s, x1: Math.max(tr0.x, tr1.x) + 8 * s, y1: Math.max(tr0.y, tr1.y) + 10 * s });
           if (holder && (holder.owner === me || mayCare(holder, me))) {
             const tx = (tr0.x + tr1.x) / 2, ty = Math.min(tr0.y, tr1.y) - 34 * s;
@@ -415,7 +443,9 @@ export default function TownPasture(props: PastureProps) {
           // (over the middle of the roof's ridge: measured on the barn's picture, its own pixels from the walls' front corner)
           const kk = s * ((b.w + b.h) * 32) / 458, pic = f2?.barnBox(b, look, "shut", isoScreen, s) ?? null;
           const top = pic ? { x: (pic.x0 + pic.x1) / 2, y: pic.y0 - 4 } : { x: C.x - 71 * kk, y: C.y - 300 * kk - 6 };
-          const text = holder ? (mine ? t(`โรงของฉัน · ${b.i + 1}`, `My barn · ${b.i + 1}`) : `${nameOf(holder.owner).slice(0, 14)} · ${b.i + 1}`) : `${barnName(b.i, th)} · ${t("ว่าง", "free")}`;
+          // (a barn past four says how many it houses, so that 8 and 16 read from the lane, its yard being behind it)
+          const many = holder && holder.room > 4 ? ` · ${t(`${holder.room} ตัว`, `houses ${holder.room}`)}` : "";
+          const text = (holder ? (mine ? t(`โรงของฉัน · ${b.i + 1}`, `My barn · ${b.i + 1}`) : `${nameOf(holder.owner).slice(0, 14)} · ${b.i + 1}`) : `${barnName(b.i, th)} · ${t("ว่าง", "free")}`) + many;
           tag(text, top.x, top.y, mine ? "#ffd772" : holder ? "#f3e3c3" : "#a8f0c0");
           out.push({ kind: "barn", barn: b.i, x0: top.x - 60, y0: top.y - 10, x1: top.x + 60, y1: top.y + 10 });
           if (open) tag(t("ประตูเปิด", "Door open"), dc.x - 8 * s, dc.y - 108 * s, "#a8f0c0");
@@ -439,8 +469,9 @@ export default function TownPasture(props: PastureProps) {
       const night = (frame.dark ?? 0) > 0.55;
       const bellNow = bell.current && clock < bell.current.till ? bell.current : null;
       const glints = wearing(keeper.purse(), ANIMAL_GIFTS.bell as CharmId);
+      // (each animal's place among its barn's: the owner's animals in their order, gathered in one pass, not a filter a herd)
       const slots = new Map<string, number>();
-      for (const h of w.herds) w.animals.filter((a) => a.owner === h.owner && a.home !== "pen" && a.born <= clock).sort((x, y) => (x.id < y.id ? -1 : 1)).forEach((a, i) => slots.set(a.id, i));
+      for (const list of ownBy.values()) list.forEach((a, i) => slots.set(a.id, i));
       const herds = new Map(w.herds.map((h) => [h.owner, h]));
       for (const a of w.animals) {
         const st = stageOf(a, clock);
@@ -468,7 +499,8 @@ export default function TownPasture(props: PastureProps) {
         const shorn = a.species === "sheep" && st === "adult" && v.ready === 0 && v.round < 0.5;
         const look = { species: a.species, breed: a.breed, stage: st, sex: a.sex };
         // (its size, a cramped one inside a barn; the moment it is told of it, it swells to it with a ring of light, and only on a page that saw it without)
-        const fullBody = spot.inside >= 0 ? Math.min(a.body ?? 1, 1.35) : a.body ?? 1;
+        // (and in a yard: its places stand apart for animals of their own size)
+        const fullBody = spot.inside >= 0 || (holder && holder.room > 4 && yardAt(spot.x, spot.y) === holder.barn) ? Math.min(a.body ?? 1, 1.35) : a.body ?? 1;
         if (a.body !== undefined && bodiesKnown.current.has(a.id) && bodiesKnown.current.get(a.id) === undefined) swelled.current.set(a.id, clock);
         bodiesKnown.current.set(a.id, a.body);
         const since = clock - (swelled.current.get(a.id) ?? -1e9), swelling_ = !still && since < 1600, u = Math.min(1, since / 900), ease = 1 + 2.2 * (u - 1) ** 3 + 1.2 * (u - 1) ** 2, shownBody = swelling_ ? 1 + (fullBody - 1) * ease : fullBody;
@@ -483,7 +515,9 @@ export default function TownPasture(props: PastureProps) {
         // (a bubble gives way as a name does: animals crowded at the trough show one each where there is room)
         if (mine && v.ready > 0) { if (fits("   ", c.x, head - 9 * s)) over?.(() => drawBubble(ctx, k, "ready", SPECIES[a.species].game, c.x, head, s, tick, still, px)); }
         else if (v.hungry && (mine || care) && fits("   ", c.x, head - 9 * s)) over?.(() => drawBubble(ctx, k, mine ? "hungry" : "care", SPECIES[a.species].game, c.x, head, s, tick, still, px));
-        { const text = mine ? `${a.sex === "m" ? "♂" : "♀"} ${(a.name || breedOf(a.breed)?.name[th ? "th" : "en"] || "").slice(0, 12)}` : a.name.slice(0, 12);
+        // (in a barn of more than four, at rest at home, the names would cover its floor and yard: there a name is its card's, on a tap)
+        const crowd = !!holder && holder.room > 4 && spot.pose !== "walk" && (spot.inside === holder.barn || yardAt(spot.x, spot.y) === holder.barn);
+        if (!crowd) { const text = mine ? `${a.sex === "m" ? "♂" : "♀"} ${(a.name || breedOf(a.breed)?.name[th ? "th" : "en"] || "").slice(0, 12)}` : a.name.slice(0, 12);
           if (((mine && s >= 0.8) || (a.name && s >= 1.4)) && fits(text, c.x, c.y + 10 * s)) tag(text, c.x, c.y + 10 * s, mine ? "#cfe6ff" : "#f3e3c3"); }
       }
       out.push(...late);

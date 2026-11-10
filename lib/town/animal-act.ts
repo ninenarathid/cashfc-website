@@ -11,8 +11,8 @@ import {
   ANIMALS, ANY_FEED, BREED, DAWN_BOOSTS, DEW_GROW, OFFERINGS, SPECIES, SPECIES_IDS, adultAt, breedAt, breedOf, crossOf,
   feeOf, freeHome, heartsOf, kindOf, mayCare, newHerd, rangeOf, realOf, rollOf, scoreOf, sellBackOf, settle, stageOf,
   starterOf, stepKey, stepsOf, unitsOf, LEAST_SECS, MEADOW, bandOf, findOf, forageAt, scrollOf, boughtStats, childStats,
-  barnsOf, untendedOf, usedOf, gives, heartsPlus, nextStage, stagesPaid,
-  type Animal, type Book, type Ctx, type GateLog, type Herd, type Home, type Play, type Sex, type SpeciesId, type Stats,
+  barnsOf, untendedOf, usedOf, gives, heartsPlus, nextStage, stagesPaid, owedOf, partsOf, partsKept,
+  type Animal, type BarnStage, type Book, type Ctx, type GateLog, type Herd, type Home, type Play, type Sex, type SpeciesId, type Stats,
 } from "./animals";
 import { roll } from "./farm";
 import { put, roomFor, take, held, type Purse } from "./trade";
@@ -51,12 +51,15 @@ export interface AnimalWorld {
   asks: Ask[];
   /** Who first found each bred breed's special, and when (lib/town/specials; v324). */
   specials?: Record<string, { by: string; at: number }>;
+  /** The barn's stages whoever keeps the game knows (v326 tells them; lib/town/animals' stagesOf). */
+  stages?: ReadonlyArray<BarnStage>;
 }
 
 export type AnimalInput =
   | { action: "look" }
   | { action: "barn"; index: number }
   | { action: "enlarge" }
+  | { action: "deliver" }
   | { action: "buy"; species: SpeciesId; sex: Sex }
   | { action: "shop"; item: string; n: number }
   | { action: "facade" }
@@ -109,7 +112,9 @@ export interface AnimalReply {
   /** What a collection, a cross or the cradle came to, for the page to tell. */
   got?: { find?: ItemId | null; item?: ItemId; n?: number; grades?: number[]; whole?: boolean; child?: string; first?: boolean; right?: boolean; clue?: boolean; spot?: [number, number]; sex?: Sex; stats?: Stats; id?: string;
     /** A collection's special (in place of so many units of its produce, of their grades), its round's strip, and whether it was the village's first. */
-    special?: { item: string; n: number; grades: number[] } | null; strip?: Strip | null; firstSpecial?: boolean };
+    special?: { item: string; n: number; grades: number[] } | null; strip?: Strip | null; firstSpecial?: boolean;
+    /** What a delivery towards a stage handed over (coins and things), and the room the barn grew to when it was the last part. */
+    gave?: Record<string, number>; grew?: number };
 }
 
 /** Where eggs laid out on the meadow lie: a spot of the pasture, picked from the animal and the round (the page's world.ts puts the pasture's tiles in order). */
@@ -194,6 +199,10 @@ export const POPOTO_SHOP: Record<string, number> = {
   [RENAME_TAG]: 500,
   ...POPOTO_SCROLL_PRICES,
 };
+/** Whether a bag holds every thing a stage paid at once takes; the bag with them taken; what it took, for the deed. */
+const hasAll = (bag: Purse["bag"], S: BarnStage) => S.needs.every(([id, n]) => held(bag, id as ItemId) >= n);
+const takeAll = (bag: Purse["bag"], S: BarnStage) => S.needs.reduce((b, [id, n]) => take(b, id as ItemId, n), bag);
+const needsDoc = (S: BarnStage) => ({ things: Object.fromEntries(S.needs) as Record<string, number> });
 /** The tool each game asks for. */
 export const TOOL_OF = { eggs: "eggBasket", shear: "woolShears", milk: "milker" } as const;
 
@@ -247,29 +256,63 @@ export function animalAction(world0: AnimalWorld, purse: Purse, input: AnimalInp
       if (holder) {
         if (untendedOf(holder, now).level < 3 || barnsOf(world.herds).includes(null)) return no("taken");
         const animals = w.animals.map((a) => (a.owner === holder.owner && a.home === "barn" ? { ...settled(a), home: "pen" as Home, lent: null } : a));
-        w = withHerd({ ...w, animals }, { ...holder, barn: null, door: closeDoor(holder.door, now), credit: holder.credit + stagesPaid(holder.room) });
+        // (and what it had handed over towards a stage paid in parts, built or not, is kept for its owner's next barn)
+        const kept = partsKept(holder);
+        w = withHerd({ ...w, animals }, { ...holder, barn: null, door: closeDoor(holder.door, now), credit: holder.credit + stagesPaid(holder.room), ...(Object.keys(kept).length ? { parts: kept } : {}) });
         notes.push({ what: "animal_reclaim", n: 1, doc: { barn: i, from: holder.owner } });
       }
       const coins = Math.max(0, B.coins - herd.credit);
       if (purse.coins < coins) return no("coins");
-      if (held(purse.bag, "log" as ItemId) < B.logs || held(purse.bag, "stoneTile" as ItemId) < B.stone) return no("nothing");
-      notes.push({ what: "animal_barn", n: 1, doc: { barn: i, coins, logs: B.logs, stone: B.stone } });
-      const bag = take(take(purse.bag, "log" as ItemId, B.logs), "stoneTile" as ItemId, B.stone);
-      return yes(withHerd(w, { ...herd, barn: i, room: B.room, credit: herd.credit - (B.coins - coins), lastCare: now, door: [] }), { ...purse, coins: purse.coins - coins, bag });
+      if (!hasAll(purse.bag, B)) return no("nothing");
+      notes.push({ what: "animal_barn", n: 1, doc: { barn: i, coins, ...needsDoc(B) } });
+      return yes(withHerd(w, { ...herd, barn: i, room: B.room, credit: herd.credit - (B.coins - coins), lastCare: now, door: [] }), { ...purse, coins: purse.coins - coins, bag: takeAll(purse.bag, B) });
     }
 
     case "enlarge": {
-      // my barn's next stage: room for more ("ลงทุนเพิ่มเพื่อขยาย"), of coins (less any credit), logs and stone tiles
+      // my barn's next stage paid at once: room for more ("ลงทุนเพิ่มเพื่อขยาย"), of coins (less any credit) and its things
       const herd = herdOf(world, me);
       if (herd.barn === null) return no("barn");
       const S = nextStage(herd.room);
       if (!S) return no("full");
+      // (a stage paid in parts is delivered, never bought at once)
+      if (S.parts) return no("stage");
       const coins = Math.max(0, S.coins - herd.credit);
       if (purse.coins < coins) return no("coins");
-      if (held(purse.bag, "log" as ItemId) < S.logs || held(purse.bag, "stoneTile" as ItemId) < S.stone) return no("nothing");
-      notes.push({ what: "animal_enlarge", n: S.room, doc: { barn: herd.barn, coins, logs: S.logs, stone: S.stone } });
-      const bag = take(take(purse.bag, "log" as ItemId, S.logs), "stoneTile" as ItemId, S.stone);
-      return yes(withHerd(world, { ...herd, room: S.room, credit: herd.credit - (S.coins - coins) }), { ...purse, coins: purse.coins - coins, bag });
+      if (!hasAll(purse.bag, S)) return no("nothing");
+      notes.push({ what: "animal_enlarge", n: S.room, doc: { barn: herd.barn, coins, ...needsDoc(S) } });
+      return yes(withHerd(world, { ...herd, room: S.room, credit: herd.credit - (S.coins - coins) }), { ...purse, coins: purse.coins - coins, bag: takeAll(purse.bag, S) });
+    }
+
+    case "deliver": {
+      // towards my barn's next stage when it is paid in parts ("ส่งของ"): whatever my bag holds of each thing still owed,
+      // and the coins still owed (any credit first, then my purse); the barn grows the moment the last part is in. What
+      // is handed over is the herd's (lib/town/animals' parts), kept if the barn is given up or taken back.
+      const herd = herdOf(world, me);
+      if (herd.barn === null) return no("barn");
+      const S = nextStage(herd.room);
+      if (!S) return no("full");
+      if (!S.parts) return no("stage");
+      const got = partsOf(herd, S.room), owed = owedOf(S, got);
+      const credit = Math.min(Math.max(0, herd.credit), owed.coins), coins = Math.min(Math.max(0, purse.coins), owed.coins - credit);
+      const gave: Record<string, number> = {};
+      let bag = purse.bag;
+      for (const [id, n] of owed.things) {
+        const k = Math.min(n, held(bag, id as ItemId));
+        if (k > 0) { gave[id] = k; bag = take(bag, id as ItemId, k); }
+      }
+      if (credit + coins <= 0 && !Object.keys(gave).length) return no("nothing");
+      const after: Record<string, number> = { ...got };
+      if (credit + coins > 0) after.coins = (got.coins ?? 0) + credit + coins;
+      for (const [id, k] of Object.entries(gave)) after[id] = (got[id] ?? 0) + k;
+      const left = owedOf(S, after), done = left.coins === 0 && !left.things.length;
+      const parts = { ...(herd.parts ?? {}) };
+      if (done) delete parts[String(S.room)];
+      else parts[String(S.room)] = after;
+      notes.push({ what: "animal_deliver", n: S.room, doc: { barn: herd.barn, coins, credit, things: gave, done } });
+      if (done) notes.push({ what: "animal_enlarge", n: S.room, doc: { barn: herd.barn, parts: true } });
+      const { parts: _was, ...rest } = herd;
+      const h: Herd = { ...rest, credit: herd.credit - credit, room: done ? S.room : herd.room, ...(Object.keys(parts).length ? { parts } : {}) };
+      return yes(withHerd(world, h), { ...purse, coins: purse.coins - coins, bag }, { gave: { ...(credit + coins > 0 ? { coins: credit + coins } : {}), ...gave }, ...(done ? { grew: S.room } : {}) });
     }
 
     case "buy": {

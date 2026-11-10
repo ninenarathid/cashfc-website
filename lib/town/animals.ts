@@ -21,6 +21,9 @@ export const dayOf = (now: number) => Math.floor((now + 7 * HOUR - 5 * HOUR) / D
 
 /* ── the line's numbers ── */
 
+/** A barn's stage: the room it gives, its coins and what else it takes (an item and how many); `parts`: handed over in parts. */
+export interface BarnStage { room: number; coins: number; needs: ReadonlyArray<readonly [string, number]>; parts?: boolean }
+
 export const ANIMALS = {
   /** The most fed hours a trough holds ("ทุกวัน เจ้าของต้องนำอาหารมาให้"). */
   trough: 24,
@@ -42,7 +45,20 @@ export const ANIMALS = {
    */
   barns: {
     count: 24,
-    stages: [{ room: 2, coins: 500, logs: 20, stone: 8 }, { room: 4, coins: 1000, logs: 40, stone: 12 }] as ReadonlyArray<{ room: number; coins: number; logs: number; stone: number }>,
+    /**
+     * The four stages (the owner, 2026-11-10: "ช่วยเพิ่มการอัพเกรด คอกสัตว์ จาก max 4 ตัว เพิ่มเป็น 8 และ 16 … ใช้ของเยอะระดับนึงด้วย
+     * คนจะได้ทำกันยากหน่อย", and Codex's prices, which he agreed): the coins and the things each takes. The first two are
+     * paid at once from the bag, as they always were; the last two (`parts`) take more than a bag holds, so they are
+     * handed over in parts ("ส่งของ": whatever the bag holds of what is still owed, coins too), and the barn grows the
+     * moment the last part is in. Where the animals past four live is the page's (lib/town/pasture's yard behind the
+     * barn); the database knows only the room.
+     */
+    stages: [
+      { room: 2, coins: 500, needs: [["log", 20], ["stoneTile", 8]] },
+      { room: 4, coins: 1000, needs: [["log", 40], ["stoneTile", 12]] },
+      { room: 8, coins: 3000, needs: [["log", 200], ["timber", 100], ["stoneTile", 40], ["oreIron", 30]], parts: true },
+      { room: 16, coins: 15000, needs: [["log", 400], ["timber", 200], ["stoneTile", 100], ["oreIron", 60], ["yarn", 40]], parts: true },
+    ] as ReadonlyArray<BarnStage>,
   },
   /** Uncle Popoto's pen: so many animals a member keeps there, frozen (they neither eat, grow nor give). */
   pen: 8,
@@ -368,6 +384,12 @@ export interface Herd {
   door: GateLog;
   /** What a barn taken back after it was left untended leaves its owner towards the next (coins, logs, stone). */
   credit: number;
+  /**
+   * What has been handed over towards a stage paid in parts, by its room ("8", "16"): coins and each thing, so many. It is
+   * the herd's, not the barn's: nothing handed over is lost if the barn is given up or taken back. A stage's parts go
+   * when it is built. Told to its owner alone.
+   */
+  parts?: Record<string, Record<string, number>>;
   /** When its owner last cared for an animal of it (the untended rule reads it). */
   lastCare: number;
   /** From when the owner's warm bottle (rank 3) counts for its animals: the first step after it was had, never before. */
@@ -655,10 +677,37 @@ export function freeHome(herd: Herd, animals: readonly Animal[]): Home | null {
   if (herd.barn !== null && used.barn < herd.room) return "barn";
   return used.pen < ANIMALS.pen ? "pen" : null;
 }
-/** A barn's next stage after the room it has (none: it is as large as it goes). */
-export const nextStage = (room: number) => ANIMALS.barns.stages.find((s) => s.room > room) ?? null;
+/** A barn's next stage after the room it has (none: it is as large as it goes), of the stages there are. */
+export const nextStage = (room: number, stages: ReadonlyArray<BarnStage> = ANIMALS.barns.stages) => stages.find((s) => s.room > room) ?? null;
 /** The coins a barn's stages cost up to the room it has: what its owner keeps as credit if it is taken back. */
 export const stagesPaid = (room: number) => ANIMALS.barns.stages.filter((s) => s.room <= room).reduce((t, s) => t + s.coins, 0);
+/**
+ * The stages whoever keeps the game knows (the world's `stages`, told by a database from v326 on); none told: all of
+ * them (the trial). A database before v326 tells none, and the page's keeper then holds the first two (lib/town/animal-world).
+ */
+export const stagesOf = (w: { stages?: ReadonlyArray<BarnStage> } | null | undefined): ReadonlyArray<BarnStage> => w?.stages ?? ANIMALS.barns.stages;
+/** What has been handed over towards a stage paid in parts (coins and things), made sound. */
+export function partsOf(herd: Pick<Herd, "parts">, room: number): Record<string, number> {
+  const p = herd.parts?.[String(room)];
+  return p && typeof p === "object" ? Object.fromEntries(Object.entries(p).filter(([, n]) => typeof n === "number" && n > 0)) : {};
+}
+/** What is still owed of a stage after what was handed over: coins and each thing (only those still owed). */
+export function owedOf(stage: BarnStage, got: Record<string, number>): { coins: number; things: Array<[string, number]> } {
+  return {
+    coins: Math.max(0, stage.coins - (got.coins ?? 0)),
+    things: stage.needs.map(([id, n]) => [id, Math.max(0, n - (got[id] ?? 0))] as [string, number]).filter(([, n]) => n > 0),
+  };
+}
+/**
+ * A herd's parts after its barn is taken back (left untended): every stage paid in parts that it had built is kept as
+ * handed over, its things whole (its coins go to the credit, as every stage's do: `stagesPaid`), so that a barn had again
+ * grows back to it for the coins alone; what was being handed over towards a stage not built stays as it was.
+ */
+export function partsKept(herd: Pick<Herd, "parts" | "room">): Record<string, Record<string, number>> {
+  const out: Record<string, Record<string, number>> = { ...(herd.parts ?? {}) };
+  for (const s of ANIMALS.barns.stages) if (s.parts && s.room <= herd.room) out[String(s.room)] = Object.fromEntries(s.needs);
+  return out;
+}
 /** Who holds each of the 24 barns. */
 export const barnsOf = (herds: readonly Herd[]): Array<string | null> =>
   Array.from({ length: ANIMALS.barns.count }, (_, i) => herds.find((h) => h.barn === i)?.owner ?? null);
