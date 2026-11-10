@@ -462,14 +462,21 @@ export async function savePfEvent(
   return { event: eventOf(data as unknown as EventRow) };
 }
 
-/** Aqua's word on a party; null takes it back, to waiting. */
+/**
+ * Aqua's word on a party; null takes it back, to waiting.
+ *
+ * Only the three columns everybody may read. An upsert's DO UPDATE reads back
+ * every column it sends (EXCLUDED.col), and that needs SELECT on it: sending
+ * `note`, which v320 lets nobody read, made every verdict fail with
+ * "permission denied for table pf_event_reviews" (Aqua, 2026-11-10).
+ */
 export async function savePfReview(
   supabase: SupabaseClient, eventId: number, partyId: string,
-  verdict: Verdict | null, note: string | null = null,
+  verdict: Verdict | null,
 ): Promise<{ error?: string }> {
   const { error } = verdict
     ? await supabase.from("pf_event_reviews").upsert(
-      { event_id: eventId, party_id: Number(partyId), verdict, note: note?.trim() || null },
+      { event_id: eventId, party_id: Number(partyId), verdict },
       { onConflict: "event_id,party_id" })
     : await supabase.from("pf_event_reviews").delete()
       .eq("event_id", eventId).eq("party_id", Number(partyId));
