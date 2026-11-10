@@ -9,6 +9,7 @@
 import { browser, sleep, status, until } from "./cdp.mjs";
 
 const [BASE = "http://localhost:3326", OUT = ".", SIZES = "desktop,phone"] = process.argv.slice(2);
+const ONLY = process.env.ONLY ?? "";
 const V = "window.__townView", P = "window.__townPasture", T = "window.__townTrade";
 const SPECIES = { cow: "dairyCow", sheep: "meadowSheep", chicken: "barnHen", duck: "puddleDuck" };
 // sixteen of four kinds, the big ones among them: five cows, four sheep, four hens, three ducks
@@ -57,13 +58,17 @@ for (const [label, size] of [["desktop", { width: 1280, height: 860 }], ["phone"
     await X.goto(url);
     await until("ready", async () => (await status(X)) === "ready", 240000);
     const me = await X.evaluate(`${T}.id`);
+    // (ONLY=g: the panel alone)
+    if (!ONLY || ONLY.includes("a")) {
     // (a) the second row from the lane in front: 4 at 16, 5 at 8, 6 at 4, 7 (mine) at 16; doors shut
     await enter(world(me));
     if (desk) { await shot("a-row-west", [233, 33], [229, 26]); await shot("a-row-east", [247, 33], [251, 26]); }
     else { await shot("a-row-west", [230, 33], [229.5, 26.5]); await shot("a-row-mid", [238, 33], [236, 25.5]); await shot("a-row-east", [255, 33], [255.5, 25.5]); }
     // (b) the yards at rest, from the lane behind: 8's (barn 6, two rows) and 16's (barn 5, four rows)
-    await shot("b-yard8", [235, 21], desk ? [233, 23.5] : [235, 24]);
+    await shot("b-yard8", [235, 22], desk ? [234, 24] : [235, 24]);
     await shot("b-yard16", [226, 21], desk ? [226, 24] : [226, 24.5]);
+    // (b2) from the lane behind my row: my barn part faint, its yard seen
+    await shot("b-behind", [256, 21], desk ? [256, 24] : [256, 24.5]);
     // (c) one of the six short barns at 16 (barn 3: its yard two rows, the lane behind it)
     await shot("c-short16", [247, 12], desk ? [247, 16] : [247.5, 16]);
     // (d) standing in my yard: the barn faint; my trays, full and empty (a third of mine unfed)
@@ -83,7 +88,8 @@ for (const [label, size] of [["desktop", { width: 1280, height: 860 }], ["phone"
     await shot("e-floor16", [256, 29], [256, 29.5]);
     // (f) every door of the row open: the yard's animals out through the gate, the floor's through the door
     await enter(world(me, { door: [[Date.now() - 6000, null]], others: [[Date.now() - 6000, null]] }));
-    await shot("f-open", [249, 33], desk ? [247, 27] : [256, 28], 9000);
+    await shot("f-open", [262, 33], desk ? [259, 27.5] : [260, 28], 9000);
+    }
     // (g) the panel: at 4 with a bag of some of 8's things; at 4 part-delivered; at 8, its bag completing 16; at 16
     for (const [name, mine, bag, coins] of [
       ["g-room4", { room: 4, n: 4 }, [["log", 230], ["timber", 64], ["stoneTile", 40], ["oreIron", 12]], 5200],

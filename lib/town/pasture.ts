@@ -120,7 +120,8 @@ export function barnWall(ax: number, ay: number, bx: number, by: number): boolea
     // (neither in a barn: a yard's fence, if one is between them)
     if (a >= 0 || !YARDS.size) return false;
     const ya = yardAt(ax, ay), yb = yardAt(bx, by);
-    if (ya === yb) return false;
+    // (in a yard: its gate's open leaf, on the slant too)
+    if (ya === yb) return ya >= 0 && (gateLeaf(BARNS[ya], ax, ay, bx, by) || (ax !== bx && ay !== by && (gateLeaf(BARNS[ya], ax, ay, ax, by) || gateLeaf(BARNS[ya], bx, ay, bx, by))));
     if (ya >= 0 && yb >= 0) return true;
     const i = ya >= 0 ? ya : yb, g = yardGate(BARNS[i]), inside = ya >= 0 ? [ax, ay] : [bx, by], outside = ya >= 0 ? [bx, by] : [ax, ay];
     return !(inside[0] === g.inside[0] && inside[1] === g.inside[1] && outside[0] === g.outside[0] && outside[1] === g.outside[1]);
@@ -148,10 +149,18 @@ export const yardRowsOf = (barn: number, room: number) => (room >= 16 ? YARD_MOS
 /** The yards built now, barn to rows deep: laid from the herds (`setYards`) by whoever draws the farm, read by the walking. */
 const YARDS = new Map<number, number>();
 /** Lay the yards from who holds which barn at what room (the world's herds). */
+let yardsSig = "", yardsKey_ = 0;
 export function setYards(herds: ReadonlyArray<{ barn: number | null; room: number }>) {
+  // (laid every frame by the farm's drawing: changed only when the yards do, so that what is worked out of them keeps)
+  let sig = "";
+  for (const h of herds) if (h.barn !== null && h.barn >= 0 && h.barn < BARNS.length) { const r = yardRowsOf(h.barn, h.room); if (r > 0) sig += `${h.barn}:${r},`; }
+  if (sig === yardsSig) return;
+  yardsSig = sig; yardsKey_++;
   YARDS.clear();
   for (const h of herds) if (h.barn !== null && h.barn >= 0 && h.barn < BARNS.length) { const r = yardRowsOf(h.barn, h.room); if (r > 0) YARDS.set(h.barn, r); }
 }
+/** A number that changes whenever the yards built do (for what is worked out of them once: the bushes not drawn). */
+export const yardsKey = () => yardsKey_;
 /** The yards built now (barn, rows deep). */
 export const yardsNow = (): ReadonlyMap<number, number> => YARDS;
 /** A barn's yard's tiles at so many rows deep: its width, from the row `rows` behind the barn to the row before its back wall. */
@@ -169,6 +178,15 @@ export function yardAt(x: number, y: number): number {
  * outside. Whoever walks in, and the animals going out to graze, go through it.
  */
 export const yardGate = (b: Pick<BarnPlace, "x" | "y" | "w">) => ({ inside: [b.x + b.w - 1, b.y - 1] as const, outside: [b.x + b.w, b.y - 1] as const });
+/**
+ * The gate stands open into the yard: its leaf (a length of the map's own fence) along the north edge of the tile inside
+ * it, swung back against the yard. It is a wall as the fences are (one more edge `barnWall` keeps), so nothing walks
+ * through it; the way in turns west at once.
+ */
+const gateLeaf = (b: Pick<BarnPlace, "x" | "y" | "w">, ax: number, ay: number, bx: number, by: number) => {
+  const g = yardGate(b);
+  return ax === g.inside[0] && bx === g.inside[0] && Math.min(ay, by) === g.inside[1] - 1 && Math.max(ay, by) === g.inside[1];
+};
 
 /**
  * Where each of a barn's places is (its animals' in their order: `slot`), and whether it is in the yard. Up to four,
@@ -177,10 +195,18 @@ export const yardGate = (b: Pick<BarnPlace, "x" | "y" | "w">) => ({ inside: [b.x
  * has its tray: the floor's along the back wall, the yard's along its back fence. Places stand apart, so that a barn
  * full at rest is no heap.
  */
-export interface BarnSpot { at: P; tray: P; yard: boolean; /** Its tray is right behind it (it walks there to eat), or it grazes where it stands. */ near: boolean }
+export interface BarnSpot { at: P; tray: P; yard: boolean; /** Its tray is right behind it (it walks there to eat), or it grazes where it stands. */ near: boolean; /** Its tray stands along the yard's back fence (the yard's own, and the floor's third row's in a short barn). */ trayYard: boolean }
 const places = new Map<string, BarnSpot[]>();
-/** How many of a barn's places are on its floor at a room. */
-export const floorOf = (barn: number, room: number) => (yardRowsOf(barn, room) > 0 ? Math.min(8, room - (room >= 16 ? 8 : 4)) : Math.min(4, Math.max(1, room)));
+/**
+ * How many of a barn's places are on its floor at a room: four at 8; eight at 16; and twelve at 16 in one of the six
+ * short barns, whose yard stays two rows deep and holds four as at 8 (the owner's default: "the barn's own floor houses
+ * the rest"), so that no yard two rows deep holds more than its one row.
+ */
+export const floorOf = (barn: number, room: number) => {
+  const rows = yardRowsOf(barn, room);
+  if (!rows) return Math.min(4, Math.max(1, room));
+  return room >= 16 ? (rows < 4 ? 12 : 8) : 4;
+};
 export function barnSpots(barn: BarnPlace, room: number): BarnSpot[] {
   const key = `${barn.i}:${room}`, had = places.get(key);
   if (had) return had;
@@ -188,12 +214,20 @@ export function barnSpots(barn: BarnPlace, room: number): BarnSpot[] {
   const tray = (x: number, y: number): P => ({ x, y });
   if (onFloor <= 4) {
     // (the floor's one row, as it always was: restOf's places, each its slot of the trough)
-    for (let k = 0; k < onFloor; k++) { const e = slotSpot(barn, onFloor, k); out.push({ at: { x: barn.x + 1.4 + k * 1.75, y: barn.y + 1.9 }, tray: tray(e.x, barn.y + 0.5), yard: false, near: true }); }
-  } else {
+    for (let k = 0; k < onFloor; k++) { const e = slotSpot(barn, onFloor, k); out.push({ at: { x: barn.x + 1.4 + k * 1.75, y: barn.y + 1.9 }, tray: tray(e.x, barn.y + 0.5), yard: false, near: true, trayYard: false }); }
+  } else if (onFloor <= 8) {
     // (two rows of four, the front one a little to the east, each its tray along the back wall: the back row's behind it)
     for (let k = 0; k < onFloor; k++) {
       const row = Math.floor(k / 4), c = k % 4;
-      out.push({ at: { x: barn.x + 1.1 + c * 1.9 + row * 0.55, y: barn.y + (row ? 2.75 : 1.45) }, tray: tray(barn.x + 0.5 + c * 2 + row, barn.y + 0.5), yard: false, near: row === 0 });
+      out.push({ at: { x: barn.x + 1.1 + c * 1.9 + row * 0.55, y: barn.y + (row ? 2.75 : 1.45) }, tray: tray(barn.x + 0.5 + c * 2 + row, barn.y + 0.5), yard: false, near: row === 0, trayYard: false });
+    }
+  } else {
+    // (a short barn at 16: three rows of four, the middle one to the east; the first two rows' trays along the back wall,
+    // the third's along the yard's back fence beside the yard's own: past the wall's eight, a tray a place along the fence)
+    for (let k = 0; k < onFloor; k++) {
+      const row = Math.floor(k / 4), c = k % 4;
+      out.push({ at: { x: barn.x + 1.05 + c * 1.9 + (row === 1 ? 0.7 : 0), y: barn.y + 1.15 + row * 0.85 },
+        tray: row < 2 ? tray(barn.x + 0.5 + c * 2 + row, barn.y + 0.5) : tray(barn.x + 1.5 + c * 2, barn.y - rows + 0.5), yard: false, near: row === 0, trayYard: row >= 2 });
     }
   }
   const inYard = room - onFloor, y0 = barn.y - rows, two = inYard > 4;
@@ -204,7 +238,7 @@ export function barnSpots(barn: BarnPlace, room: number): BarnSpot[] {
     const row = two ? Math.floor(k / 4) : 1, c = k % 4;
     const x = barn.x + (row ? 0.95 : 1.55) + c * 1.9;
     const y = !two ? y0 + rows * 0.62 : rows >= 4 ? y0 + (row ? 2.85 : 1.4) : y0 + (row ? 1.62 : 0.72);
-    out.push({ at: { x, y }, tray: tray(barn.x + 0.5 + c * 2 + (row ? 0 : 1), y0 + 0.5), yard: true, near: !two || row === 0 });
+    out.push({ at: { x, y }, tray: tray(barn.x + 0.5 + c * 2 + (row ? 0 : 1), y0 + 0.5), yard: true, near: !two || row === 0, trayYard: true });
   }
   places.set(key, out);
   return out;
@@ -573,7 +607,8 @@ function outOf(barn: BarnPlace, slot: number, room = 4): P[] {
   const s = restOf(barn, slot, room), d = doorOf(barn);
   if (room > 4 && spotOf_(barn, slot, room).yard) {
     const g = yardGate(barn), gx = g.outside[0] + 0.5, gy = g.inside[1] + 0.5;
-    return [s, { x: g.inside[0] + 0.5, y: gy }, { x: gx, y: gy }, { x: gx, y: barn.y + barn.h + 0.5 }, { x: gx, y: barn.y + barn.h + 2 }];
+    // (round the open gate's leaf: to the tile west of the gate's, then out through it)
+    return [s, { x: g.inside[0] - 0.4, y: gy }, { x: g.inside[0] + 0.5, y: gy }, { x: gx, y: gy }, { x: gx, y: barn.y + barn.h + 0.5 }, { x: gx, y: barn.y + barn.h + 2 }];
   }
   return [s, { x: d.x, y: barn.y + 2.6 }, { x: d.x, y: barn.y + barn.h + 0.5 }, { x: d.x, y: barn.y + barn.h + 2 }];
 }

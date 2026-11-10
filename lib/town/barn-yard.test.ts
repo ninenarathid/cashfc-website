@@ -65,6 +65,10 @@ for (const map of ["farm2", "classic"] as const) {
           expect(P.barnWall(b.x + 2, b.y - rows - 1, b.x + 2, b.y - rows)).toBe(true);
           expect(P.barnWall(b.x + 2, b.y - 1, b.x + 2, b.y)).toBe(true);
           expect(P.barnWall(g.outside[0], g.outside[1] - 1, g.inside[0], g.inside[1])).toBe(true);
+          // (the gate's open leaf, along the north edge of the tile inside it)
+          expect(P.barnWall(g.inside[0], g.inside[1], g.inside[0], g.inside[1] - 1)).toBe(true);
+          expect(P.barnWall(g.inside[0] - 1, g.inside[1] - 1, g.inside[0], g.inside[1])).toBe(true);
+          expect(P.barnWall(g.inside[0], g.inside[1], g.inside[0] - 1, g.inside[1])).toBe(false);
         }
       } finally { P.setYards([]); }
       // (no yard built: nothing of it stands, and the ground behind a barn is as the map has it)
@@ -78,10 +82,10 @@ for (const map of ["farm2", "classic"] as const) {
         P.setYards([{ barn: b.i, room }]);
         expect(spots.length).toBe(room);
         expect(spots.filter((p) => !p.yard).length).toBe(P.floorOf(b.i, room));
-        expect(spots.filter((p) => p.yard).length).toBe(room <= 4 ? 0 : room === 8 ? 4 : 8);
+        expect(spots.filter((p) => p.yard).length).toBe(room <= 4 ? 0 : room === 8 || rows < 4 ? 4 : 8);
         for (const [i, p] of spots.entries()) {
           if (p.yard) { expect(P.yardAt(p.at.x, p.at.y), `barn ${b.i + 1} at ${room}: place ${i}`).toBe(b.i); expect(P.yardAt(p.tray.x, p.tray.y)).toBe(b.i); expect(p.at.y).toBeGreaterThan(b.y - rows); }
-          else { expect(P.barnAt(p.at.x, p.at.y)).toBe(b.i); expect(P.barnAt(p.tray.x, p.tray.y)).toBe(b.i); }
+          else { expect(P.barnAt(p.at.x, p.at.y)).toBe(b.i); expect(p.trayYard ? P.yardAt(p.tray.x, p.tray.y) : P.barnAt(p.tray.x, p.tray.y)).toBe(b.i); }
           // (never on the gate's tile, the hay or the nest)
           const t = [Math.floor(p.at.x), Math.floor(p.at.y)], g = P.yardGate(b);
           for (const [x, y] of [g.inside, b.hay, b.nest]) expect(t[0] === x && t[1] === y, `barn ${b.i + 1} place ${i} on ${x},${y}`).toBe(false);

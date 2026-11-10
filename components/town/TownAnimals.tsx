@@ -329,8 +329,8 @@ function BarnStages({ th, purse, herd, stages, busy, act }: { th: boolean; purse
             {i > 0 && <span aria-hidden className={`h-0.5 w-2 shrink-0 rounded-full ${done || on ? "bg-gold/70" : "bg-line"}`} />}
             <span className={`flex min-h-11 flex-1 flex-col items-center justify-center rounded-lg border px-1 leading-tight ${on ? "border-gold/80 bg-gold/15 text-gold" : nx ? "border-accent/70 bg-accent/10 text-ink" : done ? "border-line text-muted" : "border-dashed border-line text-muted"} ${known ? "" : "opacity-50"}`}
                   data-stage={st.room} data-stage-state={on ? "now" : nx ? "next" : done ? "done" : "later"} aria-label={t(`${st.room} ตัว`, `houses ${st.room}`) + (on ? t(" · ตอนนี้", " · now") : nx ? t(" · ถัดไป", " · next") : "")}>
-              <span className="flex items-center gap-1 font-data text-ui font-semibold tabular-nums"><TownIcon name="cowBell" size={14} />{st.room}</span>
-              {(on || nx) && <span className="text-label">{on ? t("ตอนนี้", "now") : t("ถัดไป", "next")}</span>}
+              <span className="flex items-center gap-1 font-data text-ui font-semibold tabular-nums"><TownIcon name="cowBell" size={16} />{st.room}</span>
+              {(on || nx) && <span className="text-meta">{on ? t("ตอนนี้", "now") : t("ถัดไป", "next")}</span>}
             </span>
           </li>
         );
@@ -363,6 +363,8 @@ function BarnStages({ th, purse, herd, stages, busy, act }: { th: boolean; purse
     ...next.needs.map(([id, n]) => ({ id, icon: <ItemIcon id={id as ItemId} size={26} />, label: ITEMS[id as ItemId]?.name[th ? "th" : "en"] ?? id, got: got[id] ?? 0, need: n, add: Math.min(Math.max(0, n - (got[id] ?? 0)), held(purse.bag, id as ItemId)) })),
   ];
   const short = cells.filter((c) => c.got + c.add < c.need).length, gives = cells.some((c) => c.add > 0 && c.got < c.need);
+  // (a number of five figures kept to a third of the panel's width: 15,000 as 15k; the cell's label says it whole)
+  const n = (v: number) => (v >= 10_000 ? `${+(v / 1000).toFixed(v % 1000 ? 1 : 0)}k` : v.toLocaleString());
   return (
     <div className="mt-2 border-t border-line pt-2" data-enlarge={next.room} data-parts>
       {ladder}{head}
@@ -375,8 +377,8 @@ function BarnStages({ th, purse, herd, stages, busy, act }: { th: boolean; purse
                 className={`flex min-h-11 items-center gap-1.5 rounded-lg border px-1.5 py-1 ${done ? "border-jade/50 bg-jade/10" : fills ? "border-accent/60 bg-accent/10" : "border-[#ff7a93]/60 bg-[#ff7a93]/10"}`}>
               <span className="flex h-7 w-7 shrink-0 items-center justify-center">{c.icon}</span>
               <span className="min-w-0 font-data text-ui font-semibold leading-tight tabular-nums">
-                <span className={done ? "text-jade" : lacks ? "text-[#ffb3c1]" : "text-ink"}>{c.got.toLocaleString()}</span><span className="font-normal text-muted">/{c.need.toLocaleString()}</span>
-                {c.add > 0 && !done && <span className="block text-label font-normal text-accent">+{c.add.toLocaleString()}</span>}
+                <span className={done ? "text-jade" : lacks ? "text-[#ffb3c1]" : "text-ink"}>{n(c.got)}</span><span className="font-normal text-muted">/{n(c.need)}</span>
+                {c.add > 0 && !done && <span className="block text-meta font-normal text-accent">+{n(c.add)}</span>}
               </span>
             </li>
           );

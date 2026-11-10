@@ -391,7 +391,10 @@ export default function TownPasture(props: PastureProps) {
         const own = holder ? ownBy.get(holder.owner) ?? [] : [];
         const fed = (i: number) => { const a = own[i]; return !!a && (views.current.get(a.id)?.v.food ?? a.food) > 0.02; };
         const inYard = !!yardRows && !!self && map === "farm" && yardAt(self.x, self.y) === b.i;
-        const faint = inYard ? 0.18 : 1;
+        // (and part faint while I stand behind it, by its yard or on the strips and the lane that the yard backs onto:
+        // the barn's picture stands over its yard from every side, so that is where the yard is seen from)
+        const behind = !!yardRows && !inYard && !!self && map === "farm" && self.x >= b.x - 1.5 && self.x < b.x + b.w + 1.5 && self.y >= b.y - yardRows - 3 && self.y < b.y;
+        const faint = inYard ? 0.18 : behind ? 0.28 : 1;
         if (yardRows && f2) {
           const y0 = b.y - yardRows, g = yardGate(b);
           for (let x = b.x; x < b.x + b.w; x++) f2.pushFence(ctx, push, isoScreen, s, px, x, y0, "n");
@@ -400,10 +403,12 @@ export default function TownPasture(props: PastureProps) {
             // (the gate: a gap in the east fence by the barn's back wall)
             if (y !== g.outside[1]) f2.pushFence(ctx, push, isoScreen, s, px, b.x + b.w, y, "w");
           }
+          // (the gate stands open into the yard: its leaf, a length of the same fence, swung back along the tile inside it)
+          f2.pushFence(ctx, push, isoScreen, s, px, g.inside[0], g.inside[1], "n");
           const spots = barnSpots(b, rooms);
-          spots.forEach((p, i) => { if (p.yard) f2.pushTray(ctx, push, isoScreen, s, px, p.tray, fed(i), p.tray.x + p.tray.y); });
+          spots.forEach((p, i) => { if (p.trayYard) f2.pushTray(ctx, push, isoScreen, s, px, p.tray, fed(i), p.tray.x + p.tray.y); });
           // (its trays a tap too, for the trough's panel; and, close to, a word at the gate)
-          const tr = spots.filter((p) => p.yard).map((p) => project(p.tray));
+          const tr = spots.filter((p) => p.trayYard).map((p) => project(p.tray));
           if (tr.length) out.push({ kind: "trough", barn: b.i, x0: Math.min(...tr.map((p) => p.x)) - 16 * s, y0: Math.min(...tr.map((p) => p.y)) - 30 * s, x1: Math.max(...tr.map((p) => p.x)) + 16 * s, y1: Math.max(...tr.map((p) => p.y)) + 8 * s });
           if (mine && s >= 0.8) { const gc = project({ x: g.outside[0] + 0.5, y: g.outside[1] + 0.5 }); if (onScreen(gc)) tag(t("ประตูลาน", "Yard gate"), gc.x, gc.y - 30 * s, "#ffd772"); }
         }
@@ -411,7 +416,7 @@ export default function TownPasture(props: PastureProps) {
         else if (roof > 0) things.push({ depth: roof < 1 ? b.x + b.y + b.w + b.h - 0.4 : b.x + b.y + (b.w + b.h) / 2, draw: () => drawBarnOutside(ctx, k, project, b, art, s, px, open, roof * faint) });
         if (roof < 1) {
           // (the trough's slots: each the animal of that place's on the floor, its feed and how full; a free barn's two, empty)
-          const room = rooms, onFloor = floorOf(b.i, room), floor = barnSpots(b, room).filter((p) => !p.yard);
+          const room = rooms, onFloor = floorOf(b.i, room), floor = barnSpots(b, room).filter((p) => !p.yard && !p.trayYard);
           const slots = Array.from({ length: Math.min(onFloor, troughOf(b, onFloor).slots.length) }, (_, i) => { const a = own[i]; return a ? { species: a.species, food: views.current.get(a.id)?.v.food ?? a.food } : null; });
           drawBarnInside(things, ctx, k, sc, project, b, s, px, { slots, eggs: holder ? coming(holder.owner) : 0, open, alpha: 1 - roof, bare: !!f2 });
           if (f2) {
@@ -516,7 +521,7 @@ export default function TownPasture(props: PastureProps) {
         if (mine && v.ready > 0) { if (fits("   ", c.x, head - 9 * s)) over?.(() => drawBubble(ctx, k, "ready", SPECIES[a.species].game, c.x, head, s, tick, still, px)); }
         else if (v.hungry && (mine || care) && fits("   ", c.x, head - 9 * s)) over?.(() => drawBubble(ctx, k, mine ? "hungry" : "care", SPECIES[a.species].game, c.x, head, s, tick, still, px));
         // (in a barn of more than four, at rest at home, the names would cover its floor and yard: there a name is its card's, on a tap)
-        const crowd = !!holder && holder.room > 4 && spot.pose !== "walk" && (spot.inside === holder.barn || yardAt(spot.x, spot.y) === holder.barn);
+        const crowd = !!holder && holder.room > 4 && (spot.inside === holder.barn || yardAt(spot.x, spot.y) === holder.barn);
         if (!crowd) { const text = mine ? `${a.sex === "m" ? "♂" : "♀"} ${(a.name || breedOf(a.breed)?.name[th ? "th" : "en"] || "").slice(0, 12)}` : a.name.slice(0, 12);
           if (((mine && s >= 0.8) || (a.name && s >= 1.4)) && fits(text, c.x, c.y + 10 * s)) tag(text, c.x, c.y + 10 * s, mine ? "#cfe6ff" : "#f3e3c3"); }
       }

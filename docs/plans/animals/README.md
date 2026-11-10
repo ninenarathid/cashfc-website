@@ -377,17 +377,21 @@ animals past four live, "ข ดีกว่า ทำเลย": the barn keeps
 - **The yard** (lib/town/pasture): `YARD_MOST`, a table by barn of how many rows behind it a yard may take (the editor's
   farm: two behind the first row of barns and behind barns 15 and 16, the lane right behind; four elsewhere); two rows at
   8, all it may at 16 (`yardRowsOf`). Its fence is the map's own fence pieces on three sides (farm2-art's `pushFence`), a
-  gap for its **gate** in the east fence by the barn's back wall (`yardGate`), onto the strip beside the barn that runs
-  down to the lane in front: the member walks in there, and the yard's animals go out there to graze when the door is
+  gap for its **gate** in the east fence by the barn's back wall (`yardGate`), its leaf (a length of the same fence)
+  standing open along the tile inside it, a wall too, onto the strip beside the barn that runs down to the lane in front: the member walks in there, and the yard's animals go out there to graze when the door is
   open, and back. Its fence is a wall to the walking (`barnWall`); nothing stands in a built yard (its bushes, behind
   barns 6, 7, 9, 10, 11, 17, 19, 21, 22 and 23, are not drawn and their tiles are open while it stands). No pinned thing
   is in any yard at 16 (eggs, forage, lamps, benches, wells, chests, fires); one haunt of the insects (30, behind barn 14)
   has perches there, reached by the gate (lib/town/barn-yard.test).
-- **Where they stand** (`barnSpots`): up to 4 on the floor as before; at 8, the floor's 4 and the yard's 4 in one row; at
-  16, the floor's 8 in two rows and the yard's 8 in two rows (a short barn's yard of two rows holds its two rows a tile
-  apart). Each place its tray (the map's own tray, full or empty): the floor's along the back wall, the yard's along its
-  back fence. At rest each keeps to its place and steps to its tray now and then; no heap.
-- **On the map**: the barn faint (0.18) while I stand in its yard; its sign says how many it houses past 4 ("· 16 ตัว");
+- **Where they stand** (`barnSpots`, `floorOf`): up to 4 on the floor as before; at 8, the floor's 4 and the yard's 4 in
+  one row; at 16, the floor's 8 in two rows and the yard's 8 in two rows; in the six short barns at 16 the yard keeps
+  its one row of 4 and the floor houses 12 in three rows (two rows in a yard two deep looked crowded in the shots, and
+  Codex said so). Each place its tray (the map's own tray, full or empty): the floor's along the back wall, past its
+  eight along the yard's back fence, the yard's along its back fence. At rest each keeps to its place and steps to its
+  tray now and then; no heap.
+- **On the map**: the barn faint (0.18) while I stand in its yard, and part faint (0.28) while I stand behind it (by the
+  yard, on the strips and the lane it backs onto: the barn's picture covers its yard from every side, so that is where
+  it is seen from); its gate's tag ("ประตูลาน") on my own; its sign says how many it houses past 4 ("· 16 ตัว");
   in a barn of more than 4 the names are not drawn at rest (the card's, on a tap); a body in a yard is held to the barn's
   1.35, as inside.
 - **The panel**: the four stages as a ladder (now, next), the next one's coins and things as pictures, handed over of what
@@ -396,3 +400,6 @@ animals past four live, "ข ดีกว่า ทำเลย": the barn keeps
 - **The look** (v326): takes no lock and writes nothing (the warm bottle's moment aside); another member's animals that I
   may not care for come without their round strips, round and rearing. Made-up pastures (every animal with three
   strips): today's 104 animals 145k characters → 63k; 24 barns of 16 and every pen full (576) 790k → 336k.
+- **CPU** (town-cpu.mjs, 1600 × 900, kept at 60 a second, 24 barns of 16 and full pens, the trial's world; one core = 100):
+  before, doors shut 44.6 / 49.9 and open 43.4; after, 48.0 / 47.0 and 43.1. A yard's fence is drawn a length at a time,
+  not in strips (strips cost 9 points more), and the bushes left out of yards are worked out once a change of yards.
