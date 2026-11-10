@@ -95,10 +95,21 @@ export interface Review { verdict: Verdict; note: string | null }
 /**
  * Where a party stands in the event.
  *
- * ok and no are Aqua's. pending has a picture waiting for her; bare has none,
- * which is most often a lead who has not put one up yet.
+ * open has not reached its end time yet, and counts for nothing whatever Aqua
+ * has said (the owner, 2026-11-10: "End time ค่อยขึ้นให้ Aqua ตรวจ"). After
+ * it: ok and no are Aqua's; pending has a picture waiting for her; bare has
+ * none, which is most often a lead who has not put one up yet.
  */
-export type RunState = "ok" | "no" | "pending" | "bare";
+export type RunState = "open" | "ok" | "no" | "pending" | "bare";
+
+/**
+ * When a party is over: when the lead closed it, or else its start plus the
+ * length it was put up with. A run is counted on this Bangkok day, and is
+ * shown to Aqua only once it has passed. A room listed for after midnight but
+ * played in the evening is the lead's to close, which gives it its real end.
+ */
+export const endOf = (p: Pick<PfParty, "startsAt" | "lengthMinutes" | "endedAt">): string =>
+  p.endedAt ?? new Date(Date.parse(p.startsAt) + p.lengthMinutes * 60_000).toISOString();
 
 export interface PfRun {
   party: PfParty;
@@ -106,6 +117,10 @@ export interface PfRun {
   kind: ContentKind | null;
   level: number | null;
   state: RunState;
+  /** When it is over (endOf), the day it counts on. */
+  endsAt: string;
+  /** Aqua's word, kept while the room is still open. */
+  verdict: Verdict | null;
   note: string | null;
   /** What Aqua should look for in the picture. */
   flags: {
@@ -143,7 +158,7 @@ export interface PfPerson {
 export interface PfSummary {
   runs: PfRun[];
   people: PfPerson[];
-  counts: { ok: number; no: number; pending: number; bare: number };
+  counts: { open: number; ok: number; no: number; pending: number; bare: number };
   fcPeople: number;
   outsidePeople: number;
   totalPoints: number;
@@ -174,9 +189,9 @@ const nameOf = (key: string, content: Record<string, ContentInfo>): string =>
 /**
  * Score the event.
  *
- * Runs are taken in the order they started, so the day's cap falls on the
- * last runs of a day, never the first. A person is counted once a party
- * however many rows they have in it.
+ * Runs are taken in the order they ended, so the day's cap falls on the
+ * last runs of a day, never the first, and each is counted on the Bangkok day
+ * it ended. A person is counted once a party however many rows they have in it.
  */
 export function scoreEvent(
   ev: PfEvent,
@@ -185,6 +200,7 @@ export function scoreEvent(
   content: Record<string, ContentInfo>,
   isFc: (characterId: number) => boolean,
   known: Map<number, { name: string; avatar: string | null }> = new Map(),
+  now: number = Date.now(),
 ): PfSummary {
   const from = Date.parse(ev.startsAt), to = Date.parse(ev.endsAt);
   const kinds = new Set(ev.kinds);
@@ -201,10 +217,12 @@ export function scoreEvent(
     const review = reviews.get(party.id);
     const proof = party.photos.length + party.shots.length > 0;
     const size = party.shape === "open" ? 0 : SHAPE_SIZE[party.shape];
+    const endsAt = endOf(party);
     runs.push({
-      party, kind, level,
+      party, kind, level, endsAt,
       name: nameOf(party.contentKey, content),
-      state: review ? review.verdict : proof ? "pending" : "bare",
+      state: Date.parse(endsAt) > now ? "open" : review ? review.verdict : proof ? "pending" : "bare",
+      verdict: review?.verdict ?? null,
       note: review?.note ?? null,
       flags: {
         lowLevel: level != null && level < ev.unsyncMinLevel,
@@ -216,7 +234,7 @@ export function scoreEvent(
       gave: new Map(),
     });
   }
-  runs.sort((a, b) => Date.parse(a.party.startsAt) - Date.parse(b.party.startsAt)
+  runs.sort((a, b) => Date.parse(a.endsAt) - Date.parse(b.endsAt)
     || Number(a.party.id) - Number(b.party.id));
 
   const people = new Map<number, PfPerson & { dayKeys: Set<string> }>();
@@ -239,7 +257,7 @@ export function scoreEvent(
   const used = new Map<string, number>();
   for (const run of runs) {
     if (run.state !== "ok") continue;
-    const day = dayKey(run.party.startsAt);
+    const day = dayKey(run.endsAt);
     const seen = new Set<number>();
     for (const m of run.party.members) {
       if (m.characterId == null || seen.has(m.characterId)) continue;
@@ -271,7 +289,7 @@ export function scoreEvent(
   const most = Math.max(0, ...can.map((p) => p.days));
   const steadyPeople = most > 0 ? can.filter((p) => p.days === most) : [];
 
-  const counts = { ok: 0, no: 0, pending: 0, bare: 0 };
+  const counts = { open: 0, ok: 0, no: 0, pending: 0, bare: 0 };
   for (const r of runs) counts[r.state] += 1;
   const scored = list.filter((p) => p.runs > 0);
 

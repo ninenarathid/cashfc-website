@@ -22,6 +22,7 @@ import { Board, Face, Prizes } from "@/components/aqua/PfEventParts";
 interface Person { id: number; name: string; face: string | null; fc: boolean }
 
 const MINE: Record<RunState, { label: string; tone: string }> = {
+  open: { label: "ยังไม่ถึงเวลาจบห้อง", tone: "border-accent/50 bg-accent/10 text-accent" },
   ok: { label: "ผ่าน", tone: "border-jade/60 bg-jade/15 text-jade" },
   pending: { label: "รอ Aqua ตรวจ", tone: "border-gold/60 bg-gold/10 text-gold" },
   bare: { label: "ยังไม่มีรูป — ส่งรูปในแชตห้อง", tone: "border-line bg-bg/40 text-muted" },
@@ -133,7 +134,7 @@ export default function PfEventPublic(
             ["ตั้งหรือเข้าปาร์ตี้", "ใน หาปาร์ตี้ บนเว็บนี้ ต้องยืนยันตัวละครในเว็บก่อนถึงจะได้แต้ม"],
             ["ลงให้จบ แล้วถ่ายรูป", `ห้องสุดท้าย / ตอนรับหีบสมบัติ / หรือห้องฝึกที่อยู่เกิน ${ev.practiceMinutes} นาที`],
             ["ส่งรูป", "ส่งในแชตของห้องนั้น (ใครในปาร์ตี้ส่งก็ได้) หรือหัวห้องอัปรูปกลุ่มตอนกด “สำเร็จ”"],
-            ["Aqua ตรวจ", `ผ่าน 1 ห้อง = 1 แต้มทุกคนในปาร์ตี้ · สูงสุด ${ev.dailyCap} แต้ม/คน/วัน`],
+            ["Aqua ตรวจหลังห้องจบ", `ผ่าน 1 ห้อง = 1 แต้มทุกคนในปาร์ตี้ · สูงสุด ${ev.dailyCap} แต้ม/คน/วัน · นับเป็นวันที่ห้องจบ`],
           ].map(([h, b], i) => (
             <li key={h} className="flex gap-3">
               <span className="grid size-8 shrink-0 place-items-center rounded-full border border-gold/50 bg-gold/10 font-data text-ui font-semibold text-gold">{i + 1}</span>
@@ -145,6 +146,7 @@ export default function PfEventPublic(
           ))}
         </ol>
         <ul className="mt-4 space-y-1 border-t border-line pt-3 text-ui text-muted">
+          <li>⏱ เล่นจบแล้วหัวห้องกด “สำเร็จ” หรือจบห้องเลย ห้องจะขึ้นให้ตรวจทันที ถ้าไม่กด ต้องรอถึงเวลาจบที่ตั้งไว้</li>
           <li>🌱 ลงกับผู้เล่นใหม่ใน FC ตามรายชื่อด้านล่าง คนที่ช่วย (Helper) ได้ {ev.helperPoints} แต้ม</li>
           <li>⚠ ดันเลเวลต่ำกว่า {ev.unsyncMinLevel} ต้องลงแบบปรับเลเวลลง (sync) ถ้าลงเลเวลเต็ม (unsync) นับเฉพาะดันเลเวล {ev.unsyncMinLevel} ขึ้นไป</li>
           <li>นับประเภท: {ev.kinds.map((k) => KIND_LABEL[k]).join(", ")}</li>

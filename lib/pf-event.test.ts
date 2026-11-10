@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { dayKey as dayKeyOf } from "@/lib/party";
 import {
   DEFAULT_KINDS, drawWinners, fmtM, scoreEvent, steadyEach,
   type ContentInfo, type PfEvent, type PfParty, type Review,
@@ -51,7 +52,7 @@ describe("which parties are in the event", () => {
     const s = scoreEvent(ev, [pic, chat, none, no],
       new Map([[no.id, { verdict: "no", note: "ไม่เห็นหีบ" }]]), content, fc);
     expect(s.runs.map((r) => r.state)).toEqual(["pending", "pending", "bare", "no"]);
-    expect(s.counts).toEqual({ ok: 0, no: 1, pending: 2, bare: 1 });
+    expect(s.counts).toEqual({ open: 0, ok: 0, no: 1, pending: 2, bare: 1 });
     expect(s.totalPoints).toBe(0);
   });
 
@@ -103,11 +104,43 @@ describe("points", () => {
   });
 
   it("a Bangkok day, not a UTC one", () => {
-    // 23:30 and 00:30 Bangkok are one UTC day and two Bangkok days.
-    const late = party({ who: [1], startsAt: "2026-11-07T23:30:00+07:00" });
-    const early = party({ who: [1], startsAt: "2026-11-08T00:30:00+07:00" });
+    // Ending 23:50 and 00:50 Bangkok are one UTC day and two Bangkok days.
+    const late = party({ who: [1], startsAt: "2026-11-07T23:30:00+07:00", lengthMinutes: 20 });
+    const early = party({ who: [1], startsAt: "2026-11-08T00:30:00+07:00", lengthMinutes: 20 });
     const s = scoreEvent(ev, [late, early], ok(late, early), content, fc);
     expect(s.people[0].days).toBe(2);
+  });
+});
+
+describe("end time (the owner, 2026-11-10)", () => {
+  const now = Date.parse("2026-11-10T22:42:00+07:00");
+  it("a room before its end is open: not shown to judge, not counted, its verdict kept", () => {
+    const done = party({ who: [1], startsAt: "2026-11-10T19:00:00+07:00", lengthMinutes: 60 });
+    const later = party({ who: [1], startsAt: "2026-11-10T22:00:00+07:00", lengthMinutes: 60 });
+    const s = scoreEvent(ev, [done, later], ok(done, later), content, fc, new Map(), now);
+    expect(s.runs.map((r) => r.state)).toEqual(["ok", "open"]);
+    expect(s.runs[1].verdict).toBe("ok");
+    expect(s.counts.open).toBe(1);
+    expect(s.people[0].points).toBe(1);
+  });
+
+  it("is counted on the day it ends: listed for after midnight it is the next day", () => {
+    // #174: listed 00:00 on the 11th for an hour, played the evening before.
+    const evening = party({ who: [1], startsAt: "2026-11-10T19:00:00+07:00" });
+    const listed = party({ who: [1], startsAt: "2026-11-11T00:00:00+07:00" });
+    const after = Date.parse("2026-11-11T02:00:00+07:00");
+    expect(scoreEvent(ev, [evening, listed], ok(evening, listed), content, fc, new Map(), after).people[0].days).toBe(2);
+    // ...unless its lead closes it when they are done, which is its real end.
+    const closed = { ...listed, endedAt: "2026-11-10T19:45:00+07:00" };
+    const s = scoreEvent(ev, [evening, closed], ok(evening, closed), content, fc, new Map(), now);
+    expect(s.runs.map((r) => r.state)).toEqual(["ok", "ok"]);
+    expect(s.people[0].days).toBe(1);
+  });
+
+  it("a room that runs past midnight is the next day's", () => {
+    const late = party({ who: [1], startsAt: "2026-11-07T23:30:00+07:00", lengthMinutes: 60 });
+    const s = scoreEvent(ev, [late], ok(late), content, fc);
+    expect(dayKeyOf(s.runs[0].endsAt)).toBe("2026-11-08");
   });
 });
 

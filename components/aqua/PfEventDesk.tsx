@@ -32,9 +32,10 @@ export interface PfPersonOption {
 type Tab = "review" | "board" | "all";
 
 const STATE_LABEL: Record<RunState, string> = {
-  ok: "ผ่าน", no: "ไม่ผ่าน", pending: "รอตรวจ", bare: "ยังไม่มีรูป",
+  open: "ยังไม่จบ", ok: "ผ่าน", no: "ไม่ผ่าน", pending: "รอตรวจ", bare: "ยังไม่มีรูป",
 };
 const STATE_TONE: Record<RunState, string> = {
+  open: "border-accent/50 bg-accent/10 text-accent",
   ok: "border-jade/60 bg-jade/15 text-jade",
   no: "border-chili/60 bg-chili/10 text-chili",
   pending: "border-gold/60 bg-gold/10 text-gold",
@@ -170,6 +171,7 @@ export default function PfEventDesk(
             {tab === "review" && (
               <ReviewList ev={ev} runs={s.runs.filter((r) => r.state === "pending")}
                           bare={s.runs.filter((r) => r.state === "bare").length}
+                          open={s.counts.open}
                           onJudge={judge} people={known} fcOf={fcOf} newbies={ev.newbies} />
             )}
             {tab === "board" && <Board s={s} ev={ev} />}
@@ -296,8 +298,8 @@ type JudgeFn = (run: PfRun, v: Verdict | null) => Promise<void>;
 const ROSTER = 10;
 
 function ReviewList(
-  { ev, runs, bare, onJudge, people, fcOf, newbies }: {
-    ev: PfEvent; runs: PfRun[]; bare: number; onJudge: JudgeFn;
+  { ev, runs, bare, open, onJudge, people, fcOf, newbies }: {
+    ev: PfEvent; runs: PfRun[]; bare: number; open: number; onJudge: JudgeFn;
     people: Map<number, { name: string; avatar: string | null }>;
     fcOf: (id: number) => boolean; newbies: number[];
   },
@@ -311,6 +313,11 @@ function ReviewList(
         </div>
       )}
       {runs.map((r) => <RunCard key={r.party.id} run={r} ev={ev} onJudge={onJudge} people={people} fcOf={fcOf} newbies={newbies} />)}
+      {open > 0 && (
+        <p className="text-meta text-muted">
+          อีก {open} ห้องยังไม่ถึงเวลาจบ — จะขึ้นให้ตรวจที่นี่เมื่อห้องจบ (ดูได้ในแท็บ “ห้องทั้งหมด”)
+        </p>
+      )}
       {bare > 0 && (
         <p className="text-meta text-muted">
           อีก {bare} ห้องยังไม่มีรูป (หัวห้องยังไม่อัปรูปกลุ่ม หรือยังไม่มีใครส่งรูปในแชตห้อง) — ดูได้ในแท็บ “ห้องทั้งหมด”
@@ -328,6 +335,7 @@ function Rules({ ev }: { ev: PfEvent }) {
         <li>รูปห้องสุดท้าย / รับหีบสมบัติ / หรือห้องฝึกที่อยู่ในห้องเกิน {ev.practiceMinutes} นาที</li>
         <li>ดันที่เลเวลต่ำกว่า {ev.unsyncMinLevel} ต้องลงแบบ sync (unsync ไม่นับ)</li>
         <li>ผ่าน 1 ห้อง = 1 แต้มทุกคนในปาร์ตี้ · สูงสุด {ev.dailyCap} แต้ม/คน/วัน (เวลาไทย)</li>
+        <li>นับวันตาม<b>เวลาจบห้อง</b> และห้องขึ้นให้ตรวจหลังเวลาจบเท่านั้น (หัวห้องกดจบ/สำเร็จ = จบเวลานั้น ไม่งั้นใช้เวลาเริ่ม + ระยะเวลาที่ตั้งไว้)</li>
         <li>มีผู้เล่นใหม่ตามรายชื่อในปาร์ตี้ → คนอื่นในปาร์ตี้ (Helper) ได้ {ev.helperPoints} แต้ม</li>
         <li>นับประเภท: {ev.kinds.map((k) => KIND_LABEL[k]).join(", ")}</li>
       </ul>
@@ -368,7 +376,7 @@ function RunCard(
             </span>
           </div>
           <div className="mt-0.5 text-meta text-muted">
-            {fmtWhen(p.startsAt)} · หัวห้อง {lead?.name ?? p.members[0]?.name ?? "?"}
+            {fmtWhen(p.startsAt)} – จบ {fmtWhen(run.endsAt)}{p.endedAt ? " (หัวห้องกดจบ)" : ""} · หัวห้อง {lead?.name ?? p.members[0]?.name ?? "?"}
             {p.outcome === "success" ? " · หัวห้องกดสำเร็จแล้ว" : p.outcome === "fail" ? " · ไม่ได้กดสำเร็จ" : ""}
           </div>
         </div>
@@ -433,7 +441,20 @@ function RunCard(
       )}
 
       <div className="flex flex-wrap items-center gap-2 p-3 sm:px-4">
-        {run.state === "ok" || run.state === "no" ? (
+        {run.state === "open" ? (
+          <>
+            <span className="text-meta text-muted">
+              ตรวจได้หลังห้องจบ ({fmtWhen(run.endsAt)})
+              {run.verdict ? ` · ตัดสินไว้แล้ว: ${STATE_LABEL[run.verdict]} — จะนับเมื่อห้องจบ` : ""}
+            </span>
+            {compact && pics.length > 0 && (
+              <button type="button" onClick={() => setZoom(0)}
+                      className="min-h-11 rounded-lg border border-line px-3 text-ui text-muted hover:text-ink">
+                ดูรูป ({pics.length})
+              </button>
+            )}
+          </>
+        ) : run.state === "ok" || run.state === "no" ? (
           <>
             <span className="text-meta text-muted">ตัดสินแล้ว</span>
             <button type="button" disabled={busy} onClick={() => void act(null)}
@@ -506,7 +527,7 @@ function AllRuns(
   return (
     <div>
       <div className="flex gap-1 overflow-x-auto rounded-lg border border-line p-1">
-        {(["every", "ok", "pending", "bare", "no"] as const).map((k) => (
+        {(["every", "ok", "pending", "open", "bare", "no"] as const).map((k) => (
           <button key={k} type="button" onClick={() => setState(k)} aria-pressed={state === k}
                   className={`min-h-11 shrink-0 whitespace-nowrap rounded-md px-3 text-ui sm:min-h-9 ${state === k ? "bg-card text-accent" : "text-muted hover:text-ink"}`}>
             {k === "every" ? "ทั้งหมด" : STATE_LABEL[k]}
