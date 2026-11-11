@@ -98114,6 +98114,49 @@
     ]
    },
    {
+    "zone": "Eden's Verse",
+    "zone_id": 33,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E5S",
+      "encounter_id": 69,
+      "name": "Ramuh",
+      "best": 99,
+      "median": 68,
+      "kills": 11,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "E6S",
+      "encounter_id": 70,
+      "name": "Ifrit and Garuda",
+      "best": 95,
+      "median": 75,
+      "kills": 15,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "E7S",
+      "encounter_id": 71,
+      "name": "The Idol of Darkness",
+      "best": 96,
+      "median": 84,
+      "kills": 12,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "E8S",
+      "encounter_id": 72,
+      "name": "Shiva",
+      "best": 84,
+      "median": 66,
+      "kills": 8,
+      "job": "DarkKnight"
+     }
+    ]
+   },
+   {
     "zone": "Eden's Gate",
     "zone_id": 29,
     "expansion": "Shadowbringers",
