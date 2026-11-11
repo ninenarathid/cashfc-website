@@ -1,6 +1,13 @@
 {
  "events": [
   {
+   "date": "2026-11-11",
+   "type": "level_100",
+   "id": 62507897,
+   "name": "De Viljho",
+   "text": "reached level 100 on Reaper!"
+  },
+  {
    "date": "2026-11-10",
    "type": "level_100",
    "id": 12478532,
@@ -1392,13 +1399,6 @@
    "id": 36248712,
    "name": "Boom Astraea",
    "text": "set a new best parse: 94 on Black Cat as Whit\u0001 \u0002age"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "job_up",
-   "id": 36248712,
-   "name": "Boom Astraea",
-   "text": "is now a Master White Mage"
   }
  ]
 }

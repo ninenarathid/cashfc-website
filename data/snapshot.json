@@ -8657,7 +8657,7 @@
   "mounts": 17,
   "minions": 42,
   "rare": null,
-  "level": 69,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8670,7 +8670,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-10"
+  "chg": "2026-11-11"
  },
  "49053650": {
   "name": "Eniluna Gelatoneii",
@@ -8788,7 +8788,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 81,
+  "level": 87,
   "cc": [
    false,
    false,
@@ -8808,7 +8808,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-10"
+  "chg": "2026-11-11"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -9059,7 +9059,7 @@
   "mounts": 85,
   "minions": 178,
   "rare": null,
-  "level": 81,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -9072,7 +9072,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-10"
+  "chg": "2026-11-11"
  },
  "61748681": {
   "name": "Qzarel Lumina",
@@ -12184,7 +12184,7 @@
   "mounts": 32,
   "minions": 95,
   "rare": null,
-  "level": 90,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -12197,7 +12197,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-10"
+  "chg": "2026-11-11"
  },
  "16173247": {
   "name": "Haru Luminous",
