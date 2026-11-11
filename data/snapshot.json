@@ -1803,7 +1803,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 46,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -1827,7 +1827,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-08"
+  "chg": "2026-11-11"
  },
  "28579232": {
   "name": "Dessiny Valkyrie",
@@ -2267,7 +2267,7 @@
   "mounts": 49,
   "minions": 115,
   "rare": null,
-  "level": 100,
+  "level": 94,
   "cc": [
    true,
    true,
@@ -2297,7 +2297,7 @@
    "Dancing Mad",
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-11-10"
+  "chg": "2026-11-11"
  },
  "50821570": {
   "name": "Haruki Mizumoto",
@@ -2306,7 +2306,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 100,
+  "level": 70,
   "cc": [
    true,
    true,
@@ -2353,7 +2353,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-10"
+  "chg": "2026-11-11"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -5514,7 +5514,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5538,7 +5538,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-06"
+  "chg": "2026-11-11"
  },
  "29090821": {
   "name": "Amber Levana",
@@ -6949,7 +6949,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 65,
+  "level": 68,
   "cc": [
    false,
    false,
@@ -6962,7 +6962,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-10"
+  "chg": "2026-11-11"
  },
  "53933347": {
   "name": "Little Alyss",
@@ -8657,7 +8657,7 @@
   "mounts": 17,
   "minions": 42,
   "rare": null,
-  "level": 100,
+  "level": 70,
   "cc": [
    false,
    false,
@@ -8788,7 +8788,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 87,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8934,7 +8934,7 @@
   "mounts": 4,
   "minions": 7,
   "rare": null,
-  "level": 79,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -8947,7 +8947,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-07"
+  "chg": "2026-11-11"
  },
  "44085912": {
   "name": "Mayu Ferguson",
@@ -8983,7 +8983,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 62,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8999,7 +8999,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-10"
+  "chg": "2026-11-11"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -9037,7 +9037,7 @@
   "mounts": 30,
   "minions": 66,
   "rare": null,
-  "level": 80,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -9050,7 +9050,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-10"
+  "chg": "2026-11-11"
  },
  "61489984": {
   "name": "Poly Umami",
@@ -9103,7 +9103,7 @@
   "mounts": 7,
   "minions": 24,
   "rare": 0,
-  "level": 83,
+  "level": 85,
   "cc": [
    false,
    false,
@@ -9116,7 +9116,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-10"
+  "chg": "2026-11-11"
  },
  "31685121": {
   "name": "Squid Girls",
@@ -10026,7 +10026,7 @@
   "mounts": 25,
   "minions": 115,
   "rare": null,
-  "level": 68,
+  "level": 34,
   "cc": [
    false,
    false,
@@ -10042,7 +10042,7 @@
   },
   "ex": [],
   "ults": [],
-  "chg": "2026-11-10"
+  "chg": "2026-11-11"
  },
  "30863840": {
   "name": "Aui Aye",
@@ -16122,7 +16122,7 @@
   "mounts": 25,
   "minions": 69,
   "rare": null,
-  "level": 68,
+  "level": 69,
   "cc": [
    true,
    true,
@@ -16139,7 +16139,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-10"
+  "chg": "2026-11-11"
  },
  "29864090": {
   "name": "Scylla Melfrey",

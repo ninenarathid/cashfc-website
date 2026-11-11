@@ -3,6 +3,41 @@
   {
    "date": "2026-11-11",
    "type": "level_100",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "reached level 100 on Reaper!"
+  },
+  {
+   "date": "2026-11-11",
+   "type": "level_100",
+   "id": 8286372,
+   "name": "Aloha Banana",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-11-11",
+   "type": "level_100",
+   "id": 60429500,
+   "name": "Janna Minerva",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
+   "date": "2026-11-11",
+   "type": "level_100",
+   "id": 60972300,
+   "name": "Mizuki Sekine",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
+   "date": "2026-11-11",
+   "type": "level_100",
+   "id": 42019777,
+   "name": "Peace Violet",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
+   "date": "2026-11-11",
+   "type": "level_100",
    "id": 62507897,
    "name": "De Viljho",
    "text": "reached level 100 on Reaper!"
@@ -1364,41 +1399,6 @@
    "id": 3902073,
    "name": "Namine Raspberyl",
    "text": "set a new best parse: 88 on Themis as Warrior"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "job_up",
-   "id": 3902073,
-   "name": "Namine Raspberyl",
-   "text": "is now a Master Warrior"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "job_up",
-   "id": 22767255,
-   "name": "Minami Taira",
-   "text": "is now a Master Reaper"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "job_up",
-   "id": 29511615,
-   "name": "Whitefang Dimmoon",
-   "text": "is now a Master Paladin"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "job_up",
-   "id": 13533056,
-   "name": "Akemi Rei",
-   "text": "is now a Legendary Pictomancer"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "parse_up",
-   "id": 36248712,
-   "name": "Boom Astraea",
-   "text": "set a new best parse: 94 on Black Cat as Whit\u0001 \u0002age"
   }
  ]
 }
