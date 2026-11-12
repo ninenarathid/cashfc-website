@@ -42,6 +42,7 @@ import type { SuggestRow } from "@/lib/suggest";
 import { jobsWantedBy } from "@/lib/suggest";
 import { createClient } from "@/lib/supabase/client";
 import type { Setup } from "@/lib/party-db";
+import { coversReady } from "@/lib/party-db";
 import type { Want } from "@/lib/wants";
 import { loadWants, wantCovers } from "@/lib/wants";
 import Modal, { Sheet } from "@/components/ui/Modal";
@@ -1141,8 +1142,11 @@ function PartyForm(
 
       {/* Beside the write-up, because both are how the party presents
           itself; above it, because the picture is seen first. */}
-      <CoverPicker value={cover} onChange={setCover} def={chosen}
-                   content={content} userId={userId} />
+      {/* Only once the database can keep it (v332). */}
+      {coversReady() && (
+        <CoverPicker value={cover} onChange={setCover} def={chosen}
+                     content={content} userId={userId} />
+      )}
 
       <BodyEditor body={body} onChange={setBody} userId={userId} />
 

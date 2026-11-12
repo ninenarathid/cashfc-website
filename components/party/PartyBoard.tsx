@@ -31,6 +31,8 @@ import {
   setOwnSeat,
   updateParty,
   recentSetups,
+  coversReady,
+  setPartyCover,
   type Setup,
 } from "@/lib/party-db";
 import { useLiveParties } from "@/lib/party-live";
@@ -73,6 +75,7 @@ import PfHelper from "@/components/party/PfHelper";
 import PartyPolls from "@/components/party/PartyPolls";
 import { openPolls, pollWaitsOn } from "@/lib/party-poll";
 import { partyArt } from "@/lib/party-cover";
+import CoverPicker from "@/components/party/CoverPicker";
 
 /**
  * Who is running what, and when.
@@ -148,7 +151,9 @@ const EMPTY = {
  */
 function PartyDetail(
   { party, def, now, people, me, userId, supabase, refresh, setErr, setParties,
-    parties, onClose, onEdit, suggest = [], labels = [] }: {
+    parties, onClose, onEdit, suggest = [], labels = [], content = [] }: {
+    /** The catalogue, for which other fights' pictures this one may borrow. */
+    content?: readonly ContentDef[];
     /** Everybody's records, for who in this party has already cleared it. */
     suggest?: SuggestRow[];
     /** The tier's labels, which is how the savage clears are indexed. */
@@ -175,6 +180,10 @@ function PartyDetail(
   const tint = def ? KIND_COLOR[def.kind] : "#8b93a1";
   /** Whether the "delete this party?" question is on screen. */
   const [dropping, setDropping] = useState(false);
+  /** Whether the window for changing only the picture is open. */
+  const [recover, setRecover] = useState(false);
+  const [coverBusy, setCoverBusy] = useState(false);
+  const [coverErr, setCoverErr] = useState<string | null>(null);
   /** Asked before the party is declared over. */
   const [ending, setEnding] = useState(false);
   /** True while a seat is being taken, so the grid cannot be pressed twice. */
@@ -352,6 +361,22 @@ function PartyDetail(
               <TagIcon tag={def.icon ?? KIND_ICON[def.kind]!} size={38} />
             </span>
           )}
+          {/*
+            * The picture's own button, for whoever may change the party.
+            *
+            * In the corner of the picture it changes rather than in the row
+            * along the bottom, which on a phone is already two lines of clock,
+            * status and the lead's buttons. Saved at once, without the edit
+            * form: see setPartyCover.
+            */}
+          {onEdit && supabase && userId && coversReady() && (
+            <button type="button" onClick={() => { setCoverErr(null); setRecover(true); }}
+                    aria-label={t("pf.coverEdit")} title={t("pf.coverEdit")}
+                    className="absolute right-2 top-2 z-[2] inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-lg border border-white/25 bg-black/55 px-2.5 text-read text-white/90 backdrop-blur-sm transition-colors hover:border-accent hover:text-accent sm:min-h-9 sm:min-w-9">
+              <span aria-hidden>🖼</span>
+              <span className="max-sm:hidden">{t("pf.coverEdit")}</span>
+            </button>
+          )}
           <span className="relative z-[1] flex w-full flex-wrap items-center gap-2 p-3">
             <span className="font-data text-[23px] font-semibold tabular-nums text-white drop-shadow">
               {fmtTime(party.startsAt)}
@@ -459,6 +484,30 @@ function PartyDetail(
                       admin={isAdmin}
                       onClose={() => setEnding(false)}
                       onDone={refresh} />
+        )}
+
+        {/* Only the picture, saved the moment it is chosen. */}
+        {recover && def && supabase && userId && (
+          <Modal open onOpenChange={(v) => { if (!v && !coverBusy) setRecover(false); }}
+                 title={t("pf.coverEdit")}>
+            <div className="flex flex-col gap-3">
+              <CoverPicker value={party.cover ?? null} def={def} content={content}
+                           userId={userId}
+                           onChange={(path) => {
+                             setCoverBusy(true); setCoverErr(null);
+                             void setPartyCover(supabase, party.id, path).then(async (r) => {
+                               if (r.error) { setCoverErr(r.error); setCoverBusy(false); return; }
+                               await refresh();
+                               setCoverBusy(false);
+                               setRecover(false);
+                             });
+                           }} />
+              <p className="text-read text-muted">
+                {coverBusy ? t("pf.coverSaving") : t("pf.coverEditNote")}
+              </p>
+              {coverErr && <p className="text-read text-chili" role="alert">{coverErr}</p>}
+            </div>
+          </Modal>
         )}
 
         {dropping && (
@@ -2108,6 +2157,7 @@ export default function PartyBoard(
         return (
           <PartyDetail party={p} def={byKey[p.contentKey]} now={now}
                        parties={parties} suggest={suggest} labels={labels}
+                       content={content}
                        people={people} me={me} userId={userId} supabase={supabase}
                        refresh={refresh} setErr={setErr} setParties={setParties}
                        /* Theirs to change. The policy says the same thing and

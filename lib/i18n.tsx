@@ -3152,6 +3152,11 @@ const DICT = {
     th: "รูปที่หัวปาร์ตี้คนอื่นเคยใช้กับ {name} เรียงจากที่ใช้บ่อยที่สุด",
   },
   "pf.coverBadFile": { en: "That picture could not be opened.", th: "เปิดรูปนี้ไม่ได้" },
+  "pf.coverEdit": { en: "Change cover", th: "เปลี่ยนรูปปก" },
+  "pf.coverEditNote": {
+    en: "Saved as soon as you choose. The Discord board shows it within seconds, five minutes at the most.",
+    th: "บันทึกทันทีที่เลือก บอร์ดใน Discord จะเปลี่ยนตามภายในไม่กี่วินาที (ช้าสุดราว 5 นาที)",
+  },
 
   /* Seats. */
   "pf.pickOwnSeat": { en: "Pick your own seat first", th: "เลือกตำแหน่งของตัวเองก่อน" },

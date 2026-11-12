@@ -1553,3 +1553,31 @@ export async function loadCoverChoices(
   }
   return rankCovers((data ?? []) as { cover: string | null; content_key: string; created_at: string }[], key);
 }
+
+/**
+ * Whether the database has v332's column, as far as this page knows.
+ *
+ * True until a read says otherwise, which the board's first load does; the
+ * cover controls are drawn only while it holds, so nobody uploads a picture
+ * the database would then not take.
+ */
+export const coversReady = (): boolean => knowsCover;
+
+/**
+ * Change only the picture of a party already up.
+ *
+ * Its own small write rather than the whole form's: the picture is the one
+ * thing a lead changes on a whim, and resaving every field for it would also
+ * ask "save these changes?" about nine things nobody touched. The update fires
+ * the same trigger as any other (v57), so the Discord board is drawn again
+ * with the new picture's address.
+ */
+export async function setPartyCover(
+  supabase: SupabaseClient, partyId: string, path: string | null,
+): Promise<{ error?: string }> {
+  if (path !== null && !isCoverPath(path)) return { error: "not-image" };
+  const { error } = await supabase.from("party_posts")
+    .update({ cover: path })
+    .eq("id", Number(partyId));
+  return error ? { error: error.message } : {};
+}
