@@ -2306,7 +2306,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 74,
+  "level": 75,
   "cc": [
    true,
    true,
@@ -2353,7 +2353,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-11"
+  "chg": "2026-11-12"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -5513,7 +5513,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -5537,7 +5537,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-11"
+  "chg": "2026-11-12"
  },
  "29090821": {
   "name": "Amber Levana",
@@ -8785,7 +8785,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 90,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -8805,7 +8805,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-11"
+  "chg": "2026-11-12"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -9056,7 +9056,7 @@
   "mounts": 85,
   "minions": 178,
   "rare": null,
-  "level": 97,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -9069,7 +9069,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-11"
+  "chg": "2026-11-12"
  },
  "61748681": {
   "name": "Qzarel Lumina",
