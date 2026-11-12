@@ -1,6 +1,27 @@
 {
  "events": [
   {
+   "date": "2026-11-12",
+   "type": "level_100",
+   "id": 30667251,
+   "name": "Roxas Akatsuki",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
+   "date": "2026-11-12",
+   "type": "level_100",
+   "id": 60852230,
+   "name": "Lucien Rhul",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
+   "date": "2026-11-12",
+   "type": "level_100",
+   "id": 42019777,
+   "name": "Peace Violet",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
    "date": "2026-11-11",
    "type": "level_100",
    "id": 36130968,
@@ -1378,27 +1399,6 @@
    "id": 51060767,
    "name": "Yatchy Concreategirls",
    "text": "set a new best parse: 31 on Valigarmanda as Reaper"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "parse_up",
-   "id": 512253,
-   "name": "Ashelia White",
-   "text": "set a new best parse: 98 on Hegemone as Dar\u0001 \u0002night"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "parse_up",
-   "id": 60852230,
-   "name": "Lucien Rhul",
-   "text": "set a new best parse: 36 on Valigarmanda as Paladin"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "parse_up",
-   "id": 3902073,
-   "name": "Namine Raspberyl",
-   "text": "set a new best parse: 88 on Themis as Warrior"
   }
  ]
 }
