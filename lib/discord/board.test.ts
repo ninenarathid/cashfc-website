@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import type { Party } from "@/lib/party";
-import { boardMessage } from "@/lib/discord/board";
+import { boardMessage, staticsMessage } from "@/lib/discord/board";
 
 const NOW = Date.parse("2026-11-12T08:00:00Z");
 const party = (over: Partial<Party> = {}): Party => ({
@@ -53,5 +53,47 @@ describe("the Discord board message", () => {
     const empty = boardMessage([], NOW);
     expect(empty.embeds).toHaveLength(0);
     expect(empty.components).toHaveLength(1);
+  });
+});
+
+describe("the Static finder's message (v333)", () => {
+  const st = (id: string, over: Partial<Party> = {}): Party => party({
+    id, isStatic: true, contentKey: "roulette", ...over,
+  });
+
+  test("nothing to post where no static is open", () => {
+    expect(staticsMessage([])).toBeNull();
+    expect(staticsMessage([st("1", { endedAt: "2026-11-11T00:00:00Z" })])).toBeNull();
+    expect(staticsMessage([party({ id: "2" })])).toBeNull();
+  });
+
+  test("a static's text names the group, not an evening, and its picture asks for the static strip", () => {
+    const m = staticsMessage([st("116")])!;
+    expect(m.content).toMatch(/^## CASH Static Finder\n1 Static ที่กำลังหาคน/);
+    expect(m.embeds[0].description).toBe("**Static** · กำลังหาคน\nFresh start");
+    expect(m.embeds[0].image.url).toMatch(/\/party\/116\/banner\?v=.+&s=1$/);
+  });
+
+  test("one link button to the board's static section, no dropdown, no emoji", () => {
+    const m = staticsMessage([st("116")])!;
+    expect(m.components).toHaveLength(1);
+    const b = m.components[0].components[0];
+    expect([b.type, b.style]).toEqual([2, 5]);
+    expect(b.url).toMatch(/\/party#statics$/);
+    expect(JSON.stringify(m)).not.toMatch(EMOJI);
+  });
+
+  test("the ones still looking come first, then the newest", () => {
+    const full = st("a", {
+      shape: "light", createdAt: "2026-11-12T07:30:00Z",
+      seats: Object.fromEntries(["MT", "H1", "D1", "D2"].map((s, i) => [s, {
+        characterId: 100 + i, name: `p${i}`, avatar: null, confirmedAt: "2026-11-12T07:00:00Z",
+      }])),
+    });
+    const older = st("b", { createdAt: "2026-11-10T07:00:00Z" });
+    const newer = st("c", { createdAt: "2026-11-11T07:00:00Z" });
+    const m = staticsMessage([full, older, newer])!;
+    expect(m.embeds.map((e: { url: string }) => e.url.split("/").pop())).toEqual(["c", "b", "a"]);
+    expect(m.content).toMatch(/2 Static ที่กำลังหาคน/);
   });
 });

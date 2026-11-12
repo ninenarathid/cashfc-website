@@ -2149,7 +2149,8 @@ export default function PartyBoard(
         * there is anything in it.
         */}
       {!loading && (
-        <section className="mt-4 flex flex-col gap-2 border-t border-line pt-5">
+        // An id, so the Discord statics message's button lands here (v333).
+        <section id="statics" className="mt-4 flex scroll-mt-20 flex-col gap-2 border-t border-line pt-5">
           <h2 className="font-display text-[20px] font-semibold text-ink">
             {t("pf.staticHeading")}
           </h2>

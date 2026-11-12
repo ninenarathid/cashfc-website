@@ -172,6 +172,8 @@ function shortfall(p: Party): string {
 function embedFor(
   p: Party, defs: Record<string, ContentDef>, names: Map<number, Lead>,
   faces: Map<number, string>,
+  /** For the Static finder's message, where there is no evening to time. */
+  asStatic = false,
 ) {
   const def = defs[p.contentKey];
   const lead = names.get(p.ownerCharacterId);
@@ -280,7 +282,9 @@ function embedFor(
    */
   const pic = p.cover?.match(/-([a-z0-9]+)\.[a-z]+$/)?.[1] ?? "d";
   const version = `${BUILD}.${here}.${seats}.${stamp(p.updatedAt ?? p.createdAt)}.${who}.${pic}`;
-  const card = `${SITE}/party/${p.id}/banner?v=${version}`;
+  // `s=1` asks the picture for a static's strip, which names the group
+  // instead of an evening; see the banner route.
+  const card = `${SITE}/party/${p.id}/banner?v=${version}${asStatic ? "&s=1" : ""}`;
 
   return {
     // The lead, with their face and nothing else. An embed with somebody in
@@ -304,7 +308,11 @@ function embedFor(
      * until it.
      */
     description: [
-      `**${STATUS_WORD[status] ?? ""}** · เริ่ม <t:${at}:t> · <t:${at}:R>`,
+      asStatic
+        // A static is the same group every week until the fight is cleared:
+        // the first session's clock says nothing about whether to join.
+        ? `**Static** · ${seats && here >= seats ? "ครบแล้ว" : "กำลังหาคน"}`
+        : `**${STATUS_WORD[status] ?? ""}** · เริ่ม <t:${at}:t> · <t:${at}:R>`,
       p.note ? p.note.slice(0, 400) : null,
     ].filter(Boolean).join("\n"),
     color: def ? Number.parseInt(KIND_COLOR[def.kind].slice(1), 16) : 0x8b93a1,
@@ -405,6 +413,54 @@ function linkRow() {
       { type: 2, style: 5, label: "ตั้งปาร์ตี้", url: `${SITE}/party?new=1` },
       { type: 2, style: 5, label: "เปิดบอร์ดบนเว็บ", url: `${SITE}/party` },
     ],
+  };
+}
+
+/**
+ * The Static finder, as a message of its own under the board (v333).
+ *
+ * The owner, 2026-11-12: the statics in Discord too, as their own section.
+ * A second message rather than more rows in the first: the board is capped at
+ * ten embeds and is re-posted whenever a party opens, and a static is a
+ * different question, "who plays with us every week", not "who is free
+ * tonight", which is why the website keeps them apart as well.
+ *
+ * The ones still looking first, then the newest. No dropdown to join: joining
+ * from Discord is built for an evening (it refuses a party whose start has
+ * passed, which a static's always has), and signing up for every week is a
+ * decision to make on the page, where the seats and the write-up are.
+ *
+ * Null where there is no open static, so the route takes the message down
+ * rather than keep a section that says nothing.
+ */
+export function staticsMessage(
+  all: readonly Party[], faces: Map<number, string> = new Map(),
+) {
+  const defs = byKey();
+  const names = roster();
+  const full = (p: Party) => {
+    const { here, seats } = headcount(p);
+    return seats > 0 && here >= seats;
+  };
+  const open = all
+    .filter((p) => p.isStatic && !p.endedAt)
+    .sort((a, b) => Number(full(a)) - Number(full(b))
+      || +new Date(b.createdAt) - +new Date(a.createdAt));
+  if (!open.length) return null;
+  const shown = open.slice(0, MAX_EMBEDS);
+  const rest = open.length - shown.length;
+  const looking = open.filter((p) => !full(p)).length;
+  return {
+    content: `## CASH Static Finder\n${looking} Static ที่กำลังหาคน`
+      + (rest > 0 ? ` · อีก ${rest} Static ดูได้บนเว็บ` : ""),
+    embeds: shown.map((p) => embedFor(p, defs, names, faces, true)),
+    components: [{
+      type: 1,
+      components: [
+        { type: 2, style: 5, label: "เปิด Static finder บนเว็บ", url: `${SITE}/party#statics` },
+      ],
+    }],
+    allowed_mentions: { parse: [] as string[] },
   };
 }
 
