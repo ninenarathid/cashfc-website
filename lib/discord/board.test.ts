@@ -75,13 +75,13 @@ describe("the statics, as the board's last card (one message, 2026-11-12)", () =
     expect(boardMessage([party()], NOW, new Map(), []).embeds).toHaveLength(1);
   });
 
-  test("the card comes last, after the evening's parties, with no picture", () => {
+  test("the card comes last, after the evening's parties, with the statics' banners as its picture", () => {
     const m = boardMessage([party()], NOW, new Map(), [st("126")]);
     expect(m.embeds).toHaveLength(2);
     const card = m.embeds[1];
     expect(card.title).toBe("CASH Static Finder");
     expect(card.url).toMatch(/\/party#statics$/);
-    expect(card.image).toBeUndefined();
+    expect(card.image!.url).toMatch(/\/party\/statics-banner\?ids=126&v=[\w.]+$/);
     expect(card.description).toMatch(/\*\*\[Duty Roulette\]\(.+\/party\/126\)\*\*\nกำลังหาคน · ขาด .+ · 0\/4/);
   });
 
@@ -94,6 +94,25 @@ describe("the statics, as the board's last card (one message, 2026-11-12)", () =
     expect(order).toEqual(["c", "b", "a"]);
     expect(d).toMatch(/^-# 2 Static ที่กำลังหาคน/);
     expect(d).toMatch(/ครบแล้ว · 4\/4/);
+  });
+
+  test("the picture shows at most four statics, in the card's order", () => {
+    const many = ["a", "b", "c", "d", "e", "f"].map((id, i) => st(id, {
+      createdAt: new Date(NOW - i * 3600_000).toISOString(),
+    }));
+    const url = staticsEmbed(many)!.image.url;
+    expect(url).toMatch(/ids=a,b,c,d&/);
+  });
+
+  test("a change to any static on the picture changes its address", () => {
+    const before = staticsEmbed([st("126"), st("116")])!.image.url;
+    const joined = staticsEmbed([st("126"), st("116", { seats: fullSeats })])!.image.url;
+    const covered = staticsEmbed([st("126", {
+      cover: "5b0c9d6e-1f2a-4b3c-8d4e-5f6a7b8c9d0e/cover-1762934400000-a1b2c3.webp",
+    }), st("116")])!.image.url;
+    expect(joined).not.toBe(before);
+    expect(covered).not.toBe(before);
+    expect(staticsEmbed([st("126"), st("116")])!.image.url).toBe(before);
   });
 
   test("never more than ten embeds: nine evenings and the statics card", () => {

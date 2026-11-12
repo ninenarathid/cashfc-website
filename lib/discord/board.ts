@@ -169,6 +169,35 @@ function shortfall(p: Party): string {
 }
 
 /** One party, as an embed. */
+/**
+ * Everything that can change a party's picture, as part of the picture's address.
+ *
+ * Discord keeps an image until its address changes, so the address carries the
+ * build that drew it, the headcount, when the party was last edited, every row
+ * id in it (one person leaving and another arriving leaves the headcount where
+ * it was; row ids only ever climb) and which cover it wears (v332: the one thing
+ * a member changes by hand and then goes to Discord to look for).
+ */
+function pictureVersion(p: Party): string {
+  const { here, seats } = headcount(p);
+  const who = [
+    ...Object.values(p.seats).map((m) => m.seatRowId ?? 0),
+    ...(p.floating ?? []).map((m) => m.seatRowId ?? 0),
+  ].sort((a, b) => a - b).join("-");
+  const pic = p.cover?.match(/-([a-z0-9]+)\.[a-z]+$/)?.[1] ?? "d";
+  return `${BUILD}.${here}.${seats}.${stamp(p.updatedAt ?? p.createdAt)}.${who}.${pic}`;
+}
+
+/** A short, stable digest of a long string, for an address. FNV-1a, 32 bits. */
+function digest(s: string): string {
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h.toString(36);
+}
+
 function embedFor(
   p: Party, defs: Record<string, ContentDef>, names: Map<number, Lead>,
   faces: Map<number, string>,
@@ -267,20 +296,7 @@ function embedFor(
    * address changes. Row ids only ever climb, so any change to who is in it is
    * a change to this.
    */
-  const who = [
-    ...Object.values(p.seats).map((m) => m.seatRowId ?? 0),
-    ...(p.floating ?? []).map((m) => m.seatRowId ?? 0),
-  ].sort((a, b) => a - b).join("-");
-  /*
-   * And which picture it wears (v332). The edit that changes it moves
-   * updated_at as well, but this is the one thing on the card a member
-   * changes by hand and then goes to Discord to look for — so it is in the
-   * address by name, not by inference. The file's random part is enough to
-   * tell two pictures apart, and short.
-   */
-  const pic = p.cover?.match(/-([a-z0-9]+)\.[a-z]+$/)?.[1] ?? "d";
-  const version = `${BUILD}.${here}.${seats}.${stamp(p.updatedAt ?? p.createdAt)}.${who}.${pic}`;
-  const card = `${SITE}/party/${p.id}/banner?v=${version}`;
+  const card = `${SITE}/party/${p.id}/banner?v=${pictureVersion(p)}`;
 
   return {
     // The lead, with their face and nothing else. An embed with somebody in
@@ -412,6 +428,8 @@ function linkRow() {
 const EMBED_TEXT_MAX = 6000;
 /** How many statics the list names before it says how many more. */
 const STATICS_LISTED = 12;
+/** How many of them the card's picture shows as strips; the route accepts no more. */
+export const STATICS_PICTURED = 4;
 
 /**
  * The Static finder, as the last card of the board (the owner, 2026-11-12).
@@ -419,8 +437,9 @@ const STATICS_LISTED = 12;
  * The statics are a different question from the evening's parties, "who plays
  * with us every week until this is cleared", so they get a section of their
  * own; and he wanted the board one message. A message carries ten embeds and
- * the evening takes nine, so the statics are one card: a list, not pictures,
- * the ones still looking first, each line a link to the party.
+ * the evening takes nine, so the statics are one card: a list, the ones still
+ * looking first, each line a link to the party, with their banners stacked as
+ * the card's one picture.
  *
  * No dropdown entry: joining from Discord is built for an evening (it refuses a
  * party whose start has passed, which a static's always has), and signing up
@@ -454,6 +473,16 @@ export function staticsEmbed(all: readonly Party[]) {
   });
   const more = open.length - listed.length;
   const looking = open.filter((p) => !full(p)).length;
+  /*
+   * Their banners, as the card's one picture (the owner, 2026-11-12: "เอาให้
+   * ขึ้นรูป banner ด้วยซิ"). An embed carries a single image, so the picture is
+   * the first few statics' banners stacked as strips (app/party/statics-banner),
+   * in the list's own order. Its address carries every one of their picture
+   * versions, digested, so a change to any of them is a new picture.
+   */
+  const pictured = open.slice(0, STATICS_PICTURED);
+  const picture = `${SITE}/party/statics-banner?ids=${pictured.map((p) => p.id).join(",")}`
+    + `&v=${BUILD}.${digest(pictured.map(pictureVersion).join("|"))}`;
   return {
     title: "CASH Static Finder",
     url: `${SITE}/party#statics`,
@@ -463,6 +492,7 @@ export function staticsEmbed(all: readonly Party[]) {
       more > 0 ? `-# อีก ${more} Static ดูได้บนเว็บ` : null,
     ].filter(Boolean).join("\n\n").slice(0, 4000),
     color: 0x5b8def,
+    image: { url: picture },
   };
 }
 
