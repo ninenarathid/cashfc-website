@@ -2,6 +2,55 @@
  "events": [
   {
    "date": "2026-11-12",
+   "type": "rare_up",
+   "id": 29152036,
+   "name": "Fluffy Tinytail",
+   "text": "earned Phantom of the Umbra: War Scythe Umbrae"
+  },
+  {
+   "date": "2026-11-12",
+   "type": "rare_up",
+   "id": 44970350,
+   "name": "Allen Crist",
+   "text": "earned Hiding in Plain Sight: Exemplar — only 4.4% of players have it"
+  },
+  {
+   "date": "2026-11-12",
+   "type": "rare_up",
+   "id": 37056222,
+   "name": "Lucine Nokomis",
+   "text": "earned Phantom of the Umbra: Twinfangs Umbrae"
+  },
+  {
+   "date": "2026-11-12",
+   "type": "rare_up",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "earned Eighth Rank II — only 2.4% of players have it"
+  },
+  {
+   "date": "2026-11-12",
+   "type": "rare_up",
+   "id": 38488824,
+   "name": "Daffodil Amary",
+   "text": "earned Resplendent: Brilliant Frypan"
+  },
+  {
+   "date": "2026-11-12",
+   "type": "rare_up",
+   "id": 29918255,
+   "name": "Lyndanisse Vymmaith",
+   "text": "earned R&D: Hyperpickaxe"
+  },
+  {
+   "date": "2026-11-12",
+   "type": "rare_up",
+   "id": 37061370,
+   "name": "Peonies Dunieres",
+   "text": "earned A Line in the Sand III"
+  },
+  {
+   "date": "2026-11-12",
    "type": "level_100",
    "id": 30667251,
    "name": "Roxas Akatsuki",
@@ -1350,55 +1399,6 @@
    "id": 50821570,
    "name": "Haruki Mizumoto",
    "text": "reached level 100 on Black Mage!"
-  },
-  {
-   "date": "2026-10-24",
-   "type": "level_100",
-   "id": 47218599,
-   "name": "Kawa Lynn",
-   "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-10-24",
-   "type": "level_100",
-   "id": 60429500,
-   "name": "Jin Theape",
-   "text": "reached level 100 on Sage!"
-  },
-  {
-   "date": "2026-10-23",
-   "type": "job_up",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "is now a Master Warrior"
-  },
-  {
-   "date": "2026-10-23",
-   "type": "level_100",
-   "id": 60429500,
-   "name": "Jin Theape",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-10-23",
-   "type": "level_100",
-   "id": 8836061,
-   "name": "Allusia Heartfilia",
-   "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-10-23",
-   "type": "rare_up",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "earned Phantom of the Umbra: Star Globe Umbrae"
-  },
-  {
-   "date": "2026-10-22",
-   "type": "parse_up",
-   "id": 51060767,
-   "name": "Yatchy Concreategirls",
-   "text": "set a new best parse: 31 on Valigarmanda as Reaper"
   }
  ]
 }
