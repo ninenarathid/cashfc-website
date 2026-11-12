@@ -8,7 +8,8 @@ import {
   fmtFood, fmtLength, fmtRuns, lootText, mapsText, openLabel, spotText,
 } from "@/lib/party";
 import { contentByKey } from "@/lib/party-seeds";
-import { cardNeeds, partyCard, seatCount } from "@/lib/party-card";
+import { cardNeeds, partyCard, partyCover, seatCount } from "@/lib/party-card";
+import { coverUrl } from "@/lib/party-cover";
 import { mapLabel } from "@/lib/treasure";
 
 /**
@@ -96,11 +97,56 @@ async function inlineArt(
   }
 }
 
+/** The kinds of picture a cover may be, read off the file itself, not its name. */
+const COVER_FORMATS = new Set(["webp", "jpeg", "png"]);
+/** Far above what the crop saves (about 200 KB), far below anything harmful. */
+const COVER_MAX_BYTES = 6 * 1024 * 1024;
+
+/**
+ * The lead's own picture (v332), fetched from the bucket and cropped like the still.
+ *
+ * Over the network, unlike the still: it lives in Supabase's storage, not in
+ * public/. Only ever from our own bucket, because coverUrl builds the address
+ * from a checked path and this project's URL, so nothing a member typed can
+ * point this server anywhere else.
+ *
+ * The file is a member's upload, so it is checked as one: its size before it
+ * is read whole, its real format before it is decoded, and a pixel limit so a
+ * picture that claims to be enormous is refused instead of unpacked.
+ *
+ * Any failure is null, and the card falls back to the duty's banner.
+ */
+async function inlineCover(path: string, height: number): Promise<string | null> {
+  const url = coverUrl(path);
+  if (!url) return null;
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(3500), cache: "no-store" });
+    if (!res.ok) return null;
+    const said = Number(res.headers.get("content-length") ?? 0);
+    if (said > COVER_MAX_BYTES) return null;
+    const buf = Buffer.from(await res.arrayBuffer());
+    if (buf.length > COVER_MAX_BYTES) return null;
+    const img = sharp(buf, { limitInputPixels: 24_000_000 });
+    const meta = await img.metadata();
+    if (!meta.format || !COVER_FORMATS.has(meta.format)) return null;
+    const jpg = await img
+      .resize(size.width, height, { fit: "cover", position: "centre" })
+      .jpeg({ quality: 82, mozjpeg: true })
+      .toBuffer();
+    return `data:image/jpeg;base64,${jpg.toString("base64")}`;
+  } catch (e) {
+    console.warn("party card: no cover for", path, "—", (e as Error).message);
+    return null;
+  }
+}
+
 export default async function Image(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const card = await partyCard(id);
+  // Side by side: the picture is a separate question, and asking it after the
+  // card would add its wait to every link anybody shares.
+  const [card, cover] = await Promise.all([partyCard(id), partyCover(id)]);
   const def = card ? contentByKey(card.contentKey) : undefined;
   const tint = def ? KIND_COLOR[def.kind] : "#8b93a1";
 
@@ -144,7 +190,20 @@ export default async function Image(
   const artH = needs.length ? ART_H - 64 : ART_H;
   // Cropped to the box it is going into, which is why it is read after the
   // height is known rather than alongside the card.
-  const art = await inlineArt(def?.art, def?.focus, artH);
+  // The lead's own picture where there is one (v332), the duty's still where not.
+  const own = cover ? await inlineCover(cover, artH) : null;
+  const art = own ?? await inlineArt(def?.art, def?.focus, artH);
+  /*
+   * A member's picture gets a darker foot than a banner does.
+   *
+   * The duty banners are the game's own key art, composed with room for a
+   * title; a screenshot somebody cropped is as often as not a burst of light
+   * across the whole frame, and the fight's name sat on it unreadable.
+   */
+  const scrim = own
+    ? "linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.7) 45%, rgba(0,0,0,0.2))"
+    : "linear-gradient(to top, rgba(0,0,0,0.92), rgba(0,0,0,0.15))";
+  const lift = own ? { textShadow: "0 2px 10px rgba(0,0,0,0.9)" } : {};
   const terms = [
     // The length as the party said it. A run count is not a duration and the
     // card should not turn it into one.
@@ -192,21 +251,23 @@ export default async function Image(
                  style={{ width: size.width, height: artH }} />
           )}
           <div style={{
-            position: "absolute", inset: 0, display: "flex",
-            background: "linear-gradient(to top, rgba(0,0,0,0.92), rgba(0,0,0,0.15))",
+            // Each edge by name: the card renderer does not read `inset`, and
+            // with it this shading had no size at all, on every card.
+            position: "absolute", top: 0, left: 0, right: 0, bottom: 0, display: "flex",
+            background: scrim,
           }} />
           <div style={{
             position: "absolute", left: 48, right: 48, bottom: 28,
             display: "flex", flexDirection: "column", gap: 6,
           }}>
             <div style={{
-              display: "flex", fontSize: 22, letterSpacing: 3,
+              display: "flex", fontSize: 22, letterSpacing: 3, ...lift,
               textTransform: "uppercase", color: tint,
             }}>
               {def ? KIND_LABEL[def.kind] : "Party"}
               {def?.badge ? ` · ${def.badge}` : ""}
             </div>
-            <div style={{ display: "flex", fontSize: 58, fontWeight: 700 }}>
+            <div style={{ display: "flex", fontSize: 58, fontWeight: 700, ...lift }}>
               {def?.duty ?? def?.name ?? card.contentKey}
             </div>
           </div>

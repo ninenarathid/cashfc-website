@@ -290,7 +290,15 @@ function embedFor(
     ...Object.values(p.seats).map((m) => m.seatRowId ?? 0),
     ...(p.floating ?? []).map((m) => m.seatRowId ?? 0),
   ].sort((a, b) => a - b).join("-");
-  const version = `${BUILD}.${here}.${seats}.${stamp(p.updatedAt ?? p.createdAt)}.${who}`;
+  /*
+   * And which picture it wears (v332). The edit that changes it moves
+   * updated_at as well, but this is the one thing on the card a member
+   * changes by hand and then goes to Discord to look for — so it is in the
+   * address by name, not by inference. The file's random part is enough to
+   * tell two pictures apart, and short.
+   */
+  const pic = p.cover?.match(/-([a-z0-9]+)\.[a-z]+$/)?.[1] ?? "d";
+  const version = `${BUILD}.${here}.${seats}.${stamp(p.updatedAt ?? p.createdAt)}.${who}.${pic}`;
   const card = `${SITE}/party/${p.id}/opengraph-image?v=${version}`;
 
   return {

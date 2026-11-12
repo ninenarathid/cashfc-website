@@ -72,6 +72,7 @@ import ShareParty from "@/components/party/ShareParty";
 import PfHelper from "@/components/party/PfHelper";
 import PartyPolls from "@/components/party/PartyPolls";
 import { openPolls, pollWaitsOn } from "@/lib/party-poll";
+import { partyArt } from "@/lib/party-cover";
 
 /**
  * Who is running what, and when.
@@ -274,6 +275,8 @@ function PartyDetail(
    */
   const edited = !!party.updatedAt
     && new Date(party.updatedAt).getTime() - new Date(party.createdAt).getTime() > 60_000;
+  /** The lead's own picture, or the duty's banner. */
+  const art = partyArt(party.cover, def);
   return (
     /* Wide, because a party is not a column of fields: a still across the
        top, a seat grid eight cells across, a write-up with screenshots in it
@@ -299,12 +302,16 @@ function PartyDetail(
           * A window has no row above it to have shown this already, and the
           * picture is how people recognise which evening they have opened —
           * the same reason it is on the row and on the content picker.
+          *
+          * The lead's own picture in its place where they put one up (v332),
+          * cropped to this same shape, so it sits exactly where the banner did.
           */}
         <div style={{
-               backgroundImage: def?.art ? `url(${def.art})` : undefined,
-               backgroundPosition: def?.focus ?? "center",
-               backgroundColor: def?.art ? undefined
-                 : `color-mix(in srgb, ${tint} 22%, var(--color-bg))`,
+               backgroundImage: art ? `url(${art.url})` : undefined,
+               backgroundPosition: art?.focus ?? "center",
+               // Under the picture as well, so a cover that fails to load
+               // leaves the kind's colour rather than a black hole.
+               backgroundColor: `color-mix(in srgb, ${tint} 22%, var(--color-bg))`,
              }}
              /*
               * The picture's own shape where there is one.
@@ -320,7 +327,7 @@ function PartyDetail(
               * that is three hundred pixels of nothing.
               */
              className={`relative flex items-end overflow-hidden rounded-xl bg-cover ${
-               def?.art
+               art
                  // A floor as well as a ratio. On a phone the ratio alone
                  // gives about a hundred and twenty pixels, and the clock,
                  // the status and the copy button wrap to two rows inside
@@ -334,7 +341,7 @@ function PartyDetail(
               so that is the only part that has to be dark. */}
           <span aria-hidden
                 className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-          {!def?.art && def && (def.icon || KIND_ICON[def.kind]) && (
+          {!art && def && (def.icon || KIND_ICON[def.kind]) && (
             /* Not on a phone, where it lands on the clock.
                The banner is a fixed 110px and the row along its bottom wraps
                to two lines at 400px wide, which puts the time and the
@@ -1461,6 +1468,7 @@ export default function PartyBoard(
   const row = (p: Party) => {
     const c = byKey[p.contentKey];
     const tint = c ? KIND_COLOR[c.kind] : "#8b93a1";
+    const pic = partyArt(p.cover, c);
     const open = openId === p.id;
     const res = resolveParty(p);
     const inIt = [...Object.values(res.seats), ...res.loose];
@@ -1488,16 +1496,17 @@ export default function PartyBoard(
           */}
         <button onClick={() => setOpenId(open ? null : p.id)}
                 className="flex w-full items-stretch text-left hover:bg-card/30">
+          {/* The lead's own picture where there is one (v332), the duty's
+              banner where not; the middle of either, as before. */}
           <span style={{
-                  backgroundImage: c?.art ? `url(${c.art})` : undefined,
-                  backgroundPosition: c?.focus ?? "center",
-                  backgroundColor: c?.art ? undefined
-                    : `color-mix(in srgb, ${tint} 22%, var(--color-bg))`,
+                  backgroundImage: pic ? `url(${pic.url})` : undefined,
+                  backgroundPosition: pic?.focus ?? "center",
+                  backgroundColor: `color-mix(in srgb, ${tint} 22%, var(--color-bg))`,
                 }}
                 className="relative flex w-[100px] shrink-0 items-end bg-cover bg-center p-2 sm:w-[124px]">
             <span aria-hidden
                   className="absolute inset-0 bg-gradient-to-t from-black/85 to-black/25" />
-            {!c?.art && c && (c.icon || KIND_ICON[c.kind]) && (
+            {!pic && c && (c.icon || KIND_ICON[c.kind]) && (
               <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-90">
                 <TagIcon tag={c.icon ?? KIND_ICON[c.kind]!} size={34} />
               </span>

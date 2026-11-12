@@ -1222,6 +1222,11 @@ export interface Party {
    * Savage and Ultimate only; see canBeStatic.
    */
   isStatic?: boolean;
+  /**
+   * The lead's own picture, as a path in the party bucket (v332). Absent means
+   * the duty's banner, as before. See lib/party-cover.ts.
+   */
+  cover?: string;
 }
 
 /** The fights a group progresses together, which are the ones a static is for. */

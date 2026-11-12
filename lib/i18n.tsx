@@ -3109,6 +3109,50 @@ const DICT = {
   "pf.tooBig": { en: "That picture is too large.", th: "รูปใหญ่เกินไป" },
   "pf.notPicture": { en: "That is not a picture.", th: "ไฟล์นี้ไม่ใช่รูป" },
 
+  /* A party's own cover picture (v332). */
+  "pf.cover": { en: "Cover picture", th: "รูปปก" },
+  "pf.coverOptional": {
+    en: "Optional. Leave it and the content's own banner is used.",
+    th: "ไม่ใส่ก็ได้ จะใช้ภาพของคอนเทนต์ตามปกติ",
+  },
+  "pf.coverDefault": { en: "Default", th: "ภาพเริ่มต้น" },
+  "pf.coverOwn": { en: "Chosen", th: "รูปที่เลือก" },
+  "pf.coverUpload": { en: "Upload", th: "อัปโหลดรูป" },
+  "pf.coverChange": { en: "Upload another", th: "อัปโหลดรูปใหม่" },
+  "pf.coverReset": { en: "Use the default", th: "ใช้ภาพเริ่มต้น" },
+  "pf.coverPickUsed": { en: "Used before ({n})", th: "รูปที่เคยใช้ ({n})" },
+  "pf.coverGuide": {
+    en: "Best at 1692×540 px · ratio 47:15 (about 3.1:1, the game's duty banner) · at least 1128×360 · JPG, PNG or WebP up to 20 MB · you crop it after choosing",
+    th: "ขนาดแนะนำ 1692×540 px · สัดส่วน 47:15 (≈ 3.1:1 เท่าแบนเนอร์ดันเจี้ยนในเกม) · ขั้นต่ำ 1128×360 · JPG / PNG / WebP ไม่เกิน 20 MB · เลือกไฟล์แล้วครอปได้",
+  },
+  "pf.coverCrop": { en: "Crop the cover", th: "ครอปรูปปก" },
+  "pf.coverCropHint": {
+    en: "Drag to move · scroll, pinch or the slider to zoom",
+    th: "ลากเพื่อเลื่อน · ซูมด้วยลูกกลิ้ง ถ่างนิ้ว หรือแถบเลื่อน",
+  },
+  "pf.coverKeepIn": {
+    en: "Keep what matters inside the dashed lines: a phone shows only that part, and the bottom strip sits under the time and status.",
+    th: "ให้ส่วนสำคัญอยู่ในเส้นประ เพราะมือถือจะเห็นแค่ช่วงนั้น และแถบล่างจะมีเวลากับสถานะทับ",
+  },
+  "pf.coverPhone": { en: "phone", th: "มือถือ" },
+  "pf.coverZoom": { en: "Zoom", th: "ซูม" },
+  "pf.coverCentre": { en: "Reset", th: "รีเซ็ต" },
+  "pf.coverSmall": {
+    en: "This crop is {w}×{h} px, smaller than 1128×360, so it may look soft.",
+    th: "ส่วนที่ครอปได้ {w}×{h} px เล็กกว่า 1128×360 ภาพอาจไม่คม",
+  },
+  "pf.coverUse": { en: "Use this picture", th: "ใช้รูปนี้" },
+  "pf.coverSaving": { en: "Uploading…", th: "กำลังอัปโหลด…" },
+  "pf.coverUsed": { en: "used {n}×", th: "ใช้ {n} ครั้ง" },
+  "pf.coverPopular": { en: "Most used", th: "นิยมสุด" },
+  "pf.coverKin": { en: "Same duty", th: "ดันเจี้ยนเดียวกัน" },
+  "pf.coverUsedTitle": { en: "Covers used before", th: "รูปปกที่เคยใช้" },
+  "pf.coverUsedHint": {
+    en: "Pictures other leads put up for {name}, the most used first.",
+    th: "รูปที่หัวปาร์ตี้คนอื่นเคยใช้กับ {name} เรียงจากที่ใช้บ่อยที่สุด",
+  },
+  "pf.coverBadFile": { en: "That picture could not be opened.", th: "เปิดรูปนี้ไม่ได้" },
+
   /* Seats. */
   "pf.pickOwnSeat": { en: "Pick your own seat first", th: "เลือกตำแหน่งของตัวเองก่อน" },
   "pf.seatsHint": {

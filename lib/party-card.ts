@@ -4,6 +4,7 @@ import type {
   SlotRole, SlotTaken, Spot,
 } from "@/lib/party";
 import { shortfallOf } from "@/lib/party";
+import { isCoverPath } from "@/lib/party-cover";
 
 /**
  * One party, as much of it as a link preview should say.
@@ -223,3 +224,36 @@ export const cardNeeds = (c: PartyCard): [SlotRole[], number][] => {
   else if (cut.spare) out.push([[], cut.spare]);
   return out;
 };
+
+/**
+ * The party's own picture, for the card (v332).
+ *
+ * Asked separately from party_card rather than added to it: that function's
+ * return shape cannot be changed in place, and the card is what every shared
+ * link depends on. A database without v332 answers 404 here, which is null,
+ * which is the duty's banner: the card as it was.
+ */
+export async function partyCover(id: string): Promise<string | null> {
+  if (!supabaseConfigured) return null;
+  const n = Number(id);
+  if (!Number.isInteger(n) || n <= 0) return null;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/party_cover`, {
+      method: "POST",
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ p_id: n }),
+      signal: AbortSignal.timeout(FETCH_MS),
+      // A new picture has to reach the next card drawn, not one an hour on.
+      cache: "no-store",
+    });
+    if (!res.ok) return null;
+    const path = await res.json() as unknown;
+    return isCoverPath(path) ? path : null;
+  } catch {
+    return null;
+  }
+}

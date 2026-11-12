@@ -31,6 +31,7 @@ import AgainRow from "@/components/party/AgainRow";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import FoodIcon from "@/components/party/FoodIcon";
 import { BodyEditor } from "@/components/party/PartyBody";
+import CoverPicker from "@/components/party/CoverPicker";
 import ProgressTrack from "@/components/party/ProgressTrack";
 import LootPlan from "@/components/party/LootPlan";
 import WherePicker from "@/components/party/WherePicker";
@@ -400,6 +401,13 @@ function PartyForm(
   const [askStatic, setAskStatic] = useState(false);
   const [floating, setFloating] = useState<Floater[]>(editing?.floating ?? []);
   const [body, setBody] = useState<PartyBlock[]>(seed?.body ?? []);
+  /*
+   * The party's own picture (v332), or null for the duty's banner.
+   *
+   * Carried in from a party being copied as well as one being edited: the
+   * same static every Thursday is the same picture every Thursday.
+   */
+  const [cover, setCover] = useState<string | null>(seed?.cover ?? null);
 
   /*
    * Read once when the form opens. A want is a standing statement and does not
@@ -700,6 +708,7 @@ function PartyForm(
   const draft: Party = useMemo(() => ({
     id: "draft",
     contentKey, note: note.trim() || undefined, body,
+    ...(cover ? { cover } : {}),
     // Only where there is a fight to be partway through.
     progress: isFight(chosen?.kind) ? progress : undefined,
     loot: hasLoot(chosen?.kind) ? safeLoot : undefined,
@@ -716,7 +725,7 @@ function PartyForm(
     createdAt: new Date().toISOString(),
   }), [contentKey, note, useShape, start, minutes, unit, me.id, seats, closed,
        rules, oneEach, floating, body, progress, safeLoot, spot, maps,
-       roulettes, useUnit, minutes, chosen?.kind, isStatic]);
+       roulettes, useUnit, minutes, chosen?.kind, isStatic, cover]);
 
   const mySeat = Object.entries(seats).find(([, v]) => v.characterId === me.id)?.[0];
   const iAmFloating = floating.some((f) => f.characterId === me.id);
@@ -1129,6 +1138,11 @@ function PartyForm(
       {hasMaps(chosen?.kind) && <MapPicker value={maps} onChange={setMaps} />}
 
       {hasSpot(chosen?.kind) && <WherePicker value={spot} onChange={setSpot} />}
+
+      {/* Beside the write-up, because both are how the party presents
+          itself; above it, because the picture is seen first. */}
+      <CoverPicker value={cover} onChange={setCover} def={chosen}
+                   content={content} userId={userId} />
 
       <BodyEditor body={body} onChange={setBody} userId={userId} />
 

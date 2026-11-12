@@ -7,6 +7,8 @@ import type {
 } from "@/lib/party";
 import { askedAbout, endsAt } from "@/lib/party";
 import type { PartyPoll, PollVoter } from "@/lib/party-poll";
+import type { CoverChoice } from "@/lib/party-cover";
+import { isCoverPath, newCoverPath, rankCovers } from "@/lib/party-cover";
 
 /**
  * The party finder, read from and written to the database.
@@ -53,6 +55,8 @@ interface PostRow {
   outcome?: string | null;
   /** v76. Absent likewise. */
   is_static?: boolean | null;
+  /** v332. Absent likewise. */
+  cover?: string | null;
 }
 
 interface MemberRow {
@@ -110,9 +114,21 @@ const POST_COLS =
  */
 let knowsOutcome = true;
 let knowsStatic = true;
+/**
+ * Whether v332's picture column is there. Asked first, on top of the rest,
+ * and dropped for the page's life the first time the database has never
+ * heard of it: a board ahead of its migration draws every party with its
+ * duty's banner, which is what it did before.
+ */
+let knowsCover = true;
 async function readPosts<R>(
   run: (cols: string) => PromiseLike<{ data: R | null; error: { message: string } | null }>,
 ): Promise<{ data: R | null; error: { message: string } | null }> {
+  if (knowsCover && knowsOutcome && knowsStatic) {
+    const r = await run(`${POST_COLS}, outcome, is_static, cover`);
+    if (!r.error || !/cover/.test(r.error.message)) return r;
+    knowsCover = false;
+  }
   if (knowsOutcome && knowsStatic) {
     const r = await run(`${POST_COLS}, outcome, is_static`);
     if (!r.error || !/outcome|is_static/.test(r.error.message)) return r;
@@ -564,6 +580,7 @@ function partyOf(p: PostRow, who: Roster): Party {
     outcome: (p.outcome === "success" || p.outcome === "fail" || p.outcome === "test")
       ? p.outcome : null,
     isStatic: !!p.is_static,
+    ...(isCoverPath(p.cover) ? { cover: p.cover } : {}),
   });
 }
 
@@ -707,6 +724,8 @@ export async function createParty(
     maps: p.maps ?? null,
     roulettes: p.roulettes?.length ? p.roulettes : null,
     body: p.body ?? [],
+    // Only where the database has the column (v332). See knowsCover.
+    ...(knowsCover ? { cover: isCoverPath(p.cover) ? p.cover : null } : {}),
   }).select("id").single();
   if (error || !data) return { error: error?.message ?? "no row" };
 
@@ -884,6 +903,7 @@ export async function updateParty(
     maps: p.maps ?? null,
     roulettes: p.roulettes?.length ? p.roulettes : null,
     body: p.body ?? [],
+    ...(knowsCover ? { cover: isCoverPath(p.cover) ? p.cover : null } : {}),
   }).eq("id", Number(partyId));
   return error ? { error: error.message } : {};
 }
@@ -1481,4 +1501,55 @@ export async function uploadPartyImage(
   if (up.error) return { error: up.error.message };
 
   return { url: supabase.storage.from(PARTY_BUCKET).getPublicUrl(at).data.publicUrl };
+}
+
+/* ── a party's own picture (v332) ─────────────────────────────────────────── */
+
+/**
+ * A cropped cover, stored.
+ *
+ * Already cut to the banner's shape and encoded in the browser (see
+ * CoverCrop), so it goes up as it is: re-encoding it again would only lose
+ * some of what the crop kept. Its own name shape, `cover-…`, which is the only
+ * one the column accepts.
+ */
+export async function uploadPartyCover(
+  supabase: SupabaseClient, userId: string, blob: Blob,
+): Promise<{ path: string } | { error: string }> {
+  const ext = blob.type === "image/webp" ? "webp"
+    : blob.type === "image/png" ? "png"
+      : blob.type === "image/jpeg" ? "jpg" : null;
+  if (!ext) return { error: "not-image" };
+  if (blob.size > MAX_UPLOAD_BYTES) return { error: "too-big" };
+  const path = newCoverPath(userId, ext);
+  const up = await supabase.storage.from(PARTY_BUCKET)
+    .upload(path, blob, { cacheControl: "31536000", upsert: false, contentType: blob.type });
+  if (up.error) return { error: up.error.message };
+  return { path };
+}
+
+/**
+ * The pictures other parties of this fight have worn, the most used first.
+ *
+ * Every party that carries one, not deleted, read the way the board reads
+ * parties (members only), and counted in the browser: at the board's size a
+ * fight has had dozens of parties at most, and a function to count them would
+ * be a second place for "used" to mean something. Empty before v332 has run.
+ */
+export async function loadCoverChoices(
+  supabase: SupabaseClient, keys: readonly string[], key: string,
+): Promise<CoverChoice[]> {
+  if (!knowsCover || !keys.length) return [];
+  const { data, error } = await supabase.from("party_posts")
+    .select("cover, content_key, created_at")
+    .in("content_key", keys.slice(0, 20))
+    .not("cover", "is", null)
+    .is("deleted_at", null)
+    .order("created_at", { ascending: false })
+    .limit(500);
+  if (error) {
+    if (/cover/.test(error.message)) knowsCover = false;
+    return [];
+  }
+  return rankCovers((data ?? []) as { cover: string | null; content_key: string; created_at: string }[], key);
 }
