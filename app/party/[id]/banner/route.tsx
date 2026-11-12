@@ -73,16 +73,9 @@ async function asJpeg(img: ImageResponse, headers: Record<string, string>): Prom
 }
 
 export async function GET(
-  req: Request, { params }: { params: Promise<{ id: string }> },
+  _req: Request, { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  /*
-   * A static's picture, for the Static finder's message (v333): the strip
-   * names the group instead of an evening, because its first session's date
-   * says nothing about whether to join. Only how the strip is worded; the
-   * party drawn is the same.
-   */
-  const asStatic = new URL(req.url).searchParams.get("s") === "1";
   const [card, cover] = await Promise.all([partyCard(id), partyCover(id)]);
   const fonts = kanit();
   const headers = {
@@ -192,10 +185,10 @@ export async function GET(
           <div style={{ display: "flex", flexDirection: "column", flex: 1, gap: 8 }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 18 }}>
               <div style={{ display: "flex", fontSize: 60, fontWeight: 800, lineHeight: 1.1, whiteSpace: "nowrap" }}>
-                {asStatic ? "Static" : `${thaiDay(card.startsAt)} · ${fmtTime(card.startsAt)}`}
+                {`${thaiDay(card.startsAt)} · ${fmtTime(card.startsAt)}`}
               </div>
               <div style={{ display: "flex", fontSize: 34, fontWeight: 500, color: MUTED, whiteSpace: "nowrap" }}>
-                {asStatic ? `รอบแรก ${thaiDay(card.startsAt)} · ${fmtTime(card.startsAt)}` : sub}
+                {sub}
               </div>
             </div>
 

@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { SUPABASE_URL } from "@/lib/supabase/config";
 import { loadParties } from "@/lib/party-db";
 import { pingWants } from "@/lib/wants-ping";
-import { boardMessage, boardParties, staticsMessage } from "@/lib/discord/board";
+import { boardMessage, boardParties } from "@/lib/discord/board";
 import {
   botId, CHANNEL_ID, deleteMessage, editMessage, listMessages, postMessage,
 } from "@/lib/discord/api";
@@ -99,71 +99,10 @@ async function onlyOne(
   const { data } = await supabase.from("discord_board")
     .select("message_id, channel_id").eq("id", 1).single();
   if (!data?.message_id || data.channel_id !== channel) return 0;
-  /*
-   * And the Static finder's message under it (v333), which is the other
-   * message this bot keeps on purpose. Read on its own so a database without
-   * the column still sweeps around the board exactly as before.
-   */
-  const st = await supabase.from("discord_board")
-    .select("static_message_id").eq("id", 1).single();
-  const also = !st.error && st.data?.static_message_id ? [st.data.static_message_id as string] : [];
-  return sweep(channel, [data.message_id, ...also]);
-}
-
-/**
- * The Static finder, as its own message under the board (v333).
- *
- * The owner, 2026-11-12: the statics in Discord too, as a section of their
- * own. Edited in place like the board; posted again, below it, whenever the
- * board itself was posted again, because Discord orders a channel by when a
- * message was sent and a section above the board it belongs under reads as
- * the wrong way round. Taken down when no static is open.
- *
- * Before v333 has run the column is missing, the read fails, and this does
- * nothing at all: the board as it was, and nothing posted that the sweep
- * would only take down again.
- */
-async function syncStatics(
-  supabase: SupabaseClient, channel: string, faces: Map<number, string>,
-  boardReposted: boolean,
-): Promise<string> {
-  const got = await supabase.from("discord_board")
-    .select("static_message_id, channel_id").eq("id", 1).single();
-  if (got.error) return "skipped: no column";
-  const known = got.data?.channel_id === channel
-    ? (got.data?.static_message_id as string | null) ?? null : null;
-
-  const statics = await loadParties(supabase, { statics: true });
-  const payload = staticsMessage(statics, faces);
-  if (!payload) {
-    /*
-     * Empty, or only unread? loadParties answers [] for a read that failed
-     * exactly as for no statics at all, and taking the message down on a
-     * failed read would put it back as a new message on the next tick, which
-     * lights the channel up for nothing. So "none" is asked once more,
-     * directly, before anything is deleted.
-     */
-    const { count, error } = await supabase.from("party_posts")
-      .select("id", { count: "exact", head: true })
-      .eq("is_static", true).is("ended_at", null).is("deleted_at", null);
-    if (error || (count ?? 0) > 0) return "skipped: statics unread";
-    if (known) await deleteMessage(channel, known);
-    if (known) await supabase.from("discord_board").update({ static_message_id: null }).eq("id", 1);
-    return known ? "removed" : "none";
-  }
-
-  if (known && !boardReposted) {
-    const edited = await editMessage(channel, known, payload);
-    if ("ok" in edited) return "edited";
-    // Only a message Discord says is gone is posted again; anything else
-    // (a rate limit, say) waits for the next tick, as the board does.
-    if (!/"code"\s*:\s*10008/.test(edited.error)) return "skipped: edit failed";
-  }
-  const posted = await postMessage(channel, payload);
-  if ("error" in posted) return "skipped: post failed";
-  await supabase.from("discord_board").update({ static_message_id: posted.ok.id }).eq("id", 1);
-  if (known) await deleteMessage(channel, known);
-  return "posted";
+  // One message again since the statics joined the board as its last card
+  // (2026-11-12): the separate statics message v333 remembered is swept away
+  // with any other leftover.
+  return sweep(channel, [data.message_id]);
 }
 
 export async function POST(req: Request) {
@@ -222,7 +161,13 @@ export async function POST(req: Request) {
 
   const now = Date.now();
   const at = new Date(now).toISOString();
-  const payload = boardMessage(parties, now, faces);
+  /*
+   * The open statics, for the board's last card (2026-11-12). A failed read
+   * is an empty list, which leaves the card off for one tick; the next puts
+   * it back.
+   */
+  const statics = await loadParties(supabase, { statics: true });
+  const payload = boardMessage(parties, now, faces, statics);
 
   const { data: row, error: rowErr } = await supabase
     .from("discord_board")
@@ -331,10 +276,9 @@ export async function POST(req: Request) {
     if ("ok" in edited) {
       await supabase.from("discord_board")
         .update({ party_ids: ids, updated_at: at }).eq("id", 1);
-      const statics = await syncStatics(supabase, channel, faces, false);
       const swept = await onlyOne(supabase, channel);
       return NextResponse.json({
-        edited: known, parties: payload.embeds.length, statics, swept, pinged,
+        edited: known, parties: payload.embeds.length, swept, pinged,
       });
     }
     /*
@@ -405,11 +349,9 @@ export async function POST(req: Request) {
    * invite never asked for Manage Messages and why this cannot reach anything
    * a member said.
    */
-  // The statics go up again below the new board, then the sweep.
-  const statics = await syncStatics(supabase, channel, faces, true);
   const swept = await onlyOne(supabase, channel);
   return NextResponse.json({
     posted: posted.ok.id, parties: payload.embeds.length,
-    fresh: fresh.length, statics, swept, pinged,
+    fresh: fresh.length, swept, pinged,
   });
 }

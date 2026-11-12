@@ -172,8 +172,6 @@ function shortfall(p: Party): string {
 function embedFor(
   p: Party, defs: Record<string, ContentDef>, names: Map<number, Lead>,
   faces: Map<number, string>,
-  /** For the Static finder's message, where there is no evening to time. */
-  asStatic = false,
 ) {
   const def = defs[p.contentKey];
   const lead = names.get(p.ownerCharacterId);
@@ -282,9 +280,7 @@ function embedFor(
    */
   const pic = p.cover?.match(/-([a-z0-9]+)\.[a-z]+$/)?.[1] ?? "d";
   const version = `${BUILD}.${here}.${seats}.${stamp(p.updatedAt ?? p.createdAt)}.${who}.${pic}`;
-  // `s=1` asks the picture for a static's strip, which names the group
-  // instead of an evening; see the banner route.
-  const card = `${SITE}/party/${p.id}/banner?v=${version}${asStatic ? "&s=1" : ""}`;
+  const card = `${SITE}/party/${p.id}/banner?v=${version}`;
 
   return {
     // The lead, with their face and nothing else. An embed with somebody in
@@ -308,11 +304,7 @@ function embedFor(
      * until it.
      */
     description: [
-      asStatic
-        // A static is the same group every week until the fight is cleared:
-        // the first session's clock says nothing about whether to join.
-        ? `**Static** · ${seats && here >= seats ? "ครบแล้ว" : "กำลังหาคน"}`
-        : `**${STATUS_WORD[status] ?? ""}** · เริ่ม <t:${at}:t> · <t:${at}:R>`,
+      `**${STATUS_WORD[status] ?? ""}** · เริ่ม <t:${at}:t> · <t:${at}:R>`,
       p.note ? p.note.slice(0, 400) : null,
     ].filter(Boolean).join("\n"),
     color: def ? Number.parseInt(KIND_COLOR[def.kind].slice(1), 16) : 0x8b93a1,
@@ -416,26 +408,28 @@ function linkRow() {
   };
 }
 
+/** Discord's ceiling on the text of all a message's embeds together. */
+const EMBED_TEXT_MAX = 6000;
+/** How many statics the list names before it says how many more. */
+const STATICS_LISTED = 12;
+
 /**
- * The Static finder, as a message of its own under the board (v333).
+ * The Static finder, as the last card of the board (the owner, 2026-11-12).
  *
- * The owner, 2026-11-12: the statics in Discord too, as their own section.
- * A second message rather than more rows in the first: the board is capped at
- * ten embeds and is re-posted whenever a party opens, and a static is a
- * different question, "who plays with us every week", not "who is free
- * tonight", which is why the website keeps them apart as well.
+ * The statics are a different question from the evening's parties, "who plays
+ * with us every week until this is cleared", so they get a section of their
+ * own; and he wanted the board one message. A message carries ten embeds and
+ * the evening takes nine, so the statics are one card: a list, not pictures,
+ * the ones still looking first, each line a link to the party.
  *
- * The ones still looking first, then the newest. No dropdown to join: joining
- * from Discord is built for an evening (it refuses a party whose start has
- * passed, which a static's always has), and signing up for every week is a
- * decision to make on the page, where the seats and the write-up are.
+ * No dropdown entry: joining from Discord is built for an evening (it refuses a
+ * party whose start has passed, which a static's always has), and signing up
+ * for every week is a decision to make on the page.
  *
- * Null where there is no open static, so the route takes the message down
- * rather than keep a section that says nothing.
+ * Null where no static is open, so the board ends with the evening's parties
+ * as it did before.
  */
-export function staticsMessage(
-  all: readonly Party[], faces: Map<number, string> = new Map(),
-) {
+export function staticsEmbed(all: readonly Party[]) {
   const defs = byKey();
   const names = roster();
   const full = (p: Party) => {
@@ -447,21 +441,68 @@ export function staticsMessage(
     .sort((a, b) => Number(full(a)) - Number(full(b))
       || +new Date(b.createdAt) - +new Date(a.createdAt));
   if (!open.length) return null;
-  const shown = open.slice(0, MAX_EMBEDS);
-  const rest = open.length - shown.length;
+  const listed = open.slice(0, STATICS_LISTED);
+  const lines = listed.map((p) => {
+    const { here, seats } = headcount(p);
+    const lead = names.get(p.ownerCharacterId)?.name;
+    const state = full(p) ? "ครบแล้ว" : `กำลังหาคน · ขาด ${shortfall(p)}`;
+    return [
+      `**[${nameOf(p, defs)}](${SITE}/party/${p.id})**`,
+      [state, seats ? `${here}/${seats}` : `${here} คน`, lead ? `โดย ${lead}` : null]
+        .filter(Boolean).join(" · "),
+    ].join("\n");
+  });
+  const more = open.length - listed.length;
   const looking = open.filter((p) => !full(p)).length;
   return {
-    content: `## CASH Static Finder\n${looking} Static ที่กำลังหาคน`
-      + (rest > 0 ? ` · อีก ${rest} Static ดูได้บนเว็บ` : ""),
-    embeds: shown.map((p) => embedFor(p, defs, names, faces, true)),
-    components: [{
-      type: 1,
-      components: [
-        { type: 2, style: 5, label: "เปิด Static finder บนเว็บ", url: `${SITE}/party#statics` },
-      ],
-    }],
-    allowed_mentions: { parse: [] as string[] },
+    title: "CASH Static Finder",
+    url: `${SITE}/party#statics`,
+    description: [
+      `-# ${looking} Static ที่กำลังหาคน · ทีมประจำที่เล่นด้วยกันทุกสัปดาห์`,
+      ...lines,
+      more > 0 ? `-# อีก ${more} Static ดูได้บนเว็บ` : null,
+    ].filter(Boolean).join("\n\n").slice(0, 4000),
+    color: 0x5b8def,
   };
+}
+
+/** How much of Discord's 6000 an embed spends. */
+function embedText(e: {
+  title?: string; description?: string; author?: { name?: string };
+  fields?: { name: string; value: string }[];
+}): number {
+  return (e.title?.length ?? 0) + (e.description?.length ?? 0) + (e.author?.name?.length ?? 0)
+    + (e.fields ?? []).reduce((n, f) => n + f.name.length + f.value.length, 0);
+}
+
+/**
+ * Within Discord's 6000 characters across every embed, or it refuses the edit.
+ *
+ * Nine parties with long notes and flex lists could already come close; the
+ * statics card adds to it. So when the total runs over, the longest texts are
+ * cut first (the notes, then the details), never the time line or the seats,
+ * and the statics card last of all.
+ */
+function fitEmbeds<T extends { description?: string; fields?: { name: string; value: string }[] }>(
+  embeds: T[],
+  /** Whether the last embed is the statics card, which is cut last of all. */
+  sparesLast: boolean,
+): T[] {
+  const total = () => embeds.reduce((n, e) => n + embedText(e), 0);
+  const parties = sparesLast ? embeds.slice(0, -1) : embeds;
+  for (const cap of [200, 120, 60]) {
+    if (total() <= EMBED_TEXT_MAX - 100) break;
+    for (const e of parties) {
+      if (e.description && e.description.length > cap) {
+        // The first line is the status and the time; only the note is cut.
+        const [first, ...rest] = e.description.split("\n");
+        const note = rest.join(" ");
+        e.description = note ? `${first}\n${note.slice(0, cap)}…` : first;
+      }
+      for (const f of e.fields ?? []) if (f.value.length > cap) f.value = `${f.value.slice(0, cap)}…`;
+    }
+  }
+  return embeds;
 }
 
 /** The whole message: what to post the first time, and what to edit into it. */
@@ -469,6 +510,8 @@ export function boardMessage(
   all: readonly Party[], now = Date.now(),
   /** character id -> the picture they chose for themselves, where they did. */
   faces: Map<number, string> = new Map(),
+  /** The open statics, listed as the board's last card. See staticsEmbed. */
+  statics: readonly Party[] = [],
 ) {
   const defs = byKey();
   const names = roster();
@@ -476,6 +519,7 @@ export function boardMessage(
   const shown = open.slice(0, MAX_EMBEDS);
   const rest = open.length - shown.length;
 
+  const staticCard = staticsEmbed(statics);
   const header = open.length
     ? `## CASH Party Finder\n${open.length} ปาร์ตี้ที่ยังเปิดอยู่`
       + (rest > 0 ? ` · อีก ${rest} ปาร์ตี้ดูได้บนเว็บ` : "")
@@ -483,7 +527,13 @@ export function boardMessage(
 
   return {
     content: `${header}\n-# อัปเดตล่าสุด <t:${Math.floor(now / 1000)}:R>`,
-    embeds: shown.map((p) => embedFor(p, defs, names, faces)),
+    embeds: fitEmbeds<{
+      description?: string; fields?: { name: string; value: string }[];
+      image?: { url: string }; url?: string; title?: string;
+    }>([
+      ...shown.map((p) => embedFor(p, defs, names, faces)),
+      ...(staticCard ? [staticCard] : []),
+    ], !!staticCard),
     components: [...joinRow(shown, defs, names, now), linkRow()],
     // Nothing this message says is worth pinging anybody for. The board is
     // read when somebody is looking for a party, not pushed at them.
