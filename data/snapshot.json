@@ -2306,7 +2306,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 75,
+  "level": 82,
   "cc": [
    true,
    true,
@@ -2535,7 +2535,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 100,
+  "level": 82,
   "cc": [
    false,
    false,
@@ -2562,7 +2562,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-11-09"
+  "chg": "2026-11-12"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -6990,7 +6990,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 100,
+  "level": 89,
   "cc": [
    false,
    false,
@@ -7010,7 +7010,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-03"
+  "chg": "2026-11-12"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -8654,7 +8654,7 @@
   "mounts": 17,
   "minions": 42,
   "rare": null,
-  "level": 70,
+  "level": 72,
   "cc": [
    false,
    false,
@@ -8667,7 +8667,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-11"
+  "chg": "2026-11-12"
  },
  "49053650": {
   "name": "Eniluna Gelatoneii",
@@ -8741,7 +8741,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 100,
+  "level": 69,
   "cc": [
    false,
    false,
@@ -8754,7 +8754,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-10"
+  "chg": "2026-11-12"
  },
  "45513833": {
   "name": "Isildur One",
@@ -8785,7 +8785,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 91,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -9056,7 +9056,7 @@
   "mounts": 85,
   "minions": 178,
   "rare": null,
-  "level": 93,
+  "level": 94,
   "cc": [
    false,
    false,

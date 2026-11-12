@@ -2177,8 +2177,15 @@
    "fflogs": "none",
    "lode_achv_public": null,
    "stats_seen": "2026-11-12"
+  },
+  "62837583": {
+   "name": "Crist Allen",
+   "world": "Tonberry",
+   "dc": "Elemental",
+   "fc": null,
+   "seen": "2026-11-12"
   }
  },
- "generated_at": "2026-11-12T00:22:57Z",
- "count": 19
+ "generated_at": "2026-11-12T07:36:38Z",
+ "count": 20
 }
