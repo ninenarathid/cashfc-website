@@ -96,20 +96,17 @@ export default function CoverPicker(
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={() => pickRef.current?.click()}
                     className={`${tap} border-accent/70 bg-accent/10 text-accent hover:bg-accent/20`}>
-              <span aria-hidden>⬆</span>
               {value ? t("pf.coverChange") : t("pf.coverUpload")}
             </button>
             {choices.length > 0 && (
               <button type="button" onClick={() => setBrowsing(true)}
                       className={`${tap} border-line text-ink hover:border-muted`}>
-                <span aria-hidden>🖼</span>
                 {t("pf.coverPickUsed", { n: choices.length })}
               </button>
             )}
             {value && (
               <button type="button" onClick={() => onChange(null)}
                       className={`${tap} border-line text-muted hover:border-muted hover:text-ink`}>
-                <span aria-hidden>↺</span>
                 {t("pf.coverReset")}
               </button>
             )}
@@ -185,7 +182,7 @@ export function CoverGallery(
                 <span className="absolute inset-x-2 top-2 flex flex-wrap gap-1">
                   {i === 0 && c.uses > 1 && (
                     <span className="rounded-md bg-accent/90 px-1.5 py-0.5 font-data text-meta text-bg">
-                      🔥 {t("pf.coverPopular")}
+                      {t("pf.coverPopular")}
                     </span>
                   )}
                   {!c.same && <span className={chip}>{t("pf.coverKin")}</span>}

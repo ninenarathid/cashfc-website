@@ -379,7 +379,7 @@ function PartyDetail(
             <button type="button" onClick={() => { setCoverErr(null); setRecover(true); }}
                     aria-label={t("pf.coverEdit")} title={t("pf.coverEdit")}
                     className="absolute right-2 top-2 z-[2] inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-lg border border-white/25 bg-black/55 px-2.5 text-read text-white/90 backdrop-blur-sm transition-colors hover:border-accent hover:text-accent sm:min-h-9 sm:min-w-9">
-              <span aria-hidden>🖼</span>
+              <TagIcon tag="gpose" size={20} />
               <span className="max-sm:hidden">{t("pf.coverEdit")}</span>
             </button>
           )}
@@ -1102,6 +1102,20 @@ export default function PartyBoard(
     if (openParty) return;
     setPinned(linked && /^\d+$/.test(linked) ? linked : null);
   }, [linked, openParty]);
+
+  /*
+   * ?new=1 opens the form, once, and leaves the plain board's address behind.
+   *
+   * For the "ตั้งปาร์ตี้" button under the Discord board, which is somebody
+   * in a channel deciding to put one up; arriving at the board and then
+   * looking for its button is a step that asks them nothing.
+   */
+  const askedNew = useSearchParams().get("new") === "1";
+  useEffect(() => {
+    if (!askedNew) return;
+    setWriting(true);
+    router.replace("/party", { scroll: false });
+  }, [askedNew, router]);
 
   const [openId, setOpenIdRaw] = useState<string | null>(null);
   const setOpenId = useCallback((id: string | null) => {

@@ -21,6 +21,9 @@ const nextConfig: NextConfig = {
    */
   outputFileTracingIncludes: {
     "/party/[id]/opengraph-image": ["./public/duty/**/*"],
+    // The Discord board's picture: the stills, the game's role icons and the
+    // party badge (public/ui), and Kanit for its Thai.
+    "/party/[id]/banner": ["./public/duty/**/*", "./public/ui/**/*", "./assets/fonts/**/*"],
     "/member/[id]/opengraph-image": ["./assets/popoto/popoto-og.png"],
     // A contest's card is written in Kanit, the only Thai the renderer gets.
     "/contest/[id]/opengraph-image": ["./assets/fonts/**/*", "./assets/popoto/popoto-og.png"],

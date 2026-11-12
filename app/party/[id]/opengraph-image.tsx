@@ -1,6 +1,3 @@
-import fs from "node:fs";
-import path from "node:path";
-import sharp from "sharp";
 import { ImageResponse } from "next/og";
 import {
   KIND_COLOR, KIND_LABEL, PROGRESS_LABEL, ROLE_COLOR, ROLE_LABEL, SHAPE_LABEL,
@@ -9,7 +6,7 @@ import {
 } from "@/lib/party";
 import { contentByKey } from "@/lib/party-seeds";
 import { cardNeeds, partyCard, partyCover, seatCount } from "@/lib/party-card";
-import { coverUrl } from "@/lib/party-cover";
+import { coverFromBucket, stillFromDisk } from "@/lib/party-art.server";
 import { mapLabel } from "@/lib/treasure";
 
 /**
@@ -41,125 +38,6 @@ const INK = "#e8ecf2";
 const MUTED = "#8b93a1";
 /** The banner across the top, and the box the still is cropped into. */
 const ART_H = 360;
-
-/**
- * The still, read off disk, cropped, and handed over as a PNG.
- *
- * Off disk rather than over the network: these live in public/ and the renderer
- * is on the same machine, so fetching our own file through a URL would be a
- * round trip that can time out to answer a question the filesystem already
- * knows.
- *
- * As a JPEG because the card renderer cannot read WebP, and every picture in
- * public/duty is one. JPEG rather than PNG for the same reason the game uses
- * WebP: these are photographs of a screen, and a lossless copy of one is eight
- * hundred kilobytes of base64 inside a document that has to be rasterised on
- * every request. It did not fail loudly either — the whole image route
- * answered 500 with "u2 is not iterable" from somewhere inside the SVG
- * rasteriser, so a link to any fight with a picture unfurled as nothing at all
- * while the one fight without a picture worked perfectly.
- *
- * Cropped here as well, to the box it is going into. The renderer would do it,
- * but a 1200-wide PNG of the whole screenshot is several megabytes of base64
- * inside a document that has to be rasterised on every request.
- *
- * A file that will not read leaves the card without a picture, which is a card
- * that still says everything it was for.
- */
-async function inlineArt(
-  url: string | undefined, focus: string | undefined, height: number,
-): Promise<string | null> {
-  if (!url?.startsWith("/")) return null;
-  try {
-    const file = path.join(process.cwd(), "public", decodeURIComponent(url));
-    // Where the crop keeps: a game screenshot almost always has its subject in
-    // the upper half, which is why the board anchors these to the top.
-    const position = /bottom/.test(focus ?? "") ? "bottom"
-      : /top/.test(focus ?? "") ? "top" : "centre";
-    const png = await sharp(fs.readFileSync(file))
-      .resize(size.width, height, { fit: "cover", position })
-      .jpeg({ quality: 82, mozjpeg: true })
-      .toBuffer();
-    return `data:image/jpeg;base64,${png.toString("base64")}`;
-  } catch (e) {
-    /*
-     * Not silent, because silent cost a production bug.
-     *
-     * public/ is served by the CDN and is not on a serverless function's
-     * filesystem, so this read found nothing once deployed — and since a
-     * missing picture is a card that still works, every party link unfurled
-     * with a flat colour where the screenshot should be and looked deliberate.
-     * next.config.ts traces the folder in; if that key ever stops matching the
-     * route, this line is how anybody finds out.
-     */
-    console.warn("party card: no picture for", url, "—", (e as Error).message);
-    return null;
-  }
-}
-
-/** The kinds of picture a cover may be, read off the file itself, not its name. */
-const COVER_FORMATS = new Set(["webp", "jpeg", "png"]);
-/** The bucket's own ceiling (v332): far above what the crop saves, a few hundred KB. */
-const COVER_MAX_BYTES = 8 * 1024 * 1024;
-
-/**
- * The body, but never more of it than `max`.
- *
- * Counted as it arrives rather than trusted from Content-Length, which a
- * response may leave out; past the limit the download is cancelled.
- */
-async function readCapped(res: Response, max: number): Promise<Buffer | null> {
-  const reader = res.body?.getReader();
-  if (!reader) return null;
-  const parts: Uint8Array[] = [];
-  let n = 0;
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    n += value.byteLength;
-    if (n > max) { await reader.cancel(); return null; }
-    parts.push(value);
-  }
-  return Buffer.concat(parts);
-}
-
-/**
- * The lead's own picture (v332), fetched from the bucket and cropped like the still.
- *
- * Over the network, unlike the still: it lives in Supabase's storage, not in
- * public/. Only ever from our own bucket, because coverUrl builds the address
- * from a checked path and this project's URL, so nothing a member typed can
- * point this server anywhere else.
- *
- * The file is a member's upload, so it is checked as one: its size before it
- * is read whole, its real format before it is decoded, and a pixel limit so a
- * picture that claims to be enormous is refused instead of unpacked.
- *
- * Any failure is null, and the card falls back to the duty's banner.
- */
-async function inlineCover(path: string, height: number): Promise<string | null> {
-  const url = coverUrl(path);
-  if (!url) return null;
-  try {
-    const res = await fetch(url, { signal: AbortSignal.timeout(3500), cache: "no-store" });
-    if (!res.ok) return null;
-    const said = Number(res.headers.get("content-length") ?? 0);
-    if (said > COVER_MAX_BYTES) return null;
-    const buf = await readCapped(res, COVER_MAX_BYTES);
-    if (!buf) return null;
-    const img = sharp(buf, { limitInputPixels: 24_000_000 });
-    const meta = await img.metadata();
-    if (!meta.format || !COVER_FORMATS.has(meta.format)) return null;
-    const jpg = await img
-      .resize(size.width, height, { fit: "cover", position: "centre" })
-      .jpeg({ quality: 82, mozjpeg: true })
-      .toBuffer();
-    return `data:image/jpeg;base64,${jpg.toString("base64")}`;
-  } catch (e) {
-    console.warn("party card: no cover for", path, "—", (e as Error).message);
-    return null;
-  }
-}
 
 export default async function Image(
   { params }: { params: Promise<{ id: string }> },
@@ -212,8 +90,8 @@ export default async function Image(
   // Cropped to the box it is going into, which is why it is read after the
   // height is known rather than alongside the card.
   // The lead's own picture where there is one (v332), the duty's still where not.
-  const own = cover ? await inlineCover(cover, artH) : null;
-  const art = own ?? await inlineArt(def?.art, def?.focus, artH);
+  const own = cover ? await coverFromBucket(cover, size.width, artH) : null;
+  const art = own ?? await stillFromDisk(def?.art, def?.focus, size.width, artH);
   /*
    * A member's picture gets a darker foot than a banner does.
    *

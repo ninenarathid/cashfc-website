@@ -60,32 +60,12 @@ const roster = (): Map<number, Lead> => {
 };
 
 /**
- * The role marks, from the server's own emoji where it has them.
+ * Where it is up to, in words.
  *
- * Set DISCORD_EMOJI_TANK and friends to "<:tank:123…>" and the board uses the
- * game's own art; leave them unset and it falls back to something every device
- * can already draw. Configuration rather than code because emoji ids belong to
- * a particular server, and hard-coding one would be hard-coding somebody
- * else's.
+ * Once a coloured dot led and the word followed. The dots were emoji, and the
+ * board now draws nothing that is not the game's own art or plain text
+ * (the owner, 2026-11-12); the word was always the part to be sure of.
  */
-const ROLE_MARK: Record<string, string> = {
-  tank: process.env.DISCORD_EMOJI_TANK || "🛡️",
-  healer: process.env.DISCORD_EMOJI_HEALER || "💚",
-  dps: process.env.DISCORD_EMOJI_DPS || "⚔️",
-};
-
-/**
- * Where it is up to: a colour to scan by and a word to be sure of.
- *
- * A dot on its own is a convention somebody has to be taught, and a board is
- * not a place to teach one — green, yellow and red are read straight off, but
- * only once somebody knows which of the three "not started" is. So the colour
- * leads and the word follows it.
- */
-const STATUS_MARK: Record<string, string> = {
-  live: "🔴", soon: "🟡", upcoming: "🟢", justEnded: "⚪", done: "⚪",
-};
-
 const STATUS_WORD: Record<string, string> = {
   live: "กำลังเล่น", soon: "ใกล้เริ่ม", upcoming: "ยังรับอยู่",
   justEnded: "เพิ่งจบ", done: "จบแล้ว",
@@ -153,19 +133,19 @@ export function boardParties(all: readonly Party[], now = Date.now()): Party[] {
  * `words` for the dropdown, which cannot draw custom emoji in its description
  * line and would show the raw <:tank:123> text instead.
  */
-function shortfall(p: Party, words = false): string {
+function shortfall(p: Party): string {
   if (p.shape === "open") return "เปิดรับทุกคน";
   const cut = shortfallOf(p);
   if (!cut.total) return "เต็มแล้ว";
   const label: Record<string, string> = {
     tank: "Tank", healer: "Healer", dps: "DPS",
   };
-  const say = (r: string) => (words ? label[r] : ROLE_MARK[r]);
+  const say = (r: string) => label[r];
 
   const parts: string[] = [];
   for (const r of ["tank", "healer", "dps"] as SlotRole[]) {
     if (!cut.need[r]) continue;
-    parts.push(words ? `${cut.need[r]} ${say(r)}` : `${say(r)} ${cut.need[r]}`);
+    parts.push(`${cut.need[r]} ${say(r)}`);
   }
   /*
    * And the part the movers leave open, said as the choice it is.
@@ -177,7 +157,7 @@ function shortfall(p: Party, words = false): string {
    */
   if (cut.either) {
     const marks = cut.either.roles.map(say).join("/");
-    parts.push(words ? `${cut.either.n} ${marks}` : `${marks} ${cut.either.n}`);
+    parts.push(`${cut.either.n} ${marks}`);
   } else if (cut.spare) {
     // The remainder with no role safely attached to it. The seat list in the
     // field below says which chairs are going, which is the honest version of
@@ -266,12 +246,13 @@ function embedFor(
   ].filter(Boolean);
 
   /*
-   * The same picture the site shows when a party is shared anywhere else.
+   * The board's own picture of the party (app/party/[id]/banner).
    *
-   * One template for every party rather than the fight's own art where it
-   * happens to exist: a board where three rows carry a screenshot and two
-   * carry nothing reads as a board that is missing something, and the card
-   * already puts the art inside itself where there is any.
+   * Not the card a pasted link unfurls into: that one was drawn for a link
+   * preview, and shrunk into a row of this board its type came out at ten
+   * pixels. This one carries the picture, when, the roles still wanted as the
+   * game's icons and how full it is, at a size that survives the shrink — so
+   * the text below it no longer says any of that again (2026-11-12).
    *
    * The version in the query is what keeps it honest. Discord caches an image
    * by its URL and would otherwise show the seat count as it stood the first
@@ -299,7 +280,7 @@ function embedFor(
    */
   const pic = p.cover?.match(/-([a-z0-9]+)\.[a-z]+$/)?.[1] ?? "d";
   const version = `${BUILD}.${here}.${seats}.${stamp(p.updatedAt ?? p.createdAt)}.${who}.${pic}`;
-  const card = `${SITE}/party/${p.id}/opengraph-image?v=${version}`;
+  const card = `${SITE}/party/${p.id}/banner?v=${version}`;
 
   return {
     // The lead, with their face and nothing else. An embed with somebody in
@@ -312,30 +293,24 @@ function embedFor(
         url: `${SITE}/member/${p.ownerCharacterId}`,
       },
     } : {}),
-    title: `${STATUS_MARK[status] ?? ""} ${nameOf(p, defs)}`.trim(),
+    title: nameOf(p, defs),
     url: `${SITE}/party/${p.id}`,
-    ...(p.note ? { description: p.note.slice(0, 400) } : {}),
-    color: def ? Number.parseInt(KIND_COLOR[def.kind].slice(1), 16) : 0x8b93a1,
     /*
-     * Three columns rather than three lines.
+     * Where it is up to and when, on one line, then the lead's note.
      *
-     * The numbers are what the board is read for, and a paragraph makes them
-     * be read in order. Side by side they can be compared across parties
-     * without reading any of them.
+     * The time is Discord's own clock, so everybody reads it in their own
+     * timezone — the one thing the picture (Bangkok time) cannot do. The date
+     * is in the picture, which is why this line is only the hour and how long
+     * until it.
      */
+    description: [
+      `**${STATUS_WORD[status] ?? ""}** · เริ่ม <t:${at}:t> · <t:${at}:R>`,
+      p.note ? p.note.slice(0, 400) : null,
+    ].filter(Boolean).join("\n"),
+    color: def ? Number.parseInt(KIND_COLOR[def.kind].slice(1), 16) : 0x8b93a1,
+    // How full and what is wanted are in the picture now; these are the
+    // details that read better as words.
     fields: [
-      {
-        name: "เริ่ม",
-        // Discord's own clock, so everybody sees their own timezone — the one
-        // thing the website cannot do, and why a Thai FC with members abroad
-        // keeps getting the hour wrong.
-        value: `${STATUS_WORD[status] ?? ""}
-<t:${at}:f>
-<t:${at}:R>`,
-        inline: true,
-      },
-      { name: "ในปาร์ตี้", value: seats ? `**${here}/${seats}**` : `**${here}**`, inline: true },
-      { name: "ยังขาด", value: shortfall(p), inline: true },
       /*
        * Which chairs are empty, by name.
        *
@@ -403,12 +378,9 @@ function joinRow(
           lead ? `โดย ${lead}` : null,
           whenShort(p.startsAt, now),
           seats ? `${here}/${seats}` : `${here} คน`,
-          `ขาด ${shortfall(p, true)}`,
+          `ขาด ${shortfall(p)}`,
         ].filter(Boolean).join(" · ");
         return {
-          // Not custom emoji: a select's own emoji field takes one, and the
-          // urgency is the thing the list cannot otherwise say.
-          emoji: { name: STATUS_MARK[partyStatus(p, now)] ?? "🟢" },
           label: nameOf(p, defs).slice(0, 100),
           description: bits.slice(0, 100),
           value: p.id,
@@ -416,6 +388,24 @@ function joinRow(
       }),
     }],
   }];
+}
+
+/**
+ * The two ways out to the site, as buttons under everything.
+ *
+ * The address used to be typed into the header's sentence, which Discord
+ * shows as a long blue line. A button says what it does, and "ตั้งปาร์ตี้"
+ * opens the board with the form already open (?new=1, see PartyBoard).
+ * Link buttons need no handler: Discord opens the address itself.
+ */
+function linkRow() {
+  return {
+    type: 1,
+    components: [
+      { type: 2, style: 5, label: "ตั้งปาร์ตี้", url: `${SITE}/party?new=1` },
+      { type: 2, style: 5, label: "เปิดบอร์ดบนเว็บ", url: `${SITE}/party` },
+    ],
+  };
 }
 
 /** The whole message: what to post the first time, and what to edit into it. */
@@ -432,13 +422,13 @@ export function boardMessage(
 
   const header = open.length
     ? `## CASH Party Finder\n${open.length} ปาร์ตี้ที่ยังเปิดอยู่`
-      + (rest > 0 ? ` · อีก ${rest} ปาร์ตี้ดูได้ที่ ${SITE}/party` : "")
-    : `## CASH Party Finder\nตอนนี้ยังไม่มีปาร์ตี้ที่เปิดอยู่ — ตั้งได้ที่ ${SITE}/party`;
+      + (rest > 0 ? ` · อีก ${rest} ปาร์ตี้ดูได้บนเว็บ` : "")
+    : `## CASH Party Finder\nตอนนี้ยังไม่มีปาร์ตี้ที่เปิดอยู่`;
 
   return {
     content: `${header}\n-# อัปเดตล่าสุด <t:${Math.floor(now / 1000)}:R>`,
     embeds: shown.map((p) => embedFor(p, defs, names, faces)),
-    components: joinRow(shown, defs, names, now),
+    components: [...joinRow(shown, defs, names, now), linkRow()],
     // Nothing this message says is worth pinging anybody for. The board is
     // read when somebody is looking for a party, not pushed at them.
     allowed_mentions: { parse: [] as string[] },
