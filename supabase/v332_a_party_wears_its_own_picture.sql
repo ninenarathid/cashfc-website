@@ -49,6 +49,22 @@ create index if not exists party_posts_covers
   on public.party_posts (content_key)
   where cover is not null and deleted_at is null;
 
+/* ── the bucket gets a ceiling ───────────────────────────────────────────── */
+
+-- v39 made the `party` bucket with no size limit, so the only ceiling was the
+-- project's own. A cover is now shown on every row of the board and fetched
+-- by the server that draws the Discord card, and the gallery passes it from
+-- one party to the next: a file of tens of megabytes named like a cover would
+-- be downloaded by everybody who opens the board. Every way the site uploads
+-- into this bucket already refuses more than 8 MB in the browser (the
+-- write-up's and the chat's screenshots, and the cover, which is cropped to a
+-- few hundred kilobytes), so the bucket now says the same. Only lowered,
+-- never raised, if somebody has set a smaller one by hand.
+update storage.buckets
+   set file_size_limit = 8388608
+ where id = 'party'
+   and (file_size_limit is null or file_size_limit > 8388608);
+
 /* ── the picture, for the card a crawler asks for ────────────────────────── */
 
 create or replace function public.party_cover(p_id bigint)
@@ -90,4 +106,7 @@ select count(*) as with_cover from public.party_posts where cover is not null;
 
 select public.party_cover(-1) is null as nothing_for_no_party;
 --  true
+
+select file_size_limit from storage.buckets where id = 'party';
+--  8388608
 */

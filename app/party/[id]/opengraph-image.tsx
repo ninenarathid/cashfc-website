@@ -99,8 +99,29 @@ async function inlineArt(
 
 /** The kinds of picture a cover may be, read off the file itself, not its name. */
 const COVER_FORMATS = new Set(["webp", "jpeg", "png"]);
-/** Far above what the crop saves (about 200 KB), far below anything harmful. */
-const COVER_MAX_BYTES = 6 * 1024 * 1024;
+/** The bucket's own ceiling (v332): far above what the crop saves, a few hundred KB. */
+const COVER_MAX_BYTES = 8 * 1024 * 1024;
+
+/**
+ * The body, but never more of it than `max`.
+ *
+ * Counted as it arrives rather than trusted from Content-Length, which a
+ * response may leave out; past the limit the download is cancelled.
+ */
+async function readCapped(res: Response, max: number): Promise<Buffer | null> {
+  const reader = res.body?.getReader();
+  if (!reader) return null;
+  const parts: Uint8Array[] = [];
+  let n = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    n += value.byteLength;
+    if (n > max) { await reader.cancel(); return null; }
+    parts.push(value);
+  }
+  return Buffer.concat(parts);
+}
 
 /**
  * The lead's own picture (v332), fetched from the bucket and cropped like the still.
@@ -124,8 +145,8 @@ async function inlineCover(path: string, height: number): Promise<string | null>
     if (!res.ok) return null;
     const said = Number(res.headers.get("content-length") ?? 0);
     if (said > COVER_MAX_BYTES) return null;
-    const buf = Buffer.from(await res.arrayBuffer());
-    if (buf.length > COVER_MAX_BYTES) return null;
+    const buf = await readCapped(res, COVER_MAX_BYTES);
+    if (!buf) return null;
     const img = sharp(buf, { limitInputPixels: 24_000_000 });
     const meta = await img.metadata();
     if (!meta.format || !COVER_FORMATS.has(meta.format)) return null;
