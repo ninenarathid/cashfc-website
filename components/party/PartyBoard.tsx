@@ -286,6 +286,8 @@ function PartyDetail(
     && new Date(party.updatedAt).getTime() - new Date(party.createdAt).getTime() > 60_000;
   /** The lead's own picture, or the duty's banner. */
   const art = partyArt(party.cover, def);
+  /** Whether the picture's own button is drawn. See below. */
+  const canCover = !!(onEdit && supabase && userId && def && coversReady());
   return (
     /* Wide, because a party is not a column of fields: a still across the
        top, a seat grid eight cells across, a write-up with screenshots in it
@@ -343,7 +345,11 @@ function PartyDetail(
                  // that — leaving the picture a strip too thin to make out.
                  // Below the floor it crops the sides instead, which these
                  // are composed to survive: the subject is in the middle.
-                 ? "aspect-[1128/360] min-h-[168px]" : "h-[110px]"}`}>
+                 ? "aspect-[1128/360] min-h-[168px]"
+                 // Grown from the top where the picture's button sits in the
+                 // corner: at 110px the lead's buttons wrap up into it on a
+                 // phone. A banner with art has the room already.
+                 : canCover ? "min-h-[110px] pt-14" : "h-[110px]"}`}>
           {/* Only as dark as the words need. It used to be 85% black at the
               bottom fading to 20% at the top, which is a scrim over the whole
               picture; the clock and the countdown sit along the bottom edge,
@@ -369,7 +375,7 @@ function PartyDetail(
             * status and the lead's buttons. Saved at once, without the edit
             * form: see setPartyCover.
             */}
-          {onEdit && supabase && userId && def && coversReady() && (
+          {canCover && (
             <button type="button" onClick={() => { setCoverErr(null); setRecover(true); }}
                     aria-label={t("pf.coverEdit")} title={t("pf.coverEdit")}
                     className="absolute right-2 top-2 z-[2] inline-flex min-h-11 min-w-11 items-center justify-center gap-1.5 rounded-lg border border-white/25 bg-black/55 px-2.5 text-read text-white/90 backdrop-blur-sm transition-colors hover:border-accent hover:text-accent sm:min-h-9 sm:min-w-9">
