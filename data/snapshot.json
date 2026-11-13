@@ -1803,7 +1803,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 100,
+  "level": 50,
   "cc": [
    true,
    true,
@@ -1827,7 +1827,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-11"
+  "chg": "2026-11-13"
  },
  "28579232": {
   "name": "Dessiny Valkyrie",
@@ -2306,7 +2306,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 95,
+  "level": 71,
   "cc": [
    true,
    true,
@@ -2535,7 +2535,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 86,
+  "level": 89,
   "cc": [
    false,
    false,
@@ -4218,7 +4218,7 @@
   "mounts": 79,
   "minions": 70,
   "rare": null,
-  "level": 100,
+  "level": 92,
   "cc": [
    true,
    true,
@@ -4244,7 +4244,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-12"
+  "chg": "2026-11-13"
  },
  "29325838": {
   "name": "Ryuu Dawnblade",
@@ -5029,7 +5029,7 @@
   "mounts": 206,
   "minions": 416,
   "rare": 285,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -5159,7 +5159,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-11"
+  "chg": "2026-11-13"
  },
  "42976317": {
   "name": "Zeadz Stellar",
@@ -5513,7 +5513,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5537,7 +5537,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-12"
+  "chg": "2026-11-13"
  },
  "29090821": {
   "name": "Amber Levana",
@@ -6878,7 +6878,7 @@
   "mounts": 67,
   "minions": 120,
   "rare": 8,
-  "level": 72,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6907,7 +6907,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-12"
+  "chg": "2026-11-13"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -8654,7 +8654,7 @@
   "mounts": 17,
   "minions": 42,
   "rare": null,
-  "level": 73,
+  "level": 74,
   "cc": [
    false,
    false,
@@ -8667,7 +8667,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-12"
+  "chg": "2026-11-13"
  },
  "49053650": {
   "name": "Eniluna Gelatoneii",
@@ -8741,7 +8741,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 75,
+  "level": 77,
   "cc": [
    false,
    false,
@@ -8754,7 +8754,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-12"
+  "chg": "2026-11-13"
  },
  "45513833": {
   "name": "Isildur One",
@@ -8785,7 +8785,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 99,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -9056,7 +9056,7 @@
   "mounts": 85,
   "minions": 178,
   "rare": null,
-  "level": 95,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -9069,7 +9069,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-12"
+  "chg": "2026-11-13"
  },
  "61748681": {
   "name": "Qzarel Lumina",
@@ -10023,7 +10023,7 @@
   "mounts": 25,
   "minions": 115,
   "rare": null,
-  "level": 34,
+  "level": 36,
   "cc": [
    false,
    false,
@@ -10039,7 +10039,7 @@
   },
   "ex": [],
   "ults": [],
-  "chg": "2026-11-11"
+  "chg": "2026-11-13"
  },
  "30863840": {
   "name": "Aui Aye",

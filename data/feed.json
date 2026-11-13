@@ -1,6 +1,27 @@
 {
  "events": [
   {
+   "date": "2026-11-13",
+   "type": "level_100",
+   "id": 8286372,
+   "name": "Aloha Banana",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-11-13",
+   "type": "level_100",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-11-13",
+   "type": "level_100",
+   "id": 60429500,
+   "name": "Janna Minerva",
+   "text": "reached level 100 on Pictomancer!"
+  },
+  {
    "date": "2026-11-12",
    "type": "rare_up",
    "id": 29152036,
@@ -1378,27 +1399,6 @@
    "id": 60852230,
    "name": "Lucien Rhul",
    "text": "cleared Zelenia (Extreme)"
-  },
-  {
-   "date": "2026-10-24",
-   "type": "level_100",
-   "id": 60972300,
-   "name": "Mizuki Sekine",
-   "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-10-24",
-   "type": "ex_clear",
-   "id": 24228478,
-   "name": "Pyrozus Helison",
-   "text": "cleared Zelenia (Extreme)"
-  },
-  {
-   "date": "2026-10-24",
-   "type": "level_100",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "reached level 100 on Black Mage!"
   }
  ]
 }

@@ -9426,20 +9426,7 @@
     ]
    }
   ],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 1085,
-    "name": "Dancing Mad",
-    "kind": "ultimate",
-    "state": "learning",
-    "pct": 25.24,
-    "phase": 4,
-    "pulls": 60,
-    "last": "2026-11-03",
-    "last_ts": 1793725810
-   }
-  ]
+  "_status": "ok"
  },
  "10638899": {
   "current": {
@@ -34024,20 +34011,7 @@
     ]
    }
   ],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 1085,
-    "name": "Dancing Mad",
-    "kind": "ultimate",
-    "state": "cleared",
-    "pct": null,
-    "phase": 0,
-    "pulls": 39,
-    "last": "2026-11-02",
-    "last_ts": 1793634516
-   }
-  ]
+  "_status": "ok"
  },
  "28679815": {
   "current": {
