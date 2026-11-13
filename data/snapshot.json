@@ -2306,7 +2306,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 94,
+  "level": 95,
   "cc": [
    true,
    true,
@@ -2353,7 +2353,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-12"
+  "chg": "2026-11-13"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -2535,7 +2535,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 85,
+  "level": 86,
   "cc": [
    false,
    false,
@@ -2562,7 +2562,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-11-12"
+  "chg": "2026-11-13"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -8785,7 +8785,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 97,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -8805,7 +8805,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-12"
+  "chg": "2026-11-13"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
