@@ -74698,13 +74698,13 @@
     "expansion": "Dawntrail",
     "encounter_id": 1079,
     "name": "Futures Rewritten",
-    "best": 25,
-    "kills": 2,
+    "best": 47,
+    "kills": 5,
     "job": "Dancer",
     "cleared": true,
     "job_kills": {
      "Dancer": {
-      "kills": 3,
+      "kills": 5,
       "best": 47
      }
     }
@@ -74895,7 +74895,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 54,
-    "kills": 36,
+    "kills": 38,
     "job": "Bard",
     "cleared": true,
     "job_kills": {
@@ -74915,8 +74915,12 @@
       "kills": 2,
       "best": 48
      },
+     "Astrologian": {
+      "kills": 1,
+      "best": 36
+     },
      "WhiteMage": {
-      "kills": 25,
+      "kills": 26,
       "best": 32
      }
     }
@@ -78169,7 +78173,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 79,
-    "kills": 89,
+    "kills": 90,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -78186,7 +78190,7 @@
       "best": 26
      },
      "Astrologian": {
-      "kills": 44,
+      "kills": 45,
       "best": 79
      },
      "WhiteMage": {
@@ -82421,7 +82425,20 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 102,
+    "name": "Red Hot and Deep Blue",
+    "kind": "savage",
+    "state": "learning",
+    "pct": 5.69,
+    "phase": 0,
+    "pulls": 34,
+    "last": "2026-11-13",
+    "last_ts": 1794596795
+   }
+  ]
  },
  "47221226": {
   "current": {
@@ -87339,7 +87356,20 @@
     }
    }
   ],
-  "legacy": []
+  "legacy": [],
+  "progress": [
+   {
+    "encounter_id": 102,
+    "name": "Red Hot and Deep Blue",
+    "kind": "savage",
+    "state": "learning",
+    "pct": 5.69,
+    "phase": 0,
+    "pulls": 34,
+    "last": "2026-11-13",
+    "last_ts": 1794596795
+   }
+  ]
  },
  "60854619": {
   "_status": "none",

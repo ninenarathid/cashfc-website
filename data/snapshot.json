@@ -6,7 +6,7 @@
   "mounts": 61,
   "minions": 227,
   "rare": null,
-  "level": 99,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -27,7 +27,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-08"
+  "chg": "2026-11-13"
  },
  "15308846": {
   "name": "Aqua Eleison",
@@ -348,7 +348,7 @@
   "mounts": 143,
   "minions": 287,
   "rare": null,
-  "level": 90,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -369,7 +369,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-15"
+  "chg": "2026-11-13"
  },
  "57885671": {
   "name": "Aisu Kazimira",
@@ -1803,7 +1803,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2535,7 +2535,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 89,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -4218,7 +4218,7 @@
   "mounts": 79,
   "minions": 70,
   "rare": null,
-  "level": 92,
+  "level": 93,
   "cc": [
    true,
    true,
@@ -6581,7 +6581,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 95,
-  "level": 95,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6701,7 +6701,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-12"
+  "chg": "2026-11-13"
  },
  "60619924": {
   "name": "Gotnogod Soluna",
@@ -6946,7 +6946,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 70,
+  "level": 71,
   "cc": [
    false,
    false,
@@ -6959,7 +6959,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-12"
+  "chg": "2026-11-13"
  },
  "53933347": {
   "name": "Little Alyss",
@@ -7563,7 +7563,7 @@
   "mounts": 178,
   "minions": 410,
   "rare": null,
-  "level": 45,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7576,7 +7576,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-08"
+  "chg": "2026-11-13"
  },
  "31831003": {
   "name": "North Nostafari",
@@ -7905,7 +7905,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 98,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -7950,7 +7950,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-02"
+  "chg": "2026-11-13"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -8398,7 +8398,7 @@
   "mounts": 165,
   "minions": 364,
   "rare": null,
-  "level": 45,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8411,7 +8411,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-08"
+  "chg": "2026-11-13"
  },
  "31806535": {
   "name": "Viiska Howl",
@@ -8476,7 +8476,7 @@
   "mounts": 81,
   "minions": 158,
   "rare": 18,
-  "level": 100,
+  "level": 70,
   "cc": [
    true,
    true,
@@ -8516,7 +8516,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-10"
+  "chg": "2026-11-13"
  },
  "15932791": {
   "name": "Yuziris Andra'nov",
@@ -8654,7 +8654,7 @@
   "mounts": 17,
   "minions": 42,
   "rare": null,
-  "level": 74,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8741,7 +8741,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 77,
+  "level": 83,
   "cc": [
    false,
    false,
@@ -8785,7 +8785,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 100,
+  "level": 83,
   "cc": [
    false,
    false,
@@ -8931,7 +8931,7 @@
   "mounts": 4,
   "minions": 7,
   "rare": null,
-  "level": 80,
+  "level": 81,
   "cc": [
    false,
    false,
@@ -8944,7 +8944,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-11"
+  "chg": "2026-11-13"
  },
  "44085912": {
   "name": "Mayu Ferguson",
@@ -9056,7 +9056,7 @@
   "mounts": 85,
   "minions": 178,
   "rare": null,
-  "level": 97,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -9100,7 +9100,7 @@
   "mounts": 7,
   "minions": 24,
   "rare": 0,
-  "level": 86,
+  "level": 87,
   "cc": [
    false,
    false,
@@ -9113,7 +9113,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-12"
+  "chg": "2026-11-13"
  },
  "31685121": {
   "name": "Squid Girls",
@@ -16119,7 +16119,7 @@
   "mounts": 25,
   "minions": 69,
   "rare": null,
-  "level": 69,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -16136,7 +16136,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-11"
+  "chg": "2026-11-13"
  },
  "29864090": {
   "name": "Scylla Melfrey",
