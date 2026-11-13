@@ -88687,7 +88687,7 @@
     "state": "learning",
     "pct": 85.33,
     "phase": 5,
-    "pulls": 34,
+    "pulls": 11,
     "last": "2026-11-06",
     "last_ts": 1793977191
    }
@@ -93249,9 +93249,9 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 22.67,
+    "pct": 30.81,
     "phase": 1,
-    "pulls": 78,
+    "pulls": 55,
     "last": "2026-11-04",
     "last_ts": 1793807417
    }
@@ -98296,6 +98296,9 @@
   "ultimates": [],
   "extremes": [],
   "legacy": [],
+  "_status": "none"
+ },
+ "62837583": {
   "_status": "none"
  }
 }
