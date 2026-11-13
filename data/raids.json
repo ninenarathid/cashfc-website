@@ -84579,6 +84579,17 @@
       "best": 8
      }
     }
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1072,
+    "name": "Zoraal Ja",
+    "best": 19,
+    "kills": 2,
+    "job": "Viper",
+    "cleared": true
    }
   ],
   "legacy": [],

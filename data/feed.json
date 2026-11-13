@@ -3,6 +3,27 @@
   {
    "date": "2026-11-13",
    "type": "level_100",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
+   "date": "2026-11-13",
+   "type": "parse_up",
+   "id": 49929911,
+   "name": "Sun Prism",
+   "text": "set a new best parse: 19 on Zoraal Ja as Viper"
+  },
+  {
+   "date": "2026-11-13",
+   "type": "ex_clear",
+   "id": 49929911,
+   "name": "Sun Prism",
+   "text": "cleared Zoraal Ja (Extreme)"
+  },
+  {
+   "date": "2026-11-13",
+   "type": "level_100",
    "id": 36130968,
    "name": "Chu Celestial",
    "text": "reached level 100 on Red Mage!"
@@ -1378,27 +1399,6 @@
    "id": 60429500,
    "name": "Jin Theape",
    "text": "reached level 100 on Sage!"
-  },
-  {
-   "date": "2026-10-24",
-   "type": "ex_clear",
-   "id": 57519259,
-   "name": "Kertia Cruz",
-   "text": "cleared Enuo (Extreme)"
-  },
-  {
-   "date": "2026-10-24",
-   "type": "ex_clear",
-   "id": 57519259,
-   "name": "Kertia Cruz",
-   "text": "cleared Zelenia (Extreme)"
-  },
-  {
-   "date": "2026-10-24",
-   "type": "rare_up",
-   "id": 29152036,
-   "name": "Fluffy Tinytail",
-   "text": "earned R&D: Hypersaw"
   }
  ]
 }
