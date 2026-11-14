@@ -183,9 +183,27 @@ export function spansOf(g, want) {
 
 /** Cells (indices) of each figure: whole shapes go to the span holding their centre. */
 export function figures(g, spans) {
-  const out = spans.map(() => []);
+  const out = spans.map(() => []), mid = spans.map(([a, b]) => (a + b) / 2);
   for (const c of components(g)) {
     if (c.mem.length < 3) continue;
+    // (two figures drawn touching are one shape across both frames' middles: the moon lantern hat's lantern touches the
+    // next figure's brim, so its walking frame had no figure and the hat seen from the front was never built (live
+    // 2026-10-31 to 11-14, its back only). Such a shape is cut at its emptiest column between each two middles, each
+    // side to its own frame; no figure is wide enough to cross a neighbour's middle by itself)
+    let x0 = Infinity, x1 = -1;
+    for (const i of c.mem) { const x = i % g.GW; if (x < x0) x0 = x; if (x > x1) x1 = x; }
+    const across = mid.map((_, k) => k).filter((k) => mid[k] > x0 && mid[k] < x1);
+    if (across.length >= 2) {
+      const col = new Map();
+      for (const i of c.mem) { const x = i % g.GW; col.set(x, (col.get(x) ?? 0) + 1); }
+      const cuts = across.slice(1).map((k, n) => {
+        let best = Math.ceil(mid[across[n]]), least = Infinity;
+        for (let x = Math.ceil(mid[across[n]]); x <= Math.floor(mid[k]); x++) { const v = col.get(x) ?? 0; if (v < least) { least = v; best = x; } }
+        return best;
+      });
+      for (const i of c.mem) { const x = i % g.GW; let n = 0; while (n < cuts.length && x >= cuts[n]) n++; out[across[n]].push(i); }
+      continue;
+    }
     let k = spans.findIndex(([a, b]) => c.cx >= a - 1 && c.cx <= b + 1);
     if (k < 0) k = spans.reduce((bi, sp, i) => Math.abs((sp[0] + sp[1]) / 2 - c.cx) < Math.abs((spans[bi][0] + spans[bi][1]) / 2 - c.cx) ? i : bi, 0);
     out[k].push(...c.mem);

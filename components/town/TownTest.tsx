@@ -1,6 +1,7 @@
 "use client";
 
 import { setWearAllHere, wearAllHere } from "@/lib/town/wear";
+import { LIMITED_LOOKS } from "@/lib/town/limited";
 import { WISH } from "@/lib/town/fountain";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
@@ -192,6 +193,13 @@ export default function TownTest({ me, name: called, th, onClose }: { me: string
           <Row label={th ? "ของแต่งตัว" : "Wearables"} value={<span className="text-meta text-muted">{wearAllHere() ? (th ? "ปลดล็อกทั้งหมด (เครื่องนี้)" : "All unlocked (this browser)") : (th ? "ตามแรงค์สาย" : "By line rank")}</span>}>
             <Do on={wearAllHere()} onClick={() => { setWearAllHere(true); setTick((n) => n + 1); setSaid(th ? "ปลดล็อกของแต่งตัวทั้งหมดในเครื่องนี้แล้ว เปิดตู้แต่งตัวได้เลย" : "Every wearable is unlocked on this browser"); }}>{th ? "ปลดล็อกทั้งหมด" : "Unlock all"}</Do>
             <Do on={!wearAllHere()} onClick={() => { setWearAllHere(false); setTick((n) => n + 1); setSaid(th ? "กลับไปล็อกตามแรงค์สายแล้ว" : "Back to line ranks"); }}>{th ? "ตามแรงค์" : "By rank"}</Do>
+          </Row>
+          {/* a limited outfit's aura and title show only on a copy won, never on one tried (the owner, 2026-10-31): this has
+              my doll count as its winner until the page is reloaded (Town's __townView.won), to look at them at once */}
+          <Row label={th ? "ออร่าชุดประมูล" : "Limited aura"} value={<span className="text-meta text-muted">{th ? "นับว่าชนะชุดนี้ (จนรีโหลด)" : "Count as its winner (until reload)"}</span>}>
+            {Object.entries(LIMITED_LOOKS).map(([id, l]) => (
+              <Do key={id} onClick={() => { (window as unknown as { __townView?: { won?: (o: string) => void } }).__townView?.won?.(id); setSaid(th ? `นับว่าชนะ ${l.title.th} แล้ว ใส่ชุดนี้เพื่อเห็นออร่าและฉายา` : `Counted as the winner of ${l.title.en}: wear it to see the aura and title`); }}>{th ? l.title.th : l.title.en}</Do>
+            ))}
           </Row>
           {/* Granny Twilla's auction in this browser (lib/town/trial's rounds: the live round, pretend rivals): close it now
               to be settled at the next look, the way a winner has the set on the live site; or leave six minutes to try a
