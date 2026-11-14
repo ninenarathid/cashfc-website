@@ -2535,7 +2535,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 90,
+  "level": 84,
   "cc": [
    false,
    false,
@@ -2562,7 +2562,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-11-13"
+  "chg": "2026-11-14"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -3856,7 +3856,7 @@
   "mounts": 76,
   "minions": 137,
   "rare": 62,
-  "level": 100,
+  "level": 89,
   "cc": [
    true,
    true,
@@ -3957,7 +3957,7 @@
    "The Omega Protocol",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-11-10"
+  "chg": "2026-11-14"
  },
  "9444020": {
   "name": "Non Elemental",
@@ -6946,7 +6946,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 71,
+  "level": 72,
   "cc": [
    false,
    false,
@@ -6959,7 +6959,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-13"
+  "chg": "2026-11-14"
  },
  "53933347": {
   "name": "Little Alyss",
@@ -8655,7 +8655,7 @@
   "mounts": 17,
   "minions": 42,
   "rare": null,
-  "level": 100,
+  "level": 75,
   "cc": [
    false,
    false,
@@ -8668,7 +8668,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-13"
+  "chg": "2026-11-14"
  },
  "49053650": {
   "name": "Eniluna Gelatoneii",
@@ -8786,7 +8786,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 85,
+  "level": 89,
   "cc": [
    false,
    false,
@@ -8806,7 +8806,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-13"
+  "chg": "2026-11-14"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -9057,7 +9057,7 @@
   "mounts": 85,
   "minions": 178,
   "rare": null,
-  "level": 97,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -9070,7 +9070,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-13"
+  "chg": "2026-11-14"
  },
  "61748681": {
   "name": "Qzarel Lumina",
@@ -10024,7 +10024,7 @@
   "mounts": 25,
   "minions": 115,
   "rare": null,
-  "level": 36,
+  "level": 72,
   "cc": [
    false,
    false,
@@ -10040,7 +10040,7 @@
   },
   "ex": [],
   "ults": [],
-  "chg": "2026-11-13"
+  "chg": "2026-11-14"
  },
  "30863840": {
   "name": "Aui Aye",
