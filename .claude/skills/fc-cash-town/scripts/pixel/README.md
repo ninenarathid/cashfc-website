@@ -1211,3 +1211,48 @@ closing sentence.
   `icons-garden.png`, drawn outside gen.mjs) has 838 half-clear cells and a one-cell hole.
 - **In the game**: `scripts/town-animal-book.mjs` (51 PASS) at 1280x860, 384x730 and 360x640, the bag's books and the open
   book's header, with the covers at 1x and 4x as the bag draws them.
+
+## The second auction round's last fixes: the moon lantern hat from the front, the maple mask bolder (2026-11-14)
+
+The owner, trying the round's two sets in the dev town the day before it closes (15 Nov 20:00): "ชุดนี้ ตอนหันหลังเป้นอีกหมวก
+แก้ไขด้วย" (the moon lantern keeper had no hat from the front, the hat from behind) and "ปรับส่วนแว่นตาให้ดีขึ้น ตอนนี้เห้นไม่ชัด
+เท่าไหร่" (the maple mask). Two calls, $0.037 (`gpt-image-2.5-sunburst`, low, 1536x1024); the ledger then stood at $59.487 of $65.
+
+- **`wear-moonlanternhat-front` was never built** (live since 2026-10-31, the back only). Its sheet draws each figure's
+  lantern touching the next figure's brim, so frames 1 and 2 were one shape, given to frame 2, and the walking frame a hat
+  is cut from had nothing ("nothing found" in the build's log). No new picture: pxlib's `figures` now cuts a shape that
+  crosses two frames' middles at its emptiest column between them. The atlas built again had every other piece pixel for
+  pixel the live one; `checks/hat-bald.mjs` 0 of 60; on dolls front, back, sitting, eating.
+- **`da-maplemask-front`, `dak-maplemask-front`** drawn again (the first kept in `work/out/maplemask-v1/`): a bronze mask of
+  two leaves with thin copper rims, near the skin's peach, whose rims the holes cut dropped as specks, so only two small
+  leaves showed. Now a solid burgundy domino mask with a thick gold rim and a solid band over the nose, an orange maple
+  leaf at each outer corner (items.json's words; Codex read it, run 2026-11-14-08-05-26-art-37140, `send`; the key on the
+  key template with `NO_REVIEW` giving that). **`holes: "bold"`** (new in items.json and build-pixel-atlas): for a mask in a
+  deep strong colour, a cell of that colour is never the eye's outline nor the face left as it was, and its holes are only
+  where the drawing shows the eye (where it drew the rim over the base's eye, the rim stays: it carries no eye colour). Cut
+  with the old rules the far eye's lower rim went and its hole lay open. The moon mask keeps the old rules (308 cells, as
+  live). The atlas against the live one: two pieces differ, the mask and the hat above.
+- In the game: `scripts/town-auction2.mjs` (both sets, both genders, as winners by night, 1280x860 and 384x730; the men's
+  maple and moon in all five colours at 1280x860).
+
+## Previews: two Loy Krathong limited sets, three themes drawn (2026-11-14)
+
+The owner: "ชุดทำชุดใหม่ theme ลอยกระทง 2 theme ทำรูปให้ผมดูก่อน ที่จะทำจริงด้วย". **Previews only**, nothing built. Six
+calls, $0.119 (`gpt-image-2.5-sunburst`, low, 1536x1024, each drawn once); the ledger then stood at $59.606 of $65. Prompts
+`prompts/doll2/preview/pv-<id>-front.txt`, written by a scratch script on make-items.mjs's outfit template (its opening,
+the limited sets' `shapes` and `more`, its closing sentence), with the head thing on the head for the look only ("Nothing
+on the head" becomes the hat for the men, a long hairstyle and the hair piece for the women): in production the outfit
+and the head pieces are drawn apart, as for every set.
+
+- **`pv-lotuskrathong-front`, `_f`** (a lotus raft keeper: a collar of layered rose-pink lotus petals flaring past the
+  arms, a cape of banana leaves with folded points, a lotus crown with a candle; the women a lotus-petal skirt),
+  **`pv-skylantern-front`, `_f`** (a sky lantern bearer: lantern-paper coat with bamboo bands, an elbow-length cape like a
+  sky lantern's open lower half, red ribbons; the men a tall cylinder lantern hat; the women a puffed lantern skirt and a
+  small lantern pin), **`pv-riverspirit-front`, `_f`** (a river spirit: pale aqua fins on the shoulders, a deep blue cape
+  ending in rolling wave crests with foam, pearls; a crown of three waves).
+- **Codex's reads**: run 2026-11-14-07-51-52-art-32188 (two `send`; its batch words taken at the source: the underlying
+  skull, "only the named clothing and head additions may extend", the sky lantern cape behind the arms ending at the elbow
+  in a half-hoop) and the second read (five passed; "folds down the bodice and the skirt" for the lotus and river women,
+  applied at the source and those two drawn with `NO_REVIEW` saying so). Its choice of two: lotus and river spirit (the
+  sky lantern repeats more of the live moon lantern keeper's identity). `pv-skylantern_f` was drawn first as the trial.
+- Cut on the doll's own grid (`checks/cut-look.mjs`, 5.75 to 5.85) for the owner's sheet.

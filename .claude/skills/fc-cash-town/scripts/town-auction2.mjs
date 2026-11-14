@@ -21,17 +21,20 @@ const ok = (n, c, d = "") => { c ? pass++ : fail++; console.log(`  ${c ? "PASS" 
 for (const [label, size] of [["desk", { width: 1280, height: 860 }], ["phone", { width: 384, height: 730 }]]) {
   const X = await browser(`auction2-${label}`, size);
   try {
-    for (const set of SETS) for (const gender of [0, 1]) {
+    const runs = [...SETS.flatMap((set) => [0, 1].map((gender) => ({ set, gender, dye: 0 }))), ...(label === "desk" ? SETS.flatMap((set) => [1, 2, 3, 4].map((dye) => ({ set, gender: 1, dye }))) : [])];
+    for (const { set, gender, dye } of runs) {
       await X.goto(`${BASE}/town?townTest=A&townRoom=au${Date.now() % 100000}&townMap=town2&townHour=21&townWeather=clear`);
       await until("ready", async () => (await status(X)) === "ready", 240000);
-      const look = { ...defaultLook("auction2-shot"), gender, hair: hairsFor(gender, 0)[3], outfit: dyeChoices(OUTFITS, idx(OUTFITS, set.base))[0], hat: gender ? idx(HATS, set.hat) : 0, faceWear: idx(FACE_WEAR, set.face), hairWear: gender ? 0 : idx(HAIR_WEAR, set.hair) };
+      // (a colour of the five on the outfit and the same on its mask: each piece's dyes are chosen apart, lib/town/limited)
+      const pick = (list, id) => dyeChoices(list, idx(list, id))[dye] ?? idx(list, id);
+      const look = { ...defaultLook("auction2-shot"), gender, hair: hairsFor(gender, 0)[3], outfit: pick(OUTFITS, set.base), hat: gender ? idx(HATS, set.hat) : 0, faceWear: pick(FACE_WEAR, set.face), hairWear: gender ? 0 : idx(HAIR_WEAR, set.hair) };
       await X.evaluate(`(() => { const id = sessionStorage.getItem("cashTown:test:A"); localStorage.setItem(${JSON.stringify(WEAR_ALL_KEY)}, "1"); localStorage.setItem("cashTown:look:" + id, ${JSON.stringify(encodeLook(look))}); location.reload(); })()`);
       await sleep(1500);
       await until("ready again", async () => (await status(X)) === "ready", 240000);
       await X.evaluate(`window.__townView.won(${JSON.stringify(set.base)})`);
       await sleep(2500);
-      await X.shot(`${OUT}/${label}-${set.base}-${gender ? "m" : "f"}.png`);
-      ok(`${label} ${set.base} ${gender ? "men's" : "women's"}`, (await status(X)) === "ready");
+      await X.shot(`${OUT}/${label}-${set.base}-${gender ? "m" : "f"}${dye ? `-dye${dye}` : ""}.png`);
+      ok(`${label} ${set.base} ${gender ? "men's" : "women's"}${dye ? ` colour ${dye}` : ""}`, (await status(X)) === "ready");
     }
   } finally {
     await X.close?.();

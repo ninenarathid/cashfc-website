@@ -801,6 +801,13 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
     // what is eye or face in the drawing (its own eyes lie a cell off), the face left unchanged on the mask's outer edge
     // is peeled off, and each hole's edge is drawn in the mask's own outline.
     const holed = slot === "face" && !!ITEMS.accessories.find((x) => x.id === id)?.holes;
+    // (`holes: "bold"`: a mask drawn in a deep, strong colour, the maple's burgundy redrawn bolder on the owner's word,
+    // 2026-11-14 "ปรับส่วนแว่นตาให้ดีขึ้น ตอนนี้เห็นไม่ชัด": a cell of it is never the eye's dark outline nor the face left as
+    // it was, though a deep shade of it lies within the rules' reach of the base's near-black outline; cut by them, the far
+    // eye's rim went and its hole lay open to the side. And its holes are only where the drawing shows the eye: where it
+    // drew the rim over the base's eye, the rim stays (it carries no eye colour). The moon mask keeps the rules as he passed it)
+    const bold = holed && ITEMS.accessories.find((x) => x.id === id)?.holes === "bold";
+    const deep = (i) => { if (!bold) return false; const [, sat, l] = L.hsl(g.c[i * 4], g.c[i * 4 + 1], g.c[i * 4 + 2]); return sat >= 0.5 && l >= 0.1 && l <= 0.6; };
     const eyeHole = new Set();
     if (holed && set.size) {
       const xy = (i) => [i % g.GW, (i / g.GW) | 0], N4 = [1, -1, g.GW, -g.GW];
@@ -821,9 +828,10 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
       const skins = [];
       for (const i of idleOf(base)) if (L.clsAt(base, i % base.GW, (i / base.GW) | 0) === "skin") skins.push([base.c[i * 4], base.c[i * 4 + 1], base.c[i * 4 + 2]]);
       const eyeOrFace = (i) => { const [x, y] = xy(i), c = L.clsAt(g, x, y), l = L.hsl(g.c[i * 4], g.c[i * 4 + 1], g.c[i * 4 + 2])[2];
+        if (bold) return c.startsWith("violet") || l > 0.78 || diff(i) <= 60 || (c === "dark" && !deep(i) && eyeDist(x, y) <= 1);
         return c.startsWith("violet") || c === "dark" || l > 0.78 || diff(i) <= 60 || skins.some(([r, gg, bb]) => Math.abs(r - g.c[i * 4]) + Math.abs(gg - g.c[i * 4 + 1]) + Math.abs(bb - g.c[i * 4 + 2]) <= 24); };
       const grow = [];
-      for (let y = b.y0 - 1; y <= b.y1 + 1; y++) for (let x = b.x0 - 1; x <= b.x1 + 1; x++) if (violetAt(x, y)) { const i = y * g.GW + x; eyeHole.add(i); grow.push(i); }
+      for (let y = b.y0 - 1; y <= b.y1 + 1; y++) for (let x = b.x0 - 1; x <= b.x1 + 1; x++) if (violetAt(x, y)) { const i = y * g.GW + x; if (bold && !eyeOrFace(i)) continue; eyeHole.add(i); grow.push(i); }
       while (grow.length) { const i = grow.pop(); for (const d of N4) { const j = i + d, [x, y] = xy(j); if (eyeHole.has(j) || eyeDist(x, y) > 2 || !eyeOrFace(j)) continue; eyeHole.add(j); grow.push(j); } }
       for (const i of eyeHole) set.delete(i);
       // The face below the brow, where the mask meets the cheeks: what the drawing left as the base has it, on the mask's
@@ -831,8 +839,8 @@ meta.wear = { hat: {}, face: {}, neck: {}, hair: {} };
       // own skin on the edge is the face shaded under the mask. Each would show peach on any other skin. (Never above the
       // brow: a gold or bronze highlight is close to skin, and the maple's leaves came out full of holes.)
       const brow = Math.min(...[...eyeHole].map((i) => xy(i)[1])) - 1, cheek = (i) => xy(i)[1] >= brow;
-      for (let pass = 0; pass < 3; pass++) for (const i of [...set]) if (cheek(i) && diff(i) <= 60 && N4.some((d) => !set.has(i + d) && !eyeHole.has(i + d))) set.delete(i);
-      for (const i of [...set]) if (cheek(i) && diff(i) <= 30) set.delete(i);
+      for (let pass = 0; pass < 3; pass++) for (const i of [...set]) if (cheek(i) && !deep(i) && diff(i) <= 60 && N4.some((d) => !set.has(i + d) && !eyeHole.has(i + d))) set.delete(i);
+      for (const i of [...set]) if (cheek(i) && !deep(i) && diff(i) <= 30) set.delete(i);
       const skinLike = (i) => L.clsAt(g, ...xy(i)) === "skin" && skins.some(([r, gg, bb]) => Math.abs(r - g.c[i * 4]) + Math.abs(gg - g.c[i * 4 + 1]) + Math.abs(bb - g.c[i * 4 + 2]) <= 24);
       const looked = new Set();
       for (const i of [...set]) { if (looked.has(i) || !skinLike(i)) continue;
