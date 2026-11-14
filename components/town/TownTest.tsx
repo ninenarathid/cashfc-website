@@ -197,7 +197,7 @@ export default function TownTest({ me, name: called, th, onClose }: { me: string
               to be settled at the next look, the way a winner has the set on the live site; or leave six minutes to try a
               late bid moving both rounds' close (v334) */}
           <Row label={th ? "ประมูลยายทวิลลา" : "Twilla's auction"} value={<span className="text-meta text-muted">{th ? "รอบจำลองในเครื่องนี้" : "This browser's rounds"}</span>}>
-            <Do onClick={() => { trial.auctionCloseIn(0); setSaid(th ? "ปิดประมูลแล้ว เปิดกระดานประมูลอีกครั้งเพื่อรับชุดที่ชนะ" : "Closed: open the auction board again to settle it"); }}>{th ? "ปิดเดี๋ยวนี้" : "Close now"}</Do>
+            <Do onClick={() => { trial.auctionCloseIn(0); setSaid(th ? "ปิดประมูลแล้ว ผู้ชนะได้ชุดแล้ว รีโหลดหน้าเพื่อเห็นออร่าและฉายา" : "Closed and settled: reload to see the aura and title"); }}>{th ? "ปิดเดี๋ยวนี้" : "Close now"}</Do>
             <Do onClick={() => { trial.auctionCloseIn(6 * 60_000); setSaid(th ? "เหลือ 6 นาที: ลองประมูลช่วง 5 นาทีสุดท้าย ทั้งสองชุดต้องยืดเวลาพร้อมกัน" : "Six minutes left: a late bid moves both rounds"); }}>{th ? "เหลือ 6 นาที" : "6 min left"}</Do>
             <Do onClick={() => { trial.auctionCloseIn(null); setSaid(th ? "เริ่มรอบประมูลจำลองใหม่" : "The rounds begin again"); }}>{th ? "เริ่มใหม่" : "Restart"}</Do>
           </Row>

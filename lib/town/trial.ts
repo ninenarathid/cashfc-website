@@ -720,11 +720,11 @@ export class Trial {
     this.write(AUCTIONS, all);
     return { now, auctions: all.map((r) => this.boardOf(r)), owners: all.flatMap((r) => r.owners.map((o) => ({ member: o.member, outfit: r.wearables[0], edition: o.edition, copies: r.copies, run: r.run }))) };
   }
-  /** (dev, the TEST panel) Every round not settled closes `ms` from now (0: at once, settled at the next look), its hard close half an hour after; or the rounds begin again. */
+  /** (dev, the TEST panel) Every round not settled closes `ms` from now (0: at once, and settled there and then: its winners have the set), its hard close half an hour after; or the rounds begin again. */
   auctionCloseIn(ms: number | null) {
     if (ms === null) { this.write(AUCTIONS, []); this.tell(); return; }
     const now = this.now();
-    this.write(AUCTIONS, this.rounds().map((r) => (r.settledAt ? r : { ...r, closesAt: now + ms, hardClose: now + ms + 30 * 60_000 })));
+    this.write(AUCTIONS, this.rounds().map((r) => (r.settledAt ? r : { ...r, closesAt: now + ms, hardClose: now + ms + 30 * 60_000 }))); if (ms <= 0) this.auctions();
     this.tell();
   }
   /**
