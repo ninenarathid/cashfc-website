@@ -96,6 +96,18 @@ export function leaveRound(round: AuctionRound, bids: readonly Bid[], member: st
   return { bids: bids.filter((b) => b.member !== member), closesAt: bids.some((b) => b.member === member) ? closeAfter(round, ms) : round.closesAt };
 }
 
+/**
+ * (v334) The rounds after a bid at a moment: when it came in the last five minutes of its round (or left a round in its
+ * last five, `left`), every round open then closes five minutes after it, never earlier than it did, never past its own
+ * hard close. Rounds that close at the same minute so stay together, and nobody who has won one may still bid on the
+ * other (the owner: "1 ผู้เล่นต่อ 1 ชุด").
+ */
+export function closeTogether<R extends AuctionRound>(rounds: readonly R[], bidOn: AuctionRound, ms: number, left?: AuctionRound | null): R[] {
+  const late = (r: AuctionRound) => ms >= r.closesAt - LATE_MS;
+  if (!late(bidOn) && !(left && late(left))) return [...rounds];
+  return rounds.map((r) => (isOpen(r, ms) ? { ...r, closesAt: Math.min(r.hardClose, Math.max(r.closesAt, ms + LATE_MS)) } : r));
+}
+
 /** The round still open, not this one, where my bid stands (the page's boards mark mine), if any: a bid here moves it. */
 export function bidElsewhere<R extends { id: number; settledAt?: number | null; bids: ReadonlyArray<{ amount: number; mine: boolean }> }>(rounds: readonly R[], here: number): { round: R; amount: number } | null {
   for (const r of rounds) { if (r.id === here || r.settledAt) continue; const b = r.bids.find((x) => x.mine); if (b) return { round: r, amount: b.amount }; }

@@ -193,6 +193,14 @@ export default function TownTest({ me, name: called, th, onClose }: { me: string
             <Do on={wearAllHere()} onClick={() => { setWearAllHere(true); setTick((n) => n + 1); setSaid(th ? "ปลดล็อกของแต่งตัวทั้งหมดในเครื่องนี้แล้ว เปิดตู้แต่งตัวได้เลย" : "Every wearable is unlocked on this browser"); }}>{th ? "ปลดล็อกทั้งหมด" : "Unlock all"}</Do>
             <Do on={!wearAllHere()} onClick={() => { setWearAllHere(false); setTick((n) => n + 1); setSaid(th ? "กลับไปล็อกตามแรงค์สายแล้ว" : "Back to line ranks"); }}>{th ? "ตามแรงค์" : "By rank"}</Do>
           </Row>
+          {/* Granny Twilla's auction in this browser (lib/town/trial's rounds: the live round, pretend rivals): close it now
+              to be settled at the next look, the way a winner has the set on the live site; or leave six minutes to try a
+              late bid moving both rounds' close (v334) */}
+          <Row label={th ? "ประมูลยายทวิลลา" : "Twilla's auction"} value={<span className="text-meta text-muted">{th ? "รอบจำลองในเครื่องนี้" : "This browser's rounds"}</span>}>
+            <Do onClick={() => { trial.auctionCloseIn(0); setSaid(th ? "ปิดประมูลแล้ว เปิดกระดานประมูลอีกครั้งเพื่อรับชุดที่ชนะ" : "Closed: open the auction board again to settle it"); }}>{th ? "ปิดเดี๋ยวนี้" : "Close now"}</Do>
+            <Do onClick={() => { trial.auctionCloseIn(6 * 60_000); setSaid(th ? "เหลือ 6 นาที: ลองประมูลช่วง 5 นาทีสุดท้าย ทั้งสองชุดต้องยืดเวลาพร้อมกัน" : "Six minutes left: a late bid moves both rounds"); }}>{th ? "เหลือ 6 นาที" : "6 min left"}</Do>
+            <Do onClick={() => { trial.auctionCloseIn(null); setSaid(th ? "เริ่มรอบประมูลจำลองใหม่" : "The rounds begin again"); }}>{th ? "เริ่มใหม่" : "Restart"}</Do>
+          </Row>
           <Row label={th ? "Popoto coin" : "Popoto coins"} value={<Coins n={purse.coins} th={th} />}>
             {[100, 1000].map((n) => <Do key={n} onClick={() => trial.grant("rod", 0, n)}>+{n}</Do>)}
           </Row>

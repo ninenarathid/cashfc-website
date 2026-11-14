@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bidElsewhere, closeAfter, isOpen, LATE_MS, leaveRound, minBid, placeBid, ranked, stepOf, winners, type AuctionRound, type Bid } from "./auction";
+import { bidElsewhere, closeAfter, closeTogether, isOpen, LATE_MS, leaveRound, minBid, placeBid, ranked, stepOf, winners, type AuctionRound, type Bid } from "./auction";
 import { TAILOR, cannotBuy, inSeason } from "./tailor";
 
 const H = 3600_000;
@@ -87,5 +87,32 @@ describe("Granny Twilla's rails", () => {
       .toEqual(["none", "coins", "known", null]);
     expect(Object.keys(TAILOR)).toHaveLength(48);
     expect(Object.values(TAILOR).reduce((n, g) => n + g.price, 0)).toBe(63750 + 16000);
+  });
+});
+
+describe("the rounds close together (v334: the owner's \"1 ผู้เล่นต่อ 1 ชุด\")", () => {
+  const A: AuctionRound = { ...round, id: 3, design: "moonkeeper" }, B: AuctionRound = { ...round, id: 4, design: "mapleregent" };
+  const far: AuctionRound = { ...round, id: 5, design: "later", closesAt: 100 * H, hardClose: 101 * H };
+  const soon: AuctionRound = { ...round, id: 6, design: "notyet", opensAt: 20 * H, closesAt: 30 * H, hardClose: 31 * H };
+  const done: AuctionRound = { ...round, id: 7, design: "done", closesAt: 2 * H, hardClose: 3 * H, settledAt: 2 * H };
+
+  it("leaves every close where it is for a bid before the last five minutes", () => {
+    const all = [A, B, far];
+    expect(closeTogether(all, A, 10 * H - LATE_MS - 1)).toEqual(all);
+  });
+
+  it("moves every round open now alike for a late bid on one, never shortening one or moving one not open", () => {
+    const at = 10 * H - 60_000, out = closeTogether([A, B, far, soon, done], A, at);
+    expect(out.map((r) => r.closesAt)).toEqual([at + LATE_MS, at + LATE_MS, 100 * H, 30 * H, 2 * H]);
+  });
+
+  it("moves them alike for a bid that leaves a round in its last five minutes for one that is not", () => {
+    const late = { ...B, closesAt: 9 * H }, at = 9 * H - 60_000;
+    expect(closeTogether([A, late], A, at, late).map((r) => r.closesAt)).toEqual([10 * H, at + LATE_MS]);
+  });
+
+  it("stops each at its own hard close", () => {
+    const at = 11 * H - 60_000, a = { ...A, closesAt: 11 * H - 30_000 }, b = { ...B, closesAt: 11 * H - 30_000, hardClose: 11 * H + 60 * H };
+    expect(closeTogether([a, b], a, at).map((r) => r.closesAt)).toEqual([11 * H, at + LATE_MS]);
   });
 });

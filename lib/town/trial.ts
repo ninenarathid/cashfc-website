@@ -21,7 +21,7 @@ import{lanternAction}from"./reward-lantern";
 import{arenaAction}from"./reward-arena";
 import{beginDragon}from"./reward-dragon";
 import { TAILOR, cannotBuy } from "./tailor";
-import { leaveRound, minBid, placeBid, ranked, winners, type AuctionBoard, type AuctionBoards, type AuctionRound, type Bid } from "./auction";
+import { closeTogether, leaveRound, minBid, placeBid, ranked, winners, type AuctionBoard, type AuctionBoards, type AuctionRound, type Bid } from "./auction";
 type TrialRound = AuctionRound & { bids: Bid[]; owners: AuctionBoard["owners"] };
 import { bangkokMinute } from "./daylight";
 // ── the pasture ── (lib/town/animal-act, docs/plans/animals)
@@ -249,7 +249,8 @@ const slotsKey = (id: string) => `cashtown.trial.slots.1.${id}`;
 /** (v276) What each member has to wear for good, bought or found. */
 const dressedKey = (id: string) => `cashtown.trial.dressed.1.${id}`;
 // (v297's in the browser: the auction's rounds, the bids that stand and who won what, and which of mine are limited)
-const AUCTIONS = "cashtown.trial.auctions.1";
+// (.2: the second round, moon lantern and maple, as it stands live; the first round's rows in a browser are left behind)
+const AUCTIONS = "cashtown.trial.auctions.2";
 const limitedKey = (id: string) => `cashtown.trial.limited.1.${id}`;
 const playsKey = (id: string) => `cashtown.trial.plays.1.${id}`, tallyKey = (id: string) => `cashtown.trial.tally.1.${id}`;
 /** What a tester keeps in the plaza's storage box (lib/town/box): each tester's own, like a purse. */
@@ -678,17 +679,22 @@ export class Trial {
   /** (v297) Which of my things are limited, as town_dressed says: a wearable, its round and its number. */
   limited(): Record<string, [number, number]> { return this.read<Record<string, [number, number]>>(limitedKey(this.id), () => ({}), (v) => !!v && typeof v === "object"); }
   /**
-   * (v297) The auction's rounds in the browser: the first round's two designs open from now (the real ones open on
-   * Tuesday) to their real close, a pretend rival on the pumpkin so the board shows a held copy; settled when looked at.
+   * (v297) The auction's rounds in the browser: the round up live (rounds 3 and 4, moon lantern and maple) open from an
+   * hour ago to their real close, pretend rivals holding the copies at the sums bid live on 14 November 2026, so a
+   * tester bids against them; settled when looked at. The TEST panel closes them early (`auctionCloseIn`).
    */
   private rounds(): TrialRound[] {
     const now = this.now();
     const made = this.read<TrialRound[]>(AUCTIONS, () => [], (v) => Array.isArray(v));
     if (made.length) return made;
-    const close = Date.parse("2026-10-31T21:00:00+07:00"), hard = Date.parse("2026-10-31T22:00:00+07:00");
+    const close = Date.parse("2026-11-15T20:00:00+07:00"), hard = Date.parse("2026-11-15T20:30:00+07:00");
     const round = (id: number, design: string, wearables: string[], bids: Bid[]): TrialRound =>
       ({ id, design, wearables, run: 1, copies: 3, start: 8000, stepPct: 5, stepMin: 500, opensAt: now - 3600_000, closesAt: Math.max(close, now + 3 * 86400_000), hardClose: Math.max(hard, now + 3 * 86400_000 + 3600_000), settledAt: null, bids, owners: [] });
-    const fresh = [round(1, "count", ["count", "counthat", "batmask", "rosefascinator"], []), round(2, "pumpkin", ["pumpkinmonarch", "pumpkincrown", "pumpkinglasses", "pumpkinhead"], [{ member: "trial-rival", name: "Mint", amount: 8500, at: now - 600_000 }])];
+    const rival = (n: number, name: string, amount: number): Bid => ({ member: `trial-rival-${n}`, name, amount, at: now - n * 600_000 });
+    const fresh = [
+      round(3, "moonkeeper", ["moonkeeper", "moonlanternhat", "moonmask", "lanternpin"], [rival(1, "Mint", 27407), rival(2, "Kai", 27052), rival(3, "Nok", 17300)]),
+      round(4, "mapleregent", ["mapleregent", "maplehat", "maplemask", "maplecomb"], [rival(4, "Ploy", 20000), rival(5, "Ton", 11105), rival(6, "Fah", 11102)]),
+    ];
     this.write(AUCTIONS, fresh);
     return fresh;
   }
@@ -714,6 +720,13 @@ export class Trial {
     this.write(AUCTIONS, all);
     return { now, auctions: all.map((r) => this.boardOf(r)), owners: all.flatMap((r) => r.owners.map((o) => ({ member: o.member, outfit: r.wearables[0], edition: o.edition, copies: r.copies, run: r.run }))) };
   }
+  /** (dev, the TEST panel) Every round not settled closes `ms` from now (0: at once, settled at the next look), its hard close half an hour after; or the rounds begin again. */
+  auctionCloseIn(ms: number | null) {
+    if (ms === null) { this.write(AUCTIONS, []); this.tell(); return; }
+    const now = this.now();
+    this.write(AUCTIONS, this.rounds().map((r) => (r.settledAt ? r : { ...r, closesAt: now + ms, hardClose: now + ms + 30 * 60_000 })));
+    this.tell();
+  }
   /**
    * (v297) A bid on a round (town_bid): paid and held at once; the one pushed out is paid back (a pretend rival's coins go
    * nowhere). My bid on another round still open moves here, what it holds counted towards this one (lib/town/auction).
@@ -726,8 +739,11 @@ export class Trial {
     const other = all.find((x) => x.id !== auction && !x.settledAt && x.bids.some((b) => b.member === this.id)), carried = other?.bids.find((b) => b.member === this.id)?.amount ?? 0;
     const did = placeBid(r, r.bids, { id: this.id, name: "คุณ", coins: purse.coins, owns: this.dressed().includes(r.wearables[0]), carried }, amount, now);
     if (!did.ok) return { ok: false, why: did.why as Refusal, least: did.why === "low" ? minBid(r, r.bids, this.id, carried) : undefined, auction: this.boardOf(r) };
-    const next = { ...r, bids: did.bids, closesAt: did.closesAt }, left = other ? { ...other, ...leaveRound(other, other.bids, this.id, now) } : null;
-    this.write(AUCTIONS, all.map((x) => (x.id === auction ? next : left && x.id === left.id ? left : x)));
+    // (v334: a late bid moves every open round's close alike, closeTogether; placeBid's and leaveRound's own closes are
+    // the same moves for their rounds)
+    const moved = closeTogether(all, r, now, other), at = (id: number) => moved.find((x) => x.id === id)!.closesAt;
+    const next = { ...r, bids: did.bids, closesAt: at(r.id) }, left = other ? { ...other, bids: leaveRound(other, other.bids, this.id, now).bids, closesAt: at(other.id) } : null;
+    this.write(AUCTIONS, moved.map((x) => (x.id === auction ? next : left && x.id === left.id ? left : x)));
     // (what I had in and was pushed out of comes back to me, and another tester's to them: their purse in this browser,
     // Codex's check; the pretend rival's coins go nowhere)
     const back = did.out.filter((b) => b.member === this.id).reduce((n, b) => n + b.amount, 0);
