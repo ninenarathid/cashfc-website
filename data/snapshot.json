@@ -2267,7 +2267,7 @@
   "mounts": 49,
   "minions": 115,
   "rare": null,
-  "level": 94,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2297,7 +2297,7 @@
    "Dancing Mad",
    "Dragonsong's Reprise"
   ],
-  "chg": "2026-11-11"
+  "chg": "2026-11-14"
  },
  "50821570": {
   "name": "Haruki Mizumoto",
@@ -2306,7 +2306,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 71,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2353,7 +2353,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-13"
+  "chg": "2026-11-14"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -2535,7 +2535,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 84,
+  "level": 89,
   "cc": [
    false,
    false,
@@ -3856,7 +3856,7 @@
   "mounts": 76,
   "minions": 137,
   "rare": 62,
-  "level": 89,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4218,7 +4218,7 @@
   "mounts": 79,
   "minions": 70,
   "rare": null,
-  "level": 93,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4244,7 +4244,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-13"
+  "chg": "2026-11-14"
  },
  "29325838": {
   "name": "Ryuu Dawnblade",
@@ -5316,7 +5316,7 @@
   "mounts": 119,
   "minions": 243,
   "rare": null,
-  "level": 68,
+  "level": 69,
   "cc": [
    false,
    false,
@@ -5329,7 +5329,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-08"
+  "chg": "2026-11-14"
  },
  "38802422": {
   "name": "Aimday Yeji",
@@ -6581,7 +6581,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 95,
-  "level": 100,
+  "level": 96,
   "cc": [
    false,
    false,
@@ -6701,7 +6701,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-13"
+  "chg": "2026-11-14"
  },
  "60619924": {
   "name": "Gotnogod Soluna",
@@ -6946,7 +6946,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 72,
+  "level": 74,
   "cc": [
    false,
    false,
@@ -8655,7 +8655,7 @@
   "mounts": 17,
   "minions": 42,
   "rare": null,
-  "level": 75,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8742,7 +8742,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 83,
+  "level": 86,
   "cc": [
    false,
    false,
@@ -8755,7 +8755,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-13"
+  "chg": "2026-11-14"
  },
  "45513833": {
   "name": "Isildur One",
@@ -8981,7 +8981,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 86,
+  "level": 62,
   "cc": [
    false,
    false,
@@ -8997,7 +8997,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-12"
+  "chg": "2026-11-14"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -9057,7 +9057,7 @@
   "mounts": 85,
   "minions": 178,
   "rare": null,
-  "level": 99,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -9101,7 +9101,7 @@
   "mounts": 7,
   "minions": 24,
   "rare": 0,
-  "level": 87,
+  "level": 88,
   "cc": [
    false,
    false,
@@ -9114,7 +9114,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-13"
+  "chg": "2026-11-14"
  },
  "31685121": {
   "name": "Squid Girls",
@@ -10024,7 +10024,7 @@
   "mounts": 25,
   "minions": 115,
   "rare": null,
-  "level": 72,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -12182,7 +12182,7 @@
   "mounts": 32,
   "minions": 95,
   "rare": null,
-  "level": 94,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -12195,7 +12195,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-12"
+  "chg": "2026-11-14"
  },
  "16173247": {
   "name": "Haru Luminous",
@@ -14727,7 +14727,7 @@
   "mounts": 26,
   "minions": 108,
   "rare": null,
-  "level": 90,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -14740,7 +14740,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-11-14"
  },
  "28011817": {
   "name": "Nore Vanessa",

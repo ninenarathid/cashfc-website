@@ -1,6 +1,48 @@
 {
  "events": [
   {
+   "date": "2026-11-14",
+   "type": "level_100",
+   "id": 12478532,
+   "name": "Hakuryu Flare",
+   "text": "reached level 100 on Monk!"
+  },
+  {
+   "date": "2026-11-14",
+   "type": "level_100",
+   "id": 50821570,
+   "name": "Haruki Mizumoto",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
+   "date": "2026-11-14",
+   "type": "level_100",
+   "id": 5644067,
+   "name": "Ninenine Everdark",
+   "text": "reached level 100 on Sage!"
+  },
+  {
+   "date": "2026-11-14",
+   "type": "level_100",
+   "id": 30667251,
+   "name": "Roxas Akatsuki",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
+   "date": "2026-11-14",
+   "type": "level_100",
+   "id": 62507897,
+   "name": "De Viljho",
+   "text": "reached level 100 on Reaper!"
+  },
+  {
+   "date": "2026-11-14",
+   "type": "level_100",
+   "id": 61489984,
+   "name": "Poly Umami",
+   "text": "reached level 100 on Viper!"
+  },
+  {
    "date": "2026-11-13",
    "type": "level_100",
    "id": 29918404,
@@ -1357,48 +1399,6 @@
    "id": 60429500,
    "name": "Jin Theape",
    "text": "earned Dire, Dire Deepcroft — only 2.5% of players have it, and 1 more"
-  },
-  {
-   "date": "2026-10-25",
-   "type": "job_up",
-   "id": 23767900,
-   "name": "Spike Le'granddanois",
-   "text": "is now a Legendary Reaper"
-  },
-  {
-   "date": "2026-10-25",
-   "type": "level_100",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "reached level 100 on Samurai!"
-  },
-  {
-   "date": "2026-10-25",
-   "type": "level_100",
-   "id": 47218599,
-   "name": "Kawa Lynn",
-   "text": "reached level 100 on Dark Knight!"
-  },
-  {
-   "date": "2026-10-24",
-   "type": "level_100",
-   "id": 36248712,
-   "name": "Boom Astraea",
-   "text": "reached level 100 on Machinist!"
-  },
-  {
-   "date": "2026-10-24",
-   "type": "ex_clear",
-   "id": 34874723,
-   "name": "Allen Fliegen",
-   "text": "cleared Zelenia (Extreme)"
-  },
-  {
-   "date": "2026-10-24",
-   "type": "level_100",
-   "id": 60429500,
-   "name": "Jin Theape",
-   "text": "reached level 100 on Sage!"
   }
  ]
 }
