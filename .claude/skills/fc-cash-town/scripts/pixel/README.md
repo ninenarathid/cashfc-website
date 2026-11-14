@@ -1256,3 +1256,49 @@ and the head pieces are drawn apart, as for every set.
   applied at the source and those two drawn with `NO_REVIEW` saying so). Its choice of two: lotus and river spirit (the
   sky lantern repeats more of the live moon lantern keeper's identity). `pv-skylantern_f` was drawn first as the trial.
 - Cut on the doll's own grid (`checks/cut-look.mjs`, 5.75 to 5.85) for the owner's sheet.
+
+## The Loy Krathong three, built for the next auction round (2026-11-14)
+
+The owner, of the previews above: "สวยทั้งสามชุด เอาทั้งสามชุดเลย สำหรับรอบต่อไป" (all three, for the next round), then
+"อยากได้แนวคิดๆอื่นๆ นอกจากผ้าคลุม ตอนนี้ชุดใหม่ มีแต่ผ้าคลุม" (every new outfit is a cape: other ideas), and, shown six
+ways without one, "บัว 1 / โคมลอย 2 / สายน้ำ 3". So: **lotus raft keeper** as previewed (lotus-petal collar, banana-leaf
+cape); **sky lantern bearer** Codex's way (sleeves that are puffed paper lanterns, red waistcoat or bodice, the women a
+cream and saffron bell skirt); **river spirit** Claude's way (the men a koi tail from the back of the waist to the
+character's right, ending in a big pale aqua fin; the women a scaled mermaid skirt whose tail-fin hem spreads to twice
+the hips, drawn wider than its preview as promised). Items `lotuskrathong`, `skylantern`, `riverspirit` (+ `_f`), hats
+`lotuscrown`, `skylanternhat`, `wavecrown`, masks `lotusmask`, `lanternmask`, `finmask` (`holes: "bold"`), hair pieces
+`lotusclip`, `skylanternpin`, `wavecomb`. All `gpt-image-2.5-sunburst`, low, 1536x1024.
+
+- **First, the cape versions** (stage 1 of all three, the hats, masks and hair pieces): 23 sheets. The hats, masks, hair
+  pieces and the lotus's fronts and poses are the ones built; the lantern's and river's cape sheets are kept in
+  `work/out/lk-cape-v1/`, unbuilt.
+- **Previews without a cape**, two ways a theme (`prompts/doll2/preview/pv-{lotuspetals,lotusraft,lanternsleeves,
+  lanternpole,riverfins,koitail}[_f]-front.txt`: Codex's way first, unseen, then Claude's; read by Codex, 12 passed, the
+  koi tail's "the only addition extending down from the back of the waist" its words). With the aura sheet below and the
+  cape versions: 37 calls, $0.715.
+- **The chosen preview as a second reference.** Each production front of a chosen design (`do-skylantern-front`, `_f`,
+  `do-riverspirit-front`) takes its preview after the mannequin: "copy its clothes exactly… ignore everything on its heads
+  and its hair". The lantern front was drawn first as the trial and came out the preview's design on the bald doll. The
+  women's river front had no preview to copy (words only). Every back, pose and eating sheet takes the drawn front as its
+  second reference ("use it only for the design and the colours").
+- **Codex's reads** (runs 2026-11-14-11-31-40, -11-34-54, -11-38-46, -11-42-29, -11-45-03): fronts and the lotus's backs
+  passed, the river front `fix` (clear of the canvas edge); the four pose sheets `fix` (a clear gap between figures, all
+  clothing at or above each figure's lowest row, the lantern hands at their places), the words for `do-skylantern-poses`
+  recorded and the other three drawn with `NO_REVIEW` naming that shared fix; the three eating fixes the same way
+  (`do-skylantern_f-eat` with `NO_REVIEW`); the 15 magenta keys passed. The six eating skin keys are the skin-key template
+  word for word, passed 18 times in the same read: drawn with `NO_REVIEW` saying so.
+- **Redrawn**: the koi tail's fin reached the canvas edge (the preview it copies does): `do-riverspirit-front` and `-back`
+  drawn again twice each with the outer figure's tail curled in; kept `-front-1` (column 0 empty, the fin's point
+  outlined) and `-back-1` (the fin's point at the edge, complete; `-back-2` drew the chest's pearls on the back). The
+  first draws are `lk-cape-v1/do-riverspirit-{front,back}-koi-first.png`. `do-skylantern-eat`: the two figures from behind
+  had a bare foot for a boot; drawn twice, kept `-2` (the fuller sleeves), the first in `lk-cape-v1/`.
+- **The aura's pieces** (`prompts/icons/icons-limited-aura-b.txt`, one call, `icons-limited-aura-a` as its only
+  reference): a lotus petal flat and edge-on, a little lotus raft, a paper sky lantern, a fish. The two fish came out as
+  one fish and its mirror, not two strokes of a tail: `limited-aura.ts` and `limited-title.ts` draw `auraFishB` (facing
+  left) alone, turned by the way it swims, its swimming a sway of its width. Built with `-a` into one picture
+  (`ICONS_ONLY=icons-limited-aura-a,icons-limited-aura-b ICONS_PUB=<tree>/public/town/limited
+  ICONS_JSON=<tree>/lib/town/limited-aura-art.json`), 12 icons, 4.9 KB.
+- **Production after his choice**: 64 calls, $1.584; the ledger then stood at $61.905 of $65.
+- **Built** (`build-pixel-atlas.mjs --doll2 --out <tree>/public/town`): 70 outfits' pictures (each new one 19 to 27 KB),
+  `checks/hat-bald.mjs` 0 of 66, the new sets on dolls walking, sitting and eating front and back
+  (`checks/wear-look.mjs` with `LOOKS=`).

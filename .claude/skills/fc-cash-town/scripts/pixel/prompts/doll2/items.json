@@ -329,6 +329,54 @@
       },
       "more": "The head and the body stay exactly as large as in the attached sheet: the head the same width and height, the legs the same length, the feet at the same positions. Only the clothing outline grows wider. Both hands and each boot stay clearly visible and distinct from the leaves.",
       "seat": "On every sitting figure the leaf cape and its lower edge fold inside that figure's own lowest row and never fall below it, and both hands stay clearly visible."
+    },
+    {
+      "id": "lotuskrathong",
+      "shapes": "Every colour has four hard-edged tones: a bright lit edge, the main tone, a shade and a deep shade in the folds, so that the cloth shows clear folds down the coat and the sleeves, and each button, buckle and piece of trim catches one bright pixel. Every shape stays big enough to read at this size, with no speckle. Each solid shape is fully opaque up to its dark outline, with no interior transparent cells or stray pixels outside it. No glow, bloom, halo or cast light.",
+      "front": "a lotus raft keeper of the river festival: a fitted banana-leaf green tunic coat reaching to the knee, its front closed by a row of small pointed folded-leaf pleats like the folded points of a leaf boat, a cream sash at the waist and one small gold clasp shaped like a candle flame at the chest; round the neck and over both shoulders a big collar of layered lotus petals, rose pink with cream tips and a deeper rose base, standing up and flaring out wide past the arms on both sides like an open lotus flower; behind it a cape of broad overlapping banana leaves in a light and a dark green, falling to the back of the knee, its lower edge a row of big pointed folded-leaf points; slim cream trousers with a band of water-blue wave crests at the ankle, leaf-green boots with gold buckles",
+      "back": "the cape of broad overlapping banana leaves in a light and a dark green from behind, covering the back and falling to the back of the knee, its lower edge a row of big pointed folded-leaf points, the big collar of layered rose-pink lotus petals with cream tips standing up round the neck and flaring out wide past the arms on both sides, the cream sash showing at the sides of the waist, slim cream trousers with their band of water-blue wave crests at the ankle, leaf-green boots below",
+      "more": "The head and the body stay exactly as large as in the attached sheet: the head the same width and height, the legs the same length, the feet at the same positions. Only the clothing outline grows wider. Both hands and each boot stay clearly visible and distinct from the lotus collar and the leaf cape.",
+      "seat": "On every sitting figure the leaf cape and its lower edge fold inside that figure's own lowest row and never fall below it, and both hands stay clearly visible.",
+      "f": {
+        "shapes": "Every colour has four hard-edged tones: a bright lit edge, the main tone, a shade and a deep shade in the folds, so that the cloth shows clear folds down the bodice and the skirt, and each button, buckle and piece of trim catches one bright pixel. Every shape stays big enough to read at this size, with no speckle. Each solid shape is fully opaque up to its dark outline, with no interior transparent cells or stray pixels outside it. No glow, bloom, halo or cast light.",
+        "front": "a lotus raft keeper of the river festival: a fitted banana-leaf green bodice with a row of small pointed folded-leaf pleats down its front and one small gold clasp shaped like a candle flame at the chest; round the neck and over both shoulders a big collar of layered lotus petals, rose pink with cream tips and a deeper rose base, standing up and flaring out wide past the arms on both sides like an open lotus flower; behind it a cape of broad overlapping banana leaves in a light and a dark green, falling to the back of the knee, its lower edge a row of big pointed folded-leaf points; a flared knee-length skirt of big layered rose-pink lotus petals with cream tips, their rounded points forming the hem, with a band of water-blue wave crests showing under the petals; leaf-green boots with gold buckles",
+        "back": "the cape of broad overlapping banana leaves in a light and a dark green from behind, covering the back and falling to the back of the knee, its lower edge a row of big pointed folded-leaf points, the big collar of layered rose-pink lotus petals with cream tips standing up round the neck and flaring out wide past the arms on both sides, the flared knee-length skirt of rose-pink lotus petals under the cape, its rounded petal points visible only where the pose leaves it uncovered, leaf-green boots below",
+        "pose": " In both sitting poses, the skirt drapes continuously over the lap and upper thighs with one continuous hem of rounded petal points at the bent knees, rather than separate shorts-like leg openings; preserve the reference's hand, knee and foot positions. In the sleeping pose, the skirt follows the bent hips without changing the leg positions.",
+        "more": "The head and the body stay exactly as large as in the attached sheet: the head the same width and height, the legs the same length, the feet at the same positions. Only the clothing outline grows wider. Both hands and each boot stay clearly visible and distinct from the lotus collar and the leaf cape.",
+        "seat": "On every sitting figure the leaf cape and its lower edge fold inside that figure's own lowest row and never fall below it, and both hands stay clearly visible."
+      }
+    },
+    {
+      "id": "skylantern",
+      "shapes": "Every colour has four hard-edged tones: a bright lit edge, the main tone, a shade and a deep shade in the folds, so that the cloth shows clear folds down the coat and the sleeves, and each button, buckle and piece of trim catches one bright pixel. Every shape stays big enough to read at this size, with no speckle. Each solid shape is fully opaque up to its dark outline, with no interior transparent cells or stray pixels outside it. No glow, bloom, halo or cast light.",
+      "front": "a sky lantern bearer of the festival night: a narrow deep red waistcoat with a gold knot over a cream shirt whose two sleeves are big round puffed paper lanterns from the shoulder to the elbow, each one cream paper between three broad saffron-orange bamboo ribs, swelling out wide past the body on both sides, then gathered into a narrow red cuff band below the elbow; tapered deep red trousers, dark brown boots with gold buckles",
+      "back": "the back of the narrow deep red waistcoat over the cream shirt, the two sleeves are big round puffed paper lanterns from the shoulder to the elbow, each one cream paper between three broad saffron-orange bamboo ribs, swelling out wide past the body on both sides, then gathered into a narrow red cuff band below the elbow seen from behind, tapered deep red trousers and dark brown boots",
+      "more": "The head and the body stay exactly as large as in the attached sheet: the head the same width and height, the legs the same length, the feet at the same positions. Only the clothing outline grows wider. No cape, no mantle and nothing hanging down the back. Both hands and each boot stay clearly visible and distinct from the lantern sleeves.",
+      "seat": "On every sitting figure and on the sleeping one the two lantern sleeves stay round and full at the shoulders inside that figure's own space, and both hands stay clearly visible below them.",
+      "f": {
+        "shapes": "Every colour has four hard-edged tones: a bright lit edge, the main tone, a shade and a deep shade in the folds, so that the cloth shows clear folds down the bodice and the skirt, and each button, buckle and piece of trim catches one bright pixel. Every shape stays big enough to read at this size, with no speckle. Each solid shape is fully opaque up to its dark outline, with no interior transparent cells or stray pixels outside it. No glow, bloom, halo or cast light.",
+        "front": "a sky lantern bearer of the festival night: a narrow deep red bodice with a gold knot over a cream blouse whose two sleeves are big round puffed paper lanterns from the shoulder to the elbow, each one cream paper between three broad saffron-orange bamboo ribs, swelling out wide past the body on both sides, then gathered into a narrow red cuff band below the elbow; a compact knee-length bell skirt of cream and saffron panels between brown bamboo ribs with a red hem band; dark brown boots with gold buckles",
+        "back": "the back of the narrow deep red bodice over the cream blouse, the two sleeves are big round puffed paper lanterns from the shoulder to the elbow, each one cream paper between three broad saffron-orange bamboo ribs, swelling out wide past the body on both sides, then gathered into a narrow red cuff band below the elbow seen from behind, the compact knee-length bell skirt of cream and saffron panels between brown bamboo ribs with its red hem band, dark brown boots",
+        "pose": " In both sitting poses, the skirt drapes continuously over the lap and upper thighs with one continuous red hem band at the bent knees, rather than separate shorts-like leg openings; preserve the reference's hand, knee and foot positions. In the sleeping pose, the skirt follows the bent hips without changing the leg positions.",
+        "more": "The head and the body stay exactly as large as in the attached sheet: the head the same width and height, the legs the same length, the feet at the same positions. Only the clothing outline grows wider. No cape, no mantle and nothing hanging down the back. Both hands and each boot stay clearly visible and distinct from the lantern sleeves.",
+        "seat": "On every sitting figure and on the sleeping one the two lantern sleeves stay round and full at the shoulders inside that figure's own space, and both hands stay clearly visible below them."
+      }
+    },
+    {
+      "id": "riverspirit",
+      "shapes": "Every colour has four hard-edged tones: a bright lit edge, the main tone, a shade and a deep shade in the folds, so that the cloth shows clear folds down the coat and the sleeves, and each button, buckle and piece of trim catches one bright pixel. Every shape stays big enough to read at this size, with no speckle. Each solid shape is fully opaque up to its dark outline, with no interior transparent cells or stray pixels outside it. No glow, bloom, halo or cast light.",
+      "front": "a river spirit of the festival: a fitted deep teal tunic with a silver fish-scale pattern, a pale aqua sash and a string of round white pearls across the chest; from the back of the waist a thick koi-fish tail of deep teal and silver scales curving out behind and to the character's right side (the viewer's left in this front view) down to the ground, ending in a big flowing pale aqua tail fin with darker teal ribs that spreads out past the legs; on the outside of each forearm a small pale aqua fin; narrow teal trousers, silver-blue boots",
+      "back": "the back of the fitted deep teal tunic with the pale aqua sash tied at the back of the waist, and from the back of the waist the thick koi-fish tail of deep teal and silver scales, seen whole from behind, curving down to the ground and out to the character's right side (the viewer's right in this back view), ending in a big flowing pale aqua tail fin with darker teal ribs that spreads out past the legs; a small pale aqua fin on the outside of each forearm, narrow teal trousers, silver-blue boots",
+      "more": "The head and the body stay exactly as large as in the attached sheet: the head the same width and height, the legs the same length, the feet at the same positions. Only the clothing outline grows wider. No cape or mantle; the named koi tail is the only addition extending down from the back of the waist. Both hands and each boot stay clearly visible and distinct from the koi tail, and nothing reaches into the space of the next figure.",
+      "seat": "On every sitting figure the koi tail curls on the ground beside the figure, inside that figure's own lowest row and never below it; on the sleeping figure it lies along the ground behind the legs; both hands stay clearly visible.",
+      "f": {
+        "shapes": "Every colour has four hard-edged tones: a bright lit edge, the main tone, a shade and a deep shade in the folds, so that the cloth shows clear folds down the bodice and the skirt, and each button, buckle and piece of trim catches one bright pixel. Every shape stays big enough to read at this size, with no speckle. Each solid shape is fully opaque up to its dark outline, with no interior transparent cells or stray pixels outside it. No glow, bloom, halo or cast light.",
+        "front": "a river spirit of the festival: a fitted deep teal bodice with a silver fish-scale pattern and a string of round white pearls across the chest; a mermaid-shaped skirt of deep teal and silver scales fitted down to the knee, where it bursts out into a big flowing pale aqua tail fin with darker teal ribs as its hem, the fin spreading out on both sides to twice the width of the hips like a fish's tail, its two lobes curling up at their outer ends, both boots showing under its middle; on the outside of each forearm a small pale aqua fin; silver-blue boots",
+        "back": "the back of the fitted deep teal bodice, the mermaid-shaped skirt of deep teal and silver scales fitted down to the knee seen from behind, bursting out into a big flowing pale aqua tail fin with darker teal ribs as its hem, the fin spreading out on both sides to twice the width of the hips, its two lobes curling up at their outer ends, both boots showing under its middle; a small pale aqua fin on the outside of each forearm",
+        "pose": " In both sitting poses, the scaled skirt drapes continuously over the lap and upper thighs and its tail fin hem fans out on the ground round the bent knees, rather than separate shorts-like leg openings; preserve the reference's hand, knee and foot positions. In the sleeping pose, the skirt follows the bent hips and the tail fin hem fans out past the knees without changing the leg positions.",
+        "more": "The head and the body stay exactly as large as in the attached sheet: the head the same width and height, the legs the same length, the feet at the same positions. Only the clothing outline grows wider. No cape or mantle. Both hands and each boot stay clearly visible and distinct from the tail fin hem, and nothing reaches into the space of the next figure.",
+        "seat": "On every sitting figure the tail fin hem spreads inside that figure's own lowest row and never falls below it, and both hands stay clearly visible."
+      }
     }
   ],
   "hats": [
@@ -507,6 +555,27 @@
       "front": "a structured deep burgundy tricorn hat with its three brim corners turned up, copper piping along the brim's edge and a sprig of three big maple leaves in orange, copper and gold pinned to one side of it",
       "back": "the same deep burgundy tricorn hat from behind with its turned-up brim, the copper piping along its edge and the tips of the maple leaf sprig showing at one side",
       "key": "the tricorn hat, including its brim, piping and every maple leaf"
+    },
+    {
+      "id": "lotuscrown",
+      "shapes": "Every colour has three or four hard-edged tones, with a bright lit edge and a deep shade, and each metal part catches one bright pixel. Every shape stays big enough to read at this size, with no speckle. Each solid shape is fully opaque up to its dark outline, with no interior transparent cells or stray pixels outside it. No glow, bloom, halo or cast light.",
+      "front": "a lotus-flower crown: a ring of upright rose-pink lotus petals with cream tips round a gold centre, on a base of folded green banana-leaf points, with one short white candle standing in its middle topped by a small solid orange-gold flame drawn as one hard-edged shape",
+      "back": "the same lotus-flower crown from behind: the ring of upright rose-pink lotus petals with cream tips on its base of folded green banana-leaf points, the short white candle and its small solid orange-gold flame showing above the petals",
+      "key": "the crown, including every petal, the leaf points, the candle and its flame"
+    },
+    {
+      "id": "skylanternhat",
+      "shapes": "Every colour has three or four hard-edged tones, with a bright lit edge and a deep shade, and each metal part catches one bright pixel. Every shape stays big enough to read at this size, with no speckle. Each solid shape is fully opaque up to its dark outline, with no interior transparent cells or stray pixels outside it. No glow, bloom, halo or cast light.",
+      "front": "a tall cylinder hat shaped like a paper sky lantern, about as tall as the head, of cream paper with thin brown bamboo ribs and a red band round its lower rim, its top closed and gently rounded, with a small solid orange-gold flame shape painted on its front",
+      "back": "the same tall cylinder sky lantern hat from behind, about as tall as the head, of cream paper with thin brown bamboo ribs and a red band round its lower rim, its top closed and gently rounded, plain at the back",
+      "key": "the hat, including its ribs, its red band and the painted flame"
+    },
+    {
+      "id": "wavecrown",
+      "shapes": "Every colour has three or four hard-edged tones, with a bright lit edge and a deep shade, and each metal part catches one bright pixel. Every shape stays big enough to read at this size, with no speckle. Each solid shape is fully opaque up to its dark outline, with no interior transparent cells or stray pixels outside it. No glow, bloom, halo or cast light.",
+      "front": "a crown of three upright curling water waves in aqua and deep blue with white foam tips, on a thin silver band, one big round white pearl at its front",
+      "back": "the same crown of three upright curling water waves in aqua and deep blue with white foam tips from behind, on its thin silver band",
+      "key": "the crown, including all three waves, their foam tips, the band and the pearl"
     }
   ],
   "accessories": [
@@ -970,6 +1039,60 @@
       "key": "the half-mask, including its gold rim, the band over the nose and both maple leaves with their veins",
       "clear": true,
       "holes": "bold"
+    },
+    {
+      "id": "lotusmask",
+      "slot": "face",
+      "shapes": "Every colour has three or four hard-edged tones, with a bright lit edge and a deep shade, and each metal part catches one bright pixel. Every shape stays big enough to read at this size, with no speckle. Each solid shape is fully opaque up to its dark outline, with no interior transparent cells or stray pixels outside it. No glow, bloom, halo or cast light.",
+      "front": "a bold masquerade half-mask of deep rose pink with a thick bright gold rim, one solid piece over both eyes and the top of the nose like a domino mask, joined over the bridge of the nose by a solid band as thick as its rim, with two almond eye holes the eyes show through; at each outer corner one big pointed lotus petal of rose pink with a cream tip spreads out past the temple, each about as large as the eye hole beside it",
+      "key": "the half-mask, including its gold rim, the band over the nose and both lotus petals",
+      "clear": true,
+      "holes": "bold"
+    },
+    {
+      "id": "lanternmask",
+      "slot": "face",
+      "shapes": "Every colour has three or four hard-edged tones, with a bright lit edge and a deep shade, and each metal part catches one bright pixel. Every shape stays big enough to read at this size, with no speckle. Each solid shape is fully opaque up to its dark outline, with no interior transparent cells or stray pixels outside it. No glow, bloom, halo or cast light.",
+      "front": "a bold masquerade half-mask of deep lacquer red with a thick bright gold rim, one solid piece over both eyes and the top of the nose like a domino mask, joined over the bridge of the nose by a solid band as thick as its rim, with two almond eye holes the eyes show through; at each outer corner one sweeping flame-shaped point of saffron orange edged in gold, drawn as one solid hard-edged shape, spreads out past the temple, each about as large as the eye hole beside it",
+      "key": "the half-mask, including its gold rim, the band over the nose and both flame-shaped points",
+      "clear": true,
+      "holes": "bold"
+    },
+    {
+      "id": "finmask",
+      "slot": "face",
+      "shapes": "Every colour has three or four hard-edged tones, with a bright lit edge and a deep shade, and each metal part catches one bright pixel. Every shape stays big enough to read at this size, with no speckle. Each solid shape is fully opaque up to its dark outline, with no interior transparent cells or stray pixels outside it. No glow, bloom, halo or cast light.",
+      "front": "a bold masquerade half-mask of deep teal with a thick bright silver rim, one solid piece over both eyes and the top of the nose like a domino mask, joined over the bridge of the nose by a solid band as thick as its rim, with two almond eye holes the eyes show through; at each outer corner one big curved fin of pale aqua with darker teal ribs spreads out past the temple, each about as large as the eye hole beside it",
+      "key": "the half-mask, including its silver rim, the band over the nose and both fins with their ribs",
+      "clear": true,
+      "holes": "bold"
+    },
+    {
+      "id": "lotusclip",
+      "slot": "hair",
+      "shapes": "Every colour has three or four hard-edged tones, with a bright lit edge and a deep shade, and each metal part catches one bright pixel. Every shape stays big enough to read at this size, with no speckle. Each solid shape is fully opaque up to its dark outline, with no interior transparent cells or stray pixels outside it. No glow, bloom, halo or cast light.",
+      "front": "a small lotus flower of rose-pink petals with cream tips and a gold centre, on a fan of folded green banana-leaf points, with one tiny white candle in it topped by a small solid orange-gold flame drawn as one hard-edged shape, clipped to the character’s left side of the top of her head (on the viewer’s right in this front view), touching the scalp with no gap",
+      "back": "the same small lotus flower of rose-pink petals with cream tips on its fan of folded green banana-leaf points, the tiny white candle and its flame showing above it, seen from behind on the character's left side of the top of her head (on the viewer's left in this back view, corresponding to the viewer's right in the front sheet), touching the scalp with no gap",
+      "key": "the lotus clip, including every petal, the leaf points, the candle and its flame",
+      "solid": true
+    },
+    {
+      "id": "skylanternpin",
+      "slot": "hair",
+      "shapes": "Every colour has three or four hard-edged tones, with a bright lit edge and a deep shade, and each metal part catches one bright pixel. Every shape stays big enough to read at this size, with no speckle. Each solid shape is fully opaque up to its dark outline, with no interior transparent cells or stray pixels outside it. No glow, bloom, halo or cast light.",
+      "front": "a small tall cream paper sky lantern with thin brown ribs and a red band, standing on a short gold pin, a long red ribbon hanging from it, clipped to the character’s left side of the top of her head (on the viewer’s right in this front view), touching the scalp with no gap",
+      "back": "the same small tall cream paper sky lantern with thin brown ribs and a red band on its short gold pin, the long red ribbon hanging from it, seen from behind on the character's left side of the top of her head (on the viewer's left in this back view, corresponding to the viewer's right in the front sheet), touching the scalp with no gap",
+      "key": "the lantern pin, including the lantern, its ribs, its band, its pin and the ribbon",
+      "solid": true
+    },
+    {
+      "id": "wavecomb",
+      "slot": "hair",
+      "shapes": "Every colour has three or four hard-edged tones, with a bright lit edge and a deep shade, and each metal part catches one bright pixel. Every shape stays big enough to read at this size, with no speckle. Each solid shape is fully opaque up to its dark outline, with no interior transparent cells or stray pixels outside it. No glow, bloom, halo or cast light.",
+      "front": "a small silver comb holding three curling aqua water waves with white foam tips and one round white pearl, clipped to the character’s left side of the top of her head (on the viewer’s right in this front view), touching the scalp with no gap",
+      "back": "the same three curling aqua water waves with white foam tips and the round white pearl on their small silver comb, seen from behind on the character's left side of the top of her head (on the viewer's left in this back view, corresponding to the viewer's right in the front sheet), touching the scalp with no gap",
+      "key": "the comb, including all three waves, their foam tips and the pearl",
+      "solid": true
     }
   ],
   "starter": {

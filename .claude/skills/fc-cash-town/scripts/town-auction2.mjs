@@ -2,7 +2,7 @@
 // closed from the TEST panel's way (lib/town/trial auctionCloseIn): each set worn and won, by night, standing, then the
 // board's rounds settled by closing them now. For the owner's look before the round closes (2026-11-15 20:00).
 //
-//   cd <the tree> && FC_REPO=<the tree> node .claude/skills/fc-cash-town/scripts/town-auction2.mjs <base> <outdir>
+//   cd <the tree> && [SETS=…] FC_REPO=<the tree> node .claude/skills/fc-cash-town/scripts/town-auction2.mjs <base> <outdir>
 import { browser, sleep, status, until } from "./cdp.mjs";
 
 globalThis.__cashTownMap = "town2";
@@ -11,10 +11,15 @@ const { OUTFITS, HATS, FACE_WEAR, HAIR_WEAR, WEAR_ALL_KEY, dyeChoices } = await 
 const { defaultLook, encodeLook, hairsFor } = await import("@/lib/town/look");
 const [BASE = "http://localhost:3250", OUT = "."] = process.argv.slice(2);
 const idx = (list, id) => list.findIndex((w) => w.id === id);
-const SETS = [
+// (SETS=<base,base,…> picks which; by default the second round's two. The Loy Krathong three, 2026-11-14, for the next)
+const ALL = [
   { base: "moonkeeper", hat: "moonlanternhat", face: "moonmask", hair: "lanternpin" },
   { base: "mapleregent", hat: "maplehat", face: "maplemask", hair: "maplecomb" },
+  { base: "lotuskrathong", hat: "lotuscrown", face: "lotusmask", hair: "lotusclip" },
+  { base: "skylantern", hat: "skylanternhat", face: "lanternmask", hair: "skylanternpin" },
+  { base: "riverspirit", hat: "wavecrown", face: "finmask", hair: "wavecomb" },
 ];
+const SETS = (process.env.SETS ?? "moonkeeper,mapleregent").split(",").map((b) => ALL.find((s) => s.base === b) ?? (() => { throw new Error(`no set ${b}`); })());
 let pass = 0, fail = 0;
 const ok = (n, c, d = "") => { c ? pass++ : fail++; console.log(`  ${c ? "PASS" : "FAIL"} ${n}${c ? "" : "  " + JSON.stringify(d)}`); };
 

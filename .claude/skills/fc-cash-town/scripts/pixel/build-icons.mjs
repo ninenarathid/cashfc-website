@@ -465,6 +465,10 @@ const SHEETS = [
   // (the drifting things of a limited outfit's aura, components/town/limited-aura: a small picture of their own,
   // ICONS_ONLY=icons-limited-aura-a ICONS_PUB=<tree>/public/town/limited ICONS_JSON=<tree>/lib/town/limited-aura-art.json)
   ["icons-limited-aura-a", ["auraPumpkinA", "auraPumpkinB", "auraBatA", "auraBatB", "auraLeafA", "auraLeafB"], { range: [7.6, 8.2] }],
+  // the Loy Krathong three's (2026-11-14), built with -a into the same picture (ICONS_ONLY=icons-limited-aura-a,icons-limited-aura-b):
+  // a lotus petal flat and edge-on, a little lotus raft (its candle's flame is the code's), a paper sky lantern, a fish (the
+  // two fish came out as one and its mirror: the code draws the left-facing one and turns it)
+  ["icons-limited-aura-b", ["auraPetalA", "auraPetalB", "auraKrathong", "auraLantern", "auraFishA", "auraFishB"], { range: [7.6, 8.2] }],
   // ── the lotus-leaf boat, the cloud ram's pack, the familiars that move (the owner, 2026-11-04) ── each familiar's frames
   // laid on each other by its body (`pairs`, the fairy's six by `frames`); the reward ranks' five, drawn by code before,
   // are known by their old names too (`also`), so their bag and book show the new drawing. Each cut on its finer grid:
