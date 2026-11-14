@@ -21,7 +21,7 @@ export type HueBand = {
 /** The aura's colours, darkest to brightest. */
 export type AuraRamp = readonly [string, string, string, string];
 export type LimitedDye = { th: string; en: string; bands: readonly HueBand[]; aura: AuraRamp; swatch: string };
-export type LimitedKind = "bats" | "spirits" | "moon" | "leaves";
+export type LimitedKind = "bats" | "spirits" | "moon" | "leaves" | "lotus" | "lanterns" | "river";
 export type LimitedLook = { kind: LimitedKind; title: { th: string; en: string }; dyes: readonly [LimitedDye, LimitedDye, LimitedDye, LimitedDye, LimitedDye] };
 
 const CRIMSON = { from: 335, to: 15, minS: 0.18 };
@@ -32,6 +32,12 @@ const INDIGO = { from: 205, to: 275, minS: 0.1 };
 const AMBER = { from: 22, to: 52, minS: 0.3 };
 const LEAF = { from: 4, to: 62, minS: 0.22 };
 const BURGUNDY = { from: 330, to: 4, minS: 0.2 };
+// (Loy Krathong's three: the lotus's pinks, the lantern's saffron and red, the river's teals and blues; set against the
+// colours the sheets came out in)
+const ROSE = { from: 318, to: 358, minS: 0.2 };
+const SAFFRON = { from: 18, to: 46, minS: 0.45 };
+const LACQUER = { from: 350, to: 14, minS: 0.4 };
+const WATER = { from: 168, to: 236, minS: 0.15 };
 
 /** The base outfits, by id. */
 export const LIMITED_LOOKS: Record<string, LimitedLook> = {
@@ -77,6 +83,40 @@ export const LIMITED_LOOKS: Record<string, LimitedLook> = {
       { th: "ใบไม้เขียว", en: "Summer leaf", swatch: "#4da63c", bands: [{ ...LEAF, h: 108, s: 0.85 }, { ...BURGUNDY, h: 150, s: 0.7, l: -0.02 }], aura: ["#1d4a18", "#4da63c", "#8ed655", "#dcf7a8"] },
       { th: "ใบน้ำค้างแข็ง", en: "Frost leaf", swatch: "#6cbce8", bands: [{ ...LEAF, h: 200, s: 0.75, l: 0.1 }, { ...BURGUNDY, h: 222, s: 0.8, l: 0.02 }], aura: ["#143e6b", "#3f8fd0", "#8ad0f5", "#e4f7ff"] },
       { th: "ใบทอง", en: "Gilded", swatch: "#e8bb3a", bands: [{ ...AMBER, h: 46, s: 1, l: 0.06 }, { ...BURGUNDY, h: 32, s: 0.8, l: -0.04 }], aura: ["#5c3d08", "#c98f16", "#f2c944", "#fff2b0"] },
+    ],
+  },
+  // (the third round, Loy Krathong: the owner, 2026-11-14, of the three previews, "สวยทั้งสามชุด เอาทั้งสามชุดเลย สำหรับรอบต่อไป")
+  lotuskrathong: {
+    kind: "lotus",
+    title: { th: "ผู้ลอยดวงประทีป", en: "Bearer of the Floating Light" },
+    dyes: [
+      { th: "บัวชมพู", en: "Pink lotus", swatch: "#e0638f", bands: [], aura: ["#6b1f3d", "#d85a86", "#ffb0c8", "#fff1d6"] },
+      { th: "บัวขาว", en: "White lotus", swatch: "#f1e7d6", bands: [{ ...ROSE, h: 38, s: 0.35, l: 0.2 }], aura: ["#5e4a2a", "#c9b07a", "#f3e2b4", "#ffffff"] },
+      { th: "บัวทอง", en: "Golden lotus", swatch: "#e6b236", bands: [{ ...ROSE, h: 44, s: 0.95, l: 0.04 }], aura: ["#5c3d08", "#c98f16", "#f2c944", "#fff2b0"] },
+      { th: "บัวสาย", en: "Blue water lily", swatch: "#5b83e0", bands: [{ ...ROSE, h: 222, s: 0.85 }], aura: ["#152d66", "#3f6fd6", "#8fb6ff", "#e2eeff"] },
+      { th: "บัวม่วง", en: "Violet lotus", swatch: "#9a5ad6", bands: [{ ...ROSE, h: 278, s: 0.85 }], aura: ["#341561", "#8a4ccf", "#c79bff", "#f1e3ff"] },
+    ],
+  },
+  skylantern: {
+    kind: "lanterns",
+    title: { th: "ผู้ส่งโคมสู่ฟ้า", en: "Lantern-Bearer of the Sky" },
+    dyes: [
+      { th: "โคมส้ม", en: "Saffron", swatch: "#f0952e", bands: [], aura: ["#6b2e0b", "#e0782a", "#ffc061", "#fff2cc"] },
+      { th: "โคมแดง", en: "Crimson", swatch: "#d8333f", bands: [{ ...SAFFRON, h: 356, s: 0.95, l: -0.04 }], aura: ["#5e0b14", "#c7283a", "#ff7a6b", "#ffe0d0"] },
+      { th: "โคมคราม", en: "Indigo night", swatch: "#3a48a8", bands: [{ ...SAFFRON, h: 228, s: 0.75, l: -0.06 }, { ...LACQUER, h: 244, s: 0.8, l: -0.06 }], aura: ["#121a52", "#3f55c9", "#9fb2ff", "#e8edff"] },
+      { th: "โคมหยก", en: "Jade", swatch: "#2fa784", bands: [{ ...SAFFRON, h: 160, s: 0.75, l: -0.04 }, { ...LACQUER, h: 172, s: 0.8, l: -0.08 }], aura: ["#0b4436", "#23a07e", "#7fe0bf", "#e0fff3"] },
+      { th: "โคมม่วง", en: "Plum", swatch: "#a8408f", bands: [{ ...SAFFRON, h: 318, s: 0.8 }, { ...LACQUER, h: 296, s: 0.85, l: -0.04 }], aura: ["#4a0f3e", "#b4408f", "#ff9ad6", "#ffe6f5"] },
+    ],
+  },
+  riverspirit: {
+    kind: "river",
+    title: { th: "ผู้พิทักษ์สายน้ำ", en: "Warden of the River" },
+    dyes: [
+      { th: "สายน้ำ", en: "River", swatch: "#2a8fb0", bands: [], aura: ["#0b2f4d", "#2a8fb0", "#7fd8ef", "#e6fbff"] },
+      { th: "ทะเลลึก", en: "Deep sea", swatch: "#26358f", bands: [{ ...WATER, h: 232, s: 0.95, l: -0.06 }], aura: ["#0d1240", "#2a3aa6", "#7f8fff", "#e2e6ff"] },
+      { th: "มรกต", en: "Emerald", swatch: "#1f9a62", bands: [{ ...WATER, h: 150, s: 0.95 }], aura: ["#08391f", "#1f9a62", "#7fe6a8", "#e2ffee"] },
+      { th: "ปะการัง", en: "Coral", swatch: "#e4706a", bands: [{ ...WATER, h: 6, s: 0.85, l: 0.02 }], aura: ["#5a1712", "#d4574f", "#ffab9c", "#fff0ea"] },
+      { th: "ไข่มุกเงิน", en: "Pearl silver", swatch: "#a9b6c8", bands: [{ ...WATER, h: 214, s: 0.3, l: 0.12 }], aura: ["#36414f", "#8d9bb0", "#d4dceb", "#ffffff"] },
     ],
   },
 };

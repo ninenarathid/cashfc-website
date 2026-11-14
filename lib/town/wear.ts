@@ -110,6 +110,12 @@ export const OUTFITS: Wearable[] = [
   // (each limited design's four other colours: the same pictures, moved hue by hue, lib/town/limited)
   ...dyesOf("count", "count"), ...dyesOf("pumpkinmonarch", "pumpkin"), ...dyesOf("moonkeeper", "moonkeeper"), ...dyesOf("mapleregent", "mapleregent"),
   ...quietsOf("count", "count"), ...quietsOf("pumpkinmonarch", "pumpkin"), ...quietsOf("moonkeeper", "moonkeeper"), ...quietsOf("mapleregent", "mapleregent"),
+  // (the third round, Loy Krathong: the owner, 2026-11-14, "สวยทั้งสามชุด เอาทั้งสามชุดเลย สำหรับรอบต่อไป")
+  { id: "lotuskrathong", th: "ชุดผู้ลอยกระทงบัว", en: "Lotus Raft Keeper", from: AUCTION("lotuskrathong") },
+  { id: "skylantern", th: "ชุดผู้ปล่อยโคมลอย", en: "Sky Lantern Bearer", from: AUCTION("skylantern") },
+  { id: "riverspirit", th: "ชุดวิญญาณสายน้ำ", en: "River Spirit", from: AUCTION("riverspirit") },
+  ...dyesOf("lotuskrathong", "lotuskrathong"), ...dyesOf("skylantern", "skylantern"), ...dyesOf("riverspirit", "riverspirit"),
+  ...quietsOf("lotuskrathong", "lotuskrathong"), ...quietsOf("skylantern", "skylantern"), ...quietsOf("riverspirit", "riverspirit"),
 ];
 
 export const HATS: Wearable[] = [
@@ -149,6 +155,11 @@ export const HATS: Wearable[] = [
   { id: "moonlanternhat", th: "หมวกผู้ถือโคม", en: "Lantern keeper's hat", from: AUCTION("moonkeeper") },
   { id: "maplehat", th: "หมวกสามมุมใบเมเปิล", en: "Maple tricorn", from: AUCTION("mapleregent") },
   ...dyesOf("counthat", "count", "count"), ...dyesOf("pumpkinhead", "pumpkin", "pumpkinmonarch"), ...dyesOf("moonlanternhat", "moonkeeper", "moonkeeper"), ...dyesOf("maplehat", "mapleregent", "mapleregent"),
+  // (the third round, Loy Krathong: the owner, 2026-11-14, "สวยทั้งสามชุด เอาทั้งสามชุดเลย สำหรับรอบต่อไป")
+  { id: "lotuscrown", th: "มงกุฎบัวเทียน", en: "Lotus candle crown", from: AUCTION("lotuskrathong") },
+  { id: "skylanternhat", th: "หมวกโคมลอย", en: "Sky lantern hat", from: AUCTION("skylantern") },
+  { id: "wavecrown", th: "มงกุฎคลื่น", en: "Wave crown", from: AUCTION("riverspirit") },
+  ...dyesOf("lotuscrown", "lotuskrathong", "lotuskrathong"), ...dyesOf("skylanternhat", "skylantern", "skylantern"), ...dyesOf("wavecrown", "riverspirit", "riverspirit"),
 ];
 
 /** Worn on the face, over the eyes. */
@@ -178,6 +189,11 @@ export const FACE_WEAR: Wearable[] = [
   { id: "moonmask", th: "หน้ากากเสี้ยวจันทร์", en: "Crescent half-mask", from: AUCTION("moonkeeper") },
   { id: "maplemask", th: "หน้ากากใบเมเปิล", en: "Maple half-mask", from: AUCTION("mapleregent") },
   ...dyesOf("batmask", "count", "count"), ...dyesOf("pumpkinglasses", "pumpkin", "pumpkinmonarch"), ...dyesOf("moonmask", "moonkeeper", "moonkeeper"), ...dyesOf("maplemask", "mapleregent", "mapleregent"),
+  // (the third round, Loy Krathong: the owner, 2026-11-14, "สวยทั้งสามชุด เอาทั้งสามชุดเลย สำหรับรอบต่อไป")
+  { id: "lotusmask", th: "หน้ากากกลีบบัว", en: "Lotus half-mask", from: AUCTION("lotuskrathong") },
+  { id: "lanternmask", th: "หน้ากากเปลวเทียน", en: "Flame half-mask", from: AUCTION("skylantern") },
+  { id: "finmask", th: "หน้ากากครีบปลา", en: "Fin half-mask", from: AUCTION("riverspirit") },
+  ...dyesOf("lotusmask", "lotuskrathong", "lotuskrathong"), ...dyesOf("lanternmask", "skylantern", "skylantern"), ...dyesOf("finmask", "riverspirit", "riverspirit"),
 ];
 
 /** Worn at the neck. */
@@ -237,6 +253,11 @@ export const HAIR_WEAR: Wearable[] = [
   { id: "lanternpin", th: "ปิ่นโคมกระดาษ", en: "Paper lantern pin", from: AUCTION("moonkeeper") },
   { id: "maplecomb", th: "หวีใบเมเปิล", en: "Maple comb", from: AUCTION("mapleregent") },
   ...dyesOf("rosefascinator", "count", "count", true), ...dyesOf("pumpkincrown", "pumpkin", "pumpkinmonarch", true), ...dyesOf("lanternpin", "moonkeeper", "moonkeeper"), ...dyesOf("maplecomb", "mapleregent", "mapleregent"),
+  // (the third round, Loy Krathong: the owner, 2026-11-14, "สวยทั้งสามชุด เอาทั้งสามชุดเลย สำหรับรอบต่อไป")
+  { id: "lotusclip", th: "ปิ่นดอกบัว", en: "Lotus clip", from: AUCTION("lotuskrathong") },
+  { id: "skylanternpin", th: "ปิ่นโคมลอย", en: "Sky lantern pin", from: AUCTION("skylantern") },
+  { id: "wavecomb", th: "หวีคลื่นไข่มุก", en: "Pearl wave comb", from: AUCTION("riverspirit") },
+  ...dyesOf("lotusclip", "lotuskrathong", "lotuskrathong"), ...dyesOf("skylanternpin", "skylantern", "skylantern"), ...dyesOf("wavecomb", "riverspirit", "riverspirit"),
 ];
 
 /** Whether a look's hair thing is worn on top of the head (where a hat goes). */
@@ -307,7 +328,7 @@ export function limitedOf(i: number | undefined): { base: string; look: LimitedL
   return { base, look, dye: look.dyes[o.dye ?? 0], design: o.from.auction, quiet: !!o.quiet };
 }
 /** The design a limited thing's colours are taken from, and so whether it has any. */
-const AUCTION_SETS: Record<string, string> = { count: "count", pumpkin: "pumpkinmonarch", moonkeeper: "moonkeeper", mapleregent: "mapleregent" };
+const AUCTION_SETS: Record<string, string> = { count: "count", pumpkin: "pumpkinmonarch", moonkeeper: "moonkeeper", mapleregent: "mapleregent", lotuskrathong: "lotuskrathong", skylantern: "skylantern", riverspirit: "riverspirit" };
 const setOf = (item: Wearable | undefined) => (item?.from && "auction" in item.from ? item.dyeSet ?? AUCTION_SETS[item.from.auction] : undefined);
 /** A worn thing's colour: each limited thing has its own, chosen apart from the rest (the owner, 2026-10-31). */
 export const dyeOfWorn = (item: Wearable | undefined): LimitedDye | undefined => {

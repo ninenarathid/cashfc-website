@@ -5,7 +5,10 @@
  * - the count: bat-wing ends, a slow crimson sweep, a bat flapping at either end, drops falling from the plate;
  * - the pumpkin: a row of ghost fire burning along its top edge, a spirit at its head, sparks going up, the words flickering;
  * - the moon keeper: a moon at its head going through its phases, stars twinkling round it, a gold sweep;
- * - the maple: leaf-point ends, leaves blown across it from left to right, a warm sweep.
+ * - the maple: leaf-point ends, leaves blown across it from left to right, a warm sweep;
+ * - the lotus raft keeper: petal ends, a lotus raft with its candle at its head, petals floating along under it;
+ * - the sky lantern bearer: round ends, a lantern bobbing at its head, sparks going up off it;
+ * - the river spirit: ends curling as waves, a fish at its head, bubbles going up through it.
  *
  * The plate's body is a picture made once for its size, as title-plate's are; a frame adds only the moving light, the
  * words and a few squares. Nothing moves for whoever asks the page for less motion.
@@ -47,6 +50,26 @@ function outlineOf(ctx: CanvasRenderingContext2D, kind: LimitedKind, w: number) 
     ctx.lineTo(r - 5, 3); ctx.lineTo(r - 7, 6); ctx.lineTo(r, m); ctx.lineTo(r - 7, H - 6); ctx.lineTo(r - 5, H - 3); ctx.lineTo(r - END, H);
     ctx.lineTo(END, H);
     ctx.lineTo(5, H - 3); ctx.lineTo(7, H - 6); ctx.lineTo(0, m); ctx.lineTo(7, 6); ctx.lineTo(5, 3);
+  } else if (kind === "lotus") {
+    // (each end a lotus petal: a pointed swell)
+    ctx.moveTo(END, 0);
+    ctx.lineTo(r - END, 0);
+    ctx.quadraticCurveTo(r - 3, 1, r, m);
+    ctx.quadraticCurveTo(r - 3, H - 1, r - END, H);
+    ctx.lineTo(END, H);
+    ctx.quadraticCurveTo(3, H - 1, 0, m);
+    ctx.quadraticCurveTo(3, 1, END, 0);
+  } else if (kind === "river") {
+    // (each end a wave curling over)
+    ctx.moveTo(END, 0);
+    ctx.lineTo(r - END, 0);
+    ctx.quadraticCurveTo(r + 2, 0, r, 6);
+    ctx.quadraticCurveTo(r - 6, 7, r - 5, m);
+    ctx.quadraticCurveTo(r, m + 6, r - END, H);
+    ctx.lineTo(END, H);
+    ctx.quadraticCurveTo(0, m + 6, 5, m);
+    ctx.quadraticCurveTo(6, 7, 0, 6);
+    ctx.quadraticCurveTo(-2, 0, END, 0);
   } else if (kind === "spirits") {
     // (ends licked into flames)
     ctx.moveTo(END, 0);
@@ -176,6 +199,17 @@ export function drawLimitedTitle(ctx: CanvasRenderingContext2D, a: LimitedTitle)
   if (a.kind === "moon") moonPhase(ctx, hx, mid, a.reduced ? 0.15 : frac(t / 9000), ramp);
   else if (a.kind === "spirits") limitedSprite(ctx, Math.sin(t * 0.009) + Math.sin(t * 0.023) > 0 ? "auraPumpkinA" : "auraPumpkinB", a.dye, hx, mid, 0.66);
   else if (a.kind === "bats") limitedSprite(ctx, Math.floor(t / 130) % 2 ? "auraBatA" : "auraBatB", a.dye, hx, mid, 0.55);
+  else if (a.kind === "lotus") {
+    limitedSprite(ctx, "auraKrathong", a.dye, hx, mid + 1, 0.5);
+    if (!a.reduced) {
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      for (let j = 0; j < 3; j++) { ctx.fillStyle = ramp[Math.min(3, 1 + j)]; square(ctx, hx + Math.sin(t * 0.01 + j) * 0.6, mid - 6 - j * 1.6, j ? 1.5 : 2); }
+      ctx.restore();
+    }
+  } else if (a.kind === "lanterns") limitedSprite(ctx, "auraLantern", a.dye, hx, mid + (a.reduced ? 0 : Math.sin(t / 700) * 1.5), 0.5);
+  // (one fish: the sheet's second is its mirror, not a second stroke of the tail)
+  else if (a.kind === "river") limitedSprite(ctx, "auraFishB", a.dye, hx, mid + (a.reduced ? 0 : Math.sin(t / 500)), 0.5);
   else limitedSprite(ctx, Math.floor(t / 420) % 2 ? "auraLeafA" : "auraLeafB", a.dye, hx, mid, 0.55);
 
   // the words, a light running through them; edged dark so that they read on anything
@@ -229,6 +263,29 @@ export function drawLimitedTitle(ctx: CanvasRenderingContext2D, a: LimitedTitle)
         ctx.fillStyle = ramp[3];
         square(ctx, sx, sy, 2);
         if (b > 0.7) { square(ctx, sx - 2, sy, 1); square(ctx, sx + 2, sy, 1); square(ctx, sx, sy - 2, 1); square(ctx, sx, sy + 2, 1); }
+      }
+    } else if (a.kind === "lotus") {
+      // petals floating along under it, as on the river
+      for (let i = 0; i < 3; i++) {
+        const u = frac(t / 4200 + i / 3);
+        limitedSprite(ctx, Math.floor(u * 8 + i) % 2 ? "auraPetalA" : "auraPetalB", a.dye, left - 6 + u * (w + 12), top + H + 3 + Math.sin(u * Math.PI * 4 + i) * 1.5, 0.28, u < 0.1 ? u * 10 : u > 0.85 ? (1 - u) / 0.15 : 1);
+      }
+    } else if (a.kind === "lanterns") {
+      // little lanterns' sparks going up off the plate's top edge
+      ctx.globalCompositeOperation = "lighter";
+      for (let i = 0; i < 6; i++) {
+        const u = frac(t / 2400 + i / 6);
+        ctx.globalAlpha = Math.sin(u * Math.PI);
+        ctx.fillStyle = ramp[i % 2 ? 3 : 2];
+        square(ctx, left + 12 + ((i * 53 + 17) % (w - 24)) + Math.sin(u * 6 + i) * 2, top - 2 - u * 16, u < 0.5 ? 2 : 1);
+      }
+    } else if (a.kind === "river") {
+      // bubbles going up from under it, and a ripple along its foot
+      for (let i = 0; i < 5; i++) {
+        const u = frac(t / 2000 + i / 5);
+        ctx.globalAlpha = 1 - u;
+        ctx.fillStyle = ramp[3];
+        square(ctx, left + 10 + ((i * 47 + 23) % (w - 20)), top + H + 6 - u * (H + 14), i % 2 ? 1 : 2);
       }
     } else {
       // leaves blown across it

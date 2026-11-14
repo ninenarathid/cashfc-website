@@ -13,7 +13,8 @@ import { dyedHsl, type AuraRamp, type LimitedDye, type LimitedKind } from "@/lib
 type Art = { image: string; icons: Record<string, [number, number, number, number]> };
 const ART = AURA_ART as unknown as Art;
 
-type Name = "auraPumpkinA" | "auraPumpkinB" | "auraBatA" | "auraBatB" | "auraLeafA" | "auraLeafB";
+type Name = "auraPumpkinA" | "auraPumpkinB" | "auraBatA" | "auraBatB" | "auraLeafA" | "auraLeafB"
+  | "auraPetalA" | "auraPetalB" | "auraKrathong" | "auraLantern" | "auraFishA" | "auraFishB";
 
 export type AuraState = {
   /** Where this wearer's feet last came down, on the ground: what is left there stays there as the camera moves. */
@@ -51,7 +52,10 @@ function picture(name: Name, dye: LimitedDye): HTMLCanvasElement | null {
   const key = `${name}|${dye.en}`;
   const known = tinted.get(key);
   if (known) return known;
-  const [x, y, w, h] = ART.icons[name];
+  // (a piece the picture does not have yet is left out: a throw here took the wearer's whole doll with it)
+  const at = (ART.icons as Partial<Record<Name, number[]>>)[name];
+  if (!at) return null;
+  const [x, y, w, h] = at;
   const c = document.createElement("canvas");
   c.width = w; c.height = h;
   const ctx = c.getContext("2d", { willReadFrequently: true })!;
@@ -345,6 +349,157 @@ function leavesFront(ctx: CanvasRenderingContext2D, w: Wearer) {
   }
 }
 
+// ── Loy Krathong (the owner, 2026-11-14: "สวยทั้งสามชุด เอาทั้งสามชุดเลย"): each its own water and light ──
+
+/** A candle's flame on a lotus raft, the code's: a little tongue and the light it gives. */
+function candle(ctx: CanvasRenderingContext2D, w: Wearer, x: number, y: number, i: number, alpha: number) {
+  glow(ctx, w.dye.aura[2], x, y, 18 * w.s, 18 * w.s, alpha * (0.4 + w.night * 0.4));
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+  ctx.globalAlpha = alpha;
+  tongue(ctx, w.dye.aura, x, y, 2 + (Math.sin(w.now * 0.011 + i * 3) > 0 ? 1 : 0), w.s * 0.7);
+  ctx.restore();
+}
+
+/** A ring spreading on water, in the doll's pixels. */
+function ripple(ctx: CanvasRenderingContext2D, w: Wearer, x: number, y: number, t: number, colour: string, wide = 1) {
+  ctx.globalAlpha = (1 - t) * 0.85;
+  ctx.fillStyle = colour;
+  for (let i = 0; i < 18; i++) {
+    const a = (i / 18) * Math.PI * 2;
+    dot(ctx, x + Math.cos(a) * (4 + t * 16) * wide * w.s, y + Math.sin(a) * (1.4 + t * 5) * wide * w.s, 1, w.s);
+  }
+}
+
+// the lotus raft keeper: two little lotus rafts with their candles go round the feet, petals fall, each step a ring
+const RAFTS = 2;
+function raft(ctx: CanvasRenderingContext2D, w: Wearer, i: number, front: boolean) {
+  const a = (w.now * (w.step !== undefined ? 0.0003 : 0.00018) + i / RAFTS + seedOf(w.id)) * Math.PI * 2, near = Math.sin(a) > 0;
+  if (near !== front) return;
+  const x = w.x + Math.cos(a) * (w.sat ? 17 : 21) * w.s, y = w.y + Math.sin(a) * 6 * w.s - (2 + Math.sin(w.now * 0.0024 + i * 2) * 1) * w.s;
+  sprite(ctx, "auraKrathong", w.dye, x, y, w.cell, near ? 0.5 : 0.42);
+  candle(ctx, w, x, y - 4 * w.s, i, near ? 1 : 0.8);
+}
+
+function lotusBehind(ctx: CanvasRenderingContext2D, w: Wearer) {
+  glow(ctx, w.dye.aura[1], w.x, w.y - 2 * w.s, 62 * w.s, 20 * w.s, 0.32 + w.night * 0.42);
+  for (let i = 0; i < RAFTS; i++) raft(ctx, w, i, false);
+}
+
+function lotusFront(ctx: CanvasRenderingContext2D, w: Wearer) {
+  const seed = seedOf(w.id), count = w.sat ? 3 : 5;
+  ctx.save();
+  // the water under the feet now and then rings outward, as if the wearer stood in the river
+  const pulse = frac(w.now / 4600 + seed);
+  if (pulse < 0.6) ripple(ctx, w, w.x, w.y, pulse / 0.6, w.dye.aura[3], 1.3);
+  for (const f of footfalls(w)) ripple(ctx, w, f.x, f.y, (w.now - f.at) / 1400, w.dye.aura[2]);
+  ctx.restore();
+  for (let i = 0; i < count; i++) {
+    const t = frac(w.now / 3800 + i / count + seed);
+    const x = w.x + Math.sin(i * 3.9) * 17 * w.s + Math.sin(t * Math.PI * 2 + i) * 7 * w.s;
+    const turn = Math.floor(t * 7 + i) % 2 === 0;
+    sprite(ctx, turn ? "auraPetalA" : "auraPetalB", w.dye, x, w.y - (46 - t * 46) * w.s, w.cell, 0.45, t > 0.85 ? (1 - t) / 0.15 : 1);
+  }
+  for (let i = 0; i < RAFTS; i++) raft(ctx, w, i, true);
+}
+
+// the sky lantern bearer: little lanterns go up from behind the shoulders, sparks from the hem, each step a ring of embers
+function skyLantern(ctx: CanvasRenderingContext2D, w: Wearer, t: number, i: number) {
+  const x = w.x + (i % 2 ? 1 : -1) * (10 + i * 3) * w.s + Math.sin(t * Math.PI * 2 + i * 1.7) * 4 * w.s;
+  const y = w.y - ((w.sat ? 24 : 34) + t * 64) * w.s;
+  const alpha = t < 0.12 ? t / 0.12 : t > 0.8 ? (1 - t) / 0.2 : 1, size = 0.5 - t * 0.18;
+  glow(ctx, w.dye.aura[2], x, y + 2 * w.s, 30 * w.s, 30 * w.s, alpha * (0.45 + w.night * 0.4));
+  sprite(ctx, "auraLantern", w.dye, x, y, w.cell, size, alpha);
+  // (its little flame, under the open bottom: the code's)
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+  ctx.globalAlpha = alpha;
+  tongue(ctx, w.dye.aura, x, y + 4 * w.s * (size / 0.5), 2, w.s * 0.6);
+  ctx.restore();
+}
+
+function lanternsBehind(ctx: CanvasRenderingContext2D, w: Wearer) {
+  const breath = 0.8 + Math.sin(w.now * 0.0019) * 0.14;
+  glow(ctx, w.dye.aura[1], w.x, w.y - 2 * w.s, 62 * w.s, 20 * w.s, breath * (0.34 + w.night * 0.46));
+  const seed = seedOf(w.id), n = w.sat ? 2 : 3;
+  for (let i = 0; i < n; i++) skyLantern(ctx, w, frac(w.now / 6400 + i / n + seed), i);
+}
+
+function lanternsFront(ctx: CanvasRenderingContext2D, w: Wearer) {
+  const ramp = w.dye.aura;
+  ctx.save();
+  ctx.globalCompositeOperation = "lighter";
+  for (let i = 0; i < 8; i++) {
+    const t = frac(w.now / 2300 + i / 8 + seedOf(w.id));
+    ctx.globalAlpha = Math.sin(t * Math.PI);
+    ctx.fillStyle = ramp[i % 2 ? 3 : 2];
+    dot(ctx, w.x + Math.sin(i * 4.3 + t * 3) * (12 + i) * w.s, w.y - (4 + t * 44) * w.s, i % 3 ? 1 : 1.5, w.s);
+  }
+  for (const f of footfalls(w)) {
+    const t = (w.now - f.at) / 1400;
+    ctx.globalAlpha = 1 - t;
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2;
+      ctx.fillStyle = ramp[i % 2 ? 3 : 2];
+      dot(ctx, f.x + Math.cos(a) * (3 + t * 9) * w.s, f.y + Math.sin(a) * (1 + t * 3) * w.s - t * 6 * w.s, 1, w.s);
+    }
+  }
+  ctx.restore();
+}
+
+// the river spirit: two fish swim round, bubbles go up, the ground ripples and each step splashes
+const FISH = 2;
+function fish(ctx: CanvasRenderingContext2D, w: Wearer, i: number, front: boolean) {
+  const turn = w.now * (w.step !== undefined ? 0.0005 : 0.00034) + i / FISH + seedOf(w.id), a = turn * Math.PI * 2, near = Math.sin(a) > 0;
+  if (near !== front) return;
+  const x = w.x + Math.cos(a) * 22 * w.s, y = w.y - (w.sat ? 20 : 28 + i * 8) * w.s + Math.sin(a) * 6 * w.s + Math.sin(w.now * 0.003 + i) * 2 * w.s;
+  // (it swims the way it goes round: drawn facing left, so turned when it goes right, near it goes right. The sheet's two
+  // fish came out as one fish and its mirror, not two strokes of a tail: the left-facing one is drawn, and its swimming is
+  // a sway of its width)
+  const right = near, sway = 1 + Math.sin(w.now * 0.018 + i * 2.1) * 0.09;
+  ctx.save();
+  ctx.translate(x, 0); ctx.scale(right ? -sway : sway, 1); ctx.translate(-x, 0);
+  sprite(ctx, "auraFishB", w.dye, x, y, w.cell, near ? 0.5 : 0.4, near ? 1 : 0.8);
+  ctx.restore();
+}
+
+function riverBehind(ctx: CanvasRenderingContext2D, w: Wearer) {
+  glow(ctx, w.dye.aura[1], w.x, w.y - 2 * w.s, 66 * w.s, 22 * w.s, 0.34 + w.night * 0.42);
+  glow(ctx, w.dye.aura[0], w.x, w.y - 20 * w.s, 52 * w.s, 52 * w.s, 0.18 + w.night * 0.22);
+  for (let i = 0; i < FISH; i++) fish(ctx, w, i, false);
+}
+
+function riverFront(ctx: CanvasRenderingContext2D, w: Wearer) {
+  const ramp = w.dye.aura, seed = seedOf(w.id);
+  ctx.save();
+  for (let k = 0; k < 2; k++) {
+    const t = frac(w.now / 3000 + k / 2 + seed);
+    ripple(ctx, w, w.x, w.y, t, ramp[k ? 2 : 3], 1.25);
+  }
+  // bubbles going up: a ring of four squares, a bright one on its upper left
+  for (let i = 0; i < 6; i++) {
+    const t = frac(w.now / 2600 + i / 6 + seed);
+    const x = w.x + Math.sin(i * 5.3 + t * 4) * (10 + i * 1.5) * w.s, y = w.y - (6 + t * 50) * w.s;
+    ctx.globalAlpha = Math.sin(t * Math.PI) * 0.9;
+    ctx.fillStyle = ramp[2];
+    if (i % 2) dot(ctx, x, y, 1, w.s);
+    else { dot(ctx, x - w.s, y, 1, w.s); dot(ctx, x + w.s, y, 1, w.s); dot(ctx, x, y - w.s, 1, w.s); dot(ctx, x, y + w.s, 1, w.s); ctx.fillStyle = ramp[3]; dot(ctx, x - w.s, y - w.s, 1, w.s); }
+  }
+  // each footfall throws up a splash: drops in two arcs that fall back
+  for (const f of footfalls(w)) {
+    const t = (w.now - f.at) / 1400;
+    ripple(ctx, w, f.x, f.y, t, ramp[2], 0.8);
+    ctx.globalAlpha = 1 - t;
+    ctx.fillStyle = ramp[3];
+    for (let i = 0; i < 4; i++) {
+      const dir = i < 2 ? -1 : 1, out = (i % 2 ? 6 : 10) * t;
+      dot(ctx, f.x + dir * out * w.s, f.y - Math.sin(Math.min(1, t * 1.6) * Math.PI) * (6 + (i % 2) * 3) * w.s, 1, w.s);
+    }
+  }
+  ctx.restore();
+  for (let i = 0; i < FISH; i++) fish(ctx, w, i, true);
+}
+
 export const auraState = (): AuraState => ({ steps: [], lastStep: -1 });
 
 // ── the least of it: a faint pool at the feet and three motes, whichever the outfit ──
@@ -370,6 +525,9 @@ export function auraLights(w: Wearer): Array<{ x: number; y: number; rgb: string
   if (w.minimal) return [{ x: w.x, y: w.y - 10 * w.s, rgb, reach: 26, strong: 0.35 }];
   if (w.kind === "spirits") return [{ x: w.x, y: w.y - 14 * w.s, rgb, reach: 78, strong: breath }, { x: w.x, y: w.y, rgb, reach: 44, strong: 0.7 }];
   if (w.kind === "moon") return [{ x: w.x - 9 * w.s, y: w.y - (w.sat ? 8 : 15) * w.s, rgb, reach: 70, strong: 0.65 * breath }];
+  // (the lanterns light the air above the wearer, the rafts the ground about the feet)
+  if (w.kind === "lanterns") return [{ x: w.x, y: w.y - 60 * w.s, rgb, reach: 70, strong: 0.55 * breath }, { x: w.x, y: w.y - 10 * w.s, rgb, reach: 40, strong: 0.45 }];
+  if (w.kind === "lotus") return [{ x: w.x, y: w.y, rgb, reach: 56, strong: 0.6 * breath }];
   return [{ x: w.x, y: w.y - 12 * w.s, rgb, reach: 42, strong: 0.5 * breath }];
 }
 
@@ -404,6 +562,9 @@ export function auraBehind(ctx: CanvasRenderingContext2D, w: Wearer) {
   if (w.kind === "spirits") pumpkinBehind(ctx, w);
   else if (w.kind === "bats") batsBehind(ctx, w);
   else if (w.kind === "moon") moonBehind(ctx, w);
+  else if (w.kind === "lotus") lotusBehind(ctx, w);
+  else if (w.kind === "lanterns") lanternsBehind(ctx, w);
+  else if (w.kind === "river") riverBehind(ctx, w);
   else leavesBehind(ctx, w);
 }
 
@@ -412,5 +573,8 @@ export function auraFront(ctx: CanvasRenderingContext2D, w: Wearer) {
   if (w.kind === "spirits") pumpkinFront(ctx, w);
   else if (w.kind === "bats") batsFront(ctx, w);
   else if (w.kind === "moon") moonFront(ctx, w);
+  else if (w.kind === "lotus") lotusFront(ctx, w);
+  else if (w.kind === "lanterns") lanternsFront(ctx, w);
+  else if (w.kind === "river") riverFront(ctx, w);
   else leavesFront(ctx, w);
 }
