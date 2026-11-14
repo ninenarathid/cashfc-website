@@ -88702,9 +88702,9 @@
     "state": "learning",
     "pct": 85.33,
     "phase": 5,
-    "pulls": 11,
-    "last": "2026-11-06",
-    "last_ts": 1793977191
+    "pulls": 17,
+    "last": "2026-11-13",
+    "last_ts": 1794579251
    }
   ]
  },
@@ -93264,9 +93264,9 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 30.81,
+    "pct": 51.86,
     "phase": 1,
-    "pulls": 55,
+    "pulls": 28,
     "last": "2026-11-04",
     "last_ts": 1793807417
    }
@@ -97850,6 +97850,58 @@
         "best": 24
        }
       }
+     }
+    ]
+   },
+   {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 99,
+      "median": 91,
+      "kills": 18,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 98,
+      "median": 94,
+      "kills": 14,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 96,
+      "median": 92,
+      "kills": 24,
+      "job": "DarkKnight"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 99,
+      "median": 74,
+      "kills": 41,
+      "job": "DarkKnight"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 99,
+      "median": 64,
+      "kills": 12,
+      "job": "Warrior"
      }
     ]
    },
