@@ -2306,7 +2306,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 68,
+  "level": 69,
   "cc": [
    true,
    true,
@@ -8742,7 +8742,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 88,
+  "level": 90,
   "cc": [
    false,
    false,
