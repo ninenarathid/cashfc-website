@@ -91,8 +91,8 @@ export const LIMITED_LOOKS: Record<string, LimitedLook> = {
     title: { th: "ผู้ลอยดวงประทีป", en: "Bearer of the Floating Light" },
     dyes: [
       { th: "บัวชมพู", en: "Pink lotus", swatch: "#e0638f", bands: [], aura: ["#6b1f3d", "#d85a86", "#ffb0c8", "#fff1d6"] },
-      { th: "บัวขาว", en: "White lotus", swatch: "#f1e7d6", bands: [{ ...ROSE, h: 38, s: 0.35, l: 0.2 }], aura: ["#5e4a2a", "#c9b07a", "#f3e2b4", "#ffffff"] },
-      { th: "บัวทอง", en: "Golden lotus", swatch: "#e6b236", bands: [{ ...ROSE, h: 44, s: 0.95, l: 0.04 }], aura: ["#5c3d08", "#c98f16", "#f2c944", "#fff2b0"] },
+      { th: "บัวขาว", en: "White lotus", swatch: "#f1e7d6", bands: [{ ...ROSE, h: 40, s: 0.12, l: 0.3 }], aura: ["#5e4a2a", "#c9b07a", "#f3e2b4", "#ffffff"] },
+      { th: "บัวทอง", en: "Golden lotus", swatch: "#e6b236", bands: [{ ...ROSE, h: 42, s: 1, l: -0.04 }], aura: ["#5c3d08", "#c98f16", "#f2c944", "#fff2b0"] },
       { th: "บัวสาย", en: "Blue water lily", swatch: "#5b83e0", bands: [{ ...ROSE, h: 222, s: 0.85 }], aura: ["#152d66", "#3f6fd6", "#8fb6ff", "#e2eeff"] },
       { th: "บัวม่วง", en: "Violet lotus", swatch: "#9a5ad6", bands: [{ ...ROSE, h: 278, s: 0.85 }], aura: ["#341561", "#8a4ccf", "#c79bff", "#f1e3ff"] },
     ],
@@ -113,7 +113,7 @@ export const LIMITED_LOOKS: Record<string, LimitedLook> = {
     title: { th: "ผู้พิทักษ์สายน้ำ", en: "Warden of the River" },
     dyes: [
       { th: "สายน้ำ", en: "River", swatch: "#2a8fb0", bands: [], aura: ["#0b2f4d", "#2a8fb0", "#7fd8ef", "#e6fbff"] },
-      { th: "ทะเลลึก", en: "Deep sea", swatch: "#26358f", bands: [{ ...WATER, h: 232, s: 0.95, l: -0.06 }], aura: ["#0d1240", "#2a3aa6", "#7f8fff", "#e2e6ff"] },
+      { th: "ทะเลลึก", en: "Deep sea", swatch: "#26358f", bands: [{ ...WATER, h: 246, s: 0.9, l: -0.12 }], aura: ["#0d1240", "#2a3aa6", "#7f8fff", "#e2e6ff"] },
       { th: "มรกต", en: "Emerald", swatch: "#1f9a62", bands: [{ ...WATER, h: 150, s: 0.95 }], aura: ["#08391f", "#1f9a62", "#7fe6a8", "#e2ffee"] },
       { th: "ปะการัง", en: "Coral", swatch: "#e4706a", bands: [{ ...WATER, h: 6, s: 0.85, l: 0.02 }], aura: ["#5a1712", "#d4574f", "#ffab9c", "#fff0ea"] },
       { th: "ไข่มุกเงิน", en: "Pearl silver", swatch: "#a9b6c8", bands: [{ ...WATER, h: 214, s: 0.3, l: 0.12 }], aura: ["#36414f", "#8d9bb0", "#d4dceb", "#ffffff"] },

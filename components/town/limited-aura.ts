@@ -353,7 +353,7 @@ function leavesFront(ctx: CanvasRenderingContext2D, w: Wearer) {
 
 /** A candle's flame on a lotus raft, the code's: a little tongue and the light it gives. */
 function candle(ctx: CanvasRenderingContext2D, w: Wearer, x: number, y: number, i: number, alpha: number) {
-  glow(ctx, w.dye.aura[2], x, y, 18 * w.s, 18 * w.s, alpha * (0.4 + w.night * 0.4));
+  glow(ctx, w.dye.aura[2], x, y, 12 * w.s, 12 * w.s, alpha * (0.28 + w.night * 0.3));
   ctx.save();
   ctx.globalCompositeOperation = "lighter";
   ctx.globalAlpha = alpha;
@@ -377,12 +377,14 @@ function raft(ctx: CanvasRenderingContext2D, w: Wearer, i: number, front: boolea
   const a = (w.now * (w.step !== undefined ? 0.0003 : 0.00018) + i / RAFTS + seedOf(w.id)) * Math.PI * 2, near = Math.sin(a) > 0;
   if (near !== front) return;
   const x = w.x + Math.cos(a) * (w.sat ? 17 : 21) * w.s, y = w.y + Math.sin(a) * 6 * w.s - (2 + Math.sin(w.now * 0.0024 + i * 2) * 1) * w.s;
-  sprite(ctx, "auraKrathong", w.dye, x, y, w.cell, near ? 0.5 : 0.42);
-  candle(ctx, w, x, y - 4 * w.s, i, near ? 1 : 0.8);
+  // (larger than the petals, at its own proportions, and its candle's pool small, so the raft's leaves and petals read round
+  // the flame: Codex's look at the game, 2026-11-14, saw "spark clusters")
+  sprite(ctx, "auraKrathong", w.dye, x, y, w.cell, near ? 0.66 : 0.56);
+  candle(ctx, w, x, y - 6 * w.s, i, near ? 1 : 0.8);
 }
 
 function lotusBehind(ctx: CanvasRenderingContext2D, w: Wearer) {
-  glow(ctx, w.dye.aura[1], w.x, w.y - 2 * w.s, 62 * w.s, 20 * w.s, 0.32 + w.night * 0.42);
+  glow(ctx, w.dye.aura[1], w.x, w.y - 2 * w.s, 62 * w.s, 20 * w.s, 0.24 + w.night * 0.32);
   for (let i = 0; i < RAFTS; i++) raft(ctx, w, i, false);
 }
 
@@ -407,7 +409,7 @@ function lotusFront(ctx: CanvasRenderingContext2D, w: Wearer) {
 function skyLantern(ctx: CanvasRenderingContext2D, w: Wearer, t: number, i: number) {
   const x = w.x + (i % 2 ? 1 : -1) * (10 + i * 3) * w.s + Math.sin(t * Math.PI * 2 + i * 1.7) * 4 * w.s;
   const y = w.y - ((w.sat ? 24 : 34) + t * 64) * w.s;
-  const alpha = t < 0.12 ? t / 0.12 : t > 0.8 ? (1 - t) / 0.2 : 1, size = 0.5 - t * 0.18;
+  const alpha = t < 0.12 ? t / 0.12 : t > 0.8 ? (1 - t) / 0.2 : 1, size = 0.64 - t * 0.22;
   glow(ctx, w.dye.aura[2], x, y + 2 * w.s, 30 * w.s, 30 * w.s, alpha * (0.45 + w.night * 0.4));
   sprite(ctx, "auraLantern", w.dye, x, y, w.cell, size, alpha);
   // (its little flame, under the open bottom: the code's)
@@ -459,7 +461,7 @@ function fish(ctx: CanvasRenderingContext2D, w: Wearer, i: number, front: boolea
   const right = near, sway = 1 + Math.sin(w.now * 0.018 + i * 2.1) * 0.09;
   ctx.save();
   ctx.translate(x, 0); ctx.scale(right ? -sway : sway, 1); ctx.translate(-x, 0);
-  sprite(ctx, "auraFishB", w.dye, x, y, w.cell, near ? 0.5 : 0.4, near ? 1 : 0.8);
+  sprite(ctx, "auraFishB", w.dye, x, y, w.cell, near ? 0.64 : 0.52, near ? 1 : 0.9);
   ctx.restore();
 }
 
@@ -480,7 +482,7 @@ function riverFront(ctx: CanvasRenderingContext2D, w: Wearer) {
   for (let i = 0; i < 6; i++) {
     const t = frac(w.now / 2600 + i / 6 + seed);
     const x = w.x + Math.sin(i * 5.3 + t * 4) * (10 + i * 1.5) * w.s, y = w.y - (6 + t * 50) * w.s;
-    ctx.globalAlpha = Math.sin(t * Math.PI) * 0.9;
+    ctx.globalAlpha = Math.min(1, Math.sin(t * Math.PI) * 1.2);
     ctx.fillStyle = ramp[2];
     if (i % 2) dot(ctx, x, y, 1, w.s);
     else { dot(ctx, x - w.s, y, 1, w.s); dot(ctx, x + w.s, y, 1, w.s); dot(ctx, x, y - w.s, 1, w.s); dot(ctx, x, y + w.s, 1, w.s); ctx.fillStyle = ramp[3]; dot(ctx, x - w.s, y - w.s, 1, w.s); }

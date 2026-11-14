@@ -10,6 +10,9 @@ await import("./db/repo-ts-town.mjs");
 const { OUTFITS, HATS, FACE_WEAR, HAIR_WEAR, WEAR_ALL_KEY, dyeChoices } = await import("@/lib/town/wear");
 const { defaultLook, encodeLook, hairsFor } = await import("@/lib/town/look");
 const [BASE = "http://localhost:3250", OUT = "."] = process.argv.slice(2);
+// (AT=x,y: stand there first. The test room's spawn, 39,39 on town2, is behind the fountain's basin, which hides the doll
+// and its name and leaves only the aura and the plate: 37,43 is open ground before it)
+const AT = process.env.AT ? process.env.AT.split(",").map(Number) : null;
 const idx = (list, id) => list.findIndex((w) => w.id === id);
 // (SETS=<base,base,…> picks which; by default the second round's two. The Loy Krathong three, 2026-11-14, for the next)
 const ALL = [
@@ -36,6 +39,7 @@ for (const [label, size] of [["desk", { width: 1280, height: 860 }], ["phone", {
       await X.evaluate(`(() => { const id = sessionStorage.getItem("cashTown:test:A"); localStorage.setItem(${JSON.stringify(WEAR_ALL_KEY)}, "1"); localStorage.setItem("cashTown:look:" + id, ${JSON.stringify(encodeLook(look))}); location.reload(); })()`);
       await sleep(1500);
       await until("ready again", async () => (await status(X)) === "ready", 240000);
+      if (AT) { await X.evaluate(`(window.__townView.warp(${AT[0]}, ${AT[1]}), window.__townView.lookAt(${AT[0] + 0.5}, ${AT[1] + 0.5}))`); await sleep(800); }
       await X.evaluate(`window.__townView.won(${JSON.stringify(set.base)})`);
       await sleep(2500);
       await X.shot(`${OUT}/${label}-${set.base}-${gender ? "m" : "f"}${dye ? `-dye${dye}` : ""}.png`);
