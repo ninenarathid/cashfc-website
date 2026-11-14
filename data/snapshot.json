@@ -6,7 +6,7 @@
   "mounts": 61,
   "minions": 227,
   "rare": null,
-  "level": 92,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -27,7 +27,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-13"
+  "chg": "2026-11-14"
  },
  "15308846": {
   "name": "Aqua Eleison",
@@ -2306,7 +2306,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 100,
+  "level": 68,
   "cc": [
    true,
    true,
@@ -2535,7 +2535,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 89,
+  "level": 82,
   "cc": [
    false,
    false,
@@ -6581,7 +6581,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 95,
-  "level": 96,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -6946,7 +6946,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 74,
+  "level": 76,
   "cc": [
    false,
    false,
@@ -7905,7 +7905,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 99,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -7950,7 +7950,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-13"
+  "chg": "2026-11-14"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -8742,7 +8742,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 86,
+  "level": 88,
   "cc": [
    false,
    false,
@@ -8786,7 +8786,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 6,
-  "level": 89,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -10024,7 +10024,7 @@
   "mounts": 25,
   "minions": 115,
   "rare": null,
-  "level": 50,
+  "level": 51,
   "cc": [
    false,
    false,

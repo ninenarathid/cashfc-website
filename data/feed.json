@@ -3,6 +3,13 @@
   {
    "date": "2026-11-14",
    "type": "level_100",
+   "id": 60429500,
+   "name": "Janna Minerva",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
+   "date": "2026-11-14",
+   "type": "level_100",
    "id": 12478532,
    "name": "Hakuryu Flare",
    "text": "reached level 100 on Monk!"
@@ -1392,13 +1399,6 @@
    "id": 60429500,
    "name": "Jin Theape",
    "text": "passed 200 minions"
-  },
-  {
-   "date": "2026-10-25",
-   "type": "rare_up",
-   "id": 60429500,
-   "name": "Jin Theape",
-   "text": "earned Dire, Dire Deepcroft — only 2.5% of players have it, and 1 more"
   }
  ]
 }
