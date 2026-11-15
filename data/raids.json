@@ -88700,11 +88700,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 85.33,
+    "pct": 85.14,
     "phase": 5,
-    "pulls": 17,
-    "last": "2026-11-13",
-    "last_ts": 1794579251
+    "pulls": 40,
+    "last": "2026-11-14",
+    "last_ts": 1794668972
    }
   ]
  },
@@ -92184,7 +92184,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 100,
-    "kills": 73,
+    "kills": 77,
     "job": "Viper",
     "cleared": true,
     "job_kills": {
@@ -93257,20 +93257,7 @@
    }
   ],
   "legacy": [],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 1085,
-    "name": "Dancing Mad",
-    "kind": "ultimate",
-    "state": "learning",
-    "pct": 51.86,
-    "phase": 1,
-    "pulls": 28,
-    "last": "2026-11-04",
-    "last_ts": 1793807417
-   }
-  ]
+  "_status": "ok"
  },
  "43284378": {
   "current": {
@@ -94823,7 +94810,7 @@
     "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 98,
-    "kills": 43,
+    "kills": 47,
     "job": "Paladin",
     "cleared": true
    }
