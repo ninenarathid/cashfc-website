@@ -6,7 +6,7 @@
   "mounts": 61,
   "minions": 227,
   "rare": null,
-  "level": 93,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -27,7 +27,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-14"
+  "chg": "2026-11-15"
  },
  "15308846": {
   "name": "Aqua Eleison",
@@ -1803,7 +1803,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 100,
+  "level": 53,
   "cc": [
    true,
    true,
@@ -1827,7 +1827,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-13"
+  "chg": "2026-11-15"
  },
  "28579232": {
   "name": "Dessiny Valkyrie",
@@ -2306,7 +2306,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 69,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2353,7 +2353,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-14"
+  "chg": "2026-11-15"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -2535,7 +2535,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 82,
+  "level": 84,
   "cc": [
    false,
    false,
@@ -2562,7 +2562,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-11-14"
+  "chg": "2026-11-15"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -5513,7 +5513,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -5537,7 +5537,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-13"
+  "chg": "2026-11-15"
  },
  "29090821": {
   "name": "Amber Levana",
@@ -6946,7 +6946,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 76,
+  "level": 78,
   "cc": [
    false,
    false,
@@ -6959,7 +6959,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-14"
+  "chg": "2026-11-15"
  },
  "53933347": {
   "name": "Little Alyss",
@@ -8981,7 +8981,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 62,
+  "level": 75,
   "cc": [
    false,
    false,
@@ -8997,7 +8997,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-14"
+  "chg": "2026-11-15"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -10296,7 +10296,7 @@
   "mounts": 40,
   "minions": 59,
   "rare": null,
-  "level": 100,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -10317,7 +10317,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-07"
+  "chg": "2026-11-15"
  },
  "58199756": {
   "name": "Billy Najah",
