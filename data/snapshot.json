@@ -1803,7 +1803,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 53,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2306,7 +2306,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 100,
+  "level": 80,
   "cc": [
    true,
    true,
@@ -2535,7 +2535,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 84,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -3856,7 +3856,7 @@
   "mounts": 76,
   "minions": 137,
   "rare": 62,
-  "level": 100,
+  "level": 90,
   "cc": [
    true,
    true,
@@ -3957,7 +3957,7 @@
    "The Omega Protocol",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-11-14"
+  "chg": "2026-11-15"
  },
  "9444020": {
   "name": "Non Elemental",
@@ -6305,7 +6305,7 @@
   "mounts": 130,
   "minions": 208,
   "rare": 46,
-  "level": 100,
+  "level": 33,
   "cc": [
    true,
    true,
@@ -6380,7 +6380,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-06"
+  "chg": "2026-11-15"
  },
  "29795820": {
   "name": "Elle Lauren",
@@ -6946,7 +6946,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 78,
+  "level": 84,
   "cc": [
    false,
    false,
@@ -8477,7 +8477,7 @@
   "mounts": 81,
   "minions": 158,
   "rare": 18,
-  "level": 70,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -8517,7 +8517,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-13"
+  "chg": "2026-11-15"
  },
  "15932791": {
   "name": "Yuziris Andra'nov",
@@ -8670,6 +8670,28 @@
   "ults": [],
   "chg": "2026-11-14"
  },
+ "62390948": {
+  "name": "Elso Ignis",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 64,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-11-15"
+ },
  "49053650": {
   "name": "Eniluna Gelatoneii",
   "parse": 66,
@@ -8742,7 +8764,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 90,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -8755,7 +8777,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-14"
+  "chg": "2026-11-15"
  },
  "45513833": {
   "name": "Isildur One",
@@ -8932,7 +8954,7 @@
   "mounts": 4,
   "minions": 7,
   "rare": null,
-  "level": 81,
+  "level": 82,
   "cc": [
    false,
    false,
@@ -8945,7 +8967,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-13"
+  "chg": "2026-11-15"
  },
  "44085912": {
   "name": "Mayu Ferguson",
@@ -8981,7 +9003,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 75,
+  "level": 62,
   "cc": [
    false,
    false,
@@ -9057,7 +9079,7 @@
   "mounts": 85,
   "minions": 178,
   "rare": null,
-  "level": 100,
+  "level": 60,
   "cc": [
    false,
    false,
@@ -9070,7 +9092,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-14"
+  "chg": "2026-11-15"
  },
  "61748681": {
   "name": "Qzarel Lumina",
@@ -9101,7 +9123,7 @@
   "mounts": 7,
   "minions": 24,
   "rare": 0,
-  "level": 88,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -9114,7 +9136,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-14"
+  "chg": "2026-11-15"
  },
  "31685121": {
   "name": "Squid Girls",
@@ -9211,28 +9233,6 @@
   ],
   "ults": [],
   "chg": "2026-09-19"
- },
- "25504317": {
-  "name": "Achel Clay",
-  "parse": 57,
-  "ult": 0,
-  "mounts": 11,
-  "minions": 69,
-  "rare": null,
-  "level": 90,
-  "cc": [
-   false,
-   false,
-   false,
-   false,
-   false
-  ],
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {},
-  "ex": [],
-  "ults": [],
-  "chg": "2026-09-22"
  },
  "5297796": {
   "name": "Aem Sejuro",
@@ -10024,7 +10024,7 @@
   "mounts": 25,
   "minions": 115,
   "rare": null,
-  "level": 51,
+  "level": 52,
   "cc": [
    false,
    false,
@@ -10040,7 +10040,7 @@
   },
   "ex": [],
   "ults": [],
-  "chg": "2026-11-14"
+  "chg": "2026-11-15"
  },
  "30863840": {
   "name": "Aui Aye",
@@ -10296,7 +10296,7 @@
   "mounts": 40,
   "minions": 59,
   "rare": null,
-  "level": 80,
+  "level": 85,
   "cc": [
    false,
    false,
@@ -12182,7 +12182,7 @@
   "mounts": 32,
   "minions": 95,
   "rare": null,
-  "level": 97,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -12195,7 +12195,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-14"
+  "chg": "2026-11-15"
  },
  "16173247": {
   "name": "Haru Luminous",
@@ -13840,28 +13840,6 @@
   "ults": [],
   "chg": "2026-08-30"
  },
- "49891708": {
-  "name": "Midas Mirror",
-  "parse": null,
-  "ult": 0,
-  "mounts": 6,
-  "minions": 14,
-  "rare": null,
-  "level": 86,
-  "cc": [
-   false,
-   false,
-   false,
-   false,
-   false
-  ],
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {},
-  "ex": [],
-  "ults": [],
-  "chg": "2026-08-30"
- },
  "39734861": {
   "name": "Mighty Pui",
   "parse": null,
@@ -14727,7 +14705,7 @@
   "mounts": 26,
   "minions": 108,
   "rare": null,
-  "level": 80,
+  "level": 83,
   "cc": [
    false,
    false,
@@ -14740,7 +14718,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-14"
+  "chg": "2026-11-15"
  },
  "28011817": {
   "name": "Nore Vanessa",
@@ -16791,28 +16769,6 @@
   "minions": 66,
   "rare": 0,
   "level": 90,
-  "cc": [
-   false,
-   false,
-   false,
-   false,
-   false
-  ],
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {},
-  "ex": [],
-  "ults": [],
-  "chg": "2026-08-29"
- },
- "29992221": {
-  "name": "Tem Sulyvhan",
-  "parse": null,
-  "ult": 0,
-  "mounts": 10,
-  "minions": 15,
-  "rare": 0,
-  "level": 57,
   "cc": [
    false,
    false,

@@ -74704,7 +74704,7 @@
     "cleared": true,
     "job_kills": {
      "Dancer": {
-      "kills": 5,
+      "kills": 7,
       "best": 47
      }
     }
@@ -84589,7 +84589,13 @@
     "best": 19,
     "kills": 2,
     "job": "Viper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Viper": {
+      "kills": 9,
+      "best": 27
+     }
+    }
    }
   ],
   "legacy": [],
@@ -98353,6 +98359,25 @@
   "_status": "none"
  },
  "62837583": {
+  "_status": "none"
+ },
+ "62390948": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
   "_status": "none"
  }
 }

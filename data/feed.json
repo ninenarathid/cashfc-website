@@ -3,6 +3,34 @@
   {
    "date": "2026-11-15",
    "type": "level_100",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "reached level 100 on Samurai!"
+  },
+  {
+   "date": "2026-11-15",
+   "type": "level_100",
+   "id": 42948817,
+   "name": "Karuma Amamiya",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
+   "date": "2026-11-15",
+   "type": "level_100",
+   "id": 42845691,
+   "name": "Yuukizuz Akino",
+   "text": "reached level 100 on Pictomancer!"
+  },
+  {
+   "date": "2026-11-15",
+   "type": "new_member",
+   "id": 62390948,
+   "name": "Elso Ignis",
+   "text": "joined the FC — welcome!"
+  },
+  {
+   "date": "2026-11-15",
+   "type": "level_100",
    "id": 50821570,
    "name": "Haruki Mizumoto",
    "text": "reached level 100 on Machinist!"
@@ -1371,34 +1399,6 @@
    "id": 9444020,
    "name": "Non Elemental",
    "text": "reached level 100 on Black Mage!"
-  },
-  {
-   "date": "2026-10-25",
-   "type": "rare_up",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "earned Tank You, Warrior IV"
-  },
-  {
-   "date": "2026-10-25",
-   "type": "rare_up",
-   "id": 6173187,
-   "name": "Motochita Muses",
-   "text": "earned Dire, Dire Deepcroft — only 2.5% of players have it"
-  },
-  {
-   "date": "2026-10-25",
-   "type": "rare_up",
-   "id": 47218599,
-   "name": "Kawa Lynn",
-   "text": "earned Nothing Out of Nothing, and 1 more"
-  },
-  {
-   "date": "2026-10-25",
-   "type": "level_100",
-   "id": 29991345,
-   "name": "Transparent Crystal",
-   "text": "reached level 100 on Dragoon!"
   }
  ]
 }
