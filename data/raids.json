@@ -74673,7 +74673,7 @@
     "encounter_id": 1079,
     "name": "Futures Rewritten",
     "best": 47,
-    "kills": 5,
+    "kills": 7,
     "job": "Dancer",
     "cleared": true,
     "job_kills": {
@@ -74821,8 +74821,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1081,
     "name": "Necron",
-    "best": 8,
-    "kills": 1,
+    "best": 16,
+    "kills": 6,
     "job": "Sage",
     "cleared": true
    },
@@ -78372,7 +78372,20 @@
    }
   ],
   "legacy": [],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 102,
+    "name": "Red Hot and Deep Blue",
+    "kind": "savage",
+    "state": "learning",
+    "pct": 0.6,
+    "phase": 0,
+    "pulls": 32,
+    "last": "2026-11-15",
+    "last_ts": 1794735947
+   }
+  ]
  },
  "42053451": {
   "current": {
@@ -82399,20 +82412,7 @@
     ]
    }
   ],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 102,
-    "name": "Red Hot and Deep Blue",
-    "kind": "savage",
-    "state": "learning",
-    "pct": 5.69,
-    "phase": 0,
-    "pulls": 34,
-    "last": "2026-11-13",
-    "last_ts": 1794596795
-   }
-  ]
+  "_status": "ok"
  },
  "47221226": {
   "current": {
@@ -84560,8 +84560,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1072,
     "name": "Zoraal Ja",
-    "best": 19,
-    "kills": 2,
+    "best": 27,
+    "kills": 9,
     "job": "Viper",
     "cleared": true,
     "job_kills": {
@@ -87071,7 +87071,20 @@
     }
    }
   ],
-  "legacy": []
+  "legacy": [],
+  "progress": [
+   {
+    "encounter_id": 102,
+    "name": "Red Hot and Deep Blue",
+    "kind": "savage",
+    "state": "learning",
+    "pct": 42.51,
+    "phase": 0,
+    "pulls": 24,
+    "last": "2026-11-13",
+    "last_ts": 1794582853
+   }
+  ]
  },
  "60475540": {
   "_status": "none",
@@ -87347,20 +87360,7 @@
     }
    }
   ],
-  "legacy": [],
-  "progress": [
-   {
-    "encounter_id": 102,
-    "name": "Red Hot and Deep Blue",
-    "kind": "savage",
-    "state": "learning",
-    "pct": 5.69,
-    "phase": 0,
-    "pulls": 34,
-    "last": "2026-11-13",
-    "last_ts": 1794596795
-   }
-  ]
+  "legacy": []
  },
  "60854619": {
   "_status": "none",
