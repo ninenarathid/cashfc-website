@@ -88680,11 +88680,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 85.14,
+    "pct": 68.27,
     "phase": 5,
-    "pulls": 40,
-    "last": "2026-11-14",
-    "last_ts": 1794668972
+    "pulls": 58,
+    "last": "2026-11-15",
+    "last_ts": 1794752818
    }
   ]
  },
@@ -93149,6 +93149,17 @@
     "zone": "Ultimates (Legacy)",
     "zone_id": 59,
     "expansion": "Dawntrail",
+    "encounter_id": 1073,
+    "name": "The Unending Coil of Bahamut",
+    "best": 18,
+    "kills": 3,
+    "job": "Gunbreaker",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
     "encounter_id": 1074,
     "name": "The Weapon's Refrain",
     "best": 79,
@@ -94635,6 +94646,17 @@
     "name": "The Omega Protocol",
     "best": 64,
     "kills": 2,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "encounter_id": 1073,
+    "name": "The Unending Coil of Bahamut",
+    "best": 55,
+    "kills": 3,
     "job": "Paladin",
     "cleared": true
    },
