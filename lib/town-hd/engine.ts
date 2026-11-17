@@ -12,6 +12,7 @@
  * It reads nothing from the database and writes nothing: no session, no other players, no game.
  */
 import { createSheets, probe, reachOf, type Sheets, type Stand } from "./shade";
+import { FLAT, SWAY } from "./sway";
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import {
@@ -45,6 +46,9 @@ const SKIES: Record<TimeId, Sky> = {
 
 /** Where the live town's own camera looks, as it says it: the middle of the view in isometric pixels, its scale, the view's size. */
 export interface LiveView {
+  /** The clock what grows sways by (seconds), and whoever walks, whom it leans from (tiles): the live town's, so that its pictures and these lean alike (./sway). */
+  sec?: number;
+  me?: { x: number; y: number } | null;
   /** Points of the map (tiles) asked whether they are in a shadow, and the answers (0 dark to 1 lit), written by `renderAt`: ./shade's `probe`. */
   probes?: Array<[x: number, y: number]>;
   shades?: number[];
@@ -91,9 +95,7 @@ export interface HdOpts { /** Only the ground, the water and the shadows, for th
 
 type Obj = number[];
 const SEASONAL = /^game_(pumpkin|jacko)/;
-const FLAT = /^(lotus_leaves|three_flat_grey_stepping_stones)/;
 const SKIP = /^(game_ring|chest_open|kitchen_house_inside)/;
-const SWAY = /tree|cedar|zelkova|camphor|pine|maple|ginkgo|bush|shrub|hydrangea|tulip|flower|reed|bamboo|iris|azalea|fern|lily|chrysanth|bellflower/;
 const LAMP = /kasuga_stone_lantern|hanging_red_pape|street_lantern/;
 
 function loadTexture(manager: THREE.LoadingManager, src: string): THREE.Texture {
@@ -1157,7 +1159,8 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       if (shadeKey !== shadedFor) { shadedFor = shadeKey; shadeCards(); }
       if (v.stands && !flat) for (const s of v.stands) s.up = Hat(s.x, s.y);
       sheets?.set(v.stands ?? [], sunDir);
-      clock.value = sec; cloudy.value = 0; wetU.value = 0;
+      clock.value = v.sec ?? sec; cloudy.value = 0; wetU.value = 0;
+      if (v.me) meAt.value.set(v.me.x, v.me.y); else meAt.value.set(-999, -999);
       glint.value.setScalar(0.16 * (1 - now.lamps));
       waterTex.offset.set(sec * 0.012, sec * 0.02);
       // the live town's own camera: a point of the ground at the view's middle, and so many of the screen's pixels a tile

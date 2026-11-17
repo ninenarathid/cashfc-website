@@ -2586,14 +2586,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // ── the editor's town ── (lib/town/town2-art: what of it is near the view, and what lies on its ground under everybody;
     // the kitchen hall's inside only while I am in it, when its roof is off)
     const art2 = scenery ? town2Ref.current : null, inHall = T2 && roofRef.current < 1;
+    // (what grows on the editor's maps leans with the wind and from whoever walks by, as the 3D town's does: lib/town-hd/sway; with the 3D picture on)
+    const swaying = hdMake.current ? { sec: reducedRef.current ? 0 : performance.now() / 1000, me: mine && !reducedRef.current ? { x: mine.pos.x, y: mine.pos.y } : null } : null;
     const iso2 = (ix: number, iy: number) => toScreen(v, { x: ix, y: iy }, cw, ch);
-    if (art2) { art2.carving = forcedCarving.current ?? carving(Date.now()); art2.lit = null; art2.lift = HILL ? hillPx : null; }
+    if (art2) { art2.carving = forcedCarving.current ?? carving(Date.now()); art2.lit = null; art2.lift = HILL ? hillPx : null; art2.sway = swaying; }
     // (v325: the golden cloth on the hall's tables and cushions on its benches, while they last by the keeper's clock: lib/town/special-uses)
     if (art2) { const d = dressRef.current, t = Date.now() + (d?.skew ?? 0); art2.dressed = { cloth: !!d && laid(d.dress, "cloth", t), cushions: !!d && laid(d.dress, "cushions", t) }; }
     const seen2 = art2 ? art2.visible({ x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, now) : null;
     // ── the editor's farm ── (lib/town/farm2-art: what of it is near the view, while I am on the farm)
     const artF = scenery && F2 && placeRef.current === "farm" ? farm2Art() : null;
-    if (artF) { artF.lift = HILL ? hillPx : null; artF.lit = null; }
+    if (artF) { artF.lift = HILL ? hillPx : null; artF.lit = null; artF.sway = swaying; }
     const seenF = artF ? artF.visible({ x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, now) : null;
     // ── Granny Twilla's clothes shop ── (lib/town/shop-room-art: nothing of it is fetched until it is near the view)
     const roomArt = scenery ? shopArtRef.current : null;
@@ -2641,7 +2643,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
             // (whoever walks here throws a shadow too: not who sits, rides or has gone)
             const sheet = dollSheet.current, walkers: Stand[] = [];
             for (const d of dollsDrawn.current) walkers.push({ img: sheet!, sx: (d.cell % DOLL_CELLS.cols) * DOLL_CELLS.w, sy: Math.floor(d.cell / DOLL_CELLS.cols) * DOLL_CELLS.h, w: DOLL_CELLS.w, h: DOLL_CELLS.h, ax: DOLL_CELLS.w / 2, ay: DOLL_CELLS.foot, k: 1, x: d.a.pos.x, y: d.a.pos.y });
-            const view = { cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes(), stands: walkers,
+            const view = { cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes(), stands: walkers, sec: swaying?.sec, me: swaying?.me,
               // (whether each walker stands in a shadow: asked every fourth frame, the answer eased towards)
               probes: finishRef.current && ++shadeTick.current % 4 === 0 ? dollsDrawn.current.map((d): [number, number] => [d.a.pos.x, d.a.pos.y]) : undefined, shades: undefined as number[] | undefined };
             let pic: HTMLCanvasElement;

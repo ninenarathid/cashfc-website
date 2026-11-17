@@ -15,6 +15,7 @@
  *   forward as the footprint's front edge below it, so that somebody beside a house is before or behind it as they stand
  *   (less where something the editor draws over it stands inside that edge: the builder's `strips`).
  */
+import { FLAT, SWAY, swayPx } from "@/lib/town-hd/sway";
 import MAP from "./town2-map.json";
 import { WATER_MS, waterFrames } from "./scenery";
 import { T2_CHEST_OPEN, T2_CHEST_SHUT, T2_HALL, T2_LEFT_OUT, T2_RING_MOVES, T2_STAGE, T2_STAGE_BASE, T2_STRIP as STRIP, t2InHall, t2StripDepth } from "./town2";
@@ -182,6 +183,17 @@ export class Town2Art {
    * How high the ground stands at a tile, in the map's own pixels, where the 3D town has raised it, or null on level
    * ground: each thing is drawn that much higher, by the ground under its footprint's middle (as the 3D town stands it).
    */
+  /**
+   * The clock what grows sways by and whoever walks by it (lib/town-hd/sway), or null: its trees, bushes and flowers lean
+   * a little with the wind and away from a walker at their foot, as the 3D town's do.
+   */
+  sway: { sec: number; me: { x: number; y: number } | null } | null = null;
+  /** How far a thing's top is moved to the right, in the screen's pixels (0: it stands still). */
+  private leanOf(t: Thing, sp: { src: string; w: number; h: number }, s: number): number {
+    if (!this.sway || t.how === FLOOR || t.how === 2 || !SWAY.test(sp.src.slice(sp.src.lastIndexOf("/") + 1)) || FLAT.test(t.name)) return 0;
+    const ix = t.x + (sp.w * t.k) / 2, iy = t.y + sp.h * t.k;
+    return swayPx((ix / 32 + iy / 16) / 2, (iy / 16 - ix / 32) / 2, sp.w * t.k, this.sway.sec, this.sway.me) * s;
+  }
   lift: ((x: number, y: number) => number) | null = null;
   private up(t: Thing): number { return this.lift ? this.lift((t.box[0] + t.box[2]) / 2, (t.box[1] + t.box[3]) / 2) : 0; }
   private scratch: HTMLCanvasElement | null = null;
@@ -239,6 +251,10 @@ export class Town2Art {
     ctx.imageSmoothingEnabled = k * px < 1;
     ctx.imageSmoothingQuality = "high";
     const dx = Math.round(a.x * px) / px, dy = Math.round(a.y * px) / px;
+    // (leaning: its top moved, its foot still)
+    const lean = this.leanOf(t, sp, s), foot = dy + sp.h * k;
+    const shear = (g: CanvasRenderingContext2D) => { if (lean) { g.translate(0, foot); g.transform(1, 0, -lean / (sp.h * k), 1, 0, 0); g.translate(0, -foot); } };
+    shear(ctx);
     // (v325: and what lies on it now, the same strip of it in the same place: the golden cloth, the cushions)
     const over = this.dressOf(t);
     if (t.flip) {
@@ -255,7 +271,8 @@ export class Town2Art {
     // (not what moves in its own picture, nor what is dressed over: those are as the live town drew them)
     if (this.lit && pic === sp.img && !over && k * px >= 1 && t.i !== T2_CHEST_OPEN && t.i !== T2_CHEST_SHUT) {
       const bx = t.flip ? dx + (sp.w - sx1) * k : dx + sx0 * k, bw = (sx1 - sx0) * k;
-      this.relight(ctx, bx, dy, bw, sp.h * k, (g) => {
+      this.relight(ctx, bx - Math.abs(lean), dy, bw + 2 * Math.abs(lean), sp.h * k, (g) => {
+        shear(g);
         if (t.flip) { g.translate(dx + sp.w * k, dy); g.scale(-1, 1); g.drawImage(pic, sx0, 0, sx1 - sx0, sp.h, sx0 * k, 0, bw, sp.h * k); }
         else g.drawImage(pic, sx0, 0, sx1 - sx0, sp.h, bx, dy, bw, sp.h * k);
       });

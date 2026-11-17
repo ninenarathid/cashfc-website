@@ -15,6 +15,7 @@
  *   bought, shut, open, or from inside for whoever is in it; each animal's tray, full or empty; a chest open while its
  *   panel is; the fire bowls' lit pictures are never drawn (a fire is its bowl with the game's own flames rising in it).
  */
+import { FLAT, SWAY, swayPx } from "@/lib/town-hd/sway";
 import { relight, type Lit } from "./relight";
 import MAP from "./farm2-map.json";
 import { F2_DESIGNS, F2_SCARECROWS, F2_TRAYS } from "./farm2";
@@ -132,6 +133,17 @@ export class Farm2Art {
    * ground (lib/town/town2-art's `lift`, the same): each thing is drawn that much higher, by the ground under its
    * footprint's middle, where it stands now (`dx`, `dy`: how far it was moved from where the map has it).
    */
+  /**
+   * The clock what grows sways by and whoever walks by it (lib/town-hd/sway), or null: its trees, bushes and flowers lean
+   * a little with the wind and away from a walker at their foot, as the 3D town's do.
+   */
+  sway: { sec: number; me: { x: number; y: number } | null } | null = null;
+  /** How far a thing's top is moved to the right, in the screen's pixels (0: it stands still). */
+  private leanOf(t: Thing, sp: { src: string; w: number; h: number }, s: number, moved: boolean): number {
+    if (!this.sway || moved || t.how === FLOOR || t.how === 2 || !SWAY.test(sp.src.slice(sp.src.lastIndexOf("/") + 1)) || FLAT.test(t.name)) return 0;
+    const ix = t.x + (sp.w * t.k) / 2, iy = t.y + sp.h * t.k;
+    return swayPx((ix / 32 + iy / 16) / 2, (iy / 16 - ix / 32) / 2, sp.w * t.k, this.sway.sec, this.sway.me) * s;
+  }
   lift: ((x: number, y: number) => number) | null = null;
   /** The 3D town's lit picture of what stands, this frame, or null (lib/town/relight). */
   lit: Lit | null = null;
@@ -155,6 +167,8 @@ export class Farm2Art {
     ctx.imageSmoothingEnabled = k * px < 1;
     ctx.imageSmoothingQuality = "high";
     const X = Math.round(a.x * px) / px, Y = Math.round(a.y * px) / px;
+    const lean = this.leanOf(t, sp, s, !!dx || !!dy), foot = Y + sp.h * k;
+    const shear = (g: CanvasRenderingContext2D) => { if (lean) { g.translate(0, foot); g.transform(1, 0, -lean / (sp.h * k), 1, 0, 0); g.translate(0, -foot); } };
     if (strip) {
       // (a strip is cut on the screen, its edges on whole device pixels, and drawn from a little more of the picture than
       // it shows: strips side by side then meet with neither a gap nor an overlap, and no seam shows down a building)
@@ -164,6 +178,7 @@ export class Farm2Art {
       ctx.clip();
       sx0 = Math.max(0, sx0 - 2); sx1 = Math.min(sp.w, sx1 + 2);
     }
+    shear(ctx);
     if (t.flip) {
       ctx.translate(X + sp.w * k, Y);
       ctx.scale(-1, 1);
@@ -173,7 +188,8 @@ export class Farm2Art {
     // (what stands where the map has it, whole: as the 3D town lit it. Not what the game has moved or faded.)
     if (this.lit && alpha >= 1 && !dx && !dy && k * px >= 1) {
       const bx = t.flip ? X + (sp.w - sx1) * k : X + sx0 * k, bw = (sx1 - sx0) * k;
-      relight(this.lit, ctx, bx, Y, bw, sp.h * k, (g) => {
+      relight(this.lit, ctx, bx - Math.abs(lean), Y, bw + 2 * Math.abs(lean), sp.h * k, (g) => {
+        shear(g);
         if (t.flip) { g.translate(X + sp.w * k, Y); g.scale(-1, 1); g.drawImage(sp.img!, sx0, 0, sx1 - sx0, sp.h, sx0 * k, 0, bw, sp.h * k); }
         else g.drawImage(sp.img!, sx0, 0, sx1 - sx0, sp.h, bx, Y, bw, sp.h * k);
       });
