@@ -12,6 +12,7 @@
  * It reads nothing from the database and writes nothing: no session, no other players, no game.
  */
 import * as THREE from "three";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import MAP from "@/lib/town/town2-map.json";
 import {
   T2_COLS, T2_HALL, T2_LEFT_OUT, T2_PLAZA, T2_ROWS, T2_TEXTURES, inT2, t2BankLook, t2InHall, t2Lift, t2Look, t2OnStage, t2Tile,
@@ -35,16 +36,14 @@ const WATER_Y = -0.17, BED_Y = -0.55;
 export type TimeId = "morning" | "day" | "evening" | "night";
 interface Sky { sun: [number, number, number]; sunCol: number; sunI: number; top: number; ground: number; hemiI: number; sky: number; lamps: number }
 const SKIES: Record<TimeId, Sky> = {
-  morning: { sun: [0.78, 0.5, 0.45], sunCol: 0xffe0c0, sunI: 2.5, top: 0xcfe4ff, ground: 0x9a8468, hemiI: 1.5, sky: 0xbfe0f0, lamps: 0 },
-  day: { sun: [0.38, 0.95, 0.42], sunCol: 0xfffaf0, sunI: 3.0, top: 0xd6ecff, ground: 0x8f8a70, hemiI: 1.7, sky: 0x8ccaf2, lamps: 0 },
-  evening: { sun: [-0.8, 0.52, 0.5], sunCol: 0xff9a52, sunI: 3.0, top: 0xa99be0, ground: 0x7a5040, hemiI: 1.15, sky: 0xf2b184, lamps: 0.35 },
-  night: { sun: [-0.45, 0.8, 0.5], sunCol: 0x86a4ff, sunI: 1.15, top: 0x41589f, ground: 0x1c2440, hemiI: 1.05, sky: 0x0c1632, lamps: 1 },
+  morning: { sun: [0.74, 0.5, -0.2], sunCol: 0xffe0c0, sunI: 2.5, top: 0xcfe4ff, ground: 0x9a8468, hemiI: 1.5, sky: 0xbfe0f0, lamps: 0 },
+  day: { sun: [-0.1, 0.9, 0.6], sunCol: 0xfffaf0, sunI: 3.0, top: 0xd6ecff, ground: 0x8f8a70, hemiI: 1.7, sky: 0x8ccaf2, lamps: 0 },
+  evening: { sun: [-0.42, 0.45, 0.71], sunCol: 0xff9a52, sunI: 3.0, top: 0xa99be0, ground: 0x7a5040, hemiI: 1.15, sky: 0xf2b184, lamps: 0.35 },
+  night: { sun: [0.0, 0.8, 0.42], sunCol: 0x86a4ff, sunI: 1.15, top: 0x41589f, ground: 0x1c2440, hemiI: 1.05, sky: 0x0c1632, lamps: 1 },
 };
 
 export interface HdTown {
   setTime(t: TimeId): void;
-  /** Turn the view an eighth of a turn, one way or the other. */
-  turn(dir: 1 | -1): void;
   zoom(by: number): void;
   dispose(): void;
 }
@@ -205,17 +204,125 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   const flats: Array<{ s: number; o: Obj; wet: boolean }> = [];
   const card = (s: number, c: Card) => { const l = cards.get(s); if (l) l.push(c); else cards.set(s, [c]); };
 
+  /*
+   * A wide thing's own picture, laid back onto its shape (the owner, 2026-11-17: "แปลง asset ในแมพแรก เป็น 3d เท่าที่ควรจะเป็น").
+   * The picture was drawn from one direction; from there every point of the world falls on one pixel of it, by a rule that
+   * is straight in x, y and z. So each corner of a shape is given the pixel it was drawn at, and the shape wears the picture:
+   * the house is the artist's house, and has depth, a shadow of its own and the sun's light on it.
+   * (A border of one clear pixel goes round each picture, so that nothing is smeared beyond its edge.)
+   */
+  const artMats = new Map<number, THREE.MeshLambertMaterial>();
+  function artOf(s: number): THREE.MeshLambertMaterial {
+    const had = artMats.get(s);
+    if (had) return had;
+    const [file, pw, ph] = sprites[s];
+    const cv = document.createElement("canvas"), gv = document.createElement("canvas");
+    cv.width = gv.width = pw + 2; cv.height = gv.height = ph + 2;
+    const map = new THREE.CanvasTexture(cv), glow = new THREE.CanvasTexture(gv);
+    for (const t of [map, glow]) { t.colorSpace = THREE.SRGBColorSpace; t.magFilter = THREE.NearestFilter; t.minFilter = THREE.LinearFilter; t.generateMipmaps = false; }
+    const src = `/town/town2/${file}`, img = new Image();
+    pictures.itemStart(src);
+    img.onload = () => {
+      const g = cv.getContext("2d", { willReadFrequently: true })!;
+      g.drawImage(img, 1, 1, pw, ph);
+      // what shines at night: the picture's own paper windows and lanterns (its bright, warm pixels), in their own colours
+      const d = g.getImageData(0, 0, cv.width, cv.height), q = d.data;
+      for (let i = 0; i < q.length; i += 4) {
+        const warm = q[i + 3] > 200 && q[i] > 205 && q[i + 1] > 100 && q[i + 2] < 190 && q[i] - q[i + 2] > 36;
+        if (!warm) q[i] = q[i + 1] = q[i + 2] = 0;
+        q[i + 3] = 255;
+      }
+      gv.getContext("2d")!.putImageData(d, 0, 0);
+      map.needsUpdate = glow.needsUpdate = true;
+      pictures.itemEnd(src);
+    };
+    img.onerror = () => { pictures.itemError(src); pictures.itemEnd(src); };
+    img.src = src;
+    const mat = new THREE.MeshLambertMaterial({ map, alphaTest: 0.5, side: THREE.DoubleSide, emissive: 0xffffff, emissiveMap: glow, emissiveIntensity: 0 });
+    artMats.set(s, mat);
+    disposables.push(map, glow, mat);
+    return mat;
+  }
+  /** Where in its picture a point of the world was drawn (u, v). */
+  const drawnAt = (o: Obj) => {
+    const [, pw, ph] = sprites[o[1]], k = o[4], flip = o[5] === 1;
+    return (x: number, y: number, z: number): [number, number] => {
+      const px = ((x - z) * 32 - o[2]) / k, py = ((x + z) * 16 - y * PX_UP - o[3]) / k;
+      return [((flip ? pw - px : px) + 1) / (pw + 2), 1 - (py + 1) / (ph + 2)];
+    };
+  };
+  /** What a shape does not reach of its picture: the ground it stands on and two walls behind it, wearing the rest. */
+  function behind(o: Obj): THREE.Mesh {
+    const [, pw, ph] = sprites[o[1]], L = o[2], R = o[2] + pw * o[4], T = o[3], B = o[3] + ph * o[4], X0 = o[8], Z0 = o[9], at = drawnAt(o);
+    const Xf = Math.max(o[10], (R / 32 + B / 16) / 2, Z0 + R / 32), Zf = Math.max(o[11], (B / 16 - L / 32) / 2, X0 - L / 32);
+    const top = Math.max(0.5, ((2 * X0 - L / 32) * 16 - T) / PX_UP, ((2 * Z0 + R / 32) * 16 - T) / PX_UP), y = 0.02;
+    const P = [
+      X0, y, Z0, X0, y, Zf, Xf, y, Zf, Xf, y, Z0,
+      X0, y, Zf, X0, y, Z0, X0, top, Z0, X0, top, Zf,
+      X0, y, Z0, Xf, y, Z0, Xf, top, Z0, X0, top, Z0,
+    ];
+    const U: number[] = [], N: number[] = [], I: number[] = [];
+    for (let i = 0; i < 12; i++) { U.push(...at(P[i * 3], P[i * 3 + 1], P[i * 3 + 2])); N.push(0, 1, 0); }
+    for (let f = 0; f < 3; f++) I.push(f * 4, f * 4 + 1, f * 4 + 2, f * 4, f * 4 + 2, f * 4 + 3);
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(P, 3));
+    geo.setAttribute("uv", new THREE.Float32BufferAttribute(U, 2));
+    geo.setAttribute("normal", new THREE.Float32BufferAttribute(N, 3));
+    geo.setIndex(I);
+    const m = new THREE.Mesh(geo, artOf(o[1]));
+    m.receiveShadow = true;
+    return m;
+  }
+  /** Dress a built thing in its picture: its still blocks made one shape, a turning part left to turn. */
+  function dress(g: THREE.Group, o: Obj, spin?: THREE.Object3D) {
+    g.updateMatrixWorld(true);
+    const mat = artOf(o[1]), at = drawnAt(o), parts: THREE.BufferGeometry[] = [], gone: THREE.Mesh[] = [], p = new THREE.Vector3();
+    g.traverse((q) => {
+      const m = q as THREE.Mesh;
+      if (!m.isMesh) return;
+      let turning = false;
+      for (let a: THREE.Object3D | null = m; a; a = a.parent) if (a === spin) turning = true;
+      const geo = turning ? m.geometry : m.geometry.index ? m.geometry.toNonIndexed() : m.geometry.clone();
+      if (!turning) geo.applyMatrix4(m.matrixWorld);
+      const pos = geo.attributes.position, uv = geo.attributes.uv, n = geo.attributes.normal;
+      for (let i = 0; i < pos.count; i++) {
+        p.fromBufferAttribute(pos, i);
+        if (turning) p.applyMatrix4(m.matrixWorld);
+        const [u, v] = at(p.x, p.y, p.z);
+        uv.setXY(i, u, v);
+        // (lit as the ground is, as its picture already has its own light and dark; the sun's part is its shadows)
+        if (!turning) n.setXYZ(i, 0, 1, 0);
+      }
+      if (turning) { m.material = mat; uv.needsUpdate = true; } else { parts.push(geo); gone.push(m); }
+    });
+    for (const m of gone) { m.parent?.remove(m); m.geometry.dispose(); }
+    if (parts.length) {
+      const all = new THREE.Mesh(mergeGeometries(parts), mat);
+      all.castShadow = true; all.receiveShadow = true;
+      g.add(all);
+      for (const q of parts) q.dispose();
+    }
+    g.add(behind(o));
+  }
+  const stand = () => { const g = new THREE.Group(); town.add(g); return g; };
+  const hallIn: { room: THREE.Mesh | null } = { room: null };
+  const decked: Array<{ o: Obj; box: Box4; g: THREE.Group; bridge: boolean }> = [];
+
   (MAP.objects as Obj[]).forEach((o, i) => {
     const name = names[o[0]], sp = sprites[o[1]];
+    // (the kitchen hall from inside: its own picture of its room, on the floor and the two far walls)
+    if (i === T2_HALL.inside) { hallIn.room = behind(o); hallIn.room.visible = false; town.add(hallIn.room); return; }
     if (T2_LEFT_OUT.has(i) || SKIP.test(name) || SEASONAL.test(name)) return;
     const box: Box4 = [o[8], o[9], o[10], o[11]], cx = (box[0] + box[2]) / 2, cz = (box[1] + box[3]) / 2;
     const tall = (sp[2] * o[4] - (box[2] - box[0] + box[3] - box[1]) * 16) / PX_UP;
-    if (i === T2_HALL.thing) { hall.upper = buildHall(town, K, Math.max(3.6, tall)).upper; return; }
-    if (/^oval_wooden_festival_stage/.test(name)) { buildStage(town, K); return; }
-    if (/^(bridge|fishing_pier|pier_of_mossy_stone)/.test(name)) return; // (their decks are laid below, tile by tile)
+    if (i === T2_HALL.thing) { const g = stand(); buildHall(g, K, Math.max(3.6, tall)); dress(g, o); hall.upper = g; return; }
+    if (/^oval_wooden_festival_stage/.test(name)) { const g = stand(); buildStage(g, K); dress(g, o); return; }
+    // (a bridge's or a pier's deck is laid below, tile by tile, and dressed there)
+    if (/^(bridge|fishing_pier|pier_of_mossy_stone)/.test(name)) { decked.push({ o, box, g: stand(), bridge: name === "bridge" }); return; }
     if (o[6] === 2 || /^wishing_basin$/.test(name)) {
-      const built = buildThing(town, K, name, box, tall);
-      if (built) { if (built.spin) spins.push(built.spin); return; }
+      const g = stand(), built = buildThing(g, K, name, box, tall);
+      if (built) { dress(g, o, built.spin); if (built.spin) spins.push(built.spin); return; }
+      town.remove(g);
     }
     if (FLAT.test(name)) { flats.push({ s: o[1], o, wet: wetAt(cx, cz) }); return; }
     const w = sp[1] * o[4] / PX_SIDE, h = sp[2] * o[4] / PX_UP;
@@ -294,32 +401,33 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     disposables.push(geo, mat);
   }
 
-  // decks: every tile of a bridge or a pier, in four boards, each at its own height (a bridge rises to its middle)
+  // decks: every tile of a bridge or a pier, in four boards, each at its own height (a bridge rises to its middle);
+  // under a bridge's or a pier's own picture its boards wear that picture, elsewhere they are plain boards
   {
-    const at: Array<[number, number, number]> = [];
-    const rails: Array<[number, number, number, boolean]> = [];
-    const bridges = (MAP.objects as Obj[]).filter((o) => names[o[0]] === "bridge").map((o) => [o[8], o[9], o[10], o[11]]);
+    const at: Array<[number, number, number]> = [], legAt: Array<[number, number, number]> = [];
+    const slab = new THREE.BoxGeometry(0.5, 0.16, 0.5), leg = new THREE.BoxGeometry(0.14, 0.9, 0.14);
+    const railX = new THREE.BoxGeometry(1, 0.1, 0.1), railZ = new THREE.BoxGeometry(0.1, 0.1, 1), stub = new THREE.BoxGeometry(0.12, 0.62, 0.12);
+    const lay = (g: THREE.Group, geo: THREE.BufferGeometry, x: number, y: number, z: number) => { const m = new THREE.Mesh(geo, K.planks); m.position.set(x, y, z); g.add(m); };
     for (let z = 0; z < T2_ROWS; z++) for (let x = 0; x < T2_COLS; x++) {
       if (t2Tile(x, z) !== "=" || t2OnStage(x, z)) continue;
-      for (const [dx, dz] of [[0.25, 0.25], [0.75, 0.25], [0.25, 0.75], [0.75, 0.75]]) at.push([x + dx, t2Lift(x + dx, z + dz) / PX_UP, z + dz]);
-      const b = bridges.find((q) => x + 0.5 >= q[0] && x + 0.5 <= q[2] && z + 0.5 >= q[1] && z + 0.5 <= q[3]);
-      if (!b) continue;
-      const along = b[2] - b[0] >= b[3] - b[1], up = t2Lift(x + 0.5, z + 0.5) / PX_UP;
-      if (along) { if (t2Tile(x, z - 1) !== "=") rails.push([x + 0.5, up, z + 0.06, true]); if (t2Tile(x, z + 1) !== "=") rails.push([x + 0.5, up, z + 0.94, true]); }
-      else { if (t2Tile(x - 1, z) !== "=") rails.push([x + 0.06, up, z + 0.5, false]); if (t2Tile(x + 1, z) !== "=") rails.push([x + 0.94, up, z + 0.5, false]); }
+      const own = decked.find((q) => x + 0.5 >= q.box[0] && x + 0.5 <= q.box[2] && z + 0.5 >= q.box[1] && z + 0.5 <= q.box[3]);
+      for (const [dx, dz] of [[0.25, 0.25], [0.75, 0.25], [0.25, 0.75], [0.75, 0.75]]) {
+        const bx = x + dx, bz = z + dz, by = t2Lift(bx, bz) / PX_UP;
+        const legged = wetAt(bx, bz) && Math.floor(bx * 2) % 4 === 0 && Math.floor(bz * 2) % 4 === 0;
+        if (own) { lay(own.g, slab, bx, by - 0.05, bz); if (legged) lay(own.g, leg, bx, by - 0.55, bz); }
+        else { at.push([bx, by, bz]); if (legged) legAt.push([bx, by, bz]); }
+      }
+      if (!own?.bridge) continue;
+      const b = own.box, along = b[2] - b[0] >= b[3] - b[1], up = t2Lift(x + 0.5, z + 0.5) / PX_UP;
+      const rail = (rx: number, rz: number, isX: boolean) => { lay(own.g, isX ? railX : railZ, rx, up + 0.62, rz); lay(own.g, stub, rx, up + 0.33, rz); };
+      if (along) { if (t2Tile(x, z - 1) !== "=") rail(x + 0.5, z + 0.06, true); if (t2Tile(x, z + 1) !== "=") rail(x + 0.5, z + 0.94, true); }
+      else { if (t2Tile(x - 1, z) !== "=") rail(x + 0.06, z + 0.5, false); if (t2Tile(x + 1, z) !== "=") rail(x + 0.94, z + 0.5, false); }
     }
-    const slab = new THREE.BoxGeometry(0.5, 0.16, 0.5), boards = new THREE.InstancedMesh(slab, K.planks, at.length);
+    for (const q of decked) dress(q.g, q.o);
+    const boards = new THREE.InstancedMesh(slab, K.planks, at.length), legs = new THREE.InstancedMesh(leg, K.post, legAt.length);
     at.forEach(([x, y, z], i) => boards.setMatrixAt(i, M.makeTranslation(x, y - 0.05, z)));
-    const leg = new THREE.BoxGeometry(0.14, 0.9, 0.14), legAt = at.filter(([x, , z]) => wetAt(x, z) && Math.floor(x * 2) % 4 === 0 && Math.floor(z * 2) % 4 === 0);
-    const legs = new THREE.InstancedMesh(leg, K.post, legAt.length);
     legAt.forEach(([x, y, z], i) => legs.setMatrixAt(i, M.makeTranslation(x, y - 0.55, z)));
-    const railX = new THREE.BoxGeometry(1, 0.1, 0.1), railZ = new THREE.BoxGeometry(0.1, 0.1, 1), stub = new THREE.BoxGeometry(0.12, 0.62, 0.12);
-    const rx = rails.filter((q) => q[3]), rz = rails.filter((q) => !q[3]);
-    const a = new THREE.InstancedMesh(railX, K.red, rx.length), c = new THREE.InstancedMesh(railZ, K.red, rz.length), d = new THREE.InstancedMesh(stub, K.red, rails.length);
-    rx.forEach(([x, y, z], i) => a.setMatrixAt(i, M.makeTranslation(x, y + 0.62, z)));
-    rz.forEach(([x, y, z], i) => c.setMatrixAt(i, M.makeTranslation(x, y + 0.62, z)));
-    rails.forEach(([x, y, z], i) => d.setMatrixAt(i, M.makeTranslation(x, y + 0.33, z)));
-    for (const m of [boards, legs, a, c, d]) { m.castShadow = true; m.receiveShadow = true; town.add(m); }
+    for (const m of [boards, legs]) { m.castShadow = true; m.receiveShadow = true; town.add(m); }
     disposables.push(slab, leg, railX, railZ, stub);
   }
 
@@ -392,8 +500,10 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   }
 
   /* ── the view ─────────────────────────────────────────────────────────── */
-  const PITCH = 0.66;
-  const view = { yaw: 0, yawTo: 0, dist: 30, distTo: 30, at: new THREE.Vector3(me.x, 0, me.z) };
+  // (the owner, 2026-11-17: "กล้องตายตัว". The one view is the one the town's pictures were drawn from: across the tiles'
+  // corners, 30° down; so a picture laid back onto its shape is seen as it was drawn.)
+  const PITCH = Math.PI / 6, YAW = Math.PI / 4;
+  const view = { yaw: YAW, yawTo: YAW, dist: 30, distTo: 30, at: new THREE.Vector3(me.x, 0, me.z) };
   let facedYaw = NaN, shadedFor = "";
   function resize() {
     const w = canvas.clientWidth || 1, h = canvas.clientHeight || 1;
@@ -420,8 +530,6 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     const t = e.target as HTMLElement | null, elsewhere = !!t && t !== canvas && !!t.closest?.("a,button,select,[role=button],[tabindex]");
     if (elsewhere && e.code.startsWith("Arrow")) return;
     if (MOVE[e.code]) { keys.add(e.code); way = []; e.preventDefault(); }
-    else if (e.code === "KeyQ") api.turn(-1);
-    else if (e.code === "KeyE") api.turn(1);
   };
   const onKeyUp = (e: KeyboardEvent) => { keys.delete(e.code); };
   const onBlur = () => keys.clear();
@@ -540,6 +648,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     lit.visible = lampsOn > 0.02;
     haloMat.opacity = lampsOn * 0.85; poolMat.opacity = lampsOn * 0.32;
     for (const m of Object.values(K.walls)) m.emissiveIntensity = lampsOn * 1.5;
+    for (const m of artMats.values()) m.emissiveIntensity = lampsOn * 1.25;
     K.lantern.emissiveIntensity = 0.15 + lampsOn * 1.6; K.ember.emissiveIntensity = 0.6 + lampsOn * 1.2;
     if (sec - lampTick > 0.25) {
       lampTick = sec;
@@ -577,7 +686,9 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       opts.nameEl.style.transform = `translate3d(${Math.round((V.x * 0.5 + 0.5) * w)}px, ${Math.round((-V.y * 0.5 + 0.5) * h)}px, 0) translate(-50%, 4px)`;
       opts.nameEl.style.visibility = kit ? "visible" : "hidden";
     }
-    if (hall.upper) hall.upper.visible = !t2InHall(Math.floor(me.x), Math.floor(me.z));
+    const indoors = t2InHall(Math.floor(me.x), Math.floor(me.z));
+    if (hall.upper) hall.upper.visible = !indoors;
+    if (hallIn.room) hallIn.room.visible = indoors;
 
     waterTex.offset.set(sec * 0.012, sec * 0.02);
     for (const s of spins) s.rotation.z = -sec * 0.5;
@@ -593,7 +704,6 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
 
   const api: HdTown = {
     setTime(t) { if (SKIES[t] === want) return; from = copy(now); want = SKIES[t]; turned = 0; },
-    turn(dir) { view.yawTo += dir * Math.PI / 4; },
     zoom(by) { view.distTo = Math.min(60, Math.max(11, view.distTo * by)); },
     dispose() {
       dead = true;

@@ -329,21 +329,11 @@ export function buildStage(to: THREE.Object3D, K: Kit) {
   }
 }
 
-/** The kitchen hall: a floor and the foot of its walls, always; the rest of its walls and its roof, lifted off while I am inside. */
-export function buildHall(to: THREE.Object3D, K: Kit, h: number): { upper: THREE.Group } {
-  const s = span(T2_HALL.box as unknown as Box4), f = T2_HALL.floor, upper = new THREE.Group(), low = 0.5, wallH = 2.3;
-  put(to, block(f.x1 - f.x0 + 1, 0.04, f.y1 - f.y0 + 1), K.planks, (f.x0 + f.x1 + 1) / 2, 0.02, (f.y0 + f.y1 + 1) / 2).castShadow = false;
-  const tiles: Array<[number, number]> = [];
-  for (let z = Math.floor(s.z0) - 1; z <= Math.ceil(s.z1) + 1; z++) for (let x = Math.floor(s.x0) - 1; x <= Math.ceil(s.x1) + 1; x++) if (t2Tile(x, z) === "h") tiles.push([x, z]);
-  const foot = new THREE.InstancedMesh(block(1, low, 1), K.darkWood, tiles.length), wall = new THREE.InstancedMesh(block(1, wallH - low, 1, 0.5, 1 / (wallH - low)), K.walls.wood, tiles.length);
-  const M = new THREE.Matrix4();
-  tiles.forEach(([x, z], i) => {
-    foot.setMatrixAt(i, M.makeTranslation(x + 0.5, low / 2, z + 0.5));
-    wall.setMatrixAt(i, M.makeTranslation(x + 0.5, low + (wallH - low) / 2, z + 0.5));
-  });
-  for (const m of [foot, wall]) { m.castShadow = true; m.receiveShadow = true; }
-  to.add(foot); upper.add(wall);
-  roof(upper, K, K.roofDark, s.cx, wallH, s.cz, s.w - 0.6, s.d - 0.6, Math.max(1.4, h - wallH), 0.7);
-  to.add(upper);
-  return { upper };
+/** The kitchen hall from outside: its walls on the tiles they close, and its roof (all of it lifted off while I am inside). */
+export function buildHall(to: THREE.Object3D, K: Kit, h: number) {
+  const s = span(T2_HALL.box as unknown as Box4), wallH = 2.3;
+  for (let z = Math.floor(s.z0) - 1; z <= Math.ceil(s.z1) + 1; z++) for (let x = Math.floor(s.x0) - 1; x <= Math.ceil(s.x1) + 1; x++) {
+    if (t2Tile(x, z) === "h") put(to, block(1, wallH, 1), K.walls.wood, x + 0.5, wallH / 2, z + 0.5);
+  }
+  roof(to, K, K.roofDark, s.cx, wallH, s.cz, s.w - 0.6, s.d - 0.6, Math.max(1.4, h - wallH), 0.7);
 }
