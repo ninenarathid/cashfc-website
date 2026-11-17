@@ -576,7 +576,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const hdMake = useRef<((place: HdPlace) => HdTown) | null>(null);
   const hdTowns = useRef<Partial<Record<HdPlace, HdTown>>>({});
   // (the forest and the mountain: what the frame before stood on the map, each thing's own picture, throws the shadows)
-  const wildMake = useRef<(() => Shade) | null>(null), wildShade = useRef<Shade | null>(null);
+  const wildMake = useRef<((place: "forest" | "mountain") => Shade) | null>(null), wildShades = useRef<Partial<Record<"forest" | "mountain", Shade>>>({});
+  const wildOf = (place: "forest" | "mountain") => (wildShades.current[place] ??= wildMake.current!(place));
+  const groundWide = useRef<HTMLCanvasElement | null>(null);
   const wildStood = useRef<Array<{ name: string; x: number; y: number; k: number; mirror?: boolean }>>([]);
   /** The frame (its clock) in which the 3D town last threw the shadows. */
   const castAt = useRef(-1), hdRaised = useRef(false), shadeTick = useRef(0), inShade = useRef(new Map<string, number>());
@@ -602,14 +604,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       const raised = hd !== "low" && !/[?&]hdflat=1/.test(window.location.search);
       hdRaised.current = raised;
       hdMake.current = (place) => createHdTown(document.createElement("canvas"), { map: place, time: "day", underlay: raised ? "raised" : true, quality: hd });
-      wildMake.current = () => createShade(document.createElement("canvas"), hd);
+      // (the forest's open floor rises in low hills as the editor's maps' land does; the mountain's ground is level, its cliffs being painted on it)
+      wildMake.current = (place) => createShade(document.createElement("canvas"), hd, place === "forest" && raised ? { box: FOREST, land: (x, y) => groundAt(x, y) === "wood" } : undefined);
       if (hd !== "low" && !/[?&]hdfinish=0/.test(window.location.search)) void import("@/lib/town-hd/finish").then(({ createFinish }) => {
         if (gone || !finishCanvas.current) return;
         try { finishRef.current = createFinish(finishCanvas.current, hd); finishSlow.current = 0; setFinishOn(true); } catch (e) { console.warn("[Cash Town] 3D finish could not start", e); }
       }).catch(() => { /* the town without it */ });
       console.info("[Cash Town] 3D shadows:", hd);
     }).catch((e) => { console.warn("[Cash Town] 3D shadows could not start; the town is drawn as it always was", e); });
-    return () => { gone = true; HILL = null; hdMake.current = null; wildMake.current = null; for (const t of Object.values(hdTowns.current)) t?.dispose(); hdTowns.current = {}; wildShade.current?.dispose(); wildShade.current = null; finishRef.current?.dispose(); finishRef.current = null; setFinishOn(false); };
+    return () => { gone = true; HILL = null; hdMake.current = null; wildMake.current = null; for (const t of Object.values(hdTowns.current)) t?.dispose(); hdTowns.current = {}; for (const t of Object.values(wildShades.current)) t?.dispose(); wildShades.current = {}; finishRef.current?.dispose(); finishRef.current = null; setFinishOn(false); };
   }, [hd]);
   // ── the pasture ── (the cloud ram's pictures are the pasture's sheets: fetched the first time a ram is drawn, on any map)
   const ramArt = useRef<SceneryKit | null | undefined>(undefined);
@@ -2527,13 +2530,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // The ground: the pixel-art picture of it, or plain tiles until it has come.
     const scenery = sceneryRef.current;
     // (on the editor's maps, where the 3D town has raised the ground: its own ground and water, with their heights)
-    let raisedNow = false;
+    let raisedNow = false, raisedWild: Shade | null = null;
     {
       const here = placeRef.current, gp: HdPlace | null = here === "town" && T2 ? "town" : here === "farm" && F2 ? "farm" : null;
       let town: HdTown | null = null;
       try { town = gp && hdMake.current && hdRaised.current && scenery ? (hdTowns.current[gp] ??= hdMake.current(gp)) : null; } catch (e) { hdMake.current = null; console.warn("[Cash Town] 3D shadows stopped", e); }
       raisedNow = !!town && town.ready();
       HILL = raisedNow ? town!.heightAt : null;
+      // (the forest: its own ground, raised)
+      if (here === "forest" && scenery && wildMake.current && hdRaised.current) { try { raisedWild = wildOf("forest"); HILL = raisedWild.heightAt; } catch (e) { wildMake.current = null; console.warn("[Cash Town] 3D shadows stopped", e); } }
       if (raisedNow) {
         try {
           const clock = new Date(Date.now() + 7 * 3600_000);
@@ -2543,7 +2548,23 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     }
     if (raisedNow) { /* the 3D town's ground is down */ }
     else if (scenery) {
-      scenery.drawGround(ctx, v, cw, ch, dpr);
+      if (raisedWild) {
+        // The level ground's picture, the screen and a little below it (a hill shows ground that lies lower on the level
+        // map), then that picture laid on the raised ground over it (lib/town-hd/shade's `renderGround`).
+        const extra = Math.ceil(72 * v.s), wide = (groundWide.current ??= document.createElement("canvas"));
+        const ww = Math.round(cw * dpr), wh = Math.round((ch + extra) * dpr);
+        if (wide.width !== ww || wide.height !== wh) { wide.width = ww; wide.height = wh; }
+        const g = wide.getContext("2d")!;
+        g.setTransform(dpr, 0, 0, dpr, 0, 0);
+        g.clearRect(0, 0, cw, ch + extra);
+        scenery.drawGround(g, { s: v.s, cx: v.cx, cy: v.cy + extra / (2 * v.s) }, cw, ch + extra, dpr);
+        ctx.drawImage(wide, 0, 0, ww, Math.round(ch * dpr), 0, 0, cw, ch);
+        try {
+          const clock = new Date(Date.now() + 7 * 3600_000);
+          const up = raisedWild.renderGround({ cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() }, wide, extra);
+          if (up) ctx.drawImage(up, 0, 0, cw, ch);
+        } catch (e) { HILL = null; hdRaised.current = false; console.warn("[Cash Town] 3D ground stopped", e); }
+      } else scenery.drawGround(ctx, v, cw, ch, dpr);
       // Flowers lie flat: under whoever walks over them.
       for (const p of placeRef.current === "forest" ? FOREST_PROPS : T2 ? [] : PROPS) {
         if (p.kind !== "flowers") continue;
@@ -2589,7 +2610,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       if ((here === "forest" || here === "mountain") && finishRef.current && wildMake.current && scenery) {
         try {
           const clock = new Date(Date.now() + 7 * 3600_000), box = here === "forest" ? FOREST : MOUNTAIN;
-          ctx.drawImage((wildShade.current ??= wildMake.current()).renderWater({ cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() }, effects.current?.rain ?? 0, box, (x, y) => groundAt(x, y) === "water"), 0, 0, cw, ch);
+          ctx.drawImage(wildOf(here).renderWater({ cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() }, effects.current?.rain ?? 0, box, (x, y) => groundAt(x, y) === "water"), 0, 0, cw, ch);
         } catch (e) { console.warn("[Cash Town] 3D water stopped", e); wildMake.current = null; }
       }
       const town = wp && finishRef.current && !raisedNow ? hdTowns.current[wp] : null;
@@ -2628,7 +2649,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
             else {
               const stands: Stand[] = [];
               for (const t of stood) { const a = scenery!.pieceOf(t.name); if (a) stands.push({ img: a.img, sx: a.x, sy: a.y, w: a.w, h: a.h, ax: a.ax, ay: a.ay, k: t.k, x: t.x, y: t.y, mirror: t.mirror }); }
-              pic = (wildShade.current ??= wildMake.current!()).renderAt(view, stands);
+              pic = wildOf(here as "forest" | "mountain").renderAt(view, stands);
             }
             ctx.globalCompositeOperation = hdShow.current ? "source-over" : "multiply";
             ctx.drawImage(pic, 0, 0, cw, ch);

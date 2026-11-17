@@ -13,7 +13,7 @@
  */
 import * as THREE from "three";
 import type { LiveView, Quality } from "./engine";
-import { NOISE } from "./fx";
+import { NOISE, noise2 } from "./fx";
 
 /** A picture standing on the map: its piece of its sheet, its foot in that piece, how large it is drawn, and its foot's tile. */
 export interface Stand { img: HTMLImageElement | HTMLCanvasElement; sx: number; sy: number; w: number; h: number; ax: number; ay: number; k: number; x: number; y: number; mirror?: boolean; /** How high the ground it stands on is, in tiles. */ up?: number }
@@ -25,8 +25,18 @@ export interface Shade {
    * that nothing of it lies on a bank the live town drew its own way.
    */
   renderWater(v: LiveView, wet: number, box: { x: number; y: number; w: number; h: number }, wetAt: (x: number, y: number) => boolean): HTMLCanvasElement;
+  /**
+   * Where the map's ground is raised (`raise`): the live town's own picture of its level ground (`src`: the screen and
+   * `extra` of the screen's pixels below it, drawn by the live town's camera) laid on the raised ground, as that camera
+   * sees it; nothing outside the raised land. Drawn over the level ground. Null where nothing is raised.
+   */
+  renderGround(v: LiveView, src: HTMLCanvasElement, extra: number): HTMLCanvasElement | null;
+  /** How high the ground is at a point of the map (tiles), in tiles; 0 where nothing is raised. */
+  heightAt(x: number, y: number): number;
   dispose(): void;
 }
+/** A map's land that low hills may rise on (./engine's heights, made the same way): its box in tiles, and whether a tile is open land (not water, a path, a floor, a clearing people sit in). */
+export interface Raise { box: { x: number; y: number; w: number; h: number }; land: (x: number, y: number) => boolean }
 
 /** The sun's stand at the day's hours (./engine's, the same four), and how far the night has come (0 to 1). */
 const SUNS: Array<[number, [number, number, number], number]> = [
@@ -158,7 +168,7 @@ export function createSheets(scene: THREE.Scene): Sheets {
   };
 }
 
-export function createShade(canvas: HTMLCanvasElement, quality: Quality): Shade {
+export function createShade(canvas: HTMLCanvasElement, quality: Quality, raise?: Raise): Shade {
   const lite = quality !== "high";
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: true, powerPreference: "high-performance" });
   renderer.shadowMap.enabled = true;
@@ -179,6 +189,63 @@ export function createShade(canvas: HTMLCanvasElement, quality: Quality): Shade 
   const ground = new THREE.Mesh(groundGeo, groundMat);
   ground.receiveShadow = true;
   scene.add(ground);
+
+  // The raised land: hills over the map's open land, none within four tiles of ground that must be level, as ./engine
+  // makes its own. One sheet of it, white for the shadows' picture, wearing the live town's ground for `renderGround`.
+  const G = 2, PAD = 6;
+  const hx0 = raise ? raise.box.x - PAD : 0, hz0 = raise ? raise.box.y - PAD : 0, HX = raise ? (raise.box.w + 2 * PAD) * G + 1 : 2, HZ = raise ? (raise.box.h + 2 * PAD) * G + 1 : 2;
+  const HGT = new Float32Array(HX * HZ);
+  let hill: THREE.Mesh | null = null, hillWhite: THREE.MeshLambertMaterial | null = null, hillWorn: THREE.ShaderMaterial | null = null, hillTex: THREE.CanvasTexture | null = null, hillOf = "";
+  if (raise) {
+    const B = raise.box;
+    let land = new Float32Array(HX * HZ), tmp = new Float32Array(HX * HZ);
+    for (let j = 0; j < HZ; j++) for (let i = 0; i < HX; i++) {
+      const x = hx0 + i / G, z = hz0 + j / G, tx = Math.floor(x), tz = Math.floor(z);
+      land[j * HX + i] = tx >= B.x && tz >= B.y && tx < B.x + B.w && tz < B.y + B.h && raise.land(tx, tz) ? 1 : 0;
+    }
+    const R = 4 * G;
+    for (let pass = 0; pass < 4; pass++) {
+      const across = pass % 2 === 0, n = across ? HX : HZ, m = across ? HZ : HX;
+      for (let b = 0; b < m; b++) {
+        let sum = 0;
+        const at = (a: number) => { const c = Math.min(n - 1, Math.max(0, a)); return across ? b * HX + c : c * HX + b; };
+        for (let a = -R; a <= R; a++) sum += land[at(a)];
+        for (let a = 0; a < n; a++) { tmp[at(a)] = sum / (2 * R + 1); sum += land[at(a + R + 1)] - land[at(a - R)]; }
+      }
+      [land, tmp] = [tmp, land];
+    }
+    const smooth = (q: number) => { const t = Math.min(1, Math.max(0, q)); return t * t * (3 - 2 * t); };
+    const pos = new Float32Array(HX * HZ * 3), idx = new Uint32Array((HX - 1) * (HZ - 1) * 6);
+    for (let j = 0; j < HZ; j++) for (let i = 0; i < HX; i++) {
+      const x = hx0 + i / G, z = hz0 + j / G, n = noise2(x * 0.055, z * 0.055) * 0.65 + noise2(x * 0.13 + 7.3, z * 0.13 + 2.1) * 0.35;
+      const up = Math.max(0, n - 0.3) * 2.4 * smooth((land[j * HX + i] - 0.55) / 0.43);
+      HGT[j * HX + i] = up;
+      pos.set([x, up, z], (j * HX + i) * 3);
+    }
+    let o = 0;
+    for (let j = 0; j < HZ - 1; j++) for (let i = 0; i < HX - 1; i++) { const a = j * HX + i; idx.set([a, a + HX, a + 1, a + 1, a + HX, a + HX + 1], o); o += 6; }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    geo.setIndex(new THREE.BufferAttribute(idx, 1));
+    geo.computeVertexNormals();
+    hillWhite = new THREE.MeshLambertMaterial({ color: 0xffffff });
+    hillWorn = new THREE.ShaderMaterial({
+      uniforms: { hdMap: { value: null }, hdK: { value: 1 } },
+      // (each point of the raised ground shows what the level ground's picture has where that point lies on level ground)
+      vertexShader: "varying vec2 hdUv; uniform float hdK; void main() { vec4 f = projectionMatrix * viewMatrix * vec4(position.x, 0.0, position.z, 1.0); hdUv = vec2(f.x / f.w * 0.5 + 0.5, 1.0 - (0.5 - f.y / f.w * 0.5) * hdK); gl_Position = projectionMatrix * viewMatrix * vec4(position, 1.0); }",
+      fragmentShader: "varying vec2 hdUv; uniform sampler2D hdMap; void main() { if (hdUv.x < 0.0 || hdUv.x > 1.0 || hdUv.y < 0.0 || hdUv.y > 1.0) discard; gl_FragColor = vec4(texture2D(hdMap, hdUv).rgb, 1.0); }",
+    });
+    hill = new THREE.Mesh(geo, hillWhite);
+    hill.receiveShadow = true; hill.frustumCulled = false;
+    scene.add(hill);
+  }
+  const Hat = (x: number, z: number): number => {
+    if (!raise) return 0;
+    const fx = (x - hx0) * G, fz = (z - hz0) * G;
+    if (fx < 0 || fz < 0 || fx >= HX - 1 || fz >= HZ - 1) return 0;
+    const i = Math.floor(fx), j = Math.floor(fz), u = fx - i, w = fz - j, a = j * HX + i;
+    return (HGT[a] * (1 - u) + HGT[a + 1] * u) * (1 - w) + (HGT[a + HX] * (1 - u) + HGT[a + HX + 1] * u) * w;
+  };
 
   const sheets = createSheets(scene);
   const sunDir = new THREE.Vector3(), eye = new THREE.Vector3();
@@ -202,7 +269,9 @@ export function createShade(canvas: HTMLCanvasElement, quality: Quality): Shade 
       // (as ./engine's `renderAt`: lit ground is white, a shadow half of it by day and deeper by night)
       const sunI = ((0.5 + 0.16 * night) * Math.PI) / Math.max(0.3, sunDir.y);
       sun.intensity = sunI; hemi.intensity = Math.PI - sunI * sunDir.y;
-      sheets.set(v.stands?.length ? [...stood, ...v.stands] : stood, sunDir);
+      const all = v.stands?.length ? [...stood, ...v.stands] : stood;
+      if (raise) for (const s of all) s.up = Hat(s.x, s.y);
+      sheets.set(all, sunDir);
 
       const half = v.ch / (2 * PX_SIDE * v.s);
       camera.top = half; camera.bottom = -half; camera.right = (half * v.cw) / v.ch; camera.left = -camera.right;
@@ -217,7 +286,30 @@ export function createShade(canvas: HTMLCanvasElement, quality: Quality): Shade 
       sun.target.position.set(ax, 0, az);
       sun.position.set(ax + sunDir.x * 90, sunDir.y * 90, az + sunDir.z * 90);
       renderer.render(scene, camera);
-      probe(renderer, camera, v, sunDir);
+      probe(renderer, camera, v, sunDir, raise ? Hat : undefined);
+      return renderer.domElement;
+    },
+    heightAt: Hat,
+    renderGround(v, src, extra) {
+      if (!hill || !hillWorn || !hillWhite) return null;
+      const of = `${src.width},${src.height}`;
+      if (!hillTex || hillOf !== of) {
+        hillTex?.dispose();
+        hillTex = new THREE.CanvasTexture(src);
+        // (the picture's own colours, untouched: read as they are and written as they are)
+        hillTex.colorSpace = THREE.NoColorSpace; hillTex.generateMipmaps = false; hillTex.minFilter = hillTex.magFilter = THREE.NearestFilter;
+        hillOf = of;
+        hillWorn.uniforms.hdMap.value = hillTex;
+      }
+      hillTex.needsUpdate = true;
+      aim(v);
+      hillWorn.uniforms.hdK.value = v.ch / (v.ch + extra);
+      hill.material = hillWorn;
+      renderer.setClearColor(0x000000, 0);
+      renderer.shadowMap.autoUpdate = false;
+      renderer.render(hill, camera);
+      renderer.shadowMap.autoUpdate = true;
+      hill.material = hillWhite;
       return renderer.domElement;
     },
     renderWater(v, wet, box, wetAt) {
@@ -270,6 +362,7 @@ export function createShade(canvas: HTMLCanvasElement, quality: Quality): Shade 
     },
     dispose() {
       if (surf) { surf.geo.dispose(); surf.mat.dispose(); surf.tex.dispose(); }
+      if (hill) { hill.geometry.dispose(); hillWhite?.dispose(); hillWorn?.dispose(); hillTex?.dispose(); }
       groundGeo.dispose(); groundMat.dispose();
       sheets.dispose();
       renderer.dispose();
