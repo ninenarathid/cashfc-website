@@ -106,7 +106,9 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   // (under the live town: what is hidden while only shadows are drawn and shown for the lit picture, and the other way)
   const litShown: THREE.Object3D[] = [], litHidden: THREE.Object3D[] = [];
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  // (under the live town the shadows are kept sharp, a pixel of the town's art to an edge: a walker's shadow is a few pixels
+  // wide, and a soft one was a smear; the owner, 2026-11-17: "เงาไม่ละเอียด")
+  renderer.shadowMap.type = below ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene();
   const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 1, 600);
   const disposables: Array<{ dispose(): void }> = [];
@@ -120,7 +122,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   const hemi = new THREE.HemisphereLight(0xffffff, 0x888888, 1.5);
   const sun = new THREE.DirectionalLight(0xffffff, 3);
   sun.castShadow = !map.indoors;
-  const SH = lite ? 1024 : 2048, REACH = 30;
+  const SH = below ? (lite ? 2048 : 4096) : lite ? 1024 : 2048, REACH = 30;
   sun.shadow.mapSize.set(SH, SH);
   Object.assign(sun.shadow.camera, { left: -REACH, right: REACH, top: REACH, bottom: -REACH, near: 1, far: 220 });
   sun.shadow.camera.updateProjectionMatrix();
