@@ -13,10 +13,20 @@
  */
 import * as THREE from "three";
 import type { LiveView, Quality } from "./engine";
+import { NOISE } from "./fx";
 
 /** A picture standing on the map: its piece of its sheet, its foot in that piece, how large it is drawn, and its foot's tile. */
 export interface Stand { img: HTMLImageElement | HTMLCanvasElement; sx: number; sy: number; w: number; h: number; ax: number; ay: number; k: number; x: number; y: number; mirror?: boolean; /** How high the ground it stands on is, in tiles. */ up?: number }
-export interface Shade { renderAt(v: LiveView, stands: readonly Stand[]): HTMLCanvasElement; dispose(): void }
+export interface Shade {
+  renderAt(v: LiveView, stands: readonly Stand[]): HTMLCanvasElement;
+  /**
+   * What lives on a map's water that is not the editor's (the forest's pool, the mountain's stream), alone on nothing:
+   * the sun's glints and the rings where rain falls, well inside the water (`wet`: a tile and all about it water), so
+   * that nothing of it lies on a bank the live town drew its own way.
+   */
+  renderWater(v: LiveView, wet: number, box: { x: number; y: number; w: number; h: number }, wetAt: (x: number, y: number) => boolean): HTMLCanvasElement;
+  dispose(): void;
+}
 
 /** The sun's stand at the day's hours (./engine's, the same four), and how far the night has come (0 to 1). */
 const SUNS: Array<[number, [number, number, number], number]> = [
@@ -150,7 +160,7 @@ export function createSheets(scene: THREE.Scene): Sheets {
 
 export function createShade(canvas: HTMLCanvasElement, quality: Quality): Shade {
   const lite = quality !== "high";
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: "high-performance" });
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: true, powerPreference: "high-performance" });
   renderer.shadowMap.enabled = true;
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0xffffff);
@@ -172,6 +182,17 @@ export function createShade(canvas: HTMLCanvasElement, quality: Quality): Shade 
 
   const sheets = createSheets(scene);
   const sunDir = new THREE.Vector3(), eye = new THREE.Vector3();
+  let surf: { mesh: THREE.Mesh; mat: THREE.ShaderMaterial; tex: THREE.DataTexture; geo: THREE.BufferGeometry; of: string } | null = null;
+  const aim = (v: LiveView) => {
+    const w = Math.max(1, Math.round(v.cw)), h = Math.max(1, Math.round(v.ch)), dpr = Math.min(v.dpr, quality === "low" ? 1 : lite ? 1.5 : 2);
+    if (w !== sized.w || h !== sized.h || dpr !== sized.d) { sized = { w, h, d: dpr }; renderer.setPixelRatio(dpr); renderer.setSize(w, h, false); }
+    const half = v.ch / (2 * PX_SIDE * v.s);
+    camera.top = half; camera.bottom = -half; camera.right = (half * v.cw) / v.ch; camera.left = -camera.right;
+    camera.updateProjectionMatrix();
+    eye.set((v.cx / 32 + v.cy / 16) / 2, 0, (v.cy / 16 - v.cx / 32) / 2);
+    camera.position.set(eye.x + Math.sin(YAW) * Math.cos(PITCH) * 250, Math.sin(PITCH) * 250, eye.z + Math.cos(YAW) * Math.cos(PITCH) * 250);
+    camera.lookAt(eye);
+  };
   let sized = { w: 0, h: 0, d: 0 }, reached = 0;
   return {
     renderAt(v, stood) {
@@ -199,7 +220,56 @@ export function createShade(canvas: HTMLCanvasElement, quality: Quality): Shade 
       probe(renderer, camera, v, sunDir);
       return renderer.domElement;
     },
+    renderWater(v, wet, box, wetAt) {
+      const of = `${box.x},${box.y},${box.w},${box.h}`;
+      if (!surf || surf.of !== of) {
+        if (surf) { surf.geo.dispose(); surf.mat.dispose(); surf.tex.dispose(); }
+        // (a tile is the water's only if it and the eight about it are water)
+        const data = new Uint8Array(box.w * box.h);
+        for (let j = 0; j < box.h; j++) for (let i = 0; i < box.w; i++) {
+          let all = true;
+          for (let dy = -1; dy <= 1 && all; dy++) for (let dx = -1; dx <= 1 && all; dx++) all = wetAt(box.x + i + dx, box.y + j + dy);
+          data[j * box.w + i] = all ? 255 : 0;
+        }
+        const tex = new THREE.DataTexture(data, box.w, box.h, THREE.RedFormat, THREE.UnsignedByteType);
+        tex.magFilter = tex.minFilter = THREE.NearestFilter; tex.needsUpdate = true;
+        const geo = new THREE.PlaneGeometry(box.w, box.h);
+        geo.rotateX(-Math.PI / 2);
+        const mat = new THREE.ShaderMaterial({
+          uniforms: { hdIndex: { value: tex }, hdOrigin: { value: new THREE.Vector4(box.x, box.y, box.w, box.h) }, hdTime: { value: 0 }, hdGlint: { value: 0.3 }, hdWet: { value: 0 } },
+          vertexShader: "varying vec2 hdW; void main() { vec4 p = modelMatrix * vec4(position, 1.0); hdW = p.xz; gl_Position = projectionMatrix * viewMatrix * p; }",
+          fragmentShader: `varying vec2 hdW; uniform sampler2D hdIndex; uniform vec4 hdOrigin; uniform float hdTime; uniform float hdGlint; uniform float hdWet;\n${NOISE}
+            void main() {
+              vec2 hdP = floor(hdW * 22.63) / 22.63;
+              if (texture2D(hdIndex, (hdP - hdOrigin.xy) / hdOrigin.zw).r < 0.5) discard;
+              float hdG = hdNoise(hdP * 5.5 + vec2(hdTime * 0.3, hdTime * 0.18)) * hdNoise(hdP * 11.0 - vec2(hdTime * 0.45, 0.0));
+              float hdWhite = hdGlint * step(0.56, hdG);
+              vec2 hdC = floor(hdW * 2.0);
+              float hdR = fract(hdHash(hdC) + hdTime * 0.9);
+              float hdD = length(fract(hdW * 2.0) - 0.5 - (vec2(hdHash(hdC + 3.1), hdHash(hdC + 7.7)) - 0.5) * 0.5);
+              hdWhite = max(hdWhite, hdWet * 0.5 * (1.0 - hdR) * step(abs(hdD - hdR * 0.35), 0.035));
+              gl_FragColor = vec4(vec3(hdWhite), hdWhite);
+            }`,
+          transparent: true, premultipliedAlpha: true, depthTest: false, depthWrite: false,
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.position.set(box.x + box.w / 2, 0, box.y + box.h / 2);
+        mesh.frustumCulled = false;
+        surf = { mesh, mat, tex, geo, of };
+      }
+      aim(v);
+      const night = sunAt(v.min, sunDir);
+      surf.mat.uniforms.hdTime.value = performance.now() / 1000;
+      surf.mat.uniforms.hdGlint.value = 0.36 * (1 - 0.7 * night) * (1 - 0.6 * wet);
+      surf.mat.uniforms.hdWet.value = wet;
+      renderer.setClearColor(0x000000, 0);
+      renderer.shadowMap.autoUpdate = false;
+      renderer.render(surf.mesh, camera);
+      renderer.shadowMap.autoUpdate = true;
+      return renderer.domElement;
+    },
     dispose() {
+      if (surf) { surf.geo.dispose(); surf.mat.dispose(); surf.tex.dispose(); }
       groundGeo.dispose(); groundMat.dispose();
       sheets.dispose();
       renderer.dispose();

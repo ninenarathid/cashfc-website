@@ -7,7 +7,7 @@ import type { TownMapAddon } from "@/lib/town/map-addon";
 import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
-  BENCHES, BEYOND_PROPS, BOARD, TRADE_BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_ALL, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SMITH, SPEED, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle, T2, F2, liftAt, showGroundOf,
+  BENCHES, BEYOND_PROPS, BOARD, TRADE_BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_ALL, FARM_PROPS, FOREST, FOREST_PROPS, MOUNTAIN, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SMITH, SPEED, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle, T2, F2, liftAt, showGroundOf,
   atFire, atWell, wellBy, benchAt, bySmith, byStorebox, distance, fishFrom, fromIso, indoors as underRoof, isBuilt, isFar, setBridge, setBuilt, setFar, setCasinoDoor, groundAt, hearing, inDiningYard, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
 import { bridgeSpans, bridgeWhole } from "@/lib/town/bridge";
@@ -2570,6 +2570,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // banks, the sun's glints, rings where rain falls. On the editor's maps, at "mid" and "high".
     {
       const here = placeRef.current, wp: HdPlace | null = here === "town" && T2 ? "town" : here === "farm" && F2 ? "farm" : null;
+      // (the forest's pool and the mountain's stream: glints and rain's rings well inside their water)
+      if ((here === "forest" || here === "mountain") && finishRef.current && wildMake.current && scenery) {
+        try {
+          const clock = new Date(Date.now() + 7 * 3600_000), box = here === "forest" ? FOREST : MOUNTAIN;
+          ctx.drawImage((wildShade.current ??= wildMake.current()).renderWater({ cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() }, effects.current?.rain ?? 0, box, (x, y) => groundAt(x, y) === "water"), 0, 0, cw, ch);
+        } catch (e) { console.warn("[Cash Town] 3D water stopped", e); wildMake.current = null; }
+      }
       const town = wp && finishRef.current && !raisedNow ? hdTowns.current[wp] : null;
       if (town?.ready()) {
         try {
