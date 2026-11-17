@@ -74824,7 +74824,13 @@
     "best": 16,
     "kills": 6,
     "job": "Sage",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Sage": {
+      "kills": 6,
+      "best": 16
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -78168,7 +78174,7 @@
       "best": 79
      },
      "WhiteMage": {
-      "kills": 9,
+      "kills": 11,
       "best": 54
      },
      "Scholar": {
@@ -82302,8 +82308,8 @@
     "cleared": true,
     "job_kills": {
      "BlackMage": {
-      "kills": 1,
-      "best": 13
+      "kills": 3,
+      "best": 17
      },
      "Gunbreaker": {
       "kills": 2,
@@ -87268,7 +87274,7 @@
     "cleared": true,
     "job_kills": {
      "DarkKnight": {
-      "kills": 17,
+      "kills": 19,
       "best": 11
      },
      "Paladin": {
