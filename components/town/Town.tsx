@@ -553,7 +553,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       if (gone) return;
       made = createHdTown(document.createElement("canvas"), { map: "town", time: "day", underlay: true, quality: hd });
       hdRef.current = made;
-    }).catch(() => { /* a device without WebGL: the town is drawn as it always was */ });
+      console.info("[Cash Town] 3D ground:", hd);
+    }).catch((e) => { console.warn("[Cash Town] 3D ground could not start; the town is drawn as it always was", e); });
     return () => { gone = true; made?.dispose(); hdRef.current = null; };
   }, [hd]);
   // ── the pasture ── (the cloud ram's pictures are the pasture's sheets: fetched the first time a ram is drawn, on any map)

@@ -1086,7 +1086,9 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       sunDir.set(now.sun[0], now.sun[1], now.sun[2]).normalize();
       // Lit to the ground's own colours and no further: the live town lays its own night, weather and lamps over the
       // picture. What the sun adds here is where its shadows fall, and how deep they are (shallow by night).
-      const sunI = 1.4 * (1 - 0.8 * now.lamps);
+      // (by night the moon's shadows are kept plain to see: at a fifth of the day's depth they were not seen at all under the
+      // live town's night; the owner, 2026-11-17, at night: "ยังไม่มีเงา 3d")
+      const sunI = 1.4 * (1 - 0.3 * now.lamps);
       sun.color.setHex(0xffffff); sun.intensity = sunI;
       hemi.color.setHex(0xffffff); hemi.groundColor.setHex(0xffffff); hemi.intensity = Math.PI - sunI * sunDir.y;
       (scene.background as THREE.Color).setHex(0x0b1016);
