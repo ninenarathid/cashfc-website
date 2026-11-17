@@ -1090,7 +1090,9 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       // (by night the moon's shadows are kept plain to see: at a fifth of the day's depth they were not seen at all under the
       // live town's night; the owner, 2026-11-17, at night: "ยังไม่มีเงา 3d")
       // (a shadow is half as bright as the lit ground by day, a little less deep by night, however high the sun stands)
-      const sunI = ((0.5 - 0.12 * now.lamps) * Math.PI) / Math.max(0.3, sunDir.y);
+      // (deeper by night, not shallower: the live town's night darkens lit and shadowed ground alike, and what was left
+      // between them was too little to see; the owner, 2026-11-17: "เห็นเงาแล้ว แต่เงากลางคินจางเกิน")
+      const sunI = ((0.5 + 0.16 * now.lamps) * Math.PI) / Math.max(0.3, sunDir.y);
       sun.color.setHex(0xffffff); sun.intensity = sunI;
       hemi.color.setHex(0xffffff); hemi.groundColor.setHex(0xffffff); hemi.intensity = Math.PI - sunI * sunDir.y;
       (scene.background as THREE.Color).setHex(0xffffff);
