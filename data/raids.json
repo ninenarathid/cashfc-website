@@ -88680,11 +88680,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 68.27,
+    "pct": 37.05,
     "phase": 5,
-    "pulls": 58,
-    "last": "2026-11-15",
-    "last_ts": 1794752818
+    "pulls": 56,
+    "last": "2026-11-16",
+    "last_ts": 1794841063
    }
   ]
  },
@@ -92164,7 +92164,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 100,
-    "kills": 77,
+    "kills": 79,
     "job": "Viper",
     "cleared": true,
     "job_kills": {
@@ -93151,8 +93151,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1073,
     "name": "The Unending Coil of Bahamut",
-    "best": 18,
-    "kills": 3,
+    "best": 35,
+    "kills": 5,
     "job": "Gunbreaker",
     "cleared": true
    },
@@ -94655,8 +94655,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1073,
     "name": "The Unending Coil of Bahamut",
-    "best": 55,
-    "kills": 3,
+    "best": 61,
+    "kills": 5,
     "job": "Paladin",
     "cleared": true
    },
