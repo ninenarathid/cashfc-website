@@ -307,7 +307,24 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       for (const q of parts) q.dispose();
     }
     g.add(behind(o));
-    if (thin) stood(o, (o[8] + o[10]) / 2, (o[9] + o[11]) / 2, true);
+    if (thin) {
+      // its shadow: its picture stood along its own line (post to post), unseen, so each post's shadow starts at its foot
+      // (the owner, 2026-11-17: "เงาของบางอย่างไม่ต่อกัน": thrown from one sheet turned to the sun, it started beside them)
+      const cx = (o[8] + o[10]) / 2, cz = (o[9] + o[11]) / 2, alongX = o[10] - o[8] >= o[11] - o[9];
+      const half = Math.max(o[10] - o[8], o[11] - o[9]) / 2 + 2, up = sprites[o[1]][2] * o[4] / PX_UP + 1;
+      const ax = alongX ? half : 0, az = alongX ? 0 : half;
+      const P = [cx - ax, 0, cz - az, cx + ax, 0, cz + az, cx + ax, up, cz + az, cx - ax, up, cz - az], U: number[] = [];
+      for (let i = 0; i < 4; i++) U.push(...at(P[i * 3], P[i * 3 + 1], P[i * 3 + 2]));
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.Float32BufferAttribute(P, 3));
+      geo.setAttribute("uv", new THREE.Float32BufferAttribute(U, 2));
+      geo.setIndex([0, 1, 2, 0, 2, 3]);
+      const unseen = new THREE.MeshBasicMaterial({ map: mat.map, alphaTest: 0.5, side: THREE.DoubleSide, colorWrite: false, depthWrite: false });
+      const sheet = new THREE.Mesh(geo, unseen);
+      sheet.castShadow = true;
+      g.add(sheet);
+      disposables.push(unseen);
+    }
   }
   /**
    * A thing's picture stood upright where it was drawn (the owner, 2026-11-17: "ของบางอย่าง เช่นเก้าอี้หน้าเวที ดูลอย"): the
