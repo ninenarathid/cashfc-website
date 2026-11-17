@@ -2597,6 +2597,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const scenery = sceneryRef.current;
     // (on the editor's maps, where the 3D town has raised the ground: its own ground and water, with their heights)
     let raisedNow = false, raisedWild: Shade | null = null;
+    const swayNow = { sec: reducedRef.current ? 0 : performance.now() / 1000, me: stay?.self && !reducedRef.current ? { x: stay.self.pos.x, y: stay.self.pos.y } : null };
     {
       const here = placeRef.current, gp: HdPlace | null = here === "town" && T2 ? "town" : here === "farm" && F2 ? "farm" : null;
       let town: HdTown | null = null;
@@ -2623,8 +2624,27 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         inShade.current.clear();
       } else if (raisedNow) {
         try {
-          const clock = new Date(Date.now() + 7 * 3600_000);
-          ctx.drawImage(town!.renderGround({ cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() }, effects.current?.rain ?? 0), 0, 0, cw, ch);
+          // The ground and the water with the shadows on them, in one picture (it was two drawings of the screen: the
+          // ground, then the shadows laid over it). Whoever walked in the last frame throws a shadow from their own doll.
+          const clock = new Date(Date.now() + 7 * 3600_000), sheet = dollSheet.current, Q = dollQ.current;
+          const stands: Stand[] = dollsDrawn.current.filter((d) => d.cast).map((d) => ({ img: sheet!, sx: (d.cell % DOLL_CELLS.cols) * DOLL_CELLS.w * Q, sy: Math.floor(d.cell / DOLL_CELLS.cols) * DOLL_CELLS.h * Q, w: DOLL_CELLS.w * Q, h: DOLL_CELLS.h * Q, ax: (DOLL_CELLS.w / 2) * Q, ay: DOLL_CELLS.foot * Q, k: 1 / Q, x: d.a.pos.x, y: d.a.pos.y }));
+          const view = { cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes(), stands, sec: swayNow.sec, me: swayNow.me };
+          // (whether each walker stands in a shadow: asked of the shadows' own picture every eighth frame, the answer eased towards)
+          if (++shadeTick.current % 8 === 0 && dollsDrawn.current.length) {
+            const asked = { ...view, probes: dollsDrawn.current.map((d): [number, number] => [d.a.pos.x, d.a.pos.y]), shades: undefined as number[] | undefined };
+            town!.renderAt(asked);
+            if (asked.shades) {
+              const seen = new Set<string>();
+              dollsDrawn.current.forEach((d, i) => { const id = d.a.info.id, was = inShade.current.get(id) ?? 1; seen.add(id); inShade.current.set(id, was + ((asked.shades![i] ?? 1) - was) * 0.5); });
+              for (const id of inShade.current.keys()) if (!seen.has(id)) inShade.current.delete(id);
+            }
+          }
+          ctx.drawImage(town!.renderAt({ ...view, ground: effects.current?.rain ?? 0 }), 0, 0, cw, ch);
+          if (sheet) sheet.getContext("2d")!.clearRect(0, 0, sheet.width, sheet.height);
+          dollsDrawn.current = [];
+          castAt.current = now;
+          rimNow.current = rimAt(view.min);
+          if (hdDrawn.current !== here) { hdDrawn.current = here; console.info("[Cash Town] 3D ground and shadows drawn", here, canvas.width, canvas.height); }
         } catch (e) { raisedNow = false; HILL = null; hdRaised.current = false; console.warn("[Cash Town] 3D ground stopped", e); }
       }
     }
@@ -2669,7 +2689,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // the kitchen hall's inside only while I am in it, when its roof is off)
     const art2 = scenery ? town2Ref.current : null, inHall = T2 && roofRef.current < 1;
     // (what grows on the editor's maps leans with the wind and from whoever walks by, as the 3D town's does: lib/town-hd/sway; with the 3D picture on)
-    const swaying = hdMake.current ? { sec: reducedRef.current ? 0 : performance.now() / 1000, me: mine && !reducedRef.current ? { x: mine.pos.x, y: mine.pos.y } : null } : null;
+    const swaying = hdMake.current ? swayNow : null;
     const iso2 = (ix: number, iy: number) => toScreen(v, { x: ix, y: iy }, cw, ch);
     if (art2) { art2.carving = forcedCarving.current ?? carving(Date.now()); art2.lit = null; art2.lift = HILL ? hillPx : null; art2.sway = swaying; art2.solid = world3d.current && placeRef.current === "town" ? solidOf(hdTowns.current.town) : null; }
     // (v325: the golden cloth on the hall's tables and cushions on its benches, while they last by the keeper's clock: lib/town/special-uses)
@@ -2728,7 +2748,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       const wild = (here === "forest" || here === "mountain") && !!scenery && !!wildMake.current;
       const stood = wildStood.current;
       wildStood.current = [];
-      if (!world3d.current && ((hdPlace && hdMake.current) || wild)) {
+      if (!world3d.current && !raisedNow && ((hdPlace && hdMake.current) || wild)) {
         try {
           const town = hdPlace && hdMake.current ? (hdTowns.current[hdPlace] ??= hdMake.current(hdPlace)) : null;
           if (wild || town?.ready()) {

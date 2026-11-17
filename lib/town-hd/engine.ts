@@ -48,6 +48,12 @@ const SKIES: Record<TimeId, Sky> = {
 
 /** Where the live town's own camera looks, as it says it: the middle of the view in isometric pixels, its scale, the view's size. */
 export interface LiveView {
+  /**
+   * With this, `renderAt` gives the ground and the water themselves in their own colours with the shadows on them, in
+   * one picture (how hard it rains, 0 to 1), not the shadows alone on white: one drawing of the screen where there were
+   * two (`underlay: "raised"`).
+   */
+  ground?: number;
   /** The clock what grows sways by (seconds), and whoever walks, whom it leans from (tiles): the live town's, so that its pictures and these lean alike (./sway). */
   sec?: number;
   me?: { x: number; y: number } | null;
@@ -1195,7 +1201,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   const onVisible = () => { last = performance.now(); };
   document.addEventListener("visibilitychange", onVisible);
 
-  let sheets: Sheets | null = null, reached = REACH;
+  let sheets: Sheets | null = null, reached = REACH, castKey = "", castAge = 0;
   let world: World | null = null;
   let surf: THREE.Mesh | null = null;
   let over: THREE.MeshLambertMaterial | null = null, laying = false;
@@ -1260,6 +1266,27 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       const texel = (reach * 2) / SH, ax = Math.round(eye.x / texel) * texel, az = Math.round(eye.z / texel) * texel;
       sun.target.position.set(ax, 0, az);
       sun.position.set(ax + sunDir.x * 90, sunDir.y * 90, az + sunDir.z * 90);
+      // The shadows are worked out again only when something that throws one, or the sun, or the view's place has changed:
+      // with nobody walking, the last frame's serve (and every thirtieth frame all the same: pictures still coming).
+      const cast = `${shadeKey}|${ax.toFixed(3)},${az.toFixed(3)}|${reached}|${(v.stands ?? []).map((q) => `${q.x.toFixed(2)},${q.y.toFixed(2)},${q.sx},${q.sy}`).join(";")}`;
+      const fresh = cast !== castKey || ++castAge >= 30;
+      if (fresh) { castKey = cast; castAge = 0; }
+      renderer.shadowMap.autoUpdate = fresh;
+      try {
+      if (v.ground !== undefined && !flat && land) {
+        // (the ground itself, wearing its shadows: no deck's white boards in this picture, the live town lays the deck's own picture over it)
+        land.mesh.material = land.real;
+        if (river) river.visible = true;
+        for (const d of deckTops) d.mesh.visible = false;
+        (scene.background as THREE.Color).setHex(0x24352a);
+        wetU.value = v.ground;
+        glint.value.setScalar(0.3 * (1 - 0.8 * now.lamps) * (1 - 0.6 * v.ground));
+        renderer.render(scene, camera);
+        land.mesh.material = land.white;
+        if (river) river.visible = false;
+        for (const d of deckTops) d.mesh.visible = true;
+        return renderer.domElement;
+      }
       if (over && land) {
         // (for `renderWorld`: the shadows and the slopes' shade laid over what is already drawn, darkening it)
         const back = scene.background;
@@ -1275,6 +1302,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       renderer.render(scene, camera);
       probe(renderer, camera, v, sunDir, flat ? undefined : Hat);
       return renderer.domElement;
+      } finally { renderer.shadowMap.autoUpdate = true; }
     },
     renderWorld(v, wet, floor, atlas, cards, dolls, solid) {
       if (!world) {
