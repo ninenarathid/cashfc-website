@@ -18,6 +18,7 @@ import { farm2Art } from "@/lib/town/farm2-art";
 import { drawPixelFlames } from "./flames";
 import { F2_BENCH_OF, F2_CHESTS, F2_SCARECROWS, F2_TRADE_BOARDS } from "@/lib/town/farm2";
 import type { HdTown } from "@/lib/town-hd/engine";
+import type { Shade, Stand } from "@/lib/town-hd/shade";
 import { hdOf, keepHd, keptHd, type HdChoice } from "@/lib/town-hd/choice";
 import { T2_CASINO_DOOR, T2_CHEST_OPEN, T2_CHEST_SHUT, T2_LAMP_LIGHT, T2_PROP_THING, T2_RINGS, T2_THINGS, t2RiverPoint } from "@/lib/town/town2";
 // ── Granny Twilla's clothes shop ── (lib/town/shop-room: a room of its own, drawn from its own pictures as it comes near)
@@ -547,21 +548,22 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     setHd(keptHd());
   }, []);
   const chooseHd = (c: HdChoice) => { setHd(c); if (!ephemeral) keepHd(c); };
-  type HdPlace = "town" | "farm" | "forest" | "mountain";
-  type HdShade = Pick<HdTown, "renderAt" | "ready" | "dispose">;
-  const hdMake = useRef<((place: HdPlace) => HdShade) | null>(null);
-  const hdTowns = useRef<Partial<Record<HdPlace, HdShade>>>({});
+  type HdPlace = "town" | "farm";
+  const hdMake = useRef<((place: HdPlace) => HdTown) | null>(null);
+  const hdTowns = useRef<Partial<Record<HdPlace, HdTown>>>({});
+  // (the forest and the mountain: what the frame before stood on the map, each thing's own picture, throws the shadows)
+  const wildMake = useRef<(() => Shade) | null>(null), wildShade = useRef<Shade | null>(null);
+  const wildStood = useRef<Array<{ name: string; x: number; y: number; k: number; mirror?: boolean }>>([]);
   useEffect(() => {
     if (hd === "off") return;
     let gone = false;
     void Promise.all([import("@/lib/town-hd/engine"), import("@/lib/town-hd/shade")]).then(([{ createHdTown }, { createShade }]) => {
       if (gone) return;
-      // (the editor's maps from their own pictures; the forest and the mountain from the shapes of what stands in them)
-      hdMake.current = (place) => place === "forest" || place === "mountain" ? createShade(document.createElement("canvas"), place, hd)
-        : createHdTown(document.createElement("canvas"), { map: place, time: "day", underlay: true, quality: hd });
+      hdMake.current = (place) => createHdTown(document.createElement("canvas"), { map: place, time: "day", underlay: true, quality: hd });
+      wildMake.current = () => createShade(document.createElement("canvas"), hd);
       console.info("[Cash Town] 3D shadows:", hd);
     }).catch((e) => { console.warn("[Cash Town] 3D shadows could not start; the town is drawn as it always was", e); });
-    return () => { gone = true; hdMake.current = null; for (const t of Object.values(hdTowns.current)) t?.dispose(); hdTowns.current = {}; };
+    return () => { gone = true; hdMake.current = null; wildMake.current = null; for (const t of Object.values(hdTowns.current)) t?.dispose(); hdTowns.current = {}; wildShade.current?.dispose(); wildShade.current = null; };
   }, [hd]);
   // ── the pasture ── (the cloud ram's pictures are the pasture's sheets: fetched the first time a ram is drawn, on any map)
   const ramArt = useRef<SceneryKit | null | undefined>(undefined);
@@ -2263,6 +2265,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     return p.x > -160 * s && p.x < cw + 160 * s && p.y > -60 * s && p.y < ch + 200 * s;
   }
 
+  /** Whether a point is near enough the screen for its thing's shadow to fall into it (a tree's lies some tiles long). */
+  function shadeNear(p: Vec): boolean {
+    const { cw, ch, s } = cam.current;
+    return p.x > -420 * s && p.x < cw + 420 * s && p.y > -260 * s && p.y < ch + 420 * s;
+  }
+
   function project(t: Vec): Vec {
     const v = cam.current;
     return toScreen(v, toIso(t.x, t.y), v.cw, v.ch);
@@ -2486,20 +2494,30 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // and the floors just painted (the same camera, so they lie where the things stand); everybody is drawn over them.
     {
       const here = placeRef.current;
-      const hdPlace: HdPlace | null = here === "town" && T2 ? "town" : here === "farm" && F2 ? "farm" : here === "forest" || here === "mountain" ? here : null;
-      if (hdPlace && hdMake.current) {
+      const hdPlace: HdPlace | null = here === "town" && T2 ? "town" : here === "farm" && F2 ? "farm" : null;
+      const wild = (here === "forest" || here === "mountain") && !!scenery && !!wildMake.current;
+      const stood = wildStood.current;
+      wildStood.current = [];
+      if ((hdPlace && hdMake.current) || wild) {
         try {
-          const town = (hdTowns.current[hdPlace] ??= hdMake.current(hdPlace));
-          if (town.ready()) {
+          const town = hdPlace && hdMake.current ? (hdTowns.current[hdPlace] ??= hdMake.current(hdPlace)) : null;
+          if (wild || town?.ready()) {
             const clock = new Date(Date.now() + 7 * 3600_000);
             // (`?hdmin=960` looks at another minute of the day: to see the day's shadows at night, while this is tried)
-            const pic = town.renderAt({ cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() });
+            const view = { cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() };
+            let pic: HTMLCanvasElement;
+            if (town) pic = town.renderAt(view);
+            else {
+              const stands: Stand[] = [];
+              for (const t of stood) { const a = scenery!.pieceOf(t.name); if (a) stands.push({ img: a.img, sx: a.x, sy: a.y, w: a.w, h: a.h, ax: a.ax, ay: a.ay, k: t.k, x: t.x, y: t.y, mirror: t.mirror }); }
+              pic = (wildShade.current ??= wildMake.current!()).renderAt(view, stands);
+            }
             ctx.globalCompositeOperation = "multiply";
             ctx.drawImage(pic, 0, 0, cw, ch);
             ctx.globalCompositeOperation = "source-over";
-            if (!hdDrawn.current) { hdDrawn.current = true; console.info("[Cash Town] 3D shadows drawn", hdPlace, pic.width, pic.height); }
+            if (!hdDrawn.current) { hdDrawn.current = true; console.info("[Cash Town] 3D shadows drawn", here, pic.width, pic.height); }
           }
-        } catch (e) { hdMake.current = null; console.warn("[Cash Town] 3D shadows stopped", e); }
+        } catch (e) { hdMake.current = null; wildMake.current = null; console.warn("[Cash Town] 3D shadows stopped", e); }
       }
     }
     // ── the Popoto Casino ── (its floor and walls, under everybody, while it is near the view)
@@ -2967,9 +2985,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       for (const p of FOREST_PROPS) {
         if (p.kind === "flowers") continue;
         const c = project({ x: p.x + 0.5, y: p.y + 0.62 });
-        if (!onScreen(c)) continue;
+        if (!shadeNear(c)) continue;
         const art = artOf(p), name = scenery.has(art) ? art : scenery.has(p.kind) ? p.kind : FOREST_STAND_IN[p.kind];
         if (!name || !scenery.has(name)) continue;
+        if (wildMake.current && p.kind !== "campfire") wildStood.current.push({ name, x: p.x + 0.5, y: p.y + 0.62, k: PROP_K[name] ?? 1 });
+        if (!onScreen(c)) continue;
         const k = v.s * (PROP_K[name] ?? 1);
         stand(name, c, k, p.x + p.y + 1, () => {
           scenery.drawProp(ctx, name, c.x, c.y, k, dpr, 0, false, swayOf(p, now));
@@ -2989,6 +3009,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         if (scenery.has(name)) stand(name, c, v.s, p.x + p.y + 1, () => scenery.drawProp(ctx, name, c.x, c.y, v.s, dpr, 0, false, swayOf(p, now)));
       }
       if (scenery.has("greattree")) {
+        if (wildMake.current) wildStood.current.push({ name: "greattree", x: GREAT_TREE.x + GREAT_TREE.w - 0.1, y: GREAT_TREE.y + GREAT_TREE.h - 0.1, k: PROP_K.greattree ?? 1 });
         const c = project({ x: GREAT_TREE.x + GREAT_TREE.w - 0.1, y: GREAT_TREE.y + GREAT_TREE.h - 0.1 }), k = v.s * (PROP_K.greattree ?? 1);
         stand("greattree", c, k, GREAT_TREE.x + GREAT_TREE.y + GREAT_TREE.w + GREAT_TREE.h - 1, () => scenery.drawProp(ctx, "greattree", c.x, c.y, k, dpr));
       }
@@ -3229,6 +3250,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       flames: (x, y, k) => drawFlames(ctx, x, y, k, now),
       glow: (x, y, r, rgb, alpha, flat) => glowAt(ctx, x, y, r, rgb, alpha, flat),
       sway: (p) => swayOf(p, now),
+      shade: wildMake.current && placeRef.current === "mountain" ? (name, at, k, mirror) => { if (shadeNear(project(at))) wildStood.current.push({ name, x: at.x, y: at.y, k, mirror }); } : undefined,
       benches: benchBoxes.current, benchOf: (p) => benchIndex.get(p) ?? -1, keepers: keeperBoxes.current,
     } : null;
     if (more && moreFrame) more.things(moreFrame);

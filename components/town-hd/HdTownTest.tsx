@@ -1,10 +1,13 @@
 "use client";
 
+import { createShade } from "@/lib/town-hd/shade";
+import { loadForest, loadScenery, type SceneryKit } from "@/lib/town/scenery";
+import { artOf } from "@/lib/town/decor";
+import { FOREST_PROPS } from "@/lib/town/world";
 import { useEffect, useRef, useState } from "react";
 import { createHdTown, type HdTown, type TimeId } from "@/lib/town-hd/engine";
 import type { MapId } from "@/lib/town-hd/maps";
 import { createClient } from "@/lib/supabase/client";
-import { createShade } from "@/lib/town-hd/shade";
 
 const PLACES: Array<{ id: MapId; label: string }> = [{ id: "town", label: "เมือง" }, { id: "farm", label: "ฟาร์ม" }, { id: "shop", label: "ร้านเสื้อ" }];
 const mapOf = (search: string): MapId => (/[?&]map=(town|farm|shop)/.exec(search)?.[1] as MapId | undefined) ?? "town";
@@ -48,13 +51,36 @@ export default function HdTownTest() {
     try {
       // (`?at=x,y`: stand somewhere else first, for a tester sent to look at one corner)
       const m = /[?&]at=(\d+(?:\.\d+)?),(\d+(?:\.\d+)?)/.exec(window.location.search);
-      const wild = /[?&]under=(forest|mountain)/.exec(window.location.search)?.[1] as "forest" | "mountain" | undefined;
-      if (wild || /[?&]under=1/.test(window.location.search)) {
+      if (/[?&]under=forest/.test(window.location.search)) {
+        // (the forest's shadows under its own trees, as the live town lays them: to look at lib/town-hd/shade alone)
+        const c = canvas.current, shade = createShade(document.createElement("canvas"), "mid");
+        let raf = 0, kit: SceneryKit | null = null;
+        void loadScenery().then((k) => loadForest().then(() => { kit = k; }));
+        const [mx, my] = (/[?&]at=(\d+),(\d+)/.exec(window.location.search)?.slice(1).map(Number) ?? [193, 159]) as [number, number];
+        const paint = () => {
+          raf = requestAnimationFrame(paint);
+          if (!kit) return;
+          const cw = c.clientWidth, ch = c.clientHeight, dpr = Math.min(window.devicePixelRatio || 1, 2), d = new Date(Date.now() + 7 * 3600_000), sc = 1.6;
+          if (c.width !== Math.round(cw * dpr)) { c.width = Math.round(cw * dpr); c.height = Math.round(ch * dpr); }
+          const cx = (mx - my) * 32, cy = (mx + my) * 16, g = c.getContext("2d")!;
+          const seen = FOREST_PROPS.filter((q) => q.kind !== "flowers" && Math.abs(q.x - mx) + Math.abs(q.y - my) < 40).map((q) => ({ q, name: kit!.has(artOf(q)) ? artOf(q) : q.kind })).filter((t) => kit!.has(t.name));
+          const stands = seen.filter((t) => t.q.kind !== "campfire").map(({ q, name }) => { const a = kit!.pieceOf(name)!; return { img: a.img, sx: a.x, sy: a.y, w: a.w, h: a.h, ax: a.ax, ay: a.ay, k: 1, x: q.x + 0.5, y: q.y + 0.62 }; });
+          const pic = shade.renderAt({ cx, cy, s: sc, cw, ch, dpr, min: Number(/[?&]min=(\d+)/.exec(window.location.search)?.[1] ?? d.getUTCHours() * 60 + d.getUTCMinutes()) }, stands);
+          g.setTransform(dpr, 0, 0, dpr, 0, 0);
+          g.fillStyle = "#5d9a4c"; g.fillRect(0, 0, cw, ch);
+          g.globalCompositeOperation = "multiply"; g.drawImage(pic, 0, 0, cw, ch); g.globalCompositeOperation = "source-over";
+          for (const { q, name } of seen.sort((u, w) => u.q.x + u.q.y - w.q.x - w.q.y)) kit.drawProp(g, name, cw / 2 + ((q.x + 0.5 - q.y - 0.62) * 32 - cx) * sc, ch / 2 + ((q.x + 0.5 + q.y + 0.62) * 16 - cy) * sc, sc, dpr);
+          setReady(true);
+        };
+        raf = requestAnimationFrame(paint);
+        return () => { cancelAnimationFrame(raf); shade.dispose(); };
+      }
+      if (/[?&]under=1/.test(window.location.search)) {
         // (the live town's HD ground alone, at the live town's own first view: to look at what `renderAt` hands it)
         const c = canvas.current, spare = document.createElement("canvas");
-        const under = wild ? createShade(spare, wild, "mid") : createHdTown(spare, { map: "town", time: "day", underlay: true, quality: "mid" });
+        const under = createHdTown(spare, { map: "town", time: "day", underlay: true, quality: "mid" });
         // (the middle of the plaza; of the forest, by its camp; of the mountain, its middle)
-        const [mx, my] = wild === "forest" ? [193, 159] : wild === "mountain" ? [36, 236] : [41, 44];
+        const [mx, my] = [41, 44];
         let raf = 0;
         const paint = () => {
           raf = requestAnimationFrame(paint);

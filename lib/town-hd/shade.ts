@@ -1,18 +1,19 @@
 /**
  * 3D shadows for the live town's maps that are not the map editor's (the owner, 2026-11-17: "ทำให้ครบทุกแมพเลย"): the
- * forest and the mountain. Their trees, rocks and camps are lists in lib/town/world, drawn by the live town from its own
- * sheets; here each is only a plain shape of its kind's size, unseen, standing where the live town draws it and throwing
- * its shadow on white ground. The picture is laid over the live town's ground as the editor's maps' is (./engine's
- * `renderAt`): the same camera, the same sun.
+ * forest and the mountain. Their trees, rocks and camps are drawn by the live town from its own sheets; here each one's
+ * own picture is stood where the live town draws it, unseen, turned to the sun, and throws its shadow on white ground:
+ * the tree's own outline, joined to its foot (the owner, of round shapes guessed for them: "ป่าเงายังไม่ถูกต้อง"). The
+ * picture is laid over the live town's ground as the editor's maps' is (./engine's `renderAt`): the same camera, the
+ * same sun.
  *
  * (Under a roof or under the ground there is no sun: the clothes shop, the casino and the cave have no shadows.)
  */
 import * as THREE from "three";
-import { FOREST_PROPS, GREAT_TREE, MOUNTAIN_PROPS, type Prop } from "@/lib/town/world";
 import type { LiveView, Quality } from "./engine";
 
-export type ShadePlace = "forest" | "mountain";
-export interface Shade { renderAt(v: LiveView): HTMLCanvasElement; ready(): boolean; dispose(): void }
+/** A picture standing on the map: its piece of its sheet, its foot in that piece, how large it is drawn, and its foot's tile. */
+export interface Stand { img: HTMLImageElement; sx: number; sy: number; w: number; h: number; ax: number; ay: number; k: number; x: number; y: number; mirror?: boolean }
+export interface Shade { renderAt(v: LiveView, stands: readonly Stand[]): HTMLCanvasElement; dispose(): void }
 
 /** The sun's stand at the day's hours (./engine's, the same four), and how far the night has come (0 to 1). */
 const SUNS: Array<[number, [number, number, number], number]> = [
@@ -30,18 +31,12 @@ function sunAt(min: number, out: THREE.Vector3): number {
   return 1;
 }
 
-/** What a kind of thing is, to its shadow: a round crown on a trunk, a cone, a low mound, a block; sizes in tiles. */
-type Form = { crown?: [radius: number, height: number]; cone?: [radius: number, height: number]; mound?: number; block?: [w: number, h: number, d: number]; trunk?: [radius: number, height: number] };
-const FORMS: Record<string, Form> = {
-  tree: { crown: [1.15, 2.3], trunk: [0.16, 2] }, oak: { crown: [1.3, 2.4], trunk: [0.2, 2] }, birch: { crown: [0.85, 2.7], trunk: [0.1, 2.4] },
-  pine: { cone: [0.95, 3.6] }, mtree: { cone: [0.9, 3.4] }, bamboo: { trunk: [0.32, 3.2] },
-  bush: { mound: 0.55 }, rock: { mound: 0.45 }, mrock: { mound: 0.5 }, boulder: { mound: 0.8 },
-  log: { block: [1.3, 0.4, 0.5] }, logseat: { block: [1.2, 0.4, 0.5] }, stump: { trunk: [0.36, 0.45] }, tent: { cone: [1.1, 1.6] },
-  bench: { block: [1.2, 0.5, 0.5] }, storebox: { block: [0.9, 0.7, 0.7] }, signpost: { trunk: [0.08, 1.6] }, lamp: { trunk: [0.08, 1.8] },
-};
-const PX_SIDE = 45.25, PITCH = Math.PI / 6, YAW = Math.PI / 4;
+const PX_SIDE = 45.25, PX_UP = 39.2, PITCH = Math.PI / 6, YAW = Math.PI / 4;
 
-export function createShade(canvas: HTMLCanvasElement, place: ShadePlace, quality: Quality): Shade {
+/** All that stands of one sheet: its pictures' sheets in one set of corners, written again each time. */
+interface Batch { tex: THREE.Texture; mat: THREE.Material; geo: THREE.BufferGeometry; mesh: THREE.Mesh; pos: Float32Array; uv: Float32Array; room: number; n: number }
+
+export function createShade(canvas: HTMLCanvasElement, quality: Quality): Shade {
   const lite = quality !== "high";
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: "high-performance" });
   renderer.shadowMap.enabled = true;
@@ -65,44 +60,64 @@ export function createShade(canvas: HTMLCanvasElement, place: ShadePlace, qualit
   ground.receiveShadow = true;
   scene.add(ground);
 
-  // what stands: a shape a kind, all of a kind in one set, unseen
-  const props: Prop[] = place === "forest" ? FOREST_PROPS : MOUNTAIN_PROPS;
-  const unseen = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false });
-  const ball = new THREE.SphereGeometry(1, 12, 8), cone = new THREE.ConeGeometry(1, 1, 12), post = new THREE.CylinderGeometry(1, 1, 1, 8), box = new THREE.BoxGeometry(1, 1, 1);
-  const at: Record<"ball" | "cone" | "post" | "box", THREE.Matrix4[]> = { ball: [], cone: [], post: [], box: [] };
-  const P = new THREE.Vector3(), Q = new THREE.Quaternion(), S = new THREE.Vector3();
-  const put = (set: THREE.Matrix4[], x: number, y: number, z: number, sx: number, sy: number, sz: number) => set.push(new THREE.Matrix4().compose(P.set(x, y, z), Q, S.set(sx, sy, sz)));
-  const stand = (f: Form, x: number, z: number, k = 1) => {
-    if (f.trunk) put(at.post, x, (f.trunk[1] * k) / 2, z, f.trunk[0] * k, f.trunk[1] * k, f.trunk[0] * k);
-    if (f.crown) put(at.ball, x, f.crown[1] * k, z, f.crown[0] * k, f.crown[0] * k * 0.85, f.crown[0] * k);
-    if (f.cone) put(at.cone, x, (f.cone[1] * k) / 2, z, f.cone[0] * k, f.cone[1] * k, f.cone[0] * k);
-    if (f.mound) put(at.ball, x, f.mound * k * 0.35, z, f.mound * k, f.mound * k * 0.7, f.mound * k);
-    if (f.block) put(at.box, x, (f.block[1] * k) / 2, z, f.block[0] * k, f.block[1] * k, f.block[2] * k);
+  const batches = new Map<HTMLImageElement, Batch>();
+  const batchOf = (img: HTMLImageElement, need: number): Batch => {
+    let b = batches.get(img);
+    if (b && b.room >= need) return b;
+    const room = Math.max(256, need * 2);
+    const tex = b?.tex ?? new THREE.Texture(img);
+    if (!b) { tex.magFilter = tex.minFilter = THREE.NearestFilter; tex.generateMipmaps = false; tex.colorSpace = THREE.SRGBColorSpace; tex.needsUpdate = true; }
+    const mat = b?.mat ?? new THREE.MeshBasicMaterial({ map: tex, alphaTest: 0.5, side: THREE.DoubleSide, colorWrite: false, depthWrite: false });
+    if (b) { scene.remove(b.mesh); b.geo.dispose(); }
+    const geo = new THREE.BufferGeometry(), pos = new Float32Array(room * 12), uv = new Float32Array(room * 8), index = new Uint32Array(room * 6);
+    for (let i = 0; i < room; i++) index.set([i * 4, i * 4 + 1, i * 4 + 2, i * 4, i * 4 + 2, i * 4 + 3], i * 6);
+    geo.setAttribute("position", new THREE.BufferAttribute(pos, 3).setUsage(THREE.DynamicDrawUsage));
+    geo.setAttribute("uv", new THREE.BufferAttribute(uv, 2).setUsage(THREE.DynamicDrawUsage));
+    geo.setIndex(new THREE.BufferAttribute(index, 1));
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.castShadow = true; mesh.frustumCulled = false;
+    scene.add(mesh);
+    b = { tex, mat, geo, mesh, pos, uv, room, n: 0 };
+    batches.set(img, b);
+    return b;
   };
-  for (const p of props) { const f = FORMS[p.kind as string]; if (f) stand(f, p.x + 0.5, p.y + 0.62); }
-  // (the forest's great tree, three tiles a side)
-  if (place === "forest") stand({ crown: [3.4, 6], trunk: [0.9, 5] }, GREAT_TREE.x + GREAT_TREE.w / 2, GREAT_TREE.y + GREAT_TREE.h / 2);
-  const sets: THREE.InstancedMesh[] = [];
-  (Object.entries(at) as Array<[keyof typeof at, THREE.Matrix4[]]>).forEach(([kind, list]) => {
-    if (!list.length) return;
-    const m = new THREE.InstancedMesh(kind === "ball" ? ball : kind === "cone" ? cone : kind === "post" ? post : box, unseen, list.length);
-    list.forEach((mat, i) => m.setMatrixAt(i, mat));
-    m.castShadow = true; m.frustumCulled = false;
-    scene.add(m);
-    sets.push(m);
-  });
 
   const sunDir = new THREE.Vector3(), eye = new THREE.Vector3();
   let sized = { w: 0, h: 0, d: 0 };
   return {
-    ready: () => true,
-    renderAt(v) {
+    renderAt(v, stands) {
       const w = Math.max(1, Math.round(v.cw)), h = Math.max(1, Math.round(v.ch)), dpr = Math.min(v.dpr, quality === "low" ? 1 : lite ? 1.5 : 2);
       if (w !== sized.w || h !== sized.h || dpr !== sized.d) { sized = { w, h, d: dpr }; renderer.setPixelRatio(dpr); renderer.setSize(w, h, false); }
       const night = sunAt(v.min, sunDir);
       // (as ./engine's `renderAt`: lit ground is white, a shadow half of it by day and deeper by night)
       const sunI = ((0.5 + 0.16 * night) * Math.PI) / Math.max(0.3, sunDir.y);
       sun.intensity = sunI; hemi.intensity = Math.PI - sunI * sunDir.y;
+
+      // each picture's sheet: upright on its foot, across the sun's way, its left and right as the screen's
+      const flat = Math.hypot(sunDir.x, sunDir.z) || 1;
+      let rx = sunDir.z / flat, rz = -sunDir.x / flat;
+      if (rx - rz < 0) { rx = -rx; rz = -rz; }
+      const count = new Map<HTMLImageElement, number>();
+      for (const s of stands) count.set(s.img, (count.get(s.img) ?? 0) + 1);
+      for (const b of batches.values()) b.n = 0;
+      for (const s of stands) {
+        const b = batchOf(s.img, count.get(s.img)!), i = b.n++, W = s.img.naturalWidth || s.img.width, H = s.img.naturalHeight || s.img.height;
+        const l = (-s.ax * s.k) / PX_SIDE, r = ((s.w - s.ax) * s.k) / PX_SIDE, top = (s.ay * s.k) / PX_UP, bot = Math.min(0, ((s.ay - s.h) * s.k) / PX_UP);
+        const u0 = s.sx / W, u1 = (s.sx + s.w) / W, v1 = 1 - s.sy / H, v0 = 1 - (s.sy + s.h) / H;
+        const [ua, ub] = s.mirror ? [u1, u0] : [u0, u1];
+        const fx = s.x, fz = s.y, p = b.pos, t = b.uv, o = i * 12, q = i * 8;
+        p[o] = fx + rx * l; p[o + 1] = bot; p[o + 2] = fz + rz * l;
+        p[o + 3] = fx + rx * r; p[o + 4] = bot; p[o + 5] = fz + rz * r;
+        p[o + 6] = fx + rx * r; p[o + 7] = top; p[o + 8] = fz + rz * r;
+        p[o + 9] = fx + rx * l; p[o + 10] = top; p[o + 11] = fz + rz * l;
+        t[q] = ua; t[q + 1] = v0; t[q + 2] = ub; t[q + 3] = v0; t[q + 4] = ub; t[q + 5] = v1; t[q + 6] = ua; t[q + 7] = v1;
+      }
+      for (const b of batches.values()) {
+        b.geo.setDrawRange(0, b.n * 6);
+        b.mesh.visible = b.n > 0;
+        b.geo.attributes.position.needsUpdate = true; b.geo.attributes.uv.needsUpdate = true;
+      }
+
       const half = v.ch / (2 * PX_SIDE * v.s);
       camera.top = half; camera.bottom = -half; camera.right = (half * v.cw) / v.ch; camera.left = -camera.right;
       camera.updateProjectionMatrix();
@@ -117,9 +132,9 @@ export function createShade(canvas: HTMLCanvasElement, place: ShadePlace, qualit
       return renderer.domElement;
     },
     dispose() {
-      for (const g of [groundGeo, ball, cone, post, box]) g.dispose();
-      groundMat.dispose(); unseen.dispose();
-      for (const m of sets) m.dispose();
+      groundGeo.dispose(); groundMat.dispose();
+      for (const b of batches.values()) { b.geo.dispose(); b.mat.dispose(); b.tex.dispose(); }
+      batches.clear();
       renderer.dispose();
     },
   };

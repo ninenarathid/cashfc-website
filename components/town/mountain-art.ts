@@ -135,6 +135,8 @@ export interface MoreFrame {
   flames: (x: number, y: number, k: number) => void;
   glow: (x: number, y: number, r: number, rgb: string, alpha: number, flat?: number) => void;
   sway: (p: { kind: string; x: number; y: number }) => number;
+  /** What stands is told here too, on or off the screen: for its shadow (lib/town-hd/shade). `k` is its size against its picture's. */
+  shade?: (name: string, at: Vec, k: number, mirror: boolean) => void;
   /** The benches and the shopkeepers on the screen this frame, for taps: this adds its own. */
   benches: Array<{ i: number; x0: number; y0: number; x1: number; y1: number; depth: number }>;
   benchOf: (p: Prop) => number;
@@ -151,6 +153,8 @@ const K: Record<string, number> = {
   ladderUp: 1.25, ladderDown: 1.15, lift: 0.95, torch: 0.6, smithboard: 0.9, smithsign: 0.95, stalagmite: 0.9, minecart: 1,
 };
 const kOf = (name: string) => K[name] ?? 1;
+/** What throws no shadow of its own: a fire, rubble lying flat, the mine's mouth in the cliff's face. */
+const FLAT = ["campfire", "rubble", "mouth", "torch"];
 /** The blacksmith is drawn down to a popoto's size, as the uncle and the banker are. */
 const SMITH_K = 0.8;
 /** The bridge's picture, from its ground point in its own pixels: where its floor is (the rows its far and near edges are at), where its two ends are, and how long a span is. */
@@ -347,6 +351,7 @@ export class MountainArt {
   private stand(f: MoreFrame, name: string, at: Vec, depth: number, more?: { tap?: Tapped; hit?: [number, number]; mirror?: boolean; skew?: number; faint?: boolean; scale?: number; after?: (c: Vec, k: number) => void }) {
     const scenery = f.scenery!;
     if (!scenery.has(name)) return;
+    if (f.shade && !FLAT.includes(name)) f.shade(name, at, kOf(name) * (more?.scale ?? 1), !!more?.mirror);
     const c = f.project(at);
     if (!f.onScreen(c)) return;
     const k = f.s * kOf(name) * (more?.scale ?? 1), [w, h] = scenery.sizeOf(name), [ax, ay] = scenery.anchorOf(name);
