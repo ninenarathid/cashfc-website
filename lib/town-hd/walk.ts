@@ -11,6 +11,9 @@ export interface P { x: number; y: number }
  * pier in the south: "ท่าน้ำตรงนี้ควรจะเดินขึ้นไปได้"). The town's own tiles leave that tile as water, so the pier is an
  * island there; here it is joined to the bank it was drawn reaching.
  */
+// (The same pier's boards are a tile nearer the bank than its tiles: its far row is water under its picture's end; the
+// owner, 2026-11-17: "ตรงนี้ช่องเดินเลยมา 1 ช่อง".)
+const PAST_END = new Set(["49,75", "50,75", "51,75"]);
 function gap(x: number, y: number): boolean {
   if (t2Tile(x, y) !== "~") return false;
   for (const [dx, dy] of [[1, 0], [0, 1]]) {
@@ -20,20 +23,23 @@ function gap(x: number, y: number): boolean {
   return false;
 }
 /** Whether a tile is boards: a deck's own, or the one joining a deck to the shore. */
-export const isDeck = (x: number, y: number) => t2Tile(x, y) === "=" || gap(x, y);
+export const isDeck = (x: number, y: number) => (t2Tile(x, y) === "=" && !PAST_END.has(`${x},${y}`)) || gap(x, y);
 
 const OPEN = (() => {
   const out = new Uint8Array(T2_COLS * T2_ROWS);
   for (let y = 0; y < T2_ROWS; y++) for (let x = 0; x < T2_COLS; x++) {
     const c = t2Tile(x, y);
-    out[y * T2_COLS + x] = c === "." || c === "=" || c === "f" || gap(x, y) ? 1 : 0;
+    out[y * T2_COLS + x] = (c === "." || c === "=" || c === "f" || gap(x, y)) && !PAST_END.has(`${x},${y}`) ? 1 : 0;
   }
   return out;
 })();
 export const open = (tx: number, ty: number) => inT2(tx, ty) && OPEN[ty * T2_COLS + tx] === 1;
 /** Whether one tile may be stepped to from the next: both open, no rail or wall between, no corner cut. */
+/** The fishing pier's stairs are climbed along, from their foot; not crossed from their sides, through their strings. */
+const STAIR_SIDES = new Set(["20,63|20,62", "20,62|20,63", "20,64|20,65", "20,65|20,64"]);
 export function step(ax: number, ay: number, bx: number, by: number): boolean {
   if (ax === bx && ay === by) return open(bx, by);
+  if (STAIR_SIDES.has(`${ax},${ay}|${bx},${by}`)) return false;
   if (!open(bx, by) || t2OverRail(ax, ay, bx, by) || t2OverWall(ax, ay, bx, by)) return false;
   if (ax !== bx && ay !== by) return step(ax, ay, bx, ay) && step(ax, ay, ax, by) && step(bx, ay, bx, by) && step(ax, by, bx, by);
   return true;

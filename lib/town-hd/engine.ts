@@ -203,7 +203,8 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   const cards = new Map<number, Card[]>();
   const lamps: Array<{ x: number; y: number; z: number }> = [];
   const flats: Array<{ s: number; o: Obj; wet: boolean }> = [];
-  const card = (s: number, c: Card) => { const l = cards.get(s); if (l) l.push(c); else cards.set(s, [c]); };
+  // (a picture and its mirror are two sets: see `cardFlip` below)
+  const card = (s: number, c: Card) => { const k = s * 2 + (c.flip ? 1 : 0), l = cards.get(k); if (l) l.push(c); else cards.set(k, [c]); };
 
   /*
    * A wide thing's own picture, laid back onto its shape (the owner, 2026-11-17: "แปลง asset ในแมพแรก เป็น 3d เท่าที่ควรจะเป็น").
@@ -385,7 +386,12 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   const cardGeo = new THREE.PlaneGeometry(1, 1);
   cardGeo.translate(0, 0.5, 0);
   { const n = cardGeo.attributes.normal; for (let i = 0; i < n.count; i++) n.setXYZ(i, 0, 1, 0); }
-  disposables.push(cardGeo);
+  // A mirrored picture has its own sheet, mirrored in what it shows and not in its shape (the owner, 2026-11-17, of the
+  // tulip bed: "แปลงดอกไม้ดูบั๊คแปลกๆ"): a sheet turned inside out to mirror it shows its back, and its back was lit
+  // from below, so every mirrored tree, bush and flower in the town stood dark among the others.
+  const cardFlip = cardGeo.clone();
+  { const uv = cardFlip.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setX(i, 1 - uv.getX(i)); }
+  disposables.push(cardGeo, cardFlip);
   const cardSets: Array<{ list: Card[]; seen: THREE.InstancedMesh; shade: THREE.InstancedMesh }> = [];
   const picture = new Map<number, THREE.Texture>();
   const pictureOf = (s: number) => {
@@ -393,11 +399,11 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     if (!t) { t = loadTexture(pictures, `/town/town2/${sprites[s][0]}`); t.minFilter = THREE.LinearFilter; t.generateMipmaps = false; picture.set(s, t); disposables.push(t); }
     return t;
   };
-  for (const [s, list] of cards) {
-    const map = pictureOf(s);
+  for (const [key, list] of cards) {
+    const map = pictureOf(key >> 1), geo = key & 1 ? cardFlip : cardGeo;
     const mat = new THREE.MeshLambertMaterial({ map, alphaTest: 0.5, side: THREE.DoubleSide });
     const ghost = new THREE.MeshLambertMaterial({ map, alphaTest: 0.5, side: THREE.DoubleSide, colorWrite: false, depthWrite: false });
-    const seen = new THREE.InstancedMesh(cardGeo, mat, list.length), shade = new THREE.InstancedMesh(cardGeo, ghost, list.length);
+    const seen = new THREE.InstancedMesh(geo, mat, list.length), shade = new THREE.InstancedMesh(geo, ghost, list.length);
     shade.castShadow = true;
     seen.frustumCulled = shade.frustumCulled = false;
     town.add(seen, shade);
@@ -408,14 +414,14 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   function faceCards(yaw: number) {
     Q.setFromAxisAngle(UP, yaw);
     for (const { list, seen } of cardSets) {
-      list.forEach((c, i) => seen.setMatrixAt(i, M.compose(V.set(c.x, c.y, c.z), Q, c.unseen ? S.set(0, 0, 0) : S.set(c.flip ? -c.w : c.w, c.h, 1))));
+      list.forEach((c, i) => seen.setMatrixAt(i, M.compose(V.set(c.x, c.y, c.z), Q, c.unseen ? S.set(0, 0, 0) : S.set(c.w, c.h, 1))));
       seen.instanceMatrix.needsUpdate = true;
     }
   }
   function shadeCards() {
     Q.setFromAxisAngle(UP, Math.atan2(sunDir.x, sunDir.z));
     for (const { list, shade } of cardSets) {
-      list.forEach((c, i) => shade.setMatrixAt(i, M.compose(V.set(c.sx, c.y, c.sz), Q, c.blocked ? S.set(0, 0, 0) : S.set(c.flip ? -c.w : c.w, c.h, 1))));
+      list.forEach((c, i) => shade.setMatrixAt(i, M.compose(V.set(c.sx, c.y, c.sz), Q, c.blocked ? S.set(0, 0, 0) : S.set(c.w, c.h, 1))));
       shade.instanceMatrix.needsUpdate = true;
     }
   }
