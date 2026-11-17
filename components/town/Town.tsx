@@ -18,6 +18,7 @@ import { farm2Art } from "@/lib/town/farm2-art";
 import { drawPixelFlames } from "./flames";
 import { F2_BENCH_OF, F2_CHESTS, F2_SCARECROWS, F2_TRADE_BOARDS } from "@/lib/town/farm2";
 import type { HdTown } from "@/lib/town-hd/engine";
+import { hdOf, keepHd, keptHd, type HdChoice } from "@/lib/town-hd/choice";
 import { T2_COLS, T2_ROWS, T2_CASINO_DOOR, T2_CHEST_OPEN, T2_CHEST_SHUT, T2_LAMP_LIGHT, T2_PROP_THING, T2_RINGS, T2_THINGS, t2RiverPoint } from "@/lib/town/town2";
 // ── Granny Twilla's clothes shop ── (lib/town/shop-room: a room of its own, drawn from its own pictures as it comes near)
 import { ShopRoomArt } from "@/lib/town/shop-room-art";
@@ -536,21 +537,25 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // drawn here, over it. Off unless this browser has asked for it: `/town?hd=1` turns it on and `?hd=0` off (kept in
   // localStorage "cashTown:hd"). A trial on the live town, a device at a time; its code is fetched only when it is on.
   const hdRef = useRef<HdTown | null>(null);
+  // (the settings' choice: on and at its fullest for everybody until it is changed there, the owner's "default เป็น เปิด 3d
+  // high"; `?hd=off|low|mid|high` in the address sets it too, for somebody whose device cannot open the settings with it on)
+  const [hd, setHd] = useState<HdChoice>("off");
   useEffect(() => {
-    if (!T2) return;
-    try {
-      const asked = /[?&]hd=([01])/.exec(window.location.search)?.[1];
-      if (asked) localStorage.setItem("cashTown:hd", asked);
-      if (localStorage.getItem("cashTown:hd") !== "1") return;
-    } catch { return; }
+    const asked = /[?&]hd=(off|low|mid|high|0|1)/.exec(window.location.search)?.[1];
+    if (asked) keepHd(hdOf(asked));
+    setHd(keptHd());
+  }, []);
+  const chooseHd = (c: HdChoice) => { setHd(c); if (!ephemeral) keepHd(c); };
+  useEffect(() => {
+    if (!T2 || hd === "off") return;
     let gone = false, made: HdTown | null = null;
     void import("@/lib/town-hd/engine").then(({ createHdTown }) => {
       if (gone) return;
-      made = createHdTown(document.createElement("canvas"), { map: "town", time: "day", underlay: true, quality: "mid" });
+      made = createHdTown(document.createElement("canvas"), { map: "town", time: "day", underlay: true, quality: hd });
       hdRef.current = made;
-    }).catch(() => { /* the town is drawn as it always was */ });
+    }).catch(() => { /* a device without WebGL: the town is drawn as it always was */ });
     return () => { gone = true; made?.dispose(); hdRef.current = null; };
-  }, []);
+  }, [hd]);
   // ── the pasture ── (the cloud ram's pictures are the pasture's sheets: fetched the first time a ram is drawn, on any map)
   const ramArt = useRef<SceneryKit | null | undefined>(undefined);
   const ramKit = () => { if (ramArt.current === undefined) { ramArt.current = null; void loadPastureArt().then((k) => { ramArt.current = k; }); } return ramArt.current; };
@@ -5622,7 +5627,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                    <TownIcon name="wardrobe" size={20} /><span className="sr-only">{w.wardrobe}</span>
                  </button>)}
                {menuTile(w.th ? "เพลง" : "Music", <TownMusicButton th={w.th} hour={forcedHour.current} under className={hudBtn} />)}
-               {menuTile(w.th ? "ตั้งค่า" : "Settings", <TownSettingsButton th={w.th} pace={pace} onPace={choosePace} drawn={fpsRef} onShown={settingsShown} moving={moving} onMoving={chooseMoving} limitedMinimal={limitedMinimal} onLimitedMinimal={chooseLimitedMinimal} under className={hudBtn} />)}
+               {menuTile(w.th ? "ตั้งค่า" : "Settings", <TownSettingsButton th={w.th} pace={pace} onPace={choosePace} drawn={fpsRef} onShown={settingsShown} hd={hd} onHd={chooseHd} moving={moving} onMoving={chooseMoving} limitedMinimal={limitedMinimal} onLimitedMinimal={chooseLimitedMinimal} under className={hudBtn} />)}
                {menuTile(immersive ? w.exitFullscreen : w.fullscreen,
                  <button type="button" onClick={() => void toggleImmersive()} aria-pressed={immersive} title={immersive ? w.exitFullscreen : w.fullscreen} className={hudBtn}>
                    <TownIcon name={immersive ? "exitFullscreen" : "fullscreen"} size={18} /><span className="sr-only">{immersive ? w.exitFullscreen : w.fullscreen}</span>

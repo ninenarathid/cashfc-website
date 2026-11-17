@@ -1078,7 +1078,9 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     ready: () => came.pictures,
     renderAt(v) {
       const w = Math.max(1, Math.round(v.cw)), h = Math.max(1, Math.round(v.ch));
-      if (w !== sized.w || h !== sized.h || v.dpr !== sized.d) { sized = { w, h, d: v.dpr }; renderer.setPixelRatio(v.dpr); renderer.setSize(w, h, false); }
+      // (a lower share is drawn on fewer pixels and laid out larger: the ground is soft enough to bear it)
+      const dpr = Math.min(v.dpr, quality === "low" ? 1 : lite ? 1.5 : 2);
+      if (w !== sized.w || h !== sized.h || dpr !== sized.d) { sized = { w, h, d: dpr }; renderer.setPixelRatio(dpr); renderer.setSize(w, h, false); }
       const sec = performance.now() / 1000, q = hourOf(v.min);
       blend(SKIES[q[0]], SKIES[q[1]], q[2]);
       sunDir.set(now.sun[0], now.sun[1], now.sun[2]).normalize();

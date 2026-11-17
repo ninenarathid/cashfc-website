@@ -1,5 +1,6 @@
 "use client";
 
+import { HD_CHOICES, type HdChoice } from "@/lib/town-hd/choice";
 import { useEffect, useId, useRef, useState } from "react";
 import { PACE, type Fps } from "@/lib/town/pace";
 import TownIcon from "./TownIcon";
@@ -12,7 +13,7 @@ import TownIcon from "./TownIcon";
  * of limited outfits' effects this device shows (the owner, 2026-11-01). The choices are the town's page's to keep and to
  * draw by; this shows them, and what the map is drawing at now, and asks.
  */
-export default function TownSettingsButton({ th, pace, onPace, drawn, onShown, moving, onMoving, limitedMinimal, onLimitedMinimal, low = false, under = false, className }: {
+export default function TownSettingsButton({ th, pace, onPace, drawn, onShown, hd, onHd, moving, onMoving, limitedMinimal, onLimitedMinimal, low = false, under = false, className }: {
   /** In the map's menu: the panel hangs under the menu, not under this button. */
   under?: boolean;
   th: boolean;
@@ -27,6 +28,9 @@ export default function TownSettingsButton({ th, pace, onPace, drawn, onShown, m
    */
   onShown?: (open: boolean) => void;
   /** Whether the town moves: the rain, the leaves, the river, the trees. */
+  /** The HD ground: off, or how much of it this device draws (lib/town-hd/choice). */
+  hd: HdChoice;
+  onHd: (choice: HdChoice) => void;
   moving: boolean;
   onMoving: (moving: boolean) => void;
   /** Whether limited outfits' effects are kept to the least on this device. */
@@ -108,6 +112,23 @@ export default function TownSettingsButton({ th, pace, onPace, drawn, onShown, m
           <div className="mt-2.5 space-y-0.5 text-label leading-relaxed text-muted">
             <p>{th ? `เมืองวาดภาพไม่เกิน ${PACE.most} เฟรมต่อวินาที` : `The town draws ${PACE.most} frames a second at the most.`}</p>
             <p>{th ? `ถ้าเครื่องยังร้อนหรือพัดลมดัง ลองเลือก ${PACE.choices[0]}` : `If the machine still runs hot, or its fan is loud, try ${PACE.choices[0]}.`}</p>
+          </div>
+          {/* The HD ground (real shadows, living water): on at its fullest for everybody until it is changed here */}
+          <div className="mt-3 flex items-center gap-2 border-t border-line pt-3">
+            <TownIcon name="bolt" size={18} />
+            <span className="text-ui font-semibold text-ink">{th ? "ภาพ 3D" : "3D picture"}</span>
+          </div>
+          <div role="radiogroup" aria-label={th ? "ภาพ 3D" : "3D picture"} className="mt-2.5 grid grid-cols-4 gap-2">
+            {HD_CHOICES.map((c) => (
+              <button key={c} type="button" role="radio" aria-checked={c === hd} data-town-hd={c} onClick={() => onHd(c)}
+                      className={`pressable min-h-11 rounded-xl border px-1 text-ui font-semibold transition-colors ${c === hd ? "border-accent bg-accent/15 text-accent" : "border-line-strong text-ink hover:border-accent"}`}>
+                {th ? { off: "ปิด", low: "ต่ำ", mid: "กลาง", high: "สูง" }[c] : { off: "Off", low: "Low", mid: "Mid", high: "High" }[c]}
+              </button>
+            ))}
+          </div>
+          <div className="mt-2 space-y-0.5 text-label leading-relaxed text-muted">
+            <p>{th ? "เงาจริงตามเวลา และผิวน้ำที่ขยับ" : "Real shadows by the hour, and water that moves."}</p>
+            <p>{th ? "ถ้าเครื่องช้าหรือร้อน ลองลดลงหรือปิด" : "If the machine is slow or hot, lower it or turn it off."}</p>
           </div>
           {/* Whether the town moves: on for everybody, whatever the machine says of motion, until it is turned off here */}
           <div className="mt-3 flex items-center gap-2 border-t border-line pt-3">
