@@ -40,7 +40,9 @@ export default function HdTownTest() {
 
   return (
     <div className="fixed inset-x-0 bottom-0 top-[var(--nav-h)] z-[30] select-none overflow-hidden bg-bg">
-      <canvas ref={canvas} className="block h-full w-full touch-none" aria-label="Cash Town HD-2D ทดลอง: แตะหรือคลิกบนพื้นเพื่อเดิน" />
+      <canvas ref={canvas} tabIndex={0} className="block h-full w-full touch-none outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
+        aria-label="Cash Town HD-2D ทดลอง" aria-describedby="hd-how" />
+      <p id="hd-how" className="sr-only">แตะหรือคลิกบนพื้นเพื่อเดิน หรือใช้ปุ่ม W A S D และปุ่มลูกศร ปุ่ม Q และ E หมุนมุมมอง ล้อเมาส์หรือถ่างนิ้วเพื่อซูม</p>
 
       {!ready && !failed && <div className="absolute inset-0 grid place-items-center bg-bg text-read text-muted">กำลังสร้างเมือง…</div>}
       {failed && <div className="absolute inset-0 grid place-items-center bg-bg px-6 text-center text-read text-ink">เบราว์เซอร์นี้เปิดภาพ 3D (WebGL) ไม่ได้ ลองเปิดด้วย Chrome หรือ Safari รุ่นใหม่</div>}

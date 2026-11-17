@@ -416,6 +416,9 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   const typing = (e: KeyboardEvent) => { const t = e.target as HTMLElement | null; return !!t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable); };
   const onKeyDown = (e: KeyboardEvent) => {
     if (typing(e) || e.ctrlKey || e.metaKey || e.altKey) return;
+    // (the arrows are the page's own while a link or a button has the focus: only the letters walk from there)
+    const t = e.target as HTMLElement | null, elsewhere = !!t && t !== canvas && !!t.closest?.("a,button,select,[role=button],[tabindex]");
+    if (elsewhere && e.code.startsWith("Arrow")) return;
     if (MOVE[e.code]) { keys.add(e.code); way = []; e.preventDefault(); }
     else if (e.code === "KeyQ") api.turn(-1);
     else if (e.code === "KeyE") api.turn(1);
