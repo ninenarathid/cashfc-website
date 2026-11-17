@@ -1624,7 +1624,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 58,
+  "level": 60,
   "cc": [
    true,
    true,
@@ -1648,7 +1648,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-16"
+  "chg": "2026-11-17"
  },
  "28579232": {
   "name": "Dessiny Valkyrie",
@@ -2127,7 +2127,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 58,
+  "level": 65,
   "cc": [
    true,
    true,
@@ -2174,7 +2174,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-16"
+  "chg": "2026-11-17"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -8498,7 +8498,7 @@
   "mounts": 17,
   "minions": 42,
   "rare": null,
-  "level": 100,
+  "level": 75,
   "cc": [
    false,
    false,
@@ -8511,7 +8511,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-14"
+  "chg": "2026-11-17"
  },
  "62390948": {
   "name": "Elso Ignis",
@@ -8654,7 +8654,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 5,
-  "level": 94,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -8673,7 +8673,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-16"
+  "chg": "2026-11-17"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -8902,7 +8902,7 @@
   "mounts": 30,
   "minions": 66,
   "rare": null,
-  "level": 100,
+  "level": 72,
   "cc": [
    false,
    false,
@@ -8915,7 +8915,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-15"
+  "chg": "2026-11-17"
  },
  "61489984": {
   "name": "Poly Umami",
@@ -8924,7 +8924,7 @@
   "mounts": 85,
   "minions": 178,
   "rare": null,
-  "level": 100,
+  "level": 83,
   "cc": [
    false,
    false,
@@ -8937,7 +8937,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-16"
+  "chg": "2026-11-17"
  },
  "21388050": {
   "name": "Riizerk Ciel",
@@ -9012,14 +9012,14 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 90,
+  "level": 89,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-16"
+  "chg": "2026-11-17"
  },
  "57419573": {
   "name": "A'kane Dorothy",
@@ -17028,7 +17028,7 @@
   "mounts": 48,
   "minions": 76,
   "rare": null,
-  "level": 74,
+  "level": 76,
   "cc": [
    false,
    false,
@@ -17041,7 +17041,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-11-17"
  },
  "34597671": {
   "name": "Valkyries Zearaskia",
