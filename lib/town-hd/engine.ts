@@ -60,6 +60,10 @@ export interface HdTown {
    * town's own water as soon as that is drawn.
    */
   renderWater(v: LiveView, wet: number): HTMLCanvasElement;
+  /** For the live town (`underlay: "raised"`): the ground and the water in their own colours, with the ground's heights, as the live town's camera sees them; drawn where the live town drew its ground. */
+  renderGround(v: LiveView, wet: number): HTMLCanvasElement;
+  /** How high the ground is at a point of the map (tiles), in tiles; 0 everywhere on level ground. */
+  heightAt(x: number, y: number): number;
   /** Whether a point of the map (tiles) is water. */
   wetAt(x: number, y: number): boolean;
   /** After `renderAt`, the same frame: what stands in the map alone, lit and in shadow, on nothing (for the live town to lay over its own pictures). */
@@ -74,7 +78,7 @@ export interface HdTown {
   dispose(): void;
 }
 export type Quality = "high" | "mid" | "low";
-export interface HdOpts { /** Only the ground, the water and the shadows, for the live town to draw over (see `renderAt`). */ underlay?: boolean; /** How much is drawn: everything, a phone's share, or the bare scene. Left out, the device decides, and a slow one is given less. */ quality?: Quality; /** Light and air (glow, colour, dust, mist); a tester's `?fx=0` turns them off to compare. */ fx?: boolean; /** Which map is stood up. */ map?: MapId; time: TimeId; /** Where to stand first, in tiles (a tester's `?at=x,y`); the plaza otherwise. */ at?: { x: number; y: number }; /** The name plate of the test character: moved here each frame to sit under its feet. */ nameEl?: HTMLElement | null; /** Show where may be walked (a tester's `?walk=1`). */ showWalk?: boolean; onReady?: () => void; onFps?: (fps: number) => void }
+export interface HdOpts { /** Only the ground, the water and the shadows, for the live town to draw over (see `renderAt`). */ underlay?: boolean | "raised"; /** How much is drawn: everything, a phone's share, or the bare scene. Left out, the device decides, and a slow one is given less. */ quality?: Quality; /** Light and air (glow, colour, dust, mist); a tester's `?fx=0` turns them off to compare. */ fx?: boolean; /** Which map is stood up. */ map?: MapId; time: TimeId; /** Where to stand first, in tiles (a tester's `?at=x,y`); the plaza otherwise. */ at?: { x: number; y: number }; /** The name plate of the test character: moved here each frame to sit under its feet. */ nameEl?: HTMLElement | null; /** Show where may be walked (a tester's `?walk=1`). */ showWalk?: boolean; onReady?: () => void; onFps?: (fps: number) => void }
 
 type Obj = number[];
 const SEASONAL = /^game_(pumpkin|jacko)/;
@@ -91,7 +95,9 @@ function loadTexture(manager: THREE.LoadingManager, src: string): THREE.Texture 
 }
 
 export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
-  const map = MAPS[opts.map ?? "town"], TOWN = map.id === "town", below = !!opts.underlay;
+  const map = MAPS[opts.map ?? "town"], TOWN = map.id === "town", below = !!opts.underlay, flat = opts.underlay === true;
+  // (`raised`: under the live town with the ground's heights, the live town lifting all it draws by `heightAt`; the
+  // ground and the water are then this town's own too: `renderGround`)
   const sprites = map.sprites, names = map.names, OBJECTS = map.objects as Obj[], DIR = map.dir;
   const { findWay, nearestOpen, step } = makeWalk(map), isDeck = map.isDeck;
   /** The ground beyond the map: how far the trial's world goes on, in tiles. */
@@ -103,6 +109,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   // (the owner was told, 2026-11-17, that the look's cost on a phone was never measured: so three shares of it)
   const quality: Quality = opts.quality ?? (coarse ? "mid" : "high"), lite = quality !== "high";
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: below, powerPreference: "high-performance" });
+  let land: { mesh: THREE.Mesh; real: THREE.Material; white: THREE.Material } | null = null, river: THREE.Mesh | null = null;
   // (under the live town: what is hidden while only shadows are drawn and shown for the lit picture, and the other way)
   const litShown: THREE.Object3D[] = [], litHidden: THREE.Object3D[] = [];
   renderer.shadowMap.enabled = true;
@@ -183,7 +190,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   const NX = (WORLD.x1 - WORLD.x0) * GRID + 1, NZ = (WORLD.z1 - WORLD.z0) * GRID + 1;
   const HGT = new Float32Array(NX * NZ);
   // (under the live town the ground stays level: its pictures are all drawn on level ground)
-  if (!map.indoors && !below) {
+  if (!map.indoors && !flat) {
     let land = new Float32Array(NX * NZ), tmp = new Float32Array(NX * NZ);
     for (let j = 0; j < NZ; j++) for (let i = 0; i < NX; i++) {
       const x = WORLD.x0 + i / GRID, z = WORLD.z0 + j / GRID, l = lookAt(x, z), tx = Math.floor(x), tz = Math.floor(z);
@@ -238,7 +245,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     const pos = new Float32Array(nx * nz * 3), idx = new Uint32Array((nx - 1) * (nz - 1) * 6);
     for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) {
       const x = WORLD.x0 + i / GRID, z = WORLD.z0 + j / GRID, o = (j * nx + i) * 3;
-      pos[o] = x; pos[o + 1] = below ? 0 : wetAt(x, z) ? BED_Y : HGT[j * nx + i]; pos[o + 2] = z;
+      pos[o] = x; pos[o + 1] = flat ? 0 : wetAt(x, z) ? BED_Y : HGT[j * nx + i]; pos[o + 2] = z;
     }
     let k = 0;
     for (let j = 0; j < nz - 1; j++) for (let i = 0; i < nx - 1; i++) {
@@ -250,10 +257,10 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     geo.setIndex(new THREE.BufferAttribute(idx, 1));
     geo.computeVertexNormals();
     const mat = new THREE.MeshLambertMaterial({ color: 0xffffff });
-    if (!below) mat.onBeforeCompile = (sh) => {
+    if (!flat) mat.onBeforeCompile = (sh) => {
       sh.uniforms.hdIndex = { value: indexTex };
       sh.uniforms.hdTime = clock; sh.uniforms.hdCloud = cloudy; sh.uniforms.hdWet = wetU;
-      sh.uniforms.hdUvK = { value: below ? new THREE.Vector2(1 / 8, -1 / 8) : new THREE.Vector2(1 / 5.657, 1 / 5.657) };
+      sh.uniforms.hdUvK = { value: flat ? new THREE.Vector2(1 / 8, -1 / 8) : new THREE.Vector2(1 / 5.657, 1 / 5.657) };
       sh.uniforms.hdOrigin = { value: new THREE.Vector4(WORLD.x0, WORLD.z0, WORLD.x1 - WORLD.x0, WORLD.z1 - WORLD.z0) };
       LOOKS.forEach((_, i) => { sh.uniforms[`hdLook${i}`] = { value: lookTex[i] }; });
       sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec2 hdAt;")
@@ -278,11 +285,14 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
           diffuseColor.rgb *= mix(vec3(1.0), vec3(0.64, 0.69, 0.78), hdWet);
           diffuseColor.rgb += hdWet * 0.09 * step(0.7, hdNoise(hdAt * 0.9)) * vec3(0.55, 0.65, 0.85);`);
     };
-    const ground = new THREE.Mesh(geo, mat);
+    // (under the live town the ground is white, for the shadows' picture; its own colours are worn only for `renderGround`)
+    const white = new THREE.MeshLambertMaterial({ color: 0xffffff });
+    const ground = new THREE.Mesh(geo, below ? white : mat);
     ground.receiveShadow = true;
     litHidden.push(ground);
     scene.add(ground);
-    disposables.push(geo, mat);
+    land = { mesh: ground, real: mat, white };
+    disposables.push(geo, mat, white);
   }
 
   // the water: the editor's own water picture, drifting, over the sunk bed
@@ -325,6 +335,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * w / 5.657, uv.getY(i) * d / 5.657);
     const m = new THREE.Mesh(geo, K.water);
     m.visible = !below;
+    river = m;
     m.rotation.x = -Math.PI / 2;
     m.position.set((WORLD.x0 + WORLD.x1) / 2, WATER_Y, (WORLD.z0 + WORLD.z1) / 2);
     m.receiveShadow = true;
@@ -618,7 +629,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
 
   // what lies flat (stepping stones, lotus leaves, flower beds): its picture laid back onto the ground it was drawn on
   for (const { s, o, wet } of flats) {
-    const sp = sprites[s], w = sp[1] * o[4], h = sp[2] * o[4], y = below ? 0.03 : wet ? WATER_Y + 0.02 : Hat((o[8] + o[10]) / 2, (o[9] + o[11]) / 2) + 0.03;
+    const sp = sprites[s], w = sp[1] * o[4], h = sp[2] * o[4], y = flat ? 0.03 : wet ? WATER_Y + 0.02 : Hat((o[8] + o[10]) / 2, (o[9] + o[11]) / 2) + 0.03;
     const at = (ix: number, iy: number) => [(ix / 32 + iy / 16) / 2, y, (iy / 16 - ix / 32) / 2];
     const geo = new THREE.BufferGeometry(), flip = o[5] === 1;
     geo.setAttribute("position", new THREE.Float32BufferAttribute([...at(o[2], o[3] + h), ...at(o[2] + w, o[3] + h), ...at(o[2] + w, o[3]), ...at(o[2], o[3])], 3));
@@ -1128,6 +1139,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       (scene.fog as THREE.Fog).near = 1e5; (scene.fog as THREE.Fog).far = 1e6;
       const shadeKey = `${sunDir.x.toFixed(2)},${sunDir.z.toFixed(2)}`;
       if (shadeKey !== shadedFor) { shadedFor = shadeKey; shadeCards(); }
+      if (v.stands && !flat) for (const s of v.stands) s.up = Hat(s.x, s.y);
       sheets?.set(v.stands ?? [], sunDir);
       clock.value = sec; cloudy.value = 0; wetU.value = 0;
       glint.value.setScalar(0.16 * (1 - now.lamps));
@@ -1149,6 +1161,35 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       return renderer.domElement;
     },
     wetAt: (x, y) => wetAt(x, y),
+    heightAt: (x, y) => (flat ? 0 : Hat(x, y)),
+    renderGround(v, wet) {
+      const w = Math.max(1, Math.round(v.cw)), h = Math.max(1, Math.round(v.ch)), dpr = Math.min(v.dpr, quality === "low" ? 1 : lite ? 1.5 : 2);
+      if (w !== sized.w || h !== sized.h || dpr !== sized.d) { sized = { w, h, d: dpr }; renderer.setPixelRatio(dpr); renderer.setSize(w, h, false); }
+      const sec = performance.now() / 1000, q = hourOf(v.min);
+      blend(SKIES[q[0]], SKIES[q[1]], q[2]);
+      // (in its own colours and no more: the shadows and the slopes' shade come with the shadows' picture, laid over it)
+      sun.intensity = 0;
+      hemi.color.setHex(0xffffff); hemi.groundColor.setHex(0xffffff); hemi.intensity = Math.PI;
+      (scene.background as THREE.Color).setHex(0x24352a);
+      (scene.fog as THREE.Fog).near = 1e5; (scene.fog as THREE.Fog).far = 1e6;
+      clock.value = sec; cloudy.value = 0; wetU.value = wet;
+      glint.value.setScalar(0.3 * (1 - 0.8 * now.lamps) * (1 - 0.6 * wet));
+      waterTex.offset.set(sec * 0.012, sec * 0.02);
+      const half = v.ch / (2 * PX_SIDE * v.s);
+      camera.top = half; camera.bottom = -half; camera.right = (half * v.cw) / v.ch; camera.left = -camera.right;
+      camera.updateProjectionMatrix();
+      eye.set((v.cx / 32 + v.cy / 16) / 2, 0, (v.cy / 16 - v.cx / 32) / 2);
+      camera.position.set(eye.x + Math.sin(YAW) * Math.cos(PITCH) * 250, Math.sin(PITCH) * 250, eye.z + Math.cos(YAW) * Math.cos(PITCH) * 250);
+      camera.lookAt(eye);
+      if (land) land.mesh.material = land.real;
+      if (river) river.visible = true;
+      renderer.shadowMap.autoUpdate = false;
+      renderer.render(scene, camera);
+      renderer.shadowMap.autoUpdate = true;
+      if (land) land.mesh.material = land.white;
+      if (river) river.visible = false;
+      return renderer.domElement;
+    },
     renderWater(v, wet) {
       if (!surf) {
         // (./engine's own water, its shader's four doings, on a sheet over the live town's water: nothing where there is land)

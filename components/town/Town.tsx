@@ -168,6 +168,21 @@ export type TownMe = Identity;
 
 /** A doll's height on the map, unscaled: the top of the head to the feet (a picture pixel is a unit). */
 const DOLL_H = 77;
+/**
+ * The ground's height at a tile, in the map's own pixels up the screen, where the 3D town has raised it (lib/town-hd/
+ * engine's `heightAt`: low hills over the editor's maps' open land); 0 on level ground and wherever it has not. Everything
+ * drawn at a tile is drawn that much higher (`project`), and a point of the screen is found under it again (`tileUnder`).
+ */
+let HILL: ((x: number, y: number) => number) | null = null;
+const hillPx = (x: number, y: number) => (HILL ? HILL(x, y) * 39.2 : 0);
+/** The tile under a point of the map's own pixels as the screen shows it: the ground there may stand higher than the level map. */
+function tileUnder(ix: number, iy: number): Vec {
+  let t = fromIso(ix, iy);
+  if (HILL) for (let i = 0; i < 3; i++) t = fromIso(ix, iy + hillPx(t.x, t.y));
+  return t;
+}
+/** Where a tile is in the map's own pixels as the screen shows it: raised with its ground. */
+const isoUp = (x: number, y: number): Vec => { const q = toIso(x, y); return HILL ? { x: q.x, y: q.y - hillPx(x, y) } : q; };
 /** The sheet the walkers' dolls are drawn on again for their shadows: so many cells, each so large, a doll's feet so far down its cell (map pixels). */
 const DOLL_CELLS = { cols: 8, rows: 5, w: 112, h: 144, foot: 132 };
 /** How long a line stays in the log over the map. */
@@ -564,7 +579,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const wildMake = useRef<(() => Shade) | null>(null), wildShade = useRef<Shade | null>(null);
   const wildStood = useRef<Array<{ name: string; x: number; y: number; k: number; mirror?: boolean }>>([]);
   /** The frame (its clock) in which the 3D town last threw the shadows. */
-  const castAt = useRef(-1);
+  const castAt = useRef(-1), hdRaised = useRef(false);
+  useEffect(() => () => { HILL = null; }, []);
   const hdNow = useRef(hd), litCopy = useRef<HTMLCanvasElement | null>(null), litOn = useRef(true);
   hdNow.current = hd;
   useEffect(() => { litOn.current = !/[?&]hdlit=0/.test(window.location.search); }, []);
@@ -582,7 +598,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     let gone = false;
     void Promise.all([import("@/lib/town-hd/engine"), import("@/lib/town-hd/shade")]).then(([{ createHdTown }, { createShade }]) => {
       if (gone) return;
-      hdMake.current = (place) => createHdTown(document.createElement("canvas"), { map: place, time: "day", underlay: true, quality: hd });
+      // (at "mid" and "high" with the ground's heights, the town lifting all it draws: `?hdflat=1` keeps the ground level)
+      const raised = hd !== "low" && !/[?&]hdflat=1/.test(window.location.search);
+      hdRaised.current = raised;
+      hdMake.current = (place) => createHdTown(document.createElement("canvas"), { map: place, time: "day", underlay: raised ? "raised" : true, quality: hd });
       wildMake.current = () => createShade(document.createElement("canvas"), hd);
       if (hd !== "low" && !/[?&]hdfinish=0/.test(window.location.search)) void import("@/lib/town-hd/finish").then(({ createFinish }) => {
         if (gone || !finishCanvas.current) return;
@@ -590,7 +609,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       }).catch(() => { /* the town without it */ });
       console.info("[Cash Town] 3D shadows:", hd);
     }).catch((e) => { console.warn("[Cash Town] 3D shadows could not start; the town is drawn as it always was", e); });
-    return () => { gone = true; hdMake.current = null; wildMake.current = null; for (const t of Object.values(hdTowns.current)) t?.dispose(); hdTowns.current = {}; wildShade.current?.dispose(); wildShade.current = null; finishRef.current?.dispose(); finishRef.current = null; setFinishOn(false); };
+    return () => { gone = true; HILL = null; hdMake.current = null; wildMake.current = null; for (const t of Object.values(hdTowns.current)) t?.dispose(); hdTowns.current = {}; wildShade.current?.dispose(); wildShade.current = null; finishRef.current?.dispose(); finishRef.current = null; setFinishOn(false); };
   }, [hd]);
   // ── the pasture ── (the cloud ram's pictures are the pasture's sheets: fetched the first time a ram is drawn, on any map)
   const ramArt = useRef<SceneryKit | null | undefined>(undefined);
@@ -1191,7 +1210,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // says whether a press begins such an aim, and is told where it is dragged to and where it is let go)
   const bugsAim = useRef<BugsAim | null>(null), bugsAimOn = useRef(false);
   const registerBugsAim = useCallback((aim: BugsAim | null) => { bugsAim.current = aim; }, []);
-  const bugsAt = (p: { x: number; y: number }) => { const v = cam.current, iso = toIsoPoint(v, p.x, p.y, v.cw, v.ch); return fromIso(iso.x, iso.y); };
+  const bugsAt = (p: { x: number; y: number }) => { const v = cam.current, iso = toIsoPoint(v, p.x, p.y, v.cw, v.ch); return tileUnder(iso.x, iso.y); };
   /** Things dropped on the ground (lib/town/ground): their own way of drawing what lies about, and of saying whether a tap was on one of them. */
   const groundDraw = useRef<FarmDraw | null>(null), groundTap = useRef<GroundTap | null>(null);
   const registerGround = useCallback((draw: FarmDraw | null) => { groundDraw.current = draw; }, []);
@@ -1885,7 +1904,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         for (const p of P) {
           if (now - p.at < LAST) continue;
           // somewhere in view, if that is in the town at all
-          const iso = toIsoPoint(v, Math.random() * cw, Math.random() * ch, cw, ch), t = fromIso(iso.x, iso.y);
+          const iso = toIsoPoint(v, Math.random() * cw, Math.random() * ch, cw, ch), t = tileUnder(iso.x, iso.y);
           const inTown = t.x >= 0 && t.y >= 0 && t.x < COLS && t.y < ROWS;
           p.x = inTown ? t.x : -1; p.y = t.y; p.at = now - Math.random() * 40;
         }
@@ -1906,7 +1925,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       const L = leaves.current, G = gust.current;
       if (!scenery?.has("lf1") || e.leaves <= 0.01) { L.length = 0; G.strength = 0; }
       else {
-        const world = (sx: number, sy: number) => { const iso = toIsoPoint(v, sx, sy, cw, ch); return fromIso(iso.x, iso.y); };
+        const world = (sx: number, sy: number) => { const iso = toIsoPoint(v, sx, sy, cw, ch); return tileUnder(iso.x, iso.y); };
         // how much of the town is in view, against a 1280×800 window at the starting zoom: the leaves are in the
         // town, so a closer look shows fewer of them, not the same number crowded together
         const area = Math.max(0.3, Math.min(1.6, ((cw * ch) / (1280 * 800)) * (START_DESK / v.s) ** 2));
@@ -2315,7 +2334,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
 
   function project(t: Vec): Vec {
     const v = cam.current;
-    return toScreen(v, toIso(t.x, t.y), v.cw, v.ch);
+    return toScreen(v, isoUp(t.x, t.y), v.cw, v.ch);
   }
 
   function draw(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, now: number, dt: number) {
@@ -2330,7 +2349,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // The camera: where it starts, and following me (to the spot a panel leaves).
     if (!v.ready) {
       v.s = startScale(cw, ch);
-      const iso = mine ? toIso(mine.pos.x, mine.pos.y) : { x: 0, y: (ROWS + COLS) * TILE_H / 4 };
+      const iso = mine ? isoUp(mine.pos.x, mine.pos.y) : { x: 0, y: (ROWS + COLS) * TILE_H / 4 };
       v.cx = iso.x; v.cy = iso.y;
       v.ready = true;
       setCam(camNow());
@@ -2352,7 +2371,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         zoomOutdoors.current = null;
         queueMicrotask(() => setShopPanel(null));
       }
-      if (mine) { const iso = toIso(mine.pos.x, mine.pos.y); v.cx = iso.x; v.cy = iso.y - dollH(mine) * 0.45; }
+      if (mine) { const iso = isoUp(mine.pos.x, mine.pos.y); v.cx = iso.x; v.cy = iso.y - dollH(mine) * 0.45; }
       v.follow = true;
       setCam(camNow());
       warpedAt.current = now;
@@ -2364,14 +2383,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     }
     // ── to come ── (another floor of the cave is another map to the camera: it is put on me at once, and the floor comes up out of the dark)
     if (moreArt.current?.moved(mine ? mine.pos : null) && mine) {
-      const iso = toIso(mine.pos.x, mine.pos.y);
+      const iso = isoUp(mine.pos.x, mine.pos.y);
       v.cx = iso.x; v.cy = iso.y - dollH(mine) * 0.45;
       v.follow = true;
       setCam(camNow());
       warpedAt.current = now;
     }
     if (v.follow && mine) {
-      const iso = toIso(mine.pos.x, mine.pos.y);
+      const iso = isoUp(mine.pos.x, mine.pos.y);
       const f = focus.current ?? { x: cw / 2, y: ch / 2 };
       let tx = iso.x - (f.x - cw / 2) / v.s;
       const ty = iso.y - dollH(mine) * 0.45 - (f.y - ch / 2) / v.s;
@@ -2492,7 +2511,23 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     }
     // The ground: the pixel-art picture of it, or plain tiles until it has come.
     const scenery = sceneryRef.current;
-    if (scenery) {
+    // (on the editor's maps, where the 3D town has raised the ground: its own ground and water, with their heights)
+    let raisedNow = false;
+    {
+      const here = placeRef.current, gp: HdPlace | null = here === "town" && T2 ? "town" : here === "farm" && F2 ? "farm" : null;
+      let town: HdTown | null = null;
+      try { town = gp && hdMake.current && hdRaised.current && scenery ? (hdTowns.current[gp] ??= hdMake.current(gp)) : null; } catch (e) { hdMake.current = null; console.warn("[Cash Town] 3D shadows stopped", e); }
+      raisedNow = !!town && town.ready();
+      HILL = raisedNow ? town!.heightAt : null;
+      if (raisedNow) {
+        try {
+          const clock = new Date(Date.now() + 7 * 3600_000);
+          ctx.drawImage(town!.renderGround({ cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() }, effects.current?.rain ?? 0), 0, 0, cw, ch);
+        } catch (e) { raisedNow = false; HILL = null; hdRaised.current = false; console.warn("[Cash Town] 3D ground stopped", e); }
+      }
+    }
+    if (raisedNow) { /* the 3D town's ground is down */ }
+    else if (scenery) {
       scenery.drawGround(ctx, v, cw, ch, dpr);
       // Flowers lie flat: under whoever walks over them.
       for (const p of placeRef.current === "forest" ? FOREST_PROPS : T2 ? [] : PROPS) {
@@ -2516,7 +2551,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // the kitchen hall's inside only while I am in it, when its roof is off)
     const art2 = scenery ? town2Ref.current : null, inHall = T2 && roofRef.current < 1;
     const iso2 = (ix: number, iy: number) => toScreen(v, { x: ix, y: iy }, cw, ch);
-    if (art2) { art2.carving = forcedCarving.current ?? carving(Date.now()); art2.lit = null; }
+    if (art2) { art2.carving = forcedCarving.current ?? carving(Date.now()); art2.lit = null; art2.lift = HILL ? hillPx : null; }
     // (v325: the golden cloth on the hall's tables and cushions on its benches, while they last by the keeper's clock: lib/town/special-uses)
     if (art2) { const d = dressRef.current, t = Date.now() + (d?.skew ?? 0); art2.dressed = { cloth: !!d && laid(d.dress, "cloth", t), cushions: !!d && laid(d.dress, "cushions", t) }; }
     const seen2 = art2 ? art2.visible({ x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, now) : null;
@@ -2528,12 +2563,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const seenShop = roomArt ? roomArt.visible({ x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, now) : null;
     // The river flowing, and what floats and swims in it (in the editor's town, down its own river, under its decks). (Not
     // seen from a room.)
-    if (scenery && !underRoof(placeRef.current)) drawRiver(ctx, scenery, dpr);
+    if (scenery && !underRoof(placeRef.current) && !raisedNow) drawRiver(ctx, scenery, dpr);
     // What lives on the 3D town's water, over the river just drawn (lib/town-hd/engine's `renderWater`): foam along the
     // banks, the sun's glints, rings where rain falls. On the editor's maps, at "mid" and "high".
     {
       const here = placeRef.current, wp: HdPlace | null = here === "town" && T2 ? "town" : here === "farm" && F2 ? "farm" : null;
-      const town = wp && finishRef.current ? hdTowns.current[wp] : null;
+      const town = wp && finishRef.current && !raisedNow ? hdTowns.current[wp] : null;
       if (town?.ready()) {
         try {
           const clock = new Date(Date.now() + 7 * 3600_000);
@@ -4551,7 +4586,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const tileAt = (x: number, y: number): Vec => {
     const v = cam.current;
     const iso = toIsoPoint(v, x, y, v.cw, v.ch);
-    const t = fromIso(iso.x, iso.y);
+    const t = tileUnder(iso.x, iso.y);
     return { x: Math.floor(t.x), y: Math.floor(t.y) };
   };
 
@@ -4563,7 +4598,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       // lands on the footprint, the pointer is on the building.
       for (let lift = 0; lift <= b.height; lift += 6) {
         const iso = toIsoPoint(v, x, y, v.cw, v.ch);
-        const t = fromIso(iso.x, iso.y + lift);
+        const t = tileUnder(iso.x, iso.y + lift);
         if (t.x >= b.x && t.x < b.x + b.w && t.y >= b.y && t.y < b.y + b.h) return b;
       }
     }
@@ -4603,7 +4638,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // at nothing, as before: for them the net is never asked.)
     if (who && !atFeet && gameRef.current && bugsTap.current && !sessionRef.current?.stuck() && !sessionRef.current?.seated) {
       const v = cam.current, iso = toIsoPoint(v, x, y, v.cw, v.ch);
-      if (bugsTap.current(fromIso(iso.x, iso.y), true)) { setPopover(null); setCard(null); return; }
+      if (bugsTap.current(tileUnder(iso.x, iso.y), true)) { setPopover(null); setCard(null); return; }
     }
     if (who && !atFeet) { setPopover(null); setCard({ id: who.id, x: (who.x0 + who.x1) / 2, top: who.y0, bottom: who.y1 }); return; }
     setCard(null);
@@ -4666,7 +4701,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // with a net in the hand, a tap on an insect within reach is a swing at it
     if (gameRef.current && bugsTap.current) {
       const v = cam.current, iso = toIsoPoint(v, x, y, v.cw, v.ch);
-      if (bugsTap.current(fromIso(iso.x, iso.y))) return;
+      if (bugsTap.current(tileUnder(iso.x, iso.y))) return;
     }
     // a thing lying on the ground: picked up if I stand by it, walked to and picked up otherwise. (Asked after the
     // net: an insect is drawn over whatever lies under it, and a swing aimed at one is not to turn into something else.)

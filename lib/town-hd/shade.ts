@@ -15,7 +15,7 @@ import * as THREE from "three";
 import type { LiveView, Quality } from "./engine";
 
 /** A picture standing on the map: its piece of its sheet, its foot in that piece, how large it is drawn, and its foot's tile. */
-export interface Stand { img: HTMLImageElement | HTMLCanvasElement; sx: number; sy: number; w: number; h: number; ax: number; ay: number; k: number; x: number; y: number; mirror?: boolean }
+export interface Stand { img: HTMLImageElement | HTMLCanvasElement; sx: number; sy: number; w: number; h: number; ax: number; ay: number; k: number; x: number; y: number; mirror?: boolean; /** How high the ground it stands on is, in tiles. */ up?: number }
 export interface Shade { renderAt(v: LiveView, stands: readonly Stand[]): HTMLCanvasElement; dispose(): void }
 
 /** The sun's stand at the day's hours (./engine's, the same four), and how far the night has come (0 to 1). */
@@ -107,10 +107,11 @@ export function createSheets(scene: THREE.Scene): Sheets {
         const u0 = s.sx / W, u1 = (s.sx + s.w) / W, v1 = 1 - s.sy / H, v0 = 1 - (s.sy + s.h) / H;
         const [ua, ub] = s.mirror ? [u1, u0] : [u0, u1];
         const fx = s.x, fz = s.y, p = b.pos, t = b.uv, o = i * 12, q = i * 8;
-        p[o] = fx + rx * l; p[o + 1] = bot; p[o + 2] = fz + rz * l;
-        p[o + 3] = fx + rx * r; p[o + 4] = bot; p[o + 5] = fz + rz * r;
-        p[o + 6] = fx + rx * r; p[o + 7] = top; p[o + 8] = fz + rz * r;
-        p[o + 9] = fx + rx * l; p[o + 10] = top; p[o + 11] = fz + rz * l;
+        const up = s.up ?? 0;
+        p[o] = fx + rx * l; p[o + 1] = bot + up; p[o + 2] = fz + rz * l;
+        p[o + 3] = fx + rx * r; p[o + 4] = bot + up; p[o + 5] = fz + rz * r;
+        p[o + 6] = fx + rx * r; p[o + 7] = top + up; p[o + 8] = fz + rz * r;
+        p[o + 9] = fx + rx * l; p[o + 10] = top + up; p[o + 11] = fz + rz * l;
         t[q] = ua; t[q + 1] = v0; t[q + 2] = ub; t[q + 3] = v0; t[q + 4] = ub; t[q + 5] = v1; t[q + 6] = ua; t[q + 7] = v1;
       }
       for (const [img, b] of batches) {

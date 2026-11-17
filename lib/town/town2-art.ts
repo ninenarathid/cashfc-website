@@ -127,7 +127,7 @@ export class Town2Art {
   boxOf(i: number, screen: Screen, s: number): { x0: number; y0: number; x1: number; y1: number } | null {
     const t = this.things.find((q) => q.i === i);
     if (!t) return null;
-    const sp = this.sprites[t.s], a = screen(t.x, t.y);
+    const sp = this.sprites[t.s], a = screen(t.x, t.y - this.up(t));
     return { x0: a.x, y0: a.y, x1: a.x + sp.w * t.k * s, y1: a.y + sp.h * t.k * s };
   }
 
@@ -178,6 +178,12 @@ export class Town2Art {
    * front with the walkers, and wears the sun's side and the shadows that fall across it.
    */
   lit: { pic: HTMLCanvasElement; k: number } | null = null;
+  /**
+   * How high the ground stands at a tile, in the map's own pixels, where the 3D town has raised it, or null on level
+   * ground: each thing is drawn that much higher, by the ground under its footprint's middle (as the 3D town stands it).
+   */
+  lift: ((x: number, y: number) => number) | null = null;
+  private up(t: Thing): number { return this.lift ? this.lift((t.box[0] + t.box[2]) / 2, (t.box[1] + t.box[3]) / 2) : 0; }
   private scratch: HTMLCanvasElement | null = null;
   /** Lay the lit picture's part over what was just drawn in the screen's box (x, y, w, h), through `outline` (drawn into the box's own corner). */
   private relight(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, outline: (g: CanvasRenderingContext2D) => void) {
@@ -204,7 +210,7 @@ export class Town2Art {
   private paint(ctx: CanvasRenderingContext2D, t: Thing, screen: Screen, s: number, px: number, strip?: [number, number]) {
     const sp = this.sprites[t.s];
     if (!sp.img || !sp.ready) return;
-    const k = t.k * s, a = screen(t.x, t.y);
+    const k = t.k * s, a = screen(t.x, t.y - this.up(t));
     let pic: CanvasImageSource = sp.img;
     if (FLOWING.test(t.name) && this.now) {
       let frames = this.flowing.get(t.s);
