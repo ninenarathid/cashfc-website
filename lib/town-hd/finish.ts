@@ -12,7 +12,7 @@ import type { LiveView, Quality } from "./engine";
 import { NOISE, makeAir, makePost } from "./fx";
 import { MAPS } from "./maps";
 
-export interface Finish { /** The canvas it is drawn on. */ canvas: HTMLCanvasElement; render(src: HTMLCanvasElement, v: LiveView, more: { indoors: boolean; still: boolean; /** The editor's town: petals in its air. */ town?: boolean; /** False where the live town lays its own clouds' shadows by its weather. */ clouds?: boolean; /** How hard it rains (the live town's weather), 0 to 1. */ rain?: number; /** Where the map is water (tiles), for the mist that lies on it. */ wetAt?: (x: number, y: number) => boolean }): void; dispose(): void }
+export interface Finish { /** The canvas it is drawn on. */ canvas: HTMLCanvasElement; render(src: HTMLCanvasElement, v: LiveView, more: { indoors: boolean; still: boolean; /** Under the ground (the cave): nothing of the sky's in the air, no sun, no fireflies. */ sunless?: boolean; /** The editor's town: petals in its air. */ town?: boolean; /** False where the live town lays its own clouds' shadows by its weather. */ clouds?: boolean; /** How hard it rains (the live town's weather), 0 to 1. */ rain?: number; /** Where the map is water (tiles), for the mist that lies on it. */ wetAt?: (x: number, y: number) => boolean }): void; dispose(): void }
 
 /** The hours (./engine's SKIES, the same four): the colour over the picture, [colour's strength, corners, glow, motes, fireflies, mist, sun shafts, clouds], how far the lamps are lit, the sun's stand and colour. */
 interface Hour { grade: number[]; air: number[]; lamps: number; sun: number[]; col: number }
@@ -117,9 +117,9 @@ void main() {
       room += ((more.indoors ? 1 : 0) - room) * Math.min(1, gone * 4);
       const lightUp = 1 - dark * dark, warm = room * 0.8;
       post.look([(grade[0] + (1.08 - grade[0]) * warm) * lightUp, (grade[1] + (1.0 - grade[1]) * warm) * lightUp, (grade[2] + (0.88 - grade[2]) * warm) * lightUp],
-        airNow[0], airNow[1] * 0.8 + 0.14 * room, 0.16 + 0.3 * lamps + 0.12 * room);
+        airNow[0], airNow[1] * 0.8 + 0.14 * room, (0.16 + 0.3 * lamps) * (1 - 0.45 * room));
       wetNow = more.wetAt;
-      const out = more.indoors ? 0 : 1, wet = Math.max(0, Math.min(1, more.rain ?? 0)) * out;
+      const out = more.indoors || more.sunless ? 0 : 1, wet = Math.max(0, Math.min(1, more.rain ?? 0)) * out;
       clouds.visible = more.clouds !== false && !more.indoors && airNow[7] > 0.02;
       clouds.position.set(Math.round(eye.x), 0, Math.round(eye.z));
       if (!more.still) cloudMat.uniforms.hdTime.value = sec;

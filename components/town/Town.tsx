@@ -1620,7 +1620,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         if (fin) {
           try {
             const c = cam.current, clock = new Date(Date.now() + 7 * 3600_000);
-            fin.render(canvas, { cx: c.cx, cy: c.cy, s: c.s, cw: c.cw, ch: c.ch, dpr: c.dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() }, { indoors: underRoof(placeRef.current) || (T2 && placeRef.current === "town" && roofRef.current < 0.5), still: reducedRef.current, town: T2 && placeRef.current === "town", clouds: false, rain: underRoof(placeRef.current) || placeRef.current === "cave" ? 0 : effects.current?.rain ?? 0, wetAt: (placeRef.current === "town" && T2 ? hdTowns.current.town : placeRef.current === "farm" && F2 ? hdTowns.current.farm : null)?.wetAt });
+            fin.render(canvas, { cx: c.cx, cy: c.cy, s: c.s, cw: c.cw, ch: c.ch, dpr: c.dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() }, { indoors: underRoof(placeRef.current) || (T2 && placeRef.current === "town" && roofRef.current < 0.5), still: reducedRef.current, sunless: placeRef.current === "cave", town: T2 && placeRef.current === "town", clouds: false, rain: underRoof(placeRef.current) || placeRef.current === "cave" ? 0 : effects.current?.rain ?? 0, wetAt: (placeRef.current === "town" && T2 ? hdTowns.current.town : placeRef.current === "farm" && F2 ? hdTowns.current.farm : null)?.wetAt });
           } catch (e) { dropFinish("it failed", e); }
         }
       }

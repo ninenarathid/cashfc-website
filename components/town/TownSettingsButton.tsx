@@ -127,7 +127,7 @@ export default function TownSettingsButton({ th, pace, onPace, drawn, onShown, h
             ))}
           </div>
           <div className="mt-2 space-y-0.5 text-label leading-relaxed text-muted">
-            <p>{th ? "เงาจริงตามเวลา แสงฟุ้ง โทนสีตามชั่วโมง และละอองในอากาศ (ต่ำ: เงาอย่างเดียว)" : "Real shadows by the hour, glow, the hour's colour and motes in the air (low: shadows only)."}</p>
+            <p>{th ? "เงาจริงตามเวลา พื้นสูงต่ำ แสงฟุ้ง และโทนสีตามชั่วโมง (ต่ำ: เงาอย่างเดียว)" : "Real shadows by the hour, rising ground, glow and the hour's colour (low: shadows only)."}</p>
             <p>{th ? "ถ้าเครื่องช้าหรือร้อน ลองลดลงหรือปิด" : "If the machine is slow or hot, lower it or turn it off."}</p>
           </div>
           {/* Whether the town moves: on for everybody, whatever the machine says of motion, until it is turned off here */}
