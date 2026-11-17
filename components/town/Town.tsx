@@ -168,6 +168,8 @@ export type TownMe = Identity;
 
 /** A doll's height on the map, unscaled: the top of the head to the feet (a picture pixel is a unit). */
 const DOLL_H = 77;
+/** The sheet the walkers' dolls are drawn on again for their shadows: so many cells, each so large, a doll's feet so far down its cell (map pixels). */
+const DOLL_CELLS = { cols: 8, rows: 5, w: 112, h: 144, foot: 132 };
 /** How long a line stays in the log over the map. */
 const LOG_SHOWN_MS = 120_000;
 /**
@@ -561,6 +563,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const wildStood = useRef<Array<{ name: string; x: number; y: number; k: number; mirror?: boolean }>>([]);
   /** The frame (its clock) in which the 3D town last threw the shadows. */
   const castAt = useRef(-1);
+  // Each walker's doll as it was just drawn, once more on a sheet of its own (a cell a walker), for the shadow it throws
+  // in the next frame: its own shape, hat and all (the owner, 2026-11-17, of one outline for everybody: "เงาไม่ละเอียด").
+  const dollSheet = useRef<HTMLCanvasElement | null>(null), dollsDrawn = useRef<Array<{ a: Avatar; cell: number }>>([]);
   // The finish over the whole frame, on every map (lib/town-hd/finish): the glow of what is bright, the hour's colour,
   // what hangs in the air. On a canvas of its own over the town's; at "low" there is none, only the shadows.
   const finishCanvas = useRef<HTMLCanvasElement | null>(null), finishRef = useRef<Finish | null>(null), finishSlow = useRef(0);
@@ -2536,12 +2541,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
             const clock = new Date(Date.now() + 7 * 3600_000);
             // (`?hdmin=960` looks at another minute of the day: to see the day's shadows at night, while this is tried)
             // (whoever walks here throws a shadow too: not who sits, rides or has gone)
-            const stay = sessionRef.current, walkers: Array<[number, number, number]> = [];
-            for (const a of stay ? [stay.self, ...stay.avatars.values()] : []) {
-              if (a.byeAt !== undefined || a.info.seat || (a.info.sit ?? -1) !== -1 || rides(a.info.pet, sitting(a), a.info.afoot) || !shadeNear(project(a.pos))) continue;
-              walkers.push([a.pos.x, a.pos.y, dollH(a)]);
-            }
-            const view = { cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes(), walkers };
+            const sheet = dollSheet.current, walkers: Stand[] = [];
+            for (const d of dollsDrawn.current) walkers.push({ img: sheet!, sx: (d.cell % DOLL_CELLS.cols) * DOLL_CELLS.w, sy: Math.floor(d.cell / DOLL_CELLS.cols) * DOLL_CELLS.h, w: DOLL_CELLS.w, h: DOLL_CELLS.h, ax: DOLL_CELLS.w / 2, ay: DOLL_CELLS.foot, k: 1, x: d.a.pos.x, y: d.a.pos.y });
+            const view = { cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes(), stands: walkers };
             let pic: HTMLCanvasElement;
             if (town) pic = town.renderAt(view);
             else {
@@ -2553,6 +2555,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
             ctx.drawImage(pic, 0, 0, cw, ch);
             ctx.globalCompositeOperation = "source-over";
             castAt.current = now;
+            // (the dolls' sheet is wiped for this frame's dolls, drawn on it as each walker is drawn)
+            if (sheet) sheet.getContext("2d")!.clearRect(0, 0, sheet.width, sheet.height);
+            dollsDrawn.current = [];
             if (!hdDrawn.current) { hdDrawn.current = true; console.info("[Cash Town] 3D shadows drawn", here, pic.width, pic.height); }
           }
         } catch (e) { hdMake.current = null; wildMake.current = null; console.warn("[Cash Town] 3D shadows stopped", e); }
@@ -4100,6 +4105,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         auraBehind(ctx, wearer);
       }
       kit.draw(ctx, look, face.view, face.mirror, p.x, p.y, k, { step, blink, talk, expr, eat: eatPose, sit: sitting(a) || perched, perch: !!tableSeatOf(a)?.back }, dpr);
+      if (castAt.current === now && !perched && !sitting(a) && !mapRef.current && dollsDrawn.current.length < DOLL_CELLS.cols * DOLL_CELLS.rows) {
+        const sheet = (dollSheet.current ??= Object.assign(document.createElement("canvas"), { width: DOLL_CELLS.cols * DOLL_CELLS.w, height: DOLL_CELLS.rows * DOLL_CELLS.h }));
+        const cell = dollsDrawn.current.length, g = sheet.getContext("2d")!;
+        g.save();
+        g.beginPath(); g.rect((cell % DOLL_CELLS.cols) * DOLL_CELLS.w, Math.floor(cell / DOLL_CELLS.cols) * DOLL_CELLS.h, DOLL_CELLS.w, DOLL_CELLS.h); g.clip();
+        kit.draw(g, look, face.view, face.mirror, (cell % DOLL_CELLS.cols + 0.5) * DOLL_CELLS.w, Math.floor(cell / DOLL_CELLS.cols) * DOLL_CELLS.h + DOLL_CELLS.foot, 1, { step, blink, talk, expr, eat: eatPose, sit: false, perch: false }, 1);
+        g.restore();
+        dollsDrawn.current.push({ a, cell });
+      }
       // ── the cloud ram's flock ── (a mount seen from the front: its head over the rider's legs)
       if (big) big.head(); else mount?.head?.();
       // ── Granny Twilla's limited outfits ── (now and then what the outfit is made of shows: bats slip out of the

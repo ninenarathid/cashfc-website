@@ -11,7 +11,7 @@
  *
  * It reads nothing from the database and writes nothing: no session, no other players, no game.
  */
-import { WALKER, walkerShape } from "./shade";
+import { createSheets, reachOf, type Sheets, type Stand } from "./shade";
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import {
@@ -45,8 +45,8 @@ const SKIES: Record<TimeId, Sky> = {
 
 /** Where the live town's own camera looks, as it says it: the middle of the view in isometric pixels, its scale, the view's size. */
 export interface LiveView {
-  /** Who walks in the view, to throw their shadows: where their feet are (tiles) and how tall their doll is (map pixels). */
-  walkers?: Array<[x: number, y: number, tall: number]>; cx: number; cy: number; s: number; cw: number; ch: number; dpr: number; /** The minute of the day, for where the sun stands. */ min: number }
+  /** What else stands in the view, to throw its shadow: the walkers, each their own doll as it was last drawn (./shade's sheets). */
+  stands?: Stand[]; cx: number; cy: number; s: number; cw: number; ch: number; dpr: number; /** The minute of the day, for where the sun stands. */ min: number }
 export interface HdTown {
   /**
    * For the live town (`underlay`): the shadows of what stands, on white ground, drawn as the live town's camera sees the
@@ -1088,24 +1088,13 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   const onVisible = () => { last = performance.now(); };
   document.addEventListener("visibilitychange", onVisible);
 
-  let walkers: THREE.InstancedMesh | null = null;
+  let sheets: Sheets | null = null, reached = REACH;
   const api: HdTown = {
     setTime(t) { if (clockMin === null && SKIES[t] === want) return; clockMin = null; from = copy(now); want = SKIES[t]; turned = 0; },
     setClock(min) { clockMin = min; },
     ready: () => came.pictures,
     renderAt(v) {
-      if (below && !walkers) {
-        const geo = new THREE.PlaneGeometry(1, 1);
-        geo.translate(0, 0.5, 0);
-        const tex = new THREE.CanvasTexture(walkerShape());
-        tex.magFilter = tex.minFilter = THREE.NearestFilter; tex.generateMipmaps = false;
-        tex.repeat.set(WALKER.w / 64, WALKER.h / 128); tex.offset.set(0, 1 - WALKER.h / 128);
-        const mat = new THREE.MeshBasicMaterial({ map: tex, alphaTest: 0.5, side: THREE.DoubleSide, colorWrite: false, depthWrite: false });
-        walkers = new THREE.InstancedMesh(geo, mat, 96);
-        walkers.castShadow = true; walkers.frustumCulled = false; walkers.count = 0;
-        scene.add(walkers);
-        disposables.push(tex, mat);
-      }
+      if (below && !sheets) sheets = createSheets(scene);
       const w = Math.max(1, Math.round(v.cw)), h = Math.max(1, Math.round(v.ch));
       // (a lower share is drawn on fewer pixels and laid out larger: the ground is soft enough to bear it)
       const dpr = Math.min(v.dpr, quality === "low" ? 1 : lite ? 1.5 : 2);
@@ -1127,12 +1116,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       (scene.fog as THREE.Fog).near = 1e5; (scene.fog as THREE.Fog).far = 1e6;
       const shadeKey = `${sunDir.x.toFixed(2)},${sunDir.z.toFixed(2)}`;
       if (shadeKey !== shadedFor) { shadedFor = shadeKey; shadeCards(); }
-      if (walkers) {
-        const list = v.walkers ?? [], n = Math.min(96, list.length);
-        Q.setFromAxisAngle(UP, Math.atan2(sunDir.x, sunDir.z));
-        for (let i = 0; i < n; i++) walkers.setMatrixAt(i, M.compose(V.set(list[i][0], 0, list[i][1]), Q, S.set((WALKER.w * list[i][2]) / WALKER.h / PX_SIDE, list[i][2] / PX_UP, 1)));
-        walkers.count = n; walkers.instanceMatrix.needsUpdate = true;
-      }
+      sheets?.set(v.stands ?? [], sunDir);
       clock.value = sec; cloudy.value = 0; wetU.value = 0;
       glint.value.setScalar(0.16 * (1 - now.lamps));
       waterTex.offset.set(sec * 0.012, sec * 0.02);
@@ -1143,7 +1127,10 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       eye.set((v.cx / 32 + v.cy / 16) / 2, 0, (v.cy / 16 - v.cx / 32) / 2);
       camera.position.set(eye.x + Math.sin(YAW) * Math.cos(PITCH) * 250, Math.sin(PITCH) * 250, eye.z + Math.cos(YAW) * Math.cos(PITCH) * 250);
       camera.lookAt(eye);
-      const texel = (REACH * 2) / SH, ax = Math.round(eye.x / texel) * texel, az = Math.round(eye.z / texel) * texel;
+      // (the shadows' pixels on the view and a little about it, not on the whole map: ./shade's reachOf)
+      const reach = Math.ceil(reachOf(v));
+      if (reach !== reached) { reached = reach; Object.assign(sun.shadow.camera, { left: -reach, right: reach, top: reach, bottom: -reach }); sun.shadow.camera.updateProjectionMatrix(); }
+      const texel = (reach * 2) / SH, ax = Math.round(eye.x / texel) * texel, az = Math.round(eye.z / texel) * texel;
       sun.target.position.set(ax, 0, az);
       sun.position.set(ax + sunDir.x * 90, sunDir.y * 90, az + sunDir.z * 90);
       renderer.render(scene, camera);
