@@ -64,6 +64,25 @@ export function reachOf(v: LiveView): number {
   return Math.min(30, Math.max(9, Math.max(v.cw, v.ch * 2) / (2 * PX_SIDE * v.s) + 5));
 }
 
+const probeAt = new THREE.Vector3(), probeBuf = new Uint8Array(4);
+/**
+ * How light the shadows' picture just drawn is at points of the map (`v.probes`: tiles, and how high the ground is
+ * there), 0 dark to 1 lit, written to `v.shades`: whether somebody stands in a shadow (./engine's doll is dimmed whole
+ * when its body is in one). Asked a little towards the sun from their feet, before their own shadow.
+ */
+export function probe(renderer: THREE.WebGLRenderer, camera: THREE.Camera, v: LiveView, sunDir: THREE.Vector3, heightAt?: (x: number, y: number) => number) {
+  if (!v.probes?.length) return;
+  const gl = renderer.getContext(), W = gl.drawingBufferWidth, H = gl.drawingBufferHeight, flat = Math.hypot(sunDir.x, sunDir.z) || 1;
+  v.shades = v.probes.map(([x, y]) => {
+    const px = x + (sunDir.x / flat) * 0.4, pz = y + (sunDir.z / flat) * 0.4;
+    probeAt.set(px, heightAt ? heightAt(px, pz) : 0, pz).project(camera);
+    const sx = Math.round((probeAt.x * 0.5 + 0.5) * W), sy = Math.round((probeAt.y * 0.5 + 0.5) * H);
+    if (sx < 0 || sy < 0 || sx >= W || sy >= H) return 1;
+    gl.readPixels(sx, sy, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, probeBuf);
+    return probeBuf[1] / 255;
+  });
+}
+
 type Pic = HTMLImageElement | HTMLCanvasElement;
 /** All that stands of one sheet: its pictures' sheets in one set of corners, written again each time. */
 interface Batch { tex: THREE.Texture; mat: THREE.Material; geo: THREE.BufferGeometry; mesh: THREE.Mesh; pos: Float32Array; uv: Float32Array; room: number; n: number }
@@ -177,6 +196,7 @@ export function createShade(canvas: HTMLCanvasElement, quality: Quality): Shade 
       sun.target.position.set(ax, 0, az);
       sun.position.set(ax + sunDir.x * 90, sunDir.y * 90, az + sunDir.z * 90);
       renderer.render(scene, camera);
+      probe(renderer, camera, v, sunDir);
       return renderer.domElement;
     },
     dispose() {

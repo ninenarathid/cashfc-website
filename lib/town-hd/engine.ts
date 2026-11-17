@@ -11,7 +11,7 @@
  *
  * It reads nothing from the database and writes nothing: no session, no other players, no game.
  */
-import { createSheets, reachOf, type Sheets, type Stand } from "./shade";
+import { createSheets, probe, reachOf, type Sheets, type Stand } from "./shade";
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import {
@@ -45,6 +45,9 @@ const SKIES: Record<TimeId, Sky> = {
 
 /** Where the live town's own camera looks, as it says it: the middle of the view in isometric pixels, its scale, the view's size. */
 export interface LiveView {
+  /** Points of the map (tiles) asked whether they are in a shadow, and the answers (0 dark to 1 lit), written by `renderAt`: ./shade's `probe`. */
+  probes?: Array<[x: number, y: number]>;
+  shades?: number[];
   /** What else stands in the view, to throw its shadow: the walkers, each their own doll as it was last drawn (./shade's sheets). */
   stands?: Stand[]; cx: number; cy: number; s: number; cw: number; ch: number; dpr: number; /** The minute of the day, for where the sun stands. */ min: number }
 export interface HdTown {
@@ -1158,6 +1161,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       sun.target.position.set(ax, 0, az);
       sun.position.set(ax + sunDir.x * 90, sunDir.y * 90, az + sunDir.z * 90);
       renderer.render(scene, camera);
+      probe(renderer, camera, v, sunDir, flat ? undefined : Hat);
       return renderer.domElement;
     },
     wetAt: (x, y) => wetAt(x, y),

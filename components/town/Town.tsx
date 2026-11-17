@@ -579,7 +579,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const wildMake = useRef<(() => Shade) | null>(null), wildShade = useRef<Shade | null>(null);
   const wildStood = useRef<Array<{ name: string; x: number; y: number; k: number; mirror?: boolean }>>([]);
   /** The frame (its clock) in which the 3D town last threw the shadows. */
-  const castAt = useRef(-1), hdRaised = useRef(false);
+  const castAt = useRef(-1), hdRaised = useRef(false), shadeTick = useRef(0), inShade = useRef(new Map<string, number>());
   useEffect(() => () => { HILL = null; }, []);
   const hdNow = useRef(hd), litCopy = useRef<HTMLCanvasElement | null>(null), litOn = useRef(true);
   hdNow.current = hd;
@@ -2564,7 +2564,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const seenShop = roomArt ? roomArt.visible({ x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, now) : null;
     // The river flowing, and what floats and swims in it (in the editor's town, down its own river, under its decks). (Not
     // seen from a room.)
-    if (scenery && !underRoof(placeRef.current) && !raisedNow) drawRiver(ctx, scenery, dpr);
+    // (over the 3D town's water too: the current's streaks, the fish, what drifts by)
+    if (scenery && !underRoof(placeRef.current)) drawRiver(ctx, scenery, dpr);
     // What lives on the 3D town's water, over the river just drawn (lib/town-hd/engine's `renderWater`): foam along the
     // banks, the sun's glints, rings where rain falls. On the editor's maps, at "mid" and "high".
     {
@@ -2597,7 +2598,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
             // (whoever walks here throws a shadow too: not who sits, rides or has gone)
             const sheet = dollSheet.current, walkers: Stand[] = [];
             for (const d of dollsDrawn.current) walkers.push({ img: sheet!, sx: (d.cell % DOLL_CELLS.cols) * DOLL_CELLS.w, sy: Math.floor(d.cell / DOLL_CELLS.cols) * DOLL_CELLS.h, w: DOLL_CELLS.w, h: DOLL_CELLS.h, ax: DOLL_CELLS.w / 2, ay: DOLL_CELLS.foot, k: 1, x: d.a.pos.x, y: d.a.pos.y });
-            const view = { cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes(), stands: walkers };
+            const view = { cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes(), stands: walkers,
+              // (whether each walker stands in a shadow: asked every fourth frame, the answer eased towards)
+              probes: finishRef.current && ++shadeTick.current % 4 === 0 ? dollsDrawn.current.map((d): [number, number] => [d.a.pos.x, d.a.pos.y]) : undefined, shades: undefined as number[] | undefined };
             let pic: HTMLCanvasElement;
             if (town) pic = town.renderAt(view);
             else {
@@ -2617,6 +2620,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
               cg.clearRect(0, 0, c.width, c.height);
               cg.drawImage(lit, 0, 0);
               art2.lit = { pic: c, k: c.width / cw };
+            }
+            if (view.shades) {
+              const seen = new Set<string>();
+              dollsDrawn.current.forEach((d, i) => { const id = d.a.info.id, was = inShade.current.get(id) ?? 1; seen.add(id); inShade.current.set(id, was + ((view.shades![i] ?? 1) - was) * 0.5); });
+              for (const id of inShade.current.keys()) if (!seen.has(id)) inShade.current.delete(id);
             }
             castAt.current = now;
             rimNow.current = finishRef.current ? rimAt(view.min) : null;
@@ -4180,7 +4188,24 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         dollsDrawn.current.push({ a, cell });
         // The light on their sunward edge (the 3D town's doll wears it): what of the doll is not covered by itself moved
         // a pixel and a half from the sun, in the sun's colour, laid on light.
-        const R = rimNow.current;
+        // In a shadow they are dimmed whole (the 3D town's doll is): a cool dark laid over their own shape.
+        const lit = inShade.current.get(a.info.id) ?? 1;
+        if (lit < 0.85 && rimNow.current) {
+          const W = DOLL_CELLS.w, H = DOLL_CELLS.h, cx0 = (cell % DOLL_CELLS.cols) * W, cy0 = Math.floor(cell / DOLL_CELLS.cols) * H;
+          const dim = (rimScratch.current ??= Object.assign(document.createElement("canvas"), { width: W, height: H })), e = dim.getContext("2d")!;
+          e.globalCompositeOperation = "source-over";
+          e.clearRect(0, 0, W, H);
+          e.drawImage(sheet, cx0, cy0, W, H, 0, 0, W, H);
+          e.globalCompositeOperation = "source-in";
+          e.fillStyle = "rgb(28,34,62)";
+          e.fillRect(0, 0, W, H);
+          ctx.save();
+          ctx.imageSmoothingEnabled = false;
+          ctx.globalAlpha *= Math.min(0.42, (1 - lit) * 0.8);
+          ctx.drawImage(dim, 0, 0, W, H, p.x - (W / 2) * k, p.y - DOLL_CELLS.foot * k, W * k, H * k);
+          ctx.restore();
+        }
+        const R = lit < 0.7 ? null : rimNow.current;
         if (R && R.a > 0.01) {
           const W = DOLL_CELLS.w, H = DOLL_CELLS.h, cx0 = (cell % DOLL_CELLS.cols) * W, cy0 = Math.floor(cell / DOLL_CELLS.cols) * H;
           const edge = (rimScratch.current ??= Object.assign(document.createElement("canvas"), { width: W, height: H })), e = edge.getContext("2d")!;
