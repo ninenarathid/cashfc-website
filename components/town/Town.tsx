@@ -547,14 +547,18 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     setHd(keptHd());
   }, []);
   const chooseHd = (c: HdChoice) => { setHd(c); if (!ephemeral) keepHd(c); };
-  const hdMake = useRef<((place: "town" | "farm") => HdTown) | null>(null);
-  const hdTowns = useRef<Partial<Record<"town" | "farm", HdTown>>>({});
+  type HdPlace = "town" | "farm" | "forest" | "mountain";
+  type HdShade = Pick<HdTown, "renderAt" | "ready" | "dispose">;
+  const hdMake = useRef<((place: HdPlace) => HdShade) | null>(null);
+  const hdTowns = useRef<Partial<Record<HdPlace, HdShade>>>({});
   useEffect(() => {
-    if (hd === "off" || !(T2 || F2)) return;
+    if (hd === "off") return;
     let gone = false;
-    void import("@/lib/town-hd/engine").then(({ createHdTown }) => {
+    void Promise.all([import("@/lib/town-hd/engine"), import("@/lib/town-hd/shade")]).then(([{ createHdTown }, { createShade }]) => {
       if (gone) return;
-      hdMake.current = (place) => createHdTown(document.createElement("canvas"), { map: place, time: "day", underlay: true, quality: hd });
+      // (the editor's maps from their own pictures; the forest and the mountain from the shapes of what stands in them)
+      hdMake.current = (place) => place === "forest" || place === "mountain" ? createShade(document.createElement("canvas"), place, hd)
+        : createHdTown(document.createElement("canvas"), { map: place, time: "day", underlay: true, quality: hd });
       console.info("[Cash Town] 3D shadows:", hd);
     }).catch((e) => { console.warn("[Cash Town] 3D shadows could not start; the town is drawn as it always was", e); });
     return () => { gone = true; hdMake.current = null; for (const t of Object.values(hdTowns.current)) t?.dispose(); hdTowns.current = {}; };
@@ -2481,7 +2485,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // The 3D shadows (lib/town-hd): what stands in an editor's map throws its real shadow, by the hour, onto the ground
     // and the floors just painted (the same camera, so they lie where the things stand); everybody is drawn over them.
     {
-      const here = placeRef.current, hdPlace = here === "town" && T2 ? "town" : here === "farm" && F2 ? "farm" : null;
+      const here = placeRef.current;
+      const hdPlace: HdPlace | null = here === "town" && T2 ? "town" : here === "farm" && F2 ? "farm" : here === "forest" || here === "mountain" ? here : null;
       if (hdPlace && hdMake.current) {
         try {
           const town = (hdTowns.current[hdPlace] ??= hdMake.current(hdPlace));

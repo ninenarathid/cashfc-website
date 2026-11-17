@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createHdTown, type HdTown, type TimeId } from "@/lib/town-hd/engine";
 import type { MapId } from "@/lib/town-hd/maps";
 import { createClient } from "@/lib/supabase/client";
+import { createShade } from "@/lib/town-hd/shade";
 
 const PLACES: Array<{ id: MapId; label: string }> = [{ id: "town", label: "เมือง" }, { id: "farm", label: "ฟาร์ม" }, { id: "shop", label: "ร้านเสื้อ" }];
 const mapOf = (search: string): MapId => (/[?&]map=(town|farm|shop)/.exec(search)?.[1] as MapId | undefined) ?? "town";
@@ -47,23 +48,25 @@ export default function HdTownTest() {
     try {
       // (`?at=x,y`: stand somewhere else first, for a tester sent to look at one corner)
       const m = /[?&]at=(\d+(?:\.\d+)?),(\d+(?:\.\d+)?)/.exec(window.location.search);
-      if (/[?&]under=1/.test(window.location.search)) {
+      const wild = /[?&]under=(forest|mountain)/.exec(window.location.search)?.[1] as "forest" | "mountain" | undefined;
+      if (wild || /[?&]under=1/.test(window.location.search)) {
         // (the live town's HD ground alone, at the live town's own first view: to look at what `renderAt` hands it)
-        const c = canvas.current, under = createHdTown(document.createElement("canvas"), { map: "town", time: "day", underlay: true, quality: "mid" });
-        made = under;
+        const c = canvas.current, spare = document.createElement("canvas");
+        const under = wild ? createShade(spare, wild, "mid") : createHdTown(spare, { map: "town", time: "day", underlay: true, quality: "mid" });
+        // (the middle of the plaza; of the forest, by its camp; of the mountain, its middle)
+        const [mx, my] = wild === "forest" ? [193, 159] : wild === "mountain" ? [36, 236] : [41, 44];
         let raf = 0;
         const paint = () => {
           raf = requestAnimationFrame(paint);
           if (!under.ready()) return;
           const cw = c.clientWidth, ch = c.clientHeight, dpr = Math.min(window.devicePixelRatio || 1, 2), d = new Date(Date.now() + 7 * 3600_000);
           if (c.width !== Math.round(cw * dpr)) { c.width = Math.round(cw * dpr); c.height = Math.round(ch * dpr); }
-          const pic = under.renderAt({ cx: (41 - 44) * 32, cy: (41 + 44) * 16, s: 1.6, cw, ch, dpr, min: Number(/[?&]min=(\d+)/.exec(window.location.search)?.[1] ?? d.getUTCHours() * 60 + d.getUTCMinutes()) });
+          const pic = under.renderAt({ cx: (mx - my) * 32, cy: (mx + my) * 16, s: 1.6, cw, ch, dpr, min: Number(/[?&]min=(\d+)/.exec(window.location.search)?.[1] ?? d.getUTCHours() * 60 + d.getUTCMinutes()) });
           c.getContext("2d")!.drawImage(pic, 0, 0, c.width, c.height);
           setReady(true);
         };
         raf = requestAnimationFrame(paint);
-        town.current = under;
-        return () => { cancelAnimationFrame(raf); under.dispose(); town.current = null; };
+        return () => { cancelAnimationFrame(raf); under.dispose(); };
       }
       made = createHdTown(canvas.current, { map: mapOf(window.location.search), fx: !/[?&]fx=0/.test(window.location.search), quality: (/[?&]q=(high|mid|low)/.exec(window.location.search)?.[1] as "high" | "mid" | "low" | undefined), time: timeNow(), at: m ? { x: +m[1], y: +m[2] } : undefined, nameEl: plate.current, showWalk: /[?&]walk=1/.test(window.location.search), onReady: () => setReady(true), onFps: setFps });
       town.current = made;
