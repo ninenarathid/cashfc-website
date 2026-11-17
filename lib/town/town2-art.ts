@@ -179,6 +179,8 @@ export class Town2Art {
    * front with the walkers, and wears the sun's side and the shadows that fall across it.
    */
   lit: { pic: HTMLCanvasElement; k: number } | null = null;
+  /** Which things the 3D town stands in its own scene this frame (lib/town-hd/engine's `renderWorld`), not drawn here; or null. */
+  solid: ((i: number) => boolean) | null = null;
   /**
    * How high the ground stands at a tile, in the map's own pixels, where the 3D town has raised it, or null on level
    * ground: each thing is drawn that much higher, by the ground under its footprint's middle (as the 3D town stands it).
@@ -321,6 +323,7 @@ export class Town2Art {
    */
   pushStanding(ctx: CanvasRenderingContext2D, things: Thing[], push: Push, screen: Screen, s: number, px: number, inHall: boolean) {
     for (const t of things) {
+      if (this.solid?.(t.i)) continue;
       if (t.i === T2_HALL.inside) {
         if (inHall) { const { x0, y0 } = T2_HALL.floor; this.pushAtBack(ctx, t, push, screen, s, px, (u) => (u >= x0 - y0 ? u + 2 * y0 : 2 * x0 - u)); }
         continue;

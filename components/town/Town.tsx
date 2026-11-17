@@ -582,6 +582,21 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const groundWide = useRef<HTMLCanvasElement | null>(null);
   const wildStood = useRef<Array<{ name: string; x: number; y: number; k: number; mirror?: boolean }>>([]);
   /** The frame (its clock) in which the 3D town last threw the shadows. */
+  // Which of the editor's town's things the 3D town stands in its own scene, in the world it draws whole: every thing on
+  // one foot and every built shape; not what the live town changes or draws its own way (the hall and all in it, the
+  // stage, the chests, the basins whose water moves, the decks walked on), nor a wide thing on one sheet (drawn in strips
+  // here, each as far forward as its part stands).
+  const solidFor = useRef<{ town: HdTown; is: (i: number) => boolean } | null>(null);
+  const solidOf = (town: HdTown | undefined) => {
+    if (!town) return null;
+    if (solidFor.current?.town !== town) {
+      const out = new Set<number>([T2_HALL.thing, T2_HALL.inside, ...T2_HALL.things, T2_CHEST_SHUT, T2_CHEST_OPEN]);
+      for (const t of T2_THINGS) { const k = town.kindOf(t.i); if (k === "wide" || k === "flat" || /^(oval_wooden_festival_stage|bridge|fishing_pier|pier_of_mossy_stone|wishing_basin|temizuya)/.test(t.name)) out.add(t.i); }
+      town.keepOut(out);
+      solidFor.current = { town, is: (i) => { const k = town.kindOf(i); return (k === "card" || k === "built") && !out.has(i); } };
+    }
+    return solidFor.current.is;
+  };
   const capRef = useRef<Capture | null>(null), world3d = useRef(false), hd3d = useRef(false);
   useEffect(() => { hd3d.current = /[?&]hd3d=1/.test(window.location.search); }, []);
   const castAt = useRef(-1), hdRaised = useRef(false), shadeTick = useRef(0), inShade = useRef(new Map<string, number>());
@@ -2617,7 +2632,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // (what grows on the editor's maps leans with the wind and from whoever walks by, as the 3D town's does: lib/town-hd/sway; with the 3D picture on)
     const swaying = hdMake.current ? { sec: reducedRef.current ? 0 : performance.now() / 1000, me: mine && !reducedRef.current ? { x: mine.pos.x, y: mine.pos.y } : null } : null;
     const iso2 = (ix: number, iy: number) => toScreen(v, { x: ix, y: iy }, cw, ch);
-    if (art2) { art2.carving = forcedCarving.current ?? carving(Date.now()); art2.lit = null; art2.lift = HILL ? hillPx : null; art2.sway = swaying; }
+    if (art2) { art2.carving = forcedCarving.current ?? carving(Date.now()); art2.lit = null; art2.lift = HILL ? hillPx : null; art2.sway = swaying; art2.solid = world3d.current && placeRef.current === "town" ? solidOf(hdTowns.current.town) : null; }
     // (v325: the golden cloth on the hall's tables and cushions on its benches, while they last by the keeper's clock: lib/town/special-uses)
     if (art2) { const d = dressRef.current, t = Date.now() + (d?.skew ?? 0); art2.dressed = { cloth: !!d && laid(d.dress, "cloth", t), cushions: !!d && laid(d.dress, "cushions", t) }; }
     const seen2 = art2 ? art2.visible({ x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, now) : null;
@@ -3454,7 +3469,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       try {
         const clock = new Date(Date.now() + 7 * 3600_000), sheet = dollSheet.current;
         const stands: Stand[] = dollsDrawn.current.map((d) => ({ img: sheet!, sx: (d.cell % DOLL_CELLS.cols) * DOLL_CELLS.w, sy: Math.floor(d.cell / DOLL_CELLS.cols) * DOLL_CELLS.h, w: DOLL_CELLS.w, h: DOLL_CELLS.h, ax: DOLL_CELLS.w / 2, ay: DOLL_CELLS.foot, k: 1, x: d.a.pos.x, y: d.a.pos.y }));
-        const pic = town!.renderWorld({ cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes(), stands, sec: swaying?.sec, me: swaying?.me }, effects.current?.rain ?? 0, cap.floor, cap.atlas, cap.cards, sheet);
+        const pic = town!.renderWorld({ cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes(), stands, sec: swaying?.sec, me: swaying?.me }, effects.current?.rain ?? 0, cap.floor, cap.atlas, cap.cards, sheet, !!art2?.solid);
         ctx.drawImage(pic, 0, 0, cw, ch);
         if (cap.lost) console.warn("[Cash Town] 3D world: no room on the sheet for", cap.lost, "things this frame");
       } catch (e) { hd3d.current = false; console.warn("[Cash Town] 3D world stopped", e); }

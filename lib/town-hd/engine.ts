@@ -81,11 +81,15 @@ export interface HdTown {
    * what the live town drew to lie on the ground (`floor`, the screen's size), the shadows over both, and every standing
    * thing the live town drew, a piece of `atlas` each, back to front (`cards`: lib/town-hd/capture). Opaque.
    */
-  renderWorld(v: LiveView, wet: number, floor: HTMLCanvasElement, atlas: HTMLCanvasElement, cards: ReadonlyArray<Piece>, dolls?: HTMLCanvasElement | null): HTMLCanvasElement;
+  renderWorld(v: LiveView, wet: number, floor: HTMLCanvasElement, atlas: HTMLCanvasElement, cards: ReadonlyArray<Piece>, dolls?: HTMLCanvasElement | null, /** What stands is this town's own (`kindOf`, `keepOut`), not pieces of the live town's. */ solid?: boolean): HTMLCanvasElement;
   /** How high the ground is at a point of the map (tiles), in tiles; 0 everywhere on level ground. */
   heightAt(x: number, y: number): number;
   /** Whether a point of the map (tiles) is water. */
   wetAt(x: number, y: number): boolean;
+  /** What one of the map's things is in this town (see `kinds`), or null if it is not in it. */
+  kindOf(i: number): "card" | "wide" | "built" | "flat" | null;
+  /** The things the live town draws itself in `renderWorld`'s picture: not drawn here when what stands is (`renderLit`), their shadows thrown all the same. */
+  keepOut(list: Iterable<number>): void;
   /** After `renderAt`, the same frame: what stands in the map alone, lit and in shadow, on nothing (for the live town to lay over its own pictures). */
   renderLit(): HTMLCanvasElement;
   /** Whether the ground's pictures have come (until then `renderAt` would paint it black). */
@@ -374,12 +378,20 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   ).map(([x, z]) => { const l = new THREE.PointLight(0xffb868, 0, 15, 1.2); l.position.set(x, 3.6, z); scene.add(l); return l; });
 
   /** A picture stood upright: seen at (x, z), where its foot was drawn; its shadow thrown from (sx, sz), the middle of what it is. */
-  interface Card { x: number; z: number; sx: number; sz: number; y: number; w: number; h: number; flip: boolean; unseen?: boolean; /** Its shadow is thrown by a block on its footprint instead. */ blocked?: boolean }
+  interface Card { /** Which of the map's things it is. */ of?: number; x: number; z: number; sx: number; sz: number; y: number; w: number; h: number; flip: boolean; unseen?: boolean; /** Its shadow is thrown by a block on its footprint instead. */ blocked?: boolean }
   const cards = new Map<number, Card[]>();
   const lamps: Array<{ x: number; y: number; z: number; /** The ground under it. */ b: number }> = [];
-  const flats: Array<{ s: number; o: Obj; wet: boolean }> = [];
+  const flats: Array<{ s: number; o: Obj; wet: boolean; i?: number }> = [];
   // (a picture and its mirror are two sets: see `cardFlip` below)
-  const card = (s: number, c: Card) => { const k = s * 2 + (c.flip ? 1 : 0), l = cards.get(k); if (l) l.push(c); else cards.set(k, [c]); };
+  const card = (s: number, c: Card) => { c.of = thingNow; if (thingNow >= 0) kinds.set(thingNow, OBJECTS[thingNow]?.[6] === 1 ? "card" : "wide"); const k = s * 2 + (c.flip ? 1 : 0), l = cards.get(k); if (l) l.push(c); else cards.set(k, [c]); };
+  /**
+   * What each of the map's things is in this town: a picture on one upright sheet at its foot (`card`), the same of a
+   * wide thing (`wide`: one sheet for a thing whose ends stand apart, back to front), a shape of blocks wearing its
+   * picture (`built`), or a picture lying on the ground (`flat`). And those the live town draws itself in the world's
+   * picture (`renderWorld`), which this town then only throws the shadows of (`keepOut`).
+   */
+  const kinds = new Map<number, "card" | "wide" | "built" | "flat">(), partsOf = new Map<number, THREE.Object3D[]>();
+  let thingNow = -1, out = new Set<number>();
 
   /*
    * A wide thing's own picture, laid back onto its shape (the owner, 2026-11-17: "แปลง asset ในแมพแรก เป็น 3d เท่าที่ควรจะเป็น").
@@ -535,6 +547,14 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   const decked: Array<{ o: Obj; box: Box4; g: THREE.Group; bridge: boolean; /** How high its boards were drawn over the ground. */ up: number }> = [];
 
   OBJECTS.forEach((o, i) => {
+    thingNow = i;
+    const had = town.children.length;
+    place(o, i);
+    const made = town.children.slice(had);
+    if (made.length) { partsOf.set(i, made); if (!kinds.has(i)) kinds.set(i, "built"); }
+  });
+  thingNow = -1;
+  function place(o: Obj, i: number) {
     const name = names[o[0]], sp = sprites[o[1]];
     // (the kitchen hall from inside: its own picture of its room, on the floor and the two far walls)
     if (TOWN && i === T2_HALL.inside) { hallIn.room = behind(o); hallIn.room.position.y = Hat((o[8] + o[10]) / 2, (o[9] + o[11]) / 2); hallIn.room.visible = false; town.add(hallIn.room); return; }
@@ -559,7 +579,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       town.remove(g);
     }
     // (what a map calls floor, a pen's trodden yard, lies on the ground as flat things do)
-    if (FLAT.test(name) || o[6] === 0) { flats.push({ s: o[1], o, wet: wetAt(cx, cz) }); return; }
+    if (FLAT.test(name) || o[6] === 0) { flats.push({ s: o[1], o, wet: wetAt(cx, cz), i }); kinds.set(i, "flat"); return; }
     // A long thing (a bench, a fence, a boat) throws its shadow from a block on its own footprint, so the shadow joins
     // it along its whole length whatever the sun's side (the owner, 2026-11-17: "เก้าอี้นี้เงาไม่ติดกัน ช่วยแก้เคสเดียวกัน
     // ทั้งหมด"). A sheet turned to the sun, stood on its middle, joins only a thing that stands on one foot: a tree, a post.
@@ -580,7 +600,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     stood(o, cx, cz, false, long || fence);
     const h = sp[2] * o[4] / PX_UP;
     if (LAMP.test(name)) lamps.push({ x: cx, y: h * 0.72 + Hat(cx, cz), z: cz, b: Hat(cx, cz) });
-  });
+  }
 
   // woods beyond the town, so its edge is not the world's: the town's own trees, scattered on the woods' floor
   {
@@ -645,7 +665,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   function faceCards(yaw: number) {
     Q.setFromAxisAngle(UP, yaw);
     for (const { list, seen } of cardSets) {
-      list.forEach((c, i) => seen.setMatrixAt(i, M.compose(V.set(c.x, c.y, c.z), Q, c.unseen ? S.set(0, 0, 0) : S.set(c.w, c.h, 1))));
+      list.forEach((c, i) => seen.setMatrixAt(i, M.compose(V.set(c.x, c.y, c.z), Q, c.unseen || (c.of !== undefined && out.has(c.of)) ? S.set(0, 0, 0) : S.set(c.w, c.h, 1))));
       seen.instanceMatrix.needsUpdate = true;
     }
   }
@@ -669,7 +689,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   }
 
   // what lies flat (stepping stones, lotus leaves, flower beds): its picture laid back onto the ground it was drawn on
-  for (const { s, o, wet } of flats) {
+  for (const { s, o, wet, i: flatOf } of flats) {
     const sp = sprites[s], w = sp[1] * o[4], h = sp[2] * o[4], y = flat ? 0.03 : wet ? WATER_Y + 0.02 : Hat((o[8] + o[10]) / 2, (o[9] + o[11]) / 2) + 0.03;
     const at = (ix: number, iy: number) => [(ix / 32 + iy / 16) / 2, y, (iy / 16 - ix / 32) / 2];
     const geo = new THREE.BufferGeometry(), flip = o[5] === 1;
@@ -681,6 +701,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     const m = new THREE.Mesh(geo, mat);
     m.receiveShadow = true;
     if (below) { m.visible = false; litShown.push(m); }
+    if (flatOf !== undefined) partsOf.set(flatOf, [...(partsOf.get(flatOf) ?? []), m]);
     town.add(m);
     disposables.push(geo, mat);
   }
@@ -1301,12 +1322,12 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       probe(renderer, camera, v, sunDir, flat ? undefined : Hat);
       return renderer.domElement;
     },
-    renderWorld(v, wet, floor, atlas, cards, dolls) {
+    renderWorld(v, wet, floor, atlas, cards, dolls, solid) {
       if (!quads) {
         const geo = new THREE.BufferGeometry();
         const mat = new THREE.ShaderMaterial({
           uniforms: { hdMap: { value: null } },
-          vertexShader: "varying vec2 hdUv; void main() { hdUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }",
+          vertexShader: "varying vec2 hdUv; void main() { hdUv = uv; gl_Position = vec4(position.xyz, 1.0); }",
           fragmentShader: "varying vec2 hdUv; uniform sampler2D hdMap; void main() { gl_FragColor = texture2D(hdMap, hdUv); }",
           // (a canvas's picture comes with its colours already weighed by how solid they are: laid as such)
           transparent: true, depthTest: false, depthWrite: false, blending: THREE.CustomBlending, blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcAlphaFactor,
@@ -1332,7 +1353,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
         return t.tex;
       };
       /** So many pieces of a picture, each laid where it was drawn on the screen (all in the canvas's own pixels). */
-      const lay = (c: HTMLCanvasElement, list: ReadonlyArray<{ x: number; y: number; w: number; h: number; ax: number; ay: number }>, W: number, H: number) => {
+      const lay = (c: HTMLCanvasElement, list: ReadonlyArray<{ x: number; y: number; w: number; h: number; ax: number; ay: number; depth?: number }>, W: number, H: number, deep?: (q: { x: number; y: number; w: number; h: number; depth?: number }) => [number, number]) => {
         if (!list.length) return;
         if (Q.room < list.length) {
           Q.room = Math.max(256, list.length * 2);
@@ -1346,7 +1367,8 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
         list.forEach((q, i) => {
           const x0 = (q.x / W) * 2 - 1, x1 = ((q.x + q.w) / W) * 2 - 1, y0 = 1 - (q.y / H) * 2, y1 = 1 - ((q.y + q.h) / H) * 2;
           const u0 = q.ax / c.width, u1 = (q.ax + q.w) / c.width, v0 = 1 - q.ay / c.height, v1 = 1 - (q.ay + q.h) / c.height;
-          Q.pos.set([x0, y1, 0, x1, y1, 0, x1, y0, 0, x0, y0, 0], i * 12);
+          const [zb, zt] = deep ? deep(q) : [0, 0];
+          Q.pos.set([x0, y1, zb, x1, y1, zb, x1, y0, zt, x0, y0, zt], i * 12);
           Q.uv.set([u0, v1, u1, v1, u1, v0, u0, v0], i * 8);
         });
         Q.geo.attributes.position.needsUpdate = true; Q.geo.attributes.uv.needsUpdate = true;
@@ -1359,16 +1381,29 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       api.renderGround(v, wet);
       renderer.autoClear = false;
       try {
+        Q.mat.depthTest = false;
         lay(floor, [{ x: 0, y: 0, w: floor.width, h: floor.height, ax: 0, ay: 0 }], floor.width, floor.height);
         laying = true;
         api.renderAt(v);
         laying = false;
+        // What stands in this town itself (`solid`): lit and in shadow, swaying, each as far off as it stands; the live
+        // town's pieces are then drawn behind or before it by how far forward they stand (the ground hides nothing).
+        if (solid) { renderer.clearDepth(); api.renderLit(); }
+        Q.mat.depthTest = !!solid;
+        if (actor) actor.mat.depthTest = !!solid;
+        const dp = floor.width / v.cw, deep = solid ? (q: { x: number; y: number; w: number; h: number; depth?: number }) => {
+          const d = q.depth ?? 0, z = (X: number, Y: number) => {
+            const ix = v.cx + (X / dp - v.cw / 2) / v.s, iy = v.cy + (Y / dp - v.ch / 2) / v.s;
+            return V.set((d + ix / 32) / 2, (d * 16 - iy) / PX_UP, (d - ix / 32) / 2).project(camera).z;
+          };
+          return [z(q.x + q.w / 2, q.y + q.h), z(q.x + q.w / 2, q.y)] as [number, number];
+        } : undefined;
         // every piece in its turn; a walker stood in the scene itself, in the scene's light
         let from = 0;
         for (let i = 0; i <= cards.length; i++) {
           const c = cards[i];
           if (c && !c.actor) continue;
-          if (i > from) lay(atlas, cards.slice(from, i), floor.width, floor.height);
+          if (i > from) lay(atlas, cards.slice(from, i), floor.width, floor.height, deep);
           from = i + 1;
           if (c?.actor && dolls) stage(v, c, c.actor, dolls, floor.width / v.cw);
         }
@@ -1500,6 +1535,8 @@ ${NOISE}
       // shaded, on nothing (the live town lays each thing of it over its own picture of that thing)
       for (const o of litShown) o.visible = true;
       for (const o of litHidden) o.visible = false;
+      const kept: THREE.Object3D[] = [];
+      for (const i of out) for (const o of partsOf.get(i) ?? []) if (o.visible) { o.visible = false; kept.push(o); }
       for (const m of artMats.values()) { m.colorWrite = true; m.depthWrite = true; }
       const back = scene.background;
       scene.background = null;
@@ -1510,9 +1547,12 @@ ${NOISE}
       scene.background = back;
       for (const o of litShown) o.visible = false;
       for (const o of litHidden) o.visible = true;
+      for (const o of kept) o.visible = true;
       for (const m of artMats.values()) { m.colorWrite = false; m.depthWrite = false; }
       return renderer.domElement;
     },
+    kindOf: (i) => kinds.get(i) ?? null,
+    keepOut(list) { out = new Set(list); faceCards(YAW); },
     setRain(on) { raining = on; },
     zoom(by) { view.distTo = Math.min(60, Math.max(11, view.distTo * by)); },
     dispose() {
