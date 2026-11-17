@@ -68,8 +68,8 @@ export function makePost(renderer: THREE.WebGLRenderer, scene: THREE.Scene, came
 }
 
 /** How much of each thing is in the air at an hour, 0 to 1. */
-export interface AirNow { motes: number; flies: number; mist: number; rays: number; petals: number; smoke: number; sunX: number; sunY: number; sun: THREE.Color }
-export interface Air { update(dt: number, sec: number, at: THREE.Vector3, halfH: number, aspect: number, now: AirNow): void; dispose(): void }
+export interface AirNow { motes: number; flies: number; mist: number; rays: number; petals: number; smoke: number; sunX: number; sunY: number; sun: THREE.Color; /** How hard it rains. */ rain: number; /** How dark the far hills are (the night's share). */ dim: number }
+export interface Air { /** A puff of dust at somebody's feet. */ puff(x: number, y: number, z: number): void; update(dt: number, sec: number, at: THREE.Vector3, halfH: number, aspect: number, now: AirNow): void; dispose(): void }
 
 export function makeAir(scene: THREE.Scene, camera: THREE.Camera, o: { small: boolean; wetAt: (x: number, z: number) => boolean; chimneys: THREE.Vector3[]; ratio: number }): Air {
   const kept: Array<{ dispose(): void }> = [];
@@ -149,9 +149,69 @@ export function makeAir(scene: THREE.Scene, camera: THREE.Camera, o: { small: bo
     return { m, x, w: 0.16 + (i % 3) * 0.07, ph: i * 1.9 };
   });
 
+  // rain: thin pale strokes falling aslant, about where one looks
+  const RAIN = o.small ? 140 : 320, rainGeo = new THREE.PlaneGeometry(0.035, 1.1);
+  const rainMat = new THREE.MeshBasicMaterial({ color: 0xcfe2ff, transparent: true, opacity: 0, depthWrite: false, fog: false });
+  const rain = new THREE.InstancedMesh(rainGeo, rainMat, RAIN), drop = new THREE.Object3D();
+  const rainAt = Array.from({ length: RAIN }, () => [r() * SPAN, r() * 12, r() * SPAN, 9 + r() * 5]);
+  rain.frustumCulled = false; rain.visible = false;
+  drop.rotation.set(0, Math.PI / 4, 0.16);
+  scene.add(rain);
+  kept.push(rainGeo, rainMat);
+  // dust at the feet: a few small puffs, used in turn
+  const dusts = Array.from({ length: 8 }, () => {
+    const m = new THREE.SpriteMaterial({ map: dot, color: 0xd9c7a4, transparent: true, opacity: 0, depthWrite: false });
+    const sp = new THREE.Sprite(m);
+    scene.add(sp);
+    kept.push(m);
+    return { sp, m, age: 9 };
+  });
+  let nextDust = 0;
+  // far hills behind everything, sliding slower than the ground: seen wherever the land ends
+  const far = (() => {
+    const c = document.createElement("canvas");
+    c.width = 512; c.height = 256;
+    const g = c.getContext("2d")!;
+    const ridges: Array<[string, number, number]> = [["#8fa9c4", 150, 26], ["#6f8cab", 180, 20], ["#52708f", 208, 15]];
+    ridges.forEach(([col, base, amp], n) => {
+      g.fillStyle = col;
+      g.beginPath(); g.moveTo(0, 256);
+      for (let x = 0; x <= 512; x += 4) g.lineTo(x, base - amp * (Math.sin((x / 512) * Math.PI * 2 * (2 + n)) * 0.5 + Math.sin((x / 512) * Math.PI * 2 * (5 + n * 2) + n) * 0.3 + 0.5));
+      g.lineTo(512, 256); g.fill();
+    });
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace; t.wrapS = THREE.RepeatWrapping; t.magFilter = THREE.NearestFilter;
+    const geo = new THREE.PlaneGeometry(1, 1), mat = new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false, fog: false });
+    const m = new THREE.Mesh(geo, mat);
+    m.renderOrder = -5; m.frustumCulled = false;
+    camera.add(m);
+    kept.push(t, geo, mat);
+    return { m, t, mat };
+  })();
+
   return {
+    puff(x, y, z) { const d = dusts[nextDust++ % dusts.length]; d.sp.position.set(x, y, z); d.age = 0; },
     update(dt, sec, at, halfH, aspect, now) {
       const cx = at.x - SPAN / 2, cz = at.z - SPAN / 2;
+      rainMat.opacity = now.rain * 0.5; rain.visible = now.rain > 0.02;
+      if (rain.visible) {
+        for (let i = 0; i < RAIN; i++) {
+          const q = rainAt[i], fall = sec * q[3];
+          drop.position.set(cx + wrap(q[0] - fall * 0.16 - cx, SPAN), wrap(q[1] - fall, 12), cz + wrap(q[2] - cz, SPAN));
+          drop.updateMatrix();
+          rain.setMatrixAt(i, drop.matrix);
+        }
+        rain.instanceMatrix.needsUpdate = true;
+      }
+      for (const d of dusts) {
+        d.age += dt;
+        const k = Math.min(1, d.age / 0.7);
+        d.m.opacity = (1 - k) * 0.45; d.sp.scale.setScalar(0.25 + k * 0.5); d.sp.position.y += dt * 0.3;
+      }
+      far.m.position.set(0, halfH * 0.35, -590);
+      far.m.scale.set(halfH * aspect * 2.2, halfH * 1.3, 1);
+      far.t.offset.x = (at.x - at.z) * 0.004;
+      far.mat.color.setScalar(1 - now.dim * 0.72);
       // dust in the sun: drifting, turning over slowly
       motes.mat.opacity = now.motes * 0.55; motes.pts.visible = now.motes > 0.02;
       if (motes.pts.visible) {

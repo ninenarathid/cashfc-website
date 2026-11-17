@@ -33,6 +33,8 @@ export default function HdTownTest() {
   const [time, setTime] = useState<TimeId>("evening");
   // (by the clock until a tester picks an hour to look at; "ตามจริง" goes back to the clock)
   const [byClock, setByClock] = useState(true);
+  const [rain, setRain] = useState(false);
+  useEffect(() => { town.current?.setRain(rain); }, [rain]);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [fps, setFps] = useState(0);
@@ -72,9 +74,10 @@ export default function HdTownTest() {
   const pick = (t: TimeId) => { setByClock(false); setTime(t); town.current?.setTime(t); };
   useEffect(() => {
     if (!byClock) return;
-    const tick = () => { const t = timeNow(); setTime(t); town.current?.setTime(t); };
+    // (the light itself goes minute by minute; `time` only says which of the four hours the clock is nearest)
+    const tick = () => { const d = new Date(Date.now() + 7 * 3600_000); setTime(timeNow()); town.current?.setClock(d.getUTCHours() * 60 + d.getUTCMinutes()); };
     tick();
-    const id = window.setInterval(tick, 60_000);
+    const id = window.setInterval(tick, 30_000);
     return () => window.clearInterval(id);
   }, [byClock]);
 
@@ -126,6 +129,9 @@ export default function HdTownTest() {
         </div>
         {/* (on a phone the two zoom buttons stand over the hours, at the right: side by side they no longer fit) */}
         <div className="order-first flex gap-2 self-end sm:order-none sm:self-auto">
+          <button type="button" className={`${BTN} ${rain ? "border-accent text-accent" : ""}`} aria-label="ฝน" aria-pressed={rain} onClick={() => setRain((v) => !v)}>
+            <Icon d="M7 16a4 4 0 0 1 .5-8 5.5 5.5 0 0 1 10.6 1.5A3.3 3.3 0 0 1 17.5 16M9 19l-1 2M13 19l-1 2M17 19l-1 2" />
+          </button>
           <button type="button" className={BTN} aria-label="ซูมออก" onClick={() => town.current?.zoom(1.25)}><Icon d="M5 12h14" /></button>
           <button type="button" className={BTN} aria-label="ซูมเข้า" onClick={() => town.current?.zoom(0.8)}><Icon d="M12 5v14M5 12h14" /></button>
         </div>

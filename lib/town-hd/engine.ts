@@ -44,6 +44,9 @@ const SKIES: Record<TimeId, Sky> = {
 
 export interface HdTown {
   setTime(t: TimeId): void;
+  /** The hour by the clock, in minutes of the day; null hands the hour back to `setTime`. */
+  setClock(min: number | null): void;
+  setRain(on: boolean): void;
   zoom(by: number): void;
   dispose(): void;
 }
@@ -197,7 +200,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     return (HGT[a] * (1 - u) + HGT[a + 1] * u) * (1 - v) + (HGT[a + NX] * (1 - u) + HGT[a + NX + 1] * u) * v;
   };
   /** What every shader that moves reads: the time, how much of the clouds' shadows there is, the sun's glint on water. */
-  const clock = { value: 0 }, cloudy = { value: 1 }, glint = { value: new THREE.Vector3(0.3, 0.3, 0.25) };
+  const clock = { value: 0 }, cloudy = { value: 1 }, wetU = { value: 0 }, meAt = { value: new THREE.Vector2(-999, -999) }, glint = { value: new THREE.Vector3(0.3, 0.3, 0.25) };
 
   {
     const nx = NX, nz = NZ;
@@ -218,13 +221,13 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     const mat = new THREE.MeshLambertMaterial({ color: 0xffffff });
     mat.onBeforeCompile = (sh) => {
       sh.uniforms.hdIndex = { value: indexTex };
-      sh.uniforms.hdTime = clock; sh.uniforms.hdCloud = cloudy;
+      sh.uniforms.hdTime = clock; sh.uniforms.hdCloud = cloudy; sh.uniforms.hdWet = wetU;
       sh.uniforms.hdOrigin = { value: new THREE.Vector4(WORLD.x0, WORLD.z0, WORLD.x1 - WORLD.x0, WORLD.z1 - WORLD.z0) };
       LOOKS.forEach((_, i) => { sh.uniforms[`hdLook${i}`] = { value: lookTex[i] }; });
       sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec2 hdAt;")
         .replace("#include <begin_vertex>", "#include <begin_vertex>\nhdAt = position.xz;");
       sh.fragmentShader = sh.fragmentShader
-        .replace("#include <common>", `#include <common>\nvarying vec2 hdAt;\nuniform sampler2D hdIndex;\nuniform vec4 hdOrigin;\nuniform float hdTime;\nuniform float hdCloud;\n${NOISE}\n${LOOKS.map((_, i) => `uniform sampler2D hdLook${i};`).join("\n")}`)
+        .replace("#include <common>", `#include <common>\nvarying vec2 hdAt;\nuniform sampler2D hdIndex;\nuniform vec4 hdOrigin;\nuniform float hdTime;\nuniform float hdCloud;\nuniform float hdWet;\n${NOISE}\n${LOOKS.map((_, i) => `uniform sampler2D hdLook${i};`).join("\n")}`)
         .replace("#include <map_fragment>", `
           float hdId = floor(texture2D(hdIndex, (hdAt - hdOrigin.xy) / hdOrigin.zw).r * 255.0 + 0.5);
           vec2 hdUv = hdAt / 5.657;
@@ -238,7 +241,10 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
           hdCol += texture2D(hdLook3, hdUv).rgb * vec3(0.62, 0.47, 0.36) * step(5.5, hdId) * (1.0 - step(6.5, hdId));
           // clouds' shadows, drifting over the land
           float hdSh = smoothstep(0.5, 0.74, hdNoise(hdAt * 0.045 + hdTime * vec2(0.05, 0.018)) * 0.65 + hdNoise(hdAt * 0.11 - hdTime * vec2(0.03, 0.04)) * 0.35);
-          diffuseColor.rgb *= hdCol * (1.0 - hdCloud * 0.3 * hdSh);`);
+          diffuseColor.rgb *= hdCol * (1.0 - hdCloud * 0.3 * hdSh);
+          // wet ground: darker and cooler, with a pale sheen where water stands
+          diffuseColor.rgb *= mix(vec3(1.0), vec3(0.64, 0.69, 0.78), hdWet);
+          diffuseColor.rgb += hdWet * 0.09 * step(0.7, hdNoise(hdAt * 0.9)) * vec3(0.55, 0.65, 0.85);`);
     };
     const ground = new THREE.Mesh(geo, mat);
     ground.receiveShadow = true;
@@ -257,11 +263,11 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     sh.uniforms.hdIndex = { value: indexTex };
     sh.uniforms.hdOrigin = { value: new THREE.Vector4(WORLD.x0, WORLD.z0, WORLD.x1 - WORLD.x0, WORLD.z1 - WORLD.z0) };
     sh.uniforms.hdMid = { value: new THREE.Vector2((WORLD.x0 + WORLD.x1) / 2, (WORLD.z0 + WORLD.z1) / 2) };
-    sh.uniforms.hdTime = clock; sh.uniforms.hdGlint = glint;
+    sh.uniforms.hdTime = clock; sh.uniforms.hdGlint = glint; sh.uniforms.hdWet = wetU;
     sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec2 hdW;\nuniform vec2 hdMid;")
       .replace("#include <begin_vertex>", "#include <begin_vertex>\nhdW = vec2(position.x + hdMid.x, hdMid.y - position.y);");
     sh.fragmentShader = sh.fragmentShader
-      .replace("#include <common>", `#include <common>\nvarying vec2 hdW;\nuniform sampler2D hdIndex;\nuniform vec4 hdOrigin;\nuniform float hdTime;\nuniform vec3 hdGlint;\n${NOISE}
+      .replace("#include <common>", `#include <common>\nvarying vec2 hdW;\nuniform sampler2D hdIndex;\nuniform vec4 hdOrigin;\nuniform float hdTime;\nuniform vec3 hdGlint;\nuniform float hdWet;\n${NOISE}
         float hdLand(vec2 p) { return step(0.5, abs(floor(texture2D(hdIndex, (p - hdOrigin.xy) / hdOrigin.zw).r * 255.0 + 0.5) - 1.0)); }`)
       .replace("#include <map_fragment>", `#include <map_fragment>
         vec2 hdP = floor(hdW * 22.63) / 22.63;
@@ -271,7 +277,15 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
         diffuseColor.rgb = mix(diffuseColor.rgb, vec3(1.0), max(hdNear * 0.7, hdShore * step(0.5, hdWave) * 0.6));
         // (glints: few and small, a pixel or two each, where two slow ripples meet)
         float hdG = hdNoise(hdP * 5.5 + vec2(hdTime * 0.3, hdTime * 0.18)) * hdNoise(hdP * 11.0 - vec2(hdTime * 0.45, 0.0));
-        diffuseColor.rgb += hdGlint * step(0.56, hdG);`);
+        diffuseColor.rgb += hdGlint * step(0.56, hdG);
+        // the banks in the water: a darker, rippling band along them
+        float hdFar = max(max(hdLand(hdP + vec2(0.9, 0.0)), hdLand(hdP - vec2(0.9, 0.0))), max(hdLand(hdP + vec2(0.0, 0.9)), hdLand(hdP - vec2(0.0, 0.9))));
+        diffuseColor.rgb *= 1.0 - 0.2 * hdFar * (0.75 + 0.25 * sin(hdW.x * 9.0 + hdW.y * 7.0 + hdTime * 1.6));
+        // rain: rings opening where drops fall
+        vec2 hdC = floor(hdW * 2.0);
+        float hdR = fract(hdHash(hdC) + hdTime * 0.9);
+        float hdD = length(fract(hdW * 2.0) - 0.5 - (vec2(hdHash(hdC + 3.1), hdHash(hdC + 7.7)) - 0.5) * 0.5);
+        diffuseColor.rgb += hdWet * 0.5 * (1.0 - hdR) * step(abs(hdD - hdR * 0.35), 0.035);`);
   };
   {
     const w = WORLD.x1 - WORLD.x0, d = WORLD.z1 - WORLD.z0, geo = new THREE.PlaneGeometry(w, d), uv = geo.attributes.uv;
@@ -506,12 +520,15 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     // what grows leans a little with the wind, each in its own time (its top moved, its foot still)
     if (SWAY.test(sprites[key >> 1][0])) {
       mat.onBeforeCompile = (sh) => {
-        sh.uniforms.hdTime = clock;
-        sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nuniform float hdTime;")
+        sh.uniforms.hdTime = clock; sh.uniforms.hdMe = meAt;
+        sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nuniform float hdTime;\nuniform vec2 hdMe;")
           .replace("#include <begin_vertex>", `#include <begin_vertex>
             #ifdef USE_INSTANCING
               float hdPh = instanceMatrix[3].x * 1.7 + instanceMatrix[3].z * 2.3;
               transformed.x += step(0.5, position.y) * (sin(hdTime * 1.3 + hdPh) * 0.02 + sin(hdTime * 2.9 + hdPh * 1.7) * 0.007);
+              // (and leans away from whoever walks by its foot)
+              vec2 hdBy = instanceMatrix[3].xz - hdMe;
+              transformed.x += step(0.5, position.y) * (1.0 - smoothstep(0.25, 1.2, length(hdBy))) * sign(dot(hdBy, vec2(0.7071, -0.7071)) + 0.0001) * 0.1 / max(0.3, length(instanceMatrix[0].xyz));
             #endif`);
       };
       mat.customProgramCacheKey = () => "hd-sway";
@@ -897,6 +914,21 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   }
 
   /* ── a frame ──────────────────────────────────────────────────────────── */
+  /** The hour's light at a minute of the day: between the hours' own lights, as the day goes. */
+  const DAY: Array<[number, TimeId]> = [[0, "night"], [270, "night"], [390, "morning"], [630, "day"], [900, "day"], [1050, "evening"], [1170, "night"], [1440, "night"]];
+  function hourOf(min: number): [TimeId, TimeId, number] {
+    const m = ((min % 1440) + 1440) % 1440;
+    for (let i = 0; i < DAY.length - 1; i++) if (m < DAY[i + 1][0]) { const t = (m - DAY[i][0]) / (DAY[i + 1][0] - DAY[i][0]); return [DAY[i][1], DAY[i + 1][1], t * t * (3 - 2 * t)]; }
+    return ["night", "night", 0];
+  }
+  function blend(A: Sky, B: Sky, k: number) {
+    for (let i = 0; i < 3; i++) { now.sun[i] = mix(A.sun[i], B.sun[i], k); now.grade[i] = mix(A.grade[i], B.grade[i], k); }
+    for (let i = 0; i < now.air.length; i++) now.air[i] = mix(A.air[i], B.air[i], k);
+    now.sunI = mix(A.sunI, B.sunI, k); now.hemiI = mix(A.hemiI, B.hemiI, k); now.lamps = mix(A.lamps, B.lamps, k);
+    now.sunCol = mixHex(A.sunCol, B.sunCol, k); now.top = mixHex(A.top, B.top, k);
+    now.ground = mixHex(A.ground, B.ground, k); now.sky = mixHex(A.sky, B.sky, k);
+  }
+  let clockMin: number | null = null, raining = false, wet = 0, dusted = 0;
   let last = performance.now(), frames = 0, since = last, raf = 0, ready = false, lampTick = 0;
   function frame(t: number) {
     if (dead) return;
@@ -906,18 +938,13 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     walk(dt);
 
     // the sky moves towards the hour asked for
-    if (turned < 1) {
-      turned = Math.min(1, turned + dt / 1.4);
-      const k = turned * turned * (3 - 2 * turned);
-      for (let i = 0; i < 3; i++) now.sun[i] = mix(from.sun[i], want.sun[i], k);
-      for (let i = 0; i < 3; i++) now.grade[i] = mix(from.grade[i], want.grade[i], k);
-      for (let i = 0; i < now.air.length; i++) now.air[i] = mix(from.air[i], want.air[i], k);
-      now.sunI = mix(from.sunI, want.sunI, k); now.hemiI = mix(from.hemiI, want.hemiI, k); now.lamps = mix(from.lamps, want.lamps, k);
-      now.sunCol = mixHex(from.sunCol, want.sunCol, k); now.top = mixHex(from.top, want.top, k);
-      now.ground = mixHex(from.ground, want.ground, k); now.sky = mixHex(from.sky, want.sky, k);
-    }
+    if (clockMin !== null) { const q = hourOf(clockMin); blend(SKIES[q[0]], SKIES[q[1]], q[2]); }
+    else if (turned < 1) { turned = Math.min(1, turned + dt / 1.4); blend(from, want, turned * turned * (3 - 2 * turned)); }
+    wet += ((raining ? 1 : 0) - wet) * Math.min(1, dt * 0.6);
+    wetU.value = wet; meAt.value.set(me.x, me.z);
+    const flick = 1 + 0.07 * Math.sin(sec * 9.1) + 0.05 * Math.sin(sec * 23.7);
     sunDir.set(now.sun[0], now.sun[1], now.sun[2]).normalize();
-    sun.color.setHex(now.sunCol); sun.intensity = now.sunI;
+    sun.color.setHex(now.sunCol); sun.intensity = now.sunI * (1 - 0.5 * wet);
     hemi.color.setHex(now.top); hemi.groundColor.setHex(now.ground); hemi.intensity = now.hemiI;
     (scene.background as THREE.Color).setHex(now.sky);
     scene.fog!.color.setHex(now.sky);
@@ -927,7 +954,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     // lanterns and windows
     const lampsOn = now.lamps;
     lit.visible = lampsOn > 0.02;
-    haloMat.opacity = lampsOn * 0.42; poolMat.opacity = lampsOn * 0.2;
+    haloMat.opacity = lampsOn * 0.42 * flick; poolMat.opacity = lampsOn * 0.2 * flick;
     for (const m of Object.values(K.walls)) m.emissiveIntensity = lampsOn * 1.5;
     for (const m of artMats.values()) m.emissiveIntensity = lampsOn * 1.3;
     K.lantern.emissiveIntensity = 0.15 + lampsOn * 1.6; K.ember.emissiveIntensity = 0.6 + lampsOn * 1.2;
@@ -937,7 +964,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       near.forEach((p, i) => { const q = by[i]; if (q) p.position.set(q.l.x, q.l.y, q.l.z); p.visible = !!q && lampsOn > 0.02; });
     }
     // (the owner, 2026-11-17: "ตอนกลางคืนโคมสว่างเวอร์ไปหน่อย เอาให้สว่างพอดีๆ")
-    for (const p of near) p.intensity = lampsOn * 6;
+    for (const p of near) p.intensity = lampsOn * 6 * flick;
 
     // the view follows
     view.yaw += (view.yawTo - view.yaw) * Math.min(1, dt * 9);
@@ -987,9 +1014,10 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     rim.value.set((sx / sl) * 1.6 / DOLL.w, (sy / sl) * 1.6 / DOLL.h, 0.16 * now.sunI);
     rimCol.value.copy(sun.color);
     body.value.set(me.x + sunDir.x * 0.45, me.y + 0.8, me.z + sunDir.z * 0.45);
-    post?.look(now.grade, now.air[0], now.air[1], now.air[2]);
+    post?.look([now.grade[0] * (1 - 0.08 * wet), now.grade[1] * (1 - 0.03 * wet), now.grade[2] * (1 + 0.03 * wet)], now.air[0] * (1 - 0.15 * wet), now.air[1], now.air[2]);
+    if (me.walking && sec - dusted > 0.22 && wet < 0.3) { const l = lookAt(me.x, me.z); if (l === 2 || l === 3) { dusted = sec; air?.puff(me.x, me.y + 0.08, me.z); } }
     air?.update(dt, sec, view.at, view.dist * lens, (canvas.clientWidth || 1) / (canvas.clientHeight || 1), {
-      motes: now.air[3], flies: now.air[4], mist: now.air[5], rays: now.air[6], petals: TOWN ? (1 - now.lamps) * 0.8 : 0, smoke: 1, sunX: sx, sunY: sy, sun: sun.color,
+      motes: now.air[3] * (1 - wet), flies: now.air[4] * (1 - wet), mist: Math.max(now.air[5], wet * 0.5), rays: now.air[6] * (1 - wet), rain: wet, dim: now.lamps, petals: TOWN ? (1 - now.lamps) * 0.8 : 0, smoke: 1, sunX: sx, sunY: sy, sun: sun.color,
     });
     for (const s of spins) s.rotation.z = -sec * 0.5;
 
@@ -1003,7 +1031,9 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   document.addEventListener("visibilitychange", onVisible);
 
   const api: HdTown = {
-    setTime(t) { if (SKIES[t] === want) return; from = copy(now); want = SKIES[t]; turned = 0; },
+    setTime(t) { if (clockMin === null && SKIES[t] === want) return; clockMin = null; from = copy(now); want = SKIES[t]; turned = 0; },
+    setClock(min) { clockMin = min; },
+    setRain(on) { raining = on; },
     zoom(by) { view.distTo = Math.min(60, Math.max(11, view.distTo * by)); },
     dispose() {
       dead = true;
