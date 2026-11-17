@@ -198,7 +198,8 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   const spins: THREE.Object3D[] = [];
   const hall: { upper: THREE.Group | null } = { upper: null };
 
-  interface Card { x: number; z: number; y: number; w: number; h: number; off: number; flip: boolean }
+  /** A picture stood upright: seen at (x, z), where its foot was drawn; its shadow thrown from (sx, sz), the middle of what it is. */
+  interface Card { x: number; z: number; sx: number; sz: number; y: number; w: number; h: number; flip: boolean; unseen?: boolean }
   const cards = new Map<number, Card[]>();
   const lamps: Array<{ x: number; y: number; z: number }> = [];
   const flats: Array<{ s: number; o: Obj; wet: boolean }> = [];
@@ -269,12 +270,15 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     geo.setAttribute("uv", new THREE.Float32BufferAttribute(U, 2));
     geo.setAttribute("normal", new THREE.Float32BufferAttribute(N, 3));
     geo.setIndex(I);
-    const m = new THREE.Mesh(geo, artOf(o[1]));
-    m.receiveShadow = true;
-    return m;
+    return new THREE.Mesh(geo, artOf(o[1]));
   }
   /** Dress a built thing in its picture: its still blocks made one shape, a turning part left to turn. */
-  function dress(g: THREE.Group, o: Obj, spin?: THREE.Object3D) {
+  /**
+   * (The owner, 2026-11-17: "เงาต้องเป็น layer หลังวัตถุ": a shadow lies on the ground behind things, never across them, so a
+   * dressed thing takes no shadow. And "เงาเสาญี่ปุ่นดูเล็กไป": a gate or a board is thin, and its blocks' shadow was thinner
+   * than its picture; `thin` throws the shadow of the picture itself instead.)
+   */
+  function dress(g: THREE.Group, o: Obj, spin?: THREE.Object3D, thin = false) {
     g.updateMatrixWorld(true);
     const mat = artOf(o[1]), at = drawnAt(o), parts: THREE.BufferGeometry[] = [], gone: THREE.Mesh[] = [], p = new THREE.Vector3();
     g.traverse((q) => {
@@ -298,11 +302,21 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     for (const m of gone) { m.parent?.remove(m); m.geometry.dispose(); }
     if (parts.length) {
       const all = new THREE.Mesh(mergeGeometries(parts), mat);
-      all.castShadow = true; all.receiveShadow = true;
+      all.castShadow = !thin;
       g.add(all);
       for (const q of parts) q.dispose();
     }
     g.add(behind(o));
+    if (thin) stood(o, (o[8] + o[10]) / 2, (o[9] + o[11]) / 2, true);
+  }
+  /**
+   * A thing's picture stood upright where it was drawn (the owner, 2026-11-17: "ของบางอย่าง เช่นเก้าอี้หน้าเวที ดูลอย"): the
+   * foot of its picture is the nearest of it, not its middle, so it stands on the ground point its lowest pixels were
+   * drawn over. Stood on its middle, a low wide thing (a bench) hung in the air by half its depth.
+   */
+  function stood(o: Obj, cx: number, cz: number, unseen = false) {
+    const sp = sprites[o[1]], ix = o[2] + sp[1] * o[4] / 2, iy = o[3] + sp[2] * o[4];
+    card(o[1], { x: (ix / 32 + iy / 16) / 2, z: (iy / 16 - ix / 32) / 2, sx: cx, sz: cz, y: wetAt(cx, cz) ? WATER_Y : 0, w: sp[1] * o[4] / PX_SIDE, h: sp[2] * o[4] / PX_UP, flip: o[5] === 1, unseen });
   }
   const stand = () => { const g = new THREE.Group(); town.add(g); return g; };
   const hallIn: { room: THREE.Mesh | null } = { room: null };
@@ -321,14 +335,13 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     if (/^(bridge|fishing_pier|pier_of_mossy_stone)/.test(name)) { decked.push({ o, box, g: stand(), bridge: name === "bridge" }); return; }
     if (o[6] === 2 || /^wishing_basin$/.test(name)) {
       const g = stand(), built = buildThing(g, K, name, box, tall);
-      if (built) { dress(g, o, built.spin); if (built.spin) spins.push(built.spin); return; }
+      // (the water wheel stands still: a picture of a wheel turned about is not a wheel turning; that wants frames of its own)
+      if (built) { dress(g, o, undefined, /^(torii|village_gate|tall_wooden_village_gateway|trade_board_cloud|kosatsu_board_cloud)/.test(name)); return; }
       town.remove(g);
     }
     if (FLAT.test(name)) { flats.push({ s: o[1], o, wet: wetAt(cx, cz) }); return; }
-    const w = sp[1] * o[4] / PX_SIDE, h = sp[2] * o[4] / PX_UP;
-    // (its picture's middle is not always over its footprint's: the difference, across the view)
-    const off = (o[2] + sp[1] * o[4] / 2 - (cx - cz) * 32) / PX_SIDE;
-    card(o[1], { x: cx, z: cz, y: wetAt(cx, cz) ? WATER_Y : 0, w, h, off: Math.abs(off) < 1.2 ? off * 0.6 : 0, flip: o[5] === 1 });
+    stood(o, cx, cz);
+    const h = sp[2] * o[4] / PX_UP;
     if (LAMP.test(name)) lamps.push({ x: cx, y: h * 0.72, z: cz });
   });
 
@@ -341,7 +354,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       const x = WORLD.x0 + 2 + r() * (WORLD.x1 - WORLD.x0 - 4), z = WORLD.z0 + 2 + r() * (WORLD.z1 - WORLD.z0 - 4);
       if (inT2(x, z) || lookAt(x, z) !== 4) continue;
       const { s, sp } = trees[Math.floor(r() * trees.length)], k = 1.0 + r() * 0.35;
-      card(s, { x, z, y: 0, w: sp[1] * k / PX_SIDE, h: sp[2] * k / PX_UP, off: 0, flip: r() < 0.5 });
+      card(s, { x, z, sx: x, sz: z, y: 0, w: sp[1] * k / PX_SIDE, h: sp[2] * k / PX_UP, flip: r() < 0.5 });
     }
   }
 
@@ -371,16 +384,15 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   const M = new THREE.Matrix4(), Q = new THREE.Quaternion(), V = new THREE.Vector3(), S = new THREE.Vector3(), UP = new THREE.Vector3(0, 1, 0);
   function faceCards(yaw: number) {
     Q.setFromAxisAngle(UP, yaw);
-    const rx = Math.cos(yaw), rz = -Math.sin(yaw);
     for (const { list, seen } of cardSets) {
-      list.forEach((c, i) => seen.setMatrixAt(i, M.compose(V.set(c.x + rx * c.off, c.y, c.z + rz * c.off), Q, S.set(c.flip ? -c.w : c.w, c.h, 1))));
+      list.forEach((c, i) => seen.setMatrixAt(i, M.compose(V.set(c.x, c.y, c.z), Q, c.unseen ? S.set(0, 0, 0) : S.set(c.flip ? -c.w : c.w, c.h, 1))));
       seen.instanceMatrix.needsUpdate = true;
     }
   }
   function shadeCards() {
     Q.setFromAxisAngle(UP, Math.atan2(sunDir.x, sunDir.z));
     for (const { list, shade } of cardSets) {
-      list.forEach((c, i) => shade.setMatrixAt(i, M.compose(V.set(c.x, c.y, c.z), Q, S.set(c.flip ? -c.w : c.w, c.h, 1))));
+      list.forEach((c, i) => shade.setMatrixAt(i, M.compose(V.set(c.sx, c.y, c.sz), Q, S.set(c.flip ? -c.w : c.w, c.h, 1))));
       shade.instanceMatrix.needsUpdate = true;
     }
   }
@@ -404,7 +416,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   // decks: every tile of a bridge or a pier, in four boards, each at its own height (a bridge rises to its middle);
   // under a bridge's or a pier's own picture its boards wear that picture, elsewhere they are plain boards
   {
-    const at: Array<[number, number, number]> = [], legAt: Array<[number, number, number]> = [];
+    const at: Array<[number, number, number]> = [], legAt: Array<[number, number, number]> = [], raised: Array<[number, number, number]> = [];
     const slab = new THREE.BoxGeometry(0.5, 0.16, 0.5), leg = new THREE.BoxGeometry(0.14, 0.9, 0.14);
     const railX = new THREE.BoxGeometry(1, 0.1, 0.1), railZ = new THREE.BoxGeometry(0.1, 0.1, 1), stub = new THREE.BoxGeometry(0.12, 0.62, 0.12);
     const lay = (g: THREE.Group, geo: THREE.BufferGeometry, x: number, y: number, z: number) => { const m = new THREE.Mesh(geo, K.planks); m.position.set(x, y, z); g.add(m); };
@@ -417,6 +429,9 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
         if (own) { lay(own.g, slab, bx, by - 0.05, bz); if (legged) lay(own.g, leg, bx, by - 0.55, bz); }
         else { at.push([bx, by, bz]); if (legged) legAt.push([bx, by, bz]); }
       }
+      // (a pier is drawn standing on legs, though it is walked at the ground's height: its shadow is thrown from where
+      // it was drawn; the owner, 2026-11-17: "ที่ตกปลาไม่มีเงา make sure หน่อยว่า ทุกอย่างจะมีเงา")
+      if (own && !own.bridge && t2Lift(x + 0.5, z + 0.5) / PX_UP < 0.3) raised.push([x, z, 1.1]);
       if (!own?.bridge) continue;
       const b = own.box, along = b[2] - b[0] >= b[3] - b[1], up = t2Lift(x + 0.5, z + 0.5) / PX_UP;
       const rail = (rx: number, rz: number, isX: boolean) => { lay(own.g, isX ? railX : railZ, rx, up + 0.62, rz); lay(own.g, stub, rx, up + 0.33, rz); };
@@ -424,6 +439,20 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       else { if (t2Tile(x - 1, z) !== "=") rail(x + 0.06, z + 0.5, false); if (t2Tile(x + 1, z) !== "=") rail(x + 0.94, z + 0.5, false); }
     }
     for (const q of decked) dress(q.g, q.o);
+    // (and what stands shut on a pier, with its boards on two sides of it or more: a hut, its stacked boxes)
+    for (const q of decked) if (!q.bridge) for (let z = Math.floor(q.box[1]); z <= q.box[3]; z++) for (let x = Math.floor(q.box[0]); x <= q.box[2]; x++) {
+      if (t2Tile(x, z) === "=" || !inT2(x, z)) continue;
+      const sides = [[1, 0], [-1, 0], [0, 1], [0, -1]].filter(([dx, dz]) => t2Tile(x + dx, z + dz) === "=").length;
+      if (sides >= 2) raised.push([x, z, 2.6]);
+    }
+    {
+      const tile = new THREE.BoxGeometry(1, 1, 1), unseen = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false });
+      const cast = new THREE.InstancedMesh(tile, unseen, raised.length);
+      raised.forEach(([x, z, up], i) => cast.setMatrixAt(i, M.compose(V.set(x + 0.5, up / 2, z + 0.5), Q.identity(), S.set(1, up, 1))));
+      cast.castShadow = true;
+      town.add(cast);
+      disposables.push(tile, unseen);
+    }
     const boards = new THREE.InstancedMesh(slab, K.planks, at.length), legs = new THREE.InstancedMesh(leg, K.post, legAt.length);
     at.forEach(([x, y, z], i) => boards.setMatrixAt(i, M.makeTranslation(x, y - 0.05, z)));
     legAt.forEach(([x, y, z], i) => legs.setMatrixAt(i, M.makeTranslation(x, y - 0.55, z)));
