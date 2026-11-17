@@ -269,6 +269,8 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     const i = Math.floor(fx), j = Math.floor(fz), u = fx - i, v = fz - j, a = j * NX + i;
     return (HGT[a] * (1 - u) + HGT[a + 1] * u) * (1 - v) + (HGT[a + NX] * (1 - u) + HGT[a + NX + 1] * u) * v;
   };
+  /** The lanterns nearest the view (x, z, and 1 if there is one) and how far the lamps are lit, for the ground about them. */
+  const lampU = { value: Array.from({ length: 8 }, () => new THREE.Vector3()) }, nightU = { value: 0 };
   /** What every shader that moves reads: the time, how much of the clouds' shadows there is, the sun's glint on water. */
   const clock = { value: 0 }, cloudy = { value: 1 }, wetU = { value: 0 }, meAt = { value: new THREE.Vector2(-999, -999) }, glint = { value: new THREE.Vector3(0.3, 0.3, 0.25) };
 
@@ -317,6 +319,21 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
           diffuseColor.rgb *= mix(vec3(1.0), vec3(0.64, 0.69, 0.78), hdWet);
           diffuseColor.rgb += hdWet * 0.09 * step(0.7, hdNoise(hdAt * 0.9)) * vec3(0.55, 0.65, 0.85);`);
     };
+    // By night a lantern's light fills the shadows about it: the moon's shadow of a bench lay towards the lantern beside it,
+    // across the lantern's own light (the owner, 2026-11-18, twice of benches by a lit lantern: "เงาเก้าอี้ยังไม่ถูกต้อง").
+    // Within a lantern's reach the ground is as it is lit, by so much as the lamps are lit.
+    if (!flat) {
+      const base = mat.onBeforeCompile;
+      mat.onBeforeCompile = (sh, r) => {
+        base.call(mat, sh, r);
+        sh.uniforms.hdLamps = lampU; sh.uniforms.hdNight = nightU;
+        sh.fragmentShader = sh.fragmentShader.replace("uniform float hdWet;", "uniform float hdWet;" + String.fromCharCode(10) + "uniform vec3 hdLamps[8];" + String.fromCharCode(10) + "uniform float hdNight;")
+          .replace("#include <opaque_fragment>", `#include <opaque_fragment>
+            float hdFill = 0.0;
+            for (int i = 0; i < 8; i++) hdFill = max(hdFill, hdLamps[i].z * (1.0 - smoothstep(0.6, 3.0, distance(hdAt, hdLamps[i].xy))));
+            gl_FragColor.rgb = mix(gl_FragColor.rgb, diffuseColor.rgb, hdFill * hdNight);`);
+      };
+    }
     // (under the live town the ground is white, for the shadows' picture; its own colours are worn only for `renderGround`)
     const white = new THREE.MeshLambertMaterial({ color: 0xffffff });
     const ground = new THREE.Mesh(geo, below ? white : mat);
@@ -1279,6 +1296,11 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
         if (river) river.visible = true;
         for (const d of deckTops) d.mesh.visible = false;
         (scene.background as THREE.Color).setHex(0x24352a);
+        nightU.value = now.lamps;
+        if (now.lamps > 0.02) {
+          const by = lamps.map((l) => ({ l, d: (l.x - eye.x) ** 2 + (l.z - eye.z) ** 2 })).sort((a, b) => a.d - b.d);
+          lampU.value.forEach((u, i) => { const q = by[i]; if (q) u.set(q.l.x, q.l.z, 1); else u.set(0, 0, 0); });
+        }
         wetU.value = v.ground;
         glint.value.setScalar(0.3 * (1 - 0.8 * now.lamps) * (1 - 0.6 * v.ground));
         renderer.render(scene, camera);

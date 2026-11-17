@@ -4234,7 +4234,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (riding) { if (big) big.draw(); else drawSteed(ctx, a, foot, hop, now); }
     else if (mount) mount.draw();
     // (a walker whose real shadow was thrown this frame by the 3D town has no round one under them as well)
-    else if (mapRef.current?.shadows !== false && !seatOf(a) && !tableSeatOf(a) && !behindOf && !wagonOf && !(castAt.current === now && (a.info.sit ?? -1) === -1)) {
+    else if (mapRef.current?.shadows !== false && !seatOf(a) && !tableSeatOf(a) && !behindOf && !wagonOf && !(castAt.current === now && !perched)) {
       ctx.fillStyle = "rgba(0,0,0,0.32)";
       ctx.beginPath();
       ctx.ellipse(p.x, p.y, 15 * k, 6 * k, 0, 0, Math.PI * 2);
@@ -4352,14 +4352,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       const staged = world3d.current && castAt.current === now && !mapRef.current && dollsDrawn.current.length < DOLL_CELLS.cols * dollRows.current;
       if (!staged) kit.draw(ctx, look, face.view, face.mirror, p.x, p.y, k, { step, blink, talk, expr, eat: eatPose, sit: sitting(a) || perched, perch: !!tableSeatOf(a)?.back }, dpr);
       // (whoever is on their feet, for their shadow; in the 3D town's world everybody, sitting and riding too, to be stood in the scene)
-      if (staged || (castAt.current === now && !perched && !sitting(a) && !mapRef.current && dollsDrawn.current.length < DOLL_CELLS.cols * dollRows.current)) {
+      // (and whoever sits, on the ground or a bench: sat, they had no shadow at all; the owner, 2026-11-18, "ตัวละคร นั่งแล้วเงาหาย")
+      if (staged || (castAt.current === now && !perched && !mapRef.current && dollsDrawn.current.length < DOLL_CELLS.cols * dollRows.current)) {
         const Q = dollQ.current, sheet = (dollSheet.current ??= Object.assign(document.createElement("canvas"), { width: DOLL_CELLS.cols * DOLL_CELLS.w * Q, height: dollRows.current * DOLL_CELLS.h * Q }));
         const cell = dollsDrawn.current.length, g = sheet.getContext("2d")!;
         g.save();
         g.beginPath(); g.rect((cell % DOLL_CELLS.cols) * DOLL_CELLS.w * Q, Math.floor(cell / DOLL_CELLS.cols) * DOLL_CELLS.h * Q, DOLL_CELLS.w * Q, DOLL_CELLS.h * Q); g.clip();
-        kit.draw(g, look, face.view, face.mirror, (cell % DOLL_CELLS.cols + 0.5) * DOLL_CELLS.w * Q, (Math.floor(cell / DOLL_CELLS.cols) * DOLL_CELLS.h + DOLL_CELLS.foot) * Q, Q, { step, blink, talk, expr, eat: eatPose, sit: staged && (sitting(a) || perched), perch: staged && !!tableSeatOf(a)?.back }, 1);
+        kit.draw(g, look, face.view, face.mirror, (cell % DOLL_CELLS.cols + 0.5) * DOLL_CELLS.w * Q, (Math.floor(cell / DOLL_CELLS.cols) * DOLL_CELLS.h + DOLL_CELLS.foot) * Q, Q, { step, blink, talk, expr, eat: eatPose, sit: sitting(a) || (staged && perched), perch: !!tableSeatOf(a)?.back }, 1);
         g.restore();
-        dollsDrawn.current.push({ a, cell, cast: !perched && !sitting(a) });
+        dollsDrawn.current.push({ a, cell, cast: !perched });
         if (staged) capRef.current!.actor(p.x - (DOLL_CELLS.w / 2) * k, p.y - DOLL_CELLS.foot * k, DOLL_CELLS.w * k, DOLL_CELLS.h * k, (cell % DOLL_CELLS.cols) * DOLL_CELLS.w * Q, Math.floor(cell / DOLL_CELLS.cols) * DOLL_CELLS.h * Q, DOLL_CELLS.w * Q, DOLL_CELLS.h * Q, a.pos.x, a.pos.y);
         // The light on their sunward edge (the 3D town's doll wears it): what of the doll is not covered by itself moved
         // a pixel and a half from the sun, in the sun's colour, laid on light.
