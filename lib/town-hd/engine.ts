@@ -54,6 +54,14 @@ export interface HdTown {
    * a shadow darkens it). Nothing else is drawn: the ground, the water and all that stands are the live town's own.
    */
   renderAt(v: LiveView): HTMLCanvasElement;
+  /**
+   * For the live town: what lives on the map's water, alone on nothing, as the live town's camera sees it: foam along
+   * the banks, the sun's glints, the banks' dark band, and rings where rain falls (`wet`, 0 to 1). Laid over the live
+   * town's own water as soon as that is drawn.
+   */
+  renderWater(v: LiveView, wet: number): HTMLCanvasElement;
+  /** Whether a point of the map (tiles) is water. */
+  wetAt(x: number, y: number): boolean;
   /** After `renderAt`, the same frame: what stands in the map alone, lit and in shadow, on nothing (for the live town to lay over its own pictures). */
   renderLit(): HTMLCanvasElement;
   /** Whether the ground's pictures have come (until then `renderAt` would paint it black). */
@@ -1089,6 +1097,8 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   document.addEventListener("visibilitychange", onVisible);
 
   let sheets: Sheets | null = null, reached = REACH;
+  let surf: THREE.Mesh | null = null;
+  const surfClock = { value: 0 }, surfGlint = { value: 0.3 }, surfWet = { value: 0 };
   const api: HdTown = {
     setTime(t) { if (clockMin === null && SKIES[t] === want) return; clockMin = null; from = copy(now); want = SKIES[t]; turned = 0; },
     setClock(min) { clockMin = min; },
@@ -1134,6 +1144,59 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       sun.target.position.set(ax, 0, az);
       sun.position.set(ax + sunDir.x * 90, sunDir.y * 90, az + sunDir.z * 90);
       renderer.render(scene, camera);
+      return renderer.domElement;
+    },
+    wetAt: (x, y) => wetAt(x, y),
+    renderWater(v, wet) {
+      if (!surf) {
+        // (./engine's own water, its shader's four doings, on a sheet over the live town's water: nothing where there is land)
+        const w = WORLD.x1 - WORLD.x0, d = WORLD.z1 - WORLD.z0, geo = new THREE.PlaneGeometry(w, d);
+        geo.rotateX(-Math.PI / 2);
+        const mat = new THREE.ShaderMaterial({
+          uniforms: { hdIndex: { value: indexTex }, hdOrigin: { value: new THREE.Vector4(WORLD.x0, WORLD.z0, w, d) }, hdTime: surfClock, hdGlint: surfGlint, hdWet: surfWet },
+          vertexShader: "varying vec2 hdW; void main() { vec4 p = modelMatrix * vec4(position, 1.0); hdW = p.xz; gl_Position = projectionMatrix * viewMatrix * p; }",
+          fragmentShader: `varying vec2 hdW; uniform sampler2D hdIndex; uniform vec4 hdOrigin; uniform float hdTime; uniform float hdGlint; uniform float hdWet;
+${NOISE}
+            float hdLand(vec2 p) { return step(0.5, abs(floor(texture2D(hdIndex, (p - hdOrigin.xy) / hdOrigin.zw).r * 255.0 + 0.5) - 1.0)); }
+            void main() {
+              vec2 hdP = floor(hdW * 22.63) / 22.63;
+              if (hdLand(hdP) > 0.5) discard;
+              float hdShore = max(max(hdLand(hdP + vec2(0.24, 0.0)), hdLand(hdP - vec2(0.24, 0.0))), max(hdLand(hdP + vec2(0.0, 0.24)), hdLand(hdP - vec2(0.0, 0.24))));
+              float hdNear = max(max(hdLand(hdP + vec2(0.1, 0.0)), hdLand(hdP - vec2(0.1, 0.0))), max(hdLand(hdP + vec2(0.0, 0.1)), hdLand(hdP - vec2(0.0, 0.1))));
+              float hdWave = hdNoise(hdP * 3.1 + vec2(hdTime * 0.55, -hdTime * 0.4));
+              float hdWhite = max(hdNear * 0.7, hdShore * step(0.5, hdWave) * 0.6);
+              float hdG = hdNoise(hdP * 5.5 + vec2(hdTime * 0.3, hdTime * 0.18)) * hdNoise(hdP * 11.0 - vec2(hdTime * 0.45, 0.0));
+              hdWhite = max(hdWhite, hdGlint * step(0.56, hdG));
+              float hdFar = max(max(hdLand(hdP + vec2(0.9, 0.0)), hdLand(hdP - vec2(0.9, 0.0))), max(hdLand(hdP + vec2(0.0, 0.9)), hdLand(hdP - vec2(0.0, 0.9))));
+              float hdDark = 0.2 * hdFar * (0.75 + 0.25 * sin(hdW.x * 9.0 + hdW.y * 7.0 + hdTime * 1.6));
+              vec2 hdC = floor(hdW * 2.0);
+              float hdR = fract(hdHash(hdC) + hdTime * 0.9);
+              float hdD = length(fract(hdW * 2.0) - 0.5 - (vec2(hdHash(hdC + 3.1), hdHash(hdC + 7.7)) - 0.5) * 0.5);
+              hdWhite = max(hdWhite, hdWet * 0.5 * (1.0 - hdR) * step(abs(hdD - hdR * 0.35), 0.035));
+              gl_FragColor = vec4(vec3(hdWhite), hdWhite + hdDark * (1.0 - hdWhite));
+            }`,
+          transparent: true, premultipliedAlpha: true, depthTest: false, depthWrite: false,
+        });
+        surf = new THREE.Mesh(geo, mat);
+        surf.position.set((WORLD.x0 + WORLD.x1) / 2, 0, (WORLD.z0 + WORLD.z1) / 2);
+        surf.frustumCulled = false;
+        disposables.push(mat);
+      }
+      const w = Math.max(1, Math.round(v.cw)), h = Math.max(1, Math.round(v.ch)), dpr = Math.min(v.dpr, quality === "low" ? 1 : lite ? 1.5 : 2);
+      if (w !== sized.w || h !== sized.h || dpr !== sized.d) { sized = { w, h, d: dpr }; renderer.setPixelRatio(dpr); renderer.setSize(w, h, false); }
+      const q = hourOf(v.min);
+      blend(SKIES[q[0]], SKIES[q[1]], q[2]);
+      surfClock.value = performance.now() / 1000; surfGlint.value = 0.5 * (1 - 0.7 * now.lamps) * (1 - 0.6 * wet); surfWet.value = wet;
+      const half = v.ch / (2 * PX_SIDE * v.s);
+      camera.top = half; camera.bottom = -half; camera.right = (half * v.cw) / v.ch; camera.left = -camera.right;
+      camera.updateProjectionMatrix();
+      eye.set((v.cx / 32 + v.cy / 16) / 2, 0, (v.cy / 16 - v.cx / 32) / 2);
+      camera.position.set(eye.x + Math.sin(YAW) * Math.cos(PITCH) * 250, Math.sin(PITCH) * 250, eye.z + Math.cos(YAW) * Math.cos(PITCH) * 250);
+      camera.lookAt(eye);
+      renderer.setClearColor(0x000000, 0);
+      renderer.shadowMap.autoUpdate = false;
+      renderer.render(surf, camera);
+      renderer.shadowMap.autoUpdate = true;
       return renderer.domElement;
     },
     renderLit() {

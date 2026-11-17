@@ -72,10 +72,17 @@ export default function HdTownTest() {
           const cx = (mx - my) * 32, cy = (mx + my) * 16, g = (finish ? stage : c).getContext("2d")!, now = performance.now();
           const minute = Number(/[?&]min=(\d+)/.exec(window.location.search)?.[1] ?? d.getUTCHours() * 60 + d.getUTCMinutes());
           const screen = (ix: number, iy: number) => ({ x: cw / 2 + (ix - cx) * sc, y: ch / 2 + (iy - cy) * sc });
-          const pic = under.renderAt({ cx, cy, s: sc, cw, ch, dpr, min: minute });
           g.setTransform(dpr, 0, 0, dpr, 0, 0);
           g.fillStyle = "#6aa556"; g.fillRect(0, 0, cw, ch);
-          g.globalCompositeOperation = "multiply"; g.drawImage(pic, 0, 0, cw, ch); g.globalCompositeOperation = "source-over";
+          // (the water: plain blue where the map is wet, a tile at a time, then what lives on it)
+          g.fillStyle = "#3f7fa8";
+          for (let y = my - 16; y <= my + 16; y++) for (let x = mx - 16; x <= mx + 16; x++) if (under.wetAt(x + 0.5, y + 0.5)) {
+            const q = (i: number, j: number) => screen((x + i - y - j) * 32, (x + i + y + j) * 16);
+            const a0 = q(0, 0), a1 = q(1, 0), a2 = q(1, 1), a3 = q(0, 1);
+            g.beginPath(); g.moveTo(a0.x, a0.y); g.lineTo(a1.x, a1.y); g.lineTo(a2.x, a2.y); g.lineTo(a3.x, a3.y); g.fill();
+          }
+          g.drawImage(under.renderWater({ cx, cy, s: sc, cw, ch, dpr, min: minute }, /[?&]rain=1/.test(window.location.search) ? 0.9 : 0), 0, 0, cw, ch);
+          g.globalCompositeOperation = "multiply"; g.drawImage(under.renderAt({ cx, cy, s: sc, cw, ch, dpr, min: minute }), 0, 0, cw, ch); g.globalCompositeOperation = "source-over";
           const lit = under.renderLit();
           if (copy.width !== lit.width || copy.height !== lit.height) { copy.width = lit.width; copy.height = lit.height; }
           const cg = copy.getContext("2d")!;
@@ -96,7 +103,7 @@ export default function HdTownTest() {
           if (finish) {
             const dark = minute > 1170 || minute < 270 ? 0.62 : 0;
             if (dark) { g.globalCompositeOperation = "multiply"; g.fillStyle = "#3a4a86"; g.fillRect(0, 0, cw, ch); g.globalCompositeOperation = "lighter"; for (const [lx, ly] of [[0.3, 0.45], [0.7, 0.6]]) { const r = g.createRadialGradient(cw * lx, ch * ly, 0, cw * lx, ch * ly, 150); r.addColorStop(0, "rgba(255,190,110,0.85)"); r.addColorStop(1, "rgba(255,190,110,0)"); g.fillStyle = r; g.fillRect(0, 0, cw, ch); } g.globalCompositeOperation = "source-over"; }
-            finish.render(stage, { cx, cy, s: sc, cw, ch, dpr, min: minute }, { indoors: false, still: false, town: true, rain: /[?&]rain=1/.test(window.location.search) ? 0.9 : 0 });
+            finish.render(stage, { cx, cy, s: sc, cw, ch, dpr, min: minute }, { indoors: false, still: false, town: true, rain: /[?&]rain=1/.test(window.location.search) ? 0.9 : 0, wetAt: under.wetAt });
             const out = c.getContext("2d")!;
             out.setTransform(1, 0, 0, 1, 0, 0); out.drawImage(finish.canvas, 0, 0, c.width, c.height);
           }

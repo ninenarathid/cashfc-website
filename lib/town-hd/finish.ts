@@ -12,7 +12,7 @@ import type { LiveView, Quality } from "./engine";
 import { NOISE, makeAir, makePost } from "./fx";
 import { MAPS } from "./maps";
 
-export interface Finish { /** The canvas it is drawn on. */ canvas: HTMLCanvasElement; render(src: HTMLCanvasElement, v: LiveView, more: { indoors: boolean; still: boolean; /** The editor's town: petals in its air. */ town?: boolean; /** False where the live town lays its own clouds' shadows by its weather. */ clouds?: boolean; /** How hard it rains (the live town's weather), 0 to 1. */ rain?: number }): void; dispose(): void }
+export interface Finish { /** The canvas it is drawn on. */ canvas: HTMLCanvasElement; render(src: HTMLCanvasElement, v: LiveView, more: { indoors: boolean; still: boolean; /** The editor's town: petals in its air. */ town?: boolean; /** False where the live town lays its own clouds' shadows by its weather. */ clouds?: boolean; /** How hard it rains (the live town's weather), 0 to 1. */ rain?: number; /** Where the map is water (tiles), for the mist that lies on it. */ wetAt?: (x: number, y: number) => boolean }): void; dispose(): void }
 
 /** The hours (./engine's SKIES, the same four): the colour over the picture, [colour's strength, corners, glow, motes, fireflies, mist, sun shafts, clouds], how far the lamps are lit, the sun's stand and colour. */
 interface Hour { grade: number[]; air: number[]; lamps: number; sun: number[]; col: number }
@@ -46,7 +46,8 @@ export function createFinish(canvas: HTMLCanvasElement, quality: Quality): Finis
       else { const ix = o[2] + 248 * o[4], iy = o[3] + 204 * o[4] + 1.2 * 39.2; chimneys.push(new THREE.Vector3((ix / 32 + iy / 16) / 2, 1.2, (iy / 16 - ix / 32) / 2)); }
     });
   }
-  const air = makeAir(scene, camera, { small: lite, fore: null, heightAt: () => 0, wetAt: () => false, chimneys, far: false, ratio: Math.min(window.devicePixelRatio || 1, 2) });
+  let wetNow: ((x: number, y: number) => boolean) | undefined;
+  const air = makeAir(scene, camera, { small: lite, fore: null, heightAt: () => 0, wetAt: (x, z) => wetNow?.(x, z) ?? false, chimneys, far: false, ratio: Math.min(window.devicePixelRatio || 1, 2) });
   // clouds' shadows, drifting over the land (./engine's own, the same two noises): a sheet on the ground under the view
   // that darkens what is under it, the things standing there with the ground
   const cloudGeo = new THREE.PlaneGeometry(260, 260);
@@ -110,13 +111,14 @@ void main() {
       post.look(grade, more.indoors ? 1.04 : airNow[0], airNow[1] * 0.8, more.indoors ? 0.28 : 0.16 + 0.3 * lamps);
       const sec = performance.now() / 1000, dt = more.still ? 0 : Math.min(0.05, last ? sec - last : 0);
       last = sec;
+      wetNow = more.wetAt;
       const out = more.indoors ? 0 : 1, wet = Math.max(0, Math.min(1, more.rain ?? 0)) * out;
       clouds.visible = more.clouds !== false && !more.indoors && airNow[7] > 0.02;
       clouds.position.set(Math.round(eye.x), 0, Math.round(eye.z));
       if (!more.still) cloudMat.uniforms.hdTime.value = sec;
       cloudMat.uniforms.hdCloud.value = airNow[7];
       air.update(dt, sec, eye, half, v.cw / v.ch, {
-        motes: airNow[3] * 0.5 * out * (1 - wet), flies: airNow[4] * out * (1 - wet), mist: 0, rays: airNow[6] * 0.6 * out * (1 - wet), rain: wet, dry: null, dim: lamps, petals: more.town ? (1 - lamps) * 0.4 : 0, smoke: more.town ? 1 : 0,
+        motes: airNow[3] * 0.5 * out * (1 - wet), flies: airNow[4] * out * (1 - wet), mist: wetNow ? Math.max(airNow[5], wet * 0.5) * out : 0, rays: airNow[6] * 0.6 * out * (1 - wet), rain: wet, dry: null, dim: lamps, petals: more.town ? (1 - lamps) * 0.4 : 0, smoke: more.town ? 1 : 0,
         sunX: sunDir.dot(right), sunY: sunDir.dot(up), sun: sunCol,
       });
       post.render();

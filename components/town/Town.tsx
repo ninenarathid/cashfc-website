@@ -1595,7 +1595,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         if (fin) {
           try {
             const c = cam.current, clock = new Date(Date.now() + 7 * 3600_000);
-            fin.render(canvas, { cx: c.cx, cy: c.cy, s: c.s, cw: c.cw, ch: c.ch, dpr: c.dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() }, { indoors: underRoof(placeRef.current), still: reducedRef.current, town: T2 && placeRef.current === "town", clouds: false, rain: underRoof(placeRef.current) || placeRef.current === "cave" ? 0 : effects.current?.rain ?? 0 });
+            fin.render(canvas, { cx: c.cx, cy: c.cy, s: c.s, cw: c.cw, ch: c.ch, dpr: c.dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() }, { indoors: underRoof(placeRef.current), still: reducedRef.current, town: T2 && placeRef.current === "town", clouds: false, rain: underRoof(placeRef.current) || placeRef.current === "cave" ? 0 : effects.current?.rain ?? 0, wetAt: (placeRef.current === "town" && T2 ? hdTowns.current.town : placeRef.current === "farm" && F2 ? hdTowns.current.farm : null)?.wetAt });
           } catch (e) { dropFinish("it failed", e); }
         }
       }
@@ -2523,6 +2523,18 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // The river flowing, and what floats and swims in it (in the editor's town, down its own river, under its decks). (Not
     // seen from a room.)
     if (scenery && !underRoof(placeRef.current)) drawRiver(ctx, scenery, dpr);
+    // What lives on the 3D town's water, over the river just drawn (lib/town-hd/engine's `renderWater`): foam along the
+    // banks, the sun's glints, rings where rain falls. On the editor's maps, at "mid" and "high".
+    {
+      const here = placeRef.current, wp: HdPlace | null = here === "town" && T2 ? "town" : here === "farm" && F2 ? "farm" : null;
+      const town = wp && finishRef.current ? hdTowns.current[wp] : null;
+      if (town?.ready()) {
+        try {
+          const clock = new Date(Date.now() + 7 * 3600_000);
+          ctx.drawImage(town.renderWater({ cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() }, effects.current?.rain ?? 0), 0, 0, cw, ch);
+        } catch (e) { console.warn("[Cash Town] 3D water stopped", e); delete hdTowns.current[wp!]; }
+      }
+    }
     if (art2 && seen2) art2.drawFloor(ctx, seen2, iso2, v.s, dpr, reducedRef.current ? 0 : now, inHall);
     if (artF && seenF) artF.drawFloor(ctx, seenF, iso2, v.s, dpr, reducedRef.current ? 0 : now);
     if (roomArt && seenShop) roomArt.drawFloor(ctx, seenShop, iso2, v.s, dpr);
