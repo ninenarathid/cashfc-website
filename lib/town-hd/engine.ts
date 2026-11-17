@@ -506,8 +506,13 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     // it along its whole length whatever the sun's side (the owner, 2026-11-17: "เก้าอี้นี้เงาไม่ติดกัน ช่วยแก้เคสเดียวกัน
     // ทั้งหมด"). A sheet turned to the sun, stood on its middle, joins only a thing that stands on one foot: a tree, a post.
     const bw = box[2] - box[0], bd = box[3] - box[1], long = Math.max(bw, bd) >= Math.min(bw, bd) * 1.5 && Math.max(bw, bd) >= 0.7;
-    if (long) blocks.push([cx, cz, bw * 0.92, bd * 0.92, Math.min(3, Math.max(0.25, tall)), wetAt(cx, cz) ? WATER_Y : Hat(cx, cz)]);
-    stood(o, cx, cz, false, long);
+    // A length of fence stands on a tile's edge, its footprint a tile about that edge's middle (the farm's `wall`): its
+    // shadow is thrown from the edge itself, a thin block along it (the owner, 2026-11-17: "เงารั้วไม่ตรง", of the sheet
+    // turned to the sun in the tile's middle, which lay across the fence and not along it).
+    const fence = name === "wall" && Math.abs(bw - 1) < 0.01 && Math.abs(bd - 1) < 0.01, north = fence && Math.abs(box[1] % 1) > 0.25;
+    if (fence) blocks.push([cx, cz, north ? 1 : 0.08, north ? 0.08 : 1, Math.max(0.4, (sp[2] * o[4] - 16) / PX_UP * 0.85), Hat(cx, cz)]);
+    else if (long) blocks.push([cx, cz, bw * 0.92, bd * 0.92, Math.min(3, Math.max(0.25, tall)), wetAt(cx, cz) ? WATER_Y : Hat(cx, cz)]);
+    stood(o, cx, cz, false, long || fence);
     const h = sp[2] * o[4] / PX_UP;
     if (LAMP.test(name)) lamps.push({ x: cx, y: h * 0.72 + Hat(cx, cz), z: cz, b: Hat(cx, cz) });
   });

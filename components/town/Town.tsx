@@ -344,6 +344,10 @@ const GROUND: Record<ReturnType<typeof groundAt>, [string, string]> = {
   wood: ["#1f3027", "#22342b"],
 };
 
+/** The same steps by the keys' places on the keyboard, whatever layout is on (a Thai one sends no "w"). */
+const WALK_CODES: Record<string, [number, number]> = {
+  ArrowUp: [-1, -1], KeyW: [-1, -1], ArrowRight: [1, -1], KeyD: [1, -1], ArrowDown: [1, 1], KeyS: [1, 1], ArrowLeft: [-1, 1], KeyA: [-1, 1],
+};
 const KEYS: Record<string, [number, number]> = {
   ArrowUp: [-1, -1], w: [-1, -1], W: [-1, -1],
   ArrowRight: [1, -1], d: [1, -1], D: [1, -1],
@@ -4965,22 +4969,46 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         if ((me_.self.info.sit ?? -1) !== -1) me_.standUp(); else me_.sitHere();
         return;
       }
-      const step = KEYS[e.key];
+      // W A S D and the arrows walk for as long as they are held, two of them together along the tiles' own lines, as on
+      // the 3D town's trial page (the owner, 2026-11-17: "ช่วยเอาการบังคับแบบ wasd มาด้วย"). By the key's place on the
+      // keyboard, so that they are the same keys with a Thai layout.
+      const step = WALK_CODES[e.code] ?? KEYS[e.key];
       const stay = sessionRef.current;
-      if (!step || !stay || stay.closed) return;
+      if (!step || !stay || stay.closed || e.ctrlKey || e.metaKey || e.altKey) return;
       e.preventDefault();
+      if (e.repeat) return;
       boxWant.current = false;
-      const held = stay.stuck();
-      if (held) { sayStuck(held); return; }
+      const stuck = stay.stuck();
+      if (stuck) { sayStuck(stuck); return; }
       // (whoever sits stays sat: left and right turn them, up and down do nothing)
       if (stay.seated) { if (step[0] !== step[1]) stay.turnTo(step[0] < step[1]); return; }
-      const a = stay.self;
-      const from = a.path.length ? a.path[a.path.length - 1] : a.pos;
-      const next = { x: Math.floor(from.x) + step[0], y: Math.floor(from.y) + step[1] };
-      if (walkable(next.x, next.y) && stay.walkTo(next)) cam.current.follow = true;
+      walking.set(e.code, step);
+      go(true);
+      if (!timer) timer = window.setInterval(() => go(false), 70);
     };
+    const walking = new Map<string, [number, number]>();
+    let timer = 0;
+    const rest = () => { walking.clear(); if (timer) { window.clearInterval(timer); timer = 0; } };
+    /** A step the way the held keys point, from where my way ends: asked again only when that way is nearly walked. */
+    const go = (first: boolean) => {
+      const stay = sessionRef.current;
+      if (!stay || stay.closed || !walking.size || stay.seated || stay.stuck()) { if (!first) rest(); return; }
+      let sx = 0, sy = 0;
+      for (const [x, y] of walking.values()) { sx += x; sy += y; }
+      const dx = Math.sign(sx), dy = Math.sign(sy), a = stay.self;
+      if ((!dx && !dy) || (!first && a.path.length > 1)) return;
+      const from = a.path.length ? a.path[a.path.length - 1] : a.pos, fx = Math.floor(from.x), fy = Math.floor(from.y);
+      // (against a wall on the slant, along it)
+      for (const [ux, uy] of [[dx, dy], [dx, 0], [0, dy]]) {
+        if ((!ux && !uy) || !walkable(fx + ux, fy + uy)) continue;
+        if (stay.walkTo({ x: fx + ux, y: fy + uy })) { cam.current.follow = true; return; }
+      }
+    };
+    const onKeyUp = (e: KeyboardEvent) => { walking.delete(e.code); if (!walking.size) rest(); };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("keyup", onKeyUp);
+    window.addEventListener("blur", rest);
+    return () => { rest(); window.removeEventListener("keydown", onKey); window.removeEventListener("keyup", onKeyUp); window.removeEventListener("blur", rest); };
   }, [zoomBy]);
 
   /* ── fullscreen and the wardrobe ─────────────────────────────────────── */
