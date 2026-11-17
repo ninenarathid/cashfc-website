@@ -47,7 +47,7 @@ export default function HdTownTest() {
     try {
       // (`?at=x,y`: stand somewhere else first, for a tester sent to look at one corner)
       const m = /[?&]at=(\d+(?:\.\d+)?),(\d+(?:\.\d+)?)/.exec(window.location.search);
-      made = createHdTown(canvas.current, { map: mapOf(window.location.search), fx: !/[?&]fx=0/.test(window.location.search), time: timeNow(), at: m ? { x: +m[1], y: +m[2] } : undefined, nameEl: plate.current, showWalk: /[?&]walk=1/.test(window.location.search), onReady: () => setReady(true), onFps: setFps });
+      made = createHdTown(canvas.current, { map: mapOf(window.location.search), fx: !/[?&]fx=0/.test(window.location.search), quality: (/[?&]q=(high|mid|low)/.exec(window.location.search)?.[1] as "high" | "mid" | "low" | undefined), time: timeNow(), at: m ? { x: +m[1], y: +m[2] } : undefined, nameEl: plate.current, showWalk: /[?&]walk=1/.test(window.location.search), onReady: () => setReady(true), onFps: setFps });
       town.current = made;
     } catch {
       setFailed(true);
@@ -83,7 +83,7 @@ export default function HdTownTest() {
 
   return (
     <div className="fixed inset-x-0 bottom-0 top-[var(--nav-h)] z-[30] select-none overflow-hidden bg-bg">
-      <canvas ref={canvas} tabIndex={0} className="block h-full w-full touch-none outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
+      <canvas ref={canvas} tabIndex={0} className={`block h-full w-full touch-none outline-none transition-opacity duration-700 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent ${ready ? "opacity-100" : "opacity-0"}`}
         aria-label="Cash Town HD-2D ทดลอง" aria-describedby="hd-how" />
       <p id="hd-how" className="sr-only">แตะหรือคลิกบนพื้นเพื่อเดิน หรือใช้ปุ่ม W A S D และปุ่มลูกศร ล้อเมาส์หรือถ่างนิ้วเพื่อซูม</p>
 

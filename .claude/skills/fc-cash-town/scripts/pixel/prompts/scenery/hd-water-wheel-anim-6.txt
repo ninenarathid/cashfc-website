@@ -1,0 +1,9 @@
+The attached picture is a sprite sheet from a cozy 2D town game: four pictures in one row, each a close view of a big wooden water wheel under a wooden water trough on posts, against a plank wall and a thatched roof, cut off straight at its right edge. They are four different wheels: each was built with its eight spokes set at its own angles, so the spokes of the first, the second, the third and the fourth wheel all point in different directions. Redraw the same sheet exactly as it is, every picture in the same place on the canvas, at the same size, with the same chunky pixel size, the same thick dark outline and the same colours, and with every spoke of every wheel at exactly the angle the attached picture gives it.
+
+Change only this: where a spoke's edge is ragged or saw-toothed, or a spoke is broken off short, draw it as a whole straight wooden beam of even width from the hub out to the inside of the rim, lying exactly along the same line as before, with a dark outline and a lighter edge along one side. Add no spoke, post or beam and take none away. Between the spokes the inside of each wheel stays plain and dark.
+1) the first wheel: one spoke upright, one straight down, one level on each side, and four between them;
+2) the second wheel: no spoke upright and none level; the upper spoke leans a little to the right of upright;
+3) the third wheel: no spoke upright and none level; two spokes stand like a narrow letter V at the top, one leaning left and one leaning right;
+4) the fourth wheel: no spoke upright and none level; the upper spoke leans a little to the left of upright.
+
+All 4 items in one row, evenly spaced, not overlapping, with clear empty space between them, standing on the same ground line. Crisp pixel art with hard square pixel edges, the same thick dark outline, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground under them, no shadows, no text, no labels.

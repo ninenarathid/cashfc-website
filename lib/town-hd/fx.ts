@@ -68,10 +68,10 @@ export function makePost(renderer: THREE.WebGLRenderer, scene: THREE.Scene, came
 }
 
 /** How much of each thing is in the air at an hour, 0 to 1. */
-export interface AirNow { motes: number; flies: number; mist: number; rays: number; petals: number; smoke: number; sunX: number; sunY: number; sun: THREE.Color; /** How hard it rains. */ rain: number; /** How dark the far hills are (the night's share). */ dim: number }
+export interface AirNow { motes: number; flies: number; mist: number; rays: number; petals: number; smoke: number; sunX: number; sunY: number; sun: THREE.Color; /** How hard it rains. */ rain: number; /** A room one stands in: no rain is seen over its floor, while it goes on falling outside. */ dry: readonly number[] | null; /** How dark the far hills are (the night's share). */ dim: number }
 export interface Air { /** A puff of dust at somebody's feet. */ puff(x: number, y: number, z: number): void; update(dt: number, sec: number, at: THREE.Vector3, halfH: number, aspect: number, now: AirNow): void; dispose(): void }
 
-export function makeAir(scene: THREE.Scene, camera: THREE.Camera, o: { small: boolean; wetAt: (x: number, z: number) => boolean; chimneys: THREE.Vector3[]; ratio: number }): Air {
+export function makeAir(scene: THREE.Scene, camera: THREE.Camera, o: { small: boolean; /** A tree's picture, for the dark boughs that hang near the eye at the foot of the view. */ fore: THREE.Texture | null; /** The ground's height at a point. */ heightAt: (x: number, z: number) => number; wetAt: (x: number, z: number) => boolean; chimneys: THREE.Vector3[]; ratio: number }): Air {
   const kept: Array<{ dispose(): void }> = [];
   let seed = 4242;
   const r = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
@@ -192,11 +192,43 @@ export function makeAir(scene: THREE.Scene, camera: THREE.Camera, o: { small: bo
     return { m, t, mat };
   })();
 
+  // The rain's own pictures (the owner, 2026-11-17: "การที่ใช้ code ขีดเป้นเส้นๆ มันดูไม่สวย ... ใช้ credit ได้"): three
+  // streaks, short to long, drawn slanting one way, and a drop landing in three moments (public/town/hd/rain-1..6.png,
+  // drawn through gen.mjs; the pixel README has the call). Each stands upright, turned to the eye, at the town's pixels.
+  const PX = 45.25, SIZES: Array<[number, number]> = [[5, 10], [9, 17], [12, 24], [19, 13], [20, 9], [21, 10]];
+  const rainSet = SIZES.map(([w, h], i) => {
+    const t = new THREE.TextureLoader().load(`/town/hd/rain-${i + 1}.png`);
+    t.colorSpace = THREE.SRGBColorSpace; t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestFilter; t.generateMipmaps = false;
+    const geo = new THREE.PlaneGeometry((w / PX) * 0.7, (h / 39.2) * 0.7);
+    const mat = new THREE.MeshBasicMaterial({ map: t, transparent: true, opacity: 0, depthWrite: false, fog: false });
+    const n = i < 3 ? (o.small ? 45 : 90) : (o.small ? 20 : 44);
+    const mesh = new THREE.InstancedMesh(geo, mat, n);
+    mesh.frustumCulled = false; mesh.visible = false;
+    scene.add(mesh);
+    kept.push(t, geo, mat);
+    return { mesh, mat, n, at: Array.from({ length: n }, () => [r() * SPAN, r() * 11, r() * SPAN, r()]) };
+  });
+  const stand = new THREE.Object3D();
+  stand.rotation.set(0, Math.PI / 4, 0);
+
+  // near the eye: a few dark boughs along the foot of the view, sliding faster than the ground as one walks
+  const foreMat = o.fore ? new THREE.MeshBasicMaterial({ map: o.fore, color: 0x101820, transparent: true, alphaTest: 0.5, depthTest: false, depthWrite: false, fog: false }) : null;
+  const foreGeo = new THREE.PlaneGeometry(1, 1);
+  kept.push(foreGeo);
+  if (foreMat) kept.push(foreMat);
+  const fores = foreMat ? [0, 1, 2].map((i) => {
+    const m = new THREE.Mesh(foreGeo, foreMat);
+    m.renderOrder = 9; m.frustumCulled = false;
+    if (i === 1) m.scale.x = -1;
+    camera.add(m);
+    return m;
+  }) : [];
+
   return {
     puff(x, y, z) { const d = dusts[nextDust++ % dusts.length]; d.sp.position.set(x, y, z); d.age = 0; },
     update(dt, sec, at, halfH, aspect, now) {
       const cx = at.x - SPAN / 2, cz = at.z - SPAN / 2;
-      rainMat.opacity = now.rain * 0.42; rain.visible = now.rain > 0.02;
+      rainMat.opacity = 0; rain.visible = false; // (the strokes made by code gave way to the rain's own pictures, below)
       if (rain.visible) {
         for (let i = 0; i < RAIN; i++) {
           const q = rainAt[i], fall = sec * q[3];
@@ -208,7 +240,7 @@ export function makeAir(scene: THREE.Scene, camera: THREE.Camera, o: { small: bo
         rain.instanceMatrix.needsUpdate = true;
       }
       // where drops land: a pale speck for an instant, here and there on the ground
-      splash.mat.opacity = now.rain * 0.8; splash.pts.visible = now.rain > 0.02;
+      splash.mat.opacity = 0; splash.pts.visible = false;
       if (splash.pts.visible) {
         for (let i = 0; i < splash.n; i++) {
           const b = i * 4, ph = splash.base[b + 3], turn = Math.floor(sec * 3 + ph), k = sec * 3 + ph - turn, hop = Math.sin(turn * 12.9898 + i) * 43758.5453, at2 = hop - Math.floor(hop);
@@ -220,10 +252,43 @@ export function makeAir(scene: THREE.Scene, camera: THREE.Camera, o: { small: bo
         }
         splash.geo.attributes.position.needsUpdate = true; splash.geo.attributes.color.needsUpdate = true;
       }
+      rainSet.forEach((q, i) => {
+        q.mesh.visible = now.rain > 0.02;
+        if (!q.mesh.visible) return;
+        q.mat.opacity = now.rain * (i < 3 ? 0.5 + i * 0.12 : 0.8);
+        for (let j = 0; j < q.n; j++) {
+          const a = q.at[j];
+          if (i < 3) {
+            // a streak falls along its own slant (its foot to the left, as it was drawn): far ones slower
+            const fall = sec * (7 + i * 3.5 + a[3] * 2), y = wrap(a[1] - fall, 11), drift = (fall + (11 - y)) * 0.22;
+            stand.position.set(cx + wrap(a[0] - drift - cx, SPAN), y, cz + wrap(a[2] + drift - cz, SPAN));
+            // (over a room's floor as the eye sees it, a streak is not drawn: where it stands, less its height along the line of sight)
+            const gx = stand.position.x - y * 1.225, gz = stand.position.z - y * 1.225, d = now.dry;
+            stand.scale.setScalar(d && gx > d[0] - 0.6 && gx < d[2] + 0.6 && gz > d[1] - 0.6 && gz < d[3] + 0.6 ? 0 : 1);
+          } else {
+            // a drop lands somewhere new each time: the crown, the ring, the ring breaking, one after the other
+            const turn = Math.floor(sec * 2.2 + a[3] * 7), k = sec * 2.2 + a[3] * 7 - turn, hop = Math.sin(turn * 12.9898 + j * 78.233) * 43758.5453, u = hop - Math.floor(hop);
+            const x = cx + wrap(a[0] + u * 11 - cx, SPAN), z = cz + wrap(a[2] + u * 7 - cz, SPAN);
+            stand.position.set(x, o.heightAt(x, z) + 0.1, z);
+            const d = now.dry, roofed = !!d && x > d[0] - 0.6 && x < d[2] + 0.6 && z > d[1] - 0.6 && z < d[3] + 0.6;
+            stand.scale.setScalar(Math.floor(k * 4) === i - 3 && !o.wetAt(x, z) && !roofed ? 1 : 0);
+          }
+          stand.updateMatrix();
+          q.mesh.setMatrixAt(j, stand.matrix);
+        }
+        q.mesh.instanceMatrix.needsUpdate = true;
+      });
       for (const d of dusts) {
         d.age += dt;
         const k = Math.min(1, d.age / 0.7);
         d.m.opacity = (1 - k) * 0.45; d.sp.scale.setScalar(0.25 + k * 0.5); d.sp.position.y += dt * 0.3;
+      }
+      {
+        const gap = halfH * aspect * 1.5, slide = (at.x - at.z) * 0.9;
+        fores.forEach((m, i) => {
+          m.position.set(wrap(i * gap - slide, gap * 3) - gap * 1.5, -halfH * 1.32, -30);
+          m.scale.set((i === 1 ? -1 : 1) * halfH * 1.5, halfH * 1.5, 1);
+        });
       }
       far.m.position.set(0, halfH * 0.35, -590);
       far.m.scale.set(halfH * aspect * 2.2, halfH * 1.3, 1);
@@ -290,6 +355,8 @@ export function makeAir(scene: THREE.Scene, camera: THREE.Camera, o: { small: bo
     dispose() {
       for (const q of kept) q.dispose();
       for (const q of rays) camera.remove(q.m);
+      for (const m of fores) camera.remove(m);
+      camera.remove(far.m);
     },
   };
 }

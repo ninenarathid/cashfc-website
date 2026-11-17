@@ -50,7 +50,8 @@ export interface HdTown {
   zoom(by: number): void;
   dispose(): void;
 }
-export interface HdOpts { /** Light and air (glow, colour, dust, mist); a tester's `?fx=0` turns them off to compare. */ fx?: boolean; /** Which map is stood up. */ map?: MapId; time: TimeId; /** Where to stand first, in tiles (a tester's `?at=x,y`); the plaza otherwise. */ at?: { x: number; y: number }; /** The name plate of the test character: moved here each frame to sit under its feet. */ nameEl?: HTMLElement | null; /** Show where may be walked (a tester's `?walk=1`). */ showWalk?: boolean; onReady?: () => void; onFps?: (fps: number) => void }
+export type Quality = "high" | "mid" | "low";
+export interface HdOpts { /** How much is drawn: everything, a phone's share, or the bare scene. Left out, the device decides, and a slow one is given less. */ quality?: Quality; /** Light and air (glow, colour, dust, mist); a tester's `?fx=0` turns them off to compare. */ fx?: boolean; /** Which map is stood up. */ map?: MapId; time: TimeId; /** Where to stand first, in tiles (a tester's `?at=x,y`); the plaza otherwise. */ at?: { x: number; y: number }; /** The name plate of the test character: moved here each frame to sit under its feet. */ nameEl?: HTMLElement | null; /** Show where may be walked (a tester's `?walk=1`). */ showWalk?: boolean; onReady?: () => void; onFps?: (fps: number) => void }
 
 type Obj = number[];
 const SEASONAL = /^game_(pumpkin|jacko)/;
@@ -76,6 +77,8 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   /** How far up somebody stands at a point, in isometric pixels (a stage, a bridge: the town's). */
   const lift = (x: number, z: number) => (TOWN ? t2Lift(x, z) : 0);
   const coarse = typeof matchMedia !== "undefined" && matchMedia("(pointer: coarse)").matches;
+  // (the owner was told, 2026-11-17, that the look's cost on a phone was never measured: so three shares of it)
+  const quality: Quality = opts.quality ?? (coarse ? "mid" : "high"), lite = quality !== "high";
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: "high-performance" });
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -92,7 +95,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   const hemi = new THREE.HemisphereLight(0xffffff, 0x888888, 1.5);
   const sun = new THREE.DirectionalLight(0xffffff, 3);
   sun.castShadow = !map.indoors;
-  const SH = coarse ? 1024 : 2048, REACH = 30;
+  const SH = lite ? 1024 : 2048, REACH = 30;
   sun.shadow.mapSize.set(SH, SH);
   Object.assign(sun.shadow.camera, { left: -REACH, right: REACH, top: REACH, bottom: -REACH, near: 1, far: 220 });
   sun.shadow.camera.updateProjectionMatrix();
@@ -303,6 +306,12 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   scene.add(town);
   const spins: THREE.Object3D[] = [];
   const hall: { upper: THREE.Group | null } = { upper: null };
+  // A room's own light (the owner, 2026-11-17, of the kitchen hall at night: "ข้างในบ้านควรทำให้ดู อบอุ่น cozy กว่านี้หน่อย"):
+  // warm lamps over its floor, lit while I am inside; the night outside stays the night.
+  const hearths = (map.indoors
+    ? [[map.x0 + map.cols * 0.35, map.y0 + map.rows * 0.4], [map.x0 + map.cols * 0.7, map.y0 + map.rows * 0.65]]
+    : TOWN ? [[T2_HALL.box[0] * 0.7 + T2_HALL.box[2] * 0.3, (T2_HALL.box[1] + T2_HALL.box[3]) / 2], [T2_HALL.box[0] * 0.3 + T2_HALL.box[2] * 0.7, (T2_HALL.box[1] + T2_HALL.box[3]) / 2]] : []
+  ).map(([x, z]) => { const l = new THREE.PointLight(0xffb868, 0, 15, 1.2); l.position.set(x, 3.6, z); scene.add(l); return l; });
 
   /** A picture stood upright: seen at (x, z), where its foot was drawn; its shadow thrown from (sx, sz), the middle of what it is. */
   interface Card { x: number; z: number; sx: number; sz: number; y: number; w: number; h: number; flip: boolean; unseen?: boolean; /** Its shadow is thrown by a block on its footprint instead. */ blocked?: boolean }
@@ -668,7 +677,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   }
   lit.visible = false;
   scene.add(lit);
-  const near = Array.from({ length: coarse ? 3 : 5 }, () => { const p = new THREE.PointLight(0xffb060, 0, 9, 1.4); scene.add(p); return p; });
+  const near = Array.from({ length: quality === "low" ? 0 : lite ? 3 : 5 }, () => { const p = new THREE.PointLight(0xffb060, 0, 9, 1.4); scene.add(p); return p; });
 
   /* ── the test character ───────────────────────────────────────────────── */
   const DOLL = { w: 120, h: 150, foot: 142, scale: 1.5 };
@@ -749,8 +758,8 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
 
   /* ── light and air ────────────────────────────────────────────────────── */
   scene.add(camera);
-  const post = opts.fx === false ? null : makePost(renderer, scene, camera, coarse);
-  const air = opts.fx === false || map.indoors ? null : makeAir(scene, camera, { small: coarse, wetAt, chimneys, ratio: Math.min(window.devicePixelRatio || 1, 2) });
+  const post = opts.fx === false || quality === "low" ? null : makePost(renderer, scene, camera, lite);
+  const air = opts.fx === false || map.indoors || quality === "low" ? null : makeAir(scene, camera, { small: lite, fore: null, heightAt: Hat, wetAt, chimneys, ratio: Math.min(window.devicePixelRatio || 1, 2) });
 
   /* ── the view ─────────────────────────────────────────────────────────── */
   // (the owner, 2026-11-17: "กล้องตายตัว". The one view is the one the town's pictures were drawn from: across the tiles'
@@ -775,7 +784,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   const eye = new THREE.Vector3();
   function resize() {
     const w = canvas.clientWidth || 1, h = canvas.clientHeight || 1;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, coarse ? 1.5 : 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, quality === "low" ? 1 : lite ? 1.5 : 2));
     renderer.setSize(w, h, false);
     post?.setSize(w, h, renderer.getPixelRatio());
     // (an upright screen sees less across: the camera stands back a little, by its field of view)
@@ -928,7 +937,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     now.sunCol = mixHex(A.sunCol, B.sunCol, k); now.top = mixHex(A.top, B.top, k);
     now.ground = mixHex(A.ground, B.ground, k); now.sky = mixHex(A.sky, B.sky, k);
   }
-  let clockMin: number | null = null, raining = false, wet = 0, dusted = 0;
+  let clockMin: number | null = null, raining = false, wet = 0, dusted = 0, wasIn = !!map.indoors, dark = 0, room = map.indoors ? 1 : 0, slow = 0, spent = false;
   let last = performance.now(), frames = 0, since = last, raf = 0, ready = false, lampTick = 0;
   function frame(t: number) {
     if (dead) return;
@@ -1014,17 +1023,34 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     rim.value.set((sx / sl) * 1.6 / DOLL.w, (sy / sl) * 1.6 / DOLL.h, 0.16 * now.sunI);
     rimCol.value.copy(sun.color);
     body.value.set(me.x + sunDir.x * 0.45, me.y + 0.8, me.z + sunDir.z * 0.45);
-    post?.look([now.grade[0] * (1 - 0.08 * wet), now.grade[1] * (1 - 0.03 * wet), now.grade[2] * (1 + 0.03 * wet)], now.air[0] * (1 - 0.15 * wet), now.air[1], now.air[2]);
+    // Indoors the light is the room's: warmer, closer about the corners. Going in or out the picture goes dark and comes back.
+    const inRoom = !!map.indoors || (TOWN && t2InHall(Math.floor(me.x), Math.floor(me.z)));
+    if (inRoom !== wasIn) { wasIn = inRoom; dark = 1; }
+    dark = Math.max(0, dark - dt * 2.4);
+    room += ((inRoom ? 1 : 0) - room) * Math.min(1, dt * 4);
+    const lightUp = (1 - dark * dark) * (1 - 0.08 * wet * (1 - room));
+    // (by day the sun does most of it; at night the lamps are the room's whole light)
+    for (const l of hearths) l.intensity = room * (4 + 9 * now.lamps) * flick;
+    if (!spent) post?.look(
+      [mix(now.grade[0], 1.08, room * 0.8) * lightUp, mix(now.grade[1], 1.0, room * 0.8) * lightUp, mix(now.grade[2], 0.88, room * 0.8) * lightUp * (1 + 0.03 * wet * (1 - room))],
+      now.air[0] * (1 - 0.15 * wet), now.air[1] + 0.14 * room, now.air[2]);
     if (me.walking && sec - dusted > 0.22 && wet < 0.3) { const l = lookAt(me.x, me.z); if (l === 2 || l === 3) { dusted = sec; air?.puff(me.x, me.y + 0.08, me.z); } }
     air?.update(dt, sec, view.at, view.dist * lens, (canvas.clientWidth || 1) / (canvas.clientHeight || 1), {
-      motes: now.air[3] * (1 - wet), flies: now.air[4] * (1 - wet), mist: Math.max(now.air[5], wet * 0.5), rays: now.air[6] * (1 - wet), rain: wet, dim: now.lamps, petals: TOWN ? (1 - now.lamps) * 0.8 : 0, smoke: 1, sunX: sx, sunY: sy, sun: sun.color,
+      motes: now.air[3] * (1 - wet) * 0.5, flies: now.air[4] * (1 - wet), mist: Math.max(now.air[5], wet * 0.5), rays: now.air[6] * (1 - wet) * 0.6, rain: wet, dry: inRoom && TOWN ? T2_HALL.box : null, dim: now.lamps, petals: TOWN ? (1 - now.lamps) * 0.4 : 0, smoke: 1, sunX: sx, sunY: sy, sun: sun.color,
     });
     for (const s of spins) s.rotation.z = -sec * 0.5;
 
-    if (post) post.render(); else renderer.render(scene, camera);
+    if (post && !spent) post.render(); else renderer.render(scene, camera);
     if (!ready && ((came.pictures && came.doll) || t - came.since > 25000)) { ready = true; opts.onReady?.(); }
     frames++;
-    if (t - since >= 1000) { opts.onFps?.(Math.round((frames * 1000) / (t - since))); frames = 0; since = t; }
+    if (t - since >= 1000) {
+      const fps = Math.round((frames * 1000) / (t - since));
+      opts.onFps?.(fps);
+      // a device that cannot keep up is given the plain scene: three slow seconds running, and the glow and colour are let go
+      slow = ready && fps < 24 && document.hasFocus() ? slow + 1 : 0;
+      if (slow >= 3 && !opts.quality && post && !spent) spent = true;
+      frames = 0; since = t;
+    }
   }
   raf = requestAnimationFrame(frame);
   const onVisible = () => { last = performance.now(); };
