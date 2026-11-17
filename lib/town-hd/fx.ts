@@ -150,12 +150,15 @@ export function makeAir(scene: THREE.Scene, camera: THREE.Camera, o: { small: bo
   });
 
   // rain: thin pale strokes falling aslant, about where one looks
-  const RAIN = o.small ? 140 : 320, rainGeo = new THREE.PlaneGeometry(0.035, 1.1);
-  const rainMat = new THREE.MeshBasicMaterial({ color: 0xcfe2ff, transparent: true, opacity: 0, depthWrite: false, fog: false });
+  const RAIN = o.small ? 110 : 240, rainGeo = new THREE.PlaneGeometry(0.02, 1);
+  const rainMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, fog: false });
   const rain = new THREE.InstancedMesh(rainGeo, rainMat, RAIN), drop = new THREE.Object3D();
-  const rainAt = Array.from({ length: RAIN }, () => [r() * SPAN, r() * 12, r() * SPAN, 9 + r() * 5]);
+  // (far, middle, near: its length, its speed and how pale it is come of how near a streak is)
+  const rainAt = Array.from({ length: RAIN }, (_, i) => { const near = i % 3 === 0 ? 1 : i % 3 === 1 ? 0.6 : 0.3; return [r() * SPAN, r() * 12, r() * SPAN, 8 + near * 9, 0.35 + near * 0.75, near]; });
+  rainAt.forEach((q, i) => rain.setColorAt(i, new THREE.Color(0xbfd6f2).multiplyScalar(0.45 + q[5] * 0.55)));
+  const splash = cloud(o.small ? 40 : 90, 2, 0xffffff, THREE.NormalBlending, true);
   rain.frustumCulled = false; rain.visible = false;
-  drop.rotation.set(0, Math.PI / 4, 0.16);
+  drop.rotation.set(0, Math.PI / 4, 0.2);
   scene.add(rain);
   kept.push(rainGeo, rainMat);
   // dust at the feet: a few small puffs, used in turn
@@ -193,15 +196,29 @@ export function makeAir(scene: THREE.Scene, camera: THREE.Camera, o: { small: bo
     puff(x, y, z) { const d = dusts[nextDust++ % dusts.length]; d.sp.position.set(x, y, z); d.age = 0; },
     update(dt, sec, at, halfH, aspect, now) {
       const cx = at.x - SPAN / 2, cz = at.z - SPAN / 2;
-      rainMat.opacity = now.rain * 0.5; rain.visible = now.rain > 0.02;
+      rainMat.opacity = now.rain * 0.42; rain.visible = now.rain > 0.02;
       if (rain.visible) {
         for (let i = 0; i < RAIN; i++) {
           const q = rainAt[i], fall = sec * q[3];
-          drop.position.set(cx + wrap(q[0] - fall * 0.16 - cx, SPAN), wrap(q[1] - fall, 12), cz + wrap(q[2] - cz, SPAN));
+          drop.position.set(cx + wrap(q[0] - fall * 0.2 - cx, SPAN), wrap(q[1] - fall, 12), cz + wrap(q[2] - cz, SPAN));
+          drop.scale.set(1, q[4], 1);
           drop.updateMatrix();
           rain.setMatrixAt(i, drop.matrix);
         }
         rain.instanceMatrix.needsUpdate = true;
+      }
+      // where drops land: a pale speck for an instant, here and there on the ground
+      splash.mat.opacity = now.rain * 0.8; splash.pts.visible = now.rain > 0.02;
+      if (splash.pts.visible) {
+        for (let i = 0; i < splash.n; i++) {
+          const b = i * 4, ph = splash.base[b + 3], turn = Math.floor(sec * 3 + ph), k = sec * 3 + ph - turn, hop = Math.sin(turn * 12.9898 + i) * 43758.5453, at2 = hop - Math.floor(hop);
+          splash.pos[i * 3] = cx + wrap(splash.base[b] + at2 * 9 - cx, SPAN);
+          splash.pos[i * 3 + 1] = 0.08 + (k < 0.5 ? k * 0.3 : 0);
+          splash.pos[i * 3 + 2] = cz + wrap(splash.base[b + 2] + at2 * 5 - cz, SPAN);
+          const lit = k < 0.35 ? 1 : 0;
+          splash.col[i * 3] = 0.8 * lit; splash.col[i * 3 + 1] = 0.9 * lit; splash.col[i * 3 + 2] = 1 * lit;
+        }
+        splash.geo.attributes.position.needsUpdate = true; splash.geo.attributes.color.needsUpdate = true;
       }
       for (const d of dusts) {
         d.age += dt;
