@@ -120,8 +120,13 @@ function roof(to: THREE.Object3D, K: Kit, mat: THREE.Material, cx: number, y: nu
   put(to, block(L, 0.16, 0.26), K.black, cx, y + rise + 0.04, cz, ry);
   if (ends) put(to, gableEnds(L - over * 2, S, rise), ends, cx, y, cz, ry);
 }
+/**
+ * What stands on posts (a shed, a stall, a tower's legs), as one whole block between them. A thing wears its own picture
+ * (the engine's `dress`), and a picture's post never falls quite on a thin post made here: part of it would land on the
+ * post and part far behind, and be seen torn. On one whole face it lies unbroken.
+ */
 function posts(to: THREE.Object3D, mat: THREE.Material, x0: number, z0: number, x1: number, z1: number, y0: number, h: number, thick = 0.2) {
-  for (const [x, z] of [[x0, z0], [x1, z0], [x0, z1], [x1, z1]]) put(to, block(thick, h, thick, 1, 1), mat, x, y0 + h / 2, z);
+  put(to, block(Math.abs(x1 - x0) + thick, h, Math.abs(z1 - z0) + thick), mat, (x0 + x1) / 2, y0 + h / 2, (z0 + z1) / 2);
 }
 
 interface HouseOpts { wall: "plaster" | "wood" | "white" | "red"; roof: THREE.Material; storeys?: number; inset?: number; door?: THREE.Material; rise?: number }
@@ -131,7 +136,6 @@ function house(to: THREE.Object3D, K: Kit, b: Box4, h: number, o: HouseOpts) {
   const rise = Math.min(h * (o.rise ?? 0.4), (low / 2 + 0.45) * 0.9), wallH = Math.max(1.5, h - rise - 0.25);
   put(to, block(W + 0.24, 0.25, D + 0.24), K.stone, s.cx, 0.125, s.cz);
   put(to, block(W, wallH, D, 0.5, storeys / wallH), K.walls[o.wall], s.cx, 0.25 + wallH / 2, s.cz);
-  if (storeys > 1) put(to, block(W + 0.9, 0.12, D + 0.9), o.roof, s.cx, 0.25 + wallH / storeys, s.cz);
   roof(to, K, o.roof, s.cx, 0.25 + wallH, s.cz, W, D, rise);
   if (o.door) {
     const m = put(to, new THREE.PlaneGeometry(1.0, 1.5), o.door, s.cx, 0.25 + 0.75, s.cz + D / 2 + 0.02);
@@ -230,7 +234,7 @@ export function buildThing(to: THREE.Object3D, K: Kit, name: string, b: Box4, h:
   if (is(/^torii$/)) {
     const [a, c] = gateEnds(b), { g, len } = between(to, a, c), up = Math.max(3.4, h * 0.82);
     for (const x of [-len / 2, len / 2]) {
-      put(g, new THREE.CylinderGeometry(0.17, 0.2, up, 10), K.red, x, up / 2, 0);
+      put(g, block(0.46, up, 0.46), K.red, x, up / 2, 0);
       put(g, block(0.6, 0.3, 0.6), K.stone, x, 0.15, 0);
     }
     put(g, block(len + 1.5, 0.3, 0.42), K.black, 0, up + 0.05, 0);
@@ -240,7 +244,7 @@ export function buildThing(to: THREE.Object3D, K: Kit, name: string, b: Box4, h:
   }
   if (is(/^(village_gate|tall_wooden_village_gateway)/)) {
     const [a, c] = gateEnds(b), { g, len } = between(to, a, c), up = Math.max(2.6, h * 0.85), thatched = is(/^village_gate/);
-    for (const x of [-len / 2, len / 2]) put(g, block(0.36, up, 0.36), K.post, x, up / 2, 0);
+    for (const x of [-len / 2, len / 2]) put(g, block(0.55, up, 0.55), K.post, x, up / 2, 0);
     put(g, block(len + 0.5, 0.3, 0.3), K.post, 0, up - 0.4, 0);
     if (thatched) { put(g, gable(len + 1.2, 1.3, 0.55), K.roofThatch, 0, up, 0); put(g, block(1.1, 0.6, 0.08), K.planks, 0, up - 1.0, 0); }
     return {};
@@ -258,16 +262,14 @@ export function buildThing(to: THREE.Object3D, K: Kit, name: string, b: Box4, h:
   if (is(/^(trade_board_cloud|kosatsu_board_cloud)$/)) {
     const along = s.w >= s.d, a = along ? new THREE.Vector2(s.x0 + 0.2, s.cz) : new THREE.Vector2(s.cx, s.z0 + 0.2);
     const c = along ? new THREE.Vector2(s.x1 - 0.2, s.cz) : new THREE.Vector2(s.cx, s.z1 - 0.2), { g, len } = between(to, a, c), up = Math.max(2, h * 0.8);
-    for (const x of [-len / 2, len / 2]) put(g, block(0.2, up, 0.2), K.post, x, up / 2, 0);
-    const face = new THREE.BoxGeometry(len - 0.2, up * 0.5, 0.12);
-    put(g, face, K.notices, 0, up * 0.6, 0);
+    put(g, block(len + 0.2, up, 0.3), K.notices, 0, up / 2, 0);
     put(g, gable(len + 0.6, 1.0, 0.32), K.roofDark, 0, up, 0);
     return {};
   }
   if (is(/dining_table/)) {
     const top = Math.max(0.42, h), W = s.w - 0.2, D = s.d - 0.2;
-    put(to, block(W, 0.12, D), K.planks, s.cx, top, s.cz);
-    posts(to, K.darkWood, s.cx - W / 2 + 0.15, s.cz - D / 2 + 0.15, s.cx + W / 2 - 0.15, s.cz + D / 2 - 0.15, 0, top, 0.14);
+    put(to, block(W, top + 0.06, D), K.planks, s.cx, (top + 0.06) / 2, s.cz);
+    if (0) posts(to, K.darkWood, s.cx - W / 2 + 0.15, s.cz - D / 2 + 0.15, s.cx + W / 2 - 0.15, s.cz + D / 2 - 0.15, 0, top, 0.14);
     return {};
   }
 
@@ -329,11 +331,9 @@ export function buildStage(to: THREE.Object3D, K: Kit) {
   }
 }
 
-/** The kitchen hall from outside: its walls on the tiles they close, and its roof (all of it lifted off while I am inside). */
+/** The kitchen hall from outside: one block over its floor and walls, and its roof (all of it lifted off while I am inside). */
 export function buildHall(to: THREE.Object3D, K: Kit, h: number) {
   const s = span(T2_HALL.box as unknown as Box4), wallH = 2.3;
-  for (let z = Math.floor(s.z0) - 1; z <= Math.ceil(s.z1) + 1; z++) for (let x = Math.floor(s.x0) - 1; x <= Math.ceil(s.x1) + 1; x++) {
-    if (t2Tile(x, z) === "h") put(to, block(1, wallH, 1), K.walls.wood, x + 0.5, wallH / 2, z + 0.5);
-  }
+  put(to, block(s.w - 0.4, wallH, s.d - 0.4), K.walls.wood, s.cx, wallH / 2, s.cz);
   roof(to, K, K.roofDark, s.cx, wallH, s.cz, s.w - 0.6, s.d - 0.6, Math.max(1.4, h - wallH), 0.7);
 }

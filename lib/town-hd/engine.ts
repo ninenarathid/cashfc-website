@@ -70,7 +70,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(28, 1, 1, 400);
+  const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 1, 600);
   const disposables: Array<{ dispose(): void }> = [];
   let dead = false;
   // the town is shown once its pictures have come (or have been waited for long enough), not half painted
@@ -504,15 +504,30 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   // corners, 30° down; so a picture laid back onto its shape is seen as it was drawn.)
   const PITCH = Math.PI / 6, YAW = Math.PI / 4;
   const view = { yaw: YAW, yawTo: YAW, dist: 30, distTo: 30, at: new THREE.Vector3(me.x, 0, me.z) };
-  let facedYaw = NaN, shadedFor = "";
+  let facedYaw = NaN, shadedFor = "", lens = 0.25, perUnit = 40;
+  /*
+   * The view has no vanishing point (the owner, 2026-11-17: "บางโมเดลยังดูเบี้ยวๆ ลอยๆ", then "ดูภาพมันเลื่อนๆ ดูแล้วเวียนหัว").
+   * A picture laid on a shape that is not quite its own is seen true only along the lines it was drawn by; a lens that
+   * spreads sees it askew, and differently at each place on the screen, so a house swam as one walked by. Straight
+   * lines of sight show every picture as it was drawn, wherever it stands. The depth is still there: in what hides
+   * what, and in the shadows.
+   */
+  function frame2(dist: number) {
+    const w = canvas.clientWidth || 1, h = canvas.clientHeight || 1, half = dist * lens;
+    camera.top = half; camera.bottom = -half; camera.right = half * w / h; camera.left = -half * w / h;
+    camera.updateProjectionMatrix();
+    perUnit = (h * renderer.getPixelRatio()) / (half * 2);
+  }
+  const RIGHT = new THREE.Vector3(Math.cos(YAW), 0, -Math.sin(YAW)), UPV = new THREE.Vector3(-Math.sin(YAW) * Math.sin(PITCH), Math.cos(PITCH), -Math.cos(YAW) * Math.sin(PITCH));
+  const eye = new THREE.Vector3();
   function resize() {
     const w = canvas.clientWidth || 1, h = canvas.clientHeight || 1;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, coarse ? 1.5 : 2));
     renderer.setSize(w, h, false);
-    camera.aspect = w / h;
     // (an upright screen sees less across: the camera stands back a little, by its field of view)
-    camera.fov = w < h ? 36 : 28;
-    camera.updateProjectionMatrix();
+    // (an upright screen sees less across, so it sees a little more up and down)
+    lens = Math.tan(((w < h ? 36 : 28) * Math.PI) / 360);
+    frame2(view.dist);
   }
   const ro = new ResizeObserver(resize);
   ro.observe(canvas);
@@ -660,11 +675,15 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     // the view follows
     view.yaw += (view.yawTo - view.yaw) * Math.min(1, dt * 9);
     view.dist += (view.distTo - view.dist) * Math.min(1, dt * 10);
-    view.at.lerp(V.set(me.x, me.y + 0.6, me.z), Math.min(1, dt * 7));
+    view.at.lerp(V.set(me.x, me.y + 0.6, me.z), Math.min(1, dt * 12));
     const cp = Math.cos(PITCH), sp = Math.sin(PITCH);
-    camera.position.set(view.at.x + Math.sin(view.yaw) * cp * view.dist, view.at.y + sp * view.dist, view.at.z + Math.cos(view.yaw) * cp * view.dist);
-    camera.lookAt(view.at);
-    (scene.fog as THREE.Fog).near = view.dist * 1.5; (scene.fog as THREE.Fog).far = view.dist * 4.6;
+    frame2(view.dist);
+    // (the view moves a whole pixel of the screen at a time: between pixels the town's pixels crawl)
+    const ar = view.at.dot(RIGHT), au = view.at.dot(UPV);
+    eye.copy(view.at).addScaledVector(RIGHT, Math.round(ar * perUnit) / perUnit - ar).addScaledVector(UPV, Math.round(au * perUnit) / perUnit - au);
+    camera.position.set(eye.x + Math.sin(view.yaw) * cp * 250, eye.y + sp * 250, eye.z + Math.cos(view.yaw) * cp * 250);
+    camera.lookAt(eye);
+    (scene.fog as THREE.Fog).near = 250 + view.dist * 1.6; (scene.fog as THREE.Fog).far = 250 + view.dist * 5;
     if (!(Math.abs(view.yaw - facedYaw) <= 0.001)) { facedYaw = view.yaw; faceCards(view.yaw); }
 
     // the sun stands over where I look, its shadows a texel at a time so they do not swim
