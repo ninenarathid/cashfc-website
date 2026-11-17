@@ -42,7 +42,17 @@ const SKIES: Record<TimeId, Sky> = {
   night: { sun: [0.0, 0.8, 0.42], sunCol: 0x86a4ff, sunI: 1.15, top: 0x41589f, ground: 0x1c2440, hemiI: 1.05, sky: 0x0c1632, lamps: 1, grade: [0.92, 0.97, 1.08], air: [0.98, 0.34, 0.6, 0, 1, 0.3, 0, 0.3] },
 };
 
+/** Where the live town's own camera looks, as it says it: the middle of the view in isometric pixels, its scale, the view's size. */
+export interface LiveView { cx: number; cy: number; s: number; cw: number; ch: number; dpr: number; /** The minute of the day, for where the sun stands. */ min: number }
 export interface HdTown {
+  /**
+   * For the live town (`underlay`): the ground, the water and the shadows on them, drawn as the live town's camera sees
+   * them, and handed back as a picture to lay where the live town painted its ground. Nothing that stands is drawn (the
+   * live town draws all of that itself, over this); what stands only throws its shadow.
+   */
+  renderAt(v: LiveView): HTMLCanvasElement;
+  /** Whether the ground's pictures have come (until then `renderAt` would paint it black). */
+  ready(): boolean;
   setTime(t: TimeId): void;
   /** The hour by the clock, in minutes of the day; null hands the hour back to `setTime`. */
   setClock(min: number | null): void;
@@ -51,7 +61,7 @@ export interface HdTown {
   dispose(): void;
 }
 export type Quality = "high" | "mid" | "low";
-export interface HdOpts { /** How much is drawn: everything, a phone's share, or the bare scene. Left out, the device decides, and a slow one is given less. */ quality?: Quality; /** Light and air (glow, colour, dust, mist); a tester's `?fx=0` turns them off to compare. */ fx?: boolean; /** Which map is stood up. */ map?: MapId; time: TimeId; /** Where to stand first, in tiles (a tester's `?at=x,y`); the plaza otherwise. */ at?: { x: number; y: number }; /** The name plate of the test character: moved here each frame to sit under its feet. */ nameEl?: HTMLElement | null; /** Show where may be walked (a tester's `?walk=1`). */ showWalk?: boolean; onReady?: () => void; onFps?: (fps: number) => void }
+export interface HdOpts { /** Only the ground, the water and the shadows, for the live town to draw over (see `renderAt`). */ underlay?: boolean; /** How much is drawn: everything, a phone's share, or the bare scene. Left out, the device decides, and a slow one is given less. */ quality?: Quality; /** Light and air (glow, colour, dust, mist); a tester's `?fx=0` turns them off to compare. */ fx?: boolean; /** Which map is stood up. */ map?: MapId; time: TimeId; /** Where to stand first, in tiles (a tester's `?at=x,y`); the plaza otherwise. */ at?: { x: number; y: number }; /** The name plate of the test character: moved here each frame to sit under its feet. */ nameEl?: HTMLElement | null; /** Show where may be walked (a tester's `?walk=1`). */ showWalk?: boolean; onReady?: () => void; onFps?: (fps: number) => void }
 
 type Obj = number[];
 const SEASONAL = /^game_(pumpkin|jacko)/;
@@ -68,7 +78,7 @@ function loadTexture(manager: THREE.LoadingManager, src: string): THREE.Texture 
 }
 
 export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
-  const map = MAPS[opts.map ?? "town"], TOWN = map.id === "town";
+  const map = MAPS[opts.map ?? "town"], TOWN = map.id === "town", below = !!opts.underlay;
   const sprites = map.sprites, names = map.names, OBJECTS = map.objects as Obj[], DIR = map.dir;
   const { findWay, nearestOpen, step } = makeWalk(map), isDeck = map.isDeck;
   /** The ground beyond the map: how far the trial's world goes on, in tiles. */
@@ -155,7 +165,8 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
    */
   const NX = (WORLD.x1 - WORLD.x0) * GRID + 1, NZ = (WORLD.z1 - WORLD.z0) * GRID + 1;
   const HGT = new Float32Array(NX * NZ);
-  if (!map.indoors) {
+  // (under the live town the ground stays level: its pictures are all drawn on level ground)
+  if (!map.indoors && !below) {
     let land = new Float32Array(NX * NZ), tmp = new Float32Array(NX * NZ);
     for (let j = 0; j < NZ; j++) for (let i = 0; i < NX; i++) {
       const x = WORLD.x0 + i / GRID, z = WORLD.z0 + j / GRID, l = lookAt(x, z), tx = Math.floor(x), tz = Math.floor(z);
@@ -225,15 +236,16 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     mat.onBeforeCompile = (sh) => {
       sh.uniforms.hdIndex = { value: indexTex };
       sh.uniforms.hdTime = clock; sh.uniforms.hdCloud = cloudy; sh.uniforms.hdWet = wetU;
+      sh.uniforms.hdUvK = { value: below ? new THREE.Vector2(1 / 8, -1 / 8) : new THREE.Vector2(1 / 5.657, 1 / 5.657) };
       sh.uniforms.hdOrigin = { value: new THREE.Vector4(WORLD.x0, WORLD.z0, WORLD.x1 - WORLD.x0, WORLD.z1 - WORLD.z0) };
       LOOKS.forEach((_, i) => { sh.uniforms[`hdLook${i}`] = { value: lookTex[i] }; });
       sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec2 hdAt;")
         .replace("#include <begin_vertex>", "#include <begin_vertex>\nhdAt = position.xz;");
       sh.fragmentShader = sh.fragmentShader
-        .replace("#include <common>", `#include <common>\nvarying vec2 hdAt;\nuniform sampler2D hdIndex;\nuniform vec4 hdOrigin;\nuniform float hdTime;\nuniform float hdCloud;\nuniform float hdWet;\n${NOISE}\n${LOOKS.map((_, i) => `uniform sampler2D hdLook${i};`).join("\n")}`)
+        .replace("#include <common>", `#include <common>\nvarying vec2 hdAt;\nuniform sampler2D hdIndex;\nuniform vec4 hdOrigin;\nuniform float hdTime;\nuniform float hdCloud;\nuniform float hdWet;\nuniform vec2 hdUvK;\n${NOISE}\n${LOOKS.map((_, i) => `uniform sampler2D hdLook${i};`).join("\n")}`)
         .replace("#include <map_fragment>", `
           float hdId = floor(texture2D(hdIndex, (hdAt - hdOrigin.xy) / hdOrigin.zw).r * 255.0 + 0.5);
-          vec2 hdUv = hdAt / 5.657;
+          vec2 hdUv = hdAt * hdUvK;
           vec3 hdBed = texture2D(hdLook2, hdUv).rgb * vec3(0.30, 0.52, 0.66);
           vec3 hdCol = texture2D(hdLook0, hdUv).rgb * (1.0 - step(0.5, hdId));
           hdCol += hdBed * step(0.5, hdId) * (1.0 - step(1.5, hdId));
@@ -356,6 +368,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     img.onerror = () => { pictures.itemError(src); pictures.itemEnd(src); };
     img.src = src;
     const mat = new THREE.MeshLambertMaterial({ map, alphaTest: 0.5, side: THREE.DoubleSide, emissive: 0xffffff, emissiveMap: glow, emissiveIntensity: 0 });
+    if (below) { mat.colorWrite = false; mat.depthWrite = false; }
     artMats.set(s, mat);
     disposables.push(map, glow, mat);
     return mat;
@@ -498,7 +511,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     const trees = sprites.map((sp, s) => ({ s, sp })).filter(({ sp }) => /cedar|zelkova|camphor|pine-|maple|ginkgo/.test(sp[0]));
     let seed = 12345;
     const r = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
-    for (let n = 0; trees.length && n < 520; n++) {
+    for (let n = 0; trees.length && !below && n < 520; n++) {
       const x = WORLD.x0 + 2 + r() * (WORLD.x1 - WORLD.x0 - 4), z = WORLD.z0 + 2 + r() * (WORLD.z1 - WORLD.z0 - 4);
       if (inMap(x, z) || lookAt(x, z) !== 4) continue;
       const { s, sp } = trees[Math.floor(r() * trees.length)], k = 1.0 + r() * 0.35;
@@ -546,6 +559,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     const seen = new THREE.InstancedMesh(geo, mat, list.length), shade = new THREE.InstancedMesh(geo, ghost, list.length);
     shade.castShadow = true;
     seen.frustumCulled = shade.frustumCulled = false;
+    seen.visible = !below;
     town.add(seen, shade);
     cardSets.push({ list, seen, shade });
     disposables.push(mat, ghost);
@@ -578,7 +592,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   }
 
   // what lies flat (stepping stones, lotus leaves, flower beds): its picture laid back onto the ground it was drawn on
-  for (const { s, o, wet } of flats) {
+  for (const { s, o, wet } of below ? [] : flats) {
     const sp = sprites[s], w = sp[1] * o[4], h = sp[2] * o[4], y = wet ? WATER_Y + 0.02 : Hat((o[8] + o[10]) / 2, (o[9] + o[11]) / 2) + 0.03;
     const at = (ix: number, iy: number) => [(ix / 32 + iy / 16) / 2, y, (iy / 16 - ix / 32) / 2];
     const geo = new THREE.BufferGeometry(), flip = o[5] === 1;
@@ -637,7 +651,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     const boards = new THREE.InstancedMesh(slab, K.planks, at.length), legs = new THREE.InstancedMesh(leg, K.post, legAt.length);
     at.forEach(([x, y, z], i) => boards.setMatrixAt(i, M.makeTranslation(x, y - 0.05, z)));
     legAt.forEach(([x, y, z], i) => legs.setMatrixAt(i, M.makeTranslation(x, y - 0.55, z)));
-    for (const m of [boards, legs]) { m.castShadow = true; m.receiveShadow = true; town.add(m); }
+    for (const m of [boards, legs]) { m.castShadow = true; m.receiveShadow = true; m.visible = !below; town.add(m); }
     disposables.push(slab, leg, railX, railZ, stub);
   }
 
@@ -741,7 +755,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     await k.ready(look);
     if (dead) return;
     kit = k;
-    doll.visible = dollShade.visible = dollOver.visible = true;
+    doll.visible = dollShade.visible = dollOver.visible = !below;
     came.doll = true;
   }).catch(() => { came.doll = true; /* the town is walked without a body rather than not at all */ });
 
@@ -758,8 +772,8 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
 
   /* ── light and air ────────────────────────────────────────────────────── */
   scene.add(camera);
-  const post = opts.fx === false || quality === "low" ? null : makePost(renderer, scene, camera, lite);
-  const air = opts.fx === false || map.indoors || quality === "low" ? null : makeAir(scene, camera, { small: lite, fore: null, heightAt: Hat, wetAt, chimneys, ratio: Math.min(window.devicePixelRatio || 1, 2) });
+  const post = opts.fx === false || quality === "low" || below ? null : makePost(renderer, scene, camera, lite);
+  const air = opts.fx === false || map.indoors || quality === "low" || below ? null : makeAir(scene, camera, { small: lite, fore: null, heightAt: Hat, wetAt, chimneys, ratio: Math.min(window.devicePixelRatio || 1, 2) });
 
   /* ── the view ─────────────────────────────────────────────────────────── */
   // (the owner, 2026-11-17: "กล้องตายตัว". The one view is the one the town's pictures were drawn from: across the tiles'
@@ -783,6 +797,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   const RIGHT = new THREE.Vector3(Math.cos(YAW), 0, -Math.sin(YAW)), UPV = new THREE.Vector3(-Math.sin(YAW) * Math.sin(PITCH), Math.cos(PITCH), -Math.cos(YAW) * Math.sin(PITCH));
   const eye = new THREE.Vector3();
   function resize() {
+    if (below) return; // (the live town says the size, each frame)
     const w = canvas.clientWidth || 1, h = canvas.clientHeight || 1;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, quality === "low" ? 1 : lite ? 1.5 : 2));
     renderer.setSize(w, h, false);
@@ -803,7 +818,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   };
   const typing = (e: KeyboardEvent) => { const t = e.target as HTMLElement | null; return !!t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable); };
   const onKeyDown = (e: KeyboardEvent) => {
-    if (typing(e) || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (below || typing(e) || e.ctrlKey || e.metaKey || e.altKey) return;
     // (the arrows are the page's own while a link or a button has the focus: only the letters walk from there)
     const t = e.target as HTMLElement | null, elsewhere = !!t && t !== canvas && !!t.closest?.("a,button,select,[role=button],[tabindex]");
     if (elsewhere && e.code.startsWith("Arrow")) return;
@@ -937,11 +952,12 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     now.sunCol = mixHex(A.sunCol, B.sunCol, k); now.top = mixHex(A.top, B.top, k);
     now.ground = mixHex(A.ground, B.ground, k); now.sky = mixHex(A.sky, B.sky, k);
   }
+  let sized = { w: 0, h: 0, d: 0 };
   let clockMin: number | null = null, raining = false, wet = 0, dusted = 0, wasIn = !!map.indoors, dark = 0, room = map.indoors ? 1 : 0, slow = 0, spent = false;
   let last = performance.now(), frames = 0, since = last, raf = 0, ready = false, lampTick = 0;
   function frame(t: number) {
     if (dead) return;
-    raf = requestAnimationFrame(frame);
+    if (!below) raf = requestAnimationFrame(frame);
     const dt = Math.min(0.05, (t - last) / 1000), sec = t / 1000;
     last = t;
     walk(dt);
@@ -1059,6 +1075,38 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   const api: HdTown = {
     setTime(t) { if (clockMin === null && SKIES[t] === want) return; clockMin = null; from = copy(now); want = SKIES[t]; turned = 0; },
     setClock(min) { clockMin = min; },
+    ready: () => came.pictures,
+    renderAt(v) {
+      const w = Math.max(1, Math.round(v.cw)), h = Math.max(1, Math.round(v.ch));
+      if (w !== sized.w || h !== sized.h || v.dpr !== sized.d) { sized = { w, h, d: v.dpr }; renderer.setPixelRatio(v.dpr); renderer.setSize(w, h, false); }
+      const sec = performance.now() / 1000, q = hourOf(v.min);
+      blend(SKIES[q[0]], SKIES[q[1]], q[2]);
+      sunDir.set(now.sun[0], now.sun[1], now.sun[2]).normalize();
+      // Lit to the ground's own colours and no further: the live town lays its own night, weather and lamps over the
+      // picture. What the sun adds here is where its shadows fall, and how deep they are (shallow by night).
+      const sunI = 1.4 * (1 - 0.8 * now.lamps);
+      sun.color.setHex(0xffffff); sun.intensity = sunI;
+      hemi.color.setHex(0xffffff); hemi.groundColor.setHex(0xffffff); hemi.intensity = Math.PI - sunI * sunDir.y;
+      (scene.background as THREE.Color).setHex(0x0b1016);
+      (scene.fog as THREE.Fog).near = 1e5; (scene.fog as THREE.Fog).far = 1e6;
+      const shadeKey = `${sunDir.x.toFixed(2)},${sunDir.z.toFixed(2)}`;
+      if (shadeKey !== shadedFor) { shadedFor = shadeKey; shadeCards(); }
+      clock.value = sec; cloudy.value = 0; wetU.value = 0;
+      glint.value.setScalar(0.16 * (1 - now.lamps));
+      waterTex.offset.set(sec * 0.012, sec * 0.02);
+      // the live town's own camera: a point of the ground at the view's middle, and so many of the screen's pixels a tile
+      const half = v.ch / (2 * PX_SIDE * v.s);
+      camera.top = half; camera.bottom = -half; camera.right = (half * v.cw) / v.ch; camera.left = -camera.right;
+      camera.updateProjectionMatrix();
+      eye.set((v.cx / 32 + v.cy / 16) / 2, 0, (v.cy / 16 - v.cx / 32) / 2);
+      camera.position.set(eye.x + Math.sin(YAW) * Math.cos(PITCH) * 250, Math.sin(PITCH) * 250, eye.z + Math.cos(YAW) * Math.cos(PITCH) * 250);
+      camera.lookAt(eye);
+      const texel = (REACH * 2) / SH, ax = Math.round(eye.x / texel) * texel, az = Math.round(eye.z / texel) * texel;
+      sun.target.position.set(ax, 0, az);
+      sun.position.set(ax + sunDir.x * 90, sunDir.y * 90, az + sunDir.z * 90);
+      renderer.render(scene, camera);
+      return renderer.domElement;
+    },
     setRain(on) { raining = on; },
     zoom(by) { view.distTo = Math.min(60, Math.max(11, view.distTo * by)); },
     dispose() {

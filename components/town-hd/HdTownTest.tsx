@@ -47,6 +47,24 @@ export default function HdTownTest() {
     try {
       // (`?at=x,y`: stand somewhere else first, for a tester sent to look at one corner)
       const m = /[?&]at=(\d+(?:\.\d+)?),(\d+(?:\.\d+)?)/.exec(window.location.search);
+      if (/[?&]under=1/.test(window.location.search)) {
+        // (the live town's HD ground alone, at the live town's own first view: to look at what `renderAt` hands it)
+        const c = canvas.current, under = createHdTown(document.createElement("canvas"), { map: "town", time: "day", underlay: true, quality: "mid" });
+        made = under;
+        let raf = 0;
+        const paint = () => {
+          raf = requestAnimationFrame(paint);
+          if (!under.ready()) return;
+          const cw = c.clientWidth, ch = c.clientHeight, dpr = Math.min(window.devicePixelRatio || 1, 2), d = new Date(Date.now() + 7 * 3600_000);
+          if (c.width !== Math.round(cw * dpr)) { c.width = Math.round(cw * dpr); c.height = Math.round(ch * dpr); }
+          const pic = under.renderAt({ cx: (41 - 44) * 32, cy: (41 + 44) * 16, s: 1.6, cw, ch, dpr, min: Number(/[?&]min=(\d+)/.exec(window.location.search)?.[1] ?? d.getUTCHours() * 60 + d.getUTCMinutes()) });
+          c.getContext("2d")!.drawImage(pic, 0, 0, c.width, c.height);
+          setReady(true);
+        };
+        raf = requestAnimationFrame(paint);
+        town.current = under;
+        return () => { cancelAnimationFrame(raf); under.dispose(); town.current = null; };
+      }
       made = createHdTown(canvas.current, { map: mapOf(window.location.search), fx: !/[?&]fx=0/.test(window.location.search), quality: (/[?&]q=(high|mid|low)/.exec(window.location.search)?.[1] as "high" | "mid" | "low" | undefined), time: timeNow(), at: m ? { x: +m[1], y: +m[2] } : undefined, nameEl: plate.current, showWalk: /[?&]walk=1/.test(window.location.search), onReady: () => setReady(true), onFps: setFps });
       town.current = made;
     } catch {

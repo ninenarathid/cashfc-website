@@ -17,7 +17,8 @@ import { Town2Art } from "@/lib/town/town2-art";
 import { farm2Art } from "@/lib/town/farm2-art";
 import { drawPixelFlames } from "./flames";
 import { F2_BENCH_OF, F2_CHESTS, F2_SCARECROWS, F2_TRADE_BOARDS } from "@/lib/town/farm2";
-import { T2_CASINO_DOOR, T2_CHEST_OPEN, T2_CHEST_SHUT, T2_LAMP_LIGHT, T2_PROP_THING, T2_RINGS, T2_THINGS, t2RiverPoint } from "@/lib/town/town2";
+import type { HdTown } from "@/lib/town-hd/engine";
+import { T2_COLS, T2_ROWS, T2_CASINO_DOOR, T2_CHEST_OPEN, T2_CHEST_SHUT, T2_LAMP_LIGHT, T2_PROP_THING, T2_RINGS, T2_THINGS, t2RiverPoint } from "@/lib/town/town2";
 // ── Granny Twilla's clothes shop ── (lib/town/shop-room: a room of its own, drawn from its own pictures as it comes near)
 import { ShopRoomArt } from "@/lib/town/shop-room-art";
 import { SHOP_BOARD } from "@/lib/town/shop-room";
@@ -530,6 +531,26 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     return kits.current.get(look.race)?.heightOf(look) ?? DOLL_H;
   };
   const sceneryRef = useRef<SceneryKit | null>(null);
+  // The HD ground (the owner, 2026-11-17: "ปรับทุกอย่างไปทุกแมพ เตรียมพร้อมขึ้นเกมจริง"): the editor's town's ground, its water
+  // and real shadows on them, made by lib/town-hd and laid where the ground is painted; everything that stands is still
+  // drawn here, over it. Off unless this browser has asked for it: `/town?hd=1` turns it on and `?hd=0` off (kept in
+  // localStorage "cashTown:hd"). A trial on the live town, a device at a time; its code is fetched only when it is on.
+  const hdRef = useRef<HdTown | null>(null);
+  useEffect(() => {
+    if (!T2) return;
+    try {
+      const asked = /[?&]hd=([01])/.exec(window.location.search)?.[1];
+      if (asked) localStorage.setItem("cashTown:hd", asked);
+      if (localStorage.getItem("cashTown:hd") !== "1") return;
+    } catch { return; }
+    let gone = false, made: HdTown | null = null;
+    void import("@/lib/town-hd/engine").then(({ createHdTown }) => {
+      if (gone) return;
+      made = createHdTown(document.createElement("canvas"), { map: "town", time: "day", underlay: true, quality: "mid" });
+      hdRef.current = made;
+    }).catch(() => { /* the town is drawn as it always was */ });
+    return () => { gone = true; made?.dispose(); hdRef.current = null; };
+  }, []);
   // ── the pasture ── (the cloud ram's pictures are the pasture's sheets: fetched the first time a ram is drawn, on any map)
   const ramArt = useRef<SceneryKit | null | undefined>(undefined);
   const ramKit = () => { if (ramArt.current === undefined) { ramArt.current = null; void loadPastureArt().then((k) => { ramArt.current = k; }); } return ramArt.current; };
@@ -2411,6 +2432,17 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const scenery = sceneryRef.current;
     if (scenery) {
       scenery.drawGround(ctx, v, cw, ch, dpr);
+      // (the HD ground, over the town's own extent: the same camera, so it lies where the painted ground lay)
+      const hd = hdRef.current;
+      if (hd && placeRef.current === "town" && hd.ready()) {
+        const clock = new Date(Date.now() + 7 * 3600_000);
+        const pic = hd.renderAt({ cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: clock.getUTCHours() * 60 + clock.getUTCMinutes() });
+        ctx.save();
+        diamond(ctx, project({ x: 0, y: 0 }), project({ x: T2_COLS, y: 0 }), project({ x: T2_COLS, y: T2_ROWS }), project({ x: 0, y: T2_ROWS }));
+        ctx.clip();
+        ctx.drawImage(pic, 0, 0, cw, ch);
+        ctx.restore();
+      }
       // Flowers lie flat: under whoever walks over them.
       for (const p of placeRef.current === "forest" ? FOREST_PROPS : T2 ? [] : PROPS) {
         if (p.kind !== "flowers") continue;
