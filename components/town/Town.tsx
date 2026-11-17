@@ -559,6 +559,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // (the forest and the mountain: what the frame before stood on the map, each thing's own picture, throws the shadows)
   const wildMake = useRef<(() => Shade) | null>(null), wildShade = useRef<Shade | null>(null);
   const wildStood = useRef<Array<{ name: string; x: number; y: number; k: number; mirror?: boolean }>>([]);
+  /** The frame (its clock) in which the 3D town last threw the shadows. */
+  const castAt = useRef(-1);
   // The finish over the whole frame, on every map (lib/town-hd/finish): the glow of what is bright, the hour's colour,
   // what hangs in the air. On a canvas of its own over the town's; at "low" there is none, only the shadows.
   const finishCanvas = useRef<HTMLCanvasElement | null>(null), finishRef = useRef<Finish | null>(null), finishSlow = useRef(0);
@@ -2532,7 +2534,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
           if (wild || town?.ready()) {
             const clock = new Date(Date.now() + 7 * 3600_000);
             // (`?hdmin=960` looks at another minute of the day: to see the day's shadows at night, while this is tried)
-            const view = { cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() };
+            // (whoever walks here throws a shadow too: not who sits, rides or has gone)
+            const stay = sessionRef.current, walkers: Array<[number, number, number]> = [];
+            for (const a of stay ? [stay.self, ...stay.avatars.values()] : []) {
+              if (a.byeAt !== undefined || a.info.seat || (a.info.sit ?? -1) !== -1 || rides(a.info.pet, sitting(a), a.info.afoot) || !shadeNear(project(a.pos))) continue;
+              walkers.push([a.pos.x, a.pos.y, dollH(a)]);
+            }
+            const view = { cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes(), walkers };
             let pic: HTMLCanvasElement;
             if (town) pic = town.renderAt(view);
             else {
@@ -2543,6 +2551,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
             ctx.globalCompositeOperation = "multiply";
             ctx.drawImage(pic, 0, 0, cw, ch);
             ctx.globalCompositeOperation = "source-over";
+            castAt.current = now;
             if (!hdDrawn.current) { hdDrawn.current = true; console.info("[Cash Town] 3D shadows drawn", here, pic.width, pic.height); }
           }
         } catch (e) { hdMake.current = null; wildMake.current = null; console.warn("[Cash Town] 3D shadows stopped", e); }
@@ -3974,7 +3983,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // A shadow (not on a bench: the bench has the ground), and a ring at the feet while they speak.
     if (riding) { if (big) big.draw(); else drawSteed(ctx, a, foot, hop, now); }
     else if (mount) mount.draw();
-    else if (mapRef.current?.shadows !== false && !seatOf(a) && !tableSeatOf(a) && !behindOf && !wagonOf) {
+    // (a walker whose real shadow was thrown this frame by the 3D town has no round one under them as well)
+    else if (mapRef.current?.shadows !== false && !seatOf(a) && !tableSeatOf(a) && !behindOf && !wagonOf && !(castAt.current === now && (a.info.sit ?? -1) === -1)) {
       ctx.fillStyle = "rgba(0,0,0,0.32)";
       ctx.beginPath();
       ctx.ellipse(p.x, p.y, 15 * k, 6 * k, 0, 0, Math.PI * 2);

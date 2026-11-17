@@ -12,7 +12,7 @@ import * as THREE from "three";
 import type { LiveView, Quality } from "./engine";
 
 /** A picture standing on the map: its piece of its sheet, its foot in that piece, how large it is drawn, and its foot's tile. */
-export interface Stand { img: HTMLImageElement; sx: number; sy: number; w: number; h: number; ax: number; ay: number; k: number; x: number; y: number; mirror?: boolean }
+export interface Stand { img: HTMLImageElement | HTMLCanvasElement; sx: number; sy: number; w: number; h: number; ax: number; ay: number; k: number; x: number; y: number; mirror?: boolean }
 export interface Shade { renderAt(v: LiveView, stands: readonly Stand[]): HTMLCanvasElement; dispose(): void }
 
 /** The sun's stand at the day's hours (./engine's, the same four), and how far the night has come (0 to 1). */
@@ -32,6 +32,25 @@ function sunAt(min: number, out: THREE.Vector3): number {
 }
 
 const PX_SIDE = 45.25, PX_UP = 39.2, PITCH = Math.PI / 6, YAW = Math.PI / 4;
+
+/**
+ * A walker's outline, for the shadow somebody throws (the owner, 2026-11-17: "เงาตัวละครยังไม่มีเลย"): a small body
+ * under a large head, 44 wide and 77 tall as the town's dolls are, standing on the middle of its foot. Everybody's is
+ * the same shape, as tall as their own doll.
+ */
+export const WALKER = { w: 44, h: 77 };
+let walker: HTMLCanvasElement | null = null;
+export function walkerShape(): HTMLCanvasElement {
+  if (walker) return walker;
+  const c = document.createElement("canvas");
+  c.width = 64; c.height = 128;
+  const g = c.getContext("2d")!;
+  g.fillStyle = "#000";
+  g.beginPath(); g.ellipse(22, 24, 19, 21, 0, 0, Math.PI * 2); g.fill();
+  g.beginPath(); g.ellipse(22, 56, 12, 16, 0, 0, Math.PI * 2); g.fill();
+  g.fillRect(13, 60, 7, 17); g.fillRect(24, 60, 7, 17);
+  return (walker = c);
+}
 
 /** All that stands of one sheet: its pictures' sheets in one set of corners, written again each time. */
 interface Batch { tex: THREE.Texture; mat: THREE.Material; geo: THREE.BufferGeometry; mesh: THREE.Mesh; pos: Float32Array; uv: Float32Array; room: number; n: number }
@@ -60,8 +79,9 @@ export function createShade(canvas: HTMLCanvasElement, quality: Quality): Shade 
   ground.receiveShadow = true;
   scene.add(ground);
 
-  const batches = new Map<HTMLImageElement, Batch>();
-  const batchOf = (img: HTMLImageElement, need: number): Batch => {
+  type Pic = HTMLImageElement | HTMLCanvasElement;
+  const batches = new Map<Pic, Batch>();
+  const batchOf = (img: Pic, need: number): Batch => {
     let b = batches.get(img);
     if (b && b.room >= need) return b;
     const room = Math.max(256, need * 2);
@@ -85,7 +105,10 @@ export function createShade(canvas: HTMLCanvasElement, quality: Quality): Shade 
   const sunDir = new THREE.Vector3(), eye = new THREE.Vector3();
   let sized = { w: 0, h: 0, d: 0 };
   return {
-    renderAt(v, stands) {
+    renderAt(v, stood) {
+      // (and whoever walks here, each their doll's height)
+      const shape = v.walkers?.length ? walkerShape() : null;
+      const stands: readonly Stand[] = shape ? [...stood, ...v.walkers!.map(([x, y, tall]): Stand => ({ img: shape, sx: 0, sy: 0, w: WALKER.w, h: WALKER.h, ax: WALKER.w / 2, ay: WALKER.h, k: tall / WALKER.h, x, y }))] : stood;
       const w = Math.max(1, Math.round(v.cw)), h = Math.max(1, Math.round(v.ch)), dpr = Math.min(v.dpr, quality === "low" ? 1 : lite ? 1.5 : 2);
       if (w !== sized.w || h !== sized.h || dpr !== sized.d) { sized = { w, h, d: dpr }; renderer.setPixelRatio(dpr); renderer.setSize(w, h, false); }
       const night = sunAt(v.min, sunDir);
@@ -97,11 +120,11 @@ export function createShade(canvas: HTMLCanvasElement, quality: Quality): Shade 
       const flat = Math.hypot(sunDir.x, sunDir.z) || 1;
       let rx = sunDir.z / flat, rz = -sunDir.x / flat;
       if (rx - rz < 0) { rx = -rx; rz = -rz; }
-      const count = new Map<HTMLImageElement, number>();
+      const count = new Map<Pic, number>();
       for (const s of stands) count.set(s.img, (count.get(s.img) ?? 0) + 1);
       for (const b of batches.values()) b.n = 0;
       for (const s of stands) {
-        const b = batchOf(s.img, count.get(s.img)!), i = b.n++, W = s.img.naturalWidth || s.img.width, H = s.img.naturalHeight || s.img.height;
+        const b = batchOf(s.img, count.get(s.img)!), i = b.n++, W = s.img.width, H = s.img.height;
         const l = (-s.ax * s.k) / PX_SIDE, r = ((s.w - s.ax) * s.k) / PX_SIDE, top = (s.ay * s.k) / PX_UP, bot = Math.min(0, ((s.ay - s.h) * s.k) / PX_UP);
         const u0 = s.sx / W, u1 = (s.sx + s.w) / W, v1 = 1 - s.sy / H, v0 = 1 - (s.sy + s.h) / H;
         const [ua, ub] = s.mirror ? [u1, u0] : [u0, u1];

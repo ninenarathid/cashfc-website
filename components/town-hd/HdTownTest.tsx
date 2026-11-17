@@ -72,7 +72,9 @@ export default function HdTownTest() {
           const cx = (mx - my) * 32, cy = (mx + my) * 16, g = (finish ? stage : c).getContext("2d")!, now = performance.now();
           const minute = Number(/[?&]min=(\d+)/.exec(window.location.search)?.[1] ?? d.getUTCHours() * 60 + d.getUTCMinutes());
           const screen = (ix: number, iy: number) => ({ x: cw / 2 + (ix - cx) * sc, y: ch / 2 + (iy - cy) * sc });
-          const pic = under.renderAt({ cx, cy, s: sc, cw, ch, dpr, min: Number(/[?&]min=(\d+)/.exec(window.location.search)?.[1] ?? d.getUTCHours() * 60 + d.getUTCMinutes()) });
+          const walkers: Array<[number, number, number]> = [];
+          for (let y = my - 12; y <= my + 12; y += 3) for (let x = mx - 12; x <= mx + 12; x += 3) walkers.push([x, y, 48]);
+          const pic = under.renderAt({ cx, cy, s: sc, cw, ch, dpr, min: minute, walkers });
           g.setTransform(dpr, 0, 0, dpr, 0, 0);
           g.fillStyle = "#6aa556"; g.fillRect(0, 0, cw, ch);
           g.globalCompositeOperation = "multiply"; g.drawImage(pic, 0, 0, cw, ch); g.globalCompositeOperation = "source-over";
