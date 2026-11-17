@@ -1123,7 +1123,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       if (below && !sheets) sheets = createSheets(scene);
       const w = Math.max(1, Math.round(v.cw)), h = Math.max(1, Math.round(v.ch));
       // (a lower share is drawn on fewer pixels and laid out larger: the ground is soft enough to bear it)
-      const dpr = Math.min(v.dpr, quality === "low" ? 1 : lite ? 1.5 : 2);
+      const dpr = Math.min(v.dpr, quality === "low" ? 1 : lite && flat ? 1.5 : 2);
       if (w !== sized.w || h !== sized.h || dpr !== sized.d) { sized = { w, h, d: dpr }; renderer.setPixelRatio(dpr); renderer.setSize(w, h, false); }
       const sec = performance.now() / 1000, q = hourOf(v.min);
       blend(SKIES[q[0]], SKIES[q[1]], q[2]);
@@ -1167,7 +1167,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     wetAt: (x, y) => wetAt(x, y),
     heightAt: (x, y) => (flat ? 0 : Hat(x, y)),
     renderGround(v, wet) {
-      const w = Math.max(1, Math.round(v.cw)), h = Math.max(1, Math.round(v.ch)), dpr = Math.min(v.dpr, quality === "low" ? 1 : lite ? 1.5 : 2);
+      const w = Math.max(1, Math.round(v.cw)), h = Math.max(1, Math.round(v.ch)), dpr = Math.min(v.dpr, quality === "low" ? 1 : lite && flat ? 1.5 : 2);
       if (w !== sized.w || h !== sized.h || dpr !== sized.d) { sized = { w, h, d: dpr }; renderer.setPixelRatio(dpr); renderer.setSize(w, h, false); }
       const sec = performance.now() / 1000, q = hourOf(v.min);
       blend(SKIES[q[0]], SKIES[q[1]], q[2]);
@@ -1229,7 +1229,7 @@ ${NOISE}
         surf.frustumCulled = false;
         disposables.push(mat);
       }
-      const w = Math.max(1, Math.round(v.cw)), h = Math.max(1, Math.round(v.ch)), dpr = Math.min(v.dpr, quality === "low" ? 1 : lite ? 1.5 : 2);
+      const w = Math.max(1, Math.round(v.cw)), h = Math.max(1, Math.round(v.ch)), dpr = Math.min(v.dpr, quality === "low" ? 1 : lite && flat ? 1.5 : 2);
       if (w !== sized.w || h !== sized.h || dpr !== sized.d) { sized = { w, h, d: dpr }; renderer.setPixelRatio(dpr); renderer.setSize(w, h, false); }
       const q = hourOf(v.min);
       blend(SKIES[q[0]], SKIES[q[1]], q[2]);
