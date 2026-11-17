@@ -544,7 +544,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // and real shadows on them, made by lib/town-hd and laid where the ground is painted; everything that stands is still
   // drawn here, over it. Off unless this browser has asked for it: `/town?hd=1` turns it on and `?hd=0` off (kept in
   // localStorage "cashTown:hd"). A trial on the live town, a device at a time; its code is fetched only when it is on.
-  const hdDrawn = useRef(false), hdMinute = useRef<number | null>(null);
+  const hdShow = useRef(false);
+  useEffect(() => { hdShow.current = /[?&]hdshow=1/.test(window.location.search); }, []);
+  const hdDrawn = useRef<string | null>(null), hdMinute = useRef<number | null>(null);
   useEffect(() => { const m = /[?&]hdmin=(\d+)/.exec(window.location.search)?.[1]; hdMinute.current = m ? Number(m) : null; }, []);
   // (the settings' choice: on and at its fullest for everybody until it is changed there, the owner's "default เป็น เปิด 3d
   // high"; `?hd=off|low|mid|high` in the address sets it too, for somebody whose device cannot open the settings with it on)
@@ -2567,7 +2569,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
               for (const t of stood) { const a = scenery!.pieceOf(t.name); if (a) stands.push({ img: a.img, sx: a.x, sy: a.y, w: a.w, h: a.h, ax: a.ax, ay: a.ay, k: t.k, x: t.x, y: t.y, mirror: t.mirror }); }
               pic = (wildShade.current ??= wildMake.current!()).renderAt(view, stands);
             }
-            ctx.globalCompositeOperation = "multiply";
+            ctx.globalCompositeOperation = hdShow.current ? "source-over" : "multiply";
             ctx.drawImage(pic, 0, 0, cw, ch);
             ctx.globalCompositeOperation = "source-over";
             // What stands in the editor's town, as the 3D town lit it (its sun's side, the shadows falling across it): each
@@ -2585,7 +2587,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
             // (the dolls' sheet is wiped for this frame's dolls, drawn on it as each walker is drawn)
             if (sheet) sheet.getContext("2d")!.clearRect(0, 0, sheet.width, sheet.height);
             dollsDrawn.current = [];
-            if (!hdDrawn.current) { hdDrawn.current = true; console.info("[Cash Town] 3D shadows drawn", here, pic.width, pic.height); }
+            if (hdDrawn.current !== here) { hdDrawn.current = here; console.info("[Cash Town] 3D shadows drawn", here, pic.width, pic.height, town ? "" : `${stood.length} things`); }
           }
         } catch (e) { hdMake.current = null; wildMake.current = null; console.warn("[Cash Town] 3D shadows stopped", e); }
       }
@@ -4837,6 +4839,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   useEffect(() => {
     if (process.env.NODE_ENV === "production") return;
     const handle = {
+      // (a tester stood somewhere else at once, on the dev server only: to look at another map without walking there)
       elementVfx: async (canvas: HTMLCanvasElement, key: string, progress = .32, still = false) => {
         const look = readElementAction(key), ctx = canvas.getContext('2d');
         if (!look || !ctx) return false;
