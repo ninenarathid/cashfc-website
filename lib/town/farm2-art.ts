@@ -15,6 +15,7 @@
  *   bought, shut, open, or from inside for whoever is in it; each animal's tray, full or empty; a chest open while its
  *   panel is; the fire bowls' lit pictures are never drawn (a fire is its bowl with the game's own flames rising in it).
  */
+import { relight, type Lit } from "./relight";
 import MAP from "./farm2-map.json";
 import { F2_DESIGNS, F2_SCARECROWS, F2_TRAYS } from "./farm2";
 import { yardAt, yardsKey } from "./pasture";
@@ -132,6 +133,8 @@ export class Farm2Art {
    * footprint's middle, where it stands now (`dx`, `dy`: how far it was moved from where the map has it).
    */
   lift: ((x: number, y: number) => number) | null = null;
+  /** The 3D town's lit picture of what stands, this frame, or null (lib/town/relight). */
+  lit: Lit | null = null;
   private up(t: Thing, dx = 0, dy = 0): number {
     return this.lift ? this.lift((t.box[0] + t.box[2]) / 2 + (dx / 32 + dy / 16) / 2, (t.box[1] + t.box[3]) / 2 + (dy / 16 - dx / 32) / 2) : 0;
   }
@@ -167,6 +170,14 @@ export class Farm2Art {
       ctx.drawImage(sp.img, sx0, 0, sx1 - sx0, sp.h, sx0 * k, 0, (sx1 - sx0) * k, sp.h * k);
     } else ctx.drawImage(sp.img, sx0, 0, sx1 - sx0, sp.h, X + sx0 * k, Y, (sx1 - sx0) * k, sp.h * k);
     ctx.restore();
+    // (what stands where the map has it, whole: as the 3D town lit it. Not what the game has moved or faded.)
+    if (this.lit && alpha >= 1 && !dx && !dy && k * px >= 1) {
+      const bx = t.flip ? X + (sp.w - sx1) * k : X + sx0 * k, bw = (sx1 - sx0) * k;
+      relight(this.lit, ctx, bx, Y, bw, sp.h * k, (g) => {
+        if (t.flip) { g.translate(X + sp.w * k, Y); g.scale(-1, 1); g.drawImage(sp.img!, sx0, 0, sx1 - sx0, sp.h, sx0 * k, 0, bw, sp.h * k); }
+        else g.drawImage(sp.img!, sx0, 0, sx1 - sx0, sp.h, bx, Y, bw, sp.h * k);
+      });
+    }
   }
 
   private ripplesSheet(): HTMLImageElement | null {

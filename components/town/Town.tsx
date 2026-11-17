@@ -2557,7 +2557,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const seen2 = art2 ? art2.visible({ x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, now) : null;
     // ── the editor's farm ── (lib/town/farm2-art: what of it is near the view, while I am on the farm)
     const artF = scenery && F2 && placeRef.current === "farm" ? farm2Art() : null;
-    if (artF) artF.lift = HILL ? hillPx : null;
+    if (artF) { artF.lift = HILL ? hillPx : null; artF.lit = null; }
     const seenF = artF ? artF.visible({ x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, now) : null;
     // ── Granny Twilla's clothes shop ── (lib/town/shop-room-art: nothing of it is fetched until it is near the view)
     const roomArt = scenery ? shopArtRef.current : null;
@@ -2613,13 +2613,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
             ctx.globalCompositeOperation = "source-over";
             // What stands in the editor's town, as the 3D town lit it (its sun's side, the shadows falling across it): each
             // thing of it is laid over the live town's own picture of that thing, in its turn (lib/town/town2-art's `lit`).
-            if (town && hdPlace === "town" && art2 && !inHall && hdNow.current === "high" && litOn.current) {
+            const litFor = hdPlace === "town" && !inHall ? art2 : hdPlace === "farm" ? artF : null;
+            if (town && litFor && hdNow.current === "high" && litOn.current) {
               const lit = town.renderLit(), c = (litCopy.current ??= document.createElement("canvas"));
               if (c.width !== lit.width || c.height !== lit.height) { c.width = lit.width; c.height = lit.height; }
               const cg = c.getContext("2d")!;
               cg.clearRect(0, 0, c.width, c.height);
               cg.drawImage(lit, 0, 0);
-              art2.lit = { pic: c, k: c.width / cw };
+              litFor.lit = { pic: c, k: c.width / cw };
             }
             if (view.shades) {
               const seen = new Set<string>();
