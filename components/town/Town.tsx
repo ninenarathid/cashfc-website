@@ -19,6 +19,7 @@ import { drawPixelFlames } from "./flames";
 import { F2_BENCH_OF, F2_CHESTS, F2_SCARECROWS, F2_TRADE_BOARDS } from "@/lib/town/farm2";
 import type { HdTown } from "@/lib/town-hd/engine";
 import { rimAt, type Shade, type Stand } from "@/lib/town-hd/shade";
+import { Capture } from "@/lib/town-hd/capture";
 import type { Finish } from "@/lib/town-hd/finish";
 import { hdOf, keepHd, keptHd, type HdChoice } from "@/lib/town-hd/choice";
 import { T2_CASINO_DOOR, T2_CHEST_OPEN, T2_CHEST_SHUT, T2_HALL, T2_LAMP_LIGHT, T2_PROP_THING, T2_RINGS, T2_THINGS, t2RiverPoint } from "@/lib/town/town2";
@@ -581,6 +582,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const groundWide = useRef<HTMLCanvasElement | null>(null);
   const wildStood = useRef<Array<{ name: string; x: number; y: number; k: number; mirror?: boolean }>>([]);
   /** The frame (its clock) in which the 3D town last threw the shadows. */
+  const capRef = useRef<Capture | null>(null), world3d = useRef(false), hd3d = useRef(false);
+  useEffect(() => { hd3d.current = /[?&]hd3d=1/.test(window.location.search); }, []);
   const castAt = useRef(-1), hdRaised = useRef(false), shadeTick = useRef(0), inShade = useRef(new Map<string, number>());
   useEffect(() => () => { HILL = null; }, []);
   const hdNow = useRef(hd), litCopy = useRef<HTMLCanvasElement | null>(null), litOn = useRef(true);
@@ -1618,7 +1621,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       if (live) live.step(now, dt);
       if (mapRef.current) mapRef.current.camera.current?.frame?.(now);
       else {
-        draw(ctx, canvas, now, dt);
+        // The whole world drawn by the 3D town (lib/town-hd/capture, engine's `renderWorld`): on the editor's maps, where
+        // its ground is raised. The frame is drawn with a context pointed at the bridge: what lies on the ground on one
+        // picture, each standing thing a piece of a sheet; the 3D town puts them together. (`?hd3d=1`, while it is tried.)
+        const use3d = hd3d.current && !!HILL && (placeRef.current === "town" || placeRef.current === "farm");
+        world3d.current = use3d;
+        if (use3d) (capRef.current ??= new Capture()).begin(ctx, cam.current.dpr);
+        try { draw(use3d ? capRef.current!.ctx : ctx, canvas, now, dt); } finally { if (use3d) capRef.current!.end(); }
         const fin = finishRef.current;
         // The 3D town's air over the frame, on the editor's maps where its ground is raised: smoke, mist, motes, rain,
         // each hidden behind the buildings before it (lib/town-hd/engine's `renderAir`).
@@ -2440,7 +2449,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     sky.addColorStop(0, "#0d1520");
     sky.addColorStop(1, "#0a0f15");
     ctx.fillStyle = sky;
-    ctx.fillRect(0, 0, cw, ch);
+    // (not on the bridge's picture of what lies on the ground: the 3D town's own ground is under it)
+    if (!world3d.current) ctx.fillRect(0, 0, cw, ch);
 
     benchBoxes.current = [];
     feastBoxes.current = [];
@@ -2548,7 +2558,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       HILL = raisedNow ? town!.heightAt : null;
       // (the forest: its own ground, raised)
       if (here === "forest" && scenery && wildMake.current && hdRaised.current) { try { raisedWild = wildOf("forest"); HILL = raisedWild.heightAt; } catch (e) { wildMake.current = null; console.warn("[Cash Town] 3D shadows stopped", e); } }
-      if (raisedNow) {
+      // (the world drawn whole by the 3D town: nothing of its ground here; this frame's dolls throw this frame's shadows)
+      if (world3d.current && !raisedNow) { capRef.current?.end(); world3d.current = false; }
+      if (world3d.current) {
+        const clock = new Date(Date.now() + 7 * 3600_000), sheet = dollSheet.current;
+        if (sheet) sheet.getContext("2d")!.clearRect(0, 0, sheet.width, sheet.height);
+        dollsDrawn.current = [];
+        castAt.current = now;
+        rimNow.current = finishRef.current ? rimAt(hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes()) : null;
+        inShade.current.clear();
+      } else if (raisedNow) {
         try {
           const clock = new Date(Date.now() + 7 * 3600_000);
           ctx.drawImage(town!.renderGround({ cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() }, effects.current?.rain ?? 0), 0, 0, cw, ch);
@@ -2643,7 +2662,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       const wild = (here === "forest" || here === "mountain") && !!scenery && !!wildMake.current;
       const stood = wildStood.current;
       wildStood.current = [];
-      if ((hdPlace && hdMake.current) || wild) {
+      if (!world3d.current && ((hdPlace && hdMake.current) || wild)) {
         try {
           const town = hdPlace && hdMake.current ? (hdTowns.current[hdPlace] ??= hdMake.current(hdPlace)) : null;
           if (wild || town?.ready()) {
@@ -3426,7 +3445,20 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     } : null;
     if (more && moreFrame) more.things(moreFrame);
     things.sort((a, b) => a.depth - b.depth);
-    for (const t of things) t.draw();
+    if (world3d.current) {
+      // Every standing thing a piece of the bridge's sheet, in its turn; then the 3D town's picture of the whole world,
+      // laid on the town's own canvas for what is drawn over everything.
+      const cap = capRef.current!, town = hdTowns.current[placeRef.current as HdPlace];
+      for (const t of things) cap.thing(t.depth, t.draw);
+      cap.end();
+      try {
+        const clock = new Date(Date.now() + 7 * 3600_000), sheet = dollSheet.current;
+        const stands: Stand[] = dollsDrawn.current.map((d) => ({ img: sheet!, sx: (d.cell % DOLL_CELLS.cols) * DOLL_CELLS.w, sy: Math.floor(d.cell / DOLL_CELLS.cols) * DOLL_CELLS.h, w: DOLL_CELLS.w, h: DOLL_CELLS.h, ax: DOLL_CELLS.w / 2, ay: DOLL_CELLS.foot, k: 1, x: d.a.pos.x, y: d.a.pos.y }));
+        const pic = town!.renderWorld({ cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes(), stands, sec: swaying?.sec, me: swaying?.me }, effects.current?.rain ?? 0, cap.floor, cap.atlas, cap.cards);
+        ctx.drawImage(pic, 0, 0, cw, ch);
+        if (cap.lost) console.warn("[Cash Town] 3D world: no room on the sheet for", cap.lost, "things this frame");
+      } catch (e) { hd3d.current = false; console.warn("[Cash Town] 3D world stopped", e); }
+    } else for (const t of things) t.draw();
     // The weather (lib/town/weather), then the time of day: the town multiplied by the
     // sky's colour, then the lamps' light.
     drawWeather(ctx, cw, ch, now, dt);
