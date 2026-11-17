@@ -199,7 +199,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   const hall: { upper: THREE.Group | null } = { upper: null };
 
   /** A picture stood upright: seen at (x, z), where its foot was drawn; its shadow thrown from (sx, sz), the middle of what it is. */
-  interface Card { x: number; z: number; sx: number; sz: number; y: number; w: number; h: number; flip: boolean; unseen?: boolean }
+  interface Card { x: number; z: number; sx: number; sz: number; y: number; w: number; h: number; flip: boolean; unseen?: boolean; /** Its shadow is thrown by a block on its footprint instead. */ blocked?: boolean }
   const cards = new Map<number, Card[]>();
   const lamps: Array<{ x: number; y: number; z: number }> = [];
   const flats: Array<{ s: number; o: Obj; wet: boolean }> = [];
@@ -331,12 +331,13 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
    * foot of its picture is the nearest of it, not its middle, so it stands on the ground point its lowest pixels were
    * drawn over. Stood on its middle, a low wide thing (a bench) hung in the air by half its depth.
    */
-  function stood(o: Obj, cx: number, cz: number, unseen = false) {
+  function stood(o: Obj, cx: number, cz: number, unseen = false, blocked = false) {
     const sp = sprites[o[1]], ix = o[2] + sp[1] * o[4] / 2, iy = o[3] + sp[2] * o[4];
-    card(o[1], { x: (ix / 32 + iy / 16) / 2, z: (iy / 16 - ix / 32) / 2, sx: cx, sz: cz, y: wetAt(cx, cz) ? WATER_Y : 0, w: sp[1] * o[4] / PX_SIDE, h: sp[2] * o[4] / PX_UP, flip: o[5] === 1, unseen });
+    card(o[1], { x: (ix / 32 + iy / 16) / 2, z: (iy / 16 - ix / 32) / 2, sx: cx, sz: cz, y: wetAt(cx, cz) ? WATER_Y : 0, w: sp[1] * o[4] / PX_SIDE, h: sp[2] * o[4] / PX_UP, flip: o[5] === 1, unseen, blocked });
   }
   const stand = () => { const g = new THREE.Group(); town.add(g); return g; };
   const hallIn: { room: THREE.Mesh | null } = { room: null };
+  const blocks: Array<[number, number, number, number, number, number]> = [];
   const decked: Array<{ o: Obj; box: Box4; g: THREE.Group; bridge: boolean }> = [];
 
   (MAP.objects as Obj[]).forEach((o, i) => {
@@ -357,7 +358,12 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       town.remove(g);
     }
     if (FLAT.test(name)) { flats.push({ s: o[1], o, wet: wetAt(cx, cz) }); return; }
-    stood(o, cx, cz);
+    // A long thing (a bench, a fence, a boat) throws its shadow from a block on its own footprint, so the shadow joins
+    // it along its whole length whatever the sun's side (the owner, 2026-11-17: "เก้าอี้นี้เงาไม่ติดกัน ช่วยแก้เคสเดียวกัน
+    // ทั้งหมด"). A sheet turned to the sun, stood on its middle, joins only a thing that stands on one foot: a tree, a post.
+    const bw = box[2] - box[0], bd = box[3] - box[1], long = Math.max(bw, bd) >= Math.min(bw, bd) * 1.5 && Math.max(bw, bd) >= 0.7;
+    if (long) blocks.push([cx, cz, bw * 0.92, bd * 0.92, Math.min(3, Math.max(0.25, tall)), wetAt(cx, cz) ? WATER_Y : 0]);
+    stood(o, cx, cz, false, long);
     const h = sp[2] * o[4] / PX_UP;
     if (LAMP.test(name)) lamps.push({ x: cx, y: h * 0.72, z: cz });
   });
@@ -409,9 +415,20 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   function shadeCards() {
     Q.setFromAxisAngle(UP, Math.atan2(sunDir.x, sunDir.z));
     for (const { list, shade } of cardSets) {
-      list.forEach((c, i) => shade.setMatrixAt(i, M.compose(V.set(c.sx, c.y, c.sz), Q, S.set(c.flip ? -c.w : c.w, c.h, 1))));
+      list.forEach((c, i) => shade.setMatrixAt(i, M.compose(V.set(c.sx, c.y, c.sz), Q, c.blocked ? S.set(0, 0, 0) : S.set(c.flip ? -c.w : c.w, c.h, 1))));
       shade.instanceMatrix.needsUpdate = true;
     }
+  }
+
+  {
+    const unit = new THREE.BoxGeometry(1, 1, 1), unseen = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false });
+    const cast = new THREE.InstancedMesh(unit, unseen, blocks.length);
+    const I = new THREE.Quaternion();
+    blocks.forEach(([x, z, w, d, up, y], i) => cast.setMatrixAt(i, M.compose(V.set(x, y + up / 2, z), I, S.set(w, up, d))));
+    cast.castShadow = true;
+    cast.frustumCulled = false;
+    town.add(cast);
+    disposables.push(unit, unseen);
   }
 
   // what lies flat (stepping stones, lotus leaves, flower beds): its picture laid back onto the ground it was drawn on
