@@ -10,6 +10,8 @@ import type { Actor, Card } from "./capture";
 import type { LiveView } from "./engine";
 
 const PX_UP = 39.2, PITCH = Math.PI / 6, YAW = Math.PI / 4;
+/** The layer the walkers' sheet is on. */
+const ACTORS = 2;
 const RIGHT = new THREE.Vector3(Math.cos(YAW), 0, -Math.sin(YAW)), UPV = new THREE.Vector3(-Math.sin(YAW) * Math.sin(PITCH), Math.cos(PITCH), -Math.cos(YAW) * Math.sin(PITCH));
 
 /** The scene the world is laid in: its renderer, lights and camera (aimed at the frame's view already), the ground's height, where the sun stands, how strong and what colour its light on a walker's edge is, and what is hidden while a walker is stood (the ground, down already). */
@@ -163,6 +165,10 @@ export function createWorld(h: WorldHost): World {
       geo.setIndex([0, 1, 2, 0, 2, 3]);
       const mesh = new THREE.Mesh(geo, mat);
       mesh.frustumCulled = false; mesh.receiveShadow = true; mesh.visible = false;
+      // (on a layer of their own, with the scene's lights: stood alone, nothing else of the scene is gone through for
+      // them. Before, every walker in sight cost a whole drawing of the town; the owner, 2026-11-18: "ยังหน่วงอยู่")
+      mesh.layers.set(ACTORS);
+      scene.traverse((o) => { if ((o as THREE.Light).isLight) o.layers.enable(ACTORS); });
       scene.add(mesh);
       actor = { mesh, geo, mat, tex, of };
     }
@@ -185,9 +191,9 @@ export function createWorld(h: WorldHost): World {
     A.mat.opacity = a.alpha;
     A.mat.depthTest = solid;
     // (alone: the ground is down already, and nothing else of the scene is seen)
-    const grounds = h.grounds().filter((g) => g.visible);
     A.mesh.visible = true;
-    for (const g of grounds) g.visible = false;
+    const seen = camera.layers.mask;
+    camera.layers.set(ACTORS);
     // (a scene with a colour behind it wipes the picture before it draws: there is none behind this one)
     const back = scene.background;
     scene.background = null;
@@ -195,7 +201,7 @@ export function createWorld(h: WorldHost): World {
     renderer.render(scene, camera);
     renderer.shadowMap.autoUpdate = true;
     scene.background = back;
-    for (const g of grounds) g.visible = true;
+    camera.layers.mask = seen;
     A.mesh.visible = false;
   };
 

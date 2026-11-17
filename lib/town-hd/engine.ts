@@ -1343,9 +1343,12 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       camera.lookAt(eye);
       if (land) land.mesh.material = land.real;
       if (river) river.visible = true;
+      // (the ground and the water alone: nothing that stands is gone through for this picture)
+      town.visible = false;
       renderer.shadowMap.autoUpdate = false;
       renderer.render(scene, camera);
       renderer.shadowMap.autoUpdate = true;
+      town.visible = true;
       if (land) land.mesh.material = land.white;
       if (river) river.visible = false;
       return renderer.domElement;
