@@ -73,13 +73,17 @@ void main() {
     canvas,
     render(src, v, more) {
       const w = Math.max(1, Math.round(v.cw)), h = Math.max(1, Math.round(v.ch)), dpr = Math.min(v.dpr, lite ? 1.5 : 2);
-      if (`${w},${h},${dpr}` !== sized) { sized = `${w},${h},${dpr}`; renderer.setPixelRatio(dpr); renderer.setSize(w, h, false); post.setSize(w, h, dpr); }
+      // (drawn on exactly the frame's own pixels: on a screen scaled by a quarter or a half a size worked out again came a
+      // pixel off, and the whole picture, the walkers and the names with it, was stretched soft; the owner, 2026-11-18:
+      // "ภาพตัวละครไม่ชัดเลย")
+      void w; void h; void dpr;
+      if (`${src.width},${src.height}` !== sized) { sized = `${src.width},${src.height}`; renderer.setPixelRatio(1); renderer.setSize(src.width, src.height, false); post.setSize(src.width, src.height, 1); }
       // the live town's frame, as it is
       const size = `${src.width},${src.height}`;
       if (!tex || texOf !== src || texSize !== size) {
         tex?.dispose();
         tex = new THREE.CanvasTexture(src);
-        tex.colorSpace = THREE.SRGBColorSpace; tex.generateMipmaps = false; tex.minFilter = tex.magFilter = THREE.LinearFilter;
+        tex.colorSpace = THREE.SRGBColorSpace; tex.generateMipmaps = false; tex.minFilter = tex.magFilter = THREE.NearestFilter;
         texOf = src; texSize = size;
         scene.background = tex;
       }

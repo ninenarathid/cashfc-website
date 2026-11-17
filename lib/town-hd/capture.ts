@@ -12,7 +12,9 @@
  */
 
 /** A piece of the sheet: how far forward it stands (x + y in tiles), its turn among those as far forward, where it was drawn on the screen and where it is kept on the sheet (all in the canvas's own pixels). */
-export interface Card { depth: number; seq: number; x: number; y: number; w: number; h: number; ax: number; ay: number; /** Not a piece of the sheet but a walker, stood in the scene by the 3D town itself. */ actor?: Actor }
+export interface Card { depth: number; seq: number; x: number; y: number; w: number; h: number; ax: number; ay: number; /** Not a piece of the sheet but a walker, stood in the scene by the 3D town itself. */ actor?: Actor; /** Not a piece of the sheet but a picture of the live town's own, laid in the scene straight from that picture (`ax`, `ay` its corner in it). */ sprite?: Sprite }
+/** A picture drawn whole and plainly (no turn, no cut, nothing mixed): the picture, how much of it, how solid, and whether mirrored. */
+export interface Sprite { img: HTMLImageElement; sw: number; sh: number; alpha: number; flip: boolean }
 /** A walker in the scene: their doll's cell of the dolls' sheet (`ax`, `ay`, and the card's `w`, `h` on the screen), where they stand (tiles), and how solid they are drawn. */
 export interface Actor { sw: number; sh: number; bx: number; bz: number; alpha: number }
 
@@ -48,7 +50,12 @@ export class Capture {
         const v = (this.to as Any)[prop];
         if (typeof v !== "function") return v;
         let f = wrapped.get(prop);
-        if (!f) { f = (...a: Any[]) => { if (this.tracking) this.track(prop as string, a); return (this.to as Any)[prop](...a); }; wrapped.set(prop, f); }
+        if (!f) {
+          f = prop === "drawImage"
+            ? (...a: Any[]) => { if (this.tracking) { if (this.plain(a)) return; this.track("drawImage", a); } return (this.to as Any).drawImage(...a); }
+            : (...a: Any[]) => { if (this.tracking) this.track(prop as string, a); return (this.to as Any)[prop](...a); };
+          wrapped.set(prop, f);
+        }
         return f;
       },
       set: (_t, prop, value) => { (this.to as Any)[prop] = value; return true; },
@@ -83,6 +90,7 @@ export class Capture {
   thing(depth: number, draw: () => void) {
     const g = this.scratch.getContext("2d")!;
     this.to = g; this.tracking = true; this.depth = depth;
+    this.clipped = false; this.clips = [];
     this.reset();
     g.save();
     try { draw(); } finally {
@@ -132,6 +140,30 @@ export class Capture {
   /** The standing things are all kept: what is drawn from now goes to the live town's own canvas again. */
   end() { this.to = this.main; this.tracking = false; }
 
+  /**
+   * A picture drawn plainly is not drawn here at all: it goes into the scene as itself, in its turn. Plainly: one of the
+   * town's own loaded pictures, upright and unsheared, its pixels as they are (not smoothed, nothing mixed or cut out
+   * of it, no glow under it). Whether this call was such a one.
+   */
+  private plain(a: Any[]): boolean {
+    const g = this.to, img = a[0];
+    // (nor a picture larger than a phone's graphics hold as one: that one is drawn here as before)
+    if (!(img instanceof HTMLImageElement) || img.naturalWidth > 4096 || img.naturalHeight > 4096 || this.clipped || g.imageSmoothingEnabled || g.globalCompositeOperation !== "source-over" || g.shadowBlur || (g.filter && g.filter !== "none")) return false;
+    const m = g.getTransform();
+    if (Math.abs(m.b) > 1e-6 || Math.abs(m.c) > 1e-6 || m.d <= 0 || !m.a) return false;
+    let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight, dx: number, dy: number, dw = sw, dh = sh;
+    if (a.length >= 9) [, sx, sy, sw, sh, dx, dy, dw, dh] = a;
+    else if (a.length >= 5) [, dx, dy, dw, dh] = a;
+    else [, dx, dy] = a;
+    if (!(dw > 0) || !(dh > 0) || !(sw > 0) || !(sh > 0)) return false;
+    this.cut();
+    const x0 = m.a * dx + m.e, x1 = m.a * (dx + dw) + m.e;
+    this.cards.push({ depth: this.depth, seq: this.seq++, x: Math.min(x0, x1), y: m.d * dy + m.f, w: Math.abs(x1 - x0), h: m.d * dh, ax: sx, ay: sy, sprite: { img, sw, sh, alpha: g.globalAlpha, flip: m.a < 0 } });
+    return true;
+  }
+  private clipped = false;
+  private clips: boolean[] = [];
+
   private reset() { this.box = [Infinity, Infinity, -Infinity, -Infinity]; this.path = [Infinity, Infinity, -Infinity, -Infinity]; this.wild = false; }
 
   private add(into: number[], m: DOMMatrix, x: number, y: number, pad = 0) {
@@ -149,6 +181,10 @@ export class Capture {
   private track(name: string, a: Any[]) {
     const g = this.to;
     switch (name) {
+      // (a cut-out region: what is drawn inside it is not a plain picture, until it is put back)
+      case "save": this.clips.push(this.clipped); break;
+      case "restore": this.clipped = this.clips.pop() ?? false; break;
+      case "clip": this.clipped = true; break;
       case "drawImage": {
         const m = g.getTransform(), pad = g.shadowBlur ? g.shadowBlur * 2 + 4 : 0;
         if (a.length >= 9) this.rect(this.box, m, a[5], a[6], a[7], a[8], pad);

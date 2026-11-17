@@ -600,6 +600,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const solidFarm = useRef<{ town: HdTown; yards: unknown; is: (i: number) => boolean } | null>(null);
   const capRef = useRef<Capture | null>(null), world3d = useRef(false), hd3d = useRef(false);
   useEffect(() => { hd3d.current = /[?&]hd3d=1/.test(window.location.search); }, []);
+  /** How many of the dolls' sheet's pixels there are to one of the map's (1, or as fine as the screen where walkers are stood in the 3D scene from it). */
+  const dollQ = useRef(1);
   const castAt = useRef(-1), hdRaised = useRef(false), shadeTick = useRef(0), inShade = useRef(new Map<string, number>());
   useEffect(() => () => { HILL = null; }, []);
   const hdNow = useRef(hd), litCopy = useRef<HTMLCanvasElement | null>(null), litOn = useRef(true);
@@ -608,7 +610,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const rimNow = useRef<ReturnType<typeof rimAt> | null>(null), rimScratch = useRef<HTMLCanvasElement | null>(null);
   // Each walker's doll as it was just drawn, once more on a sheet of its own (a cell a walker), for the shadow it throws
   // in the next frame: its own shape, hat and all (the owner, 2026-11-17, of one outline for everybody: "เงาไม่ละเอียด").
-  const dollSheet = useRef<HTMLCanvasElement | null>(null), dollsDrawn = useRef<Array<{ a: Avatar; cell: number }>>([]);
+  const dollSheet = useRef<HTMLCanvasElement | null>(null), dollsDrawn = useRef<Array<{ a: Avatar; cell: number; /** Whether they throw a shadow from where they stand (not from a seat or a mount). */ cast: boolean }>>([]);
   // The finish over the whole frame, on every map (lib/town-hd/finish): the glow of what is bright, the hour's colour,
   // what hangs in the air. On a canvas of its own over the town's; at "low" there is none, only the shadows.
   const finishCanvas = useRef<HTMLCanvasElement | null>(null), finishRef = useRef<Finish | null>(null), finishSlow = useRef(0);
@@ -2578,7 +2580,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       if (world3d.current && !raisedNow) { capRef.current?.end(); world3d.current = false; }
       if (world3d.current) {
         const clock = new Date(Date.now() + 7 * 3600_000), sheet = dollSheet.current;
-        if (sheet) sheet.getContext("2d")!.clearRect(0, 0, sheet.width, sheet.height);
+        // (the dolls' sheet as fine as the screen: stood in the scene from it, a walker is as sharp as the live town drew
+        // them; the owner, 2026-11-18: "ภาพตัวละครไม่ชัดเลย")
+        const fine = Math.min(3, Math.max(1, Math.ceil(v.s * dpr * 2) / 2));
+        if (sheet && fine !== dollQ.current) { sheet.width = DOLL_CELLS.cols * DOLL_CELLS.w * fine; sheet.height = DOLL_CELLS.rows * DOLL_CELLS.h * fine; }
+        else if (sheet) sheet.getContext("2d")!.clearRect(0, 0, sheet.width, sheet.height);
+        dollQ.current = fine;
         dollsDrawn.current = [];
         castAt.current = now;
         rimNow.current = finishRef.current ? rimAt(hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes()) : null;
@@ -2698,7 +2705,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
             // (`?hdmin=960` looks at another minute of the day: to see the day's shadows at night, while this is tried)
             // (whoever walks here throws a shadow too: not who sits, rides or has gone)
             const sheet = dollSheet.current, walkers: Stand[] = [];
-            for (const d of dollsDrawn.current) walkers.push({ img: sheet!, sx: (d.cell % DOLL_CELLS.cols) * DOLL_CELLS.w, sy: Math.floor(d.cell / DOLL_CELLS.cols) * DOLL_CELLS.h, w: DOLL_CELLS.w, h: DOLL_CELLS.h, ax: DOLL_CELLS.w / 2, ay: DOLL_CELLS.foot, k: 1, x: d.a.pos.x, y: d.a.pos.y });
+            for (const d of dollsDrawn.current) walkers.push({ img: sheet!, sx: (d.cell % DOLL_CELLS.cols) * DOLL_CELLS.w * dollQ.current, sy: Math.floor(d.cell / DOLL_CELLS.cols) * DOLL_CELLS.h * dollQ.current, w: DOLL_CELLS.w * dollQ.current, h: DOLL_CELLS.h * dollQ.current, ax: (DOLL_CELLS.w / 2) * dollQ.current, ay: DOLL_CELLS.foot * dollQ.current, k: 1 / dollQ.current, x: d.a.pos.x, y: d.a.pos.y });
             const view = { cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes(), stands: walkers, sec: swaying?.sec, me: swaying?.me,
               // (whether each walker stands in a shadow: asked every fourth frame, the answer eased towards)
               probes: finishRef.current && ++shadeTick.current % 4 === 0 ? dollsDrawn.current.map((d): [number, number] => [d.a.pos.x, d.a.pos.y]) : undefined, shades: undefined as number[] | undefined };
@@ -3481,7 +3488,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       cap.end();
       try {
         const clock = new Date(Date.now() + 7 * 3600_000), sheet = dollSheet.current;
-        const stands: Stand[] = dollsDrawn.current.map((d) => ({ img: sheet!, sx: (d.cell % DOLL_CELLS.cols) * DOLL_CELLS.w, sy: Math.floor(d.cell / DOLL_CELLS.cols) * DOLL_CELLS.h, w: DOLL_CELLS.w, h: DOLL_CELLS.h, ax: DOLL_CELLS.w / 2, ay: DOLL_CELLS.foot, k: 1, x: d.a.pos.x, y: d.a.pos.y }));
+        const stands: Stand[] = dollsDrawn.current.filter((d) => d.cast).map((d) => ({ img: sheet!, sx: (d.cell % DOLL_CELLS.cols) * DOLL_CELLS.w * dollQ.current, sy: Math.floor(d.cell / DOLL_CELLS.cols) * DOLL_CELLS.h * dollQ.current, w: DOLL_CELLS.w * dollQ.current, h: DOLL_CELLS.h * dollQ.current, ax: (DOLL_CELLS.w / 2) * dollQ.current, ay: DOLL_CELLS.foot * dollQ.current, k: 1 / dollQ.current, x: d.a.pos.x, y: d.a.pos.y }));
         const pic = town!.renderWorld({ cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes(), stands, sec: swaying?.sec, me: swaying?.me }, effects.current?.rain ?? 0, cap.floor, cap.atlas, cap.cards, sheet, placeRef.current === "town" ? !!art2?.solid : !!artF?.solid);
         ctx.drawImage(pic, 0, 0, cw, ch);
         if (cap.lost) console.warn("[Cash Town] 3D world: no room on the sheet for", cap.lost, "things this frame");
@@ -4293,17 +4300,18 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         auraBehind(ctx, wearer);
       }
       // (in the 3D town's own world a walker on their feet is stood in the scene by it, from the dolls' sheet: below)
-      const staged = world3d.current && castAt.current === now && !perched && !sitting(a) && !mapRef.current && dollsDrawn.current.length < DOLL_CELLS.cols * DOLL_CELLS.rows;
+      const staged = world3d.current && castAt.current === now && !mapRef.current && dollsDrawn.current.length < DOLL_CELLS.cols * DOLL_CELLS.rows;
       if (!staged) kit.draw(ctx, look, face.view, face.mirror, p.x, p.y, k, { step, blink, talk, expr, eat: eatPose, sit: sitting(a) || perched, perch: !!tableSeatOf(a)?.back }, dpr);
-      if (castAt.current === now && !perched && !sitting(a) && !mapRef.current && dollsDrawn.current.length < DOLL_CELLS.cols * DOLL_CELLS.rows) {
-        const sheet = (dollSheet.current ??= Object.assign(document.createElement("canvas"), { width: DOLL_CELLS.cols * DOLL_CELLS.w, height: DOLL_CELLS.rows * DOLL_CELLS.h }));
+      // (whoever is on their feet, for their shadow; in the 3D town's world everybody, sitting and riding too, to be stood in the scene)
+      if (staged || (castAt.current === now && !perched && !sitting(a) && !mapRef.current && dollsDrawn.current.length < DOLL_CELLS.cols * DOLL_CELLS.rows)) {
+        const Q = dollQ.current, sheet = (dollSheet.current ??= Object.assign(document.createElement("canvas"), { width: DOLL_CELLS.cols * DOLL_CELLS.w * Q, height: DOLL_CELLS.rows * DOLL_CELLS.h * Q }));
         const cell = dollsDrawn.current.length, g = sheet.getContext("2d")!;
         g.save();
-        g.beginPath(); g.rect((cell % DOLL_CELLS.cols) * DOLL_CELLS.w, Math.floor(cell / DOLL_CELLS.cols) * DOLL_CELLS.h, DOLL_CELLS.w, DOLL_CELLS.h); g.clip();
-        kit.draw(g, look, face.view, face.mirror, (cell % DOLL_CELLS.cols + 0.5) * DOLL_CELLS.w, Math.floor(cell / DOLL_CELLS.cols) * DOLL_CELLS.h + DOLL_CELLS.foot, 1, { step, blink, talk, expr, eat: eatPose, sit: false, perch: false }, 1);
+        g.beginPath(); g.rect((cell % DOLL_CELLS.cols) * DOLL_CELLS.w * Q, Math.floor(cell / DOLL_CELLS.cols) * DOLL_CELLS.h * Q, DOLL_CELLS.w * Q, DOLL_CELLS.h * Q); g.clip();
+        kit.draw(g, look, face.view, face.mirror, (cell % DOLL_CELLS.cols + 0.5) * DOLL_CELLS.w * Q, (Math.floor(cell / DOLL_CELLS.cols) * DOLL_CELLS.h + DOLL_CELLS.foot) * Q, Q, { step, blink, talk, expr, eat: eatPose, sit: staged && (sitting(a) || perched), perch: staged && !!tableSeatOf(a)?.back }, 1);
         g.restore();
-        dollsDrawn.current.push({ a, cell });
-        if (staged) capRef.current!.actor(p.x - (DOLL_CELLS.w / 2) * k, p.y - DOLL_CELLS.foot * k, DOLL_CELLS.w * k, DOLL_CELLS.h * k, (cell % DOLL_CELLS.cols) * DOLL_CELLS.w, Math.floor(cell / DOLL_CELLS.cols) * DOLL_CELLS.h, DOLL_CELLS.w, DOLL_CELLS.h, a.pos.x, a.pos.y);
+        dollsDrawn.current.push({ a, cell, cast: !perched && !sitting(a) });
+        if (staged) capRef.current!.actor(p.x - (DOLL_CELLS.w / 2) * k, p.y - DOLL_CELLS.foot * k, DOLL_CELLS.w * k, DOLL_CELLS.h * k, (cell % DOLL_CELLS.cols) * DOLL_CELLS.w * Q, Math.floor(cell / DOLL_CELLS.cols) * DOLL_CELLS.h * Q, DOLL_CELLS.w * Q, DOLL_CELLS.h * Q, a.pos.x, a.pos.y);
         // The light on their sunward edge (the 3D town's doll wears it): what of the doll is not covered by itself moved
         // a pixel and a half from the sun, in the sun's colour, laid on light.
         // In a shadow they are dimmed whole (the 3D town's doll is): a cool dark laid over their own shape.
@@ -4313,7 +4321,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
           const dim = (rimScratch.current ??= Object.assign(document.createElement("canvas"), { width: W, height: H })), e = dim.getContext("2d")!;
           e.globalCompositeOperation = "source-over";
           e.clearRect(0, 0, W, H);
-          e.drawImage(sheet, cx0, cy0, W, H, 0, 0, W, H);
+          e.drawImage(sheet, cx0 * Q, cy0 * Q, W * Q, H * Q, 0, 0, W, H);
           e.globalCompositeOperation = "source-in";
           e.fillStyle = "rgb(28,34,62)";
           e.fillRect(0, 0, W, H);
@@ -4329,9 +4337,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
           const edge = (rimScratch.current ??= Object.assign(document.createElement("canvas"), { width: W, height: H })), e = edge.getContext("2d")!;
           e.globalCompositeOperation = "source-over";
           e.clearRect(0, 0, W, H);
-          e.drawImage(sheet, cx0, cy0, W, H, 0, 0, W, H);
+          e.drawImage(sheet, cx0 * Q, cy0 * Q, W * Q, H * Q, 0, 0, W, H);
           e.globalCompositeOperation = "destination-out";
-          e.drawImage(sheet, cx0, cy0, W, H, -R.x * 1.6, R.y * 1.6, W, H);
+          e.drawImage(sheet, cx0 * Q, cy0 * Q, W * Q, H * Q, -R.x * 1.6, R.y * 1.6, W, H);
           e.globalCompositeOperation = "source-in";
           e.fillStyle = `rgb(${R.rgb})`;
           e.fillRect(0, 0, W, H);

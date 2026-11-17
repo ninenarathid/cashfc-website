@@ -1249,6 +1249,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     A.mesh.visible = false;
   }
   let stagedAt = -1, frameNo = 0;
+  let spr: { geo: THREE.BufferGeometry; mat: THREE.ShaderMaterial; mesh: THREE.Mesh; pos: Float32Array; uv: Float32Array; al: Float32Array; room: number; tex: Map<HTMLImageElement, THREE.Texture> } | null = null;
   let surf: THREE.Mesh | null = null;
   let quads: { geo: THREE.BufferGeometry; mat: THREE.ShaderMaterial; mesh: THREE.Mesh; pos: Float32Array; uv: Float32Array; room: number; tex: Map<HTMLCanvasElement, { tex: THREE.CanvasTexture; key: string }> } | null = null;
   let over: THREE.MeshLambertMaterial | null = null, laying = false;
@@ -1275,7 +1276,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       const w = Math.max(1, Math.round(v.cw)), h = Math.max(1, Math.round(v.ch));
       // (a lower share is drawn on fewer pixels and laid out larger: the ground is soft enough to bear it)
       const dpr = Math.min(v.dpr, quality === "low" ? 1 : lite && flat ? 1.5 : 2);
-      if (w !== sized.w || h !== sized.h || dpr !== sized.d) { sized = { w, h, d: dpr }; renderer.setPixelRatio(dpr); renderer.setSize(w, h, false); }
+      if (w !== sized.w || h !== sized.h || dpr !== sized.d) { sized = { w, h, d: dpr }; renderer.setPixelRatio(dpr); renderer.setSize((Math.round(v.cw * dpr) + 0.25) / dpr, (Math.round(v.ch * dpr) + 0.25) / dpr, false); }
       const sec = performance.now() / 1000, q = hourOf(v.min);
       blend(SKIES[q[0]], SKIES[q[1]], q[2]);
       sunDir.set(now.sun[0], now.sun[1], now.sun[2]).normalize();
@@ -1381,6 +1382,55 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
         Q.mat.uniforms.hdMap.value = texOf(c);
         renderer.render(Q.mesh, camera);
       };
+      /** So many of the live town's own pictures drawn plainly (lib/town-hd/capture's `plain`), all of one picture, laid in the scene straight from it. */
+      const laySprites = (img: HTMLImageElement, list: ReadonlyArray<Piece>, W: number, H: number, deep?: (q: { x: number; y: number; w: number; h: number; depth?: number }) => [number, number]) => {
+        if (!spr) {
+          const geo = new THREE.BufferGeometry();
+          const mat = new THREE.ShaderMaterial({
+            uniforms: { hdMap: { value: null } },
+            vertexShader: "attribute float hdA; varying vec2 hdUv; varying float hdAlpha; void main() { hdUv = uv; hdAlpha = hdA; gl_Position = vec4(position.xyz, 1.0); }",
+            fragmentShader: "varying vec2 hdUv; varying float hdAlpha; uniform sampler2D hdMap; void main() { vec4 c = texture2D(hdMap, hdUv); gl_FragColor = vec4(c.rgb, c.a * hdAlpha); }",
+            transparent: true, depthWrite: false,
+          });
+          const mesh = new THREE.Mesh(geo, mat);
+          mesh.frustumCulled = false;
+          spr = { geo, mat, mesh, pos: new Float32Array(0), uv: new Float32Array(0), al: new Float32Array(0), room: 0, tex: new Map() };
+          disposables.push(geo, mat);
+        }
+        const P = spr;
+        if (P.room < list.length) {
+          P.room = Math.max(256, list.length * 2);
+          P.pos = new Float32Array(P.room * 12); P.uv = new Float32Array(P.room * 8); P.al = new Float32Array(P.room * 4);
+          const idx = new Uint32Array(P.room * 6);
+          for (let i = 0; i < P.room; i++) idx.set([i * 4, i * 4 + 1, i * 4 + 2, i * 4, i * 4 + 2, i * 4 + 3], i * 6);
+          P.geo.setAttribute("position", new THREE.BufferAttribute(P.pos, 3).setUsage(THREE.DynamicDrawUsage));
+          P.geo.setAttribute("uv", new THREE.BufferAttribute(P.uv, 2).setUsage(THREE.DynamicDrawUsage));
+          P.geo.setAttribute("hdA", new THREE.BufferAttribute(P.al, 1).setUsage(THREE.DynamicDrawUsage));
+          P.geo.setIndex(new THREE.BufferAttribute(idx, 1));
+        }
+        let tex = P.tex.get(img);
+        if (!tex) {
+          tex = new THREE.Texture(img);
+          tex.colorSpace = THREE.NoColorSpace; tex.generateMipmaps = false; tex.minFilter = tex.magFilter = THREE.NearestFilter; tex.needsUpdate = true;
+          P.tex.set(img, tex);
+        }
+        const IW = img.naturalWidth, IH = img.naturalHeight;
+        list.forEach((q, i) => {
+          const sp = q.sprite!;
+          const x0 = (q.x / W) * 2 - 1, x1 = ((q.x + q.w) / W) * 2 - 1, y0 = 1 - (q.y / H) * 2, y1 = 1 - ((q.y + q.h) / H) * 2;
+          let u0 = q.ax / IW, u1 = (q.ax + sp.sw) / IW;
+          if (sp.flip) [u0, u1] = [u1, u0];
+          const v0 = 1 - q.ay / IH, v1 = 1 - (q.ay + sp.sh) / IH, [zb, zt] = deep ? deep(q) : [0, 0];
+          P.pos.set([x0, y1, zb, x1, y1, zb, x1, y0, zt, x0, y0, zt], i * 12);
+          P.uv.set([u0, v1, u1, v1, u1, v0, u0, v0], i * 8);
+          P.al.fill(sp.alpha, i * 4, i * 4 + 4);
+        });
+        P.geo.attributes.position.needsUpdate = true; P.geo.attributes.uv.needsUpdate = true; P.geo.attributes.hdA.needsUpdate = true;
+        P.geo.setDrawRange(0, list.length * 6);
+        P.mat.uniforms.hdMap.value = tex;
+        P.mat.depthTest = !!deep;
+        renderer.render(P.mesh, camera);
+      };
       // the ground and the water in their own colours; what lies on the ground; the shadows over both; then all that stands
       frameNo++;
       api.renderGround(v, wet);
@@ -1407,10 +1457,16 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
         let from = 0;
         for (let i = 0; i <= cards.length; i++) {
           const c = cards[i];
-          if (c && !c.actor) continue;
-          if (i > from) lay(atlas, cards.slice(from, i), floor.width, floor.height, deep);
-          from = i + 1;
-          if (c?.actor && dolls) stage(v, c, c.actor, dolls, floor.width / v.cw);
+          // (a run of the sheet's pieces; a run of one picture's own; a walker)
+          const kind = (q: Piece | undefined) => (!q ? null : q.actor ? "actor" : q.sprite ? q.sprite.img : atlas);
+          if (c && i > from && kind(c) === kind(cards[i - 1]) && !c.actor) continue;
+          if (i > from) {
+            const run = cards.slice(from, i), first = run[0];
+            if (first.sprite) laySprites(first.sprite.img, run, floor.width, floor.height, deep);
+            else if (!first.actor) lay(atlas, run, floor.width, floor.height, deep);
+          }
+          from = i;
+          if (c?.actor) { if (dolls) stage(v, c, c.actor, dolls, floor.width / v.cw); from = i + 1; }
         }
       } finally { laying = false; renderer.autoClear = true; }
       return renderer.domElement;
@@ -1419,7 +1475,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     renderAir(v, dt, o) {
       if (!air) return null;
       const w = Math.max(1, Math.round(v.cw)), h = Math.max(1, Math.round(v.ch)), dpr = Math.min(v.dpr, quality === "low" ? 1 : lite && flat ? 1.5 : 2);
-      if (w !== sized.w || h !== sized.h || dpr !== sized.d) { sized = { w, h, d: dpr }; renderer.setPixelRatio(dpr); renderer.setSize(w, h, false); }
+      if (w !== sized.w || h !== sized.h || dpr !== sized.d) { sized = { w, h, d: dpr }; renderer.setPixelRatio(dpr); renderer.setSize((Math.round(v.cw * dpr) + 0.25) / dpr, (Math.round(v.ch * dpr) + 0.25) / dpr, false); }
       const sec = performance.now() / 1000, q = hourOf(v.min), wet = Math.max(0, Math.min(1, o.rain));
       blend(SKIES[q[0]], SKIES[q[1]], q[2]);
       sunDir.set(now.sun[0], now.sun[1], now.sun[2]).normalize();
@@ -1457,7 +1513,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     heightAt: (x, y) => (flat ? 0 : Hat(x, y)),
     renderGround(v, wet) {
       const w = Math.max(1, Math.round(v.cw)), h = Math.max(1, Math.round(v.ch)), dpr = Math.min(v.dpr, quality === "low" ? 1 : lite && flat ? 1.5 : 2);
-      if (w !== sized.w || h !== sized.h || dpr !== sized.d) { sized = { w, h, d: dpr }; renderer.setPixelRatio(dpr); renderer.setSize(w, h, false); }
+      if (w !== sized.w || h !== sized.h || dpr !== sized.d) { sized = { w, h, d: dpr }; renderer.setPixelRatio(dpr); renderer.setSize((Math.round(v.cw * dpr) + 0.25) / dpr, (Math.round(v.ch * dpr) + 0.25) / dpr, false); }
       const sec = performance.now() / 1000, q = hourOf(v.min);
       blend(SKIES[q[0]], SKIES[q[1]], q[2]);
       // (in its own colours and no more: the shadows and the slopes' shade come with the shadows' picture, laid over it)
@@ -1519,7 +1575,7 @@ ${NOISE}
         disposables.push(mat);
       }
       const w = Math.max(1, Math.round(v.cw)), h = Math.max(1, Math.round(v.ch)), dpr = Math.min(v.dpr, quality === "low" ? 1 : lite && flat ? 1.5 : 2);
-      if (w !== sized.w || h !== sized.h || dpr !== sized.d) { sized = { w, h, d: dpr }; renderer.setPixelRatio(dpr); renderer.setSize(w, h, false); }
+      if (w !== sized.w || h !== sized.h || dpr !== sized.d) { sized = { w, h, d: dpr }; renderer.setPixelRatio(dpr); renderer.setSize((Math.round(v.cw * dpr) + 0.25) / dpr, (Math.round(v.ch * dpr) + 0.25) / dpr, false); }
       const q = hourOf(v.min);
       blend(SKIES[q[0]], SKIES[q[1]], q[2]);
       surfClock.value = performance.now() / 1000; surfGlint.value = 0.36 * (1 - 0.7 * now.lamps) * (1 - 0.6 * wet); surfWet.value = wet;

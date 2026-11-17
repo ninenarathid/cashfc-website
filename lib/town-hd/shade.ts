@@ -105,7 +105,7 @@ export function probe(renderer: THREE.WebGLRenderer, camera: THREE.Camera, v: Li
 
 type Pic = HTMLImageElement | HTMLCanvasElement;
 /** All that stands of one sheet: its pictures' sheets in one set of corners, written again each time. */
-interface Batch { tex: THREE.Texture; mat: THREE.Material; geo: THREE.BufferGeometry; mesh: THREE.Mesh; pos: Float32Array; uv: Float32Array; room: number; n: number }
+interface Batch { tex: THREE.Texture; mat: THREE.Material; geo: THREE.BufferGeometry; mesh: THREE.Mesh; pos: Float32Array; uv: Float32Array; room: number; n: number; size: string }
 export interface Sheets { set(stands: readonly Stand[], sunDir: THREE.Vector3): void; dispose(): void }
 
 /** Pictures stood unseen in a scene, each upright on its foot across the sun's way, to throw their shadows. */
@@ -113,6 +113,14 @@ export function createSheets(scene: THREE.Scene): Sheets {
   const batches = new Map<Pic, Batch>();
   const batchOf = (img: Pic, need: number): Batch => {
     let b = batches.get(img);
+    // (a canvas made larger or smaller, the dolls' sheet when the view is drawn nearer: its picture is taken anew)
+    if (b && b.size !== `${img.width},${img.height}`) {
+      b.tex.dispose();
+      b.tex = new THREE.Texture(img);
+      b.tex.magFilter = b.tex.minFilter = THREE.NearestFilter; b.tex.generateMipmaps = false; b.tex.colorSpace = THREE.SRGBColorSpace; b.tex.needsUpdate = true;
+      (b.mat as THREE.MeshBasicMaterial).map = b.tex;
+      b.size = `${img.width},${img.height}`;
+    }
     if (b && b.room >= need) return b;
     const room = Math.max(64, need * 2);
     const tex = b?.tex ?? new THREE.Texture(img);
@@ -127,7 +135,7 @@ export function createSheets(scene: THREE.Scene): Sheets {
     const mesh = new THREE.Mesh(geo, mat);
     mesh.castShadow = true; mesh.frustumCulled = false;
     scene.add(mesh);
-    b = { tex, mat, geo, mesh, pos, uv, room, n: 0 };
+    b = { tex, mat, geo, mesh, pos, uv, room, n: 0, size: `${img.width},${img.height}` };
     batches.set(img, b);
     return b;
   };
@@ -252,7 +260,7 @@ export function createShade(canvas: HTMLCanvasElement, quality: Quality, raise?:
   let surf: { mesh: THREE.Mesh; mat: THREE.ShaderMaterial; tex: THREE.DataTexture; geo: THREE.BufferGeometry; of: string } | null = null;
   const aim = (v: LiveView) => {
     const w = Math.max(1, Math.round(v.cw)), h = Math.max(1, Math.round(v.ch)), dpr = Math.min(v.dpr, quality === "low" ? 1 : lite ? 1.5 : 2);
-    if (w !== sized.w || h !== sized.h || dpr !== sized.d) { sized = { w, h, d: dpr }; renderer.setPixelRatio(dpr); renderer.setSize(w, h, false); }
+    if (w !== sized.w || h !== sized.h || dpr !== sized.d) { sized = { w, h, d: dpr }; renderer.setPixelRatio(dpr); renderer.setSize((Math.round(v.cw * dpr) + 0.25) / dpr, (Math.round(v.ch * dpr) + 0.25) / dpr, false); }
     const half = v.ch / (2 * PX_SIDE * v.s);
     camera.top = half; camera.bottom = -half; camera.right = (half * v.cw) / v.ch; camera.left = -camera.right;
     camera.updateProjectionMatrix();
@@ -264,7 +272,7 @@ export function createShade(canvas: HTMLCanvasElement, quality: Quality, raise?:
   return {
     renderAt(v, stood) {
       const w = Math.max(1, Math.round(v.cw)), h = Math.max(1, Math.round(v.ch)), dpr = Math.min(v.dpr, quality === "low" ? 1 : lite ? 1.5 : 2);
-      if (w !== sized.w || h !== sized.h || dpr !== sized.d) { sized = { w, h, d: dpr }; renderer.setPixelRatio(dpr); renderer.setSize(w, h, false); }
+      if (w !== sized.w || h !== sized.h || dpr !== sized.d) { sized = { w, h, d: dpr }; renderer.setPixelRatio(dpr); renderer.setSize((Math.round(v.cw * dpr) + 0.25) / dpr, (Math.round(v.ch * dpr) + 0.25) / dpr, false); }
       const night = sunAt(v.min, sunDir);
       // (as ./engine's `renderAt`: lit ground is white, a shadow half of it by day and deeper by night)
       const sunI = ((0.5 + 0.16 * night) * Math.PI) / Math.max(0.3, sunDir.y);
