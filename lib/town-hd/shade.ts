@@ -36,6 +36,25 @@ function sunAt(min: number, out: THREE.Vector3): number {
 
 const PX_SIDE = 45.25, PX_UP = 39.2, PITCH = Math.PI / 6, YAW = Math.PI / 4;
 
+/** The sun's strength and colour at the same hours (./engine's). */
+const LIGHTS: Array<[number, number]> = [[1.15, 0x86a4ff], [1.15, 0x86a4ff], [2.5, 0xffe0c0], [3.0, 0xfffaf0], [3.0, 0xfffaf0], [3.0, 0xff9a52], [1.15, 0x86a4ff], [1.15, 0x86a4ff]];
+const rimDir = new THREE.Vector3();
+/**
+ * The light on a walker's sunward edge at a minute of the day (./engine's doll wears it): the way to the sun on the
+ * screen (x right, y up, one long), how strong it is and its colour ("r,g,b").
+ */
+export function rimAt(min: number): { x: number; y: number; a: number; rgb: string } {
+  sunAt(min, rimDir);
+  const m = ((min % 1440) + 1440) % 1440;
+  let i = 0;
+  while (i < SUNS.length - 2 && m >= SUNS[i + 1][0]) i++;
+  const t = (m - SUNS[i][0]) / (SUNS[i + 1][0] - SUNS[i][0]), k = t * t * (3 - 2 * t), A = LIGHTS[i], B = LIGHTS[i + 1];
+  const ch = (sh: number) => Math.round(((A[1] >> sh) & 255) + (((B[1] >> sh) & 255) - ((A[1] >> sh) & 255)) * k);
+  const sx = rimDir.x * Math.SQRT1_2 - rimDir.z * Math.SQRT1_2;
+  const sy = -rimDir.x * Math.sin(YAW) * Math.sin(PITCH) + rimDir.y * Math.cos(PITCH) - rimDir.z * Math.cos(YAW) * Math.sin(PITCH), sl = Math.hypot(sx, sy) || 1;
+  return { x: sx / sl, y: sy / sl, a: 0.16 * (A[0] + (B[0] - A[0]) * k), rgb: `${ch(16)},${ch(8)},${ch(0)}` };
+}
+
 /**
  * How far about the view's middle the sun's shadows are worked out, in tiles: the view and what stands a little way
  * outside it, and no more, so that the shadows' own pixels are spent on what is seen (a doll's shadow has its doll's

@@ -68,7 +68,7 @@ void main() {
   scene.add(clouds);
   const eye = new THREE.Vector3(), sunDir = new THREE.Vector3(), right = new THREE.Vector3(), up = new THREE.Vector3(), sunCol = new THREE.Color(), cA = new THREE.Color(), cB = new THREE.Color();
   const grade = [1, 1, 1], airNow = [1, 0.2, 0.4, 0, 0, 0, 0, 0];
-  let sized = "", last = 0;
+  let sized = "", last = 0, wasIn: boolean | null = null, dark = 0, room = 0;
   return {
     canvas,
     render(src, v, more) {
@@ -108,9 +108,16 @@ void main() {
 
       // (the live town has laid its own night and weather over the frame: here the hour only colours it a little, and
       // what is bright in it glows, more by night when the bright things are its lamps)
-      post.look(grade, more.indoors ? 1.04 : airNow[0], airNow[1] * 0.8, more.indoors ? 0.28 : 0.16 + 0.3 * lamps);
-      const sec = performance.now() / 1000, dt = more.still ? 0 : Math.min(0.05, last ? sec - last : 0);
+      const sec = performance.now() / 1000, gone = Math.min(0.05, last ? sec - last : 0), dt = more.still ? 0 : gone;
       last = sec;
+      // Indoors the light is the room's (./engine's): warmer, closer about the corners. Going in or out the picture goes
+      // dark and comes back.
+      if (more.indoors !== wasIn) { if (wasIn !== null) dark = 1; wasIn = more.indoors; }
+      dark = Math.max(0, dark - gone * 2.4);
+      room += ((more.indoors ? 1 : 0) - room) * Math.min(1, gone * 4);
+      const lightUp = 1 - dark * dark, warm = room * 0.8;
+      post.look([(grade[0] + (1.08 - grade[0]) * warm) * lightUp, (grade[1] + (1.0 - grade[1]) * warm) * lightUp, (grade[2] + (0.88 - grade[2]) * warm) * lightUp],
+        airNow[0], airNow[1] * 0.8 + 0.14 * room, 0.16 + 0.3 * lamps + 0.12 * room);
       wetNow = more.wetAt;
       const out = more.indoors ? 0 : 1, wet = Math.max(0, Math.min(1, more.rain ?? 0)) * out;
       clouds.visible = more.clouds !== false && !more.indoors && airNow[7] > 0.02;

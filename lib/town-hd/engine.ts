@@ -1186,7 +1186,7 @@ ${NOISE}
       if (w !== sized.w || h !== sized.h || dpr !== sized.d) { sized = { w, h, d: dpr }; renderer.setPixelRatio(dpr); renderer.setSize(w, h, false); }
       const q = hourOf(v.min);
       blend(SKIES[q[0]], SKIES[q[1]], q[2]);
-      surfClock.value = performance.now() / 1000; surfGlint.value = 0.5 * (1 - 0.7 * now.lamps) * (1 - 0.6 * wet); surfWet.value = wet;
+      surfClock.value = performance.now() / 1000; surfGlint.value = 0.36 * (1 - 0.7 * now.lamps) * (1 - 0.6 * wet); surfWet.value = wet;
       const half = v.ch / (2 * PX_SIDE * v.s);
       camera.top = half; camera.bottom = -half; camera.right = (half * v.cw) / v.ch; camera.left = -camera.right;
       camera.updateProjectionMatrix();

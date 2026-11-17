@@ -18,7 +18,7 @@ import { farm2Art } from "@/lib/town/farm2-art";
 import { drawPixelFlames } from "./flames";
 import { F2_BENCH_OF, F2_CHESTS, F2_SCARECROWS, F2_TRADE_BOARDS } from "@/lib/town/farm2";
 import type { HdTown } from "@/lib/town-hd/engine";
-import type { Shade, Stand } from "@/lib/town-hd/shade";
+import { rimAt, type Shade, type Stand } from "@/lib/town-hd/shade";
 import type { Finish } from "@/lib/town-hd/finish";
 import { hdOf, keepHd, keptHd, type HdChoice } from "@/lib/town-hd/choice";
 import { T2_CASINO_DOOR, T2_CHEST_OPEN, T2_CHEST_SHUT, T2_LAMP_LIGHT, T2_PROP_THING, T2_RINGS, T2_THINGS, t2RiverPoint } from "@/lib/town/town2";
@@ -563,6 +563,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const wildStood = useRef<Array<{ name: string; x: number; y: number; k: number; mirror?: boolean }>>([]);
   /** The frame (its clock) in which the 3D town last threw the shadows. */
   const castAt = useRef(-1);
+  const rimNow = useRef<ReturnType<typeof rimAt> | null>(null), rimScratch = useRef<HTMLCanvasElement | null>(null);
   // Each walker's doll as it was just drawn, once more on a sheet of its own (a cell a walker), for the shadow it throws
   // in the next frame: its own shape, hat and all (the owner, 2026-11-17, of one outline for everybody: "เงาไม่ละเอียด").
   const dollSheet = useRef<HTMLCanvasElement | null>(null), dollsDrawn = useRef<Array<{ a: Avatar; cell: number }>>([]);
@@ -1595,7 +1596,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         if (fin) {
           try {
             const c = cam.current, clock = new Date(Date.now() + 7 * 3600_000);
-            fin.render(canvas, { cx: c.cx, cy: c.cy, s: c.s, cw: c.cw, ch: c.ch, dpr: c.dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() }, { indoors: underRoof(placeRef.current), still: reducedRef.current, town: T2 && placeRef.current === "town", clouds: false, rain: underRoof(placeRef.current) || placeRef.current === "cave" ? 0 : effects.current?.rain ?? 0, wetAt: (placeRef.current === "town" && T2 ? hdTowns.current.town : placeRef.current === "farm" && F2 ? hdTowns.current.farm : null)?.wetAt });
+            fin.render(canvas, { cx: c.cx, cy: c.cy, s: c.s, cw: c.cw, ch: c.ch, dpr: c.dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() }, { indoors: underRoof(placeRef.current) || (T2 && placeRef.current === "town" && roofRef.current < 0.5), still: reducedRef.current, town: T2 && placeRef.current === "town", clouds: false, rain: underRoof(placeRef.current) || placeRef.current === "cave" ? 0 : effects.current?.rain ?? 0, wetAt: (placeRef.current === "town" && T2 ? hdTowns.current.town : placeRef.current === "farm" && F2 ? hdTowns.current.farm : null)?.wetAt });
           } catch (e) { dropFinish("it failed", e); }
         }
       }
@@ -2567,6 +2568,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
             ctx.drawImage(pic, 0, 0, cw, ch);
             ctx.globalCompositeOperation = "source-over";
             castAt.current = now;
+            rimNow.current = finishRef.current ? rimAt(view.min) : null;
             // (the dolls' sheet is wiped for this frame's dolls, drawn on it as each walker is drawn)
             if (sheet) sheet.getContext("2d")!.clearRect(0, 0, sheet.width, sheet.height);
             dollsDrawn.current = [];
@@ -4125,6 +4127,27 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         kit.draw(g, look, face.view, face.mirror, (cell % DOLL_CELLS.cols + 0.5) * DOLL_CELLS.w, Math.floor(cell / DOLL_CELLS.cols) * DOLL_CELLS.h + DOLL_CELLS.foot, 1, { step, blink, talk, expr, eat: eatPose, sit: false, perch: false }, 1);
         g.restore();
         dollsDrawn.current.push({ a, cell });
+        // The light on their sunward edge (the 3D town's doll wears it): what of the doll is not covered by itself moved
+        // a pixel and a half from the sun, in the sun's colour, laid on light.
+        const R = rimNow.current;
+        if (R && R.a > 0.01) {
+          const W = DOLL_CELLS.w, H = DOLL_CELLS.h, cx0 = (cell % DOLL_CELLS.cols) * W, cy0 = Math.floor(cell / DOLL_CELLS.cols) * H;
+          const edge = (rimScratch.current ??= Object.assign(document.createElement("canvas"), { width: W, height: H })), e = edge.getContext("2d")!;
+          e.globalCompositeOperation = "source-over";
+          e.clearRect(0, 0, W, H);
+          e.drawImage(sheet, cx0, cy0, W, H, 0, 0, W, H);
+          e.globalCompositeOperation = "destination-out";
+          e.drawImage(sheet, cx0, cy0, W, H, -R.x * 1.6, R.y * 1.6, W, H);
+          e.globalCompositeOperation = "source-in";
+          e.fillStyle = `rgb(${R.rgb})`;
+          e.fillRect(0, 0, W, H);
+          ctx.save();
+          ctx.imageSmoothingEnabled = false;
+          ctx.globalCompositeOperation = "lighter";
+          ctx.globalAlpha *= Math.min(1, R.a * 1.6);
+          ctx.drawImage(edge, 0, 0, W, H, p.x - (W / 2) * k, p.y - DOLL_CELLS.foot * k, W * k, H * k);
+          ctx.restore();
+        }
       }
       // ── the cloud ram's flock ── (a mount seen from the front: its head over the rider's legs)
       if (big) big.head(); else mount?.head?.();
