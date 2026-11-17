@@ -48,7 +48,7 @@ export interface HdTown {
   zoom(by: number): void;
   dispose(): void;
 }
-export interface HdOpts { time: TimeId; /** Where to stand first, in tiles (a tester's `?at=x,y`); the plaza otherwise. */ at?: { x: number; y: number }; onReady?: () => void; onFps?: (fps: number) => void }
+export interface HdOpts { time: TimeId; /** Where to stand first, in tiles (a tester's `?at=x,y`); the plaza otherwise. */ at?: { x: number; y: number }; /** The name plate of the test character: moved here each frame to sit under its feet. */ nameEl?: HTMLElement | null; onReady?: () => void; onFps?: (fps: number) => void }
 
 type Obj = number[];
 const sprites = MAP.sprites as Array<[string, number, number]>;
@@ -568,6 +568,15 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     doll.position.set(me.x, me.y, me.z); doll.rotation.y = view.yaw;
     dollShade.position.copy(doll.position); dollShade.rotation.y = Math.atan2(sunDir.x, sunDir.z);
     dollOver.position.copy(doll.position); dollOver.rotation.y = view.yaw;
+    if (opts.nameEl) {
+      // (after the camera is placed this frame: its matrices are made here so the plate does not trail a frame behind)
+      camera.updateMatrixWorld();
+      // (under its feet, as the town's own names are: the owner, 2026-11-17, "ชื่อควรจะอยู่ด้านล่างตัวลคร ไม่ใช่ด้านบน")
+      V.set(me.x, me.y, me.z).project(camera);
+      const w = canvas.clientWidth, h = canvas.clientHeight;
+      opts.nameEl.style.transform = `translate3d(${Math.round((V.x * 0.5 + 0.5) * w)}px, ${Math.round((-V.y * 0.5 + 0.5) * h)}px, 0) translate(-50%, 4px)`;
+      opts.nameEl.style.visibility = kit ? "visible" : "hidden";
+    }
     if (hall.upper) hall.upper.visible = !t2InHall(Math.floor(me.x), Math.floor(me.z));
 
     waterTex.offset.set(sec * 0.012, sec * 0.02);

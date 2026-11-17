@@ -29,7 +29,8 @@ export default function TownDock() {
   const [resume, setResume] = useState(false);
   useEffect(() => { setResume(resumable() !== null); }, []);
   // The town's own page shows all of it already.
-  if (path === "/town") return null;
+  // (nor on the HD-2D trial, /town/hd-test: the owner, 2026-11-17, "เอาปุ่มนี้ออกให้ด้วย ตอนอยู่ในเมือง hd")
+  if (path === "/town" || path?.startsWith("/town/")) return null;
   // (resumable() again: leaving from the dock forgets the stay, and the door takes its place at once)
   if (active || (resume && resumable() !== null)) return <TownBar />;
   return canEnterTown ? <TownDoor /> : null;
