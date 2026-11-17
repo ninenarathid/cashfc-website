@@ -96,7 +96,7 @@ export default function HdTownTest() {
           if (finish) {
             const dark = minute > 1170 || minute < 270 ? 0.62 : 0;
             if (dark) { g.globalCompositeOperation = "multiply"; g.fillStyle = "#3a4a86"; g.fillRect(0, 0, cw, ch); g.globalCompositeOperation = "lighter"; for (const [lx, ly] of [[0.3, 0.45], [0.7, 0.6]]) { const r = g.createRadialGradient(cw * lx, ch * ly, 0, cw * lx, ch * ly, 150); r.addColorStop(0, "rgba(255,190,110,0.85)"); r.addColorStop(1, "rgba(255,190,110,0)"); g.fillStyle = r; g.fillRect(0, 0, cw, ch); } g.globalCompositeOperation = "source-over"; }
-            finish.render(stage, { cx, cy, s: sc, cw, ch, dpr, min: minute }, { indoors: false, still: false });
+            finish.render(stage, { cx, cy, s: sc, cw, ch, dpr, min: minute }, { indoors: false, still: false, town: true });
             const out = c.getContext("2d")!;
             out.setTransform(1, 0, 0, 1, 0, 0); out.drawImage(finish.canvas, 0, 0, c.width, c.height);
           }

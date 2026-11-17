@@ -9,9 +9,10 @@
  */
 import * as THREE from "three";
 import type { LiveView, Quality } from "./engine";
-import { makeAir, makePost } from "./fx";
+import { NOISE, makeAir, makePost } from "./fx";
+import { MAPS } from "./maps";
 
-export interface Finish { /** The canvas it is drawn on. */ canvas: HTMLCanvasElement; render(src: HTMLCanvasElement, v: LiveView, more: { indoors: boolean; still: boolean }): void; dispose(): void }
+export interface Finish { /** The canvas it is drawn on. */ canvas: HTMLCanvasElement; render(src: HTMLCanvasElement, v: LiveView, more: { indoors: boolean; still: boolean; /** The editor's town: petals in its air. */ town?: boolean }): void; dispose(): void }
 
 /** The hours (./engine's SKIES, the same four): the colour over the picture, [colour's strength, corners, glow, motes, fireflies, mist, sun shafts, clouds], how far the lamps are lit, the sun's stand and colour. */
 interface Hour { grade: number[]; air: number[]; lamps: number; sun: number[]; col: number }
@@ -32,7 +33,38 @@ export function createFinish(canvas: HTMLCanvasElement, quality: Quality): Finis
   scene.add(camera);
   let tex: THREE.CanvasTexture | null = null, texOf: HTMLCanvasElement | null = null, texSize = "";
   const post = makePost(renderer, scene, camera, lite, 0.8);
-  const air = makeAir(scene, camera, { small: lite, fore: null, heightAt: () => 0, wetAt: () => false, chimneys: [], far: false, ratio: Math.min(window.devicePixelRatio || 1, 2) });
+  // (smoke: the town's bathhouse's chimney and the forge's kiln, where ./engine has them, on level ground)
+  const chimneys: THREE.Vector3[] = [];
+  {
+    const T = MAPS.town;
+    T.objects.forEach((o) => {
+      const name = T.names[o[0]], sp = T.sprites[o[1]];
+      if (!sp || (name !== "bathhouse" && name !== "forge")) return;
+      // (the bathhouse's: its chimney's mouth as its picture has it, 352 across and 13 down, six tiles up)
+      if (name === "bathhouse") { const ix = o[2] + 352 * o[4], iy = o[3] + 13 * o[4] + 6 * 39.2; chimneys.push(new THREE.Vector3((ix / 32 + iy / 16) / 2, 6, (iy / 16 - ix / 32) / 2)); }
+      // (the forge's: its kiln's mouth as its picture has it on the map, 248 across and 204 down)
+      else { const ix = o[2] + 248 * o[4], iy = o[3] + 204 * o[4] + 1.2 * 39.2; chimneys.push(new THREE.Vector3((ix / 32 + iy / 16) / 2, 1.2, (iy / 16 - ix / 32) / 2)); }
+    });
+  }
+  const air = makeAir(scene, camera, { small: lite, fore: null, heightAt: () => 0, wetAt: () => false, chimneys, far: false, ratio: Math.min(window.devicePixelRatio || 1, 2) });
+  // clouds' shadows, drifting over the land (./engine's own, the same two noises): a sheet on the ground under the view
+  // that darkens what is under it, the things standing there with the ground
+  const cloudGeo = new THREE.PlaneGeometry(260, 260);
+  cloudGeo.rotateX(-Math.PI / 2);
+  const cloudMat = new THREE.ShaderMaterial({
+    uniforms: { hdTime: { value: 0 }, hdCloud: { value: 0 } },
+    vertexShader: "varying vec2 hdAt; void main() { vec4 w = modelMatrix * vec4(position, 1.0); hdAt = w.xz; gl_Position = projectionMatrix * viewMatrix * w; }",
+    fragmentShader: `uniform float hdTime; uniform float hdCloud; varying vec2 hdAt;
+${NOISE}
+void main() {
+      float hdSh = smoothstep(0.5, 0.74, hdNoise(hdAt * 0.045 + hdTime * vec2(0.05, 0.018)) * 0.65 + hdNoise(hdAt * 0.11 - hdTime * vec2(0.03, 0.04)) * 0.35);
+      gl_FragColor = vec4(vec3(1.0 - hdCloud * 0.26 * hdSh), 1.0);
+    }`,
+    transparent: true, depthTest: false, depthWrite: false, blending: THREE.CustomBlending, blendSrc: THREE.DstColorFactor, blendDst: THREE.ZeroFactor,
+  });
+  const clouds = new THREE.Mesh(cloudGeo, cloudMat);
+  clouds.frustumCulled = false; clouds.renderOrder = -10;
+  scene.add(clouds);
   const eye = new THREE.Vector3(), sunDir = new THREE.Vector3(), right = new THREE.Vector3(), up = new THREE.Vector3(), sunCol = new THREE.Color(), cA = new THREE.Color(), cB = new THREE.Color();
   const grade = [1, 1, 1], airNow = [1, 0.2, 0.4, 0, 0, 0, 0, 0];
   let sized = "", last = 0;
@@ -79,12 +111,16 @@ export function createFinish(canvas: HTMLCanvasElement, quality: Quality): Finis
       const sec = performance.now() / 1000, dt = more.still ? 0 : Math.min(0.05, last ? sec - last : 0);
       last = sec;
       const out = more.indoors ? 0 : 1;
+      clouds.visible = !more.indoors && airNow[7] > 0.02;
+      clouds.position.set(Math.round(eye.x), 0, Math.round(eye.z));
+      if (!more.still) cloudMat.uniforms.hdTime.value = sec;
+      cloudMat.uniforms.hdCloud.value = airNow[7];
       air.update(dt, sec, eye, half, v.cw / v.ch, {
-        motes: airNow[3] * 0.5 * out, flies: airNow[4] * out, mist: 0, rays: airNow[6] * 0.6 * out, rain: 0, dry: null, dim: lamps, petals: 0, smoke: 0,
+        motes: airNow[3] * 0.5 * out, flies: airNow[4] * out, mist: 0, rays: airNow[6] * 0.6 * out, rain: 0, dry: null, dim: lamps, petals: more.town ? (1 - lamps) * 0.4 : 0, smoke: more.town ? 1 : 0,
         sunX: sunDir.dot(right), sunY: sunDir.dot(up), sun: sunCol,
       });
       post.render();
     },
-    dispose() { tex?.dispose(); post.dispose(); air.dispose(); renderer.dispose(); },
+    dispose() { cloudGeo.dispose(); cloudMat.dispose(); tex?.dispose(); post.dispose(); air.dispose(); renderer.dispose(); },
   };
 }

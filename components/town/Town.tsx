@@ -1588,7 +1588,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         if (fin) {
           try {
             const c = cam.current, clock = new Date(Date.now() + 7 * 3600_000);
-            fin.render(canvas, { cx: c.cx, cy: c.cy, s: c.s, cw: c.cw, ch: c.ch, dpr: c.dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() }, { indoors: underRoof(placeRef.current), still: reducedRef.current });
+            fin.render(canvas, { cx: c.cx, cy: c.cy, s: c.s, cw: c.cw, ch: c.ch, dpr: c.dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() }, { indoors: underRoof(placeRef.current), still: reducedRef.current, town: T2 && placeRef.current === "town" });
           } catch (e) { dropFinish("it failed", e); }
         }
       }
