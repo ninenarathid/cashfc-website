@@ -2127,7 +2127,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 65,
+  "level": 66,
   "cc": [
    true,
    true,
@@ -6700,7 +6700,7 @@
   "mounts": 23,
   "minions": 57,
   "rare": null,
-  "level": 100,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -6715,7 +6715,7 @@
    "Enuo"
   ],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-11-17"
  },
  "24114157": {
   "name": "Kapi Nampla",
@@ -8498,7 +8498,7 @@
   "mounts": 17,
   "minions": 42,
   "rare": null,
-  "level": 75,
+  "level": 77,
   "cc": [
    false,
    false,
@@ -8520,7 +8520,7 @@
   "mounts": 9,
   "minions": 21,
   "rare": 2,
-  "level": 70,
+  "level": 67,
   "cc": [
    false,
    false,
@@ -8536,7 +8536,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-16"
+  "chg": "2026-11-17"
  },
  "49053650": {
   "name": "Eniluna Gelatoneii",
@@ -9012,7 +9012,7 @@
   "mounts": null,
   "minions": null,
   "rare": null,
-  "level": 89,
+  "level": 86,
   "cc": null,
   "rare_ids": [],
   "tiers": {},
