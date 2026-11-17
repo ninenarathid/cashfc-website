@@ -598,8 +598,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     return solidFor.current.is;
   };
   const solidFarm = useRef<{ town: HdTown; yards: unknown; is: (i: number) => boolean } | null>(null);
-  const hdStats = useRef<{ at: number } | null>(null);
-  useEffect(() => { hdStats.current = /[?&]hdstats=1/.test(window.location.search) ? { at: 0 } : null; }, []);
+  const hdStats = useRef<{ at: number; n: number; draw: number; gpu: number; fin: number; finGpu: number; worst: number; last: number; since: number } | null>(null);
+  useEffect(() => { hdStats.current = /[?&]hdstats=1/.test(window.location.search) ? { at: 0, n: 0, draw: 0, gpu: 0, fin: 0, finGpu: 0, worst: 0, last: performance.now(), since: performance.now() } : null; }, []);
   const capRef = useRef<Capture | null>(null), world3d = useRef(false), hd3d = useRef(false);
   useEffect(() => { hd3d.current = /[?&]hd3d=1/.test(window.location.search); }, []);
   /** How many of the dolls' sheet's pixels there are to one of the map's (1, or as fine as the screen where walkers are stood in the 3D scene from it). */
@@ -1635,8 +1635,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       if (now - fpsSince >= 1000) {
         fpsRef.current = Math.round((frames * 1000) / (now - fpsSince)); frames = 0; fpsSince = now;
         // (a device the finish is too much for is let off it for this visit: six seconds on end far under the pace, while the map is watched)
-        if (finishRef.current && !resting && document.visibilityState === "visible" && fpsRef.current < pace * 0.6) { if (++finishSlow.current >= 6) dropFinish("this device draws too slowly with it"); }
-        else finishSlow.current = 0;
+        // (and if it is still too slow without the finish, the 3D picture itself is lowered: to the shadows alone, then off;
+        // for this visit only, what the settings keep is not changed)
+        if (hdNow.current !== "off" && !resting && document.visibilityState === "visible" && fpsRef.current < pace * 0.6) {
+          if (++finishSlow.current >= 6) {
+            finishSlow.current = 0;
+            if (finishRef.current) dropFinish("this device draws too slowly with it");
+            else { const next: HdChoice = hdNow.current === "low" ? "off" : "low"; console.warn("[Cash Town] 3D picture lowered to", next, ": this device draws too slowly with it"); setHd(next); }
+          }
+        } else finishSlow.current = 0;
       }
       if (live) live.step(now, dt);
       if (mapRef.current) mapRef.current.camera.current?.frame?.(now);
@@ -1647,7 +1654,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         const use3d = hd3d.current && !!HILL && (placeRef.current === "town" || placeRef.current === "farm");
         world3d.current = use3d;
         if (use3d) (capRef.current ??= new Capture()).begin(ctx, cam.current.dpr);
+        const st = hdStats.current, s0 = st ? performance.now() : 0;
         try { draw(use3d ? capRef.current!.ctx : ctx, canvas, now, dt); } finally { if (use3d) capRef.current!.end(); }
+        // (`?hdstats=1`: where a frame's time goes, the graphics card waited for after each part, told every three seconds)
+        const s1 = st ? performance.now() : 0;
+        if (st) { const t = placeRef.current === "town" ? hdTowns.current.town : placeRef.current === "farm" ? hdTowns.current.farm : null; try { t?.sync(); } catch { /* no matter */ } }
+        const s2 = st ? performance.now() : 0;
         const fin = finishRef.current;
         // The 3D town's air over the frame, on the editor's maps where its ground is raised: smoke, mist, motes, rain,
         // each hidden behind the buildings before it (lib/town-hd/engine's `renderAir`).
@@ -1669,6 +1681,17 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
             const c = cam.current, clock = new Date(Date.now() + 7 * 3600_000);
             fin.render(canvas, { cx: c.cx, cy: c.cy, s: c.s, cw: c.cw, ch: c.ch, dpr: c.dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() }, { indoors: underRoof(placeRef.current) || (T2 && placeRef.current === "town" && roofRef.current < 0.5), still: reducedRef.current, sunless: placeRef.current === "cave" || airDrawn, town: T2 && placeRef.current === "town", clouds: false, rain: underRoof(placeRef.current) || placeRef.current === "cave" ? 0 : effects.current?.rain ?? 0, wetAt: (placeRef.current === "town" && T2 ? hdTowns.current.town : placeRef.current === "farm" && F2 ? hdTowns.current.farm : null)?.wetAt });
           } catch (e) { dropFinish("it failed", e); }
+        }
+        if (st) {
+          const s3 = performance.now();
+          try { fin?.sync(); } catch { /* no matter */ }
+          const s4 = performance.now();
+          st.n++; st.draw += s1 - s0; st.gpu += s2 - s1; st.fin += s3 - s2; st.finGpu += s4 - s3; st.worst = Math.max(st.worst, now - st.last); st.last = now;
+          if (now - st.since > 3000) {
+            const n = st.n, f = (x: number) => (x / n).toFixed(1);
+            console.info(`[Cash Town] 3D ms a frame: ${use3d ? "world" : "hybrid"} ${hdNow.current} ${canvas.width}x${canvas.height} | ${(n * 1000 / (now - st.since)).toFixed(0)} fps, worst gap ${st.worst.toFixed(0)} | draw ${f(st.draw)} + card ${f(st.gpu)} | finish ${f(st.fin)} + card ${f(st.finGpu)}${fin ? "" : " (finish off)"}`);
+            st.n = 0; st.draw = st.gpu = st.fin = st.finGpu = st.worst = 0; st.since = now;
+          }
         }
       }
       ask();
@@ -4339,7 +4362,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
           e.fillRect(0, 0, W, H);
           ctx.save();
           ctx.imageSmoothingEnabled = false;
-          ctx.globalAlpha *= Math.min(0.42, (1 - lit) * 0.8);
+          // (less by night: the night has darkened them already, and a walker in the moon's shadow was hard to find)
+          ctx.globalAlpha *= Math.min(0.42, (1 - lit) * 0.8) * Math.min(1, (rimNow.current?.a ?? 0.48) / 0.48);
           ctx.drawImage(dim, 0, 0, W, H, p.x - (W / 2) * k, p.y - DOLL_CELLS.foot * k, W * k, H * k);
           ctx.restore();
         }

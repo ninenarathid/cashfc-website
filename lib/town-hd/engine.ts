@@ -85,6 +85,8 @@ export interface HdTown {
   renderWorld(v: LiveView, wet: number, floor: HTMLCanvasElement, atlas: HTMLCanvasElement, cards: ReadonlyArray<Piece>, dolls?: HTMLCanvasElement | null, /** What stands is this town's own (`kindOf`, `keepOut`), not pieces of the live town's. */ solid?: boolean): HTMLCanvasElement;
   /** How high the ground is at a point of the map (tiles), in tiles; 0 everywhere on level ground. */
   heightAt(x: number, y: number): number;
+  /** Wait until the graphics card has done all that was asked of it (for measuring: `?hdstats=1`). */
+  sync(): void;
   /** Whether a point of the map (tiles) is water. */
   wetAt(x: number, y: number): boolean;
   /** What one of the map's things is in this town (see `kinds`), or null if it is not in it. */
@@ -1282,6 +1284,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       } finally { laying = false; renderer.autoClear = true; }
       return renderer.domElement;
     },
+    sync() { renderer.getContext().finish(); },
     wetAt: (x, y) => wetAt(x, y),
     renderAir(v, dt, o) {
       if (!air) return null;
