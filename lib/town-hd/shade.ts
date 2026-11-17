@@ -184,7 +184,7 @@ export function createShade(canvas: HTMLCanvasElement, quality: Quality, raise?:
   scene.background = new THREE.Color(0xffffff);
   const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 1, 600);
   const hemi = new THREE.HemisphereLight(0xffffff, 0xffffff, 1), sun = new THREE.DirectionalLight(0xffffff, 1);
-  const SH = lite ? 2048 : 4096;
+  const SH = lite ? 1024 : 2048;
   sun.castShadow = true;
   sun.shadow.mapSize.set(SH, SH);
   sun.shadow.bias = -0.0006; sun.shadow.normalBias = 0.04;

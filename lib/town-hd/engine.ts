@@ -154,7 +154,8 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   const hemi = new THREE.HemisphereLight(0xffffff, 0x888888, 1.5);
   const sun = new THREE.DirectionalLight(0xffffff, 3);
   sun.castShadow = !map.indoors;
-  const SH = below ? (lite ? 2048 : 4096) : lite ? 1024 : 2048, REACH = 30;
+  // (under the live town the shadows are worked out only about the view, ./shade's reachOf: these are fine enough there)
+  const SH = lite ? 1024 : 2048, REACH = 30;
   sun.shadow.mapSize.set(SH, SH);
   Object.assign(sun.shadow.camera, { left: -REACH, right: REACH, top: REACH, bottom: -REACH, near: 1, far: 220 });
   sun.shadow.camera.updateProjectionMatrix();

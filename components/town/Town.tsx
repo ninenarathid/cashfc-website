@@ -606,9 +606,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const dollQ = useRef(1), dollRows = useRef(DOLL_CELLS.rows);
   const castAt = useRef(-1), hdRaised = useRef(false), shadeTick = useRef(0), inShade = useRef(new Map<string, number>());
   useEffect(() => () => { HILL = null; }, []);
-  const hdNow = useRef(hd), litCopy = useRef<HTMLCanvasElement | null>(null), litOn = useRef(true);
+  const hdNow = useRef(hd), litCopy = useRef<HTMLCanvasElement | null>(null), litOn = useRef(false);
   hdNow.current = hd;
-  useEffect(() => { litOn.current = !/[?&]hdlit=0/.test(window.location.search); }, []);
+  // (off unless asked for, `?hdlit=1`: each frame it costs a whole drawing of what stands, a copy of the screen and a
+  // small copy a thing, for a difference hard to see; left out so that the town runs light, 2026-11-18)
+  useEffect(() => { litOn.current = /[?&]hdlit=1/.test(window.location.search); }, []);
   const rimNow = useRef<ReturnType<typeof rimAt> | null>(null), rimScratch = useRef<HTMLCanvasElement | null>(null);
   // Each walker's doll as it was just drawn, once more on a sheet of its own (a cell a walker), for the shadow it throws
   // in the next frame: its own shape, hat and all (the owner, 2026-11-17, of one outline for everybody: "เงาไม่ละเอียด").
@@ -1634,11 +1636,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       frames++;
       if (now - fpsSince >= 1000) {
         fpsRef.current = Math.round((frames * 1000) / (now - fpsSince)); frames = 0; fpsSince = now;
-        // (a device the finish is too much for is let off it for this visit: six seconds on end far under the pace, while the map is watched)
+        // (a device the finish is too much for is let off it for this visit: eight seconds on end under half the pace, while the map is watched)
         // (and if it is still too slow without the finish, the 3D picture itself is lowered: to the shadows alone, then off;
         // for this visit only, what the settings keep is not changed)
-        if (hdNow.current !== "off" && !resting && document.visibilityState === "visible" && fpsRef.current < pace * 0.6) {
-          if (++finishSlow.current >= 6) {
+        if (hdNow.current !== "off" && !resting && document.visibilityState === "visible" && fpsRef.current < pace * 0.5) {
+          if (++finishSlow.current >= 8) {
             finishSlow.current = 0;
             if (finishRef.current) dropFinish("this device draws too slowly with it");
             else { const next: HdChoice = hdNow.current === "low" ? "off" : "low"; console.warn("[Cash Town] 3D picture lowered to", next, ": this device draws too slowly with it"); setHd(next); }
@@ -1661,10 +1663,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         if (st) { const t = placeRef.current === "town" ? hdTowns.current.town : placeRef.current === "farm" ? hdTowns.current.farm : null; try { t?.sync(); } catch { /* no matter */ } }
         const s2 = st ? performance.now() : 0;
         const fin = finishRef.current;
+        // (not gone with the finish when a slow device is let off that: the owner, 2026-11-18, "เดินแล้ว แสงที่ลอยๆในอากาศ
+        // หายไป", of the fireflies gone with it)
         // The 3D town's air over the frame, on the editor's maps where its ground is raised: smoke, mist, motes, rain,
         // each hidden behind the buildings before it (lib/town-hd/engine's `renderAir`).
         let airDrawn = false;
-        if (fin && HILL) {
+        if (HILL && hdNow.current !== "low") {
           const here = placeRef.current, town = here === "town" ? hdTowns.current.town : here === "farm" ? hdTowns.current.farm : null;
           if (town?.ready()) {
             try {
@@ -2735,7 +2739,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
             for (const d of dollsDrawn.current) walkers.push({ img: sheet!, sx: (d.cell % DOLL_CELLS.cols) * DOLL_CELLS.w * dollQ.current, sy: Math.floor(d.cell / DOLL_CELLS.cols) * DOLL_CELLS.h * dollQ.current, w: DOLL_CELLS.w * dollQ.current, h: DOLL_CELLS.h * dollQ.current, ax: (DOLL_CELLS.w / 2) * dollQ.current, ay: DOLL_CELLS.foot * dollQ.current, k: 1 / dollQ.current, x: d.a.pos.x, y: d.a.pos.y });
             const view = { cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes(), stands: walkers, sec: swaying?.sec, me: swaying?.me,
               // (whether each walker stands in a shadow: asked every fourth frame, the answer eased towards)
-              probes: finishRef.current && ++shadeTick.current % 4 === 0 ? dollsDrawn.current.map((d): [number, number] => [d.a.pos.x, d.a.pos.y]) : undefined, shades: undefined as number[] | undefined };
+              probes: hdNow.current !== "low" && ++shadeTick.current % 8 === 0 ? dollsDrawn.current.map((d): [number, number] => [d.a.pos.x, d.a.pos.y]) : undefined, shades: undefined as number[] | undefined };
             let pic: HTMLCanvasElement;
             if (town) pic = town.renderAt(view);
             else {
@@ -2763,7 +2767,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
               for (const id of inShade.current.keys()) if (!seen.has(id)) inShade.current.delete(id);
             }
             castAt.current = now;
-            rimNow.current = finishRef.current ? rimAt(view.min) : null;
+            rimNow.current = hdNow.current !== "low" ? rimAt(view.min) : null;
             // (the dolls' sheet is wiped for this frame's dolls, drawn on it as each walker is drawn)
             if (sheet) sheet.getContext("2d")!.clearRect(0, 0, sheet.width, sheet.height);
             dollsDrawn.current = [];
