@@ -21,7 +21,7 @@ import type { HdTown } from "@/lib/town-hd/engine";
 import { rimAt, type Shade, type Stand } from "@/lib/town-hd/shade";
 import type { Finish } from "@/lib/town-hd/finish";
 import { hdOf, keepHd, keptHd, type HdChoice } from "@/lib/town-hd/choice";
-import { T2_CASINO_DOOR, T2_CHEST_OPEN, T2_CHEST_SHUT, T2_LAMP_LIGHT, T2_PROP_THING, T2_RINGS, T2_THINGS, t2RiverPoint } from "@/lib/town/town2";
+import { T2_CASINO_DOOR, T2_CHEST_OPEN, T2_CHEST_SHUT, T2_HALL, T2_LAMP_LIGHT, T2_PROP_THING, T2_RINGS, T2_THINGS, t2RiverPoint } from "@/lib/town/town2";
 // ── Granny Twilla's clothes shop ── (lib/town/shop-room: a room of its own, drawn from its own pictures as it comes near)
 import { ShopRoomArt } from "@/lib/town/shop-room-art";
 import { SHOP_BOARD } from "@/lib/town/shop-room";
@@ -2193,11 +2193,20 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // (the editor's town's lanterns and fires drawn in its pictures, warm at night, breathing slowly like the old hall's)
     if (T2 && lamps > 0.02 && town2Ref.current) {
       const cam0 = cam.current, warm = still ? 0.9 : 0.85 + 0.15 * Math.sin(now / 2100);
-      for (const [x, y, n] of town2Ref.current.lightsSeen()) {
+      const inside = placeRef.current === "town" && roofRef.current < 0.5;
+      for (const [x, y, n] of town2Ref.current.lightsSeen(inside ? T2_HALL.thing : -1)) {
         const c = toScreen(cam0, { x, y }, cam0.cw, cam0.ch);
         glowAt(ctx, c.x, c.y, (10 + 6 * n) * s, "255,200,130", 0.7 * lamps * warm);
         glowAt(ctx, c.x, c.y + 8 * s, (40 + 18 * n) * s, "255,150,70", 0.28 * lamps * warm, 0.7);
       }
+    }
+    // Inside the kitchen hall by night the room is lit by its own fires: a wide warm light over its floor (the 3D town's
+    // rooms are warm; the owner, 2026-11-18, of the roof's lanterns left glowing in mid-air over a dark floor: "แสงในครัว แปลกๆ").
+    if (T2 && placeRef.current === "town" && roofRef.current < 0.5 && lamps > 0.02) {
+      const F = T2_HALL.floor, c = project({ x: (F.x0 + F.x1 + 1) / 2, y: (F.y0 + F.y1 + 1) / 2 }), r = ((F.x1 - F.x0 + F.y1 - F.y0) / 2 + 3) * 32 * s;
+      const fire = still ? 0.92 : 0.88 + 0.08 * Math.sin(now / 1700) + 0.04 * Math.sin(now / 430);
+      glowAt(ctx, c.x, c.y - 24 * s, r * 0.95, "255,176,104", 0.3 * lamps * fire * (1 - roofRef.current * 2), 0.6);
+      glowAt(ctx, c.x, c.y - 30 * s, r * 0.55, "255,196,130", 0.2 * lamps * fire * (1 - roofRef.current * 2), 0.6);
     }
     // (the editor's town's rings are its own pictures: their glow where each lies)
     if (T2 && placeRef.current === "town") for (const r of T2_RINGS) {

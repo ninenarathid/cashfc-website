@@ -75,6 +75,12 @@ export interface HdTown {
    * building stands before it; drawn over the live town's frame. Null where there is no air to draw ("low", a room).
    */
   renderAir(v: LiveView, dt: number, o: { rain: number; inRoom: boolean; steps: Array<[number, number]> }): HTMLCanvasElement | null;
+  /**
+   * For the live town (`underlay: "raised"`), the whole of a frame's world in one picture: this town's ground and water,
+   * what the live town drew to lie on the ground (`floor`, the screen's size), the shadows over both, and every standing
+   * thing the live town drew, a piece of `atlas` each, back to front (`cards`: lib/town-hd/capture). Opaque.
+   */
+  renderWorld(v: LiveView, wet: number, floor: HTMLCanvasElement, atlas: HTMLCanvasElement, cards: ReadonlyArray<{ x: number; y: number; w: number; h: number; ax: number; ay: number }>): HTMLCanvasElement;
   /** How high the ground is at a point of the map (tiles), in tiles; 0 everywhere on level ground. */
   heightAt(x: number, y: number): number;
   /** Whether a point of the map (tiles) is water. */
@@ -506,6 +512,22 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     card(o[1], { x: (ix / 32 + iy / 16) / 2, z: (iy / 16 - ix / 32) / 2, sx: cx, sz: cz, y: wetAt(cx, cz) ? WATER_Y : Hat(cx, cz), w: sp[1] * o[4] / PX_SIDE, h: sp[2] * o[4] / PX_UP, flip: o[5] === 1, unseen, blocked });
   }
   const stand = () => { const g = new THREE.Group(); town.add(g); return g; };
+  /** A thing's picture stood along a line through (cx, cz), `half` long each way and `up` high, unseen, to throw its shadow. */
+  function lineSheet(o: Obj, cx: number, cz: number, alongX: boolean, half: number, up: number, y0: number) {
+    const at = drawnAt(o), ax = alongX ? half : 0, az = alongX ? 0 : half;
+    const P = [cx - ax, 0, cz - az, cx + ax, 0, cz + az, cx + ax, up, cz + az, cx - ax, up, cz - az], U: number[] = [];
+    for (let i = 0; i < 4; i++) U.push(...at(P[i * 3], P[i * 3 + 1], P[i * 3 + 2]));
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(P, 3));
+    geo.setAttribute("uv", new THREE.Float32BufferAttribute(U, 2));
+    geo.setIndex([0, 1, 2, 0, 2, 3]);
+    const unseen = new THREE.MeshBasicMaterial({ map: artOf(o[1]).map, alphaTest: 0.5, side: THREE.DoubleSide, colorWrite: false, depthWrite: false });
+    const sheet = new THREE.Mesh(geo, unseen);
+    sheet.castShadow = true;
+    sheet.position.y = y0;
+    town.add(sheet);
+    disposables.push(geo, unseen);
+  }
   const hallIn: { room: THREE.Mesh | null } = { room: null };
   const blocks: Array<[number, number, number, number, number, number]> = [];
   const chimneys: THREE.Vector3[] = [];
@@ -545,8 +567,15 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     // shadow is thrown from the edge itself, a thin block along it (the owner, 2026-11-17: "เงารั้วไม่ตรง", of the sheet
     // turned to the sun in the tile's middle, which lay across the fence and not along it).
     const fence = name === "wall" && Math.abs(bw - 1) < 0.01 && Math.abs(bd - 1) < 0.01, north = fence && Math.abs(box[1] % 1) > 0.25;
-    if (fence) blocks.push([cx, cz, north ? 1 : 0.08, north ? 0.08 : 1, Math.max(0.4, (sp[2] * o[4] - 16) / PX_UP * 0.85), Hat(cx, cz)]);
-    else if (long) blocks.push([cx, cz, bw * 0.92, bd * 0.92, Math.min(3, Math.max(0.25, tall)), wetAt(cx, cz) ? WATER_Y : Hat(cx, cz)]);
+    // (a fence, a bench, a boat: its own picture stood along its length, unseen, throws its shadow: rails and legs with
+    // the light between them, not a solid block's; the owner, 2026-11-18, of benches by a lantern: "เงายังไม่ถูกต้องบางจุด".
+    // Under a bench's seat a low block besides, so that it has a shadow when the sun looks along it.)
+    if (fence) lineSheet(o, cx, cz, north, 0.85, sp[2] * o[4] / PX_UP + 0.3, Hat(cx, cz));
+    else if (long) {
+      const y0 = wetAt(cx, cz) ? WATER_Y : Hat(cx, cz);
+      lineSheet(o, cx, cz, bw >= bd, Math.max(bw, bd) / 2 + 0.7, sp[2] * o[4] / PX_UP + 0.3, y0);
+      blocks.push([cx, cz, bw * 0.85, bd * 0.85, Math.min(0.4, Math.max(0.15, tall * 0.4)), y0]);
+    }
     stood(o, cx, cz, false, long || fence);
     const h = sp[2] * o[4] / PX_UP;
     if (LAMP.test(name)) lamps.push({ x: cx, y: h * 0.72 + Hat(cx, cz), z: cz, b: Hat(cx, cz) });
@@ -1127,8 +1156,21 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
 
   let sheets: Sheets | null = null, reached = REACH;
   let surf: THREE.Mesh | null = null;
+  let quads: { geo: THREE.BufferGeometry; mat: THREE.ShaderMaterial; mesh: THREE.Mesh; pos: Float32Array; uv: Float32Array; room: number; tex: Map<HTMLCanvasElement, { tex: THREE.CanvasTexture; key: string }> } | null = null;
+  let over: THREE.MeshLambertMaterial | null = null, laying = false;
+  const overMat = () => over;
   const airKids = camera.children.filter((c) => !kidsBefore.has(c) && c.visible);
-  if (below) for (const c of airKids) c.visible = false;
+  if (below) {
+    for (const c of airKids) c.visible = false;
+    // (the air is drawn alone, on nothing, and laid over the live town's frame: what only adds light must leave no
+    // solidness behind it, or a firefly gone dark is a black speck on the frame; the owner's picture, 2026-11-18)
+    const lightOnly = (o: THREE.Object3D) => {
+      const m = (o as THREE.Mesh).material as THREE.Material | undefined;
+      if (m && m.blending === THREE.AdditiveBlending) { m.blending = THREE.CustomBlending; m.blendSrc = THREE.SrcAlphaFactor; m.blendDst = THREE.OneFactor; m.blendSrcAlpha = THREE.ZeroFactor; m.blendDstAlpha = THREE.OneFactor; m.needsUpdate = true; }
+    };
+    airRoot.traverse(lightOnly);
+    for (const c of airKids) c.traverse(lightOnly);
+  }
   const surfClock = { value: 0 }, surfGlint = { value: 0.3 }, surfWet = { value: 0 };
   const api: HdTown = {
     setTime(t) { if (clockMin === null && SKIES[t] === want) return; clockMin = null; from = copy(now); want = SKIES[t]; turned = 0; },
@@ -1157,6 +1199,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       (scene.fog as THREE.Fog).near = 1e5; (scene.fog as THREE.Fog).far = 1e6;
       const shadeKey = `${sunDir.x.toFixed(2)},${sunDir.z.toFixed(2)}`;
       if (shadeKey !== shadedFor) { shadedFor = shadeKey; shadeCards(); }
+      const over = laying ? overMat() : null;
       if (v.stands && !flat) for (const s of v.stands) s.up = Hat(s.x, s.y);
       sheets?.set(v.stands ?? [], sunDir);
       clock.value = v.sec ?? sec; cloudy.value = 0; wetU.value = 0;
@@ -1176,8 +1219,83 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       const texel = (reach * 2) / SH, ax = Math.round(eye.x / texel) * texel, az = Math.round(eye.z / texel) * texel;
       sun.target.position.set(ax, 0, az);
       sun.position.set(ax + sunDir.x * 90, sunDir.y * 90, az + sunDir.z * 90);
+      if (over && land) {
+        // (for `renderWorld`: the shadows and the slopes' shade laid over what is already drawn, darkening it)
+        const back = scene.background;
+        scene.background = null;
+        land.mesh.material = over;
+        renderer.render(scene, camera);
+        land.mesh.material = land.white;
+        scene.background = back;
+        return renderer.domElement;
+      }
       renderer.render(scene, camera);
       probe(renderer, camera, v, sunDir, flat ? undefined : Hat);
+      return renderer.domElement;
+    },
+    renderWorld(v, wet, floor, atlas, cards) {
+      if (!quads) {
+        const geo = new THREE.BufferGeometry();
+        const mat = new THREE.ShaderMaterial({
+          uniforms: { hdMap: { value: null } },
+          vertexShader: "varying vec2 hdUv; void main() { hdUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }",
+          fragmentShader: "varying vec2 hdUv; uniform sampler2D hdMap; void main() { gl_FragColor = texture2D(hdMap, hdUv); }",
+          // (a canvas's picture comes with its colours already weighed by how solid they are: laid as such)
+          transparent: true, depthTest: false, depthWrite: false, blending: THREE.CustomBlending, blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcAlphaFactor,
+        });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.frustumCulled = false;
+        quads = { geo, mat, mesh, pos: new Float32Array(0), uv: new Float32Array(0), room: 0, tex: new Map() };
+        over = new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true, depthWrite: false, blending: THREE.CustomBlending, blendSrc: THREE.DstColorFactor, blendDst: THREE.ZeroFactor });
+        disposables.push(geo, mat, over);
+      }
+      const Q = quads;
+      const texOf = (c: HTMLCanvasElement) => {
+        const key = `${c.width},${c.height}`;
+        let t = Q.tex.get(c);
+        if (!t || t.key !== key) {
+          t?.tex.dispose();
+          const tex = new THREE.CanvasTexture(c);
+          tex.colorSpace = THREE.NoColorSpace; tex.generateMipmaps = false; tex.minFilter = tex.magFilter = THREE.NearestFilter; tex.premultiplyAlpha = true;
+          t = { tex, key };
+          Q.tex.set(c, t);
+        }
+        t.tex.needsUpdate = true;
+        return t.tex;
+      };
+      /** So many pieces of a picture, each laid where it was drawn on the screen (all in the canvas's own pixels). */
+      const lay = (c: HTMLCanvasElement, list: ReadonlyArray<{ x: number; y: number; w: number; h: number; ax: number; ay: number }>, W: number, H: number) => {
+        if (!list.length) return;
+        if (Q.room < list.length) {
+          Q.room = Math.max(256, list.length * 2);
+          Q.pos = new Float32Array(Q.room * 12); Q.uv = new Float32Array(Q.room * 8);
+          const idx = new Uint32Array(Q.room * 6);
+          for (let i = 0; i < Q.room; i++) idx.set([i * 4, i * 4 + 1, i * 4 + 2, i * 4, i * 4 + 2, i * 4 + 3], i * 6);
+          Q.geo.setAttribute("position", new THREE.BufferAttribute(Q.pos, 3).setUsage(THREE.DynamicDrawUsage));
+          Q.geo.setAttribute("uv", new THREE.BufferAttribute(Q.uv, 2).setUsage(THREE.DynamicDrawUsage));
+          Q.geo.setIndex(new THREE.BufferAttribute(idx, 1));
+        }
+        list.forEach((q, i) => {
+          const x0 = (q.x / W) * 2 - 1, x1 = ((q.x + q.w) / W) * 2 - 1, y0 = 1 - (q.y / H) * 2, y1 = 1 - ((q.y + q.h) / H) * 2;
+          const u0 = q.ax / c.width, u1 = (q.ax + q.w) / c.width, v0 = 1 - q.ay / c.height, v1 = 1 - (q.ay + q.h) / c.height;
+          Q.pos.set([x0, y1, 0, x1, y1, 0, x1, y0, 0, x0, y0, 0], i * 12);
+          Q.uv.set([u0, v1, u1, v1, u1, v0, u0, v0], i * 8);
+        });
+        Q.geo.attributes.position.needsUpdate = true; Q.geo.attributes.uv.needsUpdate = true;
+        Q.geo.setDrawRange(0, list.length * 6);
+        Q.mat.uniforms.hdMap.value = texOf(c);
+        renderer.render(Q.mesh, camera);
+      };
+      // the ground and the water in their own colours; what lies on the ground; the shadows over both; then all that stands
+      api.renderGround(v, wet);
+      renderer.autoClear = false;
+      try {
+        lay(floor, [{ x: 0, y: 0, w: floor.width, h: floor.height, ax: 0, ay: 0 }], floor.width, floor.height);
+        laying = true;
+        api.renderAt(v);
+        laying = false;
+        lay(atlas, cards, floor.width, floor.height);
+      } finally { laying = false; renderer.autoClear = true; }
       return renderer.domElement;
     },
     wetAt: (x, y) => wetAt(x, y),

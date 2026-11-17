@@ -353,7 +353,8 @@ export class Town2Art {
   }
 
   /** The night's lights of the things last seen near the view (visible()). */
-  lightsSeen(): Array<[number, number, number]> { return this.lastSeen.flatMap((t) => t.lights ?? []); }
+  /** (Each raised with the ground under its thing; not `but`'s: the hall's own lanterns hang from the roof that is off while one is inside.) */
+  lightsSeen(but = -1): Array<[number, number, number]> { return this.lastSeen.flatMap((t) => (t.i === but ? [] : (t.lights ?? []).map(([x, y, n]): [number, number, number] => [x, y - this.up(t), n]))); }
   private lastSeen: Thing[] = [];
 
   /** Whether a point is in the kitchen hall. */
