@@ -12,7 +12,7 @@ import type { LiveView, Quality } from "./engine";
 import { NOISE, makeAir, makePost } from "./fx";
 import { MAPS } from "./maps";
 
-export interface Finish { /** The canvas it is drawn on. */ canvas: HTMLCanvasElement; render(src: HTMLCanvasElement, v: LiveView, more: { indoors: boolean; still: boolean; /** The editor's town: petals in its air. */ town?: boolean }): void; dispose(): void }
+export interface Finish { /** The canvas it is drawn on. */ canvas: HTMLCanvasElement; render(src: HTMLCanvasElement, v: LiveView, more: { indoors: boolean; still: boolean; /** The editor's town: petals in its air. */ town?: boolean; /** False where the live town lays its own clouds' shadows by its weather. */ clouds?: boolean; /** How hard it rains (the live town's weather), 0 to 1. */ rain?: number }): void; dispose(): void }
 
 /** The hours (./engine's SKIES, the same four): the colour over the picture, [colour's strength, corners, glow, motes, fireflies, mist, sun shafts, clouds], how far the lamps are lit, the sun's stand and colour. */
 interface Hour { grade: number[]; air: number[]; lamps: number; sun: number[]; col: number }
@@ -110,13 +110,13 @@ void main() {
       post.look(grade, more.indoors ? 1.04 : airNow[0], airNow[1] * 0.8, more.indoors ? 0.28 : 0.16 + 0.3 * lamps);
       const sec = performance.now() / 1000, dt = more.still ? 0 : Math.min(0.05, last ? sec - last : 0);
       last = sec;
-      const out = more.indoors ? 0 : 1;
-      clouds.visible = !more.indoors && airNow[7] > 0.02;
+      const out = more.indoors ? 0 : 1, wet = Math.max(0, Math.min(1, more.rain ?? 0)) * out;
+      clouds.visible = more.clouds !== false && !more.indoors && airNow[7] > 0.02;
       clouds.position.set(Math.round(eye.x), 0, Math.round(eye.z));
       if (!more.still) cloudMat.uniforms.hdTime.value = sec;
       cloudMat.uniforms.hdCloud.value = airNow[7];
       air.update(dt, sec, eye, half, v.cw / v.ch, {
-        motes: airNow[3] * 0.5 * out, flies: airNow[4] * out, mist: 0, rays: airNow[6] * 0.6 * out, rain: 0, dry: null, dim: lamps, petals: more.town ? (1 - lamps) * 0.4 : 0, smoke: more.town ? 1 : 0,
+        motes: airNow[3] * 0.5 * out * (1 - wet), flies: airNow[4] * out * (1 - wet), mist: 0, rays: airNow[6] * 0.6 * out * (1 - wet), rain: wet, dry: null, dim: lamps, petals: more.town ? (1 - lamps) * 0.4 : 0, smoke: more.town ? 1 : 0,
         sunX: sunDir.dot(right), sunY: sunDir.dot(up), sun: sunCol,
       });
       post.render();

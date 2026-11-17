@@ -1590,7 +1590,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         if (fin) {
           try {
             const c = cam.current, clock = new Date(Date.now() + 7 * 3600_000);
-            fin.render(canvas, { cx: c.cx, cy: c.cy, s: c.s, cw: c.cw, ch: c.ch, dpr: c.dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() }, { indoors: underRoof(placeRef.current), still: reducedRef.current, town: T2 && placeRef.current === "town" });
+            fin.render(canvas, { cx: c.cx, cy: c.cy, s: c.s, cw: c.cw, ch: c.ch, dpr: c.dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() }, { indoors: underRoof(placeRef.current), still: reducedRef.current, town: T2 && placeRef.current === "town", clouds: false, rain: underRoof(placeRef.current) || placeRef.current === "cave" ? 0 : effects.current?.rain ?? 0 });
           } catch (e) { dropFinish("it failed", e); }
         }
       }
@@ -1863,7 +1863,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       // Rain: streaks falling at a slant with the wind, the near ones long, bright and fast, the far ones short and
       // faint. A shower's are few and fine; a downpour's many, longer and faster. (Laid from sheets drawn once, not
       // stroked line by line each frame, which cost the machine four times what a fine day does: lib/town/rain.)
-      rain.current.draw(ctx, cw, ch, cam.current.dpr, sec, e.rain, e.wind);
+      // (with the 3D town's finish on, the rain's streaks are its own pictures, falling in the air over everything: lib/town-hd/finish)
+      if (!finishRef.current) rain.current.draw(ctx, cw, ch, cam.current.dpr, sec, e.rain, e.wind);
       // and where it lands: a ring on the ground of the town, gone in a quarter of a second
       const P = splashes.current, wantP = Math.round(e.rain * (cw * ch) / 9000), LAST = RING_MS;
       if (P.length > wantP) P.length = wantP;
