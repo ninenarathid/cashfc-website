@@ -2,7 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createHdTown, type HdTown, type TimeId } from "@/lib/town-hd/engine";
+import type { MapId } from "@/lib/town-hd/maps";
 import { createClient } from "@/lib/supabase/client";
+
+const PLACES: Array<{ id: MapId; label: string }> = [{ id: "town", label: "เมือง" }, { id: "farm", label: "ฟาร์ม" }, { id: "shop", label: "ร้านเสื้อ" }];
+const mapOf = (search: string): MapId => (/[?&]map=(town|farm|shop)/.exec(search)?.[1] as MapId | undefined) ?? "town";
 
 const TIMES: Array<{ id: TimeId; label: string }> = [
   { id: "morning", label: "เช้า" }, { id: "day", label: "กลางวัน" }, { id: "evening", label: "เย็น" }, { id: "night", label: "กลางคืน" },
@@ -24,6 +28,8 @@ export default function HdTownTest() {
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [fps, setFps] = useState(0);
+  const [place, setPlace] = useState<MapId>("town");
+  useEffect(() => { setPlace(mapOf(window.location.search)); }, []);
 
   useEffect(() => {
     if (!canvas.current) return;
@@ -31,7 +37,7 @@ export default function HdTownTest() {
     try {
       // (`?at=x,y`: stand somewhere else first, for a tester sent to look at one corner)
       const m = /[?&]at=(\d+(?:\.\d+)?),(\d+(?:\.\d+)?)/.exec(window.location.search);
-      made = createHdTown(canvas.current, { time: "evening", at: m ? { x: +m[1], y: +m[2] } : undefined, nameEl: plate.current, showWalk: /[?&]walk=1/.test(window.location.search), onReady: () => setReady(true), onFps: setFps });
+      made = createHdTown(canvas.current, { map: mapOf(window.location.search), time: "evening", at: m ? { x: +m[1], y: +m[2] } : undefined, nameEl: plate.current, showWalk: /[?&]walk=1/.test(window.location.search), onReady: () => setReady(true), onFps: setFps });
       town.current = made;
     } catch {
       setFailed(true);
@@ -71,9 +77,19 @@ export default function HdTownTest() {
       {!ready && !failed && <div className="absolute inset-0 grid place-items-center bg-bg text-read text-muted">กำลังสร้างเมือง…</div>}
       {failed && <div className="absolute inset-0 grid place-items-center bg-bg px-6 text-center text-read text-ink">เบราว์เซอร์นี้เปิดภาพ 3D (WebGL) ไม่ได้ ลองเปิดด้วย Chrome หรือ Safari รุ่นใหม่</div>}
 
+      {/* which map: each is its own page of the trial (a plain link; the town is stood up again) */}
+      <nav aria-label="แผนที่" className="absolute right-3 top-3 flex overflow-hidden rounded-lg border border-line bg-surface/90 shadow-md backdrop-blur-sm">
+        {PLACES.map((p) => (
+          <a key={p.id} href={`?map=${p.id}`} aria-current={place === p.id ? "page" : undefined}
+            className={`grid h-11 min-w-11 place-items-center whitespace-nowrap px-3 text-meta transition sm:text-ui ${place === p.id ? "bg-accent/25 font-semibold text-ink" : "text-muted hover:text-ink"}`}>
+            {p.label}
+          </a>
+        ))}
+      </nav>
+
       <div className="pointer-events-none absolute left-3 top-3 flex items-center gap-2">
         <span className="rounded-md border border-gold/50 bg-surface/90 px-2 py-1 text-meta font-semibold text-gold shadow-md backdrop-blur-sm">HD-2D ทดลอง</span>
-        {fps > 0 && <span className="rounded-md bg-surface/80 px-1.5 py-1 text-label tabular-nums text-muted">{fps} fps</span>}
+        {fps > 0 && <span className="hidden rounded-md bg-surface/80 px-1.5 py-1 text-label tabular-nums text-muted sm:inline">{fps} fps</span>}
       </div>
 
       <div className="absolute inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom)+0.75rem)] flex items-end justify-between gap-3 sm:bottom-3">

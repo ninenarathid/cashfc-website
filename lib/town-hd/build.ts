@@ -9,7 +9,6 @@
 import * as THREE from "three";
 import { T2_HALL, T2_STAGE, T2_STAGE_BASE, T2_STAGE_UP, t2Lift, t2OnStage, t2Tile } from "@/lib/town/town2";
 import * as skin from "./textures";
-import { open } from "./walk";
 
 /** Isometric pixels up to a tile of height (a 2:1 picture looks down at 30°: a tile's side is 45.25 px, cos 30° of it up). */
 export const PX_UP = 39.2;
@@ -25,9 +24,11 @@ export interface Kit {
   /** Lit from inside at night: lanterns, a kiln's mouth. */
   ember: THREE.MeshLambertMaterial; lantern: THREE.MeshLambertMaterial;
   water: THREE.MeshLambertMaterial;
+  /** Whether something stands on a tile of the map being built. */
+  shut: (x: number, y: number) => boolean;
 }
 
-export function makeKit(water: THREE.Texture): Kit {
+export function makeKit(water: THREE.Texture, shut: (x: number, y: number) => boolean): Kit {
   const lam = (map: THREE.Texture, more: THREE.MeshLambertMaterialParameters = {}) => new THREE.MeshLambertMaterial({ map, ...more });
   const wallOf = (k: "plaster" | "wood" | "white" | "red") => {
     const s = skin.wall(k);
@@ -47,6 +48,7 @@ export function makeKit(water: THREE.Texture): Kit {
     ember: lam(skin.plain(0xff8a3a), { emissive: 0xff7a2a, emissiveIntensity: 0.6 }),
     lantern: lam(skin.plain(0xd8402c), { emissive: 0xff5a30, emissiveIntensity: 0.15 }),
     water: new THREE.MeshLambertMaterial({ map: water, color: 0xbfe6ff, transparent: true, opacity: 0.84 }),
+    shut,
   };
 }
 
@@ -144,10 +146,10 @@ function house(to: THREE.Object3D, K: Kit, b: Box4, h: number, o: HouseOpts) {
 }
 
 /** The two ends of a gateway: the closed tiles of its footprint furthest apart, or its longer way's ends. */
-function gateEnds(b: Box4): [THREE.Vector2, THREE.Vector2] {
+function gateEnds(K: Kit, b: Box4): [THREE.Vector2, THREE.Vector2] {
   const s = span(b), shut: THREE.Vector2[] = [];
   for (let z = Math.floor(s.z0); z <= Math.floor(s.z1); z++) for (let x = Math.floor(s.x0); x <= Math.floor(s.x1); x++) {
-    if (!open(x, z) && t2Tile(x, z) === "#") shut.push(new THREE.Vector2(x + 0.5, z + 0.5));
+    if (K.shut(x, z)) shut.push(new THREE.Vector2(x + 0.5, z + 0.5));
   }
   let best: [THREE.Vector2, THREE.Vector2] | null = null, bd = 1.5;
   for (const a of shut) for (const c of shut) { const d = a.distanceTo(c); if (d > bd) { bd = d; best = [a, c]; } }
@@ -168,7 +170,7 @@ function between(to: THREE.Object3D, a: THREE.Vector2, c: THREE.Vector2): { g: T
 export interface Built { spin?: THREE.Object3D }
 
 /** Stand a wide thing up; false where it has no blocks of its own (it is then drawn from its picture). */
-export function buildThing(to: THREE.Object3D, K: Kit, name: string, b: Box4, h: number): Built | false {
+export function buildThing(to: THREE.Object3D, K: Kit, name: string, b: Box4, h: number, plain = false): Built | false {
   const s = span(b);
   h = Math.min(8, Math.max(0.3, h));
   const is = (re: RegExp) => re.test(name);
@@ -232,7 +234,7 @@ export function buildThing(to: THREE.Object3D, K: Kit, name: string, b: Box4, h:
   }
 
   if (is(/^torii$/)) {
-    const [a, c] = gateEnds(b), { g, len } = between(to, a, c), up = Math.max(3.4, h * 0.82);
+    const [a, c] = gateEnds(K, b), { g, len } = between(to, a, c), up = Math.max(3.4, h * 0.82);
     for (const x of [-len / 2, len / 2]) {
       put(g, block(0.46, up, 0.46), K.red, x, up / 2, 0);
       put(g, block(0.6, 0.3, 0.6), K.stone, x, 0.15, 0);
@@ -243,7 +245,7 @@ export function buildThing(to: THREE.Object3D, K: Kit, name: string, b: Box4, h:
     return {};
   }
   if (is(/^(village_gate|tall_wooden_village_gateway)/)) {
-    const [a, c] = gateEnds(b), { g, len } = between(to, a, c), up = Math.max(2.6, h * 0.85), thatched = is(/^village_gate/);
+    const [a, c] = gateEnds(K, b), { g, len } = between(to, a, c), up = Math.max(2.6, h * 0.85), thatched = is(/^village_gate/);
     for (const x of [-len / 2, len / 2]) put(g, block(0.55, up, 0.55), K.post, x, up / 2, 0);
     put(g, block(len + 0.5, 0.3, 0.3), K.post, 0, up - 0.4, 0);
     if (thatched) { put(g, gable(len + 1.2, 1.3, 0.55), K.roofThatch, 0, up, 0); put(g, block(1.1, 0.6, 0.08), K.planks, 0, up - 1.0, 0); }
@@ -310,6 +312,8 @@ export function buildThing(to: THREE.Object3D, K: Kit, name: string, b: Box4, h:
     ladder.rotation.x = 0.42;
     return {};
   }
+  // (a barn, a shed, a glasshouse, a cart: a plain house to its picture's height; its picture makes it what it is)
+  if (plain) { house(to, K, b, h, { wall: "wood", roof: K.roofDark, inset: 0.15 }); return {}; }
   return false;
 }
 

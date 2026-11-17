@@ -13,21 +13,20 @@
  */
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
-import MAP from "@/lib/town/town2-map.json";
 import {
-  T2_COLS, T2_HALL, T2_LEFT_OUT, T2_PLAZA, T2_ROWS, T2_STAGE_UP, T2_TEXTURES, inT2, t2BankLook, t2InHall, t2Lift, t2Look, t2OnStage, t2Tile,
+  T2_HALL, T2_STAGE_UP, T2_TEXTURES, inT2, t2InHall, t2Lift, t2OnStage, t2Tile,
   type T2Look,
 } from "@/lib/town/town2";
 import { WALK_FPS, loadPixelKit, type PixelKit, type View } from "@/lib/town/pixeldoll";
 import { defaultLook, type Look } from "@/lib/town/look";
 import { PX_UP, buildHall, buildStage, buildThing, makeKit, type Box4, type Kit } from "./build";
 import * as skin from "./textures";
-import { findWay, isDeck, nearestOpen, step, type P } from "./walk";
+import { MAPS, type MapId } from "./maps";
+import { makeWalk, type P } from "./walk";
 
 /** A tile's side in isometric pixels (64 across its diagonal). */
 const PX_SIDE = 45.25;
 /** The ground beyond the town: how far the trial's world goes on, in tiles. */
-const WORLD = { x0: -22, z0: -22, x1: 102, z1: 102 };
 const SUB = 8, GRID = 3;
 const LOOKS: T2Look[] = ["t2grass", "t2water", "t2sand", "t2road", "t2wood", "t2plaza"];
 const WATER = 1;
@@ -47,15 +46,13 @@ export interface HdTown {
   zoom(by: number): void;
   dispose(): void;
 }
-export interface HdOpts { time: TimeId; /** Where to stand first, in tiles (a tester's `?at=x,y`); the plaza otherwise. */ at?: { x: number; y: number }; /** The name plate of the test character: moved here each frame to sit under its feet. */ nameEl?: HTMLElement | null; /** Show where may be walked (a tester's `?walk=1`). */ showWalk?: boolean; onReady?: () => void; onFps?: (fps: number) => void }
+export interface HdOpts { /** Which map is stood up. */ map?: MapId; time: TimeId; /** Where to stand first, in tiles (a tester's `?at=x,y`); the plaza otherwise. */ at?: { x: number; y: number }; /** The name plate of the test character: moved here each frame to sit under its feet. */ nameEl?: HTMLElement | null; /** Show where may be walked (a tester's `?walk=1`). */ showWalk?: boolean; onReady?: () => void; onFps?: (fps: number) => void }
 
 type Obj = number[];
-const sprites = MAP.sprites as Array<[string, number, number]>;
-const names = MAP.names as string[];
 const SEASONAL = /^game_(pumpkin|jacko)/;
 const FLAT = /^(lotus_leaves|three_flat_grey_stepping_stones)/;
 const SKIP = /^(game_ring|chest_open|kitchen_house_inside)/;
-const LAMP = /kasuga_stone_lantern|hanging_red_pape/;
+const LAMP = /kasuga_stone_lantern|hanging_red_pape|street_lantern/;
 
 function loadTexture(manager: THREE.LoadingManager, src: string): THREE.Texture {
   const t = new THREE.TextureLoader(manager).load(src);
@@ -65,6 +62,14 @@ function loadTexture(manager: THREE.LoadingManager, src: string): THREE.Texture 
 }
 
 export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
+  const map = MAPS[opts.map ?? "town"], TOWN = map.id === "town";
+  const sprites = map.sprites, names = map.names, OBJECTS = map.objects as Obj[], DIR = map.dir;
+  const { findWay, nearestOpen, step } = makeWalk(map), isDeck = map.isDeck;
+  /** The ground beyond the map: how far the trial's world goes on, in tiles. */
+  const WORLD = { x0: map.x0 - 22, z0: map.y0 - 22, x1: map.x0 + map.cols + 22, z1: map.y0 + map.rows + 22 };
+  const inMap = (x: number, z: number) => x >= map.x0 && z >= map.y0 && x < map.x0 + map.cols && z < map.y0 + map.rows;
+  /** How far up somebody stands at a point, in isometric pixels (a stage, a bridge: the town's). */
+  const lift = (x: number, z: number) => (TOWN ? t2Lift(x, z) : 0);
   const coarse = typeof matchMedia !== "undefined" && matchMedia("(pointer: coarse)").matches;
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: "high-performance" });
   renderer.shadowMap.enabled = true;
@@ -81,7 +86,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   /* ── light ────────────────────────────────────────────────────────────── */
   const hemi = new THREE.HemisphereLight(0xffffff, 0x888888, 1.5);
   const sun = new THREE.DirectionalLight(0xffffff, 3);
-  sun.castShadow = true;
+  sun.castShadow = !map.indoors;
   const SH = coarse ? 1024 : 2048, REACH = 30;
   sun.shadow.mapSize.set(SH, SH);
   Object.assign(sun.shadow.camera, { left: -REACH, right: REACH, top: REACH, bottom: -REACH, near: 1, far: 220 });
@@ -104,12 +109,13 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   const IW = (WORLD.x1 - WORLD.x0) * SUB, IH = (WORLD.z1 - WORLD.z0) * SUB;
   const index = new Uint8Array(IW * IH);
   const lookAt = (x: number, z: number): number => {
-    if (inT2(x, z)) return LOOKS.indexOf(t2Look(x, z));
-    const bank = t2BankLook(x, z);
-    if (bank) return LOOKS.indexOf(bank);
-    // beyond the banks the builder drew: the town's edge goes on (its water as water), then the woods' floor
-    const ex = Math.min(Math.max(x, 0.02), T2_COLS - 0.02), ez = Math.min(Math.max(z, 0.02), T2_ROWS - 0.02);
-    const edge = LOOKS.indexOf(t2Look(ex, ez)), out = Math.max(Math.abs(x - ex), Math.abs(z - ez));
+    if (map.indoors) return 7;
+    if (inMap(x, z)) return map.look(x, z);
+    const bank = map.bank?.(x, z);
+    if (bank != null) return bank;
+    // beyond the banks the builder drew: the map's edge goes on (its water as water), then the woods' floor
+    const ex = Math.min(Math.max(x, map.x0 + 0.02), map.x0 + map.cols - 0.02), ez = Math.min(Math.max(z, map.y0 + 0.02), map.y0 + map.rows - 0.02);
+    const edge = map.look(ex, ez), out = Math.max(Math.abs(x - ex), Math.abs(z - ez));
     if (edge === WATER && out < 30) return WATER;
     return out > 4 ? 4 : 0;
   };
@@ -166,7 +172,8 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
           hdCol += texture2D(hdLook2, hdUv).rgb * step(1.5, hdId) * (1.0 - step(2.5, hdId));
           hdCol += texture2D(hdLook3, hdUv).rgb * step(2.5, hdId) * (1.0 - step(3.5, hdId));
           hdCol += texture2D(hdLook4, hdUv).rgb * step(3.5, hdId) * (1.0 - step(4.5, hdId));
-          hdCol += texture2D(hdLook5, hdUv).rgb * step(4.5, hdId);
+          hdCol += texture2D(hdLook5, hdUv).rgb * step(4.5, hdId) * (1.0 - step(5.5, hdId));
+          hdCol += texture2D(hdLook3, hdUv).rgb * vec3(0.62, 0.47, 0.36) * step(5.5, hdId) * (1.0 - step(6.5, hdId));
           diffuseColor.rgb *= hdCol;`);
     };
     const ground = new THREE.Mesh(geo, mat);
@@ -180,7 +187,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   waterTex.wrapS = waterTex.wrapT = THREE.RepeatWrapping;
   waterTex.minFilter = THREE.LinearMipmapLinearFilter;
   disposables.push(waterTex);
-  const K: Kit = makeKit(waterTex);
+  const K: Kit = makeKit(waterTex, map.shut);
   {
     const w = WORLD.x1 - WORLD.x0, d = WORLD.z1 - WORLD.z0, geo = new THREE.PlaneGeometry(w, d), uv = geo.attributes.uv;
     for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * w / 5.657, uv.getY(i) * d / 5.657);
@@ -222,7 +229,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     cv.width = gv.width = pw + 2; cv.height = gv.height = ph + 2;
     const map = new THREE.CanvasTexture(cv), glow = new THREE.CanvasTexture(gv);
     for (const t of [map, glow]) { t.colorSpace = THREE.SRGBColorSpace; t.magFilter = THREE.NearestFilter; t.minFilter = THREE.LinearFilter; t.generateMipmaps = false; }
-    const src = `/town/town2/${file}`, img = new Image();
+    const src = `${DIR}/${file}`, img = new Image();
     pictures.itemStart(src);
     img.onload = () => {
       const g = cv.getContext("2d", { willReadFrequently: true })!;
@@ -341,24 +348,25 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   const blocks: Array<[number, number, number, number, number, number]> = [];
   const decked: Array<{ o: Obj; box: Box4; g: THREE.Group; bridge: boolean; /** How high its boards were drawn over the ground. */ up: number }> = [];
 
-  (MAP.objects as Obj[]).forEach((o, i) => {
+  OBJECTS.forEach((o, i) => {
     const name = names[o[0]], sp = sprites[o[1]];
     // (the kitchen hall from inside: its own picture of its room, on the floor and the two far walls)
-    if (i === T2_HALL.inside) { hallIn.room = behind(o); hallIn.room.visible = false; town.add(hallIn.room); return; }
-    if (T2_LEFT_OUT.has(i) || SKIP.test(name) || SEASONAL.test(name)) return;
+    if (TOWN && i === T2_HALL.inside) { hallIn.room = behind(o); hallIn.room.visible = false; town.add(hallIn.room); return; }
+    if (map.leftOut.has(i) || SKIP.test(name) || SEASONAL.test(name) || (o[6] === 4 && !map.shown?.test(name))) return;
     const box: Box4 = [o[8], o[9], o[10], o[11]], cx = (box[0] + box[2]) / 2, cz = (box[1] + box[3]) / 2;
     const tall = (sp[2] * o[4] - (box[2] - box[0] + box[3] - box[1]) * 16) / PX_UP;
-    if (i === T2_HALL.thing) { const g = stand(); buildHall(g, K, Math.max(3.6, tall)); dress(g, o); hall.upper = g; return; }
-    if (/^oval_wooden_festival_stage/.test(name)) { const g = stand(); buildStage(g, K); dress(g, o); return; }
+    if (TOWN && i === T2_HALL.thing) { const g = stand(); buildHall(g, K, Math.max(3.6, tall)); dress(g, o); hall.upper = g; return; }
+    if (TOWN && /^oval_wooden_festival_stage/.test(name)) { const g = stand(); buildStage(g, K); dress(g, o); return; }
     // (a bridge's or a pier's deck is laid below, tile by tile, and dressed there)
-    if (/^(bridge|fishing_pier|pier_of_mossy_stone)/.test(name)) { decked.push({ o, box, g: stand(), bridge: name === "bridge", up: /^fishing_pier/.test(name) ? 1.1 : 0.4 }); return; }
-    if (o[6] === 2 || /^wishing_basin$/.test(name)) {
-      const g = stand(), built = buildThing(g, K, name, box, tall);
+    if (TOWN && /^(bridge|fishing_pier|pier_of_mossy_stone)/.test(name)) { decked.push({ o, box, g: stand(), bridge: name === "bridge", up: /^fishing_pier/.test(name) ? 1.1 : 0.4 }); return; }
+    if (o[6] === 2 || /^wishing_basin$/.test(name) || (o[6] === 4 && /^barn/.test(name))) {
+      const g = stand(), built = buildThing(g, K, name, box, tall, map.plainHouses);
       // (the water wheel stands still: a picture of a wheel turned about is not a wheel turning; that wants frames of its own)
       if (built) { dress(g, o, undefined, /^(torii|village_gate|tall_wooden_village_gateway|trade_board_cloud|kosatsu_board_cloud)/.test(name)); return; }
       town.remove(g);
     }
-    if (FLAT.test(name)) { flats.push({ s: o[1], o, wet: wetAt(cx, cz) }); return; }
+    // (what a map calls floor, a pen's trodden yard, lies on the ground as flat things do)
+    if (FLAT.test(name) || o[6] === 0) { flats.push({ s: o[1], o, wet: wetAt(cx, cz) }); return; }
     // A long thing (a bench, a fence, a boat) throws its shadow from a block on its own footprint, so the shadow joins
     // it along its whole length whatever the sun's side (the owner, 2026-11-17: "เก้าอี้นี้เงาไม่ติดกัน ช่วยแก้เคสเดียวกัน
     // ทั้งหมด"). A sheet turned to the sun, stood on its middle, joins only a thing that stands on one foot: a tree, a post.
@@ -376,7 +384,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     const r = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
     for (let n = 0; trees.length && n < 520; n++) {
       const x = WORLD.x0 + 2 + r() * (WORLD.x1 - WORLD.x0 - 4), z = WORLD.z0 + 2 + r() * (WORLD.z1 - WORLD.z0 - 4);
-      if (inT2(x, z) || lookAt(x, z) !== 4) continue;
+      if (inMap(x, z) || lookAt(x, z) !== 4) continue;
       const { s, sp } = trees[Math.floor(r() * trees.length)], k = 1.0 + r() * 0.35;
       card(s, { x, z, sx: x, sz: z, y: 0, w: sp[1] * k / PX_SIDE, h: sp[2] * k / PX_UP, flip: r() < 0.5 });
     }
@@ -396,7 +404,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   const picture = new Map<number, THREE.Texture>();
   const pictureOf = (s: number) => {
     let t = picture.get(s);
-    if (!t) { t = loadTexture(pictures, `/town/town2/${sprites[s][0]}`); t.minFilter = THREE.LinearFilter; t.generateMipmaps = false; picture.set(s, t); disposables.push(t); }
+    if (!t) { t = loadTexture(pictures, `${DIR}/${sprites[s][0]}`); t.minFilter = THREE.LinearFilter; t.generateMipmaps = false; picture.set(s, t); disposables.push(t); }
     return t;
   };
   for (const [key, list] of cards) {
@@ -460,21 +468,21 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     const slab = new THREE.BoxGeometry(0.5, 0.16, 0.5), leg = new THREE.BoxGeometry(0.14, 0.9, 0.14);
     const railX = new THREE.BoxGeometry(1, 0.1, 0.1), railZ = new THREE.BoxGeometry(0.1, 0.1, 1), stub = new THREE.BoxGeometry(0.12, 0.62, 0.12);
     const lay = (g: THREE.Group, geo: THREE.BufferGeometry, x: number, y: number, z: number) => { const m = new THREE.Mesh(geo, K.planks); m.position.set(x, y, z); g.add(m); };
-    for (let z = 0; z < T2_ROWS; z++) for (let x = 0; x < T2_COLS; x++) {
-      if (!isDeck(x, z) || t2OnStage(x, z)) continue;
+    for (let z = map.y0; z < map.y0 + map.rows; z++) for (let x = map.x0; x < map.x0 + map.cols; x++) {
+      if (!TOWN || !isDeck(x, z) || t2OnStage(x, z)) continue;
       // (a deck's picture reaches a little past its footprint, to the shore it joins)
       const own = decked.find((q) => x + 0.5 >= q.box[0] - 1 && x + 0.5 <= q.box[2] + 1 && z + 0.5 >= q.box[1] - 1 && z + 0.5 <= q.box[3] + 1);
       for (const [dx, dz] of [[0.25, 0.25], [0.75, 0.25], [0.25, 0.75], [0.75, 0.75]]) {
-        const bx = x + dx, bz = z + dz, by = t2Lift(bx, bz) / PX_UP;
+        const bx = x + dx, bz = z + dz, by = lift(bx, bz) / PX_UP;
         const legged = wetAt(bx, bz) && Math.floor(bx * 2) % 4 === 0 && Math.floor(bz * 2) % 4 === 0;
         if (own) { lay(own.g, slab, bx, by - 0.05, bz); if (legged) lay(own.g, leg, bx, by - 0.55, bz); }
         else { at.push([bx, by, bz]); if (legged) legAt.push([bx, by, bz]); }
       }
       // (a pier is drawn standing on legs, though it is walked at the ground's height: its shadow is thrown from where
       // it was drawn; the owner, 2026-11-17: "ที่ตกปลาไม่มีเงา make sure หน่อยว่า ทุกอย่างจะมีเงา")
-      if (own && !own.bridge && t2Lift(x + 0.5, z + 0.5) / PX_UP < 0.3) raised.push([x, z, own.up]);
+      if (own && !own.bridge && lift(x + 0.5, z + 0.5) / PX_UP < 0.3) raised.push([x, z, own.up]);
       if (!own?.bridge) continue;
-      const b = own.box, along = b[2] - b[0] >= b[3] - b[1], up = t2Lift(x + 0.5, z + 0.5) / PX_UP;
+      const b = own.box, along = b[2] - b[0] >= b[3] - b[1], up = lift(x + 0.5, z + 0.5) / PX_UP;
       const rail = (rx: number, rz: number, isX: boolean) => { lay(own.g, isX ? railX : railZ, rx, up + 0.62, rz); lay(own.g, stub, rx, up + 0.33, rz); };
       if (along) { if (!isDeck(x, z - 1)) rail(x + 0.5, z + 0.06, true); if (!isDeck(x, z + 1)) rail(x + 0.5, z + 0.94, true); }
       else { if (!isDeck(x - 1, z)) rail(x + 0.06, z + 0.5, false); if (!isDeck(x + 1, z)) rail(x + 0.94, z + 0.5, false); }
@@ -503,10 +511,10 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
 
   if (opts.showWalk) {
     const P: number[] = [], I: number[] = [];
-    for (let z = 0; z < T2_ROWS; z++) for (let x = 0; x < T2_COLS; x++) {
+    for (let z = map.y0; z < map.y0 + map.rows; z++) for (let x = map.x0; x < map.x0 + map.cols; x++) {
       if (!step(x, z, x, z)) continue;
       const n = P.length / 3, e = 0.06;
-      for (const [dx, dz] of [[e, e], [1 - e, e], [1 - e, 1 - e], [e, 1 - e]]) P.push(x + dx, t2Lift(x + dx, z + dz) / PX_UP + 0.12, z + dz);
+      for (const [dx, dz] of [[e, e], [1 - e, e], [1 - e, 1 - e], [e, 1 - e]]) P.push(x + dx, lift(x + dx, z + dz) / PX_UP + 0.12, z + dz);
       I.push(n, n + 2, n + 1, n, n + 3, n + 2);
     }
     const geo = new THREE.BufferGeometry();
@@ -565,7 +573,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
 
   let kit: PixelKit | null = null;
   const look: Look = defaultLook("hd2d-test");
-  const start = (opts.at && nearestOpen(opts.at.x, opts.at.y)) ?? nearestOpen(T2_PLAZA.x + T2_PLAZA.w / 2, T2_PLAZA.y + T2_PLAZA.h * 0.72) ?? { x: 40, y: 45 };
+  const start = (opts.at && nearestOpen(opts.at.x, opts.at.y)) ?? nearestOpen(map.start.x, map.start.y, 12) ?? { x: Math.floor(map.start.x), y: Math.floor(map.start.y) };
   const me = { x: start.x + 0.5, z: start.y + 0.5, y: 0, view: "front" as View, mirror: false, walking: false, drawn: "" };
   let way: P[] = [];
   loadPixelKit(look.race).then(async (k) => {
@@ -652,7 +660,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     for (const up of HEIGHTS) {
       floor.constant = -up;
       if (!ray.ray.intersectPlane(floor, hit)) continue;
-      if (up > 0 && Math.abs(t2Lift(hit.x, hit.z) / PX_UP - up) > 0.2) continue;
+      if (up > 0 && Math.abs(lift(hit.x, hit.z) / PX_UP - up) > 0.2) continue;
       to = nearestOpen(hit.x, hit.z, 3);
       if (to) break;
     }
@@ -735,7 +743,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       }
       me.walking = true;
     }
-    const up = t2Lift(me.x, me.z) / PX_UP;
+    const up = lift(me.x, me.z) / PX_UP;
     me.y += (up - me.y) * Math.min(1, dt * 14);
   }
 
@@ -812,7 +820,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       opts.nameEl.style.transform = `translate3d(${Math.round((V.x * 0.5 + 0.5) * w)}px, ${Math.round((-V.y * 0.5 + 0.5) * h)}px, 0) translate(-50%, 4px)`;
       opts.nameEl.style.visibility = kit ? "visible" : "hidden";
     }
-    const indoors = t2InHall(Math.floor(me.x), Math.floor(me.z));
+    const indoors = TOWN && t2InHall(Math.floor(me.x), Math.floor(me.z));
     if (hall.upper) hall.upper.visible = !indoors;
     if (hallIn.room) hallIn.room.visible = indoors;
 
