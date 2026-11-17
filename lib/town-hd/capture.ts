@@ -14,11 +14,13 @@
 /** A piece of the sheet: how far forward it stands (x + y in tiles), its turn among those as far forward, where it was drawn on the screen and where it is kept on the sheet (all in the canvas's own pixels). */
 export interface Card { depth: number; seq: number; x: number; y: number; w: number; h: number; ax: number; ay: number; /** Not a piece of the sheet but a walker, stood in the scene by the 3D town itself. */ actor?: Actor; /** Not a piece of the sheet but a picture of the live town's own, laid in the scene straight from that picture (`ax`, `ay` its corner in it). */ sprite?: Sprite }
 /** A picture drawn whole and plainly (no turn, no cut, nothing mixed): the picture, how much of it, how solid, and whether mirrored. */
-export interface Sprite { img: HTMLImageElement; sw: number; sh: number; alpha: number; flip: boolean }
+export interface Sprite { img: HTMLImageElement; sw: number; sh: number; alpha: number; flip: boolean; /** Drawn smoothed (the live town's context was, as it is unless a drawing says otherwise). */ smooth: boolean }
 /** A walker in the scene: their doll's cell of the dolls' sheet (`ax`, `ay`, and the card's `w`, `h` on the screen), where they stand (tiles), and how solid they are drawn. */
 export interface Actor { sw: number; sh: number; bx: number; bz: number; alpha: number }
 
 type Ctx = CanvasRenderingContext2D;
+/** The calls that change a drawing's measure. */
+const TURNS = new Set(["save", "restore", "translate", "scale", "rotate", "transform", "setTransform", "resetTransform"]);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Any = any;
 
@@ -41,7 +43,10 @@ export class Capture {
   private shelf = { x: 0, y: 0, h: 0 };
   private seq = 0;
   private depth = 0;
-  private want = 2048;
+  private want = 0;
+  /** The drawing's own measure now (asked of the canvas only after something changed it: it is asked for with every call). */
+  private matrix: DOMMatrix | null = null;
+  private m(): DOMMatrix { return (this.matrix ??= this.to.getTransform()); }
 
   constructor() {
     const wrapped = new Map<PropertyKey, (...a: Any[]) => Any>();
@@ -67,11 +72,15 @@ export class Capture {
     this.main = main; this.dpr = dpr;
     const W = main.canvas.width, H = main.canvas.height;
     for (const c of [this.floor, this.scratch]) if (c.width !== W || c.height !== H) { c.width = W; c.height = H; }
-    const side = Math.min(8192, Math.max(this.want, 2 ** Math.ceil(Math.log2(Math.max(W, H) * 2))));
-    if (this.atlas.width !== side) { this.atlas.width = side; this.atlas.height = side; }
+    // The sheet is sent whole to the graphics card every frame: it is kept as small as the last frame's pieces needed
+    // (the owner, 2026-11-18, of one of 4096 by 4096 sent sixty times a second: "หน่วงเลย").
+    const used = this.shelf.y + this.shelf.h, wide = 2 ** Math.ceil(Math.log2(Math.max(1024, W + 2)));
+    const tall = Math.min(8192, Math.max(512, this.want, Math.ceil((used * 1.25 + 128) / 512) * 512));
+    this.want = 0;
     const a = this.atlas.getContext("2d")!;
     a.setTransform(1, 0, 0, 1, 0, 0);
-    a.clearRect(0, 0, side, Math.min(side, this.shelf.y + this.shelf.h + 1));
+    if (this.atlas.width !== wide || this.atlas.height !== tall) { this.atlas.width = wide; this.atlas.height = tall; }
+    else a.clearRect(0, 0, wide, Math.min(tall, used + 1));
     for (const c of [this.floor, this.scratch]) {
       const g = c.getContext("2d")!;
       g.setTransform(1, 0, 0, 1, 0, 0);
@@ -90,7 +99,7 @@ export class Capture {
   thing(depth: number, draw: () => void) {
     const g = this.scratch.getContext("2d")!;
     this.to = g; this.tracking = true; this.depth = depth;
-    this.clipped = false; this.clips = [];
+    this.clipped = false; this.clips = []; this.matrix = null;
     this.reset();
     g.save();
     try { draw(); } finally {
@@ -113,7 +122,7 @@ export class Capture {
     const side = this.atlas.width, s = this.shelf;
     if (s.x + w > side) { s.x = 0; s.y += s.h + 1; s.h = 0; }
     const g = this.scratch.getContext("2d")!;
-    if (w > side || s.y + h > side) { this.lost++; this.want = Math.min(8192, side * 2); }
+    if (w > side || s.y + h > this.atlas.height) { this.lost++; this.want = Math.min(8192, Math.max(this.want, (s.y + h) * 2)); }
     else {
       const a = this.atlas.getContext("2d")!;
       a.drawImage(this.scratch, x0, y0, w, h, s.x, s.y, w, h);
@@ -133,7 +142,7 @@ export class Capture {
    */
   actor(x: number, y: number, w: number, h: number, sx: number, sy: number, sw: number, sh: number, bx: number, bz: number) {
     this.cut();
-    const m = this.to.getTransform();
+    const m = this.m();
     this.cards.push({ depth: this.depth, seq: this.seq++, x: m.a * x + m.e, y: m.d * y + m.f, w: m.a * w, h: m.d * h, ax: sx, ay: sy, actor: { sw, sh, bx, bz, alpha: this.to.globalAlpha } });
   }
 
@@ -148,8 +157,8 @@ export class Capture {
   private plain(a: Any[]): boolean {
     const g = this.to, img = a[0];
     // (nor a picture larger than a phone's graphics hold as one: that one is drawn here as before)
-    if (!(img instanceof HTMLImageElement) || img.naturalWidth > 4096 || img.naturalHeight > 4096 || this.clipped || g.imageSmoothingEnabled || g.globalCompositeOperation !== "source-over" || g.shadowBlur || (g.filter && g.filter !== "none")) return false;
-    const m = g.getTransform();
+    if (!(img instanceof HTMLImageElement) || img.naturalWidth > 4096 || img.naturalHeight > 4096 || this.clipped || g.globalCompositeOperation !== "source-over" || g.shadowBlur || (g.filter && g.filter !== "none")) return false;
+    const m = this.m();
     if (Math.abs(m.b) > 1e-6 || Math.abs(m.c) > 1e-6 || m.d <= 0 || !m.a) return false;
     let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight, dx: number, dy: number, dw = sw, dh = sh;
     if (a.length >= 9) [, sx, sy, sw, sh, dx, dy, dw, dh] = a;
@@ -158,7 +167,7 @@ export class Capture {
     if (!(dw > 0) || !(dh > 0) || !(sw > 0) || !(sh > 0)) return false;
     this.cut();
     const x0 = m.a * dx + m.e, x1 = m.a * (dx + dw) + m.e;
-    this.cards.push({ depth: this.depth, seq: this.seq++, x: Math.min(x0, x1), y: m.d * dy + m.f, w: Math.abs(x1 - x0), h: m.d * dh, ax: sx, ay: sy, sprite: { img, sw, sh, alpha: g.globalAlpha, flip: m.a < 0 } });
+    this.cards.push({ depth: this.depth, seq: this.seq++, x: Math.min(x0, x1), y: m.d * dy + m.f, w: Math.abs(x1 - x0), h: m.d * dh, ax: sx, ay: sy, sprite: { img, sw, sh, alpha: g.globalAlpha, flip: m.a < 0, smooth: g.imageSmoothingEnabled } });
     return true;
   }
   private clipped = false;
@@ -180,41 +189,42 @@ export class Capture {
   /** Where a call draws, added to this piece's box (in the canvas's own pixels). */
   private track(name: string, a: Any[]) {
     const g = this.to;
+    if (TURNS.has(name)) this.matrix = null;
     switch (name) {
       // (a cut-out region: what is drawn inside it is not a plain picture, until it is put back)
       case "save": this.clips.push(this.clipped); break;
       case "restore": this.clipped = this.clips.pop() ?? false; break;
       case "clip": this.clipped = true; break;
       case "drawImage": {
-        const m = g.getTransform(), pad = g.shadowBlur ? g.shadowBlur * 2 + 4 : 0;
+        const m = this.m(), pad = g.shadowBlur ? g.shadowBlur * 2 + 4 : 0;
         if (a.length >= 9) this.rect(this.box, m, a[5], a[6], a[7], a[8], pad);
         else if (a.length >= 5) this.rect(this.box, m, a[1], a[2], a[3], a[4], pad);
         else this.rect(this.box, m, a[1], a[2], a[0].naturalWidth ?? a[0].videoWidth ?? a[0].width, a[0].naturalHeight ?? a[0].videoHeight ?? a[0].height, pad);
         break;
       }
       case "fillRect": case "strokeRect": {
-        const m = g.getTransform();
+        const m = this.m();
         this.rect(this.box, m, a[0], a[1], a[2], a[3], (name === "strokeRect" ? g.lineWidth * Math.hypot(m.a, m.b) : 0) + (g.shadowBlur ? g.shadowBlur * 2 + 4 : 0));
         break;
       }
       case "fillText": case "strokeText": {
-        const m = g.getTransform(), w = g.measureText(String(a[0])).width + 8, px = Number(/(\d+(?:\.\d+)?)px/.exec(g.font)?.[1] ?? 16);
+        const m = this.m(), w = g.measureText(String(a[0])).width + 8, px = Number(/(\d+(?:\.\d+)?)px/.exec(g.font)?.[1] ?? 16);
         this.rect(this.box, m, a[1] - w, a[2] - px * 1.5, w * 2, px * 2.3, (g.lineWidth + (g.shadowBlur ? g.shadowBlur * 2 : 0)) * Math.hypot(m.a, m.b) + 2);
         break;
       }
       case "putImageData": this.rect(this.box, new DOMMatrix(), a[1], a[2], a[0].width, a[0].height); break;
       case "beginPath": this.path = [Infinity, Infinity, -Infinity, -Infinity]; break;
-      case "moveTo": case "lineTo": this.add(this.path, g.getTransform(), a[0], a[1]); break;
-      case "rect": case "roundRect": this.rect(this.path, g.getTransform(), a[0], a[1], a[2], a[3]); break;
-      case "arc": this.rect(this.path, g.getTransform(), a[0] - a[2], a[1] - a[2], a[2] * 2, a[2] * 2); break;
-      case "ellipse": { const r = Math.max(a[2], a[3]); this.rect(this.path, g.getTransform(), a[0] - r, a[1] - r, r * 2, r * 2); break; }
-      case "arcTo": case "quadraticCurveTo": { const m = g.getTransform(); this.add(this.path, m, a[0], a[1]); this.add(this.path, m, a[2], a[3]); break; }
-      case "bezierCurveTo": { const m = g.getTransform(); this.add(this.path, m, a[0], a[1]); this.add(this.path, m, a[2], a[3]); this.add(this.path, m, a[4], a[5]); break; }
+      case "moveTo": case "lineTo": this.add(this.path, this.m(), a[0], a[1]); break;
+      case "rect": case "roundRect": this.rect(this.path, this.m(), a[0], a[1], a[2], a[3]); break;
+      case "arc": this.rect(this.path, this.m(), a[0] - a[2], a[1] - a[2], a[2] * 2, a[2] * 2); break;
+      case "ellipse": { const r = Math.max(a[2], a[3]); this.rect(this.path, this.m(), a[0] - r, a[1] - r, r * 2, r * 2); break; }
+      case "arcTo": case "quadraticCurveTo": { const m = this.m(); this.add(this.path, m, a[0], a[1]); this.add(this.path, m, a[2], a[3]); break; }
+      case "bezierCurveTo": { const m = this.m(); this.add(this.path, m, a[0], a[1]); this.add(this.path, m, a[2], a[3]); this.add(this.path, m, a[4], a[5]); break; }
       case "fill": case "stroke": {
         // (a path made elsewhere says nothing of where it is: the whole canvas is this piece)
         if (a[0] && typeof a[0] === "object") { this.wild = true; break; }
         if (this.path[2] < this.path[0]) break;
-        const m = g.getTransform(), pad = (name === "stroke" ? g.lineWidth * Math.hypot(m.a, m.b) : 0) + (g.shadowBlur ? g.shadowBlur * 2 + 4 : 0) + 1;
+        const m = this.m(), pad = (name === "stroke" ? g.lineWidth * Math.hypot(m.a, m.b) : 0) + (g.shadowBlur ? g.shadowBlur * 2 + 4 : 0) + 1;
         if (this.path[0] - pad < this.box[0]) this.box[0] = this.path[0] - pad;
         if (this.path[1] - pad < this.box[1]) this.box[1] = this.path[1] - pad;
         if (this.path[2] + pad > this.box[2]) this.box[2] = this.path[2] + pad;

@@ -598,10 +598,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     return solidFor.current.is;
   };
   const solidFarm = useRef<{ town: HdTown; yards: unknown; is: (i: number) => boolean } | null>(null);
+  const hdStats = useRef<{ at: number } | null>(null);
+  useEffect(() => { hdStats.current = /[?&]hdstats=1/.test(window.location.search) ? { at: 0 } : null; }, []);
   const capRef = useRef<Capture | null>(null), world3d = useRef(false), hd3d = useRef(false);
   useEffect(() => { hd3d.current = /[?&]hd3d=1/.test(window.location.search); }, []);
   /** How many of the dolls' sheet's pixels there are to one of the map's (1, or as fine as the screen where walkers are stood in the 3D scene from it). */
-  const dollQ = useRef(1);
+  const dollQ = useRef(1), dollRows = useRef(DOLL_CELLS.rows);
   const castAt = useRef(-1), hdRaised = useRef(false), shadeTick = useRef(0), inShade = useRef(new Map<string, number>());
   useEffect(() => () => { HILL = null; }, []);
   const hdNow = useRef(hd), litCopy = useRef<HTMLCanvasElement | null>(null), litOn = useRef(true);
@@ -2583,9 +2585,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         // (the dolls' sheet as fine as the screen: stood in the scene from it, a walker is as sharp as the live town drew
         // them; the owner, 2026-11-18: "ภาพตัวละครไม่ชัดเลย")
         const fine = Math.min(3, Math.max(1, Math.ceil(v.s * dpr * 2) / 2));
-        if (sheet && fine !== dollQ.current) { sheet.width = DOLL_CELLS.cols * DOLL_CELLS.w * fine; sheet.height = DOLL_CELLS.rows * DOLL_CELLS.h * fine; }
+        // (and no taller than the walkers in sight need: it is sent to the graphics card every frame)
+        const rows = Math.min(DOLL_CELLS.rows, Math.max(1, Math.ceil((dollsDrawn.current.length + 4) / DOLL_CELLS.cols)));
+        if (sheet && (fine !== dollQ.current || rows !== dollRows.current)) { sheet.width = DOLL_CELLS.cols * DOLL_CELLS.w * fine; sheet.height = rows * DOLL_CELLS.h * fine; }
         else if (sheet) sheet.getContext("2d")!.clearRect(0, 0, sheet.width, sheet.height);
-        dollQ.current = fine;
+        dollQ.current = fine; dollRows.current = rows;
         dollsDrawn.current = [];
         castAt.current = now;
         rimNow.current = finishRef.current ? rimAt(hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes()) : null;
@@ -3484,13 +3488,21 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       // Every standing thing a piece of the bridge's sheet, in its turn; then the 3D town's picture of the whole world,
       // laid on the town's own canvas for what is drawn over everything.
       const cap = capRef.current!, town = hdTowns.current[placeRef.current as HdPlace];
+      const t0 = performance.now();
       for (const t of things) cap.thing(t.depth, t.draw);
       cap.end();
+      const t1 = performance.now();
       try {
         const clock = new Date(Date.now() + 7 * 3600_000), sheet = dollSheet.current;
         const stands: Stand[] = dollsDrawn.current.filter((d) => d.cast).map((d) => ({ img: sheet!, sx: (d.cell % DOLL_CELLS.cols) * DOLL_CELLS.w * dollQ.current, sy: Math.floor(d.cell / DOLL_CELLS.cols) * DOLL_CELLS.h * dollQ.current, w: DOLL_CELLS.w * dollQ.current, h: DOLL_CELLS.h * dollQ.current, ax: (DOLL_CELLS.w / 2) * dollQ.current, ay: DOLL_CELLS.foot * dollQ.current, k: 1 / dollQ.current, x: d.a.pos.x, y: d.a.pos.y }));
         const pic = town!.renderWorld({ cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes(), stands, sec: swaying?.sec, me: swaying?.me }, effects.current?.rain ?? 0, cap.floor, cap.atlas, cap.cards, sheet, placeRef.current === "town" ? !!art2?.solid : !!artF?.solid);
         ctx.drawImage(pic, 0, 0, cw, ch);
+        // (`?hdstats=1`: where a frame's time goes, told every two seconds)
+        if (hdStats.current && now - hdStats.current.at > 2000) {
+          hdStats.current.at = now;
+          const runs = cap.cards.reduce((n, c, i) => n + (i === 0 || !!c.actor || !!cap.cards[i - 1].actor || (c.sprite?.img ?? null) !== (cap.cards[i - 1].sprite?.img ?? null) ? 1 : 0), 0);
+          console.info(`[Cash Town] 3D world: things ${things.length}, cards ${cap.cards.length} (plain ${cap.cards.filter((c) => c.sprite).length}, walkers ${cap.cards.filter((c) => c.actor).length}), runs ${runs}, sheet ${cap.atlas.width}x${cap.atlas.height}, capture ${(t1 - t0).toFixed(1)} ms, world ${(performance.now() - t1).toFixed(1)} ms`);
+        }
         if (cap.lost) console.warn("[Cash Town] 3D world: no room on the sheet for", cap.lost, "things this frame");
       } catch (e) { hd3d.current = false; console.warn("[Cash Town] 3D world stopped", e); }
     } else for (const t of things) t.draw();
@@ -4300,11 +4312,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         auraBehind(ctx, wearer);
       }
       // (in the 3D town's own world a walker on their feet is stood in the scene by it, from the dolls' sheet: below)
-      const staged = world3d.current && castAt.current === now && !mapRef.current && dollsDrawn.current.length < DOLL_CELLS.cols * DOLL_CELLS.rows;
+      const staged = world3d.current && castAt.current === now && !mapRef.current && dollsDrawn.current.length < DOLL_CELLS.cols * dollRows.current;
       if (!staged) kit.draw(ctx, look, face.view, face.mirror, p.x, p.y, k, { step, blink, talk, expr, eat: eatPose, sit: sitting(a) || perched, perch: !!tableSeatOf(a)?.back }, dpr);
       // (whoever is on their feet, for their shadow; in the 3D town's world everybody, sitting and riding too, to be stood in the scene)
-      if (staged || (castAt.current === now && !perched && !sitting(a) && !mapRef.current && dollsDrawn.current.length < DOLL_CELLS.cols * DOLL_CELLS.rows)) {
-        const Q = dollQ.current, sheet = (dollSheet.current ??= Object.assign(document.createElement("canvas"), { width: DOLL_CELLS.cols * DOLL_CELLS.w * Q, height: DOLL_CELLS.rows * DOLL_CELLS.h * Q }));
+      if (staged || (castAt.current === now && !perched && !sitting(a) && !mapRef.current && dollsDrawn.current.length < DOLL_CELLS.cols * dollRows.current)) {
+        const Q = dollQ.current, sheet = (dollSheet.current ??= Object.assign(document.createElement("canvas"), { width: DOLL_CELLS.cols * DOLL_CELLS.w * Q, height: dollRows.current * DOLL_CELLS.h * Q }));
         const cell = dollsDrawn.current.length, g = sheet.getContext("2d")!;
         g.save();
         g.beginPath(); g.rect((cell % DOLL_CELLS.cols) * DOLL_CELLS.w * Q, Math.floor(cell / DOLL_CELLS.cols) * DOLL_CELLS.h * Q, DOLL_CELLS.w * Q, DOLL_CELLS.h * Q); g.clip();

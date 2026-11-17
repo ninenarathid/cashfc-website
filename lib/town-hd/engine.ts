@@ -13,7 +13,8 @@
  */
 import { createSheets, probe, reachOf, type Sheets, type Stand } from "./shade";
 import { FLAT, SWAY } from "./sway";
-import type { Actor, Card as Piece } from "./capture";
+import type { Card as Piece } from "./capture";
+import { createWorld, type World } from "./world";
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import {
@@ -1182,76 +1183,8 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   document.addEventListener("visibilitychange", onVisible);
 
   let sheets: Sheets | null = null, reached = REACH;
-  // A walker stood in the scene (`renderWorld`): their doll's cell of the live town's dolls' sheet on an upright card where
-  // they stand, in the scene's light as the trial's doll is: an edge of sun on the sun's side, and the dark of a shadow
-  // over all of them when their body is in one (asked at one point, before their own shadow, so they are in or out whole).
-  let actor: { mesh: THREE.Mesh; geo: THREE.BufferGeometry; mat: THREE.MeshLambertMaterial; tex: THREE.CanvasTexture; of: string } | null = null;
-  const actorRim = { value: new THREE.Vector3() }, actorRimCol = { value: new THREE.Color() }, actorBody = { value: new THREE.Vector3() };
-  function stage(v: LiveView, c: Piece, a: Actor, dolls: HTMLCanvasElement, dp: number) {
-    const of = `${dolls.width},${dolls.height}`;
-    if (!actor || actor.of !== of) {
-      if (actor) { scene.remove(actor.mesh); actor.geo.dispose(); actor.mat.dispose(); actor.tex.dispose(); }
-      const tex = new THREE.CanvasTexture(dolls);
-      tex.colorSpace = THREE.SRGBColorSpace; tex.magFilter = tex.minFilter = THREE.NearestFilter; tex.generateMipmaps = false;
-      const mat = new THREE.MeshLambertMaterial({ map: tex, alphaTest: 0.5, side: THREE.DoubleSide, transparent: true, depthTest: false, depthWrite: false });
-      mat.onBeforeCompile = (sh) => {
-        sh.uniforms.hdRim = actorRim; sh.uniforms.hdRimCol = actorRimCol; sh.uniforms.hdBody = actorBody;
-        sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nuniform vec3 hdBody;")
-          .replace("#include <shadowmap_vertex>", `#include <shadowmap_vertex>
-            #if defined( USE_SHADOWMAP ) && NUM_DIR_LIGHT_SHADOWS > 0
-              vDirectionalShadowCoord[ 0 ] = directionalShadowMatrix[ 0 ] * vec4( hdBody, 1.0 );
-            #endif`);
-        sh.fragmentShader = sh.fragmentShader.replace("#include <common>", "#include <common>\nuniform vec3 hdRim;\nuniform vec3 hdRimCol;")
-          .replace("#include <map_fragment>", `#include <map_fragment>
-            #ifdef USE_MAP
-              diffuseColor.rgb += hdRimCol * (1.0 - texture2D(map, vMapUv + hdRim.xy).a) * hdRim.z;
-            #endif`);
-      };
-      const geo = new THREE.BufferGeometry();
-      geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(12), 3).setUsage(THREE.DynamicDrawUsage));
-      geo.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(8), 2).setUsage(THREE.DynamicDrawUsage));
-      geo.setAttribute("normal", new THREE.Float32BufferAttribute([0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0], 3));
-      geo.setIndex([0, 1, 2, 0, 2, 3]);
-      const mesh = new THREE.Mesh(geo, mat);
-      mesh.frustumCulled = false; mesh.receiveShadow = true; mesh.visible = false;
-      scene.add(mesh);
-      actor = { mesh, geo, mat, tex, of };
-    }
-    const A = actor, d = a.bx + a.bz;
-    // (a point of the screen, on the upright sheet through where they stand that faces the view)
-    const at = (X: number, Y: number): [number, number, number] => {
-      const ix = v.cx + (X / dp - v.cw / 2) / v.s, iy = v.cy + (Y / dp - v.ch / 2) / v.s;
-      return [(d + ix / 32) / 2, (d * 16 - iy) / PX_UP, (d - ix / 32) / 2];
-    };
-    const pos = A.geo.attributes.position as THREE.BufferAttribute, uv = A.geo.attributes.uv as THREE.BufferAttribute;
-    [at(c.x, c.y + c.h), at(c.x + c.w, c.y + c.h), at(c.x + c.w, c.y), at(c.x, c.y)].forEach((q, i) => pos.setXYZ(i, q[0], q[1], q[2]));
-    const u0 = c.ax / dolls.width, u1 = (c.ax + a.sw) / dolls.width, v1 = 1 - c.ay / dolls.height, v0 = 1 - (c.ay + a.sh) / dolls.height;
-    uv.setXY(0, u0, v0); uv.setXY(1, u1, v0); uv.setXY(2, u1, v1); uv.setXY(3, u0, v1);
-    pos.needsUpdate = true; uv.needsUpdate = true;
-    A.tex.needsUpdate = A.tex.version === 0 || stagedAt !== frameNo;
-    stagedAt = frameNo;
-    const sx = sunDir.dot(RIGHT), sy = sunDir.dot(UPV), sl = Math.hypot(sx, sy) || 1;
-    actorRim.value.set(((sx / sl) * 1.6) / dolls.width, ((sy / sl) * 1.6) / dolls.height, 0.16 * now.sunI);
-    actorRimCol.value.setHex(now.sunCol);
-    actorBody.value.set(a.bx + sunDir.x * 0.45, Hat(a.bx, a.bz) + 0.8, a.bz + sunDir.z * 0.45);
-    A.mat.opacity = a.alpha;
-    // (alone: the ground is down already, and nothing else of the scene is seen in this town)
-    A.mesh.visible = true;
-    if (land) land.mesh.visible = false;
-    // (a scene with a colour behind it wipes the picture before it draws: there is none behind this one)
-    const back = scene.background;
-    scene.background = null;
-    renderer.shadowMap.autoUpdate = false;
-    renderer.render(scene, camera);
-    renderer.shadowMap.autoUpdate = true;
-    scene.background = back;
-    if (land) land.mesh.visible = true;
-    A.mesh.visible = false;
-  }
-  let stagedAt = -1, frameNo = 0;
-  let spr: { geo: THREE.BufferGeometry; mat: THREE.ShaderMaterial; mesh: THREE.Mesh; pos: Float32Array; uv: Float32Array; al: Float32Array; room: number; tex: Map<HTMLImageElement, THREE.Texture> } | null = null;
+  let world: World | null = null;
   let surf: THREE.Mesh | null = null;
-  let quads: { geo: THREE.BufferGeometry; mat: THREE.ShaderMaterial; mesh: THREE.Mesh; pos: Float32Array; uv: Float32Array; room: number; tex: Map<HTMLCanvasElement, { tex: THREE.CanvasTexture; key: string }> } | null = null;
   let over: THREE.MeshLambertMaterial | null = null, laying = false;
   const overMat = () => over;
   const airKids = camera.children.filter((c) => !kidsBefore.has(c) && c.visible);
@@ -1329,145 +1262,23 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       return renderer.domElement;
     },
     renderWorld(v, wet, floor, atlas, cards, dolls, solid) {
-      if (!quads) {
-        const geo = new THREE.BufferGeometry();
-        const mat = new THREE.ShaderMaterial({
-          uniforms: { hdMap: { value: null } },
-          vertexShader: "varying vec2 hdUv; void main() { hdUv = uv; gl_Position = vec4(position.xyz, 1.0); }",
-          fragmentShader: "varying vec2 hdUv; uniform sampler2D hdMap; void main() { gl_FragColor = texture2D(hdMap, hdUv); }",
-          // (a canvas's picture comes with its colours already weighed by how solid they are: laid as such)
-          transparent: true, depthTest: false, depthWrite: false, blending: THREE.CustomBlending, blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcAlphaFactor,
-        });
-        const mesh = new THREE.Mesh(geo, mat);
-        mesh.frustumCulled = false;
-        quads = { geo, mat, mesh, pos: new Float32Array(0), uv: new Float32Array(0), room: 0, tex: new Map() };
+      if (!world) {
+        world = createWorld({ renderer, scene, camera, heightAt: Hat, sunDir, light: () => ({ i: now.sunI, col: now.sunCol }), grounds: () => (land ? [land.mesh] : []) });
         over = new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true, depthWrite: false, blending: THREE.CustomBlending, blendSrc: THREE.DstColorFactor, blendDst: THREE.ZeroFactor });
-        disposables.push(geo, mat, over);
+        disposables.push(over, world);
       }
-      const Q = quads;
-      const texOf = (c: HTMLCanvasElement) => {
-        const key = `${c.width},${c.height}`;
-        let t = Q.tex.get(c);
-        if (!t || t.key !== key) {
-          t?.tex.dispose();
-          const tex = new THREE.CanvasTexture(c);
-          tex.colorSpace = THREE.NoColorSpace; tex.generateMipmaps = false; tex.minFilter = tex.magFilter = THREE.NearestFilter; tex.premultiplyAlpha = true;
-          t = { tex, key };
-          Q.tex.set(c, t);
-        }
-        t.tex.needsUpdate = true;
-        return t.tex;
-      };
-      /** So many pieces of a picture, each laid where it was drawn on the screen (all in the canvas's own pixels). */
-      const lay = (c: HTMLCanvasElement, list: ReadonlyArray<{ x: number; y: number; w: number; h: number; ax: number; ay: number; depth?: number }>, W: number, H: number, deep?: (q: { x: number; y: number; w: number; h: number; depth?: number }) => [number, number]) => {
-        if (!list.length) return;
-        if (Q.room < list.length) {
-          Q.room = Math.max(256, list.length * 2);
-          Q.pos = new Float32Array(Q.room * 12); Q.uv = new Float32Array(Q.room * 8);
-          const idx = new Uint32Array(Q.room * 6);
-          for (let i = 0; i < Q.room; i++) idx.set([i * 4, i * 4 + 1, i * 4 + 2, i * 4, i * 4 + 2, i * 4 + 3], i * 6);
-          Q.geo.setAttribute("position", new THREE.BufferAttribute(Q.pos, 3).setUsage(THREE.DynamicDrawUsage));
-          Q.geo.setAttribute("uv", new THREE.BufferAttribute(Q.uv, 2).setUsage(THREE.DynamicDrawUsage));
-          Q.geo.setIndex(new THREE.BufferAttribute(idx, 1));
-        }
-        list.forEach((q, i) => {
-          const x0 = (q.x / W) * 2 - 1, x1 = ((q.x + q.w) / W) * 2 - 1, y0 = 1 - (q.y / H) * 2, y1 = 1 - ((q.y + q.h) / H) * 2;
-          const u0 = q.ax / c.width, u1 = (q.ax + q.w) / c.width, v0 = 1 - q.ay / c.height, v1 = 1 - (q.ay + q.h) / c.height;
-          const [zb, zt] = deep ? deep(q) : [0, 0];
-          Q.pos.set([x0, y1, zb, x1, y1, zb, x1, y0, zt, x0, y0, zt], i * 12);
-          Q.uv.set([u0, v1, u1, v1, u1, v0, u0, v0], i * 8);
-        });
-        Q.geo.attributes.position.needsUpdate = true; Q.geo.attributes.uv.needsUpdate = true;
-        Q.geo.setDrawRange(0, list.length * 6);
-        Q.mat.uniforms.hdMap.value = texOf(c);
-        renderer.render(Q.mesh, camera);
-      };
-      /** So many of the live town's own pictures drawn plainly (lib/town-hd/capture's `plain`), all of one picture, laid in the scene straight from it. */
-      const laySprites = (img: HTMLImageElement, list: ReadonlyArray<Piece>, W: number, H: number, deep?: (q: { x: number; y: number; w: number; h: number; depth?: number }) => [number, number]) => {
-        if (!spr) {
-          const geo = new THREE.BufferGeometry();
-          const mat = new THREE.ShaderMaterial({
-            uniforms: { hdMap: { value: null } },
-            vertexShader: "attribute float hdA; varying vec2 hdUv; varying float hdAlpha; void main() { hdUv = uv; hdAlpha = hdA; gl_Position = vec4(position.xyz, 1.0); }",
-            fragmentShader: "varying vec2 hdUv; varying float hdAlpha; uniform sampler2D hdMap; void main() { vec4 c = texture2D(hdMap, hdUv); gl_FragColor = vec4(c.rgb, c.a * hdAlpha); }",
-            transparent: true, depthWrite: false,
-          });
-          const mesh = new THREE.Mesh(geo, mat);
-          mesh.frustumCulled = false;
-          spr = { geo, mat, mesh, pos: new Float32Array(0), uv: new Float32Array(0), al: new Float32Array(0), room: 0, tex: new Map() };
-          disposables.push(geo, mat);
-        }
-        const P = spr;
-        if (P.room < list.length) {
-          P.room = Math.max(256, list.length * 2);
-          P.pos = new Float32Array(P.room * 12); P.uv = new Float32Array(P.room * 8); P.al = new Float32Array(P.room * 4);
-          const idx = new Uint32Array(P.room * 6);
-          for (let i = 0; i < P.room; i++) idx.set([i * 4, i * 4 + 1, i * 4 + 2, i * 4, i * 4 + 2, i * 4 + 3], i * 6);
-          P.geo.setAttribute("position", new THREE.BufferAttribute(P.pos, 3).setUsage(THREE.DynamicDrawUsage));
-          P.geo.setAttribute("uv", new THREE.BufferAttribute(P.uv, 2).setUsage(THREE.DynamicDrawUsage));
-          P.geo.setAttribute("hdA", new THREE.BufferAttribute(P.al, 1).setUsage(THREE.DynamicDrawUsage));
-          P.geo.setIndex(new THREE.BufferAttribute(idx, 1));
-        }
-        let tex = P.tex.get(img);
-        if (!tex) {
-          tex = new THREE.Texture(img);
-          tex.colorSpace = THREE.NoColorSpace; tex.generateMipmaps = false; tex.minFilter = tex.magFilter = THREE.NearestFilter; tex.needsUpdate = true;
-          P.tex.set(img, tex);
-        }
-        const IW = img.naturalWidth, IH = img.naturalHeight;
-        list.forEach((q, i) => {
-          const sp = q.sprite!;
-          const x0 = (q.x / W) * 2 - 1, x1 = ((q.x + q.w) / W) * 2 - 1, y0 = 1 - (q.y / H) * 2, y1 = 1 - ((q.y + q.h) / H) * 2;
-          let u0 = q.ax / IW, u1 = (q.ax + sp.sw) / IW;
-          if (sp.flip) [u0, u1] = [u1, u0];
-          const v0 = 1 - q.ay / IH, v1 = 1 - (q.ay + sp.sh) / IH, [zb, zt] = deep ? deep(q) : [0, 0];
-          P.pos.set([x0, y1, zb, x1, y1, zb, x1, y0, zt, x0, y0, zt], i * 12);
-          P.uv.set([u0, v1, u1, v1, u1, v0, u0, v0], i * 8);
-          P.al.fill(sp.alpha, i * 4, i * 4 + 4);
-        });
-        P.geo.attributes.position.needsUpdate = true; P.geo.attributes.uv.needsUpdate = true; P.geo.attributes.hdA.needsUpdate = true;
-        P.geo.setDrawRange(0, list.length * 6);
-        P.mat.uniforms.hdMap.value = tex;
-        P.mat.depthTest = !!deep;
-        renderer.render(P.mesh, camera);
-      };
       // the ground and the water in their own colours; what lies on the ground; the shadows over both; then all that stands
-      frameNo++;
       api.renderGround(v, wet);
       renderer.autoClear = false;
       try {
-        Q.mat.depthTest = false;
-        lay(floor, [{ x: 0, y: 0, w: floor.width, h: floor.height, ax: 0, ay: 0 }], floor.width, floor.height);
+        world.lay(floor, [{ x: 0, y: 0, w: floor.width, h: floor.height, ax: 0, ay: 0 }], floor.width, floor.height);
         laying = true;
         api.renderAt(v);
         laying = false;
         // What stands in this town itself (`solid`): lit and in shadow, swaying, each as far off as it stands; the live
         // town's pieces are then drawn behind or before it by how far forward they stand (the ground hides nothing).
         if (solid) { renderer.clearDepth(); api.renderLit(); }
-        Q.mat.depthTest = !!solid;
-        if (actor) actor.mat.depthTest = !!solid;
-        const dp = floor.width / v.cw, deep = solid ? (q: { x: number; y: number; w: number; h: number; depth?: number }) => {
-          const d = q.depth ?? 0, z = (X: number, Y: number) => {
-            const ix = v.cx + (X / dp - v.cw / 2) / v.s, iy = v.cy + (Y / dp - v.ch / 2) / v.s;
-            return V.set((d + ix / 32) / 2, (d * 16 - iy) / PX_UP, (d - ix / 32) / 2).project(camera).z;
-          };
-          return [z(q.x + q.w / 2, q.y + q.h), z(q.x + q.w / 2, q.y)] as [number, number];
-        } : undefined;
-        // every piece in its turn; a walker stood in the scene itself, in the scene's light
-        let from = 0;
-        for (let i = 0; i <= cards.length; i++) {
-          const c = cards[i];
-          // (a run of the sheet's pieces; a run of one picture's own; a walker)
-          const kind = (q: Piece | undefined) => (!q ? null : q.actor ? "actor" : q.sprite ? q.sprite.img : atlas);
-          if (c && i > from && kind(c) === kind(cards[i - 1]) && !c.actor) continue;
-          if (i > from) {
-            const run = cards.slice(from, i), first = run[0];
-            if (first.sprite) laySprites(first.sprite.img, run, floor.width, floor.height, deep);
-            else if (!first.actor) lay(atlas, run, floor.width, floor.height, deep);
-          }
-          from = i;
-          if (c?.actor) { if (dolls) stage(v, c, c.actor, dolls, floor.width / v.cw); from = i + 1; }
-        }
+        world.pieces(v, atlas, cards, dolls ?? null, floor.width, floor.height, !!solid);
       } finally { laying = false; renderer.autoClear = true; }
       return renderer.domElement;
     },
