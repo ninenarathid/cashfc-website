@@ -692,6 +692,18 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   dollOver.renderOrder = 10;
   doll.visible = dollShade.visible = dollOver.visible = false;
   scene.add(doll, dollShade, dollOver);
+  // On boards (a pier, a bridge, the stage, their stairs) my shadow has no ground to fall on: the boards wear a picture
+  // and take no shadow. A small dark round under my feet says where I stand on them, and on stairs I rise and dip with
+  // each step (the owner, 2026-11-17, of the pier's stairs: "ต้องรู้สึกว่าเดินขึ้นไปแล้วสูงขึ้น").
+  const underGeo = new THREE.CircleGeometry(0.34, 20);
+  underGeo.rotateX(-Math.PI / 2);
+  const underMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0, depthWrite: false, fog: false });
+  const under = new THREE.Mesh(underGeo, underMat);
+  under.scale.set(1, 1, 0.62);
+  under.renderOrder = 2;
+  scene.add(under);
+  disposables.push(underGeo, underMat);
+  const onStairs = () => TOWN && ((me.z >= 63 && me.z < 65 && me.x >= 19 && me.x < 21.2) || (t2OnStage(Math.floor(me.x), Math.floor(me.z)) && lift(me.x, me.z) < T2_STAGE_UP - 1));
   disposables.push(dollTex, dollGeo, dollMat, dollGhost, dollThrough);
 
   let kit: PixelKit | null = null;
@@ -834,6 +846,8 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   canvas.addEventListener("wheel", onWheel, { passive: false });
 
   const SPEED = 4.4;
+  /** (stairs are climbed, not run up) */
+  const pace = () => (onStairs() ? 0.6 : 1);
   // Walked by the keys, a body has a width (the owner, 2026-11-17: "จุดที่เดินผ่านไม่ได้ ยังไม่ถูกต้อง"): it stops short of a
   // wall, a rail or a deck's edge by that much, not with its middle on the line and half of it through.
   const BODY = 0.3;
@@ -866,11 +880,11 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       // the keys are the screen's: turned into the world by the view
       const dx = ax * Math.cos(view.yaw) + az * Math.sin(view.yaw), dz = -ax * Math.sin(view.yaw) + az * Math.cos(view.yaw);
       const bx = me.x, bz = me.z;
-      tryMove(dx * SPEED * dt, dz * SPEED * dt);
+      tryMove(dx * SPEED * pace() * dt, dz * SPEED * pace() * dt);
       face(dx, dz);
       me.walking = bx !== me.x || bz !== me.z;
     } else if (way.length) {
-      let left = SPEED * dt;
+      let left = SPEED * pace() * dt;
       while (way.length && left > 0) {
         const to = way[0], dx = to.x - me.x, dz = to.y - me.z, d = Math.hypot(dx, dz);
         if (d <= left) { me.x = to.x; me.z = to.y; left -= d; way.shift(); if (d > 0.001) face(dx, dz); }
@@ -946,7 +960,11 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
 
     // me
     drawDoll(sec);
-    doll.position.set(me.x, me.y, me.z); doll.rotation.y = view.yaw;
+    const boards = isDeck(Math.floor(me.x), Math.floor(me.z)) || lift(me.x, me.z) > 0 || onStairs();
+    const hop = me.walking && onStairs() ? Math.abs(Math.sin(sec * 11)) * 0.07 : 0;
+    doll.position.set(me.x, me.y + hop, me.z); doll.rotation.y = view.yaw;
+    under.position.set(me.x, me.y + 0.1, me.z);
+    underMat.opacity += ((boards && kit ? 0.3 : 0) - underMat.opacity) * Math.min(1, dt * 10);
     dollShade.position.copy(doll.position); dollShade.rotation.y = Math.atan2(sunDir.x, sunDir.z);
     dollOver.position.copy(doll.position); dollOver.rotation.y = view.yaw;
     if (opts.nameEl) {

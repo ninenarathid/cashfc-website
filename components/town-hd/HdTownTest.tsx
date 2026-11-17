@@ -8,6 +8,12 @@ import { createClient } from "@/lib/supabase/client";
 const PLACES: Array<{ id: MapId; label: string }> = [{ id: "town", label: "เมือง" }, { id: "farm", label: "ฟาร์ม" }, { id: "shop", label: "ร้านเสื้อ" }];
 const mapOf = (search: string): MapId => (/[?&]map=(town|farm|shop)/.exec(search)?.[1] as MapId | undefined) ?? "town";
 
+/** The hour's light by the clock, in Bangkok as the town's is (the owner, 2026-11-17: "เวลา แสงแดด ช่วยอิงตามเวลาจริงเหมือนเดิมได้ไหม"). */
+const timeNow = (): TimeId => {
+  const h = new Date(Date.now() + 7 * 3600_000).getUTCHours();
+  return h >= 5 && h < 10 ? "morning" : h >= 10 && h < 16 ? "day" : h >= 16 && h < 19 ? "evening" : "night";
+};
+
 const TIMES: Array<{ id: TimeId; label: string }> = [
   { id: "morning", label: "เช้า" }, { id: "day", label: "กลางวัน" }, { id: "evening", label: "เย็น" }, { id: "night", label: "กลางคืน" },
 ];
@@ -25,6 +31,8 @@ export default function HdTownTest() {
   const plate = useRef<HTMLSpanElement>(null);
   const [name, setName] = useState("Tester");
   const [time, setTime] = useState<TimeId>("evening");
+  // (by the clock until a tester picks an hour to look at; "ตามจริง" goes back to the clock)
+  const [byClock, setByClock] = useState(true);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [fps, setFps] = useState(0);
@@ -37,7 +45,7 @@ export default function HdTownTest() {
     try {
       // (`?at=x,y`: stand somewhere else first, for a tester sent to look at one corner)
       const m = /[?&]at=(\d+(?:\.\d+)?),(\d+(?:\.\d+)?)/.exec(window.location.search);
-      made = createHdTown(canvas.current, { map: mapOf(window.location.search), fx: !/[?&]fx=0/.test(window.location.search), time: "evening", at: m ? { x: +m[1], y: +m[2] } : undefined, nameEl: plate.current, showWalk: /[?&]walk=1/.test(window.location.search), onReady: () => setReady(true), onFps: setFps });
+      made = createHdTown(canvas.current, { map: mapOf(window.location.search), fx: !/[?&]fx=0/.test(window.location.search), time: timeNow(), at: m ? { x: +m[1], y: +m[2] } : undefined, nameEl: plate.current, showWalk: /[?&]walk=1/.test(window.location.search), onReady: () => setReady(true), onFps: setFps });
       town.current = made;
     } catch {
       setFailed(true);
@@ -61,7 +69,14 @@ export default function HdTownTest() {
     return () => { gone = true; };
   }, []);
 
-  const pick = (t: TimeId) => { setTime(t); town.current?.setTime(t); };
+  const pick = (t: TimeId) => { setByClock(false); setTime(t); town.current?.setTime(t); };
+  useEffect(() => {
+    if (!byClock) return;
+    const tick = () => { const t = timeNow(); setTime(t); town.current?.setTime(t); };
+    tick();
+    const id = window.setInterval(tick, 60_000);
+    return () => window.clearInterval(id);
+  }, [byClock]);
 
   return (
     <div className="fixed inset-x-0 bottom-0 top-[var(--nav-h)] z-[30] select-none overflow-hidden bg-bg">
@@ -97,9 +112,13 @@ export default function HdTownTest() {
           <p className="pointer-events-none hidden w-fit rounded-md bg-surface/80 px-2 py-1 text-meta text-muted sm:block">คลิกพื้นเพื่อเดิน · WASD · ล้อเมาส์ซูม</p>
           <p className="pointer-events-none w-fit rounded-md bg-surface/80 px-2 py-1 text-meta text-muted sm:hidden">แตะพื้นเพื่อเดิน · ถ่างนิ้วเพื่อซูม</p>
           <div role="group" aria-label="ช่วงเวลา" className="flex overflow-hidden rounded-lg border border-line bg-surface/90 shadow-md backdrop-blur-sm">
+            <button type="button" aria-pressed={byClock} onClick={() => setByClock(true)}
+              className={`h-11 min-w-11 whitespace-nowrap px-2 text-meta transition sm:px-3 sm:text-ui ${byClock ? "bg-accent/25 font-semibold text-ink" : "text-muted hover:text-ink"}`}>
+              ตามจริง
+            </button>
             {TIMES.map((t) => (
-              <button key={t.id} type="button" aria-pressed={time === t.id} onClick={() => pick(t.id)}
-                className={`h-11 min-w-11 whitespace-nowrap px-2 text-meta transition sm:min-w-[3.4rem] sm:px-3 sm:text-ui ${time === t.id ? "bg-accent/25 font-semibold text-ink" : "text-muted hover:text-ink"}`}>
+              <button key={t.id} type="button" aria-pressed={!byClock && time === t.id} onClick={() => pick(t.id)}
+                className={`h-11 min-w-11 whitespace-nowrap px-2 text-meta transition sm:min-w-[3.4rem] sm:px-3 sm:text-ui ${!byClock && time === t.id ? "bg-accent/25 font-semibold text-ink" : "text-muted hover:text-ink"}`}>
                 {t.label}
               </button>
             ))}
