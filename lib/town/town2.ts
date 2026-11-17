@@ -258,7 +258,19 @@ export const T2_HALL_DOORS: Array<{ inside: [number, number]; outside: [number, 
   { inside: [68, 46], outside: [68, 45] },
 ];
 export const t2InHall = (x: number, y: number) => x >= FLOOR_BOX.x0 && x <= FLOOR_BOX.x1 && y >= FLOOR_BOX.y0 && y <= FLOOR_BOX.y1;
-const WALK: string[] = MAP.walk;
+/**
+ * What may be walked on, as the editor laid it; but a tile of water between a deck's end and the bank it reaches is
+ * boards (the stone pier in the south: its boards are drawn a tile nearer the bank than its tiles, so the pier stood
+ * cut off in the water and nobody could step onto it; the owner, 2026-11-17 of the trial, "ท่าน้ำตรงนี้ควรจะเดินขึ้นไปได้",
+ * and 2026-11-18 of the town itself, "สะพานนี้ยังเข้าไม่ได้").
+ */
+const WALK: string[] = (() => {
+  const laid: string[] = MAP.walk, at = (x: number, y: number) => laid[y]?.[x] ?? "#";
+  return laid.map((row, y) => row.replace(/~/g, (c, x: number) => ([[1, 0], [0, 1]] as const).some(([dx, dy]) => {
+    const a = at(x + dx, y + dy), b = at(x - dx, y - dy);
+    return (a === "=" && b === ".") || (a === "." && b === "=");
+  }) ? "=" : c));
+})();
 const doorOut = new Set(T2_HALL_DOORS.map((d) => d.outside.join(",")));
 /** The hall's things, by their footprints. */
 const HALL_THINGS = T2_THINGS.filter((t) => !T2_LEFT_OUT.has(t.i) && t.c.x > FLOOR_BOX.x0 && t.c.x < FLOOR_BOX.x1 + 1 && t.c.y > FLOOR_BOX.y0 && t.c.y < FLOOR_BOX.y1 + 1 && !/kitchen_house/.test(t.name));
@@ -583,10 +595,17 @@ export const T2_RINGS: Array<{ at: Vec; lift: number }> = [
 
 /** How high the bridges' boards are over the ground, in isometric pixels, and how far from each end the steps climb to it. */
 const BRIDGE_LIFT = 17, STEPS = 1.4;
+/** The stone pier in the south, and how high its boards are over the bank (isometric pixels). */
+const STONE_PIER = first(/^pier_of_mossy_stone/), PIER_LIFT = 16;
 /** How far up the screen somebody on a deck is drawn: on the stage, its top's height; on a bridge, its boards' (less on their steps); elsewhere nothing. */
 export function t2Lift(x: number, y: number): number {
   const up = stageLift(x, y);
   if (up) return up;
+  // (the stone pier: its boards stand a little over the bank, climbed to in its first tile)
+  {
+    const [x0, y0, x1, y1] = STONE_PIER.box;
+    if (x >= Math.floor(x0) && x <= x1 && y >= Math.floor(y0) && y <= y1 && WALK[Math.floor(y)]?.[Math.floor(x)] === "=") return PIER_LIFT * Math.min(1, Math.max(0, y - Math.floor(y0)));
+  }
   for (const b of BRIDGES) {
     const [x0, y0, x1, y1] = b.box;
     if (x < x0 || x > x1 || y < y0 || y > y1 || WALK[Math.floor(y)]?.[Math.floor(x)] !== "=") continue;

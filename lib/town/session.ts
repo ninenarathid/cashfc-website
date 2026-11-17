@@ -452,6 +452,7 @@ export class TownSession {
    * go (the same rules a way is found by: fences, walls, decks); against something, along it. The room hears where I
    * am bound as it hears any move, as often as moves may be told, and walks me there its own way.
    */
+  private stepAsked: { key: string; ok: boolean } | null = null;
   stride(dx: number, dy: number): boolean {
     if (this.closed || this.self.info.seat || this.stuck()) return false;
     if (!this.options.terrain && ridingBoat(this.self.info.id)) return false;
@@ -460,9 +461,14 @@ export class TownSession {
     const fx = Math.floor(a.pos.x), fy = Math.floor(a.pos.y), REACH = 0.42;
     const open = (tx: number, ty: number) => {
       if (tx === fx && ty === fy) return true;
+      // (asked every frame while a key is held: the last answer is kept)
+      const key = `${fx},${fy},${tx},${ty}`;
+      if (this.stepAsked?.key === key) return this.stepAsked.ok;
       const from = { x: fx + 0.5, y: fy + 0.5 }, to = { x: tx + 0.5, y: ty + 0.5 };
       const way = this.options.terrain ? this.options.terrain.path(from, to) : findPath(from, to);
-      return !!way && way.length === 1;
+      const ok = !!way && way.length === 1;
+      this.stepAsked = { key, ok };
+      return ok;
     };
     for (const [ux, uy] of [[dx / len, dy / len], [Math.sign(dx), 0], [0, Math.sign(dy)]]) {
       if (!ux && !uy) continue;

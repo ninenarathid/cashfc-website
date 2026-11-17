@@ -395,6 +395,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
    */
   const kinds = new Map<number, "card" | "wide" | "built" | "flat">(), partsOf = new Map<number, THREE.Object3D[]>();
   let thingNow = -1, out = new Set<number>(), deepAsLive = false;
+  const deckTops: Array<{ mesh: THREE.Mesh; art: THREE.Material }> = [];
 
   /*
    * A wide thing's own picture, laid back onto its shape (the owner, 2026-11-17: "แปลง asset ในแมพแรก เป็น 3d เท่าที่ควรจะเป็น").
@@ -733,7 +734,9 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       }
       // (a pier is drawn standing on legs, though it is walked at the ground's height: its shadow is thrown from where
       // it was drawn; the owner, 2026-11-17: "ที่ตกปลาไม่มีเงา make sure หน่อยว่า ทุกอย่างจะมีเงา")
-      if (own && !own.bridge && lift(x + 0.5, z + 0.5) / PX_UP < 0.3) raised.push([x, z, own.up]);
+      // (not the low stone pier's under the live town: its boards stand at their own height there, and the box at its
+      // bank end threw a faint square on the bank)
+      if (own && !own.bridge && lift(x + 0.5, z + 0.5) / PX_UP < 0.3 && !(below && own.up < 1)) raised.push([x, z, own.up]);
       if (!own?.bridge) continue;
       const b = own.box, along = b[2] - b[0] >= b[3] - b[1], up = lift(x + 0.5, z + 0.5) / PX_UP;
       const rail = (rx: number, rz: number, isX: boolean) => { lay(own.g, isX ? railX : railZ, rx, up + 0.62, rz); lay(own.g, stub, rx, up + 0.33, rz); };
@@ -741,6 +744,13 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       else { if (!isDeck(x - 1, z)) rail(x + 0.06, z + 0.5, false); if (!isDeck(x + 1, z)) rail(x + 0.94, z + 0.5, false); }
     }
     for (const q of decked) dress(q.g, q.o);
+    // Under the live town a deck's boards are white in the shadows' picture and take no shadow: the live town draws the
+    // deck's own picture under that picture, and what the deck throws on the water below lay across its boards as a
+    // dark band (the owner, 2026-11-18: "เงายังผิด"). They hide the water's shadows under them, as boards do.
+    if (below && land) for (const q of decked) {
+      const top = q.g.children.find((c) => (c as THREE.Mesh).isMesh && c.castShadow) as THREE.Mesh | undefined;
+      if (top) { deckTops.push({ mesh: top, art: top.material as THREE.Material }); top.material = land.white; top.receiveShadow = false; }
+    }
     // (and what stands shut on a pier, with its boards on two sides of it or more: a hut, its stacked boxes)
     for (const q of decked) if (q.up > 1) for (let z = Math.floor(q.box[1]); z <= q.box[3]; z++) for (let x = Math.floor(q.box[0]); x <= q.box[2]; x++) {
       if (t2Tile(x, z) === "=" || !inT2(x, z)) continue;
@@ -1254,8 +1264,10 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
         const back = scene.background;
         scene.background = null;
         land.mesh.material = over;
+        for (const d of deckTops) d.mesh.material = over;
         renderer.render(scene, camera);
         land.mesh.material = land.white;
+        for (const d of deckTops) d.mesh.material = land.white;
         scene.background = back;
         return renderer.domElement;
       }
@@ -1416,6 +1428,7 @@ ${NOISE}
       const kept: THREE.Object3D[] = [];
       for (const i of out) for (const o of partsOf.get(i) ?? []) if (o.visible) { o.visible = false; kept.push(o); }
       for (const m of artMats.values()) { m.colorWrite = true; m.depthWrite = true; }
+      for (const d of deckTops) d.mesh.material = d.art;
       const back = scene.background;
       scene.background = null;
       renderer.setClearColor(0x000000, 0);
@@ -1426,6 +1439,7 @@ ${NOISE}
       for (const o of litShown) o.visible = false;
       for (const o of litHidden) o.visible = true;
       for (const o of kept) o.visible = true;
+      if (land) for (const d of deckTops) d.mesh.material = land.white;
       for (const m of artMats.values()) { m.colorWrite = false; m.depthWrite = false; }
       return renderer.domElement;
     },

@@ -2796,17 +2796,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       }
     }
 
-    // Where I am walking to.
-    if (mine && mine.path.length) {
-      const end = mine.path[mine.path.length - 1];
-      const p = project(end);
-      const pulse = reducedRef.current ? 0.5 : 0.5 + 0.5 * Math.sin(now / 180);
-      ctx.beginPath();
-      ctx.ellipse(p.x, p.y, (10 + pulse * 3) * Math.min(1.4, v.s), (5 + pulse * 1.5) * Math.min(1.4, v.s), 0, 0, Math.PI * 2);
-      ctx.strokeStyle = "rgba(229,204,128,0.8)";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
+    // (no mark where I am walking to: the owner, 2026-11-18, "ช่วยเอา วงๆ click แล้วเดิน ออกด้วย")
 
     // Everything that stands up, back to front. Signs and names go on top
     // afterwards, so nobody's name is ever behind a roof.
@@ -5283,11 +5273,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       if (stay.seated) { if (step[0] !== step[1]) stay.turnTo(step[0] < step[1]); return; }
       walking.set(e.code, step);
       go(true);
-      if (!timer) timer = window.setInterval(() => go(false), 70);
+      // (asked again every frame: the way is always a little ahead of the feet. Asked fourteen times a second, the feet
+      // came to the way's end between askings and stopped a moment each time; the owner, 2026-11-18: "กระตุกมาก")
+      if (!timer) { const again = () => { timer = requestAnimationFrame(again); go(false); }; timer = requestAnimationFrame(again); }
     };
     const walking = new Map<string, [number, number]>();
     let timer = 0;
-    const rest = () => { if (walking.size) sessionRef.current?.halt(); walking.clear(); if (timer) { window.clearInterval(timer); timer = 0; } };
+    const rest = () => { if (walking.size) sessionRef.current?.halt(); walking.clear(); if (timer) { cancelAnimationFrame(timer); timer = 0; } };
     /** On, the way the held keys point, from where I stand (lib/town/session's `stride`): asked again while they are held. */
     const go = (first: boolean) => {
       const stay = sessionRef.current;
