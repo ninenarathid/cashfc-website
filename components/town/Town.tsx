@@ -563,6 +563,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const wildStood = useRef<Array<{ name: string; x: number; y: number; k: number; mirror?: boolean }>>([]);
   /** The frame (its clock) in which the 3D town last threw the shadows. */
   const castAt = useRef(-1);
+  const hdNow = useRef(hd), litCopy = useRef<HTMLCanvasElement | null>(null), litOn = useRef(true);
+  hdNow.current = hd;
+  useEffect(() => { litOn.current = !/[?&]hdlit=0/.test(window.location.search); }, []);
   const rimNow = useRef<ReturnType<typeof rimAt> | null>(null), rimScratch = useRef<HTMLCanvasElement | null>(null);
   // Each walker's doll as it was just drawn, once more on a sheet of its own (a cell a walker), for the shadow it throws
   // in the next frame: its own shape, hat and all (the owner, 2026-11-17, of one outline for everybody: "เงาไม่ละเอียด").
@@ -2511,7 +2514,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // the kitchen hall's inside only while I am in it, when its roof is off)
     const art2 = scenery ? town2Ref.current : null, inHall = T2 && roofRef.current < 1;
     const iso2 = (ix: number, iy: number) => toScreen(v, { x: ix, y: iy }, cw, ch);
-    if (art2) art2.carving = forcedCarving.current ?? carving(Date.now());
+    if (art2) { art2.carving = forcedCarving.current ?? carving(Date.now()); art2.lit = null; }
     // (v325: the golden cloth on the hall's tables and cushions on its benches, while they last by the keeper's clock: lib/town/special-uses)
     if (art2) { const d = dressRef.current, t = Date.now() + (d?.skew ?? 0); art2.dressed = { cloth: !!d && laid(d.dress, "cloth", t), cushions: !!d && laid(d.dress, "cushions", t) }; }
     const seen2 = art2 ? art2.visible({ x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, now) : null;
@@ -2567,6 +2570,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
             ctx.globalCompositeOperation = "multiply";
             ctx.drawImage(pic, 0, 0, cw, ch);
             ctx.globalCompositeOperation = "source-over";
+            // What stands in the editor's town, as the 3D town lit it (its sun's side, the shadows falling across it): each
+            // thing of it is laid over the live town's own picture of that thing, in its turn (lib/town/town2-art's `lit`).
+            if (town && hdPlace === "town" && art2 && !inHall && hdNow.current === "high" && litOn.current) {
+              const lit = town.renderLit(), c = (litCopy.current ??= document.createElement("canvas"));
+              if (c.width !== lit.width || c.height !== lit.height) { c.width = lit.width; c.height = lit.height; }
+              const cg = c.getContext("2d")!;
+              cg.clearRect(0, 0, c.width, c.height);
+              cg.drawImage(lit, 0, 0);
+              art2.lit = { pic: c, k: c.width / cw };
+            }
             castAt.current = now;
             rimNow.current = finishRef.current ? rimAt(view.min) : null;
             // (the dolls' sheet is wiped for this frame's dolls, drawn on it as each walker is drawn)

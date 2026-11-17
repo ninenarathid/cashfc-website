@@ -247,7 +247,7 @@ export class Town2Art {
     }
     ctx.restore();
     // (not what moves in its own picture, nor what is dressed over: those are as the live town drew them)
-    if (this.lit && pic === sp.img && !over && k * px >= 1) {
+    if (this.lit && pic === sp.img && !over && k * px >= 1 && t.i !== T2_CHEST_OPEN && t.i !== T2_CHEST_SHUT) {
       const bx = t.flip ? dx + (sp.w - sx1) * k : dx + sx0 * k, bw = (sx1 - sx0) * k;
       this.relight(ctx, bx, dy, bw, sp.h * k, (g) => {
         if (t.flip) { g.translate(dx + sp.w * k, dy); g.scale(-1, 1); g.drawImage(pic, sx0, 0, sx1 - sx0, sp.h, sx0 * k, 0, bw, sp.h * k); }
