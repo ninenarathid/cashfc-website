@@ -1617,10 +1617,25 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       else {
         draw(ctx, canvas, now, dt);
         const fin = finishRef.current;
+        // The 3D town's air over the frame, on the editor's maps where its ground is raised: smoke, mist, motes, rain,
+        // each hidden behind the buildings before it (lib/town-hd/engine's `renderAir`).
+        let airDrawn = false;
+        if (fin && HILL) {
+          const here = placeRef.current, town = here === "town" ? hdTowns.current.town : here === "farm" ? hdTowns.current.farm : null;
+          if (town?.ready()) {
+            try {
+              const c = cam.current, clock = new Date(Date.now() + 7 * 3600_000), stay = sessionRef.current, steps: Array<[number, number]> = [];
+              for (const a of stay ? [stay.self, ...stay.avatars.values()] : []) if (a.path.length && a.byeAt === undefined) steps.push([a.pos.x, a.pos.y]);
+              const pic = town.renderAir({ cx: c.cx, cy: c.cy, s: c.s, cw: c.cw, ch: c.ch, dpr: c.dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() }, reducedRef.current ? 0 : dt,
+                { rain: effects.current?.rain ?? 0, inRoom: T2 && here === "town" && roofRef.current < 0.5, steps });
+              if (pic) { ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(pic, 0, 0, canvas.width, canvas.height); ctx.restore(); airDrawn = true; }
+            } catch (e) { console.warn("[Cash Town] 3D air stopped", e); }
+          }
+        }
         if (fin) {
           try {
             const c = cam.current, clock = new Date(Date.now() + 7 * 3600_000);
-            fin.render(canvas, { cx: c.cx, cy: c.cy, s: c.s, cw: c.cw, ch: c.ch, dpr: c.dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() }, { indoors: underRoof(placeRef.current) || (T2 && placeRef.current === "town" && roofRef.current < 0.5), still: reducedRef.current, sunless: placeRef.current === "cave", town: T2 && placeRef.current === "town", clouds: false, rain: underRoof(placeRef.current) || placeRef.current === "cave" ? 0 : effects.current?.rain ?? 0, wetAt: (placeRef.current === "town" && T2 ? hdTowns.current.town : placeRef.current === "farm" && F2 ? hdTowns.current.farm : null)?.wetAt });
+            fin.render(canvas, { cx: c.cx, cy: c.cy, s: c.s, cw: c.cw, ch: c.ch, dpr: c.dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() }, { indoors: underRoof(placeRef.current) || (T2 && placeRef.current === "town" && roofRef.current < 0.5), still: reducedRef.current, sunless: placeRef.current === "cave" || airDrawn, town: T2 && placeRef.current === "town", clouds: false, rain: underRoof(placeRef.current) || placeRef.current === "cave" ? 0 : effects.current?.rain ?? 0, wetAt: (placeRef.current === "town" && T2 ? hdTowns.current.town : placeRef.current === "farm" && F2 ? hdTowns.current.farm : null)?.wetAt });
           } catch (e) { dropFinish("it failed", e); }
         }
       }

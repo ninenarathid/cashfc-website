@@ -1315,6 +1315,10 @@ export class TownSession {
         // (nor off a lamb of a ram's flock: they stand where their lamb was)
         if (placeOf(d.x, d.y) !== placeOf(a.pos.x, a.pos.y) || (d.seat === "" && riderOf(a.info.seat))) { a.pos = { x: d.x, y: d.y }; a.path = []; }
         else a.path = this.options.terrain ? this.options.terrain.path(a.pos, { x: d.x, y: d.y }) ?? [] : findPath(a.pos, { x: d.x, y: d.y }) ?? [{ x: d.x, y: d.y }];
+        // (a way ends on its last tile's middle; whoever walks by the keys stops anywhere on a tile, `stride`: the way's end
+        // is where they said they are bound, so that everybody sees them where they see themselves)
+        const end = a.path[a.path.length - 1];
+        if (end && Math.floor(end.x) === Math.floor(d.x) && Math.floor(end.y) === Math.floor(d.y)) a.path[a.path.length - 1] = { x: d.x, y: d.y };
       }
     }
     // (whom I hear changes with who is in the voice, and with who is in which chat room)

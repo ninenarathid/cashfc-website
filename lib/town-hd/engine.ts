@@ -65,6 +65,12 @@ export interface HdTown {
   renderWater(v: LiveView, wet: number): HTMLCanvasElement;
   /** For the live town (`underlay: "raised"`): the ground and the water in their own colours, with the ground's heights, as the live town's camera sees them; drawn where the live town drew its ground. */
   renderGround(v: LiveView, wet: number): HTMLCanvasElement;
+  /**
+   * For the live town (`underlay: "raised"`): what hangs in the air alone, on nothing (motes, fireflies, petals, mist on
+   * the water, the chimneys' smoke, sun shafts, rain and its drops landing, dust at walkers' feet), hidden where a
+   * building stands before it; drawn over the live town's frame. Null where there is no air to draw ("low", a room).
+   */
+  renderAir(v: LiveView, dt: number, o: { rain: number; inRoom: boolean; steps: Array<[number, number]> }): HTMLCanvasElement | null;
   /** How high the ground is at a point of the map (tiles), in tiles; 0 everywhere on level ground. */
   heightAt(x: number, y: number): number;
   /** Whether a point of the map (tiles) is water. */
@@ -813,7 +819,12 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   /* ── light and air ────────────────────────────────────────────────────── */
   scene.add(camera);
   const post = opts.fx === false || quality === "low" || below ? null : makePost(renderer, scene, camera, lite);
-  const air = opts.fx === false || map.indoors || quality === "low" || below ? null : makeAir(scene, camera, { small: lite, fore: null, heightAt: Hat, wetAt, chimneys, ratio: Math.min(window.devicePixelRatio || 1, 2) });
+  // (under the live town, raised: the air is this town's too, drawn alone in a pass of its own, behind what stands before it)
+  const airRoot = new THREE.Group();
+  airRoot.visible = !below;
+  scene.add(airRoot);
+  const kidsBefore = new Set(camera.children);
+  const air = opts.fx === false || map.indoors || quality === "low" || flat ? null : makeAir(airRoot as unknown as THREE.Scene, camera, { small: lite, fore: null, heightAt: Hat, wetAt, chimneys, far: !below, ratio: Math.min(window.devicePixelRatio || 1, 2) });
 
   /* ── the view ─────────────────────────────────────────────────────────── */
   // (the owner, 2026-11-17: "กล้องตายตัว". The one view is the one the town's pictures were drawn from: across the tiles'
@@ -1114,6 +1125,8 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
 
   let sheets: Sheets | null = null, reached = REACH;
   let surf: THREE.Mesh | null = null;
+  const airKids = camera.children.filter((c) => !kidsBefore.has(c) && c.visible);
+  if (below) for (const c of airKids) c.visible = false;
   const surfClock = { value: 0 }, surfGlint = { value: 0.3 }, surfWet = { value: 0 };
   const api: HdTown = {
     setTime(t) { if (clockMin === null && SKIES[t] === want) return; clockMin = null; from = copy(now); want = SKIES[t]; turned = 0; },
@@ -1165,6 +1178,44 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       return renderer.domElement;
     },
     wetAt: (x, y) => wetAt(x, y),
+    renderAir(v, dt, o) {
+      if (!air) return null;
+      const w = Math.max(1, Math.round(v.cw)), h = Math.max(1, Math.round(v.ch)), dpr = Math.min(v.dpr, quality === "low" ? 1 : lite && flat ? 1.5 : 2);
+      if (w !== sized.w || h !== sized.h || dpr !== sized.d) { sized = { w, h, d: dpr }; renderer.setPixelRatio(dpr); renderer.setSize(w, h, false); }
+      const sec = performance.now() / 1000, q = hourOf(v.min), wet = Math.max(0, Math.min(1, o.rain));
+      blend(SKIES[q[0]], SKIES[q[1]], q[2]);
+      sunDir.set(now.sun[0], now.sun[1], now.sun[2]).normalize();
+      sun.color.setHex(now.sunCol);
+      const half = v.ch / (2 * PX_SIDE * v.s);
+      camera.top = half; camera.bottom = -half; camera.right = (half * v.cw) / v.ch; camera.left = -camera.right;
+      camera.updateProjectionMatrix();
+      eye.set((v.cx / 32 + v.cy / 16) / 2, 0, (v.cy / 16 - v.cx / 32) / 2);
+      camera.position.set(eye.x + Math.sin(YAW) * Math.cos(PITCH) * 250, Math.sin(PITCH) * 250, eye.z + Math.cos(YAW) * Math.cos(PITCH) * 250);
+      camera.lookAt(eye);
+      // (dust at the feet of whoever walks on sand or a road, while it is dry)
+      if (wet < 0.3) for (const [x, y] of o.steps) if (Math.random() < dt / 0.22) { const l = lookAt(x, y); if (l === 2 || l === 3) air.puff(x, Hat(x, y) + 0.08, y); }
+      air.update(dt, sec, eye, half, v.cw / v.ch, {
+        motes: now.air[3] * (1 - wet) * 0.5, flies: now.air[4] * (1 - wet), mist: Math.max(now.air[5], wet * 0.5), rays: now.air[6] * (1 - wet) * 0.6, rain: wet, dry: o.inRoom && TOWN ? T2_HALL.box : null, dim: now.lamps, petals: TOWN ? (1 - now.lamps) * 0.4 : 0, smoke: 1,
+        sunX: sunDir.dot(RIGHT), sunY: sunDir.dot(UPV), sun: sun.color,
+      });
+      // what stands is drawn into the depths only, so that smoke and mist are hidden behind it; the air alone is seen
+      airRoot.visible = true;
+      for (const c of airKids) c.visible = true;
+      for (const m of artMats.values()) m.depthWrite = true;
+      if (land) (land.white as THREE.MeshLambertMaterial).colorWrite = false;
+      const back = scene.background;
+      scene.background = null;
+      renderer.setClearColor(0x000000, 0);
+      renderer.shadowMap.autoUpdate = false;
+      renderer.render(scene, camera);
+      renderer.shadowMap.autoUpdate = true;
+      scene.background = back;
+      if (land) (land.white as THREE.MeshLambertMaterial).colorWrite = true;
+      for (const m of artMats.values()) m.depthWrite = false;
+      for (const c of airKids) c.visible = false;
+      airRoot.visible = false;
+      return renderer.domElement;
+    },
     heightAt: (x, y) => (flat ? 0 : Hat(x, y)),
     renderGround(v, wet) {
       const w = Math.max(1, Math.round(v.cw)), h = Math.max(1, Math.round(v.ch)), dpr = Math.min(v.dpr, quality === "low" ? 1 : lite && flat ? 1.5 : 2);
