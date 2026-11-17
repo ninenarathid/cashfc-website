@@ -81,7 +81,7 @@ export class Farm2Art {
   boxOf(i: number, screen: Screen, s: number, dx = 0, dy = 0): { x0: number; y0: number; x1: number; y1: number } | null {
     const t = this.byIndex[i];
     if (!t) return null;
-    const sp = this.sprites[t.s], a = screen(t.x + dx, t.y + dy);
+    const sp = this.sprites[t.s], a = screen(t.x + dx, t.y + dy - this.up(t, dx, dy));
     return { x0: a.x, y0: a.y, x1: a.x + sp.w * t.k * s, y1: a.y + sp.h * t.k * s };
   }
 
@@ -126,10 +126,20 @@ export class Farm2Art {
   }
 
   /** Draw a thing's picture (moved by dx, dy isometric pixels), or the strip of it between two isometric x's, at `alpha`. */
+  /**
+   * How high the ground stands at a tile, in the map's own pixels, where the 3D town has raised it, or null on level
+   * ground (lib/town/town2-art's `lift`, the same): each thing is drawn that much higher, by the ground under its
+   * footprint's middle, where it stands now (`dx`, `dy`: how far it was moved from where the map has it).
+   */
+  lift: ((x: number, y: number) => number) | null = null;
+  private up(t: Thing, dx = 0, dy = 0): number {
+    return this.lift ? this.lift((t.box[0] + t.box[2]) / 2 + (dx / 32 + dy / 16) / 2, (t.box[1] + t.box[3]) / 2 + (dy / 16 - dx / 32) / 2) : 0;
+  }
+
   private paint(ctx: CanvasRenderingContext2D, t: Thing, screen: Screen, s: number, px: number, strip?: [number, number], dx = 0, dy = 0, alpha = 1) {
     const sp = this.sprites[t.s];
     if (!sp.img || !sp.ready || alpha <= 0.01) return;
-    const k = t.k * s, x = t.x + dx, a = screen(x, t.y + dy);
+    const k = t.k * s, x = t.x + dx, a = screen(x, t.y + dy - this.up(t, dx, dy));
     let sx0 = 0, sx1 = sp.w;
     if (strip) {
       const c0 = (strip[0] - x) / t.k, c1 = (strip[1] - x) / t.k;
