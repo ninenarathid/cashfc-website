@@ -31,7 +31,7 @@ export default function HdTownTest() {
     try {
       // (`?at=x,y`: stand somewhere else first, for a tester sent to look at one corner)
       const m = /[?&]at=(\d+(?:\.\d+)?),(\d+(?:\.\d+)?)/.exec(window.location.search);
-      made = createHdTown(canvas.current, { time: "evening", at: m ? { x: +m[1], y: +m[2] } : undefined, nameEl: plate.current, onReady: () => setReady(true), onFps: setFps });
+      made = createHdTown(canvas.current, { time: "evening", at: m ? { x: +m[1], y: +m[2] } : undefined, nameEl: plate.current, showWalk: /[?&]walk=1/.test(window.location.search), onReady: () => setReady(true), onFps: setFps });
       town.current = made;
     } catch {
       setFailed(true);

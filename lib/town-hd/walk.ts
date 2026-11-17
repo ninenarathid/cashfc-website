@@ -6,11 +6,27 @@ import { T2_COLS, T2_ROWS, inT2, t2OverRail, t2OverWall, t2Tile } from "@/lib/to
 
 export interface P { x: number; y: number }
 
+/**
+ * Water between a deck's end and the shore, one tile of it: boards in this trial (the owner, 2026-11-17, of the stone
+ * pier in the south: "ท่าน้ำตรงนี้ควรจะเดินขึ้นไปได้"). The town's own tiles leave that tile as water, so the pier is an
+ * island there; here it is joined to the bank it was drawn reaching.
+ */
+function gap(x: number, y: number): boolean {
+  if (t2Tile(x, y) !== "~") return false;
+  for (const [dx, dy] of [[1, 0], [0, 1]]) {
+    const a = t2Tile(x + dx, y + dy), b = t2Tile(x - dx, y - dy);
+    if ((a === "=" && b === ".") || (a === "." && b === "=")) return true;
+  }
+  return false;
+}
+/** Whether a tile is boards: a deck's own, or the one joining a deck to the shore. */
+export const isDeck = (x: number, y: number) => t2Tile(x, y) === "=" || gap(x, y);
+
 const OPEN = (() => {
   const out = new Uint8Array(T2_COLS * T2_ROWS);
   for (let y = 0; y < T2_ROWS; y++) for (let x = 0; x < T2_COLS; x++) {
     const c = t2Tile(x, y);
-    out[y * T2_COLS + x] = c === "." || c === "=" || c === "f" ? 1 : 0;
+    out[y * T2_COLS + x] = c === "." || c === "=" || c === "f" || gap(x, y) ? 1 : 0;
   }
   return out;
 })();
