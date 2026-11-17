@@ -107,7 +107,7 @@ export default function HdTownTest() {
         {fps > 0 && <span className="hidden rounded-md bg-surface/80 px-1.5 py-1 text-label tabular-nums text-muted sm:inline">{fps} fps</span>}
       </div>
 
-      <div className="absolute inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom)+0.75rem)] flex items-end justify-between gap-3 sm:bottom-3">
+      <div className="absolute inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom)+0.75rem)] flex flex-col gap-2 sm:bottom-3 sm:flex-row sm:items-end sm:justify-between sm:gap-3">
         <div className="flex flex-col gap-2">
           <p className="pointer-events-none hidden w-fit rounded-md bg-surface/80 px-2 py-1 text-meta text-muted sm:block">คลิกพื้นเพื่อเดิน · WASD · ล้อเมาส์ซูม</p>
           <p className="pointer-events-none w-fit rounded-md bg-surface/80 px-2 py-1 text-meta text-muted sm:hidden">แตะพื้นเพื่อเดิน · ถ่างนิ้วเพื่อซูม</p>
@@ -124,7 +124,8 @@ export default function HdTownTest() {
             ))}
           </div>
         </div>
-        <div className="flex gap-2">
+        {/* (on a phone the two zoom buttons stand over the hours, at the right: side by side they no longer fit) */}
+        <div className="order-first flex gap-2 self-end sm:order-none sm:self-auto">
           <button type="button" className={BTN} aria-label="ซูมออก" onClick={() => town.current?.zoom(1.25)}><Icon d="M5 12h14" /></button>
           <button type="button" className={BTN} aria-label="ซูมเข้า" onClick={() => town.current?.zoom(0.8)}><Icon d="M12 5v14M5 12h14" /></button>
         </div>

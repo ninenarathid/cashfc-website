@@ -94,7 +94,7 @@ export function makeAir(scene: THREE.Scene, camera: THREE.Camera, o: { small: bo
     const geo = new THREE.BufferGeometry();
     geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
     if (colored) geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
-    const mat = new THREE.PointsMaterial({ size: size * o.ratio, sizeAttenuation: false, color, transparent: true, opacity: 0, blending, depthWrite: false, vertexColors: colored, fog: false });
+    const mat = new THREE.PointsMaterial({ size, sizeAttenuation: false, color, transparent: true, opacity: 0, blending, depthWrite: false, vertexColors: colored, fog: false });
     const pts = new THREE.Points(geo, mat);
     pts.frustumCulled = false;
     scene.add(pts);
