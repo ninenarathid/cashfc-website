@@ -3454,7 +3454,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       try {
         const clock = new Date(Date.now() + 7 * 3600_000), sheet = dollSheet.current;
         const stands: Stand[] = dollsDrawn.current.map((d) => ({ img: sheet!, sx: (d.cell % DOLL_CELLS.cols) * DOLL_CELLS.w, sy: Math.floor(d.cell / DOLL_CELLS.cols) * DOLL_CELLS.h, w: DOLL_CELLS.w, h: DOLL_CELLS.h, ax: DOLL_CELLS.w / 2, ay: DOLL_CELLS.foot, k: 1, x: d.a.pos.x, y: d.a.pos.y }));
-        const pic = town!.renderWorld({ cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes(), stands, sec: swaying?.sec, me: swaying?.me }, effects.current?.rain ?? 0, cap.floor, cap.atlas, cap.cards);
+        const pic = town!.renderWorld({ cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes(), stands, sec: swaying?.sec, me: swaying?.me }, effects.current?.rain ?? 0, cap.floor, cap.atlas, cap.cards, sheet);
         ctx.drawImage(pic, 0, 0, cw, ch);
         if (cap.lost) console.warn("[Cash Town] 3D world: no room on the sheet for", cap.lost, "things this frame");
       } catch (e) { hd3d.current = false; console.warn("[Cash Town] 3D world stopped", e); }
@@ -4264,7 +4264,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         wearer = { id: a.info.id, kind: lim.look.kind, dye: lim.dye, x: p.x, y: p.y, cell: k * DOLL_PX, s: k * DOLL_PX * 1.8, step, sat: sitting(a) || perched, ground: a.pos, screen: (at) => toScreen(cam.current, at, cam.current.cw, cam.current.ch), minimal: limitedMinimalRef.current || lim.quiet, night: skyNow().lamps, now, state: st };
         auraBehind(ctx, wearer);
       }
-      kit.draw(ctx, look, face.view, face.mirror, p.x, p.y, k, { step, blink, talk, expr, eat: eatPose, sit: sitting(a) || perched, perch: !!tableSeatOf(a)?.back }, dpr);
+      // (in the 3D town's own world a walker on their feet is stood in the scene by it, from the dolls' sheet: below)
+      const staged = world3d.current && castAt.current === now && !perched && !sitting(a) && !mapRef.current && dollsDrawn.current.length < DOLL_CELLS.cols * DOLL_CELLS.rows;
+      if (!staged) kit.draw(ctx, look, face.view, face.mirror, p.x, p.y, k, { step, blink, talk, expr, eat: eatPose, sit: sitting(a) || perched, perch: !!tableSeatOf(a)?.back }, dpr);
       if (castAt.current === now && !perched && !sitting(a) && !mapRef.current && dollsDrawn.current.length < DOLL_CELLS.cols * DOLL_CELLS.rows) {
         const sheet = (dollSheet.current ??= Object.assign(document.createElement("canvas"), { width: DOLL_CELLS.cols * DOLL_CELLS.w, height: DOLL_CELLS.rows * DOLL_CELLS.h }));
         const cell = dollsDrawn.current.length, g = sheet.getContext("2d")!;
@@ -4273,11 +4275,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         kit.draw(g, look, face.view, face.mirror, (cell % DOLL_CELLS.cols + 0.5) * DOLL_CELLS.w, Math.floor(cell / DOLL_CELLS.cols) * DOLL_CELLS.h + DOLL_CELLS.foot, 1, { step, blink, talk, expr, eat: eatPose, sit: false, perch: false }, 1);
         g.restore();
         dollsDrawn.current.push({ a, cell });
+        if (staged) capRef.current!.actor(p.x - (DOLL_CELLS.w / 2) * k, p.y - DOLL_CELLS.foot * k, DOLL_CELLS.w * k, DOLL_CELLS.h * k, (cell % DOLL_CELLS.cols) * DOLL_CELLS.w, Math.floor(cell / DOLL_CELLS.cols) * DOLL_CELLS.h, DOLL_CELLS.w, DOLL_CELLS.h, a.pos.x, a.pos.y);
         // The light on their sunward edge (the 3D town's doll wears it): what of the doll is not covered by itself moved
         // a pixel and a half from the sun, in the sun's colour, laid on light.
         // In a shadow they are dimmed whole (the 3D town's doll is): a cool dark laid over their own shape.
         const lit = inShade.current.get(a.info.id) ?? 1;
-        if (lit < 0.85 && rimNow.current) {
+        if (!staged && lit < 0.85 && rimNow.current) {
           const W = DOLL_CELLS.w, H = DOLL_CELLS.h, cx0 = (cell % DOLL_CELLS.cols) * W, cy0 = Math.floor(cell / DOLL_CELLS.cols) * H;
           const dim = (rimScratch.current ??= Object.assign(document.createElement("canvas"), { width: W, height: H })), e = dim.getContext("2d")!;
           e.globalCompositeOperation = "source-over";
@@ -4292,7 +4295,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
           ctx.drawImage(dim, 0, 0, W, H, p.x - (W / 2) * k, p.y - DOLL_CELLS.foot * k, W * k, H * k);
           ctx.restore();
         }
-        const R = lit < 0.7 ? null : rimNow.current;
+        const R = staged || lit < 0.7 ? null : rimNow.current;
         if (R && R.a > 0.01) {
           const W = DOLL_CELLS.w, H = DOLL_CELLS.h, cx0 = (cell % DOLL_CELLS.cols) * W, cy0 = Math.floor(cell / DOLL_CELLS.cols) * H;
           const edge = (rimScratch.current ??= Object.assign(document.createElement("canvas"), { width: W, height: H })), e = edge.getContext("2d")!;

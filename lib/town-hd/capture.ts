@@ -12,7 +12,9 @@
  */
 
 /** A piece of the sheet: how far forward it stands (x + y in tiles), its turn among those as far forward, where it was drawn on the screen and where it is kept on the sheet (all in the canvas's own pixels). */
-export interface Card { depth: number; seq: number; x: number; y: number; w: number; h: number; ax: number; ay: number }
+export interface Card { depth: number; seq: number; x: number; y: number; w: number; h: number; ax: number; ay: number; /** Not a piece of the sheet but a walker, stood in the scene by the 3D town itself. */ actor?: Actor }
+/** A walker in the scene: their doll's cell of the dolls' sheet (`ax`, `ay`, and the card's `w`, `h` on the screen), where they stand (tiles), and how solid they are drawn. */
+export interface Actor { sw: number; sh: number; bx: number; bz: number; alpha: number }
 
 type Ctx = CanvasRenderingContext2D;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -114,6 +116,17 @@ export class Capture {
     g.setTransform(1, 0, 0, 1, 0, 0);
     g.clearRect(x0, y0, w, h);
     g.restore();
+  }
+
+  /**
+   * A walker, in their turn among the pieces: what was drawn of this thing before them is a piece behind them, what is
+   * drawn after is one before them. `x`, `y`, `w`, `h`: where their doll's cell lies on the screen, in the drawing's own
+   * measure now; `sx`, `sy`, `sw`, `sh`: the cell in the dolls' sheet.
+   */
+  actor(x: number, y: number, w: number, h: number, sx: number, sy: number, sw: number, sh: number, bx: number, bz: number) {
+    this.cut();
+    const m = this.to.getTransform();
+    this.cards.push({ depth: this.depth, seq: this.seq++, x: m.a * x + m.e, y: m.d * y + m.f, w: m.a * w, h: m.d * h, ax: sx, ay: sy, actor: { sw, sh, bx, bz, alpha: this.to.globalAlpha } });
   }
 
   /** The standing things are all kept: what is drawn from now goes to the live town's own canvas again. */

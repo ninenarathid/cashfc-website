@@ -13,6 +13,7 @@
  */
 import { createSheets, probe, reachOf, type Sheets, type Stand } from "./shade";
 import { FLAT, SWAY } from "./sway";
+import type { Actor, Card as Piece } from "./capture";
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import {
@@ -80,7 +81,7 @@ export interface HdTown {
    * what the live town drew to lie on the ground (`floor`, the screen's size), the shadows over both, and every standing
    * thing the live town drew, a piece of `atlas` each, back to front (`cards`: lib/town-hd/capture). Opaque.
    */
-  renderWorld(v: LiveView, wet: number, floor: HTMLCanvasElement, atlas: HTMLCanvasElement, cards: ReadonlyArray<{ x: number; y: number; w: number; h: number; ax: number; ay: number }>): HTMLCanvasElement;
+  renderWorld(v: LiveView, wet: number, floor: HTMLCanvasElement, atlas: HTMLCanvasElement, cards: ReadonlyArray<Piece>, dolls?: HTMLCanvasElement | null): HTMLCanvasElement;
   /** How high the ground is at a point of the map (tiles), in tiles; 0 everywhere on level ground. */
   heightAt(x: number, y: number): number;
   /** Whether a point of the map (tiles) is water. */
@@ -1155,6 +1156,73 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   document.addEventListener("visibilitychange", onVisible);
 
   let sheets: Sheets | null = null, reached = REACH;
+  // A walker stood in the scene (`renderWorld`): their doll's cell of the live town's dolls' sheet on an upright card where
+  // they stand, in the scene's light as the trial's doll is: an edge of sun on the sun's side, and the dark of a shadow
+  // over all of them when their body is in one (asked at one point, before their own shadow, so they are in or out whole).
+  let actor: { mesh: THREE.Mesh; geo: THREE.BufferGeometry; mat: THREE.MeshLambertMaterial; tex: THREE.CanvasTexture; of: string } | null = null;
+  const actorRim = { value: new THREE.Vector3() }, actorRimCol = { value: new THREE.Color() }, actorBody = { value: new THREE.Vector3() };
+  function stage(v: LiveView, c: Piece, a: Actor, dolls: HTMLCanvasElement, dp: number) {
+    const of = `${dolls.width},${dolls.height}`;
+    if (!actor || actor.of !== of) {
+      if (actor) { scene.remove(actor.mesh); actor.geo.dispose(); actor.mat.dispose(); actor.tex.dispose(); }
+      const tex = new THREE.CanvasTexture(dolls);
+      tex.colorSpace = THREE.SRGBColorSpace; tex.magFilter = tex.minFilter = THREE.NearestFilter; tex.generateMipmaps = false;
+      const mat = new THREE.MeshLambertMaterial({ map: tex, alphaTest: 0.5, side: THREE.DoubleSide, transparent: true, depthTest: false, depthWrite: false });
+      mat.onBeforeCompile = (sh) => {
+        sh.uniforms.hdRim = actorRim; sh.uniforms.hdRimCol = actorRimCol; sh.uniforms.hdBody = actorBody;
+        sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nuniform vec3 hdBody;")
+          .replace("#include <shadowmap_vertex>", `#include <shadowmap_vertex>
+            #if defined( USE_SHADOWMAP ) && NUM_DIR_LIGHT_SHADOWS > 0
+              vDirectionalShadowCoord[ 0 ] = directionalShadowMatrix[ 0 ] * vec4( hdBody, 1.0 );
+            #endif`);
+        sh.fragmentShader = sh.fragmentShader.replace("#include <common>", "#include <common>\nuniform vec3 hdRim;\nuniform vec3 hdRimCol;")
+          .replace("#include <map_fragment>", `#include <map_fragment>
+            #ifdef USE_MAP
+              diffuseColor.rgb += hdRimCol * (1.0 - texture2D(map, vMapUv + hdRim.xy).a) * hdRim.z;
+            #endif`);
+      };
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(12), 3).setUsage(THREE.DynamicDrawUsage));
+      geo.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(8), 2).setUsage(THREE.DynamicDrawUsage));
+      geo.setAttribute("normal", new THREE.Float32BufferAttribute([0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0], 3));
+      geo.setIndex([0, 1, 2, 0, 2, 3]);
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.frustumCulled = false; mesh.receiveShadow = true; mesh.visible = false;
+      scene.add(mesh);
+      actor = { mesh, geo, mat, tex, of };
+    }
+    const A = actor, d = a.bx + a.bz;
+    // (a point of the screen, on the upright sheet through where they stand that faces the view)
+    const at = (X: number, Y: number): [number, number, number] => {
+      const ix = v.cx + (X / dp - v.cw / 2) / v.s, iy = v.cy + (Y / dp - v.ch / 2) / v.s;
+      return [(d + ix / 32) / 2, (d * 16 - iy) / PX_UP, (d - ix / 32) / 2];
+    };
+    const pos = A.geo.attributes.position as THREE.BufferAttribute, uv = A.geo.attributes.uv as THREE.BufferAttribute;
+    [at(c.x, c.y + c.h), at(c.x + c.w, c.y + c.h), at(c.x + c.w, c.y), at(c.x, c.y)].forEach((q, i) => pos.setXYZ(i, q[0], q[1], q[2]));
+    const u0 = c.ax / dolls.width, u1 = (c.ax + a.sw) / dolls.width, v1 = 1 - c.ay / dolls.height, v0 = 1 - (c.ay + a.sh) / dolls.height;
+    uv.setXY(0, u0, v0); uv.setXY(1, u1, v0); uv.setXY(2, u1, v1); uv.setXY(3, u0, v1);
+    pos.needsUpdate = true; uv.needsUpdate = true;
+    A.tex.needsUpdate = A.tex.version === 0 || stagedAt !== frameNo;
+    stagedAt = frameNo;
+    const sx = sunDir.dot(RIGHT), sy = sunDir.dot(UPV), sl = Math.hypot(sx, sy) || 1;
+    actorRim.value.set(((sx / sl) * 1.6) / dolls.width, ((sy / sl) * 1.6) / dolls.height, 0.16 * now.sunI);
+    actorRimCol.value.setHex(now.sunCol);
+    actorBody.value.set(a.bx + sunDir.x * 0.45, Hat(a.bx, a.bz) + 0.8, a.bz + sunDir.z * 0.45);
+    A.mat.opacity = a.alpha;
+    // (alone: the ground is down already, and nothing else of the scene is seen in this town)
+    A.mesh.visible = true;
+    if (land) land.mesh.visible = false;
+    // (a scene with a colour behind it wipes the picture before it draws: there is none behind this one)
+    const back = scene.background;
+    scene.background = null;
+    renderer.shadowMap.autoUpdate = false;
+    renderer.render(scene, camera);
+    renderer.shadowMap.autoUpdate = true;
+    scene.background = back;
+    if (land) land.mesh.visible = true;
+    A.mesh.visible = false;
+  }
+  let stagedAt = -1, frameNo = 0;
   let surf: THREE.Mesh | null = null;
   let quads: { geo: THREE.BufferGeometry; mat: THREE.ShaderMaterial; mesh: THREE.Mesh; pos: Float32Array; uv: Float32Array; room: number; tex: Map<HTMLCanvasElement, { tex: THREE.CanvasTexture; key: string }> } | null = null;
   let over: THREE.MeshLambertMaterial | null = null, laying = false;
@@ -1233,7 +1301,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       probe(renderer, camera, v, sunDir, flat ? undefined : Hat);
       return renderer.domElement;
     },
-    renderWorld(v, wet, floor, atlas, cards) {
+    renderWorld(v, wet, floor, atlas, cards, dolls) {
       if (!quads) {
         const geo = new THREE.BufferGeometry();
         const mat = new THREE.ShaderMaterial({
@@ -1287,6 +1355,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
         renderer.render(Q.mesh, camera);
       };
       // the ground and the water in their own colours; what lies on the ground; the shadows over both; then all that stands
+      frameNo++;
       api.renderGround(v, wet);
       renderer.autoClear = false;
       try {
@@ -1294,7 +1363,15 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
         laying = true;
         api.renderAt(v);
         laying = false;
-        lay(atlas, cards, floor.width, floor.height);
+        // every piece in its turn; a walker stood in the scene itself, in the scene's light
+        let from = 0;
+        for (let i = 0; i <= cards.length; i++) {
+          const c = cards[i];
+          if (c && !c.actor) continue;
+          if (i > from) lay(atlas, cards.slice(from, i), floor.width, floor.height);
+          from = i + 1;
+          if (c?.actor && dolls) stage(v, c, c.actor, dolls, floor.width / v.cw);
+        }
       } finally { laying = false; renderer.autoClear = true; }
       return renderer.domElement;
     },
