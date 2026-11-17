@@ -391,7 +391,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
    * picture (`renderWorld`), which this town then only throws the shadows of (`keepOut`).
    */
   const kinds = new Map<number, "card" | "wide" | "built" | "flat">(), partsOf = new Map<number, THREE.Object3D[]>();
-  let thingNow = -1, out = new Set<number>();
+  let thingNow = -1, out = new Set<number>(), deepAsLive = false;
 
   /*
    * A wide thing's own picture, laid back onto its shape (the owner, 2026-11-17: "แปลง asset ในแมพแรก เป็น 3d เท่าที่ควรจะเป็น").
@@ -665,7 +665,12 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   function faceCards(yaw: number) {
     Q.setFromAxisAngle(UP, yaw);
     for (const { list, seen } of cardSets) {
-      list.forEach((c, i) => seen.setMatrixAt(i, M.compose(V.set(c.x, c.y, c.z), Q, c.unseen || (c.of !== undefined && out.has(c.of)) ? S.set(0, 0, 0) : S.set(c.w, c.h, 1))));
+      list.forEach((c, i) => {
+        // (in the world the live town's pieces stand among: as far forward as the live town says the thing stands, its
+        // place on the screen kept: moved along the line of sight)
+        const far = deepAsLive && c.of !== undefined && c.of >= 0 ? OBJECTS[c.of][7] - (c.x + c.z) : 0;
+        seen.setMatrixAt(i, M.compose(V.set(c.x + far / 2, c.y + (far * 16) / PX_UP, c.z + far / 2), Q, c.unseen || (c.of !== undefined && out.has(c.of)) ? S.set(0, 0, 0) : S.set(c.w, c.h, 1)));
+      });
       seen.instanceMatrix.needsUpdate = true;
     }
   }
@@ -1552,7 +1557,7 @@ ${NOISE}
       return renderer.domElement;
     },
     kindOf: (i) => kinds.get(i) ?? null,
-    keepOut(list) { out = new Set(list); faceCards(YAW); },
+    keepOut(list) { out = new Set(list); deepAsLive = true; faceCards(YAW); },
     setRain(on) { raining = on; },
     zoom(by) { view.distTo = Math.min(60, Math.max(11, view.distTo * by)); },
     dispose() {

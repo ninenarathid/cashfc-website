@@ -145,6 +145,23 @@ export class Farm2Art {
     return swayPx((ix / 32 + iy / 16) / 2, (iy / 16 - ix / 32) / 2, sp.w * t.k, this.sway.sec, this.sway.me) * s;
   }
   lift: ((x: number, y: number) => number) | null = null;
+  /** Which things the 3D town stands in its own scene this frame (lib/town-hd/engine's `renderWorld`), not drawn here; or null. */
+  solid: ((i: number) => boolean) | null = null;
+  /**
+   * The things the live town draws itself in the 3D town's world, whatever that town makes of them (`kindOf`): all but
+   * those on one foot and the built shapes; the scarecrows (faded before whoever works behind them), what the game
+   * places and changes (the barns), and what a yard has taken the place of. `yards` changes when that last does.
+   */
+  liveOnly(kindOf: (i: number) => string | null): Set<number> {
+    const out = new Set<number>(this.inYards);
+    for (const t of this.byIndex) {
+      if (!t) continue;
+      const k = kindOf(t.i);
+      if ((k !== "card" && k !== "built") || this.scarecrows.has(t.i) || t.how === 4) out.add(t.i);
+    }
+    return out;
+  }
+  get yards(): unknown { return this.inYards; }
   /** The 3D town's lit picture of what stands, this frame, or null (lib/town/relight). */
   lit: Lit | null = null;
   private up(t: Thing, dx = 0, dy = 0): number {
@@ -232,6 +249,7 @@ export class Farm2Art {
    */
   pushStanding(ctx: CanvasRenderingContext2D, things: Thing[], push: Push, screen: Screen, s: number, px: number, seeThrough?: (thing: number) => number) {
     for (const t of things) {
+      if (this.solid?.(t.i)) continue;
       if (t.how === FLOOR) continue;
       if (t.how === STAND) {
         const alpha = seeThrough && this.scarecrows.has(t.i) ? seeThrough(t.i) : 1;

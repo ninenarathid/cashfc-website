@@ -597,6 +597,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     }
     return solidFor.current.is;
   };
+  const solidFarm = useRef<{ town: HdTown; yards: unknown; is: (i: number) => boolean } | null>(null);
   const capRef = useRef<Capture | null>(null), world3d = useRef(false), hd3d = useRef(false);
   useEffect(() => { hd3d.current = /[?&]hd3d=1/.test(window.location.search); }, []);
   const castAt = useRef(-1), hdRaised = useRef(false), shadeTick = useRef(0), inShade = useRef(new Map<string, number>());
@@ -2638,7 +2639,19 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const seen2 = art2 ? art2.visible({ x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, now) : null;
     // ── the editor's farm ── (lib/town/farm2-art: what of it is near the view, while I am on the farm)
     const artF = scenery && F2 && placeRef.current === "farm" ? farm2Art() : null;
-    if (artF) { artF.lift = HILL ? hillPx : null; artF.lit = null; artF.sway = swaying; }
+    if (artF) {
+      artF.lift = HILL ? hillPx : null; artF.lit = null; artF.sway = swaying; artF.solid = null;
+      // (the farm's own things in the 3D town's world: as the town's, `solidOf`; told again when a yard takes a thing's place)
+      const town = world3d.current ? hdTowns.current.farm : undefined;
+      if (town) {
+        if (solidFarm.current?.town !== town || solidFarm.current.yards !== artF.yards) {
+          const out = artF.liveOnly(town.kindOf);
+          town.keepOut(out);
+          solidFarm.current = { town, yards: artF.yards, is: (i) => { const k = town.kindOf(i); return (k === "card" || k === "built") && !out.has(i); } };
+        }
+        artF.solid = solidFarm.current.is;
+      }
+    }
     const seenF = artF ? artF.visible({ x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, now) : null;
     // ── Granny Twilla's clothes shop ── (lib/town/shop-room-art: nothing of it is fetched until it is near the view)
     const roomArt = scenery ? shopArtRef.current : null;
@@ -3469,7 +3482,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       try {
         const clock = new Date(Date.now() + 7 * 3600_000), sheet = dollSheet.current;
         const stands: Stand[] = dollsDrawn.current.map((d) => ({ img: sheet!, sx: (d.cell % DOLL_CELLS.cols) * DOLL_CELLS.w, sy: Math.floor(d.cell / DOLL_CELLS.cols) * DOLL_CELLS.h, w: DOLL_CELLS.w, h: DOLL_CELLS.h, ax: DOLL_CELLS.w / 2, ay: DOLL_CELLS.foot, k: 1, x: d.a.pos.x, y: d.a.pos.y }));
-        const pic = town!.renderWorld({ cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes(), stands, sec: swaying?.sec, me: swaying?.me }, effects.current?.rain ?? 0, cap.floor, cap.atlas, cap.cards, sheet, !!art2?.solid);
+        const pic = town!.renderWorld({ cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes(), stands, sec: swaying?.sec, me: swaying?.me }, effects.current?.rain ?? 0, cap.floor, cap.atlas, cap.cards, sheet, placeRef.current === "town" ? !!art2?.solid : !!artF?.solid);
         ctx.drawImage(pic, 0, 0, cw, ch);
         if (cap.lost) console.warn("[Cash Town] 3D world: no room on the sheet for", cap.lost, "things this frame");
       } catch (e) { hd3d.current = false; console.warn("[Cash Town] 3D world stopped", e); }
