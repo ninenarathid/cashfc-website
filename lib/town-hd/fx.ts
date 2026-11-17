@@ -47,11 +47,11 @@ const GRADE = {
 };
 
 export interface Post { render(): void; setSize(w: number, h: number, ratio: number): void; look(tint: readonly number[], sat: number, vig: number, bloom: number): void; dispose(): void }
-export function makePost(renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.Camera, small: boolean): Post {
+export function makePost(renderer: THREE.WebGLRenderer, scene: THREE.Scene, camera: THREE.Camera, small: boolean, /** How bright a thing is before it glows (1: only what is lit past white, as the 3D town's lamps are). */ threshold = 1.0): Post {
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
   // (on a phone the glow is worked out on a quarter of the pixels: it is soft, and nothing is lost by it)
-  const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), 0.3, small ? 0.35 : 0.5, 1.0);
+  const bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), 0.3, small ? 0.35 : 0.5, threshold);
   const grade = new ShaderPass(GRADE);
   composer.addPass(bloom);
   composer.addPass(grade);
@@ -71,7 +71,7 @@ export function makePost(renderer: THREE.WebGLRenderer, scene: THREE.Scene, came
 export interface AirNow { motes: number; flies: number; mist: number; rays: number; petals: number; smoke: number; sunX: number; sunY: number; sun: THREE.Color; /** How hard it rains. */ rain: number; /** A room one stands in: no rain is seen over its floor, while it goes on falling outside. */ dry: readonly number[] | null; /** How dark the far hills are (the night's share). */ dim: number }
 export interface Air { /** A puff of dust at somebody's feet. */ puff(x: number, y: number, z: number): void; update(dt: number, sec: number, at: THREE.Vector3, halfH: number, aspect: number, now: AirNow): void; dispose(): void }
 
-export function makeAir(scene: THREE.Scene, camera: THREE.Camera, o: { small: boolean; /** A tree's picture, for the dark boughs that hang near the eye at the foot of the view. */ fore: THREE.Texture | null; /** The ground's height at a point. */ heightAt: (x: number, z: number) => number; wetAt: (x: number, z: number) => boolean; chimneys: THREE.Vector3[]; ratio: number }): Air {
+export function makeAir(scene: THREE.Scene, camera: THREE.Camera, o: { small: boolean; /** A tree's picture, for the dark boughs that hang near the eye at the foot of the view. */ fore: THREE.Texture | null; /** The ground's height at a point. */ heightAt: (x: number, z: number) => number; wetAt: (x: number, z: number) => boolean; chimneys: THREE.Vector3[]; ratio: number; /** No hills beyond the land (over the live town's picture there is nothing behind it). */ far?: boolean }): Air {
   const kept: Array<{ dispose(): void }> = [];
   let seed = 4242;
   const r = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
@@ -186,7 +186,7 @@ export function makeAir(scene: THREE.Scene, camera: THREE.Camera, o: { small: bo
     t.colorSpace = THREE.SRGBColorSpace; t.wrapS = THREE.RepeatWrapping; t.magFilter = THREE.NearestFilter;
     const geo = new THREE.PlaneGeometry(1, 1), mat = new THREE.MeshBasicMaterial({ map: t, transparent: true, depthWrite: false, fog: false });
     const m = new THREE.Mesh(geo, mat);
-    m.renderOrder = -5; m.frustumCulled = false;
+    m.renderOrder = -5; m.frustumCulled = false; m.visible = o.far !== false;
     camera.add(m);
     kept.push(t, geo, mat);
     return { m, t, mat };

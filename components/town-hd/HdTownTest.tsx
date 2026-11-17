@@ -1,5 +1,7 @@
 "use client";
 
+import { createFinish } from "@/lib/town-hd/finish";
+import { Town2Art } from "@/lib/town/town2-art";
 import { createShade } from "@/lib/town-hd/shade";
 import { loadForest, loadScenery, type SceneryKit } from "@/lib/town/scenery";
 import { artOf } from "@/lib/town/decor";
@@ -51,6 +53,59 @@ export default function HdTownTest() {
     try {
       // (`?at=x,y`: stand somewhere else first, for a tester sent to look at one corner)
       const m = /[?&]at=(\d+(?:\.\d+)?),(\d+(?:\.\d+)?)/.exec(window.location.search);
+      if (/[?&]under=lit/.test(window.location.search)) {
+        // (the live town's way of drawing the editor's town, alone: its own pictures back to front with walkers, each
+        // laid again from the 3D town's lit picture; `&plain=1` leaves that out, to compare; `&at=x,y` looks elsewhere)
+        const c = canvas.current, under = createHdTown(document.createElement("canvas"), { map: "town", time: "day", underlay: true, quality: "high" });
+        const art = new Town2Art(), copy = document.createElement("canvas"), plain = /[?&]plain=1/.test(window.location.search);
+        // (`&finish=1`: and the finish over it, as the live town wears it: lib/town-hd/finish)
+        const stage = document.createElement("canvas"), finish = /[?&]finish=1/.test(window.location.search) ? createFinish(document.createElement("canvas"), "high") : null, finished = document.createElement("canvas");
+        void finished;
+        const [mx, my] = (/[?&]at=(\d+),(\d+)/.exec(window.location.search)?.slice(1).map(Number) ?? [41, 44]) as [number, number];
+        let raf = 0;
+        const paint = () => {
+          raf = requestAnimationFrame(paint);
+          if (!under.ready()) return;
+          const cw = c.clientWidth, ch = c.clientHeight, dpr = Math.min(window.devicePixelRatio || 1, 2), d = new Date(Date.now() + 7 * 3600_000), sc = 1.6;
+          if (c.width !== Math.round(cw * dpr)) { c.width = Math.round(cw * dpr); c.height = Math.round(ch * dpr); }
+          if (stage.width !== c.width || stage.height !== c.height) { stage.width = c.width; stage.height = c.height; }
+          const cx = (mx - my) * 32, cy = (mx + my) * 16, g = (finish ? stage : c).getContext("2d")!, now = performance.now();
+          const minute = Number(/[?&]min=(\d+)/.exec(window.location.search)?.[1] ?? d.getUTCHours() * 60 + d.getUTCMinutes());
+          const screen = (ix: number, iy: number) => ({ x: cw / 2 + (ix - cx) * sc, y: ch / 2 + (iy - cy) * sc });
+          const pic = under.renderAt({ cx, cy, s: sc, cw, ch, dpr, min: Number(/[?&]min=(\d+)/.exec(window.location.search)?.[1] ?? d.getUTCHours() * 60 + d.getUTCMinutes()) });
+          g.setTransform(dpr, 0, 0, dpr, 0, 0);
+          g.fillStyle = "#6aa556"; g.fillRect(0, 0, cw, ch);
+          g.globalCompositeOperation = "multiply"; g.drawImage(pic, 0, 0, cw, ch); g.globalCompositeOperation = "source-over";
+          const lit = under.renderLit();
+          if (copy.width !== lit.width || copy.height !== lit.height) { copy.width = lit.width; copy.height = lit.height; }
+          const cg = copy.getContext("2d")!;
+          cg.clearRect(0, 0, copy.width, copy.height); cg.drawImage(lit, 0, 0);
+          art.lit = plain ? null : { pic: copy, k: copy.width / cw };
+          const seen = art.visible({ x0: cx - cw / 2 / sc, y0: cy - ch / 2 / sc, x1: cx + cw / 2 / sc, y1: cy + ch / 2 / sc }, now);
+          art.drawFloor(g, seen, screen, sc, dpr, now, false);
+          const things: Array<{ depth: number; draw: () => void }> = [];
+          art.pushStanding(g, seen, (depth, draw) => things.push({ depth, draw }), screen, sc, dpr, false);
+          // (walkers: plain figures on a grid of tiles, each drawn in its turn)
+          for (let y = my - 12; y <= my + 12; y += 3) for (let x = mx - 12; x <= mx + 12; x += 3) things.push({ depth: x + y, draw: () => {
+            const q = screen((x - y) * 32, (x + y) * 16);
+            g.fillStyle = "#e8479a"; g.fillRect(q.x - 7 * sc, q.y - 30 * sc, 14 * sc, 30 * sc);
+          } });
+          things.sort((u, w) => u.depth - w.depth);
+          for (const t of things) t.draw();
+          // (a night laid over it as the live town lays its own, and two lamps)
+          if (finish) {
+            const dark = minute > 1170 || minute < 270 ? 0.62 : 0;
+            if (dark) { g.globalCompositeOperation = "multiply"; g.fillStyle = "#3a4a86"; g.fillRect(0, 0, cw, ch); g.globalCompositeOperation = "lighter"; for (const [lx, ly] of [[0.3, 0.45], [0.7, 0.6]]) { const r = g.createRadialGradient(cw * lx, ch * ly, 0, cw * lx, ch * ly, 150); r.addColorStop(0, "rgba(255,190,110,0.85)"); r.addColorStop(1, "rgba(255,190,110,0)"); g.fillStyle = r; g.fillRect(0, 0, cw, ch); } g.globalCompositeOperation = "source-over"; }
+            finish.render(stage, { cx, cy, s: sc, cw, ch, dpr, min: minute }, { indoors: false, still: false });
+            const out = c.getContext("2d")!;
+            out.setTransform(1, 0, 0, 1, 0, 0); out.drawImage(finish.canvas, 0, 0, c.width, c.height);
+          }
+          if (/[?&]showlit=1/.test(window.location.search)) { g.fillStyle = "#203040"; g.fillRect(0, 0, cw, ch); g.drawImage(copy, 0, 0, cw, ch); }
+          setReady(true);
+        };
+        raf = requestAnimationFrame(paint);
+        return () => { cancelAnimationFrame(raf); under.dispose(); finish?.dispose(); };
+      }
       if (/[?&]under=forest/.test(window.location.search)) {
         // (the forest's shadows under its own trees, as the live town lays them: to look at lib/town-hd/shade alone)
         const c = canvas.current, shade = createShade(document.createElement("canvas"), "mid");

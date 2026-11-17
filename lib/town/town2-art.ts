@@ -171,6 +171,36 @@ export class Town2Art {
   }
 
   /** Draw a thing's picture, or the strip of it between two isometric x's. */
+  /**
+   * The 3D town's picture of all that stands, lit and in shadow, as this frame's view sees it (lib/town-hd/engine's
+   * `renderLit`), or null: `pic` covers the screen, `k` of its pixels to one of the screen's. With it every thing here is
+   * drawn as itself and then, through its own outline, as the 3D town lit it: so it is still drawn in its turn, back to
+   * front with the walkers, and wears the sun's side and the shadows that fall across it.
+   */
+  lit: { pic: HTMLCanvasElement; k: number } | null = null;
+  private scratch: HTMLCanvasElement | null = null;
+  /** Lay the lit picture's part over what was just drawn in the screen's box (x, y, w, h), through `outline` (drawn into the box's own corner). */
+  private relight(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, outline: (g: CanvasRenderingContext2D) => void) {
+    const lit = this.lit;
+    if (!lit) return;
+    const k = lit.k, x0 = Math.max(0, Math.floor(x * k)), y0 = Math.max(0, Math.floor(y * k)), x1 = Math.min(lit.pic.width, Math.ceil((x + w) * k)), y1 = Math.min(lit.pic.height, Math.ceil((y + h) * k));
+    if (x1 <= x0 || y1 <= y0) return;
+    const c = (this.scratch ??= document.createElement("canvas"));
+    if (c.width < x1 - x0 || c.height < y1 - y0) { c.width = Math.max(c.width, x1 - x0, 256); c.height = Math.max(c.height, y1 - y0, 256); }
+    const g = c.getContext("2d")!;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.globalCompositeOperation = "source-over";
+    g.clearRect(0, 0, x1 - x0, y1 - y0);
+    g.imageSmoothingEnabled = false;
+    // (the outline is drawn in the screen's own measure, from the box's corner)
+    g.setTransform(k, 0, 0, k, -x0, -y0);
+    outline(g);
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.globalCompositeOperation = "source-in";
+    g.drawImage(lit.pic, x0, y0, x1 - x0, y1 - y0, 0, 0, x1 - x0, y1 - y0);
+    ctx.drawImage(c, 0, 0, x1 - x0, y1 - y0, x0 / k, y0 / k, (x1 - x0) / k, (y1 - y0) / k);
+  }
+
   private paint(ctx: CanvasRenderingContext2D, t: Thing, screen: Screen, s: number, px: number, strip?: [number, number]) {
     const sp = this.sprites[t.s];
     if (!sp.img || !sp.ready) return;
@@ -216,6 +246,14 @@ export class Town2Art {
       if (over) ctx.drawImage(over, sx0, 0, sx1 - sx0, sp.h, dx + sx0 * k, dy, (sx1 - sx0) * k, sp.h * k);
     }
     ctx.restore();
+    // (not what moves in its own picture, nor what is dressed over: those are as the live town drew them)
+    if (this.lit && pic === sp.img && !over && k * px >= 1) {
+      const bx = t.flip ? dx + (sp.w - sx1) * k : dx + sx0 * k, bw = (sx1 - sx0) * k;
+      this.relight(ctx, bx, dy, bw, sp.h * k, (g) => {
+        if (t.flip) { g.translate(dx + sp.w * k, dy); g.scale(-1, 1); g.drawImage(pic, sx0, 0, sx1 - sx0, sp.h, sx0 * k, 0, bw, sp.h * k); }
+        else g.drawImage(pic, sx0, 0, sx1 - sx0, sp.h, bx, dy, bw, sp.h * k);
+      });
+    }
   }
 
   /** The ripples' sheet, asked for with the first frame that has water in it. */

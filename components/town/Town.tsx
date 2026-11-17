@@ -19,6 +19,7 @@ import { drawPixelFlames } from "./flames";
 import { F2_BENCH_OF, F2_CHESTS, F2_SCARECROWS, F2_TRADE_BOARDS } from "@/lib/town/farm2";
 import type { HdTown } from "@/lib/town-hd/engine";
 import type { Shade, Stand } from "@/lib/town-hd/shade";
+import type { Finish } from "@/lib/town-hd/finish";
 import { hdOf, keepHd, keptHd, type HdChoice } from "@/lib/town-hd/choice";
 import { T2_CASINO_DOOR, T2_CHEST_OPEN, T2_CHEST_SHUT, T2_LAMP_LIGHT, T2_PROP_THING, T2_RINGS, T2_THINGS, t2RiverPoint } from "@/lib/town/town2";
 // ── Granny Twilla's clothes shop ── (lib/town/shop-room: a room of its own, drawn from its own pictures as it comes near)
@@ -554,6 +555,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // (the forest and the mountain: what the frame before stood on the map, each thing's own picture, throws the shadows)
   const wildMake = useRef<(() => Shade) | null>(null), wildShade = useRef<Shade | null>(null);
   const wildStood = useRef<Array<{ name: string; x: number; y: number; k: number; mirror?: boolean }>>([]);
+  // The finish over the whole frame, on every map (lib/town-hd/finish): the glow of what is bright, the hour's colour,
+  // what hangs in the air. On a canvas of its own over the town's; at "low" there is none, only the shadows.
+  const finishCanvas = useRef<HTMLCanvasElement | null>(null), finishRef = useRef<Finish | null>(null), finishSlow = useRef(0);
+  const [finishOn, setFinishOn] = useState(false);
+  const dropFinish = (why: string, e?: unknown) => { finishRef.current?.dispose(); finishRef.current = null; setFinishOn(false); console.warn("[Cash Town] 3D finish stopped:", why, e ?? ""); };
   useEffect(() => {
     if (hd === "off") return;
     let gone = false;
@@ -561,9 +567,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       if (gone) return;
       hdMake.current = (place) => createHdTown(document.createElement("canvas"), { map: place, time: "day", underlay: true, quality: hd });
       wildMake.current = () => createShade(document.createElement("canvas"), hd);
+      if (hd !== "low" && !/[?&]hdfinish=0/.test(window.location.search)) void import("@/lib/town-hd/finish").then(({ createFinish }) => {
+        if (gone || !finishCanvas.current) return;
+        try { finishRef.current = createFinish(finishCanvas.current, hd); finishSlow.current = 0; setFinishOn(true); } catch (e) { console.warn("[Cash Town] 3D finish could not start", e); }
+      }).catch(() => { /* the town without it */ });
       console.info("[Cash Town] 3D shadows:", hd);
     }).catch((e) => { console.warn("[Cash Town] 3D shadows could not start; the town is drawn as it always was", e); });
-    return () => { gone = true; hdMake.current = null; wildMake.current = null; for (const t of Object.values(hdTowns.current)) t?.dispose(); hdTowns.current = {}; wildShade.current?.dispose(); wildShade.current = null; };
+    return () => { gone = true; hdMake.current = null; wildMake.current = null; for (const t of Object.values(hdTowns.current)) t?.dispose(); hdTowns.current = {}; wildShade.current?.dispose(); wildShade.current = null; finishRef.current?.dispose(); finishRef.current = null; setFinishOn(false); };
   }, [hd]);
   // ── the pasture ── (the cloud ram's pictures are the pasture's sheets: fetched the first time a ram is drawn, on any map)
   const ramArt = useRef<SceneryKit | null | undefined>(undefined);
@@ -1560,10 +1570,24 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
       frames++;
-      if (now - fpsSince >= 1000) { fpsRef.current = Math.round((frames * 1000) / (now - fpsSince)); frames = 0; fpsSince = now; }
+      if (now - fpsSince >= 1000) {
+        fpsRef.current = Math.round((frames * 1000) / (now - fpsSince)); frames = 0; fpsSince = now;
+        // (a device the finish is too much for is let off it for this visit: six seconds on end far under the pace, while the map is watched)
+        if (finishRef.current && !resting && document.visibilityState === "visible" && fpsRef.current < pace * 0.6) { if (++finishSlow.current >= 6) dropFinish("this device draws too slowly with it"); }
+        else finishSlow.current = 0;
+      }
       if (live) live.step(now, dt);
       if (mapRef.current) mapRef.current.camera.current?.frame?.(now);
-      else draw(ctx, canvas, now, dt);
+      else {
+        draw(ctx, canvas, now, dt);
+        const fin = finishRef.current;
+        if (fin) {
+          try {
+            const c = cam.current, clock = new Date(Date.now() + 7 * 3600_000);
+            fin.render(canvas, { cx: c.cx, cy: c.cy, s: c.s, cw: c.cw, ch: c.ch, dpr: c.dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() }, { indoors: underRoof(placeRef.current), still: reducedRef.current });
+          } catch (e) { dropFinish("it failed", e); }
+        }
+      }
       ask();
     };
     // A touch of the page: the map is at the pace chosen again, and at once (the frame it was waiting for was a
@@ -5564,6 +5588,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
               onPointerDown={onPointerDown} onPointerMove={onPointerMove}
               onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
               onPointerLeave={() => { hover.current = null; if (mouse.current) mouse.current.inside = false; }} />
+      {/* The 3D finish of the frame under it (lib/town-hd/finish), when it is on: the same picture, glowing, in the hour's colour */}
+      <canvas ref={finishCanvas} aria-hidden className="pointer-events-none absolute inset-0 h-full w-full" style={{ display: finishOn && !mapAddon ? undefined : "none" }} />
       <div aria-hidden className="pointer-events-none absolute inset-0 isolate overflow-hidden">
         <div ref={saidRootRef} className="absolute inset-0 isolate" />
         <div ref={cursorRef} className="absolute left-0 top-0 hidden [image-rendering:pixelated] [will-change:transform]" />

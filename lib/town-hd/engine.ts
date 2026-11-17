@@ -51,6 +51,8 @@ export interface HdTown {
    * a shadow darkens it). Nothing else is drawn: the ground, the water and all that stands are the live town's own.
    */
   renderAt(v: LiveView): HTMLCanvasElement;
+  /** After `renderAt`, the same frame: what stands in the map alone, lit and in shadow, on nothing (for the live town to lay over its own pictures). */
+  renderLit(): HTMLCanvasElement;
   /** Whether the ground's pictures have come (until then `renderAt` would paint it black). */
   ready(): boolean;
   setTime(t: TimeId): void;
@@ -89,7 +91,9 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   const coarse = typeof matchMedia !== "undefined" && matchMedia("(pointer: coarse)").matches;
   // (the owner was told, 2026-11-17, that the look's cost on a phone was never measured: so three shares of it)
   const quality: Quality = opts.quality ?? (coarse ? "mid" : "high"), lite = quality !== "high";
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: "high-performance" });
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, alpha: below, powerPreference: "high-performance" });
+  // (under the live town: what is hidden while only shadows are drawn and shown for the lit picture, and the other way)
+  const litShown: THREE.Object3D[] = [], litHidden: THREE.Object3D[] = [];
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   const scene = new THREE.Scene();
@@ -263,6 +267,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     };
     const ground = new THREE.Mesh(geo, mat);
     ground.receiveShadow = true;
+    litHidden.push(ground);
     scene.add(ground);
     disposables.push(geo, mat);
   }
@@ -561,6 +566,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     shade.castShadow = true;
     seen.frustumCulled = shade.frustumCulled = false;
     seen.visible = !below;
+    litShown.push(seen);
     town.add(seen, shade);
     cardSets.push({ list, seen, shade });
     disposables.push(mat, ghost);
@@ -593,8 +599,8 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
   }
 
   // what lies flat (stepping stones, lotus leaves, flower beds): its picture laid back onto the ground it was drawn on
-  for (const { s, o, wet } of below ? [] : flats) {
-    const sp = sprites[s], w = sp[1] * o[4], h = sp[2] * o[4], y = wet ? WATER_Y + 0.02 : Hat((o[8] + o[10]) / 2, (o[9] + o[11]) / 2) + 0.03;
+  for (const { s, o, wet } of flats) {
+    const sp = sprites[s], w = sp[1] * o[4], h = sp[2] * o[4], y = below ? 0.03 : wet ? WATER_Y + 0.02 : Hat((o[8] + o[10]) / 2, (o[9] + o[11]) / 2) + 0.03;
     const at = (ix: number, iy: number) => [(ix / 32 + iy / 16) / 2, y, (iy / 16 - ix / 32) / 2];
     const geo = new THREE.BufferGeometry(), flip = o[5] === 1;
     geo.setAttribute("position", new THREE.Float32BufferAttribute([...at(o[2], o[3] + h), ...at(o[2] + w, o[3] + h), ...at(o[2] + w, o[3]), ...at(o[2], o[3])], 3));
@@ -604,6 +610,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     const mat = new THREE.MeshLambertMaterial({ map: pictureOf(s), alphaTest: 0.5, side: THREE.DoubleSide });
     const m = new THREE.Mesh(geo, mat);
     m.receiveShadow = true;
+    if (below) { m.visible = false; litShown.push(m); }
     town.add(m);
     disposables.push(geo, mat);
   }
@@ -1113,6 +1120,24 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       sun.target.position.set(ax, 0, az);
       sun.position.set(ax + sunDir.x * 90, sunDir.y * 90, az + sunDir.z * 90);
       renderer.render(scene, camera);
+      return renderer.domElement;
+    },
+    renderLit() {
+      // the same view again, the shadows as they were just thrown: now only what stands, in its own colours, lit and
+      // shaded, on nothing (the live town lays each thing of it over its own picture of that thing)
+      for (const o of litShown) o.visible = true;
+      for (const o of litHidden) o.visible = false;
+      for (const m of artMats.values()) { m.colorWrite = true; m.depthWrite = true; }
+      const back = scene.background;
+      scene.background = null;
+      renderer.setClearColor(0x000000, 0);
+      renderer.shadowMap.autoUpdate = false;
+      renderer.render(scene, camera);
+      renderer.shadowMap.autoUpdate = true;
+      scene.background = back;
+      for (const o of litShown) o.visible = false;
+      for (const o of litHidden) o.visible = true;
+      for (const m of artMats.values()) { m.colorWrite = false; m.depthWrite = false; }
       return renderer.domElement;
     },
     setRain(on) { raining = on; },
