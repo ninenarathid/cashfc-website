@@ -446,6 +446,48 @@ export class TownSession {
   }
 
   /**
+   * Walk on a little way the way the keys held point (`dx`, `dy`: a direction over the tiles), from where I am and not
+   * from a tile's middle (the owner, 2026-11-17, of steps a tile at a time: "ใน /town/hd-test มันเดินละเอียดกว่า เอาแบบ
+   * /town/hd-test"). Asked again and again while the keys are held. Into another tile only where a walker's step may
+   * go (the same rules a way is found by: fences, walls, decks); against something, along it. The room hears where I
+   * am bound as it hears any move, as often as moves may be told, and walks me there its own way.
+   */
+  stride(dx: number, dy: number): boolean {
+    if (this.closed || this.self.info.seat || this.stuck()) return false;
+    if (!this.options.terrain && ridingBoat(this.self.info.id)) return false;
+    const a = this.self, len = Math.hypot(dx, dy);
+    if (!len) return false;
+    const fx = Math.floor(a.pos.x), fy = Math.floor(a.pos.y), REACH = 0.42;
+    const open = (tx: number, ty: number) => {
+      if (tx === fx && ty === fy) return true;
+      const from = { x: fx + 0.5, y: fy + 0.5 }, to = { x: tx + 0.5, y: ty + 0.5 };
+      const way = this.options.terrain ? this.options.terrain.path(from, to) : findPath(from, to);
+      return !!way && way.length === 1;
+    };
+    for (const [ux, uy] of [[dx / len, dy / len], [Math.sign(dx), 0], [0, Math.sign(dy)]]) {
+      if (!ux && !uy) continue;
+      const to = { x: a.pos.x + ux * REACH, y: a.pos.y + uy * REACH };
+      if (!open(Math.floor(to.x), Math.floor(to.y))) continue;
+      this.sitWhenThere = null;
+      if ((a.info.sit ?? -1) !== -1) this.tell({ sit: -1, turn: 0 });
+      a.path = [to];
+      a.info = { ...a.info, x: to.x, y: to.y };
+      this.announceMove();
+      return true;
+    }
+    return false;
+  }
+  /** The keys let go: I stop where I am. */
+  halt() {
+    if (this.closed) return;
+    const a = this.self;
+    if (!a.path.length) return;
+    a.path = [];
+    a.info = { ...a.info, x: a.pos.x, y: a.pos.y };
+    this.announceMove();
+  }
+
+  /**
    * Stand at once somewhere else: through a gate, on the other map. The room
    * hears it as an ordinary move, and whoever hears a move to another map puts
    * the walker there instead of walking them across (onDoing).

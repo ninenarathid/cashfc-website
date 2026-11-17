@@ -4988,23 +4988,17 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     };
     const walking = new Map<string, [number, number]>();
     let timer = 0;
-    const rest = () => { walking.clear(); if (timer) { window.clearInterval(timer); timer = 0; } };
-    /** A step the way the held keys point, from where my way ends: asked again only when that way is nearly walked. */
+    const rest = () => { if (walking.size) sessionRef.current?.halt(); walking.clear(); if (timer) { window.clearInterval(timer); timer = 0; } };
+    /** On, the way the held keys point, from where I stand (lib/town/session's `stride`): asked again while they are held. */
     const go = (first: boolean) => {
       const stay = sessionRef.current;
       if (!stay || stay.closed || !walking.size || stay.seated || stay.stuck()) { if (!first) rest(); return; }
       let sx = 0, sy = 0;
       for (const [x, y] of walking.values()) { sx += x; sy += y; }
-      const dx = Math.sign(sx), dy = Math.sign(sy), a = stay.self;
-      if ((!dx && !dy) || (!first && a.path.length > 1)) return;
-      const from = a.path.length ? a.path[a.path.length - 1] : a.pos, fx = Math.floor(from.x), fy = Math.floor(from.y);
-      // (against a wall on the slant, along it)
-      for (const [ux, uy] of [[dx, dy], [dx, 0], [0, dy]]) {
-        if ((!ux && !uy) || !walkable(fx + ux, fy + uy)) continue;
-        if (stay.walkTo({ x: fx + ux, y: fy + uy })) { cam.current.follow = true; return; }
-      }
+      if (!sx && !sy) { stay.halt(); return; }
+      if (stay.stride(sx, sy)) cam.current.follow = true;
     };
-    const onKeyUp = (e: KeyboardEvent) => { walking.delete(e.code); if (!walking.size) rest(); };
+    const onKeyUp = (e: KeyboardEvent) => { if (!walking.delete(e.code)) return; if (!walking.size) { sessionRef.current?.halt(); rest(); } else go(false); };
     window.addEventListener("keydown", onKey);
     window.addEventListener("keyup", onKeyUp);
     window.addEventListener("blur", rest);
