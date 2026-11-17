@@ -39,16 +39,16 @@ const SKIES: Record<TimeId, Sky> = {
   morning: { sun: [0.74, 0.5, -0.2], sunCol: 0xffe0c0, sunI: 2.5, top: 0xcfe4ff, ground: 0x9a8468, hemiI: 1.5, sky: 0xbfe0f0, lamps: 0, grade: [0.97, 1.0, 1.05], air: [1.04, 0.2, 0.5, 0.5, 0, 1, 0.6, 0.6] },
   day: { sun: [-0.1, 0.9, 0.6], sunCol: 0xfffaf0, sunI: 3.0, top: 0xd6ecff, ground: 0x8f8a70, hemiI: 1.7, sky: 0x8ccaf2, lamps: 0, grade: [1.0, 1.0, 1.0], air: [1.1, 0.14, 0.4, 0.7, 0, 0, 0.15, 1] },
   evening: { sun: [-0.42, 0.45, 0.71], sunCol: 0xff9a52, sunI: 3.0, top: 0xa99be0, ground: 0x7a5040, hemiI: 1.15, sky: 0xf2b184, lamps: 0.35, grade: [1.04, 0.99, 0.95], air: [1.06, 0.24, 0.45, 0.8, 0.25, 0, 0.7, 0.6] },
-  night: { sun: [0.0, 0.8, 0.42], sunCol: 0x86a4ff, sunI: 1.15, top: 0x41589f, ground: 0x1c2440, hemiI: 1.05, sky: 0x0c1632, lamps: 1, grade: [0.92, 0.97, 1.08], air: [0.98, 0.34, 0.6, 0, 1, 0.3, 0, 0.3] },
+  night: { sun: [-0.55, 0.58, 0.4], sunCol: 0x86a4ff, sunI: 1.15, top: 0x41589f, ground: 0x1c2440, hemiI: 1.05, sky: 0x0c1632, lamps: 1, grade: [0.92, 0.97, 1.08], air: [0.98, 0.34, 0.6, 0, 1, 0.3, 0, 0.3] },
 };
 
 /** Where the live town's own camera looks, as it says it: the middle of the view in isometric pixels, its scale, the view's size. */
 export interface LiveView { cx: number; cy: number; s: number; cw: number; ch: number; dpr: number; /** The minute of the day, for where the sun stands. */ min: number }
 export interface HdTown {
   /**
-   * For the live town (`underlay`): the ground, the water and the shadows on them, drawn as the live town's camera sees
-   * them, and handed back as a picture to lay where the live town painted its ground. Nothing that stands is drawn (the
-   * live town draws all of that itself, over this); what stands only throws its shadow.
+   * For the live town (`underlay`): the shadows of what stands, on white ground, drawn as the live town's camera sees the
+   * map, and handed back as a picture to lay over the live town's own ground by multiplying (white leaves it as it is,
+   * a shadow darkens it). Nothing else is drawn: the ground, the water and all that stands are the live town's own.
    */
   renderAt(v: LiveView): HTMLCanvasElement;
   /** Whether the ground's pictures have come (until then `renderAt` would paint it black). */
@@ -221,7 +221,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     const pos = new Float32Array(nx * nz * 3), idx = new Uint32Array((nx - 1) * (nz - 1) * 6);
     for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) {
       const x = WORLD.x0 + i / GRID, z = WORLD.z0 + j / GRID, o = (j * nx + i) * 3;
-      pos[o] = x; pos[o + 1] = wetAt(x, z) ? BED_Y : HGT[j * nx + i]; pos[o + 2] = z;
+      pos[o] = x; pos[o + 1] = below ? 0 : wetAt(x, z) ? BED_Y : HGT[j * nx + i]; pos[o + 2] = z;
     }
     let k = 0;
     for (let j = 0; j < nz - 1; j++) for (let i = 0; i < nx - 1; i++) {
@@ -233,7 +233,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     geo.setIndex(new THREE.BufferAttribute(idx, 1));
     geo.computeVertexNormals();
     const mat = new THREE.MeshLambertMaterial({ color: 0xffffff });
-    mat.onBeforeCompile = (sh) => {
+    if (!below) mat.onBeforeCompile = (sh) => {
       sh.uniforms.hdIndex = { value: indexTex };
       sh.uniforms.hdTime = clock; sh.uniforms.hdCloud = cloudy; sh.uniforms.hdWet = wetU;
       sh.uniforms.hdUvK = { value: below ? new THREE.Vector2(1 / 8, -1 / 8) : new THREE.Vector2(1 / 5.657, 1 / 5.657) };
@@ -306,6 +306,7 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
     const w = WORLD.x1 - WORLD.x0, d = WORLD.z1 - WORLD.z0, geo = new THREE.PlaneGeometry(w, d), uv = geo.attributes.uv;
     for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * w / 5.657, uv.getY(i) * d / 5.657);
     const m = new THREE.Mesh(geo, K.water);
+    m.visible = !below;
     m.rotation.x = -Math.PI / 2;
     m.position.set((WORLD.x0 + WORLD.x1) / 2, WATER_Y, (WORLD.z0 + WORLD.z1) / 2);
     m.receiveShadow = true;
@@ -1088,10 +1089,11 @@ export function createHdTown(canvas: HTMLCanvasElement, opts: HdOpts): HdTown {
       // picture. What the sun adds here is where its shadows fall, and how deep they are (shallow by night).
       // (by night the moon's shadows are kept plain to see: at a fifth of the day's depth they were not seen at all under the
       // live town's night; the owner, 2026-11-17, at night: "ยังไม่มีเงา 3d")
-      const sunI = 1.4 * (1 - 0.3 * now.lamps);
+      // (a shadow is half as bright as the lit ground by day, a little less deep by night, however high the sun stands)
+      const sunI = ((0.5 - 0.12 * now.lamps) * Math.PI) / Math.max(0.3, sunDir.y);
       sun.color.setHex(0xffffff); sun.intensity = sunI;
       hemi.color.setHex(0xffffff); hemi.groundColor.setHex(0xffffff); hemi.intensity = Math.PI - sunI * sunDir.y;
-      (scene.background as THREE.Color).setHex(0x0b1016);
+      (scene.background as THREE.Color).setHex(0xffffff);
       (scene.fog as THREE.Fog).near = 1e5; (scene.fog as THREE.Fog).far = 1e6;
       const shadeKey = `${sunDir.x.toFixed(2)},${sunDir.z.toFixed(2)}`;
       if (shadeKey !== shadedFor) { shadedFor = shadeKey; shadeCards(); }

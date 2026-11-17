@@ -19,7 +19,7 @@ import { drawPixelFlames } from "./flames";
 import { F2_BENCH_OF, F2_CHESTS, F2_SCARECROWS, F2_TRADE_BOARDS } from "@/lib/town/farm2";
 import type { HdTown } from "@/lib/town-hd/engine";
 import { hdOf, keepHd, keptHd, type HdChoice } from "@/lib/town-hd/choice";
-import { T2_COLS, T2_ROWS, T2_CASINO_DOOR, T2_CHEST_OPEN, T2_CHEST_SHUT, T2_LAMP_LIGHT, T2_PROP_THING, T2_RINGS, T2_THINGS, t2RiverPoint } from "@/lib/town/town2";
+import { T2_CASINO_DOOR, T2_CHEST_OPEN, T2_CHEST_SHUT, T2_LAMP_LIGHT, T2_PROP_THING, T2_RINGS, T2_THINGS, t2RiverPoint } from "@/lib/town/town2";
 // ── Granny Twilla's clothes shop ── (lib/town/shop-room: a room of its own, drawn from its own pictures as it comes near)
 import { ShopRoomArt } from "@/lib/town/shop-room-art";
 import { SHOP_BOARD } from "@/lib/town/shop-room";
@@ -536,7 +536,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // and real shadows on them, made by lib/town-hd and laid where the ground is painted; everything that stands is still
   // drawn here, over it. Off unless this browser has asked for it: `/town?hd=1` turns it on and `?hd=0` off (kept in
   // localStorage "cashTown:hd"). A trial on the live town, a device at a time; its code is fetched only when it is on.
-  const hdRef = useRef<HdTown | null>(null);
+  const hdDrawn = useRef(false), hdMinute = useRef<number | null>(null);
+  useEffect(() => { const m = /[?&]hdmin=(\d+)/.exec(window.location.search)?.[1]; hdMinute.current = m ? Number(m) : null; }, []);
   // (the settings' choice: on and at its fullest for everybody until it is changed there, the owner's "default เป็น เปิด 3d
   // high"; `?hd=off|low|mid|high` in the address sets it too, for somebody whose device cannot open the settings with it on)
   const [hd, setHd] = useState<HdChoice>("off");
@@ -546,16 +547,17 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     setHd(keptHd());
   }, []);
   const chooseHd = (c: HdChoice) => { setHd(c); if (!ephemeral) keepHd(c); };
+  const hdMake = useRef<((place: "town" | "farm") => HdTown) | null>(null);
+  const hdTowns = useRef<Partial<Record<"town" | "farm", HdTown>>>({});
   useEffect(() => {
-    if (!T2 || hd === "off") return;
-    let gone = false, made: HdTown | null = null;
+    if (hd === "off" || !(T2 || F2)) return;
+    let gone = false;
     void import("@/lib/town-hd/engine").then(({ createHdTown }) => {
       if (gone) return;
-      made = createHdTown(document.createElement("canvas"), { map: "town", time: "day", underlay: true, quality: hd });
-      hdRef.current = made;
-      console.info("[Cash Town] 3D ground:", hd);
-    }).catch((e) => { console.warn("[Cash Town] 3D ground could not start; the town is drawn as it always was", e); });
-    return () => { gone = true; made?.dispose(); hdRef.current = null; };
+      hdMake.current = (place) => createHdTown(document.createElement("canvas"), { map: place, time: "day", underlay: true, quality: hd });
+      console.info("[Cash Town] 3D shadows:", hd);
+    }).catch((e) => { console.warn("[Cash Town] 3D shadows could not start; the town is drawn as it always was", e); });
+    return () => { gone = true; hdMake.current = null; for (const t of Object.values(hdTowns.current)) t?.dispose(); hdTowns.current = {}; };
   }, [hd]);
   // ── the pasture ── (the cloud ram's pictures are the pasture's sheets: fetched the first time a ram is drawn, on any map)
   const ramArt = useRef<SceneryKit | null | undefined>(undefined);
@@ -2438,17 +2440,6 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const scenery = sceneryRef.current;
     if (scenery) {
       scenery.drawGround(ctx, v, cw, ch, dpr);
-      // (the HD ground, over the town's own extent: the same camera, so it lies where the painted ground lay)
-      const hd = hdRef.current;
-      if (hd && placeRef.current === "town" && hd.ready()) {
-        const clock = new Date(Date.now() + 7 * 3600_000);
-        const pic = hd.renderAt({ cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: clock.getUTCHours() * 60 + clock.getUTCMinutes() });
-        ctx.save();
-        diamond(ctx, project({ x: 0, y: 0 }), project({ x: T2_COLS, y: 0 }), project({ x: T2_COLS, y: T2_ROWS }), project({ x: 0, y: T2_ROWS }));
-        ctx.clip();
-        ctx.drawImage(pic, 0, 0, cw, ch);
-        ctx.restore();
-      }
       // Flowers lie flat: under whoever walks over them.
       for (const p of placeRef.current === "forest" ? FOREST_PROPS : T2 ? [] : PROPS) {
         if (p.kind !== "flowers") continue;
@@ -2487,6 +2478,25 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (art2 && seen2) art2.drawFloor(ctx, seen2, iso2, v.s, dpr, reducedRef.current ? 0 : now, inHall);
     if (artF && seenF) artF.drawFloor(ctx, seenF, iso2, v.s, dpr, reducedRef.current ? 0 : now);
     if (roomArt && seenShop) roomArt.drawFloor(ctx, seenShop, iso2, v.s, dpr);
+    // The 3D shadows (lib/town-hd): what stands in an editor's map throws its real shadow, by the hour, onto the ground
+    // and the floors just painted (the same camera, so they lie where the things stand); everybody is drawn over them.
+    {
+      const here = placeRef.current, hdPlace = here === "town" && T2 ? "town" : here === "farm" && F2 ? "farm" : null;
+      if (hdPlace && hdMake.current) {
+        try {
+          const town = (hdTowns.current[hdPlace] ??= hdMake.current(hdPlace));
+          if (town.ready()) {
+            const clock = new Date(Date.now() + 7 * 3600_000);
+            // (`?hdmin=960` looks at another minute of the day: to see the day's shadows at night, while this is tried)
+            const pic = town.renderAt({ cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() });
+            ctx.globalCompositeOperation = "multiply";
+            ctx.drawImage(pic, 0, 0, cw, ch);
+            ctx.globalCompositeOperation = "source-over";
+            if (!hdDrawn.current) { hdDrawn.current = true; console.info("[Cash Town] 3D shadows drawn", hdPlace, pic.width, pic.height); }
+          }
+        } catch (e) { hdMake.current = null; console.warn("[Cash Town] 3D shadows stopped", e); }
+      }
+    }
     // ── the Popoto Casino ── (its floor and walls, under everybody, while it is near the view)
     const casinoArt = scenery ? casinoArtRef.current : null;
     const seenCasino = !!casinoArt && casinoArt.near({ x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, now);
