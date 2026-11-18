@@ -33,9 +33,9 @@
   "name": "Aqua Eleison",
   "parse": 100,
   "ult": 5,
-  "mounts": 285,
-  "minions": 487,
-  "rare": 495,
+  "mounts": 292,
+  "minions": 489,
+  "rare": 517,
   "level": 100,
   "cc": [
    true,
@@ -45,8 +45,6 @@
    true
   ],
   "rare_ids": [
-   195,
-   1313,
    1315,
    1317,
    1321,
@@ -57,25 +55,17 @@
    1354,
    1603,
    1604,
-   1855,
    1952,
    2007,
    2008,
    2009,
    2010,
+   2180,
    2352,
-   2491,
-   2494,
-   2497,
    2500,
-   2502,
    2503,
-   2506,
-   2509,
-   2512,
    2515,
    2518,
-   2521,
    2524,
    2525,
    2526,
@@ -104,18 +94,14 @@
    2657,
    2658,
    2712,
-   2757,
    2766,
    2785,
    2803,
-   2811,
    2815,
    2816,
    2877,
    2879,
    3350,
-   3377,
-   3405,
    3406,
    3407,
    3479,
@@ -127,7 +113,6 @@
    3707,
    3709,
    3712,
-   3714,
    3715,
    3718,
    3721,
@@ -137,14 +122,29 @@
    3819,
    3833,
    3834,
+   3835,
    3944,
    3959,
    3960,
    4000,
    4018,
-   4035,
+   4036,
+   4037,
+   4044,
    4045,
-   4047
+   4046,
+   4047,
+   4048,
+   4049,
+   4050,
+   4051,
+   4052,
+   4053,
+   4054,
+   4062,
+   4069,
+   4071,
+   4072
   ],
   "tiers": {
    "gatherer": "legendary",
@@ -174,7 +174,7 @@
    "The Epic of Alexander",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-11-11"
+  "chg": "2026-11-17"
  },
  "3968346": {
   "name": "Panuz Chocobunny",
@@ -182,7 +182,7 @@
   "ult": 0,
   "mounts": 90,
   "minions": 272,
-  "rare": 71,
+  "rare": 70,
   "level": 100,
   "cc": [
    false,
@@ -238,7 +238,6 @@
    2039,
    2043,
    2044,
-   2193,
    2389,
    3630,
    3638,
@@ -275,7 +274,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-11-15"
+  "chg": "2026-11-17"
  },
  "14959902": {
   "name": "Notifire Sky",
@@ -402,7 +401,7 @@
   "ult": 0,
   "mounts": 70,
   "minions": 196,
-  "rare": 124,
+  "rare": 123,
   "level": 100,
   "cc": [
    false,
@@ -524,7 +523,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-15"
+  "chg": "2026-11-17"
  },
  "24186600": {
   "name": "Dumb Bunny",
@@ -630,7 +629,7 @@
   "ult": 2,
   "mounts": 178,
   "minions": 290,
-  "rare": 203,
+  "rare": 202,
   "level": 100,
   "cc": [
    true,
@@ -764,7 +763,7 @@
    "Dancing Mad",
    "Futures Rewritten"
   ],
-  "chg": "2026-11-11"
+  "chg": "2026-11-17"
  },
  "38041221": {
   "name": "Kori Kona",
@@ -964,7 +963,7 @@
   "ult": 0,
   "mounts": 264,
   "minions": 487,
-  "rare": 410,
+  "rare": 408,
   "level": 100,
   "cc": [
    false,
@@ -1095,7 +1094,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-11"
+  "chg": "2026-11-17"
  },
  "29511615": {
   "name": "Whitefang Dimmoon",
@@ -1246,7 +1245,7 @@
   "ult": 0,
   "mounts": 139,
   "minions": 378,
-  "rare": 240,
+  "rare": 239,
   "level": 100,
   "cc": [
    false,
@@ -1370,7 +1369,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-15"
+  "chg": "2026-11-17"
  },
  "19827594": {
   "name": "Aylufa Regolith",
@@ -1624,7 +1623,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 100,
+  "level": 62,
   "cc": [
    true,
    true,
@@ -2180,9 +2179,9 @@
   "name": "Josuke Mizumoto",
   "parse": 95,
   "ult": 0,
-  "mounts": 118,
+  "mounts": 120,
   "minions": 232,
-  "rare": 106,
+  "rare": 107,
   "level": 100,
   "cc": [
    true,
@@ -2197,7 +2196,6 @@
    2388,
    2393,
    3509,
-   3640,
    3641,
    3642,
    3643,
@@ -2291,11 +2289,13 @@
    4035,
    4070,
    4071,
+   4072,
    4074
   ],
   "tiers": {
    "relic": "master",
-   "explorer": "legendary"
+   "explorer": "legendary",
+   "goldsaucer": "master"
   },
   "jobs": {
    "Paladin": "legendary",
@@ -2313,7 +2313,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-15"
+  "chg": "2026-11-17"
  },
  "36183378": {
   "name": "K' Potassium",
@@ -2356,7 +2356,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 88,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -2574,7 +2574,7 @@
   "ult": 7,
   "mounts": 205,
   "minions": 254,
-  "rare": 218,
+  "rare": 217,
   "level": 100,
   "cc": [
    true,
@@ -2719,7 +2719,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-15"
+  "chg": "2026-11-17"
  },
  "34509521": {
   "name": "Liliya Quintilis",
@@ -2727,7 +2727,7 @@
   "ult": 6,
   "mounts": 197,
   "minions": 416,
-  "rare": 162,
+  "rare": 161,
   "level": 100,
   "cc": [
    true,
@@ -2867,7 +2867,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-11"
+  "chg": "2026-11-17"
  },
  "37056222": {
   "name": "Lucine Nokomis",
@@ -2875,7 +2875,7 @@
   "ult": 0,
   "mounts": 175,
   "minions": 357,
-  "rare": 147,
+  "rare": 146,
   "level": 100,
   "cc": [
    true,
@@ -3005,7 +3005,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-15"
+  "chg": "2026-11-17"
  },
  "22461237": {
   "name": "Metatron Vtretikh",
@@ -3373,7 +3373,7 @@
   "ult": 1,
   "mounts": 189,
   "minions": 436,
-  "rare": 140,
+  "rare": 138,
   "level": 100,
   "cc": [
    true,
@@ -3501,7 +3501,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-09"
+  "chg": "2026-11-17"
  },
  "36183541": {
   "name": "Nagi Amano",
@@ -3756,7 +3756,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 67,
-  "level": 92,
+  "level": 55,
   "cc": [
    true,
    true,
@@ -3860,7 +3860,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-16"
+  "chg": "2026-11-17"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -4092,7 +4092,7 @@
   "ult": 0,
   "mounts": 177,
   "minions": 418,
-  "rare": 442,
+  "rare": 440,
   "level": 100,
   "cc": [
    false,
@@ -4215,7 +4215,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-11-16"
+  "chg": "2026-11-17"
  },
  "43864764": {
   "name": "Shinonome Kamemaru",
@@ -4223,7 +4223,7 @@
   "ult": 3,
   "mounts": 265,
   "minions": 338,
-  "rare": 533,
+  "rare": 531,
   "level": 100,
   "cc": null,
   "rare_ids": [
@@ -4247,6 +4247,7 @@
    2056,
    2216,
    2217,
+   2352,
    2354,
    2355,
    2356,
@@ -4319,7 +4320,6 @@
    3833,
    3834,
    3835,
-   3962,
    3963,
    4005,
    4010,
@@ -4344,7 +4344,7 @@
    "The Omega Protocol",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-11"
+  "chg": "2026-11-17"
  },
  "29998658": {
   "name": "Shippei Astana",
@@ -4352,7 +4352,7 @@
   "ult": 7,
   "mounts": 201,
   "minions": 382,
-  "rare": 260,
+  "rare": 259,
   "level": 100,
   "cc": [
    true,
@@ -4414,6 +4414,7 @@
    3823,
    3832,
    3842,
+   3843,
    3844,
    3845,
    3846,
@@ -4429,7 +4430,6 @@
    3880,
    3881,
    3882,
-   3883,
    3885,
    3886,
    3887,
@@ -4495,7 +4495,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-11"
+  "chg": "2026-11-17"
  },
  "22425670": {
   "name": "Shizuna-pan Misurugi",
@@ -4503,7 +4503,7 @@
   "ult": 0,
   "mounts": 103,
   "minions": 274,
-  "rare": 117,
+  "rare": 116,
   "level": 100,
   "cc": [
    true,
@@ -4635,7 +4635,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-11"
+  "chg": "2026-11-17"
  },
  "11603711": {
   "name": "Takamina Aamin",
@@ -4643,7 +4643,7 @@
   "ult": 0,
   "mounts": 164,
   "minions": 286,
-  "rare": 70,
+  "rare": 69,
   "level": 100,
   "cc": [
    true,
@@ -4690,7 +4690,6 @@
    3695,
    3696,
    3697,
-   3698,
    3699,
    3700,
    3701,
@@ -4739,7 +4738,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-11"
+  "chg": "2026-11-17"
  },
  "58202955": {
   "name": "Trevas Aka",
@@ -4747,7 +4746,7 @@
   "ult": 0,
   "mounts": 22,
   "minions": 65,
-  "rare": 7,
+  "rare": 6,
   "level": 100,
   "cc": [
    true,
@@ -4757,7 +4756,6 @@
    false
   ],
   "rare_ids": [
-   3698,
    3699,
    3799,
    3811,
@@ -4775,7 +4773,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-02"
+  "chg": "2026-11-17"
  },
  "26298391": {
   "name": "Yozora Luna",
@@ -4817,7 +4815,7 @@
   "ult": 0,
   "mounts": 206,
   "minions": 416,
-  "rare": 285,
+  "rare": 283,
   "level": 100,
   "cc": [
    false,
@@ -4834,6 +4832,7 @@
    1227,
    1328,
    1335,
+   1337,
    1339,
    1370,
    1474,
@@ -4866,7 +4865,6 @@
    3778,
    3784,
    3817,
-   3832,
    3844,
    3845,
    3846,
@@ -4948,7 +4946,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-13"
+  "chg": "2026-11-17"
  },
  "42976317": {
   "name": "Zeadz Stellar",
@@ -5170,7 +5168,7 @@
   "ult": 4,
   "mounts": 128,
   "minions": 320,
-  "rare": 115,
+  "rare": 114,
   "level": 95,
   "cc": [
    false,
@@ -5184,7 +5182,6 @@
    127,
    128,
    136,
-   138,
    139,
    140,
    141,
@@ -5264,6 +5261,7 @@
    2167,
    2281,
    2488,
+   2661,
    2713,
    2764,
    2769,
@@ -5302,7 +5300,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5326,7 +5324,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-16"
+  "chg": "2026-11-17"
  },
  "29090821": {
   "name": "Amber Levana",
@@ -5334,7 +5332,7 @@
   "ult": 0,
   "mounts": 163,
   "minions": 367,
-  "rare": 40,
+  "rare": 39,
   "level": 19,
   "cc": [
    false,
@@ -5354,7 +5352,6 @@
    2033,
    2077,
    2137,
-   2193,
    2387,
    2633,
    2745,
@@ -5397,7 +5394,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-15"
+  "chg": "2026-11-17"
  },
  "34434658": {
   "name": "Araiva Leonhart",
@@ -5637,7 +5634,7 @@
   "mounts": 40,
   "minions": 59,
   "rare": null,
-  "level": 89,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5805,7 +5802,7 @@
   "ult": 0,
   "mounts": 175,
   "minions": 358,
-  "rare": 155,
+  "rare": 154,
   "level": 100,
   "cc": [
    false,
@@ -5928,7 +5925,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-11"
+  "chg": "2026-11-17"
  },
  "34546216": {
   "name": "Dekkapi Kung",
@@ -6047,7 +6044,7 @@
    3805
   ],
   "tiers": {
-   "goldsaucer": "master"
+   "goldsaucer": "expert"
   },
   "jobs": {
    "DarkKnight": "expert",
@@ -6403,7 +6400,7 @@
   "ult": 1,
   "mounts": 100,
   "minions": 289,
-  "rare": 95,
+  "rare": 94,
   "level": 98,
   "cc": [
    false,
@@ -6497,7 +6494,6 @@
    3695,
    3696,
    3697,
-   3698,
    3765,
    3769,
    3792,
@@ -6524,7 +6520,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-16"
+  "chg": "2026-11-17"
  },
  "60619924": {
   "name": "Gotnogod Soluna",
@@ -6816,7 +6812,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 80,
+  "level": 83,
   "cc": [
    false,
    false,
@@ -6829,7 +6825,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-16"
+  "chg": "2026-11-17"
  },
  "53933347": {
   "name": "Little Alyss",
@@ -6860,7 +6856,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 100,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -6880,7 +6876,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-16"
+  "chg": "2026-11-17"
  },
  "33807451": {
   "name": "Lumus Losgard",
@@ -6910,7 +6906,7 @@
   "ult": 0,
   "mounts": 198,
   "minions": 420,
-  "rare": 264,
+  "rare": 263,
   "level": 100,
   "cc": [
    false,
@@ -6932,6 +6928,7 @@
    2481,
    2559,
    2759,
+   3361,
    3555,
    3600,
    3601,
@@ -7011,7 +7008,6 @@
    4007,
    4008,
    4009,
-   4014,
    4017,
    4018,
    4027,
@@ -7038,7 +7034,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-15"
+  "chg": "2026-11-17"
  },
  "46243891": {
   "name": "Marin Elysium",
@@ -7850,7 +7846,7 @@
   "mounts": 149,
   "minions": 186,
   "rare": 61,
-  "level": 90,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -7936,7 +7932,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-10"
+  "chg": "2026-11-17"
  },
  "44926008": {
   "name": "Shiraishi Shu",
@@ -7998,7 +7994,7 @@
   "ult": 4,
   "mounts": 112,
   "minions": 171,
-  "rare": 98,
+  "rare": 97,
   "level": 100,
   "cc": [
    true,
@@ -8053,7 +8049,6 @@
    3647,
    3651,
    3697,
-   3698,
    3699,
    3701,
    3720,
@@ -8132,7 +8127,7 @@
    "Futures Rewritten",
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-15"
+  "chg": "2026-11-17"
  },
  "49929911": {
   "name": "Sun Prism",
@@ -8498,7 +8493,7 @@
   "mounts": 17,
   "minions": 42,
   "rare": null,
-  "level": 100,
+  "level": 77,
   "cc": [
    false,
    false,
@@ -8520,7 +8515,7 @@
   "mounts": 9,
   "minions": 21,
   "rare": 2,
-  "level": 68,
+  "level": 69,
   "cc": [
    false,
    false,
@@ -8610,7 +8605,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 15,
+  "level": 44,
   "cc": [
    false,
    false,
@@ -8654,7 +8649,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 5,
-  "level": 99,
+  "level": 83,
   "cc": [
    false,
    false,
@@ -8799,7 +8794,7 @@
   "mounts": 4,
   "minions": 7,
   "rare": null,
-  "level": 82,
+  "level": 83,
   "cc": [
    false,
    false,
@@ -8812,7 +8807,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-15"
+  "chg": "2026-11-17"
  },
  "44085912": {
   "name": "Mayu Ferguson",
@@ -8848,7 +8843,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 62,
+  "level": 63,
   "cc": [
    false,
    false,
@@ -8864,7 +8859,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-15"
+  "chg": "2026-11-17"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -8902,7 +8897,7 @@
   "mounts": 30,
   "minions": 66,
   "rare": null,
-  "level": 100,
+  "level": 76,
   "cc": [
    false,
    false,
@@ -8924,7 +8919,7 @@
   "mounts": 85,
   "minions": 178,
   "rare": null,
-  "level": 100,
+  "level": 69,
   "cc": [
    false,
    false,
@@ -8946,7 +8941,7 @@
   "mounts": 7,
   "minions": 24,
   "rare": 0,
-  "level": 90,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -8959,7 +8954,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-15"
+  "chg": "2026-11-17"
  },
  "31685121": {
   "name": "Squid Girls",
@@ -9009,8 +9004,8 @@
   "name": "V'the Solitaire",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 41,
+  "minions": 86,
   "rare": null,
   "level": 90,
   "cc": null,
@@ -9235,7 +9230,7 @@
   "ult": 5,
   "mounts": 131,
   "minions": 337,
-  "rare": 124,
+  "rare": 123,
   "level": 100,
   "cc": [
    true,
@@ -9370,7 +9365,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-15"
+  "chg": "2026-11-17"
  },
  "35863297": {
   "name": "Aleks Ss",
@@ -9735,7 +9730,7 @@
   "mounts": 2,
   "minions": 2,
   "rare": 0,
-  "level": 70,
+  "level": 83,
   "cc": [
    false,
    false,
@@ -9748,7 +9743,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-18"
+  "chg": "2026-11-17"
  },
  "20400811": {
   "name": "Ariadne Ilsildar",
@@ -9756,7 +9751,7 @@
   "ult": 2,
   "mounts": 116,
   "minions": 293,
-  "rare": 81,
+  "rare": 80,
   "level": 90,
   "cc": [
    false,
@@ -9810,7 +9805,6 @@
    2093,
    2103,
    2154,
-   2193,
    2281,
    2282,
    2283,
@@ -9860,7 +9854,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-15"
+  "chg": "2026-11-17"
  },
  "31334257": {
   "name": "Arichii Marilouay",
@@ -12839,7 +12833,7 @@
   "mounts": 19,
   "minions": 40,
   "rare": 0,
-  "level": 100,
+  "level": 69,
   "cc": [
    false,
    false,
@@ -17028,7 +17022,7 @@
   "mounts": 48,
   "minions": 76,
   "rare": null,
-  "level": 78,
+  "level": 71,
   "cc": [
    false,
    false,
@@ -17049,7 +17043,7 @@
   "ult": 2,
   "mounts": 114,
   "minions": 233,
-  "rare": 30,
+  "rare": 29,
   "level": 100,
   "cc": [
    false,
@@ -17078,7 +17072,6 @@
    1993,
    2077,
    2180,
-   2193,
    2283,
    2417,
    2633,
@@ -17090,9 +17083,7 @@
    3113,
    3252
   ],
-  "tiers": {
-   "goldsaucer": "expert"
-  },
+  "tiers": {},
   "jobs": {
    "Pictomancer": "expert",
    "Sage": "legendary"
@@ -17104,7 +17095,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-15"
+  "chg": "2026-11-17"
  },
  "41073949": {
   "name": "Vanir Arkwright",

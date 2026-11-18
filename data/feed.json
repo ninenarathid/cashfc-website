@@ -2,6 +2,76 @@
  "events": [
   {
    "date": "2026-11-17",
+   "type": "rare_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "earned Worqor and Peace V — only 0.4% of players have it, and 16 more"
+  },
+  {
+   "date": "2026-11-17",
+   "type": "grade_up",
+   "id": 42021700,
+   "name": "Josuke Mizumoto",
+   "text": "is now a Master Gold Saucer collector ✨"
+  },
+  {
+   "date": "2026-11-17",
+   "type": "rare_up",
+   "id": 42021700,
+   "name": "Josuke Mizumoto",
+   "text": "earned Masterstroke III — only 0.5% of players have it"
+  },
+  {
+   "date": "2026-11-17",
+   "type": "rare_up",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "earned Shadowbring Your A Game III — only 2.5% of players have it"
+  },
+  {
+   "date": "2026-11-17",
+   "type": "rare_up",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "earned Clare Obscurum: Bardiche Obscurum"
+  },
+  {
+   "date": "2026-11-17",
+   "type": "rare_up",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "earned On the Payroll VI"
+  },
+  {
+   "date": "2026-11-17",
+   "type": "rare_up",
+   "id": 8836061,
+   "name": "Allusia Heartfilia",
+   "text": "earned Old and Improved: Skysung Raising Hammer"
+  },
+  {
+   "date": "2026-11-17",
+   "type": "level_100",
+   "id": 8286372,
+   "name": "Aloha Banana",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-11-17",
+   "type": "level_100",
+   "id": 17473430,
+   "name": "Bigon Truesilver",
+   "text": "reached level 100 on Samurai!"
+  },
+  {
+   "date": "2026-11-17",
+   "type": "rare_up",
+   "id": 29918255,
+   "name": "Lyndanisse Vymmaith",
+   "text": "earned The Customer Is Always Right: Margrat VI"
+  },
+  {
+   "date": "2026-11-17",
    "type": "level_100",
    "id": 36130968,
    "name": "Chu Celestial",
@@ -1329,76 +1399,6 @@
    "id": 30596644,
    "name": "Noelle Eisner",
    "text": "reached level 100 on Pictomancer!"
-  },
-  {
-   "date": "2026-10-31",
-   "type": "level_100",
-   "id": 33608576,
-   "name": "Verles Eisner",
-   "text": "reached level 100 on Machinist!"
-  },
-  {
-   "date": "2026-10-31",
-   "type": "rare_up",
-   "id": 44970350,
-   "name": "Allen Crist",
-   "text": "earned Hiding in Plain Sight: Exemplar — only 4.3% of players have it"
-  },
-  {
-   "date": "2026-10-31",
-   "type": "rare_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "earned R&D: Stellar Alembic"
-  },
-  {
-   "date": "2026-10-31",
-   "type": "rare_up",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "earned Phantom Physicking I"
-  },
-  {
-   "date": "2026-10-31",
-   "type": "rare_up",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "earned On the Payroll VI"
-  },
-  {
-   "date": "2026-10-31",
-   "type": "level_100",
-   "id": 8286372,
-   "name": "Aloha Banana",
-   "text": "reached level 100 on Summoner!"
-  },
-  {
-   "date": "2026-10-31",
-   "type": "level_100",
-   "id": 60429500,
-   "name": "Janna Minerva",
-   "text": "reached level 100 on Pictomancer!"
-  },
-  {
-   "date": "2026-10-30",
-   "type": "new_member",
-   "id": 42019777,
-   "name": "Peace Violet",
-   "text": "joined the FC — welcome!"
-  },
-  {
-   "date": "2026-10-30",
-   "type": "rare_up",
-   "id": 29152036,
-   "name": "Fluffy Tinytail",
-   "text": "earned Phantom of the Umbra: War Scythe Umbrae"
-  },
-  {
-   "date": "2026-10-30",
-   "type": "rare_up",
-   "id": 38152072,
-   "name": "Parker Thonhart",
-   "text": "earned Behind Enemy Lines II — only 3.0% of players have it"
   }
  ]
 }
