@@ -71076,6 +71076,58 @@
     ]
    },
    {
+    "zone": "Anabaseios",
+    "zone_id": 54,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P9S",
+      "encounter_id": 88,
+      "name": "Kokytos",
+      "best": 83,
+      "median": 56,
+      "kills": 22,
+      "job": "Paladin"
+     },
+     {
+      "label": "P10S",
+      "encounter_id": 89,
+      "name": "Pandaemonium",
+      "best": 82,
+      "median": 74,
+      "kills": 18,
+      "job": "Paladin"
+     },
+     {
+      "label": "P11S",
+      "encounter_id": 90,
+      "name": "Themis",
+      "best": 89,
+      "median": 45,
+      "kills": 27,
+      "job": "Paladin"
+     },
+     {
+      "label": "P12S",
+      "encounter_id": 91,
+      "name": "Athena",
+      "best": 98,
+      "median": 30,
+      "kills": 55,
+      "job": "Paladin"
+     },
+     {
+      "label": null,
+      "encounter_id": 92,
+      "name": "Pallas Athena",
+      "best": 81,
+      "median": 56,
+      "kills": 19,
+      "job": "Paladin"
+     }
+    ]
+   },
+   {
     "zone": "Abyssos",
     "zone_id": 49,
     "expansion": "Endwalker",
@@ -78172,7 +78224,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 79,
-    "kills": 90,
+    "kills": 92,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -78406,7 +78458,7 @@
     "state": "learning",
     "pct": 0.6,
     "phase": 0,
-    "pulls": 32,
+    "pulls": 9,
     "last": "2026-11-15",
     "last_ts": 1794735947
    }
@@ -82321,8 +82373,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 13,
-    "kills": 3,
+    "best": 17,
+    "kills": 5,
     "job": "BlackMage",
     "cleared": true,
     "job_kills": {
@@ -82437,7 +82489,20 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 102,
+    "name": "Red Hot and Deep Blue",
+    "kind": "savage",
+    "state": "learning",
+    "pct": 12.19,
+    "phase": 0,
+    "pulls": 8,
+    "last": "2026-11-15",
+    "last_ts": 1794724486
+   }
+  ]
  },
  "47221226": {
   "current": {
@@ -87288,7 +87353,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 11,
-    "kills": 19,
+    "kills": 21,
     "job": "DarkKnight",
     "cleared": true,
     "job_kills": {
@@ -87313,7 +87378,7 @@
     "encounter_id": 1081,
     "name": "Necron",
     "best": 9,
-    "kills": 9,
+    "kills": 11,
     "job": "DarkKnight",
     "cleared": true,
     "job_kills": {

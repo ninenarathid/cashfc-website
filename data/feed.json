@@ -1,6 +1,41 @@
 {
  "events": [
   {
+   "date": "2026-11-18",
+   "type": "level_100",
+   "id": 60852230,
+   "name": "Lucien Rhul",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
+   "date": "2026-11-18",
+   "type": "parse_up",
+   "id": 37648492,
+   "name": "Sunshine Eveningfall",
+   "text": "set a new best parse: 98 on Athena as Paladin"
+  },
+  {
+   "date": "2026-11-18",
+   "type": "job_up",
+   "id": 37648492,
+   "name": "Sunshine Eveningfall",
+   "text": "is now a Master Paladin"
+  },
+  {
+   "date": "2026-11-18",
+   "type": "level_100",
+   "id": 62507897,
+   "name": "De Viljho",
+   "text": "reached level 100 on Reaper!"
+  },
+  {
+   "date": "2026-11-18",
+   "type": "level_100",
+   "id": 42019777,
+   "name": "Peace Violet",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
    "date": "2026-11-17",
    "type": "rare_up",
    "id": 15308846,
@@ -1364,41 +1399,6 @@
    "id": 29152036,
    "name": "Fluffy Tinytail",
    "text": "cleared Dancing Mad 🏆"
-  },
-  {
-   "date": "2026-10-31",
-   "type": "level_100",
-   "id": 42948817,
-   "name": "Karuma Amamiya",
-   "text": "reached level 100 on Warrior!"
-  },
-  {
-   "date": "2026-10-31",
-   "type": "level_100",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "reached level 100 on Black Mage!"
-  },
-  {
-   "date": "2026-10-31",
-   "type": "level_100",
-   "id": 36183541,
-   "name": "Nagi Amano",
-   "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-10-31",
-   "type": "level_100",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "reached level 100 on Black Mage!"
-  },
-  {
-   "date": "2026-10-31",
-   "type": "level_100",
-   "id": 30596644,
-   "name": "Noelle Eisner",
-   "text": "reached level 100 on Pictomancer!"
   }
  ]
 }
