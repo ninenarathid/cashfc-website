@@ -6,7 +6,7 @@
   "mounts": 61,
   "minions": 227,
   "rare": null,
-  "level": 95,
+  "level": 38,
   "cc": [
    false,
    false,
@@ -27,7 +27,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-16"
+  "chg": "2026-11-18"
  },
  "15308846": {
   "name": "Aqua Eleison",
@@ -1623,7 +1623,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 62,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -1647,7 +1647,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-17"
+  "chg": "2026-11-18"
  },
  "28579232": {
   "name": "Dessiny Valkyrie",
@@ -2126,7 +2126,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 76,
+  "level": 72,
   "cc": [
    true,
    true,
@@ -3756,7 +3756,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 67,
-  "level": 55,
+  "level": 56,
   "cc": [
    true,
    true,
@@ -3860,7 +3860,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-17"
+  "chg": "2026-11-18"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -5169,7 +5169,7 @@
   "mounts": 128,
   "minions": 320,
   "rare": 114,
-  "level": 97,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -6696,7 +6696,7 @@
   "mounts": 23,
   "minions": 57,
   "rare": null,
-  "level": 100,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -6711,7 +6711,7 @@
    "Enuo"
   ],
   "ults": [],
-  "chg": "2026-11-17"
+  "chg": "2026-11-18"
  },
  "24114157": {
   "name": "Kapi Nampla",
@@ -6812,7 +6812,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 83,
+  "level": 85,
   "cc": [
    false,
    false,
@@ -6825,7 +6825,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-17"
+  "chg": "2026-11-18"
  },
  "53933347": {
   "name": "Little Alyss",
@@ -7378,7 +7378,7 @@
   "mounts": 94,
   "minions": 185,
   "rare": null,
-  "level": 90,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -7398,7 +7398,7 @@
    "The Epic of Alexander",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-08-31"
+  "chg": "2026-11-18"
  },
  "2852829": {
   "name": "Papamaru Dj",
@@ -7794,7 +7794,7 @@
   "mounts": 25,
   "minions": 69,
   "rare": null,
-  "level": 100,
+  "level": 71,
   "cc": [
    true,
    true,
@@ -7811,7 +7811,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-13"
+  "chg": "2026-11-18"
  },
  "60211788": {
   "name": "Shikihara Catlover",
@@ -7846,7 +7846,7 @@
   "mounts": 149,
   "minions": 186,
   "rare": 61,
-  "level": 91,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -7932,7 +7932,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-17"
+  "chg": "2026-11-18"
  },
  "44926008": {
   "name": "Shiraishi Shu",
@@ -8318,7 +8318,7 @@
   "mounts": 81,
   "minions": 158,
   "rare": 17,
-  "level": 100,
+  "level": 72,
   "cc": [
    true,
    true,
@@ -8357,7 +8357,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-17"
+  "chg": "2026-11-18"
  },
  "15932791": {
   "name": "Yuziris Andra'nov",
@@ -8516,7 +8516,7 @@
   "mounts": 9,
   "minions": 21,
   "rare": 2,
-  "level": 69,
+  "level": 71,
   "cc": [
    false,
    false,
@@ -8532,7 +8532,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-17"
+  "chg": "2026-11-18"
  },
  "49053650": {
   "name": "Eniluna Gelatoneii",
@@ -8606,7 +8606,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 44,
+  "level": 54,
   "cc": [
    false,
    false,
@@ -8619,7 +8619,29 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-17"
+  "chg": "2026-11-18"
+ },
+ "38405490": {
+  "name": "Haruka Paru",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 90,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-11-18"
  },
  "45513833": {
   "name": "Isildur One",
@@ -8650,7 +8672,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 5,
-  "level": 87,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -8844,7 +8866,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 63,
+  "level": 60,
   "cc": [
    false,
    false,
@@ -8860,7 +8882,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-17"
+  "chg": "2026-11-18"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -8893,7 +8915,7 @@
  },
  "42019777": {
   "name": "Peace Violet",
-  "parse": null,
+  "parse": 4,
   "ult": 0,
   "mounts": 30,
   "minions": 66,
@@ -8909,7 +8931,9 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
-  "ex": [],
+  "ex": [
+   "Enuo"
+  ],
   "ults": [],
   "chg": "2026-11-18"
  },
@@ -8920,7 +8944,7 @@
   "mounts": 85,
   "minions": 178,
   "rare": null,
-  "level": 69,
+  "level": 72,
   "cc": [
    false,
    false,
@@ -8933,7 +8957,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-17"
+  "chg": "2026-11-18"
  },
  "21388050": {
   "name": "Riizerk Ciel",
@@ -9008,14 +9032,20 @@
   "mounts": 41,
   "minions": 86,
   "rare": null,
-  "level": 90,
-  "cc": null,
+  "level": 91,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-17"
+  "chg": "2026-11-18"
  },
  "57419573": {
   "name": "A'kane Dorothy",
@@ -9076,7 +9106,7 @@
   "mounts": 18,
   "minions": 65,
   "rare": null,
-  "level": 93,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -9089,7 +9119,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-11-18"
  },
  "34505698": {
   "name": "Aerithara Elric-",
@@ -9731,7 +9761,7 @@
   "mounts": 2,
   "minions": 2,
   "rare": 0,
-  "level": 83,
+  "level": 86,
   "cc": [
    false,
    false,
@@ -9744,7 +9774,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-17"
+  "chg": "2026-11-18"
  },
  "20400811": {
   "name": "Ariadne Ilsildar",
@@ -12834,7 +12864,7 @@
   "mounts": 19,
   "minions": 40,
   "rare": 0,
-  "level": 82,
+  "level": 73,
   "cc": [
    false,
    false,
@@ -13956,7 +13986,7 @@
   "mounts": 11,
   "minions": 43,
   "rare": null,
-  "level": 76,
+  "level": 75,
   "cc": [
    false,
    false,
@@ -13969,7 +13999,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-11-18"
  },
  "37143017": {
   "name": "Milly Beee",
@@ -17023,7 +17053,7 @@
   "mounts": 48,
   "minions": 76,
   "rare": null,
-  "level": 90,
+  "level": 74,
   "cc": [
    false,
    false,

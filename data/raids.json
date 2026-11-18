@@ -98350,7 +98350,7 @@
   "_status": "ok"
  },
  "42019777": {
-  "_status": "none",
+  "_status": "ok",
   "current": {
    "zone": "AAC Heavyweight",
    "zone_id": 73,
@@ -98365,7 +98365,19 @@
    ]
   },
   "ultimates": [],
-  "extremes": [],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1084,
+    "name": "Enuo",
+    "best": 4,
+    "kills": 2,
+    "job": "Machinist",
+    "cleared": true
+   }
+  ],
   "legacy": []
  },
  "62507897": {
@@ -98467,6 +98479,41 @@
   "_status": "none"
  },
  "12855286": {
+  "_status": "none",
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": []
+ },
+ "38405490": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
   "_status": "none"
  }
 }

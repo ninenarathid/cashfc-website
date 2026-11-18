@@ -3,6 +3,34 @@
   {
    "date": "2026-11-18",
    "type": "level_100",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "reached level 100 on Reaper!"
+  },
+  {
+   "date": "2026-11-18",
+   "type": "new_member",
+   "id": 38405490,
+   "name": "Haruka Paru",
+   "text": "joined the FC — welcome!"
+  },
+  {
+   "date": "2026-11-18",
+   "type": "parse_up",
+   "id": 42019777,
+   "name": "Peace Violet",
+   "text": "set a new best parse: 4 on Enuo as Machinist"
+  },
+  {
+   "date": "2026-11-18",
+   "type": "ex_clear",
+   "id": 42019777,
+   "name": "Peace Violet",
+   "text": "cleared Enuo (Extreme)"
+  },
+  {
+   "date": "2026-11-18",
+   "type": "level_100",
    "id": 60852230,
    "name": "Lucien Rhul",
    "text": "reached level 100 on Dark Knight!"
@@ -1371,34 +1399,6 @@
    "id": 43864764,
    "name": "Shinonome Kamemaru",
    "text": "earned Close Encounters — only 2.4% of players have it"
-  },
-  {
-   "date": "2026-11-01",
-   "type": "level_100",
-   "id": 60429500,
-   "name": "Janna Minerva",
-   "text": "reached level 100 on Dancer!"
-  },
-  {
-   "date": "2026-10-31",
-   "type": "ex_clear",
-   "id": 39959181,
-   "name": "El Blung",
-   "text": "cleared Zelenia (Extreme)"
-  },
-  {
-   "date": "2026-10-31",
-   "type": "level_100",
-   "id": 47218599,
-   "name": "Kawa Lynn",
-   "text": "reached level 100 on Ninja!"
-  },
-  {
-   "date": "2026-10-31",
-   "type": "ult_clear",
-   "id": 29152036,
-   "name": "Fluffy Tinytail",
-   "text": "cleared Dancing Mad 🏆"
   }
  ]
 }
