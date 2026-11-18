@@ -7434,6 +7434,7 @@
     "encounters": [
      {
       "label": "M1S",
+      "encounter_id": 93,
       "name": "Black Cat",
       "best": 38,
       "median": 26,
@@ -7442,6 +7443,7 @@
      },
      {
       "label": "M2S",
+      "encounter_id": 94,
       "name": "Honey B. Lovely",
       "best": 67,
       "median": 37,
@@ -9728,6 +9730,7 @@
     "encounters": [
      {
       "label": "M1S",
+      "encounter_id": 93,
       "name": "Black Cat",
       "best": 68,
       "median": 53,
@@ -9736,6 +9739,7 @@
      },
      {
       "label": "M2S",
+      "encounter_id": 94,
       "name": "Honey B. Lovely",
       "best": 61,
       "median": 41,
@@ -9744,6 +9748,7 @@
      },
      {
       "label": "M3S",
+      "encounter_id": 95,
       "name": "Brute Bomber",
       "best": 70,
       "median": 44,
@@ -9752,6 +9757,7 @@
      },
      {
       "label": "M4S",
+      "encounter_id": 96,
       "name": "Wicked Thunder",
       "best": 67,
       "median": 56,
@@ -10183,7 +10189,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 44,
-    "kills": 21,
+    "kills": 23,
     "job": "Samurai",
     "cleared": true,
     "job_kills": {
@@ -19927,6 +19933,7 @@
     "encounters": [
      {
       "label": "M1S",
+      "encounter_id": 93,
       "name": "Black Cat",
       "best": 92,
       "median": 83,
@@ -19935,6 +19942,7 @@
      },
      {
       "label": "M2S",
+      "encounter_id": 94,
       "name": "Honey B. Lovely",
       "best": 96,
       "median": 83,
@@ -19943,6 +19951,7 @@
      },
      {
       "label": "M3S",
+      "encounter_id": 95,
       "name": "Brute Bomber",
       "best": 99,
       "median": 93,
@@ -19951,6 +19960,7 @@
      },
      {
       "label": "M4S",
+      "encounter_id": 96,
       "name": "Wicked Thunder",
       "best": 90,
       "median": 59,
@@ -23467,6 +23477,7 @@
     "encounters": [
      {
       "label": "M1S",
+      "encounter_id": 93,
       "name": "Black Cat",
       "best": 92,
       "median": 73,
@@ -23475,6 +23486,7 @@
      },
      {
       "label": "M2S",
+      "encounter_id": 94,
       "name": "Honey B. Lovely",
       "best": 95,
       "median": 48,
@@ -23483,6 +23495,7 @@
      },
      {
       "label": "M3S",
+      "encounter_id": 95,
       "name": "Brute Bomber",
       "best": 90,
       "median": 75,
@@ -23491,6 +23504,7 @@
      },
      {
       "label": "M4S",
+      "encounter_id": 96,
       "name": "Wicked Thunder",
       "best": 79,
       "median": 40,
@@ -36055,6 +36069,7 @@
     "encounters": [
      {
       "label": "M1S",
+      "encounter_id": 93,
       "name": "Black Cat",
       "best": 29,
       "median": 25,
@@ -42547,6 +42562,7 @@
     "encounters": [
      {
       "label": "M1S",
+      "encounter_id": 93,
       "name": "Black Cat",
       "best": 94,
       "median": 80,
@@ -42555,6 +42571,7 @@
      },
      {
       "label": "M2S",
+      "encounter_id": 94,
       "name": "Honey B. Lovely",
       "best": 81,
       "median": 69,
@@ -42563,6 +42580,7 @@
      },
      {
       "label": "M3S",
+      "encounter_id": 95,
       "name": "Brute Bomber",
       "best": 79,
       "median": 71,
@@ -42571,6 +42589,7 @@
      },
      {
       "label": "M4S",
+      "encounter_id": 96,
       "name": "Wicked Thunder",
       "best": 52,
       "median": 43,
@@ -64412,7 +64431,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 71,
-    "kills": 9,
+    "kills": 11,
     "job": "RedMage",
     "cleared": true,
     "job_kills": {
@@ -77819,7 +77838,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 92,
-    "kills": 50,
+    "kills": 52,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -86075,7 +86094,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 19,
-    "kills": 9,
+    "kills": 11,
     "job": "Bard",
     "cleared": true,
     "job_kills": {

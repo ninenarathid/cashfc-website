@@ -5169,7 +5169,7 @@
   "mounts": 128,
   "minions": 320,
   "rare": 114,
-  "level": 95,
+  "level": 96,
   "cc": [
    false,
    false,
@@ -5291,7 +5291,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-17"
+  "chg": "2026-11-18"
  },
  "8286372": {
   "name": "Aloha Banana",
@@ -5300,7 +5300,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -5324,7 +5324,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-17"
+  "chg": "2026-11-18"
  },
  "29090821": {
   "name": "Amber Levana",
@@ -8493,7 +8493,7 @@
   "mounts": 17,
   "minions": 42,
   "rare": null,
-  "level": 77,
+  "level": 79,
   "cc": [
    false,
    false,
@@ -8506,7 +8506,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-17"
+  "chg": "2026-11-18"
  },
  "62390948": {
   "name": "Elso Ignis",
