@@ -11,7 +11,7 @@
    "rare_achv": 309,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2b54b09a32d068d141760a4b19bdc9a1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1794927449",
-   "collect_seen": "2026-11-18",
+   "collect_seen": "2026-11-19",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -220,7 +220,7 @@
     }
    },
    "fflogs": "ok",
-   "stats_seen": "2026-11-18",
+   "stats_seen": "2026-11-19",
    "lode_achv_public": true
   },
   "31441339": {
@@ -234,7 +234,7 @@
    "rare_achv": 139,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/5b3772ec015101e35a60cf888f38819c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1790857539",
-   "collect_seen": "2026-11-18",
+   "collect_seen": "2026-11-19",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -455,7 +455,7 @@
     }
    },
    "fflogs": "ok",
-   "stats_seen": "2026-11-18",
+   "stats_seen": "2026-11-19",
    "lode_achv_public": true
   },
   "42349146": {
@@ -469,7 +469,7 @@
    "rare_achv": 12,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/577bf4ba4fa9e8ea4340f73d7795646c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788437435",
-   "collect_seen": "2026-11-18",
+   "collect_seen": "2026-11-19",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -571,7 +571,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-11-18"
+   "stats_seen": "2026-11-19"
   },
   "27788858": {
    "name": "Stole Your'cat",
@@ -584,7 +584,7 @@
    "rare_achv": 110,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/7bb2fdba184854ee21a86278a36f8425_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788521581",
-   "collect_seen": "2026-11-18",
+   "collect_seen": "2026-11-19",
    "tags": [
     "prog",
     "extreme",
@@ -638,7 +638,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-11-18"
+   "stats_seen": "2026-11-19"
   },
   "49339655": {
    "name": "Kaozuai Xino",
@@ -651,7 +651,7 @@
    "rare_achv": 34,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/4203c340e98d92d7d1e82849bb2343dc_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788823240",
-   "collect_seen": "2026-11-18",
+   "collect_seen": "2026-11-19",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -700,7 +700,7 @@
    "job_top": {
     "job": "Warrior",
     "fights": 24,
-    "kills": 220,
+    "kills": 218,
     "parse": 92.8,
     "score": 92.8,
     "tier": "legendary",
@@ -717,16 +717,24 @@
     },
     "Warrior": {
      "fights": 24,
-     "kills": 220,
+     "kills": 218,
      "parse": 92.8,
      "score": 92.8,
      "tier": "legendary",
      "hardest": "ultimate"
+    },
+    "Monk": {
+     "fights": 1,
+     "kills": 2,
+     "parse": 17.0,
+     "score": 7.7,
+     "tier": null,
+     "hardest": "extreme"
     }
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-11-18"
+   "stats_seen": "2026-11-19"
   },
   "48097900": {
    "name": "Neyrah's Yvaine",
@@ -739,7 +747,7 @@
    "rare_achv": 188,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2b65dc8ec0acac559a0d0c32f22e422e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788597267",
-   "collect_seen": "2026-11-18",
+   "collect_seen": "2026-11-19",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -958,7 +966,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-11-18"
+   "stats_seen": "2026-11-19"
   },
   "31445625": {
    "name": "Empress Killer",
@@ -971,7 +979,7 @@
    "rare_achv": 250,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6b749ce568de49ca3c89294f4cca8fcc_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1791333362",
-   "collect_seen": "2026-11-18",
+   "collect_seen": "2026-11-19",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -1031,7 +1039,7 @@
    "job_top": {
     "job": "Viper",
     "fights": 11,
-    "kills": 362,
+    "kills": 369,
     "parse": 100.0,
     "score": 100.0,
     "tier": "legendary",
@@ -1040,7 +1048,7 @@
    "job_scores": {
     "Viper": {
      "fights": 11,
-     "kills": 362,
+     "kills": 369,
      "parse": 100.0,
      "score": 100.0,
      "tier": "legendary",
@@ -1064,9 +1072,17 @@
     },
     "Machinist": {
      "fights": 17,
-     "kills": 70,
-     "parse": 93.2,
-     "score": 93.2,
+     "kills": 72,
+     "parse": 93.3,
+     "score": 93.3,
+     "tier": "legendary",
+     "hardest": "ultimate"
+    },
+    "Summoner": {
+     "fights": 9,
+     "kills": 38,
+     "parse": 99.2,
+     "score": 95.9,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -1102,14 +1118,6 @@
      "tier": null,
      "hardest": "ultimate"
     },
-    "Summoner": {
-     "fights": 8,
-     "kills": 36,
-     "parse": 99.5,
-     "score": 95.5,
-     "tier": "legendary",
-     "hardest": "ultimate"
-    },
     "DarkKnight": {
      "fights": 3,
      "kills": 5,
@@ -1129,7 +1137,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-11-18"
+   "stats_seen": "2026-11-19"
   },
   "58744659": {
    "name": "Laira Thalor",
@@ -1142,7 +1150,7 @@
    "rare_achv": 85,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/258b10ee99a778ff735c30a38c9cadaf_3ea38e723c590aabf186367e1eb7e6a1fl0.jpg?1792141370",
-   "collect_seen": "2026-11-18",
+   "collect_seen": "2026-11-19",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -1223,7 +1231,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-11-18"
+   "stats_seen": "2026-11-19"
   },
   "43284378": {
    "name": "Busy Party",
@@ -1372,13 +1380,13 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-11-18",
+   "stats_seen": "2026-11-19",
    "mounts": 114,
    "minions": 328,
    "rare_achv": 120,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/ab848575d89650a2e7b9bbdbe03c3bd2_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788909336",
-   "collect_seen": "2026-11-18"
+   "collect_seen": "2026-11-19"
   },
   "36219974": {
    "name": "Hirano Neko",
@@ -1447,13 +1455,13 @@
    },
    "fflogs": "ok",
    "lode_achv_public": false,
-   "stats_seen": "2026-11-18",
+   "stats_seen": "2026-11-19",
    "mounts": 63,
    "minions": 125,
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/c063713cb285b373e0c3528d7f4f77cf_32d8c9c7cd5f62d62da2d31b6750a680fl0.jpg?1789860988",
-   "collect_seen": "2026-11-18"
+   "collect_seen": "2026-11-19"
   },
   "39752663": {
    "name": "Lumina Z'attano",
@@ -1466,7 +1474,7 @@
    "rare_achv": 162,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/b1d1b92d1d4bd18d3ae30688c75ae2b4_32d8c9c7cd5f62d62da2d31b6750a680fl0.jpg?1789847726",
-   "collect_seen": "2026-11-18",
+   "collect_seen": "2026-11-19",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -1536,7 +1544,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-11-18"
+   "stats_seen": "2026-11-19"
   },
   "35413272": {
    "name": "Poppy Lydian",
@@ -1549,7 +1557,7 @@
    "rare_achv": 94,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/c75efbacfe909f9178cff11b30c45881_32d8c9c7cd5f62d62da2d31b6750a680fl0_640x873.jpg?1703812193",
-   "collect_seen": "2026-11-18",
+   "collect_seen": "2026-11-19",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -1626,7 +1634,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-11-18"
+   "stats_seen": "2026-11-19"
   },
   "22590312": {
    "name": "Siegcross Avalontear",
@@ -1639,7 +1647,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/1ef3f82691dbf69c4e810e8b2760948a_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703816967",
-   "collect_seen": "2026-11-18",
+   "collect_seen": "2026-11-19",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -1750,7 +1758,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": false,
-   "stats_seen": "2026-11-18"
+   "stats_seen": "2026-11-19"
   },
   "10769690": {
    "name": "Monkey Pub",
@@ -1763,7 +1771,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/4be2ced3bf1aaebff13db1ad29192cae_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1737332168",
-   "collect_seen": "2026-11-18",
+   "collect_seen": "2026-11-19",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -1804,19 +1812,19 @@
    "progress_all": null,
    "job_top": {
     "job": "Dancer",
-    "fights": 36,
-    "kills": 253,
-    "parse": 79.2,
-    "score": 79.2,
+    "fights": 40,
+    "kills": 274,
+    "parse": 78.9,
+    "score": 78.9,
     "tier": "master",
     "hardest": "ultimate"
    },
    "job_scores": {
     "Dancer": {
-     "fights": 36,
-     "kills": 253,
-     "parse": 79.2,
-     "score": 79.2,
+     "fights": 40,
+     "kills": 274,
+     "parse": 78.9,
+     "score": 78.9,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -1846,24 +1854,24 @@
     },
     "WhiteMage": {
      "fights": 9,
-     "kills": 92,
-     "parse": 76.5,
-     "score": 76.5,
+     "kills": 65,
+     "parse": 76.2,
+     "score": 76.2,
      "tier": "master",
      "hardest": "ultimate"
     },
     "Bard": {
-     "fights": 8,
-     "kills": 19,
-     "parse": 23.1,
-     "score": 20.3,
+     "fights": 12,
+     "kills": 25,
+     "parse": 40.1,
+     "score": 36.6,
      "tier": null,
      "hardest": "ultimate"
     }
    },
    "fflogs": "ok",
    "lode_achv_public": false,
-   "stats_seen": "2026-11-18"
+   "stats_seen": "2026-11-19"
   },
   "61997211": {
    "name": "Punipi Puni",
@@ -1876,7 +1884,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/5d6b8ec993a1d8842956fd046802e468_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788505017",
-   "collect_seen": "2026-11-18",
+   "collect_seen": "2026-11-19",
    "tags": [
     "private"
    ],
@@ -1904,7 +1912,7 @@
    "job_scores": {},
    "fflogs": "none",
    "lode_achv_public": false,
-   "stats_seen": "2026-11-18"
+   "stats_seen": "2026-11-19"
   },
   "25854820": {
    "name": "Lex Snow",
@@ -1917,7 +1925,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a9667651d2b575123b1332b9f98bcbb9_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701269797",
-   "collect_seen": "2026-11-18",
+   "collect_seen": "2026-11-19",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -1959,27 +1967,27 @@
    "progress_all": null,
    "job_top": {
     "job": "Gunbreaker",
-    "fights": 24,
-    "kills": 360,
-    "parse": 100.0,
-    "score": 100.0,
+    "fights": 34,
+    "kills": 389,
+    "parse": 99.9,
+    "score": 99.9,
     "tier": "legendary",
     "hardest": "ultimate"
    },
    "job_scores": {
     "Warrior": {
-     "fights": 17,
-     "kills": 110,
-     "parse": 97.8,
-     "score": 97.8,
+     "fights": 21,
+     "kills": 169,
+     "parse": 98.6,
+     "score": 98.6,
      "tier": "legendary",
      "hardest": "ultimate"
     },
     "DarkKnight": {
-     "fights": 39,
-     "kills": 375,
-     "parse": 98.8,
-     "score": 98.8,
+     "fights": 41,
+     "kills": 287,
+     "parse": 98.3,
+     "score": 98.3,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -2000,10 +2008,10 @@
      "hardest": "extreme"
     },
     "Gunbreaker": {
-     "fights": 24,
-     "kills": 360,
-     "parse": 100.0,
-     "score": 100.0,
+     "fights": 34,
+     "kills": 389,
+     "parse": 99.9,
+     "score": 99.9,
      "tier": "legendary",
      "hardest": "ultimate"
     },
@@ -2026,7 +2034,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": false,
-   "stats_seen": "2026-11-18"
+   "stats_seen": "2026-11-19"
   },
   "39850923": {
    "name": "Hiro Hikari",
@@ -2039,7 +2047,7 @@
    "rare_achv": 66,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/c2679701c5ab42ceda12e9d8d2659cdd_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752135",
-   "collect_seen": "2026-11-18",
+   "collect_seen": "2026-11-19",
    "tags": [
     "extreme",
     "explorer"
@@ -2081,7 +2089,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-11-18"
+   "stats_seen": "2026-11-19"
   },
   "50581858": {
    "name": "Lazz Chayenz",
@@ -2116,13 +2124,13 @@
    "job_scores": {},
    "fflogs": "none",
    "lode_achv_public": true,
-   "stats_seen": "2026-11-18",
+   "stats_seen": "2026-11-19",
    "mounts": 27,
    "minions": 30,
    "rare_achv": 0,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/ca3de0aac064f0097abc4b5b501f8c7e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1794449896",
-   "collect_seen": "2026-11-18"
+   "collect_seen": "2026-11-19"
   },
   "31617286": {
    "name": "Dahlia Neredras",
@@ -2135,7 +2143,7 @@
    "rare_achv": 0,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/e511b96486aed321f8d6b03628c2479d_fcb1f5b0249d1069e5bdc66d0796f26afl0.jpg?1794450721",
-   "collect_seen": "2026-11-18",
+   "collect_seen": "2026-11-19",
    "tags": [
     "casual"
    ],
@@ -2163,7 +2171,7 @@
    "job_scores": {},
    "fflogs": "none",
    "lode_achv_public": true,
-   "stats_seen": "2026-11-18"
+   "stats_seen": "2026-11-19"
   },
   "62837583": {
    "name": "Crist Allen",
@@ -2192,13 +2200,13 @@
    "job_scores": {},
    "fflogs": "none",
    "lode_achv_public": false,
-   "stats_seen": "2026-11-18",
+   "stats_seen": "2026-11-19",
    "mounts": 0,
    "minions": 0,
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ca4283e7e8008dd4ffdcfd196fbfc447_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1794533916",
-   "collect_seen": "2026-11-18"
+   "collect_seen": "2026-11-19"
   }
  },
  "generated_at": "2026-11-19T02:00:05Z",
