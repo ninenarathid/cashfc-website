@@ -2,6 +2,55 @@
  "events": [
   {
    "date": "2026-11-18",
+   "type": "rare_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "earned Skyward Needle III — only 2.6% of players have it"
+  },
+  {
+   "date": "2026-11-18",
+   "type": "rare_up",
+   "id": 38152072,
+   "name": "Parker Thonhart",
+   "text": "earned Skyward Needle II — only 3.0% of players have it"
+  },
+  {
+   "date": "2026-11-18",
+   "type": "rare_up",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "earned The Bloodsands Below, and 1 more"
+  },
+  {
+   "date": "2026-11-18",
+   "type": "rare_up",
+   "id": 44133352,
+   "name": "Seville Beoulve",
+   "text": "earned I've Got It: Pyros Knives — only 3.0% of players have it"
+  },
+  {
+   "date": "2026-11-18",
+   "type": "level_100",
+   "id": 8286372,
+   "name": "Aloha Banana",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-11-18",
+   "type": "rare_up",
+   "id": 29918255,
+   "name": "Lyndanisse Vymmaith",
+   "text": "earned Phantom of the Umbra: Star Globe Umbrae"
+  },
+  {
+   "date": "2026-11-18",
+   "type": "level_100",
+   "id": 42845691,
+   "name": "Yuukizuz Akino",
+   "text": "reached level 100 on Pictomancer!"
+  },
+  {
+   "date": "2026-11-18",
    "type": "level_100",
    "id": 36130968,
    "name": "Chu Celestial",
@@ -1350,55 +1399,6 @@
    "id": 47218599,
    "name": "Kawa Lynn",
    "text": "reached level 100 on Reaper!"
-  },
-  {
-   "date": "2026-11-02",
-   "type": "level_100",
-   "id": 60429500,
-   "name": "Janna Minerva",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-11-02",
-   "type": "grade_up",
-   "id": 34597671,
-   "name": "Valkyries Zearaskia",
-   "text": "is now a Expert Gold Saucer collector ✨"
-  },
-  {
-   "date": "2026-11-01",
-   "type": "level_100",
-   "id": 36183541,
-   "name": "Nagi Amano",
-   "text": "reached level 100 on Summoner!"
-  },
-  {
-   "date": "2026-11-01",
-   "type": "level_100",
-   "id": 49929911,
-   "name": "Sun Prism",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-11-01",
-   "type": "level_100",
-   "id": 31236337,
-   "name": "Whitefrost Marionette",
-   "text": "reached level 100 on Pictomancer!"
-  },
-  {
-   "date": "2026-11-01",
-   "type": "grade_up",
-   "id": 13533056,
-   "name": "Akemi Rei",
-   "text": "is now a Master Relic grinder ✨"
-  },
-  {
-   "date": "2026-11-01",
-   "type": "rare_up",
-   "id": 43864764,
-   "name": "Shinonome Kamemaru",
-   "text": "earned Close Encounters — only 2.4% of players have it"
   }
  ]
 }

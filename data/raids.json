@@ -82307,7 +82307,20 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 103,
+    "name": "The Tyrant",
+    "kind": "savage",
+    "state": "learning",
+    "pct": 52.44,
+    "phase": 0,
+    "pulls": 5,
+    "last": "2026-11-18",
+    "last_ts": 1794968334
+   }
+  ]
  },
  "46739693": {
   "current": {
@@ -98375,7 +98388,13 @@
     "best": 4,
     "kills": 2,
     "job": "Machinist",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Machinist": {
+      "kills": 2,
+      "best": 4
+     }
+    }
    }
   ],
   "legacy": []

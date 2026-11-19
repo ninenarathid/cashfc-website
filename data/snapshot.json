@@ -64,6 +64,7 @@
    2352,
    2500,
    2503,
+   2506,
    2515,
    2518,
    2524,
@@ -125,7 +126,6 @@
    3835,
    3944,
    3959,
-   3960,
    4000,
    4018,
    4036,
@@ -1003,6 +1003,7 @@
    2500,
    2502,
    2503,
+   2505,
    2506,
    2509,
    2512,
@@ -1053,7 +1054,6 @@
    3833,
    3834,
    3835,
-   3951,
    3952,
    3953,
    3954,
@@ -1623,7 +1623,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 100,
+  "level": 64,
   "cc": [
    true,
    true,
@@ -2126,7 +2126,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 72,
+  "level": 78,
   "cc": [
    true,
    true,
@@ -2584,7 +2584,6 @@
    true
   ],
   "rare_ids": [
-   1319,
    1329,
    1330,
    1335,
@@ -2622,10 +2621,12 @@
    2932,
    2996,
    3074,
+   3155,
    3162,
    3307,
    3308,
    3309,
+   3310,
    3338,
    3348,
    3349,
@@ -2662,7 +2663,6 @@
    3870,
    3883,
    3884,
-   3897,
    3898,
    3937,
    3938,
@@ -4136,6 +4136,7 @@
    1865,
    1866,
    1869,
+   2148,
    2166,
    2357,
    2358,
@@ -4197,7 +4198,6 @@
    3539,
    3547,
    3714,
-   3951,
    3964,
    4035,
    4045,
@@ -5169,7 +5169,7 @@
   "mounts": 128,
   "minions": 320,
   "rare": 114,
-  "level": 93,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -5300,7 +5300,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6944,6 +6944,7 @@
    3758,
    3762,
    3770,
+   3771,
    3778,
    3784,
    3817,
@@ -6965,7 +6966,6 @@
    3860,
    3861,
    3862,
-   3885,
    3886,
    3887,
    3914,
@@ -7613,7 +7613,7 @@
   "mounts": 95,
   "minions": 206,
   "rare": null,
-  "level": 100,
+  "level": 38,
   "cc": [
    false,
    false,
@@ -7633,7 +7633,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-09-12"
+  "chg": "2026-11-18"
  },
  "60599300": {
   "name": "Rainy Tempestra",
@@ -8318,7 +8318,7 @@
   "mounts": 81,
   "minions": 158,
   "rare": 17,
-  "level": 72,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -8516,7 +8516,7 @@
   "mounts": 9,
   "minions": 21,
   "rare": 2,
-  "level": 71,
+  "level": 70,
   "cc": [
    false,
    false,
@@ -8606,7 +8606,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 54,
+  "level": 59,
   "cc": [
    false,
    false,
@@ -8625,8 +8625,8 @@
   "name": "Haruka Paru",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 34,
+  "minions": 64,
   "rare": null,
   "level": 90,
   "cc": [
@@ -8672,7 +8672,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 5,
-  "level": 93,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -8920,7 +8920,7 @@
   "mounts": 30,
   "minions": 66,
   "rare": null,
-  "level": 100,
+  "level": 77,
   "cc": [
    false,
    false,
@@ -8944,7 +8944,7 @@
   "mounts": 85,
   "minions": 178,
   "rare": null,
-  "level": 72,
+  "level": 73,
   "cc": [
    false,
    false,
@@ -9957,8 +9957,8 @@
   "name": "Ascaris Altz'",
   "parse": null,
   "ult": 0,
-  "mounts": 59,
-  "minions": 164,
+  "mounts": null,
+  "minions": null,
   "rare": null,
   "level": 57,
   "cc": [
@@ -12864,7 +12864,7 @@
   "mounts": 19,
   "minions": 40,
   "rare": 0,
-  "level": 73,
+  "level": 74,
   "cc": [
    false,
    false,
@@ -17053,7 +17053,7 @@
   "mounts": 48,
   "minions": 76,
   "rare": null,
-  "level": 74,
+  "level": 76,
   "cc": [
    false,
    false,
