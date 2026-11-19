@@ -7439,7 +7439,13 @@
       "best": 38,
       "median": 26,
       "kills": 2,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 2,
+        "best": 38
+       }
+      }
      },
      {
       "label": "M2S",
@@ -7448,7 +7454,21 @@
       "best": 67,
       "median": 37,
       "kills": 9,
-      "job": "Summoner"
+      "job": "Summoner",
+      "job_kills": {
+       "Summoner": {
+        "kills": 6,
+        "best": 67
+       },
+       "Dancer": {
+        "kills": 2,
+        "best": 12
+       },
+       "Bard": {
+        "kills": 1,
+        "best": 5
+       }
+      }
      }
     ]
    },
@@ -9735,7 +9755,13 @@
       "best": 68,
       "median": 53,
       "kills": 6,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "Scholar": {
+        "kills": 6,
+        "best": 68
+       }
+      }
      },
      {
       "label": "M2S",
@@ -9744,7 +9770,13 @@
       "best": 61,
       "median": 41,
       "kills": 8,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "Scholar": {
+        "kills": 8,
+        "best": 61
+       }
+      }
      },
      {
       "label": "M3S",
@@ -9753,7 +9785,13 @@
       "best": 70,
       "median": 44,
       "kills": 5,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "Scholar": {
+        "kills": 5,
+        "best": 70
+       }
+      }
      },
      {
       "label": "M4S",
@@ -9762,7 +9800,13 @@
       "best": 67,
       "median": 56,
       "kills": 8,
-      "job": "Scholar"
+      "job": "Scholar",
+      "job_kills": {
+       "Scholar": {
+        "kills": 8,
+        "best": 67
+       }
+      }
      }
     ]
    },
@@ -10210,11 +10254,11 @@
       "best": 24
      },
      "Sage": {
-      "kills": 7,
+      "kills": 8,
       "best": 39
      },
      "Scholar": {
-      "kills": 4,
+      "kills": 5,
       "best": 23
      },
      "Astrologian": {
@@ -19938,7 +19982,29 @@
       "best": 92,
       "median": 83,
       "kills": 20,
-      "job": "Machinist"
+      "job": "Machinist",
+      "job_kills": {
+       "Viper": {
+        "kills": 1,
+        "best": 71
+       },
+       "Machinist": {
+        "kills": 7,
+        "best": 92
+       },
+       "Bard": {
+        "kills": 8,
+        "best": 75
+       },
+       "RedMage": {
+        "kills": 2,
+        "best": 73
+       },
+       "Dancer": {
+        "kills": 2,
+        "best": 45
+       }
+      }
      },
      {
       "label": "M2S",
@@ -19947,7 +20013,25 @@
       "best": 96,
       "median": 83,
       "kills": 20,
-      "job": "Machinist"
+      "job": "Machinist",
+      "job_kills": {
+       "Machinist": {
+        "kills": 4,
+        "best": 96
+       },
+       "Bard": {
+        "kills": 12,
+        "best": 88
+       },
+       "RedMage": {
+        "kills": 2,
+        "best": 54
+       },
+       "Dancer": {
+        "kills": 2,
+        "best": 53
+       }
+      }
      },
      {
       "label": "M3S",
@@ -19956,7 +20040,25 @@
       "best": 99,
       "median": 93,
       "kills": 17,
-      "job": "Machinist"
+      "job": "Machinist",
+      "job_kills": {
+       "Machinist": {
+        "kills": 4,
+        "best": 99
+       },
+       "Bard": {
+        "kills": 11,
+        "best": 79
+       },
+       "Pictomancer": {
+        "kills": 1,
+        "best": 48
+       },
+       "Dancer": {
+        "kills": 1,
+        "best": 46
+       }
+      }
      },
      {
       "label": "M4S",
@@ -19965,7 +20067,17 @@
       "best": 90,
       "median": 59,
       "kills": 6,
-      "job": "Machinist"
+      "job": "Machinist",
+      "job_kills": {
+       "Machinist": {
+        "kills": 5,
+        "best": 90
+       },
+       "Bard": {
+        "kills": 1,
+        "best": 52
+       }
+      }
      }
     ]
    },
@@ -23482,7 +23594,13 @@
       "best": 92,
       "median": 73,
       "kills": 11,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 11,
+        "best": 92
+       }
+      }
      },
      {
       "label": "M2S",
@@ -23491,7 +23609,13 @@
       "best": 95,
       "median": 48,
       "kills": 10,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 10,
+        "best": 95
+       }
+      }
      },
      {
       "label": "M3S",
@@ -23500,7 +23624,13 @@
       "best": 90,
       "median": 75,
       "kills": 12,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 12,
+        "best": 90
+       }
+      }
      },
      {
       "label": "M4S",
@@ -23509,7 +23639,13 @@
       "best": 79,
       "median": 40,
       "kills": 9,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 9,
+        "best": 79
+       }
+      }
      }
     ]
    },
@@ -42567,7 +42703,21 @@
       "best": 94,
       "median": 80,
       "kills": 10,
-      "job": "DarkKnight"
+      "job": "DarkKnight",
+      "job_kills": {
+       "Samurai": {
+        "kills": 3,
+        "best": 71
+       },
+       "Warrior": {
+        "kills": 3,
+        "best": 74
+       },
+       "DarkKnight": {
+        "kills": 4,
+        "best": 94
+       }
+      }
      },
      {
       "label": "M2S",
@@ -42576,7 +42726,21 @@
       "best": 81,
       "median": 69,
       "kills": 10,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Samurai": {
+        "kills": 4,
+        "best": 81
+       },
+       "Warrior": {
+        "kills": 4,
+        "best": 81
+       },
+       "DarkKnight": {
+        "kills": 2,
+        "best": 77
+       }
+      }
      },
      {
       "label": "M3S",
@@ -42585,7 +42749,25 @@
       "best": 79,
       "median": 71,
       "kills": 9,
-      "job": "DarkKnight"
+      "job": "DarkKnight",
+      "job_kills": {
+       "Samurai": {
+        "kills": 3,
+        "best": 65
+       },
+       "Monk": {
+        "kills": 1,
+        "best": 17
+       },
+       "DarkKnight": {
+        "kills": 3,
+        "best": 79
+       },
+       "Warrior": {
+        "kills": 2,
+        "best": 38
+       }
+      }
      },
      {
       "label": "M4S",
@@ -42594,7 +42776,25 @@
       "best": 52,
       "median": 43,
       "kills": 9,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Monk": {
+        "kills": 1,
+        "best": 50
+       },
+       "Samurai": {
+        "kills": 4,
+        "best": 52
+       },
+       "Warrior": {
+        "kills": 2,
+        "best": 35
+       },
+       "DarkKnight": {
+        "kills": 2,
+        "best": 12
+       }
+      }
      }
     ]
    },
