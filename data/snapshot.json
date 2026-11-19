@@ -2126,7 +2126,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 78,
+  "level": 80,
   "cc": [
    true,
    true,
@@ -2173,7 +2173,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-18"
+  "chg": "2026-11-19"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -2356,7 +2356,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 80,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -2383,7 +2383,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-11-17"
+  "chg": "2026-11-19"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -5169,7 +5169,7 @@
   "mounts": 128,
   "minions": 320,
   "rare": 114,
-  "level": 95,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -5291,7 +5291,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-18"
+  "chg": "2026-11-19"
  },
  "8286372": {
   "name": "Aloha Banana",
@@ -5300,7 +5300,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -5324,7 +5324,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-18"
+  "chg": "2026-11-19"
  },
  "29090821": {
   "name": "Amber Levana",
@@ -7613,7 +7613,7 @@
   "mounts": 95,
   "minions": 206,
   "rare": null,
-  "level": 38,
+  "level": 41,
   "cc": [
    false,
    false,
@@ -7633,7 +7633,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-18"
+  "chg": "2026-11-19"
  },
  "60599300": {
   "name": "Rainy Tempestra",
@@ -8516,7 +8516,7 @@
   "mounts": 9,
   "minions": 21,
   "rare": 2,
-  "level": 70,
+  "level": 71,
   "cc": [
    false,
    false,
@@ -8532,7 +8532,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-18"
+  "chg": "2026-11-19"
  },
  "49053650": {
   "name": "Eniluna Gelatoneii",
@@ -9957,8 +9957,8 @@
   "name": "Ascaris Altz'",
   "parse": null,
   "ult": 0,
-  "mounts": null,
-  "minions": null,
+  "mounts": 59,
+  "minions": 164,
   "rare": null,
   "level": 57,
   "cc": [
@@ -9973,7 +9973,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-11-19"
  },
  "512253": {
   "name": "Ashelia White",
@@ -12864,7 +12864,7 @@
   "mounts": 19,
   "minions": 40,
   "rare": 0,
-  "level": 74,
+  "level": 75,
   "cc": [
    false,
    false,
@@ -12879,7 +12879,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-11-18"
+  "chg": "2026-11-19"
  },
  "12003402": {
   "name": "Kei Chan",

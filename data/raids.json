@@ -64440,8 +64440,8 @@
       "best": 71
      },
      "Samurai": {
-      "kills": 2,
-      "best": 37
+      "kills": 4,
+      "best": 43
      },
      "Reaper": {
       "kills": 2,
@@ -77903,7 +77903,7 @@
       "best": 13
      },
      "Paladin": {
-      "kills": 19,
+      "kills": 21,
       "best": 92
      },
      "Warrior": {
@@ -86177,7 +86177,7 @@
     "cleared": true,
     "job_kills": {
      "Bard": {
-      "kills": 6,
+      "kills": 8,
       "best": 19
      },
      "Pictomancer": {
