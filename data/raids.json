@@ -36210,7 +36210,13 @@
       "best": 29,
       "median": 25,
       "kills": 2,
-      "job": "Reaper"
+      "job": "Reaper",
+      "job_kills": {
+       "Reaper": {
+        "kills": 2,
+        "best": 29
+       }
+      }
      }
     ]
    },
@@ -87596,7 +87602,7 @@
     "cleared": true,
     "job_kills": {
      "DarkKnight": {
-      "kills": 9,
+      "kills": 11,
       "best": 9
      }
     }

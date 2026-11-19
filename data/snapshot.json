@@ -67,6 +67,7 @@
    2506,
    2515,
    2518,
+   2521,
    2524,
    2525,
    2526,
@@ -103,11 +104,11 @@
    2877,
    2879,
    3350,
+   3405,
    3406,
    3407,
    3479,
    3659,
-   3668,
    3703,
    3704,
    3706,
@@ -143,7 +144,6 @@
    4054,
    4062,
    4069,
-   4071,
    4072
   ],
   "tiers": {
@@ -3756,7 +3756,7 @@
   "mounts": 70,
   "minions": 149,
   "rare": 67,
-  "level": 56,
+  "level": 95,
   "cc": [
    true,
    true,
@@ -3860,7 +3860,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-18"
+  "chg": "2026-11-19"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -5170,7 +5170,7 @@
   "mounts": 128,
   "minions": 320,
   "rare": 114,
-  "level": 99,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5635,7 +5635,7 @@
   "mounts": 40,
   "minions": 59,
   "rare": null,
-  "level": 97,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5859,6 +5859,7 @@
    3476,
    3532,
    3534,
+   3649,
    3717,
    3720,
    3726,
@@ -5873,7 +5874,6 @@
    3796,
    3797,
    3798,
-   3799,
    3800,
    3801,
    3802,
@@ -6552,7 +6552,7 @@
   "mounts": 32,
   "minions": 95,
   "rare": null,
-  "level": 96,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -6743,7 +6743,7 @@
   "mounts": 69,
   "minions": 125,
   "rare": 10,
-  "level": 76,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7297,7 +7297,7 @@
   "mounts": 178,
   "minions": 410,
   "rare": null,
-  "level": 100,
+  "level": 48,
   "cc": [
    false,
    false,
@@ -7310,7 +7310,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-13"
+  "chg": "2026-11-19"
  },
  "31831003": {
   "name": "North Nostafari",
@@ -7458,6 +7458,7 @@
    3001,
    3113,
    3467,
+   3554,
    3555,
    3577,
    3616,
@@ -7534,7 +7535,6 @@
    4025,
    4026,
    4027,
-   4028,
    4029,
    4030,
    4031,
@@ -7614,7 +7614,7 @@
   "mounts": 95,
   "minions": 206,
   "rare": null,
-  "level": 41,
+  "level": 42,
   "cc": [
    false,
    false,
@@ -8241,7 +8241,7 @@
   "mounts": 165,
   "minions": 364,
   "rare": null,
-  "level": 100,
+  "level": 47,
   "cc": [
    false,
    false,
@@ -8254,7 +8254,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-13"
+  "chg": "2026-11-19"
  },
  "31806535": {
   "name": "Viiska Howl",
@@ -8495,7 +8495,7 @@
   "mounts": 17,
   "minions": 42,
   "rare": null,
-  "level": 84,
+  "level": 85,
   "cc": [
    false,
    false,
@@ -8607,7 +8607,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 60,
+  "level": 64,
   "cc": [
    false,
    false,
@@ -8673,7 +8673,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 5,
-  "level": 99,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8867,7 +8867,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 60,
+  "level": 69,
   "cc": [
    false,
    false,
@@ -8883,7 +8883,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-18"
+  "chg": "2026-11-19"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -8945,7 +8945,7 @@
   "mounts": 85,
   "minions": 178,
   "rare": null,
-  "level": 73,
+  "level": 75,
   "cc": [
    false,
    false,
@@ -8958,7 +8958,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-18"
+  "chg": "2026-11-19"
  },
  "21388050": {
   "name": "Riizerk Ciel",
@@ -9107,7 +9107,7 @@
   "mounts": 18,
   "minions": 65,
   "rare": null,
-  "level": 91,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -9120,7 +9120,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-18"
+  "chg": "2026-11-19"
  },
  "34505698": {
   "name": "Aerithara Elric-",
@@ -9762,7 +9762,7 @@
   "mounts": 2,
   "minions": 2,
   "rare": 0,
-  "level": 88,
+  "level": 89,
   "cc": [
    false,
    false,
@@ -12788,7 +12788,7 @@
   "mounts": 11,
   "minions": 20,
   "rare": null,
-  "level": 64,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -12801,7 +12801,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-11-19"
  },
  "43797998": {
   "name": "Kappa Kappayuthz",
@@ -12865,7 +12865,7 @@
   "mounts": 19,
   "minions": 40,
   "rare": 0,
-  "level": 83,
+  "level": 85,
   "cc": [
    false,
    false,
@@ -13987,7 +13987,7 @@
   "mounts": 11,
   "minions": 43,
   "rare": null,
-  "level": 78,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -16786,7 +16786,7 @@
   "mounts": 82,
   "minions": 224,
   "rare": null,
-  "level": 100,
+  "level": 19,
   "cc": [
    false,
    false,
@@ -16799,7 +16799,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-11-19"
  },
  "30848420": {
   "name": "Temuru Tempesto",
@@ -17054,7 +17054,7 @@
   "mounts": 48,
   "minions": 76,
   "rare": null,
-  "level": 90,
+  "level": 78,
   "cc": [
    false,
    false,

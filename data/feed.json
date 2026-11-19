@@ -2,6 +2,62 @@
  "events": [
   {
    "date": "2026-11-19",
+   "type": "rare_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "earned Skyward Rod III — only 2.6% of players have it, and 1 more"
+  },
+  {
+   "date": "2026-11-19",
+   "type": "level_100",
+   "id": 8836061,
+   "name": "Allusia Heartfilia",
+   "text": "reached level 100 on Red Mage!"
+  },
+  {
+   "date": "2026-11-19",
+   "type": "level_100",
+   "id": 17473430,
+   "name": "Bigon Truesilver",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
+   "date": "2026-11-19",
+   "type": "rare_up",
+   "id": 38488824,
+   "name": "Daffodil Amary",
+   "text": "earned The Might Phantastick: Arquebus Penumbrae"
+  },
+  {
+   "date": "2026-11-19",
+   "type": "level_100",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "reached level 100 on Ninja!"
+  },
+  {
+   "date": "2026-11-19",
+   "type": "rare_up",
+   "id": 37061370,
+   "name": "Peonies Dunieres",
+   "text": "earned Stay Gold, Cenote II"
+  },
+  {
+   "date": "2026-11-19",
+   "type": "level_100",
+   "id": 60429500,
+   "name": "Janna Minerva",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-11-19",
+   "type": "level_100",
+   "id": 57387464,
+   "name": "Kanao Rin",
+   "text": "reached level 100 on Scholar!"
+  },
+  {
+   "date": "2026-11-19",
    "type": "level_100",
    "id": 50821570,
    "name": "Haruki Mizumoto",
@@ -1343,62 +1399,6 @@
    "id": 60852230,
    "name": "Lucien Rhul",
    "text": "reached level 100 on Sage!"
-  },
-  {
-   "date": "2026-11-03",
-   "type": "ult_clear",
-   "id": 39959181,
-   "name": "El Blung",
-   "text": "cleared Futures Rewritten 🏆"
-  },
-  {
-   "date": "2026-11-03",
-   "type": "ex_clear",
-   "id": 37061370,
-   "name": "Peonies Dunieres",
-   "text": "cleared Enuo (Extreme)"
-  },
-  {
-   "date": "2026-11-03",
-   "type": "ult_clear",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "cleared Dancing Mad 🏆"
-  },
-  {
-   "date": "2026-11-02",
-   "type": "rare_up",
-   "id": 47221226,
-   "name": "Destiny Marjory",
-   "text": "earned Cut Above the Rest: Revolver Occultum — only 2.3% of players have it, and 7 more"
-  },
-  {
-   "date": "2026-11-02",
-   "type": "level_100",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "reached level 100 on Machinist!"
-  },
-  {
-   "date": "2026-11-02",
-   "type": "rare_up",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "earned Mightier than the Dragon"
-  },
-  {
-   "date": "2026-11-02",
-   "type": "rare_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "earned Resplendent: Brilliant Saw"
-  },
-  {
-   "date": "2026-11-02",
-   "type": "grade_up",
-   "id": 9444020,
-   "name": "Non Elemental",
-   "text": "is now a Expert Explorer ✨"
   }
  ]
 }
