@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+@custom-variant site-light (&:where(html[data-site-theme="light"]:not(:has([data-town-route])) *));
+@custom-variant site-dark (&:where(html:not([data-site-theme="light"], :has([data-town-route])) *));
+@custom-variant main-site (&:where(html:not(:has([data-town-route])) *));
+
 /**
  * Midnight — cool slate with an ice-blue accent.
  *
@@ -44,6 +48,7 @@
   --color-jade: #4fb8a8;
   --color-copper: #c98a5b;
   --color-steel: #7ea6c9;
+  --color-discord-ink: #a5b2ff;
   /*
    * The motion vocabulary, the same way the colours above are the palette.
    *
@@ -118,6 +123,54 @@
   --font-data: var(--font-data-face);
 }
 
+/* Cash Town keeps the base Midnight palette. */
+html:not([data-site-theme="light"], :has([data-town-route])) {
+  color-scheme: dark;
+  --color-bg: #151517;
+  --color-surface: #1e1d20;
+  --color-card: #27262a;
+  --color-line: #37343a;
+  --color-line-lit: #48444c;
+  --color-line-strong: #77717a;
+  --color-ink: #eee9e4;
+  --color-muted: #aaa4ad;
+  --color-accent: #82b8e3;
+  --color-gold: #dfbf78;
+}
+
+html[data-site-theme="light"]:not(:has([data-town-route])) {
+  color-scheme: light;
+  --color-bg: #f8f3ea;
+  --color-surface: #fffdf8;
+  --color-card: #f1e9dc;
+  --color-line: #d3c5b2;
+  --color-line-lit: #e5d9c8;
+  --color-line-strong: #8e7d68;
+  --color-ink: #302821;
+  --color-muted: #665747;
+  --color-accent: #235e81;
+  --color-chili: #a33429;
+  --color-gold: #7a521c;
+  --color-jade: #19705b;
+  --color-copper: #854c2d;
+  --color-steel: #415e7b;
+  --color-discord-ink: #3e49a8;
+  --category-color-share: 35%;
+  --category-ink: var(--color-ink);
+  --shadow-2xl: 0 20px 48px -16px rgb(51 34 19 / 0.35);
+  --shadow-xl: 0 14px 30px -12px rgb(51 34 19 / 0.28);
+  --shadow-lg: 0 8px 18px -8px rgb(51 34 19 / 0.24);
+}
+
+:root {
+  --category-color-share: 78%;
+  --category-ink: #ffffff;
+}
+
+html[data-site-theme="light"]:not(:has([data-town-route])) .site-nav-logo[src="/logo-header.png"] {
+  filter: brightness(0);
+}
+
 body {
   background: var(--color-bg);
   color: var(--color-ink);
@@ -144,6 +197,18 @@ body {
    content area by the width of the scrollbar, and clip rather than hidden means
    the page does not become a scroll container and nothing sticky breaks. */
 body { overflow-x: clip; }
+
+html:not(:has([data-town-route])) .site-shell ::selection {
+  background: var(--color-gold);
+  color: var(--color-bg);
+}
+
+.site-title {
+  font-size: clamp(1.875rem, 4vw, 2.75rem);
+  letter-spacing: -0.025em;
+  line-height: 1.12;
+  text-wrap: balance;
+}
 
 /* Out of the column and across the window.
    The page is a centred column, and half the empty margin on each side is
@@ -962,8 +1027,36 @@ a.pressable:active { scale: 0.97; }
   transition: border-color 200ms ease-out;
 }
 
+:where(html:not(:has([data-town-route]))) .nav-sticky::before {
+  background: var(--color-bg);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-bottom-color: color-mix(in oklab, var(--color-line) 65%, transparent);
+}
+
 .nav-sticky[data-scrolled="true"]::before {
   border-bottom-color: var(--color-line);
+}
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    html:has([data-town-route]) .nav-sticky::before {
+      animation: nav-settle linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 var(--nav-h);
+    }
+  }
+}
+
+@keyframes nav-settle {
+  from {
+    background: color-mix(in oklab, var(--color-bg) 70%, transparent);
+    border-bottom-color: transparent;
+  }
+  to {
+    background: color-mix(in oklab, var(--color-bg) 94%, transparent);
+    border-bottom-color: var(--color-line);
+  }
 }
 
 /* ── The bar along the bottom, without the slab ───────────────────────────
@@ -1186,39 +1279,6 @@ a.pressable:active { scale: 0.97; }
       animation-duration: 620ms;
       animation-timing-function: var(--ease-drawer);
     }
-  }
-}
-
-/* ── The header reacting to the page under it, without JavaScript ─────────
-   animation-timeline: scroll() drives an animation from the scroll position
-   rather than from a clock, and it runs on the compositor — so this keeps
-   working while React is busy, and costs no listener and no re-render.
-
-   It does the same job as the scrolled flag in Nav.tsx and a little more: the
-   backdrop thickens as the page comes up under it rather than switching at a
-   threshold. The flag stays for the browsers that do not have this yet, and the
-   two agree, so there is no moment where one says scrolled and the other does
-   not. */
-@supports (animation-timeline: scroll()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .nav-sticky::before {
-      animation: nav-settle linear both;
-      animation-timeline: scroll(root block);
-      /* Finished by the time the header has one header's worth of page beneath
-         it, which is when it stops being the top of the page. */
-      animation-range: 0 var(--nav-h);
-    }
-  }
-}
-
-@keyframes nav-settle {
-  from {
-    background: color-mix(in oklab, var(--color-bg) 70%, transparent);
-    border-bottom-color: transparent;
-  }
-  to {
-    background: color-mix(in oklab, var(--color-bg) 94%, transparent);
-    border-bottom-color: var(--color-line);
   }
 }
 

@@ -21,7 +21,7 @@ export default function LeaderboardIntro(
   const th = lang === "th";
   return (
     <>
-      <h1 className="font-display text-3xl font-bold">{t("lb.title")}</h1>
+      <h1 className="site-title font-display font-semibold">{t("lb.title")}</h1>
 
       {/* Folded away. It explains where the numbers come from, which is worth
           having written down and is not what anybody opened this page to read —

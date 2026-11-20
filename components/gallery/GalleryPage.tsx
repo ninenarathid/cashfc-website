@@ -162,12 +162,7 @@ export default function GalleryPage(
   return (
     <main className="pt-7">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <div className="font-data text-meta uppercase tracking-[0.22em] text-accent">
-            {t("gallery.eyebrow")}
-          </div>
-          <h1 className="font-display text-3xl font-bold">{t("gallery.title")}</h1>
-        </div>
+        <h1 className="site-title font-display font-semibold">{t("gallery.title")}</h1>
         {view == null && (
           <button onClick={() => setPosting((v) => !v)}
                   className={`rounded-lg border px-4 py-2 text-read transition-colors ${

@@ -145,12 +145,8 @@ export default async function LeaderboardsPage() {
           <PopotoBoards names={who} first={first} />
 
           {boards.map(({ key, rows }) => (
-            // Each board wears its own colour, on the edge and under the
-            // heading. Eight cards of identical grey is a page you have to read
-            // to navigate; a colour down the side is one you can scroll to.
             <section key={key}
-                     style={{ borderTopColor: TAG_COLOR[key] ?? undefined }}
-                     className="overflow-hidden rounded-xl border border-line border-t-4 bg-surface">
+                     className="overflow-hidden rounded-xl border border-line bg-surface">
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 pb-2.5 pt-3"
                    style={{ background: `${TAG_COLOR[key] ?? "#8b97a8"}22`,
                             borderBottom: `1px solid ${TAG_COLOR[key] ?? "#8b97a8"}33` }}>
@@ -159,14 +155,11 @@ export default async function LeaderboardsPage() {
                                border: `1px solid ${TAG_COLOR[key] ?? "#8b97a8"}80` }}>
                   <TagIcon tag={key} size={22} />
                 </span>
-                {/* Lifted towards white so the muted ones — crafter's brown,
-                    pvp's slate — still read as a heading rather than as
-                    something greyed out. */}
-                <span className="font-display text-[17.5px] font-bold"
+                <h2 className="font-display text-[17.5px] font-bold"
                       style={{ color: `color-mix(in srgb, ${
-                        TAG_COLOR[key] ?? "#8b97a8"} 78%, #ffffff)` }}>
+                        TAG_COLOR[key] ?? "#8b97a8"} var(--category-color-share), var(--category-ink))` }}>
                   {TAG_LABELS[key] ?? key}
-                </span>
+                </h2>
                 {/* What this list is, not what the badge means. The tag help
                     says "top 30% of the FC", which is the rule for wearing the
                     badge and reads as a contradiction beside a list of ten. */}

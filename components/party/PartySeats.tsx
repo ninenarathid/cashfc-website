@@ -1076,7 +1076,7 @@ export function NeedLine({ party }: { party: Party }) {
       {count}
       {parts.map((r) => (
         <span key={r}
-              style={{ color: ROLE_COLOR[r],
+              style={{ color: `color-mix(in srgb, ${ROLE_COLOR[r]} var(--category-color-share), var(--category-ink))`,
                        borderColor: `color-mix(in srgb, ${ROLE_COLOR[r]} 55%, transparent)` }}
               className="looking rounded-full border px-2.5 py-[3px] font-data text-read uppercase tracking-[0.1em]">
           {t("pf.needRole", { n: cut.need[r], role: ROLE_LABEL[r] })}

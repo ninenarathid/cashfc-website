@@ -76,7 +76,8 @@ export function StatusPill(
   const { t } = useLang();
   const c = STATUS_COLOR[status];
   return (
-    <span style={{ color: c, borderColor: `color-mix(in srgb, ${c} 45%, transparent)`,
+    <span style={{ color: `color-mix(in srgb, ${c} var(--category-color-share), var(--category-ink))`,
+                   borderColor: `color-mix(in srgb, ${c} 45%, transparent)`,
                    background: `color-mix(in srgb, ${c} 12%, transparent)` }}
           className={`inline-flex shrink-0 items-center gap-1 rounded-full border font-data uppercase tracking-[0.1em] ${
             size === "xs" ? "px-1.5 py-[1px] text-meta" : "px-2 py-[2px] text-meta"}`}>

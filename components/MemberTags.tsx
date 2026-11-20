@@ -202,7 +202,7 @@ export default function MemberTags(
           ) : undefined}>
           <span
             className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border font-medium ${pad} ${
-              TAG_CLASS[t] ?? "border-line text-muted"}`}>
+              TAG_CLASS[t] ?? "border-line text-muted"} site-light:text-ink`}>
             {/* Bigger than the text beside it, deliberately. These are the
                 game's own art and they carry most of what a chip says at a
                 glance; at 13px they were a smudge doing nothing. */}

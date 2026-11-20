@@ -7,6 +7,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { Drawer } from "vaul";
 import AuthButton from "@/components/AuthButton";
 import LangToggle from "@/components/LangToggle";
+import { SiteThemeToggle } from "@/components/SiteTheme";
 import { useLang, type Key } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase/client";
 import { GALLERY_PUBLIC_KEY } from "@/lib/gallery";
@@ -321,7 +322,7 @@ export default function Nav() {
       {/* Same shape as the command palette's sheet, which is the other thing on
           this site that comes up from the bottom. vaul carries the drag, the
           velocity and the rubber-banding at the top. */}
-      <Drawer.Content className="lit-top fixed inset-x-0 bottom-0 z-[91] mt-24 flex flex-col rounded-t-2xl border border-line bg-surface outline-none">
+      <Drawer.Content className="lit-top fixed inset-x-0 bottom-0 z-[91] mt-24 flex flex-col rounded-t-2xl border border-line bg-surface outline-none main-site:max-h-[90dvh] main-site:overflow-y-auto">
         <div className="mx-auto mt-3 h-1.5 w-12 shrink-0 rounded-full bg-line" />
         <Drawer.Title className="px-4 pb-1 pt-4 font-data text-label uppercase tracking-[0.14em] text-muted">
           {t("nav.menu")}
@@ -345,11 +346,14 @@ export default function Nav() {
         <div className="flex flex-col gap-0.5 px-4 pb-4">
           {(inSheet.length ? inSheet : tabs).map((tab) => tabLink(tab, true))}
         </div>
-        <div className="flex items-center justify-between border-t border-line px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-          <span className="font-data text-meta uppercase tracking-[0.14em] text-muted">
-            {t("nav.language")}
-          </span>
-          <LangToggle />
+        <div className="space-y-3 border-t border-line px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <SiteThemeToggle />
+          <div className="flex items-center justify-between">
+            <span className="font-data text-meta uppercase tracking-[0.14em] text-muted">
+              {t("nav.language")}
+            </span>
+            <LangToggle />
+          </div>
         </div>
       </Drawer.Content>
     </Drawer.Portal>
@@ -368,7 +372,7 @@ export default function Nav() {
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={logoSrc} alt="Cafe And SHabu"
-                 className="h-10 w-auto sm:h-11"
+                 className="site-nav-logo h-10 w-auto sm:h-11"
                  onError={() =>
                    setLogoSrc((s) => (s === "/logo-header.png" ? "/logo.png" : ""))} />
           )}
@@ -394,6 +398,7 @@ export default function Nav() {
           {/* A setting rather than a destination, so on a narrow screen it goes
               in the sheet with the other things you change. */}
           <div className="hidden sm:block"><LangToggle /></div>
+          <div className="hidden sm:block empty:hidden"><SiteThemeToggle /></div>
 
           {/* Beside the face rather than among the tabs: it is about you, not
               about where you are going, and it renders nothing at all when

@@ -13,8 +13,8 @@ import {
 interface Slice { name: string; value: number; color: string }
 
 const tooltipStyle = {
-  background: "#1b212b", border: "1px solid #2b3441", borderRadius: 8,
-  color: "#e3e8ef", fontSize: 12.5,
+  background: "var(--color-card)", border: "1px solid var(--color-line)", borderRadius: 8,
+  color: "var(--color-ink)", fontSize: 12.5,
 };
 
 const RACE_COLORS: Record<string, string> = {
@@ -133,7 +133,7 @@ export default function FcCharts({
     // people stop logging in at some point — and because the rest are answers
     // about what the FC plays rather than about the FC.
     return [
-      { key: "total", label: "Whole FC", color: "#d7dae0" },
+      { key: "total", label: "Whole FC", color: "var(--color-ink)" },
       { key: "active", label: "Active", color: "#43b581" },
       { key: "vacation", label: "On vacation", color: "#747f8d" },
       { key: "guests", label: "Guests", color: "#a87fd8" },
@@ -176,8 +176,8 @@ export default function FcCharts({
   );
 
   return (
-    <details open className="mt-5 rounded-xl border border-line bg-surface open:pb-4">
-      <summary className="cursor-pointer select-none px-4 py-3 font-display font-semibold marker:text-accent">
+    <details className="mt-5 rounded-lg border border-line bg-surface site-dark:border-transparent open:pb-4">
+      <summary className="min-h-11 cursor-pointer select-none px-4 py-3 font-display font-semibold marker:text-accent">
         📊 FC overview
       </summary>
 
@@ -292,11 +292,11 @@ export default function FcCharts({
                   <div className="h-56">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={historyRows}>
-                        <XAxis dataKey="date" tick={{ fill: "#8b97a8", fontSize: 10 }}
-                               axisLine={{ stroke: "#2b3441" }} tickLine={false} />
+                        <XAxis dataKey="date" tick={{ fill: "var(--color-muted)", fontSize: 10 }}
+                               axisLine={{ stroke: "var(--color-line)" }} tickLine={false} />
                         <YAxis allowDecimals={false} width={28}
-                               tick={{ fill: "#8b97a8", fontSize: 11 }}
-                               axisLine={{ stroke: "#2b3441" }} tickLine={false} />
+                               tick={{ fill: "var(--color-muted)", fontSize: 11 }}
+                               axisLine={{ stroke: "var(--color-line)" }} tickLine={false} />
                         <Tooltip contentStyle={tooltipStyle} />
                         {[...series].filter((s) => shownSeries.has(s.key)).map((s) => (
                           <Line key={s.key} type="monotone" dataKey={s.key} name={s.label}

@@ -32,7 +32,7 @@ export default function DiscordCard() {
     <section className="mt-4 overflow-hidden rounded-xl border border-[#5865F2]/40 bg-[#5865F2]/8">
       <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
         <div>
-          <div className="font-display font-semibold text-[#a5b2ff]">
+          <div className="font-display font-semibold text-discord-ink">
             FFXIV : Cafe&rsquo; &amp; Shabu Discord
           </div>
         </div>

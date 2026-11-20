@@ -70,7 +70,7 @@ export default function AuthButton() {
     return (
       <Link
         href="/profile"
-        className="rounded-lg border border-[#5865F2]/60 bg-[#5865F2]/15 px-3.5 py-1.5 text-read text-[#a5b2ff] no-underline transition-colors hover:bg-[#5865F2]/25"
+        className="rounded-lg border border-[#5865F2]/60 bg-[#5865F2]/15 px-3.5 py-1.5 text-read text-discord-ink no-underline transition-colors hover:bg-[#5865F2]/25"
       >
         {t("nav.signIn")}
       </Link>

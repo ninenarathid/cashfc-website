@@ -2,7 +2,6 @@ import raw from "@/data/members.json";
 import feedRaw from "@/data/feed.json";
 import newsRaw from "@/data/news.json";
 import EventSlider from "@/components/home/EventSlider";
-import LatestUpdate from "@/components/home/LatestUpdate";
 import DiscordCard from "@/components/home/DiscordCard";
 import Timeline from "@/components/home/Timeline";
 import Birthdays from "@/components/home/Birthdays";
@@ -37,7 +36,7 @@ export default function Home() {
 
   return (
     <main>
-      <Hero fc={data.fc} total={data.fc.total} active={activeCount} tagStats={tagStats} />
+      <Hero name={data.fc.name} total={data.fc.total} active={activeCount} tagStats={tagStats} />
       <DomainVote />
 
       <EventSlider people={everyone(data)} />
@@ -67,8 +66,6 @@ export default function Home() {
             [m.id, { name: m.name, avatar: m.avatar ?? null }])),
         }}
       />
-
-      <LatestUpdate />
 
       <div className="mt-6 grid gap-8 md:grid-cols-2">
         <ActivityFeed feed={feed} />

@@ -189,8 +189,7 @@ function OneBoard({ board, names, period, first }: {
     ? TOP_N - behind.rows.length : 0;
 
   return (
-    <section style={{ borderTopColor: board.color }}
-             className="overflow-hidden rounded-xl border border-line border-t-4 bg-surface">
+    <section className="overflow-hidden rounded-xl border border-line bg-surface">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 pb-2.5 pt-3"
            style={{ background: `${board.color}22`,
                     borderBottom: `1px solid ${board.color}33` }}>
@@ -199,10 +198,10 @@ function OneBoard({ board, names, period, first }: {
                        border: `1px solid ${board.color}80` }}>
           {board.icon}
         </span>
-        <span className="font-display text-[17.5px] font-bold"
-              style={{ color: `color-mix(in srgb, ${board.color} 78%, #ffffff)` }}>
+        <h2 className="font-display text-[17.5px] font-bold"
+            style={{ color: `color-mix(in srgb, ${board.color} var(--category-color-share), var(--category-ink))` }}>
           {t(board.title)}
-        </span>
+        </h2>
         {/* Which span the numbers cover, on the board itself, for phones: there
             the switch is a whole board away from the second one. Side by side
             the switch sits right above both, and a chip here only pushed one

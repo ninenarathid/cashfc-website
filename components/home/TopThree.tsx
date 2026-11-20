@@ -136,7 +136,7 @@ export default function TopThree(
                 "these are different"; the icon says which one, which is the
                 whole job of the thing sitting in front of a name. */}
             <span className="flex items-center gap-1.5 truncate text-ui font-medium"
-                  style={{ color: `color-mix(in srgb, ${b.color} 78%, #ffffff)` }}>
+                  style={{ color: `color-mix(in srgb, ${b.color} var(--category-color-share), var(--category-ink))` }}>
               <span className="grid size-[18px] shrink-0 place-items-center rounded"
                     style={{ background: `${b.color}26` }}>
                 {b.icon ?? <TagIcon tag={b.key} size={13} />}

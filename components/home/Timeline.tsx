@@ -45,8 +45,8 @@ export default function Timeline({ news }: { news: NewsItem[] }) {
   if (!items.length) return null;
 
   return (
-    <section className="mt-6">
-      <div className="mb-2 flex items-baseline gap-3">
+    <section>
+      <div className="mb-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <h2 className="font-display text-lg font-semibold">{t("home.timeline")}</h2>
         <span className="text-ui text-muted">
           <span className="text-accent">●</span> {t("home.timelineOfficial")} ·{" "}

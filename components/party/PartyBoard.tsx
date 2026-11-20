@@ -1070,6 +1070,8 @@ export default function PartyBoard(
 
   const [query, setQuery] = useState("");
   const [kinds, setKinds] = useState<Set<string>>(new Set());
+  const [showOtherKinds, setShowOtherKinds] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [sort, setSort] = useState<Sort>("soon");
   const [adv, setAdv] = useState(EMPTY);
   const { t } = useLang();
@@ -1265,11 +1267,13 @@ export default function PartyBoard(
   const kindCounts = useMemo(() => {
     const c: Record<string, number> = {};
     for (const p of parties) {
+      if (!p.isStatic && p.id !== pinned
+          && (partyStatus(p, now) === "done") !== (adv.status === "done")) continue;
       const k = byKey[p.contentKey]?.kind;
       if (k) c[k] = (c[k] ?? 0) + 1;
     }
     return c;
-  }, [parties, byKey]);
+  }, [parties, byKey, now, pinned, adv.status]);
 
   /*
    * Everything the reader has narrowed to, except by progress and by loot.
@@ -1546,7 +1550,7 @@ export default function PartyBoard(
     const owner = inIt.find((m) => m.characterId === p.ownerCharacterId);
     return (
       <article key={p.id}
-               className="overflow-hidden rounded-xl border border-line bg-surface">
+               className="overflow-hidden rounded-xl border border-line bg-surface site-dark:border-transparent">
         {/*
           * A poster rather than a line of chips.
           *
@@ -1621,7 +1625,7 @@ export default function PartyBoard(
                   instead of it: the old row printed "Hunt train Hunt
                   train" wherever a content had no separate short form. */}
               {c?.badge && c.badge !== c.duty && (
-                <span style={{ color: tint,
+                <span style={{ color: `color-mix(in srgb, ${tint} var(--category-color-share), var(--category-ink))`,
                                borderColor: `color-mix(in srgb, ${tint} 45%, transparent)` }}
                       className="rounded border px-1.5 font-data text-ui font-bold">
                   {c.badge}
@@ -1802,20 +1806,42 @@ export default function PartyBoard(
     );
   };
 
+  const listedKinds = KIND_ORDER.filter((kind) => kindCounts[kind]);
+  const otherKinds = KIND_ORDER.filter((kind) => !kindCounts[kind]);
+  const kindButton = (kind: (typeof KIND_ORDER)[number]) => {
+    const on = kinds.has(kind);
+    const count = kindCounts[kind] ?? 0;
+    return (
+      <button key={kind} type="button" aria-pressed={on}
+              onClick={() => setKinds((previous) => {
+                const next = new Set(previous);
+                if (!next.delete(kind)) next.add(kind);
+                return next;
+              })}
+              className={`flex min-h-11 items-center gap-1.5 rounded-lg border px-3 py-1 text-read transition-colors sm:min-h-9 ${
+                on ? "border-accent bg-accent/15 text-accent"
+                   : "border-line text-muted hover:bg-card hover:text-ink site-dark:border-transparent site-dark:bg-surface site-dark:hover:bg-card"}`}>
+        {KIND_ICON[kind] && <TagIcon tag={KIND_ICON[kind]!} size={14} />}
+        {kindSay(kind, t)}
+        <small className="ml-1 font-data text-meta tabular-nums">{count}</small>
+      </button>
+    );
+  };
+
   return (
     <div className="flex flex-col gap-4">
-      <header className="flex flex-wrap items-baseline justify-between gap-3">
-        <div>
-          <h1 className="font-display text-[23.5px] font-semibold">
+      <header className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <h1 className="site-title font-display font-semibold">
             {t("party.title")}
           </h1>
-          <p className="mt-1 text-lead text-muted">
+          <p className="mt-1 text-read text-muted sm:text-lead">
             {t("party.times")}
           </p>
         </div>
         {!writing && (
           <button onClick={() => setWriting(true)}
-                  className="flex items-center gap-1.5 rounded-lg border border-accent bg-accent/15 py-1.5 pl-2.5 pr-3.5 text-lead text-accent hover:bg-accent/25">
+                  className="flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg border border-accent bg-accent/15 py-1.5 pl-2.5 pr-3.5 text-lead font-semibold text-accent hover:bg-accent/25 site-dark:border-transparent site-dark:bg-gold site-dark:text-bg site-dark:hover:bg-ink">
             {/* The game's own party badge. A plus said "something is being
                 added" about a page whose whole subject is parties being
                 arranged, and the Duty Finder hexagon was already the Dungeon
@@ -1910,29 +1936,8 @@ export default function PartyBoard(
       )}
 
       {/* ── The chip row, as on the member board ──────────────────────────── */}
-      <div className="flex flex-wrap gap-2">
-        {KIND_ORDER.map((k) => {
-          const on = kinds.has(k);
-          const n = kindCounts[k] ?? 0;
-          return (
-            <button key={k}
-                    onClick={() => setKinds((v) => {
-                      const next = new Set(v);
-                      if (!next.delete(k)) next.add(k);
-                      return next;
-                    })}
-                    style={on ? { borderColor: KIND_COLOR[k], color: KIND_COLOR[k],
-                                  background: `color-mix(in srgb, ${KIND_COLOR[k]} 12%, transparent)` }
-                              : undefined}
-                    className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-lead transition-colors ${
-                      on ? "" : "border-line text-muted hover:border-muted hover:text-ink"} ${
-                      !n && !on ? "opacity-45" : ""}`}>
-              {KIND_ICON[k] && <TagIcon tag={KIND_ICON[k]!} size={14} />}
-              {kindSay(k, t)}
-              <small className="ml-1.5 font-data opacity-70">{n}</small>
-            </button>
-          );
-        })}
+      <div className="flex flex-wrap gap-2 empty:hidden">
+        {listedKinds.map(kindButton)}
 
         {/*
           * The one filter the reader never has to be asked for.
@@ -1964,29 +1969,58 @@ export default function PartyBoard(
             {t("pf.wantsMyRole", { role: ROLE_LABEL[myRole] })}
           </button>
         )}
+        {otherKinds.length > 0 && (!loading || kinds.size > 0) && (
+          <button type="button" aria-expanded={showOtherKinds} aria-controls="party-other-kinds"
+                  onClick={() => setShowOtherKinds((shown) => !shown)}
+                  className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-2 text-read font-semibold text-accent hover:underline sm:min-h-9">
+            {t("pf.otherKinds")}
+            <svg aria-hidden viewBox="0 0 16 16" className={`size-3 ${showOtherKinds ? "rotate-180" : ""}`}
+                 fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="m4 6 4 4 4-4" />
+            </svg>
+          </button>
+        )}
       </div>
 
-      <div className="flex flex-wrap gap-2.5">
+      <div id="party-other-kinds" className="flex flex-wrap gap-2 empty:hidden">
+        {otherKinds.filter((kind) => showOtherKinds || kinds.has(kind)).map(kindButton)}
+      </div>
+
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2.5 sm:flex sm:flex-wrap">
         <input type="search" value={query} onChange={(e) => setQuery(e.target.value)}
                placeholder={t("party.search")}
                aria-label={t("party.search")}
-               className={`${sel} min-w-[200px] flex-1 placeholder:text-muted`} />
+               className={`${sel} col-span-2 min-w-0 placeholder:text-muted sm:min-w-[200px] sm:flex-1`} />
         <select value={sort} onChange={(e) => setSort(e.target.value as Sort)}
-                aria-label={t("party.sortSoon")} className={sel}>
+                aria-label={t("party.sortSoon")} className={`${sel} min-w-0`}>
           <option value="soon">{t("party.sortSoon")}</option>
           <option value="new">{t("party.sortNew")}</option>
           <option value="open">{t("party.sortOpen")}</option>
         </select>
+        <button type="button" aria-expanded={showAdvanced} aria-controls="party-advanced-filters"
+                onClick={() => setShowAdvanced((shown) => !shown)}
+                className={`inline-flex min-h-11 items-center gap-1.5 rounded-lg border px-2.5 text-ui font-semibold sm:hidden ${
+                  showAdvanced || advCount ? "border-accent bg-accent/15 text-accent"
+                    : "border-line-strong bg-surface text-muted hover:text-ink"}`}>
+          {t("party.moreFilters")}
+          {advCount > 0 && <span className="font-data tabular-nums">({advCount})</span>}
+          <svg aria-hidden viewBox="0 0 16 16" className={`size-3 shrink-0 ${showAdvanced ? "rotate-180" : ""}`}
+               fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="m4 6 4 4 4-4" />
+          </svg>
+        </button>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-3.5">
+      <div id="party-advanced-filters"
+           className={`flex-col gap-3 rounded-xl border border-line bg-surface p-3.5 site-dark:border-transparent ${
+             showAdvanced ? "flex" : "hidden sm:flex"}`}>
         {advCount > 0 && (
           <button onClick={() => setAdv(EMPTY)}
                   className="self-end text-lead text-muted underline hover:text-ink">
             {t("party.clearN", { n: advCount })}
           </button>
         )}
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-2.5 sm:flex sm:flex-wrap">
           {/*
             * Where the five states live.
             *
@@ -2061,7 +2095,7 @@ export default function PartyBoard(
             <option value="week">{t("party.within7")}</option>
           </select>
 
-          <label className="flex items-center gap-1.5 text-lead text-muted">
+          <label className="col-span-2 flex items-center gap-1.5 text-lead text-muted">
             <input type="checkbox" checked={adv.openOnly}
                    onChange={(e) => setAdv({ ...adv, openOnly: e.target.checked })} />
             {t("party.hasRoom")}
@@ -2071,7 +2105,7 @@ export default function PartyBoard(
             * a control that is simply absent is a feature nobody finds. It
             * cannot be switched on, and it says why.
             */}
-          <label className={`flex items-center gap-1.5 text-lead ${
+          <label className={`col-span-2 flex flex-wrap items-center gap-1.5 text-lead ${
             myHours ? "text-muted" : "text-muted/50"}`}
                  title={myHours ? undefined : t("party.setHours")}>
             <input type="checkbox" checked={adv.free} disabled={!myHours}

@@ -189,6 +189,9 @@ const DICT = {
   "nav.town": { en: "Cash Town (beta)", th: "Cash Town (ทดลอง)" },
   "nav.admin": { en: "Admin panel", th: "หน้าผู้ดูแล" },
   "nav.language": { en: "Language", th: "ภาษา" },
+  "nav.theme": { en: "Appearance", th: "ธีมเว็บไซต์" },
+  "nav.themeLight": { en: "Light", th: "สว่าง" },
+  "nav.themeDark": { en: "Dark", th: "มืด" },
   "nav.gallery": { en: "Gallery", th: "แกลเลอรี" },
   /* The header tab only. The page is still called the gallery everywhere it is
      linked to from inside the site; this is the one place that has to warn
@@ -342,6 +345,7 @@ const DICT = {
   },
   // ── The domain vote on the front page ──────────────────────────────
   "domain.heading": { en: "The FC is choosing a domain", th: "FC กำลังโหวตโดเมน" },
+  "domain.results": { en: "Domain vote results", th: "ผลโหวตชื่อโดเมน" },
   "domain.question": {
     en: "Which domain should this site move to?",
     th: "เว็บนี้ควรย้ายไปใช้โดเมนอะไรดี?",
@@ -2337,6 +2341,8 @@ const DICT = {
   // ── Home ────────────────────────────────────────────────────────────
   "home.freeCompany": { en: "Free Company", th: "Free Company" },
   "home.browseAll": { en: "Browse all {n} members", th: "ดูสมาชิกทั้งหมด {n} คน" },
+  "home.moreTags": { en: "{n} more playstyles", th: "อีก {n} แนวการเล่น" },
+  "home.fewerTags": { en: "Show fewer playstyles", th: "ย่อแนวการเล่น" },
   "home.members": { en: "Members", th: "สมาชิก" },
   "home.active": { en: "Active", th: "Active" },
   "bday.today": { en: "Today:", th: "วันนี้:" },
@@ -2529,6 +2535,7 @@ const DICT = {
   /* No plus: the icon beside it is the Duty Finder's own hexagon, which says
      "a duty is being arranged" rather than "something is being added". */
   "party.new": { en: "New party", th: "ตั้งปาร์ตี้" },
+  "party.moreFilters": { en: "More filters", th: "ตัวกรองเพิ่มเติม" },
   "party.search": {
     en: "Search a fight, a note, or somebody already in",
     th: "ค้นหาไฟต์ ข้อความ หรือชื่อคนที่อยู่ในปาร์ตี้",
@@ -2972,6 +2979,7 @@ const DICT = {
   "want.leftHours": { en: "{n}h left", th: "เหลือ {n} ชม." },
 
   "pf.wantsMyRole": { en: "wants a {role}", th: "รับ {role}" },
+  "pf.otherKinds": { en: "Other categories", th: "ประเภทอื่น" },
   "pf.youAreBusy": { en: "you are busy", th: "คุณติดนัด" },
   "pf.helper": { en: "In-game PF helper", th: "ตัวช่วยสร้าง PF ในเกม" },
   "pf.betaTag": { en: "beta", th: "ทดลอง" },

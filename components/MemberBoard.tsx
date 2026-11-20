@@ -722,12 +722,14 @@ export default function MemberBoard({ data }: { data: BoardData }) {
   }, [inScope]);
 
   const selCls = "rounded-lg border border-line bg-card px-2.5 py-1.5 text-read text-ink";
+  const inactiveChip = "border-line text-muted hover:border-muted site-dark:border-transparent site-dark:bg-card/65 site-dark:hover:bg-card site-dark:hover:text-ink";
+  const activeChip = "site-dark:border-accent site-dark:bg-accent/15 site-dark:text-accent";
 
   return (
     <section>
       <header className="flex flex-wrap items-baseline justify-between gap-3.5 pb-4 pt-6">
         <div>
-          <h1 className="font-display text-3xl font-bold leading-tight">Members</h1>
+          <h1 className="site-title font-display font-semibold">Members</h1>
           <div className="mt-0.5 text-read text-muted">
             {t("board.verifiedHint")}
           </div>
@@ -741,7 +743,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
       <div className="flex flex-col gap-3">
         {/* Top level, not tucked inside the advanced panel: on a roster where most
             people are on vacation, this is the first cut almost everyone wants. */}
-        <div className="inline-flex flex-wrap self-start rounded-lg border border-line bg-surface p-0.5"
+        <div className="inline-flex flex-wrap self-start rounded-lg border border-line bg-surface p-0.5 site-dark:border-transparent"
              role="group" aria-label="Filter by activity">
           {ACTIVITY_OPTIONS.map((o) => {
             const on = adv.activity.includes(o.key);
@@ -767,7 +769,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                   : o.key === "guest" ? "border border-muted"
                   : "bg-[#747f8d]"}`} />
                 {o.label}
-                <small className="ml-1.5 font-data opacity-70">
+                <small className="ml-1.5 font-data opacity-70 site-dark:opacity-100">
                   {activityCounts[o.key] ?? 0}
                 </small>
               </button>
@@ -788,7 +790,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
           </select>
         </div>
 
-        <div className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-3.5">
+        <div className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-3.5 site-dark:border-transparent">
           {advCount > 0 && (
             <button onClick={() => setAdv(ADV_EMPTY)}
                     className="self-end text-ui text-muted underline hover:text-ink">
@@ -950,12 +952,12 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                       onClick={() => setAdv({ ...adv,
                         tags: on ? adv.tags.filter((x) => x !== tag) : [...adv.tags, tag] })}
                       aria-pressed={on}
-                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-[3px] text-meta ${
-                        on ? TAG_CLASS[tag] ?? "border-accent bg-accent/15 text-accent"
-                           : "border-line text-muted hover:border-muted"}`}>
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-[3px] text-meta site-dark:text-ui ${
+                        on ? `${TAG_CLASS[tag] ?? "border-accent bg-accent/15 text-accent"} site-light:text-ink ${activeChip}`
+                           : inactiveChip}`}>
                       <TagIcon tag={tag} size={16} />
                       {TAG_LABELS[tag]}
-                      <small className="ml-1 opacity-70">{counts[tag]}</small>
+                      <small className="ml-1 opacity-70 site-dark:opacity-100">{counts[tag]}</small>
                     </button>
                   </TagHoverCard>
                 );
@@ -979,13 +981,13 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                     onClick={() => setAdv({ ...adv,
                       boss: on ? adv.boss.filter((x) => x !== i) : [...adv.boss, i] })}
                     aria-pressed={on}
-                    className={`rounded-md border px-2 py-1 font-data text-meta ${
-                      on ? "border-chili bg-chili/15 text-chili"
-                         : "border-line text-muted hover:border-muted"}`}
+                    className={`rounded-md border px-2 py-1 font-data text-meta site-dark:text-ui ${
+                        on ? `border-chili bg-chili/15 text-chili ${activeChip}`
+                           : inactiveChip}`}
                     title={`On or through ${lb}${
                       tierNames[i] ? ` (${tierNames[i]})` : ""} — ${n} member${
                       n === 1 ? "" : "s"}`}>
-                    {lb}<small className="ml-1 opacity-70">{n}</small>
+                    {lb}<small className="ml-1 opacity-70 site-dark:opacity-100">{n}</small>
                   </button>
                 );
               })}
@@ -1003,11 +1005,11 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                         ults: on ? adv.ults.filter((x) => x !== name)
                                  : [...adv.ults, name] })}
                       aria-pressed={on}
-                      className={`rounded-md border px-2 py-1 font-data text-meta ${
-                        on ? "border-gold bg-gold/15 text-gold"
-                           : "border-line text-muted hover:border-muted"}`}
+                      className={`rounded-md border px-2 py-1 font-data text-meta site-dark:text-ui ${
+                        on ? `border-gold bg-gold/15 text-gold ${activeChip}`
+                           : inactiveChip}`}
                       title={`On or through ${name} — ${n} member${n === 1 ? "" : "s"}`}>
-                      {ultimateAbbr(name)}<small className="ml-1 opacity-70">{n}</small>
+                      {ultimateAbbr(name)}<small className="ml-1 opacity-70 site-dark:opacity-100">{n}</small>
                     </button>
                   );
                 })}
@@ -1025,11 +1027,11 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                       onClick={() => setAdv({ ...adv,
                         ex: on ? adv.ex.filter((x) => x !== name) : [...adv.ex, name] })}
                       aria-pressed={on}
-                      className={`rounded-md border px-2 py-1 text-meta ${
-                        on ? "border-[#c86fd1] bg-[#c86fd1]/15 text-[#d79ade]"
-                           : "border-line text-muted hover:border-muted"}`}
+                      className={`rounded-md border px-2 py-1 text-meta site-dark:text-ui ${
+                        on ? `border-[#c86fd1] bg-[#c86fd1]/15 text-[#d79ade] site-light:text-ink ${activeChip}`
+                           : inactiveChip}`}
                       title={`Cleared ${name} — ${n} member${n === 1 ? "" : "s"}`}>
-                      {name}<small className="ml-1 opacity-70">{n}</small>
+                      {name}<small className="ml-1 opacity-70 site-dark:opacity-100">{n}</small>
                     </button>
                   );
                 })}
@@ -1171,7 +1173,7 @@ export default function MemberBoard({ data }: { data: BoardData }) {
                           the twentieth row waiting its turn. */
                        delay: animateLayout ? Math.min(i, 10) * 0.022 : 0,
                      }}
-                     className={`relative grid grid-cols-[44px_1fr] items-center gap-x-3.5 gap-y-2 rounded-xl border border-line bg-surface p-3.5 transition-colors hover:border-[#55492f] sm:grid-cols-[44px_minmax(150px,1fr)_minmax(0,2.2fr)] sm:px-4 ${
+                     className={`relative grid grid-cols-[44px_1fr] items-center gap-x-3.5 gap-y-2 rounded-xl border border-line bg-surface p-3.5 transition-colors hover:border-[#55492f] site-dark:border-transparent site-dark:hover:border-transparent site-dark:hover:bg-card sm:grid-cols-[44px_minmax(150px,1fr)_minmax(0,2.2fr)] sm:px-4 ${
                        /* content-visibility skips layout for anything off
                           screen, which is what makes five hundred rows cheap —
                           and exactly what stops Motion being able to measure a

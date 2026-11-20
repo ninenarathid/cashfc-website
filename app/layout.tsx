@@ -1,6 +1,7 @@
 import { ViewTransition } from "react";
 import type { Metadata } from "next";
 import { Mitr, Noto_Sans_Thai_Looped, Bai_Jamjuree } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import CommandPalette from "@/components/CommandPalette";
@@ -17,6 +18,14 @@ import { AvatarProvider } from "@/lib/avatars";
 import { AdminProvider } from "@/lib/admin";
 import { everyone } from "@/lib/people";
 import SessionGuard from "@/components/SessionGuard";
+import { SiteThemeProvider } from "@/components/SiteTheme";
+import { SITE_THEME_STORAGE_KEY } from "@/lib/site-theme";
+
+const initializeTheme = `try {
+  if (localStorage.getItem(${JSON.stringify(SITE_THEME_STORAGE_KEY)}) === "light") {
+    document.documentElement.dataset.siteTheme = "light";
+  }
+} catch {}`;
 
 // This is a Free Company hangout, not a spreadsheet, so all three faces lean warm
 // and all three carry a full Thai set — the FC is Thai and the site is in English,
@@ -83,11 +92,13 @@ export default function RootLayout({
     .map((m) => ({ id: m.id, name: m.name, guest: m.guest }));
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${display.variable} ${body.variable} ${data.variable} font-body antialiased`}
       >
+        <Script id="site-theme" strategy="beforeInteractive">{initializeTheme}</Script>
         <LangProvider>
+          <SiteThemeProvider>
           <SessionGuard>
           {/* One small query for the faces members chose, shared by the board,
               their pages, and every byline and tag in the gallery. */}
@@ -114,7 +125,7 @@ export default function RootLayout({
           {/* Extra room at the foot, where the town's dock (and on a phone the
               tab bar under it) is fixed over the bottom of the page and would
               otherwise sit on the footer. */}
-          <div className="mx-auto max-w-5xl px-4 pb-40 sm:pb-24">
+          <div className="site-shell mx-auto max-w-5xl px-4 pb-40 sm:pb-24 main-site:sm:px-6">
             <Nav />
             {/*
               The page itself, as something that can be transitioned rather than
@@ -134,7 +145,7 @@ export default function RootLayout({
             <ViewTransition name="page">
               {children}
             </ViewTransition>
-          <footer className="mt-9 border-t border-line pt-4 text-ui leading-relaxed text-muted">
+          <footer className="mt-9 border-t border-line pt-4 text-ui leading-relaxed text-muted main-site:mt-14 main-site:pt-5">
             Data from{" "}
             <a className="text-accent no-underline" href="https://na.finalfantasyxiv.com/lodestone/" target="_blank" rel="noopener noreferrer">The Lodestone</a>{" "}
             (© SQUARE ENIX),{" "}
@@ -149,6 +160,7 @@ export default function RootLayout({
           </AvatarProvider>
           </AdminProvider>
           </SessionGuard>
+          </SiteThemeProvider>
         </LangProvider>
       </body>
     </html>

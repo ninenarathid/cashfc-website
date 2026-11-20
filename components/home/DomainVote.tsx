@@ -38,22 +38,8 @@ export default function DomainVote() {
     ? Math.max(0, Math.ceil((new Date(poll.closes_at).getTime() - Date.now()) / 3_600_000))
     : null;
 
-  return (
-    <section className="mt-4 rounded-xl border border-accent/40 bg-surface p-4">
-      <div className="mb-1 flex flex-wrap items-baseline gap-x-2">
-        <h2 className="font-display text-read font-semibold text-accent">
-          {t("domain.heading")}
-        </h2>
-        {left != null && (
-          <span className="text-ui text-muted">
-            {left >= 24
-              ? t("poll.daysLeft", { n: Math.ceil(left / 24) })
-              : t("poll.hoursLeft", { n: left })}
-          </span>
-        )}
-        {over && <span className="text-ui text-muted">{t("poll.closed")}</span>}
-      </div>
-
+  const content = (
+    <>
       <p className="text-lead leading-relaxed text-ink">{t("domain.question")}</p>
 
       <div className="mt-3 flex flex-col gap-2">
@@ -108,6 +94,35 @@ export default function DomainVote() {
             </>
           : mine != null ? t("poll.canChange") : t("domain.howTo")}
       </p>
+    </>
+  );
+
+  if (over) {
+    return (
+      <details className="mt-1 rounded-lg border border-line bg-surface site-dark:border-transparent">
+        <summary className="min-h-11 cursor-pointer px-4 py-3 text-read font-semibold text-ink marker:text-accent">
+          {t("domain.results")}
+        </summary>
+        <div className="border-t border-line p-4">{content}</div>
+      </details>
+    );
+  }
+
+  return (
+    <section className="mt-4 rounded-xl border border-accent/40 bg-surface p-4">
+      <div className="mb-1 flex flex-wrap items-baseline gap-x-2">
+        <h2 className="font-display text-read font-semibold text-accent">
+          {t("domain.heading")}
+        </h2>
+        {left != null && (
+          <span className="text-ui text-muted">
+            {left >= 24
+              ? t("poll.daysLeft", { n: Math.ceil(left / 24) })
+              : t("poll.hoursLeft", { n: left })}
+          </span>
+        )}
+      </div>
+      {content}
     </section>
   );
 }

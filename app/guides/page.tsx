@@ -28,10 +28,7 @@ export default function GuidesPage() {
 
   return (
     <main className="pt-7">
-      <div className="font-data text-meta uppercase tracking-[0.22em] text-accent">
-        Guides
-      </div>
-      <h1 className="font-display text-3xl font-bold">{t("guide.title")}</h1>
+      <h1 className="site-title font-display font-semibold">{t("guide.title")}</h1>
 
       {EXPANSIONS.map((expansion) => (
         <section key={expansion} className="mt-6">

@@ -29,23 +29,23 @@ export default function ActivityFeed({ feed }: { feed: FeedEvent[] }) {
           {t("home.activityEmpty")}
         </div>
       ) : (
-        <div className="flex flex-col gap-1.5">
+        <ul className="divide-y divide-line border-y border-line">
           {feed.map((e, i) => (
-            <div key={i} className="flex items-start gap-2.5 rounded-lg border border-line bg-surface px-3 py-2">
-              <span className="text-base leading-6">{FEED_ICON[e.type] ?? "•"}</span>
+            <li key={i} className="flex items-start gap-2.5 px-1 py-2.5">
+              <span aria-hidden className="text-base leading-6">{FEED_ICON[e.type] ?? "•"}</span>
               <div className="min-w-0 text-read leading-relaxed">
                 <Link href={`/member/${e.id}`}
                       className="font-data font-semibold text-ink no-underline hover:text-accent">
                   {e.name}
                 </Link>{" "}
                 <span className="text-muted">{e.text}</span>
-                <span className="ml-2 text-meta text-muted/70">
+                <span className="ml-2 text-meta text-muted">
                   {fmtShort(fromDay(e.date))}
                 </span>
               </div>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </section>
   );
