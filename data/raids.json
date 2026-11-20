@@ -78782,20 +78782,7 @@
    }
   ],
   "legacy": [],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 102,
-    "name": "Red Hot and Deep Blue",
-    "kind": "savage",
-    "state": "learning",
-    "pct": 0.6,
-    "phase": 0,
-    "pulls": 9,
-    "last": "2026-11-15",
-    "last_ts": 1794735947
-   }
-  ]
+  "_status": "ok"
  },
  "42053451": {
   "current": {
@@ -98954,8 +98941,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 4,
-    "kills": 2,
+    "best": 14,
+    "kills": 5,
     "job": "Machinist",
     "cleared": true,
     "job_kills": {

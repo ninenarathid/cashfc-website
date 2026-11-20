@@ -2,6 +2,62 @@
  "events": [
   {
    "date": "2026-11-20",
+   "type": "parse_up",
+   "id": 42019777,
+   "name": "Peace Violet",
+   "text": "set a new best parse: 14 on Enuo as Machinist"
+  },
+  {
+   "date": "2026-11-20",
+   "type": "level_100",
+   "id": 32857279,
+   "name": "Harp Abel",
+   "text": "reached level 100 on Scholar!"
+  },
+  {
+   "date": "2026-11-20",
+   "type": "level_100",
+   "id": 30596644,
+   "name": "Noelle Eisner",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-11-20",
+   "type": "level_100",
+   "id": 33387937,
+   "name": "R'bael Senkou",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
+   "date": "2026-11-20",
+   "type": "level_100",
+   "id": 33608576,
+   "name": "Verles Eisner",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
+   "date": "2026-11-20",
+   "type": "level_100",
+   "id": 62507897,
+   "name": "De Viljho",
+   "text": "reached level 100 on Reaper!"
+  },
+  {
+   "date": "2026-11-20",
+   "type": "level_100",
+   "id": 61489984,
+   "name": "Poly Umami",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-11-20",
+   "type": "level_100",
+   "id": 57387464,
+   "name": "Kanao Rin",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-11-20",
    "type": "ult_clear",
    "id": 50821570,
    "name": "Haruki Mizumoto",
@@ -1343,62 +1399,6 @@
    "id": 29918404,
    "name": "Zarass Gierlos",
    "text": "earned A Line in the Glade IV"
-  },
-  {
-   "date": "2026-11-04",
-   "type": "level_100",
-   "id": 2852829,
-   "name": "Papamaru Dj",
-   "text": "reached level 100 on Dragoon!"
-  },
-  {
-   "date": "2026-11-04",
-   "type": "new_member",
-   "id": 61489984,
-   "name": "Poly Umami",
-   "text": "joined the FC — welcome!"
-  },
-  {
-   "date": "2026-11-04",
-   "type": "level_100",
-   "id": 28120733,
-   "name": "Fukurou Under",
-   "text": "reached level 100 on Dragoon!"
-  },
-  {
-   "date": "2026-11-04",
-   "type": "level_100",
-   "id": 47218599,
-   "name": "Kawa Lynn",
-   "text": "reached level 100 on Black Mage!"
-  },
-  {
-   "date": "2026-11-04",
-   "type": "level_100",
-   "id": 42019777,
-   "name": "Peace Violet",
-   "text": "reached level 100 on Paladin!"
-  },
-  {
-   "date": "2026-11-03",
-   "type": "level_100",
-   "id": 60852230,
-   "name": "Lucien Rhul",
-   "text": "reached level 100 on Dark Knight!"
-  },
-  {
-   "date": "2026-11-03",
-   "type": "rare_up",
-   "id": 44970350,
-   "name": "Allen Crist",
-   "text": "earned R&D: Raising Hammer of Stars — only 4.3% of players have it"
-  },
-  {
-   "date": "2026-11-03",
-   "type": "level_100",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "reached level 100 on Machinist!"
   }
  ]
 }

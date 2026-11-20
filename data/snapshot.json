@@ -2126,7 +2126,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 57,
+  "level": 63,
   "cc": [
    true,
    true,
@@ -2360,7 +2360,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 100,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -3868,6 +3868,30 @@
    "The Weapon's Refrain"
   ],
   "chg": "2026-11-19"
+ },
+ "42019777": {
+  "name": "Peace Violet",
+  "parse": 14,
+  "ult": 0,
+  "mounts": 30,
+  "minions": 66,
+  "rare": null,
+  "level": 79,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Enuo"
+  ],
+  "ults": [],
+  "chg": "2026-11-20"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -6562,7 +6586,7 @@
   "mounts": 32,
   "minions": 95,
   "rare": null,
-  "level": 97,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6575,7 +6599,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-19"
+  "chg": "2026-11-20"
  },
  "43335087": {
   "name": "Haru Senbonzakura",
@@ -6823,7 +6847,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 85,
+  "level": 86,
   "cc": [
    false,
    false,
@@ -6836,7 +6860,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-18"
+  "chg": "2026-11-20"
  },
  "53933347": {
   "name": "Little Alyss",
@@ -7307,7 +7331,7 @@
   "mounts": 178,
   "minions": 410,
   "rare": null,
-  "level": 48,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7320,7 +7344,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-19"
+  "chg": "2026-11-20"
  },
  "31831003": {
   "name": "North Nostafari",
@@ -7624,7 +7648,7 @@
   "mounts": 95,
   "minions": 206,
   "rare": null,
-  "level": 43,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7857,7 +7881,7 @@
   "mounts": 149,
   "minions": 186,
   "rare": 61,
-  "level": 92,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -7943,7 +7967,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-18"
+  "chg": "2026-11-20"
  },
  "44926008": {
   "name": "Shiraishi Shu",
@@ -8111,7 +8135,7 @@
   "mounts": 165,
   "minions": 364,
   "rare": null,
-  "level": 47,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8124,7 +8148,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-19"
+  "chg": "2026-11-20"
  },
  "31806535": {
   "name": "Viiska Howl",
@@ -8189,7 +8213,7 @@
   "mounts": 81,
   "minions": 158,
   "rare": 17,
-  "level": 100,
+  "level": 74,
   "cc": [
    true,
    true,
@@ -8228,7 +8252,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-18"
+  "chg": "2026-11-20"
  },
  "15932791": {
   "name": "Yuziris Andra'nov",
@@ -8365,7 +8389,7 @@
   "mounts": 17,
   "minions": 42,
   "rare": null,
-  "level": 54,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8387,7 +8411,7 @@
   "mounts": 9,
   "minions": 21,
   "rare": 2,
-  "level": 73,
+  "level": 70,
   "cc": [
    false,
    false,
@@ -8477,7 +8501,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 64,
+  "level": 72,
   "cc": [
    false,
    false,
@@ -8490,7 +8514,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-19"
+  "chg": "2026-11-20"
  },
  "38405490": {
   "name": "Haruka Paru",
@@ -8615,7 +8639,7 @@
   "mounts": 56,
   "minions": 175,
   "rare": null,
-  "level": 100,
+  "level": 52,
   "cc": [
    false,
    false,
@@ -8635,7 +8659,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-10"
+  "chg": "2026-11-20"
  },
  "62539607": {
   "name": "Kross Astra",
@@ -8737,7 +8761,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 69,
+  "level": 63,
   "cc": [
    false,
    false,
@@ -8753,7 +8777,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-19"
+  "chg": "2026-11-20"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -8784,30 +8808,6 @@
   ],
   "chg": "2026-08-29"
  },
- "42019777": {
-  "name": "Peace Violet",
-  "parse": 4,
-  "ult": 0,
-  "mounts": 30,
-  "minions": 66,
-  "rare": null,
-  "level": 100,
-  "cc": [
-   false,
-   false,
-   false,
-   false,
-   false
-  ],
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {},
-  "ex": [
-   "Enuo"
-  ],
-  "ults": [],
-  "chg": "2026-11-19"
- },
  "61489984": {
   "name": "Poly Umami",
   "parse": null,
@@ -8815,7 +8815,7 @@
   "mounts": 85,
   "minions": 178,
   "rare": null,
-  "level": 86,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8837,7 +8837,7 @@
   "mounts": 7,
   "minions": 24,
   "rare": 0,
-  "level": 91,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -8850,7 +8850,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-17"
+  "chg": "2026-11-20"
  },
  "31685121": {
   "name": "Squid Girls",
@@ -8903,7 +8903,7 @@
   "mounts": 41,
   "minions": 86,
   "rare": null,
-  "level": 91,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -8916,7 +8916,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-18"
+  "chg": "2026-11-20"
  },
  "57419573": {
   "name": "A'kane Dorothy",
@@ -9632,7 +9632,7 @@
   "mounts": 2,
   "minions": 2,
   "rare": 0,
-  "level": 90,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -12658,7 +12658,7 @@
   "mounts": 11,
   "minions": 20,
   "rare": null,
-  "level": 67,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -12735,7 +12735,7 @@
   "mounts": 19,
   "minions": 40,
   "rare": 0,
-  "level": 89,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -16513,7 +16513,7 @@
   "mounts": 11,
   "minions": 28,
   "rare": null,
-  "level": 89,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -16526,7 +16526,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-29"
+  "chg": "2026-11-20"
  },
  "30582341": {
   "name": "Sweetpea Swp",
@@ -16924,7 +16924,7 @@
   "mounts": 48,
   "minions": 76,
   "rare": null,
-  "level": 70,
+  "level": 10,
   "cc": [
    false,
    false,
