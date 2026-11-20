@@ -71293,7 +71293,21 @@
       "best": 83,
       "median": 56,
       "kills": 22,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 7,
+        "best": 83
+       },
+       "Sage": {
+        "kills": 12,
+        "best": 83
+       },
+       "WhiteMage": {
+        "kills": 3,
+        "best": 67
+       }
+      }
      },
      {
       "label": "P10S",
@@ -71302,7 +71316,21 @@
       "best": 82,
       "median": 74,
       "kills": 18,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 5,
+        "best": 82
+       },
+       "Sage": {
+        "kills": 10,
+        "best": 81
+       },
+       "WhiteMage": {
+        "kills": 3,
+        "best": 70
+       }
+      }
      },
      {
       "label": "P11S",
@@ -71311,7 +71339,21 @@
       "best": 89,
       "median": 45,
       "kills": 27,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 8,
+        "best": 89
+       },
+       "Sage": {
+        "kills": 14,
+        "best": 84
+       },
+       "WhiteMage": {
+        "kills": 5,
+        "best": 74
+       }
+      }
      },
      {
       "label": "P12S",
@@ -71320,7 +71362,21 @@
       "best": 98,
       "median": 30,
       "kills": 55,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 15,
+        "best": 98
+       },
+       "WhiteMage": {
+        "kills": 10,
+        "best": 83
+       },
+       "Sage": {
+        "kills": 30,
+        "best": 72
+       }
+      }
      },
      {
       "label": null,
@@ -71329,7 +71385,21 @@
       "best": 81,
       "median": 56,
       "kills": 19,
-      "job": "Paladin"
+      "job": "Paladin",
+      "job_kills": {
+       "Paladin": {
+        "kills": 2,
+        "best": 81
+       },
+       "WhiteMage": {
+        "kills": 5,
+        "best": 65
+       },
+       "Sage": {
+        "kills": 12,
+        "best": 39
+       }
+      }
      }
     ]
    },
@@ -98809,8 +98879,8 @@
     "cleared": true,
     "job_kills": {
      "Machinist": {
-      "kills": 2,
-      "best": 4
+      "kills": 5,
+      "best": 14
      }
     }
    }

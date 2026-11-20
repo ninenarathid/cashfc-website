@@ -7614,7 +7614,7 @@
   "mounts": 95,
   "minions": 206,
   "rare": null,
-  "level": 42,
+  "level": 43,
   "cc": [
    false,
    false,
@@ -7634,7 +7634,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-19"
+  "chg": "2026-11-20"
  },
  "60599300": {
   "name": "Rainy Tempestra",
@@ -8174,6 +8174,7 @@
   "tiers": {},
   "jobs": {
    "WhiteMage": "master",
+   "Sage": "master",
    "Paladin": "master"
   },
   "ex": [
@@ -8945,7 +8946,7 @@
   "mounts": 85,
   "minions": 178,
   "rare": null,
-  "level": 75,
+  "level": 77,
   "cc": [
    false,
    false,
@@ -8958,7 +8959,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-19"
+  "chg": "2026-11-20"
  },
  "21388050": {
   "name": "Riizerk Ciel",
@@ -9762,7 +9763,7 @@
   "mounts": 2,
   "minions": 2,
   "rare": 0,
-  "level": 89,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -9775,7 +9776,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-19"
+  "chg": "2026-11-20"
  },
  "20400811": {
   "name": "Ariadne Ilsildar",

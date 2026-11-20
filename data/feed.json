@@ -1,6 +1,13 @@
 {
  "events": [
   {
+   "date": "2026-11-20",
+   "type": "job_up",
+   "id": 37648492,
+   "name": "Sunshine Eveningfall",
+   "text": "is now a Master Sage"
+  },
+  {
    "date": "2026-11-19",
    "type": "rare_up",
    "id": 15308846,
@@ -1392,13 +1399,6 @@
    "id": 8286372,
    "name": "Aloha Banana",
    "text": "reached level 100 on Paladin!"
-  },
-  {
-   "date": "2026-11-03",
-   "type": "level_100",
-   "id": 60852230,
-   "name": "Lucien Rhul",
-   "text": "reached level 100 on Sage!"
   }
  ]
 }
