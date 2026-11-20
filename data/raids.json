@@ -4290,6 +4290,17 @@
     }
    },
    {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "encounter_id": 1075,
+    "name": "The Epic of Alexander",
+    "best": 8,
+    "kills": 2,
+    "job": "Sage",
+    "cleared": true
+   },
+   {
     "zone": "The Omega Protocol",
     "zone_id": 53,
     "expansion": "Endwalker",
@@ -33110,6 +33121,17 @@
     }
    },
    {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "encounter_id": 1075,
+    "name": "The Epic of Alexander",
+    "best": 25,
+    "kills": 2,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
@@ -46074,6 +46096,17 @@
    ]
   },
   "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "encounter_id": 1075,
+    "name": "The Epic of Alexander",
+    "best": 21,
+    "kills": 2,
+    "job": "Warrior",
+    "cleared": true
+   },
    {
     "zone": "Ultimates (Legacy)",
     "zone_id": 43,
@@ -67028,7 +67061,19 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "encounter_id": 1075,
+    "name": "The Epic of Alexander",
+    "best": 42,
+    "kills": 2,
+    "job": "BlackMage",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials I (Extreme)",
@@ -67105,7 +67150,19 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "encounter_id": 1075,
+    "name": "The Epic of Alexander",
+    "best": 62,
+    "kills": 2,
+    "job": "Samurai",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials III (Extreme)",
@@ -79895,7 +79952,19 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "encounter_id": 1075,
+    "name": "The Epic of Alexander",
+    "best": 70,
+    "kills": 2,
+    "job": "WhiteMage",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials III (Extreme)",
@@ -85181,7 +85250,19 @@
     false
    ]
   },
-  "ultimates": [],
+  "ultimates": [
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "encounter_id": 1075,
+    "name": "The Epic of Alexander",
+    "best": 23,
+    "kills": 2,
+    "job": "Machinist",
+    "cleared": true
+   }
+  ],
   "extremes": [
    {
     "zone": "Trials III (Extreme)",

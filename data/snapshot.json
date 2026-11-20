@@ -2122,11 +2122,11 @@
  "50821570": {
   "name": "Haruki Mizumoto",
   "parse": 89,
-  "ult": 0,
+  "ult": 1,
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 100,
+  "level": 57,
   "cc": [
    true,
    true,
@@ -2172,8 +2172,10 @@
    "Valigarmanda",
    "Zoraal Ja"
   ],
-  "ults": [],
-  "chg": "2026-11-19"
+  "ults": [
+   "The Epic of Alexander"
+  ],
+  "chg": "2026-11-20"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -2318,7 +2320,7 @@
  "36183378": {
   "name": "K' Potassium",
   "parse": 98,
-  "ult": 0,
+  "ult": 1,
   "mounts": 48,
   "minions": 163,
   "rare": 9,
@@ -2346,8 +2348,10 @@
   "ex": [
    "Valigarmanda"
   ],
-  "ults": [],
-  "chg": "2026-11-08"
+  "ults": [
+   "The Epic of Alexander"
+  ],
+  "chg": "2026-11-20"
  },
  "42948817": {
   "name": "Karuma Amamiya",
@@ -2356,7 +2360,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 95,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -2383,7 +2387,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-11-19"
+  "chg": "2026-11-20"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -3506,7 +3510,7 @@
  "36183541": {
   "name": "Nagi Amano",
   "parse": 100,
-  "ult": 0,
+  "ult": 1,
   "mounts": 70,
   "minions": 133,
   "rare": 71,
@@ -3605,8 +3609,10 @@
    "Valigarmanda",
    "Zelenia"
   ],
-  "ults": [],
-  "chg": "2026-11-17"
+  "ults": [
+   "The Epic of Alexander"
+  ],
+  "chg": "2026-11-20"
  },
  "21620195": {
   "name": "Nefe'li Lucias",
@@ -3642,7 +3648,7 @@
  "5644067": {
   "name": "Ninenine Everdark",
   "parse": 99,
-  "ult": 4,
+  "ult": 5,
   "mounts": 76,
   "minions": 137,
   "rare": 62,
@@ -3744,10 +3750,11 @@
   "ults": [
    "Dragonsong's Reprise",
    "Futures Rewritten",
+   "The Epic of Alexander",
    "The Omega Protocol",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-11-15"
+  "chg": "2026-11-20"
  },
  "9444020": {
   "name": "Non Elemental",
@@ -4003,7 +4010,7 @@
  "30667251": {
   "name": "Roxas Akatsuki",
   "parse": 87,
-  "ult": 1,
+  "ult": 2,
   "mounts": 79,
   "minions": 70,
   "rare": null,
@@ -4031,9 +4038,10 @@
    "Zoraal Ja"
   ],
   "ults": [
+   "The Epic of Alexander",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-14"
+  "chg": "2026-11-20"
  },
  "29325838": {
   "name": "Ryuu Dawnblade",
@@ -4952,7 +4960,7 @@
  "42976317": {
   "name": "Zeadz Stellar",
   "parse": 97,
-  "ult": 0,
+  "ult": 1,
   "mounts": 56,
   "minions": 129,
   "rare": 42,
@@ -5010,7 +5018,7 @@
   ],
   "tiers": {},
   "jobs": {
-   "WhiteMage": "legendary"
+   "WhiteMage": "master"
   },
   "ex": [
    "Doomtrain",
@@ -5021,8 +5029,10 @@
    "Zelenia",
    "Zoraal Ja"
   ],
-  "ults": [],
-  "chg": "2026-11-06"
+  "ults": [
+   "The Epic of Alexander"
+  ],
+  "chg": "2026-11-20"
  },
  "24123541": {
   "name": "Zeren Dragonia",
@@ -6697,7 +6707,7 @@
   "mounts": 23,
   "minions": 57,
   "rare": null,
-  "level": 92,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -6712,7 +6722,7 @@
    "Enuo"
   ],
   "ults": [],
-  "chg": "2026-11-18"
+  "chg": "2026-11-20"
  },
  "24114157": {
   "name": "Kapi Nampla",
@@ -7379,7 +7389,7 @@
   "mounts": 94,
   "minions": 185,
   "rare": null,
-  "level": 92,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -7399,7 +7409,7 @@
    "The Epic of Alexander",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-11-19"
+  "chg": "2026-11-20"
  },
  "2852829": {
   "name": "Papamaru Dj",
@@ -7989,147 +7999,6 @@
   "ults": [],
   "chg": "2026-08-29"
  },
- "36363091": {
-  "name": "Snow Winsfield",
-  "parse": 98,
-  "ult": 4,
-  "mounts": 112,
-  "minions": 171,
-  "rare": 97,
-  "level": 100,
-  "cc": [
-   true,
-   true,
-   true,
-   true,
-   true
-  ],
-  "rare_ids": [
-   950,
-   951,
-   1453,
-   1463,
-   1916,
-   2444,
-   2562,
-   2699,
-   2759,
-   2773,
-   2775,
-   2862,
-   2864,
-   2870,
-   2995,
-   3001,
-   3018,
-   3074,
-   3113,
-   3199,
-   3215,
-   3243,
-   3252,
-   3266,
-   3311,
-   3312,
-   3313,
-   3314,
-   3315,
-   3368,
-   3369,
-   3370,
-   3371,
-   3372,
-   3473,
-   3577,
-   3616,
-   3617,
-   3630,
-   3631,
-   3645,
-   3646,
-   3647,
-   3651,
-   3697,
-   3699,
-   3701,
-   3720,
-   3726,
-   3732,
-   3735,
-   3736,
-   3741,
-   3759,
-   3761,
-   3765,
-   3782,
-   3798,
-   3800,
-   3802,
-   3805,
-   3823,
-   3849,
-   3851,
-   3868,
-   3869,
-   3870,
-   3883,
-   3885,
-   3887,
-   3920,
-   3922,
-   3924,
-   3925,
-   3943,
-   3944,
-   3956,
-   3958,
-   3979,
-   3998,
-   4002,
-   4023,
-   4024,
-   4025,
-   4026,
-   4027,
-   4028,
-   4029,
-   4030,
-   4031,
-   4033,
-   4034,
-   4035,
-   4043,
-   4045,
-   4047,
-   4069
-  ],
-  "tiers": {
-   "relic": "expert"
-  },
-  "jobs": {
-   "Viper": "master",
-   "Reaper": "legendary",
-   "Gunbreaker": "master",
-   "DarkKnight": "master"
-  },
-  "ex": [
-   "Doomtrain",
-   "Enuo",
-   "Guardian Arkveld",
-   "Necron",
-   "Queen Eternal",
-   "Valigarmanda",
-   "Zelenia",
-   "Zoraal Ja"
-  ],
-  "ults": [
-   "Dancing Mad",
-   "Dragonsong's Reprise",
-   "Futures Rewritten",
-   "The Epic of Alexander"
-  ],
-  "chg": "2026-11-17"
- },
  "49929911": {
   "name": "Sun Prism",
   "parse": 27,
@@ -8496,7 +8365,7 @@
   "mounts": 17,
   "minions": 42,
   "rare": null,
-  "level": 85,
+  "level": 54,
   "cc": [
    false,
    false,
@@ -8509,7 +8378,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-19"
+  "chg": "2026-11-20"
  },
  "62390948": {
   "name": "Elso Ignis",
@@ -8518,7 +8387,7 @@
   "mounts": 9,
   "minions": 21,
   "rare": 2,
-  "level": 70,
+  "level": 73,
   "cc": [
    false,
    false,
@@ -8534,7 +8403,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-19"
+  "chg": "2026-11-20"
  },
  "49053650": {
   "name": "Eniluna Gelatoneii",
@@ -8946,7 +8815,7 @@
   "mounts": 85,
   "minions": 178,
   "rare": null,
-  "level": 77,
+  "level": 86,
   "cc": [
    false,
    false,
@@ -12789,7 +12658,7 @@
   "mounts": 11,
   "minions": 20,
   "rare": null,
-  "level": 100,
+  "level": 67,
   "cc": [
    false,
    false,
@@ -12802,7 +12671,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-19"
+  "chg": "2026-11-20"
  },
  "43797998": {
   "name": "Kappa Kappayuthz",
@@ -12866,7 +12735,7 @@
   "mounts": 19,
   "minions": 40,
   "rare": 0,
-  "level": 85,
+  "level": 89,
   "cc": [
    false,
    false,
@@ -12881,7 +12750,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-11-19"
+  "chg": "2026-11-20"
  },
  "12003402": {
   "name": "Kei Chan",
@@ -17055,7 +16924,7 @@
   "mounts": 48,
   "minions": 76,
   "rare": null,
-  "level": 78,
+  "level": 70,
   "cc": [
    false,
    false,
@@ -17068,7 +16937,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-19"
+  "chg": "2026-11-20"
  },
  "34597671": {
   "name": "Valkyries Zearaskia",
