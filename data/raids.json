@@ -4298,7 +4298,13 @@
     "best": 8,
     "kills": 2,
     "job": "Sage",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Sage": {
+      "kills": 2,
+      "best": 8
+     }
+    }
    },
    {
     "zone": "The Omega Protocol",
@@ -46111,7 +46117,13 @@
     "best": 21,
     "kills": 2,
     "job": "Warrior",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Warrior": {
+      "kills": 2,
+      "best": 21
+     }
+    }
    },
    {
     "zone": "Ultimates (Legacy)",
@@ -67172,7 +67184,13 @@
     "best": 62,
     "kills": 2,
     "job": "Samurai",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Samurai": {
+      "kills": 2,
+      "best": 62
+     }
+    }
    }
   ],
   "extremes": [
@@ -79961,7 +79979,13 @@
     "best": 70,
     "kills": 2,
     "job": "WhiteMage",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "WhiteMage": {
+      "kills": 2,
+      "best": 70
+     }
+    }
    }
   ],
   "extremes": [
