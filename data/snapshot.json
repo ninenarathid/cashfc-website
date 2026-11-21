@@ -1316,6 +1316,7 @@
    3846,
    3847,
    3853,
+   3855,
    3902,
    3903,
    3904,
@@ -1328,7 +1329,6 @@
    3911,
    3912,
    3913,
-   3916,
    3918,
    3922,
    3923,
@@ -1625,7 +1625,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 64,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -1649,7 +1649,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-18"
+  "chg": "2026-11-21"
  },
  "28579232": {
   "name": "Dessiny Valkyrie",
@@ -2128,7 +2128,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 79,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2362,7 +2362,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 100,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -3878,7 +3878,7 @@
   "mounts": 30,
   "minions": 66,
   "rare": null,
-  "level": 31,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -3893,7 +3893,7 @@
    "Enuo"
   ],
   "ults": [],
-  "chg": "2026-11-20"
+  "chg": "2026-11-21"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -4851,7 +4851,7 @@
   "mounts": 206,
   "minions": 416,
   "rare": 283,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5671,7 +5671,7 @@
   "mounts": 40,
   "minions": 59,
   "rare": null,
-  "level": 97,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -5895,7 +5895,6 @@
    3476,
    3532,
    3534,
-   3649,
    3717,
    3720,
    3726,
@@ -5910,6 +5909,7 @@
    3796,
    3797,
    3798,
+   3799,
    3800,
    3801,
    3802,
@@ -6588,7 +6588,7 @@
   "mounts": 32,
   "minions": 95,
   "rare": null,
-  "level": 93,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -6779,7 +6779,7 @@
   "mounts": 69,
   "minions": 125,
   "rare": 10,
-  "level": 100,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -6810,7 +6810,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-19"
+  "chg": "2026-11-21"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -6849,7 +6849,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 88,
+  "level": 62,
   "cc": [
    false,
    false,
@@ -6893,7 +6893,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 91,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -7333,7 +7333,7 @@
   "mounts": 178,
   "minions": 410,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7346,7 +7346,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-20"
+  "chg": "2026-11-21"
  },
  "31831003": {
   "name": "North Nostafari",
@@ -7701,7 +7701,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 92,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -7746,7 +7746,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-14"
+  "chg": "2026-11-21"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -8137,7 +8137,7 @@
   "mounts": 165,
   "minions": 364,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8150,7 +8150,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-20"
+  "chg": "2026-11-21"
  },
  "31806535": {
   "name": "Viiska Howl",
@@ -8391,7 +8391,7 @@
   "mounts": 17,
   "minions": 42,
   "rare": null,
-  "level": 54,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8413,7 +8413,7 @@
   "mounts": 9,
   "minions": 21,
   "rare": 2,
-  "level": 70,
+  "level": 73,
   "cc": [
    false,
    false,
@@ -8503,7 +8503,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 81,
+  "level": 87,
   "cc": [
    false,
    false,
@@ -8569,7 +8569,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 5,
-  "level": 92,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8817,7 +8817,7 @@
   "mounts": 85,
   "minions": 178,
   "rare": null,
-  "level": 80,
+  "level": 81,
   "cc": [
    false,
    false,
@@ -8905,7 +8905,7 @@
   "mounts": 41,
   "minions": 86,
   "rare": null,
-  "level": 94,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -8918,7 +8918,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-20"
+  "chg": "2026-11-21"
  },
  "57419573": {
   "name": "A'kane Dorothy",
@@ -12660,7 +12660,7 @@
   "mounts": 11,
   "minions": 20,
   "rare": null,
-  "level": 73,
+  "level": 79,
   "cc": [
    false,
    false,
@@ -12737,7 +12737,7 @@
   "mounts": 19,
   "minions": 40,
   "rare": 0,
-  "level": 100,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -13859,7 +13859,7 @@
   "mounts": 11,
   "minions": 43,
   "rare": null,
-  "level": 77,
+  "level": 81,
   "cc": [
    false,
    false,

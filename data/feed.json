@@ -2,6 +2,69 @@
  "events": [
   {
    "date": "2026-11-21",
+   "type": "rare_up",
+   "id": 44970350,
+   "name": "Allen Crist",
+   "text": "earned Clare Obscurum: Longpole Obscurum — only 4.5% of players have it"
+  },
+  {
+   "date": "2026-11-21",
+   "type": "level_100",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "reached level 100 on Red Mage!"
+  },
+  {
+   "date": "2026-11-21",
+   "type": "level_100",
+   "id": 50821570,
+   "name": "Haruki Mizumoto",
+   "text": "reached level 100 on Scholar!"
+  },
+  {
+   "date": "2026-11-21",
+   "type": "level_100",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
+   "date": "2026-11-21",
+   "type": "rare_up",
+   "id": 38488824,
+   "name": "Daffodil Amary",
+   "text": "earned R&D: Stellar Frypan"
+  },
+  {
+   "date": "2026-11-21",
+   "type": "level_100",
+   "id": 30596644,
+   "name": "Noelle Eisner",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-11-21",
+   "type": "level_100",
+   "id": 33608576,
+   "name": "Verles Eisner",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
+   "date": "2026-11-21",
+   "type": "level_100",
+   "id": 62507897,
+   "name": "De Viljho",
+   "text": "reached level 100 on Reaper!"
+  },
+  {
+   "date": "2026-11-21",
+   "type": "level_100",
+   "id": 60429500,
+   "name": "Janna Minerva",
+   "text": "reached level 100 on Samurai!"
+  },
+  {
+   "date": "2026-11-21",
    "type": "level_100",
    "id": 42948817,
    "name": "Karuma Amamiya",
@@ -1336,69 +1399,6 @@
    "id": 38488824,
    "name": "Daffodil Amary",
    "text": "earned With Pick in Hand IV"
-  },
-  {
-   "date": "2026-11-06",
-   "type": "grade_up",
-   "id": 40389196,
-   "name": "Dontae Luciano",
-   "text": "is now a Master Gold Saucer collector ✨"
-  },
-  {
-   "date": "2026-11-06",
-   "type": "level_100",
-   "id": 24228478,
-   "name": "Pyrozus Helison",
-   "text": "reached level 100 on Scholar!"
-  },
-  {
-   "date": "2026-11-06",
-   "type": "level_100",
-   "id": 2957360,
-   "name": "Break Darkflame",
-   "text": "reached level 100 on Reaper!"
-  },
-  {
-   "date": "2026-11-06",
-   "type": "level_100",
-   "id": 60429500,
-   "name": "Janna Minerva",
-   "text": "reached level 100 on Dark Knight!"
-  },
-  {
-   "date": "2026-11-06",
-   "type": "level_100",
-   "id": 60972300,
-   "name": "Mizuki Sekine",
-   "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-11-05",
-   "type": "rare_up",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "earned Masterstroke II — only 1.3% of players have it, and 2 more"
-  },
-  {
-   "date": "2026-11-05",
-   "type": "rare_up",
-   "id": 6173187,
-   "name": "Motochita Muses",
-   "text": "earned Roll the Dice II"
-  },
-  {
-   "date": "2026-11-05",
-   "type": "level_100",
-   "id": 30667251,
-   "name": "Roxas Akatsuki",
-   "text": "reached level 100 on Culinarian!"
-  },
-  {
-   "date": "2026-11-05",
-   "type": "rare_up",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "earned R&D: Cross-pein Hyperhammer"
   }
  ]
 }

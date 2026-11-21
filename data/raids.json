@@ -75112,7 +75112,7 @@
     "cleared": true,
     "job_kills": {
      "Dancer": {
-      "kills": 7,
+      "kills": 9,
       "best": 47
      }
     }
@@ -87814,8 +87814,8 @@
       "best": 36
      },
      "DarkKnight": {
-      "kills": 9,
-      "best": 15
+      "kills": 10,
+      "best": 20
      },
      "Dragoon": {
       "kills": 6,
