@@ -33129,7 +33129,13 @@
     "best": 25,
     "kills": 2,
     "job": "Paladin",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Paladin": {
+      "kills": 2,
+      "best": 25
+     }
+    }
    },
    {
     "zone": "Dragonsong's Reprise",
@@ -67071,7 +67077,13 @@
     "best": 42,
     "kills": 2,
     "job": "BlackMage",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "BlackMage": {
+      "kills": 2,
+      "best": 42
+     }
+    }
    }
   ],
   "extremes": [
@@ -82646,11 +82658,11 @@
     "name": "The Tyrant",
     "kind": "savage",
     "state": "learning",
-    "pct": 52.44,
+    "pct": 29.17,
     "phase": 0,
-    "pulls": 5,
-    "last": "2026-11-18",
-    "last_ts": 1794968334
+    "pulls": 39,
+    "last": "2026-11-20",
+    "last_ts": 1795182184
    }
   ]
  },
@@ -85247,7 +85259,13 @@
     "best": 23,
     "kills": 2,
     "job": "Machinist",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Machinist": {
+      "kills": 2,
+      "best": 23
+     }
+    }
    }
   ],
   "extremes": [

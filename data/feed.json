@@ -1,6 +1,13 @@
 {
  "events": [
   {
+   "date": "2026-11-21",
+   "type": "level_100",
+   "id": 38335568,
+   "name": "Vivienne Yhisa",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
    "date": "2026-11-20",
    "type": "rare_up",
    "id": 15308846,
@@ -1392,13 +1399,6 @@
    "id": 29991345,
    "name": "Transparent Crystal",
    "text": "reached level 100 on Machinist!"
-  },
-  {
-   "date": "2026-11-05",
-   "type": "level_100",
-   "id": 42845691,
-   "name": "Yuukizuz Akino",
-   "text": "reached level 100 on Viper!"
   }
  ]
 }

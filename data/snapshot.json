@@ -2128,7 +2128,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 70,
+  "level": 72,
   "cc": [
    true,
    true,
@@ -2177,7 +2177,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-20"
+  "chg": "2026-11-21"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -2362,7 +2362,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 95,
+  "level": 96,
   "cc": [
    false,
    false,
@@ -2389,7 +2389,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-11-20"
+  "chg": "2026-11-21"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -5116,7 +5116,7 @@
   "mounts": 55,
   "minions": 110,
   "rare": null,
-  "level": 70,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5131,7 +5131,7 @@
    "Queen Eternal"
   ],
   "ults": [],
-  "chg": "2026-09-09"
+  "chg": "2026-11-21"
  },
  "6951533": {
   "name": "Aemond Targaryen",
@@ -6849,7 +6849,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 86,
+  "level": 88,
   "cc": [
    false,
    false,
@@ -6862,7 +6862,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-20"
+  "chg": "2026-11-21"
  },
  "53933347": {
   "name": "Little Alyss",
@@ -8569,7 +8569,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 5,
-  "level": 86,
+  "level": 89,
   "cc": [
    false,
    false,
@@ -8588,7 +8588,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-20"
+  "chg": "2026-11-21"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
