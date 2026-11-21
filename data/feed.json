@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-11-21",
+   "type": "level_100",
+   "id": 61489984,
+   "name": "Poly Umami",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-11-21",
    "type": "rare_up",
    "id": 44970350,
    "name": "Allen Crist",
@@ -1392,13 +1399,6 @@
    "id": 43864764,
    "name": "Shinonome Kamemaru",
    "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-11-06",
-   "type": "rare_up",
-   "id": 38488824,
-   "name": "Daffodil Amary",
-   "text": "earned With Pick in Hand IV"
   }
  ]
 }
