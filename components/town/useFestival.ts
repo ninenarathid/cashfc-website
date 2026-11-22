@@ -19,23 +19,26 @@ export interface FestivalLive {
 export function useFestival(keeper: Keeper | null, game: boolean) {
   const [festivals, setFestivals] = useState<Festival[] | null>(null);
   const live = useRef<FestivalLive>({ f: null, river: [], awards: null });
+  // (the keeper as it is now, for the readers called from outside a render: the dev hook, a float)
+  const keeperRef = useRef(keeper);
+  keeperRef.current = keeper;
   const [, setTick] = useState(0);
   const pick = (list: Festival[], now: number): Festival | null => {
     const lk = list.filter((f) => f.slug === "loykrathong").sort((a, b) => b.year - a.year);
     return lk.find((f) => stageOf(f, now) !== "hidden" && (stageOf(f, now) !== "after" || now - Date.parse(f.ends) < 340 * 86_400_000)) ?? null;
   };
   const readRiver = useCallback(async () => {
-    const f = live.current.f;
+    const f = live.current.f, keeper = keeperRef.current;
     if (!keeper || !f || !isOpen(windowOf(f, "float"), Date.now())) { live.current.river = []; return; }
     const r = await keeper.krathongRiver(f.id);
     if (r) live.current.river = r;
-  }, [keeper]);
+  }, []);
   const readAwards = useCallback(async () => {
-    const f = live.current.f;
+    const f = live.current.f, keeper = keeperRef.current;
     if (!keeper || !f || !isOpen(windowOf(f, "results"), Date.now())) return;
     const s = await keeper.krathong(f.id);
     if (s) live.current.awards = s.awards;
-  }, [keeper]);
+  }, []);
   useEffect(() => {
     if (!keeper || !game) return;
     let gone = false;
@@ -53,7 +56,7 @@ export function useFestival(keeper: Keeper | null, game: boolean) {
     const c = setInterval(() => { if (document.visibilityState === "visible") void readAwards(); }, 10 * 60_000);
     return () => { gone = true; clearInterval(a); clearInterval(b); clearInterval(c); };
   }, [keeper, game, readRiver, readAwards]);
-  return { festivals, live, readRiver, readAwards };
+  return { festivals, live, readRiver, readAwards, keeper: keeperRef };
 }
 
 /** (the calendar's own copy when the database has none: not used for anything but a fallback in tests) */

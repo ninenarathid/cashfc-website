@@ -1,5 +1,6 @@
 import{dragonDraw}from"./reward-dragon";
 import type { Design } from "./krathong";
+import { KIT as KRATHONG_KIT } from "./krathong-trial";
 import{warmCooking}from'./trial-combos';
 import{listenForest}from'./trial-combos';
 import{placeAt,turnOf}from'./forest';
@@ -208,6 +209,11 @@ class TrialKeeper implements Keeper {
   async krathongFloat(_festival: number, wish: string) { return this.trial.festival.float(wish); }
   async krathongRiver() { return this.trial.festival.river(); }
   async festivalJudge(_festival: number, entry: number | null) { return this.trial.festival.judge(entry); }
+  /** (dev: __townView.festival().kit()) A bag of every krathong part's things, to try the stall with. */
+  krathongKit() {
+    const p = this.trial.purse(), bag = KRATHONG_KIT.map(([item, n]) => ({ item, n: Math.min(n, ITEMS[item].stack) }));
+    this.trial.fished({ ...p, bag: [...bag, ...Array(Math.max(0, p.bag.length - bag.length)).fill(null)] });
+  }
   async limited() { return this.trial.limited(); }
   async openThing(slot: number): Promise<Did<{ found: ItemId | null }>> { return this.trial.openThing(slot); }
   async hold(slot: number | null): Promise<Did> {

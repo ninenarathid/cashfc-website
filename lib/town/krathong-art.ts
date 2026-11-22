@@ -10,14 +10,14 @@ import type { Design } from "./krathong";
 type Rect = [number, number, number, number];
 interface PartArt { at?: Rect; frames?: Rect[]; place?: [number, number] }
 interface PropArt { at: Rect; foot: [number, number]; scale?: number }
-interface ArtJson { v: number; image: string; size: [number, number]; canvas: [number, number]; mapScale?: number; parts: Record<string, PartArt>; props: Record<string, PropArt> }
+interface ArtJson { v: number; image: string; size: [number, number]; canvas: [number, number]; mapScale?: number; trims?: Array<[number, number]>; parts: Record<string, PartArt>; props: Record<string, PropArt> }
 const A = ART as unknown as ArtJson;
 
 export const CANVAS = A.canvas;
 /** Screen pixels a krathong art pixel takes on the town map at camera scale 1. */
 export const MAP_SCALE = A.mapScale ?? 1;
 /** Where trims stand on the rim: their bottom middles in the template. */
-export const TRIM_FEET: Array<[number, number]> = [[10, 33], [24, 37], [38, 33]];
+export const TRIM_FEET: Array<[number, number]> = A.trims?.length ? A.trims : [[10, 43], [24, 47], [38, 43]];
 
 let img: HTMLImageElement | null = null;
 const waiting = new Set<() => void>();

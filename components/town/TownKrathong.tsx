@@ -195,7 +195,8 @@ function Builder({ keeper, th, st, phone, making, floating, onDone }: {
              aria-label={th ? "ชื่อกระทง" : "Krathong name"}
              className="min-h-11 rounded-xl border border-line-strong bg-card/60 px-3 text-ui text-ink placeholder:text-muted focus:border-accent focus:outline-none" />
       <Parts d={d} setD={setD} th={th} have={have} choose={choose} />
-      <div className="rounded-xl border border-line bg-card/60 px-3 py-2">
+      <div className="sticky bottom-0 -mx-4 -mb-4 flex flex-col gap-2 border-t border-line bg-surface/95 px-4 pb-4 pt-2.5 backdrop-blur-sm">
+      <div>
         <div className="flex flex-wrap gap-1.5">
           {cost.map(([id, n]) => (
             <span key={id} title={th ? ITEMS[id].name.th : ITEMS[id].name.en}
@@ -212,6 +213,7 @@ function Builder({ keeper, th, st, phone, making, floating, onDone }: {
         {sure ? (th ? "ยืนยัน · ใช้ของตามนี้ แก้ไม่ได้" : "Confirm · uses these, final")
           : making ? (th ? "ส่งประกวด" : "Enter the contest") : (th ? "ทำกระทงไว้ลอย" : "Make it to float")}
       </button>
+      </div>
     </div>
   );
 }
@@ -242,7 +244,7 @@ function Parts({ d, setD, th, have, choose }: {
               </span>
             )}
           </div>
-          <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
+          <div className="slim-bar -mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
             {partsOf(slot).map((p) => {
               const chosen = slot !== "trim" && d[slot as "base"][0] === p.id;
               const [payId, payN] = p.pay[slot !== "trim" && chosen ? d[slot as "base"][1] : bestPay(p.id, have)];

@@ -101,7 +101,7 @@ function Card({ f, now, th, onFestival, past = false }: { f: Festival; now: numb
           return (
             <li key={w.kind} className={`flex items-center gap-2 text-meta ${done ? "opacity-50" : ""}`}>
               <span className={`shrink-0 rounded-full px-2 py-0.5 font-semibold ${TONE[w.kind]?.chip ?? ""}`}>{th ? w.th : w.en}</span>
-              <span className="truncate font-data tabular-nums text-ink">{whenText(w.from, th)}{w.until && w.kind !== "auction" ? ` – ${whenText(w.until, th)}` : ""}</span>
+              <span className="min-w-0 flex-1 font-data tabular-nums text-ink">{whenText(w.from, th)}{w.until && w.kind !== "auction" ? ` – ${whenText(w.until, th)}` : ""}</span>
               {open && w.until && <span className="ml-auto shrink-0 font-data tabular-nums text-accent">{untilText(w.until, now, th)}</span>}
             </li>
           );

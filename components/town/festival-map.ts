@@ -1,5 +1,5 @@
 import { t2Look } from "@/lib/town/town2";
-import { CANVAS, MAP_SCALE, drawKrathong, drawProp, hallSlots, krathongImage } from "@/lib/town/krathong-art";
+import { CANVAS, MAP_SCALE, drawKrathong, drawProp, hallSlots, krathongImage, propSize } from "@/lib/town/krathong-art";
 import type { AwardView, RiverKrathong } from "@/lib/town/krathong";
 import type { Vec } from "@/lib/town/world";
 
@@ -9,13 +9,13 @@ import type { Vec } from "@/lib/town/world";
  * drifting downstream and gathering, candle-lit, where the river widens (the night fills it as the members float).
  */
 
-/** Ground points (feet) of the stall and the hall, on the plaza east of the Popoto Board (29,36–38). */
-export const STALL_AT: Vec = { x: 31.6, y: 39.4 };
-export const HALL_AT: Vec = { x: 33.2, y: 36.2 };
-/** Where a member stands to float: the bank by the festival stage. */
-export const FLOAT_BANK: [number, number] = [6, 46];
+/** Ground points (feet) of the stall (on the open plaza before the Popoto Board, 29,35–37) and the hall (south-east of the fountain, clear of the torii and the benches). */
+export const STALL_AT: Vec = { x: 34.4, y: 40.2 };
+export const HALL_AT: Vec = { x: 42.6, y: 46.8 };
+/** Where a member stands to float: the west river's bank, north of the festival stage. */
+export const FLOAT_BANK: [number, number] = [4, 37];
 
-const START_Y = 45.5, REST_Y0 = 55.5, REST_Y1 = 63.2, DRIFT_MS = 12 * 60_000;
+const START_Y = 37.6, REST_Y0 = 55.5, REST_Y1 = 63.2, DRIFT_MS = 12 * 60_000;
 
 /** The river's water across a row near the west edge: its middle and half its width (tiles). */
 const rowWater = (() => {
@@ -58,8 +58,13 @@ export interface FestivalDraw {
   push: (depth: number, draw: () => void) => void;
   sign: (draw: () => void) => void;
   label: (text: string, x: number, y: number) => void;
+  /** A light laid after the night's dark (the town's own lights: a candle shines through it). */
+  light: (x: number, y: number, reach: number, rgb: string, strong?: number, flat?: number) => void;
   th: boolean;
 }
+
+/** Where the light part's flame is in the 48×50 template (the candle's wick, the jar's middle). */
+const FLAME: Record<string, [number, number]> = { l_candle: [33, 6], l_firefly: [32, 14] };
 
 /** The stall: drawn, and where it is for a tap. */
 export function drawStall(d: FestivalDraw): { x0: number; y0: number; x1: number; y1: number } | null {
@@ -67,12 +72,13 @@ export function drawStall(d: FestivalDraw): { x0: number; y0: number; x1: number
   if (!d.onScreen(feet) || !krathongImage()) return null;
   let box: ReturnType<typeof drawProp> = null;
   d.push(STALL_AT.x + STALL_AT.y, () => {
-    box = drawProp(d.ctx, "stall", feet.x, feet.y, MAP_SCALE * d.s);
+    // (a prop's own `scale` is map pixels an art pixel: the camera's scale is all that is added)
+    box = drawProp(d.ctx, "stall", feet.x, feet.y, d.s);
     if (box) { const b = box; d.sign(() => d.label(d.th ? "ซุ้มกระทง" : "Krathong stall", (b.x0 + b.x1) / 2, b.y0 - 12 * d.s)); }
   });
   // (the tap box is the prop's size wherever it stands, known before its turn to be drawn)
-  const k = MAP_SCALE * d.s;
-  return { x0: feet.x - 40 * k, y0: feet.y - 70 * k, x1: feet.x + 40 * k, y1: feet.y + 4 * k };
+  const [w, h] = propSize("stall") ?? [134, 138];
+  return { x0: feet.x - (w / 2) * d.s, y0: feet.y - h * d.s, x1: feet.x + (w / 2) * d.s, y1: feet.y + 4 * d.s };
 }
 
 /** The hall: its stage, the year's top krathongs on its pedestals, their makers' names above. */
@@ -82,49 +88,54 @@ export function drawHall(d: FestivalDraw, awards: AwardView[]): { x0: number; y0
   const top = awards.filter((a) => a.kind === "popular").sort((a, b) => a.place - b.place).slice(0, 3);
   const k = MAP_SCALE * d.s;
   d.push(HALL_AT.x + HALL_AT.y, () => {
-    const box = drawProp(d.ctx, "hall", feet.x, feet.y, k);
+    const box = drawProp(d.ctx, "hall", feet.x, feet.y, d.s);
     if (!box) return;
     const slots = hallSlots();
+    // (the first place in the middle, the next on its left and right: [left, middle, right] are the hall's pedestals)
+    const order = [1, 0, 2];
     top.forEach((a, i) => {
-      const at = slots[i];
+      const at = slots[order[i]];
       if (!at) return;
-      const x = box.x0 + at[0] * k, y = box.y0 + at[1] * k, [w, h] = CANVAS;
-      drawKrathong(d.ctx, a.krathong.design, x - (w / 2) * k * 0.75, y - h * k * 0.75, k * 0.75, Math.floor(d.now / 180) % 3);
-      if (a.maker?.name) { const name = a.maker.name; d.sign(() => d.label(`${a.place}. ${name}`, x, y - (h * 0.75 + 8) * k)); }
+      const x = box.x0 + at[0] * d.s, y = box.y0 + at[1] * d.s, [w, h] = CANVAS;
+      const kx = x - (w / 2) * k * 0.75, ky = y - h * k * 0.75, [fx, fy] = FLAME[a.krathong.design.light[0]] ?? [32, 8];
+      drawKrathong(d.ctx, a.krathong.design, kx, ky, k * 0.75, Math.floor(d.now / 180) % 3);
+      if (d.night) d.light(kx + fx * k * 0.75, ky + fy * k * 0.75, 18 * d.s, "255,196,120", 0.9);
+      if (a.maker?.name) {
+        const name = a.maker.name, above = order[i] === 1;
+        d.sign(() => d.label(`${a.place}. ${name}`, x, above ? y - (h * 0.75 + 6) * k : box.y1 + 10 * d.s));
+      }
     });
     d.sign(() => d.label(d.th ? "กระทงดีเด่นประจำปี" : "Krathongs of the year", (box.x0 + box.x1) / 2, box.y0 - 12 * d.s));
   });
-  return { x0: feet.x - 56 * k, y0: feet.y - 80 * k, x1: feet.x + 56 * k, y1: feet.y + 4 * k };
+  const [hw, hh] = propSize("hall") ?? [168, 154];
+  return { x0: feet.x - (hw / 2) * d.s, y0: feet.y - hh * d.s, x1: feet.x + (hw / 2) * d.s, y1: feet.y + 4 * d.s };
 }
 
 /** Every floated krathong on the river, with its candle's glow at night. */
 export function drawRiver(d: FestivalDraw, river: RiverKrathong[]) {
   if (!river.length || !krathongImage()) return;
-  const k = MAP_SCALE * d.s * 0.75, [w, h] = CANVAS, frame = Math.floor(d.now / 180);
+  const k = MAP_SCALE * d.s, [w, h] = CANVAS, frame = Math.floor(d.now / 180);
   for (const kr of river) {
     const p = riverPos(kr, d.now), at = d.project(p);
     if (!d.onScreen(at)) continue;
-    const bob = Math.sin(d.now / 700 + kr.id) * 1.2 * d.s;
+    const bob = Math.sin(d.now / 700 + kr.id) * 1.2 * d.s, x0 = at.x - (w / 2) * k, y0 = at.y - (h - 6) * k + bob;
+    const [fx, fy] = FLAME[kr.design.light[0]] ?? [32, 8];
+    // the candle shines through the night's dark, and lies on the water under it
+    if (d.night) {
+      const flicker = 0.85 + 0.15 * Math.sin(d.now / 130 + kr.id * 2.1);
+      d.light(x0 + fx * k, y0 + fy * k, 22 * d.s, "255,196,120", flicker);
+      d.light(at.x, at.y + 3 * d.s, 30 * d.s, "255,170,90", 0.55 * flicker, 0.38);
+    }
     d.push(p.x + p.y, () => {
       const { ctx } = d;
-      if (d.night) {
-        ctx.save();
-        ctx.globalCompositeOperation = "lighter";
-        const g = ctx.createRadialGradient(at.x, at.y - h * k * 0.55 + bob, 0, at.x, at.y - h * k * 0.55 + bob, 26 * d.s);
-        g.addColorStop(0, "rgba(255,196,110,0.35)");
-        g.addColorStop(1, "rgba(255,160,60,0)");
-        ctx.fillStyle = g;
-        ctx.fillRect(at.x - 26 * d.s, at.y - h * k * 0.55 + bob - 26 * d.s, 52 * d.s, 52 * d.s);
-        ctx.restore();
-      }
       // its reflection: a faint warm streak on the water below it
       ctx.save();
-      ctx.globalAlpha = d.night ? 0.28 : 0.12;
+      ctx.globalAlpha = d.night ? 0.3 : 0.12;
       ctx.fillStyle = "#ffd27a";
-      ctx.fillRect(Math.round(at.x - 1.5 * d.s), Math.round(at.y + 2 * d.s), Math.round(3 * d.s), Math.round(5 * d.s));
+      ctx.fillRect(Math.round(x0 + fx * k - 1.5 * d.s), Math.round(at.y + 3 * d.s), Math.round(3 * d.s), Math.round(6 * d.s));
       ctx.restore();
-      drawKrathong(ctx, kr.design, at.x - (w / 2) * k, at.y - (h - 6) * k + bob, k, frame + kr.id);
-      if (kr.mine) d.sign(() => d.label(d.th ? "กระทงของฉัน" : "Mine", at.x, at.y - (h + 6) * k + bob));
+      drawKrathong(ctx, kr.design, x0, y0, k, frame + kr.id);
+      if (kr.mine) d.sign(() => d.label(d.th ? "กระทงของฉัน" : "Mine", at.x, y0 - 8 * d.s));
     });
   }
 }

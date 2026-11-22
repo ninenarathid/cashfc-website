@@ -3539,7 +3539,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       const stage = festivalStage(lk, wall);
       const fd: FestivalDraw = { ctx, s: v.s, now: wall, night: skyNow().lamps > 0.3, project, onScreen, th: words.current.th,
         push: (depth, draw) => things.push({ depth, draw }), sign: (draw) => signs.push(draw),
-        label: (text, x, y) => label(ctx, text, x, y, "#e5cc80", "rgba(15,19,25,0.82)", null) };
+        label: (text, x, y) => label(ctx, text, x, y, "#e5cc80", "rgba(15,19,25,0.82)", null),
+        light: (x, y, reach, rgb, strong = 1, flat = 1) => { if (toolLights.current.length < 120) toolLights.current.push({ x, y, rgb, reach, flat, strong }); } };
       if (stage === "on" || stage === "coming") stallBox.current = drawFestivalStall(fd);
       if (fl.awards?.length && festivalOpen(festivalWindow(lk, "results"), wall)) hallBox.current = drawFestivalHall(fd, fl.awards);
       if (fl.river.length) drawKrathongRiver(fd, fl.river);
@@ -5281,6 +5282,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       lookAt: (x: number, y: number) => { const p = toIso(x, y); cam.current.follow = false; setCam({ s: cam.current.s, cx: p.x, cy: p.y }); },
       /** Stand at a tile of either map at once, without walking to a gate. */
       warp: (x: number, y: number) => sessionRef.current?.warpTo({ x: x + 0.5, y: y + 0.5 }) ?? false,
+      // (v336) the festival, for the browser check: the board's calendar, the stall's panel, the boxes for taps, the river read again
+      festival: () => ({ kit: () => (fest.keeper.current as unknown as { krathongKit?: () => void } | null)?.krathongKit?.(), open: openBoard, stall: openStall, stallBox: stallBox.current, hallBox: hallBox.current, live: fest.live.current, river: () => fest.readRiver(), awards: () => fest.readAwards() }),
       /** Walk to a tile, as a tap on it does; and where I am now, and whether I am walking. */
       walk: (x: number, y: number) => sessionRef.current?.walkTo({ x, y }) ?? false,
       /** Where a point of the map is on the page (client pixels), and where I am walking to (its tile): for checks that tap. */

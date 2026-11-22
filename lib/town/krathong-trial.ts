@@ -162,5 +162,5 @@ export class KrathongTrial {
 const view = (r: Row): KrathongView => ({ id: r.id, name: r.name, design: r.design, entered: r.entered, made: r.made, floated: r.floated });
 
 /** Every part's things, a few of each, for a tester's bag (dev only: `__townView.krathongKit()`). */
-export const KIT: Array<[ItemId, number]> = [...new Map(PARTS.flatMap((p) => p.pay.slice(0, 1).map(([id, n]) => [id, n * 3] as [ItemId, number]))).entries()];
+export const KIT: Array<[ItemId, number]> = Object.entries(PARTS.flatMap((p) => p.pay.slice(0, 2)).reduce<Record<string, number>>((m, [id, n]) => ({ ...m, [id]: (m[id] ?? 0) + n * 2 }), {})) as Array<[ItemId, number]>;
 void PART;
