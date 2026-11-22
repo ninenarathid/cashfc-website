@@ -10399,10 +10399,21 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1078,
+    "name": "Queen Eternal",
+    "best": 52,
+    "kills": 5,
+    "job": "Sage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 71,
-    "kills": 14,
+    "kills": 15,
     "job": "Monk",
     "cleared": true,
     "job_kills": {
@@ -28480,6 +28491,17 @@
       "best": 36
      }
     }
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1078,
+    "name": "Queen Eternal",
+    "best": 98,
+    "kills": 5,
+    "job": "Monk",
+    "cleared": true
    }
   ],
   "legacy": [
@@ -64748,6 +64770,17 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1078,
+    "name": "Queen Eternal",
+    "best": 90,
+    "kills": 5,
+    "job": "RedMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
     "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 84,
@@ -78372,9 +78405,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1078,
     "name": "Queen Eternal",
-    "best": 83,
-    "kills": 20,
-    "job": "Warrior",
+    "best": 97,
+    "kills": 25,
+    "job": "Gunbreaker",
     "cleared": true,
     "job_kills": {
      "Monk": {
@@ -78410,7 +78443,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 93,
-    "kills": 38,
+    "kills": 39,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -83939,8 +83972,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1078,
     "name": "Queen Eternal",
-    "best": 59,
-    "kills": 1,
+    "best": 97,
+    "kills": 6,
     "job": "Viper",
     "cleared": true
    },
@@ -86571,6 +86604,17 @@
       "best": 12
      }
     }
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1078,
+    "name": "Queen Eternal",
+    "best": 15,
+    "kills": 5,
+    "job": "WhiteMage",
+    "cleared": true
    },
    {
     "zone": "Trials I (Extreme)",
@@ -98993,6 +99037,28 @@
       "best": 14
      }
     }
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1078,
+    "name": "Queen Eternal",
+    "best": 43,
+    "kills": 5,
+    "job": "Machinist",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1071,
+    "name": "Valigarmanda",
+    "best": 3,
+    "kills": 1,
+    "job": "Machinist",
+    "cleared": true
    }
   ],
   "legacy": []

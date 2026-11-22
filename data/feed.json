@@ -2,6 +2,90 @@
  "events": [
   {
    "date": "2026-11-22",
+   "type": "ex_clear",
+   "id": 58199536,
+   "name": "Areeya Lovekin",
+   "text": "cleared Queen Eternal (Extreme)"
+  },
+  {
+   "date": "2026-11-22",
+   "type": "parse_up",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "set a new best parse: 90 on Queen Eternal as Re\u0001 \u0002age"
+  },
+  {
+   "date": "2026-11-22",
+   "type": "ex_clear",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "cleared Queen Eternal (Extreme)"
+  },
+  {
+   "date": "2026-11-22",
+   "type": "parse_up",
+   "id": 42021700,
+   "name": "Josuke Mizumoto",
+   "text": "set a new best parse: 97 on Queen Eternal as Gunbreaker"
+  },
+  {
+   "date": "2026-11-22",
+   "type": "ex_clear",
+   "id": 26268800,
+   "name": "Mono Sodium",
+   "text": "cleared Queen Eternal (Extreme)"
+  },
+  {
+   "date": "2026-11-22",
+   "type": "parse_up",
+   "id": 42019777,
+   "name": "Peace Violet",
+   "text": "set a new best parse: 43 on Queen Eternal as Machinist"
+  },
+  {
+   "date": "2026-11-22",
+   "type": "ex_clear",
+   "id": 42019777,
+   "name": "Peace Violet",
+   "text": "cleared Queen Eternal (Extreme)"
+  },
+  {
+   "date": "2026-11-22",
+   "type": "ex_clear",
+   "id": 42019777,
+   "name": "Peace Violet",
+   "text": "cleared Valigarmanda (Extreme)"
+  },
+  {
+   "date": "2026-11-22",
+   "type": "ex_clear",
+   "id": 11950156,
+   "name": "Rothe Happer",
+   "text": "cleared Queen Eternal (Extreme)"
+  },
+  {
+   "date": "2026-11-22",
+   "type": "level_100",
+   "id": 17473430,
+   "name": "Bigon Truesilver",
+   "text": "reached level 100 on Samurai!"
+  },
+  {
+   "date": "2026-11-22",
+   "type": "level_100",
+   "id": 32857279,
+   "name": "Harp Abel",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-11-22",
+   "type": "level_100",
+   "id": 28679815,
+   "name": "Kazumi Masa",
+   "text": "reached level 100 on Paladin!"
+  },
+  {
+   "date": "2026-11-22",
    "type": "level_100",
    "id": 42019777,
    "name": "Peace Violet",
@@ -1315,90 +1399,6 @@
    "id": 33608576,
    "name": "Verles Eisner",
    "text": "reached level 100 on Machinist!"
-  },
-  {
-   "date": "2026-11-08",
-   "type": "level_100",
-   "id": 61014734,
-   "name": "Hanna Doss",
-   "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-11-08",
-   "type": "level_100",
-   "id": 60429500,
-   "name": "Janna Minerva",
-   "text": "reached level 100 on Machinist!"
-  },
-  {
-   "date": "2026-11-08",
-   "type": "level_100",
-   "id": 61489984,
-   "name": "Poly Umami",
-   "text": "reached level 100 on Sage!"
-  },
-  {
-   "date": "2026-11-08",
-   "type": "level_100",
-   "id": 47548993,
-   "name": "Sanya Polaali",
-   "text": "reached level 100 on Warrior!"
-  },
-  {
-   "date": "2026-11-08",
-   "type": "level_100",
-   "id": 62507897,
-   "name": "De Viljho",
-   "text": "reached level 100 on Reaper!"
-  },
-  {
-   "date": "2026-11-07",
-   "type": "level_100",
-   "id": 47218599,
-   "name": "Kawa Lynn",
-   "text": "reached level 100 on Black Mage!"
-  },
-  {
-   "date": "2026-11-07",
-   "type": "rare_up",
-   "id": 29152036,
-   "name": "Fluffy Tinytail",
-   "text": "earned R&D: Hypersaw"
-  },
-  {
-   "date": "2026-11-07",
-   "type": "level_100",
-   "id": 12478532,
-   "name": "Hakuryu Flare",
-   "text": "reached level 100 on Reaper!"
-  },
-  {
-   "date": "2026-11-07",
-   "type": "rare_up",
-   "id": 37056222,
-   "name": "Lucine Nokomis",
-   "text": "earned The Might Phantastick: Blade Penumbrae"
-  },
-  {
-   "date": "2026-11-07",
-   "type": "rare_up",
-   "id": 6173187,
-   "name": "Motochita Muses",
-   "text": "earned Resplendent: Brilliant Hatchet"
-  },
-  {
-   "date": "2026-11-07",
-   "type": "rare_up",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "earned R&D: Hyperalembic"
-  },
-  {
-   "date": "2026-11-07",
-   "type": "level_100",
-   "id": 29339718,
-   "name": "Gabriel Winford",
-   "text": "reached level 100 on Black Mage!"
   }
  ]
 }

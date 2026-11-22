@@ -521,6 +521,7 @@
   "ex": [
    "Doomtrain",
    "Enuo",
+   "Queen Eternal",
    "Valigarmanda",
    "Zoraal Ja"
   ],
@@ -1620,7 +1621,7 @@
  },
  "36130968": {
   "name": "Chu Celestial",
-  "parse": 89,
+  "parse": 90,
   "ult": 1,
   "mounts": 33,
   "minions": 99,
@@ -1643,13 +1644,14 @@
    "Doomtrain",
    "Enuo",
    "Necron",
+   "Queen Eternal",
    "Zelenia",
    "Zoraal Ja"
   ],
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-21"
+  "chg": "2026-11-22"
  },
  "28579232": {
   "name": "Dessiny Valkyrie",
@@ -2181,7 +2183,7 @@
  },
  "42021700": {
   "name": "Josuke Mizumoto",
-  "parse": 95,
+  "parse": 97,
   "ult": 0,
   "mounts": 120,
   "minions": 232,
@@ -2317,7 +2319,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-17"
+  "chg": "2026-11-22"
  },
  "36183378": {
   "name": "K' Potassium",
@@ -2362,7 +2364,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 98,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -2389,7 +2391,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-11-21"
+  "chg": "2026-11-22"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -3365,6 +3367,7 @@
    "Enuo",
    "Guardian Arkveld",
    "Necron",
+   "Queen Eternal",
    "Zelenia"
   ],
   "ults": [
@@ -3873,7 +3876,7 @@
  },
  "42019777": {
   "name": "Peace Violet",
-  "parse": 14,
+  "parse": 43,
   "ult": 0,
   "mounts": 30,
   "minions": 66,
@@ -3890,7 +3893,9 @@
   "tiers": {},
   "jobs": {},
   "ex": [
-   "Enuo"
+   "Enuo",
+   "Queen Eternal",
+   "Valigarmanda"
   ],
   "ults": [],
   "chg": "2026-11-22"
@@ -4021,6 +4026,7 @@
    "Enuo",
    "Guardian Arkveld",
    "Necron",
+   "Queen Eternal",
    "Valigarmanda",
    "Zelenia",
    "Zoraal Ja"
@@ -5337,7 +5343,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -5672,7 +5678,7 @@
   "mounts": 40,
   "minions": 59,
   "rare": null,
-  "level": 99,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5693,7 +5699,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-21"
+  "chg": "2026-11-22"
  },
  "2957360": {
   "name": "Break Darkflame",
@@ -6439,7 +6445,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 94,
-  "level": 100,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -6558,7 +6564,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-19"
+  "chg": "2026-11-22"
  },
  "60619924": {
   "name": "Gotnogod Soluna",
@@ -6589,7 +6595,7 @@
   "mounts": 32,
   "minions": 95,
   "rare": null,
-  "level": 94,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6602,7 +6608,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-21"
+  "chg": "2026-11-22"
  },
  "43335087": {
   "name": "Haru Senbonzakura",
@@ -6780,7 +6786,7 @@
   "mounts": 69,
   "minions": 125,
   "rare": 10,
-  "level": 100,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -6850,7 +6856,7 @@
   "mounts": 20,
   "minions": 83,
   "rare": null,
-  "level": 62,
+  "level": 65,
   "cc": [
    false,
    false,
@@ -6863,7 +6869,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-21"
+  "chg": "2026-11-22"
  },
  "53933347": {
   "name": "Little Alyss",
@@ -7884,7 +7890,7 @@
   "mounts": 149,
   "minions": 186,
   "rare": 61,
-  "level": 94,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -7970,7 +7976,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-20"
+  "chg": "2026-11-22"
  },
  "44926008": {
   "name": "Shiraishi Shu",
@@ -8138,7 +8144,7 @@
   "mounts": 165,
   "minions": 364,
   "rare": null,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -8151,7 +8157,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-21"
+  "chg": "2026-11-22"
  },
  "31806535": {
   "name": "Viiska Howl",
@@ -8392,7 +8398,7 @@
   "mounts": 17,
   "minions": 42,
   "rare": null,
-  "level": 58,
+  "level": 85,
   "cc": [
    false,
    false,
@@ -8414,7 +8420,7 @@
   "mounts": 9,
   "minions": 21,
   "rare": 2,
-  "level": 71,
+  "level": 72,
   "cc": [
    false,
    false,
@@ -8504,7 +8510,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 88,
+  "level": 89,
   "cc": [
    false,
    false,
@@ -8570,7 +8576,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 5,
-  "level": 100,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -8589,7 +8595,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-21"
+  "chg": "2026-11-22"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -8764,7 +8770,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 100,
+  "level": 78,
   "cc": [
    false,
    false,
@@ -8780,7 +8786,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-21"
+  "chg": "2026-11-22"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -8857,7 +8863,7 @@
   "mounts": 7,
   "minions": 24,
   "rare": 0,
-  "level": 92,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -8870,7 +8876,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-20"
+  "chg": "2026-11-22"
  },
  "31685121": {
   "name": "Squid Girls",
@@ -8923,7 +8929,7 @@
   "mounts": 41,
   "minions": 86,
   "rare": null,
-  "level": 97,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -12755,7 +12761,7 @@
   "mounts": 19,
   "minions": 40,
   "rare": 0,
-  "level": 70,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -13877,7 +13883,7 @@
   "mounts": 11,
   "minions": 43,
   "rare": null,
-  "level": 81,
+  "level": 72,
   "cc": [
    false,
    false,
@@ -13890,7 +13896,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-21"
+  "chg": "2026-11-22"
  },
  "37143017": {
   "name": "Milly Beee",
@@ -16944,7 +16950,7 @@
   "mounts": 48,
   "minions": 76,
   "rare": null,
-  "level": 72,
+  "level": 73,
   "cc": [
    false,
    false,
