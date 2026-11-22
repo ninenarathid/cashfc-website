@@ -590,6 +590,10 @@ const SHEETS = [
   // head stamped, a small brass cow bell on a strap); the cowhide, horseshoe and hoof print are the other choices, and the
   // last two are the reference's books drawn only to hold the size. Cut on its own grid, 5.33: on 8 jagged)
   ["icons-animal-book-a", ["animalBook", "_animalBookHide", "_animalBookShoe", "_animalBookHoof", "_fishBook", "_gardenNotebook"], { range: [5.25, 5.4] }],
+  // (the first festival, Loy Krathong, 2026-11-22: a krathong keepsake, the festival's calendar page with its moon, a sealed
+  // wish scroll, the golden krathong trophy with the rare star, a krathong floating on a ripple (the float button), a red
+  // paper lantern; icons-lotus-boat for the reference. Cut on its finest crisp grid, 6.13: on 11.9 blocky, the star broken)
+  ["icons-festival-a", ["krathongKeepsake", "festivalCalendar", "wishCapsule", "krathongTrophy", "floatKrathong", "festivalLantern"], { range: [5.9, 6.3], fill: true }],
 ];
 
 const ONLY = process.env.ICONS_ONLY?.split(",").map((s) => s.trim()).filter(Boolean);

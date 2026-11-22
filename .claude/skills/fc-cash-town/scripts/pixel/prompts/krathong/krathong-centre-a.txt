@@ -1,0 +1,11 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D town game. Draw a new sprite sheet of small icons for the little things players stand in the middle of a floating flower raft for a river festival in that game, in the same pixel art style.
+
+Each icon is drawn on its own 16 by 16 pixel grid, scaled up big so every pixel of the icon is a large crisp square, all icons the same size, simple and bold so they read clearly when shown small, with a thick dark outline and two or three tones per colour. Six icons in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping. Each stands upright on a flat bottom, seen from the front and a little above, light from the upper left:
+1) a small bouquet of three round farm flowers, pink, yellow and white, on short green stems tied together with a band of straw;
+2) three small forest mushrooms growing together, red caps spotted with white on cream stems, one curled green fern frond beside them;
+3) one spiral sea shell, cream with pink stripes, lying on its side, one round white pearl at its open mouth;
+4) a butterfly with open sky-blue wings edged in dark blue, resting on top of a short upright brown twig with two small green leaves;
+5) a cluster of three pointed violet crystals of different heights rising out of a small grey stone;
+6) a small carved wooden bird sitting on a little wooden block, pale honey wood with dark carved lines for its wing and eye.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no frames or boxes around the icons, no shadows, no text, no letters, no numbers.

@@ -1,0 +1,11 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D town game. Draw a new sprite sheet of small icons for a river festival of floating flower rafts in that game, in the same pixel art style.
+
+Each icon is drawn on its own 16 by 16 pixel grid, scaled up big so every pixel of the icon is a large crisp square, all icons the same size, simple and bold so they read clearly when shown small, with a thick dark outline and two or three tones per colour. Six icons in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping:
+1) a little floating flower raft as a keepsake: a ring of rose-pink lotus petals with cream tips on a low base of folded green banana-leaf points, one short white candle in its middle with a small solid yellow flame;
+2) a calendar page with two dark rings at its top, cream paper, a night-blue square in its middle holding one round pale gold full moon, a few small empty squares below it;
+3) a small rolled paper scroll, cream with darker ends, tied round its middle with a red ribbon in a bow and sealed with a round red wax seal;
+4) a small golden trophy shaped like a floating flower raft: a ring of golden petals around a golden candle, on a short golden stem and a dark wooden base, one small golden four-pointed sparkle star at its upper right corner;
+5) a floating flower raft with a ring of rose-pink lotus petals and a white candle with a small solid yellow flame, sitting on a short oval ripple of blue water, one curved white ripple line on each side;
+6) a round paper lantern, warm red with two saffron bands, a dark cap at its top and its bottom, a short red tassel hanging below.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no frames or boxes around the icons, no shadows, no text, no letters, no numbers.

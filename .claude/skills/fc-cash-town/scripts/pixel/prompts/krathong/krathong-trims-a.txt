@@ -1,0 +1,11 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D town game, and for the six things this sheet draws again as tiny charms, one at each place in its row. Draw a new sprite sheet of tiny icons for the little charms set on the front rim of a floating flower raft for a river festival in that game, in the same pixel art style.
+
+Each icon is drawn on its own 8 by 8 pixel grid, scaled up big so every pixel of the icon is a large crisp square, all icons the same size, simple and bold so they read clearly when shown small, with a thick dark outline and two or three tones per colour. Six icons in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping. Each is a tiny, simplified charm of the thing at the same place in the attached picture, keeping only its main shape and its two or three main colours, light from the upper left:
+1) three tiny round blooms, pink, yellow and white, on one short green stem;
+2) one tiny mushroom with a red cap spotted white on a cream stem;
+3) one tiny spiral shell, cream with pink stripes;
+4) one tiny butterfly with open sky-blue wings edged in dark blue;
+5) one tiny pointed violet crystal rising from a grey stone;
+6) one tiny carved bird of pale honey wood.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no frames or boxes around the icons, no shadows, no text, no letters, no numbers.

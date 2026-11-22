@@ -1,0 +1,11 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D town game, and for the things this sheet draws again. Draw a new sprite sheet of small icons for the little charms set on the front rim of a floating flower raft for a river festival in that game, in the same pixel art style.
+
+Each icon is drawn on its own 16 by 16 pixel grid, scaled up big so every pixel of the icon is a large crisp square, all icons the same size, simple and bold so they read clearly when shown small, with a thick dark outline and two or three tones per colour. Six icons in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping. The first icon is the dish of three candied fruits exactly as it is drawn first in the attached picture, at the same size, and holds the scale. Icons 2 to 6 are tiny charms, each only about a third as tall as the first icon and drawn with exactly the same large pixels as the first icon, so that each is only a few pixels across and keeps only the main shape and the two or three main colours of its thing, light from the upper left:
+1) the dish of three candied fruits, exactly as in the attached picture;
+2) a tiny charm of a carved wooden bird: one little bird of pale honey wood with a dark dot of an eye;
+3) a tiny charm of the candied fruits: two glossy fruits, one orange and one red, on a tiny white dish;
+4) a tiny charm of the feathers: one upright feather, white with a golden tip, tied at its foot with red yarn;
+5) a tiny charm of the bell: one round copper bell hanging from a short red cord;
+6) a tiny charm of the lily: one closed pink water lily bud on a small green lily pad.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no frames or boxes around the icons, no shadows, no text, no letters, no numbers.
