@@ -3878,7 +3878,7 @@
   "mounts": 30,
   "minions": 66,
   "rare": null,
-  "level": 80,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -3893,7 +3893,7 @@
    "Enuo"
   ],
   "ults": [],
-  "chg": "2026-11-21"
+  "chg": "2026-11-22"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -5337,7 +5337,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5361,7 +5361,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-19"
+  "chg": "2026-11-22"
  },
  "29090821": {
   "name": "Amber Levana",
@@ -5563,6 +5563,7 @@
    4074
   ],
   "tiers": {
+   "relic": "expert",
    "explorer": "legendary"
   },
   "jobs": {
@@ -6779,7 +6780,7 @@
   "mounts": 69,
   "minions": 125,
   "rare": 10,
-  "level": 98,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6810,7 +6811,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-21"
+  "chg": "2026-11-22"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -6893,7 +6894,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 92,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6913,7 +6914,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-21"
+  "chg": "2026-11-22"
  },
  "33807451": {
   "name": "Lumus Losgard",
@@ -8391,7 +8392,7 @@
   "mounts": 17,
   "minions": 42,
   "rare": null,
-  "level": 100,
+  "level": 58,
   "cc": [
    false,
    false,
@@ -8404,7 +8405,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-21"
+  "chg": "2026-11-22"
  },
  "62390948": {
   "name": "Elso Ignis",
@@ -8413,7 +8414,7 @@
   "mounts": 9,
   "minions": 21,
   "rare": 2,
-  "level": 73,
+  "level": 71,
   "cc": [
    false,
    false,
@@ -8429,7 +8430,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-21"
+  "chg": "2026-11-22"
  },
  "49053650": {
   "name": "Eniluna Gelatoneii",
@@ -8503,7 +8504,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 87,
+  "level": 88,
   "cc": [
    false,
    false,
@@ -8516,7 +8517,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-21"
+  "chg": "2026-11-22"
  },
  "38405490": {
   "name": "Haruka Paru",
@@ -8641,7 +8642,7 @@
   "mounts": 56,
   "minions": 175,
   "rare": null,
-  "level": 80,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8661,7 +8662,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-20"
+  "chg": "2026-11-22"
  },
  "62539607": {
   "name": "Kross Astra",
@@ -8814,9 +8815,9 @@
   "name": "Poly Umami",
   "parse": null,
   "ult": 0,
-  "mounts": 85,
-  "minions": 178,
-  "rare": null,
+  "mounts": 101,
+  "minions": 207,
+  "rare": 16,
   "level": 100,
   "cc": [
    false,
@@ -8825,12 +8826,29 @@
    false,
    false
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   560,
+   572,
+   1613,
+   1675,
+   1703,
+   1716,
+   2039,
+   2091,
+   2152,
+   2765,
+   2769,
+   2885,
+   3412,
+   3945,
+   4070,
+   4071
+  ],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-21"
+  "chg": "2026-11-22"
  },
  "21388050": {
   "name": "Riizerk Ciel",
@@ -8905,7 +8923,7 @@
   "mounts": 41,
   "minions": 86,
   "rare": null,
-  "level": 98,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -8918,7 +8936,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-21"
+  "chg": "2026-11-22"
  },
  "57419573": {
   "name": "A'kane Dorothy",
@@ -12660,7 +12678,7 @@
   "mounts": 11,
   "minions": 20,
   "rare": null,
-  "level": 79,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -12673,7 +12691,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-21"
+  "chg": "2026-11-22"
  },
  "43797998": {
   "name": "Kappa Kappayuthz",
@@ -12737,7 +12755,7 @@
   "mounts": 19,
   "minions": 40,
   "rare": 0,
-  "level": 99,
+  "level": 70,
   "cc": [
    false,
    false,
@@ -12752,7 +12770,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-11-21"
+  "chg": "2026-11-22"
  },
  "12003402": {
   "name": "Kei Chan",
@@ -16926,7 +16944,7 @@
   "mounts": 48,
   "minions": 76,
   "rare": null,
-  "level": 90,
+  "level": 72,
   "cc": [
    false,
    false,
@@ -16939,7 +16957,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-21"
+  "chg": "2026-11-22"
  },
  "34597671": {
   "name": "Valkyries Zearaskia",
