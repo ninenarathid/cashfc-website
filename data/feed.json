@@ -2,6 +2,34 @@
  "events": [
   {
    "date": "2026-11-22",
+   "type": "rare_up",
+   "id": 42021700,
+   "name": "Josuke Mizumoto",
+   "text": "earned The Might Phantastick: Guillotine Penumbrae"
+  },
+  {
+   "date": "2026-11-22",
+   "type": "rare_up",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "earned R&D: Hyperalembic"
+  },
+  {
+   "date": "2026-11-22",
+   "type": "level_100",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "reached level 100 on Alchemist!"
+  },
+  {
+   "date": "2026-11-22",
+   "type": "ex_clear",
+   "id": 60852230,
+   "name": "Lucien Rhul",
+   "text": "cleared Queen Eternal (Extreme)"
+  },
+  {
+   "date": "2026-11-22",
    "type": "ex_clear",
    "id": 58199536,
    "name": "Areeya Lovekin",
@@ -1371,34 +1399,6 @@
    "id": 36183378,
    "name": "K' Potassium",
    "text": "reached level 100 on Black Mage!"
-  },
-  {
-   "date": "2026-11-08",
-   "type": "level_100",
-   "id": 9444020,
-   "name": "Non Elemental",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-11-08",
-   "type": "level_100",
-   "id": 30596644,
-   "name": "Noelle Eisner",
-   "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-11-08",
-   "type": "level_100",
-   "id": 29991345,
-   "name": "Transparent Crystal",
-   "text": "reached level 100 on Dragoon!"
-  },
-  {
-   "date": "2026-11-08",
-   "type": "level_100",
-   "id": 33608576,
-   "name": "Verles Eisner",
-   "text": "reached level 100 on Machinist!"
   }
  ]
 }

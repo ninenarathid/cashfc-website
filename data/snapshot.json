@@ -2202,6 +2202,7 @@
    2388,
    2393,
    3509,
+   3640,
    3641,
    3642,
    3643,
@@ -2248,7 +2249,6 @@
    3859,
    3860,
    3862,
-   3895,
    3937,
    3938,
    3941,
@@ -4454,7 +4454,6 @@
    3823,
    3832,
    3842,
-   3843,
    3844,
    3845,
    3846,
@@ -4470,6 +4469,7 @@
    3880,
    3881,
    3882,
+   3883,
    3885,
    3886,
    3887,
@@ -6445,7 +6445,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 94,
-  "level": 91,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -6595,7 +6595,7 @@
   "mounts": 32,
   "minions": 95,
   "rare": null,
-  "level": 100,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -6786,7 +6786,7 @@
   "mounts": 69,
   "minions": 125,
   "rare": 10,
-  "level": 93,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6915,6 +6915,7 @@
    "Doomtrain",
    "Enuo",
    "Necron",
+   "Queen Eternal",
    "Valigarmanda",
    "Zelenia",
    "Zoraal Ja"
@@ -8510,7 +8511,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 89,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -8576,7 +8577,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 5,
-  "level": 95,
+  "level": 82,
   "cc": [
    false,
    false,
@@ -8824,7 +8825,7 @@
   "mounts": 101,
   "minions": 207,
   "rare": 16,
-  "level": 100,
+  "level": 88,
   "cc": [
    false,
    false,
@@ -8929,7 +8930,7 @@
   "mounts": 41,
   "minions": 86,
   "rare": null,
-  "level": 93,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -13883,7 +13884,7 @@
   "mounts": 11,
   "minions": 43,
   "rare": null,
-  "level": 72,
+  "level": 79,
   "cc": [
    false,
    false,

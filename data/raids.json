@@ -75140,7 +75140,7 @@
     "encounter_id": 1079,
     "name": "Futures Rewritten",
     "best": 47,
-    "kills": 7,
+    "kills": 10,
     "job": "Dancer",
     "cleared": true,
     "job_kills": {
@@ -87846,10 +87846,21 @@
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
+    "encounter_id": 1078,
+    "name": "Queen Eternal",
+    "best": 28,
+    "kills": 5,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 36,
-    "kills": 39,
+    "kills": 40,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
