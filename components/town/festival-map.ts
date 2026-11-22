@@ -1,4 +1,3 @@
-import { t2Look } from "@/lib/town/town2";
 import { CANVAS, MAP_SCALE, drawKrathong, drawProp, hallSlots, krathongImage, propSize } from "@/lib/town/krathong-art";
 import type { AwardView, RiverKrathong } from "@/lib/town/krathong";
 import type { Vec } from "@/lib/town/world";
@@ -15,23 +14,11 @@ export const HALL_AT: Vec = { x: 42.6, y: 46.8 };
 /** Where a member stands to float: the west river's bank, north of the festival stage. */
 export const FLOAT_BANK: [number, number] = [4, 37];
 
-const START_Y = 37.6, REST_Y0 = 55.5, REST_Y1 = 63.2, DRIFT_MS = 12 * 60_000;
-
-/** The river's water across a row near the west edge: its middle and half its width (tiles). */
-const rowWater = (() => {
-  const memo = new Map<number, { mid: number; half: number }>();
-  return (y: number) => {
-    const r = Math.floor(y);
-    let got = memo.get(r);
-    if (!got) {
-      let x1 = -1;
-      for (let x = 0; x < 12; x++) { if (t2Look(x, r) === "t2water") x1 = x; else if (x1 >= 0) break; }
-      got = x1 >= 0 ? { mid: (x1 + 1) / 2, half: (x1 + 1) / 2 } : { mid: 2, half: 1.5 };
-      memo.set(r, got);
-    }
-    return got;
-  };
-})();
+// The west river runs north–south over x -1..5 by the plaza and the stage (the bank beyond x 0 is water too); the
+// fishing pier stands over it from y 57.7 at x 3.8 and on, so the krathongs come to rest on the open water above it,
+// south of the stage (which would hide them behind it), between y 53.6 and 58.2, x -0.6..3.6.
+const START_Y = 37.6, REST_Y0 = 53.6, REST_Y1 = 58.2, DRIFT_MS = 12 * 60_000, MID = 1.5, HALF = 2.1;
+const rowWater = (_y: number) => ({ mid: MID, half: HALF });
 
 /** A small steady hash of a krathong's id, 0..1, for its own lane, pace and resting place. */
 const h01 = (id: number, salt: number) => { let x = Math.imul(id ^ (salt * 0x9e3779b9), 0x85ebca6b) >>> 0; x = Math.imul(x ^ (x >>> 13), 0xc2b2ae35) >>> 0; return ((x ^ (x >>> 16)) >>> 0) / 4294967296; };
