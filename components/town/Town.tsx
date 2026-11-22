@@ -88,6 +88,9 @@ import { CART } from "@/lib/town/cart";
 import { companyOf, type Beside } from "@/lib/town/company";
 import { BOX, byMoreChest } from "@/lib/town/box";
 import TownBoard from "./TownBoard";
+import { useFestival } from "./useFestival";
+import { FLOAT_BANK, drawHall as drawFestivalHall, drawRiver as drawKrathongRiver, drawStall as drawFestivalStall, type FestivalDraw } from "./festival-map";
+import { isOpen as festivalOpen, stageOf as festivalStage, windowOf as festivalWindow } from "@/lib/town/festivals";
 import TownTalk, { type TalkAs, type TalkChoice } from "./TownTalk";
 import type { TradeSummary, TradeView } from "./TownTrade";
 import type { SmithView } from "./TownSmith";
@@ -248,6 +251,7 @@ const TownHand = lazy(() => import("./TownHand"));
 const TownScroll = lazy(() => import("./TownScroll"));
 const TownLines = lazy(() => import("./TownLines"));
 const TownFountain = lazy(() => import("./TownFountain"));
+const TownKrathong = lazy(() => import("./TownKrathong"));
 // ── forging ── (the blacksmith's screen: asked for only where whoever keeps the game has a smith)
 const TownSmith = lazy(() => import("./TownSmith"));
 // ── Granny Twilla's clothes shop ── (her clothes, from a talk with her, and the weekly auction, from the board on her wall:
@@ -790,6 +794,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   }, []);
   /** The Popoto Board on the screen, for taps; and whether it waits for my vote (a "!" over it). */
   const boardBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
+  /** (v336) Where Loy Krathong's stall and the hall of the year's krathongs are on the screen, for a tap. */
+  const stallBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
+  const hallBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
   /** Where the trade board stands on the screen (the members' notices, lib/town/world's TRADE_BOARD). */
   const tradeBoardBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
   /** Where the editor's farm's vending machines that are trade boards stand on the screen (lib/town/farm2's F2_TRADE_BOARDS). */
@@ -963,6 +970,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const [boardOpen, setBoardOpen] = useState(false);
   /** The wishing fountain's panel: it takes the board's place while it is open (so whatever makes way for the board makes way for it). */
   const [fountainOpen, setFountainOpen] = useState(false);
+  /** (v336) Loy Krathong's stall panel: it too takes the board's place. */
+  const [stallOpen, setStallOpen] = useState(false);
   /** A talk with a shopkeeper: who, what they say, and what there is to choose at its end. Each has a number of its own, so a new one starts at its first line. */
   const [talk, setTalk] = useState<{ who: Speaker | "smith" | "popoto"; n: number; lines: Line[]; choices?: TalkChoice[]; as?: TalkAs } | null>(null);
   /** Which of their conversations comes next (they go round, tap after tap), and how many talks there have been. */
@@ -985,6 +994,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const [keeper, setKeeper] = useState<GameKeeper | null>(null);
   const [game, setGame] = useState(false);
   const gameRef = useRef(false);
+  // (v336) the festival calendar for the board, and what the map draws of Loy Krathong
+  const fest = useFestival(keeper, game);
   useEffect(() => {
     let gone = false, made: GameKeeper | null = null;
     // A missing TEST keeper must never fall through to the real database.
@@ -3520,6 +3531,19 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         });
       } });
     }
+    // (v336) Loy Krathong on the editor's town: the stall beside the Popoto Board while the edition is on, the hall of
+    // the year's krathongs once the results are out, and every floated krathong on the west river (components/town/festival-map)
+    stallBox.current = null; hallBox.current = null;
+    const fl = fest.live.current, lk = fl.f;
+    if (popo2 && lk) {
+      const stage = festivalStage(lk, wall);
+      const fd: FestivalDraw = { ctx, s: v.s, now: wall, night: skyNow().lamps > 0.3, project, onScreen, th: words.current.th,
+        push: (depth, draw) => things.push({ depth, draw }), sign: (draw) => signs.push(draw),
+        label: (text, x, y) => label(ctx, text, x, y, "#e5cc80", "rgba(15,19,25,0.82)", null) };
+      if (stage === "on" || stage === "coming") stallBox.current = drawFestivalStall(fd);
+      if (fl.awards?.length && festivalOpen(festivalWindow(lk, "results"), wall)) hallBox.current = drawFestivalHall(fd, fl.awards);
+      if (fl.river.length) drawKrathongRiver(fd, fl.river);
+    }
     // Road works closing the north path, a popoto waving its flag there (the east path's are finished: it leads to the farm).
     if (scenery?.has("roadworks")) for (const w of ROADWORKS) {
       const c = project({ x: w.x, y: w.y + 0.2 });
@@ -4953,6 +4977,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (b) { setPopover({ b, x, y }); return; }
     const bb = boardBox.current;
     if (bb && x >= bb.x0 && x <= bb.x1 && y >= bb.y0 && y <= bb.y1) { setPopover(null); openBoard(); return; }
+    // (v336) Loy Krathong's stall, and the hall of the year's krathongs: the stall's panel, in the board's place
+    for (const fb of [stallBox.current, hallBox.current]) if (gameRef.current && fb && x >= fb.x0 && x <= fb.x1 && y >= fb.y0 && y <= fb.y1) { setPopover(null); openStall(); return; }
     // the trade board: the members' notices, opened as the Popoto Board is (where the game is open to me)
     const tb = tradeBoardBox.current;
     if (gameRef.current && tb && x >= tb.x0 && x <= tb.x1 && y >= tb.y0 && y <= tb.y1) { setPopover(null); openTrade("board"); return; }
@@ -5446,10 +5472,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
 
   const openBoard = () => {
     if (wardrobeOpenRef.current) closeWardrobe();
-    setFountainOpen(false);
+    setFountainOpen(false); setStallOpen(false);
     setCard(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setTalk(null); setTrade(null); setShopPanel(null);
     setBoardOpen(true);
   };
+  /** (v336) Loy Krathong's stall: its panel takes the board's place. */
+  const openStall = () => { openBoard(); setStallOpen(true); };
 
   /**
    * One of the clothes shop's windows (Granny Twilla's clothes, from a talk with her; the week's auction, from the
@@ -6650,12 +6678,17 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       {s && boardOpen && (
         <div className={`pop-in absolute z-20 overflow-hidden border border-line-lit bg-surface/97 shadow-xl shadow-black/40 backdrop-blur-sm ${phone
                ? "inset-x-0 h-[min(62%,34rem)] rounded-t-2xl"
-               : "right-3 top-16 w-[22rem] rounded-2xl"}`}
-             style={phone ? { bottom: tabbar ? "calc(4.5rem + env(safe-area-inset-bottom))" : 0 } : { bottom: "0.75rem" }}
+               : `right-3 top-16 ${stallOpen ? "w-[26rem]" : "w-[22rem]"} rounded-2xl`}`}
+             style={phone ? { bottom: tabbar ? "calc(4.5rem + env(safe-area-inset-bottom))" : 0, ...(stallOpen ? { height: "min(78%, 40rem)" } : {}) } : { bottom: "0.75rem" }}
              data-state="open">
-          {fountainOpen && game && keeper
+          {stallOpen && game && keeper && fest.live.current.f
+            ? <Suspense fallback={null}><TownKrathong keeper={keeper} th={w.th} festival={fest.live.current.f.id} admin={realAdmin} me={me.id} phone={phone}
+                onClose={() => setBoardOpen(false)}
+                onFloated={() => { void fest.readRiver(); setBoardOpen(false); walkToTile(FLOAT_BANK[0], FLOAT_BANK[1]); }} /></Suspense>
+            : fountainOpen && game && keeper
             ? <Suspense fallback={null}><TownFountain keeper={keeper} th={w.th} onClose={() => setBoardOpen(false)} /></Suspense>
-            : <TownBoard th={w.th} onClose={() => setBoardOpen(false)} onVoted={onVoted} art={boardArt} />}
+            : <TownBoard th={w.th} onClose={() => setBoardOpen(false)} onVoted={onVoted} art={boardArt}
+                         festivals={game ? fest.festivals : null} onFestival={() => { if (fest.live.current.f) setStallOpen(true); }} />}
         </div>
       )}
       {/* Granny Twilla's clothes shop: her clothes, or the week's auction (each its own window: TownTailor, TownAuction), in

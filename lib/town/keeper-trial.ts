@@ -1,4 +1,5 @@
 import{dragonDraw}from"./reward-dragon";
+import type { Design } from "./krathong";
 import{warmCooking}from'./trial-combos';
 import{listenForest}from'./trial-combos';
 import{placeAt,turnOf}from'./forest';
@@ -198,6 +199,15 @@ class TrialKeeper implements Keeper {
   async tailorBuy(wearable: string, _request?: string, wool: number[] = []) { return this.trial.tailorBuy(wearable, wool) as Awaited<ReturnType<Keeper["tailorBuy"]>>; }
   async auctions() { return this.trial.auctions(); }
   async bid(auction: number, amount: number) { return this.trial.bid(auction, amount) as BidDid; }
+  // ── the festival (v336), kept in the browser ──
+  async festivals() { return [this.trial.festival.read().festival]; }
+  async krathong() { return this.trial.festival.read(); }
+  async krathongMake(_festival: number, design: Design, name: string) { return this.trial.festival.make(design, name); }
+  async krathongRename(_festival: number, name: string) { return this.trial.festival.rename(name); }
+  async krathongVote(entry: number) { return this.trial.festival.vote(entry); }
+  async krathongFloat(_festival: number, wish: string) { return this.trial.festival.float(wish); }
+  async krathongRiver() { return this.trial.festival.river(); }
+  async festivalJudge(_festival: number, entry: number | null) { return this.trial.festival.judge(entry); }
   async limited() { return this.trial.limited(); }
   async openThing(slot: number): Promise<Did<{ found: ItemId | null }>> { return this.trial.openThing(slot); }
   async hold(slot: number | null): Promise<Did> {

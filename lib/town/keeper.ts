@@ -1,6 +1,8 @@
 import{mealDuration}from"./stamina";
 import type { TailorRefusal } from "./tailor";
 import type { AuctionBoard, AuctionBoards } from "./auction";
+import type { Festival } from "./festivals";
+import type { Design, KrathongDid, KrathongState, KrathongView, RiverKrathong } from "./krathong";
 import { syncQuality } from "./quality-plant";
 import type { RockChoice } from "./geology";
 // ── the pasture ── (lib/town/animal-act: one step of the animal line; docs/plans/animals)
@@ -314,6 +316,21 @@ export interface Keeper {
   bid(auction: number, amount: number, request: string): Promise<BidDid>;
   /** (v297) Which of my things are limited: each its round and its number in it. */
   limited(): Promise<Record<string, [number, number]>>;
+  /** (v336) The festival calendar (null from a database before v336, or the town away). */
+  festivals(): Promise<Festival[] | null>;
+  /** (v336) A festival's krathong stall: mine, the gallery, my popoto, the awards once settled. */
+  krathong(festival: number): Promise<KrathongState | null>;
+  /** (v336) A krathong paid once from the bag (lib/town/krathong); final. */
+  krathongMake(festival: number, design: Design, name: string, request: string): Promise<KrathongDid<{ krathong: KrathongView }>>;
+  krathongRename(festival: number, name: string): Promise<KrathongDid<{ krathong: KrathongView }>>;
+  /** (v336) A popoto given to an entry, or taken back. */
+  krathongVote(entry: number): Promise<KrathongDid<{ voted: number[] }>>;
+  /** (v336) My krathong floated, once, with a wish only I read. */
+  krathongFloat(festival: number, wish: string): Promise<KrathongDid<{ krathong: KrathongView }>>;
+  /** (v336) What floats on the river now. */
+  krathongRiver(festival: number): Promise<RiverKrathong[] | null>;
+  /** (v336) An admin's pick for the judges' award (null takes it back). */
+  festivalJudge(festival: number, entry: number | null): Promise<KrathongDid>;
   openThing(slot: number): Promise<Did<{ found: ItemId | null }>>;
   /** Take up the thing in a slot, to hold it; null puts away what is held. */
   hold(slot: number | null): Promise<Did>;
@@ -1822,6 +1839,28 @@ export class DbKeeper implements Keeper {
     if (!a) return AWAY;
     return (a.ok ? a : { ok: false, why: (a.why as Why) ?? "none", least: a.least, auction: a.auction }) as BidDid;
   }
+  // ── the festival (v336) ── (a database before v336 has none of these: every answer is then null, or "away")
+  async festivals() {
+    const a = await this.ask("town_festivals_list").catch(() => null);
+    return a && Array.isArray(a.festivals) ? (a.festivals as Festival[]) : null;
+  }
+  async krathong(festival: number) {
+    const a = await this.ask("town_krathong", { p_festival: festival }).catch(() => null);
+    return a?.ok && a.festival ? (a as unknown as KrathongState) : null;
+  }
+  private async krathongAsk<T>(fn: string, args: Record<string, unknown>): Promise<KrathongDid<T>> {
+    const a = await this.ask(fn, args).catch(() => null);
+    return a ? (a as unknown as KrathongDid<T>) : { ok: false, why: "away" };
+  }
+  krathongMake(festival: number, design: Design, name: string, request: string) { return this.krathongAsk<{ krathong: KrathongView }>("town_krathong_make", { p_festival: festival, p_design: design, p_name: name, p_request: request }); }
+  krathongRename(festival: number, name: string) { return this.krathongAsk<{ krathong: KrathongView }>("town_krathong_rename", { p_festival: festival, p_name: name }); }
+  krathongVote(entry: number) { return this.krathongAsk<{ voted: number[] }>("town_krathong_vote", { p_entry: entry }); }
+  krathongFloat(festival: number, wish: string) { return this.krathongAsk<{ krathong: KrathongView }>("town_krathong_float", { p_festival: festival, p_wish: wish }); }
+  async krathongRiver(festival: number) {
+    const a = await this.ask("town_krathong_river", { p_festival: festival }).catch(() => null);
+    return a && Array.isArray(a.river) ? (a.river as RiverKrathong[]) : null;
+  }
+  festivalJudge(festival: number, entry: number | null) { return this.krathongAsk("town_festival_judge", { p_festival: festival, p_entry: entry }); }
   async limited() {
     const a = await this.ask("town_dressed").catch(() => null);
     return a?.limited && typeof a.limited === "object" ? (a.limited as Record<string, [number, number]>) : {};

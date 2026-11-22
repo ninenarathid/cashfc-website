@@ -1,4 +1,6 @@
 import{rootAfterFell}from'./trial-combos';
+import { KrathongTrial, type TrialFestivalState } from "./krathong-trial";
+const FESTIVAL = "cashtown.trial.festival.1";
 import{rootExtraction}from'./reward-root-extraction';
 import{continueRow}from'./trial-combos';
 import{rowContinue}from'./reward-row-continuation';
@@ -702,6 +704,15 @@ export class Trial {
     const { bids, owners, ...round } = r;
     return { ...round, bids: ranked(bids).map((b) => ({ name: b.member === this.id ? "คุณ" : b.name, amount: b.amount, at: b.at, mine: b.member === this.id })),
       had: this.dressed().includes(r.wearables[0]), owners };
+  }
+  // ── the festival (v336's rules in the browser, lib/town/krathong-trial) ──
+  private festival_: KrathongTrial | null = null;
+  get festival(): KrathongTrial {
+    return this.festival_ ??= new KrathongTrial({
+      get: () => this.read<TrialFestivalState | null>(FESTIVAL, () => null, (v) => !!v && typeof v === "object" && Array.isArray((v as TrialFestivalState).rows)),
+      set: (s) => { this.write(FESTIVAL, s); this.tell(); },
+      now: () => this.now(), me: this.id, purse: () => this.purse(), save: (p) => { this.save(p); },
+    });
   }
   auctions(): AuctionBoards {
     const now = this.now();

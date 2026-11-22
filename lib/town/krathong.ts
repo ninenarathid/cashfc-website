@@ -188,3 +188,26 @@ export function shuffledFor<T extends { id: number }>(list: T[], seed: string): 
 export function catalogJson(): Record<string, { slot: Slot; pay: Array<[string, number]> }> {
   return Object.fromEntries(PARTS.map((x) => [x.id, { slot: x.slot, pay: x.pay.map(([i, n]) => [i, n] as [string, number]) }]));
 }
+
+// ── what the stall is told (v336's public.town_krathong and its siblings; the trial keeps the same shapes) ──
+
+export interface KrathongView { id: number; name: string; design: Design; entered: boolean; made: number; floated: number | null }
+export interface Maker { name: string | null; character: number | null }
+export interface GalleryEntry extends KrathongView { mine: boolean; fc: boolean; votes?: number; maker?: Maker }
+export interface AwardView { entry: number; kind: AwardKind; place: number; votes: number; title: Line; krathong: KrathongView; maker: Maker | null; fc: boolean }
+export interface KrathongState {
+  now: number;
+  festival: import("./festivals").Festival;
+  mine: (KrathongView & { wish: string | null }) | null;
+  entries: GalleryEntry[];
+  voted: number[];
+  votesEach: number;
+  floated: number;
+  judged: boolean;
+  /** Null until the results are settled. */
+  awards: AwardView[] | null;
+  capsule: Array<{ year: number; name: string; design: Design; wish: string }>;
+}
+export interface RiverKrathong { id: number; design: Design; floated: number; mine: boolean }
+export type KrathongWhy = "none" | "closed" | "made" | "name" | "design" | "short" | "own" | "spent" | "denied" | "away";
+export type KrathongDid<T = object> = ({ ok: true; repeated?: boolean } & T) | { ok: false; why: KrathongWhy; item?: string; need?: number };

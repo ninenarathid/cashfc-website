@@ -8,6 +8,8 @@ import { BUILDING, CHOICES, POLL, countsOf, etaText, moved, progressOf, stageTex
 import { SHOP } from "@/lib/town/world";
 import type { Sprite } from "@/lib/town/scenery";
 import TownIcon from "./TownIcon";
+import type { Festival } from "@/lib/town/festivals";
+import FestivalCalendar from "./FestivalCalendar";
 
 /** How often the counts are fetched again while the board is open. */
 const REFRESH_MS = 30_000;
@@ -21,14 +23,21 @@ const REFRESH_MS = 30_000;
  * wrong (the dev test room has nobody signed in) leaves the board readable
  * and says so in one quiet line.
  */
-export default function TownBoard({ th, onClose, onVoted, art }: {
+export default function TownBoard({ th, onClose, onVoted, art, festivals, onFestival }: {
   th: boolean;
   /** The town's own pixel art for a picture's name, once the scenery has come. */
   art: (name: string) => Sprite | null;
   onClose: () => void;
   /** Told what my vote is now, so the map can stop flagging the board. */
   onVoted?: (choice: number | null) => void;
+  /** (v336) The festival calendar pinned on the board; null while it has not come (or there is none). */
+  festivals?: Festival[] | null;
+  /** Go to a festival's stall (Loy Krathong's beside the board). */
+  onFestival?: (f: Festival) => void;
 }) {
+  // (the calendar first whenever there is a festival on it; it may come a moment after the board opens)
+  const [page, setPage] = useState<"calendar" | "build" | null>(null);
+  const shownPage = page ?? (festivals?.length ? "calendar" : "build");
   const ephemeral = useTownEphemeral();
   const [supabase] = useState(() => ephemeral ? null : createClient());
   const [counts, setCounts] = useState<Record<number, number> | null>(null);
@@ -107,7 +116,23 @@ export default function TownBoard({ th, onClose, onVoted, art }: {
           {th ? "ปิด" : "Close"}
         </button>
       </div>
+      {!!festivals?.length && (
+        <div role="tablist" className="flex gap-1.5 border-b border-line px-3 py-2">
+          {(["calendar", "build"] as const).map((p) => (
+            <button key={p} role="tab" type="button" aria-selected={shownPage === p} onClick={() => setPage(p)}
+                    className={`pressable flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-xl px-2 text-ui font-semibold ${shownPage === p ? "bg-accent/15 text-accent" : "text-muted hover:text-ink"}`}>
+              {p === "calendar" ? <TownIcon name={"festivalCalendar" as never} size={18} /> : <Pic sprite={art("pw_h1")} box={18} />}
+              {p === "calendar" ? (th ? "ปฏิทินเทศกาล" : "Festivals") : (th ? "ก่อสร้าง · โหวต" : "Building · vote")}
+            </button>
+          ))}
+        </div>
+      )}
 
+      {shownPage === "calendar" && !!festivals?.length ? (
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4 pt-3">
+          <FestivalCalendar festivals={festivals} th={th} onFestival={onFestival} />
+        </div>
+      ) : (
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4 pt-3">
         <h3 className="mb-1.5 font-data text-label uppercase tracking-wider text-muted">
           {th ? "ความคืบหน้าของเมือง" : "Building work"}
@@ -162,6 +187,7 @@ export default function TownBoard({ th, onClose, onVoted, art }: {
           {note ?? (counts ? (th ? `โหวตแล้ว ${total} คน` : `${total} vote${total === 1 ? "" : "s"} so far`) : (th ? "กำลังนับ…" : "Counting…"))}
         </p>
       </div>
+      )}
     </section>
   );
 }
