@@ -106,15 +106,22 @@ export function check(d: Design): Refusal | null {
   return null;
 }
 
-/** What the design takes from the bag, summed over its parts. */
-export function costOf(d: Design): Map<ItemId, number> {
+/** A design's picks in order: base, ring, light, centre, then the trims. */
+export const picksOf = (d: Design): Pick[] => [d.base, d.ring, d.light, d.centre, ...d.trims];
+
+/** What some picks take from the bag, summed (an unknown part or payment counts nothing). */
+export function costOfPicks(picks: Pick[]): Map<ItemId, number> {
   const need = new Map<ItemId, number>();
-  for (const pick of [d.base, d.ring, d.light, d.centre, ...d.trims]) {
-    const [item, n] = PART[pick[0]].pay[pick[1]];
-    need.set(item, (need.get(item) ?? 0) + n);
+  for (const pick of picks) {
+    const pay = PART[pick[0]]?.pay[pick[1]];
+    if (!pay) continue;
+    need.set(pay[0], (need.get(pay[0]) ?? 0) + pay[1]);
   }
   return need;
 }
+
+/** What the design takes from the bag, summed over its parts. */
+export const costOf = (d: Design): Map<ItemId, number> => costOfPicks(picksOf(d));
 
 /** What is short, given how many of each thing the bag holds. */
 export function shortOf(d: Design, have: (id: ItemId) => number): Array<{ id: ItemId; need: number; have: number }> {

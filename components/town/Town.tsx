@@ -972,6 +972,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const [fountainOpen, setFountainOpen] = useState(false);
   /** (v336) Loy Krathong's stall panel: it too takes the board's place. */
   const [stallOpen, setStallOpen] = useState(false);
+  /** Which edition the stall shows: the one picked on the calendar, or (null) the one the map shows. */
+  const [stallFestival, setStallFestival] = useState<number | null>(null);
   /** A talk with a shopkeeper: who, what they say, and what there is to choose at its end. Each has a number of its own, so a new one starts at its first line. */
   const [talk, setTalk] = useState<{ who: Speaker | "smith" | "popoto"; n: number; lines: Line[]; choices?: TalkChoice[]; as?: TalkAs } | null>(null);
   /** Which of their conversations comes next (they go round, tap after tap), and how many talks there have been. */
@@ -4979,7 +4981,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const bb = boardBox.current;
     if (bb && x >= bb.x0 && x <= bb.x1 && y >= bb.y0 && y <= bb.y1) { setPopover(null); openBoard(); return; }
     // (v336) Loy Krathong's stall, and the hall of the year's krathongs: the stall's panel, in the board's place
-    for (const fb of [stallBox.current, hallBox.current]) if (gameRef.current && fb && x >= fb.x0 && x <= fb.x1 && y >= fb.y0 && y <= fb.y1) { setPopover(null); openStall(); return; }
+    for (const fb of [stallBox.current, hallBox.current]) if (gameRef.current && fb && x >= fb.x0 && x <= fb.x1 && y >= fb.y0 && y <= fb.y1) { setPopover(null); openStall(null); return; }
     // the trade board: the members' notices, opened as the Popoto Board is (where the game is open to me)
     const tb = tradeBoardBox.current;
     if (gameRef.current && tb && x >= tb.x0 && x <= tb.x1 && y >= tb.y0 && y <= tb.y1) { setPopover(null); openTrade("board"); return; }
@@ -5283,7 +5285,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       /** Stand at a tile of either map at once, without walking to a gate. */
       warp: (x: number, y: number) => sessionRef.current?.warpTo({ x: x + 0.5, y: y + 0.5 }) ?? false,
       // (v336) the festival, for the browser check: the board's calendar, the stall's panel, the boxes for taps, the river read again
-      festival: () => ({ kit: () => (fest.keeper.current as unknown as { krathongKit?: () => void } | null)?.krathongKit?.(), open: openBoard, stall: openStall, stallBox: stallBox.current, hallBox: hallBox.current, live: fest.live.current, river: () => fest.readRiver(), awards: () => fest.readAwards() }),
+      festival: () => ({ kit: () => (fest.keeper.current as unknown as { krathongKit?: () => void } | null)?.krathongKit?.(), open: openBoard, stall: () => openStall(null), stallBox: stallBox.current, hallBox: hallBox.current, live: fest.live.current, river: () => fest.readRiver(), awards: () => fest.readAwards() }),
       /** Walk to a tile, as a tap on it does; and where I am now, and whether I am walking. */
       walk: (x: number, y: number) => sessionRef.current?.walkTo({ x, y }) ?? false,
       /** Where a point of the map is on the page (client pixels), and where I am walking to (its tile): for checks that tap. */
@@ -5480,7 +5482,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     setBoardOpen(true);
   };
   /** (v336) Loy Krathong's stall: its panel takes the board's place. */
-  const openStall = () => { openBoard(); setStallOpen(true); };
+  const openStall = (edition: number | null = null) => { openBoard(); setStallFestival(edition); setStallOpen(true); };
 
   /**
    * One of the clothes shop's windows (Granny Twilla's clothes, from a talk with her; the week's auction, from the
@@ -6684,14 +6686,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                : `right-3 top-16 ${stallOpen ? "w-[26rem]" : "w-[22rem]"} rounded-2xl`}`}
              style={phone ? { bottom: tabbar ? "calc(4.5rem + env(safe-area-inset-bottom))" : 0, ...(stallOpen ? { height: "min(78%, 40rem)" } : {}) } : { bottom: "0.75rem" }}
              data-state="open">
-          {stallOpen && game && keeper && fest.live.current.f
-            ? <Suspense fallback={null}><TownKrathong keeper={keeper} th={w.th} festival={fest.live.current.f.id} admin={realAdmin} me={me.id} phone={phone}
+          {stallOpen && game && keeper && (stallFestival ?? fest.live.current.f?.id) != null
+            ? <Suspense fallback={null}><TownKrathong key={stallFestival ?? fest.live.current.f?.id} keeper={keeper} th={w.th} festival={(stallFestival ?? fest.live.current.f?.id)!} admin={realAdmin} me={me.id} phone={phone}
                 onClose={() => setBoardOpen(false)}
                 onFloated={() => { void fest.readRiver(); setBoardOpen(false); walkToTile(FLOAT_BANK[0], FLOAT_BANK[1]); }} /></Suspense>
             : fountainOpen && game && keeper
             ? <Suspense fallback={null}><TownFountain keeper={keeper} th={w.th} onClose={() => setBoardOpen(false)} /></Suspense>
             : <TownBoard th={w.th} onClose={() => setBoardOpen(false)} onVoted={onVoted} art={boardArt}
-                         festivals={game ? fest.festivals : null} onFestival={() => { if (fest.live.current.f) setStallOpen(true); }} />}
+                         festivals={game ? fest.festivals : null} onFestival={(f) => { setStallFestival(f.id); setStallOpen(true); }} />}
         </div>
       )}
       {/* Granny Twilla's clothes shop: her clothes, or the week's auction (each its own window: TownTailor, TownAuction), in

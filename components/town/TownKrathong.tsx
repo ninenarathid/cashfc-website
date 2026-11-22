@@ -7,7 +7,7 @@ import { ITEMS, iconOf, type ItemId } from "@/lib/town/items";
 import { held } from "@/lib/town/trade";
 import { isOpen, untilText, whenText, windowOf, type Festival } from "@/lib/town/festivals";
 import {
-  MAX_TRIMS, PART, START, bestPay, check, costOf, familiesOf, partsOf, shuffledFor,
+  MAX_TRIMS, PART, START, bestPay, check, costOf, costOfPicks, familiesOf, partsOf, picksOf, shuffledFor,
   type AwardView, type Design, type GalleryEntry, type KrathongState, type Pick, type Slot,
 } from "@/lib/town/krathong";
 import { isFcMember } from "@/lib/people";
@@ -83,7 +83,8 @@ export default function TownKrathong({ keeper, th, festival, admin, me, phone, o
           ))}
         </div>
       )}
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4 pt-3">
+      {/* (on a phone the HUD's round button stays at the bottom-left corner: room is left for it) */}
+      <div className={`min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pt-3 ${phone ? "pb-16" : "pb-4"}`}>
         {!st && (
           <p className="py-8 text-center text-meta text-muted" aria-live="polite">
             {failed ? (th ? "ซุ้มกระทงยังไม่เปิด" : "The krathong stall isn't open yet") : (th ? "กำลังเปิดซุ้ม…" : "Opening…")}
@@ -124,6 +125,7 @@ function PhaseLine({ f, now, th }: { f: Festival; now: number; th: boolean }) {
 
 // ── the builder ──
 
+const SLOT_INDEX = { base: 0, ring: 1, light: 2, centre: 3 } as const;
 const SLOTS: Array<{ slot: Slot; th: string; en: string }> = [
   { slot: "base", th: "ฐาน", en: "Base" }, { slot: "ring", th: "กลีบ", en: "Ring" }, { slot: "centre", th: "ลายกลาง", en: "Centre" },
   { slot: "light", th: "แสง", en: "Light" }, { slot: "trim", th: "ลายขอบ", en: "Trims" },
@@ -172,12 +174,14 @@ function Builder({ keeper, th, st, phone, making, floating, onDone }: {
     );
   }
 
+  // (any change to the design takes the confirmation back: what is confirmed is what is sent; Codex's finding)
+  const change: React.Dispatch<React.SetStateAction<Design>> = (next) => { setSure(false); setD(next); };
   const choose = (slot: Slot, id: string) => {
-    setSure(false);
-    setD((was) => {
-      const pay = bestPay(id, have);
-      if (slot === "trim") return was.trims.length >= MAX_TRIMS ? was : { ...was, trims: [...was.trims, [id, pay]] };
-      return { ...was, [slot]: [id, pay] };
+    change((was) => {
+      // (paid with what the rest of the design leaves: a third flower trim takes wildflowers when the marigolds are spent)
+      if (slot === "trim") return was.trims.length >= MAX_TRIMS ? was : { ...was, trims: [...was.trims, [id, bestPay(id, have, costOfPicks(picksOf(was)))]] };
+      const others = picksOf(was).filter((_, i) => i !== SLOT_INDEX[slot as "base"]);
+      return { ...was, [slot]: [id, bestPay(id, have, costOfPicks(others))] };
     });
   };
   const send = async () => {
@@ -194,8 +198,8 @@ function Builder({ keeper, th, st, phone, making, floating, onDone }: {
       <input value={name} onChange={(e) => setName(e.target.value)} maxLength={24} placeholder={th ? "ตั้งชื่อกระทง" : "Name your krathong"}
              aria-label={th ? "ชื่อกระทง" : "Krathong name"}
              className="min-h-11 rounded-xl border border-line-strong bg-card/60 px-3 text-ui text-ink placeholder:text-muted focus:border-accent focus:outline-none" />
-      <Parts d={d} setD={setD} th={th} have={have} choose={choose} />
-      <div className="sticky bottom-0 -mx-4 -mb-4 flex flex-col gap-2 border-t border-line bg-surface/95 px-4 pb-4 pt-2.5 backdrop-blur-sm">
+      <Parts d={d} setD={change} th={th} have={have} choose={choose} />
+      <div className={`sticky bottom-0 -mx-4 flex flex-col gap-2 border-t border-line bg-surface/95 px-4 pb-4 pt-2.5 backdrop-blur-sm ${phone ? "-mb-16" : "-mb-4"}`}>
       <div>
         <div className="flex flex-wrap gap-1.5">
           {cost.map(([id, n]) => (
@@ -209,7 +213,7 @@ function Builder({ keeper, th, st, phone, making, floating, onDone }: {
       </div>
       {note && <p className="text-meta text-[#fca5a5]" aria-live="polite">{note}</p>}
       <button type="button" disabled={busy || short || !name.trim() || !!check(d)} onClick={() => void send()}
-              className={`pressable min-h-11 rounded-xl px-4 text-ui font-semibold disabled:opacity-40 ${sure ? "bg-[#e5cc80] text-bg" : "bg-accent text-bg"}`}>
+              className={`pressable min-h-11 rounded-xl px-4 text-ui font-semibold disabled:opacity-40 ${phone ? "ml-12" : ""} ${sure ? "bg-[#e5cc80] text-bg" : "bg-accent text-bg"}`}>
         {sure ? (th ? "ยืนยัน · ใช้ของตามนี้ แก้ไม่ได้" : "Confirm · uses these, final")
           : making ? (th ? "ส่งประกวด" : "Enter the contest") : (th ? "ทำกระทงไว้ลอย" : "Make it to float")}
       </button>
@@ -236,8 +240,9 @@ function Parts({ d, setD, th, have, choose }: {
                   return (
                     <button key={i} type="button" disabled={!tr} aria-label={tr ? (th ? "เอาออก" : "Remove") : (th ? "ว่าง" : "Empty")}
                             onClick={() => setD((was) => ({ ...was, trims: was.trims.filter((_, k) => k !== i) }))}
-                            className="pressable grid size-11 place-items-center rounded-lg border border-dashed border-line-strong disabled:opacity-60">
+                            className="pressable relative grid size-11 place-items-center rounded-lg border border-dashed border-line-strong disabled:opacity-60">
                       {tr ? <PartPic id={tr[0]} size={32} /> : <span className="text-meta text-muted">{i + 1}</span>}
+                      {tr && <span aria-hidden className="absolute -right-1 -top-1 grid size-4 place-items-center rounded-full bg-ink/70 text-[10px] leading-none text-bg">×</span>}
                     </button>
                   );
                 })}
@@ -261,6 +266,10 @@ function Parts({ d, setD, th, have, choose }: {
               );
             })}
           </div>
+          {slot === "trim" && d.trims.length > 0 && PART[d.trims[d.trims.length - 1][0]].pay.length > 1 && (
+            <PayChoice part={d.trims[d.trims.length - 1][0]} chosen={d.trims[d.trims.length - 1][1]} have={have} th={th}
+                       onPick={(i) => setD((was) => ({ ...was, trims: was.trims.map((t, k) => (k === was.trims.length - 1 ? [t[0], i] : t)) }))} />
+          )}
           {slot !== "trim" && PART[d[slot as "base"][0]].pay.length > 1 && (
             <PayChoice part={d[slot as "base"][0]} chosen={d[slot as "base"][1]} have={have} th={th}
                        onPick={(i) => setD((was) => ({ ...was, [slot]: [was[slot as "base"][0], i] }))} />

@@ -18,7 +18,8 @@ export default function KrathongCanvas({ design, zoom, water = false, still = fa
   design: Design; zoom: number; water?: boolean; still?: boolean; className?: string;
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
-  const [, setReady] = useState(0);
+  // (bumped when the atlas comes, so a still picture painted before it is painted again: Codex's finding)
+  const [ready, setReady] = useState(0);
   const [w, h] = CANVAS;
   useEffect(() => {
     const c = ref.current;
@@ -38,7 +39,7 @@ export default function KrathongCanvas({ design, zoom, water = false, still = fa
     };
     raf = requestAnimationFrame(paint);
     return () => cancelAnimationFrame(raf);
-  }, [design, zoom, still]);
+  }, [design, zoom, still, ready]);
   return (
     <span className={`relative inline-grid place-items-center ${className}`} style={water ? WATER : undefined}>
       <canvas ref={ref} width={w * zoom} height={h * zoom} aria-hidden className="relative [image-rendering:pixelated]" style={{ width: w * zoom, height: h * zoom }} />
