@@ -40,8 +40,8 @@ export function trialFestival(now: number, phase = trialPhase()): Festival {
 
 /** A pretend maker's design: every part chosen by a little hash, so the eight are different and the same each time. */
 function pretendDesign(i: number): Design {
-  const pick = (slot: Parameters<typeof partsOf>[0], k: number) => { const list = partsOf(slot); return [list[(i * 7 + k * 3) % list.length].id, 0] as [string, number]; };
-  return { base: pick("base", 1), ring: pick("ring", 2), light: pick("light", i), centre: pick("centre", i + 4), trims: Array.from({ length: i % 4 }, (_, k) => pick("trim", i + k * 5)) };
+  const at = (slot: Parameters<typeof partsOf>[0], n: number) => { const list = partsOf(slot); return [list[((n % list.length) + list.length) % list.length].id, 0] as [string, number]; };
+  return { base: at("base", i), ring: at("ring", i * 2 + 1), light: at("light", i), centre: at("centre", i * 3 + 1), trims: Array.from({ length: i % 4 }, (_, k) => at("trim", i * 5 + k * 3)) };
 }
 
 function fresh(now: number, f: Festival): TrialFestivalState {
