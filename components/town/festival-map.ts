@@ -78,6 +78,11 @@ export function drawHall(d: FestivalDraw, awards: AwardView[]): { x0: number; y0
     const box = drawProp(d.ctx, "hall", feet.x, feet.y, d.s);
     if (!box) return;
     const slots = hallSlots();
+    // (each pedestal's lantern, lit through the night's dark, and a warm pool before the stage)
+    if (d.night) {
+      for (const [sx, sy] of slots) d.light(box.x0 + sx * d.s, box.y0 + (sy - 46) * d.s, 30 * d.s, "255,200,130", 0.9);
+      d.light((box.x0 + box.x1) / 2, box.y1 - 12 * d.s, 90 * d.s, "255,180,110", 0.45, 0.4);
+    }
     // (the first place in the middle, the next on its left and right: [left, middle, right] are the hall's pedestals)
     const order = [1, 0, 2];
     top.forEach((a, i) => {

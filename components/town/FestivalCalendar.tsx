@@ -27,8 +27,9 @@ export default function FestivalCalendar({ festivals, th, onFestival }: {
   const lead = on[0] ?? coming[0] ?? past[0];
   return (
     <div className="flex flex-col gap-3">
-      {lead && <Month f={lead} now={now} th={th} />}
+      {/* (what is on, and the way to its stall, first: the month under it) */}
       {[...on, ...coming].map((f) => <Card key={f.id} f={f} now={now} th={th} onFestival={onFestival} />)}
+      {lead && <Month f={lead} now={now} th={th} />}
       {past.length > 0 && (
         <>
           <h3 className="mt-1 font-data text-label uppercase tracking-wider text-muted">{th ? "ปีที่ผ่านมา" : "Past years"}</h3>
@@ -92,7 +93,7 @@ function Card({ f, now, th, onFestival, past = false }: { f: Festival; now: numb
         <TownIcon name={f.icon as IconName} size={32} />
         <div className="min-w-0 flex-1">
           <p className="truncate text-read font-semibold text-ink">{th ? f.name.th : f.name.en} {f.year}</p>
-          <p className="truncate text-meta text-muted">{th ? f.about.th : f.about.en}</p>
+          <p className="line-clamp-2 text-meta text-muted">{th ? f.about.th : f.about.en}</p>
         </div>
       </div>
       <ul className="mt-2 flex flex-col gap-1">

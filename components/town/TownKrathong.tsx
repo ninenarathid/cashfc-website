@@ -212,6 +212,12 @@ function Builder({ keeper, th, st, phone, making, floating, onDone }: {
         <Lines design={d} th={th} />
       </div>
       {note && <p className="text-meta text-[#fca5a5]" aria-live="polite">{note}</p>}
+      {sure && (
+        <div className="flex items-center gap-2 rounded-xl border border-[#e5cc80]/50 bg-[#e5cc80]/[0.07] p-1.5" aria-live="polite">
+          <KrathongCanvas design={d} zoom={1} water className="shrink-0 p-0.5" />
+          <p className="min-w-0 text-meta text-ink"><b className="block truncate">{name.trim()}</b>{th ? "ส่งแล้วแก้ไม่ได้" : "Final once sent"}</p>
+        </div>
+      )}
       <button type="button" disabled={busy || short || !name.trim() || !!check(d)} onClick={() => void send()}
               className={`pressable min-h-11 rounded-xl px-4 text-ui font-semibold disabled:opacity-40 ${phone ? "ml-12" : ""} ${sure ? "bg-[#e5cc80] text-bg" : "bg-accent text-bg"}`}>
         {sure ? (th ? "ยืนยัน · ใช้ของตามนี้ แก้ไม่ได้" : "Confirm · uses these, final")
@@ -286,7 +292,7 @@ function PayChoice({ part, chosen, have, th, onPick }: { part: string; chosen: n
     <div className="mt-1 flex flex-wrap gap-1" role="radiogroup" aria-label={th ? "จ่ายด้วย" : "Pay with"}>
       {PART[part].pay.map(([id, n], i) => (
         <button key={id} type="button" role="radio" aria-checked={i === chosen} onClick={() => onPick(i)} title={th ? ITEMS[id].name.th : ITEMS[id].name.en}
-                className={`pressable flex min-h-9 items-center gap-1 rounded-full border px-2 font-data text-meta tabular-nums ${i === chosen ? "border-accent bg-accent/10 text-ink" : "border-line text-muted"} ${have(id) < n ? "opacity-60" : ""}`}>
+                className={`pressable flex min-h-11 items-center gap-1 rounded-full border px-2.5 font-data text-meta tabular-nums ${i === chosen ? "border-accent bg-accent/10 text-ink" : "border-line text-muted"} ${have(id) < n ? "opacity-60" : ""}`}>
           <TownIcon name={icon(iconOf(id))} size={16} />{n}
         </button>
       ))}
@@ -481,7 +487,7 @@ function AwardCard({ a, th, phone, mine }: { a: AwardView; th: boolean; phone: b
         </p>
         <div className="mt-1 flex items-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element -- the member's own Lodestone portrait */}
-          {face ? <img src={face} alt="" className="size-9 shrink-0 rounded-full border border-line-strong object-cover" /> : <span className="size-9 shrink-0 rounded-full bg-ink/10" />}
+          {face ? <img src={face} alt="" className="size-9 shrink-0 rounded-full border border-line-strong object-cover" /> : <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-ink/10 font-display text-ui font-semibold text-muted">{[...(a.maker?.name ?? "?")][0]}</span>}
           <div className="min-w-0">
             <p className="truncate text-ui font-semibold text-ink">{a.maker?.name ?? "—"}</p>
             <p className="flex items-center gap-1 text-[11px] text-muted">
