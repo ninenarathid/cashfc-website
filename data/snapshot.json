@@ -8528,7 +8528,7 @@
  },
  "38405490": {
   "name": "Haruka Paru",
-  "parse": null,
+  "parse": 4,
   "ult": 0,
   "mounts": 34,
   "minions": 64,
@@ -8546,7 +8546,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-18"
+  "chg": "2026-11-23"
  },
  "45513833": {
   "name": "Isildur One",
@@ -8577,7 +8577,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 5,
-  "level": 82,
+  "level": 84,
   "cc": [
    false,
    false,
@@ -8596,7 +8596,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-22"
+  "chg": "2026-11-23"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -8820,12 +8820,12 @@
  },
  "61489984": {
   "name": "Poly Umami",
-  "parse": null,
+  "parse": 3,
   "ult": 0,
   "mounts": 101,
   "minions": 207,
   "rare": 16,
-  "level": 88,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8853,9 +8853,11 @@
   ],
   "tiers": {},
   "jobs": {},
-  "ex": [],
+  "ex": [
+   "Valigarmanda"
+  ],
   "ults": [],
-  "chg": "2026-11-22"
+  "chg": "2026-11-23"
  },
  "21388050": {
   "name": "Riizerk Ciel",
@@ -8930,7 +8932,7 @@
   "mounts": 41,
   "minions": 86,
   "rare": null,
-  "level": 98,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -8943,7 +8945,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-22"
+  "chg": "2026-11-23"
  },
  "57419573": {
   "name": "A'kane Dorothy",

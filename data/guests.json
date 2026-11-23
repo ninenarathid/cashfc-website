@@ -1757,7 +1757,7 @@
    "world": "Tonberry",
    "dc": "Elemental",
    "fc": "Cat Aggro",
-   "seen": "2026-11-16",
+   "seen": "2026-11-23",
    "mounts": 164,
    "minions": 377,
    "rare_achv": null,
@@ -1870,7 +1870,7 @@
    "world": "Tonberry",
    "dc": "Elemental",
    "fc": "REQUIEM OF ANGELS",
-   "seen": "2026-11-16",
+   "seen": "2026-11-23",
    "mounts": 4,
    "minions": 14,
    "rare_achv": null,
@@ -1911,7 +1911,7 @@
    "world": "Tonberry",
    "dc": "Elemental",
    "fc": "Exousia",
-   "seen": "2026-11-16",
+   "seen": "2026-11-23",
    "mounts": 76,
    "minions": 119,
    "rare_achv": null,
@@ -2033,7 +2033,7 @@
    "world": "Tonberry",
    "dc": "Elemental",
    "fc": null,
-   "seen": "2026-11-16",
+   "seen": "2026-11-23",
    "mounts": 122,
    "minions": 301,
    "rare_achv": 66,
@@ -2201,6 +2201,6 @@
    "collect_seen": "2026-11-22"
   }
  },
- "generated_at": "2026-11-22T23:56:24Z",
+ "generated_at": "2026-11-23T01:05:56Z",
  "count": 20
 }

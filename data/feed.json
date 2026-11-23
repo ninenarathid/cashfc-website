@@ -1,6 +1,34 @@
 {
  "events": [
   {
+   "date": "2026-11-23",
+   "type": "parse_up",
+   "id": 38405490,
+   "name": "Haruka Paru",
+   "text": "set a new best parse: 4 on Erichthonios as Dancer"
+  },
+  {
+   "date": "2026-11-23",
+   "type": "parse_up",
+   "id": 61489984,
+   "name": "Poly Umami",
+   "text": "set a new best parse: 3 on Valigarmanda as Viper"
+  },
+  {
+   "date": "2026-11-23",
+   "type": "ex_clear",
+   "id": 61489984,
+   "name": "Poly Umami",
+   "text": "cleared Valigarmanda (Extreme)"
+  },
+  {
+   "date": "2026-11-23",
+   "type": "level_100",
+   "id": 61489984,
+   "name": "Poly Umami",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
    "date": "2026-11-22",
    "type": "rare_up",
    "id": 42021700,
@@ -1371,34 +1399,6 @@
    "id": 5644067,
    "name": "Ninenine Everdark",
    "text": "reached level 100 on Dragoon!"
-  },
-  {
-   "date": "2026-11-08",
-   "type": "parse_up",
-   "id": 11950156,
-   "name": "Rothe Happer",
-   "text": "set a new best parse: 86 on Guardian Arkveld as Scholar"
-  },
-  {
-   "date": "2026-11-08",
-   "type": "rare_up",
-   "id": 43864764,
-   "name": "Shinonome Kamemaru",
-   "text": "earned Critical Analysis III — only 2.4% of players have it"
-  },
-  {
-   "date": "2026-11-08",
-   "type": "level_100",
-   "id": 42019777,
-   "name": "Peace Violet",
-   "text": "reached level 100 on Paladin!"
-  },
-  {
-   "date": "2026-11-08",
-   "type": "level_100",
-   "id": 36183378,
-   "name": "K' Potassium",
-   "text": "reached level 100 on Black Mage!"
   }
  ]
 }

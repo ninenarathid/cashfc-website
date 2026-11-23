@@ -64715,7 +64715,7 @@
     "cleared": true,
     "job_kills": {
      "RedMage": {
-      "kills": 5,
+      "kills": 7,
       "best": 71
      },
      "Samurai": {
@@ -64775,7 +64775,13 @@
     "best": 90,
     "kills": 5,
     "job": "RedMage",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "RedMage": {
+      "kills": 5,
+      "best": 90
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -78422,13 +78428,13 @@
       "kills": 1,
       "best": 33
      },
+     "Gunbreaker": {
+      "kills": 18,
+      "best": 97
+     },
      "Warrior": {
       "kills": 2,
       "best": 83
-     },
-     "Gunbreaker": {
-      "kills": 13,
-      "best": 79
      },
      "Paladin": {
       "kills": 2,
@@ -78476,7 +78482,7 @@
       "best": 93
      },
      "Paladin": {
-      "kills": 5,
+      "kills": 6,
       "best": 93
      },
      "Gunbreaker": {
@@ -83886,7 +83892,7 @@
     "cleared": true,
     "job_kills": {
      "Viper": {
-      "kills": 1,
+      "kills": 3,
       "best": 93
      },
      "Machinist": {
@@ -83975,7 +83981,13 @@
     "best": 97,
     "kills": 6,
     "job": "Viper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Viper": {
+      "kills": 6,
+      "best": 97
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -86614,7 +86626,13 @@
     "best": 15,
     "kills": 5,
     "job": "WhiteMage",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "WhiteMage": {
+      "kills": 5,
+      "best": 15
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -97535,8 +97553,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 15,
-    "kills": 4,
+    "best": 44,
+    "kills": 8,
     "job": "Reaper",
     "cleared": true,
     "job_kills": {
@@ -99094,7 +99112,7 @@
   "legacy": []
  },
  "61489984": {
-  "_status": "none",
+  "_status": "ok",
   "current": {
    "zone": "AAC Heavyweight",
    "zone_id": 73,
@@ -99109,7 +99127,19 @@
    ]
   },
   "ultimates": [],
-  "extremes": [],
+  "extremes": [
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1071,
+    "name": "Valigarmanda",
+    "best": 3,
+    "kills": 1,
+    "job": "Viper",
+    "cleared": true
+   }
+  ],
   "legacy": []
  },
  "50581858": {
@@ -99207,7 +99237,42 @@
   },
   "ultimates": [],
   "extremes": [],
-  "legacy": [],
-  "_status": "none"
+  "legacy": [
+   {
+    "zone": "Asphodelos",
+    "zone_id": 44,
+    "expansion": "Endwalker",
+    "encounters": [
+     {
+      "label": "P1S",
+      "encounter_id": 78,
+      "name": "Erichthonios",
+      "best": 4,
+      "median": 4,
+      "kills": 3,
+      "job": "Dancer"
+     },
+     {
+      "label": "P2S",
+      "encounter_id": 79,
+      "name": "Hippokampos",
+      "best": 1,
+      "median": 1,
+      "kills": 3,
+      "job": "Dancer"
+     },
+     {
+      "label": "P3S",
+      "encounter_id": 80,
+      "name": "Phoinix",
+      "best": 1,
+      "median": 1,
+      "kills": 1,
+      "job": "Dancer"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  }
 }
