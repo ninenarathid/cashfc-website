@@ -1,146 +1,305 @@
 /**
- * The city's water moving (the owner, 2026-11-23: "ช่วยแก้ไขให้น้ำ ดูมีความเคลื่อนไหว มีคลื่น มากกว่านี้ได้ไหม"): the sea and
- * the canal are the map's own pictures of sunken water (lib/town/city-art), still; over them, at the water's own height
- * and in each row's turn back to front (so the near bank still stands in front of the water behind it), this draws:
- * - waves: thin crests that rise, roll a little way and fade, toward the beach on the sea, down the canal;
- * - foam: a white line along every bank and the beach, washing in and out;
- * - glints: the sun on the water, twinkling here and there;
- * - the water's own texture again, faint, drifting two ways at once over the still one: the surface shimmers and flows.
- * All of it by the wall clock (everybody sees the same water), cheap: a few strokes a tile of what is on the screen.
+ * The city's water, drawn live (the owner, 2026-11-23: "อยากทำกราฟฟิกใหม่ ให้มันดูเหมือนน้ำจริงๆเลย ไม่ใช่ jpg"): the sea, the
+ * bay and the canal are no longer the map's still picture of water. The page draws this first, under everything; the
+ * ground (lib/town/scenery leaves the map's water out of it) and the map's pictures of raised and sunk ground (their water
+ * cut out by pixel/build-city.mjs) are laid over it, so it shows exactly where the map has its water, along the very shore
+ * the editor drew, an eighth of a tile at a time.
+ *
+ * It is drawn on the graphics card (WebGL), a pixel of it a pixel of the world, on the ground's own grid of texels (32 to
+ * a tile's edge), in the map's own water colours, so it is pixel art like the ground round it:
+ * - its colour by its depth: light along the beach, deeper blue out at sea, the canal darker under its walls;
+ * - light dancing on it (moving caustics, two layers drifting their own ways);
+ * - waves rolling in to the shore, a crest catching the light as each comes;
+ * - foam washing up the beach and back, broken at its edge, and a thinner line further out; the canal lapping its walls;
+ * - now and then the sun glinting off a ripple.
+ * All by the wall clock, so everybody sees the same water, at twelve frames a second like the map's other moving things.
+ * Where WebGL is not to be had, the map's own water texture, still.
  */
-import { T2_COLS, T2_DOCK_BOX, T2_ORIGIN, T2_ROWS, T2_TEXTURES, t2Tile } from "./city";
-import type { Vec } from "./world";
+import { T2_COLS, T2_ORIGIN, T2_ROWS, T2_SUB, T2_TEXTURES, T2_WATER_LOOK, t2Lift, t2Tile, t2WaterAt } from "./city";
 
-const OX = T2_ORIGIN.x, OY = T2_ORIGIN.y;
-const isWater = (x: number, y: number) => t2Tile(x, y) === "~";
-/** The water under and about the dock: left to the dock's picture (the moving layer would lie over its boards). */
-const [DX0, DY0, DX1, DY1] = T2_DOCK_BOX;
-const byDock = (x: number, y: number) => x >= Math.floor(DX0) - 1 && x <= Math.ceil(DX1) && y >= Math.floor(DY0) - 1 && y <= Math.ceil(DY1);
-/** The water's texture (the city's "game_water"), fetched once, for the drifting layer. */
-let TEX: HTMLImageElement | null = null, texReady = false;
-const texture = () => {
-  if (!TEX && typeof Image !== "undefined") {
-    const src = T2_TEXTURES.find((t) => /water/.test(String(t.look)))?.src;
-    if (src) { TEX = new Image(); TEX.onload = () => { texReady = true; }; TEX.src = src; }
-  }
-  return texReady ? TEX : null;
-};
-const patterns = new WeakMap<CanvasRenderingContext2D, CanvasPattern>();
-/** Each water tile's sides that touch land (or the dock): 1 north (−y), 2 east (+x), 4 south (+y), 8 west (−x). */
-let SHORE: Uint8Array | null = null;
-function shoreOf(x: number, y: number): number {
-  if (!SHORE) {
-    SHORE = new Uint8Array(T2_COLS * T2_ROWS);
-    for (let ty = OY; ty < OY + T2_ROWS; ty++) for (let tx = OX; tx < OX + T2_COLS; tx++) {
-      if (!isWater(tx, ty)) continue;
-      let m = 0;
-      if (!isWater(tx, ty - 1) && ty - 1 >= OY) m |= 1;
-      if (!isWater(tx + 1, ty) && tx + 1 < OX + T2_COLS) m |= 2;
-      if (!isWater(tx, ty + 1) && ty + 1 < OY + T2_ROWS) m |= 4;
-      if (!isWater(tx - 1, ty) && tx - 1 >= OX) m |= 8;
-      SHORE[(ty - OY) * T2_COLS + tx - OX] = m;
-    }
-  }
-  return SHORE[(y - OY) * T2_COLS + x - OX];
-}
-const hash = (x: number, y: number, k: number) => { const v = Math.sin(x * 127.1 + y * 311.7 + k * 74.7) * 43758.5453; return v - Math.floor(v); };
-/** The sea (the rows along the city's south-west edge, and the bay by the beach): its waves roll toward the shore; the canal's run down it. */
-const inSea = (y: number) => y >= 116;
-/** The sides of a tile, each its two ends and its inward step (tile fractions). */
-const SIDES: Array<[number, [number, number], [number, number], [number, number]]> = [
-  [1, [0, 0], [1, 0], [0, 1]], [2, [1, 0], [1, 1], [-1, 0]], [4, [1, 1], [0, 1], [0, -1]], [8, [0, 1], [0, 0], [1, 0]],
-];
-
-export type Push = (depth: number, draw: () => void) => void;
+const OX = T2_ORIGIN.x, OY = T2_ORIGIN.y, S = T2_SUB, W = T2_COLS * S, H = T2_ROWS * S;
+/** How far below the level ground the sunk water is, in isometric pixels (four steps of nine). */
+const SUNK = 36;
+/** Frames a second. */
+const FPS = 12;
 
 /**
- * Push the moving water of the tiles of water in a view (isometric pixels: what is on the screen) into the frame's back-
- * to-front list: each row of tiles just after its own still water (a stretch of ground's place is its row + 0.97), before
- * anything standing on that row. `project` is the page's own (a tile point to the screen, the ground's height laid on).
+ * The water as the graphics card reads it, one RGBA texel an eighth of a tile (the ground's own cells):
+ * R water on the level ground, and the cells round it (drawn under the ground's edge, so no gap shows);
+ * G water sunk four steps (the canal), and the cells round it (under its walls' feet);
+ * B how far from the shore, in cells (0 on land);
+ * A which water exactly: 255 level, 128 sunk, 0 none.
  */
-export function pushCityWater(ctx: CanvasRenderingContext2D, push: Push, project: (p: Vec) => Vec, view: { x0: number; y0: number; x1: number; y1: number }, s: number, sec: number) {
-  const fx = (wx: number, wy: number) => (wx / 32 + wy / 16) / 2, fy = (wx: number, wy: number) => (wy / 16 - wx / 32) / 2;
-  // (the view's tiles, a little beyond it: the water stands lower than the level ground it is seen past)
-  const cs = [[view.x0, view.y0], [view.x1, view.y0], [view.x0, view.y1 + 80], [view.x1, view.y1 + 80]];
-  const xs = cs.map(([a, b]) => fx(a, b)), ys = cs.map(([a, b]) => fy(a, b));
-  const x0 = Math.max(OX, Math.floor(Math.min(...xs)) - 1), x1 = Math.min(OX + T2_COLS - 1, Math.ceil(Math.max(...xs)) + 1);
-  const y0 = Math.max(OY, Math.floor(Math.min(...ys)) - 1), y1 = Math.min(OY + T2_ROWS - 1, Math.ceil(Math.max(...ys)) + 1);
-  const rows = new Map<number, Array<[number, number]>>();
-  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
-    if (!isWater(x, y) || byDock(x, y)) continue;
-    const ix = (x - y) * 32, iy = (x + y + 1) * 16;
-    if (ix < view.x0 - 64 || ix > view.x1 + 64 || iy < view.y0 - 32 || iy > view.y1 + 96) continue;
-    const r = x + y;
-    let list = rows.get(r);
-    if (!list) rows.set(r, (list = []));
-    list.push([x, y]);
+function mapData(): Uint8Array {
+  const sunkTile = new Uint8Array(T2_COLS * T2_ROWS), near = new Uint8Array(T2_COLS * T2_ROWS);
+  for (let y = 0; y < T2_ROWS; y++) for (let x = 0; x < T2_COLS; x++) {
+    const c = t2Tile(x + OX, y + OY), lift = t2Lift(x + OX + 0.5, y + OY + 0.5);
+    if (lift < -SUNK / 2) sunkTile[y * T2_COLS + x] = c === "~" ? 2 : 1;
+    // (the ground's water is looked at cell by cell only on and round a tile walked as water, or painted as it at its middle)
+    if (c === "~" || c === "=" || t2WaterAt(x + OX + 0.5, y + OY + 0.5))
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        const nx = x + dx, ny = y + dy;
+        if (nx >= 0 && ny >= 0 && nx < T2_COLS && ny < T2_ROWS) near[ny * T2_COLS + nx] = 1;
+      }
   }
-  const hw = 32 * s, hh = 16 * s, tex = texture();
-  let pattern = tex ? patterns.get(ctx) ?? null : null;
-  if (tex && !pattern) { pattern = ctx.createPattern(tex, "repeat"); if (pattern) patterns.set(ctx, pattern); }
-  for (const [r, tiles] of rows) push(r + 0.975, () => {
+  const exact = new Uint8Array(W * H);
+  for (let ty = 0; ty < T2_ROWS; ty++) for (let tx = 0; tx < T2_COLS; tx++) {
+    const t = ty * T2_COLS + tx;
+    if (!near[t]) continue;
+    for (let j = 0; j < S; j++) for (let i = 0; i < S; i++) {
+      const cx = tx * S + i, cy = ty * S + j;
+      if (sunkTile[t] === 2) exact[cy * W + cx] = 2;
+      else if (!sunkTile[t] && t2WaterAt(OX + (cx + 0.5) / S, OY + (cy + 0.5) / S)) exact[cy * W + cx] = 1;
+    }
+  }
+  // how far from the shore: two passes (a step 1, a corner 1.41); the map's edge is open water, and so is the step down from
+  // the level sea to the harbour sunk beside it: one water
+  const dist = new Float32Array(W * H);
+  for (let i = 0; i < W * H; i++) dist[i] = exact[i] ? 1e6 : 0;
+  const step = (i: number, j: number, by: number, d: number) => Math.min(d, exact[j] ? dist[j] + by : by);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x;
+    if (!exact[i]) continue;
+    let d = dist[i];
+    if (x > 0) d = step(i, i - 1, 1, d);
+    if (y > 0) {
+      d = step(i, i - W, 1, d);
+      if (x > 0) d = step(i, i - W - 1, 1.41, d);
+      if (x < W - 1) d = step(i, i - W + 1, 1.41, d);
+    }
+    dist[i] = d;
+  }
+  for (let y = H - 1; y >= 0; y--) for (let x = W - 1; x >= 0; x--) {
+    const i = y * W + x;
+    if (!exact[i]) continue;
+    let d = dist[i];
+    if (x < W - 1) d = step(i, i + 1, 1, d);
+    if (y < H - 1) {
+      d = step(i, i + W, 1, d);
+      if (x < W - 1) d = step(i, i + W + 1, 1.41, d);
+      if (x > 0) d = step(i, i + W - 1, 1.41, d);
+    }
+    dist[i] = Math.min(d, 255);
+  }
+  // the cells round each water, where the ground's edge or a wall's foot may leave a pixel uncovered
+  const grow = (want: number, by: number) => {
+    const a = new Uint8Array(W * H), b = new Uint8Array(W * H);
+    for (let y = 0; y < H; y++) {
+      let at = -1e9;
+      for (let x = 0; x < W; x++) { if (exact[y * W + x] === want) at = x; if (x - at <= by) a[y * W + x] = 1; }
+      at = 1e9;
+      for (let x = W - 1; x >= 0; x--) { if (exact[y * W + x] === want) at = x; if (at - x <= by) a[y * W + x] = 1; }
+    }
+    for (let x = 0; x < W; x++) {
+      let at = -1e9;
+      for (let y = 0; y < H; y++) { if (a[y * W + x]) at = y; if (y - at <= by) b[y * W + x] = 1; }
+      at = 1e9;
+      for (let y = H - 1; y >= 0; y--) { if (a[y * W + x]) at = y; if (at - y <= by) b[y * W + x] = 1; }
+    }
+    return b;
+  };
+  const level = grow(1, S / 2), sunk = grow(2, S);
+  const out = new Uint8Array(W * H * 4);
+  for (let i = 0; i < W * H; i++) {
+    out[i * 4] = level[i] ? 255 : 0;
+    out[i * 4 + 1] = sunk[i] ? 255 : 0;
+    out[i * 4 + 2] = exact[i] ? Math.min(255, Math.round(dist[i])) : 0;
+    out[i * 4 + 3] = exact[i] === 1 ? 255 : exact[i] === 2 ? 128 : 0;
+  }
+  return out;
+}
+
+const VERT = `attribute vec2 p; void main() { gl_Position = vec4(p, 0.0, 1.0); }`;
+const FRAG = `
+precision highp float;
+uniform sampler2D uMap;
+uniform vec2 uMapSize, uOrigin, uCorner, uSize;
+uniform float uTime, uSunk, uSub, uStill;
+// the map's water, darkest to lightest (its own six), a deeper blue for the open sea, and foam
+const vec3 DEEP2 = vec3(18.0, 112.0, 186.0) / 255.0;
+const vec3 DEEP = vec3(24.0, 136.0, 208.0) / 255.0;
+const vec3 W0 = vec3(28.0, 159.0, 227.0) / 255.0;
+const vec3 W1 = vec3(36.0, 168.0, 236.0) / 255.0;
+const vec3 W2 = vec3(42.0, 176.0, 244.0) / 255.0;
+const vec3 W3 = vec3(48.0, 187.0, 255.0) / 255.0;
+const vec3 HI = vec3(100.0, 221.0, 255.0) / 255.0;
+const vec3 HI2 = vec3(148.0, 244.0, 255.0) / 255.0;
+const vec3 FOAM = vec3(236.0, 250.0, 255.0) / 255.0;
+vec4 cell(vec2 t) {
+  vec2 c = floor((t - uOrigin) * uSub);
+  if (c.x < 0.0 || c.y < 0.0 || c.x >= uMapSize.x || c.y >= uMapSize.y) return vec4(0.0);
+  return texture2D(uMap, (c + 0.5) / uMapSize);
+}
+float cellDist(vec2 c) { return texture2D(uMap, (clamp(c, vec2(0.0), uMapSize - 1.0) + 0.5) / uMapSize).b * 255.0; }
+// how far from the shore, in tiles, smooth between cells' middles (a cell of land is half a cell inland)
+float dist(vec2 t) {
+  vec2 q = (t - uOrigin) * uSub - 0.5, i = floor(q), f = q - i;
+  float a = cellDist(i), b = cellDist(i + vec2(1.0, 0.0)), c = cellDist(i + vec2(0.0, 1.0)), d = cellDist(i + 1.0);
+  return (mix(mix(a, b, f.x), mix(c, d, f.x), f.y) - 0.5) / uSub;
+}
+float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+vec2 hash2(vec2 p) { return fract(sin(vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)))) * 43758.5453); }
+float noise(vec2 p) {
+  vec2 i = floor(p), f = p - i; f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + 1.0), f.x), f.y);
+}
+// light on the water: the edges between cells drifting about (F2 - F1 of their points)
+float caustic(vec2 p, float t) {
+  vec2 i = floor(p), f = p - i;
+  float f1 = 8.0, f2 = 8.0;
+  for (int y = -1; y <= 1; y++) for (int x = -1; x <= 1; x++) {
+    vec2 g = vec2(float(x), float(y)), o = hash2(i + g);
+    o = 0.5 + 0.42 * sin(t * 0.9 + 6.2831 * o);
+    float d = length(g + o - f);
+    if (d < f1) { f2 = f1; f1 = d; } else if (d < f2) f2 = d;
+  }
+  return f2 - f1;
+}
+float bayer(vec2 p) {
+  vec2 q = mod(p, 4.0);
+  float b;
+  if (q.y < 1.0) b = q.x < 1.0 ? 0.0 : q.x < 2.0 ? 8.0 : q.x < 3.0 ? 2.0 : 10.0;
+  else if (q.y < 2.0) b = q.x < 1.0 ? 12.0 : q.x < 2.0 ? 4.0 : q.x < 3.0 ? 14.0 : 6.0;
+  else if (q.y < 3.0) b = q.x < 1.0 ? 3.0 : q.x < 2.0 ? 11.0 : q.x < 3.0 ? 1.0 : 9.0;
+  else b = q.x < 1.0 ? 15.0 : q.x < 2.0 ? 7.0 : q.x < 3.0 ? 13.0 : 5.0;
+  return (b + 0.5) / 16.0;
+}
+vec2 tileAt(vec2 w) { return vec2((w.x / 32.0 + w.y / 16.0) * 0.5, (w.y / 16.0 - w.x / 32.0) * 0.5); }
+void main() {
+  // this pixel's world point (isometric pixels), the screen's top-left at uCorner; on the level ground, or four steps down
+  vec2 w = uCorner + vec2(floor(gl_FragCoord.x), uSize.y - 1.0 - floor(gl_FragCoord.y)) + 0.5;
+  vec2 t0 = tileAt(w), t1 = tileAt(w - vec2(0.0, uSunk));
+  vec4 c0 = cell(t0), c1 = cell(t1);
+  vec2 t; float low;
+  if (c0.a > 0.75) { t = t0; low = 0.0; }
+  else if (c1.g > 0.5) { t = t1; low = 1.0; }
+  else if (c0.r > 0.5) { t = t0; low = 0.0; }
+  else { gl_FragColor = vec4(0.0); return; }
+  // how far from the shore, read on the ground's own texels (32 to a tile's edge); the light on it is laid on the screen,
+  // two pixels by one as the ground's texels are, so that it runs on unbroken where the sea steps down to the harbour
+  vec2 tx = floor(t * 32.0), tc = (tx + 0.5) / 32.0, sp = floor(vec2(w.x * 0.5, w.y)), sc = sp / 32.0;
+  float time = uTime, d = dist(tc);
+  float n = noise(sc * 0.9 + vec2(time * 0.05, -time * 0.03));
+  // its colour by its depth, dithered between the tones (sunk between walls, a little darker near them)
+  float far = (d - 0.4) / 5.5;
+  float depth = clamp(far, 0.0, 1.0) + low * 0.35 * (1.0 - clamp(d / 3.0, 0.0, 1.0));
+  depth += (n - 0.5) * 0.18;
+  float lv = depth * 4.0 + bayer(sp) - 0.5;
+  vec3 col = lv < 0.5 ? W3 : lv < 1.5 ? W2 : lv < 2.5 ? W1 : lv < 3.5 ? W0 : DEEP;
+  // (the deepest blue comes in little by little further out, not all at once along a line the shore's shape)
+  if (bayer(sp + 2.0) < 0.6 * clamp((far - 0.85 + (n - 0.5) * 0.3) / 1.3, 0.0, 1.0)) col = DEEP2;
+  // light dancing on it: two layers of caustics drifting their own ways
+  vec2 cp = sp / 13.0;
+  float ca = caustic(cp + vec2(time * 0.11, time * 0.05), time), cb = caustic(cp * 1.37 + vec2(-time * 0.07, time * 0.09) + 4.3, time * 1.3);
+  float c = min(ca, cb + 0.03);
+  float shallow = 1.0 - clamp(d / 6.0, 0.0, 1.0);
+  if (c < 0.035 + 0.04 * shallow) col = mix(col, HI, 0.55);
+  if (c < 0.028) col = HI;
+  float lengths = noise(sc * 0.45 + vec2(-time * 0.04, time * 0.06));
+  if (low > 0.5) {
+    // between walls: shade along their feet, and the water lapping at them
+    if (d < 0.55 && bayer(sp + 1.0) < 0.6) col = mix(col, DEEP, 0.55);
+    float lap = 0.07 + 0.05 * (0.5 + 0.5 * sin(time * 1.6 + n * 6.0 + (sc.x + sc.y) * 0.8));
+    if (d < lap) col = HI2;
+  } else {
+    // waves rolling in: a crest of light along the shore, broken into lengths, coming in and fading as it nears
+    float wave = sin(d * 2.6 - time * 1.5 + n * 0.7);
+    if (d > 0.7 && d < 4.5 && wave > 0.975 - 0.02 * shallow && lengths > 0.42 && bayer(sp + 1.0) < 0.8) col = mix(col, HI2, 0.6 * clamp((4.5 - d) / 2.0, 0.0, 1.0) + 0.2);
+    // foam: washing up and back along the shore, broken at its edge, and a thinner line further out
+    float wash = 0.12 + 0.14 * (0.5 + 0.5 * sin(time * 1.25 + n * 5.0 + (sc.x + sc.y) * 0.35));
+    if (d < wash) col = FOAM;
+    else if (d < wash + 0.1 && bayer(sp) < 0.5) col = mix(col, FOAM, 0.8);
+    float line2 = 0.48 + 0.16 * sin(time * 1.25 - 1.3 + n * 2.0);
+    if (abs(d - line2) < 0.035 && lengths > 0.35 && bayer(sp + 3.0) < 0.55) col = mix(col, FOAM, 0.6);
+  }
+  // a glint now and then where the light is
+  if (uStill < 0.5 && c < 0.05 && hash(sp + floor(time * 3.0)) > 0.985) col = vec3(1.0);
+  gl_FragColor = vec4(col, 1.0);
+}`;
+
+interface Gl { gl: WebGLRenderingContext; u: Record<string, WebGLUniformLocation | null> }
+let canvas: HTMLCanvasElement | null = null, made: Gl | null | undefined;
+let last = "";
+function make(): Gl | null {
+  if (made !== undefined) return made;
+  try {
+    canvas = document.createElement("canvas");
+    const gl = canvas.getContext("webgl", { premultipliedAlpha: false, antialias: false, preserveDrawingBuffer: true, alpha: true });
+    if (!gl) return (made = null);
+    const sh = (type: number, src: string) => {
+      const s = gl.createShader(type)!;
+      gl.shaderSource(s, src); gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s) ?? "shader");
+      return s;
+    };
+    const prog = gl.createProgram()!;
+    gl.attachShader(prog, sh(gl.VERTEX_SHADER, VERT)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FRAG)); gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog) ?? "link");
+    gl.useProgram(prog);
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const at = gl.getAttribLocation(prog, "p");
+    gl.enableVertexAttribArray(at); gl.vertexAttribPointer(at, 2, gl.FLOAT, false, 0, 0);
+    gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, W, H, 0, gl.RGBA, gl.UNSIGNED_BYTE, mapData());
+    for (const p of [gl.TEXTURE_MIN_FILTER, gl.TEXTURE_MAG_FILTER]) gl.texParameteri(gl.TEXTURE_2D, p, gl.NEAREST);
+    for (const p of [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T]) gl.texParameteri(gl.TEXTURE_2D, p, gl.CLAMP_TO_EDGE);
+    const u: Gl["u"] = {};
+    for (const n of ["uMap", "uMapSize", "uOrigin", "uCorner", "uSize", "uTime", "uSunk", "uSub", "uStill"]) u[n] = gl.getUniformLocation(prog, n);
+    gl.uniform1i(u.uMap, 0); gl.uniform2f(u.uMapSize, W, H); gl.uniform2f(u.uOrigin, OX, OY);
+    gl.uniform1f(u.uSunk, SUNK); gl.uniform1f(u.uSub, S);
+    return (made = { gl, u });
+  } catch (e) {
+    console.warn("[Cash Town] the city's water stays still", e);
+    return (made = null);
+  }
+}
+
+/** The map's water texture (fetched once), for where WebGL is not to be had. */
+let still: HTMLImageElement | null = null, stillReady = false;
+const stillPattern = new WeakMap<CanvasRenderingContext2D, CanvasPattern>();
+
+/**
+ * Draw the city's water over the whole screen, under everything (the ground and the map's pictures are drawn over it,
+ * with holes where their water is). `corner` is the screen's top-left in isometric pixels, `s` the screen pixels to one of
+ * them, `cw` × `ch` the screen; `sec` the wall clock in seconds (0 to stand still).
+ */
+export function drawCityWater(ctx: CanvasRenderingContext2D, corner: { x: number; y: number }, s: number, cw: number, ch: number, sec: number) {
+  const g = make();
+  // (a world pixel a pixel of the water, its corner on a whole world pixel, drawn at the camera's scale)
+  const x0 = Math.floor(corner.x), y0 = Math.floor(corner.y), w = Math.ceil(cw / s) + 2, h = Math.ceil(ch / s) + 2;
+  if (g && canvas) {
+    const { gl, u } = g;
+    const frame = sec ? Math.floor(sec * FPS) : 0, key = `${x0},${y0},${w},${h},${frame}`;
+    if (key !== last) {
+      last = key;
+      if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+      gl.viewport(0, 0, w, h);
+      gl.uniform2f(u.uCorner, x0, y0); gl.uniform2f(u.uSize, w, h);
+      gl.uniform1f(u.uTime, (frame / FPS) % 3600); gl.uniform1f(u.uStill, sec ? 0 : 1);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    }
     ctx.save();
-    ctx.lineCap = "round";
-    // ── the surface: the water's texture twice more, faint, drifting two ways, over this row's tiles ──
-    if (pattern && tiles.length) {
-      const o = project({ x: OX, y: OY }), lift = project({ x: tiles[0][0] + 0.5, y: tiles[0][1] + 0.5 }).y - ((tiles[0][0] + 0.5 - OX + tiles[0][1] + 0.5 - OY) * hh + o.y);
-      ctx.beginPath();
-      for (const [x, y] of tiles) {
-        const c = project({ x: x + 0.5, y: y + 0.5 });
-        ctx.moveTo(c.x, c.y - hh); ctx.lineTo(c.x + hw, c.y); ctx.lineTo(c.x, c.y + hh); ctx.lineTo(c.x - hw, c.y); ctx.closePath();
-      }
-      ctx.globalCompositeOperation = "screen";
-      // (a texel of the ground is half a tile's 64 pixels: 32 to a tile edge, laid along the tiles, README §4)
-      for (const [du, dv, k, alpha] of [[sec * 5.5, sec * 2.2, 1, 0.3], [-sec * 3.1, sec * 4.4, 1.37, 0.2]] as const) {
-        const m = new DOMMatrix([s * k, 0.5 * s * k, -s * k, 0.5 * s * k, o.x + (du - dv) * s, o.y + lift + (du + dv) * 0.5 * s]);
-        pattern.setTransform(m);
-        ctx.fillStyle = pattern;
-        ctx.globalAlpha = alpha;
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1;
-      ctx.globalCompositeOperation = "source-over";
-    }
-    for (const [x, y] of tiles) {
-      const c = project({ x: x + 0.5, y: y + 0.5 });
-      // a point of the tile (u along x, v along y, 0 to 1) on the screen, at the water's height
-      const P = (u: number, v: number) => ({ x: c.x + (u - v) * hw, y: c.y + (u + v - 1) * hh });
-      const sea = inSea(y);
-      // ── waves: two crests a tile, each rolling across it and fading out ──
-      ctx.lineWidth = Math.max(1, 1.5 * s);
-      for (let i = 0; i < 2; i++) {
-        const ph = (sec * (sea ? 0.21 : 0.15) + hash(x, y, i)) % 1, k = Math.sin(Math.PI * ph);
-        if (k < 0.08) continue;
-        const v = sea ? 1 - ph : ph, u0 = 0.08 + hash(x, y, i + 2) * 0.35, u1 = Math.min(0.95, u0 + 0.3 + hash(x, y, i + 4) * 0.3);
-        const a = P(u0, v), b = P(u1, v), m = P((u0 + u1) / 2, v - 0.09);
-        ctx.strokeStyle = `rgba(240,250,255,${(0.55 * k).toFixed(3)})`;
-        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.quadraticCurveTo(m.x, m.y, b.x, b.y); ctx.stroke();
-      }
-      // ── foam along a bank or the beach, washing in and out ──
-      const shore = shoreOf(x, y);
-      if (shore) {
-        const wash = 0.5 + 0.5 * Math.sin(sec * 1.25 + (x + y) * 0.7);
-        for (const [bit, [ax, ay], [bx, by], [nx, ny]] of SIDES) {
-          if (!(shore & bit)) continue;
-          for (const [d, alpha, w] of [[0.07 + 0.12 * wash, 0.8, 2], [0.24 + 0.14 * wash, 0.35 * (1 - wash) + 0.12, 1.3]] as const) {
-            const a = P(ax + nx * d, ay + ny * d), b = P(bx + nx * d, by + ny * d);
-            ctx.strokeStyle = `rgba(255,255,255,${alpha.toFixed(3)})`;
-            ctx.lineWidth = Math.max(1, w * s);
-            ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
-          }
-        }
-      }
-      // ── the sun's glints ──
-      if (hash(x, y, 7) < 0.32) {
-        const k = Math.pow(Math.max(0, Math.sin(sec * 1.6 + hash(x, y, 8) * 20)), 8);
-        if (k > 0.05) {
-          const g = P(0.2 + hash(x, y, 9) * 0.6, 0.2 + hash(x, y, 10) * 0.6), z = Math.max(1, s * 1.4);
-          ctx.fillStyle = `rgba(255,255,255,${(0.85 * k).toFixed(3)})`;
-          ctx.fillRect(g.x - z * 1.5, g.y - z / 2, z * 3, z);
-          ctx.fillRect(g.x - z / 2, g.y - z * 1.5, z, z * 3);
-        }
-      }
-    }
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(canvas, 0, 0, w, h, (x0 - corner.x) * s, (y0 - corner.y) * s, w * s, h * s);
     ctx.restore();
-  });
+    return;
+  }
+  // (no WebGL: the map's water, still, laid along the tiles as the ground is)
+  if (!still && typeof Image !== "undefined") {
+    const src = T2_TEXTURES.find((t) => t.look === T2_WATER_LOOK)?.src;
+    if (src) { still = new Image(); still.onload = () => { stillReady = true; }; still.src = src; }
+  }
+  if (!still || !stillReady) return;
+  let pat = stillPattern.get(ctx) ?? null;
+  if (!pat) { pat = ctx.createPattern(still, "repeat"); if (pat) stillPattern.set(ctx, pat); }
+  if (!pat) return;
+  // (a texel a world pixel along the tiles' two ways: the ground's own 32 a tile edge)
+  pat.setTransform(new DOMMatrix([s, s / 2, -s, s / 2, -corner.x * s, -corner.y * s]));
+  ctx.save();
+  ctx.imageSmoothingEnabled = false;
+  ctx.fillStyle = pat;
+  ctx.fillRect(0, 0, cw, ch);
+  ctx.restore();
 }

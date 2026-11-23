@@ -20,6 +20,7 @@
  * The fences' shadows lie on the ground under everything (README §8), cut into squares fetched as they come near.
  */
 import { FLAT, SWAY, swayPx } from "@/lib/town-hd/sway";
+import type { Block, Stand } from "@/lib/town-hd/shade";
 import MAP from "./city-map.json";
 import { WATER_MS, waterFrames } from "./scenery";
 import { T2_ROOMS, t2RoomAt } from "./city";
@@ -33,6 +34,15 @@ const DIR = "/town/city/";
 const FLOWING = /potato_park_fountain/;
 /** What never sways, whatever its name says: lamps, posts, signs, boards, seats, fences. */
 const STILL = /lamp|street|post|sign|board|bench|chair|fence|stall|vending/;
+/** What throws no shadow of its own: what lies flat (the picnic mat, the tulips' drift, the shells, the dock's boards, the rings), and the ground's pictures. */
+const NO_SHADOW = /^(terrain|game_ring|dock_2)$|^picnic_mat|^long_drift_of_many_mixed_colour_tulips|starfish_and_seashell/;
+/** Of what is drawn wide, what light passes through or round (a wheel, a shelter, tables, a gate, a statue): its own picture throws its shadow, not a block. */
+const SEE_THROUGH = /ferris|carousel|fountain|farm_gate|table_and_chair|scooter|monument|busstop|hay_and_pitchfork/;
+const LIFTS = MAP.lifts as unknown as Record<string, number>;
+/** The map's pictures of raised and sunk ground (pixel/build-city.mjs). */
+const TERRAIN = "terrain";
+/** Isometric pixels up to a tile of height (lib/town-hd/build's PX_UP). */
+const PX_UP = 39.2;
 
 interface Thing {
   i: number; name: string; s: number;
@@ -80,6 +90,7 @@ export class CityArt {
   /** Each flowing thing's picture in its frames, made once its picture has come (dropped with it). */
   private readonly flowing = new Map<number, HTMLCanvasElement[]>();
   private lastSeen: Thing[] = [];
+  private lastView: { x0: number; y0: number; x1: number; y1: number } | null = null;
 
   constructor() {
     const rings = MAP.rings as unknown as Record<string, Array<[number, number, string]>>;
@@ -154,6 +165,7 @@ export class CityArt {
   /** The things worth drawing this frame: those whose pictures meet the view; half a screen beyond, asked for now. */
   visible(view: { x0: number; y0: number; x1: number; y1: number }, now: number): Thing[] {
     this.now = now;
+    this.lastView = view;
     const w = view.x1 - view.x0, h = view.y1 - view.y0, out: Thing[] = [], room = this.roomHere();
     for (const t of this.things) {
       // (a room's inside only for whoever is in it; its outside for everybody else; a chest open only while it is)
@@ -178,6 +190,34 @@ export class CityArt {
     this.lastSeen = out;
     return out;
   }
+  /**
+   * What throws the city's shadows by the hour (lib/town-hd/shade; the owner, 2026-11-23, "อย่าลืมใส่เงาให้ครบด้วย"): each
+   * standing picture that has come, stood on its foot as a sheet; each building, a block on its footprint as high as its
+   * walls. Half a screen beyond the view, as `visible` asks for pictures. Not what lies flat, nor the fences (the map's
+   * own shadows lie along them), nor what stands under a room's roof.
+   */
+  casters(): { stands: Stand[]; blocks: Block[] } {
+    const v = this.lastView, stands: Stand[] = [], blocks: Block[] = [];
+    if (!v) return { stands, blocks };
+    const w = v.x1 - v.x0, h = v.y1 - v.y0;
+    for (const t of this.things) {
+      if ((t.how !== STAND && t.how !== WIDE && t.how !== OUTSIDE) || NO_SHADOW.test(t.name)) continue;
+      const sp = this.sprites[t.s], x1 = t.x + sp.w * t.k, y1 = t.y + sp.h * t.k;
+      if (x1 < v.x0 - w / 2 || t.x > v.x1 + w / 2 || y1 < v.y0 - h / 2 || t.y > v.y1 + h / 2) continue;
+      const [bx0, by0, bx1, by1] = t.box, cx = (bx0 + bx1) / 2, cy = (by0 + by1) / 2;
+      if (t.how !== OUTSIDE && t2RoomAt(Math.floor(cx), Math.floor(cy))) continue;
+      if (t.how === OUTSIDE || (t.how === WIDE && !SEE_THROUGH.test(t.name))) {
+        blocks.push({ x0: bx0, z0: by0, x1: bx1, z1: by1, h: Math.min(12, Math.max(0.3, (sp.h * t.k - (bx1 - bx0 + by1 - by0) * 16) / PX_UP)) });
+        continue;
+      }
+      if (!sp.img || !sp.ready) continue;
+      // (its foot, in its picture: its footprint's middle where the picture would stand on level ground)
+      const lift = LIFTS[t.i] ?? 0;
+      stands.push({ img: sp.img, sx: 0, sy: 0, w: sp.w, h: sp.h, ax: (32 * (cx - cy) - t.x) / t.k, ay: (16 * (cx + cy) - t.y - lift) / t.k, k: t.k, x: cx, y: cy, mirror: t.flip });
+    }
+    return { stands, blocks };
+  }
+
   /** A shut chest's open picture: the role thing on the same spot. */
   private openOf(shut: number): Thing | null {
     const a = this.byIndex[shut];
@@ -285,6 +325,12 @@ export class CityArt {
       }
       ctx.restore();
     }
+    // The ground's own pictures, raised and sunk (the park and the canals four steps down, the roads a kerb down), back to
+    // front among themselves and under everything that stands: nothing stands higher than the level ground, so none of
+    // them hides anybody, and the shadows by the hour (lib/town-hd/shade, laid next) lie on them as on the level ground
+    // (the owner, 2026-11-23, of a road a kerb down over his shadow: "เงายังโดนทับแปลกๆ ในบางพื้น").
+    const ground = things.filter((t) => t.name === TERRAIN).sort((a, b) => a.d - b.d || a.i - b.i);
+    for (const t of ground) this.paint(ctx, t, screen, s, px);
     for (const t of things) if (t.how === FLOOR) this.paint(ctx, t, screen, s, px);
   }
 
@@ -292,7 +338,7 @@ export class CityArt {
   pushStanding(ctx: CanvasRenderingContext2D, things: Thing[], push: Push, screen: Screen, s: number, px: number, _inHall?: boolean) {
     for (const t of things) {
       if (this.solid?.(t.i)) continue;
-      if (t.how === FLOOR) continue;
+      if (t.how === FLOOR || t.name === TERRAIN) continue;
       if (t.how === STAND || t.how === ROLE) { push(t.d, () => this.paint(ctx, t, screen, s, px)); continue; }
       const sp = this.sprites[t.s];
       if (t.how === INSIDE) {

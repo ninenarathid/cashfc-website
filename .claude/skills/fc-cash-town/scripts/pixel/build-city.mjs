@@ -88,7 +88,19 @@ const TREE = /_tree_|tree_pixel_art|cedar|ginkgo|maple|zelkova|camphor|persimmon
 /* ── the pictures ────────────────────────────────────────────────────────────────────────────────────────────────── */
 
 const reader = exportReader(SRC, map);
-/** A picture by its file, or a part of a terrain sheet by "file#x,y,w,h" (README §5's `rect`). */
+/**
+ * The map's water, its six colours (the editor's water texture), shaded or not: cut out of the pictures of raised and sunk
+ * ground, so that the city's live water (lib/town/city-water, drawn under everything) shows through where they had it,
+ * the owner, 2026-11-23: "อยากทำกราฟฟิกใหม่ ให้มันดูเหมือนน้ำจริงๆเลย ไม่ใช่ jpg". 96% of the sheets' blue is these six
+ * exactly; the rest is them darker along a bank.
+ */
+const WATER_COLOURS = [[36, 168, 236], [42, 176, 244], [100, 221, 255], [28, 159, 227], [48, 187, 255], [148, 244, 255]];
+const isWater = (r, g, b) => WATER_COLOURS.some(([R, G, B]) => {
+  const f = (r * R + g * G + b * B) / (R * R + G * G + B * B);
+  return f > 0.45 && f < 1.12 && Math.abs(r - R * f) < 9 && Math.abs(g - G * f) < 9 && Math.abs(b - B * f) < 9;
+});
+let waterCut = 0;
+/** A picture by its file, or a part of a terrain sheet by "file#x,y,w,h" (README §5's `rect`), its water cut out. */
 const parts = new Map();
 async function picture(key) {
   if (!key.includes("#")) return reader.picture(key);
@@ -97,6 +109,7 @@ async function picture(key) {
     if (x < 0 || y < 0 || x + w > sheet.pw || y + h > sheet.ph) throw new Error(`a part beyond its sheet: ${key}`);
     const data = Buffer.alloc(w * h * 4);
     for (let j = 0; j < h; j++) sheet.data.copy(data, j * w * 4, ((y + j) * sheet.pw + x) * 4, ((y + j) * sheet.pw + x + w) * 4);
+    for (let i = 0; i < data.length; i += 4) if (data[i + 3] && isWater(data[i], data[i + 1], data[i + 2])) { data[i + 3] = 0; waterCut++; }
     parts.set(key, { data, pw: w, ph: h });
   }
   return parts.get(key);
@@ -207,8 +220,55 @@ const howDrawn = ({ o, pl }) => {
   return pl.w + pl.h >= 4 && !TREE.test(o.asset) ? DRAW.wide : DRAW.stand;
 };
 
+/**
+ * Open ground inside a building's footprint that is reached from in front of it: the museum's stairs up to its door.
+ * Whoever stands there is over the building's strips that cross that ground (its treads, the wing behind, the door), not
+ * under the building's front edge: the owner, 2026-11-23, of the museum, "ตึกนี้ layer ทับคน". Open ground reached only
+ * from behind the building stays behind it. Each strip goes back to just before the backmost such tile it crosses (a
+ * walker there is at least its row + 0.98, lib/town Town.tsx).
+ */
+const laneDepths = (box, left, count) => {
+  const x0 = Math.max(0, Math.floor(box[0] + 1e-6)), y0 = Math.max(0, Math.floor(box[1] + 1e-6));
+  const x1 = Math.min(COLS, Math.ceil(box[2] - 1e-6)), y1 = Math.min(ROWS, Math.ceil(box[3] - 1e-6));
+  const open = (x, y) => x >= x0 && y >= y0 && x < x1 && y < y1 && (walk[y][x] === "." || walk[y][x] === "=");
+  const seen = new Set(), lane = [];
+  const outside = (x, y) => x >= 0 && y >= 0 && x < COLS && y < ROWS && (walk[y][x] === "." || walk[y][x] === "=" || walk[y][x] === "s");
+  // (from in front: the ground before the footprint's two front sides, one stretch at a time; a stretch that goes through
+  // to the ground behind its opposite side is a way through, a gate's: whoever walks it stays under the arch. A corner cut
+  // off the footprint, open to a front side and the back side beside it, is not)
+  const fronts = [];
+  for (let x = x0; x < x1; x++) if (outside(x, y1)) fronts.push([x, y1 - 1, x, y1]);
+  for (let y = y0; y < y1; y++) if (outside(x1, y)) fronts.push([x1 - 1, y, x1, y]);
+  for (const [sx, sy, fx, fy] of fronts) {
+    if (seen.has(`${sx},${sy}`) || !open(sx, sy) || crosses(fx, fy, sx, sy)) continue;
+    const queue = [[sx, sy]];
+    seen.add(`${sx},${sy}`);
+    const side = { x0: false, y0: false, x1: false, y1: false };
+    for (let h = 0; h < queue.length; h++) {
+      const [x, y] = queue[h];
+      if (x === x0 && outside(x - 1, y) && !crosses(x, y, x - 1, y)) side.x0 = true;
+      if (y === y0 && outside(x, y - 1) && !crosses(x, y, x, y - 1)) side.y0 = true;
+      if (x === x1 - 1 && outside(x1, y) && !crosses(x, y, x1, y)) side.x1 = true;
+      if (y === y1 - 1 && outside(x, y1) && !crosses(x, y, x, y1)) side.y1 = true;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nx = x + dx, ny = y + dy;
+        if (open(nx, ny) && !seen.has(`${nx},${ny}`) && !crosses(x, y, nx, ny)) { seen.add(`${nx},${ny}`); queue.push([nx, ny]); }
+      }
+    }
+    if (!((side.x1 && side.x0) || (side.y1 && side.y0))) lane.push(...queue);
+  }
+  const queue = lane;
+  if (!queue.length) return null;
+  return Array.from({ length: count }, (_, n) => {
+    const a = left + n * STRIP, b = a + STRIP;
+    let d = Infinity;
+    for (const [x, y] of queue) if (32 * (x - y - 1) < b && 32 * (x - y + 1) > a) d = Math.min(d, x + y + 0.97);
+    return d;
+  });
+};
+
 const standing = [];
-const flats = new Set();
+const flats = new Set(), lanes = [];
 for (const t of placed) {
   const { o, pl } = t;
   const s = await sprite(pl.file), sp = sprites[s], [x0, y0, pw] = sp.cut;
@@ -224,6 +284,10 @@ for (const t of placed) {
   // owner, 2026-11-23, of the park's picnic mat drawn over him, "ส่วนนี้บังคนเล่น")
   else if (FLATS.test(o.asset)) {
     u.draw = DRAW.stand; u.d = box[0] + box[1]; delete u.strips; flats.add(base(o));
+  }
+  if (u.draw === DRAW.wide && o.kind !== "terrain") {
+    const back = laneDepths(box, left, u.strips.length);
+    if (back && back.some((v, n) => v < u.strips[n])) { u.strips = u.strips.map((v, n) => Math.min(v, back[n])); u.stripsMoved = true; lanes.push(base(o)); }
   }
 
   standing.push(u);
@@ -276,6 +340,8 @@ function keepEditorOrder(all) {
   return { moved, stuck };
 }
 console.log(`lying flat, under whoever stands on them: ${[...flats].join(", ")}`);
+console.log(`water cut out of the ground's pictures: ${waterCut} pixels`);
+console.log(`open ground walked inside their footprints: ${lanes.join(", ") || "none"}`);
 const { moved, stuck } = keepEditorOrder(standing);
 
 /* ── written as the game reads them ──────────────────────────────────────────────────────────────────────────────── */

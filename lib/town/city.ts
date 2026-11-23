@@ -33,7 +33,9 @@ export const T2_ROWS: number = MAP.rows;
 /** Where the city's corner is in the game's tiles. */
 export const T2_ORIGIN = { x: OX, y: OY } as const;
 export const inT2 = (x: number, y: number) => x >= OX && y >= OY && x < OX + T2_COLS && y < OY + T2_ROWS;
-const SUB = 8;
+/** The ground drawn finer than its tiles: an eighth of a tile a cell (the editor's `ground_fine`). */
+export const T2_SUB = 8;
+const SUB = T2_SUB;
 
 /* ── the ground ─────────────────────────────────────────────────────────── */
 
@@ -108,9 +110,22 @@ function letterAt(fx: number, fy: number): string {
   const a = Math.min(a0, wobble(k));
   return a === a0 ? k : tileLetter(fx + a * n1, fy + a * n2);
 }
+/** The look of the map's water: the ground leaves it out (lib/town/scenery), and lib/town/city-water draws it live. */
+export const T2_WATER_LOOK = lookOf("game_water");
+const WATER_LETTERS = new Set(Object.keys(LEGEND).filter((k) => lookOf(LEGEND[k]) === T2_WATER_LOOK));
+// (the white the editor painted on the sea for foam, 514 eighths of a tile: water now, which makes its own foam, live; the
+// same white on the land is the roads' lines)
+const FOAM_LETTERS = new Set(Object.keys(LEGEND).filter((k) => /^white/.test(LEGEND[k])));
+const onWater = (fx: number, fy: number) => (MAP.walk as string[])[clampY(fy)][clampX(fx)] === "~";
+const wetLetter = (k: string, fx: number, fy: number) => WATER_LETTERS.has(k) || (FOAM_LETTERS.has(k) && onWater(fx, fy));
 /** The look of the ground at a point of the city (the game's tiles). */
 export function t2Look(x: number, y: number): T2Look {
-  return lookOf(LEGEND[letterAt(x - OX, y - OY)] ?? "grass");
+  const k = letterAt(x - OX, y - OY);
+  return wetLetter(k, x - OX, y - OY) ? T2_WATER_LOOK : lookOf(LEGEND[k] ?? "grass");
+}
+/** Whether the ground at a point of the city (the game's tiles) is the map's water, as the ground draws it. */
+export function t2WaterAt(x: number, y: number): boolean {
+  return wetLetter(letterAt(x - OX, y - OY), x - OX, y - OY);
 }
 /** The kind of ground of a tile: what most of it is painted. */
 const TILE_GROUND: Ground[] = (() => {

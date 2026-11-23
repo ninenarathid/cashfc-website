@@ -19,7 +19,7 @@ async function attach(label, url, size) {
     const m = JSON.parse(ev.data);
     if (m.id && wait.has(m.id)) { const { ok: res, no } = wait.get(m.id); wait.delete(m.id); m.error ? no(new Error(m.error.message)) : res(m.result); }
     else if (m.method === "Runtime.exceptionThrown") logs.push(`exception: ${m.params.exceptionDetails.exception?.description?.split("\n")[0]}`);
-    else if (m.method === "Runtime.consoleAPICalled" && m.params.type === "error") logs.push(`console.error: ${m.params.args.map((a) => a.value ?? a.description ?? "").join(" ").slice(0, 200)}`);
+    else if (m.method === "Runtime.consoleAPICalled" && (m.params.type === "error" || m.params.type === "warning" || (process.env.CDP_INFO && String(m.params.args?.[0]?.value ?? "").startsWith("[Cash Town]")))) logs.push(`console.error: ${m.params.args.map((a) => a.value ?? a.description ?? "").join(" ").slice(0, 200)}`);
   };
   ws.onclose = () => { for (const { no } of wait.values()) no(new Error("closed")); wait.clear(); };
   const send = (method, params = {}) => new Promise((res, no) => {

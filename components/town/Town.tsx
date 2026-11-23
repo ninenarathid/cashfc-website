@@ -15,7 +15,7 @@ import { DECOR, FACES, artOf, carving, gateLook, ringAt } from "@/lib/town/decor
 // ── the editor's town ── (lib/town/town2: drawn from its own pictures, fetched as they come near the view)
 import { Town2Art } from "@/lib/town/town2-art";
 import { CityArt } from "@/lib/town/city-art";
-import { pushCityWater } from "@/lib/town/city-water";
+import { drawCityWater } from "@/lib/town/city-water";
 import { farm2Art } from "@/lib/town/farm2-art";
 import { drawPixelFlames } from "./flames";
 import { F2_BENCH_OF, F2_CHESTS, F2_SCARECROWS, F2_TRADE_BOARDS } from "@/lib/town/farm2";
@@ -583,9 +583,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   type HdPlace = "town" | "farm";
   const hdMake = useRef<((place: HdPlace) => HdTown) | null>(null);
   const hdTowns = useRef<Partial<Record<HdPlace, HdTown>>>({});
-  // (the forest and the mountain: what the frame before stood on the map, each thing's own picture, throws the shadows)
-  const wildMake = useRef<((place: "forest" | "mountain") => Shade) | null>(null), wildShades = useRef<Partial<Record<"forest" | "mountain", Shade>>>({});
-  const wildOf = (place: "forest" | "mountain") => (wildShades.current[place] ??= wildMake.current!(place));
+  // (the forest and the mountain: what the frame before stood on the map, each thing's own picture, throws the shadows;
+  // and the city, its pictures at its own heights, its buildings as blocks)
+  type WildPlace = "forest" | "mountain" | "city";
+  const wildMake = useRef<((place: WildPlace) => Shade) | null>(null), wildShades = useRef<Partial<Record<WildPlace, Shade>>>({});
+  const wildOf = (place: WildPlace) => (wildShades.current[place] ??= wildMake.current!(place));
   const groundWide = useRef<HTMLCanvasElement | null>(null);
   const wildStood = useRef<Array<{ name: string; x: number; y: number; k: number; mirror?: boolean }>>([]);
   /** The frame (its clock) in which the 3D town last threw the shadows. */
@@ -637,7 +639,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       hdRaised.current = raised;
       hdMake.current = (place) => createHdTown(document.createElement("canvas"), { map: place, time: "day", underlay: raised ? "raised" : true, quality: hd });
       // (the forest's open floor rises in low hills as the editor's maps' land does; the mountain's ground is level, its cliffs being painted on it)
-      wildMake.current = (place) => createShade(document.createElement("canvas"), hd, place === "forest" && raised ? { box: FOREST, land: (x, y) => groundAt(x, y) === "wood" } : undefined);
+      // (the city's shadows lie on its own ground, the park and canals four steps down, at every quality: its pictures stand there)
+      wildMake.current = (place) => createShade(document.createElement("canvas"), hd, place === "city"
+        ? { box: { x: ed.T2_ORIGIN.x, y: ed.T2_ORIGIN.y, w: ed.T2_COLS, h: ed.T2_ROWS }, land: () => false, height: cityHill }
+        : place === "forest" && raised ? { box: FOREST, land: (x, y) => groundAt(x, y) === "wood" } : undefined);
       if (hd !== "low" && !/[?&]hdfinish=0/.test(window.location.search)) void import("@/lib/town-hd/finish").then(({ createFinish }) => {
         if (gone || !finishCanvas.current) return;
         try { finishRef.current = createFinish(finishCanvas.current, hd); finishSlow.current = 0; setFinishOn(true); } catch (e) { console.warn("[Cash Town] 3D finish could not start", e); }
@@ -1758,14 +1763,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const s = cam.current.s, still = reducedRef.current, sec = still ? 0 : Date.now() / 1000;
     const wet = (p: Vec) => ed.t2Tile(Math.floor(p.x), Math.floor(p.y)) === "~";
     const depth = (p: Vec) => Math.floor(p.x) + Math.floor(p.y) + 0.977;
-    for (const r of STREAKS) {
-      const t = ((r.t0 + sec * r.speed) % 140) - 6, pa = riverPoint(t, r.across), pb = riverPoint(t + r.len, r.across);
-      if (!wet(pa) || !wet(pb)) continue;
-      const a = project(pa);
-      if (!onScreen(a)) continue;
-      const b = project(pb), alpha = 0.16 + 0.14 * Math.sin(sec * 1.3 + r.t0);
-      push(depth(pa), () => { ctx.save(); ctx.lineWidth = Math.max(1, s); ctx.lineCap = "round"; ctx.strokeStyle = `rgba(225,242,255,${alpha})`; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); ctx.restore(); });
-    }
+    // (no current's streaks: the water drawn live moves of itself, lib/town/city-water)
     for (const f of FISH) {
       const t = 140 - (((f.t0 + sec * f.speed) % 150) + 5), across = f.across + 0.25 * Math.sin(sec * 0.6 + f.t0), p = riverPoint(t, across);
       if (!wet(p)) continue;
@@ -2717,7 +2715,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
           const up = raisedWild.renderGround({ cx: v.cx, cy: v.cy, s: v.s, cw, ch, dpr, min: hdMinute.current ?? clock.getUTCHours() * 60 + clock.getUTCMinutes() }, wide, extra);
           if (up) ctx.drawImage(up, 0, 0, cw, ch);
         } catch (e) { HILL = null; hdRaised.current = false; console.warn("[Cash Town] 3D ground stopped", e); }
-      } else scenery.drawGround(ctx, v, cw, ch, dpr);
+      } else {
+        // (the city's water, live, under the ground, which leaves it out: lib/town/city-water; the owner, 2026-11-23,
+        // "อยากทำกราฟฟิกใหม่ ให้มันดูเหมือนน้ำจริงๆเลย ไม่ใช่ jpg")
+        if (CITY) drawCityWater(ctx, { x: v.cx - cw / 2 / v.s, y: v.cy - ch / 2 / v.s }, v.s, cw, ch, reducedRef.current ? 0 : Date.now() / 1000);
+        scenery.drawGround(ctx, v, cw, ch, dpr);
+      }
       // Flowers lie flat: under whoever walks over them.
       for (const p of placeRef.current === "forest" ? FOREST_PROPS : T2 ? [] : PROPS) {
         if (p.kind !== "flowers") continue;
@@ -2803,8 +2806,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // and the floors just painted (the same camera, so they lie where the things stand); everybody is drawn over them.
     {
       const here = placeRef.current;
-      const hdPlace: HdPlace | null = here === "town" && T2 ? "town" : here === "farm" && F2 ? "farm" : null;
-      const wild = (here === "forest" || here === "mountain") && !!scenery && !!wildMake.current;
+      // (the city is not the editor's town of 2026-10-22: its own shadows, from its own pictures, below; the 3D town's were
+      // that town's things', laid over the city where they were not)
+      const hdPlace: HdPlace | null = here === "town" && T2 && !CITY ? "town" : here === "farm" && F2 ? "farm" : null;
+      const city = CITY && here === "town" && art2 instanceof CityArt;
+      const wild = (here === "forest" || here === "mountain" || city) && !!scenery && !!wildMake.current;
       const stood = wildStood.current;
       wildStood.current = [];
       if (!world3d.current && !raisedNow && ((hdPlace && hdMake.current) || wild)) {
@@ -2820,8 +2826,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
               // (whether each walker stands in a shadow: asked every fourth frame, the answer eased towards)
               probes: hdNow.current !== "low" && ++shadeTick.current % 8 === 0 ? dollsDrawn.current.map((d): [number, number] => [d.a.pos.x, d.a.pos.y]) : undefined, shades: undefined as number[] | undefined };
             let pic: HTMLCanvasElement;
+            let cast = "";
             if (town) pic = town.renderAt(view);
-            else {
+            else if (city) {
+              const { stands, blocks } = (art2 as CityArt).casters();
+              pic = wildOf("city").renderAt(view, stands, blocks);
+              cast = `${stands.length} pictures, ${blocks.length} blocks`;
+            } else {
               const stands: Stand[] = [];
               for (const t of stood) { const a = scenery!.pieceOf(t.name); if (a) stands.push({ img: a.img, sx: a.x, sy: a.y, w: a.w, h: a.h, ax: a.ax, ay: a.ay, k: t.k, x: t.x, y: t.y, mirror: t.mirror }); }
               pic = wildOf(here as "forest" | "mountain").renderAt(view, stands);
@@ -2850,7 +2861,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
             // (the dolls' sheet is wiped for this frame's dolls, drawn on it as each walker is drawn)
             if (sheet) sheet.getContext("2d")!.clearRect(0, 0, sheet.width, sheet.height);
             dollsDrawn.current = [];
-            if (hdDrawn.current !== here) { hdDrawn.current = here; console.info("[Cash Town] 3D shadows drawn", here, pic.width, pic.height, town ? "" : `${stood.length} things`); }
+            if (hdDrawn.current !== here) { hdDrawn.current = here; console.info("[Cash Town] 3D shadows drawn", here, pic.width, pic.height, town ? "" : cast || `${stood.length} things`); }
           }
         } catch (e) { hdMake.current = null; wildMake.current = null; console.warn("[Cash Town] 3D shadows stopped", e); }
       }
@@ -2923,13 +2934,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (art2 && seen2) {
       const hide = new Set(CITY ? (art2 instanceof CityArt && art2.opened !== null ? [art2.opened] : []) : [boxShown.current ? T2_CHEST_SHUT : T2_CHEST_OPEN]);
       art2.pushStanding(ctx, seen2.filter((t) => !hide.has(t.i)), (depth, draw) => things.push({ depth, draw }), iso2, v.s, dpr, inHall);
-      // (the city's water, moving: waves, foam on its banks and beach, glints, each row of it just over its own still water;
-      // and the canal's current, fish and what drifts down: the owner, 2026-11-23, "ให้น้ำดูมีความเคลื่อนไหว มีคลื่น มากกว่านี้")
-      if (CITY && placeRef.current === "town" && scenery) {
-        const sec = reducedRef.current ? 0 : Date.now() / 1000, push = (depth: number, draw: () => void) => things.push({ depth, draw });
-        pushCityWater(ctx, push, project, { x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, v.s, sec);
-        cityRiver(ctx, push, scenery, dpr);
-      }
+      // (the canal's current, fish and what drifts down: the owner, 2026-11-23, "ให้น้ำดูมีความเคลื่อนไหว มีคลื่น มากกว่านี้"; the
+      // water itself is drawn live under the ground, above)
+      if (CITY && placeRef.current === "town" && scenery) cityRiver(ctx, (depth, draw) => things.push({ depth, draw }), scenery, dpr);
       for (const p of PROPS) {
         if (p.kind !== "bench" && p.kind !== "storebox") continue;
         const box = art2.boxOf(T2_PROP_THING.get(p) ?? -1, iso2, v.s);

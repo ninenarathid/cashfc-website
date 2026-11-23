@@ -2,6 +2,8 @@
 
 import { BEYOND, BEYOND_MORE, CAVE, COLS, FARM_ALL, FOREST, MORE_GROUND, MOUNTAIN, PREVIEW, ROWS, T2, TILE_H, TILE_W, TOWN_RECT, floorCorner, fromIso, groundLook, groundTone, seenAt, type Ground, type MoreGround } from "./world";
 import { ed } from "./ed";
+import { T2_WATER_LOOK } from "./city";
+import { CITY } from "./town-map";
 import type { T2Look } from "./town2";
 import { riverPixel } from "./river-landscape";
 
@@ -235,6 +237,8 @@ export class SceneryKit {
       const t = fromIso(this.origin.x + cx * CHUNK + px + 0.5, this.origin.y + cy * CHUNK + py + 0.5);
       if (!seenAt(t.x, t.y)) continue;
       const kind = this.kindAt(t.x, t.y), T = this.tex[kind];
+      // (the city's water is left out: lib/town/city-water draws it live under the ground, the owner, 2026-11-23, "ไม่ใช่ jpg")
+      if (CITY && (kind as string) === (T2_WATER_LOOK as string)) continue;
       const u = ((Math.floor(t.x * PER_TILE) % T.w) + T.w) % T.w, v = ((Math.floor(t.y * PER_TILE) % T.h) + T.h) % T.h;
       const si = (v * T.w + u) * 4, di = (py * CHUNK + px) * 4;
       // a little shade along an edge where the ground changes kind (a verge, the river's bank)

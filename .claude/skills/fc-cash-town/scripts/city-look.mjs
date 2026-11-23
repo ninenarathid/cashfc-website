@@ -18,12 +18,13 @@ const SPOTS = {
   clothes: [46, 109], eventhall: [9, 76], museum: [108, 30], beach: [98, 117], dock: [98, 123], canal: [15, 20],
   gatesNE: [80, 12], gateNW: [-5, 40], amusement: [96, 55],
   rimSouth: [56, 87], rimEast: [73, 70], stairs: [53, 69], kerb: [30, 66], waterSquares: [70, 47], fountainBench: [57, 70], shopDoor: [48, 109], seam: [55, 60], ringFarm: [79, 11], stove: [101, 78], sea: [60, 124], canalMid: [23, 70], picnic: [41, 56], worktable: [98, 78], tank: [96, 79],
+  museumDoor: [105, 18], museumStairs: [106, 22], museumFoot: [108, 26], busstop: [78, 73], busstopWest: [10, 45], casinoStep: [17, 106], concertCorner: [-5, 72],
 };
 const SIZES = { desktop: { width: 1280, height: 860 }, phone: { width: 384, height: 730 }, small: { width: 360, height: 640 } };
 for (const label of (process.env.SIZES ?? "desktop,phone").split(",")) {
   const X = await browser(`city-${label}`, SIZES[label]);
   try {
-    await X.goto(`${BASE}/town?townTest=L&townRoom=citylook&townMap=city&townHour=${process.env.HOUR ?? 12}&townWeather=clear`);
+    await X.goto(`${BASE}/town?townTest=L&townRoom=citylook&townMap=city&townHour=${process.env.HOUR ?? 12}&townWeather=clear${process.env.EXTRA ?? ""}`);
     await until("ready", async () => (await status(X)) === "ready", 300000);
     ok(`${label}: the page has an editor's town`, (await X.evaluate(`${V}.town2().on`)) === true);
     for (const [name, [x, y]] of Object.entries(SPOTS)) {

@@ -18,7 +18,8 @@ import { NOISE, noise2 } from "./fx";
 /** A picture standing on the map: its piece of its sheet, its foot in that piece, how large it is drawn, and its foot's tile. */
 export interface Stand { img: HTMLImageElement | HTMLCanvasElement; sx: number; sy: number; w: number; h: number; ax: number; ay: number; k: number; x: number; y: number; mirror?: boolean; /** How high the ground it stands on is, in tiles. */ up?: number }
 export interface Shade {
-  renderAt(v: LiveView, stands: readonly Stand[]): HTMLCanvasElement;
+  /** `blocks`: what stands too wide to throw its shadow from one sheet (the city's buildings), as plain blocks on their footprints. */
+  renderAt(v: LiveView, stands: readonly Stand[], blocks?: readonly Block[]): HTMLCanvasElement;
   /**
    * What lives on a map's water that is not the editor's (the forest's pool, the mountain's stream), alone on nothing:
    * the sun's glints and the rings where rain falls, well inside the water (`wet`: a tile and all about it water), so
@@ -36,7 +37,16 @@ export interface Shade {
   dispose(): void;
 }
 /** A map's land that low hills may rise on (./engine's heights, made the same way): its box in tiles, and whether a tile is open land (not water, a path, a floor, a clearing people sit in). */
-export interface Raise { box: { x: number; y: number; w: number; h: number }; land: (x: number, y: number) => boolean }
+export interface Raise {
+  box: { x: number; y: number; w: number; h: number }; land: (x: number, y: number) => boolean;
+  /**
+   * The map's own heights (tiles), where it has them (the city: its sunk park and canals, its roads a kerb down): the
+   * shadows lie on that ground, no hills are made up, and the sheet of it reaches well beyond the map.
+   */
+  height?: (x: number, z: number) => number;
+}
+/** A block on a footprint (tiles), `h` tiles high, unseen, throwing its shadow (a building). */
+export interface Block { x0: number; z0: number; x1: number; z1: number; h: number }
 
 /** The sun's stand at the day's hours (./engine's, the same four), and how far the night has come (0 to 1). */
 const SUNS: Array<[number, [number, number, number], number]> = [
@@ -105,12 +115,13 @@ export function probe(renderer: THREE.WebGLRenderer, camera: THREE.Camera, v: Li
 
 type Pic = HTMLImageElement | HTMLCanvasElement;
 /** All that stands of one sheet: its pictures' sheets in one set of corners, written again each time. */
-interface Batch { tex: THREE.Texture; mat: THREE.Material; geo: THREE.BufferGeometry; mesh: THREE.Mesh; pos: Float32Array; uv: Float32Array; room: number; n: number; size: string }
+interface Batch { tex: THREE.Texture; mat: THREE.Material; geo: THREE.BufferGeometry; mesh: THREE.Mesh; pos: Float32Array; uv: Float32Array; room: number; n: number; size: string; /** The last time it was stood (./createSheets' frames). */ used: number }
 export interface Sheets { set(stands: readonly Stand[], sunDir: THREE.Vector3): void; dispose(): void }
 
 /** Pictures stood unseen in a scene, each upright on its foot across the sun's way, to throw their shadows. */
 export function createSheets(scene: THREE.Scene): Sheets {
   const batches = new Map<Pic, Batch>();
+  let frame = 0;
   const batchOf = (img: Pic, need: number): Batch => {
     let b = batches.get(img);
     // (a canvas made larger or smaller, the dolls' sheet when the view is drawn nearer: its picture is taken anew)
@@ -135,7 +146,7 @@ export function createSheets(scene: THREE.Scene): Sheets {
     const mesh = new THREE.Mesh(geo, mat);
     mesh.castShadow = true; mesh.frustumCulled = false;
     scene.add(mesh);
-    b = { tex, mat, geo, mesh, pos, uv, room, n: 0, size: `${img.width},${img.height}` };
+    b = { tex, mat, geo, mesh, pos, uv, room, n: 0, size: `${img.width},${img.height}`, used: frame };
     batches.set(img, b);
     return b;
   };
@@ -147,6 +158,7 @@ export function createSheets(scene: THREE.Scene): Sheets {
       if (rx - rz < 0) { rx = -rx; rz = -rz; }
       const count = new Map<Pic, number>();
       for (const s of stands) count.set(s.img, (count.get(s.img) ?? 0) + 1);
+      frame++;
       for (const b of batches.values()) b.n = 0;
       for (const s of stands) {
         const b = batchOf(s.img, count.get(s.img)!), i = b.n++, W = s.img.width, H = s.img.height;
@@ -162,6 +174,8 @@ export function createSheets(scene: THREE.Scene): Sheets {
         t[q] = ua; t[q + 1] = v0; t[q + 2] = ub; t[q + 3] = v0; t[q + 4] = ub; t[q + 5] = v1; t[q + 6] = ua; t[q + 7] = v1;
       }
       for (const [img, b] of batches) {
+        if (b.n) b.used = frame;
+        else if (frame - b.used > 600) { scene.remove(b.mesh); b.geo.dispose(); b.mat.dispose(); b.tex.dispose(); batches.delete(img); continue; }
         b.geo.setDrawRange(0, b.n * 6);
         b.mesh.visible = b.n > 0;
         b.geo.attributes.position.needsUpdate = true; b.geo.attributes.uv.needsUpdate = true;
@@ -200,7 +214,9 @@ export function createShade(canvas: HTMLCanvasElement, quality: Quality, raise?:
 
   // The raised land: hills over the map's open land, none within four tiles of ground that must be level, as ./engine
   // makes its own. One sheet of it, white for the shadows' picture, wearing the live town's ground for `renderGround`.
-  const G = 2, PAD = 6;
+  const G = 2, PAD = raise?.height ? 24 : 6;
+  // (the map's own ground, wherever it is: the level sheet under it is not wanted)
+  if (raise?.height) ground.visible = false;
   const hx0 = raise ? raise.box.x - PAD : 0, hz0 = raise ? raise.box.y - PAD : 0, HX = raise ? (raise.box.w + 2 * PAD) * G + 1 : 2, HZ = raise ? (raise.box.h + 2 * PAD) * G + 1 : 2;
   const HGT = new Float32Array(HX * HZ);
   let hill: THREE.Mesh | null = null, hillWhite: THREE.MeshLambertMaterial | null = null, hillWorn: THREE.ShaderMaterial | null = null, hillTex: THREE.CanvasTexture | null = null, hillOf = "";
@@ -226,7 +242,7 @@ export function createShade(canvas: HTMLCanvasElement, quality: Quality, raise?:
     const pos = new Float32Array(HX * HZ * 3), idx = new Uint32Array((HX - 1) * (HZ - 1) * 6);
     for (let j = 0; j < HZ; j++) for (let i = 0; i < HX; i++) {
       const x = hx0 + i / G, z = hz0 + j / G, n = noise2(x * 0.055, z * 0.055) * 0.65 + noise2(x * 0.13 + 7.3, z * 0.13 + 2.1) * 0.35;
-      const up = Math.max(0, n - 0.3) * 2.4 * smooth((land[j * HX + i] - 0.55) / 0.43);
+      const up = raise.height ? raise.height(x, z) : Math.max(0, n - 0.3) * 2.4 * smooth((land[j * HX + i] - 0.55) / 0.43);
       HGT[j * HX + i] = up;
       pos.set([x, up, z], (j * HX + i) * 3);
     }
@@ -236,6 +252,10 @@ export function createShade(canvas: HTMLCanvasElement, quality: Quality, raise?:
     geo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
     geo.setIndex(new THREE.BufferAttribute(idx, 1));
     geo.computeVertexNormals();
+    // (the map's own ground is lit as level ground everywhere: only what stands throws shadows on it, and a step down, the
+    // canal's bank or the harbour's edge in the sea, is no hillside turned from the sun; the owner, 2026-11-23, of a dark
+    // line along the harbour's edge in the water: "เส้นนี้ในน้ำคืออะไร เอาออกได้ไหม")
+    if (raise.height) { const n = geo.attributes.normal; for (let i = 0; i < n.count; i++) n.setXYZ(i, 0, 1, 0); n.needsUpdate = true; }
     hillWhite = new THREE.MeshLambertMaterial({ color: 0xffffff });
     hillWorn = new THREE.ShaderMaterial({
       uniforms: { hdMap: { value: null }, hdK: { value: 1 } },
@@ -256,6 +276,26 @@ export function createShade(canvas: HTMLCanvasElement, quality: Quality, raise?:
   };
 
   const sheets = createSheets(scene);
+  // the blocks: one unit block, as many times as there are blocks in the view
+  const blockGeo = new THREE.BoxGeometry(1, 1, 1).translate(0, 0.5, 0);
+  const blockMat = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false });
+  let blockMesh: THREE.InstancedMesh | null = null;
+  const blockAt = new THREE.Matrix4();
+  const setBlocks = (blocks: readonly Block[]) => {
+    if (!blockMesh || blockMesh.instanceMatrix.count < blocks.length) {
+      if (blockMesh) { scene.remove(blockMesh); blockMesh.dispose(); }
+      blockMesh = new THREE.InstancedMesh(blockGeo, blockMat, Math.max(64, blocks.length * 2));
+      blockMesh.castShadow = true; blockMesh.frustumCulled = false;
+      scene.add(blockMesh);
+    }
+    blocks.forEach((b, i) => {
+      const cx = (b.x0 + b.x1) / 2, cz = (b.z0 + b.z1) / 2;
+      blockAt.makeScale(b.x1 - b.x0, b.h, b.z1 - b.z0).setPosition(cx, Hat(cx, cz), cz);
+      blockMesh!.setMatrixAt(i, blockAt);
+    });
+    blockMesh.count = blocks.length;
+    blockMesh.instanceMatrix.needsUpdate = true;
+  };
   const sunDir = new THREE.Vector3(), eye = new THREE.Vector3();
   let surf: { mesh: THREE.Mesh; mat: THREE.ShaderMaterial; tex: THREE.DataTexture; geo: THREE.BufferGeometry; of: string } | null = null;
   const aim = (v: LiveView) => {
@@ -270,7 +310,7 @@ export function createShade(canvas: HTMLCanvasElement, quality: Quality, raise?:
   };
   let sized = { w: 0, h: 0, d: 0 }, reached = 0;
   return {
-    renderAt(v, stood) {
+    renderAt(v, stood, blocks) {
       const w = Math.max(1, Math.round(v.cw)), h = Math.max(1, Math.round(v.ch)), dpr = Math.min(v.dpr, quality === "low" ? 1 : lite ? 1.5 : 2);
       if (w !== sized.w || h !== sized.h || dpr !== sized.d) { sized = { w, h, d: dpr }; renderer.setPixelRatio(dpr); renderer.setSize((Math.round(v.cw * dpr) + 0.25) / dpr, (Math.round(v.ch * dpr) + 0.25) / dpr, false); }
       const night = sunAt(v.min, sunDir);
@@ -280,6 +320,7 @@ export function createShade(canvas: HTMLCanvasElement, quality: Quality, raise?:
       const all = v.stands?.length ? [...stood, ...v.stands] : stood;
       if (raise) for (const s of all) s.up = Hat(s.x, s.y);
       sheets.set(all, sunDir);
+      if (blocks || blockMesh) setBlocks(blocks ?? []);
 
       const half = v.ch / (2 * PX_SIDE * v.s);
       camera.top = half; camera.bottom = -half; camera.right = (half * v.cw) / v.ch; camera.left = -camera.right;
@@ -373,6 +414,8 @@ export function createShade(canvas: HTMLCanvasElement, quality: Quality, raise?:
       if (hill) { hill.geometry.dispose(); hillWhite?.dispose(); hillWorn?.dispose(); hillTex?.dispose(); }
       groundGeo.dispose(); groundMat.dispose();
       sheets.dispose();
+      if (blockMesh) blockMesh.dispose();
+      blockGeo.dispose(); blockMat.dispose();
       renderer.dispose();
     },
   };
