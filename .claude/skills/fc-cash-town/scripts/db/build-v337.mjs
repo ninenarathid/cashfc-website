@@ -136,55 +136,58 @@ end $$;
 -- ── 4b. Members' things on a tile the town closes (v295's, and a member's stall or sign, v142: the city's buildings stand
 -- where town2's ground was; and anything on a tile of the city's that is no tile of town2's, going back): to the nearest
 -- free tile one may stand on, from the town's list of them ──────────────────────────────────────────────────────────────────────────────────────────
--- (the nearest tiles one may stand on in a town, nearest first, then by row: from its list of them, v337's parts, or, for
--- a town's parts kept from before, its list of moves from the tile)
-create or replace function town.near_open(p jsonb, p_x integer, p_y integer) returns setof jsonb language sql stable set search_path = '' as $$
-  select t from (
-    select jsonb_build_array(split_part(k, ',', 1)::integer, split_part(k, ',', 2)::integer) t,
-           (split_part(k, ',', 1)::integer - p_x) ^ 2 + (split_part(k, ',', 2)::integer - p_y) ^ 2 d, split_part(k, ',', 2)::integer ry, split_part(k, ',', 1)::integer rx
-      from jsonb_array_elements_text(coalesce(p->'open', '[]'::jsonb)) k
-     where p ? 'open'
-     order by 2, 3, 4 limit 6) n
+-- (the tiles one may stand on in a town, each with how far it is from a tile and its row and column, to be taken nearest
+-- first, then by row: from its list of them, v337's parts, or, for a town's parts kept from before, its list of moves)
+create or replace function town.near_open(p jsonb, p_x integer, p_y integer) returns table (t jsonb, d double precision, ry integer, rx integer)
+language sql stable set search_path = '' as $$
+  select jsonb_build_array(split_part(k, ',', 1)::integer, split_part(k, ',', 2)::integer),
+         ((split_part(k, ',', 1)::integer - p_x) ^ 2 + (split_part(k, ',', 2)::integer - p_y) ^ 2)::double precision,
+         split_part(k, ',', 2)::integer, split_part(k, ',', 1)::integer
+    from jsonb_array_elements_text(coalesce(p->'open', '[]'::jsonb)) k
+   where p ? 'open'
   union all
-  select value from jsonb_array_elements(coalesce(p->'moves'->(p_x || ',' || p_y), '[]'::jsonb)) where not (p ? 'open')
+  select m.v, m.o::double precision, 0, 0
+    from jsonb_array_elements(coalesce(p->'moves'->(p_x || ',' || p_y), '[]'::jsonb)) with ordinality m(v, o)
+   where not (p ? 'open')
 $$;
 -- (whether a tile of the town's part of the tile space is one a town's things must leave)
 create or replace function town.must_move(p jsonb, p_x integer, p_y integer) returns boolean language sql immutable set search_path = '' as $$
   select p_x is not null and p_y is not null and town.town_key(p_x || ',' || p_y)
      and case when p ? 'open' then not ((p->'open') ? (p_x || ',' || p_y)) else coalesce(p->'moves' ? (p_x || ',' || p_y), false) end
 $$;
+-- (each goes to the nearest free tile one may stand on, however many went before it)
 create or replace function town.move_things(p jsonb) returns jsonb language plpgsql set search_path = '' as $$
 declare r record; c jsonb; pots integer := 0; kept integer := 0; held integer := 0; shops integer := 0;
 begin
   update public.town_pots set x = (p->'feastTile'->>0)::integer, y = (p->'feastTile'->>1)::integer
    where feast and (x, y) is distinct from ((p->'feastTile'->>0)::integer, (p->'feastTile'->>1)::integer);
   for r in select o.id, o.x, o.y from public.town_pots o where not o.feast and town.must_move(p, o.x, o.y) order by o.id loop
-    for c in select * from town.near_open(p, r.x, r.y) loop
-      if not exists (select 1 from public.town_pots o where not o.feast and o.x = (c->>0)::integer and o.y = (c->>1)::integer) then
-        update public.town_pots set x = (c->>0)::integer, y = (c->>1)::integer where id = r.id;
-        pots := pots + 1;
-        exit;
-      end if;
-    end loop;
+    c := (select n.t from town.near_open(p, r.x, r.y) n
+           where not exists (select 1 from public.town_pots o where not o.feast and o.x = (n.t->>0)::integer and o.y = (n.t->>1)::integer)
+           order by n.d, n.ry, n.rx limit 1);
+    if c is not null then
+      update public.town_pots set x = (c->>0)::integer, y = (c->>1)::integer where id = r.id;
+      pots := pots + 1;
+    end if;
   end loop;
   for r in select pp.member_id, k, (pp.doc->'professionRewards'->k->'at'->>0)::integer ax, (pp.doc->'professionRewards'->k->'at'->>1)::integer ay
              from public.town_purses pp, unnest(array['relay', 'nursery']) k
             where jsonb_typeof(pp.doc->'professionRewards'->k->'at') = 'array'
               and town.must_move(p, (pp.doc->'professionRewards'->k->'at'->>0)::integer, (pp.doc->'professionRewards'->k->'at'->>1)::integer) loop
-    c := (select n from town.near_open(p, r.ax, r.ay) n limit 1);
+    c := (select n.t from town.near_open(p, r.ax, r.ay) n order by n.d, n.ry, n.rx limit 1);
     if c is null then continue; end if;
     update public.town_purses pp set doc = jsonb_set(pp.doc, array['professionRewards', r.k, 'at'], c) where pp.member_id = r.member_id;
     if r.k = 'relay' then kept := kept + 1; else held := held + 1; end if;
   end loop;
   if to_regclass('public.town_shops') is not null then
     for r in select o.member_id, o.x, o.y from public.town_shops o where town.must_move(p, o.x, o.y) order by o.member_id loop
-      for c in select * from town.near_open(p, r.x, r.y) loop
-        if not exists (select 1 from public.town_shops o where o.x = (c->>0)::integer and o.y = (c->>1)::integer) then
-          update public.town_shops set x = (c->>0)::integer, y = (c->>1)::integer where member_id = r.member_id;
-          shops := shops + 1;
-          exit;
-        end if;
-      end loop;
+      c := (select n.t from town.near_open(p, r.x, r.y) n
+             where not exists (select 1 from public.town_shops o where o.x = (n.t->>0)::integer and o.y = (n.t->>1)::integer)
+             order by n.d, n.ry, n.rx limit 1);
+      if c is not null then
+        update public.town_shops set x = (c->>0)::integer, y = (c->>1)::integer where member_id = r.member_id;
+        shops := shops + 1;
+      end if;
     end loop;
   end if;
   return jsonb_build_object('pots', pots, 'relays', kept, 'nurseries', held, 'shops', shops);

@@ -133,6 +133,8 @@ await db.query("update public.town_pots set x = 98, y = 123 where id = (select m
 await db.query("insert into public.town_pots (member_id, x, y, feast) values ($1, 150, 20, false)", [MEMBER]);
 await db.query("update public.town_purses set doc = jsonb_set(doc, '{professionRewards,relay,at}', '[98,123]') where member_id = $1", [MEMBER]);
 await db.query("update public.town_shops set x = 98, y = 123");
+// (and seven pots crowded together on the city's own ground, east of town2's edge: Codex's case)
+for (const [x, y] of [[80 - 16, 100], [80 - 16, 102], [82 - 16, 103], [81 - 16, 105], [82 - 16, 107], [82 - 16, 109], [83 - 16, 111]]) await db.query("insert into public.town_pots (member_id, x, y, feast) values ($1, $2, $3, false)", [ADMIN, x, y]);
 // ── town2 again, the way back: to the letter ──
 const back = await db.query("select town.apply_map('town2') r").then((r) => r.rows[0].r);
 ok("back to town2", back.ok && back.catalog === "town2", back);
@@ -140,6 +142,8 @@ const inT2 = await cat();
 for (const key of Object.keys(was)) ok(`the catalog's ${key} is town2's again, to the letter`, J(inT2[key]) === J(was[key]), [inT2[key], was[key]].map((v) => JSON.stringify(v).slice(0, 300)));
 ok("the city's parts were kept as they were laid", JSON.parse((await parts()).city)[1] === "live");
 const back2 = await q("select x, y, feast from public.town_pots order by id");
+const crowd = await q("select x, y from public.town_pots where member_id = $1", [ADMIN]);
+ok("seven pots crowded on the city's own ground all went to town2's ground", crowd.length === 7 && crowd.every((p) => T2OPEN.has(`${p.x},${p.y}`)) && new Set(crowd.map((p) => `${p.x},${p.y}`)).size === 7, crowd);
 ok("a pot on the city's dock went to town2's ground", T2OPEN.has(`${back2[0].x},${back2[0].y}`), back2[0]);
 ok("a pot on the farm stayed", back2.some((p) => p.x === 150 && p.y === 20));
 const relay2 = (await one("select doc from public.town_purses where member_id = $1", [MEMBER])).doc.professionRewards.relay.at;
