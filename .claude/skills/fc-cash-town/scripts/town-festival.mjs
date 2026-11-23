@@ -10,7 +10,7 @@ import { browser, sleep, status, until } from "./cdp.mjs";
 const MAP = process.env.MAP ?? "city";
 globalThis.__cashTownMap = MAP;
 /** Where to stand on each map: before the stall (the Popoto Board), on the floating landing, before the hall. */
-const SPOT = MAP === "city" ? { stall: [43, 82], river: [28, 72], hall: [63, 81] } : { stall: [32, 41], river: [8, 57], hall: [32, 41] };
+const SPOT = MAP === "city" ? { stall: [43, 82], river: [28, 72], hall: [62, 80] } : { stall: [32, 41], river: [8, 57], hall: [32, 41] };
 await import("./db/repo-ts-town.mjs");
 const { PARTS } = await import("@/lib/town/krathong");
 const KIT = Object.entries(PARTS.flatMap((p) => p.pay.slice(0, 2)).reduce((m, [id, n]) => ({ ...m, [id]: Math.max(m[id] ?? 0, 0) + n * 2 }), {}));
