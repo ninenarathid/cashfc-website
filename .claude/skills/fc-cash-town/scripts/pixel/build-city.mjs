@@ -142,12 +142,62 @@ function drawnAt(pl, ix, iy) {
  */
 const PIECE = 4;
 const placed = [];
+
+/*
+ * The water that runs off the map's edge sunk below the level ground (the canal out through the north edge, the harbour
+ * basin out through the west): the editor closed it at the edge with a dark wall in the edge tiles' own pictures, so
+ * those tiles' pictures are left out, and a tile's slice of its pictures, taken a little way in where it is whole, is laid
+ * again on them and on and on beyond the edge, walls and banks and all; the city's surroundings (lib/town/city) carry it
+ * on with no cut (the owner, 2026-11-23: "Transition map แปลกๆ", "ช่วยทำให้เนียนๆ ไม่เห็นรอยตัด").
+ */
+const RUN_ON = 32, IN = 2;
+const levelOf = (x, y) => map.height[y][x];
+const rowsOf = new Map();
+for (const o of map.objects) if (o.kind === "terrain") { const r = o.terrain.row; rowsOf.set(r, [...(rowsOf.get(r) ?? []), o]); }
+const runOn = [], laidAgain = new Set();
+for (const [ex, ey, ix, iy] of [[0, -1, 0, 1], [-1, 0, 1, 0], [0, 1, 0, -1], [1, 0, -1, 0]]) {
+  // (each edge: its tiles, the way out of it, and the way in)
+  const along = ey ? COLS : ROWS, at = (i) => (ey ? [i, ey < 0 ? 0 : ROWS - 1] : [ex < 0 ? 0 : COLS - 1, i]);
+  // (the sunk water at the edge, and its banks: their pictures draw its walls, three tiles either side)
+  const wet = new Set();
+  for (let i = 0; i < along; i++) { const [x, y] = at(i); if (levelOf(x, y) < 0 && wetTile(x, y)) for (let j = i - 3; j <= i + 3; j++) if (j >= 0 && j < along) wet.add(j); }
+  for (const i of wet) {
+    const [x, y] = at(i), sx = x + ix * IN, sy = y + iy * IN;
+    if (levelOf(sx, sy) !== levelOf(x, y)) continue;
+    const o = (rowsOf.get(sx + sy) ?? []).find((q) => q.terrain.x0 <= sx && sx <= q.terrain.x1);
+    if (!o) continue;
+    for (let k = 0; k < IN; k++) laidAgain.add(`${x + ix * k},${y + iy * k}`);
+    runOn.push({ o, sx, sy, ix, iy });
+  }
+}
+for (const { o, sx, sy, ix, iy } of runOn) {
+  const pl = await placeOf(o), [file, rect] = pl.file.split("#"), [rx, ry, , rh] = rect.split(",").map(Number);
+  const c0 = Math.max(0, Math.round(32 * (2 * sx - o.terrain.row) - 32 - pl.left)), c1 = Math.min(pl.p.pw, c0 + 64);
+  if (c1 <= c0) continue;
+  const key = `${file}#${rx + c0},${ry},${c1 - c0},${rh}`, p = await picture(key);
+  if (!p.data.some((v, j) => j % 4 === 3 && v > 0)) continue;
+  for (let k = 1; k <= IN + RUN_ON; k++) {
+    const tx = sx - ix * k, ty = sy - iy * k, dx = tx - sx, dy = ty - sy;
+    placed.push({
+      o: { ...o, id: `${o.id}~on${k}:${sx},${sy}`, x: tx, y: ty, w: 1, h: 1, at: [tx + 0.5, ty + 0.5], terrain: { row: tx + ty, x0: tx, x1: tx } },
+      pl: { ...pl, file: key, p, left: pl.left + c0 + 32 * (dx - dy), top: pl.top + 16 * (dx + dy), cx: tx + 0.5, cy: ty + 0.5, w: 1, h: 1 },
+    });
+  }
+}
+console.log(`sunk water run on beyond the map's edges: ${runOn.length} slices, ${laidAgain.size} edge tiles laid again`);
 for (const o of map.objects) {
   const pl = await placeOf(o);
   if (o.kind !== "terrain") { placed.push({ o, pl }); continue; }
   const { row, x0, x1 } = o.terrain, [file, rect] = pl.file.split("#"), [rx, ry, , rh] = rect.split(",").map(Number);
-  for (let xa = x0, n = 0; xa <= x1; xa += PIECE, n++) {
-    const xb = Math.min(x1, xa + PIECE - 1);
+  // (runs of its tiles, PIECE at most, without those laid again at a map's edge where sunk water runs on out of it)
+  const runs = [];
+  for (let x = x0; x <= x1; x++) {
+    if (laidAgain.has(`${x},${row - x}`)) continue;
+    const last = runs[runs.length - 1];
+    if (last && last[1] === x - 1 && x - last[0] < PIECE) last[1] = x; else runs.push([x, x]);
+  }
+  for (let r = 0, n = 0; r < runs.length; r++, n++) {
+    const [xa, xb] = runs[r];
     // its columns of the picture: the tiles' own (a tile's middle is at 32 × (2x − row)), the first and last running to the picture's edges
     // (within the picture: a picture may show fewer tiles than its row names, and a part beyond it is another's on the sheet)
     const c0 = Math.max(0, xa === x0 ? 0 : Math.round(32 * (2 * xa - row) - 32 - pl.left)), c1 = Math.min(pl.p.pw, xb === x1 ? pl.p.pw : Math.round(32 * (2 * xb - row) + 32 - pl.left));

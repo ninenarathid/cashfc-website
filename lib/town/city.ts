@@ -367,7 +367,12 @@ function srcTile(fx: number, fy: number): [number, number] {
  */
 export function t2Lift(x: number, y: number): number {
   const fx = x - OX, fy = y - OY;
-  if (fx < 0 || fy < 0 || fx >= T2_COLS || fy >= T2_ROWS) return 0;
+  if (fx < 0 || fy < 0 || fx >= T2_COLS || fy >= T2_ROWS) {
+    // (beyond the edge, the sunk water that runs on out of it lies as low as it did: the canal, the harbour basin;
+    // pixel/build-city.mjs runs their pictures on, and lib/town-hd/shade lays their shadows there)
+    const ex = clampX(fx), ey = clampY(fy), h = heightOf(ex, ey);
+    return h < 0 && WALK[ey][ex] === "~" ? h * STEP : 0;
+  }
   const [tx, ty] = srcTile(fx, fy);
   const h = heightOf(tx, ty), s = STAIRS.get(`${tx},${ty}`);
   if (!s) return h * STEP;

@@ -28,7 +28,7 @@ const FPS = 12;
  * R water on the level ground, and the cells round it (drawn under the ground's edge, so no gap shows);
  * G water sunk four steps (the canal), and the cells round it (under its walls' feet);
  * B how far from the shore, in cells (0 on land);
- * A which water exactly: 255 level, 128 sunk, 0 none.
+ * A which water exactly: 255 level, 128 sunk, 96 sunk under a bridge, 0 none.
  */
 function mapData(): Uint8Array {
   const sunkTile = new Uint8Array(T2_COLS * T2_ROWS), near = new Uint8Array(T2_COLS * T2_ROWS);
@@ -42,13 +42,26 @@ function mapData(): Uint8Array {
         if (nx >= 0 && ny >= 0 && nx < T2_COLS && ny < T2_ROWS) near[ny * T2_COLS + nx] = 1;
       }
   }
+  // (a bridge: ground over the sunk water, five tiles across at most, the water on both sides of it in a line; the canal
+  // runs on under it in its shade, and is no shore there: the owner, 2026-11-23, "ใต้สะพานดูแปลกๆ ช่วยปรับให้ดีขึ้นหน่อย")
+  const sunkWet = (x: number, y: number) => x >= 0 && y >= 0 && x < T2_COLS && y < T2_ROWS && sunkTile[y * T2_COLS + x] === 2;
+  const under = new Uint8Array(T2_COLS * T2_ROWS);
+  for (let y = 0; y < T2_ROWS; y++) for (let x = 0; x < T2_COLS; x++) {
+    if (sunkTile[y * T2_COLS + x] || t2Tile(x + OX, y + OY) === "~") continue;
+    for (const [dx, dy] of [[1, 0], [0, 1]]) {
+      let a = 1, b = 1;
+      while (a <= 5 && !sunkWet(x - dx * a, y - dy * a) && t2Tile(x - dx * a + OX, y - dy * a + OY) !== "~" && !sunkTile[(y - dy * a) * T2_COLS + x - dx * a]) a++;
+      while (b <= 5 && !sunkWet(x + dx * b, y + dy * b) && t2Tile(x + dx * b + OX, y + dy * b + OY) !== "~" && !sunkTile[(y + dy * b) * T2_COLS + x + dx * b]) b++;
+      if (a + b - 1 <= 5 && sunkWet(x - dx * a, y - dy * a) && sunkWet(x + dx * b, y + dy * b)) { under[y * T2_COLS + x] = 1; break; }
+    }
+  }
   const exact = new Uint8Array(W * H);
   for (let ty = 0; ty < T2_ROWS; ty++) for (let tx = 0; tx < T2_COLS; tx++) {
     const t = ty * T2_COLS + tx;
-    if (!near[t]) continue;
+    if (!near[t] && !under[t]) continue;
     for (let j = 0; j < S; j++) for (let i = 0; i < S; i++) {
       const cx = tx * S + i, cy = ty * S + j;
-      if (sunkTile[t] === 2) exact[cy * W + cx] = 2;
+      if (sunkTile[t] === 2 || under[t]) exact[cy * W + cx] = under[t] ? 3 : 2;
       else if (!sunkTile[t] && t2WaterAt(OX + (cx + 0.5) / S, OY + (cy + 0.5) / S)) exact[cy * W + cx] = 1;
     }
   }
@@ -98,13 +111,13 @@ function mapData(): Uint8Array {
     }
     return b;
   };
-  const level = grow(1, S / 2), sunk = grow(2, S);
+  const level = grow(1, S / 2), sunk = grow(2, S), bridged = grow(3, S);
   const out = new Uint8Array(W * H * 4);
   for (let i = 0; i < W * H; i++) {
     out[i * 4] = level[i] ? 255 : 0;
-    out[i * 4 + 1] = sunk[i] ? 255 : 0;
+    out[i * 4 + 1] = sunk[i] || bridged[i] ? 255 : 0;
     out[i * 4 + 2] = exact[i] ? Math.min(255, Math.round(dist[i])) : 0;
-    out[i * 4 + 3] = exact[i] === 1 ? 255 : exact[i] === 2 ? 128 : 0;
+    out[i * 4 + 3] = exact[i] === 1 ? 255 : exact[i] === 2 ? 128 : exact[i] === 3 ? 96 : 0;
   }
   return out;
 }
@@ -170,9 +183,9 @@ void main() {
   vec2 w = uCorner + vec2(floor(gl_FragCoord.x), uSize.y - 1.0 - floor(gl_FragCoord.y)) + 0.5;
   vec2 t0 = tileAt(w), t1 = tileAt(w - vec2(0.0, uSunk));
   vec4 c0 = cell(t0), c1 = cell(t1);
-  vec2 t; float low;
+  vec2 t; float low, shade = 0.0;
   if (c0.a > 0.75) { t = t0; low = 0.0; }
-  else if (c1.g > 0.5) { t = t1; low = 1.0; }
+  else if (c1.g > 0.5) { t = t1; low = 1.0; shade = c1.a > 0.3 && c1.a < 0.45 ? 1.0 : 0.0; }
   else if (c0.r > 0.5) { t = t0; low = 0.0; }
   else { gl_FragColor = vec4(0.0); return; }
   // how far from the shore, read on the ground's own texels (32 to a tile's edge); the light on it is laid on the screen,
@@ -200,7 +213,7 @@ void main() {
     // between walls: shade along their feet, and the water lapping at them
     if (d < 0.55 && bayer(sp + 1.0) < 0.6) col = mix(col, DEEP, 0.55);
     float lap = 0.07 + 0.05 * (0.5 + 0.5 * sin(time * 1.6 + n * 6.0 + (sc.x + sc.y) * 0.8));
-    if (d < lap) col = HI2;
+    if (d < lap && shade < 0.5) col = HI2;
   } else {
     // waves rolling in: a crest of light along the shore, broken into lengths, coming in and fading as it nears
     float wave = sin(d * 2.6 - time * 1.5 + n * 0.7);
@@ -214,6 +227,8 @@ void main() {
   }
   // a glint now and then where the light is
   if (uStill < 0.5 && c < 0.05 && hash(sp + floor(time * 3.0)) > 0.985) col = vec3(1.0);
+  // under a bridge: in its shade, the light on the water faint
+  if (shade > 0.5) col = mix(col, DEEP2 * 0.42, 0.72);
   gl_FragColor = vec4(col, 1.0);
 }`;
 
