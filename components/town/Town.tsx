@@ -4509,32 +4509,37 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // Nameplates share their owner's depth: a character in front covers the plate behind.
     // (── the cloud ram's flock ── a passenger's plate rests while the flock walks: eight plates bobbing in a crowd of
     // lambs hide the lambs; they are back as it stops)
-    if (!(mount && carrier?.path.length)) {
-      ctx.save();
-      if (faded || away) ctx.globalAlpha = 0.6;
-      // (on a casino sofa, below the plates of whoever sits to the left)
-      const fy = foot.y + sofaDrop(a);
-      label(ctx, name, p.x, fy + 13, isMe ? "#e5cc80" : "#e3e8ef", "rgba(15,19,25,0.78)");
-      // the title somebody chose to wear, under their name (lib/town/lines); and for whoever has chosen none, the
-      // name the well has for those who carried enough water to it, as before there were lines
-      const who = isMe ? ranksRef.current.me : a.info.id, worn = ranksRef.current.titles[who], title = worn ? titleOf(worn.line, worn.rank) : null;
-      const rank = ranksRef.current.ranks[who] ?? 0;
-      if (title) drawTitlePlate(ctx, { text: words.current.th ? title.th : title.en, line: worn.line, rank: worn.rank, x: p.x, y: fy + 31, now, seed: seedOf(a.info.id), img: iconImg.current, font: fontRef.current, reduced: reducedRef.current });
-      else if (rank > 0) tag(ctx, RANK_TITLES[rank - 1][words.current.th ? 0 : 1], p.x, fy + 31, RANK_INK[rank - 1]);
-      // (Granny Twilla's: a try is said to be one; a limited copy worn by its winner says its number)
-      const below = fy + (title || rank > 0 ? 49 : 31);
-      if (a.info.trying) tag(ctx, words.current.th ? "ลองชุด" : "Trying on", p.x, below, "#9fd0ff");
-      else {
-        const lim = limitedOwners.current.get(isMe ? me.id : a.info.id)?.find((o) => o.outfit === outfitBaseId(look.outfit)), worn = limitedOf(look.outfit);
-        if (lim && worn) {
-          const plate: LimitedTitle = { text: words.current.th ? worn.look.title.th : worn.look.title.en, number: `#${lim.edition}/${lim.copies}`, kind: worn.look.kind, dye: worn.dye, x: p.x, y: below, now, seed: seedOf(a.info.id), font: fontRef.current, reduced: reducedRef.current || limitedMinimalRef.current || worn.quiet };
-          drawLimitedTitle(ctx, plate);
-          // (after dark it shines through, as a lamp does)
-          if (skyNow().lamps >= 0.2 && auraPlates.current.length < 24) auraPlates.current.push(plate);
-        } else if (lim) tag(ctx, `LIMITED #${lim.edition}/${lim.copies}`, p.x, below, "#e9c6ff");
+    // (the city: a nameplate goes over everything, as what they say does: its ground's steps and kerbs in front of whoever
+    // stands lower would hide it, the owner, 2026-11-23, "ชื่อตัวละครโดนพื้นบัง"; elsewhere it shares its owner's depth)
+    const plate = () => {
+      if (!(mount && carrier?.path.length)) {
+        ctx.save();
+        if (faded || away) ctx.globalAlpha = 0.6;
+        // (on a casino sofa, below the plates of whoever sits to the left)
+        const fy = foot.y + sofaDrop(a);
+        label(ctx, name, p.x, fy + 13, isMe ? "#e5cc80" : "#e3e8ef", "rgba(15,19,25,0.78)");
+        // the title somebody chose to wear, under their name (lib/town/lines); and for whoever has chosen none, the
+        // name the well has for those who carried enough water to it, as before there were lines
+        const who = isMe ? ranksRef.current.me : a.info.id, worn = ranksRef.current.titles[who], title = worn ? titleOf(worn.line, worn.rank) : null;
+        const rank = ranksRef.current.ranks[who] ?? 0;
+        if (title) drawTitlePlate(ctx, { text: words.current.th ? title.th : title.en, line: worn.line, rank: worn.rank, x: p.x, y: fy + 31, now, seed: seedOf(a.info.id), img: iconImg.current, font: fontRef.current, reduced: reducedRef.current });
+        else if (rank > 0) tag(ctx, RANK_TITLES[rank - 1][words.current.th ? 0 : 1], p.x, fy + 31, RANK_INK[rank - 1]);
+        // (Granny Twilla's: a try is said to be one; a limited copy worn by its winner says its number)
+        const below = fy + (title || rank > 0 ? 49 : 31);
+        if (a.info.trying) tag(ctx, words.current.th ? "ลองชุด" : "Trying on", p.x, below, "#9fd0ff");
+        else {
+          const lim = limitedOwners.current.get(isMe ? me.id : a.info.id)?.find((o) => o.outfit === outfitBaseId(look.outfit)), worn = limitedOf(look.outfit);
+          if (lim && worn) {
+            const plate: LimitedTitle = { text: words.current.th ? worn.look.title.th : worn.look.title.en, number: `#${lim.edition}/${lim.copies}`, kind: worn.look.kind, dye: worn.dye, x: p.x, y: below, now, seed: seedOf(a.info.id), font: fontRef.current, reduced: reducedRef.current || limitedMinimalRef.current || worn.quiet };
+            drawLimitedTitle(ctx, plate);
+            // (after dark it shines through, as a lamp does)
+            if (skyNow().lamps >= 0.2 && auraPlates.current.length < 24) auraPlates.current.push(plate);
+          } else if (lim) tag(ctx, `LIMITED #${lim.edition}/${lim.copies}`, p.x, below, "#e9c6ff");
+        }
+        ctx.restore();
       }
-      ctx.restore();
-    }
+    };
+    if (CITY) names.push(plate); else plate();
     names.push(() => {
       // The sign they hold up: its pole in their hand, its board over their head; what they say goes over the board.
       const board = sign ? drawSign(ctx, a, p, h, top, sign, handSide, look, isMe, faded, now) : top;
@@ -5206,6 +5211,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       outings: () => outingsNow(Date.now(), forcedPopoto.current).map((o) => ({ activity: o.activity, at: o.spots?.[0] ?? alongRoute(o, Date.now())?.pos })),
       /** The benches on the screen this frame, and what the mouse cursor shows now. */
       benches: () => benchBoxes.current.map((b) => ({ ...b })),
+      /** (the city) Every seat of the map's, its number to sit on (BENCHES, then the kitchen's after YARD_SEATS), its tile, where one stands to sit and where the sitter is. */
+      seats: () => [...BENCHES.map((b, i) => ({ i, x: b.x, y: b.y, stand: b.stand ?? null, seat: b.seat ?? null, rise: b.rise ?? null, facing: b.facing ?? null })).filter((b) => b.rise !== null),
+        ...KITCHEN.seats.map((k, n) => ({ i: YARD_SEATS + n, x: Math.floor(k.at.x), y: Math.floor(k.at.y), stand: { x: k.stand[0], y: k.stand[1] }, seat: k.at, rise: 0, facing: null }))],
+      /** Sit on a seat by its number (as a tap on it does). */
+      sit: (i: number) => sessionRef.current?.sitOn(i) ?? false,
       /** The tops of the yard's dining tables on the screen this frame (a tap on one is for the feast table). */
       tables: () => feastBoxes.current.map((k) => ({ ...k })),
       cursor: () => mouse.current?.mode ?? null,

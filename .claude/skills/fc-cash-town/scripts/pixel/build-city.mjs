@@ -92,6 +92,7 @@ async function picture(key) {
   if (!key.includes("#")) return reader.picture(key);
   if (!parts.has(key)) {
     const [file, rect] = key.split("#"), [x, y, w, h] = rect.split(",").map(Number), sheet = await reader.picture(file);
+    if (x < 0 || y < 0 || x + w > sheet.pw || y + h > sheet.ph) throw new Error(`a part beyond its sheet: ${key}`);
     const data = Buffer.alloc(w * h * 4);
     for (let j = 0; j < h; j++) sheet.data.copy(data, j * w * 4, ((y + j) * sheet.pw + x) * 4, ((y + j) * sheet.pw + x + w) * 4);
     parts.set(key, { data, pw: w, ph: h });
@@ -133,7 +134,8 @@ for (const o of map.objects) {
   for (let xa = x0, n = 0; xa <= x1; xa += PIECE, n++) {
     const xb = Math.min(x1, xa + PIECE - 1);
     // its columns of the picture: the tiles' own (a tile's middle is at 32 × (2x − row)), the first and last running to the picture's edges
-    const c0 = xa === x0 ? 0 : Math.round(32 * (2 * xa - row) - 32 - pl.left), c1 = xb === x1 ? pl.p.pw : Math.round(32 * (2 * xb - row) + 32 - pl.left);
+    // (within the picture: a picture may show fewer tiles than its row names, and a part beyond it is another's on the sheet)
+    const c0 = Math.max(0, xa === x0 ? 0 : Math.round(32 * (2 * xa - row) - 32 - pl.left)), c1 = Math.min(pl.p.pw, xb === x1 ? pl.p.pw : Math.round(32 * (2 * xb - row) + 32 - pl.left));
     if (c1 <= c0) continue;
     const key = `${file}#${rx + c0},${ry},${c1 - c0},${rh}`, p = await picture(key);
     // (nothing drawn in it: no piece)
@@ -194,8 +196,7 @@ const howDrawn = ({ o, pl }) => {
   if (CHEST_OPEN.test(o.asset)) return DRAW.role;
   const room = roomOf(o);
   if (room) return room[1] === "out" ? DRAW.outside : DRAW.inside;
-  // (the gates' rings, and the dock, walked on: whoever stands on its boards is over them, as the editor's town's piers)
-  if (o.kind === "ring" || DOCK.test(o.asset)) return DRAW.floor;
+  if (o.kind === "ring") return DRAW.floor;
   if (o.kind === "terrain") return DRAW.wide;
   return pl.w + pl.h >= 4 && !TREE.test(o.asset) ? DRAW.wide : DRAW.stand;
 };
@@ -211,6 +212,12 @@ for (const t of placed) {
   const u = { o, pl, s, k, draw, box, left, top, w: sp.w * k, h: sp.h * k, d };
   if (draw === DRAW.wide || draw === DRAW.outside) u.strips = Array.from({ length: Math.ceil(u.w / STRIP) }, (_, n) => (o.kind === "terrain" ? d : stripDepth(box, left + n * STRIP + STRIP / 2)));
   if (draw === DRAW.edge) u.strips = Array.from({ length: Math.ceil(u.w / STRIP) }, (_, n) => edgeDepth(o.wall, left + n * STRIP + STRIP / 2));
+  // (the dock, walked on over the sea: in strips at its back edge, so that whoever stands on its boards is over them, and
+  // the sea under it is behind it, keepEditorOrder below; its strips are written, as a moved thing's are)
+  if (DOCK.test(o.asset)) {
+    u.strips = Array.from({ length: Math.ceil(u.w / STRIP) }, (_, n) => { const v = (left + n * STRIP + STRIP / 2) / 32; return v >= box[0] - box[1] ? v + 2 * box[1] : 2 * box[0] - v; });
+    u.stripsMoved = true;
+  }
   standing.push(u);
 }
 
@@ -238,7 +245,9 @@ function keepEditorOrder(all) {
     }
   });
   const placeAt = (t, ix) => (t.strips ? t.strips[Math.max(0, Math.min(t.strips.length - 1, Math.floor((ix - t.left) / STRIP)))] : t.d);
-  const movable = (t) => t.o.kind === "terrain" || (t.draw === DRAW.stand && LOW.test(t.o.asset));
+  // (and a wide thing's strips under a small thing the editor draws over it: a bench on the fountain's stone square, the
+  // owner, 2026-11-23, "layer ก้อนอิฐบัคเข้ามาในเก้าอี้". Not a fence's, nor a room's: whoever stands behind either is behind it)
+  const movable = (t, b) => t.o.kind === "terrain" || (t.draw === DRAW.stand && LOW.test(t.o.asset)) || (t.draw === DRAW.wide && b.draw === DRAW.stand);
   const moved = [], stuck = new Map();
   for (const i of all.map((_, n) => n).sort((a, b) => all[b].o.draw_index - all[a].o.draw_index)) {
     const t = all[i];
@@ -249,7 +258,7 @@ function keepEditorOrder(all) {
       if (j === i || b.o.draw_index <= t.o.draw_index) continue;
       const limit = placeAt(b, ix) - 0.001;
       if (placeAt(t, ix) <= limit) continue;
-      if (!movable(t)) { const key = `${base(t.o)} under ${base(b.o)}`; stuck.set(key, (stuck.get(key) ?? 0) + 1); continue; }
+      if (!movable(t, b)) { const key = `${base(t.o)} under ${base(b.o)}`; stuck.set(key, (stuck.get(key) ?? 0) + 1); continue; }
       if (t.strips) { const n = Math.floor((ix - t.left) / STRIP); if (t.strips[n] > limit) t.strips[n] = limit; }
       else if (t.d > limit) t.d = limit;
     }

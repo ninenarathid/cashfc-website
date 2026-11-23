@@ -225,11 +225,12 @@ export const T2_SMITH = {
   fire: [0, 0] as [number, number], tiles: [[85 + OX, 29 + OY]] as Array<[number, number]>, reach: 6,
 };
 /**
- * The clothes shop's door, the way into Granny Twilla's shop (lib/town/shop-room): its door under the striped awning, near
- * the left end of its south-west face. `tile` is the shop's tile behind the door, which nobody stands on: walked onto
+ * The clothes shop's door, the way into Granny Twilla's shop (lib/town/shop-room): its glass door in the middle of its
+ * south-west face, right of the striped awning. `tile` is the shop's tile behind the door, which nobody stands on: walked onto
  * only to go in (lib/town/world's findPath); `out` the pavement before it; `at` the door's foot, for its name and tap.
  */
-export const T2_SHOP_DOOR = { tile: [62 + OX, 107 + OY] as [number, number], out: g(62.5, 108.5), at: g(62.4, 108) };
+// (its glass door with the arched top, two and a half tiles along from the awning: the owner, 2026-11-23, "ร้านขายเสื้อผ้า เข้าไม่ได้", tapped the door he saw, and the tap was the awning's)
+export const T2_SHOP_DOOR = { tile: [64 + OX, 107 + OY] as [number, number], out: g(64.5, 108.5), at: g(64.95, 108) };
 /**
  * The casino's door, the way into the Popoto Casino (lib/town/casino-room): its red carpet and steps in the porch of its
  * south-east face (the map leaves the porch open: tiles 31 to 32, rows 105 to 106). `tile` is the porch's inner tile;
@@ -345,6 +346,26 @@ type Seat = { tile: [number, number]; facing: Facing; point: [number, number]; l
 const BENCHES = MAP.roles.benches as unknown as Array<{ thing: number; seats: Seat[] }>;
 const FRONT: Record<Facing, Vec> = { SE: { x: 1, y: 0 }, SW: { x: 0, y: 1 }, NE: { x: 0, y: -1 }, NW: { x: -1, y: 0 } };
 const depthOf = (i: number) => OBJECTS[i]?.[7] ?? 0;
+const STRIPS = MAP.strips as unknown as Record<string, number[]>;
+/** A thing's places back to front, the nearest and the furthest: a wide thing's strips (lib/town/city-art draws it so), else its middle's. */
+function depthsOf(i: number): [number, number] {
+  const o = OBJECTS[i];
+  if (!o) return [0, 0];
+  const how = o[6];
+  if (how !== 2 && how !== 5) return [o[7], o[7]];
+  const sp = (MAP.sprites as Array<[string, number, number]>)[o[1]], box = [o[8], o[9], o[10], o[11]];
+  const ds = STRIPS[i] ?? Array.from({ length: Math.ceil((sp[1] * o[4]) / T2_STRIP) }, (_, n) => t2StripDepth(box, o[2] + n * T2_STRIP + T2_STRIP / 2));
+  return [Math.min(...ds), Math.max(...ds)];
+}
+/**
+ * Where a seat's sitter is drawn back to front: right after its seat's whole picture, or right before it, as the map says
+ * of each seat (README §6's `draw`: a seat facing the viewer is sat on in front of its chair, one facing away behind its
+ * back; the owner, 2026-11-23, of sitters drawn behind a bus stop's bench and a café chair: "นั่งแล้วตัวละครนั่งไม่ถูกต้อง").
+ */
+const sitterDepth = (thing: number, draw: string, facing: Facing) => {
+  const [near, far] = depthsOf(thing), before = draw ? draw === "before" : facing === "NE" || facing === "NW";
+  return before ? near - 0.005 : far + 0.005;
+};
 /**
  * The kitchen as lib/town/world's KITCHEN (the cooking yard's shape, which the cooking games and the database's copies
  * read): its floor, its doorway, where one cooks (by the stove counter or the kitchen's worktable), washes (by the water
@@ -381,7 +402,7 @@ export const T2_KITCHEN = (() => {
     // where one stands to sit down there: behind the bench, away from the table, else the nearest floor beside it
     const f = FRONT[s.facing], [sx, sy] = s.tile;
     const stand = (open(sx - f.x, sy - f.y) ? [sx - f.x, sy - f.y] : floor.slice().sort((a, c) => Math.hypot(a[0] + 0.5 - p.x, a[1] + 0.5 - p.y) - Math.hypot(c[0] + 0.5 - p.x, c[1] + 0.5 - p.y))[0]) as [number, number];
-    return { at: p, px: q.x, py: q.y, back, table, stand, over: depthOf(b.thing) + 0.01 };
+    return { at: p, px: q.x, py: q.y, back, table, stand, over: sitterDepth(b.thing, s.draw, s.facing) };
   });
   // a table's top: its footprint raised TABLE_UP, in the kitchen's pixels from its foot
   const topOf = (t: T2Thing) => {
@@ -468,7 +489,7 @@ export const T2_PROPS: Prop[] = (() => {
       const seat = fromIso(s.point[0], s.point[1] + SEAT_LIFT + s.lift);
       let stand: Vec | null = free(x + f.x, y + f.y, [x, y]) ? { x: x + f.x, y: y + f.y } : null;
       for (const [dx, dy] of [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, 1], [1, -1], [-1, -1]]) if (!stand && free(x + dx, y + dy, [x, y])) stand = { x: x + dx, y: y + dy };
-      const p: Prop = { kind: "bench", x, y, solid: true, facing: s.facing, seat, rise: s.lift, stand: stand ?? { x: x + f.x, y: y + f.y }, over: depthOf(b.thing) + 0.01, of: b.thing };
+      const p: Prop = { kind: "bench", x, y, solid: true, facing: s.facing, seat, rise: s.lift, stand: stand ?? { x: x + f.x, y: y + f.y }, over: sitterDepth(b.thing, s.draw, s.facing), of: b.thing };
       out.push(p);
       T2_PROP_THING.set(p, b.thing);
     }
