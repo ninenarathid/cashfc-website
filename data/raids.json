@@ -10271,7 +10271,7 @@
       "best": 24
      },
      "Sage": {
-      "kills": 8,
+      "kills": 10,
       "best": 39
      },
      "Scholar": {
@@ -10404,7 +10404,21 @@
     "best": 52,
     "kills": 5,
     "job": "Sage",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Sage": {
+      "kills": 6,
+      "best": 63
+     },
+     "Scholar": {
+      "kills": 4,
+      "best": 50
+     },
+     "Astrologian": {
+      "kills": 1,
+      "best": 35
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -10426,7 +10440,7 @@
       "best": 21
      },
      "Sage": {
-      "kills": 6,
+      "kills": 7,
       "best": 71
      }
     }
@@ -28347,6 +28361,10 @@
     "job": "Samurai",
     "cleared": true,
     "job_kills": {
+     "Reaper": {
+      "kills": 2,
+      "best": 87
+     },
      "Samurai": {
       "kills": 4,
       "best": 85
@@ -28355,9 +28373,9 @@
       "kills": 1,
       "best": 57
      },
-     "Reaper": {
+     "Monk": {
       "kills": 1,
-      "best": 37
+      "best": 24
      },
      "DarkKnight": {
       "kills": 3,
@@ -28501,7 +28519,13 @@
     "best": 98,
     "kills": 5,
     "job": "Monk",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Monk": {
+      "kills": 5,
+      "best": 98
+     }
+    }
    }
   ],
   "legacy": [
@@ -80116,8 +80140,8 @@
     "cleared": true,
     "job_kills": {
      "WhiteMage": {
-      "kills": 9,
-      "best": 95
+      "kills": 15,
+      "best": 98
      }
     }
    },
@@ -99062,8 +99086,8 @@
     "cleared": true,
     "job_kills": {
      "Machinist": {
-      "kills": 5,
-      "best": 14
+      "kills": 9,
+      "best": 39
      }
     }
    },
@@ -99076,7 +99100,13 @@
     "best": 43,
     "kills": 5,
     "job": "Machinist",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Machinist": {
+      "kills": 11,
+      "best": 49
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -99273,6 +99303,172 @@
     ]
    }
   ],
+  "_status": "ok"
+ },
+ "28002758": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "encounter_id": 101,
+     "name": "Vamp Fatale",
+     "best": 82,
+     "median": 61,
+     "kills": 9,
+     "job": "Viper"
+    },
+    {
+     "label": "M10S",
+     "encounter_id": 102,
+     "name": "Red Hot and Deep Blue",
+     "best": 77,
+     "median": 50,
+     "kills": 8,
+     "job": "Viper"
+    },
+    {
+     "label": "M11S",
+     "encounter_id": 103,
+     "name": "The Tyrant",
+     "best": 79,
+     "median": 58,
+     "kills": 9,
+     "job": "Viper"
+    },
+    {
+     "label": "M12S-1",
+     "encounter_id": 104,
+     "name": "Lindwurm",
+     "best": 60,
+     "median": 23,
+     "kills": 15,
+     "job": "Viper"
+    },
+    {
+     "label": "M12S-2",
+     "encounter_id": 105,
+     "name": "Lindwurm II",
+     "best": 51,
+     "median": 27,
+     "kills": 8,
+     "job": "Viper"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Dancing Mad",
+    "zone_id": 76,
+    "expansion": "Dawntrail",
+    "encounter_id": 1085,
+    "name": "Dancing Mad",
+    "best": 42,
+    "kills": 1,
+    "job": "Viper",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "encounter_id": 1075,
+    "name": "The Epic of Alexander",
+    "best": 31,
+    "kills": 1,
+    "job": "Monk",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1083,
+    "name": "Doomtrain",
+    "best": 94,
+    "kills": 20,
+    "job": "Viper",
+    "cleared": true
+   },
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1084,
+    "name": "Enuo",
+    "best": 77,
+    "kills": 18,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1081,
+    "name": "Necron",
+    "best": 83,
+    "kills": 10,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1080,
+    "name": "Zelenia",
+    "best": 86,
+    "kills": 5,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1078,
+    "name": "Queen Eternal",
+    "best": 44,
+    "kills": 56,
+    "job": "Summoner",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1071,
+    "name": "Valigarmanda",
+    "best": 33,
+    "kills": 10,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1072,
+    "name": "Zoraal Ja",
+    "best": 85,
+    "kills": 4,
+    "job": "Viper",
+    "cleared": true
+   }
+  ],
+  "legacy": [],
   "_status": "ok"
  }
 }

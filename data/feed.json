@@ -2,6 +2,62 @@
  "events": [
   {
    "date": "2026-11-23",
+   "type": "job_up",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "is now a Legendary White Mage"
+  },
+  {
+   "date": "2026-11-23",
+   "type": "rare_up",
+   "id": 57419573,
+   "name": "A'kane Dorothy",
+   "text": "earned Phantom of the Umbra: Codex Umbrae, and 26 more"
+  },
+  {
+   "date": "2026-11-23",
+   "type": "level_100",
+   "id": 32857279,
+   "name": "Harp Abel",
+   "text": "reached level 100 on Samurai!"
+  },
+  {
+   "date": "2026-11-23",
+   "type": "level_100",
+   "id": 62507897,
+   "name": "De Viljho",
+   "text": "reached level 100 on Reaper!"
+  },
+  {
+   "date": "2026-11-23",
+   "type": "level_100",
+   "id": 60429500,
+   "name": "Janna Minerva",
+   "text": "reached level 100 on Pictomancer!"
+  },
+  {
+   "date": "2026-11-23",
+   "type": "new_member",
+   "id": 28002758,
+   "name": "Kyon Okami",
+   "text": "joined the FC — welcome!"
+  },
+  {
+   "date": "2026-11-23",
+   "type": "level_100",
+   "id": 60972300,
+   "name": "Mizuki Sekine",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
+   "date": "2026-11-23",
+   "type": "level_100",
+   "id": 12855286,
+   "name": "V'the Solitaire",
+   "text": "reached level 100 on Lancer!"
+  },
+  {
+   "date": "2026-11-23",
    "type": "parse_up",
    "id": 38405490,
    "name": "Haruka Paru",
@@ -1343,62 +1399,6 @@
    "id": 42845691,
    "name": "Yuukizuz Akino",
    "text": "reached level 100 on Pictomancer!"
-  },
-  {
-   "date": "2026-11-10",
-   "type": "level_100",
-   "id": 61014734,
-   "name": "Hanna Doss",
-   "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-11-09",
-   "type": "level_100",
-   "id": 42948817,
-   "name": "Karuma Amamiya",
-   "text": "reached level 100 on Warrior!"
-  },
-  {
-   "date": "2026-11-09",
-   "type": "rare_up",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "earned Phantom of the Umbra: Harp Bow Umbrae"
-  },
-  {
-   "date": "2026-11-09",
-   "type": "rare_up",
-   "id": 38488824,
-   "name": "Daffodil Amary",
-   "text": "earned Fit for a Queen: Blade's Valor"
-  },
-  {
-   "date": "2026-11-09",
-   "type": "level_100",
-   "id": 38041221,
-   "name": "Kori Kona",
-   "text": "reached level 100 on Machinist!"
-  },
-  {
-   "date": "2026-11-09",
-   "type": "level_100",
-   "id": 61014734,
-   "name": "Hanna Doss",
-   "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-11-08",
-   "type": "level_100",
-   "id": 62507897,
-   "name": "De Viljho",
-   "text": "reached level 100 on Reaper!"
-  },
-  {
-   "date": "2026-11-08",
-   "type": "level_100",
-   "id": 5644067,
-   "name": "Ninenine Everdark",
-   "text": "reached level 100 on Dragoon!"
   }
  ]
 }

@@ -2717,12 +2717,12 @@
   },
   {
    "date": "2026-11-23",
-   "total": 511,
+   "total": 512,
    "tags": {
     "veteran": 156,
-    "extreme": 150,
-    "ultimate": 122,
-    "tier-clear": 41,
+    "extreme": 151,
+    "ultimate": 123,
+    "tier-clear": 42,
     "gatherer": 11,
     "crafter": 17,
     "relic": 27,
@@ -2736,13 +2736,13 @@
     "prog": 24,
     "oldtimer": 1
    },
-   "raider": 65,
-   "ultimate": 122,
-   "extreme": 150,
+   "raider": 66,
+   "ultimate": 123,
+   "extreme": 151,
    "unknown": 0,
-   "final_boss": 41,
-   "active": 172,
-   "vacation": 339,
+   "final_boss": 42,
+   "active": 178,
+   "vacation": 334,
    "guests": 20
   }
  ]
