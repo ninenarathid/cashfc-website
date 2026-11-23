@@ -20,6 +20,7 @@ const run = (args, env) => execFileSync(process.execPath, args, { cwd: REPO, env
 const catalogOf = (map) => JSON.parse(run(["--input-type=module", "-e", `await import("./.claude/skills/fc-cash-town/scripts/db/repo-ts-town.mjs"); const { catalogOf } = await import("@/lib/town/catalog"); process.stdout.write(JSON.stringify(catalogOf()));`], { TOWN_MAP: map }));
 const partsOf = (map) => JSON.parse(run([".claude/skills/fc-cash-town/scripts/db/city-parts.mjs"], { TOWN_MAP: map }));
 const T2CAT = catalogOf("town2"), CITYCAT = catalogOf("city"), CITY = partsOf("city"), T2 = partsOf("town2");
+const CITYOPEN = new Set(CITY.open), T2OPEN = new Set(T2.open);
 const file = (f) => readFileSync(`${REPO}/supabase/${f}`, "utf8");
 const V337 = file("v337_the_city.sql");
 
@@ -68,14 +69,14 @@ for (const f of ["v295_the_editors_town.sql", "v296_the_editors_town_as_it_stand
 }
 // the town as live: town2 for everybody, its parts the code's as they are now, the catalog the code's for town2
 await db.query("select town.apply_map('town2')");
-await db.query("update town.map_parts set parts = $1::jsonb, taken = 'code' where map = 'town2'", [JSON.stringify(Object.fromEntries(Object.entries(T2).filter(([k]) => k !== "boxMore" && k !== "boardSpots")))]);
+await db.query("update town.map_parts set parts = $1::jsonb, taken = 'code' where map = 'town2'", [JSON.stringify(Object.fromEntries(Object.entries(T2).filter(([k]) => k !== "boxMore" && k !== "boardSpots" && k !== "open")))]);
 await db.exec("delete from public.town_catalog");
 for (const [k, v] of Object.entries(T2CAT)) await db.query("insert into public.town_catalog (key, data) values ($1, $2)", [k, v]);
 ok("the stand-in: town2 for everybody", J(await sw()) === J({ map: "town2", catalog: "town2" }), await sw());
 // members' things in town2: a pot on a tile the city closes (town2's plaza, the city's canal), one on a tile open in both,
 // a pot on the feast table, a water relay on a closed tile
-const closedInCity = Object.keys(CITY.moves).map((k) => k.split(",").map(Number)).find(([x, y]) => x >= 0 && x < 80 && y < 80 && !Object.keys(T2.moves).includes(`${x},${y}`));
-const openInBoth = (() => { for (let y = 5; y < 75; y++) for (let x = 5; x < 75; x++) if (!CITY.moves[`${x},${y}`] && !T2.moves[`${x},${y}`]) return [x, y]; return null; })();
+const closedInCity = T2.open.map((k) => k.split(",").map(Number)).find(([x, y]) => !CITYOPEN.has(`${x},${y}`));
+const openInBoth = T2.open.map((k) => k.split(",").map(Number)).find(([x, y]) => CITYOPEN.has(`${x},${y}`));
 await db.query("insert into public.town_pots (member_id, x, y, feast) values ($1, $2, $3, false), ($1, $4, $5, false), ($1, 69, 50, true)", [MEMBER, closedInCity[0], closedInCity[1], openInBoth[0], openInBoth[1]]);
 await db.query("insert into public.town_purses (member_id, doc) values ($1, $2)", [MEMBER, { professionRewards: { relay: { at: closedInCity } } }]);
 await db.query("insert into public.town_shops (member_id, x, y, lines) values ($1, $2, $3, '[]')", [ADMIN, closedInCity[0], closedInCity[1]]);
@@ -113,13 +114,13 @@ ok("an admin opens the city from the chat", opened?.ok === true && opened.catalo
 const inCity = await cat();
 for (const key of Object.keys(CITYCAT)) ok(`the catalog's ${key} is the city's as the code makes it`, J(inCity[key]) === J(CITYCAT[key]), key === "fishing" ? "" : [inCity[key], CITYCAT[key]].map((v) => JSON.stringify(v).slice(0, 300)));
 const pots = await q("select x, y, feast from public.town_pots order by id");
-ok("a pot on a tile the city closes went to an open tile near it", !CITY.moves[`${pots[0].x},${pots[0].y}`] && Math.hypot(pots[0].x - closedInCity[0], pots[0].y - closedInCity[1]) < 12, [closedInCity, pots[0]]);
+ok("a pot on a tile the city closes went to an open tile near it", CITYOPEN.has(`${pots[0].x},${pots[0].y}`) && Math.hypot(pots[0].x - closedInCity[0], pots[0].y - closedInCity[1]) < 12, [closedInCity, pots[0]]);
 ok("a pot on an open tile stayed", pots[1].x === openInBoth[0] && pots[1].y === openInBoth[1], pots[1]);
 ok("the feast table's pot went to the city's table", pots[2].x === CITY.feastTile[0] && pots[2].y === CITY.feastTile[1], pots[2]);
 const relay = (await one("select doc from public.town_purses where member_id = $1", [MEMBER])).doc.professionRewards.relay.at;
-ok("a water relay on a closed tile was moved", !CITY.moves[`${relay[0]},${relay[1]}`], relay);
+ok("a water relay on a closed tile was moved", CITYOPEN.has(`${relay[0]},${relay[1]}`), relay);
 const shop = await one("select x, y from public.town_shops");
-ok("a stall on a closed tile was moved", !CITY.moves[`${shop.x},${shop.y}`], shop);
+ok("a stall on a closed tile was moved", CITYOPEN.has(`${shop.x},${shop.y}`), shop);
 ok("everybody is given the city", (await mapOf(MEMBER)) === "city" && (await mapOf(null)) === "city");
 for (const [x, y, want] of [[-16, 0, "in"], [-10, 134, "in"], [123, 60, "in"], [-17, 10, "out"], [124, 10, "out"], [10, 135, "out"], [130, 20, "in"]]) {
   ok(`a pot set down at ${x},${y}: ${want}`, (await one("select public.town_pot_down($1, $2) r", [x, y])).r === want);
@@ -127,12 +128,24 @@ for (const [x, y, want] of [[-16, 0, "in"], [-10, 134, "in"], [123, 60, "in"], [
 const relayAt = async (x, y) => (await one("select town.reward_relay_place($1::jsonb) r", [JSON.stringify([x, y])])).r;
 for (const [x, y, want] of [[-16, 134, "town"], [123, 0, "town"], [124, 0, null], [128, 0, "farm"], [-17, 0, null], [150, 120, "forest"]]) ok(`a relay at ${x},${y}: ${want}`, (await relayAt(x, y)) === want);
 
+// (things on a tile of the city's that is none of town2's: the dock's boards, and a farm pot that is no town's)
+await db.query("update public.town_pots set x = 98, y = 123 where id = (select min(id) from public.town_pots where not feast)");
+await db.query("insert into public.town_pots (member_id, x, y, feast) values ($1, 150, 20, false)", [MEMBER]);
+await db.query("update public.town_purses set doc = jsonb_set(doc, '{professionRewards,relay,at}', '[98,123]') where member_id = $1", [MEMBER]);
+await db.query("update public.town_shops set x = 98, y = 123");
 // ── town2 again, the way back: to the letter ──
 const back = await db.query("select town.apply_map('town2') r").then((r) => r.rows[0].r);
 ok("back to town2", back.ok && back.catalog === "town2", back);
 const inT2 = await cat();
 for (const key of Object.keys(was)) ok(`the catalog's ${key} is town2's again, to the letter`, J(inT2[key]) === J(was[key]), [inT2[key], was[key]].map((v) => JSON.stringify(v).slice(0, 300)));
 ok("the city's parts were kept as they were laid", JSON.parse((await parts()).city)[1] === "live");
+const back2 = await q("select x, y, feast from public.town_pots order by id");
+ok("a pot on the city's dock went to town2's ground", T2OPEN.has(`${back2[0].x},${back2[0].y}`), back2[0]);
+ok("a pot on the farm stayed", back2.some((p) => p.x === 150 && p.y === 20));
+const relay2 = (await one("select doc from public.town_purses where member_id = $1", [MEMBER])).doc.professionRewards.relay.at;
+ok("a relay on the city's dock went to town2's ground", T2OPEN.has(`${relay2[0]},${relay2[1]}`), relay2);
+const shop2 = await one("select x, y from public.town_shops");
+ok("a stall on the city's dock went to town2's ground", T2OPEN.has(`${shop2.x},${shop2.y}`), shop2);
 // ── and the city again ──
 await db.query("select town.apply_map('city')");
 const again = await cat();

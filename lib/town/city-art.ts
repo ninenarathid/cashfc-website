@@ -21,6 +21,7 @@
  */
 import { FLAT, SWAY, swayPx } from "@/lib/town-hd/sway";
 import MAP from "./city-map.json";
+import { WATER_MS, waterFrames } from "./scenery";
 import { T2_ROOMS, t2RoomAt } from "./city";
 import type { Vec } from "./world";
 
@@ -28,6 +29,8 @@ const FLOOR = 0, STAND = 1, WIDE = 2, EDGE = 3, ROLE = 4, OUTSIDE = 5, INSIDE = 
 const STRIP = 12;
 const LET_GO_MS = 10_000;
 const DIR = "/town/city/";
+/** Things whose water moves, as the editor's town's fountain's does: the park's fountain. */
+const FLOWING = /potato_park_fountain/;
 
 interface Thing {
   i: number; name: string; s: number;
@@ -70,6 +73,8 @@ export class CityArt {
   sway: { sec: number; me: { x: number; y: number } | null } | null = null;
   private now = 0;
   private lastLetGo = 0;
+  /** Each flowing thing's picture in its frames, made once its picture has come (dropped with it). */
+  private readonly flowing = new Map<number, HTMLCanvasElement[]>();
   private lastSeen: Thing[] = [];
 
   constructor() {
@@ -114,7 +119,7 @@ export class CityArt {
     return false;
   }
   private letGo(now: number) {
-    for (const sp of this.sprites) if (sp.img && now - sp.seen > LET_GO_MS) { sp.img.src = ""; sp.img = null; sp.ready = false; }
+    this.sprites.forEach((sp, i) => { if (sp.img && now - sp.seen > LET_GO_MS) { sp.img.src = ""; sp.img = null; sp.ready = false; this.flowing.delete(i); } });
     for (const { sp } of this.shadows) if (sp.img && now - sp.seen > LET_GO_MS) { sp.img.src = ""; sp.img = null; sp.ready = false; }
   }
 
@@ -168,6 +173,22 @@ export class CityArt {
     const sp = this.sprites[t.s];
     if (!sp.img || !sp.ready) return;
     const k = t.k * s, a = screen(t.x, t.y);
+    let pic: CanvasImageSource = sp.img;
+    if (FLOWING.test(t.name) && this.now) {
+      let frames = this.flowing.get(t.s);
+      if (!frames) {
+        frames = [];
+        try {
+          const c = document.createElement("canvas");
+          c.width = sp.w; c.height = sp.h;
+          const g = c.getContext("2d", { willReadFrequently: true })!;
+          g.drawImage(sp.img, 0, 0);
+          frames = waterFrames(g.getImageData(0, 0, sp.w, sp.h));
+        } catch { /* a picture that cannot be read back stands still */ }
+        this.flowing.set(t.s, frames);
+      }
+      if (frames.length) pic = frames[Math.floor(this.now / WATER_MS) % frames.length];
+    }
     let sx0 = 0, sx1 = sp.w;
     if (strip) {
       const c0 = (strip[0] - t.x) / t.k, c1 = (strip[1] - t.x) / t.k;
@@ -193,8 +214,8 @@ export class CityArt {
     if (t.flip) {
       ctx.translate(X + sp.w * k, Y);
       ctx.scale(-1, 1);
-      ctx.drawImage(sp.img, sx0, 0, sx1 - sx0, sp.h, sx0 * k, 0, (sx1 - sx0) * k, sp.h * k);
-    } else ctx.drawImage(sp.img, sx0, 0, sx1 - sx0, sp.h, X + sx0 * k, Y, (sx1 - sx0) * k, sp.h * k);
+      ctx.drawImage(pic, sx0, 0, sx1 - sx0, sp.h, sx0 * k, 0, (sx1 - sx0) * k, sp.h * k);
+    } else ctx.drawImage(pic, sx0, 0, sx1 - sx0, sp.h, X + sx0 * k, Y, (sx1 - sx0) * k, sp.h * k);
     ctx.restore();
   }
 

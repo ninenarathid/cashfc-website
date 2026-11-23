@@ -9,7 +9,7 @@ const parts = (map) => execFileSync(process.execPath, [".claude/skills/fc-cash-t
   { cwd: REPO, env: { ...process.env, FC_REPO: REPO, TOWN_MAP: map, FARM_MAP: "farm2" }, encoding: "utf8", maxBuffer: 1 << 28 });
 const city = parts("city"), town2 = JSON.parse(parts("town2")), classic = JSON.parse(parts("classic"));
 if (city.includes("$parts$")) throw new Error("a part holds the quoting tag");
-const extra = (p) => JSON.stringify({ boxMore: p.boxMore, boardSpots: p.boardSpots });
+const extra = (p) => JSON.stringify({ boxMore: p.boxMore, boardSpots: p.boardSpots, open: p.open });
 
 // the town's box as v152 to v336 checked it (public.town_pot_down: a pot set down in the town), and as it is checked from now on
 export const OLD_BOX = `(p_x >= 0 and p_y >= 0 and p_x < (map->'town'->>0)::int and p_y < (map->'town'->>1)::int)`;
@@ -134,14 +134,32 @@ begin
 end $$;
 
 -- ── 4b. Members' things on a tile the town closes (v295's, and a member's stall or sign, v142: the city's buildings stand
--- where town2's ground was) ──────────────────────────────────────────────────────────────────────────────────────────
+-- where town2's ground was; and anything on a tile of the city's that is no tile of town2's, going back): to the nearest
+-- free tile one may stand on, from the town's list of them ──────────────────────────────────────────────────────────────────────────────────────────
+-- (the nearest tiles one may stand on in a town, nearest first, then by row: from its list of them, v337's parts, or, for
+-- a town's parts kept from before, its list of moves from the tile)
+create or replace function town.near_open(p jsonb, p_x integer, p_y integer) returns setof jsonb language sql stable set search_path = '' as $$
+  select t from (
+    select jsonb_build_array(split_part(k, ',', 1)::integer, split_part(k, ',', 2)::integer) t,
+           (split_part(k, ',', 1)::integer - p_x) ^ 2 + (split_part(k, ',', 2)::integer - p_y) ^ 2 d, split_part(k, ',', 2)::integer ry, split_part(k, ',', 1)::integer rx
+      from jsonb_array_elements_text(coalesce(p->'open', '[]'::jsonb)) k
+     where p ? 'open'
+     order by 2, 3, 4 limit 6) n
+  union all
+  select value from jsonb_array_elements(coalesce(p->'moves'->(p_x || ',' || p_y), '[]'::jsonb)) where not (p ? 'open')
+$$;
+-- (whether a tile of the town's part of the tile space is one a town's things must leave)
+create or replace function town.must_move(p jsonb, p_x integer, p_y integer) returns boolean language sql immutable set search_path = '' as $$
+  select p_x is not null and p_y is not null and town.town_key(p_x || ',' || p_y)
+     and case when p ? 'open' then not ((p->'open') ? (p_x || ',' || p_y)) else coalesce(p->'moves' ? (p_x || ',' || p_y), false) end
+$$;
 create or replace function town.move_things(p jsonb) returns jsonb language plpgsql set search_path = '' as $$
 declare r record; c jsonb; pots integer := 0; kept integer := 0; held integer := 0; shops integer := 0;
 begin
   update public.town_pots set x = (p->'feastTile'->>0)::integer, y = (p->'feastTile'->>1)::integer
    where feast and (x, y) is distinct from ((p->'feastTile'->>0)::integer, (p->'feastTile'->>1)::integer);
-  for r in select o.id, o.x, o.y from public.town_pots o where not o.feast and p->'moves' ? (o.x || ',' || o.y) order by o.id loop
-    for c in select value from jsonb_array_elements(p->'moves'->(r.x || ',' || r.y)) loop
+  for r in select o.id, o.x, o.y from public.town_pots o where not o.feast and town.must_move(p, o.x, o.y) order by o.id loop
+    for c in select * from town.near_open(p, r.x, r.y) loop
       if not exists (select 1 from public.town_pots o where not o.feast and o.x = (c->>0)::integer and o.y = (c->>1)::integer) then
         update public.town_pots set x = (c->>0)::integer, y = (c->>1)::integer where id = r.id;
         pots := pots + 1;
@@ -149,16 +167,18 @@ begin
       end if;
     end loop;
   end loop;
-  for r in select pp.member_id, k from public.town_purses pp, unnest(array['relay', 'nursery']) k
-            where p->'moves' ? ((pp.doc->'professionRewards'->k->'at'->>0) || ',' || (pp.doc->'professionRewards'->k->'at'->>1)) loop
-    update public.town_purses pp set doc = jsonb_set(pp.doc, array['professionRewards', r.k, 'at'],
-        p->'moves'->((pp.doc->'professionRewards'->r.k->'at'->>0) || ',' || (pp.doc->'professionRewards'->r.k->'at'->>1))->0)
-      where pp.member_id = r.member_id;
+  for r in select pp.member_id, k, (pp.doc->'professionRewards'->k->'at'->>0)::integer ax, (pp.doc->'professionRewards'->k->'at'->>1)::integer ay
+             from public.town_purses pp, unnest(array['relay', 'nursery']) k
+            where jsonb_typeof(pp.doc->'professionRewards'->k->'at') = 'array'
+              and town.must_move(p, (pp.doc->'professionRewards'->k->'at'->>0)::integer, (pp.doc->'professionRewards'->k->'at'->>1)::integer) loop
+    c := (select n from town.near_open(p, r.ax, r.ay) n limit 1);
+    if c is null then continue; end if;
+    update public.town_purses pp set doc = jsonb_set(pp.doc, array['professionRewards', r.k, 'at'], c) where pp.member_id = r.member_id;
     if r.k = 'relay' then kept := kept + 1; else held := held + 1; end if;
   end loop;
   if to_regclass('public.town_shops') is not null then
-    for r in select o.member_id, o.x, o.y from public.town_shops o where p->'moves' ? (o.x || ',' || o.y) order by o.member_id loop
-      for c in select value from jsonb_array_elements(p->'moves'->(r.x || ',' || r.y)) loop
+    for r in select o.member_id, o.x, o.y from public.town_shops o where town.must_move(p, o.x, o.y) order by o.member_id loop
+      for c in select * from town.near_open(p, r.x, r.y) loop
         if not exists (select 1 from public.town_shops o where o.x = (c->>0)::integer and o.y = (c->>1)::integer) then
           update public.town_shops set x = (c->>0)::integer, y = (c->>1)::integer where member_id = r.member_id;
           shops := shops + 1;
@@ -238,12 +258,12 @@ begin
   end if;
 end $$;
 
--- ── 8. The city's parts, as the code makes them; the two new parts of town2's and the old town's where they lack them ─
+-- ── 8. The city's parts, as the code makes them; the three new parts of town2's and the old town's where they lack them ─
 insert into town.map_parts (map, parts, taken) values ('city', $parts$${city}$parts$::jsonb, 'code')
   on conflict (map) do update set parts = excluded.parts, taken = 'code', taken_at = now()
   where town.map_parts.taken = 'code';
-update town.map_parts set parts = '${extra(town2)}'::jsonb || parts where map = 'town2' and not (parts ? 'boxMore');
-update town.map_parts set parts = '${extra(classic)}'::jsonb || parts where map = 'classic' and not (parts ? 'boxMore');
+update town.map_parts set parts = '${extra(town2)}'::jsonb || parts where map = 'town2' and not (parts ? 'open');
+update town.map_parts set parts = '${extra(classic)}'::jsonb || parts where map = 'classic' and not (parts ? 'open');
 
 -- ── 9. The admins see the city; everybody else, town2, as before ──────────────────────────────────────────────────
 select town.apply_map('city-admins') where (select map from public.town_map_switch where one) = 'town2';

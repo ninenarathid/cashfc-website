@@ -642,6 +642,11 @@ export interface Prop {
    * bench's picture), and which placed thing it is on.
    */
   seat?: Vec; stand?: Vec; over?: number; of?: number;
+  /**
+   * The city's seats (lib/town/city): how high the seat's ground stands, in isometric pixels (below 0 in the sunken park),
+   * drawn with the sitter as it is, so that the page lays no ground's height on the sitter a second time.
+   */
+  rise?: number;
   /** The mountain's trees: which kind (1 a pine, 2 an ironwood, 3 a moonwood). Its rocks: which of their looks. And the number that is a tree's or a rock's own (lib/town/mountain). */
   tier?: 1 | 2 | 3; look?: number; id?: number;
 }

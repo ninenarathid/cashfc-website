@@ -464,10 +464,11 @@ export const T2_PROPS: Prop[] = (() => {
     for (const s of b.seats) {
       const [x, y] = s.tile, f = FRONT[s.facing];
       // (the map's point is where the sitter's foot is drawn, raised or sunk with the ground; the game draws a sitter SEAT_LIFT over its seat's point)
-      const seat = fromIso(s.point[0], s.point[1] + SEAT_LIFT);
+      // (and the seat's ground's own height taken off, given back as `rise` by the page: the point is drawn where the map has it)
+      const seat = fromIso(s.point[0], s.point[1] + SEAT_LIFT + s.lift);
       let stand: Vec | null = free(x + f.x, y + f.y, [x, y]) ? { x: x + f.x, y: y + f.y } : null;
       for (const [dx, dy] of [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, 1], [1, -1], [-1, -1]]) if (!stand && free(x + dx, y + dy, [x, y])) stand = { x: x + dx, y: y + dy };
-      const p: Prop = { kind: "bench", x, y, solid: true, facing: s.facing, seat, stand: stand ?? { x: x + f.x, y: y + f.y }, over: depthOf(b.thing) + 0.01, of: b.thing };
+      const p: Prop = { kind: "bench", x, y, solid: true, facing: s.facing, seat, rise: s.lift, stand: stand ?? { x: x + f.x, y: y + f.y }, over: depthOf(b.thing) + 0.01, of: b.thing };
       out.push(p);
       T2_PROP_THING.set(p, b.thing);
     }
@@ -482,7 +483,8 @@ export const T2_PROPS: Prop[] = (() => {
 const LAMPS = MAP.roles.lamps as unknown as Array<{ tile: [number, number]; thing: number; head: [number, number] }>;
 export const T2_LAMP_LIGHT = new Map<Prop, { at: Vec; up: number }>(T2_PROPS.filter((p) => p.kind === "lamp").map((p) => {
   const i = T2_PROP_THING.get(p)!, l = LAMPS.find((q) => q.thing === i), t = T2_THINGS[i];
-  const foot = iso(t.c).y;
+  // (its foot where the ground under it stands, sunk in the park: the page draws the light from there, the ground's height laid on)
+  const foot = iso(t.c).y - t2Lift(t.c.x, t.c.y);
   return [p, { at: t.c, up: l ? Math.round(foot - l.head[1]) : 60 }];
 }));
 

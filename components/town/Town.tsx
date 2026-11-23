@@ -2885,12 +2885,20 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         const box = art2.boxOf(T2_PROP_THING.get(p) ?? -1, iso2, v.s);
         if (!box) continue;
         // (the plaza's chest, unless one of the editor's farm's was found first: I am on the farm, and that one is the one tapped)
-        if (p.kind === "storebox") { if (!storeBox.current?.at) storeBox.current = box; continue; }
+        if (p.kind === "storebox") { if (!storeBox.current?.at && !CITY) storeBox.current = box; continue; }
         // (a long bench's picture shared between its two places, left and right as they are on the screen)
         const xs = BENCHES.filter((q) => q.of !== undefined && q.of === p.of && q.seat).map((q) => project(q.seat!).x).sort((a, b) => a - b);
         const sx = p.seat ? project(p.seat).x : 0, k = xs.indexOf(sx);
         const x0 = k > 0 ? (xs[k - 1] + sx) / 2 : box.x0, x1 = k >= 0 && k < xs.length - 1 ? (sx + xs[k + 1]) / 2 : box.x1;
         benchBoxes.current.push({ i: benchIndex.get(p) ?? -1, ...box, x0, x1, depth: p.x + p.y });
+      }
+      // (the city's three chests, one box: the one nearest me is the one tapped, as the editor's farm's two are)
+      if (CITY) {
+        const at = stay?.self?.pos ?? null, near = (t: { x: number; y: number }) => (at ? Math.hypot(t.x + 0.5 - at.x, t.y + 0.5 - at.y) : Infinity);
+        for (const c of T2_CHESTS) {
+          const box = art2.boxOf(c.shut, iso2, v.s);
+          if (box && (!storeBox.current?.at || near(c) < near(storeBox.current.at))) storeBox.current = { ...box, at: { x: c.x, y: c.y } };
+        }
       }
       // the kitchen hall, from inside: its long tables for a tap that opens the feast table, each place at them for a tap
       // to sit down (as the old yard's: lib/town/town2's T2_KITCHEN)
@@ -3943,7 +3951,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const b = seatOf(a);
     // (on the editor's town's bridges, up on their boards)
     if (!b) { const p = project(a.pos), up = liftAt(a.pos.x, a.pos.y); return up ? { x: p.x, y: p.y - up * cam.current.s } : p; }
-    const c = project(b.seat ?? { x: b.x + 0.5, y: b.y + 0.62 });
+    // (a city seat says its own ground's height: laid on once, not again by the page's ground, lib/town/city)
+    const c = b.rise !== undefined && b.seat ? (() => { const q = toIso(b.seat!.x, b.seat!.y), vv = cam.current; return toScreen(vv, { x: q.x, y: q.y - b.rise! }, vv.cw, vv.ch); })() : project(b.seat ?? { x: b.x + 0.5, y: b.y + 0.62 });
     return { x: c.x, y: c.y - (b.kind === "logseat" ? LOG_LIFT : SEAT_LIFT) * cam.current.s };
   }
 
