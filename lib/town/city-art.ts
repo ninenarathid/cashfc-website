@@ -215,7 +215,15 @@ export class CityArt {
       ctx.translate(X + sp.w * k, Y);
       ctx.scale(-1, 1);
       ctx.drawImage(pic, sx0, 0, sx1 - sx0, sp.h, sx0 * k, 0, (sx1 - sx0) * k, sp.h * k);
-    } else ctx.drawImage(pic, sx0, 0, sx1 - sx0, sp.h, X + sx0 * k, Y, (sx1 - sx0) * k, sp.h * k);
+    } else {
+      // (every screen pixel shows the picture's pixel under its middle, wherever the picture stands: its edges on whole
+      // device pixels and the part of the picture taken to match, as the export's README §11 says. Rounded each on its
+      // own, neighbouring pictures, the rows of raised and sunk ground, stood half a pixel apart and the ground under them
+      // showed through in dotted lines: the owner, 2026-11-23, "แมพมีรอยต่อพื้นแปลกๆ")
+      const kk = k * px, dx = a.x * px, dy = a.y * px;
+      const X0 = Math.round(dx + sx0 * kk), X1 = Math.round(dx + sx1 * kk), Y0 = Math.round(dy), Y1 = Math.round(dy + sp.h * kk);
+      if (X1 > X0 && Y1 > Y0) ctx.drawImage(pic, (X0 - dx) / kk, (Y0 - dy) / kk, (X1 - X0) / kk, (Y1 - Y0) / kk, X0 / px, Y0 / px, (X1 - X0) / px, (Y1 - Y0) / px);
+    }
     ctx.restore();
   }
 

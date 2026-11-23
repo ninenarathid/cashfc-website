@@ -203,6 +203,8 @@ const TRADE = first(/^board$/);
 export const T2_TRADE_BOARD = boxOf(TRADE.box);
 export const T2_TRADE_THING = TRADE.i;
 /** The crafting tables: the city hall's and the kitchen's (the owner: "มีกล่อง+โต๊ะคราฟ"), each opening the crafting panel. */
+/** The dock at the beach (its footprint): the water's moving layer leaves the water under and beside it to the dock's own picture. */
+export const T2_DOCK_BOX: [number, number, number, number] = first(/^dock_2/).box;
 export const T2_CRAFT_TABLES = [first(/^create_isometric_crafting_table/), first(/^pixel_art_kitchen_crafting_table/)].map((t) => ({ thing: t.i, tiles: tilesIn(t.box), at: t.c }));
 /** The uncle's shop: the 24 mart north of the city hall's road ("ร้านค้าลุง"), walked into; he keeps it from inside. */
 const MART = room("mart");

@@ -196,8 +196,12 @@ const howDrawn = ({ o, pl }) => {
   if (CHEST_OPEN.test(o.asset)) return DRAW.role;
   const room = roomOf(o);
   if (room) return room[1] === "out" ? DRAW.outside : DRAW.inside;
-  if (o.kind === "ring") return DRAW.floor;
   if (o.kind === "terrain") return DRAW.wide;
+  // (the dock, walked on over the sea, and the gates' rings, on the ground: one picture each at its back corner, so that
+  // whoever stands on it is over it, and the ground or sea under it behind it, keepEditorOrder below; a ring laid on the
+  // floor under everything was covered by the raised ground drawn after it, the owner, 2026-11-23, "วาร์ปโดนบัง", and the
+  // dock in strips showed the sea through between them)
+  if (o.kind === "ring" || DOCK.test(o.asset)) return DRAW.stand;
   return pl.w + pl.h >= 4 && !TREE.test(o.asset) ? DRAW.wide : DRAW.stand;
 };
 
@@ -212,12 +216,8 @@ for (const t of placed) {
   const u = { o, pl, s, k, draw, box, left, top, w: sp.w * k, h: sp.h * k, d };
   if (draw === DRAW.wide || draw === DRAW.outside) u.strips = Array.from({ length: Math.ceil(u.w / STRIP) }, (_, n) => (o.kind === "terrain" ? d : stripDepth(box, left + n * STRIP + STRIP / 2)));
   if (draw === DRAW.edge) u.strips = Array.from({ length: Math.ceil(u.w / STRIP) }, (_, n) => edgeDepth(o.wall, left + n * STRIP + STRIP / 2));
-  // (the dock, walked on over the sea: in strips at its back edge, so that whoever stands on its boards is over them, and
-  // the sea under it is behind it, keepEditorOrder below; its strips are written, as a moved thing's are)
-  if (DOCK.test(o.asset)) {
-    u.strips = Array.from({ length: Math.ceil(u.w / STRIP) }, (_, n) => { const v = (left + n * STRIP + STRIP / 2) / 32; return v >= box[0] - box[1] ? v + 2 * box[1] : 2 * box[0] - v; });
-    u.stripsMoved = true;
-  }
+  if (o.kind === "ring" || DOCK.test(o.asset)) u.d = box[0] + box[1];
+
   standing.push(u);
 }
 

@@ -17,7 +17,7 @@ const SPOTS = {
   smith: [70, 31], kitchenOut: [101, 93], kitchenIn: [98, 80], bank: [4, 110], hospital: [8, 87], casino: [18, 105],
   clothes: [46, 109], eventhall: [9, 76], museum: [108, 30], beach: [98, 117], dock: [98, 123], canal: [15, 20],
   gatesNE: [80, 12], gateNW: [-5, 40], amusement: [96, 55],
-  rimSouth: [56, 87], rimEast: [73, 70], stairs: [53, 69], kerb: [30, 66], waterSquares: [70, 47], fountainBench: [57, 70], shopDoor: [48, 109],
+  rimSouth: [56, 87], rimEast: [73, 70], stairs: [53, 69], kerb: [30, 66], waterSquares: [70, 47], fountainBench: [57, 70], shopDoor: [48, 109], seam: [55, 60], ringFarm: [79, 11], stove: [101, 78], sea: [60, 124], canalMid: [23, 70],
 };
 const SIZES = { desktop: { width: 1280, height: 860 }, phone: { width: 384, height: 730 }, small: { width: 360, height: 640 } };
 for (const label of (process.env.SIZES ?? "desktop,phone").split(",")) {

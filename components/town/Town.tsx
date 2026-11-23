@@ -15,6 +15,7 @@ import { DECOR, FACES, artOf, carving, gateLook, ringAt } from "@/lib/town/decor
 // ── the editor's town ── (lib/town/town2: drawn from its own pictures, fetched as they come near the view)
 import { Town2Art } from "@/lib/town/town2-art";
 import { CityArt } from "@/lib/town/city-art";
+import { pushCityWater } from "@/lib/town/city-water";
 import { farm2Art } from "@/lib/town/farm2-art";
 import { drawPixelFlames } from "./flames";
 import { F2_BENCH_OF, F2_CHESTS, F2_SCARECROWS, F2_TRADE_BOARDS } from "@/lib/town/farm2";
@@ -1748,6 +1749,46 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
    * drifting past, a leaf, a lily pad, a paper boat, a stick, a rubber duck.
    * All of it by the wall clock, so everybody sees the same duck go by.
    */
+  /**
+   * The city's canal (lib/town/city's river line): the current, fish nosing upstream and what drifts down, as drawRiver
+   * draws the old towns' rivers, but each at its own water's place back to front (the canal is sunk: its near bank stands
+   * in front of it), and only over the canal's water (not where a road crosses it).
+   */
+  function cityRiver(ctx: CanvasRenderingContext2D, push: (depth: number, draw: () => void) => void, scenery: SceneryKit, dpr: number) {
+    const s = cam.current.s, still = reducedRef.current, sec = still ? 0 : Date.now() / 1000;
+    const wet = (p: Vec) => ed.t2Tile(Math.floor(p.x), Math.floor(p.y)) === "~";
+    const depth = (p: Vec) => Math.floor(p.x) + Math.floor(p.y) + 0.977;
+    for (const r of STREAKS) {
+      const t = ((r.t0 + sec * r.speed) % 140) - 6, pa = riverPoint(t, r.across), pb = riverPoint(t + r.len, r.across);
+      if (!wet(pa) || !wet(pb)) continue;
+      const a = project(pa);
+      if (!onScreen(a)) continue;
+      const b = project(pb), alpha = 0.16 + 0.14 * Math.sin(sec * 1.3 + r.t0);
+      push(depth(pa), () => { ctx.save(); ctx.lineWidth = Math.max(1, s); ctx.lineCap = "round"; ctx.strokeStyle = `rgba(225,242,255,${alpha})`; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); ctx.restore(); });
+    }
+    for (const f of FISH) {
+      const t = 140 - (((f.t0 + sec * f.speed) % 150) + 5), across = f.across + 0.25 * Math.sin(sec * 0.6 + f.t0), p = riverPoint(t, across);
+      if (!wet(p)) continue;
+      const c = project(p);
+      if (!onScreen(c)) continue;
+      const ahead = project(riverPoint(t - 0.4, across)), ang = Math.atan2(ahead.y - c.y, ahead.x - c.x), wag = Math.sin(sec * 9 + f.t0) * 2 * s;
+      push(depth(p), () => {
+        ctx.save(); ctx.translate(c.x, c.y); ctx.rotate(ang); ctx.fillStyle = "rgba(20,40,60,0.28)";
+        ctx.beginPath(); ctx.ellipse(0, 0, 7 * s, 2.6 * s, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(-6 * s, 0); ctx.lineTo(-11 * s, -3 * s + wag); ctx.lineTo(-11 * s, 3 * s + wag); ctx.closePath(); ctx.fill(); ctx.restore();
+      });
+    }
+    if (still) return;
+    for (const d of DRIFT) {
+      const t = ((d.t0 + sec * 0.32) % 170) - 15, p = riverPoint(t, d.across + 0.15 * Math.sin(sec * 0.4 + d.t0));
+      if (!wet(p)) continue;
+      const c = project(p);
+      if (!onScreen(c)) continue;
+      const bob = Math.sin(sec * 2 + d.t0) * 1.2 * s;
+      push(depth(p), () => scenery.drawProp(ctx, d.name, c.x, c.y + bob, s * d.k, dpr, 0, d.flip));
+    }
+  }
+
   function drawRiver(ctx: CanvasRenderingContext2D, scenery: SceneryKit, dpr: number) {
     const s = cam.current.s, still = reducedRef.current, sec = still ? 0 : Date.now() / 1000;
     ctx.save();
@@ -2733,7 +2774,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // The river flowing, and what floats and swims in it (in the editor's town, down its own river, under its decks). (Not
     // seen from a room.)
     // (over the 3D town's water too: the current's streaks, the fish, what drifts by)
-    if (scenery && !underRoof(placeRef.current)) drawRiver(ctx, scenery, dpr);
+    // (the city's water is its map's own pictures, drawn back to front with everything: its canal's current, fish and
+    // what drifts down go there too, cityRiver below)
+    if (scenery && !underRoof(placeRef.current) && !(CITY && placeRef.current === "town")) drawRiver(ctx, scenery, dpr);
     // What lives on the 3D town's water, over the river just drawn (lib/town-hd/engine's `renderWater`): foam along the
     // banks, the sun's glints, rings where rain falls. On the editor's maps, at "mid" and "high".
     {
@@ -2880,6 +2923,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (art2 && seen2) {
       const hide = new Set(CITY ? (art2 instanceof CityArt && art2.opened !== null ? [art2.opened] : []) : [boxShown.current ? T2_CHEST_SHUT : T2_CHEST_OPEN]);
       art2.pushStanding(ctx, seen2.filter((t) => !hide.has(t.i)), (depth, draw) => things.push({ depth, draw }), iso2, v.s, dpr, inHall);
+      // (the city's water, moving: waves, foam on its banks and beach, glints, each row of it just over its own still water;
+      // and the canal's current, fish and what drifts down: the owner, 2026-11-23, "ให้น้ำดูมีความเคลื่อนไหว มีคลื่น มากกว่านี้")
+      if (CITY && placeRef.current === "town" && scenery) {
+        const sec = reducedRef.current ? 0 : Date.now() / 1000, push = (depth: number, draw: () => void) => things.push({ depth, draw });
+        pushCityWater(ctx, push, project, { x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, v.s, sec);
+        cityRiver(ctx, push, scenery, dpr);
+      }
       for (const p of PROPS) {
         if (p.kind !== "bench" && p.kind !== "storebox") continue;
         const box = art2.boxOf(T2_PROP_THING.get(p) ?? -1, iso2, v.s);
@@ -3934,7 +3984,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (place && "over" in place && typeof place.over === "number") return place.over;
     if (place) return KITCHEN.foot.x + KITCHEN.foot.y + (place.back ? place.py : KITCHEN.tops[place.table][1]) / (TILE_H / 2) + 0.02;
     const b = seatOf(a);
-    if (!b) return a.pos.x + a.pos.y;
+    // (the city: the raised and sunk ground is drawn a row of tiles at a time, its place its row's front: whoever stands on
+    // a tile is after their own row's ground and before the next one's, wherever on the tile, as the export's README says
+    // of characters; the owner, 2026-11-23, of somebody near the back of a tile cut by its own row's ground, "พื้นบางส่วน
+    // บังตัวละคร")
+    if (!b) { const d = a.pos.x + a.pos.y; if (!CITY) return d; const row = Math.floor(a.pos.x) + Math.floor(a.pos.y); return Math.min(Math.max(d, row + 0.98), row + 1.96); }
     if (b.over !== undefined) return b.over;
     return b.x + b.y + 1 + (b.facing === "NE" || b.facing === "NW" ? -0.01 : 0.01);
   }
