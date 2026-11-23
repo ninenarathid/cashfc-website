@@ -34,6 +34,8 @@ export interface Shade {
   renderGround(v: LiveView, src: HTMLCanvasElement, extra: number): HTMLCanvasElement | null;
   /** How high the ground is at a point of the map (tiles), in tiles; 0 where nothing is raised. */
   heightAt(x: number, y: number): number;
+  /** Whether the browser took its graphics context back (it does with a page's oldest, when there are too many). */
+  lost(): boolean;
   dispose(): void;
 }
 /** A map's land that low hills may rise on (./engine's heights, made the same way): its box in tiles, and whether a tile is open land (not water, a path, a floor, a clearing people sit in). */
@@ -339,6 +341,7 @@ export function createShade(canvas: HTMLCanvasElement, quality: Quality, raise?:
       return renderer.domElement;
     },
     heightAt: Hat,
+    lost: () => renderer.getContext().isContextLost(),
     renderGround(v, src, extra) {
       if (!hill || !hillWorn || !hillWhite) return null;
       const of = `${src.width},${src.height}`;

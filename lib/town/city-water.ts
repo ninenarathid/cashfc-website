@@ -219,7 +219,7 @@ void main() {
 
 interface Gl { gl: WebGLRenderingContext; u: Record<string, WebGLUniformLocation | null> }
 let canvas: HTMLCanvasElement | null = null, made: Gl | null | undefined;
-let last = "";
+let last = "", lostAt = -Infinity;
 function make(): Gl | null {
   if (made !== undefined) return made;
   try {
@@ -266,10 +266,18 @@ const stillPattern = new WeakMap<CanvasRenderingContext2D, CanvasPattern>();
  * them, `cw` × `ch` the screen; `sec` the wall clock in seconds (0 to stand still).
  */
 export function drawCityWater(ctx: CanvasRenderingContext2D, corner: { x: number; y: number }, s: number, cw: number, ch: number, sec: number) {
-  const g = make();
+  let g = make();
+  // (the browser takes a page's oldest graphics context back when it has too many, and the water went black: the owner,
+  // 2026-11-23, "ทำไมตรงนี้มีลอยต่อแมพ". Made anew, no more than once in five seconds)
+  if (g && g.gl.isContextLost() && performance.now() - lostAt > 5000) {
+    lostAt = performance.now();
+    console.warn("[Cash Town] the city's water lost its graphics context: made anew");
+    made = undefined; canvas = null; last = "";
+    g = make();
+  }
   // (a world pixel a pixel of the water, its corner on a whole world pixel, drawn at the camera's scale)
   const x0 = Math.floor(corner.x), y0 = Math.floor(corner.y), w = Math.ceil(cw / s) + 2, h = Math.ceil(ch / s) + 2;
-  if (g && canvas) {
+  if (g && canvas && !g.gl.isContextLost()) {
     const { gl, u } = g;
     const frame = sec ? Math.floor(sec * FPS) : 0, key = `${x0},${y0},${w},${h},${frame}`;
     if (key !== last) {

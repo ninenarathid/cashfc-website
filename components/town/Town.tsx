@@ -587,7 +587,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // and the city, its pictures at its own heights, its buildings as blocks)
   type WildPlace = "forest" | "mountain" | "city";
   const wildMake = useRef<((place: WildPlace) => Shade) | null>(null), wildShades = useRef<Partial<Record<WildPlace, Shade>>>({});
-  const wildOf = (place: WildPlace) => (wildShades.current[place] ??= wildMake.current!(place));
+  // (one whose graphics context the browser took back is made anew, no more than once in five seconds)
+  const wildLost = useRef(-Infinity);
+  const wildOf = (place: WildPlace) => {
+    const had = wildShades.current[place];
+    if (had?.lost() && performance.now() - wildLost.current > 5000) { wildLost.current = performance.now(); had.dispose(); delete wildShades.current[place]; }
+    return (wildShades.current[place] ??= wildMake.current!(place));
+  };
   const groundWide = useRef<HTMLCanvasElement | null>(null);
   const wildStood = useRef<Array<{ name: string; x: number; y: number; k: number; mirror?: boolean }>>([]);
   /** The frame (its clock) in which the 3D town last threw the shadows. */
