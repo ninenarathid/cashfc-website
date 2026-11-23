@@ -55,7 +55,7 @@ import { GOODS, RULES } from "./trade";
 import { WATERS } from "./waters";
 import { WELL_BOOK } from "./well";
 import { DRINK, FROG, MOON } from "./well-gifts";
-import { BEDS_IN_FARM, COLS, FARM_ALL, FOREST, MOUNTAIN, KITCHEN, ROWS, STOREBOX, WELL, WELLS, asBuilt, bedCorner, bedOf, fishFrom } from "./world";
+import { BEDS_IN_FARM, COLS, FARM_ALL, FOREST, MOUNTAIN, KITCHEN, ROWS, STOREBOX, TOWN_RECT, WELL, WELLS, asBuilt, bedCorner, bedOf, fishFrom } from "./world";
 import { YARD } from "./yard";
 import { COMPANIONS, PARTNERS, QUALITY } from "./quality";
 import { HAND } from "./quality-plant";
@@ -206,7 +206,7 @@ export function catalogOf() {
       // the game made harder to match: lines taken up (how many, within how many seconds, the seconds the fish are gone, and which), and the fights running a tier is landed after
       wary: WARY, bouts: BOUTS,
       // (with the deck finished, whatever is shown where this is asked: lib/town/world's asBuilt)
-      places: asBuilt(() => Object.fromEntries(Array.from({ length: COLS * ROWS }, (_, i): [number, number] => [i % COLS, Math.floor(i / COLS)])
+      places: asBuilt(() => Object.fromEntries(Array.from({ length: COLS * ROWS }, (_, i): [number, number] => [TOWN_RECT.x + (i % COLS), TOWN_RECT.y + Math.floor(i / COLS)])
         .concat(Array.from({length:MOUNTAIN.w*MOUNTAIN.h},(_,i):[number,number]=>[MOUNTAIN.x+i%MOUNTAIN.w,MOUNTAIN.y+Math.floor(i/MOUNTAIN.w)]))
         .concat(Array.from({length:FOREST.w*FOREST.h},(_,i):[number,number]=>[FOREST.x+i%FOREST.w,FOREST.y+Math.floor(i/FOREST.w)]))
         .flatMap(([x, y]) => { const f = fishFrom(x, y); return f ? [[`${x},${y}`, f.deep] as [string, boolean]] : []; }))),
@@ -264,7 +264,8 @@ export function catalogOf() {
       // (`scrolls` is what may be inside, whatever it is: a fish's belly may hold a seed)
       inside: Object.fromEntries((Object.keys(INSIDE) as ItemId[]).map((id) => [id, { chance: INSIDE[id]!.chance, scrolls: insideOf(id) }])),
       // (the farm with its pasture since v291: lib/town/pasture)
-      map: { town: [COLS, ROWS], farm: [FARM_ALL.x, FARM_ALL.y, FARM_ALL.w, FARM_ALL.h] },
+      // (the city's corner is at x -16, lib/town/city: its box says so, after its size)
+      map: { town: TOWN_RECT.x || TOWN_RECT.y ? [COLS, ROWS, TOWN_RECT.x, TOWN_RECT.y] : [COLS, ROWS], farm: [FARM_ALL.x, FARM_ALL.y, FARM_ALL.w, FARM_ALL.h] },
       misses: 30,
       // (the feast table, lib/town/cooking: how many pots of one member's it takes, the minutes a pot stands on the
       // ground before it is on it, the tile a pot on it is said to stand on, and the yard's floor, from which it is reached)

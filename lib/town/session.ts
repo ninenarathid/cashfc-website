@@ -102,7 +102,7 @@ export type ChatResult = "sent" | "empty" | "slow" | "offline";
 /** What `/townchat` answered (lib/town/chat reachNote words it). */
 export type ReachResult = "reach-town" | "reach-map" | "reach-usage" | "reach-forbidden" | "reach-unavailable"
   // `/townmap` (v295): which main town it is
-  | "map-classic" | "map-admins" | "map-town2" | "map-usage" | "map-forbidden" | "map-unavailable"
+  | "map-classic" | "map-admins" | "map-city" | "map-town2" | "map-usage" | "map-forbidden" | "map-unavailable"
   // `/coins` (v300): Ninenine's coins for trying things
   | "coins-added" | "coins-usage" | "coins-forbidden" | "coins-unavailable";
 export type MessageResult = ChatResult | "forbidden" | "invalid" | "unavailable" | ReachResult;
@@ -1037,21 +1037,22 @@ export class TownSession {
   }
 
   /**
-   * `/townmap town2|admins|classic`: an admin says which main town it is (v295's town_set_map: the editor's for everybody, for
-   * the admins only, or the old one, which is also the way back in an emergency); with no word, says which this page has.
+   * `/townmap city|admins|town2|classic`: an admin says which main town it is (v295's town_set_map, v337's for the city: the
+   * city for everybody, the city for the admins only, the editor's town of 2026-10-22, or the old one; town2 and classic
+   * are the ways back in an emergency); with no word, says which this page has.
    * A page whose town that changes loads again (lib/town/town-map).
    */
   private async switchMap(word: string | undefined): Promise<MessageResult> {
     if (this.closed) return "offline";
-    if (!word) return TOWN_MAP === "town2" ? "map-town2" : "map-classic";
+    if (!word) return TOWN_MAP === "city" ? "map-city" : TOWN_MAP === "town2" ? "map-town2" : "map-classic";
     const want = word.toLowerCase();
-    if (!["town2", "admins", "classic"].includes(want)) return "map-usage";
+    if (!["city", "town2", "admins", "classic"].includes(want)) return "map-usage";
     try {
       const { data, error } = await this.client.rpc("town_set_map", { p_map: want });
       if (error) return error.code === "PGRST202" || error.code === "42883" ? "map-unavailable" : "offline";
       if (data?.ok !== true) return data?.why === "forbidden" ? "map-forbidden" : "map-usage";
       void this.readTownMap();
-      return want === "town2" ? "map-town2" : want === "admins" ? "map-admins" : "map-classic";
+      return want === "city" ? "map-city" : want === "town2" ? "map-town2" : want === "admins" ? "map-admins" : "map-classic";
     } catch { return "offline"; }
   }
 

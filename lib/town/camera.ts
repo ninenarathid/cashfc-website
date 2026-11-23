@@ -1,4 +1,4 @@
-import { CAVE, COLS, FARM_ALL, FOREST, MOUNTAIN, ROWS, TILE_H, TILE_W, floorCorner, type Place, type Vec } from "./world";
+import { CAVE, COLS, FARM_ALL, FOREST, MOUNTAIN, ROWS, TILE_H, TILE_W, TOWN_RECT, floorCorner, type Place, type Vec } from "./world";
 import { SHOP_ROOM } from "./shop-room";
 import { CASINO_ROOM } from "./casino-room";
 
@@ -14,10 +14,11 @@ import { CASINO_ROOM } from "./casino-room";
  */
 
 /** The map's isometric extent, with room above for roofs and signs. */
-export const ISO_MIN_X = -ROWS * (TILE_W / 2);
-export const ISO_MAX_X = COLS * (TILE_W / 2);
-export const ISO_MIN_Y = -130;
-export const ISO_MAX_Y = (COLS + ROWS) * (TILE_H / 2) + 50;
+// (the city's corner is at x -16: lib/town/city)
+export const ISO_MIN_X = (TOWN_RECT.x - TOWN_RECT.y - ROWS) * (TILE_W / 2);
+export const ISO_MAX_X = (TOWN_RECT.x + COLS - TOWN_RECT.y) * (TILE_W / 2);
+export const ISO_MIN_Y = (TOWN_RECT.x + TOWN_RECT.y) * (TILE_H / 2) - 130;
+export const ISO_MAX_Y = (TOWN_RECT.x + TOWN_RECT.y + COLS + ROWS) * (TILE_H / 2) + 50;
 
 /** A map's isometric extent: the camera stays inside the one it is looking at. */
 export interface Bounds { minX: number; maxX: number; minY: number; maxY: number }

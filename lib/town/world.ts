@@ -24,15 +24,17 @@ import { PASTURE, barnWall, inPasture, nearFarmGate, pastureGround, pastureThing
 import { mountainRiverBed, mountainRiverGround } from "./river-landscape";
 import { ANCIENT as CEDAR, GATE_ROWS, LOOKOUT as LOOKOUT_AT, MOUNTAIN_H, MOUNTAIN_W, MOUTH as MINE_MOUTH, MOUTH_AT, cliffAt, closedOf, layMountain, mountainGround } from "./mountain";
 // ── the second main town (2026-10-22): which town this page has (lib/town/town-map), and the editor's town's own parts ──
-import { T2 } from "./town-map";
-import * as town2 from "./town2";
+// ── the city (2026-11-23): the editor's town this page has is the city's or town2's, read through lib/town/ed ──
+import { CITY, T2 } from "./town-map";
+import { ed as town2 } from "./ed";
+import type { T2Look } from "./town2";
 import { F2 } from "./farm-map";
 import * as farm2 from "./farm2";
 // ── Granny Twilla's clothes shop (2026-10-25): a room of its own, entered by the townhouse's door (lib/town/shop-room) ──
 import * as room from "./shop-room";
 // ── the Popoto Casino (2026-10-27): a room of its own, entered by the kura's door (lib/town/casino-room) ──
 import * as casino from "./casino-room";
-export { T2, F2 };
+export { CITY, T2, F2 };
 
 /** The town's columns: 64, or the editor's town's 80 (lib/town/town2). */
 export const COLS = T2 ? town2.T2_COLS : 64;
@@ -41,7 +43,13 @@ export const COLS = T2 ? town2.T2_COLS : 64;
  * southern half, as far below the first as the farm's second gate is below its first: "อาจจะต้องขยายแมพ เมืองหลัก
  * ให้ยาวขึ้น"), 16 more past its old south-west edge (SOUTH_LANE, and the strip's own things in PROPS).
  */
-export const ROWS = 80;
+// (the editor's town's 80, the city's 135: lib/town/city)
+export const ROWS = T2 ? town2.T2_ROWS : 80;
+/**
+ * The town's tiles as a box: from (0, 0), but the city's from (-16, 0) (lib/town/city: 140 columns from 0 would run into
+ * the farm at x 128), whatever asks where the town is (which map a point is on, what the database is told of the maps).
+ */
+export const TOWN_RECT = { x: T2 ? town2.T2_ORIGIN.x : 0, y: T2 ? town2.T2_ORIGIN.y : 0, w: T2 ? town2.T2_COLS : 64, h: ROWS };
 /** The town's rows before its southern strip: what everything laid out from where one may walk was laid out on (asBuilt), which the database keeps a copy of. (The editor's town has no history: all its rows.) */
 export const ROWS_FIRST = T2 ? ROWS : 64;
 /** One tile on screen, before the town is scaled to fit. */
@@ -146,6 +154,8 @@ export const TRADE_BOARD = T2 ? town2.T2_TRADE_BOARD : { x: 36, y: 33, w: 2, h: 
  * keeps things of their own in it (lib/town/box).
  */
 export const STOREBOX = T2 ? town2.T2_STOREBOX : { x: 34, y: 34 };
+/** The town's other chests that open the same box (the city's city hall and kitchen: lib/town/city), each a tile. */
+export const TOWN_MORE_CHESTS: ReadonlyArray<{ x: number; y: number }> = T2 ? town2.T2_CHESTS.slice(1).map((c) => ({ x: c.x, y: c.y })) : [];
 /** Whether a tile is within so many steps of the storage box (and is not the box itself). */
 export const byStorebox = (tx: number, ty: number, reach: number) => {
   const far = Math.max(Math.abs(tx - STOREBOX.x), Math.abs(ty - STOREBOX.y));
@@ -951,7 +961,7 @@ export type Place = "town" | "farm" | "forest"
   | "casino";
 /** Which map a point is on, or null for nowhere. */
 export function placeOf(x: number, y: number): Place | null {
-  if (x >= 0 && y >= 0 && x < COLS && y < (asWas && !T2 ? ROWS_FIRST : ROWS)) return "town";
+  if (x >= TOWN_RECT.x && y >= TOWN_RECT.y && x < TOWN_RECT.x + COLS && y < TOWN_RECT.y + (asWas && !T2 ? ROWS_FIRST : ROWS)) return "town";
   // ── to come ── (both lie below every other map in the tile space)
   if (PREVIEW && y >= MOUNTAIN.y) return within(x, y, MOUNTAIN) ? "mountain" : floorOf(x, y) ? "cave" : null;
   if (room.inShop(x, y)) return "shop";
@@ -1556,7 +1566,8 @@ export const BEYOND_PROPS = { north: beyondTrees(BEYOND.north), south: beyondTre
  * summit (`high`). Ground and things to look at, as the woods beyond the forest's gates are: on no map, never walked.
  */
 export const BEYOND_MORE = {
-  west: { x: -18, y: 12, w: 18, h: 42 },
+  // (beyond the city's north-west edge, where its way to the mountain is: lib/town/city)
+  west: CITY ? { x: -34, y: 26, w: 18, h: 28 } : { x: -18, y: 12, w: 18, h: 42 },
   low: { x: MOUNTAIN.x + MOUNTAIN.w, y: MOUNTAIN.y - 6, w: 14, h: MOUNTAIN.h + 12 },
   high: { x: MOUNTAIN.x - 14, y: MOUNTAIN.y - 6, w: 14, h: MOUNTAIN.h + 12 },
 };
@@ -1644,8 +1655,8 @@ function beyondMore(r: { x: number; y: number; w: number; h: number }, what: (k:
 /** What stands there: pines thinning into rocks towards the peaks, beyond the town; the town's own trees in the low country; rocks beyond the summit. */
 export const BEYOND_MORE_PROPS = PREVIEW ? {
   // (the editor's town's two west bridges land on this far bank: nothing stands where they come down, nor beside it)
-  west: beyondMore(BEYOND_MORE.west, (k, x) => (x > -9 ? (k < 0.24 ? "pine" : k < 0.3 ? "rock" : k < 0.34 ? "bush" : null) : null))
-    .filter((p) => !T2 || (p.x < -4.5 && !(p.x > -8 && ((p.y >= 13 && p.y <= 20) || (p.y >= 32 && p.y <= 39))))),
+  west: beyondMore(BEYOND_MORE.west, (k, x) => (x > (CITY ? -25 : -9) ? (k < 0.24 ? "pine" : k < 0.3 ? "rock" : k < 0.34 ? "bush" : null) : null))
+    .filter((p) => !T2 || CITY || (p.x < -4.5 && !(p.x > -8 && ((p.y >= 13 && p.y <= 20) || (p.y >= 32 && p.y <= 39))))),
   low: beyondMore(BEYOND_MORE.low, (k, x) => (x < MOUNTAIN.x + MOUNTAIN.w + 1 ? null : k < 0.16 ? "tree" : k < 0.27 ? "pine" : k < 0.34 ? "bush" : null)),
   high: beyondMore(BEYOND_MORE.high, (k, x) => (x >= MOUNTAIN.x - 5 && k < 0.12 ? "mrock" : null)),
 } : { west: [], low: [], high: [] };
@@ -2054,7 +2065,7 @@ export function groundAt(tx: number, ty: number): Ground {
  * tiles, but with curved edges, and the river's sand a band of its own that
  * frays a little at its edge.
  */
-export function groundLook(x: number, y: number): Ground | MoreGround | town2.T2Look {
+export function groundLook(x: number, y: number): Ground | MoreGround | T2Look {
   // ── the editor's town ── (its own ground, in its own textures: lib/town/town2)
   if (T2 && town2.inT2(x, y)) return town2.t2Look(x, y);
   // (the clothes shop's floor, which is its own picture: the plaza's kind, as groundAt says)
@@ -2276,7 +2287,8 @@ const SPAWNS: Vec[] = (() => {
  * How far up the screen somebody standing at a point is drawn, in isometric pixels: on the editor's town's bridges, the
  * height of their boards (lib/town/town2); on the ground, nothing.
  */
-export const liftAt = (x: number, y: number): number => (T2 && town2.inT2(x, y) ? town2.t2Lift(x, y) : 0);
+// (the city's ground's heights are laid on everything drawn at a tile by the page itself, Town.tsx's HILL: not again here)
+export const liftAt = (x: number, y: number): number => (T2 && !CITY && town2.inT2(x, y) ? town2.t2Lift(x, y) : 0);
 
 /** Where somebody appears, the same spot for the same person every time. */
 export function spawnFor(id: string): Vec {

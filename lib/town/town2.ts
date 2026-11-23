@@ -30,11 +30,14 @@ import type { Facing, Fishing, Ground, Prop, PropKind, Vec } from "./world";
 
 export const T2_COLS: number = MAP.cols;
 export const T2_ROWS: number = MAP.rows;
+/** Where the town's corner is in the game's tiles (the city's is not here: lib/town/city). */
+export const T2_ORIGIN: { readonly x: number; readonly y: number } = { x: 0, y: 0 };
 const SUB = 8;
 
 /* ── the ground ─────────────────────────────────────────────────────────── */
 
 /** How the editor's ground is drawn here: lib/town/scenery's kinds of its own, each with the editor's own texture. */
+// (and the city's, lib/town/city: one a texture of its map, "t2:<its name>")
 export type T2Look = "t2grass" | "t2water" | "t2sand" | "t2road" | "t2wood" | "t2plaza";
 export const T2_LOOKS: readonly T2Look[] = ["t2grass", "t2water", "t2sand", "t2road", "t2wood", "t2plaza"];
 const NAMES: Record<string, { look: T2Look; ground: Ground }> = {
@@ -183,6 +186,8 @@ const first = (re: RegExp) => { const t = named(re)[0]; if (!t) throw new Error(
 /** The fountain in the plaza's middle (the wishing basin): a landmark, not walked on; people appear round it. */
 const BASIN = first(/^wishing_basin$/);
 export const T2_FOUNTAIN = { x: Math.floor(BASIN.box[0] + 0.5), y: Math.floor(BASIN.box[1] + 0.5), w: 3, h: 3 };
+/** Its placed thing (for its tap). */
+export const T2_FOUNTAIN_THING = BASIN.i;
 /** The plaza: the paved round the fountain. */
 export const T2_PLAZA = { x: 29, y: 31, w: 26, h: 29 };
 /** The town as against its edges, for what roams it (critters, the popotos' outings). */
@@ -192,12 +197,24 @@ const CHEST = first(/^chest_closed$/);
 export const T2_STOREBOX = { x: Math.floor(CHEST.c.x), y: Math.floor(CHEST.box[1] + 0.5) };
 export const T2_CHEST_OPEN = first(/^chest_open$/).i;
 export const T2_CHEST_SHUT = CHEST.i;
+/** Every chest of the town that opens the storage box: here only the plaza's (the city has three: lib/town/city). */
+export const T2_CHESTS: Array<{ x: number; y: number; tiles: Array<[number, number]>; shut: number; open: number }> = [{ ...T2_STOREBOX, tiles: [[T2_STOREBOX.x, T2_STOREBOX.y]], shut: CHEST.i, open: first(/^chest_open$/).i }];
 /** The Popoto Board (news and votes): the notice board on the plaza's west side. */
 const KOSATSU = first(/^kosatsu_board_cloud$/);
 export const T2_BOARD = boxOf(KOSATSU.box);
+export const T2_BOARD_THING = KOSATSU.i;
 /** The trade board: the board of goods on the plaza's north side, which everybody passes. */
 const TRADE = first(/^trade_board_cloud$/);
 export const T2_TRADE_BOARD = boxOf(TRADE.box);
+export const T2_TRADE_THING = TRADE.i;
+/** The crafting tables that open the crafting panel by themselves: none here (crafting is the kitchen's; the city's: lib/town/city). */
+export const T2_CRAFT_TABLES: Array<{ thing: number; tiles: Array<[number, number]>; at: Vec }> = [];
+/**
+ * The rooms walked into, each an outside picture and a cut-away inside one (the city's: lib/town/city). The kitchen hall
+ * here is drawn by its own rules (T2_HALL), so none is listed.
+ */
+export const T2_ROOMS: Array<{ name: string; out: number; in: number; box: [number, number, number, number]; doors: Array<{ inside: [number, number]; outside: [number, number] }> }> = [];
+export const t2RoomAt = (_x: number, _y: number): (typeof T2_ROOMS)[number] | null => null;
 /** The uncle's shop: the merchant's house north of the plaza (no longer a building site). */
 const MACHIYA = first(/^machiya_shop$/);
 export const T2_SHOP = { ...boxOf(MACHIYA.box), stage: 2 };
@@ -400,7 +417,7 @@ const LEFT_OUT_TILES = new Set([...T2_LEFT_OUT].flatMap((i) => tilesIn(T2_THINGS
  * on the ground). Stepped on and off by its stairs only. Drawn in strips at its back edges (lib/town/town2-art).
  */
 export const T2_STAGE = first(/^oval_wooden_festival_stage/);
-export const T2_STAGE_UP = 70;
+export const T2_STAGE_UP: number = 70;
 /** Its round foot on the ground: its footprint's middle and half its width (what stands behind it is behind this). */
 export const T2_STAGE_BASE = {
   x: (T2_STAGE.box[0] + T2_STAGE.box[2]) / 2, y: (T2_STAGE.box[1] + T2_STAGE.box[3]) / 2,

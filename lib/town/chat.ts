@@ -42,8 +42,9 @@ export function reachNote(result: string, th: boolean): string | null {
     // `/townmap` (v295's town_map_switch: which main town it is; lib/town/town-map)
     case "map-classic": return th ? "ตอนนี้ทุกคนอยู่เมืองเดิม" : "Everybody has the old town now.";
     case "map-admins": return th ? "ตอนนี้เฉพาะแอดมินเห็นเมืองใหม่ (ทุกคนอื่นยังเมืองเดิม)" : "Only admins see the new town now; everybody else the old one.";
-    case "map-town2": return th ? "ตอนนี้ทุกคนอยู่เมืองใหม่" : "Everybody has the new town now.";
-    case "map-usage": return th ? "ใช้ /townmap town2, /townmap admins หรือ /townmap classic" : "Use /townmap town2, /townmap admins or /townmap classic.";
+    case "map-city": return th ? "ตอนนี้ทุกคนอยู่เมืองใหม่ (cashcity)" : "Everybody has the new city now.";
+    case "map-town2": return th ? "ตอนนี้ทุกคนอยู่เมือง town2 (เมืองก่อนหน้า)" : "Everybody has the previous town (town2) now.";
+    case "map-usage": return th ? "ใช้ /townmap city, /townmap admins, /townmap town2 หรือ /townmap classic" : "Use /townmap city, /townmap admins, /townmap town2 or /townmap classic.";
     case "map-forbidden": return th ? "คำสั่งนี้ใช้ได้เฉพาะแอดมิน" : "Only admins can change this.";
     case "map-unavailable": return th ? "สวิตช์เมืองยังไม่พร้อมใช้งาน (ยังไม่ได้รัน v295)" : "The town switch is not ready yet (v295 has not run).";
     // `/coins` (v300's town_admin_coins: Ninenine's own purse)

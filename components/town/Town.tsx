@@ -14,6 +14,7 @@ import { bridgeSpans, bridgeWhole } from "@/lib/town/bridge";
 import { DECOR, FACES, artOf, carving, gateLook, ringAt } from "@/lib/town/decor";
 // ── the editor's town ── (lib/town/town2: drawn from its own pictures, fetched as they come near the view)
 import { Town2Art } from "@/lib/town/town2-art";
+import { CityArt } from "@/lib/town/city-art";
 import { farm2Art } from "@/lib/town/farm2-art";
 import { drawPixelFlames } from "./flames";
 import { F2_BENCH_OF, F2_CHESTS, F2_SCARECROWS, F2_TRADE_BOARDS } from "@/lib/town/farm2";
@@ -22,7 +23,10 @@ import { rimAt, type Shade, type Stand } from "@/lib/town-hd/shade";
 import { Capture } from "@/lib/town-hd/capture";
 import type { Finish } from "@/lib/town-hd/finish";
 import { hdOf, keepHd, keptHd, type HdChoice } from "@/lib/town-hd/choice";
-import { T2_CASINO_DOOR, T2_CHEST_OPEN, T2_CHEST_SHUT, T2_HALL, T2_LAMP_LIGHT, T2_PROP_THING, T2_RINGS, T2_THINGS, t2RiverPoint } from "@/lib/town/town2";
+// (the editor's town this page has: the city's or town2's, lib/town/ed)
+import { ed } from "@/lib/town/ed";
+import { CITY } from "@/lib/town/town-map";
+const { T2_CASINO_DOOR, T2_CHEST_OPEN, T2_CHEST_SHUT, T2_CHESTS, T2_HALL, T2_LAMP_LIGHT, T2_PROP_THING, T2_RINGS, T2_THINGS, T2_BOARD_THING, T2_TRADE_THING, T2_FOUNTAIN_THING, t2RiverPoint } = ed;
 // ── Granny Twilla's clothes shop ── (lib/town/shop-room: a room of its own, drawn from its own pictures as it comes near)
 import { ShopRoomArt } from "@/lib/town/shop-room-art";
 import { SHOP_BOARD } from "@/lib/town/shop-room";
@@ -176,6 +180,8 @@ const DOLL_H = 77;
  */
 let HILL: ((x: number, y: number) => number) | null = null;
 const hillPx = (x: number, y: number) => (HILL ? HILL(x, y) * 39.2 : 0);
+/** The city's ground's height at a point, in HILL's measure (39.2 of the map's pixels a unit): its own, not made up (lib/town/city). */
+const cityHill = (x: number, y: number) => ed.t2Lift(x, y) / 39.2;
 /** The tile under a point of the map's own pixels as the screen shows it: the ground there may stand higher than the level map. */
 function tileUnder(ix: number, iy: number): Vec {
   let t = fromIso(ix, iy);
@@ -673,8 +679,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
    */
   const roofRef = useRef(1);
   /** The editor's town's things and their pictures (only when it is this page's town: lib/town/town-map). */
-  const town2Ref = useRef<Town2Art | null>(null);
-  if (T2 && !town2Ref.current) town2Ref.current = new Town2Art();
+  const town2Ref = useRef<Town2Art | CityArt | null>(null);
+  if (T2 && !town2Ref.current) town2Ref.current = CITY ? new CityArt() : new Town2Art();
   // ── Granny Twilla's clothes shop ── (its pictures are asked for only once it comes near the view: the room's own art)
   const shopArtRef = useRef<ShopRoomArt | null>(null);
   if (T2 && !shopArtRef.current) shopArtRef.current = new ShopRoomArt();
@@ -2599,11 +2605,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     let raisedNow = false, raisedWild: Shade | null = null;
     const swayNow = { sec: reducedRef.current ? 0 : performance.now() / 1000, me: stay?.self && !reducedRef.current ? { x: stay.self.pos.x, y: stay.self.pos.y } : null };
     {
-      const here = placeRef.current, gp: HdPlace | null = here === "town" && T2 ? "town" : here === "farm" && F2 ? "farm" : null;
+      // (the 3D town is the editor's town of 2026-10-22's: not the city's, whose ground stands at its own heights below)
+      const here = placeRef.current, gp: HdPlace | null = here === "town" && T2 && !CITY ? "town" : here === "farm" && F2 ? "farm" : null;
       let town: HdTown | null = null;
       try { town = gp && hdMake.current && hdRaised.current && scenery ? (hdTowns.current[gp] ??= hdMake.current(gp)) : null; } catch (e) { hdMake.current = null; console.warn("[Cash Town] 3D shadows stopped", e); }
       raisedNow = !!town && town.ready();
       HILL = raisedNow ? town!.heightAt : null;
+      // (the city's own ground: the park and the canals four steps down, the roads a kerb below the pavements; whatever
+      // stands at a tile there stands at the ground's height, and a tap finds the tile under it, lib/town/city's t2Lift)
+      if (CITY && here === "town") HILL = cityHill;
       // (the forest: its own ground, raised)
       if (here === "forest" && scenery && wildMake.current && hdRaised.current) { try { raisedWild = wildOf("forest"); HILL = raisedWild.heightAt; } catch (e) { wildMake.current = null; console.warn("[Cash Town] 3D shadows stopped", e); } }
       // (the world drawn whole by the 3D town: nothing of its ground here; this frame's dolls throw this frame's shadows)
@@ -2694,6 +2704,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (art2) { art2.carving = forcedCarving.current ?? carving(Date.now()); art2.lit = null; art2.lift = HILL ? hillPx : null; art2.sway = swaying; art2.solid = world3d.current && placeRef.current === "town" ? solidOf(hdTowns.current.town) : null; }
     // (v325: the golden cloth on the hall's tables and cushions on its benches, while they last by the keeper's clock: lib/town/special-uses)
     if (art2) { const d = dressRef.current, t = Date.now() + (d?.skew ?? 0); art2.dressed = { cloth: !!d && laid(d.dress, "cloth", t), cushions: !!d && laid(d.dress, "cushions", t) }; }
+    // (the city: which room I am in sees its inside; the chest I have open stands open, lib/town/city-art)
+    if (art2 instanceof CityArt) {
+      const me = stay?.self?.pos ?? null;
+      art2.here = me;
+      art2.opened = boxShown.current && me ? T2_CHESTS.reduce((a, c) => (Math.hypot(c.x - me.x, c.y - me.y) < Math.hypot(a.x - me.x, a.y - me.y) ? c : a)).shut : null;
+    }
     const seen2 = art2 ? art2.visible({ x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, now) : null;
     // ── the editor's farm ── (lib/town/farm2-art: what of it is near the view, while I am on the farm)
     const artF = scenery && F2 && placeRef.current === "farm" ? farm2Art() : null;
@@ -2862,7 +2878,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       }
     }
     if (art2 && seen2) {
-      const hide = new Set([boxShown.current ? T2_CHEST_SHUT : T2_CHEST_OPEN]);
+      const hide = new Set(CITY ? (art2 instanceof CityArt && art2.opened !== null ? [art2.opened] : []) : [boxShown.current ? T2_CHEST_SHUT : T2_CHEST_OPEN]);
       art2.pushStanding(ctx, seen2.filter((t) => !hide.has(t.i)), (depth, draw) => things.push({ depth, draw }), iso2, v.s, dpr, inHall);
       for (const p of PROPS) {
         if (p.kind !== "bench" && p.kind !== "storebox") continue;
@@ -3340,8 +3356,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // (pinned notes, goods tags, coins on its shelf), the Popoto Board's size, with its name over it
     tradeBoardBox.current = null;
     // (the editor's town's boards are its own pictures: their places on the screen, for taps, and their names)
-    const board2 = (re: RegExp) => { const t = art2 ? T2_THINGS.find((q) => re.test(q.name)) : null; return t && art2 ? art2.boxOf(t.i, iso2, v.s) : null; };
-    const trade2 = T2 ? board2(/^trade_board_cloud$/) : null;
+    const board2 = (i: number) => (art2 && i >= 0 ? art2.boxOf(i, iso2, v.s) : null);
+    const trade2 = T2 ? board2(T2_TRADE_THING) : null;
     if (trade2) {
       tradeBoardBox.current = trade2;
       const due = keeper?.notices()?.due ?? 0;
@@ -3370,7 +3386,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     }
     // The Popoto Board: the town's news and its vote, standing north of the fountain.
     boardBox.current = null;
-    const popo2 = T2 ? board2(/^kosatsu_board_cloud$/) : null;
+    const popo2 = T2 ? board2(T2_BOARD_THING) : null;
     if (popo2) {
       boardBox.current = popo2;
       const x = (popo2.x0 + popo2.x1) / 2, y = popo2.y0 - 12 * v.s;
@@ -3448,7 +3464,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (outdoors && scenery?.has("bird_sit")) drawLife(things, scenery, dpr, now);
     // Popoto out and about, as the hour suits (lib/town/popotos): the same on every screen.
     if (outdoors && scenery?.has("pr1")) for (const o of outingsNow(wall, forcedPopoto.current)) drawOuting(o, things);
-    if (T2) fountainBox.current = board2(/^wishing_basin$/);
+    if (T2) fountainBox.current = board2(T2_FOUNTAIN_THING);
     else things.push({ depth: FOUNTAIN.x + FOUNTAIN.y + 2, draw: () => {
       // the basin's front edge on the bottom corner of its two-by-two tiles
       const c = project({ x: FOUNTAIN.x + FOUNTAIN.w - 0.12, y: FOUNTAIN.y + FOUNTAIN.h - 0.12 });

@@ -2,7 +2,7 @@ import { push } from "./deal";
 import { moveSlot, sortBag, sorted } from "./bag";
 import type { ItemId } from "./items";
 import { gradeIn, held, newPurse, no, roomFor, take, wholeStack, type Done, type Purse, type Stack } from "./trade";
-import { FARM_PROPS, MOUNTAIN_PROPS, byStorebox } from "./world";
+import { FARM_PROPS, MOUNTAIN_PROPS, TOWN_MORE_CHESTS, byStorebox } from "./world";
 
 /**
  * The storage box in the plaza (the owner, 2026-10-05: "ช่วยทำ กล่องเก็บของ มาตั้ง
@@ -108,7 +108,8 @@ export function upgradeBox(purse: Purse, box: Box, slots: number, at: readonly [
 // ── mining ── (the second door: the chest in the mountain's foot yard opens the same box. Its tile is the layout's,
   // and there is none where the mountain is not laid; and since 2026-10-26 the farm's two, one in each half, after it)
 /** The chests that open a member's box beyond the plaza's: each a tile. */
-export const MORE_CHESTS: ReadonlyArray<{ x: number; y: number }> = [...MOUNTAIN_PROPS, ...FARM_PROPS].filter((p) => p.kind === "storebox").map((p) => ({ x: p.x, y: p.y }));
+// (and since 2026-11-23 the city's city hall and kitchen chests, after them: lib/town/city)
+export const MORE_CHESTS: ReadonlyArray<{ x: number; y: number }> = [...[...MOUNTAIN_PROPS, ...FARM_PROPS].filter((p) => p.kind === "storebox").map((p) => ({ x: p.x, y: p.y })), ...TOWN_MORE_CHESTS];
 /** Whether a tile is by one of them (and is not the chest itself). */
 export const byMoreChest = (tx: number, ty: number, reach: number = BOX.reach) => MORE_CHESTS.some((c) => { const far = Math.max(Math.abs(tx - c.x), Math.abs(ty - c.y)); return far >= 1 && far <= reach; });
 // ── end: mining ──

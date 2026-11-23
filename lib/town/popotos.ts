@@ -1,4 +1,4 @@
-import { BOARD, COLS, ROWS, SHOP, TOWN, findPath, groundAt, onDeck, onYard, walkable, type Vec } from "./world";
+import { BOARD, COLS, ROWS, SHOP, TOWN, TOWN_RECT, findPath, groundAt, onDeck, onYard, walkable, type Vec } from "./world";
 
 /**
  * Popoto out and about (the owner's call, 2026-10-02: "นานๆทีจะมี popoto ออกมา
@@ -97,7 +97,7 @@ let ends: Vec[] | null = null;
 function pathEnds(): Vec[] {
   if (ends) return ends;
   const mid = (tiles: number[]) => tiles.length ? tiles[Math.floor(tiles.length / 2)] : 32;
-  const span = [...Array(COLS).keys()];
+  const span = [...Array(COLS).keys()].map((i) => i + TOWN_RECT.x);
   const n = TOWN.y - 1, s = TOWN.y + TOWN.h, w = TOWN.x - 1, e = TOWN.x + TOWN.w;
   ends = [
     { x: mid(span.filter((x) => groundAt(x, n) === "road")), y: n },
@@ -111,7 +111,7 @@ function pathEnds(): Vec[] {
 function near(p: Vec): Vec | null {
   for (let r = 0; r < 6; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
     const x = p.x + dx, y = p.y + dy;
-    if (x >= 0 && y >= 0 && x < COLS && y < ROWS && walkable(x, y)) return { x, y };
+    if (x >= TOWN_RECT.x && y >= TOWN_RECT.y && x < TOWN_RECT.x + COLS && y < TOWN_RECT.y + ROWS && walkable(x, y)) return { x, y };
   }
   return null;
 }

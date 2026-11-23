@@ -1,7 +1,9 @@
 import { inHours } from "./band-species";
 import { roll } from "./farm";
 import { FOREST, FOREST_PROPS, zoneAt, type Place } from "./world";
-import { T2_THINGS } from "./town2";
+import { ed } from "./ed";
+import { CITY } from "./town-map";
+const { T2_THINGS } = ed;
 import { ROWS, WEIGHT, type BoardInsectId, type Tree } from "./board-insect-rows";
 import { GIANT, callWords } from "./giant-fish";
 export * from "./board-insect-rows";
@@ -52,16 +54,26 @@ export const BOARD = {
 
 export interface BoardSpot { id: number; board: "roll" | "shake"; x: number; y: number; place: Place; tree?: Tree }
 /** The things of the town's map the spots are on, by the tile under their middle (their names in town2-map.json). */
-const TOWN_ROLLS: Array<[RegExp, number, number]> = [
+// (the city's, 2026-11-23: its hydrangeas and bushes in the park and along its avenues, the same nine; it has no cherry,
+// so the two "cherry" trees are the park's two apple trees, blossom-bearing as a cherry is, and the cedars two of its own)
+const CITY_ROLLS: Array<[RegExp, number, number]> = [
+  [/hydrangea/, 57, 62], [/hydrangea/, 61, 71], [/hydrangea/, 46, 93], [/bush_9cbf/, 63, 53], [/bush_9cbf/, 78, 76],
+  [/bush_9cbf/, 99, 109], [/bush_9cbf/, 72, 15], [/bush_9cbf/, -4, 110], [/bush_5d0d/, 35, 66],
+];
+const CITY_TREES: Array<[RegExp, number, number, Tree]> = [
+  [/^apple_tree/, 39, 65, "cherry"], [/^apple_tree/, 67, 65, "cherry"], [/^japanese_cedar/, 30, 51, "cedar"], [/^japanese_cedar/, 24, 23, "cedar"],
+];
+const TOWN2_ROLLS: Array<[RegExp, number, number]> = [
   [/^azalea/, 62, 7], [/^game_bush$/, 27, 16], [/^hydrangea/, 44, 31], [/^hydrangea/, 60, 7],
   [/^purple_hydrangea/, 56, 72], [/^purple_hydrangea/, 42, 64], [/^game_bush$/, 6, 13], [/^game_bush$/, 46, 17],
   // (and a cherry's low leaves, as the species lists said: "the town's azalea, hydrangea and cherry")
   [/^deep_pink_double_cherry/, 25, 43],
 ];
-const TOWN_TREES: Array<[RegExp, number, number, Tree]> = [
+const TOWN2_TREES: Array<[RegExp, number, number, Tree]> = [
   [/^large_old_cherry/, 19, 31, "cherry"], [/^large_old_cherry/, 48, 57, "cherry"],
   [/^japanese_cedar/, 23, 5, "cedar"], [/^japanese_cedar/, 4, 77, "cedar"],
 ];
+const TOWN_ROLLS = CITY ? CITY_ROLLS : TOWN2_ROLLS, TOWN_TREES = CITY ? CITY_TREES : TOWN2_TREES;
 const onMap = (re: RegExp, x: number, y: number) => T2_THINGS.some((t) => re.test(t.name) && Math.floor(t.c.x) === x && Math.floor(t.c.y) === y);
 /** The forest's: the edge's bushes (three, all it has) and the woods' two oaks nearest its gate (the forest's props are laid out the same everywhere). */
 function forestSpots(): Array<{ x: number; y: number; kind: "bush" | "oak" }> {

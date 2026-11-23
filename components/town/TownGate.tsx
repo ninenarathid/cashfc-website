@@ -65,7 +65,7 @@ function useTownMap(): boolean {
     const done = (m: unknown) => {
       if (settled) return;
       settled = true;
-      if (m === "classic" || m === "town2") {
+      if (m === "classic" || m === "town2" || m === "city") {
         try { localStorage.setItem("cashtown:map", m); } catch { /* asked again next time */ }
         const g = globalThis as { __cashTownMap?: string; __cashTownMapUsed?: string };
         g.__cashTownMap = m;

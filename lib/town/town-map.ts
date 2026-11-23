@@ -12,12 +12,12 @@
  * 4. `classic`: a build changes nothing until the database says otherwise.
  * A page that finds the database saying other than what it was read with reloads once (components/town/TownGate).
  */
-export type TownMap = "classic" | "town2";
-export const TOWN_MAPS: readonly TownMap[] = ["classic", "town2"];
+export type TownMap = "classic" | "town2" | "city";
+export const TOWN_MAPS: readonly TownMap[] = ["classic", "town2", "city"];
 /** Where the last word of the database is kept between pages. */
 export const TOWN_MAP_KEY = "cashtown:map";
 
-const isMap = (m: unknown): m is TownMap => m === "classic" || m === "town2";
+const isMap = (m: unknown): m is TownMap => m === "classic" || m === "town2" || m === "city";
 
 function picked(): TownMap {
   // (`next dev`: the test link's `?townMap=` before anything else, whatever this browser kept or whoever read the town
@@ -38,8 +38,13 @@ function picked(): TownMap {
 
 /** This page's town. */
 export const TOWN_MAP: TownMap = picked();
-/** Whether this page's town is the editor's. */
-export const T2 = TOWN_MAP === "town2";
+/**
+ * Whether this page's town is one of the map editor's: the town of 2026-10-22 (lib/town/town2) or the city of 2026-11-23
+ * (lib/town/city, "ช่วยเพิ่มแมพใหม่เป็นเมือง… replace แมพเดิม"). Both are read through lib/town/ed, which gives the one this is.
+ */
+export const T2 = TOWN_MAP === "town2" || TOWN_MAP === "city";
+/** Whether this page's town is the city (lib/town/city). */
+export const CITY = TOWN_MAP === "city";
 (globalThis as { __cashTownMapUsed?: TownMap }).__cashTownMapUsed = TOWN_MAP;
 
 /** Remember what the database said, for the next page. Whether this page was read with something else (then it has to load again). */
