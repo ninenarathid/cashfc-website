@@ -1,38 +1,51 @@
 import { CANVAS, MAP_SCALE, drawKrathong, drawProp, hallSlots, krathongImage, propSize } from "@/lib/town/krathong-art";
 import type { AwardView, RiverKrathong } from "@/lib/town/krathong";
 import type { Vec } from "@/lib/town/world";
+import { CITY } from "@/lib/town/town-map";
+import { ed } from "@/lib/town/ed";
 
 /**
  * Loy Krathong on the editor's town map: the stall beside the Popoto Board, the hall of the year's outstanding
- * krathongs beside it once the results are out, and the floated krathongs on the west river by the festival stage,
- * drifting downstream and gathering, candle-lit, where the river widens (the night fills it as the members float).
+ * krathongs by the fountain once the results are out, and the floated krathongs on the water, drifting out and
+ * gathering, candle-lit (the night fills it as the members float).
  */
 
-/** Ground points (feet) of the stall (on the open plaza before the Popoto Board, 29,35–37) and the hall (south-east of the fountain, clear of the torii and the benches). */
-export const STALL_AT: Vec = { x: 34.4, y: 40.2 };
-export const HALL_AT: Vec = { x: 42.6, y: 46.8 };
-/** Where a member stands to float: the west river's bank, north of the festival stage. */
-export const FLOAT_BANK: [number, number] = [4, 37];
-
-// The west river runs north–south over x -1..5 by the plaza and the stage (the bank beyond x 0 is water too); the
-// fishing pier stands over it from y 57.7 at x 3.8 and on, so the krathongs come to rest on the open water above it,
-// south of the stage (which would hide them behind it), between y 53.6 and 58.2, x -0.6..3.6.
-const START_Y = 37.6, REST_Y0 = 53.6, REST_Y1 = 58.2, DRIFT_MS = 12 * 60_000, MID = 1.5, HALF = 2.1;
-const rowWater = (_y: number) => ({ mid: MID, half: HALF });
+/**
+ * Where the festival stands on each of the editor's towns (the page's town is fixed for its life, lib/town/town-map):
+ * - **the city** (2026-11-23, the town for everyone): the stall on the open lawn south of the park's Popoto Board (38.4,71.5: in front of it the stall hid it),
+ *   the hall on the grass south-east of the fountain, and the floating at the dirt landing on the canal's east bank west
+ *   of the park (27–30,72–76): a krathong is set on the water before it and drifts out to gather on the open canal
+ *   in front of the landing (x 21–26, y 62.5–73.5), clear of the bank's trees further down (they would hide it).
+ * - **town2** (now the emergency switch): the stall before the Popoto Board, the hall south-east of the fountain clear
+ *   of the torii and the benches, and the west river by the festival stage: the fishing pier stands over it from y 57.7
+ *   at x 3.8 and on, so the krathongs come to rest on the open water above it, south of the stage, y 53.6–58.2.
+ */
+interface Water { startX: number | null; startY: number; rest: [number, number]; mid: number; half: number; least: number }
+const PLACES: { stall: Vec; hall: Vec; bank: [number, number]; water: Water } = CITY
+  ? { stall: { x: 41.8, y: 81.2 }, hall: { x: 61.6, y: 79.2 }, bank: [28, 73], water: { startX: 25.3, startY: 71.4, rest: [62.5, 73.5], mid: 23.5, half: 2.5, least: -1e9 } }
+  : { stall: { x: 34.4, y: 40.2 }, hall: { x: 42.6, y: 46.8 }, bank: [4, 37], water: { startX: null, startY: 37.6, rest: [53.6, 58.2], mid: 1.5, half: 2.1, least: 0.6 } };
+/** Ground points (feet) of the stall and the hall. */
+export const STALL_AT: Vec = PLACES.stall;
+export const HALL_AT: Vec = PLACES.hall;
+/** Where a member stands to float. */
+export const FLOAT_BANK: [number, number] = PLACES.bank;
+const W = PLACES.water, DRIFT_MS = 12 * 60_000;
 
 /** A small steady hash of a krathong's id, 0..1, for its own lane, pace and resting place. */
 const h01 = (id: number, salt: number) => { let x = Math.imul(id ^ (salt * 0x9e3779b9), 0x85ebca6b) >>> 0; x = Math.imul(x ^ (x >>> 13), 0xc2b2ae35) >>> 0; return ((x ^ (x >>> 16)) >>> 0) / 4294967296; };
 
 /** Where a floated krathong is on the river at a moment (tile coordinates). */
 export function riverPos(k: RiverKrathong, now: number): Vec {
-  const restY = REST_Y0 + h01(k.id, 1) * (REST_Y1 - REST_Y0);
+  const restY = W.rest[0] + h01(k.id, 1) * (W.rest[1] - W.rest[0]);
   const f = Math.min(1, Math.max(0, (now - k.floated) / (DRIFT_MS * (0.8 + 0.4 * h01(k.id, 2)))));
   const ease = 1 - (1 - f) * (1 - f);
-  const y = START_Y + (restY - START_Y) * ease;
-  const w = rowWater(y), lane = (h01(k.id, 3) - 0.5) * 2 * Math.max(0.2, w.half - 0.7);
+  const y = W.startY + (restY - W.startY) * ease;
+  const restX = W.mid + (h01(k.id, 3) - 0.5) * 2 * Math.max(0.2, W.half - 0.7);
+  // (the city's: set down off the landing, then out to its lane; town2's: in its lane from the start)
+  const x = W.startX == null ? restX : W.startX + (restX - W.startX) * ease;
   // a slow sway along its way, and at rest a little circling in the eddy
   const t = now / 1000, sway = Math.sin(t / 3.2 + k.id) * 0.18 * (1 - f) + Math.sin(t / 7 + k.id * 1.7) * 0.12 * f;
-  return { x: Math.max(0.6, w.mid + lane + sway), y: y + Math.cos(t / 9 + k.id) * 0.1 * f };
+  return { x: Math.max(W.least, x + sway), y: y + Math.cos(t / 9 + k.id) * 0.1 * f };
 }
 
 export interface FestivalDraw {
@@ -109,7 +122,8 @@ export function drawRiver(d: FestivalDraw, river: RiverKrathong[]) {
   const k = MAP_SCALE * d.s, [w, h] = CANVAS, frame = Math.floor(d.now / 180);
   for (const kr of river) {
     const p = riverPos(kr, d.now), at = d.project(p);
-    if (!d.onScreen(at)) continue;
+    // (the city's canal is sunk: only over its water, each at its water's place back to front, the near bank before it, as Town.tsx's cityRiver)
+    if (!d.onScreen(at) || (CITY && ed.t2Tile(Math.floor(p.x), Math.floor(p.y)) !== "~")) continue;
     const bob = Math.sin(d.now / 700 + kr.id) * 1.2 * d.s, x0 = at.x - (w / 2) * k, y0 = at.y - (h - 6) * k + bob;
     const [fx, fy] = FLAME[kr.design.light[0]] ?? [32, 8];
     // the candle shines through the night's dark, and lies on the water under it
@@ -118,7 +132,7 @@ export function drawRiver(d: FestivalDraw, river: RiverKrathong[]) {
       d.light(x0 + fx * k, y0 + fy * k, 22 * d.s, "255,196,120", flicker);
       d.light(at.x, at.y + 3 * d.s, 30 * d.s, "255,170,90", 0.55 * flicker, 0.38);
     }
-    d.push(p.x + p.y, () => {
+    d.push(CITY ? Math.floor(p.x) + Math.floor(p.y) + 0.977 : p.x + p.y, () => {
       const { ctx } = d;
       // its reflection: a faint warm streak on the water below it
       ctx.save();

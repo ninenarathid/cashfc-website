@@ -4,10 +4,13 @@
 // only that each step came up.
 //
 //   cd <the tree> && FC_REPO=<the tree> node .claude/skills/fc-cash-town/scripts/town-festival.mjs <base> <outdir>
-//   (SIZES=desktop,phone,small · STAGES=make,float,results)
+//   (SIZES=desktop,phone,small · STAGES=make,float,results · MAP=city|town2, the city by default)
 import { browser, sleep, status, until } from "./cdp.mjs";
 
-globalThis.__cashTownMap = "town2";
+const MAP = process.env.MAP ?? "city";
+globalThis.__cashTownMap = MAP;
+/** Where to stand on each map: before the stall (the Popoto Board), on the floating landing, before the hall. */
+const SPOT = MAP === "city" ? { stall: [43, 82], river: [28, 72], hall: [63, 81] } : { stall: [32, 41], river: [8, 57], hall: [32, 41] };
 await import("./db/repo-ts-town.mjs");
 const { PARTS } = await import("@/lib/town/krathong");
 const KIT = Object.entries(PARTS.flatMap((p) => p.pay.slice(0, 2)).reduce((m, [id, n]) => ({ ...m, [id]: Math.max(m[id] ?? 0, 0) + n * 2 }), {}));
@@ -15,7 +18,7 @@ const [BASE = "http://localhost:3336", OUT = "."] = process.argv.slice(2);
 let pass = 0, fail = 0;
 const ok = (n, c, d = "") => { c ? pass++ : fail++; console.log(`  ${c ? "PASS" : "FAIL"} ${n}${c ? "" : "  " + JSON.stringify(d)}`); };
 const V = "window.__townView";
-const url = (room, stage, hour) => `${BASE}/town?townTest=A&townRoom=${room}&townMap=town2&townHour=${hour}&townWeather=clear&lk=${stage}`;
+const url = (room, stage, hour) => `${BASE}/town?townTest=A&townRoom=${room}&townMap=${MAP}&townHour=${hour}&townWeather=clear&lk=${stage}`;
 
 async function tapAt(X, x, y) {
   await X.send("Input.dispatchMouseEvent", { type: "mouseMoved", x, y });
@@ -54,7 +57,7 @@ for (const [label, size] of sizes) {
       await until("ready again", async () => (await status(X)) === "ready", 240000);
       await until("festival hook", async () => !!(await X.evaluate(`!!${V}?.festival?.()?.live?.f`)), 20000).catch(() => {});
       await X.evaluate(`${V}.festival().kit()`);
-      await X.evaluate(`${V}.warp(32, 41)`);
+      await X.evaluate(`${V}.warp(${SPOT.stall.join(", ")})`);
       await sleep(3500);
       await shot(`${stage}-01-map`);
       if (stage === "make") {
@@ -101,14 +104,15 @@ for (const [label, size] of sizes) {
         await press(X, ["ลอยกระทง", "Float it"], STALL);
         await sleep(1500);
         await X.evaluate(`${V}.festival().river()`);
-        await X.evaluate(`${V}.warp(8, 57)`);
+        await X.evaluate(`${V}.warp(${SPOT.river.join(", ")})`);
         await sleep(4000);
         ok(`${label}: krathongs on the river`, (await X.evaluate(`${V}.festival().live.river.length`)) > 0);
         await shot(`${stage}-05-river`);
       }
       if (stage === "results") {
         await X.evaluate(`${V}.festival().awards()`);
-        await sleep(2500);
+        await X.evaluate(`${V}.warp(${SPOT.hall.join(", ")})`);
+        await sleep(3500);
         await shot(`${stage}-01b-hall`);
         await X.evaluate(`${V}.festival().stall()`);
         await sleep(2000);

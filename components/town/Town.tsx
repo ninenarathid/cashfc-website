@@ -3534,7 +3534,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       } });
     }
     // (v336) Loy Krathong on the editor's town: the stall beside the Popoto Board while the edition is on, the hall of
-    // the year's krathongs once the results are out, and every floated krathong on the west river (components/town/festival-map)
+    // the year's krathongs once the results are out, and every floated krathong on the water (components/town/festival-map: each map its own places)
     stallBox.current = null; hallBox.current = null;
     const fl = fest.live.current, lk = fl.f;
     if (popo2 && lk) {
