@@ -24,7 +24,7 @@ import type { Block, Stand } from "@/lib/town-hd/shade";
 import MAP from "./city-map.json";
 import { WATER_MS, waterFrames } from "./scenery";
 import { T2_COLS, T2_ORIGIN, T2_ROOMS, T2_ROWS, t2InSurround, t2RoomAt, t2SurroundLand } from "./city";
-import { placeOf, type Vec } from "./world";
+import type { Vec } from "./world";
 
 const FLOOR = 0, STAND = 1, WIDE = 2, EDGE = 3, ROLE = 4, OUTSIDE = 5, INSIDE = 6;
 const STRIP = 12;
@@ -68,7 +68,8 @@ function woods(objects: number[][]): number[][] {
     if (!t2InSurround(cx, cy)) continue;
     const ex = Math.min(Math.max(cx, OX), OX + T2_COLS), ey = Math.min(Math.max(cy, OY), OY + T2_ROWS), d = Math.hypot(cx - ex, cy - ey);
     if (d < 2 || d > M || hash(tx, ty, 1) >= Math.min(0.4, 0.08 + (d - 2) * 0.05)) continue;
-    if (placeOf(cx, cy) !== null || !t2SurroundLand(cx, cy)) continue;
+    // (over the farm's edge and the forest's too: from the city they are not seen, and the woods are not drawn from them)
+    if (!t2SurroundLand(cx, cy)) continue;
     const set = d < 4.5 && bushes.length && hash(tx, ty, 2) < 0.55 ? bushes : trees;
     const kind = set[Math.floor(hash(tx, ty, 3) * set.length)], o = kind[Math.floor(hash(tx, ty, 4) * kind.length)];
     // (its footprint's middle on this tile's, a little off it)
@@ -130,6 +131,9 @@ export class CityArt {
   private readonly flowing = new Map<number, HTMLCanvasElement[]>();
   private lastSeen: Thing[] = [];
   private lastView: { x0: number; y0: number; x1: number; y1: number } | null = null;
+  /** Where the woods about the city begin among the things; they are drawn only from the city (the page says, `woodsShown`). */
+  private woodsFrom = 0;
+  woodsShown = true;
 
   constructor() {
     const rings = MAP.rings as unknown as Record<string, Array<[number, number, string]>>;
@@ -137,6 +141,7 @@ export class CityArt {
     const strips = MAP.strips as unknown as Record<string, number[]>;
     this.sprites = (MAP.sprites as Array<[string, number, number]>).map(([src, w, h]) => ({ src: DIR + src, w, h, img: null, ready: false, seen: 0 }));
     const all = [...(MAP.objects as number[][]), ...woods(MAP.objects as number[][])];
+    this.woodsFrom = MAP.objects.length;
     this.byIndex = all.map((o, i) => ({
       i, name: MAP.names[o[0]], s: o[1], x: o[2], y: o[3], k: o[4], flip: o[5] === 1, how: o[6], d: o[7],
       box: [o[8], o[9], o[10], o[11]] as [number, number, number, number], rings: rings[i], wall: walls[i], strips: strips[i],
@@ -211,7 +216,7 @@ export class CityArt {
       // (a room's inside only for whoever is in it; its outside for everybody else; a chest open only while it is)
       if (t.how === INSIDE && this.insideOf.get(t.i) !== room) continue;
       if (t.how === OUTSIDE && this.outsideOf.get(t.i) === room) continue;
-      if (t.how === ROLE) continue;
+      if (t.how === ROLE || (!this.woodsShown && t.i >= this.woodsFrom)) continue;
       const sp = this.sprites[t.s], x1 = t.x + sp.w * t.k, y1 = t.y + sp.h * t.k;
       if (x1 < view.x0 - w / 2 || t.x > view.x1 + w / 2 || y1 < view.y0 - h / 2 || t.y > view.y1 + h / 2) continue;
       const near = !(x1 < view.x0 || t.x > view.x1 || y1 < view.y0 || t.y > view.y1);
@@ -241,7 +246,7 @@ export class CityArt {
     if (!v) return { stands, blocks };
     const w = v.x1 - v.x0, h = v.y1 - v.y0;
     for (const t of this.things) {
-      if ((t.how !== STAND && t.how !== WIDE && t.how !== OUTSIDE) || NO_SHADOW.test(t.name)) continue;
+      if ((t.how !== STAND && t.how !== WIDE && t.how !== OUTSIDE) || NO_SHADOW.test(t.name) || (!this.woodsShown && t.i >= this.woodsFrom)) continue;
       const sp = this.sprites[t.s], x1 = t.x + sp.w * t.k, y1 = t.y + sp.h * t.k;
       if (x1 < v.x0 - w / 2 || t.x > v.x1 + w / 2 || y1 < v.y0 - h / 2 || t.y > v.y1 + h / 2) continue;
       const [bx0, by0, bx1, by1] = t.box, cx = (bx0 + bx1) / 2, cy = (by0 + by1) / 2;

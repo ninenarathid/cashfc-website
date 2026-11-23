@@ -2760,6 +2760,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       art2.here = me;
       art2.opened = boxShown.current && me ? T2_CHESTS.reduce((a, c) => (Math.hypot(c.x - me.x, c.y - me.y) < Math.hypot(a.x - me.x, a.y - me.y) ? c : a)).shut : null;
     }
+    if (art2 instanceof CityArt) art2.woodsShown = placeRef.current === "town";
     const seen2 = art2 ? art2.visible({ x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, now) : null;
     // ── the editor's farm ── (lib/town/farm2-art: what of it is near the view, while I am on the farm)
     const artF = scenery && F2 && placeRef.current === "farm" ? farm2Art() : null;
@@ -3199,6 +3200,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     }
     // The gateways between the maps, each over its path's end: a tap on one walks there, and through.
     if (scenery?.has("gateway")) for (const g of GATES) {
+      // (from the city, no other map's gateways: they stand where its surroundings are seen)
+      if (CITY && placeRef.current === "town" && g.from !== "town") continue;
       const c = project(g.arch);
       if (!onScreen(c)) continue;
       // ── the Popoto Casino ── (down by the kura's door: its name over the door and the door to tap, only while it opens
@@ -3315,6 +3318,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // Pumpkins (lib/town/decor): carved ones about the town in their season, great ones on the farm.
     if (scenery) for (const d of DECOR) {
       if ((d.carved && !carvingNow) || !scenery.has(d.art) || (T2 && placeOf(d.x, d.y) === "town")) continue;
+      // (from the city, nothing of another map's)
+      if (CITY && placeRef.current === "town" && placeOf(d.x, d.y) !== null) continue;
       const c = project(d);
       if (!onScreen(c)) continue;
       things.push({ depth: d.x + d.y, draw: () => scenery.drawProp(ctx, d.art, c.x, c.y, v.s * (PROP_K[d.art] ?? 1), dpr, 0, !!d.mirror) });
@@ -3555,6 +3560,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         if (a.byeAt !== undefined || (roofOn && onYard(Math.floor(a.pos.x), Math.floor(a.pos.y)))) continue;
         // ── the pasture ── (nor whoever is inside a barn whose roof is on for me: lib/town/pasture's BARNS)
         if (placeRef.current === "farm" && pastureHooks.current?.hides(a.pos.x, a.pos.y)) continue;
+        // (from the city, nobody on another map: its woods are seen where they stand)
+        if (CITY && placeRef.current === "town" && placeOf(a.pos.x, a.pos.y) !== "town") continue;
         things.push({ depth: depthOf(a), draw: () => drawAvatar(ctx, a, false, names, boxes, !live, wall, now, dpr) });
         const pet = petOf(a, dt);
         if (pet) things.push({ depth: pet.at.x + pet.at.y, draw: () => drawPet(ctx, pet, now) });

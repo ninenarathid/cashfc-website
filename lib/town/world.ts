@@ -1535,9 +1535,14 @@ let groundOf: Place | null = null;
 export function showGroundOf(p: Place | null): boolean {
   const was = groundOf, near = (q: Place | null) => q === "farm" || q === "forest";
   groundOf = p;
-  return F2 && was !== p && (near(was) || near(p));
+  return (F2 && was !== p && (near(was) || near(p))) || (CITY && was !== p && (was === "town" || p === "town"));
 }
-const hiddenGround = (p: Place | null) => F2 && ((groundOf === "farm" && p === "forest") || (groundOf === "forest" && p === "farm"));
+// (and from the city no other map is seen, its own surroundings run on where they lie: the owner, 2026-11-23, of the farm
+// seen beyond the city's east edge, "ยังเห็นแมพอื่นอยู่ ลบแมพฟาร์มออกจากแมพเมือง")
+const hiddenGround = (p: Place | null) => (F2 && ((groundOf === "farm" && p === "forest") || (groundOf === "forest" && p === "farm")))
+  || (CITY && inCity() && p !== null && p !== "town");
+/** Whether the city is the map seen from: the town is where the page begins, until it says otherwise (it says only on a change of map). */
+const inCity = () => (groundOf ?? "town") === "town";
 const onMap = (x: number, y: number) => { const p = placeOf(x, y); return p !== null && !hiddenGround(p) && !room.inShop(x, y) && !casino.inCasino(x, y); };
 export const seenAt = (x: number, y: number) => onMap(x, y) || within(x, y, BEYOND.north) || within(x, y, BEYOND.south)
   // (all about the city: lib/town/city's surroundings)
@@ -2076,6 +2081,8 @@ export function groundAt(tx: number, ty: number): Ground {
 export function groundLook(x: number, y: number): Ground | MoreGround | T2Look {
   // ── the editor's town ── (its own ground, in its own textures: lib/town/town2)
   if (T2 && town2.inT2(x, y)) return town2.t2Look(x, y);
+  // (from the city, its surroundings over whatever other map lies there: lib/town/city)
+  if (CITY && inCity()) { const s = t2SurroundLook(x, y); if (s) return s; }
   // (the clothes shop's floor, which is its own picture: the plaza's kind, as groundAt says)
   if (room.inShop(x, y) || casino.inCasino(x, y)) return "plaza";
   // (and its far banks beyond the west and south edges, where its bridges come down)

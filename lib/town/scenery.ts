@@ -179,7 +179,7 @@ export class SceneryKit {
   }
 
   /** Lay the ground again as it comes into view (what is shown of it changed: lib/town/world's showGroundOf). */
-  forgetGround() { this.chunks.clear(); this.pending = null; }
+  forgetGround() { this.chunks.clear(); this.pending = null; for (const k of this.kinds) k.fill(0); }
 
   /** A prop's piece and the picture it is in: the first picture's, or one added to it. */
   private piece(name: string): { p: Piece; img: HTMLImageElement } | null {
