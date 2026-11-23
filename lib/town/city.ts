@@ -128,6 +128,40 @@ export function t2Look(x: number, y: number): T2Look {
 export function t2WaterAt(x: number, y: number): boolean {
   return wetLetter(letterAt(x - OX, y - OY), x - OX, y - OY);
 }
+
+/* ── what lies about the city ─────────────────────────────────────────── */
+
+/**
+ * How far the city's surroundings reach beyond its edges, in tiles (the owner, 2026-11-23, of the black between the city
+ * and the farm: "เติม transition ทุกด้านไปเลย"): ground to look at, on no map, never walked. Each edge runs on outward: its
+ * water as open water (the sea, the canal as a river), its sand a little way, its land as a grass verge and then the woods'
+ * floor. The farm, the forest and the pasture keep their own ground where they lie (lib/town/world's groundLook).
+ */
+export const T2_SURROUND = 30;
+const GRASS_LOOK = lookOf("grass"), SAND_LOOK = lookOf("game_sand"), WOODS_LOOK = lookOf("packed_brown_earth_with");
+/** How far outside the city a point lies (0 inside), and its nearest point of the city's edge (the map's own tiles). */
+function outside(x: number, y: number): { d: number; ex: number; ey: number } {
+  const fx = x - OX, fy = y - OY, ex = Math.min(Math.max(fx, 0.01), T2_COLS - 0.01), ey = Math.min(Math.max(fy, 0.01), T2_ROWS - 0.01);
+  return { d: Math.hypot(fx - ex, fy - ey), ex, ey };
+}
+/** Whether a point (the game's tiles) is in the city's surroundings. */
+export function t2InSurround(x: number, y: number): boolean {
+  const fx = x - OX, fy = y - OY;
+  if (fx >= 0 && fy >= 0 && fx < T2_COLS && fy < T2_ROWS) return false;
+  if (fx < -T2_SURROUND || fy < -T2_SURROUND || fx > T2_COLS + T2_SURROUND || fy > T2_ROWS + T2_SURROUND) return false;
+  return outside(x, y).d <= T2_SURROUND;
+}
+/** The look of the city's surroundings at a point (the game's tiles); null where they are not. */
+export function t2SurroundLook(x: number, y: number): T2Look | null {
+  if (!t2InSurround(x, y)) return null;
+  const { d, ex, ey } = outside(x, y), k = letterAt(ex, ey);
+  if (wetLetter(k, ex, ey)) return T2_WATER_LOOK;
+  const n = noise(x - OX, y - OY, 2.2, 31);
+  if (/sand/.test(LEGEND[k] ?? "") && d < 1.5 + 2.5 * n) return SAND_LOOK;
+  return d > 3 + 3.5 * n ? WOODS_LOOK : GRASS_LOOK;
+}
+/** Whether the surroundings are land at a point (where trees may stand): not water, not sand. */
+export const t2SurroundLand = (x: number, y: number) => { const l = t2SurroundLook(x, y); return l === GRASS_LOOK || l === WOODS_LOOK; };
 /** The kind of ground of a tile: what most of it is painted. */
 const TILE_GROUND: Ground[] = (() => {
   const out: Ground[] = [];

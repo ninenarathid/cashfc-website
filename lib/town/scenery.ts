@@ -2,7 +2,7 @@
 
 import { BEYOND, BEYOND_MORE, CAVE, COLS, FARM_ALL, FOREST, MORE_GROUND, MOUNTAIN, PREVIEW, ROWS, T2, TILE_H, TILE_W, TOWN_RECT, floorCorner, fromIso, groundLook, groundTone, seenAt, type Ground, type MoreGround } from "./world";
 import { ed } from "./ed";
-import { T2_WATER_LOOK } from "./city";
+import { T2_SURROUND, T2_WATER_LOOK } from "./city";
 import { CITY } from "./town-map";
 import type { T2Look } from "./town2";
 import { riverPixel } from "./river-landscape";
@@ -85,7 +85,9 @@ const STAND_IN: Partial<Record<Kind, (typeof TOWN_KINDS)[number]>> = { field: "r
 /** The maps, each with its own grid of remembered kinds: the town's, the farm's, the forest's; and the woods seen beyond the town's north gate and the forest's own (ground to look at, on no map). */
 const MAPS = [{ x: TOWN_RECT.x, y: TOWN_RECT.y, w: COLS, h: ROWS }, /* the editor's town's far banks */ ...(T2 ? ed.T2_BANKS : []), /* the farm with its pasture */ FARM_ALL, FOREST, BEYOND.north, BEYOND.south,
   // ── to come ── (the preview) the mountain's foot, each floor of the cave the preview has, and what is seen beyond the town's west gate and beyond the mountain's map
-  ...(PREVIEW ? [MOUNTAIN, ...CAVE.laid.map((n) => ({ ...floorCorner(n), w: CAVE.size, h: CAVE.size })), BEYOND_MORE.west, BEYOND_MORE.low, BEYOND_MORE.high] : [])];
+  ...(PREVIEW ? [MOUNTAIN, ...CAVE.laid.map((n) => ({ ...floorCorner(n), w: CAVE.size, h: CAVE.size })), BEYOND_MORE.west, BEYOND_MORE.low, BEYOND_MORE.high] : []),
+  // (all about the city, last: where another map lies, its ground is its own)
+  ...(CITY ? ((r, m) => [{ x: r.x - m, y: r.y - m, w: r.w + 2 * m, h: m }, { x: r.x - m, y: r.y + r.h, w: r.w + 2 * m, h: m }, { x: r.x - m, y: r.y, w: m, h: r.h }, { x: r.x + r.w, y: r.y, w: m, h: r.h }])({ x: TOWN_RECT.x, y: TOWN_RECT.y, w: COLS, h: ROWS }, T2_SURROUND) : [])];
 /** How dark the rim of a plot is laid: the ridge of earth between one plot and the next. */
 const RIDGE = 0.085;
 

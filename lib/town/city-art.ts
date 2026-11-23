@@ -23,8 +23,8 @@ import { FLAT, SWAY, swayPx } from "@/lib/town-hd/sway";
 import type { Block, Stand } from "@/lib/town-hd/shade";
 import MAP from "./city-map.json";
 import { WATER_MS, waterFrames } from "./scenery";
-import { T2_ROOMS, t2RoomAt } from "./city";
-import type { Vec } from "./world";
+import { T2_COLS, T2_ORIGIN, T2_ROOMS, T2_ROWS, t2InSurround, t2RoomAt, t2SurroundLand } from "./city";
+import { placeOf, type Vec } from "./world";
 
 const FLOOR = 0, STAND = 1, WIDE = 2, EDGE = 3, ROLE = 4, OUTSIDE = 5, INSIDE = 6;
 const STRIP = 12;
@@ -39,6 +39,45 @@ const NO_SHADOW = /^(terrain|game_ring|dock_2)$|^picnic_mat|^long_drift_of_many_
 /** Of what is drawn wide, what light passes through or round (a wheel, a shelter, tables, a gate, a statue): its own picture throws its shadow, not a block. */
 const SEE_THROUGH = /ferris|carousel|fountain|farm_gate|table_and_chair|scooter|monument|busstop|hay_and_pitchfork/;
 const LIFTS = MAP.lifts as unknown as Record<string, number>;
+/** The city's own trees and bushes that stand in the woods about it. */
+const WOOD_TREES = /^(japanese_cedar_tree|camphor_tree|japanese_zelkova_tree|japanese_maple_tree|ginkgo_tree)/;
+const WOOD_BUSH = /^create_isometric_pixel_art_bush_9cbf5bd2/;
+/**
+ * The woods about the city (the owner, 2026-11-23: "เติม transition ทุกด้านไปเลย"): its own trees, each one of its own
+ * pictures as it stands in the city moved out onto the woods' floor beyond its edges (lib/town/city's surroundings);
+ * bushes along the verge, the trees thicker further out. Never on another map, the sea or the sand. From the tile itself,
+ * so the same for everybody; in the map's own rows ([name, picture, left, top, scale, mirrored, how, order, footprint]).
+ */
+function woods(objects: number[][]): number[][] {
+  const byName = new Map<string, number[][]>();
+  objects.forEach((o, i) => {
+    const n = MAP.names[o[0]];
+    if (o[6] !== STAND || LIFTS[i] || !(WOOD_TREES.test(n) || WOOD_BUSH.test(n))) return;
+    byName.set(n, [...(byName.get(n) ?? []), o]);
+  });
+  const trees = [...byName].filter(([n]) => WOOD_TREES.test(n)).map(([, v]) => v), bushes = [...byName].filter(([n]) => WOOD_BUSH.test(n)).map(([, v]) => v);
+  if (!trees.length) return [];
+  const hash = (x: number, y: number, s: number) => {
+    let h = Math.imul(x + 977 + s * 131, 374761393) ^ Math.imul(y + 331 - s * 71, 668265263);
+    h = Math.imul(h ^ (h >>> 13), 1274126177);
+    return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+  };
+  const OX = T2_ORIGIN.x, OY = T2_ORIGIN.y, M = 18, out: number[][] = [];
+  for (let ty = OY - M; ty < OY + T2_ROWS + M; ty++) for (let tx = OX - M; tx < OX + T2_COLS + M; tx++) {
+    const cx = tx + 0.5, cy = ty + 0.5;
+    if (!t2InSurround(cx, cy)) continue;
+    const ex = Math.min(Math.max(cx, OX), OX + T2_COLS), ey = Math.min(Math.max(cy, OY), OY + T2_ROWS), d = Math.hypot(cx - ex, cy - ey);
+    if (d < 2 || d > M || hash(tx, ty, 1) >= Math.min(0.4, 0.08 + (d - 2) * 0.05)) continue;
+    if (placeOf(cx, cy) !== null || !t2SurroundLand(cx, cy)) continue;
+    const set = d < 4.5 && bushes.length && hash(tx, ty, 2) < 0.55 ? bushes : trees;
+    const kind = set[Math.floor(hash(tx, ty, 3) * set.length)], o = kind[Math.floor(hash(tx, ty, 4) * kind.length)];
+    // (its footprint's middle on this tile's, a little off it)
+    const nx = cx + (hash(tx, ty, 5) - 0.5) * 0.4, ny = cy + (hash(tx, ty, 6) - 0.5) * 0.4;
+    const ox = (o[8] + o[10]) / 2, oy = (o[9] + o[11]) / 2, mx = nx - ox, my = ny - oy;
+    out.push([o[0], o[1], o[2] + 32 * (mx - my), o[3] + 16 * (mx + my), o[4], o[5], STAND, o[7] + mx + my, o[8] + mx, o[9] + my, o[10] + mx, o[11] + my]);
+  }
+  return out;
+}
 /** The map's pictures of raised and sunk ground (pixel/build-city.mjs). */
 const TERRAIN = "terrain";
 /** Isometric pixels up to a tile of height (lib/town-hd/build's PX_UP). */
@@ -97,7 +136,8 @@ export class CityArt {
     const walls = MAP.walls as unknown as Record<string, [number, number, string]>;
     const strips = MAP.strips as unknown as Record<string, number[]>;
     this.sprites = (MAP.sprites as Array<[string, number, number]>).map(([src, w, h]) => ({ src: DIR + src, w, h, img: null, ready: false, seen: 0 }));
-    this.byIndex = (MAP.objects as number[][]).map((o, i) => ({
+    const all = [...(MAP.objects as number[][]), ...woods(MAP.objects as number[][])];
+    this.byIndex = all.map((o, i) => ({
       i, name: MAP.names[o[0]], s: o[1], x: o[2], y: o[3], k: o[4], flip: o[5] === 1, how: o[6], d: o[7],
       box: [o[8], o[9], o[10], o[11]] as [number, number, number, number], rings: rings[i], wall: walls[i], strips: strips[i],
     }));

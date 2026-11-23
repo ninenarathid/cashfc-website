@@ -3372,7 +3372,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       }
     }
     // The woods beyond the town's north edge, which the path runs on into: trees to look at, where no map is.
-    if (scenery && placeRef.current === "town") for (const p of BEYOND_PROPS.north) {
+    if (scenery && placeRef.current === "town" && !CITY) for (const p of BEYOND_PROPS.north) {
       const c = project({ x: p.x + 0.5, y: p.y + 0.62 });
       if (!onScreen(c)) continue;
       const name = scenery.has(p.kind) ? p.kind : FOREST_STAND_IN[p.kind] ?? p.kind;

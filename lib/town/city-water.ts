@@ -125,9 +125,9 @@ const vec3 W3 = vec3(48.0, 187.0, 255.0) / 255.0;
 const vec3 HI = vec3(100.0, 221.0, 255.0) / 255.0;
 const vec3 HI2 = vec3(148.0, 244.0, 255.0) / 255.0;
 const vec3 FOAM = vec3(236.0, 250.0, 255.0) / 255.0;
+// (beyond the map's edge its edge runs on: the sea out to the open sea, the canal on as a river; lib/town/city's surroundings)
 vec4 cell(vec2 t) {
-  vec2 c = floor((t - uOrigin) * uSub);
-  if (c.x < 0.0 || c.y < 0.0 || c.x >= uMapSize.x || c.y >= uMapSize.y) return vec4(0.0);
+  vec2 c = clamp(floor((t - uOrigin) * uSub), vec2(0.0), uMapSize - 1.0);
   return texture2D(uMap, (c + 0.5) / uMapSize);
 }
 float cellDist(vec2 c) { return texture2D(uMap, (clamp(c, vec2(0.0), uMapSize - 1.0) + 0.5) / uMapSize).b * 255.0; }

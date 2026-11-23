@@ -27,6 +27,7 @@ import { ANCIENT as CEDAR, GATE_ROWS, LOOKOUT as LOOKOUT_AT, MOUNTAIN_H, MOUNTAI
 // ── the city (2026-11-23): the editor's town this page has is the city's or town2's, read through lib/town/ed ──
 import { CITY, T2 } from "./town-map";
 import { ed as town2 } from "./ed";
+import { t2InSurround, t2SurroundLook } from "./city";
 import type { T2Look } from "./town2";
 import { F2 } from "./farm-map";
 import * as farm2 from "./farm2";
@@ -1539,6 +1540,8 @@ export function showGroundOf(p: Place | null): boolean {
 const hiddenGround = (p: Place | null) => F2 && ((groundOf === "farm" && p === "forest") || (groundOf === "forest" && p === "farm"));
 const onMap = (x: number, y: number) => { const p = placeOf(x, y); return p !== null && !hiddenGround(p) && !room.inShop(x, y) && !casino.inCasino(x, y); };
 export const seenAt = (x: number, y: number) => onMap(x, y) || within(x, y, BEYOND.north) || within(x, y, BEYOND.south)
+  // (all about the city: lib/town/city's surroundings)
+  || (CITY && t2InSurround(x, y))
   // (the editor's town's far banks)
   || (T2 && town2.inT2Banks(x, y))
   // ── to come ── (and what is seen beyond the town's west gate and beyond the mountain's map)
@@ -2083,6 +2086,8 @@ export function groundLook(x: number, y: number): Ground | MoreGround | T2Look {
   if (!asWas && inPasture(x, y)) return pastureGround(x, y);
   if (within(x, y, farmNow())) return farmGround(x - FARM.x, y - FARM.y);
   if (within(x, y, FOREST)) return forestGround(x - FOREST.x, y - FOREST.y);
+  // (all about the city, where no other map is: its edges running on outward, lib/town/city)
+  if (CITY) { const s = t2SurroundLook(x, y); if (s) return s; }
   if (within(x, y, BEYOND.north) || within(x, y, BEYOND.south)) return beyondGround(x, y);
   const r = acrossRiver(x, y);
   if (r < RIVER_HALF) return "water";
