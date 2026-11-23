@@ -81,6 +81,8 @@ const CHEST_SHUT = /^create_cute_storage_chest_asset_8a43d9c7/, CHEST_OPEN = /^c
 const LAMP = /^create_cute_street_lamp_asset/;
 /** What lies low: drawn over the ground, covering so little of a walker that it may go further back to keep the editor's order. */
 const LOW = /tulip|chrysanthemum|bellflower|iris_clump|wildflower|hydrangea|bush|starfish|picnic_mat/;
+/** What lies flat on the ground, walked over or sat on: under whoever stands on it or beside it. */
+const FLATS = /^picnic_mat|^long_drift_of_many_mixed_colour_tulips|starfish_and_seashell/;
 const TREE = /_tree_|tree_pixel_art|cedar|ginkgo|maple|zelkova|camphor|persimmon|cocon/;
 
 /* ── the pictures ────────────────────────────────────────────────────────────────────────────────────────────────── */
@@ -206,6 +208,7 @@ const howDrawn = ({ o, pl }) => {
 };
 
 const standing = [];
+const flats = new Set();
 for (const t of placed) {
   const { o, pl } = t;
   const s = await sprite(pl.file), sp = sprites[s], [x0, y0, pw] = sp.cut;
@@ -217,6 +220,11 @@ for (const t of placed) {
   if (draw === DRAW.wide || draw === DRAW.outside) u.strips = Array.from({ length: Math.ceil(u.w / STRIP) }, (_, n) => (o.kind === "terrain" ? d : stripDepth(box, left + n * STRIP + STRIP / 2)));
   if (draw === DRAW.edge) u.strips = Array.from({ length: Math.ceil(u.w / STRIP) }, (_, n) => edgeDepth(o.wall, left + n * STRIP + STRIP / 2));
   if (o.kind === "ring" || DOCK.test(o.asset)) u.d = box[0] + box[1];
+  // (a thing that lies flat on the ground (FLATS): the picnic mat, the tulips' drift, the starfish and shells; one picture at its back corner, so that whoever stands on it or beside it is over it, not under it: the
+  // owner, 2026-11-23, of the park's picnic mat drawn over him, "ส่วนนี้บังคนเล่น")
+  else if (FLATS.test(o.asset)) {
+    u.draw = DRAW.stand; u.d = box[0] + box[1]; delete u.strips; flats.add(base(o));
+  }
 
   standing.push(u);
 }
@@ -267,6 +275,7 @@ function keepEditorOrder(all) {
   }
   return { moved, stuck };
 }
+console.log(`lying flat, under whoever stands on them: ${[...flats].join(", ")}`);
 const { moved, stuck } = keepEditorOrder(standing);
 
 /* ── written as the game reads them ──────────────────────────────────────────────────────────────────────────────── */

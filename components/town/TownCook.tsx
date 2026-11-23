@@ -14,7 +14,7 @@ import { hazardLead, type DressKind } from "@/lib/town/special-uses";
 import { cookFx, stirsWith } from "@/lib/town/forged";
 import { handOf, held, heldStack } from "@/lib/town/trade";
 import type { Keeper } from "@/lib/town/keeper";
-import { KITCHEN, TILE_H, onYard } from "@/lib/town/world";
+import { CITY, KITCHEN, TILE_H, onYard } from "@/lib/town/world";
 import { YARD } from "@/lib/town/yard";
 import type { FarmDraw } from "./TownFarm";
 import { ICON_ATLAS, type IconName } from "./TownIcon";
@@ -55,8 +55,13 @@ const NOTES_KEY = "cashtown.kitchen.notes";
 type Offer = "cook" | "down" | "ladle" | "take" | "water" | "feast";
 const VERB: Record<Offer, [string, string]> = {
   cook: ["ทำอาหาร", "Cook"], down: ["วางหม้อ", "Set the pot down"], ladle: ["ตักใส่ถ้วย", "Ladle a helping"], take: ["เก็บหม้อ", "Take the pot"],
-  water: ["เทน้ำใส่โอ่ง", "Pour it into the jar"], feast: ["โต๊ะเลี้ยง", "The feast table"],
+  water: CITY ? ["เทน้ำใส่แทงค์", "Pour it into the tank"] : ["เทน้ำใส่โอ่ง", "Pour it into the jar"], feast: ["โต๊ะเลี้ยง", "The feast table"],
 };
+/**
+ * What the yard's water is kept in, by name: the city's kitchen has a water tank (the owner, 2026-11-23: "โอ่งน้ำ มันไม่
+ * เข้ากับ theme"; his own word for it, "แทงค์น้ำ"), the editor's town's hall a jar.
+ */
+const JAR_NAME: [string, string] = CITY ? ["แทงค์น้ำ", "Water tank"] : ["โอ่งน้ำ", "Water jar"];
 /** Where the yard's water jar stands, for the few words over it: the middle of the tiles beside it. */
 const JAR_AT = KITCHEN.wash.length
   ? { x: KITCHEN.wash.reduce((t, [x]) => t + x + 0.5, 0) / KITCHEN.wash.length, y: KITCHEN.wash.reduce((t, [, y]) => t + y + 0.5, 0) / KITCHEN.wash.length }
@@ -230,7 +235,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
       // how much water the yard's jar has, over it (under the roof, for whoever is outside)
       if (indoors && JAR_AT && jarRef.current !== null) {
         const at = project(JAR_AT);
-        if (onScreen(at)) sign(`${thai ? "โอ่งน้ำ" : "Water jar"} ${jarRef.current}/${YARD.holds}`, at.x, at.y - 58 * s);
+        if (onScreen(at)) sign(`${JAR_NAME[thai ? 0 : 1]} ${jarRef.current}/${YARD.holds}`, at.x, at.y - 58 * s);
       }
     });
     return () => register(null);
@@ -560,7 +565,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
       sfx?.wake();
       sfx?.work("pour");
       vfx.add("splash", JAR_AT, { lift: 30 });
-      setNote(`${th ? "โอ่งน้ำ" : "Water jar"} ${keeper.yardJar() ?? 0}/${YARD.holds}`);
+      setNote(`${JAR_NAME[th ? 0 : 1]} ${keeper.yardJar() ?? 0}/${YARD.holds}`);
       return;
     }
     const down = offer === "down" && here ? await keeper.potDown(here.tile, heldSlot < 0 ? undefined : heldSlot) : null;

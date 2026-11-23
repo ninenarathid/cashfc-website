@@ -31,6 +31,8 @@ const LET_GO_MS = 10_000;
 const DIR = "/town/city/";
 /** Things whose water moves, as the editor's town's fountain's does: the park's fountain. */
 const FLOWING = /potato_park_fountain/;
+/** What never sways, whatever its name says: lamps, posts, signs, boards, seats, fences. */
+const STILL = /lamp|street|post|sign|board|bench|chair|fence|stall|vending/;
 
 interface Thing {
   i: number; name: string; s: number;
@@ -59,6 +61,8 @@ export class CityArt {
   /** Which room's outside each thing is, and which room's inside (by the thing). */
   private readonly outsideOf = new Map<number, string>();
   private readonly insideOf = new Map<number, string>();
+  /** Each room's inside, its strips' places back to front (its back walls', less where furniture stands against them). */
+  private readonly insideStrips = new Map<number, number[]>();
   /** Where I stand (the page says each frame): the room I am in sees its inside. */
   here: Vec | null = null;
   /** The chest whose open picture is drawn (its shut picture's thing), while its storage box is open; else null. */
@@ -88,6 +92,24 @@ export class CityArt {
     }));
     this.things = this.byIndex;
     for (const r of T2_ROOMS) { this.outsideOf.set(r.out, r.name); this.insideOf.set(r.in, r.name); }
+    // a room's inside, drawn from within at its back walls: but never over what stands against them (the kitchen's
+    // worktable stands half over its back wall's line, and its inside covered it: the owner, 2026-11-23, "ห้องครัว ส่วนนี้ หาย")
+    for (const r of T2_ROOMS) {
+      const t = this.byIndex[r.in];
+      if (!t) continue;
+      const [x0, y0, x1, y1] = r.box, sp = this.sprites[t.s];
+      const inRoom = this.byIndex.filter((q) => q.i !== r.in && q.i !== r.out && (q.how === STAND || q.how === WIDE || q.how === ROLE)
+        && (q.box[0] + q.box[2]) / 2 > x0 - 0.6 && (q.box[0] + q.box[2]) / 2 < x1 && (q.box[1] + q.box[3]) / 2 > y0 - 0.6 && (q.box[1] + q.box[3]) / 2 < y1);
+      const nearest = (q: Thing) => (q.how === WIDE ? Math.min(...(q.strips ?? Array.from({ length: Math.ceil((this.sprites[q.s].w * q.k) / STRIP) }, (_, n) => stripDepth(q.box, q.x + n * STRIP + STRIP / 2)))) : q.d);
+      const out: number[] = [];
+      for (let x = t.x; x < t.x + sp.w * t.k; x += STRIP) {
+        const u = (x + STRIP / 2) / 32;
+        let d = u >= x0 - y0 ? u + 2 * y0 : 2 * x0 - u;
+        for (const q of inRoom) { const qw = this.sprites[q.s].w * q.k; if (q.x < x + STRIP && q.x + qw > x) d = Math.min(d, nearest(q) - 0.01); }
+        out.push(d);
+      }
+      this.insideStrips.set(r.in, out);
+    }
     this.shadows = (MAP.shadows as Array<[number, number, number, number, string]>).map(([x, y, w, h, src]) => ({ x, y, w, h, sp: { src: DIR + src, w, h, img: null, ready: false, seen: 0 } }));
   }
 
@@ -164,7 +186,9 @@ export class CityArt {
   }
 
   private leanOf(t: Thing, sp: Sprite, s: number): number {
-    if (!this.sway || t.how !== STAND || !SWAY.test(sp.src.slice(sp.src.lastIndexOf("/") + 1)) || FLAT.test(t.name)) return 0;
+    // (what grows sways; a street lamp's picture is named "street", which has "tree" in it: posts, lamps, signs and seats stand
+    // still, the owner, 2026-11-23, "เสาไฟ ไม่ควรจะพริ้วไหวตามสายลม")
+    if (!this.sway || t.how !== STAND || !SWAY.test(t.name) || STILL.test(t.name) || FLAT.test(t.name)) return 0;
     const ix = t.x + (sp.w * t.k) / 2, iy = t.y + sp.h * t.k;
     return swayPx((ix / 32 + iy / 16) / 2, (iy / 16 - ix / 32) / 2, sp.w * t.k, this.sway.sec, this.sway.me) * s;
   }
@@ -273,13 +297,9 @@ export class CityArt {
       const sp = this.sprites[t.s];
       if (t.how === INSIDE) {
         // (from inside: at its back walls, the line x = x0 down its west wall, y = y0 along its north one)
-        const r = T2_ROOMS.find((q) => q.in === t.i);
-        if (!r) continue;
-        const [x0, y0] = r.box;
-        for (let x = t.x; x < t.x + sp.w * t.k; x += STRIP) {
-          const u = (x + STRIP / 2) / 32, depth = u >= x0 - y0 ? u + 2 * y0 : 2 * x0 - u;
-          push(depth, () => this.paint(ctx, t, screen, s, px, [x, x + STRIP]));
-        }
+        const ds = this.insideStrips.get(t.i);
+        if (!ds) continue;
+        for (let x = t.x, n = 0; x < t.x + sp.w * t.k; x += STRIP, n++) push(ds[n], () => this.paint(ctx, t, screen, s, px, [x, x + STRIP]));
         continue;
       }
       for (let x = t.x, n = 0; x < t.x + sp.w * t.k; x += STRIP, n++) {
