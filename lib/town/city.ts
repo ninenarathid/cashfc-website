@@ -246,7 +246,7 @@ export const T2_HALL_DOORS = KITCHEN_ROOM.doors;
 export const t2InHall = (x: number, y: number) => x >= FLOOR_BOX.x0 && x <= FLOOR_BOX.x1 && y >= FLOOR_BOX.y0 && y <= FLOOR_BOX.y1;
 /** The kitchen's things, by their footprints. */
 const HALL_THINGS = T2_THINGS.filter((t) => t.i !== KITCHEN_ROOM.out && t.i !== KITCHEN_ROOM.in && !/^terrain$|^wall$/.test(t.name)
-  && t.c.x > FLOOR_BOX.x0 && t.c.x < FLOOR_BOX.x1 + 1 && t.c.y > FLOOR_BOX.y0 && t.c.y < FLOOR_BOX.y1 + 1);
+  && t.c.x > FLOOR_BOX.x0 - 0.5 && t.c.x < FLOOR_BOX.x1 + 1 && t.c.y > FLOOR_BOX.y0 - 0.5 && t.c.y < FLOOR_BOX.y1 + 1);
 export const T2_HALL = { thing: KITCHEN_ROOM.out, inside: KITCHEN_ROOM.in, box: T2_THINGS[KITCHEN_ROOM.out].box, floor: FLOOR_BOX, things: HALL_THINGS.map((t) => t.i) };
 
 /* ── where may be walked ────────────────────────────────────────────────── */
@@ -365,6 +365,12 @@ export const T2_KITCHEN = (() => {
   const put = (kind: Station, tiles: Array<[number, number]>) => { for (const t of tiles) if (!places.some((p) => p.at.join(",") === t.join(","))) places.push({ at: t, kind }); };
   for (const s of stoves) put("stove", beside(s, open));
   for (const t of worktables) put("table", beside(t, open));
+  // (and the city hall's crafting table, "ตึกเทศบาล มีกล่อง+โต๊ะคราฟ": a worktable too, so that whoever stands at it has the
+  // table's panel, its workbench with it; the tiles beside it on the hall's floor)
+  {
+    const hall = room("cityhall"), onFloor = (x: number, y: number) => x >= hall.box[0] && x < hall.box[2] && y >= hall.box[1] && y < hall.box[3] && WALK[y - OY]?.[x - OX] === ".";
+    put("table", beside(T2_CRAFT_TABLES[0].tiles, onFloor));
+  }
   const wash = jars.flatMap((j) => beside(j, open)).filter(([x, y]) => !places.some((p) => p.at[0] === x && p.at[1] === y));
   const tableThings = HALL_THINGS.filter((t) => /^dining_table$/.test(t.name)).sort((a, b) => a.c.x - b.c.x);
   // the benches' seats, the map's own (README §6's `sit`): the far benches' (facing the viewer) first
