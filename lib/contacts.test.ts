@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { facebookHref, refusalLine, saveContact, tidy } from "./contacts";
+import { facebookHref, hasAny, refusalLine, saveContact, tidy } from "./contacts";
 
 describe("tidy", () => {
   it("trims, and keeps nothing rather than a blank", () => {
@@ -64,12 +64,14 @@ describe("saveContact", () => {
     } as unknown as Parameters<typeof saveContact>[0];
     return { supabase, rpc };
   };
-  const c = { discord: " helenago ", facebook: "" };
+  const c = { discord: " helenago ", facebook: "", nickname: " มิ้นท์ " };
 
   it("keeps it, trimmed, when signed in", async () => {
     const { supabase, rpc } = client({ access_token: "x" }, null, null);
     expect(await saveContact(supabase, 7, c)).toBeNull();
-    expect(rpc).toHaveBeenCalledWith("member_contact_set", { p_character: 7, p_discord: "helenago", p_facebook: null });
+    expect(rpc).toHaveBeenCalledWith("member_contact_set", {
+      p_character: 7, p_discord: "helenago", p_facebook: null, p_nickname: "มิ้นท์",
+    });
   });
 
   it("sends nothing as anon when the browser has no sign-in", async () => {
@@ -93,6 +95,15 @@ describe("saveContact", () => {
   it("passes the database's own words on", async () => {
     const { supabase } = client({ access_token: "x" }, null, { code: "P0001", message: "admins and staff only" });
     expect(await saveContact(supabase, 7, c)).toBe("admins and staff only");
+  });
+});
+
+describe("hasAny", () => {
+  it("is a row when any one of the three is there", () => {
+    expect(hasAny({ discord: null, facebook: null, nickname: "Mint" })).toBe(true);
+    expect(hasAny({ discord: "d", facebook: null, nickname: null })).toBe(true);
+    expect(hasAny({ discord: null, facebook: null, nickname: null })).toBe(false);
+    expect(hasAny(null)).toBe(false);
   });
 });
 

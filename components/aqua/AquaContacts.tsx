@@ -4,7 +4,7 @@ import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { DiscordGlyph, FacebookGlyph, LockGlyph } from "@/components/ui/ContactIcons";
 import {
-  DISCORD_MAX, FACEBOOK_MAX, allContacts, refusalLine, saveContact, tidy, type Contact,
+  DISCORD_MAX, FACEBOOK_MAX, NICKNAME_MAX, allContacts, hasAny, refusalLine, saveContact, tidy, type Contact,
 } from "@/lib/contacts";
 import { useLang } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase/client";
@@ -14,11 +14,13 @@ type Mode = "all" | "filled" | "empty";
 
 /** A screenful. Five hundred pairs of fields is a page nobody can scroll. */
 const PAGE = 30;
+/** Name, nickname, Discord, Facebook, Save: the row and the headings over it share one grid. */
+const COLS = "sm:grid-cols-[minmax(0,12rem)_minmax(0,9rem)_1fr_1fr_5rem]";
 const fieldCls =
-  "min-w-0 flex-1 rounded-lg border border-line bg-card px-3 py-1.5 text-read text-ink placeholder:text-muted";
+  "min-h-11 min-w-0 flex-1 rounded-lg border border-line bg-card px-3 py-1.5 text-read text-ink placeholder:text-muted sm:min-h-0";
 
 /**
- * Everybody's Discord and Facebook, for the one who types them in.
+ * Everybody's nickname, Discord and Facebook, for the one who types them in.
  *
  * On Aqua's page because the typing is hers: she fills these by hand from
  * what members tell her (v157), which is five hundred characters and no
@@ -69,7 +71,9 @@ export default function AquaContacts(
     let live = true;
     void allContacts(supabase).then(({ rows, missing }) => {
       if (!live) return;
-      setOnFile(new Map(rows.map((r) => [r.character_id, { discord: r.discord, facebook: r.facebook }])));
+      setOnFile(new Map(rows.map((r) => [
+        r.character_id, { discord: r.discord, facebook: r.facebook, nickname: r.nickname ?? null },
+      ])));
       setState(missing ? "missing" : "ready");
     });
     return () => { live = false; };
@@ -108,6 +112,7 @@ export default function AquaContacts(
     // By what was typed in as well: "whose Discord is this" is asked from the
     // other end as often as from the name.
     return p.name.toLowerCase().includes(query)
+      || !!c?.nickname?.toLowerCase().includes(query)
       || !!c?.discord?.toLowerCase().includes(query)
       || !!c?.facebook?.toLowerCase().includes(query);
   }), [people, onFile, mode, query]);
@@ -152,9 +157,12 @@ export default function AquaContacts(
           {/* Always there, so a screen reader hears what is put into it. */}
           <div role="status" className="mt-2 min-h-5 text-ui text-jade">{said}</div>
 
-          {/* The two columns named once, where there is room for columns. */}
-          <div className="mt-1 hidden grid-cols-[minmax(0,13rem)_1fr_1fr_5rem] gap-2 px-2.5 font-data text-meta text-muted sm:grid">
+          {/* The columns named once, where there is room for columns. The
+              nickname's is the word alone, the column being narrow; the
+              hint above says the FC sees it, as it does the Discord. */}
+          <div className={`mt-1 hidden gap-2 px-2.5 font-data text-meta text-muted sm:grid ${COLS}`}>
             <span />
+            <span>{t("contact.nickname")}</span>
             <span className="flex items-center gap-1.5">
               <DiscordGlyph size={13} /> Discord · {t("contact.fcOnly")}
             </span>
@@ -172,7 +180,7 @@ export default function AquaContacts(
               <Row key={p.id} person={p} was={onFile.get(p.id) ?? null}
                    save={(next) => saveContact(supabase!, p.id, next)}
                    onSaved={(next) => {
-                     const stands = !!(next.discord || next.facebook);
+                     const stands = hasAny(next);
                      setOnFile((m) => {
                        const n = new Map(m);
                        if (stands) n.set(p.id, next); else n.delete(p.id);
@@ -218,7 +226,7 @@ export default function AquaContacts(
   );
 }
 
-/** One member: a face to know them by, two fields, and a Save that wakes when either has changed. */
+/** One member: a face to know them by, three fields, and a Save that wakes when any has changed. */
 function Row(
   { person, was, save, onSaved }: {
     person: ContactPerson;
@@ -228,22 +236,25 @@ function Row(
   },
 ) {
   const { t } = useLang();
+  const [nickname, setNickname] = useState(was?.nickname ?? "");
   const [discord, setDiscord] = useState(was?.discord ?? "");
   const [facebook, setFacebook] = useState(was?.facebook ?? "");
   const [busy, setBusy] = useState(false);
   const [why, setWhy] = useState("");
-  const dirty = tidy(discord) !== (was?.discord ?? null) || tidy(facebook) !== (was?.facebook ?? null);
+  const dirty = tidy(nickname) !== (was?.nickname ?? null)
+    || tidy(discord) !== (was?.discord ?? null) || tidy(facebook) !== (was?.facebook ?? null);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!dirty || busy) return;
-    const next = { discord: tidy(discord), facebook: tidy(facebook) };
+    const next = { discord: tidy(discord), facebook: tidy(facebook), nickname: tidy(nickname) };
     setBusy(true);
     setWhy("");
     const error = await save(next);
     setBusy(false);
     if (error) { setWhy(error); return; }
     // As the database kept them, so the fields and the row agree again.
+    setNickname(next.nickname ?? "");
     setDiscord(next.discord ?? "");
     setFacebook(next.facebook ?? "");
     onSaved(next);
@@ -251,7 +262,7 @@ function Row(
 
   return (
     <form onSubmit={submit}
-          className="grid grid-cols-1 gap-2 rounded-lg border border-line bg-bg/40 p-2.5 sm:grid-cols-[minmax(0,13rem)_1fr_1fr_5rem] sm:items-center">
+          className={`grid grid-cols-1 gap-2 rounded-lg border border-line bg-bg/40 p-2.5 sm:items-center ${COLS}`}>
       <div className="flex min-w-0 items-center gap-2">
         {person.face ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -274,6 +285,18 @@ function Row(
           )}
         </span>
       </div>
+
+      <label className="flex min-w-0 items-center gap-2">
+        <span aria-hidden className="w-24 shrink-0 font-data text-meta text-muted sm:hidden">
+          {t("contact.nickname")}
+        </span>
+        <span className="sr-only">{t("contact.nickname")} · {person.name}</span>
+        <input value={nickname} maxLength={NICKNAME_MAX}
+               onChange={(e) => setNickname(e.target.value)}
+               placeholder={t("contact.nickname")}
+               autoComplete="off" spellCheck={false}
+               className={fieldCls} />
+      </label>
 
       <label className="flex min-w-0 items-center gap-2">
         <span aria-hidden className="flex w-24 shrink-0 items-center gap-1.5 font-data text-meta text-muted sm:hidden">
@@ -301,13 +324,13 @@ function Row(
       </label>
 
       <button type="submit" disabled={!dirty || busy}
-              className="justify-self-end rounded-lg border border-accent bg-accent/15 px-3 py-1.5 text-ui text-accent hover:bg-accent/25 disabled:border-line disabled:bg-transparent disabled:text-muted sm:justify-self-stretch">
+              className="min-h-11 justify-self-end rounded-lg border border-accent bg-accent/15 px-3 py-1.5 text-ui text-accent hover:bg-accent/25 disabled:border-line disabled:bg-transparent disabled:text-muted sm:min-h-0 sm:justify-self-stretch">
         {t("adm.save")}
       </button>
 
       {why && (
         <p role="alert"
-           className="rounded-lg border border-chili/60 bg-chili/10 px-3 py-1.5 text-ui leading-relaxed text-ink sm:col-span-4">
+           className="rounded-lg border border-chili/60 bg-chili/10 px-3 py-1.5 text-ui leading-relaxed text-ink sm:col-span-5">
           {refusalLine(why, t)}
         </p>
       )}

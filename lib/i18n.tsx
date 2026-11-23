@@ -3698,9 +3698,10 @@ const DICT = {
   "tell.send": { en: "Send in-game tell", th: "Send in-game tell" },
 
   /* ── How to reach somebody (v157) ──────────────────────────────────
-     A Discord name and a Facebook that an admin types in by hand. The FC
-     reads the Discord and only admins and staff (v279) the Facebook, and
-     every place an admin meets either one says which. */
+     A Discord name and a Facebook that an admin types in by hand, and a
+     nickname (v338). The FC reads the nickname and the Discord, and only
+     admins and staff (v279) the Facebook, and every place an admin meets
+     any of them says which. */
   "contact.copy": { en: "Copy this", th: "คัดลอกข้อความนี้" },
   "contact.copyDiscord": { en: "Copy the Discord name {name}", th: "คัดลอกชื่อ Discord {name}" },
   "contact.copyFacebook": { en: "Copy the Facebook {name}", th: "คัดลอก Facebook {name}" },
@@ -3708,9 +3709,11 @@ const DICT = {
   "contact.fcOnly": { en: "FC members see this", th: "สมาชิก FC เห็น" },
   "contact.adminOnly": { en: "the Crew and admins", th: "Crew และแอดมิน" },
   "contact.adminTag": { en: "admins", th: "แอดมิน" },
-  "contact.add": { en: "+ Discord / Facebook", th: "+ Discord / Facebook" },
+  "contact.add": { en: "+ Nickname / Discord / Facebook", th: "+ ชื่อเล่น / Discord / Facebook" },
   "contact.edit": { en: "Edit contact", th: "แก้ช่องทางติดต่อ" },
-  "contact.title": { en: "How to reach {name}", th: "ช่องทางติดต่อของ {name}" },
+  "contact.title": { en: "{name}: nickname and contact", th: "ชื่อเล่นและช่องทางติดต่อของ {name}" },
+  "contact.nickname": { en: "Nickname", th: "ชื่อเล่น" },
+  "contact.nicknamePh": { en: "What the FC calls them", th: "ชื่อที่คนใน FC เรียก" },
   "contact.discordPh": { en: "Discord name", th: "ชื่อ Discord" },
   "contact.facebookPh": { en: "facebook.com/… or a name", th: "facebook.com/… หรือชื่อ" },
   "contact.discordHint": {
@@ -3721,16 +3724,16 @@ const DICT = {
     en: "Only admins and the Crew ever see this. A profile link or a name, either is fine.",
     th: "เห็นเฉพาะแอดมินและ Crew เท่านั้น ใส่ลิงก์โปรไฟล์หรือชื่อก็ได้",
   },
-  "contact.blankRemoves": { en: "Leave both blank to remove them.", th: "เว้นว่างทั้งสองช่องเพื่อลบออก" },
+  "contact.blankRemoves": { en: "Leave them all blank to remove them.", th: "เว้นว่างทุกช่องเพื่อลบออก" },
   "contact.removed": { en: "Removed", th: "ลบออกแล้ว" },
   /* The list on Aqua's page, where they are typed in. */
-  "contact.listTitle": { en: "Members' Discord and Facebook", th: "Discord / Facebook ของสมาชิก" },
+  "contact.listTitle": { en: "Members' nicknames, Discord and Facebook", th: "ชื่อเล่น / Discord / Facebook ของสมาชิก" },
   "contact.listCount": { en: "{n} of {all} on file", th: "ใส่แล้ว {n} จาก {all} คน" },
   "contact.listHint": {
-    en: "A Discord name and a Facebook for each member, typed in by hand. FC members with a verified character see the Discord on that member's page. The Facebook is for admins and the Crew only.",
-    th: "Discord กับ Facebook ของสมาชิกแต่ละคน กรอกเองทีละคนนะ Discord จะขึ้นในหน้าของสมาชิกคนนั้น ให้คนใน FC ที่ยืนยันตัวละครแล้วเห็น ส่วน Facebook เห็นเฉพาะแอดมินและ Crew",
+    en: "A nickname, a Discord name and a Facebook for each member, typed in by hand. FC members with a verified character see the nickname and the Discord on that member's page. The Facebook is for admins and the Crew only.",
+    th: "ชื่อเล่น Discord และ Facebook ของสมาชิกแต่ละคน กรอกเองทีละคนนะ ชื่อเล่นกับ Discord จะขึ้นในหน้าของสมาชิกคนนั้น ให้คนใน FC ที่ยืนยันตัวละครแล้วเห็น ส่วน Facebook เห็นเฉพาะแอดมินและ Crew",
   },
-  "contact.search": { en: "Search a name, a Discord or a Facebook…", th: "ค้นหาชื่อ, Discord หรือ Facebook…" },
+  "contact.search": { en: "Search a name, a nickname, a Discord or a Facebook…", th: "ค้นหาชื่อ, ชื่อเล่น, Discord หรือ Facebook…" },
   "contact.all": { en: "Everyone ({n})", th: "ทุกคน ({n})" },
   "contact.filled": { en: "On file ({n})", th: "ใส่แล้ว ({n})" },
   "contact.empty": { en: "Not yet ({n})", th: "ยังไม่ใส่ ({n})" },
@@ -3738,8 +3741,8 @@ const DICT = {
   "contact.more": { en: "Show {n} more", th: "แสดงอีก {n} คน" },
   "contact.gone": { en: "no longer on the roster", th: "ไม่อยู่ในรายชื่อแล้ว" },
   "contact.notYet": {
-    en: "Not ready yet: the database needs v157 first.",
-    th: "ยังใช้ไม่ได้ ต้องรัน v157 ในฐานข้อมูลก่อน",
+    en: "Not ready yet: the database needs v338 first.",
+    th: "ยังใช้ไม่ได้ ต้องรัน v338 ในฐานข้อมูลก่อน",
   },
   "contact.savedFor": { en: "Saved for {name}", th: "บันทึกของ {name} แล้ว" },
   "contact.removedFor": { en: "Removed for {name}", th: "ลบของ {name} ออกแล้ว" },
@@ -3757,10 +3760,10 @@ const DICT = {
      they have: the contacts above, to read and to type in. On the site
      the staff are called the Crew (the owner, 2026-10-17). */
   "staff.eyebrow": { en: "Crew", th: "Crew" },
-  "staff.title": { en: "Members' Discord and Facebook", th: "Discord / Facebook ของสมาชิก" },
+  "staff.title": { en: "Members' nicknames, Discord and Facebook", th: "ชื่อเล่น / Discord / Facebook ของสมาชิก" },
   "staff.lead": {
-    en: "How to reach each member outside the game. The Crew and admins add and edit them here; each row saves by itself. Keep the Facebook to yourself: it is for the Crew and admins only.",
-    th: "ช่องทางติดต่อสมาชิกนอกเกม Crew และแอดมินเพิ่มหรือแก้ไขได้ที่นี่ กดบันทึกทีละแถว Facebook เป็นข้อมูลส่วนตัว เห็นเฉพาะ Crew กับแอดมิน อย่านำไปเผยแพร่ต่อนะ",
+    en: "Each member's nickname and how to reach them outside the game. The Crew and admins add and edit them here; each row saves by itself. The nickname and Discord are seen by the FC. Keep the Facebook to yourself: it is for the Crew and admins only.",
+    th: "ชื่อเล่นและช่องทางติดต่อสมาชิกนอกเกม Crew และแอดมินเพิ่มหรือแก้ไขได้ที่นี่ กดบันทึกทีละแถว ชื่อเล่นกับ Discord คนใน FC เห็น ส่วน Facebook เป็นข้อมูลส่วนตัว เห็นเฉพาะ Crew กับแอดมิน อย่านำไปเผยแพร่ต่อนะ",
   },
   "staff.denied": { en: "This page is for the Crew.", th: "หน้านี้สำหรับ Crew เท่านั้น" },
 

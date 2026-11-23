@@ -3,14 +3,16 @@ import type { Key } from "@/lib/i18n";
 
 /**
  * How to reach a member outside the game: a Discord name and a Facebook, typed
- * in by an admin from what the member told them (v157).
+ * in by an admin from what the member told them (v157), and the nickname the
+ * FC calls them by (v338).
  *
  * Not the Discord somebody signed in with, which only a member with an account
  * has. These are kept by character, for anybody on the roster, and neither is
  * ever filled in by the site.
  *
- * Who reads which is the database's to decide and it does: the Discord goes to
- * signed-in members of the FC and to admins, the Facebook to admins alone, and
+ * Who reads which is the database's to decide and it does: the nickname and the
+ * Discord go to signed-in members of the FC and to admins, the Facebook to
+ * admins alone, and
  * the function below is simply not sent what the asker may not see. The staff
  * (v279) read the whole table on their own page, as admins do. Nothing here
  * should be mistaken for the rule.
@@ -18,6 +20,7 @@ import type { Key } from "@/lib/i18n";
 export interface Contact {
   discord: string | null;
   facebook: string | null;
+  nickname: string | null;
 }
 
 export interface ContactRow extends Contact {
@@ -27,6 +30,11 @@ export interface ContactRow extends Contact {
 /** The lengths the database holds them to, so a field can stop at the same place. */
 export const DISCORD_MAX = 64;
 export const FACEBOOK_MAX = 200;
+export const NICKNAME_MAX = 32;
+
+/** Whether there is anything on file at all: a row with none of the three is no row. */
+export const hasAny = (c: Contact | null | undefined): c is Contact =>
+  !!(c && (c.discord || c.facebook || c.nickname));
 
 /** As the database will keep it: trimmed, and nothing at all rather than a blank. */
 export const tidy = (v: string | null | undefined): string | null => {
@@ -73,23 +81,23 @@ type Client = SupabaseClient;
  *
  * Null covers everything that is not an answer: signed out, not in the FC,
  * nothing on file, and a database that has not had v157 yet. They all draw the
- * same way, which is not at all.
+ * same way, which is not at all. Before v338 there is simply no nickname.
  */
 export async function readContact(supabase: Client, characterId: number): Promise<Contact | null> {
   const { data, error } = await supabase.rpc("member_contact", { p_character: characterId });
   if (error) return null;
   const row = (Array.isArray(data) ? data[0] : data) as Partial<Contact> | null | undefined;
   if (!row) return null;
-  const c = { discord: row.discord ?? null, facebook: row.facebook ?? null };
-  return c.discord || c.facebook ? c : null;
+  const c = { discord: row.discord ?? null, facebook: row.facebook ?? null, nickname: row.nickname ?? null };
+  return hasAny(c) ? c : null;
 }
 
 /** A save that never reached the database as anybody, and why. */
 const NO_SESSION = { out: "contact.signedOut", stalled: "contact.signInStalled" } as const satisfies Record<string, Key>;
 
 /**
- * Keep what an admin or a staff member (v280) typed. Both fields every time;
- * both blank takes the row away. Answers with the reason when it was refused, and null when it was not.
+ * Keep what an admin or a staff member (v280) typed. All three fields every
+ * time (v338's four-word form); all three blank takes the row away. Answers with the reason when it was refused, and null when it was not.
  *
  * Without a session supabase-js sends the anon key in its place, and the
  * database answers "permission denied for function member_contact_set": a
@@ -109,6 +117,7 @@ export async function saveContact(
     p_character: characterId,
     p_discord: tidy(c.discord),
     p_facebook: tidy(c.facebook),
+    p_nickname: tidy(c.nickname),
   });
   if (!error) return null;
   return error.code === "42501" ? NO_SESSION.out : error.message;
@@ -121,10 +130,10 @@ export function refusalLine(
   return why === NO_SESSION.out || why === NO_SESSION.stalled ? t(why) : t("adm.saveFailed", { why });
 }
 
-/** Every one on file, for Aqua's page and the staff page. `missing` when the table is not there to ask. */
+/** Every one on file, for Aqua's page and the staff page. `missing` when the table (or v338's column) is not there to ask. */
 export async function allContacts(supabase: Client): Promise<{ rows: ContactRow[]; missing: boolean }> {
   const { data, error } = await supabase.from("member_contacts")
-    .select("character_id, discord, facebook");
+    .select("character_id, discord, facebook, nickname");
   if (error) return { rows: [], missing: true };
   return { rows: (data ?? []) as ContactRow[], missing: false };
 }

@@ -6,19 +6,21 @@ import { toast } from "@/components/ui/Toast";
 import { DiscordGlyph, FacebookGlyph, LockGlyph } from "@/components/ui/ContactIcons";
 import { useAdmin } from "@/lib/admin";
 import {
-  DISCORD_MAX, FACEBOOK_MAX, facebookHref, readContact, refusalLine, saveContact, tidy, type Contact,
+  DISCORD_MAX, FACEBOOK_MAX, NICKNAME_MAX, facebookHref, hasAny, readContact, refusalLine, saveContact, tidy,
+  type Contact,
 } from "@/lib/contacts";
 import { useLang } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase/client";
 
 const fieldCls =
-  "w-full rounded-lg border border-line bg-card px-3 py-2 text-read text-ink placeholder:text-muted";
+  "min-h-11 w-full rounded-lg border border-line bg-card px-3 py-2 text-read text-ink placeholder:text-muted";
 
 /**
  * How to reach this member outside the game, on their own page.
  *
- * Two things an admin typed in from what the member told them (v157): a
- * Discord name, which the FC sees, and a Facebook, which only admins do. For
+ * Three things an admin typed in from what the member told them: a nickname
+ * (v338) and a Discord name (v157), which the FC sees, and a Facebook, which
+ * only admins do. For
  * nearly everybody who opens the page there is nothing to show, and then this
  * draws nothing at all, not an empty row saying so: a stranger should not
  * learn from the page that there is something here they are not being shown.
@@ -57,13 +59,14 @@ export default function MemberContacts(
   }, [supabase, characterId, viewer]);
 
   const c = viewer && held?.of === characterId ? held.c : null;
+  const nickname = c?.nickname ?? null;
   const discord = c?.discord ?? null;
   // Not drawn with the switch off, which is the point of the switch: seeing
   // the page as the FC does.
   const facebook = isAdmin ? c?.facebook ?? null : null;
   const fbHref = facebookHref(facebook);
 
-  if (!discord && !isAdmin) return null;
+  if (!nickname && !discord && !isAdmin) return null;
 
   const copy = async (what: "discord" | "facebook", text: string) => {
     try {
@@ -88,6 +91,16 @@ export default function MemberContacts(
 
   return (
     <div className="mt-2.5 flex flex-wrap items-center gap-2">
+      {/* Words, not a button: there is nothing to do with a nickname but
+          know it. The FC sees it, so it carries no admin tag. */}
+      {nickname && (
+        <span title={t("contact.fcOnly")}
+              className="inline-flex min-w-0 max-w-full items-center gap-1.5 rounded-md border border-line bg-bg/40 px-3 py-1 text-ui text-ink/85">
+          <span className="shrink-0 font-data text-label text-muted">{t("contact.nickname")}</span>
+          <span className="truncate font-semibold text-ink">{nickname}</span>
+        </span>
+      )}
+
       {discord && (
         <button type="button" onClick={() => copy("discord", discord)}
                 title={t("contact.fcOnly")}
@@ -132,10 +145,10 @@ export default function MemberContacts(
                        onClose={() => setEditing(false)}
                        save={(next) => saveContact(supabase, characterId, next)}
                        onSaved={(next) => {
-                         setHeld({ of: characterId, c: next.discord || next.facebook ? next : null });
+                         setHeld({ of: characterId, c: hasAny(next) ? next : null });
                          setEditing(false);
                          toast({
-                           text: next.discord || next.facebook ? t("adm.saved") : t("contact.removed"),
+                           text: hasAny(next) ? t("adm.saved") : t("contact.removed"),
                            tone: "good",
                          });
                        }} />
@@ -145,7 +158,7 @@ export default function MemberContacts(
 }
 
 /**
- * The two fields, and under each one who will see it.
+ * The three fields, and under each one who will see it.
  *
  * Said on the form and not left to be remembered: the admin typing a Facebook
  * in is trusting that it stays with the admins, and the moment to tell them
@@ -161,6 +174,7 @@ function ContactDialog(
   },
 ) {
   const { t } = useLang();
+  const [nickname, setNickname] = useState(was?.nickname ?? "");
   const [discord, setDiscord] = useState(was?.discord ?? "");
   const [facebook, setFacebook] = useState(was?.facebook ?? "");
   const [busy, setBusy] = useState(false);
@@ -169,7 +183,7 @@ function ContactDialog(
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (busy) return;
-    const next = { discord: tidy(discord), facebook: tidy(facebook) };
+    const next = { discord: tidy(discord), facebook: tidy(facebook), nickname: tidy(nickname) };
     setBusy(true);
     setWhy("");
     const error = await save(next);
@@ -182,6 +196,18 @@ function ContactDialog(
     <Modal open onOpenChange={(v) => { if (!v) onClose(); }}
            title={t("contact.title", { name })}>
       <form onSubmit={submit} className="flex flex-col gap-3.5 pt-1">
+        <label className="flex flex-col gap-1.5">
+          <span className="flex items-center gap-1.5 font-display text-read font-semibold text-ink">
+            {t("contact.nickname")}
+            <span className="font-data text-label font-medium text-muted">{t("contact.fcOnly")}</span>
+          </span>
+          <input value={nickname} maxLength={NICKNAME_MAX}
+                 onChange={(e) => setNickname(e.target.value)}
+                 placeholder={t("contact.nicknamePh")}
+                 autoComplete="off" spellCheck={false}
+                 className={fieldCls} />
+        </label>
+
         <label className="flex flex-col gap-1.5">
           <span className="flex items-center gap-1.5 font-display text-read font-semibold text-ink">
             <DiscordGlyph className="text-[#a5b2ff]" /> Discord
@@ -220,11 +246,11 @@ function ContactDialog(
           <span className="text-meta leading-relaxed text-muted">{t("contact.blankRemoves")}</span>
           <span className="ml-auto flex gap-2">
             <button type="button" onClick={onClose}
-                    className="rounded-lg border border-line px-4 py-2 text-read text-muted hover:border-muted hover:text-ink">
+                    className="min-h-11 rounded-lg border border-line px-4 py-2 text-read text-muted hover:border-muted hover:text-ink">
               {t("adm.cancel")}
             </button>
             <button type="submit" disabled={busy}
-                    className="rounded-lg border border-accent bg-accent/15 px-4 py-2 text-read text-accent hover:bg-accent/25 disabled:opacity-60">
+                    className="min-h-11 rounded-lg border border-accent bg-accent/15 px-4 py-2 text-read text-accent hover:bg-accent/25 disabled:opacity-60">
               {t("adm.save")}
             </button>
           </span>
