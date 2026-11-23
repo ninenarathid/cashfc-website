@@ -33,7 +33,8 @@ describe("the city", () => {
     expect(world.walkable(50, 66)).toBe(true); // the park
     expect(world.walkable(19, 20)).toBe(false); // the canal
     expect(world.walkable(72, 24)).toBe(false); // the smith's shop
-    expect(world.walkable(98, 123)).toBe(true); // the dock's boards
+    expect(world.walkable(97, 123)).toBe(true); // the dock's boards
+    expect(world.walkable(98, 127)).toBe(false); // the sea past its end, where its old tiles ran on
   });
 
   it("has its rooms walked into by their doorways only", async () => {
@@ -66,7 +67,7 @@ describe("the city", () => {
 
   it("is fished from its banks and, deep, from its dock", async () => {
     const { world } = await load();
-    expect(world.fishFrom(98, 123)?.deep).toBe(true);
+    expect(world.fishFrom(97, 123)?.deep).toBe(true);
     expect(world.fishFrom(15, 20)?.deep).toBe(false);
   });
 

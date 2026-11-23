@@ -177,7 +177,18 @@ const walk = map.collision.rows.map((r, ty) => [...r].map((c, tx) => (c === "_" 
 const height = map.height.map((r) => [...r]);
 // the dock: its boards are walked on, over the water, level with the beach (the map has it solid, a thing in the water)
 const DOCK = /^dock_2/;
-for (const { o } of placed) if (DOCK.test(o.asset)) for (const [x, y] of o.tiles ?? []) if (x >= 0 && y >= 0 && x < COLS && y < ROWS) { walk[y][x] = "="; height[y][x] = 0; }
+// Its boards are where its picture shows them: the editor's tiles for it (mirrored) lie a tile beside them and run on past
+// their end, so that one walked off into the sea (the owner, 2026-11-23: "ตรงนี้เดินออกมาได้เกินที่ตกปลา"). A tile is boards
+// where three quarters of it is the picture.
+for (const { o, pl } of placed) if (DOCK.test(o.asset)) {
+  for (const [x, y] of o.tiles ?? []) if (x >= 0 && y >= 0 && x < COLS && y < ROWS && walk[y][x] === "#") walk[y][x] = wetTile(x, y) ? "~" : ".";
+  for (let y = Math.max(0, Math.floor(pl.cy - pl.h / 2) - 1); y <= Math.min(ROWS - 1, Math.ceil(pl.cy + pl.h / 2)); y++)
+    for (let x = Math.max(0, Math.floor(pl.cx - pl.w / 2) - 1); x <= Math.min(COLS - 1, Math.ceil(pl.cx + pl.w / 2)); x++) {
+      let n = 0;
+      for (let a = 0.1; a < 1; a += 0.2) for (let b = 0.1; b < 1; b += 0.2) { const P = toIso(x + a, y + b); if (drawnAt(pl, P.x, P.y)) n++; }
+      if (n >= 19) { walk[y][x] = "="; height[y][x] = 0; }
+    }
+}
 const edges = map.collision.edges.map(([x, y, side]) => [x + OX, y + OY, side]);
 const blocked = new Set(map.collision.edges.map(([x, y, s]) => `${x},${y},${s}`));
 const crosses = (ax, ay, bx, by) => {

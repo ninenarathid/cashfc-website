@@ -15,7 +15,7 @@ const V = "window.__townView";
 const SPOTS = {
   park: [50, 66], fountain: [53, 72], board: [40, 73], hallIn: [40, 22], hallOut: [40, 30], mart: [60, 26], uncle: [64, 26],
   smith: [70, 31], kitchenOut: [101, 93], kitchenIn: [98, 80], bank: [4, 110], hospital: [8, 87], casino: [18, 105],
-  clothes: [46, 109], eventhall: [9, 76], museum: [108, 30], beach: [98, 117], dock: [98, 123], canal: [15, 20],
+  clothes: [46, 109], eventhall: [9, 76], museum: [108, 30], beach: [98, 117], dock: [97, 123], canal: [15, 20],
   gatesNE: [80, 12], gateNW: [-5, 40], amusement: [96, 55],
   rimSouth: [56, 87], rimEast: [73, 70], stairs: [53, 69], kerb: [30, 66], waterSquares: [70, 47], fountainBench: [57, 70], shopDoor: [48, 109], seam: [55, 60], ringFarm: [79, 11], stove: [101, 78], sea: [60, 124], canalMid: [23, 70], picnic: [41, 56], worktable: [98, 78], tank: [96, 79],
   museumDoor: [105, 18], museumStairs: [106, 22], museumFoot: [108, 26], busstop: [78, 73], busstopWest: [10, 45], casinoStep: [17, 106], concertCorner: [-5, 72],
@@ -42,10 +42,10 @@ for (const label of (process.env.SIZES ?? "desktop,phone").split(",")) {
       console.log(`  ${label}: standing still: ${still.pictures} pictures, ${(still.bytes / 1e6).toFixed(1)} MB decoded`);
       ok("the canal is not walked", (await X.evaluate(`${V}.walkable(19, 20)`)) === false);
       ok("the park is walked", (await X.evaluate(`${V}.walkable(50, 66)`)) === true);
-      ok("the dock's boards are walked", (await X.evaluate(`${V}.walkable(98, 123)`)) === true);
+      ok("the dock's boards are walked", (await X.evaluate(`${V}.walkable(97, 123)`)) === true);
       ok("the city hall's floor is walked", (await X.evaluate(`${V}.walkable(40, 22)`)) === true);
       for (const [n, x, y] of [["park", 50.5, 66.5], ["road", 30.5, 66.5], ["pavement", 32.5, 60.5]]) console.log(`  height at the ${n}:`, await X.evaluate(`${V}.liftAt ? ${V}.liftAt(${x}, ${y}) : null`));
-      await X.evaluate(`${V}.warp(98, 123)`); await sleep(800);
+      await X.evaluate(`${V}.warp(97, 123)`); await sleep(800);
       console.log("  fish at the dock:", JSON.stringify(await X.evaluate(`${V}.fishAt()`)));
       await X.evaluate(`${V}.warp(15, 20)`); await sleep(800);
       console.log("  fish at the canal's bank:", JSON.stringify(await X.evaluate(`${V}.fishAt()`)));

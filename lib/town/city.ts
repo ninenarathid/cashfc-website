@@ -113,10 +113,11 @@ function letterAt(fx: number, fy: number): string {
 /** The look of the map's water: the ground leaves it out (lib/town/scenery), and lib/town/city-water draws it live. */
 export const T2_WATER_LOOK = lookOf("game_water");
 const WATER_LETTERS = new Set(Object.keys(LEGEND).filter((k) => lookOf(LEGEND[k]) === T2_WATER_LOOK));
-// (the white the editor painted on the sea for foam, 514 eighths of a tile: water now, which makes its own foam, live; the
-// same white on the land is the roads' lines)
+// (the white the editor painted on the sea for foam, and under the dock's boards: water now, which makes its own foam,
+// live; the owner, 2026-11-23, of a white streak under the dock, "จุดขาวๆ ... ดูไม่ค่อยตรง". The same white on the land is the
+// roads' lines)
 const FOAM_LETTERS = new Set(Object.keys(LEGEND).filter((k) => /^white/.test(LEGEND[k])));
-const onWater = (fx: number, fy: number) => (MAP.walk as string[])[clampY(fy)][clampX(fx)] === "~";
+const onWater = (fx: number, fy: number) => { const c = (MAP.walk as string[])[clampY(fy)][clampX(fx)]; return c === "~" || c === "="; };
 const wetLetter = (k: string, fx: number, fy: number) => WATER_LETTERS.has(k) || (FOAM_LETTERS.has(k) && onWater(fx, fy));
 /** The look of the ground at a point of the city (the game's tiles). */
 export function t2Look(x: number, y: number): T2Look {
