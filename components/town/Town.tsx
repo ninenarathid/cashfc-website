@@ -89,8 +89,12 @@ import { companyOf, type Beside } from "@/lib/town/company";
 import { BOX, byMoreChest } from "@/lib/town/box";
 import TownBoard from "./TownBoard";
 import { useFestival } from "./useFestival";
+import FestivalPhase from "./FestivalPhase";
+/** (the dev test room only: `&lkAdmin=1` shows the stall as an admin sees it, its judge and the lucky draw's list; the
+ * database asks its own admin flag whatever this says) */
+const LK_ADMIN_IN_DEV = process.env.NODE_ENV !== "production" && typeof location !== "undefined" && new URLSearchParams(location.search).has("lkAdmin");
 import { FLOAT_BANK, drawHall as drawFestivalHall, drawRiver as drawKrathongRiver, drawStall as drawFestivalStall, type FestivalDraw } from "./festival-map";
-import { isOpen as festivalOpen, stageOf as festivalStage, windowOf as festivalWindow } from "@/lib/town/festivals";
+import { PHASE_NAME, isOpen as festivalOpen, openPhases, stageOf as festivalStage, windowOf as festivalWindow } from "@/lib/town/festivals";
 import TownTalk, { type TalkAs, type TalkChoice } from "./TownTalk";
 import type { TradeSummary, TradeView } from "./TownTrade";
 import type { SmithView } from "./TownSmith";
@@ -3561,6 +3565,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (popo2 && lk) {
       const stage = festivalStage(lk, wall);
       const fd: FestivalDraw = { ctx, s: v.s, now: wall, night: skyNow().lamps > 0.3, project, onScreen, th: words.current.th,
+        phase: openPhases(lk, wall).filter((k) => k !== "results").map((k) => (words.current.th ? PHASE_NAME[k].th : PHASE_NAME[k].en)).join(" · "),
         push: (depth, draw) => things.push({ depth, draw }), sign: (draw) => signs.push(draw),
         label: (text, x, y) => label(ctx, text, x, y, "#e5cc80", "rgba(15,19,25,0.82)", null),
         light: (x, y, reach, rgb, strong = 1, flat = 1) => { if (toolLights.current.length < 120) toolLights.current.push({ x, y, rgb, reach, flat, strong }); } };
@@ -6708,7 +6713,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
              style={phone ? { bottom: tabbar ? "calc(4.5rem + env(safe-area-inset-bottom))" : 0, ...(stallOpen ? { height: "min(78%, 40rem)" } : {}) } : { bottom: "0.75rem" }}
              data-state="open">
           {stallOpen && game && keeper && (stallFestival ?? fest.live.current.f?.id) != null
-            ? <Suspense fallback={null}><TownKrathong key={stallFestival ?? fest.live.current.f?.id} keeper={keeper} th={w.th} festival={(stallFestival ?? fest.live.current.f?.id)!} admin={realAdmin} me={me.id} phone={phone}
+            ? <Suspense fallback={null}><TownKrathong key={stallFestival ?? fest.live.current.f?.id} keeper={keeper} th={w.th} festival={(stallFestival ?? fest.live.current.f?.id)!} admin={realAdmin || LK_ADMIN_IN_DEV} me={me.id} phone={phone}
                 onClose={() => setBoardOpen(false)}
                 onFloated={() => { void fest.readRiver(); setBoardOpen(false); walkToTile(FLOAT_BANK[0], FLOAT_BANK[1]); }} /></Suspense>
             : fountainOpen && game && keeper
@@ -6880,6 +6885,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
             </TownFoot>
           )}
           <TownCircle session={s} th={w.th} phone={phone} tabbar={tabbar} hidden={!!talk || !!trade || boardOpen || wardrobeOpen || fishing || (phone && (testOpen || !!signView || chatOpen))} />
+          {/* ── Loy Krathong's phases ── (what is open now, under the clock, and a card when a phase opens: components/town/FestivalPhase) */}
+          {T2 && game && <FestivalPhase f={fest.live.current.f} session={s} th={w.th} onOpen={() => openStall(null)}
+                                        hidden={!inTownPlace || !!talk || !!trade || boardOpen || wardrobeOpen || fishing || (phone && (testOpen || !!signView || chatOpen))} />}
         </Suspense>
       )}
       {/* The storage box in the plaza: offered to whoever stands by it; a tap on the chest walks up to it and opens it */}

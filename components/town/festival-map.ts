@@ -61,6 +61,8 @@ export interface FestivalDraw {
   /** A light laid after the night's dark (the town's own lights: a candle shines through it). */
   light: (x: number, y: number, reach: number, rgb: string, strong?: number, flat?: number) => void;
   th: boolean;
+  /** The phases open now, said short, for the stall's sign ("ทำกระทง", "โหวต · ลอยกระทง"). */
+  phase?: string;
 }
 
 /** Where the light part's flame is in the 48×50 template (the candle's wick, the jar's middle). */
@@ -74,7 +76,7 @@ export function drawStall(d: FestivalDraw): { x0: number; y0: number; x1: number
   d.push(STALL_AT.x + STALL_AT.y, () => {
     // (a prop's own `scale` is map pixels an art pixel: the camera's scale is all that is added)
     box = drawProp(d.ctx, "stall", feet.x, feet.y, d.s);
-    if (box) { const b = box; d.sign(() => d.label(d.th ? "ซุ้มกระทง" : "Krathong stall", (b.x0 + b.x1) / 2, b.y0 - 12 * d.s)); }
+    if (box) { const b = box; d.sign(() => d.label(`${d.th ? "ซุ้มกระทง" : "Krathong stall"}${d.phase ? ` · ${d.phase}` : ""}`, (b.x0 + b.x1) / 2, b.y0 - 12 * d.s)); }
   });
   // (the tap box is the prop's size wherever it stands, known before its turn to be drawn)
   const [w, h] = propSize("stall") ?? [134, 138];

@@ -39,39 +39,42 @@ const p = (id: string, slot: Slot, family: Family, th: string, en: string, pay: 
 const GEMS: ItemId[] = ["gemRuby", "gemSapphire", "gemEmerald", "gemAmber", "gemTopaz", "gemAquamarine", "gemOnyx", "gemDiamond"];
 
 export const PARTS: Part[] = [
-  // bases
-  p("b_wood", "base", "wood", "ฐานไม้แกะ", "Carved wood raft", [["splitPlank", 3], ["carvingBlank", 2]]),
-  p("b_leaf", "base", "forest", "ฐานใบไม้พับ", "Folded leaf tray", [["bananaLeaf", 3], ["fernTip", 4]]),
-  p("b_bread", "base", "kitchen", "ฐานขนมปัง", "Bread raft", [["flour", 3], ["pineNutFlour", 3]]),
+  // bases (2026-11-24, the owner: "ช่วยปรับให้วัตถุดิบหาง่ายขึ้น": nobody held any base, light or most ring material on the
+  // morning of the contest, so every count came down and every part gained ways to pay with what members do hold or the
+  // town's shop sells: banana leaf, flour, dough, oil, sugar, eggs, seaweed, shrimp and crickets are on its shelf.
+  // New ways are put after the old ones, so a pick made before keeps its meaning.)
+  p("b_wood", "base", "wood", "ฐานไม้แกะ", "Carved wood raft", [["splitPlank", 2], ["carvingBlank", 1], ["log", 2], ["timber", 2]]),
+  p("b_leaf", "base", "forest", "ฐานใบไม้พับ", "Folded leaf tray", [["bananaLeaf", 2], ["fernTip", 3]]),
+  p("b_bread", "base", "kitchen", "ฐานขนมปัง", "Bread raft", [["flour", 2], ["pineNutFlour", 2], ["dough", 2]]),
   // rings
-  p("r_leaf", "ring", "forest", "กลีบใบไม้พับ", "Folded leaf crown", [["bananaLeaf", 4], ["fernTip", 5]]),
-  p("r_lotus", "ring", "farm", "กลีบบัว", "Lotus petals", [["fragrantPetal", 4], ["wildflower", 6]]),
-  p("r_marigold", "ring", "farm", "พวงดาวเรือง", "Marigold garland", [["marigold", 6]]),
+  p("r_leaf", "ring", "forest", "กลีบใบไม้พับ", "Folded leaf crown", [["bananaLeaf", 1], ["fernTip", 2]]),
+  p("r_lotus", "ring", "farm", "กลีบบัว", "Lotus petals", [["fragrantPetal", 3], ["wildflower", 4]]),
+  p("r_marigold", "ring", "farm", "พวงดาวเรือง", "Marigold garland", [["marigold", 4]]),
   // lights
-  p("l_candle", "light", "insects", "เทียนขี้ผึ้ง", "Beeswax candle", [["beeswax", 1]]),
-  p("l_firefly", "light", "insects", "โหลหิ่งห้อย", "Firefly jar", [["firefly", 3]]),
+  p("l_candle", "light", "insects", "เทียนขี้ผึ้ง", "Beeswax candle", [["beeswax", 1], ["oil", 1]]),
+  p("l_firefly", "light", "insects", "โหลหิ่งห้อย", "Firefly jar", [["firefly", 2], ["dragonfly", 1]]),
   // centrepieces, one a line
-  p("c_flower", "centre", "farm", "ช่อดอกไม้", "Flower bouquet", [["marigold", 4], ["wildflower", 4], ["wildOrchid", 1], ["moonflower", 1], ["goldenDandelion", 1]]),
-  p("c_mushroom", "centre", "forest", "เห็ดกับเฟิร์น", "Mushrooms and fern", [["glowMushroom", 2], ["mushroomSpores", 3]]),
-  p("c_shell", "centre", "fishing", "หอยกับไข่มุก", "Shell and pearl", [["snail", 3], ["pearl", 1]]),
-  p("c_butterfly", "centre", "insects", "ผีเสื้อเกาะกิ่ง", "Butterfly on a twig", [["butterflyWhite", 2], ["monarch", 1], ["lunaMoth", 1], ["silkMoth", 1]]),
-  p("c_crystal", "centre", "mining", "กลุ่มผลึก", "Crystal cluster", [["crystalLens", 2], ...GEMS.map((g): [ItemId, number] => [g, 1]), ["starShard", 1]]),
-  p("c_carving", "centre", "wood", "นกไม้แกะ", "Carved wooden bird", [["carvingBlank", 2], ["lure", 1]]),
-  p("c_sweets", "centre", "kitchen", "ผลไม้เชื่อม", "Candied fruit", [["sugar", 4], ["gardenHoney", 2], ["sweetGlaze", 1], ["candiedPumpkin", 1]]),
-  p("c_feather", "centre", "animals", "พัดขนนก", "Feather fan", [["feather", 4], ["wool", 2], ["yarn", 1]]),
-  p("c_bell", "centre", "smith", "กระดิ่งทองแดง", "Copper bell", [["copperBlank", 2], ["floatBell", 1]]),
-  p("c_lily", "centre", "river", "บัวกับผักตบ", "Water lily", [["hyacinth", 4], ["lotusRootBed", 1]]),
+  p("c_flower", "centre", "farm", "ช่อดอกไม้", "Flower bouquet", [["marigold", 3], ["wildflower", 3], ["wildOrchid", 1], ["moonflower", 1], ["goldenDandelion", 1]]),
+  p("c_mushroom", "centre", "forest", "เห็ดกับเฟิร์น", "Mushrooms and fern", [["glowMushroom", 1], ["mushroomSpores", 2], ["shiitake", 2], ["toadstool", 2]]),
+  p("c_shell", "centre", "fishing", "หอยกับไข่มุก", "Shell and pearl", [["snail", 2], ["pearl", 1], ["shrimpLive", 2]]),
+  p("c_butterfly", "centre", "insects", "ผีเสื้อเกาะกิ่ง", "Butterfly on a twig", [["butterflyWhite", 1], ["monarch", 1], ["lunaMoth", 1], ["silkMoth", 1], ["silkCocoon", 1], ["dragonfly", 1]]),
+  p("c_crystal", "centre", "mining", "กลุ่มผลึก", "Crystal cluster", [["crystalLens", 1], ...GEMS.map((g): [ItemId, number] => [g, 1]), ["starShard", 1], ["shardCopper", 3], ["shardSilver", 2], ["chipAquamarine", 2]]),
+  p("c_carving", "centre", "wood", "นกไม้แกะ", "Carved wooden bird", [["carvingBlank", 1], ["lure", 1], ["log", 2], ["heartwood", 1]]),
+  p("c_sweets", "centre", "kitchen", "ผลไม้เชื่อม", "Candied fruit", [["sugar", 3], ["gardenHoney", 1], ["sweetGlaze", 1], ["candiedPumpkin", 1], ["wildApple", 2]]),
+  p("c_feather", "centre", "animals", "พัดขนนก", "Feather fan", [["feather", 3], ["wool", 2], ["yarn", 1], ["egg", 2]]),
+  p("c_bell", "centre", "smith", "กระดิ่งทองแดง", "Copper bell", [["copperBlank", 1], ["floatBell", 1], ["shardCopper", 2], ["copperNodule", 1]]),
+  p("c_lily", "centre", "river", "บัวกับผักตบ", "Water lily", [["hyacinth", 3], ["lotusRootBed", 1], ["seaweed", 2]]),
   // trims, the same ten families, smaller and cheaper
-  p("t_flower", "trim", "farm", "ดอกไม้", "Flower", [["marigold", 2], ["wildflower", 2], ["fragrantPetal", 1]]),
-  p("t_mushroom", "trim", "forest", "เห็ด", "Mushroom", [["mushroomSpores", 1], ["glowMushroom", 1]]),
-  p("t_shell", "trim", "fishing", "หอย", "Shell", [["snail", 1], ["pearl", 1]]),
-  p("t_butterfly", "trim", "insects", "ผีเสื้อ", "Butterfly", [["butterflyWhite", 1], ["monarch", 1]]),
-  p("t_crystal", "trim", "mining", "อัญมณี", "Gem", [["crystalLens", 1], ["chipAmber", 2], ...GEMS.map((g): [ItemId, number] => [g, 1])]),
-  p("t_carving", "trim", "wood", "ปลาไม้แกะ", "Carved fish", [["splitPlank", 2], ["carvingBlank", 1]]),
-  p("t_sweets", "trim", "kitchen", "ลูกอม", "Sweet", [["sugar", 2], ["gardenHoney", 1], ["sweetGlaze", 1]]),
-  p("t_feather", "trim", "animals", "ขนนก", "Feather", [["feather", 2], ["wool", 1]]),
-  p("t_bell", "trim", "smith", "กระดิ่งจิ๋ว", "Little bell", [["copperBlank", 1]]),
-  p("t_lily", "trim", "river", "ผักตบ", "Hyacinth", [["hyacinth", 2]]),
+  p("t_flower", "trim", "farm", "ดอกไม้", "Flower", [["marigold", 1], ["wildflower", 1], ["fragrantPetal", 1]]),
+  p("t_mushroom", "trim", "forest", "เห็ด", "Mushroom", [["mushroomSpores", 1], ["glowMushroom", 1], ["shiitake", 1], ["toadstool", 1]]),
+  p("t_shell", "trim", "fishing", "หอย", "Shell", [["snail", 1], ["pearl", 1], ["shrimpLive", 1]]),
+  p("t_butterfly", "trim", "insects", "ผีเสื้อ", "Butterfly", [["butterflyWhite", 1], ["monarch", 1], ["dragonfly", 1], ["cricket", 2]]),
+  p("t_crystal", "trim", "mining", "อัญมณี", "Gem", [["crystalLens", 1], ["chipAmber", 1], ...GEMS.map((g): [ItemId, number] => [g, 1]), ["shardCopper", 1], ["chipAquamarine", 1], ["stone", 2]]),
+  p("t_carving", "trim", "wood", "ปลาไม้แกะ", "Carved fish", [["splitPlank", 1], ["carvingBlank", 1], ["log", 1], ["timber", 1]]),
+  p("t_sweets", "trim", "kitchen", "ลูกอม", "Sweet", [["sugar", 1], ["gardenHoney", 1], ["sweetGlaze", 1], ["wildApple", 1]]),
+  p("t_feather", "trim", "animals", "ขนนก", "Feather", [["feather", 1], ["wool", 1], ["egg", 1]]),
+  p("t_bell", "trim", "smith", "กระดิ่งจิ๋ว", "Little bell", [["copperBlank", 1], ["shardCopper", 1]]),
+  p("t_lily", "trim", "river", "ผักตบ", "Hyacinth", [["hyacinth", 1], ["seaweed", 1]]),
 ];
 
 export const PART = Object.fromEntries(PARTS.map((x) => [x.id, x])) as Record<string, Part>;
@@ -131,10 +134,13 @@ export function shortOf(d: Design, have: (id: ItemId) => number): Array<{ id: It
 }
 
 /** The first way to pay for a part that the bag can meet (taking what the rest of the design already takes), else 0. */
-export function bestPay(partId: string, have: (id: ItemId) => number, taken: Map<ItemId, number> = new Map()): number {
+export function bestPay(partId: string, have: (id: ItemId) => number, taken: Map<ItemId, number> = new Map(), buyable?: (id: ItemId) => boolean): number {
   const part = PART[partId];
   const i = part.pay.findIndex(([id, n]) => have(id) - (taken.get(id) ?? 0) >= n);
-  return i < 0 ? 0 : i;
+  if (i >= 0) return i;
+  // (none the bag can meet: a way the town's shop sells, so what is shown is what can be had today)
+  const b = buyable ? part.pay.findIndex(([id]) => buyable(id)) : -1;
+  return b < 0 ? 0 : b;
 }
 
 /** The lines of work a krathong carries (its parts' families, each once). */
@@ -152,7 +158,8 @@ export function cleanWish(s: string): string {
 }
 
 /** The first design the builder opens on. */
-export const START: Design = { base: ["b_leaf", 0], ring: ["r_leaf", 0], light: ["l_candle", 0], centre: ["c_flower", 0], trims: [] };
+// (every part of the first design can be had from the town shop: banana leaves, oil, sugar; 2026-11-24)
+export const START: Design = { base: ["b_leaf", 0], ring: ["r_leaf", 0], light: ["l_candle", 0], centre: ["c_sweets", 0], trims: [] };
 
 export interface Entry { id: number; votes: number; made: number }
 export type AwardKind = "popular" | "judge";
@@ -216,5 +223,14 @@ export interface KrathongState {
   capsule: Array<{ year: number; name: string; design: Design; wish: string }>;
 }
 export interface RiverKrathong { id: number; design: Design; floated: number; mine: boolean }
+/**
+ * The lucky draw's list, for the admins (v339; Aqua's event of 2026-11-24: a verified member who made a krathong and
+ * floated it may be drawn): whoever floated, when, FC or not, and whether before `until` (the festival's `draw_until`).
+ */
+export interface DrawRow {
+  id: number; name: string; design: Design; entered: boolean; maker: { name: string | null; character: number | null };
+  verified: boolean; fc: boolean; made: number; floated: number; inTime: boolean;
+}
+export interface DrawList { until: number | null; list: DrawRow[] }
 export type KrathongWhy = "none" | "closed" | "made" | "name" | "design" | "short" | "own" | "spent" | "denied" | "away";
 export type KrathongDid<T = object> = ({ ok: true; repeated?: boolean } & T) | { ok: false; why: KrathongWhy; item?: string; need?: number };

@@ -209,6 +209,7 @@ class TrialKeeper implements Keeper {
   async krathongFloat(_festival: number, wish: string) { return this.trial.festival.float(wish); }
   async krathongRiver() { return this.trial.festival.river(); }
   async festivalJudge(_festival: number, entry: number | null) { return this.trial.festival.judge(entry); }
+  async festivalDraw() { return this.trial.festival.draw(); }
   /** (dev: __townView.festival().kit()) A bag of every krathong part's things, to try the stall with. */
   krathongKit() {
     const p = this.trial.purse(), bag = KRATHONG_KIT.map(([item, n]) => ({ item, n: Math.min(n, ITEMS[item].stack) }));

@@ -2,7 +2,7 @@ import{mealDuration}from"./stamina";
 import type { TailorRefusal } from "./tailor";
 import type { AuctionBoard, AuctionBoards } from "./auction";
 import type { Festival } from "./festivals";
-import type { Design, KrathongDid, KrathongState, KrathongView, RiverKrathong } from "./krathong";
+import type { Design, DrawList, DrawRow, KrathongDid, KrathongState, KrathongView, RiverKrathong } from "./krathong";
 import { syncQuality } from "./quality-plant";
 import type { RockChoice } from "./geology";
 // ── the pasture ── (lib/town/animal-act: one step of the animal line; docs/plans/animals)
@@ -331,6 +331,8 @@ export interface Keeper {
   krathongRiver(festival: number): Promise<RiverKrathong[] | null>;
   /** (v336) An admin's pick for the judges' award (null takes it back). */
   festivalJudge(festival: number, entry: number | null): Promise<KrathongDid>;
+  /** The lucky draw's list (v339), for an admin; null for anybody else or before v339. */
+  festivalDraw?(festival: number): Promise<DrawList | null>;
   openThing(slot: number): Promise<Did<{ found: ItemId | null }>>;
   /** Take up the thing in a slot, to hold it; null puts away what is held. */
   hold(slot: number | null): Promise<Did>;
@@ -1861,6 +1863,10 @@ export class DbKeeper implements Keeper {
     return a && Array.isArray(a.river) ? (a.river as RiverKrathong[]) : null;
   }
   festivalJudge(festival: number, entry: number | null) { return this.krathongAsk("town_festival_judge", { p_festival: festival, p_entry: entry }); }
+  async festivalDraw(festival: number): Promise<DrawList | null> {
+    const a = await this.ask("town_festival_draw", { p_festival: festival }).catch(() => null);
+    return a && a.ok === true && Array.isArray(a.list) ? { until: typeof a.until === "number" ? a.until : null, list: a.list as DrawRow[] } : null;
+  }
   async limited() {
     const a = await this.ask("town_dressed").catch(() => null);
     return a?.limited && typeof a.limited === "object" ? (a.limited as Record<string, [number, number]>) : {};

@@ -108,6 +108,46 @@ export function untilText(iso: string, now: number, th: boolean): string {
 }
 
 /**
+ * Loy Krathong's phases as the members are told them (the owner, 2026-11-24: "ประกาศเฟสทำกระทง โหวต ลอย ให้ชัดเจน"):
+ * making, floating, voting, the results, in the order they open (making and floating overlap the festival's evening;
+ * the vote opens when the entries close); the results are news for a day and a half, then the hall says them.
+ */
+export type Phase = "make" | "vote" | "float" | "results";
+export const PHASES: readonly Phase[] = ["make", "float", "vote", "results"];
+export const PHASE_NAME: Record<Phase, { th: string; en: string }> = {
+  make: { th: "ทำกระทง", en: "Make" }, vote: { th: "โหวต", en: "Vote" }, float: { th: "ลอยกระทง", en: "Float" }, results: { th: "ประกาศผล", en: "Results" },
+};
+export const PHASE_ICON: Record<Phase, string> = { make: "krathongKeepsake", vote: "festivalLantern", float: "floatKrathong", results: "krathongTrophy" };
+const RESULTS_NEWS_MS = 36 * 3_600_000;
+
+/** The phases open at a moment, in their order. */
+export function openPhases(f: Festival, now: number): Phase[] {
+  return PHASES.filter((k) => {
+    const w = windowOf(f, k);
+    return !!w && isOpen(w, now) && (k !== "results" || now - Date.parse(w.from) < RESULTS_NEWS_MS);
+  });
+}
+/** Where a phase stands at a moment: done, open now, or still to come. */
+export function phaseState(f: Festival, k: Phase, now: number): "done" | "now" | "next" | "none" {
+  const w = windowOf(f, k);
+  if (!w) return "none";
+  if (isOpen(w, now)) return "now";
+  return Date.parse(w.from) > now ? "next" : "done";
+}
+/** The soonest a phase open now closes (null when none of them closes). */
+export function soonestClose(f: Festival, now: number): string | null {
+  const ends = openPhases(f, now).map((k) => windowOf(f, k)?.until).filter((u): u is string => !!u).sort((a, b) => Date.parse(a) - Date.parse(b));
+  return ends[0] ?? null;
+}
+/** A time said short: the hour alone today (Bangkok), else the day and the hour. */
+export function shortWhen(iso: string, now: number, th: boolean): string {
+  const a = new Date(Date.parse(iso) + BKK), b = new Date(now + BKK);
+  const hm = `${String(a.getUTCHours()).padStart(2, "0")}:${String(a.getUTCMinutes()).padStart(2, "0")}`;
+  if (a.toISOString().slice(0, 10) === b.toISOString().slice(0, 10)) return hm;
+  return `${whenText(iso, th, false)} ${hm}`;
+}
+
+/**
  * Loy Krathong 2026 as the owner set it (2026-11-22), Codex's schedule B taken by his "ทำเลย":
  * the contest's krathongs made 23 Nov 18:00 → 24 Nov 18:00; the float opens 24 Nov 18:00 (the full moon) for two
  * nights; the vote runs the float's first day, 24 Nov 18:00 → 25 Nov 18:00, so every entry has one whole
@@ -129,9 +169,11 @@ export const LOY_KRATHONG_2026: Festival = {
   windows: [
     { kind: "announce", from: bkk(2026, 11, 22, 22), until: bkk(2026, 11, 23, 18), th: "เตรียมของ", en: "Gather" },
     { kind: "auction", from: bkk(2026, 11, 15, 20, 30), until: bkk(2026, 11, 23, 20), th: "ปิดประมูลชุดลอยกระทง", en: "Festival outfits auction closes" },
-    { kind: "make", from: bkk(2026, 11, 23, 18), until: bkk(2026, 11, 24, 18), th: "ส่งกระทงประกวด", en: "Enter a krathong" },
+    // (2026-11-24, the owner with Aqua's announcement, "ทำกระทงได้เรื่อยๆ จนถึงเวลาเที่ยงคืน": entries until midnight, the
+    // float from 18:00 as before, so the two overlap that evening; the vote after the entries close, its results at 21:00)
+    { kind: "make", from: bkk(2026, 11, 23, 18), until: bkk(2026, 11, 25, 0), th: "ส่งกระทงประกวด", en: "Enter a krathong" },
     { kind: "float", from: bkk(2026, 11, 24, 18), until: bkk(2026, 11, 26, 5), th: "ลอยกระทง", en: "Float" },
-    { kind: "vote", from: bkk(2026, 11, 24, 18), until: bkk(2026, 11, 25, 18), th: "โหวตกระทง", en: "Vote" },
-    { kind: "results", from: bkk(2026, 11, 25, 20), until: null, th: "ประกาศผล", en: "Results" },
+    { kind: "vote", from: bkk(2026, 11, 25, 0), until: bkk(2026, 11, 25, 21), th: "โหวตกระทง", en: "Vote" },
+    { kind: "results", from: bkk(2026, 11, 25, 21), until: null, th: "ประกาศผล", en: "Results" },
   ],
 };

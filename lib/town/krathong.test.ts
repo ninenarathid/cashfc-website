@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { ITEMS, type ItemId } from "./items";
 import { PARTS, PART, START, awardsOf, bestPay, catalogJson, check, cleanName, costOf, familiesOf, partsOf, shortOf, shuffledFor, type Design } from "./krathong";
@@ -33,8 +33,8 @@ describe("a design", () => {
     expect(check({ ...d, trims: [["c_flower", 0]] })).toBe("slot");
   });
   it("sums what it takes", () => {
-    expect(Object.fromEntries(costOf(d))).toEqual({ carvingBlank: 2, marigold: 12, beeswax: 1, snail: 1 });
-    expect(shortOf(d, (id) => (id === "marigold" ? 5 : 9))).toEqual([{ id: "marigold", need: 12, have: 5 }]);
+    expect(Object.fromEntries(costOf(d))).toEqual({ carvingBlank: 1, marigold: 8, beeswax: 1, snail: 1 });
+    expect(shortOf(d, (id) => (id === "marigold" ? 5 : 9))).toEqual([{ id: "marigold", need: 8, have: 5 }]);
   });
   it("picks a payment the bag can meet", () => {
     expect(bestPay("b_wood", (id) => (id === "carvingBlank" ? 2 : 0))).toBe(1);
@@ -80,8 +80,14 @@ describe("the calendar", () => {
     expect(stageOf(LK, t("2026-11-23T05:00:00Z"))).toBe("coming");
     expect(stageOf(LK, t("2026-11-23T11:00:00Z"))).toBe("on");
     expect(isOpen(windowOf(LK, "make"), t("2026-11-23T11:00:00Z"))).toBe(true);
-    expect(isOpen(windowOf(LK, "make"), t("2026-11-24T11:00:00Z"))).toBe(false);
-    expect(isOpen(windowOf(LK, "vote"), t("2026-11-24T11:00:00Z"))).toBe(true);
+    // (entries until midnight, 24 Nov 17:00 UTC; the float from 18:00 overlaps them; the vote after them)
+    expect(isOpen(windowOf(LK, "make"), t("2026-11-24T11:00:00Z"))).toBe(true);
+    expect(isOpen(windowOf(LK, "float"), t("2026-11-24T11:00:00Z"))).toBe(true);
+    expect(isOpen(windowOf(LK, "make"), t("2026-11-24T17:00:00Z"))).toBe(false);
+    expect(isOpen(windowOf(LK, "vote"), t("2026-11-24T16:59:00Z"))).toBe(false);
+    expect(isOpen(windowOf(LK, "vote"), t("2026-11-24T17:00:00Z"))).toBe(true);
+    expect(isOpen(windowOf(LK, "results"), t("2026-11-25T13:59:00Z"))).toBe(false);
+    expect(isOpen(windowOf(LK, "results"), t("2026-11-25T14:00:00Z"))).toBe(true);
     expect(isOpen(windowOf(LK, "float"), t("2026-11-25T21:59:00Z"))).toBe(true);
     expect(isOpen(windowOf(LK, "results"), t("2027-01-01T00:00:00Z"))).toBe(true);
     expect(stageOf(LK, t("2026-11-25T22:00:00Z"))).toBe("after");
@@ -102,16 +108,24 @@ describe("the calendar", () => {
 
 describe("the database's catalog", () => {
   it("is this file's, byte for byte as JSON", () => {
-    let sql = "";
-    try { sql = readFileSync(resolve(__dirname, "../../supabase/v336_the_festival_calendar_and_loy_krathong.sql"), "utf8"); } catch { return; }
+    // (the parts as the newest migration that sets them has them: v336 laid them, v339 made them easy to come by; the
+    // windows as the newest that lays them)
+    const dir = resolve(__dirname, "../../supabase");
+    let files: string[] = [];
+    try { files = readdirSync(dir).filter((f) => /^v\d+_.*\.sql$/.test(f)).sort((a, b) => parseInt(a.slice(1)) - parseInt(b.slice(1))); } catch { return; }
+    const read = (f: string) => readFileSync(resolve(dir, f), "utf8");
+    const partsFile = [...files].reverse().find((f) => read(f).includes("<krathong-parts>"));
+    const windowsFile = [...files].reverse().find((f) => read(f).includes("<krathong-windows>"));
+    if (!partsFile || !windowsFile) return;
+    const sql = read(partsFile), wsql = read(windowsFile);
     const m = /<krathong-parts>\s*\n--\s*'(.+)'::jsonb/.exec(sql);
-    const w = /<krathong-windows>\s*\n--\s*'(.+)'::jsonb/.exec(sql);
+    const w = /<krathong-windows>\s*\n--\s*'(.+)'::jsonb/.exec(wsql);
     expect(m, "the <krathong-parts> block").toBeTruthy();
     expect(JSON.parse(m![1])).toEqual(catalogJson());
     expect(JSON.parse(w![1])).toEqual(LK.windows);
-    // the comment blocks are the same JSON as the insert's
+    // the comment blocks are the same JSON as the statement's
     expect(sql.split(m![1]).length - 1).toBe(2);
-    expect(sql.split(w![1]).length - 1).toBe(2);
+    expect(wsql.split(w![1]).length - 1).toBe(2);
     expect(PART.c_crystal.pay.length).toBeGreaterThan(5);
   });
 });

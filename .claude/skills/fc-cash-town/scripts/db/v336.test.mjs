@@ -48,11 +48,21 @@ try {
   const sql = readFileSync(FILE, "utf8").replace(/\r\n/g, "\n");
   await db.exec(sql.replace(/\n/g, "\r\n"));
   await db.exec(sql);
+  // (v339, the materials made easy to come by: run after it, as live, twice)
+  const easy = resolve(REPO, "supabase/v339_loy_krathong_materials_easy_to_come_by.sql");
+  let easySql = null;
+  try { easySql = readFileSync(easy, "utf8").replace(/\r\n/g, "\n"); } catch (e) { if (e.code !== "ENOENT") throw e; }
+  if (easySql) { await db.exec(easySql.replace(/\n/g, "\r\n")); await db.exec(easySql); }
 
   // ── afterwards ──
   eq(await one("select id, slug, year, jsonb_array_length(windows) w, (select count(*)::int from jsonb_object_keys(rules->'parts')) parts from public.town_festivals"),
     { id: 1, slug: "loykrathong", year: 2026, w: 6, parts: 28 }, "the first edition, six windows, 28 parts");
   eq((await one("select rules->'parts' p from public.town_festivals where id = 1")).p, K.catalogJson(), "the catalog is lib/town/krathong's");
+  if (easySql) {
+    // (v339: the windows are lib/town/festivals' — entries to midnight, the vote after them — and the draw's cutoff is set)
+    eq((await one("select windows w, rules->>'draw_until' u from public.town_festivals where id = 1")), { w: F.LOY_KRATHONG_2026.windows, u: "2026-11-24T17:00:00Z" }, "v339: the windows are lib/town/festivals', the draw's cutoff");
+    eq(await one("select has_function_privilege('anon', 'public.town_festival_draw(integer)', 'execute') a"), { a: false }, "v339: anon may not ask for the draw's list");
+  }
   eq((await one("select windows w from public.town_festivals where id = 1")).w, F.LOY_KRATHONG_2026.windows, "the windows are lib/town/festivals'");
   eq(await one(`select has_table_privilege('anon', 'public.town_krathongs', 'select') a, has_table_privilege('authenticated', 'public.town_krathongs', 'select') b,
     has_table_privilege('authenticated', 'public.town_krathong_votes', 'insert') c, has_function_privilege('anon', 'public.town_krathong(integer)', 'execute') d,
@@ -107,10 +117,10 @@ try {
 
   // ── the contest's making ──
   await setWindows([["make", -H, H], ["float", H, 3 * H], ["vote", H, 2 * H], ["results", 4 * H, null]]);
-  await fill(m1, [["carvingBlank", 2], ["marigold", 11], ["beeswax", 1], ["snail", 3]]);
+  await fill(m1, [["carvingBlank", 2], ["marigold", 7], ["beeswax", 1], ["snail", 3]]);
   let r = await make(m1, d1, "กระทงแรก", uuid(1));
-  eq([r?.ok, r?.why, r?.item, r?.need], [false, "short", "marigold", 12], "a marigold short");
-  eq(held(await bagOf(m1), "marigold"), 11, "nothing taken when short");
+  eq([r?.ok, r?.why, r?.item, r?.need], [false, "short", "marigold", 8], "a marigold short");
+  eq(held(await bagOf(m1), "marigold"), 7, "nothing taken when short");
   await fill(m1, [["carvingBlank", 2], ["marigold", 15], ["beeswax", 1], ["snail", 3], ["pearl", 1]]);
   eq((await make(m1, d1, "   ", uuid(1)))?.why, "name", "no name");
   eq((await make(m1, { ...d1, base: ["c_flower", 0] }, "x", uuid(1)))?.why, "design", "a centrepiece as base");
@@ -118,16 +128,16 @@ try {
   r = await make(m1, d1, "  กระทง   แรก  ", uuid(1));
   eq([r?.ok, r?.krathong?.name, r?.krathong?.entered, typeof r?.purse], [true, "กระทง แรก", true, "object"], "made and entered, the purse with it");
   const bag1 = await bagOf(m1);
-  eq([held(bag1, "carvingBlank"), held(bag1, "marigold"), held(bag1, "beeswax"), held(bag1, "snail"), held(bag1, "pearl")], [0, 3, 0, 2, 1], "took exactly the design's cost");
+  eq([held(bag1, "carvingBlank"), held(bag1, "marigold"), held(bag1, "beeswax"), held(bag1, "snail"), held(bag1, "pearl")], [1, 7, 0, 2, 1], "took exactly the design's cost");
   r = await make(m1, d1, "กระทงแรก", uuid(1));
   eq([r?.ok, r?.repeated], [true, true], "the same send again: repeated");
-  eq(held(await bagOf(m1), "marigold"), 3, "and nothing taken twice");
+  eq(held(await bagOf(m1), "marigold"), 7, "and nothing taken twice");
   eq((await make(m1, d1, "อีกใบ", uuid(2)))?.why, "made", "one krathong a member");
   eq(await one("select count(*)::int n from public.town_deeds where member_id = $1 and what = 'krathong'", [m1]), { n: 1 }, "one deed");
   const e1 = r.krathong.id;
 
   const d2 = D(["b_leaf", 0], ["r_leaf", 0], ["l_firefly", 0], ["c_crystal", 1], [["t_crystal", 1]]);
-  await fill(m2, [["bananaLeaf", 7], ["firefly", 3], ["gemRuby", 1], ["chipAmber", 2]]);
+  await fill(m2, [["bananaLeaf", 3], ["firefly", 3], ["gemRuby", 1], ["chipAmber", 2]]);
   r = await make(m2, d2, "ผลึกจันทร์", uuid(3));
   eq([r?.ok, held(await bagOf(m2), "bananaLeaf")], [true, 0], "a second maker");
   const e2 = r.krathong.id;
@@ -220,6 +230,29 @@ try {
   await db.query("update public.town_festivals set published = false where id = 2");
   eq((await call(m1, "select public.town_festivals_list() r")).festivals.length, 1, "an unpublished edition is hidden");
   eq((await call(m1, "select public.town_krathong(2) r"))?.why, "none", "and its stall shut");
+
+  // ── v339: Aqua's evening — entries and the float open together; a krathong from the shop alone; the draw's list ──
+  if (easySql) {
+    await db.query("update public.town_festivals set published = true where id = 2");
+    await db.query("update public.town_festivals set windows = $1::jsonb where id = 2", [JSON.stringify([
+      ["make", -H, H], ["float", -H, 3 * H], ["vote", H, 2 * H], ["results", 4 * H, null],
+    ].map(([kind, from, until]) => ({ kind, from: new Date(Date.now() + from * 1000).toISOString(), until: until == null ? null : new Date(Date.now() + until * 1000).toISOString(), th: kind, en: kind })))]);
+    // dough 2 (base), a banana leaf (ring), oil (candle), two eggs (feather fan): all on the town shop's shelf
+    const shop = D(["b_bread", 2], ["r_leaf", 0], ["l_candle", 1], ["c_feather", 3]);
+    eq(Object.fromEntries(K.costOf(shop)), { dough: 2, bananaLeaf: 1, oil: 1, egg: 2 }, "v339: the shop's krathong costs what the code says");
+    await fill(m2, [["dough", 2], ["bananaLeaf", 1], ["oil", 1], ["egg", 2]]);
+    r = await call(m2, "select public.town_krathong_make(2, $1::jsonb, 'กระทงร้านค้า', $2) r", [JSON.stringify(shop), uuid(950)]);
+    eq([r?.ok, r?.krathong?.entered], [true, true], "v339: made in the evening's overlap, it is entered");
+    const left = await bagOf(m2);
+    eq([held(left, "dough"), held(left, "bananaLeaf"), held(left, "oil"), held(left, "egg")], [0, 0, 0, 0], "v339: paid from the shop's things");
+    r = await call(m2, "select public.town_krathong_float(2, 'ลอยตอนหัวค่ำ') r");
+    eq(r?.ok, true, "v339: and floated at once");
+    eq((await call(m1, "select public.town_festival_draw(2) r"))?.why, "denied", "v339: a member may not see the draw's list");
+    r = await call(admin, "select public.town_festival_draw(2) r");
+    const row = r?.list?.find((x) => x.name === "กระทงร้านค้า");
+    eq([r?.ok, r?.list?.length, !!row, row?.entered, typeof row?.floated, row?.inTime, typeof row?.fc, row?.verified],
+      [true, 1, true, true, "number", Date.now() < Date.parse("2026-11-24T17:00:00Z"), "boolean", true], "v339: the admin's list: who floated, in time or not");
+  }
 } catch (e) {
   failed++;
   console.log("  THREW", e);
