@@ -240,6 +240,8 @@ export interface Keeper {
   /** Every crop's price this round, told at the farm whether I hold it or not (v283; the owner, 2026-10-19), without the days gone by. Of none until the farm has asked. */
   farmPrices(): PricesTold;
   shelf(): ItemId[];
+  /** How many things the uncle's orders have opened, and whether the database has said so yet (the krathong stall). */
+  village?(): { unlocked: number; read: boolean };
   order(): Order | null;
   /** What the uncle's next hint costs me (lib/town/hints), or null when he has none for me. Which hint it will be is by chance and the keeper's to say, at the buying. */
   hintPrice(): number | null;
@@ -1004,6 +1006,7 @@ export class DbKeeper implements Keeper {
   private prices_: PricesTold = NO_PRICES;
   private farmPrices_: PricesTold = NO_PRICES;
   private unlocked = 0;
+  private unlockedRead = false;
   private shelf_: ItemId[] = shelfOf(0);
   private order_: Order | null = null;
   private found_: ItemId[] = [];
@@ -1331,7 +1334,7 @@ export class DbKeeper implements Keeper {
     if (a.prices && typeof a.prices === "object" && typeof (a.prices as PricesTold).things === "object") this.prices_ = a.prices as PricesTold;
     // (every crop's, told at the farm: v283's public.town_farm_prices; a database before it has no such function, and the farm tells no price)
     if (a.farmPrices && typeof a.farmPrices === "object" && typeof (a.farmPrices as PricesTold).things === "object") this.farmPrices_ = a.farmPrices as PricesTold;
-    if (typeof a.unlocked === "number") this.unlocked = a.unlocked;
+    if (typeof a.unlocked === "number") { this.unlocked = a.unlocked; this.unlockedRead = true; }
     // The shelf is the database's, and the database can come to sell a thing this page was built before (the scroll of
     // the cure for pests did, on the game's first day, with members in town who had not loaded the page again). Such
     // a thing is left off: a shelf one short is better than a shelf that cannot be drawn. How many of his orders are
@@ -1340,6 +1343,7 @@ export class DbKeeper implements Keeper {
       const shelf = a.shelf as ItemId[];
       this.shelf_ = shelf.filter((id) => id in ITEMS);
       if (typeof a.unlocked !== "number") this.unlocked = Math.max(0, shelf.length - shelfOf(0).length);
+      this.unlockedRead = true;
     }
     if (a.order && typeof a.order === "object") this.order_ = a.order as Order;
     // (a list of what has been found: a thing opened says `found` too, of what was in it, which is one thing or none)
@@ -1596,6 +1600,7 @@ export class DbKeeper implements Keeper {
   prices(): PricesTold { return this.prices_; }
   farmPrices(): PricesTold { return this.farmPrices_; }
   shelf(): ItemId[] { return this.shelf_; }
+  village() { return { unlocked: this.unlocked, read: this.unlockedRead }; }
   order(): Order | null { return this.order_; }
   hintPrice(): number | null {
     const at = sourcesAt(this.unlocked, true);

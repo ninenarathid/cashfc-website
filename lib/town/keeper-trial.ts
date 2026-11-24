@@ -136,6 +136,7 @@ class TrialKeeper implements Keeper {
   helpings() { return STAMINA.bowls; }
   stall() { return this.trial.stall(); }
   shelf() { return this.trial.shelf(); }
+  village() { return { unlocked: this.trial.village().unlocked, read: true }; }
   order() { return this.trial.order(); }
   hintPrice() { return this.trial.hintPrice(); }
   farm() { return this.trial.farm(); }
@@ -791,7 +792,11 @@ export function trialKeeper(id: string): Keeper {
     const lkDev = process.env.NODE_ENV !== "production" && !!krathongTrialPhase();
     if (lkDev) krathongStartOver();
     k = new TrialKeeper(id, trialFor(id)); keepers.set(id, k);
-    if (lkDev) k.krathongKit();
+    // (`&lkUnlocked=48`: the uncle's shelf opened so far, as the live village's; `&lkNoKit=1`: the bag as it is, to see
+    // what the stall offers somebody with nothing yet)
+    const opened = Number(new URLSearchParams(window.location.search).get("lkUnlocked"));
+    if (lkDev && Number.isFinite(opened) && new URLSearchParams(window.location.search).has("lkUnlocked")) k.trial.setUnlocked(opened);
+    if (lkDev && !new URLSearchParams(window.location.search).has("lkNoKit")) k.krathongKit();
   }
   return k;
 }

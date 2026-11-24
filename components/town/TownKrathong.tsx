@@ -1,10 +1,11 @@
 "use client";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { drawPart, krathongImage } from "@/lib/town/krathong-art";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import type { Keeper } from "@/lib/town/keeper";
 import { ITEMS, iconOf, type ItemId } from "@/lib/town/items";
 import { GOODS, held } from "@/lib/town/trade";
+import { sourcesAt } from "@/lib/town/orders";
 import { PHASES, PHASE_ICON, PHASE_NAME, isOpen, phaseState, shortWhen, untilText, whenText, windowOf, type Festival } from "@/lib/town/festivals";
 import {
   COLORS, EDITS_MAX, MAX_TRIMS, PART, START, bestPay, check, cleanName, colorOf, costOf, costOfPicks, designCode, extraCost, familiesOf, partsOf, picksOf, shuffledFor,
@@ -15,8 +16,15 @@ import TownIcon, { type IconName } from "./TownIcon";
 
 type Tab = "make" | "gallery" | "float" | "results" | "draw";
 const icon = (name: string) => name as IconName;
-/** Whether the town's shop sells a thing (the builder marks it, and pays with it when the bag has nothing better). */
-const inShop = (id: ItemId) => !!GOODS[id];
+/**
+ * What can be had now (the owner, 2026-11-24: "อย่าเอาของที่ยังไม่ปลดมาเป็นวัตถุดิบซิ"): `onShelf`, the uncle's shelf as the village has opened it (the builder marks such a
+ * thing with a coin, and pays with it when the bag has nothing better); `can`, on his shelf or got some other way at
+ * the village's unlocks (lib/town/orders' sourcesAt, the forest's finds counted). A way to pay with a thing that cannot
+ * be had is not offered, unless the bag has some. Until the shelf is read, everything the shop lists.
+ */
+interface Avail { onShelf: (id: ItemId) => boolean; can: (id: ItemId) => boolean }
+const ANY: Avail = { onShelf: (id) => !!GOODS[id], can: () => true };
+const AvailCtx = createContext<Avail>(ANY);
 /**
  * Where a thing is had, in a few words (the owner, 2026-11-24: "วัตถุดิบอยากได้รูปใหญ่กว่านี้ และเขียนรายละเอียดของ
  * ให้ชัดเจน"): the shop and its price first; else what the thing is (lib/town/items' kinds), and for a few, more.
@@ -36,9 +44,10 @@ const WHERE_ITEM: Partial<Record<string, [string, string]>> = {
   lunaMoth: ["จับตอนกลางคืน", "Caught at night"], silkMoth: ["จับตอนกลางคืน", "Caught at night"],
   starShard: ["เก็บได้ในป่า หายาก", "Found in the forest, rarely"], feather: ["เก็บได้ในป่า", "Found in the forest"],
 };
-function whereOf(id: ItemId, th: boolean): string {
+function whereOf(id: ItemId, th: boolean, onShelf = !!GOODS[id]): string {
   const g = GOODS[id];
-  if (g) return th ? `ซื้อที่ร้านค้า · ${g.price} เหรียญ` : `Shop · ${g.price} coins`;
+  if (g && onShelf) return th ? `ซื้อที่ร้านค้า · ${g.price} เหรียญ` : `Shop · ${g.price} coins`;
+  if (g) return th ? "ร้านค้ายังไม่ปลดล็อก" : "Not in the shop yet";
   const w = WHERE_ITEM[id] ?? WHERE_KIND[ITEMS[id]?.kind ?? ""];
   return w ? (th ? w[0] : w[1]) : "";
 }
@@ -75,6 +84,14 @@ export default function TownKrathong({ keeper, th, festival, admin, me, phone, o
     const unwatch = keeper.watch(() => setPurseTick((n) => n + 1));
     return () => { clearInterval(t); unwatch(); };
   }, [load, keeper]);
+  // (the uncle's shelf read while the stall is open: what the village has opened is what a krathong may take)
+  useEffect(() => keeper.look("stall"), [keeper]);
+  const village = keeper.village?.(), shelfKey = keeper.shelf().join(",");
+  const avail = useMemo<Avail>(() => {
+    if (!village?.read) return ANY;
+    const shelf = new Set(shelfKey.split(",")), from = sourcesAt(village.unlocked, true);
+    return { onShelf: (id) => shelf.has(id), can: (id) => shelf.has(id) || from.has(id) };
+  }, [village?.read, village?.unlocked, shelfKey]);
 
   const now = st?.now ?? Date.now();
   const f = st?.festival;
@@ -94,6 +111,7 @@ export default function TownKrathong({ keeper, th, festival, admin, me, phone, o
   const shown: Tab = tab && tabs.includes(tab) ? tab : tabs[0];
 
   return (
+    <AvailCtx.Provider value={avail}>
     <section aria-labelledby="town-krathong-h" className="flex h-full flex-col">
       <div className="flex items-center gap-2 border-b border-line px-4 py-3">
         <TownIcon name={icon("floatKrathong")} size={28} />
@@ -133,6 +151,7 @@ export default function TownKrathong({ keeper, th, festival, admin, me, phone, o
         {st && shown === "draw" && <Draw keeper={keeper} th={th} festival={st.festival.id} />}
       </div>
     </section>
+    </AvailCtx.Provider>
   );
 }
 
@@ -199,8 +218,10 @@ function Builder({ keeper, th, st, phone, making, floating, onDone, onFloat, flo
 }) {
   const bag = keeper.purse().bag;
   const have = useCallback((id: ItemId) => held(bag, id), [bag]);
+  const av = useContext(AvailCtx), inShop = av.onShelf;
+  const usable = useCallback((id: ItemId) => av.can(id) || held(bag, id) > 0, [av, bag]);
   const [d, setD] = useState<Design>(() => {
-    const pay = (id: string, taken = new Map<ItemId, number>()) => [id, bestPay(id, (x) => held(keeper.purse().bag, x), taken, inShop)] as Pick;
+    const pay = (id: string, taken = new Map<ItemId, number>()) => [id, bestPay(id, (x) => held(keeper.purse().bag, x), taken, ANY.onShelf)] as Pick;
     return { base: pay(START.base[0]), ring: pay(START.ring[0]), light: pay(START.light[0]), centre: pay(START.centre[0]), trims: [] };
   });
   const [step, setStep] = useState(0);
@@ -220,6 +241,16 @@ function Builder({ keeper, th, st, phone, making, floating, onDone, onFloat, flo
     setD(st.mine.design); setName(st.mine.name); setStep(0); setTrimAt(0); setSure(false); setNote(null); setEditing(true);
   };
   const same = editing && !!st.mine && JSON.stringify(d) === JSON.stringify(st.mine.design) && cleanName(name) === st.mine.name;
+  // (once the shelf is read, a way to pay that cannot be had is changed for one that can, colour kept; not while changing
+  // an entry, whose ways were paid already)
+  useEffect(() => {
+    if (editing || av === ANY) return;
+    const fix = (p: Pick, others: Pick[]): Pick => usable(PART[p[0]].pay[p[1]][0]) ? p : withColor([p[0], bestPay(p[0], have, costOfPicks(others), inShop, usable)], colorOf(p));
+    setD((was) => {
+      const all = picksOf(was), next = all.map((p, i) => fix(p, all.filter((_, k) => k !== i)));
+      return next.every((p, i) => p === all[i]) ? was : { base: next[0], ring: next[1], light: next[2], centre: next[3], trims: next.slice(4) };
+    });
+  }, [av, editing]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (st.mine && !editing) {
     return (
@@ -279,13 +310,13 @@ function Builder({ keeper, th, st, phone, making, floating, onDone, onFloat, flo
       if (d.trims.length >= MAX_TRIMS) return;
       setTrimAt(d.trims.length);
       // (paid with what the rest of the design leaves: a third flower trim takes wildflowers when the marigolds are spent)
-      change((was) => ({ ...was, trims: [...was.trims, [id, bestPay(id, have, costOfPicks(picksOf(was)), inShop)]] }));
+      change((was) => ({ ...was, trims: [...was.trims, [id, bestPay(id, have, costOfPicks(picksOf(was)), inShop, usable)]] }));
       return;
     }
     const s = slot as keyof typeof SLOT_INDEX;
     change((was) => {
       const others = picksOf(was).filter((_, i) => i !== SLOT_INDEX[s]);
-      return { ...was, [s]: withColor([id, bestPay(id, have, costOfPicks(others), inShop)], colorOf(was[s])) };
+      return { ...was, [s]: withColor([id, bestPay(id, have, costOfPicks(others), inShop, usable)], colorOf(was[s])) };
     });
   };
   const editTrim = (f: (p: Pick) => Pick) => change((was) => ({ ...was, trims: was.trims.map((t, k) => (k === trimAt ? f(t) : t)) }));
@@ -373,12 +404,12 @@ function Builder({ keeper, th, st, phone, making, floating, onDone, onFloat, flo
         <div className="slim-bar flex flex-wrap gap-1.5" aria-label={th ? "ของที่ต้องใช้" : "What it takes"}>
           {editing && !cost.length && <span className="rounded-full bg-[#4ade80]/15 px-2.5 py-0.5 text-meta font-semibold text-[#86efac]">{th ? "ไม่ต้องใช้ของเพิ่ม" : "Nothing more to pay"}</span>}
           {cost.map(([id, n]) => (
-            <span key={id} title={`${th ? ITEMS[id].name.th : ITEMS[id].name.en}${GOODS[id] ? (th ? " · มีขายที่ร้านค้า" : " · sold at the shop") : ""}`}
+            <span key={id} title={`${th ? ITEMS[id].name.th : ITEMS[id].name.en}${inShop(id) ? (th ? " · มีขายที่ร้านค้า" : " · sold at the shop") : ""}`}
                   className={`flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 font-data text-meta tabular-nums ${have(id) < n ? "bg-[#f87171]/15 text-[#fca5a5]" : "bg-ink/[0.06] text-ink"}`}>
               <TownIcon name={icon(iconOf(id))} size={22} />
               <span className="max-w-[7rem] truncate font-body">{th ? ITEMS[id].name.th : ITEMS[id].name.en}</span>
               <span className="font-semibold">{have(id)}/{n}</span>
-              {have(id) < n && GOODS[id] && <TownIcon name="coin" size={12} />}
+              {have(id) < n && inShop(id) && <TownIcon name="coin" size={12} />}
             </span>
           ))}
         </div>
@@ -417,6 +448,7 @@ function SlotPicker({ slot, d, have, th, trimAt, setTrimAt, onChoose, onPay, onC
 }) {
   const p: Pick | undefined = slot === "trim" ? d.trims[trimAt] : d[slot as keyof typeof SLOT_INDEX];
   const full = slot === "trim" && d.trims.length >= MAX_TRIMS;
+  const av = useContext(AvailCtx), inShop = av.onShelf, usable = (id: ItemId) => av.can(id) || have(id) > 0;
   return (
     <div className="flex flex-col gap-2.5">
       <p className="flex items-center gap-1.5 text-meta text-muted" data-shop-legend>
@@ -443,9 +475,9 @@ function SlotPicker({ slot, d, have, th, trimAt, setTrimAt, onChoose, onPay, onC
         </div>
       )}
       <div className="flex flex-wrap gap-1.5">
-        {partsOf(slot).map((part) => {
+        {partsOf(slot).filter((part) => (slot !== "trim" && p?.[0] === part.id) || part.pay.some(([id]) => usable(id))).map((part) => {
           const chosen = slot !== "trim" && p?.[0] === part.id;
-          const [payId, payN] = part.pay[chosen && p ? p[1] : bestPay(part.id, have, undefined, inShop)];
+          const [payId, payN] = part.pay[chosen && p ? p[1] : bestPay(part.id, have, undefined, inShop, usable)];
           const ok = have(payId) >= payN;
           return (
             <button key={part.id} type="button" aria-pressed={chosen} disabled={full} title={th ? part.name.th : part.name.en}
@@ -491,9 +523,11 @@ function Swatches({ part, chosen, th, onPick }: { part: string; chosen: number; 
 
 /** The ways to pay for the chosen part, a card each: the thing large, its name and how many, how many I have, where it is had. */
 function PayChoice({ part, chosen, have, th, onPick }: { part: string; chosen: number; have: (id: ItemId) => number; th: boolean; onPick: (i: number) => void }) {
+  const av = useContext(AvailCtx);
   return (
     <div className="grid grid-cols-2 gap-1.5" role="radiogroup" aria-label={th ? "วัตถุดิบ" : "Pay with"} data-materials>
       {PART[part].pay.map(([id, n], i) => {
+        if (i !== chosen && !av.can(id) && have(id) <= 0) return null;
         const mine = have(id), enough = mine >= n;
         return (
           <button key={id} type="button" role="radio" aria-checked={i === chosen} onClick={() => onPick(i)}
@@ -503,7 +537,7 @@ function PayChoice({ part, chosen, have, th, onPick }: { part: string; chosen: n
             <span className="min-w-0 flex-1 leading-tight">
               <span className="block truncate text-ui font-semibold text-ink">{th ? ITEMS[id].name.th : ITEMS[id].name.en} ×{n}</span>
               <span className={`block font-data text-meta tabular-nums ${enough ? "text-[#86efac]" : "text-[#fca5a5]"}`}>{th ? `มี ${mine}` : `Have ${mine}`}</span>
-              <span className="flex items-center gap-1 truncate text-[11px] text-muted">{GOODS[id] && <TownIcon name="coin" size={12} />}{whereOf(id, th)}</span>
+              <span className="flex items-center gap-1 truncate text-[11px] text-muted">{av.onShelf(id) && <TownIcon name="coin" size={12} />}{whereOf(id, th, av.onShelf(id))}</span>
             </span>
           </button>
         );

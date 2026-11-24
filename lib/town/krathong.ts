@@ -197,13 +197,16 @@ export function shortOf(d: Design, have: (id: ItemId) => number): Array<{ id: It
 }
 
 /** The first way to pay for a part that the bag can meet (taking what the rest of the design already takes), else 0. */
-export function bestPay(partId: string, have: (id: ItemId) => number, taken: Map<ItemId, number> = new Map(), buyable?: (id: ItemId) => boolean): number {
+export function bestPay(partId: string, have: (id: ItemId) => number, taken: Map<ItemId, number> = new Map(), buyable?: (id: ItemId) => boolean, usable?: (id: ItemId) => boolean): number {
   const part = PART[partId];
   const i = part.pay.findIndex(([id, n]) => have(id) - (taken.get(id) ?? 0) >= n);
   if (i >= 0) return i;
-  // (none the bag can meet: a way the town's shop sells, so what is shown is what can be had today)
-  const b = buyable ? part.pay.findIndex(([id]) => buyable(id)) : -1;
-  return b < 0 ? 0 : b;
+  // (none the bag can meet: a way the town's shop sells, so what is shown is what can be had today; never a thing the
+  // village has not opened yet, the owner, 2026-11-24: "อย่าเอาของที่ยังไม่ปลดมาเป็นวัตถุดิบซิ")
+  const b = buyable ? part.pay.findIndex(([id]) => buyable(id) && (!usable || usable(id))) : -1;
+  if (b >= 0) return b;
+  const u = usable ? part.pay.findIndex(([id]) => usable(id)) : -1;
+  return u < 0 ? 0 : u;
 }
 
 /** The lines of work a krathong carries (its parts' families, each once). */
