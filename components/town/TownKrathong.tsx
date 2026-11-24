@@ -7,7 +7,7 @@ import { ITEMS, iconOf, type ItemId } from "@/lib/town/items";
 import { GOODS, held } from "@/lib/town/trade";
 import { PHASES, PHASE_ICON, PHASE_NAME, isOpen, phaseState, shortWhen, untilText, whenText, windowOf, type Festival } from "@/lib/town/festivals";
 import {
-  COLORS, MAX_TRIMS, PART, START, bestPay, check, colorOf, costOf, costOfPicks, designCode, familiesOf, partsOf, picksOf, shuffledFor,
+  COLORS, EDITS_MAX, MAX_TRIMS, PART, START, bestPay, check, cleanName, colorOf, costOf, costOfPicks, designCode, extraCost, familiesOf, partsOf, picksOf, shuffledFor,
   type AwardView, type Design, type DrawList, type GalleryEntry, type KrathongView, type KrathongState, type Pick, type Slot,
 } from "@/lib/town/krathong";
 import KrathongCanvas from "./KrathongCanvas";
@@ -209,11 +209,19 @@ function Builder({ keeper, th, st, phone, making, floating, onDone, onFloat, flo
   const [sure, setSure] = useState(false);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
-  const cost = useMemo(() => [...costOf(d)], [d]);
+  // (v341: my entry changed whole, while entries are open, EDITS_MAX times; only what goes beyond what it has had is paid)
+  const [editing, setEditing] = useState(false);
+  const left = EDITS_MAX - (st.mine?.edits ?? 0);
+  const cost = useMemo(() => (editing ? extraCost(d, st.mine?.paid) : [...costOf(d)]), [d, editing, st.mine?.paid]);
   const short = cost.some(([id, n]) => have(id) < n);
   const zoom = phone ? 3 : 4;
+  const startEdit = () => {
+    if (!st.mine) return;
+    setD(st.mine.design); setName(st.mine.name); setStep(0); setTrimAt(0); setSure(false); setNote(null); setEditing(true);
+  };
+  const same = editing && !!st.mine && JSON.stringify(d) === JSON.stringify(st.mine.design) && cleanName(name) === st.mine.name;
 
-  if (st.mine) {
+  if (st.mine && !editing) {
     return (
       <div className="flex flex-col items-center gap-3">
         <KrathongCanvas design={st.mine.design} zoom={zoom} water className="w-full py-3" />
@@ -225,6 +233,16 @@ function Builder({ keeper, th, st, phone, making, floating, onDone, onFloat, flo
           {st.mine.floated ? (th ? " · ลอยแล้ว" : " · floated") : ""}
         </p>
         <p className="text-meta text-muted">{th ? "ส่งประกวดได้คนละ 1 กระทง" : "One entry each"}</p>
+        {/* (the button once v341 has run: its view says `edits`) */}
+        {making && st.mine.entered && keeper.krathongEdit && typeof st.mine.edits === "number" && (left > 0 ? (
+          <button type="button" onClick={startEdit} data-edit-krathong
+                  className="pressable flex min-h-11 w-full items-center justify-center gap-1.5 rounded-xl border border-accent/60 px-3 text-ui font-semibold text-accent">
+            <TownIcon name={icon("krathongKeepsake")} size={18} />
+            {th ? `แก้ไขกระทง · เหลือ ${left} ครั้ง` : `Change it · ${left} left`}
+          </button>
+        ) : (
+          <p className="text-meta text-muted">{th ? `แก้ไขครบ ${EDITS_MAX} ครั้งแล้ว` : `All ${EDITS_MAX} changes used`}</p>
+        ))}
         {!st.mine.floated && (
           <>
             {/* (carried in my hands for the town to see, until it is floated: the owner, 2026-11-24) */}
@@ -250,7 +268,7 @@ function Builder({ keeper, th, st, phone, making, floating, onDone, onFloat, flo
     );
   }
 
-  const open = making || floating;
+  const open = editing ? making : making || floating;
   // (any change to the design takes the confirmation back: what is confirmed is what is sent; Codex's finding)
   const change = (next: (was: Design) => Design) => { setSure(false); setD(next); };
   const choose = (slot: Slot, id: string) => {
@@ -274,9 +292,11 @@ function Builder({ keeper, th, st, phone, making, floating, onDone, onFloat, flo
   const send = async () => {
     if (!sure) { setSure(true); return; }
     setBusy(true); setNote(null);
-    const did = await keeper.krathongMake(st.festival.id, d, name, crypto.randomUUID());
+    const did = editing && keeper.krathongEdit
+      ? await keeper.krathongEdit(st.festival.id, d, name, crypto.randomUUID())
+      : await keeper.krathongMake(st.festival.id, d, name, crypto.randomUUID());
     setBusy(false); setSure(false);
-    if (did.ok) { keeper.purseAgain?.(); await onDone(); return; }
+    if (did.ok) { keeper.purseAgain?.(); setEditing(false); await onDone(); return; }
     setNote(refusal(did.why, th, did.item as ItemId | undefined));
   };
   const cur = STEPS[step], last = step === STEPS.length - 1;
@@ -285,6 +305,18 @@ function Builder({ keeper, th, st, phone, making, floating, onDone, onFloat, flo
   return (
     <div className="flex flex-col gap-2.5" data-builder-step={cur.step}>
       <KrathongCanvas design={d} zoom={phone ? 2 : 3} water className="w-full py-1.5" />
+      {editing && (
+        <div className="flex items-center gap-2 rounded-xl border border-accent/40 bg-accent/[0.07] px-3 py-1.5" data-editing>
+          <p className="min-w-0 flex-1 text-meta text-ink">
+            <b>{th ? `แก้ไขกระทง · ครั้งที่ ${EDITS_MAX - left + 1}/${EDITS_MAX}` : `Changing it · ${EDITS_MAX - left + 1} of ${EDITS_MAX}`}</b>
+            <span className="block text-muted">{th ? "ของที่จ่ายไปแล้วใช้ต่อได้ หาเพิ่มเฉพาะที่ขาด" : "What it already had counts; only the rest is paid"}</span>
+          </p>
+          <button type="button" onClick={() => { setEditing(false); setNote(null); setSure(false); }}
+                  className="pressable min-h-11 shrink-0 rounded-xl border border-line-strong px-3 text-ui font-semibold text-ink">
+            {th ? "ยกเลิก" : "Cancel"}
+          </button>
+        </div>
+      )}
       {!open && makeWin && (
         <p className="self-center rounded-full bg-accent/15 px-3 py-1 text-meta font-semibold text-accent">
           {th ? "ลองประกอบได้เลย · เปิดส่ง" : "Try it out · opens"} {whenText(makeWin.from, th)}
@@ -302,7 +334,7 @@ function Builder({ keeper, th, st, phone, making, floating, onDone, onFloat, flo
         ))}
       </ol>
       <p className="text-ui font-semibold text-ink">
-        {step + 1}. {th ? cur.askTh : cur.askEn}
+        {step + 1}. {editing && cur.step === "send" ? (th ? "แก้ชื่อได้ แล้วบันทึก" : "Rename it if you like, then save") : th ? cur.askTh : cur.askEn}
         {cur.step !== "send" && cur.step !== "trim" && (
           <span className="font-normal text-accent"> · {th ? PART[d[cur.step as keyof typeof SLOT_INDEX][0]].name.th : PART[d[cur.step as keyof typeof SLOT_INDEX][0]].name.en}</span>
         )}
@@ -317,7 +349,10 @@ function Builder({ keeper, th, st, phone, making, floating, onDone, onFloat, flo
           {sure && (
             <div className="flex items-center gap-2 rounded-xl border border-[#e5cc80]/50 bg-[#e5cc80]/[0.07] p-1.5" aria-live="polite">
               <KrathongCanvas design={d} zoom={1} water className="shrink-0 p-0.5" />
-              <p className="min-w-0 text-meta text-ink"><b className="block truncate">{name.trim()}</b>{th ? "ส่งแล้วแก้ไม่ได้" : "Final once sent"}</p>
+              <p className="min-w-0 text-meta text-ink"><b className="block truncate">{name.trim()}</b>{
+                editing ? (th ? `หลังบันทึก แก้ได้อีก ${left - 1} ครั้ง` : `${left - 1} changes left after this`)
+                  : making ? (th ? `แก้ได้อีก ${EDITS_MAX} ครั้ง จนกว่าจะปิดส่ง` : `You may change it ${EDITS_MAX} times until entries close`)
+                  : (th ? "ส่งแล้วแก้ไม่ได้" : "Final once sent")}</p>
             </div>
           )}
         </div>
@@ -328,8 +363,9 @@ function Builder({ keeper, th, st, phone, making, floating, onDone, onFloat, flo
       )}
       {/* (after the choices, on every screen: pinned, it lay over the colours; the steps above go anywhere too) */}
       <div className="-mx-4 flex flex-col gap-2 border-t border-line bg-surface/95 px-4 pb-4 pt-2.5">
-        <span className="font-data text-label uppercase tracking-wider text-muted">{th ? "ของที่ต้องใช้ทั้งหมด · มี/ใช้" : "Everything it takes · have/need"}</span>
+        <span className="font-data text-label uppercase tracking-wider text-muted">{editing ? (th ? "ต้องหาเพิ่ม · มี/ใช้" : "Still to pay · have/need") : (th ? "ของที่ต้องใช้ทั้งหมด · มี/ใช้" : "Everything it takes · have/need")}</span>
         <div className="slim-bar flex flex-wrap gap-1.5" aria-label={th ? "ของที่ต้องใช้" : "What it takes"}>
+          {editing && !cost.length && <span className="rounded-full bg-[#4ade80]/15 px-2.5 py-0.5 text-meta font-semibold text-[#86efac]">{th ? "ไม่ต้องใช้ของเพิ่ม" : "Nothing more to pay"}</span>}
           {cost.map(([id, n]) => (
             <span key={id} title={`${th ? ITEMS[id].name.th : ITEMS[id].name.en}${GOODS[id] ? (th ? " · มีขายที่ร้านค้า" : " · sold at the shop") : ""}`}
                   className={`flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 font-data text-meta tabular-nums ${have(id) < n ? "bg-[#f87171]/15 text-[#fca5a5]" : "bg-ink/[0.06] text-ink"}`}>
@@ -351,11 +387,13 @@ function Builder({ keeper, th, st, phone, making, floating, onDone, onFloat, flo
               {th ? `ถัดไป · ${STEPS[step + 1].th}` : `Next · ${STEPS[step + 1].en}`}
             </button>
           ) : (
-            <button type="button" disabled={!open || busy || short || !name.trim() || !!check(d)} onClick={() => void send()}
+            <button type="button" disabled={!open || busy || short || !name.trim() || !!check(d) || same} onClick={() => void send()}
                     className={`pressable min-h-11 flex-1 rounded-xl px-4 text-ui font-semibold disabled:opacity-40 ${sure ? "bg-[#e5cc80] text-bg" : "bg-accent text-bg"}`}>
               {!open ? (th ? "ยังไม่เปิดส่ง" : "Not open yet")
                 : short ? (() => { const [id, n] = cost.find(([i, k]) => have(i) < k)!; const lack = n - have(id); return th ? `ยังขาด ${ITEMS[id].name.th} ${lack}` : `Still need ${lack} ${ITEMS[id].name.en}`; })()
                 : !name.trim() ? (th ? "ตั้งชื่อก่อน" : "Name it first")
+                : same ? (th ? "ยังไม่ได้แก้อะไร" : "Nothing changed yet")
+                : editing ? (sure ? (th ? "ยืนยัน · บันทึกการแก้ไข" : "Confirm · save the change") : (th ? "บันทึกการแก้ไข" : "Save the change"))
                 : sure ? (th ? "ยืนยัน · ใช้ของตามนี้" : "Confirm · uses these")
                 : making ? (th ? "ทำเสร็จ · ส่งประกวด" : "Make it · enter it") : (th ? "ทำกระทงไว้ลอย" : "Make it to float")}
             </button>
@@ -500,6 +538,7 @@ function refusal(why: string, th: boolean, item?: ItemId): string {
     name: ["ตั้งชื่อก่อนนะ", "Give it a name"], design: ["ประกอบไม่ครบ", "Something's missing"],
     own: ["ให้กระทงตัวเองไม่ได้", "Not your own"], spent: ["popoto หมดแล้ว", "No popoto left"],
     away: ["ติดต่อเมืองไม่ได้ ลองอีกครั้ง", "Couldn't reach the town"],
+    edits: [`แก้ไขครบ ${EDITS_MAX} ครั้งแล้ว`, `All ${EDITS_MAX} changes used`],
   };
   const t = T[why] ?? ["ทำไม่ได้ตอนนี้", "Not now"];
   return th ? t[0] : t[1];

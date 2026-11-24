@@ -53,6 +53,10 @@ try {
   let easySql = null;
   try { easySql = readFileSync(easy, "utf8").replace(/\r\n/g, "\n"); } catch (e) { if (e.code !== "ENOENT") throw e; }
   if (easySql) { await db.exec(easySql.replace(/\n/g, "\r\n")); await db.exec(easySql); }
+  // (v341, an entry changed three times: after v339, as live, twice)
+  let editSql = null;
+  try { editSql = readFileSync(resolve(REPO, "supabase/v341_a_krathong_entry_changed_three_times.sql"), "utf8").replace(/\r\n/g, "\n"); } catch (e) { if (e.code !== "ENOENT") throw e; }
+  if (editSql) { await db.exec(editSql.replace(/\n/g, "\r\n")); await db.exec(editSql); }
 
   // ── afterwards ──
   eq(await one("select id, slug, year, jsonb_array_length(windows) w, (select count(*)::int from jsonb_object_keys(rules->'parts')) parts from public.town_festivals"),
@@ -291,6 +295,36 @@ try {
     eq([K.check(badD), (await call(m4, "select public.town_krathong_make(2, $1::jsonb, 'x', $2) r", [JSON.stringify(badD), uuid(961)]))?.why], ["color", "design"], "v339: a colour past the slots refused by both");
     const fourD = { ...dyedD, centre: ["c_feather", 3, 1, 2] };
     eq((await call(m4, "select public.town_krathong_make(2, $1::jsonb, 'x', $2) r", [JSON.stringify(fourD), uuid(962)]))?.why, "design", "v339: a pick of four refused");
+
+    // ── v341: an entry changed three times, paid with only what goes beyond what it has had ──
+    if (editSql) {
+      const editK = (who, d, name, req) => call(who, "select public.town_krathong_edit(2, $1::jsonb, $2, $3) r", [JSON.stringify(d), name, uuid(req)]);
+      eq(await one("select rules->>'edits_max' m from public.town_festivals where id = 2"), { m: "3" }, "v341: three changes, a row");
+      eq(await one("select has_function_privilege('anon', 'public.town_krathong_edit(integer, jsonb, text, uuid)', 'execute') a"), { a: false }, "v341: anon may not change one");
+      eq((await editK(m1, shop, "ของคนอื่น", 970))?.why, "none", "v341: no krathong, nothing to change");
+      const before = await bagOf(m2);
+      // 1: colours and the name only: nothing to pay
+      const recoloured = { ...shop, base: ["b_bread", 2, 5], ring: ["r_leaf", 0, 9] };
+      r = await editK(m2, recoloured, "กระทงสีใหม่", 971);
+      eq([r?.ok, r?.krathong?.name, r?.krathong?.design, r?.krathong?.edits, r?.krathong?.paid], [true, "กระทงสีใหม่", recoloured, 1, { dough: 2, bananaLeaf: 1, oil: 1, egg: 2 }], "v341: recoloured and renamed, nothing paid");
+      eq(JSON.stringify(await bagOf(m2)), JSON.stringify(before), "v341: the bag as it was");
+      // 2: a feather trim paid with an egg: only that egg
+      const trimmed = { ...recoloured, trims: [["t_feather", 2]] };
+      eq((await editK(m2, trimmed, "กระทงขนนก", 972))?.why, "short", "v341: an egg short, refused");
+      await fill(m2, [["egg", 1]]);
+      r = await editK(m2, trimmed, "กระทงขนนก", 973);
+      eq([r?.ok, r?.krathong?.edits, r?.krathong?.paid?.egg, held(await bagOf(m2), "egg")], [true, 2, 3, 0], "v341: the trim paid with one egg, the rest from what it had");
+      // 3: back to the shop's krathong: what it had pays for it
+      r = await editK(m2, shop, "กระทงร้านค้า", 974);
+      eq([r?.ok, r?.krathong?.edits, r?.krathong?.design, r?.krathong?.paid?.egg], [true, 3, shop, 3], "v341: changed back for nothing, nothing given back");
+      eq((await editK(m2, shop, "กระทงร้านค้า", 974))?.repeated, true, "v341: the same send twice is one change");
+      eq((await editK(m2, recoloured, "อีกครั้ง", 975))?.why, "edits", "v341: a fourth change refused");
+      eq(await one("select edits, name from public.town_krathongs where festival = 2 and member_id = $1", [m2]), { edits: 3, name: "กระทงร้านค้า" }, "v341: kept as the third change left it");
+      eq((await call(m1, "select public.town_krathong_river(2) r"))?.river?.find((x) => x.name === "กระทงร้านค้า")?.design, shop, "v341: the river shows it as changed");
+      // once entries close, no change
+      await db.query("update public.town_festivals set windows = (select jsonb_agg(case when w->>'kind' = 'make' then jsonb_set(w, '{until}', to_jsonb((now() - interval '1 minute')::text)) else w end) from jsonb_array_elements(windows) w) where id = 2");
+      eq((await editK(m3, dyedD, "หลังปิดส่ง", 976))?.why, "closed", "v341: entries closed, no change");
+    }
   }
 } catch (e) {
   failed++;

@@ -323,6 +323,8 @@ export interface Keeper {
   /** (v336) A krathong paid once from the bag (lib/town/krathong); final. */
   krathongMake(festival: number, design: Design, name: string, request: string): Promise<KrathongDid<{ krathong: KrathongView }>>;
   krathongRename(festival: number, name: string): Promise<KrathongDid<{ krathong: KrathongView }>>;
+  /** (v341) My entry changed, design, colours and name, paid with only what goes beyond what it has had. */
+  krathongEdit?(festival: number, design: Design, name: string, request: string): Promise<KrathongDid<{ krathong: KrathongView }>>;
   /** (v336) A popoto given to an entry, or taken back. */
   krathongVote(entry: number): Promise<KrathongDid<{ voted: number[] }>>;
   /** (v336) My krathong floated, once, with a wish only I read. */
@@ -1856,6 +1858,7 @@ export class DbKeeper implements Keeper {
   }
   krathongMake(festival: number, design: Design, name: string, request: string) { return this.krathongAsk<{ krathong: KrathongView }>("town_krathong_make", { p_festival: festival, p_design: design, p_name: name, p_request: request }); }
   krathongRename(festival: number, name: string) { return this.krathongAsk<{ krathong: KrathongView }>("town_krathong_rename", { p_festival: festival, p_name: name }); }
+  krathongEdit(festival: number, design: Design, name: string, request: string) { return this.krathongAsk<{ krathong: KrathongView }>("town_krathong_edit", { p_festival: festival, p_design: design, p_name: name, p_request: request }); }
   krathongVote(entry: number) { return this.krathongAsk<{ voted: number[] }>("town_krathong_vote", { p_entry: entry }); }
   async krathongFloat(festival: number, wish: string, at?: { x: number; y: number } | null) {
     const did = await this.krathongAsk<{ krathong: KrathongView }>("town_krathong_float", { p_festival: festival, p_wish: wish, p_x: at?.x ?? null, p_y: at?.y ?? null });

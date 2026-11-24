@@ -205,6 +205,7 @@ class TrialKeeper implements Keeper {
   async krathong() { return this.trial.festival.read(); }
   async krathongMake(_festival: number, design: Design, name: string) { return this.trial.festival.make(design, name); }
   async krathongRename(_festival: number, name: string) { return this.trial.festival.rename(name); }
+  async krathongEdit(_festival: number, design: Design, name: string) { return this.trial.festival.edit(design, name); }
   async krathongVote(entry: number) { return this.trial.festival.vote(entry); }
   async krathongFloat(_festival: number, wish: string, at?: { x: number; y: number } | null) { return this.trial.festival.float(wish, at); }
   async krathongRiver() { return this.trial.festival.river(); }

@@ -268,7 +268,20 @@ export function catalogJson(): Record<string, { slot: Slot; pay: Array<[string, 
 
 // ── what the stall is told (v336's public.town_krathong and its siblings; the trial keeps the same shapes) ──
 
-export interface KrathongView { id: number; name: string; design: Design; entered: boolean; made: number; floated: number | null }
+export interface KrathongView {
+  id: number; name: string; design: Design; entered: boolean; made: number; floated: number | null;
+  /** (v341) How many times it has been changed since it was made, and everything paid for it so far. */
+  edits?: number; paid?: Record<string, number>;
+}
+
+/**
+ * (v341) An entry may be changed whole, design, colours and name, EDITS_MAX times while entries are open (the owner, 2026-11-24: "ช่วยทำให้คนส่งประกวดกระทงสามารถแก้ไข design ได้สูงสุด 3 ครั้ง เปลี่ยนได้หมด ดีไซน์ ชื่อ สี หาของใหม่ เพิ่มจากที่เคยส่งไปแล้วก็พอ"):
+ * paid for with only what goes beyond everything already paid for it.
+ */
+export const EDITS_MAX = 3;
+export function extraCost(d: Design, paid: Record<string, number> | undefined): Array<[ItemId, number]> {
+  return [...costOf(d)].map(([id, n]) => [id, n - (paid?.[id] ?? 0)] as [ItemId, number]).filter(([, n]) => n > 0);
+}
 export interface Maker { name: string | null; character: number | null }
 export interface GalleryEntry extends KrathongView { mine: boolean; fc: boolean; votes?: number; maker?: Maker }
 /** (`votes`: the popoto counts are an admin's only, v339; a member is told the places, not the counts) */
@@ -304,5 +317,5 @@ export interface DrawRow {
   verified: boolean; fc: boolean; made: number; floated: number; inTime: boolean;
 }
 export interface DrawList { until: number | null; list: DrawRow[] }
-export type KrathongWhy = "none" | "closed" | "made" | "name" | "design" | "short" | "own" | "spent" | "denied" | "away";
+export type KrathongWhy = "none" | "closed" | "made" | "name" | "design" | "short" | "own" | "spent" | "denied" | "away" | "edits";
 export type KrathongDid<T = object> = ({ ok: true; repeated?: boolean } & T) | { ok: false; why: KrathongWhy; item?: string; need?: number };

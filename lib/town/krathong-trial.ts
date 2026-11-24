@@ -3,7 +3,7 @@ import { held, take } from "./trade";
 import type { ItemId } from "./items";
 import { LOY_KRATHONG_2026, isOpen, windowOf, type Festival } from "./festivals";
 import {
-  MAX_TRIMS, PART, PARTS, VOTES_EACH, awardsOf, check, cleanName, cleanWish, costOf, partsOf,
+  EDITS_MAX, MAX_TRIMS, PART, PARTS, VOTES_EACH, awardsOf, check, cleanName, cleanWish, costOf, extraCost, partsOf,
   type AwardView, type Design, type DrawList, type KrathongDid, type KrathongState, type KrathongView, type RiverKrathong,
 } from "./krathong";
 
@@ -14,6 +14,7 @@ import {
  */
 
 interface Row extends KrathongView { member: string; makerName: string; character: number | null; fc: boolean; wish: string | null; fx?: number | null; fy?: number | null }
+const costMap = (d: Design) => Object.fromEntries(costOf(d)) as Record<string, number>;
 export interface TrialFestivalState { rows: Row[]; votes: Array<[number, string]>; judge: number | null; settled: boolean; awards: AwardView[]; next: number }
 export interface TrialFestivalStore { get(): TrialFestivalState | null; set(s: TrialFestivalState): void; now(): number; me: string; purse(): Purse; save(p: Purse): void }
 
@@ -119,8 +120,27 @@ export class KrathongTrial {
     for (const [id, n] of costOf(design)) bag = take(bag, id as ItemId, n);
     purse = { ...purse, bag };
     this.store.save(purse);
-    const row: Row = { id: s.next, member: me, makerName: "คุณ", character: null, fc: true, wish: null, name: nm, design, entered: entering, made: now, floated: null };
+    const row: Row = { id: s.next, member: me, makerName: "คุณ", character: null, fc: true, wish: null, name: nm, design, entered: entering, made: now, floated: null, edits: 0, paid: costMap(design) };
     this.store.set({ ...s, rows: [...s.rows, row], next: s.next + 1 });
+    return { ok: true, krathong: view(row) };
+  }
+  /** (v341) My entry changed whole while entries are open, EDITS_MAX times, paid with only what goes beyond what it has had. */
+  edit(design: Design, name: string): KrathongDid<{ krathong: KrathongView }> {
+    const s = this.state(), f = this.festival(), row = s.rows.find((r) => r.member === this.store.me);
+    if (!row) return { ok: false, why: "none" };
+    if (!isOpen(windowOf(f, "make"), this.store.now()) || !row.entered) return { ok: false, why: "closed" };
+    if ((row.edits ?? 0) >= EDITS_MAX) return { ok: false, why: "edits" };
+    const nm = cleanName(name);
+    if (!nm) return { ok: false, why: "name" };
+    if (check(design)) return { ok: false, why: "design" };
+    const paid = row.paid ?? costMap(row.design), extra = extraCost(design, paid);
+    let purse = this.store.purse(), bag = purse.bag;
+    for (const [id, n] of extra) if (held(bag, id) < n) return { ok: false, why: "short", item: id, need: n };
+    for (const [id, n] of extra) bag = take(bag, id, n);
+    purse = { ...purse, bag };
+    this.store.save(purse);
+    Object.assign(row, { design, name: nm, edits: (row.edits ?? 0) + 1, paid: { ...paid, ...Object.fromEntries(extra.map(([id, n]) => [id, (paid[id] ?? 0) + n])) } });
+    this.store.set(s);
     return { ok: true, krathong: view(row) };
   }
   rename(name: string): KrathongDid<{ krathong: KrathongView }> {
@@ -178,7 +198,7 @@ export class KrathongTrial {
   }
 }
 
-const view = (r: Row): KrathongView => ({ id: r.id, name: r.name, design: r.design, entered: r.entered, made: r.made, floated: r.floated });
+const view = (r: Row): KrathongView => ({ id: r.id, name: r.name, design: r.design, entered: r.entered, made: r.made, floated: r.floated, edits: r.edits ?? 0, ...(r.paid ? { paid: r.paid } : {}) });
 
 /**
  * Every part's things by every way it may be paid, enough for any krathong (a part's most of a thing times the seven
