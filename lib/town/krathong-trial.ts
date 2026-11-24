@@ -54,9 +54,12 @@ function pretendDesign(i: number): Design {
 
 function fresh(now: number, f: Festival): TrialFestivalState {
   const made = Date.parse(windowOf(f, "make")!.from) + 30 * 60_000;
-  const rows: Row[] = PRETEND.map((name, i) => ({
+  // (the dev room's `&lkCrowd=40`: so many more pretend makers, to see the canal on a busy float night)
+  const crowd = (() => { try { return Math.max(0, Math.min(80, Number(new URLSearchParams(window.location.search).get("lkCrowd")) || 0)); } catch { return 0; } })();
+  const names = [...PRETEND, ...Array.from({ length: crowd }, (_, i) => `ผู้เล่น ${i + 1}`)];
+  const rows: Row[] = names.map((name, i) => ({
     id: i + 1, member: `pretend-${i}`, makerName: name, character: null, fc: i % 3 !== 2, wish: null,
-    name: ["ดวงจันทร์ลอยน้ำ", "แสงเทียนกลางบึง", "บัวทองยามค่ำ", "ผีเสื้อกลางสายน้ำ", "หิ่งห้อยพาฝัน", "ผลึกจันทรา", "นกไม้ปลายฝัน", "ขนมปังลอยฟ้า"][i],
+    name: ["ดวงจันทร์ลอยน้ำ", "แสงเทียนกลางบึง", "บัวทองยามค่ำ", "ผีเสื้อกลางสายน้ำ", "หิ่งห้อยพาฝัน", "ผลึกจันทรา", "นกไม้ปลายฝัน", "ขนมปังลอยฟ้า"][i] ?? `กระทงที่ ${i + 1}`,
     design: pretendDesign(i), entered: true, made: made + i * 9 * 60_000, floated: null,
   }));
   // pretend popoto: a few each, never their own

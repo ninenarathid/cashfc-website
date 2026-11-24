@@ -805,6 +805,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const hallBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
   /** The floated krathongs where they were last drawn (a tap on one says whose it is), and the one tapped, for six seconds. */
   const riverHits = useRef<Array<{ id: number; x0: number; y0: number; x1: number; y1: number }>>([]);
+  // (Loy Krathong's float nights: what is drawn after the dark, its light added: components/town/festival-map's `after`)
+  const festAfter = useRef<Array<(ctx: CanvasRenderingContext2D) => void>>([]);
   const riverPicked = useRef<{ id: number; until: number } | null>(null);
   /** Where the trade board stands on the screen (the members' notices, lib/town/world's TRADE_BOARD). */
   const tradeBoardBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
@@ -2445,7 +2447,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
 
   function drawDaylight(ctx: CanvasRenderingContext2D, cw: number, ch: number, now: number) {
     // (the lights of the gems in the tools held this frame: taken up here, whatever the place)
-    const held = toolLights.current, auraLit = auraDark.current, platesLit = auraPlates.current;
+    const held = toolLights.current, auraLit = auraDark.current, platesLit = auraPlates.current, festLit = festAfter.current;
+    festAfter.current = [];
     toolLights.current = [];
     auraDark.current = [];
     auraPlates.current = [];
@@ -2478,6 +2481,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     drawCampLight(ctx, day.lamps, now);
     drawLampLight(ctx, day.lamps, now);
     drawDecorLights(ctx, day.lamps, now);
+    // (Loy Krathong's float nights: the candles' reflections on the water and the fireflies over it, their light added)
+    if (festLit.length && day.lamps >= 0.02) {
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      for (const f of festLit) f(ctx);
+      ctx.restore();
+    }
     // a gem in a tool shines in the dark, in its own colour: a small light about the tool's head
     if (held.length && day.lamps >= 0.02) {
       ctx.save();
@@ -2773,6 +2783,17 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         // (the city's water, live, under the ground, which leaves it out: lib/town/city-water; the owner, 2026-11-23,
         // "อยากทำกราฟฟิกใหม่ ให้มันดูเหมือนน้ำจริงๆเลย ไม่ใช่ jpg")
         if (CITY) drawCityWater(ctx, { x: v.cx - cw / 2 / v.s, y: v.cy - ch / 2 / v.s }, v.s, cw, ch, reducedRef.current ? 0 : Date.now() / 1000);
+        // (Loy Krathong's float nights: the water a deep night blue under the town's own night, so the candles on it shine;
+        // the ground, drawn next, keeps the city's night as it is. the owner, 2026-11-24: "ช่วยทำให้บรรยากาศสวย เป็นที่น่าจดจำ vibe ดีมากขึ้นได้ไหม")
+        const lk = fest.live.current.f, lampsNow = CITY ? skyNow().lamps : 0;
+        if (lk && lampsNow > 0.05 && festivalOpen(festivalWindow(lk, "float"), Date.now())) {
+          const q = Math.min(1, lampsNow), mix = (c: number) => Math.round(255 - (255 - c) * q);
+          ctx.save();
+          ctx.globalCompositeOperation = "multiply";
+          ctx.fillStyle = `rgb(${mix(58)},${mix(78)},${mix(132)})`;
+          ctx.fillRect(0, 0, cw, ch);
+          ctx.restore();
+        }
         scenery.drawGround(ctx, v, cw, ch, dpr);
       }
       // Flowers lie flat: under whoever walks over them.
@@ -3586,7 +3607,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         push: (depth, draw) => things.push({ depth, draw }), sign: (draw) => signs.push(draw),
         label: (text, x, y) => label(ctx, text, x, y, "#e5cc80", "rgba(15,19,25,0.82)", null),
         note: (text, x, y) => noteBubble(ctx, text, x, y), top: (draw) => tops.push(draw),
-        light: (x, y, reach, rgb, strong = 1, flat = 1) => { if (toolLights.current.length < 120) toolLights.current.push({ x, y, rgb, reach, flat, strong }); } };
+        light: (x, y, reach, rgb, strong = 1, flat = 1) => { if (toolLights.current.length < 220) toolLights.current.push({ x, y, rgb, reach, flat, strong }); },
+        after: (draw) => { if (festAfter.current.length < 300) festAfter.current.push(draw); } };
       if (stage === "on" || stage === "coming") stallBox.current = drawFestivalStall(fd);
       if (fl.awards?.length && festivalOpen(festivalWindow(lk, "results"), wall)) hallBox.current = drawFestivalHall(fd, fl.awards);
       if (fl.river.length) drawKrathongRiver(fd, fl.river);

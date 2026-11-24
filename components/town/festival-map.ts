@@ -22,7 +22,7 @@ import { ed } from "@/lib/town/ed";
  */
 interface Water { startX: number | null; startY: number; rest: [number, number]; mid: number; half: number; least: number }
 const PLACES: { stall: Vec; hall: Vec; bank: [number, number]; water: Water } = CITY
-  ? { stall: { x: 41.8, y: 81.2 }, hall: { x: 61.6, y: 79.2 }, bank: [28, 73], water: { startX: 25.3, startY: 71.4, rest: [62.5, 73.5], mid: 23.5, half: 2.5, least: -1e9 } }
+  ? { stall: { x: 41.8, y: 81.2 }, hall: { x: 61.6, y: 79.2 }, bank: [28, 73], water: { startX: 25.3, startY: 71.4, rest: [54, 93], mid: 23.5, half: 2.5, least: -1e9 } }
   : { stall: { x: 34.4, y: 40.2 }, hall: { x: 42.6, y: 46.8 }, bank: [4, 37], water: { startX: null, startY: 37.6, rest: [53.6, 58.2], mid: 1.5, half: 2.1, least: 0.6 } };
 /** Ground points (feet) of the stall and the hall. */
 export const STALL_AT: Vec = PLACES.stall;
@@ -56,7 +56,9 @@ export function riverPos(k: RiverKrathong, now: number): Vec {
   const x = W.startX == null ? restX : W.startX + (restX - W.startX) * ease;
   // a slow sway along its way, and at rest a little circling in the eddy
   const t = now / 1000, sway = Math.sin(t / 3.2 + k.id) * 0.18 * (1 - f) + Math.sin(t / 7 + k.id * 1.7) * 0.12 * f;
-  return { x: Math.max(W.least, x + sway), y: y + Math.cos(t / 9 + k.id) * 0.1 * f };
+  // (at rest it wanders a little up and down the water, each to its own slow beat: the owner, 2026-11-24: "ช่วยทำให้บรรยากาศสวย เป็นที่น่าจดจำ vibe ดีมากขึ้นได้ไหม")
+  const wander = Math.sin(t / 47 + k.id * 2.3) * 1.1 * f;
+  return { x: Math.max(W.least, x + sway), y: y + Math.cos(t / 9 + k.id) * 0.1 * f + wander };
 }
 
 export interface FestivalDraw {
@@ -75,6 +77,8 @@ export interface FestivalDraw {
   top?: (draw: () => void) => void;
   /** A light laid after the night's dark (the town's own lights: a candle shines through it). */
   light: (x: number, y: number, reach: number, rgb: string, strong?: number, flat?: number) => void;
+  /** Drawn after the night's dark, its light added: a candle's reflection on the water, the fireflies over it. */
+  after?: (draw: (ctx: CanvasRenderingContext2D) => void) => void;
   th: boolean;
   /** The phases open now, said short, for the stall's sign ("ทำกระทง", "โหวต · ลอยกระทง"). */
   phase?: string;
@@ -162,22 +166,66 @@ function ripple(ctx: CanvasRenderingContext2D, d: FestivalDraw, cx: number, cy: 
   ctx.restore();
 }
 
+/**
+ * A candle's reflection on the night water (the owner, 2026-11-24: "ช่วยทำให้บรรยากาศสวย เป็นที่น่าจดจำ vibe ดีมากขึ้นได้ไหม"): a column of short warm dashes under it, each wavering on its
+ * own beat and fainter the further down, broken where the water moves, as a flame's light lies on a river; on the
+ * map's pixel grid.
+ */
+function reflection(ctx: CanvasRenderingContext2D, x: number, y: number, s: number, now: number, id: number, strong: number, dashes = 8) {
+  const u = Math.max(1, Math.round(s)), snap = (n: number) => Math.round(n / u) * u;
+  for (let i = 0; i < dashes; i++) {
+    const beat = now / (420 + i * 90) + id * 1.7 + i * 2.3, a = strong * (1 - i / dashes) * (0.6 + 0.4 * Math.sin(beat));
+    if (a < 0.06) continue;
+    const half = Math.max(1, Math.round((3.6 - i * 0.3 + Math.sin(beat * 1.3)) * u)), dy = snap(y + i * 2.4 * u), dx = snap(x + Math.sin(beat * 0.7) * 1.6 * u);
+    // (orange, so that on the night's blue the light it adds is warm, not white)
+    ctx.fillStyle = `rgba(255,${i < 2 ? 190 : 150},${i < 2 ? 90 : 50},${Math.min(1, a).toFixed(3)})`;
+    ctx.fillRect(dx - half, dy, half * 2, u);
+  }
+}
+
+/** A firefly over the night water: a soft yellow-green point that drifts and blinks, now and then near a krathong. */
+function firefly(ctx: CanvasRenderingContext2D, x: number, y: number, s: number, now: number, id: number) {
+  const t = now / 1000, blink = Math.max(0, Math.sin(t * 1.6 + id * 3.1)) ** 2;
+  if (blink < 0.05) return;
+  const u = Math.max(1, Math.round(s)), fx = Math.round((x + Math.sin(t / 2.1 + id) * 26 * s) / u) * u, fy = Math.round((y - 18 * s + Math.cos(t / 1.7 + id * 1.3) * 12 * s) / u) * u;
+  const g = ctx.createRadialGradient(fx, fy, 0, fx, fy, 7 * s);
+  g.addColorStop(0, `rgba(214,255,140,${(0.5 * blink).toFixed(3)})`);
+  g.addColorStop(1, "rgba(214,255,140,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(fx - 7 * s, fy - 7 * s, 14 * s, 14 * s);
+  ctx.fillStyle = `rgba(246,255,200,${(0.9 * blink).toFixed(3)})`;
+  ctx.fillRect(fx, fy, u, u);
+}
+
 export function drawRiver(d: FestivalDraw, river: RiverKrathong[]) {
   if (!river.length || !krathongImage()) return;
   const k = MAP_SCALE * d.s, [w, h] = CANVAS, frame = Math.floor(d.now / 180);
-  for (const kr of river) {
-    const p = floatPos(kr, d.now), at = d.project(p), set = kr.x != null && kr.y != null;
+  // (where many float close together their light is shared out, so a crowd is many small flames, not one white glare)
+  const placed = river.map((kr) => { const p = floatPos(kr, d.now); return { kr, p, at: d.project(p) }; }).filter((x) => d.onScreen(x.at));
+  const near = (i: number) => { let n = 0; const a = placed[i].at; for (let j = 0; j < placed.length; j++) if (j !== i && Math.abs(placed[j].at.x - a.x) < 46 * d.s && Math.abs(placed[j].at.y - a.y) < 30 * d.s) n++; return n; };
+  for (let i = 0; i < placed.length; i++) {
+    const { kr, p, at } = placed[i], set = kr.x != null && kr.y != null;
     // (the city's water is sunk: only over its water, each at its water's place back to front, the near bank before it,
     // as Town.tsx's cityRiver; one set down by its maker is told by the tile it was set on, so it never blinks at an edge)
     const tile = set ? { x: kr.x!, y: kr.y! } : p;
-    if (!d.onScreen(at) || (CITY && ed.t2Tile(Math.floor(tile.x), Math.floor(tile.y)) !== "~")) continue;
+    if (CITY && ed.t2Tile(Math.floor(tile.x), Math.floor(tile.y)) !== "~") continue;
     const bob = Math.sin(d.now / 700 + kr.id) * 1.2 * d.s, x0 = at.x - (w / 2) * k, y0 = at.y - (h - 6) * k + bob;
     const [fx, fy] = FLAME[kr.design.light[0]] ?? [32, 8];
-    // the candle shines through the night's dark, and lies on the water under it
+    // the candle shines through the night's dark, and lies on the water under it: a small flame's light, a warm pool,
+    // its reflection down the water and, by some, a firefly
     if (d.night) {
-      const flicker = 0.85 + 0.15 * Math.sin(d.now / 130 + kr.id * 2.1);
-      d.light(x0 + fx * k, y0 + fy * k, 22 * d.s, "255,196,120", flicker);
-      d.light(at.x, at.y + 3 * d.s, 30 * d.s, "255,170,90", 0.55 * flicker, 0.38);
+      const flicker = 0.85 + 0.15 * Math.sin(d.now / 130 + kr.id * 2.1), share = 1 / Math.sqrt(1 + near(i));
+      // (the town's lights are laid at a third of their strength: a candle's core, its halo and its pool told so)
+      d.light(x0 + fx * k, y0 + fy * k, 5 * d.s, "255,226,160", 2.6 * flicker * Math.max(0.6, share));
+      d.light(x0 + fx * k, y0 + fy * k, 17 * d.s, "255,188,110", 1.9 * flicker * share);
+      d.light(at.x, at.y + 3 * d.s, 30 * d.s, "255,160,80", 1.1 * flicker * share, 0.38);
+      // (the reflection only as far as the water runs on under it: never over the near bank, its wall or its lamps)
+      const wet = (n: number) => !CITY || ed.t2Tile(Math.floor(tile.x + n), Math.floor(tile.y + n)) === "~";
+      const dashes = !wet(0.8) ? 0 : !wet(1.6) ? 3 : 8;
+      d.after?.((ctx) => {
+        if (dashes) reflection(ctx, x0 + fx * k, at.y + 4 * d.s, d.s, d.now, kr.id, flicker * Math.max(0.55, share), dashes);
+        if (kr.id % 3 === 0) firefly(ctx, at.x, at.y, d.s, d.now, kr.id);
+      });
     }
     d.hits?.push({ id: kr.id, x0: x0 - 4 * d.s, y0: y0 - 4 * d.s, x1: x0 + w * k + 4 * d.s, y1: y0 + h * k + 4 * d.s });
     d.push(CITY ? Math.floor(tile.x) + Math.floor(tile.y) + 0.977 : p.x + p.y, () => {
@@ -186,12 +234,14 @@ export function drawRiver(d: FestivalDraw, river: RiverKrathong[]) {
       // the far half behind it, the near half over its base, so it sits in the water)
       const waterY = at.y + 3 * k + bob * 0.5;
       ripple(ctx, d, at.x, waterY, 23 * k, kr.id, true);
-      // its reflection: a faint warm streak on the water below it
-      ctx.save();
-      ctx.globalAlpha = d.night ? 0.3 : 0.12;
-      ctx.fillStyle = "#ffd27a";
-      ctx.fillRect(Math.round(x0 + fx * k - 1.5 * d.s), Math.round(at.y + 3 * d.s), Math.round(3 * d.s), Math.round(6 * d.s));
-      ctx.restore();
+      // its reflection by day: a faint warm streak on the water below it (by night, laid after the dark: `reflection`)
+      if (!d.night) {
+        ctx.save();
+        ctx.globalAlpha = 0.12;
+        ctx.fillStyle = "#ffd27a";
+        ctx.fillRect(Math.round(x0 + fx * k - 1.5 * d.s), Math.round(at.y + 3 * d.s), Math.round(3 * d.s), Math.round(6 * d.s));
+        ctx.restore();
+      }
       drawKrathong(ctx, kr.design, x0, y0, k, frame + kr.id);
       ripple(ctx, d, at.x, waterY, 23 * k, kr.id, false);
       // (a tap says whose it is, the owner, 2026-11-24: "สามารถคลิ๊กดูได้ว่าของใคร"; mine says so the whole time)
