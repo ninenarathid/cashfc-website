@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { ITEMS, type ItemId } from "./items";
-import { COLORS, COLOR_SLOTS, KT_CODE, PARTS, PART, START, awardsOf, bestPay, catalogJson, check, cleanName, colorOf, costOf, designCode, designFromCode, familiesOf, partsOf, shortOf, shuffledFor, type Design, type Pick } from "./krathong";
+import { COLORS, COLOR_SLOTS, KT_CODE, PARTS, PART, START, awardsOf, bestPay, catalogJson, check, cleanName, colorOf, costOf, designCode, designFromCode, familiesOf, partsOf, shortOf, shuffledFor, type AwardView, type Design, type Pick } from "./krathong";
+import { hallPedestals } from "@/components/town/festival-map";
 import { LOY_KRATHONG_2026 as LK, calendarOrder, isOpen, nextWindow, stageOf, untilText, whenText, windowOf } from "./festivals";
 
 describe("the krathong's parts", () => {
@@ -75,6 +76,17 @@ describe("the awards", () => {
   });
   it("gives nothing for no popoto, and ignores a judge's pick that is no entry", () => {
     expect(awardsOf([e(1, 0)], 9)).toEqual([]);
+  });
+  it("stands the hall's pedestals in place order, a tie taking turns on one, none left empty", () => {
+    const aw = (entry: number, place: number, kind: "popular" | "judge" = "popular") => ({ entry, place, kind }) as unknown as AwardView;
+    const ids = (awards: AwardView[]) => hallPedestals(awards).map((g) => g.map((a) => a.entry));
+    // (2026: 1, 2, then three tied for third)
+    expect(ids([aw(9, 3), aw(4, 3), aw(1, 1), aw(2, 2), aw(7, 3)])).toEqual([[1], [2], [4, 7, 9]]);
+    expect(ids([aw(1, 1), aw(2, 1), aw(3, 3)])).toEqual([[1], [2], [3]]);
+    expect(ids([1, 2, 3, 4, 5].map((n) => aw(n, 1)))).toEqual([[1, 2], [3], [4, 5]]);
+    expect(ids([aw(1, 1), aw(2, 2), aw(3, 2), aw(5, 1, "judge")])).toEqual([[1], [2], [3]]);
+    expect(ids([aw(1, 1)])).toEqual([[1]]);
+    expect(ids([])).toEqual([]);
   });
 });
 

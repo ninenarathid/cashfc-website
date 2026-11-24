@@ -188,11 +188,45 @@ export function drawStall(d: FestivalDraw): { x0: number; y0: number; x1: number
   return { x0: feet.x - (w / 2) * d.s, y0: feet.y - h * d.s, x1: feet.x + (w / 2) * d.s, y1: feet.y + 4 * d.s };
 }
 
-/** The hall: its stage, the year's top krathongs on its pedestals, their makers' names above. */
+/**
+ * What each of the hall's pedestals shows, in place order: one krathong, or the krathongs that tied for its place,
+ * taking turns (2026-11-25, three tied for third and the hall had room for one of them; the owner, "แก้หอเกียรติยศให้
+ * สลับโชว์เลย"). While fewer places than pedestals are left, the largest group is split, so no pedestal stands empty
+ * while another takes turns (1, 1, 3 stands on three pedestals as before).
+ */
+export function hallPedestals(awards: AwardView[], n = 3): AwardView[][] {
+  const top = awards.filter((a) => a.kind === "popular").sort((a, b) => a.place - b.place || a.entry - b.entry);
+  const groups: AwardView[][] = [];
+  for (const a of top) {
+    const g = groups[groups.length - 1];
+    if (g && g[0].place === a.place) g.push(a);
+    else groups.push([a]);
+  }
+  groups.splice(n);
+  while (groups.length < n) {
+    let i = -1;
+    groups.forEach((g, j) => { if (g.length > 1 && (i < 0 || g.length > groups[i].length)) i = j; });
+    if (i < 0) break;
+    const g = groups[i], half = Math.ceil(g.length / 2);
+    groups.splice(i, 1, g.slice(0, half), g.slice(half));
+  }
+  return groups;
+}
+/** How long a krathong that shares its pedestal stands before the next one, and its fade out and in. */
+const HALL_TURN_MS = 4000, HALL_FADE_MS = 320;
+
+/** The hall: its stage, the year's top krathongs on its pedestals (tied ones taking turns), their makers' names. */
 export function drawHall(d: FestivalDraw, awards: AwardView[]): { x0: number; y0: number; x1: number; y1: number } | null {
   const feet = d.project(HALL_AT);
   if (!d.onScreen(feet) || !krathongImage()) return null;
-  const top = awards.filter((a) => a.kind === "popular").sort((a, b) => a.place - b.place).slice(0, 3);
+  // (a pedestal shared by a tie shows each in turn, faded out and in; the pedestals' turns staggered)
+  const peds = hallPedestals(awards);
+  const top = peds.map((g, i) => {
+    if (g.length === 1) return { a: g[0], alpha: 1 };
+    const t = d.now + i * 1300, at = t % HALL_TURN_MS;
+    return { a: g[Math.floor(t / HALL_TURN_MS) % g.length], alpha: Math.max(0, Math.min(1, at / HALL_FADE_MS, (HALL_TURN_MS - at) / HALL_FADE_MS)) };
+  });
+  const plate = (a: AwardView) => `${a.place}. ${a.maker?.name ?? ""}`;
   const k = MAP_SCALE * d.s;
   d.push(HALL_AT.x + HALL_AT.y, () => {
     const box = drawProp(d.ctx, "hall", feet.x, feet.y, d.s);
@@ -205,16 +239,35 @@ export function drawHall(d: FestivalDraw, awards: AwardView[]): { x0: number; y0
     }
     // (the first place in the middle, the next on its left and right: [left, middle, right] are the hall's pedestals)
     const order = [1, 0, 2];
-    top.forEach((a, i) => {
+    // (the left and right names sit under the stage; when the longest of each would touch at this zoom, the right one a
+    // row lower, judged by the longest so a name taking its turn never makes it jump)
+    const longest = (g: AwardView[] | undefined) => {
+      d.ctx.save();
+      d.ctx.font = "600 12px sans-serif";
+      const w = Math.max(0, ...(g ?? []).map((a) => d.ctx.measureText(plate(a)).width + 14));
+      d.ctx.restore();
+      return w;
+    };
+    const gap = slots[2] && slots[0] ? (slots[2][0] - slots[0][0]) * d.s : Infinity;
+    const lower = (longest(peds[1]) + longest(peds[2])) / 2 + 8 > gap ? 22 : 0;
+    top.forEach(({ a, alpha }, i) => {
       const at = slots[order[i]];
-      if (!at) return;
+      if (!at || alpha <= 0) return;
       const x = box.x0 + at[0] * d.s, y = box.y0 + at[1] * d.s, [w, h] = CANVAS;
       const kx = x - (w / 2) * k * 0.75, ky = y - h * k * 0.75, [fx, fy] = FLAME[a.krathong.design.light[0]] ?? [32, 8];
+      d.ctx.save();
+      d.ctx.globalAlpha *= alpha;
       drawKrathong(d.ctx, a.krathong.design, kx, ky, k * 0.75, Math.floor(d.now / 180) % 3);
-      if (d.night) d.light(kx + fx * k * 0.75, ky + fy * k * 0.75, 18 * d.s, "255,196,120", 0.9);
+      d.ctx.restore();
+      if (d.night) d.light(kx + fx * k * 0.75, ky + fy * k * 0.75, 18 * d.s, "255,196,120", 0.9 * alpha);
       if (a.maker?.name) {
-        const name = a.maker.name, above = order[i] === 1;
-        d.sign(() => d.label(`${a.place}. ${name}`, x, above ? y - (h * 0.75 + 6) * k : box.y1 + 10 * d.s));
+        const above = order[i] === 1, ly = above ? y - (h * 0.75 + 6) * k : box.y1 + 10 * d.s + (order[i] === 2 ? lower : 0);
+        d.sign(() => {
+          d.ctx.save();
+          d.ctx.globalAlpha *= alpha;
+          d.label(plate(a), x, ly);
+          d.ctx.restore();
+        });
       }
     });
     d.sign(() => d.label(d.th ? "กระทงดีเด่นประจำปี" : "Krathongs of the year", (box.x0 + box.x1) / 2, box.y0 - 12 * d.s));
