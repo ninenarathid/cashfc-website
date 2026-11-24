@@ -75175,7 +75175,7 @@
     "cleared": true,
     "job_kills": {
      "Dancer": {
-      "kills": 9,
+      "kills": 11,
       "best": 47
      }
     }
@@ -78753,13 +78753,25 @@
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
+     "Ninja": {
+      "kills": 2,
+      "best": 59
+     },
+     "Summoner": {
+      "kills": 3,
+      "best": 78
+     },
+     "Dancer": {
+      "kills": 1,
+      "best": 83
+     },
      "Bard": {
       "kills": 7,
       "best": 82
      },
-     "Ninja": {
+     "RedMage": {
       "kills": 1,
-      "best": 19
+      "best": 52
      },
      "Astrologian": {
       "kills": 37,
@@ -87847,8 +87859,8 @@
       "best": 11
      },
      "Paladin": {
-      "kills": 1,
-      "best": 4
+      "kills": 3,
+      "best": 7
      },
      "Sage": {
       "kills": 1,
@@ -87893,7 +87905,13 @@
     "best": 28,
     "kills": 5,
     "job": "Paladin",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Paladin": {
+      "kills": 11,
+      "best": 30
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
