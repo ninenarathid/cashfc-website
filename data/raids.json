@@ -89286,7 +89286,7 @@
     "state": "learning",
     "pct": 37.05,
     "phase": 5,
-    "pulls": 93,
+    "pulls": 70,
     "last": "2026-11-20",
     "last_ts": 1795187608
    }
@@ -93827,7 +93827,7 @@
     "encounter_id": 1080,
     "name": "Zelenia",
     "best": 62,
-    "kills": 31,
+    "kills": 33,
     "job": "Gunbreaker",
     "cleared": true
    },
