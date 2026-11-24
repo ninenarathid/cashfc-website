@@ -222,8 +222,38 @@ const { sprites, sprite } = spriteWriter(OUT, picture, shrink);
 
 /* ── the walk grid ───────────────────────────────────────────────────────────────────────────────────────────────── */
 
+// The editor's collision. Since its export of 2026-11-24 (cashcity_v2, README "Collision") it is shapes in map tiles, not
+// whole tiles: `boxes` (fractional; a seat's marked `seat`), `lines` (here along the grid: the walk-in rooms' walls) and,
+// in `edges`, walls across a tile (side h). The game walks whole tiles, so a tile is closed where a box covers more than a
+// sliver of it each way (SLIVER: that gives the earlier export's whole tiles back, all but the things he moved), a line
+// is the tile edges along it, and a wall across a tile closes its tile, as before. An earlier export (`#`/`s` in `rows`,
+// each object's `tiles`) is read as it is.
+const SLIVER = 0.01;
+const boxTiles = ([x0, y0, x1, y1]) => {
+  const out = [];
+  for (let y = Math.floor(y0); y < Math.ceil(y1); y++) for (let x = Math.floor(x0); x < Math.ceil(x1); x++)
+    if (Math.min(x1, x + 1) - Math.max(x0, x) > SLIVER && Math.min(y1, y + 1) - Math.max(y0, y) > SLIVER) out.push([x, y]);
+  return out;
+};
+/** The whole tiles an object closes (an earlier export lists them; a later one's boxes are laid on the grid). */
+const tilesOf = (o) => o.tiles ?? (o.boxes ?? []).flatMap(boxTiles);
+const lineEdges = ([x0, y0, x1, y1]) => {
+  const out = [];
+  if (y0 === y1) for (let x = Math.min(x0, x1); x < Math.max(x0, x1); x++) out.push([x, y0, "n"]);
+  else for (let y = Math.min(y0, y1); y < Math.max(y0, y1); y++) out.push([x0, y, "w"]);
+  return out;
+};
+/** The edges nobody crosses, n and w (walls across a tile close their tile instead). */
+const edgeList = [...new Map([...map.collision.edges.filter(([, , s]) => s !== "h"), ...(map.collision.lines ?? []).flatMap((l) => lineEdges(l.line))]
+  .map((e) => [e.join(), e])).values()];
+
 // "." ground, "~" water, "#" something stands there, "s" a seat (sat on from beside it), "=" the dock's boards, " " none
 const walk = map.collision.rows.map((r, ty) => [...r].map((c, tx) => (c === "_" ? " " : c === "#" ? "#" : c === "s" ? "s" : wetTile(tx, ty) ? "~" : ".")));
+if (map.collision.boxes || map.collision.lines) {
+  const close = (x, y, c) => { if (x >= 0 && y >= 0 && x < COLS && y < ROWS && walk[y][x] !== " " && walk[y][x] !== "s") walk[y][x] = c; };
+  for (const b of map.collision.boxes ?? []) for (const [x, y] of boxTiles(b.box)) close(x, y, b.seat ? "s" : "#");
+  for (const [x, y, s] of map.collision.edges) if (s === "h") close(x, y, "#");
+}
 // the ground's height in steps (0 flat, below 0 sunk), and the stairs: README §11
 const height = map.height.map((r) => [...r]);
 // the dock: its boards are walked on, over the water, level with the beach (the map has it solid, a thing in the water)
@@ -232,7 +262,7 @@ const DOCK = /^dock_2/;
 // their end, so that one walked off into the sea (the owner, 2026-11-23: "ตรงนี้เดินออกมาได้เกินที่ตกปลา"). A tile is boards
 // where three quarters of it is the picture.
 for (const { o, pl } of placed) if (DOCK.test(o.asset)) {
-  for (const [x, y] of o.tiles ?? []) if (x >= 0 && y >= 0 && x < COLS && y < ROWS && walk[y][x] === "#") walk[y][x] = wetTile(x, y) ? "~" : ".";
+  for (const [x, y] of tilesOf(o)) if (x >= 0 && y >= 0 && x < COLS && y < ROWS && walk[y][x] === "#") walk[y][x] = wetTile(x, y) ? "~" : ".";
   for (let y = Math.max(0, Math.floor(pl.cy - pl.h / 2) - 1); y <= Math.min(ROWS - 1, Math.ceil(pl.cy + pl.h / 2)); y++)
     for (let x = Math.max(0, Math.floor(pl.cx - pl.w / 2) - 1); x <= Math.min(COLS - 1, Math.ceil(pl.cx + pl.w / 2)); x++) {
       let n = 0;
@@ -240,8 +270,8 @@ for (const { o, pl } of placed) if (DOCK.test(o.asset)) {
       if (n >= 19) { walk[y][x] = "="; height[y][x] = 0; }
     }
 }
-const edges = map.collision.edges.map(([x, y, side]) => [x + OX, y + OY, side]);
-const blocked = new Set(map.collision.edges.map(([x, y, s]) => `${x},${y},${s}`));
+const edges = edgeList.map(([x, y, side]) => [x + OX, y + OY, side]);
+const blocked = new Set(edgeList.map(([x, y, s]) => `${x},${y},${s}`));
 const crosses = (ax, ay, bx, by) => {
   if (bx === ax && by === ay - 1) return blocked.has(`${ax},${ay},n`);
   if (bx === ax && by === ay + 1) return blocked.has(`${bx},${by},n`);
@@ -445,10 +475,10 @@ const rooms = ROOMS.map((r) => {
 });
 const chests = byAsset(CHEST_SHUT).map((o) => {
   const open = map.objects.find((q) => CHEST_OPEN.test(q.asset) && Math.abs(centre(q)[0] - centre(o)[0]) < 0.5 && Math.abs(centre(q)[1] - centre(o)[1]) < 0.5);
-  return { at: centre(o), tiles: (o.tiles ?? []).map(G), shut: idx(o), open: open ? idx(open) : null };
+  return { at: centre(o), tiles: tilesOf(o).map(G), shut: idx(o), open: open ? idx(open) : null };
 });
 /** Where a lamp's light is: its picture's top eighth's middle, isometric pixels. */
-const lamps = byAsset(LAMP).map((o) => { const q = objects[idx(o)], sp = sprites[q[1]]; return { tile: G(o.tiles?.[0] ?? [Math.floor(o.x), Math.floor(o.y)]), thing: idx(o), head: [r2(q[2] + (sp.w * q[4]) / 2), r2(q[3] + sp.h * q[4] * 0.12)] }; });
+const lamps = byAsset(LAMP).map((o) => { const q = objects[idx(o)], sp = sprites[q[1]]; return { tile: G(tilesOf(o)[0] ?? [Math.floor(o.x), Math.floor(o.y)]), thing: idx(o), head: [r2(q[2] + (sp.w * q[4]) / 2), r2(q[3] + sp.h * q[4] * 0.12)] }; });
 const benches = map.objects.filter((o) => o.sit?.length && indexOf.has(o.id)).map((o) => ({
   thing: idx(o),
   seats: o.sit.map((s) => ({ tile: G(s.tile), facing: s.facing, point: [r2(s.point[0] + ISO.x), r2(s.point[1] + ISO.y)], lift: s.lift ?? 0, view: s.view, mirror: !!s.mirror, draw: s.draw })),
@@ -616,7 +646,7 @@ for (const [ci, crop] of (CROP ? CROP.split(";") : [""]).entries()) if (DEBUG) {
     const fill = tint[c] ?? (height[y][x] < 0 ? "rgba(0,255,140,0.10)" : "rgba(0,0,0,0)");
     svg += `<polygon points="${P(x, y, up)} ${P(x + 1, y, up)} ${P(x + 1, y + 1, up)} ${P(x, y + 1, up)}" fill="${fill}" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"/>`;
   }
-  for (const [x, y, s] of map.collision.edges) {
+  for (const [x, y, s] of edgeList) {
     if (x < cx0 - 1 || x > cx1 + 1 || y < cy0 - 1 || y > cy1 + 1) continue;
     const a = s === "n" ? [x + 1, y] : [x, y + 1], up = Math.max(lift(x, y), lift(s === "n" ? x : x - 1, s === "n" ? y - 1 : y));
     svg += `<line x1="${P(x, y, up).split(",")[0]}" y1="${P(x, y, up).split(",")[1]}" x2="${P(a[0], a[1], up).split(",")[0]}" y2="${P(a[0], a[1], up).split(",")[1]}" stroke="yellow" stroke-width="${CROP ? 2 : 1}"/>`;

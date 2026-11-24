@@ -19,6 +19,8 @@ const SPOTS = {
   gatesNE: [80, 12], gateNW: [-5, 40], amusement: [96, 55],
   rimSouth: [56, 87], rimEast: [73, 70], stairs: [53, 69], kerb: [30, 66], waterSquares: [70, 47], fountainBench: [57, 70], shopDoor: [48, 109], seam: [55, 60], ringFarm: [79, 11], stove: [101, 78], sea: [60, 124], canalMid: [23, 70], picnic: [41, 56], worktable: [98, 78], tank: [96, 79],
   museumDoor: [105, 18], museumStairs: [106, 22], museumFoot: [108, 26], busstop: [78, 73], busstopWest: [10, 45], casinoStep: [17, 106], concertCorner: [-5, 72],
+  // (cashcity_v2, 2026-11-24: the boulders the editor stood where they are drawn, the bushes and the hydrant it nudged)
+  boulders: [32, 63], parkBushes: [75, 73], hydrant: [89, 40],
 };
 const SIZES = { desktop: { width: 1280, height: 860 }, phone: { width: 384, height: 730 }, small: { width: 360, height: 640 } };
 for (const label of (process.env.SIZES ?? "desktop,phone").split(",")) {
