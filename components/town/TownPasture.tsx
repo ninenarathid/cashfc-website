@@ -673,7 +673,34 @@ export default function TownPasture(props: PastureProps) {
     return () => { delete w.__townPasture; };
   }, [keeper, open, collected, view]);
 
-  if (!world) return null;
+  const noteChip = note && !view && (
+    <TownFoot rank="note" order={12}>
+      <p className="pop-in max-w-full rounded-full bg-bg/90 px-4 py-1.5 text-center text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite" data-pasture-note>{note}</p>
+    </TownFoot>
+  );
+  const chips = !view && !game && (byDoor || boardable || myRun || behind || invite || nearby.length > 0 || letDown) && (
+    <TownFoot rank="chip" order={33}>
+      <div className="pointer-events-auto flex max-w-full flex-wrap items-center justify-center gap-2" data-pasture-chips>
+        {byDoor && <button type="button" className="pressable min-h-11 rounded-full border border-line-lit bg-surface/92 px-4 text-ui font-semibold text-ink shadow-lg shadow-black/30 backdrop-blur-sm" onClick={() => void toggleDoor()} data-door={doorOpen ? "open" : "shut"}>{doorOpen ? t("ปิดประตูโรง", "Shut the barn door") : t("เปิดประตูโรง", "Open the barn door")}</button>}
+        {boardable && <button type="button" className="pressable min-h-11 rounded-full bg-accent px-4 text-ui font-semibold text-bg shadow-lg" onClick={() => void board(boardable.r.id)} data-wagon-board>{t("ขึ้นเกวียนหญ้า", "Hop on the hay wagon")}</button>}
+        {myRun && <button type="button" className="pressable min-h-11 rounded-full border border-line-lit bg-surface/92 px-4 text-ui text-ink shadow-lg" onClick={() => props.getDown()} data-wagon-off>{t("ลงจากเกวียน", "Get off the wagon")}</button>}
+        {behind && <button type="button" className="pressable min-h-11 rounded-full border border-line-lit bg-surface/92 px-4 text-ui text-ink shadow-lg" onClick={() => props.getDown()} data-ram-off>{t("ลงจากหลังแกะ", "Get down")}</button>}
+        {invite && <span className="flex items-center gap-2 rounded-full border border-gold/60 bg-surface/95 py-1 pl-4 pr-1 text-ui text-ink shadow-lg" data-ram-invite={invite.from}>
+          {t(`${invite.name} ชวนขี่แกะปุยเมฆด้วยกัน`, `${invite.name} asks you onto the cloud ram`)}
+          {theirsFull ? <FullFlock sprite={fullPic} n={FLOCK_MAX} label={t("ฝูงแกะเต็มแล้ว", "The flock is full")} />
+            : <button type="button" className="pressable min-h-11 rounded-full bg-accent px-3 font-semibold text-bg" onClick={() => { props.takeSeat(ramSeat(invite.from)); props.pairSend(invite.from, { k: "ram", m: "yes" }); setInvite(null); }}>{t("ขึ้นเลย", "Hop on")}</button>}
+          <button type="button" className="pressable min-h-11 rounded-full border border-line-strong px-3 text-ink" onClick={() => { props.pairSend(invite.from, { k: "ram", m: "no" }); setInvite(null); }}>{t("ไม่เป็นไร", "No thanks")}</button>
+        </span>}
+        {riding && full && nearby.length > 0 && <FullFlock sprite={fullPic} n={flock.length} label={t("ฝูงแกะเต็มแล้ว", "The flock is full")} />}
+        {!full && nearby.filter((p) => p.id !== passenger).map((p) => <button key={p.id} type="button" className="pressable min-h-11 rounded-full border border-line-lit bg-surface/92 px-4 text-ui text-ink shadow-lg" onClick={() => { props.pairSend(p.id, { k: "ram", m: "ask", n: props.myName }); say(t(`ชวน ${p.name} แล้ว รอตอบ`, `Asked ${p.name}.`)); }} data-ram-ask={p.id}>{t(`ชวน ${p.name} ขี่ด้วย`, `Ask ${p.name} to ride`)}</button>)}
+        {letDown && <button type="button" className="pressable min-h-11 rounded-full border border-line-lit bg-surface/92 px-4 text-ui text-ink shadow-lg" onClick={() => { props.pairSend(letDown, { k: "ram", m: "off" }); setPassenger((x) => (x === letDown ? null : x)); }} data-ram-let-down={letDown}>{t("ให้เพื่อนลง", "Let your friend down")}</button>}
+      </div>
+    </TownFoot>
+  );
+  // (the cloud ram's seats are every map's: asked, taken and let down whether or not this page has read the pasture's
+  // world, which it reads only on the farm or while the wagon tours. Waiting for it hid them everywhere else from
+  // whoever had not been to the farm this visit: the owner, 2026-11-24, "ชวนขึ้นแกะขี่หลายคนไม่ได้ ... ให้ทำงานได้ทุกแมพ")
+  if (!world) return <>{noteChip}{chips}</>;
   const G = game ? SPECIES[game.species].game : null;
   return (
     <>
@@ -682,11 +709,7 @@ export default function TownPasture(props: PastureProps) {
           <Harvest got={harvest.got} name={harvest.name} th={th} onClose={() => setHarvest(null)} />
         </TownFoot>
       )}
-      {note && !view && (
-        <TownFoot rank="note" order={12}>
-          <p className="pop-in max-w-full rounded-full bg-bg/90 px-4 py-1.5 text-center text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite" data-pasture-note>{note}</p>
-        </TownFoot>
-      )}
+      {noteChip}
       {game && G && (
         <TownFoot rank="board" order={60} wide>
           {G === "milk" ? <MilkGame animal={game} ease={ease} th={th} kit={kitNow} reduced={reduced} onDone={(p) => void collected(game, p)} onQuit={() => setGame(null)} />
@@ -694,25 +717,7 @@ export default function TownPasture(props: PastureProps) {
               : <ShearGame animal={game} ease={ease} th={th} kit={kitNow} reduced={reduced} onDone={(p) => void collected(game, p)} onQuit={() => setGame(null)} />}
         </TownFoot>
       )}
-      {!view && !game && (byDoor || boardable || myRun || behind || invite || nearby.length > 0 || letDown) && (
-        <TownFoot rank="chip" order={33}>
-          <div className="pointer-events-auto flex max-w-full flex-wrap items-center justify-center gap-2" data-pasture-chips>
-            {byDoor && <button type="button" className="pressable min-h-11 rounded-full border border-line-lit bg-surface/92 px-4 text-ui font-semibold text-ink shadow-lg shadow-black/30 backdrop-blur-sm" onClick={() => void toggleDoor()} data-door={doorOpen ? "open" : "shut"}>{doorOpen ? t("ปิดประตูโรง", "Shut the barn door") : t("เปิดประตูโรง", "Open the barn door")}</button>}
-            {boardable && <button type="button" className="pressable min-h-11 rounded-full bg-accent px-4 text-ui font-semibold text-bg shadow-lg" onClick={() => void board(boardable.r.id)} data-wagon-board>{t("ขึ้นเกวียนหญ้า", "Hop on the hay wagon")}</button>}
-            {myRun && <button type="button" className="pressable min-h-11 rounded-full border border-line-lit bg-surface/92 px-4 text-ui text-ink shadow-lg" onClick={() => props.getDown()} data-wagon-off>{t("ลงจากเกวียน", "Get off the wagon")}</button>}
-            {behind && <button type="button" className="pressable min-h-11 rounded-full border border-line-lit bg-surface/92 px-4 text-ui text-ink shadow-lg" onClick={() => props.getDown()} data-ram-off>{t("ลงจากหลังแกะ", "Get down")}</button>}
-            {invite && <span className="flex items-center gap-2 rounded-full border border-gold/60 bg-surface/95 py-1 pl-4 pr-1 text-ui text-ink shadow-lg" data-ram-invite={invite.from}>
-              {t(`${invite.name} ชวนขี่แกะปุยเมฆด้วยกัน`, `${invite.name} asks you onto the cloud ram`)}
-              {theirsFull ? <FullFlock sprite={fullPic} n={FLOCK_MAX} label={t("ฝูงแกะเต็มแล้ว", "The flock is full")} />
-                : <button type="button" className="pressable min-h-11 rounded-full bg-accent px-3 font-semibold text-bg" onClick={() => { props.takeSeat(ramSeat(invite.from)); props.pairSend(invite.from, { k: "ram", m: "yes" }); setInvite(null); }}>{t("ขึ้นเลย", "Hop on")}</button>}
-              <button type="button" className="pressable min-h-11 rounded-full border border-line-strong px-3 text-ink" onClick={() => { props.pairSend(invite.from, { k: "ram", m: "no" }); setInvite(null); }}>{t("ไม่เป็นไร", "No thanks")}</button>
-            </span>}
-            {riding && full && nearby.length > 0 && <FullFlock sprite={fullPic} n={flock.length} label={t("ฝูงแกะเต็มแล้ว", "The flock is full")} />}
-            {!full && nearby.filter((p) => p.id !== passenger).map((p) => <button key={p.id} type="button" className="pressable min-h-11 rounded-full border border-line-lit bg-surface/92 px-4 text-ui text-ink shadow-lg" onClick={() => { props.pairSend(p.id, { k: "ram", m: "ask", n: props.myName }); say(t(`ชวน ${p.name} แล้ว รอตอบ`, `Asked ${p.name}.`)); }} data-ram-ask={p.id}>{t(`ชวน ${p.name} ขี่ด้วย`, `Ask ${p.name} to ride`)}</button>)}
-            {letDown && <button type="button" className="pressable min-h-11 rounded-full border border-line-lit bg-surface/92 px-4 text-ui text-ink shadow-lg" onClick={() => { props.pairSend(letDown, { k: "ram", m: "off" }); setPassenger((x) => (x === letDown ? null : x)); }} data-ram-let-down={letDown}>{t("ให้เพื่อนลง", "Let your friend down")}</button>}
-          </div>
-        </TownFoot>
-      )}
+      {chips}
       {!view && !game && bellOn && <TownFoot rank="power" order={21} icon={animalIcon("charmHerdBell") as IconName}><button type="button" onClick={ringBell} aria-label={t("สั่นกระดิ่งเรียกฝูง", "Ring the herd bell")} data-power="bell" /></TownFoot>}
       {!view && !game && harpHas && <TownFoot rank="power" order={22} icon={animalIcon("thingHarp") as IconName} badge={usesLeft(purse, ANIMAL_GIFTS.harp, now)}><button type="button" onClick={() => void playHarp()} disabled={usesLeft(purse, ANIMAL_GIFTS.harp, now) < 1} aria-label={t("เล่นพิณทุ่งหญ้า", "Play the pasture harp")} data-power="harp" /></TownFoot>}
       {!view && !game && windHas && <TownFoot rank="power" order={23} icon={animalIcon("thingSpringWind") as IconName} badge={usesLeft(purse, ANIMAL_GIFTS.wind, now)}><button type="button" onClick={() => void callWind()} disabled={usesLeft(purse, ANIMAL_GIFTS.wind, now) < 1} aria-label={t("เรียกลมฤดูใบไม้ผลิ", "Call the spring wind")} data-power="wind" /></TownFoot>}

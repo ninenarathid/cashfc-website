@@ -5431,6 +5431,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       /** The editor's town: which town this page has, and how much of its pictures it holds now (lib/town/town2-art). */
       town2: () => ({ on: T2, ...(town2Ref.current?.memory() ?? {}) }),
       gates: () => gateBoxes.current.map((k) => ({ ...k })),
+      /** Every gate of this town's maps, on the screen or not: where it stands and where it leads (for a check that walks through one). */
+      gateList: () => GATES.map((g) => ({ from: g.from, leads: g.leads, tiles: g.tiles.map(([x, y]) => [x, y]), to: { ...g.to } })),
       // ── the Popoto Casino ── (which map I am on, whether the kura's door opens for me, and its machines' tap boxes on the screen)
       casino: () => ({ place: placeRef.current, door: casinoDoorRef.current, boxes: (casinoArtRef.current?.boxes ?? []).map((b) => ({ ...b })) }),
       /** The popoto out now: what, and where. */
