@@ -609,7 +609,8 @@ function Gallery({ keeper, th, st, me, admin, voting, phone, setSt }: {
         {voting ? (
           <span className="flex items-center gap-1.5 rounded-full bg-accent/15 px-2.5 py-1 text-meta font-semibold text-accent" data-vote-state="open">
             {/* eslint-disable-next-line @next/next/no-img-element -- the site's own small popoto */}
-            <img src={popotoArt.src} alt="" className="size-4" />{th ? `ทุกคนให้ได้ ${st.votesEach} ใบ · เหลือ ${left}` : `Everyone gives ${st.votesEach} · ${left} left`}
+            <img src={popotoArt.src} alt="" className="size-4" />{left > 0 ? (th ? `ทุกคนให้ได้ ${st.votesEach} ใบ · เหลือ ${left}` : `Everyone gives ${st.votesEach} · ${left} left`)
+              : (th ? "ให้ครบแล้ว · เอาคืนเพื่อย้ายได้ถึงปิดโหวต" : "All given · take one back to move it until voting closes")}
           </span>
         ) : !st.awards && voteWin && Date.parse(voteWin.from) > st.now ? (
           <span className="flex items-center gap-1.5 rounded-full bg-ink/[0.07] px-2.5 py-1 text-meta text-muted" data-vote-state="soon">
@@ -644,7 +645,7 @@ function Gallery({ keeper, th, st, me, admin, voting, phone, setSt }: {
                 <button type="button" aria-pressed={given} disabled={busy !== null || (!given && left <= 0)} onClick={() => void vote(e)}
                         className={`pressable flex min-h-11 w-full items-center justify-center gap-1.5 rounded-lg text-ui font-semibold disabled:opacity-40 ${given ? "bg-accent text-bg" : "border border-line-strong text-ink hover:border-accent"}`}>
                   {/* eslint-disable-next-line @next/next/no-img-element -- the site's own small popoto */}
-                  <img src={popotoArt.src} alt="" className="size-4" />{given ? (th ? "ให้แล้ว" : "Given") : (th ? "ให้ popoto" : "Give")}
+                  <img src={popotoArt.src} alt="" className="size-4" />{given ? (th ? "ให้แล้ว · เอาคืน" : "Given · take back") : (th ? "ให้ popoto" : "Give")}
                 </button>
               ) : <span className="min-h-9" />}
             </div>
