@@ -378,7 +378,7 @@
   "mounts": 14,
   "minions": 28,
   "rare": 1,
-  "level": 100,
+  "level": 88,
   "cc": [
    false,
    false,
@@ -393,7 +393,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-15"
+  "chg": "2026-11-24"
  },
  "58199536": {
   "name": "Areeya Lovekin",
@@ -6668,7 +6668,7 @@
   "mounts": 32,
   "minions": 95,
   "rare": null,
-  "level": 91,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -6837,7 +6837,7 @@
   "mounts": 11,
   "minions": 20,
   "rare": null,
-  "level": 83,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6995,7 +6995,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 98,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8196,7 +8196,7 @@
   "mounts": 11,
   "minions": 28,
   "rare": null,
-  "level": 73,
+  "level": 74,
   "cc": [
    false,
    false,
@@ -8262,7 +8262,7 @@
   "mounts": 48,
   "minions": 76,
   "rare": null,
-  "level": 16,
+  "level": 76,
   "cc": [
    false,
    false,
@@ -8560,7 +8560,7 @@
   "mounts": 9,
   "minions": 21,
   "rare": 2,
-  "level": 71,
+  "level": 76,
   "cc": [
    false,
    false,
@@ -8650,7 +8650,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 94,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -8955,7 +8955,7 @@
   },
   "jobs": {
    "Viper": "master",
-   "Samurai": "expert"
+   "Samurai": "master"
   },
   "ex": [
    "Doomtrain",
@@ -9001,7 +9001,7 @@
   "mounts": 4,
   "minions": 7,
   "rare": null,
-  "level": 84,
+  "level": 86,
   "cc": [
    false,
    false,
@@ -9014,7 +9014,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-21"
+  "chg": "2026-11-24"
  },
  "44085912": {
   "name": "Mayu Ferguson",
@@ -9050,7 +9050,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 61,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -9104,7 +9104,7 @@
   "mounts": 101,
   "minions": 207,
   "rare": 16,
-  "level": 100,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -9136,7 +9136,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-11-23"
+  "chg": "2026-11-24"
  },
  "21388050": {
   "name": "Riizerk Ciel",
@@ -12975,7 +12975,7 @@
   "mounts": 19,
   "minions": 40,
   "rare": 0,
-  "level": 77,
+  "level": 63,
   "cc": [
    false,
    false,
@@ -14097,7 +14097,7 @@
   "mounts": 11,
   "minions": 43,
   "rare": null,
-  "level": 52,
+  "level": 73,
   "cc": [
    false,
    false,

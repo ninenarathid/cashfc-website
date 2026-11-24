@@ -97601,8 +97601,8 @@
     "cleared": true,
     "job_kills": {
      "Reaper": {
-      "kills": 4,
-      "best": 15
+      "kills": 8,
+      "best": 44
      }
     }
    },
@@ -99298,7 +99298,17 @@
       "best": 4,
       "median": 4,
       "kills": 3,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 1,
+        "best": 4
+       },
+       "Bard": {
+        "kills": 2,
+        "best": 4
+       }
+      }
      },
      {
       "label": "P2S",
@@ -99307,7 +99317,17 @@
       "best": 1,
       "median": 1,
       "kills": 3,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 1,
+        "best": 1
+       },
+       "Bard": {
+        "kills": 2,
+        "best": 1
+       }
+      }
      },
      {
       "label": "P3S",
@@ -99336,7 +99356,17 @@
      "best": 82,
      "median": 61,
      "kills": 9,
-     "job": "Viper"
+     "job": "Viper",
+     "job_kills": {
+      "Viper": {
+       "kills": 8,
+       "best": 82
+      },
+      "Samurai": {
+       "kills": 1,
+       "best": 24
+      }
+     }
     },
     {
      "label": "M10S",
@@ -99345,7 +99375,13 @@
      "best": 77,
      "median": 50,
      "kills": 8,
-     "job": "Viper"
+     "job": "Viper",
+     "job_kills": {
+      "Viper": {
+       "kills": 8,
+       "best": 77
+      }
+     }
     },
     {
      "label": "M11S",
@@ -99354,7 +99390,13 @@
      "best": 79,
      "median": 58,
      "kills": 9,
-     "job": "Viper"
+     "job": "Viper",
+     "job_kills": {
+      "Viper": {
+       "kills": 9,
+       "best": 79
+      }
+     }
     },
     {
      "label": "M12S-1",
@@ -99363,7 +99405,13 @@
      "best": 60,
      "median": 23,
      "kills": 15,
-     "job": "Viper"
+     "job": "Viper",
+     "job_kills": {
+      "Viper": {
+       "kills": 15,
+       "best": 60
+      }
+     }
     },
     {
      "label": "M12S-2",
@@ -99372,7 +99420,13 @@
      "best": 51,
      "median": 27,
      "kills": 8,
-     "job": "Viper"
+     "job": "Viper",
+     "job_kills": {
+      "Viper": {
+       "kills": 8,
+       "best": 51
+      }
+     }
     }
    ],
    "clears": [
@@ -99417,7 +99471,13 @@
     "best": 94,
     "kills": 20,
     "job": "Viper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Viper": {
+      "kills": 20,
+      "best": 94
+     }
+    }
    },
    {
     "zone": "Trials III (Extreme)",
@@ -99428,7 +99488,21 @@
     "best": 77,
     "kills": 18,
     "job": "Samurai",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Samurai": {
+      "kills": 10,
+      "best": 77
+     },
+     "Viper": {
+      "kills": 2,
+      "best": 63
+     },
+     "Monk": {
+      "kills": 6,
+      "best": 46
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -99439,7 +99513,17 @@
     "best": 83,
     "kills": 10,
     "job": "Samurai",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Samurai": {
+      "kills": 8,
+      "best": 83
+     },
+     "Monk": {
+      "kills": 2,
+      "best": 53
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -99450,7 +99534,13 @@
     "best": 86,
     "kills": 5,
     "job": "Samurai",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Samurai": {
+      "kills": 5,
+      "best": 86
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -99461,7 +99551,29 @@
     "best": 44,
     "kills": 56,
     "job": "Summoner",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Monk": {
+      "kills": 6,
+      "best": 38
+     },
+     "Samurai": {
+      "kills": 8,
+      "best": 39
+     },
+     "Viper": {
+      "kills": 8,
+      "best": 23
+     },
+     "Summoner": {
+      "kills": 32,
+      "best": 44
+     },
+     "Pictomancer": {
+      "kills": 2,
+      "best": 17
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -99472,7 +99584,25 @@
     "best": 33,
     "kills": 10,
     "job": "Dancer",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Dancer": {
+      "kills": 1,
+      "best": 33
+     },
+     "DarkKnight": {
+      "kills": 5,
+      "best": 23
+     },
+     "Gunbreaker": {
+      "kills": 3,
+      "best": 26
+     },
+     "Warrior": {
+      "kills": 1,
+      "best": 5
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -99483,7 +99613,21 @@
     "best": 85,
     "kills": 4,
     "job": "Viper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Viper": {
+      "kills": 1,
+      "best": 85
+     },
+     "Samurai": {
+      "kills": 1,
+      "best": 76
+     },
+     "Monk": {
+      "kills": 2,
+      "best": 54
+     }
+    }
    }
   ],
   "legacy": [],

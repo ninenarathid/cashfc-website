@@ -2199,8 +2199,15 @@
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ca4283e7e8008dd4ffdcfd196fbfc447_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1794533916",
    "collect_seen": "2026-11-24"
+  },
+  "19335436": {
+   "name": "Haruto Munogatari",
+   "world": "Tonberry",
+   "dc": "Elemental",
+   "fc": "Hoshi no Tobira",
+   "seen": "2026-11-24"
   }
  },
- "generated_at": "2026-11-24T04:06:15Z",
- "count": 20
+ "generated_at": "2026-11-24T15:11:47Z",
+ "count": 21
 }
