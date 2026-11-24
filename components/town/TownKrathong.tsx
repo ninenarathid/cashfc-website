@@ -183,7 +183,7 @@ type Step = Slot | "send";
 const STEPS: Array<{ step: Step; th: string; en: string; askTh: string; askEn: string }> = [
   { step: "base", th: "ฐาน", en: "Base", askTh: "เลือกฐานกระทง", askEn: "Choose a base" },
   { step: "ring", th: "กลีบ", en: "Petals", askTh: "เลือกกลีบรอบกระทง", askEn: "Choose the petals" },
-  { step: "centre", th: "ตรงกลาง", en: "Centre", askTh: "เลือกของตรงกลาง", askEn: "Choose the centrepiece" },
+  { step: "centre", th: "กลาง", en: "Centre", askTh: "เลือกของตรงกลาง", askEn: "Choose the centrepiece" },
   { step: "light", th: "แสง", en: "Light", askTh: "เลือกเทียนหรือแสงไฟ", askEn: "Choose a light" },
   { step: "trim", th: "ขอบ", en: "Trims", askTh: "แต่งขอบได้ 3 ชิ้น ไม่ใส่ก็ได้", askEn: "Up to three trims, or none" },
   { step: "send", th: "ส่ง", en: "Send", askTh: "ตั้งชื่อกระทง แล้วส่ง", askEn: "Name it and send it" },
@@ -240,6 +240,9 @@ function Builder({ keeper, th, st, phone, making, floating, onDone, onFloat, flo
             <TownIcon name={icon("krathongKeepsake")} size={18} />
             {th ? `แก้ไขกระทง · เหลือ ${left} ครั้ง` : `Change it · ${left} left`}
           </button>
+        ) : null)}
+        {making && st.mine.entered && keeper.krathongEdit && typeof st.mine.edits === "number" && (left > 0 ? (
+          <p className="-mt-1.5 text-meta text-muted">{th ? "เปลี่ยนได้หมด · จ่ายเพิ่มเฉพาะของที่ยังไม่เคยใช้" : "Change anything · pay only for what it never had"}</p>
         ) : (
           <p className="text-meta text-muted">{th ? `แก้ไขครบ ${EDITS_MAX} ครั้งแล้ว` : `All ${EDITS_MAX} changes used`}</p>
         ))}
@@ -308,8 +311,11 @@ function Builder({ keeper, th, st, phone, making, floating, onDone, onFloat, flo
       {editing && (
         <div className="flex items-center gap-2 rounded-xl border border-accent/40 bg-accent/[0.07] px-3 py-1.5" data-editing>
           <p className="min-w-0 flex-1 text-meta text-ink">
-            <b>{th ? `แก้ไขกระทง · ครั้งที่ ${EDITS_MAX - left + 1}/${EDITS_MAX}` : `Changing it · ${EDITS_MAX - left + 1} of ${EDITS_MAX}`}</b>
-            <span className="block text-muted">{th ? "ของที่จ่ายไปแล้วใช้ต่อได้ หาเพิ่มเฉพาะที่ขาด" : "What it already had counts; only the rest is paid"}</span>
+            <b>{th ? `แก้ไขครั้งที่ ${EDITS_MAX - left + 1}/${EDITS_MAX} · บันทึกแล้วเหลือ ${left - 1} ครั้ง` : `Change ${EDITS_MAX - left + 1} of ${EDITS_MAX} · ${left - 1} left after saving`}</b>
+            <span className="block text-muted">{th ? "ของเดิมใช้ต่อได้ · ยกเลิกไม่เสียสิทธิ์" : "What it had counts · cancelling costs nothing"}</span>
+            <span className={`mt-0.5 inline-block rounded-full px-2 py-px text-[11.5px] font-semibold ${cost.length ? (short ? "bg-[#f87171]/15 text-[#fca5a5]" : "bg-accent/15 text-accent") : "bg-[#4ade80]/15 text-[#86efac]"}`} data-edit-cost>
+              {!cost.length ? (th ? "ไม่ต้องใช้ของเพิ่ม" : "Nothing more to pay") : th ? `ต้องหาเพิ่ม ${cost.length} อย่าง` : `${cost.length} more to pay`}
+            </span>
           </p>
           <button type="button" onClick={() => { setEditing(false); setNote(null); setSure(false); }}
                   className="pressable min-h-11 shrink-0 rounded-xl border border-line-strong px-3 text-ui font-semibold text-ink">
