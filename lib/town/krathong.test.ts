@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { ITEMS, type ItemId } from "./items";
-import { PARTS, PART, START, awardsOf, bestPay, catalogJson, check, cleanName, costOf, familiesOf, partsOf, shortOf, shuffledFor, type Design } from "./krathong";
+import { COLORS, COLOR_SLOTS, PARTS, PART, START, awardsOf, bestPay, catalogJson, check, cleanName, colorOf, costOf, familiesOf, partsOf, shortOf, shuffledFor, type Design, type Pick } from "./krathong";
 import { LOY_KRATHONG_2026 as LK, calendarOrder, isOpen, nextWindow, stageOf, untilText, whenText, windowOf } from "./festivals";
 
 describe("the krathong's parts", () => {
@@ -35,6 +35,16 @@ describe("a design", () => {
   it("sums what it takes", () => {
     expect(Object.fromEntries(costOf(d))).toEqual({ carvingBlank: 1, marigold: 8, beeswax: 1, snail: 1 });
     expect(shortOf(d, (id) => (id === "marigold" ? 5 : 9))).toEqual([{ id: "marigold", need: 8, have: 5 }]);
+  });
+  it("takes a colour on any part, free, and refuses one past the slots", () => {
+    const dyed: Design = { ...d, base: ["b_wood", 1, 3], ring: ["r_marigold", 0, 8], trims: [["t_flower", 0, 10]] };
+    expect(check(dyed)).toBeNull();
+    expect(Object.fromEntries(costOf(dyed))).toEqual({ carvingBlank: 1, marigold: 8, beeswax: 1 });
+    expect([colorOf(dyed.base), colorOf(dyed.light), colorOf(dyed.trims[0])]).toEqual([3, 0, 10]);
+    expect(check({ ...d, base: ["b_wood", 1, COLOR_SLOTS] })).toBe("color");
+    expect(check({ ...d, base: ["b_wood", 1, 1.5] as unknown as Pick })).toBe("color");
+    expect(COLORS.length).toBeLessThanOrEqual(COLOR_SLOTS);
+    expect(COLORS[0].mode).toBe("own");
   });
   it("picks a payment the bag can meet", () => {
     expect(bestPay("b_wood", (id) => (id === "carvingBlank" ? 2 : 0))).toBe(1);

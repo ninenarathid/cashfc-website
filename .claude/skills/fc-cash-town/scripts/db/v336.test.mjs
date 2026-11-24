@@ -252,6 +252,21 @@ try {
     const row = r?.list?.find((x) => x.name === "กระทงร้านค้า");
     eq([r?.ok, r?.list?.length, !!row, row?.entered, typeof row?.floated, row?.inTime, typeof row?.fc, row?.verified],
       [true, 1, true, true, "number", Date.now() < Date.parse("2026-11-24T17:00:00Z"), "boolean", true], "v339: the admin's list: who floated, in time or not");
+    // the river says whose: its name and its maker's
+    const river2 = await call(m1, "select public.town_krathong_river(2) r");
+    const mine2 = river2?.river?.find((x) => x.name === "กระทงร้านค้า");
+    eq([!!mine2, mine2?.mine, typeof mine2?.maker === "string" || mine2?.maker === null], [true, false, true], "v339: a tap on the river: its name and its maker's");
+    // a colour on any part costs nothing more and is kept; a colour past the slots is refused, as lib/town/krathong's check
+    const dyedD = { base: ["b_bread", 2, 3], ring: ["r_leaf", 0, 8], light: ["l_candle", 1, 6], centre: ["c_feather", 3, 10], trims: [["t_feather", 2, 1]] };
+    eq(K.check(dyedD), null, "v339: lib/town/krathong keeps a dyed design");
+    eq(Object.fromEntries(K.costOf(dyedD)), { dough: 2, bananaLeaf: 1, oil: 1, egg: 3 }, "v339: colour costs nothing");
+    await fill(m3, [["dough", 2], ["bananaLeaf", 1], ["oil", 1], ["egg", 3]]);
+    r = await call(m3, "select public.town_krathong_make(2, $1::jsonb, 'กระทงหลากสี', $2) r", [JSON.stringify(dyedD), uuid(960)]);
+    eq([r?.ok, r?.krathong?.design], [true, dyedD], "v339: a dyed krathong made, its colours kept");
+    const badD = { ...dyedD, base: ["b_bread", 2, 16] };
+    eq([K.check(badD), (await call(m4, "select public.town_krathong_make(2, $1::jsonb, 'x', $2) r", [JSON.stringify(badD), uuid(961)]))?.why], ["color", "design"], "v339: a colour past the slots refused by both");
+    const fourD = { ...dyedD, centre: ["c_feather", 3, 1, 2] };
+    eq((await call(m4, "select public.town_krathong_make(2, $1::jsonb, 'x', $2) r", [JSON.stringify(fourD), uuid(962)]))?.why, "design", "v339: a pick of four refused");
   }
 } catch (e) {
   failed++;

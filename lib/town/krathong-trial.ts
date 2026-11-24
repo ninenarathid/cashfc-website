@@ -151,7 +151,7 @@ export class KrathongTrial {
   river(): RiverKrathong[] {
     const s = this.state(), f = this.festival();
     if (!isOpen(windowOf(f, "float"), this.store.now())) return [];
-    return s.rows.filter((r) => r.floated !== null).sort((a, b) => a.floated! - b.floated!).map((r) => ({ id: r.id, design: r.design, floated: r.floated!, mine: r.member === this.store.me }));
+    return s.rows.filter((r) => r.floated !== null).sort((a, b) => a.floated! - b.floated!).map((r) => ({ id: r.id, design: r.design, floated: r.floated!, mine: r.member === this.store.me, name: r.name, maker: r.makerName }));
   }
   /** The lucky draw's list: whoever floated, the cutoff the entries' end (midnight, as v339 sets `draw_until`). */
   draw(): DrawList {

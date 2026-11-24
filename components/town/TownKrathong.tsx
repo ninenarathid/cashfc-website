@@ -7,7 +7,7 @@ import { ITEMS, iconOf, type ItemId } from "@/lib/town/items";
 import { GOODS, held } from "@/lib/town/trade";
 import { PHASES, PHASE_ICON, PHASE_NAME, isOpen, phaseState, shortWhen, untilText, whenText, windowOf, type Festival } from "@/lib/town/festivals";
 import {
-  MAX_TRIMS, PART, START, bestPay, check, costOf, costOfPicks, familiesOf, partsOf, picksOf, shuffledFor,
+  COLORS, MAX_TRIMS, PART, START, bestPay, check, colorOf, costOf, costOfPicks, familiesOf, partsOf, picksOf, shuffledFor,
   type AwardView, type Design, type DrawList, type GalleryEntry, type KrathongState, type Pick, type Slot,
 } from "@/lib/town/krathong";
 import { isFcMember } from "@/lib/people";
@@ -142,12 +142,22 @@ function PhaseSteps({ f, now, th }: { f: Festival; now: number; th: boolean }) {
 }
 
 // ── the builder ──
+//
+// (the owner, 2026-11-24: "ทำให้ทุก step เล่นง่ายๆ เข้าใจง่ายๆ", and "เอาให้เปลี่ยนสีได้ด้วย ในแต่ละส่วนประกอบ": one part a
+// step, its pictures, its colours and what it is paid with, Back and Next under them; the name and the send last)
 
 const SLOT_INDEX = { base: 0, ring: 1, light: 2, centre: 3 } as const;
-const SLOTS: Array<{ slot: Slot; th: string; en: string }> = [
-  { slot: "base", th: "ฐาน", en: "Base" }, { slot: "ring", th: "กลีบ", en: "Ring" }, { slot: "centre", th: "ลายกลาง", en: "Centre" },
-  { slot: "light", th: "แสง", en: "Light" }, { slot: "trim", th: "ลายขอบ", en: "Trims" },
+type Step = Slot | "send";
+const STEPS: Array<{ step: Step; th: string; en: string; askTh: string; askEn: string }> = [
+  { step: "base", th: "ฐาน", en: "Base", askTh: "เลือกฐานกระทง", askEn: "Choose a base" },
+  { step: "ring", th: "กลีบ", en: "Petals", askTh: "เลือกกลีบรอบกระทง", askEn: "Choose the petals" },
+  { step: "centre", th: "ตรงกลาง", en: "Centre", askTh: "เลือกของตรงกลาง", askEn: "Choose the centrepiece" },
+  { step: "light", th: "แสง", en: "Light", askTh: "เลือกเทียนหรือแสงไฟ", askEn: "Choose a light" },
+  { step: "trim", th: "ขอบ", en: "Trims", askTh: "แต่งขอบได้ 3 ชิ้น ไม่ใส่ก็ได้", askEn: "Up to three trims, or none" },
+  { step: "send", th: "ส่ง", en: "Send", askTh: "ตั้งชื่อกระทง แล้วส่ง", askEn: "Name it and send it" },
 ];
+const withPay = (p: Pick, i: number): Pick => (colorOf(p) ? [p[0], i, colorOf(p)] : [p[0], i]);
+const withColor = (p: Pick, c: number): Pick => (c ? [p[0], p[1], c] : [p[0], p[1]]);
 
 function Builder({ keeper, th, st, phone, making, floating, onDone }: {
   keeper: Keeper; th: boolean; st: KrathongState; phone: boolean; making: boolean; floating: boolean; onDone: () => Promise<void>;
@@ -158,6 +168,8 @@ function Builder({ keeper, th, st, phone, making, floating, onDone }: {
     const pay = (id: string, taken = new Map<ItemId, number>()) => [id, bestPay(id, (x) => held(keeper.purse().bag, x), taken, inShop)] as Pick;
     return { base: pay(START.base[0]), ring: pay(START.ring[0]), light: pay(START.light[0]), centre: pay(START.centre[0]), trims: [] };
   });
+  const [step, setStep] = useState(0);
+  const [trimAt, setTrimAt] = useState(0);
   const [name, setName] = useState("");
   const [sure, setSure] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -180,28 +192,28 @@ function Builder({ keeper, th, st, phone, making, floating, onDone }: {
       </div>
     );
   }
-  if (!making && !floating) {
-    const w = windowOf(st.festival, "make");
-    return (
-      <div className="flex flex-col items-center gap-3 py-2">
-        <KrathongCanvas design={d} zoom={zoom} water className="w-full py-3" />
-        <p className="text-center text-ui text-ink">{th ? "เตรียมของไว้ แล้วมาประกอบกระทง" : "Gather your things and come back"}</p>
-        {w && <p className="rounded-full bg-accent/15 px-3 py-1 text-meta font-semibold text-accent">{th ? w.th : w.en} · {whenText(w.from, th)}</p>}
-        <Parts d={d} setD={setD} th={th} have={have} />
-      </div>
-    );
-  }
 
+  const open = making || floating;
   // (any change to the design takes the confirmation back: what is confirmed is what is sent; Codex's finding)
-  const change: React.Dispatch<React.SetStateAction<Design>> = (next) => { setSure(false); setD(next); };
+  const change = (next: (was: Design) => Design) => { setSure(false); setD(next); };
   const choose = (slot: Slot, id: string) => {
-    change((was) => {
+    if (slot === "trim") {
+      if (d.trims.length >= MAX_TRIMS) return;
+      setTrimAt(d.trims.length);
       // (paid with what the rest of the design leaves: a third flower trim takes wildflowers when the marigolds are spent)
-      if (slot === "trim") return was.trims.length >= MAX_TRIMS ? was : { ...was, trims: [...was.trims, [id, bestPay(id, have, costOfPicks(picksOf(was)), inShop)]] };
-      const others = picksOf(was).filter((_, i) => i !== SLOT_INDEX[slot as "base"]);
-      return { ...was, [slot]: [id, bestPay(id, have, costOfPicks(others), inShop)] };
+      change((was) => ({ ...was, trims: [...was.trims, [id, bestPay(id, have, costOfPicks(picksOf(was)), inShop)]] }));
+      return;
+    }
+    const s = slot as keyof typeof SLOT_INDEX;
+    change((was) => {
+      const others = picksOf(was).filter((_, i) => i !== SLOT_INDEX[s]);
+      return { ...was, [s]: withColor([id, bestPay(id, have, costOfPicks(others), inShop)], colorOf(was[s])) };
     });
   };
+  const editTrim = (f: (p: Pick) => Pick) => change((was) => ({ ...was, trims: was.trims.map((t, k) => (k === trimAt ? f(t) : t)) }));
+  const setPay = (slot: Slot, i: number) => slot === "trim" ? editTrim((p) => withPay(p, i)) : change((was) => ({ ...was, [slot]: withPay(was[slot as keyof typeof SLOT_INDEX], i) }));
+  const setColor = (slot: Slot, c: number) => slot === "trim" ? editTrim((p) => withColor(p, c)) : change((was) => ({ ...was, [slot]: withColor(was[slot as keyof typeof SLOT_INDEX], c) }));
+  const removeTrim = () => { change((was) => ({ ...was, trims: was.trims.filter((_, k) => k !== trimAt) })); setTrimAt((n) => Math.max(0, n - 1)); };
   const send = async () => {
     if (!sure) { setSure(true); return; }
     setBusy(true); setNote(null);
@@ -210,100 +222,159 @@ function Builder({ keeper, th, st, phone, making, floating, onDone }: {
     if (did.ok) { keeper.purseAgain?.(); await onDone(); return; }
     setNote(refusal(did.why, th, did.item as ItemId | undefined));
   };
+  const cur = STEPS[step], last = step === STEPS.length - 1;
+  const makeWin = windowOf(st.festival, "make");
+  // (smaller while choosing, so each step's choices come up without scrolling under the buttons)
   return (
-    <div className="flex flex-col gap-3">
-      <KrathongCanvas design={d} zoom={zoom} water className="w-full py-3" />
-      <input value={name} onChange={(e) => setName(e.target.value)} maxLength={24} placeholder={th ? "ตั้งชื่อกระทง" : "Name your krathong"}
-             aria-label={th ? "ชื่อกระทง" : "Krathong name"}
-             className="min-h-11 rounded-xl border border-line-strong bg-card/60 px-3 text-ui text-ink placeholder:text-muted focus:border-accent focus:outline-none" />
-      <Parts d={d} setD={change} th={th} have={have} choose={choose} />
+    <div className="flex flex-col gap-2.5" data-builder-step={cur.step}>
+      <KrathongCanvas design={d} zoom={phone ? 2 : 3} water className="w-full py-1.5" />
+      {!open && makeWin && (
+        <p className="self-center rounded-full bg-accent/15 px-3 py-1 text-meta font-semibold text-accent">
+          {th ? "ลองประกอบได้เลย · เปิดส่ง" : "Try it out · opens"} {whenText(makeWin.from, th)}
+        </p>
+      )}
+      <ol className="grid grid-cols-6 gap-1" aria-label={th ? "ขั้นตอน" : "Steps"}>
+        {STEPS.map((s, i) => (
+          <li key={s.step}>
+            <button type="button" onClick={() => setStep(i)} aria-current={i === step ? "step" : undefined}
+                    className={`pressable flex min-h-11 w-full flex-col items-center justify-center rounded-lg px-0.5 text-[11px] font-semibold leading-tight ${i === step ? "bg-accent text-bg" : i < step ? "bg-accent/15 text-accent" : "bg-ink/[0.06] text-muted"}`}>
+              <span className="font-data text-[12px] tabular-nums">{i + 1}</span>
+              <span className="w-full truncate">{th ? s.th : s.en}</span>
+            </button>
+          </li>
+        ))}
+      </ol>
+      <p className="text-ui font-semibold text-ink">{step + 1}. {th ? cur.askTh : cur.askEn}</p>
+      {cur.step === "send" ? (
+        <div className="flex flex-col gap-2">
+          <input value={name} onChange={(e) => setName(e.target.value)} maxLength={24} placeholder={th ? "ชื่อกระทง เช่น จันทร์ลอยน้ำ" : "A name, e.g. Moon on the Water"}
+                 aria-label={th ? "ชื่อกระทง" : "Krathong name"}
+                 className="min-h-11 rounded-xl border border-line-strong bg-card/60 px-3 text-ui text-ink placeholder:text-muted focus:border-accent focus:outline-none" />
+          <Lines design={d} th={th} />
+          {note && <p className="text-meta text-[#fca5a5]" aria-live="polite">{note}</p>}
+          {sure && (
+            <div className="flex items-center gap-2 rounded-xl border border-[#e5cc80]/50 bg-[#e5cc80]/[0.07] p-1.5" aria-live="polite">
+              <KrathongCanvas design={d} zoom={1} water className="shrink-0 p-0.5" />
+              <p className="min-w-0 text-meta text-ink"><b className="block truncate">{name.trim()}</b>{th ? "ส่งแล้วแก้ไม่ได้" : "Final once sent"}</p>
+            </div>
+          )}
+        </div>
+      ) : (
+        <SlotPicker slot={cur.step} d={d} have={have} th={th} trimAt={trimAt} setTrimAt={setTrimAt}
+                    onChoose={(id) => choose(cur.step as Slot, id)} onPay={(i) => setPay(cur.step as Slot, i)}
+                    onColor={(c) => setColor(cur.step as Slot, c)} onRemove={removeTrim} />
+      )}
       <div className={`sticky bottom-0 -mx-4 flex flex-col gap-2 border-t border-line bg-surface/95 px-4 pb-4 pt-2.5 backdrop-blur-sm ${phone ? "-mb-16" : "-mb-4"}`}>
-      <div>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="slim-bar flex gap-1.5 overflow-x-auto" aria-label={th ? "ของที่ต้องใช้" : "What it takes"}>
           {cost.map(([id, n]) => (
             <span key={id} title={`${th ? ITEMS[id].name.th : ITEMS[id].name.en}${GOODS[id] ? (th ? " · มีขายที่ร้านค้า" : " · sold at the shop") : ""}`}
-                  className={`flex items-center gap-1 rounded-full px-2 py-0.5 font-data text-meta tabular-nums ${have(id) < n ? "bg-[#f87171]/15 text-[#fca5a5]" : "bg-ink/[0.06] text-ink"}`}>
+                  className={`flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 font-data text-meta tabular-nums ${have(id) < n ? "bg-[#f87171]/15 text-[#fca5a5]" : "bg-ink/[0.06] text-ink"}`}>
               <TownIcon name={icon(iconOf(id))} size={18} />{have(id)}/{n}
               {have(id) < n && GOODS[id] && <TownIcon name="coin" size={12} />}
             </span>
           ))}
         </div>
-        <Lines design={d} th={th} />
-      </div>
-      {note && <p className="text-meta text-[#fca5a5]" aria-live="polite">{note}</p>}
-      {sure && (
-        <div className="flex items-center gap-2 rounded-xl border border-[#e5cc80]/50 bg-[#e5cc80]/[0.07] p-1.5" aria-live="polite">
-          <KrathongCanvas design={d} zoom={1} water className="shrink-0 p-0.5" />
-          <p className="min-w-0 text-meta text-ink"><b className="block truncate">{name.trim()}</b>{th ? "ส่งแล้วแก้ไม่ได้" : "Final once sent"}</p>
+        <div className={`flex gap-2 ${phone ? "ml-12" : ""}`}>
+          {step > 0 && (
+            <button type="button" onClick={() => setStep(step - 1)} className="pressable min-h-11 shrink-0 rounded-xl border border-line-strong px-4 text-ui font-semibold text-ink">
+              {th ? "ย้อน" : "Back"}
+            </button>
+          )}
+          {!last ? (
+            <button type="button" onClick={() => setStep(step + 1)} className="pressable min-h-11 flex-1 rounded-xl bg-accent px-4 text-ui font-semibold text-bg">
+              {th ? `ถัดไป · ${STEPS[step + 1].th}` : `Next · ${STEPS[step + 1].en}`}
+            </button>
+          ) : (
+            <button type="button" disabled={!open || busy || short || !name.trim() || !!check(d)} onClick={() => void send()}
+                    className={`pressable min-h-11 flex-1 rounded-xl px-4 text-ui font-semibold disabled:opacity-40 ${sure ? "bg-[#e5cc80] text-bg" : "bg-accent text-bg"}`}>
+              {!open ? (th ? "ยังไม่เปิดส่ง" : "Not open yet")
+                : short ? (th ? "ของยังไม่พอ" : "Not enough yet")
+                : !name.trim() ? (th ? "ตั้งชื่อก่อน" : "Name it first")
+                : sure ? (th ? "ยืนยัน · ใช้ของตามนี้" : "Confirm · uses these")
+                : making ? (th ? "ส่งประกวด" : "Enter the contest") : (th ? "ทำกระทงไว้ลอย" : "Make it to float")}
+            </button>
+          )}
         </div>
-      )}
-      <button type="button" disabled={busy || short || !name.trim() || !!check(d)} onClick={() => void send()}
-              className={`pressable min-h-11 rounded-xl px-4 text-ui font-semibold disabled:opacity-40 ${phone ? "ml-12" : ""} ${sure ? "bg-[#e5cc80] text-bg" : "bg-accent text-bg"}`}>
-        {sure ? (th ? "ยืนยัน · ใช้ของตามนี้ แก้ไม่ได้" : "Confirm · uses these, final")
-          : making ? (th ? "ส่งประกวด" : "Enter the contest") : (th ? "ทำกระทงไว้ลอย" : "Make it to float")}
-      </button>
       </div>
     </div>
   );
 }
 
-/** The parts, a row a place; each tile the part's own picture and what it costs, red when the bag is short. */
-function Parts({ d, setD, th, have, choose }: {
-  d: Design; setD: React.Dispatch<React.SetStateAction<Design>>; th: boolean; have: (id: ItemId) => number; choose?: (slot: Slot, id: string) => void;
+/** One step's part: its pictures (a tap chooses one), its colours, what it is paid with; the trims' three places first. */
+function SlotPicker({ slot, d, have, th, trimAt, setTrimAt, onChoose, onPay, onColor, onRemove }: {
+  slot: Slot; d: Design; have: (id: ItemId) => number; th: boolean; trimAt: number; setTrimAt: (i: number) => void;
+  onChoose: (id: string) => void; onPay: (i: number) => void; onColor: (c: number) => void; onRemove: () => void;
 }) {
-  const pick = choose ?? ((slot: Slot, id: string) => setD((was) => slot === "trim" ? (was.trims.length >= MAX_TRIMS ? was : { ...was, trims: [...was.trims, [id, 0]] }) : { ...was, [slot]: [id, 0] }));
+  const p: Pick | undefined = slot === "trim" ? d.trims[trimAt] : d[slot as keyof typeof SLOT_INDEX];
+  const full = slot === "trim" && d.trims.length >= MAX_TRIMS;
   return (
     <div className="flex flex-col gap-2.5">
+      {slot === "trim" && (
+        <div className="flex items-center gap-1.5">
+          {Array.from({ length: MAX_TRIMS }, (_, i) => {
+            const tr = d.trims[i];
+            return (
+              <button key={i} type="button" disabled={!tr} onClick={() => setTrimAt(i)} aria-pressed={!!tr && i === trimAt}
+                      aria-label={tr ? (th ? `ชิ้นที่ ${i + 1}` : `Trim ${i + 1}`) : (th ? "ว่าง" : "Empty")}
+                      className={`pressable grid size-11 place-items-center rounded-lg border ${tr && i === trimAt ? "border-accent bg-accent/10" : "border-dashed border-line-strong"}`}>
+                {tr ? <PartPic id={tr[0]} size={32} color={colorOf(tr)} /> : <span className="text-meta text-muted">{i + 1}</span>}
+              </button>
+            );
+          })}
+          {p && (
+            <button type="button" onClick={onRemove} className="pressable ml-1 min-h-11 rounded-full border border-line-strong px-3 text-meta font-semibold text-ink">
+              {th ? "เอาออก" : "Remove"}
+            </button>
+          )}
+          {full && <span className="ml-auto text-meta text-muted">{th ? "ครบ 3 ชิ้น" : "Three placed"}</span>}
+        </div>
+      )}
+      <div className="flex flex-wrap gap-1.5">
+        {partsOf(slot).map((part) => {
+          const chosen = slot !== "trim" && p?.[0] === part.id;
+          const [payId, payN] = part.pay[chosen && p ? p[1] : bestPay(part.id, have, undefined, inShop)];
+          const ok = have(payId) >= payN;
+          return (
+            <button key={part.id} type="button" aria-pressed={chosen} disabled={full} title={th ? part.name.th : part.name.en}
+                    onClick={() => onChoose(part.id)}
+                    className={`pressable flex w-[4.25rem] flex-col items-center gap-0.5 rounded-xl border px-1 pb-1 pt-1.5 disabled:opacity-40 ${chosen ? "border-accent bg-accent/10" : "border-line-strong hover:border-accent"}`}>
+              <PartPic id={part.id} size={40} color={chosen && p ? colorOf(p) : 0} />
+              <span className={`flex items-center gap-0.5 font-data text-[11px] tabular-nums ${ok ? "text-muted" : "text-[#fca5a5]"}`}>
+                <TownIcon name={icon(iconOf(payId))} size={14} />{payN}
+                {inShop(payId) && <TownIcon name="coin" size={11} />}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      {p && (
+        <>
+          <span className="font-data text-label uppercase tracking-wider text-muted">{th ? "สี" : "Colour"}</span>
+          <Swatches part={p[0]} chosen={colorOf(p)} th={th} onPick={onColor} />
+          {PART[p[0]].pay.length > 1 && (
+            <>
+              <span className="font-data text-label uppercase tracking-wider text-muted">{th ? "จ่ายด้วย" : "Pay with"}</span>
+              <PayChoice part={p[0]} chosen={p[1]} have={have} th={th} onPick={onPay} />
+            </>
+          )}
+        </>
+      )}
       <p className="flex items-center gap-1.5 text-meta text-muted" data-shop-legend>
         <TownIcon name="coin" size={14} />{th ? "มีขายที่ร้านค้าในเมือง" : "Sold at the town shop"}
       </p>
-      {SLOTS.map(({ slot, th: t, en }) => (
-        <div key={slot}>
-          <div className="mb-1 flex items-center gap-2">
-            <span className="font-data text-label uppercase tracking-wider text-muted">{th ? t : en}</span>
-            {slot === "trim" && (
-              <span className="flex items-center gap-1">
-                {Array.from({ length: MAX_TRIMS }, (_, i) => {
-                  const tr = d.trims[i];
-                  return (
-                    <button key={i} type="button" disabled={!tr} aria-label={tr ? (th ? "เอาออก" : "Remove") : (th ? "ว่าง" : "Empty")}
-                            onClick={() => setD((was) => ({ ...was, trims: was.trims.filter((_, k) => k !== i) }))}
-                            className="pressable relative grid size-11 place-items-center rounded-lg border border-dashed border-line-strong disabled:opacity-60">
-                      {tr ? <PartPic id={tr[0]} size={32} /> : <span className="text-meta text-muted">{i + 1}</span>}
-                      {tr && <span aria-hidden className="absolute -right-1 -top-1 grid size-4 place-items-center rounded-full bg-ink/70 text-[10px] leading-none text-bg">×</span>}
-                    </button>
-                  );
-                })}
-              </span>
-            )}
-          </div>
-          <div className="slim-bar -mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
-            {partsOf(slot).map((p) => {
-              const chosen = slot !== "trim" && d[slot as "base"][0] === p.id;
-              const [payId, payN] = p.pay[slot !== "trim" && chosen ? d[slot as "base"][1] : bestPay(p.id, have, undefined, inShop)];
-              const ok = have(payId) >= payN;
-              return (
-                <button key={p.id} type="button" aria-pressed={chosen} title={th ? p.name.th : p.name.en}
-                        onClick={() => pick(slot, p.id)}
-                        className={`pressable flex w-[4.25rem] shrink-0 flex-col items-center gap-0.5 rounded-xl border px-1 pb-1 pt-1.5 ${chosen ? "border-accent bg-accent/10" : "border-line-strong hover:border-accent"}`}>
-                  <PartPic id={p.id} size={40} />
-                  <span className={`flex items-center gap-0.5 font-data text-[11px] tabular-nums ${ok ? "text-muted" : "text-[#fca5a5]"}`}>
-                    <TownIcon name={icon(iconOf(payId))} size={14} />{payN}
-                    {inShop(payId) && <TownIcon name="coin" size={11} />}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-          {slot === "trim" && d.trims.length > 0 && PART[d.trims[d.trims.length - 1][0]].pay.length > 1 && (
-            <PayChoice part={d.trims[d.trims.length - 1][0]} chosen={d.trims[d.trims.length - 1][1]} have={have} th={th}
-                       onPick={(i) => setD((was) => ({ ...was, trims: was.trims.map((t, k) => (k === was.trims.length - 1 ? [t[0], i] : t)) }))} />
-          )}
-          {slot !== "trim" && PART[d[slot as "base"][0]].pay.length > 1 && (
-            <PayChoice part={d[slot as "base"][0]} chosen={d[slot as "base"][1]} have={have} th={th}
-                       onPick={(i) => setD((was) => ({ ...was, [slot]: [was[slot as "base"][0], i] }))} />
-          )}
-        </div>
+    </div>
+  );
+}
+
+/** The colours a part may take: its own first (its picture), then the dyes. */
+function Swatches({ part, chosen, th, onPick }: { part: string; chosen: number; th: boolean; onPick: (c: number) => void }) {
+  return (
+    <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label={th ? "สี" : "Colour"}>
+      {COLORS.map((c, i) => (
+        <button key={c.id} type="button" role="radio" aria-checked={i === chosen} title={th ? c.th : c.en} onClick={() => onPick(i)}
+                className={`pressable grid size-11 place-items-center rounded-full border-2 ${i === chosen ? "border-accent bg-accent/10" : "border-line"}`}>
+          {i === 0 ? <PartPic id={part} size={28} /> : <span aria-hidden className="size-7 rounded-full border border-black/30" style={{ background: c.swatch }} />}
+        </button>
       ))}
     </div>
   );
@@ -312,7 +383,7 @@ function Parts({ d, setD, th, have, choose }: {
 /** The ways to pay for the chosen part: tap the thing to pay with. */
 function PayChoice({ part, chosen, have, th, onPick }: { part: string; chosen: number; have: (id: ItemId) => number; th: boolean; onPick: (i: number) => void }) {
   return (
-    <div className="mt-1 flex flex-wrap gap-1" role="radiogroup" aria-label={th ? "จ่ายด้วย" : "Pay with"}>
+    <div className="flex flex-wrap gap-1" role="radiogroup" aria-label={th ? "จ่ายด้วย" : "Pay with"}>
       {PART[part].pay.map(([id, n], i) => (
         <button key={id} type="button" role="radio" aria-checked={i === chosen} onClick={() => onPick(i)}
                 title={`${th ? ITEMS[id].name.th : ITEMS[id].name.en}${GOODS[id] ? (th ? ` · ร้านค้า ${GOODS[id]!.price} เหรียญ` : ` · shop ${GOODS[id]!.price} coins`) : ""}`}
@@ -325,16 +396,16 @@ function PayChoice({ part, chosen, have, th, onPick }: { part: string; chosen: n
   );
 }
 
-/** A part's own picture, alone, at the largest whole zoom that fits the box. */
-function PartPic({ id, size }: { id: string; size: number }) {
+/** A part's own picture, alone, at the largest whole zoom that fits the box (dyed when a colour is given). */
+function PartPic({ id, size, color = 0 }: { id: string; size: number; color?: number }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const [n, setN] = useState(0);
   useEffect(() => {
     const c = ref.current, ctx = c?.getContext("2d");
     if (!c || !ctx) return;
     ctx.clearRect(0, 0, c.width, c.height);
-    if (!drawPart(ctx, id, c.width)) krathongImage(() => setN((x) => x + 1));
-  }, [id, n]);
+    if (!drawPart(ctx, id, c.width, color)) krathongImage(() => setN((x) => x + 1));
+  }, [id, n, color]);
   return <canvas ref={ref} width={size} height={size} aria-hidden className="[image-rendering:pixelated]" style={{ width: size, height: size }} />;
 }
 
@@ -387,13 +458,17 @@ function Gallery({ keeper, th, st, me, admin, voting, phone, onChanged, setSt }:
   return (
     <div className="flex flex-col gap-2.5">
       <div className="flex items-center gap-2">
+        {/* (the owner, 2026-11-24: "โหวต ให้โหวตได้ทุกคนในเกม": said so, with what is left or when it opens) */}
         {voting ? (
-          <span className="flex items-center gap-1.5 rounded-full bg-accent/15 px-2.5 py-1 text-meta font-semibold text-accent">
+          <span className="flex items-center gap-1.5 rounded-full bg-accent/15 px-2.5 py-1 text-meta font-semibold text-accent" data-vote-state="open">
             {/* eslint-disable-next-line @next/next/no-img-element -- the site's own small popoto */}
-            <img src={popotoArt.src} alt="" className="size-4" />{th ? `เหลือ ${left}/${st.votesEach}` : `${left}/${st.votesEach} left`}
+            <img src={popotoArt.src} alt="" className="size-4" />{th ? `ทุกคนให้ได้ ${st.votesEach} ใบ · เหลือ ${left}` : `Everyone gives ${st.votesEach} · ${left} left`}
           </span>
         ) : !st.awards && voteWin && Date.parse(voteWin.from) > st.now ? (
-          <span className="rounded-full bg-ink/[0.07] px-2.5 py-1 text-meta text-muted">{th ? voteWin.th : voteWin.en} · {whenText(voteWin.from, th)}</span>
+          <span className="flex items-center gap-1.5 rounded-full bg-ink/[0.07] px-2.5 py-1 text-meta text-muted" data-vote-state="soon">
+            {/* eslint-disable-next-line @next/next/no-img-element -- the site's own small popoto */}
+            <img src={popotoArt.src} alt="" className="size-4" />{th ? `ทุกคนโหวตได้ · เปิด ${whenText(voteWin.from, th)}` : `Everyone votes · opens ${whenText(voteWin.from, th)}`}
+          </span>
         ) : null}
         <span className="ml-auto text-meta text-muted">{st.awards ? (th ? "เปิดชื่อแล้ว" : "Names shown") : (th ? "ซ่อนชื่อคนทำ" : "Makers hidden")}</span>
       </div>
@@ -528,8 +603,8 @@ function Draw({ keeper, th, festival }: { keeper: Keeper; th: boolean; festival:
             <KrathongCanvas design={r.design} zoom={1} still className="shrink-0" />
             <div className="min-w-0 flex-1">
               <p className="flex items-center gap-1.5 text-ui font-semibold text-ink">
+                {/* (the draw is one for all, FC or not: the owner, 2026-11-24, "ลุ้นรางวัลไม่แบ่งแยก fc นอกfc") */}
                 <span className="truncate">{who(r)}</span>
-                <span className={`shrink-0 rounded-full px-1.5 py-px text-[11px] font-semibold ${r.fc ? "bg-accent/15 text-accent" : "bg-ink/[0.08] text-muted"}`}>{r.fc ? "FC" : (th ? "นอก FC" : "Guest")}</span>
                 {!r.verified && <span className="shrink-0 rounded-full bg-[#f87171]/15 px-1.5 py-px text-[11px] font-semibold text-[#fca5a5]">{th ? "ไม่ยืนยัน" : "Unverified"}</span>}
               </p>
               <p className="truncate font-data text-[11px] tabular-nums text-muted">

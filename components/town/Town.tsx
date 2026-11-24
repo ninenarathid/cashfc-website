@@ -801,6 +801,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   /** (v336) Where Loy Krathong's stall and the hall of the year's krathongs are on the screen, for a tap. */
   const stallBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
   const hallBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
+  /** The floated krathongs where they were last drawn (a tap on one says whose it is), and the one tapped, for six seconds. */
+  const riverHits = useRef<Array<{ id: number; x0: number; y0: number; x1: number; y1: number }>>([]);
+  const riverPicked = useRef<{ id: number; until: number } | null>(null);
   /** Where the trade board stands on the screen (the members' notices, lib/town/world's TRADE_BOARD). */
   const tradeBoardBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
   /** Where the editor's farm's vending machines that are trade boards stand on the screen (lib/town/farm2's F2_TRADE_BOARDS). */
@@ -3560,12 +3563,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     }
     // (v336) Loy Krathong on the editor's town: the stall beside the Popoto Board while the edition is on, the hall of
     // the year's krathongs once the results are out, and every floated krathong on the water (components/town/festival-map: each map its own places)
-    stallBox.current = null; hallBox.current = null;
+    stallBox.current = null; hallBox.current = null; riverHits.current = [];
     const fl = fest.live.current, lk = fl.f;
     if (popo2 && lk) {
       const stage = festivalStage(lk, wall);
       const fd: FestivalDraw = { ctx, s: v.s, now: wall, night: skyNow().lamps > 0.3, project, onScreen, th: words.current.th,
         phase: openPhases(lk, wall).filter((k) => k !== "results").map((k) => (words.current.th ? PHASE_NAME[k].th : PHASE_NAME[k].en)).join(" · "),
+        hits: riverHits.current, picked: riverPicked.current && riverPicked.current.until > Date.now() ? riverPicked.current.id : null,
         push: (depth, draw) => things.push({ depth, draw }), sign: (draw) => signs.push(draw),
         label: (text, x, y) => label(ctx, text, x, y, "#e5cc80", "rgba(15,19,25,0.82)", null),
         light: (x, y, reach, rgb, strong = 1, flat = 1) => { if (toolLights.current.length < 120) toolLights.current.push({ x, y, rgb, reach, flat, strong }); } };
@@ -5008,6 +5012,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (bb && x >= bb.x0 && x <= bb.x1 && y >= bb.y0 && y <= bb.y1) { setPopover(null); openBoard(); return; }
     // (v336) Loy Krathong's stall, and the hall of the year's krathongs: the stall's panel, in the board's place
     for (const fb of [stallBox.current, hallBox.current]) if (gameRef.current && fb && x >= fb.x0 && x <= fb.x1 && y >= fb.y0 && y <= fb.y1) { setPopover(null); openStall(null); return; }
+    // a floated krathong: whose it is, over it (the nearest drawn last, so the one on top)
+    for (let i = riverHits.current.length - 1; i >= 0; i--) {
+      const h = riverHits.current[i];
+      if (x >= h.x0 && x <= h.x1 && y >= h.y0 && y <= h.y1) { setPopover(null); riverPicked.current = { id: h.id, until: Date.now() + 6000 }; return; }
+    }
     // the trade board: the members' notices, opened as the Popoto Board is (where the game is open to me)
     const tb = tradeBoardBox.current;
     if (gameRef.current && tb && x >= tb.x0 && x <= tb.x1 && y >= tb.y0 && y <= tb.y1) { setPopover(null); openTrade("board"); return; }

@@ -89,18 +89,46 @@ export const PLACES = 3;
 export const NAME_MAX = 24;
 export const WISH_MAX = 140;
 
-/** A part chosen and the choice of payment: [part id, index into its `pay`]. */
-export type Pick = [string, number];
+/**
+ * A part chosen, the choice of payment and its colour: [part id, index into its `pay`, index into COLORS (0, or left
+ * out, its own colours)]. The colour costs nothing (the owner, 2026-11-24: "เอาให้เปลี่ยนสีได้ด้วย ในแต่ละส่วนประกอบ",
+ * so that the makers compete in what they make of it, not in what they own).
+ */
+export type Pick = [string, number] | [string, number, number];
+
+/**
+ * The colours a part may be dyed (lib/town/krathong-art recolours the part's own pixels: its outline and, for a light,
+ * its flame stay as drawn). The database keeps only the index and allows any below COLOR_SLOTS, so colours may be added
+ * here later without a migration; an index with no colour here is drawn as the part's own.
+ */
+export interface KrathongColor { id: string; th: string; en: string; swatch: string; mode: "own" | "hue" | "white" | "dark"; h?: number; s?: number }
+export const COLORS: readonly KrathongColor[] = [
+  { id: "own", th: "สีเดิม", en: "Own", swatch: "", mode: "own" },
+  { id: "red", th: "แดง", en: "Red", swatch: "#d9443a", mode: "hue", h: 2, s: 0.72 },
+  { id: "orange", th: "ส้ม", en: "Orange", swatch: "#e8842c", mode: "hue", h: 26, s: 0.8 },
+  { id: "gold", th: "ทอง", en: "Gold", swatch: "#e7b93a", mode: "hue", h: 44, s: 0.8 },
+  { id: "green", th: "เขียว", en: "Green", swatch: "#4fa64a", mode: "hue", h: 112, s: 0.5 },
+  { id: "teal", th: "ฟ้าเขียว", en: "Teal", swatch: "#2fa5a0", mode: "hue", h: 176, s: 0.55 },
+  { id: "blue", th: "น้ำเงิน", en: "Blue", swatch: "#3f72d6", mode: "hue", h: 218, s: 0.62 },
+  { id: "purple", th: "ม่วง", en: "Purple", swatch: "#8a55c9", mode: "hue", h: 272, s: 0.5 },
+  { id: "pink", th: "ชมพู", en: "Pink", swatch: "#e46aa6", mode: "hue", h: 330, s: 0.66 },
+  { id: "white", th: "ขาว", en: "White", swatch: "#eeeae0", mode: "white" },
+  { id: "dark", th: "เข้ม", en: "Dark", swatch: "#3b3446", mode: "dark" },
+];
+export const COLOR_SLOTS = 16;
+/** A pick's colour (0, its own, when it has none). */
+export const colorOf = (p: Pick): number => (p.length === 3 ? p[2] : 0);
 export interface Design { base: Pick; ring: Pick; light: Pick; centre: Pick; trims: Pick[] }
 
-export type Refusal = "part" | "slot" | "pay" | "trims" | "name" | "wish";
+export type Refusal = "part" | "slot" | "pay" | "trims" | "name" | "wish" | "color";
 
 /** The design as it must be: every part known, in its own place, with a real way to pay. */
 export function check(d: Design): Refusal | null {
   const places: Array<[Pick, Slot]> = [[d.base, "base"], [d.ring, "ring"], [d.light, "light"], [d.centre, "centre"], ...d.trims.map((t): [Pick, Slot] => [t, "trim"])];
   if (!Array.isArray(d.trims) || d.trims.length > MAX_TRIMS) return "trims";
   for (const [pick, slot] of places) {
-    if (!Array.isArray(pick) || pick.length !== 2) return "part";
+    if (!Array.isArray(pick) || (pick.length !== 2 && pick.length !== 3)) return "part";
+    if (pick.length === 3 && (!Number.isInteger(pick[2]) || pick[2] < 0 || pick[2] >= COLOR_SLOTS)) return "color";
     const part = PART[pick[0]];
     if (!part) return "part";
     if (part.slot !== slot) return "slot";
@@ -222,7 +250,11 @@ export interface KrathongState {
   awards: AwardView[] | null;
   capsule: Array<{ year: number; name: string; design: Design; wish: string }>;
 }
-export interface RiverKrathong { id: number; design: Design; floated: number; mine: boolean }
+export interface RiverKrathong {
+  id: number; design: Design; floated: number; mine: boolean;
+  /** Its name and its maker's (v339: a tap on the river says whose it is; the owner, 2026-11-24). */
+  name?: string; maker?: string | null;
+}
 /**
  * The lucky draw's list, for the admins (v339; Aqua's event of 2026-11-24: a verified member who made a krathong and
  * floated it may be drawn): whoever floated, when, FC or not, and whether before `until` (the festival's `draw_until`).

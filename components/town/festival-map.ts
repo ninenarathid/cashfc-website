@@ -63,6 +63,9 @@ export interface FestivalDraw {
   th: boolean;
   /** The phases open now, said short, for the stall's sign ("ทำกระทง", "โหวต · ลอยกระทง"). */
   phase?: string;
+  /** Where each floated krathong was drawn, for a tap (filled by drawRiver), and the one tapped, whose name it shows. */
+  hits?: Array<{ id: number; x0: number; y0: number; x1: number; y1: number }>;
+  picked?: number | null;
 }
 
 /** Where the light part's flame is in the 48×50 template (the candle's wick, the jar's middle). */
@@ -134,6 +137,7 @@ export function drawRiver(d: FestivalDraw, river: RiverKrathong[]) {
       d.light(x0 + fx * k, y0 + fy * k, 22 * d.s, "255,196,120", flicker);
       d.light(at.x, at.y + 3 * d.s, 30 * d.s, "255,170,90", 0.55 * flicker, 0.38);
     }
+    d.hits?.push({ id: kr.id, x0: x0 - 4 * d.s, y0: y0 - 4 * d.s, x1: x0 + w * k + 4 * d.s, y1: y0 + h * k + 4 * d.s });
     d.push(CITY ? Math.floor(p.x) + Math.floor(p.y) + 0.977 : p.x + p.y, () => {
       const { ctx } = d;
       // its reflection: a faint warm streak on the water below it
@@ -143,7 +147,9 @@ export function drawRiver(d: FestivalDraw, river: RiverKrathong[]) {
       ctx.fillRect(Math.round(x0 + fx * k - 1.5 * d.s), Math.round(at.y + 3 * d.s), Math.round(3 * d.s), Math.round(6 * d.s));
       ctx.restore();
       drawKrathong(ctx, kr.design, x0, y0, k, frame + kr.id);
-      if (kr.mine) d.sign(() => d.label(d.th ? "กระทงของฉัน" : "Mine", at.x, y0 - 8 * d.s));
+      // (a tap says whose it is, the owner, 2026-11-24: "สามารถคลิ๊กดูได้ว่าของใคร"; mine says so the whole time)
+      if (d.picked === kr.id) d.sign(() => d.label(`${kr.mine ? (d.th ? "ของฉัน" : "Mine") : (kr.maker ?? (d.th ? "ผู้เล่น" : "A player"))}${kr.name ? ` · ${kr.name}` : ""}`, at.x, y0 - 8 * d.s));
+      else if (kr.mine) d.sign(() => d.label(d.th ? "กระทงของฉัน" : "Mine", at.x, y0 - 8 * d.s));
     });
   }
 }

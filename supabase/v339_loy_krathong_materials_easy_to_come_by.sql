@@ -1,24 +1,25 @@
--- v339: Loy Krathong as Aqua announced it (Cash Town): materials easy to come by, entries until midnight, the lucky
--- draw's list for the admins
+-- v339: Loy Krathong as Aqua announced it (Cash Town): more parts, each in a colour of the maker's choice, materials
+-- a newcomer can find, entries until midnight, a tap on the river says whose krathong it is, the lucky draw's list
 --
--- The owner, 2026-11-24 morning: "ช่วยปรับให้วัตถุดิบหาง่ายขึ้น", and with Aqua's announcement of the day's event
--- (make a krathong in Cash Town "ได้เรื่อยๆ จนถึงเวลาเที่ยงคืน", float it together in the evening, a lucky draw among the
--- verified members who made one and floated it), his choices: entries until midnight; the admins see who may be drawn.
+-- The owner, 2026-11-24: "ช่วยปรับให้วัตถุดิบหาง่ายขึ้น"; with Aqua's announcement of the day's event (make a krathong in
+-- Cash Town "ได้เรื่อยๆ จนถึงเวลาเที่ยงคืน", float it together in the evening, a lucky draw among the verified members who
+-- made one and floated it) his choices: entries until midnight, the admins see who may be drawn; then "ลุ้นรางวัลไม่แบ่ง
+-- แยก fc นอกfc", "ตอนลอยกระทง ... สามารถคลิ๊กดูได้ว่าของใคร", "อยากให้มีแบบกระทงมากกว่านี้ ... วัตถุดิบไม่ยากเกินไป คนที่
+-- เพิ่งเข้ามาก็หาได้ ... เอาให้เปลี่ยนสีได้ด้วย ในแต่ละส่วนประกอบ".
 --
--- 1. The parts: on the contest's morning no member held any base material (banana leaf, fern, plank, flour), nor beeswax
---    or a firefly for the light, and three held wildflowers for a ring. Every count comes down, and every part gains ways
---    to pay with what members do hold (logs, timber, dough, shiitake, toadstools, copper shards, wild apples …) or the
---    town's shop sells (banana leaf, flour, dough, oil, sugar, eggs, seaweed, shrimp, crickets). The cheapest krathong
---    from the shop alone: dough 2, a banana leaf, oil, two eggs: 29 coins. New ways come after the old ones in each
---    part's list, so a pick already made keeps its meaning.
--- 2. The windows (Bangkok): entries 23 Nov 18:00 -> 25 Nov 00:00 (midnight, as Aqua said); the float 24 Nov 18:00 ->
---    26 Nov 05:00 as before, so making and floating overlap the evening of the 24th (a krathong made then is entered and
---    may be floated at once); the vote 25 Nov 00:00 -> 21:00, after the entries close; the results 25 Nov 21:00.
--- 3. `rules.draw_until`: the lucky draw's last moment to have floated (24 Nov midnight); a row he may change.
--- 4. public.town_festival_draw(festival): for an admin only, every floated krathong's maker, FC or not, when made and
---    floated, and whether in time for the draw.
--- The code's twins: lib/town/krathong's PARTS and lib/town/festivals' LOY_KRATHONG_2026 (krathong.test.ts checks these
--- blocks). Needs v336. Runs twice without harm.
+-- 1. The parts (28): every count is low, and every part may be paid with what members hold or the town's shop sells
+--    (banana leaf, flour, dough, oil, sugar, eggs, seaweed, shrimp, crickets …); the cheapest krathong from the shop alone
+--    costs about 29 coins. New ways and new parts come after the old ones, so a pick already made keeps its meaning.
+-- 2. A pick may carry a third number, its colour (an index into lib/town/krathong's COLORS; 0, or none, the part's own;
+--    any below 16 is kept, so colours may be added without a migration). Colour costs nothing.
+-- 3. The windows (Bangkok): entries 23 Nov 18:00 -> 25 Nov 00:00 (midnight); the float 24 Nov 18:00 -> 26 Nov 05:00, so
+--    making and floating overlap the evening of the 24th (made then: entered, and floated at once); the vote 25 Nov
+--    00:00 -> 21:00, after the entries close, open to everybody in the town; the results 25 Nov 21:00.
+-- 4. The river (public.town_krathong_river) says each krathong's name and its maker's, for a tap on the map.
+-- 5. `rules.draw_until`: the lucky draw's last moment to have floated (24 Nov midnight), a row he may change; and
+--    public.town_festival_draw(festival): for an admin only, every floated krathong's maker and when, one list for all.
+-- The code's twins: lib/town/krathong's PARTS and COLOR_SLOTS, lib/town/festivals' LOY_KRATHONG_2026 (krathong.test.ts
+-- checks these blocks). Needs v336. Runs twice without harm.
 
 begin;
 do $$ begin
@@ -33,6 +34,54 @@ update public.town_festivals
    set rules = jsonb_set(rules, '{parts}', '{"b_wood":{"slot":"base","pay":[["splitPlank",2],["carvingBlank",1],["log",2],["timber",2]]},"b_leaf":{"slot":"base","pay":[["bananaLeaf",2],["fernTip",3]]},"b_bread":{"slot":"base","pay":[["flour",2],["pineNutFlour",2],["dough",2]]},"r_leaf":{"slot":"ring","pay":[["bananaLeaf",1],["fernTip",2]]},"r_lotus":{"slot":"ring","pay":[["fragrantPetal",3],["wildflower",4]]},"r_marigold":{"slot":"ring","pay":[["marigold",4]]},"l_candle":{"slot":"light","pay":[["beeswax",1],["oil",1]]},"l_firefly":{"slot":"light","pay":[["firefly",2],["dragonfly",1]]},"c_flower":{"slot":"centre","pay":[["marigold",3],["wildflower",3],["wildOrchid",1],["moonflower",1],["goldenDandelion",1]]},"c_mushroom":{"slot":"centre","pay":[["glowMushroom",1],["mushroomSpores",2],["shiitake",2],["toadstool",2]]},"c_shell":{"slot":"centre","pay":[["snail",2],["pearl",1],["shrimpLive",2]]},"c_butterfly":{"slot":"centre","pay":[["butterflyWhite",1],["monarch",1],["lunaMoth",1],["silkMoth",1],["silkCocoon",1],["dragonfly",1]]},"c_crystal":{"slot":"centre","pay":[["crystalLens",1],["gemRuby",1],["gemSapphire",1],["gemEmerald",1],["gemAmber",1],["gemTopaz",1],["gemAquamarine",1],["gemOnyx",1],["gemDiamond",1],["starShard",1],["shardCopper",3],["shardSilver",2],["chipAquamarine",2]]},"c_carving":{"slot":"centre","pay":[["carvingBlank",1],["lure",1],["log",2],["heartwood",1]]},"c_sweets":{"slot":"centre","pay":[["sugar",3],["gardenHoney",1],["sweetGlaze",1],["candiedPumpkin",1],["wildApple",2]]},"c_feather":{"slot":"centre","pay":[["feather",3],["wool",2],["yarn",1],["egg",2]]},"c_bell":{"slot":"centre","pay":[["copperBlank",1],["floatBell",1],["shardCopper",2],["copperNodule",1]]},"c_lily":{"slot":"centre","pay":[["hyacinth",3],["lotusRootBed",1],["seaweed",2]]},"t_flower":{"slot":"trim","pay":[["marigold",1],["wildflower",1],["fragrantPetal",1]]},"t_mushroom":{"slot":"trim","pay":[["mushroomSpores",1],["glowMushroom",1],["shiitake",1],["toadstool",1]]},"t_shell":{"slot":"trim","pay":[["snail",1],["pearl",1],["shrimpLive",1]]},"t_butterfly":{"slot":"trim","pay":[["butterflyWhite",1],["monarch",1],["dragonfly",1],["cricket",2]]},"t_crystal":{"slot":"trim","pay":[["crystalLens",1],["chipAmber",1],["gemRuby",1],["gemSapphire",1],["gemEmerald",1],["gemAmber",1],["gemTopaz",1],["gemAquamarine",1],["gemOnyx",1],["gemDiamond",1],["shardCopper",1],["chipAquamarine",1],["stone",2]]},"t_carving":{"slot":"trim","pay":[["splitPlank",1],["carvingBlank",1],["log",1],["timber",1]]},"t_sweets":{"slot":"trim","pay":[["sugar",1],["gardenHoney",1],["sweetGlaze",1],["wildApple",1]]},"t_feather":{"slot":"trim","pay":[["feather",1],["wool",1],["egg",1]]},"t_bell":{"slot":"trim","pay":[["copperBlank",1],["shardCopper",1]]},"t_lily":{"slot":"trim","pay":[["hyacinth",1],["seaweed",1]]}}'::jsonb) || jsonb_build_object('draw_until', '2026-11-24T17:00:00Z'),
        windows = '[{"kind":"announce","from":"2026-11-22T15:00:00.000Z","until":"2026-11-23T11:00:00.000Z","th":"เตรียมของ","en":"Gather"},{"kind":"auction","from":"2026-11-15T13:30:00.000Z","until":"2026-11-23T13:00:00.000Z","th":"ปิดประมูลชุดลอยกระทง","en":"Festival outfits auction closes"},{"kind":"make","from":"2026-11-23T11:00:00.000Z","until":"2026-11-24T17:00:00.000Z","th":"ส่งกระทงประกวด","en":"Enter a krathong"},{"kind":"float","from":"2026-11-24T11:00:00.000Z","until":"2026-11-25T22:00:00.000Z","th":"ลอยกระทง","en":"Float"},{"kind":"vote","from":"2026-11-24T17:00:00.000Z","until":"2026-11-25T14:00:00.000Z","th":"โหวตกระทง","en":"Vote"},{"kind":"results","from":"2026-11-25T14:00:00.000Z","until":null,"th":"ประกาศผล","en":"Results"}]'::jsonb
  where slug = 'loykrathong' and year = 2026;
+
+-- A design as it may be kept, a pick being [part, payment] or [part, payment, colour]. The twin of lib/town/krathong's
+-- `check` (v336's, and the colour).
+create or replace function town.krathong_design(p_parts jsonb, p_design jsonb, p_max integer) returns jsonb
+language plpgsql immutable set search_path to '' as $$
+declare
+  places jsonb := '[]'::jsonb;
+  e jsonb;
+  pick jsonb;
+  part jsonb;
+begin
+  if p_design is null or jsonb_typeof(p_design) <> 'object' or jsonb_typeof(p_design->'trims') is distinct from 'array'
+     or jsonb_array_length(p_design->'trims') > p_max then return null; end if;
+  places := jsonb_build_array(jsonb_build_array('base', p_design->'base'), jsonb_build_array('ring', p_design->'ring'),
+                              jsonb_build_array('light', p_design->'light'), jsonb_build_array('centre', p_design->'centre'));
+  for e in select jsonb_build_array('trim', t) from jsonb_array_elements(p_design->'trims') t loop places := places || jsonb_build_array(e); end loop;
+  for e in select x from jsonb_array_elements(places) x loop
+    pick := e->1;
+    if pick is null or jsonb_typeof(pick) <> 'array' or jsonb_array_length(pick) not in (2, 3)
+       or jsonb_typeof(pick->0) <> 'string' or jsonb_typeof(pick->1) <> 'number' or (pick->>1) !~ '^[0-9]{1,3}$' then return null; end if;
+    if jsonb_array_length(pick) = 3 and (jsonb_typeof(pick->2) <> 'number' or (pick->>2) !~ '^[0-9]{1,2}$' or (pick->>2)::int >= 16) then return null; end if;
+    part := p_parts->(pick->>0);
+    if part is null or part->>'slot' is distinct from e->>0 then return null; end if;
+    if (pick->>1)::int >= jsonb_array_length(part->'pay') then return null; end if;
+  end loop;
+  return jsonb_build_object('base', p_design->'base', 'ring', p_design->'ring', 'light', p_design->'light',
+                            'centre', p_design->'centre', 'trims', p_design->'trims');
+end;
+$$;
+
+-- What floats now, for the map (v336's), with each krathong's name and its maker's: a tap says whose it is.
+create or replace function public.town_krathong_river(p_festival integer) returns jsonb
+language plpgsql stable security definer set search_path to '' as $$
+declare
+  me uuid := town.member();
+  f public.town_festivals%rowtype;
+begin
+  select * into f from public.town_festivals where id = p_festival and published;
+  if not found or not town.festival_open(f.windows, 'float', town.festival_now()) then
+    return jsonb_build_object('ok', true, 'now', town.now_ms(), 'river', '[]'::jsonb);
+  end if;
+  return jsonb_build_object('ok', true, 'now', town.now_ms(), 'river', coalesce((
+    select jsonb_agg(jsonb_build_object('id', x.id, 'design', x.design, 'floated', (extract(epoch from x.floated_at) * 1000)::bigint,
+             'mine', x.member_id = me, 'name', x.name,
+             'maker', (select p.character_name from public.profiles p where p.id = x.member_id)) order by x.floated_at)
+      from (select * from public.town_krathongs k where k.festival = f.id and k.floated_at is not null order by k.floated_at desc limit 300) x), '[]'::jsonb));
+end;
+$$;
 
 -- The lucky draw's list, for the admins: whoever floated a krathong, in the order they floated it.
 create or replace function public.town_festival_draw(p_festival integer) returns jsonb
@@ -69,5 +118,6 @@ commit;
 
 -- Afterwards (each should say what is written beside it):
 -- select rules->'parts'->'l_candle'->'pay', rules->>'draw_until' from public.town_festivals where id = 1;   -- [["beeswax", 1], ["oil", 1]]  2026-11-24T17:00:00Z
+-- select (select count(*) from jsonb_object_keys(rules->'parts')) from public.town_festivals where id = 1;  -- 28
 -- select w->>'until' from public.town_festivals, jsonb_array_elements(windows) w where id = 1 and w->>'kind' = 'make';  -- 2026-11-24T17:00:00.000Z
 -- select has_function_privilege('anon', 'public.town_festival_draw(integer)', 'execute');  -- f
