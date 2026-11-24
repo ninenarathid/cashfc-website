@@ -20,6 +20,10 @@ export interface TrialFestivalStore { get(): TrialFestivalState | null; set(s: T
 const H = 3_600_000;
 const PRETEND = ["Mira Lune", "Kael Ashford", "Noa Brightwater", "Suri Mistvale", "Tavi Emberleaf", "Rin Starfall", "Elio Quill", "Yuna Petalwind"];
 
+/** (the dev room's `&lkAdmin=1`: the stall as an admin sees it, the popoto counts with it) */
+export function trialAdmin(): boolean {
+  try { return new URLSearchParams(window.location.search).has("lkAdmin"); } catch { return false; }
+}
 export function trialPhase(): string | null {
   try { return new URLSearchParams(window.location.search).get("lk"); } catch { return null; }
 }
@@ -57,7 +61,8 @@ function fresh(now: number, f: Festival): TrialFestivalState {
   // pretend popoto: a few each, never their own
   const votes: Array<[number, string]> = [];
   rows.forEach((r, i) => { for (let k = 0; k < (i * 5) % 7; k++) votes.push([r.id, `pretend-voter-${k}`]); });
-  return { rows, votes, judge: 5, settled: false, awards: [], next: rows.length + 1 };
+  // (no judges' pick: the owner, 2026-11-24, "ไม่ต้องเลือกกรรมการ ให้คนในเมืองโหวตกันเอง")
+  return { rows, votes, judge: null, settled: false, awards: [], next: rows.length + 1 };
   void now;
 }
 
@@ -78,7 +83,7 @@ export class KrathongTrial {
       s.awards = awardsOf(entered.map((r) => ({ id: r.id, votes: counts.get(r.id) ?? 0, made: r.made })), s.judge).map((a) => {
         const r = s.rows.find((x) => x.id === a.entry)!;
         const title = a.kind === "judge" ? { th: "กระทงในดวงใจกรรมการ 2026", en: "Judges' Choice 2026" } : a.place === 1 ? { th: "ช่างกระทงแห่งปี 2026", en: "Krathong Maker of 2026" } : { th: "ช่างกระทงดีเด่น 2026", en: "Outstanding Krathong 2026" };
-        return { ...a, votes: counts.get(r.id) ?? 0, title, krathong: view(r), maker: { name: r.makerName, character: r.character }, fc: r.fc };
+        return { ...a, votes: trialAdmin() ? counts.get(r.id) ?? 0 : null, title, krathong: view(r), maker: { name: r.makerName, character: r.character }, fc: r.fc };
       });
       s.settled = true;
     }
@@ -92,7 +97,9 @@ export class KrathongTrial {
     return {
       now: this.store.now(), festival: f,
       mine: mine ? { ...view(mine), wish: mine.wish } : null,
-      entries: s.rows.filter((r) => r.entered).map((r) => ({ ...view(r), mine: r.member === me, fc: r.fc, ...(s.settled ? { votes: counts.get(r.id) ?? 0, maker: { name: r.member === me ? "คุณ" : r.makerName, character: r.character } } : {}) })),
+      entries: s.rows.filter((r) => r.entered).map((r) => ({ ...view(r), mine: r.member === me, fc: r.fc,
+        ...(s.settled ? { maker: { name: r.member === me ? "คุณ" : r.makerName, character: r.character } } : {}),
+        ...(trialAdmin() ? { votes: counts.get(r.id) ?? 0 } : {}) })),
       voted: s.votes.filter(([, v]) => v === me).map(([e]) => e).sort((a, b) => a - b),
       votesEach: VOTES_EACH, floated: s.rows.filter((r) => r.floated !== null).length, judged: s.judge !== null,
       awards: s.settled ? s.awards : null, capsule: [],

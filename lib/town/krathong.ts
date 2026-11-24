@@ -254,7 +254,8 @@ export function catalogJson(): Record<string, { slot: Slot; pay: Array<[string, 
 export interface KrathongView { id: number; name: string; design: Design; entered: boolean; made: number; floated: number | null }
 export interface Maker { name: string | null; character: number | null }
 export interface GalleryEntry extends KrathongView { mine: boolean; fc: boolean; votes?: number; maker?: Maker }
-export interface AwardView { entry: number; kind: AwardKind; place: number; votes: number; title: Line; krathong: KrathongView; maker: Maker | null; fc: boolean }
+/** (`votes`: the popoto counts are an admin's only, v339; a member is told the places, not the counts) */
+export interface AwardView { entry: number; kind: AwardKind; place: number; votes: number | null; title: Line; krathong: KrathongView; maker: Maker | null; fc: boolean }
 export interface KrathongState {
   now: number;
   festival: import("./festivals").Festival;

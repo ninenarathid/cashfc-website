@@ -96,12 +96,15 @@ try {
 
   // ── members ──
   const players = [];
-  for (const { id } of await rows("select p.id from public.profiles p order by p.id")) {
+  // (members before admins: an admin sees what a member may not, the popoto counts since v339)
+  for (const { id } of await rows("select p.id from public.profiles p order by p.is_admin, p.id")) {
     const b = await asOf(id)("select public.town_festivals_list() r");
     if (Array.isArray(b?.festivals)) players.push(id);
   }
   eq(players.length >= 4, true, "four members may play");
   const [m1, m2, m3, m4] = players;
+  // (the bench has three members who may play and an admin: m4 is the admin, who sees the popoto counts since v339)
+  const m4Admin = (await asOf(m4)("select public.is_admin() r")) === true;
   const call = (who, q, a) => asOf(who)(q, a);
   const make = (who, design, name, req) => call(who, "select public.town_krathong_make(1, $1::jsonb, $2, $3) r", [JSON.stringify(design), name, req]);
   const state = (who) => call(who, "select public.town_krathong(1) r");
@@ -149,7 +152,8 @@ try {
 
   // the gallery, while names are hidden
   let s = await state(m4);
-  eq(s.entries.map((e) => [e.id, e.mine, "maker" in e, "votes" in e]), [[e1, false, false, false], [e2, false, false, false], [e3, false, false, false]], "entries without makers or counts");
+  const seesCounts = !!easySql && m4Admin;
+  eq(s.entries.map((e) => [e.id, e.mine, "maker" in e, "votes" in e]), [[e1, false, false, seesCounts], [e2, false, false, seesCounts], [e3, false, false, seesCounts]], "entries without makers (or counts, but to an admin since v339)");
   eq(s.mine, null, "m4 has none");
   eq((await state(m1)).mine?.id, e1, "m1 sees its own");
   eq((await vote(m4, e1))?.why, "closed", "no popoto before the vote opens");
@@ -202,15 +206,28 @@ try {
   eq(!!admin, true, "an admin in the bench");
   eq((await call(admin, "select public.town_festival_judge(1, $1) r", [e4]))?.why, "none", "the judge picks an entered krathong only");
   eq((await call(admin, "select public.town_festival_judge(1, $1) r", [e3]))?.ok, true, "the judge's pick");
+  if (easySql) {
+    eq((await call(admin, "select public.town_krathong(1) r")).entries.every((e) => typeof e.votes === "number"), true, "v339: before the results, the admin sees the counts");
+    eq((await state(m2)).entries.some((e) => "votes" in e), false, "v339: a member none");
+  }
 
   // ── the results ──
   await setWindows([["make", -3 * H, -2 * H], ["float", -2 * H, H], ["vote", -2 * H, -H], ["results", -60, null]]);
   eq((await vote(m2, e2))?.why, "closed", "the vote is closed");
   s = await state(m4);
-  eq(s.awards?.map((a) => [a.entry, a.kind, a.place, a.votes]), [[e1, "popular", 1, 3], [e3, "popular", 1, 3], [e2, "popular", 3, 2], [e3, "judge", 1, 3]], "places 1, 1, 3 and the judge's pick");
+  // (v339: the counts are an admin's only; a member is told the places)
+  const told = (n) => (easySql && !m4Admin ? null : n);
+  eq(s.awards?.map((a) => [a.entry, a.kind, a.place, a.votes]), [[e1, "popular", 1, told(3)], [e3, "popular", 1, told(3)], [e2, "popular", 3, told(2)], [e3, "judge", 1, told(3)]], "places 1, 1, 3 and the judge's pick");
+  if (easySql) eq((await state(m2)).awards?.map((a) => [a.entry, a.place, a.votes]), [[e1, 1, null], [e3, 1, null], [e2, 3, null], [e3, 1, null]], "v339: a member is told the places, not the counts");
+  if (easySql) {
+    const sa = await call(admin, "select public.town_krathong(1) r");
+    eq(sa.awards?.map((a) => a.votes), [3, 3, 2, 3], "v339: the admin sees the counts");
+    eq(sa.entries.every((e) => typeof e.votes === "number"), true, "v339: and every entry's");
+  }
   eq(s.awards?.[0]?.title?.th, "ช่างกระทงแห่งปี 2026", "the first place's title");
   eq(s.awards?.[2]?.title?.th, "ช่างกระทงดีเด่น 2026", "the third's");
-  eq(s.entries.every((e) => typeof e.votes === "number" && e.maker && "name" in e.maker), true, "makers and counts shown");
+  if (easySql) eq((await state(m2)).entries.every((e) => !("votes" in e) && e.maker && "name" in e.maker), true, "v339: makers shown, counts never to a member");
+  else eq(s.entries.every((e) => typeof e.votes === "number" && e.maker && "name" in e.maker), true, "makers and counts shown");
   eq(K.awardsOf([{ id: e1, votes: 3, made: 1 }, { id: e2, votes: 2, made: 2 }, { id: e3, votes: 3, made: 3 }], e3).map((a) => [a.entry, a.kind, a.place]).sort(),
     s.awards.map((a) => [a.entry, a.kind, a.place]).sort(), "lib/town/krathong's awardsOf agrees");
   const settled = (await one("select settled_at::text t from public.town_festivals where id = 1")).t;

@@ -10,7 +10,6 @@ import {
   COLORS, MAX_TRIMS, PART, START, bestPay, check, colorOf, costOf, costOfPicks, familiesOf, partsOf, picksOf, shuffledFor,
   type AwardView, type Design, type DrawList, type GalleryEntry, type KrathongState, type Pick, type Slot,
 } from "@/lib/town/krathong";
-import { isFcMember } from "@/lib/people";
 import KrathongCanvas from "./KrathongCanvas";
 import TownIcon, { type IconName } from "./TownIcon";
 
@@ -450,7 +449,7 @@ function refusal(why: string, th: boolean, item?: ItemId): string {
 
 // ── the gallery ──
 
-function Gallery({ keeper, th, st, me, admin, voting, phone, onChanged, setSt }: {
+function Gallery({ keeper, th, st, me, admin, voting, phone, setSt }: {
   keeper: Keeper; th: boolean; st: KrathongState; me: string; admin: boolean; voting: boolean; phone: boolean;
   onChanged: () => Promise<void>; setSt: (s: KrathongState) => void;
 }) {
@@ -464,10 +463,6 @@ function Gallery({ keeper, th, st, me, admin, voting, phone, onChanged, setSt }:
     setBusy(null);
     if (did.ok) setSt({ ...st, voted: did.voted });
     else setNote(refusal(did.why, th));
-  };
-  const judge = async (e: GalleryEntry) => {
-    const did = await keeper.festivalJudge(st.festival.id, e.id);
-    if (did.ok) await onChanged(); else setNote(refusal(did.why, th));
   };
   const voteWin = windowOf(st.festival, "vote");
   return (
@@ -485,7 +480,9 @@ function Gallery({ keeper, th, st, me, admin, voting, phone, onChanged, setSt }:
             <img src={popotoArt.src} alt="" className="size-4" />{th ? `ทุกคนโหวตได้ · เปิด ${whenText(voteWin.from, th)}` : `Everyone votes · opens ${whenText(voteWin.from, th)}`}
           </span>
         ) : null}
-        <span className="ml-auto text-meta text-muted">{st.awards ? (th ? "เปิดชื่อแล้ว" : "Names shown") : (th ? "ซ่อนชื่อคนทำ" : "Makers hidden")}</span>
+        <span className="ml-auto text-meta text-muted">
+          {admin ? (th ? "แอดมินเห็นคะแนน" : "Counts: admins only") : st.awards ? (th ? "เปิดชื่อแล้ว · ไม่โชว์คะแนน" : "Names shown · no counts") : (th ? "ซ่อนชื่อและคะแนน" : "Makers and counts hidden")}
+        </span>
       </div>
       {note && <p className="text-meta text-[#fca5a5]" aria-live="polite">{note}</p>}
       {!shown.length && <p className="py-6 text-center text-meta text-muted">{th ? "ยังไม่มีกระทงส่งประกวด" : "No entries yet"}</p>}
@@ -496,28 +493,24 @@ function Gallery({ keeper, th, st, me, admin, voting, phone, onChanged, setSt }:
             <div key={e.id} className={`flex flex-col items-center gap-1 rounded-xl border px-1.5 pb-1.5 pt-2 ${e.mine ? "border-accent/60" : "border-line"} bg-card/60`}>
               <KrathongCanvas design={e.design} zoom={phone ? 2 : 3} water className="w-full py-1" />
               <p className="w-full truncate text-center text-ui font-semibold text-ink">{e.name}</p>
-              <p className="flex items-center gap-1">
-                <span className={`rounded-full px-1.5 py-px text-[11px] font-semibold ${e.fc ? "bg-accent/15 text-accent" : "bg-ink/[0.08] text-muted"}`}>{e.fc ? "FC" : (th ? "นอก FC" : "Guest")}</span>
+              {/* (no FC mark in the festival: the owner, 2026-11-24, "เอา FC นอก FC ออกเลย") */}
+              <p className="flex min-h-5 items-center gap-1">
                 {e.mine && <span className="rounded-full bg-accent px-1.5 py-px text-[11px] font-semibold text-bg">{th ? "ของฉัน" : "Mine"}</span>}
                 {e.maker?.name && <span className="max-w-[6rem] truncate text-[11px] text-muted">{e.maker.name}</span>}
               </p>
-              {typeof e.votes === "number" ? (
-                <span className="flex min-h-9 items-center gap-1 font-data text-ui tabular-nums text-ink">
+              {typeof e.votes === "number" && (
+                <span className="flex items-center gap-1 rounded-full bg-[#e5cc80]/15 px-2 py-0.5 font-data text-meta tabular-nums text-[#e5cc80]" title={th ? "คะแนน · แอดมินเห็นคนเดียว" : "Count · admins only"}>
                   {/* eslint-disable-next-line @next/next/no-img-element -- the site's own small popoto */}
-                  <img src={popotoArt.src} alt="" className="size-4" />{e.votes}
+                  <img src={popotoArt.src} alt="" className="size-3.5" />{e.votes}
                 </span>
-              ) : voting && !e.mine ? (
+              )}
+              {voting && !e.mine ? (
                 <button type="button" aria-pressed={given} disabled={busy !== null || (!given && left <= 0)} onClick={() => void vote(e)}
                         className={`pressable flex min-h-11 w-full items-center justify-center gap-1.5 rounded-lg text-ui font-semibold disabled:opacity-40 ${given ? "bg-accent text-bg" : "border border-line-strong text-ink hover:border-accent"}`}>
                   {/* eslint-disable-next-line @next/next/no-img-element -- the site's own small popoto */}
                   <img src={popotoArt.src} alt="" className="size-4" />{given ? (th ? "ให้แล้ว" : "Given") : (th ? "ให้ popoto" : "Give")}
                 </button>
               ) : <span className="min-h-9" />}
-              {admin && !st.awards && (
-                <button type="button" onClick={() => void judge(e)} className="pressable min-h-9 w-full rounded-lg border border-dashed border-[#e5cc80]/50 text-meta text-[#e5cc80]">
-                  {th ? "เลือก · กรรมการ" : "Judges' pick"}
-                </button>
-              )}
             </div>
           );
         })}
@@ -651,7 +644,6 @@ function AwardCard({ a, th, phone, mine }: { a: AwardView; th: boolean; phone: b
     return () => { gone = true; };
   }, [a.maker?.character]);
   const gold = a.kind === "popular" && a.place === 1;
-  const fc = a.fc || isFcMember(a.maker?.character ?? null);
   return (
     <div className={`flex items-center gap-3 rounded-2xl border p-2.5 ${gold ? "border-[#e5cc80]/70 bg-[#e5cc80]/[0.07]" : "border-line bg-card/60"} ${mine ? "ring-1 ring-accent" : ""}`}>
       <KrathongCanvas design={a.krathong.design} zoom={phone ? 2 : 3} water className="shrink-0 px-1 py-1" />
@@ -664,16 +656,17 @@ function AwardCard({ a, th, phone, mine }: { a: AwardView; th: boolean; phone: b
           {face ? <img src={face} alt="" className="size-9 shrink-0 rounded-full border border-line-strong object-cover" /> : <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-ink/10 font-display text-ui font-semibold text-muted">{[...(a.maker?.name ?? "?")][0]}</span>}
           <div className="min-w-0">
             <p className="truncate text-ui font-semibold text-ink">{a.maker?.name ?? "—"}</p>
-            <p className="flex items-center gap-1 text-[11px] text-muted">
-              <span className={`rounded-full px-1.5 py-px font-semibold ${fc ? "bg-accent/15 text-accent" : "bg-ink/[0.08]"}`}>{fc ? "FC" : (th ? "นอก FC" : "Guest")}</span>
-              <span className="truncate">{a.krathong.name}</span>
-            </p>
+            <p className="truncate text-[11px] text-muted">{a.krathong.name}</p>
           </div>
         </div>
         <p className="mt-1 flex items-center gap-1 font-data text-meta tabular-nums text-muted">
-          {/* eslint-disable-next-line @next/next/no-img-element -- the site's own small popoto */}
-          <img src={popotoArt.src} alt="" className="size-3.5" />{a.votes}
-          {a.kind === "popular" && <span className="ml-1">· {th ? `อันดับ ${a.place}` : `#${a.place}`}</span>}
+          {a.kind === "popular" && <span>{th ? `อันดับ ${a.place}` : `#${a.place}`}</span>}
+          {typeof a.votes === "number" && (
+            <span className="ml-1 flex items-center gap-1 text-[#e5cc80]" title={th ? "คะแนน · แอดมินเห็นคนเดียว" : "Count · admins only"}>
+              {/* eslint-disable-next-line @next/next/no-img-element -- the site's own small popoto */}
+              <img src={popotoArt.src} alt="" className="size-3.5" />{a.votes}
+            </span>
+          )}
         </p>
       </div>
     </div>

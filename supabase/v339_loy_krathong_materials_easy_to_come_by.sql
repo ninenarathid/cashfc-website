@@ -17,6 +17,9 @@
 --    -> 26 Nov 05:00, so it overlaps them the evening of the 24th (made then: entered, and floated at once); the results
 --    25 Nov 21:00.
 -- 4. The river (public.town_krathong_river) says each krathong's name and its maker's, for a tap on the map.
+-- 4b. The stall (public.town_krathong): the popoto counts go to an admin only, at any time, and never to the members,
+--    the results included ("ไม่ต้องเลือกกรรมการ ให้คนในเมืองโหวตกันเอง แค่ไม่เห็นคะแนนพอ มีแต่ admin ที่เห็นคะแนน"); the
+--    makers' names as before, once the results are out. No judges' pick is offered any more (the game shows none).
 -- 5. `rules.draw_until`: the lucky draw's last moment to have floated (24 Nov midnight), a row he may change; and
 --    public.town_festival_draw(festival): for an admin only, every floated krathong's maker and when, one list for all.
 -- The code's twins: lib/town/krathong's PARTS and COLOR_SLOTS, lib/town/festivals' LOY_KRATHONG_2026 (krathong.test.ts
@@ -62,6 +65,61 @@ begin
   end loop;
   return jsonb_build_object('base', p_design->'base', 'ring', p_design->'ring', 'light', p_design->'light',
                             'centre', p_design->'centre', 'trims', p_design->'trims');
+end;
+$$;
+
+-- The stall (v336's), the popoto counts for an admin only.
+create or replace function public.town_krathong(p_festival integer) returns jsonb
+language plpgsql security definer set search_path to '' as $$
+declare
+  me uuid := town.member();
+  f public.town_festivals%rowtype;
+  mine public.town_krathongs%rowtype;
+  shown boolean;
+  counts boolean := public.is_admin();
+  each_ integer;
+begin
+  select * into f from public.town_festivals where id = p_festival and published;
+  if not found then return town.no('none'); end if;
+  if f.settled_at is null and town.festival_open(f.windows, 'results', town.festival_now()) then
+    perform town.krathong_settle(f.id);
+    select * into f from public.town_festivals where id = p_festival;
+  end if;
+  shown := f.settled_at is not null;
+  each_ := coalesce((f.rules->>'votes_each')::int, 3);
+  select * into mine from public.town_krathongs where festival = f.id and member_id = me;
+  return jsonb_build_object('ok', true, 'now', town.now_ms(), 'festival', town.festival_view(f),
+    'rules', f.rules - 'titles',
+    'mine', case when mine.id is null then null else town.krathong_view(mine) || jsonb_build_object('wish', mine.wish) end,
+    'entries', coalesce((
+      select jsonb_agg(town.krathong_view(k) || jsonb_build_object(
+               'mine', k.member_id = me,
+               'fc', exists (select 1 from public.fc_roster r where r.character_id = k.character_id))
+             || case when shown then jsonb_build_object(
+               'maker', (select jsonb_build_object('name', p.character_name, 'character', p.character_id) from public.profiles p where p.id = k.member_id))
+             else '{}'::jsonb end
+             || case when counts then jsonb_build_object(
+               'votes', (select count(*) from public.town_krathong_votes v where v.entry = k.id))
+             else '{}'::jsonb end
+             order by k.id)
+        from public.town_krathongs k where k.festival = f.id and k.entered), '[]'::jsonb),
+    'voted', coalesce((select jsonb_agg(v.entry order by v.entry) from public.town_krathong_votes v where v.festival = f.id and v.voter = me), '[]'::jsonb),
+    'votesEach', each_,
+    'floated', (select count(*) from public.town_krathongs k where k.festival = f.id and k.floated_at is not null),
+    'judged', f.judge_entry is not null,
+    'awards', case when shown then coalesce((
+      select jsonb_agg(jsonb_build_object('entry', a.entry, 'kind', a.kind, 'place', a.place,
+               'votes', case when counts then a.votes else null end,
+               'title', jsonb_build_object('th', a.title_th, 'en', a.title_en),
+               'krathong', town.krathong_view(k),
+               'maker', (select jsonb_build_object('name', p.character_name, 'character', p.character_id) from public.profiles p where p.id = a.member_id),
+               'fc', exists (select 1 from public.fc_roster r where r.character_id = k.character_id))
+             order by a.kind desc, a.place, a.entry)
+        from public.town_festival_awards a join public.town_krathongs k on k.id = a.entry where a.festival = f.id), '[]'::jsonb) else null end,
+    'capsule', coalesce((
+      select jsonb_agg(jsonb_build_object('year', o.year, 'name', k.name, 'design', k.design, 'wish', k.wish) order by o.year desc)
+        from public.town_krathongs k join public.town_festivals o on o.id = k.festival
+       where k.member_id = me and o.slug = f.slug and o.year < f.year and k.wish is not null), '[]'::jsonb));
 end;
 $$;
 
