@@ -76,10 +76,10 @@ export default function TownKrathong({ keeper, th, festival, admin, me, phone, o
       </div>
       {f && <PhaseSteps f={f} now={now} th={th} />}
       {st && tabs.length > 1 && (
-        <div role="tablist" className="flex gap-1.5 border-b border-line px-3 py-2">
+        <div role="tablist" className="flex gap-1 border-b border-line px-2 py-2">
           {tabs.map((t) => (
             <button key={t} role="tab" type="button" aria-selected={shown === t} onClick={() => setTab(t)}
-                    className={`pressable flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-xl px-2 text-ui font-semibold ${shown === t ? "bg-accent/15 text-accent" : "text-muted hover:text-ink"}`}>
+                    className={`pressable flex min-h-11 min-w-0 flex-auto items-center justify-center gap-1 rounded-xl px-1.5 text-ui font-semibold ${shown === t ? "bg-accent/15 text-accent" : "text-muted hover:text-ink"}`}>
               <TownIcon name={icon(TAB_ICON[t])} size={18} />
               <span className="truncate">{tabName(t, th, st)}</span>
             </button>
@@ -107,7 +107,7 @@ export default function TownKrathong({ keeper, th, festival, admin, me, phone, o
 const TAB_ICON: Record<Tab, string> = { make: "krathongKeepsake", gallery: "festivalLantern", float: "floatKrathong", results: "krathongTrophy", draw: "coin" };
 function tabName(t: Tab, th: boolean, st: KrathongState): string {
   if (t === "make") return st.mine ? (th ? "กระทงของฉัน" : "Mine") : (th ? "ทำกระทง" : "Make");
-  if (t === "gallery") return th ? `ประกวด · ${st.entries.length}` : `Entries · ${st.entries.length}`;
+  if (t === "gallery") return th ? "ประกวด" : "Entries";
   if (t === "float") return th ? "ลอย" : "Float";
   if (t === "draw") return th ? "ลุ้นรางวัล" : "Draw";
   return th ? "ผลประกาศ" : "Results";
