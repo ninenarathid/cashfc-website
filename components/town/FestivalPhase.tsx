@@ -1,7 +1,7 @@
 "use client";
 import { useContext, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { PHASE_ICON, PHASE_NAME, openPhases, shortWhen, soonestClose, untilText, windowOf, type Festival, type Phase } from "@/lib/town/festivals";
+import { PHASE_ICON, PHASE_NAME, PHASE_SHORT, openPhases, shortWhen, soonestClose, untilText, windowOf, type Festival, type Phase } from "@/lib/town/festivals";
 import type { TownSession } from "@/lib/town/session";
 import TownFoot, { TownFootContext } from "./TownFoot";
 import TownIcon, { type IconName } from "./TownIcon";
@@ -64,6 +64,7 @@ export default function FestivalPhase({ f, session, th, hidden, onOpen }: {
   if (!f || !phases.length) return null;
   const close = soonestClose(f, now);
   const names = phases.map((k) => (th ? PHASE_NAME[k].th : PHASE_NAME[k].en)).join(" · ");
+  const short = phases.map((k) => (th ? PHASE_SHORT[k].th : PHASE_SHORT[k].en)).join(" · ");
   return (
     <>
       {!hidden && (
@@ -72,7 +73,9 @@ export default function FestivalPhase({ f, session, th, hidden, onOpen }: {
                   aria-label={`${names}${close ? (th ? ` เหลือ ${untilText(close, now, th)}` : ` ${untilText(close, now, th)} left`) : ""}`}
                   className="pop-in pressable pointer-events-auto flex min-h-11 max-w-full items-center gap-2 border-2 border-[#2a1b12] bg-[#c8975a] px-3 text-ui font-bold text-[#2b1a0c] shadow-[inset_0_2px_0_#e9c78b,inset_0_-3px_0_#a47238]">
             <TownIcon name={icon(PHASE_ICON[phases[0]])} size={22} />
-            <span className="truncate">{names}</span>
+            {/* (a phone: the short names, so three fit beside the time left) */}
+            <span className="truncate sm:hidden">{phases.length > 1 ? short : names}</span>
+            <span className="hidden truncate sm:inline">{names}</span>
             {close && <span className="shrink-0 rounded bg-[#3d2913] px-1.5 py-px font-data text-label tabular-nums text-[#f3e3c3]">{th ? "เหลือ " : ""}{untilText(close, now, th)}</span>}
           </button>
         </TownFoot>

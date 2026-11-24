@@ -117,6 +117,10 @@ export const PHASES: readonly Phase[] = ["make", "vote", "float", "results"];
 export const PHASE_NAME: Record<Phase, { th: string; en: string }> = {
   make: { th: "ทำกระทง", en: "Make" }, vote: { th: "โหวต", en: "Vote" }, float: { th: "ลอยกระทง", en: "Float" }, results: { th: "ประกาศผล", en: "Results" },
 };
+/** The same, short, for a phone's corner chip (Codex's UI review: three full names were cut off at 384 px). */
+export const PHASE_SHORT: Record<Phase, { th: string; en: string }> = {
+  make: { th: "ทำ", en: "Make" }, vote: { th: "โหวต", en: "Vote" }, float: { th: "ลอย", en: "Float" }, results: { th: "ผล", en: "Results" },
+};
 export const PHASE_ICON: Record<Phase, string> = { make: "krathongKeepsake", vote: "festivalLantern", float: "floatKrathong", results: "krathongTrophy" };
 const RESULTS_NEWS_MS = 36 * 3_600_000;
 

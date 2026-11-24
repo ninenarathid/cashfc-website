@@ -5579,8 +5579,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       return next;
     });
   }, []);
-  // (the water I stand by, every so often: of the town's water within three tiles of mine, the nearest with water on its
-  // near side (so a krathong set there never sits over the bank in front of it); of two as near, the more surrounded)
+  // (the water I stand by, every so often: of the town's water within three tiles of mine, one with water on its near
+  // side (so a krathong set there never sits over the bank in front of it); the nearest, a tile with land behind it
+  // counted a little farther, so it floats clear of a wall's foot)
   useEffect(() => {
     if (!T2 || !game) return;
     const wet = (x: number, y: number) => ed.t2Tile(x, y) === "~";
@@ -5594,7 +5595,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         for (const [ox, oy] of [[-1, -1], [0, -1], [1, -1], [-1, 0], [-1, 1]]) if (wet(tx + ox, ty + oy)) round++;
         const d2 = (tx + 0.5 - me.x) ** 2 + (ty + 0.5 - me.y) ** 2;
         if (d2 > 12.5) continue;
-        if (d2 < far - 0.01 || (Math.abs(d2 - far) <= 0.01 && round > top)) { top = round; far = d2; best = { x: tx + 0.5, y: ty + 0.5 }; }
+        const cost = d2 + 1.5 * (5 - round);
+        if (cost < far - 0.01 || (Math.abs(cost - far) <= 0.01 && round > top)) { top = round; far = cost; best = { x: tx + 0.5, y: ty + 0.5 }; }
       }
       setFloatSpot((was) => (was?.x === best?.x && was?.y === best?.y ? was : best));
     }, 700);

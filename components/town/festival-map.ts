@@ -133,6 +133,31 @@ export function drawHall(d: FestivalDraw, awards: AwardView[]): { x0: number; y0
 }
 
 /** Every floated krathong on the river, with its candle's glow at night. */
+/**
+ * Rings on the water about a floated krathong, as pixels on the map's grid: two, half a beat apart, each widening from
+ * its base and fading; the far half (behind it) or the near half (over its base).
+ */
+function ripple(ctx: CanvasRenderingContext2D, d: FestivalDraw, cx: number, cy: number, rx0: number, id: number, far: boolean) {
+  const unit = Math.max(1, Math.round(d.s)), snap = (n: number) => Math.round(n / unit) * unit;
+  ctx.save();
+  // (by night lit by its own candle: warm)
+  ctx.fillStyle = d.night ? "#ffe2b0" : "#eaf6ff";
+  for (const off of [0, 0.5]) {
+    const t = (d.now / 1800 + off + id * 0.37) % 1, rx = rx0 * (1 + 0.5 * t), ry = rx * 0.32;
+    ctx.globalAlpha = (far ? 0.5 : 0.7) * (1 - t * 0.8) * (d.night ? 1 : 0.85);
+    const steps = Math.max(12, Math.round(rx / unit) * 2);
+    let last = "";
+    for (let i = 0; i <= steps; i++) {
+      const a = (far ? Math.PI : 0) + (i / steps) * Math.PI, x = snap(cx + Math.cos(a) * rx), y = snap(cy + Math.sin(a) * ry);
+      const key = x + "," + y;
+      if (key === last) continue;
+      last = key;
+      ctx.fillRect(x, y, unit, unit);
+    }
+  }
+  ctx.restore();
+}
+
 export function drawRiver(d: FestivalDraw, river: RiverKrathong[]) {
   if (!river.length || !krathongImage()) return;
   const k = MAP_SCALE * d.s, [w, h] = CANVAS, frame = Math.floor(d.now / 180);
@@ -153,6 +178,10 @@ export function drawRiver(d: FestivalDraw, river: RiverKrathong[]) {
     d.hits?.push({ id: kr.id, x0: x0 - 4 * d.s, y0: y0 - 4 * d.s, x1: x0 + w * k + 4 * d.s, y1: y0 + h * k + 4 * d.s });
     d.push(CITY ? Math.floor(tile.x) + Math.floor(tile.y) + 0.977 : p.x + p.y, () => {
       const { ctx } = d;
+      // (Codex's UI review: "floating krathongs look suspended above the water": rings where its base meets the water,
+      // the far half behind it, the near half over its base, so it sits in the water)
+      const waterY = at.y + 3 * k + bob * 0.5;
+      ripple(ctx, d, at.x, waterY, 23 * k, kr.id, true);
       // its reflection: a faint warm streak on the water below it
       ctx.save();
       ctx.globalAlpha = d.night ? 0.3 : 0.12;
@@ -160,6 +189,7 @@ export function drawRiver(d: FestivalDraw, river: RiverKrathong[]) {
       ctx.fillRect(Math.round(x0 + fx * k - 1.5 * d.s), Math.round(at.y + 3 * d.s), Math.round(3 * d.s), Math.round(6 * d.s));
       ctx.restore();
       drawKrathong(ctx, kr.design, x0, y0, k, frame + kr.id);
+      ripple(ctx, d, at.x, waterY, 23 * k, kr.id, false);
       // (a tap says whose it is, the owner, 2026-11-24: "สามารถคลิ๊กดูได้ว่าของใคร"; mine says so the whole time)
       if (d.picked === kr.id) d.sign(() => d.label(`${kr.mine ? (d.th ? "ของฉัน" : "Mine") : (kr.maker ?? (d.th ? "ผู้เล่น" : "A player"))}${kr.name ? ` · ${kr.name}` : ""}`, at.x, y0 - 8 * d.s));
       else if (kr.mine) d.sign(() => d.label(d.th ? "กระทงของฉัน" : "Mine", at.x, y0 - 8 * d.s));
