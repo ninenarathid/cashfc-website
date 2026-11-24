@@ -1,7 +1,7 @@
 import type { Purse } from "./trade";
 import { held, take } from "./trade";
 import type { ItemId } from "./items";
-import { LOY_KRATHONG_2026, isOpen, windowOf, type Festival } from "./festivals";
+import { LOY_KRATHONG_2026, isOpen, riverOn, windowOf, type Festival } from "./festivals";
 import {
   EDITS_MAX, MAX_TRIMS, PART, PARTS, VOTES_EACH, awardsOf, check, cleanName, cleanWish, costOf, extraCost, partsOf,
   type AwardView, type Design, type DrawList, type KrathongDid, type KrathongState, type KrathongView, type RiverKrathong,
@@ -182,7 +182,7 @@ export class KrathongTrial {
   }
   river(): RiverKrathong[] {
     const s = this.state(), f = this.festival();
-    if (!isOpen(windowOf(f, "float"), this.store.now())) return [];
+    if (!riverOn(f, this.store.now())) return [];
     // (the dev room's `&lkAt=x,y`: the pretend makers set theirs down there, to watch the current take them)
     const at = (() => { try { const v = new URLSearchParams(window.location.search).get("lkAt")?.split(",").map(Number); return v && v.length === 2 && v.every(Number.isFinite) ? v : null; } catch { return null; } })();
     return s.rows.filter((r) => r.floated !== null).sort((a, b) => a.floated! - b.floated!).map((r, i) => ({ id: r.id, design: r.design, floated: r.floated!, mine: r.member === this.store.me, name: r.name, maker: r.makerName, wish: r.wish,

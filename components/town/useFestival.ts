@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Keeper } from "@/lib/town/keeper";
-import { LOY_KRATHONG_2026, isOpen, stageOf, windowOf, type Festival } from "@/lib/town/festivals";
+import { LOY_KRATHONG_2026, isOpen, riverOn, stageOf, windowOf, type Festival } from "@/lib/town/festivals";
 import type { AwardView, RiverKrathong } from "@/lib/town/krathong";
 
 export interface FestivalLive {
@@ -29,7 +29,8 @@ export function useFestival(keeper: Keeper | null, game: boolean) {
   };
   const readRiver = useCallback(async () => {
     const f = live.current.f, keeper = keeperRef.current;
-    if (!keeper || !f || !isOpen(windowOf(f, "float"), Date.now())) { live.current.river = []; return; }
+    // (a week after the float closes too, v343: what floats no longer changes then, so it is read with the list, not every 45 s)
+    if (!keeper || !f || !riverOn(f, Date.now())) { live.current.river = []; return; }
     const r = await keeper.krathongRiver(f.id);
     if (r) live.current.river = r;
   }, []);
@@ -52,7 +53,7 @@ export function useFestival(keeper: Keeper | null, game: boolean) {
     };
     void list();
     const a = setInterval(() => { if (document.visibilityState === "visible") void list(); }, 10 * 60_000);
-    const b = setInterval(() => { if (document.visibilityState === "visible") void readRiver(); }, 45_000);
+    const b = setInterval(() => { const f = live.current.f; if (document.visibilityState === "visible" && f && isOpen(windowOf(f, "float"), Date.now())) void readRiver(); }, 45_000);
     const c = setInterval(() => { if (document.visibilityState === "visible") void readAwards(); }, 10 * 60_000);
     return () => { gone = true; clearInterval(a); clearInterval(b); clearInterval(c); };
   }, [keeper, game, readRiver, readAwards]);

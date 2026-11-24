@@ -73,6 +73,21 @@ try {
     await db.query("update public.town_festivals set published = true where id = 1");
   }
 
+  // (v343, the floated krathongs on the water a week after the float closes: as live, twice)
+  let riverSql = null;
+  try { riverSql = readFileSync(resolve(REPO, "supabase/v343_floated_krathongs_stay_on_the_water_a_week.sql"), "utf8").replace(/\r\n/g, "\n"); } catch (e) { if (e.code !== "ENOENT") throw e; }
+  if (riverSql) {
+    await db.exec(riverSql.replace(/\n/g, "\r\n")); await db.exec(riverSql);
+    eq((await one("select rules->'river_days' d from public.town_festivals where id = 1")).d, 7, "v343: river_days 7");
+    const open = async (at) => (await one("select town.krathong_river_open(windows, rules, $1::timestamptz) o from public.town_festivals where id = 1", [at])).o;
+    const until = (await one("select (w->>'until') u from public.town_festivals f, jsonb_array_elements(f.windows) w where f.id = 1 and w->>'kind' = 'float'")).u;
+    const plus = (h) => new Date(Date.parse(until) + h * 3600_000).toISOString();
+    eq([await open(plus(-1)), await open(plus(1)), await open(plus(24 * 7 - 1)), await open(plus(24 * 7 + 1))], [true, true, true, false], "v343: on the water while floating and a week after, not after that");
+    await db.query("update public.town_festivals set rules = rules - 'river_days' where id = 1");
+    eq(await open(plus(1)), false, "v343: no river_days, gone as the float closes");
+    await db.query("update public.town_festivals set rules = rules || '{\"river_days\": 7}'::jsonb where id = 1");
+  }
+
   // ── afterwards ──
   eq(await one("select id, slug, year, jsonb_array_length(windows) w, (select count(*)::int from jsonb_object_keys(rules->'parts')) parts from public.town_festivals"),
     { id: 1, slug: "loykrathong", year: 2026, w: 6, parts: easySql ? K.PARTS.length : 28 }, "the first edition, six windows, its parts (v339: the code's, more of them)");

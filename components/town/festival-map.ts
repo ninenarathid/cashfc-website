@@ -52,7 +52,7 @@ export function spotPos(k: RiverKrathong, now: number): Vec {
  * the bank (each step lands on open water, or on no less open water than it left) and never more than REACH tiles from
  * where it was set. Every step is from integer hashes and plain sums, so every member sees it in the same place.
  */
-const STEP_MS = 5000, STEP = 0.35, REACH = 16, CURRENT_STEPS = 72;
+const STEP_MS = 5000, STEP = 0.35, REACH = 16, CURRENT_STEPS = 72, SETTLE_STEPS = 2880;
 /** Sixteen headings, written out (so no engine's own cos/sin decides a krathong's way). */
 const DIRS: ReadonlyArray<readonly [number, number]> = [
   [1, 0], [0.9239, 0.3827], [0.7071, 0.7071], [0.3827, 0.9239], [0, 1], [-0.3827, 0.9239], [-0.7071, 0.7071], [-0.9239, 0.3827],
@@ -91,7 +91,9 @@ function stepFrom(id: number, sx: number, sy: number, m: number, x: number, y: n
 function walkAt(k: RiverKrathong, now: number): { x: number; y: number; tx: number; ty: number } | null {
   const sx = k.x!, sy = k.y!;
   if (!wetAt(sx, sy)) return null;
-  const key = `${k.id}:${k.floated}`, m0 = Math.floor(k.floated / STEP_MS), mNow = Math.max(m0, Math.floor(now / STEP_MS));
+  // (after SETTLE_STEPS (four hours) it has found its place, and only turns slowly about it: so a week on the water, v343,
+  // is never a week of steps to work out when the town opens)
+  const key = `${k.id}:${k.floated}`, m0 = Math.floor(k.floated / STEP_MS), mNow = Math.min(m0 + SETTLE_STEPS, Math.max(m0, Math.floor(now / STEP_MS)));
   let w = walks.get(key);
   if (!w || w.m > mNow) {
     // its first heading: towards the most open water about it
@@ -110,7 +112,13 @@ function walkAt(k: RiverKrathong, now: number): { x: number; y: number; tx: numb
     w.m++; w.x = w.nx; w.y = w.ny; w.d = w.nd; w.nx = nx; w.ny = ny; w.nd = nd;
   }
   const f = Math.min(1, Math.max(0, (now - w.m * STEP_MS) / STEP_MS));
-  return { x: w.x + (w.nx - w.x) * f, y: w.y + (w.ny - w.y) * f, tx: f < 0.5 ? w.x : w.nx, ty: f < 0.5 ? w.y : w.ny };
+  let x = w.x + (w.nx - w.x) * f, y = w.y + (w.ny - w.y) * f;
+  if (w.m >= m0 + SETTLE_STEPS) {
+    // settled: a slow circle about its place, wider on open water, coming on over a minute
+    const t = now - (w.m + 1) * STEP_MS, r = (openAt(w.nx, w.ny) >= 5 ? 0.28 : 0.08) * Math.min(1, Math.max(0, t / 60_000)), a = now / 40_000 + k.id;
+    x += Math.cos(a) * r; y += Math.sin(a) * r;
+  }
+  return { x, y, tx: f < 0.5 ? w.x : w.nx, ty: f < 0.5 ? w.y : w.ny };
 }
 /** The water tile a set-down krathong is told by (for its depth and whether it shows): always one of its walk's steps, so never the bank. */
 export function spotTile(k: RiverKrathong, now: number): Vec {

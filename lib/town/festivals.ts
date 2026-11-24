@@ -47,6 +47,17 @@ export function isOpen(w: FestivalWindow | undefined, now: number): boolean {
 
 export const windowOf = (f: Festival, kind: WindowKind) => f.windows.find((w) => w.kind === kind);
 
+/**
+ * The floated krathongs stay on the water a week after the float closes (v343's `rules.river_days`, 7: the owner,
+ * 2026-11-24, "ผมอยากให้มัน ลอยๆ อยู่ซัก 1 อาทิตย์ หลังจากหมด กิจกรรม"). The town asks for them while the float is
+ * open and up to RIVER_DAYS after it closes; how long they truly stay is the server's row.
+ */
+export const RIVER_DAYS = 7;
+export function riverOn(f: Festival, now: number, days = RIVER_DAYS): boolean {
+  const w = windowOf(f, "float");
+  return isOpen(w, now) || (!!w?.until && now >= ms(w.until) && now < ms(w.until) + days * 86_400_000);
+}
+
 /** Where a festival stands: before it shows, coming, on (some window open), between windows, or over. */
 export type Stage = "hidden" | "coming" | "on" | "after";
 
