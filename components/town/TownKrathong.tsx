@@ -127,13 +127,13 @@ function PhaseSteps({ f, now, th }: { f: Festival; now: number; th: boolean }) {
           : at === "next" ? shortWhen(w.from, now, th) : (th ? "จบแล้ว" : "Over");
         return (
           <li key={k} aria-current={at === "now" ? "step" : undefined} data-phase={k} data-phase-at={at}
-              className={`flex min-w-0 flex-col items-center gap-0.5 rounded-lg px-1 py-1 text-center ${at === "now" ? "bg-accent/15 text-accent" : at === "done" ? "text-muted opacity-60" : "text-muted"}`}>
+              className={`flex min-w-0 flex-col items-center gap-0.5 rounded-lg px-1 py-1 text-center ${at === "now" ? "bg-accent/15 text-accent" : at === "done" ? "text-muted" : "text-ink/85"}`}>
             <span className="relative">
               <TownIcon name={icon(PHASE_ICON[k])} size={22} />
               {at === "done" && <span aria-hidden className="absolute -bottom-0.5 -right-1.5 grid size-3.5 place-items-center rounded-full bg-[#4ade80] text-[9px] font-bold leading-none text-bg">✓</span>}
             </span>
             <span className="w-full truncate text-[12px] font-semibold leading-tight">{th ? PHASE_NAME[k].th : PHASE_NAME[k].en}</span>
-            <span className="font-data text-[10.5px] leading-tight tabular-nums">{when}</span>
+            <span className="font-data text-[11.5px] font-medium leading-tight tabular-nums">{when}</span>
           </li>
         );
       })}
