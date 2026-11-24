@@ -94,8 +94,10 @@ describe("the calendar", () => {
     expect(isOpen(windowOf(LK, "make"), t("2026-11-24T11:00:00Z"))).toBe(true);
     expect(isOpen(windowOf(LK, "float"), t("2026-11-24T11:00:00Z"))).toBe(true);
     expect(isOpen(windowOf(LK, "make"), t("2026-11-24T17:00:00Z"))).toBe(false);
-    expect(isOpen(windowOf(LK, "vote"), t("2026-11-24T16:59:00Z"))).toBe(false);
-    expect(isOpen(windowOf(LK, "vote"), t("2026-11-24T17:00:00Z"))).toBe(true);
+    // (the vote runs with the entries: the owner, 2026-11-24)
+    expect(isOpen(windowOf(LK, "vote"), t("2026-11-23T11:00:00Z"))).toBe(true);
+    expect(isOpen(windowOf(LK, "vote"), t("2026-11-24T16:59:00Z"))).toBe(true);
+    expect(isOpen(windowOf(LK, "vote"), t("2026-11-24T17:00:00Z"))).toBe(false);
     expect(isOpen(windowOf(LK, "results"), t("2026-11-25T13:59:00Z"))).toBe(false);
     expect(isOpen(windowOf(LK, "results"), t("2026-11-25T14:00:00Z"))).toBe(true);
     expect(isOpen(windowOf(LK, "float"), t("2026-11-25T21:59:00Z"))).toBe(true);

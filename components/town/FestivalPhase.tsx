@@ -20,9 +20,11 @@ function tell(f: Festival, phases: Phase[], now: number, th: boolean): Told {
   const until = (k: Phase) => { const w = windowOf(f, k); return w?.until ? shortWhen(w.until, now, th) : ""; };
   if (phases.includes("results")) return { phases, title: th ? "ประกาศผลกระทงดีเด่นแล้ว" : "The krathong awards are out",
     line: th ? "ดูผลที่ซุ้มกระทง และหอเกียรติยศข้างน้ำพุ" : "See them at the stall and the hall by the fountain" };
-  // (the festival's evening: entries still open, and the float with them: 2026-11-24, entries until midnight)
+  // (the festival's evening: entries and the vote still open, and the float with them: 2026-11-24, until midnight)
   if (phases.includes("make") && phases.includes("float")) return { phases, title: th ? "เปิดลอยกระทงแล้ว" : "Floating is open",
-    line: th ? `ทำกระทงแล้วลอยได้เลย · ส่งประกวดได้ถึง ${until("make")}` : `Make one and float it · entries close ${until("make")}` };
+    line: th ? `ทำกระทงแล้วลอยได้เลย · ส่งประกวดและโหวตได้ถึง ${until("make")}` : `Make one and float it · entries and votes close ${until("make")}` };
+  if (phases.includes("make") && phases.includes("vote")) return { phases, title: th ? "เปิดส่งกระทงประกวดและโหวตแล้ว" : "Entries and voting are open",
+    line: th ? `ทำกระทงที่ซุ้มข้างบอร์ด Popoto · ให้ popoto กระทงที่ชอบ · ปิด ${until("make")}` : `Build one at the stall by the Popoto Board · give popoto · closes ${until("make")}` };
   if (phases.includes("vote") && phases.includes("float")) return { phases, title: th ? "เปิดโหวตกระทงแล้ว" : "Voting is open",
     line: th ? `ให้ popoto กระทงที่ชอบ ถึง ${until("vote")} · ยังลอยได้ถึง ${until("float")}` : `Give popoto until ${until("vote")} · float until ${until("float")}` };
   if (phases.includes("float")) return { phases, title: th ? "ยังลอยกระทงได้" : "Floating is still open",

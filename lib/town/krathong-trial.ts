@@ -30,13 +30,13 @@ export function trialFestival(now: number, phase = trialPhase()): Festival {
   const at = (ms: number) => new Date(now + ms).toISOString();
   const win = (kind: string, from: number, until: number | null) => ({ ...windowOf(f, kind as never)!, from: at(from), until: until === null ? null : at(until) });
   switch (phase) {
-    // (as the 2026 edition stands since 2026-11-24: entries to midnight, the float from 18:00 overlapping them, the vote
-    // after them, the results three hours before the float ends; `float` is the overlapping evening, `vote` after midnight)
-    case "before": return { ...f, starts: at(-H), ends: at(80 * H), windows: [win("announce", -H, 6 * H), win("make", 6 * H, 36 * H), win("float", 30 * H, 65 * H), win("vote", 36 * H, 57 * H), win("results", 57 * H, null)] };
-    case "make": return { ...f, starts: at(-10 * H), ends: at(60 * H), windows: [win("make", -2 * H, 28 * H), win("float", 22 * H, 57 * H), win("vote", 28 * H, 49 * H), win("results", 49 * H, null)] };
-    case "float": return { ...f, starts: at(-30 * H), ends: at(30 * H), windows: [win("make", -26 * H, 4 * H), win("float", -2 * H, 33 * H), win("vote", 4 * H, 25 * H), win("results", 25 * H, null)] };
-    case "vote": return { ...f, starts: at(-36 * H), ends: at(26 * H), windows: [win("make", -32 * H, -2 * H), win("float", -8 * H, 26 * H), win("vote", -2 * H, 19 * H), win("results", 19 * H, null)] };
-    case "results": return { ...f, starts: at(-60 * H), ends: at(9 * H), windows: [win("make", -54 * H, -24 * H), win("float", -30 * H, 9 * H), win("vote", -24 * H, -3 * H), win("results", -H, null)] };
+    // (as the 2026 edition stands since 2026-11-24: entries and the vote together until midnight, the float from 18:00
+    // overlapping them, the results the next evening; `make` the day, `float` the overlapping evening, `late` after midnight)
+    case "before": return { ...f, starts: at(-H), ends: at(80 * H), windows: [win("announce", -H, 6 * H), win("make", 6 * H, 36 * H), win("vote", 6 * H, 36 * H), win("float", 30 * H, 65 * H), win("results", 57 * H, null)] };
+    case "make": return { ...f, starts: at(-10 * H), ends: at(60 * H), windows: [win("make", -2 * H, 28 * H), win("vote", -2 * H, 28 * H), win("float", 22 * H, 57 * H), win("results", 49 * H, null)] };
+    case "float": return { ...f, starts: at(-30 * H), ends: at(30 * H), windows: [win("make", -26 * H, 4 * H), win("vote", -26 * H, 4 * H), win("float", -2 * H, 33 * H), win("results", 25 * H, null)] };
+    case "vote": case "late": return { ...f, starts: at(-36 * H), ends: at(26 * H), windows: [win("make", -32 * H, -2 * H), win("vote", -32 * H, -2 * H), win("float", -8 * H, 26 * H), win("results", 19 * H, null)] };
+    case "results": return { ...f, starts: at(-60 * H), ends: at(9 * H), windows: [win("make", -54 * H, -24 * H), win("vote", -54 * H, -24 * H), win("float", -30 * H, 9 * H), win("results", -H, null)] };
     default: return f;
   }
 }

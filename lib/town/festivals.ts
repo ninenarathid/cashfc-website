@@ -109,11 +109,11 @@ export function untilText(iso: string, now: number, th: boolean): string {
 
 /**
  * Loy Krathong's phases as the members are told them (the owner, 2026-11-24: "ประกาศเฟสทำกระทง โหวต ลอย ให้ชัดเจน"):
- * making, floating, voting, the results, in the order they open (making and floating overlap the festival's evening;
- * the vote opens when the entries close); the results are news for a day and a half, then the hall says them.
+ * making, voting, floating, the results, in the order they open (the vote runs with the making; the float overlaps
+ * them the festival's evening); the results are news for a day and a half, then the hall says them.
  */
 export type Phase = "make" | "vote" | "float" | "results";
-export const PHASES: readonly Phase[] = ["make", "float", "vote", "results"];
+export const PHASES: readonly Phase[] = ["make", "vote", "float", "results"];
 export const PHASE_NAME: Record<Phase, { th: string; en: string }> = {
   make: { th: "ทำกระทง", en: "Make" }, vote: { th: "โหวต", en: "Vote" }, float: { th: "ลอยกระทง", en: "Float" }, results: { th: "ประกาศผล", en: "Results" },
 };
@@ -170,10 +170,11 @@ export const LOY_KRATHONG_2026: Festival = {
     { kind: "announce", from: bkk(2026, 11, 22, 22), until: bkk(2026, 11, 23, 18), th: "เตรียมของ", en: "Gather" },
     { kind: "auction", from: bkk(2026, 11, 15, 20, 30), until: bkk(2026, 11, 23, 20), th: "ปิดประมูลชุดลอยกระทง", en: "Festival outfits auction closes" },
     // (2026-11-24, the owner with Aqua's announcement, "ทำกระทงได้เรื่อยๆ จนถึงเวลาเที่ยงคืน": entries until midnight, the
-    // float from 18:00 as before, so the two overlap that evening; the vote after the entries close, its results at 21:00)
+    // float from 18:00 as before, so the two overlap that evening; then "เฟสเปิดโหวต เอาให้เวลาเดียวกับช่วงทำกระทงเลย":
+    // the vote open the whole time the entries are; the results at 21:00 the next day)
     { kind: "make", from: bkk(2026, 11, 23, 18), until: bkk(2026, 11, 25, 0), th: "ส่งกระทงประกวด", en: "Enter a krathong" },
     { kind: "float", from: bkk(2026, 11, 24, 18), until: bkk(2026, 11, 26, 5), th: "ลอยกระทง", en: "Float" },
-    { kind: "vote", from: bkk(2026, 11, 25, 0), until: bkk(2026, 11, 25, 21), th: "โหวตกระทง", en: "Vote" },
+    { kind: "vote", from: bkk(2026, 11, 23, 18), until: bkk(2026, 11, 25, 0), th: "โหวตกระทง", en: "Vote" },
     { kind: "results", from: bkk(2026, 11, 25, 21), until: null, th: "ประกาศผล", en: "Results" },
   ],
 };

@@ -94,7 +94,8 @@ export default function TownKrathong({ keeper, th, festival, admin, me, phone, o
             {failed ? (th ? "ซุ้มกระทงยังไม่เปิด" : "The krathong stall isn't open yet") : (th ? "กำลังเปิดซุ้ม…" : "Opening…")}
           </p>
         )}
-        {st && shown === "make" && <Builder keeper={keeper} th={th} st={st} phone={phone} making={making} floating={floating} onDone={load} />}
+        {st && shown === "make" && <Builder keeper={keeper} th={th} st={st} phone={phone} making={making} floating={floating}
+                                            onDone={async () => { await load(); if (floating) setTab("float"); }} onFloat={() => setTab("float")} />}
         {st && shown === "gallery" && <Gallery keeper={keeper} th={th} st={st} me={me} admin={admin} voting={voting} phone={phone} onChanged={load} setSt={setSt} />}
         {st && shown === "float" && st.mine && <Float keeper={keeper} th={th} st={st} phone={phone} onDone={() => { void load(); onFloated?.(); }} />}
         {st && shown === "results" && st.awards && <Results th={th} awards={st.awards} phone={phone} mine={st.mine?.id ?? null} />}
@@ -159,8 +160,10 @@ const STEPS: Array<{ step: Step; th: string; en: string; askTh: string; askEn: s
 const withPay = (p: Pick, i: number): Pick => (colorOf(p) ? [p[0], i, colorOf(p)] : [p[0], i]);
 const withColor = (p: Pick, c: number): Pick => (c ? [p[0], p[1], c] : [p[0], p[1]]);
 
-function Builder({ keeper, th, st, phone, making, floating, onDone }: {
+function Builder({ keeper, th, st, phone, making, floating, onDone, onFloat }: {
   keeper: Keeper; th: boolean; st: KrathongState; phone: boolean; making: boolean; floating: boolean; onDone: () => Promise<void>;
+  /** The way on to floating it, once it is made and the float is open. */
+  onFloat?: () => void;
 }) {
   const bag = keeper.purse().bag;
   const have = useCallback((id: ItemId) => held(bag, id), [bag]);
@@ -189,6 +192,12 @@ function Builder({ keeper, th, st, phone, making, floating, onDone }: {
           {st.mine.entered ? (th ? "ส่งประกวดแล้ว" : "Entered") : (th ? "ทำไว้ลอย" : "Made to float")}
           {st.mine.floated ? (th ? " · ลอยแล้ว" : " · floated") : ""}
         </p>
+        <p className="text-meta text-muted">{th ? "ส่งประกวดได้คนละ 1 กระทง" : "One entry each"}</p>
+        {floating && !st.mine.floated && onFloat && (
+          <button type="button" onClick={onFloat} className="pressable min-h-11 w-full rounded-xl bg-accent px-4 text-ui font-semibold text-bg">
+            {th ? "ลอยกระทงเลย" : "Float it now"}
+          </button>
+        )}
       </div>
     );
   }
