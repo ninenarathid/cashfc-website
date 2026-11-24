@@ -183,7 +183,10 @@ export class KrathongTrial {
   river(): RiverKrathong[] {
     const s = this.state(), f = this.festival();
     if (!isOpen(windowOf(f, "float"), this.store.now())) return [];
-    return s.rows.filter((r) => r.floated !== null).sort((a, b) => a.floated! - b.floated!).map((r) => ({ id: r.id, design: r.design, floated: r.floated!, mine: r.member === this.store.me, name: r.name, maker: r.makerName, wish: r.wish, x: r.fx ?? null, y: r.fy ?? null }));
+    // (the dev room's `&lkAt=x,y`: the pretend makers set theirs down there, to watch the current take them)
+    const at = (() => { try { const v = new URLSearchParams(window.location.search).get("lkAt")?.split(",").map(Number); return v && v.length === 2 && v.every(Number.isFinite) ? v : null; } catch { return null; } })();
+    return s.rows.filter((r) => r.floated !== null).sort((a, b) => a.floated! - b.floated!).map((r, i) => ({ id: r.id, design: r.design, floated: r.floated!, mine: r.member === this.store.me, name: r.name, maker: r.makerName, wish: r.wish,
+      x: r.fx ?? (at && r.member.startsWith("pretend-") ? at[0] + (i % 3) * 0.3 : null), y: r.fy ?? (at && r.member.startsWith("pretend-") ? at[1] + (i % 2) * 0.3 : null) }));
   }
   /** The lucky draw's list: whoever floated, the cutoff the entries' end (midnight, as v339 sets `draw_until`). */
   draw(): DrawList {

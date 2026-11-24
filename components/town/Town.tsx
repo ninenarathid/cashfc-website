@@ -150,7 +150,7 @@ import { STAMINA } from "@/lib/town/stamina";
 import TownIcon, { ICON_ATLAS, drawIcon, petScale, type IconName } from "./TownIcon";
 import { BOAT_ROUTES, boatDrawShift, boatFishing, boatHolds, ridingBoat } from "@/lib/town/lotus-boats";
 import { BOAT_LIFT, boatBob } from "@/lib/town/boat-art";
-import { drawTitlePlate } from "./title-plate";
+import { drawTitlePlate, plateSize } from "./title-plate";
 import { FORGED_BEATS, drawForged } from "./TownForged";
 // ── to come ── (the preview of the mountain and the cave: only its types here; the module itself is asked for in `next dev` alone)
 import type { MoreFrame, MountainArt } from "./mountain-art";
@@ -2978,6 +2978,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const things: Thing[] = [];
     const signs: Array<() => void> = [];
     const names: Array<() => void> = [];
+    plateQ.current.length = 0;
     // (over the names too: what a tap on the map asked to read, a floated krathong's maker and wish)
     const tops: Array<() => void> = [];
     const boxes: typeof hits.current = [];
@@ -3738,6 +3739,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (more && moreFrame) more.lights(moreFrame);
     for (const sign of signs) sign();
     saidLayer.current?.begin();
+    layPlates(now);
     for (const n of names) n();
     for (const t of tops) t();
     saidLayer.current?.end();
@@ -4714,13 +4716,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // lambs hide the lambs; they are back as it stops)
     // (the city: a nameplate goes over everything, as what they say does: its ground's steps and kerbs in front of whoever
     // stands lower would hide it, the owner, 2026-11-23, "ชื่อตัวละครโดนพื้นบัง"; elsewhere it shares its owner's depth)
-    const plate = () => {
+    // (on a casino sofa, below the plates of whoever sits to the left)
+    const fy = foot.y + sofaDrop(a);
+    const plate = (nameA = 1, restA = 1) => {
       if (!(mount && carrier?.path.length)) {
         ctx.save();
-        if (faded || away) ctx.globalAlpha = 0.6;
-        // (on a casino sofa, below the plates of whoever sits to the left)
-        const fy = foot.y + sofaDrop(a);
+        const base = faded || away ? 0.6 : 1;
+        ctx.globalAlpha = base * nameA;
         label(ctx, name, p.x, fy + 13, isMe ? "#e5cc80" : "#e3e8ef", "rgba(15,19,25,0.78)");
+        ctx.globalAlpha = base * nameA * restA;
+        if (ctx.globalAlpha < 0.02) { ctx.restore(); return; }
         // the title somebody chose to wear, under their name (lib/town/lines); and for whoever has chosen none, the
         // name the well has for those who carried enough water to it, as before there were lines
         const who = isMe ? ranksRef.current.me : a.info.id, worn = ranksRef.current.titles[who], title = worn ? titleOf(worn.line, worn.rank) : null;
@@ -4742,7 +4747,22 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         ctx.restore();
       }
     };
-    if (CITY) names.push(plate); else plate();
+    // (the city: every nameplate of the frame is laid out together, so none covers another: the owner, 2026-11-24,
+    // "ชื่อมันบังดูรกเกินไป มีวิธีที่ดีกว่านี้ไหม ในการแสดงชื่อให้ไม่ทับ")
+    if (CITY && !(mount && carrier?.path.length)) {
+      ctx.save();
+      ctx.font = `600 12px ${fontRef.current}`;
+      const nameW = ctx.measureText(name).width + 14;
+      const who = isMe ? ranksRef.current.me : a.info.id, worn = ranksRef.current.titles[who], title = worn ? titleOf(worn.line, worn.rank) : null;
+      const rank = ranksRef.current.ranks[who] ?? 0;
+      let restW = 0, restH = 0;
+      if (title) { restW = plateSize(ctx, words.current.th ? title.th : title.en, worn.rank, fontRef.current).w + 28; restH = 20; }
+      else if (rank > 0) { ctx.font = `600 10px ${fontRef.current}`; restW = ctx.measureText(RANK_TITLES[rank - 1][words.current.th ? 0 : 1]).width + 12; restH = 18; }
+      if (a.info.trying || limitedOwners.current.get(isMe ? me.id : a.info.id)?.length) { restW = Math.max(restW, 130); restH += 18; }
+      ctx.restore();
+      const dx = p.x - cam.current.cw / 2, dy = fy - cam.current.ch / 2;
+      plateQ.current.push({ id: a.info.id, me: isMe, x: p.x, y: fy, nameW, restW, restH, prio: isMe ? -1e9 : (said || typing ? -1e6 : 0) + Math.hypot(dx, dy), draw: plate });
+    } else plate();
     names.push(() => {
       // The sign they hold up: its pole in their hand, its board over their head; what they say goes over the board.
       const board = sign ? drawSign(ctx, a, p, h, top, sign, handSide, look, isMe, faded, now) : top;
@@ -5710,6 +5730,38 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const limitedAuras = useRef(new Map<string, AuraState>());
   const auraDark = useRef<Wearer[]>([]);
   const auraPlates = useRef<LimitedTitle[]>([]);
+  /** The city's nameplates of the frame, laid out together (`layPlates`), and how far each is shown, eased. */
+  const plateQ = useRef<Array<{ id: string; me: boolean; x: number; y: number; nameW: number; restW: number; restH: number; prio: number; draw: (nameA: number, restA: number) => void }>>([]);
+  const plateFade = useRef(new Map<string, { a: number; full: number; at: number }>());
+  /**
+   * The city's nameplates, none over another (the owner, 2026-11-24, a crowd on the beach dock: "ชื่อมันบังดูรกเกินไป"):
+   * mine first, then whoever is talking or typing, then the nearer the middle of the screen (where I am) the sooner, one
+   * shown a moment ago a little sooner still (so a crowd does not flicker). Each gets its whole plate where it fits, its
+   * name alone where only that fits, and nothing where its name would cover another's; it fades between them.
+   */
+  function layPlates(now: number) {
+    const q = plateQ.current, fade = plateFade.current, placed: Array<[number, number, number, number]> = [];
+    const hit = (r: [number, number, number, number]) => placed.some((o) => r[0] < o[2] && r[2] > o[0] && r[1] < o[3] && r[3] > o[1]);
+    for (const e of q) if ((fade.get(e.id)?.a ?? 0) > 0.5) e.prio -= 80;
+    q.sort((a, b) => a.prio - b.prio);
+    const shown: Array<[typeof q[number], number, number]> = [];
+    for (const e of q) {
+      const nameR: [number, number, number, number] = [e.x - e.nameW / 2 - 3, e.y + 2, e.x + e.nameW / 2 + 3, e.y + 24];
+      const restR: [number, number, number, number] | null = e.restH ? [e.x - e.restW / 2, e.y + 22, e.x + e.restW / 2, e.y + 24 + e.restH] : null;
+      const want = e.me || !hit(nameR) ? (restR && (e.me || !hit(restR)) ? 2 : 1) : 0;
+      if (want) placed.push(nameR);
+      if (want === 2 && restR) placed.push(restR);
+      const f = fade.get(e.id) ?? { a: want ? 1 : 0, full: want === 2 ? 1 : 0, at: now };
+      const ease = reducedRef.current ? 1 : Math.min(1, Math.max(0, now - f.at) / 180);
+      f.a += ((want ? 1 : 0) - f.a) * ease; f.full += ((want === 2 ? 1 : 0) - f.full) * ease; f.at = now;
+      fade.set(e.id, f);
+      if (f.a > 0.02) shown.push([e, f.a, f.full]);
+    }
+    for (const id of [...fade.keys()]) if (!q.some((e) => e.id === id)) fade.delete(id);
+    // (the most wanted last, over whatever fades out under it)
+    for (let i = shown.length - 1; i >= 0; i--) shown[i][0].draw(shown[i][1], shown[i][2]);
+    q.length = 0;
+  }
   const limitedOwners = useRef(new Map<string, Array<{ outfit: string; edition: number; copies: number }>>());
   useEffect(() => {
     if (!keeper || shopPanel) return;

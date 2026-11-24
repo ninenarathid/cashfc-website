@@ -39,8 +39,83 @@ const h01 = (id: number, salt: number) => { let x = Math.imul(id ^ (salt * 0x9e3
  * บริเวณนั้น"): it eases a little way out from where it was set down over its first minute, then turns slowly about there.
  */
 export function spotPos(k: RiverKrathong, now: number): Vec {
-  const f = Math.min(1, Math.max(0, (now - k.floated) / 60_000)), a = h01(k.id, 4) * Math.PI * 2, t = now / 1000;
+  const w = walkAt(k, now), t = now / 1000;
+  if (w) return { x: w.x + Math.sin(t / 6 + k.id) * 0.05, y: w.y + Math.cos(t / 8 + k.id * 1.3) * 0.05 };
+  const f = Math.min(1, Math.max(0, (now - k.floated) / 60_000)), a = h01(k.id, 4) * Math.PI * 2;
   return { x: k.x! + Math.cos(a) * 0.3 * f + Math.sin(t / 6 + k.id) * 0.15, y: k.y! + Math.sin(a) * 0.3 * f + Math.cos(t / 8 + k.id * 1.3) * 0.15 };
+}
+
+/**
+ * The current takes it (the owner, 2026-11-24: "อัพเดทให้กระทงลอยไปไกลๆได้หน่อย มีการเคลื่อนไหว ตามกระแสน้ำ แบบ random"):
+ * from where it was set down it drifts out on the water, a step every five seconds, its heading leaning to the town's
+ * current (which turns every six minutes, the same for every krathong) and now and then turning on its own; never onto
+ * the bank (each step lands on open water, or on no less open water than it left) and never more than REACH tiles from
+ * where it was set. Every step is from integer hashes and plain sums, so every member sees it in the same place.
+ */
+const STEP_MS = 5000, STEP = 0.35, REACH = 16, CURRENT_STEPS = 72;
+/** Sixteen headings, written out (so no engine's own cos/sin decides a krathong's way). */
+const DIRS: ReadonlyArray<readonly [number, number]> = [
+  [1, 0], [0.9239, 0.3827], [0.7071, 0.7071], [0.3827, 0.9239], [0, 1], [-0.3827, 0.9239], [-0.7071, 0.7071], [-0.9239, 0.3827],
+  [-1, 0], [-0.9239, -0.3827], [-0.7071, -0.7071], [-0.3827, -0.9239], [0, -1], [0.3827, -0.9239], [0.7071, -0.7071], [0.9239, -0.3827],
+];
+const hh = (a: number, b: number) => {
+  let x = Math.imul(a | 0, 0x85ebca6b) ^ Math.imul((b | 0) + 0x632be5ab, 0xc2b2ae35);
+  x ^= x >>> 15; x = Math.imul(x, 0x2c1b3c6d); x ^= x >>> 12; x = Math.imul(x, 0x297a2d39); x ^= x >>> 15;
+  return (x >>> 0) / 4294967296;
+};
+const wetAt = (x: number, y: number) => ed.t2Tile(Math.floor(x), Math.floor(y)) === "~";
+/** How open the water is about a point: itself and four points half a tile off, 0..5. */
+const openAt = (x: number, y: number) => (wetAt(x, y) ? 1 : 0) + (wetAt(x + 0.5, y) ? 1 : 0) + (wetAt(x - 0.5, y) ? 1 : 0) + (wetAt(x, y + 0.5) ? 1 : 0) + (wetAt(x, y - 0.5) ? 1 : 0);
+interface Walk { m: number; x: number; y: number; d: number; nx: number; ny: number; nd: number }
+const walks = new Map<string, Walk>();
+
+function stepFrom(id: number, sx: number, sy: number, m: number, x: number, y: number, d0: number): [number, number, number] {
+  const r = hh(id, m), current = Math.floor(hh(Math.floor(m / CURRENT_STEPS), 77) * 16), diff = ((current - d0 + 24) % 16) - 8;
+  let d = d0;
+  if (r < 0.4 && diff !== 0) d = (d + Math.sign(diff) + 16) % 16;
+  else if (r < 0.58) d = (d + 1) % 16;
+  else if (r < 0.76) d = (d + 15) % 16;
+  const sp = STEP * (0.6 + 0.8 * hh(id + 7919, m)), here = openAt(x, y), turn = hh(id + 104729, m) < 0.5 ? 1 : -1;
+  const far0 = (x - sx) ** 2 + (y - sy) ** 2;
+  for (let i = 0; i <= 8; i++) for (const s of i === 0 ? [0] : [turn * i, -turn * i]) {
+    const dd = (d + s + 16) % 16, nx = x + DIRS[dd][0] * sp, ny = y + DIRS[dd][1] * sp;
+    if (!wetAt(nx, ny) || openAt(nx, ny) < Math.min(5, here)) continue;
+    const far = (nx - sx) ** 2 + (ny - sy) ** 2;
+    if (far > REACH * REACH && far > far0) continue;
+    return [nx, ny, dd];
+  }
+  return [x, y, (d + 8) % 16];
+}
+
+/** Where its walk has it at a moment (null where it was not set on the town's water: then it rests as before). */
+function walkAt(k: RiverKrathong, now: number): { x: number; y: number; tx: number; ty: number } | null {
+  const sx = k.x!, sy = k.y!;
+  if (!wetAt(sx, sy)) return null;
+  const key = `${k.id}:${k.floated}`, m0 = Math.floor(k.floated / STEP_MS), mNow = Math.max(m0, Math.floor(now / STEP_MS));
+  let w = walks.get(key);
+  if (!w || w.m > mNow) {
+    // its first heading: towards the most open water about it
+    let best = 0, d = 0;
+    for (let dd = 0; dd < 16; dd++) {
+      let n = hh(k.id, dd + 900) * 0.5;
+      for (let r = 1; r <= 4; r++) n += openAt(sx + DIRS[dd][0] * r, sy + DIRS[dd][1] * r);
+      if (n > best) { best = n; d = dd; }
+    }
+    const [nx, ny, nd] = stepFrom(k.id, sx, sy, m0 + 1, sx, sy, d);
+    w = { m: m0, x: sx, y: sy, d, nx, ny, nd };
+    walks.set(key, w);
+  }
+  while (w.m < mNow) {
+    const [nx, ny, nd] = stepFrom(k.id, sx, sy, w.m + 2, w.nx, w.ny, w.nd);
+    w.m++; w.x = w.nx; w.y = w.ny; w.d = w.nd; w.nx = nx; w.ny = ny; w.nd = nd;
+  }
+  const f = Math.min(1, Math.max(0, (now - w.m * STEP_MS) / STEP_MS));
+  return { x: w.x + (w.nx - w.x) * f, y: w.y + (w.ny - w.y) * f, tx: f < 0.5 ? w.x : w.nx, ty: f < 0.5 ? w.y : w.ny };
+}
+/** The water tile a set-down krathong is told by (for its depth and whether it shows): always one of its walk's steps, so never the bank. */
+export function spotTile(k: RiverKrathong, now: number): Vec {
+  const w = walkAt(k, now);
+  return w ? { x: w.tx, y: w.ty } : { x: k.x!, y: k.y! };
 }
 /** Where a floated krathong is at a moment: about where its maker set it down, or (none said) down the festival's river. */
 export const floatPos = (k: RiverKrathong, now: number): Vec => (k.x != null && k.y != null ? spotPos(k, now) : riverPos(k, now));
@@ -207,7 +282,7 @@ export function drawRiver(d: FestivalDraw, river: RiverKrathong[]) {
     const { kr, p, at } = placed[i], set = kr.x != null && kr.y != null;
     // (the city's water is sunk: only over its water, each at its water's place back to front, the near bank before it,
     // as Town.tsx's cityRiver; one set down by its maker is told by the tile it was set on, so it never blinks at an edge)
-    const tile = set ? { x: kr.x!, y: kr.y! } : p;
+    const tile = set ? spotTile(kr, d.now) : p;
     if (CITY && ed.t2Tile(Math.floor(tile.x), Math.floor(tile.y)) !== "~") continue;
     const bob = Math.sin(d.now / 700 + kr.id) * 1.2 * d.s, x0 = at.x - (w / 2) * k, y0 = at.y - (h - 6) * k + bob;
     const [fx, fy] = FLAME[kr.design.light[0]] ?? [32, 8];
