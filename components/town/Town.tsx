@@ -2957,6 +2957,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const things: Thing[] = [];
     const signs: Array<() => void> = [];
     const names: Array<() => void> = [];
+    // (over the names too: what a tap on the map asked to read, a floated krathong's maker and wish)
+    const tops: Array<() => void> = [];
     const boxes: typeof hits.current = [];
     signBoxes.current = [];
     // While I am not connected, nobody can see me, so the others are drawn
@@ -3583,6 +3585,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         hits: riverHits.current, picked: riverPicked.current && riverPicked.current.until > Date.now() ? riverPicked.current.id : null,
         push: (depth, draw) => things.push({ depth, draw }), sign: (draw) => signs.push(draw),
         label: (text, x, y) => label(ctx, text, x, y, "#e5cc80", "rgba(15,19,25,0.82)", null),
+        note: (text, x, y) => noteBubble(ctx, text, x, y), top: (draw) => tops.push(draw),
         light: (x, y, reach, rgb, strong = 1, flat = 1) => { if (toolLights.current.length < 120) toolLights.current.push({ x, y, rgb, reach, flat, strong }); } };
       if (stage === "on" || stage === "coming") stallBox.current = drawFestivalStall(fd);
       if (fl.awards?.length && festivalOpen(festivalWindow(lk, "results"), wall)) hallBox.current = drawFestivalHall(fd, fl.awards);
@@ -3714,6 +3717,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     for (const sign of signs) sign();
     saidLayer.current?.begin();
     for (const n of names) n();
+    for (const t of tops) t();
     saidLayer.current?.end();
     // ── to come ── (and the cave's dark, over everything: names too)
     if (more && moreFrame) more.darkness(moreFrame);
@@ -4468,7 +4472,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const eatPose: 0 | 1 | undefined = eats && kit?.eatsInHand(look) ? (bite >= 0.1 && bite < 0.42 ? 1 : 0) : undefined;
     // A rod in their hands, or whatever else they hold: behind them when they face away; in front otherwise.
     // (what is held is held walking too: the owner, "ตอนนี้ถือแล้ว เดินของที่ถือจะหายไป")
-    const rod = rodOf(a, isMe), held = !rod ? a.info.hold || null : null;
+    // (a krathong held fills both hands: nothing else is drawn in them, whatever the room says a moment)
+    const rod = rodOf(a, isMe), held = !rod && !a.info.kt ? a.info.hold || null : null;
     const carriesTool = !!held && (isRod(held) || !!handOf(held));
     const heldTall = carriesTool ? (kit?.bodyHeightOf(look) ?? tall / k) * k : tall;
     const heldH = heldTall * (sitting(a) || perched ? SIT_HEIGHT : 1);
@@ -4525,7 +4530,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (held && face.view === "back") { lit(() => { tool.head = drawHeld(ctx, p, heldH, held, handSide, look, a.info.id, now, !!a.info.wet, heldTall, dpr, { under, rim, sweep, skin: gems }); }); shine(); }
     // ── the bridge built by hand ── (a stone carried in both hands: before them, so behind whoever faces away)
     if (a.info.carry && face.view === "back") drawCarried(ctx, p, h, look, a.info.id, now, moving, dpr, false);
-    if (a.info.kt && face.view === "back") drawCarriedKrathong(ctx, p, h, a.info.kt, look, a.info.id, now, moving, false);
+    if (a.info.kt && !a.info.carry && face.view === "back") drawCarriedKrathong(ctx, p, h, a.info.kt, look, a.info.id, now, moving, false);
     // ── the lamp relay ── (a flame borne from a fire to a lamp post: the ring of embers at their feet that says what is
     // left of it, under them; and the flame before them, so behind whoever faces away. Its light is drawn over the night's dark)
     const flame = a.info.flame ? lampsHooks.current?.flame : undefined;
@@ -4628,7 +4633,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (rod && face.view !== "back") { lit(() => { tool.head = drawRod(ctx, p, h, rod, a.info.id, now, fishesWith, undefined, look.race, gems, sweep); }); shine(); }
     if (held && face.view !== "back") { lit(() => { tool.head = drawHeld(ctx, p, heldH, held, handSide, look, a.info.id, now, !!a.info.wet, heldTall, dpr, { under, rim, sweep, skin: gems }); }); shine(); }
     if (a.info.carry && face.view !== "back") drawCarried(ctx, p, h, look, a.info.id, now, moving, dpr, true);
-    if (a.info.kt && face.view !== "back") drawCarriedKrathong(ctx, p, h, a.info.kt, look, a.info.id, now, moving, true);
+    if (a.info.kt && !a.info.carry && face.view !== "back") drawCarriedKrathong(ctx, p, h, a.info.kt, look, a.info.id, now, moving, true);
     if (flame && face.view !== "back") flame(ctx, a.info.flame!, p, h, "hands", dpr, names);   // ── the lamp relay ──
 
     const top = p.y - h * 1.12 - bob;
@@ -4953,6 +4958,37 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (iw) ctx.drawImage(icon!, x - w / 2 + 5, y - 8, 16, 16);
     ctx.fillStyle = fg;
     ctx.fillText(text, x + iw / 2, y + 0.5);
+  }
+
+  /**
+   * A few lines of somebody's words in a bubble whose foot is at (x, y), wrapped by word to a width, five lines at most
+   * (a floated krathong's wish, for everybody: the owner, 2026-11-24).
+   */
+  function noteBubble(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, maxW = 220) {
+    ctx.save();
+    ctx.font = `500 12px ${fontRef.current}`;
+    const Seg = (Intl as unknown as { Segmenter?: new (l: string, o: { granularity: string }) => { segment: (t: string) => Iterable<{ segment: string }> } }).Segmenter;
+    const words = Seg ? [...new Seg("th", { granularity: "word" }).segment(text)].map((s) => s.segment) : text.split(/(s+)/);
+    const lines: string[] = [];
+    let line = "";
+    for (const w of words) {
+      if (line && ctx.measureText(line + w).width > maxW) { lines.push(line.trim()); line = w.trimStart(); } else line += w;
+    }
+    if (line.trim()) lines.push(line.trim());
+    const shown = lines.slice(0, 5);
+    if (lines.length > 5) shown[4] = shown[4].replace(/s*S?$/, "…");
+    const lh = 16, w = Math.max(...shown.map((l) => ctx.measureText(l).width)) + 16, h = shown.length * lh + 10;
+    // (kept on the screen: a krathong by its edge says its wish inward)
+    const cw = ctx.canvas.width / (ctx.getTransform().a || 1);
+    x = Math.min(Math.max(x, w / 2 + 6), Math.max(w / 2 + 6, cw - w / 2 - 6));
+    ctx.fillStyle = "rgba(15,19,25,0.88)";
+    roundRect(ctx, x - w / 2, y - h, w, h, 8);
+    ctx.fill();
+    ctx.fillStyle = "#f3e3c3";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    shown.forEach((l, i) => ctx.fillText(l, x, y - h + 5 + lh * i + lh / 2));
+    ctx.restore();
   }
 
   /** A few small words under a name: what somebody is called for what they have done. */
@@ -5572,6 +5608,21 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   useEffect(() => { try { const c = JSON.parse(localStorage.getItem(CARRY_KEY) ?? "null"); if (c && typeof c.code === "string") setCarryState(c); } catch { /* none kept */ } }, []);
   const carrying = !!carry && carry.carry && !carry.floated && fest.live.current.f?.id === carry.f;
   useEffect(() => { session?.setKrathong(carrying && carry ? carry.code : null); }, [carrying, carry, session]);
+  // (both hands on the krathong, nothing else in them: the owner, 2026-11-24, "ตอนถือกระทงอยู่ไม่ควรถืออย่างอื่นได้":
+  // a thing taken in hand (the hotbar, the bag, a pot) puts the krathong away; the krathong taken up lets the hand go.
+  // The hand the purse is first read with is no taking: then the krathong wins)
+  const purseReads = useRef(0);
+  useEffect(() => { purseReads.current++; }, [purse]);
+  const handWas = useRef<string | null>(null), carryWas = useRef(false), handSeen = useRef(false);
+  useEffect(() => {
+    const took = handSeen.current && !!purse.hand && purse.hand !== handWas.current, lifted = carrying && !carryWas.current;
+    handWas.current = purse.hand; carryWas.current = carrying;
+    if (purseReads.current >= 2) handSeen.current = true;
+    if (!carrying || !purse.hand) return;
+    if (took && !lifted) { if (carry) setCarry({ ...carry, carry: false }); }
+    else void keeper?.hold(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [purse.hand, carrying]);
   const onMineKrathong = useCallback((f: number, mine: KrathongView | null) => {
     setCarryState((was) => {
       const next = mine ? { f, code: designCode(mine.design), floated: !!mine.floated, carry: was && was.f === f ? was.carry : true } : null;

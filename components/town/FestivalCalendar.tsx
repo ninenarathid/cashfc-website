@@ -49,7 +49,8 @@ function Month({ f, now, th }: { f: Festival; now: number; th: boolean }) {
   const isToday = (d: number) => today.getUTCFullYear() === y && today.getUTCMonth() === m && today.getUTCDate() === d;
   const marks = (d: number) => {
     const a = Date.UTC(y, m, d) - BKK, b = a + 86_400_000;
-    return f.windows.filter((w) => SHOWN.includes(w.kind) && Date.parse(w.from) < b && (w.until === null ? w.kind === "results" && Date.parse(w.from) >= a : Date.parse(w.until) > a));
+    // (the results' day is not marked until they are out: the owner, 2026-11-24, "ประกาศผล ยังไม่ต้องบอกวันที่")
+    return f.windows.filter((w) => SHOWN.includes(w.kind) && !(w.kind === "results" && Date.parse(w.from) > now) && Date.parse(w.from) < b && (w.until === null ? w.kind === "results" && Date.parse(w.from) >= a : Date.parse(w.until) > a));
   };
   const monthName = (th ? ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"]
     : ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"])[m];
@@ -102,7 +103,7 @@ function Card({ f, now, th, onFestival, past = false }: { f: Festival; now: numb
           return (
             <li key={w.kind} className={`flex items-center gap-2 text-meta ${done ? "opacity-50" : ""}`}>
               <span className={`shrink-0 rounded-full px-2 py-0.5 font-semibold ${TONE[w.kind]?.chip ?? ""}`}>{th ? w.th : w.en}</span>
-              <span className="min-w-0 flex-1 font-data tabular-nums text-ink">{whenText(w.from, th)}{w.until && w.kind !== "auction" ? ` – ${whenText(w.until, th)}` : ""}</span>
+              <span className="min-w-0 flex-1 font-data tabular-nums text-ink">{w.kind === "results" && Date.parse(w.from) > now ? (th ? "รอประกาศ" : "To be announced") : <>{whenText(w.from, th)}{w.until && w.kind !== "auction" ? ` – ${whenText(w.until, th)}` : ""}</>}</span>
               {open && w.until && <span className="ml-auto shrink-0 font-data tabular-nums text-accent">{untilText(w.until, now, th)}</span>}
             </li>
           );

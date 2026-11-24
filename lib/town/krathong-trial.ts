@@ -98,7 +98,8 @@ export class KrathongTrial {
       now: this.store.now(), festival: f,
       mine: mine ? { ...view(mine), wish: mine.wish } : null,
       entries: s.rows.filter((r) => r.entered).map((r) => ({ ...view(r), mine: r.member === me, fc: r.fc,
-        ...(s.settled ? { maker: { name: r.member === me ? "คุณ" : r.makerName, character: r.character } } : {}),
+        // (every maker's name, at any time: the owner, 2026-11-24: "คำอวยพร เห็นได้ทุกคน คนอื่นก็เห็น ชื่อคนทำ ชื่อกระทง เห็นหมด")
+        maker: { name: r.member === me ? "คุณ" : r.makerName, character: r.character },
         ...(trialAdmin() ? { votes: counts.get(r.id) ?? 0 } : {}) })),
       voted: s.votes.filter(([, v]) => v === me).map(([e]) => e).sort((a, b) => a - b),
       votesEach: VOTES_EACH, floated: s.rows.filter((r) => r.floated !== null).length, judged: s.judge !== null,
@@ -159,7 +160,7 @@ export class KrathongTrial {
   river(): RiverKrathong[] {
     const s = this.state(), f = this.festival();
     if (!isOpen(windowOf(f, "float"), this.store.now())) return [];
-    return s.rows.filter((r) => r.floated !== null).sort((a, b) => a.floated! - b.floated!).map((r) => ({ id: r.id, design: r.design, floated: r.floated!, mine: r.member === this.store.me, name: r.name, maker: r.makerName, x: r.fx ?? null, y: r.fy ?? null }));
+    return s.rows.filter((r) => r.floated !== null).sort((a, b) => a.floated! - b.floated!).map((r) => ({ id: r.id, design: r.design, floated: r.floated!, mine: r.member === this.store.me, name: r.name, maker: r.makerName, wish: r.wish, x: r.fx ?? null, y: r.fy ?? null }));
   }
   /** The lucky draw's list: whoever floated, the cutoff the entries' end (midnight, as v339 sets `draw_until`). */
   draw(): DrawList {

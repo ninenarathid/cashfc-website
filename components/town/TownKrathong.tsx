@@ -156,7 +156,7 @@ function PhaseSteps({ f, now, th }: { f: Festival; now: number; th: boolean }) {
         const w = windowOf(f, k), at = phaseState(f, k, now);
         if (!w) return null;
         const when = at === "now" ? (w.until ? `${th ? "เหลือ " : ""}${untilText(w.until, now, th)}` : (th ? "ตอนนี้" : "Now"))
-          : at === "next" ? shortWhen(w.from, now, th) : (th ? "จบแล้ว" : "Over");
+          : at === "next" ? (k === "results" ? (th ? "รอประกาศ" : "Soon") : shortWhen(w.from, now, th)) : (th ? "จบแล้ว" : "Over");
         return (
           <li key={k} aria-current={at === "now" ? "step" : undefined} data-phase={k} data-phase-at={at}
               className={`flex min-w-0 flex-col items-center gap-0.5 rounded-lg px-1 py-1 text-center ${at === "now" ? "bg-accent/15 text-accent" : at === "done" ? "text-muted" : "text-ink/85"}`}>
@@ -539,7 +539,7 @@ function Gallery({ keeper, th, st, me, admin, voting, phone, setSt }: {
           </span>
         ) : null}
         <span className="ml-auto text-meta text-muted">
-          {admin ? (th ? "แอดมินเห็นคะแนน" : "Counts: admins only") : st.awards ? (th ? "เปิดชื่อแล้ว · ไม่โชว์คะแนน" : "Names shown · no counts") : (th ? "ซ่อนชื่อและคะแนน" : "Makers and counts hidden")}
+          {admin ? (th ? "แอดมินเห็นคะแนน" : "Counts: admins only") : (th ? "ไม่โชว์คะแนน" : "No counts shown")}
         </span>
       </div>
       {note && <p className="text-meta text-[#fca5a5]" aria-live="polite">{note}</p>}
@@ -605,7 +605,7 @@ function Float({ keeper, th, st, phone, onDone, floatAt, onCarry, onClose }: {
       {mine.floated ? (
         <>
           <p className="flex items-center gap-1.5 rounded-full bg-accent/15 px-3 py-1 text-meta font-semibold text-accent"><TownIcon name={icon("floatKrathong")} size={16} />{th ? "ลอยแล้ว" : "Floated"}</p>
-          {mine.wish && <p className="flex items-start gap-1.5 text-meta text-muted"><TownIcon name={icon("wishCapsule")} size={16} />{th ? "คำอธิษฐานผนึกไว้ เปิดอ่านได้ลอยกระทงปีหน้า" : "Your wish is sealed until next year's festival"}</p>}
+          {mine.wish && <p className="flex items-start gap-1.5 text-meta text-ink"><TownIcon name={icon("wishCapsule")} size={16} /><span>“{mine.wish}” <span className="text-muted">{th ? "· ทุกคนเห็นเมื่อแตะกระทงบนน้ำ" : "· everyone sees it with a tap on the water"}</span></span></p>}
         </>
       ) : !floatAt ? (
         <>
@@ -618,7 +618,7 @@ function Float({ keeper, th, st, phone, onDone, floatAt, onCarry, onClose }: {
       ) : (
         <>
           <label className="w-full">
-            <span className="mb-1 flex items-center gap-1.5 text-meta text-muted"><TownIcon name={icon("wishCapsule")} size={16} />{th ? "คำอธิษฐาน · เห็นคนเดียว · เปิดอ่านปีหน้า" : "A wish · only you · opens next year"}</span>
+            <span className="mb-1 flex items-center gap-1.5 text-meta text-muted"><TownIcon name={icon("wishCapsule")} size={16} />{th ? "คำอวยพร · ทุกคนเห็น" : "A wish · everyone sees it"}</span>
             <textarea value={wish} onChange={(e) => setWish(e.target.value)} maxLength={140} rows={2}
                       className="w-full rounded-xl border border-line-strong bg-card/60 px-3 py-2 text-ui text-ink focus:border-accent focus:outline-none" />
           </label>

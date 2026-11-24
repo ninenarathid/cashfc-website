@@ -290,6 +290,8 @@ export interface RiverKrathong {
   id: number; design: Design; floated: number; mine: boolean;
   /** Its name and its maker's (v339: a tap on the river says whose it is; the owner, 2026-11-24). */
   name?: string; maker?: string | null;
+  /** Its maker's wish, for everybody (the owner, 2026-11-24: "คำอวยพร เห็นได้ทุกคน คนอื่นก็เห็น ชื่อคนทำ ชื่อกระทง เห็นหมด"). */
+  wish?: string | null;
   /** Where its maker set it on the water (tiles; v339), or none (it then comes down the festival's river). */
   x?: number | null; y?: number | null;
 }

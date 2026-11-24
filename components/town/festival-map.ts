@@ -69,6 +69,10 @@ export interface FestivalDraw {
   push: (depth: number, draw: () => void) => void;
   sign: (draw: () => void) => void;
   label: (text: string, x: number, y: number) => void;
+  /** A few lines of somebody's words in a bubble whose foot is at (x, y): a floated krathong's wish. */
+  note?: (text: string, x: number, y: number) => void;
+  /** Drawn over everything, names too: what a tap asked to read. */
+  top?: (draw: () => void) => void;
   /** A light laid after the night's dark (the town's own lights: a candle shines through it). */
   light: (x: number, y: number, reach: number, rgb: string, strong?: number, flat?: number) => void;
   th: boolean;
@@ -191,7 +195,11 @@ export function drawRiver(d: FestivalDraw, river: RiverKrathong[]) {
       drawKrathong(ctx, kr.design, x0, y0, k, frame + kr.id);
       ripple(ctx, d, at.x, waterY, 23 * k, kr.id, false);
       // (a tap says whose it is, the owner, 2026-11-24: "สามารถคลิ๊กดูได้ว่าของใคร"; mine says so the whole time)
-      if (d.picked === kr.id) d.sign(() => d.label(`${kr.mine ? (d.th ? "ของฉัน" : "Mine") : (kr.maker ?? (d.th ? "ผู้เล่น" : "A player"))}${kr.name ? ` · ${kr.name}` : ""}`, at.x, y0 - 8 * d.s));
+      // (and its wish over it, for everybody: the owner, 2026-11-24: "คำอวยพร เห็นได้ทุกคน คนอื่นก็เห็น ชื่อคนทำ ชื่อกระทง เห็นหมด")
+      if (d.picked === kr.id) (d.top ?? d.sign)(() => {
+        d.label(`${kr.mine ? (d.th ? "ของฉัน" : "Mine") : (kr.maker ?? (d.th ? "ผู้เล่น" : "A player"))}${kr.name ? ` · ${kr.name}` : ""}`, at.x, y0 - 8 * d.s);
+        if (kr.wish) d.note?.(`“${kr.wish}”`, at.x, y0 - 8 * d.s - 13);
+      });
       else if (kr.mine) d.sign(() => d.label(d.th ? "กระทงของฉัน" : "Mine", at.x, y0 - 8 * d.s));
     });
   }

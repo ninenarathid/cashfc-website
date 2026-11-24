@@ -22,7 +22,9 @@
 --    public.town_krathong_float(festival, wish, x, y) in place of v336's two-argument one.
 -- 4b. The stall (public.town_krathong): the popoto counts go to an admin only, at any time, and never to the members,
 --    the results included ("ไม่ต้องเลือกกรรมการ ให้คนในเมืองโหวตกันเอง แค่ไม่เห็นคะแนนพอ มีแต่ admin ที่เห็นคะแนน"); the
---    makers' names as before, once the results are out. No judges' pick is offered any more (the game shows none).
+--    makers' names with their krathongs at any time ("คำอวยพร เห็นได้ทุกคน คนอื่นก็เห็น ชื่อคนทำ ชื่อกระทง เห็นหมด"). No
+--    judges' pick is offered any more (the game shows none).
+-- 4c. The wish written as a krathong is floated is said with it on the river, to everybody in the town (the same words).
 -- 5. `rules.draw_until`: the lucky draw's last moment to have floated (24 Nov midnight), a row he may change; and
 --    public.town_festival_draw(festival): for an admin only, every floated krathong's maker and when, one list for all.
 -- The code's twins: lib/town/krathong's PARTS and COLOR_SLOTS, lib/town/festivals' LOY_KRATHONG_2026 (krathong.test.ts
@@ -98,9 +100,8 @@ begin
       select jsonb_agg(town.krathong_view(k) || jsonb_build_object(
                'mine', k.member_id = me,
                'fc', exists (select 1 from public.fc_roster r where r.character_id = k.character_id))
-             || case when shown then jsonb_build_object(
+             || jsonb_build_object(
                'maker', (select jsonb_build_object('name', p.character_name, 'character', p.character_id) from public.profiles p where p.id = k.member_id))
-             else '{}'::jsonb end
              || case when counts then jsonb_build_object(
                'votes', (select count(*) from public.town_krathong_votes v where v.entry = k.id))
              else '{}'::jsonb end
@@ -153,7 +154,7 @@ $$;
 revoke all on function public.town_krathong_float(integer, text, real, real) from public, anon;
 grant execute on function public.town_krathong_float(integer, text, real, real) to authenticated;
 
--- What floats now, for the map (v336's), with each krathong's name and its maker's: a tap says whose it is.
+-- What floats now, for the map (v336's), with each krathong's name, its maker's and its wish: a tap says whose it is.
 create or replace function public.town_krathong_river(p_festival integer) returns jsonb
 language plpgsql stable security definer set search_path to '' as $$
 declare
@@ -166,7 +167,7 @@ begin
   end if;
   return jsonb_build_object('ok', true, 'now', town.now_ms(), 'river', coalesce((
     select jsonb_agg(jsonb_build_object('id', x.id, 'design', x.design, 'floated', (extract(epoch from x.floated_at) * 1000)::bigint,
-             'mine', x.member_id = me, 'name', x.name, 'x', x.float_x, 'y', x.float_y,
+             'mine', x.member_id = me, 'name', x.name, 'wish', x.wish, 'x', x.float_x, 'y', x.float_y,
              'maker', (select p.character_name from public.profiles p where p.id = x.member_id)) order by x.floated_at)
       from (select * from public.town_krathongs k where k.festival = f.id and k.floated_at is not null order by k.floated_at desc limit 300) x), '[]'::jsonb));
 end;

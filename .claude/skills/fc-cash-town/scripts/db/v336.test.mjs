@@ -153,7 +153,9 @@ try {
   // the gallery, while names are hidden
   let s = await state(m4);
   const seesCounts = !!easySql && m4Admin;
-  eq(s.entries.map((e) => [e.id, e.mine, "maker" in e, "votes" in e]), [[e1, false, false, seesCounts], [e2, false, false, seesCounts], [e3, false, false, seesCounts]], "entries without makers (or counts, but to an admin since v339)");
+  const seesMakers = !!easySql;
+  eq(s.entries.map((e) => [e.id, e.mine, "maker" in e, "votes" in e]), [[e1, false, seesMakers, seesCounts], [e2, false, seesMakers, seesCounts], [e3, false, seesMakers, seesCounts]],
+    "entries without makers until v339 (which shows them at any time), counts to an admin only since v339");
   eq(s.mine, null, "m4 has none");
   eq((await state(m1)).mine?.id, e1, "m1 sees its own");
   eq((await vote(m4, e1))?.why, "closed", "no popoto before the vote opens");
@@ -195,7 +197,7 @@ try {
   eq((await one("select wish from public.town_krathongs where id = $1", [e4])).wish, "อยากให้ปีหน้า", "the wish kept, not overwritten");
   eq((await float(players[5] ?? uuid(77), "x"))?.ok, false, "no krathong, no float");
   r = await call(m1, "select public.town_krathong_river(1) r");
-  eq(r.river.map((x) => [x.id, x.mine, "wish" in x]), [[e4, false, false]], "the river shows it, never the wish");
+  eq(r.river.map((x) => [x.id, x.mine, x.wish ?? null]), [[e4, false, easySql ? "อยากให้ปีหน้า" : null]], "the river shows it, and since v339 its wish to everybody");
   eq((await state(m1)).entries.some((e) => "wish" in e), false, "no wish in the gallery");
   eq((await state(m4)).mine?.wish, "อยากให้ปีหน้า", "the maker reads their own");
   eq((await call(m1, "select public.town_krathong_rename(1, 'ชื่อใหม่') r"))?.krathong?.name, "ชื่อใหม่", "renamed");
