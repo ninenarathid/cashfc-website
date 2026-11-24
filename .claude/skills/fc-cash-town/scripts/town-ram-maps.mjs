@@ -90,10 +90,15 @@ try {
   };
   // (the farm's gate there and back; the forest's too, where this town has one)
   const legs = [[here, "farm"], ["farm", here], ...(gates.some((g) => g.from === here && g.leads === "forest") ? [[here, "forest"], ["forest", here]] : [])];
+  // (each friend's map, as their own page has it, every few ms: carried over once, never there and back and there again)
+  const watchPlace = (F) => F.evaluate(`(clearInterval(window.__placeTimer), window.__placeLog = [], window.__placeTimer = setInterval(() => { const p = window.__townView.casino().place, l = window.__placeLog; if (l[l.length - 1] !== p) l.push(p); }, 5), true)`);
+  const placeLog = (F) => F.evaluate(`(clearInterval(window.__placeTimer), window.__placeLog)`);
   for (const [from, leads] of legs) {
+    await watchPlace(P); await watchPlace(Q);
     const r = await tryGate(from, leads);
     if (r.skipped) { ok(`a gate from ${from} to ${leads}`, false, gates.map((g) => `${g.from}>${g.leads}`)); continue; }
     ok(`the rider went through to the ${leads}`, (await place(X)) === leads, await place(X));
+    for (const [F, name] of [[P, "first"], [Q, "second"]]) { const log = await placeLog(F); ok(`${from} → ${leads}: the ${name} friend crossed once`, log.length === 2 && log[0] === from && log[1] === leads, log); }
     const [x, p, q] = [await self(X), await self(P), await self(Q)];
     for (const [F, at, name] of [[P, p, "first"], [Q, q, "second"]]) {
       ok(`${from} → ${leads}: the ${name} friend is on the ${leads} too`, (await place(F)) === leads, await place(F));
