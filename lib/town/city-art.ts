@@ -91,8 +91,10 @@ interface Thing {
   rings?: Array<[number, number, string]>;
   wall?: [number, number, string];
   strips?: number[];
+  /** Where its largest windows are, in isometric pixels: [x, y, size 1–3, low on it 1/0] (pixel/build-city.mjs's `glows`). */
+  glows?: number[][];
 }
-interface Sprite { src: string; w: number; h: number; img: HTMLImageElement | null; ready: boolean; seen: number }
+interface Sprite { src: string; w: number; h: number; img: HTMLImageElement | null; ready: boolean; seen: number; lit?: { src: string; img: HTMLImageElement | null; ready: boolean } }
 
 const stripDepth = ([bx0, by0, bx1, by1]: readonly number[], mid: number) =>
   mid <= (bx1 - by1) * 32 ? Math.min(bx1, Math.max(bx0, mid / 32 + by1)) + by1 : bx1 + Math.min(by1, Math.max(by0, bx1 - mid / 32));
@@ -131,6 +133,16 @@ export class CityArt {
   private readonly flowing = new Map<number, HTMLCanvasElement[]>();
   private lastSeen: Thing[] = [];
   private lastView: { x0: number; y0: number; x1: number; y1: number } | null = null;
+  /**
+   * The night's lit windows (the owner, 2026-11-24: "ช่วยปรับให้เมืองตอนกลางคืน ดูมีไฟ สวยๆ cozyๆ ออกมาจากตึก ให้ดูไม่มืดเกินไป
+   * หน่อย"): each building's lit layer is laid on a canvas of their own in its turn among what stands, and whatever is drawn
+   * after it and over it takes it away there (a tree before a window hides its light); `shine` lays that canvas over the
+   * dark. How lit the night is (the hour's lamps, 0 by day).
+   */
+  private night = 0;
+  private lights: HTMLCanvasElement | null = null;
+  private lightsG: CanvasRenderingContext2D | null = null;
+  private litRects: Array<[number, number, number, number]> = [];
   /** Where the woods about the city begin among the things; they are drawn only from the city (the page says, `woodsShown`). */
   private woodsFrom = 0;
   woodsShown = true;
@@ -139,12 +151,13 @@ export class CityArt {
     const rings = MAP.rings as unknown as Record<string, Array<[number, number, string]>>;
     const walls = MAP.walls as unknown as Record<string, [number, number, string]>;
     const strips = MAP.strips as unknown as Record<string, number[]>;
-    this.sprites = (MAP.sprites as Array<[string, number, number]>).map(([src, w, h]) => ({ src: DIR + src, w, h, img: null, ready: false, seen: 0 }));
+    const lit = (MAP as unknown as { lit?: Record<string, string> }).lit ?? {}, glows = (MAP as unknown as { glows?: Record<string, number[][]> }).glows ?? {};
+    this.sprites = (MAP.sprites as Array<[string, number, number]>).map(([src, w, h], i) => ({ src: DIR + src, w, h, img: null, ready: false, seen: 0, lit: lit[i] ? { src: DIR + lit[i], img: null, ready: false } : undefined }));
     const all = [...(MAP.objects as number[][]), ...woods(MAP.objects as number[][])];
     this.woodsFrom = MAP.objects.length;
     this.byIndex = all.map((o, i) => ({
       i, name: MAP.names[o[0]], s: o[1], x: o[2], y: o[3], k: o[4], flip: o[5] === 1, how: o[6], d: o[7],
-      box: [o[8], o[9], o[10], o[11]] as [number, number, number, number], rings: rings[i], wall: walls[i], strips: strips[i],
+      box: [o[8], o[9], o[10], o[11]] as [number, number, number, number], rings: rings[i], wall: walls[i], strips: strips[i], glows: glows[i],
     }));
     this.things = this.byIndex;
     for (const r of T2_ROOMS) { this.outsideOf.set(r.out, r.name); this.insideOf.set(r.in, r.name); }
@@ -278,12 +291,12 @@ export class CityArt {
     return swayPx((ix / 32 + iy / 16) / 2, (iy / 16 - ix / 32) / 2, sp.w * t.k, this.sway.sec, this.sway.me) * s;
   }
 
-  private paint(ctx: CanvasRenderingContext2D, t: Thing, screen: Screen, s: number, px: number, strip?: [number, number]) {
+  private paint(ctx: CanvasRenderingContext2D, t: Thing, screen: Screen, s: number, px: number, strip?: [number, number], over?: CanvasImageSource, op?: GlobalCompositeOperation) {
     const sp = this.sprites[t.s];
     if (!sp.img || !sp.ready) return;
     const k = t.k * s, a = screen(t.x, t.y);
-    let pic: CanvasImageSource = sp.img;
-    if (FLOWING.test(t.name) && this.now) {
+    let pic: CanvasImageSource = over ?? sp.img;
+    if (!over && FLOWING.test(t.name) && this.now) {
       let frames = this.flowing.get(t.s);
       if (!frames) {
         frames = [];
@@ -306,6 +319,7 @@ export class CityArt {
       if (sx1 <= sx0) return;
     }
     ctx.save();
+    if (op) ctx.globalCompositeOperation = op;
     ctx.imageSmoothingEnabled = k * px < 1;
     ctx.imageSmoothingQuality = "high";
     const X = Math.round(a.x * px) / px, Y = Math.round(a.y * px) / px;
@@ -334,7 +348,41 @@ export class CityArt {
       if (X1 > X0 && Y1 > Y0) ctx.drawImage(pic, (X0 - dx) / kk, (Y0 - dy) / kk, (X1 - X0) / kk, (Y1 - Y0) / kk, X0 / px, Y0 / px, (X1 - X0) / px, (Y1 - Y0) / px);
     }
     ctx.restore();
+    // (by night: its lit windows laid on the night's canvas, or, over lit windows laid before it, their light taken away)
+    if (!over && this.night && this.lightsG && ctx !== this.lightsG) {
+      const lit = sp.lit, x0 = strip ? strip[0] : t.x, x1 = strip ? strip[1] : t.x + sp.w * t.k;
+      const r0 = screen(x0, t.y), r1 = screen(x1, t.y + sp.h * t.k);
+      if (lit && !lit.img) { const img = new Image(); img.decoding = "async"; img.onload = () => { lit.ready = true; }; img.src = lit.src; lit.img = img; }
+      if (lit?.img && lit.ready) { this.paint(this.lightsG, t, screen, s, px, strip, lit.img); this.litRects.push([r0.x, r0.y, r1.x, r1.y]); }
+      else if (this.litRects.some(([a0, b0, a1, b1]) => r0.x < a1 && r1.x > a0 && r0.y < b1 && r1.y > b0)) this.paint(this.lightsG, t, screen, s, px, strip, sp.img, "destination-out");
+    }
   }
+
+  /** A new frame's night: how lit it is (the hour's lamps; 0 by day, or away from the city), and its canvas, cleared. */
+  beginNight(lamps: number, cw: number, ch: number, dpr: number) {
+    this.night = lamps >= 0.02 ? lamps : 0;
+    this.litRects = [];
+    if (!this.night) return;
+    const w = Math.round(cw * dpr), h = Math.round(ch * dpr);
+    if (!this.lights) { this.lights = document.createElement("canvas"); this.lightsG = this.lights.getContext("2d"); }
+    if (!this.lightsG) return;
+    if (this.lights.width !== w || this.lights.height !== h) { this.lights.width = w; this.lights.height = h; }
+    this.lightsG.setTransform(1, 0, 0, 1, 0, 0);
+    this.lightsG.clearRect(0, 0, w, h);
+    this.lightsG.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  /** The lit windows over the dark, after it is laid (warm light added to the darkened panes). */
+  shine(ctx: CanvasRenderingContext2D, warm: number) {
+    if (!this.night || !this.lights || !this.litRects.length) return;
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalCompositeOperation = "lighter";
+    ctx.globalAlpha = Math.min(1, 0.92 * this.night * warm);
+    ctx.drawImage(this.lights, 0, 0);
+    ctx.restore();
+  }
+  /** The windows' light about the buildings last seen: [x, y, size, low on the building]. */
+  glowsSeen(): number[][] { return this.lastSeen.flatMap((t) => t.glows ?? []); }
 
   private ripplesSheet(): HTMLImageElement | null {
     if (!this.ripples) {

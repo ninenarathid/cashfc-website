@@ -27,6 +27,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { REPO, exportReader, sharp, spriteWriter, toIso } from "./editor-export.mjs";
+import { litLayer, panes } from "./lit-panes.mjs";
 
 const arg = (name, fallback) => { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : fallback; };
 const SRC = arg("--src", "E:/NinenineProject/fcnext/.claude/skills/fc-cash-town/scripts/pixel/work/cashcity");
@@ -520,6 +521,46 @@ for (const [name, t] of Object.entries(map.ground_textures)) {
   textures[name] = { src: file, perTile: v.texels_per_tile ?? 32 };
 }
 
+/* ── lit at night ────────────────────────────────────────────────────────────────────────────────────────────────── */
+
+/*
+ * The buildings' windows lit at night (the owner, 2026-11-24: "ช่วยปรับให้เมืองตอนกลางคืน ดูมีไฟ สวยๆ cozyๆ ออกมาจากตึก ให้ดู
+ * ไม่มืดเกินไปหน่อย"): for each picture of a building, the lit layer of its windows (./lit-panes, a picture as large as it,
+ * clear but for them), which lib/town/city-art lays over it by night in its turn among what stands; and where each
+ * building's largest windows are, for the warm light about them, and those low on it, for the light they throw on the
+ * ground before it.
+ */
+const UNLIT = /^(terrain|farm_gate|create_street_table_and_chair|scooter_game_asset|create_pixel_art_hay_and_pitchfork|cute_potato_park_fountain_asset|aquamonument|nineninemonument|create_isometric_pixel_art_ferris|dining_table|kitchen_bench|create_pixel_art_reception_table)/;
+const lit = {}, glows = {};
+let litPanes = 0;
+const litOf = new Map();
+for (let n = 0; n < objects.length; n++) {
+  const o = objects[n], name = names[o[0]];
+  if ((o[6] !== DRAW.wide && o[6] !== DRAW.outside) || UNLIT.test(name)) continue;
+  const sp = sprites[o[1]];
+  if (!litOf.has(o[1])) {
+    const { data, info } = await sharp(path.join(OUT, sp.src)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    const found = panes(data, info.width, info.height);
+    let file = null;
+    if (found.length) {
+      const buf = await sharp(litLayer(data, info.width, info.height, found), { raw: { width: info.width, height: info.height, channels: 4 } }).webp({ lossless: true, effort: 6 }).toBuffer();
+      file = `lit-${crypto.createHash("sha1").update(buf).digest("hex").slice(0, 10)}.webp`;
+      fs.writeFileSync(path.join(OUT, file), buf);
+      lit[o[1]] = file;
+      litPanes += found.length;
+    }
+    litOf.set(o[1], { file, found, W: info.width, H: info.height });
+  }
+  const { found, W, H } = litOf.get(o[1]);
+  if (!found.length) continue;
+  // (its largest windows, in isometric pixels: where its light is; [x, y, size 1–3, low on the building 1/0])
+  glows[n] = [...found].sort((a, b) => b.area - a.area).slice(0, 10).map((w) => {
+    const cx = (w.x0 + w.x1 + 1) / 2, cy = (w.y0 + w.y1 + 1) / 2;
+    return [r2(o[2] + (o[5] ? W - cx : cx) * o[4]), r2(o[3] + cy * o[4]), Math.min(3, Math.max(1, Math.round(Math.sqrt(w.area * o[4] * o[4]) / 6))), cy > H * 0.62 ? 1 : 0];
+  });
+}
+console.log(`lit at night: ${Object.keys(lit).length} buildings' pictures, ${litPanes} windows`);
+
 /* ── written ─────────────────────────────────────────────────────────────────────────────────────────────────────── */
 
 const out = {
@@ -533,7 +574,7 @@ const out = {
   stairs: (map.stairs ?? []).map(([x, y, way, rise, ramp]) => [x + OX, y + OY, way, rise, ...(ramp ? [ramp] : [])]),
   edges,
   sprites: sprites.map(({ src, w, h }) => [src, w, h]),
-  names, objects, rings, strips, walls, lifts, ripples, shadows,
+  names, objects, rings, strips, walls, lifts, ripples, shadows, lit, glows,
   roles: { rooms, chests, lamps, benches, rings: ringObjs },
 };
 fs.writeFileSync(JSON_OUT, JSON.stringify(out));

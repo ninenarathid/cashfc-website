@@ -2310,6 +2310,21 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       glowAt(ctx, c.x, c.y - 2 * s, 50 * s, "120,205,255", lit, 0.55);
       glowAt(ctx, c.x, c.y - 10 * s, 84 * s, "110,180,255", lit * 0.4, 0.7);
     }
+    // ── the city ── (its windows lit, a soft warm light about the largest, and those low on a building throwing their
+    // light on the ground before it: the owner, 2026-11-24, "ดูมีไฟ สวยๆ cozyๆ ออกมาจากตึก")
+    if (CITY && lamps > 0.02 && placeRef.current === "town" && town2Ref.current instanceof CityArt) {
+      const city = town2Ref.current, cam0 = cam.current, warm = still ? 0.95 : 0.9 + 0.1 * Math.sin(now / 2300);
+      ctx.save();
+      city.shine(ctx, warm);
+      ctx.globalCompositeOperation = "lighter";
+      for (const [x, y, n, low] of city.glowsSeen()) {
+        const c = toScreen(cam0, { x, y }, cam0.cw, cam0.ch);
+        if (c.x < -120 || c.y < -120 || c.x > cam0.cw + 120 || c.y > cam0.ch + 160) continue;
+        glowAt(ctx, c.x, c.y, (9 + 5 * n) * s, "255,196,120", 0.3 * lamps * warm);
+        if (low) glowAt(ctx, c.x, c.y + (16 + 6 * n) * s, (36 + 14 * n) * s, "255,168,88", 0.2 * lamps * warm, 0.42);
+      }
+      ctx.restore();
+    }
     // (the editor's town's lanterns and fires drawn in its pictures, warm at night, breathing slowly like the old hall's)
     if (T2 && lamps > 0.02 && town2Ref.current) {
       const cam0 = cam.current, warm = still ? 0.9 : 0.85 + 0.15 * Math.sin(now / 2100);
@@ -2427,10 +2442,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       return;
     }
     const day = skyNow();
-    const [r, g, b] = day.tint;
+    // (the city's night less dark: lit windows, lamps and the glow of a town about one; the owner, 2026-11-24, "ให้ดูไม่มืดเกินไป")
+    const lift = CITY && placeRef.current === "town" ? 0.3 : 0;
+    const [r, g, b] = day.tint.map((c) => Math.round(c + (255 - c) * lift));
     // ── the lamp relay ── (where a lit lamp is in sight the hour's dark is laid by the lamps' own hand, lifted in each
     // lamp's ring: TownLamps' `dark`. With none in sight it says no, and the dark is laid here as it always was)
-    if ((r < 255 || g < 255 || b < 255) && !lampsHooks.current?.dark(ctx, cw, ch, day.tint)) {
+    if ((r < 255 || g < 255 || b < 255) && !lampsHooks.current?.dark(ctx, cw, ch, [r, g, b] as typeof day.tint)) {
       ctx.save();
       ctx.globalCompositeOperation = "multiply";
       ctx.fillStyle = `rgb(${r},${g},${b})`;
@@ -2773,7 +2790,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       art2.here = me;
       art2.opened = boxShown.current && me ? T2_CHESTS.reduce((a, c) => (Math.hypot(c.x - me.x, c.y - me.y) < Math.hypot(a.x - me.x, a.y - me.y) ? c : a)).shut : null;
     }
-    if (art2 instanceof CityArt) art2.woodsShown = placeRef.current === "town";
+    if (art2 instanceof CityArt) {
+      art2.woodsShown = placeRef.current === "town";
+      // (its windows lit by night, laid in their turn among what stands: CityArt's `shine`, after the dark)
+      art2.beginNight(placeRef.current === "town" ? skyNow().lamps : 0, cw, ch, dpr);
+    }
     const seen2 = art2 ? art2.visible({ x0: v.cx - cw / 2 / v.s, y0: v.cy - ch / 2 / v.s, x1: v.cx + cw / 2 / v.s, y1: v.cy + ch / 2 / v.s }, now) : null;
     // ── the editor's farm ── (lib/town/farm2-art: what of it is near the view, while I am on the farm)
     const artF = scenery && F2 && placeRef.current === "farm" ? farm2Art() : null;
