@@ -38,6 +38,8 @@ async function press(X, words, within = "body", pick = "[0]") {
   return box;
 }
 const STALL = 'section[aria-labelledby="town-krathong-h"]';
+/** The builder is in steps (2026-11-24): Next, so many times. */
+const next = async (X, n = 1) => { for (let i = 0; i < n; i++) await press(X, ["ถัดไป", "Next"], STALL); };
 const has = (X, sel) => X.evaluate(`!!document.querySelector(${JSON.stringify(sel)})`);
 
 const sizes = [["desktop", { width: 1280, height: 860 }], ["phone", { width: 384, height: 730 }], ["small", { width: 360, height: 640 }]]
@@ -69,8 +71,8 @@ for (const [label, size] of sizes) {
         await sleep(1500);
         ok(`${label}: the stall opens from the calendar`, await has(X, STALL));
         await shot(`${stage}-03-builder`);
-        await press(X, ["ฐานไม้แกะ"], STALL); await press(X, ["พวงดาวเรือง"], STALL); await press(X, ["หอยกับไข่มุก"], STALL);
-        await press(X, ["ดอกไม้"], STALL, ".filter((b) => b.title === 'ดอกไม้')[0]"); await press(X, ["อัญมณี"], STALL);
+        await press(X, ["ฐานไม้แกะ"], STALL); await next(X); await press(X, ["พวงดาวเรือง"], STALL); await next(X); await press(X, ["หอยกับไข่มุก"], STALL);
+        await next(X, 2); await press(X, ["ดอกไม้"], STALL, ".filter((b) => b.title === 'ดอกไม้')[0]"); await press(X, ["อัญมณี"], STALL); await next(X);
         await X.evaluate(`(() => { const i = document.querySelector(${JSON.stringify(STALL + " input")}); const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set; set.call(i, 'ดวงจันทร์กลางสายน้ำ'); i.dispatchEvent(new Event('input', { bubbles: true })); })()`);
         await sleep(600);
         await shot(`${stage}-04-chosen`);
@@ -89,9 +91,9 @@ for (const [label, size] of sizes) {
         await sleep(1500);
         ok(`${label}: the stall on a float night`, await has(X, STALL));
         await shot(`${stage}-02-make-to-float`);
-        await press(X, ["ฐานใบไม้พับ"], STALL);
+        await press(X, ["ฐานใบไม้พับ"], STALL); await next(X, 5);
         await X.evaluate(`(() => { const i = document.querySelector(${JSON.stringify(STALL + " input")}); const set = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set; set.call(i, 'ลอยใต้จันทร์'); i.dispatchEvent(new Event('input', { bubbles: true })); })()`);
-        await press(X, ["ทำกระทงไว้ลอย", "Make it to float"], STALL); await press(X, ["ยืนยัน", "Confirm"], STALL);
+        await press(X, ["ส่งประกวด", "ทำกระทงไว้ลอย", "Enter the contest", "Make it to float"], STALL); await press(X, ["ยืนยัน", "Confirm"], STALL);
         await sleep(1500);
         await press(X, ["ลอย", "Float"], STALL, ".filter((b) => b.getAttribute('role') === 'tab')[0]");
         await sleep(800);

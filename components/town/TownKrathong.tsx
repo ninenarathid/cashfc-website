@@ -253,7 +253,12 @@ function Builder({ keeper, th, st, phone, making, floating, onDone, onFloat }: {
           </li>
         ))}
       </ol>
-      <p className="text-ui font-semibold text-ink">{step + 1}. {th ? cur.askTh : cur.askEn}</p>
+      <p className="text-ui font-semibold text-ink">
+        {step + 1}. {th ? cur.askTh : cur.askEn}
+        {cur.step !== "send" && cur.step !== "trim" && (
+          <span className="font-normal text-accent"> · {th ? PART[d[cur.step as keyof typeof SLOT_INDEX][0]].name.th : PART[d[cur.step as keyof typeof SLOT_INDEX][0]].name.en}</span>
+        )}
+      </p>
       {cur.step === "send" ? (
         <div className="flex flex-col gap-2">
           <input value={name} onChange={(e) => setName(e.target.value)} maxLength={24} placeholder={th ? "ชื่อกระทง เช่น จันทร์ลอยน้ำ" : "A name, e.g. Moon on the Water"}
@@ -273,7 +278,8 @@ function Builder({ keeper, th, st, phone, making, floating, onDone, onFloat }: {
                     onChoose={(id) => choose(cur.step as Slot, id)} onPay={(i) => setPay(cur.step as Slot, i)}
                     onColor={(c) => setColor(cur.step as Slot, c)} onRemove={removeTrim} />
       )}
-      <div className={`sticky bottom-0 -mx-4 flex flex-col gap-2 border-t border-line bg-surface/95 px-4 pb-4 pt-2.5 backdrop-blur-sm ${phone ? "-mb-16" : "-mb-4"}`}>
+      {/* (after the choices, on every screen: pinned, it lay over the colours; the steps above go anywhere too) */}
+      <div className="-mx-4 flex flex-col gap-2 border-t border-line bg-surface/95 px-4 pb-4 pt-2.5">
         <div className="slim-bar flex gap-1.5 overflow-x-auto" aria-label={th ? "ของที่ต้องใช้" : "What it takes"}>
           {cost.map(([id, n]) => (
             <span key={id} title={`${th ? ITEMS[id].name.th : ITEMS[id].name.en}${GOODS[id] ? (th ? " · มีขายที่ร้านค้า" : " · sold at the shop") : ""}`}
@@ -297,7 +303,7 @@ function Builder({ keeper, th, st, phone, making, floating, onDone, onFloat }: {
             <button type="button" disabled={!open || busy || short || !name.trim() || !!check(d)} onClick={() => void send()}
                     className={`pressable min-h-11 flex-1 rounded-xl px-4 text-ui font-semibold disabled:opacity-40 ${sure ? "bg-[#e5cc80] text-bg" : "bg-accent text-bg"}`}>
               {!open ? (th ? "ยังไม่เปิดส่ง" : "Not open yet")
-                : short ? (th ? "ของยังไม่พอ" : "Not enough yet")
+                : short ? (() => { const [id, n] = cost.find(([i, k]) => have(i) < k)!; const lack = n - have(id); return th ? `ยังขาด ${ITEMS[id].name.th} ${lack}` : `Still need ${lack} ${ITEMS[id].name.en}`; })()
                 : !name.trim() ? (th ? "ตั้งชื่อก่อน" : "Name it first")
                 : sure ? (th ? "ยืนยัน · ใช้ของตามนี้" : "Confirm · uses these")
                 : making ? (th ? "ส่งประกวด" : "Enter the contest") : (th ? "ทำกระทงไว้ลอย" : "Make it to float")}
@@ -318,6 +324,9 @@ function SlotPicker({ slot, d, have, th, trimAt, setTrimAt, onChoose, onPay, onC
   const full = slot === "trim" && d.trims.length >= MAX_TRIMS;
   return (
     <div className="flex flex-col gap-2.5">
+      <p className="flex items-center gap-1.5 text-meta text-muted" data-shop-legend>
+        <TownIcon name="coin" size={14} />{th ? "= มีขายที่ร้านค้าในเมือง" : "= sold at the town shop"}
+      </p>
       {slot === "trim" && (
         <div className="flex items-center gap-1.5">
           {Array.from({ length: MAX_TRIMS }, (_, i) => {
@@ -332,7 +341,7 @@ function SlotPicker({ slot, d, have, th, trimAt, setTrimAt, onChoose, onPay, onC
           })}
           {p && (
             <button type="button" onClick={onRemove} className="pressable ml-1 min-h-11 rounded-full border border-line-strong px-3 text-meta font-semibold text-ink">
-              {th ? "เอาออก" : "Remove"}
+              {th ? `เอาชิ้นที่ ${trimAt + 1} ออก` : `Remove no. ${trimAt + 1}`}
             </button>
           )}
           {full && <span className="ml-auto text-meta text-muted">{th ? "ครบ 3 ชิ้น" : "Three placed"}</span>}
@@ -368,9 +377,6 @@ function SlotPicker({ slot, d, have, th, trimAt, setTrimAt, onChoose, onPay, onC
           )}
         </>
       )}
-      <p className="flex items-center gap-1.5 text-meta text-muted" data-shop-legend>
-        <TownIcon name="coin" size={14} />{th ? "มีขายที่ร้านค้าในเมือง" : "Sold at the town shop"}
-      </p>
     </div>
   );
 }
@@ -424,7 +430,7 @@ function Lines({ design, th }: { design: Design; th: boolean }) {
   return (
     <p className="mt-1.5 flex items-center gap-1 text-meta text-muted" title={th ? "สายที่ใช้" : "Lines used"}>
       {fams.map((f) => <TownIcon key={f} name={icon(FAMILY_ICON[f])} size={16} />)}
-      <span className="ml-1 font-data tabular-nums">{fams.length}/10</span>
+      <span className="ml-1 font-data tabular-nums">{th ? `ใช้ ${fams.length}/10 สาย` : `${fams.length}/10 lines`}</span>
     </p>
   );
 }

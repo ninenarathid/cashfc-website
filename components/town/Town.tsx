@@ -5320,7 +5320,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       /** Stand at a tile of either map at once, without walking to a gate. */
       warp: (x: number, y: number) => sessionRef.current?.warpTo({ x: x + 0.5, y: y + 0.5 }) ?? false,
       // (v336) the festival, for the browser check: the board's calendar, the stall's panel, the boxes for taps, the river read again
-      festival: () => ({ kit: () => (fest.keeper.current as unknown as { krathongKit?: () => void } | null)?.krathongKit?.(), open: openBoard, stall: () => openStall(null), stallBox: stallBox.current, hallBox: hallBox.current, live: fest.live.current, river: () => fest.readRiver(), awards: () => fest.readAwards() }),
+      festival: () => ({ kit: () => (fest.keeper.current as unknown as { krathongKit?: () => void } | null)?.krathongKit?.(), open: openBoard, stall: () => openStall(null), stallBox: stallBox.current, hallBox: hallBox.current, riverHits: riverHits.current, live: fest.live.current, river: () => fest.readRiver(), awards: () => fest.readAwards() }),
       /** Walk to a tile, as a tap on it does; and where I am now, and whether I am walking. */
       walk: (x: number, y: number) => sessionRef.current?.walkTo({ x, y }) ?? false,
       /** Where a point of the map is on the page (client pixels), and where I am walking to (its tile): for checks that tap. */

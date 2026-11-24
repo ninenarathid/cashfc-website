@@ -12,10 +12,14 @@ describe("the krathong's parts", () => {
       expect(n).toBeGreaterThan(0);
     }
   });
-  it("has three bases, three rings, two lights, ten centrepieces and ten trims, one family each", () => {
-    expect([partsOf("base").length, partsOf("ring").length, partsOf("light").length, partsOf("centre").length, partsOf("trim").length]).toEqual([3, 3, 2, 10, 10]);
+  it("has six bases, six rings, four lights, fourteen centrepieces and fourteen trims, every line among them", () => {
+    expect([partsOf("base").length, partsOf("ring").length, partsOf("light").length, partsOf("centre").length, partsOf("trim").length]).toEqual([6, 6, 4, 14, 14]);
     expect(new Set(partsOf("centre").map((x) => x.family)).size).toBe(10);
     expect(new Set(partsOf("trim").map((x) => x.family)).size).toBe(10);
+  });
+  it("can be paid, every part, with something the town's shop sells (a newcomer's few coins)", () => {
+    const SHOP = new Set(["bananaLeaf", "flour", "dough", "oil", "sugar", "egg", "seaweed", "shrimpLive", "cricket", "salt", "stickyRice", "worm", "lure", "floatBell"]);
+    for (const part of PARTS) expect(part.pay.some(([id]) => SHOP.has(id)), part.id).toBe(true);
   });
   it("keeps ids unique", () => expect(new Set(PARTS.map((x) => x.id)).size).toBe(PARTS.length));
 });
@@ -27,7 +31,7 @@ describe("a design", () => {
     expect(check(d)).toBeNull();
     expect(check({ ...d, base: ["c_flower", 0] })).toBe("slot");
     expect(check({ ...d, base: ["nope", 0] })).toBe("part");
-    expect(check({ ...d, ring: ["r_marigold", 1] })).toBe("pay");
+    expect(check({ ...d, ring: ["r_marigold", PART.r_marigold.pay.length] })).toBe("pay");
     expect(check({ ...d, ring: ["r_marigold", -1] })).toBe("pay");
     expect(check({ ...d, trims: [["t_flower", 0], ["t_flower", 0], ["t_flower", 0], ["t_flower", 0]] })).toBe("trims");
     expect(check({ ...d, trims: [["c_flower", 0]] })).toBe("slot");

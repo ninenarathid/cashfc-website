@@ -56,7 +56,7 @@ try {
 
   // ── afterwards ──
   eq(await one("select id, slug, year, jsonb_array_length(windows) w, (select count(*)::int from jsonb_object_keys(rules->'parts')) parts from public.town_festivals"),
-    { id: 1, slug: "loykrathong", year: 2026, w: 6, parts: 28 }, "the first edition, six windows, 28 parts");
+    { id: 1, slug: "loykrathong", year: 2026, w: 6, parts: easySql ? K.PARTS.length : 28 }, "the first edition, six windows, its parts (v339: the code's, more of them)");
   eq((await one("select rules->'parts' p from public.town_festivals where id = 1")).p, K.catalogJson(), "the catalog is lib/town/krathong's");
   if (easySql) {
     // (v339: the windows are lib/town/festivals' — entries to midnight, the vote after them — and the draw's cutoff is set)

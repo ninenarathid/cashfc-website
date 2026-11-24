@@ -69,7 +69,7 @@ export interface FestivalDraw {
 }
 
 /** Where the light part's flame is in the 48×50 template (the candle's wick, the jar's middle). */
-const FLAME: Record<string, [number, number]> = { l_candle: [33, 6], l_firefly: [32, 14] };
+const FLAME: Record<string, [number, number]> = { l_candle: [33, 7], l_firefly: [32, 15], l_lantern: [32, 12], l_incense: [32, 7] };
 
 /** The stall: drawn, and where it is for a tap. */
 export function drawStall(d: FestivalDraw): { x0: number; y0: number; x1: number; y1: number } | null {
