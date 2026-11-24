@@ -538,9 +538,8 @@ function Gallery({ keeper, th, st, me, admin, voting, phone, setSt }: {
             <img src={popotoArt.src} alt="" className="size-4" />{th ? `ทุกคนโหวตได้ · เปิด ${whenText(voteWin.from, th)}` : `Everyone votes · opens ${whenText(voteWin.from, th)}`}
           </span>
         ) : null}
-        <span className="ml-auto text-meta text-muted">
-          {admin ? (th ? "แอดมินเห็นคะแนน" : "Counts: admins only") : (th ? "ไม่โชว์คะแนน" : "No counts shown")}
-        </span>
+        {/* (a member is told nothing of counts: the owner, 2026-11-24, "ไม่ต้องขึ้นว่า ไม่โชว์คะแนนก็ได้ ปล่อยว่างไปเลย") */}
+        {admin && <span className="ml-auto text-meta text-muted">{th ? "แอดมินเห็นคะแนน" : "Counts: admins only"}</span>}
       </div>
       {note && <p className="text-meta text-[#fca5a5]" aria-live="polite">{note}</p>}
       {!shown.length && <p className="py-6 text-center text-meta text-muted">{th ? "ยังไม่มีกระทงส่งประกวด" : "No entries yet"}</p>}

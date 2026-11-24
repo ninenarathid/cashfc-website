@@ -4981,9 +4981,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     // (kept on the screen: a krathong by its edge says its wish inward)
     const cw = ctx.canvas.width / (ctx.getTransform().a || 1);
     x = Math.min(Math.max(x, w / 2 + 6), Math.max(w / 2 + 6, cw - w / 2 - 6));
-    ctx.fillStyle = "rgba(15,19,25,0.88)";
+    // (solid, with a gold edge: over a nameplate it hides it whole for the moment it is read, nothing showing through; Codex)
+    ctx.fillStyle = "#0f1319";
     roundRect(ctx, x - w / 2, y - h, w, h, 8);
     ctx.fill();
+    ctx.strokeStyle = "rgba(229,204,128,0.6)";
+    ctx.lineWidth = 1;
+    roundRect(ctx, x - w / 2 + 0.5, y - h + 0.5, w - 1, h - 1, 8);
+    ctx.stroke();
     ctx.fillStyle = "#f3e3c3";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
