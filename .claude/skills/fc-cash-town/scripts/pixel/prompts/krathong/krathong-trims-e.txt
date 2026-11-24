@@ -1,0 +1,11 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D town game, and for the size and the pixel size, since it is an earlier sheet of this same set. Draw a new sprite sheet of small icons for the little charms set on the front rim of a floating flower raft for a river festival in that game, in the same pixel art style.
+
+Each icon is drawn on its own 16 by 16 pixel grid, scaled up big so every pixel of the icon is a large crisp square, all icons the same size, simple and bold so they read clearly when shown small, with a thick dark outline and two or three tones per colour. Six icons in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping. The first icon is the bouquet of three flowers exactly as it is drawn first in the attached picture, at the same size, and holds the scale. Icons 2 to 6 are tiny charms, each only about a third as tall as the first icon and drawn with exactly the same large pixels as the first icon, as small as the tiny charms in the attached picture, so that each is only a few pixels across and keeps only the main shape and the two or three main colours of its thing, light from the upper left:
+1) the bouquet of three flowers, exactly as in the attached picture;
+2) a tiny charm of a star: one plump five-pointed star, golden yellow with a deeper amber side;
+3) a tiny charm of a bow: one small red ribbon bow with two short hanging tails, a darker red knot in its middle;
+4) a tiny charm of a lantern: one round red paper lantern with a dark cap on top and a short red tassel below;
+5) a tiny charm of the moon: one pale yellow crescent moon with a deeper yellow inner edge;
+6) the tiny charm of the shell exactly as it is drawn fourth in the attached picture.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no frames or boxes around the icons, no shadows, no text, no letters, no numbers.

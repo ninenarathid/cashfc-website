@@ -1,0 +1,11 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D town game, and for the size and the pixel size, since it is the first sheet of this same set. Draw a new sprite sheet of small icons for the little things players stand in the middle of a floating flower raft for a river festival in that game, in the same pixel art style.
+
+Each icon is drawn on its own 16 by 16 pixel grid, scaled up big so every pixel of the icon is a large crisp square, all icons the same size, simple and bold so they read clearly when shown small, with a thick dark outline and two or three tones per colour. Six icons in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping. Each stands upright on a flat bottom, seen from the front and a little above, light from the upper left, exactly as large as the things in the attached picture:
+1) a tall closed lotus bud with pointed folded petals, rose pink with paler pink tips and a deeper pink shade on its right side, on a short green stalk between two small round green lotus leaves, one curling up on each side;
+2) a plump five-pointed golden star, pale gold on its upper left points and deeper amber on its lower right, standing on top of a thin upright stick of dark wood that rises from a small round wooden foot;
+3) a small koi fish leaping up out of a little splash of blue water in a curved arc, its body orange with white patches, its fins and tail fanned, its tail end dipping into the splash, which is its flat foot;
+4) a small moon rabbit sitting upright, its fur creamy white shaded with soft lilac grey, its long ears standing up with pink insides, a dark eye, holding a tiny round pale yellow rice cake in its two front paws;
+5) the bouquet of three flowers exactly as it is drawn first in the attached picture;
+6) the mushrooms exactly as they are drawn second in the attached picture.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no frames or boxes around the icons, no shadows, no text, no letters, no numbers.

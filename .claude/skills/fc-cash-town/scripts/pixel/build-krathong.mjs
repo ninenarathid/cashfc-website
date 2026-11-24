@@ -13,7 +13,8 @@
 // front: base, ring back half, light (three flicker frames), centrepiece, ring front half, trims. Every part's `place` is
 // its top-left inside the canvas; trims are set at TRIMS (their bottom middles). The plan was 48 x 40 with a base 44 x 16;
 // the model drew the platforms seen more from above (a top oval 18 to 20 rows deep, a side 11 to 13), which sits better
-// on the town's 2:1 water, so the canvas is as tall as the tallest combination needs (50) and the trims keep the plan's
+// on the town's 2:1 water, so the canvas is as tall as the tallest combination needs (50; 51 since the moon rabbit of
+// 2026-11-24, whose ears stand a row above every earlier centrepiece) and the trims keep the plan's
 // places against the base's last row. Each sheet is cut on one grid of its own (`range`), a mode colour a cell, as
 // build-icons.mjs cuts icons, chosen so that every part comes out at one art pixel size: bases and rings about 45 wide,
 // centrepieces about 20 x 26, the light 11 to 14 wide, trims 8 to 14.
@@ -71,7 +72,29 @@ const SHEETS = [
   // the centrepieces and is not used)
   ["krathong-trims-c", ["_cflower", "t_flower", "t_mushroom", "t_shell", "t_butterfly", "t_crystal"], { range: [13.5, 14.1] }],
   ["krathong-trims-d", ["_csweets", "t_carving", "t_sweets", "t_feather", "t_bell", "t_lily"], { range: [12.7, 13.3] }],
+  // ── the second round of parts (2026-11-24, the owner: "อยากให้มีแบบกระทงมากกว่านี้ เน้นความหลากหลาย") ──
+  // (krathong-bases-4, an in-place edit of -3 that turned all six into new parts: a banana-trunk slice, a half coconut,
+  // a lily pad on a lily pad; rings of rose petals, pandan loops and scallop shells. The model drew them a sixteenth
+  // larger than -3 on the same pixel (rings 49 to 51 wide on -3's grid, 11.5, the lily pad 49: past the canvas), so
+  // the sheet is cut on 12.28, which gives the rings -3's rings' size (46 to 48 x 27 to 28) and stays crisp: its cells
+  // still one colour each, the outline one cell. Its rose ring read as a ring of apples and is taken from -5)
+  ["krathong-bases-4", ["b_trunk", "b_coconut", "b_lilypad", "_r_rose", "r_pandan", "r_shell"], { range: [12.1, 12.4] }],
+  // (krathong-bases-5, an in-place edit of -4 that changed only the rose ring: rose heads curled in a spiral)
+  ["krathong-bases-5", ["_b_trunk", "_b_coconut", "_b_lilypad", "r_rose", "_r_pandan", "_r_shell"], { range: [12.1, 12.4] }],
+  // (a red paper lantern on a bamboo stick, its light patch growing and shrinking; a candle with incense in a cup)
+  ["krathong-lights-2", ["l_lantern#0", "l_lantern#1", "l_lantern#2", "l_incense#0", "l_incense#1", "l_incense#2"], { range: [13.5, 14.3] }],
+  // (krathong-centre-a as the reference, the bouquet and the mushrooms drawn again only to hold the size: on 10.96 they
+  // come out at their first drawing's 21x26 and 20x26, on the first sheets' range (10.65) a row taller. The rabbit's
+  // ears make it 27 rows, one more than any centrepiece before it, so the canvas is 51 rows, not 50)
+  ["krathong-centre-c", ["c_lotusbud", "c_star", "c_koi", "c_rabbit", "_flower2", "_mushroom2"], { range: [10.9, 11.2] }],
+  // (krathong-trims-c as the reference: its bouquet drawn again as the anchor, its shell charm as a filler)
+  ["krathong-trims-e", ["_cflower2", "t_star", "t_bow", "t_lantern", "t_moon", "_tshell"], { range: [13.5, 14.1] }],
 ];
+/** The parts of each kind, in the order they were added. The platforms' common top oval (where every ring stands) is
+ *  measured on the first three only, so that the parts of the first round keep their places as more are added; a later
+ *  base is an in-place edit of their sheet and lies on the same oval. */
+const BASES = ["b_wood", "b_leaf", "b_bread", "b_trunk", "b_coconut", "b_lilypad"], OVAL_BASES = BASES.slice(0, 3);
+const RINGS = ["r_leaf", "r_lotus", "r_marigold", "r_rose", "r_pandan", "r_shell"];
 // the props for town2, one row: a tall lantern post only to hold the scale, the stall, the hall of fame stand
 const PROPS = ["krathong-props", ["_post", "stall", "hall"], { range: [4.5, 8] }];
 
@@ -223,6 +246,55 @@ function steadyFrames(frames, moving, band = false) {
     return { w, h, buf };
   });
   const first = laid[0], rgb = (im, i) => [im.buf[i * 4], im.buf[i * 4 + 1], im.buf[i * 4 + 2], im.buf[i * 4 + 3]];
+  if (band === "box") {
+    // what moves is where the frames differ most: the largest patch of cells that differ from the first frame (with
+    // any patch that touches its box), grown a cell for the outline round it, is the frame's own; every other cell is
+    // the first's, so a cell of the body drawn a shade differently does not flicker. For a light whose moving part is
+    // not set off by a band of rows (the lantern's patch of light inside its paper; a candle's flame beside the incense,
+    // whose glowing tips are flame-coloured too).
+    const differs = (f, i) => { const a = rgb(first, i), b = rgb(f, i); return !a[3] !== !b[3] || (a[3] && Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]) >= 40); };
+    return laid.map((f, k) => {
+      if (!k) return f;
+      const lab = new Int32Array(w * h).fill(-1), pts = [];
+      for (let s = 0; s < w * h; s++) {
+        if (lab[s] >= 0 || !differs(f, s)) continue;
+        const st = [s], mem = []; lab[s] = pts.length;
+        while (st.length) { const q = st.pop(); mem.push(q); const qx = q % w, qy = (q / w) | 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const X = qx + dx, Y = qy + dy; if (X < 0 || Y < 0 || X >= w || Y >= h) continue; const j = Y * w + X; if (lab[j] < 0 && differs(f, j)) { lab[j] = pts.length; st.push(j); } } }
+        pts.push(mem);
+      }
+      const buf = Buffer.from(first.buf);
+      if (!pts.length) return { w, h, buf };
+      const boxOf = (mem) => mem.reduce((b, q) => [Math.min(b[0], q % w), Math.min(b[1], (q / w) | 0), Math.max(b[2], q % w), Math.max(b[3], (q / w) | 0)], [w, h, -1, -1]);
+      const big = pts.reduce((a, b) => (b.length > a.length ? b : a));
+      let box = boxOf(big);
+      for (const p of pts) { const b = boxOf(p); if (p !== big && b[0] <= box[2] + 1 && b[2] >= box[0] - 1 && b[1] <= box[3] + 1 && b[3] >= box[1] - 1) box = [Math.min(box[0], b[0]), Math.min(box[1], b[1]), Math.max(box[2], b[2]), Math.max(box[3], b[3])]; }
+      const [bx0, by0, bx1, by1] = [box[0] - 1, box[1] - 1, box[2] + 1, box[3] + 1];
+      let kept = 0;
+      for (let y = Math.max(0, by0); y <= Math.min(h - 1, by1); y++) for (let x = Math.max(0, bx0); x <= Math.min(w - 1, bx1); x++) { const i = y * w + x; f.buf.copy(buf, i * 4, i * 4, i * 4 + 4); }
+      for (let i = 0; i < w * h; i++) { const x = i % w, y = (i / w) | 0; if ((x < bx0 || x > bx1 || y < by0 || y > by1) && differs(f, i)) kept++; }
+      boxReport.push(`  frame ${k}: its own in [${bx0},${by0}]-[${bx1},${by1}], ${kept} other cell(s) that differ kept as the first frame's`);
+      return { w, h, buf };
+    });
+  }
+  if (band === "side") {
+    // a candle with something standing beside it (the incense in its cup): the candle's rule (above the wax's top row,
+    // the frame's own) only in the candle's columns, its cream body and the outline right of it; every other cell the
+    // first frame's. The incense's third frame was drawn with a shorter candle and its own cup and sticks: taken whole,
+    // the sticks jumped.
+    const cream = (i) => { const [r, g, b, a] = rgb(first, i); if (!a) return false; const [, s, l] = L.hsl(r, g, b); return s < 0.4 && l > 0.6; };
+    let creamX = -1; for (let i = 0; i < w * h; i++) if (cream(i)) creamX = Math.max(creamX, i % w);
+    const splitX = creamX + 2;
+    const rowN = (im, y) => { let n = 0; for (let x = 0; x < splitX; x++) if (im.buf[(y * w + x) * 4 + 3]) n++; return n; };
+    const bodyW = Math.max(...Array.from({ length: h }, (_, y) => rowN(first, y)));
+    let waxTop = 0; while (waxTop < h && rowN(first, waxTop) < bodyW * 0.7) waxTop++;
+    boxReport.push(`: the candle's columns 0-${splitX - 1}, its wax from row ${waxTop}`);
+    return laid.map((f, k) => {
+      if (!k) return f;
+      const buf = Buffer.from(first.buf);
+      for (let y = 0; y < waxTop; y++) for (let x = 0; x < splitX; x++) { const i = y * w + x; f.buf.copy(buf, i * 4, i * 4, i * 4 + 4); }
+      return { w, h, buf };
+    });
+  }
   if (band) {
     // a flame: everything above the wax's top row is the frame's own (the flame with its outline and the wick), the wax
     // the first frame's. (Taking only the flame's colours left the first frame's flame outline in the leaning one.) The
@@ -287,27 +359,31 @@ for (const [sheet, names, opts] of SHEETS) {
 
 const parts = {}; // name → { img, place } or { frames: [img], place } or { img } (trims)
 const report = [];
+/** Parts whose see-through cells inside their box are drawn gaps, not holes: a ring's opening, the gap between the bell
+ *  and its arch, the slit between the lantern and the bamboo stick it hangs from (outside both outlines). */
+const DRAWN_GAPS = /^r_.*_(back|front)$|^c_bell$|^l_lantern/;
 const ok = (name, im, extra = {}) => {
-  const filled = closeSmallHoles(im), dropped = dropSpecks(im);
+  const filled = /^l_lantern/.test(name) ? 0 : closeSmallHoles(im), dropped = dropSpecks(im);
   if (filled || dropped) report.push(`  ${name}: filled ${filled} see-through cell(s), dropped ${dropped} loose`);
   return Object.assign(tight(im), extra);
 };
 
 // the bases: their middles at the canvas's middle, their bottoms on its last row
-const bases = ["b_wood", "b_leaf", "b_bread"].filter((n) => cut[n]);
+const bases = BASES.filter((n) => cut[n]);
 const shapes = {};
 for (const n of bases) {
   const im = ok(n, cut[n]);
   shapes[n] = platformShape(im);
   parts[n] = { img: im, place: [Math.round(CANVAS[0] / 2 - im.w / 2), BASE_ROW + 1 - im.h] };
 }
-// the platforms' common top oval: its front edge row and its middle, in the canvas
-const topFront = Math.round(bases.reduce((s, n) => s + parts[n].place[1] + shapes[n].top, 0) / bases.length) - 1;
-const topBack = Math.round(bases.reduce((s, n) => s + parts[n].place[1], 0) / bases.length);
+// the platforms' common top oval: its front edge row and its middle, in the canvas (the first three's)
+const ovalBases = OVAL_BASES.filter((n) => parts[n]);
+const topFront = Math.round(ovalBases.reduce((s, n) => s + parts[n].place[1] + shapes[n].top, 0) / ovalBases.length) - 1;
+const topBack = Math.round(ovalBases.reduce((s, n) => s + parts[n].place[1], 0) / ovalBases.length);
 const ovalMid = Math.round((topFront + topBack) / 2);
 
 // the rings: their lowest row on the top oval's front edge, split into the far and near halves
-for (const n of ["r_leaf", "r_lotus", "r_marigold"]) {
+for (const n of RINGS) {
   if (!cut[n]) continue;
   const im = ok(n, cut[n]);
   const left = Math.round(CANVAS[0] / 2 - im.w / 2), top = topFront + 1 - im.h;
@@ -328,10 +404,13 @@ for (const n of Object.keys(cut).filter((n) => /^c_/.test(n))) {
   parts[n] = { img: im, place: [Math.round(CENTRE_FOOT[0] - im.w / 2), CENTRE_FOOT[1] - im.h] };
 }
 for (const n of Object.keys(cut).filter((n) => /^t_/.test(n))) parts[n] = { img: ok(n, cut[n]) };
-for (const [id, moving] of [["l_candle", flameish], ["l_firefly", fireflyish]]) {
+const boxReport = [];
+for (const [id, moving, band] of [["l_candle", flameish, true], ["l_firefly", fireflyish, false], ["l_lantern", null, "box"], ["l_incense", null, "side"]]) {
   const fr = [0, 1, 2].map((k) => cut[`${id}#${k}`]).filter(Boolean);
   if (fr.length !== 3) continue;
-  const steady = steadyFrames(fr.map((f, k) => ok(`${id}#${k}`, f)), moving, id === "l_candle");
+  boxReport.length = 0;
+  const steady = steadyFrames(fr.map((f, k) => ok(`${id}#${k}`, f)), moving, band);
+  for (const l of boxReport) report.push(`  ${id}${l}`);
   // one box for the three
   let x0 = Infinity, y0 = Infinity, x1 = -1, y1 = -1;
   for (const f of steady) for (let y = 0; y < f.h; y++) for (let x = 0; x < f.w; x++) if (px(f, x, y)) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
@@ -414,7 +493,7 @@ for (const [n, p] of Object.entries(parts)) {
   if (p.whole) continue;
   const ims = p.frames ?? [p.img];
   // (drawn gaps, not bugs: a ring's opening, the gap between the bell and its arch)
-  const b = ims.map((im) => bugs(im, { holesOk: /^r_.*_(back|front)$|^c_bell$/.test(n) }));
+  const b = ims.map((im) => bugs(im, { holesOk: DRAWN_GAPS.test(n) }));
   const flag = b.some((q) => q.semi || q.holes || q.parts.length > 1);
   console.log(`${flag ? "!!" : "ok"} ${n.padEnd(18)} ${ims[0].w}x${ims[0].h}${p.place ? ` at ${p.place}` : ""}${b.map((q) => (q.parts.length > 1 ? `  apart: ${q.parts.slice(1).join(",")}` : "") + (q.holes ? `  holes ${q.holes}` : "") + (q.semi ? `  half-clear ${q.semi}` : "")).join("")}${shapes[n] ? `  (top oval ${shapes[n].top}, side ${shapes[n].side})` : ""}`);
 }
@@ -447,10 +526,24 @@ if (LOOK) {
   // the tenth centrepiece too, and one with nothing but a base and a ring
   combos.push(["b_wood", "r_lotus", "l_candle", 1, C[9 % C.length], [T[0], null, T[3]]]);
   combos.push(["b_leaf", "r_leaf", null, 0, null, []]);
-  const ims = combos.filter((c) => parts[c[0]] && parts[`${c[1]}_back`]).map((c) => compose(...c));
+  // (KT_LOOK=all: every base, old and new, with every ring, the new lights, centrepieces and trims among them, after
+  // the first round's eleven; and each new ring and base bare)
+  if (process.env.KT_LOOK === "all") {
+    const B2 = BASES.filter((n) => parts[n]), R2 = RINGS.filter((n) => parts[`${n}_back`]);
+    const L2 = ["l_lantern", "l_incense", "l_candle", "l_firefly"].filter((n) => parts[n]);
+    const C2 = ["c_lotusbud", "c_star", "c_koi", "c_rabbit"].filter((n) => parts[n]), T2 = ["t_star", "t_bow", "t_lantern", "t_moon"].filter((n) => parts[n]);
+    let k = 0;
+    for (const b of B2) for (const r of R2) {
+      if (B.includes(b) && R.includes(r)) continue;
+      combos.push([b, r, L2[k % L2.length], k % 3, k % 3 === 2 ? C[k % C.length] : C2[k % C2.length], [T2[k % T2.length], T[(k + 3) % T.length], T2[(k + 1) % T2.length]]]); k++;
+    }
+    for (const b of B2.slice(3)) combos.push([b, null, null, 0, null, []]);
+    for (const r of R2.slice(3)) combos.push(["b_leaf", r, null, 0, null, []]);
+  }
+  const ims = combos.filter((c) => parts[c[0]] && (!c[1] || parts[`${c[1]}_back`])).map((c) => compose(...c));
 
   // 1) every pair at 4x on the panel's dark green
-  const Z = 4, GAP = 8, cols = 4, rows = Math.ceil(ims.length / cols);
+  const Z = 4, GAP = 8, cols = ims.length > 12 ? 8 : 4, rows = Math.ceil(ims.length / cols);
   const tile = { w: CANVAS[0] * Z, h: CANVAS[1] * Z };
   const comps = await Promise.all(ims.map(async (im, i) => ({ input: await raw(im).resize(im.w * Z, im.h * Z, { kernel: "nearest" }).png().toBuffer(), left: GAP + (i % cols) * (tile.w + GAP), top: GAP + Math.floor(i / cols) * (tile.h + GAP) })));
   await L.sharp({ create: { width: GAP + cols * (tile.w + GAP), height: GAP + rows * (tile.h + GAP), channels: 4, background: "#1d3a2c" } }).composite(comps).png().toFile(path.join(LOOK, "krathong-4x.png"));
@@ -462,11 +555,14 @@ if (LOOK) {
     const g = L.cellsOf(r, L.detectGrid(r, undefined, [5.6, 6.0]));
     const f = L.figures(g, L.spansOf(g, 4)); const im = L.crop(g, f[0]); return { w: im.w, h: im.h, buf: im.buf };
   })();
-  const WW = 12 + ims.length * (CANVAS[0] + 10) + doll.w + 12, WH = Math.max(doll.h, CANVAS[1]) + 24;
+  // (in rows of at most 14, a character at the start of each)
+  const perRow = Math.min(ims.length, 14), wRows = Math.ceil(ims.length / perRow), rowH1 = Math.max(doll.h, CANVAS[1]) + 12;
+  const WW = 12 + perRow * (CANVAS[0] + 10) + doll.w + 12, WH = wRows * rowH1 + 12;
   const wtex = await L.sharp(water).resize(64, 64, { fit: "cover" }).png().toBuffer();
   const tiles = []; for (let ty = 0; ty < WH; ty += 64) for (let tx = 0; tx < WW; tx += 64) tiles.push({ input: wtex, left: tx, top: ty });
-  const onWater = [{ input: await raw(doll).png().toBuffer(), left: 12, top: WH - 12 - doll.h }];
-  for (const [i, im] of ims.entries()) onWater.push({ input: await raw(im).png().toBuffer(), left: 12 + doll.w + 10 + i * (CANVAS[0] + 10), top: WH - 12 - CANVAS[1] });
+  const onWater = [];
+  for (let r = 0; r < wRows; r++) onWater.push({ input: await raw(doll).png().toBuffer(), left: 12, top: (r + 1) * rowH1 - doll.h });
+  for (const [i, im] of ims.entries()) onWater.push({ input: await raw(im).png().toBuffer(), left: 12 + doll.w + 10 + (i % perRow) * (CANVAS[0] + 10), top: (Math.floor(i / perRow) + 1) * rowH1 - CANVAS[1] });
   const w1 = await L.sharp({ create: { width: WW, height: WH, channels: 4, background: "#2b5d7a" } }).composite([...tiles, ...onWater]).png().toBuffer();
   await L.sharp(w1).toFile(path.join(LOOK, "krathong-1x-water.png"));
   await L.sharp(w1).resize(WW * 3, WH * 3, { kernel: "nearest" }).toFile(path.join(LOOK, "krathong-1x-water-3x.png"));
