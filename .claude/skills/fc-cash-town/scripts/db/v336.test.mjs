@@ -57,6 +57,21 @@ try {
   let editSql = null;
   try { editSql = readFileSync(resolve(REPO, "supabase/v341_a_krathong_entry_changed_three_times.sql"), "utf8").replace(/\r\n/g, "\n"); } catch (e) { if (e.code !== "ENOENT") throw e; }
   if (editSql) { await db.exec(editSql.replace(/\n/g, "\r\n")); await db.exec(editSql); }
+  // (v342, the krathong's things on the uncle's shelf for the festival: as live, twice; checked against today's date,
+  // the edition's windows being as they are written)
+  let shelfSql = null;
+  try { shelfSql = readFileSync(resolve(REPO, "supabase/v342_krathong_things_on_the_uncles_shelf_for_the_festival.sql"), "utf8").replace(/\r\n/g, "\n"); } catch (e) { if (e.code !== "ENOENT") throw e; }
+  if (shelfSql) {
+    const before = (await one("select town.shelf_of(48) s")).s;
+    await db.exec(shelfSql.replace(/\n/g, "\r\n")); await db.exec(shelfSql);
+    const after = (await one("select town.shelf_of(48) s")).s;
+    const on = (await one("select bool_or(town.festival_open(windows, 'float', town.festival_now()) or town.festival_open(windows, 'make', town.festival_now())) o from public.town_festivals where published")).o;
+    eq(after.slice(0, before.length), before, "v342: the shelf as it was comes first");
+    eq(after.slice(before.length).sort(), on ? ["bananaLeaf", "floatBell", "lure", "stickyRice"].filter((x) => !before.includes(x)).sort() : [], "v342: the festival's things after it while it is open (" + on + "), none otherwise");
+    await db.query("update public.town_festivals set published = false where id = 1");
+    eq((await one("select town.shelf_of(48) s")).s, before, "v342: an edition not published adds nothing");
+    await db.query("update public.town_festivals set published = true where id = 1");
+  }
 
   // ── afterwards ──
   eq(await one("select id, slug, year, jsonb_array_length(windows) w, (select count(*)::int from jsonb_object_keys(rules->'parts')) parts from public.town_festivals"),
