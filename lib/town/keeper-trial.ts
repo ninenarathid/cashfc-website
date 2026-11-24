@@ -1,6 +1,6 @@
 import{dragonDraw}from"./reward-dragon";
 import type { Design } from "./krathong";
-import { KIT as KRATHONG_KIT } from "./krathong-trial";
+import { KIT as KRATHONG_KIT, trialPhase as krathongTrialPhase, trialStartOver as krathongStartOver } from "./krathong-trial";
 import{warmCooking}from'./trial-combos';
 import{listenForest}from'./trial-combos';
 import{placeAt,turnOf}from'./forest';
@@ -206,7 +206,7 @@ class TrialKeeper implements Keeper {
   async krathongMake(_festival: number, design: Design, name: string) { return this.trial.festival.make(design, name); }
   async krathongRename(_festival: number, name: string) { return this.trial.festival.rename(name); }
   async krathongVote(entry: number) { return this.trial.festival.vote(entry); }
-  async krathongFloat(_festival: number, wish: string) { return this.trial.festival.float(wish); }
+  async krathongFloat(_festival: number, wish: string, at?: { x: number; y: number } | null) { return this.trial.festival.float(wish, at); }
   async krathongRiver() { return this.trial.festival.river(); }
   async festivalJudge(_festival: number, entry: number | null) { return this.trial.festival.judge(entry); }
   async festivalDraw() { return this.trial.festival.draw(); }
@@ -785,7 +785,13 @@ const keepers = new Map<string, TrialKeeper>();
 /** The one trial's keeper for somebody in this tab. */
 export function trialKeeper(id: string): Keeper {
   let k = keepers.get(id);
-  if (!k) { k = new TrialKeeper(id, trialFor(id)); keepers.set(id, k); }
+  if (!k) {
+    // (the dev room's `&lk=`: the festival tried with a bag holding every krathong part's things; `&lkNew=1` starts over)
+    const lkDev = process.env.NODE_ENV !== "production" && !!krathongTrialPhase();
+    if (lkDev) krathongStartOver();
+    k = new TrialKeeper(id, trialFor(id)); keepers.set(id, k);
+    if (lkDev) k.krathongKit();
+  }
   return k;
 }
 

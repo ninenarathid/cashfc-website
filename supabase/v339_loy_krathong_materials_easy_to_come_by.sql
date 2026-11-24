@@ -16,7 +16,10 @@
 --    เวลาเดียวกับช่วงทำกระทงเลย", open to everybody in the town, one entry each as v336 has it); the float 24 Nov 18:00
 --    -> 26 Nov 05:00, so it overlaps them the evening of the 24th (made then: entered, and floated at once); the results
 --    25 Nov 21:00.
--- 4. The river (public.town_krathong_river) says each krathong's name and its maker's, for a tap on the map.
+-- 4. The river (public.town_krathong_river) says each krathong's name and its maker's, for a tap on the map, and where
+--    it was set on the water: a krathong is floated wherever its maker stands by the town's water ("พอถึงเวลาสามารถนำ
+--    กระทงไปลอยตามแม่น้ำในเมือง ส่วนไหนก็ได้ กระทงจะลอยอยู่บริเวณนั้น"): town_krathongs.float_x/float_y, and
+--    public.town_krathong_float(festival, wish, x, y) in place of v336's two-argument one.
 -- 4b. The stall (public.town_krathong): the popoto counts go to an admin only, at any time, and never to the members,
 --    the results included ("ไม่ต้องเลือกกรรมการ ให้คนในเมืองโหวตกันเอง แค่ไม่เห็นคะแนนพอ มีแต่ admin ที่เห็นคะแนน"); the
 --    makers' names as before, once the results are out. No judges' pick is offered any more (the game shows none).
@@ -123,6 +126,33 @@ begin
 end;
 $$;
 
+-- Where a krathong was set on the water (tiles of the town map), and the float that keeps it.
+alter table public.town_krathongs add column if not exists float_x real, add column if not exists float_y real;
+drop function if exists public.town_krathong_float(integer, text);
+create or replace function public.town_krathong_float(p_festival integer, p_wish text, p_x real default null, p_y real default null) returns jsonb
+language plpgsql security definer set search_path to '' as $$
+declare
+  me uuid := town.member();
+  f public.town_festivals%rowtype;
+  k public.town_krathongs%rowtype;
+  fx real := case when p_x is not null and p_y is not null and p_x between -40 and 400 and p_y between -40 and 400 then p_x end;
+  fy real := case when p_x is not null and p_y is not null and p_x between -40 and 400 and p_y between -40 and 400 then p_y end;
+begin
+  select * into f from public.town_festivals where id = p_festival and published;
+  if not found then return town.no('none'); end if;
+  select * into k from public.town_krathongs where festival = f.id and member_id = me for update;
+  if not found then return town.no('none'); end if;
+  if k.floated_at is not null then return jsonb_build_object('ok', true, 'repeated', true, 'krathong', town.krathong_view(k)); end if;
+  if not town.festival_open(f.windows, 'float', town.festival_now()) then return town.no('closed'); end if;
+  update public.town_krathongs set floated_at = town.festival_now(), wish = town.krathong_line(p_wish, 140), float_x = fx, float_y = fy
+   where id = k.id returning * into k;
+  perform town.note(me, 'krathong_float', f.slug, 1, 0, '{}'::jsonb);
+  return jsonb_build_object('ok', true, 'krathong', town.krathong_view(k));
+end;
+$$;
+revoke all on function public.town_krathong_float(integer, text, real, real) from public, anon;
+grant execute on function public.town_krathong_float(integer, text, real, real) to authenticated;
+
 -- What floats now, for the map (v336's), with each krathong's name and its maker's: a tap says whose it is.
 create or replace function public.town_krathong_river(p_festival integer) returns jsonb
 language plpgsql stable security definer set search_path to '' as $$
@@ -136,7 +166,7 @@ begin
   end if;
   return jsonb_build_object('ok', true, 'now', town.now_ms(), 'river', coalesce((
     select jsonb_agg(jsonb_build_object('id', x.id, 'design', x.design, 'floated', (extract(epoch from x.floated_at) * 1000)::bigint,
-             'mine', x.member_id = me, 'name', x.name,
+             'mine', x.member_id = me, 'name', x.name, 'x', x.float_x, 'y', x.float_y,
              'maker', (select p.character_name from public.profiles p where p.id = x.member_id)) order by x.floated_at)
       from (select * from public.town_krathongs k where k.festival = f.id and k.floated_at is not null order by k.floated_at desc limit 300) x), '[]'::jsonb));
 end;

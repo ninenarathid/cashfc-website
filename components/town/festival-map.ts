@@ -34,6 +34,17 @@ const W = PLACES.water, DRIFT_MS = 12 * 60_000;
 /** A small steady hash of a krathong's id, 0..1, for its own lane, pace and resting place. */
 const h01 = (id: number, salt: number) => { let x = Math.imul(id ^ (salt * 0x9e3779b9), 0x85ebca6b) >>> 0; x = Math.imul(x ^ (x >>> 13), 0xc2b2ae35) >>> 0; return ((x ^ (x >>> 16)) >>> 0) / 4294967296; };
 
+/**
+ * Where a krathong set on the water by its maker is at a moment (v339: "ลอยตามแม่น้ำในเมือง ส่วนไหนก็ได้ กระทงจะลอยอยู่
+ * บริเวณนั้น"): it eases a little way out from where it was set down over its first minute, then turns slowly about there.
+ */
+export function spotPos(k: RiverKrathong, now: number): Vec {
+  const f = Math.min(1, Math.max(0, (now - k.floated) / 60_000)), a = h01(k.id, 4) * Math.PI * 2, t = now / 1000;
+  return { x: k.x! + Math.cos(a) * 0.3 * f + Math.sin(t / 6 + k.id) * 0.15, y: k.y! + Math.sin(a) * 0.3 * f + Math.cos(t / 8 + k.id * 1.3) * 0.15 };
+}
+/** Where a floated krathong is at a moment: about where its maker set it down, or (none said) down the festival's river. */
+export const floatPos = (k: RiverKrathong, now: number): Vec => (k.x != null && k.y != null ? spotPos(k, now) : riverPos(k, now));
+
 /** Where a floated krathong is on the river at a moment (tile coordinates). */
 export function riverPos(k: RiverKrathong, now: number): Vec {
   const restY = W.rest[0] + h01(k.id, 1) * (W.rest[1] - W.rest[0]);
@@ -69,7 +80,7 @@ export interface FestivalDraw {
 }
 
 /** Where the light part's flame is in the 48×50 template (the candle's wick, the jar's middle). */
-const FLAME: Record<string, [number, number]> = { l_candle: [33, 7], l_firefly: [32, 15], l_lantern: [32, 12], l_incense: [32, 7] };
+export const FLAME: Record<string, [number, number]> = { l_candle: [33, 7], l_firefly: [32, 15], l_lantern: [32, 12], l_incense: [32, 7] };
 
 /** The stall: drawn, and where it is for a tap. */
 export function drawStall(d: FestivalDraw): { x0: number; y0: number; x1: number; y1: number } | null {
@@ -126,9 +137,11 @@ export function drawRiver(d: FestivalDraw, river: RiverKrathong[]) {
   if (!river.length || !krathongImage()) return;
   const k = MAP_SCALE * d.s, [w, h] = CANVAS, frame = Math.floor(d.now / 180);
   for (const kr of river) {
-    const p = riverPos(kr, d.now), at = d.project(p);
-    // (the city's canal is sunk: only over its water, each at its water's place back to front, the near bank before it, as Town.tsx's cityRiver)
-    if (!d.onScreen(at) || (CITY && ed.t2Tile(Math.floor(p.x), Math.floor(p.y)) !== "~")) continue;
+    const p = floatPos(kr, d.now), at = d.project(p), set = kr.x != null && kr.y != null;
+    // (the city's water is sunk: only over its water, each at its water's place back to front, the near bank before it,
+    // as Town.tsx's cityRiver; one set down by its maker is told by the tile it was set on, so it never blinks at an edge)
+    const tile = set ? { x: kr.x!, y: kr.y! } : p;
+    if (!d.onScreen(at) || (CITY && ed.t2Tile(Math.floor(tile.x), Math.floor(tile.y)) !== "~")) continue;
     const bob = Math.sin(d.now / 700 + kr.id) * 1.2 * d.s, x0 = at.x - (w / 2) * k, y0 = at.y - (h - 6) * k + bob;
     const [fx, fy] = FLAME[kr.design.light[0]] ?? [32, 8];
     // the candle shines through the night's dark, and lies on the water under it
@@ -138,7 +151,7 @@ export function drawRiver(d: FestivalDraw, river: RiverKrathong[]) {
       d.light(at.x, at.y + 3 * d.s, 30 * d.s, "255,170,90", 0.55 * flicker, 0.38);
     }
     d.hits?.push({ id: kr.id, x0: x0 - 4 * d.s, y0: y0 - 4 * d.s, x1: x0 + w * k + 4 * d.s, y1: y0 + h * k + 4 * d.s });
-    d.push(CITY ? Math.floor(p.x) + Math.floor(p.y) + 0.977 : p.x + p.y, () => {
+    d.push(CITY ? Math.floor(tile.x) + Math.floor(tile.y) + 0.977 : p.x + p.y, () => {
       const { ctx } = d;
       // its reflection: a faint warm streak on the water below it
       ctx.save();

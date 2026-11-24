@@ -90,10 +90,12 @@ import { BOX, byMoreChest } from "@/lib/town/box";
 import TownBoard from "./TownBoard";
 import { useFestival } from "./useFestival";
 import FestivalPhase from "./FestivalPhase";
+import { designCode, designFromCode, type Design as KrathongDesign, type KrathongView } from "@/lib/town/krathong";
+import { CANVAS as KRATHONG_CANVAS, MAP_SCALE as KRATHONG_SCALE, drawKrathong } from "@/lib/town/krathong-art";
 /** (the dev test room only: `&lkAdmin=1` shows the stall as an admin sees it, its judge and the lucky draw's list; the
  * database asks its own admin flag whatever this says) */
 const LK_ADMIN_IN_DEV = process.env.NODE_ENV !== "production" && typeof location !== "undefined" && new URLSearchParams(location.search).has("lkAdmin");
-import { FLOAT_BANK, drawHall as drawFestivalHall, drawRiver as drawKrathongRiver, drawStall as drawFestivalStall, type FestivalDraw } from "./festival-map";
+import { FLAME as KRATHONG_FLAME, drawHall as drawFestivalHall, drawRiver as drawKrathongRiver, drawStall as drawFestivalStall, type FestivalDraw } from "./festival-map";
 import { PHASE_NAME, isOpen as festivalOpen, openPhases, stageOf as festivalStage, windowOf as festivalWindow } from "@/lib/town/festivals";
 import TownTalk, { type TalkAs, type TalkChoice } from "./TownTalk";
 import type { TradeSummary, TradeView } from "./TownTrade";
@@ -981,6 +983,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const [stallOpen, setStallOpen] = useState(false);
   /** Which edition the stall shows: the one picked on the calendar, or (null) the one the map shows. */
   const [stallFestival, setStallFestival] = useState<number | null>(null);
+  /**
+   * ── Loy Krathong carried ── (the owner, 2026-11-24: "พอทำเสร็จ จะได้กระทงมาถือโชว์ และส่งประกวดไปพร้อมกันเลย พอถึงเวลา
+   * สามารถนำกระทงไปลอยตามแม่น้ำในเมืองส่วนไหนก็ได้"): my krathong, carried in my hands for the town to see from when it
+   * is made until it is floated (kept on this device; the stall tells it again whenever it is opened), and the water I
+   * stand by, where it may be floated; the stall's tab to open on.
+   */
+  const [carry, setCarryState] = useState<{ f: number; code: string; floated: boolean; carry: boolean } | null>(null);
+  const [floatSpot, setFloatSpot] = useState<{ x: number; y: number } | null>(null);
+  const [stallTab, setStallTab] = useState<"float" | null>(null);
   /** A talk with a shopkeeper: who, what they say, and what there is to choose at its end. Each has a number of its own, so a new one starts at its first line. */
   const [talk, setTalk] = useState<{ who: Speaker | "smith" | "popoto"; n: number; lines: Line[]; choices?: TalkChoice[]; as?: TalkAs } | null>(null);
   /** Which of their conversations comes next (they go round, tap after tap), and how many talks there have been. */
@@ -4293,6 +4304,38 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     ctx.restore();
   }
 
+  /**
+   * ── Loy Krathong carried ── A krathong held before them in both hands (the room's `kt`: its parts and colours), as a
+   * stone for the bridge is: a fist either side of it (not of somebody seen from behind), dipping a little at every
+   * other step; its candle lit through the night's dark.
+   */
+  const carriedKrathongs = useRef(new Map<string, KrathongDesign | null>());
+  function drawCarriedKrathong(ctx: CanvasRenderingContext2D, p: Vec, h: number, code: string, look: Look, id: string, now: number, walking: boolean, fists: boolean) {
+    let d = carriedKrathongs.current.get(code);
+    if (d === undefined) { d = designFromCode(code); carriedKrathongs.current.set(code, d); }
+    if (!d) return;
+    const v = cam.current, unit = Math.max(1, v.s), snap = (n: number) => Math.round(n / unit) * unit;
+    const dip = walking && !reducedRef.current ? (Math.floor(now / 280 + id.charCodeAt(0)) % 2) * unit : 0;
+    const kk = KRATHONG_SCALE * 0.8 * v.s, [w, hh] = KRATHONG_CANVAS;
+    const x = snap(p.x), y = snap(p.y - h * 0.18 + dip);
+    const x0 = snap(x - (w / 2) * kk), y0 = snap(y - (hh - 3) * kk);
+    if (!drawKrathong(ctx, d, x0, y0, kk, Math.floor(now / 180) + id.charCodeAt(0))) return;
+    if (skyNow().lamps > 0.3 && toolLights.current.length < 120) {
+      const [fx, fy] = KRATHONG_FLAME[d.light[0]] ?? [32, 8];
+      toolLights.current.push({ x: x0 + fx * kk, y: y0 + fy * kk, rgb: "255,196,120", reach: 18 * v.s, flat: 1, strong: 0.85 });
+    }
+    if (!fists) return;
+    ctx.save();
+    for (const side of [-1, 1]) {
+      const fx = x + side * Math.round((w / 2 - 4) * kk);
+      ctx.fillStyle = "#2a1b12";
+      ctx.fillRect(fx - 2 * unit, y - 6 * unit, 4 * unit, 4 * unit);
+      ctx.fillStyle = SKINS[look.skin]?.hex ?? "#e8b98f";
+      ctx.fillRect(fx - unit, y - 5 * unit, 2 * unit, 2 * unit);
+    }
+    ctx.restore();
+  }
+
   /** Which way somebody faces: the way they walk; after standing a while, towards you; with a rod out, towards their float. */
   function facingOf(a: Avatar, isMe: boolean, now: number): { view: View; mirror: boolean } {
     if (isMe && wardrobeOpenRef.current) return TURNS[((turn.current % TURNS.length) + TURNS.length) % TURNS.length];
@@ -4482,6 +4525,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (held && face.view === "back") { lit(() => { tool.head = drawHeld(ctx, p, heldH, held, handSide, look, a.info.id, now, !!a.info.wet, heldTall, dpr, { under, rim, sweep, skin: gems }); }); shine(); }
     // ── the bridge built by hand ── (a stone carried in both hands: before them, so behind whoever faces away)
     if (a.info.carry && face.view === "back") drawCarried(ctx, p, h, look, a.info.id, now, moving, dpr, false);
+    if (a.info.kt && face.view === "back") drawCarriedKrathong(ctx, p, h, a.info.kt, look, a.info.id, now, moving, false);
     // ── the lamp relay ── (a flame borne from a fire to a lamp post: the ring of embers at their feet that says what is
     // left of it, under them; and the flame before them, so behind whoever faces away. Its light is drawn over the night's dark)
     const flame = a.info.flame ? lampsHooks.current?.flame : undefined;
@@ -4584,6 +4628,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     if (rod && face.view !== "back") { lit(() => { tool.head = drawRod(ctx, p, h, rod, a.info.id, now, fishesWith, undefined, look.race, gems, sweep); }); shine(); }
     if (held && face.view !== "back") { lit(() => { tool.head = drawHeld(ctx, p, heldH, held, handSide, look, a.info.id, now, !!a.info.wet, heldTall, dpr, { under, rim, sweep, skin: gems }); }); shine(); }
     if (a.info.carry && face.view !== "back") drawCarried(ctx, p, h, look, a.info.id, now, moving, dpr, true);
+    if (a.info.kt && face.view !== "back") drawCarriedKrathong(ctx, p, h, a.info.kt, look, a.info.id, now, moving, true);
     if (flame && face.view !== "back") flame(ctx, a.info.flame!, p, h, "hands", dpr, names);   // ── the lamp relay ──
 
     const top = p.y - h * 1.12 - bob;
@@ -5517,7 +5562,44 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     setBoardOpen(true);
   };
   /** (v336) Loy Krathong's stall: its panel takes the board's place. */
-  const openStall = (edition: number | null = null) => { openBoard(); setStallFestival(edition); setStallOpen(true); };
+  const openStall = (edition: number | null = null, tab: "float" | null = null) => { openBoard(); setStallFestival(edition); setStallTab(tab); setStallOpen(true); };
+  // (my krathong carried: kept on this device, told to the room while carried and not yet floated)
+  const CARRY_KEY = "cashtown.krathong.carry";
+  const setCarry = useCallback((c: { f: number; code: string; floated: boolean; carry: boolean } | null) => {
+    setCarryState(c);
+    try { if (c) localStorage.setItem(CARRY_KEY, JSON.stringify(c)); else localStorage.removeItem(CARRY_KEY); } catch { /* this page only */ }
+  }, []);
+  useEffect(() => { try { const c = JSON.parse(localStorage.getItem(CARRY_KEY) ?? "null"); if (c && typeof c.code === "string") setCarryState(c); } catch { /* none kept */ } }, []);
+  const carrying = !!carry && carry.carry && !carry.floated && fest.live.current.f?.id === carry.f;
+  useEffect(() => { session?.setKrathong(carrying && carry ? carry.code : null); }, [carrying, carry, session]);
+  const onMineKrathong = useCallback((f: number, mine: KrathongView | null) => {
+    setCarryState((was) => {
+      const next = mine ? { f, code: designCode(mine.design), floated: !!mine.floated, carry: was && was.f === f ? was.carry : true } : null;
+      try { if (next) localStorage.setItem(CARRY_KEY, JSON.stringify(next)); else localStorage.removeItem(CARRY_KEY); } catch { /* this page only */ }
+      return next;
+    });
+  }, []);
+  // (the water I stand by, every so often: of the town's water within three tiles of mine, the nearest with water on its
+  // near side (so a krathong set there never sits over the bank in front of it); of two as near, the more surrounded)
+  useEffect(() => {
+    if (!T2 || !game) return;
+    const wet = (x: number, y: number) => ed.t2Tile(x, y) === "~";
+    const t = setInterval(() => {
+      const me = sessionRef.current?.self.pos;
+      let best: { x: number; y: number } | null = null, top = -1, far = 99;
+      if (me) for (let dy = -3; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) {
+        const tx = Math.floor(me.x) + dx, ty = Math.floor(me.y) + dy;
+        if (!wet(tx, ty) || !wet(tx + 1, ty) || !wet(tx, ty + 1) || !wet(tx + 1, ty + 1)) continue;
+        let round = 0;
+        for (const [ox, oy] of [[-1, -1], [0, -1], [1, -1], [-1, 0], [-1, 1]]) if (wet(tx + ox, ty + oy)) round++;
+        const d2 = (tx + 0.5 - me.x) ** 2 + (ty + 0.5 - me.y) ** 2;
+        if (d2 > 12.5) continue;
+        if (d2 < far - 0.01 || (Math.abs(d2 - far) <= 0.01 && round > top)) { top = round; far = d2; best = { x: tx + 0.5, y: ty + 0.5 }; }
+      }
+      setFloatSpot((was) => (was?.x === best?.x && was?.y === best?.y ? was : best));
+    }, 700);
+    return () => clearInterval(t);
+  }, [game]);
 
   /**
    * One of the clothes shop's windows (Granny Twilla's clothes, from a talk with her; the week's auction, from the
@@ -6723,8 +6805,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
              data-state="open">
           {stallOpen && game && keeper && (stallFestival ?? fest.live.current.f?.id) != null
             ? <Suspense fallback={null}><TownKrathong key={stallFestival ?? fest.live.current.f?.id} keeper={keeper} th={w.th} festival={(stallFestival ?? fest.live.current.f?.id)!} admin={realAdmin || LK_ADMIN_IN_DEV} me={me.id} phone={phone}
+                startTab={stallTab} floatAt={inTownPlace ? floatSpot : null} carrying={carrying}
+                onMine={(mine) => onMineKrathong((stallFestival ?? fest.live.current.f?.id)!, mine)}
+                onCarry={(on) => { if (carry) setCarry({ ...carry, carry: on }); }}
                 onClose={() => setBoardOpen(false)}
-                onFloated={() => { void fest.readRiver(); setBoardOpen(false); walkToTile(FLOAT_BANK[0], FLOAT_BANK[1]); }} /></Suspense>
+                onFloated={() => { void fest.readRiver(); setBoardOpen(false); if (carry) setCarry({ ...carry, floated: true, carry: false }); }} /></Suspense>
             : fountainOpen && game && keeper
             ? <Suspense fallback={null}><TownFountain keeper={keeper} th={w.th} onClose={() => setBoardOpen(false)} /></Suspense>
             : <TownBoard th={w.th} onClose={() => setBoardOpen(false)} onVoted={onVoted} art={boardArt}
@@ -6894,6 +6979,17 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
             </TownFoot>
           )}
           <TownCircle session={s} th={w.th} phone={phone} tabbar={tabbar} hidden={!!talk || !!trade || boardOpen || wardrobeOpen || fishing || (phone && (testOpen || !!signView || chatOpen))} />
+          {/* ── Loy Krathong carried to the water ── (my krathong not yet floated, the float open, and water beside me: float it here) */}
+          {T2 && game && inTownPlace && floatSpot && carry && !carry.floated && fest.live.current.f?.id === carry.f
+            && festivalOpen(festivalWindow(fest.live.current.f, "float"), Date.now())
+            && !talk && !trade && !boardOpen && !wardrobeOpen && !fishing && !(phone && (testOpen || !!signView || chatOpen)) && (
+            <TownFoot rank="chip">
+              <button type="button" onClick={() => openStall(null, "float")} data-float-here
+                      className="pop-in pressable pointer-events-auto flex min-h-11 items-center gap-2 rounded-full border border-gold/60 bg-surface/95 px-4 text-ui font-semibold text-ink shadow-lg shadow-black/40">
+                <TownIcon name={"floatKrathong" as IconName} size={22} />{w.th ? "ลอยกระทงที่นี่" : "Float it here"}
+              </button>
+            </TownFoot>
+          )}
           {/* ── Loy Krathong's phases ── (what is open now, under the clock, and a card when a phase opens: components/town/FestivalPhase) */}
           {T2 && game && <FestivalPhase f={fest.live.current.f} session={s} th={w.th} onOpen={() => openStall(null)}
                                         hidden={!inTownPlace || !!talk || !!trade || boardOpen || wardrobeOpen || fishing || (phone && (testOpen || !!signView || chatOpen))} />}

@@ -22,13 +22,13 @@ function tell(f: Festival, phases: Phase[], now: number, th: boolean): Told {
     line: th ? "ดูผลที่ซุ้มกระทง และหอเกียรติยศข้างน้ำพุ" : "See them at the stall and the hall by the fountain" };
   // (the festival's evening: entries and the vote still open, and the float with them: 2026-11-24, until midnight)
   if (phases.includes("make") && phases.includes("float")) return { phases, title: th ? "เปิดลอยกระทงแล้ว" : "Floating is open",
-    line: th ? `ทำกระทงแล้วลอยได้เลย · ส่งประกวดและโหวตได้ถึง ${until("make")}` : `Make one and float it · entries and votes close ${until("make")}` };
+    line: th ? `ถือกระทงไปลอยริมน้ำที่ไหนก็ได้ในเมือง · ส่งประกวดและโหวตได้ถึง ${until("make")}` : `Carry yours to any water in town and float it · entries and votes close ${until("make")}` };
   if (phases.includes("make") && phases.includes("vote")) return { phases, title: th ? "เปิดส่งกระทงประกวดและโหวตแล้ว" : "Entries and voting are open",
     line: th ? `ทำกระทงที่ซุ้มข้างบอร์ด Popoto · ให้ popoto กระทงที่ชอบ · ปิด ${until("make")}` : `Build one at the stall by the Popoto Board · give popoto · closes ${until("make")}` };
   if (phases.includes("vote") && phases.includes("float")) return { phases, title: th ? "เปิดโหวตกระทงแล้ว" : "Voting is open",
     line: th ? `ให้ popoto กระทงที่ชอบ ถึง ${until("vote")} · ยังลอยได้ถึง ${until("float")}` : `Give popoto until ${until("vote")} · float until ${until("float")}` };
   if (phases.includes("float")) return { phases, title: th ? "ยังลอยกระทงได้" : "Floating is still open",
-    line: th ? `ลอยได้ถึง ${until("float")}` : `Float until ${until("float")}` };
+    line: th ? `ถือกระทงไปลอยริมน้ำที่ไหนก็ได้ · ถึง ${until("float")}` : `Carry it to any water and float it · until ${until("float")}` };
   if (phases.includes("vote")) return { phases, title: th ? "เปิดโหวตกระทงแล้ว" : "Voting is open", line: th ? `ถึง ${until("vote")}` : `Until ${until("vote")}` };
   return { phases, title: th ? "เปิดส่งกระทงประกวดแล้ว" : "Krathong entries are open",
     line: th ? `ประกอบกระทงที่ซุ้มข้างบอร์ด Popoto · ปิด ${until("make")}` : `Build one at the stall by the Popoto Board · closes ${until("make")}` };

@@ -7,8 +7,8 @@ import { ITEMS, iconOf, type ItemId } from "@/lib/town/items";
 import { GOODS, held } from "@/lib/town/trade";
 import { PHASES, PHASE_ICON, PHASE_NAME, isOpen, phaseState, shortWhen, untilText, whenText, windowOf, type Festival } from "@/lib/town/festivals";
 import {
-  COLORS, MAX_TRIMS, PART, START, bestPay, check, colorOf, costOf, costOfPicks, familiesOf, partsOf, picksOf, shuffledFor,
-  type AwardView, type Design, type DrawList, type GalleryEntry, type KrathongState, type Pick, type Slot,
+  COLORS, MAX_TRIMS, PART, START, bestPay, check, colorOf, costOf, costOfPicks, designCode, familiesOf, partsOf, picksOf, shuffledFor,
+  type AwardView, type Design, type DrawList, type GalleryEntry, type KrathongView, type KrathongState, type Pick, type Slot,
 } from "@/lib/town/krathong";
 import KrathongCanvas from "./KrathongCanvas";
 import TownIcon, { type IconName } from "./TownIcon";
@@ -17,21 +17,53 @@ type Tab = "make" | "gallery" | "float" | "results" | "draw";
 const icon = (name: string) => name as IconName;
 /** Whether the town's shop sells a thing (the builder marks it, and pays with it when the bag has nothing better). */
 const inShop = (id: ItemId) => !!GOODS[id];
+/**
+ * Where a thing is had, in a few words (the owner, 2026-11-24: "วัตถุดิบอยากได้รูปใหญ่กว่านี้ และเขียนรายละเอียดของ
+ * ให้ชัดเจน"): the shop and its price first; else what the thing is (lib/town/items' kinds), and for a few, more.
+ */
+const WHERE_KIND: Partial<Record<string, [string, string]>> = {
+  wood: ["ได้จากตัดต้นไม้", "From felling trees"], mineral: ["ได้จากทุบหินในเหมือง", "From breaking rocks"],
+  wild: ["เก็บได้ในป่า", "Found in the forest"], bug: ["จับด้วยสวิงจับแมลง", "Caught with a bug net"],
+  crop: ["ปลูกในฟาร์ม", "Grown on the farm"], fish: ["ได้จากตกปลา", "From fishing"], catch: ["ติดเบ็ดมาตอนตกปลา", "Comes up when fishing"],
+  goods: ["ทำจากวัตถุดิบอื่น", "Made from other things"], staple: ["ของในครัว", "A kitchen staple"], dish: ["ทำในครัว", "Cooked in the kitchen"],
+  seed: ["เมล็ดพันธุ์", "A seed"], bait: ["เหยื่อตกปลา", "Fishing bait"],
+};
+const WHERE_ITEM: Partial<Record<string, [string, string]>> = {
+  wool: ["ได้จากเลี้ยงแกะ", "From keeping sheep"], yarn: ["ปั่นจากขนแกะ", "Spun from wool"],
+  beeswax: ["ทำจากรวงผึ้ง", "Made from honeycomb"], gardenHoney: ["ได้จากรวงผึ้ง", "From honeycomb"],
+  firefly: ["จับกลางคืน ริมน้ำ", "Caught at night by the water"], dragonfly: ["จับกลางวัน ริมน้ำ", "Caught by day by the water"],
+  butterflyWhite: ["จับกลางวัน ในดงดอกไม้", "Caught by day among flowers"], monarch: ["จับกลางวัน ในดงดอกไม้", "Caught by day among flowers"],
+  lunaMoth: ["จับตอนกลางคืน", "Caught at night"], silkMoth: ["จับตอนกลางคืน", "Caught at night"],
+  starShard: ["เก็บได้ในป่า หายาก", "Found in the forest, rarely"], feather: ["เก็บได้ในป่า", "Found in the forest"],
+};
+function whereOf(id: ItemId, th: boolean): string {
+  const g = GOODS[id];
+  if (g) return th ? `ซื้อที่ร้านค้า · ${g.price} เหรียญ` : `Shop · ${g.price} coins`;
+  const w = WHERE_ITEM[id] ?? WHERE_KIND[ITEMS[id]?.kind ?? ""];
+  return w ? (th ? w[0] : w[1]) : "";
+}
 
 /**
  * Loy Krathong's stall beside the Popoto Board (v336): put a krathong together from the things of every line and
  * enter it; look at the entries and give popoto; float mine with a wish; see the year's outstanding makers.
  * Pictures and icon chips, few words (the owner's taste, 2026-11-07); the long how-to is in the gift guide.
  */
-export default function TownKrathong({ keeper, th, festival, admin, me, phone, onClose, onFloated }: {
+export default function TownKrathong({ keeper, th, festival, admin, me, phone, onClose, onFloated, startTab = null, floatAt = null, carrying = false, onMine, onCarry }: {
   keeper: Keeper; th: boolean; festival: number; admin: boolean; me: string; phone: boolean;
   onClose: () => void;
   /** My krathong was floated: the map may show it set off. */
   onFloated?: () => void;
+  /** (carried to the water: the owner, 2026-11-24) the tab to open on; the water I stand by, where it may be floated;
+   *  whether I carry it in my hands; told of my krathong as it is; carrying it, or putting it away. */
+  startTab?: "float" | null; floatAt?: { x: number; y: number } | null; carrying?: boolean;
+  onMine?: (mine: KrathongView | null) => void; onCarry?: (on: boolean) => void;
 }) {
   const [st, setSt] = useState<KrathongState | null>(null);
   const [failed, setFailed] = useState(false);
-  const [tab, setTab] = useState<Tab | null>(null);
+  const [tab, setTab] = useState<Tab | null>(startTab);
+  // (the town is told of my krathong whenever it is read: made here or elsewhere, floated or not)
+  const mineKey = st?.mine ? `${st.mine.id}:${st.mine.floated ?? ""}:${designCode(st.mine.design)}` : st ? "none" : "";
+  useEffect(() => { if (mineKey) onMine?.(st?.mine ?? null); }, [mineKey]); // eslint-disable-line react-hooks/exhaustive-deps
   const [, setPurseTick] = useState(0);
   const load = useCallback(async () => {
     const s = await keeper.krathong(festival);
@@ -94,9 +126,9 @@ export default function TownKrathong({ keeper, th, festival, admin, me, phone, o
           </p>
         )}
         {st && shown === "make" && <Builder keeper={keeper} th={th} st={st} phone={phone} making={making} floating={floating}
-                                            onDone={async () => { await load(); if (floating) setTab("float"); }} onFloat={() => setTab("float")} />}
+                                            onDone={load} onFloat={() => setTab("float")} floatAt={floatAt} carrying={carrying} onCarry={onCarry} onClose={onClose} />}
         {st && shown === "gallery" && <Gallery keeper={keeper} th={th} st={st} me={me} admin={admin} voting={voting} phone={phone} onChanged={load} setSt={setSt} />}
-        {st && shown === "float" && st.mine && <Float keeper={keeper} th={th} st={st} phone={phone} onDone={() => { void load(); onFloated?.(); }} />}
+        {st && shown === "float" && st.mine && <Float keeper={keeper} th={th} st={st} phone={phone} floatAt={floatAt} onCarry={onCarry} onClose={onClose} onDone={() => { void load(); onFloated?.(); }} />}
         {st && shown === "results" && st.awards && <Results th={th} awards={st.awards} phone={phone} mine={st.mine?.id ?? null} />}
         {st && shown === "draw" && <Draw keeper={keeper} th={th} festival={st.festival.id} />}
       </div>
@@ -159,10 +191,11 @@ const STEPS: Array<{ step: Step; th: string; en: string; askTh: string; askEn: s
 const withPay = (p: Pick, i: number): Pick => (colorOf(p) ? [p[0], i, colorOf(p)] : [p[0], i]);
 const withColor = (p: Pick, c: number): Pick => (c ? [p[0], p[1], c] : [p[0], p[1]]);
 
-function Builder({ keeper, th, st, phone, making, floating, onDone, onFloat }: {
+function Builder({ keeper, th, st, phone, making, floating, onDone, onFloat, floatAt, carrying, onCarry, onClose }: {
   keeper: Keeper; th: boolean; st: KrathongState; phone: boolean; making: boolean; floating: boolean; onDone: () => Promise<void>;
   /** The way on to floating it, once it is made and the float is open. */
   onFloat?: () => void;
+  floatAt?: { x: number; y: number } | null; carrying?: boolean; onCarry?: (on: boolean) => void; onClose?: () => void;
 }) {
   const bag = keeper.purse().bag;
   const have = useCallback((id: ItemId) => held(bag, id), [bag]);
@@ -192,10 +225,26 @@ function Builder({ keeper, th, st, phone, making, floating, onDone, onFloat }: {
           {st.mine.floated ? (th ? " · ลอยแล้ว" : " · floated") : ""}
         </p>
         <p className="text-meta text-muted">{th ? "ส่งประกวดได้คนละ 1 กระทง" : "One entry each"}</p>
-        {floating && !st.mine.floated && onFloat && (
-          <button type="button" onClick={onFloat} className="pressable min-h-11 w-full rounded-xl bg-accent px-4 text-ui font-semibold text-bg">
-            {th ? "ลอยกระทงเลย" : "Float it now"}
-          </button>
+        {!st.mine.floated && (
+          <>
+            {/* (carried in my hands for the town to see, until it is floated: the owner, 2026-11-24) */}
+            <div className="flex w-full gap-2">
+              <button type="button" onClick={() => { onCarry?.(!carrying); if (!carrying) onClose?.(); }} aria-pressed={carrying} data-carry
+                      className={`pressable min-h-11 flex-1 rounded-xl px-3 text-ui font-semibold ${carrying ? "border border-line-strong text-ink" : "bg-accent text-bg"}`}>
+                {carrying ? (th ? "เก็บกระทง" : "Put it away") : (th ? "ถือในมือ" : "Hold it")}
+              </button>
+              {floating && floatAt && onFloat && (
+                <button type="button" onClick={onFloat} className="pressable min-h-11 flex-1 rounded-xl bg-accent px-3 text-ui font-semibold text-bg">
+                  {th ? "ลอยกระทงที่นี่" : "Float it here"}
+                </button>
+              )}
+            </div>
+            <p className="flex items-center gap-1.5 text-center text-meta text-muted">
+              <TownIcon name={icon("floatKrathong")} size={16} />
+              {floating ? (th ? "ถือไปริมน้ำที่ไหนก็ได้ในเมือง แล้วกด ลอยกระทงที่นี่" : "Carry it to any water in town, then Float it here")
+                : (th ? "ลอยกระทงได้เมื่อถึงเวลาลอย · ถือไปลอยริมน้ำที่ไหนก็ได้" : "Floating opens later · at any water in town")}
+            </p>
+          </>
         )}
       </div>
     );
@@ -279,11 +328,14 @@ function Builder({ keeper, th, st, phone, making, floating, onDone, onFloat }: {
       )}
       {/* (after the choices, on every screen: pinned, it lay over the colours; the steps above go anywhere too) */}
       <div className="-mx-4 flex flex-col gap-2 border-t border-line bg-surface/95 px-4 pb-4 pt-2.5">
-        <div className="slim-bar flex gap-1.5 overflow-x-auto" aria-label={th ? "ของที่ต้องใช้" : "What it takes"}>
+        <span className="font-data text-label uppercase tracking-wider text-muted">{th ? "ของที่ต้องใช้ทั้งหมด · มี/ใช้" : "Everything it takes · have/need"}</span>
+        <div className="slim-bar flex flex-wrap gap-1.5" aria-label={th ? "ของที่ต้องใช้" : "What it takes"}>
           {cost.map(([id, n]) => (
             <span key={id} title={`${th ? ITEMS[id].name.th : ITEMS[id].name.en}${GOODS[id] ? (th ? " · มีขายที่ร้านค้า" : " · sold at the shop") : ""}`}
                   className={`flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 font-data text-meta tabular-nums ${have(id) < n ? "bg-[#f87171]/15 text-[#fca5a5]" : "bg-ink/[0.06] text-ink"}`}>
-              <TownIcon name={icon(iconOf(id))} size={18} />{have(id)}/{n}
+              <TownIcon name={icon(iconOf(id))} size={22} />
+              <span className="max-w-[7rem] truncate font-body">{th ? ITEMS[id].name.th : ITEMS[id].name.en}</span>
+              <span className="font-semibold">{have(id)}/{n}</span>
               {have(id) < n && GOODS[id] && <TownIcon name="coin" size={12} />}
             </span>
           ))}
@@ -305,7 +357,7 @@ function Builder({ keeper, th, st, phone, making, floating, onDone, onFloat }: {
                 : short ? (() => { const [id, n] = cost.find(([i, k]) => have(i) < k)!; const lack = n - have(id); return th ? `ยังขาด ${ITEMS[id].name.th} ${lack}` : `Still need ${lack} ${ITEMS[id].name.en}`; })()
                 : !name.trim() ? (th ? "ตั้งชื่อก่อน" : "Name it first")
                 : sure ? (th ? "ยืนยัน · ใช้ของตามนี้" : "Confirm · uses these")
-                : making ? (th ? "ส่งประกวด" : "Enter the contest") : (th ? "ทำกระทงไว้ลอย" : "Make it to float")}
+                : making ? (th ? "ทำเสร็จ · ส่งประกวด" : "Make it · enter it") : (th ? "ทำกระทงไว้ลอย" : "Make it to float")}
             </button>
           )}
         </div>
@@ -356,24 +408,23 @@ function SlotPicker({ slot, d, have, th, trimAt, setTrimAt, onChoose, onPay, onC
                     onClick={() => onChoose(part.id)}
                     className={`pressable flex w-[4.25rem] flex-col items-center gap-0.5 rounded-xl border px-1 pb-1 pt-1.5 disabled:opacity-40 ${chosen ? "border-accent bg-accent/10" : "border-line-strong hover:border-accent"}`}>
               <PartPic id={part.id} size={40} color={chosen && p ? colorOf(p) : 0} />
-              <span className={`flex items-center gap-0.5 font-data text-[11px] tabular-nums ${ok ? "text-muted" : "text-[#fca5a5]"}`}>
-                <TownIcon name={icon(iconOf(payId))} size={14} />{payN}
-                {inShop(payId) && <TownIcon name="coin" size={11} />}
+              <span className={`flex items-center gap-0.5 font-data text-[12px] font-semibold tabular-nums ${ok ? "text-ink" : "text-[#fca5a5]"}`}>
+                <TownIcon name={icon(iconOf(payId))} size={20} />×{payN}
+                {inShop(payId) && <TownIcon name="coin" size={12} />}
               </span>
             </button>
           );
         })}
       </div>
+      {/* (what it takes before its colours: whether it can be made comes first) */}
       {p && (
         <>
-          <span className="font-data text-label uppercase tracking-wider text-muted">{th ? "สี" : "Colour"}</span>
+          <span className="font-data text-label uppercase tracking-wider text-muted">
+            {PART[p[0]].pay.length > 1 ? (th ? "วัตถุดิบ · เลือกได้ 1 อย่าง" : "Pay with · pick one") : (th ? "วัตถุดิบ" : "It takes")}
+          </span>
+          <PayChoice part={p[0]} chosen={p[1]} have={have} th={th} onPick={onPay} />
+          <span className="font-data text-label uppercase tracking-wider text-muted">{th ? "สี · ฟรี" : "Colour · free"}</span>
           <Swatches part={p[0]} chosen={colorOf(p)} th={th} onPick={onColor} />
-          {PART[p[0]].pay.length > 1 && (
-            <>
-              <span className="font-data text-label uppercase tracking-wider text-muted">{th ? "จ่ายด้วย" : "Pay with"}</span>
-              <PayChoice part={p[0]} chosen={p[1]} have={have} th={th} onPick={onPay} />
-            </>
-          )}
         </>
       )}
     </div>
@@ -394,18 +445,25 @@ function Swatches({ part, chosen, th, onPick }: { part: string; chosen: number; 
   );
 }
 
-/** The ways to pay for the chosen part: tap the thing to pay with. */
+/** The ways to pay for the chosen part, a card each: the thing large, its name and how many, how many I have, where it is had. */
 function PayChoice({ part, chosen, have, th, onPick }: { part: string; chosen: number; have: (id: ItemId) => number; th: boolean; onPick: (i: number) => void }) {
   return (
-    <div className="flex flex-wrap gap-1" role="radiogroup" aria-label={th ? "จ่ายด้วย" : "Pay with"}>
-      {PART[part].pay.map(([id, n], i) => (
-        <button key={id} type="button" role="radio" aria-checked={i === chosen} onClick={() => onPick(i)}
-                title={`${th ? ITEMS[id].name.th : ITEMS[id].name.en}${GOODS[id] ? (th ? ` · ร้านค้า ${GOODS[id]!.price} เหรียญ` : ` · shop ${GOODS[id]!.price} coins`) : ""}`}
-                className={`pressable flex min-h-11 items-center gap-1 rounded-full border px-2.5 font-data text-meta tabular-nums ${i === chosen ? "border-accent bg-accent/10 text-ink" : "border-line text-muted"} ${have(id) < n ? "opacity-60" : ""}`}>
-          <TownIcon name={icon(iconOf(id))} size={16} />{n}
-          {GOODS[id] && <TownIcon name="coin" size={12} />}
-        </button>
-      ))}
+    <div className="grid grid-cols-2 gap-1.5" role="radiogroup" aria-label={th ? "วัตถุดิบ" : "Pay with"} data-materials>
+      {PART[part].pay.map(([id, n], i) => {
+        const mine = have(id), enough = mine >= n;
+        return (
+          <button key={id} type="button" role="radio" aria-checked={i === chosen} onClick={() => onPick(i)}
+                  title={th ? ITEMS[id].about?.th ?? ITEMS[id].name.th : ITEMS[id].about?.en ?? ITEMS[id].name.en}
+                  className={`pressable flex min-h-14 min-w-0 items-center gap-2 rounded-xl border p-1.5 text-left ${i === chosen ? "border-accent bg-accent/10" : "border-line hover:border-accent"}`}>
+            <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-ink/[0.06]"><TownIcon name={icon(iconOf(id))} size={34} /></span>
+            <span className="min-w-0 flex-1 leading-tight">
+              <span className="block truncate text-ui font-semibold text-ink">{th ? ITEMS[id].name.th : ITEMS[id].name.en} ×{n}</span>
+              <span className={`block font-data text-meta tabular-nums ${enough ? "text-[#86efac]" : "text-[#fca5a5]"}`}>{th ? `มี ${mine}` : `Have ${mine}`}</span>
+              <span className="flex items-center gap-1 truncate text-[11px] text-muted">{GOODS[id] && <TownIcon name="coin" size={12} />}{whereOf(id, th)}</span>
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -521,25 +579,41 @@ function Gallery({ keeper, th, st, me, admin, voting, phone, setSt }: {
 
 // ── the float ──
 
-function Float({ keeper, th, st, phone, onDone }: { keeper: Keeper; th: boolean; st: KrathongState; phone: boolean; onDone: () => void }) {
+function Float({ keeper, th, st, phone, onDone, floatAt, onCarry, onClose }: {
+  keeper: Keeper; th: boolean; st: KrathongState; phone: boolean; onDone: () => void;
+  floatAt?: { x: number; y: number } | null; onCarry?: (on: boolean) => void; onClose?: () => void;
+}) {
   const mine = st.mine!;
   const [wish, setWish] = useState("");
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
+  // (opened by the water on a small screen: the button brought into sight, the picture above it scrolled up a little)
+  const floatBtn = useRef<HTMLButtonElement>(null);
+  const byWater = !!floatAt && !mine.floated;
+  useEffect(() => { if (byWater && phone) floatBtn.current?.scrollIntoView({ block: "nearest" }); }, [byWater, phone]);
   const go = async () => {
     setBusy(true); setNote(null);
-    const did = await keeper.krathongFloat(st.festival.id, wish);
+    const did = await keeper.krathongFloat(st.festival.id, wish, floatAt);
     setBusy(false);
     if (did.ok) onDone(); else setNote(refusal(did.why, th));
   };
   return (
     <div className="flex flex-col items-center gap-3">
-      <KrathongCanvas design={mine.design} zoom={phone ? 3 : 4} water className="w-full py-3" />
+      {/* (by the water on a phone, a smaller picture, so the wish and the button are on the screen without scrolling) */}
+      <KrathongCanvas design={mine.design} zoom={phone ? (floatAt && !mine.floated ? 2 : 3) : 4} water className={`w-full ${phone && floatAt && !mine.floated ? "py-1" : "py-3"}`} />
       <p className="text-read font-semibold text-ink">{mine.name}</p>
       {mine.floated ? (
         <>
           <p className="flex items-center gap-1.5 rounded-full bg-accent/15 px-3 py-1 text-meta font-semibold text-accent"><TownIcon name={icon("floatKrathong")} size={16} />{th ? "ลอยแล้ว" : "Floated"}</p>
           {mine.wish && <p className="flex items-start gap-1.5 text-meta text-muted"><TownIcon name={icon("wishCapsule")} size={16} />{th ? "คำอธิษฐานผนึกไว้ เปิดอ่านได้ลอยกระทงปีหน้า" : "Your wish is sealed until next year's festival"}</p>}
+        </>
+      ) : !floatAt ? (
+        <>
+          {/* (floated where its maker stands by the town's water, anywhere: the owner, 2026-11-24) */}
+          <p className="text-center text-ui text-ink">{th ? "เดินไปริมน้ำที่ไหนก็ได้ในเมือง แล้วลอยตรงนั้น" : "Walk to any water in town and float it there"}</p>
+          <button type="button" onClick={() => { onCarry?.(true); onClose?.(); }} className="pressable min-h-11 w-full rounded-xl bg-accent px-4 text-ui font-semibold text-bg">
+            {th ? "ถือกระทงไปริมน้ำ" : "Carry it to the water"}
+          </button>
         </>
       ) : (
         <>
@@ -549,8 +623,8 @@ function Float({ keeper, th, st, phone, onDone }: { keeper: Keeper; th: boolean;
                       className="w-full rounded-xl border border-line-strong bg-card/60 px-3 py-2 text-ui text-ink focus:border-accent focus:outline-none" />
           </label>
           {note && <p className="text-meta text-[#fca5a5]" aria-live="polite">{note}</p>}
-          <button type="button" disabled={busy} onClick={() => void go()} className="pressable min-h-11 w-full rounded-xl bg-accent px-4 text-ui font-semibold text-bg disabled:opacity-40">
-            {th ? "ลอยกระทง" : "Float it"}
+          <button ref={floatBtn} type="button" disabled={busy} onClick={() => void go()} className="pressable min-h-11 w-full rounded-xl bg-accent px-4 text-ui font-semibold text-bg disabled:opacity-40">
+            {th ? "ลอยกระทงที่นี่" : "Float it here"}
           </button>
         </>
       )}

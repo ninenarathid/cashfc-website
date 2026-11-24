@@ -3,7 +3,7 @@ import { held, take } from "./trade";
 import type { ItemId } from "./items";
 import { LOY_KRATHONG_2026, isOpen, windowOf, type Festival } from "./festivals";
 import {
-  PART, PARTS, VOTES_EACH, awardsOf, check, cleanName, cleanWish, costOf, partsOf,
+  MAX_TRIMS, PART, PARTS, VOTES_EACH, awardsOf, check, cleanName, cleanWish, costOf, partsOf,
   type AwardView, type Design, type DrawList, type KrathongDid, type KrathongState, type KrathongView, type RiverKrathong,
 } from "./krathong";
 
@@ -13,7 +13,7 @@ import {
  * now, to try each stage (dev only); without it the trial follows the real dates.
  */
 
-interface Row extends KrathongView { member: string; makerName: string; character: number | null; fc: boolean; wish: string | null }
+interface Row extends KrathongView { member: string; makerName: string; character: number | null; fc: boolean; wish: string | null; fx?: number | null; fy?: number | null }
 export interface TrialFestivalState { rows: Row[]; votes: Array<[number, string]>; judge: number | null; settled: boolean; awards: AwardView[]; next: number }
 export interface TrialFestivalStore { get(): TrialFestivalState | null; set(s: TrialFestivalState): void; now(): number; me: string; purse(): Purse; save(p: Purse): void }
 
@@ -145,20 +145,21 @@ export class KrathongTrial {
     this.store.set(s);
     return { ok: true, voted: s.votes.filter(([, v]) => v === me).map(([e]) => e).sort((a, b) => a - b) };
   }
-  float(wish: string): KrathongDid<{ krathong: KrathongView }> {
+  float(wish: string, at?: { x: number; y: number } | null): KrathongDid<{ krathong: KrathongView }> {
     const s = this.state(), f = this.festival(), row = s.rows.find((r) => r.member === this.store.me);
     if (!row) return { ok: false, why: "none" };
     if (row.floated !== null) return { ok: true, repeated: true, krathong: view(row) };
     if (!isOpen(windowOf(f, "float"), this.store.now())) return { ok: false, why: "closed" };
     row.floated = this.store.now();
     row.wish = cleanWish(wish) || null;
+    row.fx = at?.x ?? null; row.fy = at?.y ?? null;
     this.store.set(s);
     return { ok: true, krathong: view(row) };
   }
   river(): RiverKrathong[] {
     const s = this.state(), f = this.festival();
     if (!isOpen(windowOf(f, "float"), this.store.now())) return [];
-    return s.rows.filter((r) => r.floated !== null).sort((a, b) => a.floated! - b.floated!).map((r) => ({ id: r.id, design: r.design, floated: r.floated!, mine: r.member === this.store.me, name: r.name, maker: r.makerName }));
+    return s.rows.filter((r) => r.floated !== null).sort((a, b) => a.floated! - b.floated!).map((r) => ({ id: r.id, design: r.design, floated: r.floated!, mine: r.member === this.store.me, name: r.name, maker: r.makerName, x: r.fx ?? null, y: r.fy ?? null }));
   }
   /** The lucky draw's list: whoever floated, the cutoff the entries' end (midnight, as v339 sets `draw_until`). */
   draw(): DrawList {
@@ -178,6 +179,19 @@ export class KrathongTrial {
 
 const view = (r: Row): KrathongView => ({ id: r.id, name: r.name, design: r.design, entered: r.entered, made: r.made, floated: r.floated });
 
-/** Every part's things, a few of each, for a tester's bag (dev only: `__townView.krathongKit()`). */
-export const KIT: Array<[ItemId, number]> = Object.entries(PARTS.flatMap((p) => p.pay.slice(0, 2)).reduce<Record<string, number>>((m, [id, n]) => ({ ...m, [id]: (m[id] ?? 0) + n * 2 }), {})) as Array<[ItemId, number]>;
+/**
+ * Every part's things by every way it may be paid, enough for any krathong (a part's most of a thing times the seven
+ * parts a krathong has at most), for a tester's bag (dev only: filled whenever the room's `&lk=` page opens, or
+ * `__townView.festival().kit()`; the owner, 2026-11-24: "ให้ตัวละคร test มีของพร้อมสร้างกระทงได้หมด").
+ */
+export const KIT: Array<[ItemId, number]> = Object.entries(PARTS.flatMap((p) => p.pay).reduce<Record<string, number>>((m, [id, n]) => ({ ...m, [id]: Math.max(m[id] ?? 0, n * (4 + MAX_TRIMS)) }), {})) as Array<[ItemId, number]>;
+
+/** (the dev room's `&lkNew=1`: the tester's krathong forgotten whenever the page opens, to make one again) */
+export function trialStartOver(): void {
+  try {
+    if (!new URLSearchParams(window.location.search).has("lkNew")) return;
+    localStorage.removeItem("cashtown.trial.festival.1");
+    localStorage.removeItem("cashtown.krathong.carry");
+  } catch { /* not in a browser */ }
+}
 void PART;

@@ -136,6 +136,23 @@ export const COLORS: readonly KrathongColor[] = [
 export const COLOR_SLOTS = 16;
 /** A pick's colour (0, its own, when it has none). */
 export const colorOf = (p: Pick): number => (p.length === 3 ? p[2] : 0);
+
+/**
+ * A krathong said in a few characters for the room, to be drawn in its maker's hands (the owner, 2026-11-24: "พอประกอบ
+ * เสร็จอยากให้ได้มาเป็นไอเทม เดินถือโชว์ได้"): each part and its colour, "b_leaf.3|r_rose.8|l_candle.0|c_rabbit.0|t_star.2".
+ * lib/town/room keeps the same shape (KT_CODE) for what it lets through.
+ */
+export const KT_CODE = /^(?:[a-z_]{3,16}\.\d{1,2}(?:\|[a-z_]{3,16}\.\d{1,2}){3,6})?$/;
+export function designCode(d: Design): string {
+  return [d.base, d.ring, d.light, d.centre, ...d.trims].map((p) => `${p[0]}.${colorOf(p)}`).join("|");
+}
+/** A carried krathong as it is drawn (each part paid by its first way: the drawing does not show the payment), or null. */
+export function designFromCode(code: string | undefined | null): Design | null {
+  if (!code || !KT_CODE.test(code)) return null;
+  const picks = code.split("|").map((x) => { const [id, c] = x.split("."); const n = Number(c); return (n ? [id, 0, n] : [id, 0]) as Pick; });
+  const d: Design = { base: picks[0], ring: picks[1], light: picks[2], centre: picks[3], trims: picks.slice(4) };
+  return check(d) ? null : d;
+}
 export interface Design { base: Pick; ring: Pick; light: Pick; centre: Pick; trims: Pick[] }
 
 export type Refusal = "part" | "slot" | "pay" | "trims" | "name" | "wish" | "color";
@@ -273,6 +290,8 @@ export interface RiverKrathong {
   id: number; design: Design; floated: number; mine: boolean;
   /** Its name and its maker's (v339: a tap on the river says whose it is; the owner, 2026-11-24). */
   name?: string; maker?: string | null;
+  /** Where its maker set it on the water (tiles; v339), or none (it then comes down the festival's river). */
+  x?: number | null; y?: number | null;
 }
 /**
  * The lucky draw's list, for the admins (v339; Aqua's event of 2026-11-24: a verified member who made a krathong and

@@ -124,6 +124,11 @@ export interface Doing {
   pull?: string;
   /** What they carry in both hands that is no thing of the bag (a stone for the bridge: lib/town/bridge), "" when nothing; missing from a browser older than that. Whoever carries something walks slower, on every page that walks them (lib/town/carry). */
   carry?: string;
+  /**
+   * The krathong they carry to show (lib/town/krathong's designCode: each part and its colour), "" when none; missing from
+   * a browser older than the festival. Every page draws it in their hands; it does nothing else.
+   */
+  kt?: string;
   /** The face they make for a moment (lib/town/expression: 0 none, else its place in the list plus one); missing from a browser older than faces. */
   mood?: number;
   /** The flame they bear from a fire to a lamp post (lib/town/lamps): the moment it dies, in ms of the clock of whoever keeps the game; 0 when none; missing from a browser older than that. Every page draws it in their hands, with what is left of it. */
@@ -264,6 +269,8 @@ export function readDoing(p: Record<string, unknown>): Partial<Doing> {
   // ── end: felling ──
   if (typeof p.pull === "string" && /^(?:\d{1,4},\d{1,4}:\d{1,15}:\d{1,2})?$/.test(p.pull)) d.pull = p.pull;
   if (typeof p.carry === "string" && /^[a-z]{0,24}$/.test(p.carry)) d.carry = p.carry;
+  // (a carried krathong: lib/town/krathong's KT_CODE, kept here too)
+  if (typeof p.kt === "string" && /^(?:[a-z_]{3,16}\.\d{1,2}(?:\|[a-z_]{3,16}\.\d{1,2}){3,6})?$/.test(p.kt)) d.kt = p.kt;
   if (typeof p.flame === "number" && Number.isFinite(p.flame) && p.flame >= 0) d.flame = Math.floor(p.flame);
   if (isMood(p.mood)) d.mood = p.mood;
   // ── the pasture ── (behind a cloud ram's rider, or on the hay wagon: "r:" or "w:" and an id; "" for neither)

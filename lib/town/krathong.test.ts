@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { ITEMS, type ItemId } from "./items";
-import { COLORS, COLOR_SLOTS, PARTS, PART, START, awardsOf, bestPay, catalogJson, check, cleanName, colorOf, costOf, familiesOf, partsOf, shortOf, shuffledFor, type Design, type Pick } from "./krathong";
+import { COLORS, COLOR_SLOTS, KT_CODE, PARTS, PART, START, awardsOf, bestPay, catalogJson, check, cleanName, colorOf, costOf, designCode, designFromCode, familiesOf, partsOf, shortOf, shuffledFor, type Design, type Pick } from "./krathong";
 import { LOY_KRATHONG_2026 as LK, calendarOrder, isOpen, nextWindow, stageOf, untilText, whenText, windowOf } from "./festivals";
 
 describe("the krathong's parts", () => {
@@ -143,5 +143,29 @@ describe("the database's catalog", () => {
     expect(sql.split(m![1]).length - 1).toBe(2);
     expect(wsql.split(w![1]).length - 1).toBe(2);
     expect(PART.c_crystal.pay.length).toBeGreaterThan(5);
+  });
+});
+
+describe("a krathong carried (the room's kt)", () => {
+  const dyed: Design = { base: ["b_bread", 0, 3], ring: ["r_leaf", 0, 8], light: ["l_candle", 0], centre: ["c_sweets", 0, 10],
+    trims: [["t_feather", 0, 1], ["t_feather", 0, 2]] };
+  it("says a design's parts and colours, and reads them back", () => {
+    const code = designCode(dyed);
+    expect(KT_CODE.test(code)).toBe(true);
+    const back = designFromCode(code)!;
+    expect([back.base[0], colorOf(back.base), back.ring[0], colorOf(back.ring), back.light[0], colorOf(back.light)]).toEqual(["b_bread", 3, "r_leaf", 8, "l_candle", 0]);
+    expect(back.trims.map((t) => [t[0], colorOf(t)])).toEqual([["t_feather", 1], ["t_feather", 2]]);
+    expect(designCode(back)).toBe(code);
+  });
+  it("the room's pattern is the same as the code's", () => {
+    const room = readFileSync(resolve(__dirname, "room.ts"), "utf8");
+    expect(room.includes(KT_CODE.source)).toBe(true);
+  });
+  it("reads nothing from a code that is not one", () => {
+    expect(designFromCode("")).toBeNull();
+    expect(designFromCode("b_bread.3|r_leaf.8")).toBeNull();
+    expect(designFromCode("nope.1|r_leaf.8|l_candle.0|c_sweets.0")).toBeNull();
+    expect(designFromCode("b_bread.99|r_leaf.8|l_candle.0|c_sweets.0")).toBeNull();
+    expect(designFromCode("<script>|a|b|c")).toBeNull();
   });
 });
