@@ -139,7 +139,8 @@ export default function GuideScreen(
           </div>
           {guide.source_name && <Source name={guide.source_name} url={guide.source_url} />}
         </div>
-        <div className="flex shrink-0 flex-wrap gap-2">
+        {/* As wide as the screen and no wider, so the buttons wrap on a phone. */}
+        <div className="flex min-w-0 max-w-full flex-wrap gap-2">
         {/* Straight to what lies past the fight: the cheatsheet, the macro,
             the rewards and the talk. */}
         {!editing && ([
