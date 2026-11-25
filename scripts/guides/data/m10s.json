@@ -24953,8 +24953,8 @@
    "kind": "token",
    "name": "AAC Illustrated: HW Edition II",
    "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/026000/026458_hr1.tex&format=png",
-   "say": "ได้ 1 เล่มทุกครั้งที่เคลียร์ (การันตี รับได้สัปดาห์ละครั้ง)\n\nแลกที่ Hhihwi (Arcadion Relic Exchange) ใน Solution Nine (X: 8.7 Y: 13.4)\nหัว / มือ / เท้า Grand Champion's IL790: 4 เล่ม ต่อชิ้น\nThundersteeping Glaze: 3 เล่ม",
-   "say_en": "Every clear gives 1 (guaranteed, once a week).\n\nExchange them with Hhihwi (Arcadion Relic Exchange) in Solution Nine (X: 8.7 Y: 13.4)\nGrand Champion's head / hands / feet, IL790: 4 per piece\nThundersteeping Glaze: 3",
+   "say": "ได้ 1 เล่มทุกครั้งที่เคลียร์ (การันตี)\nตั้งแต่ patch 7.56 ไม่จำกัดจำนวนต่อสัปดาห์แล้ว\n\nแลกที่ Hhihwi (Arcadion Relic Exchange) ใน Solution Nine (X: 8.7 Y: 13.4)\nหัว / มือ / เท้า Grand Champion's IL790: 4 เล่ม ต่อชิ้น\nThundersteeping Glaze: 3 เล่ม",
+   "say_en": "Every clear gives 1 (guaranteed)\nSince patch 7.56 there is no weekly limit\n\nExchange them with Hhihwi (Arcadion Relic Exchange) in Solution Nine (X: 8.7 Y: 13.4)\nGrand Champion's head / hands / feet, IL790: 4 per piece\nThundersteeping Glaze: 3",
    "pics": [
     {
      "map": {
