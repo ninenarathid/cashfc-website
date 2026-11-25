@@ -66,6 +66,19 @@ export interface SeatSpot {
 
 export type Spots = Partial<Record<Seat, SeatSpot>>;
 
+/** One panel of a cheatsheet: a heading, a picture, where each seat stands on it. */
+export interface CheatPanel {
+  title: string;
+  title_en?: string;
+  path?: string;
+  w?: number;
+  h?: number;
+  ring?: number;
+  spots?: Spots;
+  lines?: string[];
+  lines_en?: string[];
+}
+
 /** A small picture of what to watch for: the boss's pose, an object at the edge. */
 export interface Ref {
   path: string;
@@ -96,6 +109,16 @@ export interface GuideRow {
   unlock_en: string | null;
   /** Maps of where to go to unlock it (v348). */
   unlock_pics: Ref[];
+  /** The strat's macro to paste into the game, and its cheatsheet (v349). */
+  macro_en: string | null;
+  macro_ja: string | null;
+  /** The cheatsheet as panels, lit for the reader's seat where fixed (v349). */
+  cheat_panels: CheatPanel[];
+  cheat_pics: Ref[];
+  cheat_pics_en: Ref[];
+  /** Where the macro and the cheatsheet come from, when not the plan's source. */
+  xref_name: string | null;
+  xref_url: string | null;
   /** The party finder's key for the duty: `ex:Enuo`, `sav:M9S`. */
   content_key: string | null;
   published: boolean;
@@ -139,7 +162,7 @@ export interface StepRow {
 }
 
 export const GUIDE_COLUMNS =
-  "id, slug, name, short, expansion, category, patch, source_name, source_url, note, note_en, content_key, published, sort, req_level, req_ilvl, req_party, req_minutes, unlock, unlock_en, unlock_pics";
+  "id, slug, name, short, expansion, category, patch, source_name, source_url, note, note_en, content_key, published, sort, req_level, req_ilvl, req_party, req_minutes, unlock, unlock_en, unlock_pics, macro_en, macro_ja, cheat_panels, cheat_pics, cheat_pics_en, xref_name, xref_url";
 export const STEP_COLUMNS =
   "id, guide_id, sort, phase, mech, name, note, phase_en, mech_en, name_en, note_en, picture, pic_w, pic_h, ring, spots, refs";
 
@@ -281,6 +304,28 @@ export function cleanRefs(raw: unknown): Ref[] {
     out.push({ path: v.path, w: Math.round(v.w), h: Math.round(v.h), ...(say ? { say } : {}), ...(sayEn ? { say_en: sayEn } : {}) });
   }
   return out;
+}
+
+/** Cheatsheet panels as the page may draw them. */
+export function cleanPanels(raw: unknown): CheatPanel[] {
+  if (!Array.isArray(raw)) return [];
+  const words = (x: unknown) => (Array.isArray(x)
+    ? x.filter((l): l is string => typeof l === "string").slice(0, 6).map((l) => l.slice(0, 40)) : undefined);
+  return raw.slice(0, 16).flatMap((r): CheatPanel[] => {
+    if (!r || typeof r !== "object") return [];
+    const v = r as Record<string, unknown>;
+    if (typeof v.title !== "string" || !v.title.trim()) return [];
+    const pic = isPicturePath(v.path) && typeof v.w === "number" && typeof v.h === "number" && v.w > 0 && v.h > 0;
+    return [{
+      title: v.title.slice(0, 60),
+      ...(typeof v.title_en === "string" && v.title_en.trim() ? { title_en: v.title_en.slice(0, 60) } : {}),
+      ...(pic ? { path: v.path as string, w: v.w as number, h: v.h as number } : {}),
+      ring: cleanRing(v.ring),
+      spots: cleanSpots(v.spots),
+      ...(words(v.lines)?.length ? { lines: words(v.lines) } : {}),
+      ...(words(v.lines_en)?.length ? { lines_en: words(v.lines_en) } : {}),
+    }];
+  });
 }
 
 /** A step from the database, made safe to draw. */

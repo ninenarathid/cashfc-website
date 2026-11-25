@@ -19,6 +19,7 @@ import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import { sceneSvg, sceneSpots } from "./render.mjs";
 import { mapPicture } from "./map.mjs";
+import { cheatsheetPicture } from "./cheatsheet.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(here, "../..");
@@ -145,6 +146,34 @@ async function main() {
     rewards.push({ sort: i + 1, kind: r.kind ?? "other", name: r.name.slice(0, 80), ilvl: r.ilvl ?? null,
       say: r.say ?? null, say_en: r.say_en ?? null, icon, pics, pieces });
   }
+  // The cheatsheet: panels drawn alone, and the whole sheet in Thai and English.
+  const cheatPanels = [];
+  const cheatPics = [], cheatPicsEn = [];
+  if (fight.cheatsheet) {
+    for (const panel of (fight.cheatsheet.panels ?? []).slice(0, 16)) {
+      let pic = {};
+      if (panel.scene) {
+        const { svg, w, h } = sceneSvg({ frame: [1, 1], ...panel.scene }, defaults);
+        const path = `${owner}/g-${t++}-${rand()}.webp`;
+        uploads.push([path, await sharp(Buffer.from(svg)).webp({ quality: 88 }).toBuffer()]);
+        pic = { path, w, h };
+      }
+      cheatPanels.push({
+        title: panel.title.slice(0, 60), ...(panel.title_en ? { title_en: panel.title_en.slice(0, 60) } : {}), ...pic,
+        ring: Math.min(30, Math.max(3, Math.round(panel.ring ?? defaults.ring ?? 6))),
+        spots: panel.scene ? sceneSpots(panel.scene, {}, panel.strict) : {},
+        ...(panel.lines?.length ? { lines: panel.lines.slice(0, 6) } : {}),
+        ...(panel.lines_en?.length ? { lines_en: panel.lines_en.slice(0, 6) } : {}),
+      });
+    }
+    for (const [lang, list] of [["th", cheatPics], ["en", cheatPicsEn]]) {
+      const { buf, w, h } = await cheatsheetPicture(fight.cheatsheet, defaults, lang);
+      const path = `${owner}/g-${t++}-${rand()}.webp`;
+      uploads.push([path, buf]);
+      list.push({ path, w, h });
+    }
+  }
+
   const unlockPics = [];
   for (const q of (g.req?.unlock_pics ?? []).slice(0, 4)) {
     unlockPics.push({ ...(await keep(q.map ?? q.src, 1000)), ...(q.say ? { say: q.say.slice(0, 160) } : {}), ...(q.say_en ? { say_en: q.say_en.slice(0, 160) } : {}) });
@@ -161,8 +190,10 @@ async function main() {
     oldPics = s.flatMap((x) => [x.picture, ...(x.refs ?? []).map((r) => r.path)]).filter(Boolean);
     // And the old rewards' pictures, where the database has rewards (v347).
     try {
-      const og = await rest(`guides?select=unlock_pics&id=eq.${old[0].id}`);
-      oldPics.push(...(og?.[0]?.unlock_pics ?? []).map((p) => p.path));
+      const og = await rest(`guides?select=unlock_pics,cheat_panels,cheat_pics,cheat_pics_en&id=eq.${old[0].id}`);
+      const o = og?.[0] ?? {};
+      oldPics.push(...[...(o.unlock_pics ?? []), ...(o.cheat_panels ?? []), ...(o.cheat_pics ?? []), ...(o.cheat_pics_en ?? [])]
+        .map((p) => p.path).filter(Boolean));
       const rw = await rest(`guide_rewards?select=icon,pics,pieces&guide_id=eq.${old[0].id}`);
       oldPics.push(...rw.flatMap((x) => [x.icon, ...(x.pics ?? []).map((p) => p.path), ...(x.pieces ?? []).map((p) => p.icon)]).filter(Boolean));
     } catch { /* no rewards table yet */ }
@@ -177,6 +208,9 @@ async function main() {
       req_level: g.req?.level ?? null, req_ilvl: g.req?.ilvl ?? null, req_party: g.req?.party ?? null,
       req_minutes: g.req?.minutes ?? null, unlock: g.req?.unlock ?? null, unlock_en: g.req?.unlock_en ?? null,
       unlock_pics: unlockPics,
+      macro_en: g.macro_en ?? null, macro_ja: g.macro_ja ?? null,
+      xref_name: g.xref_name ?? null, xref_url: g.xref_url ?? null,
+      cheat_panels: cheatPanels, cheat_pics: cheatPics, cheat_pics_en: cheatPicsEn,
       content_key: g.content_key ?? null,
       published: !draft, sort: g.sort ?? 0,
     }),

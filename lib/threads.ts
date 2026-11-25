@@ -38,6 +38,13 @@ export const NOTICE_THREAD: Thread = {
   key: "announcement_id",
 };
 
+/** What is said under a guide (v349), the same talk as everywhere else. */
+export const GUIDE_THREAD: Thread = {
+  table: "guide_comments",
+  reactions: "guide_comment_reactions",
+  key: "guide_id",
+};
+
 /** What is said under a glamour contest look. See v99. */
 export const CONTEST_THREAD: Thread = {
   table: "contest_comments",

@@ -15,8 +15,11 @@ import PictureViewer from "@/components/guides/PictureViewer";
 import GuideRewards from "@/components/guides/GuideRewards";
 import GuideNeeds from "@/components/guides/GuideNeeds";
 import RoleText from "@/components/guides/RoleText";
+import GuideTalk from "@/components/guides/GuideTalk";
+import { GuideCheatsheet, GuideMacro } from "@/components/guides/GuideExtras";
+import type { PersonOption } from "@/lib/people";
 import {
-  CATEGORY_LABEL, GUIDE_COLUMNS, REWARD_COLUMNS, STEP_COLUMNS, cleanRefs, cleanReward, cleanStep, inLang, inPhases, partyFor, pictureUrl, seatColor,
+  CATEGORY_LABEL, GUIDE_COLUMNS, REWARD_COLUMNS, STEP_COLUMNS, cleanPanels, cleanRefs, cleanReward, cleanStep, inLang, inPhases, partyFor, pictureUrl, seatColor,
   type Block, type DutyOption, type GuideRow, type RewardRow, type Seat, type StepRow,
 } from "@/lib/guides";
 
@@ -40,7 +43,9 @@ type Load =
  * for everybody; a tap on it shows the whole of it, undimmed, for the moment
  * somebody wants to see where the rest of the party is going.
  */
-export default function GuideScreen({ slug, duties = [] }: { slug: string; duties?: DutyOption[] }) {
+export default function GuideScreen(
+  { slug, duties = [], people = [] }: { slug: string; duties?: DutyOption[]; people?: PersonOption[] },
+) {
   const { t, lang } = useLang();
   const { isAdmin, realAdmin, ready } = useAdmin();
   const [seat, setSeat] = useSeat();
@@ -53,7 +58,12 @@ export default function GuideScreen({ slug, duties = [] }: { slug: string; dutie
     const g = await sb.from("guides").select(GUIDE_COLUMNS).eq("slug", slug).maybeSingle();
     if (g.error) { setLoad({ kind: "error" }); return; }
     if (!g.data) { setLoad({ kind: "missing" }); return; }
-    const guide = { ...(g.data as GuideRow), unlock_pics: cleanRefs((g.data as GuideRow).unlock_pics) };
+    const raw = g.data as GuideRow;
+    const guide = {
+      ...raw, unlock_pics: cleanRefs(raw.unlock_pics),
+      cheat_pics: cleanRefs(raw.cheat_pics), cheat_pics_en: cleanRefs(raw.cheat_pics_en),
+      cheat_panels: cleanPanels(raw.cheat_panels),
+    };
     const s = await sb.from("guide_steps").select(STEP_COLUMNS)
       .eq("guide_id", guide.id).order("sort").order("id");
     if (s.error) { setLoad({ kind: "error" }); return; }
@@ -130,12 +140,19 @@ export default function GuideScreen({ slug, duties = [] }: { slug: string; dutie
           {guide.source_name && <Source name={guide.source_name} url={guide.source_url} />}
         </div>
         <div className="flex shrink-0 flex-wrap gap-2">
-        {rewards.length > 0 && !editing && (
-          <a href="#rewards"
+        {/* Straight to what lies past the fight: the cheatsheet, the macro,
+            the rewards and the talk. */}
+        {!editing && ([
+          [(guide.cheat_panels?.length ?? 0) + (guide.cheat_pics?.length ?? 0) > 0, "#cheatsheet", "guide.cheatsheetJump"],
+          [!!(guide.macro_en || guide.macro_ja), "#macro", "guide.macroJump"],
+          [rewards.length > 0, "#rewards", "guide.rewardsJump"],
+          [true, "#talk", "guide.talkJump"],
+        ] as const).filter(([on]) => on).map(([, href, key]) => (
+          <a key={href} href={href}
              className="inline-flex min-h-10 items-center rounded-lg border border-line px-3.5 text-read text-ink no-underline hover:border-accent hover:text-accent">
-            {t("guide.rewardsJump")}
+            {t(key)}
           </a>
-        )}
+        ))}
         {/* Straight to the party finder's form with this fight chosen. */}
         {guide.content_key && !editing && (
           <Link href={partyFor(guide.content_key)}
@@ -177,7 +194,10 @@ export default function GuideScreen({ slug, duties = [] }: { slug: string; dutie
       ) : (
         <>
           <Steps steps={steps} seat={seat} />
+          <GuideCheatsheet guide={guide} seat={seat} />
+          <GuideMacro guide={guide} />
           <GuideRewards rewards={rewards} />
+          <GuideTalk guideId={guide.id} people={people} />
         </>
       )}
     </main>

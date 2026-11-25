@@ -35,6 +35,8 @@ for these, small, until the FC has its own.
     "source_name": "game8", "source_url": "https://game8.jp/ff14/782325",
     "content_key": "ex:Enuo",                 // the party finder's key (lib/party-seeds)
     "note": "Thai: waymarks used, anything true for the whole fight",
+    "macro_en": "…", "macro_ja": "…",          // the strat's macro to paste into the game (v349)
+    "xref_name": "xivjpraids.com", "xref_url": "https://…",   // where the macro/cheatsheet come from
     "req": { "level": 100, "ilvl": 770, "party": 8, "minutes": 60,      // before you go in (v347)
              "unlock": "Thai: how to unlock it", "unlock_en": "English",
              "unlock_pics": [{ "map": { "map": "y6t1/00", "size": 180, "x": 11.1, "y": 14.6, "label": "Wandering Minstrel" },
@@ -48,6 +50,8 @@ for these, small, until the FC has its own.
                   "1": [20, 20], "2": [80, 20], "3": [80, 80], "4": [20, 80] },
     "iconSize": 6.5, "markSize": 5.5, "bossSize": 9, "ring": 6
   },
+  "cheatsheet": { … },                         // the whole fight on one page (v349; see cheatsheet.mjs):
+                                              // panels with scenes and "strict" like steps, plus one sheet picture
   "rewards": [                                // what the fight gives (v347), shown after the steps
     { "kind": "token" | "weapon" | "mount" | "minion" | "orchestrion" | "accessory" | "other",
       "name": "Totem of Naught",              // as the English client names it

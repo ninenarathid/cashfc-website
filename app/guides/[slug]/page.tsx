@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import GuideScreen from "@/components/guides/GuideScreen";
+import raw from "@/data/members.json";
+import type { BoardData } from "@/lib/types";
+import { everyone } from "@/lib/people";
 import { guideDuties } from "@/lib/guides/duties";
 
 /**
@@ -41,5 +44,7 @@ export default async function Page(
   const { slug } = await params;
   // The party finder's fights, for the editor's "which fight" and nothing
   // else: a reader never sees the list, only the button it leads to.
-  return <GuideScreen slug={slug.slice(0, 40)} duties={guideDuties()} />;
+  // And the FC's people, for the talk's names and @mentions, as an event's page.
+  return <GuideScreen slug={slug.slice(0, 40)} duties={guideDuties()}
+                      people={everyone(raw as unknown as BoardData)} />;
 }

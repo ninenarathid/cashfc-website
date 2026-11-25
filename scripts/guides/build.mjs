@@ -20,6 +20,7 @@ import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import { sceneSvg, sceneSpots } from "./render.mjs";
 import { mapPicture } from "./map.mjs";
+import { cheatsheetPicture } from "./cheatsheet.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(here, "../..");
@@ -119,6 +120,38 @@ export async function buildFight(file, { compareDir } = {}) {
     unlockPics.push({ ...kept, ...(q.say ? { say: q.say } : {}), ...(q.say_en ? { say_en: q.say_en } : {}) });
   }
 
+  // The cheatsheet: each panel drawn alone (lit for a seat on the page), and
+  // the whole sheet as one picture in Thai and in English.
+  const cheatPanels = [];
+  const cheatPics = [], cheatPicsEn = [];
+  if (fight.cheatsheet) {
+    for (const [k, panel] of (fight.cheatsheet.panels ?? []).entries()) {
+      let pic = {};
+      if (panel.scene) {
+        const { svg, w, h } = sceneSvg({ frame: [1, 1], ...panel.scene }, defaults);
+        const file = `cheat-${pad(k)}.webp`;
+        await sharp(Buffer.from(svg)).webp({ quality: 88 }).toFile(join(pub, file));
+        const path = `${FAKE_UID}/g-${1764000000000 + id + 700 + k}-ch${String(k).padStart(2, "0")}x.webp`;
+        pics[path] = `/guides/preview/${slug}/${file}`;
+        pic = { path, w, h };
+      }
+      cheatPanels.push({
+        title: panel.title, ...(panel.title_en ? { title_en: panel.title_en } : {}), ...pic,
+        ring: panel.ring ?? defaults.ring ?? 6,
+        spots: panel.scene ? sceneSpots(panel.scene, {}, panel.strict) : {},
+        ...(panel.lines?.length ? { lines: panel.lines } : {}), ...(panel.lines_en?.length ? { lines_en: panel.lines_en } : {}),
+      });
+    }
+    for (const [lang, list] of [["th", cheatPics], ["en", cheatPicsEn]]) {
+      const { buf, w, h } = await cheatsheetPicture(fight.cheatsheet, defaults, lang);
+      const file = `cheatsheet-${lang}.webp`;
+      await sharp(buf).toFile(join(pub, file));
+      const path = `${FAKE_UID}/g-${1764000000000 + id + 760 + (lang === "en" ? 1 : 0)}-sheet${lang}.webp`;
+      pics[path] = `/guides/preview/${slug}/${file}`;
+      list.push({ path, w, h });
+    }
+  }
+
   const guide = {
     id, slug, name: fight.guide.name, short: fight.guide.short ?? null,
     expansion: fight.guide.expansion ?? "Dawntrail", category: fight.guide.category ?? "extreme",
@@ -129,6 +162,9 @@ export async function buildFight(file, { compareDir } = {}) {
     req_party: fight.guide.req?.party ?? null, req_minutes: fight.guide.req?.minutes ?? null,
     unlock: fight.guide.req?.unlock ?? null, unlock_en: fight.guide.req?.unlock_en ?? null,
     unlock_pics: unlockPics,
+    macro_en: fight.guide.macro_en ?? null, macro_ja: fight.guide.macro_ja ?? null,
+    xref_name: fight.guide.xref_name ?? null, xref_url: fight.guide.xref_url ?? null,
+    cheat_panels: cheatPanels, cheat_pics: cheatPics, cheat_pics_en: cheatPicsEn,
     content_key: fight.guide.content_key ?? null, published: true, sort: fight.guide.sort ?? 0,
   };
   writeFileSync(join(repo, "public/guides/preview", `${slug}.rows.json`), JSON.stringify({ guide, steps: rows, rewards, pics }));
