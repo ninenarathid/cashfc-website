@@ -57,7 +57,8 @@ ex7 ต้องมีใน ex อื่นด้วย ให้เป็น t
      important mechanic has at least one footage ref** (the owner,
      2026-11-25: "เราต้องมี ภาพ ref footage ตาม mech สำคัญๆ … ข้อมูลใหม่ต้องมีภาพ
      footage"): the boss's pose or tell, the object to read, the moment to
-     move. Frames go in `data/frames/<slug>/`;
+     move. Frames go in `data/frames/<slug>/`, cropped near 16:9 or 4:3 (the
+     page shows them at the card's full width, so a thin strip reads small);
    - where parties play a mechanic another way too (EX3's Absolute Authority
      all together, EX6's Flash Thunder + Magic Circle Deployment 2:6), its
      steps get `plan` tabs, game8's first (README, "Two ways to play");

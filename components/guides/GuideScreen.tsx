@@ -457,31 +457,39 @@ function StepCard(
       )}
 
       {/* What to watch for in the game: the boss's pose, an object at the
-          edge. Small, under the plan, and a tap opens it large. */}
+          edge. The card's full width and the picture's own shape, nothing
+          cropped (the owner, 2026-11-25: "ช่วยแสดงภาพให้ใหญ่กว่านี้ ให้คนที่
+          อ่านไม่ต้องกดดูภาพใหญ่ก็รู้เรื่อง"); a tap still opens it large. */}
       {step.refs.length > 0 && (
-        <div className="mt-2.5 px-0.5">
-          <div className="mb-1 text-meta font-semibold text-muted">{t("guide.watch")}</div>
-          <div className="flex gap-2 overflow-x-auto pb-1">
+        <div className="mt-3 px-0.5">
+          <div className="mb-1.5 text-ui font-semibold text-muted">{t("guide.watch")}</div>
+          <div className="flex flex-col gap-3">
             {step.refs.map((r, i) => (
-              <div key={i} className="w-28 shrink-0">
-                <button type="button" onClick={() => setOpenRef(i)} className="block w-full text-left">
+              <figure key={i} className="min-w-0">
+                <button type="button" onClick={() => setOpenRef(i)} aria-label={t("guide.enlarge")}
+                        className="block w-full cursor-zoom-in rounded-lg text-left">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={pictureUrl(r.path) ?? undefined} alt={inLang(lang, r.say, r.say_en) || t("guide.watch")}
                        width={r.w} height={r.h} loading="lazy" decoding="async"
-                       className="aspect-video w-full rounded-md border border-line bg-black object-cover" />
-                  {(r.say || r.say_en) && <span className="mt-1 block text-meta leading-snug text-ink/85">{inLang(lang, r.say, r.say_en)}</span>}
+                       style={{ aspectRatio: `${r.w} / ${r.h}` }}
+                       className="block h-auto w-full rounded-lg border border-line bg-black" />
                 </button>
-                {/* Whose picture it is, a link back to the moment in their
-                    video; outside the button, as a link may not sit in one. */}
-                {r.by && (r.url ? (
-                  <a href={r.url} target="_blank" rel="noopener noreferrer"
-                     className="mt-0.5 block truncate font-data text-label text-muted underline decoration-line underline-offset-2 hover:text-accent">
-                    {t("guide.refBy", { by: r.by })} ↗
-                  </a>
-                ) : (
-                  <span className="mt-0.5 block truncate font-data text-label text-muted">{t("guide.refBy", { by: r.by })}</span>
-                ))}
-              </div>
+                {(r.say || r.say_en || r.by) && (
+                  <figcaption className="mt-1.5 text-ui leading-snug text-ink/85">
+                    {inLang(lang, r.say, r.say_en)}
+                    {/* Whose picture it is, a link back to the moment in their
+                        video; outside the button, as a link may not sit in one. */}
+                    {r.by && (r.url ? (
+                      <a href={r.url} target="_blank" rel="noopener noreferrer"
+                         className="mt-0.5 block w-fit font-data text-label text-muted underline decoration-line underline-offset-2 hover:text-accent">
+                        {t("guide.refBy", { by: r.by })} ↗
+                      </a>
+                    ) : (
+                      <span className="mt-0.5 block font-data text-label text-muted">{t("guide.refBy", { by: r.by })}</span>
+                    ))}
+                  </figcaption>
+                )}
+              </figure>
             ))}
           </div>
         </div>
