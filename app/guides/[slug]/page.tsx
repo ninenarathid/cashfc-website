@@ -23,7 +23,7 @@ export async function generateMetadata(
   if (!g?.name) return fallback;
   const title = `${g.short ? `${g.short} — ` : ""}${g.name} · Cafe And SHabu`;
   // The line under the picture in a Discord channel: what it is and what it asks.
-  const description = ["ไกด์ตำแหน่งยืนตาม role (ไทย / English)",
+  const description = [
     g.req_level ? `Lv ${g.req_level}` : null, g.req_ilvl ? `IL ${g.req_ilvl}+` : null,
     g.req_party ? `${g.req_party} คน` : null].filter(Boolean).join(" · ");
   // Named by hand as the party page does, so Discord draws the large picture.

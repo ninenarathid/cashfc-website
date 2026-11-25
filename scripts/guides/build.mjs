@@ -19,6 +19,7 @@ import { dirname, join, resolve } from "node:path";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import { sceneSvg, sceneSpots } from "./render.mjs";
+import { mapPicture } from "./map.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(here, "../..");
@@ -84,8 +85,9 @@ export async function buildFight(file, { compareDir } = {}) {
   // What the fight gives: icons and pictures fetched once, kept beside the rest.
   const rewards = [];
   let rk = 0;
+  // A picture is a link, or a spot on the game's map ({ map: { map, size, x, y, label } }).
   const keep = async (src, tag, max = 1000) => {
-    const buf = await fetchPicture(src);
+    const buf = typeof src === "object" ? (await mapPicture(src)).buf : await fetchPicture(src);
     const m = await sharp(buf).metadata();
     const k = Math.min(1, max / (m.width ?? max));
     const w = Math.round((m.width ?? max) * k), h = Math.round((m.height ?? max) * k);
@@ -99,7 +101,7 @@ export async function buildFight(file, { compareDir } = {}) {
     const icon = r.icon_src ? (await keep(r.icon_src, `${i}-icon`, 160)).path : null;
     const rpics = [];
     for (const [k, q] of (r.pics ?? []).entries()) {
-      const kept = await keep(q.src, `${i}-pic${k}`);
+      const kept = await keep(q.map ?? q.src, `${i}-pic${k}`);
       rpics.push({ ...kept, ...(q.say ? { say: q.say } : {}), ...(q.say_en ? { say_en: q.say_en } : {}) });
     }
     const pieces = [];
@@ -111,6 +113,12 @@ export async function buildFight(file, { compareDir } = {}) {
       ilvl: r.ilvl ?? null, say: r.say ?? null, say_en: r.say_en ?? null, icon, pics: rpics, pieces });
   }
 
+  const unlockPics = [];
+  for (const [k, q] of (fight.guide.req?.unlock_pics ?? []).entries()) {
+    const kept = await keep(q.map ?? q.src, `unlock-${k}`);
+    unlockPics.push({ ...kept, ...(q.say ? { say: q.say } : {}), ...(q.say_en ? { say_en: q.say_en } : {}) });
+  }
+
   const guide = {
     id, slug, name: fight.guide.name, short: fight.guide.short ?? null,
     expansion: fight.guide.expansion ?? "Dawntrail", category: fight.guide.category ?? "extreme",
@@ -120,6 +128,7 @@ export async function buildFight(file, { compareDir } = {}) {
     req_level: fight.guide.req?.level ?? null, req_ilvl: fight.guide.req?.ilvl ?? null,
     req_party: fight.guide.req?.party ?? null, req_minutes: fight.guide.req?.minutes ?? null,
     unlock: fight.guide.req?.unlock ?? null, unlock_en: fight.guide.req?.unlock_en ?? null,
+    unlock_pics: unlockPics,
     content_key: fight.guide.content_key ?? null, published: true, sort: fight.guide.sort ?? 0,
   };
   writeFileSync(join(repo, "public/guides/preview", `${slug}.rows.json`), JSON.stringify({ guide, steps: rows, rewards, pics }));

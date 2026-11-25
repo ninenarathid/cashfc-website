@@ -18,6 +18,7 @@ import { dirname, join, resolve } from "node:path";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import { sceneSvg, sceneSpots } from "./render.mjs";
+import { mapPicture } from "./map.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repo = resolve(here, "../..");
@@ -114,10 +115,15 @@ async function main() {
   }
   // What the fight gives (v347): the game's icons and the pictures, made webp.
   const rewards = [];
+  // A picture is a link, or a spot on the game's map ({ map, size, x, y, label }).
   const keep = async (src, max) => {
-    const res = await fetch(src, { headers: { "user-agent": "Mozilla/5.0" } });
-    if (!res.ok) throw new Error(`${src}: ${res.status}`);
-    const buf = Buffer.from(await res.arrayBuffer());
+    let buf;
+    if (typeof src === "object") buf = (await mapPicture(src)).buf;
+    else {
+      const res = await fetch(src, { headers: { "user-agent": "Mozilla/5.0" } });
+      if (!res.ok) throw new Error(`${src}: ${res.status}`);
+      buf = Buffer.from(await res.arrayBuffer());
+    }
     const m = await sharp(buf).metadata();
     const k = Math.min(1, max / (m.width ?? max));
     const w = Math.round((m.width ?? max) * k), h = Math.round((m.height ?? max) * k);
@@ -129,7 +135,7 @@ async function main() {
     const icon = r.icon_src ? (await keep(r.icon_src, 160)).path : null;
     const pics = [];
     for (const q of (r.pics ?? []).slice(0, 4)) {
-      pics.push({ ...(await keep(q.src, 1000)), ...(q.say ? { say: q.say.slice(0, 160) } : {}), ...(q.say_en ? { say_en: q.say_en.slice(0, 160) } : {}) });
+      pics.push({ ...(await keep(q.map ?? q.src, 1000)), ...(q.say ? { say: q.say.slice(0, 160) } : {}), ...(q.say_en ? { say_en: q.say_en.slice(0, 160) } : {}) });
     }
     const pieces = [];
     for (const q of (r.pieces ?? []).slice(0, 40)) {
@@ -138,6 +144,10 @@ async function main() {
     }
     rewards.push({ sort: i + 1, kind: r.kind ?? "other", name: r.name.slice(0, 80), ilvl: r.ilvl ?? null,
       say: r.say ?? null, say_en: r.say_en ?? null, icon, pics, pieces });
+  }
+  const unlockPics = [];
+  for (const q of (g.req?.unlock_pics ?? []).slice(0, 4)) {
+    unlockPics.push({ ...(await keep(q.map ?? q.src, 1000)), ...(q.say ? { say: q.say.slice(0, 160) } : {}), ...(q.say_en ? { say_en: q.say_en.slice(0, 160) } : {}) });
   }
   console.log(`${g.slug}: ${steps.length} steps, ${rewards.length} rewards, ${uploads.length} pictures`);
   if (dry) { console.log("dry run: nothing written"); return; }
@@ -151,6 +161,8 @@ async function main() {
     oldPics = s.flatMap((x) => [x.picture, ...(x.refs ?? []).map((r) => r.path)]).filter(Boolean);
     // And the old rewards' pictures, where the database has rewards (v347).
     try {
+      const og = await rest(`guides?select=unlock_pics&id=eq.${old[0].id}`);
+      oldPics.push(...(og?.[0]?.unlock_pics ?? []).map((p) => p.path));
       const rw = await rest(`guide_rewards?select=icon,pics,pieces&guide_id=eq.${old[0].id}`);
       oldPics.push(...rw.flatMap((x) => [x.icon, ...(x.pics ?? []).map((p) => p.path), ...(x.pieces ?? []).map((p) => p.icon)]).filter(Boolean));
     } catch { /* no rewards table yet */ }
@@ -164,6 +176,7 @@ async function main() {
       source_url: g.source_url ?? null, note: g.note ?? null, note_en: g.en?.note ?? null,
       req_level: g.req?.level ?? null, req_ilvl: g.req?.ilvl ?? null, req_party: g.req?.party ?? null,
       req_minutes: g.req?.minutes ?? null, unlock: g.req?.unlock ?? null, unlock_en: g.req?.unlock_en ?? null,
+      unlock_pics: unlockPics,
       content_key: g.content_key ?? null,
       published: !draft, sort: g.sort ?? 0,
     }),

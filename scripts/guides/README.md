@@ -36,7 +36,9 @@ for these, small, until the FC has its own.
     "content_key": "ex:Enuo",                 // the party finder's key (lib/party-seeds)
     "note": "Thai: waymarks used, anything true for the whole fight",
     "req": { "level": 100, "ilvl": 770, "party": 8, "minutes": 60,      // before you go in (v347)
-             "unlock": "Thai: how to unlock it", "unlock_en": "English" }
+             "unlock": "Thai: how to unlock it", "unlock_en": "English",
+             "unlock_pics": [{ "map": { "map": "y6t1/00", "size": 180, "x": 11.1, "y": 14.6, "label": "Wandering Minstrel" },
+                               "say": "Thai caption", "say_en": "…" }] }   // a map with a pin (v348; map.mjs)
   },
   "defaults": {                               // every scene starts from these
     "frame": [4, 3],                          // game8's pictures are 440×330

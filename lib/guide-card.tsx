@@ -100,10 +100,11 @@ export async function renderGuideCard(slug: string) {
   const category = isCategory(g.category) ? g.category : "other";
   const tint = TINT[category];
 
-  const [steps, rewards] = await Promise.all([
-    rest<{ id: number }>(`guide_steps?select=id&guide_id=eq.${g.id}&limit=1`),
-    rest<{ kind: string; name: string; ilvl: number | null }>(`guide_rewards?select=kind,name,ilvl&guide_id=eq.${g.id}&order=sort`),
-  ]);
+  // The owner took the "guide by role" line off the card (2026-11-25), so the
+  // card asks only for the rewards. Thai with two stacked marks loses the
+  // second in this renderer ("ขั้น" drew as "ขัน"): keep such words off it.
+  const rewards = await rest<{ kind: string; name: string; ilvl: number | null }>(
+    `guide_rewards?select=kind,name,ilvl&guide_id=eq.${g.id}&order=sort`);
   const duty = artFor(g.content_key);
   const art = await stillFromDisk(duty?.art, duty?.focus, GUIDE_CARD.width, ART_H);
 
@@ -147,11 +148,6 @@ export async function renderGuideCard(slug: string) {
           display: "flex", flex: 1, flexDirection: "column", justifyContent: "center",
           padding: "0 48px", gap: 16,
         }}>
-          <div style={{ display: "flex", fontSize: 34, fontWeight: 800 }}>
-            {/* No count in Thai here: the renderer drops the second of two stacked
-                marks, so "ขั้น" came out as "ขัน". */}
-            {`ไกด์ตำแหน่งยืนตาม role${steps?.count ? " · ครบทุกท่า" : ""}`}
-          </div>
           {chips.length > 0 && (
             <div style={{ display: "flex", gap: 12 }}>
               {chips.map((c) => (

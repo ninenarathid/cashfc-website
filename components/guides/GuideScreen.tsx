@@ -14,8 +14,9 @@ import ImageLightbox from "@/components/ui/ImageLightbox";
 import PictureViewer from "@/components/guides/PictureViewer";
 import GuideRewards from "@/components/guides/GuideRewards";
 import GuideNeeds from "@/components/guides/GuideNeeds";
+import RoleText from "@/components/guides/RoleText";
 import {
-  CATEGORY_LABEL, GUIDE_COLUMNS, REWARD_COLUMNS, STEP_COLUMNS, cleanReward, cleanStep, inLang, inPhases, partyFor, pictureUrl, seatColor,
+  CATEGORY_LABEL, GUIDE_COLUMNS, REWARD_COLUMNS, STEP_COLUMNS, cleanRefs, cleanReward, cleanStep, inLang, inPhases, partyFor, pictureUrl, seatColor,
   type Block, type DutyOption, type GuideRow, type RewardRow, type Seat, type StepRow,
 } from "@/lib/guides";
 
@@ -52,7 +53,7 @@ export default function GuideScreen({ slug, duties = [] }: { slug: string; dutie
     const g = await sb.from("guides").select(GUIDE_COLUMNS).eq("slug", slug).maybeSingle();
     if (g.error) { setLoad({ kind: "error" }); return; }
     if (!g.data) { setLoad({ kind: "missing" }); return; }
-    const guide = g.data as GuideRow;
+    const guide = { ...(g.data as GuideRow), unlock_pics: cleanRefs((g.data as GuideRow).unlock_pics) };
     const s = await sb.from("guide_steps").select(STEP_COLUMNS)
       .eq("guide_id", guide.id).order("sort").order("id");
     if (s.error) { setLoad({ kind: "error" }); return; }
@@ -159,7 +160,7 @@ export default function GuideScreen({ slug, duties = [] }: { slug: string; dutie
       )}
       {!editing && <GuideNeeds guide={guide} />}
       {(guide.note || guide.note_en) && !editing && (
-        <p className="mt-3 whitespace-pre-line text-read leading-relaxed text-ink/90">{inLang(lang, guide.note, guide.note_en)}</p>
+        <p className="mt-3 text-read leading-relaxed text-ink/90"><RoleText text={inLang(lang, guide.note, guide.note_en)} seat={seat} /></p>
       )}
 
       {/* While editing, each step has its own seat buttons beside its picture,
@@ -345,7 +346,7 @@ function StepCard(
         <p className="mt-2.5 px-0.5 text-ui text-muted">{t("guide.noSpot", { seat })}</p>
       ) : null}
       {note && (
-        <p className="mt-1.5 whitespace-pre-line px-0.5 text-read leading-relaxed text-muted">{note}</p>
+        <p className="mt-1.5 px-0.5 text-read leading-relaxed text-muted"><RoleText text={note} seat={seat} /></p>
       )}
 
       {/* What to watch for in the game: the boss's pose, an object at the

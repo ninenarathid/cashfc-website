@@ -94,6 +94,8 @@ export interface GuideRow {
   req_minutes: number | null;
   unlock: string | null;
   unlock_en: string | null;
+  /** Maps of where to go to unlock it (v348). */
+  unlock_pics: Ref[];
   /** The party finder's key for the duty: `ex:Enuo`, `sav:M9S`. */
   content_key: string | null;
   published: boolean;
@@ -137,7 +139,7 @@ export interface StepRow {
 }
 
 export const GUIDE_COLUMNS =
-  "id, slug, name, short, expansion, category, patch, source_name, source_url, note, note_en, content_key, published, sort, req_level, req_ilvl, req_party, req_minutes, unlock, unlock_en";
+  "id, slug, name, short, expansion, category, patch, source_name, source_url, note, note_en, content_key, published, sort, req_level, req_ilvl, req_party, req_minutes, unlock, unlock_en, unlock_pics";
 export const STEP_COLUMNS =
   "id, guide_id, sort, phase, mech, name, note, phase_en, mech_en, name_en, note_en, picture, pic_w, pic_h, ring, spots, refs";
 

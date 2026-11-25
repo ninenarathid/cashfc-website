@@ -19,7 +19,20 @@
       "party": 8,
       "minutes": 60,
       "unlock": "เคลียร์ Main Quest สุดท้ายของ Dawntrail ก่อน\nแล้วคุยกับ Wandering Minstrel ที่ Tuliyollal (X: 11.1 Y: 14.6) เพื่อปลดล็อก\nExtreme ของ Dawntrail ปลดล็อกที่ NPC คนนี้ทั้งหมด",
-      "unlock_en": "Finish Dawntrail's latest main scenario quest first\nthen talk to the Wandering Minstrel in Tuliyollal (X: 11.1 Y: 14.6) to unlock it\nEvery Dawntrail Extreme is unlocked from this NPC"
+      "unlock_en": "Finish Dawntrail's latest main scenario quest first\nthen talk to the Wandering Minstrel in Tuliyollal (X: 11.1 Y: 14.6) to unlock it\nEvery Dawntrail Extreme is unlocked from this NPC",
+      "unlock_pics": [
+        {
+          "map": {
+            "map": "y6t1/00",
+            "size": 180,
+            "x": 11.1,
+            "y": 14.6,
+            "label": "Wandering Minstrel"
+          },
+          "say": "Tuliyollal (X: 11.1 Y: 14.6) — Wandering Minstrel",
+          "say_en": "Tuliyollal (X: 11.1 Y: 14.6) — the Wandering Minstrel"
+        }
+      ]
     }
   },
   "defaults": {
@@ -4107,7 +4120,20 @@
       "name": "Totem of Naught",
       "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/026000/026696_hr1.tex&format=png",
       "say": "ได้ 2 ชิ้นทุกครั้งที่เคลียร์ (การันตี)\n\nแลกที่ NPC แลกของ Extreme ใน Solution Nine — Nexus Arcade (X: 8.7 Y: 13.5)\nอาวุธ IL785: 10 ชิ้น ต่ออาวุธ 1 ชิ้น\nWings of Nihility: 99 ชิ้น",
-      "say_en": "Every clear gives 2 (guaranteed).\n\nExchange them with the Extreme trial exchange NPC in Solution Nine — Nexus Arcade (X: 8.7 Y: 13.5)\nIL785 weapon: 10 per weapon\nWings of Nihility: 99"
+      "say_en": "Every clear gives 2 (guaranteed).\n\nExchange them with the Extreme trial exchange NPC in Solution Nine — Nexus Arcade (X: 8.7 Y: 13.5)\nIL785 weapon: 10 per weapon\nWings of Nihility: 99",
+      "pics": [
+        {
+          "map": {
+            "map": "x6t1/00",
+            "size": 180,
+            "x": 8.7,
+            "y": 13.5,
+            "label": "Extreme exchange"
+          },
+          "say": "จุดแลก: Solution Nine — Nexus Arcade (X: 8.7 Y: 13.5)",
+          "say_en": "Where to exchange: Solution Nine — Nexus Arcade (X: 8.7 Y: 13.5)"
+        }
+      ]
     },
     {
       "kind": "weapon",
