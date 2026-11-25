@@ -114,11 +114,22 @@
       "name": "เส้นโค้ง แล้วน้ำแข็งระเบิด",
       "note": "มีเส้นโค้งเตือนขึ้นก่อน แล้ว AoE ออกตามเส้นโค้งนั้น\nจากนั้นน้ำแข็งถูกวางไว้ แล้วระเบิดเป็น AoE วงกลม\n\nจุดเริ่ม:\nเส้นเตือนขึ้นจากซ้ายไปขวา → เริ่มที่หน้า A\nเส้นเตือนขึ้นจากขวาไปซ้าย → เริ่มที่หน้า B\n\nจุดปลอดภัยจาก AoE วงกลม: ด้านในวงเป้า (target circle) ของบอส ตรงกลาง",
       "strict": false,
+      "refs": [
+        {
+          "src": "frames/ex1-valigarmanda/spikesicle-curve.webp",
+          "say": "เส้นโค้งสีฟ้า = เส้นเตือน Spikesicle ขึ้นทีละเส้น แล้ว AoE ออกตามลำดับเดียวกัน ดูว่าเส้นไล่จากซ้ายไปขวา (เริ่มหน้า A) หรือขวาไปซ้าย (เริ่มหน้า B)",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=618"
+        }
+      ],
       "en": {
         "phase": "First half (fire)",
         "mech": "Spikesicle",
         "name": "Curved lines, then the ice bursts",
-        "note": "A curved telegraph appears first, then a curved AoE goes off along it\nThen ice is placed, and it bursts as circle AoEs\n\nWhere to start:\nTelegraph appears left to right → start in front of A\nTelegraph appears right to left → start in front of B\n\nSafe from the circle AoEs: inside the boss's target circle, at its middle"
+        "note": "A curved telegraph appears first, then a curved AoE goes off along it\nThen ice is placed, and it bursts as circle AoEs\n\nWhere to start:\nTelegraph appears left to right → start in front of A\nTelegraph appears right to left → start in front of B\n\nSafe from the circle AoEs: inside the boss's target circle, at its middle",
+        "refs": [
+          "Blue curve = a Spikesicle telegraph; they appear one by one, the AoEs follow in that order. Left to right: start in front of A; right to left: B"
+        ]
       }
     },
     {
@@ -167,11 +178,22 @@
       "name": "ภูเขาไฟระเบิด",
       "note": "ขึ้นข้อความว่าภูเขาไฟใกล้ระเบิด\nภูเขาไฟฝั่งตะวันออกหรือตะวันตกของสนามระเบิดเป็น AoE วงกลมขนาดใหญ่ ออกห่างจากลูกที่ระเบิด\n\nหลังวงใหญ่ มี AoE วงกลมเล็กขึ้นใต้เท้าผู้เล่นแบบสุ่ม หลบด้วย",
       "strict": false,
+      "refs": [
+        {
+          "src": "frames/ex1-valigarmanda/volcanic-drop-east.webp",
+          "say": "ภูเขาไฟที่พ่นลาวาคือลูกที่ระเบิด ภาพนี้ลูกฝั่งตะวันออก (หลัง C) วงใหญ่มาจากฝั่งนั้น ไปฝั่งตรงข้าม (ฝั่ง D)",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=231"
+        }
+      ],
       "en": {
         "phase": "First half (fire)",
         "mech": "Volcanic Drop",
         "name": "The volcano erupts",
-        "note": "A message says \"A volcanic eruption is imminent...\"\nThe volcano on the east or the west side of the arena erupts as a huge circle AoE; get away from the one erupting\n\nAfter the big circle, small circle AoEs appear under random players; dodge those too"
+        "note": "A message says \"A volcanic eruption is imminent...\"\nThe volcano on the east or the west side of the arena erupts as a huge circle AoE; get away from the one erupting\n\nAfter the big circle, small circle AoEs appear under random players; dodge those too",
+        "refs": [
+          "The volcano pouring lava is the one erupting. Here it is the east one (behind C), so the huge circle comes from that side: go to the far side (D)"
+        ]
       }
     },
     {
@@ -192,6 +214,14 @@
       },
       "game8": [
         "https://img.game8.jp/10207746/e325184b10fa7318631377388768c519.png/show"
+      ],
+      "refs": [
+        {
+          "src": "frames/ex1-valigarmanda/coil-donut-tell.webp",
+          "say": "บอสบินวนรอบสนาม มีลมสีเขียวหมุนรอบตัว = donut ปลอดภัยแค่วงกลางสนาม (ภาพจากช่วงน้ำแข็ง ท่าเดียวกัน)",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=567"
+        }
       ],
       "scene": {
         "shapes": [
@@ -292,7 +322,10 @@
           "D3": "With H1 at waymark 4 (south-west)",
           "H2": "With D4 at waymark 3 (south-east)",
           "D4": "With H2 at waymark 3 (south-east)"
-        }
+        },
+        "refs": [
+          "The boss flies around the arena with green wind circling it = donut; only the middle of the arena is safe (shot in the ice phase, same move)"
+        ]
       }
     },
     {
@@ -313,6 +346,14 @@
       },
       "game8": [
         "https://img.game8.jp/10207743/4fbf2d12819f0573c084673971429e01.png/show"
+      ],
+      "refs": [
+        {
+          "src": "frames/ex1-valigarmanda/strike-arms-tell.webp",
+          "say": "บอสยื่นแขนหน้าทั้งสองข้างลงมา ตัวเรืองแสง = วงกลมใหญ่รอบบอส กินครึ่งเหนือ ไปฝั่งใต้ (พื้นสีส้มคือวงที่โดน)",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=283"
+        }
       ],
       "scene": {
         "shapes": [
@@ -453,7 +494,10 @@
           "D3": "With H1 south row, westernmost pair",
           "H2": "With D4 south row, easternmost pair",
           "D4": "With H2 south row, easternmost pair"
-        }
+        },
+        "refs": [
+          "The boss reaches down with both front arms, glowing = a huge circle around the boss over the north half; go south (the orange floor is the AoE)"
+        ]
       }
     },
     {
@@ -474,6 +518,14 @@
       },
       "game8": [
         "https://img.game8.jp/10207745/d44e4d12108c5cf3e21038e3f5f52b0c.png/show"
+      ],
+      "refs": [
+        {
+          "src": "frames/ex1-valigarmanda/breath-mouth-tell.webp",
+          "say": "ปากบอสเรือง (จุดสว่างที่ปาก) = กรวยกว้างกลางสนาม หลบไปมุมเหนือ 2 ฝั่ง",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=260"
+        }
       ],
       "scene": {
         "shapes": [
@@ -575,7 +627,10 @@
           "D3": "With H1 north-west, further out along the cone's edge",
           "H2": "With D4 north-east, further out along the cone's edge",
           "D4": "With H2 north-east, further out along the cone's edge"
-        }
+        },
+        "refs": [
+          "The boss's mouth glows (the bright spot at the beak) = a wide cone through the middle; dodge to the two north corners"
+        ]
       }
     },
     {
@@ -603,6 +658,14 @@
       },
       "game8": [
         "https://img.game8.jp/10208123/292d59a6369304f81d9bf6a79042c16b.png/show"
+      ],
+      "refs": [
+        {
+          "src": "frames/ex1-valigarmanda/mountain-fire-tower.webp",
+          "say": "ลูกศรแดงชี้ลงที่ tower ดูว่าบอสบินอยู่ซ้าย กลาง หรือขวาของ tower แล้วหลบหลัง tower ฝั่งตรงข้ามบอส ภาพนี้บอสอยู่ตรงกลาง",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=330"
+        }
       ],
       "scene": {
         "boss": [50, 6.8],
@@ -639,7 +702,10 @@
         "says": {
           "MT": "Take the tower on hit 1 with a mitigation up",
           "ST": "Hide behind the tower this time (ST takes the even hits)"
-        }
+        },
+        "refs": [
+          "The red arrow marks the tower. See if the boss is left, middle or right of it and hide behind the tower on the far side; here it is in the middle"
+        ]
       }
     },
     {
@@ -2802,11 +2868,22 @@
       "name": "หลบเส้นตรง + ยืนบนพื้น Levitate",
       "note": "ลูกสายฟ้าฝั่งซ้ายและขวายิง AoE เป็นเส้นตรง และบอสยิงกรวยกว้างทั่วทั้งสนาม\nดูตำแหน่งลูกสายฟ้าซ้ายขวาแล้วหลบเส้นตรง\nหลบกรวยของบอสโดยยืนบนพื้น Levitate (ช่องสีเขียว)",
       "strict": false,
+      "refs": [
+        {
+          "src": "frames/ex1-valigarmanda/thunderous-breath-circles.webp",
+          "say": "วงเวทสายฟ้าสีม่วงขึ้นที่ขอบสนาม ยิงเส้นตรงตามแถวของมัน แถวที่ไม่มีวงเวทคือแถวปลอดภัย ยืนบนช่องสีเขียว (Levitate) ในแถวนั้น",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=864"
+        }
+      ],
       "en": {
         "phase": "Lightning phase",
         "mech": "Thunderous Breath",
         "name": "Dodge the lines, stand on the Levitate floor",
-        "note": "Thunder orbs on the left and right fire line AoEs, and the boss fires a wide cone over the whole arena\nCheck where the left and right orbs are and dodge their lines\nDodge the boss's cone by standing on the Levitate floor (green tiles)"
+        "note": "Thunder orbs on the left and right fire line AoEs, and the boss fires a wide cone over the whole arena\nCheck where the left and right orbs are and dodge their lines\nDodge the boss's cone by standing on the Levitate floor (green tiles)",
+        "refs": [
+          "Purple lightning circles appear at the arena's edge and fire straight lines along their rows. A row with no circle is safe: stand on its green (Levitate) tile"
+        ]
       }
     },
     {
@@ -2832,6 +2909,14 @@
         "MT": "เข้า tower กลางสนามพร้อม ST",
         "ST": "เข้า tower กลางสนามพร้อม MT"
       },
+      "refs": [
+        {
+          "src": "frames/ex1-valigarmanda/ruinfall-tower.webp",
+          "say": "วงแดงกลางสนามที่มีเสาแสงตั้งอยู่ = tower ของ Tank 2 คน คนอื่นอยู่นอกวง แล้วเตรียม Arm's Length / Surecast กัน knockback",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=927"
+        }
+      ],
       "en": {
         "phase": "Lightning phase",
         "mech": "Ruinfall",
@@ -2840,7 +2925,10 @@
         "says": {
           "MT": "Take the middle tower together with ST",
           "ST": "Take the middle tower together with MT"
-        }
+        },
+        "refs": [
+          "Red circle in the middle with pillars of light = the tower for both Tanks; everyone else stays out, then Arm's Length / Surecast for the knockback"
+        ]
       }
     },
     {
@@ -2963,6 +3051,14 @@
       "game8": [
         "https://img.game8.jp/10208845/e4e1fea7334dc5462cda4e79886be6ac.png/show"
       ],
+      "refs": [
+        {
+          "src": "frames/ex1-valigarmanda/chilling-cataclysm-b-front.webp",
+          "say": "วงเวทน้ำแข็งขึ้นหน้า B (2 กับ B สีเหลือง) → A ปลอดภัย ถ้าขึ้นหน้า A ก็ไป B ยืนให้ตรงกลาง Marker พอดี",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=675"
+        }
+      ],
       "scene": {
         "arena": {
           "fill": "#c2ad86"
@@ -3061,7 +3157,10 @@
         "phase": "Ice phase",
         "mech": "Avalanche + Chilling Cataclysm",
         "name": "A is safe",
-        "note": "The same boss attacks as in the fire phase, but with no message: read the boss's motion and dodge\nAt the same time an avalanche comes from the direction the message names (\"A rumbling avalanche approaches from the ...\"); run to where neither the boss's AoE nor the avalanche hits\n\nThe ice phase also has several ice orbs that burst in star-shaped lines, leaving only A or B safe\nRead where the orbs are and run there\n\nThis picture: A is safe (blue)"
+        "note": "The same boss attacks as in the fire phase, but with no message: read the boss's motion and dodge\nAt the same time an avalanche comes from the direction the message names (\"A rumbling avalanche approaches from the ...\"); run to where neither the boss's AoE nor the avalanche hits\n\nThe ice phase also has several ice orbs that burst in star-shaped lines, leaving only A or B safe\nRead where the orbs are and run there\n\nThis picture: A is safe (blue)",
+        "refs": [
+          "Ice magic circles in front of B (the yellow 2 and B), so A is safe; in front of A, go to B. Stand right on the waymark's centre"
+        ]
       }
     },
     {
