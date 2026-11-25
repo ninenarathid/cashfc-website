@@ -1441,6 +1441,14 @@
       "game8": [
         "https://img.game8.jp/10208455/5aa9b967c11b3310b6ca62bd904c62c1.png/show"
       ],
+      "refs": [
+        {
+          "src": "frames/ex1-valigarmanda/ruin-foretold-beacons.webp",
+          "say": "beacon 3 อัน: ไฟ (สีส้มแดง ซ้าย/ตะวันตก) สายฟ้า (สีม่วง กลาง) น้ำแข็ง (สีฟ้าขาว ขวา/ตะวันออก) แถบสีส้มที่แผ่ออกจากบอส = AoE กรวย ยืนในช่องระหว่างแถบ",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=438"
+        }
+      ],
       "scene": {
         "shapes": [
           { "t": "line", "from": [27, 16.5], "to": [27, 85.6], "c": "#141516", "wd": 0.35, "o": 0.9 },
@@ -1510,7 +1518,10 @@
           "D2": "East line, 2nd; hit the ice beacon",
           "D4": "East line, 3rd; hit the thunder beacon in the middle",
           "H2": "Back of the east line"
-        }
+        },
+        "refs": [
+          "Three beacons: fire (orange-red, west), lightning (purple, middle), ice (pale blue, east). Orange lanes fanning from the boss = cone AoEs; stand between"
+        ]
       }
     },
     {
@@ -1893,6 +1904,14 @@
       "game8": [
         "https://img.game8.jp/10208484/6bc415e5e52db1ab206bbaab5abbb249.png/show"
       ],
+      "refs": [
+        {
+          "src": "frames/ex1-valigarmanda/hail-of-feathers-feather.webp",
+          "say": "ขนสีแดงปักอยู่บนพื้น = จุดที่ AoE ลดตามระยะตกลงมา วงแดงรอบขนคือขนที่กำลังตีทิ้งอยู่ (เลือกเป็นเป้า)",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=790"
+        }
+      ],
       "scene": {
         "iconSize": 4,
         "shapes": [
@@ -2207,7 +2226,10 @@
         "phase": "Lightning phase",
         "mech": "Hail of Feathers",
         "name": "1st lands east: start at D",
-        "note": "The boss drops 6 distance-falloff AoEs, and a feather of ruin is left where each one lands\nWhich feather to break depends on where the first one lands\nWhen hitting the feather, stand where your line AoEs also reach the boss for more damage\n\n1st lands east → the whole party starts at D\nthen breaks the 2nd feather (bottom row, 3rd tile from the west)"
+        "note": "The boss drops 6 distance-falloff AoEs, and a feather of ruin is left where each one lands\nWhich feather to break depends on where the first one lands\nWhen hitting the feather, stand where your line AoEs also reach the boss for more damage\n\n1st lands east → the whole party starts at D\nthen breaks the 2nd feather (bottom row, 3rd tile from the west)",
+        "refs": [
+          "Red feather standing on the floor = where a distance-falloff AoE landed. The red ring around it = the feather being broken (it is targeted)"
+        ]
       }
     },
     {
@@ -2542,11 +2564,22 @@
       "name": "ฟ้าผ่าที่ขน",
       "note": "ฟ้าผ่าลงที่ขน (feather of ruin)\nไปรอที่ตำแหน่งขนที่ทำลายไปตอน Hail of Feathers",
       "strict": false,
+      "refs": [
+        {
+          "src": "frames/ex1-valigarmanda/blighted-bolt-strikes.webp",
+          "say": "เสาฟ้าผ่าลงตรงขนแต่ละอัน แล้วเกิด AoE วงกลม รอตรงจุดที่ขนถูกทำลายไปแล้วจะปลอดภัย",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=803"
+        }
+      ],
       "en": {
         "phase": "Lightning phase",
         "mech": "Blighted Bolt",
         "name": "Lightning on the feathers",
-        "note": "Lightning strikes the feathers of ruin\nWait where the feather you broke during Hail of Feathers was"
+        "note": "Lightning strikes the feathers of ruin\nWait where the feather you broke during Hail of Feathers was",
+        "refs": [
+          "Lightning columns strike each feather and burst as circle AoEs; wait where a feather was already destroyed"
+        ]
       }
     },
     {

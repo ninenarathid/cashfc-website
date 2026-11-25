@@ -8130,8 +8130,8 @@
   {
    "phase": "ช่วงแรก",
    "mech": "Soul Reaping + Twofold / Fourfold Blight",
-   "name": "① ดูว่าบอสเตรียม AoE แบบไหน",
-   "note": "Soul Reaping: บอสเตรียม AoE ไว้ 1 แบบ: แนวตรงกลางสนาม หรือแนวตรงสองข้าง\nจากนั้น Twofold Blight หรือ Fourfold Blight ปล่อย AoE นั้นพร้อม stack:\nTwofold Blight = stack 4 คน (4:4)\nFourfold Blight = stack 2 คน (คู่)\nยืนใน safe zone ของ AoE ที่เตรียมไว้ แล้วรับ stack\n\nท่านี้มา 2 ครั้ง: ครั้งที่ 2 ปล่อยหลัง Fear of Death + The End's Embrace และ Blue Shockwave จำแบบไว้ให้ดี\nภาพนี้: เตรียมแนวตรงกลางสนาม",
+   "name": "① Soul Reaping: จำแค่ in หรือ out",
+   "note": "Soul Reaping: บอสเตรียม AoE ไว้ แล้วปล่อยทีหลัง จำแค่ in หรือ out:\nAoE แนวตรงกลางสนาม = out (ไปสองข้าง)\nAoE แนวตรงสองข้าง = in (เข้าแนวกลาง)\n\nตอน Twofold / Fourfold Blight ปล่อย AoE ไปที่ in หรือ out ที่จำไว้ แล้ว stack:\nTwofold Blight = stack 4:4 ตามกลุ่ม\nFourfold Blight = stack คู่\n\nท่านี้มา 2 ครั้ง: ครั้งที่ 2 ปล่อยหลัง Fear of Death + The End's Embrace และ Blue Shockwave\nภาพนี้: AoE แนวตรงกลางสนาม = out",
    "strict": false,
    "game8": [
     "https://img.game8.jp/11643763/79cff61dafb5e5df086b42b29d89c214.webp/show"
@@ -9187,8 +9187,8 @@
    "en": {
     "phase": "First part",
     "mech": "Soul Reaping + Twofold / Fourfold Blight",
-    "name": "① See which AoE the boss prepares",
-    "note": "Soul Reaping: the boss prepares one AoE: a line down the middle, or lines down both sides\nThen Twofold Blight or Fourfold Blight releases it together with stacks:\nTwofold Blight = stacks of 4 (4:4)\nFourfold Blight = stacks of 2 (pairs)\nStand in the prepared AoE's safe spot and take the stack\n\nIt comes twice: the 2nd one goes off after Fear of Death + The End's Embrace and Blue Shockwave, so remember its shape\nIn this picture: a line down the middle is prepared",
+    "name": "① Soul Reaping: just remember in or out",
+    "note": "Soul Reaping: the boss stores an AoE and lets it go later; just remember in or out:\nAoE down the middle line = out (go to the two sides)\nAoE down the two side lines = in (go to the middle line)\n\nWhen Twofold / Fourfold Blight lets it go, be in or out as remembered, and stack:\nTwofold Blight = 4:4 stacks by group\nFourfold Blight = pair stacks\n\nIt comes twice; the 2nd is let go after Fear of Death + The End's Embrace and Blue Shockwave\nIn this picture: the AoE down the middle line = out",
     "refs": [
      "Soul Reaping: a vertical blue bar in the boss's ring, like the icon in the picture = a line down the middle"
     ]
@@ -9197,18 +9197,18 @@
   {
    "phase": "ช่วงแรก",
    "mech": "Soul Reaping + Twofold / Fourfold Blight",
-   "name": "แนวกลาง + Twofold Blight: 4:4 สองข้าง",
-   "note": "AoE แนวตรงกลางสนาม: safe สองข้าง\nstack 4 คนที่ safe สองข้าง:\nกลุ่มตะวันตก: MT D1 H1 D3\nกลุ่มตะวันออก: ST D2 H2 D4",
+   "name": "Out + Twofold Blight: 4:4 สองข้าง",
+   "note": "AoE แนวกลาง = out: stack 4:4 สองข้าง\nกลุ่มตะวันตก: MT D1 H1 D3\nกลุ่มตะวันออก: ST D2 H2 D4",
    "strict": true,
    "says": {
-    "MT": "stack กลุ่มตะวันตก",
-    "D1": "stack กลุ่มตะวันตก",
-    "H1": "stack กลุ่มตะวันตก",
-    "D3": "stack กลุ่มตะวันตก",
-    "ST": "stack กลุ่มตะวันออก",
-    "D2": "stack กลุ่มตะวันออก",
-    "H2": "stack กลุ่มตะวันออก",
-    "D4": "stack กลุ่มตะวันออก"
+    "MT": "out: stack กลุ่มตะวันตก",
+    "D1": "out: stack กลุ่มตะวันตก",
+    "H1": "out: stack กลุ่มตะวันตก",
+    "D3": "out: stack กลุ่มตะวันตก",
+    "ST": "out: stack กลุ่มตะวันออก",
+    "D2": "out: stack กลุ่มตะวันออก",
+    "H2": "out: stack กลุ่มตะวันออก",
+    "D4": "out: stack กลุ่มตะวันออก"
    },
    "game8": [
     "https://img.game8.jp/11643761/a9c3037def0e548f7e6034898194da7b.webp/show"
@@ -10516,35 +10516,35 @@
    "en": {
     "phase": "First part",
     "mech": "Soul Reaping + Twofold / Fourfold Blight",
-    "name": "Middle line + Twofold Blight: 4:4 on both sides",
-    "note": "A line down the middle: both sides are safe\nStack in 4s on the two sides:\nWest group: MT D1 H1 D3\nEast group: ST D2 H2 D4",
+    "name": "Out + Twofold Blight: 4:4 on both sides",
+    "note": "Middle-line AoE = out: 4:4 stacks on both sides\nWest group: MT D1 H1 D3\nEast group: ST D2 H2 D4",
     "says": {
-     "MT": "Stack with the west group",
-     "D1": "Stack with the west group",
-     "H1": "Stack with the west group",
-     "D3": "Stack with the west group",
-     "ST": "Stack with the east group",
-     "D2": "Stack with the east group",
-     "H2": "Stack with the east group",
-     "D4": "Stack with the east group"
+     "MT": "out: Stack with the west group",
+     "D1": "out: Stack with the west group",
+     "H1": "out: Stack with the west group",
+     "D3": "out: Stack with the west group",
+     "ST": "out: Stack with the east group",
+     "D2": "out: Stack with the east group",
+     "H2": "out: Stack with the east group",
+     "D4": "out: Stack with the east group"
     }
    }
   },
   {
    "phase": "ช่วงแรก",
    "mech": "Soul Reaping + Twofold / Fourfold Blight",
-   "name": "แนวกลาง + Fourfold Blight: คู่สองข้าง",
-   "note": "stack 2 คนที่ safe สองข้าง:\nตะวันตก: MT·D1 ด้านนอก / H1·D3 ด้านใน\nตะวันออก: ST·D2 ด้านนอก / H2·D4 ด้านใน",
+   "name": "Out + Fourfold Blight: คู่สองข้าง",
+   "note": "AoE แนวกลาง = out: stack คู่สองข้าง\nตะวันตก: MT·D1 ด้านนอก / H1·D3 ด้านใน\nตะวันออก: ST·D2 ด้านนอก / H2·D4 ด้านใน",
    "strict": true,
    "says": {
-    "MT": "คู่ด้านนอก ฝั่งตะวันตก",
-    "D1": "คู่ด้านนอก ฝั่งตะวันตก",
-    "H1": "คู่ด้านใน ฝั่งตะวันตก",
-    "D3": "คู่ด้านใน ฝั่งตะวันตก",
-    "ST": "คู่ด้านนอก ฝั่งตะวันออก",
-    "D2": "คู่ด้านนอก ฝั่งตะวันออก",
-    "H2": "คู่ด้านใน ฝั่งตะวันออก",
-    "D4": "คู่ด้านใน ฝั่งตะวันออก"
+    "MT": "out: คู่ด้านนอก ฝั่งตะวันตก",
+    "D1": "out: คู่ด้านนอก ฝั่งตะวันตก",
+    "H1": "out: คู่ด้านใน ฝั่งตะวันตก",
+    "D3": "out: คู่ด้านใน ฝั่งตะวันตก",
+    "ST": "out: คู่ด้านนอก ฝั่งตะวันออก",
+    "D2": "out: คู่ด้านนอก ฝั่งตะวันออก",
+    "H2": "out: คู่ด้านใน ฝั่งตะวันออก",
+    "D4": "out: คู่ด้านใน ฝั่งตะวันออก"
    },
    "game8": [
     "https://img.game8.jp/11643762/de470eb48a695f26cd178a7590631b3c.webp/show"
@@ -12076,35 +12076,35 @@
    "en": {
     "phase": "First part",
     "mech": "Soul Reaping + Twofold / Fourfold Blight",
-    "name": "Middle line + Fourfold Blight: pairs on both sides",
-    "note": "Stack in pairs on the two sides:\nWest: MT·D1 outer / H1·D3 inner\nEast: ST·D2 outer / H2·D4 inner",
+    "name": "Out + Fourfold Blight: pairs on both sides",
+    "note": "Middle-line AoE = out: pair stacks on both sides\nWest: MT·D1 outer / H1·D3 inner\nEast: ST·D2 outer / H2·D4 inner",
     "says": {
-     "MT": "Outer pair, west",
-     "D1": "Outer pair, west",
-     "H1": "Inner pair, west",
-     "D3": "Inner pair, west",
-     "ST": "Outer pair, east",
-     "D2": "Outer pair, east",
-     "H2": "Inner pair, east",
-     "D4": "Inner pair, east"
+     "MT": "out: Outer pair, west",
+     "D1": "out: Outer pair, west",
+     "H1": "out: Inner pair, west",
+     "D3": "out: Inner pair, west",
+     "ST": "out: Outer pair, east",
+     "D2": "out: Outer pair, east",
+     "H2": "out: Inner pair, east",
+     "D4": "out: Inner pair, east"
     }
    }
   },
   {
    "phase": "ช่วงแรก",
    "mech": "Soul Reaping + Twofold / Fourfold Blight",
-   "name": "แนวตรงสองข้าง + Twofold Blight: 4:4 ตรงกลาง",
-   "note": "AoE แนวตรงสองข้าง: safe แนวกลาง\nstack 4 คนที่แนวกลาง ด้านเหนือใกล้บอส:\nกลุ่ม MT D1 H1 D3 ฝั่งตะวันตก\nกลุ่ม ST D2 H2 D4 ฝั่งตะวันออก",
+   "name": "In + Twofold Blight: 4:4 แนวกลาง",
+   "note": "AoE แนวสองข้าง = in: stack 4:4 ที่แนวกลาง ด้านเหนือใกล้บอส\nกลุ่ม MT D1 H1 D3 ฝั่งตะวันตก\nกลุ่ม ST D2 H2 D4 ฝั่งตะวันออก",
    "strict": true,
    "says": {
-    "MT": "stack กลุ่มตะวันตก ด้านเหนือ",
-    "D1": "stack กลุ่มตะวันตก ด้านเหนือ",
-    "H1": "stack กลุ่มตะวันตก ด้านเหนือ",
-    "D3": "stack กลุ่มตะวันตก ด้านเหนือ",
-    "ST": "stack กลุ่มตะวันออก ด้านเหนือ",
-    "D2": "stack กลุ่มตะวันออก ด้านเหนือ",
-    "H2": "stack กลุ่มตะวันออก ด้านเหนือ",
-    "D4": "stack กลุ่มตะวันออก ด้านเหนือ"
+    "MT": "in: stack กลุ่มตะวันตก ด้านเหนือ",
+    "D1": "in: stack กลุ่มตะวันตก ด้านเหนือ",
+    "H1": "in: stack กลุ่มตะวันตก ด้านเหนือ",
+    "D3": "in: stack กลุ่มตะวันตก ด้านเหนือ",
+    "ST": "in: stack กลุ่มตะวันออก ด้านเหนือ",
+    "D2": "in: stack กลุ่มตะวันออก ด้านเหนือ",
+    "H2": "in: stack กลุ่มตะวันออก ด้านเหนือ",
+    "D4": "in: stack กลุ่มตะวันออก ด้านเหนือ"
    },
    "game8": [
     "https://img.game8.jp/11643765/7cffdb318211317f9b5759f4adda6c75.webp/show"
@@ -13433,17 +13433,17 @@
    "en": {
     "phase": "First part",
     "mech": "Soul Reaping + Twofold / Fourfold Blight",
-    "name": "Side lines + Twofold Blight: 4:4 in the middle",
-    "note": "Lines down both sides: the middle is safe\nStack in 4s in the middle, north, near the boss:\nMT D1 H1 D3 on the west half\nST D2 H2 D4 on the east half",
+    "name": "In + Twofold Blight: 4:4 in the middle line",
+    "note": "Side-lines AoE = in: 4:4 stacks in the middle line, north, near the boss\nMT D1 H1 D3 on the west\nST D2 H2 D4 on the east",
     "says": {
-     "MT": "Stack with the west group, north",
-     "D1": "Stack with the west group, north",
-     "H1": "Stack with the west group, north",
-     "D3": "Stack with the west group, north",
-     "ST": "Stack with the east group, north",
-     "D2": "Stack with the east group, north",
-     "H2": "Stack with the east group, north",
-     "D4": "Stack with the east group, north"
+     "MT": "in: Stack with the west group, north",
+     "D1": "in: Stack with the west group, north",
+     "H1": "in: Stack with the west group, north",
+     "D3": "in: Stack with the west group, north",
+     "ST": "in: Stack with the east group, north",
+     "D2": "in: Stack with the east group, north",
+     "H2": "in: Stack with the east group, north",
+     "D4": "in: Stack with the east group, north"
     },
     "refs": [
      "Twofold Blight with the middle safe: blue beams shoot at each group of 4"
@@ -13453,18 +13453,18 @@
   {
    "phase": "ช่วงแรก",
    "mech": "Soul Reaping + Twofold / Fourfold Blight",
-   "name": "แนวตรงสองข้าง + Fourfold Blight: คู่ตรงกลาง",
-   "note": "stack 2 คนที่แนวกลาง ด้านเหนือ:\nตะวันตก: MT·D1 ด้านเหนือ / H1·D3 ถัดลงมาใกล้กลาง\nตะวันออก: ST·D2 ด้านเหนือ / H2·D4 ถัดลงมาใกล้กลาง",
+   "name": "In + Fourfold Blight: คู่แนวกลาง",
+   "note": "AoE แนวสองข้าง = in: stack คู่ที่แนวกลาง ด้านเหนือ\nตะวันตก: MT·D1 ด้านเหนือ / H1·D3 ถัดลงมาใกล้กลาง\nตะวันออก: ST·D2 ด้านเหนือ / H2·D4 ถัดลงมาใกล้กลาง",
    "strict": true,
    "says": {
-    "MT": "คู่ด้านเหนือ ฝั่งตะวันตก",
-    "D1": "คู่ด้านเหนือ ฝั่งตะวันตก",
-    "H1": "คู่ใกล้กลาง ฝั่งตะวันตก",
-    "D3": "คู่ใกล้กลาง ฝั่งตะวันตก",
-    "ST": "คู่ด้านเหนือ ฝั่งตะวันออก",
-    "D2": "คู่ด้านเหนือ ฝั่งตะวันออก",
-    "H2": "คู่ใกล้กลาง ฝั่งตะวันออก",
-    "D4": "คู่ใกล้กลาง ฝั่งตะวันออก"
+    "MT": "in: คู่ด้านเหนือ ฝั่งตะวันตก",
+    "D1": "in: คู่ด้านเหนือ ฝั่งตะวันตก",
+    "H1": "in: คู่ใกล้กลาง ฝั่งตะวันตก",
+    "D3": "in: คู่ใกล้กลาง ฝั่งตะวันตก",
+    "ST": "in: คู่ด้านเหนือ ฝั่งตะวันออก",
+    "D2": "in: คู่ด้านเหนือ ฝั่งตะวันออก",
+    "H2": "in: คู่ใกล้กลาง ฝั่งตะวันออก",
+    "D4": "in: คู่ใกล้กลาง ฝั่งตะวันออก"
    },
    "game8": [
     "https://img.game8.jp/11643764/37365e708d064d6e59301ef52d993330.webp/show"
@@ -15009,17 +15009,17 @@
    "en": {
     "phase": "First part",
     "mech": "Soul Reaping + Twofold / Fourfold Blight",
-    "name": "Side lines + Fourfold Blight: pairs in the middle",
-    "note": "Stack in pairs in the middle, north:\nWest: MT·D1 further north / H1·D3 below them, nearer the middle\nEast: ST·D2 further north / H2·D4 below them, nearer the middle",
+    "name": "In + Fourfold Blight: pairs in the middle line",
+    "note": "Side-lines AoE = in: pair stacks in the middle line, north\nWest: MT·D1 north / H1·D3 just below, nearer the middle\nEast: ST·D2 north / H2·D4 just below, nearer the middle",
     "says": {
-     "MT": "North pair, west",
-     "D1": "North pair, west",
-     "H1": "Pair nearer the middle, west",
-     "D3": "Pair nearer the middle, west",
-     "ST": "North pair, east",
-     "D2": "North pair, east",
-     "H2": "Pair nearer the middle, east",
-     "D4": "Pair nearer the middle, east"
+     "MT": "in: North pair, west",
+     "D1": "in: North pair, west",
+     "H1": "in: Pair nearer the middle, west",
+     "D3": "in: Pair nearer the middle, west",
+     "ST": "in: North pair, east",
+     "D2": "in: North pair, east",
+     "H2": "in: Pair nearer the middle, east",
+     "D4": "in: Pair nearer the middle, east"
     }
    }
   },
@@ -48847,7 +48847,7 @@
    "phase": "ช่วงหลัง",
    "mech": "Circle of Lives + Specter of Death + Soul Reaping + Twofold / Fourfold Blight",
    "name": "⑤ donut ลูกที่ 3 + ดู Soul Reaping",
-   "note": "หลบ donut ลูกที่ 3 (ลูกกลาง)\nตอนนี้บอสร่าย Soul Reaping: ดูว่าเตรียม AoE แบบไหน (ภาพนี้: donut)\nทีมงาน game8 เตือน: ร่ายเงียบๆ ระหว่างหลบ donut ดูบอสทุกครั้ง ลืมง่าย",
+   "note": "หลบ donut ลูกที่ 3 (ลูกกลาง)\nตอนนี้บอสร่าย Soul Reaping: ดูว่าเตรียม AoE แบบไหน (ภาพนี้: donut = in)\nทีมงาน game8 เตือน: ร่ายเงียบๆ ระหว่างหลบ donut ดูบอสทุกครั้ง ลืมง่าย",
    "strict": false,
    "game8": [
     "https://img.game8.jp/11644018/ca4b81d06ba8499cf2dd952bd6eadeb7.webp/show"
@@ -50009,7 +50009,7 @@
     "phase": "Second part",
     "mech": "Circle of Lives + Specter of Death + Soul Reaping + Twofold / Fourfold Blight",
     "name": "⑤ 3rd donut + read Soul Reaping",
-    "note": "Dodge the 3rd donut (the middle orb)\nThe boss casts Soul Reaping now: see which AoE it prepares (here: a donut)\ngame8's team warns: it is cast quietly while you dodge donuts; always look at the boss, it is easy to miss"
+    "note": "Dodge the 3rd donut (the middle orb)\nThe boss casts Soul Reaping now: see which AoE it prepares (here: a donut = in)\ngame8's team warns: it is cast quietly while you dodge donuts; always look at the boss, it is easy to miss"
    }
   },
   {
@@ -52288,7 +52288,7 @@
    "phase": "ช่วงหลัง",
    "mech": "Circle of Lives + Specter of Death + Soul Reaping + Twofold / Fourfold Blight",
    "name": "⑧ stack ใน safe ของ Soul Reaping",
-   "note": "ทำ Twofold/Fourfold Blight ใน safe zone ของ AoE ที่ Soul Reaping เตรียมไว้\nภาพนี้: donut + Fourfold Blight (คู่)\nMT·D1 / H1·D3 ฝั่งตะวันตก / ST·D2 / H2·D4 ฝั่งตะวันออก",
+   "note": "ทำ Twofold/Fourfold Blight ใน safe zone ของ AoE ที่ Soul Reaping เตรียมไว้\nภาพนี้: donut = in + Fourfold Blight (คู่)\nMT·D1 / H1·D3 ฝั่งตะวันตก / ST·D2 / H2·D4 ฝั่งตะวันออก",
    "strict": true,
    "says": {
     "MT": "คู่ MT·D1 ฝั่งตะวันตก ด้านนอก",
@@ -53807,7 +53807,7 @@
     "phase": "Second part",
     "mech": "Circle of Lives + Specter of Death + Soul Reaping + Twofold / Fourfold Blight",
     "name": "⑧ Stack in Soul Reaping's safe spot",
-    "note": "Take Twofold/Fourfold Blight in the safe spot of the AoE Soul Reaping prepared\nIn this picture: donut + Fourfold Blight (pairs)\nMT·D1 / H1·D3 west / ST·D2 / H2·D4 east",
+    "note": "Take Twofold/Fourfold Blight in the safe spot of the AoE Soul Reaping prepared\nIn this picture: donut = in + Fourfold Blight (pairs)\nMT·D1 / H1·D3 west / ST·D2 / H2·D4 east",
     "says": {
      "MT": "Pair MT·D1, west, outer",
      "D1": "Pair MT·D1, west, outer",
