@@ -58,7 +58,16 @@ ex7 ต้องมีใน ex อื่นด้วย ให้เป็น t
      2026-11-25: "เราต้องมี ภาพ ref footage ตาม mech สำคัญๆ … ข้อมูลใหม่ต้องมีภาพ
      footage"): the boss's pose or tell, the object to read, the moment to
      move. Frames go in `data/frames/<slug>/`, cropped near 16:9 or 4:3 (the
-     page shows them at the card's full width, so a thin strip reads small);
+     page shows them at the card's full width, so a thin strip reads small).
+     **The style the owner approved (2026-11-25, "ใช้แบบนี้ได้เลย ทำให้ครบทุกรูป",
+     after "ภาพดูไม่รู้เรื่อง"):** a WIDE crop that keeps the arena, the boss,
+     the waymarks and the players, so a reader knows where they are; every
+     Japanese text and player name blurred away; and our own marks on what to
+     watch — a gold ring and/or arrow, and a Thai label box (English mechanic
+     name + what it means, only what the guide already says). Made with
+     `node scripts/guides/annotate-frame.cjs <spec.json>` (crop, blur boxes,
+     ring / arrow / label marks). A tight close-up with no context is not
+     enough;
    - where parties play a mechanic another way too (EX3's Absolute Authority
      all together, EX6's Flash Thunder + Magic Circle Deployment 2:6), its
      steps get `plan` tabs, game8's first (README, "Two ways to play");
