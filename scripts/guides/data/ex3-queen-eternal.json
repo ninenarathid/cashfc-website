@@ -108,13 +108,13 @@
      "D4": "Take the line stack with the ST group (on H2)"
     },
     "refs": [
-     "Watch the grid floor: the part that warps into broken pixels (right of the picture) is where the cone lands; stand where the grid is still whole"
+     "Where the grid warps into broken pixels (gold ring) is where the cone lands; stand where the grid is still whole"
     ]
    },
    "refs": [
     {
      "src": "frames/ex3-queen-eternal/aethertithe-warp.webp",
-     "say": "ดูพื้นตาราง: ส่วนที่บิดเบี้ยวจนแตกเป็นพิกเซล (ขวาของภาพ) คือที่ AoE รูปพัดจะลง ให้ยืนฝั่งที่ตารางยังปกติ",
+     "say": "ส่วนที่ตารางบิดเบี้ยวแตกเป็นพิกเซล (วงทอง) คือที่ AoE รูปพัดจะลง ให้ยืนฝั่งที่ตารางยังปกติ",
      "by": "Hamukatsu",
      "url": "https://youtu.be/UEQrzXo_zbo?t=46"
     }
@@ -3331,8 +3331,19 @@
     "phase": "Virtual Shift 1 (wind)",
     "mech": "Virtual Shift",
     "name": "Raid-wide + an X-shaped arena",
-    "note": "A magic raid-wide, then the arena turns into an X (the wind arena)\n\nThen several things at once:\nstacks on the healers\nMissing Link chains\nwind debuffs (East/West Wind of Change) that throw you left or right\nLegitimate Force: the boss hits half the arena twice\n\nAfter dodging the halves the wind throws you, so stand on the right side to stay on the floor"
-   }
+    "note": "A magic raid-wide, then the arena turns into an X (the wind arena)\n\nThen several things at once:\nstacks on the healers\nMissing Link chains\nwind debuffs (East/West Wind of Change) that throw you left or right\nLegitimate Force: the boss hits half the arena twice\n\nAfter dodging the halves the wind throws you, so stand on the right side to stay on the floor",
+    "refs": [
+     "After Virtual Shift the floor is an X (wind phase) with empty air around it; the wind will push you, so stand on the right side and don't fall off"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex3-queen-eternal/wind-x-arena.webp",
+     "say": "หลัง Virtual Shift สนามเหลือรูปตัว X (ช่วงลม) รอบนอกเป็นที่ว่าง ลมจะผลัก ยืนชิดฝั่งให้ถูกจะได้ไม่ตกสนาม",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/tCEV58kMlCc?t=97"
+    }
+   ]
   },
   {
    "phase": "Virtual Shift ครั้งที่ 1 (ลม)",
@@ -4618,8 +4629,19 @@
     "phase": "Virtual Shift 1 (wind)",
     "mech": "Laws of Wind + Missing Link + Legitimate Force + East/West Wind of Change",
     "name": "② Gather in the middle: chains and wind debuffs",
-    "note": "② After the stacks everyone gathers in the middle\nNow the chain telegraphs (Missing Link) appear\nand everyone gets a wind debuff that will throw them left or right"
-   }
+    "note": "② After the stacks everyone gathers in the middle\nNow the chain telegraphs (Missing Link) appear\nand everyone gets a wind debuff that will throw them left or right",
+    "refs": [
+     "The Missing Link chains coil round the group in the middle (gold ring); whoever is chained runs away from their partner until the chain breaks"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex3-queen-eternal/wind-chains.webp",
+     "say": "โซ่ Missing Link พันรอบตัวตอนรวมกลาง (วงทอง) คนที่ติดโซ่ต้องวิ่งห่างจากคู่จนโซ่ขาด",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/tCEV58kMlCc?t=128"
+    }
+   ]
   },
   {
    "phase": "Virtual Shift ครั้งที่ 1 (ลม)",
@@ -4861,13 +4883,13 @@
     "name": "③ Legitimate Force telegraphs, the chains go live",
     "note": "③ The boss telegraphs a half-arena hit (Legitimate Force), and the chains go live\n\nTip: the boss hits the side of its raised hand first\nIf you lose track of which side comes first, look for the raised hand",
     "refs": [
-     "Legitimate Force: the boss raises a hand with a ring of light like this; it hits the half on the side of the hand raised first"
+     "Legitimate Force: the boss's raised hand with a ring of light (gold ring); it hits the half on the side of the hand raised first"
     ]
    },
    "refs": [
     {
      "src": "frames/ex3-queen-eternal/wind-legitimate-force-hand.webp",
-     "say": "Legitimate Force: มือบอสยกขึ้นพร้อมวงแสงแบบนี้ บอสตีครึ่งสนามฝั่งที่ยกมือขึ้นก่อน",
+     "say": "Legitimate Force: มือบอสที่ยกขึ้นพร้อมวงแสง (วงทอง) บอสตีครึ่งสนามฝั่งที่ยกมือขึ้นก่อน",
      "by": "Hamukatsu",
      "url": "https://youtu.be/UEQrzXo_zbo?t=98"
     }
@@ -7617,8 +7639,19 @@
     "phase": "Virtual Shift 1 (wind)",
     "mech": "Laws of Wind + Missing Link + Legitimate Force + East/West Wind of Change",
     "name": "⑦ The wind debuffs go off",
-    "note": "⑦ The wind debuffs throw you left or right, as the arrows over your head show\nWhoever is thrown east stands at the west edge\nWhoever is thrown west stands at the east edge\nso you land on the floor, not off it, and it ends"
-   }
+    "note": "⑦ The wind debuffs throw you left or right, as the arrows over your head show\nWhoever is thrown east stands at the west edge\nWhoever is thrown west stands at the east edge\nso you land on the floor, not off it, and it ends",
+    "refs": [
+     "The wind debuff on a player: a green bubble with an arrow (gold ring); the wind pushes you left or right the way the arrow points"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex3-queen-eternal/wind-debuff-arrow.webp",
+     "say": "debuff ลมบนตัว: ลูกบอลสีเขียวมีลูกศร (วงทอง) ลมจะผลักไปซ้ายหรือขวาตามลูกศร",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/tCEV58kMlCc?t=144"
+    }
+   ]
   },
   {
    "phase": "Virtual Shift ครั้งที่ 1 (ลม)",
@@ -8741,8 +8774,19 @@
     "phase": "Virtual Shift 2 (earth)",
     "mech": "Legitimate Force + Laws of Earth",
     "name": "① Float up and gather in the middle",
-    "note": "Virtual Shift 2: a raid-wide, then only 2 islands are left (west and east)\nEach island has a gravity device in the middle (the purple dot): touch it to float up; touch it again while floating to land\nOrder: Legitimate Force (half the arena), then towers\nFloat to dodge the halves, then land to take the towers\n\n① Touch a device to float up, then gather in the middle between the 2 islands"
-   }
+    "note": "Virtual Shift 2: a raid-wide, then only 2 islands are left (west and east)\nEach island has a gravity device in the middle (the purple dot): touch it to float up; touch it again while floating to land\nOrder: Legitimate Force (half the arena), then towers\nFloat to dodge the halves, then land to take the towers\n\n① Touch a device to float up, then gather in the middle between the 2 islands",
+    "refs": [
+     "Earth phase: the purple gravity device in the middle of each island (gold rings); touch it to float up, touch it again while floating to land"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex3-queen-eternal/earth-gravity-device.webp",
+     "say": "ช่วงดิน: อุปกรณ์แรงโน้มถ่วงสีม่วงกลางเกาะ (วงทอง) แตะแล้วลอยขึ้น ถ้าลอยอยู่แล้วแตะอีกครั้งจะลงพื้น",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/tCEV58kMlCc?t=229"
+    }
+   ]
   },
   {
    "phase": "Virtual Shift ครั้งที่ 2 (ดิน)",
@@ -9278,13 +9322,13 @@
      "D4": "East island, bottom-right tower"
     },
     "refs": [
-     "The earth towers are golden circles on the islands, 4 per island; land and take one each. Here: the 2 north towers of one island"
+     "The earth towers are golden circles on the islands, 4 per island; once the half-room hits are dodged, land and take yours at once"
     ]
    },
    "refs": [
     {
      "src": "frames/ex3-queen-eternal/earth-towers.webp",
-     "say": "tower ช่วงดินคือวงสีทองบนเกาะ เกาะละ 4 อัน ลงพื้นแล้วเหยียบคนละ 1 อัน ภาพนี้: 2 อันฝั่งเหนือของเกาะหนึ่ง",
+     "say": "tower ช่วงดินคือวงสีทองบนเกาะ เกาะละ 4 อัน หลบครึ่งสนามได้แล้วรีบลงพื้นไปเหยียบ",
      "by": "Hamukatsu",
      "url": "https://youtu.be/UEQrzXo_zbo?t=299"
     }
@@ -9897,8 +9941,19 @@
     "phase": "Virtual Shift 2 (earth)",
     "mech": "Gravitational Empire",
     "name": "① Jobs: tethers / big circles / towers",
-    "note": "① A mix: 2 tethers from the boss, big circle AoE markers on 2 players, and 2 towers on each island (4 in all)\nTethered: float up and go towards the boss\nBig circle: float up, to where your circle hits nobody and the tethers' cones miss you\nNothing: stay on the ground and take a tower\n\nTowers: Melees and tanks in front (north) / Ranges and healers behind (south)\nThe macro's order, north to south: Melee > Tank > Range > Healer\n\ngame8 takes this order from what Hamukatsu actually did in his video"
-   }
+    "note": "① A mix: 2 tethers from the boss, big circle AoE markers on 2 players, and 2 towers on each island (4 in all)\nTethered: float up and go towards the boss\nBig circle: float up, to where your circle hits nobody and the tethers' cones miss you\nNothing: stay on the ground and take a tower\n\nTowers: Melees and tanks in front (north) / Ranges and healers behind (south)\nThe macro's order, north to south: Melee > Tank > Range > Healer\n\ngame8 takes this order from what Hamukatsu actually did in his video",
+    "refs": [
+     "Gravitational Empire brings three at once: big orange circles (2 players' AoE markers), towers on the islands, and tethers from the boss's orb"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex3-queen-eternal/gravitational-empire.webp",
+     "say": "Gravitational Empire มาพร้อมกัน 3 อย่าง: วงใหญ่สีส้ม (เครื่องหมาย AoE 2 คน), tower บนเกาะ และสายจากลูกแก้วของบอส",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/tCEV58kMlCc?t=272"
+    }
+   ]
   },
   {
    "phase": "Virtual Shift ครั้งที่ 2 (ดิน)",
@@ -10856,13 +10911,13 @@
      "D4": "Float up and take your rocks out of the way"
     },
     "refs": [
-     "The meteor marker: a green ring floating over the head; everyone gets one, and a rock drops where you stand, twice"
+     "The meteor marker: a green ring over everyone's head (gold rings); a rock drops where you stand, twice"
     ]
    },
    "refs": [
     {
      "src": "frames/ex3-queen-eternal/meteor-marker.webp",
-     "say": "เครื่องหมายอุกกาบาต: วงเขียวลอยเหนือหัว ทุกคนได้ หินจะตกตรงที่ยืน 2 ครั้ง",
+     "say": "เครื่องหมายอุกกาบาต: วงเขียวลอยเหนือหัวทุกคน (วงทอง) หินจะตกตรงที่ยืน 2 ครั้ง",
      "by": "Nukemaru",
      "url": "https://youtu.be/tCEV58kMlCc?t=316"
     }
@@ -12154,8 +12209,19 @@
     "phase": "Virtual Shift 2 (earth)",
     "mech": "Meteor Impact + Weighty Blow",
     "name": "④ 4 Weighty Blows: hide behind the rocks",
-    "note": "④ The boss fires Weighty Blow 4 times; hide behind a rock each time\nBy the macro: start at the top-left rock and go clockwise\ntop-left > top-right > bottom-right > bottom-left\nIf you are floating, remember to land"
-   }
+    "note": "④ The boss fires Weighty Blow 4 times; hide behind a rock each time\nBy the macro: start at the top-left rock and go clockwise\ntop-left > top-right > bottom-right > bottom-left\nIf you are floating, remember to land",
+    "refs": [
+     "Weighty Blow: the boss fires 4 times; hide behind the rocks on the islands (arrows) so a rock blocks the boss each time"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex3-queen-eternal/weighty-blow-rocks.webp",
+     "say": "Weighty Blow: บอสยิง 4 ครั้ง หลบหลังหินบนเกาะ (ลูกศร) ให้หินบังบอสทุกครั้ง",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/tCEV58kMlCc?t=340"
+    }
+   ]
   },
   {
    "phase": "Virtual Shift ครั้งที่ 2 (ดิน)",
@@ -13002,15 +13068,15 @@
     "name": "Drag the devices into place",
     "note": "Four devices on the 4 edges fire line beams across the arena\nEach device is tethered to a player and follows them\nSee which device is yours, then lead it to its place in the picture\nThink of moving the devices clockwise and you will slip up less\nThe waymarks help you find your spot (see the first step)\n\nIn this picture:\nthe north device sits between A and 1\nthe east one between B and 2\nthe south one between C and 3\nthe west one between D and 4\nEveryone stands on a waymark round the edge, where no beam passes",
     "refs": [
-     "The device is a blue orb with orange tethers to 2 players in a triangle; it slides along with them, then fires a straight beam (the orange strip below)"
+     "The device is the blue orb (gold ring) with orange tethers to 2 players; it slides with them, then fires a straight beam (the orange strips on the floor)"
     ]
    },
    "refs": [
     {
      "src": "frames/ex3-queen-eternal/coronation-device.webp",
-     "say": "อุปกรณ์คือลูกแก้วสีฟ้า มีสายสีส้มไป 2 คนเป็นรูปสามเหลี่ยม อุปกรณ์เลื่อนตามคนถือสาย แล้วยิงลำแสงเส้นตรง (แถบสีส้มด้านล่าง)",
-     "by": "Hamukatsu",
-     "url": "https://youtu.be/UEQrzXo_zbo?t=514"
+     "say": "อุปกรณ์คือลูกแก้วสีฟ้า (วงทอง) มีสายสีส้มไป 2 คน เลื่อนตามคนถือสาย แล้วยิงลำแสงเส้นตรง (แถบสีส้มบนพื้น)",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/tCEV58kMlCc?t=388"
     }
    ]
   },
@@ -14509,9 +14575,20 @@
      "D3": "Stack in the middle (this picture)",
      "D4": "Stack in the middle (this picture)"
     },
-    "plan": "game8's plan"
+    "plan": "game8's plan",
+    "refs": [
+     "Flare shows as white arrows round a player (gold ring), on 4 players; they go out to the edge marks and the rest stack in the middle"
+    ]
    },
-   "plan": "แผน game8"
+   "plan": "แผน game8",
+   "refs": [
+    {
+     "src": "frames/ex3-queen-eternal/absolute-authority-flare.webp",
+     "say": "flare คือลูกศรสีขาวล้อมตัวคน (วงทอง) ได้ 4 คน แยกไปขอบตาม Marker คนที่เหลือ stack กลาง",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/UEQrzXo_zbo?t=589"
+    }
+   ]
   },
   {
    "phase": "สนามปกติ ครั้งที่ 3",
@@ -15674,9 +15751,20 @@
     "mech": "Absolute Authority",
     "name": "⑥ The never-alone debuff: pair up close by",
     "note": "⑥ Right after the flares and the stack, deal with the debuff that explodes if alone (the red triangle overhead), as pictured\nBy the macro, flares that are close to each other pair up\nIn this picture (DPS flared): D1·D3 on the west / D2·D4 on the east / MT ST H1 H2 together in the middle",
-    "plan": "game8's plan"
+    "plan": "game8's plan",
+    "refs": [
+     "The never-alone debuff: a red triangle over the head (gold rings); it explodes if you're alone, so pair up with someone near"
+    ]
    },
-   "plan": "แผน game8"
+   "plan": "แผน game8",
+   "refs": [
+    {
+     "src": "frames/ex3-queen-eternal/absolute-authority-alone.webp",
+     "say": "debuff ห้ามอยู่คนเดียว: สามเหลี่ยมแดงบนหัว (วงทอง) ระเบิดถ้าอยู่คนเดียว ให้จับคู่กับคนใกล้",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/tCEV58kMlCc?t=446"
+    }
+   ]
   },
   {
    "phase": "สนามปกติ ครั้งที่ 3",
@@ -17680,13 +17768,13 @@
     "name": "① Tethers from the 4 south icicles",
     "note": "Virtual Shift 3: a raid-wide, then the arena breaks into 3 islands linked by bridges\nLaws of Ice: keep moving, or you freeze\nThen icicles appear, with distance-falloff tethers to 4 players at a time\nPull the tethers far; the icicles charge (Rush), then the boss hits half the arena, dodged back on the middle island\n\n① The 4 south icicles tether 4 players (here, the DPS)",
     "refs": [
-     "The icicle tether looks like this: a thorny purple line stretched across the islands; here all 8 have one and are pulling it far"
+     "The tethers from the icicles (gold ring) are thorny purple lines across the islands; pull yours far, then the icicle rushes in"
     ]
    },
    "refs": [
     {
      "src": "frames/ex3-queen-eternal/ice-tethers.webp",
-     "say": "สายจากแท่งน้ำแข็งหน้าตาแบบนี้: เส้นสีม่วงมีหนาม ลากข้ามระหว่างเกาะ ภาพนี้ทุกคนมีสายแล้ว กำลังดึงไปให้ไกล",
+     "say": "สายจากแท่งน้ำแข็ง (วงทอง) เป็นเส้นสีม่วงมีหนามลากข้ามเกาะ ดึงสายไปให้ไกล แล้วแท่งน้ำแข็งจะพุ่งชน",
      "by": "Nukemaru",
      "url": "https://youtu.be/tCEV58kMlCc?t=530"
     }
@@ -19459,13 +19547,13 @@
     "name": "② The tethered cross the bridges at once",
     "note": "② The tethered cross the bridges straight away; which bridge is in \"The icicle table\"\nCross to the island diagonal from your icicle: the 2 west icicles go to the east island / the 2 east icicles to the west island",
     "refs": [
-     "Two clear ice bridges under the island's edge lead to the next island; the right one is cracked after someone crossed. The red lines are icicle tethers"
+     "Two clear ice bridges (gold rings) lead to the next island; tether holders cross at once. The right one cracked after a crossing: mind the bridges breaking"
     ]
    },
    "refs": [
     {
      "src": "frames/ex3-queen-eternal/ice-bridges.webp",
-     "say": "สะพานน้ำแข็งใส 2 อันใต้ขอบเกาะ เชื่อมไปเกาะถัดไป อันขวามีรอยร้าวหลังมีคนข้ามไปแล้ว เส้นแดงคือสายจากแท่งน้ำแข็ง",
+     "say": "สะพานน้ำแข็งใส 2 อัน (วงทอง) เชื่อมไปเกาะถัดไป คนถือสายรีบข้าม อันขวาร้าวหลังมีคนข้ามไปแล้ว ระวังสะพานพัง",
      "by": "Hamukatsu",
      "url": "https://youtu.be/UEQrzXo_zbo?t=649"
     }
@@ -37182,13 +37270,13 @@
      "D4": "ST group: spread on the east"
     },
     "refs": [
-     "A green-framed X island stands outside the arena, matching the green floor lines; watch which way the background turns to know which island swaps in"
+     "A green-framed X island stands outside the arena, matching the green floor lines; read the background's turn and stand in the colour of the island swapping in"
     ]
    },
    "refs": [
     {
      "src": "frames/ex3-queen-eternal/radical-shift-island.webp",
-     "say": "เกาะกรอบเขียว (ตัว X) โผล่นอกสนาม และพื้นมีลายเขียวแบบเดียวกัน ดูทิศที่ฉากหลังหมุนเพื่อรู้ว่าเกาะฝั่งไหนจะสลับเข้ามา",
+     "say": "เกาะกรอบเขียว (ตัว X) โผล่นอกสนาม พื้นมีลายเขียวแบบเดียวกัน ดูทิศฉากหลังหมุน แล้วไปยืนในลายสีเดียวกับเกาะที่จะสลับเข้ามา",
      "by": "Hamukatsu",
      "url": "https://youtu.be/UEQrzXo_zbo?t=983"
     }
@@ -39084,13 +39172,13 @@
     "name": "① Moving circles from the north: wait in a gap",
     "note": "Dimensional Distortion: circle AoEs that travel from north to south\nthen the north half of the floor breaks, and towers appear on the west and east\n\n① The markers of the travelling AoEs appear in the north; wait in a gap with nothing in it",
     "refs": [
-     "Dimensional Distortion's marker: a white arrow at the north edge with the first circle; the circles travel the way the arrow points, south"
+     "Dimensional Distortion's markers: white arrows along the north edge with AoE circles; the circles travel south the way they point, so wait in a gap"
     ]
    },
    "refs": [
     {
      "src": "frames/ex3-queen-eternal/dimensional-distortion-arrow.webp",
-     "say": "เครื่องหมาย Dimensional Distortion: ลูกศรสีขาวที่ขอบเหนือพร้อมวง AoE วงแรก วงจะเคลื่อนไปตามลูกศรลงทางใต้",
+     "say": "เครื่องหมาย Dimensional Distortion: ลูกศรสีขาวตามขอบเหนือพร้อมวง AoE วงจะเคลื่อนลงใต้ตามลูกศร รอในช่องว่าง",
      "by": "Nukemaru",
      "url": "https://youtu.be/tCEV58kMlCc?t=763"
     }
@@ -41201,13 +41289,13 @@
      "ST": "Take the east tower"
     },
     "refs": [
-     "The east tower: a red striped ring round a crystal pillar, with the north half glowing orange before it breaks; ST takes this one, MT the west one"
+     "The east tower: a red striped ring round a crystal pillar (gold ring), with the north half glowing before it breaks; ST takes this one, MT the west one"
     ]
    },
    "refs": [
     {
      "src": "frames/ex3-queen-eternal/tyrannys-grasp-tower.webp",
-     "say": "tower ฝั่งตะวันออก: วงแดงลายขีดรอบแท่งคริสตัล พื้นครึ่งเหนือเป็นสีส้มกำลังจะพัง ST เข้าอันนี้ MT เข้าอีกอันฝั่งตะวันตก",
+     "say": "tower ฝั่งตะวันออก: วงแดงลายขีดรอบแท่งคริสตัล (วงทอง) พื้นครึ่งเหนือเป็นสีแดงกำลังพัง ST เข้าอันนี้ MT เข้าอีกอันฝั่งตะวันตก",
      "by": "Nukemaru",
      "url": "https://youtu.be/tCEV58kMlCc?t=778"
     }
