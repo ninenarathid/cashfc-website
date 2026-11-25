@@ -123,7 +123,7 @@ export const STEP_COLUMNS =
 
 /** The same limits v344 holds the database to. */
 export const LIMITS = {
-  name: 80, short: 20, phase: 60, mech: 80, refs: 4, refSay: 160, stepNote: 400, guideNote: 600, say: 200,
+  name: 80, short: 20, phase: 60, mech: 80, refs: 4, refSay: 160, stepNote: 1000, guideNote: 1000, say: 200,
   points: 4, ringMin: 3, ringMax: 30, sourceName: 80, sourceUrl: 300, slug: 40,
 } as const;
 
