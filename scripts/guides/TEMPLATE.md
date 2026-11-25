@@ -91,3 +91,7 @@ ex7 ต้องมีใน ex อื่นด้วย ให้เป็น t
 - Lengths: note ≤ 1000, says ≤ 200, names ≤ 80, ref captions ≤ 160, panel
   titles ≤ 60, panel lines ≤ 40.
 - `node scripts/guides/import.mjs scripts/guides/data/<slug>.json --dry`.
+- After the import (done by the session, not the builder): the Discord card at
+  `/guides/<slug>/opengraph-image` drawn live and looked at — the fight's banner
+  (from `content_key`), its requirements and its prize (the owner, 2026-11-25:
+  "อย่าลืมใส่รูปตอน share discord ให้ด้วย").
