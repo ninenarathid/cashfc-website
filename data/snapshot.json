@@ -1626,7 +1626,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 68,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2130,7 +2130,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 82,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -5751,7 +5751,7 @@
   "mounts": 40,
   "minions": 59,
   "rare": null,
-  "level": 100,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -5772,7 +5772,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-22"
+  "chg": "2026-11-25"
  },
  "2957360": {
   "name": "Break Darkflame",
@@ -6668,7 +6668,7 @@
   "mounts": 32,
   "minions": 95,
   "rare": null,
-  "level": 98,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8196,7 +8196,7 @@
   "mounts": 11,
   "minions": 28,
   "rare": null,
-  "level": 100,
+  "level": 75,
   "cc": [
    false,
    false,
@@ -8262,7 +8262,7 @@
   "mounts": 48,
   "minions": 76,
   "rare": null,
-  "level": 22,
+  "level": 63,
   "cc": [
    false,
    false,
@@ -8560,7 +8560,7 @@
   "mounts": 9,
   "minions": 21,
   "rare": 2,
-  "level": 71,
+  "level": 73,
   "cc": [
    false,
    false,
@@ -8650,7 +8650,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 96,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -8716,7 +8716,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 5,
-  "level": 85,
+  "level": 88,
   "cc": [
    false,
    false,
@@ -9050,7 +9050,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 68,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -9104,7 +9104,7 @@
   "mounts": 101,
   "minions": 207,
   "rare": 16,
-  "level": 97,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -11534,7 +11534,7 @@
   "ult": 0,
   "mounts": 8,
   "minions": 24,
-  "rare": null,
+  "rare": 0,
   "level": 100,
   "cc": [
    false,
@@ -11548,7 +11548,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-08-30"
+  "chg": "2026-11-25"
  },
  "1643244": {
   "name": "Epicenter Eorzea",
@@ -14097,7 +14097,7 @@
   "mounts": 11,
   "minions": 43,
   "rare": null,
-  "level": 73,
+  "level": 82,
   "cc": [
    false,
    false,
@@ -14110,7 +14110,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-24"
+  "chg": "2026-11-25"
  },
  "37143017": {
   "name": "Milly Beee",
