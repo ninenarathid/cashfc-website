@@ -141,11 +141,9 @@ export default function GuideScreen(
         </div>
         {/* As wide as the screen and no wider, so the buttons wrap on a phone. */}
         <div className="flex min-w-0 max-w-full flex-wrap gap-2">
-        {/* Straight to what lies past the fight: the cheatsheet, the macro,
-            the rewards and the talk. */}
+        {/* Straight to what lies past the fight: the rewards and the talk.
+            The cheatsheet and the macro are at the top already. */}
         {!editing && ([
-          [(guide.cheat_panels?.length ?? 0) + (guide.cheat_pics?.length ?? 0) > 0, "#cheatsheet", "guide.cheatsheetJump"],
-          [!!(guide.macro_en || guide.macro_ja), "#macro", "guide.macroJump"],
           [rewards.length > 0, "#rewards", "guide.rewardsJump"],
           [true, "#talk", "guide.talkJump"],
         ] as const).filter(([on]) => on).map(([, href, key]) => (
@@ -194,9 +192,12 @@ export default function GuideScreen(
                      onGuide={setGuide} onSteps={setSteps} />
       ) : (
         <>
-          <Steps steps={steps} seat={seat} />
+          {/* The cheatsheet and the macro first (the owner, 2026-11-25: "ควรอยู่
+              ด้านบน"): what somebody wants just before a pull. Under the role
+              bar, so the cheatsheet is lit for the seat picked there. */}
           <GuideCheatsheet guide={guide} seat={seat} />
           <GuideMacro guide={guide} />
+          <Steps steps={steps} seat={seat} />
           <GuideRewards rewards={rewards} />
           <GuideTalk guideId={guide.id} people={people} />
         </>
