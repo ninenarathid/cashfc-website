@@ -103,7 +103,7 @@ async function main() {
     steps.push({
       sort: i + 1, phase: step.phase ?? null, mech: step.mech ?? null, name: step.name.slice(0, 80),
       note: step.note ?? null, picture, pic_w, pic_h, ring: step.ring ?? defaults.ring ?? 6,
-      spots: sceneSpots(step.scene ?? {}, step.says ?? {}), refs,
+      spots: sceneSpots(step.scene ?? {}, step.says ?? {}, step.strict), refs,
     });
   }
   console.log(`${g.slug}: ${steps.length} steps, ${uploads.length} pictures`);

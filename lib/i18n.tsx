@@ -70,6 +70,7 @@ const DICT = {
   },
   "guide.showAll": { en: "Whole picture", th: "ดูทั้งภาพ" },
   "guide.showMine": { en: "My spot", th: "จุดของฉัน" },
+  "guide.enlarge": { en: "View large", th: "ดูภาพใหญ่" },
   "guide.noSpot": {
     en: "No fixed spot for {seat} here — read the whole picture.",
     th: "{seat} ไม่มีจุดเฉพาะในภาพนี้ ดูภาพรวมได้เลย",

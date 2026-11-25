@@ -161,11 +161,21 @@ export function sceneSvg(scene, defaults = {}) {
   return { svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${out.join("")}</svg>`, w: W, h: H };
 }
 
-/** Where each seat stands in a scene, as the page's spots: percent of the picture. */
-export function sceneSpots(scene, says = {}) {
+/**
+ * Where each seat stands in a scene, as the page's spots: percent of the picture.
+ *
+ * `strict` says which seats get a ring (the owner, 2026-11-25: "วงตำแหน่ง
+ * เฉพาะส่วนที่ strict position จริงๆ"): true or left out, every seat in the
+ * picture; false, none — everybody together, a shape being shown, a rough
+ * place; a list, only those seats. A seat without a ring keeps its line.
+ */
+export function sceneSpots(scene, says = {}, strict = true) {
   const spots = {};
+  const ringed = (seat) => strict === true || strict == null || (Array.isArray(strict) && strict.includes(seat));
   for (const seat of SEATS) {
-    const at = pts(scene.roles?.[seat]).slice(0, 4).map(([x, y]) => [Math.round(x * 10) / 10, Math.round(y * 10) / 10]);
+    const at = ringed(seat)
+      ? pts(scene.roles?.[seat]).slice(0, 4).map(([x, y]) => [Math.round(x * 10) / 10, Math.round(y * 10) / 10])
+      : [];
     const say = says[seat]?.trim();
     if (at.length || say) spots[seat] = { ...(at.length ? { at } : {}), ...(say ? { say } : {}) };
   }

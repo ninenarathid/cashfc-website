@@ -52,6 +52,7 @@ for these, small, until the FC has its own.
       "note": "Thai, for everybody",
       "says": { "MT": "Thai line for MT", "H1": "…" },   // per role, where it differs
       "ring": 6,                              // spotlight radius, % of width (≈ icon size)
+      "strict": true | false | ["MT", "ST"],  // which roles get a ring (below)
       "game8": ["https://img.game8.jp/…/show"],          // the picture this redraws (for the check sheet)
       "refs": [{ "src": "https://img.game8.jp/…/show", "say": "Thai caption" }],
       "scene": { … } | null                    // null: words only
@@ -95,6 +96,12 @@ Colours: `orange` (AoE, the default), `red`, `blue`, `purple`, `yellow`,
 opacity. Shapes are drawn in order, under the waymarks, the boss and the roles.
 
 Every role's position is also the spot the page lights up for that role, so a
-role that is in the picture gets its spotlight for free. Give a role two
+role that is in the picture gets its spotlight for free — but only where the
+position is truly fixed (the owner, 2026-11-25). `strict`: left out or
+`true`, every role in the picture is ringed; `false`, nobody is (everybody
+together in one stack, a picture that shows a shape or a telegraph, a rough
+"somewhere over here"); a list, only those roles (the tanks have a set place,
+the rest are free). A role without a ring sees the whole picture and keeps
+its line. Give a role two
 positions when the plan says "here or there"; leave a role out when the
 picture does not place it.

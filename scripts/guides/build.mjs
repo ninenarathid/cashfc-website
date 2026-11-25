@@ -72,7 +72,7 @@ export async function buildFight(file, { compareDir } = {}) {
     rows.push({
       id: id + i, guide_id: id, sort: i + 1, phase: step.phase ?? null, mech: step.mech ?? null,
       name: step.name, note: step.note ?? null, picture, pic_w, pic_h,
-      ring: step.ring ?? defaults.ring ?? 6, spots: step.scene ? sceneSpots(step.scene, step.says ?? {}) : sceneSpots({}, step.says ?? {}),
+      ring: step.ring ?? defaults.ring ?? 6, spots: sceneSpots(step.scene ?? {}, step.says ?? {}, step.strict),
       refs,
     });
   }

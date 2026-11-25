@@ -11,6 +11,7 @@ import FocusPicture from "@/components/guides/FocusPicture";
 import SeatBar, { useSeat } from "@/components/guides/SeatBar";
 import PartyIcon from "@/components/party/PartyIcon";
 import ImageLightbox from "@/components/ui/ImageLightbox";
+import PictureViewer from "@/components/guides/PictureViewer";
 import {
   CATEGORY_LABEL, GUIDE_COLUMNS, STEP_COLUMNS, cleanStep, inPhases, partyFor, pictureUrl, seatColor,
   type Block, type DutyOption, type GuideRow, type Seat, type StepRow,
@@ -194,6 +195,7 @@ function Source({ name, url }: { name: string; url: string | null }) {
 
 function Steps({ steps, seat }: { steps: StepRow[]; seat: Seat }) {
   const { t } = useLang();
+  const [view, setView] = useState<number | null>(null);
   if (steps.length === 0) {
     return (
       <div className="mt-5 rounded-xl border border-dashed border-line p-10 text-center text-muted">
@@ -204,17 +206,26 @@ function Steps({ steps, seat }: { steps: StepRow[]; seat: Seat }) {
   // One number per thing on the page: a step on its own, or a big mechanic
   // (whose parts are numbered inside it).
   let n = 0;
+  const groups = inPhases(steps);
+  // Every picture in reading order, for the large viewer's ‹ ›.
+  const pictured = groups.flatMap((g) => g.blocks.flatMap((b) => b.steps)).filter((s) => s.picture);
+  const open = (id: number) => setView(Math.max(0, pictured.findIndex((s) => s.id === id)));
   return (
     <div className="mt-4 flex flex-col gap-6">
-      {inPhases(steps).map((group, gi) => (
+      {view !== null && (
+        <PictureViewer steps={pictured} at={view} seat={seat} onMove={setView} onClose={() => setView(null)} />
+      )}
+      {groups.map((group, gi) => (
         <section key={gi}>
           {group.phase && (
             <h2 className="mb-2.5 font-display text-lg font-semibold">{group.phase}</h2>
           )}
-          <div className="grid gap-3 sm:grid-cols-2">
+          {/* minmax(0, 1fr) on a phone too: a lone column of auto width grew to
+              the pictures' drawn width (1200px) and took the page with it. */}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {group.blocks.map((b) => (b.mech
-              ? <MechBox key={`m${b.steps[0].id}`} block={b} seat={seat} n={++n} />
-              : <StepCard key={b.steps[0].id} step={b.steps[0]} seat={seat} label={String(++n)} />))}
+              ? <MechBox key={`m${b.steps[0].id}`} block={b} seat={seat} n={++n} onOpen={open} />
+              : <StepCard key={b.steps[0].id} step={b.steps[0]} seat={seat} label={String(++n)} onOpen={open} />))}
           </div>
         </section>
       ))}
@@ -230,11 +241,13 @@ function Steps({ steps, seat }: { steps: StepRow[]; seat: Seat }) {
  * screen; on a phone the parts sit in a row to swipe through, the next one
  * showing at the edge so it is plain there is more.
  */
-function MechBox({ block, seat, n }: { block: Block; seat: Seat; n: number }) {
+function MechBox(
+  { block, seat, n, onOpen }: { block: Block; seat: Seat; n: number; onOpen: (id: number) => void },
+) {
   const { t } = useLang();
   const k = block.steps.length;
   return (
-    <section className="rounded-xl border border-accent/35 bg-surface/60 p-2.5 sm:col-span-2 sm:p-3">
+    <section className="min-w-0 rounded-xl border border-accent/35 bg-surface/60 p-2.5 sm:col-span-2 sm:p-3">
       <h3 className="flex flex-wrap items-baseline gap-x-2 px-0.5">
         <span className="font-data text-meta text-muted">{n}</span>
         <span className="text-head font-semibold text-ink">{block.mech}</span>
@@ -244,7 +257,7 @@ function MechBox({ block, seat, n }: { block: Block; seat: Seat; n: number }) {
       <ol className="-mx-2.5 mt-2 flex snap-x snap-mandatory gap-2.5 overflow-x-auto px-2.5 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3">
         {block.steps.map((s, i) => (
           <li key={s.id} className={`${k > 1 ? "w-[86%]" : "w-full"} shrink-0 snap-start sm:w-auto`}>
-            <StepCard step={s} seat={seat} label={k > 1 ? `${i + 1}/${k}` : ""} flat />
+            <StepCard step={s} seat={seat} label={k > 1 ? `${i + 1}/${k}` : ""} flat onOpen={onOpen} />
           </li>
         ))}
       </ol>
@@ -253,11 +266,10 @@ function MechBox({ block, seat, n }: { block: Block; seat: Seat; n: number }) {
 }
 
 function StepCard(
-  { step, seat, label, flat = false }:
-  { step: StepRow; seat: Seat; label: string; flat?: boolean },
+  { step, seat, label, flat = false, onOpen }:
+  { step: StepRow; seat: Seat; label: string; flat?: boolean; onOpen: (id: number) => void },
 ) {
   const { t } = useLang();
-  const [whole, setWhole] = useState(false);
   const [openRef, setOpenRef] = useState<number | null>(null);
   const spot = step.spots[seat];
   const points = spot?.at ?? [];
@@ -265,27 +277,25 @@ function StepCard(
   const refUrls = step.refs.map((r) => pictureUrl(r.path)).filter((u): u is string => !!u);
 
   return (
-    <article className={flat ? "h-full rounded-lg border border-line bg-bg/40 p-2" : "rounded-xl border border-line bg-surface p-2.5 sm:p-3"}>
+    <article className={`min-w-0 ${flat ? "h-full rounded-lg border border-line bg-bg/40 p-2" : "rounded-xl border border-line bg-surface p-2.5 sm:p-3"}`}>
       <h3 className="mb-2 flex items-baseline gap-2 px-0.5">
         {label && <span className="font-data text-meta text-muted">{label}</span>}
         <span className="text-title font-semibold text-ink">{step.name}</span>
       </h3>
 
-      {points.length > 0 ? (
-        <button type="button" onClick={() => setWhole((v) => !v)} aria-pressed={whole}
-                aria-label={whole ? t("guide.showMine") : t("guide.showAll")}
-                className="group relative block w-full rounded-lg text-left">
+      {/* A tap opens it large (PictureViewer), still lit on your spot, with
+          the whole picture one more tap away. */}
+      {step.picture && (
+        <button type="button" onClick={() => onOpen(step.id)} aria-label={t("guide.enlarge")}
+                className="group relative block w-full cursor-zoom-in rounded-lg text-left">
           <FocusPicture picture={step.picture} w={step.pic_w} h={step.pic_h} points={points}
-                        ring={step.ring} color={color} focus={!whole} alt={step.name} />
-          <span className="pointer-events-none absolute bottom-2 right-2 inline-flex items-center gap-1 rounded-full border border-line bg-bg/80 px-3 py-1.5 text-ui text-ink/90 backdrop-blur-sm">
-            <span aria-hidden>{whole ? "◎" : "⤢"}</span>
-            {whole ? t("guide.showMine") : t("guide.showAll")}
+                        ring={step.ring} color={color} alt={step.name} />
+          <span className="pointer-events-none absolute bottom-2 right-2 inline-flex items-center gap-1 rounded-full border border-line bg-bg/80 px-3 py-1.5 text-ui text-ink/90 backdrop-blur-sm transition-colors group-hover:border-accent">
+            <span aria-hidden>⤢</span>
+            {t("guide.enlarge")}
           </span>
         </button>
-      ) : step.picture ? (
-        <FocusPicture picture={step.picture} w={step.pic_w} h={step.pic_h} points={[]}
-                      ring={step.ring} color={color} alt={step.name} />
-      ) : null}
+      )}
 
       {/* A step with no picture is words only (a raid-wide, a rule of thumb):
           it says nothing about a spot it never had. */}
