@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useLang } from "@/lib/i18n";
 import ImageLightbox from "@/components/ui/ImageLightbox";
 import FocusPicture from "@/components/guides/FocusPicture";
+import Fold from "@/components/guides/Fold";
 import { inLang, pictureUrl, seatColor, type GuideRow, type Seat } from "@/lib/guides";
 
 /** "From xivjpraids.com", with the link, under what came from there. */
@@ -44,8 +45,7 @@ export function GuideMacro({ guide }: { guide: GuideRow }) {
   };
   const tabCls = (on: boolean) => `min-h-9 rounded-lg border px-3 text-read ${on ? "border-accent bg-accent/15 font-semibold text-accent" : "border-line text-ink hover:border-accent"}`;
   return (
-    <section id="macro" className="mt-6 scroll-mt-[calc(var(--nav-h)+1rem)]">
-      <h2 className="mb-2.5 font-display text-lg font-semibold">{t("guide.macro")}</h2>
+    <Fold id="macro" className="mt-6" title={t("guide.macro")}>
       <div className="rounded-xl border border-line bg-surface p-3">
         <div className="flex flex-wrap items-center gap-1.5">
           {has.en && <button type="button" className={tabCls(tab === "en")} aria-pressed={tab === "en"} onClick={() => setTab("en")}>English</button>}
@@ -59,7 +59,7 @@ export function GuideMacro({ guide }: { guide: GuideRow }) {
              lang={tab === "ja" ? "ja" : "en"}>{text}</pre>
         <Credit guide={guide} />
       </div>
-    </section>
+    </Fold>
   );
 }
 
@@ -78,8 +78,7 @@ export function GuideCheatsheet({ guide, seat }: { guide: GuideRow; seat: Seat }
   const urls = pics.map((p) => pictureUrl(p.path)).filter((u): u is string => !!u);
   const color = seatColor(seat);
   return (
-    <section id="cheatsheet" className="mt-5 scroll-mt-[calc(var(--nav-h)+1rem)]">
-      <h2 className="mb-2.5 font-display text-lg font-semibold">{t("guide.cheatsheet")}</h2>
+    <Fold id="cheatsheet" className="mt-5" title={t("guide.cheatsheet")}>
       <div className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-3">
         {panels.length > 0 && (
           <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
@@ -122,6 +121,6 @@ export function GuideCheatsheet({ guide, seat }: { guide: GuideRow; seat: Seat }
       {open !== null && urls.length > 0 && (
         <ImageLightbox images={urls} at={Math.min(open, urls.length - 1)} onMove={setOpen} onClose={() => setOpen(null)} />
       )}
-    </section>
+    </Fold>
   );
 }

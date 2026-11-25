@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useLang } from "@/lib/i18n";
 import ImageLightbox from "@/components/ui/ImageLightbox";
+import { FoldHead, useFold } from "@/components/guides/Fold";
 import { inLang, pictureUrl, type GuideRow } from "@/lib/guides";
 
 /** The usual make-up of a party of this size. */
@@ -17,6 +18,7 @@ const MAKEUP: Record<number, [number, number, number]> = { 8: [2, 2, 4], 4: [1, 
 export default function GuideNeeds({ guide }: { guide: GuideRow }) {
   const { t, lang } = useLang();
   const [open, setOpen] = useState<number | null>(null);
+  const [shown, toggle] = useFold("needs");
   const unlock = inLang(lang, guide.unlock, guide.unlock_en);
   const pics = guide.unlock_pics ?? [];
   const urls = pics.map((p) => pictureUrl(p.path)).filter((u): u is string => !!u);
@@ -34,7 +36,10 @@ export default function GuideNeeds({ guide }: { guide: GuideRow }) {
 
   return (
     <section className="mt-3 rounded-xl border border-line bg-surface px-3.5 py-3">
-      <h2 className="font-data text-meta font-semibold text-muted">{t("guide.req")}</h2>
+      <h2 className="font-data text-meta font-semibold text-muted">
+        <FoldHead open={shown} onToggle={toggle} controls="needs-body" className="min-h-8">{t("guide.req")}</FoldHead>
+      </h2>
+      <div id="needs-body" hidden={!shown}>
       {chips.length > 0 && (
         <div className="mt-1.5 flex flex-wrap gap-1.5">
           {chips.map((c) => (
@@ -67,6 +72,7 @@ export default function GuideNeeds({ guide }: { guide: GuideRow }) {
       {open !== null && urls.length > 0 && (
         <ImageLightbox images={urls} at={Math.min(open, urls.length - 1)} onMove={setOpen} onClose={() => setOpen(null)} />
       )}
+      </div>
     </section>
   );
 }

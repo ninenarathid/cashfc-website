@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useLang } from "@/lib/i18n";
 import ImageLightbox from "@/components/ui/ImageLightbox";
+import Fold from "@/components/guides/Fold";
 import { inLang, pictureUrl, type RewardRow } from "@/lib/guides";
 
 /**
@@ -19,12 +20,11 @@ export default function GuideRewards({ rewards }: { rewards: RewardRow[] }) {
   const { t } = useLang();
   if (rewards.length === 0) return null;
   return (
-    <section id="rewards" className="mt-8 scroll-mt-[calc(var(--nav-h)+1rem)]">
-      <h2 className="mb-2.5 font-display text-lg font-semibold">{t("guide.rewards")}</h2>
+    <Fold id="rewards" className="mt-8" title={t("guide.rewards")}>
       <div className="flex flex-col gap-3">
         {rewards.map((r) => <RewardCard key={r.id} r={r} />)}
       </div>
-    </section>
+    </Fold>
   );
 }
 
