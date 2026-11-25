@@ -42,7 +42,9 @@ const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, 
       }
     } else if (m.t === "label") {
       const size = m.size ?? 34, lh = Math.round(size * 1.3), pad = 14;
-      const width = Math.max(...m.lines.map((l) => l.length)) * size * 0.62 + pad * 2;
+      // The box fits the text as drawn (Thai vowel and tone marks take no width).
+      const drawn = async (l) => (await sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${l.length * size + 40}" height="${size * 2}"><text x="20" y="${size * 1.4}" font-family="Leelawadee UI, Tahoma, Arial" font-size="${size}" font-weight="700" fill="#fff">${esc(l)}</text></svg>`)).trim().toBuffer({ resolveWithObject: true })).info.width;
+      const width = Math.max(...(await Promise.all(m.lines.map(drawn)))) + pad * 2;
       const height = m.lines.length * lh + pad * 1.4;
       const anchor = m.anchor ?? "start";
       const x0 = anchor === "middle" ? m.at[0] - width / 2 : m.at[0];

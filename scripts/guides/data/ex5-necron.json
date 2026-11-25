@@ -79,7 +79,7 @@
    "refs": [
     {
      "src": "frames/ex5-necron/blue-shockwave.webp",
-     "say": "cone สีแดงของ Blue Shockwave พุ่งไปที่ Tank ที่มุมสนาม ปลาย cone ชี้ออกนอกสนาม",
+     "say": "Blue Shockwave: cone สีแดงพุ่งไปที่ Tank ที่มุมสนาม (วงสีทอง) ปลาย cone ชี้ออกนอกสนาม",
      "by": "Nukemaru",
      "url": "https://youtu.be/-YhoKrmlZmM?t=42"
     }
@@ -95,7 +95,7 @@
      "ST": "Mitigate and tank swap for the 2nd, in a corner; angle the cone out of the arena"
     },
     "refs": [
-     "Blue Shockwave's red cone on the tank in the corner, pointing out of the arena"
+     "Blue Shockwave: the red cone on the tank in the corner (gold ring), pointing out of the arena"
     ]
    }
   },
@@ -111,9 +111,9 @@
    "refs": [
     {
      "src": "frames/ex5-necron/fear-of-death-hands.webp",
-     "say": "Icy Hands โผล่ขึ้นจากบ่อบนพื้น",
+     "say": "Fear of Death: Icy Hands โผล่ขึ้นจากบ่อสีม่วงบนพื้น (วงสีทอง) แต่ละคนล่อแนวยิงของมือตัวเองออกนอกสนาม",
      "by": "Nukemaru",
-     "url": "https://youtu.be/-YhoKrmlZmM?t=69"
+     "url": "https://youtu.be/-YhoKrmlZmM?t=68"
     }
    ],
    "ring": 6,
@@ -1396,7 +1396,7 @@
     "name": "① Spread loosely",
     "note": "A magic raid-wide, then 8 small mud puddles on the floor; mud falls on them and Icy Hands rise out\nEach hand fires a line AoE at the nearest player: everyone baits their own hand so the line hits nobody else\n\n① After the raid-wide, spread loosely near the hand you are assigned\nThere is very little time between a hand rising and its line: be near your spot beforehand\nWhere a hand rises does no damage; you can walk through it\nBut standing in a puddle before the hand rises gets you hit by the falling mud",
     "refs": [
-     "Icy Hands rising from the puddles"
+     "Fear of Death: Icy Hands rise from the purple puddles (gold rings); each player baits their own hand's line out of the arena"
     ]
    }
   },
@@ -4234,12 +4234,23 @@
    "name": "AoE สองข้าง แล้วฝั่งแขนดำขยาย",
    "note": "AoE แนวตรงทั้งสองข้างของสนาม: safe คือแนวกลาง\nแขนบอสข้างที่เรืองแสงสีดำ: AoE ฝั่งนั้นจะขยายกว้างกว่าครึ่งสนาม\n\nหลบ AoE สองข้างที่แนวกลางก่อน\nแล้วรีบไปฝั่งแขนที่ไม่ได้เรืองแสงสีดำทันที",
    "strict": false,
+   "refs": [
+    {
+     "src": "frames/ex5-necron/cold-grip-dark-arm.webp",
+     "say": "ก่อน Cold Grip: แขนบอสข้างที่เรืองแสงสีดำ (วงสีทอง) = AoE ฝั่งนั้นกว้างกว่าครึ่งสนาม หลบสองข้างที่แนวกลาง แล้วไปอีกฝั่ง",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/-YhoKrmlZmM?t=79"
+    }
+   ],
    "scene": null,
    "en": {
     "phase": "First part",
     "mech": "Cold Grip",
     "name": "Both sides, then the dark arm's side grows",
-    "note": "Line AoEs down both sides of the arena: the middle line is safe\nThe side of the boss's arm that glows black: that side's AoE grows past half the arena\n\nDodge both sides in the middle first\nthen move at once to the side whose arm is not glowing black"
+    "note": "Line AoEs down both sides of the arena: the middle line is safe\nThe side of the boss's arm that glows black: that side's AoE grows past half the arena\n\nDodge both sides in the middle first\nthen move at once to the side whose arm is not glowing black",
+    "refs": [
+     "Before Cold Grip: the boss arm glowing black (gold ring) = that side's AoE covers more than half; dodge the sides in the middle, then go to the other side"
+    ]
    }
   },
   {
@@ -4260,6 +4271,14 @@
    },
    "game8": [
     "https://img.game8.jp/11643693/fb5d6334590696ec7a8e498eedbd533e.webp/show"
+   ],
+   "refs": [
+    {
+     "src": "frames/ex5-necron/memento-mori-hands.webp",
+     "say": "Memento Mori: มือบอสข้างหนึ่งเรืองแสงสีขาว อีกข้างสีดำ ฝั่งมือดำ: Tank / ฝั่งมือขาว: DPS กับ Healer",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/-YhoKrmlZmM?t=116"
+    }
    ],
    "ring": 6,
    "scene": {
@@ -5329,7 +5348,10 @@
      "D4": "Light side, bottom row, east",
      "MT": "Dark side, west",
      "ST": "Dark side, east"
-    }
+    },
+    "refs": [
+     "Memento Mori: one boss hand glows white, the other black. Black side: tanks / white side: DPS and healers"
+    ]
    }
   },
   {
@@ -6702,9 +6724,9 @@
    "refs": [
     {
      "src": "frames/ex5-necron/memento-mori-smite.webp",
-     "say": "Smite of Gloom: วงสีชมพูขนาดใหญ่บนทุกคน และมือสีดำในแนวกลาง",
+     "say": "Smite of Gloom: วง AoE สีชมพูขนาดใหญ่บนทุกคน และมือสีดำในแนวกลาง หลบแนวยิงของมือ แล้ววางวงตามจุด",
      "by": "Nukemaru",
-     "url": "https://youtu.be/-YhoKrmlZmM?t=110"
+     "url": "https://youtu.be/-YhoKrmlZmM?t=109"
     }
    ],
    "ring": 6,
@@ -8123,7 +8145,7 @@
      "ST": "East side, the middle gap, at the edge"
     },
     "refs": [
-     "Smite of Gloom: huge pink circles on everyone, and the dark hands in the middle strip"
+     "Smite of Gloom: huge pink circles on everyone and the dark hands in the middle strip; dodge the hands' lines and drop your circle on your spot"
     ]
    }
   },
@@ -8139,9 +8161,15 @@
    "refs": [
     {
      "src": "frames/ex5-necron/soul-reaping-line.webp",
-     "say": "Soul Reaping: ในวงของบอสมีแท่งสีฟ้าแนวตั้งตรงกลาง เหมือนไอคอนในภาพ = แนวตรงกลางสนาม",
+     "say": "Soul Reaping: ในวงของบอสมีแท่งสีฟ้าแนวตั้งตรงกลาง = AoE แนวตรงกลางสนาม: จำว่า out",
      "by": "Nukemaru",
      "url": "https://youtu.be/-YhoKrmlZmM?t=188"
+    },
+    {
+     "src": "frames/ex5-necron/soul-reaping-sides.webp",
+     "say": "Soul Reaping: แท่งสีฟ้าสองข้างของวงบอส ตรงกลางมืด = AoE แนวตรงสองข้าง: จำว่า in",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/-YhoKrmlZmM?t=148"
     }
    ],
    "ring": 6,
@@ -9190,7 +9218,8 @@
     "name": "① Soul Reaping: just remember in or out",
     "note": "Soul Reaping: the boss stores an AoE and lets it go later; just remember in or out:\nAoE down the middle line = out (go to the two sides)\nAoE down the two side lines = in (go to the middle line)\n\nWhen Twofold / Fourfold Blight lets it go, be in or out as remembered, and stack:\nTwofold Blight = 4:4 stacks by group\nFourfold Blight = pair stacks\n\nIt comes twice; the 2nd is let go after Fear of Death + The End's Embrace and Blue Shockwave\nIn this picture: the AoE down the middle line = out",
     "refs": [
-     "Soul Reaping: a vertical blue bar in the boss's ring, like the icon in the picture = a line down the middle"
+     "Soul Reaping: one blue bar down the middle of the boss's ring = a line down the middle: remember out",
+     "Soul Reaping: blue bars on both sides of the boss's ring, dark in the middle = lines on both sides: remember in"
     ]
    }
   },
@@ -12112,9 +12141,9 @@
    "refs": [
     {
      "src": "frames/ex5-necron/blight-beams.webp",
-     "say": "Twofold Blight เมื่อแนวกลาง safe: ลำแสงสีฟ้าพุ่งไปหาแต่ละกลุ่ม 4 คน",
+     "say": "Twofold Blight ตอน AoE สองข้าง (in): ลำแสงสีฟ้าพุ่งไปหาสองกลุ่มที่ stack 4:4 ในแนวกลาง (วงสีทอง)",
      "by": "Nukemaru",
-     "url": "https://youtu.be/-YhoKrmlZmM?t=178"
+     "url": "https://youtu.be/-YhoKrmlZmM?t=180"
     }
    ],
    "ring": 6,
@@ -13446,7 +13475,7 @@
      "D4": "in: Stack with the east group, north"
     },
     "refs": [
-     "Twofold Blight with the middle safe: blue beams shoot at each group of 4"
+     "Twofold Blight with lines on both sides (in): blue beams hit the two groups stacked 4:4 in the middle strip (gold rings)"
     ]
    }
   },
@@ -20143,9 +20172,9 @@
    "refs": [
     {
      "src": "frames/ex5-necron/grand-cross.webp",
-     "say": "Grand Cross: สนามเป็นวงกลม มีลูกแก้วสีฟ้าอยู่รอบขอบสนาม",
+     "say": "Grand Cross: สนามกลายเป็นวงกลม มีลูกแก้วสีฟ้ารอบขอบ (วงสีทอง) หลบ AoE แนวตรงที่หมุนรอบขอบสนาม",
      "by": "Nukemaru",
-     "url": "https://youtu.be/-YhoKrmlZmM?t=290"
+     "url": "https://youtu.be/-YhoKrmlZmM?t=274"
     }
    ],
    "ring": 6,
@@ -20260,7 +20289,7 @@
      "D3": "H1·D3 area: south-west/west"
     },
     "refs": [
-     "Grand Cross: the arena turns round, with blue orbs around its edge"
+     "Grand Cross: the arena turns round, with blue orbs around the edge (gold rings); dodge the lines sweeping round the edge"
     ]
    }
   },
@@ -21414,12 +21443,23 @@
    "name": "raid-wide สนามกลับเป็นปกติ",
    "note": "AoE เวททั้งปาร์ตี้ (raid-wide)\nพอโดนแล้ว สนามที่เปลี่ยนตอน Grand Cross กลับเป็นสนามปกติ",
    "strict": false,
+   "refs": [
+    {
+     "src": "frames/ex5-necron/neutron-ring.webp",
+     "say": "Neutron Ring: โดมสีฟ้าคลุมทั้งสนาม = AoE ทั้งปาร์ตี้ (raid-wide) โดนแล้วสนามกลับเป็นสนามปกติ",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/-YhoKrmlZmM?t=328"
+    }
+   ],
    "scene": null,
    "en": {
     "phase": "Grand Cross",
     "mech": "Neutron Ring",
     "name": "Raid-wide; the arena returns",
-    "note": "A magic raid-wide\nOnce it lands, the arena Grand Cross changed goes back to normal"
+    "note": "A magic raid-wide\nOnce it lands, the arena Grand Cross changed goes back to normal",
+    "refs": [
+     "Neutron Ring: a blue dome over the whole arena = raid-wide; afterwards the arena goes back to normal"
+    ]
    }
   },
   {
@@ -21435,9 +21475,9 @@
    "refs": [
     {
      "src": "frames/ex5-necron/adds-beckoning-hand.webp",
-     "say": "Beckoning Hands: มือขนาดใหญ่ที่ Tank ต้องดึง hate",
+     "say": "Beckoning Hands: มือใหญ่ (วงสีทอง) ใช้ tankbuster ใส่คนที่ hate อันดับ 1: Tank ต้องดึง hate ไว้",
      "by": "Nukemaru",
-     "url": "https://youtu.be/-YhoKrmlZmM?t=346"
+     "url": "https://youtu.be/-YhoKrmlZmM?t=350"
     }
    ],
    "scene": null,
@@ -21451,7 +21491,7 @@
      "ST": "Take the Beckoning Hands and turn their AoE out to the edge"
     },
     "refs": [
-     "Beckoning Hands: the big hands the tanks must take"
+     "Beckoning Hands: the big hand (gold ring) tankbusters whoever is first on hate: the tanks must hold it"
     ]
    }
   },
@@ -21474,7 +21514,7 @@
    "refs": [
     {
      "src": "frames/ex5-necron/eternity-jump-pad.webp",
-     "say": "พื้นวงกลมที่กระโดดได้: ฆ่า Add เสร็จแล้วขึ้นไปยืน เพื่อกลับสนามปกติ",
+     "say": "Darkness of Eternity: ฆ่า Add เสร็จแล้ว ขึ้นไปยืนบนพื้นวงกลมนี้ (วงสีทอง) เพื่อกลับสนามปกติ",
      "by": "Nukemaru",
      "url": "https://youtu.be/-YhoKrmlZmM?t=470"
     }
@@ -21496,7 +21536,7 @@
      "D4": "Dodge the two adds' AoEs and kill them"
     },
     "refs": [
-     "The round jump floor: step on it after your add dies to go back to the arena"
+     "Darkness of Eternity: after your add dies, step onto this round floor (gold ring) to go back to the arena"
     ]
    }
   },
@@ -21512,9 +21552,9 @@
    "refs": [
     {
      "src": "frames/ex5-necron/specter-of-death.webp",
-     "say": "Specter of Death: มือยักษ์โผล่ที่ขอบสนาม มีสายโยงมาจากบอส",
+     "say": "Specter of Death: บอสโยงสายไปขอบสนาม มือยักษ์โผล่ที่ปลายสาย (วงสีทอง) แล้วยิง AoE แนวตรงจากตรงนั้น",
      "by": "Nukemaru",
-     "url": "https://youtu.be/-YhoKrmlZmM?t=492"
+     "url": "https://youtu.be/-YhoKrmlZmM?t=490"
     }
    ],
    "ring": 6,
@@ -22647,7 +22687,7 @@
     "name": "① Tethers from the boss to the edge",
     "note": "Specter of Death: the boss tethers two spots on the edge\nTwo giant hands rise at the tethers' ends and fire line AoEs from there\nIn this picture: hands at the west edge, low, and the east edge, high",
     "refs": [
-     "Specter of Death: a giant hand rises at the edge, tethered to the boss"
+     "Specter of Death: the boss tethers to the arena edge; a giant hand rises at the tether's end (gold ring) and fires a line from there"
     ]
    }
   },
@@ -22669,6 +22709,14 @@
    },
    "game8": [
     "https://img.game8.jp/11643824/77d2901f065ed8035904342d334d1c1b.webp/show"
+   ],
+   "refs": [
+    {
+     "src": "frames/ex5-necron/ends-embrace-circles.webp",
+     "say": "The End's Embrace: วง AoE สีส้มใต้ทุกคน วางที่จุดของตัวเองใน safe zone",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/-YhoKrmlZmM?t=498"
+    }
    ],
    "ring": 6,
    "scene": {
@@ -24016,7 +24064,10 @@
      "D2": "East, top row, inner",
      "H2": "East, bottom row, outer",
      "D4": "East, bottom row, inner"
-    }
+    },
+    "refs": [
+     "The End's Embrace: an orange circle under everyone; drop it on your own spot in the safe zone"
+    ]
    }
   },
   {
@@ -25364,6 +25415,14 @@
    "game8": [
     "https://img.game8.jp/11643919/38b9a9c4eefb21a34b0d93b3680510bd.webp/show"
    ],
+   "refs": [
+    {
+     "src": "frames/ex5-necron/relentless-reaping-souls.webp",
+     "say": "Relentless Reaping: AoE แต่ละแบบโผล่ในวงบอสทีละแบบ แล้วไปเป็นวงเล็กรอบบอส (วงสีทอง) จำนวนเครื่องหมายสีฟ้า = ลำดับ",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/-YhoKrmlZmM?t=765"
+    }
+   ],
    "ring": 6,
    "scene": {
     "arena": {
@@ -26528,7 +26587,10 @@
     "phase": "Second part",
     "mech": "Relentless Reaping + Crop Rotation + The Second / Fourth Season",
     "name": "① Remember 4 AoEs in order",
-    "note": "Relentless Reaping: the boss prepares 4 AoEs in order\nCrop Rotation: changes the order\nThe Second Season or The Fourth Season: releases them in order, with stacks at the end\n\nEvery one of the 4 is dodged by going in (close to the boss) or out (away from it):\nIn: donut / lines down both sides\nOut: a line down the middle / a circle around the boss\nIt is easier to remember them as in/out\n\nIn this picture: 1 middle line / 2 donut / 3 circle around the boss / 4 side lines"
+    "note": "Relentless Reaping: the boss prepares 4 AoEs in order\nCrop Rotation: changes the order\nThe Second Season or The Fourth Season: releases them in order, with stacks at the end\n\nEvery one of the 4 is dodged by going in (close to the boss) or out (away from it):\nIn: donut / lines down both sides\nOut: a line down the middle / a circle around the boss\nIt is easier to remember them as in/out\n\nIn this picture: 1 middle line / 2 donut / 3 circle around the boss / 4 side lines",
+    "refs": [
+     "Relentless Reaping: each AoE shows in the boss's ring one at a time, then becomes a small ring round the boss (gold rings); its number of blue marks = its order"
+    ]
    }
   },
   {
@@ -26543,9 +26605,9 @@
    "refs": [
     {
      "src": "frames/ex5-necron/crop-rotation.webp",
-     "say": "หลัง Crop Rotation: วงรอบบอสแต่ละวงมีเครื่องหมายสีฟ้า 1–4 อัน เหมือนในภาพ",
+     "say": "หลัง Crop Rotation: เริ่มที่วงใต้ marker ตรงหน้าบอส (วงสีทอง ภาพนี้ 2 เครื่องหมาย = เริ่มที่ 2) แล้ววนตามเข็มนาฬิกา",
      "by": "Nukemaru",
-     "url": "https://youtu.be/-YhoKrmlZmM?t=582"
+     "url": "https://youtu.be/-YhoKrmlZmM?t=576"
     }
    ],
    "ring": 6,
@@ -27744,7 +27806,7 @@
     "name": "② Crop Rotation: a new starting point",
     "note": "Crop Rotation changes the order of the AoEs\nIt does not shuffle them (1234 never becomes 4231): it only changes which AoE goes first, then the same order wraps round\nStarting at 3, say: 3 > 4 > 1 > 2\n\ngame8's example:\nBefore: 1 in > 2 out > 3 out > 4 in\nAfter Crop Rotation: 3 out > 4 in > 1 in > 2 out\n\ngame8's team suggests, if remembering is hard: make two macros, /echo IN (go close) and /echo OUT (go away), and press them in the order the boss shows; the text stays in your chat\nChange /echo to /p to put it in party chat, but only one person should do it, or it gets confusing",
     "refs": [
-     "After Crop Rotation: each ring around the boss carries 1–4 blue marks, as in the picture"
+     "After Crop Rotation: start from the ring under the marker in front of the boss (gold ring; 2 marks here = start at 2), then go clockwise"
     ]
    }
   },
@@ -44061,7 +44123,7 @@
    "refs": [
     {
      "src": "frames/ex5-necron/circle-of-lives.webp",
-     "say": "Circle of Lives: ลูกแก้วสีฟ้าบนสนาม มีวงล้อมรอบ แต่ละลูกปล่อย donut",
+     "say": "Circle of Lives: ลูกแก้วสีฟ้าบนสนาม (วงสีทอง) แต่ละลูกปล่อย donut ทีละลูกตามลำดับ",
      "by": "Nukemaru",
      "url": "https://youtu.be/-YhoKrmlZmM?t=621"
     }
@@ -45187,7 +45249,7 @@
     "name": "① Five orbs",
     "note": "Circle of Lives: five orbs appear, and each releases a donut, one after another\nWhile you dodge the donuts the boss also casts Specter of Death and Soul Reaping + Twofold/Fourfold Blight: do them as you go",
     "refs": [
-     "Circle of Lives: blue orbs on the field, ringed; each releases a donut"
+     "Circle of Lives: blue orbs on the field (gold rings); each releases a donut, one after another"
     ]
    }
   },
@@ -53842,9 +53904,9 @@
    "refs": [
     {
      "src": "frames/ex5-necron/mass-macabre-towers.webp",
-     "say": "Mass Macabre: tower สีชมพูหลายอันบนพื้น",
+     "say": "Mass Macabre: tower สีชมพูบนพื้น (วงสีทอง) เข้าแล้วติด debuff สั้นๆ รอ debuff หายก่อนเข้าอันถัดไป",
      "by": "Nukemaru",
-     "url": "https://youtu.be/-YhoKrmlZmM?t=709"
+     "url": "https://youtu.be/-YhoKrmlZmM?t=704"
     }
    ],
    "ring": 6,
@@ -55648,7 +55710,7 @@
      "D4": "② > ③ > ⑧ > ⑩"
     },
     "refs": [
-     "Mass Macabre: pink towers on the floor"
+     "Mass Macabre: pink towers on the floor (gold rings); a tower leaves a short debuff, wait for it to end before the next one"
     ]
    }
   },
@@ -60867,6 +60929,14 @@
    "game8": [
     "https://img.game8.jp/11644080/03b6d1bc8a60b1a2337eb09b9cb696fa.webp/show"
    ],
+   "refs": [
+    {
+     "src": "frames/ex5-necron/mass-macabre-tankbuster.webp",
+     "say": "tankbuster ระหว่าง Mass Macabre: cone สีแดงใส่ MT ที่มุมสนาม (วงสีทอง) คนอื่นที่ไม่ใช่ Tank เข้า tower 3 คน",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/-YhoKrmlZmM?t=716"
+    }
+   ],
    "ring": 6,
    "scene": {
     "arena": {
@@ -62468,7 +62538,10 @@
      "D3": "Tower ⑧ south-west",
      "D4": "Tower ⑧ south-west",
      "H1": "Tower ⑧ south-west"
-    }
+    },
+    "refs": [
+     "The tankbuster during Mass Macabre: a red cone on the MT in the corner (gold ring); everyone but the tanks takes the 3-person towers"
+    ]
    }
   },
   {
