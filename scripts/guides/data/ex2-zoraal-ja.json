@@ -96,6 +96,20 @@
    "game8": [
     "https://img.game8.jp/10205672/2bbd4bc6e0a1b86f3549bf45008e2cbb.png/show"
    ],
+   "refs": [
+    {
+     "src": "frames/ex2-zoraal-ja/divide-x.webp",
+     "say": "Multidirectional Divide: แถบสีส้มรูปตัว X บนพื้น = AoE ที่ขึ้นก่อน",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/2Yq4hrQQsNI?t=27"
+    },
+    {
+     "src": "frames/ex2-zoraal-ja/divide-cuts.webp",
+     "say": "จากนั้นมีเส้นเหลืองขึ้นตามแนว X = รอยตัด ซึ่งยิง AoE เป็นเส้นตรงออกไปด้วย",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/2Yq4hrQQsNI?t=33"
+    }
+   ],
    "scene": {
     "shapes": [
      {
@@ -948,7 +962,11 @@
     "phase": "First phase (full arena)",
     "mech": "Multidirectional Divide + Forward Half / Backward Half",
     "name": "① The X, then the cuts",
-    "note": "Two attacks at once:\nan X-shaped AoE (Multidirectional Divide)\nthe boss's front or back half + one side half, set by its sword (Forward Half / Backward Half)\n\n① The X appears first, then cuts appear at several points along it\nThe cuts fire straight line AoEs too, so watch them"
+    "note": "Two attacks at once:\nan X-shaped AoE (Multidirectional Divide)\nthe boss's front or back half + one side half, set by its sword (Forward Half / Backward Half)\n\n① The X appears first, then cuts appear at several points along it\nThe cuts fire straight line AoEs too, so watch them",
+    "refs": [
+     "Multidirectional Divide: the orange X-shaped bands on the floor = the AoE that comes first",
+     "Then yellow lines appear along the X = the cuts, which fire straight line AoEs too"
+    ]
    }
   },
   {
@@ -963,9 +981,9 @@
    "refs": [
     {
      "src": "frames/ex2-zoraal-ja/half-glowing-sword.webp",
-     "say": "ดาบ 2 เล่มของบอส: เล่มขวาในภาพเรืองแสงสีฟ้า เล่มซ้ายไม่เรือง / Forward Half ปลอดภัยหน้าบอสฝั่งดาบเรือง / Backward Half ปลอดภัยหลังบอสฝั่งดาบไม่เรือง",
+     "say": "ดาบ 2 เล่มของบอส: เล่มขวาในภาพเรืองแสงสีฟ้า (วงทอง) เล่มซ้ายไม่เรือง / Forward Half ปลอดภัยหน้าบอสฝั่งดาบเรือง / Backward Half หลังบอสฝั่งดาบไม่เรือง",
      "by": "Hamukatsu",
-     "url": "https://youtu.be/2Yq4hrQQsNI?t=64"
+     "url": "https://youtu.be/2Yq4hrQQsNI?t=44"
     }
    ],
    "scene": {
@@ -1897,7 +1915,7 @@
     "name": "② The Half cast starts: read the glowing sword",
     "note": "② The boss starts casting Forward Half or Backward Half; the safe spot depends on which\nThe blue triangle in the picture = the side of the sword that glows\nThe red ring = the boss's target circle\n\nForward Half: safe in front of the boss, on the glowing sword's side\nBackward Half: safe behind the boss, on the side of the sword that does not glow",
     "refs": [
-     "The boss's 2 swords: the right one here glows blue, the left does not / Forward Half: safe in front, glowing side / Backward Half: safe behind, other side"
+     "The boss's 2 swords: the right one glows blue (gold ring), the left does not / Forward Half: safe in front, glowing side / Backward Half: behind, other side"
     ]
    }
   },
@@ -3503,9 +3521,9 @@
    "refs": [
     {
      "src": "frames/ex2-zoraal-ja/divide-x-tethers.webp",
-     "say": "เส้นสีเหลืองบนพื้นที่ตัดกันเป็นตาราง = แนว X และรอยตัดของ Multidirectional Divide / เส้นประสีแดงจากบอส = สายของ Regicidal Rage ที่ Tank ต้องรับ",
+     "say": "เส้นแดง 2 เส้นจากบอส = สายของ Regicidal Rage ที่ MT กับ ST รับคนละเส้น / เส้นเหลืองบนพื้น = แนว X และรอยตัดของ Multidirectional Divide",
      "by": "Hamukatsu",
-     "url": "https://youtu.be/2Yq4hrQQsNI?t=88"
+     "url": "https://youtu.be/2Yq4hrQQsNI?t=84"
     }
    ],
    "scene": {
@@ -4445,7 +4463,7 @@
      "ST": "Take one tether"
     },
     "refs": [
-     "The yellow lines crossing on the floor = Multidirectional Divide's X and its cuts / the red dashed lines from the boss = Regicidal Rage's tethers, for the tanks"
+     "The 2 red lines from the boss = Regicidal Rage's tethers, one each for MT and ST / the yellow lines on the floor = Multidirectional Divide's X and cuts"
     ]
    }
   },
@@ -6108,9 +6126,9 @@
    "refs": [
     {
      "src": "frames/ex2-zoraal-ja/vollok-sync-floor.webp",
-     "say": "พื้นรอบนอกที่ขอบเรืองสีฟ้า = พื้นที่ Sync เชื่อมกับพื้นกลาง / ช่องสีส้มที่มีดาบปัก = ช่องเดียวกันบนพื้นกลางโดน AoE ด้วย",
+     "say": "พื้นรอบนอกที่ขอบเรืองสีฟ้า = พื้นที่ Sync เชื่อมกับพื้นกลาง / ช่องสีส้มที่มีดาบปัก (วงทอง) = ช่องเดียวกันบนพื้นกลางโดน AoE ด้วย",
      "by": "Hamukatsu",
-     "url": "https://youtu.be/2Yq4hrQQsNI?t=868"
+     "url": "https://youtu.be/2Yq4hrQQsNI?t=131"
     }
    ],
    "scene": {
@@ -8316,7 +8334,7 @@
     "name": "② Swords land, Sync links 2 floors",
     "note": "② Blade Warp: swords stick into every outer floor\nSync: 2 outer floors glow blue (the blue edges in the picture) and link to the middle floor\n\nEvery tile with a sword on a blue floor gets an AoE on the same tile of the middle floor too",
     "refs": [
-     "An outer floor with glowing blue edges = a Sync floor, linked to the middle one / each orange tile with a sword = the same tile on the middle floor is hit too"
+     "Outer floors with glowing blue edges = Sync floors, linked to the middle / each orange tile with a sword (gold rings) = that tile of the middle floor is hit too"
     ]
    }
   },
@@ -8328,6 +8346,14 @@
    "strict": false,
    "game8": [
     "https://img.game8.jp/10205697/ee22cb66e892bc03d6203580485bd355.png/show"
+   ],
+   "refs": [
+    {
+     "src": "frames/ex2-zoraal-ja/half-full-sword.webp",
+     "say": "Half Full: ดาบของบอสโผล่ยาวออกไปทางขวาในภาพ (แสงสีฟ้า) = ครึ่งสนามฝั่งนั้นจะโดน",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/2Yq4hrQQsNI?t=144"
+    }
    ],
    "scene": {
     "shapes": [
@@ -10375,7 +10401,10 @@
     "phase": "Split floors 1",
     "mech": "Vollok + Sync + Half Full",
     "name": "③ Half Full is cast",
-    "note": "③ The boss casts Half Full\nThe half on the side where its sword is out (the blue triangle in the picture) will be hit"
+    "note": "③ The boss casts Half Full\nThe half on the side where its sword is out (the blue triangle in the picture) will be hit",
+    "refs": [
+     "Half Full: the boss's sword reaches out to the right here (blue light) = that half of the arena will be hit"
+    ]
    }
   },
   {
@@ -23262,16 +23291,16 @@
    ],
    "refs": [
     {
-     "src": "frames/ex2-zoraal-ja/gateway-red-lines.webp",
-     "say": "เส้นแดง: เส้นที่ลุกเป็นไฟ เชื่อมพื้นกลางกับพื้นรอบนอก AoE ที่ไต่มาตามเส้นนี้จะขยายเป็น 3 แถว",
+     "src": "frames/ex2-zoraal-ja/gateway-red-green-lines.webp",
+     "say": "เส้นแดง: เส้นที่ลุกเป็นไฟ (วงทอง) AoE ตามเส้นนี้ขยายเป็น 3 แถว / เส้นเขียว: เส้นสีเขียวอมฟ้าบางๆ (ลูกศร) AoE ตามเส้นนี้ผลักกระเด็น",
      "by": "Hamukatsu",
-     "url": "https://youtu.be/2Yq4hrQQsNI?t=898"
+     "url": "https://youtu.be/2Yq4hrQQsNI?t=162"
     },
     {
      "src": "frames/ex2-zoraal-ja/gateway-blue-lines.webp",
-     "say": "เส้นฟ้า: เส้นพลังงานสีฟ้า มีลูกแก้วที่ปลาย ไขว้กันแบบจับฉลากลากเส้น ไล่ตามเส้นดูว่าไปออกแถวไหน",
+     "say": "เส้นฟ้า: เส้นพลังงานสีฟ้า มีลูกแก้วที่ปลาย ไขว้กันแบบจับฉลากลากเส้น (วงทอง) ไล่ตามเส้นดูว่าไปออกแถวไหน",
      "by": "Hamukatsu",
-     "url": "https://youtu.be/2Yq4hrQQsNI?t=911"
+     "url": "https://youtu.be/2Yq4hrQQsNI?t=158"
     }
    ],
    "scene": {
@@ -24290,8 +24319,8 @@
     "name": "① Lines link the outer floors to the middle",
     "note": "① Lines link the outer floors to the middle floor\nThey come in 3 colours: red, green and blue",
     "refs": [
-     "Red lines: the lines on fire, linking the middle floor to an outer one; an AoE that follows one widens to 3 rows",
-     "Blue lines: blue energy lines with an orb at each end, crossing like a ladder lottery; follow each one to see which row it reaches"
+     "Red lines: the lines on fire (gold rings); an AoE along one widens to 3 rows / Green lines: the thin teal-green lines (arrow); an AoE along one knocks back",
+     "Blue lines: blue energy lines with an orb at each end, crossing like a ladder lottery (gold ring); follow each one to see which row it reaches"
     ]
    }
   },
@@ -27031,6 +27060,14 @@
    "game8": [
     "https://img.game8.jp/10205727/e36b4563fc9030ad61f653d65da23d53.png/show"
    ],
+   "refs": [
+    {
+     "src": "frames/ex2-zoraal-ja/chasm-markers.webp",
+     "say": "Chasm of Vollok: สามเหลี่ยมสีเหลืองบนหัวทุกคน = AoE ลงช่องที่ยืน spread คนละช่อง อย่าทับใคร (ภาพจากรอบที่ 3)",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/2Yq4hrQQsNI?t=870"
+    }
+   ],
    "scene": {
     "shapes": [
      {
@@ -28736,7 +28773,10 @@
     "phase": "Split floors 1",
     "mech": "Greater Gateway + Forged Track + Chasm of Vollok",
     "name": "④ Chasm of Vollok: one tile each",
-    "note": "④ Then everyone gets a yellow marker (Chasm of Vollok)\nand an AoE hits the 1 tile each person stands on\nSpread one per tile, overlapping nobody\n\nTanks, Melees and Ranges move more easily, so they take the far tiles"
+    "note": "④ Then everyone gets a yellow marker (Chasm of Vollok)\nand an AoE hits the 1 tile each person stands on\nSpread one per tile, overlapping nobody\n\nTanks, Melees and Ranges move more easily, so they take the far tiles",
+    "refs": [
+     "Chasm of Vollok: a yellow triangle over everyone = an AoE on the tile you stand on; spread one per tile, overlap nobody (from the 3rd time)"
+    ]
    }
   },
   {
@@ -31879,6 +31919,14 @@
    "game8": [
     "https://img.game8.jp/10205742/0a5b0725f6fb1daa7b99d15da6912ac6.png/show"
    ],
+   "refs": [
+    {
+     "src": "frames/ex2-zoraal-ja/triumph-lines-swords.webp",
+     "say": "Projection of Triumph: เส้นที่ขอบสนาม (ลูกศรซ้าย) กับดาบที่ปักพื้น (วงทอง) เส้นชนดาบเมื่อไหร่ เกิด AoE ทุกครั้ง",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/2Yq4hrQQsNI?t=347"
+    }
+   ],
    "scene": {
     "shapes": [
      {
@@ -33200,7 +33248,10 @@
     "phase": "Full arena 2",
     "mech": "Projection of Triumph + Forward Half / Backward Half",
     "name": "① Lines on 2 sides + 16 swords",
-    "note": "① Lines appear on 2 opposite edges, and 16 swords stand in the floor\nEvery time a line touches a sword, an AoE goes off\nRead which kind of line is coming and dodge accordingly"
+    "note": "① Lines appear on 2 opposite edges, and 16 swords stand in the floor\nEvery time a line touches a sword, an AoE goes off\nRead which kind of line is coming and dodge accordingly",
+    "refs": [
+     "Projection of Triumph: the line at the arena's edge (left arrow) and the swords in the floor (gold ring); every time the line touches a sword, an AoE goes off"
+    ]
    }
   },
   {
@@ -47255,6 +47306,14 @@
     "ST": "แตะเส้นเป็นคนที่ 7",
     "MT": "แตะเส้นคนที่ 8 ไม่ต้องฝืนเข้า stack ของคนอื่น / ลากบอสไปที่เส้น ไม่ไกลจน Melee ตีไม่ถึง"
    },
+   "refs": [
+    {
+     "src": "frames/ex2-zoraal-ja/turmoil-line.webp",
+     "say": "Projection of Turmoil: เส้นที่มีลูกไฟสีส้มเคลื่อนเข้ามาจากขอบสนาม แตะเส้นเมื่อไหร่เกิด stack ที่ตัวเรา ผลัดกันแตะทีละคน",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/2Yq4hrQQsNI?t=452"
+    }
+   ],
    "en": {
     "phase": "Full arena 2",
     "mech": "Projection of Turmoil",
@@ -47269,7 +47328,10 @@
      "D1": "Touch the line 6th",
      "ST": "Touch the line 7th",
      "MT": "Touch the line 8th; no need to force into the others' stacks / pull the boss to the line, not so far the Melees cannot reach"
-    }
+    },
+    "refs": [
+     "Projection of Turmoil: the line of orange fire orbs sweeping in from the edge; touching it sets off a stack on you, so take turns one at a time"
+    ]
    }
   },
   {
@@ -47322,6 +47384,14 @@
    },
    "game8": [
     "https://img.game8.jp/10205767/820c1f2dec33cf6a603896446b4bdb26.png/show"
+   ],
+   "refs": [
+    {
+     "src": "frames/ex2-zoraal-ja/drum-stack-rings.webp",
+     "say": "Drum of Vollok: วงขาวบนพื้น = เครื่องหมาย stack 2 คน คนที่ไม่มีเครื่องหมายไปยืนต่อหลังคู่ของตัวเอง",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/2Yq4hrQQsNI?t=531"
+    }
    ],
    "scene": {
     "shapes": [
@@ -47787,7 +47857,10 @@
      "D2": "With ST, 3rd pair from the west (boss as north)",
      "H2": "With D4, easternmost pair (boss as north)",
      "D4": "With H2, easternmost pair (boss as north)"
-    }
+    },
+    "refs": [
+     "Drum of Vollok: the white rings on the floor = 2-person stack markers; whoever has none lines up behind their partner"
+    ]
    }
   },
   {
@@ -49840,9 +49913,9 @@
    "refs": [
     {
      "src": "frames/ex2-zoraal-ja/aero-iii-wind.webp",
-     "say": "Aero III: ลมหมุนสีเขียวบนพื้น เดินเข้าไปจะถูกพัดไปพื้นอีกฝั่ง",
+     "say": "Aero III: ลมหมุนสีเขียวบนพื้น (วงทอง) เดินเข้าไปจะถูกพัดไปพื้นอีกฝั่ง",
      "by": "Hamukatsu",
-     "url": "https://youtu.be/2Yq4hrQQsNI?t=642"
+     "url": "https://youtu.be/2Yq4hrQQsNI?t=638"
     }
    ],
    "scene": {
@@ -50257,7 +50330,7 @@
     "name": "① Aero III: wind on both floors",
     "note": "① Aero III: green wind appears on both floors\nStepping into it throws you to the other floor",
     "refs": [
-     "Aero III: a green whirlwind on the floor; walking into it throws you to the other floor"
+     "Aero III: the green whirlwind on the floor (gold ring); walking into it throws you to the other floor"
     ]
    }
   },
@@ -51700,9 +51773,9 @@
    "refs": [
     {
      "src": "frames/ex2-zoraal-ja/dutys-edge-marker.webp",
-     "say": "Duty's Edge: ลูกศรสีส้มชี้ลงเรียงเป็นแนว = เครื่องหมาย line stack ทุกคนไปรวมกันในแนวเส้นนี้",
+     "say": "Duty's Edge: ลูกศรสีส้มชี้ลงเรียงจากบอส (วงทอง) = เครื่องหมาย line stack ทุกคนไปรวมกันในแนวเส้นนี้",
      "by": "Hamukatsu",
-     "url": "https://youtu.be/2Yq4hrQQsNI?t=877"
+     "url": "https://youtu.be/2Yq4hrQQsNI?t=622"
     }
    ],
    "scene": {
@@ -52453,7 +52526,7 @@
     "name": "⑤ Duty's Edge: 4 line stacks",
     "note": "⑤ Duty's Edge: 4 line stacks on the whole party in a row\nEveryone gathers in the line",
     "refs": [
-     "Duty's Edge: a column of orange arrows pointing down = the line stack marker; everyone gathers in its line"
+     "Duty's Edge: the column of orange arrows from the boss (gold ring) = the line stack marker; everyone gathers in its line"
     ]
    }
   },
@@ -52465,6 +52538,14 @@
    "strict": false,
    "game8": [
     "https://img.game8.jp/10206292/d64ab82ae1ce7c8cd8303f85928bd725.png/show"
+   ],
+   "refs": [
+    {
+     "src": "frames/ex2-zoraal-ja/burning-chains.webp",
+     "say": "Burning Chains: เส้นโซ่ไฟสีส้ม (วงทอง) โยง Tank/Healer กับ DPS เป็นคู่",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/2Yq4hrQQsNI?t=647"
+    }
    ],
    "scene": {
     "shapes": [
@@ -52904,7 +52985,10 @@
     "phase": "Split floors 2",
     "mech": "Forward Half / Backward Half + Duty's Edge + Burning Chains",
     "name": "⑥ Burning Chains: tanks/healers chained to DPS",
-    "note": "⑥ Burning Chains: tanks/healers and DPS are chained together in pairs"
+    "note": "⑥ Burning Chains: tanks/healers and DPS are chained together in pairs",
+    "refs": [
+     "Burning Chains: the orange fiery chains (gold ring) tie tanks/healers to DPS in pairs"
+    ]
    }
   },
   {
@@ -53896,9 +53980,9 @@
    "refs": [
     {
      "src": "frames/ex2-zoraal-ja/half-circuit-far.webp",
-     "say": "Half Circuit: ดาบสีฟ้าเล่มใหญ่ไปอยู่ห่างจากบอสถึงริมสนาม = นอกวงเป้าโดน (ถ้าดาบอยู่ใกล้บอส ในวงเป้าโดน)",
+     "say": "Half Circuit: ดาบสีฟ้าเล่มใหญ่ไปอยู่ห่างจากบอสถึงริมสนาม (วงทอง) = นอกวงเป้าโดน (ถ้าดาบอยู่ใกล้บอส ในวงเป้าโดน)",
      "by": "Hamukatsu",
-     "url": "https://youtu.be/2Yq4hrQQsNI?t=712"
+     "url": "https://youtu.be/2Yq4hrQQsNI?t=702"
     }
    ],
    "scene": {
@@ -56080,7 +56164,7 @@
     "name": "⑤ Half Circuit: outside + the right half",
     "note": "⑤ The 2nd lines appear and the boss casts Half Circuit\nHalf Circuit = the boss's left or right half + inside or outside its target circle\n\nIn this picture: outside the circle and the right half (the blue triangle's side) will be hit\nNote in the picture: the 2 blue blades are far from the boss",
     "refs": [
-     "Half Circuit: the big blue blade lies far from the boss, out at the edge = outside the target circle is hit (blades close to the boss: inside is hit)"
+     "Half Circuit: the big blue blade lies far from the boss, at the edge (gold ring) = outside the target circle is hit (blades close to the boss: inside is hit)"
     ]
    }
   },
