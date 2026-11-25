@@ -78,10 +78,12 @@ function LiveDot({ label }: { label: string }) {
 /**
  * How many tabs the bottom bar will carry before it starts folding them away.
  *
- * Five slots on a 390px screen is about 78px each, which holds a 21px mark and
- * a 10px word under it without either touching its neighbour.
+ * Five tabs and More make six slots: about 65px each on a 390px screen and 60px
+ * on a 360px one, which still holds a 21px mark and a 10px word under it. Five
+ * since the guides joined the bar (the owner, 2026-11-26: "ช่วยเพิ่มไกด์ลงไปใน
+ * menu ui ของมือถือด้วย") rather than waiting in the sheet behind More.
  */
-const BOTTOM_SLOTS = 4;
+const BOTTOM_SLOTS = 5;
 
 export default function Nav() {
   const pathname = usePathname();

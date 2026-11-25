@@ -118,7 +118,11 @@ function GuideCard({ g, art }: { g: GuideRow; art?: DutyOption }) {
             backgroundPosition: art?.focus ?? "center",
             backgroundColor: `color-mix(in srgb, ${TINT[g.category]} 22%, var(--color-bg))`,
           }}
-          className="group relative flex aspect-[1128/360] min-h-[120px] min-w-0 items-end overflow-hidden rounded-xl border border-line bg-cover no-underline transition-[border-color,transform] duration-150 hover:border-accent active:scale-[.99] site-dark:border-transparent">
+          // w-full: a grid item with an aspect ratio is not stretched to its
+          // column; its width comes from its height instead, and min-h-[120px]
+          // made that 376px — wider than a 360px phone, which pushed the whole
+          // page (and the tab bar with it) off the screen.
+          className="group relative flex aspect-[1128/360] min-h-[120px] w-full min-w-0 items-end overflow-hidden rounded-xl border border-line bg-cover no-underline transition-[border-color,transform] duration-150 hover:border-accent active:scale-[.99] site-dark:border-transparent">
       <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/5" />
       {!g.published && (
         <span className="absolute right-2.5 top-2.5 rounded-full border border-chili/70 bg-black/60 px-2 py-0.5 text-label text-white">
