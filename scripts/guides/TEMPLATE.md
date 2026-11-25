@@ -44,7 +44,10 @@ ex7 ต้องมีใน ex อื่นด้วย ให้เป็น t
    - `phase` in Thai ("ช่วงแรก", …), `mech` = English skill name only (no
      Japanese in brackets), `name` (Thai);
    - `strict` on every step: rings only where a role truly has a fixed spot
-     (true / false / list);
+     (true / false / list) — and always where the party splits into fixed
+     groups (MT group / ST group, Tank+Healer / DPS), even when where the
+     groups go depends on the pattern (the owner, 2026-11-25: "ภาพพวกนี้ควรมี
+     focus จุดยืน เพราะต้องแบ่งสองกลุ่ม");
    - `note` (Thai, ≤ 1000) one thing per line, `says` per role where a role
      does something of its own (≤ 200);
    - `refs` for what to watch (game screenshots), never a picture with
@@ -78,8 +81,14 @@ ex7 ต้องมีใน ex อื่นด้วย ให้เป็น t
 ## How it is written
 
 - **Thai first, game terms in English**: stack, spread, tower, tether,
-  raid-wide, knockback, AoE, debuff, cone, donut. Roles in words: **Tank,
-  Melee, Range, Healer** (never แทงค์/เมเล/เรนจ์/ฮีล).
+  raid-wide, knockback, AoE, debuff, cone, donut, **mitigate** (never
+  ท่าลดดาเมจ / ท่าลดดาเมจทั้งปาร์ตี้ / บัฟลดดาเมจ: "Tank: mitigate + Reprisal",
+  "ใช้ mitigate และ barrier"). Roles in words: **Tank, Melee, Range, Healer**
+  (never แทงค์/เมเล/เรนจ์/ฮีล).
+- **Nothing game8 does not say.** No order, rule or "the video suggests…"
+  taken from elsewhere and half explained (EX3 once said "Tank > Healer >
+  DPS > DPS", which game8 never wrote and nobody could read). Where game8
+  points to a video, say only what game8 says about it.
 - **No Japanese anywhere** a reader sees: not in names, notes, captions,
   pictures, map labels. A Japanese shape-word (ハ etc.) is described in Thai.
 - **One thing per line**: lists one item a line, blank line between groups.
