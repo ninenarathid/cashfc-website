@@ -93804,8 +93804,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 41,
-    "kills": 38,
+    "best": 46,
+    "kills": 41,
     "job": "DarkKnight",
     "cleared": true
    },
@@ -99632,5 +99632,172 @@
   ],
   "legacy": [],
   "_status": "ok"
+ },
+ "19335436": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "encounter_id": 101,
+     "name": "Vamp Fatale",
+     "best": 38,
+     "median": 7,
+     "kills": 17,
+     "job": "Samurai"
+    },
+    {
+     "label": "M10S",
+     "encounter_id": 102,
+     "name": "Red Hot and Deep Blue",
+     "best": 13,
+     "median": 9,
+     "kills": 9,
+     "job": "Samurai"
+    },
+    {
+     "label": "M11S",
+     "encounter_id": 103,
+     "name": "The Tyrant",
+     "best": 4,
+     "median": 4,
+     "kills": 1,
+     "job": "Samurai"
+    },
+    {
+     "label": "M12S-1",
+     "encounter_id": 104,
+     "name": "Lindwurm",
+     "best": 14,
+     "median": 10,
+     "kills": 9,
+     "job": "Samurai"
+    },
+    {
+     "label": "M12S-2",
+     "encounter_id": 105,
+     "name": "Lindwurm II",
+     "best": 6,
+     "median": 5,
+     "kills": 2,
+     "job": "Samurai"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1083,
+    "name": "Doomtrain",
+    "best": 15,
+    "kills": 18,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1084,
+    "name": "Enuo",
+    "best": 36,
+    "kills": 46,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1082,
+    "name": "Guardian Arkveld",
+    "best": 9,
+    "kills": 3,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1081,
+    "name": "Necron",
+    "best": 18,
+    "kills": 13,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1080,
+    "name": "Zelenia",
+    "best": 20,
+    "kills": 11,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1078,
+    "name": "Queen Eternal",
+    "best": 17,
+    "kills": 25,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1071,
+    "name": "Valigarmanda",
+    "best": 55,
+    "kills": 7,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1072,
+    "name": "Zoraal Ja",
+    "best": 20,
+    "kills": 9,
+    "job": "Samurai",
+    "cleared": true
+   }
+  ],
+  "legacy": [],
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 103,
+    "name": "The Tyrant",
+    "kind": "savage",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 27,
+    "last": "2026-11-18",
+    "last_ts": 1795012651
+   }
+  ]
  }
 }
