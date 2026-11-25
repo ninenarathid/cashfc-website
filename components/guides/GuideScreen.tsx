@@ -441,17 +441,16 @@ function StepCard(
         </div>
       )}
 
-      {/* A step with no picture is words only (a raid-wide, a rule of thumb):
-          it says nothing about a spot it never had. */}
-      {say ? (
+      {/* The seat's own line, where the step has one. Nothing where it has
+          none: "no fixed spot here" under every such picture was taken out
+          (the owner, 2026-11-25: "เอาข้อความนี้ออกเลย"). */}
+      {say && (
         <p className="mt-2.5 flex items-start gap-2 px-0.5 text-lead font-semibold leading-snug text-ink">
           <span className="mt-0.5 shrink-0 rounded-md px-1.5 py-0.5 font-data text-label font-bold text-white"
                 style={{ backgroundColor: color }}>{seat}</span>
           <span className="min-w-0 break-words">{say}</span>
         </p>
-      ) : points.length === 0 && step.picture ? (
-        <p className="mt-2.5 px-0.5 text-ui text-muted">{t("guide.noSpot", { seat })}</p>
-      ) : null}
+      )}
       {note && (
         <p className="mt-1.5 px-0.5 text-read leading-relaxed text-muted"><RoleText text={note} seat={seat} /></p>
       )}

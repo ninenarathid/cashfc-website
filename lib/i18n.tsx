@@ -69,10 +69,6 @@ const DICT = {
   "guide.enlarge": { en: "View large", th: "ดูภาพใหญ่" },
   "guide.ringOff": { en: "Hide circle", th: "ปิดวง" },
   "guide.ringOn": { en: "Show circle", th: "เปิดวง" },
-  "guide.noSpot": {
-    en: "No fixed spot for {seat} here — read the whole picture.",
-    th: "{seat} ไม่มีจุดเฉพาะในภาพนี้ ดูภาพรวมได้เลย",
-  },
   "guide.noSteps": { en: "No pictures in this guide yet.", th: "ไกด์นี้ยังไม่มีภาพ" },
   "guide.notFound": {
     en: "This guide isn't here, or isn't open to read yet.",
