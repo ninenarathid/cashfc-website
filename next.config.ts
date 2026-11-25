@@ -30,6 +30,9 @@ const nextConfig: NextConfig = {
     // A contest's card is written in Kanit, the only Thai the renderer gets.
     "/contest/[id]/opengraph-image": ["./assets/fonts/**/*", "./assets/popoto/popoto-og.png"],
     "/contest/opengraph-image": ["./assets/fonts/**/*", "./assets/popoto/popoto-og.png"],
+    // A guide's card and the shelf's: the duties' banners and the Thai font.
+    "/guides/[slug]/opengraph-image": ["./public/duty/**/*", "./assets/fonts/**/*"],
+    "/guides/opengraph-image": ["./public/duty/**/*", "./assets/fonts/**/*"],
   },
 
   /*
