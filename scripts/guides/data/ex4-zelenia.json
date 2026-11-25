@@ -4705,7 +4705,7 @@
    "phase": "ช่วง Add: Blessed Barricade",
    "mech": "Blessed Barricade",
    "name": "① tower 3 คน + ล่อฟันครึ่งสนาม",
-   "note": "ช่วง Add ที่ต้องทำกลไกไปด้วย\nร่างแยกของบอส 2 ตัวที่ขอบตะวันตกและตะวันออก โยงสายไปที่คนละ 1 คน แล้วฟันครึ่งสนาม\n\nRule 1: ร่างแยกตะวันออกโยงสายไปที่ DPS / ร่างแยกตะวันตกโยงสายไปที่ Tank/Healer\nRule 2: แต่ละกลุ่มเข้า tower ฝั่งร่างแยกของตัวเอง: Tank/Healer ฝั่งตะวันตก / DPS ฝั่งตะวันออก\nRule 3: tower โผล่ที่เดิมทุกรอบ ฝั่ง Tank/Healer เริ่มจากใต้แล้วสลับ / ฝั่ง DPS เริ่มจากเหนือแล้วสลับ\n\n① คนที่ไม่ได้สาย 3 คนต่อกลุ่มเข้า tower\nคนที่ได้สายล่อฟันครึ่งสนาม: หันดาบของร่างแยกออกไปทางนอกสนาม",
+   "note": "ช่วง Add ที่ต้องทำ Mechanic ไปด้วย\nร่างแยกของบอส 2 ตัวที่ขอบตะวันตกและตะวันออก โยงสายไปที่คนละ 1 คน แล้วฟันครึ่งสนาม\n\nRule 1: ร่างแยกตะวันออกโยงสายไปที่ DPS / ร่างแยกตะวันตกโยงสายไปที่ Tank/Healer\nRule 2: แต่ละกลุ่มเข้า tower ฝั่งร่างแยกของตัวเอง: Tank/Healer ฝั่งตะวันตก / DPS ฝั่งตะวันออก\nRule 3: tower โผล่ที่เดิมทุกรอบ ฝั่ง Tank/Healer เริ่มจากใต้แล้วสลับ / ฝั่ง DPS เริ่มจากเหนือแล้วสลับ\n\n① คนที่ไม่ได้สาย 3 คนต่อกลุ่มเข้า tower\nคนที่ได้สายล่อฟันครึ่งสนาม: ร่างแยกหันหน้าตามคนที่ได้สาย แล้วฟันครึ่งฝั่งที่ถือดาบ\nยืนชิดขอบสนาม ทางเหนือหรือใต้ของร่างแยก ให้ฝั่งที่ถือดาบหันออกนอกสนาม\nถ้าดาบอยู่ฝั่งในสนาม ย้ายไปอีกด้าน (เหนือ ↔ ใต้)",
    "strict": false,
    "says": {
     "MT": "ฝั่งตะวันตก: เข้า tower หรือถือสายร่างแยกตะวันตก",
@@ -5454,7 +5454,7 @@
     "phase": "Adds: Blessed Barricade",
     "mech": "Blessed Barricade",
     "name": "① Towers of 3 + baiting the half-room cleaves",
-    "note": "An adds phase with mechanics on top\nTwo of the boss's phantoms at the west and east edges tether one player each, then cleave half the room\n\nRule 1: the east phantom tethers a DPS / the west phantom tethers a tank or healer\nRule 2: each group takes the towers on its phantom's side: tanks/healers west / DPS east\nRule 3: the towers come at fixed spots; tank/healer side starts south then alternates / DPS side starts north then alternates\n\n① The 3 untethered players of each group take the tower\nThe tethered player baits the half-room cleave: turn the phantom's sword to point outside the arena",
+    "note": "An adds phase with mechanics on top\nTwo of the boss's phantoms at the west and east edges tether one player each, then cleave half the room\n\nRule 1: the east phantom tethers a DPS / the west phantom tethers a tank or healer\nRule 2: each group takes the towers on its phantom's side: tanks/healers west / DPS east\nRule 3: the towers come at fixed spots; tank/healer side starts south then alternates / DPS side starts north then alternates\n\n① The 3 untethered players of each group take the tower\nThe tethered player baits the half-room cleave: the phantom faces its tethered player and cleaves the side it holds its sword on\nStand by the edge, north or south of the phantom, so its sword side faces out of the arena\nIf the sword is on the arena side, move to the other side of it (north ↔ south)",
     "says": {
      "MT": "West side: a tower, or the west phantom's tether",
      "ST": "West side: a tower, or the west phantom's tether",
@@ -5464,8 +5464,19 @@
      "D2": "East side: a tower, or the east phantom's tether",
      "D3": "East side: a tower, or the east phantom's tether",
      "D4": "East side: a tower, or the east phantom's tether"
+    },
+    "refs": [
+     "The phantom cleaves the side its sword is on; here the sword points at the arena's edge, so the cleave goes outside"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex4-zelenia/blessed-barricade-sword.webp",
+     "say": "ร่างแยกถือดาบไว้ฝั่งไหน ฟันฝั่งนั้น ภาพนี้ดาบชี้ไปทางขอบสนาม = ฟันออกนอกสนาม",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/3bQDC1gdxjo?t=251"
     }
-   }
+   ]
   },
   {
    "phase": "ช่วง Add: Blessed Barricade",
@@ -10820,7 +10831,7 @@
    "phase": "ช่วงกลาง: Roseblood",
    "mech": "Roseblood: 2nd Bloom",
    "name": "③ หลบ cone: ขยับไปช่องขวา",
-   "note": "③ ขยับไปช่องทางขวาเพื่อหลบ cone ตามลูกศร\nจบกลไก",
+   "note": "③ ขยับไปช่องทางขวาเพื่อหลบ cone ตามลูกศร\nจบ Mechanic",
    "strict": false,
    "game8": [
     "https://img.game8.jp/11198059/33d57f2b6d03131d95a4b7510d3a49f7.png/show"
@@ -12641,7 +12652,7 @@
    "phase": "ช่วงกลาง: Roseblood",
    "mech": "Roseblood: 2nd Bloom",
    "name": "③ หลบ cone: จากช่องซ้ายไปช่องขวา",
-   "note": "③ ขยับจากช่องซ้ายไปช่องขวาเพื่อหลบ cone ตามลูกศร\nจบกลไก",
+   "note": "③ ขยับจากช่องซ้ายไปช่องขวาเพื่อหลบ cone ตามลูกศร\nจบ Mechanic",
    "strict": false,
    "game8": [
     "https://img.game8.jp/11198035/af3a7291724f7eb8f6800e135f8d8b24.png/show"
@@ -17904,7 +17915,7 @@
    "phase": "ช่วงกลาง: Roseblood",
    "mech": "Bud of Valor + Escelons' Fall",
    "name": "⑤ กลุ่มที่ได้ donut ล่อ",
-   "note": "⑤ กลุ่มที่ได้ donut ล่อ\nภาพนี้: DPS อยู่ในวง สัญญาณสีชมพู (ใกล้)\nจบกลไก",
+   "note": "⑤ กลุ่มที่ได้ donut ล่อ\nภาพนี้: DPS อยู่ในวง สัญญาณสีชมพู (ใกล้)\nจบ Mechanic",
    "strict": true,
    "says": {
     "MT": "ตรงหน้าบอส ฝั่งตะวันตก",
@@ -23387,7 +23398,7 @@
    "phase": "ช่วงกลาง: Roseblood",
    "mech": "Bud of Valor + Escelons' Fall",
    "name": "⑦ หลบครึ่งสนามอีกครั้ง",
-   "note": "⑦ รับ cone ครั้งที่ 4 แล้ว ร่างแยกฝั่งใต้ง้างฟันครึ่งสนาม\nหลบไปครึ่งที่ไม่โดน\nจบกลไก",
+   "note": "⑦ รับ cone ครั้งที่ 4 แล้ว ร่างแยกฝั่งใต้ง้างฟันครึ่งสนาม\nหลบไปครึ่งที่ไม่โดน\nจบ Mechanic",
    "strict": true,
    "game8": [
     "https://img.game8.jp/11195101/88c8d17cf2e4c2acf8438c4492adc36b.png/show"
