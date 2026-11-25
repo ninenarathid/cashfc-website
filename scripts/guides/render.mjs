@@ -123,7 +123,7 @@ export function sceneSvg(scene, defaults = {}) {
       }
     } else if (s.t === "text") {
       const size = S(s.size ?? 3.2);
-      out.push(`<text x="${X(s.at[0])}" y="${Y(s.at[1])}" font-family="Arial, sans-serif" font-weight="700" font-size="${size}" fill="${c === COLOR.orange ? "#fff" : c}" text-anchor="middle" dominant-baseline="middle" stroke="#000" stroke-opacity="0.6" stroke-width="${size * 0.12}" paint-order="stroke">${esc(s.s)}</text>`);
+      out.push(`<text x="${X(s.at[0])}" y="${Y(s.at[1])}" font-family="Arial, Leelawadee UI, sans-serif" font-weight="700" font-size="${size}" fill="${c === COLOR.orange ? "#fff" : c}" text-anchor="middle" dominant-baseline="middle" stroke="#000" stroke-opacity="0.6" stroke-width="${size * 0.12}" paint-order="stroke">${esc(s.s)}</text>`);
     } else if (s.t === "dot") {
       out.push(`<circle cx="${X(s.at[0])}" cy="${Y(s.at[1])}" r="${S(s.r ?? 1.6)}" fill="${c}" fill-opacity="${s.o ?? 1}" stroke="#000" stroke-opacity="0.5" stroke-width="${S(0.25)}"/>`);
     } else {
