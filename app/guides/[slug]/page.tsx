@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import GuideScreen from "@/components/guides/GuideScreen";
+import { guideDuties } from "@/lib/guides/duties";
 
 /**
  * One guide, by its address.
@@ -27,5 +28,7 @@ export default async function Page(
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params;
-  return <GuideScreen slug={slug.slice(0, 40)} />;
+  // The party finder's fights, for the editor's "which fight" and nothing
+  // else: a reader never sees the list, only the button it leads to.
+  return <GuideScreen slug={slug.slice(0, 40)} duties={guideDuties()} />;
 }

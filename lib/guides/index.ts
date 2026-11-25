@@ -75,9 +75,21 @@ export interface GuideRow {
   source_name: string | null;
   source_url: string | null;
   note: string | null;
+  /** The party finder's key for the duty: `ex:Enuo`, `sav:M9S`. */
+  content_key: string | null;
   published: boolean;
   sort: number;
 }
+
+/** A duty a guide can be for, as the party finder names it. */
+export interface DutyOption {
+  key: string;
+  label: string;
+}
+
+/** The party finder, opened on its form with this duty already chosen. */
+export const partyFor = (contentKey: string) =>
+  `/party?new=1&duty=${encodeURIComponent(contentKey)}`;
 
 export interface StepRow {
   id: number;
@@ -94,7 +106,7 @@ export interface StepRow {
 }
 
 export const GUIDE_COLUMNS =
-  "id, slug, name, short, expansion, category, patch, source_name, source_url, note, published, sort";
+  "id, slug, name, short, expansion, category, patch, source_name, source_url, note, content_key, published, sort";
 export const STEP_COLUMNS =
   "id, guide_id, sort, phase, name, note, picture, pic_w, pic_h, ring, spots";
 

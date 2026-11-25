@@ -76,6 +76,7 @@ import PartyPolls from "@/components/party/PartyPolls";
 import { openPolls, pollWaitsOn } from "@/lib/party-poll";
 import { partyArt } from "@/lib/party-cover";
 import CoverPicker from "@/components/party/CoverPicker";
+import GuideLink from "@/components/guides/GuideLink";
 
 /**
  * Who is running what, and when.
@@ -820,6 +821,9 @@ function PartyDetail(
           {/* The boss, which neither the title nor the row has room for: the
               title leads with the duty you queue for, and this is the third
               name the same fight has. The clock is in the subtitle already. */}
+          {/* And the guide for it, when the FC has one: the party is the
+              moment somebody is about to need it. */}
+          <GuideLink contentKey={party.contentKey} className="self-start" />
           <p className="text-lead text-muted">
             {def?.name && def.name !== def.badge && def.name !== def.duty && (
               <>{def.name}</>
@@ -1111,13 +1115,21 @@ export default function PartyBoard(
    * For the "ตั้งปาร์ตี้" button under the Discord board, which is somebody
    * in a channel deciding to put one up; arriving at the board and then
    * looking for its button is a step that asks them nothing.
+   *
+   * &duty= comes with it from a guide's "สร้างปาร์ตี้" button: the form opens
+   * on that fight already chosen (the owner, 2026-11-25). Only a key the board
+   * knows is taken; anything else opens the form as before.
    */
-  const askedNew = useSearchParams().get("new") === "1";
+  const params = useSearchParams();
+  const askedNew = params.get("new") === "1";
+  const askedDuty = params.get("duty");
+  const [startWith, setStartWith] = useState<string | undefined>(undefined);
   useEffect(() => {
     if (!askedNew) return;
+    setStartWith(askedDuty && byKey[askedDuty] ? askedDuty : undefined);
     setWriting(true);
     router.replace("/party", { scroll: false });
-  }, [askedNew, router]);
+  }, [askedNew, askedDuty, byKey, router]);
 
   const [openId, setOpenIdRaw] = useState<string | null>(null);
   const setOpenId = useCallback((id: string | null) => {
@@ -1840,7 +1852,7 @@ export default function PartyBoard(
           </p>
         </div>
         {!writing && (
-          <button onClick={() => setWriting(true)}
+          <button onClick={() => { setStartWith(undefined); setWriting(true); }}
                   className="flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg border border-accent bg-accent/15 py-1.5 pl-2.5 pr-3.5 text-lead font-semibold text-accent hover:bg-accent/25 site-dark:border-transparent site-dark:bg-gold site-dark:text-bg site-dark:hover:bg-ink">
             {/* The game's own party badge. A plus said "something is being
                 added" about a page whose whole subject is parties being
@@ -1865,7 +1877,8 @@ export default function PartyBoard(
                      mine={me ? parties.filter((x) => placeOf(x, me.id)) : []}
                      editing={amending ?? undefined}
                      setups={setups}
-                     onCancel={() => { setWriting(false); setAmending(null); }}
+                     startWith={amending ? undefined : startWith}
+                     onCancel={() => { setWriting(false); setAmending(null); setStartWith(undefined); }}
                      onAdd={async (p) => {
                        setSaving(true);
                        setErr(null);

@@ -9,7 +9,7 @@ import FocusPicture from "@/components/guides/FocusPicture";
 import {
   CATEGORIES, CATEGORY_LABEL, EXPANSIONS, GUIDE_COLUMNS, LIMITS, RING_DEFAULT, SEATS,
   STEP_COLUMNS, cleanStep, fitPicture, isCategory, isSlug, newPicturePath, seatColor,
-  togglePoint, withSeat, type GuideRow, type Point, type Seat, type StepRow,
+  togglePoint, withSeat, type DutyOption, type GuideRow, type Point, type Seat, type StepRow,
 } from "@/lib/guides";
 
 /**
@@ -27,9 +27,11 @@ import {
  * because changing its address moves the page.
  */
 export default function GuideEditor({
-  guide, steps, seat, onSeat, onGuide, onSteps,
+  guide, steps, seat, onSeat, onGuide, onSteps, duties = [],
 }: {
   guide: GuideRow;
+  /** The party finder's fights, for which one this guide is for. */
+  duties?: DutyOption[];
   steps: StepRow[];
   seat: Seat;
   onSeat: (s: Seat) => void;
@@ -94,7 +96,7 @@ export default function GuideEditor({
 
   return (
     <div className="mt-4 flex flex-col gap-4">
-      <GuideInfo guide={guide} onGuide={onGuide} />
+      <GuideInfo guide={guide} onGuide={onGuide} duties={duties} />
 
       {ordered.map((s, i) => (
         <StepEditor key={s.id} step={s} n={i + 1} seat={seat} onSeat={onSeat} userId={userId}
@@ -124,7 +126,9 @@ export default function GuideEditor({
 const field = "min-h-10 w-full rounded-lg border border-line bg-card px-3 py-2 text-read text-ink outline-none focus:border-accent";
 const labelCls = "flex flex-col gap-1 text-ui text-muted";
 
-function GuideInfo({ guide, onGuide }: { guide: GuideRow; onGuide: (g: GuideRow) => void }) {
+function GuideInfo(
+  { guide, onGuide, duties }: { guide: GuideRow; onGuide: (g: GuideRow) => void; duties: DutyOption[] },
+) {
   const { t } = useLang();
   const router = useRouter();
   const [open, setOpen] = useState(!guide.published);
@@ -145,6 +149,7 @@ function GuideInfo({ guide, onGuide }: { guide: GuideRow; onGuide: (g: GuideRow)
       slug: d.slug, name: d.name.trim(), short: opt(d.short ?? ""), expansion: d.expansion,
       category: d.category, patch: opt(d.patch ?? ""), source_name: opt(d.source_name ?? ""),
       source_url: opt(d.source_url ?? ""), note: opt(d.note ?? ""), published: d.published,
+      content_key: d.content_key || null,
     }).eq("id", guide.id).select(GUIDE_COLUMNS).single();
     setBusy(false);
     if (error || !data) {
@@ -202,6 +207,16 @@ function GuideInfo({ guide, onGuide }: { guide: GuideRow; onGuide: (g: GuideRow)
           <label className={labelCls}>{t("guide.f.expansion")}
             <select className={field} value={d.expansion} onChange={(e) => set("expansion", e.target.value)}>
               {[...new Set([d.expansion, ...EXPANSIONS])].map((x) => <option key={x} value={x}>{x}</option>)}
+            </select>
+          </label>
+          <label className={`${labelCls} sm:col-span-2`}>{t("guide.f.duty")}
+            <select className={field} value={d.content_key ?? ""}
+                    onChange={(e) => set("content_key", e.target.value || null)}>
+              <option value="">{t("guide.f.noDuty")}</option>
+              {d.content_key && !duties.some((x) => x.key === d.content_key) && (
+                <option value={d.content_key}>{d.content_key}</option>
+              )}
+              {duties.map((x) => <option key={x.key} value={x.key}>{x.label}</option>)}
             </select>
           </label>
           <label className={labelCls}>{t("guide.f.sourceName")}

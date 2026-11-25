@@ -9,9 +9,10 @@ import { createClient } from "@/lib/supabase/client";
 import Skeleton from "@/components/ui/Skeleton";
 import FocusPicture from "@/components/guides/FocusPicture";
 import SeatBar, { useSeat } from "@/components/guides/SeatBar";
+import PartyIcon from "@/components/party/PartyIcon";
 import {
-  CATEGORY_LABEL, GUIDE_COLUMNS, STEP_COLUMNS, cleanStep, inPhases, seatColor,
-  type GuideRow, type Seat, type StepRow,
+  CATEGORY_LABEL, GUIDE_COLUMNS, STEP_COLUMNS, cleanStep, inPhases, partyFor, seatColor,
+  type DutyOption, type GuideRow, type Seat, type StepRow,
 } from "@/lib/guides";
 
 /** The editor is admins' only, so nobody else downloads it. */
@@ -34,7 +35,7 @@ type Load =
  * for everybody; a tap on it shows the whole of it, undimmed, for the moment
  * somebody wants to see where the rest of the party is going.
  */
-export default function GuideScreen({ slug }: { slug: string }) {
+export default function GuideScreen({ slug, duties = [] }: { slug: string; duties?: DutyOption[] }) {
   const { t } = useLang();
   const { isAdmin, realAdmin, ready } = useAdmin();
   const [seat, setSeat] = useSeat();
@@ -118,12 +119,22 @@ export default function GuideScreen({ slug }: { slug: string }) {
           </div>
           {guide.source_name && <Source name={guide.source_name} url={guide.source_url} />}
         </div>
+        <div className="flex shrink-0 flex-wrap gap-2">
+        {/* Straight to the party finder's form with this fight chosen. */}
+        {guide.content_key && !editing && (
+          <Link href={partyFor(guide.content_key)}
+                className="inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-accent bg-accent/15 px-3.5 text-read font-semibold text-accent no-underline hover:bg-accent/25 site-dark:border-transparent site-dark:bg-gold site-dark:text-bg site-dark:hover:bg-ink">
+            <PartyIcon size={16} />
+            {t("guide.makeParty")}
+          </Link>
+        )}
         {isAdmin && (
           <button type="button" onClick={() => setEditing((v) => !v)} aria-pressed={editing}
                   className={`min-h-10 shrink-0 rounded-lg border px-3.5 text-read font-semibold transition-colors ${editing ? "border-accent bg-accent text-bg" : "border-line text-ink hover:border-accent hover:text-accent"}`}>
             {editing ? t("guide.doneEdit") : `✎ ${t("guide.edit")}`}
           </button>
         )}
+        </div>
       </div>
 
       {!guide.published && (
@@ -145,7 +156,7 @@ export default function GuideScreen({ slug }: { slug: string }) {
       )}
 
       {editing && isAdmin ? (
-        <GuideEditor guide={guide} steps={steps} seat={seat} onSeat={setSeat}
+        <GuideEditor guide={guide} steps={steps} seat={seat} onSeat={setSeat} duties={duties}
                      onGuide={setGuide} onSteps={setSteps} />
       ) : (
         <Steps steps={steps} seat={seat} />

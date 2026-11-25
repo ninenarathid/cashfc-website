@@ -16,7 +16,10 @@
 --   guides       one fight: its name, where the strategy comes from, and
 --                whether members can see it yet (`published`). A guide is a
 --                draft until an admin publishes it, and a draft is not sent to
---                anybody but admins.
+--                anybody but admins. `content_key` is the party finder's own
+--                key for the duty (`ex:Enuo`, `sav:M9S`), so a party shows
+--                the guide for its fight and a guide puts up a party for it
+--                (the owner, 2026-11-25).
 --   guide_steps  one picture of one moment. `spots` holds, per seat, where that
 --                seat stands on the picture (up to four points, in percent of
 --                the picture's width and height, so the picture can be shown at
@@ -56,13 +59,19 @@ create table if not exists public.guides (
   source_url  text check (source_url is null
                 or (char_length(source_url) <= 300 and source_url ~ '^https://')),
   note        text check (note is null or char_length(note) <= 600),
+  content_key text check (content_key is null or char_length(content_key) between 1 and 80),
   published   boolean not null default false,
   sort        integer not null default 0,
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
 );
 
+alter table public.guides add column if not exists content_key text
+  check (content_key is null or char_length(content_key) between 1 and 80);
+
 create index if not exists guides_shelf on public.guides (expansion, category, sort);
+create index if not exists guides_for_duty on public.guides (content_key)
+  where content_key is not null and published;
 
 /* ── what a seat on a picture may hold ───────────────────────────────────── */
 
@@ -210,10 +219,10 @@ create policy guide_steps_named_drop on public.guide_steps
 revoke all on public.guides from anon, authenticated;
 grant select on public.guides to anon, authenticated;
 grant insert (slug, name, short, expansion, category, patch, source_name, source_url,
-              note, published, sort)
+              note, content_key, published, sort)
   on public.guides to authenticated;
 grant update (slug, name, short, expansion, category, patch, source_name, source_url,
-              note, published, sort)
+              note, content_key, published, sort)
   on public.guides to authenticated;
 grant delete on public.guides to authenticated;
 

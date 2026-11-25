@@ -107,6 +107,10 @@ const DICT = {
   "guide.f.sourceUrl": { en: "Source link (https://…)", th: "ลิงก์ต้นทาง (https://…)" },
   "guide.f.note": { en: "Note for everyone", th: "หมายเหตุถึงทุกคน" },
   "guide.f.published": { en: "Open for everyone to read", th: "เปิดให้ทุกคนอ่าน" },
+  "guide.f.duty": { en: "Fight in the party finder", th: "คอนเทนต์ในหน้าหาปาร์ตี้" },
+  "guide.f.noDuty": { en: "— not linked —", th: "— ไม่ผูก —" },
+  "guide.makeParty": { en: "Put up a party", th: "สร้างปาร์ตี้" },
+  "guide.forParty": { en: "Guide: {name}", th: "ไกด์ {name}" },
   "guide.deleteGuide": { en: "Delete guide", th: "ลบไกด์" },
   "guide.deleteGuideAsk": {
     en: "Delete \"{name}\" and every picture in it? This can't be undone.",

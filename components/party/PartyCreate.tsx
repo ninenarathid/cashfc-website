@@ -51,6 +51,7 @@ import { useAvatarOverrides } from "@/lib/avatars";
 import { useLang } from "@/lib/i18n";
 import { FC_DC, FC_WORLD } from "@/lib/world";
 import { shapeSay } from "@/lib/party-i18n";
+import GuideLink from "@/components/guides/GuideLink";
 
 /**
  * Putting a party on the board.
@@ -268,6 +269,11 @@ interface CreateProps {
      * every open would be a query for a list that had not changed.
      */
     setups?: Setup[];
+    /**
+     * The fight to open on, for a new party put up from that fight's guide.
+     * Only a starting answer: the picker can still change it.
+     */
+    startWith?: string;
 }
 
 /**
@@ -318,7 +324,7 @@ export default function PartyCreate(props: CreateProps) {
 
 function PartyForm(
   { content, people, me, userId, busy = false, suggest, labels, mine = [],
-    onAdd, editing, again, setups = [], onAgain }: CreateProps & {
+    onAdd, editing, again, setups = [], onAgain, startWith }: CreateProps & {
     onAgain: (p: Party) => void;
   },
 ) {
@@ -346,7 +352,7 @@ function PartyForm(
    * was the one the whole listing is about. An empty picker asks the question
    * instead of answering it wrongly.
    */
-  const [contentKey, setContentKey] = useState(seed?.contentKey ?? "");
+  const [contentKey, setContentKey] = useState(seed?.contentKey ?? startWith ?? "");
   const chosen = content.find((c) => c.key === contentKey);
   const [note, setNote] = useState(seed?.note ?? "");
   const [shape, setShape] = useState<Shape | "">(seed?.shape ?? "");
@@ -1022,6 +1028,9 @@ function PartyForm(
                        // whether this is a static, so it is asked again.
                        setIsStatic(false);
                      }} />
+      {/* The FC's guide for the fight just chosen, in a new tab so the form
+          stays as it is. Nothing when there is none. */}
+      <GuideLink contentKey={contentKey || null} newTab className="self-start" />
 
       {/* Under the picker rather than above it. What to play is the first
           question and these are one answer to it — an answer that happens to
