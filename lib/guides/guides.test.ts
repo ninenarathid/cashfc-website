@@ -92,6 +92,7 @@ describe("inPhases", () => {
   const step = (id: number, sort: number, phase: string | null, mech: string | null = null): StepRow => ({
     id, guide_id: 1, sort, phase, mech, name: `s${id}`, note: null, picture: null,
     pic_w: null, pic_h: null, ring: 9, spots: {}, refs: [],
+    phase_en: null, mech_en: null, name_en: null, note_en: null,
   });
   const shape = (steps: StepRow[]) => inPhases(steps)
     .map((g) => [g.phase, g.blocks.map((b) => [b.mech, b.steps.map((s) => s.id)])]);

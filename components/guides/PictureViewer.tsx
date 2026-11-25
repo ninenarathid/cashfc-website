@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { useLang } from "@/lib/i18n";
 import FocusPicture from "@/components/guides/FocusPicture";
-import { seatColor, type Seat, type StepRow } from "@/lib/guides";
+import { inLang, seatColor, type Seat, type StepRow } from "@/lib/guides";
 
 /**
  * A guide's pictures, one at a time, as large as the screen allows.
@@ -28,7 +28,7 @@ export default function PictureViewer({
   onMove: (at: number) => void;
   onClose: () => void;
 }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [whole, setWhole] = useState(false);
   const many = steps.length > 1;
   const step = steps[at];
@@ -75,8 +75,8 @@ export default function PictureViewer({
 
           <div className="relative flex w-full max-w-5xl items-start justify-between gap-3 pr-12">
             <Dialog.Title className="min-w-0 text-left">
-              {step.mech && <span className="block text-ui text-muted">{step.mech}</span>}
-              <span className="text-title font-semibold text-ink">{step.name}</span>
+              {step.mech && <span className="block text-ui text-muted">{inLang(lang, step.mech, step.mech_en)}</span>}
+              <span className="text-title font-semibold text-ink">{inLang(lang, step.name, step.name_en)}</span>
             </Dialog.Title>
           </div>
 
@@ -84,15 +84,15 @@ export default function PictureViewer({
               the title and the line under it have their room. */}
           <div className="relative" style={{ width: `min(100%, calc((100dvh - 15rem) * ${W / H}), 72rem)` }}>
             <FocusPicture picture={step.picture} w={step.pic_w} h={step.pic_h} points={points}
-                          ring={step.ring} color={color} focus={!whole} alt={step.name} />
+                          ring={step.ring} color={color} focus={!whole} alt={inLang(lang, step.name, step.name_en)} />
           </div>
 
           <div className="relative flex w-full max-w-5xl flex-col items-center gap-2">
-            {spot?.say && (
+            {(spot?.say || spot?.say_en) && (
               <p className="flex max-w-3xl items-start gap-2 text-lead font-semibold leading-snug text-ink">
                 <span className="mt-0.5 shrink-0 rounded-md px-1.5 py-0.5 font-data text-label font-bold text-white"
                       style={{ backgroundColor: color }}>{seat}</span>
-                <span className="min-w-0 break-words">{spot.say}</span>
+                <span className="min-w-0 break-words">{inLang(lang, spot?.say, spot?.say_en)}</span>
               </p>
             )}
             <div className="flex items-center gap-2">

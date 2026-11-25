@@ -13,7 +13,7 @@ import PartyIcon from "@/components/party/PartyIcon";
 import ImageLightbox from "@/components/ui/ImageLightbox";
 import PictureViewer from "@/components/guides/PictureViewer";
 import {
-  CATEGORY_LABEL, GUIDE_COLUMNS, STEP_COLUMNS, cleanStep, inPhases, partyFor, pictureUrl, seatColor,
+  CATEGORY_LABEL, GUIDE_COLUMNS, STEP_COLUMNS, cleanStep, inLang, inPhases, partyFor, pictureUrl, seatColor,
   type Block, type DutyOption, type GuideRow, type Seat, type StepRow,
 } from "@/lib/guides";
 
@@ -38,7 +38,7 @@ type Load =
  * somebody wants to see where the rest of the party is going.
  */
 export default function GuideScreen({ slug, duties = [] }: { slug: string; duties?: DutyOption[] }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const { isAdmin, realAdmin, ready } = useAdmin();
   const [seat, setSeat] = useSeat();
   const [load, setLoad] = useState<Load>({ kind: "loading" });
@@ -144,8 +144,8 @@ export default function GuideScreen({ slug, duties = [] }: { slug: string; dutie
           {t("guide.draftTitle")}
         </p>
       )}
-      {guide.note && !editing && (
-        <p className="mt-3 whitespace-pre-line text-read leading-relaxed text-ink/90">{guide.note}</p>
+      {(guide.note || guide.note_en) && !editing && (
+        <p className="mt-3 whitespace-pre-line text-read leading-relaxed text-ink/90">{inLang(lang, guide.note, guide.note_en)}</p>
       )}
 
       {/* While editing, each step has its own seat buttons beside its picture,
@@ -194,7 +194,7 @@ function Source({ name, url }: { name: string; url: string | null }) {
 }
 
 function Steps({ steps, seat }: { steps: StepRow[]; seat: Seat }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [view, setView] = useState<number | null>(null);
   if (steps.length === 0) {
     return (
@@ -218,7 +218,9 @@ function Steps({ steps, seat }: { steps: StepRow[]; seat: Seat }) {
       {groups.map((group, gi) => (
         <section key={gi}>
           {group.phase && (
-            <h2 className="mb-2.5 font-display text-lg font-semibold">{group.phase}</h2>
+            <h2 className="mb-2.5 font-display text-lg font-semibold">
+              {inLang(lang, group.phase, group.blocks[0]?.steps[0]?.phase_en)}
+            </h2>
           )}
           {/* minmax(0, 1fr) on a phone too: a lone column of auto width grew to
               the pictures' drawn width (1200px) and took the page with it. */}
@@ -244,14 +246,14 @@ function Steps({ steps, seat }: { steps: StepRow[]; seat: Seat }) {
 function MechBox(
   { block, seat, n, onOpen }: { block: Block; seat: Seat; n: number; onOpen: (id: number) => void },
 ) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const k = block.steps.length;
   return (
     <section className="min-w-0 rounded-xl border border-accent/35 bg-surface/60 p-2.5 sm:col-span-2 sm:p-3">
       <h3 className="flex flex-wrap items-baseline gap-x-2 px-0.5">
         <span className="font-data text-meta text-muted">{n}</span>
-        <span className="text-head font-semibold text-ink">{block.mech}</span>
-        <span className="text-ui text-muted">{t("guide.parts", { n: k })}</span>
+        <span className="text-head font-semibold text-ink">{inLang(lang, block.mech, block.steps[0]?.mech_en)}</span>
+        <span className="text-ui text-muted">{k === 1 ? t("guide.partOne") : t("guide.parts", { n: k })}</span>
       </h3>
       {k > 1 && <p className="mt-0.5 px-0.5 text-meta text-muted sm:hidden">{t("guide.swipe")}</p>}
       <ol className="-mx-2.5 mt-2 flex snap-x snap-mandatory gap-2.5 overflow-x-auto px-2.5 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3">
@@ -269,7 +271,7 @@ function StepCard(
   { step, seat, label, flat = false, onOpen }:
   { step: StepRow; seat: Seat; label: string; flat?: boolean; onOpen: (id: number) => void },
 ) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   // The ring can be switched off to see the picture as it is (the owner,
   // 2026-11-25), per picture, and only on a picture that has one.
   const [ringOff, setRingOff] = useState(false);
@@ -277,13 +279,16 @@ function StepCard(
   const spot = step.spots[seat];
   const points = spot?.at ?? [];
   const color = seatColor(seat);
+  const name = inLang(lang, step.name, step.name_en);
+  const note = inLang(lang, step.note, step.note_en);
+  const say = inLang(lang, spot?.say, spot?.say_en);
   const refUrls = step.refs.map((r) => pictureUrl(r.path)).filter((u): u is string => !!u);
 
   return (
     <article className={`min-w-0 ${flat ? "h-full rounded-lg border border-line bg-bg/40 p-2" : "rounded-xl border border-line bg-surface p-2.5 sm:p-3"}`}>
       <h3 className="mb-2 flex items-baseline gap-2 px-0.5">
         {label && <span className="font-data text-meta text-muted">{label}</span>}
-        <span className="text-title font-semibold text-ink">{step.name}</span>
+        <span className="text-title font-semibold text-ink">{name}</span>
       </h3>
 
       {/* A tap opens it large (PictureViewer), still lit on your spot, with
@@ -293,7 +298,7 @@ function StepCard(
           <button type="button" onClick={() => onOpen(step.id)} aria-label={t("guide.enlarge")}
                   className="group relative block w-full cursor-zoom-in rounded-lg text-left">
             <FocusPicture picture={step.picture} w={step.pic_w} h={step.pic_h} points={points}
-                          ring={step.ring} color={color} focus={!ringOff} alt={step.name} />
+                          ring={step.ring} color={color} focus={!ringOff} alt={name} />
             <span className="pointer-events-none absolute bottom-2 right-2 inline-flex items-center gap-1 rounded-full border border-line bg-bg/80 px-3 py-1.5 text-ui text-ink/90 backdrop-blur-sm transition-colors group-hover:border-accent">
               <span aria-hidden>⤢</span>
               {t("guide.enlarge")}
@@ -314,17 +319,17 @@ function StepCard(
 
       {/* A step with no picture is words only (a raid-wide, a rule of thumb):
           it says nothing about a spot it never had. */}
-      {spot?.say ? (
+      {say ? (
         <p className="mt-2.5 flex items-start gap-2 px-0.5 text-lead font-semibold leading-snug text-ink">
           <span className="mt-0.5 shrink-0 rounded-md px-1.5 py-0.5 font-data text-label font-bold text-white"
                 style={{ backgroundColor: color }}>{seat}</span>
-          <span className="min-w-0 break-words">{spot.say}</span>
+          <span className="min-w-0 break-words">{say}</span>
         </p>
       ) : points.length === 0 && step.picture ? (
         <p className="mt-2.5 px-0.5 text-ui text-muted">{t("guide.noSpot", { seat })}</p>
       ) : null}
-      {step.note && (
-        <p className="mt-1.5 whitespace-pre-line px-0.5 text-read leading-relaxed text-muted">{step.note}</p>
+      {note && (
+        <p className="mt-1.5 whitespace-pre-line px-0.5 text-read leading-relaxed text-muted">{note}</p>
       )}
 
       {/* What to watch for in the game: the boss's pose, an object at the
@@ -337,10 +342,10 @@ function StepCard(
               <button key={i} type="button" onClick={() => setOpenRef(i)}
                       className="w-28 shrink-0 text-left">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={pictureUrl(r.path) ?? undefined} alt={r.say ?? t("guide.watch")}
+                <img src={pictureUrl(r.path) ?? undefined} alt={inLang(lang, r.say, r.say_en) || t("guide.watch")}
                      width={r.w} height={r.h} loading="lazy" decoding="async"
                      className="aspect-video w-full rounded-md border border-line bg-black object-cover" />
-                {r.say && <span className="mt-1 block text-meta leading-snug text-ink/85">{r.say}</span>}
+                {(r.say || r.say_en) && <span className="mt-1 block text-meta leading-snug text-ink/85">{inLang(lang, r.say, r.say_en)}</span>}
               </button>
             ))}
           </div>

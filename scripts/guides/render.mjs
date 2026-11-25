@@ -169,7 +169,7 @@ export function sceneSvg(scene, defaults = {}) {
  * picture; false, none — everybody together, a shape being shown, a rough
  * place; a list, only those seats. A seat without a ring keeps its line.
  */
-export function sceneSpots(scene, says = {}, strict = true) {
+export function sceneSpots(scene, says = {}, strict = true, saysEn = {}) {
   const spots = {};
   const ringed = (seat) => strict === true || strict == null || (Array.isArray(strict) && strict.includes(seat));
   for (const seat of SEATS) {
@@ -177,7 +177,10 @@ export function sceneSpots(scene, says = {}, strict = true) {
       ? pts(scene.roles?.[seat]).slice(0, 4).map(([x, y]) => [Math.round(x * 10) / 10, Math.round(y * 10) / 10])
       : [];
     const say = says[seat]?.trim();
-    if (at.length || say) spots[seat] = { ...(at.length ? { at } : {}), ...(say ? { say } : {}) };
+    const sayEn = saysEn?.[seat]?.trim();
+    if (at.length || say || sayEn) {
+      spots[seat] = { ...(at.length ? { at } : {}), ...(say ? { say } : {}), ...(sayEn ? { say_en: sayEn } : {}) };
+    }
   }
   return spots;
 }

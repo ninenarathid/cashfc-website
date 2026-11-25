@@ -60,6 +60,8 @@ export type Point = [number, number];
 export interface SeatSpot {
   at?: Point[];
   say?: string;
+  /** The same line in English (v346). */
+  say_en?: string;
 }
 
 export type Spots = Partial<Record<Seat, SeatSpot>>;
@@ -70,6 +72,7 @@ export interface Ref {
   w: number;
   h: number;
   say?: string;
+  say_en?: string;
 }
 
 export interface GuideRow {
@@ -83,6 +86,7 @@ export interface GuideRow {
   source_name: string | null;
   source_url: string | null;
   note: string | null;
+  note_en: string | null;
   /** The party finder's key for the duty: `ex:Enuo`, `sav:M9S`. */
   content_key: string | null;
   published: boolean;
@@ -108,6 +112,11 @@ export interface StepRow {
   mech: string | null;
   name: string;
   note: string | null;
+  /** The English beside the Thai (v346); empty falls back to the Thai. */
+  phase_en: string | null;
+  mech_en: string | null;
+  name_en: string | null;
+  note_en: string | null;
   picture: string | null;
   pic_w: number | null;
   pic_h: number | null;
@@ -117,9 +126,9 @@ export interface StepRow {
 }
 
 export const GUIDE_COLUMNS =
-  "id, slug, name, short, expansion, category, patch, source_name, source_url, note, content_key, published, sort";
+  "id, slug, name, short, expansion, category, patch, source_name, source_url, note, note_en, content_key, published, sort";
 export const STEP_COLUMNS =
-  "id, guide_id, sort, phase, mech, name, note, picture, pic_w, pic_h, ring, spots, refs";
+  "id, guide_id, sort, phase, mech, name, note, phase_en, mech_en, name_en, note_en, picture, pic_w, pic_h, ring, spots, refs";
 
 /** The same limits v344 holds the database to. */
 export const LIMITS = {
@@ -189,7 +198,9 @@ export function cleanSpots(raw: unknown): Spots {
       if (pts.length) spot.at = pts;
     }
     if (typeof src.say === "string" && src.say.trim()) spot.say = src.say.trim().slice(0, LIMITS.say);
-    if (spot.at || spot.say) out[k] = spot;
+    const en = (src as { say_en?: unknown }).say_en;
+    if (typeof en === "string" && en.trim()) spot.say_en = en.trim().slice(0, LIMITS.say);
+    if (spot.at || spot.say || spot.say_en) out[k] = spot;
   }
   return out;
 }
@@ -204,11 +215,12 @@ export function cleanRefs(raw: unknown): Ref[] {
   const out: Ref[] = [];
   for (const r of raw.slice(0, LIMITS.refs)) {
     if (!r || typeof r !== "object") continue;
-    const v = r as { path?: unknown; w?: unknown; h?: unknown; say?: unknown };
+    const v = r as { path?: unknown; w?: unknown; h?: unknown; say?: unknown; say_en?: unknown };
     if (!isPicturePath(v.path) || typeof v.w !== "number" || typeof v.h !== "number"
       || !(v.w > 0) || !(v.h > 0)) continue;
     const say = typeof v.say === "string" && v.say.trim() ? v.say.trim().slice(0, LIMITS.refSay) : undefined;
-    out.push({ path: v.path, w: Math.round(v.w), h: Math.round(v.h), ...(say ? { say } : {}) });
+    const sayEn = typeof v.say_en === "string" && v.say_en.trim() ? v.say_en.trim().slice(0, LIMITS.refSay) : undefined;
+    out.push({ path: v.path, w: Math.round(v.w), h: Math.round(v.h), ...(say ? { say } : {}), ...(sayEn ? { say_en: sayEn } : {}) });
   }
   return out;
 }
@@ -236,9 +248,20 @@ export function withSeat(spots: Spots, seat: Seat, next: SeatSpot): Spots {
   const out: Spots = { ...spots };
   const at = next.at?.length ? next.at : undefined;
   const say = next.say?.trim() ? next.say : undefined;
-  if (!at && !say) delete out[seat];
-  else out[seat] = { ...(at ? { at } : {}), ...(say ? { say } : {}) };
+  const sayEn = next.say_en?.trim() ? next.say_en : undefined;
+  if (!at && !say && !sayEn) delete out[seat];
+  else out[seat] = { ...(at ? { at } : {}), ...(say ? { say } : {}), ...(sayEn ? { say_en: sayEn } : {}) };
   return out;
+}
+
+/**
+ * A guide's words in the reader's language: the English where somebody has
+ * written it, the Thai otherwise (v346). A guide half translated still reads
+ * whole, and an English reader seeing one Thai line knows what is missing.
+ */
+export function inLang(lang: string, th: string | null | undefined, en: string | null | undefined): string {
+  if (lang === "en" && en?.trim()) return en;
+  return th ?? en ?? "";
 }
 
 /** An address for a fight from its short name: "M9S" → "m9s". */

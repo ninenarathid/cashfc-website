@@ -89,7 +89,7 @@ async function main() {
       uploads.push([picture, buf]);
     }
     const refs = [];
-    for (const r of (step.refs ?? []).slice(0, 4)) {
+    for (const [k, r] of (step.refs ?? []).slice(0, 4).entries()) {
       const res = await fetch(r.src, { headers: { "user-agent": "Mozilla/5.0" } });
       if (!res.ok) throw new Error(`${r.src}: ${res.status}`);
       const src = Buffer.from(await res.arrayBuffer());
@@ -98,14 +98,18 @@ async function main() {
       const w = Math.round((m.width ?? 1000) * k), h = Math.round((m.height ?? 750) * k);
       const path = `${owner}/g-${t++}-${rand()}.webp`;
       uploads.push([path, await sharp(src).resize(w, h).webp({ quality: 85 }).toBuffer()]);
-      refs.push({ path, w, h, ...(r.say ? { say: r.say.slice(0, 160) } : {}) });
+      const sayEn = step.en?.refs?.[k];
+      refs.push({ path, w, h, ...(r.say ? { say: r.say.slice(0, 160) } : {}), ...(sayEn ? { say_en: sayEn.slice(0, 160) } : {}) });
     }
     steps.push({
       sort: i + 1, phase: step.phase ?? null, mech: step.mech ?? null, name: step.name.slice(0, 80),
-      note: step.note ?? null, picture, pic_w, pic_h,
+      note: step.note ?? null,
+      phase_en: step.en?.phase ?? null, mech_en: step.en?.mech ?? null,
+      name_en: step.en?.name?.slice(0, 80) ?? null, note_en: step.en?.note ?? null,
+      picture, pic_w, pic_h,
       // A whole number in the database (smallint); the data may say 5.5.
       ring: Math.min(30, Math.max(3, Math.round(step.ring ?? defaults.ring ?? 6))),
-      spots: sceneSpots(step.scene ?? {}, step.says ?? {}, step.strict), refs,
+      spots: sceneSpots(step.scene ?? {}, step.says ?? {}, step.strict, step.en?.says ?? {}), refs,
     });
   }
   console.log(`${g.slug}: ${steps.length} steps, ${uploads.length} pictures`);
@@ -125,7 +129,8 @@ async function main() {
     body: JSON.stringify({
       slug: g.slug, name: g.name, short: g.short ?? null, expansion: g.expansion ?? "Dawntrail",
       category: g.category ?? "extreme", patch: g.patch ?? null, source_name: g.source_name ?? "game8",
-      source_url: g.source_url ?? null, note: g.note ?? null, content_key: g.content_key ?? null,
+      source_url: g.source_url ?? null, note: g.note ?? null, note_en: g.en?.note ?? null,
+      content_key: g.content_key ?? null,
       published: !draft, sort: g.sort ?? 0,
     }),
   });

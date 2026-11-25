@@ -100,6 +100,10 @@ const DICT = {
     th: "ที่อยู่ลิงก์ต้องเป็นตัวอังกฤษหรือตัวเลข (a–z, 0–9, -)",
   },
   "guide.info": { en: "Guide details", th: "ข้อมูลไกด์" },
+  "guide.editingLang": {
+    en: "You're editing the English text (the Thai shows faintly as a hint). Switch the site to ไทย to edit the Thai.",
+    th: "กำลังแก้ข้อความภาษาไทย สลับเว็บเป็น EN เพื่อใส่ภาษาอังกฤษ",
+  },
   "guide.f.name": { en: "Full name", th: "ชื่อเต็ม" },
   "guide.f.short": { en: "Short name", th: "ชื่อย่อ" },
   "guide.f.slug": { en: "Address", th: "ที่อยู่ลิงก์" },
@@ -121,6 +125,7 @@ const DICT = {
   },
   "guide.addStep": { en: "Add a picture", th: "เพิ่มภาพ" },
   "guide.parts": { en: "{n} parts", th: "{n} ขั้น" },
+  "guide.partOne": { en: "1 part", th: "1 ขั้น" },
   "guide.swipe": { en: "Swipe for the next part →", th: "ปัดเพื่อดูขั้นต่อไป →" },
   "guide.watch": { en: "What to watch for", th: "สิ่งที่ต้องสังเกต" },
   "guide.s.mech": { en: "Big mechanic (optional)", th: "ท่าใหญ่ (ถ้ามี)" },

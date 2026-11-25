@@ -55,7 +55,11 @@ for these, small, until the FC has its own.
       "strict": true | false | ["MT", "ST"],  // which roles get a ring (below)
       "game8": ["https://img.game8.jp/…/show"],          // the picture this redraws (for the check sheet)
       "refs": [{ "src": "https://img.game8.jp/…/show", "say": "Thai caption" }],
-      "scene": { … } | null                    // null: words only
+      "scene": { … } | null,                   // null: words only
+      "en": {                                  // the English beside the Thai (v346)
+        "phase": "…", "mech": "…", "name": "…", "note": "…",
+        "says": { "MT": "…" }, "refs": ["caption for refs[0]", "…"]
+      }
     }
   ]
 }

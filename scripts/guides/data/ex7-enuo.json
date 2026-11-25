@@ -9,7 +9,10 @@
     "source_name": "game8",
     "source_url": "https://game8.jp/ff14/782325",
     "content_key": "ex:Enuo",
-    "note": "แผนตาม game8 (แผนของ Nukemaru) แผนอื่นส่วนใหญ่ต่างกันแค่การกระจายตัวใน Gaze of the Void\nMarker 8 ทิศมาตรฐาน (ดูขั้นแรก)\n\nกลุ่ม 4:4\nกลุ่ม MT: MT H1 D1 D3\nกลุ่ม ST: ST H2 D2 D4\n\nคู่ stack: MT·D3 / H1·D1 / H2·D4 / ST·D2\nคู่ tower/กรวย (จาก A ตามเข็ม): MT·D1 > ST·D2 > H1·D3 > H2·D4"
+    "note": "แผนตาม game8 (แผนของ Nukemaru) แผนอื่นส่วนใหญ่ต่างกันแค่การกระจายตัวใน Gaze of the Void\nMarker 8 ทิศมาตรฐาน (ดูขั้นแรก)\n\nกลุ่ม 4:4\nกลุ่ม MT: MT H1 D1 D3\nกลุ่ม ST: ST H2 D2 D4\n\nคู่ stack: MT·D3 / H1·D1 / H2·D4 / ST·D2\nคู่ tower/กรวย (จาก A ตามเข็ม): MT·D1 > ST·D2 > H1·D3 > H2·D4",
+    "en": {
+      "note": "Plan follows game8 (Nukemaru's strat). Most other strats differ only in the Gaze of the Void spread\nStandard 8-direction waymarks (see the first step)\n\n4:4 groups\nMT group: MT H1 D1 D3\nST group: ST H2 D2 D4\n\nStack pairs: MT·D3 / H1·D1 / H2·D4 / ST·D2\nTower/cone pairs (clockwise from A): MT·D1 > ST·D2 > H1·D3 > H2·D4"
+    }
   },
   "defaults": {
     "frame": [4, 3],
@@ -68,6 +71,12 @@
           { "t": "ring", "at": [21, 50.6], "r": 3.6, "c": "#d58ae8", "wd": 0.5, "o": 0.9 },
           { "t": "ring", "at": [29, 30.6], "r": 3.6, "c": "#ff5f7a", "wd": 0.5, "o": 0.9 }
         ]
+      },
+      "en": {
+        "phase": "Setup",
+        "mech": "Waymarks",
+        "name": "8-direction waymarks",
+        "note": "Standard 8-direction waymarks:\nA north\nB east\nC south\nD west\n1 north-west\n2 north-east\n3 south-east\n4 south-west\n\nUsed as the 8 Meltdown spread spots, and to call north, south, east and west for the whole fight"
       }
     },
     {
@@ -76,7 +85,13 @@
       "name": "raid-wide",
       "note": "AoE เวททั้งปาร์ตี้ (raid-wide) แรงประมาณ raid-wide ทั่วไปของ Extreme",
       "strict": false,
-      "scene": null
+      "scene": null,
+      "en": {
+        "phase": "First half",
+        "mech": "Meteorain",
+        "name": "Raid-wide",
+        "note": "Magic raid-wide AoE, about as strong as a typical Extreme raid-wide"
+      }
     },
     {
       "phase": "ช่วงแรก",
@@ -137,6 +152,12 @@
           "MT": [46, 80.6],
           "ST": [56.6, 82]
         }
+      },
+      "en": {
+        "phase": "First half",
+        "mech": "Naught Grows",
+        "name": "Overview ①: AoE type shown + tethers on healers",
+        "note": "The fight's key mechanic, and it comes as a chain. Read it as two parts: the AoE from the outer Void, and the stack on the healers\nFirst the boss sends an arrow to the outer Void, with a marker showing whether it will be a circle AoE or a donut, and 1–2 healers get a tether and a marker"
       }
     },
     {
@@ -219,6 +240,16 @@
           "MT": [46.7, 84.2],
           "ST": [53.3, 84.2]
         }
+      },
+      "en": {
+        "phase": "First half",
+        "mech": "Naught Grows",
+        "name": "Overview ②: AoE goes off + stack",
+        "note": "The AoE shown goes off from the outer Void. At the same time: if 1 healer is marked, the whole party stacks; if 2 are marked, split into 4:4 stacks\nThe front of this stack takes the most damage, so the tanks take it",
+        "says": {
+          "MT": "Stand at the front of the line on the arena-edge side; take the stack first",
+          "ST": "Stand at the front of the line on the arena-edge side; take the stack first"
+        }
       }
     },
     {
@@ -265,6 +296,15 @@
           { "t": "ring", "at": [50, 3.2], "r": 3.61, "c": "#5fdcff", "wd": 0.57, "o": 0.95 },
           { "t": "dot", "at": [50, 3.2], "r": 1.41, "c": "#d8f8ff", "o": 0.95 }
         ]
+      },
+      "en": {
+        "phase": "First half",
+        "mech": "Naught Grows",
+        "name": "Outer Void: circle AoE",
+        "note": "A marker shows the type first (see the reference picture), then a moment later the AoE comes out of the object at the arrow's tip\nActual size is about as pictured: the circle from the north Void covers the top half of the arena, reaching the boss",
+        "refs": [
+          "Circle AoE marker: a solid blue orb"
+        ]
       }
     },
     {
@@ -310,6 +350,15 @@
           { "t": "dot", "at": [50, 3.2], "r": 4.4, "c": "#14405e", "o": 0.95 },
           { "t": "ring", "at": [50, 3.2], "r": 3.61, "c": "#5fdcff", "wd": 0.57, "o": 0.95 },
           { "t": "dot", "at": [50, 3.2], "r": 1.41, "c": "#d8f8ff", "o": 0.95 }
+        ]
+      },
+      "en": {
+        "phase": "First half",
+        "mech": "Naught Grows",
+        "name": "Outer Void: donut",
+        "note": "A marker that is a ring with a hole in the middle = donut from the Void at the arrow's tip. Only the inner circle near the Void is safe; almost the whole arena is hit\nActual size is about as pictured",
+        "refs": [
+          "Donut marker: a ring with a hole in the middle"
         ]
       }
     },
@@ -393,6 +442,16 @@
           "MT": [46.7, 84.2],
           "ST": [53.3, 84.2]
         }
+      },
+      "en": {
+        "phase": "First half",
+        "mech": "Naught Grows",
+        "name": "Healer stack, pattern 1: circle + 1 marker",
+        "note": "4 patterns (pictures assume the Void is north). A marked healer has a tether and a marker, and a Void appears behind them\n1 marker = whole-party stack / 2 markers = 4:4: facing the boss, MT group on the left, ST group on the right\nThe stack fires from behind the healer and the front 2 take more damage, so the 2 tanks stand on the outer-edge side\nHappens twice in the first half; the second time is a pattern you haven't had yet\nPattern 1: circle AoE from the north Void → everyone goes south of the boss in one line, the 2 tanks at the very end on the south-edge side",
+        "says": {
+          "MT": "Last in the line, on the south-edge side; take the stack first with ST",
+          "ST": "Last in the line, on the south-edge side; take the stack first with MT"
+        }
       }
     },
     {
@@ -474,6 +533,16 @@
           "D2": [53.3, 30.6],
           "H1": [46.7, 36.6],
           "H2": [53.3, 36.6]
+        }
+      },
+      "en": {
+        "phase": "First half",
+        "mech": "Naught Grows",
+        "name": "Healer stack, pattern 2: donut + 1 marker",
+        "note": "Donut from the north Void + 1 marker → go into the inner circle near the north Void and stack in one line. The 2 tanks at the front on the north-edge side, healers at the back by the boss",
+        "says": {
+          "MT": "Front of the line on the north-edge side; take the stack first with ST",
+          "ST": "Front of the line on the north-edge side; take the stack first with MT"
         }
       }
     },
@@ -580,6 +649,16 @@
           "D4": [56.6, 65.6],
           "ST": [62.2, 69.8]
         }
+      },
+      "en": {
+        "phase": "First half",
+        "mech": "Naught Grows",
+        "name": "Healer stack, pattern 3: circle + 2 markers",
+        "note": "Circle AoE + 2 markers → go south of the boss and split 4:4 into 2 lines fanning out. Facing the boss: left (west) = MT group, right (east) = ST group. Healers near the boss, tanks at the end of the line on the edge side",
+        "says": {
+          "MT": "End of the left (west) line, on the edge side",
+          "ST": "End of the right (east) line, on the edge side"
+        }
       }
     },
     {
@@ -685,6 +764,16 @@
           "D2": [46.2, 30.2],
           "H2": [44.6, 37.2]
         }
+      },
+      "en": {
+        "phase": "First half",
+        "mech": "Naught Grows",
+        "name": "Healer stack, pattern 4: donut + 2 markers",
+        "note": "Donut + 2 markers → go to the north side near the Void and split 4:4. Facing the boss (looking south), the left is the MT group, so it is on the east; the ST group is on the west. Healers near the boss, tanks at the end of the line on the north-edge side",
+        "says": {
+          "MT": "MT group is on the east; end of the line, on the edge side",
+          "ST": "ST group is on the west; end of the line, on the edge side"
+        }
       }
     },
     {
@@ -693,7 +782,13 @@
       "name": "Void ย้ายที่",
       "note": "Void รอบนอกแค่ย้ายตำแหน่ง ไม่ต้องสนใจ ถ้าทำได้ให้ขยับเข้ากลางสนามรอ Meltdown ที่ตามมา",
       "strict": false,
-      "scene": null
+      "scene": null,
+      "en": {
+        "phase": "First half",
+        "mech": "Naught Wakes",
+        "name": "The Voids move",
+        "note": "The outer Voids only move, nothing to do. If you can, move into the middle for the Meltdown that follows"
+      }
     },
     {
       "phase": "ช่วงแรก",
@@ -727,6 +822,12 @@
           "MT": [52.7, 51.4],
           "ST": [58.1, 51.4]
         }
+      },
+      "en": {
+        "phase": "First half",
+        "mech": "Meltdown",
+        "name": "① Gather in the middle",
+        "note": "When the boss casts Meltdown, everyone gathers in the middle of the arena"
       }
     },
     {
@@ -769,6 +870,12 @@
           "MT": [52.7, 51.4],
           "ST": [58.1, 51.4]
         }
+      },
+      "en": {
+        "phase": "First half",
+        "mech": "Meltdown",
+        "name": "② Stand still until the debuff ends",
+        "note": "Everyone gets Chains of Condemnation: you can attack, but moving deals damage, so stand still until it ends\nIt lasts 2 seconds, and when it ends a circle AoE appears under your feet"
       }
     },
     {
@@ -821,6 +928,22 @@
           "H1": [27.6, 49.8],
           "D3": [34.2, 30]
         }
+      },
+      "en": {
+        "phase": "First half",
+        "mech": "Meltdown",
+        "name": "③ Go to your spread spot",
+        "note": "As soon as the debuff ends, run straight to your spread spot (8 directions by waymark):\nMT → A\nD4 → 2\nH2 → B\nD2 → 3\nST → C\nD1 → 4\nH1 → D\nD3 → 1\n\nMost deaths come from leaving too late, not too early",
+        "says": {
+          "MT": "Spread at A (north)",
+          "D4": "Spread at 2 (north-east)",
+          "H2": "Spread at B (east)",
+          "D2": "Spread at 3 (south-east)",
+          "ST": "Spread at C (south)",
+          "D1": "Spread at 4 (south-west)",
+          "H1": "Spread at D (west)",
+          "D3": "Spread at 1 (north-west)"
+        }
       }
     },
     {
@@ -868,6 +991,22 @@
           "ST": [45.6, 70.2],
           "D2": [52, 70.2]
         }
+      },
+      "en": {
+        "phase": "First half",
+        "mech": "Airy Emptiness / Dense Emptiness",
+        "name": "Airy Emptiness: pair stacks",
+        "note": "Read the cast: Airy Emptiness = pair stacks (cones out in 4 directions)\nMT·D3 → north\nH1·D1 → west\nH2·D4 → east\nST·D2 → south\n\nIn the second half the boss often turns around, so line up by the map's north instead",
+        "says": {
+          "MT": "With D3, north",
+          "D3": "With MT, north",
+          "H1": "With D1, west",
+          "D1": "With H1, west",
+          "H2": "With D4, east",
+          "D4": "With H2, east",
+          "ST": "With D2, south",
+          "D2": "With ST, south"
+        }
       }
     },
     {
@@ -913,6 +1052,22 @@
           "ST": [63.6, 53.8],
           "H2": [70, 53.8]
         }
+      },
+      "en": {
+        "phase": "First half",
+        "mech": "Airy Emptiness / Dense Emptiness",
+        "name": "Dense Emptiness: 4:4 stacks",
+        "note": "Dense Emptiness = 4:4 stacks\nMT group (MT H1 D1 D3) → west\nST group (ST H2 D2 D4) → east",
+        "says": {
+          "MT": "West side (MT group)",
+          "H1": "West side (MT group)",
+          "D1": "West side (MT group)",
+          "D3": "West side (MT group)",
+          "ST": "East side (ST group)",
+          "H2": "East side (ST group)",
+          "D2": "East side (ST group)",
+          "D4": "East side (ST group)"
+        }
       }
     },
     {
@@ -921,7 +1076,13 @@
       "name": "กรวยวน แล้วชนลูกบอลเป็นคู่",
       "note": "ลูกบอลที่โผล่ขึ้นมาจะยิงกรวย (cone) วนไปตามลำดับที่โผล่ เหมือนโหมดปกติทุกอย่าง\nจากนั้นมีกลไกเพิ่ม: ต้องเข้าไปชนลูกบอลเป็นคู่ ตามลำดับลูกเหลือง (วิ่งเร็ว) → ลูกม่วง (วิ่งช้า)\nชนแล้วจะได้ดีบัฟห้ามชนซ้ำ ต้องรอให้ดีบัฟหมดก่อนแล้วค่อยไปชนลูกม่วง",
       "strict": false,
-      "scene": null
+      "scene": null,
+      "en": {
+        "phase": "First half",
+        "mech": "Gaze of the Void",
+        "name": "Rotating cones, then touch the orbs in pairs",
+        "note": "The orbs that appear fire cones in turn, in the order they appeared, exactly as in normal mode\nThen an extra mechanic: touch the orbs in pairs, in the order yellow (fast) → purple (slow)\nA touch gives a debuff that forbids touching again, so wait for it to wear off before touching the purple"
+      }
     },
     {
       "phase": "ช่วงแรก",
@@ -1011,6 +1172,22 @@
           "H2": [43.6, 69.6],
           "H1": [46.2, 77]
         }
+      },
+      "en": {
+        "phase": "First half",
+        "mech": "Gaze of the Void",
+        "name": "How the orbs are split (pictured: a complex case)",
+        "note": "Rule 1: start at the tank orb and go clockwise, taking yellow → purple in the order they appeared\nTank > Melee > Range > Healer\n(the way you actually move may be counter-clockwise; in the picture the melee's purple is the north orb)\n\nRule 2: face the tanks' big orb\nLeft = Healer\nRight = Melee\nOpposite = Range\n\nIf yellow and purple are lopsided you may have to skip one orb to take a purple; use this as the basic rule\n\nTank orb: the 2 Voids that appear after the first set of cones are hit by the last 2 cones and grow, so it sits near the edge by the first cone or the last cones",
+        "says": {
+          "MT": "Tanks' big orb: yellow first, then the next purple clockwise",
+          "ST": "Tanks' big orb: yellow first, then the next purple clockwise",
+          "D1": "Melee: right of the tank orb, next after the tanks clockwise",
+          "D2": "Melee: right of the tank orb, next after the tanks clockwise",
+          "D3": "Range: opposite the tank orb",
+          "D4": "Range: opposite the tank orb",
+          "H1": "Healer: left of the tank orb",
+          "H2": "Healer: left of the tank orb"
+        }
       }
     },
     {
@@ -1019,7 +1196,13 @@
       "name": "หลบวงวน แล้ว stack ตามชื่อร่าย",
       "note": "Vacuum เหมือนโหมดปกติทุกอย่าง เช่นเดียวกับ Gaze of the Void\nTrick: ยืนรอฝั่งตรงข้ามเส้นสั้นไว้ก่อน แล้วค่อยวิ่งไปจุดของตัวเอง\n\nหลังจากนั้นตามด้วย Airy/Dense Emptiness ดูชื่อร่าย:\nAiry = stack คู่\nDense = stack 4:4",
       "strict": false,
-      "scene": null
+      "scene": null,
+      "en": {
+        "phase": "First half",
+        "mech": "Vacuum + Airy/Dense Emptiness",
+        "name": "Dodge the swirl, then stack by the cast",
+        "note": "Vacuum is exactly as in normal mode, the same as Gaze of the Void\nTrick: wait opposite the short line first, then run to your own spot\n\nThen Airy/Dense Emptiness follows; read the cast:\nAiry = pair stacks\nDense = 4:4 stacks"
+      }
     },
     {
       "phase": "ช่วงแรก",
@@ -1071,6 +1254,16 @@
           "D4": [64.8, 64.6]
         },
         "iconSize": 5.2
+      },
+      "en": {
+        "phase": "First half",
+        "mech": "Deep Freeze",
+        "name": "Tanks drop AoEs north + don't stand still",
+        "note": "1st and 2nd enmity get distance-falloff AoE markers. ST, don't forget tank stance to keep 2nd enmity\nMT drops theirs north-west, ST north-east, everyone else spreads south\nKeep moving until Deep Freeze has almost finished casting, or you'll be frozen\nWith enough mitigation, melee and tanks can keep attacking from the far edge of the target circle and survive",
+        "says": {
+          "MT": "1st-enmity marker: drop it north-west",
+          "ST": "Tank stance on to hold 2nd enmity; drop it north-east"
+        }
       }
     },
     {
@@ -1147,6 +1340,12 @@
           "D2": [69, 57.6],
           "ST": [67.6, 65.2]
         }
+      },
+      "en": {
+        "phase": "Adds phase",
+        "mech": "Adds phase",
+        "name": "① Knockback in the middle",
+        "note": "The arena changes and you can no longer fall off the edge\nDon't stand in the circle AoE in the middle; wait roughly near your tower spot\nThe knockback can be prevented with Arm's Length and Surecast"
       }
     },
     {
@@ -1185,6 +1384,12 @@
           "D2": [73, 55.2],
           "D3": [25.6, 58.6]
         }
+      },
+      "en": {
+        "phase": "Adds phase",
+        "mech": "Adds phase",
+        "name": "② Towers + cones (round 1)",
+        "note": "Marked players get a cone; everyone else takes a tower\nEach round is split as the 4 TH or the 4 DPS\nCone takers: stand between waymarks\n\nNever drop a cone between towers that are close together, or it hits the tower takers (in the picture: between the TH towers in the south)"
       }
     },
     {
@@ -1203,7 +1408,23 @@
         "D4": "กลไกห้ามมอง (gaze)"
       },
       "strict": false,
-      "scene": null
+      "scene": null,
+      "en": {
+        "phase": "Adds phase",
+        "mech": "Adds phase",
+        "name": "③ Kill the add tethered to you",
+        "note": "Attack the add tethered to you while handling your role's mechanic\nThe adds are handled by the 4 DPS or the 4 TH (whichever side is tethered); everyone else attacks the big enemy in the middle",
+        "says": {
+          "MT": "Silence the add + take its heavy hit (light buffs aren't enough; an invuln works)",
+          "ST": "Silence the add + take its heavy hit (light buffs aren't enough; an invuln works)",
+          "H1": "Esuna yourself",
+          "H2": "Esuna yourself",
+          "D1": "Look-away (gaze) mechanic",
+          "D2": "Look-away (gaze) mechanic",
+          "D3": "Look-away (gaze) mechanic",
+          "D4": "Look-away (gaze) mechanic"
+        }
+      }
     },
     {
       "phase": "ช่วงลูกน้อง (Adds)",
@@ -1241,6 +1462,12 @@
           "ST": [75.6, 58.6],
           "H1": [24.2, 59.6]
         }
+      },
+      "en": {
+        "phase": "Adds phase",
+        "mech": "Adds phase",
+        "name": "④ Towers + cones (round 2)",
+        "note": "Cones and towers again, swapped from ②: the side that had cones last time takes towers, and vice versa\nCone takers: stand between waymarks"
       }
     },
     {
@@ -1249,7 +1476,13 @@
       "name": "⑤–⑥ ลูกน้องชุดสอง แล้วออกจากช่วงนี้",
       "note": "⑤ รอบนี้ 4 คนที่ไม่ได้ผูกกับลูกน้องใน ③ ไปจัดการลูกน้องพร้อมกลไกตาม role ฆ่าเสร็จแล้วไปตีศัตรูตัวใหญ่กลางสนาม\n⑥ ทำลาย Beacon in the Dark ที่โผล่กลางสนามเพื่อออกจากช่วงนี้",
       "strict": false,
-      "scene": null
+      "scene": null,
+      "en": {
+        "phase": "Adds phase",
+        "mech": "Adds phase",
+        "name": "⑤–⑥ Second set of adds, then leave the phase",
+        "note": "⑤ This time the 4 who weren't tethered to an add in ③ handle the adds and their role mechanics; once the adds are dead, attack the big enemy in the middle\n⑥ Destroy the Beacon in the Dark that appears in the middle to leave this phase"
+      }
     },
     {
       "phase": "ช่วงลูกน้อง (Adds)",
@@ -1372,6 +1605,25 @@
           "H1": [33.2, 72.2],
           "D3": [40, 72.2]
         }
+      },
+      "en": {
+        "phase": "Adds phase",
+        "mech": "Adds phase",
+        "name": "Tower and cone rules",
+        "note": "Split the arena roughly into east and west\nEast: from A clockwise, pair MT·D1 then ST·D2\nWest: from A counter-clockwise, pair H2·D4 then H1·D3\n\nIn each pair one takes a tower and the other drops a cone, depending on what the TH or DPS side gets that round\nCone takers: stand between waymarks\n\nMostly the melee group handles the east and the range group the west, but there are exceptions: follow the rule but think it through\nCones are bigger than you expect, so keep your distance from neighbours. Tower takers stand inside the tower, away from the marked player",
+        "says": {
+          "MT": "East, first pair clockwise from A (with D1)",
+          "D1": "East, first pair clockwise from A (with MT)",
+          "ST": "East, second pair clockwise (with D2)",
+          "D2": "East, second pair clockwise (with ST)",
+          "H2": "West, first pair counter-clockwise from A (with D4)",
+          "D4": "West, first pair counter-clockwise from A (with H2)",
+          "H1": "West, second pair counter-clockwise (with D3)",
+          "D3": "West, second pair counter-clockwise (with H1)"
+        },
+        "refs": [
+          "The real cone size: bigger than you'd think, so keep your distance from neighbours"
+        ]
       }
     },
     {
@@ -1410,6 +1662,12 @@
           "H1": [41.6, 76.4],
           "ST": [59.6, 76.4]
         }
+      },
+      "en": {
+        "phase": "Adds phase",
+        "mech": "Adds phase",
+        "name": "Complex: 3 cone takers between towers",
+        "note": "Some patterns put 3 cone takers between towers; watch your spacing to your neighbours\nThe same rule still solves it: east clockwise from A, west counter-clockwise from A"
       }
     },
     {
@@ -1418,7 +1676,13 @@
       "name": "raid-wide 6 ครั้ง",
       "note": "AoE เวททั้งปาร์ตี้ ดูเหมือนโดนครั้งเดียวแต่จริงๆ โดน 6 ครั้งติด\nถ้าเก็บ burst นาทีคู่ไว้ตอนช่วงลูกน้อง ให้ burst ตรงนี้",
       "strict": false,
-      "scene": null
+      "scene": null,
+      "en": {
+        "phase": "Second half",
+        "mech": "Lightless World",
+        "name": "6-hit raid-wide",
+        "note": "Magic raid-wide that looks like a single hit but is really 6 hits in a row\nIf you held your even-minute burst during the adds, burst here"
+      }
     },
     {
       "phase": "ช่วงหลัง",
@@ -1432,7 +1696,16 @@
           "say": "Almagest มาต่อจาก Lightless World ทันที เตรียม heal และ mitigation"
         }
       ],
-      "scene": null
+      "scene": null,
+      "en": {
+        "phase": "Second half",
+        "mech": "Almagest",
+        "name": "Raid-wide right after",
+        "note": "Magic raid-wide damage straight after Lightless World; use heals and mitigation fully",
+        "refs": [
+          "Almagest comes straight after Lightless World; have heals and mitigation ready"
+        ]
+      }
     },
     {
       "phase": "ช่วงหลัง",
@@ -1529,6 +1802,12 @@
           "H1": [53.6, 67.6],
           "H2": [65.6, 68.2]
         }
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Naught Grows",
+        "name": "Pattern 1 ①: Void→boss donut / boss→Void circle",
+        "note": "In the second half there are 2 outer Voids. The order is Void → boss → Void, and each AoE shown goes off at the arrow's tip\nPattern 1: arrow from the outer Void to the boss = donut around the boss / from the boss to the outer Void = circle AoE on that Void\nHealers still get small Voids as in the first half; solve it the same way (4:4 stacks or one full stack)"
       }
     },
     {
@@ -1632,6 +1911,16 @@
           "D3": [52, 55.8],
           "H1": [48.4, 53.2]
         }
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Naught Grows",
+        "name": "Pattern 1 ②: hug the boss, 2 lines angled apart",
+        "note": "Donut around the boss → move in close to the boss\nSplit 4:4 into 2 lines angling away from the boss to either side, like an upside-down V with its point at the boss\nHealers at the front of each line near the boss, taking the 4:4 stack from the Void\nTanks at the very end of the line\nSometimes the healers have only one Void (full stack)",
+        "says": {
+          "MT": "Stand at the very end of the line",
+          "ST": "Stand at the very end of the line"
+        }
       }
     },
     {
@@ -1715,6 +2004,12 @@
           "D3": [38.6, 69.6],
           "H2": [66, 69.2]
         }
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Naught Grows",
+        "name": "Pattern 2 ①: Void→boss circle / boss→Void donut",
+        "note": "Pattern 2: arrow from the outer Void to the boss = circle AoE around the boss / from the boss to the outer Void = donut around that Void"
       }
     },
     {
@@ -1797,6 +2092,16 @@
           "H2": [32.6, 55.6]
         },
         "iconSize": 4.4
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Naught Grows",
+        "name": "Pattern 2 ②: hug the outer Void",
+        "note": "Donut around the outer Void → move in close to that Void, then take the stack from the Void on the healer. Tanks at the end of the line\nSometimes the healers have 2 Voids (4:4 stacks)",
+        "says": {
+          "MT": "End of the line (outer Void side)",
+          "ST": "End of the line (outer Void side)"
+        }
       }
     },
     {
@@ -1872,6 +2177,12 @@
           { "t": "ring", "at": [87.6, 83.2], "r": 3.44, "c": "#5fdcff", "wd": 0.55, "o": 0.95 },
           { "t": "dot", "at": [87.6, 83.2], "r": 1.34, "c": "#d8f8ff", "o": 0.95 }
         ]
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Naught Wakes",
+        "name": "Pattern 1 ①: two pairs of Voids",
+        "note": "In the second half there are more outer Voids and more AoEs. There are about 4 patterns, but this is all you need: two pairs of Voids (2 side by side) = the middle is safe / one pair + one big Void = the pair's side (or the diagonal) is safe\nPattern 1: two pairs of Voids (north and east)"
       }
     },
     {
@@ -1951,6 +2262,12 @@
           { "t": "ring", "at": [87.6, 83.2], "r": 3.44, "c": "#f0c080", "wd": 0.55, "o": 0.33249999999999996 },
           { "t": "dot", "at": [87.6, 83.2], "r": 1.34, "c": "#fff2d0", "o": 0.33249999999999996 }
         ]
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Naught Wakes",
+        "name": "Pattern 1 ②: the middle is safe",
+        "note": "Two pairs of Voids → the AoE is 4 bands; the gap in the middle of the arena is safe"
       }
     },
     {
@@ -2015,6 +2332,12 @@
           { "t": "ring", "at": [77, 95], "r": 3.94, "c": "#5fdcff", "wd": 0.62, "o": 0.95 },
           { "t": "dot", "at": [77, 95], "r": 1.54, "c": "#d8f8ff", "o": 0.95 }
         ]
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Naught Wakes",
+        "name": "Pattern 2 ①: a pair + a big Void",
+        "note": "One pair of Voids (north) + one big Void"
       }
     },
     {
@@ -2082,6 +2405,12 @@
           { "t": "ring", "at": [77, 95], "r": 3.94, "c": "#5fdcff", "wd": 0.62, "o": 0.95 },
           { "t": "dot", "at": [77, 95], "r": 1.54, "c": "#d8f8ff", "o": 0.95 }
         ]
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Naught Wakes",
+        "name": "Pattern 2 ②: N (Z) shape, the pair's side is safe",
+        "note": "The AoE is N-shaped (or Z); the side with the pair of Voids is safe"
       }
     },
     {
@@ -2157,6 +2486,12 @@
           { "t": "ring", "at": [34, 97.6], "r": 3.44, "c": "#5fdcff", "wd": 0.55, "o": 0.95 },
           { "t": "dot", "at": [34, 97.6], "r": 1.34, "c": "#d8f8ff", "o": 0.95 }
         ]
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Naught Wakes",
+        "name": "Pattern 3 ①: two pairs of Voids",
+        "note": "Two pairs of Voids (north, and west–south)"
       }
     },
     {
@@ -2236,6 +2571,12 @@
           { "t": "ring", "at": [34, 97.6], "r": 3.44, "c": "#5fdcff", "wd": 0.55, "o": 0.95 },
           { "t": "dot", "at": [34, 97.6], "r": 1.34, "c": "#d8f8ff", "o": 0.95 }
         ]
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Naught Wakes",
+        "name": "Pattern 3 ②: diamond gap in the middle",
+        "note": "Two pairs of Voids → the safe spot is a diamond-shaped gap in the middle of the arena"
       }
     },
     {
@@ -2300,6 +2641,12 @@
           { "t": "ring", "at": [92, 50.4], "r": 3.94, "c": "#5fdcff", "wd": 0.62, "o": 0.95 },
           { "t": "dot", "at": [92, 50.4], "r": 1.54, "c": "#d8f8ff", "o": 0.95 }
         ]
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Naught Wakes",
+        "name": "Pattern 4 ①: a pair + a big Void",
+        "note": "One pair of Voids (north) + one big Void (east)"
       }
     },
     {
@@ -2367,6 +2714,12 @@
           { "t": "ring", "at": [92, 50.4], "r": 3.94, "c": "#5fdcff", "wd": 0.62, "o": 0.95 },
           { "t": "dot", "at": [92, 50.4], "r": 1.54, "c": "#d8f8ff", "o": 0.95 }
         ]
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Naught Wakes",
+        "name": "Pattern 4 ②: H shape, the pair's side is safe",
+        "note": "The AoE is H-shaped; the side with the pair of Voids is safe"
       }
     },
     {
@@ -2453,6 +2806,22 @@
           "D2": [66.2, 53.6],
           "ST": [70.6, 54.6]
         }
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Shrouded Holy",
+        "name": "4:4 stack on the healers",
+        "note": "4:4 stacks on both healers: the MT group goes to the waymark D side, the ST group to the waymark B side",
+        "says": {
+          "MT": "MT group, D side",
+          "H1": "MT group, D side",
+          "D1": "MT group, D side",
+          "D3": "MT group, D side",
+          "ST": "ST group, B side",
+          "H2": "ST group, B side",
+          "D2": "ST group, B side",
+          "D4": "ST group, B side"
+        }
       }
     },
     {
@@ -2461,7 +2830,13 @@
       "name": "line stack 3 ครั้ง",
       "note": "line stack เวท 3 ครั้งติด ทุกคนรวมกันรับ",
       "strict": false,
-      "scene": null
+      "scene": null,
+      "en": {
+        "phase": "Second half",
+        "mech": "Dimension Zero",
+        "name": "3-hit line stack",
+        "note": "Magic line stack, 3 hits in a row; everyone stacks together"
+      }
     },
     {
       "phase": "ช่วงหลัง",
@@ -2527,6 +2902,12 @@
           "D3": [58, 57],
           "D4": [58.6, 46.6]
         }
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Vacuum + Meltdown",
+        "name": "① Wait on the long-curve side",
+        "note": "The first half's Vacuum and Meltdown combined\nVacuum appears → wait on the side with the long curved line\nTrick: wait opposite the short line first, then run to your own spot\n\nThere is almost no time between the circles going off and Meltdown, so always be standing where it will be safe beforehand"
       }
     },
     {
@@ -2601,6 +2982,12 @@
           "D3": [57.8, 56.2],
           "D4": [59.8, 46.6]
         }
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Vacuum + Meltdown",
+        "name": "② Circles go off + don't move",
+        "note": "The Vacuum circles go off, and almost at the same moment you get the Meltdown debuff: don't move (you can attack)"
       }
     },
     {
@@ -2666,6 +3053,22 @@
           "H1": [24, 50.6],
           "D3": [32.6, 27.6]
         }
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Vacuum + Meltdown",
+        "name": "③ Go to your spread spot",
+        "note": "When the debuff ends, hurry to your usual spread spot (as in the first-half Meltdown) and take the second Meltdown hit on yourself",
+        "says": {
+          "MT": "Spread at A (north)",
+          "D4": "Spread at 2 (north-east)",
+          "H2": "Spread at B (east)",
+          "D2": "Spread at 3 (south-east)",
+          "ST": "Spread at C (south)",
+          "D1": "Spread at 4 (south-west)",
+          "H1": "Spread at D (west)",
+          "D3": "Spread at 1 (north-west)"
+        }
       }
     },
     {
@@ -2674,7 +3077,13 @@
       "name": "เหมือนช่วงแรก",
       "note": "เหมือนช่วงแรกทุกอย่าง แก้ตามกฎแบ่งลูกบอลให้ดี",
       "strict": false,
-      "scene": null
+      "scene": null,
+      "en": {
+        "phase": "Second half",
+        "mech": "Gaze of the Void",
+        "name": "Same as the first half",
+        "note": "Exactly the same as the first half; follow the orb rules carefully"
+      }
     },
     {
       "phase": "ช่วงหลัง",
@@ -2783,6 +3192,12 @@
           "H2": [57.6, 54.2],
           "D2": [57.6, 62.6]
         }
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Naught Wakes + Naught Hunts",
+        "name": "① 2 tethered Voids, always diagonal",
+        "note": "Overview: after Naught Wakes hits the arena, 2 Voids in the arena chase the tethered players. 2–3 hits from a chasing Void kill you, so a chased player must keep running\n\n1 set = Naught Wakes (middle safe) → chase player 1 → chase player 2 → Naught Wakes → Airy/Dense Emptiness\n2 sets in total\n\n① Naught Wakes is cast: Voids appear around the outside, and small Voids appear in the arena tethered to 2 players. These 2 Voids are always diagonal from each other\n\nIf you're tethered: find the ball tethered to you and drag it out to your right\n*** Wait for the AoE around the outside of the map to finish before you drag it"
       }
     },
     {
@@ -2896,6 +3311,12 @@
           "ST": [47, 66.6],
           "D3": [53.6, 66]
         }
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Naught Wakes + Naught Hunts",
+        "name": "② AoE goes off, the middle is safe",
+        "note": "The AoE from the Voids goes off; this time the middle of the arena is always safe\nTethered players get ready: the Void starts chasing as soon as the AoE ends"
       }
     },
     {
@@ -2971,6 +3392,12 @@
           "ST": [47.6, 63.6],
           "D3": [44.6, 86]
         }
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Naught Wakes + Naught Hunts",
+        "name": "③ Chase 1: run clockwise",
+        "note": "The Void starts chasing the tethered player: run clockwise and don't let it catch you\nMost of the party is in the middle, so don't bring the Void in; circle around the outside"
       }
     },
     {
@@ -3044,6 +3471,12 @@
           "ST": [58.6, 54.6],
           "D3": [44.6, 86]
         }
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Naught Wakes + Naught Hunts",
+        "name": "④ The Void picks player 2",
+        "note": "The tethering Void picks player 2. Player 2 will have to run counter-clockwise, so go to the opposite side from player 1\nSwap timing: while player 1 is chased, player 2 is tethered too and a 'shwing-shwing' sound starts. The target swaps on the 6th–7th sound, so around the 4th–5th, player 2 should move away from player 1 and get ready to run counter-clockwise"
       }
     },
     {
@@ -3117,6 +3550,12 @@
           "D2": [22.6, 46],
           "D3": [44.6, 85]
         }
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Naught Wakes + Naught Hunts",
+        "name": "⑤ Chase 2: run counter-clockwise",
+        "note": "The Void starts chasing player 2: run counter-clockwise and don't let it catch you"
       }
     },
     {
@@ -3182,6 +3621,12 @@
           "H2": [49.6, 79.2],
           "ST": [46, 83.6]
         }
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Naught Wakes + Naught Hunts",
+        "name": "⑥ Second Naught Wakes: X shape",
+        "note": "Near the end of the chase Naught Wakes comes again; the second one is an X-shaped AoE. Stand in a safe gap between the arms\n\nCheck whether the AoE fires at the letter or the number waymarks:\nFires at numbers → dodge at the letters\nFires at letters → dodge at the numbers"
       }
     },
     {
@@ -3236,6 +3681,22 @@
           "D4": [68, 54],
           "ST": [46.2, 74.8],
           "D2": [52.6, 74.8]
+        }
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Naught Wakes + Naught Hunts",
+        "name": "⑦ Airy/Dense Emptiness (pictured: Airy)",
+        "note": "Airy/Dense Emptiness: line up by the map's directions (not the boss's facing). This picture is Airy = pair stacks",
+        "says": {
+          "MT": "With D3, north",
+          "D3": "With MT, north",
+          "H1": "With D1, west",
+          "D1": "With H1, west",
+          "H2": "With D4, east",
+          "D4": "With H2, east",
+          "ST": "With D2, south",
+          "D2": "With ST, south"
         }
       }
     },
@@ -3350,6 +3811,12 @@
           "D3": [53, 57.6],
           "ST": [46.6, 65.6]
         }
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Naught Wakes + Naught Hunts",
+        "name": "⑧ Set 2: new targets",
+        "note": "The second set of chases starts; the targets are the players who weren't chased in the first set"
       }
     },
     {
@@ -3427,6 +3894,12 @@
           "ST": [48, 63.6],
           "D3": [54, 63.6]
         }
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Naught Wakes + Naught Hunts",
+        "name": "⑨ Chase 1: run clockwise",
+        "note": "Player 1 starts being chased: run clockwise\nPlayer 2 gets ready once tethered"
       }
     },
     {
@@ -3502,6 +3975,12 @@
           "D1": [33.6, 17.2],
           "H2": [74.6, 66]
         }
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Naught Wakes + Naught Hunts",
+        "name": "⑩ Chase 2: run counter-clockwise",
+        "note": "Player 2 starts being chased: run counter-clockwise"
       }
     },
     {
@@ -3556,6 +4035,12 @@
           "D3": [70, 68.6],
           "H2": [76, 65.6]
         }
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Naught Wakes + Naught Hunts",
+        "name": "⑪ Naught Wakes again",
+        "note": "Naught Wakes goes off; stand in a safe gap (in this picture the AoE is a plus shape and the safe gaps are the 4 corners)\n\nCheck whether the AoE fires at the letter or the number waymarks:\nFires at numbers → dodge at the letters\nFires at letters → dodge at the numbers"
       }
     },
     {
@@ -3599,6 +4084,12 @@
           "ST": [64.4, 55],
           "D4": [70, 55]
         }
+      },
+      "en": {
+        "phase": "Second half",
+        "mech": "Naught Wakes + Naught Hunts",
+        "name": "⑫ Dense/Airy Emptiness again (pictured: Dense)",
+        "note": "Airy/Dense Emptiness follows again. This picture is Dense (4:4 stacks: MT group west, ST group east), but it can be Airy"
       }
     }
   ]

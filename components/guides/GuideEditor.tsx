@@ -38,7 +38,8 @@ export default function GuideEditor({
   onGuide: (g: GuideRow) => void;
   onSteps: (fn: (prev: StepRow[]) => StepRow[]) => void;
 }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const en = lang === "en";
   const [userId, setUserId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -99,6 +100,11 @@ export default function GuideEditor({
 
   return (
     <div className="mt-4 flex flex-col gap-4">
+      {/* The words being edited are the site's language (v346): switch the
+          site to EN to write the English, back to ไทย for the Thai. */}
+      <p className="rounded-lg border border-accent/40 bg-accent/10 px-3 py-2 text-ui text-ink">
+        {t("guide.editingLang")}
+      </p>
       <GuideInfo guide={guide} onGuide={onGuide} duties={duties} />
 
       {ordered.map((s, i) => (
@@ -132,7 +138,8 @@ const labelCls = "flex flex-col gap-1 text-ui text-muted";
 function GuideInfo(
   { guide, onGuide, duties }: { guide: GuideRow; onGuide: (g: GuideRow) => void; duties: DutyOption[] },
 ) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const en = lang === "en";
   const router = useRouter();
   const [open, setOpen] = useState(!guide.published);
   const [d, setD] = useState(guide);
@@ -151,7 +158,8 @@ function GuideInfo(
     const { data, error } = await sb.from("guides").update({
       slug: d.slug, name: d.name.trim(), short: opt(d.short ?? ""), expansion: d.expansion,
       category: d.category, patch: opt(d.patch ?? ""), source_name: opt(d.source_name ?? ""),
-      source_url: opt(d.source_url ?? ""), note: opt(d.note ?? ""), published: d.published,
+      source_url: opt(d.source_url ?? ""), note: opt(d.note ?? ""), note_en: opt(d.note_en ?? ""),
+      published: d.published,
       content_key: d.content_key || null,
     }).eq("id", guide.id).select(GUIDE_COLUMNS).single();
     setBusy(false);
@@ -231,8 +239,9 @@ function GuideInfo(
                    onChange={(e) => set("source_url", e.target.value)} />
           </label>
           <label className={`${labelCls} sm:col-span-2`}>{t("guide.f.note")}
-            <textarea className={`${field} min-h-20`} value={d.note ?? ""} maxLength={LIMITS.guideNote}
-                      onChange={(e) => set("note", e.target.value)} />
+            <textarea className={`${field} min-h-20`} value={(en ? d.note_en : d.note) ?? ""} maxLength={LIMITS.guideNote}
+                      placeholder={en ? d.note ?? "" : undefined}
+                      onChange={(e) => set(en ? "note_en" : "note", e.target.value)} />
           </label>
           <label className="flex min-h-11 items-center gap-2.5 text-read text-ink sm:col-span-2">
             <input type="checkbox" className="size-5 accent-[var(--color-accent)]" checked={d.published}
@@ -310,7 +319,8 @@ function StepEditor({
   onMove: (by: -1 | 1) => void;
   onDelete: () => void;
 }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
+  const en = lang === "en";
   const [d, setD] = useState(step);
   const [status, setStatus] = useState<Status>("idle");
   const [why, setWhy] = useState("");
@@ -335,8 +345,14 @@ function StepEditor({
     const { data, error } = await sb.from("guide_steps").update({
       phase: row.phase?.trim() || null, mech: row.mech?.trim() || null,
       name: row.name.trim(), note: row.note?.trim() || null,
+      phase_en: row.phase_en?.trim() || null, mech_en: row.mech_en?.trim() || null,
+      name_en: row.name_en?.trim() || null, note_en: row.note_en?.trim() || null,
       picture: row.picture, pic_w: row.pic_w, pic_h: row.pic_h, ring: row.ring, spots: row.spots,
-      refs: row.refs.map((r) => ({ path: r.path, w: r.w, h: r.h, ...(r.say?.trim() ? { say: r.say.trim() } : {}) })),
+      refs: row.refs.map((r) => ({
+        path: r.path, w: r.w, h: r.h,
+        ...(r.say?.trim() ? { say: r.say.trim() } : {}),
+        ...(r.say_en?.trim() ? { say_en: r.say_en.trim() } : {}),
+      })),
     }).eq("id", row.id).select(STEP_COLUMNS).single();
     if (error || !data) { setWhy(error?.message ?? "?"); setStatus("error"); return; }
     // Only "saved" if nothing changed while it was on its way.
@@ -427,18 +443,21 @@ function StepEditor({
     <article className="flex flex-col gap-2.5 rounded-xl border border-line bg-surface p-3">
       <div className="flex items-center gap-2">
         <span className="w-6 shrink-0 text-center font-data text-meta text-muted">{n}</span>
-        <input className={`${field} font-semibold ${!d.name.trim() ? "border-chili" : ""}`} value={d.name}
-               maxLength={LIMITS.name} aria-label={t("guide.s.name")} placeholder={t("guide.s.name")}
-               onChange={(e) => change({ ...d, name: e.target.value })} />
+        <input className={`${field} font-semibold ${!d.name.trim() ? "border-chili" : ""}`}
+               value={(en ? d.name_en : d.name) ?? ""}
+               maxLength={LIMITS.name} aria-label={t("guide.s.name")} placeholder={en ? d.name : t("guide.s.name")}
+               onChange={(e) => change(en ? { ...d, name_en: e.target.value } : { ...d, name: e.target.value })} />
       </div>
       <div className="flex items-center gap-2">
         <div className="grid min-w-0 flex-1 gap-2 sm:grid-cols-2">
-          <input className={`${field} text-ui`} value={d.phase ?? ""} maxLength={LIMITS.phase}
-                 aria-label={t("guide.s.phase")} placeholder={t("guide.s.phase")}
-                 onChange={(e) => change({ ...d, phase: e.target.value })} />
-          <input className={`${field} text-ui`} value={d.mech ?? ""} maxLength={LIMITS.mech}
-                 aria-label={t("guide.s.mech")} placeholder={t("guide.s.mech")}
-                 onChange={(e) => change({ ...d, mech: e.target.value })} />
+          {/* The Thai phase and big mechanic are what group the steps, so the
+              English ones are only labels for them. */}
+          <input className={`${field} text-ui`} value={(en ? d.phase_en : d.phase) ?? ""} maxLength={LIMITS.phase}
+                 aria-label={t("guide.s.phase")} placeholder={en ? d.phase ?? t("guide.s.phase") : t("guide.s.phase")}
+                 onChange={(e) => change(en ? { ...d, phase_en: e.target.value } : { ...d, phase: e.target.value })} />
+          <input className={`${field} text-ui`} value={(en ? d.mech_en : d.mech) ?? ""} maxLength={LIMITS.mech}
+                 aria-label={t("guide.s.mech")} placeholder={en ? d.mech ?? t("guide.s.mech") : t("guide.s.mech")}
+                 onChange={(e) => change(en ? { ...d, mech_en: e.target.value } : { ...d, mech: e.target.value })} />
         </div>
         <button type="button" className={icon} disabled={first} onClick={() => onMove(-1)}
                 aria-label={t("guide.s.up")} title={t("guide.s.up")}>↑</button>
@@ -513,12 +532,14 @@ function StepEditor({
           <span aria-hidden className="size-2.5 rounded-full" style={{ backgroundColor: color }} />
           {t("guide.s.say", { seat })}
         </span>
-        <input className={field} value={spot.say ?? ""} maxLength={LIMITS.say}
-               onChange={(e) => change({ ...d, spots: withSeat(d.spots, seat, { ...spot, say: e.target.value }) })} />
+        <input className={field} value={(en ? spot.say_en : spot.say) ?? ""} maxLength={LIMITS.say}
+               placeholder={en ? spot.say : undefined}
+               onChange={(e) => change({ ...d, spots: withSeat(d.spots, seat, en ? { ...spot, say_en: e.target.value } : { ...spot, say: e.target.value }) })} />
       </label>
       <label className={labelCls}>{t("guide.s.note")}
-        <textarea className={`${field} min-h-16`} value={d.note ?? ""} maxLength={LIMITS.stepNote}
-                  onChange={(e) => change({ ...d, note: e.target.value })} />
+        <textarea className={`${field} min-h-16`} value={(en ? d.note_en : d.note) ?? ""} maxLength={LIMITS.stepNote}
+                  placeholder={en ? d.note ?? "" : undefined}
+                  onChange={(e) => change(en ? { ...d, note_en: e.target.value } : { ...d, note: e.target.value })} />
       </label>
 
       {/* What to watch for in the game, each with a line. */}
@@ -529,9 +550,9 @@ function StepEditor({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={pictureUrl(r.path) ?? undefined} alt="" width={r.w} height={r.h}
                  className="h-12 w-20 shrink-0 rounded-md border border-line bg-black object-cover" />
-            <input className={field} value={r.say ?? ""} maxLength={LIMITS.refSay}
-                   aria-label={t("guide.s.refSay")} placeholder={t("guide.s.refSay")}
-                   onChange={(e) => change({ ...d, refs: d.refs.map((x, k) => (k === i ? { ...x, say: e.target.value } : x)) })} />
+            <input className={field} value={(en ? r.say_en : r.say) ?? ""} maxLength={LIMITS.refSay}
+                   aria-label={t("guide.s.refSay")} placeholder={en ? r.say ?? t("guide.s.refSay") : t("guide.s.refSay")}
+                   onChange={(e) => change({ ...d, refs: d.refs.map((x, k) => (k === i ? (en ? { ...x, say_en: e.target.value } : { ...x, say: e.target.value }) : x)) })} />
             <button type="button" className={`${icon} hover:!border-chili hover:!text-chili`}
                     onClick={() => dropRef(i)} aria-label={t("guide.s.removeRef")} title={t("guide.s.removeRef")}>✕</button>
           </div>
