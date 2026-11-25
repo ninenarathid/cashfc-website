@@ -11,6 +11,7 @@ import FocusPicture from "@/components/guides/FocusPicture";
 import SeatBar, { useSeat } from "@/components/guides/SeatBar";
 import PartyIcon from "@/components/party/PartyIcon";
 import ImageLightbox from "@/components/ui/ImageLightbox";
+import Tabs from "@/components/ui/Tabs";
 import PictureViewer from "@/components/guides/PictureViewer";
 import GuideRewards from "@/components/guides/GuideRewards";
 import GuideNeeds from "@/components/guides/GuideNeeds";
@@ -19,7 +20,7 @@ import GuideTalk from "@/components/guides/GuideTalk";
 import { GuideCheatsheet, GuideMacro } from "@/components/guides/GuideExtras";
 import type { PersonOption } from "@/lib/people";
 import {
-  CATEGORY_LABEL, GUIDE_COLUMNS, REWARD_COLUMNS, STEP_COLUMNS, cleanPanels, cleanRefs, cleanReward, cleanStep, inLang, inPhases, partyFor, pictureUrl, seatColor,
+  CATEGORY_LABEL, GUIDE_COLUMNS, REWARD_COLUMNS, STEP_COLUMNS, cleanPanels, cleanRefs, cleanReward, cleanStep, inLang, inPhases, partyFor, pictureUrl, plansOf, seatColor, stepsUnder, videosOf,
   type Block, type DutyOption, type GuideRow, type RewardRow, type Seat, type StepRow,
 } from "@/lib/guides";
 
@@ -138,6 +139,7 @@ export default function GuideScreen(
               .filter(Boolean).join(" · ")}
           </div>
           {guide.source_name && <Source name={guide.source_name} url={guide.source_url} />}
+          <Videos list={videosOf(steps)} />
         </div>
         {/* As wide as the screen and no wider, so the buttons wrap on a phone. */}
         <div className="flex min-w-0 max-w-full flex-wrap gap-2">
@@ -197,7 +199,7 @@ export default function GuideScreen(
               bar, so the cheatsheet is lit for the seat picked there. */}
           <GuideCheatsheet guide={guide} seat={seat} />
           <GuideMacro guide={guide} />
-          <Steps steps={steps} seat={seat} />
+          <Steps steps={steps} seat={seat} guideId={guide.id} />
           <GuideRewards rewards={rewards} />
           <GuideTalk guideId={guide.id} people={people} />
         </>
@@ -232,9 +234,59 @@ function Source({ name, url }: { name: string; url: string | null }) {
   );
 }
 
-function Steps({ steps, seat }: { steps: StepRow[]; seat: Seat }) {
+/**
+ * "Pictures from videos by Nukemaru · Hamukatsu": every video a picture on
+ * the page was taken from, each a link (the owner, 2026-11-25: "เขียน credit
+ * แนบลิงค์ให้ด้วย"). Each picture also names its own under it.
+ */
+function Videos({ list }: { list: { by: string; url: string }[] }) {
+  const { t } = useLang();
+  if (list.length === 0) return null;
+  return (
+    <p className="mt-0.5 text-ui text-muted">
+      {t("guide.videos")}{" "}
+      {list.map((v, i) => (
+        <span key={v.url}>
+          {i > 0 && " · "}
+          <a href={v.url} target="_blank" rel="noopener noreferrer"
+             className="text-accent underline decoration-accent/40 underline-offset-2">{v.by}</a>
+        </span>
+      ))}
+    </p>
+  );
+}
+
+const PLANS_KEY = (guideId: number) => `cashfc_guide_plans_${guideId}`;
+
+/**
+ * Which way of playing each mechanic this reader picked (v350), by the
+ * mechanic's name, kept per guide in this browser: somebody whose party plays
+ * the shortcut picks it once.
+ */
+function usePlans(guideId: number): [Record<string, string>, (mech: string, plan: string) => void] {
+  const [chosen, setChosen] = useState<Record<string, string>>({});
+  useEffect(() => {
+    try {
+      const raw = JSON.parse(window.localStorage.getItem(PLANS_KEY(guideId)) ?? "{}");
+      if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+        setChosen(Object.fromEntries(Object.entries(raw).filter(([, v]) => typeof v === "string")) as Record<string, string>);
+      }
+    } catch { /* private window, or something else wrote there */ }
+  }, [guideId]);
+  const choose = useCallback((mech: string, plan: string) => {
+    setChosen((prev) => {
+      const next = { ...prev, [mech]: plan };
+      try { window.localStorage.setItem(PLANS_KEY(guideId), JSON.stringify(next)); } catch { /* ignore */ }
+      return next;
+    });
+  }, [guideId]);
+  return [chosen, choose];
+}
+
+function Steps({ steps, seat, guideId }: { steps: StepRow[]; seat: Seat; guideId: number }) {
   const { t, lang } = useLang();
   const [view, setView] = useState<number | null>(null);
+  const [chosen, choose] = usePlans(guideId);
   if (steps.length === 0) {
     return (
       <div className="mt-5 rounded-xl border border-dashed border-line p-10 text-center text-muted">
@@ -246,8 +298,10 @@ function Steps({ steps, seat }: { steps: StepRow[]; seat: Seat }) {
   // (whose parts are numbered inside it).
   let n = 0;
   const groups = inPhases(steps);
+  // What each block shows: a mechanic played two ways shows the reader's way.
+  const shown = (b: Block) => (b.mech ? stepsUnder(b.steps, chosen[b.mech] ?? null) : b.steps);
   // Every picture in reading order, for the large viewer's ‹ ›.
-  const pictured = groups.flatMap((g) => g.blocks.flatMap((b) => b.steps)).filter((s) => s.picture);
+  const pictured = groups.flatMap((g) => g.blocks.flatMap(shown)).filter((s) => s.picture);
   const open = (id: number) => setView(Math.max(0, pictured.findIndex((s) => s.id === id)));
   return (
     <div className="mt-4 flex flex-col gap-6">
@@ -265,7 +319,8 @@ function Steps({ steps, seat }: { steps: StepRow[]; seat: Seat }) {
               the pictures' drawn width (1200px) and took the page with it. */}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {group.blocks.map((b) => (b.mech
-              ? <MechBox key={`m${b.steps[0].id}`} block={b} seat={seat} n={++n} onOpen={open} />
+              ? <MechBox key={`m${b.steps[0].id}`} block={b} seat={seat} n={++n} onOpen={open}
+                         plan={chosen[b.mech] ?? null} onPlan={(p) => choose(b.mech as string, p)} />
               : <StepCard key={b.steps[0].id} step={b.steps[0]} seat={seat} label={String(++n)} onOpen={open} />))}
           </div>
         </section>
@@ -283,10 +338,24 @@ function Steps({ steps, seat }: { steps: StepRow[]; seat: Seat }) {
  * showing at the edge so it is plain there is more.
  */
 function MechBox(
-  { block, seat, n, onOpen }: { block: Block; seat: Seat; n: number; onOpen: (id: number) => void },
+  { block, seat, n, onOpen, plan, onPlan }:
+  { block: Block; seat: Seat; n: number; onOpen: (id: number) => void; plan: string | null; onPlan: (plan: string) => void },
 ) {
   const { t, lang } = useLang();
-  const k = block.steps.length;
+  // Played two ways (the owner, 2026-11-25: "ทำเป็น tab เลือกวิธีเล่นได้สองแผน
+  // ใน mech นั้นๆ"): a tab a way, game8's first, the steps both share in each.
+  const plans = plansOf(block.steps);
+  const pick = plans.some((p) => p.plan === plan) ? (plan as string) : plans[0]?.plan ?? "";
+  const k = stepsUnder(block.steps, pick || null).length;
+  const parts = (list: StepRow[]) => (
+    <ol className="-mx-2.5 mt-2 flex snap-x snap-mandatory gap-2.5 overflow-x-auto px-2.5 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3">
+      {list.map((s, i) => (
+        <li key={s.id} className={`${list.length > 1 ? "w-[86%]" : "w-full"} shrink-0 snap-start sm:w-auto`}>
+          <StepCard step={s} seat={seat} label={list.length > 1 ? `${i + 1}/${list.length}` : ""} flat onOpen={onOpen} />
+        </li>
+      ))}
+    </ol>
+  );
   return (
     <section className="min-w-0 rounded-xl border border-accent/35 bg-surface/60 p-2.5 sm:col-span-2 sm:p-3">
       <h3 className="flex flex-wrap items-baseline gap-x-2 px-0.5">
@@ -294,14 +363,30 @@ function MechBox(
         <span className="text-head font-semibold text-ink">{inLang(lang, block.mech, block.steps[0]?.mech_en)}</span>
         <span className="text-ui text-muted">{k === 1 ? t("guide.partOne") : t("guide.parts", { n: k })}</span>
       </h3>
-      {k > 1 && <p className="mt-0.5 px-0.5 text-meta text-muted sm:hidden">{t("guide.swipe")}</p>}
-      <ol className="-mx-2.5 mt-2 flex snap-x snap-mandatory gap-2.5 overflow-x-auto px-2.5 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3">
-        {block.steps.map((s, i) => (
-          <li key={s.id} className={`${k > 1 ? "w-[86%]" : "w-full"} shrink-0 snap-start sm:w-auto`}>
-            <StepCard step={s} seat={seat} label={k > 1 ? `${i + 1}/${k}` : ""} flat onOpen={onOpen} />
-          </li>
-        ))}
-      </ol>
+      {plans.length > 0 ? (
+        <>
+          <p className="mt-1 px-0.5 text-meta text-muted">{t("guide.plans")}</p>
+          <Tabs className="mt-1" value={pick} onValueChange={onPlan}
+                tabs={plans.map((p) => {
+                  const list = stepsUnder(block.steps, p.plan);
+                  return {
+                    key: p.plan,
+                    label: inLang(lang, p.plan, p.plan_en),
+                    body: (
+                      <>
+                        {list.length > 1 && <p className="px-0.5 text-meta text-muted sm:hidden">{t("guide.swipe")}</p>}
+                        {parts(list)}
+                      </>
+                    ),
+                  };
+                })} />
+        </>
+      ) : (
+        <>
+          {k > 1 && <p className="mt-0.5 px-0.5 text-meta text-muted sm:hidden">{t("guide.swipe")}</p>}
+          {parts(block.steps)}
+        </>
+      )}
     </section>
   );
 }
@@ -378,14 +463,25 @@ function StepCard(
           <div className="mb-1 text-meta font-semibold text-muted">{t("guide.watch")}</div>
           <div className="flex gap-2 overflow-x-auto pb-1">
             {step.refs.map((r, i) => (
-              <button key={i} type="button" onClick={() => setOpenRef(i)}
-                      className="w-28 shrink-0 text-left">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={pictureUrl(r.path) ?? undefined} alt={inLang(lang, r.say, r.say_en) || t("guide.watch")}
-                     width={r.w} height={r.h} loading="lazy" decoding="async"
-                     className="aspect-video w-full rounded-md border border-line bg-black object-cover" />
-                {(r.say || r.say_en) && <span className="mt-1 block text-meta leading-snug text-ink/85">{inLang(lang, r.say, r.say_en)}</span>}
-              </button>
+              <div key={i} className="w-28 shrink-0">
+                <button type="button" onClick={() => setOpenRef(i)} className="block w-full text-left">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={pictureUrl(r.path) ?? undefined} alt={inLang(lang, r.say, r.say_en) || t("guide.watch")}
+                       width={r.w} height={r.h} loading="lazy" decoding="async"
+                       className="aspect-video w-full rounded-md border border-line bg-black object-cover" />
+                  {(r.say || r.say_en) && <span className="mt-1 block text-meta leading-snug text-ink/85">{inLang(lang, r.say, r.say_en)}</span>}
+                </button>
+                {/* Whose picture it is, a link back to the moment in their
+                    video; outside the button, as a link may not sit in one. */}
+                {r.by && (r.url ? (
+                  <a href={r.url} target="_blank" rel="noopener noreferrer"
+                     className="mt-0.5 block truncate font-data text-label text-muted underline decoration-line underline-offset-2 hover:text-accent">
+                    {t("guide.refBy", { by: r.by })} ↗
+                  </a>
+                ) : (
+                  <span className="mt-0.5 block truncate font-data text-label text-muted">{t("guide.refBy", { by: r.by })}</span>
+                ))}
+              </div>
             ))}
           </div>
         </div>

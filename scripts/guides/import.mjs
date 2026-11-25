@@ -92,22 +92,40 @@ async function main() {
     }
     const refs = [];
     for (const [k, r] of (step.refs ?? []).slice(0, 4).entries()) {
-      const res = await fetch(r.src, { headers: { "user-agent": "Mozilla/5.0" } });
-      if (!res.ok) throw new Error(`${r.src}: ${res.status}`);
-      const src = Buffer.from(await res.arrayBuffer());
+      // A link, or a file on this machine (a frame cut from a video, v350),
+      // relative to the fight's data file.
+      let src;
+      if (/^https?:\/\//.test(r.src)) {
+        const res = await fetch(r.src, { headers: { "user-agent": "Mozilla/5.0" } });
+        if (!res.ok) throw new Error(`${r.src}: ${res.status}`);
+        src = Buffer.from(await res.arrayBuffer());
+      } else {
+        src = readFileSync(resolve(dirname(resolve(file)), r.src));
+      }
+      // Whose picture and the way back to the video (v350): https only.
+      if (r.url && !/^https:\/\/[A-Za-z0-9.-]+(\/[^\s"'<>]*)?$/.test(r.url)) throw new Error(`bad credit link: ${r.url}`);
       const m = await sharp(src).metadata();
       const k = Math.min(1, 1000 / (m.width ?? 1000));
       const w = Math.round((m.width ?? 1000) * k), h = Math.round((m.height ?? 750) * k);
       const path = `${owner}/g-${t++}-${rand()}.webp`;
       uploads.push([path, await sharp(src).resize(w, h).webp({ quality: 85 }).toBuffer()]);
       const sayEn = step.en?.refs?.[k];
-      refs.push({ path, w, h, ...(r.say ? { say: r.say.slice(0, 160) } : {}), ...(sayEn ? { say_en: sayEn.slice(0, 160) } : {}) });
+      refs.push({
+        path, w, h, ...(r.say ? { say: r.say.slice(0, 160) } : {}), ...(sayEn ? { say_en: sayEn.slice(0, 160) } : {}),
+        ...(r.by ? { by: r.by.slice(0, 60) } : {}), ...(r.url ? { url: r.url } : {}),
+      });
     }
     steps.push({
       sort: i + 1, phase: step.phase ?? null, mech: step.mech ?? null, name: step.name.slice(0, 80),
       note: step.note ?? null,
       phase_en: step.en?.phase ?? null, mech_en: step.en?.mech ?? null,
       name_en: step.en?.name?.slice(0, 80) ?? null, note_en: step.en?.note ?? null,
+      // Only sent when the fight has a second way to play somewhere, so a
+      // guide without one imports whether or not v350 has run; and then on
+      // every step, as one insert of many rows wants the same keys on each.
+      ...(fight.steps.some((s) => s.plan)
+        ? { plan: step.plan?.slice(0, 40) ?? null, plan_en: step.plan ? step.en?.plan?.slice(0, 40) ?? null : null }
+        : {}),
       picture, pic_w, pic_h,
       // A whole number in the database (smallint); the data may say 5.5.
       ring: Math.min(30, Math.max(3, Math.round(step.ring ?? defaults.ring ?? 6))),

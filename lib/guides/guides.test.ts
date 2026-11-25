@@ -1,8 +1,64 @@
 import { describe, expect, it } from "vitest";
 import {
-  cleanRefs, cleanRing, cleanSpots, fitPicture, inPhases, isPicturePath, isSlug, newPicturePath, slugify,
-  togglePoint, withSeat, type StepRow,
+  cleanRefs, cleanRing, cleanSpots, fitPicture, inPhases, isCreditUrl, isPicturePath, isSlug, newPicturePath, plansOf,
+  slugify, stepsUnder, togglePoint, videosOf, withSeat, type StepRow,
 } from "./index";
+
+describe("two ways to play a mechanic (v350)", () => {
+  const s = (id: number, plan: string | null = null, plan_en: string | null = null): StepRow => ({
+    id, guide_id: 1, sort: id, phase: null, mech: "Absolute Authority", name: `s${id}`, note: null, picture: null,
+    pic_w: null, pic_h: null, ring: 9, spots: {}, refs: [],
+    phase_en: null, mech_en: null, name_en: null, note_en: null, plan, plan_en,
+  });
+  const ids = (list: StepRow[]) => list.map((x) => x.id);
+  const box = [s(1), s(2, "game8", "game8"), s(3, "game8"), s(4, "รวมกัน", "Together"), s(5)];
+  it("finds the ways in the order they first appear, game8's first", () => {
+    expect(plansOf(box)).toEqual([{ plan: "game8", plan_en: "game8" }, { plan: "รวมกัน", plan_en: "Together" }]);
+  });
+  it("is no tabs at all when there is one way or none", () => {
+    expect(plansOf([s(1), s(2)])).toEqual([]);
+    expect(plansOf([s(1, "game8"), s(2, "game8"), s(3)])).toEqual([]);
+  });
+  it("shows a way's own steps and the ones every way shares, in order", () => {
+    expect(ids(stepsUnder(box, "game8"))).toEqual([1, 2, 3, 5]);
+    expect(ids(stepsUnder(box, "รวมกัน"))).toEqual([1, 4, 5]);
+  });
+  it("falls back to the first way for a choice that is not there", () => {
+    expect(ids(stepsUnder(box, null))).toEqual([1, 2, 3, 5]);
+    expect(ids(stepsUnder(box, "gone"))).toEqual([1, 2, 3, 5]);
+  });
+  it("leaves a mechanic played one way whole", () => {
+    expect(ids(stepsUnder([s(1), s(2, "x")], "y"))).toEqual([1, 2]);
+  });
+});
+
+describe("whose picture (v350)", () => {
+  const path = `${"0b9c1f2e-3a4b-4c5d-8e6f-7a8b9c0d1e2f"}/g-1764000000000-abcd.webp`;
+  it("keeps a creator and an https link", () => {
+    expect(cleanRefs([{ path, w: 1, h: 1, by: " Nukemaru ", url: "https://youtu.be/sP2Ljn2Y2NA?t=264" }]))
+      .toEqual([{ path, w: 1, h: 1, by: "Nukemaru", url: "https://youtu.be/sP2Ljn2Y2NA?t=264" }]);
+  });
+  it("drops a link it would not put in an href, and keeps the picture", () => {
+    for (const url of ["javascript:alert(1)", "http://youtu.be/a", "https://youtu.be/a b", "https://x/\"><script>", 5]) {
+      expect(cleanRefs([{ path, w: 1, h: 1, url }])).toEqual([{ path, w: 1, h: 1 }]);
+    }
+    expect(isCreditUrl("https://www.youtube.com/watch?v=sP2Ljn2Y2NA&t=264s")).toBe(true);
+    expect(isCreditUrl(`https://youtu.be/${"a".repeat(300)}`)).toBe(false);
+  });
+  it("lists each video once, the moment left off", () => {
+    const step = (refs: StepRow["refs"]): StepRow => ({
+      id: 1, guide_id: 1, sort: 1, phase: null, mech: null, name: "x", note: null, picture: null, pic_w: null, pic_h: null,
+      ring: 9, spots: {}, refs, phase_en: null, mech_en: null, name_en: null, note_en: null, plan: null, plan_en: null,
+    });
+    expect(videosOf([
+      step([{ path, w: 1, h: 1, by: "Nukemaru", url: "https://youtu.be/AAA?t=10" }, { path, w: 1, h: 1, by: "Nukemaru", url: "https://youtu.be/AAA?t=99" }]),
+      step([{ path, w: 1, h: 1, by: "Hamukatsu", url: "https://www.youtube.com/watch?v=BBB&t=5s" }, { path, w: 1, h: 1, say: "no credit" }]),
+    ])).toEqual([
+      { by: "Nukemaru", url: "https://youtu.be/AAA" },
+      { by: "Hamukatsu", url: "https://www.youtube.com/watch?v=BBB" },
+    ]);
+  });
+});
 
 const UID = "0b9c1f2e-3a4b-4c5d-8e6f-7a8b9c0d1e2f";
 
@@ -92,7 +148,7 @@ describe("inPhases", () => {
   const step = (id: number, sort: number, phase: string | null, mech: string | null = null): StepRow => ({
     id, guide_id: 1, sort, phase, mech, name: `s${id}`, note: null, picture: null,
     pic_w: null, pic_h: null, ring: 9, spots: {}, refs: [],
-    phase_en: null, mech_en: null, name_en: null, note_en: null,
+    phase_en: null, mech_en: null, name_en: null, note_en: null, plan: null, plan_en: null,
   });
   const shape = (steps: StepRow[]) => inPhases(steps)
     .map((g) => [g.phase, g.blocks.map((b) => [b.mech, b.steps.map((s) => s.id)])]);

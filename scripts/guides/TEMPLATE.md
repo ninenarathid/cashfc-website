@@ -48,7 +48,12 @@ ex7 ต้องมีใน ex อื่นด้วย ให้เป็น t
    - `note` (Thai, ≤ 1000) one thing per line, `says` per role where a role
      does something of its own (≤ 200);
    - `refs` for what to watch (game screenshots), never a picture with
-     Japanese text in it;
+     Japanese text in it; frames from Hamukatsu's or Nukemaru's video, cropped
+     tight (no mascot, subtitle box, Japanese UI or player names), with `by`
+     and `url` (the video at that moment) — see README;
+   - where parties play a mechanic another way too (EX3's Absolute Authority
+     all together, EX6's Flash Thunder + Magic Circle Deployment 2:6), its
+     steps get `plan` tabs, game8's first (README, "Two ways to play");
    - `en` on every step: phase, mech, name, note, says, refs captions.
 5. **cheatsheet**, only when the fight's xivjpraids page has one (the owner,
    2026-11-25: "อันไหนมี cheatsheet ทำให้ด้วย ไม่มีไม่ต้องทำ"; of the Dawntrail

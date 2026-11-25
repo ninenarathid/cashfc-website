@@ -62,6 +62,9 @@ export default function GuideEditor({
       // A new step carries on the big mechanic of the one before it: the
       // usual reason to add a step is the next part of the same thing.
       mech: last?.mech ?? null,
+      // And the way of playing it the one before belongs to (v350).
+      plan: last?.mech ? last.plan : null,
+      plan_en: last?.mech ? last.plan_en : null,
       name: t("guide.s.name"),
       ring: last?.ring ?? RING_DEFAULT,
     }).select(STEP_COLUMNS).single();
@@ -365,11 +368,15 @@ function StepEditor({
       name: row.name.trim(), note: row.note?.trim() || null,
       phase_en: row.phase_en?.trim() || null, mech_en: row.mech_en?.trim() || null,
       name_en: row.name_en?.trim() || null, note_en: row.note_en?.trim() || null,
+      plan: row.plan?.trim() || null, plan_en: row.plan_en?.trim() || null,
       picture: row.picture, pic_w: row.pic_w, pic_h: row.pic_h, ring: row.ring, spots: row.spots,
       refs: row.refs.map((r) => ({
         path: r.path, w: r.w, h: r.h,
         ...(r.say?.trim() ? { say: r.say.trim() } : {}),
         ...(r.say_en?.trim() ? { say_en: r.say_en.trim() } : {}),
+        // A video frame keeps its credit and link through an edit (v350).
+        ...(r.by ? { by: r.by } : {}),
+        ...(r.url ? { url: r.url } : {}),
       })),
     }).eq("id", row.id).select(STEP_COLUMNS).single();
     if (error || !data) { setWhy(error?.message ?? "?"); setStatus("error"); return; }
@@ -467,15 +474,20 @@ function StepEditor({
                onChange={(e) => change(en ? { ...d, name_en: e.target.value } : { ...d, name: e.target.value })} />
       </div>
       <div className="flex items-center gap-2">
-        <div className="grid min-w-0 flex-1 gap-2 sm:grid-cols-2">
+        <div className="grid min-w-0 flex-1 gap-2 sm:grid-cols-3">
           {/* The Thai phase and big mechanic are what group the steps, so the
-              English ones are only labels for them. */}
+              English ones are only labels for them. The same for the way of
+              playing (v350): the Thai name is the tab. */}
           <input className={`${field} text-ui`} value={(en ? d.phase_en : d.phase) ?? ""} maxLength={LIMITS.phase}
                  aria-label={t("guide.s.phase")} placeholder={en ? d.phase ?? t("guide.s.phase") : t("guide.s.phase")}
                  onChange={(e) => change(en ? { ...d, phase_en: e.target.value } : { ...d, phase: e.target.value })} />
           <input className={`${field} text-ui`} value={(en ? d.mech_en : d.mech) ?? ""} maxLength={LIMITS.mech}
                  aria-label={t("guide.s.mech")} placeholder={en ? d.mech ?? t("guide.s.mech") : t("guide.s.mech")}
                  onChange={(e) => change(en ? { ...d, mech_en: e.target.value } : { ...d, mech: e.target.value })} />
+          <input className={`${field} text-ui`} value={(en ? d.plan_en : d.plan) ?? ""} maxLength={LIMITS.plan}
+                 aria-label={t("guide.s.plan")} title={t("guide.s.planHint")}
+                 placeholder={en ? d.plan ?? t("guide.s.plan") : t("guide.s.plan")}
+                 onChange={(e) => change(en ? { ...d, plan_en: e.target.value } : { ...d, plan: e.target.value })} />
         </div>
         <button type="button" className={icon} disabled={first} onClick={() => onMove(-1)}
                 aria-label={t("guide.s.up")} title={t("guide.s.up")}>↑</button>

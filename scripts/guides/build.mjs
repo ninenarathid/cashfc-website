@@ -60,7 +60,9 @@ export async function buildFight(file, { compareDir } = {}) {
     }
     const refs = [];
     for (const [k, r] of (step.refs ?? []).entries()) {
-      const buf = await fetchPicture(r.src);
+      // A link, or a frame cut from a video on this machine (v350), relative
+      // to the fight's data file — as import.mjs reads it.
+      const buf = /^https?:\/\//.test(r.src) ? await fetchPicture(r.src) : readFileSync(resolve(dirname(resolve(file)), r.src));
       const img = sharp(buf);
       const m = await img.metadata();
       const scale = Math.min(1, 1000 / (m.width ?? 1000));
@@ -70,13 +72,15 @@ export async function buildFight(file, { compareDir } = {}) {
       const path = `${FAKE_UID}/g-${1764000000000 + id + 500 + i * 4 + k}-ref${k}x.webp`;
       pics[path] = `/guides/preview/${slug}/ref-${pad(i)}-${k}.webp`;
       const sayEn = step.en?.refs?.[k];
-      refs.push({ path, w, h, ...(r.say ? { say: r.say } : {}), ...(sayEn ? { say_en: sayEn } : {}) });
+      refs.push({ path, w, h, ...(r.say ? { say: r.say } : {}), ...(sayEn ? { say_en: sayEn } : {}),
+        ...(r.by ? { by: r.by } : {}), ...(r.url ? { url: r.url } : {}) });
     }
     rows.push({
       id: id + i, guide_id: id, sort: i + 1, phase: step.phase ?? null, mech: step.mech ?? null,
       name: step.name, note: step.note ?? null,
       phase_en: step.en?.phase ?? null, mech_en: step.en?.mech ?? null,
       name_en: step.en?.name ?? null, note_en: step.en?.note ?? null,
+      plan: step.plan ?? null, plan_en: step.plan ? step.en?.plan ?? null : null,
       picture, pic_w, pic_h,
       ring: step.ring ?? defaults.ring ?? 6, spots: sceneSpots(step.scene ?? {}, step.says ?? {}, step.strict, step.en?.says ?? {}),
       refs,

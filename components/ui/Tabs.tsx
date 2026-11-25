@@ -30,10 +30,19 @@ export interface TabDef {
   body: ReactNode;
 }
 
+/**
+ * Left to itself it opens the first tab and keeps the choice. Given `value`
+ * it is the caller's choice instead (a guide remembers which way of playing a
+ * mechanic its reader picked, across visits), told back through
+ * `onValueChange`.
+ */
 export default function Tabs(
-  { tabs, className = "" }: { tabs: TabDef[]; className?: string },
+  { tabs, className = "", value, onValueChange }:
+  { tabs: TabDef[]; className?: string; value?: string; onValueChange?: (key: string) => void },
 ) {
-  const [open, setOpen] = useState(tabs[0]?.key ?? "");
+  const [own, setOwn] = useState(tabs[0]?.key ?? "");
+  const open = value ?? own;
+  const setOpen = (key: string) => { setOwn(key); onValueChange?.(key); };
   if (!tabs.length) return null;
 
   return (

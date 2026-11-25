@@ -23,6 +23,18 @@ Reference pictures (`refs`, what to watch for: the boss's pose, an object at
 the edge) are in-game screenshots; game8's screenshots of the game may be used
 for these, small, until the FC has its own.
 
+Frames from the creators' videos may be used too (the owner, 2026-11-25: "ใช้
+รูปของวิดิโอได้ทั้งสองคน เขียน credit แนบลิงค์ให้ด้วย"): Hamukatsu's, whose
+strat game8 mostly follows, and Nukemaru's (ぬけまるG). Each carries `by` (the
+creator, in English: "Nukemaru", "Hamukatsu") and `url` (the video at that
+moment, `https://youtu.be/<id>?t=<seconds>`); the page puts "ภาพ: Nukemaru ↗"
+under it and lists the videos under the source line (v350). Cut a frame with
+yt-dlp + ffmpeg, then crop it tight to what is watched: never the creator's
+mascot, their subtitle box, the Japanese game UI (cast bar, nameplates, buffs,
+combat text) or the party list's player names. A diagram the creator drew over
+the game is theirs: redraw it as a scene, as game8's. game8 stays the plan;
+a video is for the tells, the tricks and the timing.
+
 ## The data file
 
 ```jsonc
@@ -71,16 +83,28 @@ for these, small, until the FC has its own.
       "ring": 6,                              // spotlight radius, % of width (≈ icon size)
       "strict": true | false | ["MT", "ST"],  // which roles get a ring (below)
       "game8": ["https://img.game8.jp/…/show"],          // the picture this redraws (for the check sheet)
-      "refs": [{ "src": "https://img.game8.jp/…/show", "say": "Thai caption" }],
+      "refs": [{ "src": "https://img.game8.jp/…/show", "say": "Thai caption" },
+               { "src": "frames/ex3-0424.webp",             // or a file, relative to this data file
+                 "say": "Thai caption", "by": "Nukemaru", "url": "https://youtu.be/<id>?t=264" }],   // v350
+      "plan": "แผน game8",                    // v350: which way of playing the mechanic (below)
       "scene": { … } | null,                   // null: words only
       "en": {                                  // the English beside the Thai (v346)
-        "phase": "…", "mech": "…", "name": "…", "note": "…",
+        "phase": "…", "mech": "…", "name": "…", "note": "…", "plan": "game8's plan",
         "says": { "MT": "…" }, "refs": ["caption for refs[0]", "…"]
       }
     }
   ]
 }
 ```
+
+### Two ways to play a mechanic (v350)
+
+Where a mechanic is played two ways (game8's plan and a shortcut parties use
+instead), its steps carry `plan` (the tab's Thai name, ≤ 40) and `en.plan`.
+The page draws one tab a way inside the mechanic's box, game8's first (so put
+game8's steps first); a step of that mechanic with no `plan` is shown under
+every tab (what both ways share). The reader's pick is kept per guide in their
+browser. A guide with no `plan` anywhere imports whether or not v350 has run.
 
 ### A scene
 

@@ -86,6 +86,13 @@ export interface Ref {
   h: number;
   say?: string;
   say_en?: string;
+  /**
+   * Whose picture it is and the way back to it (v350): a frame from a
+   * creator's video carries their name and a link to the video at that
+   * moment (the owner, 2026-11-25: "เขียน credit แนบลิงค์ให้ด้วย").
+   */
+  by?: string;
+  url?: string;
 }
 
 export interface GuideRow {
@@ -153,6 +160,12 @@ export interface StepRow {
   mech_en: string | null;
   name_en: string | null;
   note_en: string | null;
+  /**
+   * Which way of playing the mechanic this step belongs to (v350), as the
+   * tab's name; null belongs to every way. See plansOf.
+   */
+  plan: string | null;
+  plan_en: string | null;
   picture: string | null;
   pic_w: number | null;
   pic_h: number | null;
@@ -164,11 +177,11 @@ export interface StepRow {
 export const GUIDE_COLUMNS =
   "id, slug, name, short, expansion, category, patch, source_name, source_url, note, note_en, content_key, published, sort, req_level, req_ilvl, req_party, req_minutes, unlock, unlock_en, unlock_pics, macro_en, macro_ja, cheat_panels, cheat_pics, cheat_pics_en, xref_name, xref_url";
 export const STEP_COLUMNS =
-  "id, guide_id, sort, phase, mech, name, note, phase_en, mech_en, name_en, note_en, picture, pic_w, pic_h, ring, spots, refs";
+  "id, guide_id, sort, phase, mech, name, note, phase_en, mech_en, name_en, note_en, plan, plan_en, picture, pic_w, pic_h, ring, spots, refs";
 
 /** The same limits v344 holds the database to. */
 export const LIMITS = {
-  name: 80, short: 20, phase: 60, mech: 80, refs: 4, refSay: 160, stepNote: 1000, guideNote: 1000, say: 200,
+  name: 80, short: 20, phase: 60, mech: 80, plan: 40, refBy: 60, refUrl: 300, refs: 4, refSay: 160, stepNote: 1000, guideNote: 1000, say: 200,
   points: 4, ringMin: 3, ringMax: 30, sourceName: 80, sourceUrl: 300, slug: 40,
 } as const;
 
@@ -290,20 +303,50 @@ export const cleanRing = (n: unknown) =>
   typeof n === "number" && Number.isFinite(n)
     ? Math.round(clamp(n, LIMITS.ringMin, LIMITS.ringMax)) : RING_DEFAULT;
 
+/**
+ * A link the page may put on a picture: https, a host, nothing that could
+ * close an attribute or start a tag. The same pattern v350 holds the database
+ * to; checked again here because the page draws it as an <a href>.
+ */
+export const isCreditUrl = (s: unknown): s is string =>
+  typeof s === "string" && s.length <= LIMITS.refUrl && /^https:\/\/[A-Za-z0-9.-]+(\/[^\s"'<>]*)?$/.test(s);
+
 /** Reference pictures as the page may draw them: only our own paths, sized. */
 export function cleanRefs(raw: unknown): Ref[] {
   if (!Array.isArray(raw)) return [];
   const out: Ref[] = [];
   for (const r of raw.slice(0, LIMITS.refs)) {
     if (!r || typeof r !== "object") continue;
-    const v = r as { path?: unknown; w?: unknown; h?: unknown; say?: unknown; say_en?: unknown };
+    const v = r as { path?: unknown; w?: unknown; h?: unknown; say?: unknown; say_en?: unknown; by?: unknown; url?: unknown };
     if (!isPicturePath(v.path) || typeof v.w !== "number" || typeof v.h !== "number"
       || !(v.w > 0) || !(v.h > 0)) continue;
     const say = typeof v.say === "string" && v.say.trim() ? v.say.trim().slice(0, LIMITS.refSay) : undefined;
     const sayEn = typeof v.say_en === "string" && v.say_en.trim() ? v.say_en.trim().slice(0, LIMITS.refSay) : undefined;
-    out.push({ path: v.path, w: Math.round(v.w), h: Math.round(v.h), ...(say ? { say } : {}), ...(sayEn ? { say_en: sayEn } : {}) });
+    const by = typeof v.by === "string" && v.by.trim() ? v.by.trim().slice(0, LIMITS.refBy) : undefined;
+    const url = isCreditUrl(v.url) ? v.url : undefined;
+    out.push({
+      path: v.path, w: Math.round(v.w), h: Math.round(v.h),
+      ...(say ? { say } : {}), ...(sayEn ? { say_en: sayEn } : {}), ...(by ? { by } : {}), ...(url ? { url } : {}),
+    });
   }
   return out;
+}
+
+/**
+ * The videos a guide's pictures were taken from, once each, for the credit
+ * at the foot of the page: a creator and the video's own address, the moment
+ * (?t=, &t=) left off.
+ */
+export function videosOf(steps: StepRow[]): { by: string; url: string }[] {
+  const seen = new Map<string, { by: string; url: string }>();
+  for (const s of steps) {
+    for (const r of s.refs) {
+      if (!r.by || !r.url) continue;
+      const url = r.url.replace(/[?&]t=[^&]*$/, "").replace(/([?&])t=[^&]*&/, "$1");
+      if (!seen.has(url)) seen.set(url, { by: r.by, url });
+    }
+  }
+  return [...seen.values()];
 }
 
 /** Cheatsheet panels as the page may draw them. */
@@ -332,6 +375,7 @@ export function cleanPanels(raw: unknown): CheatPanel[] {
 export function cleanStep(row: StepRow): StepRow {
   return {
     ...row, mech: row.mech?.trim() || null,
+    plan: row.plan?.trim() || null, plan_en: row.plan_en?.trim() || null,
     spots: cleanSpots(row.spots), ring: cleanRing(row.ring), refs: cleanRefs(row.refs),
   };
 }
@@ -407,4 +451,31 @@ export function inPhases(steps: StepRow[]): { phase: string | null; blocks: Bloc
     else group.blocks.push({ mech: m, steps: [s] });
   }
   return out;
+}
+
+/**
+ * The ways a big mechanic is played (v350), in the order they first appear:
+ * each a tab, named in Thai and English. The first is the guide's own plan
+ * (game8's), the one shown until a reader picks another. Empty when the
+ * mechanic is played one way only.
+ */
+export function plansOf(steps: StepRow[]): { plan: string; plan_en: string | null }[] {
+  const out: { plan: string; plan_en: string | null }[] = [];
+  for (const s of steps) {
+    const p = s.plan?.trim();
+    if (p && !out.some((x) => x.plan === p)) out.push({ plan: p, plan_en: s.plan_en?.trim() || null });
+  }
+  return out.length > 1 ? out : [];
+}
+
+/**
+ * The steps of a big mechanic under one way of playing it: those that belong
+ * to it and those every way shares, in order. A plan that is not there (the
+ * data changed since the reader chose) falls back to the first.
+ */
+export function stepsUnder(steps: StepRow[], plan: string | null): StepRow[] {
+  const plans = plansOf(steps);
+  if (plans.length === 0) return steps;
+  const pick = plans.some((p) => p.plan === plan) ? plan : plans[0].plan;
+  return steps.filter((s) => !s.plan?.trim() || s.plan.trim() === pick);
 }
