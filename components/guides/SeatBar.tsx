@@ -28,19 +28,22 @@ export function useSeat(): [Seat, (s: Seat) => void] {
 }
 
 /**
- * The eight seats, pinned under the site's header while the fight scrolls past.
+ * The seats, pinned under the site's header while the fight scrolls past: eight,
+ * or the four of a criterion dungeon's party.
  *
  * Eight across even on a phone (44px each on a 384px one, 41 on 360; 46
  * tall): the whole point is that changing seat is one tap from anywhere in
  * the guide, so it never folds into a menu.
  */
-export default function SeatBar({ seat, onSeat }: { seat: Seat; onSeat: (s: Seat) => void }) {
+export default function SeatBar(
+  { seat, seats = SEATS, onSeat }: { seat: Seat; seats?: readonly Seat[]; onSeat: (s: Seat) => void },
+) {
   const { t } = useLang();
   return (
     <div className="sticky top-[var(--nav-h)] z-30 -mx-4 border-b border-line bg-bg/85 px-2 py-2 backdrop-blur sm:px-4">
       <div role="radiogroup" aria-label={t("guide.seat")}
-           className="mx-auto grid max-w-xl grid-cols-8 gap-0.5 sm:gap-1">
-        {SEATS.map((s) => {
+           className={`mx-auto grid gap-0.5 sm:gap-1 ${seats.length === 4 ? "max-w-sm grid-cols-4" : "max-w-xl grid-cols-8"}`}>
+        {seats.map((s) => {
           const on = s === seat;
           const c = seatColor(s);
           return (

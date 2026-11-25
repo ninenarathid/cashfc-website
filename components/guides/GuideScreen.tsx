@@ -20,7 +20,7 @@ import GuideTalk from "@/components/guides/GuideTalk";
 import { GuideCheatsheet, GuideMacro } from "@/components/guides/GuideExtras";
 import type { PersonOption } from "@/lib/people";
 import {
-  CATEGORY_LABEL, GUIDE_COLUMNS, REWARD_COLUMNS, STEP_COLUMNS, cleanPanels, cleanRefs, cleanReward, cleanStep, inLang, inPhases, partyFor, pictureUrl, plansOf, seatColor, stepsUnder, videosOf,
+  CATEGORY_LABEL, GUIDE_COLUMNS, REWARD_COLUMNS, STEP_COLUMNS, cleanPanels, cleanRefs, cleanReward, cleanStep, inLang, inPhases, partyFor, pictureUrl, plansOf, seatAmong, seatColor, seatsFor, stepsUnder, videosOf,
   type Block, type DutyOption, type GuideRow, type RewardRow, type Seat, type StepRow,
 } from "@/lib/guides";
 
@@ -49,7 +49,7 @@ export default function GuideScreen(
 ) {
   const { t, lang } = useLang();
   const { isAdmin, realAdmin, ready } = useAdmin();
-  const [seat, setSeat] = useSeat();
+  const [mySeat, setSeat] = useSeat();
   const [load, setLoad] = useState<Load>({ kind: "loading" });
   const [editing, setEditing] = useState(false);
 
@@ -119,6 +119,9 @@ export default function GuideScreen(
   }
 
   const { guide, steps, rewards } = load;
+  // A party of four is read by its own four seats; an H2 reads it as its healer.
+  const seats = seatsFor(guide.content_key);
+  const seat = seatAmong(mySeat, seats);
   // Functional, because several steps save themselves at once while editing.
   const setGuide = (g: GuideRow) => setLoad((l) => (l.kind === "ok" ? { ...l, guide: g } : l));
   const setSteps = (fn: (prev: StepRow[]) => StepRow[]) =>
@@ -185,7 +188,7 @@ export default function GuideScreen(
           with a tick on the seats already placed; two seat bars would be one too many. */}
       {!(editing && isAdmin) && (
         <>
-          <div className="mt-4"><SeatBar seat={seat} onSeat={setSeat} /></div>
+          <div className="mt-4"><SeatBar seat={seat} seats={seats} onSeat={setSeat} /></div>
         </>
       )}
 

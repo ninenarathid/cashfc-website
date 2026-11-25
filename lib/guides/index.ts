@@ -20,6 +20,26 @@ export type Seat = (typeof SEATS)[number];
 export const isSeat = (s: unknown): s is Seat =>
   typeof s === "string" && (SEATS as readonly string[]).includes(s);
 
+/** A party of four, as the criterion dungeons are played: one tank, one healer, two DPS. */
+export const LIGHT_PARTY: readonly Seat[] = ["MT", "H1", "D1", "D2"];
+
+/** The seat in a party of four that a full party's seat plays. */
+const LIGHT_OF: Record<Seat, Seat> = {
+  MT: "MT", ST: "MT", H1: "H1", H2: "H1", D1: "D1", D2: "D2", D3: "D1", D4: "D2",
+};
+
+/** The seats a guide is read by: four for a criterion dungeon, eight for everything else. */
+export const seatsFor = (contentKey: string | null | undefined): readonly Seat[] =>
+  contentKey?.startsWith("cri:") ? LIGHT_PARTY : SEATS;
+
+/**
+ * A reader's seat in a guide with fewer of them: an ST reads a party of four
+ * as its tank, an H2 as its healer, a D3 as D1 and a D4 as D2. What they
+ * picked is still what every eight-seat guide opens with.
+ */
+export const seatAmong = (seat: Seat, seats: readonly Seat[]): Seat =>
+  seats.includes(seat) ? seat : LIGHT_OF[seat];
+
 /** Which role a seat is, for its colour. D3 the physical ranged, D4 the caster. */
 export const SEAT_ROLE: Record<Seat, "tank" | "healer" | "dps"> = {
   MT: "tank", ST: "tank", H1: "healer", H2: "healer",
