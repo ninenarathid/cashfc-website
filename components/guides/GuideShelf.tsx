@@ -24,6 +24,9 @@ const TINT: Record<Category, string> = {
   savage: "#d19a66", extreme: "#e06c75", ultimate: "#c678dd", chaotic: "#61afef", other: "#8b93a1",
 };
 
+/** The shelf's headings, in the order the owner named them. */
+const SHELF_ORDER: Category[] = ["extreme", "savage", "ultimate", "chaotic", "other"];
+
 export default function GuideShelf({ duties = [] }: { duties?: DutyOption[] }) {
   const { t } = useLang();
   const { isAdmin, realAdmin, ready } = useAdmin();
@@ -47,7 +50,10 @@ export default function GuideShelf({ duties = [] }: { duties?: DutyOption[] }) {
     const i = EXPANSIONS.indexOf(x);
     return i < 0 ? EXPANSIONS.length : i;
   };
-  const expansions = [...new Set((rows ?? []).map((g) => g.expansion))].sort((a, b) => order(a) - order(b));
+  // One heading a kind of fight, in the owner's order (2026-11-26: "ช่วยแยก
+  // หัวข้อด้วย Extreme savage ultimate"), each fight's expansion a small line
+  // inside it: the ultimates of four expansions sit together under one.
+  const kinds = SHELF_ORDER.filter((c) => (rows ?? []).some((g) => g.category === c));
 
   return (
     <main className="pt-7">
@@ -80,22 +86,30 @@ export default function GuideShelf({ duties = [] }: { duties?: DutyOption[] }) {
         </div>
       )}
 
-      {expansions.map((x) => (
-        <section key={x} className="mt-6">
-          <h2 className="font-display text-lg font-semibold">{x}</h2>
-          {/* minmax(0, 1fr) on a phone too: the banner's ratio and its floor
-              of 120px asked for 376px, more than a 360px phone has. */}
-          <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {(rows ?? [])
-              .filter((g) => g.expansion === x)
-              .sort((a, b) => CATEGORIES.indexOf(a.category) - CATEGORIES.indexOf(b.category)
-                || a.sort - b.sort || a.name.localeCompare(b.name))
-              .map((g) => (
-                <GuideCard key={g.id} g={g} art={duties.find((d) => d.key === g.content_key)} />
-              ))}
-          </div>
-        </section>
-      ))}
+      {kinds.map((c) => {
+        const ofKind = (rows ?? []).filter((g) => g.category === c);
+        const expansions = [...new Set(ofKind.map((g) => g.expansion))].sort((a, b) => order(a) - order(b));
+        return (
+          <section key={c} className="mt-8">
+            <h2 className="font-display text-xl font-semibold">{CATEGORY_LABEL[c]}</h2>
+            {expansions.map((x) => (
+              <div key={x} className="mt-3">
+                <h3 className="text-ui font-semibold text-muted">{x}</h3>
+                {/* minmax(0, 1fr) on a phone too: the banner's ratio and its floor
+                    of 120px asked for 376px, more than a 360px phone has. */}
+                <div className="mt-1.5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {ofKind
+                    .filter((g) => g.expansion === x)
+                    .sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name))
+                    .map((g) => (
+                      <GuideCard key={g.id} g={g} art={duties.find((d) => d.key === g.content_key)} />
+                    ))}
+                </div>
+              </div>
+            ))}
+          </section>
+        );
+      })}
 
       {making && <NewGuide existing={rows ?? []} onClose={() => setMaking(false)} />}
     </main>
