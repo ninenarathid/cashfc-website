@@ -127,6 +127,14 @@
       "game8": [
         "https://img.game8.jp/12529366/f09ba930c6ee2ee3801c30e037d5634c.webp/show"
       ],
+      "refs": [
+        {
+          "src": "frames/ex7-enuo/ng-overview.webp",
+          "say": "Naught Grows: Void เล็กในสนามผูกสาย (tether) กับ Healer · 2 ลูก = stack 4:4, 1 ลูก = stack รวม",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/nO5k9JoY4eE?t=129"
+        }
+      ],
       "scene": {
         "boss": [50, 49],
         "shapes": [
@@ -182,7 +190,10 @@
         "phase": "First half",
         "mech": "Naught Grows",
         "name": "Overview ①: AoE type shown + tethers on healers",
-        "note": "The fight's key mechanic, and it comes as a chain. Read it as two parts: the AoE from the outer Void, and the stack on the healers\nFirst the boss sends an arrow to the outer Void, with a marker showing whether it will be a circle AoE or a donut, and 1–2 healers get a tether and a marker"
+        "note": "The fight's key mechanic, and it comes as a chain. Read it as two parts: the AoE from the outer Void, and the stack on the healers\nFirst the boss sends an arrow to the outer Void, with a marker showing whether it will be a circle AoE or a donut, and 1–2 healers get a tether and a marker",
+        "refs": [
+          "Naught Grows: small Voids on the field tether the healers · 2 = 4:4 stacks, 1 = whole-party stack"
+        ]
       }
     },
     {
@@ -290,6 +301,12 @@
         {
           "src": "https://img.game8.jp/12529401/86e8da1a63b370d826b47ba452583d31.webp/show",
           "say": "สัญลักษณ์ AoE วงกลม: ลูกกลมทึบสีน้ำเงิน"
+        },
+        {
+          "src": "frames/ex7-enuo/ng-circle-marker.webp",
+          "say": "สัญลักษณ์ AoE วงกลม (ลูกกลมทึบสีน้ำเงิน) ที่ลูกศร AoE จะออกจาก Void ที่ลูกศรชี้ไป",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/nO5k9JoY4eE?t=132"
         }
       ],
       "scene": {
@@ -328,7 +345,8 @@
         "name": "Outer Void: circle AoE",
         "note": "A marker shows the type first (see the reference picture), then a moment later the AoE comes out of the object at the arrow's tip\nActual size is about as pictured: the circle from the north Void covers the top half of the arena, reaching the boss",
         "refs": [
-          "Circle AoE marker: a solid blue orb"
+          "Circle AoE marker: a solid blue orb",
+          "The circle AoE marker (a solid blue orb) on the arrow; the AoE comes from the Void the arrow points to"
         ]
       }
     },
@@ -343,8 +361,16 @@
       ],
       "refs": [
         {
-          "src": "https://img.game8.jp/12529404/5624d32673ff9de59e85972036cc215e.webp/show",
-          "say": "สัญลักษณ์ donut: วงแหวนที่มีรูตรงกลาง"
+          "src": "frames/ex7-enuo/ng-donut-marker.webp",
+          "say": "สัญลักษณ์ donut: วงแหวนที่มีรูตรงกลาง",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/nO5k9JoY4eE?t=190"
+        },
+        {
+          "src": "frames/ex7-enuo/ng-donut-hit.webp",
+          "say": "donut ระเบิด: ส่วนสีส้มโดน ปลอดภัยเฉพาะวงในใกล้ Void",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/nO5k9JoY4eE?t=193"
         }
       ],
       "scene": {
@@ -383,7 +409,8 @@
         "name": "Outer Void: donut",
         "note": "A marker that is a ring with a hole in the middle = donut from the Void at the arrow's tip. Only the inner circle near the Void is safe; almost the whole arena is hit\nActual size is about as pictured",
         "refs": [
-          "Donut marker: a ring with a hole in the middle"
+          "Donut marker: a ring with a hole in the middle",
+          "The donut goes off: the orange part is hit; only the inner circle near the Void is safe"
         ]
       }
     },
@@ -922,6 +949,14 @@
       "game8": [
         "https://img.game8.jp/12529526/95f2baada6495dd7f0c8ec244ee5fa8f.webp/show"
       ],
+      "refs": [
+        {
+          "src": "frames/ex7-enuo/meltdown-out.webp",
+          "say": "Meltdown: ดีบัฟหมดแล้วมี AoE วงกลมขึ้นใต้เท้า วิ่งไปจุด spread ของตัวเองทันที",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/nO5k9JoY4eE?t=159"
+        }
+      ],
       "scene": {
         "boss": [50, 49.5],
         "shapes": [
@@ -968,7 +1003,10 @@
           "D1": "Spread at 4 (south-west)",
           "H1": "Spread at D (west)",
           "D3": "Spread at 1 (north-west)"
-        }
+        },
+        "refs": [
+          "Meltdown: when the debuff ends a circle AoE appears underfoot; run to your spread spot at once"
+        ]
       }
     },
     {
@@ -1101,12 +1139,37 @@
       "name": "กรวยวน แล้วชนลูกบอลเป็นคู่",
       "note": "ลูกบอลที่โผล่ขึ้นมาจะยิงกรวย (cone) วนไปตามลำดับที่โผล่ เหมือนโหมดปกติทุกอย่าง\nจากนั้นมี Mechanic เพิ่ม: ต้องเข้าไปชนลูกบอลเป็นคู่ ตามลำดับลูกเหลือง (วิ่งเร็ว) → ลูกม่วง (วิ่งช้า)\nชนแล้วจะได้ดีบัฟห้ามชนซ้ำ ต้องรอให้ดีบัฟหมดก่อนแล้วค่อยไปชนลูกม่วง",
       "strict": false,
+      "refs": [
+        {
+          "src": "frames/ex7-enuo/gaze-orbs.webp",
+          "say": "ลูกบอลโผล่รอบบอส แล้วยิงกรวยวนไปตามลำดับที่โผล่",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/nO5k9JoY4eE?t=208"
+        },
+        {
+          "src": "frames/ex7-enuo/gaze-colors.webp",
+          "say": "ลูกบอลวิ่งเข้าหาบอส: ชนลูกเหลือง (วิ่งเร็ว) ก่อน แล้วค่อยลูกม่วง (วิ่งช้า)",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/nO5k9JoY4eE?t=245"
+        },
+        {
+          "src": "frames/ex7-enuo/gaze-pair.webp",
+          "say": "ชนลูกบอลเป็นคู่ ชนแล้วได้ดีบัฟ ห้ามชนซ้ำจนกว่าดีบัฟหมด",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/nO5k9JoY4eE?t=271"
+        }
+      ],
       "scene": null,
       "en": {
         "phase": "First half",
         "mech": "Gaze of the Void",
         "name": "Rotating cones, then touch the orbs in pairs",
-        "note": "The orbs that appear fire cones in turn, in the order they appeared, exactly as in normal mode\nThen an extra mechanic: touch the orbs in pairs, in the order yellow (fast) → purple (slow)\nA touch gives a debuff that forbids touching again, so wait for it to wear off before touching the purple"
+        "note": "The orbs that appear fire cones in turn, in the order they appeared, exactly as in normal mode\nThen an extra mechanic: touch the orbs in pairs, in the order yellow (fast) → purple (slow)\nA touch gives a debuff that forbids touching again, so wait for it to wear off before touching the purple",
+        "refs": [
+          "Orbs appear around the boss and fire cones in the order they appeared",
+          "The orbs run at the boss: touch yellow (fast) first, then purple (slow)",
+          "Touch an orb in pairs; touching gives a debuff, so don't touch again until it ends"
+        ]
       }
     },
     {
@@ -1221,12 +1284,30 @@
       "name": "หลบวงวน แล้ว stack ตามชื่อร่าย",
       "note": "Vacuum เหมือนโหมดปกติทุกอย่าง เช่นเดียวกับ Gaze of the Void\nTrick: ยืนรอฝั่งตรงข้ามเส้นสั้นไว้ก่อน แล้วค่อยวิ่งไปจุดของตัวเอง\n\nหลังจากนั้นตามด้วย Airy/Dense Emptiness ดูชื่อร่าย:\nAiry = stack คู่\nDense = stack 4:4",
       "strict": false,
+      "refs": [
+        {
+          "src": "frames/ex7-enuo/vacuum-lines.webp",
+          "say": "Vacuum: เส้นโค้งสั้น กลาง ยาว จากบอส ยืนรอฝั่งตรงข้ามเส้นสั้นไว้ก่อน",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/nO5k9JoY4eE?t=290"
+        },
+        {
+          "src": "frames/ex7-enuo/vacuum-circles.webp",
+          "say": "วงระเบิดที่ปลายเส้นโค้ง อย่ายืนที่ปลายเส้น",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/nO5k9JoY4eE?t=302"
+        }
+      ],
       "scene": null,
       "en": {
         "phase": "First half",
         "mech": "Vacuum + Airy/Dense Emptiness",
         "name": "Dodge the swirl, then stack by the cast",
-        "note": "Vacuum is exactly as in normal mode, the same as Gaze of the Void\nTrick: wait opposite the short line first, then run to your own spot\n\nThen Airy/Dense Emptiness follows; read the cast:\nAiry = pair stacks\nDense = 4:4 stacks"
+        "note": "Vacuum is exactly as in normal mode, the same as Gaze of the Void\nTrick: wait opposite the short line first, then run to your own spot\n\nThen Airy/Dense Emptiness follows; read the cast:\nAiry = pair stacks\nDense = 4:4 stacks",
+        "refs": [
+          "Vacuum: short, medium and long curves from the boss; wait opposite the short one first",
+          "Circles go off at the ends of the curves; don't stand at a curve's end"
+        ]
       }
     },
     {
@@ -1241,6 +1322,14 @@
       "strict": ["MT", "ST"],
       "game8": [
         "https://img.game8.jp/12529670/368d69a1670da9d4172e51cae960d005.webp/show"
+      ],
+      "refs": [
+        {
+          "src": "frames/ex7-enuo/deep-freeze.webp",
+          "say": "Deep Freeze: มาร์ก AoE ที่ Tank 2 คน ไปทิ้งทางเหนือ ทุกคนต้องขยับตัวไว้",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/nO5k9JoY4eE?t=321"
+        }
       ],
       "scene": {
         "boss": [50, 48],
@@ -1288,7 +1377,10 @@
         "says": {
           "MT": "1st-enmity marker: drop it north-west",
           "ST": "Tank stance on to hold 2nd enmity; drop it north-east"
-        }
+        },
+        "refs": [
+          "Deep Freeze: AoE markers on both tanks, dropped north; everyone keeps moving"
+        ]
       }
     },
     {
@@ -1299,6 +1391,14 @@
       "strict": false,
       "game8": [
         "https://img.game8.jp/12530874/c0a327c2ffdba179527de280f390f97f.webp/show"
+      ],
+      "refs": [
+        {
+          "src": "frames/ex7-enuo/adds-knockback.webp",
+          "say": "knockback จากกลางสนาม อย่าเหยียบวงกลาง กันได้ด้วย Arm's Length และ Surecast",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/nO5k9JoY4eE?t=364"
+        }
       ],
       "scene": {
         "arena": null,
@@ -1370,7 +1470,10 @@
         "phase": "Adds phase",
         "mech": "Adds phase",
         "name": "① Knockback in the middle",
-        "note": "The arena changes and you can no longer fall off the edge\nDon't stand in the circle AoE in the middle; wait roughly near your tower spot\nThe knockback can be prevented with Arm's Length and Surecast"
+        "note": "The arena changes and you can no longer fall off the edge\nDon't stand in the circle AoE in the middle; wait roughly near your tower spot\nThe knockback can be prevented with Arm's Length and Surecast",
+        "refs": [
+          "Knockback from the middle: stay out of the centre circle; Arm's Length and Surecast stop it"
+        ]
       }
     },
     {
@@ -1381,6 +1484,14 @@
       "strict": true,
       "game8": [
         "https://img.game8.jp/12530877/c89d7d9adaee909c4623e1bf0fba02df.webp/show"
+      ],
+      "refs": [
+        {
+          "src": "frames/ex7-enuo/adds-towers.webp",
+          "say": "tower (วงสีส้ม) กับมาร์กบนหัว: คนมีมาร์กทิ้งกรวย คนที่เหลือเหยียบ tower",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/nO5k9JoY4eE?t=385"
+        }
       ],
       "scene": {
         "arena": null,
@@ -1414,7 +1525,10 @@
         "phase": "Adds phase",
         "mech": "Adds phase",
         "name": "② Towers + cones (round 1)",
-        "note": "Marked players get a cone; everyone else takes a tower\nEach round is split as the 4 TH or the 4 DPS\nCone takers: stand between waymarks\n\nNever drop a cone between towers that are close together, or it hits the tower takers (in the picture: between the TH towers in the south)"
+        "note": "Marked players get a cone; everyone else takes a tower\nEach round is split as the 4 TH or the 4 DPS\nCone takers: stand between waymarks\n\nNever drop a cone between towers that are close together, or it hits the tower takers (in the picture: between the TH towers in the south)",
+        "refs": [
+          "Towers (orange circles) and a head marker: marked players drop cones, the rest take towers"
+        ]
       }
     },
     {
@@ -1433,6 +1547,14 @@
         "D4": "Mechanic ห้ามมอง (gaze)"
       },
       "strict": false,
+      "refs": [
+        {
+          "src": "frames/ex7-enuo/adds-tethered.webp",
+          "say": "ลูกน้องผูกสายกับคนเหยียบ tower ตีตัวที่ผูกกับตัวเอง แก้ Mechanic ตาม role",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/nO5k9JoY4eE?t=446"
+        }
+      ],
       "scene": null,
       "en": {
         "phase": "Adds phase",
@@ -1448,7 +1570,10 @@
           "D2": "Look-away (gaze) mechanic",
           "D3": "Look-away (gaze) mechanic",
           "D4": "Look-away (gaze) mechanic"
-        }
+        },
+        "refs": [
+          "Adds tether the tower takers; kill your own add and do your role's mechanic"
+        ]
       }
     },
     {
@@ -1501,12 +1626,23 @@
       "name": "⑤–⑥ ลูกน้องชุดสอง แล้วออกจากช่วงนี้",
       "note": "⑤ รอบนี้ 4 คนที่ไม่ได้ผูกกับลูกน้องใน ③ ไปจัดการลูกน้องพร้อม Mechanic ตาม role ฆ่าเสร็จแล้วไปตีศัตรูตัวใหญ่กลางสนาม\n⑥ ทำลาย Beacon in the Dark ที่โผล่กลางสนามเพื่อออกจากช่วงนี้",
       "strict": false,
+      "refs": [
+        {
+          "src": "frames/ex7-enuo/adds-beacon.webp",
+          "say": "Beacon in the Dark กลางสนาม ทำลายเพื่อออกจากช่วงลูกน้อง",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/nO5k9JoY4eE?t=472"
+        }
+      ],
       "scene": null,
       "en": {
         "phase": "Adds phase",
         "mech": "Adds phase",
         "name": "⑤–⑥ Second set of adds, then leave the phase",
-        "note": "⑤ This time the 4 who weren't tethered to an add in ③ handle the adds and their role mechanics; once the adds are dead, attack the big enemy in the middle\n⑥ Destroy the Beacon in the Dark that appears in the middle to leave this phase"
+        "note": "⑤ This time the 4 who weren't tethered to an add in ③ handle the adds and their role mechanics; once the adds are dead, attack the big enemy in the middle\n⑥ Destroy the Beacon in the Dark that appears in the middle to leave this phase",
+        "refs": [
+          "Beacon in the Dark in the middle: destroy it to leave the adds phase"
+        ]
       }
     },
     {
@@ -1527,12 +1663,6 @@
       "strict": true,
       "game8": [
         "https://img.game8.jp/12530964/5735b99550a2d1260d14a4799bff14fd.webp/show"
-      ],
-      "refs": [
-        {
-          "src": "https://img.game8.jp/12531110/97ba2da2d30a1a060522e3e96a5f0151.webp/show",
-          "say": "ขนาดกรวยจริงประมาณนี้ ใหญ่กว่าที่คิด เว้นระยะกับคนข้างๆ"
-        }
       ],
       "scene": {
         "frame": [1, 1],
@@ -1645,10 +1775,7 @@
           "D4": "West, first pair counter-clockwise from A (with H2)",
           "H1": "West, second pair counter-clockwise (with D3)",
           "D3": "West, second pair counter-clockwise (with H1)"
-        },
-        "refs": [
-          "The real cone size: bigger than you'd think, so keep your distance from neighbours"
-        ]
+        }
       }
     },
     {
@@ -1715,21 +1842,12 @@
       "name": "raid-wide ต่อเนื่อง",
       "note": "ดาเมจเวททั้งปาร์ตี้ มาต่อจาก Lightless World ทันที ใช้ heal และ mitigation ให้เต็มที่",
       "strict": false,
-      "refs": [
-        {
-          "src": "https://img.game8.jp/12530685/1e06727c188fb41bf17d5ec43539c0da.webp/show",
-          "say": "Almagest มาต่อจาก Lightless World ทันที เตรียม heal และ mitigation"
-        }
-      ],
       "scene": null,
       "en": {
         "phase": "Second half",
         "mech": "Almagest",
         "name": "Raid-wide right after",
-        "note": "Magic raid-wide damage straight after Lightless World; use heals and mitigation fully",
-        "refs": [
-          "Almagest comes straight after Lightless World; have heals and mitigation ready"
-        ]
+        "note": "Magic raid-wide damage straight after Lightless World; use heals and mitigation fully"
       }
     },
     {
@@ -1740,6 +1858,14 @@
       "strict": false,
       "game8": [
         "https://img.game8.jp/12530770/932f690b4b1d26c185a315d77a4ecded.webp/show"
+      ],
+      "refs": [
+        {
+          "src": "frames/ex7-enuo/ng2-arrows.webp",
+          "say": "ช่วงหลัง Void รอบนอก 2 ลูก: บอส→Void = วงกลมที่ Void · Void→บอส = donut รอบบอส",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/nO5k9JoY4eE?t=538"
+        }
       ],
       "scene": {
         "arena": {
@@ -1832,7 +1958,10 @@
         "phase": "Second half",
         "mech": "Naught Grows",
         "name": "Pattern 1 ①: Void→boss donut / boss→Void circle",
-        "note": "In the second half there are 2 outer Voids. The order is Void → boss → Void, and each AoE shown goes off at the arrow's tip\nPattern 1: arrow from the outer Void to the boss = donut around the boss / from the boss to the outer Void = circle AoE on that Void\nHealers still get small Voids as in the first half; solve it the same way (4:4 stacks or one full stack)"
+        "note": "In the second half there are 2 outer Voids. The order is Void → boss → Void, and each AoE shown goes off at the arrow's tip\nPattern 1: arrow from the outer Void to the boss = donut around the boss / from the boss to the outer Void = circle AoE on that Void\nHealers still get small Voids as in the first half; solve it the same way (4:4 stacks or one full stack)",
+        "refs": [
+          "Second half, 2 outer Voids: boss→Void = circle at that Void · Void→boss = donut around the boss"
+        ]
       }
     },
     {
@@ -1847,6 +1976,14 @@
       "strict": ["MT", "ST", "H1", "H2"],
       "game8": [
         "https://img.game8.jp/12530768/7c084b8a4a6fd417d4ba62d09da53249.webp/show"
+      ],
+      "refs": [
+        {
+          "src": "frames/ex7-enuo/ng2-hug.webp",
+          "say": "donut รอบบอส: เข้าไปชิดบอส แบ่ง 4:4 เป็น 2 แถว Tank ท้ายแถว",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/nO5k9JoY4eE?t=553"
+        }
       ],
       "scene": {
         "arena": {
@@ -1945,7 +2082,10 @@
         "says": {
           "MT": "Stand at the very end of the line",
           "ST": "Stand at the very end of the line"
-        }
+        },
+        "refs": [
+          "Donut around the boss: hug the boss, 4:4 in two lines, tanks at the back"
+        ]
       }
     },
     {
@@ -2374,6 +2514,14 @@
       "game8": [
         "https://img.game8.jp/12532204/eb8b0e6dde19c1a0f92f86470bd1db76.webp/show"
       ],
+      "refs": [
+        {
+          "src": "frames/ex7-enuo/wakes-n.webp",
+          "say": "Naught Wakes: AoE เป็นแถบรูปตัว N ฝั่งที่มี Void คู่ปลอดภัย",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/nO5k9JoY4eE?t=576"
+        }
+      ],
       "scene": {
         "arena": {
           "shape": "circle",
@@ -2435,7 +2583,10 @@
         "phase": "Second half",
         "mech": "Naught Wakes",
         "name": "Pattern 2 ②: N (Z) shape, the pair's side is safe",
-        "note": "The AoE is N-shaped (or Z); the side with the pair of Voids is safe"
+        "note": "The AoE is N-shaped (or Z); the side with the pair of Voids is safe",
+        "refs": [
+          "Naught Wakes: AoE in bands shaped like an N; the side with the Void pair is safe"
+        ]
       }
     },
     {
@@ -2766,6 +2917,14 @@
       "game8": [
         "https://img.game8.jp/12530864/1e9aa81347184fa0ca6f3d2c900d4ada.webp/show"
       ],
+      "refs": [
+        {
+          "src": "frames/ex7-enuo/holy.webp",
+          "say": "Shrouded Holy: stack 4:4 ที่ Healer 2 คน กลุ่ม MT ฝั่ง D กลุ่ม ST ฝั่ง B",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/nO5k9JoY4eE?t=592"
+        }
+      ],
       "scene": {
         "arena": {
           "shape": "circle",
@@ -2846,7 +3005,10 @@
           "H2": "ST group, B side",
           "D2": "ST group, B side",
           "D4": "ST group, B side"
-        }
+        },
+        "refs": [
+          "Shrouded Holy: 4:4 stacks on both healers; MT group to D, ST group to B"
+        ]
       }
     },
     {
@@ -2855,12 +3017,23 @@
       "name": "line stack 3 ครั้ง",
       "note": "line stack เวท 3 ครั้งติด ทุกคนรวมกันรับ",
       "strict": false,
+      "refs": [
+        {
+          "src": "frames/ex7-enuo/dimension-zero.webp",
+          "say": "Dimension Zero: มาร์ก line stack ยิง 3 ครั้ง ทุกคนรวมกันรับ ใช้ mitigate",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/nO5k9JoY4eE?t=620"
+        }
+      ],
       "scene": null,
       "en": {
         "phase": "Second half",
         "mech": "Dimension Zero",
         "name": "3-hit line stack",
-        "note": "Magic line stack, 3 hits in a row; everyone stacks together"
+        "note": "Magic line stack, 3 hits in a row; everyone stacks together",
+        "refs": [
+          "Dimension Zero: a 3-hit line stack marker; everyone takes it together, with mitigation"
+        ]
       }
     },
     {
@@ -2871,6 +3044,14 @@
       "strict": false,
       "game8": [
         "https://img.game8.jp/12532188/0823470eb70123bf2f2759b733fac0d9.webp/show"
+      ],
+      "refs": [
+        {
+          "src": "frames/ex7-enuo/vm-lines.webp",
+          "say": "Vacuum + Meltdown: เส้นโค้งขึ้นพร้อม Meltdown ไปรอฝั่งเส้นโค้งยาวไว้ก่อน",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/nO5k9JoY4eE?t=639"
+        }
       ],
       "scene": {
         "arena": {
@@ -2932,7 +3113,10 @@
         "phase": "Second half",
         "mech": "Vacuum + Meltdown",
         "name": "① Wait on the long-curve side",
-        "note": "The first half's Vacuum and Meltdown combined\nVacuum appears → wait on the side with the long curved line\nTrick: wait opposite the short line first, then run to your own spot\n\nThere is almost no time between the circles going off and Meltdown, so always be standing where it will be safe beforehand"
+        "note": "The first half's Vacuum and Meltdown combined\nVacuum appears → wait on the side with the long curved line\nTrick: wait opposite the short line first, then run to your own spot\n\nThere is almost no time between the circles going off and Meltdown, so always be standing where it will be safe beforehand",
+        "refs": [
+          "Vacuum + Meltdown: the curves come with Meltdown; wait on the long-curve side first"
+        ]
       }
     },
     {
@@ -3119,6 +3303,14 @@
       "game8": [
         "https://img.game8.jp/12532152/137d6c2d54185428c245f3c05fda0598.webp/show"
       ],
+      "refs": [
+        {
+          "src": "frames/ex7-enuo/hunts-tethers.webp",
+          "say": "Naught Hunts: Void เล็กผูกสายกับคน หาบอลที่โยงมาหาตัวเอง แล้วลากออกไปทางขวา",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/nO5k9JoY4eE?t=779"
+        }
+      ],
       "scene": {
         "arena": {
           "shape": "circle",
@@ -3222,7 +3414,10 @@
         "phase": "Second half",
         "mech": "Naught Wakes + Naught Hunts",
         "name": "① 2 tethered Voids, always diagonal",
-        "note": "Overview: after Naught Wakes hits the arena, 2 Voids in the arena chase the tethered players. 2–3 hits from a chasing Void kill you, so a chased player must keep running\n\n1 set = Naught Wakes (middle safe) → chase player 1 → chase player 2 → Naught Wakes → Airy/Dense Emptiness\n2 sets in total\n\n① Naught Wakes is cast: Voids appear around the outside, and small Voids appear in the arena tethered to 2 players. These 2 Voids are always diagonal from each other\n\nIf you're tethered: find the ball tethered to you and drag it out to your right\n*** Wait for the AoE around the outside of the map to finish before you drag it"
+        "note": "Overview: after Naught Wakes hits the arena, 2 Voids in the arena chase the tethered players. 2–3 hits from a chasing Void kill you, so a chased player must keep running\n\n1 set = Naught Wakes (middle safe) → chase player 1 → chase player 2 → Naught Wakes → Airy/Dense Emptiness\n2 sets in total\n\n① Naught Wakes is cast: Voids appear around the outside, and small Voids appear in the arena tethered to 2 players. These 2 Voids are always diagonal from each other\n\nIf you're tethered: find the ball tethered to you and drag it out to your right\n*** Wait for the AoE around the outside of the map to finish before you drag it",
+        "refs": [
+          "Naught Hunts: a small Void tethered to a player; find the ball tethered to you and drag it out to the right"
+        ]
       }
     },
     {
@@ -3353,6 +3548,14 @@
       "game8": [
         "https://img.game8.jp/12532150/244235b9e008221c60f2bbc2056353dd.webp/show"
       ],
+      "refs": [
+        {
+          "src": "frames/ex7-enuo/hunts-chase.webp",
+          "say": "Void ไล่คนที่ผูกสาย: คนที่ 1 วิ่งตามเข็ม คนที่ 2 วิ่งทวนเข็ม อย่าพาเข้ากลาง",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/nO5k9JoY4eE?t=786"
+        }
+      ],
       "scene": {
         "arena": {
           "shape": "circle",
@@ -3422,7 +3625,10 @@
         "phase": "Second half",
         "mech": "Naught Wakes + Naught Hunts",
         "name": "③ Chase 1: run clockwise",
-        "note": "The Void starts chasing the tethered player: run clockwise and don't let it catch you\nMost of the party is in the middle, so don't bring the Void in; circle around the outside"
+        "note": "The Void starts chasing the tethered player: run clockwise and don't let it catch you\nMost of the party is in the middle, so don't bring the Void in; circle around the outside",
+        "refs": [
+          "The Void chases its tethered player: player 1 runs clockwise, player 2 counter-clockwise; keep it out of the middle"
+        ]
       }
     },
     {
@@ -4017,6 +4223,14 @@
       "game8": [
         "https://img.game8.jp/12532151/a06850ce922390b65122ebcc230565a6.webp/show"
       ],
+      "refs": [
+        {
+          "src": "frames/ex7-enuo/hunts-wakes.webp",
+          "say": "Naught Wakes อีกครั้ง: AoE รูปบวก ยืนในช่องปลอดภัยที่มุม",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/nO5k9JoY4eE?t=781"
+        }
+      ],
       "scene": {
         "arena": {
           "shape": "circle",
@@ -4065,7 +4279,10 @@
         "phase": "Second half",
         "mech": "Naught Wakes + Naught Hunts",
         "name": "⑪ Naught Wakes again",
-        "note": "Naught Wakes goes off; stand in a safe gap (in this picture the AoE is a plus shape and the safe gaps are the 4 corners)\n\nCheck whether the AoE fires at the letter or the number waymarks:\nFires at numbers → dodge at the letters\nFires at letters → dodge at the numbers"
+        "note": "Naught Wakes goes off; stand in a safe gap (in this picture the AoE is a plus shape and the safe gaps are the 4 corners)\n\nCheck whether the AoE fires at the letter or the number waymarks:\nFires at numbers → dodge at the letters\nFires at letters → dodge at the numbers",
+        "refs": [
+          "Naught Wakes again: a plus-shaped AoE; stand in a safe corner"
+        ]
       }
     },
     {
