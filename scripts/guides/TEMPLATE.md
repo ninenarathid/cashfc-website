@@ -50,7 +50,11 @@ ex7 ต้องมีใน ex อื่นด้วย ให้เป็น t
    - `refs` for what to watch (game screenshots), never a picture with
      Japanese text in it;
    - `en` on every step: phase, mech, name, note, says, refs captions.
-5. **cheatsheet**: xivjpraids' cheatsheet redrawn panel by panel (square
+5. **cheatsheet**, only when the fight's xivjpraids page has one (the owner,
+   2026-11-25: "อันไหนมี cheatsheet ทำให้ด้วย ไม่มีไม่ต้องทำ"; of the Dawntrail
+   Extremes, Zelenia and Arkveld have one). Where the picture is hosted by its
+   author elsewhere (Zelenia's is akanabanana's), credit them as well.
+   xivjpraids' cheatsheet redrawn panel by panel (square
    scenes), Thai titles + `title_en`, `lines` / `lines_en` where a panel needs
    words, `strict` per panel, footer/credit like EX7's ("อ้างอิง cheatsheet
    จาก xivjpraids.com · แปลและวาดใหม่โดย Cafe And SHabu"). Where a panel's
