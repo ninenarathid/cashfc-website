@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { SUPABASE_ANON_KEY, SUPABASE_URL, supabaseConfigured } from "@/lib/supabase/config";
 import { kanit, stillFromDisk } from "@/lib/party-art.server";
 import { guideDuties } from "@/lib/guides/duties";
-import { CATEGORY_LABEL, isCategory, type Category } from "@/lib/guides";
+import { isCategory, kindLabel, type Category } from "@/lib/guides";
 
 /**
  * A guide, as the card Discord draws when somebody pastes the link (the owner,
@@ -110,7 +110,7 @@ export async function renderGuideCard(slug: string) {
 
   const chips = asks(g);
   const prize = rewards?.rows.find((r) => r.kind === "mount") ?? rewards?.rows.find((r) => r.kind === "weapon");
-  const kicker = [CATEGORY_LABEL[category], g.short, g.patch ? `patch ${g.patch}` : null].filter(Boolean).join(" · ");
+  const kicker = [kindLabel(g), g.short, g.patch ? `patch ${g.patch}` : null].filter(Boolean).join(" · ");
 
   return new ImageResponse(
     (
@@ -224,7 +224,7 @@ export async function renderShelfCard() {
                     position: "absolute", left: 20, right: 20, bottom: 16, display: "flex", flexDirection: "column",
                   }}>
                     <div style={{ display: "flex", fontSize: 20, fontWeight: 500, letterSpacing: 2, color: TINT[category] }}>
-                      {CATEGORY_LABEL[category].toUpperCase()}
+                      {kindLabel(g).toUpperCase()}
                     </div>
                     <div style={{ display: "flex", fontSize: 40, fontWeight: 800 }}>{g.short ?? g.name}</div>
                   </div>

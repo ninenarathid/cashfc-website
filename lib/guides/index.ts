@@ -1,3 +1,4 @@
+import { CRITERION_DUNGEONS } from "@/lib/duties";
 import { SUPABASE_URL } from "@/lib/supabase/config";
 
 /**
@@ -66,6 +67,34 @@ export const CATEGORY_LABEL: Record<Category, string> = {
 
 export const isCategory = (s: unknown): s is Category =>
   typeof s === "string" && (CATEGORIES as readonly string[]).includes(s);
+
+/**
+ * The shelf's headings: the guide types, with the criterion and variant
+ * dungeons under one of their own (the owner, 2026-11-26: "แยกหัวข้อเป็น
+ * Criterion / Variant ให้ด้วย"). Told apart by the duty a guide is tied to,
+ * so a criterion guide keeps its category and the database needs no new one.
+ */
+export type ShelfKind = Category | "criterion";
+
+export const isCriterionKey = (contentKey: string | null | undefined): boolean =>
+  !!contentKey?.startsWith("cri:");
+
+export const shelfKindOf = (g: { category: Category; content_key: string | null }): ShelfKind =>
+  isCriterionKey(g.content_key) ? "criterion" : g.category;
+
+export const SHELF_LABEL: Record<ShelfKind, string> = { ...CATEGORY_LABEL, criterion: "Criterion / Variant" };
+
+/**
+ * What a guide is, in a word or two: its category, or for a criterion or
+ * variant dungeon the game's own kind ("Criterion (Savage)", "Variant").
+ */
+export function kindLabel(g: { category: string; content_key: string | null }): string {
+  if (isCriterionKey(g.content_key)) {
+    const duty = g.content_key!.slice("cri:".length);
+    return CRITERION_DUNGEONS.find((c) => c.duty === duty)?.kind ?? "Criterion";
+  }
+  return CATEGORY_LABEL[isCategory(g.category) ? g.category : "other"];
+}
 
 /** Where a new guide's plan comes from unless it says otherwise: "Strategy from game8". */
 export const DEFAULT_SOURCE = "game8";

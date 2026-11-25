@@ -9,8 +9,8 @@ import { createClient } from "@/lib/supabase/client";
 import Modal from "@/components/ui/Modal";
 import Skeleton from "@/components/ui/Skeleton";
 import {
-  CATEGORIES, CATEGORY_LABEL, DEFAULT_SOURCE, EXPANSIONS, GUIDE_COLUMNS, LIMITS, isCategory, isSlug, slugify,
-  type Category, type DutyOption, type GuideRow,
+  CATEGORIES, CATEGORY_LABEL, DEFAULT_SOURCE, EXPANSIONS, GUIDE_COLUMNS, LIMITS, SHELF_LABEL, isCategory, isSlug, kindLabel, shelfKindOf, slugify,
+  type Category, type ShelfKind, type DutyOption, type GuideRow,
 } from "@/lib/guides";
 
 /**
@@ -20,12 +20,13 @@ import {
  * opens straight into editing.
  */
 /** The type's colour where a guide has no banner: the party finder's own. */
-const TINT: Record<Category, string> = {
+const TINT: Record<ShelfKind, string> = {
   savage: "#d19a66", extreme: "#e06c75", ultimate: "#c678dd", chaotic: "#61afef", other: "#8b93a1",
+  criterion: "#c96f9e",
 };
 
-/** The shelf's headings, in the order the owner named them. */
-const SHELF_ORDER: Category[] = ["extreme", "savage", "ultimate", "chaotic", "other"];
+/** The shelf's headings, in the order the owner named them; Criterion / Variant after the raids. */
+const SHELF_ORDER: ShelfKind[] = ["extreme", "savage", "ultimate", "criterion", "chaotic", "other"];
 
 export default function GuideShelf({ duties = [] }: { duties?: DutyOption[] }) {
   const { t } = useLang();
@@ -53,7 +54,7 @@ export default function GuideShelf({ duties = [] }: { duties?: DutyOption[] }) {
   // One heading a kind of fight, in the owner's order (2026-11-26: "ช่วยแยก
   // หัวข้อด้วย Extreme savage ultimate"), each fight's expansion a small line
   // inside it: the ultimates of four expansions sit together under one.
-  const kinds = SHELF_ORDER.filter((c) => (rows ?? []).some((g) => g.category === c));
+  const kinds = SHELF_ORDER.filter((c) => (rows ?? []).some((g) => shelfKindOf(g) === c));
 
   return (
     <main className="pt-7">
@@ -87,11 +88,11 @@ export default function GuideShelf({ duties = [] }: { duties?: DutyOption[] }) {
       )}
 
       {kinds.map((c) => {
-        const ofKind = (rows ?? []).filter((g) => g.category === c);
+        const ofKind = (rows ?? []).filter((g) => shelfKindOf(g) === c);
         const expansions = [...new Set(ofKind.map((g) => g.expansion))].sort((a, b) => order(a) - order(b));
         return (
           <section key={c} className="mt-8">
-            <h2 className="font-display text-xl font-semibold">{CATEGORY_LABEL[c]}</h2>
+            <h2 className="font-display text-xl font-semibold">{SHELF_LABEL[c]}</h2>
             {expansions.map((x) => (
               <div key={x} className="mt-3">
                 <h3 className="text-ui font-semibold text-muted">{x}</h3>
@@ -130,7 +131,7 @@ function GuideCard({ g, art }: { g: GuideRow; art?: DutyOption }) {
           style={{
             backgroundImage: art?.art ? `url(${art.art})` : undefined,
             backgroundPosition: art?.focus ?? "center",
-            backgroundColor: `color-mix(in srgb, ${TINT[g.category]} 22%, var(--color-bg))`,
+            backgroundColor: `color-mix(in srgb, ${TINT[shelfKindOf(g)]} 22%, var(--color-bg))`,
           }}
           // w-full: a grid item with an aspect ratio is not stretched to its
           // column; its width comes from its height instead, and min-h-[120px]
@@ -145,7 +146,7 @@ function GuideCard({ g, art }: { g: GuideRow; art?: DutyOption }) {
       )}
       <span className="relative z-[1] flex min-w-0 flex-col px-3.5 pb-3 pt-6">
         <span className="font-data text-meta uppercase tracking-[0.14em] text-white/75 drop-shadow">
-          {CATEGORY_LABEL[g.category]}
+          {kindLabel(g)}
           {g.patch && <span className="normal-case tracking-normal"> · {g.patch}</span>}
         </span>
         <span className="text-xl font-bold leading-tight text-white drop-shadow">{g.short ?? g.name}</span>

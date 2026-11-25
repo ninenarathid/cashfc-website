@@ -20,7 +20,7 @@ import GuideTalk from "@/components/guides/GuideTalk";
 import { GuideCheatsheet, GuideMacro } from "@/components/guides/GuideExtras";
 import type { PersonOption } from "@/lib/people";
 import {
-  CATEGORY_LABEL, GUIDE_COLUMNS, REWARD_COLUMNS, STEP_COLUMNS, cleanPanels, cleanRefs, cleanReward, cleanStep, inLang, inPhases, partyFor, pictureUrl, plansOf, seatAmong, seatColor, seatsFor, stepsUnder, videosOf,
+  GUIDE_COLUMNS, REWARD_COLUMNS, STEP_COLUMNS, cleanPanels, cleanRefs, cleanReward, cleanStep, inLang, inPhases, kindLabel, partyFor, pictureUrl, plansOf, seatAmong, seatColor, seatsFor, stepsUnder, videosOf,
   type Block, type DutyOption, type GuideRow, type RewardRow, type Seat, type StepRow,
 } from "@/lib/guides";
 
@@ -138,7 +138,7 @@ export default function GuideScreen(
             {guide.short && <span className="text-title text-muted">{guide.name}</span>}
           </div>
           <div className="mt-0.5 text-ui text-muted">
-            {[guide.expansion, CATEGORY_LABEL[guide.category], guide.patch && `patch ${guide.patch}`]
+            {[guide.expansion, kindLabel(guide), guide.patch && `patch ${guide.patch}`]
               .filter(Boolean).join(" · ")}
           </div>
           {guide.source_name && <Source name={guide.source_name} url={guide.source_url} />}
