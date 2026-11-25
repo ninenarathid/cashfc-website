@@ -10,9 +10,10 @@ import Skeleton from "@/components/ui/Skeleton";
 import FocusPicture from "@/components/guides/FocusPicture";
 import SeatBar, { useSeat } from "@/components/guides/SeatBar";
 import PartyIcon from "@/components/party/PartyIcon";
+import ImageLightbox from "@/components/ui/ImageLightbox";
 import {
-  CATEGORY_LABEL, GUIDE_COLUMNS, STEP_COLUMNS, cleanStep, inPhases, partyFor, seatColor,
-  type DutyOption, type GuideRow, type Seat, type StepRow,
+  CATEGORY_LABEL, GUIDE_COLUMNS, STEP_COLUMNS, cleanStep, inPhases, partyFor, pictureUrl, seatColor,
+  type Block, type DutyOption, type GuideRow, type Seat, type StepRow,
 } from "@/lib/guides";
 
 /** The editor is admins' only, so nobody else downloads it. */
@@ -200,6 +201,8 @@ function Steps({ steps, seat }: { steps: StepRow[]; seat: Seat }) {
       </div>
     );
   }
+  // One number per thing on the page: a step on its own, or a big mechanic
+  // (whose parts are numbered inside it).
   let n = 0;
   return (
     <div className="mt-4 flex flex-col gap-6">
@@ -209,7 +212,9 @@ function Steps({ steps, seat }: { steps: StepRow[]; seat: Seat }) {
             <h2 className="mb-2.5 font-display text-lg font-semibold">{group.phase}</h2>
           )}
           <div className="grid gap-3 sm:grid-cols-2">
-            {group.steps.map((s) => <StepCard key={s.id} step={s} seat={seat} n={++n} />)}
+            {group.blocks.map((b) => (b.mech
+              ? <MechBox key={`m${b.steps[0].id}`} block={b} seat={seat} n={++n} />
+              : <StepCard key={b.steps[0].id} step={b.steps[0]} seat={seat} label={String(++n)} />))}
           </div>
         </section>
       ))}
@@ -217,17 +222,52 @@ function Steps({ steps, seat }: { steps: StepRow[]; seat: Seat }) {
   );
 }
 
-function StepCard({ step, seat, n }: { step: StepRow; seat: Seat; n: number }) {
+/**
+ * A big mechanic: one box, its parts in order.
+ *
+ * The owner, 2026-11-25: some mechanics are a long run of small ones in the
+ * same place, and they read as one thing. Across the page's width on a wide
+ * screen; on a phone the parts sit in a row to swipe through, the next one
+ * showing at the edge so it is plain there is more.
+ */
+function MechBox({ block, seat, n }: { block: Block; seat: Seat; n: number }) {
+  const { t } = useLang();
+  const k = block.steps.length;
+  return (
+    <section className="rounded-xl border border-accent/35 bg-surface/60 p-2.5 sm:col-span-2 sm:p-3">
+      <h3 className="flex flex-wrap items-baseline gap-x-2 px-0.5">
+        <span className="font-data text-meta text-muted">{n}</span>
+        <span className="text-head font-semibold text-ink">{block.mech}</span>
+        <span className="text-ui text-muted">{t("guide.parts", { n: k })}</span>
+      </h3>
+      {k > 1 && <p className="mt-0.5 px-0.5 text-meta text-muted sm:hidden">{t("guide.swipe")}</p>}
+      <ol className="-mx-2.5 mt-2 flex snap-x snap-mandatory gap-2.5 overflow-x-auto px-2.5 pb-1 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3">
+        {block.steps.map((s, i) => (
+          <li key={s.id} className={`${k > 1 ? "w-[86%]" : "w-full"} shrink-0 snap-start sm:w-auto`}>
+            <StepCard step={s} seat={seat} label={k > 1 ? `${i + 1}/${k}` : ""} flat />
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+function StepCard(
+  { step, seat, label, flat = false }:
+  { step: StepRow; seat: Seat; label: string; flat?: boolean },
+) {
   const { t } = useLang();
   const [whole, setWhole] = useState(false);
+  const [openRef, setOpenRef] = useState<number | null>(null);
   const spot = step.spots[seat];
   const points = spot?.at ?? [];
   const color = seatColor(seat);
+  const refUrls = step.refs.map((r) => pictureUrl(r.path)).filter((u): u is string => !!u);
 
   return (
-    <article className="rounded-xl border border-line bg-surface p-2.5 sm:p-3">
+    <article className={flat ? "h-full rounded-lg border border-line bg-bg/40 p-2" : "rounded-xl border border-line bg-surface p-2.5 sm:p-3"}>
       <h3 className="mb-2 flex items-baseline gap-2 px-0.5">
-        <span className="font-data text-meta text-muted">{n}</span>
+        {label && <span className="font-data text-meta text-muted">{label}</span>}
         <span className="text-title font-semibold text-ink">{step.name}</span>
       </h3>
 
@@ -258,6 +298,30 @@ function StepCard({ step, seat, n }: { step: StepRow; seat: Seat; n: number }) {
       ) : null}
       {step.note && (
         <p className="mt-1.5 whitespace-pre-line px-0.5 text-read leading-relaxed text-muted">{step.note}</p>
+      )}
+
+      {/* What to watch for in the game: the boss's pose, an object at the
+          edge. Small, under the plan, and a tap opens it large. */}
+      {step.refs.length > 0 && (
+        <div className="mt-2.5 px-0.5">
+          <div className="mb-1 text-meta font-semibold text-muted">{t("guide.watch")}</div>
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {step.refs.map((r, i) => (
+              <button key={i} type="button" onClick={() => setOpenRef(i)}
+                      className="w-28 shrink-0 text-left">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={pictureUrl(r.path) ?? undefined} alt={r.say ?? t("guide.watch")}
+                     width={r.w} height={r.h} loading="lazy" decoding="async"
+                     className="aspect-video w-full rounded-md border border-line bg-black object-cover" />
+                {r.say && <span className="mt-1 block text-meta leading-snug text-ink/85">{r.say}</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      {openRef !== null && refUrls.length > 0 && (
+        <ImageLightbox images={refUrls} at={Math.min(openRef, refUrls.length - 1)}
+                       onMove={setOpenRef} onClose={() => setOpenRef(null)} />
       )}
     </article>
   );

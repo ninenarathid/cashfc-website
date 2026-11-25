@@ -64,6 +64,14 @@ export interface SeatSpot {
 
 export type Spots = Partial<Record<Seat, SeatSpot>>;
 
+/** A small picture of what to watch for: the boss's pose, an object at the edge. */
+export interface Ref {
+  path: string;
+  w: number;
+  h: number;
+  say?: string;
+}
+
 export interface GuideRow {
   id: number;
   slug: string;
@@ -96,6 +104,8 @@ export interface StepRow {
   guide_id: number;
   sort: number;
   phase: string | null;
+  /** The big mechanic this step is one part of; consecutive ones share a box. */
+  mech: string | null;
   name: string;
   note: string | null;
   picture: string | null;
@@ -103,16 +113,17 @@ export interface StepRow {
   pic_h: number | null;
   ring: number;
   spots: Spots;
+  refs: Ref[];
 }
 
 export const GUIDE_COLUMNS =
   "id, slug, name, short, expansion, category, patch, source_name, source_url, note, content_key, published, sort";
 export const STEP_COLUMNS =
-  "id, guide_id, sort, phase, name, note, picture, pic_w, pic_h, ring, spots";
+  "id, guide_id, sort, phase, mech, name, note, picture, pic_w, pic_h, ring, spots, refs";
 
 /** The same limits v344 holds the database to. */
 export const LIMITS = {
-  name: 80, short: 20, phase: 60, stepNote: 400, guideNote: 600, say: 200,
+  name: 80, short: 20, phase: 60, mech: 80, refs: 4, refSay: 160, stepNote: 400, guideNote: 600, say: 200,
   points: 4, ringMin: 3, ringMax: 30, sourceName: 80, sourceUrl: 300, slug: 40,
 } as const;
 
@@ -187,9 +198,27 @@ export const cleanRing = (n: unknown) =>
   typeof n === "number" && Number.isFinite(n)
     ? Math.round(clamp(n, LIMITS.ringMin, LIMITS.ringMax)) : RING_DEFAULT;
 
+/** Reference pictures as the page may draw them: only our own paths, sized. */
+export function cleanRefs(raw: unknown): Ref[] {
+  if (!Array.isArray(raw)) return [];
+  const out: Ref[] = [];
+  for (const r of raw.slice(0, LIMITS.refs)) {
+    if (!r || typeof r !== "object") continue;
+    const v = r as { path?: unknown; w?: unknown; h?: unknown; say?: unknown };
+    if (!isPicturePath(v.path) || typeof v.w !== "number" || typeof v.h !== "number"
+      || !(v.w > 0) || !(v.h > 0)) continue;
+    const say = typeof v.say === "string" && v.say.trim() ? v.say.trim().slice(0, LIMITS.refSay) : undefined;
+    out.push({ path: v.path, w: Math.round(v.w), h: Math.round(v.h), ...(say ? { say } : {}) });
+  }
+  return out;
+}
+
 /** A step from the database, made safe to draw. */
 export function cleanStep(row: StepRow): StepRow {
-  return { ...row, spots: cleanSpots(row.spots), ring: cleanRing(row.ring) };
+  return {
+    ...row, mech: row.mech?.trim() || null,
+    spots: cleanSpots(row.spots), ring: cleanRing(row.ring), refs: cleanRefs(row.refs),
+  };
 }
 
 /* ── editing ─────────────────────────────────────────────────────────────── */
@@ -221,19 +250,35 @@ export function slugify(s: string): string {
 
 export const isSlug = (s: string) => /^[a-z0-9][a-z0-9-]{0,39}$/.test(s);
 
+/** Steps that belong together on the page: one big mechanic, or one step on its own. */
+export interface Block {
+  mech: string | null;
+  steps: StepRow[];
+}
+
 /**
- * Steps in reading order, cut into their phases.
+ * Steps in reading order, cut into their phases, and inside a phase into
+ * blocks.
  *
  * A phase is only a heading: the steps under one are the ones that follow it
  * until the next phase name. A step with no phase stays under the one before.
+ * A block is a run of consecutive steps with the same big mechanic, which the
+ * page draws as one box with its parts in order; a step with none is a block
+ * of its own. A big mechanic never runs across a phase heading.
  */
-export function inPhases(steps: StepRow[]): { phase: string | null; steps: StepRow[] }[] {
-  const out: { phase: string | null; steps: StepRow[] }[] = [];
+export function inPhases(steps: StepRow[]): { phase: string | null; blocks: Block[] }[] {
+  const out: { phase: string | null; blocks: Block[] }[] = [];
   for (const s of [...steps].sort((a, b) => a.sort - b.sort || a.id - b.id)) {
     const p = s.phase?.trim() || null;
-    const last = out[out.length - 1];
-    if (last && (p === null || p === last.phase)) last.steps.push(s);
-    else out.push({ phase: p, steps: [s] });
+    let group = out[out.length - 1];
+    if (!group || (p !== null && p !== group.phase)) {
+      group = { phase: p, blocks: [] };
+      out.push(group);
+    }
+    const m = s.mech?.trim() || null;
+    const last = group.blocks[group.blocks.length - 1];
+    if (m && last && last.mech === m) last.steps.push(s);
+    else group.blocks.push({ mech: m, steps: [s] });
   }
   return out;
 }

@@ -8,7 +8,7 @@ import ConfirmDialog from "@/components/ConfirmDialog";
 import FocusPicture from "@/components/guides/FocusPicture";
 import {
   CATEGORIES, CATEGORY_LABEL, EXPANSIONS, GUIDE_COLUMNS, LIMITS, RING_DEFAULT, SEATS,
-  STEP_COLUMNS, cleanStep, fitPicture, isCategory, isSlug, newPicturePath, seatColor,
+  STEP_COLUMNS, cleanStep, fitPicture, isCategory, isSlug, newPicturePath, pictureUrl, seatColor,
   togglePoint, withSeat, type DutyOption, type GuideRow, type Point, type Seat, type StepRow,
 } from "@/lib/guides";
 
@@ -58,6 +58,9 @@ export default function GuideEditor({
       guide_id: guide.id,
       sort: (last?.sort ?? 0) + 1,
       phase: null,
+      // A new step carries on the big mechanic of the one before it: the
+      // usual reason to add a step is the next part of the same thing.
+      mech: last?.mech ?? null,
       name: t("guide.s.name"),
       ring: last?.ring ?? RING_DEFAULT,
     }).select(STEP_COLUMNS).single();
@@ -263,7 +266,7 @@ function GuideInfo(
 type Status = "idle" | "dirty" | "saving" | "saved" | "error";
 
 /** Turns a picked file into a WebP no larger than PICTURE_MAX, with its size. */
-async function shrink(file: File): Promise<{ blob: Blob; w: number; h: number; ext: "webp" | "jpg" }> {
+async function shrink(file: File, max?: number): Promise<{ blob: Blob; w: number; h: number; ext: "webp" | "jpg" }> {
   const url = URL.createObjectURL(file);
   try {
     const img = await new Promise<HTMLImageElement>((ok, no) => {
@@ -272,7 +275,7 @@ async function shrink(file: File): Promise<{ blob: Blob; w: number; h: number; e
       i.onerror = () => no(new Error("not-image"));
       i.src = url;
     });
-    const { w, h } = fitPicture(img.naturalWidth, img.naturalHeight);
+    const { w, h } = fitPicture(img.naturalWidth, img.naturalHeight, max);
     if (!w || !h) throw new Error("not-image");
     const canvas = document.createElement("canvas");
     canvas.width = w; canvas.height = h;
@@ -314,6 +317,7 @@ function StepEditor({
   const [upErr, setUpErr] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const refFile = useRef<HTMLInputElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const latest = useRef(d);
   latest.current = d;
@@ -329,8 +333,10 @@ function StepEditor({
     if (!sb) return;
     setStatus("saving");
     const { data, error } = await sb.from("guide_steps").update({
-      phase: row.phase?.trim() || null, name: row.name.trim(), note: row.note?.trim() || null,
+      phase: row.phase?.trim() || null, mech: row.mech?.trim() || null,
+      name: row.name.trim(), note: row.note?.trim() || null,
       picture: row.picture, pic_w: row.pic_w, pic_h: row.pic_h, ring: row.ring, spots: row.spots,
+      refs: row.refs.map((r) => ({ path: r.path, w: r.w, h: r.h, ...(r.say?.trim() ? { say: r.say.trim() } : {}) })),
     }).eq("id", row.id).select(STEP_COLUMNS).single();
     if (error || !data) { setWhy(error?.message ?? "?"); setStatus("error"); return; }
     // Only "saved" if nothing changed while it was on its way.
@@ -385,6 +391,36 @@ function StepEditor({
     }
   };
 
+  /** A reference picture: up to 1000 wide is plenty for something shown small. */
+  const pickRef = async (file: File | undefined) => {
+    if (!file || !userId || d.refs.length >= LIMITS.refs) return;
+    if (!file.type.startsWith("image/")) { setUpErr(t("guide.s.notPicture")); return; }
+    const sb = createClient();
+    if (!sb) return;
+    setUploading(true); setUpErr(null);
+    try {
+      const out = await shrink(file, 1000);
+      const path = newPicturePath(userId, out.ext);
+      const { error } = await sb.storage.from("guides").upload(path, out.blob, {
+        contentType: out.ext === "webp" ? "image/webp" : "image/jpeg", upsert: false, cacheControl: "31536000",
+      });
+      if (error) throw error;
+      change({ ...latest.current, refs: [...latest.current.refs, { path, w: out.w, h: out.h }] });
+    } catch (e) {
+      const m = (e as Error).message;
+      setUpErr(m === "not-image" ? t("guide.s.notPicture") : t("guide.s.uploadFail", { msg: m }));
+    } finally {
+      setUploading(false);
+      if (refFile.current) refFile.current.value = "";
+    }
+  };
+
+  const dropRef = (i: number) => {
+    const gone = d.refs[i];
+    change({ ...d, refs: d.refs.filter((_, k) => k !== i) });
+    if (gone) void createClient()?.storage.from("guides").remove([gone.path]);
+  };
+
   const icon = "inline-flex size-11 shrink-0 items-center justify-center rounded-lg border border-line text-title text-ink hover:border-accent hover:text-accent disabled:opacity-30";
 
   return (
@@ -396,9 +432,14 @@ function StepEditor({
                onChange={(e) => change({ ...d, name: e.target.value })} />
       </div>
       <div className="flex items-center gap-2">
-        <input className={`${field} text-ui`} value={d.phase ?? ""} maxLength={LIMITS.phase}
-               aria-label={t("guide.s.phase")} placeholder={t("guide.s.phase")}
-               onChange={(e) => change({ ...d, phase: e.target.value })} />
+        <div className="grid min-w-0 flex-1 gap-2 sm:grid-cols-2">
+          <input className={`${field} text-ui`} value={d.phase ?? ""} maxLength={LIMITS.phase}
+                 aria-label={t("guide.s.phase")} placeholder={t("guide.s.phase")}
+                 onChange={(e) => change({ ...d, phase: e.target.value })} />
+          <input className={`${field} text-ui`} value={d.mech ?? ""} maxLength={LIMITS.mech}
+                 aria-label={t("guide.s.mech")} placeholder={t("guide.s.mech")}
+                 onChange={(e) => change({ ...d, mech: e.target.value })} />
+        </div>
         <button type="button" className={icon} disabled={first} onClick={() => onMove(-1)}
                 aria-label={t("guide.s.up")} title={t("guide.s.up")}>↑</button>
         <button type="button" className={icon} disabled={last} onClick={() => onMove(1)}
@@ -479,6 +520,31 @@ function StepEditor({
         <textarea className={`${field} min-h-16`} value={d.note ?? ""} maxLength={LIMITS.stepNote}
                   onChange={(e) => change({ ...d, note: e.target.value })} />
       </label>
+
+      {/* What to watch for in the game, each with a line. */}
+      <div className="flex flex-col gap-2">
+        <span className="text-ui text-muted">{t("guide.s.refs")}</span>
+        {d.refs.map((r, i) => (
+          <div key={r.path} className="flex items-center gap-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={pictureUrl(r.path) ?? undefined} alt="" width={r.w} height={r.h}
+                 className="h-12 w-20 shrink-0 rounded-md border border-line bg-black object-cover" />
+            <input className={field} value={r.say ?? ""} maxLength={LIMITS.refSay}
+                   aria-label={t("guide.s.refSay")} placeholder={t("guide.s.refSay")}
+                   onChange={(e) => change({ ...d, refs: d.refs.map((x, k) => (k === i ? { ...x, say: e.target.value } : x)) })} />
+            <button type="button" className={`${icon} hover:!border-chili hover:!text-chili`}
+                    onClick={() => dropRef(i)} aria-label={t("guide.s.removeRef")} title={t("guide.s.removeRef")}>✕</button>
+          </div>
+        ))}
+        <input ref={refFile} type="file" accept="image/png,image/jpeg,image/webp" className="hidden"
+               onChange={(e) => void pickRef(e.target.files?.[0])} />
+        {d.refs.length < LIMITS.refs && (
+          <button type="button" onClick={() => refFile.current?.click()} disabled={uploading || !userId}
+                  className="min-h-10 self-start rounded-lg border border-dashed border-line px-3 text-read text-ink hover:border-accent hover:text-accent disabled:opacity-50">
+            + {t("guide.s.addRef")}
+          </button>
+        )}
+      </div>
       <div className="min-h-5 text-right text-meta" role="status">
         {status === "dirty" && <span className="text-muted">{t("guide.unsaved")}</span>}
         {status === "saving" && <span className="text-muted">{t("guide.saving")}</span>}

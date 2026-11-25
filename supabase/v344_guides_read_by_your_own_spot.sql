@@ -27,6 +27,12 @@
 --                the bright circle, in percent of the picture's width.
 --                `pic_w`/`pic_h` are the picture's own size, so the page keeps
 --                its shape before it loads and the circle stays round.
+--                `refs` are up to four small reference pictures of what to
+--                watch for (the boss's pose, an object at the edge of the
+--                arena), each with a caption. `mech` is the big mechanic a
+--                step belongs to: consecutive steps with the same one are drawn
+--                together in one box, its parts in order (both the owner,
+--                2026-11-25).
 --
 -- Only admins write anything here. Members and visitors only ever read what is
 -- published: a strategy is public knowledge and a member often opens the link
@@ -110,6 +116,31 @@ as $fn$
      );
 $fn$;
 
+/* ── what a reference picture may hold ───────────────────────────────────── */
+
+create or replace function public.guide_refs_ok(r jsonb)
+returns boolean
+language sql
+immutable
+as $fn$
+  select r is not null
+     and jsonb_typeof(r) = 'array'
+     and jsonb_array_length(r) <= 4
+     and not exists (
+       select 1
+         from jsonb_array_elements(r) as e(v)
+        where jsonb_typeof(e.v) <> 'object'
+           or exists (select 1 from jsonb_object_keys(e.v) as k(name)
+                       where k.name not in ('path', 'w', 'h', 'say'))
+           or jsonb_typeof(e.v -> 'path') is distinct from 'string'
+           or (e.v ->> 'path') !~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g-[0-9]{10,16}-[a-z0-9]{4,12}.(webp|jpg|png)$'
+           or jsonb_typeof(e.v -> 'w') is distinct from 'number'
+           or jsonb_typeof(e.v -> 'h') is distinct from 'number'
+           or (e.v ? 'say' and (jsonb_typeof(e.v -> 'say') <> 'string'
+                                or char_length(e.v ->> 'say') > 160))
+     );
+$fn$;
+
 /* ── the pictures of a fight ─────────────────────────────────────────────── */
 
 create table if not exists public.guide_steps (
@@ -117,6 +148,7 @@ create table if not exists public.guide_steps (
   guide_id    bigint not null references public.guides (id) on delete cascade,
   sort        integer not null default 0,
   phase       text check (phase is null or char_length(phase) <= 60),
+  mech        text check (mech is null or char_length(mech) <= 80),
   name        text not null check (char_length(name) between 1 and 80),
   note        text check (note is null or char_length(note) <= 400),
   picture     text check (picture is null or (
@@ -127,9 +159,16 @@ create table if not exists public.guide_steps (
   ring        smallint not null default 9 check (ring between 3 and 30),
   spots       jsonb not null default '{}'::jsonb
                 check (pg_column_size(spots) <= 6000 and public.guide_spots_ok(spots)),
+  refs        jsonb not null default '[]'::jsonb
+                check (pg_column_size(refs) <= 4000 and public.guide_refs_ok(refs)),
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
 );
+
+alter table public.guide_steps add column if not exists mech text
+  check (mech is null or char_length(mech) <= 80);
+alter table public.guide_steps add column if not exists refs jsonb not null default '[]'::jsonb
+  check (pg_column_size(refs) <= 4000 and public.guide_refs_ok(refs));
 
 create index if not exists guide_steps_of on public.guide_steps (guide_id, sort);
 
@@ -228,9 +267,9 @@ grant delete on public.guides to authenticated;
 
 revoke all on public.guide_steps from anon, authenticated;
 grant select on public.guide_steps to anon, authenticated;
-grant insert (guide_id, sort, phase, name, note, picture, pic_w, pic_h, ring, spots)
+grant insert (guide_id, sort, phase, mech, name, note, picture, pic_w, pic_h, ring, spots, refs)
   on public.guide_steps to authenticated;
-grant update (sort, phase, name, note, picture, pic_w, pic_h, ring, spots)
+grant update (sort, phase, mech, name, note, picture, pic_w, pic_h, ring, spots, refs)
   on public.guide_steps to authenticated;
 grant delete on public.guide_steps to authenticated;
 

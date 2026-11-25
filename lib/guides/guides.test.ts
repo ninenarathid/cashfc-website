@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  cleanRing, cleanSpots, fitPicture, inPhases, isPicturePath, isSlug, newPicturePath, slugify,
+  cleanRefs, cleanRing, cleanSpots, fitPicture, inPhases, isPicturePath, isSlug, newPicturePath, slugify,
   togglePoint, withSeat, type StepRow,
 } from "./index";
 
@@ -89,13 +89,36 @@ describe("fitPicture", () => {
 });
 
 describe("inPhases", () => {
-  const step = (id: number, sort: number, phase: string | null): StepRow => ({
-    id, guide_id: 1, sort, phase, name: `s${id}`, note: null, picture: null,
-    pic_w: null, pic_h: null, ring: 9, spots: {},
+  const step = (id: number, sort: number, phase: string | null, mech: string | null = null): StepRow => ({
+    id, guide_id: 1, sort, phase, mech, name: `s${id}`, note: null, picture: null,
+    pic_w: null, pic_h: null, ring: 9, spots: {}, refs: [],
   });
+  const shape = (steps: StepRow[]) => inPhases(steps)
+    .map((g) => [g.phase, g.blocks.map((b) => [b.mech, b.steps.map((s) => s.id)])]);
   it("groups steps under the phase before them, in order", () => {
-    const groups = inPhases([step(3, 3, null), step(1, 1, "P1"), step(2, 2, null), step(4, 4, "P2")]);
-    expect(groups.map((g) => [g.phase, g.steps.map((s) => s.id)]))
-      .toEqual([["P1", [1, 2, 3]], ["P2", [4]]]);
+    expect(shape([step(3, 3, null), step(1, 1, "P1"), step(2, 2, null), step(4, 4, "P2")]))
+      .toEqual([["P1", [[null, [1]], [null, [2]], [null, [3]]]], ["P2", [[null, [4]]]]]);
+  });
+  it("puts consecutive parts of one big mechanic in one block", () => {
+    expect(shape([
+      step(1, 1, "P1", "Void"), step(2, 2, null, "Void"), step(3, 3, null, null),
+      step(4, 4, null, "Void"), step(5, 5, "P2", "Void"),
+    ])).toEqual([
+      ["P1", [["Void", [1, 2]], [null, [3]], ["Void", [4]]]],
+      ["P2", [["Void", [5]]]],
+    ]);
+  });
+});
+
+describe("cleanRefs", () => {
+  const path = newPicturePath(UID, "webp");
+  it("keeps our own pictures with a size", () => {
+    expect(cleanRefs([{ path, w: 800.4, h: 450, say: " บอสยกมือ " }]))
+      .toEqual([{ path, w: 800, h: 450, say: "บอสยกมือ" }]);
+  });
+  it("drops anything else, and keeps four", () => {
+    expect(cleanRefs([{ path: "https://x/a.png", w: 1, h: 1 }, { path }, "x", null])).toEqual([]);
+    expect(cleanRefs(Array(6).fill({ path, w: 1, h: 1 }))).toHaveLength(4);
+    expect(cleanRefs("nope")).toEqual([]);
   });
 });
