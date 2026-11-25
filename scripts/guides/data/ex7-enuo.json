@@ -33,6 +33,7 @@
       "mech": "Waymarks (フィールドマーカー)",
       "name": "มาร์กเกอร์ 8 ทิศ",
       "note": "ใช้มาร์กเกอร์ 8 ทิศแบบมาตรฐาน: A เหนือ · B ตะวันออก · C ใต้ · D ตะวันตก · 1 ตะวันตกเฉียงเหนือ · 2 ตะวันออกเฉียงเหนือ · 3 ตะวันออกเฉียงใต้ · 4 ตะวันตกเฉียงใต้ ใช้เป็นจุด spread 8 ทิศของ Meltdown และใช้บอกทิศเหนือ ใต้ ออก ตก ตลอดไฟต์",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12531853/7dbdcaa05d2b4bc910a1f6ee46fb3d84.webp/show"
       ],
@@ -74,6 +75,7 @@
       "mech": "Meteorain (メテオレイン)",
       "name": "raid-wide",
       "note": "AoE เวททั้งปาร์ตี้ (raid-wide) แรงประมาณ raid-wide ทั่วไปของ Extreme",
+      "strict": false,
       "scene": null
     },
     {
@@ -81,6 +83,7 @@
       "mech": "Naught Grows (無の肥大)",
       "name": "ภาพรวม ①: บอกชนิด AoE + สายที่ฮีลเลอร์",
       "note": "กลไกหลักของไฟต์และมาต่อเนื่องกัน แบ่งดูเป็น 2 ส่วน คือ AoE จาก Void รอบนอก กับ stack ที่ฮีลเลอร์ · เริ่มจากบอสส่งลูกศรไปที่ Void รอบนอก พร้อมสัญลักษณ์บอกว่าจะเป็น AoE วงกลมหรือ donut และฮีลเลอร์ 1–2 คนจะโดนสาย (tether) กับมาร์ก",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12529366/f09ba930c6ee2ee3801c30e037d5634c.webp/show"
       ],
@@ -145,6 +148,7 @@
         "MT": "ยืนหัวแถวฝั่งขอบสนาม รับ stack ก่อน",
         "ST": "ยืนหัวแถวฝั่งขอบสนาม รับ stack ก่อน"
       },
+      "strict": ["MT", "ST"],
       "game8": [
         "https://img.game8.jp/12529369/4121c0bb503d38ca394a2231c6b46fa4.webp/show"
       ],
@@ -222,6 +226,7 @@
       "mech": "Naught Grows (無の肥大)",
       "name": "Void รอบนอก: AoE วงกลม",
       "note": "ก่อนระเบิดจะมีสัญลักษณ์บอกชนิดขึ้นมาก่อน (ดูภาพอ้างอิง) แล้วสักพัก AoE จะออกจาก object ที่ปลายลูกศร · ขนาดจริงประมาณในภาพ: วงกลมจาก Void ทางเหนือกินครึ่งบนของสนามเลยไปถึงตัวบอส",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12529383/0e203b4147ad23fab82a8133ac3b026c.webp/show"
       ],
@@ -267,6 +272,7 @@
       "mech": "Naught Grows (無の肥大)",
       "name": "Void รอบนอก: donut",
       "note": "ถ้าสัญลักษณ์เป็นวงแหวนมีรูตรงกลาง = donut จาก Void ที่ปลายลูกศร ปลอดภัยเฉพาะวงในใกล้ Void ส่วนอื่นโดนเกือบทั้งสนาม · ขนาดจริงประมาณในภาพ",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12529385/fc7b47fc540f7c28b5f959f3192aabe8.webp/show"
       ],
@@ -316,6 +322,7 @@
         "MT": "ท้ายแถวฝั่งขอบใต้ รับ stack ก่อนคู่กับ ST",
         "ST": "ท้ายแถวฝั่งขอบใต้ รับ stack ก่อนคู่กับ MT"
       },
+      "strict": ["MT", "ST"],
       "game8": [
         "https://img.game8.jp/12529416/68ad98524940e706ddc539dd6430fd0b.webp/show"
       ],
@@ -397,6 +404,7 @@
         "MT": "หัวแถวฝั่งขอบเหนือ รับ stack ก่อนคู่กับ ST",
         "ST": "หัวแถวฝั่งขอบเหนือ รับ stack ก่อนคู่กับ MT"
       },
+      "strict": ["MT", "ST"],
       "game8": [
         "https://img.game8.jp/12529417/a304e61d0cf766d821e4fd90c2b1a24d.webp/show"
       ],
@@ -478,6 +486,7 @@
         "MT": "ท้ายแถวซ้าย (ตะวันตก) ฝั่งขอบ",
         "ST": "ท้ายแถวขวา (ตะวันออก) ฝั่งขอบ"
       },
+      "strict": true,
       "game8": [
         "https://img.game8.jp/12529418/e2427a56c607fa25ece7bf2fb545908e.webp/show"
       ],
@@ -582,6 +591,7 @@
         "MT": "กลุ่ม MT อยู่ฝั่งตะวันออก ท้ายแถวฝั่งขอบ",
         "ST": "กลุ่ม ST อยู่ฝั่งตะวันตก ท้ายแถวฝั่งขอบ"
       },
+      "strict": true,
       "game8": [
         "https://img.game8.jp/12529419/820ef150f2789fc3fe13a42f73862d23.webp/show"
       ],
@@ -682,6 +692,7 @@
       "mech": "Naught Wakes (無の活性)",
       "name": "Void ย้ายที่",
       "note": "Void รอบนอกแค่ย้ายตำแหน่ง ไม่ต้องสนใจ ถ้าทำได้ให้ขยับเข้ากลางสนามรอ Meltdown ที่ตามมา",
+      "strict": false,
       "scene": null
     },
     {
@@ -689,6 +700,7 @@
       "mech": "Meltdown (メルトダウン)",
       "name": "① รวมกลาง",
       "note": "ตอนบอสร่าย Meltdown ทุกคนรวมกันที่กลางสนาม",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12529523/9778d5d97ed46339aebb62a5c076fac9.webp/show"
       ],
@@ -722,6 +734,7 @@
       "mech": "Meltdown (メルトダウン)",
       "name": "② ยืนนิ่งจนดีบัฟหมด",
       "note": "ทุกคนได้ดีบัฟ Chains of Condemnation (焔の枷): ตีได้ แต่ถ้าขยับจะโดนดาเมจ ให้ยืนนิ่งรอจนหมด · ดีบัฟอยู่ 2 วินาที และตอนหมดจะมี AoE วงกลมขึ้นใต้เท้า",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12529524/50a79be0ab2fe8a7b9c9841dd81fd908.webp/show"
       ],
@@ -773,6 +786,7 @@
         "H1": "spread ที่ D (ตะวันตก)",
         "D3": "spread ที่ 1 (ตะวันตกเฉียงเหนือ)"
       },
+      "strict": true,
       "game8": [
         "https://img.game8.jp/12529526/95f2baada6495dd7f0c8ec244ee5fa8f.webp/show"
       ],
@@ -824,6 +838,7 @@
         "ST": "คู่กับ D2 ทิศใต้",
         "D2": "คู่กับ ST ทิศใต้"
       },
+      "strict": true,
       "game8": [
         "https://img.game8.jp/12529561/40a8a87a72c61db061d10aefbdc9db18.webp/show"
       ],
@@ -870,6 +885,7 @@
         "D2": "ฝั่งตะวันออก (กลุ่ม ST)",
         "D4": "ฝั่งตะวันออก (กลุ่ม ST)"
       },
+      "strict": true,
       "game8": [
         "https://img.game8.jp/12529562/8060ec5b692a8f4cb92802cebc70c794.webp/show"
       ],
@@ -904,6 +920,7 @@
       "mech": "Gaze of the Void (混沌の激流)",
       "name": "กรวยวน แล้วชนลูกบอลเป็นคู่",
       "note": "ลูกบอลที่โผล่ขึ้นมาจะยิงกรวย (cone) วนไปตามลำดับที่โผล่ เหมือนโหมดปกติทุกอย่าง · จากนั้นมีกลไกเพิ่ม: ต้องเข้าไปชนลูกบอลเป็นคู่ ตามลำดับลูกเหลือง (วิ่งเร็ว) → ลูกม่วง (วิ่งช้า) · ชนแล้วจะได้ดีบัฟห้ามชนซ้ำ ต้องรอให้ดีบัฟหมดก่อนแล้วค่อยไปชนลูกม่วง",
+      "strict": false,
       "scene": null
     },
     {
@@ -921,6 +938,7 @@
         "H1": "ฮีล: ฝั่งซ้ายของลูกแทงค์",
         "H2": "ฮีล: ฝั่งซ้ายของลูกแทงค์"
       },
+      "strict": true,
       "game8": [
         "https://img.game8.jp/12530568/96ec078858ae87857da9753439cf659e.webp/show"
       ],
@@ -1000,6 +1018,7 @@
       "mech": "Vacuum + Airy/Dense Emptiness (無の渦＋拡散波動 / 集束波動)",
       "name": "หลบวงวน แล้ว stack ตามชื่อร่าย",
       "note": "Vacuum (無の渦) เหมือนโหมดปกติทุกอย่าง เช่นเดียวกับ Gaze of the Void · หลังจากนั้นตามด้วย 拡散/集束波動 ดูชื่อร่าย: 拡散 = stack คู่ / 集束 = stack 4:4",
+      "strict": false,
       "scene": null
     },
     {
@@ -1011,6 +1030,7 @@
         "MT": "มาร์กอันดับ 1: ไปทิ้งทางตะวันตกเฉียงเหนือ",
         "ST": "เปิด stance ถือ hate อันดับ 2 ไปทิ้งตะวันออกเฉียงเหนือ"
       },
+      "strict": ["MT", "ST"],
       "game8": [
         "https://img.game8.jp/12529670/368d69a1670da9d4172e51cae960d005.webp/show"
       ],
@@ -1058,6 +1078,7 @@
       "mech": "Adds phase (雑魚フェーズ)",
       "name": "① knockback กลางสนาม",
       "note": "สนามเปลี่ยน และไม่มีการตกขอบสนามแล้ว · อย่าเหยียบ AoE วงกลมกลางสนาม ไปรอแถวๆ จุดเหยียบ tower ของตัวเองคร่าวๆ · knockback กันได้ด้วย Arm's Length และ Surecast",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12530874/c0a327c2ffdba179527de280f390f97f.webp/show"
       ],
@@ -1133,6 +1154,7 @@
       "mech": "Adds phase (雑魚フェーズ)",
       "name": "② tower + กรวย (รอบแรก)",
       "note": "คนโดนมาร์กโดนกรวย (cone) คนที่เหลือเหยียบ tower แต่ละรอบแบ่งเป็น TH 4 คน หรือ DPS 4 คน · ห้ามทิ้งกรวยระหว่าง tower ที่อยู่ชิดกันเด็ดขาด กรวยจะโดนคนเหยียบ tower (ในภาพคือช่วงระหว่าง tower ของ TH ทางใต้)",
+      "strict": true,
       "game8": [
         "https://img.game8.jp/12530877/c89d7d9adaee909c4623e1bf0fba02df.webp/show"
       ],
@@ -1180,6 +1202,7 @@
         "D3": "กลไกห้ามมอง (gaze)",
         "D4": "กลไกห้ามมอง (gaze)"
       },
+      "strict": false,
       "scene": null
     },
     {
@@ -1187,6 +1210,7 @@
       "mech": "Adds phase (雑魚フェーズ)",
       "name": "④ tower + กรวย (รอบสอง)",
       "note": "กรวยและ tower อีกรอบ รอบนี้สลับกับ ②: ฝั่งที่ได้กรวยรอบที่แล้วจะได้ tower และกลับกัน",
+      "strict": true,
       "game8": [
         "https://img.game8.jp/12531016/a09be768d906f42f7d858bcb937acc74.webp/show"
       ],
@@ -1224,6 +1248,7 @@
       "mech": "Adds phase (雑魚フェーズ)",
       "name": "⑤–⑥ ลูกน้องชุดสอง แล้วออกจากช่วงนี้",
       "note": "⑤ รอบนี้ 4 คนที่ไม่ได้ผูกกับลูกน้องใน ③ ไปจัดการลูกน้องพร้อมกลไกตาม role ฆ่าเสร็จแล้วไปตีศัตรูตัวใหญ่กลางสนาม · ⑥ ทำลาย Beacon in the Dark (光の兆し) ที่โผล่กลางสนามเพื่อออกจากช่วงนี้",
+      "strict": false,
       "scene": null
     },
     {
@@ -1241,6 +1266,7 @@
         "H1": "ตะวันตก คู่ที่สองทวนเข็ม (กับ D3)",
         "D3": "ตะวันตก คู่ที่สองทวนเข็ม (กับ H1)"
       },
+      "strict": true,
       "game8": [
         "https://img.game8.jp/12530964/5735b99550a2d1260d14a4799bff14fd.webp/show"
       ],
@@ -1353,6 +1379,7 @@
       "mech": "Adds phase (雑魚フェーズ)",
       "name": "แบบซับซ้อน: คนทิ้งกรวย 3 คนระหว่าง tower",
       "note": "บางรูปแบบจะมีคนทิ้งกรวย 3 คนอยู่ระหว่าง tower ระวังระยะกับคนข้างๆ · แต่ก็ยังแก้ได้ด้วยหลักเดิม: ตะวันออกจาก A ตามเข็ม ตะวันตกจาก A ทวนเข็ม",
+      "strict": true,
       "game8": [
         "https://img.game8.jp/12571303/1b43f7a53e9f3724ba05e8257accab3b.webp/show"
       ],
@@ -1390,6 +1417,7 @@
       "mech": "Lightless World (ライトレス・ワールド)",
       "name": "raid-wide 6 ครั้ง",
       "note": "AoE เวททั้งปาร์ตี้ ดูเหมือนโดนครั้งเดียวแต่จริงๆ โดน 6 ครั้งติด · ถ้าเก็บ burst นาทีคู่ไว้ตอนช่วงลูกน้อง ให้ burst ตรงนี้",
+      "strict": false,
       "scene": null
     },
     {
@@ -1397,6 +1425,7 @@
       "mech": "Almagest (アルマゲスト)",
       "name": "raid-wide ต่อเนื่อง",
       "note": "ดาเมจเวททั้งปาร์ตี้ มาต่อจาก Lightless World ทันที ใช้ฮีลและ mitigation ให้เต็มที่",
+      "strict": false,
       "refs": [
         {
           "src": "https://img.game8.jp/12530685/1e06727c188fb41bf17d5ec43539c0da.webp/show",
@@ -1410,6 +1439,7 @@
       "mech": "Naught Grows (無の肥大)",
       "name": "แบบ 1 ①: Void→บอส donut / บอส→Void วงกลม",
       "note": "ช่วงหลัง Void รอบนอกมี 2 ลูก ลำดับคือ Void → บอส → Void และ AoE ตามที่แสดงจะระเบิดที่ปลายลูกศร · แบบ 1: ลูกศรจาก Void รอบนอกมาที่บอส = donut รอบบอส / จากบอสไป Void รอบนอก = AoE วงกลมที่ Void นั้น · ฮีลเลอร์ยังได้ Void เล็กเหมือนช่วงแรก แก้แบบเดียวกัน (stack 4:4 หรือ stack รวม)",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12530770/932f690b4b1d26c185a315d77a4ecded.webp/show"
       ],
@@ -1510,6 +1540,7 @@
         "MT": "ยืนท้ายสุดของแถว",
         "ST": "ยืนท้ายสุดของแถว"
       },
+      "strict": ["MT", "ST", "H1", "H2"],
       "game8": [
         "https://img.game8.jp/12530768/7c084b8a4a6fd417d4ba62d09da53249.webp/show"
       ],
@@ -1608,6 +1639,7 @@
       "mech": "Naught Grows (無の肥大)",
       "name": "แบบ 2 ①: Void→บอส วงกลม / บอส→Void donut",
       "note": "แบบ 2: ลูกศรจาก Void รอบนอกมาที่บอส = AoE วงกลมรอบบอส / จากบอสไป Void รอบนอก = donut รอบ Void นั้น",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12530769/358ba88dfe1b4749c72777f135593df2.webp/show"
       ],
@@ -1694,6 +1726,7 @@
         "MT": "ยืนท้ายแถว (ฝั่ง Void รอบนอก)",
         "ST": "ยืนท้ายแถว (ฝั่ง Void รอบนอก)"
       },
+      "strict": ["MT", "ST"],
       "game8": [
         "https://img.game8.jp/12530771/137fb810bb41748d5c90669cafa50e6e.webp/show"
       ],
@@ -1771,6 +1804,7 @@
       "mech": "Naught Wakes (無の活性)",
       "name": "แบบ 1 ①: Void คู่ 2 คู่",
       "note": "ช่วงหลัง Void รอบนอกเพิ่มขึ้น AoE ก็เพิ่มขึ้น มีราว 4 แบบ แต่จำแค่นี้พอ: Void คู่ (2 ลูกติดกัน) 2 คู่ = กลางปลอดภัย / Void คู่ 1 คู่ + Void ใหญ่ 1 ลูก = ฝั่ง Void คู่ (หรือมุมทแยง) ปลอดภัย · แบบ 1: Void คู่ 2 คู่ (เหนือ และ ตะวันออก)",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12532205/03935efe5d6dfa0ba59017ed72c59647.webp/show"
       ],
@@ -1845,6 +1879,7 @@
       "mech": "Naught Wakes (無の活性)",
       "name": "แบบ 1 ②: กลางปลอดภัย",
       "note": "Void คู่ 2 คู่ → AoE เป็นแถบ 4 เส้น ช่องกลางสนามปลอดภัย",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12532202/9b14277dbeb10d01e58527b8bb494695.webp/show"
       ],
@@ -1923,6 +1958,7 @@
       "mech": "Naught Wakes (無の活性)",
       "name": "แบบ 2 ①: Void คู่ + Void ใหญ่",
       "note": "Void คู่ 1 คู่ (เหนือ) + Void ใหญ่ 1 ลูก",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12532207/63cfeb0ec405e84afb3d8c6ef8680790.webp/show"
       ],
@@ -1986,6 +2022,7 @@
       "mech": "Naught Wakes (無の活性)",
       "name": "แบบ 2 ②: รูปตัว N (Z) ฝั่ง Void คู่ปลอดภัย",
       "note": "AoE เป็นรูปตัว N (หรือ Z) ฝั่งที่มี Void คู่เป็นที่ปลอดภัย",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12532204/eb8b0e6dde19c1a0f92f86470bd1db76.webp/show"
       ],
@@ -2052,6 +2089,7 @@
       "mech": "Naught Wakes (無の活性)",
       "name": "แบบ 3 ①: Void คู่ 2 คู่",
       "note": "Void คู่ 2 คู่ (เหนือ และ ตะวันตก-ใต้)",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12532206/50ceda258c4427d9adb9b63621b9b254.webp/show"
       ],
@@ -2126,6 +2164,7 @@
       "mech": "Naught Wakes (無の活性)",
       "name": "แบบ 3 ②: ช่องข้าวหลามตัดกลางสนาม",
       "note": "Void คู่ 2 คู่ → ช่องปลอดภัยรูปข้าวหลามตัด (ひし形) อยู่กลางสนาม",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12532201/07cb679959a84076afcfa9f663c6c340.webp/show"
       ],
@@ -2204,6 +2243,7 @@
       "mech": "Naught Wakes (無の活性)",
       "name": "แบบ 4 ①: Void คู่ + Void ใหญ่",
       "note": "Void คู่ 1 คู่ (เหนือ) + Void ใหญ่ 1 ลูก (ตะวันออก)",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12532208/62065ddb6283a3b551941302d2eb9fde.webp/show"
       ],
@@ -2267,6 +2307,7 @@
       "mech": "Naught Wakes (無の活性)",
       "name": "แบบ 4 ②: รูปตัว H ฝั่ง Void คู่ปลอดภัย",
       "note": "AoE เป็นรูปตัว H ฝั่งที่มี Void คู่เป็นที่ปลอดภัย",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12532203/b2512dc7d667d44742f413b25b15a1e1.webp/show"
       ],
@@ -2343,6 +2384,7 @@
         "D2": "กลุ่ม ST ฝั่ง B",
         "D4": "กลุ่ม ST ฝั่ง B"
       },
+      "strict": true,
       "game8": [
         "https://img.game8.jp/12530864/1e9aa81347184fa0ca6f3d2c900d4ada.webp/show"
       ],
@@ -2418,6 +2460,7 @@
       "mech": "Dimension Zero (ディメンションゼロ)",
       "name": "line stack 3 ครั้ง",
       "note": "line stack เวท 3 ครั้งติด ทุกคนรวมกันรับ",
+      "strict": false,
       "scene": null
     },
     {
@@ -2425,6 +2468,7 @@
       "mech": "Vacuum + Meltdown (無の渦＋メルトダウン)",
       "name": "① รอฝั่งเส้นโค้งยาว",
       "note": "กลไกผสม Vacuum กับ Meltdown ของช่วงแรก · Vacuum ขึ้นมา → ไปรอฝั่งที่เส้นโค้งยาว · จากวงระเบิดถึง Meltdown แทบไม่มีเวลา ต้องไปยืนในจุดที่จะปลอดภัยไว้ก่อนเสมอ",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12532188/0823470eb70123bf2f2759b733fac0d9.webp/show"
       ],
@@ -2490,6 +2534,7 @@
       "mech": "Vacuum + Meltdown (無の渦＋メルトダウン)",
       "name": "② วงระเบิด + ห้ามขยับ",
       "note": "วงของ Vacuum ระเบิด แทบพร้อมกันนั้นได้ดีบัฟของ Meltdown ห้ามขยับ (ตีได้)",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12532190/3cb04a2f30da018f445c3279a046fccb.webp/show"
       ],
@@ -2573,6 +2618,7 @@
         "H1": "spread ที่ D (ตะวันตก)",
         "D3": "spread ที่ 1 (ตะวันตกเฉียงเหนือ)"
       },
+      "strict": true,
       "game8": [
         "https://img.game8.jp/12532189/6ca4d4c09afe0c5089a03e1ebdaf0fda.webp/show"
       ],
@@ -2627,6 +2673,7 @@
       "mech": "Gaze of the Void (混沌の激流)",
       "name": "เหมือนช่วงแรก",
       "note": "เหมือนช่วงแรกทุกอย่าง แก้ตามกฎแบ่งลูกบอลให้ดี",
+      "strict": false,
       "scene": null
     },
     {
@@ -2634,6 +2681,7 @@
       "mech": "Naught Wakes + Naught Hunts (無の活性＋無の追跡)",
       "name": "① Void 2 ลูกผูกสาย อยู่ทแยงกันเสมอ",
       "note": "ภาพรวม: หลัง Naught Wakes ยิง AoE ลงสนาม Void 2 ลูกในสนามจะไล่ตามคนที่ผูกสาย โดน Void ที่ไล่ 2–3 ครั้งก็ตาย คนโดนไล่ต้องวิ่งหนีไม่หยุด · 1 ชุด = Naught Wakes (กลางปลอดภัย) → ไล่คนที่ 1 → ไล่คนที่ 2 → Naught Wakes → 拡散/集束波動 ทำทั้งหมด 2 ชุด · ① ร่าย Naught Wakes แล้ว Void โผล่รอบนอก และ Void เล็กโผล่ในสนามผูกสายกับ 2 คน Void 2 ลูกนี้อยู่ทแยงกันเสมอ",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12532152/137d6c2d54185428c245f3c05fda0598.webp/show"
       ],
@@ -2742,6 +2790,7 @@
       "mech": "Naught Wakes + Naught Hunts (無の活性＋無の追跡)",
       "name": "② AoE ระเบิด กลางปลอดภัย",
       "note": "AoE จาก Void ระเบิด รอบนี้กลางสนามปลอดภัยเสมอ · คนโดนสายเตรียมตัว พอ AoE จบ Void จะเริ่มไล่ทันที",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12532185/beb88e7ed21b31d3d952eafbb0a6b343.webp/show"
       ],
@@ -2854,6 +2903,7 @@
       "mech": "Naught Wakes + Naught Hunts (無の活性＋無の追跡)",
       "name": "③ ไล่คนที่ 1: วิ่งตามเข็ม",
       "note": "Void เริ่มไล่คนที่ผูกสาย คนโดนไล่วิ่งตามเข็มนาฬิกา อย่าให้ตามทัน · คนส่วนใหญ่อยู่กลางสนาม อย่าพา Void เข้ากลาง ให้วิ่งวนรอบนอก",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12532150/244235b9e008221c60f2bbc2056353dd.webp/show"
       ],
@@ -2928,6 +2978,7 @@
       "mech": "Naught Wakes + Naught Hunts (無の活性＋無の追跡)",
       "name": "④ Void เลือกคนที่ 2",
       "note": "Void ผูกสายเลือกคนที่ 2 คนที่ 2 จะต้องวิ่งทวนเข็ม จึงควรไปอีกฝั่งจากคนที่ 1 · จังหวะเปลี่ยนเป้า: ตอนไล่คนที่ 1 คนที่ 2 จะโดนสายด้วย และมีเสียง 'ชวิ้งๆ' ดังขึ้น ครั้งที่ 6–7 เป้าจะเปลี่ยน ดังนั้นราวครั้งที่ 4–5 คนที่ 2 ให้ออกห่างคนที่ 1 และเตรียมวิ่งทวนเข็ม",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12532142/59f2797e12ecd6c58a6fbcb8dd350a1f.webp/show"
       ],
@@ -3000,6 +3051,7 @@
       "mech": "Naught Wakes + Naught Hunts (無の活性＋無の追跡)",
       "name": "⑤ ไล่คนที่ 2: วิ่งทวนเข็ม",
       "note": "Void เริ่มไล่คนที่ 2 คนโดนไล่วิ่งทวนเข็มนาฬิกา อย่าให้ตามทัน",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12532146/a67d0153862f2b500f73da880603be36.webp/show"
       ],
@@ -3072,6 +3124,7 @@
       "mech": "Naught Wakes + Naught Hunts (無の活性＋無の追跡)",
       "name": "⑥ Naught Wakes ครั้งที่ 2: รูปกากบาท (X)",
       "note": "ใกล้จบการไล่ Naught Wakes มาอีกครั้ง ครั้งที่ 2 AoE เป็นรูปกากบาท (X) ไปยืนในช่องปลอดภัยระหว่างแขน",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12532144/4488210c4624dbc9fa18628e4713faaa.webp/show"
       ],
@@ -3146,6 +3199,7 @@
         "ST": "คู่กับ D2 ทิศใต้",
         "D2": "คู่กับ ST ทิศใต้"
       },
+      "strict": true,
       "game8": [
         "https://img.game8.jp/12532145/ecff8a5c41da297c58a35ed0f75044bc.webp/show"
       ],
@@ -3190,6 +3244,7 @@
       "mech": "Naught Wakes + Naught Hunts (無の活性＋無の追跡)",
       "name": "⑧ ชุดที่ 2: เป้าใหม่",
       "note": "เริ่มการไล่ชุดที่ 2 เป้าคือคนที่ยังไม่โดนไล่ในชุดแรก",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12532149/bcdeecaf5ce8297aff68dd93d3d56d62.webp/show"
       ],
@@ -3302,6 +3357,7 @@
       "mech": "Naught Wakes + Naught Hunts (無の活性＋無の追跡)",
       "name": "⑨ ไล่คนที่ 1: วิ่งตามเข็ม",
       "note": "คนที่ 1 เริ่มโดนไล่ วิ่งตามเข็มนาฬิกา · คนที่ 2 พอโดนสายก็เตรียมตัว",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12532153/4a511f60de70f7b89800d84d6e74cee8.webp/show"
       ],
@@ -3378,6 +3434,7 @@
       "mech": "Naught Wakes + Naught Hunts (無の活性＋無の追跡)",
       "name": "⑩ ไล่คนที่ 2: วิ่งทวนเข็ม",
       "note": "คนที่ 2 เริ่มโดนไล่ วิ่งทวนเข็มนาฬิกา",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12532147/ec2b1faddb3b2a94d365d7d511aa27e6.webp/show"
       ],
@@ -3452,6 +3509,7 @@
       "mech": "Naught Wakes + Naught Hunts (無の活性＋無の追跡)",
       "name": "⑪ Naught Wakes อีกครั้ง",
       "note": "Naught Wakes ระเบิด ยืนในช่องที่ปลอดภัย (ภาพนี้ AoE เป็นรูปบวก + ช่องปลอดภัยอยู่ 4 มุม)",
+      "strict": false,
       "game8": [
         "https://img.game8.jp/12532151/a06850ce922390b65122ebcc230565a6.webp/show"
       ],
@@ -3505,6 +3563,7 @@
       "mech": "Naught Wakes + Naught Hunts (無の活性＋無の追跡)",
       "name": "⑫ 集束/拡散波動 อีกครั้ง (ภาพ: 集束)",
       "note": "ตามด้วย 〇〇波動 อีกครั้ง ภาพนี้เป็น 集束 (stack 4:4: กลุ่ม MT ตะวันตก กลุ่ม ST ตะวันออก) แต่อาจเป็น 拡散 ก็ได้",
+      "strict": true,
       "game8": [
         "https://img.game8.jp/12532143/06175c0467d0326b4be20da5b9182aee.webp/show"
       ],
