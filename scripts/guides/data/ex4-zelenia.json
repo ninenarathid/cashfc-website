@@ -488,8 +488,26 @@
      "D4": "Circle: at the north edge, east side",
      "D1": "Circle: just south of the middle",
      "D2": "Circle: further south, below D1"
+    },
+    "refs": [
+     "Shock: one group gets donuts, the other circle AoEs; circle players walk out once theirs goes off",
+     "Alexandrian Holy's towers: donut players stay put once theirs goes off, and take a tower as well"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex4-zelenia/shock-circles-donuts.webp",
+     "say": "Shock: กลุ่มหนึ่งได้ donut อีกกลุ่มได้ AoE วงกลม คนที่ได้วงกลม พอระเบิดแล้วเดินออกจากวง",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/3bQDC1gdxjo?t=54"
+    },
+    {
+     "src": "frames/ex4-zelenia/shock-towers.webp",
+     "say": "tower ของ Alexandrian Holy: คนที่ได้ donut พอระเบิดแล้วอยู่ที่เดิม และเข้า tower ไปด้วย",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/3bQDC1gdxjo?t=59"
     }
-   }
+   ]
   },
   {
    "phase": "ช่วงแรก",
@@ -900,8 +918,19 @@
     "says": {
      "MT": "Mitigate, then take a tether",
      "ST": "Mitigate, then take a tether"
+    },
+    "refs": [
+     "Specter of the Lost: the boss tethers players and hits whoever holds a tether with a strong cone; tanks mitigate and take the tethers"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex4-zelenia/specter-tethers.webp",
+     "say": "Specter of the Lost: บอสโยงสายแล้วฟัน cone แรงๆ ใส่คนที่ถือสาย Tank ใช้ mitigate แล้วรับสายมาไว้ที่ตัวเอง",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/3bQDC1gdxjo?t=1065"
     }
-   }
+   ]
   },
   {
    "phase": "ช่วงแรก",
@@ -917,6 +946,12 @@
     {
      "src": "https://img.game8.jp/11193882/a1b97daf2315aec6e6ac4be597816cf4.png/show",
      "say": "ข้าวหลามตัดสีม่วงเข้ม มีเส้นต่อ = 4 คนที่ไกลบอสที่สุดโดน (ภาพจาก game8)"
+    },
+    {
+     "src": "frames/ex4-zelenia/escelons-fall-far.webp",
+     "say": "ข้าวหลามตัดสีม่วง แยกกัน = 4 คนที่ไกลบอสที่สุดโดน cone",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/3bQDC1gdxjo?t=191"
     }
    ],
    "scene": null,
@@ -927,7 +962,8 @@
     "note": "The boss cleaves 4 times, each time the 4 nearest or the 4 farthest\nTake them in turns; nobody takes two in a row\n\nRead the diamonds that come out of the boss:\npink = the 4 nearest\npurple = the 4 farthest\n\nStart: tanks/healers inside the boss's target circle / DPS outside\nSpots: MT ST in front of the boss / H1 H2 beside it / D3 D4 behind, to the sides / D1 D2 behind\n\ngame8 splits it into 2 cases: the 1st and 2nd tells differ, or they are the same (next steps)",
     "refs": [
      "Pink diamonds, three overlapping = the 4 nearest are hit (picture from game8)",
-     "Dark purple diamond on a line = the 4 farthest are hit (picture from game8)"
+     "Dark purple diamond on a line = the 4 farthest are hit (picture from game8)",
+     "Purple diamonds, apart = the 4 farthest from the boss take the cones"
     ]
    }
   },
@@ -1395,8 +1431,19 @@
      "D4": "Behind the boss, east",
      "D1": "Behind the boss, inner west",
      "D2": "Behind the boss, inner east"
+    },
+    "refs": [
+     "Pink diamonds, overlapping = the 4 nearest are hit: the tanks/healers inside the target circle take the cones"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex4-zelenia/escelons-fall-near.webp",
+     "say": "ข้าวหลามตัดสีชมพู ซ้อนกัน = 4 คนที่ใกล้บอสที่สุดโดน: Tank/Healer ที่อยู่ในวงเป้ารับ cone",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/3bQDC1gdxjo?t=196"
     }
-   }
+   ]
   },
   {
    "phase": "ช่วงแรก",
@@ -5466,7 +5513,8 @@
      "D4": "East side: a tower, or the east phantom's tether"
     },
     "refs": [
-     "The phantom cleaves the side its sword is on; here the sword points at the arena's edge, so the cleave goes outside"
+     "The phantom cleaves the side its sword is on; here the sword points at the arena's edge, so the cleave goes outside",
+     "Towers of 3: the three without a tether in each group take the tower on their phantom's side"
     ]
    },
    "refs": [
@@ -5474,7 +5522,13 @@
      "src": "frames/ex4-zelenia/blessed-barricade-sword.webp",
      "say": "ร่างแยกถือดาบไว้ฝั่งไหน ฟันฝั่งนั้น ภาพนี้ดาบชี้ไปทางขอบสนาม = ฟันออกนอกสนาม",
      "by": "Nukemaru",
-     "url": "https://youtu.be/3bQDC1gdxjo?t=251"
+     "url": "https://youtu.be/3bQDC1gdxjo?t=246"
+    },
+    {
+     "src": "frames/ex4-zelenia/blessed-barricade-tower.webp",
+     "say": "tower 3 คน: คนที่ไม่ได้สาย 3 คนต่อกลุ่มเข้า tower ฝั่งร่างแยกของตัวเอง",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/3bQDC1gdxjo?t=284"
     }
    ]
   },
@@ -6241,8 +6295,19 @@
      "D2": "East side: a tower, or the east phantom's tether",
      "D3": "East side: a tower, or the east phantom's tether",
      "D4": "East side: a tower, or the east phantom's tether"
+    },
+    "refs": [
+     "The rose orbs (the adds) around the arena: hit them while doing the towers and the cleaves"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex4-zelenia/blessed-barricade-orbs.webp",
+     "say": "ลูกแก้วกุหลาบ (Add) รอบสนาม ตีไประหว่างเข้า tower และล่อฟัน",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/3bQDC1gdxjo?t=290"
     }
-   }
+   ]
   },
   {
    "phase": "ช่วง Add: Blessed Barricade",
@@ -8675,8 +8740,26 @@
     "phase": "Middle: Roseblood",
     "mech": "Roseblood Bloom",
     "name": "Clockwise: wait just clockwise of B",
-    "note": "The red tiles are magic circles; if a boss cone touches one it activates and deals damage\nSo dodge the cones turning around the boss in a wide space without circles\n(by game8's timeline: Roseblood Bloom, then Alexandrian Thunder II)\n\nThere are only 2 patterns\nThis one: the cones turn clockwise; wait on the clockwise side of B (just south of B)\n\nThe turn is set by the floor's pattern, so the floor alone tells you"
-   }
+    "note": "The red tiles are magic circles; if a boss cone touches one it activates and deals damage\nSo dodge the cones turning around the boss in a wide space without circles\n(by game8's timeline: Roseblood Bloom, then Alexandrian Thunder II)\n\nThere are only 2 patterns\nThis one: the cones turn clockwise; wait on the clockwise side of B (just south of B)\n\nThe turn is set by the floor's pattern, so the floor alone tells you",
+    "refs": [
+     "The red tiles are magic circles; here the boss's cone touched them, so they activate and deal damage",
+     "Alexandrian Thunder II: the cones turn around the boss; dodge them in a wide space without circles"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex4-zelenia/roseblood-bloom-red-tiles.webp",
+     "say": "ช่องแดงบนพื้นคือวงเวท ภาพนี้ cone ของบอสโดนวงเวท วงเวทจึงทำงานและทำดาเมจ",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/3bQDC1gdxjo?t=390"
+    },
+    {
+     "src": "frames/ex4-zelenia/roseblood-bloom-cones.webp",
+     "say": "Alexandrian Thunder II: cone หมุนรอบบอส หลบในที่ที่ไม่มีวงเวทและกว้าง",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/3bQDC1gdxjo?t=378"
+    }
+   ]
   },
   {
    "phase": "ช่วงกลาง: Roseblood",
@@ -9658,8 +9741,19 @@
     "phase": "Middle: Roseblood",
     "mech": "Roseblood Bloom",
     "name": "Alexandrian Thunder III: spread on tiles without circles",
-    "note": "The boss casts Alexandrian Thunder III: everyone gets a circle AoE\nSpread out onto tiles without magic circles (not the red ones)"
-   }
+    "note": "The boss casts Alexandrian Thunder III: everyone gets a circle AoE\nSpread out onto tiles without magic circles (not the red ones)",
+    "refs": [
+     "Alexandrian Thunder III: everyone gets a circle AoE; spread onto tiles without circles (not the red ones)"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex4-zelenia/roseblood-bloom-spread.webp",
+     "say": "Alexandrian Thunder III: ทุกคนได้ AoE วงกลม spread ไปยืนบนช่องที่ไม่มีวงเวท (ไม่ใช่ช่องแดง)",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/3bQDC1gdxjo?t=444"
+    }
+   ]
   },
   {
    "phase": "ช่วงกลาง: Roseblood",
@@ -9672,8 +9766,19 @@
     "phase": "Middle: Roseblood",
     "mech": "Roseblood: 2nd Bloom",
     "name": "Overview: dodge on tiles without circles",
-    "note": "Dodge the boss's attacks on tiles without magic circles\nThe boss uses cones, a circle AoE and a donut\nThe circle and the donut set the floor's circles off, so always dodge on tiles without circles\n(by game8's timeline, Thunder Slash follows)\n\nThe next steps are game8's two example ways to dodge: circle first / donut first"
-   }
+    "note": "Dodge the boss's attacks on tiles without magic circles\nThe boss uses cones, a circle AoE and a donut\nThe circle and the donut set the floor's circles off, so always dodge on tiles without circles\n(by game8's timeline, Thunder Slash follows)\n\nThe next steps are game8's two example ways to dodge: circle first / donut first",
+    "refs": [
+     "The boss uses a circle (here) or a donut along with the cones; always dodge on tiles without circles"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex4-zelenia/roseblood-2nd-circle.webp",
+     "say": "บอสใช้ AoE วงกลม (ภาพนี้) หรือ donut พร้อม cone หลบบนช่องที่ไม่มีวงเวทเสมอ",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/3bQDC1gdxjo?t=477"
+    }
+   ]
   },
   {
    "phase": "ช่วงกลาง: Roseblood",
@@ -13929,8 +14034,19 @@
      "H1": "West tower",
      "ST": "South tower",
      "H2": "East tower"
+    },
+    "refs": [
+     "The towers are on the outer red tiles: whoever has no rose marker takes a tower, rose players drop theirs at their spots"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex4-zelenia/roseblood-3rd-towers.webp",
+     "say": "tower อยู่บนช่องแดงวงนอก ใครไม่ได้มาร์กกุหลาบ เข้า tower ใครได้ ไปทิ้งที่จุดของตัวเอง",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/3bQDC1gdxjo?t=607"
     }
-   }
+   ]
   },
   {
    "phase": "ช่วงกลาง: Roseblood",
@@ -16477,8 +16593,19 @@
     "phase": "Middle: Roseblood",
     "mech": "Bud of Valor + Escelons' Fall",
     "name": "2nd time ①: stacks + a donut",
-    "note": "Escelons' Fall the 2nd time comes with a donut that goes off again and again\nThe donut goes to the tank/healer group or the DPS group\nThe donut group has no time to move, so the other group baits the first cone\nThis time, who starts inside the target circle depends on the donut (not always the tanks/healers)\n\n① Tanks/healers together on the north side / DPS together on the south side, for the stacks and the donut\nHere the donut is on the DPS"
-   }
+    "note": "Escelons' Fall the 2nd time comes with a donut that goes off again and again\nThe donut goes to the tank/healer group or the DPS group\nThe donut group has no time to move, so the other group baits the first cone\nThis time, who starts inside the target circle depends on the donut (not always the tanks/healers)\n\n① Tanks/healers together on the north side / DPS together on the south side, for the stacks and the donut\nHere the donut is on the DPS",
+    "refs": [
+     "Escelons' Fall, 2nd time: one group gets the donut and has no time to move, so the other group baits the first cones"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex4-zelenia/escelons-fall-2-donut.webp",
+     "say": "Escelons' Fall ครั้งที่ 2: donut มาที่กลุ่มหนึ่ง กลุ่มนั้นไม่มีเวลาขยับ อีกกลุ่มจึงล่อ cone ครั้งแรก",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/3bQDC1gdxjo?t=723"
+    }
+   ]
   },
   {
    "phase": "ช่วงกลาง: Roseblood",
@@ -18977,8 +19104,19 @@
      "D2": "Rose: inner row, right",
      "D3": "Rose: outer row, left",
      "D4": "Rose: outer row, right"
+    },
+    "refs": [
+     "AoE markers: drop them on the roses' side, and keep the AoEs off the circles on the other side"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex4-zelenia/roseblood-4th-markers.webp",
+     "say": "มาร์ก AoE: ทิ้งฝั่งเดียวกับกุหลาบบนพื้น และอย่าให้ AoE โดนวงเวทอีกฝั่ง",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/3bQDC1gdxjo?t=799"
     }
-   }
+   ]
   },
   {
    "phase": "ช่วงกลาง: Roseblood",
@@ -20056,8 +20194,19 @@
     "phase": "Middle: Roseblood",
     "mech": "Roseblood: 4th Bloom",
     "name": "③ Gather behind the boss (south)",
-    "note": "③ After the markers, everyone gets a thorn tether (by game8's timeline: Encircling Thorns)\nThe boss faces north, so gather behind it = south (the C side)\nIt is fine if those tiles are red"
-   }
+    "note": "③ After the markers, everyone gets a thorn tether (by game8's timeline: Encircling Thorns)\nThe boss faces north, so gather behind it = south (the C side)\nIt is fine if those tiles are red",
+    "refs": [
+     "Encircling Thorns: everyone gets a thorn tether; gather behind the boss = south"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex4-zelenia/encircling-thorns-gather.webp",
+     "say": "Encircling Thorns: ทุกคนโดนสายหนาม รวมกันที่หลังบอส = ทิศใต้",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/3bQDC1gdxjo?t=829"
+    }
+   ]
   },
   {
    "phase": "ช่วงกลาง: Roseblood",
@@ -20863,8 +21012,19 @@
      "D2": "Stretch the tether east, then take the stack",
      "D3": "Stretch the tether east, then take the stack",
      "D4": "Stretch the tether east, then take the stack"
+    },
+    "refs": [
+     "Stretch the thorn tethers until they break: tanks/healers west, DPS east, then take the stack on the rose tiles"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex4-zelenia/encircling-thorns-break.webp",
+     "say": "ดึงสายหนามจนขาด: Tank/Healer ไปตะวันตก DPS ไปตะวันออก แล้วรับ stack บนช่องกุหลาบ",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/3bQDC1gdxjo?t=835"
     }
-   }
+   ]
   },
   {
    "phase": "ช่วงกลาง: Roseblood",
@@ -21157,8 +21317,19 @@
     "phase": "Middle: Roseblood",
     "mech": "Bud of Valor + Escelons' Fall",
     "name": "3rd time ①: the phantoms appear",
-    "note": "The phantoms' half-room cleaves mixed with Escelons' Fall\nAs the 1st time: tanks/healers start inside the target circle\nOrder: dodge the first half-room > bait the cones at the Escelons' Fall spots > dodge the second half-room\ngame8 says the half-room always comes from the north phantom\n\n① The boss shows the near/far tell and the phantoms appear at the edge"
-   }
+    "note": "The phantoms' half-room cleaves mixed with Escelons' Fall\nAs the 1st time: tanks/healers start inside the target circle\nOrder: dodge the first half-room > bait the cones at the Escelons' Fall spots > dodge the second half-room\ngame8 says the half-room always comes from the north phantom\n\n① The boss shows the near/far tell and the phantoms appear at the edge",
+    "refs": [
+     "The boss shows the Escelons' Fall near/far tell and a phantom appears at the edge (bottom of the picture)"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex4-zelenia/escelons-fall-3-phantom.webp",
+     "say": "บอสขึ้นสัญญาณใกล้/ไกลของ Escelons' Fall และร่างแยกโผล่ที่ขอบสนาม (ด้านล่างของภาพ)",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/3bQDC1gdxjo?t=928"
+    }
+   ]
   },
   {
    "phase": "ช่วงกลาง: Roseblood",
@@ -25339,8 +25510,19 @@
     "phase": "Middle: Roseblood",
     "mech": "Roseblood: 5th Bloom",
     "name": "① Stand on a plain tile clear of the line AoE",
-    "note": "A lot at once, but at heart you wait at a spot, then dash to the diagonal\nThe edge sets off line AoEs twice, a moment apart\n(by game8's timeline: Valorous Ascension, then Thunder Slash)\n\nWait on a plain tile (not red) that the first line AoE does not hit\nand that the first circle or donut from the middle does not hit\nWhen Thunder Slash goes off, run clockwise to the diagonal\n\n① Stand where there is no line AoE and no magic circle"
-   }
+    "note": "A lot at once, but at heart you wait at a spot, then dash to the diagonal\nThe edge sets off line AoEs twice, a moment apart\n(by game8's timeline: Valorous Ascension, then Thunder Slash)\n\nWait on a plain tile (not red) that the first line AoE does not hit\nand that the first circle or donut from the middle does not hit\nWhen Thunder Slash goes off, run clockwise to the diagonal\n\n① Stand where there is no line AoE and no magic circle",
+    "refs": [
+     "Valorous Ascension: the effect at the edge sets off line AoEs twice, a moment apart"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex4-zelenia/valorous-ascension-edge.webp",
+     "say": "Valorous Ascension: เอฟเฟกต์ที่ขอบสนามปล่อย AoE แนวเส้น 2 ครั้ง ห่างกันเล็กน้อย",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/3bQDC1gdxjo?t=981"
+    }
+   ]
   },
   {
    "phase": "ช่วงกลาง: Roseblood",
@@ -28452,8 +28634,19 @@
     "phase": "Middle: Roseblood",
     "mech": "Roseblood: 5th Bloom",
     "name": "② Dodge the cones and the circle or donut",
-    "note": "② From ①, move to where you dodge both the boss's cones and the circle or donut\nHere the donut comes first: stand in the inner ring"
-   }
+    "note": "② From ①, move to where you dodge both the boss's cones and the circle or donut\nHere the donut comes first: stand in the inner ring",
+    "refs": [
+     "Thunder Slash: the boss's cones, with a circle or a donut; dodge both"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex4-zelenia/thunder-slash-cones.webp",
+     "say": "Thunder Slash: cone ของบอส พร้อม AoE วงกลมหรือ donut หลบทั้งสองอย่าง",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/3bQDC1gdxjo?t=993"
+    }
+   ]
   },
   {
    "phase": "ช่วงกลาง: Roseblood",
@@ -34487,8 +34680,19 @@
      "D1": "H1·D1: south-west",
      "H2": "H2·D2: south-east",
      "D2": "H2·D2: south-east"
+    },
+    "refs": [
+     "The towers of Roseblood: 6th Bloom; tower players go to their spots now"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex4-zelenia/roseblood-6th-towers.webp",
+     "say": "tower ของ Roseblood: 6th Bloom คนเข้า tower ไปยืนที่จุดตอนนี้เลย",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/3bQDC1gdxjo?t=1095"
     }
-   }
+   ]
   },
   {
    "phase": "ช่วงกลาง: Roseblood",
@@ -35243,8 +35447,19 @@
      "D1": "H1·D1: south-west",
      "H2": "H2·D2: south-east",
      "D2": "H2·D2: south-east"
+    },
+    "refs": [
+     "Holy Hazard: the boss's cones; this way takes one on purpose, with a tank LB or plenty of mitigation"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex4-zelenia/holy-hazard-cones.webp",
+     "say": "Holy Hazard: cone ของบอส วิธีนี้ตั้งใจรับ 1 ลูก ใช้ Tank LB หรือ mitigate เยอะๆ",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/3bQDC1gdxjo?t=1112"
     }
-   }
+   ]
   },
   {
    "phase": "ช่วงกลาง: Roseblood",
@@ -35961,8 +36176,19 @@
     "phase": "Last part",
     "mech": "Roseblood Bloom",
     "name": "2nd time: as the first",
-    "note": "By game8's timeline: Roseblood Bloom comes again, with Alexandrian Thunder II and Alexandrian Thunder III\nDo it as the first time (see Roseblood Bloom at the start of the middle part): dodge the turning cones, then spread on tiles without circles\n\nThen Thorned Catharsis (raid-wide) and Specter of the Lost (tankbuster on tethers)"
-   }
+    "note": "By game8's timeline: Roseblood Bloom comes again, with Alexandrian Thunder II and Alexandrian Thunder III\nDo it as the first time (see Roseblood Bloom at the start of the middle part): dodge the turning cones, then spread on tiles without circles\n\nThen Thorned Catharsis (raid-wide) and Specter of the Lost (tankbuster on tethers)",
+    "refs": [
+     "Roseblood Bloom, 2nd time: as the first: dodge the turning cones, then spread on tiles without circles"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex4-zelenia/roseblood-bloom-again.webp",
+     "say": "Roseblood Bloom ครั้งที่ 2: ทำเหมือนครั้งแรก หลบ cone ที่หมุน แล้ว spread บนช่องที่ไม่มีวงเวท",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/3bQDC1gdxjo?t=1196"
+    }
+   ]
   },
   {
    "phase": "ช่วงท้าย",
