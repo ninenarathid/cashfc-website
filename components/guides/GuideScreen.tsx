@@ -415,24 +415,22 @@ function StepCard(
         <span className="text-title font-semibold text-ink">{name}</span>
       </h3>
 
-      {/* A tap opens it large (PictureViewer), still lit on your spot, with
-          the whole picture one more tap away. */}
+      {/* A tap on the picture opens it large (PictureViewer), still lit on
+          your spot, with the whole picture one more tap away. Nothing sits on
+          the picture (the owner, 2026-11-26: "เอา ปิดวง กับ ดูภาพใหญ่ ออกจาก
+          ภาพเลยดีกว่ามันบังภาพ"), and no enlarge button at all: the picture is
+          that button ("click ที่ภาพ มันเป็นการดูภาพใหญ่อยู่แล้ว ... เอาออกได้").
+          The ring switch is under it, on a picture that has a ring. */}
       {step.picture && (
-        <div className="relative">
+        <div>
           <button type="button" onClick={() => onOpen(step.id)} aria-label={t("guide.enlarge")}
-                  className="group relative block w-full cursor-zoom-in rounded-lg text-left">
+                  className="block w-full cursor-zoom-in rounded-lg text-left">
             <FocusPicture picture={step.picture} w={step.pic_w} h={step.pic_h} points={points}
                           ring={step.ring} color={color} focus={!ringOff} alt={name} />
-            <span className="pointer-events-none absolute bottom-2 right-2 inline-flex items-center gap-1 rounded-full border border-line bg-bg/80 px-3 py-1.5 text-ui text-ink/90 backdrop-blur-sm transition-colors group-hover:border-accent">
-              <span aria-hidden>⤢</span>
-              {t("guide.enlarge")}
-            </span>
           </button>
-          {/* Beside the enlarge button rather than in it: a button may not
-              hold another, and the two do different things. */}
           {points.length > 0 && (
             <button type="button" onClick={() => setRingOff((v) => !v)} aria-pressed={!ringOff}
-                    className="absolute bottom-2 left-2 inline-flex min-h-8 items-center gap-1 rounded-full border border-line bg-bg/80 px-3 py-1.5 text-ui text-ink/90 backdrop-blur-sm transition-colors hover:border-accent">
+                    className="mt-1.5 inline-flex min-h-9 items-center gap-1.5 rounded-full border border-line px-3 text-ui text-ink/90 transition-colors hover:border-accent">
               <span aria-hidden className="inline-block size-2.5 rounded-full border-2"
                     style={{ borderColor: color, backgroundColor: ringOff ? "transparent" : color }} />
               {ringOff ? t("guide.ringOn") : t("guide.ringOff")}
