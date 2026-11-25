@@ -42,9 +42,9 @@ const GALLERY_TAB: Tab = {
   href: "/gallery", label: "nav.gallery",
   match: (p) => p.startsWith("/gallery") || p.startsWith("/contest"),
 };
-// Signed in only: a feedback thread needs somebody to reply to, and there is
-// nothing on that page for a visitor who has not said who they are.
-const FEEDBACK_TAB: Tab = { href: "/feedback", label: "nav.feedback" };
+// The feedback page is off the bar for now (the owner, 2026-11-25: "เอา header
+// แจ้งเรื่องออกไปก่อน"). It is still there at /feedback, in the command palette
+// and behind the bell when an admin answers.
 // Open to everybody, signed in or not (the owner, 2026-11-25: "ใครๆก็เห็น
 // ไม่จำเป็นต้องเป็นสมาชิกเว็บ"). What keeps a half-written guide from readers is
 // now each guide's own draft switch (v344), not the tab.
@@ -125,16 +125,6 @@ export default function Nav() {
   }, []);
   const dotOn = (tab: Tab) => contestLive && tab.href === GALLERY_TAB.href;
 
-  const [signedIn, setSignedIn] = useState(false);
-  useEffect(() => {
-    const supabase = createClient();
-    if (!supabase) return;
-    void supabase.auth.getUser().then(({ data }) => setSignedIn(!!data.user));
-    const { data: sub } = supabase.auth.onAuthStateChange(
-      (_e, session) => setSignedIn(!!session?.user));
-    return () => sub.subscription.unsubscribe();
-  }, []);
-
   /*
    * Whether anything has scrolled under the header yet.
    *
@@ -155,7 +145,6 @@ export default function Nav() {
     ...TABS,
     PARTY_TAB,
     ...(showGallery ? [GALLERY_TAB] : []),
-    ...(signedIn ? [FEEDBACK_TAB] : []),
     GUIDES_TAB,
     ...(isAdmin ? [MARKET_TAB] : []),
   ];
