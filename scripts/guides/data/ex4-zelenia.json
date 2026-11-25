@@ -2,6 +2,7 @@
  "guide": {
   "slug": "ex4-zelenia",
   "short": "EX4",
+  "sort": 4,
   "name": "Zelenia · Recollection (Extreme)",
   "category": "extreme",
   "expansion": "Dawntrail",

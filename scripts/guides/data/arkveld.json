@@ -2,6 +2,7 @@
  "guide": {
   "slug": "arkveld",
   "short": "Arkveld",
+  "sort": 6,
   "name": "Guardian Arkveld · The Windward Wilds",
   "category": "extreme",
   "expansion": "Dawntrail",

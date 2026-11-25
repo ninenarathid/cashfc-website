@@ -2,6 +2,7 @@
  "guide": {
   "slug": "ex5-necron",
   "short": "EX5",
+  "sort": 5,
   "name": "Necron · Necron's Embrace",
   "category": "extreme",
   "expansion": "Dawntrail",

@@ -2,6 +2,7 @@
  "guide": {
   "slug": "ex2-zoraal-ja",
   "short": "EX2",
+  "sort": 2,
   "name": "Zoraal Ja · Everkeep (Extreme)",
   "category": "extreme",
   "expansion": "Dawntrail",

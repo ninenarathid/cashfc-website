@@ -2,6 +2,7 @@
  "guide": {
   "slug": "ex6-doomtrain",
   "short": "EX6",
+  "sort": 7,
   "name": "Doomtrain · Hell on Rails (Extreme)",
   "category": "extreme",
   "expansion": "Dawntrail",
