@@ -1,0 +1,6597 @@
+{
+ "guide": {
+  "slug": "m9s",
+  "short": "M9S",
+  "sort": 1,
+  "name": "Vamp Fatale · AAC Heavyweight M1 (Savage)",
+  "category": "savage",
+  "expansion": "Dawntrail",
+  "patch": "7.4",
+  "source_name": "game8",
+  "source_url": "https://game8.jp/ff14/754895",
+  "content_key": "sav:M9S",
+  "note": "แผนตาม game8 (แผนของ Nukemaru)\nHell in a Cell: นับ tower จากทิศเหนือ วนตามเข็ม\nMarker ตามภาพของ game8 (ดูขั้นแรก)\n\nกลุ่ม 4:4\nกลุ่ม MT: MT H1 D1 D3\nกลุ่ม ST: ST H2 D2 D4\n\nHell in a Cell: กลุ่ม MT เข้า tower ก่อน / กลุ่ม ST ทีหลัง\nลำดับ tower (จาก 12 นาฬิกาตามเข็ม): Tank > Melee > Range > Healer\nUndead Deathmatch: กลุ่ม MT tower เหนือ/ตะวันตก / กลุ่ม ST tower ใต้/ตะวันออก",
+  "en": {
+   "note": "Plan follows game8 (Nukemaru's strat)\nHell in a Cell: towers counted from north, clockwise\nWaymarks as game8 draws them (see the first step)\n\n4:4 groups\nMT group: MT H1 D1 D3\nST group: ST H2 D2 D4\n\nHell in a Cell: MT group takes the towers first / ST group second\nTower order (from 12 o'clock, clockwise): Tank > Melee > Range > Healer\nUndead Deathmatch: MT group north/west tower / ST group south/east tower"
+  },
+  "req": {
+   "level": 100,
+   "ilvl": 760,
+   "party": 8,
+   "minutes": 90,
+   "unlock": "รับเควสต์ปลดล็อก Savage ได้จาก NPC Gabbro ใน Solution Nine (X: 22.3 Y: 17.1)\nSavage ของ Arcadion ทุกรุ่น (Light-heavyweight / Cruiserweight / Heavyweight) รับจาก NPC คนนี้",
+   "unlock_en": "Accept the Savage unlock from Gabbro in Solution Nine (X: 22.3 Y: 17.1)\nEvery Arcadion Savage tier (Light-heavyweight / Cruiserweight / Heavyweight) is unlocked from this NPC",
+   "unlock_pics": [
+    {
+     "map": {
+      "map": "x6t1/00",
+      "size": 180,
+      "x": 22.3,
+      "y": 17.1,
+      "label": "Gabbro"
+     },
+     "say": "Solution Nine (X: 22.3 Y: 17.1) — Gabbro",
+     "say_en": "Solution Nine (X: 22.3 Y: 17.1) — Gabbro"
+    }
+   ]
+  },
+  "macro_en": "■ Vamp Stomp ーーー ■ Aetherletting ーーーー\n　D3　　　D4　　｜　　　MT  D4\n　　　MT　　　　  ｜　　D3　　　H2\n　　D1　D2　　　｜　　H1　　　D2 \n　　　 ST　　　　  ｜　　　D1   ST\n　H1　　　H2　　｜\n■ Hell in a Cell ーーーーーーーーーーーーーーーー\n【1st set】MT-group：towers　ST group：baits\n【Towers】CW from North：T ＞ M ＞ R ＞ H\n【Protean Baits】　　　　〇  〇\n　※ Towers-relative　　D  ★  H\n　　　　　　　　　　　  〇 　T　 〇\n　※ Ultrasonic Amp → stack on Tank\n■ Undead Deathmatch ーーーーーーーーーーーー\n　N/W: MT-group　S/E: ST-group",
+  "macro_ja": "【ヴァンプストンプ】\n  D3     MT    D4　近：コウモリ1後　\n      D1　   D2　\n  H1     ST     H2\n【エーテルレッティング】　 \n        MT   D4         最外周扇間捨て\n   D3              H2   中央安置集合\n   H1              D2 \n        D1    ST\n【茨塔】 北からT＞近＞遠＞H\n 《ロール》   《頭割り》 　\n      塔 塔            塔 塔\n    D  ★ H            ★\n  塔   T    塔    塔  全   塔\n【バットデスマッチ】北西:MT組  南東:ST組",
+  "xref_name": "xivjpraids.com",
+  "xref_url": "https://xivjpraids.com/7.0_dawntrail/savage_raids/m9s/"
+ },
+ "defaults": {
+  "frame": [
+   4,
+   3
+  ],
+  "bg": "#5f6166",
+  "arena": {
+   "shape": "circle",
+   "at": [
+    50,
+    50
+   ],
+   "r": 34.6,
+   "fill": "#b8babe",
+   "lines": false
+  },
+  "waymarks": {},
+  "iconSize": 5.6,
+  "markSize": 4.6,
+  "bossSize": 8,
+  "ring": 5.2
+ },
+ "steps": [
+  {
+   "phase": "เตรียมตัว",
+   "mech": "Waymarks",
+   "name": "Marker ตามภาพของ game8",
+   "note": "Marker เป็นจุดทิ้ง AoE ของ Aetherletting: แต่ละจุดอยู่ตรงที่รอยต่อระหว่างกรวย (cone) ของบอสชนขอบสนาม\n\nA และ 1 (สีแดง) ทิศเหนือ: A ซ้าย / 1 ขวา\nB และ 2 (สีเหลือง) ทิศตะวันออก: B บน / 2 ล่าง\nC และ 3 (สีฟ้า) ทิศใต้: 3 ซ้าย / C ขวา\nD และ 4 (สีม่วง) ทิศตะวันตก: 4 บน / D ล่าง\n\ngame8 บอกว่าภาพบางภาพในหน้าของ game8 วาง Marker ต่างจากภาพนี้ และให้อ่านตามลำดับในภาพนี้\nภาพทุกภาพในคู่มือนี้วาง Marker ตามภาพนี้แล้ว",
+   "strict": false,
+   "game8": [
+    "https://img.game8.jp/12188783/93f6afe4eed1f7ff0ee3700affc32c72.webp/show"
+   ],
+   "ring": 5.2,
+   "scene": {
+    "frame": [
+     1,
+     1
+    ],
+    "arena": {
+     "shape": "square",
+     "at": [
+      50,
+      50.3
+     ],
+     "w": 89.5,
+     "h": 89.5,
+     "fill": "#3b3442",
+     "lines": false,
+     "edge": "#2a2530"
+    },
+    "waymarks": {
+     "A": [
+      33.9,
+      12.2
+     ],
+     "1": [
+      66.6,
+      12.2
+     ],
+     "4": [
+      12.3,
+      35.1
+     ],
+     "B": [
+      89.5,
+      35
+     ],
+     "D": [
+      12.3,
+      65.6
+     ],
+     "2": [
+      89.3,
+      66.1
+     ],
+     "3": [
+      33.5,
+      88
+     ],
+     "C": [
+      66.4,
+      88
+     ]
+    },
+    "markSize": 6.4,
+    "shapes": [
+     {
+      "t": "line",
+      "from": [
+       27.62,
+       5.55
+      ],
+      "to": [
+       27.62,
+       95.05
+      ],
+      "c": "#b98ee6",
+      "wd": 0.45,
+      "o": 0.75
+     },
+     {
+      "t": "line",
+      "from": [
+       5.25,
+       27.93
+      ],
+      "to": [
+       94.75,
+       27.93
+      ],
+      "c": "#b98ee6",
+      "wd": 0.45,
+      "o": 0.75
+     },
+     {
+      "t": "line",
+      "from": [
+       50.0,
+       5.55
+      ],
+      "to": [
+       50.0,
+       95.05
+      ],
+      "c": "#b98ee6",
+      "wd": 0.45,
+      "o": 0.75
+     },
+     {
+      "t": "line",
+      "from": [
+       5.25,
+       50.3
+      ],
+      "to": [
+       94.75,
+       50.3
+      ],
+      "c": "#b98ee6",
+      "wd": 0.45,
+      "o": 0.75
+     },
+     {
+      "t": "line",
+      "from": [
+       72.38,
+       5.55
+      ],
+      "to": [
+       72.38,
+       95.05
+      ],
+      "c": "#b98ee6",
+      "wd": 0.45,
+      "o": 0.75
+     },
+     {
+      "t": "line",
+      "from": [
+       5.25,
+       72.67
+      ],
+      "to": [
+       94.75,
+       72.67
+      ],
+      "c": "#b98ee6",
+      "wd": 0.45,
+      "o": 0.75
+     },
+     {
+      "t": "ring",
+      "at": [
+       33.9,
+       12.2
+      ],
+      "r": 3.6,
+      "c": "#ff5f7a",
+      "wd": 0.5,
+      "o": 0.9
+     },
+     {
+      "t": "ring",
+      "at": [
+       66.6,
+       12.2
+      ],
+      "r": 3.6,
+      "c": "#ff5f7a",
+      "wd": 0.5,
+      "o": 0.9
+     },
+     {
+      "t": "ring",
+      "at": [
+       12.3,
+       35.1
+      ],
+      "r": 3.6,
+      "c": "#d58ae8",
+      "wd": 0.5,
+      "o": 0.9
+     },
+     {
+      "t": "ring",
+      "at": [
+       89.5,
+       35
+      ],
+      "r": 3.6,
+      "c": "#f4e66a",
+      "wd": 0.5,
+      "o": 0.9
+     },
+     {
+      "t": "ring",
+      "at": [
+       12.3,
+       65.6
+      ],
+      "r": 3.6,
+      "c": "#d58ae8",
+      "wd": 0.5,
+      "o": 0.9
+     },
+     {
+      "t": "ring",
+      "at": [
+       89.3,
+       66.1
+      ],
+      "r": 3.6,
+      "c": "#f4e66a",
+      "wd": 0.5,
+      "o": 0.9
+     },
+     {
+      "t": "ring",
+      "at": [
+       33.5,
+       88
+      ],
+      "r": 3.6,
+      "c": "#7ab8ff",
+      "wd": 0.5,
+      "o": 0.9
+     },
+     {
+      "t": "ring",
+      "at": [
+       66.4,
+       88
+      ],
+      "r": 3.6,
+      "c": "#7ab8ff",
+      "wd": 0.5,
+      "o": 0.9
+     }
+    ]
+   },
+   "en": {
+    "phase": "Setup",
+    "mech": "Waymarks",
+    "name": "Waymarks as game8 draws them",
+    "note": "The waymarks are where the Aetherletting AoEs are dropped: each one sits where a gap between the boss's cones meets the arena's edge\n\nA and 1 (red) on the north edge: A left / 1 right\nB and 2 (yellow) on the east edge: B upper / 2 lower\nC and 3 (blue) on the south edge: 3 left / C right\nD and 4 (purple) on the west edge: 4 upper / D lower\n\ngame8 says some of its pictures place the waymarks differently, and asks you to read them in this picture's order\nEvery picture in this guide already uses this layout"
+   }
+  },
+  {
+   "phase": "ท่าที่มาตลอดไฟต์",
+   "mech": "Raid-wides",
+   "name": "raid-wide มาบ่อย",
+   "note": "ไฟต์นี้มี raid-wide บ่อยมาก แรงระดับ Savage ชั้นแรก แต่อย่ารับโดยไม่ใช้ mitigate\nบอสใช้ raid-wide ธรรมดาคือ Killer Voice และชอบใช้ raid-wide ตอนเริ่มและตอนจบแต่ละ Mechanic\n\nชื่อท่า raid-wide:\nKiller Voice\nSadistic Screech\nCrowd Kill (buff ของบอสเพิ่ม stack)\nFinale Fatale\nInsatiable Thirst",
+   "strict": false,
+   "refs": [
+    {
+     "src": "frames/m9s/killer-voice.webp",
+     "say": "Killer Voice: raid-wide ธรรมดาของบอส ใช้ mitigate ทุกครั้ง",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/m4_8a0N8GcM?t=42"
+    }
+   ],
+   "scene": null,
+   "en": {
+    "phase": "Throughout the fight",
+    "mech": "Raid-wides",
+    "name": "Frequent raid-wides",
+    "note": "This fight has a lot of raid-wides. They hit as hard as a first Savage floor's, but don't take them without mitigate\nThe plain raid-wide is Killer Voice, and the boss likes to open and close each mechanic with a raid-wide\n\nRaid-wide names:\nKiller Voice\nSadistic Screech\nCrowd Kill (the boss's buff gains stacks)\nFinale Fatale\nInsatiable Thirst",
+    "refs": [
+     "Killer Voice: the boss's plain raid-wide; mitigate it every time"
+    ]
+   }
+  },
+  {
+   "phase": "ท่าที่มาตลอดไฟต์",
+   "mech": "Raid-wides",
+   "name": "AoE วงกลมสีดำบนพื้น",
+   "note": "หลัง Finale Fatale และจังหวะอื่นๆ จะมีวงสีดำ (AoE) ขึ้นบนพื้น\nหลบตามที่เห็นได้เลย ขั้นต่อๆ ไปจะไม่พูดถึงอีก",
+   "strict": false,
+   "refs": [
+    {
+     "src": "frames/m9s/black-aoe.webp",
+     "say": "วง AoE สีดำบนพื้น: หลบตามที่เห็น",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/m4_8a0N8GcM?t=300"
+    }
+   ],
+   "scene": null,
+   "en": {
+    "phase": "Throughout the fight",
+    "mech": "Raid-wides",
+    "name": "Black circle AoEs on the floor",
+    "note": "After Finale Fatale and at other times, black circle telegraphs appear on the floor\nJust dodge them as you see them; later steps don't mention them again",
+    "refs": [
+     "Black circle AoEs on the floor: dodge them as you see them"
+    ]
+   }
+  },
+  {
+   "phase": "ท่าที่มาตลอดไฟต์",
+   "mech": "Hardcore",
+   "name": "tankbuster AoE ขนาดตาม buff ของบอส",
+   "note": "tankbuster AoE ที่ Tank 2 คน ขนาดขึ้นกับจำนวน stack ของ buff บนตัวบอส\nbuff 0–4: AoE เล็ก ขนาด 1 ช่อง\nbuff 8 ขึ้นไป: AoE ใหญ่มาก ขนาด 4 ช่อง\n\nHardcore มาทันทีหลัง raid-wide แรกของไฟต์ ST ต้องถือ hate อันดับ 2 ไว้ตั้งแต่ต้น\nHardcore ช่วงต้นไฟต์เป็นวงเล็กแน่นอน ไม่ต้องแยกห่างมาก\nเมื่อ buff ของบอสถึง 8 ขึ้นไป วงจะใหญ่มาก แยกให้ห่างกัน อย่าให้ AoE ซ้อนกัน",
+   "strict": false,
+   "says": {
+    "MT": "hate อันดับ 1 รับ AoE วงหนึ่ง\nbuff ของบอส 8 ขึ้นไป: แยกห่างจาก ST",
+    "ST": "ถือ hate อันดับ 2 ตั้งแต่ต้นไฟต์ รับ AoE อีกวง\nbuff ของบอส 8 ขึ้นไป: แยกห่างจาก MT"
+   },
+   "refs": [
+    {
+     "src": "frames/m9s/hardcore.webp",
+     "say": "Hardcore: tankbuster AoE ที่ Tank 2 คน (วงลายแดงดำ) ขนาดโตตาม buff ของบอส",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/m4_8a0N8GcM?t=294"
+    }
+   ],
+   "scene": null,
+   "en": {
+    "phase": "Throughout the fight",
+    "mech": "Hardcore",
+    "name": "Tankbuster AoEs sized by the boss's buff",
+    "note": "A tankbuster AoE on both tanks; its size depends on how many stacks of the buff the boss has\nBuff 0–4: a small AoE, 1 tile\nBuff 8 or more: a huge AoE, 4 tiles\n\nHardcore comes right after the fight's first raid-wide, so ST must hold 2nd enmity from the start\nEarly in the fight Hardcore is always small, so you needn't stand far apart\nOnce the boss's buff reaches 8, it is huge: stand well apart so the AoEs don't overlap",
+    "says": {
+     "MT": "1st enmity: take one AoE\nBoss buff at 8+: stand well away from ST",
+     "ST": "Hold 2nd enmity from the pull and take the other AoE\nBoss buff at 8+: stand well away from MT"
+    },
+    "refs": [
+     "Hardcore: tankbuster AoEs on both tanks (the red-and-black rings), growing with the boss's buff"
+    ]
+   }
+  },
+  {
+   "phase": "ช่วงแรก",
+   "mech": "Vamp Stomp + Brutal Rain",
+   "name": "ค้างคาวชุดแรก แบบ 1: แนวตั้ง",
+   "note": "มีค้างคาว (Vampette Fatale) หลายตัวในสนาม ตำแหน่งค้างคาวชุดแรกที่ระเบิดมี 4 แบบ\nวงสีส้ม = AoE วงกลมที่ค้างคาวระเบิด\n\nแบบ 1: แนวตั้ง ค้างคาว 2 ตัวทางเหนือและใต้ของบอส (ภาพนี้)",
+   "strict": false,
+   "game8": [
+    "https://img.game8.jp/12188095/ebe67349c8cbb54d9dcf7bb736a7a52d.webp/show"
+   ],
+   "refs": [
+    {
+     "src": "frames/m9s/vamp-bats.webp",
+     "say": "Vamp Stomp: ค้างคาวขึ้นหลายตัวในสนาม ดูตำแหน่งค้างคาวชุดแรก",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/m4_8a0N8GcM?t=108"
+    }
+   ],
+   "ring": 5.2,
+   "scene": {
+    "arena": {
+     "shape": "square",
+     "at": [
+      50,
+      50
+     ],
+     "w": 68,
+     "h": 68,
+     "fill": "#a7a9ae",
+     "lines": false,
+     "edge": "#e4e4e8"
+    },
+    "waymarks": {
+     "A": [
+      30.9,
+      5.6
+     ],
+     "1": [
+      68.7,
+      5.2
+     ],
+     "4": [
+      15.9,
+      25.2
+     ],
+     "B": [
+      83.5,
+      24.8
+     ],
+     "D": [
+      16.7,
+      75.7
+     ],
+     "2": [
+      84.0,
+      74.8
+     ],
+     "3": [
+      36.0,
+      94.2
+     ],
+     "C": [
+      68.5,
+      93.9
+     ]
+    },
+    "bossSize": 8,
+    "iconSize": 5.6,
+    "markSize": 7.6,
+    "roles": {
+     "MT": [
+      50,
+      24.6
+     ],
+     "ST": [
+      49.8,
+      78
+     ],
+     "D1": [
+      28.8,
+      50.5
+     ],
+     "D2": [
+      70.7,
+      52
+     ],
+     "D3": [
+      23.3,
+      13.4
+     ],
+     "D4": [
+      79.5,
+      11.2
+     ],
+     "H1": [
+      20.8,
+      88.2
+     ],
+     "H2": [
+      77.3,
+      87.9
+     ]
+    },
+    "shapes": [
+     {
+      "t": "line",
+      "from": [
+       33,
+       4.67
+      ],
+      "to": [
+       33,
+       95.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       16,
+       27.33
+      ],
+      "to": [
+       84,
+       27.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       50,
+       4.67
+      ],
+      "to": [
+       50,
+       95.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       16,
+       50.0
+      ],
+      "to": [
+       84,
+       50.0
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       67,
+       4.67
+      ],
+      "to": [
+       67,
+       95.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       16,
+       72.67
+      ],
+      "to": [
+       84,
+       72.67
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "rect",
+      "at": [
+       50,
+       50.3
+      ],
+      "w": 30,
+      "h": 30,
+      "c": "#9fe8ef",
+      "o": 0.35,
+      "wd": 0.01,
+      "rot": 0
+     },
+     {
+      "t": "circle",
+      "at": [
+       50,
+       41.5
+      ],
+      "r": 11.7,
+      "c": "#ff9b3d",
+      "o": 0.42,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       50,
+       41.5
+      ],
+      "r": 11.7,
+      "c": "#ffc070",
+      "wd": 0.45,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       50,
+       61.5
+      ],
+      "r": 11.7,
+      "c": "#ff9b3d",
+      "o": 0.42,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       50,
+       61.5
+      ],
+      "r": 11.7,
+      "c": "#ffc070",
+      "wd": 0.45,
+      "o": 0.95
+     },
+     {
+      "t": "dot",
+      "at": [
+       50,
+       41.5
+      ],
+      "r": 1.9,
+      "c": "#b3262e",
+      "o": 1.0
+     },
+     {
+      "t": "ring",
+      "at": [
+       50,
+       41.5
+      ],
+      "r": 1.9,
+      "c": "#ffffff",
+      "wd": 0.25,
+      "o": 0.9
+     },
+     {
+      "t": "dot",
+      "at": [
+       50,
+       61.5
+      ],
+      "r": 1.9,
+      "c": "#b3262e",
+      "o": 1.0
+     },
+     {
+      "t": "ring",
+      "at": [
+       50,
+       61.5
+      ],
+      "r": 1.9,
+      "c": "#ffffff",
+      "wd": 0.25,
+      "o": 0.9
+     }
+    ],
+    "boss": [
+     50,
+     49.5
+    ]
+   },
+   "en": {
+    "phase": "First part",
+    "mech": "Vamp Stomp + Brutal Rain",
+    "name": "First bats, pattern 1: vertical",
+    "note": "There are many bats (Vampette Fatale) on the field; the first bats to go off come in 4 patterns\nOrange circle = the circle AoE a bat sets off\n\nPattern 1: vertical, two bats north and south of the boss (this picture)",
+    "refs": [
+     "Vamp Stomp: bats all over the field; look where the first ones are"
+    ]
+   }
+  },
+  {
+   "phase": "ช่วงแรก",
+   "mech": "Vamp Stomp + Brutal Rain",
+   "name": "ค้างคาวชุดแรก แบบ 2: แนวนอน",
+   "note": "แบบ 2: แนวนอน ค้างคาว 2 ตัวทางตะวันตกและตะวันออกของบอส",
+   "strict": false,
+   "game8": [
+    "https://img.game8.jp/12188096/b75d4e824428874ba48d53b5b8478abf.webp/show"
+   ],
+   "ring": 5.2,
+   "scene": {
+    "arena": {
+     "shape": "square",
+     "at": [
+      50,
+      50
+     ],
+     "w": 68,
+     "h": 68,
+     "fill": "#a7a9ae",
+     "lines": false,
+     "edge": "#e4e4e8"
+    },
+    "waymarks": {
+     "A": [
+      30.9,
+      5.6
+     ],
+     "1": [
+      68.7,
+      5.2
+     ],
+     "4": [
+      15.9,
+      25.2
+     ],
+     "B": [
+      83.5,
+      24.8
+     ],
+     "D": [
+      16.7,
+      75.7
+     ],
+     "2": [
+      84.0,
+      74.8
+     ],
+     "3": [
+      36.0,
+      94.2
+     ],
+     "C": [
+      68.5,
+      93.9
+     ]
+    },
+    "bossSize": 8,
+    "iconSize": 5.6,
+    "markSize": 7.6,
+    "roles": {
+     "MT": [
+      50,
+      25
+     ],
+     "ST": [
+      50,
+      77.8
+     ],
+     "D1": [
+      25.7,
+      50.1
+     ],
+     "D2": [
+      73.9,
+      50.8
+     ],
+     "D3": [
+      23.2,
+      13.2
+     ],
+     "D4": [
+      79.8,
+      11
+     ],
+     "H1": [
+      20.8,
+      88.4
+     ],
+     "H2": [
+      77.6,
+      87.7
+     ]
+    },
+    "shapes": [
+     {
+      "t": "line",
+      "from": [
+       33,
+       4.67
+      ],
+      "to": [
+       33,
+       95.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       16,
+       27.33
+      ],
+      "to": [
+       84,
+       27.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       50,
+       4.67
+      ],
+      "to": [
+       50,
+       95.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       16,
+       50.0
+      ],
+      "to": [
+       84,
+       50.0
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       67,
+       4.67
+      ],
+      "to": [
+       67,
+       95.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       16,
+       72.67
+      ],
+      "to": [
+       84,
+       72.67
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "rect",
+      "at": [
+       50,
+       50.3
+      ],
+      "w": 30,
+      "h": 30,
+      "c": "#9fe8ef",
+      "o": 0.35,
+      "wd": 0.01,
+      "rot": 0
+     },
+     {
+      "t": "circle",
+      "at": [
+       40.9,
+       49.6
+      ],
+      "r": 12,
+      "c": "#ff9b3d",
+      "o": 0.42,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       40.9,
+       49.6
+      ],
+      "r": 12,
+      "c": "#ffc070",
+      "wd": 0.45,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       59.1,
+       49.6
+      ],
+      "r": 12,
+      "c": "#ff9b3d",
+      "o": 0.42,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       59.1,
+       49.6
+      ],
+      "r": 12,
+      "c": "#ffc070",
+      "wd": 0.45,
+      "o": 0.95
+     },
+     {
+      "t": "dot",
+      "at": [
+       40.9,
+       49.6
+      ],
+      "r": 1.9,
+      "c": "#b3262e",
+      "o": 1.0
+     },
+     {
+      "t": "ring",
+      "at": [
+       40.9,
+       49.6
+      ],
+      "r": 1.9,
+      "c": "#ffffff",
+      "wd": 0.25,
+      "o": 0.9
+     },
+     {
+      "t": "dot",
+      "at": [
+       59.1,
+       49.6
+      ],
+      "r": 1.9,
+      "c": "#b3262e",
+      "o": 1.0
+     },
+     {
+      "t": "ring",
+      "at": [
+       59.1,
+       49.6
+      ],
+      "r": 1.9,
+      "c": "#ffffff",
+      "wd": 0.25,
+      "o": 0.9
+     }
+    ],
+    "boss": [
+     50,
+     49.5
+    ]
+   },
+   "en": {
+    "phase": "First part",
+    "mech": "Vamp Stomp + Brutal Rain",
+    "name": "First bats, pattern 2: horizontal",
+    "note": "Pattern 2: horizontal, two bats west and east of the boss"
+   }
+  },
+  {
+   "phase": "ช่วงแรก",
+   "mech": "Vamp Stomp + Brutal Rain",
+   "name": "ค้างคาวชุดแรก แบบ 3: แนวทแยง",
+   "note": "แบบ 3: แนวทแยง ค้างคาวตัวหนึ่งทางตะวันออกเฉียงเหนือ อีกตัวทางตะวันตกเฉียงใต้ของบอส",
+   "strict": false,
+   "game8": [
+    "https://img.game8.jp/12188097/8c1b0e55c65ec99b5aa58ab58535dd29.webp/show"
+   ],
+   "ring": 5.2,
+   "scene": {
+    "arena": {
+     "shape": "square",
+     "at": [
+      50,
+      50
+     ],
+     "w": 68,
+     "h": 68,
+     "fill": "#a7a9ae",
+     "lines": false,
+     "edge": "#e4e4e8"
+    },
+    "waymarks": {
+     "A": [
+      30.9,
+      5.6
+     ],
+     "1": [
+      68.7,
+      5.2
+     ],
+     "4": [
+      15.9,
+      25.2
+     ],
+     "B": [
+      83.5,
+      24.8
+     ],
+     "D": [
+      16.7,
+      75.7
+     ],
+     "2": [
+      84.0,
+      74.8
+     ],
+     "3": [
+      36.0,
+      94.2
+     ],
+     "C": [
+      68.5,
+      93.9
+     ]
+    },
+    "bossSize": 8,
+    "iconSize": 5.6,
+    "markSize": 7.6,
+    "roles": {
+     "MT": [
+      50,
+      25.2
+     ],
+     "ST": [
+      49.7,
+      78
+     ],
+     "D1": [
+      28.8,
+      50.3
+     ],
+     "D2": [
+      70.5,
+      52.1
+     ],
+     "D3": [
+      23.3,
+      13.7
+     ],
+     "D4": [
+      79.5,
+      11.4
+     ],
+     "H1": [
+      20.8,
+      88.4
+     ],
+     "H2": [
+      77.3,
+      88
+     ]
+    },
+    "shapes": [
+     {
+      "t": "line",
+      "from": [
+       33,
+       4.67
+      ],
+      "to": [
+       33,
+       95.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       16,
+       27.33
+      ],
+      "to": [
+       84,
+       27.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       50,
+       4.67
+      ],
+      "to": [
+       50,
+       95.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       16,
+       50.0
+      ],
+      "to": [
+       84,
+       50.0
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       67,
+       4.67
+      ],
+      "to": [
+       67,
+       95.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       16,
+       72.67
+      ],
+      "to": [
+       84,
+       72.67
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "rect",
+      "at": [
+       50,
+       50.3
+      ],
+      "w": 30,
+      "h": 30,
+      "c": "#9fe8ef",
+      "o": 0.35,
+      "wd": 0.01,
+      "rot": 0
+     },
+     {
+      "t": "circle",
+      "at": [
+       56.8,
+       39.6
+      ],
+      "r": 11.5,
+      "c": "#ff9b3d",
+      "o": 0.42,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       56.8,
+       39.6
+      ],
+      "r": 11.5,
+      "c": "#ffc070",
+      "wd": 0.45,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       43,
+       58.2
+      ],
+      "r": 11.5,
+      "c": "#ff9b3d",
+      "o": 0.42,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       43,
+       58.2
+      ],
+      "r": 11.5,
+      "c": "#ffc070",
+      "wd": 0.45,
+      "o": 0.95
+     },
+     {
+      "t": "dot",
+      "at": [
+       56.8,
+       39.6
+      ],
+      "r": 1.9,
+      "c": "#b3262e",
+      "o": 1.0
+     },
+     {
+      "t": "ring",
+      "at": [
+       56.8,
+       39.6
+      ],
+      "r": 1.9,
+      "c": "#ffffff",
+      "wd": 0.25,
+      "o": 0.9
+     },
+     {
+      "t": "dot",
+      "at": [
+       43,
+       58.2
+      ],
+      "r": 1.9,
+      "c": "#b3262e",
+      "o": 1.0
+     },
+     {
+      "t": "ring",
+      "at": [
+       43,
+       58.2
+      ],
+      "r": 1.9,
+      "c": "#ffffff",
+      "wd": 0.25,
+      "o": 0.9
+     }
+    ],
+    "boss": [
+     50,
+     49.5
+    ]
+   },
+   "en": {
+    "phase": "First part",
+    "mech": "Vamp Stomp + Brutal Rain",
+    "name": "First bats, pattern 3: diagonal",
+    "note": "Pattern 3: diagonal, one bat north-east and one south-west of the boss"
+   }
+  },
+  {
+   "phase": "ช่วงแรก",
+   "mech": "Vamp Stomp + Brutal Rain",
+   "name": "ค้างคาวชุดแรก แบบ 4: แนวทแยงอีกด้าน",
+   "note": "แบบ 4: แนวทแยง ค้างคาวตัวหนึ่งทางตะวันตกเฉียงเหนือ อีกตัวทางตะวันออกเฉียงใต้ของบอส",
+   "strict": false,
+   "game8": [
+    "https://img.game8.jp/12188098/bc6c7761df6f681921b14698174c7594.webp/show"
+   ],
+   "ring": 5.2,
+   "scene": {
+    "arena": {
+     "shape": "square",
+     "at": [
+      50,
+      50
+     ],
+     "w": 68,
+     "h": 68,
+     "fill": "#a7a9ae",
+     "lines": false,
+     "edge": "#e4e4e8"
+    },
+    "waymarks": {
+     "A": [
+      30.9,
+      5.6
+     ],
+     "1": [
+      68.7,
+      5.2
+     ],
+     "4": [
+      15.9,
+      25.2
+     ],
+     "B": [
+      83.5,
+      24.8
+     ],
+     "D": [
+      16.7,
+      75.7
+     ],
+     "2": [
+      84.0,
+      74.8
+     ],
+     "3": [
+      36.0,
+      94.2
+     ],
+     "C": [
+      68.5,
+      93.9
+     ]
+    },
+    "bossSize": 8,
+    "iconSize": 5.6,
+    "markSize": 7.6,
+    "roles": {
+     "MT": [
+      50,
+      25.3
+     ],
+     "ST": [
+      49.7,
+      77.6
+     ],
+     "D1": [
+      28.8,
+      50.3
+     ],
+     "D2": [
+      70.7,
+      52.1
+     ],
+     "D3": [
+      23.3,
+      12.4
+     ],
+     "D4": [
+      79.5,
+      10.9
+     ],
+     "H1": [
+      20.8,
+      88.2
+     ],
+     "H2": [
+      77.3,
+      87.9
+     ]
+    },
+    "shapes": [
+     {
+      "t": "line",
+      "from": [
+       33,
+       4.67
+      ],
+      "to": [
+       33,
+       95.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       16,
+       27.33
+      ],
+      "to": [
+       84,
+       27.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       50,
+       4.67
+      ],
+      "to": [
+       50,
+       95.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       16,
+       50.0
+      ],
+      "to": [
+       84,
+       50.0
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       67,
+       4.67
+      ],
+      "to": [
+       67,
+       95.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       16,
+       72.67
+      ],
+      "to": [
+       84,
+       72.67
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "rect",
+      "at": [
+       50,
+       50.3
+      ],
+      "w": 30,
+      "h": 30,
+      "c": "#9fe8ef",
+      "o": 0.35,
+      "wd": 0.01,
+      "rot": 0
+     },
+     {
+      "t": "circle",
+      "at": [
+       43,
+       40.5
+      ],
+      "r": 11.5,
+      "c": "#ff9b3d",
+      "o": 0.42,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       43,
+       40.5
+      ],
+      "r": 11.5,
+      "c": "#ffc070",
+      "wd": 0.45,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       56.8,
+       57.9
+      ],
+      "r": 11.5,
+      "c": "#ff9b3d",
+      "o": 0.42,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       56.8,
+       57.9
+      ],
+      "r": 11.5,
+      "c": "#ffc070",
+      "wd": 0.45,
+      "o": 0.95
+     },
+     {
+      "t": "dot",
+      "at": [
+       43,
+       40.5
+      ],
+      "r": 1.9,
+      "c": "#b3262e",
+      "o": 1.0
+     },
+     {
+      "t": "ring",
+      "at": [
+       43,
+       40.5
+      ],
+      "r": 1.9,
+      "c": "#ffffff",
+      "wd": 0.25,
+      "o": 0.9
+     },
+     {
+      "t": "dot",
+      "at": [
+       56.8,
+       57.9
+      ],
+      "r": 1.9,
+      "c": "#b3262e",
+      "o": 1.0
+     },
+     {
+      "t": "ring",
+      "at": [
+       56.8,
+       57.9
+      ],
+      "r": 1.9,
+      "c": "#ffffff",
+      "wd": 0.25,
+      "o": 0.9
+     }
+    ],
+    "boss": [
+     50,
+     49.5
+    ]
+   },
+   "en": {
+    "phase": "First part",
+    "mech": "Vamp Stomp + Brutal Rain",
+    "name": "First bats, pattern 4: the other diagonal",
+    "note": "Pattern 4: diagonal, one bat north-west and one south-east of the boss"
+   }
+  },
+  {
+   "phase": "ช่วงแรก",
+   "mech": "Vamp Stomp + Brutal Rain",
+   "name": "① วงขาวจากบอส + จุดยืน",
+   "note": "① วงสีขาวขยายออกจากตัวบอส ถ้าวงโดนค้างคาว ค้างคาวตัวนั้นระเบิด AoE วงกลม\n\nTank + Melee: กระจายเป็นกากบาทใน 4 ช่องกลางสนาม\nMT เหนือ / D1 ตะวันตก / D2 ตะวันออก / ST ใต้\nRange + Healer: รอที่ 4 มุมสนาม\nD3 ตะวันตกเฉียงเหนือ / D4 ตะวันออกเฉียงเหนือ / H1 ตะวันตกเฉียงใต้ / H2 ตะวันออกเฉียงใต้\n\nถ้าวงจากบอสโดนผู้เล่น ผู้เล่นคนนั้นจะปล่อย Blast Beat (AoE วงกลม) ถ้าทับกับคนอื่น ตายทันที",
+   "strict": true,
+   "says": {
+    "MT": "4 ช่องใน: ฝั่งเหนือ",
+    "D1": "4 ช่องใน: ฝั่งตะวันตก",
+    "D2": "4 ช่องใน: ฝั่งตะวันออก",
+    "ST": "4 ช่องใน: ฝั่งใต้",
+    "D3": "มุมตะวันตกเฉียงเหนือ",
+    "D4": "มุมตะวันออกเฉียงเหนือ",
+    "H1": "มุมตะวันตกเฉียงใต้",
+    "H2": "มุมตะวันออกเฉียงใต้"
+   },
+   "game8": [
+    "https://img.game8.jp/12189063/e041f40140f6ce5a90754ed3e55d0a99.webp/show"
+   ],
+   "refs": [
+    {
+     "src": "frames/m9s/vamp-ring.webp",
+     "say": "Vamp Stomp: วงขาวขยายจากบอส วงโดนค้างคาวเมื่อไหร่ ค้างคาวระเบิด AoE วงกลม",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/m4_8a0N8GcM?t=90"
+    }
+   ],
+   "ring": 5.2,
+   "scene": {
+    "arena": {
+     "shape": "square",
+     "at": [
+      50,
+      50
+     ],
+     "w": 68,
+     "h": 68,
+     "fill": "#a7a9ae",
+     "lines": false,
+     "edge": "#e4e4e8"
+    },
+    "waymarks": {
+     "A": [
+      30.9,
+      5.6
+     ],
+     "1": [
+      68.7,
+      5.2
+     ],
+     "4": [
+      15.9,
+      25.2
+     ],
+     "B": [
+      83.5,
+      24.8
+     ],
+     "D": [
+      16.7,
+      75.7
+     ],
+     "2": [
+      84.0,
+      74.8
+     ],
+     "3": [
+      36.0,
+      94.2
+     ],
+     "C": [
+      68.5,
+      93.9
+     ]
+    },
+    "bossSize": 9,
+    "iconSize": 5.6,
+    "markSize": 7.6,
+    "roles": {
+     "MT": [
+      50,
+      30.1
+     ],
+     "ST": [
+      49.7,
+      70.6
+     ],
+     "D1": [
+      35.2,
+      50.5
+     ],
+     "D2": [
+      64.2,
+      50
+     ],
+     "D3": [
+      23.3,
+      13.3
+     ],
+     "D4": [
+      79.5,
+      10.7
+     ],
+     "H1": [
+      20.8,
+      88.7
+     ],
+     "H2": [
+      77.3,
+      87.9
+     ]
+    },
+    "shapes": [
+     {
+      "t": "line",
+      "from": [
+       33,
+       4.67
+      ],
+      "to": [
+       33,
+       95.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       16,
+       27.33
+      ],
+      "to": [
+       84,
+       27.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       50,
+       4.67
+      ],
+      "to": [
+       50,
+       95.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       16,
+       50.0
+      ],
+      "to": [
+       84,
+       50.0
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       67,
+       4.67
+      ],
+      "to": [
+       67,
+       95.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       16,
+       72.67
+      ],
+      "to": [
+       84,
+       72.67
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "circle",
+      "at": [
+       50,
+       50.5
+      ],
+      "r": 16.8,
+      "c": "#ffb04d",
+      "o": 0.22,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       50,
+       50.5
+      ],
+      "r": 16.8,
+      "c": "#ffb04d",
+      "wd": 0.7,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       50,
+       50.3
+      ],
+      "r": 2.6,
+      "c": "#ffcf33",
+      "o": 1,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       50,
+       50.3
+      ],
+      "r": 3.4,
+      "c": "#ff8a1a",
+      "wd": 0.5,
+      "o": 0.9
+     }
+    ],
+    "boss": [
+     50,
+     50
+    ]
+   },
+   "en": {
+    "phase": "First part",
+    "mech": "Vamp Stomp + Brutal Rain",
+    "name": "① The white ring from the boss + where to wait",
+    "note": "① A white ring spreads out from the boss; when it reaches a bat, that bat sets off a circle AoE\n\nTank + Melee: spread in a cross on the four middle tiles\nMT north / D1 west / D2 east / ST south\nRange + Healer: wait in the four corners\nD3 north-west / D4 north-east / H1 south-west / H2 south-east\n\nWhen the boss's ring reaches a player, that player sets off Blast Beat (a circle AoE); if it overlaps anyone else, it kills",
+    "says": {
+     "MT": "Inner four tiles: north side",
+     "D1": "Inner four tiles: west side",
+     "D2": "Inner four tiles: east side",
+     "ST": "Inner four tiles: south side",
+     "D3": "North-west corner",
+     "D4": "North-east corner",
+     "H1": "South-west corner",
+     "H2": "South-east corner"
+    },
+    "refs": [
+     "Vamp Stomp: the white ring spreads from the boss; each bat it reaches sets off a circle AoE"
+    ]
+   }
+  },
+  {
+   "phase": "ช่วงแรก",
+   "mech": "Vamp Stomp + Brutal Rain",
+   "name": "② Tank + Melee โดนวงที่ 4 ช่องใน แล้วเข้ากลาง",
+   "note": "② พอวงสีขาวมาแตะขอบของ 4 ช่องกลาง Tank + Melee ให้โดนวง AoE ของตัวเองจะระเบิด\nพอระเบิดแล้ว ขยับเข้ากลางสนาม ไม่ให้โดน AoE ของ Range/Healer และของค้างคาว",
+   "strict": true,
+   "says": {
+    "MT": "โดนวงตอนวงแตะขอบ 4 ช่องใน แล้วเข้ากลาง",
+    "D1": "โดนวงตอนวงแตะขอบ 4 ช่องใน แล้วเข้ากลาง",
+    "D2": "โดนวงตอนวงแตะขอบ 4 ช่องใน แล้วเข้ากลาง",
+    "ST": "โดนวงตอนวงแตะขอบ 4 ช่องใน แล้วเข้ากลาง",
+    "D3": "รอที่มุม",
+    "D4": "รอที่มุม",
+    "H1": "รอที่มุม",
+    "H2": "รอที่มุม"
+   },
+   "game8": [
+    "https://img.game8.jp/12188105/74845f9dee512c4b641d9f3a4d0c5ca0.webp/show"
+   ],
+   "refs": [
+    {
+     "src": "frames/m9s/vamp-melee.webp",
+     "say": "Vamp Stomp ②: วงขาวมาถึงขอบ 4 ช่องใน Tank + Melee โดนวงตรงนี้ แล้วรีบเข้ากลาง",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/m4_8a0N8GcM?t=312"
+    }
+   ],
+   "ring": 5.2,
+   "scene": {
+    "arena": {
+     "shape": "square",
+     "at": [
+      50,
+      50
+     ],
+     "w": 68,
+     "h": 68,
+     "fill": "#a7a9ae",
+     "lines": false,
+     "edge": "#e4e4e8"
+    },
+    "waymarks": {
+     "A": [
+      30.9,
+      5.6
+     ],
+     "1": [
+      68.7,
+      5.2
+     ],
+     "4": [
+      15.9,
+      25.2
+     ],
+     "B": [
+      83.5,
+      24.8
+     ],
+     "D": [
+      16.7,
+      75.7
+     ],
+     "2": [
+      84.0,
+      74.8
+     ],
+     "3": [
+      36.0,
+      94.2
+     ],
+     "C": [
+      68.5,
+      93.9
+     ]
+    },
+    "bossSize": 8,
+    "iconSize": 5.6,
+    "markSize": 7.6,
+    "roles": {
+     "MT": [
+      50,
+      29.6
+     ],
+     "ST": [
+      50,
+      71.8
+     ],
+     "D1": [
+      35.2,
+      51
+     ],
+     "D2": [
+      65.9,
+      51
+     ],
+     "D3": [
+      23.3,
+      12.7
+     ],
+     "D4": [
+      79.5,
+      10.3
+     ],
+     "H1": [
+      20.8,
+      89.5
+     ],
+     "H2": [
+      77.3,
+      88.6
+     ]
+    },
+    "shapes": [
+     {
+      "t": "line",
+      "from": [
+       33,
+       4.67
+      ],
+      "to": [
+       33,
+       95.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       16,
+       27.33
+      ],
+      "to": [
+       84,
+       27.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       50,
+       4.67
+      ],
+      "to": [
+       50,
+       95.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       16,
+       50.0
+      ],
+      "to": [
+       84,
+       50.0
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       67,
+       4.67
+      ],
+      "to": [
+       67,
+       95.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       16,
+       72.67
+      ],
+      "to": [
+       84,
+       72.67
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "rect",
+      "at": [
+       50,
+       50.3
+      ],
+      "w": 30,
+      "h": 30,
+      "c": "#9fe8ef",
+      "o": 0.35,
+      "wd": 0.01,
+      "rot": 0
+     },
+     {
+      "t": "circle",
+      "at": [
+       50,
+       30.8
+      ],
+      "r": 15.3,
+      "c": "#ff9b3d",
+      "o": 0.4,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       50,
+       30.8
+      ],
+      "r": 15.3,
+      "c": "#ffc070",
+      "wd": 0.45,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       35.6,
+       50.8
+      ],
+      "r": 15.3,
+      "c": "#ff9b3d",
+      "o": 0.4,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       35.6,
+       50.8
+      ],
+      "r": 15.3,
+      "c": "#ffc070",
+      "wd": 0.45,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       66.3,
+       50.8
+      ],
+      "r": 15.3,
+      "c": "#ff9b3d",
+      "o": 0.4,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       66.3,
+       50.8
+      ],
+      "r": 15.3,
+      "c": "#ffc070",
+      "wd": 0.45,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       50,
+       72.2
+      ],
+      "r": 15.3,
+      "c": "#ff9b3d",
+      "o": 0.4,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       50,
+       72.2
+      ],
+      "r": 15.3,
+      "c": "#ffc070",
+      "wd": 0.45,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       50,
+       50.6
+      ],
+      "r": 1.8,
+      "c": "#ffcf33",
+      "o": 1,
+      "wd": 0.01
+     }
+    ]
+   },
+   "en": {
+    "phase": "First part",
+    "mech": "Vamp Stomp + Brutal Rain",
+    "name": "② Tank + Melee take the ring at the inner tiles, then go in",
+    "note": "② When the white ring touches the edge of the four middle tiles, Tank + Melee let it hit them and their AoEs go off\nOnce they have gone off, move into the middle so the Range/Healer and bat AoEs can't reach you",
+    "says": {
+     "MT": "Take the ring as it touches the inner tiles, then move in",
+     "D1": "Take the ring as it touches the inner tiles, then move in",
+     "D2": "Take the ring as it touches the inner tiles, then move in",
+     "ST": "Take the ring as it touches the inner tiles, then move in",
+     "D3": "Wait in your corner",
+     "D4": "Wait in your corner",
+     "H1": "Wait in your corner",
+     "H2": "Wait in your corner"
+    },
+    "refs": [
+     "Vamp Stomp ②: the ring reaches the inner tiles; Tank + Melee take it here, then hurry into the middle"
+    ]
+   }
+  },
+  {
+   "phase": "ช่วงแรก",
+   "mech": "Vamp Stomp + Brutal Rain",
+   "name": "③ Range + Healer โดนวงที่มุม",
+   "note": "③ Range + Healer หลบ AoE ของค้างคาว แล้วไปโดนวงสีขาวให้ AoE ของตัวเองระเบิดที่มุม\nTank + Melee อยู่กลางสนามใต้ตัวบอส",
+   "strict": true,
+   "says": {
+    "D3": "หลบ AoE ค้างคาว แล้วโดนวงที่มุมตะวันตกเฉียงเหนือ",
+    "D4": "หลบ AoE ค้างคาว แล้วโดนวงที่มุมตะวันออกเฉียงเหนือ",
+    "H1": "หลบ AoE ค้างคาว แล้วโดนวงที่มุมตะวันตกเฉียงใต้",
+    "H2": "หลบ AoE ค้างคาว แล้วโดนวงที่มุมตะวันออกเฉียงใต้",
+    "MT": "อยู่กลางสนามใต้บอส",
+    "ST": "อยู่กลางสนามใต้บอส",
+    "D1": "อยู่กลางสนามใต้บอส",
+    "D2": "อยู่กลางสนามใต้บอส"
+   },
+   "game8": [
+    "https://img.game8.jp/12188104/573074dcacf12ed77799d63c375ad606.webp/show"
+   ],
+   "refs": [
+    {
+     "src": "frames/m9s/vamp-ranged.webp",
+     "say": "Vamp Stomp ③: วงขาวขยายไปถึงมุมสนาม Range + Healer โดนวงที่มุม หลบ AoE ค้างคาว",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/m4_8a0N8GcM?t=318"
+    }
+   ],
+   "ring": 5.2,
+   "scene": {
+    "arena": {
+     "shape": "square",
+     "at": [
+      50,
+      50
+     ],
+     "w": 68,
+     "h": 68,
+     "fill": "#a7a9ae",
+     "lines": false,
+     "edge": "#e4e4e8"
+    },
+    "waymarks": {
+     "A": [
+      30.9,
+      5.6
+     ],
+     "1": [
+      68.7,
+      5.2
+     ],
+     "4": [
+      15.9,
+      25.2
+     ],
+     "B": [
+      83.5,
+      24.8
+     ],
+     "D": [
+      16.7,
+      75.7
+     ],
+     "2": [
+      84.0,
+      74.8
+     ],
+     "3": [
+      36.0,
+      94.2
+     ],
+     "C": [
+      68.5,
+      93.9
+     ]
+    },
+    "bossSize": 8,
+    "iconSize": 5.6,
+    "markSize": 7.6,
+    "roles": {
+     "MT": [
+      50,
+      30
+     ],
+     "ST": [
+      48.3,
+      51.7
+     ],
+     "D1": [
+      41.5,
+      42.9
+     ],
+     "D2": [
+      57.4,
+      45.6
+     ],
+     "D3": [
+      25.9,
+      18.1
+     ],
+     "D4": [
+      75.6,
+      16.3
+     ],
+     "H1": [
+      24.8,
+      82.4
+     ],
+     "H2": [
+      74.4,
+      80.5
+     ]
+    },
+    "shapes": [
+     {
+      "t": "line",
+      "from": [
+       33,
+       4.67
+      ],
+      "to": [
+       33,
+       95.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       16,
+       27.33
+      ],
+      "to": [
+       84,
+       27.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       50,
+       4.67
+      ],
+      "to": [
+       50,
+       95.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       16,
+       50.0
+      ],
+      "to": [
+       84,
+       50.0
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       67,
+       4.67
+      ],
+      "to": [
+       67,
+       95.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       16,
+       72.67
+      ],
+      "to": [
+       84,
+       72.67
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "circle",
+      "at": [
+       50,
+       50.5
+      ],
+      "r": 37.8,
+      "c": "#ffd9a0",
+      "o": 0.2,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       50,
+       50.5
+      ],
+      "r": 37.8,
+      "c": "#ffc070",
+      "wd": 0.35,
+      "o": 0.7
+     },
+     {
+      "t": "circle",
+      "at": [
+       50,
+       52
+      ],
+      "r": 8,
+      "c": "#ffe48a",
+      "o": 0.3,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       50,
+       52
+      ],
+      "r": 8,
+      "c": "#ffd04d",
+      "wd": 0.35,
+      "o": 0.8
+     },
+     {
+      "t": "circle",
+      "at": [
+       26.1,
+       20.6
+      ],
+      "r": 15.9,
+      "c": "#ff9b3d",
+      "o": 0.42,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       26.1,
+       20.6
+      ],
+      "r": 15.9,
+      "c": "#ffc070",
+      "wd": 0.45,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       75.2,
+       20.2
+      ],
+      "r": 15.9,
+      "c": "#ff9b3d",
+      "o": 0.42,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       75.2,
+       20.2
+      ],
+      "r": 15.9,
+      "c": "#ffc070",
+      "wd": 0.45,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       25,
+       81
+      ],
+      "r": 15.9,
+      "c": "#ff9b3d",
+      "o": 0.42,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       25,
+       81
+      ],
+      "r": 15.9,
+      "c": "#ffc070",
+      "wd": 0.45,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       74.5,
+       80.9
+      ],
+      "r": 15.9,
+      "c": "#ff9b3d",
+      "o": 0.42,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       74.5,
+       80.9
+      ],
+      "r": 15.9,
+      "c": "#ffc070",
+      "wd": 0.45,
+      "o": 0.95
+     }
+    ],
+    "boss": [
+     50,
+     38.4
+    ]
+   },
+   "en": {
+    "phase": "First part",
+    "mech": "Vamp Stomp + Brutal Rain",
+    "name": "③ Range + Healer take the ring in the corners",
+    "note": "③ Range + Healer dodge the bat AoEs, then let the white ring hit them so their AoEs go off in the corners\nTank + Melee stay in the middle, under the boss",
+    "says": {
+     "D3": "Dodge the bat AoEs, then take the ring in the north-west corner",
+     "D4": "Dodge the bat AoEs, then take the ring in the north-east corner",
+     "H1": "Dodge the bat AoEs, then take the ring in the south-west corner",
+     "H2": "Dodge the bat AoEs, then take the ring in the south-east corner",
+     "MT": "Stay in the middle under the boss",
+     "ST": "Stay in the middle under the boss",
+     "D1": "Stay in the middle under the boss",
+     "D2": "Stay in the middle under the boss"
+    },
+    "refs": [
+     "Vamp Stomp ③: the ring reaches the corners; Range + Healer take it there and dodge the bat AoEs"
+    ]
+   }
+  },
+  {
+   "phase": "ช่วงแรก",
+   "mech": "Vamp Stomp + Brutal Rain",
+   "name": "④ Brutal Rain: stack ที่ Healer",
+   "note": "④ ปิดท้ายด้วย Brutal Rain: stack หลายครั้งติดกันที่ Healer ทุกคนรวมกันรับ\n\nจำนวนครั้งของ Brutal Rain เพิ่มขึ้นตามระดับความแรงของบอสในครั้งต่อๆ ไป\nครั้งแรกมีแค่ 3 ครั้ง ไม่ต้องใช้ mitigate หนักมาก",
+   "strict": false,
+   "game8": [
+    "https://img.game8.jp/12188106/73747dbe237c733bca647edfdee2c0f7.webp/show"
+   ],
+   "refs": [
+    {
+     "src": "frames/m9s/brutal-rain.webp",
+     "say": "Brutal Rain: ทุกคนรวมกลุ่มใต้บอส รับ stack ด้วยกัน (ภาพจากครั้งที่ 2)",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/m4_8a0N8GcM?t=330"
+    }
+   ],
+   "ring": 5.2,
+   "scene": {
+    "arena": {
+     "shape": "square",
+     "at": [
+      50,
+      50
+     ],
+     "w": 68,
+     "h": 68,
+     "fill": "#a7a9ae",
+     "lines": false,
+     "edge": "#e4e4e8"
+    },
+    "waymarks": {
+     "A": [
+      30.9,
+      5.6
+     ],
+     "1": [
+      68.7,
+      5.2
+     ],
+     "4": [
+      15.9,
+      25.2
+     ],
+     "B": [
+      83.5,
+      24.8
+     ],
+     "D": [
+      16.7,
+      75.7
+     ],
+     "2": [
+      84.0,
+      74.8
+     ],
+     "3": [
+      36.0,
+      94.2
+     ],
+     "C": [
+      68.5,
+      93.9
+     ]
+    },
+    "bossSize": 8,
+    "iconSize": 5.6,
+    "markSize": 7.6,
+    "shapes": [
+     {
+      "t": "line",
+      "from": [
+       33,
+       4.67
+      ],
+      "to": [
+       33,
+       95.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       16,
+       27.33
+      ],
+      "to": [
+       84,
+       27.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       50,
+       4.67
+      ],
+      "to": [
+       50,
+       95.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       16,
+       50.0
+      ],
+      "to": [
+       84,
+       50.0
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       67,
+       4.67
+      ],
+      "to": [
+       67,
+       95.33
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "line",
+      "from": [
+       16,
+       72.67
+      ],
+      "to": [
+       84,
+       72.67
+      ],
+      "c": "#ffffff",
+      "wd": 0.22,
+      "o": 0.35
+     },
+     {
+      "t": "circle",
+      "at": [
+       50,
+       58.2
+      ],
+      "r": 8.5,
+      "c": "#ff9b3d",
+      "o": 0.22,
+      "wd": 0.01
+     },
+     {
+      "t": "line",
+      "from": [
+       51.8,
+       47.53
+      ],
+      "to": [
+       50.0,
+       49.67
+      ],
+      "c": "#ff7a1a",
+      "wd": 1.4,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       48.2,
+       47.53
+      ],
+      "to": [
+       50.0,
+       49.67
+      ],
+      "c": "#ff7a1a",
+      "wd": 1.4,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       51.8,
+       47.53
+      ],
+      "to": [
+       50.0,
+       49.67
+      ],
+      "c": "#ffe066",
+      "wd": 0.6,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       48.2,
+       47.53
+      ],
+      "to": [
+       50.0,
+       49.67
+      ],
+      "c": "#ffe066",
+      "wd": 0.6,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       51.8,
+       50.47
+      ],
+      "to": [
+       50.0,
+       52.6
+      ],
+      "c": "#ff7a1a",
+      "wd": 1.4,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       48.2,
+       50.47
+      ],
+      "to": [
+       50.0,
+       52.6
+      ],
+      "c": "#ff7a1a",
+      "wd": 1.4,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       51.8,
+       50.47
+      ],
+      "to": [
+       50.0,
+       52.6
+      ],
+      "c": "#ffe066",
+      "wd": 0.6,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       48.2,
+       50.47
+      ],
+      "to": [
+       50.0,
+       52.6
+      ],
+      "c": "#ffe066",
+      "wd": 0.6,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       51.8,
+       53.4
+      ],
+      "to": [
+       50.0,
+       55.53
+      ],
+      "c": "#ff7a1a",
+      "wd": 1.4,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       48.2,
+       53.4
+      ],
+      "to": [
+       50.0,
+       55.53
+      ],
+      "c": "#ff7a1a",
+      "wd": 1.4,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       51.8,
+       53.4
+      ],
+      "to": [
+       50.0,
+       55.53
+      ],
+      "c": "#ffe066",
+      "wd": 0.6,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       48.2,
+       53.4
+      ],
+      "to": [
+       50.0,
+       55.53
+      ],
+      "c": "#ffe066",
+      "wd": 0.6,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       58.0,
+       60.6
+      ],
+      "to": [
+       56.4,
+       58.2
+      ],
+      "c": "#ff7a1a",
+      "wd": 1.4,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       58.0,
+       55.8
+      ],
+      "to": [
+       56.4,
+       58.2
+      ],
+      "c": "#ff7a1a",
+      "wd": 1.4,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       58.0,
+       60.6
+      ],
+      "to": [
+       56.4,
+       58.2
+      ],
+      "c": "#ffe066",
+      "wd": 0.6,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       58.0,
+       55.8
+      ],
+      "to": [
+       56.4,
+       58.2
+      ],
+      "c": "#ffe066",
+      "wd": 0.6,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       55.8,
+       60.6
+      ],
+      "to": [
+       54.2,
+       58.2
+      ],
+      "c": "#ff7a1a",
+      "wd": 1.4,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       55.8,
+       55.8
+      ],
+      "to": [
+       54.2,
+       58.2
+      ],
+      "c": "#ff7a1a",
+      "wd": 1.4,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       55.8,
+       60.6
+      ],
+      "to": [
+       54.2,
+       58.2
+      ],
+      "c": "#ffe066",
+      "wd": 0.6,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       55.8,
+       55.8
+      ],
+      "to": [
+       54.2,
+       58.2
+      ],
+      "c": "#ffe066",
+      "wd": 0.6,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       53.6,
+       60.6
+      ],
+      "to": [
+       52.0,
+       58.2
+      ],
+      "c": "#ff7a1a",
+      "wd": 1.4,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       53.6,
+       55.8
+      ],
+      "to": [
+       52.0,
+       58.2
+      ],
+      "c": "#ff7a1a",
+      "wd": 1.4,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       53.6,
+       60.6
+      ],
+      "to": [
+       52.0,
+       58.2
+      ],
+      "c": "#ffe066",
+      "wd": 0.6,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       53.6,
+       55.8
+      ],
+      "to": [
+       52.0,
+       58.2
+      ],
+      "c": "#ffe066",
+      "wd": 0.6,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       48.2,
+       68.87
+      ],
+      "to": [
+       50.0,
+       66.73
+      ],
+      "c": "#ff7a1a",
+      "wd": 1.4,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       51.8,
+       68.87
+      ],
+      "to": [
+       50.0,
+       66.73
+      ],
+      "c": "#ff7a1a",
+      "wd": 1.4,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       48.2,
+       68.87
+      ],
+      "to": [
+       50.0,
+       66.73
+      ],
+      "c": "#ffe066",
+      "wd": 0.6,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       51.8,
+       68.87
+      ],
+      "to": [
+       50.0,
+       66.73
+      ],
+      "c": "#ffe066",
+      "wd": 0.6,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       48.2,
+       65.93
+      ],
+      "to": [
+       50.0,
+       63.8
+      ],
+      "c": "#ff7a1a",
+      "wd": 1.4,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       51.8,
+       65.93
+      ],
+      "to": [
+       50.0,
+       63.8
+      ],
+      "c": "#ff7a1a",
+      "wd": 1.4,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       48.2,
+       65.93
+      ],
+      "to": [
+       50.0,
+       63.8
+      ],
+      "c": "#ffe066",
+      "wd": 0.6,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       51.8,
+       65.93
+      ],
+      "to": [
+       50.0,
+       63.8
+      ],
+      "c": "#ffe066",
+      "wd": 0.6,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       48.2,
+       63.0
+      ],
+      "to": [
+       50.0,
+       60.87
+      ],
+      "c": "#ff7a1a",
+      "wd": 1.4,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       51.8,
+       63.0
+      ],
+      "to": [
+       50.0,
+       60.87
+      ],
+      "c": "#ff7a1a",
+      "wd": 1.4,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       48.2,
+       63.0
+      ],
+      "to": [
+       50.0,
+       60.87
+      ],
+      "c": "#ffe066",
+      "wd": 0.6,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       51.8,
+       63.0
+      ],
+      "to": [
+       50.0,
+       60.87
+      ],
+      "c": "#ffe066",
+      "wd": 0.6,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       42.0,
+       55.8
+      ],
+      "to": [
+       43.6,
+       58.2
+      ],
+      "c": "#ff7a1a",
+      "wd": 1.4,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       42.0,
+       60.6
+      ],
+      "to": [
+       43.6,
+       58.2
+      ],
+      "c": "#ff7a1a",
+      "wd": 1.4,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       42.0,
+       55.8
+      ],
+      "to": [
+       43.6,
+       58.2
+      ],
+      "c": "#ffe066",
+      "wd": 0.6,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       42.0,
+       60.6
+      ],
+      "to": [
+       43.6,
+       58.2
+      ],
+      "c": "#ffe066",
+      "wd": 0.6,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       44.2,
+       55.8
+      ],
+      "to": [
+       45.8,
+       58.2
+      ],
+      "c": "#ff7a1a",
+      "wd": 1.4,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       44.2,
+       60.6
+      ],
+      "to": [
+       45.8,
+       58.2
+      ],
+      "c": "#ff7a1a",
+      "wd": 1.4,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       44.2,
+       55.8
+      ],
+      "to": [
+       45.8,
+       58.2
+      ],
+      "c": "#ffe066",
+      "wd": 0.6,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       44.2,
+       60.6
+      ],
+      "to": [
+       45.8,
+       58.2
+      ],
+      "c": "#ffe066",
+      "wd": 0.6,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       46.4,
+       55.8
+      ],
+      "to": [
+       48.0,
+       58.2
+      ],
+      "c": "#ff7a1a",
+      "wd": 1.4,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       46.4,
+       60.6
+      ],
+      "to": [
+       48.0,
+       58.2
+      ],
+      "c": "#ff7a1a",
+      "wd": 1.4,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       46.4,
+       55.8
+      ],
+      "to": [
+       48.0,
+       58.2
+      ],
+      "c": "#ffe066",
+      "wd": 0.6,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       46.4,
+       60.6
+      ],
+      "to": [
+       48.0,
+       58.2
+      ],
+      "c": "#ffe066",
+      "wd": 0.6,
+      "o": 1
+     }
+    ],
+    "boss": [
+     50,
+     38.6
+    ]
+   },
+   "en": {
+    "phase": "First part",
+    "mech": "Vamp Stomp + Brutal Rain",
+    "name": "④ Brutal Rain: stack on a healer",
+    "note": "④ Last comes Brutal Rain: several stacks in a row on a healer; everyone takes them together\n\nLater Brutal Rains hit more times as the boss grows stronger\nThe first one is only 3 hits, so it doesn't need heavy mitigate",
+    "refs": [
+     "Brutal Rain: everyone gathers under the boss and takes the stacks together (picture from the second one)"
+    ]
+   }
+  },
+  {
+   "phase": "ช่วงแรก",
+   "mech": "Sadistic Screech",
+   "name": "① Coffinmaker: Coffinfiller แล้ว Dead Wake",
+   "note": "Coffinmaker (ล้อ 4 อันด้านหน้าสนาม):\nCoffinfiller: ล้อ 2 ใน 4 อันเรืองแสงก่อน สักพักอีก 2 อันเรืองแสงตาม\nร่ายจบ: ล้อ 2 อันที่เรืองแสงก่อนยิง AoE แนวตรง แล้วอีก 2 อันยิงตามทันที\nหลังยิงเสร็จ Dead Wake: Coffinmaker เดินหน้า ไฟคลุมพื้นที่ด้านหน้า สนามแคบลง โดน = KO",
+   "strict": false,
+   "refs": [
+    {
+     "src": "frames/m9s/coffinmaker.webp",
+     "say": "Coffinfiller: ล้อ 2 อันที่เรืองแสงก่อน ยิง AoE แนวตรงก่อน แล้วอีก 2 อันยิงตามทันที",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/m4_8a0N8GcM?t=168"
+    },
+    {
+     "src": "frames/m9s/dead-wake.webp",
+     "say": "Dead Wake: Coffinmaker เดินหน้า ไฟคลุมพื้นที่ด้านหน้า อยู่ในไฟ = KO",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/m4_8a0N8GcM?t=205"
+    }
+   ],
+   "scene": null,
+   "en": {
+    "phase": "First part",
+    "mech": "Sadistic Screech",
+    "name": "① The Coffinmaker: Coffinfiller, then Dead Wake",
+    "note": "The Coffinmaker (four wheels at the front of the arena):\nCoffinfiller: 2 of the 4 wheels light up, and a moment later the other 2\nWhen the cast ends, the first 2 to light fire line AoEs, and the other 2 fire straight after\nAfter that, Dead Wake: the Coffinmaker moves forward and covers the ground in front of it, so the arena shrinks; getting hit = KO",
+    "refs": [
+     "Coffinfiller: the 2 wheels that light first fire their line AoEs first; the other 2 follow at once",
+     "Dead Wake: the Coffinmaker moves forward and covers the ground in front; standing in it = KO"
+    ]
+   }
+  },
+  {
+   "phase": "ช่วงแรก",
+   "mech": "Sadistic Screech",
+   "name": "② Half Moon จากบอสนอกสนาม",
+   "note": "ระหว่างร่าย Coffinfiller บอสที่อยู่นอกสนามเตรียม Half Moon (โจมตีครึ่งสนาม)\nCoffinfiller ร่ายจบ Half Moon ออกพร้อมกัน แล้ว Half Moon ออกอีกครั้งพร้อมล้อชุดที่ 2\n\nตำแหน่งบอส (มองล้อเป็นทิศเหนือ):\nชุดที่ 1: ฝั่งตะวันออก\nชุดที่ 2: ฝั่งตะวันตก\nชุดที่ 3: ด้านหลังสนาม",
+   "strict": false,
+   "refs": [
+    {
+     "src": "frames/m9s/half-moon-side.webp",
+     "say": "Half Moon: บอสอยู่นอกสนาม ชุดแรกฝั่งตะวันออก ฟันครึ่งสนามพร้อม Coffinfiller",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/m4_8a0N8GcM?t=163"
+    }
+   ],
+   "scene": null,
+   "en": {
+    "phase": "First part",
+    "mech": "Sadistic Screech",
+    "name": "② Half Moon from the boss outside the arena",
+    "note": "While Coffinfiller is cast, the boss outside the arena readies Half Moon (a half-arena attack)\nWhen Coffinfiller ends, Half Moon goes off with it, and a second Half Moon follows with the second pair of wheels\n\nWhere the boss is (with the wheels as north):\nSet 1: east side\nSet 2: west side\nSet 3: behind the arena",
+    "refs": [
+     "Half Moon: the boss outside the arena, on the east for the first set, cleaving half the arena with Coffinfiller"
+    ]
+   }
+  },
+  {
+   "phase": "ช่วงแรก",
+   "mech": "Sadistic Screech",
+   "name": "③ ทำลาย Coffinmaker ให้ทันใน 3 ชุด",
+   "note": "Coffinfiller > Dead Wake มาทั้งหมด 3 ชุด\nต้องทำลาย Coffinmaker ให้ได้ก่อน Dead Wake ของชุดที่ 3 ออก ไม่ทันในชุดที่ 3 = wipe\n\nโดน AoE ตอน Coffinmaker เดินหน้า = KO แน่นอน\nMelee อย่าฝืนตีนานเกิน ให้รู้ว่าตีได้ถึงเมื่อไหร่ก่อนจะตาย\nทำลายล้อได้เร็วในชุดที่ 3 Half Moon ของบอสก็ยังออกตามปกติ อย่าลืมหลบ",
+   "strict": false,
+   "scene": null,
+   "en": {
+    "phase": "First part",
+    "mech": "Sadistic Screech",
+    "name": "③ Destroy the Coffinmaker within 3 sets",
+    "note": "Coffinfiller > Dead Wake comes 3 times\nDestroy the Coffinmaker before the third Dead Wake goes off; if it survives the third set = wipe\n\nGetting hit as the Coffinmaker moves forward = KO, every time\nMelee: don't push your luck; know the last moment you can keep hitting before it kills you\nEven if you destroy the wheels early in the third set, the boss's Half Moon still goes off: don't forget to dodge it"
+   }
+  },
+  {
+   "phase": "ช่วงแรก",
+   "mech": "Half Moon",
+   "name": "Half Moon ขยายเมื่อโดน AoE ที่หลบได้",
+   "note": "ถ้าโดน AoE ที่หลบได้ของบอสหรือของ Coffinmaker ครบจำนวนหนึ่ง Half Moon ของบอสจะขยาย ที่ปลอดภัยแคบมาก\n(เหมือนตอนบอสได้พลังจากลูกแก้วในโหมด Normal)\nมักเกิดช่วงแรกๆ ที่ยังฝึก พยายามอย่าโดน",
+   "strict": false,
+   "refs": [
+    {
+     "src": "frames/m9s/half-moon-big.webp",
+     "say": "Half Moon ที่ขยายแล้ว: กินพื้นที่เกือบทั้งสนาม ที่ปลอดภัยแคบมาก",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/m4_8a0N8GcM?t=702"
+    }
+   ],
+   "scene": null,
+   "en": {
+    "phase": "First part",
+    "mech": "Half Moon",
+    "name": "Half Moon grows when people get hit",
+    "note": "Get hit by enough of the boss's or the Coffinmaker's avoidable AoEs and the boss's Half Moon grows, leaving a very narrow safe area\n(as when the boss is powered up by the orbs in Normal)\nIt happens mostly early in progression: try not to get hit",
+    "refs": [
+     "An enlarged Half Moon: it covers almost the whole arena, leaving a very narrow safe area"
+    ]
+   }
+  },
+  {
+   "phase": "ช่วงกลาง",
+   "mech": "Aetherletting",
+   "name": "① ทิ้ง AoE ที่ Marker ของตัวเอง",
+   "note": "บอสปล่อยกรวย (cone) ขึ้นทีละชุด และผู้เล่นแต่ละคนได้มาร์ก\nพอมาร์กหาย ตรงที่ยืนจะมี AoE แนวตรง 8 ทิศวางไว้ ระเบิดตามมาทีหลัง\n\nได้มาร์กแล้ว หลบกรวยไปที่ Marker ของตัวเอง (จุดที่รอยต่อระหว่างกรวยชนขอบสนาม) ทิ้งมาร์ก แล้วทุกคนไปรอกลางสนาม\nทุกคนทิ้งตรงจุดของตัวเองแบบนี้ AoE 8 ทิศจะไม่โดนกลางสนาม กลางปลอดภัยเสมอ\n\nจุดทิ้ง (ตามภาพ):\nMT: A / D4: 1\nD3: 4 / H2: B\nH1: D / D2: 2\nD1: 3 / ST: C",
+   "strict": true,
+   "says": {
+    "MT": "ทิ้งที่ A แล้วกลับกลางสนาม",
+    "D4": "ทิ้งที่ 1 แล้วกลับกลางสนาม",
+    "D3": "ทิ้งที่ 4 แล้วกลับกลางสนาม",
+    "H2": "ทิ้งที่ B แล้วกลับกลางสนาม",
+    "H1": "ทิ้งที่ D แล้วกลับกลางสนาม",
+    "D2": "ทิ้งที่ 2 แล้วกลับกลางสนาม",
+    "D1": "ทิ้งที่ 3 แล้วกลับกลางสนาม",
+    "ST": "ทิ้งที่ C แล้วกลับกลางสนาม"
+   },
+   "game8": [
+    "https://img.game8.jp/12188623/327a9359764f7ab35145f22d8e560df7.webp/show"
+   ],
+   "refs": [
+    {
+     "src": "frames/m9s/aether-cones.webp",
+     "say": "Aetherletting: กรวยจากบอสขึ้นทีละชุด หลบกรวยไปทิ้งมาร์กที่ Marker ของตัวเองบนขอบสนาม",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/m4_8a0N8GcM?t=265"
+    }
+   ],
+   "ring": 5.2,
+   "scene": {
+    "arena": {
+     "shape": "circle",
+     "at": [
+      50.1,
+      50.3
+     ],
+     "r": 34.6,
+     "fill": "#b8babe",
+     "lines": false,
+     "edge": "#ececef"
+    },
+    "waymarks": {
+     "A": [
+      33.9,
+      4.6
+     ],
+     "1": [
+      68.2,
+      5.6
+     ],
+     "4": [
+      15.9,
+      28.5
+     ],
+     "B": [
+      84.1,
+      29.3
+     ],
+     "D": [
+      16.8,
+      71.2
+     ],
+     "2": [
+      84.1,
+      72.0
+     ],
+     "3": [
+      31.3,
+      91.8
+     ],
+     "C": [
+      68.5,
+      94.0
+     ]
+    },
+    "boss": [
+     50,
+     47.6
+    ],
+    "bossSize": 7.5,
+    "iconSize": 5.4,
+    "markSize": 7.4,
+    "shapes": [
+     {
+      "t": "line",
+      "from": [
+       50.1,
+       5.77
+      ],
+      "to": [
+       50.1,
+       4.17
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       73.72,
+       18.81
+      ],
+      "to": [
+       74.57,
+       17.68
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       83.5,
+       50.3
+      ],
+      "to": [
+       84.7,
+       50.3
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       73.72,
+       81.79
+      ],
+      "to": [
+       74.57,
+       82.92
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       50.1,
+       94.83
+      ],
+      "to": [
+       50.1,
+       96.43
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       26.48,
+       81.79
+      ],
+      "to": [
+       25.63,
+       82.92
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       16.7,
+       50.3
+      ],
+      "to": [
+       15.5,
+       50.3
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       26.48,
+       18.81
+      ],
+      "to": [
+       25.63,
+       17.68
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "circle",
+      "at": [
+       50.1,
+       50.3
+      ],
+      "r": 34.6,
+      "c": "#ff9b3d",
+      "o": 0.38,
+      "wd": 0.01
+     },
+     {
+      "t": "line",
+      "from": [
+       50,
+       47.6
+      ],
+      "to": [
+       35.8,
+       7.6
+      ],
+      "c": "#ff7f11",
+      "wd": 1.0,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       50,
+       47.6
+      ],
+      "to": [
+       65.6,
+       8.2
+      ],
+      "c": "#ff7f11",
+      "wd": 1.0,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       50,
+       47.6
+      ],
+      "to": [
+       18.75,
+       30.8
+      ],
+      "c": "#ff7f11",
+      "wd": 1.0,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       50,
+       47.6
+      ],
+      "to": [
+       82.8,
+       33.5
+      ],
+      "c": "#ff7f11",
+      "wd": 1.0,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       50,
+       47.6
+      ],
+      "to": [
+       17,
+       65.5
+      ],
+      "c": "#ff7f11",
+      "wd": 1.0,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       50,
+       47.6
+      ],
+      "to": [
+       81.6,
+       68.4
+      ],
+      "c": "#ff7f11",
+      "wd": 1.0,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       50,
+       47.6
+      ],
+      "to": [
+       34.9,
+       92.5
+      ],
+      "c": "#ff7f11",
+      "wd": 1.0,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       50,
+       47.6
+      ],
+      "to": [
+       65,
+       91
+      ],
+      "c": "#ff7f11",
+      "wd": 1.0,
+      "o": 0.95
+     },
+     {
+      "t": "dot",
+      "at": [
+       35.8,
+       7.6
+      ],
+      "r": 1.1,
+      "c": "#7fdcff",
+      "o": 1.0
+     },
+     {
+      "t": "dot",
+      "at": [
+       65.6,
+       8.2
+      ],
+      "r": 1.1,
+      "c": "#7fdcff",
+      "o": 1.0
+     },
+     {
+      "t": "dot",
+      "at": [
+       18.75,
+       30.8
+      ],
+      "r": 1.1,
+      "c": "#7fdcff",
+      "o": 1.0
+     },
+     {
+      "t": "dot",
+      "at": [
+       82.8,
+       33.5
+      ],
+      "r": 1.1,
+      "c": "#7fdcff",
+      "o": 1.0
+     },
+     {
+      "t": "dot",
+      "at": [
+       17,
+       65.5
+      ],
+      "r": 1.1,
+      "c": "#7fdcff",
+      "o": 1.0
+     },
+     {
+      "t": "dot",
+      "at": [
+       81.6,
+       68.4
+      ],
+      "r": 1.1,
+      "c": "#7fdcff",
+      "o": 1.0
+     },
+     {
+      "t": "dot",
+      "at": [
+       34.9,
+       92.5
+      ],
+      "r": 1.1,
+      "c": "#7fdcff",
+      "o": 1.0
+     },
+     {
+      "t": "dot",
+      "at": [
+       65,
+       91
+      ],
+      "r": 1.1,
+      "c": "#7fdcff",
+      "o": 1.0
+     }
+    ],
+    "roles": {
+     "MT": [
+      34.1,
+      12.5
+     ],
+     "D4": [
+      65.3,
+      12.9
+     ],
+     "D3": [
+      21.6,
+      33.5
+     ],
+     "H2": [
+      79,
+      34.1
+     ],
+     "H1": [
+      20.5,
+      69.7
+     ],
+     "D2": [
+      79.5,
+      68.6
+     ],
+     "D1": [
+      34.1,
+      86.9
+     ],
+     "ST": [
+      65.7,
+      87.5
+     ]
+    }
+   },
+   "en": {
+    "phase": "Middle part",
+    "mech": "Aetherletting",
+    "name": "① Drop your AoE at your waymark",
+    "note": "The boss puts down cone telegraphs one after another, and every player gets a marker\nWhen your marker disappears, an 8-direction line AoE is left where you stand and goes off a little later\n\nOnce marked, dodge the cones to your own waymark (where a gap between cones meets the edge), drop the marker there, then everyone waits in the middle\nWith everyone dropping at their own spot, the 8-direction AoEs never reach the middle: it is always safe\n\nDrop spots (as in the picture):\nMT: A / D4: 1\nD3: 4 / H2: B\nH1: D / D2: 2\nD1: 3 / ST: C",
+    "says": {
+     "MT": "Drop at A, then back to the middle",
+     "D4": "Drop at 1, then back to the middle",
+     "D3": "Drop at 4, then back to the middle",
+     "H2": "Drop at B, then back to the middle",
+     "H1": "Drop at D, then back to the middle",
+     "D2": "Drop at 2, then back to the middle",
+     "D1": "Drop at 3, then back to the middle",
+     "ST": "Drop at C, then back to the middle"
+    },
+    "refs": [
+     "Aetherletting: cones from the boss appear in turn; dodge them to drop your marker at your waymark on the edge"
+    ]
+   }
+  },
+  {
+   "phase": "ช่วงกลาง",
+   "mech": "Aetherletting",
+   "name": "② ทิ้งแล้วรวมกลางสนาม",
+   "note": "game8 มีวิดีโอให้ดู: ไปที่จุดของตัวเอง ทิ้งมาร์ก แล้วรวมกันกลางสนาม\nเมื่อทุกคนทิ้งตรงจุด กลางสนามปลอดภัยเสมอ",
+   "strict": false,
+   "refs": [
+    {
+     "src": "frames/m9s/aether-center.webp",
+     "say": "Aetherletting: ทิ้งมาร์กครบแล้วทุกคนรวมกลางสนาม กลางปลอดภัย",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/m4_8a0N8GcM?t=285"
+    }
+   ],
+   "scene": null,
+   "en": {
+    "phase": "Middle part",
+    "mech": "Aetherletting",
+    "name": "② Drop, then gather in the middle",
+    "note": "game8 shows a video of it: go to your spot, drop the marker, then gather in the middle\nWith everyone dropping on their spot, the middle is always safe",
+    "refs": [
+     "Aetherletting: with every marker dropped, everyone gathers in the middle, which is safe"
+    ]
+   }
+  },
+  {
+   "phase": "ช่วงกลาง",
+   "mech": "Sadistic Screech",
+   "name": "ครั้งที่ 2: เหนือกลุ่ม MT / ใต้กลุ่ม ST",
+   "note": "แบ่งสนามเป็น 2 ฝั่ง:\nเหนือ = กลุ่ม MT (MT H1 D1 D3)\nใต้ = กลุ่ม ST (ST H2 D2 D4)\n\nในฝั่งของตัวเอง:\nTank: เหยียบ tower\nMelee: ทำลาย Fatal Flail (ลูกตุ้มหนาม)\nRange: ทำลาย Deadly Doornail (เสาเหล็ก)\n\nระวังใบเลื่อยในสนาม: ชนแล้วติดบาดแผล ถ้ารวมกับ raid-wide มักตาย\nHealer: หลบใบเลื่อย และจำไว้ว่าพอของที่ต้องทำลายขึ้นมา บอสจะใช้ raid-wide ตามมา เตรียม mitigate และ heal\nถ้าไม่ถนัด ใช้ท่า heal แรงที่อยู่นาน เช่น Seraphism ของ SCH ก็ช่วยได้",
+   "strict": true,
+   "says": {
+    "MT": "ฝั่งเหนือ: เหยียบ tower",
+    "ST": "ฝั่งใต้: เหยียบ tower",
+    "D1": "ฝั่งเหนือ: ทำลาย Fatal Flail (ลูกตุ้มหนาม)",
+    "D2": "ฝั่งใต้: ทำลาย Fatal Flail (ลูกตุ้มหนาม)",
+    "D3": "ฝั่งเหนือ: ทำลาย Deadly Doornail (เสาเหล็ก)",
+    "D4": "ฝั่งใต้: ทำลาย Deadly Doornail (เสาเหล็ก)",
+    "H1": "ฝั่งเหนือ: หลบใบเลื่อย เตรียม mitigate + heal รับ raid-wide",
+    "H2": "ฝั่งใต้: หลบใบเลื่อย เตรียม mitigate + heal รับ raid-wide"
+   },
+   "game8": [
+    "https://img.game8.jp/12188176/711070917f2fe80534b719e72c5e98eb.webp/show"
+   ],
+   "refs": [
+    {
+     "src": "frames/m9s/screech2-towers.webp",
+     "say": "Sadistic Screech ครั้งที่ 2: tower (ลูกศรแดงชี้ลง) Tank เหยียบ tower ฝั่งกลุ่มตัวเอง",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/m4_8a0N8GcM?t=372"
+    },
+    {
+     "src": "frames/m9s/screech2-flail.webp",
+     "say": "Fatal Flail (ลูกตุ้มหนาม): Melee ทำลายลูกในฝั่งกลุ่มตัวเอง",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/m4_8a0N8GcM?t=396"
+    },
+    {
+     "src": "frames/m9s/screech2-doornail.webp",
+     "say": "Deadly Doornail (เสาเหล็ก): Range ทำลายเสาในฝั่งกลุ่มตัวเอง",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/m4_8a0N8GcM?t=420"
+    }
+   ],
+   "ring": 5.2,
+   "scene": {
+    "frame": [
+     1,
+     1
+    ],
+    "arena": {
+     "shape": "square",
+     "at": [
+      50.65,
+      50.1
+     ],
+     "w": 48.7,
+     "h": 96.2,
+     "fill": "#3b3442",
+     "lines": false,
+     "edge": "#2a2530"
+    },
+    "waymarks": null,
+    "iconSize": 7,
+    "roles": {
+     "MT": [
+      34.2,
+      33.5
+     ],
+     "H1": [
+      44.8,
+      33.5
+     ],
+     "D1": [
+      55.4,
+      33.5
+     ],
+     "D3": [
+      66,
+      33.5
+     ],
+     "ST": [
+      34.2,
+      66.5
+     ],
+     "H2": [
+      44.8,
+      66.5
+     ],
+     "D2": [
+      55.4,
+      66.5
+     ],
+     "D4": [
+      66,
+      66.5
+     ]
+    },
+    "shapes": [
+     {
+      "t": "line",
+      "from": [
+       50.65,
+       2.0
+      ],
+      "to": [
+       50.65,
+       98.2
+      ],
+      "c": "#b98ee6",
+      "wd": 0.4,
+      "o": 0.7
+     },
+     {
+      "t": "line",
+      "from": [
+       26.3,
+       26.0
+      ],
+      "to": [
+       75.0,
+       26.0
+      ],
+      "c": "#b98ee6",
+      "wd": 0.4,
+      "o": 0.7
+     },
+     {
+      "t": "line",
+      "from": [
+       26.3,
+       50.1
+      ],
+      "to": [
+       75.0,
+       50.1
+      ],
+      "c": "#b98ee6",
+      "wd": 0.4,
+      "o": 0.7
+     },
+     {
+      "t": "line",
+      "from": [
+       26.3,
+       74.1
+      ],
+      "to": [
+       75.0,
+       74.1
+      ],
+      "c": "#b98ee6",
+      "wd": 0.4,
+      "o": 0.7
+     },
+     {
+      "t": "line",
+      "from": [
+       26.3,
+       2.0
+      ],
+      "to": [
+       75.0,
+       2.0
+      ],
+      "c": "#2ee04a",
+      "wd": 1.0,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       75.0,
+       2.0
+      ],
+      "to": [
+       75.0,
+       50.1
+      ],
+      "c": "#2ee04a",
+      "wd": 1.0,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       75.0,
+       50.1
+      ],
+      "to": [
+       26.3,
+       50.1
+      ],
+      "c": "#2ee04a",
+      "wd": 1.0,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       26.3,
+       50.1
+      ],
+      "to": [
+       26.3,
+       2.0
+      ],
+      "c": "#2ee04a",
+      "wd": 1.0,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       26.3,
+       50.7
+      ],
+      "to": [
+       75.0,
+       50.7
+      ],
+      "c": "#3d8bff",
+      "wd": 1.0,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       75.0,
+       50.7
+      ],
+      "to": [
+       75.0,
+       98.2
+      ],
+      "c": "#3d8bff",
+      "wd": 1.0,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       75.0,
+       98.2
+      ],
+      "to": [
+       26.3,
+       98.2
+      ],
+      "c": "#3d8bff",
+      "wd": 1.0,
+      "o": 1
+     },
+     {
+      "t": "line",
+      "from": [
+       26.3,
+       98.2
+      ],
+      "to": [
+       26.3,
+       50.7
+      ],
+      "c": "#3d8bff",
+      "wd": 1.0,
+      "o": 1
+     },
+     {
+      "t": "rect",
+      "at": [
+       50.65,
+       49.7
+      ],
+      "w": 40,
+      "h": 18.5,
+      "c": "#141218",
+      "o": 0.72,
+      "wd": 0.01,
+      "rot": 0
+     },
+     {
+      "t": "text",
+      "at": [
+       50.65,
+       11.5
+      ],
+      "s": "North: MT group",
+      "size": 4.4,
+      "c": "#2ee04a"
+     },
+     {
+      "t": "text",
+      "at": [
+       50.65,
+       91.5
+      ],
+      "s": "South: ST group",
+      "size": 4.4,
+      "c": "#4da3ff"
+     },
+     {
+      "t": "text",
+      "at": [
+       50.65,
+       43.6
+      ],
+      "s": "Tower: Tank",
+      "size": 3.4,
+      "c": "#ff8cc6"
+     },
+     {
+      "t": "text",
+      "at": [
+       50.65,
+       49.7
+      ],
+      "s": "Fatal Flail: Melee",
+      "size": 3.4,
+      "c": "#ff8cc6"
+     },
+     {
+      "t": "text",
+      "at": [
+       50.65,
+       55.8
+      ],
+      "s": "Deadly Doornail: Range",
+      "size": 3.4,
+      "c": "#ff8cc6"
+     }
+    ]
+   },
+   "en": {
+    "phase": "Middle part",
+    "mech": "Sadistic Screech",
+    "name": "Second time: north MT group / south ST group",
+    "note": "The arena is split in two:\nNorth = MT group (MT H1 D1 D3)\nSouth = ST group (ST H2 D2 D4)\n\nIn your own half:\nTank: take the towers\nMelee: break the Fatal Flail (spiked ball)\nRange: break the Deadly Doornail (iron rod)\n\nWatch the saws on the field: touching one leaves a wound, and a wound plus a raid-wide often kills\nHealer: dodge the saws, and remember that once the things to break appear, a raid-wide follows from the boss: have mitigate and heals ready\nIf it gives you trouble, a long, strong heal such as SCH's Seraphism helps",
+    "says": {
+     "MT": "North half: take the towers",
+     "ST": "South half: take the towers",
+     "D1": "North half: break the Fatal Flail (spiked ball)",
+     "D2": "South half: break the Fatal Flail (spiked ball)",
+     "D3": "North half: break the Deadly Doornail (iron rod)",
+     "D4": "South half: break the Deadly Doornail (iron rod)",
+     "H1": "North half: dodge the saws; have mitigate + heals ready for the raid-wide",
+     "H2": "South half: dodge the saws; have mitigate + heals ready for the raid-wide"
+    },
+    "refs": [
+     "Second Sadistic Screech: a tower (red arrow pointing down); the tank takes the towers in their own half",
+     "Fatal Flail (the spiked ball): melee break the one in their own half",
+     "Deadly Doornail (the iron rod): range break the one in their own half"
+    ]
+   }
+  },
+  {
+   "phase": "ช่วงหลัง",
+   "mech": "Hell in a Cell",
+   "name": "ลำดับเข้า tower: จาก 12 นาฬิกาตามเข็ม",
+   "note": "tower ขึ้น 4 จุด อีก 4 คนที่เหลือโดน AoE จากบอส (แยกตาม role หรือ stack) มาทั้งหมด 2 ชุด\nกลุ่ม MT เข้า tower ชุดแรก กลุ่ม ST เข้าชุดหลัง\n\nลำดับเข้า tower: จาก 12 นาฬิกาวนตามเข็ม Tank > Melee > Range > Healer\nHealer: จำง่ายๆ ว่าเป็น tower แรกเมื่อนับทวนเข็มจาก 11 นาฬิกา\n\nภาพนี้: ตัวอย่างตอนกลุ่ม ST อยู่ใน tower",
+   "strict": [
+    "ST",
+    "H2",
+    "D2",
+    "D4"
+   ],
+   "says": {
+    "MT": "Tank: tower แรกจาก 12 นาฬิกาตามเข็ม",
+    "ST": "Tank: tower แรกจาก 12 นาฬิกาตามเข็ม",
+    "D1": "Melee: tower ที่ 2 ตามเข็ม",
+    "D2": "Melee: tower ที่ 2 ตามเข็ม",
+    "D3": "Range: tower ที่ 3 ตามเข็ม",
+    "D4": "Range: tower ที่ 3 ตามเข็ม",
+    "H1": "Healer: tower ที่ 4 = tower แรกนับทวนเข็มจาก 11 นาฬิกา",
+    "H2": "Healer: tower ที่ 4 = tower แรกนับทวนเข็มจาก 11 นาฬิกา"
+   },
+   "game8": [
+    "https://img.game8.jp/12188679/0bb8c51d0039ab77741fe2544ac12b19.webp/show"
+   ],
+   "refs": [
+    {
+     "src": "frames/m9s/cell-towers.webp",
+     "say": "Hell in a Cell: tower 4 จุดตกลงมา กลุ่ม MT เข้าก่อน กลุ่ม ST เข้าชุดหลัง",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/m4_8a0N8GcM?t=480"
+    }
+   ],
+   "ring": 5.2,
+   "scene": {
+    "arena": {
+     "shape": "circle",
+     "at": [
+      50.1,
+      50.3
+     ],
+     "r": 34.6,
+     "fill": "#b8babe",
+     "lines": false,
+     "edge": "#ececef"
+    },
+    "waymarks": {
+     "A": [
+      33.9,
+      5.3
+     ],
+     "1": [
+      68.2,
+      6.2
+     ],
+     "4": [
+      16.2,
+      28.6
+     ],
+     "B": [
+      83.9,
+      29.5
+     ],
+     "D": [
+      16.4,
+      71.4
+     ],
+     "2": [
+      84.0,
+      71.9
+     ],
+     "3": [
+      31.3,
+      92.4
+     ],
+     "C": [
+      68.5,
+      93.6
+     ]
+    },
+    "boss": [
+     50,
+     50
+    ],
+    "bossSize": 7.5,
+    "iconSize": 5.4,
+    "markSize": 7.4,
+    "shapes": [
+     {
+      "t": "line",
+      "from": [
+       50.1,
+       5.77
+      ],
+      "to": [
+       50.1,
+       4.17
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       73.72,
+       18.81
+      ],
+      "to": [
+       74.57,
+       17.68
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       83.5,
+       50.3
+      ],
+      "to": [
+       84.7,
+       50.3
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       73.72,
+       81.79
+      ],
+      "to": [
+       74.57,
+       82.92
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       50.1,
+       94.83
+      ],
+      "to": [
+       50.1,
+       96.43
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       26.48,
+       81.79
+      ],
+      "to": [
+       25.63,
+       82.92
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       16.7,
+       50.3
+      ],
+      "to": [
+       15.5,
+       50.3
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       26.48,
+       18.81
+      ],
+      "to": [
+       25.63,
+       17.68
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "cone",
+      "at": [
+       50,
+       50
+      ],
+      "dir": 2.4,
+      "spread": 30.4,
+      "len": 41,
+      "c": "#ff9b3d",
+      "o": 0.45,
+      "wd": 0.01
+     },
+     {
+      "t": "cone",
+      "at": [
+       50,
+       50
+      ],
+      "dir": 107.6,
+      "spread": 81.2,
+      "len": 43,
+      "c": "#ff9b3d",
+      "o": 0.45,
+      "wd": 0.01
+     },
+     {
+      "t": "cone",
+      "at": [
+       50,
+       50
+      ],
+      "dir": 223.0,
+      "spread": 37.0,
+      "len": 40,
+      "c": "#ff9b3d",
+      "o": 0.45,
+      "wd": 0.01
+     },
+     {
+      "t": "circle",
+      "at": [
+       63.1,
+       24.8
+      ],
+      "r": 5.4,
+      "c": "#5a2a16",
+      "o": 0.35,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       63.1,
+       24.8
+      ],
+      "r": 5.4,
+      "c": "#8a3a1a",
+      "wd": 1.3,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       36.4,
+       24.8
+      ],
+      "r": 5.4,
+      "c": "#5a2a16",
+      "o": 0.35,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       36.4,
+       24.8
+      ],
+      "r": 5.4,
+      "c": "#8a3a1a",
+      "wd": 1.3,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       31.6,
+       50
+      ],
+      "r": 5.4,
+      "c": "#5a2a16",
+      "o": 0.35,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       31.6,
+       50
+      ],
+      "r": 5.4,
+      "c": "#8a3a1a",
+      "wd": 1.3,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       50,
+       75.5
+      ],
+      "r": 5.4,
+      "c": "#5a2a16",
+      "o": 0.35,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       50,
+       75.5
+      ],
+      "r": 5.4,
+      "c": "#8a3a1a",
+      "wd": 1.3,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       50,
+       50
+      ],
+      "to": [
+       50,
+       5.5
+      ],
+      "c": "#ff4d4d",
+      "wd": 0.55,
+      "o": 0.95
+     },
+     {
+      "t": "line",
+      "from": [
+       50,
+       50
+      ],
+      "to": [
+       35.2,
+       7.5
+      ],
+      "c": "#ff4d4d",
+      "wd": 0.55,
+      "o": 0.95
+     },
+     {
+      "t": "arrow",
+      "from": [
+       68.2,
+       35.4
+      ],
+      "to": [
+       73.9,
+       51.5
+      ],
+      "c": "#ff4d4d",
+      "wd": 1.0,
+      "o": 0.95
+     },
+     {
+      "t": "arrow",
+      "from": [
+       68.2,
+       63
+      ],
+      "to": [
+       59.1,
+       73.7
+      ],
+      "c": "#ff4d4d",
+      "wd": 1.0,
+      "o": 0.95
+     },
+     {
+      "t": "arrow",
+      "from": [
+       43.2,
+       75.5
+      ],
+      "to": [
+       30.5,
+       62.2
+      ],
+      "c": "#ff4d4d",
+      "wd": 1.0,
+      "o": 0.95
+     },
+     {
+      "t": "arrow",
+      "from": [
+       30.7,
+       43.1
+      ],
+      "to": [
+       37.5,
+       30.9
+      ],
+      "c": "#ff4d4d",
+      "wd": 1.0,
+      "o": 0.95
+     },
+     {
+      "t": "text",
+      "at": [
+       50,
+       3.4
+      ],
+      "s": "12 o'clock",
+      "size": 2.9,
+      "c": "#ff4d4d"
+     },
+     {
+      "t": "text",
+      "at": [
+       84.5,
+       8.4
+      ],
+      "s": "Clockwise from 12",
+      "size": 2.8,
+      "c": "#ff4d4d"
+     },
+     {
+      "t": "text",
+      "at": [
+       84.5,
+       14.2
+      ],
+      "s": "T > Melee > Range > H",
+      "size": 2.6,
+      "c": "#ff4d4d"
+     },
+     {
+      "t": "text",
+      "at": [
+       15.5,
+       13.6
+      ],
+      "s": "Healer: 1st tower",
+      "size": 2.7,
+      "c": "#ff4d4d"
+     },
+     {
+      "t": "text",
+      "at": [
+       15.5,
+       18.6
+      ],
+      "s": "CCW from 11 o'clock",
+      "size": 2.7,
+      "c": "#ff4d4d"
+     },
+     {
+      "t": "text",
+      "at": [
+       68.6,
+       21.2
+      ],
+      "s": "T",
+      "size": 3.4,
+      "c": "#ff4d4d"
+     },
+     {
+      "t": "text",
+      "at": [
+       33.6,
+       20.8
+      ],
+      "s": "H",
+      "size": 3.4,
+      "c": "#ff4d4d"
+     },
+     {
+      "t": "text",
+      "at": [
+       30.6,
+       45.6
+      ],
+      "s": "Range",
+      "size": 3.0,
+      "c": "#ff4d4d"
+     },
+     {
+      "t": "text",
+      "at": [
+       50.6,
+       68.4
+      ],
+      "s": "Melee",
+      "size": 3.0,
+      "c": "#ff4d4d"
+     }
+    ],
+    "roles": {
+     "ST": [
+      63.1,
+      24.8
+     ],
+     "H2": [
+      36.4,
+      24.8
+     ],
+     "D4": [
+      31.6,
+      50
+     ],
+     "D2": [
+      50,
+      75.5
+     ],
+     "H1": [
+      50,
+      32.7
+     ],
+     "MT": [
+      63.1,
+      53
+     ],
+     "D1": [
+      40.3,
+      63.3
+     ],
+     "D3": [
+      35.5,
+      70.6
+     ]
+    }
+   },
+   "en": {
+    "phase": "Last part",
+    "mech": "Hell in a Cell",
+    "name": "Tower order: from 12 o'clock, clockwise",
+    "note": "4 towers appear and the other 4 players get AoEs from the boss (spread by role, or a stack); this comes twice\nThe MT group takes the towers first, the ST group second\n\nTower order: from 12 o'clock, clockwise, Tank > Melee > Range > Healer\nHealer: an easy way to remember it is the first tower counter-clockwise from 11 o'clock\n\nThis picture: an example with the ST group in the towers",
+    "says": {
+     "MT": "Tank: first tower clockwise from 12 o'clock",
+     "ST": "Tank: first tower clockwise from 12 o'clock",
+     "D1": "Melee: second tower clockwise",
+     "D2": "Melee: second tower clockwise",
+     "D3": "Range: third tower clockwise",
+     "D4": "Range: third tower clockwise",
+     "H1": "Healer: fourth tower = first counter-clockwise from 11 o'clock",
+     "H2": "Healer: fourth tower = first counter-clockwise from 11 o'clock"
+    },
+    "refs": [
+     "Hell in a Cell: 4 towers come down; the MT group takes them first, the ST group second"
+    ]
+   }
+  },
+  {
+   "phase": "ช่วงหลัง",
+   "mech": "Hell in a Cell",
+   "name": "① กลุ่ม MT เข้า tower + Ultrasonic Spread",
+   "note": "คนที่ไม่ได้อยู่ใน tower รับกรวย (cone) จากบอส ทิ้งกรวยให้ไม่โดนคนใน tower\nกรวยมี 2 แบบ:\nUltrasonic Spread: แยกรับตาม role\nUltrasonic Amp: stack รวมกัน\n\nกรวยที่ Tank ใหญ่กว่ากรวยอื่น ช่องว่างระหว่าง tower ที่กว้างที่สุดจึงเป็นของ Tank\nทิ้งกรวย: เริ่มจากช่องที่กว้างที่สุด วนตามเข็ม Tank > DPS > Healer\n\nภาพ: Ultrasonic Spread ขณะกลุ่ม MT อยู่ใน tower",
+   "strict": true,
+   "says": {
+    "MT": "tower แรก (จาก 12 นาฬิกาตามเข็ม)",
+    "D1": "tower ที่ 2",
+    "D3": "tower ที่ 3",
+    "H1": "tower ที่ 4",
+    "ST": "ทิ้งกรวยที่ช่องกว้างที่สุด",
+    "D2": "ทิ้งกรวยช่องถัดไปตามเข็ม (DPS)",
+    "D4": "ทิ้งกรวยช่องถัดไปตามเข็ม (DPS)",
+    "H2": "ทิ้งกรวยช่องถัดจาก DPS ตามเข็ม (Healer)"
+   },
+   "game8": [
+    "https://img.game8.jp/12188662/72bc2f417bf7f8f39c834abb9a105f9d.webp/show"
+   ],
+   "refs": [
+    {
+     "src": "frames/m9s/cell-cones.webp",
+     "say": "Hell in a Cell: tower (วงหนาม) 4 จุด อีก 4 คนรับกรวยจากบอส (ภาพ: Ultrasonic Spread)",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/m4_8a0N8GcM?t=552"
+    }
+   ],
+   "ring": 5.2,
+   "scene": {
+    "arena": {
+     "shape": "circle",
+     "at": [
+      50.1,
+      50.3
+     ],
+     "r": 34.6,
+     "fill": "#b8babe",
+     "lines": false,
+     "edge": "#ececef"
+    },
+    "waymarks": {
+     "A": [
+      33.9,
+      5.3
+     ],
+     "1": [
+      68.2,
+      6.2
+     ],
+     "4": [
+      16.2,
+      28.6
+     ],
+     "B": [
+      83.9,
+      29.5
+     ],
+     "D": [
+      16.4,
+      71.4
+     ],
+     "2": [
+      84.0,
+      71.9
+     ],
+     "3": [
+      31.3,
+      92.4
+     ],
+     "C": [
+      68.5,
+      93.6
+     ]
+    },
+    "boss": [
+     50,
+     49.5
+    ],
+    "bossSize": 7.5,
+    "iconSize": 5.4,
+    "markSize": 7.4,
+    "shapes": [
+     {
+      "t": "line",
+      "from": [
+       50.1,
+       5.77
+      ],
+      "to": [
+       50.1,
+       4.17
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       73.72,
+       18.81
+      ],
+      "to": [
+       74.57,
+       17.68
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       83.5,
+       50.3
+      ],
+      "to": [
+       84.7,
+       50.3
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       73.72,
+       81.79
+      ],
+      "to": [
+       74.57,
+       82.92
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       50.1,
+       94.83
+      ],
+      "to": [
+       50.1,
+       96.43
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       26.48,
+       81.79
+      ],
+      "to": [
+       25.63,
+       82.92
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       16.7,
+       50.3
+      ],
+      "to": [
+       15.5,
+       50.3
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       26.48,
+       18.81
+      ],
+      "to": [
+       25.63,
+       17.68
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "cone",
+      "at": [
+       50,
+       49.5
+      ],
+      "dir": 295.35,
+      "spread": 90.5,
+      "len": 48,
+      "c": "#ff9b3d",
+      "o": 0.45,
+      "wd": 0.01
+     },
+     {
+      "t": "cone",
+      "at": [
+       50,
+       49.5
+      ],
+      "dir": 39.35,
+      "spread": 44.5,
+      "len": 48,
+      "c": "#ff9b3d",
+      "o": 0.45,
+      "wd": 0.01
+     },
+     {
+      "t": "cone",
+      "at": [
+       50,
+       49.5
+      ],
+      "dir": 181.2,
+      "spread": 40.8,
+      "len": 48,
+      "c": "#ff9b3d",
+      "o": 0.45,
+      "wd": 0.01
+     },
+     {
+      "t": "circle",
+      "at": [
+       49.7,
+       21.8
+      ],
+      "r": 5.9,
+      "c": "#5a2a16",
+      "o": 0.35,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       49.7,
+       21.8
+      ],
+      "r": 5.9,
+      "c": "#8a3a1a",
+      "wd": 1.3,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       69.3,
+       50.3
+      ],
+      "r": 5.9,
+      "c": "#5a2a16",
+      "o": 0.35,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       69.3,
+       50.3
+      ],
+      "r": 5.9,
+      "c": "#8a3a1a",
+      "wd": 1.3,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       61,
+       66.2
+      ],
+      "r": 5.9,
+      "c": "#5a2a16",
+      "o": 0.35,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       61,
+       66.2
+      ],
+      "r": 5.9,
+      "c": "#8a3a1a",
+      "wd": 1.3,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       37.3,
+       66.2
+      ],
+      "r": 5.9,
+      "c": "#5a2a16",
+      "o": 0.35,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       37.3,
+       66.2
+      ],
+      "r": 5.9,
+      "c": "#8a3a1a",
+      "wd": 1.3,
+      "o": 0.95
+     }
+    ],
+    "roles": {
+     "MT": [
+      49.7,
+      21.8
+     ],
+     "D1": [
+      69.3,
+      50.3
+     ],
+     "D3": [
+      61,
+      66.2
+     ],
+     "H1": [
+      37.3,
+      66.2
+     ],
+     "ST": [
+      41.5,
+      45
+     ],
+     "D2": [
+      56.3,
+      39.7
+     ],
+     "D4": [
+      60.8,
+      34.4
+     ],
+     "H2": [
+      49.8,
+      60.9
+     ]
+    }
+   },
+   "en": {
+    "phase": "Last part",
+    "mech": "Hell in a Cell",
+    "name": "① MT group in the towers + Ultrasonic Spread",
+    "note": "Whoever isn't in a tower takes the boss's cones, placed so they miss the tower players\nTwo kinds of cone:\nUltrasonic Spread: spread by role\nUltrasonic Amp: one stack\n\nThe cone on the tank is bigger than the others, so the widest gap between towers is the tank's\nCones: from the widest gap, clockwise, Tank > DPS > Healer\n\nPicture: Ultrasonic Spread with the MT group in the towers",
+    "says": {
+     "MT": "First tower (clockwise from 12 o'clock)",
+     "D1": "Second tower",
+     "D3": "Third tower",
+     "H1": "Fourth tower",
+     "ST": "Take your cone in the widest gap",
+     "D2": "Cone in the next gap clockwise (DPS)",
+     "D4": "Cone in the next gap clockwise (DPS)",
+     "H2": "Cone in the gap after the DPS, clockwise (Healer)"
+    },
+    "refs": [
+     "Hell in a Cell: 4 towers (thorn rings), the other 4 take the boss's cones (picture: Ultrasonic Spread)"
+    ]
+   }
+  },
+  {
+   "phase": "ช่วงหลัง",
+   "mech": "Hell in a Cell",
+   "name": "② กลุ่ม MT เข้า tower + Ultrasonic Amp",
+   "note": "Ultrasonic Amp: กลุ่ม ST stack รวมกันที่ช่องกว้างที่สุด รับกรวยด้วยกัน",
+   "strict": true,
+   "says": {
+    "MT": "tower แรก (จาก 12 นาฬิกาตามเข็ม)",
+    "D1": "tower ที่ 2",
+    "D3": "tower ที่ 3",
+    "H1": "tower ที่ 4",
+    "ST": "stack รวมกันที่ช่องกว้างที่สุด",
+    "D2": "stack รวมกันที่ช่องกว้างที่สุด",
+    "D4": "stack รวมกันที่ช่องกว้างที่สุด",
+    "H2": "stack รวมกันที่ช่องกว้างที่สุด"
+   },
+   "game8": [
+    "https://img.game8.jp/12188663/480143f73eaadd28ae283b2d3ec40d78.webp/show"
+   ],
+   "ring": 5.2,
+   "scene": {
+    "arena": {
+     "shape": "circle",
+     "at": [
+      50.1,
+      50.3
+     ],
+     "r": 34.6,
+     "fill": "#b8babe",
+     "lines": false,
+     "edge": "#ececef"
+    },
+    "waymarks": {
+     "A": [
+      33.9,
+      5.3
+     ],
+     "1": [
+      68.2,
+      6.2
+     ],
+     "4": [
+      16.2,
+      28.6
+     ],
+     "B": [
+      83.9,
+      29.5
+     ],
+     "D": [
+      16.4,
+      71.4
+     ],
+     "2": [
+      84.0,
+      71.9
+     ],
+     "3": [
+      31.3,
+      92.4
+     ],
+     "C": [
+      68.5,
+      93.6
+     ]
+    },
+    "boss": [
+     50,
+     49.5
+    ],
+    "bossSize": 7.5,
+    "iconSize": 5.4,
+    "markSize": 7.4,
+    "shapes": [
+     {
+      "t": "line",
+      "from": [
+       50.1,
+       5.77
+      ],
+      "to": [
+       50.1,
+       4.17
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       73.72,
+       18.81
+      ],
+      "to": [
+       74.57,
+       17.68
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       83.5,
+       50.3
+      ],
+      "to": [
+       84.7,
+       50.3
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       73.72,
+       81.79
+      ],
+      "to": [
+       74.57,
+       82.92
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       50.1,
+       94.83
+      ],
+      "to": [
+       50.1,
+       96.43
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       26.48,
+       81.79
+      ],
+      "to": [
+       25.63,
+       82.92
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       16.7,
+       50.3
+      ],
+      "to": [
+       15.5,
+       50.3
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       26.48,
+       18.81
+      ],
+      "to": [
+       25.63,
+       17.68
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "cone",
+      "at": [
+       50,
+       49.5
+      ],
+      "dir": 295.0,
+      "spread": 89.8,
+      "len": 48,
+      "c": "#ff9b3d",
+      "o": 0.45,
+      "wd": 0.01
+     },
+     {
+      "t": "circle",
+      "at": [
+       49.7,
+       21.8
+      ],
+      "r": 5.9,
+      "c": "#5a2a16",
+      "o": 0.35,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       49.7,
+       21.8
+      ],
+      "r": 5.9,
+      "c": "#8a3a1a",
+      "wd": 1.3,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       69.3,
+       50.3
+      ],
+      "r": 5.9,
+      "c": "#5a2a16",
+      "o": 0.35,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       69.3,
+       50.3
+      ],
+      "r": 5.9,
+      "c": "#8a3a1a",
+      "wd": 1.3,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       61,
+       66.2
+      ],
+      "r": 5.9,
+      "c": "#5a2a16",
+      "o": 0.35,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       61,
+       66.2
+      ],
+      "r": 5.9,
+      "c": "#8a3a1a",
+      "wd": 1.3,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       37.3,
+       66.2
+      ],
+      "r": 5.9,
+      "c": "#5a2a16",
+      "o": 0.35,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       37.3,
+       66.2
+      ],
+      "r": 5.9,
+      "c": "#8a3a1a",
+      "wd": 1.3,
+      "o": 0.95
+     }
+    ],
+    "roles": {
+     "MT": [
+      49.7,
+      21.8
+     ],
+     "D1": [
+      69.3,
+      50.3
+     ],
+     "D3": [
+      61,
+      66.2
+     ],
+     "H1": [
+      37.3,
+      66.2
+     ],
+     "D2": [
+      36.1,
+      37.4
+     ],
+     "D4": [
+      41.1,
+      37.4
+     ],
+     "H2": [
+      36.1,
+      45.3
+     ],
+     "ST": [
+      41.8,
+      45.3
+     ]
+    }
+   },
+   "en": {
+    "phase": "Last part",
+    "mech": "Hell in a Cell",
+    "name": "② MT group in the towers + Ultrasonic Amp",
+    "note": "Ultrasonic Amp: the ST group stacks in the widest gap and takes the cone together",
+    "says": {
+     "MT": "First tower (clockwise from 12 o'clock)",
+     "D1": "Second tower",
+     "D3": "Third tower",
+     "H1": "Fourth tower",
+     "ST": "Stack in the widest gap",
+     "D2": "Stack in the widest gap",
+     "D4": "Stack in the widest gap",
+     "H2": "Stack in the widest gap"
+    }
+   }
+  },
+  {
+   "phase": "ช่วงหลัง",
+   "mech": "Hell in a Cell",
+   "name": "③ กลุ่ม ST เข้า tower + Ultrasonic Spread",
+   "note": "ชุดที่ 2: กลุ่ม ST เข้า tower ตามลำดับเดิม (จาก 12 นาฬิกาตามเข็ม Tank > Melee > Range > Healer)\nกลุ่ม MT รับกรวย: เริ่มจากช่องที่กว้างที่สุด วนตามเข็ม Tank > DPS > Healer",
+   "strict": true,
+   "says": {
+    "ST": "tower แรก (จาก 12 นาฬิกาตามเข็ม)",
+    "D2": "tower ที่ 2",
+    "D4": "tower ที่ 3",
+    "H2": "tower ที่ 4",
+    "MT": "ทิ้งกรวยที่ช่องกว้างที่สุด",
+    "D1": "ทิ้งกรวยช่องถัดไปตามเข็ม (DPS)",
+    "D3": "ทิ้งกรวยช่องถัดไปตามเข็ม (DPS)",
+    "H1": "ทิ้งกรวยช่องถัดจาก DPS ตามเข็ม (Healer)"
+   },
+   "game8": [
+    "https://img.game8.jp/12188660/b42477376d5409111f651e5d6e9a265e.webp/show"
+   ],
+   "ring": 5.2,
+   "scene": {
+    "arena": {
+     "shape": "circle",
+     "at": [
+      50.1,
+      50.3
+     ],
+     "r": 34.6,
+     "fill": "#b8babe",
+     "lines": false,
+     "edge": "#ececef"
+    },
+    "waymarks": {
+     "A": [
+      33.9,
+      5.3
+     ],
+     "1": [
+      68.2,
+      6.2
+     ],
+     "4": [
+      16.2,
+      28.6
+     ],
+     "B": [
+      83.9,
+      29.5
+     ],
+     "D": [
+      16.4,
+      71.4
+     ],
+     "2": [
+      84.0,
+      71.9
+     ],
+     "3": [
+      31.3,
+      92.4
+     ],
+     "C": [
+      68.5,
+      93.6
+     ]
+    },
+    "boss": [
+     50,
+     49.4
+    ],
+    "bossSize": 7.5,
+    "iconSize": 5.4,
+    "markSize": 7.4,
+    "shapes": [
+     {
+      "t": "line",
+      "from": [
+       50.1,
+       5.77
+      ],
+      "to": [
+       50.1,
+       4.17
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       73.72,
+       18.81
+      ],
+      "to": [
+       74.57,
+       17.68
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       83.5,
+       50.3
+      ],
+      "to": [
+       84.7,
+       50.3
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       73.72,
+       81.79
+      ],
+      "to": [
+       74.57,
+       82.92
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       50.1,
+       94.83
+      ],
+      "to": [
+       50.1,
+       96.43
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       26.48,
+       81.79
+      ],
+      "to": [
+       25.63,
+       82.92
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       16.7,
+       50.3
+      ],
+      "to": [
+       15.5,
+       50.3
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       26.48,
+       18.81
+      ],
+      "to": [
+       25.63,
+       17.68
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "cone",
+      "at": [
+       50,
+       49.4
+      ],
+      "dir": 2.2,
+      "spread": 31.4,
+      "len": 41,
+      "c": "#ff9b3d",
+      "o": 0.45,
+      "wd": 0.01
+     },
+     {
+      "t": "cone",
+      "at": [
+       50,
+       49.4
+      ],
+      "dir": 108.0,
+      "spread": 84,
+      "len": 43,
+      "c": "#ff9b3d",
+      "o": 0.45,
+      "wd": 0.01
+     },
+     {
+      "t": "cone",
+      "at": [
+       50,
+       49.4
+      ],
+      "dir": 224.25,
+      "spread": 34.3,
+      "len": 40,
+      "c": "#ff9b3d",
+      "o": 0.45,
+      "wd": 0.01
+     },
+     {
+      "t": "circle",
+      "at": [
+       37.5,
+       24.7
+      ],
+      "r": 5.9,
+      "c": "#5a2a16",
+      "o": 0.35,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       37.5,
+       24.7
+      ],
+      "r": 5.9,
+      "c": "#8a3a1a",
+      "wd": 1.3,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       62.8,
+       24.7
+      ],
+      "r": 5.9,
+      "c": "#5a2a16",
+      "o": 0.35,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       62.8,
+       24.7
+      ],
+      "r": 5.9,
+      "c": "#8a3a1a",
+      "wd": 1.3,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       31,
+       49.8
+      ],
+      "r": 5.9,
+      "c": "#5a2a16",
+      "o": 0.35,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       31,
+       49.8
+      ],
+      "r": 5.9,
+      "c": "#8a3a1a",
+      "wd": 1.3,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       50,
+       75.8
+      ],
+      "r": 5.9,
+      "c": "#5a2a16",
+      "o": 0.35,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       50,
+       75.8
+      ],
+      "r": 5.9,
+      "c": "#8a3a1a",
+      "wd": 1.3,
+      "o": 0.95
+     }
+    ],
+    "roles": {
+     "H2": [
+      37.5,
+      24.7
+     ],
+     "ST": [
+      62.8,
+      24.7
+     ],
+     "D4": [
+      31,
+      49.8
+     ],
+     "D2": [
+      50,
+      75.8
+     ],
+     "H1": [
+      50,
+      33.1
+     ],
+     "MT": [
+      63.3,
+      54.4
+     ],
+     "D1": [
+      40.3,
+      63.1
+     ],
+     "D3": [
+      35.5,
+      70
+     ]
+    }
+   },
+   "en": {
+    "phase": "Last part",
+    "mech": "Hell in a Cell",
+    "name": "③ ST group in the towers + Ultrasonic Spread",
+    "note": "Second set: the ST group takes the towers in the same order (clockwise from 12 o'clock, Tank > Melee > Range > Healer)\nThe MT group takes the cones: from the widest gap, clockwise, Tank > DPS > Healer",
+    "says": {
+     "ST": "First tower (clockwise from 12 o'clock)",
+     "D2": "Second tower",
+     "D4": "Third tower",
+     "H2": "Fourth tower",
+     "MT": "Take your cone in the widest gap",
+     "D1": "Cone in the next gap clockwise (DPS)",
+     "D3": "Cone in the next gap clockwise (DPS)",
+     "H1": "Cone in the gap after the DPS, clockwise (Healer)"
+    }
+   }
+  },
+  {
+   "phase": "ช่วงหลัง",
+   "mech": "Hell in a Cell",
+   "name": "④ กลุ่ม ST เข้า tower + Ultrasonic Amp",
+   "note": "Ultrasonic Amp: กลุ่ม MT stack รวมกันที่ช่องกว้างที่สุด รับกรวยด้วยกัน\n\nกรวยที่ Tank เจ็บมาก Tank ใช้ mitigate ของตัวเองให้ดี\nคนที่เหยียบ tower เสร็จแล้ว โดนกรวยของบอสก็ไม่ KO",
+   "strict": true,
+   "says": {
+    "ST": "tower แรก (จาก 12 นาฬิกาตามเข็ม)",
+    "D2": "tower ที่ 2",
+    "D4": "tower ที่ 3",
+    "H2": "tower ที่ 4",
+    "MT": "stack รวมกันที่ช่องกว้างที่สุด",
+    "D1": "stack รวมกันที่ช่องกว้างที่สุด",
+    "D3": "stack รวมกันที่ช่องกว้างที่สุด",
+    "H1": "stack รวมกันที่ช่องกว้างที่สุด"
+   },
+   "game8": [
+    "https://img.game8.jp/12188661/672ea0c6690a1204ae4e5f8e5fb9ed7c.webp/show"
+   ],
+   "ring": 5.2,
+   "scene": {
+    "arena": {
+     "shape": "circle",
+     "at": [
+      50.1,
+      50.3
+     ],
+     "r": 34.6,
+     "fill": "#b8babe",
+     "lines": false,
+     "edge": "#ececef"
+    },
+    "waymarks": {
+     "A": [
+      33.9,
+      5.3
+     ],
+     "1": [
+      68.2,
+      6.2
+     ],
+     "4": [
+      16.2,
+      28.6
+     ],
+     "B": [
+      83.9,
+      29.5
+     ],
+     "D": [
+      16.4,
+      71.4
+     ],
+     "2": [
+      84.0,
+      71.9
+     ],
+     "3": [
+      31.3,
+      92.4
+     ],
+     "C": [
+      68.5,
+      93.6
+     ]
+    },
+    "boss": [
+     50,
+     49.4
+    ],
+    "bossSize": 7.5,
+    "iconSize": 5.4,
+    "markSize": 7.4,
+    "shapes": [
+     {
+      "t": "line",
+      "from": [
+       50.1,
+       5.77
+      ],
+      "to": [
+       50.1,
+       4.17
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       73.72,
+       18.81
+      ],
+      "to": [
+       74.57,
+       17.68
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       83.5,
+       50.3
+      ],
+      "to": [
+       84.7,
+       50.3
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       73.72,
+       81.79
+      ],
+      "to": [
+       74.57,
+       82.92
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       50.1,
+       94.83
+      ],
+      "to": [
+       50.1,
+       96.43
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       26.48,
+       81.79
+      ],
+      "to": [
+       25.63,
+       82.92
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       16.7,
+       50.3
+      ],
+      "to": [
+       15.5,
+       50.3
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "line",
+      "from": [
+       26.48,
+       18.81
+      ],
+      "to": [
+       25.63,
+       17.68
+      ],
+      "c": "#3a3a40",
+      "wd": 0.45,
+      "o": 0.9
+     },
+     {
+      "t": "cone",
+      "at": [
+       50,
+       49.4
+      ],
+      "dir": 105.2,
+      "spread": 87.4,
+      "len": 43,
+      "c": "#ff9b3d",
+      "o": 0.45,
+      "wd": 0.01
+     },
+     {
+      "t": "circle",
+      "at": [
+       37.5,
+       24.7
+      ],
+      "r": 5.9,
+      "c": "#5a2a16",
+      "o": 0.35,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       37.5,
+       24.7
+      ],
+      "r": 5.9,
+      "c": "#8a3a1a",
+      "wd": 1.3,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       62.8,
+       24.7
+      ],
+      "r": 5.9,
+      "c": "#5a2a16",
+      "o": 0.35,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       62.8,
+       24.7
+      ],
+      "r": 5.9,
+      "c": "#8a3a1a",
+      "wd": 1.3,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       31,
+       49.8
+      ],
+      "r": 5.9,
+      "c": "#5a2a16",
+      "o": 0.35,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       31,
+       49.8
+      ],
+      "r": 5.9,
+      "c": "#8a3a1a",
+      "wd": 1.3,
+      "o": 0.95
+     },
+     {
+      "t": "circle",
+      "at": [
+       50,
+       75.8
+      ],
+      "r": 5.9,
+      "c": "#5a2a16",
+      "o": 0.35,
+      "wd": 0.01
+     },
+     {
+      "t": "ring",
+      "at": [
+       50,
+       75.8
+      ],
+      "r": 5.9,
+      "c": "#8a3a1a",
+      "wd": 1.3,
+      "o": 0.95
+     }
+    ],
+    "roles": {
+     "H2": [
+      37.5,
+      24.7
+     ],
+     "ST": [
+      62.8,
+      24.7
+     ],
+     "D4": [
+      31,
+      49.8
+     ],
+     "D2": [
+      50,
+      75.8
+     ],
+     "MT": [
+      62.3,
+      53.9
+     ],
+     "D1": [
+      68,
+      52.4
+     ],
+     "H1": [
+      68.2,
+      56.2
+     ],
+     "D3": [
+      67.3,
+      60.7
+     ]
+    }
+   },
+   "en": {
+    "phase": "Last part",
+    "mech": "Hell in a Cell",
+    "name": "④ ST group in the towers + Ultrasonic Amp",
+    "note": "Ultrasonic Amp: the MT group stacks in the widest gap and takes the cone together\n\nThe tank's cone hurts a lot: tanks, use your own mitigate well\nPlayers who have finished their tower are not KO'd by the boss's cones",
+    "says": {
+     "ST": "First tower (clockwise from 12 o'clock)",
+     "D2": "Second tower",
+     "D4": "Third tower",
+     "H2": "Fourth tower",
+     "MT": "Stack in the widest gap",
+     "D1": "Stack in the widest gap",
+     "D3": "Stack in the widest gap",
+     "H1": "Stack in the widest gap"
+    }
+   }
+  },
+  {
+   "phase": "ช่วงหลัง",
+   "mech": "Undead Deathmatch",
+   "name": "① tower: กลุ่ม MT เหนือ/ตะวันตก / กลุ่ม ST ใต้/ตะวันออก",
+   "note": "กลุ่ม MT (MT H1 D1 D3) เหยียบ tower ทางเหนือหรือตะวันตก\nกลุ่ม ST (ST H2 D2 D4) เหยียบ tower ทางใต้หรือตะวันออก\n\nจากนั้นตามค้างคาวไป อย่าให้สายยืดห่างเกิน พร้อมหลบกรวยของบอส\nCaster ก็ทำใกล้ๆ วงเป้าของบอส (target circle) ได้ อยู่ไกลต้องเดินมากขึ้น ตามค้างคาวยากขึ้น",
+   "strict": false,
+   "says": {
+    "MT": "เหยียบ tower ทางเหนือหรือตะวันตก (กลุ่ม MT)",
+    "H1": "เหยียบ tower ทางเหนือหรือตะวันตก (กลุ่ม MT)",
+    "D1": "เหยียบ tower ทางเหนือหรือตะวันตก (กลุ่ม MT)",
+    "D3": "เหยียบ tower ทางเหนือหรือตะวันตก (กลุ่ม MT)",
+    "ST": "เหยียบ tower ทางใต้หรือตะวันออก (กลุ่ม ST)",
+    "H2": "เหยียบ tower ทางใต้หรือตะวันออก (กลุ่ม ST)",
+    "D2": "เหยียบ tower ทางใต้หรือตะวันออก (กลุ่ม ST)",
+    "D4": "เหยียบ tower ทางใต้หรือตะวันออก (กลุ่ม ST)"
+   },
+   "refs": [
+    {
+     "src": "frames/m9s/deathmatch-towers.webp",
+     "say": "Undead Deathmatch: tower stack 2 จุด กลุ่ม MT เหนือ/ตะวันตก กลุ่ม ST ใต้/ตะวันออก",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/m4_8a0N8GcM?t=596"
+    }
+   ],
+   "scene": null,
+   "en": {
+    "phase": "Last part",
+    "mech": "Undead Deathmatch",
+    "name": "① Towers: MT group north/west / ST group south/east",
+    "note": "MT group (MT H1 D1 D3) takes the north or west tower\nST group (ST H2 D2 D4) takes the south or east tower\n\nThen follow your bat without letting the tether stretch too far, while dodging the boss's cones\nCasters should stay near the boss's target circle too: from far away you have further to move and the bat is harder to follow",
+    "says": {
+     "MT": "Take the north or west tower (MT group)",
+     "H1": "Take the north or west tower (MT group)",
+     "D1": "Take the north or west tower (MT group)",
+     "D3": "Take the north or west tower (MT group)",
+     "ST": "Take the south or east tower (ST group)",
+     "H2": "Take the south or east tower (ST group)",
+     "D2": "Take the south or east tower (ST group)",
+     "D4": "Take the south or east tower (ST group)"
+    },
+    "refs": [
+     "Undead Deathmatch: two stack towers; MT group north/west, ST group south/east"
+    ]
+   }
+  },
+  {
+   "phase": "ช่วงหลัง",
+   "mech": "Undead Deathmatch",
+   "name": "② หลบกรวย: กลางกรวยที่เพิ่งออก = ที่ปลอดภัยถัดไป",
+   "note": "ที่ปลอดภัยของกรวยลูกถัดไป คือตรงกลางของกรวยที่เพิ่งออก\nลูกแรก: ยืนตรงที่ไม่มีกรวย พอกรวยออก ย้ายเข้าไปในที่ที่กรวยเพิ่งออก เพื่อหลบลูกถัดไป\nชุดละ 5 ครั้ง\n\nเดินแบบ \"ช่องข้างๆ > ข้ามไป 2 ช่อง\" 2 รอบ จะทำได้ง่าย",
+   "strict": false,
+   "refs": [
+    {
+     "src": "frames/m9s/deathmatch-cones.webp",
+     "say": "Undead Deathmatch: กรวยรอบตัวบอส ชุดละ 5 ครั้ง ตามค้างคาวไปโดยไม่ให้สายยืดเกิน",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/m4_8a0N8GcM?t=612"
+    }
+   ],
+   "scene": null,
+   "en": {
+    "phase": "Last part",
+    "mech": "Undead Deathmatch",
+    "name": "② The cones: the middle of the last one is the next safe spot",
+    "note": "The next cone's safe spot is the middle of the cone that just went off\nFirst cone: stand where there is no cone; when it goes off, step into where it went off to dodge the next one\n5 cones a set\n\nMoving \"next gap > two gaps over\" twice makes it easy",
+    "refs": [
+     "Undead Deathmatch: cones all round the boss, 5 a set; follow your bat without overstretching the tether"
+    ]
+   }
+  },
+  {
+   "phase": "ช่วงหลัง",
+   "mech": "Undead Deathmatch",
+   "name": "③ AoE จากค้างคาว: วงกลม หรือ donut",
+   "note": "ตอนบอสปล่อยกรวยลูกที่ 4 ค้างคาวจะมีมาร์กขึ้น: วงกลม หรือ donut\nหลังกรวยลูกที่ 5 ออก ค้างคาวระเบิด AoE ตามมาร์ก\n\nวงกลม: ขยับเข้าหาบอสเพื่อหลบ\ndonut: เข้าไปใต้ค้างคาว",
+   "strict": false,
+   "refs": [
+    {
+     "src": "frames/m9s/deathmatch-marker.webp",
+     "say": "Undead Deathmatch: มาร์กบนค้างคาว (วงกลม หรือ donut) ขึ้นตอนกรวยลูกที่ 4 ระเบิดหลังลูกที่ 5",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/m4_8a0N8GcM?t=642"
+    }
+   ],
+   "scene": null,
+   "en": {
+    "phase": "Last part",
+    "mech": "Undead Deathmatch",
+    "name": "③ The bat's AoE: circle or donut",
+    "note": "As the boss shows the 4th cone, the bats get a marker: a circle or a donut\nAfter the 5th cone goes off, each bat sets off the AoE its marker shows\n\nCircle: move in towards the boss to dodge it\nDonut: get under the bat",
+    "refs": [
+     "Undead Deathmatch: the marker on a bat (circle or donut) appears with the 4th cone and goes off after the 5th"
+    ]
+   }
+  },
+  {
+   "phase": "ช่วงหลัง",
+   "mech": "Undead Deathmatch",
+   "name": "④ สายค้างคาวยืดได้แค่ไหน",
+   "note": "สายจากค้างคาวยืดได้ถึงระยะหนึ่ง (game8 มีภาพระยะสุดท้าย)\nยืดถึงระยะนั้นจะโดน damage และติด damage down (ดาเมจที่ทำได้ลดลง)",
+   "strict": false,
+   "scene": null,
+   "en": {
+    "phase": "Last part",
+    "mech": "Undead Deathmatch",
+    "name": "④ How far the bat's tether stretches",
+    "note": "The bat's tether only stretches so far (game8 shows the limit in a picture)\nStretch it that far and you take damage and get damage down (you deal less damage)"
+   }
+  },
+  {
+   "phase": "ช่วงหลัง",
+   "mech": "Sanguine Scratch",
+   "name": "หลบกรวยสลับไปมา ไม่มีสาย",
+   "note": "เหมือนกรวยใน Undead Deathmatch แต่ไม่มีสายจากค้างคาวมาจำกัดการเดิน\nแค่ขยับสลับไปมาหลบกรวยอย่างเดียว",
+   "strict": false,
+   "refs": [
+    {
+     "src": "frames/m9s/sanguine.webp",
+     "say": "Sanguine Scratch: กรวยรอบตัวบอส ไม่มีสาย หลบสลับไปมาอย่างเดียว",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/m4_8a0N8GcM?t=720"
+    }
+   ],
+   "scene": null,
+   "en": {
+    "phase": "Last part",
+    "mech": "Sanguine Scratch",
+    "name": "Dodge the cones back and forth, no tethers",
+    "note": "Like the cones in Undead Deathmatch, but with no bat tethers to limit where you go\nJust move back and forth to dodge them",
+    "refs": [
+     "Sanguine Scratch: cones all round the boss with no tethers; just dodge back and forth"
+    ]
+   }
+  },
+  {
+   "phase": "ช่วงหลัง",
+   "mech": "Enrage",
+   "name": "หมดเวลา",
+   "note": "หลัง Sanguine Scratch บอสใช้ raid-wide อีก 2 ครั้ง แล้วหมดเวลา (enrage)\nไฟต์นี้ DPS check ไม่เข้มงวด ฝึกซ้ำๆ ลดการตายและการติด damage down ที่ทำให้ดาเมจหาย",
+   "strict": false,
+   "refs": [
+    {
+     "src": "frames/m9s/enrage.webp",
+     "say": "หมดเวลา (enrage): บอสร่าย Finale Fatale หลัง Sanguine Scratch และ raid-wide 2 ครั้ง",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/m4_8a0N8GcM?t=768"
+    }
+   ],
+   "scene": null,
+   "en": {
+    "phase": "Last part",
+    "mech": "Enrage",
+    "name": "Time's up",
+    "note": "After Sanguine Scratch the boss uses 2 more raid-wides, then time is up (enrage)\nThe DPS check is lenient: keep practising to cut the deaths and damage downs that lose you damage",
+    "refs": [
+     "Time's up (enrage): the boss casts Finale Fatale after Sanguine Scratch and 2 raid-wides"
+    ]
+   }
+  }
+ ],
+ "rewards": [
+  {
+   "kind": "token",
+   "name": "AAC Illustrated: HW Edition I",
+   "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/026000/026457_hr1.tex&format=png",
+   "say": "ได้ 1 เล่มเมื่อเคลียร์ (การันตี)\n\nแลกที่ Hhihwi (Arcadion Relic Exchange) ใน Solution Nine (X: 8.7 Y: 13.4)\nเครื่องประดับ Grand Champion's IL790: 3 เล่ม ต่อ 1 ชิ้น\nAAC Illustrated: HW Edition IV 1 เล่ม แลกเป็นเล่มนี้ได้ 1 เล่ม",
+   "say_en": "Every clear gives 1 (guaranteed)\n\nExchange them with Hhihwi (Arcadion Relic Exchange) in Solution Nine (X: 8.7 Y: 13.4)\nGrand Champion's IL790 accessory: 3 per piece\nOne AAC Illustrated: HW Edition IV can be traded for one of these",
+   "pics": [
+    {
+     "map": {
+      "map": "x6t1/00",
+      "size": 180,
+      "x": 8.7,
+      "y": 13.4,
+      "label": "Hhihwi"
+     },
+     "say": "จุดแลก: Hhihwi ใน Solution Nine (X: 8.7 Y: 13.4)",
+     "say_en": "Where to exchange: Hhihwi in Solution Nine (X: 8.7 Y: 13.4)"
+    }
+   ]
+  },
+  {
+   "kind": "accessory",
+   "name": "Grand Champion's accessory coffers",
+   "ilvl": 790,
+   "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/026000/026564_hr1.tex&format=png",
+   "say": "หีบสมบัติหลังเคลียร์มี Coffer อย่างละ 1 ใบ: Earring / Necklace / Bracelet / Ring\nเปิดแล้วได้เครื่องประดับ IL790 ตามอาชีพที่ใส่อยู่ตอนเปิด (เปิดในดันเจี้ยนไม่ได้)",
+   "say_en": "The treasure coffer holds one of each: Earring / Necklace / Bracelet / Ring coffer\nOpening one gives the IL790 accessory for the job you are on at the time (they can't be opened inside duties)",
+   "pieces": [
+    {
+     "name": "Grand Champion's Earring Coffer (IL 790)",
+     "job": "Earring",
+     "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/026000/026564_hr1.tex&format=png"
+    },
+    {
+     "name": "Grand Champion's Necklace Coffer (IL 790)",
+     "job": "Necklace",
+     "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/026000/026565_hr1.tex&format=png"
+    },
+    {
+     "name": "Grand Champion's Bracelet Coffer (IL 790)",
+     "job": "Bracelet",
+     "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/026000/026566_hr1.tex&format=png"
+    },
+    {
+     "name": "Grand Champion's Ring Coffer (IL 790)",
+     "job": "Ring",
+     "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/026000/026567_hr1.tex&format=png"
+    }
+   ]
+  },
+  {
+   "kind": "accessory",
+   "name": "Grand Champion's accessories",
+   "ilvl": 790,
+   "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/054000/054760_hr1.tex&format=png",
+   "say": "แลกด้วย AAC Illustrated: HW Edition I 3 เล่ม ต่อ 1 ชิ้น หรือได้จาก Coffer ด้านบน\nFending: PLD WAR DRK GNB\nSlaying: MNK DRG SAM RPR BST\nAiming: BRD NIN MCH DNC VPR\nHealing: WHM SCH AST SGE\nCasting: BLM SMN RDM PCT\nแตะไอคอนเพื่อดูชื่อ",
+   "say_en": "3 AAC Illustrated: HW Edition I per piece, or from the coffers above\nFending: PLD WAR DRK GNB\nSlaying: MNK DRG SAM RPR BST\nAiming: BRD NIN MCH DNC VPR\nHealing: WHM SCH AST SGE\nCasting: BLM SMN RDM PCT\nTap an icon for its name",
+   "pieces": [
+    {
+     "name": "Grand Champion's Ear Cuff of Fending",
+     "job": "Fending",
+     "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/055000/055564_hr1.tex&format=png"
+    },
+    {
+     "name": "Grand Champion's Neckband of Fending",
+     "job": "Fending",
+     "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/055000/055109_hr1.tex&format=png"
+    },
+    {
+     "name": "Grand Champion's Bracelets of Fending",
+     "job": "Fending",
+     "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/055000/055907_hr1.tex&format=png"
+    },
+    {
+     "name": "Grand Champion's Ring of Fending",
+     "job": "Fending",
+     "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/054000/054760_hr1.tex&format=png"
+    },
+    {
+     "name": "Grand Champion's Ear Cuff of Slaying",
+     "job": "Slaying",
+     "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/055000/055564_hr1.tex&format=png"
+    },
+    {
+     "name": "Grand Champion's Neckband of Slaying",
+     "job": "Slaying",
+     "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/055000/055109_hr1.tex&format=png"
+    },
+    {
+     "name": "Grand Champion's Bracelets of Slaying",
+     "job": "Slaying",
+     "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/055000/055907_hr1.tex&format=png"
+    },
+    {
+     "name": "Grand Champion's Ring of Slaying",
+     "job": "Slaying",
+     "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/054000/054760_hr1.tex&format=png"
+    },
+    {
+     "name": "Grand Champion's Ear Cuff of Aiming",
+     "job": "Aiming",
+     "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/055000/055564_hr1.tex&format=png"
+    },
+    {
+     "name": "Grand Champion's Neckband of Aiming",
+     "job": "Aiming",
+     "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/055000/055109_hr1.tex&format=png"
+    },
+    {
+     "name": "Grand Champion's Bracelets of Aiming",
+     "job": "Aiming",
+     "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/055000/055907_hr1.tex&format=png"
+    },
+    {
+     "name": "Grand Champion's Ring of Aiming",
+     "job": "Aiming",
+     "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/054000/054760_hr1.tex&format=png"
+    },
+    {
+     "name": "Grand Champion's Ear Cuff of Healing",
+     "job": "Healing",
+     "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/055000/055564_hr1.tex&format=png"
+    },
+    {
+     "name": "Grand Champion's Neckband of Healing",
+     "job": "Healing",
+     "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/055000/055109_hr1.tex&format=png"
+    },
+    {
+     "name": "Grand Champion's Bracelets of Healing",
+     "job": "Healing",
+     "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/055000/055907_hr1.tex&format=png"
+    },
+    {
+     "name": "Grand Champion's Ring of Healing",
+     "job": "Healing",
+     "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/054000/054760_hr1.tex&format=png"
+    },
+    {
+     "name": "Grand Champion's Ear Cuff of Casting",
+     "job": "Casting",
+     "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/055000/055564_hr1.tex&format=png"
+    },
+    {
+     "name": "Grand Champion's Neckband of Casting",
+     "job": "Casting",
+     "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/055000/055109_hr1.tex&format=png"
+    },
+    {
+     "name": "Grand Champion's Bracelets of Casting",
+     "job": "Casting",
+     "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/055000/055907_hr1.tex&format=png"
+    },
+    {
+     "name": "Grand Champion's Ring of Casting",
+     "job": "Casting",
+     "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/054000/054760_hr1.tex&format=png"
+    }
+   ]
+  }
+ ]
+}
