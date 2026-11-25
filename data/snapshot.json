@@ -128,7 +128,7 @@
    3835,
    3944,
    3959,
-   4000,
+   3960,
    4018,
    4036,
    4037,
@@ -1626,7 +1626,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 100,
+  "level": 68,
   "cc": [
    true,
    true,
@@ -1651,7 +1651,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-24"
+  "chg": "2026-11-25"
  },
  "28579232": {
   "name": "Dessiny Valkyrie",
@@ -2130,7 +2130,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 75,
+  "level": 81,
   "cc": [
    true,
    true,
@@ -2179,7 +2179,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-24"
+  "chg": "2026-11-25"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -2300,7 +2300,7 @@
   ],
   "tiers": {
    "relic": "master",
-   "explorer": "legendary",
+   "explorer": "master",
    "goldsaucer": "master"
   },
   "jobs": {
@@ -2364,7 +2364,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 97,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -2391,7 +2391,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-11-24"
+  "chg": "2026-11-25"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -4300,6 +4300,7 @@
    2754,
    2755,
    2758,
+   2766,
    2803,
    2815,
    2816,
@@ -4360,7 +4361,6 @@
    3833,
    3834,
    3835,
-   3963,
    4005,
    4010,
    4011,
@@ -6668,7 +6668,7 @@
   "mounts": 32,
   "minions": 95,
   "rare": null,
-  "level": 94,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -6681,7 +6681,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-24"
+  "chg": "2026-11-25"
  },
  "43335087": {
   "name": "Haru Senbonzakura",
@@ -6881,7 +6881,7 @@
   "mounts": 69,
   "minions": 125,
   "rare": 10,
-  "level": 78,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6912,7 +6912,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-23"
+  "chg": "2026-11-25"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -7986,7 +7986,7 @@
   "mounts": 149,
   "minions": 186,
   "rare": 61,
-  "level": 95,
+  "level": 96,
   "cc": [
    false,
    false,
@@ -8072,7 +8072,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-22"
+  "chg": "2026-11-25"
  },
  "44926008": {
   "name": "Shiraishi Shu",
@@ -8135,7 +8135,7 @@
   "mounts": 43,
   "minions": 114,
   "rare": null,
-  "level": 100,
+  "level": 94,
   "cc": [
    false,
    false,
@@ -8151,7 +8151,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-15"
+  "chg": "2026-11-25"
  },
  "37648492": {
   "name": "Sunshine Eveningfall",
@@ -8196,7 +8196,7 @@
   "mounts": 11,
   "minions": 28,
   "rare": null,
-  "level": 74,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8209,7 +8209,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-24"
+  "chg": "2026-11-25"
  },
  "25619696": {
   "name": "Taro Yeon",
@@ -8262,7 +8262,7 @@
   "mounts": 48,
   "minions": 76,
   "rare": null,
-  "level": 76,
+  "level": 22,
   "cc": [
    false,
    false,
@@ -8275,7 +8275,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-24"
+  "chg": "2026-11-25"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -8362,7 +8362,7 @@
   "mounts": 81,
   "minions": 158,
   "rare": 17,
-  "level": 100,
+  "level": 81,
   "cc": [
    true,
    true,
@@ -8401,7 +8401,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-21"
+  "chg": "2026-11-25"
  },
  "15932791": {
   "name": "Yuziris Andra'nov",
@@ -8560,7 +8560,7 @@
   "mounts": 9,
   "minions": 21,
   "rare": 2,
-  "level": 76,
+  "level": 71,
   "cc": [
    false,
    false,
@@ -8576,7 +8576,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-24"
+  "chg": "2026-11-25"
  },
  "49053650": {
   "name": "Eniluna Gelatoneii",
@@ -8650,7 +8650,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 95,
+  "level": 96,
   "cc": [
    false,
    false,
@@ -8663,7 +8663,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-24"
+  "chg": "2026-11-25"
  },
  "38405490": {
   "name": "Haruka Paru",
@@ -8716,7 +8716,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 5,
-  "level": 94,
+  "level": 84,
   "cc": [
    false,
    false,
@@ -8735,7 +8735,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-24"
+  "chg": "2026-11-25"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -9050,7 +9050,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 100,
+  "level": 68,
   "cc": [
    false,
    false,
@@ -9066,7 +9066,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-24"
+  "chg": "2026-11-25"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -9104,7 +9104,7 @@
   "mounts": 101,
   "minions": 207,
   "rare": 16,
-  "level": 93,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -9136,7 +9136,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-11-24"
+  "chg": "2026-11-25"
  },
  "21388050": {
   "name": "Riizerk Ciel",
@@ -12975,7 +12975,7 @@
   "mounts": 19,
   "minions": 40,
   "rare": 0,
-  "level": 63,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -12990,7 +12990,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-11-24"
+  "chg": "2026-11-25"
  },
  "12003402": {
   "name": "Kei Chan",

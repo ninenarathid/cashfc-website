@@ -1,6 +1,48 @@
 {
  "events": [
   {
+   "date": "2026-11-25",
+   "type": "rare_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "earned Cut Above the Rest: Revolver Occultum — only 2.6% of players have it"
+  },
+  {
+   "date": "2026-11-25",
+   "type": "level_100",
+   "id": 42948817,
+   "name": "Karuma Amamiya",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
+   "date": "2026-11-25",
+   "type": "rare_up",
+   "id": 43864764,
+   "name": "Shinonome Kamemaru",
+   "text": "earned Savage Queen of Swords II — only 2.5% of players have it"
+  },
+  {
+   "date": "2026-11-25",
+   "type": "level_100",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "reached level 100 on Alchemist!"
+  },
+  {
+   "date": "2026-11-25",
+   "type": "level_100",
+   "id": 45194317,
+   "name": "Sweet Dango",
+   "text": "reached level 100 on Paladin!"
+  },
+  {
+   "date": "2026-11-25",
+   "type": "level_100",
+   "id": 28679815,
+   "name": "Kazumi Masa",
+   "text": "reached level 100 on Paladin!"
+  },
+  {
    "date": "2026-11-24",
    "type": "level_100",
    "id": 57387464,
@@ -1357,48 +1399,6 @@
    "id": 44970350,
    "name": "Allen Crist",
    "text": "earned Hiding in Plain Sight: Exemplar — only 4.4% of players have it"
-  },
-  {
-   "date": "2026-11-12",
-   "type": "rare_up",
-   "id": 37056222,
-   "name": "Lucine Nokomis",
-   "text": "earned Phantom of the Umbra: Twinfangs Umbrae"
-  },
-  {
-   "date": "2026-11-12",
-   "type": "rare_up",
-   "id": 43864764,
-   "name": "Shinonome Kamemaru",
-   "text": "earned Eighth Rank II — only 2.4% of players have it"
-  },
-  {
-   "date": "2026-11-12",
-   "type": "rare_up",
-   "id": 38488824,
-   "name": "Daffodil Amary",
-   "text": "earned Resplendent: Brilliant Frypan"
-  },
-  {
-   "date": "2026-11-12",
-   "type": "rare_up",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "earned R&D: Hyperpickaxe"
-  },
-  {
-   "date": "2026-11-12",
-   "type": "rare_up",
-   "id": 37061370,
-   "name": "Peonies Dunieres",
-   "text": "earned A Line in the Sand III"
-  },
-  {
-   "date": "2026-11-12",
-   "type": "level_100",
-   "id": 30667251,
-   "name": "Roxas Akatsuki",
-   "text": "reached level 100 on Warrior!"
   }
  ]
 }
