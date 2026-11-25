@@ -270,6 +270,9 @@ function StepCard(
   { step: StepRow; seat: Seat; label: string; flat?: boolean; onOpen: (id: number) => void },
 ) {
   const { t } = useLang();
+  // The ring can be switched off to see the picture as it is (the owner,
+  // 2026-11-25), per picture, and only on a picture that has one.
+  const [ringOff, setRingOff] = useState(false);
   const [openRef, setOpenRef] = useState<number | null>(null);
   const spot = step.spots[seat];
   const points = spot?.at ?? [];
@@ -286,15 +289,27 @@ function StepCard(
       {/* A tap opens it large (PictureViewer), still lit on your spot, with
           the whole picture one more tap away. */}
       {step.picture && (
-        <button type="button" onClick={() => onOpen(step.id)} aria-label={t("guide.enlarge")}
-                className="group relative block w-full cursor-zoom-in rounded-lg text-left">
-          <FocusPicture picture={step.picture} w={step.pic_w} h={step.pic_h} points={points}
-                        ring={step.ring} color={color} alt={step.name} />
-          <span className="pointer-events-none absolute bottom-2 right-2 inline-flex items-center gap-1 rounded-full border border-line bg-bg/80 px-3 py-1.5 text-ui text-ink/90 backdrop-blur-sm transition-colors group-hover:border-accent">
-            <span aria-hidden>⤢</span>
-            {t("guide.enlarge")}
-          </span>
-        </button>
+        <div className="relative">
+          <button type="button" onClick={() => onOpen(step.id)} aria-label={t("guide.enlarge")}
+                  className="group relative block w-full cursor-zoom-in rounded-lg text-left">
+            <FocusPicture picture={step.picture} w={step.pic_w} h={step.pic_h} points={points}
+                          ring={step.ring} color={color} focus={!ringOff} alt={step.name} />
+            <span className="pointer-events-none absolute bottom-2 right-2 inline-flex items-center gap-1 rounded-full border border-line bg-bg/80 px-3 py-1.5 text-ui text-ink/90 backdrop-blur-sm transition-colors group-hover:border-accent">
+              <span aria-hidden>⤢</span>
+              {t("guide.enlarge")}
+            </span>
+          </button>
+          {/* Beside the enlarge button rather than in it: a button may not
+              hold another, and the two do different things. */}
+          {points.length > 0 && (
+            <button type="button" onClick={() => setRingOff((v) => !v)} aria-pressed={!ringOff}
+                    className="absolute bottom-2 left-2 inline-flex min-h-8 items-center gap-1 rounded-full border border-line bg-bg/80 px-3 py-1.5 text-ui text-ink/90 backdrop-blur-sm transition-colors hover:border-accent">
+              <span aria-hidden className="inline-block size-2.5 rounded-full border-2"
+                    style={{ borderColor: color, backgroundColor: ringOff ? "transparent" : color }} />
+              {ringOff ? t("guide.ringOn") : t("guide.ringOff")}
+            </button>
+          )}
+        </div>
       )}
 
       {/* A step with no picture is words only (a raid-wide, a rule of thumb):

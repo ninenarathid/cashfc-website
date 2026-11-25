@@ -100,8 +100,9 @@ export default function PictureViewer({
               {points.length > 0 && (
                 <button type="button" onClick={() => setWhole((v) => !v)} aria-pressed={whole}
                         className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-line bg-bg/85 px-4 text-read text-ink backdrop-blur hover:border-accent hover:text-accent">
-                  <span aria-hidden>{whole ? "◎" : "⤢"}</span>
-                  {whole ? t("guide.showMine") : t("guide.showAll")}
+                  <span aria-hidden className="inline-block size-2.5 rounded-full border-2"
+                        style={{ borderColor: color, backgroundColor: whole ? "transparent" : color }} />
+                  {whole ? t("guide.ringOn") : t("guide.ringOff")}
                 </button>
               )}
               {many && (
