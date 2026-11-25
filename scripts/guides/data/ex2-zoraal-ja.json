@@ -960,6 +960,14 @@
    "game8": [
     "https://img.game8.jp/10205675/1eadb7847225ee0842b2ad6dd8902116.png/show"
    ],
+   "refs": [
+    {
+     "src": "frames/ex2-zoraal-ja/half-glowing-sword.webp",
+     "say": "ดาบ 2 เล่มของบอส: เล่มขวาในภาพเรืองแสงสีฟ้า เล่มซ้ายไม่เรือง / Forward Half ปลอดภัยหน้าบอสฝั่งดาบเรือง / Backward Half ปลอดภัยหลังบอสฝั่งดาบไม่เรือง",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/2Yq4hrQQsNI?t=64"
+    }
+   ],
    "scene": {
     "shapes": [
      {
@@ -1887,7 +1895,10 @@
     "phase": "First phase (full arena)",
     "mech": "Multidirectional Divide + Forward Half / Backward Half",
     "name": "② The Half cast starts: read the glowing sword",
-    "note": "② The boss starts casting Forward Half or Backward Half; the safe spot depends on which\nThe blue triangle in the picture = the side of the sword that glows\nThe red ring = the boss's target circle\n\nForward Half: safe in front of the boss, on the glowing sword's side\nBackward Half: safe behind the boss, on the side of the sword that does not glow"
+    "note": "② The boss starts casting Forward Half or Backward Half; the safe spot depends on which\nThe blue triangle in the picture = the side of the sword that glows\nThe red ring = the boss's target circle\n\nForward Half: safe in front of the boss, on the glowing sword's side\nBackward Half: safe behind the boss, on the side of the sword that does not glow",
+    "refs": [
+     "The boss's 2 swords: the right one here glows blue, the left does not / Forward Half: safe in front, glowing side / Backward Half: safe behind, other side"
+    ]
    }
   },
   {
@@ -3489,6 +3500,14 @@
    "game8": [
     "https://img.game8.jp/10205693/7240d30e6e96d0581cb32760435b925f.png/show"
    ],
+   "refs": [
+    {
+     "src": "frames/ex2-zoraal-ja/divide-x-tethers.webp",
+     "say": "เส้นสีเหลืองบนพื้นที่ตัดกันเป็นตาราง = แนว X และรอยตัดของ Multidirectional Divide / เส้นประสีแดงจากบอส = สายของ Regicidal Rage ที่ Tank ต้องรับ",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/2Yq4hrQQsNI?t=88"
+    }
+   ],
    "scene": {
     "shapes": [
      {
@@ -4424,7 +4443,10 @@
     "says": {
      "MT": "Take one tether",
      "ST": "Take one tether"
-    }
+    },
+    "refs": [
+     "The yellow lines crossing on the floor = Multidirectional Divide's X and its cuts / the red dashed lines from the boss = Regicidal Rage's tethers, for the tanks"
+    ]
    }
   },
   {
@@ -6082,6 +6104,14 @@
    "strict": false,
    "game8": [
     "https://img.game8.jp/10205705/fcdf617a13b375ee848eabc6269e876f.jpeg/show"
+   ],
+   "refs": [
+    {
+     "src": "frames/ex2-zoraal-ja/vollok-sync-floor.webp",
+     "say": "พื้นรอบนอกที่ขอบเรืองสีฟ้า = พื้นที่ Sync เชื่อมกับพื้นกลาง / ช่องสีส้มที่มีดาบปัก = ช่องเดียวกันบนพื้นกลางโดน AoE ด้วย",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/2Yq4hrQQsNI?t=868"
+    }
    ],
    "scene": {
     "shapes": [
@@ -8284,7 +8314,10 @@
     "phase": "Split floors 1",
     "mech": "Vollok + Sync + Half Full",
     "name": "② Swords land, Sync links 2 floors",
-    "note": "② Blade Warp: swords stick into every outer floor\nSync: 2 outer floors glow blue (the blue edges in the picture) and link to the middle floor\n\nEvery tile with a sword on a blue floor gets an AoE on the same tile of the middle floor too"
+    "note": "② Blade Warp: swords stick into every outer floor\nSync: 2 outer floors glow blue (the blue edges in the picture) and link to the middle floor\n\nEvery tile with a sword on a blue floor gets an AoE on the same tile of the middle floor too",
+    "refs": [
+     "An outer floor with glowing blue edges = a Sync floor, linked to the middle one / each orange tile with a sword = the same tile on the middle floor is hit too"
+    ]
    }
   },
   {
@@ -23227,6 +23260,20 @@
    "game8": [
     "https://img.game8.jp/10205726/a5c818bc662a72bbdc6ff57f4dd41297.png/show"
    ],
+   "refs": [
+    {
+     "src": "frames/ex2-zoraal-ja/gateway-red-lines.webp",
+     "say": "เส้นแดง: เส้นที่ลุกเป็นไฟ เชื่อมพื้นกลางกับพื้นรอบนอก AoE ที่ไต่มาตามเส้นนี้จะขยายเป็น 3 แถว",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/2Yq4hrQQsNI?t=898"
+    },
+    {
+     "src": "frames/ex2-zoraal-ja/gateway-blue-lines.webp",
+     "say": "เส้นฟ้า: เส้นพลังงานสีฟ้า มีลูกแก้วที่ปลาย ไขว้กันแบบจับฉลากลากเส้น ไล่ตามเส้นดูว่าไปออกแถวไหน",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/2Yq4hrQQsNI?t=911"
+    }
+   ],
    "scene": {
     "shapes": [
      {
@@ -24241,7 +24288,11 @@
     "phase": "Split floors 1",
     "mech": "Greater Gateway + Forged Track + Chasm of Vollok",
     "name": "① Lines link the outer floors to the middle",
-    "note": "① Lines link the outer floors to the middle floor\nThey come in 3 colours: red, green and blue"
+    "note": "① Lines link the outer floors to the middle floor\nThey come in 3 colours: red, green and blue",
+    "refs": [
+     "Red lines: the lines on fire, linking the middle floor to an outer one; an AoE that follows one widens to 3 rows",
+     "Blue lines: blue energy lines with an orb at each end, crossing like a ladder lottery; follow each one to see which row it reaches"
+    ]
    }
   },
   {
@@ -49786,6 +49837,14 @@
    "game8": [
     "https://img.game8.jp/10206288/0b92cb2847115d73c632fa02d4b9cad0.png/show"
    ],
+   "refs": [
+    {
+     "src": "frames/ex2-zoraal-ja/aero-iii-wind.webp",
+     "say": "Aero III: ลมหมุนสีเขียวบนพื้น เดินเข้าไปจะถูกพัดไปพื้นอีกฝั่ง",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/2Yq4hrQQsNI?t=642"
+    }
+   ],
    "scene": {
     "shapes": [
      {
@@ -50196,7 +50255,10 @@
     "phase": "Split floors 2",
     "mech": "Forward Half / Backward Half + Duty's Edge + Burning Chains",
     "name": "① Aero III: wind on both floors",
-    "note": "① Aero III: green wind appears on both floors\nStepping into it throws you to the other floor"
+    "note": "① Aero III: green wind appears on both floors\nStepping into it throws you to the other floor",
+    "refs": [
+     "Aero III: a green whirlwind on the floor; walking into it throws you to the other floor"
+    ]
    }
   },
   {
@@ -51635,6 +51697,14 @@
    "game8": [
     "https://img.game8.jp/10206294/fca5b660b07f0151331cfd3de9a2b9ad.png/show"
    ],
+   "refs": [
+    {
+     "src": "frames/ex2-zoraal-ja/dutys-edge-marker.webp",
+     "say": "Duty's Edge: ลูกศรสีส้มชี้ลงเรียงเป็นแนว = เครื่องหมาย line stack ทุกคนไปรวมกันในแนวเส้นนี้",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/2Yq4hrQQsNI?t=877"
+    }
+   ],
    "scene": {
     "shapes": [
      {
@@ -52381,7 +52451,10 @@
     "phase": "Split floors 2",
     "mech": "Forward Half / Backward Half + Duty's Edge + Burning Chains",
     "name": "⑤ Duty's Edge: 4 line stacks",
-    "note": "⑤ Duty's Edge: 4 line stacks on the whole party in a row\nEveryone gathers in the line"
+    "note": "⑤ Duty's Edge: 4 line stacks on the whole party in a row\nEveryone gathers in the line",
+    "refs": [
+     "Duty's Edge: a column of orange arrows pointing down = the line stack marker; everyone gathers in its line"
+    ]
    }
   },
   {
@@ -53819,6 +53892,14 @@
    "strict": false,
    "game8": [
     "https://img.game8.jp/10206346/4dc2b42b7d08edb14df43ab68a4bec2b.png/show"
+   ],
+   "refs": [
+    {
+     "src": "frames/ex2-zoraal-ja/half-circuit-far.webp",
+     "say": "Half Circuit: ดาบสีฟ้าเล่มใหญ่ไปอยู่ห่างจากบอสถึงริมสนาม = นอกวงเป้าโดน (ถ้าดาบอยู่ใกล้บอส ในวงเป้าโดน)",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/2Yq4hrQQsNI?t=712"
+    }
    ],
    "scene": {
     "shapes": [
@@ -55997,7 +56078,10 @@
     "phase": "Full arena 3",
     "mech": "Projection of Triumph + Half Circuit + Regicidal Rage",
     "name": "⑤ Half Circuit: outside + the right half",
-    "note": "⑤ The 2nd lines appear and the boss casts Half Circuit\nHalf Circuit = the boss's left or right half + inside or outside its target circle\n\nIn this picture: outside the circle and the right half (the blue triangle's side) will be hit\nNote in the picture: the 2 blue blades are far from the boss"
+    "note": "⑤ The 2nd lines appear and the boss casts Half Circuit\nHalf Circuit = the boss's left or right half + inside or outside its target circle\n\nIn this picture: outside the circle and the right half (the blue triangle's side) will be hit\nNote in the picture: the 2 blue blades are far from the boss",
+    "refs": [
+     "Half Circuit: the big blue blade lies far from the boss, out at the edge = outside the target circle is hit (blades close to the boss: inside is hit)"
+    ]
    }
   },
   {
