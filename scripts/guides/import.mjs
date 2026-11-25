@@ -105,8 +105,10 @@ async function main() {
       // Whose picture and the way back to the video (v350): https only.
       if (r.url && !/^https:\/\/[A-Za-z0-9.-]+(\/[^\s"'<>]*)?$/.test(r.url)) throw new Error(`bad credit link: ${r.url}`);
       const m = await sharp(src).metadata();
-      const k = Math.min(1, 1000 / (m.width ?? 1000));
-      const w = Math.round((m.width ?? 1000) * k), h = Math.round((m.height ?? 750) * k);
+      // `scale`, not `k`: a `k` here once hid the loop's own index, and every
+      // picture's English caption was read from the wrong place (or nowhere).
+      const scale = Math.min(1, 1000 / (m.width ?? 1000));
+      const w = Math.round((m.width ?? 1000) * scale), h = Math.round((m.height ?? 750) * scale);
       const path = `${owner}/g-${t++}-${rand()}.webp`;
       uploads.push([path, await sharp(src).resize(w, h).webp({ quality: 85 }).toBuffer()]);
       const sayEn = step.en?.refs?.[k];

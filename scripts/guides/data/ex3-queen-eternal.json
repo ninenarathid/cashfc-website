@@ -106,8 +106,19 @@
      "ST": "Take the line stack with the ST group (on H2)",
      "D2": "Take the line stack with the ST group (on H2)",
      "D4": "Take the line stack with the ST group (on H2)"
+    },
+    "refs": [
+     "Watch the grid floor: the part that warps into broken pixels (right of the picture) is where the cone lands; stand where the grid is still whole"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex3-queen-eternal/aethertithe-warp.webp",
+     "say": "ดูพื้นตาราง: ส่วนที่บิดเบี้ยวจนแตกเป็นพิกเซล (ขวาของภาพ) คือที่ AoE รูปพัดจะลง ให้ยืนฝั่งที่ตารางยังปกติ",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/UEQrzXo_zbo?t=46"
     }
-   }
+   ]
   },
   {
    "phase": "ช่วงแรก (สนามปกติ)",
@@ -4848,8 +4859,19 @@
     "phase": "Virtual Shift 1 (wind)",
     "mech": "Laws of Wind + Missing Link + Legitimate Force + East/West Wind of Change",
     "name": "③ Legitimate Force telegraphs, the chains go live",
-    "note": "③ The boss telegraphs a half-arena hit (Legitimate Force), and the chains go live\n\nTip: the boss hits the side of its raised hand first\nIf you lose track of which side comes first, look for the raised hand"
-   }
+    "note": "③ The boss telegraphs a half-arena hit (Legitimate Force), and the chains go live\n\nTip: the boss hits the side of its raised hand first\nIf you lose track of which side comes first, look for the raised hand",
+    "refs": [
+     "Legitimate Force: the boss raises a hand with a ring of light like this; it hits the half on the side of the hand raised first"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex3-queen-eternal/wind-legitimate-force-hand.webp",
+     "say": "Legitimate Force: มือบอสยกขึ้นพร้อมวงแสงแบบนี้ บอสตีครึ่งสนามฝั่งที่ยกมือขึ้นก่อน",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/UEQrzXo_zbo?t=98"
+    }
+   ]
   },
   {
    "phase": "Virtual Shift ครั้งที่ 1 (ลม)",
@@ -9254,8 +9276,19 @@
      "D2": "East island, top-right tower",
      "H2": "East island, bottom-left tower",
      "D4": "East island, bottom-right tower"
+    },
+    "refs": [
+     "The earth towers are golden circles on the islands, 4 per island; land and take one each. Here: the 2 north towers of one island"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex3-queen-eternal/earth-towers.webp",
+     "say": "tower ช่วงดินคือวงสีทองบนเกาะ เกาะละ 4 อัน ลงพื้นแล้วเหยียบคนละ 1 อัน ภาพนี้: 2 อันฝั่งเหนือของเกาะหนึ่ง",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/UEQrzXo_zbo?t=299"
     }
-   }
+   ]
   },
   {
    "phase": "Virtual Shift ครั้งที่ 2 (ดิน)",
@@ -10821,8 +10854,19 @@
      "H2": "Float up and take your rocks out of the way",
      "D3": "Float up and take your rocks out of the way",
      "D4": "Float up and take your rocks out of the way"
+    },
+    "refs": [
+     "The meteor marker: a green ring floating over the head; everyone gets one, and a rock drops where you stand, twice"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex3-queen-eternal/meteor-marker.webp",
+     "say": "เครื่องหมายอุกกาบาต: วงเขียวลอยเหนือหัว ทุกคนได้ หินจะตกตรงที่ยืน 2 ครั้ง",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/tCEV58kMlCc?t=316"
     }
-   }
+   ]
   },
   {
    "phase": "Virtual Shift ครั้งที่ 2 (ดิน)",
@@ -12956,8 +13000,19 @@
     "phase": "Normal arena 3",
     "mech": "Coronation",
     "name": "Drag the devices into place",
-    "note": "Four devices on the 4 edges fire line beams across the arena\nEach device is tethered to a player and follows them\nSee which device is yours, then lead it to its place in the picture\nThink of moving the devices clockwise and you will slip up less\nThe waymarks help you find your spot (see the first step)\n\nIn this picture:\nthe north device sits between A and 1\nthe east one between B and 2\nthe south one between C and 3\nthe west one between D and 4\nEveryone stands on a waymark round the edge, where no beam passes"
-   }
+    "note": "Four devices on the 4 edges fire line beams across the arena\nEach device is tethered to a player and follows them\nSee which device is yours, then lead it to its place in the picture\nThink of moving the devices clockwise and you will slip up less\nThe waymarks help you find your spot (see the first step)\n\nIn this picture:\nthe north device sits between A and 1\nthe east one between B and 2\nthe south one between C and 3\nthe west one between D and 4\nEveryone stands on a waymark round the edge, where no beam passes",
+    "refs": [
+     "The device is a blue orb with orange tethers to 2 players in a triangle; it slides along with them, then fires a straight beam (the orange strip below)"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex3-queen-eternal/coronation-device.webp",
+     "say": "อุปกรณ์คือลูกแก้วสีฟ้า มีสายสีส้มไป 2 คนเป็นรูปสามเหลี่ยม อุปกรณ์เลื่อนตามคนถือสาย แล้วยิงลำแสงเส้นตรง (แถบสีส้มด้านล่าง)",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/UEQrzXo_zbo?t=514"
+    }
+   ]
   },
   {
    "phase": "สนามปกติ ครั้งที่ 3",
@@ -17623,8 +17678,19 @@
     "phase": "Virtual Shift 3 (ice)",
     "mech": "Laws of Ice + Rush + Legitimate Force",
     "name": "① Tethers from the 4 south icicles",
-    "note": "Virtual Shift 3: a raid-wide, then the arena breaks into 3 islands linked by bridges\nLaws of Ice: keep moving, or you freeze\nThen icicles appear, with distance-falloff tethers to 4 players at a time\nPull the tethers far; the icicles charge (Rush), then the boss hits half the arena, dodged back on the middle island\n\n① The 4 south icicles tether 4 players (here, the DPS)"
-   }
+    "note": "Virtual Shift 3: a raid-wide, then the arena breaks into 3 islands linked by bridges\nLaws of Ice: keep moving, or you freeze\nThen icicles appear, with distance-falloff tethers to 4 players at a time\nPull the tethers far; the icicles charge (Rush), then the boss hits half the arena, dodged back on the middle island\n\n① The 4 south icicles tether 4 players (here, the DPS)",
+    "refs": [
+     "The icicle tether looks like this: a thorny purple line stretched across the islands; here all 8 have one and are pulling it far"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex3-queen-eternal/ice-tethers.webp",
+     "say": "สายจากแท่งน้ำแข็งหน้าตาแบบนี้: เส้นสีม่วงมีหนาม ลากข้ามระหว่างเกาะ ภาพนี้ทุกคนมีสายแล้ว กำลังดึงไปให้ไกล",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/tCEV58kMlCc?t=530"
+    }
+   ]
   },
   {
    "phase": "Virtual Shift ครั้งที่ 3 (น้ำแข็ง)",
@@ -19391,8 +19457,19 @@
     "phase": "Virtual Shift 3 (ice)",
     "mech": "Laws of Ice + Rush + Legitimate Force",
     "name": "② The tethered cross the bridges at once",
-    "note": "② The tethered cross the bridges straight away; which bridge is in \"The icicle table\"\nCross to the island diagonal from your icicle: the 2 west icicles go to the east island / the 2 east icicles to the west island"
-   }
+    "note": "② The tethered cross the bridges straight away; which bridge is in \"The icicle table\"\nCross to the island diagonal from your icicle: the 2 west icicles go to the east island / the 2 east icicles to the west island",
+    "refs": [
+     "Two clear ice bridges under the island's edge lead to the next island; the right one is cracked after someone crossed. The red lines are icicle tethers"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex3-queen-eternal/ice-bridges.webp",
+     "say": "สะพานน้ำแข็งใส 2 อันใต้ขอบเกาะ เชื่อมไปเกาะถัดไป อันขวามีรอยร้าวหลังมีคนข้ามไปแล้ว เส้นแดงคือสายจากแท่งน้ำแข็ง",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/UEQrzXo_zbo?t=649"
+    }
+   ]
   },
   {
    "phase": "Virtual Shift ครั้งที่ 3 (น้ำแข็ง)",
@@ -37103,8 +37180,19 @@
      "H2": "ST group: spread on the east",
      "D2": "ST group: spread on the east",
      "D4": "ST group: spread on the east"
+    },
+    "refs": [
+     "A green-framed X island stands outside the arena, matching the green floor lines; watch which way the background turns to know which island swaps in"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex3-queen-eternal/radical-shift-island.webp",
+     "say": "เกาะกรอบเขียว (ตัว X) โผล่นอกสนาม และพื้นมีลายเขียวแบบเดียวกัน ดูทิศที่ฉากหลังหมุนเพื่อรู้ว่าเกาะฝั่งไหนจะสลับเข้ามา",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/UEQrzXo_zbo?t=983"
     }
-   }
+   ]
   },
   {
    "phase": "ช่วงหลัง",
@@ -38994,8 +39082,19 @@
     "phase": "Second phase",
     "mech": "Dimensional Distortion + Tyranny's Grasp",
     "name": "① Moving circles from the north: wait in a gap",
-    "note": "Dimensional Distortion: circle AoEs that travel from north to south\nthen the north half of the floor breaks, and towers appear on the west and east\n\n① The markers of the travelling AoEs appear in the north; wait in a gap with nothing in it"
-   }
+    "note": "Dimensional Distortion: circle AoEs that travel from north to south\nthen the north half of the floor breaks, and towers appear on the west and east\n\n① The markers of the travelling AoEs appear in the north; wait in a gap with nothing in it",
+    "refs": [
+     "Dimensional Distortion's marker: a white arrow at the north edge with the first circle; the circles travel the way the arrow points, south"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex3-queen-eternal/dimensional-distortion-arrow.webp",
+     "say": "เครื่องหมาย Dimensional Distortion: ลูกศรสีขาวที่ขอบเหนือพร้อมวง AoE วงแรก วงจะเคลื่อนไปตามลูกศรลงทางใต้",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/tCEV58kMlCc?t=763"
+    }
+   ]
   },
   {
    "phase": "ช่วงหลัง",
@@ -41100,8 +41199,19 @@
     "says": {
      "MT": "Take the west tower",
      "ST": "Take the east tower"
+    },
+    "refs": [
+     "The east tower: a red striped ring round a crystal pillar, with the north half glowing orange before it breaks; ST takes this one, MT the west one"
+    ]
+   },
+   "refs": [
+    {
+     "src": "frames/ex3-queen-eternal/tyrannys-grasp-tower.webp",
+     "say": "tower ฝั่งตะวันออก: วงแดงลายขีดรอบแท่งคริสตัล พื้นครึ่งเหนือเป็นสีส้มกำลังจะพัง ST เข้าอันนี้ MT เข้าอีกอันฝั่งตะวันตก",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/tCEV58kMlCc?t=778"
     }
-   }
+   ]
   },
   {
    "phase": "ช่วงหลัง",
