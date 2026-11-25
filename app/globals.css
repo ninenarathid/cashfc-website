@@ -1363,3 +1363,14 @@ select.border-line {
 .pop-in[data-state="closed"] { animation: pop-out 90ms var(--ease-exit); }
 .rise-in[data-state="closed"] { animation: rise-out 160ms var(--ease-exit); }
 .toast-slide[data-state="closed"] { animation: toast-out 200ms var(--ease-exit); }
+
+/* ── Guides: the light on your own spot (components/guides/FocusPicture) ──
+   The circles travel when the seat changes, so the light moves across the
+   arena to the new spot instead of blinking there. */
+.guide-ring {
+  transition: cx 0.26s var(--ease-settle), cy 0.26s var(--ease-settle), r 0.2s var(--ease-settle);
+}
+.guide-dim { transition: opacity 0.2s var(--ease-settle); }
+@media (prefers-reduced-motion: reduce) {
+  .guide-ring, .guide-dim { transition: none; }
+}

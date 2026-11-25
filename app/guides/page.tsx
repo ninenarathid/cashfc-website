@@ -1,72 +1,12 @@
-"use client";
+import type { Metadata } from "next";
+import GuideShelf from "@/components/guides/GuideShelf";
 
-import Link from "next/link";
-import { useAdmin } from "@/lib/admin";
-import { useLang } from "@/lib/i18n";
-import { CATEGORIES, CATEGORY_LABEL, EXPANSIONS, guidesIn } from "@/lib/guides";
+export const metadata: Metadata = { title: "Guides — Cafe And SHabu" };
 
 /**
- * The shelf.
- *
- * Admins only for now, which is a decision about readiness rather than about
- * secrecy: a half-written guide is worse than no guide, because somebody will
- * stand where it says. It opens to the FC when the first one is finished.
+ * The shelf. Guides live in the database (v344) and are read in the browser,
+ * where the session decides whether drafts come with them.
  */
 export default function GuidesPage() {
-  const { t } = useLang();
-  const { isAdmin, ready } = useAdmin();
-  if (!ready) return null;
-  if (!isAdmin) {
-    return (
-      <main className="pt-7">
-        <div className="mt-7 rounded-xl border border-dashed border-line p-10 text-center leading-relaxed text-muted">
-          {t("guide.closed")}
-        </div>
-      </main>
-    );
-  }
-
-  return (
-    <main className="pt-7">
-      <h1 className="site-title font-display font-semibold">{t("guide.title")}</h1>
-
-      {EXPANSIONS.map((expansion) => (
-        <section key={expansion} className="mt-6">
-          <h2 className="font-display text-lg font-semibold">{expansion}</h2>
-          <div className="mt-2 grid gap-3 sm:grid-cols-3">
-            {CATEGORIES.map((category) => {
-              const rows = guidesIn(expansion, category);
-              return (
-                <div key={category}
-                     className="rounded-xl border border-line bg-surface p-3.5">
-                  <div className="font-data text-meta uppercase tracking-[0.14em] text-muted">
-                    {CATEGORY_LABEL[category]}
-                  </div>
-                  <div className="mt-2 flex flex-col gap-1.5">
-                    {rows.map((g) => (
-                      <Link key={g.slug} href={`/guides/${g.slug}`}
-                            className="rounded-lg border border-line bg-card px-3 py-2 text-read text-ink no-underline transition-colors hover:border-accent hover:text-accent">
-                        {g.short ?? g.name}
-                        {g.boss && (
-                          <span className="ml-1.5 text-ui text-muted">{g.boss}</span>
-                        )}
-                        {g.draft && (
-                          <span className="ml-1.5 rounded-full border border-line px-1.5 text-label text-muted">
-                            {t("guide.draftTag")}
-                          </span>
-                        )}
-                      </Link>
-                    ))}
-                    {rows.length === 0 && (
-                      <span className="text-ui text-muted">{t("guide.none")}</span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      ))}
-    </main>
-  );
+  return <GuideShelf />;
 }
