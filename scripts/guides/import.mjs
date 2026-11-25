@@ -102,7 +102,9 @@ async function main() {
     }
     steps.push({
       sort: i + 1, phase: step.phase ?? null, mech: step.mech ?? null, name: step.name.slice(0, 80),
-      note: step.note ?? null, picture, pic_w, pic_h, ring: step.ring ?? defaults.ring ?? 6,
+      note: step.note ?? null, picture, pic_w, pic_h,
+      // A whole number in the database (smallint); the data may say 5.5.
+      ring: Math.min(30, Math.max(3, Math.round(step.ring ?? defaults.ring ?? 6))),
       spots: sceneSpots(step.scene ?? {}, step.says ?? {}, step.strict), refs,
     });
   }
@@ -127,7 +129,14 @@ async function main() {
       published: !draft, sort: g.sort ?? 0,
     }),
   });
-  await rest("guide_steps", { method: "POST", body: JSON.stringify(steps.map((s) => ({ ...s, guide_id: row.id }))) });
+  try {
+    await rest("guide_steps", { method: "POST", body: JSON.stringify(steps.map((s) => ({ ...s, guide_id: row.id }))) });
+  } catch (e) {
+    // Half a guide is worse than none: take it and its new pictures back out.
+    await rest(`guides?id=eq.${row.id}`, { method: "DELETE" }).catch(() => {});
+    await removeFiles(uploads.map(([p]) => p));
+    throw e;
+  }
   await removeFiles(oldPics);
   console.log(`written: /guides/${g.slug} (${draft ? "draft" : "published"})`);
 }
