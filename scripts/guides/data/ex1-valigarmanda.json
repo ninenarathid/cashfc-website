@@ -117,9 +117,9 @@
       "refs": [
         {
           "src": "frames/ex1-valigarmanda/spikesicle-curve.webp",
-          "say": "เส้นโค้งสีฟ้า = เส้นเตือน Spikesicle ขึ้นทีละเส้น แล้ว AoE ออกตามลำดับเดียวกัน ดูว่าเส้นไล่จากซ้ายไปขวา (เริ่มหน้า A) หรือขวาไปซ้าย (เริ่มหน้า B)",
+          "say": "เส้นโค้งสีฟ้า = เส้นเตือน Spikesicle ขึ้นทีละเส้น แล้ว AoE ออกตามลำดับเดียวกัน ไล่ซ้ายไปขวาเริ่มหน้า A ขวาไปซ้ายเริ่มหน้า B (ภาพจากช่วงน้ำแข็ง ท่าเดียวกัน)",
           "by": "Nukemaru",
-          "url": "https://youtu.be/sP2Ljn2Y2NA?t=618"
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=617"
         }
       ],
       "en": {
@@ -128,7 +128,7 @@
         "name": "Curved lines, then the ice bursts",
         "note": "A curved telegraph appears first, then a curved AoE goes off along it\nThen ice is placed, and it bursts as circle AoEs\n\nWhere to start:\nTelegraph appears left to right → start in front of A\nTelegraph appears right to left → start in front of B\n\nSafe from the circle AoEs: inside the boss's target circle, at its middle",
         "refs": [
-          "Blue curve = a Spikesicle telegraph; they appear one by one, the AoEs follow in that order. Left to right: start in front of A; right to left: B"
+          "Blue curve = a Spikesicle telegraph; they appear one by one, the AoEs follow in order. Left to right: start at A; right to left: B (ice-phase shot, same move)"
         ]
       }
     },
@@ -138,11 +138,22 @@
       "name": "raid-wide + เปลี่ยนธาตุ",
       "note": "AoE ทั้งปาร์ตี้ (raid-wide) แล้วเข้าช่วงธาตุใหม่\nดูธาตุได้จาก effect ที่ขึ้นหน้าบอส: ไฟ / สายฟ้า / น้ำแข็ง\n\nครั้งแรกเป็นช่วงไฟเสมอ\nจบช่วงไฟแล้ว Skyruin จะพาไปช่วงสายฟ้าหรือช่วงน้ำแข็ง",
       "strict": false,
+      "refs": [
+        {
+          "src": "frames/ex1-valigarmanda/skyruin-object-lightning.webp",
+          "say": "effect ที่ขึ้นหน้าบอส (วงทอง) บอกธาตุของช่วงถัดไป ภาพนี้เป็นสายฟ้า → เข้าช่วงสายฟ้า",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=728"
+        }
+      ],
       "en": {
         "phase": "First half (fire)",
         "mech": "Skyruin",
         "name": "Raid-wide + element change",
-        "note": "Raid-wide, then a new element phase begins\nThe effect in front of the boss shows which: fire / lightning / ice\n\nThe first one is always fire\nAfter the fire phase, Skyruin takes you to the lightning or the ice phase"
+        "note": "Raid-wide, then a new element phase begins\nThe effect in front of the boss shows which: fire / lightning / ice\n\nThe first one is always fire\nAfter the fire phase, Skyruin takes you to the lightning or the ice phase",
+        "refs": [
+          "The effect in front of the boss (gold ring) shows the next element. Here it is lightning, so the lightning phase comes next"
+        ]
       }
     },
     {
@@ -218,9 +229,9 @@
       "refs": [
         {
           "src": "frames/ex1-valigarmanda/coil-donut-tell.webp",
-          "say": "บอสบินวนรอบสนาม มีลมสีเขียวหมุนรอบตัว = donut ปลอดภัยแค่วงกลางสนาม (ภาพจากช่วงน้ำแข็ง ท่าเดียวกัน)",
+          "say": "บอสบินวนรอบสนาม = donut ปลอดภัยแค่วงกลางสนาม ทุกคนรวมกันตรงกลาง (วงทอง) (ภาพจากช่วงสายฟ้า ท่าเดียวกัน)",
           "by": "Nukemaru",
-          "url": "https://youtu.be/sP2Ljn2Y2NA?t=567"
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=906"
         }
       ],
       "scene": {
@@ -324,7 +335,7 @@
           "D4": "With H2 at waymark 3 (south-east)"
         },
         "refs": [
-          "The boss flies around the arena with green wind circling it = donut; only the middle of the arena is safe (shot in the ice phase, same move)"
+          "The boss coils around the arena = donut; only the middle is safe, so everyone gathers there (gold ring) (lightning-phase shot, same move)"
         ]
       }
     },
@@ -350,7 +361,7 @@
       "refs": [
         {
           "src": "frames/ex1-valigarmanda/strike-arms-tell.webp",
-          "say": "บอสยื่นแขนหน้าทั้งสองข้างลงมา ตัวเรืองแสง = วงกลมใหญ่รอบบอส กินครึ่งเหนือ ไปฝั่งใต้ (พื้นสีส้มคือวงที่โดน)",
+          "say": "บอสยื่นแขนลงมา ตัวเรืองแสง (วงทอง) = วงกลมใหญ่รอบบอส กินครึ่งเหนือ (พื้นสีส้ม) ไปฝั่งใต้",
           "by": "Nukemaru",
           "url": "https://youtu.be/sP2Ljn2Y2NA?t=283"
         }
@@ -496,7 +507,7 @@
           "D4": "With H2 south row, easternmost pair"
         },
         "refs": [
-          "The boss reaches down with both front arms, glowing = a huge circle around the boss over the north half; go south (the orange floor is the AoE)"
+          "The boss reaches down with its arms, glowing (gold ring) = a huge circle around the boss over the north half (the orange floor); go south"
         ]
       }
     },
@@ -522,9 +533,9 @@
       "refs": [
         {
           "src": "frames/ex1-valigarmanda/breath-mouth-tell.webp",
-          "say": "ปากบอสเรือง (จุดสว่างที่ปาก) = กรวยกว้างกลางสนาม หลบไปมุมเหนือ 2 ฝั่ง",
+          "say": "ปากบอสเรือง (จุดสว่างที่ปาก วงทอง) = กรวยกว้างกลางสนาม หลบไปมุมเหนือ 2 ฝั่ง",
           "by": "Nukemaru",
-          "url": "https://youtu.be/sP2Ljn2Y2NA?t=260"
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=261"
         }
       ],
       "scene": {
@@ -629,7 +640,7 @@
           "D4": "With H2 north-east, further out along the cone's edge"
         },
         "refs": [
-          "The boss's mouth glows (the bright spot at the beak) = a wide cone through the middle; dodge to the two north corners"
+          "The boss's mouth glows (the bright spot at the beak, gold ring) = a wide cone through the middle; dodge to the two north corners"
         ]
       }
     },
@@ -662,9 +673,9 @@
       "refs": [
         {
           "src": "frames/ex1-valigarmanda/mountain-fire-tower.webp",
-          "say": "ลูกศรแดงชี้ลงที่ tower ดูว่าบอสบินอยู่ซ้าย กลาง หรือขวาของ tower แล้วหลบหลัง tower ฝั่งตรงข้ามบอส ภาพนี้บอสอยู่ตรงกลาง",
+          "say": "ลูกศรแดงชี้ลงที่ tower (วงไฟกลางสนาม) Tank เข้า tower คนอื่นดูว่าบอสอยู่ซ้าย กลาง หรือขวา แล้วหลบหลัง tower ฝั่งตรงข้าม ภาพนี้บอสอยู่ตรงกลาง",
           "by": "Nukemaru",
-          "url": "https://youtu.be/sP2Ljn2Y2NA?t=330"
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=320"
         }
       ],
       "scene": {
@@ -704,7 +715,7 @@
           "ST": "Hide behind the tower this time (ST takes the even hits)"
         },
         "refs": [
-          "The red arrow marks the tower. See if the boss is left, middle or right of it and hide behind the tower on the far side; here it is in the middle"
+          "The red arrow marks the tower (the ring of fire). A tank takes it; the rest see if the boss is left, middle or right and hide behind it. Here: middle"
         ]
       }
     },
@@ -1033,6 +1044,14 @@
       "game8": [
         "https://img.game8.jp/10208145/cfe853c77527a0416bfe2cb2497abd3f.png/show"
       ],
+      "refs": [
+        {
+          "src": "frames/ex1-valigarmanda/scourge-of-fire-floor.webp",
+          "say": "stack แต่ละครั้งทิ้ง AoE สีส้มค้างไว้บนพื้น (ลูกศร) ทั้งกลุ่มเดินหน้าขึ้นเหนือ อย่าถอยกลับไปเหยียบ",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=356"
+        }
+      ],
       "scene": {
         "shapes": [
           { "t": "line", "from": [27, 16.5], "to": [27, 85.6], "c": "#141516", "wd": 0.35, "o": 0.9 },
@@ -1094,7 +1113,10 @@
         "phase": "First half (fire)",
         "mech": "Scourge of Fire",
         "name": "② 1st stack, then walk forward",
-        "note": "The 1st stack goes off and leaves an AoE on the floor; walk forward (north) together as a group\n\nThis hits very hard, and you are moving, so it is hard to heal\nReprisal and other mitigations used on the boss do nothing here; use the tanks' and the Ranges' party mitigations instead\nUse them early in the opening Skyruin cast and the 90-second mitigations come back right in time for this"
+        "note": "The 1st stack goes off and leaves an AoE on the floor; walk forward (north) together as a group\n\nThis hits very hard, and you are moving, so it is hard to heal\nReprisal and other mitigations used on the boss do nothing here; use the tanks' and the Ranges' party mitigations instead\nUse them early in the opening Skyruin cast and the 90-second mitigations come back right in time for this",
+        "refs": [
+          "Each stack leaves an orange AoE on the floor (arrow); the whole group walks forward (north) and never steps back onto it"
+        ]
       }
     },
     {
@@ -1444,7 +1466,7 @@
       "refs": [
         {
           "src": "frames/ex1-valigarmanda/ruin-foretold-beacons.webp",
-          "say": "beacon 3 อัน: ไฟ (สีส้มแดง ซ้าย/ตะวันตก) สายฟ้า (สีม่วง กลาง) น้ำแข็ง (สีฟ้าขาว ขวา/ตะวันออก) แถบสีส้มที่แผ่ออกจากบอส = AoE กรวย ยืนในช่องระหว่างแถบ",
+          "say": "beacon 3 อัน (วงทอง): ไฟ (สีส้มแดง ซ้าย/ตะวันตก) สายฟ้า (สีม่วง กลาง) น้ำแข็ง (สีฟ้าขาว ขวา/ตะวันออก) แถบสีส้มจากบอส = AoE กรวย ยืนในช่องระหว่างแถบ",
           "by": "Nukemaru",
           "url": "https://youtu.be/sP2Ljn2Y2NA?t=438"
         }
@@ -1520,7 +1542,7 @@
           "H2": "Back of the east line"
         },
         "refs": [
-          "Three beacons: fire (orange-red, west), lightning (purple, middle), ice (pale blue, east). Orange lanes fanning from the boss = cone AoEs; stand between"
+          "Three beacons (gold rings): fire (orange-red, west), lightning (purple, middle), ice (pale blue, east). Orange lanes from the boss = cones; stand between"
         ]
       }
     },
@@ -1789,11 +1811,22 @@
       "name": "raid-wide + ดีบัฟทุกคน",
       "note": "เหมือนช่วงไฟ แต่ผลของดีบัฟเปลี่ยน\n\nช่วงสายฟ้า:\nดีบัฟไฟ = stack 4:4\nดีบัฟสายฟ้า = spread\nดีบัฟน้ำแข็ง = หลบโดยยืนบนพื้น Levitate (ช่องสีเขียวในภาพ)",
       "strict": false,
+      "refs": [
+        {
+          "src": "frames/ex1-valigarmanda/levitate-tiles.webp",
+          "say": "ช่องสีเขียวที่เรืองแสง = พื้น Levitate ช่องสีเข้มคือพื้นธรรมดา ช่วงสายฟ้า ดีบัฟน้ำแข็งหลบโดยยืนบนช่องเขียว",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=735"
+        }
+      ],
       "en": {
         "phase": "Lightning phase",
         "mech": "Triscourge",
         "name": "Raid-wide + a debuff on everyone",
-        "note": "As in the fire phase, but the debuffs do something else\n\nLightning phase:\nFire debuff = 4:4 stacks\nLightning debuff = spread\nIce debuff = dodge it by standing on the Levitate floor (the green tiles in the pictures)"
+        "note": "As in the fire phase, but the debuffs do something else\n\nLightning phase:\nFire debuff = 4:4 stacks\nLightning debuff = spread\nIce debuff = dodge it by standing on the Levitate floor (the green tiles in the pictures)",
+        "refs": [
+          "The glowing green tiles = the Levitate floor; the dark tiles are normal floor. In the lightning phase the ice debuff is dodged on a green tile"
+        ]
       }
     },
     {
@@ -1907,7 +1940,7 @@
       "refs": [
         {
           "src": "frames/ex1-valigarmanda/hail-of-feathers-feather.webp",
-          "say": "ขนสีแดงปักอยู่บนพื้น = จุดที่ AoE ลดตามระยะตกลงมา วงแดงรอบขนคือขนที่กำลังตีทิ้งอยู่ (เลือกเป็นเป้า)",
+          "say": "ขนสีแดงปักอยู่บนพื้น (วงทอง) = จุดที่ AoE ลดตามระยะตกลงมา วงแดงรอบขนคือขนที่กำลังตีทิ้งอยู่ (เลือกเป็นเป้า)",
           "by": "Nukemaru",
           "url": "https://youtu.be/sP2Ljn2Y2NA?t=790"
         }
@@ -2228,7 +2261,7 @@
         "name": "1st lands east: start at D",
         "note": "The boss drops 6 distance-falloff AoEs, and a feather of ruin is left where each one lands\nWhich feather to break depends on where the first one lands\nWhen hitting the feather, stand where your line AoEs also reach the boss for more damage\n\n1st lands east → the whole party starts at D\nthen breaks the 2nd feather (bottom row, 3rd tile from the west)",
         "refs": [
-          "Red feather standing on the floor = where a distance-falloff AoE landed. The red ring around it = the feather being broken (it is targeted)"
+          "Red feather standing on the floor (gold ring) = where a distance-falloff AoE landed. The red ring around it = the feather being broken (it is targeted)"
         ]
       }
     },
@@ -2567,9 +2600,9 @@
       "refs": [
         {
           "src": "frames/ex1-valigarmanda/blighted-bolt-strikes.webp",
-          "say": "เสาฟ้าผ่าลงตรงขนแต่ละอัน แล้วเกิด AoE วงกลม รอตรงจุดที่ขนถูกทำลายไปแล้วจะปลอดภัย",
+          "say": "เสาฟ้าผ่าลงตรงขนแต่ละอัน (ลูกศร) แล้วเกิด AoE วงกลม รอตรงจุดที่ขนถูกทำลายไปแล้วจะปลอดภัย",
           "by": "Nukemaru",
-          "url": "https://youtu.be/sP2Ljn2Y2NA?t=803"
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=802"
         }
       ],
       "en": {
@@ -2578,7 +2611,7 @@
         "name": "Lightning on the feathers",
         "note": "Lightning strikes the feathers of ruin\nWait where the feather you broke during Hail of Feathers was",
         "refs": [
-          "Lightning columns strike each feather and burst as circle AoEs; wait where a feather was already destroyed"
+          "Lightning columns strike each feather (arrows) and burst as circle AoEs; wait where a feather was already destroyed"
         ]
       }
     },
@@ -2904,9 +2937,9 @@
       "refs": [
         {
           "src": "frames/ex1-valigarmanda/thunderous-breath-circles.webp",
-          "say": "วงเวทสายฟ้าสีม่วงขึ้นที่ขอบสนาม ยิงเส้นตรงตามแถวของมัน แถวที่ไม่มีวงเวทคือแถวปลอดภัย ยืนบนช่องสีเขียว (Levitate) ในแถวนั้น",
+          "say": "วงเวทสายฟ้าสีม่วงที่ขอบสนามยิงเส้นตรงตามแถวของมัน แถวที่ไม่มีวงเวท (วงทอง) คือแถวปลอดภัย ยืนบนช่องสีเขียว (Levitate) ในแถวนั้น",
           "by": "Nukemaru",
-          "url": "https://youtu.be/sP2Ljn2Y2NA?t=864"
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=871"
         }
       ],
       "en": {
@@ -2915,7 +2948,7 @@
         "name": "Dodge the lines, stand on the Levitate floor",
         "note": "Thunder orbs on the left and right fire line AoEs, and the boss fires a wide cone over the whole arena\nCheck where the left and right orbs are and dodge their lines\nDodge the boss's cone by standing on the Levitate floor (green tiles)",
         "refs": [
-          "Purple lightning circles appear at the arena's edge and fire straight lines along their rows. A row with no circle is safe: stand on its green (Levitate) tile"
+          "Purple lightning circles at the arena's edge fire lines along their rows. The row with no circle (gold ring) is safe: stand on its green (Levitate) tile"
         ]
       }
     },
@@ -2945,9 +2978,9 @@
       "refs": [
         {
           "src": "frames/ex1-valigarmanda/ruinfall-tower.webp",
-          "say": "วงแดงกลางสนามที่มีเสาแสงตั้งอยู่ = tower ของ Tank 2 คน คนอื่นอยู่นอกวง แล้วเตรียม Arm's Length / Surecast กัน knockback",
+          "say": "เสาแสงกลางสนาม (วงทอง) = tower ของ Tank 2 คน คนอื่นอยู่นอกวง แล้วเตรียม Arm's Length / Surecast กัน knockback",
           "by": "Nukemaru",
-          "url": "https://youtu.be/sP2Ljn2Y2NA?t=927"
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=926"
         }
       ],
       "en": {
@@ -2960,7 +2993,7 @@
           "ST": "Take the middle tower together with MT"
         },
         "refs": [
-          "Red circle in the middle with pillars of light = the tower for both Tanks; everyone else stays out, then Arm's Length / Surecast for the knockback"
+          "Pillars of light in the middle (gold ring) = the tower for both Tanks; everyone else stays out, then Arm's Length / Surecast for the knockback"
         ]
       }
     },
@@ -2995,6 +3028,14 @@
       },
       "game8": [
         "https://img.game8.jp/10208704/72e217880e262a06c0081c89802c582c.png/show"
+      ],
+      "refs": [
+        {
+          "src": "frames/ex1-valigarmanda/ice-tanks-fire-stacks.webp",
+          "say": "วงทองบน: เครื่องหมายน้ำแข็งบนหัว Tank ที่มุมเหนือสุดขอบ 2 ฝั่ง วงทองล่าง: เครื่องหมายไฟบน Healer แบ่ง stack 3:3 ด้านหลัง",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=541"
+        }
       ],
       "scene": {
         "arena": {
@@ -3072,7 +3113,10 @@
           "H2": "East stack (H2 D2 D4)",
           "D2": "East stack on H2",
           "D4": "East stack on H2"
-        }
+        },
+        "refs": [
+          "Top gold rings: ice markers on the Tanks in the two north corners, at the edge. Bottom gold rings: fire markers on the Healers, 3:3 stacks at the back"
+        ]
       }
     },
     {
@@ -3087,9 +3131,15 @@
       "refs": [
         {
           "src": "frames/ex1-valigarmanda/chilling-cataclysm-b-front.webp",
-          "say": "วงเวทน้ำแข็งขึ้นหน้า B (2 กับ B สีเหลือง) → A ปลอดภัย ถ้าขึ้นหน้า A ก็ไป B ยืนให้ตรงกลาง Marker พอดี",
+          "say": "วงเวทน้ำแข็งขึ้นหน้า B (วงทองขวา) → A ปลอดภัย (วงทองซ้าย) ถ้าขึ้นหน้า A ก็ไป B ยืนให้ตรงกลาง Marker พอดี",
           "by": "Nukemaru",
           "url": "https://youtu.be/sP2Ljn2Y2NA?t=675"
+        },
+        {
+          "src": "frames/ex1-valigarmanda/avalanche-edge.webp",
+          "say": "หิมะถล่มมาจากทิศที่ข้อความบอก ภาพนี้มาจากฝั่งวงทอง วิ่งไปที่ที่ไม่โดนทั้งหิมะถล่มและ AoE ของบอส",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=560"
         }
       ],
       "scene": {
@@ -3192,7 +3242,8 @@
         "name": "A is safe",
         "note": "The same boss attacks as in the fire phase, but with no message: read the boss's motion and dodge\nAt the same time an avalanche comes from the direction the message names (\"A rumbling avalanche approaches from the ...\"); run to where neither the boss's AoE nor the avalanche hits\n\nThe ice phase also has several ice orbs that burst in star-shaped lines, leaving only A or B safe\nRead where the orbs are and run there\n\nThis picture: A is safe (blue)",
         "refs": [
-          "Ice magic circles in front of B (the yellow 2 and B), so A is safe; in front of A, go to B. Stand right on the waymark's centre"
+          "Ice magic circles in front of B (right gold ring), so A is safe (left gold ring); in front of A, go to B. Stand right on the waymark's centre",
+          "The avalanche comes from the direction the message names; here, from the gold-ringed side. Run where neither it nor the boss's AoE hits"
         ]
       }
     },
@@ -3390,11 +3441,22 @@
       "name": "เส้นโค้ง + หิมะถล่ม",
       "note": "Spikesicle แบบตอนเปิดไฟต์ ผสมกับหิมะถล่ม\nหลบ Spikesicle ไปพลาง ดูว่าหิมะถล่มมาทางไหน แล้วไปจุดที่ไม่โดน\n\nถ้ายืนอยู่จุดหลบวงกลมของ Spikesicle ตลอด จะโดนหิมะถล่ม ต้องขยับปรับที่ยืนนิดหน่อย",
       "strict": false,
+      "refs": [
+        {
+          "src": "frames/ex1-valigarmanda/spikesicle-avalanche.webp",
+          "say": "Spikesicle แบบตอนเปิดไฟต์ (ก้อนน้ำแข็งรอบสนาม) ผสมหิมะถล่ม ภาพนี้มาจากฝั่งวงทอง หลบเส้นโค้งไปพลาง ขยับที่ยืนนิดหน่อยให้พ้นหิมะถล่ม",
+          "by": "Nukemaru",
+          "url": "https://youtu.be/sP2Ljn2Y2NA?t=633"
+        }
+      ],
       "en": {
         "phase": "Ice phase",
         "mech": "Spikesicle + Avalanche",
         "name": "Curved lines + avalanche",
-        "note": "The opening Spikesicle, combined with an avalanche\nDodge Spikesicle while checking where the avalanche comes from, and move where it will not hit\n\nIf you stay on the spot that dodges Spikesicle's circles the whole time, the avalanche hits you; adjust your position a little"
+        "note": "The opening Spikesicle, combined with an avalanche\nDodge Spikesicle while checking where the avalanche comes from, and move where it will not hit\n\nIf you stay on the spot that dodges Spikesicle's circles the whole time, the avalanche hits you; adjust your position a little",
+        "refs": [
+          "The opening Spikesicle (ice around the arena) plus an avalanche, here from the gold-ringed side. Dodge the curves and shift a little so it misses you"
+        ]
       }
     },
     {
