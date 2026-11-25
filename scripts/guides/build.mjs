@@ -81,15 +81,48 @@ export async function buildFight(file, { compareDir } = {}) {
     });
   }
 
+  // What the fight gives: icons and pictures fetched once, kept beside the rest.
+  const rewards = [];
+  let rk = 0;
+  const keep = async (src, tag, max = 1000) => {
+    const buf = await fetchPicture(src);
+    const m = await sharp(buf).metadata();
+    const k = Math.min(1, max / (m.width ?? max));
+    const w = Math.round((m.width ?? max) * k), h = Math.round((m.height ?? max) * k);
+    const file = `rw-${tag}.webp`;
+    await sharp(buf).resize(w, h).webp({ quality: 88 }).toFile(join(pub, file));
+    const path = `${FAKE_UID}/g-${1764000000000 + id + 800 + rk++}-rw${String(rk).padStart(3, "0")}.webp`;
+    pics[path] = `/guides/preview/${slug}/${file}`;
+    return { path, w, h };
+  };
+  for (const [i, r] of (fight.rewards ?? []).entries()) {
+    const icon = r.icon_src ? (await keep(r.icon_src, `${i}-icon`, 160)).path : null;
+    const rpics = [];
+    for (const [k, q] of (r.pics ?? []).entries()) {
+      const kept = await keep(q.src, `${i}-pic${k}`);
+      rpics.push({ ...kept, ...(q.say ? { say: q.say } : {}), ...(q.say_en ? { say_en: q.say_en } : {}) });
+    }
+    const pieces = [];
+    for (const [k, q] of (r.pieces ?? []).entries()) {
+      const kept = q.icon_src ? await keep(q.icon_src, `${i}-p${k}`, 160) : null;
+      pieces.push({ name: q.name, ...(q.job ? { job: q.job } : {}), ...(kept ? { icon: kept.path } : {}) });
+    }
+    rewards.push({ id: id + 900 + i, guide_id: id, sort: i + 1, kind: r.kind ?? "other", name: r.name,
+      ilvl: r.ilvl ?? null, say: r.say ?? null, say_en: r.say_en ?? null, icon, pics: rpics, pieces });
+  }
+
   const guide = {
     id, slug, name: fight.guide.name, short: fight.guide.short ?? null,
     expansion: fight.guide.expansion ?? "Dawntrail", category: fight.guide.category ?? "extreme",
     patch: fight.guide.patch ?? null, source_name: fight.guide.source_name ?? "game8",
     source_url: fight.guide.source_url ?? null, note: fight.guide.note ?? null,
     note_en: fight.guide.en?.note ?? null,
+    req_level: fight.guide.req?.level ?? null, req_ilvl: fight.guide.req?.ilvl ?? null,
+    req_party: fight.guide.req?.party ?? null, req_minutes: fight.guide.req?.minutes ?? null,
+    unlock: fight.guide.req?.unlock ?? null, unlock_en: fight.guide.req?.unlock_en ?? null,
     content_key: fight.guide.content_key ?? null, published: true, sort: fight.guide.sort ?? 0,
   };
-  writeFileSync(join(repo, "public/guides/preview", `${slug}.rows.json`), JSON.stringify({ guide, steps: rows, pics }));
+  writeFileSync(join(repo, "public/guides/preview", `${slug}.rows.json`), JSON.stringify({ guide, steps: rows, rewards, pics }));
 
   const indexFile = join(repo, "public/guides/preview/index.json");
   const index = existsSync(indexFile) ? JSON.parse(readFileSync(indexFile, "utf8")) : [];
@@ -119,7 +152,7 @@ export async function buildFight(file, { compareDir } = {}) {
       console.log(sheet);
     }
   }
-  console.log(`${slug}: ${rows.length} steps, ${rows.filter((r) => r.picture).length} pictures, ${rows.reduce((a, r) => a + r.refs.length, 0)} refs`);
+  console.log(`${slug}: ${rows.length} steps, ${rows.filter((r) => r.picture).length} pictures, ${rows.reduce((a, r) => a + r.refs.length, 0)} refs, ${rewards.length} rewards`);
   return { guide, rows };
 }
 

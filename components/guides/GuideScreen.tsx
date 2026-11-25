@@ -12,9 +12,11 @@ import SeatBar, { useSeat } from "@/components/guides/SeatBar";
 import PartyIcon from "@/components/party/PartyIcon";
 import ImageLightbox from "@/components/ui/ImageLightbox";
 import PictureViewer from "@/components/guides/PictureViewer";
+import GuideRewards from "@/components/guides/GuideRewards";
+import GuideNeeds from "@/components/guides/GuideNeeds";
 import {
-  CATEGORY_LABEL, GUIDE_COLUMNS, STEP_COLUMNS, cleanStep, inLang, inPhases, partyFor, pictureUrl, seatColor,
-  type Block, type DutyOption, type GuideRow, type Seat, type StepRow,
+  CATEGORY_LABEL, GUIDE_COLUMNS, REWARD_COLUMNS, STEP_COLUMNS, cleanReward, cleanStep, inLang, inPhases, partyFor, pictureUrl, seatColor,
+  type Block, type DutyOption, type GuideRow, type RewardRow, type Seat, type StepRow,
 } from "@/lib/guides";
 
 /** The editor is admins' only, so nobody else downloads it. */
@@ -27,7 +29,7 @@ type Load =
   | { kind: "loading" }
   | { kind: "missing" }
   | { kind: "error" }
-  | { kind: "ok"; guide: GuideRow; steps: StepRow[] };
+  | { kind: "ok"; guide: GuideRow; steps: StepRow[]; rewards: RewardRow[] };
 
 /**
  * One fight, read by your own seat.
@@ -54,7 +56,12 @@ export default function GuideScreen({ slug, duties = [] }: { slug: string; dutie
     const s = await sb.from("guide_steps").select(STEP_COLUMNS)
       .eq("guide_id", guide.id).order("sort").order("id");
     if (s.error) { setLoad({ kind: "error" }); return; }
-    setLoad({ kind: "ok", guide, steps: (s.data as StepRow[]).map(cleanStep) });
+    // What the fight gives (v347). A database without it answers with an
+    // error, read as "no rewards": the guide itself still shows.
+    const rw = await sb.from("guide_rewards").select(REWARD_COLUMNS)
+      .eq("guide_id", guide.id).order("sort").order("id");
+    const rewards = rw.error ? [] : (rw.data as RewardRow[]).map(cleanReward);
+    setLoad({ kind: "ok", guide, steps: (s.data as StepRow[]).map(cleanStep), rewards });
   }, [slug]);
 
   // Again once the session is known: a draft is only handed to an admin.
@@ -99,7 +106,7 @@ export default function GuideScreen({ slug, duties = [] }: { slug: string; dutie
     );
   }
 
-  const { guide, steps } = load;
+  const { guide, steps, rewards } = load;
   // Functional, because several steps save themselves at once while editing.
   const setGuide = (g: GuideRow) => setLoad((l) => (l.kind === "ok" ? { ...l, guide: g } : l));
   const setSteps = (fn: (prev: StepRow[]) => StepRow[]) =>
@@ -122,6 +129,12 @@ export default function GuideScreen({ slug, duties = [] }: { slug: string; dutie
           {guide.source_name && <Source name={guide.source_name} url={guide.source_url} />}
         </div>
         <div className="flex shrink-0 flex-wrap gap-2">
+        {rewards.length > 0 && !editing && (
+          <a href="#rewards"
+             className="inline-flex min-h-10 items-center rounded-lg border border-line px-3.5 text-read text-ink no-underline hover:border-accent hover:text-accent">
+            {t("guide.rewardsJump")}
+          </a>
+        )}
         {/* Straight to the party finder's form with this fight chosen. */}
         {guide.content_key && !editing && (
           <Link href={partyFor(guide.content_key)}
@@ -144,6 +157,7 @@ export default function GuideScreen({ slug, duties = [] }: { slug: string; dutie
           {t("guide.draftTitle")}
         </p>
       )}
+      {!editing && <GuideNeeds guide={guide} />}
       {(guide.note || guide.note_en) && !editing && (
         <p className="mt-3 whitespace-pre-line text-read leading-relaxed text-ink/90">{inLang(lang, guide.note, guide.note_en)}</p>
       )}
@@ -160,7 +174,10 @@ export default function GuideScreen({ slug, duties = [] }: { slug: string; dutie
         <GuideEditor guide={guide} steps={steps} seat={seat} onSeat={setSeat} duties={duties}
                      onGuide={setGuide} onSteps={setSteps} />
       ) : (
-        <Steps steps={steps} seat={seat} />
+        <>
+          <Steps steps={steps} seat={seat} />
+          <GuideRewards rewards={rewards} />
+        </>
       )}
     </main>
   );

@@ -34,7 +34,9 @@ for these, small, until the FC has its own.
     "category": "extreme", "expansion": "Dawntrail", "patch": "7.4",
     "source_name": "game8", "source_url": "https://game8.jp/ff14/782325",
     "content_key": "ex:Enuo",                 // the party finder's key (lib/party-seeds)
-    "note": "Thai: waymarks used, anything true for the whole fight"
+    "note": "Thai: waymarks used, anything true for the whole fight",
+    "req": { "level": 100, "ilvl": 770, "party": 8, "minutes": 60,      // before you go in (v347)
+             "unlock": "Thai: how to unlock it", "unlock_en": "English" }
   },
   "defaults": {                               // every scene starts from these
     "frame": [4, 3],                          // game8's pictures are 440×330
@@ -44,6 +46,15 @@ for these, small, until the FC has its own.
                   "1": [20, 20], "2": [80, 20], "3": [80, 80], "4": [20, 80] },
     "iconSize": 6.5, "markSize": 5.5, "bossSize": 9, "ring": 6
   },
+  "rewards": [                                // what the fight gives (v347), shown after the steps
+    { "kind": "token" | "weapon" | "mount" | "minion" | "orchestrion" | "accessory" | "other",
+      "name": "Totem of Naught",              // as the English client names it
+      "ilvl": 785,                            // where it has one
+      "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/…_hr1.tex&format=png",   // the game's own icon
+      "say": "Thai", "say_en": "English",
+      "pics": [{ "src": "…", "say": "Thai caption", "say_en": "…" }],                    // up to 4
+      "pieces": [{ "name": "Falchion of Naught", "job": "PLD", "icon_src": "…" }] }        // a set, up to 40
+  ],
   "steps": [
     {
       "phase": "ช่วงแรก",                     // heading; repeats are fine, a change starts a new one

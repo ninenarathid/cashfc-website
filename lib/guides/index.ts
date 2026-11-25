@@ -87,6 +87,13 @@ export interface GuideRow {
   source_url: string | null;
   note: string | null;
   note_en: string | null;
+  /** What the fight asks before you go in (v347). */
+  req_level: number | null;
+  req_ilvl: number | null;
+  req_party: number | null;
+  req_minutes: number | null;
+  unlock: string | null;
+  unlock_en: string | null;
   /** The party finder's key for the duty: `ex:Enuo`, `sav:M9S`. */
   content_key: string | null;
   published: boolean;
@@ -130,7 +137,7 @@ export interface StepRow {
 }
 
 export const GUIDE_COLUMNS =
-  "id, slug, name, short, expansion, category, patch, source_name, source_url, note, note_en, content_key, published, sort";
+  "id, slug, name, short, expansion, category, patch, source_name, source_url, note, note_en, content_key, published, sort, req_level, req_ilvl, req_party, req_minutes, unlock, unlock_en";
 export const STEP_COLUMNS =
   "id, guide_id, sort, phase, mech, name, note, phase_en, mech_en, name_en, note_en, picture, pic_w, pic_h, ring, spots, refs";
 
@@ -141,6 +148,51 @@ export const LIMITS = {
 } as const;
 
 export const RING_DEFAULT = 9;
+
+/* ── what a fight gives (v347) ───────────────────────────────────────────── */
+
+export const REWARD_KINDS = ["token", "weapon", "mount", "minion", "orchestrion", "accessory", "other"] as const;
+export type RewardKind = (typeof REWARD_KINDS)[number];
+
+/** One piece of a set: one weapon of a job. */
+export interface Piece {
+  name: string;
+  job?: string;
+  icon?: string;
+}
+
+export interface RewardRow {
+  id: number;
+  guide_id: number;
+  sort: number;
+  kind: RewardKind;
+  /** As the English client names it. */
+  name: string;
+  ilvl: number | null;
+  say: string | null;
+  say_en: string | null;
+  icon: string | null;
+  pics: Ref[];
+  pieces: Piece[];
+}
+
+export const REWARD_COLUMNS = "id, guide_id, sort, kind, name, ilvl, say, say_en, icon, pics, pieces";
+
+/** A reward from the database, made safe to draw: our own pictures only. */
+export function cleanReward(row: RewardRow): RewardRow {
+  const kind = (REWARD_KINDS as readonly string[]).includes(row.kind) ? row.kind : "other";
+  const pieces = Array.isArray(row.pieces)
+    ? row.pieces.slice(0, 40).flatMap((p): Piece[] => {
+      if (!p || typeof p !== "object" || typeof p.name !== "string" || !p.name.trim()) return [];
+      return [{
+        name: p.name.slice(0, 80),
+        ...(typeof p.job === "string" && p.job.trim() ? { job: p.job.slice(0, 20) } : {}),
+        ...(isPicturePath(p.icon) ? { icon: p.icon } : {}),
+      }];
+    })
+    : [];
+  return { ...row, kind, icon: isPicturePath(row.icon) ? row.icon : null, pics: cleanRefs(row.pics), pieces };
+}
 
 /* ── pictures ────────────────────────────────────────────────────────────── */
 

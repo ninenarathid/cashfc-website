@@ -12,6 +12,14 @@
     "note": "แผนตาม game8 (แผนของ Nukemaru) แผนอื่นส่วนใหญ่ต่างกันแค่การกระจายตัวใน Gaze of the Void\nMarker 8 ทิศมาตรฐาน (ดูขั้นแรก)\n\nกลุ่ม 4:4\nกลุ่ม MT: MT H1 D1 D3\nกลุ่ม ST: ST H2 D2 D4\n\nคู่ stack: MT·D3 / H1·D1 / H2·D4 / ST·D2\nคู่ tower/กรวย (จาก A ตามเข็ม): MT·D1 > ST·D2 > H1·D3 > H2·D4",
     "en": {
       "note": "Plan follows game8 (Nukemaru's strat). Most other strats differ only in the Gaze of the Void spread\nStandard 8-direction waymarks (see the first step)\n\n4:4 groups\nMT group: MT H1 D1 D3\nST group: ST H2 D2 D4\n\nStack pairs: MT·D3 / H1·D1 / H2·D4 / ST·D2\nTower/cone pairs (clockwise from A): MT·D1 > ST·D2 > H1·D3 > H2·D4"
+    },
+    "req": {
+      "level": 100,
+      "ilvl": 770,
+      "party": 8,
+      "minutes": 60,
+      "unlock": "เคลียร์ Main Quest สุดท้ายของ Dawntrail ก่อน\nแล้วคุยกับ Wandering Minstrel ที่ Tuliyollal (X: 11.1 Y: 14.6) เพื่อปลดล็อก\nExtreme ของ Dawntrail ปลดล็อกที่ NPC คนนี้ทั้งหมด",
+      "unlock_en": "Finish Dawntrail's latest main scenario quest first\nthen talk to the Wandering Minstrel in Tuliyollal (X: 11.1 Y: 14.6) to unlock it\nEvery Dawntrail Extreme is unlocked from this NPC"
     }
   },
   "defaults": {
@@ -4091,6 +4099,149 @@
         "name": "⑫ Dense/Airy Emptiness again (pictured: Dense)",
         "note": "Airy/Dense Emptiness follows again. This picture is Dense (4:4 stacks: MT group west, ST group east), but it can be Airy"
       }
+    }
+  ],
+  "rewards": [
+    {
+      "kind": "token",
+      "name": "Totem of Naught",
+      "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/026000/026696_hr1.tex&format=png",
+      "say": "ได้ 2 ชิ้นทุกครั้งที่เคลียร์ (การันตี)\n\nแลกที่ NPC แลกของ Extreme ใน Solution Nine — Nexus Arcade (X: 8.7 Y: 13.5)\nอาวุธ IL785: 10 ชิ้น ต่ออาวุธ 1 ชิ้น\nWings of Nihility: 99 ชิ้น",
+      "say_en": "Every clear gives 2 (guaranteed).\n\nExchange them with the Extreme trial exchange NPC in Solution Nine — Nexus Arcade (X: 8.7 Y: 13.5)\nIL785 weapon: 10 per weapon\nWings of Nihility: 99"
+    },
+    {
+      "kind": "weapon",
+      "name": "Weapons of Naught",
+      "ilvl": 785,
+      "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/030000/030705_hr1.tex&format=png",
+      "say": "แลกด้วย Totem of Naught 10 ชิ้น ต่ออาวุธ 1 ชิ้น\nมีครบทุกอาชีพ แตะไอคอนเพื่อดูชื่ออาวุธ",
+      "say_en": "10 Totems of Naught per weapon\nOne for every job; tap an icon for the weapon's name",
+      "pieces": [
+        {
+          "name": "Falchion of Naught",
+          "job": "PLD",
+          "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/030000/030705_hr1.tex&format=png"
+        },
+        {
+          "name": "Claws of Naught",
+          "job": "MNK",
+          "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/030000/030869_hr1.tex&format=png"
+        },
+        {
+          "name": "Labrys of Naught",
+          "job": "WAR",
+          "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/031000/031279_hr1.tex&format=png"
+        },
+        {
+          "name": "Fork of Naught",
+          "job": "DRG",
+          "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/031000/031681_hr1.tex&format=png"
+        },
+        {
+          "name": "Bow of Naught",
+          "job": "BRD",
+          "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/032000/032069_hr1.tex&format=png"
+        },
+        {
+          "name": "Cane of Naught",
+          "job": "WHM",
+          "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/032000/032500_hr1.tex&format=png"
+        },
+        {
+          "name": "Rod of Naught",
+          "job": "BLM",
+          "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/032000/032915_hr1.tex&format=png"
+        },
+        {
+          "name": "Index of Naught",
+          "job": "SMN",
+          "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/037000/037860_hr1.tex&format=png"
+        },
+        {
+          "name": "Codex of Naught",
+          "job": "SCH",
+          "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/037000/037861_hr1.tex&format=png"
+        },
+        {
+          "name": "Knives of Naught",
+          "job": "NIN",
+          "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/033000/033655_hr1.tex&format=png"
+        },
+        {
+          "name": "Greatsword of Naught",
+          "job": "DRK",
+          "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/034000/034034_hr1.tex&format=png"
+        },
+        {
+          "name": "Handgonne of Naught",
+          "job": "MCH",
+          "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/034000/034528_hr1.tex&format=png"
+        },
+        {
+          "name": "Star Globe of Naught",
+          "job": "AST",
+          "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/034000/034727_hr1.tex&format=png"
+        },
+        {
+          "name": "Blade of Naught",
+          "job": "SAM",
+          "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/036000/036583_hr1.tex&format=png"
+        },
+        {
+          "name": "Foil of Naught",
+          "job": "RDM",
+          "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/036000/036882_hr1.tex&format=png"
+        },
+        {
+          "name": "Gunblade of Naught",
+          "job": "GNB",
+          "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/036000/036125_hr1.tex&format=png"
+        },
+        {
+          "name": "Chakrams of Naught",
+          "job": "DNC",
+          "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/036000/036324_hr1.tex&format=png"
+        },
+        {
+          "name": "War Scythe of Naught",
+          "job": "RPR",
+          "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/037000/037295_hr1.tex&format=png"
+        },
+        {
+          "name": "Syrinxi of Naught",
+          "job": "SGE",
+          "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/037000/037091_hr1.tex&format=png"
+        },
+        {
+          "name": "Twinfangs of Naught",
+          "job": "VPR",
+          "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/037000/037458_hr1.tex&format=png"
+        },
+        {
+          "name": "Paintbrush of Naught",
+          "job": "PCT",
+          "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/037000/037668_hr1.tex&format=png"
+        },
+        {
+          "name": "Shield of Naught",
+          "job": "PLD",
+          "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/030000/030294_hr1.tex&format=png"
+        }
+      ]
+    },
+    {
+      "kind": "mount",
+      "name": "Wings of Nihility",
+      "icon_src": "https://v2.xivapi.com/api/asset?path=ui/icon/004000/004356_hr1.tex&format=png",
+      "say": "ของ rare ดรอปจากหีบ อัตราดรอปต่ำมาก\nหรือแลกด้วย Totem of Naught 99 ชิ้น",
+      "say_en": "A rare drop from the chest, with a very low drop rate\nor 99 Totems of Naught",
+      "pics": [
+        {
+          "src": "https://v2.xivapi.com/api/asset?path=ui/icon/068000/068356_hr1.tex&format=png",
+          "say": "หน้าตา Wings of Nihility (ภาพจาก Mount Guide ในเกม)",
+          "say_en": "Wings of Nihility, as the in-game Mount Guide shows it"
+        }
+      ]
     }
   ]
 }

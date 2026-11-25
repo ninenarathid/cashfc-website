@@ -112,7 +112,34 @@ async function main() {
       spots: sceneSpots(step.scene ?? {}, step.says ?? {}, step.strict, step.en?.says ?? {}), refs,
     });
   }
-  console.log(`${g.slug}: ${steps.length} steps, ${uploads.length} pictures`);
+  // What the fight gives (v347): the game's icons and the pictures, made webp.
+  const rewards = [];
+  const keep = async (src, max) => {
+    const res = await fetch(src, { headers: { "user-agent": "Mozilla/5.0" } });
+    if (!res.ok) throw new Error(`${src}: ${res.status}`);
+    const buf = Buffer.from(await res.arrayBuffer());
+    const m = await sharp(buf).metadata();
+    const k = Math.min(1, max / (m.width ?? max));
+    const w = Math.round((m.width ?? max) * k), h = Math.round((m.height ?? max) * k);
+    const path = `${owner}/g-${t++}-${rand()}.webp`;
+    uploads.push([path, await sharp(buf).resize(w, h).webp({ quality: 88 }).toBuffer()]);
+    return { path, w, h };
+  };
+  for (const [i, r] of (fight.rewards ?? []).entries()) {
+    const icon = r.icon_src ? (await keep(r.icon_src, 160)).path : null;
+    const pics = [];
+    for (const q of (r.pics ?? []).slice(0, 4)) {
+      pics.push({ ...(await keep(q.src, 1000)), ...(q.say ? { say: q.say.slice(0, 160) } : {}), ...(q.say_en ? { say_en: q.say_en.slice(0, 160) } : {}) });
+    }
+    const pieces = [];
+    for (const q of (r.pieces ?? []).slice(0, 40)) {
+      const kept = q.icon_src ? await keep(q.icon_src, 160) : null;
+      pieces.push({ name: q.name.slice(0, 80), ...(q.job ? { job: q.job.slice(0, 20) } : {}), ...(kept ? { icon: kept.path } : {}) });
+    }
+    rewards.push({ sort: i + 1, kind: r.kind ?? "other", name: r.name.slice(0, 80), ilvl: r.ilvl ?? null,
+      say: r.say ?? null, say_en: r.say_en ?? null, icon, pics, pieces });
+  }
+  console.log(`${g.slug}: ${steps.length} steps, ${rewards.length} rewards, ${uploads.length} pictures`);
   if (dry) { console.log("dry run: nothing written"); return; }
 
   for (const [path, buf] of uploads) await upload(path, buf);
@@ -122,6 +149,11 @@ async function main() {
   if (old?.[0]) {
     const s = await rest(`guide_steps?select=picture,refs&guide_id=eq.${old[0].id}`);
     oldPics = s.flatMap((x) => [x.picture, ...(x.refs ?? []).map((r) => r.path)]).filter(Boolean);
+    // And the old rewards' pictures, where the database has rewards (v347).
+    try {
+      const rw = await rest(`guide_rewards?select=icon,pics,pieces&guide_id=eq.${old[0].id}`);
+      oldPics.push(...rw.flatMap((x) => [x.icon, ...(x.pics ?? []).map((p) => p.path), ...(x.pieces ?? []).map((p) => p.icon)]).filter(Boolean));
+    } catch { /* no rewards table yet */ }
     await rest(`guides?id=eq.${old[0].id}`, { method: "DELETE" });
   }
   const [row] = await rest("guides", {
@@ -130,12 +162,17 @@ async function main() {
       slug: g.slug, name: g.name, short: g.short ?? null, expansion: g.expansion ?? "Dawntrail",
       category: g.category ?? "extreme", patch: g.patch ?? null, source_name: g.source_name ?? "game8",
       source_url: g.source_url ?? null, note: g.note ?? null, note_en: g.en?.note ?? null,
+      req_level: g.req?.level ?? null, req_ilvl: g.req?.ilvl ?? null, req_party: g.req?.party ?? null,
+      req_minutes: g.req?.minutes ?? null, unlock: g.req?.unlock ?? null, unlock_en: g.req?.unlock_en ?? null,
       content_key: g.content_key ?? null,
       published: !draft, sort: g.sort ?? 0,
     }),
   });
   try {
     await rest("guide_steps", { method: "POST", body: JSON.stringify(steps.map((s) => ({ ...s, guide_id: row.id }))) });
+    if (rewards.length) {
+      await rest("guide_rewards", { method: "POST", body: JSON.stringify(rewards.map((r) => ({ ...r, guide_id: row.id }))) });
+    }
   } catch (e) {
     // Half a guide is worse than none: take it and its new pictures back out.
     await rest(`guides?id=eq.${row.id}`, { method: "DELETE" }).catch(() => {});

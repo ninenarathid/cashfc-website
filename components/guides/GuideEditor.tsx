@@ -159,6 +159,8 @@ function GuideInfo(
       slug: d.slug, name: d.name.trim(), short: opt(d.short ?? ""), expansion: d.expansion,
       category: d.category, patch: opt(d.patch ?? ""), source_name: opt(d.source_name ?? ""),
       source_url: opt(d.source_url ?? ""), note: opt(d.note ?? ""), note_en: opt(d.note_en ?? ""),
+      req_level: d.req_level || null, req_ilvl: d.req_ilvl || null, req_party: d.req_party || null,
+      req_minutes: d.req_minutes || null, unlock: opt(d.unlock ?? ""), unlock_en: opt(d.unlock_en ?? ""),
       published: d.published,
       content_key: d.content_key || null,
     }).eq("id", guide.id).select(GUIDE_COLUMNS).single();
@@ -237,6 +239,22 @@ function GuideInfo(
           <label className={`${labelCls} sm:col-span-2`}>{t("guide.f.sourceUrl")}
             <input className={field} type="url" inputMode="url" value={d.source_url ?? ""} maxLength={LIMITS.sourceUrl}
                    onChange={(e) => set("source_url", e.target.value)} />
+          </label>
+          {/* What the fight asks before you go in (v347). */}
+          <div className="grid grid-cols-2 gap-3 sm:col-span-2 sm:grid-cols-4">
+            {([["req_level", "guide.f.reqLevel", 100], ["req_ilvl", "guide.f.reqIlvl", 999],
+               ["req_party", "guide.f.reqParty", 48], ["req_minutes", "guide.f.reqMinutes", 240]] as const).map(([k, label, max]) => (
+              <label key={k} className={labelCls}>{t(label)}
+                <input className={field} type="number" inputMode="numeric" min={1} max={max}
+                       value={d[k] ?? ""}
+                       onChange={(e) => set(k, e.target.value ? Math.min(max, Math.max(1, Math.round(Number(e.target.value)))) : null)} />
+              </label>
+            ))}
+          </div>
+          <label className={`${labelCls} sm:col-span-2`}>{t("guide.f.unlock")}
+            <textarea className={`${field} min-h-16`} value={(en ? d.unlock_en : d.unlock) ?? ""} maxLength={600}
+                      placeholder={en ? d.unlock ?? "" : undefined}
+                      onChange={(e) => set(en ? "unlock_en" : "unlock", e.target.value)} />
           </label>
           <label className={`${labelCls} sm:col-span-2`}>{t("guide.f.note")}
             <textarea className={`${field} min-h-20`} value={(en ? d.note_en : d.note) ?? ""} maxLength={LIMITS.guideNote}
