@@ -79,7 +79,7 @@
    "phase": "ช่วงแรก (สนามปกติ)",
    "mech": "Aethertithe + Retribute",
    "name": "raid-wide + AoE รูปพัด 3 ครั้ง",
-   "note": "Aethertithe: AoE เวททั้งปาร์ตี้ (raid-wide) ใช้ท่าลดดาเมจและ barrier\nหลังจากนั้นโดนดาเมจต่อเนื่อง (DoT) ไปพร้อมกับที่สนามเปลี่ยน\nมี AoE รูปพัดออกจากจุดที่บิดเบี้ยว\nแล้วตามด้วย Retribute: line stack ที่ Healer\n\nแยก 2 กลุ่มรับ line stack:\nกลุ่ม MT: MT H1 D1 D3\nกลุ่ม ST: ST H2 D2 D4\n\nAoE รูปพัดมา 3 ครั้ง ครั้งละที่: ฝั่งตะวันตก ตรงกลาง ฝั่งตะวันออก\nจึงต้องหลบ 3 รอบ (ดู 3 ขั้นถัดไป)",
+   "note": "Aethertithe: AoE เวททั้งปาร์ตี้ (raid-wide) ใช้ mitigate และ barrier\nหลังจากนั้นโดนดาเมจต่อเนื่อง (DoT) ไปพร้อมกับที่สนามเปลี่ยน\nมี AoE รูปพัดออกจากจุดที่บิดเบี้ยว\nแล้วตามด้วย Retribute: line stack ที่ Healer\n\nแยก 2 กลุ่มรับ line stack:\nกลุ่ม MT: MT H1 D1 D3\nกลุ่ม ST: ST H2 D2 D4\n\nAoE รูปพัดมา 3 ครั้ง ครั้งละที่: ฝั่งตะวันตก ตรงกลาง ฝั่งตะวันออก\nจึงต้องหลบ 3 รอบ (ดู 3 ขั้นถัดไป)",
    "strict": false,
    "says": {
     "H1": "เป้า line stack ของกลุ่ม MT",
@@ -114,7 +114,7 @@
    "mech": "Aethertithe + Retribute",
    "name": "แบบที่ 1: AoE ฝั่งตะวันตก",
    "note": "AoE รูปพัดลงฝั่งตะวันตก ฝั่งตะวันออกปลอดภัย\nภาพนี้: กลุ่ม MT อยู่กลางสนาม / กลุ่ม ST อยู่ทางตะวันออกเฉียงเหนือของกลุ่ม MT\nแต่ละกลุ่มรวมกันรับ line stack ของ Healer กลุ่มตัวเอง",
-   "strict": false,
+   "strict": true,
    "game8": [
     "https://img.game8.jp/10718476/022e24a2e7fc5205c6cf069d566c1bd7.png/show"
    ],
@@ -1176,7 +1176,7 @@
    "mech": "Aethertithe + Retribute",
    "name": "แบบที่ 2: AoE ฝั่งตะวันออก",
    "note": "AoE รูปพัดลงฝั่งตะวันออก ฝั่งตะวันตกปลอดภัย\nภาพนี้: กลุ่ม MT อยู่ทางตะวันตกเฉียงเหนือ / กลุ่ม ST อยู่กลางสนาม",
-   "strict": false,
+   "strict": true,
    "game8": [
     "https://img.game8.jp/10718475/98def88a4b9ba44f00e2107d2de1cf0c.png/show"
    ],
@@ -2238,7 +2238,7 @@
    "mech": "Aethertithe + Retribute",
    "name": "แบบที่ 3: AoE ตรงกลาง",
    "note": "AoE รูปพัดลงตรงกลาง กินกลางสนามลงไปถึงขอบใต้\nที่ปลอดภัยเหลือมุมเหนือ 2 ข้าง\nภาพนี้: กลุ่ม MT มุมตะวันตกเฉียงเหนือ / กลุ่ม ST มุมตะวันออกเฉียงเหนือ",
-   "strict": false,
+   "strict": true,
    "game8": [
     "https://img.game8.jp/10718474/d242167ef6e9845e99bf1c1149f0c202.png/show"
    ],
@@ -3328,7 +3328,7 @@
    "mech": "Laws of Wind + Missing Link + Legitimate Force + East/West Wind of Change",
    "name": "① stack ที่ Healer แยก 2 กลุ่ม",
    "note": "① Healer ทั้ง 2 คนได้ stack\nกลุ่ม MT ไปตะวันตกเฉียงเหนือ\nกลุ่ม ST ไปตะวันออกเฉียงใต้\nรวมกันรับ stack ในกลุ่มตัวเอง",
-   "strict": false,
+   "strict": true,
    "says": {
     "MT": "stack กับกลุ่ม MT ฝั่งตะวันตกเฉียงเหนือ",
     "H1": "stack กับกลุ่ม MT ฝั่งตะวันตกเฉียงเหนือ",
@@ -7602,7 +7602,7 @@
    "phase": "Virtual Shift ครั้งที่ 1 (ลม)",
    "mech": "World Shatter",
    "name": "raid-wide + สนามกลับแบบเดิม",
-   "note": "AoE ทั้งปาร์ตี้ที่มาตอนจบท่าเปลี่ยนสนามทุกครั้ง ใช้ท่าลดดาเมจให้ดี\nโดนแล้วสนามกลับเป็นสี่เหลี่ยมแบบเดิม",
+   "note": "AoE ทั้งปาร์ตี้ที่มาตอนจบท่าเปลี่ยนสนามทุกครั้ง ใช้ mitigate ให้ดี\nโดนแล้วสนามกลับเป็นสี่เหลี่ยมแบบเดิม",
    "strict": false,
    "scene": null,
    "en": {
@@ -9261,7 +9261,7 @@
    "phase": "Virtual Shift ครั้งที่ 2 (ดิน)",
    "mech": "Gravitational Empire",
    "name": "① แยกหน้าที่: สาย / วงใหญ่ / tower",
-   "note": "① ท่าผสม: สาย 2 เส้นจากบอส, เครื่องหมาย AoE วงใหญ่ 2 คน และ tower เกาะละ 2 (รวม 4)\nคนที่ได้สาย: ลอยขึ้น ไปทางบอส\nคนที่ได้วงใหญ่: ลอยขึ้น ไปที่ที่วงไม่โดนใคร และไม่โดน AoE รูปพัดของสาย\nคนที่ไม่ได้อะไร: อยู่บนพื้น เข้า tower\n\ntower: Melee กับ Tank อยู่หน้า (เหนือ) / Range กับ Healer อยู่หลัง (ใต้)\nลำดับตาม macro จากเหนือลงใต้: Melee > Tank > Range > Healer\n\ngame8 วาดตามที่ Hamukatsu ทำจริงในวิดีโอ ส่วนในคำอธิบายของวิดีโอ เขาแนะนำลำดับจากเหนือ Tank > Healer > DPS > DPS",
+   "note": "① ท่าผสม: สาย 2 เส้นจากบอส, เครื่องหมาย AoE วงใหญ่ 2 คน และ tower เกาะละ 2 (รวม 4)\nคนที่ได้สาย: ลอยขึ้น ไปทางบอส\nคนที่ได้วงใหญ่: ลอยขึ้น ไปที่ที่วงไม่โดนใคร และไม่โดน AoE รูปพัดของสาย\nคนที่ไม่ได้อะไร: อยู่บนพื้น เข้า tower\n\ntower: Melee กับ Tank อยู่หน้า (เหนือ) / Range กับ Healer อยู่หลัง (ใต้)\nลำดับตาม macro จากเหนือลงใต้: Melee > Tank > Range > Healer\n\nลำดับนี้ game8 อิงจากที่ Hamukatsu ทำจริงในวิดีโอ",
    "strict": false,
    "game8": [
     "https://img.game8.jp/10719367/b6ebde693c62c5b8061012fd6deab908.png/show"
@@ -9864,7 +9864,7 @@
     "phase": "Virtual Shift 2 (earth)",
     "mech": "Gravitational Empire",
     "name": "① Jobs: tethers / big circles / towers",
-    "note": "① A mix: 2 tethers from the boss, big circle AoE markers on 2 players, and 2 towers on each island (4 in all)\nTethered: float up and go towards the boss\nBig circle: float up, to where your circle hits nobody and the tethers' cones miss you\nNothing: stay on the ground and take a tower\n\nTowers: Melees and tanks in front (north) / Ranges and healers behind (south)\nThe macro's order, north to south: Melee > Tank > Range > Healer\n\ngame8 draws what Hamukatsu actually did in his video; in the video's commentary he suggests Tank > Healer > DPS > DPS from the north"
+    "note": "① A mix: 2 tethers from the boss, big circle AoE markers on 2 players, and 2 towers on each island (4 in all)\nTethered: float up and go towards the boss\nBig circle: float up, to where your circle hits nobody and the tethers' cones miss you\nNothing: stay on the ground and take a tower\n\nTowers: Melees and tanks in front (north) / Ranges and healers behind (south)\nThe macro's order, north to south: Melee > Tank > Range > Healer\n\ngame8 takes this order from what Hamukatsu actually did in his video"
    }
   },
   {
@@ -15628,7 +15628,7 @@
    "mech": "Absolute Authority",
    "plan": "ยืนรวมกัน",
    "name": "④ ทิ้ง AoE ครบแล้วยืนรวมกันกลางสนาม",
-   "note": "ทิ้ง AoE ครบทุกวงแล้ว ทุกคนยืนรวมกันกลางสนามได้เลย ไม่ต้องแยกไปตาม Marker\nflare 4 คนและ stack ลงที่กลุ่มเดียวกัน ทุกคนโดนหมด จึงต้องช่วยกันลดดาเมจ:\nTank: ท่าลดดาเมจทั้งปาร์ตี้ + Reprisal\nHealer: barrier และท่าลดดาเมจทั้งปาร์ตี้\nMelee: Feint\nRange: ท่าลดดาเมจทั้งปาร์ตี้ / Addle\n\ndebuff ห้ามอยู่คนเดียว ไม่ต้องจับคู่ เพราะทุกคนอยู่ด้วยกันอยู่แล้ว\nแล้วต่อด้วย knockback จากทิศเหนือ",
+   "note": "ทิ้ง AoE ครบทุกวงแล้ว ทุกคนยืนรวมกันกลางสนามได้เลย ไม่ต้องแยกไปตาม Marker\nflare 4 คนและ stack ลงที่กลุ่มเดียวกัน ทุกคนโดนหมด จึงต้องช่วยกัน mitigate:\nTank: mitigate + Reprisal\nHealer: barrier และ mitigate\nMelee: Feint\nRange: mitigate / Addle\n\ndebuff ห้ามอยู่คนเดียว ไม่ต้องจับคู่ เพราะทุกคนอยู่ด้วยกันอยู่แล้ว\nแล้วต่อด้วย knockback จากทิศเหนือ",
    "strict": false,
    "scene": {
     "roles": {
@@ -37062,7 +37062,7 @@
    "phase": "สนามปกติ ครั้งที่ 4",
    "mech": "Authority Eternal",
    "name": "จบช่วงแรก: ต้องลดเลือดบอสให้ทัน",
-   "note": "ถ้าตีเร็วมาก Authority Eternal มาทันทีหลัง Virtual Shift ครั้งที่ 3\nร่ายจบแล้วบอสยังมีเลือดเกิน 0.1% = wipe ตีให้เต็มที่\nท่านี้แรงมาก ใช้ท่าลดดาเมจและ barrier ให้ครบ จบแล้วเข้าช่วงหลัง\n\nถ้าตีปกติ ลำดับจะเป็น:\nProsecution of War (Tank buster) > Royal Domain (raid-wide) > Legitimate Force (ครึ่งสนาม) > Royal Domain > Authority Eternal",
+   "note": "ถ้าตีเร็วมาก Authority Eternal มาทันทีหลัง Virtual Shift ครั้งที่ 3\nร่ายจบแล้วบอสยังมีเลือดเกิน 0.1% = wipe ตีให้เต็มที่\nท่านี้แรงมาก ใช้ mitigate และ barrier ให้ครบ จบแล้วเข้าช่วงหลัง\n\nถ้าตีปกติ ลำดับจะเป็น:\nProsecution of War (Tank buster) > Royal Domain (raid-wide) > Legitimate Force (ครึ่งสนาม) > Royal Domain > Authority Eternal",
    "strict": false,
    "scene": null,
    "en": {
@@ -41107,7 +41107,7 @@
    "phase": "ช่วงหลัง",
    "mech": "Dying Memory + Royal Banishment",
    "name": "stack 8 ครั้ง 2 ชุด: กายภาพ แล้วเวท",
-   "note": "หลัง tower: Dying Memory (โขกหัว) เป็น stack ดาเมจกายภาพทั้งปาร์ตี้ 8 ครั้ง\nตามด้วย Royal Banishment (ลำแสง) เป็น stack ดาเมจเวท 8 ครั้ง ทุกคนรวมในแนวเส้นตามภาพ\nโดนติดกันหลายครั้งมาก ใช้ท่าลดดาเมจ barrier และ heal ให้ครบ\n\nDying Memory เป็นกายภาพ: Melee ใช้ Feint\nRoyal Banishment เป็นเวท: Caster ใช้ Addle",
+   "note": "หลัง tower: Dying Memory (โขกหัว) เป็น stack ดาเมจกายภาพทั้งปาร์ตี้ 8 ครั้ง\nตามด้วย Royal Banishment (ลำแสง) เป็น stack ดาเมจเวท 8 ครั้ง ทุกคนรวมในแนวเส้นตามภาพ\nโดนติดกันหลายครั้งมาก ใช้ mitigate barrier และ heal ให้ครบ\n\nDying Memory เป็นกายภาพ: Melee ใช้ Feint\nRoyal Banishment เป็นเวท: Caster ใช้ Addle",
    "strict": false,
    "says": {
     "D1": "ใช้ Feint ช่วง Dying Memory",
