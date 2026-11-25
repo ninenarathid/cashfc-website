@@ -10,7 +10,7 @@ import Modal from "@/components/ui/Modal";
 import Skeleton from "@/components/ui/Skeleton";
 import {
   CATEGORIES, CATEGORY_LABEL, DEFAULT_SOURCE, EXPANSIONS, GUIDE_COLUMNS, LIMITS, isCategory, isSlug, slugify,
-  type Category, type GuideRow,
+  type Category, type DutyOption, type GuideRow,
 } from "@/lib/guides";
 
 /**
@@ -19,7 +19,12 @@ import {
  * Admins also see the drafts, marked, and a button to start a new one, which
  * opens straight into editing.
  */
-export default function GuideShelf() {
+/** The type's colour where a guide has no banner: the party finder's own. */
+const TINT: Record<Category, string> = {
+  savage: "#d19a66", extreme: "#e06c75", ultimate: "#c678dd", chaotic: "#61afef", other: "#8b93a1",
+};
+
+export default function GuideShelf({ duties = [] }: { duties?: DutyOption[] }) {
   const { t } = useLang();
   const { isAdmin, realAdmin, ready } = useAdmin();
   const [rows, setRows] = useState<GuideRow[] | null>(null);
@@ -55,7 +60,6 @@ export default function GuideShelf() {
           </button>
         )}
       </div>
-      <p className="mt-1 text-read text-muted">{t("guide.seatHint")}</p>
 
       {rows === null && !failed && (
         <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -79,26 +83,15 @@ export default function GuideShelf() {
       {expansions.map((x) => (
         <section key={x} className="mt-6">
           <h2 className="font-display text-lg font-semibold">{x}</h2>
-          <div className="mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {/* minmax(0, 1fr) on a phone too: the banner's ratio and its floor
+              of 120px asked for 376px, more than a 360px phone has. */}
+          <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {(rows ?? [])
               .filter((g) => g.expansion === x)
               .sort((a, b) => CATEGORIES.indexOf(a.category) - CATEGORIES.indexOf(b.category)
                 || a.sort - b.sort || a.name.localeCompare(b.name))
               .map((g) => (
-                <Link key={g.id} href={`/guides/${g.slug}`}
-                      className="block rounded-xl border border-line bg-surface px-3.5 py-3 no-underline transition-colors hover:border-accent">
-                  <div className="flex items-center gap-2 font-data text-meta uppercase tracking-[0.14em] text-muted">
-                    {CATEGORY_LABEL[g.category]}
-                    {g.patch && <span className="normal-case tracking-normal">· {g.patch}</span>}
-                    {!g.published && (
-                      <span className="rounded-full border border-chili/60 px-1.5 normal-case tracking-normal text-chili">
-                        {t("guide.draftTag")}
-                      </span>
-                    )}
-                  </div>
-                  <div className="mt-1 text-title font-semibold text-ink">{g.short ?? g.name}</div>
-                  {g.short && <div className="truncate text-ui text-muted">{g.name}</div>}
-                </Link>
+                <GuideCard key={g.id} g={g} art={duties.find((d) => d.key === g.content_key)} />
               ))}
           </div>
         </section>
@@ -106,6 +99,41 @@ export default function GuideShelf() {
 
       {making && <NewGuide existing={rows ?? []} onClose={() => setMaking(false)} />}
     </main>
+  );
+}
+
+/**
+ * One guide on the shelf, wearing its fight's banner (the owner, 2026-11-25:
+ * "เอา banner แบบ party finder มาใส่"): the game's own duty picture in its
+ * own shape, darkened toward the bottom where the words sit, exactly as the
+ * party finder's window draws it. A guide with no fight tied to it gets its
+ * type's colour instead.
+ */
+function GuideCard({ g, art }: { g: GuideRow; art?: DutyOption }) {
+  const { t } = useLang();
+  return (
+    <Link href={`/guides/${g.slug}`}
+          style={{
+            backgroundImage: art?.art ? `url(${art.art})` : undefined,
+            backgroundPosition: art?.focus ?? "center",
+            backgroundColor: `color-mix(in srgb, ${TINT[g.category]} 22%, var(--color-bg))`,
+          }}
+          className="group relative flex aspect-[1128/360] min-h-[120px] min-w-0 items-end overflow-hidden rounded-xl border border-line bg-cover no-underline transition-[border-color,transform] duration-150 hover:border-accent active:scale-[.99] site-dark:border-transparent">
+      <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/5" />
+      {!g.published && (
+        <span className="absolute right-2.5 top-2.5 rounded-full border border-chili/70 bg-black/60 px-2 py-0.5 text-label text-white">
+          {t("guide.draftTag")}
+        </span>
+      )}
+      <span className="relative z-[1] flex min-w-0 flex-col px-3.5 pb-3 pt-6">
+        <span className="font-data text-meta uppercase tracking-[0.14em] text-white/75 drop-shadow">
+          {CATEGORY_LABEL[g.category]}
+          {g.patch && <span className="normal-case tracking-normal"> · {g.patch}</span>}
+        </span>
+        <span className="text-xl font-bold leading-tight text-white drop-shadow">{g.short ?? g.name}</span>
+        {g.short && <span className="truncate text-ui text-white/85 drop-shadow">{g.name}</span>}
+      </span>
+    </Link>
   );
 }
 

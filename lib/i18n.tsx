@@ -64,10 +64,6 @@ const DICT = {
   "guide.draftTitle": { en: "Draft — only admins can see this guide", th: "ร่าง — ตอนนี้เห็นแค่แอดมิน" },
   "guide.source": { en: "Strategy from {name}", th: "อ้างอิงแผนจาก {name}" },
   "guide.seat": { en: "Your role", th: "ตำแหน่งของคุณ" },
-  "guide.seatHint": {
-    en: "Pick your role — each picture lights up only where you stand.",
-    th: "เลือกตำแหน่งของคุณ แต่ละภาพจะสว่างเฉพาะจุดที่คุณต้องยืน",
-  },
   "guide.showAll": { en: "Whole picture", th: "ดูทั้งภาพ" },
   "guide.showMine": { en: "My spot", th: "จุดของฉัน" },
   "guide.enlarge": { en: "View large", th: "ดูภาพใหญ่" },

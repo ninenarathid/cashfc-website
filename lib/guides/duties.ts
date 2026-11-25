@@ -19,5 +19,7 @@ export function guideDuties(): DutyOption[] {
     .map((c) => ({
       key: c.key,
       label: [c.badge && c.badge !== c.name ? c.badge : null, c.name].filter(Boolean).join(" · "),
+      ...(c.art ? { art: c.art } : {}),
+      ...(c.focus ? { focus: c.focus } : {}),
     }));
 }

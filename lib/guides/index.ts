@@ -97,6 +97,10 @@ export interface GuideRow {
 export interface DutyOption {
   key: string;
   label: string;
+  /** The duty's banner, the one the party finder wears (public/duty/…). */
+  art?: string;
+  /** Where in it the subject is, for a crop. */
+  focus?: string;
 }
 
 /** The party finder, opened on its form with this duty already chosen. */

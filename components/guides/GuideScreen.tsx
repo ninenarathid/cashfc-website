@@ -152,8 +152,7 @@ export default function GuideScreen({ slug, duties = [] }: { slug: string; dutie
           with a tick on the seats already placed; two seat bars would be one too many. */}
       {!(editing && isAdmin) && (
         <>
-          <p className="mb-2 mt-4 text-ui text-muted">{t("guide.seatHint")}</p>
-          <SeatBar seat={seat} onSeat={setSeat} />
+          <div className="mt-4"><SeatBar seat={seat} onSeat={setSeat} /></div>
         </>
       )}
 
