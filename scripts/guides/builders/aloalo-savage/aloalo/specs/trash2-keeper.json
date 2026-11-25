@@ -1,0 +1,77 @@
+{
+ "src": "scripts/guides/.work/aloalo/fr/pick/trash2-keeper.png",
+ "out": "scripts/guides/data/frames/aloalo-savage/trash2-keeper.webp",
+ "crop": [
+  540,
+  205,
+  1100,
+  600
+ ],
+ "blur": [
+  [
+   66,
+   76,
+   208,
+   68
+  ],
+  [
+   0,
+   271,
+   134,
+   58
+  ],
+  [
+   746,
+   286,
+   268,
+   63
+  ],
+  [
+   491,
+   366,
+   153,
+   63
+  ],
+  [
+   286,
+   416,
+   198,
+   58
+  ],
+  [
+   0,
+   448,
+   1100,
+   152
+  ],
+  [
+   1040,
+   30,
+   60,
+   60
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    180,
+    207
+   ],
+   "r": 100
+  },
+  {
+   "t": "label",
+   "at": [
+    20,
+    470
+   ],
+   "lines": [
+    "Aloalo Islekeeper",
+    "ฆ่าที่ตะวันตกเฉียงใต้ ระวัง Ancient Quaga"
+   ],
+   "size": 32
+  }
+ ],
+ "width": 1000
+}

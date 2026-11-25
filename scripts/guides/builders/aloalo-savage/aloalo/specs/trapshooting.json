@@ -1,0 +1,83 @@
+{
+ "src": "scripts/guides/.work/aloalo/fr/pick/trapshooting.png",
+ "out": "scripts/guides/data/frames/aloalo-savage/trapshooting.webp",
+ "crop": [
+  540,
+  205,
+  1100,
+  600
+ ],
+ "blur": [
+  [
+   276,
+   106,
+   198,
+   68
+  ],
+  [
+   256,
+   186,
+   238,
+   68
+  ],
+  [
+   481,
+   278,
+   163,
+   73
+  ],
+  [
+   256,
+   341,
+   178,
+   68
+  ],
+  [
+   0,
+   276,
+   104,
+   63
+  ],
+  [
+   481,
+   411,
+   168,
+   58
+  ],
+  [
+   0,
+   448,
+   1100,
+   152
+  ],
+  [
+   1040,
+   30,
+   60,
+   60
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    440,
+    350
+   ],
+   "r": 110
+  },
+  {
+   "t": "label",
+   "at": [
+    20,
+    470
+   ],
+   "lines": [
+    "Trapshooting",
+    "stack หรือ spread ตามนัดที่ 1 / 8"
+   ],
+   "size": 32
+  }
+ ],
+ "width": 1000
+}

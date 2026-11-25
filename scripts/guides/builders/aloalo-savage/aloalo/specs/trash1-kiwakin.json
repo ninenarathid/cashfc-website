@@ -1,0 +1,89 @@
+{
+ "src": "scripts/guides/.work/aloalo/fr/pick/v1_20.png",
+ "out": "scripts/guides/data/frames/aloalo-savage/trash1-kiwakin.webp",
+ "crop": [
+  540,
+  205,
+  1100,
+  600
+ ],
+ "blur": [
+  [
+   326,
+   126,
+   228,
+   63
+  ],
+  [
+   0,
+   256,
+   164,
+   63
+  ],
+  [
+   426,
+   274,
+   218,
+   63
+  ],
+  [
+   311,
+   304,
+   158,
+   63
+  ],
+  [
+   486,
+   314,
+   168,
+   88
+  ],
+  [
+   286,
+   401,
+   138,
+   63
+  ],
+  [
+   491,
+   401,
+   128,
+   63
+  ],
+  [
+   0,
+   448,
+   1100,
+   152
+  ],
+  [
+   1040,
+   30,
+   60,
+   60
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    400,
+    320
+   ],
+   "r": 140
+  },
+  {
+   "t": "label",
+   "at": [
+    20,
+    470
+   ],
+   "lines": [
+    "Aloalo Kiwakin",
+    "Lead Hook / Sharp Strike = tank buster"
+   ],
+   "size": 32
+  }
+ ],
+ "width": 1000
+}

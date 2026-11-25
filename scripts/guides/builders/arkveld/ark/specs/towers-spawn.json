@@ -1,0 +1,7 @@
+{ "src": "scripts/guides/.work/ark/full/f-227.png", "out": "scripts/guides/data/frames/arkveld/towers-spawn.webp", "crop": [200, 40, 1120, 600],
+  "blur": [[590, 38, 180, 30], [525, 122, 70, 26], [220, 360, 140, 34], [845, 398, 110, 28], [600, 590, 300, 10], [995, 470, 125, 130], [690, 540, 60, 30]],
+  "marks": [
+    { "t": "ring", "at": [95, 530], "r": 105 },
+    { "t": "ring", "at": [290, 325], "r": 72 },
+    { "t": "label", "at": [380, 18], "lines": ["Aetheric Resonance: tower 2 แบบ", "ลายแดงดำ = tower Tank / วงส้ม = tower เล็ก"], "size": 30 }
+  ], "width": 1000 }

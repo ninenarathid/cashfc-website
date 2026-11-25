@@ -1,0 +1,65 @@
+{
+ "src": "scripts/guides/.work/aloalo/fr/pick/targeted-light.png",
+ "out": "scripts/guides/data/frames/aloalo-savage/targeted-light.webp",
+ "crop": [
+  540,
+  205,
+  1100,
+  600
+ ],
+ "blur": [
+  [
+   316,
+   66,
+   138,
+   68
+  ],
+  [
+   486,
+   291,
+   153,
+   63
+  ],
+  [
+   0,
+   271,
+   174,
+   98
+  ],
+  [
+   0,
+   448,
+   1100,
+   152
+  ],
+  [
+   1040,
+   30,
+   60,
+   60
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    400,
+    293
+   ],
+   "r": 75
+  },
+  {
+   "t": "label",
+   "at": [
+    20,
+    470
+   ],
+   "lines": [
+    "Targeted Light",
+    "หันด้าน Unseen ที่เปลี่ยนแล้วเข้าหาบอส"
+   ],
+   "size": 32
+  }
+ ],
+ "width": 1000
+}

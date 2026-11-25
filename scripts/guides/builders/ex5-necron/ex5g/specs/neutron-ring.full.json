@@ -1,0 +1,6 @@
+{ "src": "scripts/guides/.work/ex5g/full/w320/f009.png", "crop": [370, 0, 1320, 742], "std": ["party","enemy","target","topbar"],
+  "blurFull": [[940,25,55,25],[885,435,160,148],[1052,422,102,32],[1052,504,72,22],[1052,565,150,32]],
+  "marksFull": [
+    {"t":"arrow","from":[560,140],"to":[650,285]},
+    {"t":"label","at":[380,36],"lines":["Neutron Ring: AoE ทั้งปาร์ตี้ (raid-wide)","โดนแล้วสนามกลับเป็นสนามปกติ"],"size":30}
+  ] }

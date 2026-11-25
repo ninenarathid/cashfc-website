@@ -11,3 +11,6 @@ tsconfig.tsbuildinfo
 
 # the town stand-in database, dumped for quick dry runs (scripts/db/stand-in.mjs)
 .claude/skills/fc-cash-town/scripts/db/snap-v*.tar
+
+# guide tools: downloads, frames and the yt-dlp/ffmpeg installs (scripts/guides/tools/setup.mjs)
+scripts/guides/.work/

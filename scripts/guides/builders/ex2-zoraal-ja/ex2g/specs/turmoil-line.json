@@ -1,0 +1,14 @@
+{
+  "src": "scripts/guides/.work/ex2g/s2/tu_12.png",
+  "out": "scripts/guides/.work/ex2g/out/turmoil-line.webp",
+  "crop": [380, 150, 980, 551],
+  "blur": [
+    [0, 230, 85, 290], [22, 168, 160, 32], [85, 396, 140, 26], [165, 339, 100, 30],
+    [640, 364, 95, 24], [490, 392, 240, 92], [330, 537, 110, 14], [760, 537, 110, 14]
+  ],
+  "marks": [
+    { "t": "label", "at": [10, 10], "lines": ["Projection of Turmoil", "แตะเส้น = stack ผลัดกันทีละคน"], "size": 30 },
+    { "t": "arrow", "from": [330, 112], "to": [585, 178] }
+  ],
+  "width": 1000
+}

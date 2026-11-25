@@ -1,0 +1,71 @@
+{
+ "src": "scripts/guides/.work/aloalo/fr/pick/planar-tactics.png",
+ "out": "scripts/guides/data/frames/aloalo-savage/planar-tactics.webp",
+ "crop": [
+  540,
+  205,
+  1100,
+  600
+ ],
+ "blur": [
+  [
+   316,
+   31,
+   158,
+   68
+  ],
+  [
+   0,
+   276,
+   174,
+   63
+  ],
+  [
+   506,
+   296,
+   128,
+   63
+  ],
+  [
+   486,
+   426,
+   208,
+   108
+  ],
+  [
+   0,
+   448,
+   1100,
+   152
+  ],
+  [
+   1040,
+   30,
+   60,
+   60
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    180,
+    300
+   ],
+   "r": 150
+  },
+  {
+   "t": "label",
+   "at": [
+    20,
+    470
+   ],
+   "lines": [
+    "Planar Tactics",
+    "ช่องสีส้ม = AoE ที่ต้องเหยียบให้เลขเหลือ 0"
+   ],
+   "size": 32
+  }
+ ],
+ "width": 1000
+}

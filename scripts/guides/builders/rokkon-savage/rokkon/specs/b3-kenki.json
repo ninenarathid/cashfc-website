@@ -1,0 +1,77 @@
+{
+ "src": "scripts/guides/.work/rokkon/fr/v3-8.png",
+ "out": "scripts/guides/data/frames/rokkon-savage/b3-kenki.webp",
+ "crop": [
+  410,
+  150,
+  1100,
+  600
+ ],
+ "blur": [
+  [
+   468,
+   230,
+   135,
+   40
+  ],
+  [
+   628,
+   326,
+   155,
+   80
+  ],
+  [
+   448,
+   396,
+   175,
+   40
+  ],
+  [
+   620,
+   320,
+   200,
+   160
+  ],
+  [
+   440,
+   395,
+   200,
+   90
+  ],
+  [
+   0,
+   360,
+   90,
+   35
+  ],
+  [
+   0,
+   505,
+   1100,
+   95
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    520,
+    360
+   ],
+   "r": 160
+  },
+  {
+   "t": "label",
+   "at": [
+    20,
+    30
+   ],
+   "lines": [
+    "Kenki Release: raid-wide",
+    "ใช้ mitigate"
+   ],
+   "size": 32
+  }
+ ],
+ "width": 1000
+}

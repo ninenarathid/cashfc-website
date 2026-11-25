@@ -1,0 +1,77 @@
+{
+ "src": "scripts/guides/.work/aloalo/fr/pick/trash1-monk.png",
+ "out": "scripts/guides/data/frames/aloalo-savage/trash1-monk.webp",
+ "crop": [
+  540,
+  205,
+  1100,
+  600
+ ],
+ "blur": [
+  [
+   406,
+   136,
+   208,
+   113
+  ],
+  [
+   0,
+   271,
+   164,
+   68
+  ],
+  [
+   326,
+   286,
+   318,
+   73
+  ],
+  [
+   726,
+   366,
+   158,
+   88
+  ],
+  [
+   981,
+   411,
+   119,
+   189
+  ],
+  [
+   0,
+   448,
+   1100,
+   152
+  ],
+  [
+   1040,
+   30,
+   60,
+   60
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    530,
+    280
+   ],
+   "r": 165
+  },
+  {
+   "t": "label",
+   "at": [
+    20,
+    470
+   ],
+   "lines": [
+    "Aloalo Monk",
+    "ฆ่าเป็นตัวสุดท้าย ระวัง Cross Attack"
+   ],
+   "size": 32
+  }
+ ],
+ "width": 1000
+}

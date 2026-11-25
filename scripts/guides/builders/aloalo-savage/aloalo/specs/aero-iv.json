@@ -1,0 +1,77 @@
+{
+ "src": "scripts/guides/.work/aloalo/fr/pick/aero-iv.png",
+ "out": "scripts/guides/data/frames/aloalo-savage/aero-iv.webp",
+ "crop": [
+  540,
+  205,
+  1100,
+  600
+ ],
+ "blur": [
+  [
+   306,
+   94,
+   198,
+   68
+  ],
+  [
+   386,
+   158,
+   163,
+   63
+  ],
+  [
+   496,
+   286,
+   348,
+   128
+  ],
+  [
+   0,
+   276,
+   164,
+   63
+  ],
+  [
+   286,
+   416,
+   358,
+   58
+  ],
+  [
+   0,
+   448,
+   1100,
+   152
+  ],
+  [
+   1040,
+   30,
+   60,
+   60
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    400,
+    330
+   ],
+   "r": 160
+  },
+  {
+   "t": "label",
+   "at": [
+    20,
+    470
+   ],
+   "lines": [
+    "Aero IV",
+    "raid-wide: ใช้ mitigate + barrier"
+   ],
+   "size": 32
+  }
+ ],
+ "width": 1000
+}

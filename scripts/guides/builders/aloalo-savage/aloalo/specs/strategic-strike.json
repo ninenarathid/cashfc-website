@@ -1,0 +1,89 @@
+{
+ "src": "scripts/guides/.work/aloalo/fr/pick/strategic-strike.png",
+ "out": "scripts/guides/data/frames/aloalo-savage/strategic-strike.webp",
+ "crop": [
+  540,
+  205,
+  1100,
+  600
+ ],
+ "blur": [
+  [
+   331,
+   31,
+   148,
+   68
+  ],
+  [
+   246,
+   176,
+   188,
+   63
+  ],
+  [
+   316,
+   201,
+   178,
+   73
+  ],
+  [
+   0,
+   276,
+   94,
+   63
+  ],
+  [
+   286,
+   401,
+   188,
+   63
+  ],
+  [
+   486,
+   414,
+   198,
+   88
+  ],
+  [
+   981,
+   411,
+   119,
+   189
+  ],
+  [
+   0,
+   448,
+   1100,
+   152
+  ],
+  [
+   1040,
+   30,
+   60,
+   60
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    480,
+    330
+   ],
+   "r": 130
+  },
+  {
+   "t": "label",
+   "at": [
+    20,
+    470
+   ],
+   "lines": [
+    "Strategic Strike",
+    "tank buster ใส่ Tank"
+   ],
+   "size": 32
+  }
+ ],
+ "width": 1000
+}

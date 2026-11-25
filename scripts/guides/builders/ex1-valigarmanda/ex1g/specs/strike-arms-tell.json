@@ -1,0 +1,82 @@
+{
+ "src": "scripts/guides/.work\\ex1g\\full\\t283.00.png",
+ "out": "E:\\NinenineProject\\fcnext-wt-guides\\scripts\\guides\\data\\frames\\ex1-valigarmanda\\strike-arms-tell.webp",
+ "crop": [
+  700,
+  0,
+  1100,
+  600
+ ],
+ "blur": [
+  [
+   448,
+   4,
+   54,
+   28
+  ],
+  [
+   254,
+   440,
+   46,
+   24
+  ],
+  [
+   346,
+   453,
+   116,
+   140
+  ],
+  [
+   488,
+   512,
+   300,
+   88
+  ],
+  [
+   1072,
+   428,
+   28,
+   84
+  ],
+  [
+   890,
+   0,
+   210,
+   22
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    755,
+    92
+   ],
+   "r": 82
+  },
+  {
+   "t": "arrow",
+   "from": [
+    770,
+    496
+   ],
+   "to": [
+    760,
+    186
+   ]
+  },
+  {
+   "t": "label",
+   "at": [
+    500,
+    500
+   ],
+   "lines": [
+    "Slithering Strike",
+    "แขนบอสเรือง → ครึ่งเหนือโดน ไปใต้"
+   ],
+   "size": 30
+  }
+ ],
+ "width": 1000
+}

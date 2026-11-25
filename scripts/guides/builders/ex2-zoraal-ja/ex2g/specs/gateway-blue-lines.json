@@ -1,0 +1,14 @@
+{
+  "src": "scripts/guides/.work/ex2f/g/g_158.png",
+  "out": "scripts/guides/.work/ex2g/out/gateway-blue-lines.webp",
+  "crop": [1000, 280, 860, 484],
+  "blur": [
+    [0, 312, 150, 76], [0, 175, 55, 25], [52, 405, 230, 62], [720, 72, 140, 76]
+  ],
+  "marks": [
+    { "t": "ring", "at": [605, 300], "r": 125 },
+    { "t": "label", "at": [10, 10], "lines": ["Greater Gateway: เส้นฟ้า", "ไขว้กัน ไล่ตามเส้นว่าไปออกแถวไหน"], "size": 30 },
+    { "t": "arrow", "from": [380, 112], "to": [500, 220] }
+  ],
+  "width": 1000
+}

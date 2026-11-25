@@ -1,0 +1,12 @@
+{
+  "src": "scripts/guides/.work/ark/full/f-40.5.png",
+  "out": "scripts/guides/data/frames/arkveld/chainblade-blow.webp",
+  "crop": [700, 30, 1120, 610],
+  "blur": [[550, 45, 160, 32], [540, 215, 175, 70], [340, 370, 140, 105], [190, 425, 120, 30], [490, 482, 300, 128], [0, 585, 330, 25], [0, 480, 200, 90]],
+  "marks": [
+    { "t": "ring", "at": [935, 165], "r": 150 },
+    { "t": "label", "at": [20, 470], "lines": ["Chainblade Blow", "ยกมือฝั่งไหน ฟาดครึ่งสนามฝั่งนั้น"], "size": 30 },
+    { "t": "arrow", "from": [560, 470], "to": [810, 300] }
+  ],
+  "width": 1000
+}

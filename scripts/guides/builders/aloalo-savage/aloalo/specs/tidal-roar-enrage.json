@@ -1,0 +1,71 @@
+{
+ "src": "scripts/guides/.work/aloalo/fr/pick/v1_920.png",
+ "out": "scripts/guides/data/frames/aloalo-savage/tidal-roar-enrage.webp",
+ "crop": [
+  540,
+  205,
+  1100,
+  600
+ ],
+ "blur": [
+  [
+   201,
+   131,
+   193,
+   63
+  ],
+  [
+   0,
+   254,
+   94,
+   63
+  ],
+  [
+   196,
+   236,
+   128,
+   63
+  ],
+  [
+   486,
+   381,
+   158,
+   73
+  ],
+  [
+   0,
+   448,
+   1100,
+   152
+  ],
+  [
+   1040,
+   30,
+   60,
+   60
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    330,
+    260
+   ],
+   "r": 190
+  },
+  {
+   "t": "label",
+   "at": [
+    20,
+    470
+   ],
+   "lines": [
+    "Tidal Roar",
+    "ครั้งสุดท้าย = หมดเวลา (enrage)"
+   ],
+   "size": 32
+  }
+ ],
+ "width": 1000
+}

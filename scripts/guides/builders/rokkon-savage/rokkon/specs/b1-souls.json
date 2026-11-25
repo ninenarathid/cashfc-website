@@ -1,0 +1,77 @@
+{
+ "src": "scripts/guides/.work/rokkon/fr/v1-716.png",
+ "out": "scripts/guides/data/frames/rokkon-savage/b1-souls.webp",
+ "crop": [
+  410,
+  150,
+  1100,
+  600
+ ],
+ "blur": [
+  [
+   638,
+   342,
+   125,
+   40
+  ],
+  [
+   493,
+   428,
+   115,
+   35
+  ],
+  [
+   0,
+   298,
+   145,
+   245
+  ],
+  [
+   668,
+   32,
+   155,
+   45
+  ],
+  [
+   0,
+   170,
+   80,
+   180
+  ],
+  [
+   860,
+   50,
+   80,
+   35
+  ],
+  [
+   0,
+   505,
+   1100,
+   95
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    860,
+    220
+   ],
+   "r": 110
+  },
+  {
+   "t": "label",
+   "at": [
+    20,
+    30
+   ],
+   "lines": [
+    "Vengeful Souls: tower 2 + Marker วงใหญ่ 2",
+    "ไม่มี Marker: เข้า tower"
+   ],
+   "size": 30
+  }
+ ],
+ "width": 1000
+}

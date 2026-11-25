@@ -1,0 +1,65 @@
+{
+ "src": "scripts/guides/.work/aloalo/fr/pick/twintides-round.png",
+ "out": "scripts/guides/data/frames/aloalo-savage/twintides-round.webp",
+ "crop": [
+  540,
+  205,
+  1100,
+  600
+ ],
+ "blur": [
+  [
+   426,
+   51,
+   188,
+   88
+  ],
+  [
+   0,
+   276,
+   94,
+   63
+  ],
+  [
+   366,
+   371,
+   328,
+   93
+  ],
+  [
+   0,
+   448,
+   1100,
+   152
+  ],
+  [
+   1040,
+   30,
+   60,
+   60
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    300,
+    240
+   ],
+   "r": 170
+  },
+  {
+   "t": "label",
+   "at": [
+    20,
+    470
+   ],
+   "lines": [
+    "Twintides",
+    "กระแสน้ำจากขอบ + วงกลม / donut รอบบอส"
+   ],
+   "size": 32
+  }
+ ],
+ "width": 1000
+}

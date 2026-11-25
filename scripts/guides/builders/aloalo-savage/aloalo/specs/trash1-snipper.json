@@ -1,0 +1,77 @@
+{
+ "src": "scripts/guides/.work/aloalo/fr/pick/v1_40.png",
+ "out": "scripts/guides/data/frames/aloalo-savage/trash1-snipper.webp",
+ "crop": [
+  540,
+  205,
+  1100,
+  600
+ ],
+ "blur": [
+  [
+   66,
+   0,
+   268,
+   44
+  ],
+  [
+   0,
+   251,
+   124,
+   73
+  ],
+  [
+   546,
+   236,
+   238,
+   63
+  ],
+  [
+   386,
+   371,
+   258,
+   63
+  ],
+  [
+   456,
+   341,
+   158,
+   63
+  ],
+  [
+   0,
+   448,
+   1100,
+   152
+  ],
+  [
+   1040,
+   30,
+   60,
+   60
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    663,
+    312
+   ],
+   "r": 120
+  },
+  {
+   "t": "label",
+   "at": [
+    20,
+    470
+   ],
+   "lines": [
+    "Aloalo Snipper",
+    "Water III = stack / กรวยหน้า + กรวยหลัง"
+   ],
+   "size": 32
+  }
+ ],
+ "width": 1000
+}

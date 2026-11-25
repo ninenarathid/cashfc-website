@@ -1,0 +1,65 @@
+{
+ "src": "scripts/guides/.work/ex6/fr/f-457.png",
+ "out": "scripts/guides/data/frames/ex6-doomtrain/arcane-revelation-hands.webp",
+ "crop": [
+  700,
+  20,
+  1100,
+  600
+ ],
+ "blur": [
+  [
+   675,
+   35,
+   140,
+   35
+  ],
+  [
+   155,
+   250,
+   270,
+   55
+  ],
+  [
+   635,
+   340,
+   120,
+   35
+  ],
+  [
+   195,
+   390,
+   370,
+   210
+  ],
+  [
+   495,
+   480,
+   270,
+   120
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    890,
+    380
+   ],
+   "r": 180
+  },
+  {
+   "t": "label",
+   "at": [
+    20,
+    20
+   ],
+   "lines": [
+    "Arcane Revelation: AoE วงกลมใหญ่",
+    "ระเบิดตรงที่บอสประกบมือ"
+   ],
+   "size": 30
+  }
+ ],
+ "width": 1000
+}

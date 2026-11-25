@@ -150,3 +150,31 @@ the rest are free). A role without a ring sees the whole picture and keeps
 its line. Give a role two
 positions when the plan says "here or there"; leave a role out when the
 picture does not place it.
+
+## Tools and builders
+
+Everything a guide is built from but does not ship with it (videos, frames,
+game8's pages, the yt-dlp and ffmpeg installs) goes in `scripts/guides/.work/`,
+which git ignores. Run from the repo root:
+
+```
+node scripts/guides/tools/setup.mjs            # once per computer: yt-dlp + ffmpeg into .work (needs Python 3)
+node scripts/guides/tools/yt.mjs <yt-dlp args>  # search, chapters, downloads (avc1 at 1080p cuts fastest)
+node scripts/guides/tools/frames-sheet.cjs <clip> <outdir> <every-s> <offset-s> [cols]   # pick the moment
+node scripts/guides/annotate-frame.cjs <spec.json>   # the footage picture: crop, blur, ring, Thai label
+node scripts/guides/tools/contact.cjs <dir> <out.png> [cols] [width]                   # look over a set
+python scripts/guides/tools/xa.py rows|search …  # XIVAPI v2: English names by Name@ja
+python scripts/guides/tools/isearch.py <query>   # items: name, JA, ilvl, icon
+python scripts/guides/tools/shop.py <id>         # a SpecialShop: what each token buys
+python scripts/guides/tools/vtt2txt.py <in.vtt> <out.txt>   # a video's subtitles, timestamped
+node scripts/guides/tools/rename-guide.mjs <slug> "<name>"  # rename live (the share card cut it short)
+```
+
+`builders/<slug>/<work>/` keeps what made each guide as it was run: `tools/`
+(the generator that writes `data/<slug>.json`, its scenes, the footage
+picture list, the checks) and `specs/` (each footage picture's crop, blur
+boxes and label). They read and write under `scripts/guides/.work/<work>/`
+(`dl/` for game8's pages and pictures, `frames/`, `compare/`), which is empty on
+a new computer: fetch the pages and videos again before re-running one. To
+change a live guide, edit `data/<slug>.json` and import it; the builder is the
+record of how it was made, and the starting point for the next guide.

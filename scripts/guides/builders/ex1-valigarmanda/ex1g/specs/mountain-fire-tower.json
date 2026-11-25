@@ -1,0 +1,100 @@
+{
+ "src": "scripts/guides/.work\\ex1g\\full\\t320.00.png",
+ "out": "E:\\NinenineProject\\fcnext-wt-guides\\scripts\\guides\\data\\frames\\ex1-valigarmanda\\mountain-fire-tower.webp",
+ "crop": [
+  330,
+  0,
+  1160,
+  635
+ ],
+ "blur": [
+  [
+   550,
+   50,
+   48,
+   24
+  ],
+  [
+   160,
+   468,
+   152,
+   32
+  ],
+  [
+   595,
+   420,
+   82,
+   72
+  ],
+  [
+   615,
+   494,
+   100,
+   22
+  ],
+  [
+   600,
+   511,
+   52,
+   20
+  ],
+  [
+   720,
+   540,
+   108,
+   34
+  ],
+  [
+   860,
+   512,
+   300,
+   123
+  ],
+  [
+   485,
+   624,
+   240,
+   16
+  ],
+  [
+   748,
+   624,
+   112,
+   16
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    618,
+    412
+   ],
+   "r": 118
+  },
+  {
+   "t": "arrow",
+   "from": [
+    370,
+    122
+   ],
+   "to": [
+    520,
+    335
+   ]
+  },
+  {
+   "t": "label",
+   "at": [
+    15,
+    22
+   ],
+   "lines": [
+    "Mountain Fire",
+    "Tank เข้า tower คนอื่นหลบหลัง tower"
+   ],
+   "size": 30
+  }
+ ],
+ "width": 1000
+}

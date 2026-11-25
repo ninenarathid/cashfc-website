@@ -1,0 +1,6 @@
+{ "src": "scripts/guides/.work/ark/full/f-169.png", "out": "scripts/guides/data/frames/arkveld/ouroblade-tail.webp", "crop": [500, 40, 1120, 600],
+  "blur": [[200, 160, 110, 32], [90, 275, 70, 28], [100, 328, 100, 28], [0, 360, 60, 34], [550, 398, 100, 28], [540, 480, 120, 80], [695, 468, 265, 132], [300, 588, 300, 12]],
+  "marks": [
+    { "t": "ring", "at": [905, 360], "r": 185 },
+    { "t": "label", "at": [20, 470], "lines": ["Wyvern's Ouroblade", "ฝั่งหางปลอดภัย: ใช้หางเป็นจุดสังเกต"], "size": 30 }
+  ], "width": 1000 }

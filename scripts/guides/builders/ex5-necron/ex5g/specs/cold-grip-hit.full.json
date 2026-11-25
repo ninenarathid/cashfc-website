@@ -1,0 +1,6 @@
+{ "src": "scripts/guides/.work/ex5g/full/w84/f007.png", "crop": [350, 0, 1150, 647], "std": ["party","enemy","target"],
+  "blurFull": [[810,370,190,100],[735,520,75,70],[855,585,60,22]],
+  "marksFull": [
+    {"t":"arrow","from":[520,470],"to":[470,330]},
+    {"t":"label","at":[380,470],"lines":["Cold Grip: AoE ฝั่งแขนดำ","กว้างกว่าครึ่งสนาม: ยืนอีกฝั่ง"],"size":30}
+  ] }

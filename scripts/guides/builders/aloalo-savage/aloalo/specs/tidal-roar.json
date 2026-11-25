@@ -1,0 +1,59 @@
+{
+ "src": "scripts/guides/.work/aloalo/fr/pick/tidal-roar.png",
+ "out": "scripts/guides/data/frames/aloalo-savage/tidal-roar.webp",
+ "crop": [
+  540,
+  205,
+  1100,
+  600
+ ],
+ "blur": [
+  [
+   186,
+   156,
+   308,
+   168
+  ],
+  [
+   0,
+   251,
+   94,
+   68
+  ],
+  [
+   0,
+   448,
+   1100,
+   152
+  ],
+  [
+   1040,
+   30,
+   60,
+   60
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    360,
+    260
+   ],
+   "r": 190
+  },
+  {
+   "t": "label",
+   "at": [
+    20,
+    470
+   ],
+   "lines": [
+    "Tidal Roar",
+    "raid-wide + DoT: ใช้ mitigate + barrier"
+   ],
+   "size": 32
+  }
+ ],
+ "width": 1000
+}

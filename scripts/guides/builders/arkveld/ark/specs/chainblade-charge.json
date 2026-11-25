@@ -1,0 +1,6 @@
+{ "src": "scripts/guides/.work/ark/full/f-201.png", "out": "scripts/guides/data/frames/arkveld/chainblade-charge.webp", "crop": [300, 20, 1120, 610],
+  "blur": [[600, 0, 200, 16], [640, 190, 150, 34], [120, 380, 140, 34], [750, 430, 120, 55], [550, 485, 90, 28], [560, 535, 230, 75], [895, 490, 225, 120]],
+  "marks": [
+    { "t": "ring", "at": [650, 455], "r": 125 },
+    { "t": "label", "at": [20, 20], "lines": ["Chainblade Charge: stack", "ทุกคนรวมกันหน้าบอส"], "size": 30 }
+  ], "width": 1000 }

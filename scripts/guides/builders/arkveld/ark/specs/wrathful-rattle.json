@@ -1,0 +1,6 @@
+{ "src": "scripts/guides/.work/ark/full/f-517.5.png", "out": "scripts/guides/data/frames/arkveld/wrathful-rattle.webp", "crop": [380, 20, 1120, 580],
+  "blur": [[510, 36, 150, 28], [530, 205, 100, 28], [40, 378, 145, 36], [650, 382, 130, 55], [540, 485, 70, 28], [815, 488, 305, 92]],
+  "marks": [
+    { "t": "ring", "at": [600, 400], "r": 175 },
+    { "t": "label", "at": [20, 20], "lines": ["Wrathful Rattle: AoE แนวตั้ง + แนวนอน", "เคลื่อนที่ไปถึงขอบ แล้วย้อนกลับมาอีก"], "size": 30 }
+  ], "width": 1000 }

@@ -1,0 +1,7 @@
+{ "src": "scripts/guides/.work/ark/full/f-98.png", "out": "scripts/guides/data/frames/arkveld/wyverns-rattle.webp", "crop": [380, 110, 1120, 600],
+  "blur": [[40, 290, 120, 32], [800, 15, 110, 30], [660, 285, 160, 100], [490, 360, 140, 60], [460, 445, 160, 32], [815, 395, 305, 205], [430, 518, 340, 32]],
+  "marks": [
+    { "t": "ring", "at": [640, 440], "r": 150 },
+    { "t": "arrow", "from": [330, 470], "to": [330, 250] },
+    { "t": "label", "at": [20, 470], "lines": ["Wyvern's Rattle", "AoE แนวตรงเคลื่อนที่ + AoE วงกลมใต้เท้า"], "size": 30 }
+  ], "width": 1000 }

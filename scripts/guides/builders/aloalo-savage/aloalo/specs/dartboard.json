@@ -1,0 +1,79 @@
+{
+ "src": "scripts/guides/.work/aloalo/fr/pick/dartboard.png",
+ "out": "scripts/guides/data/frames/aloalo-savage/dartboard.webp",
+ "crop": [
+  540,
+  205,
+  1100,
+  600
+ ],
+ "blur": [
+  [
+   246,
+   0,
+   198,
+   59
+  ],
+  [
+   496,
+   348,
+   108,
+   58
+  ],
+  [
+   0,
+   276,
+   104,
+   63
+  ],
+  [
+   326,
+   156,
+   128,
+   58
+  ],
+  [
+   0,
+   448,
+   1100,
+   152
+  ],
+  [
+   1040,
+   30,
+   60,
+   60
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    743,
+    103
+   ],
+   "r": 55
+  },
+  {
+   "t": "ring",
+   "at": [
+    420,
+    330
+   ],
+   "r": 120
+  },
+  {
+   "t": "label",
+   "at": [
+    20,
+    470
+   ],
+   "lines": [
+    "Dartboard of Dancing Explosives",
+    "เหยียบสีตาม role: Tank ฟ้า / Healer เหลือง / DPS แดง"
+   ],
+   "size": 32
+  }
+ ],
+ "width": 1000
+}

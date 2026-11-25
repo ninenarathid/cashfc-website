@@ -1,0 +1,19 @@
+{
+  "src": "scripts/guides/.work/ex2g/g/g_33.png",
+  "out": "scripts/guides/.work/ex2g/out/divide-cuts.webp",
+  "crop": [475, 140, 975, 548],
+  "blur": [
+    [460, 68, 145, 32],
+    [450, 200, 155, 30],
+    [520, 306, 115, 24],
+    [68, 344, 100, 32],
+    [355, 393, 250, 112],
+    [505, 438, 235, 82]
+  ],
+  "marks": [
+    { "t": "label", "at": [10, 10], "lines": ["Multidirectional Divide", "เส้นเหลือง = รอยตัด ยิงเป็นเส้นตรง"], "size": 30 },
+    { "t": "arrow", "from": [120, 120], "to": [150, 290] },
+    { "t": "arrow", "from": [60, 120], "to": [60, 450] }
+  ],
+  "width": 1000
+}

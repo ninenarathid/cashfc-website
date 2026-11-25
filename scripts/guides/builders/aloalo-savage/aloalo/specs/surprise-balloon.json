@@ -1,0 +1,71 @@
+{
+ "src": "scripts/guides/.work/aloalo/fr/pick/surprise-balloon.png",
+ "out": "scripts/guides/data/frames/aloalo-savage/surprise-balloon.webp",
+ "crop": [
+  540,
+  205,
+  1100,
+  600
+ ],
+ "blur": [
+  [
+   286,
+   181,
+   198,
+   68
+  ],
+  [
+   0,
+   276,
+   164,
+   63
+  ],
+  [
+   446,
+   291,
+   198,
+   63
+  ],
+  [
+   411,
+   331,
+   268,
+   93
+  ],
+  [
+   0,
+   448,
+   1100,
+   152
+  ],
+  [
+   1040,
+   30,
+   60,
+   60
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    880,
+    200
+   ],
+   "r": 190
+  },
+  {
+   "t": "label",
+   "at": [
+    20,
+    470
+   ],
+   "lines": [
+    "Surprise Balloon",
+    "ลูกโป่งแตกแล้ว knockback"
+   ],
+   "size": 32
+  }
+ ],
+ "width": 1000
+}

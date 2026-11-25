@@ -1,0 +1,83 @@
+{
+ "src": "scripts/guides/.work/aloalo/fr/pick/bubble-net.png",
+ "out": "scripts/guides/data/frames/aloalo-savage/bubble-net.webp",
+ "crop": [
+  540,
+  205,
+  1100,
+  600
+ ],
+ "blur": [
+  [
+   316,
+   166,
+   198,
+   78
+  ],
+  [
+   0,
+   271,
+   109,
+   153
+  ],
+  [
+   146,
+   286,
+   258,
+   108
+  ],
+  [
+   486,
+   331,
+   168,
+   113
+  ],
+  [
+   326,
+   401,
+   278,
+   73
+  ],
+  [
+   981,
+   411,
+   119,
+   189
+  ],
+  [
+   0,
+   448,
+   1100,
+   152
+  ],
+  [
+   1040,
+   30,
+   60,
+   60
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    556,
+    190
+   ],
+   "r": 90
+  },
+  {
+   "t": "label",
+   "at": [
+    20,
+    470
+   ],
+   "lines": [
+    "Bubble Net",
+    "ทุกคนติดฟอง (Bubble Weave) หรือตรึง (Foamy Fetters)"
+   ],
+   "size": 32
+  }
+ ],
+ "width": 1000
+}

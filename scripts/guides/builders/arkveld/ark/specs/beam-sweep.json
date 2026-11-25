@@ -1,0 +1,7 @@
+{ "src": "scripts/guides/.work/ark/full/f-461.png", "out": "scripts/guides/data/frames/arkveld/beam-sweep.webp", "crop": [500, 30, 1120, 600],
+  "blur": [[185, 108, 105, 28], [180, 160, 60, 26], [0, 370, 60, 34], [460, 405, 160, 70], [510, 500, 90, 30], [620, 520, 60, 26], [695, 480, 265, 120], [315, 592, 280, 8]],
+  "marks": [
+    { "t": "ring", "at": [850, 330], "r": 150 },
+    { "t": "arrow", "from": [470, 300], "to": [560, 170] },
+    { "t": "label", "at": [20, 470], "lines": ["Wyvern's Weal: beam กวาดตามคนได้มาร์ก", "ผลึกขาวจาก tower โดน beam แล้วระเบิด"], "size": 30 }
+  ], "width": 1000 }

@@ -1,0 +1,6 @@
+{ "src": "scripts/guides/.work/ark/full/f-322.png", "out": "scripts/guides/data/frames/arkveld/forged-fury.webp", "crop": [400, 20, 1120, 600],
+  "blur": [[490, 100, 160, 30], [525, 290, 100, 28], [15, 378, 145, 36], [670, 548, 120, 30], [795, 490, 325, 110], [420, 585, 280, 15]],
+  "marks": [
+    { "t": "ring", "at": [860, 240], "r": 215 },
+    { "t": "label", "at": [20, 470], "lines": ["Forged Fury: ท่าไม้ตาย ตี 3 ครั้ง", "ใช้ mitigate และ barrier ให้ครบ"], "size": 30 }
+  ], "width": 1000 }
