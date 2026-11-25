@@ -223,7 +223,6 @@ const DICT = {
   /* The header tab only. The page is still called the gallery everywhere it is
      linked to from inside the site; this is the one place that has to warn
      somebody before they arrive. */
-  "nav.guidesWip": { en: "Guides (WIP)", th: "ไกด์ (WIP)" },
   "nav.marketWip": { en: "Market (WIP)", th: "ตลาด (WIP)" },
   "nav.market": { en: "Market", th: "ตลาด" },
   "nav.aqua": { en: "Aqua's page", th: "หน้าของ Aqua" },

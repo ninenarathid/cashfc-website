@@ -45,14 +45,12 @@ const GALLERY_TAB: Tab = {
 // Signed in only: a feedback thread needs somebody to reply to, and there is
 // nothing on that page for a visitor who has not said who they are.
 const FEEDBACK_TAB: Tab = { href: "/feedback", label: "nav.feedback" };
-// Marked unfinished on the tab, and only there: the tab is how most people will
-// first walk into the guides, and it is the one place worth saying so before
-// they do. Admins only while they are being written. A half-finished guide is worse
-// than none, because somebody will stand where it says.
-const GUIDES_TAB: Tab = { href: "/guides", label: "nav.guidesWip", short: "nav.guides" };
-// The same arrangement as the guides, for the same reason: admins only while
-// it is being built, and saying so on the tab. On a phone it lands in the
-// sheet, past the four the bar holds.
+// Open to everybody, signed in or not (the owner, 2026-11-25: "ใครๆก็เห็น
+// ไม่จำเป็นต้องเป็นสมาชิกเว็บ"). What keeps a half-written guide from readers is
+// now each guide's own draft switch (v344), not the tab.
+const GUIDES_TAB: Tab = { href: "/guides", label: "nav.guides" };
+// Admins only while it is being built, and saying so on the tab. On a phone it
+// lands in the sheet, past the four the bar holds.
 const MARKET_TAB: Tab = { href: "/market", label: "nav.marketWip", short: "nav.market" };
 // Open to everybody, and near the front. A board of parties is only worth
 // having if the person short of a healer at eight o'clock can find it, and a
@@ -158,7 +156,8 @@ export default function Nav() {
     PARTY_TAB,
     ...(showGallery ? [GALLERY_TAB] : []),
     ...(signedIn ? [FEEDBACK_TAB] : []),
-    ...(isAdmin ? [MARKET_TAB, GUIDES_TAB] : []),
+    GUIDES_TAB,
+    ...(isAdmin ? [MARKET_TAB] : []),
   ];
 
   const isActive = (tab: Tab) =>
