@@ -10250,7 +10250,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 44,
-    "kills": 23,
+    "kills": 25,
     "job": "Samurai",
     "cleared": true,
     "job_kills": {
@@ -10401,8 +10401,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1078,
     "name": "Queen Eternal",
-    "best": 52,
-    "kills": 5,
+    "best": 63,
+    "kills": 11,
     "job": "Sage",
     "cleared": true,
     "job_kills": {
@@ -28356,9 +28356,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 85,
-    "kills": 12,
-    "job": "Samurai",
+    "best": 87,
+    "kills": 14,
+    "job": "Reaper",
     "cleared": true,
     "job_kills": {
      "Reaper": {
@@ -37318,7 +37318,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 66,
-    "kills": 6,
+    "kills": 8,
     "job": "Samurai",
     "cleared": true,
     "job_kills": {
@@ -64733,8 +64733,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 71,
-    "kills": 11,
+    "best": 87,
+    "kills": 17,
     "job": "RedMage",
     "cleared": true,
     "job_kills": {
@@ -64797,7 +64797,7 @@
     "encounter_id": 1078,
     "name": "Queen Eternal",
     "best": 90,
-    "kills": 5,
+    "kills": 11,
     "job": "RedMage",
     "cleared": true,
     "job_kills": {
@@ -64898,7 +64898,20 @@
     ]
    }
   ],
-  "_status": "ok"
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 1079,
+    "name": "Futures Rewritten",
+    "kind": "ultimate",
+    "state": "learning",
+    "pct": 4.85,
+    "phase": 4,
+    "pulls": 15,
+    "last": "2026-11-25",
+    "last_ts": 1795620839
+   }
+  ]
  },
  "36149590": {
   "current": {
@@ -78436,7 +78449,7 @@
     "encounter_id": 1078,
     "name": "Queen Eternal",
     "best": 97,
-    "kills": 25,
+    "kills": 31,
     "job": "Gunbreaker",
     "cleared": true,
     "job_kills": {
@@ -80146,8 +80159,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1078,
     "name": "Queen Eternal",
-    "best": 95,
-    "kills": 9,
+    "best": 98,
+    "kills": 15,
     "job": "WhiteMage",
     "cleared": true,
     "job_kills": {
@@ -83923,7 +83936,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 93,
-    "kills": 2,
+    "kills": 4,
     "job": "Viper",
     "cleared": true,
     "job_kills": {
@@ -99098,8 +99111,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 14,
-    "kills": 5,
+    "best": 39,
+    "kills": 9,
     "job": "Machinist",
     "cleared": true,
     "job_kills": {
@@ -99115,8 +99128,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1078,
     "name": "Queen Eternal",
-    "best": 43,
-    "kills": 5,
+    "best": 49,
+    "kills": 11,
     "job": "Machinist",
     "cleared": true,
     "job_kills": {
