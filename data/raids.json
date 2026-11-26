@@ -37323,7 +37323,7 @@
     "cleared": true,
     "job_kills": {
      "Samurai": {
-      "kills": 6,
+      "kills": 8,
       "best": 66
      }
     }
@@ -99167,6 +99167,17 @@
   },
   "ultimates": [],
   "extremes": [
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1078,
+    "name": "Queen Eternal",
+    "best": 13,
+    "kills": 6,
+    "job": "Viper",
+    "cleared": true
+   },
    {
     "zone": "Trials I (Extreme)",
     "zone_id": 58,

@@ -1626,7 +1626,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 100,
+  "level": 71,
   "cc": [
    true,
    true,
@@ -1652,7 +1652,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-25"
+  "chg": "2026-11-26"
  },
  "28579232": {
   "name": "Dessiny Valkyrie",
@@ -2131,7 +2131,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 100,
+  "level": 59,
   "cc": [
    true,
    true,
@@ -2180,7 +2180,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-25"
+  "chg": "2026-11-26"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -5147,7 +5147,7 @@
   "mounts": 24,
   "minions": 86,
   "rare": 27,
-  "level": 100,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -5190,7 +5190,7 @@
    "Guardian Arkveld"
   ],
   "ults": [],
-  "chg": "2026-11-23"
+  "chg": "2026-11-26"
  },
  "6951533": {
   "name": "Aemond Targaryen",
@@ -5622,6 +5622,7 @@
    4074
   ],
   "tiers": {
+   "relic": "expert",
    "explorer": "legendary"
   },
   "jobs": {
@@ -6519,7 +6520,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 94,
-  "level": 97,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6669,7 +6670,7 @@
   "mounts": 32,
   "minions": 95,
   "rare": null,
-  "level": 96,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8197,7 +8198,7 @@
   "mounts": 11,
   "minions": 28,
   "rare": null,
-  "level": 100,
+  "level": 64,
   "cc": [
    false,
    false,
@@ -8238,9 +8239,9 @@
   "name": "Transparent Crystal",
   "parse": null,
   "ult": 0,
-  "mounts": 41,
-  "minions": 85,
-  "rare": null,
+  "mounts": 45,
+  "minions": 99,
+  "rare": 20,
   "level": 100,
   "cc": [
    false,
@@ -8249,12 +8250,33 @@
    false,
    false
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   1666,
+   1933,
+   1934,
+   1938,
+   2772,
+   2775,
+   2779,
+   3642,
+   3649,
+   3756,
+   3763,
+   3846,
+   3943,
+   3945,
+   3953,
+   3998,
+   4002,
+   4003,
+   4070,
+   4074
+  ],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-08"
+  "chg": "2026-11-26"
  },
  "34357286": {
   "name": "Umbra Cereza",
@@ -8263,7 +8285,7 @@
   "mounts": 48,
   "minions": 76,
   "rare": null,
-  "level": 63,
+  "level": 79,
   "cc": [
    false,
    false,
@@ -8276,7 +8298,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-25"
+  "chg": "2026-11-26"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -8648,10 +8670,10 @@
   "name": "Hanna Doss",
   "parse": null,
   "ult": 0,
-  "mounts": 45,
-  "minions": 68,
-  "rare": null,
-  "level": 96,
+  "mounts": 53,
+  "minions": 81,
+  "rare": 21,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -8659,7 +8681,29 @@
    false,
    false
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   2671,
+   2675,
+   2682,
+   2683,
+   2684,
+   2685,
+   2686,
+   2693,
+   2764,
+   2770,
+   2775,
+   2777,
+   2783,
+   2859,
+   2864,
+   2866,
+   2872,
+   2876,
+   2882,
+   2885,
+   2886
+  ],
   "tiers": {},
   "jobs": {},
   "ex": [],
@@ -8717,7 +8761,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 5,
-  "level": 96,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -9002,7 +9046,7 @@
   "mounts": 4,
   "minions": 7,
   "rare": null,
-  "level": 86,
+  "level": 87,
   "cc": [
    false,
    false,
@@ -9015,7 +9059,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-24"
+  "chg": "2026-11-26"
  },
  "44085912": {
   "name": "Mayu Ferguson",
@@ -9100,12 +9144,12 @@
  },
  "61489984": {
   "name": "Poly Umami",
-  "parse": 3,
+  "parse": 13,
   "ult": 0,
   "mounts": 101,
   "minions": 207,
   "rare": 16,
-  "level": 100,
+  "level": 78,
   "cc": [
    false,
    false,
@@ -9134,10 +9178,11 @@
   "tiers": {},
   "jobs": {},
   "ex": [
+   "Queen Eternal",
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-11-25"
+  "chg": "2026-11-26"
  },
  "21388050": {
   "name": "Riizerk Ciel",
@@ -11023,28 +11068,6 @@
    "Dragonsong's Reprise"
   ],
   "chg": "2026-09-04"
- },
- "34228206": {
-  "name": "Cystal Wingsky",
-  "parse": 33,
-  "ult": 0,
-  "mounts": 18,
-  "minions": 63,
-  "rare": null,
-  "level": 90,
-  "cc": [
-   false,
-   false,
-   false,
-   false,
-   false
-  ],
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {},
-  "ex": [],
-  "ults": [],
-  "chg": "2026-09-22"
  },
  "40990512": {
   "name": "Dat Duc",
@@ -12976,7 +12999,7 @@
   "mounts": 19,
   "minions": 40,
   "rare": 0,
-  "level": 70,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -14098,7 +14121,7 @@
   "mounts": 11,
   "minions": 43,
   "rare": null,
-  "level": 82,
+  "level": 39,
   "cc": [
    false,
    false,
@@ -14111,7 +14134,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-25"
+  "chg": "2026-11-26"
  },
  "37143017": {
   "name": "Milly Beee",
@@ -15359,28 +15382,6 @@
    "Queen Eternal",
    "Valigarmanda"
   ],
-  "ults": [],
-  "chg": "2026-08-29"
- },
- "37065671": {
-  "name": "Paxis Stone",
-  "parse": null,
-  "ult": 0,
-  "mounts": 24,
-  "minions": 77,
-  "rare": null,
-  "level": 63,
-  "cc": [
-   false,
-   false,
-   false,
-   false,
-   false
-  ],
-  "rare_ids": [],
-  "tiers": {},
-  "jobs": {},
-  "ex": [],
   "ults": [],
   "chg": "2026-08-29"
  },

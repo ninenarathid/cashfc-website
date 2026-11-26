@@ -2,6 +2,62 @@
  "events": [
   {
    "date": "2026-11-26",
+   "type": "grade_up",
+   "id": 14476396,
+   "name": "Arawn A'nnwn",
+   "text": "is now a Expert Relic grinder ✨"
+  },
+  {
+   "date": "2026-11-26",
+   "type": "level_100",
+   "id": 29339718,
+   "name": "Gabriel Winford",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-11-26",
+   "type": "level_100",
+   "id": 32857279,
+   "name": "Harp Abel",
+   "text": "reached level 100 on Blacksmith!"
+  },
+  {
+   "date": "2026-11-26",
+   "type": "rare_up",
+   "id": 29991345,
+   "name": "Transparent Crystal",
+   "text": "earned Cut Above the Rest: Spear Occultum — only 2.3% of players have it, and 19 more"
+  },
+  {
+   "date": "2026-11-26",
+   "type": "rare_up",
+   "id": 61014734,
+   "name": "Hanna Doss",
+   "text": "earned Close Encounters — only 2.4% of players have it, and 20 more"
+  },
+  {
+   "date": "2026-11-26",
+   "type": "parse_up",
+   "id": 61489984,
+   "name": "Poly Umami",
+   "text": "set a new best parse: 13 on Queen Eternal as Viper"
+  },
+  {
+   "date": "2026-11-26",
+   "type": "ex_clear",
+   "id": 61489984,
+   "name": "Poly Umami",
+   "text": "cleared Queen Eternal (Extreme)"
+  },
+  {
+   "date": "2026-11-26",
+   "type": "level_100",
+   "id": 28679815,
+   "name": "Kazumi Masa",
+   "text": "reached level 100 on Paladin!"
+  },
+  {
+   "date": "2026-11-26",
    "type": "job_up",
    "id": 36130968,
    "name": "Chu Celestial",
@@ -1343,62 +1399,6 @@
    "id": 50821570,
    "name": "Haruki Mizumoto",
    "text": "reached level 100 on Machinist!"
-  },
-  {
-   "date": "2026-11-14",
-   "type": "level_100",
-   "id": 60429500,
-   "name": "Janna Minerva",
-   "text": "reached level 100 on Black Mage!"
-  },
-  {
-   "date": "2026-11-14",
-   "type": "level_100",
-   "id": 12478532,
-   "name": "Hakuryu Flare",
-   "text": "reached level 100 on Monk!"
-  },
-  {
-   "date": "2026-11-14",
-   "type": "level_100",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "reached level 100 on Machinist!"
-  },
-  {
-   "date": "2026-11-14",
-   "type": "level_100",
-   "id": 5644067,
-   "name": "Ninenine Everdark",
-   "text": "reached level 100 on Sage!"
-  },
-  {
-   "date": "2026-11-14",
-   "type": "level_100",
-   "id": 30667251,
-   "name": "Roxas Akatsuki",
-   "text": "reached level 100 on Warrior!"
-  },
-  {
-   "date": "2026-11-14",
-   "type": "level_100",
-   "id": 62507897,
-   "name": "De Viljho",
-   "text": "reached level 100 on Reaper!"
-  },
-  {
-   "date": "2026-11-14",
-   "type": "level_100",
-   "id": 61489984,
-   "name": "Poly Umami",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-11-13",
-   "type": "level_100",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "reached level 100 on Dark Knight!"
   }
  ]
 }

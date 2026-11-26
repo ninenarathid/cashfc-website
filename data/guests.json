@@ -2281,8 +2281,50 @@
    "fflogs": "ok",
    "lode_achv_public": false,
    "stats_seen": "2026-11-26"
+  },
+  "47138225": {
+   "name": "Xenobius Caliburn",
+   "world": "Tonberry",
+   "dc": "Elemental",
+   "fc": "RE:in carnation",
+   "seen": "2026-11-26"
+  },
+  "40229090": {
+   "name": "Ichika Mano",
+   "world": "Kujata",
+   "dc": "Elemental",
+   "fc": "Sad Otamatone Noises",
+   "seen": "2026-11-26"
+  },
+  "52105119": {
+   "name": "Mizuiro Yoshikuni",
+   "world": "Diabolos",
+   "dc": "Crystal",
+   "fc": "tea time c:",
+   "seen": "2026-11-26"
+  },
+  "51612880": {
+   "name": "Lily Aurielle",
+   "world": "Tonberry",
+   "dc": "Elemental",
+   "fc": "Endless Horizon",
+   "seen": "2026-11-26"
+  },
+  "24755039": {
+   "name": "Ayleen Gravecliff",
+   "world": "Kujata",
+   "dc": "Elemental",
+   "fc": "Mortal Instants",
+   "seen": "2026-11-26"
+  },
+  "30415195": {
+   "name": "Tuffy Mouse",
+   "world": "Tonberry",
+   "dc": "Elemental",
+   "fc": "Hot Tempura",
+   "seen": "2026-11-26"
   }
  },
- "generated_at": "2026-11-26T01:54:57Z",
- "count": 21
+ "generated_at": "2026-11-26T14:17:42Z",
+ "count": 27
 }
