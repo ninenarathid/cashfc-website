@@ -89277,9 +89277,9 @@
     "state": "learning",
     "pct": 37.05,
     "phase": 5,
-    "pulls": 70,
-    "last": "2026-11-20",
-    "last_ts": 1795187608
+    "pulls": 63,
+    "last": "2026-11-25",
+    "last_ts": 1795618577
    }
   ]
  },
@@ -93761,7 +93761,7 @@
     "encounter_id": 1073,
     "name": "The Unending Coil of Bahamut",
     "best": 35,
-    "kills": 5,
+    "kills": 6,
     "job": "Gunbreaker",
     "cleared": true
    },
@@ -93772,7 +93772,7 @@
     "encounter_id": 1074,
     "name": "The Weapon's Refrain",
     "best": 79,
-    "kills": 6,
+    "kills": 7,
     "job": "DarkKnight",
     "cleared": true
    }
