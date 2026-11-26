@@ -64739,12 +64739,12 @@
     "cleared": true,
     "job_kills": {
      "RedMage": {
-      "kills": 7,
-      "best": 71
+      "kills": 9,
+      "best": 87
      },
      "Samurai": {
-      "kills": 4,
-      "best": 43
+      "kills": 6,
+      "best": 70
      },
      "Reaper": {
       "kills": 2,
@@ -64801,6 +64801,10 @@
     "job": "RedMage",
     "cleared": true,
     "job_kills": {
+     "Samurai": {
+      "kills": 6,
+      "best": 78
+     },
      "RedMage": {
       "kills": 5,
       "best": 90
@@ -75183,7 +75187,7 @@
     "encounter_id": 1079,
     "name": "Futures Rewritten",
     "best": 47,
-    "kills": 10,
+    "kills": 11,
     "job": "Dancer",
     "cleared": true,
     "job_kills": {
@@ -78466,7 +78470,7 @@
       "best": 33
      },
      "Gunbreaker": {
-      "kills": 18,
+      "kills": 24,
       "best": 97
      },
      "Warrior": {
@@ -78762,7 +78766,7 @@
     "encounter_id": 1078,
     "name": "Queen Eternal",
     "best": 87,
-    "kills": 58,
+    "kills": 64,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -82958,20 +82962,7 @@
     ]
    }
   ],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 102,
-    "name": "Red Hot and Deep Blue",
-    "kind": "savage",
-    "state": "learning",
-    "pct": 12.19,
-    "phase": 0,
-    "pulls": 8,
-    "last": "2026-11-15",
-    "last_ts": 1794724486
-   }
-  ]
+  "_status": "ok"
  },
  "47221226": {
   "current": {
@@ -87671,20 +87662,7 @@
     }
    }
   ],
-  "legacy": [],
-  "progress": [
-   {
-    "encounter_id": 102,
-    "name": "Red Hot and Deep Blue",
-    "kind": "savage",
-    "state": "learning",
-    "pct": 42.51,
-    "phase": 0,
-    "pulls": 24,
-    "last": "2026-11-13",
-    "last_ts": 1794582853
-   }
-  ]
+  "legacy": []
  },
  "60475540": {
   "_status": "none",
@@ -87863,7 +87841,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 11,
-    "kills": 21,
+    "kills": 23,
     "job": "DarkKnight",
     "cleared": true,
     "job_kills": {
@@ -87915,8 +87893,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1078,
     "name": "Queen Eternal",
-    "best": 28,
-    "kills": 5,
+    "best": 30,
+    "kills": 11,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {

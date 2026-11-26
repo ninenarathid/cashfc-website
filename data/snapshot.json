@@ -1638,7 +1638,8 @@
   "tiers": {},
   "jobs": {
    "BlackMage": "master",
-   "RedMage": "expert"
+   "RedMage": "master",
+   "Samurai": "expert"
   },
   "ex": [
    "Doomtrain",

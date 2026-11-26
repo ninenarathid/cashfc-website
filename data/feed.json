@@ -2,6 +2,20 @@
  "events": [
   {
    "date": "2026-11-26",
+   "type": "job_up",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "is now a Master Red Mage"
+  },
+  {
+   "date": "2026-11-26",
+   "type": "job_up",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "is now a Expert Samurai"
+  },
+  {
+   "date": "2026-11-26",
    "type": "parse_up",
    "id": 42019777,
    "name": "Peace Violet",
@@ -1385,20 +1399,6 @@
    "id": 29918404,
    "name": "Zarass Gierlos",
    "text": "reached level 100 on Dark Knight!"
-  },
-  {
-   "date": "2026-11-13",
-   "type": "parse_up",
-   "id": 49929911,
-   "name": "Sun Prism",
-   "text": "set a new best parse: 19 on Zoraal Ja as Viper"
-  },
-  {
-   "date": "2026-11-13",
-   "type": "ex_clear",
-   "id": 49929911,
-   "name": "Sun Prism",
-   "text": "cleared Zoraal Ja (Extreme)"
   }
  ]
 }
