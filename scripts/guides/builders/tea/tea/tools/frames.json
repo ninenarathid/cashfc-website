@@ -1,0 +1,236 @@
+{
+ "ll-hand": {
+  "v": "ll",
+  "t": 88,
+  "say": "Hand of Pain: HP% ของ Living Liquid (ขวา) กับ Liquid Hand (ซ้าย) ต้องห่างกันไม่เกิน 5%",
+  "say_en": "Hand of Pain: keep Living Liquid (right) and the Liquid Hand (left) within 5% HP"
+ },
+ "ll-open": {
+  "v": "ll",
+  "t": 280,
+  "say": "Cascade ครั้งแรก: Liquid Hand โผล่ ST ลาก Hand ออกห่าง Living Liquid ให้เป็นมือแบ",
+  "say_en": "The first Cascade: the Liquid Hand appears; the ST pulls it away from Living Liquid for an open palm"
+ },
+ "ll-dolls": {
+  "v": "ll",
+  "t": 291,
+  "say": "Jagd Doll โผล่: DPS รับ Doll ของตัวเอง ป้อนให้บอสเมื่อ HP ต่ำกว่า 25%",
+  "say_en": "The Jagd Dolls appear: each DPS takes their own and feeds it to a boss under 25% HP"
+ },
+ "ll-tethers": {
+  "v": "ll",
+  "t": 424,
+  "say": "สายพายุ (tether) จากแอ่งน้ำ: Tank เป็นคนรับสาย จบด้วย AoE tankbuster รอบตัว",
+  "say_en": "The tornado tethers from the puddles: the tanks take them; they end in an AoE tank buster"
+ },
+ "ll-throttle": {
+  "v": "ll",
+  "t": 536,
+  "say": "Cascade ครั้งที่ 2: stack เหนือ / ใต้ และ 6 คนติด Throttle ที่ Healer ต้อง Esuna",
+  "say_en": "The second Cascade: stacks north / south, and six Throttles for the healers to Esuna"
+ },
+ "lc-numbers": {
+  "v": "ll",
+  "t": 1555,
+  "say": "Limit Cut (1211): ระเบิด Hawk Blaster ลงทีละคู่ ผู้เล่นรับดาบ Cruise Chaser ตามเลขบนหัว",
+  "say_en": "Limit Cut (1211): the Hawk Blasters go off in pairs while players take Cruise Chaser by their number"
+ },
+ "bj-judgment": {
+  "v": "bj",
+  "t": 282,
+  "say": "Judgment Nisi: บอสตรงกลาง ทุกคนยืนใกล้กลาง ได้ Nisi + Water / Lightning",
+  "say_en": "Judgment Nisi: bosses in the middle, everyone close in, Nisis + Water / Lightning go out"
+ },
+ "bj-chakram": {
+  "v": "bj",
+  "t": 318,
+  "say": "Chakram 2 ลูกพุ่ง + Optical Sight: ออกไปขอบให้พ้นแนว แล้วกลับเข้ากลาง",
+  "say_en": "Two Chakrams + Optical Sight: go to the edge out of their path, then back to the middle"
+ },
+ "bj-photon": {
+  "v": "bj",
+  "t": 345,
+  "say": "หลัง Photon: ส่ง Nisi ครั้งที่ 1 (MT กับ D1 ยังไม่ส่ง)",
+  "say_en": "After Photon: the first Nisi pass (MT and D1 wait)"
+ },
+ "bj-spin": {
+  "v": "bj",
+  "t": 354,
+  "say": "Spin Crusher: กรวยหน้า Cruise Chaser ใส่ aggro อันดับ 1 MT หลบไปข้างหลัง",
+  "say_en": "Spin Crusher: a frontal cone from Cruise Chaser at its top aggro; the MT dodges behind it"
+ },
+ "bj-water": {
+  "v": "bj",
+  "t": 372,
+  "say": "Compressed Water (stack แชร์ อย่างน้อย 3 คน) + Compressed Lightning (2 คนพอดี)",
+  "say_en": "Compressed Water (shared by at least three) + Compressed Lightning (exactly two)"
+ },
+ "bj-enumeration": {
+  "v": "bj",
+  "t": 570,
+  "say": "Enumeration: วงสีเหลืองแบ่งตะวันตก / ตะวันออก",
+  "say_en": "Enumeration: the yellow circles, split west / east"
+ },
+ "bj-shield": {
+  "v": "bj",
+  "t": 845,
+  "say": "Plasma Shield หน้า Cruise Chaser: DPS ตีจากด้านหน้า แตกแล้วเดินผ่าน tollgate ส่ง Nisi",
+  "say_en": "The Plasma Shield in front of Cruise Chaser: the DPS hit it from the front, then pass Nisi through the tollgate"
+ },
+ "bj-nisi": {
+  "v": "bj",
+  "t": 1020,
+  "say": "ส่ง Nisi หลัง Verdict: ทุกคนต้องถือ Nisi ตรงกับ Final Judgment ของตัวเองตอน Gavel",
+  "say_en": "Passing Nisi after Verdict: everyone must hold the Nisi matching their Final Judgment at Gavel"
+ },
+ "bj-jump": {
+  "v": "bj",
+  "t": 1056,
+  "say": "Photon ทำให้ Tank เหลือ HP 1 แล้วตามด้วย Double Rocket Punch (tankbuster แชร์ 2 คน)",
+  "say_en": "Photon drops the tanks to 1 HP, then Double Rocket Punch (a two-tank shared buster)"
+ },
+ "bj-ray": {
+  "v": "bj",
+  "t": 1082,
+  "say": "หลัง Apocalyptic Ray: Cruise Chaser ใช้ Whirlwind 2 ครั้ง แล้วบอสทั้งสองร่าย enrage",
+  "say_en": "After Apocalyptic Ray: two Whirlwinds from Cruise Chaser, then both bosses cast their enrage"
+ },
+ "ts-blue": {
+  "v": "ap",
+  "t": 218,
+  "say": "Temporal Stasis: ดูว่าตัวเองได้สายสีอะไร (น้ำเงิน / แดง-เขียว) หรือไม่มี แล้วไปตามตำแหน่งของแผน",
+  "say_en": "Temporal Stasis: check which tether you have (blue / red-green) or none, then go to the plan's spot"
+ },
+ "ts-aggravated": {
+  "v": "ap",
+  "t": 262,
+  "say": "Aggravated Assault: ไอคอนบนหัว ไปยืนขอบสนามห่างคนอื่น (แผนนี้: ฝั่ง Brute Justice)",
+  "say_en": "Aggravated Assault: the icon overhead; stand out at the edge away from others (this plan: Brute Justice's side)"
+ },
+ "ap-inception": {
+  "v": "ap",
+  "t": 548,
+  "say": "Inception Formation: ลูกเขียวโยงสายมาที่ 4 คน เดินไปทาง Alexander ให้สายไขว้กัน",
+  "say_en": "Inception Formation: green orbs tether four players; walk towards Alexander with the tethers crossed"
+ },
+ "ap-flare": {
+  "v": "ap",
+  "t": 636,
+  "say": "Flarethrower: Brute Justice ยิงใส่ 3 คนที่ใกล้ที่สุด เริ่มจากคนใกล้สุด",
+  "say_en": "Flarethrower: Brute Justice fires at the three closest players, nearest first"
+ },
+ "wh-one": {
+  "v": "ap",
+  "t": 944,
+  "say": "Wormhole Formation: ดูเลข Limit Cut บนหัว เลขคี่หันหน้าออกนอกสนามและใช้ Arm's Length / Surecast",
+  "say_en": "Wormhole Formation: read the Limit Cut number overhead; odd numbers face out and use Arm's Length / Surecast"
+ },
+ "wh-void": {
+  "v": "ap",
+  "t": 966,
+  "say": "Wormhole Formation: แอ่ง Void ต้องรับ 3 รอบ (5+6 / 7+8 / 1+2) รับแต่ละครั้งแอ่งเล็กลง",
+  "say_en": "Wormhole Formation: the Void puddles are soaked three times (5+6 / 7+8 / 1+2), shrinking each time"
+ },
+ "wh-enum": {
+  "v": "ap",
+  "t": 1208,
+  "say": "จบ Wormhole: stack Incinerating Heat แล้วต่อด้วย Enumeration (วงสีเหลือง)",
+  "say_en": "The end of Wormhole: the Incinerating Heat stack, then Enumeration (the yellow circles)"
+ },
+ "ap-megaholy": {
+  "v": "ap",
+  "t": 1243,
+  "say": "Mega Holy 2 ครั้งติดกัน: กด mitigate ก่อนร่ายเสร็จให้คลุมทั้ง 2 ครั้ง",
+  "say_en": "Mega Holy twice in a row: mitigate just before the cast ends to cover both"
+ },
+ "ap-jwave": {
+  "v": "ap",
+  "t": 1274,
+  "say": "J Wave: raid-wide ราวทุก GCD แรงขึ้นเรื่อยๆ ฆ่า Cruise Chaser → Brute Justice → Alexander Prime",
+  "say_en": "J Waves: raid-wide about every GCD, getting stronger; kill Cruise Chaser → Brute Justice → Alexander Prime"
+ },
+ "ap-divine": {
+  "v": "ap",
+  "t": 1340,
+  "say": "Divine Judgment: ฆ่า Alexander Prime แล้วเริ่มนับถอยหลัง Tank LB3 ตอนเหลือราว 4 วินาที",
+  "say_en": "Divine Judgment: the countdown after Alexander Prime dies; tank LB3 at about 4 seconds"
+ },
+ "pa-stack": {
+  "v": "pa",
+  "t": 289,
+  "say": "หลัง Forced March: spread กับ stack ลำดับสุ่ม (ภาพนี้ spread มาก่อน)",
+  "say_en": "After the Forced March: a spread and a stack in random order (here the spread first)"
+ },
+ "pa-march": {
+  "v": "pa",
+  "t": 361,
+  "say": "Forced March: debuff ของ The Final Word ทำงาน คน Light ถูกพาเดินเข้าหา Light Beacon",
+  "say_en": "Forced March: The Final Word's debuffs resolve; Light players are marched towards the Light Beacon"
+ },
+ "pa-alpha": {
+  "v": "pa",
+  "t": 649,
+  "say": "Fate Calibration α เกิดจริง: Aggravated Assault ไปฝั่งขวา (ตะวันออก)",
+  "say_en": "Fate Calibration α resolving: Aggravated Assault goes right (east)"
+ },
+ "pa-ocp": {
+  "v": "pa",
+  "t": 1441,
+  "say": "Ordained Capital Punishment: tankbuster ใส่ Tank แล้วสลับ Tank",
+  "say_en": "Ordained Capital Punishment: a tank buster, then a tank swap"
+ },
+ "pa-beta": {
+  "v": "pa",
+  "t": 793,
+  "say": "Fate Calibration β เกิดจริง: ดูโคลนของตัวเองว่าเป็น Light / Dark และได้สายอะไร",
+  "say_en": "Fate Calibration β resolving: your clone shows whether you are Light / Dark and which tether"
+ },
+ "pa-beta-jump": {
+  "v": "pa",
+  "t": 1105,
+  "say": "β: หลัง Forced March Dark Beacon กับ Dark ไม่มีสายไปขอบสนาม ล่อ Super Jump",
+  "say_en": "β: after the march the Dark Beacon and the no-tether Dark go to the edge to bait Super Jump"
+ },
+ "pa-exatrine": {
+  "v": "pa",
+  "t": 1297,
+  "say": "Exatrine: เริ่มที่จุดของชุดที่ 3 ที่ติดกับชุดแรก พอชุดแรกลงแล้วเข้าไปจุดนั้น",
+  "say_en": "Exatrines: start on the third-set spot next to the first, step into the first spot once it lands"
+ },
+ "pa-grace": {
+  "v": "pa",
+  "t": 1465,
+  "say": "Irresistible Grace หลัง Exatrine: stack 8 คน ต้อง mitigate หนัก",
+  "say_en": "Irresistible Grace after each Exatrine: an 8-player stack that needs heavy mitigation"
+ },
+ "pa-prison": {
+  "v": "pa",
+  "t": 1497,
+  "say": "Temporal Prison (hard enrage): คุก 7 อันเริ่มตะวันออกเฉียงเหนือ วนตามเข็มนาฬิกา เข้าตามลำดับ",
+  "say_en": "Temporal Prison (the hard enrage): seven jails from the north-east, clockwise, filled in order"
+ },
+ "bj-optical": {
+  "v": "bj",
+  "t": 322,
+  "say": "Optical Sight: AoE วงใหญ่ล็อกตำแหน่งที่ทุกคนยืนตอน Chakram พุ่ง ทุกคนกลับเข้ากลาง",
+  "say_en": "Optical Sight: big AoEs locked on everyone's spot as the Chakrams fly; everyone returns to the middle"
+ },
+ "bj-gavel": {
+  "v": "bj",
+  "t": 1036,
+  "say": "Gavel: ตอนร่ายเสร็จทุกคนต้องถือ Nisi ตรงกับ Final Judgment ของตัวเอง แล้ว debuff ทั้งหมดหายไป",
+  "say_en": "Gavel: when it finishes everyone must hold the Nisi matching their Final Judgment; then every debuff is removed"
+ },
+ "pa-ordained": {
+  "v": "pa",
+  "t": 60,
+  "say": "Ordained Motion / Stillness: สัญลักษณ์ขึ้นที่ 3 คน แต่ใช้กับทั้งปาร์ตี้",
+  "say_en": "Ordained Motion / Stillness: three players get the indicator, but it applies to the whole party"
+ },
+ "ap-chastening": {
+  "v": "ap",
+  "t": 270,
+  "say": "Alexander Prime โผล่กลางสนาม แล้วร่าย Chastening Heat ใส่ Tank (ครั้งแรก ST invuln)",
+  "say_en": "Alexander Prime appears in the middle, then casts Chastening Heat on the tank (the first one: ST invuln)"
+ }
+}

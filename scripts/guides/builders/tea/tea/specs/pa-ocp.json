@@ -1,0 +1,83 @@
+{
+ "src": "scripts/guides/.work/tea/cand/9YgDXyUWbiQ-1441.png",
+ "out": "scripts/guides/data/frames/tea/pa-ocp.webp",
+ "crop": [
+  160,
+  0,
+  853,
+  480
+ ],
+ "blur": [
+  [
+   0,
+   0,
+   115,
+   65
+  ],
+  [
+   625,
+   365,
+   228,
+   115
+  ],
+  [
+   305,
+   450,
+   350,
+   30
+  ],
+  [
+   245,
+   385,
+   100,
+   50
+  ],
+  [
+   540,
+   415,
+   90,
+   50
+  ],
+  [
+   540,
+   228,
+   313,
+   122
+  ],
+  [
+   395,
+   25,
+   90,
+   40
+  ],
+  [
+   575,
+   325,
+   70,
+   30
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    400,
+    380
+   ],
+   "r": 110
+  },
+  {
+   "t": "label",
+   "at": [
+    12,
+    12
+   ],
+   "lines": [
+    "Ordained Capital Punishment",
+    "tankbuster แล้วสลับ Tank"
+   ],
+   "size": 24
+  }
+ ],
+ "width": 1000
+}
