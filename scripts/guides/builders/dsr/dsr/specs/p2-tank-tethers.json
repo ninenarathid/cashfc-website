@@ -1,0 +1,65 @@
+{
+ "src": "scripts/guides/.work/dsr/cand/biN5YkjijIs-165.png",
+ "out": "scripts/guides/data/frames/dsr/p2-tank-tethers.webp",
+ "crop": [
+  480,
+  30,
+  1120,
+  630
+ ],
+ "blur": [
+  [
+   430,
+   505,
+   90,
+   40
+  ],
+  [
+   0,
+   340,
+   80,
+   150
+  ],
+  [
+   220,
+   550,
+   400,
+   80
+  ],
+  [
+   560,
+   550,
+   220,
+   80
+  ],
+  [
+   180,
+   285,
+   150,
+   35
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    560,
+    200
+   ],
+   "r": 150
+  },
+  {
+   "t": "label",
+   "at": [
+    20,
+    20
+   ],
+   "lines": [
+    "Strength of the Ward: สายของอัศวิน",
+    "Tank 2 คนรับสายแล้วไขว้กัน"
+   ],
+   "size": 28
+  }
+ ],
+ "width": 1000
+}

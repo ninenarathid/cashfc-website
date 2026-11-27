@@ -1,0 +1,71 @@
+{
+ "src": "scripts/guides/.work/dsr/cand/1fsbzkZsWUE-465.png",
+ "out": "scripts/guides/data/frames/dsr/p7-exaflare.webp",
+ "crop": [
+  100,
+  0,
+  1400,
+  690
+ ],
+ "blur": [
+  [
+   460,
+   485,
+   220,
+   50
+  ],
+  [
+   990,
+   410,
+   240,
+   60
+  ],
+  [
+   810,
+   475,
+   150,
+   110
+  ],
+  [
+   1230,
+   440,
+   140,
+   40
+  ],
+  [
+   1080,
+   520,
+   320,
+   170
+  ],
+  [
+   1220,
+   345,
+   150,
+   60
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    770,
+    350
+   ],
+   "r": 170
+  },
+  {
+   "t": "label",
+   "at": [
+    20,
+    20
+   ],
+   "lines": [
+    "Exaflare's Edge: วง Exaflare",
+    "หลบเข้าจุดสว่างของลูกหลัง Thordan"
+   ],
+   "size": 28
+  }
+ ],
+ "width": 1000
+}
