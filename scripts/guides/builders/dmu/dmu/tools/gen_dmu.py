@@ -1,18 +1,24 @@
-"""Builds scripts/guides/data/dmu.json: Dancing Mad (Ultimate), kanatan.info's plan, Nukemaru's footage.
+"""Builds scripts/guides/data/dmu.json: Dancing Mad (Ultimate), two plans: yan-flash.com's first (the tabs where the two differ,
+scenes_yan.py) and kanatan.info's (everything else); Nukemaru's footage.
 
 Run from the repo root: python3 scripts/guides/builders/dmu/dmu/tools/gen_dmu.py [allowmissing]
 """
-import sys, json, os
+import sys, json, os, re
 sys.path.insert(0, os.path.dirname(__file__))
 import scenes_p1 as S1
 import scenes_p2 as S2
 import scenes_p3 as S3
 import scenes_p45 as S45
+import scenes_yan as SY
 
 W = "scripts/guides/.work/dmu"
 OUT = "scripts/guides/data/dmu.json"
 URLS = dict(l.split() for l in open(W + "/dl/imgs-indexed.txt", encoding="utf-8") if l.strip())
 K = lambda name: [u for n, u in URLS.items() if n.split(".")[0] == name][0]   # kanatan picture p1-05 -> its URL
+YURLS = dict(l.split() for l in open(W + "/yan/map.txt", encoding="utf-8") if l.strip())   # yan-flash picture 014 -> its URL
+PIC = lambda name: YURLS[name[1:]] if re.match(r"y\d{3}$", name) else K(name)
+YAN = ("แบบ yan-flash", "yan-flash")
+KAN = ("แบบ kanatan", "kanatan")
 ICON = lambda p: f"https://v2.xivapi.com/api/asset?path={p}&format=png"
 CLEAR, EXPL = "ASx7Ig8_bRA", "5V5ZcTQss-U"
 missing_refs = []
@@ -32,7 +38,7 @@ def step(phase, mech, name, name_en, note, note_en, strict=False, pic=None, scen
     if says:
         s["says"] = says
     if pic:
-        s["game8"] = [K(pic)]
+        s["game8"] = [PIC(pic)]
     if refs:
         keep = []
         for r in refs:
@@ -233,14 +239,40 @@ step(P1, "Gravitas / Vitrophyre", "③ stack ทางเหนือ + spread �
      "After the spread the statue cleaves half the room again: dodge it",
      strict=["MT", "ST", "H1", "H2"], pic="p1-19", scene=S1.p1_19())
 
+step(P1, "Double-trouble Trap", "Trap ②: Tank·Healer ตะวันตก / DPS ตะวันออก กระเด็นเข้าพื้นดำ", "Trap ②: tanks/healers west / DPS east, knocked into the puddles",
+     "หลบครึ่งสนามแล้วต่อด้วย Trap: ส่ง debuff ต่อโดยแบ่ง Tank·Healer ตะวันตก / DPS ตะวันออก รับ stack + knockback\n"
+     "ยืนตามภาพ (ภาพ: H1 กับ D3 ถือ debuff)\n"
+     "ใช้ knockback นี้พาตัวไปเหยียบพื้นดำของ Gravitas: กลุ่ม Tank·Healer ไปพื้นดำทางเหนือ / กลุ่ม DPS ไปพื้นดำทางใต้",
+     "Right after dodging the half-room cleave comes the Trap: pass the debuff with tanks/healers west / DPS east, taking the stack + knockback\n"
+     "Stand as drawn (picture: H1 and D3 hold the debuff)\n"
+     "Use the knockback to reach the Gravitas puddles: the tank/healer group to the north puddle / the DPS group to the south one",
+     strict=False, pic="y014", scene=SY.y014(), plan=YAN)
+
+step(P1, "Double-trouble Trap", "เหยียบพื้นดำ: Tank·Healer ทางเหนือ / DPS ทางใต้", "Puddle soak: tanks/healers north / DPS south",
+     "กระเด็นแล้วเหยียบพื้นดำของ Gravitas: Tank·Healer 4 คนทางเหนือ / DPS 4 คนทางใต้\n"
+     "คนที่ได้ debuff Trap ตามเข้าพื้นดำทีหลัง\n"
+     "ตรงนี้ใช้ burst 2 นาที\n\n"
+     "แล้ว Light of Judgment (raid-wide) → Hyperdrive ไม่มีร่าย (tank buster 3 ครั้ง)",
+     "After the knockback step into the Gravitas puddles: the 4 tanks/healers north / the 4 DPS south\n"
+     "Whoever got the Trap debuff follows into the puddle afterwards\n"
+     "Use the 2-minute burst here\n\n"
+     "Then Light of Judgment (raid-wide) → Hyperdrive without a cast (3 tank hits)",
+     strict=True, pic="y015", scene=SY.y015(), plan=YAN,
+     says={"MT": "พื้นดำทางเหนือ", "ST": "พื้นดำทางเหนือ", "H1": "พื้นดำทางเหนือ", "H2": "พื้นดำทางเหนือ",
+           "D1": "พื้นดำทางใต้", "D2": "พื้นดำทางใต้", "D3": "พื้นดำทางใต้", "D4": "พื้นดำทางใต้"},
+     says_en={"MT": "The north puddle", "ST": "The north puddle", "H1": "The north puddle", "H2": "The north puddle",
+              "D1": "The south puddle", "D2": "The south puddle", "D3": "The south puddle", "D4": "The south puddle"},
+     refs=[FR("puddles", CLEAR, 126, "พื้นดำของ Gravitas ไม่มีไฟฟ้าแล้ว: เข้าไปเหยียบรับ stack (ต้องทำเพื่อ flag เข้า P3)",
+              "The Gravitas puddles no longer crackle: step in for the stack (needed for the P3 flag)")])
+
 step(P1, "Double-trouble Trap", "Trap ②: แบ่งตก–ออก แล้วเดินไปเหยียบพื้นดำ", "Trap ②: west/east, then walk into the black puddles",
      "หลบครึ่งสนามแล้วต่อด้วย Trap ทันที\n"
      "แบ่งตะวันตก–ตะวันออกเหมือนครั้งแรก คนถือ debuff ยืนฝั่งนอก ทุกคนกระเด็นตรงๆ",
      "Right after dodging the half-room cleave comes the Trap\n"
      "Split west/east as the first time; the holders stand on the outside and everyone is knocked straight across",
-     strict=False, pic="p1-20", scene=S1.p1_20())
+     strict=False, pic="p1-20", scene=S1.p1_20(), plan=KAN)
 
-step(P1, "Gravitas / Vitrophyre", "เหยียบพื้นดำ: Tank 2 คนทางเหนือ / อีก 6 คนทางใต้", "Puddle soak: 2 tanks north / the other 6 south",
+step(P1, "Double-trouble Trap", "เหยียบพื้นดำ: Tank 2 คนทางเหนือ / อีก 6 คนทางใต้", "Puddle soak: 2 tanks north / the other 6 south",
      "โดนกระเด็นแล้วเดินไปที่พื้นดำของ Gravitas แล้วเหยียบรับ stack\n"
      "คนที่เพิ่งถือ debuff Trap รอสักจังหวะค่อยเดินไปจะพอดี\n"
      "Tank 2 คนแชร์พื้นดำทางเหนือ / อีก 6 คนเหยียบทางใต้\n"
@@ -251,7 +283,7 @@ step(P1, "Gravitas / Vitrophyre", "เหยียบพื้นดำ: Tank 2 
      "The two tanks share the north puddle / the other 6 take the south one\n"
      "Tanks: Rampart + a short cooldown looks plenty (maybe just the short one, depending on party mitigation)\n\n"
      "Then Hyperdrive again (no cast): take it with mitigation",
-     strict=["MT", "ST"], pic="p1-21", scene=S1.p1_21(),
+     strict=["MT", "ST"], pic="p1-21", scene=S1.p1_21(), plan=KAN,
      says={"MT": "เหยียบพื้นดำทางเหนือกับ ST", "ST": "เหยียบพื้นดำทางเหนือกับ MT"},
      says_en={"MT": "The north puddle with ST", "ST": "The north puddle with MT"},
      refs=[FR("puddles", CLEAR, 126, "พื้นดำของ Gravitas ไม่มีไฟฟ้าแล้ว: เข้าไปเหยียบรับ stack (ต้องทำเพื่อ flag เข้า P3)",
@@ -307,6 +339,25 @@ step(P1, "Double-trouble Trap", "Trap ③: ตก / ออก แล้วระ
      refs=[FR("trap3", CLEAR, 166, "Trap ③: มีเวลาแค่ 5 วิหลังวางลูกศร อย่าโดนกระเด็นไปเหยียบลูกศร",
               "Trap ③: only 5 s after the arrows; don't get knocked onto an arrow")])
 
+step(P1, "Tele-trouncing", "ที่ยืน Sleep / Confused: Melee ด้านใน / Ranged ด้านนอก", "Sleep / Confused spots: melee inside / ranged outside",
+     "โดนกระเด็นจาก Trap ③ แล้วเข้าที่\n"
+     "ที่ยืนตายตัว ไม่ต้องดูสาย: Melee (MT ST D1 D2) ด้านใน / Ranged (H1 H2 D3 D4) ด้านนอก ระหว่างลูกศรของมุมตัวเอง\n"
+     "Melee: MT ตะวันตกเฉียงเหนือ / ST ตะวันออกเฉียงเหนือ / D1 ตะวันตกเฉียงใต้ / D2 ตะวันออกเฉียงใต้\n"
+     "Ranged: D3 ตะวันตกเฉียงเหนือ / D4 ตะวันออกเฉียงเหนือ / H1 ตะวันตกเฉียงใต้ / H2 ตะวันออกเฉียงใต้\n"
+     "Melee อยู่ด้านใน ทุกคนจึงตีบอสได้",
+     "After Trap ③'s knockback go to your spot\n"
+     "Fixed spots, no need to read the tethers: melee (MT ST D1 D2) inside / ranged (H1 H2 D3 D4) outside, between their corner's arrows\n"
+     "Melee: MT north-west / ST north-east / D1 south-west / D2 south-east\n"
+     "Ranged: D3 north-west / D4 north-east / H1 south-west / H2 south-east\n"
+     "With the melee inside, everyone can keep hitting the boss",
+     strict=True, pic="y019", scene=SY.y019(), plan=YAN,
+     says={"MT": "ด้านใน มุมตะวันตกเฉียงเหนือ", "ST": "ด้านใน มุมตะวันออกเฉียงเหนือ", "D1": "ด้านใน มุมตะวันตกเฉียงใต้", "D2": "ด้านใน มุมตะวันออกเฉียงใต้",
+           "D3": "ด้านนอก มุมตะวันตกเฉียงเหนือ", "D4": "ด้านนอก มุมตะวันออกเฉียงเหนือ", "H1": "ด้านนอก มุมตะวันตกเฉียงใต้", "H2": "ด้านนอก มุมตะวันออกเฉียงใต้"},
+     says_en={"MT": "Inside, north-west corner", "ST": "Inside, north-east corner", "D1": "Inside, south-west corner", "D2": "Inside, south-east corner",
+              "D3": "Outside, north-west corner", "D4": "Outside, north-east corner", "H1": "Outside, south-west corner", "H2": "Outside, south-east corner"},
+     refs=[FR("sleep", CLEAR, 176, "สายจากรูปปั้น: ซ้ายบน = Confused วิ่งหาคนใกล้สุด / ขวาล่าง = Sleep + AoE วงกลม",
+              "The statue's lines: upper left = Confused, runs at the nearest player / lower right = Sleep + a circle AoE")])
+
 step(P1, "Tele-trouncing", "ที่ยืน Sleep / Confused", "Sleep / Confused spots",
      "โดนกระเด็นแล้วเข้าที่\n"
      "คน Confused (สายซ้ายบน) ไปยืนระหว่างลูกศรของทิศตัวเอง\n"
@@ -320,7 +371,7 @@ step(P1, "Tele-trouncing", "ที่ยืน Sleep / Confused", "Sleep / Confu
      "If it's the other way round (DPS confused): MT↔D3 / ST↔D4 / H1↔D1 / H2↔D2 swap\n"
      "That's enough for the arrows to carry everyone the right way\n"
      "A confused melee mustn't stay hitting the boss: the sleepers' circles will kill them; go early",
-     strict=True, pic="p1-28", scene=S1.p1_28(),
+     strict=True, pic="p1-28", scene=S1.p1_28(), plan=KAN,
      says={"MT": "มุมตะวันตกเฉียงเหนือ (สลับกับ D3)", "D3": "มุมตะวันตกเฉียงเหนือ (สลับกับ MT)", "ST": "มุมตะวันออกเฉียงเหนือ (สลับกับ D4)",
            "D4": "มุมตะวันออกเฉียงเหนือ (สลับกับ ST)", "H1": "มุมตะวันตกเฉียงใต้ (สลับกับ D1)", "D1": "มุมตะวันตกเฉียงใต้ (สลับกับ H1)",
            "H2": "มุมตะวันออกเฉียงใต้ (สลับกับ D2)", "D2": "มุมตะวันออกเฉียงใต้ (สลับกับ H2)"},
@@ -336,18 +387,45 @@ step(P1, "Graven Image + Mystery Magic", "③ ตา + Thundaga + Firaga", "③ 
      "ตอนเป็นแบบต้องมอง เสียงจะดังเฉพาะตัวมาก ฟังก็รู้\n\n"
      "พร้อมกัน Mystery Magic: Thundaga + Firaga: เข้าหรือไม่เข้าเส้นตรง แล้ว stack หรือ spread\n"
      "ตาลงพร้อม Firaga (น่าจะ): มอง / ไม่มองตอน Firaga ลง\n"
-     "kanatan ไม่ได้ตั้งตำแหน่งตายตัว แนะนำแบบที่เห็นบ่อย: DPS ใต้ / Tank·Healer เหนือ\n"
-     "ถ้าไม่มี VC คุยกัน ยึดตามที่ตกลงไว้ดีกว่า\n\n"
+     "ที่ยืน 2 แผนต่างกัน: ดูแท็บ\n\n"
      "จากนั้น auto-attack อีกหลายครั้งแล้วหมดเวลา: ถ้า HP บอสต่ำกว่า 15% เข้า P2",
      "The statue to the north opens a giant eye\n"
      "Purple eye = when it ends, don't look at the statue / yellow eye with ? = look at it\n"
      "The 'look' version has a very distinctive sound; you can tell by ear\n\n"
      "At the same time Mystery Magic: Thundaga + Firaga: in or out of the lines, then stack or spread\n"
      "The eye lands with Firaga (probably): look / don't look as Firaga lands\n"
-     "kanatan set no fixed spots; it suggests the common DPS south / tanks and healers north\n"
-     "Without voice chat, stick to what you agreed\n\n"
+     "The two plans stand differently: see the tabs\n\n"
      "Then a few auto-attacks and time runs out: below 15% boss HP the fight goes on to P2",
      refs=[FR("eye", CLEAR, 185, "ตายักษ์จากรูปปั้น: ม่วง = ห้ามมอง / เหลืองมี ? = ต้องมอง", "The statue's giant eye: purple = don't look / yellow with ? = look")])
+
+step(P1, "Graven Image + Mystery Magic", "Firaga เป็น spread: Melee ที่ marker ตัวเลข / Ranged ที่ขอบ", "Firaga as spreads: melee on the number markers / ranged at the edge",
+     "Melee: MT ที่ 4 / ST ที่ 3 / D1 ที่ 1 / D2 ที่ 2\n"
+     "Ranged: H1 ใต้ / H2 ตะวันออก / D3 ตะวันตก / D4 เหนือ\n"
+     "(ภาพวาง Ranged ไว้คนละ 2 จุด ข้างทิศของตัวเอง)",
+     "Melee: MT at 4 / ST at 3 / D1 at 1 / D2 at 2\n"
+     "Ranged: H1 south / H2 east / D3 west / D4 north\n"
+     "(The picture gives each ranged two spots, either side of their direction)",
+     strict=True, pic="y021", scene=SY.y021(), plan=YAN,
+     says={"MT": "marker 4", "ST": "marker 3", "D1": "marker 1", "D2": "marker 2", "H1": "ขอบใต้", "H2": "ขอบตะวันออก", "D3": "ขอบตะวันตก", "D4": "ขอบเหนือ"},
+     says_en={"MT": "Marker 4", "ST": "Marker 3", "D1": "Marker 1", "D2": "Marker 2", "H1": "South edge", "H2": "East edge", "D3": "West edge", "D4": "North edge"})
+
+step(P1, "Graven Image + Mystery Magic", "Firaga เป็น stack: Tank·Healer ที่ 3 / DPS ที่ 1", "Firaga as stacks: tanks/healers at 3 / DPS at 1",
+     "Tank·Healer stack ที่ marker 3 / DPS stack ที่ marker 1\n"
+     "ระวัง: บางแบบตีบอสไม่ถึง",
+     "Tanks/healers stack at marker 3 / DPS at marker 1\n"
+     "Careful: some patterns leave you out of reach of the boss",
+     strict=True, pic="y022", scene=SY.y022(), plan=YAN,
+     says={"MT": "stack ที่ marker 3", "ST": "stack ที่ marker 3", "H1": "stack ที่ marker 3", "H2": "stack ที่ marker 3",
+           "D1": "stack ที่ marker 1", "D2": "stack ที่ marker 1", "D3": "stack ที่ marker 1", "D4": "stack ที่ marker 1"},
+     says_en={"MT": "Stack at marker 3", "ST": "Stack at marker 3", "H1": "Stack at marker 3", "H2": "Stack at marker 3",
+              "D1": "Stack at marker 1", "D2": "Stack at marker 1", "D3": "Stack at marker 1", "D4": "Stack at marker 1"})
+
+step(P1, "Graven Image + Mystery Magic", "ที่ยืน: ไม่ได้กำหนดตายตัว", "Spots: none fixed",
+     "kanatan ไม่ได้ตั้งตำแหน่งตายตัว แนะนำแบบที่เห็นบ่อย: DPS ใต้ / Tank·Healer เหนือ\n"
+     "ถ้าไม่มี VC คุยกัน ยึดตามที่ตกลงไว้ดีกว่า",
+     "kanatan set no fixed spots; it suggests the common DPS south / tanks and healers north\n"
+     "Without voice chat, stick to what you agreed",
+     plan=KAN)
 
 # ======================================================================================= P2
 step(P2, "Ultimate Embrace", "tank buster แชร์ 2 คน", "Shared tank buster",
@@ -431,6 +509,67 @@ step(P2, "Forsaken", "Future's End / Past's End + All Things Ending", "Future's 
            FR("all-things", CLEAR, 271, "All Things Ending: Kefka + ร่างแยก หันหาคนสุ่มแล้วฟันครึ่งหน้า / หลัง",
               "All Things Ending: Kefka and clones turn to a random player and cleave front / back")])
 
+step(P2, "Forsaken", "กติกา: คู่ตายตัว + ลำดับความสำคัญ", "The rules: fixed pairs + priority",
+     "แบบลำดับความสำคัญ + ที่ยืนแบบ Pylene: ตั้งให้ H1 H2 D3 D4 ทำง่าย เพราะช่วงนี้ Healer heal หนักมาก\n"
+     "ยากสุดของท่านี้คือทุกคนยืนตรงกันเป๊ะ\n\n"
+     "คู่ตายตัว: MT·H1 / ST·H2 / D1·D3 / D2·D4 (ก่อน Forsaken แยก Tank·Healer ตะวันตก / DPS ตะวันออก ไว้ จะดูง่าย)\n"
+     "คู่ที่มีคนได้ stack: เข้า tower รอบ 1 2 3 8 / อีก 2 คู่: รอบ 4 5 6 7\n"
+     "รอบคี่: ล่างของ tower ซ้าย = กรวย / ล่างของ tower ขวา = วงกลม / คนถือ stack 2 คนแบ่งตามลำดับ Healer > Tank > Melee > Ranged\n"
+     "รอบคู่: เรียงจากซ้ายตามลำดับ Healer > Tank > Melee > Ranged\n"
+     "คู่ที่ไม่ได้เข้า tower ยืนที่ตายตัว: ซ้าย Tank·Healer / ขวา DPS\n"
+     "ล่อร่าง Future / Past: คนถือกรวย 2 คน + Melee 2 คน\n\n"
+     "หลังเข้า tower รอบ 3 ดู debuff ตัวเอง: ได้วงกลม → /mk stop <me> / ได้กรวย → /mk bind <me> (ดู macro)\n"
+     "tower รอบ 8 ใช้เลขของ marker นี้: เลข 1 ซ้าย / เลข 2 ขวา",
+     "Priority + Pylene's spots: built to make it easy for H1 H2 D3 D4, since healing here is very heavy\n"
+     "The hardest part is everyone standing on exactly the same spots\n\n"
+     "Fixed pairs: MT·H1 / ST·H2 / D1·D3 / D2·D4 (split tanks/healers west / DPS east before Forsaken; it's easier to read)\n"
+     "The pairs with a stack: towers 1 2 3 8 / the other two pairs: 4 5 6 7\n"
+     "Odd rounds: the left tower's lower spot = cone / the right tower's = circle / the two stacks split by healer > tank > melee > ranged\n"
+     "Even rounds: from the left by healer > tank > melee > ranged\n"
+     "The pairs not soaking stand on fixed spots: left tanks/healers / right DPS\n"
+     "Future / Past clones are baited by the 2 cone holders + 2 melee\n\n"
+     "After round 3 check your debuff: a circle → /mk stop <me> / a cone → /mk bind <me> (see the macro)\n"
+     "Round 8 goes by these markers' numbers: 1 left / 2 right",
+     plan=YAN)
+
+step(P2, "Forsaken", "8 รอบ: ใครอยู่ตรงไหน (ตัวอย่าง)", "All 8 rounds: who stands where (an example)",
+     "ตัวอย่างจากภาพของ yan-flash: คู่ MT·H1 กับ D2·D4 ได้ stack (เข้ารอบ 1 2 3 8)\n"
+     "ป้ายแต่ละมุม = สัญลักษณ์ตอนนี้ → สัญลักษณ์ที่ได้หลังเข้า tower\n"
+     "B1 B2 S1 S2 = marker bind / stop ที่ติดเองหลังรอบ 3\n"
+     "ระหว่างรอบคี่ → คู่: ล่อ Future / Past / ระหว่างรอบคู่ → คี่: ล่อ All Things Ending",
+     "An example from yan-flash's picture: the MT·H1 and D2·D4 pairs have the stacks (rounds 1 2 3 8)\n"
+     "Each corner tag = the sign now → the sign after soaking\n"
+     "B1 B2 S1 S2 = the bind / stop markers put on after round 3\n"
+     "Between an odd and an even round: bait Future / Past / between an even and an odd: bait All Things Ending",
+     strict=False, pic="y023", scene=SY.y023(), plan=YAN)
+
+step(P2, "Forsaken", "รอบคี่: ที่ยืนละเอียด", "Odd rounds: exact spots",
+     "tower 2 อันอยู่ใต้ Kefka: จุดแดง = 4 คนที่เข้า tower / จุดฟ้า = คนอื่น (ภาพ 8 รอบใช้ที่ยืนชุดนี้)\n\n"
+     "มีรายงานว่าคนถือ stack ที่ tower ขวาโดน All Things Ending เฉพาะรอบคี่: ยืนด้านขวาของส่วนที่วงทับกัน (รูปลูกรักบี้) จะนิ่ง\n"
+     "ล่อ All Things Ending: ยืนชิดวงเป้าบอสเกินไปมุมจะเอียงง่าย / ห่างออกมาสุดระยะ Melee ล่อมุมได้ง่ายกว่า",
+     "The two towers south of Kefka: red = the 4 soaking / cyan = the others (the 8-round picture uses these spots)\n\n"
+     "Some report the right tower's stack holder being hit by All Things Ending in odd rounds only: standing on the right of the overlap (the 'rugby ball') is steady\n"
+     "Baiting All Things Ending: too close to the boss's target circle tilts the angle / at max melee range it's easier to aim",
+     strict=False, pic="y024", scene=SY.y024(), plan=YAN)
+
+step(P2, "Forsaken", "รอบคู่: ที่ยืนละเอียด", "Even rounds: exact spots",
+     "จุดแดง = 4 คนที่เข้า tower: บน = คนถือกรวย / ล่าง = คนถือวงกลม\n"
+     "จุดฟ้าบน 2 จุด = Melee ของคู่ที่ไม่ได้เข้า tower: ล่อ Future / Past ร่วมกับคนถือกรวย\n"
+     "จุดฟ้าข้าง 2 จุด = อีก 2 คน: ซ้าย Tank·Healer / ขวา DPS",
+     "Red = the 4 soaking: top = cone holders / bottom = circle holders\n"
+     "The two upper cyan = the melee of the pairs not soaking: they bait Future / Past with the cone holders\n"
+     "The two side cyan = the other two: left tank/healer / right DPS",
+     strict=False, pic="y025", scene=SY.y025(), plan=YAN)
+
+step(P2, "Forsaken", "Future's End / Past's End: รอตรงไหน", "Future's End / Past's End: where to wait",
+     "Past's End: ลงแล้วรอระหว่าง tower จน All Things Ending เริ่มร่าย\n"
+     "Future's End: ลงแล้วรอฝั่งตรงข้าม tower พอเห็นร่าย All Things Ending วิ่งเข้าฝั่ง tower\n"
+     "Future / Past ครั้งที่ 4: รวมที่ A แล้วหลบ All Things Ending ตามที่ออก",
+     "Past's End: once it lands, wait between the towers until All Things Ending starts casting\n"
+     "Future's End: once it lands, wait opposite the towers; when you see All Things Ending's cast, run to the tower side\n"
+     "The 4th Future / Past: gather at A and dodge All Things Ending as it comes",
+     plan=YAN)
+
 step(P2, "Forsaken", "① เรียงแถวตาม role (ลำดับความสำคัญ)", "① Line up by role (priority)",
      "Forsaken ลง: เรียงแถวตาม role\n"
      "แถวนี้คือลำดับความสำคัญ เรียงให้ดูง่าย\n"
@@ -440,7 +579,7 @@ step(P2, "Forsaken", "① เรียงแถวตาม role (ลำดั�
      "The line is the priority order, laid out to be easy to read\n"
      "High > low: H1 > MT > ST > H2\n"
      "High > low: D1 > D2 > D3 > D4",
-     strict=True, pic="p2-08", scene=S2.p2_08())
+     strict=True, pic="p2-08", scene=S2.p2_08(), plan=KAN)
 
 step(P2, "Forsaken", "② ดูสัญลักษณ์บนหัว: กรวย หรือ วงกลม", "② Check your sign: cone or circle",
      "ดูบนหัวว่าได้กรวยหรือวงกลม (ภาพ: Tank·Healer ได้กรวย / DPS ได้วงกลม / H1 กับ D1 ได้ stack)\n"
@@ -451,7 +590,7 @@ step(P2, "Forsaken", "② ดูสัญลักษณ์บนหัว: ก�
      "kanatan's plan ties each spot to a priority: go to yours by the order\n\n"
      "Towers: rounds 1 2 3 8 one team / rounds 4 5 6 7 the other\n"
      "The higher-priority side takes spots from priority 1, the lower side from priority 3",
-     strict=True, pic="p2-09", scene=S2.p2_09())
+     strict=True, pic="p2-09", scene=S2.p2_09(), plan=KAN)
 
 step(P2, "Forsaken", "③ รอบคี่: tower ซ้ายกรวย / tower ขวาวงกลม", "③ Odd rounds: left tower cones / right tower circles",
      "ทุกรอบคี่ยืนแบบนี้: tower ซ้ายของคนถือกรวย / tower ขวาของคนถือวงกลม (มองจากกลางสนาม)\n\n"
@@ -474,7 +613,7 @@ step(P2, "Forsaken", "③ รอบคี่: tower ซ้ายกรวย / t
      "2 DPS → into the right stack\n"
      "Higher-priority tank/healer → into the left stack\n"
      "Lower-priority tank/healer → takes the left cone",
-     strict=False, pic="p2-10", scene=S2.p2_10())
+     strict=False, pic="p2-10", scene=S2.p2_10(), plan=KAN)
 
 step(P2, "Forsaken", "④ รอบคู่: ปล่อยกรวย / รับกรวย / ล่อ Future / Past", "④ Even rounds: cone out / cone takers / Future-Past baiters",
      "ยืนแบบนี้ทุกรอบคู่\n"
@@ -495,7 +634,7 @@ step(P2, "Forsaken", "④ รอบคู่: ปล่อยกรวย / ร�
      "Idle players: the Future / Past baiters are always DPS / the two cone takers always tanks/healers\n"
      "Facing Kefka from the towers: left = higher priority / right = lower\n"
      "In round 4, where soakers and idlers swap, soakers take left tower = higher / right = lower, by the first line-up",
-     strict=False, pic="p2-11", scene=S2.p2_11())
+     strict=False, pic="p2-11", scene=S2.p2_11(), plan=KAN)
 
 step(P2, "Forsaken", "⑤ ล่อ All Things Ending ระหว่าง tower", "⑤ Bait All Things Ending between the towers",
      "จบรอบ 2 แล้วล่อ All Things Ending: ที่ยืนนับจาก tower ใหม่\n"
@@ -508,7 +647,7 @@ step(P2, "Forsaken", "⑤ ล่อ All Things Ending ระหว่าง towe
      "Always outside Kefka's target circle: the closer to Kefka, the more the cleave tilts and hits the cone out in the next odd round\n\n"
      "From here odd and even rounds repeat: don't forget the swaps in rounds 4 and 8\n"
      "The 'about this o'clock' spots must be exact, or All Things Ending / Future-Past hits someone, or a cone goes to the wrong player",
-     strict=False, pic="p2-12", scene=S2.p2_12())
+     strict=False, pic="p2-12", scene=S2.p2_12(), plan=KAN)
 
 step(P2, "Trine", "Trine + Wings of Destruction", "Trine + Wings of Destruction",
      "สามเหลี่ยมตกลงมาใน 7 จุด (ขอบสนาม 6 + กลาง 1) 3 ครั้ง\n"
@@ -516,46 +655,101 @@ step(P2, "Trine", "Trine + Wings of Destruction", "Trine + Wings of Destruction"
      "สามเหลี่ยมระเบิดตามลำดับที่ตก: AoE วงกลมที่มุมทั้ง 3\n\n"
      "ระหว่างนั้นบอสร่าย Wings of Destruction: ฟันครึ่งสนาม ฝั่งปีกที่ไม่เรืองแสงปลอดภัย\n"
      "พอสามเหลี่ยมชุดแรกระเบิด บอสร่าย Wings of Destruction อีกครั้ง: ท่าแรงใส่คนไกลบอสที่สุด 1 + ใกล้ที่สุด 1 ลงราวๆ พร้อมระเบิดชุด 3\n"
-     "Tank 2 คนใช้ mitigate รับคนละอัน\n\n"
-     "กลางระเบิดชุด 3 เสมอ: รอที่กลางก่อน\n"
-     "Tank บอกจุดที่จะใช้ จากจุดที่ระเบิดชุดแรก / ไม่มี VC: จุดแรกนับตามเข็มจาก A คือที่ของ Tank คนอื่นหลบที่อื่น\n"
-     "ST ไปไกลสุดชิดขอบเสมอ / คนอื่นเชื่อ ST ยืนในที่ปลอดภัย ห่างขอบเข้ามานิดหน่อย\n"
-     "MT เข้าใกล้บอสที่สุดเท่าที่ทำได้ (แผนนี้ไม่ใช้ขอบสามเหลี่ยม Tank เข้าได้จำกัด) คนอื่นอย่าเข้าใกล้บอส\n\n"
-     "จากนั้น Ultimate Embrace แล้วบอสหายไป หมดเวลา\n"
+     "Tank 2 คนใช้ mitigate รับคนละอัน / กลางระเบิดชุด 3 เสมอ\n"
+     "ที่ยืน 2 แผนต่างกัน: ดูแท็บ\n\n"
+     "จากนั้น Ultimate Embrace แล้วหมดเวลา\n"
      "ต้องลด HP บอสลงถึง 0.1 และมี flag จาก P1 จึงเข้า P3",
      "Triangles drop on 7 spots (6 at the edge + the middle), three times\n"
      "Drop 1: 3 edge spots / drop 2: 1 edge spot / drop 3: the middle + the last 2 edge spots\n"
      "They explode in drop order: a circle at each corner\n\n"
      "Meanwhile the boss casts Wings of Destruction: a half-room cleave; the unlit wing's side is safe\n"
      "Around the first explosions it casts Wings of Destruction again: heavy hits on the farthest and nearest player, landing with the third explosions\n"
-     "The tanks take one each with mitigation\n\n"
-     "The middle always explodes third: wait in the middle first\n"
-     "Tanks call their spot among the first explosions / no voice chat: the first clockwise from A is theirs; others dodge elsewhere\n"
-     "ST always goes to the very edge / everyone else trusts ST and stands in the safe area just inside the edge\n"
-     "MT gets as close to the boss as possible (the plan doesn't use the triangles' edges, so only so close); others keep away from the boss\n\n"
+     "The tanks take one each with mitigation / the middle always explodes third\n"
+     "The two plans stand differently: see the tabs\n\n"
      "Then Ultimate Embrace and time is up\n"
      "Boss to 0.1 + the P1 flag = on to P3",
-     strict=False,
-     says={"MT": "เข้าใกล้บอสที่สุดเท่าที่ทำได้ รับ Wings ใกล้สุด", "ST": "ไปไกลบอสที่สุด ชิดขอบ รับ Wings ไกลสุด"},
-     says_en={"MT": "Get as close to the boss as you can; take the near Wings", "ST": "Go as far from the boss as you can, at the edge; take the far Wings"},
      refs=[FR("trine", CLEAR, 361, "Trine: สามเหลี่ยมตกลงมา ระเบิดที่มุมทั้ง 3 ตามลำดับ", "Trine: triangles drop and explode at their corners in order")])
 
+step(P2, "Trine", "สามเหลี่ยม 1: Healer·DPS ตามเข็มจาก A / Tank ทวนเข็มจากตะวันตกเฉียงเหนือ", "A '1' triangle: healers/DPS clockwise from A / tanks counter-clockwise from NW",
+     "ดูสามเหลี่ยมที่ตกชุดแรก (เลข 1 ในภาพ) แล้วเข้าไปอยู่ในนั้น ระหว่างทางหลบ Wings of Destruction ที่ฟันครึ่งสนาม\n"
+     "Wings รอบ 2 ยิงคนใกล้สุดกับไกลสุด: Tank กับคนอื่นแยกกันเข้าสามเหลี่ยม 1 คนละอัน\n"
+     "Healer·DPS: นับตามเข็มจาก A (เหนือ) สามเหลี่ยม 1 อันแรก\n"
+     "Tank: นับทวนเข็มจากตะวันตกเฉียงเหนือ สามเหลี่ยม 1 อันแรก\n\n"
+     "MT เข้าใกล้บอส ระวังระเบิดของสามเหลี่ยม / ST ขอบนอกสุดเสมอ / Healer·DPS ค่อนไปขอบนอก แต่ไม่ถึงขอบสุด",
+     "Watch the first drop (the 1s here) and get into one; on the way dodge Wings of Destruction's half-room cleave\n"
+     "The second Wings hits the nearest and farthest: tanks and everyone else take different '1' triangles\n"
+     "Healers/DPS: the first '1' clockwise from A (north)\n"
+     "Tanks: the first '1' counter-clockwise from the north-west\n\n"
+     "MT closes in on the boss, minding the triangles' blasts / ST always at the very edge / healers/DPS near the edge but not on it",
+     strict=False, pic="y034", scene=SY.y034(), plan=YAN,
+     says={"MT": "สามเหลี่ยม 1 ของ Tank: เข้าใกล้บอส", "ST": "สามเหลี่ยม 1 ของ Tank: ขอบนอกสุด"},
+     says_en={"MT": "The tanks' '1': close to the boss", "ST": "The tanks' '1': the very edge"})
+
+step(P2, "Trine", "ตัวอย่าง 2", "Example 2",
+     "อีกแบบ ใช้กติกาเดียวกัน",
+     "Another pattern, same rule",
+     strict=False, pic="y035", scene=SY.y035(), plan=YAN)
+
+step(P2, "Trine", "ตัวอย่าง 3: Tank ไปทางใต้", "Example 3: the tanks go south",
+     "แบบนี้นับทวนเข็มจากตะวันตกเฉียงเหนือแล้ว สามเหลี่ยม 1 อันแรกของ Tank อยู่ทางใต้ / Healer·DPS ได้อันทางตะวันออก\n"
+     "yan-flash ปรับกติกานี้เมื่อ 19 พ.ย.: ตัวอย่าง 1–2 ที่ยืนเหมือนเดิม สลับกันแค่แบบนี้",
+     "Here the tanks' first '1' counter-clockwise from the north-west is to the south / healers/DPS get the east one\n"
+     "yan-flash changed the rule on 19 Nov: examples 1–2 stand as before; only this kind swaps",
+     strict=False, pic="y036", scene=SY.y036(), plan=YAN)
+
+step(P2, "Trine", "Tank เรียกจุด + ST ขอบนอก", "Tanks call the spot + ST at the edge",
+     "รอที่กลางก่อน\n"
+     "Tank บอกจุดที่จะใช้ จากจุดที่ระเบิดชุดแรก / ไม่มี VC: จุดแรกนับตามเข็มจาก A คือที่ของ Tank คนอื่นหลบที่อื่น\n"
+     "ST ไปไกลสุดชิดขอบเสมอ / คนอื่นเชื่อ ST ยืนในที่ปลอดภัย ห่างขอบเข้ามานิดหน่อย\n"
+     "MT เข้าใกล้บอสที่สุดเท่าที่ทำได้ (แผนนี้ไม่ใช้ขอบสามเหลี่ยม Tank เข้าได้จำกัด) คนอื่นอย่าเข้าใกล้บอส",
+     "Wait in the middle first\n"
+     "Tanks call their spot among the first explosions / no voice chat: the first clockwise from A is theirs; others dodge elsewhere\n"
+     "ST always goes to the very edge / everyone else trusts ST and stands in the safe area just inside the edge\n"
+     "MT gets as close to the boss as possible (the plan doesn't use the triangles' edges, so only so close); others keep away from the boss",
+     plan=KAN,
+     says={"MT": "เข้าใกล้บอสที่สุดเท่าที่ทำได้ รับ Wings ใกล้สุด", "ST": "ไปไกลบอสที่สุด ชิดขอบ รับ Wings ไกลสุด"},
+     says_en={"MT": "Get as close to the boss as you can; take the near Wings", "ST": "Go as far from the boss as you can, at the edge; take the far Wings"})
+
 # ======================================================================================= P3
-step(P3, "The Decisive Battle", "แบ่งกลุ่ม Chaos / Exdeath", "Chaos group / Exdeath group",
+step(P3, "The Decisive Battle", "The Decisive Battle: α / β", "The Decisive Battle: α / β",
      "Chaos ตะวันตก / Exdeath ตะวันออก ร่าย The Decisive Battle\n"
      "ร่ายเสร็จได้ debuff α หรือ β: α ตีได้แค่ Chaos / β ตีได้แค่ Exdeath\n"
-     "อยู่ใกล้ Chaos ได้ α / ใกล้ Exdeath ได้ β (จริงๆ ไม่ตรงซะทีเดียว แต่คิดแบบนี้ได้)\n\n"
-     "กลุ่ม Chaos: MT H1 D1 D2\n"
-     "กลุ่ม Exdeath: ST H2 D3 D4\n"
-     "The Decisive Battle มา 2 ครั้ง: ตอนเริ่ม และหลัง Ultima Blaster",
+     "อยู่ใกล้ Chaos ได้ α / ใกล้ Exdeath ได้ β (จริงๆ ไม่ตรงซะทีเดียว แต่คิดแบบนี้ได้)\n"
+     "The Decisive Battle มา 2 ครั้ง: ตอนเริ่ม และหลัง Ultima Blaster (กลุ่มเดิม)\n"
+     "แบ่งกลุ่ม 2 แผนต่างกัน: ดูแท็บ",
      "Chaos (west) and Exdeath (east) cast The Decisive Battle\n"
      "When it ends you get α or β: α can only hit Chaos / β only Exdeath\n"
-     "Close to Chaos gets α / close to Exdeath gets β (not exactly, but fine to think of it so)\n\n"
-     "Chaos group: MT H1 D1 D2\n"
-     "Exdeath group: ST H2 D3 D4\n"
-     "The Decisive Battle comes twice: at the start and after Ultima Blaster",
+     "Close to Chaos gets α / close to Exdeath gets β (not exactly, but fine to think of it so)\n"
+     "The Decisive Battle comes twice: at the start and after Ultima Blaster (same groups)\n"
+     "The two plans split the groups differently: see the tabs",
      refs=[FR("decisive", CLEAR, 432, "The Decisive Battle: Chaos ตะวันตก / Exdeath ตะวันออก ได้ α / β ตามบอสที่อยู่ใกล้",
               "The Decisive Battle: Chaos west / Exdeath east; α / β by the boss you are near")])
+
+step(P3, "The Decisive Battle", "กลุ่ม Chaos: ST H2 D1 D2 / กลุ่ม Exdeath: MT H1 D3 D4", "Chaos group: ST H2 D1 D2 / Exdeath group: MT H1 D3 D4",
+     "กลุ่ม Chaos: ST H2 D1 D2\n"
+     "กลุ่ม Exdeath: MT H1 D3 D4\n"
+     "แบ่งแบบนี้เพราะเรื่อง invuln ของ Tank\n"
+     "debuff แบ่งกลุ่มลงตามคนที่อยู่ใกล้บอสก่อน",
+     "Chaos group: ST H2 D1 D2\n"
+     "Exdeath group: MT H1 D3 D4\n"
+     "Split this way because of the tanks' invulns\n"
+     "The group debuffs go to whoever is nearest the bosses first",
+     plan=YAN,
+     says={"ST": "กลุ่ม Chaos", "H2": "กลุ่ม Chaos", "D1": "กลุ่ม Chaos", "D2": "กลุ่ม Chaos",
+           "MT": "กลุ่ม Exdeath", "H1": "กลุ่ม Exdeath", "D3": "กลุ่ม Exdeath", "D4": "กลุ่ม Exdeath"},
+     says_en={"ST": "Chaos group", "H2": "Chaos group", "D1": "Chaos group", "D2": "Chaos group",
+              "MT": "Exdeath group", "H1": "Exdeath group", "D3": "Exdeath group", "D4": "Exdeath group"})
+
+step(P3, "The Decisive Battle", "กลุ่ม Chaos: MT H1 D1 D2 / กลุ่ม Exdeath: ST H2 D3 D4", "Chaos group: MT H1 D1 D2 / Exdeath group: ST H2 D3 D4",
+     "กลุ่ม Chaos: MT H1 D1 D2\n"
+     "กลุ่ม Exdeath: ST H2 D3 D4",
+     "Chaos group: MT H1 D1 D2\n"
+     "Exdeath group: ST H2 D3 D4",
+     plan=KAN,
+     says={"MT": "กลุ่ม Chaos", "H1": "กลุ่ม Chaos", "D1": "กลุ่ม Chaos", "D2": "กลุ่ม Chaos",
+           "ST": "กลุ่ม Exdeath", "H2": "กลุ่ม Exdeath", "D3": "กลุ่ม Exdeath", "D4": "กลุ่ม Exdeath"},
+     says_en={"MT": "Chaos group", "H1": "Chaos group", "D1": "Chaos group", "D2": "Chaos group",
+              "ST": "Exdeath group", "H2": "Exdeath group", "D3": "Exdeath group", "D4": "Exdeath group"})
 
 step(P3, "Bowels of Agony", "debuff ไฟ / น้ำ + คริสตัล", "Fire / water debuffs + the crystals",
      "Chaos ร่าย Bowels of Agony: raid-wide + debuff ทุกคน\n\n"
@@ -591,14 +785,68 @@ step(P3, "Bowels of Agony", "คริสตัล: ที่เกิด", "The
      "น้ำกับไฟอยู่ทแยงกันเสมอ ลมจึงอยู่ติดกับน้ำและไฟ\n"
      "โดนทั้ง debuff ไฟ / น้ำ และการโจมตีของคริสตัล = ตาย (รับดาเมจเวทเพิ่ม)\n"
      "การโจมตีของคริสตัลไฟ / น้ำ ถ้ารับจากทิศถูก ล้างลมได้\n\n"
-     "kanatan มี 2 แบบ: แบบใช้ Tank LB และแบบปกติ / แนะนำแบบ Tank LB (แบบปกติยังไม่ได้เขียน)\n"
-     "แบบ Tank LB ปรับมาจากแบบของทีม NOCCHH",
+     "ทั้ง 2 แผนใช้ Tank LB3 แต่ยืนต่างกัน: ดูแท็บ\n"
+     "yan-flash เรียกว่าแบบ TLB3 (มีแบบปกติด้วย หน้านี้ไม่ได้ลง) / kanatan ปรับมาจากแบบของทีม NOCCHH (แบบปกติยังไม่ได้เขียน)",
      "With the debuffs, three element crystals appear: always at the number-marker directions (NW / NE / SW / SE)\n"
      "Water and fire are always diagonal, so wind is always next to both\n"
      "Being hit by a fire/water debuff and a crystal = death (magic vulnerability)\n"
      "A fire/water crystal hit from the right direction cleanses wind\n\n"
-     "kanatan has two ways: with a tank LB and the normal one / it recommends the tank LB way (the normal one was never written up)\n"
-     "The tank LB way is adapted from team NOCCHH's")
+     "Both plans use a tank LB3 but stand differently: see the tabs\n"
+     "yan-flash calls it the TLB3 way (it also has a normal way, not shown here) / kanatan's is adapted from team NOCCHH's (its normal way was never written up)")
+
+step(P3, "Bowels of Agony", "① TLB3: ยืนตามคริสตัลลม / น้ำ (ไฟชุดแรก)", "① TLB3: stand by the wind / water crystals (fire first)",
+     "แบบ TLB3: แค่ยืนที่ตายตัว โดยดูคริสตัลลมกับน้ำเป็นหลัก\n"
+     "ภาพ: ไฟชุดแรก (น้ำตะวันตกเฉียงเหนือ / ลมตะวันออกเฉียงเหนือ / ไฟตะวันออกเฉียงใต้) / ถ้าไฟกับน้ำสลับที่ ให้กลับด้านตาม\n"
+     "ไฟระเบิดยังโดนดาเมจ: ใส่ barrier ไว้\n"
+     "MT อย่าลืมล่อ Thunder III แบบแรง (AoE) ของ Exdeath\n"
+     "คริสตัลลงแล้ว tank buster ตามมาทันที: รับด้วย invuln ใกล้ Exdeath อีกครั้ง\n"
+     "แล้วพา Exdeath ไปหา Chaos",
+     "TLB3: just stand on fixed spots, keyed off the wind and water crystals\n"
+     "Picture: fire first (water NW / wind NE / fire SE) / if fire and water swap, mirror it\n"
+     "The fire explosions still hit you: have a barrier up\n"
+     "MT, don't forget to bait Exdeath's empowered Thunder III (an AoE)\n"
+     "Right after the crystals comes a tank buster: take it with an invuln near Exdeath again\n"
+     "Then bring Exdeath over to Chaos",
+     strict=False, pic="y037", scene=SY.y037(), plan=YAN,
+     says={"MT": "ล่อ Thunder III แบบแรงของ Exdeath"}, says_en={"MT": "Bait Exdeath's empowered Thunder III"},
+     refs=[FR("thunder", CLEAR, 471, "Thunder III ของ Exdeath: ครั้งแรกวงใหญ่มองไม่เห็น / ต่อมาแรง 2 ครั้งใส่คนใกล้สุด",
+              "Exdeath's Thunder III: first a big invisible circle / later two heavy hits on the nearest player")])
+
+step(P3, "Bowels of Agony", "② Chaos ที่ขอบ หัน 45° + Implosion", "② Chaos at the edge, at 45° + Implosion",
+     "วาง Chaos ไว้ขอบนอกสุดเท่าที่ทำได้ หันทำมุม 45° พอดี แล้วล่อ Implosion (Latitudinal / Longitudinal)",
+     "Put Chaos as far out as it goes, turned exactly 45°, and bait the Implosion (Latitudinal / Longitudinal)",
+     strict=False, pic="y038", scene=SY.y038(), plan=YAN,
+     refs=[FR("implosion", CLEAR, 493, "Implosion: กรวย 90° 2 คู่ ซ้าย–ขวา แล้วหน้า–หลัง (หรือกลับกัน)", "Implosion: two pairs of 90° cones, sides then front/back (or the reverse)")])
+
+step(P3, "Bowels of Agony", "③ ชุดหลัง (ภาพ: น้ำ): ทำแบบเดียวกัน", "③ The late set (water here): the same way",
+     "ต่อด้วยไฟ / น้ำชุดหลัง (ภาพ: น้ำ): ทำแบบเดียวกับชุดแรก\n"
+     "ภาพ: Exdeath กับ Chaos อยู่ด้วยกันที่คริสตัลลม",
+     "Then the late fire / water (water here): the same way as the first set\n"
+     "Picture: Exdeath and Chaos together on the wind crystal",
+     strict=False, pic="y039", scene=SY.y039(), plan=YAN)
+
+step(P3, "Bowels of Agony", "④ MT ลาก Exdeath ไปคริสตัลลม / D3 ล่อ Umbra Smash", "④ MT takes Exdeath to the wind crystal / D3 baits Umbra Smash",
+     "MT ลาก Exdeath ไปที่คริสตัลลม\n"
+     "D3 ล่อ Umbra Smash ของ Chaos (เห็นร่ายแล้วที่ตกถูกกำหนด)\n"
+     "Umbra Smash แรงลดตามระยะ: คนอื่นอยู่ห่าง Chaos ไว้\n"
+     "Tank ใช้ LB3 ตอนร่าย Vacuum Wave ไปราว 70%",
+     "MT takes Exdeath to the wind crystal\n"
+     "D3 baits Chaos's Umbra Smash (the landing is fixed once the cast shows)\n"
+     "Umbra Smash falls off with distance: everyone else keeps away from Chaos\n"
+     "A tank fires LB3 at about 70% of Vacuum Wave's cast",
+     strict=["D3"], pic="y040", scene=SY.y040(), plan=YAN,
+     says={"MT": "ลาก Exdeath ไปที่คริสตัลลม", "D3": "ล่อ Umbra Smash ของ Chaos"},
+     says_en={"MT": "Take Exdeath to the wind crystal", "D3": "Bait Chaos's Umbra Smash"})
+
+step(P3, "Bowels of Agony", "⑤ Vacuum Wave + Tank LB3: รวมกัน 8 คน", "⑤ Vacuum Wave + tank LB3: all eight together",
+     "ร่าย Vacuum Wave ไปราว 70%: Tank ใช้ LB3 แล้วทุกคนรวมกันรับ ระวังทิศที่จะกระเด็น\n"
+     "รับ 8 คนเจ็บพอควร: mitigate ให้ดี / Cyclone (ลม) รับผล debuff ที่ใส่ Chaos\n"
+     "รับจากด้านหลัง: เอฟเฟกต์ลมอยู่ที่หลังตัวละคร / รับจากด้านหน้า: เอฟเฟกต์ลมอยู่ที่ท้อง",
+     "At about 70% of Vacuum Wave's cast a tank fires LB3 and everyone takes it together, minding the knockback direction\n"
+     "Eight together hurts a fair bit: mitigate well / Cyclone (wind) is affected by debuffs put on Chaos\n"
+     "Take it from behind: the wind effect is on your back / from the front: the wind effect is on your belly",
+     strict=False, pic="y041", scene=SY.y041(), plan=YAN,
+     refs=[FR("vacuum", CLEAR, 511, "Vacuum Wave: หันให้ถูกแล้วโดนกระเด็นเพื่อล้างลม · Tank ใช้ LB3", "Vacuum Wave: face correctly and get knocked back to cleanse wind · a tank LB3")])
 
 step(P3, "Bowels of Agony", "① เข้าที่ (แบบ Tank LB)", "① Positions (tank LB way)",
      "คริสตัลขึ้นแล้วเข้าที่\n"
@@ -615,9 +863,9 @@ step(P3, "Bowels of Agony", "① เข้าที่ (แบบ Tank LB)", "�
      "D1 / D2 hit Chaos from the edge side\n"
      "D3 / D4 flank the water crystal: D3 on Exdeath's side / D4 on Chaos's\n"
      "(Picture: wind 1 / water 2 / fire 4)",
-     strict=True, pic="p3-08", scene=S3.p3_08())
+     strict=True, pic="p3-08", scene=S3.p3_08(), plan=KAN)
 
-step(P3, "Thunder III", "② Thunder III (วงกลมใหญ่มองไม่เห็น) + ชุดเร็วลง", "② Thunder III (a big invisible circle) + the early set",
+step(P3, "Bowels of Agony", "② Thunder III (วงกลมใหญ่มองไม่เห็น) + ชุดเร็วลง", "② Thunder III (a big invisible circle) + the early set",
      "Exdeath เริ่มร่าย Thunder III: ST ย้ายไปฝั่ง Chaos\n"
      "พร้อมกัน debuff The Decisive Battle หาย ตีบอสได้ทั้ง 2 ตัว\n"
      "Thunder III นี้เป็นวงกลมใหญ่ที่มองไม่เห็น: D3 ระวังอย่าโดน\n"
@@ -626,18 +874,18 @@ step(P3, "Thunder III", "② Thunder III (วงกลมใหญ่มอง�
      "At the same time The Decisive Battle's debuff goes: both bosses can be hit\n"
      "This Thunder III is a big invisible circle: D3, don't get hit\n"
      "The early fire / water go off with it: those hit lose HP, heal them",
-     strict=["ST", "D3"], pic="p3-09", scene=S3.p3_09(),
+     strict=["ST", "D3"], pic="p3-09", scene=S3.p3_09(), plan=KAN,
      says={"ST": "Exdeath เริ่มร่าย Thunder III: ย้ายไปฝั่ง Chaos", "D3": "Thunder III มองไม่เห็น: อย่าอยู่ในวงใหญ่ของ Exdeath"},
      says_en={"ST": "When Exdeath starts Thunder III, move over to Chaos's side", "D3": "Thunder III is invisible: stay out of Exdeath's big circle"},
      refs=[FR("thunder", CLEAR, 471, "Thunder III ของ Exdeath: ครั้งแรกวงใหญ่มองไม่เห็น / ต่อมาแรง 2 ครั้งใส่คนใกล้สุด",
               "Exdeath's Thunder III: first a big invisible circle / later two heavy hits on the nearest player")])
 
-step(P3, "Thunder III", "③ ไฟ / น้ำชุดเร็วระเบิด", "③ The early fire / water go off",
+step(P3, "Bowels of Agony", "③ ไฟ / น้ำชุดเร็วระเบิด", "③ The early fire / water go off",
      "ไฟ / น้ำชุดเร็วระเบิดที่ตัวคนถือ (ภาพ: ไฟที่ D1 กับ ST)",
      "The early fire / water go off on their holders (picture: fire on D1 and ST)",
-     strict=False, pic="p3-10", scene=S3.p3_10())
+     strict=False, pic="p3-10", scene=S3.p3_10(), plan=KAN)
 
-step(P3, "Thunder III", "④ donut จากคริสตัลไฟ + Thunder III 2 ครั้ง", "④ The fire crystal's donut + Thunder III twice",
+step(P3, "Bowels of Agony", "④ donut จากคริสตัลไฟ + Thunder III 2 ครั้ง", "④ The fire crystal's donut + Thunder III twice",
      "ต่อด้วย donut จากคริสตัลไฟ: ทำงานเองแล้วไปลงเอง\n\n"
      "แล้ว Exdeath ร่าย Thunder III อีกครั้ง (ระหว่าง Thunder III Exdeath ไม่ขยับเลย)\n"
      "ชื่อเดียวกันแต่เป็นวงกลมแรง 2 ครั้งติด ลงที่คนใกล้ Exdeath ที่สุด 1 คน (ไม่ใช่ aggro)\n"
@@ -650,11 +898,11 @@ step(P3, "Thunder III", "④ donut จากคริสตัลไฟ + Thunde
      "It leaves a lightning vulnerability: normally the two tanks take one each with mitigation\n"
      "Here: ST goes back next to Exdeath and takes both with an invuln\n"
      "Then ST comes back to Chaos's side so Exdeath and Chaos stand together",
-     strict=False, pic="p3-11", scene=S3.p3_11(),
+     strict=False, pic="p3-11", scene=S3.p3_11(), plan=KAN,
      says={"ST": "กลับไปใกล้ Exdeath รับ Thunder III ทั้ง 2 ครั้งด้วย invuln แล้วพา Exdeath มาซ้อน Chaos"},
      says_en={"ST": "Go back next to Exdeath, take both Thunder IIIs with an invuln, then bring Exdeath onto Chaos"})
 
-step(P3, "Latitudinal / Longitudinal Implosion", "⑤ Implosion: หลบกรวย 2 จังหวะ", "⑤ Implosion: dodge two pairs of cones",
+step(P3, "Bowels of Agony", "⑤ Implosion: หลบกรวย 2 จังหวะ", "⑤ Implosion: dodge two pairs of cones",
      "จบ Thunder III Chaos ร่าย Latitudinal Implosion หรือ Longitudinal Implosion\n"
      "Latitudinal: กรวย 90° ซ้าย–ขวาของบอส → ต่อทันทีด้วยหน้า–หลัง\n"
      "Longitudinal: กรวย 90° หน้า–หลัง → ต่อทันทีด้วยซ้าย–ขวา\n"
@@ -663,7 +911,7 @@ step(P3, "Latitudinal / Longitudinal Implosion", "⑤ Implosion: หลบกร
      "Latitudinal: 90° cones left and right of the boss → straight after, front and back\n"
      "Longitudinal: front and back → straight after, left and right\n"
      "Dodge both",
-     strict=False, pic="p3-12", scene=S3.p3_12(), mech_en="Latitudinal / Longitudinal Implosion",
+     strict=False, pic="p3-12", scene=S3.p3_12(), plan=KAN,
      refs=[FR("implosion", CLEAR, 493, "Implosion: กรวย 90° 2 คู่ ซ้าย–ขวา แล้วหน้า–หลัง (หรือกลับกัน)", "Implosion: two pairs of 90° cones, sides then front/back (or the reverse)")])
 
 step(P3, "Bowels of Agony", "⑥ ไฟ / น้ำชุดช้า: กลับที่เดิม", "⑥ The late fire / water: back to your spots",
@@ -671,9 +919,9 @@ step(P3, "Bowels of Agony", "⑥ ไฟ / น้ำชุดช้า: กลั
      "ที่ตรงนั้น debuff ลง → คริสตัลทำงาน (ภาพ: คริสตัลน้ำลง D4 กับ D3) Healer heal HP ที่ลดคืน",
      "A beat after the dodge the late fire / water go off: go straight back to your first spots\n"
      "There the debuffs land → the crystals fire (picture: the water crystal hits D4 and D3); healers heal the HP back",
-     strict=["D3", "D4"], pic="p3-13", scene=S3.p3_13())
+     strict=["D3", "D4"], pic="p3-13", scene=S3.p3_13(), plan=KAN)
 
-step(P3, "Umbra Smash", "⑦ D3 ล่อ Umbra Smash", "⑦ D3 baits Umbra Smash",
+step(P3, "Bowels of Agony", "⑦ D3 ล่อ Umbra Smash", "⑦ D3 baits Umbra Smash",
      "D4 ไปรวมกลุ่มฝั่ง Chaos / D3 ไปฝั่งตรงข้าม Chaos + Exdeath ล่อ Umbra Smash\n"
      "Umbra Smash: Chaos กระโดดไปที่ที่คนไกล Chaos ที่สุด 'ยืนอยู่ตอนเริ่มร่าย' แล้วโจมตีแรงลดตามระยะ\n"
      "หลังคริสตัลน้ำลง D3 ไปรอฝั่งตรงข้ามก่อน\n"
@@ -682,11 +930,11 @@ step(P3, "Umbra Smash", "⑦ D3 ล่อ Umbra Smash", "⑦ D3 baits Umbra Smas
      "Umbra Smash: Chaos jumps to where the player farthest from Chaos 'stood when the cast began' and hits with falloff\n"
      "After the water crystal, D3 waits on the far side first\n"
      "Once the cast starts the landing spot is locked: D3 hurries back to Chaos + Exdeath",
-     strict=["D3"], pic="p3-14", scene=S3.p3_14(),
+     strict=["D3"], pic="p3-14", scene=S3.p3_14(), plan=KAN,
      says={"D3": "ไปฝั่งตรงข้ามบอสล่อ Umbra Smash เริ่มร่ายแล้วรีบกลับ", "D4": "ไปรวมฝั่ง Chaos"},
      says_en={"D3": "Go to the far side to bait Umbra Smash; once the cast starts, hurry back", "D4": "Join the Chaos side"})
 
-step(P3, "Vacuum Wave", "⑧ Vacuum Wave ล้างลม + Tank LB3", "⑧ Vacuum Wave cleanses wind + tank LB3",
+step(P3, "Bowels of Agony", "⑧ Vacuum Wave ล้างลม + Tank LB3", "⑧ Vacuum Wave cleanses wind + tank LB3",
      "Umbra Smash เริ่มร่าย Exdeath ก็ร่าย Vacuum Wave\n"
      "หันให้ถูกแล้วโดนกระเด็นเพื่อล้าง debuff ลม / หันผิด = ปลิวออกนอกสนามตาย: หันเทียบกับ Exdeath\n"
      "ล้างลมพร้อมกัน 8 คน = คริสตัลลมยิง stack คู่ 8 อัน: รับด้วย Tank LB3\n"
@@ -703,7 +951,7 @@ step(P3, "Vacuum Wave", "⑧ Vacuum Wave ล้างลม + Tank LB3", "⑧ Va
      "The tank LB doesn't turn you, but if you face away and use a skill on Exdeath during the LB lock, the queued action turns you and you die: press nothing until you're knocked back\n"
      "A DRK's LB effect hides too much: let the other tank use it\n\n"
      "When Umbra / Vacuum start, Kefka dashes spinning from the edge 8 times: remember where he starts and which way he turns (next step)",
-     strict=False, pic="p3-15", scene=S3.p3_15(),
+     strict=False, pic="p3-15", scene=S3.p3_15(), plan=KAN,
      refs=[FR("vacuum", CLEAR, 511, "Vacuum Wave: หันให้ถูกแล้วโดนกระเด็นเพื่อล้างลม · Tank ใช้ LB3 รับ stack คู่", "Vacuum Wave: face correctly and get knocked back to cleanse wind · a tank LB3 for the pair stacks")])
 
 step(P3, "Ultima Blaster", "Ultima Blaster: Kefka พุ่ง 8 ครั้ง", "Ultima Blaster: Kefka's 8 dashes",
@@ -1256,26 +1504,69 @@ step(P5, "Flood", "หลบ: รอข้างแถว 1–2 แล้วเ�
      "The waiting spot is one of four directions: remember it by marker (picture: D2 starts at D)",
      strict=False, pic="p5-04", scene=S45.p5_04())
 
-step(P5, "Maddening Orchestra", "① spread", "① Spread",
-     "ไม่นานหลัง Flood บอสเริ่มร่าย Maddening Orchestra: spread ตามภาพ",
-     "A beat after Flood the boss starts Maddening Orchestra: spread as drawn",
-     strict=True, pic="p5-05", scene=S45.p5_05(),
-     refs=[FR("orchestra", CLEAR, 941, "Maddening Orchestra: spread แล้วรับ Flare / Holy", "Maddening Orchestra: spread, then Flare / Holy")])
-
-step(P5, "Maddening Orchestra", "② Flare ที่ Tank + Holy 3 คน", "② Flare on the tanks + Holy on 3",
-     "ร่ายเสร็จ: aggro อันดับ 1 / 2 โดนวงกลมแรง (Flare) / อีก 6 คนสุ่ม 3 คนโดนวงกลม (Holy)\n"
-     "ทั้งคู่มีรับดาเมจเวทเพิ่ม: ซ้อน = ตาย\n"
+step(P5, "Maddening Orchestra", "Maddening Orchestra: Flare / Holy", "Maddening Orchestra: Flare / Holy",
+     "ไม่นานหลัง Flood บอสร่าย Maddening Orchestra\n"
+     "ร่ายเสร็จ: ท่าแรงใส่ aggro อันดับ 1 และ 2 / อีก 6 คนสุ่ม 3 คนโดนวงกลม: ซ้อนกัน = ตาย (รับดาเมจเวทเพิ่ม)\n"
      "พร้อมกัน aggro 1 ได้ debuff Flare / aggro 2 ได้ debuff Holy (7 วิทั้งคู่)\n"
      "Flare: หมดเวลา ท่าแรงที่คนถือ + คนในระยะหนึ่งตายทันที (แรงลดตามระยะ)\n"
      "Holy: หมดเวลา stack 4 คน (ราว 320,000)\n"
-     "รับครั้งแรกแล้วได้ debuff: Tank ใช้ Provoke สลับ aggro",
-     "When it ends: enmity #1 / #2 take heavy circles (Flare) / 3 random of the other 6 take circles (Holy)\n"
-     "Both carry a magic vulnerability: overlapping = death\n"
+     "ต่อด้วยวงกลมใส่ 3 คนที่ใกล้บอสที่สุด + ท่าแรงที่ Tank แชร์กัน\n\n"
+     "ที่ spread กับ Tank คนไหนใช้ invuln 2 แผนต่างกัน: ดูแท็บ",
+     "A beat after Flood the boss casts Maddening Orchestra\n"
+     "When it ends: heavy hits on enmity #1 and #2 / 3 random of the other 6 take circles: overlapping = death (magic vulnerability)\n"
      "At once enmity #1 gets a Flare debuff / #2 a Holy debuff (7 s each)\n"
      "Flare: at the end a heavy hit on the holder + instant death within a range (falloff)\n"
      "Holy: at the end a 4-person stack (about 320,000)\n"
+     "Then circles on the 3 nearest the boss + a heavy hit the tanks share\n\n"
+     "The two plans differ in the spread and in which tank uses the invuln: see the tabs",
+     refs=[FR("orchestra", CLEAR, 941, "Maddening Orchestra: spread แล้วรับ Flare / Holy", "Maddening Orchestra: spread, then Flare / Holy")])
+
+step(P5, "Maddening Orchestra", "① spread", "① Spread",
+     "spread ตามภาพ: MT ST เหนือ / D3 ตะวันตก D4 ตะวันออก / H1 ตะวันตก H2 ตะวันออก (ต่ำลงมา) / D1 D2 ใต้\n"
+     "Tank 2 คนโดนท่าแรง / สุ่ม 3 คนโดนวงกลม (ภาพ: D3 H2 D2)",
+     "Spread as drawn: MT ST north / D3 west D4 east / H1 west H2 east (lower) / D1 D2 south\n"
+     "The two tanks take the heavy hits / 3 random take circles (picture: D3 H2 D2)",
+     strict=True, pic="y125", scene=SY.y125(), plan=YAN,
+     says={"MT": "เหนือ ซ้าย", "ST": "เหนือ ขวา", "D3": "ตะวันตก แถวบน", "D4": "ตะวันออก แถวบน", "H1": "ตะวันตก แถวล่าง", "H2": "ตะวันออก แถวล่าง",
+           "D1": "ใต้ ซ้าย", "D2": "ใต้ ขวา"},
+     says_en={"MT": "North, left", "ST": "North, right", "D3": "West, upper", "D4": "East, upper", "H1": "West, lower", "H2": "East, lower",
+              "D1": "South, left", "D2": "South, right"})
+
+step(P5, "Maddening Orchestra", "② Tank ซ้อนกันทางเหนือ / 3 คนที่ไม่โดนเข้าใกล้บอส", "② Tanks stack north / the 3 not hit step in",
+     "Tank ซ้อนกันรับท่าแรงแชร์\n"
+     "3 คนที่ไม่โดนวงกลมรอบแรก เข้าใกล้บอสล่อวงกลมรอบถัดไป (ภาพ: H1 D1 D4)",
+     "The tanks stack and share the heavy hit\n"
+     "The 3 not hit by the first circles step up to the boss to bait the next ones (picture: H1 D1 D4)",
+     strict=["MT", "ST"], pic="y126", scene=SY.y126(), plan=YAN,
+     says={"MT": "ซ้อน ST ทางเหนือ", "ST": "ซ้อน MT ทางเหนือ"}, says_en={"MT": "Stack with ST, north", "ST": "Stack with MT, north"})
+
+step(P5, "Maddening Orchestra", "③ MT สลับแล้วรับ Holy ด้วย invuln / ST พา Flare ไปขอบ", "③ MT swaps and takes Holy with an invuln / ST takes Flare to the edge",
+     "MT ใช้ Provoke สลับ aggro (บอสจะได้ไม่ขยับ) แล้วรับ Holy ด้วย invuln (เพราะทับกับ Flare)\n"
+     "ST พา Flare ไปขอบนอกสุด\n"
+     "(ภาพ: คนอื่นรอทางใต้)",
+     "MT Provokes (so the boss doesn't move) and takes Holy with an invuln (as it overlaps Flare)\n"
+     "ST takes Flare to the very edge\n"
+     "(Picture: the others wait south)",
+     strict=["MT", "ST"], pic="y127", scene=SY.y127(), plan=YAN,
+     says={"MT": "Provoke แล้วรับ Holy ด้วย invuln", "ST": "พา Flare ไปขอบนอกสุด"},
+     says_en={"MT": "Provoke, then take Holy with an invuln", "ST": "Take Flare to the very edge"})
+
+step(P5, "Maddening Orchestra", "④ auto-attack 2 ครั้ง", "④ Two auto-attacks",
+     "แล้ว auto-attack 2 ครั้ง (ภาพ: Tank เหนือ / Healer ตะวันตกเฉียงใต้ / DPS ตะวันออกเฉียงใต้)",
+     "Then two auto-attacks (picture: tanks north / healers south-west / DPS south-east)",
+     strict=True, pic="y128", scene=SY.y128(), plan=YAN)
+
+step(P5, "Maddening Orchestra", "① spread", "① Spread",
+     "spread ตามภาพ",
+     "Spread as drawn",
+     strict=True, pic="p5-05", scene=S45.p5_05(), plan=KAN)
+
+step(P5, "Maddening Orchestra", "② วงกลมที่ Tank + 3 คน แล้วสลับ aggro", "② Circles on the tanks + 3 others, then swap",
+     "ร่ายเสร็จ: Tank 2 คนโดนวงกลมแรง / อีก 3 คนโดนวงกลม\n"
+     "รับครั้งแรกแล้วได้ debuff: Tank ใช้ Provoke สลับ aggro",
+     "When it ends: the two tanks take heavy circles / 3 others take circles\n"
      "After the first hits, with the debuffs on: the tanks Provoke to swap",
-     strict=False, pic="p5-06", scene=S45.p5_06())
+     strict=False, pic="p5-06", scene=S45.p5_06(), plan=KAN)
 
 step(P5, "Maddening Orchestra", "③ 3 คนใกล้บอส + Tank แชร์ทางเหนือ", "③ The 3 nearest the boss + the tanks share north",
      "ต่อจาก Flare / Holy / สลับ aggro: วงกลมใส่ 3 คนที่ใกล้บอสที่สุด + ท่าแรง stack 2 คนที่ aggro อันดับ 1 (น่าจะ)\n"
@@ -1286,7 +1577,7 @@ step(P5, "Maddening Orchestra", "③ 3 คนใกล้บอส + Tank แช
      "The 3 not hit by Holy step inside the boss's target circle and take the 3 nearest circles\n"
      "The tanks stack north and share the heavy hit\n"
      "Tanks must never enter the target circle: they'd be one of the 3 nearest and take both, likely dying",
-     strict=["MT", "ST"], pic="p5-08", scene=S45.p5_08(),
+     strict=["MT", "ST"], pic="p5-08", scene=S45.p5_08(), plan=KAN,
      says={"MT": "ซ้อน ST ทางเหนือ นอกวงเป้าบอส", "ST": "ซ้อน MT ทางเหนือ นอกวงเป้าบอส"},
      says_en={"MT": "Stack with ST north, outside the target circle", "ST": "Stack with MT north, outside the target circle"})
 
@@ -1307,7 +1598,7 @@ step(P5, "Maddening Orchestra", "④ Flare ไปขอบเหนือ / Holy
      "Tanks: the invuln from Holy is still up, use it for the autos (Living Dead can cover both if popped before the debuff goes / others probably one)\n"
      "The tank autos hurt a lot: take as many as possible under invuln\n"
      "Keep enmity as it is after the swap until the next Maddening Orchestra after the exaflares, then swap again",
-     strict=["MT", "ST"], pic="p5-09", scene=S45.p5_09())
+     strict=["MT", "ST"], pic="p5-09", scene=S45.p5_09(), plan=KAN)
 
 step(P5, "Celestriad", "Celestriad: tower 9 อัน 3 ธาตุ", "Celestriad: nine towers, three elements",
      "หลัง Orchestra → auto-attack 2 ครั้ง บอสร่าย Celestriad\n"
@@ -1399,87 +1690,150 @@ step(P5, "Stray Apocalypse", "หลบ: เลื่อนตามแกนท
      "When the cast starts the exaflares aren't over: spreading early gets you hit / dodge all 6 first, then spread",
      strict=False, pic="p5-20", scene=S45.p5_20())
 
+step(P5, "Maddening Orchestra", "ครั้งที่ 2: spread แบบเดิม / MT ถือ aggro อันดับ 1", "Second time: the same spread / MT holds enmity #1",
+     "หลัง Stray Entropy: Maddening Orchestra อีกครั้ง ทำเหมือนครั้งแรก\n"
+     "แต่ครั้งนี้ ST เป็นคนใช้ invuln: MT ถือ aggro อันดับ 1 ไว้ (จะได้ Flare)\n"
+     "spread ตามภาพ (ภาพ: วงกลมสุ่มลง D4 D1 D2)",
+     "After Stray Entropy: Maddening Orchestra again, done as the first\n"
+     "But this time ST uses the invuln: MT keeps enmity #1 (to get Flare)\n"
+     "Spread as drawn (picture: the random circles on D4 D1 D2)",
+     strict=True, pic="y135", scene=SY.y135(), plan=YAN,
+     says={"MT": "ถือ aggro อันดับ 1 ไว้", "ST": "aggro อันดับ 2: ครั้งนี้ใช้ invuln"},
+     says_en={"MT": "Keep enmity #1", "ST": "Enmity #2: your invuln this time"})
+
+step(P5, "Maddening Orchestra", "Tank ซ้อนกันทางเหนือ / 3 คนที่ไม่โดนเข้าใกล้บอส", "Tanks stack north / the 3 not hit step in",
+     "เหมือนครั้งแรก (ภาพ: D3 H1 H2 เข้าใกล้บอส)",
+     "As the first time (picture: D3 H1 H2 step in)",
+     strict=["MT", "ST"], pic="y136", scene=SY.y136(), plan=YAN)
+
+step(P5, "Maddening Orchestra", "ST รับ Holy ด้วย invuln / MT พา Flare ไปขอบ", "ST takes Holy with an invuln / MT takes Flare to the edge",
+     "ครั้งนี้ ST รับ Holy ด้วย invuln / MT พา Flare ไปขอบนอกสุด\n"
+     "(ภาพ: คนอื่นรอทางใต้)",
+     "This time ST takes Holy with an invuln / MT takes Flare to the very edge\n"
+     "(Picture: the others wait south)",
+     strict=["MT", "ST"], pic="y137", scene=SY.y137(), plan=YAN,
+     says={"MT": "พา Flare ไปขอบนอกสุด", "ST": "รับ Holy ด้วย invuln"},
+     says_en={"MT": "Take Flare to the very edge", "ST": "Take Holy with an invuln"})
+
+step(P5, "Maddening Orchestra", "auto-attack 3 ครั้ง", "Three auto-attacks",
+     "แล้ว auto-attack 3 ครั้ง (ภาพ: Tank เหนือ / Healer ตะวันตกเฉียงใต้ / DPS ตะวันออกเฉียงใต้)",
+     "Then three auto-attacks (picture: tanks north / healers south-west / DPS south-east)",
+     strict=True, pic="y138", scene=SY.y138(), plan=YAN)
+
 step(P5, "Maddening Orchestra", "Maddening Orchestra ครั้งที่ 2", "The second Maddening Orchestra",
      "หลัง Stray Entropy: Maddening Orchestra อีกครั้ง\n"
      "เหมือนครั้งแรก: ได้ debuff แล้วสลับ aggro / Holy ให้ Tank รับด้วย invuln\n"
      "หลัง Orchestra auto-attack 3 ครั้ง เจ็บมาก mitigate ให้ดี",
      "After Stray Entropy: Maddening Orchestra again\n"
      "As the first: swap once the debuffs are out / the Holy tank takes it with an invuln\n"
-     "Three auto-attacks follow, very heavy: mitigate well")
+     "Three auto-attacks follow, very heavy: mitigate well",
+     plan=KAN)
 
 step(P5, "Forsaken Null", "Forsaken Null: raid-wide ไม่หยุด + หนีพื้น", "Forsaken Null: endless raid-wides + dodging puddles",
      "raid-wide แรงมาก ต่อเนื่อง\n"
-     "บอสเริ่มร่าย Forsaken: ทุกคนรวมที่ A\n"
-     "ร่ายเสร็จ raid-wide ราว 370,000–380,000 + ได้สัญลักษณ์ stack\n"
+     "ร่าย Forsaken เสร็จ raid-wide ราว 370,000–380,000 + ได้สัญลักษณ์ stack\n"
      "พื้นมี AoE วงกลมสีส้ม (มองเห็น) กับสัญลักษณ์วงกลมสีม่วง สักพัก stack กับ AoE ลงพร้อมกัน / stack ราว 300,000\n"
      "สีม่วงลงแล้วกลายเป็นหลุมดำสนิท: แตะ = ตายทันที + debuff ห้ามชุบ (ขอบม่วงรอบๆ อาจตายด้วย)\n"
      "สีส้มน่าจะสุ่มรอบๆ 8 ทิศที่คนยืนอยู่ (kanatan เดา)\n"
      "stack ลงแล้วสัญลักษณ์ stack ถัดไปขึ้นทันที / 3 วิหลัง stack มี Forsaken ไม่ร่าย (raid-wide เกือบ 300,000)\n"
      "สรุป: เดินหลบพื้นส้มไปพร้อมดาเมจราว 300,000 ทุก 3–4 วิ\n\n"
-     "ตั้งกติกาเดินในปาร์ตี้ให้ชัด (kanatan มี 2 แบบ ดูแท็บ)\n"
+     "ตั้งกติกาเดินในปาร์ตี้ให้ชัด (yan-flash 1 แบบ / kanatan 2 แบบ: ดูแท็บ)\n"
      "หลุมดำที่ขอบสนามกับวงดำกลางสนามยังมีช่องให้ผ่าน แต่แคบ อันตราย\n"
      "และอย่าลืม mitigate: ขาดเมื่อไรตายทันที",
      "Heavy raid-wides, back to back\n"
-     "When the boss starts casting Forsaken: everyone gathers at A\n"
-     "It ends with a raid-wide of about 370,000–380,000 + a stack marker\n"
+     "Forsaken ends with a raid-wide of about 370,000–380,000 + a stack marker\n"
      "Visible orange circles and purple circle telegraphs appear on the floor; the stack and the AoEs land together / the stack is about 300,000\n"
      "A purple one becomes a pitch-black hole: touching it = instant death + a no-raise debuff (the purple rim may kill too)\n"
      "The orange ones seem to spawn around the 8 directions where players stand (kanatan's guess)\n"
      "As a stack lands the next stack marker appears at once / 3 s after each stack an uncast Forsaken hits (nearly 300,000)\n"
      "So: dodge orange puddles while about 300,000 lands every 3–4 s\n\n"
-     "Set a clear movement rule in the party (kanatan gives two: see the tabs)\n"
+     "Set a clear movement rule in the party (yan-flash gives one, kanatan two: see the tabs)\n"
      "A hole at the edge still leaves a gap to the black circle in the middle, but it's narrow and risky\n"
      "And never forget mitigation: missing one is an instant wipe",
      refs=[FR("forsaken-null", CLEAR, 1098, "Forsaken Null: stack + พื้นส้ม / ม่วงกลายเป็นหลุมดำ แตะแล้วตาย", "Forsaken Null: stacks + orange puddles / purple turns into black holes that kill")])
 
+step(P5, "Forsaken Null", "รอที่ marker 2 แล้วเลื่อนตามเข็มทีละ 90°", "Wait at marker 2, then move 90° clockwise each time",
+     "รอที่ marker 2 (ตะวันออกเฉียงเหนือ)\n"
+     "เห็นสัญลักษณ์ stack แล้วเลื่อนตามเข็ม 90° (ภาพ: 2 → 3)\n\n"
+     "หลุมของ Forsaken Null: ครั้งแรกที่กลางสนามกับ marker ตัวเลข / ครั้งที่ 2 ที่ marker ตัวเลข 2 จุด / "
+     "ครั้งที่ 3 ที่ marker ตัวเลข 1 จุด + ทิศหลัก 1 จุด / ครั้งที่ 4 เหลือที่ปลอดภัยแค่ทิศหลักเดียว",
+     "Wait at marker 2 (north-east)\n"
+     "When the stack marker shows, move 90° clockwise (picture: 2 → 3)\n\n"
+     "Forsaken Null's holes: first at the centre and the number markers / second at two number markers / "
+     "third at one number marker + one cardinal / fourth: only one cardinal is left safe",
+     strict=False, pic="y139", scene=SY.y139(), plan=YAN)
+
+step(P5, "Forsaken Null", "เลื่อนตามเข็ม 90° อีกครั้ง", "Another 90° clockwise",
+     "เห็นสัญลักษณ์ stack แล้วเลื่อนตามเข็ม 90° อีกครั้ง (ภาพ: 3 → 4)",
+     "When the stack marker shows, move 90° clockwise again (picture: 3 → 4)",
+     strict=False, pic="y140", scene=SY.y140(), plan=YAN)
+
+step(P5, "Forsaken Null", "อีกครั้ง: หลุมขึ้นขวางก็กระโดดข้ามไป", "Again: jump over a hole if one appears",
+     "เห็นสัญลักษณ์ stack แล้วเลื่อนตามเข็ม 90° (ภาพ: 4 → 1)\n"
+     "หลุมขึ้นขวางแล้วก็กระโดดข้ามไปได้",
+     "When the stack marker shows, move 90° clockwise (picture: 4 → 1)\n"
+     "Even if a hole forms in the way, jump over it",
+     strict=False, pic="y141", scene=SY.y141(), plan=YAN)
+
+step(P5, "Forsaken Null", "ครั้งสุดท้าย: วิ่งเข้าที่ที่ปลอดภัย", "The last: run into the safe spot",
+     "เห็นสัญลักษณ์ stack ครั้งสุดท้าย: วิ่งเข้าที่ที่ยังปลอดภัย (ภาพ: 1 → 2)",
+     "At the last stack marker run into the spot that is still safe (picture: 1 → 2)",
+     strict=False, pic="y142", scene=SY.y142(), plan=YAN)
+
 step(P5, "Forsaken Null", "ตัวเลข → ตัวอักษร", "Number → letter",
      "แบบที่ static ของ kanatan ใช้ เพื่อไม่ต้องเดินผ่านที่แคบ\n"
-     "รวมที่ A → ไปที่ marker ตัวเลขที่ไม่มีสัญลักษณ์ม่วง\n"
+     "บอสเริ่มร่าย Forsaken: ทุกคนรวมที่ A\n"
+     "แล้วไปที่ marker ตัวเลขที่ไม่มีสัญลักษณ์ม่วง\n"
      "stack ที่ตัวเลข แล้วไป marker ตัวอักษร\n"
      "พื้นส้มขึ้นใต้เท้า: ไปฝั่งที่ว่างกว้าง / พื้นส้มขึ้นที่อื่น: ไปฝั่งที่ไม่มีส้ม\n"
      "stack ที่ตัวเลข แล้วไปตัวอักษร ... วนแบบนี้\n\n"
      "หลักสำคัญ: ห้ามไปทางพื้นส้มที่ขึ้นที่ marker ตัวเลข\n"
      "stack ที่ตัวเลข → ไปตัวอักษร ให้ได้ทุกครั้ง: ไม่พลาด stack",
      "The way kanatan's static used, so nobody has to squeeze through narrow gaps\n"
-     "Gather at A → go to a number marker with no purple telegraph\n"
+     "When the boss starts casting Forsaken: everyone gathers at A\n"
+     "Then go to a number marker with no purple telegraph\n"
      "Stack at the number, then move to a letter marker\n"
      "Orange under you: go to the wider side / orange elsewhere: go to the side without orange\n"
      "Stack at a number, then a letter ... and repeat\n\n"
      "The key: never head towards an orange puddle on a number marker\n"
      "Always stack on a number → move to a letter: no stack is missed",
-     plan=("แผน kanatan", "kanatan's way"))
+     plan=("kanatan: ตัวเลข → ตัวอักษร", "kanatan: number → letter"))
 
 step(P5, "Forsaken Null", "ตามเข็มตลอด", "Clockwise all the way",
+     "บอสเริ่มร่าย Forsaken: ทุกคนรวมที่ A\n"
      "ถ้าไม่กลัวช่องแคบ: จากจุดเริ่มเดินตามเข็มไปเรื่อยๆ ก็ได้\n"
      "ใช้ได้ตราบที่สีม่วงที่ขึ้นในโซนกากบาทรอบที่ 3 ไม่ขวางทางที่จะเดินไป",
+     "When the boss starts casting Forsaken: everyone gathers at A\n"
      "If narrow gaps don't bother you: from the start just keep going clockwise\n"
      "It works as long as the purple that appears in the cross area on the 3rd doesn't block your way",
-     plan=("ตามเข็มตลอด", "Clockwise"))
+     plan=("kanatan: ตามเข็มตลอด", "kanatan: clockwise"))
 
 # ======================================================================================= guide
-NOTE = ("แผนตาม kanatan.info (บล็อกของ kanata): สร้างจากสไลด์ของ saki ใน static / P3 ครึ่งแรกใช้ Tank LB (ปรับจากทีม NOCCHH) / P4–P5 อ้างอิงทีม Poikos\n"
-        "kanatan บอกเองว่า P2 ที่ยืนต่างจากแผนที่คนส่วนใหญ่ใช้หลายจุด\n"
-        "Marker 8 ทิศมาตรฐาน: A เหนือ / B ตะวันออก / C ใต้ / D ตะวันตก / 1 ตะวันตกเฉียงเหนือ / 2 ตะวันออกเฉียงเหนือ / 3 ตะวันออกเฉียงใต้ / 4 ตะวันตกเฉียงใต้\n\n"
-        "P1: Tank·Healer ตะวันตก / DPS ตะวันออก\n"
+NOTE = ("มี 2 แผน: yan-flash.com เป็นแผนแรก / kanatan.info (บล็อกของ kanata) แผนที่ 2\n"
+        "ท่าที่ทำต่างกันมีแท็บ (yan-flash ก่อน) / ไม่มีแท็บ = ทำเหมือนกัน\n"
+        "คอมเมนต์ใน yan-flash บอกว่า PF ญี่ปุ่นส่วนใหญ่ใช้ yan-flash ใน P1–P3 และ kanatan ใน P4 (คำของคนคอมเมนต์ ไม่ได้ยืนยัน)\n"
+        "kanatan: จากสไลด์ของ saki / P3 ครึ่งแรกปรับจากทีม NOCCHH / P4–P5 อ้างอิง Poikos\n"
+        "Marker: A เหนือ / B ตะวันออก / C ใต้ / D ตะวันตก / 1 2 3 4 = ตะวันตกเฉียงเหนือ ไล่ตามเข็ม\n\n"
+        "P1 (ทั้ง 2 แผน): Tank·Healer ตะวันตก / DPS ตะวันออก\n"
         "แถว Wave Cannon (ตก → ออก): H2 > H1 > ST > MT > D1 > D2 > D3 > D4\n"
         "ที่ spread Vitrophyre: MT·D1 / ST·D2 / H1·D3 / H2·D4\n"
-        "ต้องได้ flag ของ Kefka ใน P1 (ดู Trap / พื้นดำ / ลูกศร) ไม่งั้นเข้า P3 ไม่ได้\n\n"
-        "P2 ลำดับความสำคัญ: H1 > MT > ST > H2 / D1 > D2 > D3 > D4\n"
-        "tower: 1 2 3 8 กับ 4 5 6 7\n\n"
-        "P3 กลุ่ม Chaos: MT H1 D1 D2 / กลุ่ม Exdeath: ST H2 D3 D4\n"
-        "Stomp-a-Mole: MT·H1 / ST·H2 / D1·D3 / D2·D4\n\n"
+        "ต้องได้ flag ของ Kefka ใน P1 (Trap / พื้นดำ / ลูกศร) ไม่งั้นไม่มี P3\n\n"
+        "P2 Forsaken: yan-flash คู่ MT·H1 / ST·H2 / D1·D3 / D2·D4 ลำดับ Healer > Tank > Melee > Ranged · kanatan ลำดับ H1 > MT > ST > H2 / D1 > D2 > D3 > D4\n"
+        "tower ทั้ง 2 แผน: 1 2 3 8 กับ 4 5 6 7\n\n"
+        "P3 กลุ่ม Chaos / Exdeath: yan-flash ST H2 D1 D2 / MT H1 D3 D4 · kanatan MT H1 D1 D2 / ST H2 D3 D4\n\n"
         "P5 auto-attack: Tank A / Healer 4 / DPS 3")
-NOTE_EN = ("Plan follows kanatan.info (kanata's blog): built from saki's slides for their static / P3 first half by tank LB (adapted from team NOCCHH) / P4–P5 with team Poikos as reference\n"
-           "kanatan itself says its P2 spots differ in many places from what most groups use\n"
-           "Standard 8 waymarks: A north / B east / C south / D west / 1 north-west / 2 north-east / 3 south-east / 4 south-west\n\n"
-           "P1: tanks/healers west / DPS east\n"
+NOTE_EN = ("Two plans: yan-flash.com first / kanatan.info (kanata's blog) second\n"
+           "Tabs where they differ (yan-flash first) / no tabs = played the same\n"
+           "Commenters on yan-flash say most Japanese PF runs yan-flash for P1–P3 and kanatan for P4 (their word, not confirmed)\n"
+           "kanatan: from saki's slides / P3 first half adapted from team NOCCHH / P4–P5 after team Poikos\n"
+           "Waymarks: A north / B east / C south / D west / 1 2 3 4 = north-west, then clockwise\n\n"
+           "P1 (both plans): tanks/healers west / DPS east\n"
            "Wave Cannon line (west → east): H2 > H1 > ST > MT > D1 > D2 > D3 > D4\n"
            "Vitrophyre spots: MT·D1 / ST·D2 / H1·D3 / H2·D4\n"
-           "Kefka's P1 flag is needed (see Trap / puddles / arrows), or there's no P3\n\n"
-           "P2 priority: H1 > MT > ST > H2 / D1 > D2 > D3 > D4\n"
-           "Towers: 1 2 3 8 and 4 5 6 7\n\n"
-           "P3 Chaos group: MT H1 D1 D2 / Exdeath group: ST H2 D3 D4\n"
-           "Stomp-a-Mole: MT·H1 / ST·H2 / D1·D3 / D2·D4\n\n"
+           "Kefka's P1 flag (Trap / puddles / arrows) is needed for P3\n\n"
+           "P2 Forsaken: yan-flash pairs MT·H1 / ST·H2 / D1·D3 / D2·D4, priority healer > tank > melee > ranged / kanatan priority H1 > MT > ST > H2 / D1 > D2 > D3 > D4\n"
+           "Towers in both: 1 2 3 8 and 4 5 6 7\n\n"
+           "P3 Chaos / Exdeath groups: yan-flash ST H2 D1 D2 / MT H1 D3 D4 · kanatan MT H1 D1 D2 / ST H2 D3 D4\n\n"
            "P5 auto-attacks: tanks A / healers 4 / DPS 3")
 
 WEAPONS = [("Palazzo Diamond Sword", "PLD", "030000/030706"), ("Palazzo Diamond Shield", "PLD", "030000/030295"),
@@ -1513,7 +1867,7 @@ rewards = [
 guide = {
     "slug": "dmu", "short": "DMU", "name": "Dancing Mad (Ultimate)",
     "category": "ultimate", "expansion": "Dawntrail", "patch": "7.51",
-    "source_name": "kanatan.info", "source_url": "https://kanatan.info/archives/41988193.html",
+    "source_name": "yan-flash.com / kanatan.info", "source_url": "https://yan-flash.com/ultimate/yosei-ranbu",
     "content_key": "ult:Dancing Mad",
     "note": NOTE, "en": {"note": NOTE_EN},
     "req": {"level": 100, "ilvl": 795, "party": 8, "minutes": 120,
@@ -1526,7 +1880,9 @@ guide = {
             "unlock_pics": [{"map": {"map": "y6t1/00", "size": 180, "x": 11.1, "y": 14.6, "label": "Wandering Minstrel"},
                              "say": "Tuliyollal (X: 11.1 Y: 14.6) — Wandering Minstrel",
                              "say_en": "Tuliyollal (X: 11.1 Y: 14.6) — the Wandering Minstrel"}]},
-    "macro_ja": open(W + "/macro_ja.txt", encoding="utf-8").read(),
+    # yan-flash's macros first, each under its own heading, then kanatan's P4 mitigation macro (the field stays <= 2000)
+    "macro_ja": open(W + "/macro_yan.txt", encoding="utf-8").read().rstrip() + "\n\n【kanatan.info：P4 軽減】\n"
+                + open(W + "/macro_ja.txt", encoding="utf-8").read().rstrip(),
     "xref_name": "kanatan.info", "xref_url": "https://kanatan.info/archives/41960996.html",
 }
 
