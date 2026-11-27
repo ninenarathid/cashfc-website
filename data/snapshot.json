@@ -1626,7 +1626,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 75,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2131,7 +2131,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 71,
+  "level": 78,
   "cc": [
    true,
    true,
@@ -3520,7 +3520,7 @@
   "mounts": 70,
   "minions": 133,
   "rare": 71,
-  "level": 79,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -3618,7 +3618,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-26"
+  "chg": "2026-11-27"
  },
  "21620195": {
   "name": "Nefe'li Lucias",
@@ -3882,7 +3882,7 @@
   "mounts": 30,
   "minions": 66,
   "rare": null,
-  "level": 100,
+  "level": 85,
   "cc": [
    false,
    false,
@@ -3899,7 +3899,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-11-26"
+  "chg": "2026-11-27"
  },
  "15912826": {
   "name": "Rin Shiba",
@@ -5622,7 +5622,6 @@
    4074
   ],
   "tiers": {
-   "relic": "expert",
    "explorer": "legendary"
   },
   "jobs": {
@@ -5671,7 +5670,7 @@
   "mounts": 25,
   "minions": 115,
   "rare": null,
-  "level": 54,
+  "level": 55,
   "cc": [
    false,
    false,
@@ -5687,7 +5686,7 @@
   },
   "ex": [],
   "ults": [],
-  "chg": "2026-11-17"
+  "chg": "2026-11-27"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -6670,7 +6669,7 @@
   "mounts": 32,
   "minions": 95,
   "rare": null,
-  "level": 96,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6883,7 +6882,7 @@
   "mounts": 69,
   "minions": 125,
   "rare": 10,
-  "level": 55,
+  "level": 56,
   "cc": [
    false,
    false,
@@ -8198,7 +8197,7 @@
   "mounts": 11,
   "minions": 28,
   "rare": null,
-  "level": 33,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8285,7 +8284,7 @@
   "mounts": 48,
   "minions": 76,
   "rare": null,
-  "level": 90,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -8583,7 +8582,7 @@
   "mounts": 9,
   "minions": 21,
   "rare": 2,
-  "level": 80,
+  "level": 75,
   "cc": [
    false,
    false,
@@ -9046,7 +9045,7 @@
   "mounts": 4,
   "minions": 7,
   "rare": null,
-  "level": 87,
+  "level": 88,
   "cc": [
    false,
    false,
@@ -9059,7 +9058,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-26"
+  "chg": "2026-11-27"
  },
  "44085912": {
   "name": "Mayu Ferguson",
@@ -9254,9 +9253,9 @@
   "name": "Unagi Nagi",
   "parse": 100,
   "ult": 4,
-  "mounts": 112,
-  "minions": 245,
-  "rare": null,
+  "mounts": 165,
+  "minions": 311,
+  "rare": 105,
   "level": 100,
   "cc": [
    true,
@@ -9265,10 +9264,116 @@
    true,
    true
   ],
-  "rare_ids": [],
-  "tiers": {},
+  "rare_ids": [
+   568,
+   918,
+   1015,
+   1016,
+   1017,
+   1018,
+   1032,
+   1033,
+   1034,
+   1337,
+   1614,
+   1622,
+   1633,
+   1660,
+   1676,
+   1704,
+   1717,
+   1732,
+   2079,
+   2088,
+   2125,
+   2149,
+   2486,
+   2588,
+   2637,
+   2644,
+   2716,
+   2774,
+   2775,
+   2863,
+   2864,
+   2995,
+   3001,
+   3018,
+   3074,
+   3077,
+   3092,
+   3113,
+   3162,
+   3187,
+   3412,
+   3532,
+   3534,
+   3577,
+   3617,
+   3630,
+   3631,
+   3632,
+   3645,
+   3646,
+   3647,
+   3651,
+   3658,
+   3659,
+   3667,
+   3668,
+   3673,
+   3677,
+   3752,
+   3753,
+   3759,
+   3760,
+   3761,
+   3765,
+   3805,
+   3811,
+   3812,
+   3817,
+   3818,
+   3819,
+   3823,
+   3824,
+   3842,
+   3843,
+   3849,
+   3850,
+   3851,
+   3855,
+   3868,
+   3869,
+   3870,
+   3890,
+   3895,
+   3896,
+   3897,
+   3898,
+   3943,
+   3944,
+   3945,
+   3949,
+   3950,
+   3957,
+   3958,
+   3962,
+   3979,
+   3998,
+   4002,
+   4069,
+   4070,
+   4071
+  ],
+  "tiers": {
+   "gatherer": "expert",
+   "relic": "expert"
+  },
   "jobs": {
-   "Samurai": "legendary"
+   "Samurai": "legendary",
+   "BlackMage": "expert",
+   "Viper": "master"
   },
   "ex": [
    "Doomtrain",
@@ -14159,7 +14264,7 @@
   "mounts": 11,
   "minions": 43,
   "rare": null,
-  "level": 43,
+  "level": 53,
   "cc": [
    false,
    false,

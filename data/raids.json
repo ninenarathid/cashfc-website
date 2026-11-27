@@ -99163,7 +99163,13 @@
     "best": 13,
     "kills": 6,
     "job": "Viper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Viper": {
+      "kills": 7,
+      "best": 13
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -99802,7 +99808,17 @@
      "best": 100,
      "median": 95,
      "kills": 19,
-     "job": "Samurai"
+     "job": "Samurai",
+     "job_kills": {
+      "Samurai": {
+       "kills": 18,
+       "best": 100
+      },
+      "Reaper": {
+       "kills": 1,
+       "best": 63
+      }
+     }
     },
     {
      "label": "M10S",
@@ -99811,7 +99827,13 @@
      "best": 99,
      "median": 94,
      "kills": 15,
-     "job": "Samurai"
+     "job": "Samurai",
+     "job_kills": {
+      "Samurai": {
+       "kills": 15,
+       "best": 99
+      }
+     }
     },
     {
      "label": "M11S",
@@ -99820,7 +99842,13 @@
      "best": 99,
      "median": 81,
      "kills": 17,
-     "job": "Samurai"
+     "job": "Samurai",
+     "job_kills": {
+      "Samurai": {
+       "kills": 17,
+       "best": 99
+      }
+     }
     },
     {
      "label": "M12S-1",
@@ -99829,7 +99857,13 @@
      "best": 94,
      "median": 61,
      "kills": 22,
-     "job": "Samurai"
+     "job": "Samurai",
+     "job_kills": {
+      "Samurai": {
+       "kills": 22,
+       "best": 94
+      }
+     }
     },
     {
      "label": "M12S-2",
@@ -99838,7 +99872,13 @@
      "best": 93,
      "median": 67,
      "kills": 12,
-     "job": "Samurai"
+     "job": "Samurai",
+     "job_kills": {
+      "Samurai": {
+       "kills": 12,
+       "best": 93
+      }
+     }
     }
    ],
    "clears": [
@@ -99870,7 +99910,13 @@
     "best": 59,
     "kills": 5,
     "job": "Samurai",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Samurai": {
+      "kills": 5,
+      "best": 59
+     }
+    }
    },
    {
     "zone": "The Omega Protocol",
@@ -99881,7 +99927,13 @@
     "best": 50,
     "kills": 3,
     "job": "Samurai",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Samurai": {
+      "kills": 3,
+      "best": 50
+     }
+    }
    },
    {
     "zone": "Dragonsong's Reprise",
@@ -99905,7 +99957,17 @@
     "best": 100,
     "kills": 47,
     "job": "Samurai",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Samurai": {
+      "kills": 27,
+      "best": 100
+     },
+     "BlackMage": {
+      "kills": 20,
+      "best": 86
+     }
+    }
    },
    {
     "zone": "Trials III (Extreme)",
@@ -99916,7 +99978,29 @@
     "best": 97,
     "kills": 13,
     "job": "Samurai",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Samurai": {
+      "kills": 2,
+      "best": 97
+     },
+     "Viper": {
+      "kills": 6,
+      "best": 95
+     },
+     "Ninja": {
+      "kills": 2,
+      "best": 82
+     },
+     "Reaper": {
+      "kills": 1,
+      "best": 26
+     },
+     "Warrior": {
+      "kills": 2,
+      "best": 19
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -99927,7 +100011,17 @@
     "best": 98,
     "kills": 38,
     "job": "Samurai",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Samurai": {
+      "kills": 34,
+      "best": 98
+     },
+     "Viper": {
+      "kills": 4,
+      "best": 74
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -99938,7 +100032,13 @@
     "best": 99,
     "kills": 14,
     "job": "Samurai",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Samurai": {
+      "kills": 14,
+      "best": 99
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -99949,7 +100049,17 @@
     "best": 94,
     "kills": 13,
     "job": "Samurai",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Viper": {
+      "kills": 1,
+      "best": 38
+     },
+     "Samurai": {
+      "kills": 8,
+      "best": 94
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -99960,7 +100070,17 @@
     "best": 92,
     "kills": 35,
     "job": "Samurai",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Samurai": {
+      "kills": 30,
+      "best": 92
+     },
+     "Ninja": {
+      "kills": 5,
+      "best": 65
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -99971,7 +100091,33 @@
     "best": 99,
     "kills": 96,
     "job": "Samurai",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Samurai": {
+      "kills": 70,
+      "best": 99
+     },
+     "Reaper": {
+      "kills": 1,
+      "best": 87
+     },
+     "Ninja": {
+      "kills": 6,
+      "best": 78
+     },
+     "Viper": {
+      "kills": 1,
+      "best": 81
+     },
+     "Monk": {
+      "kills": 1,
+      "best": 77
+     },
+     "Warrior": {
+      "kills": 17,
+      "best": 74
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -99982,7 +100128,21 @@
     "best": 95,
     "kills": 43,
     "job": "Samurai",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Samurai": {
+      "kills": 40,
+      "best": 95
+     },
+     "Viper": {
+      "kills": 2,
+      "best": 94
+     },
+     "Reaper": {
+      "kills": 1,
+      "best": 52
+     }
+    }
    }
   ],
   "legacy": [
@@ -99998,7 +100158,13 @@
       "best": 98,
       "median": 89,
       "kills": 13,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 13,
+        "best": 98
+       }
+      }
      },
      {
       "label": "M6S",
@@ -100007,7 +100173,13 @@
       "best": 93,
       "median": 82,
       "kills": 10,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 10,
+        "best": 93
+       }
+      }
      },
      {
       "label": "M7S",
@@ -100016,7 +100188,13 @@
       "best": 98,
       "median": 71,
       "kills": 13,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 13,
+        "best": 98
+       }
+      }
      },
      {
       "label": "M8S",
@@ -100025,7 +100203,13 @@
       "best": 88,
       "median": 77,
       "kills": 12,
-      "job": "Samurai"
+      "job": "Samurai",
+      "job_kills": {
+       "Samurai": {
+        "kills": 12,
+        "best": 88
+       }
+      }
      }
     ]
    }

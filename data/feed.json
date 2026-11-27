@@ -3,6 +3,76 @@
   {
    "date": "2026-11-27",
    "type": "level_100",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "reached level 100 on Samurai!"
+  },
+  {
+   "date": "2026-11-27",
+   "type": "level_100",
+   "id": 36183541,
+   "name": "Nagi Amano",
+   "text": "reached level 100 on Dragoon!"
+  },
+  {
+   "date": "2026-11-27",
+   "type": "level_100",
+   "id": 32857279,
+   "name": "Harp Abel",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-11-27",
+   "type": "level_100",
+   "id": 45194317,
+   "name": "Sweet Dango",
+   "text": "reached level 100 on Paladin!"
+  },
+  {
+   "date": "2026-11-27",
+   "type": "grade_up",
+   "id": 36365452,
+   "name": "Unagi Nagi",
+   "text": "is now a Expert Gatherer ✨"
+  },
+  {
+   "date": "2026-11-27",
+   "type": "grade_up",
+   "id": 36365452,
+   "name": "Unagi Nagi",
+   "text": "is now a Expert Relic grinder ✨"
+  },
+  {
+   "date": "2026-11-27",
+   "type": "job_up",
+   "id": 36365452,
+   "name": "Unagi Nagi",
+   "text": "is now a Expert Black Mage"
+  },
+  {
+   "date": "2026-11-27",
+   "type": "job_up",
+   "id": 36365452,
+   "name": "Unagi Nagi",
+   "text": "is now a Master Viper"
+  },
+  {
+   "date": "2026-11-27",
+   "type": "minions_up",
+   "id": 36365452,
+   "name": "Unagi Nagi",
+   "text": "passed 300 minions"
+  },
+  {
+   "date": "2026-11-27",
+   "type": "rare_up",
+   "id": 36365452,
+   "name": "Unagi Nagi",
+   "text": "earned Son of a... — only 0.9% of players have it, and 99 more"
+  },
+  {
+   "date": "2026-11-27",
+   "type": "level_100",
    "id": 60429500,
    "name": "Janna Minerva",
    "text": "reached level 100 on Astrologian!"
@@ -1329,76 +1399,6 @@
    "id": 49929911,
    "name": "Sun Prism",
    "text": "set a new best parse: 27 on Zoraal Ja as Viper"
-  },
-  {
-   "date": "2026-11-15",
-   "type": "level_100",
-   "id": 42019777,
-   "name": "Peace Violet",
-   "text": "reached level 100 on Machinist!"
-  },
-  {
-   "date": "2026-11-15",
-   "type": "rare_up",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "earned Mining Your Own Business: Black Shroud V — only 3.0% of players have it"
-  },
-  {
-   "date": "2026-11-15",
-   "type": "rare_up",
-   "id": 3968346,
-   "name": "Panuz Chocobunny",
-   "text": "earned The Customer Is Always Right: Adkiragh VI"
-  },
-  {
-   "date": "2026-11-15",
-   "type": "rare_up",
-   "id": 29152036,
-   "name": "Fluffy Tinytail",
-   "text": "earned Phantom of the Umbra: Flat Brush Umbrae"
-  },
-  {
-   "date": "2026-11-15",
-   "type": "rare_up",
-   "id": 38152072,
-   "name": "Parker Thonhart",
-   "text": "earned Skyward Gemstone II — only 3.0% of players have it"
-  },
-  {
-   "date": "2026-11-15",
-   "type": "rare_up",
-   "id": 44970350,
-   "name": "Allen Crist",
-   "text": "earned R&D: Raising Hammer of Stars — only 4.4% of players have it"
-  },
-  {
-   "date": "2026-11-15",
-   "type": "rare_up",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "earned Cut Above the Rest: Twinfangs Occultum — only 3.0% of players have it, and 5 more"
-  },
-  {
-   "date": "2026-11-15",
-   "type": "level_100",
-   "id": 5644067,
-   "name": "Ninenine Everdark",
-   "text": "reached level 100 on Bard!"
-  },
-  {
-   "date": "2026-11-15",
-   "type": "rare_up",
-   "id": 44133352,
-   "name": "Seville Beoulve",
-   "text": "earned With Saw in Hand IV — only 3.0% of players have it"
-  },
-  {
-   "date": "2026-11-15",
-   "type": "rare_up",
-   "id": 43864764,
-   "name": "Shinonome Kamemaru",
-   "text": "earned How Can I Help V — only 2.5% of players have it"
   }
  ]
 }
