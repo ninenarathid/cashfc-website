@@ -1,0 +1,65 @@
+{
+ "src": "scripts/guides/.work/fru/cand/ap-640.jpg",
+ "out": "scripts/guides/data/frames/fru/black-halo.webp",
+ "crop": [
+  0,
+  0,
+  1200,
+  690
+ ],
+ "blur": [
+  [
+   0,
+   590,
+   380,
+   100
+  ],
+  [
+   360,
+   585,
+   840,
+   105
+  ],
+  [
+   650,
+   0,
+   550,
+   120
+  ],
+  [
+   500,
+   420,
+   700,
+   170
+  ],
+  [
+   880,
+   120,
+   320,
+   180
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    770,
+    300
+   ],
+   "r": 210
+  },
+  {
+   "t": "label",
+   "at": [
+    20,
+    20
+   ],
+   "lines": [
+    "Black Halo: cleave ท่า Tank",
+    "Tank 2 คนแชร์กันทางเหนือ"
+   ],
+   "size": 30
+  }
+ ],
+ "width": 1000
+}
