@@ -1,6 +1,76 @@
 {
  "events": [
   {
+   "date": "2026-11-27",
+   "type": "rare_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "earned Critical Analysis III — only 2.6% of players have it"
+  },
+  {
+   "date": "2026-11-27",
+   "type": "rare_up",
+   "id": 58199536,
+   "name": "Areeya Lovekin",
+   "text": "earned I Collected That V — only 4.6% of players have it"
+  },
+  {
+   "date": "2026-11-27",
+   "type": "rare_up",
+   "id": 38152072,
+   "name": "Parker Thonhart",
+   "text": "earned An Ode to Gemcraft — only 3.0% of players have it"
+  },
+  {
+   "date": "2026-11-27",
+   "type": "rare_up",
+   "id": 44970350,
+   "name": "Allen Crist",
+   "text": "earned R&D: Raising Hammer of Stars — only 4.5% of players have it"
+  },
+  {
+   "date": "2026-11-27",
+   "type": "rare_up",
+   "id": 22461237,
+   "name": "Metatron Vtretikh",
+   "text": "earned Le Morte d'Allagan Monstrosities V"
+  },
+  {
+   "date": "2026-11-27",
+   "type": "rare_up",
+   "id": 44133352,
+   "name": "Seville Beoulve",
+   "text": "earned Skyward Gemstone II — only 3.0% of players have it"
+  },
+  {
+   "date": "2026-11-27",
+   "type": "level_100",
+   "id": 57419573,
+   "name": "A'kane Dorothy",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-11-27",
+   "type": "level_100",
+   "id": 42845691,
+   "name": "Yuukizuz Akino",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-11-27",
+   "type": "level_100",
+   "id": 61489984,
+   "name": "Poly Umami",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-11-27",
+   "type": "new_member",
+   "id": 36365452,
+   "name": "Unagi Nagi",
+   "text": "joined the FC — welcome!"
+  },
+  {
    "date": "2026-11-26",
    "type": "grade_up",
    "id": 14476396,
@@ -1329,76 +1399,6 @@
    "id": 29998658,
    "name": "Shippei Astana",
    "text": "earned As Suits a Hero"
-  },
-  {
-   "date": "2026-11-15",
-   "type": "rare_up",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "earned Worqor and Peace II"
-  },
-  {
-   "date": "2026-11-15",
-   "type": "rare_up",
-   "id": 29090821,
-   "name": "Amber Levana",
-   "text": "earned The Customer Is Always Right: Adkiragh VI"
-  },
-  {
-   "date": "2026-11-15",
-   "type": "rare_up",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "earned Phantom Physicking I"
-  },
-  {
-   "date": "2026-11-15",
-   "type": "rare_up",
-   "id": 20400811,
-   "name": "Ariadne Ilsildar",
-   "text": "earned The Customer Is Always Right: Adkiragh VI"
-  },
-  {
-   "date": "2026-11-15",
-   "type": "rare_up",
-   "id": 34597671,
-   "name": "Valkyries Zearaskia",
-   "text": "earned The Customer Is Always Right: Adkiragh VI"
-  },
-  {
-   "date": "2026-11-15",
-   "type": "level_100",
-   "id": 36130968,
-   "name": "Chu Celestial",
-   "text": "reached level 100 on Samurai!"
-  },
-  {
-   "date": "2026-11-15",
-   "type": "level_100",
-   "id": 42948817,
-   "name": "Karuma Amamiya",
-   "text": "reached level 100 on Warrior!"
-  },
-  {
-   "date": "2026-11-15",
-   "type": "level_100",
-   "id": 42845691,
-   "name": "Yuukizuz Akino",
-   "text": "reached level 100 on Pictomancer!"
-  },
-  {
-   "date": "2026-11-15",
-   "type": "new_member",
-   "id": 62390948,
-   "name": "Elso Ignis",
-   "text": "joined the FC — welcome!"
-  },
-  {
-   "date": "2026-11-15",
-   "type": "level_100",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "reached level 100 on Machinist!"
   }
  ]
 }

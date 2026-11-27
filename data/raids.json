@@ -78776,7 +78776,7 @@
      },
      "Summoner": {
       "kills": 3,
-      "best": 78
+      "best": 77
      },
      "Dancer": {
       "kills": 1,
@@ -82767,20 +82767,7 @@
     ]
    }
   ],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 103,
-    "name": "The Tyrant",
-    "kind": "savage",
-    "state": "learning",
-    "pct": 29.17,
-    "phase": 0,
-    "pulls": 39,
-    "last": "2026-11-20",
-    "last_ts": 1795182184
-   }
-  ]
+  "_status": "ok"
  },
  "46739693": {
   "current": {
@@ -99801,5 +99788,248 @@
     "last_ts": 1795012651
    }
   ]
+ },
+ "36365452": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "encounter_id": 101,
+     "name": "Vamp Fatale",
+     "best": 100,
+     "median": 95,
+     "kills": 19,
+     "job": "Samurai"
+    },
+    {
+     "label": "M10S",
+     "encounter_id": 102,
+     "name": "Red Hot and Deep Blue",
+     "best": 99,
+     "median": 94,
+     "kills": 15,
+     "job": "Samurai"
+    },
+    {
+     "label": "M11S",
+     "encounter_id": 103,
+     "name": "The Tyrant",
+     "best": 99,
+     "median": 81,
+     "kills": 17,
+     "job": "Samurai"
+    },
+    {
+     "label": "M12S-1",
+     "encounter_id": 104,
+     "name": "Lindwurm",
+     "best": 94,
+     "median": 61,
+     "kills": 22,
+     "job": "Samurai"
+    },
+    {
+     "label": "M12S-2",
+     "encounter_id": 105,
+     "name": "Lindwurm II",
+     "best": 93,
+     "median": 67,
+     "kills": 12,
+     "job": "Samurai"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Dancing Mad",
+    "zone_id": 76,
+    "expansion": "Dawntrail",
+    "encounter_id": 1085,
+    "name": "Dancing Mad",
+    "best": 45,
+    "kills": 1,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Futures Rewritten",
+    "zone_id": 65,
+    "expansion": "Dawntrail",
+    "encounter_id": 1079,
+    "name": "Futures Rewritten",
+    "best": 59,
+    "kills": 5,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "The Omega Protocol",
+    "zone_id": 53,
+    "expansion": "Endwalker",
+    "encounter_id": 1068,
+    "name": "The Omega Protocol",
+    "best": 50,
+    "kills": 3,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Dragonsong's Reprise",
+    "zone_id": 45,
+    "expansion": "Endwalker",
+    "encounter_id": 1065,
+    "name": "Dragonsong's Reprise",
+    "best": 6,
+    "kills": 1,
+    "job": "Samurai",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1083,
+    "name": "Doomtrain",
+    "best": 100,
+    "kills": 47,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1084,
+    "name": "Enuo",
+    "best": 97,
+    "kills": 13,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1082,
+    "name": "Guardian Arkveld",
+    "best": 98,
+    "kills": 38,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1081,
+    "name": "Necron",
+    "best": 99,
+    "kills": 14,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1080,
+    "name": "Zelenia",
+    "best": 94,
+    "kills": 13,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1078,
+    "name": "Queen Eternal",
+    "best": 92,
+    "kills": 35,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1071,
+    "name": "Valigarmanda",
+    "best": 99,
+    "kills": 96,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1072,
+    "name": "Zoraal Ja",
+    "best": 95,
+    "kills": 43,
+    "job": "Samurai",
+    "cleared": true
+   }
+  ],
+  "legacy": [
+   {
+    "zone": "AAC Cruiserweight",
+    "zone_id": 68,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M5S",
+      "encounter_id": 97,
+      "name": "Dancing Green",
+      "best": 98,
+      "median": 89,
+      "kills": 13,
+      "job": "Samurai"
+     },
+     {
+      "label": "M6S",
+      "encounter_id": 98,
+      "name": "Sugar Riot",
+      "best": 93,
+      "median": 82,
+      "kills": 10,
+      "job": "Samurai"
+     },
+     {
+      "label": "M7S",
+      "encounter_id": 99,
+      "name": "Brute Abombinator",
+      "best": 98,
+      "median": 71,
+      "kills": 13,
+      "job": "Samurai"
+     },
+     {
+      "label": "M8S",
+      "encounter_id": 100,
+      "name": "Howling Blade",
+      "best": 88,
+      "median": 77,
+      "kills": 12,
+      "job": "Samurai"
+     }
+    ]
+   }
+  ],
+  "_status": "ok"
  }
 }

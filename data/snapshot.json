@@ -128,7 +128,7 @@
    3835,
    3944,
    3959,
-   3960,
+   4000,
    4018,
    4036,
    4037,
@@ -415,6 +415,7 @@
    758,
    1314,
    1315,
+   2292,
    2940,
    3469,
    3471,
@@ -484,7 +485,6 @@
    3916,
    3917,
    3918,
-   3919,
    3922,
    3923,
    3924,
@@ -1034,6 +1034,7 @@
    2754,
    2755,
    2756,
+   2810,
    2811,
    2992,
    2996,
@@ -1064,7 +1065,6 @@
    3957,
    3958,
    3960,
-   3961,
    3964,
    3967,
    3968,
@@ -1317,7 +1317,6 @@
    3846,
    3847,
    3853,
-   3855,
    3902,
    3903,
    3904,
@@ -1330,6 +1329,7 @@
    3911,
    3912,
    3913,
+   3916,
    3918,
    3922,
    3923,
@@ -1626,7 +1626,7 @@
   "mounts": 33,
   "minions": 99,
   "rare": null,
-  "level": 71,
+  "level": 75,
   "cc": [
    true,
    true,
@@ -1652,7 +1652,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-26"
+  "chg": "2026-11-27"
  },
  "28579232": {
   "name": "Dessiny Valkyrie",
@@ -1661,7 +1661,7 @@
   "mounts": 106,
   "minions": 136,
   "rare": 59,
-  "level": 100,
+  "level": 71,
   "cc": [
    true,
    true,
@@ -1757,7 +1757,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-04"
+  "chg": "2026-11-27"
  },
  "47221226": {
   "name": "Destiny Marjory",
@@ -2131,7 +2131,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 59,
+  "level": 70,
   "cc": [
    true,
    true,
@@ -2180,7 +2180,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-26"
+  "chg": "2026-11-27"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -3111,6 +3111,7 @@
    3074,
    3113,
    3155,
+   3178,
    3185,
    3256,
    3266,
@@ -3130,8 +3131,7 @@
    3642,
    3667,
    3668,
-   3677,
-   3752
+   3677
   ],
   "tiers": {
    "gatherer": "expert",
@@ -4191,6 +4191,7 @@
    2367,
    2491,
    2494,
+   2499,
    2502,
    2506,
    2509,
@@ -4241,8 +4242,7 @@
    3547,
    3714,
    3964,
-   4045,
-   4071
+   4045
   ],
   "tiers": {
    "gatherer": "expert",
@@ -4789,7 +4789,7 @@
   "mounts": 22,
   "minions": 65,
   "rare": 6,
-  "level": 88,
+  "level": 86,
   "cc": [
    true,
    true,
@@ -4815,7 +4815,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-11-26"
+  "chg": "2026-11-27"
  },
  "26298391": {
   "name": "Yozora Luna",
@@ -5147,7 +5147,7 @@
   "mounts": 24,
   "minions": 86,
   "rare": 27,
-  "level": 99,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5190,7 +5190,7 @@
    "Guardian Arkveld"
   ],
   "ults": [],
-  "chg": "2026-11-26"
+  "chg": "2026-11-27"
  },
  "6951533": {
   "name": "Aemond Targaryen",
@@ -6520,7 +6520,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 94,
-  "level": 100,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -6639,7 +6639,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-26"
+  "chg": "2026-11-27"
  },
  "60619924": {
   "name": "Gotnogod Soluna",
@@ -6670,7 +6670,7 @@
   "mounts": 32,
   "minions": 95,
   "rare": null,
-  "level": 100,
+  "level": 96,
   "cc": [
    false,
    false,
@@ -6683,7 +6683,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-26"
+  "chg": "2026-11-27"
  },
  "43335087": {
   "name": "Haru Senbonzakura",
@@ -6883,7 +6883,7 @@
   "mounts": 69,
   "minions": 125,
   "rare": 10,
-  "level": 100,
+  "level": 55,
   "cc": [
    false,
    false,
@@ -6914,7 +6914,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-11-25"
+  "chg": "2026-11-27"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -8198,7 +8198,7 @@
   "mounts": 11,
   "minions": 28,
   "rare": null,
-  "level": 64,
+  "level": 33,
   "cc": [
    false,
    false,
@@ -8211,7 +8211,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-26"
+  "chg": "2026-11-27"
  },
  "25619696": {
   "name": "Taro Yeon",
@@ -8285,7 +8285,7 @@
   "mounts": 48,
   "minions": 76,
   "rare": null,
-  "level": 79,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -8298,7 +8298,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-26"
+  "chg": "2026-11-27"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -8385,7 +8385,7 @@
   "mounts": 81,
   "minions": 158,
   "rare": 17,
-  "level": 83,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -8424,7 +8424,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-11-26"
+  "chg": "2026-11-27"
  },
  "15932791": {
   "name": "Yuziris Andra'nov",
@@ -8583,7 +8583,7 @@
   "mounts": 9,
   "minions": 21,
   "rare": 2,
-  "level": 74,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -8599,7 +8599,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-26"
+  "chg": "2026-11-27"
  },
  "49053650": {
   "name": "Eniluna Gelatoneii",
@@ -8673,7 +8673,7 @@
   "mounts": 53,
   "minions": 81,
   "rare": 21,
-  "level": 97,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -8708,7 +8708,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-26"
+  "chg": "2026-11-27"
  },
  "38405490": {
   "name": "Haruka Paru",
@@ -8761,7 +8761,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 5,
-  "level": 93,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -8780,7 +8780,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-26"
+  "chg": "2026-11-27"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -9149,7 +9149,7 @@
   "mounts": 101,
   "minions": 207,
   "rare": 16,
-  "level": 78,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -9182,7 +9182,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-11-26"
+  "chg": "2026-11-27"
  },
  "21388050": {
   "name": "Riizerk Ciel",
@@ -9249,6 +9249,44 @@
   "ex": [],
   "ults": [],
   "chg": "2026-10-17"
+ },
+ "36365452": {
+  "name": "Unagi Nagi",
+  "parse": 100,
+  "ult": 4,
+  "mounts": 112,
+  "minions": 245,
+  "rare": null,
+  "level": 100,
+  "cc": [
+   true,
+   true,
+   true,
+   true,
+   true
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {
+   "Samurai": "legendary"
+  },
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
+  "ults": [
+   "Dancing Mad",
+   "Dragonsong's Reprise",
+   "Futures Rewritten",
+   "The Omega Protocol"
+  ],
+  "chg": "2026-11-27"
  },
  "12855286": {
   "name": "V'the Solitaire",
@@ -14121,7 +14159,7 @@
   "mounts": 11,
   "minions": 43,
   "rare": null,
-  "level": 39,
+  "level": 41,
   "cc": [
    false,
    false,
@@ -14134,7 +14172,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-26"
+  "chg": "2026-11-27"
  },
  "37143017": {
   "name": "Milly Beee",
