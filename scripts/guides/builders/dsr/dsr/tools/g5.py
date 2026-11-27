@@ -32,7 +32,8 @@ step(P5, W, "① มังกรขาว = เหนือ: เข้าตำ�
      "A loose order works (tanks/healers towards the dragons, DPS away) but it isn't important\n\n"
      "Mitigate: H2 90s / strong shields help because the party is spread\n"
      "PF uses automarkers to mark the Thunder players (use at your own risk)",
-     strict=False, pic="05/wrath_of_the_heavens_01.jpg", scene=S.wrath(1))
+     strict=False, pic="05/wrath_of_the_heavens_01.jpg", scene=S.wrath(1),
+     refs=[FR("p5-spiral-tethers", "biN5YkjijIs", 165, "สาย Spiral Thrust 2 เส้น (เส้นสายฟ้าสีเหลือง): คนโดนสายไขว้กันแล้วยืนทางใต้", "The two Spiral Thrust tethers (yellow lightning lines): cross them and stand south")])
 step(P5, W, "② ดูว่าตัวไหน WAR ตัวไหน BLM", "② Spot the WAR and the BLM",
      "Ser Grinnaux (WAR) และ Ser Charibert (BLM) โผล่ในสนาม ตัวหนึ่งเหนือ อีกตัวใต้ แบบสุ่ม\n"
      "ดูให้ออกว่าตัวไหน Grinnaux (WAR) ตัวไหน Charibert (BLM)\n"
@@ -50,7 +51,7 @@ step(P5, W, "③ AoE ลง + มาร์ก divebomb", "③ The AoEs + the div
      "One of the five on the east gets a green divebomb mark\n"
      "Everyone moves to dodge the Twisters",
      strict=False, pic="05/wrath_of_the_heavens_03.jpg", scene=S.wrath(3),
-     refs=[FR("p5-twister", "obcSv6lApD4", 40, "Twister ใต้เท้า: ขยับหลบทันที แล้วกระจายรอบสนาม", "A Twister underfoot: move off it at once, then spread round the arena")])
+     refs=[FR("p5-twister", "biN5YkjijIs", 15, "Twister ใต้เท้า: ขยับหลบทันที แล้วกระจายรอบสนาม", "A Twister underfoot: move off it at once, then spread round the arena")])
 step(P5, W, "④ หลบ Twister + กระจาย", "④ Dodge the Twisters + spread",
      "ระหว่างหลบ Twister ทุกคนกระจายรอบสนาม:\n"
      "3 คนที่โดน Skyward Leap และ Spiral Thrust 2 เส้น: หลบไปตามเข็มเสมอ\n"
@@ -162,7 +163,7 @@ step(P5, D, "⑥ สัญลักษณ์ขึ้น", "⑥ The symbols appe
      "Doomed:\nthe two circles move in towards the middle after baiting\nthe other two (□ and ▽) do not move\n\n"
      "Not Doomed:\nthe left × takes north\nthe right × takes south\n□ and ▽ go opposite the Doomed player with the same symbol",
      strict=False, pic="05/death_of_the_heavens_06.jpg", scene=S.death(6),
-     refs=[FR("p5-death-symbols", "gSS91H4wYiE", 60, "สัญลักษณ์ Playstation บนหัว: คู่เดียวกันโดนโซ่ผูก", "Playstation symbols overhead: each pair is chained")])
+     refs=[FR("p5-death-symbols", "gSS91H4wYiE", 30, "สัญลักษณ์ Playstation บนหัว: คู่เดียวกันโดนโซ่ผูก", "Playstation symbols overhead: each pair is chained")])
 step(P5, D, "⑦ จัดตำแหน่ง + หันหลังให้ gaze", "⑦ Line up + look away from the gazes",
      "ปรับตำแหน่ง ใช้ marker / shuriken รอบนอกช่วยจัดแนว แล้วหันหลังให้ทั้ง Thordan และ Dragon's Eye\n"
      "เหมือน P1: คู่ Playstation โดนโซ่ผูก ยืนใกล้กลางให้โซ่สั้น จะขาดง่ายขึ้น",

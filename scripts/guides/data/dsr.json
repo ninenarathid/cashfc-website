@@ -3359,7 +3359,14 @@
    "game8": [
     "https://ffxiv.tuufless.com/images/ultimates/dsr/01/playstation_01.jpg"
    ],
-   "refs": [],
+   "refs": [
+    {
+     "src": "frames/dsr/p1-playstation.webp",
+     "say": "Playstation: สัญลักษณ์ ○ × ▽ □ บนหัว คู่เดียวกันมีโซ่ผูก",
+     "by": "Nukemaru",
+     "url": "https://youtu.be/JN7sg1lOgtE?t=250"
+    }
+   ],
    "ring": 4.6,
    "scene": {
     "frame": [
@@ -4019,7 +4026,10 @@
     "phase": "P1 The Holy See",
     "mech": "Playstation",
     "name": "① Pair up by symbol",
-    "note": "The MT recentres Grinnaux\nPlayers are paired by Playstation symbols:\n○ = two DPS\n× = a tank and a healer\n▽ = a healer and a DPS\n□ = a tank and a DPS\n\nStand in a 3×3 grid around the boss as drawn (the macro's layout):\nNorth row: D▽ / T× / T□\nMiddle row: D○ (west) / D○ (east)\nSouth row: D□ / H× / H▽\n\nThe ○ pair (two DPS) goes by: West D1 > D2 > D3 > D4 East (the earlier one goes west)"
+    "note": "The MT recentres Grinnaux\nPlayers are paired by Playstation symbols:\n○ = two DPS\n× = a tank and a healer\n▽ = a healer and a DPS\n□ = a tank and a DPS\n\nStand in a 3×3 grid around the boss as drawn (the macro's layout):\nNorth row: D▽ / T× / T□\nMiddle row: D○ (west) / D○ (east)\nSouth row: D□ / H× / H▽\n\nThe ○ pair (two DPS) goes by: West D1 > D2 > D3 > D4 East (the earlier one goes west)",
+    "refs": [
+     "Playstation: ○ × ▽ □ overhead; each pair is chained together"
+    ]
    }
   },
   {
@@ -20158,14 +20168,6 @@
    "game8": [
     "https://ffxiv.tuufless.com/images/ultimates/dsr/02/strength_of_the_ward_2_1.jpg"
    ],
-   "refs": [
-    {
-     "src": "frames/dsr/p2-tank-tethers.webp",
-     "say": "สายของอัศวิน 2 เส้น: Tank 2 คนรับแล้วไขว้กัน",
-     "by": "Hamukatsu",
-     "url": "https://youtu.be/biN5YkjijIs?t=165"
-    }
-   ],
    "ring": 4.6,
    "scene": {
     "frame": [
@@ -22681,10 +22683,7 @@
     "says": {
      "MT": "Take a knight's tether and cross it with the ST",
      "ST": "Take a knight's tether and cross it with the MT"
-    },
-    "refs": [
-     "The two knights' tethers: the tanks take and cross them"
-    ]
+    }
    }
   },
   {
@@ -25082,7 +25081,14 @@
    "game8": [
     "https://ffxiv.tuufless.com/images/ultimates/dsr/02/strength_of_the_ward_2_3.jpg"
    ],
-   "refs": [],
+   "refs": [
+    {
+     "src": "frames/dsr/p2-strength-towers.webp",
+     "say": "tower 6 ลูก (เสาแสงในวงสีส้ม): ทุกคนที่ไม่ใช่ Tank เข้า tower ของตัวเอง",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/obcSv6lApD4?t=29"
+    }
+   ],
    "ring": 4.6,
    "scene": {
     "frame": [
@@ -27269,7 +27275,10 @@
     "phase": "P2 King Thordan",
     "mech": "Strength of the Ward",
     "name": "⑨ The tanks are stunned / everyone takes a tower",
-    "note": "The two tanks are stunned and hit by Holy Bladedance\nEveryone else enters their tower"
+    "note": "The two tanks are stunned and hit by Holy Bladedance\nEveryone else enters their tower",
+    "refs": [
+     "Six towers (light pillars in orange rings): every non-tank takes their own"
+    ]
    }
   },
   {
@@ -27292,13 +27301,23 @@
    "name": "กฎ: DRK-relative + role adjust",
    "note": "อัศวิน (PLD) 2 ตัวโผล่ทางตะวันออกและตะวันตกของกลางสนาม หันตามเข็มหรือทวนเข็มนาฬิกา\nSer Zephirin (DRK) โผล่ค่อนออกนอก ที่ทิศเฉียง\nThordan และ Dragon Eye โผล่ 2 จุดสุ่ม ห่างกัน 90 / 135 / 180 องศา (gaze)\n2 คนสุ่มได้เลข 1 และ 2 (จำนวนดาบบนหัว): Zephirin กระโดดใส่สลับ 1 กับ 2 รวม 4 ครั้ง ดาเมจแชร์กันในวง ยิ่งกระโดดไกลยิ่งเบา\n\nกลุ่ม 1 (MT H1 D1 D3): ฝั่งตรงข้าม DRK\nกลุ่ม 2 (ST H2 D2 D4): ฝั่งเดียวกับ DRK\nRule 1: ถ้ามีดาบบนหัว ไปกลุ่มของเลขนั้น\nRule 2: ถ้าไม่มี และคู่ role ของเรา (role เดียวกันอีกกลุ่ม) ได้ดาบของกลุ่มเรา ให้สลับกลุ่มกับเขา\n(เช่น D3 ได้ดาบ 2 → D4 สลับไปกลุ่ม 1)\nสลับ role เพื่อให้ทุกกลุ่มมี Healer 1 คนและมี 4 คน: ดาเมจต่อกลุ่มน้อยสุด และ heal ได้ทันระหว่าง 2 ครั้ง",
    "strict": false,
-   "refs": [],
+   "refs": [
+    {
+     "src": "frames/dsr/p2-sacred-sever.webp",
+     "say": "Sacred Sever: อัศวิน 2 ตัวกลางสนาม (ดูทิศที่หัน) + DRK ที่ทิศเฉียง + ดาบบนหัว 2 คน",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/GK96pk2c1Nc?t=7"
+    }
+   ],
    "scene": null,
    "en": {
     "phase": "P2 King Thordan",
     "mech": "Sanctity of the Ward: Sacred Sever",
     "name": "Rules: DRK-relative, role adjust",
-    "note": "Two knights (PLDs) spawn a little east and west of the middle, facing clockwise or anti-clockwise\nSer Zephirin (DRK) spawns towards the outside at an intercardinal\nThordan and a Dragon Eye appear at two random spots 90, 135 or 180 degrees apart (gazes)\nTwo random players get '1' and '2' (swords overhead): Zephirin jumps four times, alternating 1 and 2; the damage is shared and falls as the jump gets longer\n\nGroup 1 (MT H1 D1 D3): opposite the DRK\nGroup 2 (ST H2 D2 D4): the DRK's side\nRule 1: a sword overhead → go to that group\nRule 2: no sword, but your role partner (same role, other group) has your group's sword → swap groups with them\n(e.g. D3 gets the 2 sword → D4 swaps to group 1)\nThe swap keeps one healer and four players in each group: least damage per group, with time to heal between its two hits"
+    "note": "Two knights (PLDs) spawn a little east and west of the middle, facing clockwise or anti-clockwise\nSer Zephirin (DRK) spawns towards the outside at an intercardinal\nThordan and a Dragon Eye appear at two random spots 90, 135 or 180 degrees apart (gazes)\nTwo random players get '1' and '2' (swords overhead): Zephirin jumps four times, alternating 1 and 2; the damage is shared and falls as the jump gets longer\n\nGroup 1 (MT H1 D1 D3): opposite the DRK\nGroup 2 (ST H2 D2 D4): the DRK's side\nRule 1: a sword overhead → go to that group\nRule 2: no sword, but your role partner (same role, other group) has your group's sword → swap groups with them\n(e.g. D3 gets the 2 sword → D4 swaps to group 1)\nThe swap keeps one healer and four players in each group: least damage per group, with time to heal between its two hits",
+    "refs": [
+     "Sacred Sever: two middle knights (note the facing) + the DRK at an intercardinal + two sword markers"
+    ]
    }
   },
   {
@@ -44257,7 +44276,14 @@
    "game8": [
     "https://ffxiv.tuufless.com/images/ultimates/dsr/02/meteors_01_03.jpg"
    ],
-   "refs": [],
+   "refs": [
+    {
+     "src": "frames/dsr/p2-sanctity-towers.webp",
+     "say": "tower ชุดแรก: วงนอก 5–6 อัน + วงใน",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/GK96pk2c1Nc?t=30"
+    }
+   ],
    "ring": 4.6,
    "scene": {
     "frame": [
@@ -46493,7 +46519,10 @@
     "phase": "P2 King Thordan",
     "mech": "Sanctity of the Ward: Meteors",
     "name": "② Drop the ice, then take towers",
-    "note": "Each pair gets an ice puddle, then everyone splits to their towers\n\nMeteor role:\nalways take an outside tower\nnorth or south: first avoid a 'cursed' set-up where both Meteor players start on the same west or east side\notherwise, if the outside has more than one tower, take the first by: centre > ccw > cw\ntake your tower as close to the N/S line as you can (see H1)\n\nNon-meteor role:\ntwo outside towers in your quarter: go out and take the second (same priority)\nonly one outside tower: go in\na tower immediately clockwise of your ice puddle: take it\nnone: adjust to take any inside tower left\n\nBefore stacking in pairs, drift towards the tower you'll take to show the others, especially N/S, to avoid a cursed set-up"
+    "note": "Each pair gets an ice puddle, then everyone splits to their towers\n\nMeteor role:\nalways take an outside tower\nnorth or south: first avoid a 'cursed' set-up where both Meteor players start on the same west or east side\notherwise, if the outside has more than one tower, take the first by: centre > ccw > cw\ntake your tower as close to the N/S line as you can (see H1)\n\nNon-meteor role:\ntwo outside towers in your quarter: go out and take the second (same priority)\nonly one outside tower: go in\na tower immediately clockwise of your ice puddle: take it\nnone: adjust to take any inside tower left\n\nBefore stacking in pairs, drift towards the tower you'll take to show the others, especially N/S, to avoid a cursed set-up",
+    "refs": [
+     "The first towers: five or six outside + some inside"
+    ]
    }
   },
   {
@@ -82971,6 +83000,14 @@
    "game8": [
     "https://ffxiv.tuufless.com/images/ultimates/dsr/03/nidhogg_07.jpg"
    ],
+   "refs": [
+    {
+     "src": "frames/dsr/p3-towers.webp",
+     "say": "tower ที่ clone ทิ้งไว้ (เสาไฟ): คนที่ถึงคิวเข้าเหยียบ",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/JQr73hyralc?t=73"
+    }
+   ],
    "ring": 4.6,
    "scene": {
     "frame": [
@@ -85068,7 +85105,10 @@
     "phase": "P3 Nidhogg",
     "mech": "Wyrmhole (Easthogg)",
     "name": "⑦ The 1s take towers / the 3s dodge Geirskogul",
-    "note": "Nidhogg starts another Lash and Gnash / Gnash and Lash, which comes with the third towers\n1s (with arrows): take the towers\n2s: return to the stack north\n3s: dodge the Geirskoguls"
+    "note": "Nidhogg starts another Lash and Gnash / Gnash and Lash, which comes with the third towers\n1s (with arrows): take the towers\n2s: return to the stack north\n3s: dodge the Geirskoguls",
+    "refs": [
+     "The towers the clones leave (fire pillars): whoever's turn it is takes them"
+    ]
    }
   },
   {
@@ -95627,7 +95667,14 @@
    "game8": [
     "https://ffxiv.tuufless.com/images/ultimates/dsr/03/nidhogg_14.jpg"
    ],
-   "refs": [],
+   "refs": [
+    {
+     "src": "frames/dsr/p3-drachenlance.webp",
+     "say": "Drachenlance: Nidhogg หันไปหาคนสุ่มแล้วยิงกรวย",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/GU918hNeju8?t=24"
+    }
+   ],
    "ring": 4.6,
    "scene": {
     "frame": [
@@ -96715,7 +96762,10 @@
     "phase": "P3 Nidhogg",
     "mech": "Wyrmhole (Easthogg)",
     "name": "⑭ Drachenlance",
-    "note": "After two auto-attacks, Nidhogg turns to a random player and casts Drachenlance (cone): dodge or outrange it, and get ready for 4x Towers"
+    "note": "After two auto-attacks, Nidhogg turns to a random player and casts Drachenlance (cone): dodge or outrange it, and get ready for 4x Towers",
+    "refs": [
+     "Drachenlance: Nidhogg turns to a random player and fires a cone"
+    ]
    }
   },
   {
@@ -96727,7 +96777,14 @@
    "game8": [
     "https://ffxiv.tuufless.com/images/ultimates/dsr/03/4x_towers_example_starting_positions.jpg"
    ],
-   "refs": [],
+   "refs": [
+    {
+     "src": "frames/dsr/p3-4x-towers.webp",
+     "say": "4x Towers: tower รอบ Nidhogg แต่ละอันต้องมีคนเหยียบครบตามจำนวนจุด",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/GU918hNeju8?t=97"
+    }
+   ],
    "ring": 4.6,
    "scene": {
     "frame": [
@@ -97854,7 +97911,10 @@
     "phase": "P3 Nidhogg",
     "mech": "4x Towers",
     "name": "Starting spots: pairs at the towers",
-    "note": "Four towers spawn on the intercardinal markers (1-4); each needs 1-4 players (random), 8 in total\nThe easiest way is to wait in pairs at the towers:\nMT·D3: north-west (4)\nST·D4: north-east (1)\nH1·D1: south-west (3)\nH2·D2: south-east (2)\n\nHealers and ranged always stay in their tower (they bait Geirskogul)\nTanks and melee adjust (next steps)"
+    "note": "Four towers spawn on the intercardinal markers (1-4); each needs 1-4 players (random), 8 in total\nThe easiest way is to wait in pairs at the towers:\nMT·D3: north-west (4)\nST·D4: north-east (1)\nH1·D1: south-west (3)\nH2·D2: south-east (2)\n\nHealers and ranged always stay in their tower (they bait Geirskogul)\nTanks and melee adjust (next steps)",
+    "refs": [
+     "4x Towers: the towers round Nidhogg; each needs as many players as its pips"
+    ]
    }
   },
   {
@@ -104335,13 +104395,23 @@
    "name": "ภาพรวม: T/H สายแดง DPS สายน้ำเงิน",
    "note": "Eyes มีหลายแผน: ที่นี่ใช้แผนตาม macro (T/H แดง DPS น้ำเงิน) คล้ายช่วง Fang and Claw ของ Nidhogg EX\nคนมีสายน้ำเงินโดนดาเมจ: ตาน้ำเงินได้ heal\nคนมีสายแดงโดนดาเมจ: ตาแดงโดนดาเมจไปด้วย\nคนสายต่างสี 2 คนแตะกัน: สลับสายกัน และได้ดีบัฟ Bound and Determined 3 วินาที (สลับซ้ำไม่ได้ระหว่างนั้น)\n\nmitigate ช่วยไม่ได้: ตาจะโดนดาเมจ/ได้ heal แค่ตามว่าโดน Mechanic หรือไม่\nตาแดงจะโดนดาเมจรวม 40% ของ HP ระหว่าง Mirage Dive: ไม่ต้องตีตาแดงเกินจุดนั้นตอนช่วงลูกบอล\nตาน้ำเงินไม่ฟื้น HP จาก auto-attack ใส่ Tank สายน้ำเงิน (ต่างจาก Nidhogg EX)",
    "strict": false,
-   "refs": [],
+   "refs": [
+    {
+     "src": "frames/dsr/p4-eyes.webp",
+     "say": "Eyes: ตาของ Nidhogg ผูกสายแดง/น้ำเงินกับผู้เล่น ดูว่าตัวเองได้สีไหน",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/jwEHtHYDgp0?t=21"
+    }
+   ],
    "scene": null,
    "en": {
     "phase": "P4 Eyes",
     "mech": "Hatebound",
     "name": "Overview: T/H red, DPS blue",
-    "note": "There are many Eyes strats; this is the macro's (T/H red, DPS blue), echoing Fang and Claw from Nidhogg EX\nA blue-tethered player taking damage heals the blue eye\nA red-tethered player taking damage damages the red eye too\nTwo players with different colours touching swap tethers and get a 3-second Bound and Determined debuff (no swapping again meanwhile)\n\nMitigation makes no difference: it's only whether you were hit by the Mechanic\nThe red eye takes 40% of its HP in total during the Mirage Dives: no need to hit it past that in the orbs part\nThe blue eye doesn't heal from auto-attacks on a blue-tethered tank (unlike Nidhogg EX)"
+    "note": "There are many Eyes strats; this is the macro's (T/H red, DPS blue), echoing Fang and Claw from Nidhogg EX\nA blue-tethered player taking damage heals the blue eye\nA red-tethered player taking damage damages the red eye too\nTwo players with different colours touching swap tethers and get a 3-second Bound and Determined debuff (no swapping again meanwhile)\n\nMitigation makes no difference: it's only whether you were hit by the Mechanic\nThe red eye takes 40% of its HP in total during the Mirage Dives: no need to hit it past that in the orbs part\nThe blue eye doesn't heal from auto-attacks on a blue-tethered tank (unlike Nidhogg EX)",
+    "refs": [
+     "Eyes: Nidhogg's eyes tether players red / blue; check which colour you got"
+    ]
    }
   },
   {
@@ -116461,6 +116531,14 @@
    "game8": [
     "https://ffxiv.tuufless.com/images/ultimates/dsr/05/wrath_of_the_heavens_01.jpg"
    ],
+   "refs": [
+    {
+     "src": "frames/dsr/p5-spiral-tethers.webp",
+     "say": "สาย Spiral Thrust 2 เส้น (เส้นสายฟ้าสีเหลือง): คนโดนสายไขว้กันแล้วยืนทางใต้",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/biN5YkjijIs?t=165"
+    }
+   ],
    "ring": 4.6,
    "scene": {
     "frame": [
@@ -118636,7 +118714,10 @@
     "phase": "P5 Alternate Timeline Thordan",
     "mech": "Wrath of the Heavens",
     "name": "① White dragon = north: get in place",
-    "note": "A white dragon with two knights appears at a random cardinal edge: use the white dragon as north\nThe blue Skyward Leap player: go north-west (4 notches from the shuriken)\nThe two Spiral Thrust tethers: cross them and stand south (4 notches from SW and SE)\nEveryone else: line up along the east side (within 4 notches of the NE and SE shurikens)\nA loose order works (tanks/healers towards the dragons, DPS away) but it isn't important\n\nMitigate: H2 90s / strong shields help because the party is spread\nPF uses automarkers to mark the Thunder players (use at your own risk)"
+    "note": "A white dragon with two knights appears at a random cardinal edge: use the white dragon as north\nThe blue Skyward Leap player: go north-west (4 notches from the shuriken)\nThe two Spiral Thrust tethers: cross them and stand south (4 notches from SW and SE)\nEveryone else: line up along the east side (within 4 notches of the NE and SE shurikens)\nA loose order works (tanks/healers towards the dragons, DPS away) but it isn't important\n\nMitigate: H2 90s / strong shields help because the party is spread\nPF uses automarkers to mark the Thunder players (use at your own risk)",
+    "refs": [
+     "The two Spiral Thrust tethers (yellow lightning lines): cross them and stand south"
+    ]
    }
   },
   {
@@ -143218,7 +143299,14 @@
    "game8": [
     "https://ffxiv.tuufless.com/images/ultimates/dsr/05/death_of_the_heavens_06.jpg"
    ],
-   "refs": [],
+   "refs": [
+    {
+     "src": "frames/dsr/p5-death-symbols.webp",
+     "say": "สัญลักษณ์ Playstation บนหัว: คู่เดียวกันโดนโซ่ผูก",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/gSS91H4wYiE?t=30"
+    }
+   ],
    "ring": 4.6,
    "scene": {
     "frame": [
@@ -145336,7 +145424,10 @@
     "phase": "P5 Alternate Timeline Thordan",
     "mech": "Death of the Heavens",
     "name": "⑥ The symbols appear",
-    "note": "Doomed:\nthe two circles move in towards the middle after baiting\nthe other two (□ and ▽) do not move\n\nNot Doomed:\nthe left × takes north\nthe right × takes south\n□ and ▽ go opposite the Doomed player with the same symbol"
+    "note": "Doomed:\nthe two circles move in towards the middle after baiting\nthe other two (□ and ▽) do not move\n\nNot Doomed:\nthe left × takes north\nthe right × takes south\n□ and ▽ go opposite the Doomed player with the same symbol",
+    "refs": [
+     "Playstation symbols overhead: each pair is chained"
+    ]
    }
   },
   {
@@ -149669,7 +149760,14 @@
    "game8": [
     "https://ffxiv.tuufless.com/images/ultimates/dsr/06/wyrmsbreath_01_01.jpg"
    ],
-   "refs": [],
+   "refs": [
+    {
+     "src": "frames/dsr/p6-wyrmsbreath.webp",
+     "say": "Wyrmsbreath: มังกรผูกสาย (เส้นสายฟ้า) กับคนที่ไม่ใช่ Tank ยืดสายให้ไกลพอ",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/ELUNLCyfC1g?t=382"
+    }
+   ],
    "ring": 4.6,
    "scene": {
     "frame": [
@@ -150533,7 +150631,10 @@
     "phase": "P6 Double Dragons",
     "mech": "Wyrmsbreath",
     "name": "#1 ①: the triangle set-up",
-    "note": "Wyrmsbreath: each dragon tethers three non-tanks, who must stretch the tethers far enough to lower the damage\nThe tethers give fire or ice debuffs that cancel each other: every non-tank must be hit by one tether from each dragon\n\nPre-position:\nCentre: D3, D4\nBottom-left: H1, D1\nBottom-right: H2, D2\nMT on Nidhogg's side (NW) / ST on Hraesvelgr's side (NE)\n\nFire debuff (Boiling → Pyretic): cleansed by Hraesvelgr's ice damage / Pyretic deals 40-45k on every action (auto-attacks too) for 30 s\nIce debuff (Freezing → Deep Freeze): cleansed by Nidhogg's fire damage / Deep Freeze: no moving or acting for 30 s (moving as it expires doesn't help)\nA channel or emote already running doesn't trigger Pyretic, but starting one does\n\nMitigate: tanks 30% + short / H2 90s (a SGE's Kerachole right after the 2nd GCD is back for Akh Afah)"
+    "note": "Wyrmsbreath: each dragon tethers three non-tanks, who must stretch the tethers far enough to lower the damage\nThe tethers give fire or ice debuffs that cancel each other: every non-tank must be hit by one tether from each dragon\n\nPre-position:\nCentre: D3, D4\nBottom-left: H1, D1\nBottom-right: H2, D2\nMT on Nidhogg's side (NW) / ST on Hraesvelgr's side (NE)\n\nFire debuff (Boiling → Pyretic): cleansed by Hraesvelgr's ice damage / Pyretic deals 40-45k on every action (auto-attacks too) for 30 s\nIce debuff (Freezing → Deep Freeze): cleansed by Nidhogg's fire damage / Deep Freeze: no moving or acting for 30 s (moving as it expires doesn't help)\nA channel or emote already running doesn't trigger Pyretic, but starting one does\n\nMitigate: tanks 30% + short / H2 90s (a SGE's Kerachole right after the 2nd GCD is back for Akh Afah)",
+    "refs": [
+     "Wyrmsbreath: the dragons tether non-tanks (lightning lines); stretch them far enough"
+    ]
    }
   },
   {
@@ -233912,7 +234013,14 @@
    "game8": [
     "https://ffxiv.tuufless.com/images/ultimates/dsr/07/gigaflare.jpg"
    ],
-   "refs": [],
+   "refs": [
+    {
+     "src": "frames/dsr/p7-gigaflare.webp",
+     "say": "Gigaflare's Edge: จุดศูนย์กลาง AoE ลูกแรก ออกห่างแล้ววนตามลำดับ",
+     "by": "Hamukatsu",
+     "url": "https://youtu.be/pRkdxw9YOLo?t=446"
+    }
+   ],
    "ring": 4.6,
    "scene": {
     "frame": [
@@ -237385,7 +237493,10 @@
     "phase": "P7 Dragon-king Thordan",
     "mech": "Gigaflare's Edge",
     "name": "Three AoEs round Thordan",
-    "note": "Three raid-wides, each centred on a point of a triangle going clockwise or anti-clockwise round Thordan\nThe damage falls off so steeply it acts like an AoE: inside the marked area = one-shot / outside = just heavy damage (picture: a south Gigaflare)\nAbout 11k less per yalm\n\nThen two auto-attacks: the tanks plus H1, then H2\nAfter Gigaflare's Edge the tank with aggro faces Thordan directly north or south for Exaflare's Edge, and the loop repeats\nThe first buff / potion window: after Gigaflare's Edge 1 (P7 lasts about 3:45, too short for a third 2-minute burst, and some players burst at the end of P6)"
+    "note": "Three raid-wides, each centred on a point of a triangle going clockwise or anti-clockwise round Thordan\nThe damage falls off so steeply it acts like an AoE: inside the marked area = one-shot / outside = just heavy damage (picture: a south Gigaflare)\nAbout 11k less per yalm\n\nThen two auto-attacks: the tanks plus H1, then H2\nAfter Gigaflare's Edge the tank with aggro faces Thordan directly north or south for Exaflare's Edge, and the loop repeats\nThe first buff / potion window: after Gigaflare's Edge 1 (P7 lasts about 3:45, too short for a third 2-minute burst, and some players burst at the end of P6)",
+    "refs": [
+     "Gigaflare's Edge: the first epicentre; move away, then follow the order round"
+    ]
    }
   },
   {

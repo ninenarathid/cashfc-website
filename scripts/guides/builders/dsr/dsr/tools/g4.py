@@ -24,7 +24,7 @@ step(P4, H, "ภาพรวม: T/H สายแดง DPS สายน้ำ�
      "The red eye takes 40% of its HP in total during the Mirage Dives: no need to hit it past that in the orbs part\n"
      "The blue eye doesn't heal from auto-attacks on a blue-tethered tank (unlike Nidhogg EX)",
      strict=False,
-     refs=[FR("p4-eyes", "jwEHtHYDgp0", 20, "Eyes: ตาน้ำเงิน (ตะวันตก) และตาแดง (ตะวันออก) ผูกสายน้ำเงิน/แดงกับผู้เล่น", "Eyes: the blue eye (west) and red eye (east) tether players blue / red")])
+     refs=[FR("p4-eyes", "jwEHtHYDgp0", 21, "Eyes: ตาของ Nidhogg ผูกสายแดง/น้ำเงินกับผู้เล่น ดูว่าตัวเองได้สีไหน", "Eyes: Nidhogg's eyes tether players red / blue; check which colour you got")])
 step(P4, H, "① รับบัฟจาก Haurchefant + Ysayle", "① Get Haurchefant's and Ysayle's buffs",
      "วิญญาณ Haurchefant กับ Ysayle โผล่: Haurchefant ผูกสายกับคนสุ่ม / Ysayle ผูกสายกับ Alphinaud\n"
      "ทุกคน stack ที่ Alphinaud (ยืนทางใต้ของกลาง) เพื่อรับบัฟ 2 อันที่ทำให้ตีตาทั้ง 2 ได้\n"

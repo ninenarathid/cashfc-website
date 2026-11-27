@@ -95,8 +95,9 @@ N = [
 ]
 REFS = {2: [FR("p3-dives", "JQr73hyralc", 40, "clone ของ Nidhogg กระโดดใส่คนเลข 1 + stack Eye of the Tyrant ทางเหนือ", "Nidhogg's clones dive on the 1s + the Eye of the Tyrant stack north")],
         3: [FR("p3-gnash-lash", "JQr73hyralc", 45, "Gnash and Lash / Lash and Gnash: in / out ตามลำดับชื่อร่าย", "Gnash and Lash / Lash and Gnash: in / out in the order of the name")],
+        6: [FR("p3-towers", "JQr73hyralc", 73, "tower ที่ clone ทิ้งไว้ (เสาไฟ): คนที่ถึงคิวเข้าเหยียบ", "The towers the clones leave (fire pillars): whoever's turn it is takes them")],
         5: [FR("p3-geirskogul", "JQr73hyralc", 72, "Geirskogul: clone ตรงที่เคยเป็น tower ยิงเส้นตรงใส่คนใกล้สุด", "Geirskogul: a clone where a tower was fires a line at the nearest player")],
-        13: [FR("p3-drachenlance", "JQr73hyralc", 100, "Drachenlance: Nidhogg หันไปหาคนสุ่มแล้วยิงกรวย", "Drachenlance: Nidhogg turns to a random player and fires a cone")]}
+        13: [FR("p3-drachenlance", "GU918hNeju8", 24, "Drachenlance: Nidhogg หันไปหาคนสุ่มแล้วยิงกรวย", "Drachenlance: Nidhogg turns to a random player and fires a cone")]}
 for i, (n, ne, t, te) in enumerate(N):
     step(P3, WH, n, ne, t, te, strict=False, pic=f"03/nidhogg_{i + 1:02d}.jpg", scene=S.nid(i + 1), refs=REFS.get(i),
          **(SAYS({"MT": ("หัน Nidhogg ออกจากปาร์ตี้", "Point Nidhogg away from the party")}) if i == 12 else {}))
@@ -110,7 +111,7 @@ step(P3, T4, "จุดเริ่ม: ยืนเป็นคู่ที่ 
      "MT·D3: north-west (4)\nST·D4: north-east (1)\nH1·D1: south-west (3)\nH2·D2: south-east (2)\n\n"
      "Healers and ranged always stay in their tower (they bait Geirskogul)\nTanks and melee adjust (next steps)",
      strict=True, pic="03/4x_towers_example_starting_positions.jpg", scene=S.t4(0),
-     refs=[FR("p3-4x-towers", "dbN5wpqMuLQ", 20, "4x Towers: จำนวนจุดบน tower = จำนวนคนที่ต้องเหยียบ", "4x Towers: the pips on each tower = how many players it needs")])
+     refs=[FR("p3-4x-towers", "GU918hNeju8", 97, "4x Towers: tower รอบ Nidhogg แต่ละอันต้องมีคนเหยียบครบตามจำนวนจุด", "4x Towers: the towers round Nidhogg; each needs as many players as its pips")])
 step(P3, T4, "กฎ Tank / Melee + ตัวอย่าง 1", "Tank / melee rule + example 1",
      "Tank / Melee:\ntower ของเราต้องการ 2 คนขึ้นไป: อยู่ที่เดิม\nไม่งั้น: ย้ายไป tower แรกที่ต้องการมากกว่า 2 คน ตามลำดับ ตามเข็ม > ทวนเข็ม > ฝั่งตรงข้าม\nทำถูกต้องจะมีคนย้ายไม่เกิน 2 คน\n\n"
      "ตัวอย่าง 1:\nMT: tower ตะวันตกเฉียงเหนือ 1 จุด → ย้าย / tower ตามเข็มมากกว่า 2 → ไปตามเข็ม\nST: tower ตะวันออกเฉียงเหนือ 2 จุดขึ้นไป → อยู่\nD1: tower ตะวันตกเฉียงใต้ 2 จุดขึ้นไป → อยู่\nD2: tower ตะวันออกเฉียงใต้ 1 จุด → ย้าย / tower ตามเข็มมากกว่า 2 → ไปตามเข็ม",

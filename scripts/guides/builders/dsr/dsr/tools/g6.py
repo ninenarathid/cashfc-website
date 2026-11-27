@@ -67,7 +67,7 @@ step(P6, WB, "#1 ①: ตั้งตำแหน่งสามเหลี่�
      "A channel or emote already running doesn't trigger Pyretic, but starting one does\n\n"
      "Mitigate: tanks 30% + short / H2 90s (a SGE's Kerachole right after the 2nd GCD is back for Akh Afah)",
      strict=True, pic="06/wyrmsbreath_01_01.jpg", scene=S.wb1(1),
-     refs=[FR("p6-wyrmsbreath", "wl89c94CE0Y", 20, "Wyrmsbreath: Nidhogg (ตะวันตก) และ Hraesvelgr (ตะวันออก) ผูกสายไฟ/น้ำแข็ง + ดูปากมังกรเรืองแสง", "Wyrmsbreath: Nidhogg (west) and Hraesvelgr (east) tether fire / ice + watch for a glowing mouth")])
+     refs=[FR("p6-wyrmsbreath", "ELUNLCyfC1g", 382, "Wyrmsbreath: มังกรผูกสาย (เส้นสายฟ้า) กับคนที่ไม่ใช่ Tank ยืดสายให้ไกลพอ", "Wyrmsbreath: the dragons tether non-tanks (lightning lines); stretch them far enough")])
 step(P6, WB, "#1 ②: จุดยืนของ H1 / H2 / D4", "#1 ②: the H1 / H2 / D4 anchors",
      "จุดยืนแน่นอนของคนยืนหลัก (H1, H2, D4): ไม่มีจุดไหนอยู่ในระยะ Melee\n"
      "ใช้ช่องพื้นสีขาวเป็นจุดอ้างอิงของตำแหน่งกลาง (D4)\n"

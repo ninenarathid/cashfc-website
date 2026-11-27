@@ -1,0 +1,59 @@
+{
+ "src": "scripts/guides/.work/dsr/cand/GK96pk2c1Nc-30b.jpg",
+ "out": "scripts/guides/data/frames/dsr/p2-sanctity-towers.webp",
+ "crop": [
+  480,
+  30,
+  1120,
+  630
+ ],
+ "blur": [
+  [
+   0,
+   370,
+   110,
+   130
+  ],
+  [
+   370,
+   490,
+   170,
+   35
+  ],
+  [
+   340,
+   568,
+   140,
+   30
+  ],
+  [
+   300,
+   592,
+   120,
+   35
+  ]
+ ],
+ "marks": [
+  {
+   "t": "ring",
+   "at": [
+    170,
+    270
+   ],
+   "r": 150
+  },
+  {
+   "t": "label",
+   "at": [
+    560,
+    20
+   ],
+   "lines": [
+    "Sanctity ส่วน 2: tower = เสาแสงในวงสีส้ม",
+    "นับ tower วงนอกก่อน (5 หรือ 6 อัน)"
+   ],
+   "size": 26
+  }
+ ],
+ "width": 1000
+}

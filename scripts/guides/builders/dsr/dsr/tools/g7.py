@@ -175,7 +175,7 @@ step(P7, "Gigaflare's Edge", "AoE 3 จุดวนรอบ Thordan", "Three Ao
      "After Gigaflare's Edge the tank with aggro faces Thordan directly north or south for Exaflare's Edge, and the loop repeats\n"
      "The first buff / potion window: after Gigaflare's Edge 1 (P7 lasts about 3:45, too short for a third 2-minute burst, and some players burst at the end of P6)",
      strict=False, pic="07/gigaflare.jpg", scene=S.gigaflare(),
-     refs=[FR("p7-gigaflare", "pRkdxw9YOLo", 210, "Gigaflare's Edge: จุดศูนย์กลาง AoE ลูกแรก ออกห่างแล้ววนตามลำดับ", "Gigaflare's Edge: the first epicentre; move away, then follow the order round")])
+     refs=[FR("p7-gigaflare", "pRkdxw9YOLo", 446, "Gigaflare's Edge: จุดศูนย์กลาง AoE ลูกแรก ออกห่างแล้ววนตามลำดับ", "Gigaflare's Edge: the first epicentre; move away, then follow the order round")])
 step(P7, "Morn Afah's Edge", "tower ต่อเนื่อง = enrage", "Continuous towers = the enrage",
      "รอบที่ 3 แทน Gigaflare's Edge: Thordan วาง tower 3 อันแล้วตีรัวๆ แต่ละชุดฆ่า 3 คน ปาร์ตี้รับได้แค่ 2 ชุด (คนไม่พอสำหรับชุดที่ 3)\n"
      "tower ตรงกับกลุ่มของ Akh Morn's Edge\n"

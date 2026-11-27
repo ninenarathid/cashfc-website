@@ -111,7 +111,7 @@ step(P1, PS, "① จับคู่ตามสัญลักษณ์", "① 
      "South row: D□ / H× / H▽\n\n"
      "The ○ pair (two DPS) goes by: West D1 > D2 > D3 > D4 East (the earlier one goes west)",
      strict=False, pic="01/playstation_01.jpg", scene=S.ps1(),
-     refs=[FR("p1-playstation", "II-N13_CG_g", 160, "Playstation: สัญลักษณ์ ○ × ▽ □ บนหัว คู่เดียวกันมีโซ่ผูก", "Playstation: ○ × ▽ □ overhead; each pair is chained together")])
+     refs=[FR("p1-playstation", "JN7sg1lOgtE", 250, "Playstation: สัญลักษณ์ ○ × ▽ □ บนหัว คู่เดียวกันมีโซ่ผูก", "Playstation: ○ × ▽ □ overhead; each pair is chained together")])
 step(P1, PS, "② knockback ให้โซ่ขาด", "② The knockback breaks the chains",
      "Grinnaux ร่าย Faith Unmoving อีกครั้ง: knockback ทุกคนออกจากบอส\n"
      "แรงกระแทกดึงโซ่ของแต่ละคู่จนขาด แล้วทุกคนได้ AoE Heavensflame รอบตัว\n"

@@ -1,6 +1,6 @@
 {
- "src": "scripts/guides/.work/dsr/cand/biN5YkjijIs-165.png",
- "out": "scripts/guides/data/frames/dsr/p2-tank-tethers.webp",
+ "src": "scripts/guides/.work/dsr/cand/biN5YkjijIs-165a.jpg",
+ "out": "scripts/guides/data/frames/dsr/p5-spiral-tethers.webp",
  "crop": [
   480,
   30,
@@ -13,6 +13,12 @@
    505,
    90,
    40
+  ],
+  [
+   440,
+   415,
+   80,
+   30
   ],
   [
    0,
@@ -55,8 +61,8 @@
     20
    ],
    "lines": [
-    "Strength of the Ward: สายของอัศวิน",
-    "Tank 2 คนรับสายแล้วไขว้กัน"
+    "Wrath of the Heavens: สาย Spiral Thrust 2 เส้น",
+    "คนโดนสายไขว้สายกัน แล้วยืนทางใต้"
    ],
    "size": 28
   }

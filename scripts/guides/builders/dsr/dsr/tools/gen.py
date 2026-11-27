@@ -11,7 +11,7 @@ core.VIDS.update({
     "dbN5wpqMuLQ": "Hamukatsu", "jwEHtHYDgp0": "Hamukatsu", "obcSv6lApD4": "Hamukatsu", "gSS91H4wYiE": "Hamukatsu",
     "wl89c94CE0Y": "Hamukatsu", "pRkdxw9YOLo": "Hamukatsu", "ELUNLCyfC1g": "Hamukatsu",
     "JN7sg1lOgtE": "Nukemaru", "3M8dUee9b8Q": "Nukemaru", "1fsbzkZsWUE": "Nukemaru", "3yJpWHmKjpg": "Nukemaru",
-    "Fbb3L-aPJ3A": "Nukemaru",
+    "Fbb3L-aPJ3A": "Nukemaru", "GU918hNeju8": "Hamukatsu",
 })
 
 import g1  # noqa: E402,F401

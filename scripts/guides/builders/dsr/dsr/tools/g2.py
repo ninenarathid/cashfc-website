@@ -97,7 +97,7 @@ step(P2, SW, "① แบ่ง 2 กลุ่มในช่องปลอด�
      **SAYS({"MT": ("กลุ่ม MT ช่องฝั่งเหนือ (ตะวันตก → ตะวันออกเฉียงเหนือ)", "MT group: the northern sector (west → north-east)"),
              "H1": ("แถวหน้าของกลุ่ม MT", "Front of the MT group"), "H2": ("แถวหน้าของกลุ่ม ST", "Front of the ST group"),
              "ST": ("กลุ่ม ST ช่องฝั่งใต้ (ตะวันตกเฉียงใต้ → ตะวันออก)", "ST group: the southern sector (south-west → east)")}),
-     refs=[FR("p2-spiral-thrust", "biN5YkjijIs", 20, "อัศวิน 3 ตัวนอกสนามเตรียม Spiral Thrust: หาช่องปลอดภัย 2 ช่อง + จุดที่ Guerrique ยืน", "Three knights outside ready Spiral Thrust: find the two safe sectors + where Guerrique stands")])
+     refs=[FR("p2-spiral-thrust", "obcSv6lApD4", 9, "อัศวิน 3 ตัวนอกสนามเตรียม Spiral Thrust: หาช่องปลอดภัย 2 ช่อง + จุดที่ Guerrique ยืน", "Three knights outside ready Spiral Thrust: find the two safe sectors + where Guerrique stands")])
 step(P2, SW, "② Heavy Impact ลูกแรก", "② Heavy Impact, first hit",
      "Heavy Impact ลูกแรกลงพร้อม Spiral Thrust ทั้ง 3 และ Lightning Storm\n"
      "AoE ของ Heavy Impact จะกระจายเป็นวงออกไปเรื่อยๆ (ดูภาพถัดไป)\n"
@@ -116,7 +116,7 @@ step(P2, SW, "③ วงที่ 2 + อัศวิน 2 ตัวใกล้
      "Remember where these two are: they orient part 2\n"
      "Ignore the other knights",
      strict=False, pic="02/strength_of_the_ward_1_3.jpg", scene=S.sw1(3),
-     refs=[FR("p2-two-knights", "biN5YkjijIs", 40, "อัศวิน 2 ตัวโผล่ใกล้กลาง ห่างกัน 90 องศา: จำไว้ใช้หาทิศส่วนที่ 2", "Two knights near the middle, 90 degrees apart: remember them for part 2")])
+     refs=[FR("p2-two-knights", "obcSv6lApD4", 12, "อัศวิน 2 ตัวโผล่ใกล้กลาง ห่างกัน 90 องศา: จำไว้ใช้หาทิศส่วนที่ 2", "Two knights near the middle, 90 degrees apart: remember them for part 2")])
 step(P2, SW, "④ วงที่ 3 + stack 2 กลุ่ม", "④ Third ring + stack in two groups",
      "Heavy Impact วงที่ 3\n"
      "ตอนนี้ปาร์ตี้ควรอยู่ใกล้กลางแล้ว: stack เป็น 2 กลุ่ม ตรงข้ามกัน เพื่อล่อ Ascalon's Mercy Concealed จาก Thordan ที่กลางสนาม",
@@ -143,7 +143,7 @@ step(P2, SW, "ส่วนที่ 2: หาทิศจากอัศวิ�
      "Thordan teleports to 'north' relative to them\n"
      "The next pictures are turned so Thordan is at the top (Thordan = north)",
      strict=False,
-     refs=[FR("p2-thordan-north", "biN5YkjijIs", 60, "Thordan วาร์ปไป 'ทิศเหนือ' ของอัศวิน 2 ตัวกลางสนาม: ใช้ Thordan เป็นเหนือ", "Thordan teleports to 'north' of the two middle knights: use him as north")])
+     refs=[FR("p2-thordan-north", "obcSv6lApD4", 20, "Thordan วาร์ปไป 'ทิศเหนือ' ของอัศวิน 2 ตัวกลางสนาม: ใช้ Thordan เป็นเหนือ", "Thordan teleports to 'north' of the two middle knights: use him as north")])
 step(P2, SW, "⑥ Skyward Leap + สาย Tank", "⑥ Skyward Leap + the tank tethers",
      "ใช้ Thordan เป็นทิศเหนือ:\n"
      "3 คนสุ่ม (ไม่ใช่ Tank) โดนมาร์ก Skyward Leap สีน้ำเงิน: ไปตะวันตก / ตะวันออก / ใต้\n"
@@ -163,8 +163,7 @@ step(P2, SW, "⑥ Skyward Leap + สาย Tank", "⑥ Skyward Leap + the tank t
      "Tanks short on time: don't stand by the knights; wait north and let the tethered players bring the tethers (not being Skyward Leap targets, they head north anyway)",
      strict=["MT", "ST"], pic="02/strength_of_the_ward_2_1.jpg", scene=S.sw2(1),
      **SAYS({"MT": ("รับสายจากอัศวิน แล้วไขว้กับ ST", "Take a knight's tether and cross it with the ST"),
-             "ST": ("รับสายจากอัศวิน แล้วไขว้กับ MT", "Take a knight's tether and cross it with the MT")}),
-     refs=[FR("p2-tank-tethers", "biN5YkjijIs", 165, "สายของอัศวิน 2 เส้น: Tank 2 คนรับแล้วไขว้กัน", "The two knights' tethers: the tanks take and cross them")])
+             "ST": ("รับสายจากอัศวิน แล้วไขว้กับ MT", "Take a knight's tether and cross it with the MT")}))
 step(P2, SW, "⑦ บอก tower แล้วรวม stack", "⑦ Show your tower, then stack",
      "3 คน (ไม่ใช่ Tank) ที่อยู่กับ Thordan กระจายออกไปทาง tower ที่ตัวเองจะเหยียบสั้นๆ ให้คนอื่นเห็นว่าใครไป tower ไหน\n"
      "แล้วค่อยรวมกันตรงกลางเพื่อ stack",
@@ -185,7 +184,7 @@ step(P2, SW, "⑨ Tank โดน stun / ทุกคนเข้า tower", "⑨
      "Tank 2 คนโดน stun แล้วโดน Holy Bladedance\nคนอื่นทั้งหมดเข้า tower ของตัวเอง",
      "The two tanks are stunned and hit by Holy Bladedance\nEveryone else enters their tower",
      strict=False, pic="02/strength_of_the_ward_2_3.jpg", scene=S.sw2(3),
-     refs=[FR("p2-strength-towers", "biN5YkjijIs", 100, "tower 6 ลูก: ทุกคนที่ไม่ใช่ Tank เข้า tower ของตัวเอง", "Six towers: every non-tank takes their own")])
+     refs=[FR("p2-strength-towers", "obcSv6lApD4", 29, "tower 6 ลูก (เสาแสงในวงสีส้ม): ทุกคนที่ไม่ใช่ Tank เข้า tower ของตัวเอง", "Six towers (light pillars in orange rings): every non-tank takes their own")])
 step(P2, "Ancient Quaga", "Ancient Quaga → Heavenly Heel → Ascalon's Might x3", "Ancient Quaga → Heavenly Heel → Ascalon's Might x3",
      "Thordan กลับมากลางสนามแล้วร่าย Ancient Quaga (raid-wide)\n"
      "mitigate: MT Reprisal, ST 90s, H2 30s, D4\n"
@@ -224,7 +223,7 @@ step(P2, SS, "กฎ: DRK-relative + role adjust", "Rules: DRK-relative, role ad
      "(e.g. D3 gets the 2 sword → D4 swaps to group 1)\n"
      "The swap keeps one healer and four players in each group: least damage per group, with time to heal between its two hits",
      strict=False,
-     refs=[FR("p2-sacred-sever", "GK96pk2c1Nc", 20, "Sacred Sever: อัศวิน 2 ตัวกลางสนาม (ดูทิศที่หัน) + DRK ที่ทิศเฉียง + ดาบบนหัว 2 คน", "Sacred Sever: two middle knights (note the facing) + the DRK at an intercardinal + two sword markers")])
+     refs=[FR("p2-sacred-sever", "GK96pk2c1Nc", 7, "Sacred Sever: อัศวิน 2 ตัวกลางสนาม (ดูทิศที่หัน) + DRK ที่ทิศเฉียง + ดาบบนหัว 2 คน", "Sacred Sever: two middle knights (note the facing) + the DRK at an intercardinal + two sword markers")])
 for cw in (True, False):
     w = "ตามเข็ม" if cw else "ทวนเข็ม"
     we = "clockwise" if cw else "anti-clockwise"
@@ -306,7 +305,7 @@ step(P2, MT_, "② ทิ้งน้ำแข็ง แล้วไป tower", 
      "none: adjust to take any inside tower left\n\n"
      "Before stacking in pairs, drift towards the tower you'll take to show the others, especially N/S, to avoid a cursed set-up",
      strict=True, pic="02/meteors_01_03.jpg", scene=S.met(1, 2),
-     refs=[FR("p2-sanctity-towers", "GK96pk2c1Nc", 80, "tower ชุดแรก: วงนอก 5–6 อัน + วงใน", "The first towers: five or six outside + some inside")])
+     refs=[FR("p2-sanctity-towers", "GK96pk2c1Nc", 30, "tower ชุดแรก: วงนอก 5–6 อัน + วงใน", "The first towers: five or six outside + some inside")])
 step(P2, MT_, "③ Meteor ตกตามเข็ม / tower ชุดแรก", "③ Meteors clockwise / the first towers",
      "tower ชุดแรกลง Meteor 7 ลูกตกทีละลูกใส่ 2 คนที่โดนมาร์ก: Meteor 2 ลูกห้ามตกใกล้กัน ไม่งั้น wipe\n"
      "พร้อมกัน tower 8 อันโผล่วงนอก ทั้ง 8 ทิศ\n\n"
