@@ -88294,6 +88294,17 @@
   },
   "ultimates": [
    {
+    "zone": "Dancing Mad",
+    "zone_id": 76,
+    "expansion": "Dawntrail",
+    "encounter_id": 1085,
+    "name": "Dancing Mad",
+    "best": 23,
+    "kills": 1,
+    "job": "Machinist",
+    "cleared": true
+   },
+   {
     "zone": "Futures Rewritten",
     "zone_id": 65,
     "expansion": "Dawntrail",
@@ -91591,7 +91602,7 @@
      "name": "Vamp Fatale",
      "best": 95,
      "median": 76,
-     "kills": 12,
+     "kills": 13,
      "job": "Reaper",
      "job_kills": {
       "Reaper": {
@@ -95331,7 +95342,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 61,
-    "kills": 7,
+    "kills": 9,
     "job": "Paladin",
     "cleared": true
    },
@@ -99789,7 +99800,7 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 27,
+    "pulls": 18,
     "last": "2026-11-18",
     "last_ts": 1795012651
    }
@@ -100664,31 +100675,7 @@
    }
   ],
   "legacy": [],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 101,
-    "name": "Vamp Fatale",
-    "kind": "savage",
-    "state": "cleared",
-    "pct": null,
-    "phase": 0,
-    "pulls": 1,
-    "last": "2026-11-24",
-    "last_ts": 1795542062
-   },
-   {
-    "encounter_id": 103,
-    "name": "The Tyrant",
-    "kind": "savage",
-    "state": "learning",
-    "pct": 60.58,
-    "phase": 0,
-    "pulls": 2,
-    "last": "2026-11-26",
-    "last_ts": 1795711852
-   }
-  ]
+  "_status": "ok"
  },
  "24755039": {
   "current": {
@@ -100982,6 +100969,58 @@
       "job": "Reaper"
      }
     ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 86,
+      "median": 57,
+      "kills": 26,
+      "job": "Dancer"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 81,
+      "median": 37,
+      "kills": 23,
+      "job": "Dancer"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 69,
+      "median": 28,
+      "kills": 22,
+      "job": "Dancer"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 66,
+      "median": 21,
+      "kills": 24,
+      "job": "Dancer"
+     },
+     {
+      "label": null,
+      "encounter_id": 77,
+      "name": "Oracle of Darkness",
+      "best": 82,
+      "median": 44,
+      "kills": 11,
+      "job": "Dancer"
+     }
+    ]
    }
   ],
   "_status": "ok"
@@ -101243,6 +101282,31 @@
       "median": 48,
       "kills": 10,
       "job": "Summoner"
+     }
+    ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 83,
+      "median": 73,
+      "kills": 4,
+      "job": "WhiteMage"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 75,
+      "median": 71,
+      "kills": 3,
+      "job": "WhiteMage"
      }
     ]
    }
@@ -101567,8 +101631,451 @@
       "job": "Dancer"
      }
     ]
+   },
+   {
+    "zone": "Eden's Promise",
+    "zone_id": 38,
+    "expansion": "Shadowbringers",
+    "encounters": [
+     {
+      "label": "E9S",
+      "encounter_id": 73,
+      "name": "Cloud of Darkness",
+      "best": 69,
+      "median": 52,
+      "kills": 10,
+      "job": "Dancer"
+     },
+     {
+      "label": "E10S",
+      "encounter_id": 74,
+      "name": "Shadowkeeper",
+      "best": 56,
+      "median": 25,
+      "kills": 4,
+      "job": "Dancer"
+     },
+     {
+      "label": "E11S",
+      "encounter_id": 75,
+      "name": "Fatebreaker",
+      "best": 35,
+      "median": 35,
+      "kills": 2,
+      "job": "Dancer"
+     },
+     {
+      "label": "E12S",
+      "encounter_id": 76,
+      "name": "Eden's Promise",
+      "best": 12,
+      "median": 12,
+      "kills": 1,
+      "job": "DarkKnight"
+     }
+    ]
    }
   ],
   "_status": "ok"
+ },
+ "55194360": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "encounter_id": 101,
+     "name": "Vamp Fatale",
+     "best": 64,
+     "median": 30,
+     "kills": 23,
+     "job": "Dancer"
+    },
+    {
+     "label": "M10S",
+     "encounter_id": 102,
+     "name": "Red Hot and Deep Blue",
+     "best": 57,
+     "median": 27,
+     "kills": 19,
+     "job": "Paladin"
+    },
+    {
+     "label": "M11S",
+     "encounter_id": 103,
+     "name": "The Tyrant",
+     "best": 57,
+     "median": 24,
+     "kills": 17,
+     "job": "Paladin"
+    },
+    {
+     "label": "M12S-1",
+     "encounter_id": 104,
+     "name": "Lindwurm",
+     "best": 34,
+     "median": 9,
+     "kills": 18,
+     "job": "Paladin"
+    },
+    {
+     "label": "M12S-2",
+     "encounter_id": 105,
+     "name": "Lindwurm II",
+     "best": 42,
+     "median": 20,
+     "kills": 12,
+     "job": "Paladin"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Futures Rewritten",
+    "zone_id": 65,
+    "expansion": "Dawntrail",
+    "encounter_id": 1079,
+    "name": "Futures Rewritten",
+    "best": 81,
+    "kills": 2,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "encounter_id": 1075,
+    "name": "The Epic of Alexander",
+    "best": 27,
+    "kills": 11,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "encounter_id": 1074,
+    "name": "The Weapon's Refrain",
+    "best": 36,
+    "kills": 15,
+    "job": "Sage",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1083,
+    "name": "Doomtrain",
+    "best": 86,
+    "kills": 103,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1084,
+    "name": "Enuo",
+    "best": 54,
+    "kills": 38,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1082,
+    "name": "Guardian Arkveld",
+    "best": 74,
+    "kills": 39,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1081,
+    "name": "Necron",
+    "best": 50,
+    "kills": 20,
+    "job": "Paladin",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1080,
+    "name": "Zelenia",
+    "best": 65,
+    "kills": 47,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1078,
+    "name": "Queen Eternal",
+    "best": 54,
+    "kills": 11,
+    "job": "WhiteMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1071,
+    "name": "Valigarmanda",
+    "best": 71,
+    "kills": 13,
+    "job": "Dancer",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1072,
+    "name": "Zoraal Ja",
+    "best": 52,
+    "kills": 4,
+    "job": "Paladin",
+    "cleared": true
+   }
+  ],
+  "legacy": [],
+  "_status": "ok"
+ },
+ "37623524": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [
+    {
+     "label": "M9S",
+     "encounter_id": 101,
+     "name": "Vamp Fatale",
+     "best": 97,
+     "median": 65,
+     "kills": 7,
+     "job": "Monk"
+    },
+    {
+     "label": "M10S",
+     "encounter_id": 102,
+     "name": "Red Hot and Deep Blue",
+     "best": 69,
+     "median": 52,
+     "kills": 6,
+     "job": "Monk"
+    },
+    {
+     "label": "M11S",
+     "encounter_id": 103,
+     "name": "The Tyrant",
+     "best": 57,
+     "median": 57,
+     "kills": 8,
+     "job": "Reaper"
+    },
+    {
+     "label": "M12S-1",
+     "encounter_id": 104,
+     "name": "Lindwurm",
+     "best": 93,
+     "median": 58,
+     "kills": 20,
+     "job": "Monk"
+    },
+    {
+     "label": "M12S-2",
+     "encounter_id": 105,
+     "name": "Lindwurm II",
+     "best": 69,
+     "median": 50,
+     "kills": 11,
+     "job": "Monk"
+    }
+   ],
+   "clears": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ]
+  },
+  "ultimates": [
+   {
+    "zone": "Futures Rewritten",
+    "zone_id": 65,
+    "expansion": "Dawntrail",
+    "encounter_id": 1079,
+    "name": "Futures Rewritten",
+    "best": 56,
+    "kills": 1,
+    "job": "Monk",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "encounter_id": 1062,
+    "name": "The Epic of Alexander",
+    "best": 81,
+    "kills": 5,
+    "job": "Dragoon",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "encounter_id": 1060,
+    "name": "The Unending Coil of Bahamut",
+    "best": 68,
+    "kills": 6,
+    "job": "Warrior",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 43,
+    "expansion": "Endwalker",
+    "encounter_id": 1061,
+    "name": "The Weapon's Refrain",
+    "best": 76,
+    "kills": 8,
+    "job": "Samurai",
+    "cleared": true
+   }
+  ],
+  "extremes": [
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1083,
+    "name": "Doomtrain",
+    "best": 66,
+    "kills": 27,
+    "job": "RedMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1084,
+    "name": "Enuo",
+    "best": 92,
+    "kills": 29,
+    "job": "Monk",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1082,
+    "name": "Guardian Arkveld",
+    "best": 90,
+    "kills": 11,
+    "job": "BlackMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1081,
+    "name": "Necron",
+    "best": 91,
+    "kills": 7,
+    "job": "Monk",
+    "cleared": true
+   },
+   {
+    "zone": "Trials II (Extreme)",
+    "zone_id": 67,
+    "expansion": "Dawntrail",
+    "encounter_id": 1080,
+    "name": "Zelenia",
+    "best": 81,
+    "kills": 5,
+    "job": "RedMage",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1078,
+    "name": "Queen Eternal",
+    "best": 84,
+    "kills": 23,
+    "job": "Viper",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1071,
+    "name": "Valigarmanda",
+    "best": 84,
+    "kills": 45,
+    "job": "Samurai",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1072,
+    "name": "Zoraal Ja",
+    "best": 65,
+    "kills": 53,
+    "job": "RedMage",
+    "cleared": true
+   }
+  ],
+  "legacy": [],
+  "_status": "ok",
+  "progress": [
+   {
+    "encounter_id": 1079,
+    "name": "Futures Rewritten",
+    "kind": "ultimate",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 12,
+    "last": "2026-11-22",
+    "last_ts": 1795353180
+   }
+  ]
  }
 }

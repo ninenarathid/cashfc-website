@@ -11,7 +11,7 @@
    "rare_achv": 309,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2b54b09a32d068d141760a4b19bdc9a1_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1795361669",
-   "collect_seen": "2026-11-27",
+   "collect_seen": "2026-11-28",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -34,8 +34,9 @@
    },
    "parse": 99,
    "savage_kills": 5,
-   "ult_clears": 6,
+   "ult_clears": 7,
    "ult_cleared": [
+    "Dancing Mad",
     "Dragonsong's Reprise",
     "Futures Rewritten",
     "The Epic of Alexander",
@@ -107,10 +108,10 @@
    },
    "job_scores": {
     "Machinist": {
-     "fights": 18,
-     "kills": 92,
-     "parse": 86.1,
-     "score": 86.1,
+     "fights": 19,
+     "kills": 93,
+     "parse": 85.1,
+     "score": 85.1,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -220,7 +221,7 @@
     }
    },
    "fflogs": "ok",
-   "stats_seen": "2026-11-27",
+   "stats_seen": "2026-11-28",
    "lode_achv_public": true
   },
   "31441339": {
@@ -234,7 +235,7 @@
    "rare_achv": 139,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/5b3772ec015101e35a60cf888f38819c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1790857539",
-   "collect_seen": "2026-11-27",
+   "collect_seen": "2026-11-28",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -455,7 +456,7 @@
     }
    },
    "fflogs": "ok",
-   "stats_seen": "2026-11-27",
+   "stats_seen": "2026-11-28",
    "lode_achv_public": true
   },
   "42349146": {
@@ -469,7 +470,7 @@
    "rare_achv": 12,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/577bf4ba4fa9e8ea4340f73d7795646c_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788437435",
-   "collect_seen": "2026-11-27",
+   "collect_seen": "2026-11-28",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -571,7 +572,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-11-27"
+   "stats_seen": "2026-11-28"
   },
   "27788858": {
    "name": "Stole Your'cat",
@@ -584,7 +585,7 @@
    "rare_achv": 110,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/7bb2fdba184854ee21a86278a36f8425_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788521581",
-   "collect_seen": "2026-11-27",
+   "collect_seen": "2026-11-28",
    "tags": [
     "prog",
     "extreme",
@@ -638,7 +639,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-11-27"
+   "stats_seen": "2026-11-28"
   },
   "49339655": {
    "name": "Kaozuai Xino",
@@ -651,7 +652,7 @@
    "rare_achv": 34,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/4203c340e98d92d7d1e82849bb2343dc_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788823240",
-   "collect_seen": "2026-11-27",
+   "collect_seen": "2026-11-28",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -734,7 +735,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-11-27"
+   "stats_seen": "2026-11-28"
   },
   "48097900": {
    "name": "Neyrah's Yvaine",
@@ -747,7 +748,7 @@
    "rare_achv": 188,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/2b65dc8ec0acac559a0d0c32f22e422e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788597267",
-   "collect_seen": "2026-11-27",
+   "collect_seen": "2026-11-28",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -966,7 +967,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-11-27"
+   "stats_seen": "2026-11-28"
   },
   "31445625": {
    "name": "Empress Killer",
@@ -979,7 +980,7 @@
    "rare_achv": 250,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/6b749ce568de49ca3c89294f4cca8fcc_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1791333362",
-   "collect_seen": "2026-11-27",
+   "collect_seen": "2026-11-28",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -1137,7 +1138,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-11-27"
+   "stats_seen": "2026-11-28"
   },
   "58744659": {
    "name": "Laira Thalor",
@@ -1150,7 +1151,7 @@
    "rare_achv": 85,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/258b10ee99a778ff735c30a38c9cadaf_3ea38e723c590aabf186367e1eb7e6a1fl0.jpg?1792141370",
-   "collect_seen": "2026-11-27",
+   "collect_seen": "2026-11-28",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -1223,7 +1224,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-11-27"
+   "stats_seen": "2026-11-28"
   },
   "43284378": {
    "name": "Busy Party",
@@ -1372,13 +1373,13 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-11-27",
+   "stats_seen": "2026-11-28",
    "mounts": 114,
    "minions": 328,
    "rare_achv": 120,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/ab848575d89650a2e7b9bbdbe03c3bd2_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788909336",
-   "collect_seen": "2026-11-27"
+   "collect_seen": "2026-11-28"
   },
   "36219974": {
    "name": "Hirano Neko",
@@ -1447,13 +1448,13 @@
    },
    "fflogs": "ok",
    "lode_achv_public": false,
-   "stats_seen": "2026-11-27",
+   "stats_seen": "2026-11-28",
    "mounts": 63,
    "minions": 125,
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/c063713cb285b373e0c3528d7f4f77cf_32d8c9c7cd5f62d62da2d31b6750a680fl0.jpg?1789860988",
-   "collect_seen": "2026-11-27"
+   "collect_seen": "2026-11-28"
   },
   "39752663": {
    "name": "Lumina Z'attano",
@@ -1466,7 +1467,7 @@
    "rare_achv": 162,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/b1d1b92d1d4bd18d3ae30688c75ae2b4_32d8c9c7cd5f62d62da2d31b6750a680fl0.jpg?1789847726",
-   "collect_seen": "2026-11-27",
+   "collect_seen": "2026-11-28",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -1536,7 +1537,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-11-27"
+   "stats_seen": "2026-11-28"
   },
   "35413272": {
    "name": "Poppy Lydian",
@@ -1549,7 +1550,7 @@
    "rare_achv": 94,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/c75efbacfe909f9178cff11b30c45881_32d8c9c7cd5f62d62da2d31b6750a680fl0_640x873.jpg?1703812193",
-   "collect_seen": "2026-11-27",
+   "collect_seen": "2026-11-28",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -1586,7 +1587,7 @@
     "Zelenia",
     "Zoraal Ja"
    ],
-   "ex_kills": 148,
+   "ex_kills": 150,
    "current_clears": [
     true,
     true,
@@ -1600,7 +1601,7 @@
    "job_top": {
     "job": "Paladin",
     "fights": 45,
-    "kills": 948,
+    "kills": 950,
     "parse": 99.3,
     "score": 99.3,
     "tier": "legendary",
@@ -1609,7 +1610,7 @@
    "job_scores": {
     "Paladin": {
      "fights": 45,
-     "kills": 948,
+     "kills": 950,
      "parse": 99.3,
      "score": 99.3,
      "tier": "legendary",
@@ -1626,7 +1627,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-11-27"
+   "stats_seen": "2026-11-28"
   },
   "22590312": {
    "name": "Siegcross Avalontear",
@@ -1639,7 +1640,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/1ef3f82691dbf69c4e810e8b2760948a_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1703816967",
-   "collect_seen": "2026-11-27",
+   "collect_seen": "2026-11-28",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -1750,7 +1751,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": false,
-   "stats_seen": "2026-11-27"
+   "stats_seen": "2026-11-28"
   },
   "10769690": {
    "name": "Monkey Pub",
@@ -1763,7 +1764,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/4be2ced3bf1aaebff13db1ad29192cae_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1737332168",
-   "collect_seen": "2026-11-27",
+   "collect_seen": "2026-11-28",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -1863,7 +1864,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": false,
-   "stats_seen": "2026-11-27"
+   "stats_seen": "2026-11-28"
   },
   "61997211": {
    "name": "Punipi Puni",
@@ -1876,7 +1877,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/5d6b8ec993a1d8842956fd046802e468_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1788505017",
-   "collect_seen": "2026-11-27",
+   "collect_seen": "2026-11-28",
    "tags": [
     "private"
    ],
@@ -1904,7 +1905,7 @@
    "job_scores": {},
    "fflogs": "none",
    "lode_achv_public": false,
-   "stats_seen": "2026-11-27"
+   "stats_seen": "2026-11-28"
   },
   "25854820": {
    "name": "Lex Snow",
@@ -1917,7 +1918,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/a9667651d2b575123b1332b9f98bcbb9_7bb6b1e488f0e4f01c5314d010b60f31fl0_640x873.jpg?1701269797",
-   "collect_seen": "2026-11-27",
+   "collect_seen": "2026-11-28",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -2026,7 +2027,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": false,
-   "stats_seen": "2026-11-27"
+   "stats_seen": "2026-11-28"
   },
   "39850923": {
    "name": "Hiro Hikari",
@@ -2039,7 +2040,7 @@
    "rare_achv": 66,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/c2679701c5ab42ceda12e9d8d2659cdd_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1787752135",
-   "collect_seen": "2026-11-27",
+   "collect_seen": "2026-11-28",
    "tags": [
     "extreme",
     "explorer"
@@ -2081,7 +2082,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": true,
-   "stats_seen": "2026-11-27"
+   "stats_seen": "2026-11-28"
   },
   "50581858": {
    "name": "Lazz Chayenz",
@@ -2116,13 +2117,13 @@
    "job_scores": {},
    "fflogs": "none",
    "lode_achv_public": true,
-   "stats_seen": "2026-11-27",
+   "stats_seen": "2026-11-28",
    "mounts": 27,
    "minions": 30,
    "rare_achv": 0,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/ca3de0aac064f0097abc4b5b501f8c7e_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1794449896",
-   "collect_seen": "2026-11-27"
+   "collect_seen": "2026-11-28"
   },
   "31617286": {
    "name": "Dahlia Neredras",
@@ -2135,7 +2136,7 @@
    "rare_achv": 0,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/e511b96486aed321f8d6b03628c2479d_fcb1f5b0249d1069e5bdc66d0796f26afl0.jpg?1794450721",
-   "collect_seen": "2026-11-27",
+   "collect_seen": "2026-11-28",
    "tags": [
     "casual"
    ],
@@ -2163,7 +2164,7 @@
    "job_scores": {},
    "fflogs": "none",
    "lode_achv_public": true,
-   "stats_seen": "2026-11-27"
+   "stats_seen": "2026-11-28"
   },
   "62837583": {
    "name": "Crist Allen",
@@ -2192,13 +2193,13 @@
    "job_scores": {},
    "fflogs": "none",
    "lode_achv_public": false,
-   "stats_seen": "2026-11-27",
+   "stats_seen": "2026-11-28",
    "mounts": 0,
    "minions": 0,
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/ca4283e7e8008dd4ffdcfd196fbfc447_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1794533916",
-   "collect_seen": "2026-11-27"
+   "collect_seen": "2026-11-28"
   },
   "19335436": {
    "name": "Haruto Munogatari",
@@ -2211,7 +2212,7 @@
    "rare_achv": null,
    "ach_public": false,
    "portrait": "https://img2.finalfantasyxiv.com/f/3bf5ac305616ba3d45608e11364b4f9b_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1786773677",
-   "collect_seen": "2026-11-27",
+   "collect_seen": "2026-11-28",
    "tags": [
     "tier-clear",
     "extreme"
@@ -2250,7 +2251,7 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 27,
+    "pulls": 18,
     "last": "2026-11-18",
     "last_ts": 1795012651
    },
@@ -2262,7 +2263,7 @@
      "state": "cleared",
      "pct": null,
      "phase": 0,
-     "pulls": 27,
+     "pulls": 18,
      "last": "2026-11-18",
      "last_ts": 1795012651
     }
@@ -2280,7 +2281,7 @@
    },
    "fflogs": "ok",
    "lode_achv_public": false,
-   "stats_seen": "2026-11-27"
+   "stats_seen": "2026-11-28"
   },
   "47138225": {
    "name": "Xenobius Caliburn",
@@ -2302,7 +2303,7 @@
     "The Epic of Alexander",
     "The Weapon's Refrain"
    ],
-   "ult_achv": null,
+   "ult_achv": [],
    "ult_achv_only": [],
    "legacy_clears": 0,
    "ex_cleared": [
@@ -2394,8 +2395,14 @@
     }
    },
    "fflogs": "ok",
-   "lode_achv_public": null,
-   "stats_seen": "2026-11-27"
+   "lode_achv_public": false,
+   "stats_seen": "2026-11-28",
+   "mounts": 62,
+   "minions": 82,
+   "rare_achv": null,
+   "ach_public": false,
+   "portrait": "https://img2.finalfantasyxiv.com/f/8a3ab4d1335f4b70fa2400456b0a5cac_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1795751356",
+   "collect_seen": "2026-11-28"
   },
   "40229090": {
    "name": "Ichika Mano",
@@ -2408,7 +2415,7 @@
    "rare_achv": 184,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/e679ad376178e4d8f1f22a013ee299ab_72c48f093f2278ac3243962d3eb6a8d7fl0.jpg?1795702892",
-   "collect_seen": "2026-11-27",
+   "collect_seen": "2026-11-28",
    "tags": [
     "prog",
     "extreme",
@@ -2475,8 +2482,8 @@
     }
    },
    "fflogs": "ok",
-   "lode_achv_public": null,
-   "stats_seen": "2026-11-27"
+   "lode_achv_public": true,
+   "stats_seen": "2026-11-28"
   },
   "52105119": {
    "name": "Mizuiro Yoshikuni",
@@ -2485,14 +2492,14 @@
    "fc": "tea time c:",
    "seen": "2026-11-26",
    "tags": [
-    "unknown"
+    "private"
    ],
    "achv_tiers": {},
    "parse": null,
    "savage_kills": 0,
    "ult_clears": 0,
    "ult_cleared": [],
-   "ult_achv": null,
+   "ult_achv": [],
    "ult_achv_only": [],
    "legacy_clears": 0,
    "ex_cleared": [],
@@ -2504,8 +2511,14 @@
    "job_top": null,
    "job_scores": {},
    "fflogs": "none",
-   "lode_achv_public": null,
-   "stats_seen": "2026-11-27"
+   "lode_achv_public": false,
+   "stats_seen": "2026-11-28",
+   "mounts": 46,
+   "minions": 148,
+   "rare_achv": null,
+   "ach_public": false,
+   "portrait": "https://img2.finalfantasyxiv.com/f/02af4f959de77566a3f47036a3f40888_7b33d33ae3ecb996f778a5f67a6a0af6fl0.jpg?1795749564",
+   "collect_seen": "2026-11-28"
   },
   "51612880": {
    "name": "Lily Aurielle",
@@ -2518,7 +2531,7 @@
    "rare_achv": 259,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/c16b8490ae3b74cd30cff26bcfb92926_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1794890005",
-   "collect_seen": "2026-11-27",
+   "collect_seen": "2026-11-28",
    "tags": [
     "ultimate",
     "prog",
@@ -2568,41 +2581,8 @@
     false
    ],
    "current_seen": true,
-   "progress": {
-    "encounter_id": 101,
-    "name": "Vamp Fatale",
-    "kind": "savage",
-    "state": "cleared",
-    "pct": null,
-    "phase": 0,
-    "pulls": 1,
-    "last": "2026-11-24",
-    "last_ts": 1795542062
-   },
-   "progress_all": [
-    {
-     "encounter_id": 101,
-     "name": "Vamp Fatale",
-     "kind": "savage",
-     "state": "cleared",
-     "pct": null,
-     "phase": 0,
-     "pulls": 1,
-     "last": "2026-11-24",
-     "last_ts": 1795542062
-    },
-    {
-     "encounter_id": 103,
-     "name": "The Tyrant",
-     "kind": "savage",
-     "state": "learning",
-     "pct": 60.58,
-     "phase": 0,
-     "pulls": 2,
-     "last": "2026-11-26",
-     "last_ts": 1795711852
-    }
-   ],
+   "progress": null,
+   "progress_all": null,
    "job_top": {
     "job": "Warrior",
     "fights": 5,
@@ -2671,8 +2651,8 @@
     }
    },
    "fflogs": "ok",
-   "lode_achv_public": null,
-   "stats_seen": "2026-11-27"
+   "lode_achv_public": true,
+   "stats_seen": "2026-11-28"
   },
   "24755039": {
    "name": "Ayleen Gravecliff",
@@ -2685,7 +2665,7 @@
    "rare_achv": 175,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/8461978f8e07473ecceacec768e30a20_72c48f093f2278ac3243962d3eb6a8d7fl0.jpg?1792737164",
-   "collect_seen": "2026-11-27",
+   "collect_seen": "2026-11-28",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -2720,7 +2700,7 @@
     "The Weapon's Refrain"
    ],
    "ult_achv_only": [],
-   "legacy_clears": 5,
+   "legacy_clears": 10,
    "ex_cleared": [
     "Doomtrain",
     "Enuo",
@@ -2761,17 +2741,17 @@
      "hardest": "ultimate"
     },
     "Dancer": {
-     "fights": 4,
-     "kills": 60,
-     "parse": 93.6,
-     "score": 93.6,
-     "tier": "legendary",
+     "fights": 9,
+     "kills": 166,
+     "parse": 91.0,
+     "score": 91.0,
+     "tier": "master",
      "hardest": "ultimate"
     }
    },
    "fflogs": "ok",
-   "lode_achv_public": null,
-   "stats_seen": "2026-11-27"
+   "lode_achv_public": true,
+   "stats_seen": "2026-11-28"
   },
   "30415195": {
    "name": "Tuffy Mouse",
@@ -2784,26 +2764,37 @@
    "rare_achv": 66,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/17a1ff4e63145f63fd41555962baeb7a_7bb6b1e488f0e4f01c5314d010b60f31fl0.jpg?1795749395",
-   "collect_seen": "2026-11-27",
+   "collect_seen": "2026-11-28",
    "tags": [
     "ultimate",
     "tier-clear",
-    "extreme"
+    "extreme",
+    "pvp"
    ],
    "achv_tiers": {},
    "parse": 100,
    "savage_kills": 5,
-   "ult_clears": 5,
+   "ult_clears": 6,
    "ult_cleared": [
     "Dragonsong's Reprise",
+    "Futures Rewritten",
     "The Epic of Alexander",
     "The Omega Protocol",
     "The Unending Coil of Bahamut",
     "The Weapon's Refrain"
    ],
-   "ult_achv": [],
-   "ult_achv_only": [],
-   "legacy_clears": 5,
+   "ult_achv": [
+    "Dragonsong's Reprise",
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Omega Protocol",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
+   "ult_achv_only": [
+    "Futures Rewritten"
+   ],
+   "legacy_clears": 7,
    "ex_cleared": [
     "Doomtrain",
     "Enuo",
@@ -2836,10 +2827,10 @@
    },
    "job_scores": {
     "WhiteMage": {
-     "fights": 7,
-     "kills": 106,
-     "parse": 95.5,
-     "score": 95.5,
+     "fights": 9,
+     "kills": 113,
+     "parse": 95.0,
+     "score": 95.0,
      "tier": "legendary",
      "hardest": "savage"
     },
@@ -2885,8 +2876,8 @@
     }
    },
    "fflogs": "ok",
-   "lode_achv_public": null,
-   "stats_seen": "2026-11-27"
+   "lode_achv_public": true,
+   "stats_seen": "2026-11-28"
   },
   "55792066": {
    "name": "Bamby Crush",
@@ -2903,7 +2894,7 @@
    "savage_kills": 5,
    "ult_clears": 0,
    "ult_cleared": [],
-   "ult_achv": null,
+   "ult_achv": [],
    "ult_achv_only": [],
    "legacy_clears": 0,
    "ex_cleared": [
@@ -2959,8 +2950,14 @@
     }
    },
    "fflogs": "ok",
-   "lode_achv_public": null,
-   "stats_seen": "2026-11-27"
+   "lode_achv_public": false,
+   "stats_seen": "2026-11-28",
+   "mounts": 83,
+   "minions": 173,
+   "rare_achv": null,
+   "ach_public": false,
+   "portrait": "https://img2.finalfantasyxiv.com/f/3b3aea22ade8d91698541c02b87b8e3a_3ea38e723c590aabf186367e1eb7e6a1fl0.jpg?1795749910",
+   "collect_seen": "2026-11-28"
   },
   "31658244": {
    "name": "Rayfinix Consolar",
@@ -2971,9 +2968,20 @@
    "tags": [
     "ultimate",
     "tier-clear",
-    "extreme"
+    "extreme",
+    "crafter",
+    "relic",
+    "explorer",
+    "treasure",
+    "goldsaucer"
    ],
-   "achv_tiers": {},
+   "achv_tiers": {
+    "crafter": "expert",
+    "relic": "legendary",
+    "explorer": "legendary",
+    "treasure": "expert",
+    "goldsaucer": "expert"
+   },
    "parse": 97,
    "savage_kills": 5,
    "ult_clears": 2,
@@ -2981,9 +2989,12 @@
     "The Epic of Alexander",
     "The Weapon's Refrain"
    ],
-   "ult_achv": null,
+   "ult_achv": [
+    "The Epic of Alexander",
+    "The Weapon's Refrain"
+   ],
    "ult_achv_only": [],
-   "legacy_clears": 3,
+   "legacy_clears": 7,
    "ex_cleared": [
     "Doomtrain",
     "Enuo",
@@ -3007,19 +3018,19 @@
    "progress_all": null,
    "job_top": {
     "job": "Dancer",
-    "fights": 16,
-    "kills": 248,
-    "parse": 86.2,
-    "score": 86.2,
+    "fights": 19,
+    "kills": 264,
+    "parse": 85.0,
+    "score": 85.0,
     "tier": "master",
     "hardest": "ultimate"
    },
    "job_scores": {
     "Dancer": {
-     "fights": 16,
-     "kills": 248,
-     "parse": 86.2,
-     "score": 86.2,
+     "fights": 19,
+     "kills": 264,
+     "parse": 85.0,
+     "score": 85.0,
      "tier": "master",
      "hardest": "ultimate"
     },
@@ -3038,31 +3049,274 @@
      "score": 61.3,
      "tier": "expert",
      "hardest": "extreme"
+    },
+    "DarkKnight": {
+     "fights": 1,
+     "kills": 1,
+     "parse": 15.0,
+     "score": 6.0,
+     "tier": null,
+     "hardest": "legacy"
     }
    },
    "fflogs": "ok",
-   "lode_achv_public": null,
-   "stats_seen": "2026-11-27",
+   "lode_achv_public": true,
+   "stats_seen": "2026-11-28",
    "mounts": 222,
    "minions": 436,
    "rare_achv": 370,
    "ach_public": true,
    "portrait": "https://img2.finalfantasyxiv.com/f/aaf7f684d9e445f7679af5488e5d977e_32d8c9c7cd5f62d62da2d31b6750a680fl0.jpg?1795750042",
-   "collect_seen": "2026-11-27"
+   "collect_seen": "2026-11-28"
   },
   "55194360": {
    "name": "Natsumeow Shironeko",
    "world": "Aegis",
    "dc": "Elemental",
    "fc": "The Etheirys",
-   "seen": "2026-11-27"
+   "seen": "2026-11-27",
+   "tags": [
+    "ultimate",
+    "tier-clear",
+    "extreme"
+   ],
+   "achv_tiers": {},
+   "parse": 86,
+   "savage_kills": 5,
+   "ult_clears": 3,
+   "ult_cleared": [
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Weapon's Refrain"
+   ],
+   "ult_achv": null,
+   "ult_achv_only": [],
+   "legacy_clears": 0,
+   "ex_cleared": [
+    "Doomtrain",
+    "Enuo",
+    "Guardian Arkveld",
+    "Necron",
+    "Queen Eternal",
+    "Valigarmanda",
+    "Zelenia",
+    "Zoraal Ja"
+   ],
+   "ex_kills": 275,
+   "current_clears": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "current_seen": true,
+   "progress": null,
+   "progress_all": null,
+   "job_top": {
+    "job": "Paladin",
+    "fights": 8,
+    "kills": 204,
+    "parse": 75.6,
+    "score": 75.6,
+    "tier": "expert",
+    "hardest": "ultimate"
+   },
+   "job_scores": {
+    "Dancer": {
+     "fights": 6,
+     "kills": 162,
+     "parse": 75.3,
+     "score": 75.3,
+     "tier": "expert",
+     "hardest": "ultimate"
+    },
+    "Paladin": {
+     "fights": 8,
+     "kills": 204,
+     "parse": 75.6,
+     "score": 75.6,
+     "tier": "expert",
+     "hardest": "ultimate"
+    },
+    "WhiteMage": {
+     "fights": 1,
+     "kills": 11,
+     "parse": 54.0,
+     "score": 34.5,
+     "tier": null,
+     "hardest": "extreme"
+    },
+    "Sage": {
+     "fights": 1,
+     "kills": 15,
+     "parse": 48.0,
+     "score": 32.5,
+     "tier": null,
+     "hardest": "ultimate"
+    }
+   },
+   "fflogs": "ok",
+   "lode_achv_public": null,
+   "stats_seen": "2026-11-28",
+   "mounts": 86,
+   "minions": 196,
+   "rare_achv": 110,
+   "ach_public": true,
+   "portrait": "https://img2.finalfantasyxiv.com/f/8db860f4ab53e2954df3cccbe00cefc4_3ea38e723c590aabf186367e1eb7e6a1fl0.jpg?1795834892",
+   "collect_seen": "2026-11-28"
   },
   "37623524": {
    "name": "Yukino Tsunomaki",
    "world": "Kujata",
    "dc": "Elemental",
    "fc": "U I AAA U I AAAA U I",
-   "seen": "2026-11-28"
+   "seen": "2026-11-28",
+   "mounts": 147,
+   "minions": 293,
+   "rare_achv": 136,
+   "ach_public": true,
+   "portrait": "https://img2.finalfantasyxiv.com/f/1eda71ece824859c93968625b574c86f_72c48f093f2278ac3243962d3eb6a8d7fl0.jpg?1795836595",
+   "collect_seen": "2026-11-28",
+   "tags": [
+    "ultimate",
+    "tier-clear",
+    "extreme"
+   ],
+   "achv_tiers": {},
+   "parse": 97,
+   "savage_kills": 5,
+   "ult_clears": 4,
+   "ult_cleared": [
+    "Futures Rewritten",
+    "The Epic of Alexander",
+    "The Unending Coil of Bahamut",
+    "The Weapon's Refrain"
+   ],
+   "ult_achv": [],
+   "ult_achv_only": [],
+   "legacy_clears": 0,
+   "ex_cleared": [
+    "Doomtrain",
+    "Enuo",
+    "Guardian Arkveld",
+    "Necron",
+    "Queen Eternal",
+    "Valigarmanda",
+    "Zelenia",
+    "Zoraal Ja"
+   ],
+   "ex_kills": 200,
+   "current_clears": [
+    true,
+    true,
+    true,
+    true,
+    true
+   ],
+   "current_seen": true,
+   "progress": {
+    "encounter_id": 1079,
+    "name": "Futures Rewritten",
+    "kind": "ultimate",
+    "state": "cleared",
+    "pct": null,
+    "phase": 0,
+    "pulls": 12,
+    "last": "2026-11-22",
+    "last_ts": 1795353180
+   },
+   "progress_all": [
+    {
+     "encounter_id": 1079,
+     "name": "Futures Rewritten",
+     "kind": "ultimate",
+     "state": "cleared",
+     "pct": null,
+     "phase": 0,
+     "pulls": 12,
+     "last": "2026-11-22",
+     "last_ts": 1795353180
+    }
+   ],
+   "job_top": {
+    "job": "Monk",
+    "fights": 7,
+    "kills": 81,
+    "parse": 95.8,
+    "score": 95.8,
+    "tier": "legendary",
+    "hardest": "ultimate"
+   },
+   "job_scores": {
+    "Monk": {
+     "fights": 7,
+     "kills": 81,
+     "parse": 95.8,
+     "score": 95.8,
+     "tier": "legendary",
+     "hardest": "ultimate"
+    },
+    "Reaper": {
+     "fights": 1,
+     "kills": 8,
+     "parse": 62.0,
+     "score": 37.3,
+     "tier": null,
+     "hardest": "savage"
+    },
+    "RedMage": {
+     "fights": 3,
+     "kills": 85,
+     "parse": 66.3,
+     "score": 62.6,
+     "tier": "expert",
+     "hardest": "extreme"
+    },
+    "BlackMage": {
+     "fights": 1,
+     "kills": 11,
+     "parse": 90.0,
+     "score": 57.6,
+     "tier": null,
+     "hardest": "extreme"
+    },
+    "Viper": {
+     "fights": 1,
+     "kills": 23,
+     "parse": 84.0,
+     "score": 61.5,
+     "tier": "expert",
+     "hardest": "extreme"
+    },
+    "Samurai": {
+     "fights": 2,
+     "kills": 53,
+     "parse": 85.4,
+     "score": 75.8,
+     "tier": "expert",
+     "hardest": "ultimate"
+    },
+    "Dragoon": {
+     "fights": 1,
+     "kills": 5,
+     "parse": 93.0,
+     "score": 50.8,
+     "tier": null,
+     "hardest": "ultimate"
+    },
+    "Warrior": {
+     "fights": 1,
+     "kills": 6,
+     "parse": 80.0,
+     "score": 45.4,
+     "tier": null,
+     "hardest": "ultimate"
+    }
+   },
+   "fflogs": "ok",
+   "lode_achv_public": null,
+   "stats_seen": "2026-11-28"
   }
  },
  "generated_at": "2026-11-28T01:28:15Z",
