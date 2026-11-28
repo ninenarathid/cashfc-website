@@ -5670,7 +5670,7 @@
   "mounts": 25,
   "minions": 115,
   "rare": null,
-  "level": 55,
+  "level": 56,
   "cc": [
    false,
    false,
@@ -5686,7 +5686,7 @@
   },
   "ex": [],
   "ults": [],
-  "chg": "2026-11-27"
+  "chg": "2026-11-28"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -6882,7 +6882,7 @@
   "mounts": 69,
   "minions": 125,
   "rare": 10,
-  "level": 61,
+  "level": 66,
   "cc": [
    false,
    false,
@@ -6996,7 +6996,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 76,
+  "level": 77,
   "cc": [
    false,
    false,
@@ -8582,7 +8582,7 @@
   "mounts": 9,
   "minions": 21,
   "rare": 2,
-  "level": 80,
+  "level": 81,
   "cc": [
    false,
    false,
@@ -8760,7 +8760,7 @@
   "mounts": 51,
   "minions": 208,
   "rare": 5,
-  "level": 86,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -9045,7 +9045,7 @@
   "mounts": 4,
   "minions": 7,
   "rare": null,
-  "level": 88,
+  "level": 89,
   "cc": [
    false,
    false,
@@ -9058,7 +9058,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-11-27"
+  "chg": "2026-11-28"
  },
  "44085912": {
   "name": "Mayu Ferguson",
@@ -14264,7 +14264,7 @@
   "mounts": 11,
   "minions": 43,
   "rare": null,
-  "level": 52,
+  "level": 53,
   "cc": [
    false,
    false,

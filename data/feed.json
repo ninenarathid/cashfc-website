@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-11-28",
+   "type": "level_100",
+   "id": 60429500,
+   "name": "Janna Minerva",
+   "text": "reached level 100 on Paladin!"
+  },
+  {
+   "date": "2026-11-28",
    "type": "rare_up",
    "id": 29152036,
    "name": "Fluffy Tinytail",
@@ -1392,13 +1399,6 @@
    "id": 47218599,
    "name": "Kawa Lynn",
    "text": "earned Phantom of the Umbra: Staff Umbrae, and 1 more"
-  },
-  {
-   "date": "2026-11-16",
-   "type": "level_100",
-   "id": 61489984,
-   "name": "Poly Umami",
-   "text": "reached level 100 on Paladin!"
   }
  ]
 }
